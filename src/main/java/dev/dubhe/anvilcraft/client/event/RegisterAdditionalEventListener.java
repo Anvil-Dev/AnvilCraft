@@ -30,7 +30,7 @@ public class RegisterAdditionalEventListener {
         event.register(standaloneBlock("axis"));
         event.register(standaloneBlock("advanced_comparator_indicator"));
         event.register(standaloneBlock("pulse_generator_indicator"));
-        event.register(standaloneBlock("pulse_generator_indicator_light"));
+        event.register(standaloneBlock("pulse_generator_indicator_overspeed"));
         event.register(standaloneBlock("infinite_collector_head"));
         event.register(CelestialForgingAnvilBlockEntityRenderer.R1);
         event.register(CelestialForgingAnvilBlockEntityRenderer.R2);

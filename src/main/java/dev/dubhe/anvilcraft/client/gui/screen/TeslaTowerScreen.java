@@ -103,11 +103,12 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         assert this.minecraft != null;
-        if (this.minecraft.options.keyInventory.matches(keyCode, scanCode)) {
-            return this.getFocused() != null && this.getFocused().keyPressed(keyCode, scanCode, modifiers);
-        } else {
-            return super.keyPressed(keyCode, scanCode, modifiers);
+        if (this.minecraft.options.keyInventory.matches(keyCode, scanCode)
+            && this.editBox != null
+            && this.editBox.isFocused()) {
+            return this.editBox.keyPressed(keyCode, scanCode, modifiers);
         }
+        return super.keyPressed(keyCode, scanCode, modifiers);
     }
 
     private void refreshFilterList() {
