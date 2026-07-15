@@ -18,6 +18,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class PowerGridManager {
     private final Map<Level, Set<PowerGrid>> gridMap = Collections.synchronizedMap(new HashMap<>());
     private final LinkedBlockingQueue<Map.Entry<Level, IPowerComponent>> addQueue = new LinkedBlockingQueue<>();
+    private final LinkedBlockingQueue<PowerGrid> gridAddQueue = new LinkedBlockingQueue<>();
 
     public PowerGridManager() {
     }
@@ -35,6 +36,10 @@ public class PowerGridManager {
         powerGrid.markedRemoval = true;
     }
 
+    public synchronized void addGrid(PowerGrid powerGrid) {
+        this.gridAddQueue.add(powerGrid);
+    }
+
     @SuppressWarnings("unused")
     public synchronized void removeAll(Collection<PowerGrid> powerGrids) {
         powerGrids.forEach(this::remove);
@@ -42,9 +47,12 @@ public class PowerGridManager {
 
     public void clear() {
         this.gridMap.clear();
+        this.addQueue.clear();
+        this.gridAddQueue.clear();
     }
 
     public synchronized void tick() {
+        this.addQueuedGrids();
         while (!this.addQueue.isEmpty()) {
             Map.Entry<Level, IPowerComponent> entry = this.addQueue.poll();
             if (entry == null) continue;
@@ -79,6 +87,14 @@ public class PowerGridManager {
                 powerGrid.tick();
             });
             grids.removeAll(remove);
+        }
+        this.addQueuedGrids();
+    }
+
+    private void addQueuedGrids() {
+        PowerGrid powerGrid;
+        while ((powerGrid = this.gridAddQueue.poll()) != null) {
+            this.getGridSet(powerGrid.getLevel()).add(powerGrid);
         }
     }
 

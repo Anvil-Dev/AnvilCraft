@@ -15,10 +15,14 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -51,6 +55,7 @@ public class PowerGrid {
     final Set<IPowerTransmitter> transmitters = Collections.synchronizedSet(new HashSet<>()); // 中继
     @Getter
     final Set<DynamicPowerComponent> dynamicComponents = Collections.synchronizedSet(new HashSet<>());
+    private final Map<IPowerComponent, Set<IPowerComponent>> connections = new HashMap<>();
 
     @Getter
     private @Nullable FastShape shape = null;
@@ -80,7 +85,7 @@ public class PowerGrid {
     }
 
     public int getComponentCount() {
-        return this.transmitters.size() + this.producers.size() + this.consumers.size() + this.storages.size();
+        return this.components.size();
     }
 
     public boolean isEmpty() {
@@ -210,18 +215,20 @@ public class PowerGrid {
     public void add(IPowerComponent... components) {
         for (IPowerComponent component : components) {
             if (component.getComponentType() == PowerComponentType.INVALID) continue;
+            if (this.components.contains(component)) continue;
+            this.connect(component);
             if (component instanceof IPowerStorage storage) {
                 this.storages.add(storage);
-                continue;
-            }
-            if (component instanceof IPowerProducer producer) {
-                this.producers.add(producer);
-            }
-            if (component instanceof IPowerConsumer consumer) {
-                this.consumers.add(consumer);
-            }
-            if (component instanceof IPowerTransmitter transmitter) {
-                this.transmitters.add(transmitter);
+            } else {
+                if (component instanceof IPowerProducer producer) {
+                    this.producers.add(producer);
+                }
+                if (component instanceof IPowerConsumer consumer) {
+                    this.consumers.add(consumer);
+                }
+                if (component instanceof IPowerTransmitter transmitter) {
+                    this.transmitters.add(transmitter);
+                }
             }
             component.setGrid(this);
             this.components.add(component);
@@ -229,6 +236,17 @@ public class PowerGrid {
         }
         this.flush();
         this.changed = true;
+    }
+
+    private void connect(IPowerComponent component) {
+        Set<IPowerComponent> neighbors = new HashSet<>();
+        AABB shape = component.getShape();
+        for (IPowerComponent other : this.components) {
+            if (!shape.intersects(other.getShape())) continue;
+            neighbors.add(other);
+            this.connections.computeIfAbsent(other, _ -> new HashSet<>()).add(component);
+        }
+        this.connections.put(component, neighbors);
     }
 
     private void addRange(IPowerComponent component) {
@@ -268,36 +286,144 @@ public class PowerGrid {
     ///
     /// @param components 电力元件
     public void remove(IPowerComponent... components) {
-        this.markedRemoval = true;
-        for (IPowerComponent component : this.components) {
-            component.setGrid(null);
-        }
-        final Set<IPowerComponent> set = new HashSet<>(this.components);
-        this.transmitters.clear();
-        this.storages.clear();
-        this.producers.clear();
-        this.consumers.clear();
-        this.components.clear();
+        Set<IPowerComponent> removed = new HashSet<>();
+        Set<IPowerComponent> boundary = new HashSet<>();
         for (IPowerComponent component : components) {
-            set.remove(component);
+            if (component.getGrid() != this) continue;
+            boundary.addAll(this.detach(component));
+            removed.add(component);
         }
-        PacketDistributor.sendToAllPlayers(new PowerGridRemovePacket(this));
-        PowerGrid.addComponent(set.toArray(IPowerComponent[]::new));
+        if (removed.isEmpty()) return;
+        if (this.components.isEmpty()) {
+            for (DynamicPowerComponent dynamicComponent : new ArrayList<>(this.dynamicComponents)) {
+                dynamicComponent.switchTo(null);
+            }
+            this.markedRemoval = true;
+            PacketDistributor.sendToAllPlayers(new PowerGridRemovePacket(this));
+            return;
+        }
+
+        boundary.removeAll(removed);
+        List<PowerGrid> affectedGrids = new ArrayList<>();
+        affectedGrids.add(this);
+        if (!this.isBoundaryConnected(boundary)) {
+            List<Set<IPowerComponent>> groups = this.findConnectedComponents();
+            groups.sort(Comparator.comparingInt(Set<IPowerComponent>::size).reversed());
+            groups.removeFirst();
+            for (Set<IPowerComponent> group : groups) {
+                for (IPowerComponent component : group) {
+                    this.detach(component);
+                }
+                PowerGrid powerGrid = new PowerGrid(this.level);
+                powerGrid.add(group.toArray(IPowerComponent[]::new));
+                MANAGER.addGrid(powerGrid);
+                affectedGrids.add(powerGrid);
+            }
+        }
+        this.pos = this.components.iterator().next().getPos();
+        this.reassignDynamicComponents(affectedGrids);
+        for (PowerGrid powerGrid : affectedGrids) {
+            powerGrid.flush();
+            powerGrid.changed = false;
+            PacketDistributor.sendToAllPlayers(new PowerGridSyncPacket(powerGrid));
+        }
     }
 
-    private boolean clearGrid(IPowerComponent component) {
+    private Set<IPowerComponent> detach(IPowerComponent component) {
+        Set<IPowerComponent> neighbors = this.connections.remove(component);
+        if (neighbors != null) {
+            for (IPowerComponent neighbor : neighbors) {
+                Set<IPowerComponent> connections = this.connections.get(neighbor);
+                if (connections != null) {
+                    connections.remove(component);
+                }
+            }
+        }
+        Objects.requireNonNull(this.shape).remove(component.getShape());
+        if (component instanceof IPowerStorage storage) {
+            this.storages.remove(storage);
+        } else {
+            if (component instanceof IPowerProducer producer) {
+                this.producers.remove(producer);
+            }
+            if (component instanceof IPowerConsumer consumer) {
+                this.consumers.remove(consumer);
+            }
+            if (component instanceof IPowerTransmitter transmitter) {
+                this.transmitters.remove(transmitter);
+            }
+        }
+        this.components.remove(component);
         component.setGrid(null);
-        return true;
+        return neighbors == null ? Set.of() : neighbors;
+    }
+
+    private boolean isBoundaryConnected(Set<IPowerComponent> boundary) {
+        if (boundary.size() <= 1) return true;
+        Set<IPowerComponent> targets = new HashSet<>(boundary);
+        Set<IPowerComponent> visited = new HashSet<>();
+        ArrayDeque<IPowerComponent> queue = new ArrayDeque<>();
+        IPowerComponent start = targets.iterator().next();
+        targets.remove(start);
+        visited.add(start);
+        queue.add(start);
+        while (!queue.isEmpty()) {
+            IPowerComponent component = queue.removeFirst();
+            for (IPowerComponent neighbor : this.connections.getOrDefault(component, Set.of())) {
+                if (!visited.add(neighbor)) continue;
+                if (targets.remove(neighbor) && targets.isEmpty()) {
+                    return true;
+                }
+                queue.addLast(neighbor);
+            }
+        }
+        return false;
+    }
+
+    private List<Set<IPowerComponent>> findConnectedComponents() {
+        Set<IPowerComponent> remaining = new HashSet<>(this.components);
+        List<Set<IPowerComponent>> groups = new ArrayList<>();
+        while (!remaining.isEmpty()) {
+            IPowerComponent start = remaining.iterator().next();
+            Set<IPowerComponent> group = new HashSet<>();
+            ArrayDeque<IPowerComponent> queue = new ArrayDeque<>();
+            queue.add(start);
+            remaining.remove(start);
+            while (!queue.isEmpty()) {
+                IPowerComponent component = queue.removeFirst();
+                group.add(component);
+                for (IPowerComponent neighbor : this.connections.getOrDefault(component, Set.of())) {
+                    if (remaining.remove(neighbor)) {
+                        queue.addLast(neighbor);
+                    }
+                }
+            }
+            groups.add(group);
+        }
+        return groups;
+    }
+
+    private void reassignDynamicComponents(List<PowerGrid> grids) {
+        for (DynamicPowerComponent component : new ArrayList<>(this.dynamicComponents)) {
+            PowerGrid target = null;
+            for (PowerGrid grid : grids) {
+                if (grid.collideFast(component.boundingBox())) {
+                    target = grid;
+                    break;
+                }
+            }
+            component.switchTo(target);
+        }
     }
 
     /// 将另一个电网合并至当前电网
     ///
     /// @param grid 电网
     public void merge(PowerGrid grid) {
-        grid.producers.forEach(this::add);
-        grid.consumers.forEach(this::add);
-        grid.storages.forEach(this::add);
-        grid.transmitters.forEach(this::add);
+        this.add(grid.components.toArray(IPowerComponent[]::new));
+        for (DynamicPowerComponent component : new ArrayList<>(grid.dynamicComponents)) {
+            component.switchTo(this);
+        }
         this.changed = true;
     }
 
