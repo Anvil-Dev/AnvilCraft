@@ -48,9 +48,10 @@ items:
 - 粉碎变成**掉落物**的方块，完成[方块粉碎](000_block_processing.md)的所有配方，但是存在 **20%** 的损耗
 - 对原版配方的[增产](../008_recipe/001_efficient_recipe.md)
 
+<row>
 <recipe id="anvilcraft:item_crush/armor/diamond_boots_2_diamond"/>
-
 <recipe id="anvilcraft:item_crush/string"/>
+</row>
 
 # 压缩
 
@@ -101,7 +102,7 @@ items:
 
 # 烹饪
 
-下方是<ref item="minecraft:cauldron"/>和<ref item="minecraft:campfire"/>时， 执行**物品膨发**操作，原料和产物都在锅中，有的配方需要水
+下方是<ref item="minecraft:cauldron"/>和<ref item="minecraft:campfire"/>时， 执行**烹饪**操作，原料和产物都在锅中，有的配方需要水
 
 <structure id="../../structures/cooking.snbt"/>
 

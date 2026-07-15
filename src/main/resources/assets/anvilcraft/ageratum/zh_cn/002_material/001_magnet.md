@@ -26,9 +26,9 @@ items:
 使用<ref item="anvilcraft:topaz"/>右键<ref item="minecraft:lightning_rod"/>，会消耗<ref item="anvilcraft:topaz"/>并立刻制造一道闪电
 </tip>
 
-默认的雷击转化磁铁块范围如下
+默认的雷击转化<ref item="anvilcraft:hollow_magnet_block"/>范围为 3x3x3 :
 
-<structure id="../../structures/lightning_convert_magnets.snbt"/>
+<structure id="../../structures/lightning_convert_magnets.nbt"/>
 
 <row halign="center">
 <recipe id="anvilcraft:magnet_ingot_from_hollow_block"/>
@@ -49,7 +49,7 @@ items:
 # 磁效应
 - <ref item="anvilcraft:magnet_block"/>、<ref item="anvilcraft:ferrite_core_magnet_block"/>、<ref item="anvilcraft:hollow_magnet_block"/>可以吸引正下方5格内的各种铁砧
 - 收到红石信号消磁 
-- 反复激活，可以将铁砧抬起再砸下
+- 反复激活，可以将*铁砧*抬起再砸下
 
 # 电磁效应
 具有发电能力后，可利用<ref item="anvilcraft:charger"/>，

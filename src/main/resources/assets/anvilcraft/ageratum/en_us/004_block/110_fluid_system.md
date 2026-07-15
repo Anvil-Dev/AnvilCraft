@@ -29,7 +29,7 @@ items:
 
 ## <ref item="minecraft:cauldron"/> Support
 
-- Pipes support <ref item="minecraft:cauldron"/>, but <ref item="minecraft:cauldron"/> is special because it has layered (250mB) or full cauldron (1000mB) states, requiring the pipe to input a sufficient amount of fluid in 1gt to successfully inject, i.e.: input speed > 250mB/t or input speed > 1000mB/t
+- Pipes support <ref item="minecraft:cauldron"/>, but <ref item="minecraft:cauldron"/> is special, only allowing a full bucket (1000mB) of fluid to be inserted or extracted at once
 
 # Flowing Upstream
 

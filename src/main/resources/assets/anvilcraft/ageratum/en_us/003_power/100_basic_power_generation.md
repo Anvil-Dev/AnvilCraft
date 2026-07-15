@@ -30,7 +30,7 @@ The <ref item="anvilcraft:charge_collector"/> is the core component of power gen
 
 The following block behaviors generate charges:
 
-- <ref item="minecraft:anvil"/> falling onto <ref item="anvilcraft:piezoelectric_crystal"/>
+- <ref item="minecraft:anvil"/> falling onto <ref item="anvilcraft:piezoelectric_crystal"/> (commonly used) or <ref item="anvilcraft:sugar_block"/>
 - A piston pushing or pulling <ref item="anvilcraft:magnet_block"/> adjacent to <ref item="minecraft:copper_block"/>
 - <ref item="minecraft:lightning_rod"/> being struck by lightning.
 

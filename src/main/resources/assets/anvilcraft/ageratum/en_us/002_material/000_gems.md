@@ -29,19 +29,24 @@ items:
 
 # Gems
 
-In addition to <ref item="minecraft:emerald"/>, the mod adds:
+In addition to <ref item="minecraft:emerald"/>, the mod adds more gems:
 
-- <ref item="anvilcraft:ruby"/> representing the fire element, right-click on <ref item="minecraft:stone"/> to produce *lava* and <ref item="minecraft:magma_block"/>
-- <ref item="anvilcraft:sapphire"/> representing the water element, right-click on *water* or *air* to produce <ref item="minecraft:ice"/> or <ref item="minecraft:magma_block"/>
-- <ref item="anvilcraft:topaz"/> representing the lightning element, right-click on <ref item="minecraft:lightning_rod"/> to produce *lightning*
+| Gem | Properties |
+|-----------------------------------------|----------------------------------------------------------------------------------|
+| <ref item="anvilcraft:ruby"/> representing the fire element | Right-click on <ref item="minecraft:stone"/> to produce *lava* and <ref item="minecraft:magma_block"/> |
+| <ref item="anvilcraft:sapphire"/> representing the water element | Standing in *water* produces <ref item="minecraft:ice"/>; standing in *air* produces <ref item="minecraft:snow"/> |
+| <ref item="anvilcraft:topaz"/> representing the lightning element | Right-click on <ref item="minecraft:lightning_rod"/> to produce *lightning* |
 
 Together with <ref item="minecraft:emerald"/>, these are collectively referred to as *gems*.
 
 ## First Acquisition
 
-[Stamping Geodes](../006_prop/003_geode.md) has a chance to yield the 3 gems added by the mod
+Processing [Geodes](../006_prop/003_geode.md) has a chance to yield the 3 gems added by the mod
 
+<row>
 <recipe id="anvilcraft:stamping/geode_gems"/>
+<recipe id="anvilcraft:item_crush/geode_gems"/>
+</row>
 
 ## Mass Production
 

@@ -86,7 +86,7 @@ items:
 
 ## 产火山灰
 
-<structure id="../structures/mineral_fountain/cinerite.snbt"/>
+<structure id="../../structures/mineral_fountain/cinerite.snbt"/>
 
 - 其他结构都不满足时，<ref item="anvilcraft:mineral_fountain"/>在上方生成<ref item="anvilcraft:cinerite"/>，可将其用于[筛矿](../008_recipe/001_basic_minerals.md)
 

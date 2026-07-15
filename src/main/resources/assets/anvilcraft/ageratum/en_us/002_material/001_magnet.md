@@ -26,9 +26,9 @@ converting an <ref item="minecraft:iron_block"/> via lightning strike into <ref 
 Right-click a <ref item="minecraft:lightning_rod"/> with <ref item="anvilcraft:topaz"/> to consume the <ref item="anvilcraft:topaz"/> and immediately generate a lightning bolt
 </tip>
 
-The default lightning-to-magnet block conversion range is as follows:
+The default lightning-to-magnet block conversion range for <ref item="anvilcraft:hollow_magnet_block"/> is 3x3x3:
 
-<structure id="../../structures/lightning_convert_magnets.snbt"/>
+<structure id="../../structures/lightning_convert_magnets.nbt"/>
 
 <row halign="center">
 <recipe id="anvilcraft:magnet_ingot_from_hollow_block"/>
@@ -49,7 +49,7 @@ The default lightning-to-magnet block conversion range is as follows:
 # Magnetic Effect
 - <ref item="anvilcraft:magnet_block"/>, <ref item="anvilcraft:ferrite_core_magnet_block"/>, and <ref item="anvilcraft:hollow_magnet_block"/> can attract various anvils within 5 blocks directly below
 - Demagnetizes when receiving a redstone signal
-- Repeatedly activating and deactivating can lift and drop the anvil repeatedly
+- Repeatedly activating and deactivating can lift and drop the *anvil* repeatedly
 
 # Electromagnetic Effect
 Once you have power generation capability, use <ref item="anvilcraft:charger"/> to charge <ref item="minecraft:iron_ingot"/> into <ref item="anvilcraft:magnet_ingot"/>

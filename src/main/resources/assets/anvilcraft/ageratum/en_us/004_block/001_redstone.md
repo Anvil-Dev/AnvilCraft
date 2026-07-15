@@ -7,6 +7,7 @@ items:
   - anvilcraft:pulse_generator
   - anvilcraft:item_detector
   - anvilcraft:advanced_comparator
+  - anvilcraft:redstone_wire
 ---
 
 # Additional Redstone Components
@@ -70,5 +71,31 @@ In the GUI you can set thresholds and other modes
 - The <color=#999922>second button</color> from top to bottom enables inverted mode: outputs signal when it normally wouldn't, and vice versa
 - When the <color=#999922>third button</color> from top to bottom is enabled, uses the redstone signals received on both sides as thresholds (regardless of left/right, the higher one is the upper threshold)
 
+# <ref item="anvilcraft:redstone_wire"/>
 
+<recipe id="anvilcraft:redstone_wire"/>
 
+## Placement
+
+- Can be placed along walls or ceilings
+
+### Connection Mechanism
+
+- Only one <ref item="anvilcraft:redstone_wire"/> can exist in a block, with a unique attachment direction
+- Connects along walls to <ref item="anvilcraft:redstone_wire"/> diagonally above that share the same attachment direction
+- Connects along walls to <ref item="anvilcraft:redstone_wire"/> directly above that is perpendicular to itself
+- Connects to <ref item="anvilcraft:redstone_wire"/> on the four adjacent faces attached to the same block
+
+## Reception
+
+- The base is insulated and does not receive redstone signals; only inputs/outputs at connection points
+
+## Transmission
+
+- Transmits redstone signals without attenuation
+- If receiving multiple redstone signals, takes the highest value
+
+## Output
+
+- Signals input from redstone dust are not output to redstone dust
+- Output only activates blocks, does not power them

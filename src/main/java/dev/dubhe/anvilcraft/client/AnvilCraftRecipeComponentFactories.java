@@ -5,6 +5,7 @@ import dev.anvilcraft.resource.ageratum.client.registries.AgeratumRegistries;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDAnvilCollisionCraftRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDChargerChargingRecipeComponent;
+import dev.dubhe.anvilcraft.client.markdown.recipe.MDEnergyWeaponMakeRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDJewelCraftingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDMultipleToOneSmithingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.MDPortalConversionRecipeComponent;
@@ -216,6 +217,14 @@ public class AnvilCraftRecipeComponentFactories {
         "procedural_process", () -> MDRecipeComponent.RecipeComponentFactory.create(
             ModRecipeTypes.PROCEDURAL_PROCESS.get(),
             MDProceduralProcessRecipeComponent::new
+        )
+    );
+
+    public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
+        ENERGY_WEAPON_MAKE = RECIPE_COMPONENT_FACTORIES.register(
+        "energy_weapon_make", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.ENERGY_WEAPON_MAKE_TYPE.get(),
+            MDEnergyWeaponMakeRecipeComponent::new
         )
     );
 

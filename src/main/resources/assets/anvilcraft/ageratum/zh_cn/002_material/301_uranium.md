@@ -52,6 +52,6 @@ items:
 # 放射性衰变
 
 - <ref item="anvilcraft:uranium_block"/>属于 *放射性方块*
-- 如果与*放射性方块*六个面相邻的放射性方块数量，比与*放射性方块*六个面相邻的放射性方块数量，多3个及以上，概率触发*放射性衰变*
+- 如果与*放射性方块*六个面相邻的*放射性方块*比<ref item="anvilcraft:lead_block"/>，多3个及以上，概率触发*放射性衰变*
 - <ref item="anvilcraft:uranium_block"/>会衰变为<ref item="anvilcraft:lead_block"/>
 - 如果六个面全都相邻放射性方块，*放射性方块* 会变为熔岩

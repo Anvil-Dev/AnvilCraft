@@ -48,9 +48,10 @@ When placed on a <ref item="anvilcraft:crushing_table"/>, the **Item Crushing** 
 - Crushes blocks that become **dropped items**, compatible with all recipes from [Block Crushing](000_block_processing.md), but with **20%** loss
 - Provides [efficient recipes](../008_recipe/001_efficient_recipe.md) for vanilla crafting
 
+<row>
 <recipe id="anvilcraft:item_crush/armor/diamond_boots_2_diamond"/>
-
 <recipe id="anvilcraft:item_crush/string"/>
+</row>
 
 # Compacting
 

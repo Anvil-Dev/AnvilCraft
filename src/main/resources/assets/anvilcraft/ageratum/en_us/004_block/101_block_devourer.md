@@ -18,9 +18,14 @@ Killing the Ender Dragon with Decapitation III enchantment guarantees a 100% dra
 
 - <ref item="anvilcraft:block_devourer"/> destroys blocks within a certain range in front when receiving a redstone signal or when struck by an anvil
 - Drops attempt to enter the container or entity inventory behind the devourer; if impossible, they drop in place
-- When activated by redstone, destruction range is 3x3
-- When struck by an anvil, depending on fall height of 1, 2, or 3, the ranges are 5x5, 7x7, and 9x9 respectively
 - When struck by an anvil, it is an implementation of [Anvil Mining](../001_feature/000_anvil_destroy.md)
+
+| Activation Method | Destruction Range |
+|--------------|------|
+| Redstone signal | 3x3 |
+| Anvil falling from 1 block high | 5x5 |
+| Anvil falling from 2 blocks high | 7x7 |
+| Anvil falling from 3 or more blocks high | 9x9 |
 
 # Properties
 
