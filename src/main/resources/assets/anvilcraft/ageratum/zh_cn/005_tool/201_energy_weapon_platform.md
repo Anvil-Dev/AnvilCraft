@@ -38,9 +38,13 @@ items:
 
 # <ref item="anvilcraft:spectral_weapon_launcher"/>
 
+<recipe id="anvilcraft:energy_weapon_make/spectral_weapon_launcher"/>
+
 - 功能和<ref item="anvilcraft:spectral_slingshot"/>一致，但造成100%伤害(<ref item="anvilcraft:spectral_slingshot"/>为50%)
 
 # <ref item="anvilcraft:anvil_railgun"/>
+
+<recipe id="anvilcraft:energy_weapon_make/anvil_railgun"/>
 
 1. 攻击需要铁砧作为弹药，将除了<ref item="anvilcraft:spectral_anvil"/>外的*铁砧*放在副手，长按右键后松开，最多装填16个铁砧作为弹药
 2. 射击需要长按右键进行最多 5s 蓄力，蓄力期间可随时发射 （需要至少蓄力10%的时间）
@@ -52,16 +56,22 @@ items:
 
 # <ref item="anvilcraft:corrupted_beacon_activator"/>
 
+<recipe id="anvilcraft:energy_weapon_make/corrupted_beacon_activator"/>
+
 - 长按右键，持续发射最远 64 格的腐化光束，对接触到的所有生物造成*时移伤害*，并使其获得最高 5级 的凋零效果
 - 快速装填附魔提升伤害频率
 
 # <ref item="anvilcraft:tesla_gun"/>
+
+<recipe id="anvilcraft:energy_weapon_make/tesla_gun"/>
 
 - 右键发射电弧，对生物造成40点*雷击伤害*
 - 可以连锁攻击附近的生物，但每次弹射降低10点伤害
 - 拥有4s攻击冷却，可以被快速装填附魔降低（每级降低5gt，最多降低60gt），
 
 # <ref item="anvilcraft:laser_gun"/>
+
+<recipe id="anvilcraft:energy_weapon_make/laser_gun"/>
 
 ## 采矿模式
 

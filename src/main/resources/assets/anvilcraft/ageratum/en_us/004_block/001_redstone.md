@@ -75,8 +75,27 @@ In the GUI you can set thresholds and other modes
 
 <recipe id="anvilcraft:redstone_wire"/>
 
-Deep and powerful, I don't understand it either. The manual will be written later.
+## Placement
 
 - Can be placed along walls or ceilings
-- The base is insulated and does not receive redstone signals
+
+### Connection Mechanism
+
+- Only one <ref item="anvilcraft:redstone_wire"/> can exist in a block, with a unique attachment direction
+- Connects along walls to <ref item="anvilcraft:redstone_wire"/> diagonally above that share the same attachment direction
+- Connects along walls to <ref item="anvilcraft:redstone_wire"/> directly above that is perpendicular to itself
+- Connects to <ref item="anvilcraft:redstone_wire"/> on the four adjacent faces attached to the same block
+
+## Reception
+
+- The base is insulated and does not receive redstone signals; only inputs/outputs at connection points
+
+## Transmission
+
 - Transmits redstone signals without attenuation
+- If receiving multiple redstone signals, takes the highest value
+
+## Output
+
+- Signals input from redstone dust are not output to redstone dust
+- Output only activates blocks, does not power them

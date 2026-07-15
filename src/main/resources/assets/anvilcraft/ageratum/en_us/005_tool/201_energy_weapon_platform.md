@@ -38,9 +38,13 @@ If the first item in the recipe has enchantments, the finished product inherits 
 
 # <ref item="anvilcraft:spectral_weapon_launcher"/>
 
+<recipe id="anvilcraft:energy_weapon_make/spectral_weapon_launcher"/>
+
 - Functions identically to <ref item="anvilcraft:spectral_slingshot"/>, but deals 100% damage (<ref item="anvilcraft:spectral_slingshot"/> deals 50%)
 
 # <ref item="anvilcraft:anvil_railgun"/>
+
+<recipe id="anvilcraft:energy_weapon_make/anvil_railgun"/>
 
 1. Requires anvils as ammunition. Place *anvils* (excluding <ref item="anvilcraft:spectral_anvil"/>) in your offhand, long-press right-click then release to load up to 16 anvils as ammo
 2. To fire, hold right-click to charge for up to 5s. Can fire at any time during charging (requires at least 10% of the charge time)
@@ -52,16 +56,22 @@ Against large mobs, it may deal both impact damage and anvil landing damage cons
 
 # <ref item="anvilcraft:corrupted_beacon_activator"/>
 
+<recipe id="anvilcraft:energy_weapon_make/corrupted_beacon_activator"/>
+
 - Hold right-click to continuously fire a corrupted beam up to 64 blocks, dealing *Time Warp damage* to all mobs it contacts and granting up to Wither V
 - Quick Charge enchantment increases damage frequency
 
 # <ref item="anvilcraft:tesla_gun"/>
+
+<recipe id="anvilcraft:energy_weapon_make/tesla_gun"/>
 
 - Right-click to fire an arc, dealing 40 points of *lightning damage* to mobs
 - Can chain to nearby mobs, but reduces damage by 10 per bounce
 - Has a 4s attack cooldown, which can be reduced by Quick Charge enchantment (5gt per level, up to 60gt)
 
 # <ref item="anvilcraft:laser_gun"/>
+
+<recipe id="anvilcraft:energy_weapon_make/laser_gun"/>
 
 ## Mining Mode
 

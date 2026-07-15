@@ -107,3 +107,7 @@ If you don't like the look of <ref item="minecraft:crafting_table"/>, try <ref i
 |    <ref item="minecraft:hay_block"/>                   | Harvests and replants crops including wheat, pumpkins, berries, cocoa beans, and nether wart. Can operate on cocoa beans on connected logs above the work plane |
 | <ref item="minecraft:oak_log"/> and any other **log**   | Logs, leaves, stems, wart blocks, cacti, chorus plants, and sugar cane. Can destroy connected blocks above the work plane |
 |  <ref item="minecraft:amethyst_block"/>                | Amethyst clusters                                      |
+
+<info>
+When using <ref item="minecraft:amethyst_block"/>, it also matures buds on budding amethyst
+</info>

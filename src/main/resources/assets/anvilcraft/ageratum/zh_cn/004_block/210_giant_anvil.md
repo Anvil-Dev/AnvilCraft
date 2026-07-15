@@ -107,3 +107,7 @@ items:
 |    <ref item="minecraft:hay_block"/>     | 收割并补种包括小麦、南瓜、浆果、可可豆与下界疣等农作物。可以操作高于工作平面的相连原木上的可可豆 |
 | <ref item="minecraft:oak_log"/>等任意**原木** | 原木、树叶、菌柄、疣块、仙人掌、紫颂植株与甘蔗。可以破坏高于工作平面的相连方面          |
 |  <ref item="minecraft:amethyst_block"/>  | 紫水晶簇                                             |
+
+<info>
+使用<ref item="minecraft:amethyst_block"/>的情况下，还可以催熟紫水晶母岩
+</info>
