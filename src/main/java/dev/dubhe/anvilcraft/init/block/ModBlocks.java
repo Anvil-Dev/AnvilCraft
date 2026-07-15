@@ -80,6 +80,7 @@ import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.block.ItemDetectorBlock;
 import dev.dubhe.anvilcraft.block.JewelCraftingTable;
 import dev.dubhe.anvilcraft.block.LargeCakeBlock;
+import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.LargeLaserBlock;
 import dev.dubhe.anvilcraft.block.LaserReceiverBlock;
@@ -192,12 +193,8 @@ import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.SuperHeavyBlockItem;
 import dev.dubhe.anvilcraft.block.item.TradingStationBlockItem;
-import dev.dubhe.anvilcraft.block.item.UncontainableBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
-import dev.dubhe.anvilcraft.block.nesting.NestingShulkerBoxBlock;
-import dev.dubhe.anvilcraft.block.nesting.OverNestingShulkerBoxBlock;
-import dev.dubhe.anvilcraft.block.nesting.SupercriticalNestingShulkerBoxBlock;
 import dev.dubhe.anvilcraft.block.plate.EntityCountPressurePlateBlock;
 import dev.dubhe.anvilcraft.block.plate.EntityTypePressurePlateBlock;
 import dev.dubhe.anvilcraft.block.plate.FireImmunePressurePlateBlock;
@@ -228,7 +225,6 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.SingularityCrystalItem;
 import dev.dubhe.anvilcraft.item.TeslaTowerItem;
-import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import dev.dubhe.anvilcraft.loot.conditions.RandomChanceWithFortuneCondition;
 import dev.dubhe.anvilcraft.util.DangerUtil;
 import dev.dubhe.anvilcraft.util.DataGenUtil;
@@ -402,6 +398,24 @@ public class ModBlocks {
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<LargeCauldronBlock> LARGE_CAULDRON = REGISTRUM.block(
+            "large_cauldron",
+            LargeCauldronBlock::new
+        )
+        .lang("Large Cauldron")
+        .initialProperties(() -> Blocks.CAULDRON)
+        .properties(p -> p
+            .noOcclusion()
+            .isValidSpawn(Blocks::never)
+            .isViewBlocking(ModBlocks::never))
+        .loot(SimpleMultiPartBlock::loot)
+        .item(LargeCauldronBlock.Item::new)
+        .properties(properties -> properties.stacksTo(16))
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
         .register();
 
     public static final BlockEntry<DrainBlock> DRAIN = REGISTRUM.block("drain", DrainBlock::new)
@@ -3752,57 +3766,6 @@ public class ModBlocks {
             .recipe(RegistrumBlockRecipeLoader.pressurePlateTags(id, ingredients))
             .register();
     }
-
-    public static final BlockEntry<NestingShulkerBoxBlock> NESTING_SHULKER_BOX = REGISTRUM.block(
-            "nesting_shulker_box",
-            NestingShulkerBoxBlock::new
-        )
-        .initialProperties(() -> Blocks.SHULKER_BOX)
-        .loot(DataGenUtil::nestingShulkerBoxLoot)
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .item(UncontainableBlockItem::new)
-        .properties(properties -> properties
-            .stacksTo(1)
-            .component(ModComponents.OVER_LIMIT_CONTAINER, OverLimitItemContainerContents.EMPTY)
-        )
-        .model((ctx, provider) -> provider.blockItem(ctx))
-        .build()
-        .register();
-
-    public static final BlockEntry<OverNestingShulkerBoxBlock> OVER_NESTING_SHULKER_BOX = REGISTRUM.block(
-            "over_nesting_shulker_box",
-            OverNestingShulkerBoxBlock::new
-        )
-        .initialProperties(() -> Blocks.SHULKER_BOX)
-        .loot(DataGenUtil::nestingShulkerBoxLoot)
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .item(UncontainableBlockItem::new)
-        .properties(properties -> properties
-            .stacksTo(1)
-            .component(ModComponents.OVER_LIMIT_CONTAINER, OverLimitItemContainerContents.EMPTY)
-        )
-        .model((ctx, provider) -> provider.blockItem(ctx))
-        .build()
-        .register();
-
-    public static final BlockEntry<SupercriticalNestingShulkerBoxBlock> SUPERCRITICAL_NESTING_SHULKER_BOX = REGISTRUM.block(
-            "supercritical_nesting_shulker_box",
-            SupercriticalNestingShulkerBoxBlock::new
-        )
-        .initialProperties(() -> Blocks.SHULKER_BOX)
-        .loot(DataGenUtil::nestingShulkerBoxLoot)
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .item(UncontainableBlockItem::new)
-        .properties(properties -> properties
-            .stacksTo(1)
-            .component(ModComponents.OVER_LIMIT_CONTAINER, OverLimitItemContainerContents.EMPTY)
-        )
-        .model((ctx, provider) -> provider.blockItem(ctx))
-        .build()
-        .register();
 
     public static final BlockEntry<ExpFluidBlock> EXP_FLUID = REGISTRUM.block(
             "exp_fluid",

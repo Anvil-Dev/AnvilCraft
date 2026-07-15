@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeData;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeOutcomeTypes;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
@@ -69,6 +70,15 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
         if (!context.get(IS_ROYAL_STEEL_RECIPE)) return;
 
         BlockPos belowPos = BlockPos.containing(pos.x, pos.y - 1, pos.z);
+
+        if (level.getBlockEntity(belowPos) instanceof LargeCauldronBlockEntity cauldron
+            && cauldron.hasInputMatching(stack -> RoyalPreference.isRoyalPreferred(level, stack))) {
+            int count = context.getInt(result.count());
+            ItemStack bonus = result.stack().copyWithCount(count);
+            ItemStack remaining = cauldron.insertRecipeOutput(bonus);
+            if (!remaining.isEmpty()) AnvilUtil.dropItems(List.of(remaining), level, pos.add(OUTPUT_OFFSET));
+            return;
+        }
 
         // 优先检查鱼缸容器（容器合成场景）
         IItemHandler handler = level.getCapability(

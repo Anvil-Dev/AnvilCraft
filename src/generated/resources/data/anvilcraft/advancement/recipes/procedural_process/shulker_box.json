@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:item_inject/supercritical_nesting_shulker_box"
+        "recipe": "anvilcraft:procedural_process/shulker_box"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:item_inject/supercritical_nesting_shulker_box"
+      "anvilcraft:procedural_process/shulker_box"
     ]
   }
 }

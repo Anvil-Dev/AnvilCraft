@@ -242,7 +242,9 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
                     .ifPresent(FishTankBlockEntity::tryAutoOutputResults);
             }
         }
-        level.playSound(player, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0f, 1.0f);
+        if (!level.isClientSide()) {
+            level.playSound(null, pos, SoundEvents.SMITHING_TABLE_USE, SoundSource.BLOCKS, 1.0f, 1.0f);
+        }
         return ItemInteractionResult.SUCCESS;
     }
 

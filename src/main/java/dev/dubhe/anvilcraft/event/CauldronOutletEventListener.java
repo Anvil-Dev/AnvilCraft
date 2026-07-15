@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.entity.CauldronOutletEntity;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
@@ -23,7 +24,6 @@ import javax.annotation.Nullable;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class CauldronOutletEventListener {
-
     @SubscribeEvent
     public static void onPlayerUseAnvilHammerOnCauldron(PlayerInteractEvent.RightClickBlock event) {
         Player player = event.getEntity();
@@ -31,94 +31,83 @@ public class CauldronOutletEventListener {
         Level level = event.getLevel();
         BlockPos blockPos = event.getPos();
         BlockState blockState = level.getBlockState(blockPos);
-
-        // 检查是否是炼药锅且手持铁砧锤
-        if (
-            !blockState.is(BlockTags.CAULDRONS)
+        if (!blockState.is(BlockTags.CAULDRONS)
             || !(itemStack.getItem() instanceof AnvilHammerItem)
-        ) {
+            || blockState.getBlock() instanceof LargeCauldronBlock) {
             return;
         }
 
-        // 获取应该在哪个方向创建口
-        Direction direction = getDirectionFromPlayerFacing(event.getFace(), player);
-
-        // 检查方向，不能在顶部生成
-        if (direction == Direction.UP) {
-            return;
-        }
-
-        // 计算新口的位置，下方用专门的方法
-        Vec3 newPosition;
-        if (direction == Direction.DOWN) {
-            newPosition = calculateMouthPositionForBottom(blockPos);
-        } else {
-            newPosition = calculateMouthPosition(blockPos, direction);
-        }
-
-        // 检查该位置是否已有口，有就移除并播放音效
-        CauldronOutletEntity existingMouth = findExistingCauldronMouthAtPosition(level, blockPos, newPosition);
-
-        if (existingMouth != null) {
-            existingMouth.kill();
-            level.playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
-            return;
-        }
-
-        // 检查该炼药锅是否已有其他口并移除
-        removeExistingCauldronMouth(level, blockPos);
-
-        // 创建炼药锅口实体，播放音效
-        CauldronOutletEntity cauldronMouthEntity = new CauldronOutletEntity(level, newPosition, blockPos, direction);
-        level.addFreshEntity(cauldronMouthEntity);
-        level.playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
+        Direction direction = directionFromClickedFace(event.getFace(), player);
+        if (direction == Direction.UP) return;
+        Vec3 position = direction == Direction.DOWN
+            ? bottomOutletPosition(blockPos)
+            : sideOutletPosition(blockPos, direction);
+        toggleOutlet(level, blockPos, position, direction);
     }
 
-    private static Direction getDirectionFromPlayerFacing(Direction clickedFace, Player player) {
-        // 如果点击的是上表面，则根据玩家朝向确定方向
-        if (clickedFace == Direction.UP) {
-            return player.getDirection();
+    public static void toggleOutlet(Level level, BlockPos cauldronPos, Vec3 position, Direction direction) {
+        if (level.isClientSide()) return;
+        CauldronOutletEntity existingOutlet = findExistingOutlet(level, cauldronPos, position);
+        if (existingOutlet != null) {
+            existingOutlet.kill();
+            playOutletSound(level, cauldronPos);
+            return;
         }
-        return clickedFace;
+
+        removeExistingOutlets(level, cauldronPos);
+        level.addFreshEntity(new CauldronOutletEntity(level, position, cauldronPos, direction));
+        playOutletSound(level, cauldronPos);
     }
 
-    private static List<CauldronOutletEntity> getCauldronMouths(Level level, BlockPos cauldronPos) {
+    private static void playOutletSound(Level level, BlockPos pos) {
+        level.playSound(null, pos, SoundEvents.SMITHING_TABLE_USE, SoundSource.BLOCKS, 0.8F, 1.0F);
+    }
+
+    private static Direction directionFromClickedFace(Direction clickedFace, Player player) {
+        return clickedFace == Direction.UP ? player.getDirection() : clickedFace;
+    }
+
+    private static List<CauldronOutletEntity> getOutlets(Level level, BlockPos cauldronPos) {
         AABB searchBox = new AABB(
-            cauldronPos.getX() - 2,
-            cauldronPos.getY() - 2,
-            cauldronPos.getZ() - 2,
-            cauldronPos.getX() + 2,
-            cauldronPos.getY() + 2,
-            cauldronPos.getZ() + 2
+            cauldronPos.getX() - 4,
+            cauldronPos.getY() - 4,
+            cauldronPos.getZ() - 4,
+            cauldronPos.getX() + 4,
+            cauldronPos.getY() + 4,
+            cauldronPos.getZ() + 4
         );
-        return level.getEntitiesOfClass(CauldronOutletEntity.class, searchBox, entity -> entity.getCauldronPos().equals(cauldronPos));
+        return level.getEntitiesOfClass(
+            CauldronOutletEntity.class,
+            searchBox,
+            entity -> entity.getCauldronPos().equals(cauldronPos)
+        );
     }
 
-    private static @Nullable CauldronOutletEntity findExistingCauldronMouthAtPosition(Level level, BlockPos cauldronPos, Vec3 position) {
-        List<CauldronOutletEntity> existingMouths = getCauldronMouths(level, cauldronPos);
-        for (CauldronOutletEntity mouth : existingMouths) {
-            if (mouth.position().distanceTo(position) < 0.1) {
-                return mouth;
-            }
+    private static @Nullable CauldronOutletEntity findExistingOutlet(
+        Level level,
+        BlockPos cauldronPos,
+        Vec3 position
+    ) {
+        for (CauldronOutletEntity outlet : getOutlets(level, cauldronPos)) {
+            if (outlet.position().distanceTo(position) < 0.1) return outlet;
         }
         return null;
     }
 
-    private static void removeExistingCauldronMouth(Level level, BlockPos cauldronPos) {
-        List<CauldronOutletEntity> existingMouths = getCauldronMouths(level, cauldronPos);
-        for (CauldronOutletEntity mouth : existingMouths) {
-            mouth.kill();
+    private static void removeExistingOutlets(Level level, BlockPos cauldronPos) {
+        for (CauldronOutletEntity outlet : getOutlets(level, cauldronPos)) {
+            outlet.kill();
         }
     }
 
-    private static Vec3 calculateMouthPosition(BlockPos cauldronPos, Direction direction) {
-        double x = cauldronPos.getX() + 0.5 + (direction.getStepX() * 0.5);
-        double y = cauldronPos.getY() + 0.375 + (direction.getStepY() * 0.5);
-        double z = cauldronPos.getZ() + 0.5 + (direction.getStepZ() * 0.5);
+    private static Vec3 sideOutletPosition(BlockPos cauldronPos, Direction direction) {
+        double x = cauldronPos.getX() + 0.5 + direction.getStepX() * 0.5;
+        double y = cauldronPos.getY() + 0.375 + direction.getStepY() * 0.5;
+        double z = cauldronPos.getZ() + 0.5 + direction.getStepZ() * 0.5;
         return new Vec3(x, y, z);
     }
 
-    private static Vec3 calculateMouthPositionForBottom(BlockPos cauldronPos) {
+    private static Vec3 bottomOutletPosition(BlockPos cauldronPos) {
         return new Vec3(cauldronPos.getX() + 0.5, cauldronPos.getY() + 0.05, cauldronPos.getZ() + 0.5);
     }
 }

@@ -146,9 +146,6 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.EARTH_CORE_SHARD_BLOCK); // 地核碎片块
         this.plain(ModBlocks.MULTIPHASE_MATTER_BLOCK); // 多相物质块
         this.plain(ModBlocks.NEGATIVE_MATTER_BLOCK); // 负物质块
-        this.plain(ModBlocks.NESTING_SHULKER_BOX); // 嵌套潜影盒
-        this.plain(ModBlocks.OVER_NESTING_SHULKER_BOX); // 过嵌套潜影盒
-        this.plain(ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX); // 超临界嵌套潜影盒
         this.plain(ModBlocks.CONFINED_TIME_ANVILON); // 约束时间砧子
         this.plain(ModBlocks.CONFINED_SPACE_ANVILON); // 约束空间砧子
         this.plain(ModBlocks.CONFINED_MASS_ANVILON); // 约束质量砧子

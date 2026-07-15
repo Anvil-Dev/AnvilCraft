@@ -30,6 +30,7 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
     private ItemStack icon = null;
     private int loop = 1;
     private Optional<ResourceLocation> displayedModel = Optional.empty();
+    private final List<ResourceLocation> displayedModels = new ArrayList<>();
     private Optional<ProceduralProcessStep> mfs = Optional.empty();
 
     /**
@@ -176,6 +177,15 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
         return this;
     }
 
+    /**
+     * Sets the WIP model used after each completed step, in step order.
+     */
+    public ProceduralProcessRecipeBuilder displayedModels(ResourceLocation... modelIds) {
+        this.displayedModels.clear();
+        this.displayedModels.addAll(List.of(modelIds));
+        return this;
+    }
+
     @Override
     public @NotNull ProceduralProcessRecipe buildRecipe() {
         if (this.resultBlock == null) {
@@ -195,6 +205,7 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
             this.icon,
             this.loop,
             this.displayedModel,
+            this.displayedModels,
             this.mfs
         );
     }
@@ -206,6 +217,9 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
         }
         if (steps.isEmpty()) {
             throw new IllegalArgumentException("Procedural Procession must have at least one step, RecipeId: " + id);
+        }
+        if (displayedModels.size() > steps.size()) {
+            throw new IllegalArgumentException("Displayed model count must not exceed step count, RecipeId: " + id);
         }
         for (ProceduralProcessStep step : steps) {
             if (!(step.content instanceof AbstractProcessRecipe<?>)) {

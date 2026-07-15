@@ -109,12 +109,13 @@ public class RenderSupport {
         });
     };
 
-    public static BlockRenderFunction wipEntity(ResourceLocation recipeId) {
+    public static BlockRenderFunction wipEntity(ResourceLocation recipeId, int stepCount) {
         return (blockState, poseStack, buffers) -> {
             WipBlockEntity blockEntity = WipBlockEntity.createInstance(ModBlockEntities.WIP_BLOCK.get(),
                 BlockPos.ZERO, ModBlocks.WIP_BLOCK.getDefaultState());
             blockEntity.setLevel(currentClientLevel);
             blockEntity.setRecipeId(recipeId);
+            blockEntity.setStepCount(stepCount);
             renderBlockEntity(blockEntity, poseStack, buffers);
         };
     }

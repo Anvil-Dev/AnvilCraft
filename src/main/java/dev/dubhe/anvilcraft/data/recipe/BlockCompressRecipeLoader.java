@@ -28,12 +28,6 @@ public class BlockCompressRecipeLoader {
         blockCompress(provider, BlockTags.LEAVES, Blocks.DIRT, Blocks.PODZOL);
         blockCompress(provider, Blocks.MOSS_BLOCK, Blocks.DIRT, Blocks.GRASS_BLOCK);
         blockCompress(provider, ModBlockTags.MUSHROOM_BLOCK, Blocks.DIRT, Blocks.MYCELIUM);
-        blockCompress(
-            provider,
-            ModBlocks.VOID_MATTER_BLOCK.get(),
-            ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX.get(),
-            ModBlocks.SPACE_OVERCOMPRESSOR.get()
-        );
     }
 
     private static void blockCompress(RegistrumRecipeProvider provider, Block block1, Block block2, Block result) {

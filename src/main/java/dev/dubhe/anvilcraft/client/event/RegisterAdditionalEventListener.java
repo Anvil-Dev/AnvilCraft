@@ -96,6 +96,9 @@ public class RegisterAdditionalEventListener {
         event.register(standaloneBlock("netherite_block_wip"));
         event.register(standaloneBlock("heavy_iron_block_wip"));
         event.register(standaloneBlock("spacetime_supercomputer_wip"));
+        event.register(standaloneBlock("nesting_shulker_box"));
+        event.register(standaloneBlock("over_nesting_shulker_box"));
+        event.register(standaloneBlock("supercritical_nesting_shulker_box"));
     }
 
     private static ModelResourceLocation standaloneBlock(String path) {

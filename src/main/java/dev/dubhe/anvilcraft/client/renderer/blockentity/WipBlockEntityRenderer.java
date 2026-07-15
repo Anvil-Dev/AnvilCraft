@@ -45,7 +45,7 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
             .map(RecipeHolder::value)
             .filter(ProceduralProcessRecipe.class::isInstance)
             .map(ProceduralProcessRecipe.class::cast)
-            .flatMap(ProceduralProcessRecipe::getDisplayedModel)
+            .flatMap(recipe -> recipe.getDisplayedModelForStep(wipBlockEntity.getStepCount()))
             .map(ModelResourceLocation::standalone)
             .map(mrl -> minecraft.getModelManager().getModel(mrl))
             .orElse(blockRenderDispatcher.getBlockModel(state));

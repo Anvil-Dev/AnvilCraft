@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 
+import java.util.List;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 @MethodsReturnNonnullByDefault
@@ -27,6 +28,10 @@ public class ProceduralProcessSerializer implements RecipeSerializer<ProceduralP
                 ItemStack.CODEC.fieldOf("icon").forGetter(ProceduralProcessRecipe::getIcon),
                 Codec.INT.fieldOf("loop").forGetter(ProceduralProcessRecipe::getLoop),
                 ResourceLocation.CODEC.optionalFieldOf("displayed_model").forGetter(ProceduralProcessRecipe::getDisplayedModel),
+                ResourceLocation.CODEC
+                    .listOf()
+                    .optionalFieldOf("displayed_models", List.of())
+                    .forGetter(ProceduralProcessRecipe::getDisplayedModels),
                 ProceduralProcessStep.CODEC
                     .optionalFieldOf("multiple_loop_first_step")
                     .forGetter(ProceduralProcessRecipe::getMultiLoopFirstStep)
@@ -43,6 +48,7 @@ public class ProceduralProcessSerializer implements RecipeSerializer<ProceduralP
             ItemStack.STREAM_CODEC.encode(buffer, recipe.getIcon());
             buffer.writeVarInt(recipe.getLoop());
             ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).encode(buffer, recipe.getDisplayedModel());
+            ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buffer, recipe.getDisplayedModels());
             ByteBufCodecs.optional(ProceduralProcessStep.STREAM_CODEC).encode(buffer, recipe.getMultiLoopFirstStep());
         }
 
@@ -55,6 +61,7 @@ public class ProceduralProcessSerializer implements RecipeSerializer<ProceduralP
                 ItemStack.STREAM_CODEC.decode(buffer),
                 ByteBufCodecs.VAR_INT.decode(buffer),
                 ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).decode(buffer),
+                ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buffer),
                 ByteBufCodecs.optional(ProceduralProcessStep.STREAM_CODEC).decode(buffer)
             );
         }

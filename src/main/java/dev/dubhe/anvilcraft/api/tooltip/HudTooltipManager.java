@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.api.tooltip.impl.HeliostatsTooltip;
 import dev.dubhe.anvilcraft.api.tooltip.impl.HeliostatsTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.InjectedBlockEntityTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.InjectedBlockTooltipProvider;
+import dev.dubhe.anvilcraft.api.tooltip.impl.LargeCauldronTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.PowerComponentTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.PropelPistonTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.PulseGeneratorTooltipProvider;
@@ -78,6 +79,7 @@ public class HudTooltipManager {
         INSTANCE.registerBlockEntityTooltip(new DeflectionRingTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new PropelPistonTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new FluidTankTooltipProvider());
+        INSTANCE.registerBlockEntityTooltip(new LargeCauldronTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new CfaLogisticsInterfaceTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new CfaFluidInterfaceTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new CfaLaserInterfaceTooltipProvider());

@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.HammerChangeBlockEvent;
 import dev.dubhe.anvilcraft.block.BlockComparatorBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
+import dev.dubhe.anvilcraft.block.entity.LensBlockEntity;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.util.StateUtil;
@@ -86,6 +87,9 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
             }
         }
         level.setBlock(this.pos, this.state, Block.UPDATE_ALL_IMMEDIATE);
+        if (level.getBlockEntity(this.pos) instanceof LensBlockEntity lensBlockEntity) {
+            lensBlockEntity.resetLaserStateAfterMove();
+        }
         // 铁砧锤完成方块旋转后播放旋转音效
         level.playSound(
             null,

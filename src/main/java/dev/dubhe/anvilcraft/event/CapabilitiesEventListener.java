@@ -40,9 +40,6 @@ public class CapabilitiesEventListener {
             ModBlockEntities.ITEM_COLLECTOR.get(),
             ModBlockEntities.MAGNETIC_CHUTE.get(),
             ModBlockEntities.CONFINEMENT_CHAMBER.get(),
-            ModBlockEntities.NESTING_SHULKER_BOX.get(),
-            ModBlockEntities.OVER_NESTING_SHULKER_BOX.get(),
-            ModBlockEntities.SUPERCRITICAL_NESTING_SHULKER_BOX.get(),
             ModBlockEntities.FISH_TANK.get(),
             ModBlockEntities.STRUCTURE_SCANNER.get(),
             ModBlockEntities.SMART_BLOCK_PLACER.get(),
@@ -60,6 +57,12 @@ public class CapabilitiesEventListener {
             Capabilities.ItemHandler.BLOCK,
             ModBlockEntities.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.get(),
             (be, side) -> be.getItemHandler()
+        );
+
+        event.registerBlockEntity(
+            Capabilities.ItemHandler.BLOCK,
+            ModBlockEntities.LARGE_CAULDRON.get(),
+            (be, side) -> be.getAutomationItemHandler(side)
         );
 
         event.registerBlock(
@@ -80,6 +83,12 @@ public class CapabilitiesEventListener {
             type,
             (be, side) -> be.getFluidHandler()
         ));
+
+        event.registerBlockEntity(
+            Capabilities.FluidHandler.BLOCK,
+            ModBlockEntities.LARGE_CAULDRON.get(),
+            (be, side) -> be.getAutomationFluidHandler(side)
+        );
 
         event.registerBlockEntity(
             Capabilities.FluidHandler.BLOCK,

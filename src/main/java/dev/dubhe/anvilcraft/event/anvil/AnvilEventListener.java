@@ -13,6 +13,8 @@ import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.NeoforgeBlock;
 import dev.dubhe.anvilcraft.block.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
+import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
+import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
@@ -70,6 +72,11 @@ public class AnvilEventListener {
         TriggerUtil.anvilOnGround(level, pos);
         final BlockPos hitBlockPos = pos.below();
         final BlockState hitBlockState = level.getBlockState(hitBlockPos);
+        if (event.getEntity() instanceof FallingGiantAnvilEntity
+            && hitBlockState.is(ModBlocks.LARGE_CAULDRON)) {
+            LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, hitBlockPos, hitBlockState);
+            if (cauldron != null && cauldron.handleGiantAnvilImpact(event)) return;
+        }
         BlockPos belowPos = hitBlockPos.below();
         BlockState hitBelowState = level.getBlockState(belowPos);
         if (hitBelowState.is(Blocks.STONECUTTER)) {

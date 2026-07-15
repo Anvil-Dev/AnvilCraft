@@ -8,13 +8,10 @@ import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import lombok.extern.slf4j.Slf4j;
-import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.HolderSet;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.BlastingRecipe;
@@ -30,6 +27,7 @@ import net.neoforged.neoforge.common.Tags;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
@@ -43,6 +41,23 @@ public class VanillaRecipesWrap {
     public static Multimap<Item, CampfireCookingRecipe> campfireCookingRecipes;
     public static Multimap<Item, SmeltingRecipe> smeltingRecipes;
     public static List<RecipeHolder<InWorldRecipe>> recipes;
+
+    private record WrappedIngredient(ItemIngredientPredicate predicate, String name) {
+    }
+
+    private static WrappedIngredient wrapIngredient(Ingredient ingredient, int count) {
+        ItemIngredientPredicate.Builder builder = ItemIngredientPredicate.Builder.item();
+        String name = "empty";
+        Item[] items = Arrays.stream(ingredient.getItems())
+            .map(ItemStack::getItem)
+            .distinct()
+            .toArray(Item[]::new);
+        builder.of(items);
+        if (items.length > 0) {
+            name = BuiltInRegistries.ITEM.getKey(items[items.length - 1]).getPath();
+        }
+        return new WrappedIngredient(builder.withCount(count).build(), name);
+    }
 
     public static List<RecipeHolder<InWorldRecipe>> init(HolderLookup.Provider registries, Collection<RecipeHolder<?>> recipes) {
         VanillaRecipesWrap.shapelessRecipes = Multimaps.synchronizedSetMultimap(HashMultimap.create());
@@ -58,7 +73,7 @@ public class VanillaRecipesWrap {
             // noinspection ConstantValue
             if (stack == null) continue;
             Item item = stack.getItem();
-            if (recipe.getIngredients().isEmpty() || recipe.getIngredients().getFirst().isCustom()) {
+            if (recipe.getIngredients().isEmpty() || !recipe.getIngredients().getFirst().isSimple()) {
                 continue;
             }
             switch (recipe) {
@@ -89,25 +104,14 @@ public class VanillaRecipesWrap {
         // noinspection ConstantValue
         if (result == null) return;
         result = result.copy();
-        ItemIngredientPredicate.Builder builder1 = ItemIngredientPredicate.Builder.item();
         if (ingredients.size() == 1 && result.getCount() > 1) {
             UnpackRecipe.Builder builder = UnpackRecipe.builder();
-            String ingredient = "empty";
-            for (Ingredient.Value value : first.getValues()) {
-                if (value instanceof Ingredient.ItemValue(ItemStack item)) {
-                    ingredient = BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();
-                    builder1.of(item);
-                }
-                if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {
-                    ingredient = tag.location().getPath().replace("/", "_");
-                    builder1.of(tag);
-                }
-            }
-            builder.requires(builder1.withCount(ingredients.size()).build());
+            WrappedIngredient ingredient = wrapIngredient(first, ingredients.size());
+            builder.requires(ingredient.predicate());
             builder.result(result);
             UnpackRecipe unpackRecipe = builder.buildRecipe();
             String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-            ResourceLocation location = AnvilCraft.of("unpack_warp_%s_2_%s".formatted(ingredient, res));
+            ResourceLocation location = AnvilCraft.of("unpack_warp_%s_2_%s".formatted(ingredient.name(), res));
             VanillaRecipesWrap.recipes.add(new RecipeHolder<>(location, unpackRecipe));
         }
         if (ingredients.size() != 4 && ingredients.size() != 9) return;
@@ -116,23 +120,12 @@ public class VanillaRecipesWrap {
             if (!ingredient.equals(first)) return;
         }
         ItemCompressRecipe.Builder builder = ItemCompressRecipe.builder();
-        builder1 = ItemIngredientPredicate.Builder.item();
-        String ingredient = "empty";
-        for (Ingredient.Value value : first.getValues()) {
-            if (value instanceof Ingredient.ItemValue(ItemStack item)) {
-                ingredient = BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();
-                builder1.of(item);
-            }
-            if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {
-                ingredient = tag.location().getPath().replace("/", "_");
-                builder1.of(tag);
-            }
-        }
-        builder.requires(builder1.withCount(ingredients.size()).build());
+        WrappedIngredient ingredient = wrapIngredient(first, ingredients.size());
+        builder.requires(ingredient.predicate());
         builder.result(result);
         ItemCompressRecipe itemCompressRecipe = builder.buildRecipe();
         String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-        ResourceLocation location = AnvilCraft.of("compress_warp_%s_2_%s".formatted(ingredient, res));
+        ResourceLocation location = AnvilCraft.of("compress_warp_%s_2_%s".formatted(ingredient.name(), res));
         VanillaRecipesWrap.recipes.add(new RecipeHolder<>(location, itemCompressRecipe));
     }
 
@@ -151,23 +144,12 @@ public class VanillaRecipesWrap {
             if (!ingredient.equals(first)) return;
         }
         ItemCompressRecipe.Builder builder = ItemCompressRecipe.builder();
-        ItemIngredientPredicate.Builder builder1 = ItemIngredientPredicate.Builder.item();
-        String ingredient = "empty";
-        for (Ingredient.Value value : first.getValues()) {
-            if (value instanceof Ingredient.ItemValue(ItemStack item)) {
-                ingredient = BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();
-                builder1.of(item);
-            }
-            if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {
-                ingredient = tag.location().getPath().replace("/", "_");
-                builder1.of(tag);
-            }
-        }
-        builder.requires(builder1.withCount(ingredients.size()).build());
+        WrappedIngredient ingredient = wrapIngredient(first, ingredients.size());
+        builder.requires(ingredient.predicate());
         builder.result(result);
         ItemCompressRecipe itemCompressRecipe = builder.buildRecipe();
         String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-        ResourceLocation location = AnvilCraft.of("compress_warp_%s_2_%s".formatted(ingredient, res));
+        ResourceLocation location = AnvilCraft.of("compress_warp_%s_2_%s".formatted(ingredient.name(), res));
         VanillaRecipesWrap.recipes.add(new RecipeHolder<>(location, itemCompressRecipe));
     }
 
@@ -179,35 +161,17 @@ public class VanillaRecipesWrap {
         if (result == null) return;
         result = result.copy();
         Ingredient first = ingredients.getFirst();
-        ItemIngredientPredicate.Builder predicateBuilder = ItemIngredientPredicate.Builder.item();
-        String ingredient = "empty";
-        boolean boost = true;
-        for (Ingredient.Value value : first.getValues()) {
-            if (value instanceof Ingredient.ItemValue(ItemStack item)) {
-                if (!item.is(ModItemTags.SUPER_HEATING_BOOST_PRODUCTION)) boost = false;
-                ingredient = BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();
-                predicateBuilder.of(item);
-            }
-            if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {
-                HolderSet.Named<Item> named = BuiltInRegistries.ITEM.getOrCreateTag(tag);
-                for (Holder<Item> holder : named) {
-                    if (!holder.is(ModItemTags.SUPER_HEATING_BOOST_PRODUCTION)) {
-                        boost = false;
-                        break;
-                    }
-                }
-                ingredient = tag.location().getPath().replace("/", "_");
-                predicateBuilder.of(tag);
-            }
-        }
+        WrappedIngredient ingredient = wrapIngredient(first, 1);
+        boolean boost = Arrays.stream(first.getItems())
+            .allMatch(item -> item.is(ModItemTags.SUPER_HEATING_BOOST_PRODUCTION));
         result.setCount(result.getCount() * (boost ? 2 : 1));
         String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-        ResourceLocation location = AnvilCraft.of("super_heating_warp_%s_2_%s".formatted(ingredient, res));
+        ResourceLocation location = AnvilCraft.of("super_heating_warp_%s_2_%s".formatted(ingredient.name(), res));
         VanillaRecipesWrap.recipes.add(
             new RecipeHolder<>(
                 location,
                 SuperHeatingRecipe.builder()
-                    .requires(predicateBuilder.build())
+                    .requires(ingredient.predicate())
                     .result(result)
                     .buildRecipe()
             )
@@ -222,25 +186,14 @@ public class VanillaRecipesWrap {
         if (result == null) return;
         result = result.copy();
         Ingredient first = ingredients.getFirst();
-        ItemIngredientPredicate.Builder predicateBuilder = ItemIngredientPredicate.Builder.item();
-        String ingredient = "empty";
-        for (Ingredient.Value value : first.getValues()) {
-            if (value instanceof Ingredient.ItemValue(ItemStack item)) {
-                ingredient = BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();
-                predicateBuilder.of(item);
-            }
-            if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {
-                ingredient = tag.location().getPath().replace("/", "_");
-                predicateBuilder.of(tag);
-            }
-        }
+        WrappedIngredient ingredient = wrapIngredient(first, 1);
         String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-        ResourceLocation location = AnvilCraft.of("smoking_warp_%s_2_%s".formatted(ingredient, res));
+        ResourceLocation location = AnvilCraft.of("smoking_warp_%s_2_%s".formatted(ingredient.name(), res));
         VanillaRecipesWrap.recipes.add(
             new RecipeHolder<>(
                 location,
                 CookingRecipe.builder()
-                    .requires(predicateBuilder.build())
+                    .requires(ingredient.predicate())
                     .result(result)
                     .buildRecipe()
             )
@@ -256,25 +209,14 @@ public class VanillaRecipesWrap {
         if (VanillaRecipesWrap.smokingRecipes.containsKey(result.getItem())) return;
         NonNullList<Ingredient> ingredients = recipe.getIngredients();
         Ingredient first = ingredients.getFirst();
-        ItemIngredientPredicate.Builder predicateBuilder = ItemIngredientPredicate.Builder.item();
-        String ingredient = "empty";
-        for (Ingredient.Value value : first.getValues()) {
-            if (value instanceof Ingredient.ItemValue(ItemStack item)) {
-                ingredient = BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();
-                predicateBuilder.of(item);
-            }
-            if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {
-                ingredient = tag.location().getPath().replace("/", "_");
-                predicateBuilder.of(tag);
-            }
-        }
+        WrappedIngredient ingredient = wrapIngredient(first, 1);
         String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-        ResourceLocation location = AnvilCraft.of("cooking_warp_%s_2_%s".formatted(ingredient, res));
+        ResourceLocation location = AnvilCraft.of("cooking_warp_%s_2_%s".formatted(ingredient.name(), res));
         VanillaRecipesWrap.recipes.add(
             new RecipeHolder<>(
                 location,
                 CookingRecipe.builder()
-                    .requires(predicateBuilder.build())
+                    .requires(ingredient.predicate())
                     .result(result)
                     .buildRecipe()
             )
@@ -292,35 +234,17 @@ public class VanillaRecipesWrap {
         if (VanillaRecipesWrap.campfireCookingRecipes.containsKey(result.getItem())) return;
         NonNullList<Ingredient> ingredients = recipe.getIngredients();
         Ingredient first = ingredients.getFirst();
-        ItemIngredientPredicate.Builder predicateBuilder = ItemIngredientPredicate.Builder.item();
-        String ingredient = "empty";
-        boolean boost = true;
-        for (Ingredient.Value value : first.getValues()) {
-            if (value instanceof Ingredient.ItemValue(ItemStack item)) {
-                if (!item.is(ModItemTags.SUPER_HEATING_BOOST_PRODUCTION)) boost = false;
-                ingredient = BuiltInRegistries.ITEM.getKey(item.getItem()).getPath();
-                predicateBuilder.of(item);
-            }
-            if (value instanceof Ingredient.TagValue(TagKey<Item> tag)) {
-                HolderSet.Named<Item> named = BuiltInRegistries.ITEM.getOrCreateTag(tag);
-                for (Holder<Item> holder : named) {
-                    if (!holder.is(ModItemTags.SUPER_HEATING_BOOST_PRODUCTION)) {
-                        boost = false;
-                        break;
-                    }
-                }
-                ingredient = tag.location().getPath().replace("/", "_");
-                predicateBuilder.of(tag);
-            }
-        }
+        WrappedIngredient ingredient = wrapIngredient(first, 1);
+        boolean boost = Arrays.stream(first.getItems())
+            .allMatch(item -> item.is(ModItemTags.SUPER_HEATING_BOOST_PRODUCTION));
         result.setCount(result.getCount() * (boost ? 2 : 1));
         String res = BuiltInRegistries.ITEM.getKey(result.getItem()).getPath();
-        ResourceLocation location = AnvilCraft.of("heating_warp_%s_2_%s".formatted(ingredient, res));
+        ResourceLocation location = AnvilCraft.of("heating_warp_%s_2_%s".formatted(ingredient.name(), res));
         VanillaRecipesWrap.recipes.add(
             new RecipeHolder<>(
                 location,
                 SuperHeatingRecipe.builder()
-                    .requires(predicateBuilder.build())
+                    .requires(ingredient.predicate())
                     .result(result)
                     .buildRecipe()
             )

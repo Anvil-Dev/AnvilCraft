@@ -89,6 +89,11 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.fluid_tank.capacity.value.infinity", "  %s / ∞");
         provider.add("tooltip.anvilcraft.fluid_tank.fluid", "Fluid:");
 
+        provider.add("tooltip.anvilcraft.large_cauldron.inputs", "Input Items:");
+        provider.add("tooltip.anvilcraft.large_cauldron.outputs", "Output Items:");
+        provider.add("tooltip.anvilcraft.large_cauldron.fluids", "Fluids:");
+        provider.add("tooltip.anvilcraft.large_cauldron.will_process", " will be processed by %s");
+
         provider.add("tooltip.anvilcraft.redstone.title", "Redstone Stats:");
         provider.add("tooltip.anvilcraft.redstone.power", "  Power: %d");
         provider.add("tooltip.anvilcraft.redstone.output_to_redstone", "  Can Output to Redstone: %d");

@@ -71,6 +71,12 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
         this.enabled = !this.irradiateSelfLaserBlockSet.isEmpty();
     }
 
+    @Override
+    public void resetLaserStateAfterMove() {
+        this.enabled = false;
+        super.resetLaserStateAfterMove();
+    }
+
     private boolean determineEmissionDirection(BaseLaserBlockEntity source) {
         Direction.Axis axis = getBlockState().getValue(LensBlock.AXIS);
         BlockPos sourcePos = source.getBlockPos();
