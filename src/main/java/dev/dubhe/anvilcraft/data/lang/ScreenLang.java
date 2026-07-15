@@ -3,11 +3,9 @@ package dev.dubhe.anvilcraft.data.lang;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 
 public class ScreenLang {
-    /**
-     * 初始化界面文本生成器。
-     *
-     * @param provider 语言提供器
-     */
+    /// 初始化 GUI 文本生成器
+    ///
+    /// @param provider 提供器
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
         provider.add("screen.anvilcraft.trading_station.not_owner", "You are not the owner of this Trading Station!");
@@ -709,5 +707,8 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.shulker_container.6", "Currently injected times: %s");
 
         provider.add("tooltip.anvilcraft.waiting", "Waiting for syncing");
+
+        provider.add("screen.anvilcraft.auto_enchanting_table.out_of_limit", "The sum of all enchantment levels is greater than the enchantment ability or experience fluid volume");
+        provider.add("screen.anvilcraft.auto_enchanting_table.fluid_display", "Exp: %s");
     }
 }

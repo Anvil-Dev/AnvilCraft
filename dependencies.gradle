@@ -23,7 +23,4 @@ dependencies {
     // Jade
     compileClasspath(libs.jade)
     runtimeClasspath(libs.jade)
-
-    compileOnly("maven.modrinth:pipez:neoforge-1.2.30+26.1.2")
-    runtimeOnly("maven.modrinth:pipez:neoforge-1.2.30+26.1.2")
 }

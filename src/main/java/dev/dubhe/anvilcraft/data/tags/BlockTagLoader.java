@@ -426,5 +426,8 @@ public class BlockTagLoader {
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.getId())
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.getId())
             .addElement(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.getId());
+
+        provider.rawBuilder(BlockTags.ENCHANTMENT_POWER_PROVIDER)
+            .addElement(ModBlocks.TRANSCENDIUM_BLOCK.getId());
     }
 }

@@ -168,6 +168,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 SmartBlockPlacerScreen.LAYER_DEFAULT[i],
                 16,
                 48,
+                new int[] {0, 32, 16},
                 _ -> this.onLayerButtonClick(index),
                 List.of(Component.translatable("screen.anvilcraft.smart_block_placer.layer." + (i + 1)))
             );
@@ -269,6 +270,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             SmartBlockPlacerScreen.SKIP_MISSING,
             16,
             48,
+            new int[] {0, 32, 16},
             _ -> this.onSkipMissingButtonClick(),
             List.of(Component.translatable("screen.anvilcraft.smart_block_placer.missing_mode.skip"))
         );
@@ -283,6 +285,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             SmartBlockPlacerScreen.STOP_MISSING,
             16,
             48,
+            new int[] {0, 32, 16},
             _ -> this.onStopMissingButtonClick(),
             List.of(Component.translatable("screen.anvilcraft.smart_block_placer.missing_mode.stop"))
         );
@@ -398,7 +401,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         TriStateButton button = new TriStateButton(
             xpos, ypos, 16, 16,
             SmartBlockPlacerScreen.POSITION_SELECT, 16, 48,
-            (_) -> this.onPositionButtonClick(row, col, positionIndex, tooltipSelected, tooltipUnselected),
+            new int[] {0, 32, 16},
+            _ -> this.onPositionButtonClick(row, col, positionIndex, tooltipSelected, tooltipUnselected),
             selected ? tooltipSelected : tooltipUnselected
         );
         button.setSelected(selected);

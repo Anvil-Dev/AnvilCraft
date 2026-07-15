@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.workstation;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -12,6 +13,7 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -22,6 +24,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -31,6 +35,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public class AutoEnchantingTableBlock extends BetterBaseEntityBlock {
+    public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
+
     private static final VoxelShape SHAPE = Block.column(16.0, 0.0, 12.0);
 
     public static final List<BlockPos> BOOKSHELF_OFFSETS = BlockPos.betweenClosedStream(-2, 0, -2, 2, 1, 2)
@@ -45,6 +51,8 @@ public class AutoEnchantingTableBlock extends BetterBaseEntityBlock {
 
     public AutoEnchantingTableBlock(Properties properties) {
         super(properties);
+        this.registerDefaultState(this.getStateDefinition().any()
+            .setValue(OVERLOAD, true));
     }
 
     @Override
@@ -55,6 +63,24 @@ public class AutoEnchantingTableBlock extends BetterBaseEntityBlock {
     @Override
     protected boolean useShapeForLightOcclusion(BlockState state) {
         return true;
+    }
+
+    @Override
+    protected InteractionResult useItemOn(
+        ItemStack stack,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hitResult
+    ) {
+        if (level.getBlockEntity(pos) instanceof AutoEnchantingTableBlockEntity autoEnchantingTableBlockEntity) {
+            if (autoEnchantingTableBlockEntity.onPlayerUse(player, hand)) {
+                return InteractionResult.SUCCESS;
+            }
+        }
+        return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
     @Override
@@ -69,6 +95,7 @@ public class AutoEnchantingTableBlock extends BetterBaseEntityBlock {
                     return InteractionResult.PASS;
                 }
                 ModMenuTypes.open(serverPlayer, autoEnchantingTableBlockEntity, pos);
+                autoEnchantingTableBlockEntity.setOpenMenu(true);
             }
         }
         return InteractionResult.SUCCESS;
@@ -113,5 +140,10 @@ public class AutoEnchantingTableBlock extends BetterBaseEntityBlock {
     @Override
     protected boolean isPathfindable(BlockState state, PathComputationType type) {
         return false;
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(OVERLOAD);
     }
 }

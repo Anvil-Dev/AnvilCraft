@@ -11,11 +11,33 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Blocks;
 
 public class ShapedRecipeLoader {
     public ShapedRecipeLoader(RegistrumRecipeProvider provider) {
         this.nineToOne(provider);
         this.controlValve(provider);
+        this.autoEnchantingTable(provider);
+    }
+
+    private void autoEnchantingTable(RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ModBlocks.AUTO_ENCHANTING_TABLE)
+            .pattern("TET")
+            .pattern("ReR")
+            .define('T', ModBlocks.FLUID_TANK)
+            .define('E', Blocks.ENCHANTING_TABLE)
+            .define('R', ModItems.ROYAL_STEEL_INGOT)
+            .define('e', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FLUID_TANK),
+                        AnvilCraftDatagen.has(provider.getItems(), ModBlocks.FLUID_TANK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.ENCHANTING_TABLE),
+                        AnvilCraftDatagen.has(provider.getItems(), Blocks.ENCHANTING_TABLE))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT),
+                        AnvilCraftDatagen.has(provider.getItems(), ModItems.ROYAL_STEEL_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
+                        AnvilCraftDatagen.has(provider.getItems(), ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK))
+            .save(provider);
     }
 
     private void controlValve(RegistrumRecipeProvider provider) {

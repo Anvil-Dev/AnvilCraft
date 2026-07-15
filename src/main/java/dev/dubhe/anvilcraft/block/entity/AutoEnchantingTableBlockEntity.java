@@ -1,15 +1,14 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.workstation.AutoEnchantingTableBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
-import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.AutoEnchantingTableMenu;
-import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -19,7 +18,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.IdMap;
 import net.minecraft.core.NonNullList;
-import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -27,25 +25,25 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.Util;
+import net.minecraft.world.Container;
 import net.minecraft.world.ContainerHelper;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
-import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.EnchantingTableBlock;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
@@ -57,13 +55,14 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Consumer;
 
 public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity implements WorldlyContainer, IPowerConsumer {
     @Getter
@@ -72,9 +71,19 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
     private PowerGrid grid;
     /// 索引0：物品输入 1：物品输出 2：引物
     private NonNullList<ItemStack> items = NonNullList.withSize(3, ItemStack.EMPTY);
-
     @Getter
-    private final Map<Item, List<ResourceKey<Enchantment>>> enchantmentMap = new Object2ObjectOpenHashMap<>();
+    private final Set<Integer> selectedEnchantmentSet = new IntArraySet();
+    @Getter
+    @Setter
+    private ItemStack lastPrologueItem = ItemStack.EMPTY;
+    @Getter
+    private Runnable prologueSlotUpdateListener = () -> {};
+    @Getter
+    @Setter
+    private Consumer<Container> slotChangedListener = (_) -> {};
+    @Setter
+    private boolean isOpenMenu = false;
+
     private int enchantmentSeed = 0;
     private final RandomSource random = RandomSource.create();
 
@@ -104,117 +113,6 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
     public float flipT;
     public float flipA;
     // endregion
-
-    public static Map<Item, List<ResourceKey<Enchantment>>> getEnchantmentMap(Level level) {
-        Registry<Enchantment> enchantments = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT);
-
-        // 蓝宝石护符
-        ObjectArrayList<ResourceKey<Enchantment>> sapphireAmulet = new ObjectArrayList<>();
-        enchantments.get(Enchantments.BREACH).ifPresent((ref) -> sapphireAmulet.add(Objects.requireNonNull(ref.getKey())));
-        enchantments.get(Enchantments.AQUA_AFFINITY).ifPresent((ref) -> sapphireAmulet.add(Objects.requireNonNull(ref.getKey())));
-        enchantments.get(Enchantments.DEPTH_STRIDER).ifPresent((ref) -> sapphireAmulet.add(Objects.requireNonNull(ref.getKey())));
-
-        // 红宝石护符
-        ObjectArrayList<ResourceKey<Enchantment>> rubyAmulet = new ObjectArrayList<>();
-        enchantments.get(Enchantments.FIRE_PROTECTION).ifPresent((ref) -> rubyAmulet.add(Objects.requireNonNull(ref.getKey())));
-
-        // 黄玉护符
-        ObjectArrayList<ResourceKey<Enchantment>> topazAmulet = new ObjectArrayList<>();
-        enchantments.get(Enchantments.CHANNELING).ifPresent((ref) -> topazAmulet.add(Objects.requireNonNull(ref.getKey())));
-
-        // 绿宝石护符
-        Iterable<Holder<Enchantment>> tradeableEnchants = enchantments.getTagOrEmpty(EnchantmentTags.TRADEABLE);
-        ObjectArrayList<ResourceKey<Enchantment>> emeraldAmulet = new ObjectArrayList<>();
-        tradeableEnchants.forEach((holder) -> {
-            ResourceKey<Enchantment> key = Objects.requireNonNull(holder.getKey());
-            if (!sapphireAmulet.contains(key) && !rubyAmulet.contains(key) && !topazAmulet.contains(key)) {
-                emeraldAmulet.add(key);
-            }
-        });
-
-        // 宝石护符
-        ObjectArrayList<ResourceKey<Enchantment>> gemAmulet = new ObjectArrayList<>();
-        gemAmulet.addAll(sapphireAmulet);
-        gemAmulet.addAll(rubyAmulet);
-        gemAmulet.addAll(topazAmulet);
-        gemAmulet.addAll(emeraldAmulet);
-
-        // 羽毛护符
-        ObjectArrayList<ResourceKey<Enchantment>> featherAmulet = new ObjectArrayList<>();
-        enchantments.get(Enchantments.FEATHER_FALLING).ifPresent((ref) -> featherAmulet.add(Objects.requireNonNull(ref.getKey())));
-
-        // 寂静护符
-        ObjectArrayList<ResourceKey<Enchantment>> silenceAmulet = new ObjectArrayList<>();
-        enchantments.get(Enchantments.PROTECTION).ifPresent((ref) -> silenceAmulet.add(Objects.requireNonNull(ref.getKey())));
-        enchantments.get(Enchantments.SWIFT_SNEAK).ifPresent((ref) -> silenceAmulet.add(Objects.requireNonNull(ref.getKey())));
-
-        // 猫护符
-        ObjectArrayList<ResourceKey<Enchantment>> catAmulet = new ObjectArrayList<>();
-        enchantments.get(Enchantments.BLAST_PROTECTION).ifPresent((ref) -> catAmulet.add(Objects.requireNonNull(ref.getKey())));
-        enchantments.get(Enchantments.THORNS).ifPresent((ref) -> catAmulet.add(Objects.requireNonNull(ref.getKey())));
-
-        // 狗护符
-        ObjectArrayList<ResourceKey<Enchantment>> dogAmulet = new ObjectArrayList<>();
-        enchantments.get(Enchantments.PROJECTILE_PROTECTION).ifPresent((ref) -> dogAmulet.add(Objects.requireNonNull(ref.getKey())));
-
-        // 自然护符
-        ObjectArrayList<ResourceKey<Enchantment>> natureAmulet = new ObjectArrayList<>();
-        natureAmulet.addAll(featherAmulet);
-        natureAmulet.addAll(silenceAmulet);
-        natureAmulet.addAll(catAmulet);
-        natureAmulet.addAll(dogAmulet);
-
-        // 紫水晶
-        ObjectArrayList<ResourceKey<Enchantment>> amethystShard = new ObjectArrayList<>();
-        enchantments.get(ModEnchantments.FELLING_KEY).ifPresent((ref) -> amethystShard.add(Objects.requireNonNull(ref.getKey())));
-        enchantments.get(ModEnchantments.HARVEST_KEY).ifPresent((ref) -> amethystShard.add(Objects.requireNonNull(ref.getKey())));
-
-        // 皇家钢锭
-        ObjectArrayList<ResourceKey<Enchantment>> royalSteelShard = new ObjectArrayList<>();
-        enchantments.get(Enchantments.SILK_TOUCH).ifPresent((ref) -> royalSteelShard.add(Objects.requireNonNull(ref.getKey())));
-        enchantments.get(Enchantments.UNBREAKING).ifPresent((ref) -> royalSteelShard.add(Objects.requireNonNull(ref.getKey())));
-        enchantments.get(Enchantments.MENDING).ifPresent((ref) -> royalSteelShard.add(Objects.requireNonNull(ref.getKey())));
-
-        // 余烬金属锭
-        ObjectArrayList<ResourceKey<Enchantment>> emberMetal = new ObjectArrayList<>();
-        enchantments.get(ModEnchantments.SMELTING_KEY).ifPresent((ref) -> emberMetal.add(Objects.requireNonNull(ref.getKey())));
-        enchantments.get(Enchantments.FIRE_ASPECT).ifPresent((ref) -> emberMetal.add(Objects.requireNonNull(ref.getKey())));
-        enchantments.get(Enchantments.FLAME).ifPresent((ref) -> emberMetal.add(Objects.requireNonNull(ref.getKey())));
-
-        // 浮霜金属锭
-        ObjectArrayList<ResourceKey<Enchantment>> frostMetal = new ObjectArrayList<>();
-        enchantments.get(ModEnchantments.DISINTEGRATION_KEY).ifPresent((ref) -> frostMetal.add(Objects.requireNonNull(ref.getKey())));
-        enchantments.get(Enchantments.FROST_WALKER).ifPresent((ref) -> frostMetal.add(Objects.requireNonNull(ref.getKey())));
-
-        // 超限合金锭
-        ObjectArrayList<ResourceKey<Enchantment>> transcendium = new ObjectArrayList<>();
-        enchantments.get(Enchantments.FORTUNE).ifPresent((ref) -> transcendium.add(Objects.requireNonNull(ref.getKey())));
-        enchantments.get(Enchantments.LOOTING).ifPresent((ref) -> transcendium.add(Objects.requireNonNull(ref.getKey())));
-        enchantments.get(ModEnchantments.BEHEADING_KEY).ifPresent((ref) -> transcendium.add(Objects.requireNonNull(ref.getKey())));
-        enchantments.get(Enchantments.LUCK_OF_THE_SEA).ifPresent((ref) -> transcendium.add(Objects.requireNonNull(ref.getKey())));
-        transcendium.addAll(amethystShard);
-        transcendium.addAll(royalSteelShard);
-        transcendium.addAll(emberMetal);
-        transcendium.addAll(frostMetal);
-
-        return Map.copyOf(Util.make(new Object2ObjectOpenHashMap<>(), (map) -> {
-            map.put(ModItems.SAPPHIRE_AMULET.get(), List.copyOf(sapphireAmulet));
-            map.put(ModItems.RUBY_AMULET.get(), List.copyOf(rubyAmulet));
-            map.put(ModItems.TOPAZ.get(), List.copyOf(topazAmulet));
-            map.put(ModItems.EMERALD_AMULET.get(), List.copyOf(emeraldAmulet));
-            map.put(ModItems.GEM_AMULET.get(), List.copyOf(gemAmulet));
-            map.put(ModItems.FEATHER_AMULET.get(), List.copyOf(featherAmulet));
-            map.put(ModItems.SILENCE_AMULET.get(), List.copyOf(silenceAmulet));
-            map.put(ModItems.CAT_AMULET.get(), List.copyOf(catAmulet));
-            map.put(ModItems.DOG_AMULET.get(), List.copyOf(dogAmulet));
-            map.put(ModItems.NATURE_AMULET.get(), List.copyOf(natureAmulet));
-            map.put(Items.AMETHYST_SHARD, List.copyOf(amethystShard));
-            map.put(ModItems.ROYAL_STEEL_INGOT.get(), List.copyOf(royalSteelShard));
-            map.put(ModItems.EMBER_METAL_INGOT.get(), List.copyOf(emberMetal));
-            map.put(ModItems.FROST_METAL_INGOT.get(), List.copyOf(frostMetal));
-            map.put(ModItems.TRANSCENDIUM_INGOT.get(), List.copyOf(transcendium));
-        }));
-    }
 
     public AutoEnchantingTableBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -291,13 +189,20 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
         final BlockPos pos,
         final BlockState state
     ) {
+        if (this.grid == null) {
+            level.setBlockAndUpdate(this.getBlockPos(), this.getBlockState().setValue(AutoEnchantingTableBlock.OVERLOAD, true));
+            return;
+        }
+        if (this.grid.isWorking() && this.getBlockState().getValue(AutoEnchantingTableBlock.OVERLOAD)) {
+            level.setBlockAndUpdate(this.getBlockPos(), this.getBlockState().setValue(AutoEnchantingTableBlock.OVERLOAD, false));
+        } else if (!this.grid.isWorking() && !this.getBlockState().getValue(AutoEnchantingTableBlock.OVERLOAD)) {
+            level.setBlockAndUpdate(this.getBlockPos(), this.getBlockState().setValue(AutoEnchantingTableBlock.OVERLOAD, true));
+            return;
+        }
         if (this.cooldown > 0) {
             this.cooldown--;
         } else if (this.cooldown == 0) {
             this.cooldown = 80;
-            if (this.grid != null && !this.grid.isWorking()) {
-                return;
-            }
             if (!this.getItem(1).isEmpty() || this.getItem(0).isEmpty()) {
                 return;
             }
@@ -307,30 +212,26 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
                 this.setItem(1, enchantItem);
                 return;
             }
-            if (this.getItem(2).isEmpty()) {
+            ItemStack prologueItem = this.getItem(2);
+            if (prologueItem.isEmpty()) {
+                this.lastPrologueItem = ItemStack.EMPTY;
                 // 无引物模式
-                int exp = 0;
-                for (BlockPos offset : AutoEnchantingTableBlock.BOOKSHELF_OFFSETS) {
-                    if (EnchantingTableBlock.isValidBookShelf(level, pos, offset)) {
-                        exp += 400;
-                        if (exp >= 6000) {
-                            exp = 6000;
-                            break;
-                        }
-                    }
-                }
-                if (this.fluidHandler.getAmountAsInt(0) < exp) {
-                    return;
-                }
+                int exp = Mth.clamp(this.getBookShelf(level, pos) * 400, 0, 6000);
                 int[][] costAndEnchant = this.getCostAndEnchant(enchantItem);
                 if (costAndEnchant.length == 0) {
                     return;
                 }
                 int index = level.getRandom().nextInt(0, 3);
+                if (exp <= 0) {
+                    exp = (7 + 2 * index) * 20;
+                }
+                if (this.fluidHandler.getAmountAsInt(0) < exp) {
+                    return;
+                }
                 int[] enchant = costAndEnchant[index];
                 List<EnchantmentInstance> enchantmentList = this.getEnchantmentList(level.registryAccess(), enchantItem, index, enchant[0]);
                 if (enchantItem.is(Items.BOOK)) {
-                    enchantItem.transmuteCopy(Items.ENCHANTED_BOOK);
+                    enchantItem = enchantItem.transmuteCopy(Items.ENCHANTED_BOOK, 1);
                 }
                 if (!enchantmentList.isEmpty()) {
                     for (EnchantmentInstance enchantmentInstance : enchantmentList) {
@@ -342,7 +243,6 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
                 try (Transaction ts = Transaction.openRoot()) {
                     this.fluidHandler.extract(FluidResource.of(ModFluids.EXP_FLUID), exp, ts);
                     ts.commit();
-                    this.onChange();
                 }
                 this.enchantmentSeed = level.getRandom().nextInt();
                 level.playSound(
@@ -354,9 +254,80 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
                     level.getRandom().nextFloat() * 0.1F + 0.9F
                 );
             } else {
-                // TODO: 引物模式
+                if (this.isOpenMenu) {
+                    return;
+                }
+                if (this.selectedEnchantmentSet.isEmpty()) {
+                    return;
+                }
+                IdMap<Holder<Enchantment>> idMap = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).asHolderIdMap();
+                int totalLevel = 0;
+                for (int id : this.getSelectedEnchantmentSet()) {
+                    Holder<Enchantment> enchantmentHolder = idMap.byId(id);
+                    if (enchantmentHolder != null) {
+                        totalLevel += enchantmentHolder.value().getMaxLevel();
+                    }
+                }
+                if (totalLevel > this.getBookShelf(level, pos)
+                    || totalLevel * 400 > this.fluidHandler.getAmountAsInt(0)) {
+                    return;
+                }
+                ItemStack enchantedBook = Items.ENCHANTED_BOOK.getDefaultInstance();
+                for (int id : this.selectedEnchantmentSet) {
+                    Holder<Enchantment> enchantmentHolder = idMap.byId(id);
+                    if (enchantmentHolder != null) {
+                        enchantedBook.enchant(enchantmentHolder, enchantmentHolder.value().getMaxLevel());
+                    }
+                }
+                if (enchantItem.is(Items.BOOK)) {
+                    this.setItem(0, ItemStack.EMPTY);
+                    this.setItem(1, enchantedBook);
+                } else {
+                    applyEnchantment(enchantItem, enchantedBook);
+                    this.setItem(0, ItemStack.EMPTY);
+                    this.setItem(1, enchantItem);
+                }
+                try (Transaction ts = Transaction.openRoot()) {
+                    this.fluidHandler.extract(FluidResource.of(ModFluids.EXP_FLUID), totalLevel * 400, ts);
+                    ts.commit();
+                }
+                level.playSound(
+                    null,
+                    this.getBlockPos(),
+                    SoundEvents.ENCHANTMENT_TABLE_USE,
+                    SoundSource.BLOCKS,
+                    1.0F,
+                    level.getRandom().nextFloat() * 0.1F + 0.9F
+                );
             }
         }
+    }
+
+    public boolean onPlayerUse(Player player, InteractionHand hand) {
+        return FluidUtil.interactWithFluidHandler(player, hand, worldPosition, this.getFluidHandler());
+    }
+
+    public static void applyEnchantment(ItemStack item, ItemStack enchantedBook) {
+        ItemEnchantments enchantmentsOnRight = EnchantmentHelper.getEnchantmentsForCrafting(enchantedBook);
+        for (Object2IntMap.Entry<Holder<Enchantment>> entry : enchantmentsOnRight.entrySet()) {
+            Holder<Enchantment> holder = entry.getKey();
+            int enchantmentsOnRightLevel = entry.getIntValue();
+            boolean compatible = item.supportsEnchantment(holder);
+            if (!compatible) {
+                continue;
+            }
+            item.enchant(holder, enchantmentsOnRightLevel);
+        }
+    }
+
+    private int getBookShelf(Level level, BlockPos pos) {
+        float bookcases = 0;
+        for (BlockPos offset : AutoEnchantingTableBlock.BOOKSHELF_OFFSETS) {
+            if (EnchantingTableBlock.isValidBookShelf(level, pos, offset)) {
+                bookcases += level.getBlockState(pos.offset(offset)).getEnchantPowerBonus(level, pos.offset(offset));
+            }
+        }
+        return (int) bookcases;
     }
 
     private int[][] getCostAndEnchant(ItemStack itemStack) {
@@ -368,18 +339,13 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
         }
         if (this.level != null) {
             final IdMap<Holder<Enchantment>> idMap = this.level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).asHolderIdMap();
-            int bookcases = 0;
-            for (BlockPos offset : AutoEnchantingTableBlock.BOOKSHELF_OFFSETS) {
-                if (EnchantingTableBlock.isValidBookShelf(this.level, this.getBlockPos(), offset)) {
-                    bookcases++;
-                }
-            }
+            float bookcases = this.getBookShelf(level, getBlockPos());
             if (this.enchantmentSeed == 0) {
                 this.enchantmentSeed = level.getRandom().nextInt();
             }
             this.random.setSeed(this.enchantmentSeed);
             for (int ixx = 0; ixx < 3; ixx++) {
-                costs[ixx] = EnchantmentHelper.getEnchantmentCost(this.random, ixx, bookcases, itemStack);
+                costs[ixx] = EnchantmentHelper.getEnchantmentCost(this.random, ixx, (int) bookcases, itemStack);
                 enchantClue[ixx] = -1;
                 levelClue[ixx] = -1;
                 if (costs[ixx] < ixx + 1) {
@@ -426,12 +392,28 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
         return list;
     }
 
+    public void registerUpdateListener(final Runnable prologueSlotUpdateListener) {
+        this.prologueSlotUpdateListener = prologueSlotUpdateListener;
+    }
+
+    @Override
+    public void setChanged() {
+        super.setChanged();
+        this.slotChangedListener.accept(this);
+    }
+
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         ContainerHelper.saveAllItems(output, this.items);
         this.fluidHandler.serialize(output);
         output.putInt("cooldown", this.cooldown);
+        output.store("LastPrologueItem", ItemStack.OPTIONAL_CODEC, this.lastPrologueItem);
+        ValueOutput.TypedOutputList<Integer> selectedEnchantments = output.list("selectedEnchantments", Codec.INT);
+        for (Integer id : this.selectedEnchantmentSet) {
+            selectedEnchantments.add(id);
+        }
+        output.putBoolean("openMenu", this.isOpenMenu);
     }
 
     @Override
@@ -440,6 +422,12 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
         ContainerHelper.loadAllItems(input, this.items);
         this.fluidHandler.deserialize(input);
         input.getInt("cooldown").ifPresent((cooldown) -> this.cooldown = cooldown);
+        input.read("LastPrologueItem", ItemStack.OPTIONAL_CODEC).ifPresent(this::setLastPrologueItem);
+        this.selectedEnchantmentSet.clear();
+        for (Integer id : input.listOrEmpty("selectedEnchantments", Codec.INT)) {
+            this.selectedEnchantmentSet.add(id);
+        }
+        input.getBooleanOr("openMenu", false);
     }
 
     @Override
@@ -472,7 +460,7 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
     }
 
     @Override
-    protected NonNullList<ItemStack> getItems() {
+    public NonNullList<ItemStack> getItems() {
         return this.items;
     }
 
@@ -509,12 +497,12 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
 
     @Override
     public boolean canPlaceItemThroughFace(int slot, ItemStack itemStack, @Nullable Direction direction) {
-        return slot == 0;
+        return slot == 0 && this.items.getFirst().isEmpty();
     }
 
     @Override
     public boolean canTakeItemThroughFace(int slot, ItemStack itemStack, Direction direction) {
-        return slot == 1;
+        return slot == 1 && !this.items.get(1).isEmpty();
     }
 
     @Override

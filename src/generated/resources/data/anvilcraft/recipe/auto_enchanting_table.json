@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": "minecraft:enchanting_table",
+    "R": "anvilcraft:royal_steel_ingot",
+    "T": "anvilcraft:fluid_tank",
+    "e": "anvilcraft:magnetoelectric_core"
+  },
+  "pattern": [
+    "TET",
+    "ReR"
+  ],
+  "result": {
+    "id": "anvilcraft:auto_enchanting_table"
+  }
+}

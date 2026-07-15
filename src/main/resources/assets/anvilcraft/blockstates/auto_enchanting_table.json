@@ -1,6 +1,9 @@
 {
   "variants": {
-    "": {
+    "overload=true": {
+      "model": "anvilcraft:block/auto_enchanting_table_overload"
+    },
+    "overload=false": {
       "model": "anvilcraft:block/auto_enchanting_table"
     }
   }

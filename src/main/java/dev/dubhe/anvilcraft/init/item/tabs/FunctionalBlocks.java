@@ -76,6 +76,7 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.INDUCTION_LIGHT);
         this.plain(ModBlocks.LOAD_MONITOR);
         this.plain(ModBlocks.TESLA_TOWER);
+        this.plain(ModBlocks.AUTO_ENCHANTING_TABLE); // 自动附魔台
         this.plain(ModBlocks.BATCH_CRAFTER);
         this.plain(ModBlocks.BATCH_CUTTER);
         this.plain(ModBlocks.ITEM_COLLECTOR);

@@ -1,7 +1,10 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.input.InputWithModifiers;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -9,13 +12,20 @@ import net.minecraft.resources.Identifier;
 import java.util.List;
 
 public class TriStateButton extends Button {
+    private final OnPress onPress;
+    @Setter
     private Identifier texture;
     private final int textureWidth;
     private final int textureHeight;
-    private final int texYDiff;
+    @Getter
+    @Setter
     private List<Component> tooltips;
-    private boolean selected;
+    @Getter
+    @Setter
+    protected boolean selected;
+    private final int[] stateOffset;
 
+    // StateOffset: 0:未选中 1:按下 2: 悬停
     public TriStateButton(
         int x,
         int y,
@@ -24,46 +34,28 @@ public class TriStateButton extends Button {
         Identifier texture,
         int textureWidth,
         int textureHeight,
+        int[] stateOffset,
         OnPress onPress,
         List<Component> tooltips
     ) {
-        super(x, y, width, height, Component.empty(), onPress, Button.DEFAULT_NARRATION);
+        super(x, y, width, height, Component.empty(), _ -> {}, Button.DEFAULT_NARRATION);
+        this.onPress = onPress;
+        this.stateOffset = stateOffset;
         this.texture = texture;
         this.textureWidth = textureWidth;
         this.textureHeight = textureHeight;
-        this.texYDiff = textureHeight / 3;
         this.tooltips = tooltips;
-    }
-
-    public void setSelected(boolean selected) {
-        this.selected = selected;
-    }
-
-    public boolean isSelected() {
-        return this.selected;
-    }
-
-    public void setTooltips(List<Component> tooltips) {
-        this.tooltips = tooltips;
-    }
-
-    public List<Component> getTooltips() {
-        return this.tooltips;
-    }
-
-    public void setTexture(Identifier texture) {
-        this.texture = texture;
     }
 
     @Override
     protected void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         if (!this.visible) return;
         this.isHovered = this.isMouseOver(mouseX, mouseY);
-        int offsetV = 0;
+        int offsetV = this.stateOffset[0];
         if (this.selected) {
-            offsetV = this.texYDiff * 2;
+            offsetV = this.stateOffset[1];
         } else if (this.isHovered) {
-            offsetV = this.texYDiff;
+            offsetV = this.stateOffset[2];
         }
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
@@ -84,5 +76,15 @@ public class TriStateButton extends Button {
                 mouseY
             );
         }
+    }
+
+    @Override
+    public void onPress(InputWithModifiers input) {
+        this.selected = !this.selected;
+        this.onPress.onPress(this);
+    }
+
+    public interface OnPress {
+        void onPress(TriStateButton btn);
     }
 }
