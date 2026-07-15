@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.WipBlock;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
@@ -16,6 +17,7 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
@@ -36,14 +38,17 @@ import java.util.Arrays;
 import java.util.List;
 
 public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<ProceduralProcessRecipe>> {
+    private static final String INITIAL_BLOCK = "initial_block";
+    private static final String OUTPUT_BLOCK = "output_block";
     public static final int WIDTH = 162;
-    public static final int HEIGHT = 70;
+    public static final int HEIGHT = 90;
     private static final int MAX_VISIBLE_STEPS = 5;
     private static final int STEPS_LENGTH = 120;
     private static final int STEP_X = (WIDTH - STEPS_LENGTH) / 2 + 10;
     private static final int STEP_LENGTH = 20;
-    private static final int ITEM_Y = 16;
-    private static final int BLOCK_Y = 36;
+    private static final int ITEM_Y = 20;
+    private static final int BLOCK_Y = 50;
+    private static final int FLOW_Y = 72;
 
     private final IDrawable icon;
     private final IDrawable slot;
@@ -91,14 +96,37 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         IFocusGroup focuses
     ) {
         ProceduralProcessRecipe recipe = holder.value();
-        JeiRecipeUtil.addInvisibleInput(builder, recipe.getInitialBlock());
-        JeiRecipeUtil.addInvisibleOutput(builder, recipe.getResultBlock());
+        JeiBlockIngredientUtil.addInputSlot(
+            builder, INITIAL_BLOCK, STEP_X - 29, BLOCK_Y - 6, 18, 18, recipe.getInitialBlock()
+        );
+        JeiBlockIngredientUtil.addSlot(
+            builder,
+            RecipeIngredientRole.OUTPUT,
+            OUTPUT_BLOCK,
+            STEP_X + STEPS_LENGTH - 9,
+            BLOCK_Y - 6,
+            18,
+            18,
+            recipe.getResultBlock().state().getBlock()
+        );
 
         int visibleSteps = Math.min(recipe.getSteps().size(), MAX_VISIBLE_STEPS);
         for (int index = 0; index < visibleSteps; index++) {
             ProceduralProcessStep step = recipe.getSteps().get(index);
             if (!(step.getContent() instanceof AbstractProcessRecipe<?> process)) continue;
-            JeiRecipeUtil.addInvisibleInputs(builder, process.getInputBlocks());
+            for (int blockIndex = 0; blockIndex < process.getInputBlocks().size(); blockIndex++) {
+                int y = blockIndex == 0 ? BLOCK_Y - 6 : BLOCK_Y + 12 + 10 * (blockIndex - 1);
+                int height = blockIndex == 0 ? 18 : 10;
+                JeiBlockIngredientUtil.addInputSlot(
+                    builder,
+                    stepBlockSlotName(index, blockIndex),
+                    stepX(index, visibleSteps) - 9,
+                    y,
+                    18,
+                    height,
+                    process.getInputBlocks().get(blockIndex)
+                );
+            }
             if (process.getInputItems().isEmpty()) continue;
 
             ItemIngredientPredicate ingredient = process.getInputItems().getFirst();
@@ -114,6 +142,13 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     }
 
     @Override
+    public void createRecipeExtras(
+        IRecipeExtrasBuilder builder, RecipeHolder<ProceduralProcessRecipe> holder, IFocusGroup focuses
+    ) {
+        JeiBlockIngredientUtil.suppressHoverOverlays(builder);
+    }
+
+    @Override
     public void draw(
         RecipeHolder<ProceduralProcessRecipe> holder,
         IRecipeSlotsView view,
@@ -122,7 +157,9 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         double mouseY
     ) {
         ProceduralProcessRecipe recipe = holder.value();
-        renderPredicate(graphics, recipe.getInitialBlock(), holder, STEP_X - 20, BLOCK_Y, 18);
+        renderPredicate(
+            graphics, view, INITIAL_BLOCK, recipe.getInitialBlock(), holder, STEP_X - 20, BLOCK_Y, 18
+        );
 
         int visibleSteps = Math.min(recipe.getSteps().size(), MAX_VISIBLE_STEPS);
         for (int index = 0; index < visibleSteps; index++) {
@@ -137,6 +174,8 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
             for (int inputIndex = inputBlocks.size() - 1; inputIndex >= 0; inputIndex--) {
                 renderPredicate(
                     graphics,
+                    view,
+                    stepBlockSlotName(index, inputIndex),
                     inputBlocks.get(inputIndex),
                     holder,
                     x - 9,
@@ -146,18 +185,20 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
             }
         }
 
-        this.longArrow.draw(graphics, WIDTH / 2 - 32, BLOCK_Y + 20);
+        this.longArrow.draw(graphics, WIDTH / 2 - 32, FLOW_Y + 4);
         if (recipe.getLoop() > 1) {
-            this.cycle.draw(graphics, WIDTH / 2 + 52, BLOCK_Y + 14);
+            this.cycle.draw(graphics, WIDTH / 2 + 47, FLOW_Y);
             AgeratumUtil.renderText(
                 graphics,
                 Component.literal(String.valueOf(recipe.getLoop())),
                 WIDTH / 2 + 68,
-                BLOCK_Y + 18,
+                FLOW_Y + 4,
                 1.2F
             );
         }
-        RenderSupport.renderBlock(graphics, recipe.getResultBlock().state(), 142, BLOCK_Y, 20);
+        BlockState outputState = JeiBlockIngredientUtil.getRenderablePreviewState(recipe.getResultBlock().state());
+        int outputScale = JeiBlockIngredientUtil.getRenderablePreviewScale(outputState, 20);
+        RenderSupport.renderBlock(graphics, outputState, 142, BLOCK_Y, outputScale);
     }
 
     private static int stepX(int index, int visibleSteps) {
@@ -167,6 +208,8 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
 
     private static void renderPredicate(
         GuiGraphicsExtractor graphics,
+        IRecipeSlotsView view,
+        String slotName,
         BlockStatePredicate predicate,
         RecipeHolder<ProceduralProcessRecipe> holder,
         int x,
@@ -175,8 +218,8 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     ) {
         List<BlockState> states = predicate.constructStatesForRender();
         if (states.isEmpty()) return;
-        int index = (int) ((System.currentTimeMillis() / 1000) % states.size());
-        BlockState state = states.get(index);
+        BlockState state = JeiBlockIngredientUtil.getDisplayedState(view, slotName, states).orElse(states.getFirst());
+        size = JeiBlockIngredientUtil.getRenderablePreviewScale(state, size);
         if (state.getBlock() instanceof WipBlock) {
             RenderSupport.renderWipBlock(graphics, holder.id().identifier(), x, y, size);
         } else {
@@ -193,5 +236,9 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.PROCEDURAL_PROCESS);
+    }
+
+    private static String stepBlockSlotName(int step, int block) {
+        return "step_" + step + "_block_" + block;
     }
 }

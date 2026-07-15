@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockStructureResolver;
 import dev.dubhe.anvilcraft.event.PistonMoveBlockListener;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -30,6 +31,10 @@ abstract class PistonStructureResolverMixin {
 
     @Shadow
     @Final
+    private List<BlockPos> toDestroy;
+
+    @Shadow
+    @Final
     private Level level;
 
     @Shadow
@@ -42,6 +47,7 @@ abstract class PistonStructureResolverMixin {
             return;
         }
         if (!cir.getReturnValue()) return;
+        PistonMoveGuard.reserve(this.level, this.toPush, this.toDestroy);
         List<BlockPos> toPushBlocks = new ArrayList<>(this.toPush);
         PistonMoveBlockListener.onPistonMoveBlocks(this.level, toPushBlocks);
     }

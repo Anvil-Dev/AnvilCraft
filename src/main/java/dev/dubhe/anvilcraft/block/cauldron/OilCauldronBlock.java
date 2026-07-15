@@ -115,6 +115,11 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
     }
 
     @Override
+    public int getFluidAmount(BlockCache cache, BlockPos pos) {
+        return cache.getBlockState(pos).getValue(OilCauldronBlock.LEVEL) * 250;
+    }
+
+    @Override
     public boolean consumeOnce(BlockCache cache, BlockPos pos) {
         BlockState state = cache.getBlockState(pos);
         int layer = state.getValue(OilCauldronBlock.LEVEL) - 1;

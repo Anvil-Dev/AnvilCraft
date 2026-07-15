@@ -200,13 +200,19 @@ public class VanillaRecipesWrap {
         if (VanillaRecipesWrap.campfireCookingRecipes.containsKey(result.item().value())) return;
         Ingredient input = recipe.input();
         if (input.isEmpty() || input.isCustom()) return;
+        boolean boost = true;
+        for (Holder<Item> value : input.getValues()) {
+            if (value.is(ModItemTags.SUPER_HEATING_BOOST_PRODUCTION)) continue;
+            boost = false;
+            break;
+        }
         SuperHeatingRecipe superHeating = SuperHeatingRecipe.builder()
             .requires(new ItemIngredientPredicate(
                 Optional.of(input.getValues()),
                 1,
                 DataComponentMatchers.Builder.components().build()
             ))
-            .result(result)
+            .result(result.withCount(result.count() * (boost ? 2 : 1)))
             .buildRecipe();
         String ingredient = VanillaRecipesWrap.process(input);
         String res = VanillaRecipesWrap.process(result);

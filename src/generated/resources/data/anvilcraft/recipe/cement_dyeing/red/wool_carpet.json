@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "anvilcraft:red_cement",
+  "ingredients": [
+    {
+      "items": "#minecraft:wool_carpets"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:red_carpet"
+    }
+  ]
+}

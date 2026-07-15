@@ -10,12 +10,16 @@ items:
 
 <color=#886611> 操纵时间与空间 </color>
 
-1. 持续耗能512kW，工作前需要充能
-2. 每 3s 充能 1%
-3. 通过指令的方式干涉时空，每次消耗 20% 充能进度
-4. GUI左侧可以选择可调用指令
-5. 输入完成后，下方三个按钮从左往右功能依次为：保存并执行、仅保存、取消
-6. 执行过的指令会在GUI右侧记录
+<recipe id="anvilcraft:procedural_process/spacetime_supercomputer_from_advanced_comparator"/>
+<recipe id="anvilcraft:procedural_process/spacetime_supercomputer_from_advanced_comparator_2"/>
+
+合成需要[砧子辐照](../002_material/321_anvilon.md#砧子辐照)
+
+1. 持续耗能512kW
+2. 工作前需要充能，每 3s 充能 1%，每次工作至少消耗 20% 充能
+3. 通过指令的方式干涉时空，GUI左侧可以选择可调用指令
+4. 输入完成后，下方三个按钮从左往右功能依次为：保存并执行、仅保存、取消
+5. 执行过的指令会在GUI右侧记录
 
 ## 额外消耗
 - `/time add` 指令每增加 1000gt 额外消耗1%充能

@@ -10,8 +10,10 @@ items:
 
 <recipe id="anvilcraft:active_silencer"/>
 
-# Function
-
 - <ref item="anvilcraft:active_silencer"/> can eliminate selected sounds within a 31x31x31 area centered on itself
 - Open the GUI to search and mute sounds
-> Its settings can be copied via <ref item="anvilcraft:disk"/>
+- Its settings can be copied via <ref item="anvilcraft:disk"/>
+
+<tip>
+When searching, you can prefix with "#" to search by id
+</tip>

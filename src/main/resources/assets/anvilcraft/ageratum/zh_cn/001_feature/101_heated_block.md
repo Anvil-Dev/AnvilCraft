@@ -52,7 +52,7 @@ items:
 
 - 作为<color=#cc44cc>抽象概念</color>，反映方块因为散热，将在多久后降低**温度等级**
 - 自动减少，若归零，则**温度等级**下降，**持续时间**重置为10s
-- 收到外部加热时提升，最大值: 20min
+- 受到外部加热时提升，最大值: 20min
 - <ref item="minecraft:comparator"/>可以检测持续时间，输出红石信号
 
 # 高温方块
@@ -78,10 +78,10 @@ items:
 
 # 加热方式
 
-|                     加热方式                      |                加热能力                 | 提升时间(s) |
-|:---------------------------------------------:|:-----------------------------------:|:--------|
-|      <ref item="anvilcraft:heater"/>      | <color=#661111>高温</color> | 0.1     |
-| <ref item="anvilcraft:mineral_fountain"/> | <color=#aa2222>红热</color> | 1       |
-|    <ref item="anvilcraft:heliostats"/>    |                 可变                  | 4       |
-|    <ref item="anvilcraft:ruby_laser"/>    |                 可变                  | 0.1     |
-|       [等离子喷流](../007_struct/201_plasma_jets.md)       | <color=#cc5533>炽热</color> | 0.1 / 1 |
+|                                  加热方式                                   |           加热能力            | 提升时间(s) |
+|:-----------------------------------------------------------------------:|:-------------------------:|:--------|
+| <ref item="anvilcraft:heater"/>或<ref item="anvilcraft:burning_heater"/> | <color=#661111>高温</color> | 0.1     |
+|                <ref item="anvilcraft:mineral_fountain"/>                | <color=#aa2222>红热</color> | 1       |
+|                   <ref item="anvilcraft:heliostats"/>                   |            可变             | 4       |
+|                   <ref item="anvilcraft:ruby_laser"/>                   |            可变             | 0.1     |
+|                [等离子喷流](../007_struct/201_plasma_jets.md)                | <color=#cc5533>炽热</color> | 0.1 / 1 |

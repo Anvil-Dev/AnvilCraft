@@ -42,6 +42,7 @@ public class TempleHandler extends BaseMegastructureHandler {
     private int demandProgress = 0;
     @Getter
     private boolean demandSatisfied = false;
+    private int logisticsRoundRobin = 0;
 
     @Override
     public String name() {
@@ -200,12 +201,11 @@ public class TempleHandler extends BaseMegastructureHandler {
         if (item.asItem() == Items.AIR) return;
         ItemStack output = new ItemStack(item, 1);
 
-        List<ResourceHandler<ItemResource>> logistics = findLogisticsInterfaces(be);
-        if (logistics.isEmpty()) return;
-
-        for (ResourceHandler<ItemResource> handler : logistics) {
-            ItemStack remainder = insertIntoHandler(handler, output);
-            if (remainder.getCount() < output.getCount()) return;
+        var logistics = this.findOutputLogisticsInterfaces(be);
+        if (logistics.size() == 0) return;
+        ItemOutputResult result = insertOutputItem(logistics, output, this.logisticsRoundRobin);
+        if (result.remainder().getCount() < output.getCount()) {
+            this.logisticsRoundRobin = result.nextIndex();
         }
     }
 
@@ -267,6 +267,7 @@ public class TempleHandler extends BaseMegastructureHandler {
         this.demandCount = 0;
         this.demandProgress = 0;
         this.demandSatisfied = false;
+        this.logisticsRoundRobin = 0;
         this.pushTempleDemandToLogistics(be);
     }
 }

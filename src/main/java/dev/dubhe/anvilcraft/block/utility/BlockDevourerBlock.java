@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import dev.dubhe.anvilcraft.util.MultiPartBlockUtil;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -278,6 +279,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         final boolean insertEnabled = itemHandlerList != null && !itemHandlerList.isEmpty();
         final boolean dropOriginalPlace = !level.noCollision(aabb);
 
+        if (PistonMoveGuard.isReserved(level, devourBlockPos)) return;
         if (filteredBlockPosList.contains(devourBlockPos)) return;
         BlockState devourBlockState = level.getBlockState(devourBlockPos);
         if (devourBlockState.isAir()) return;

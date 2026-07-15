@@ -16,7 +16,9 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.integration.jei.category.AnvilCollisionCraftCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.BeaconConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.ChargerChargingCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.EnergyWeaponCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.JewelCraftingCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.MineralFountainCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MobTransformCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MobTransformWithItemCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MultipleToOneSmithingCategory;
@@ -49,14 +51,15 @@ import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockConver
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.handlers.GhostIngredientHandler;
 import dev.dubhe.anvilcraft.integration.jei.recipe.BeaconConversionRecipe;
-import dev.dubhe.anvilcraft.integration.jei.recipe.CementStainingRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.ColoredConcreteRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
+import dev.dubhe.anvilcraft.integration.jei.recipe.MineralFountainJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.TranscendiumRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.VoidDecayRecipe;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
+import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.PillRecipe;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
@@ -124,8 +127,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     );
 
     public static final IRecipeType<MeshRecipeGroup> MESH = createRecipeType("mesh", MeshRecipeGroup.class);
-    public static final IRecipeType<CementStainingRecipe> CEMENT_STAINING =
-        createRecipeType("cement_staining", CementStainingRecipe.class);
+    public static final IRecipeHolderType<BulgingRecipe> CEMENT_STAINING_BULGING =
+        createHolderType("cement_staining_bulging");
     public static final IRecipeType<ColoredConcreteRecipe> COLORED_CONCRETE =
         createRecipeType("colored_concrete", ColoredConcreteRecipe.class);
     public static final IRecipeType<BeaconConversionRecipe> BEACON_CONVERSION =
@@ -167,6 +170,9 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
 
     public static final IRecipeHolderType<AnvilCollisionCraftRecipe> ANVIL_COLLISION = createHolderType("anvil_collision");
     public static final IRecipeHolderType<ProceduralProcessRecipe> PROCEDURAL_PROCESS = createHolderType("procedural_process");
+    public static final IRecipeHolderType<EnergyWeaponMakeRecipe> ENERGY_WEAPON = createHolderType("energy_weapon");
+    public static final IRecipeType<MineralFountainJeiRecipe> MINERAL_FOUNTAIN =
+        createRecipeType("mineral_fountain", MineralFountainJeiRecipe.class);
 
     @Override
     public Identifier getPluginUid() {
@@ -207,6 +213,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         AnvilCollisionCraftCategory.registerRecipes(registration);
         TranscendiumRecipeCategory.registerRecipes(registration);
         ProceduralProcessCategory.registerRecipes(registration);
+        EnergyWeaponCategory.registerRecipes(registration);
+        MineralFountainCategory.registerRecipes(registration);
 
         registration.addItemStackInfo(
             new ItemStack(ModItems.GEODE.get()),
@@ -272,6 +280,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         AnvilCollisionCraftCategory.registerRecipeCatalysts(registration);
         TranscendiumRecipeCategory.registerRecipeCatalysts(registration);
         ProceduralProcessCategory.registerRecipeCatalysts(registration);
+        EnergyWeaponCategory.registerRecipeCatalysts(registration);
+        MineralFountainCategory.registerRecipeCatalysts(registration);
 
         registration.addCraftingStation(RecipeTypes.CRAFTING, new ItemStack(ModBlocks.BATCH_CRAFTER));
 
@@ -320,6 +330,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new AnvilCollisionCraftCategory(guiHelper));
         registration.addRecipeCategories(new TranscendiumRecipeCategory(guiHelper));
         registration.addRecipeCategories(new ProceduralProcessCategory(guiHelper));
+        registration.addRecipeCategories(new EnergyWeaponCategory(guiHelper));
+        registration.addRecipeCategories(new MineralFountainCategory(guiHelper));
     }
 
     @Override

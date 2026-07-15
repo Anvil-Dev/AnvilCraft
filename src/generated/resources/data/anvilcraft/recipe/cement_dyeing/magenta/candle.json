@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "anvilcraft:magenta_cement",
+  "ingredients": [
+    {
+      "items": "#minecraft:candles"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:magenta_candle"
+    }
+  ]
+}

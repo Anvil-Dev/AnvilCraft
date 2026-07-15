@@ -10,6 +10,18 @@ public class ScreenLang {
      */
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
+        provider.add("screen.anvilcraft.trading_station.not_owner", "You are not the owner of this Trading Station!");
+        provider.add("screen.anvilcraft.trading_station.provide", "Mark as providing items");
+        provider.add("screen.anvilcraft.trading_station.request", "Mark as requesting items");
+        provider.add("screen.anvilcraft.trading_station.player_allow", "Allow trading with player");
+        provider.add("screen.anvilcraft.trading_station.player_not_allow", "Disallow trading with player");
+        provider.add("screen.anvilcraft.trading_station.villager_allow", "Allow trading with villager");
+        provider.add("screen.anvilcraft.trading_station.villager_not_allow", "Disallow trading with villager");
+        provider.add("screen.anvilcraft.trading_station.input_allow", "Allow automatically inputting");
+        provider.add("screen.anvilcraft.trading_station.input_not_allow", "Disallow automatically inputting");
+        provider.add("screen.anvilcraft.trading_station.output_allow", "Allow automatically outputting");
+        provider.add("screen.anvilcraft.trading_station.output_not_allow", "Disallow automatically outputting");
+        provider.add("screen.anvilcraft.exp_collector.tooltip", "Exp: %s/%smB");
         provider.add("screen.anvilcraft.control_valve.redstone_locked", "Locked by Redstone");
         provider.add("screen.anvilcraft.button.direction", "Output Direction: %s");
         provider.add("screen.anvilcraft.button.direction.down", "Down");
@@ -37,6 +49,10 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.button.pulse_generator.start_mode.loop", "Mode: Loop Mode");
         provider.add("screen.anvilcraft.button.pulse_generator.reverse.off", "Reverse Mode: Off");
         provider.add("screen.anvilcraft.button.pulse_generator.reverse.on", "Reverse Mode: On");
+        provider.add("tooltip.anvilcraft.pulse_generator.title", "Pulse Generator Settings:");
+        provider.add("tooltip.anvilcraft.pulse_generator.delay", "Delay: %s");
+        provider.add("tooltip.anvilcraft.pulse_generator.output_duration", "Output Duration: %s");
+        provider.add("tooltip.anvilcraft.pulse_generator.remaining_time", "Remaining Time: %s");
 
         provider.add("screen.anvilcraft.filter.scroll_to_change", "Scroll mouse to change count");
         provider.add("screen.anvilcraft.filter.shift_to_scroll_faster", "Hold Shift to scroll faster");
@@ -82,6 +98,7 @@ public class ScreenLang {
 
         provider.add("tooltip.anvilcraft.redstone.title", "Redstone Stats:");
         provider.add("tooltip.anvilcraft.redstone.power", "  Power: %d");
+        provider.add("tooltip.anvilcraft.redstone.output_to_redstone", "  Can Output to Redstone: %d");
         provider.add("tooltip.anvilcraft.redstone.output_power", "  Output Power: %d");
         provider.add("tooltip.anvilcraft.redstone.output_mode", "  Output Mode: %s");
         provider.add("tooltip.anvilcraft.redstone.output_mode.compare", "Compare");
@@ -169,7 +186,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.tesla_tower.filter.is_baby_friendly", "Baby Friendly Entity");
         provider.add("screen.anvilcraft.tesla_tower.filter.has_custom_name", "Custom Named Entity");
 
-        provider.add("hud.anvilcraft.ionocraft_backpack_power", "Ionocraft Backpack Power: %d%%");
+        provider.add("hud.anvilcraft.ionocraft_backpack_power", "Ionocraft Backpack Power Remaining: %d%%");
 
         provider.add("screen.anvilcraft.frost_metal_upgrade_smithing_template", "Frost Metal Upgrade");
         provider.add("screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.additions_slot_description", "Put the Frost Metal Ingot");
@@ -200,7 +217,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.multiphase.merciless", "-Merciless");
 
         provider.add("screen.anvilcraft.multitool.title", "Switch tool");
-        provider.add("screen.anvilcraft.multitool.all", "All");
+        provider.add("screen.anvilcraft.multitool.all", "Enable All");
 
         provider.add("screen.anvilcraft.deflection_ring.state", "Deflection Ring State");
         provider.add("screen.anvilcraft.deflection_ring.speed", "  Last Entity Speed: %d m/tick");

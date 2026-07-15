@@ -65,6 +65,7 @@ public class ModCapabilities {
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.BURNING_HEATER.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.FISH_TANK.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CREATIVE_CRATE.get(), ModCapabilities::item);
+        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.TRADING_STATION.get(), ModCapabilities::item);
 
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CRATE.get(), ModCapabilities::item);
         event.registerBlock(
@@ -93,6 +94,7 @@ public class ModCapabilities {
         );
 
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.FISH_TANK.get(), ModCapabilities::fluid);
+        event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.EXP_COLLECTOR.get(), ModCapabilities::fluid);
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.FLUID_TANK.get(), ModCapabilities::fluid);
         event.registerBlock(
             Capabilities.Fluid.BLOCK,

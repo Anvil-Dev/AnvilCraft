@@ -32,6 +32,11 @@ public class ModVillagers {
             1,
             1));
 
+    public static final DeferredHolder<PoiType, PoiType> TRADING_STATION_POI = POI_TYPES.register(
+        "trading_station_poi",
+        () -> new PoiType(ImmutableSet.copyOf(ModBlocks.TRADING_STATION.get().getBottomStates()), 1, 1)
+    );
+
     public static final ResourceKey<VillagerProfession> JEWELER_KEY = ResourceKey.create(
         Registries.VILLAGER_PROFESSION,
         AnvilCraft.of("jeweler")

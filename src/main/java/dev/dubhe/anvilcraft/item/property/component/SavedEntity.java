@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.item.property.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.dubhe.anvilcraft.util.ResentmentUtil;
 import lombok.extern.slf4j.Slf4j;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -11,6 +12,7 @@ import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
@@ -50,9 +52,12 @@ public record SavedEntity(EntityType<?> type, CompoundTag tag, boolean isMonster
     }
 
     public static SavedEntity fromEntity(Entity entity) {
-        CompoundTag entityTag = new CompoundTag();
+        if (entity instanceof Mob mob) ResentmentUtil.initializeBaseResentment(mob);
+        CompoundTag entityTag;
         try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(entity.problemPath(), log)) {
-            entity.saveAsPassenger(TagValueOutput.createWithContext(reporter, entity.level().registryAccess()));
+            TagValueOutput output = TagValueOutput.createWithContext(reporter, entity.level().registryAccess());
+            entity.saveAsPassenger(output);
+            entityTag = output.buildResult();
         }
         entityTag.remove(Entity.TAG_UUID);
         entityTag.remove(Entity.TAG_ID);

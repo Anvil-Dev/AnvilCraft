@@ -10,13 +10,18 @@ import dev.dubhe.anvilcraft.inventory.PulseGeneratorMenu;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -35,6 +40,8 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     protected int waitingTime = 2;
     protected int signalDuration = 2;
     protected State state = State.DEFAULT;
+    protected long phaseStartGameTime = -1L;
+    protected int phaseDuration;
 
     protected boolean isInputtingSignal = false;
     protected boolean isLocked = false;
@@ -52,10 +59,28 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     }
 
     @Override
+    public Packet<ClientGamePacketListener> getUpdatePacket() {
+        return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag data = this.constructDataNbt();
+        data.putByte("State", this.state.index());
+        data.putLong("PhaseStartGameTime", this.phaseStartGameTime);
+        data.putInt("PhaseDuration", this.phaseDuration);
+        CompoundTag tag = new CompoundTag();
+        tag.put("ExtraData", data);
+        return tag;
+    }
+
+    @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         CompoundTag data = this.constructDataNbt();
         data.putByte("State", this.state.index());
+        data.putLong("PhaseStartGameTime", this.phaseStartGameTime);
+        data.putInt("PhaseDuration", this.phaseDuration);
         output.store("ExtraData", CompoundTag.CODEC, data);
     }
 
@@ -64,6 +89,8 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
         super.loadAdditional(input);
         CompoundTag data = input.read("ExtraData", CompoundTag.CODEC).orElse(new CompoundTag());
         this.readDataNbt(data);
+        this.phaseStartGameTime = data.getLongOr("PhaseStartGameTime", -1L);
+        this.phaseDuration = data.getIntOr("PhaseDuration", 0);
         // TODO: 删除if-else和else块内的代码
         if (data.contains("State")) {
             this.state = State.fromIndex(data.getByteOr("State", (byte) 0));
@@ -87,6 +114,20 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
         if (this.getLevel() == null) return;
         Util.castSafely(this.getBlockState().getBlock(), PulseGeneratorBlock.class)
             .ifPresent(block -> block.update(this.getLevel(), this.getBlockPos(), this::getBlockState));
+    }
+
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (this.level == null) return;
+        if (!this.level.isClientSide() && this.isProcessing() && this.phaseStartGameTime < 0L) {
+            this.phaseStartGameTime = this.level.getGameTime();
+            this.phaseDuration = this.getConfiguredPhaseDuration(this.state);
+            this.setChanged();
+            this.syncToClient();
+        }
+        Util.castSafely(this.getBlockState().getBlock(), PulseGeneratorBlock.class)
+            .ifPresent(block -> block.update(this.level, this.getBlockPos(), this::getBlockState));
     }
 
     public CompoundTag constructDataNbt() {
@@ -116,11 +157,54 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     @Override
     public void applyDiskData(ValueInput input) {
         this.readDataNbt(input.read("Data", CompoundTag.CODEC).orElse(new CompoundTag()));
+        this.setChanged();
+        this.syncToClient();
+    }
+
+    public void syncToClient() {
+        if (this.level != null && !this.level.isClientSide()) {
+            this.level.sendBlockUpdated(
+                this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
+        }
     }
 
     @ApiStatus.Internal
     public void setState(State state) {
+        if (this.state == state) return;
         this.state = state;
+        if (state == State.DEFAULT || this.level == null) {
+            this.phaseStartGameTime = -1L;
+            this.phaseDuration = 0;
+        } else {
+            this.phaseStartGameTime = this.level.getGameTime();
+            this.phaseDuration = this.getConfiguredPhaseDuration(state);
+        }
+        this.setChanged();
+        this.syncToClient();
+    }
+
+    private int getConfiguredPhaseDuration(State state) {
+        return switch (state) {
+            case WAITING -> this.waitingTime;
+            case OUTPUTTING -> this.signalDuration;
+            case DEFAULT -> 0;
+        };
+    }
+
+    public float getPhaseProgress(float partialTick) {
+        if (!this.isProcessing() || this.level == null || this.phaseStartGameTime < 0L || this.phaseDuration <= 0) {
+            return 0.0f;
+        }
+        float elapsed = this.level.getGameTime() - this.phaseStartGameTime + partialTick;
+        return Math.clamp(elapsed / this.phaseDuration, 0.0f, 1.0f);
+    }
+
+    public int getPhaseRemainingTicks() {
+        if (!this.isProcessing() || this.level == null || this.phaseStartGameTime < 0L || this.phaseDuration <= 0) {
+            return 0;
+        }
+        long elapsed = Math.max(this.level.getGameTime() - this.phaseStartGameTime, 0L);
+        return (int) Math.max(this.phaseDuration - elapsed, 0L);
     }
 
     public void setStartMode(int mode) {
@@ -194,6 +278,8 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
         this.readDataNbt(move.getCompoundOrEmpty("Data"));
         this.isInputtingSignal = move.getBooleanOr("Inputting", false);
         this.state = State.fromIndex(move.getByteOr("State", (byte) 0));
+        this.phaseStartGameTime = this.state == State.DEFAULT ? -1L : level.getGameTime();
+        this.phaseDuration = this.getConfiguredPhaseDuration(this.state);
         switch (this.state) {
             case WAITING -> level.scheduleTick(pos, state.getBlock(), this.getWaitingTime());
             case OUTPUTTING -> level.scheduleTick(pos, state.getBlock(), this.getSignalDuration());

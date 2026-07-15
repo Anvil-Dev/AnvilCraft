@@ -5,11 +5,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.BlockModelResolver;
-import net.minecraft.client.renderer.block.MovingBlockRenderState;
 import net.minecraft.client.renderer.block.model.BlockDisplayContext;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
-import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
@@ -40,12 +38,44 @@ public class SeismicBounceRenderEventListener {
         var poseStack = event.getPoseStack();
         var nodeCollector = event.getSubmitNodeCollector();
 
-        for (var entry : SeismicBounceManager.getInstance().getActiveBounces().entrySet()) {
+        submitEntries(
+            event,
+            SeismicBounceManager.getInstance().getActiveBounces(),
+            camX,
+            camY,
+            camZ,
+            partialTick
+        );
+        submitEntries(
+            event,
+            SeismicBounceManager.getInstance().getActiveResonances(),
+            camX,
+            camY,
+            camZ,
+            partialTick
+        );
+    }
+
+    private static void submitEntries(
+        SubmitCustomGeometryEvent event,
+        java.util.Map<BlockPos, ? extends SeismicBounceManager.RenderOffset> entries,
+        double camX,
+        double camY,
+        double camZ,
+        float partialTick
+    ) {
+        Minecraft mc = Minecraft.getInstance();
+        if (mc.level == null) return;
+        var poseStack = event.getPoseStack();
+        var nodeCollector = event.getSubmitNodeCollector();
+        for (var entry : entries.entrySet()) {
             BlockPos pos = entry.getKey();
             var data = entry.getValue();
 
+            float offsetX = data.getRenderOffsetX(partialTick);
             float offsetY = data.getRenderOffsetY(partialTick);
-            if (Math.abs(offsetY) < 0.001f) continue;
+            float offsetZ = data.getRenderOffsetZ(partialTick);
+            if (Math.abs(offsetX) < 0.001F && Math.abs(offsetY) < 0.001F && Math.abs(offsetZ) < 0.001F) continue;
 
             BlockState state = mc.level.getBlockState(pos);
             if (state.isAir() || state.getRenderShape() != RenderShape.MODEL) continue;
@@ -59,7 +89,11 @@ public class SeismicBounceRenderEventListener {
             );
 
             poseStack.pushPose();
-            poseStack.translate(pos.getX() - camX + 0.001, pos.getY() - camY + offsetY, pos.getZ() - camZ + 0.001);
+            poseStack.translate(
+                pos.getX() - camX + offsetX + 0.001,
+                pos.getY() - camY + offsetY,
+                pos.getZ() - camZ + offsetZ + 0.001
+            );
 
             modelRenderState.submit(
                 poseStack,

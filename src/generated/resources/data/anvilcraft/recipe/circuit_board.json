@@ -1,11 +1,13 @@
 {
-  "type": "minecraft:crafting_shapeless",
+  "type": "minecraft:crafting_shaped",
   "category": "misc",
-  "ingredients": [
-    "#c:plates/copper",
-    "anvilcraft:hardend_resin",
-    "anvilcraft:hardend_resin",
-    "anvilcraft:hardend_resin"
+  "key": {
+    "R": "anvilcraft:hardend_resin",
+    "W": "anvilcraft:redstone_wire"
+  },
+  "pattern": [
+    "W",
+    "R"
   ],
   "result": {
     "id": "anvilcraft:circuit_board"

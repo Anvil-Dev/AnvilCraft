@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.api.fluid.CapacityModifiableFluidHandler;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
+import dev.dubhe.anvilcraft.util.TankUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -13,6 +14,7 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -30,6 +32,7 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceHandlerHolder {
     public static final int CAPACITY = 16 * FluidType.BUCKET_VOLUME;
     public static final int BIG_CAPACITY = 640 * FluidType.BUCKET_VOLUME;
+    private static final int CHECK_INTERVAL = 100;
     @Getter
     protected final CapacityModifiableFluidHandler tank = new CapacityModifiableFluidHandler(1, FluidTankBlockEntity.CAPACITY) {
         @Override
@@ -39,6 +42,7 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceH
         }
     };
     protected boolean isBigger = false;
+    private int tickCounter;
 
     public FluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -68,6 +72,16 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceH
     public void onUnformed() {
         this.isBigger = false;
         this.tank.setCapacity(CAPACITY);
+    }
+
+    public static void serverTick(Level level, BlockPos pos, BlockState state, FluidTankBlockEntity entity) {
+        if (level.isClientSide() || ++entity.tickCounter % CHECK_INTERVAL != 0) return;
+        boolean valid = TankUtil.isMengerStructure(level, pos, 3);
+        if (entity.isBigger && !valid) {
+            entity.onUnformed();
+        } else if (!entity.isBigger && valid) {
+            entity.onFormed();
+        }
     }
 
     @Override

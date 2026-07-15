@@ -14,4 +14,4 @@ items:
 
 - 在<ref item="anvilcraft:royal_grindstone"/>上，使用<ref item="minecraft:gold_ingot"/>可以为物品祛除
   **诅咒附魔**和**附魔惩罚** ，正常附魔则会被保留
-- 金锭会被转化为<ref item="anvilcraft:cursed_gold_ingot"/>
+- <ref item="minecraft:gold_ingot"/>会被转化为<ref item="anvilcraft:cursed_gold_ingot"/>，<ref item="minecraft:gold_block"/>同理

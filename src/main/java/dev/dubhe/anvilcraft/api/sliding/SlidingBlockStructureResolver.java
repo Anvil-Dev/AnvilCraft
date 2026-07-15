@@ -5,6 +5,7 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.PushReaction;
@@ -84,8 +85,8 @@ public class SlidingBlockStructureResolver {
 
         BlockState oldState;
         while (nowState.isStickyBlock()) {
-            BlockPos nowPos = originPos.relative(this.pushDirection.getOpposite(), toPushSize);
-            BlockPos oldPos = nowPos.relative(this.pushDirection);
+            BlockPos nowPos = originPos.relative(direction.getOpposite(), toPushSize);
+            BlockPos oldPos = nowPos.relative(direction);
             oldState = nowState;
             nowState = this.level.getBlockState(nowPos);
             if (
@@ -93,7 +94,7 @@ public class SlidingBlockStructureResolver {
                 || !(oldState.anvilcraft$canStickTo(oldPos, nowPos, nowState)
                     && nowState.anvilcraft$canStickTo(nowPos, oldPos, oldState))
                 || !PistonBaseBlock.isPushable(
-                    nowState, this.level, nowPos, this.pushDirection, false, this.pushDirection.getOpposite())
+                    nowState, this.level, nowPos, this.pushDirection, false, direction.getOpposite())
             ) {
                 break;
             }
@@ -104,14 +105,14 @@ public class SlidingBlockStructureResolver {
         int addedCount = 0;
 
         for (int i = toPushSize - 1; i >= 0; i--) {
-            this.toPush.add(originPos.relative(this.pushDirection.getOpposite(), i));
+            this.toPush.add(originPos.relative(direction.getOpposite(), i));
             addedCount++;
         }
 
         int addingIndex = 1;
 
         while (true) {
-            BlockPos addingPos = originPos.relative(this.pushDirection, addingIndex);
+            BlockPos addingPos = originPos.relative(direction, addingIndex);
             int addingToPushExist = this.toPush.indexOf(addingPos);
             if (addingToPushExist > -1) {
                 this.reorderListAtCollision(addedCount, addingToPushExist);
@@ -126,10 +127,13 @@ public class SlidingBlockStructureResolver {
 
             nowState = this.level.getBlockState(addingPos);
             if (nowState.isAir()) return true;
+            if (nowState.is(Blocks.PISTON) || nowState.is(Blocks.STICKY_PISTON) || nowState.is(Blocks.PISTON_HEAD)) {
+                return false;
+            }
 
             if (
                 !PistonBaseBlock.isPushable(
-                nowState, this.level, addingPos, this.pushDirection, true, this.pushDirection)
+                    nowState, this.level, addingPos, this.pushDirection, true, direction)
             ) {
                 return false;
             }

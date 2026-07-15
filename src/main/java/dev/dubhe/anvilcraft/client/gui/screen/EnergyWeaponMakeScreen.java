@@ -15,8 +15,10 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
@@ -173,7 +175,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
                 x,
                 y
             );
-        } else if (this.renderingTooltip != null) {
+        } else if (this.renderingTooltip != null && !this.renderingTooltip.isEmpty()) {
             graphics.setTooltipForNextFrame(
                 this.font,
                 this.getTooltipFromContainerItem(this.renderingTooltip),
@@ -187,36 +189,30 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
 
     @Override
     protected void renderSlotContents(GuiGraphicsExtractor graphics, ItemStack stack, Slot slot, @Nullable String countString) {
-        if (slot instanceof FilteredSlot filtered) {
-            if (filtered.isFilterEmpty()) return;
-            if (stack.isEmpty()) {
-                int seed = slot.x + slot.y * this.getImageWidth();
-                ItemStackTemplate[] stacks = filtered.getFilter().getItems();
-                ItemStackTemplate display = stacks[(int) ((System.currentTimeMillis() / 1000) % stacks.length)];
-                graphics.item(display.create(), slot.x, slot.y, seed);
+        if (!(slot instanceof FilteredSlot filtered) || filtered.isFilterEmpty()) {
+            super.renderSlotContents(graphics, stack, slot, countString);
+            return;
+        }
 
-                graphics.pose().pushMatrix();
-                String s = String.valueOf(stack.getCount());
-                graphics.pose().translate(0.0F, 0.0F);
-                graphics.text(font, s, slot.x + 19 - 2 - font.width(s), slot.y + 6 + 3, 0xFF555555, true);
-                graphics.pose().popMatrix();
-                return;
-            } else if (stack.getCount() < filtered.getFilter().count()) {
-                int seed = slot.x + slot.y * this.getImageWidth();
-                if (slot.isFake()) {
-                    graphics.fakeItem(stack, slot.x, slot.y, seed);
-                } else {
-                    graphics.item(stack, slot.x, slot.y, seed);
-                }
-                graphics.pose().pushMatrix();
-                String s = String.valueOf(stack.getCount());
-                graphics.pose().translate(0.0F, 0.0F);
-                graphics.text(font, s, slot.x + 19 - 2 - font.width(s), slot.y + 6 + 3, 0xFFFF5555, true);
-                graphics.pose().popMatrix();
-                return;
+        super.renderSlotContents(graphics, stack, slot, countString);
+        if (stack.isEmpty()) {
+            ItemStackTemplate[] stacks = filtered.getFilter().getItems();
+            if (stacks.length > 0) {
+                int index = (int) ((System.currentTimeMillis() / 1000) % stacks.length);
+                graphics.item(stacks[index].create(), slot.x, slot.y, slot.x + slot.y * this.getImageWidth());
+                graphics.fill(RenderPipelines.GUI, slot.x, slot.y, slot.x + 16, slot.y + 16, 0x60FFAAAA);
             }
         }
-        super.renderSlotContents(graphics, stack, slot, countString);
+
+        String limit = String.valueOf(filtered.getMaxStackSize());
+        graphics.pose().pushMatrix();
+        float scale = 0.6F;
+        graphics.pose().scale(scale, scale);
+        int width = this.font.width(limit);
+        int x = (int) ((slot.x + 16.25 - width * scale) / scale);
+        int y = (int) ((slot.y + 12 - this.font.lineHeight * 2 * scale + 1) / scale);
+        graphics.text(this.font, limit, x, y, 0xFFFFA0A0, true);
+        graphics.pose().popMatrix();
     }
 
     @Override
@@ -272,6 +268,9 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
                 int y = this.topPos + 24 + 18 * ((i - this.head) / 3);
 
                 if (!MathUtil.isInRange(event.x(), event.y(), x, y, x + 18, y + 18)) continue;
+                Minecraft.getInstance().getSoundManager().play(
+                    SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)
+                );
                 if (this.menu.getSelectedIndex() == i) {
                     this.menu.setSelectedIndex(-1);
                     ClientPacketDistributor.sendToServer(new EnergyWeaponMakePackets.Select(-1));

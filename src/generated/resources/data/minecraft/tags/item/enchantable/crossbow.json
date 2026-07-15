@@ -1,6 +1,10 @@
 {
   "values": [
     "anvilcraft:spectral_slingshot",
-    "anvilcraft:spectral_weapon_launcher"
+    "anvilcraft:spectral_weapon_launcher",
+    "anvilcraft:anvil_railgun",
+    "anvilcraft:corrupted_beacon_activator",
+    "anvilcraft:tesla_gun",
+    "anvilcraft:laser_gun"
   ]
 }

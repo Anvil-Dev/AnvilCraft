@@ -6,11 +6,11 @@ navigation:
 
 # 伽马激光
 
-- 伽马机关是一种特殊的[激光](../004_block/201_basic_laser.md#激光)
+- 伽马激光是一种特殊的[激光](../004_block/201_basic_laser.md#激光)
 - 来自<ref item="anvilcraft:celestial_forging_anvil"/>
-- 最多传播16格
+- 其最大传播距离为16格
 - 对生物造成的伤害是同等级普通激光的16倍
-- 不能被<ref item="anvilcraft:ruby_prism"/>偏转，甚至会直接破坏<ref item="anvilcraft:ruby_prism"/>
+- 不能被<ref item="anvilcraft:ruby_prism"/>偏转，且会直接将其摧毁
 
 # 加热
 

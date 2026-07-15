@@ -24,8 +24,8 @@ items:
 
 # 参与合成
 
-- 在晶洞在[物品冲压](../007_struct/000_block_processing.md)时，一定出4个紫水晶碎片，概率出[黄玉、蓝宝石和红宝石](../002_material/000_gems.md)
-- 对晶洞进行时移，可以合成出紫水晶母岩
+- 晶洞在[物品冲压](../007_struct/000_item_processing.md#冲压)或[物品粉碎](../007_struct/000_item_processing.md#粉碎)时，一定出4个<ref item="minecraft:amethyst_shard"/>，概率出[黄玉、蓝宝石和红宝石](../002_material/000_gems.md)
+- 对晶洞进行时移，可以合成出<ref item="minecraft:budding_amethyst"/>
 
 <row halign="center">
 <recipe id="anvilcraft:stamping/geode_gems"/>

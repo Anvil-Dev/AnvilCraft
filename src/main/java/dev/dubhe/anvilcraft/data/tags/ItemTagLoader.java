@@ -219,13 +219,17 @@ public class ItemTagLoader {
         provider.rawBuilder(ModItemTags.COMPRESS_ITEM)
             .addElement(ItemTagLoader.findId(Items.SNOW_BLOCK))
             .addElement(ItemTagLoader.findId(Items.WHITE_WOOL))
+            .addElement(ItemTagLoader.findId(Items.MAGMA_BLOCK))
             .addElement(ItemTagLoader.findId(ModBlocks.HEAVY_IRON_BLOCK.asItem()))
+            .addElement(ItemTagLoader.findId(ModBlocks.LEVITATION_POWDER_BLOCK.asItem()))
             .addTag(Tags.Items.INGOTS.location())
             .addTag(Tags.Items.STORAGE_BLOCKS.location());
 
         provider.rawBuilder(ModItemTags.SUPER_HEATING_BOOST_PRODUCTION)
             .addTag(Tags.Items.RAW_MATERIALS.location())
-            .addTag(Tags.Items.ORES.location());
+            .addTag(Tags.Items.ORES.location())
+            .addElement(ItemTagLoader.findId(Items.SEA_PICKLE))
+            .addElement(ItemTagLoader.findId(Items.CACTUS));
 
         provider.rawBuilder(ModItemTags.RAW_MUTTON)
             .addElement(ItemTagLoader.findId(Items.MUTTON));
@@ -241,6 +245,26 @@ public class ItemTagLoader {
 
         provider.rawBuilder(ModItemTags.RAW_RABBIT)
             .addElement(ItemTagLoader.findId(Items.RABBIT));
+
+        provider.rawBuilder(ModItemTags.DISINTEGRATION_SUPPORTED)
+            .addTag(ItemTags.MINING_LOOT_ENCHANTABLE.location())
+            .addElement(ModItems.LASER_GUN.getId())
+            .addElement(ModItems.FROST_METAL_PICKAXE.getId())
+            .addElement(ModItems.FROST_METAL_AXE.getId())
+            .addElement(ModItems.FROST_METAL_SHOVEL.getId())
+            .addElement(ModItems.FROST_METAL_HOE.getId())
+            .addElement(ModItems.FROST_METAL_SWORD.getId())
+            .addElement(ModItems.FROST_METAL_HEAVY_HALBERD.getId());
+
+        provider.rawBuilder(ModItemTags.SMELTING_SUPPORTED)
+            .addTag(ItemTags.MINING_LOOT_ENCHANTABLE.location())
+            .addElement(ModItems.LASER_GUN.getId())
+            .addElement(ModItems.EMBER_METAL_PICKAXE.getId())
+            .addElement(ModItems.EMBER_METAL_AXE.getId())
+            .addElement(ModItems.EMBER_METAL_SHOVEL.getId())
+            .addElement(ModItems.EMBER_METAL_HOE.getId())
+            .addElement(ModItems.EMBER_METAL_SWORD.getId())
+            .addElement(ModItems.EMBER_METAL_HEAVY_HALBERD.getId());
 
         provider.rawBuilder(ModItemTags.AMETHYST_TOOL_MATERIALS)
             .addElement(ItemTagLoader.findId(Items.AMETHYST_SHARD));

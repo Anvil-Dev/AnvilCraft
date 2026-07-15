@@ -11,6 +11,9 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Optional;
 
 /// 简单的炼药锅条件
 ///
@@ -28,7 +31,8 @@ public record HasCauldronSimple(
     Identifier transform,
     int produce,
     float chance,
-    boolean ignited
+    boolean ignited,
+    @Nullable Identifier fluidTag
 ) {
     /// 构造一个简单的炼药锅条件
     ///
@@ -61,8 +65,13 @@ public record HasCauldronSimple(
                 .forGetter(HasCauldronSimple::chance),
             Codec.BOOL
                 .optionalFieldOf("ignited", false)
-                .forGetter(HasCauldronSimple::ignited)
-        ).apply(instance, HasCauldronSimple::new)
+                .forGetter(HasCauldronSimple::ignited),
+            Identifier.CODEC
+                .optionalFieldOf("fluidTag")
+                .forGetter(hasCauldron -> Optional.ofNullable(hasCauldron.fluidTag()))
+        ).apply(instance, (fluid, consume, transform, produce, chance, ignited, fluidTag) ->
+            new HasCauldronSimple(fluid, consume, transform, produce, chance, ignited, fluidTag.orElse(null))
+        )
     );
 
     /// 将此条件转换为HasCauldron谓词
@@ -70,7 +79,16 @@ public record HasCauldronSimple(
     /// @param offset 偏移量
     /// @return HasCauldron谓词
     public HasCauldron toHasCauldron(Vec3 offset) {
-        return new HasCauldron(offset, this.fluid, this.consume, this.transform, this.produce, this.chance, this.ignited);
+        return new HasCauldron(
+            offset,
+            this.fluid,
+            this.consume,
+            this.transform,
+            this.produce,
+            this.chance,
+            this.ignited,
+            this.fluidTag
+        );
     }
 
     /// 获取流体对应的炼药锅方块
@@ -88,21 +106,33 @@ public record HasCauldronSimple(
     }
 
     /// HasCauldronSimple的网络流编解码器
-    public static final StreamCodec<RegistryFriendlyByteBuf, HasCauldronSimple> STREAM_CODEC = StreamCodec.composite(
-        Identifier.STREAM_CODEC,
-        HasCauldronSimple::fluid,
-        ByteBufCodecs.INT,
-        HasCauldronSimple::consume,
-        Identifier.STREAM_CODEC,
-        HasCauldronSimple::transform,
-        ByteBufCodecs.INT,
-        HasCauldronSimple::produce,
-        ByteBufCodecs.FLOAT,
-        HasCauldronSimple::chance,
-        ByteBufCodecs.BOOL,
-        HasCauldronSimple::ignited,
-        HasCauldronSimple::new
-    );
+    public static final StreamCodec<RegistryFriendlyByteBuf, HasCauldronSimple> STREAM_CODEC = new StreamCodec<>() {
+        @Override
+        public HasCauldronSimple decode(RegistryFriendlyByteBuf buffer) {
+            Identifier fluid = Identifier.STREAM_CODEC.decode(buffer);
+            int consume = ByteBufCodecs.INT.decode(buffer);
+            Identifier transform = Identifier.STREAM_CODEC.decode(buffer);
+            int produce = ByteBufCodecs.INT.decode(buffer);
+            float chance = ByteBufCodecs.FLOAT.decode(buffer);
+            boolean ignited = ByteBufCodecs.BOOL.decode(buffer);
+            Identifier fluidTag = ByteBufCodecs.optional(Identifier.STREAM_CODEC).decode(buffer).orElse(null);
+            return new HasCauldronSimple(fluid, consume, transform, produce, chance, ignited, fluidTag);
+        }
+
+        @Override
+        public void encode(RegistryFriendlyByteBuf buffer, HasCauldronSimple hasCauldron) {
+            Identifier.STREAM_CODEC.encode(buffer, hasCauldron.fluid());
+            ByteBufCodecs.INT.encode(buffer, hasCauldron.consume());
+            Identifier.STREAM_CODEC.encode(buffer, hasCauldron.transform());
+            ByteBufCodecs.INT.encode(buffer, hasCauldron.produce());
+            ByteBufCodecs.FLOAT.encode(buffer, hasCauldron.chance());
+            ByteBufCodecs.BOOL.encode(buffer, hasCauldron.ignited());
+            ByteBufCodecs.optional(Identifier.STREAM_CODEC).encode(
+                buffer,
+                Optional.ofNullable(hasCauldron.fluidTag())
+            );
+        }
+    };
 
     /// 创建一个空的构建器
     ///
@@ -127,6 +157,7 @@ public record HasCauldronSimple(
         private int produce = 0;
         private float chance = 1F;
         private boolean ignited = false;
+        private @Nullable Identifier fluidTag;
 
         /// 创建一个空的构建器
         ///
@@ -200,11 +231,25 @@ public record HasCauldronSimple(
             return this;
         }
 
+        public Builder fluidTag(Identifier fluidTag) {
+            this.fluidTag = fluidTag;
+            if (!HasCauldron.isNotEmpty(this.fluid)) this.fluid = HasCauldron.NULL;
+            return this;
+        }
+
         /// 构建HasCauldronSimple实例
         ///
         /// @return HasCauldronSimple实例
         public HasCauldronSimple build() {
-            return new HasCauldronSimple(this.fluid, this.consume, this.transform, this.produce, this.chance, this.ignited);
+            return new HasCauldronSimple(
+                this.fluid,
+                this.consume,
+                this.transform,
+                this.produce,
+                this.chance,
+                this.ignited,
+                this.fluidTag
+            );
         }
     }
 }

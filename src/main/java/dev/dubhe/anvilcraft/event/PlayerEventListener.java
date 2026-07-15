@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.AmuletManager;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
 import dev.dubhe.anvilcraft.block.utility.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
 import dev.dubhe.anvilcraft.init.ModStats;
@@ -21,6 +22,7 @@ import dev.dubhe.anvilcraft.item.tool.DragonRodItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
+import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -41,6 +43,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
 import net.neoforged.neoforge.event.entity.living.LivingUseTotemEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.entity.player.UseItemOnBlockEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
@@ -49,6 +52,13 @@ import java.util.List;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class PlayerEventListener {
+    @SubscribeEvent
+    public static void onJoinedServer(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            SpacetimeSupercomputerBlockEntity.cancelPendingTickSprints(serverPlayer.level().getServer());
+        }
+    }
+
     @SubscribeEvent
     public static void useEntity(PlayerInteractEvent.EntityInteract event) {
         InteractionHand hand = event.getHand();
@@ -132,6 +142,11 @@ public class PlayerEventListener {
         if (blockFace == null) return;
         if (state.getDestroySpeed(level, pos) < 0.0F) return;
         if (!stack.has(ModComponents.DEVOUR_RANGE)) return;
+        if (event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.STOP
+            || event.getAction() == PlayerInteractEvent.LeftClickBlock.Action.ABORT) {
+            DragonRodItem.stopContinuousMode(player);
+            return;
+        }
         if (!DragonRodItem.canDevour(player, stack) || !BlockDevourerBlock.canDevour(state)) {
             event.setCanceled(true);
             return;
@@ -148,6 +163,7 @@ public class PlayerEventListener {
     public static void onJoinedLevel(EntityJoinLevelEvent event) {
         if (event.getEntity() instanceof ServerPlayer sp) {
             PowerGrid.MANAGER.onPlayerJoined(event.getLevel(), sp);
+            GravityManager.syncTo(sp);
         }
     }
 

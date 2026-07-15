@@ -1,0 +1,119 @@
+{
+  "ambientocclusion": false,
+  "elements": [
+    {
+      "faces": {
+        "east": {
+          "texture": "#0"
+        },
+        "north": {
+          "texture": "#0",
+          "uv": [
+            10.0,
+            0.0,
+            11.0,
+            8.0
+          ]
+        },
+        "south": {
+          "rotation": 180,
+          "texture": "#0",
+          "uv": [
+            5.0,
+            8.0,
+            6.0,
+            0.0
+          ]
+        },
+        "up": {
+          "cullface": "up",
+          "rotation": 90,
+          "texture": "#0",
+          "uv": [
+            5.0,
+            0.0,
+            11.0,
+            1.0
+          ]
+        },
+        "west": {
+          "cullface": "west",
+          "rotation": 180,
+          "texture": "#0",
+          "uv": [
+            11.0,
+            0.0,
+            5.0,
+            8.0
+          ]
+        }
+      },
+      "from": [
+        0,
+        8,
+        5
+      ],
+      "to": [
+        1,
+        16,
+        11
+      ]
+    },
+    {
+      "faces": {
+        "east": {
+          "texture": "#1",
+          "tintindex": 0
+        },
+        "north": {
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            7.0,
+            8.0
+          ]
+        },
+        "south": {
+          "rotation": 180,
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            7.0,
+            8.0
+          ]
+        },
+        "up": {
+          "cullface": "up",
+          "rotation": 90,
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            10.0,
+            1.0
+          ]
+        }
+      },
+      "from": [
+        1,
+        8,
+        6
+      ],
+      "to": [
+        2,
+        16,
+        10
+      ]
+    }
+  ],
+  "textures": {
+    "0": "anvilcraft:block/redstone_wire_line",
+    "1": "anvilcraft:block/redstone_wire_line_overlay",
+    "particle": "anvilcraft:block/redstone_wire_line"
+  }
+}

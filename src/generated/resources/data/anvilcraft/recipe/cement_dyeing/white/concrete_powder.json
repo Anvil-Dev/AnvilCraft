@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "anvilcraft:white_cement",
+  "ingredients": [
+    {
+      "items": "#c:concrete_powders"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:white_concrete_powder"
+    }
+  ]
+}

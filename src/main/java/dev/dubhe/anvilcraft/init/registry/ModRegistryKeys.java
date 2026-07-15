@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
 import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.number.INumberProvider;
 import dev.dubhe.anvilcraft.api.recipe.result.modifier.IResultModifier;
-import dev.dubhe.anvilcraft.api.uuid.IUuidProvider;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import net.minecraft.core.Registry;
@@ -21,7 +20,6 @@ public class ModRegistryKeys {
     public static final ResourceKey<Registry<IAmuletDefinition>> AMULET_DEF = key("amulet_definition");
     public static final ResourceKey<Registry<IResultModifier.Type<?>>> MODIFIER = key("result_modifier");
     public static final ResourceKey<Registry<ICustomDataComponent.Type<?>>> CUSTOM_DATA_TYPE = key("custom_data_component");
-    public static final ResourceKey<Registry<IUuidProvider.Type<?>>> UUID_PROVIDER_TYPE = key("uuid_provider");
     public static final ResourceKey<Registry<INumberProvider.Type<?>>> NUMBER_PROVIDER_TYPE = key("number_provider");
     public static final ResourceKey<Registry<ICategory.Type<?>>> CATEGORY_TYPE = key("category_type");
     public static final ResourceKey<Registry<ICategory>> CATEGORY = key("category");

@@ -8,7 +8,6 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.RedStoneWireBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -56,6 +55,8 @@ public class SeismicBounceManager {
 
     @Getter
     private final Map<BlockPos, BounceData> activeBounces = new ConcurrentHashMap<>();
+    @Getter
+    private final Map<BlockPos, ResonanceData> activeResonances = new ConcurrentHashMap<>();
     private final RandomSource tesselateRandom = RandomSource.create();
 
     private SeismicBounceManager() {
@@ -101,14 +102,36 @@ public class SeismicBounceManager {
         }
     }
 
+    public void startResonance(BlockPos pos, int durationTicks) {
+        this.activeResonances.put(pos.immutable(), new ResonanceData(durationTicks));
+    }
+
+    public void stopResonance(BlockPos pos) {
+        this.activeResonances.remove(pos);
+    }
+
     public void tick() {
-        if (this.activeBounces.isEmpty()) return;
+        if (this.activeBounces.isEmpty() && this.activeResonances.isEmpty()) return;
 
         this.activeBounces.values().forEach(data -> data.remainingTicks--);
         this.activeBounces.entrySet().removeIf(entry -> entry.getValue().remainingTicks <= 0);
+        this.activeResonances.values().forEach(data -> data.remainingTicks--);
+        this.activeResonances.entrySet().removeIf(entry -> entry.getValue().remainingTicks <= 0);
     }
 
-    public static class BounceData {
+    public interface RenderOffset {
+        default float getRenderOffsetX(float partialTick) {
+            return 0.0F;
+        }
+
+        float getRenderOffsetY(float partialTick);
+
+        default float getRenderOffsetZ(float partialTick) {
+            return 0.0F;
+        }
+    }
+
+    public static class BounceData implements RenderOffset {
         private int totalTicks;
         private int startDelay;
         @Getter
@@ -136,7 +159,7 @@ public class SeismicBounceManager {
 
         public float getRenderOffsetY(float partialTick) {
             int elapsed = (this.totalTicks + this.startDelay) - this.remainingTicks;
-            int active = elapsed - this.    startDelay;
+            int active = elapsed - this.startDelay;
             if (active < 0) return 0f;
 
             float progress = (float) active / this.totalTicks;
@@ -147,6 +170,35 @@ public class SeismicBounceManager {
                 * Math.pow(1.0 - progress, 0.5);
 
             return (float) (this.amplitude * bounce);
+        }
+    }
+
+    public static class ResonanceData implements RenderOffset {
+        private final int totalTicks;
+        private int remainingTicks;
+
+        ResonanceData(int durationTicks) {
+            this.totalTicks = durationTicks;
+            this.remainingTicks = durationTicks;
+        }
+
+        @Override
+        public float getRenderOffsetX(float partialTick) {
+            return (float) Math.sin(this.elapsed(partialTick) * 10.7F) * 0.025F;
+        }
+
+        @Override
+        public float getRenderOffsetY(float partialTick) {
+            return (float) Math.sin(this.elapsed(partialTick) * 13.1F + 2.1F) * 0.02F;
+        }
+
+        @Override
+        public float getRenderOffsetZ(float partialTick) {
+            return (float) Math.sin(this.elapsed(partialTick) * 12.3F + 4.2F) * 0.025F;
+        }
+
+        private float elapsed(float partialTick) {
+            return this.totalTicks - this.remainingTicks + partialTick;
         }
     }
 }

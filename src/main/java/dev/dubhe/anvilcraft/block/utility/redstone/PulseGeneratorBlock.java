@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.utility.redstone;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
@@ -46,6 +45,8 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements IHammerChangeable, IHammerRemovable, IMoveableEntityBlock {
+    private static final int END_OUTPUTTING_EVENT = 0;
+    private static final int END_WAITING_EVENT = 1;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     protected static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 4.0, 16.0);
     public static final MapCodec<PulseGeneratorBlock> CODEC = simpleCodec(PulseGeneratorBlock::new);
@@ -100,7 +101,7 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
-        this.update(level, pos, () -> state);
+        this.update(level, pos, () -> state, false);
     }
 
     @Override
@@ -136,28 +137,50 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
     }
 
     public void update(Level level, BlockPos pos, Supplier<BlockState> stateGetter) {
+        this.update(level, pos, stateGetter, true);
+    }
+
+    private void update(Level level, BlockPos pos, Supplier<BlockState> stateGetter, boolean allowLoopStart) {
         if (level.isClientSide()) return;
 
         BlockEntity blockentity = level.getBlockEntity(pos);
         if (!(blockentity instanceof PulseGeneratorBlockEntity generator)) return;
         boolean lastInputting = generator.isInputtingSignal();
         boolean nowInputting = PulseGeneratorBlock.getInputSignal(level, pos, stateGetter.get()) > 0;
+        Supplier<BlockState> currentStateGetter = () -> level.getBlockState(pos);
         generator.setInputtingSignal(nowInputting);
         boolean canStart = switch (generator.getStartMode()) {
             case RISING_EDGE -> !lastInputting && nowInputting;
             case FALLING_EDGE -> lastInputting && !nowInputting;
-            case LOOP -> !generator.isLocked();
+            case LOOP -> allowLoopStart
+                         && !nowInputting
+                         && !generator.isLocked()
+                         && generator.getState() == PulseGeneratorBlockEntity.State.DEFAULT;
         } && !generator.isProcessing();
 
         if (canStart) {
-            this.startWaiting(level, pos, stateGetter, generator);
-            this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
+            this.startWaiting(level, pos, currentStateGetter, generator);
         }
 
+        this.checkIsLocked(level, pos, currentStateGetter, generator);
+        this.updateBlockAndNeighbours(level, pos, currentStateGetter, generator);
+    }
+
+    protected void checkIsLocked(
+        Level level,
+        BlockPos pos,
+        Supplier<BlockState> stateGetter,
+        PulseGeneratorBlockEntity generator
+    ) {
         if (generator.getStartMode() == PulseGeneratorBlockEntity.Mode.LOOP) {
             if (generator.isLocked() && !generator.isInputtingSignal()) {
-                this.startWaiting(level, pos, stateGetter, generator);
                 generator.setLocked(false);
+                if (generator.getWaitingTime() == 0) {
+                    generator.setState(PulseGeneratorBlockEntity.State.WAITING);
+                    level.scheduleTick(pos, this, 1, TickPriority.LOW);
+                } else {
+                    this.startWaiting(level, pos, stateGetter, generator);
+                }
             } else {
                 generator.setLocked(generator.isInputtingSignal());
             }
@@ -173,11 +196,12 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
         Optional<PulseGeneratorBlockEntity> generatorOp = level.getBlockEntity(pos, ModBlockEntities.PULSE_GENERATOR.get());
         if (generatorOp.isEmpty()) return;
         PulseGeneratorBlockEntity generator = generatorOp.get();
+        Supplier<BlockState> currentStateGetter = () -> level.getBlockState(pos);
         if (!generator.isLocked()) {
             switch (generator.getState()) {
-                case WAITING -> this.startOutputting(level, pos, () -> state, generator);
-                case OUTPUTTING -> this.checkOnSignalEnd(level, pos, () -> state, generator);
-                case DEFAULT -> this.updateBlockAndNeighbours(level, pos, () -> state, generator);
+                case WAITING -> this.startOutputting(level, pos, currentStateGetter, generator);
+                case OUTPUTTING -> this.checkOnSignalEnd(level, pos, currentStateGetter, generator);
+                case DEFAULT -> this.updateBlockAndNeighbours(level, pos, currentStateGetter, generator);
                 default -> {
                 }
             }
@@ -186,28 +210,20 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
 
     public void startWaiting(Level level, BlockPos pos, Supplier<BlockState> stateGetter, PulseGeneratorBlockEntity generator) {
         generator.setState(PulseGeneratorBlockEntity.State.WAITING);
-        if (generator.getWaitingTime() == 1
-            && generator.getSignalDuration() == 0) {
-            generator.setState(PulseGeneratorBlockEntity.State.OUTPUTTING);
-            level.scheduleTick(pos, this, 1, TickPriority.LOW);
-            this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
-            return;
-        }
         if (generator.getWaitingTime() != 0) {
             level.scheduleTick(pos, this, generator.getWaitingTime(), TickPriority.LOW);
         } else {
-            this.startOutputting(level, pos, stateGetter, generator);
+            level.blockEvent(pos, this, END_WAITING_EVENT, 0);
         }
     }
 
     protected void startOutputting(Level level, BlockPos pos, Supplier<BlockState> stateGetter, PulseGeneratorBlockEntity generator) {
         generator.setState(PulseGeneratorBlockEntity.State.OUTPUTTING);
         if (generator.getSignalDuration() != 0) {
-            level.scheduleTick(pos, this, generator.getSignalDuration(), TickPriority.LOW);
+            level.scheduleTick(pos, this, generator.getSignalDuration(), TickPriority.VERY_LOW);
             this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
         } else {
             this.updateBlockAndNeighbours(level, pos, stateGetter, generator);
-            this.checkOnSignalEnd(level, pos, stateGetter, generator);
         }
     }
 
@@ -243,9 +259,22 @@ public class PulseGeneratorBlock extends HorizontalDirectionalBlock implements I
             direction.getOpposite(),
             Orientation.random(level.getRandom())
         );
+        // A block event separates zero-tick transitions from this neighbor-update stack.
         if (generator.getSignalDuration() == 0) {
-            level.scheduleTick(pos, this, 1, TickPriority.LOW);
+            level.blockEvent(pos, this, END_OUTPUTTING_EVENT, 0);
         }
+    }
+
+    @Override
+    protected boolean triggerEvent(BlockState state, Level level, BlockPos pos, int id, int param) {
+        if (!(level.getBlockEntity(pos) instanceof PulseGeneratorBlockEntity generator)) return true;
+        Supplier<BlockState> currentStateGetter = () -> level.getBlockState(pos);
+        if (id == END_WAITING_EVENT && generator.getState() == PulseGeneratorBlockEntity.State.WAITING) {
+            this.startOutputting(level, pos, currentStateGetter, generator);
+        } else if (id == END_OUTPUTTING_EVENT && generator.getState() == PulseGeneratorBlockEntity.State.OUTPUTTING) {
+            this.checkOnSignalEnd(level, pos, currentStateGetter, generator);
+        }
+        return true;
     }
 
     @Override

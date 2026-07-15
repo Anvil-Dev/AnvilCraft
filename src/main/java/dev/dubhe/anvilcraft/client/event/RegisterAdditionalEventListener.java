@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.InfiniteCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
@@ -89,6 +90,14 @@ public class RegisterAdditionalEventListener {
         event.register(
             AdvancedComparatorRenderer.INDICATOR,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/advanced_comparator_indicator"))
+        );
+        event.register(
+            PulseGeneratorBlockEntityRenderer.INDICATOR,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/pulse_generator_indicator"))
+        );
+        event.register(
+            PulseGeneratorBlockEntityRenderer.INDICATOR_OVERSPEED,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/pulse_generator_indicator_overspeed"))
         );
         event.register(
             CFARenderer.RING1,
@@ -294,10 +303,6 @@ public class RegisterAdditionalEventListener {
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/control_valve_handwheel"))
         );
         // WIP block models for procedural process
-        event.register(
-            WipBlockEntityRenderer.REDSTONE_COMPUTER_WIP,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/redstone_computer_wip"))
-        );
         event.register(
             WipBlockEntityRenderer.SPACETIME_SUPERCOMPUTER_WIP,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/spacetime_supercomputer_wip"))

@@ -18,8 +18,13 @@ items:
 
 ## Resentful Amber Block
 
+### Resentment Value
+
+- Only <ref item="anvilcraft:resin_block"/> that has captured a monster has a *Resentment Value* greater than 0
+- Resentment Value = [0%-10% random] + [Number of negative effects * 5%] + [1% for every 5% HP lost from max HP]
+
 - <ref item="anvilcraft:resin_block"/> can be [Time Warped](../004_block/200_corrupted_beacon.md) into <ref item="anvilcraft:amber_block"/>
-- If <ref item="anvilcraft:resin_block"/> contains a **non-passive mob**, there is a 5% chance to produce <ref item="anvilcraft:resentful_amber_block"/>
+- If <ref item="anvilcraft:resin_block"/> contains a **non-passive mob**, it has a [*Resentment Value*] chance to produce <ref item="anvilcraft:resentful_amber_block"/>
 - Using <ref item="anvilcraft:resentful_amber_block"/> and <ref item="anvilcraft:cursed_gold_block"/>, you can produce the corresponding <ref item="minecraft:spawner"/>
 
 ## Creating Spawners

@@ -15,6 +15,8 @@ items:
 <item id="anvilcraft:ruby_laser"/>
 <item id="anvilcraft:ruby_prism"/>
 <item id="anvilcraft:laser_receiver"/>
+<item id="anvilcraft:large_laser"/>
+<item id="anvilcraft:lens"/>
 </row>
 
 <tip>

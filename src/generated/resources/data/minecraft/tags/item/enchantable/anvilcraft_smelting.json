@@ -1,0 +1,12 @@
+{
+  "values": [
+    "#minecraft:enchantable/mining_loot",
+    "anvilcraft:laser_gun",
+    "anvilcraft:ember_metal_pickaxe",
+    "anvilcraft:ember_metal_axe",
+    "anvilcraft:ember_metal_shovel",
+    "anvilcraft:ember_metal_hoe",
+    "anvilcraft:ember_metal_sword",
+    "anvilcraft:ember_metal_heavy_halberd"
+  ]
+}

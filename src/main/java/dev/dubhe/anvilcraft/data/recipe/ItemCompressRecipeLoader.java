@@ -93,6 +93,12 @@ public class ItemCompressRecipeLoader {
 
         ExtendInWorldRecipeBuilder.extendCompatible(ModRecipeTriggers.ON_ANVIL_FALL_ON)
             .hasItemIngredient(builder -> builder
+                .of(items, ModItemTags.IRON_PLATES)
+                .count(2)
+                .offset(0.0, -0.375, 0.0)
+                .range(0.75, 0.75, 0.75)
+            )
+            .hasItemIngredient(builder -> builder
                 .of(ModBlocks.RESIN_BLOCK.asItem())
                 .has(new DataComponentMatchers(
                     DataComponentExactPredicate.builder().build(),
@@ -107,12 +113,6 @@ public class ItemCompressRecipeLoader {
                             )
                     )
                 ))
-                .offset(0.0, -0.375, 0.0)
-                .range(0.75, 0.75, 0.75)
-            )
-            .hasItemIngredient(builder -> builder
-                .of(items, ModItemTags.IRON_PLATES)
-                .count(2)
                 .offset(0.0, -0.375, 0.0)
                 .range(0.75, 0.75, 0.75)
             )

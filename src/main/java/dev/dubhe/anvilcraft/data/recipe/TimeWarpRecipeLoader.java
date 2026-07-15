@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.recipe.data.advancement.predicate.item.NotPredicate;
 import dev.anvilcraft.lib.v2.recipe.init.LibDataComponentPredicates;
-import dev.anvilcraft.lib.v2.recipe.outcome.SpawnItem;
 import dev.anvilcraft.lib.v2.registrum.providers.generators.RegistrumRecipeProvider;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -16,6 +15,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.item.property.predicate.ItemSavedEntityPredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.ExtendInWorldRecipeBuilder;
+import dev.dubhe.anvilcraft.recipe.anvil.outcome.ResentmentAmberOutcome;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
 import net.minecraft.advancements.criterion.DataComponentMatchers;
 import net.minecraft.core.HolderGetter;
@@ -28,6 +28,7 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.Tags;
 
 import java.util.Map;
@@ -265,24 +266,10 @@ public class TimeWarpRecipeLoader {
                 ))
                 .saveComponent(ModComponents.SAVED_ENTITY, AnvilCraft.of("saved_entity"))
             )
-            .chooseOne(builder -> builder
-                .choice(
-                    SpawnItem.builder()
-                        .item(ModBlocks.MOB_AMBER_BLOCK)
-                        .offset(0.0, -0.75, 0.0)
-                        .applyComponent(ModComponents.SAVED_ENTITY, AnvilCraft.of("saved_entity"))
-                        .build(),
-                    19
-                )
-                .choice(
-                    SpawnItem.builder()
-                        .item(ModBlocks.RESENTFUL_AMBER_BLOCK)
-                        .offset(0.0, -0.75, 0.0)
-                        .applyComponent(ModComponents.SAVED_ENTITY, AnvilCraft.of("saved_entity"))
-                        .build(),
-                    1
-                )
-            )
+            .out(new ResentmentAmberOutcome(
+                new Vec3(0.0, -0.75, 0.0),
+                AnvilCraft.of("saved_entity")
+            ))
             .maxEfficiency(1)
             .group("time_warp")
             .icon(new ItemStackTemplate(ModBlocks.RESENTFUL_AMBER_BLOCK.asItem()))

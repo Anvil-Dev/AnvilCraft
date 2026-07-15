@@ -31,6 +31,10 @@ items:
 
 <structure id="../../structures/pipe_node.nbt"/>
 
+## <ref item="minecraft:cauldron"/>支持
+
+- 管道支持<ref item="minecraft:cauldron"/>，但是<ref item="minecraft:cauldron"/>较为特殊，只能一次输入或输出一整桶液体（1000mB）
+
 # <ref item="anvilcraft:pump"/>
 
 <recipe id="anvilcraft:pump"/>

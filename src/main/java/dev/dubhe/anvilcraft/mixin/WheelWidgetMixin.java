@@ -1,8 +1,12 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import dev.anvilcraft.lib.v2.wheel.client.gui.component.WheelWidget;
+import dev.dubhe.anvilcraft.api.injection.wheel.IWheelWidgetExtension;
 import dev.dubhe.anvilcraft.client.event.WheelLifecycleEventListener;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Mutable;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -12,13 +16,22 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 /** 保持锤子状态选择轮通过滚轮选中的扇区，直到鼠标再次移动。 */
 @SuppressWarnings("UnresolvedMixinReference")
 @Mixin(value = WheelWidget.class, remap = false)
-public abstract class WheelWidgetMixin {
+public abstract class WheelWidgetMixin implements IWheelWidgetExtension {
+    @Mutable
+    @Shadow
+    @Final
+    private float textScale;
     @Unique
     private boolean anvilcraft$keepScrolledSelection;
     @Unique
     private double anvilcraft$scrollMouseX;
     @Unique
     private double anvilcraft$scrollMouseY;
+
+    @Override
+    public void anvilcraft$setTextScale(float scale) {
+        this.textScale *= scale;
+    }
 
     @Inject(method = "mouseScrolled(DDDD)Z", at = @At("HEAD"))
     private void rememberHammerScroll(

@@ -368,7 +368,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
         for (var localEntry : localMap.entrySet()) {
             BlockPos relOffset = localEntry.getKey();
             CelestialForgingAnvilFluidInterfaceBlockEntity localBe = localEntry.getValue();
-            ResourceHandler<FluidResource> localHandler = localBe.getFluidHandler();
+            ResourceHandler<FluidResource> localHandler = localBe.getInternalFluidHandler();
             int tanks = localHandler.size();
 
             UUID uuid = WormholeInterfaceStates.fluidUuid(this.bodyUuid, relOffset.getX(), relOffset.getZ());

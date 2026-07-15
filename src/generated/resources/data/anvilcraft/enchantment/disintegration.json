@@ -67,12 +67,6 @@
   "slots": [
     "mainhand"
   ],
-  "supported_items": {
-    "type": "neoforge:or",
-    "values": [
-      "#minecraft:enchantable/mining_loot",
-      "#minecraft:enchantable/weapon"
-    ]
-  },
+  "supported_items": "#minecraft:enchantable/anvilcraft_disintegration",
   "weight": 5
 }

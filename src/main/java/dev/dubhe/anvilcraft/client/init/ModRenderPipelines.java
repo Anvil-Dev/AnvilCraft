@@ -101,6 +101,7 @@ public class ModRenderPipelines {
         RenderPipelines.DEBUG_FILLED_SNIPPET
     )
         .withColorTargetState(new ColorTargetState(BlendFunction.TRANSLUCENT))
+        .withVertexFormat(DefaultVertexFormat.POSITION_COLOR, VertexFormat.Mode.TRIANGLES)
         .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .withCull(false)
         .withLocation(AnvilCraft.of("pipeline/corrupted_beacon_beam"))

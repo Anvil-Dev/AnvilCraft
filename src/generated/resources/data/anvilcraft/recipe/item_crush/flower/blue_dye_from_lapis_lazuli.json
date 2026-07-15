@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:item_crush",
+  "ingredients": [
+    {
+      "items": "minecraft:lapis_lazuli"
+    }
+  ],
+  "results": [
+    {
+      "count": 2,
+      "id": "minecraft:blue_dye"
+    }
+  ]
+}

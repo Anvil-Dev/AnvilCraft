@@ -131,7 +131,6 @@ public abstract class BaseChuteScreen<T extends BaseChuteBlockEntity, M extends 
                 ClientPacketDistributor.sendToServer(new SlotFilterChangePacket(realSlotId, carriedItem));
                 this.menu.setFilter(realSlotId, carriedItem);
                 if (carriedItem.is(ModItems.FILTER) && (filter.isEmpty() || !FilterItem.filter(filter, carriedItem))) return;
-                slot.set(carriedItem);
             } else if (this.minecraft.hasShiftDown()) {
                 ClientPacketDistributor.sendToServer(new SlotDisableChangePacket(
                     realSlotId,

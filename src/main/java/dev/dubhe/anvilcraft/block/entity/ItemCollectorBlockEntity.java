@@ -13,8 +13,8 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
 import dev.dubhe.anvilcraft.util.ItemResourceHelper;
 import dev.dubhe.anvilcraft.util.WatchableCyclingValue;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -59,6 +59,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     IHasAffectRange,
     IItemResourceHandlerHolder {
 
+    private static final int POACHING_POWER_GRACE_TICKS = 2;
     private static final Table<Level, ChunkPos, Set<ItemCollectorBlockEntity>> POACHING_COLLECTORS = HashBasedTable.create();
     public static final int[][] POWER_CONSUMPTION = {
         {8, 12, 20, 32},
@@ -87,9 +88,10 @@ public class ItemCollectorBlockEntity extends BlockEntity
         60
     );
 
-    @Setter
-    private PowerGrid grid;
-    private int cd = this.cooldown.next();
+    private @Nullable PowerGrid grid;
+    @Getter(AccessLevel.NONE)
+    private long poachingPowerGraceEndTick = Long.MIN_VALUE;
+    private int cd;
     private int oldCooldown = -1;
     private int oldRange = -1;
     @Nullable
@@ -108,6 +110,8 @@ public class ItemCollectorBlockEntity extends BlockEntity
 
     public ItemCollectorBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+        this.cooldown.next();
+        this.resetCooldown();
     }
 
     @Override
@@ -118,6 +122,19 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public BlockPos getPos() {
         return this.getBlockPos();
+    }
+
+    @Override
+    public void setGrid(@Nullable PowerGrid grid) {
+        if (grid == null && this.grid != null && this.grid.isWorking() && this.level != null) {
+            this.poachingPowerGraceEndTick = this.level.getGameTime() + POACHING_POWER_GRACE_TICKS;
+        }
+        this.grid = grid;
+    }
+
+    public boolean canPoach() {
+        return this.isGridWorking()
+            || this.level != null && this.level.getGameTime() < this.poachingPowerGraceEndTick;
     }
 
     public int getPowerConsumption() {
@@ -198,14 +215,17 @@ public class ItemCollectorBlockEntity extends BlockEntity
     public void gridTick() {
         if (level == null || level.isClientSide()) return;
 
+        BlockState state = level.getBlockState(getBlockPos());
+        if (!this.isGridWorking()
+            || state.hasProperty(ItemCollectorBlock.POWERED) && state.getValue(ItemCollectorBlock.POWERED)) {
+            this.resetCooldown();
+            return;
+        }
         if (this.cd > 1) {
             this.cd--;
             return;
         }
         if (this.boundingBox == null) return;
-        if (!this.isGridWorking()) return;
-        BlockState state = level.getBlockState(getBlockPos());
-        if (state.hasProperty(ItemCollectorBlock.POWERED) && state.getValue(ItemCollectorBlock.POWERED)) return;
         List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class, this.boundingBox);
         for (ItemEntity itemEntity : itemEntities) {
             this.acceptItemEntity(itemEntity);
@@ -217,8 +237,12 @@ public class ItemCollectorBlockEntity extends BlockEntity
         }
     }
 
+    private void resetCooldown() {
+        this.cd = this.cooldown.get() > 0 ? this.cooldown.get() : 5;
+    }
+
     public TriState acceptItemEntity(ItemEntity itemEntity) {
-        if (!this.isGridWorking() || getBlockState().getValue(ItemCollectorBlock.POWERED)) {
+        if (!this.canPoach() || getBlockState().getValue(ItemCollectorBlock.POWERED)) {
             return TriState.FALSE;
         }
         ItemStack itemStack = itemEntity.getItem();

@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
+import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
 import dev.dubhe.anvilcraft.util.mixin.ProvidenceRef;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -68,25 +69,32 @@ abstract class EnchantmentHelperMixin {
         List<EnchantmentInstance> modified = new ArrayList<>(original);
         String path = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).getPath();
 
-        boolean isRoyal = path.contains("royal_steel");
-        boolean isFrost = path.contains("frost_metal");
-        boolean isEmber = path.contains("ember_metal");
+        boolean isRoyal = path.contains("royal");
+        boolean isFrost = path.contains("frost");
+        boolean isEmber = path.contains("ember");
 
         if (!isFrost) {
-            // modified.removeIf(e -> e.enchantment.is(ModEnchantments.崩解));
+            modified.removeIf(e -> e.enchantment().is(ModEnchantments.DISINTEGRATION_KEY));
         }
         if (!isEmber) {
-            // modified.removeIf(e -> e.enchantment.is(ModEnchantments.熔炼));
+            modified.removeIf(e -> e.enchantment().is(ModEnchantments.SMELTING_KEY));
         }
 
         if (isRoyal) {
             anvilcraft$boostEnchantment(modified, Enchantments.SILK_TOUCH);
             anvilcraft$boostEnchantment(modified, Enchantments.UNBREAKING);
         } else if (isFrost) {
-            // anvilcraft$boostEnchantment(modified, ModEnchantments.崩解);
+            anvilcraft$boostEnchantment(modified, ModEnchantments.DISINTEGRATION_KEY);
         } else if (isEmber) {
-            // anvilcraft$boostEnchantment(modified, ModEnchantments.熔炼);
+            anvilcraft$boostEnchantment(modified, ModEnchantments.SMELTING_KEY);
             anvilcraft$boostEnchantment(modified, Enchantments.FIRE_ASPECT);
+        }
+
+        if (path.contains("transcendence")) {
+            anvilcraft$boostEnchantment(modified, Enchantments.FORTUNE);
+            anvilcraft$boostEnchantment(modified, Enchantments.LOOTING);
+            anvilcraft$addHigherLevel(modified, Enchantments.FORTUNE);
+            anvilcraft$addHigherLevel(modified, Enchantments.LOOTING);
         }
 
         return modified;
@@ -104,6 +112,17 @@ abstract class EnchantmentHelperMixin {
         if (target != null) {
             for (int i = 0; i < 10; i++) {
                 list.add(target);
+            }
+        }
+    }
+
+    @Unique
+    private static void anvilcraft$addHigherLevel(List<EnchantmentInstance> list, ResourceKey<Enchantment> key) {
+        for (EnchantmentInstance instance : list) {
+            if (instance.enchantment().is(key)) {
+                list.add(new EnchantmentInstance(instance.enchantment(), 4));
+                list.add(new EnchantmentInstance(instance.enchantment(), 5));
+                return;
             }
         }
     }

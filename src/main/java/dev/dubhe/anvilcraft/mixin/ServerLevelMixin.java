@@ -4,7 +4,9 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.item.ItemEntity;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -15,9 +17,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ServerLevel.class)
 public class ServerLevelMixin {
     @Unique
-    ItemEntity anvilcraft$addedEntity;
+    private @Nullable Entity anvilcraft$addedEntity;
     @Unique
-    boolean anvilcraft$shouldCheckDiscarded;
+    private boolean anvilcraft$shouldCheckDiscarded;
 
     @Inject(
         method = "addFreshEntity",
@@ -26,6 +28,8 @@ public class ServerLevelMixin {
     public void poachItemEntity(Entity entity, CallbackInfoReturnable<Boolean> cir) {
         if (entity instanceof ItemEntity e1) {
             e1.anvilcraft$poach();
+        } else if (entity instanceof ExperienceOrb orb) {
+            orb.anvilcraft$poach();
         }
     }
 
@@ -36,8 +40,8 @@ public class ServerLevelMixin {
         )
     )
     public void recordAddedItemEntity(Entity entity, CallbackInfoReturnable<Boolean> cir) {
-        if (entity instanceof ItemEntity e1) {
-            this.anvilcraft$addedEntity = e1;
+        if (entity instanceof ItemEntity || entity instanceof ExperienceOrb) {
+            this.anvilcraft$addedEntity = entity;
             this.anvilcraft$shouldCheckDiscarded = true;
         }
     }
@@ -49,11 +53,19 @@ public class ServerLevelMixin {
         )
     )
     public void cancelItemDiscardedWarn(Logger instance, String string, Object o, Operation<Void> original) {
-        if (this.anvilcraft$shouldCheckDiscarded && this.anvilcraft$addedEntity.anvilcraft$getDiscarded()) {
+        boolean discarded = false;
+        if (this.anvilcraft$addedEntity instanceof ItemEntity item) {
+            discarded = item.anvilcraft$getDiscarded();
+        } else if (this.anvilcraft$addedEntity instanceof ExperienceOrb orb) {
+            discarded = orb.anvilcraft$getDiscarded();
+        }
+        if (this.anvilcraft$shouldCheckDiscarded && discarded) {
             this.anvilcraft$shouldCheckDiscarded = false;
+            this.anvilcraft$addedEntity = null;
             return;
         }
-
+        this.anvilcraft$shouldCheckDiscarded = false;
+        this.anvilcraft$addedEntity = null;
         original.call(instance, string, o);
     }
 }

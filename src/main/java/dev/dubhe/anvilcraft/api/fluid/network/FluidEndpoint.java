@@ -13,12 +13,14 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
  * @param sideToPipe      从容器看向管道的方向
  * @param handler         容器的流体处理器
  * @param effectiveHeight 等效高度 = 容器 Y + 沿路径累计的泵势场偏移
+ * @param cauldron        该端点是否为 NeoForge 注册的炼药锅
  */
 public record FluidEndpoint(
     BlockPos containerPos,
     BlockPos fromPipePos,
     Direction sideToPipe,
     ResourceHandler<FluidResource> handler,
-    int effectiveHeight
+    int effectiveHeight,
+    boolean cauldron
 ) {
 }

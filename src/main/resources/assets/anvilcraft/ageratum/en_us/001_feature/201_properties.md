@@ -36,7 +36,7 @@ This page showcases all currently available special tool properties and their ef
 
 Tools with this property will have two "phases"  
 Each phase stores its own name and enchantments, which do not conflict  
-You can switch between phases by pressing <Key id="key.anvilcraft.switch_phase" />
+You can switch between phases by pressing <key id="key.anvilcraft.switch_phase" />
 
 ---
 

@@ -139,7 +139,7 @@ public class PipeBlockItem extends Item {
         } else if (state.getBlock() instanceof PipeNodeBlock) {
             PipeBlock.NodePipe value = towardIsPipe ? PipeBlock.NodePipe.PIPE : PipeBlock.NodePipe.END;
             BlockState newState = state.setValue(PipeBlock.getPropertyForDirection(toward), value);
-            level.setBlockAndUpdate(pos, newState);
+            PipeBlock.setBlockPreservingValve(level, pos, newState);
             return newState;
         }
         return null;
@@ -213,7 +213,7 @@ public class PipeBlockItem extends Item {
             newState = newState.setValue(PipeBlock.HAS_END_END, !towardIsPipe);
         }
         if (!newState.equals(state)) {
-            level.setBlockAndUpdate(pos, newState);
+            PipeBlock.setBlockPreservingValve(level, pos, newState);
             return newState;
         }
         return null;
@@ -258,7 +258,7 @@ public class PipeBlockItem extends Item {
                     .setValue(PipeBlock.AXIS, axis)
                     .setValue(PipeBlock.HAS_END_START, negIsOccupied ? !occupiedEndIsPipe : !towardIsPipe)
                     .setValue(PipeBlock.HAS_END_END, negIsOccupied ? !towardIsPipe : !occupiedEndIsPipe);
-                level.setBlockAndUpdate(pos, straightState);
+                PipeBlock.setBlockPreservingValve(level, pos, straightState);
                 return straightState;
             }
 
@@ -270,7 +270,7 @@ public class PipeBlockItem extends Item {
                 .setValue(PipeBlock.CORNER_ENDED, corner)
                 .setValue(PipeBlock.HAS_END_START, firstIsOccupied ? !occupiedEndIsPipe : !towardIsPipe)
                 .setValue(PipeBlock.HAS_END_END, firstIsOccupied ? !towardIsPipe : !occupiedEndIsPipe);
-            level.setBlockAndUpdate(pos, cornerState);
+            PipeBlock.setBlockPreservingValve(level, pos, cornerState);
             return cornerState;
         }
     }
@@ -296,7 +296,7 @@ public class PipeBlockItem extends Item {
             PipeBlock.getPropertyForDirection(toward),
             towardIsPipe ? PipeBlock.NodePipe.PIPE : PipeBlock.NodePipe.END
         );
-        level.setBlockAndUpdate(pos, nodeState);
+        PipeBlock.setBlockPreservingValve(level, pos, nodeState);
         return nodeState;
     }
 
@@ -456,7 +456,7 @@ public class PipeBlockItem extends Item {
                     PipeNodeBlock.evaluateNeighbor(level, cornerPos, second)
                 );
                 nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(clickedFace), PipeBlock.NodePipe.PIPE);
-                level.setBlockAndUpdate(cornerPos, nodeState);
+                PipeBlock.setBlockPreservingValve(level, cornerPos, nodeState);
                 playPlaceSound(level, cornerPos, nodeState, player);
             } else if (bothFree || oppositeOccupied) {
                 Direction.Axis axis = clickedFace.getAxis();
@@ -477,7 +477,7 @@ public class PipeBlockItem extends Item {
                     .setValue(PipeBlock.HAS_END_START, !startIsPipe)
                     .setValue(PipeBlock.HAS_END_END, !endIsPipe)
                     .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED));
-                level.setBlockAndUpdate(cornerPos, straightState);
+                PipeBlock.setBlockPreservingValve(level, cornerPos, straightState);
                 playPlaceSound(level, cornerPos, straightState, player);
             } else if (!directionMatches) {
                 Direction occupiedEnd = firstOccupied ? first : second;
@@ -491,7 +491,7 @@ public class PipeBlockItem extends Item {
                     .setValue(PipeBlock.CORNER_ENDED, newCorner)
                     .setValue(PipeBlock.HAS_END_START, firstIsOccupied && !occupiedEndIsPipe)
                     .setValue(PipeBlock.HAS_END_END, !firstIsOccupied && !occupiedEndIsPipe);
-                level.setBlockAndUpdate(cornerPos, newCornerState);
+                PipeBlock.setBlockPreservingValve(level, cornerPos, newCornerState);
                 playPlaceSound(level, cornerPos, newCornerState, player);
             }
         }

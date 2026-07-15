@@ -29,19 +29,24 @@ items:
 
 # 宝石
 
-除了<ref item="minecraft:emerald"/>外，模组添加了：
+除了<ref item="minecraft:emerald"/>外，模组添加了更多宝石：
 
-- 代表火元素的<ref item="anvilcraft:ruby"/>
-- 代表水元素的<ref item="anvilcraft:sapphire"/>
-- 代表电元素的<ref item="anvilcraft:topaz"/>
+| 宝石                                      | 特性                                                                               |
+|-----------------------------------------|----------------------------------------------------------------------------------|
+| 代表火元素的<ref item="anvilcraft:ruby"/>     | 对着<ref item="minecraft:stone"/>使用可以产生*熔岩*、<ref item="minecraft:magma_block"/>    |
+| 代表水元素的<ref item="anvilcraft:sapphire"/> | 站在*水*中使用可以产生<ref item="minecraft:ice"/>；站在*空气*使用可以产生<ref item="minecraft:snow"/> |
+| 代表电元素的<ref item="anvilcraft:topaz"/>    | 对着<ref item="minecraft:lightning_rod"/>使用可以产生*闪电*                                |
 
 它们和<ref item="minecraft:emerald"/>一起，统称为宝石
 
 ## 首次获取
 
-[冲压晶洞](../006_prop/003_geode.md)有概率获取模组添加的3种宝石
+加工[晶洞](../006_prop/003_geode.md)有概率获取模组添加的3种宝石
 
+<row>
 <recipe id="anvilcraft:stamping/geode_gems"/>
+<recipe id="anvilcraft:item_crush/geode_gems"/>
+</row>
 
 ## 量产
 

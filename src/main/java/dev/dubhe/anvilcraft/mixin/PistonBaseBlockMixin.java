@@ -1,6 +1,9 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
+import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.player.Player;
@@ -16,6 +19,20 @@ import org.spongepowered.asm.mixin.Mixin;
 @SuppressWarnings("AddedMixinMembersNamePattern")
 @Mixin(PistonBaseBlock.class)
 abstract class PistonBaseBlockMixin implements IHammerChangeable {
+
+    @WrapMethod(method = "moveBlocks")
+    private boolean reserveMovingBlocks(
+        Level level,
+        BlockPos pistonPos,
+        Direction direction,
+        boolean extending,
+        Operation<Boolean> original
+    ) {
+        if (level.isClientSide()) return original.call(level, pistonPos, direction, extending);
+        try (PistonMoveGuard.Scope ignored = PistonMoveGuard.begin(level)) {
+            return original.call(level, pistonPos, direction, extending);
+        }
+    }
 
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {

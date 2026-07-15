@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.mixin.accessor;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.random.WeightedList;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.BaseSpawner;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.SpawnData;
@@ -16,6 +18,9 @@ public interface BaseSpawnerAccessor {
     @Invoker
     SpawnData invokeGetOrCreateNextSpawnData(@Nullable Level level, RandomSource random, BlockPos pos);
 
+    @Invoker
+    void invokeSetNextSpawnData(@Nullable Level level, BlockPos pos, SpawnData spawnData);
+
     @Accessor
     int getSpawnCount();
 
@@ -24,4 +29,10 @@ public interface BaseSpawnerAccessor {
 
     @Accessor
     int getSpawnRange();
+
+    @Accessor
+    void setSpawnPotentials(WeightedList<SpawnData> spawnPotentials);
+
+    @Accessor
+    void setDisplayEntity(@Nullable Entity displayEntity);
 }

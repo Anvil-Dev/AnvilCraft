@@ -50,3 +50,7 @@ items:
 # Properties
 
 - Nuclear Radiation: Carrying 18 stacks of any uranium items will apply the Wither effect
+- <ref item="anvilcraft:uranium_block"/> is a *radioactive block*
+- If the number of *radioactive blocks* adjacent to a *radioactive block* exceeds that of <ref item="anvilcraft:lead_block"/> by 3 or more, *radioactive decay* may be triggered randomly
+- <ref item="anvilcraft:uranium_block"/> decays into <ref item="anvilcraft:lead_block"/>
+- If all six sides are adjacent to radioactive blocks, the *radioactive block* turns into lava

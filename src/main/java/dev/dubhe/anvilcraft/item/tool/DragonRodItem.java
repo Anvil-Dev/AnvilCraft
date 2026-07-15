@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.utility.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.DevourRange;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import dev.dubhe.anvilcraft.util.ItemResourceHelper;
@@ -18,6 +19,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffects;
@@ -35,17 +37,26 @@ import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.LecternBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 
 @Slf4j
 public class DragonRodItem extends Item {
     public static final Identifier COOLDOWN_GROUP = AnvilCraft.of("dragon_rods");
+    private static final Map<UUID, Long> LAST_TRANSCENDENCE_DEVOUR_TICK = new HashMap<>();
+    private static final Set<UUID> CONTINUOUS_DEVOUR_PLAYERS = new HashSet<>();
 
     public DragonRodItem(Properties properties) {
         super(properties
@@ -169,8 +180,17 @@ public class DragonRodItem extends Item {
             level.destroyBlock(devouringPos, false);
         }
 
-        int cooldown = calculateCooldown(player, dragonRod);
-        player.getCooldowns().addCooldown(DragonRodItem.COOLDOWN_GROUP, cooldown);
+        if (dragonRod.is(ModItems.TRANSCENDENCE_DRAGON_ROD)) {
+            long currentTick = level.getGameTime();
+            Long lastTick = LAST_TRANSCENDENCE_DEVOUR_TICK.put(player.getUUID(), currentTick);
+            boolean warmedUp = lastTick != null && currentTick - lastTick < 15;
+            player.getCooldowns().addCooldown(DragonRodItem.COOLDOWN_GROUP, warmedUp ? 0 : 10);
+            if (warmedUp) {
+                CONTINUOUS_DEVOUR_PLAYERS.add(player.getUUID());
+            }
+        } else {
+            player.getCooldowns().addCooldown(DragonRodItem.COOLDOWN_GROUP, calculateCooldown(player, dragonRod));
+        }
 
         dragonRod.hurtAndBreak(
             calculateDamage(dragonRod), level, player, item -> {
@@ -206,5 +226,36 @@ public class DragonRodItem extends Item {
             cooldown += Objects.requireNonNull(player.getEffect(MobEffects.MINING_FATIGUE)).getAmplifier() * 60;
         }
         return Math.max(cooldown, 4);
+    }
+
+    public static void stopContinuousMode(Player player) {
+        CONTINUOUS_DEVOUR_PLAYERS.remove(player.getUUID());
+    }
+
+    public static void tickContinuousDevour(ServerPlayer player) {
+        UUID playerId = player.getUUID();
+        if (!CONTINUOUS_DEVOUR_PLAYERS.contains(playerId)) return;
+
+        ItemStack rod = player.getMainHandItem();
+        InteractionHand hand = InteractionHand.MAIN_HAND;
+        if (!rod.is(ModItems.TRANSCENDENCE_DRAGON_ROD)) {
+            rod = player.getOffhandItem();
+            hand = InteractionHand.OFF_HAND;
+            if (!rod.is(ModItems.TRANSCENDENCE_DRAGON_ROD)) {
+                CONTINUOUS_DEVOUR_PLAYERS.remove(playerId);
+                return;
+            }
+        }
+        if (!canDevour(player, rod)) {
+            CONTINUOUS_DEVOUR_PLAYERS.remove(playerId);
+            return;
+        }
+        HitResult hit = player.pick(player.blockInteractionRange(), 0.0F, false);
+        if (!(hit instanceof BlockHitResult blockHit)) return;
+        BlockPos targetPos = blockHit.getBlockPos();
+        ServerLevel level = player.level();
+        BlockState targetState = level.getBlockState(targetPos);
+        if (targetState.isAir() || !BlockDevourerBlock.canDevour(targetState)) return;
+        devourBlock(level, player, hand, targetPos, targetState, blockHit.getDirection());
     }
 }

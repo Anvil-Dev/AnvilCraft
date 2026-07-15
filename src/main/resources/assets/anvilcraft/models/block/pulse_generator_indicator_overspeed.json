@@ -1,0 +1,19 @@
+{
+  "format_version": "1.9.0",
+  "credit": "Made for AnvilCraft",
+  "ambientocclusion": false,
+  "render_type": "minecraft:cutout",
+  "textures": {
+    "2": "anvilcraft:block/pulse_generator_inner"
+  },
+  "elements": [
+    {
+      "from": [5, 7.75, 6.5],
+      "to": [11, 7.75, 12.5],
+      "rotation": {"angle": 22.5, "axis": "x", "origin": [8, 4, 5]},
+      "faces": {
+        "up": {"uv": [1, 9, 7, 15], "rotation": 90, "texture": "#2"}
+      }
+    }
+  ]
+}

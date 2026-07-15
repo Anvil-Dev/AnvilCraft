@@ -12,7 +12,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
+import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
@@ -24,7 +24,6 @@ import dev.dubhe.anvilcraft.network.HammerUsePacket;
 import dev.dubhe.anvilcraft.network.SwitchMultitoolModePacket;
 import dev.dubhe.anvilcraft.network.SwitchResonateModePacket;
 import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
-import dev.dubhe.anvilcraft.saved.multiphase.Multiphase;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -48,7 +47,6 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -80,6 +78,10 @@ public class WheelLifecycleEventListener {
         return hammerKeyWasDown && hammerWheelCache != null && hammerWheelCache.isPresent();
     }
 
+    public static boolean isHammerWheelModel(WheelMenuModel model) {
+        return hammerWheelCache != null && hammerWheelCache.orElse(null) == model;
+    }
+
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft client = Minecraft.getInstance();
@@ -102,8 +104,17 @@ public class WheelLifecycleEventListener {
     ) {
         if (WheelLifecycleEventListener.hammerKeyTime <= 0) return false;
         if (property == null) {
+            LocalPlayer player = Minecraft.getInstance().player;
+            boolean interacted = player != null && AnvilHammerItem.interactWithBlock(
+                player,
+                targetPos,
+                level,
+                player.getItemInHand(hand),
+                hand,
+                hitVec
+            );
             ClientPacketDistributor.sendToServer(new HammerUsePacket(targetPos, hand, hitVec));
-            return false;
+            return interacted;
         }
         if (gameTime - WheelLifecycleEventListener.hammerKeyTime <= 4) {
             ClientPacketDistributor.sendToServer(new HammerUsePacket(targetPos, hand, hitVec));
@@ -115,7 +126,7 @@ public class WheelLifecycleEventListener {
         if (WheelLifecycleEventListener.hammerWheelCache == null) {
             if (player.isShiftKeyDown()) {
                 ClientPacketDistributor.sendToServer(new HammerUsePacket(targetPos, hand, hitVec));
-                return false;
+                return true;
             }
             if (!player.getAbilities().mayBuild) return false;
             if (!AnvilHammerItem.ableToUseAnvilHammer(level, targetPos, player)) return false;
@@ -150,14 +161,9 @@ public class WheelLifecycleEventListener {
                     stack = player.getOffhandItem();
                 }
                 if (!stack.has(ModComponents.MULTIPHASE)) return;
-                MultiphaseRef ref = stack.get(ModComponents.MULTIPHASE);
-                if (ref == null || ref.isEmpty()) return;
-                if (stack.get(ModComponents.MULTIPHASE) == null) return;
-                var component = stack.get(ModComponents.MULTIPHASE);
-                if (component == null) return;
-                ClientPacketDistributor.sendToServer(new MultiphasePackets.SingleSync(component.id().get()));
-                var multiphase = ref.toMultiphase();
+                Multiphase multiphase = stack.get(ModComponents.MULTIPHASE);
                 if (multiphase == null) return;
+                multiphase = multiphase.forDisplay(stack);
                 WheelLifecycleEventListener.multiphaseWheelCache = Optional.of(
                     WheelLifecycleEventListener.getMultiphaseWheel(hand, stack, multiphase)
                 );
@@ -271,22 +277,38 @@ public class WheelLifecycleEventListener {
     }
 
     private static WheelMenuModel getMultiphaseWheel(InteractionHand hand, ItemStack holding, Multiphase multiphase) {
-        WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(multiphase.phases().size());
-        multiphase.phases().stream()
-            .sorted(Comparator.comparingInt(Multiphase.Phase::index))
-            .forEachOrdered(phase -> builder.action(
-                "" + Multiphase.DEFAULT_SUFFIXES.charAt(phase.index()),
-                phase.phaseName(),
-                (graphics, _, _, _) -> {
-                    ItemStack copied = holding.copy();
-                    phase.applyToStack(copied);
-                    graphics.item(copied, 2, 2, 9910597);
-                },
-                ctx -> ClientPacketDistributor.sendToServer(
-                    new MultiphasePackets.ChangePhase(hand, ctx.slotIndex())
-                )
-            ));
+        int phaseCount = multiphase.phases().size();
+        WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(phaseCount * 2);
+        for (int i = 0; i < phaseCount; i++) {
+            addMultiphaseWheelEntry(builder, hand, holding, multiphase, i, false);
+        }
+        for (int i = 0; i < phaseCount; i++) {
+            addMultiphaseWheelEntry(builder, hand, holding, multiphase, i, true);
+        }
         return builder.build();
+    }
+
+    private static void addMultiphaseWheelEntry(
+        WheelMenuBuilder builder,
+        InteractionHand hand,
+        ItemStack holding,
+        Multiphase multiphase,
+        int phaseIndex,
+        boolean merciless
+    ) {
+        String id = "phase_" + phaseIndex + (merciless ? "_merciless" : "");
+        builder.action(
+            id,
+            multiphase.phaseDisplayName(phaseIndex, merciless),
+            (graphics, _, _, _) -> {
+                ItemStack copied = holding.copy();
+                multiphase.applySelectionPreview(copied, phaseIndex, merciless);
+                graphics.item(copied, 2, 2, 9910597);
+            },
+            _ -> ClientPacketDistributor.sendToServer(
+                new MultiphasePackets.ChangePhase(hand, phaseIndex, merciless)
+            )
+        );
     }
 
     private static WheelMenuModel getResonatorWheel(InteractionHand hand, ItemStack holding) {

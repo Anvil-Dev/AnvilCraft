@@ -5,9 +5,6 @@ navigation:
 items:
   - anvilcraft:celestial_forging_anvil
   - anvilcraft:celestial_forging_anvil_amplifier
-  - anvilcraft:celestial_forging_anvil_logistics_interface
-  - anvilcraft:celestial_forging_anvil_fluid_interface
-  - anvilcraft:celestial_forging_anvil_laser_interface
 ---
 
 # <ref item="anvilcraft:celestial_forging_anvil"/>
@@ -67,62 +64,25 @@ In the center of the GUI, you can check whether a star can be searched based on 
 For more information, see [Celestial Types](../001_feature/331_celestial_type.md)
 </info>
 
+# Celestial Body & World Interaction
+
+- After searching, the searched celestial body will appear in the *binding ring*
+- Gravity will appear around it. Any creatures, items, projectiles, etc. entering the gravity field will be attracted to the celestial body and take damage
+- Using a **redstone signal** can amplify the celestial body, and its gravity field will also scale up
+
 # Extracting Celestial Resources
 
-1. After successfully binding a celestial body
-2. Click the bind button at the bottom of the <ref item="anvilcraft:celestial_forging_anvil"/> GUI
-3. On the right side of the <ref item="anvilcraft:celestial_forging_anvil"/> GUI, select *Mega Structure* and submit the corresponding **building materials**
-4. Input raw materials through various interfaces, then extract resources
+1. Click the bind button at the bottom of the <ref item="anvilcraft:celestial_forging_anvil"/> GUI
+2. On the right side of the GUI, select *Mega Structure* and submit the corresponding **building materials**
+3. Input raw materials through various interfaces to extract resources ([Click here](332_interface.md) for details)
 
 <tip>
 To remove a mega structure, simply unbind and rebind the planet
 </tip>
 
-## Using Interfaces
-
-### <ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/>
-
-<recipe id="anvilcraft:celestial_forging_anvil_logistics_interface"/>
-
-- Can hold 16 types of items, each up to 1 stack
-- When receiving a redstone signal, actively tries to output items forward
-
-<warning>
-In some cases, a large number of the same item may be output. If there are not enough <ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/>, items may be lost
-</warning>
-
-### <ref item="anvilcraft:celestial_forging_anvil_fluid_interface"/>
-
-<recipe id="anvilcraft:celestial_forging_anvil_fluid_interface"/>
-
-- **Continuous power consumption** 128kW
-- Can hold 4 types of fluids, each up to 80 buckets
-- When receiving a redstone signal, actively tries to output fluid to pipes
-
-### <ref item="anvilcraft:celestial_forging_anvil_laser_interface"/>
-
-<row halign="center">
-<recipe id="anvilcraft:celestial_forging_anvil_laser_interface"/>
-<recipe id="anvilcraft:celestial_forging_anvil_laser_interface_from_large_laser"/>
-</row>
-
-- Receives lasers
-- When receiving a redstone signal, actively tries to emit laser forward
-
-## Maintaining Mega Structures
-
-- Different mega structures have different construction conditions, requiring specific types of planets
-- Some mega structures require input of items, fluids, lasers, or power — the first three need to be input through *interfaces*
-- Some mega structures can produce items, fluids, lasers, or power — the first three need to be output through *interfaces*
-
-## Obtaining Resources
-
-- Normally, if there are multiple <ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/>, they output in rotation, with a total of 20 items per second
-- Normally, each <ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/> independently outputs 5B (buckets) of fluid per second
-
 ## Planetary Mega Structures
 
-- Can be built when not in *Amplified State*
+- Can be built when not in *Amplified State*, only buildable on satellites/planets
 - Generally only one mega structure can be built at a time
 
 |     Mega Structure     |            Construction Condition            |                   Input                    |                Output                |
@@ -154,7 +114,7 @@ After inputting items, the civilization will continue to offer worship until the
 |         Dyson Sphere          |             Star             |     None      |                                                           Continuously generates power. Power output is positively correlated with the celestial body's *temperature* and *radius*                                                           |
 | Stellar Evolution Accelerator | Star (excluding white dwarf) |     None      |                                                                                                     Accelerates stellar evolution                                                                                                     |
 |         Magnetar Coil         |         Neutron star         |   Power 4MW   |                                             Continuously generates power. Power output is positively correlated with the celestial body's *magnetic field strength* and *rotation speed*                                              |
-|      Wormhole Stabilizer      |          Black hole          |     None      |                                                                                                      [Wormhole](332_wormhole.md)                                                                                                      |
+|      Wormhole Stabilizer      |          Black hole          |     None      |                                                                                                   [Wormhole](332_teleportation.md)                                                                                                    |
 |        Penrose Sphere         |          Black hole          |     Laser     |                                                                                                       Same-level *Gamma Laser*                                                                                                        |
 |      Matter Decompressor      |   Neutron star, black hole   | *Gamma Laser* |                                                Produces 1 Neutronium Ingot every 10 seconds (neutron star) or 1 Void Matter per gametick (black hole). Each level of *Gamma Laser* doubles efficiency                                                |
 
@@ -162,6 +122,10 @@ After inputting items, the civilization will continue to offer worship until the
 *Penrose Sphere* input and output [Lasers](201_basic_laser.md#laser) must be grouped on the same side of the forging anvil, using the left and right <ref item="anvilcraft:celestial_forging_anvil_laser_interface"/>
 . Lasers on the four sides are independent of each other for input and output
 </info>
+
+![Penrose Sphere.png](../../textures/cfa/gama.png)
+
+> Producing [Gamma Laser](../001_feature/332_gamma_laser.md)
 
 # Stellar Evolution
 

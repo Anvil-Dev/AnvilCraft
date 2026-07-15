@@ -1,0 +1,135 @@
+{
+  "ambientocclusion": false,
+  "elements": [
+    {
+      "faces": {
+        "down": {
+          "rotation": 180,
+          "texture": "#0",
+          "uv": [
+            10.0,
+            0.0,
+            11.0,
+            9.0
+          ]
+        },
+        "east": {
+          "rotation": 90,
+          "texture": "#0",
+          "uv": [
+            5.0,
+            0.0,
+            11.0,
+            9.0
+          ]
+        },
+        "north": {
+          "cullface": "north",
+          "rotation": 270,
+          "texture": "#0",
+          "uv": [
+            5.0,
+            0.0,
+            11.0,
+            1.0
+          ]
+        },
+        "up": {
+          "rotation": 180,
+          "texture": "#0",
+          "uv": [
+            5.0,
+            9.0,
+            6.0,
+            0.0
+          ]
+        },
+        "west": {
+          "cullface": "west",
+          "rotation": 90,
+          "texture": "#0",
+          "uv": [
+            11.0,
+            0.0,
+            5.0,
+            9.0
+          ]
+        }
+      },
+      "from": [
+        0,
+        5,
+        -1
+      ],
+      "to": [
+        1,
+        11,
+        8
+      ]
+    },
+    {
+      "faces": {
+        "down": {
+          "rotation": 180,
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            7.0,
+            10.0
+          ]
+        },
+        "east": {
+          "rotation": 90,
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            10.0,
+            10.0
+          ]
+        },
+        "north": {
+          "cullface": "north",
+          "rotation": 270,
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            10.0,
+            1.0
+          ]
+        },
+        "up": {
+          "rotation": 180,
+          "texture": "#1",
+          "tintindex": 0,
+          "uv": [
+            6.0,
+            0.0,
+            7.0,
+            10.0
+          ]
+        }
+      },
+      "from": [
+        0,
+        6,
+        -2
+      ],
+      "to": [
+        2,
+        10,
+        8
+      ]
+    }
+  ],
+  "textures": {
+    "0": "anvilcraft:block/redstone_wire_line",
+    "1": "anvilcraft:block/redstone_wire_line_overlay",
+    "particle": "anvilcraft:block/redstone_wire_line"
+  }
+}

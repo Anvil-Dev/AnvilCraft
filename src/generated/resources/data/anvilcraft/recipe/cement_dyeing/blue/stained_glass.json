@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "anvilcraft:blue_cement",
+  "ingredients": [
+    {
+      "items": "#c:glass_blocks/cheap"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:blue_stained_glass"
+    }
+  ]
+}

@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.client.hud;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -14,41 +13,58 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix3x2fStack;
 
 public class IonoCraftBackpackHUD {
+    private static final int ROW_HEIGHT = 20;
+    private static final int SUPER_CAPACITOR_X = 64;
     private static final Identifier BATTERY_EMPTY = SharedTextures.textureGui("misc/battery_display/battery_empty");
     private static final Identifier BATTERY_FULL = SharedTextures.textureGui("misc/battery_display/battery_full");
     private static final int FULL_BAR_COLOR = 0xFF5454FF;
     private static final int BAR_COLOR = 0x7087FFFF;
 
     public static void render(GuiGraphicsExtractor graphics, DeltaTracker partialTick) {
-        if (!AnvilCraftClient.CONFIG.ionoCraftBackpackHud.enabled) return;
+        var config = AnvilCraftClient.CONFIG.ionoCraftBackpackHud;
+        if (!config.enabled && !config.capacitorCountEnabled) return;
         Minecraft mc = Minecraft.getInstance();
         if (mc.options.hideGui) return;
         LocalPlayer player = mc.player;
         if (player == null) return;
 
-        ItemStack itemStack = IonoCraftBackpackItem.getByPlayer(player);
-        if (!itemStack.is(ModItems.IONOCRAFT_BACKPACK)) return;
+        ItemStack backpack = IonoCraftBackpackItem.getByPlayer(player);
+        boolean renderBackpack = config.enabled && backpack.is(ModItems.IONOCRAFT_BACKPACK);
+        Inventory inventory = player.getInventory();
+        int capacitorCount = count(inventory, ModItems.CAPACITOR.asStack());
+        int superCapacitorCount = count(inventory, ModItems.SUPER_CAPACITOR.asStack());
+        boolean renderCapacitors = config.capacitorCountEnabled && (capacitorCount > 0 || superCapacitorCount > 0);
+        if (!renderBackpack && !renderCapacitors) return;
 
-        int energy = IonoCraftBackpackItem.getEnergyStored(itemStack);
-        final int percent = Math.round((float) energy / IonoCraftBackpackItem.MAX_ENERGY * 100);
-        float ratio = Math.clamp((float) energy / IonoCraftBackpackItem.MAX_ENERGY, 0, 1);
-        final int color = ColorUtil.lerpColor(ratio, BAR_COLOR, FULL_BAR_COLOR);
-
-        final Font font = mc.font;
         Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();
 
-        int x = AnvilCraftClient.CONFIG.ionoCraftBackpackHud.hudX;
-        int y = AnvilCraftClient.CONFIG.ionoCraftBackpackHud.hudY;
-        float scale = AnvilCraftClient.CONFIG.ionoCraftBackpackHud.hudScale;
+        pose.scale(config.hudScale, config.hudScale);
+        pose.translate(config.hudX, config.hudY);
+        if (renderBackpack) {
+            renderBackpack(graphics, mc.font, backpack);
+            pose.translate(0, ROW_HEIGHT);
+        }
+        if (renderCapacitors) {
+            renderCapacitorCounts(graphics, mc.font, capacitorCount, superCapacitorCount);
+        }
 
-        pose.scale(scale, scale);
-        pose.translate(x, y);
-        graphics.item(itemStack, 0, 0);
+        pose.popMatrix();
+    }
+
+    private static void renderBackpack(GuiGraphicsExtractor graphics, Font font, ItemStack backpack) {
+        Matrix3x2fStack pose = graphics.pose();
+        pose.pushMatrix();
+        int energy = IonoCraftBackpackItem.getEnergyStored(backpack);
+        int percent = Math.round((float) energy / IonoCraftBackpackItem.MAX_ENERGY * 100);
+        float ratio = Math.clamp((float) energy / IonoCraftBackpackItem.MAX_ENERGY, 0, 1);
+        int color = ColorUtil.lerpColor(ratio, BAR_COLOR, FULL_BAR_COLOR);
+        graphics.item(backpack, 0, 0);
 
         pose.translate(20, 4);
         Component text = Component.translatable("hud.anvilcraft.ionocraft_backpack_power", percent);
@@ -86,5 +102,32 @@ public class IonoCraftBackpackHUD {
         );
 
         pose.popMatrix();
+    }
+
+    private static void renderCapacitorCounts(
+        GuiGraphicsExtractor graphics,
+        Font font,
+        int capacitorCount,
+        int superCapacitorCount
+    ) {
+        graphics.item(ModItems.CAPACITOR.asStack(), 0, 0);
+        graphics.text(font, Component.literal("x " + capacitorCount), 20, 4, 0xFFFFFFFF, true);
+
+        graphics.item(ModItems.SUPER_CAPACITOR.asStack(), SUPER_CAPACITOR_X, 0);
+        graphics.text(
+            font,
+            Component.literal("x " + superCapacitorCount),
+            SUPER_CAPACITOR_X + 20,
+            4,
+            0xFFFFFFFF,
+            true
+        );
+    }
+
+    private static int count(Inventory inventory, ItemStack item) {
+        return inventory.getNonEquipmentItems().stream()
+            .filter(stack -> ItemStack.isSameItemSameComponents(stack, item))
+            .mapToInt(ItemStack::getCount)
+            .sum();
     }
 }

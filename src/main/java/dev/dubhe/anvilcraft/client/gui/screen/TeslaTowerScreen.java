@@ -106,11 +106,12 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
 
     @Override
     public boolean keyPressed(KeyEvent event) {
-        if (this.minecraft.options.keyInventory.matches(event)) {
-            return this.getFocused() != null && this.getFocused().keyPressed(event);
-        } else {
-            return super.keyPressed(event);
+        if (this.minecraft.options.keyInventory.matches(event)
+            && this.editBox != null
+            && this.editBox.isFocused()) {
+            return this.editBox.keyPressed(event);
         }
+        return super.keyPressed(event);
     }
 
     private void refreshFilterList() {
@@ -344,6 +345,12 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
         this.isDraggingLeft = false;
         this.isDraggingRight = false;
+        if (this.editBox != null && !this.editBox.isMouseOver(event.x(), event.y())) {
+            this.editBox.setFocused(false);
+            if (this.getFocused() == this.editBox) {
+                this.setFocused(null);
+            }
+        }
         int leftPos = (this.width - this.getImageWidth()) / 2;
         int topPos = (this.height - this.getImageHeight()) / 2;
         if (this.mouseInLeftSlider(event.x(), event.y(), leftPos, topPos) && this.filteredFilters.size() > 8) {

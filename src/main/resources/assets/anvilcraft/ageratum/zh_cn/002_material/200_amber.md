@@ -18,7 +18,7 @@ items:
 
 # 琥珀
 
-出售给[珠宝商](../001_feature/001_jeweler.md)
+出售给[珠宝匠](../001_feature/001_jeweler.md)
 
 # 合成
 

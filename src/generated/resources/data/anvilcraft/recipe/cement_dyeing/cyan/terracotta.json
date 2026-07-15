@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "anvilcraft:cyan_cement",
+  "ingredients": [
+    {
+      "items": "#minecraft:terracotta"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:cyan_terracotta"
+    }
+  ]
+}

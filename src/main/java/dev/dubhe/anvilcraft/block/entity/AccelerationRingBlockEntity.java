@@ -14,11 +14,13 @@ import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.util.DistanceComparator;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.longs.LongArrayList;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.SectionPos;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.level.Level;
@@ -29,18 +31,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
-import org.joml.Vector2d;
+import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 
 public class AccelerationRingBlockEntity extends BlockEntity implements IPowerConsumer {
-    private static final HashMap<Level, HashSet<BlockPos>> LEVEL_ACCELERATION_BLOCK_MAP = new HashMap<>();
-    private static final HashMap<BlockPos, AABB> ACCELERATION_AABB_MAP = new HashMap<>();
+    private static final HashMap<Level, AccelerationIndex> LEVEL_ACCELERATION_INDEX = new HashMap<>();
     @Getter
     @Setter
     private PowerGrid grid;
@@ -58,39 +58,52 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
     }
 
     public static Iterable<BlockPos> getAllBlocks(Level level) {
-        if (LEVEL_ACCELERATION_BLOCK_MAP.containsKey(level)) {
-            return LEVEL_ACCELERATION_BLOCK_MAP.get(level);
-        } else {
-            return List.of();
-        }
+        AccelerationIndex index = LEVEL_ACCELERATION_INDEX.get(level);
+        return index == null ? List.of() : index.positions;
     }
 
-    public static @Nullable AABB getAABB(BlockPos pos) {
-        return ACCELERATION_AABB_MAP.get(pos);
+    public static AABB getAABB(Level level, BlockPos pos) {
+        AccelerationIndex index = LEVEL_ACCELERATION_INDEX.get(level);
+        return index == null ? null : index.areas.get(pos);
     }
 
-    public static void clear() {
-        LEVEL_ACCELERATION_BLOCK_MAP.clear();
-        ACCELERATION_AABB_MAP.clear();
+    public static Iterable<BlockPos> getBlocksAt(Level level, Vec3 pos) {
+        AccelerationIndex index = LEVEL_ACCELERATION_INDEX.get(level);
+        return index == null ? List.of() : index.getBlocksAt(pos);
+    }
+
+    public static Iterable<BlockPos> getBlocksAlongMovement(Level level, Vec3 start, Vec3 movement) {
+        AccelerationIndex index = LEVEL_ACCELERATION_INDEX.get(level);
+        return index == null ? List.of() : index.getBlocksAlongMovement(start, movement);
+    }
+
+    public static void clear(Level level) {
+        LEVEL_ACCELERATION_INDEX.remove(level);
     }
 
     private void addSelfToMap() {
         if (level == null) return;
-        if (LEVEL_ACCELERATION_BLOCK_MAP.containsKey(level)) {
-            LEVEL_ACCELERATION_BLOCK_MAP.get(level).add(getBlockPos());
-        } else {
-            HashSet<BlockPos> set = new HashSet<>();
-            set.add(getBlockPos());
-            LEVEL_ACCELERATION_BLOCK_MAP.put(level, set);
-        }
+        LEVEL_ACCELERATION_INDEX.computeIfAbsent(level, ignored -> new AccelerationIndex()).add(getBlockPos());
     }
 
     private void removeSelfFromMap() {
         if (level == null) return;
-        if (LEVEL_ACCELERATION_BLOCK_MAP.containsKey(level)) {
-            LEVEL_ACCELERATION_BLOCK_MAP.get(level).remove(getBlockPos());
-        }
-        ACCELERATION_AABB_MAP.remove(getBlockPos());
+        AccelerationIndex index = LEVEL_ACCELERATION_INDEX.get(level);
+        if (index == null) return;
+        index.remove(getBlockPos());
+        if (index.positions.isEmpty()) LEVEL_ACCELERATION_INDEX.remove(level);
+    }
+
+    private void removeAccelerationArea() {
+        if (level == null) return;
+        AccelerationIndex index = LEVEL_ACCELERATION_INDEX.get(level);
+        if (index != null) index.removeArea(getBlockPos());
+    }
+
+    private void updateAccelerationArea(AABB area) {
+        if (level == null) return;
+        LEVEL_ACCELERATION_INDEX.computeIfAbsent(level, ignored -> new AccelerationIndex())
+            .updateArea(getBlockPos(), area);
     }
 
     @Override
@@ -134,9 +147,7 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
             if (this.isWork()) {
                 this.addSelfToMap();
                 this.accelerate();
-            } else {
-                this.removeSelfFromMap();
-            }
+            } else this.removeSelfFromMap();
         }
         if (this.grid == null) return;
         if (!state.getValue(AccelerationRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
@@ -162,15 +173,16 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         Direction direction = getBlockState().getValue(AccelerationRingBlock.FACING);
         BlockPos.MutableBlockPos checkPos = new BlockPos.MutableBlockPos();
         BlockPos endRingPos = null;
-        ArrayList<BlockPos> blockPoses = new ArrayList<>();
+        ArrayList<BlockPos> blockPositions = null;
         checkPos.set(getBlockPos());
         boolean found = false;
         checkPos.move(direction);
         for (int i = 0; i < 14; i++) {
             checkPos.move(direction);
             BlockState checkState = this.level.getBlockState(checkPos);
-            if (checkState.is(BlockTags.ANVIL) && !checkState.is(ModBlockTags.NON_MAGNETIC)) {
-                blockPoses.add(checkPos.east(0));
+            if (!level.isClientSide() && checkState.is(BlockTags.ANVIL) && !checkState.is(ModBlockTags.NON_MAGNETIC)) {
+                if (blockPositions == null) blockPositions = new ArrayList<>();
+                blockPositions.add(checkPos.immutable());
             }
             if (
                 checkState.hasProperty(AccelerationRingBlock.HALF)
@@ -185,7 +197,7 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
             }
         }
         if (!found) {
-            ACCELERATION_AABB_MAP.remove(getBlockPos());
+            this.removeAccelerationArea();
             return;
         }
         BlockPos aabbStart = getBlockPos().relative(direction.getOpposite(), 1);
@@ -199,8 +211,9 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
             aabbStart = getBlockPos().relative(direction.getOpposite(), 2);
         }
         AABB aabb = AABB.encapsulatingFullBlocks(endRingPos.relative(direction), aabbStart);
-        ACCELERATION_AABB_MAP.put(getBlockPos(), aabb);
-        for (BlockPos pos : blockPoses) {
+        this.updateAccelerationArea(aabb);
+        if (level.isClientSide() || blockPositions == null) return;
+        for (BlockPos pos : blockPositions) {
             BlockState fallState = this.level.getBlockState(pos);
             this.level.setBlock(pos, Blocks.AIR.defaultBlockState(), 2);
             FallingBlockEntity fallingEntity = FallingBlockEntity.fall(this.level, pos, fallState);
@@ -210,6 +223,7 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         }
     }
 
+    @SuppressWarnings("DuplicatedCode")
     public void attractGianAnvil() {
         assert this.level != null;
         if (
@@ -234,30 +248,36 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
             }
             checkPos.move(Direction.DOWN);
         }
-        Vector2d vector2d = new Vector2d(getBlockPos().getCenter().x, getBlockPos().getCenter().z);
-        Optional<FallingGiantAnvilEntity> fallingGiantAnvilEntity = this.level.getEntitiesOfClass(
-                FallingGiantAnvilEntity.class,
-                new AABB(
-                    getBlockPos().getX(),
-                    getBlockPos().getY() - 2,
-                    getBlockPos().getZ(),
-                    getBlockPos().getX() + 1,
-                    getBlockPos().getY() - 12,
-                    getBlockPos().getZ() + 1
-                )
-            ).stream()
-            .sorted((e1, e2) -> new DistanceComparator(getBlockPos().getCenter()).compare(e1.position(), e2.position()))
-            .filter(entity -> vector2d.distance(entity.position().x, entity.position().z) <= 0.25)
-            .findFirst();
-        if (fallingGiantAnvilEntity.isPresent()) {
+        Vec3 ringCenter = getBlockPos().getCenter();
+        FallingGiantAnvilEntity fallingGiantAnvilEntity = null;
+        double nearestDistanceSqr = Double.POSITIVE_INFINITY;
+        for (FallingGiantAnvilEntity entity : this.level.getEntitiesOfClass(
+            FallingGiantAnvilEntity.class,
+            new AABB(
+                getBlockPos().getX(),
+                getBlockPos().getY() - 2,
+                getBlockPos().getZ(),
+                getBlockPos().getX() + 1,
+                getBlockPos().getY() - 12,
+                getBlockPos().getZ() + 1
+            )
+        )) {
+            double offsetX = entity.getX() - ringCenter.x;
+            double offsetZ = entity.getZ() - ringCenter.z;
+            if (offsetX * offsetX + offsetZ * offsetZ > 0.25 * 0.25) continue;
+            double distanceSqr = entity.position().distanceToSqr(ringCenter);
+            if (distanceSqr >= nearestDistanceSqr) continue;
+            fallingGiantAnvilEntity = entity;
+            nearestDistanceSqr = distanceSqr;
+        }
+        if (fallingGiantAnvilEntity != null) {
             if (
                 giantAnvilPos != null
-                && fallingGiantAnvilEntity.get().position().distanceTo(getBlockPos().getCenter())
-                   < giantAnvilPos.getCenter().distanceTo(getBlockPos().getCenter())
+                && nearestDistanceSqr < giantAnvilPos.getCenter().distanceToSqr(ringCenter)
             ) {
-                giantAnvilPos = BlockPos.containing(fallingGiantAnvilEntity.get().position());
+                giantAnvilPos = BlockPos.containing(fallingGiantAnvilEntity.position());
             } else if (giantAnvilPos == null) {
-                giantAnvilPos = BlockPos.containing(fallingGiantAnvilEntity.get().position());
+                giantAnvilPos = BlockPos.containing(fallingGiantAnvilEntity.position());
             }
         }
         if (giantAnvilPos == null) {
@@ -291,7 +311,7 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
                     .setValue(GiantAnvilBlock.CUBE, part.equals(Cube3x3PartHalf.MID_CENTER) ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER)
             );
         }
-        fallingGiantAnvilEntity.ifPresent(FallingGiantAnvilEntity::discard);
+        if (fallingGiantAnvilEntity != null) fallingGiantAnvilEntity.discard();
     }
 
     @Override
@@ -303,5 +323,137 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
     public void setRemoved() {
         super.setRemoved();
         this.removeSelfFromMap();
+    }
+
+    private static final class AccelerationIndex {
+        private final HashSet<BlockPos> positions = new HashSet<>();
+        private final HashMap<BlockPos, AABB> areas = new HashMap<>();
+        private final HashMap<BlockPos, LongArrayList> areaSections = new HashMap<>();
+        private final Long2ObjectOpenHashMap<HashSet<BlockPos>> bySection = new Long2ObjectOpenHashMap<>();
+
+        private void add(BlockPos pos) {
+            this.positions.add(pos.immutable());
+        }
+
+        private void remove(BlockPos pos) {
+            this.positions.remove(pos);
+            this.removeArea(pos);
+        }
+
+        private void updateArea(BlockPos pos, AABB area) {
+            AABB previous = this.areas.get(pos);
+            if (area.equals(previous)) return;
+            this.removeArea(pos);
+
+            BlockPos immutablePos = pos.immutable();
+            this.areas.put(immutablePos, area);
+            int minSectionX = SectionPos.blockToSectionCoord(area.minX);
+            int minSectionY = SectionPos.blockToSectionCoord(area.minY);
+            int minSectionZ = SectionPos.blockToSectionCoord(area.minZ);
+            int maxSectionX = SectionPos.blockToSectionCoord(Math.nextDown(area.maxX));
+            int maxSectionY = SectionPos.blockToSectionCoord(Math.nextDown(area.maxY));
+            int maxSectionZ = SectionPos.blockToSectionCoord(Math.nextDown(area.maxZ));
+            int sectionCount = (maxSectionX - minSectionX + 1)
+                               * (maxSectionY - minSectionY + 1)
+                               * (maxSectionZ - minSectionZ + 1);
+            LongArrayList sections = new LongArrayList(sectionCount);
+            for (int sectionX = minSectionX; sectionX <= maxSectionX; sectionX++) {
+                for (int sectionY = minSectionY; sectionY <= maxSectionY; sectionY++) {
+                    for (int sectionZ = minSectionZ; sectionZ <= maxSectionZ; sectionZ++) {
+                        long sectionKey = SectionPos.asLong(sectionX, sectionY, sectionZ);
+                        sections.add(sectionKey);
+                        this.bySection.computeIfAbsent(sectionKey, ignored -> new HashSet<>()).add(immutablePos);
+                    }
+                }
+            }
+            this.areaSections.put(immutablePos, sections);
+        }
+
+        private void removeArea(BlockPos pos) {
+            this.areas.remove(pos);
+            LongArrayList sections = this.areaSections.remove(pos);
+            if (sections == null) return;
+            for (int i = 0; i < sections.size(); i++) {
+                long sectionKey = sections.getLong(i);
+                HashSet<BlockPos> sectionPositions = this.bySection.get(sectionKey);
+                if (sectionPositions == null) continue;
+                sectionPositions.remove(pos);
+                if (sectionPositions.isEmpty()) this.bySection.remove(sectionKey);
+            }
+        }
+
+        private Iterable<BlockPos> getBlocksAt(Vec3 pos) {
+            HashSet<BlockPos> sectionPositions = this.bySection.get(SectionPos.asLong(
+                SectionPos.blockToSectionCoord(pos.x),
+                SectionPos.blockToSectionCoord(pos.y),
+                SectionPos.blockToSectionCoord(pos.z)
+            ));
+            return sectionPositions == null ? List.of() : sectionPositions;
+        }
+
+        private Iterable<BlockPos> getBlocksAlongMovement(Vec3 start, Vec3 movement) {
+            double movementSqr = movement.lengthSqr();
+            if (!Double.isFinite(movementSqr)) return List.of();
+            Vec3 end = start.add(movement);
+            int sectionX = SectionPos.blockToSectionCoord(start.x);
+            int sectionY = SectionPos.blockToSectionCoord(start.y);
+            int sectionZ = SectionPos.blockToSectionCoord(start.z);
+            int endSectionX = SectionPos.blockToSectionCoord(end.x);
+            int endSectionY = SectionPos.blockToSectionCoord(end.y);
+            int endSectionZ = SectionPos.blockToSectionCoord(end.z);
+            if (sectionX == endSectionX && sectionY == endSectionY && sectionZ == endSectionZ) {
+                return this.getBlocksAt(start);
+            }
+
+            int stepX = Double.compare(movement.x, 0.0);
+            int stepY = Double.compare(movement.y, 0.0);
+            int stepZ = Double.compare(movement.z, 0.0);
+            double nextBoundaryX = SectionPos.sectionToBlockCoord(sectionX + (stepX > 0 ? 1 : 0));
+            double nextBoundaryY = SectionPos.sectionToBlockCoord(sectionY + (stepY > 0 ? 1 : 0));
+            double nextBoundaryZ = SectionPos.sectionToBlockCoord(sectionZ + (stepZ > 0 ? 1 : 0));
+            double nextSectionProgressX = stepX == 0
+                                          ? Double.POSITIVE_INFINITY
+                                          : (nextBoundaryX - start.x) / movement.x;
+            double nextSectionProgressY = stepY == 0
+                                          ? Double.POSITIVE_INFINITY
+                                          : (nextBoundaryY - start.y) / movement.y;
+            double nextSectionProgressZ = stepZ == 0
+                                          ? Double.POSITIVE_INFINITY
+                                          : (nextBoundaryZ - start.z) / movement.z;
+            double sectionProgressStepX = stepX == 0
+                                          ? Double.POSITIVE_INFINITY
+                                          : 16.0 / Math.abs(movement.x);
+            double sectionProgressStepY = stepY == 0
+                                          ? Double.POSITIVE_INFINITY
+                                          : 16.0 / Math.abs(movement.y);
+            double sectionProgressStepZ = stepZ == 0
+                                          ? Double.POSITIVE_INFINITY
+                                          : 16.0 / Math.abs(movement.z);
+            int remainingSections = Math.abs(endSectionX - sectionX)
+                                    + Math.abs(endSectionY - sectionY)
+                                    + Math.abs(endSectionZ - sectionZ)
+                                    + 1;
+            HashSet<BlockPos> candidates = new HashSet<>();
+            while (remainingSections-- > 0) {
+                HashSet<BlockPos> sectionPositions = this.bySection.get(
+                    SectionPos.asLong(sectionX, sectionY, sectionZ)
+                );
+                if (sectionPositions != null) candidates.addAll(sectionPositions);
+                if (sectionX == endSectionX && sectionY == endSectionY && sectionZ == endSectionZ) break;
+
+                if (nextSectionProgressX <= nextSectionProgressY
+                    && nextSectionProgressX <= nextSectionProgressZ) {
+                    sectionX += stepX;
+                    nextSectionProgressX += sectionProgressStepX;
+                } else if (nextSectionProgressY <= nextSectionProgressZ) {
+                    sectionY += stepY;
+                    nextSectionProgressY += sectionProgressStepY;
+                } else {
+                    sectionZ += stepZ;
+                    nextSectionProgressZ += sectionProgressStepZ;
+                }
+            }
+            return candidates;
+        }
     }
 }

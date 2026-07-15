@@ -3,7 +3,8 @@
 	"parent": "minecraft:block/cube",
 	"ambientocclusion": false,
 	"textures": {
-		"0": "anvilcraft:block/advanced_comparator_side"
+		"1": "anvilcraft:block/advanced_comparator_side",
+		"particle": "anvilcraft:block/advanced_comparator"
 	},
 	"elements": [
 		{
@@ -11,12 +12,12 @@
 			"to": [11.5, 6.525, 9],
 			"shade": false,
 			"faces": {
-				"north": {"uv": [14, 0, 16, 2], "texture": "#0"},
-				"east": {"uv": [14, 0, 16, 2], "texture": "#0"},
-				"south": {"uv": [14, 0, 16, 2], "texture": "#0"},
-				"west": {"uv": [16, 0, 14, 2], "texture": "#0"},
-				"up": {"uv": [14, 0, 16, 2], "texture": "#0"},
-				"down": {"uv": [14, 0, 16, 2], "texture": "#0"}
+				"north": {"uv": [14, 0, 16, 2], "texture": "#1"},
+				"east": {"uv": [14, 0, 16, 2], "texture": "#1"},
+				"south": {"uv": [14, 0, 16, 2], "texture": "#1"},
+				"west": {"uv": [16, 0, 14, 2], "texture": "#1"},
+				"up": {"uv": [14, 0, 16, 2], "texture": "#1"},
+				"down": {"uv": [14, 0, 16, 2], "texture": "#1"}
 			}
 		},
 		{
@@ -24,12 +25,12 @@
 			"to": [9, 6.525, 11.5],
 			"shade": false,
 			"faces": {
-				"north": {"uv": [14, 0, 16, 2], "texture": "#0"},
-				"east": {"uv": [14, 0, 16, 2], "texture": "#0"},
-				"south": {"uv": [16, 0, 14, 2], "texture": "#0"},
-				"west": {"uv": [14, 0, 16, 2], "texture": "#0"},
-				"up": {"uv": [14, 0, 16, 2], "texture": "#0"},
-				"down": {"uv": [14, 0, 16, 2], "texture": "#0"}
+				"north": {"uv": [14, 0, 16, 2], "texture": "#1"},
+				"east": {"uv": [14, 0, 16, 2], "texture": "#1"},
+				"south": {"uv": [16, 0, 14, 2], "texture": "#1"},
+				"west": {"uv": [14, 0, 16, 2], "texture": "#1"},
+				"up": {"uv": [14, 0, 16, 2], "rotation": 270, "texture": "#1"},
+				"down": {"uv": [14, 0, 16, 2], "rotation": 90, "texture": "#1"}
 			}
 		}
 	],

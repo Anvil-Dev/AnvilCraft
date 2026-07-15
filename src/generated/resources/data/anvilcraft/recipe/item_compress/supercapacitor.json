@@ -5,6 +5,23 @@
     {
       "type": "anvillib_recipe:has_item_ingredient",
       "item": {
+        "count": 2,
+        "items": "#c:plates/iron"
+      },
+      "offset": [
+        0.0,
+        -0.375,
+        0.0
+      ],
+      "range": [
+        0.75,
+        0.75,
+        0.75
+      ]
+    },
+    {
+      "type": "anvillib_recipe:has_item_ingredient",
+      "item": {
         "components": {
           "predicates": {
             "anvilcraft:saved_entity": {
@@ -22,23 +39,6 @@
           }
         },
         "items": "anvilcraft:resin_block"
-      },
-      "offset": [
-        0.0,
-        -0.375,
-        0.0
-      ],
-      "range": [
-        0.75,
-        0.75,
-        0.75
-      ]
-    },
-    {
-      "type": "anvillib_recipe:has_item_ingredient",
-      "item": {
-        "count": 2,
-        "items": "#c:plates/iron"
       },
       "offset": [
         0.0,

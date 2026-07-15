@@ -284,7 +284,12 @@ public class BlockTagLoader {
             .addTag(BlockTags.LEAVES.location())
             .addElement(findId(Blocks.IRON_BARS))
             .addElement(findId(Blocks.MANGROVE_ROOTS))
-            .addElement(findId(Blocks.COPPER_GRATE));
+            .addElement(findId(Blocks.COPPER_GRATE))
+            .addOptionalTag(ModBlockTags.AE2_GLASS_CABLE.location())
+            .addOptionalTag(ModBlockTags.AE2_COVERED_CABLE.location())
+            .addOptionalTag(ModBlockTags.AE2_SMART_CABLE.location())
+            .addOptionalTag(ModBlockTags.AE2_COVERED_DENSE_CABLE.location())
+            .addOptionalTag(ModBlockTags.AE2_SMART_DENSE_CABLE.location());
 
         provider.rawBuilder(ModBlockTags.HEATABLE_BLOCKS)
             .addTag(ModBlockTags.STORAGE_BLOCKS_TUNGSTEN.location())

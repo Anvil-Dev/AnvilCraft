@@ -7,6 +7,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.handling.IPayloadHandler;
 
 public record RocketJumpPacket(double power) implements IClientboundPacket {
@@ -25,6 +26,7 @@ public record RocketJumpPacket(double power) implements IClientboundPacket {
 
     @Override
     public void handleOnClient(Player player) {
-        player.setDeltaMovement(0, this.power, 0);
+        Vec3 movement = player.getDeltaMovement();
+        player.setDeltaMovement(movement.x, this.power, movement.z);
     }
 }

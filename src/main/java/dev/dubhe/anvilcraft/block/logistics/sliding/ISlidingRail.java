@@ -91,13 +91,15 @@ public interface ISlidingRail extends IBlockExtension {
 
     static void whenTick(ServerLevel level, Block block, BlockPos pos) {
         if (!MOVING_PISTON_MAP.containsKey(pos)) return;
-        if (!MOVING_PISTON_MAP.get(pos).extending && MOVING_PISTON_MAP.get(pos).isSourcePiston) {
+        PistonPushInfo info = MOVING_PISTON_MAP.get(pos);
+        boolean isPoweredRail = block instanceof PoweredSlidingRailBlock;
+        if (!isPoweredRail && !info.extending && info.isSourcePiston) {
             MOVING_PISTON_MAP.remove(pos);
             return;
-        } else if (!MOVING_PISTON_MAP.get(pos).extending) {
-            MOVING_PISTON_MAP.get(pos).direction = MOVING_PISTON_MAP.get(pos).direction.getOpposite();
+        } else if (!isPoweredRail && !info.extending) {
+            info.direction = info.direction.getOpposite();
         }
-        level.blockEvent(pos, block, 0, MOVING_PISTON_MAP.get(pos).direction.get3DDataValue());
+        level.blockEvent(pos, block, 0, info.direction.get3DDataValue());
         MOVING_PISTON_MAP.remove(pos);
     }
 
@@ -107,6 +109,7 @@ public interface ISlidingRail extends IBlockExtension {
     }
 
     static boolean moveBlocks(Level level, BlockPos pos, Direction facing) {
+        if (level.getBlockState(pos).is(Blocks.MOVING_PISTON)) return false;
         SlidingBlockStructureResolver resolver = new SlidingBlockStructureResolver(level, pos, facing, true);
         if (!resolver.resolve()) return false;
         List<Triple<BlockPos, BlockState, Optional<BlockEntity>>> toPushes = new ArrayList<>();
@@ -115,6 +118,7 @@ public interface ISlidingRail extends IBlockExtension {
         for (BlockPos toPushPos : toPushPoses) {
             if (toPushPos.equals(pos.below())) return false;
             BlockState toPushState = level.getBlockState(toPushPos);
+            if (toPushState.is(Blocks.MOVING_PISTON)) return false;
             if (toPushState.hasProperty(BlockStateProperties.WATERLOGGED)) {
                 toPushState = toPushState.setValue(BlockStateProperties.WATERLOGGED, false);
             }

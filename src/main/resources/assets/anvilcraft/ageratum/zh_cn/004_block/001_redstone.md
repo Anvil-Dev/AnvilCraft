@@ -7,7 +7,7 @@ items:
   - anvilcraft:pulse_generator
   - anvilcraft:item_detector
   - anvilcraft:advanced_comparator
-  - anvilcraft:redstone_computer
+  - anvilcraft:redstone_wire
 ---
 
 # 额外红石元件
@@ -54,8 +54,7 @@ items:
 在GUI中可以设置范围和过滤
 
 - <color=#999922>不设置过滤</color>时，输出红石信号强度随掉落物的数量**线性变化**。数量达到64个时输出满信号强度15
-- <color=#999922>设置过滤</color>时，若过滤的掉落物都不存在，则不输出信号。否则，对**每个**
-  检测到物品的过滤格，分别根据对应掉落物数量计算红石信号(数量达到[64*过滤数量]时计算满信号强度)。最终输出选择所有红石信号的**最小值**输出
+- <color=#999922>设置过滤</color>时，若过滤的掉落物都不存在，则不输出信号。否则，对**每个**检测到物品的过滤格，分别根据对应掉落物数量计算红石信号(数量达到[64*过滤数量]时计算满信号强度)。最终输出选择所有红石信号的**最小值**输出
 
 # <ref item="anvilcraft:advanced_comparator"/>
 
@@ -78,4 +77,31 @@ items:
 
 - 输出三个输入端的信号强度之和，最高不超过15
 
+# <ref item="anvilcraft:redstone_wire"/>
 
+<recipe id="anvilcraft:redstone_wire"/>
+
+## 放置
+
+- 可以沿着墙壁或天花板放置
+
+### 连线机制
+
+- 一格内只能存在一根<ref item="anvilcraft:redstone_wire"/>，存在唯一附着方向
+- 与斜上方贴在附着方向相同的<ref item="anvilcraft:redstone_wire"/>爬墙连接
+- 会与正上方垂直于自己的<ref item="anvilcraft:redstone_wire"/>爬墙连接
+- 会与同方块附着的四个相邻面的<ref item="anvilcraft:redstone_wire"/>连接
+
+## 接收
+
+- 底座绝缘，不接受红石信号，只在断口输入输出
+
+## 传输
+
+- 传输红石信号不衰减
+- 如果受到多个红石信号，取最高值
+
+## 输出
+
+- 红石粉输入的信号不会输出给红石粉
+- 输出只激活不充能

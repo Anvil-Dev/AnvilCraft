@@ -1,0 +1,12 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "minecraft:null",
+  "fluidTag": "c:cement",
+  "ingredients": [
+    {
+      "items": "minecraft:red_dye"
+    }
+  ],
+  "results": [],
+  "transform": "anvilcraft:red_cement"
+}

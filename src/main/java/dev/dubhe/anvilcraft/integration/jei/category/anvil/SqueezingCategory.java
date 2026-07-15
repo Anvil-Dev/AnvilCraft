@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
@@ -17,6 +18,7 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
@@ -39,6 +41,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class SqueezingCategory implements IRecipeCategory<RecipeHolder<SqueezingRecipe>> {
+    private static final String INPUT_BLOCK = "input_block";
+    private static final String OUTPUT_BLOCK = "output_block";
+
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -83,9 +88,42 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
     public void setRecipe(
         IRecipeLayoutBuilder builder, RecipeHolder<SqueezingRecipe> recipeHolder, IFocusGroup focuses) {
         SqueezingRecipe recipe = recipeHolder.value();
-        JeiRecipeUtil.addInvisibleInputs(builder, recipe.getInputBlocks());
+        JeiBlockIngredientUtil.addSlot(
+            builder,
+            RecipeIngredientRole.INPUT,
+            INPUT_BLOCK,
+            40,
+            24,
+            18,
+            18,
+            recipe.getInputBlocks().stream()
+                .flatMap(input -> input.getBlocks().stream())
+                .map(block -> new ItemStack(block.value()))
+                .toList()
+        );
+        if (!recipe.getResultBlocks().isEmpty()) {
+            JeiBlockIngredientUtil.addSlot(
+                builder,
+                RecipeIngredientRole.OUTPUT,
+                OUTPUT_BLOCK,
+                100,
+                24,
+                20,
+                18,
+                recipe.getResultBlocks().stream()
+                    .map(result -> new ItemStack(result.state().getBlock()))
+                    .toList()
+            );
+        }
         builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
             .addItemStacks(recipe.getResultItems().stream().map(stack -> stack.stack().create()).toList());
+    }
+
+    @Override
+    public void createRecipeExtras(
+        IRecipeExtrasBuilder builder, RecipeHolder<SqueezingRecipe> recipeHolder, IFocusGroup focuses
+    ) {
+        JeiBlockIngredientUtil.suppressHoverOverlays(builder);
     }
 
     @Override
@@ -105,8 +143,8 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
             input.addAll(predicate.constructStatesForRender());
         }
         if (input.isEmpty()) return;
-        BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
-        if (renderedState == null) return;
+        BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(view, INPUT_BLOCK, input)
+            .orElse(input.getFirst());
         RenderSupport.renderBlock(graphics, renderedState, 50, 30, 20);
         RenderSupport.renderBlock(graphics, Blocks.CAULDRON.defaultBlockState(), 50, 40, 20);
 
@@ -116,7 +154,9 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         RenderSupport.renderBlock(graphics, getCauldron(recipe), 110, 40, 20);
         List<ChanceBlockState> result = recipe.getResultBlocks();
         if (result.isEmpty()) return;
-        renderedState = result.get((int) ((System.currentTimeMillis() / 1000) % result.size())).state();
+        List<BlockState> resultStates = result.stream().map(ChanceBlockState::state).toList();
+        renderedState = JeiBlockIngredientUtil.getDisplayedState(view, OUTPUT_BLOCK, resultStates)
+            .orElse(resultStates.getFirst());
         RenderSupport.renderBlock(graphics, renderedState, 110, 30, 20);
     }
 

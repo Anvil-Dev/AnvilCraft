@@ -32,6 +32,8 @@ items:
 
 <recipe id="anvilcraft:resonator_core"/>
 
+> Crafted at <ref item="anvilcraft:ember_smithing_table"/>
+
 <row halign="center">
 <recipe id="anvilcraft:four_to_one_smithing/ember_metal_resonator"/>
 <recipe id="anvilcraft:four_to_one_smithing/frost_metal_resonator"/>
@@ -39,7 +41,6 @@ items:
 
 # Related
 
-- [Ember Smithing Table](../004_block/221_ember_smithing_table.md)
 - [Ember Metal Tools](../002_material/211_ember_metal.md)
 - [Frost Metal Tools](../002_material/202_frost_metal.md)
 - [Transcendium Tools](../002_material/312_transcendium.md)

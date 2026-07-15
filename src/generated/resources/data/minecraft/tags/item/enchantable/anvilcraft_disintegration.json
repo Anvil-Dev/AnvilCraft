@@ -1,0 +1,12 @@
+{
+  "values": [
+    "#minecraft:enchantable/mining_loot",
+    "anvilcraft:laser_gun",
+    "anvilcraft:frost_metal_pickaxe",
+    "anvilcraft:frost_metal_axe",
+    "anvilcraft:frost_metal_shovel",
+    "anvilcraft:frost_metal_hoe",
+    "anvilcraft:frost_metal_sword",
+    "anvilcraft:frost_metal_heavy_halberd"
+  ]
+}

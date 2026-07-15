@@ -34,8 +34,10 @@ It can later be upgraded to the [Royal version](../002_material/110_royal_steel.
 - *Anvil Hammer* is the wrench of this mod
   - Right-click to adjust the direction of certain blocks; sneak + right-click to dismantle certain blocks
   - Left-click a block to perform the operation of an anvil falling onto a block
-- Can also be worn as goggles; wearing it on your head allows you to view power grid range and load information
+- Right-click and hold to use it as the **corresponding anvil**
+- Can be **worn on the head** as goggles to view power grid information
+- Can be **worn on the head** as a headbutt weapon, dealing damage when elytra-flying into creatures
 - Heavy Hammer: falling from a height and attacking a creature deals additional damage equivalent to an anvil falling
-- Headbutt: when worn on the head and elytra-flying, colliding with creatures deals damage
-- When holding the Anvil Hammer in your main hand, use a firework rocket in your offhand on the block beneath your feet to perform an upward **Rocket Jump**; higher-tier fireworks jump higher
+- When holding the Anvil Hammer in your main hand, use a <ref item="minecraft:firework_rocket"/> in your offhand on the block beneath your feet to perform an upward **Rocket Jump**; higher-tier fireworks jump higher
+
 > *Note: left-clicking blocks, left-click attacking creatures, and headbutting creatures consume Anvil Hammer durability; other actions do not*

@@ -15,24 +15,10 @@ import net.minecraft.world.level.block.Blocks;
 public class ProceduralProcessRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
         // 红石计算机
-        ProceduralProcessRecipeBuilder.of(Blocks.IRON_BLOCK)
-            .addStep(ItemInjectRecipe.builder()
-                .inputBlock(Blocks.IRON_BLOCK).requires(ModItems.CIRCUIT_BOARD)
-                .resultBlock(ModBlocks.WIP_BLOCK).buildRecipe())
-            .addStep(ItemInjectRecipe.builder()
-                .inputBlock(ModBlocks.WIP_BLOCK).requires(ModItems.PROCESSOR)
-                .resultBlock(ModBlocks.WIP_BLOCK).buildRecipe())
-            .addStep(ItemInjectRecipe.builder()
-                .inputBlock(ModBlocks.WIP_BLOCK).requires(ModItems.DISK)
-                .resultBlock(ModBlocks.REDSTONE_COMPUTER).buildRecipe())
-            .result(ModBlocks.REDSTONE_COMPUTER)
-            .displayedModel(AnvilCraft.of("block/redstone_computer_wip"))
-            .save(provider, "redstone_computer_from_procedural");
-
         // 时空超算 (时间先)
-        ProceduralProcessRecipeBuilder.of(ModBlocks.REDSTONE_COMPUTER.get())
+        ProceduralProcessRecipeBuilder.of(ModBlocks.ADVANCED_COMPARATOR.get())
             .addStep(BlockProcessingRecipe.builder()
-                .fakeNeutronIrradiation(ModBlocks.REDSTONE_COMPUTER.get(), IrradiatorType.TIME)
+                .fakeNeutronIrradiation(ModBlocks.ADVANCED_COMPARATOR.get(), IrradiatorType.TIME)
                 .result(ModBlocks.WIP_BLOCK.get()).buildRecipe())
             .addStep(BlockProcessingRecipe.builder()
                 .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.SPACE)
@@ -46,12 +32,12 @@ public class ProceduralProcessRecipeLoader {
             .multipleLoopFirstStep(BlockProcessingRecipe.builder()
                 .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.TIME)
                 .result(ModBlocks.WIP_BLOCK.get()).buildRecipe())
-            .save(provider, "spacetime_supercomputer_from_redstone_computer");
+            .save(provider, "spacetime_supercomputer_from_advanced_comparator");
 
         // 时空超算 (空间先)
-        ProceduralProcessRecipeBuilder.of(ModBlocks.REDSTONE_COMPUTER.get())
+        ProceduralProcessRecipeBuilder.of(ModBlocks.ADVANCED_COMPARATOR.get())
             .addStep(BlockProcessingRecipe.builder()
-                .fakeNeutronIrradiation(ModBlocks.REDSTONE_COMPUTER.get(), IrradiatorType.SPACE)
+                .fakeNeutronIrradiation(ModBlocks.ADVANCED_COMPARATOR.get(), IrradiatorType.SPACE)
                 .result(ModBlocks.WIP_BLOCK.get()).buildRecipe())
             .addStep(BlockProcessingRecipe.builder()
                 .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.TIME)
@@ -65,7 +51,7 @@ public class ProceduralProcessRecipeLoader {
             .multipleLoopFirstStep(BlockProcessingRecipe.builder()
                 .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.SPACE)
                 .result(ModBlocks.WIP_BLOCK.get()).buildRecipe())
-            .save(provider, "spacetime_supercomputer_from_redstone_computer_2");
+            .save(provider, "spacetime_supercomputer_from_advanced_comparator_2");
 
         // 远古残骸
         ProceduralProcessRecipeBuilder.of(ModBlocks.TUNGSTEN_BLOCK.get())

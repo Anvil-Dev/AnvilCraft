@@ -2,10 +2,10 @@ package dev.dubhe.anvilcraft.client.renderer.item;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
+import dev.dubhe.anvilcraft.item.weapon.EnergyWeaponItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.AbstractClientPlayer;
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -67,6 +67,8 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
             );
             return false;
         }
+
+        if (stack.getItem() instanceof EnergyWeaponItem) return false;
 
         switch (stack.getUseAnimation()) {
             case EAT:

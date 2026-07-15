@@ -94,6 +94,8 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.mob_transform_with_item", "Mob Transform with Held Item");
         provider.add("gui.anvilcraft.category.mob_transform_with_item.chance_per_item", "Chance Per Item: %s%%");
 
+        provider.add("gui.anvilcraft.category.energy_weapon", "Energy Weapon");
+
         provider.add("jei.anvilcraft.tooltip.not_consumed", "Not Consumed");
 
         provider.add("jei.anvilcraft.info.geode_1", "Finds Amethyst Geodes nearby when using.");
@@ -126,7 +128,7 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.anvil_collision.consume", "Consume Anvil: %d");
         provider.add("gui.anvilcraft.category.anvil_collision.speed", "Need Speed: %s");
 
-        provider.add("gui.anvilcraft.category.procedural_process", "Block Procedural Process");
+        provider.add("gui.anvilcraft.category.procedural_process", "Block Sequence Assembly");
 
         provider.add("gui.anvilcraft.category.transcendium_recipe", "Transcendium Recipe");
         provider.add("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_0", "The amount of enchantments is 0");

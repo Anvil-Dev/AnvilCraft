@@ -8,11 +8,17 @@ navigation:
 
 # Definition
 
-When a mob is hit by an anvil and **takes enough damage in a single hit**, it will drop items according to its original loot table.
+When a mob is hit by a falling anvil, additional loot drops are triggered based on **the proportion of damage dealt relative to the mob's maximum health**.
 
-- 40% HP in one hit: 1x drops
-- 60% HP in one hit: 2x drops
-- 80% HP in one hit: 3x drops
+| Damage Ratio | Extra Drop Multiplier |
+|:------------:|:---------------------:|
+|     ≥40%     |           1           |
+|     ≥60%     |           2           |
+|     ≥80%     |           3           |
+
+<info>
+If the anvil damage directly kills the mob, in addition to normal death drops, extra drops are also awarded according to the above rules based on the damage dealt.
+</info>
 
 <tip>
 Some mobs (Witches, Iron Golems) can recover health on their own or with external help. You can use this to build mob drop farms without killing mobs: [Iron Farm](../009_machine/001_iron.md)

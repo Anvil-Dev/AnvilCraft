@@ -23,7 +23,7 @@ items:
 - When broken or when a block is placed nearby by another player, the owner receives an alert message
 - If destroyed by a non-player, the message also includes the IDs of players online at the time and the nearest player
 
-# Villager Trading (Incomplete)
+# Villager Trading
 
 After working, villagers will try to interact with trading stations that match their trade list, as long as the villager can **accept** the station's offer
 

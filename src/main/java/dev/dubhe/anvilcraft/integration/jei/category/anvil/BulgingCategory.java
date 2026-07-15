@@ -120,7 +120,7 @@ public class BulgingCategory extends AbstractProgressCategory<BulgingRecipe> {
                     Minecraft.getInstance().font,
                     Component.translatable(
                         "gui.anvilcraft.category.bulging.produce_fluid",
-                        -hasCauldron.consume(),
+                        hasCauldron.produce(),
                         hasCauldron.getTransformCauldron().getName()
                     ),
                     0,
@@ -132,7 +132,9 @@ public class BulgingCategory extends AbstractProgressCategory<BulgingRecipe> {
             }
         } else {
             Block result = recipe.getHasCauldron().getTransformCauldron();
-            if (recipe.isConsumeFluid()) {
+            if (recipe.isConsumeFluid() && recipe.isProduceFluid()) {
+                state = CauldronUtil.fullState(result);
+            } else if (recipe.isConsumeFluid()) {
                 state = CauldronUtil.getStateFromContentAndLevel(result, CauldronUtil.maxLevel(result) - 1);
             } else if (recipe.isProduceFluid()) {
                 state = CauldronUtil.getStateFromContentAndLevel(result, 1);
@@ -164,6 +166,10 @@ public class BulgingCategory extends AbstractProgressCategory<BulgingRecipe> {
         if (MathUtil.isInRange(mouseX, mouseY, 124, 24, 140, 42)) {
             if (!recipe.getResultItems().isEmpty()) return;
             Block result = recipe.getHasCauldron().getTransformCauldron();
+            if (recipe.isConsumeFluid() && recipe.isProduceFluid()) {
+                tooltip.addAll(TooltipUtil.tooltip(result));
+                return;
+            }
             if (recipe.isConsumeFluid() && CauldronUtil.maxLevel(result) <= 1) {
                 result = Blocks.CAULDRON;
             }
@@ -173,7 +179,8 @@ public class BulgingCategory extends AbstractProgressCategory<BulgingRecipe> {
 
     public static void registerRecipes(IRecipeRegistration registration) {
         List<RecipeHolder<BulgingRecipe>> holders = JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BULGING.get());
-        holders.removeIf(holder -> holder.id().identifier().getPath().startsWith("concrete/"));
+        holders.removeIf(holder -> holder.id().identifier().getPath().startsWith("concrete/")
+            || holder.id().identifier().getPath().startsWith("cement_staining/"));
         registration.addRecipes(AnvilCraftJeiPlugin.BULGING, holders);
     }
 

@@ -3,12 +3,13 @@ package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.block.ModFluids;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
-import dev.dubhe.anvilcraft.integration.jei.recipe.CementStainingRecipe;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -16,17 +17,18 @@ import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import mezz.jei.api.recipe.types.IRecipeType;
+import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
-import net.neoforged.neoforge.fluids.CauldronFluidContent;
 
-public class CementStainingCategory implements IRecipeCategory<CementStainingRecipe> {
+import java.util.List;
+
+public class CementStainingCategory implements IRecipeCategory<RecipeHolder<BulgingRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -53,8 +55,8 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
     }
 
     @Override
-    public IRecipeType<CementStainingRecipe> getRecipeType() {
-        return AnvilCraftJeiPlugin.CEMENT_STAINING;
+    public IRecipeHolderType<BulgingRecipe> getRecipeType() {
+        return AnvilCraftJeiPlugin.CEMENT_STAINING_BULGING;
     }
 
     @Override
@@ -78,22 +80,19 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, CementStainingRecipe recipe, IFocusGroup focuses) {
-        JeiSlotUtil.addInputSlots(builder, recipe.ingredients());
-
-        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).add(ModFluids.SOURCE_CEMENTS.get(Color.GRAY).get());
-        CauldronFluidContent result = CauldronFluidContent.getForBlock(recipe.resultBlock());
-        if (result != null) builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).add(result.fluid);
+    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BulgingRecipe> recipeHolder, IFocusGroup focuses) {
+        JeiSlotUtil.addInputSlots(builder, recipeHolder.value().getInputItems());
     }
 
     @Override
     public void draw(
-        CementStainingRecipe recipe,
+        RecipeHolder<BulgingRecipe> recipeHolder,
         IRecipeSlotsView view,
         GuiGraphicsExtractor graphics,
         double mouseX,
         double mouseY
     ) {
+        final BulgingRecipe recipe = recipeHolder.value();
         this.arrowIn.draw(graphics, 54, 30);
         this.arrowOut.draw(graphics, 91, 29);
 
@@ -114,15 +113,21 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
             20
         );
 
-        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.ingredients().size());
+        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
 
-        RenderSupport.renderBlock(graphics, recipe.resultBlock().defaultBlockState(), 122, 25, 20);
+        RenderSupport.renderBlock(
+            graphics,
+            recipe.getHasCauldron().getTransformCauldron().defaultBlockState(),
+            122,
+            25,
+            20
+        );
     }
 
     @Override
     public void getTooltip(
         ITooltipBuilder tooltip,
-        CementStainingRecipe recipe,
+        RecipeHolder<BulgingRecipe> recipeHolder,
         IRecipeSlotsView view,
         double mouseX,
         double mouseY) {
@@ -134,17 +139,19 @@ public class CementStainingCategory implements IRecipeCategory<CementStainingRec
         }
         if (mouseX >= 124 && mouseX <= 140) {
             if (mouseY >= 24 && mouseY <= 42) {
-                tooltip.add(recipe.resultBlock().getName());
+                tooltip.add(recipeHolder.value().getHasCauldron().getTransformCauldron().getName());
             }
         }
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
-        registration.addRecipes(AnvilCraftJeiPlugin.CEMENT_STAINING, CementStainingRecipe.getAllRecipes());
+        List<RecipeHolder<BulgingRecipe>> holders = JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.BULGING.get());
+        holders.removeIf(holder -> !holder.id().identifier().getPath().startsWith("cement_staining/"));
+        registration.addRecipes(AnvilCraftJeiPlugin.CEMENT_STAINING_BULGING, holders);
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.CEMENT_STAINING);
-        AnvilCraftJeiPlugin.addCauldronCatalysts(registration, AnvilCraftJeiPlugin.CEMENT_STAINING);
+        AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.CEMENT_STAINING_BULGING);
+        AnvilCraftJeiPlugin.addCauldronCatalysts(registration, AnvilCraftJeiPlugin.CEMENT_STAINING_BULGING);
     }
 }

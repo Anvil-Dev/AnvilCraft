@@ -4,15 +4,16 @@ import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.predicate.WeightedChanceBlockStates;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
 import dev.dubhe.anvilcraft.util.TooltipUtil;
-import mezz.jei.api.gui.builder.IIngredientAcceptor;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
@@ -22,10 +23,9 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
@@ -34,6 +34,9 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<PortalConversionRecipe>> {
+    private static final String INPUT_BLOCK = "input_block";
+    private static final String OUTPUT_BLOCK = "output_block";
+
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -75,14 +78,26 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<PortalConversionRecipe> holder, IFocusGroup focuses) {
         PortalConversionRecipe recipe = holder.value();
-        IIngredientAcceptor<?> acceptor = builder.addInvisibleIngredients(RecipeIngredientRole.INPUT);
-        for (Holder<Block> block : recipe.getInput().getBlocks()) {
-            acceptor.add(block.value());
-        }
-        acceptor = builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT);
-        for (WeightedChanceBlockStates.Entry state : recipe.getResults().states()) {
-            acceptor.add(state.state().state().getBlock());
-        }
+        JeiBlockIngredientUtil.addInputSlot(builder, INPUT_BLOCK, 4, 4, 18, 18, recipe.getInput());
+        JeiBlockIngredientUtil.addSlot(
+            builder,
+            RecipeIngredientRole.OUTPUT,
+            OUTPUT_BLOCK,
+            142,
+            4,
+            18,
+            18,
+            recipe.getResults().states().stream()
+                .map(result -> new ItemStack(result.state().state().getBlock()))
+                .toList()
+        );
+    }
+
+    @Override
+    public void createRecipeExtras(
+        IRecipeExtrasBuilder builder, RecipeHolder<PortalConversionRecipe> holder, IFocusGroup focuses
+    ) {
+        JeiBlockIngredientUtil.suppressHoverOverlays(builder);
     }
 
     @Override
@@ -97,8 +112,8 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
         RENDER_INPUT: {
             List<BlockState> input = recipe.getInput().constructStatesForRender();
             if (input.isEmpty()) break RENDER_INPUT;
-            BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
-            if (renderedState == null) break RENDER_INPUT;
+            BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(view, INPUT_BLOCK, input)
+                .orElse(input.getFirst());
             JeiRenderHelper.renderBlockWithSlot(
                 graphics,
                 this.slotDefault,
@@ -111,12 +126,18 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
         graphics.centeredText(Minecraft.getInstance().font, "WIP", 81, 32, 0xFFFFFF);
 
         List<WeightedChanceBlockStates.Entry> results = recipe.getResults().states();
-        if (results.size() == 1) {
-            WeightedChanceBlockStates.Entry result = results.getFirst();
+        if (!results.isEmpty()) {
+            List<BlockState> resultStates = results.stream().map(result -> result.state().state()).toList();
+            BlockState displayedState = JeiBlockIngredientUtil.getDisplayedState(view, OUTPUT_BLOCK, resultStates)
+                .orElse(resultStates.getFirst());
+            WeightedChanceBlockStates.Entry result = results.stream()
+                .filter(entry -> entry.state().state().is(displayedState.getBlock()))
+                .findFirst()
+                .orElse(results.getFirst());
             JeiRenderHelper.renderBlockWithSlot(
                 graphics,
                 result.state().chance() instanceof ConstantValue(float value) && value == 1.0F ? this.slotDefault : this.slotProbability,
-                result.state().state(),
+                displayedState,
                 142,
                 4
             );

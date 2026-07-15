@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "anvilcraft:pink_cement",
+  "ingredients": [
+    {
+      "items": "#minecraft:terracotta"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:pink_terracotta"
+    }
+  ]
+}

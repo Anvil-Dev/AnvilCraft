@@ -31,8 +31,7 @@ items:
 
 # 便捷合成
 
-获得第一个<ref item="anvilcraft:giant_anvil"/>之后，
-就可以通过**多方块转化**这一方式生产<ref item="anvilcraft:giant_anvil"/>
+获得第一个<ref item="anvilcraft:giant_anvil"/>之后，就可以通过**多方块转化**这一方式生产<ref item="anvilcraft:giant_anvil"/>
 
 # 功能
 
@@ -61,7 +60,7 @@ items:
 
 - <ref item="anvilcraft:giant_anvil"/>的正中心砸中<ref item="anvilcraft:heavy_iron_block"/>时，执行**撼地**操作
 - 此时，其可以影响同一水平面上的方块或实体。根据<ref item="anvilcraft:heavy_iron_block"/>周围方块的不同，撼地产生的效果也不尽相同
-- 坠落高度提高 1 格，影响范围扩大 1 圈
+- 坠落高度提高 1 格，影响范围扩大 1 圈，最大为 16（可在config调整）
 
 ### 定义
 
@@ -74,7 +73,7 @@ items:
 ### 工作模式：默认
 
 - **邻块**和**角块**不符合任意工作模式时启用
-- **撼地**仅造成极少的伤害，穿有靴子既可避免
+- **撼地**仅造成极少的伤害，穿有靴子即可避免
 
 ### 工作模式：震起
 
@@ -108,3 +107,7 @@ items:
 |    <ref item="minecraft:hay_block"/>     | 收割并补种包括小麦、南瓜、浆果、可可豆与下界疣等农作物。可以操作高于工作平面的相连原木上的可可豆 |
 | <ref item="minecraft:oak_log"/>等任意**原木** | 原木、树叶、菌柄、疣块、仙人掌、紫颂植株与甘蔗。可以破坏高于工作平面的相连方面          |
 |  <ref item="minecraft:amethyst_block"/>  | 紫水晶簇                                             |
+
+<info>
+使用<ref item="minecraft:amethyst_block"/>的情况下，还可以催熟紫水晶母岩
+</info>

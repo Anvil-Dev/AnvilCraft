@@ -4,12 +4,14 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.HasMobBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
+import dev.dubhe.anvilcraft.util.ResentmentUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.monster.Monster;
@@ -46,11 +48,22 @@ public class HasMobBlockItem extends BlockItem {
     ) {
         super.appendHoverText(stack, context, display, builder, tooltipFlag);
         if (!HasMobBlockItem.hasMob(stack)) return;
-        Optional.ofNullable(context.level())
-            .map(level -> HasMobBlockItem.getMobFromItem(level, stack))
-            .ifPresent(entity -> builder.accept(
-                Component.literal("- ").append(entity.getDisplayName()).withStyle(ChatFormatting.DARK_GRAY)
-            ));
+        Optional.ofNullable(context.level()).ifPresent(level -> {
+            SavedEntity savedEntity = stack.get(ModComponents.SAVED_ENTITY);
+            if (savedEntity == null) return;
+            Entity entity = HasMobBlockItem.getMobFromItem(level, stack);
+            if (entity == null) return;
+            builder.accept(Component.literal("- ")
+                .append(entity.getDisplayName())
+                .withStyle(ChatFormatting.DARK_GRAY));
+            int resentment = savedEntity.isMonster() && entity instanceof LivingEntity livingEntity
+                ? ResentmentUtil.getResentment(livingEntity)
+                : 0;
+            builder.accept(Component.translatable(
+                "tooltip.anvilcraft.item.resin_block.resentment",
+                resentment
+            ).withStyle(ChatFormatting.DARK_RED));
+        });
     }
 
     @Override

@@ -5,6 +5,7 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.fluids.CauldronFluidContent;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -14,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -42,7 +44,12 @@ public class FluidPipeNetwork {
     private final Map<BlockPos, Direction> diodes;
     private final Map<BlockPos, Map<Direction, Direction>> faceFlow;
     private final List<FluidEndpoint> endpoints;
+    private final List<FluidEndpoint> cauldronEndpoints;
+    private final boolean directionalConstraints;
     private final List<FluidEndpoint> sourcesByHeightDesc;
+    private final Map<BlockPos, Map<FluidResource, Reachability>> reachabilityCache = new HashMap<>();
+    private final Set<BlockPos> triggeredSources = new HashSet<>();
+    private long triggerGameTime = Long.MIN_VALUE;
 
     private boolean transferredThisTick;
     @Getter
@@ -72,6 +79,8 @@ public class FluidPipeNetwork {
         this.diodes = diodes;
         this.faceFlow = faceFlow;
         this.endpoints = endpoints;
+        this.cauldronEndpoints = endpoints.stream().filter(FluidEndpoint::cauldron).toList();
+        this.directionalConstraints = !valves.isEmpty() || !diodes.isEmpty() || !faceFlow.isEmpty();
         this.sourcesByHeightDesc = new ArrayList<>(endpoints);
         this.sourcesByHeightDesc.sort(Comparator.comparingInt(FluidEndpoint::effectiveHeight).reversed());
     }
@@ -79,6 +88,8 @@ public class FluidPipeNetwork {
     public void tick() {
         this.transferredThisTick = false;
         if (this.endpoints.size() < 2) return;
+        if (!this.canTickEndpoints()) return;
+        this.reachabilityCache.clear();
         if (!this.valves.isEmpty()) {
             for (ValveState valve : this.valves.values()) {
                 valve.resetBudget();
@@ -95,8 +106,16 @@ public class FluidPipeNetwork {
         BlockPos entryPipePos,
         int sourceEffectiveHeight
     ) {
-        if (this.endpoints.isEmpty()) return;
-        this.distributeFromSource(new FluidEndpoint(srcPos, entryPipePos, null, srcHandler, sourceEffectiveHeight));
+        if (this.endpoints.isEmpty() || !this.canTickEndpoints()) return;
+        this.reachabilityCache.clear();
+        this.distributeFromSource(new FluidEndpoint(
+            srcPos,
+            entryPipePos,
+            null,
+            srcHandler,
+            sourceEffectiveHeight,
+            false
+        ));
     }
 
     /**
@@ -119,20 +138,19 @@ public class FluidPipeNetwork {
             int storedAmount = srcHandler.getAmountAsInt(tankIdx);
             if (stored.isEmpty() || storedAmount <= 0) continue;
 
-            boolean needReachability = !this.valves.isEmpty() || !this.diodes.isEmpty() || !this.faceFlow.isEmpty();
-            Reachability reach = needReachability ? this.computeReachable(source.fromPipePos(), stored) : null;
+            Reachability reach = this.directionalConstraints
+                                 ? this.computeReachableCached(source.fromPipePos(), stored)
+                                 : null;
             Map<BlockPos, List<ValveState>> pathValves = reach == null ? Map.of() : reach.pathValves();
 
-            TreeMap<Integer, List<FluidEndpoint>> byHeight = new TreeMap<>();
-            for (FluidEndpoint target : this.endpoints) {
-                if (target == source) continue;
-                if (target.effectiveHeight() >= source.effectiveHeight()) continue;
-                if (target.handler().equals(srcHandler)) continue;
-                if (!canInsert(target.handler(), stored)) continue;
-                if (reach != null && !this.isEndpointReachable(reach, target)) continue;
-                byHeight.computeIfAbsent(target.effectiveHeight(), _ -> new ArrayList<>()).add(target);
-            }
+            TreeMap<Integer, List<FluidEndpoint>> byHeight = this.collectTargetsByHeight(
+                source,
+                tankIdx,
+                stored,
+                reach
+            );
             if (byHeight.isEmpty()) continue;
+            if (this.hasHigherPrioritySource(source, stored, byHeight)) continue;
 
             for (var entry : byHeight.entrySet()) {
                 int groupHeight = entry.getKey();
@@ -160,17 +178,29 @@ public class FluidPipeNetwork {
             .thenComparingInt(e -> Math.abs(e.containerPos().getX() - src.getX()))
             .thenComparingInt(e -> Math.abs(e.containerPos().getZ() - src.getZ())));
 
+        List<FluidEndpoint> allTargets = group;
         ResourceHandler<FluidResource> srcHandler = source.handler();
+        if (source.cauldron()) {
+            this.fillFromFullCauldron(source, tankIdx, group, pathValves);
+            return isGroupCapacityFull(group);
+        }
+        if (this.fillFirstWholeCauldronTarget(source, tankIdx, group, pathValves)) {
+            return isGroupCapacityFull(group);
+        }
+        group = group.stream().filter(target -> !target.cauldron()).toList();
+        if (group.isEmpty()) return false;
         int budget = groupSpeed;
 
         while (budget > 0) {
             int currentStored = srcHandler.getAmountAsInt(tankIdx);
             if (currentStored <= 0) break;
 
-            List<FluidEndpoint> active = new ArrayList<>();
+            List<ActiveTarget> active = new ArrayList<>();
             for (FluidEndpoint target : group) {
                 if (minValveRemaining(pathValves.get(target.fromPipePos())) <= 0) continue;
-                if (canInsert(target.handler(), fluidType)) active.add(target);
+                if (canInsert(target.handler(), fluidType)) {
+                    active.add(new ActiveTarget(target, currentAmount(target)));
+                }
             }
             if (active.isEmpty()) break;
 
@@ -178,11 +208,11 @@ public class FluidPipeNetwork {
             int roundBudget = Math.min(budget, currentStored);
             int base = roundBudget / n;
             int remainder = roundBudget % n;
-            active.sort(Comparator.comparingInt(FluidPipeNetwork::currentAmount));
+            active.sort(Comparator.comparingInt(ActiveTarget::amount));
             boolean progressed = false;
 
             for (int k = 0; k < n && budget > 0; k++) {
-                FluidEndpoint target = active.get(k);
+                FluidEndpoint target = active.get(k).endpoint();
                 int want = base + (k < remainder ? 1 : 0);
                 if (want <= 0) continue;
 
@@ -208,15 +238,180 @@ public class FluidPipeNetwork {
                     budget -= inserted;
                     deductValves(valvePath, inserted);
                     progressed = true;
-                    this.transferredThisTick = true;
-                    if (!this.level.isClientSide()) {
-                        TriggerUtil.connectFluidContainers(this.level, source.containerPos());
-                    }
+                    this.onTransferred(source);
                 }
             }
             if (!progressed) break;
         }
-        return isGroupCapacityFull(group);
+        return isGroupCapacityFull(allTargets);
+    }
+
+    private TreeMap<Integer, List<FluidEndpoint>> collectTargetsByHeight(
+        FluidEndpoint source,
+        int tankIdx,
+        FluidResource stored,
+        Reachability reach
+    ) {
+        TreeMap<Integer, List<FluidEndpoint>> byHeight = new TreeMap<>();
+        for (FluidEndpoint target : this.endpoints) {
+            if (!this.canTarget(source, tankIdx, target, stored, reach)) continue;
+            byHeight.computeIfAbsent(target.effectiveHeight(), _ -> new ArrayList<>()).add(target);
+        }
+        return byHeight;
+    }
+
+    private boolean canTarget(
+        FluidEndpoint source,
+        int tankIdx,
+        FluidEndpoint target,
+        FluidResource stored,
+        Reachability reach
+    ) {
+        if (target == source || target.effectiveHeight() >= source.effectiveHeight()) return false;
+        if (target.handler().equals(source.handler())) return false;
+        if (source.cauldron() || target.cauldron()) {
+            if (this.wholeCauldronTransferAmount(source, tankIdx, target, stored) <= 0) return false;
+        } else if (!canInsert(target.handler(), stored)) {
+            return false;
+        }
+        return reach == null || this.isEndpointReachable(reach, target);
+    }
+
+    private boolean hasHigherPrioritySource(
+        FluidEndpoint source,
+        FluidResource stored,
+        TreeMap<Integer, List<FluidEndpoint>> targetsByHeight
+    ) {
+        for (FluidEndpoint higher : this.sourcesByHeightDesc) {
+            if (higher.effectiveHeight() <= source.effectiveHeight()) return false;
+            if (higher.handler().equals(source.handler())) continue;
+            for (int i = 0; i < higher.handler().size(); i++) {
+                FluidResource higherStored = higher.handler().getResource(i);
+                if (higherStored.isEmpty() || !higherStored.equals(stored)) continue;
+                Reachability higherReach = this.directionalConstraints
+                                           ? this.computeReachableCached(higher.fromPipePos(), higherStored)
+                                           : null;
+                if (this.canTarget(higher, i, source, higherStored, higherReach)) return true;
+                for (List<FluidEndpoint> targets : targetsByHeight.values()) {
+                    for (FluidEndpoint target : targets) {
+                        if (this.canTarget(higher, i, target, higherStored, higherReach)) return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    private void fillFromFullCauldron(
+        FluidEndpoint source,
+        int tankIdx,
+        List<FluidEndpoint> group,
+        Map<BlockPos, List<ValveState>> pathValves
+    ) {
+        FluidResource stored = source.handler().getResource(tankIdx);
+        for (FluidEndpoint target : group) {
+            int amount = this.wholeCauldronTransferAmount(source, tankIdx, target, stored);
+            List<ValveState> valvePath = pathValves.get(target.fromPipePos());
+            if (amount <= 0 || minValveRemaining(valvePath) < amount) continue;
+            if (this.moveWholeCauldron(source, tankIdx, target, stored, amount) == amount) {
+                deductValves(valvePath, amount);
+                this.onTransferred(source);
+                return;
+            }
+        }
+    }
+
+    private boolean fillFirstWholeCauldronTarget(
+        FluidEndpoint source,
+        int tankIdx,
+        List<FluidEndpoint> group,
+        Map<BlockPos, List<ValveState>> pathValves
+    ) {
+        for (FluidEndpoint target : group) {
+            if (!target.cauldron()) continue;
+            FluidResource stored = source.handler().getResource(tankIdx);
+            int amount = this.wholeCauldronTransferAmount(source, tankIdx, target, stored);
+            List<ValveState> valvePath = pathValves.get(target.fromPipePos());
+            if (amount <= 0 || minValveRemaining(valvePath) < amount) continue;
+            if (this.moveWholeCauldron(source, tankIdx, target, stored, amount) != amount) continue;
+            deductValves(valvePath, amount);
+            this.onTransferred(source);
+            return true;
+        }
+        return false;
+    }
+
+    private int wholeCauldronTransferAmount(
+        FluidEndpoint source,
+        int tankIdx,
+        FluidEndpoint target,
+        FluidResource stored
+    ) {
+        if ((!source.cauldron() && !target.cauldron()) || stored.isEmpty()) return 0;
+        int amount;
+        if (source.cauldron()) {
+            amount = source.handler().getCapacityAsInt(tankIdx, stored);
+            if (amount <= 0 || source.handler().getAmountAsInt(tankIdx) != amount) return 0;
+        } else {
+            amount = capacityFor(target.handler(), stored);
+            if (amount <= 0 || source.handler().getAmountAsInt(tankIdx) < amount) return 0;
+        }
+        if (target.cauldron() && currentAmount(target) != 0) return 0;
+        try (Transaction transaction = Transaction.openRoot()) {
+            int extracted = source.handler().extract(tankIdx, stored, amount, transaction);
+            if (extracted != amount) return 0;
+            return target.handler().insert(stored, amount, transaction) == amount ? amount : 0;
+        }
+    }
+
+    private int moveWholeCauldron(
+        FluidEndpoint source,
+        int tankIdx,
+        FluidEndpoint target,
+        FluidResource stored,
+        int amount
+    ) {
+        if (amount <= 0) return 0;
+        try (Transaction transaction = Transaction.openRoot()) {
+            int extracted = source.handler().extract(tankIdx, stored, amount, transaction);
+            if (extracted != amount) return 0;
+            int inserted = target.handler().insert(stored, amount, transaction);
+            if (inserted != amount) return 0;
+            transaction.commit();
+            return amount;
+        }
+    }
+
+    private boolean canTickEndpoints() {
+        for (FluidEndpoint endpoint : this.cauldronEndpoints) {
+            if (!this.level.isLoaded(endpoint.containerPos())) return false;
+            if (CauldronFluidContent.getForBlock(this.level.getBlockState(endpoint.containerPos()).getBlock()) == null) {
+                FluidNetworkManager.INSTANCE.markDirty(this.level);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void onTransferred(FluidEndpoint source) {
+        this.transferredThisTick = true;
+        if (this.level.isClientSide()) return;
+        long gameTime = this.level.getGameTime();
+        if (this.triggerGameTime != gameTime) {
+            this.triggerGameTime = gameTime;
+            this.triggeredSources.clear();
+        }
+        if (this.triggeredSources.add(source.containerPos())) {
+            TriggerUtil.connectFluidContainers(this.level, source.containerPos());
+        }
+    }
+
+    private static int capacityFor(ResourceHandler<FluidResource> handler, FluidResource resource) {
+        int total = 0;
+        for (int i = 0; i < handler.size(); i++) {
+            total += handler.getCapacityAsInt(i, resource);
+        }
+        return total;
     }
 
     /**
@@ -254,6 +449,9 @@ public class FluidPipeNetwork {
         for (ValveState v : valvePath) {
             v.consume(amount);
         }
+    }
+
+    private record ActiveTarget(FluidEndpoint endpoint, int amount) {
     }
 
     private record Reachability(Map<BlockPos, List<ValveState>> pathValves, Map<BlockPos, BlockPos> cameFrom) {
@@ -299,6 +497,14 @@ public class FluidPipeNetwork {
             }
         }
         return new Reachability(result, cameFrom);
+    }
+
+    private Reachability computeReachableCached(BlockPos start, FluidResource fluid) {
+        Map<FluidResource, Reachability> cached = this.reachabilityCache.computeIfAbsent(
+            start.immutable(),
+            _ -> new HashMap<>()
+        );
+        return cached.computeIfAbsent(fluid, _ -> this.computeReachable(start, fluid));
     }
 
     private boolean canPassFaceValve(BlockPos cur, BlockPos next) {

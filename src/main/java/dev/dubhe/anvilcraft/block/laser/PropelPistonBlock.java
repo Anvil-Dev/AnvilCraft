@@ -198,6 +198,13 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
     }
 
     @Override
+    public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
+        if (blockEntity instanceof PropelPistonBlockEntity piston) {
+            piston.notifyMoved();
+        }
+    }
+
+    @Override
     protected boolean triggerEvent(BlockState state, Level level, BlockPos pos, int id, int param) {
         Direction direction = state.getValue(PropelPistonBlock.FACING);
         if (id == 0) {

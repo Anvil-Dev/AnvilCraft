@@ -4,11 +4,15 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
+import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -21,25 +25,28 @@ import java.util.List;
  */
 final class CfaGravityController {
     private static final int BASE_GRAVITY_RADIUS = 4;
-    private static final int DEFAULT_CENTER_Y = 6;
+    // 38 * 0.52 = 19.76 after Feather Falling IV.
+    private static final float PLANET_CONTACT_DAMAGE = 38.0f;
+    // 66 * 0.84 * 0.36 = 19.9584 after full Protection IV diamond armor.
+    private static final float STAR_CONTACT_DAMAGE = 66.0f;
 
-    private boolean active;
-    private double strength;
-    private int radius = BASE_GRAVITY_RADIUS;
-    private int centerY = DEFAULT_CENTER_Y;
-    private int bodySize;
     private double bodyRadius;
+    private Vec3 center = Vec3.ZERO;
 
     void tick(
         @Nullable Level level,
         BlockPos controllerPos,
         boolean amplified,
+        boolean amplifierPresent,
         @Nullable CelestialBodyData body,
         int stellarMass,
         int redstoneSignal
     ) {
         if (level == null || level.isClientSide()) return;
-        boolean shouldBeActive = body != null && stellarMass > 0 && body.size() > 0;
+        boolean shouldBeActive = body != null
+            && stellarMass > 0
+            && body.size() > 0
+            && (!(body instanceof StarData) || amplifierPresent);
         if (!shouldBeActive) {
             this.remove(level, controllerPos);
             return;
@@ -48,46 +55,28 @@ final class CfaGravityController {
         int signal = Math.max(0, Math.min(15, redstoneSignal));
         double targetBodyRadius = calculateBodyRadius(body, signal);
         int targetRadius = calculateGravityRadius(body, amplified, signal);
-        int targetCenterY = calculateCenterY(body, amplified, signal);
         double targetStrength = calculateStrength(body, stellarMass, targetBodyRadius);
-        BlockPos oldCenter = controllerPos.offset(0, this.centerY, 0);
-        BlockPos newCenter = controllerPos.offset(0, targetCenterY, 0);
+        this.center = new Vec3(
+            controllerPos.getX() + 0.5,
+            controllerPos.getY() + calculateVisualCenterY(body, amplified, signal),
+            controllerPos.getZ() + 0.5
+        );
+        GravityManager.GravitySourceType type = new GravityManager.GravitySourceType(
+            targetStrength,
+            targetRadius,
+            targetBodyRadius
+        );
+        GravityManager.GravitySourceManager.upsertSource(level, controllerPos, this.center, type);
+        this.bodyRadius = targetBodyRadius;
 
-        if (!this.active
-            || targetStrength != this.strength
-            || targetRadius != this.radius
-            || targetCenterY != this.centerY
-            || body.size() != this.bodySize
-            || targetBodyRadius != this.bodyRadius) {
-            if (this.active) {
-                GravityManager.GravitySourceManager.removeSource(level, oldCenter);
-            }
-            GravityManager.GravitySourceType type = new GravityManager.GravitySourceType(
-                targetStrength,
-                targetRadius,
-                targetBodyRadius
-            );
-            GravityManager.GravitySourceManager.addSource(level, newCenter, type);
-            this.active = true;
-            this.strength = targetStrength;
-            this.radius = targetRadius;
-            this.centerY = targetCenterY;
-            this.bodySize = body.size();
-            this.bodyRadius = targetBodyRadius;
-        }
-
-        this.destroyEntitiesInsideBody(level, controllerPos, amplified, signal, body);
+        this.destroyEntitiesInsideBody(level, body);
     }
 
     void remove(@Nullable Level level, BlockPos controllerPos) {
-        if (level == null || level.isClientSide() || !this.active) return;
-        GravityManager.GravitySourceManager.removeSource(level, controllerPos.offset(0, this.centerY, 0));
-        this.active = false;
-        this.strength = 0.0;
-        this.radius = BASE_GRAVITY_RADIUS;
-        this.centerY = DEFAULT_CENTER_Y;
-        this.bodySize = 0;
+        if (level == null || level.isClientSide()) return;
+        GravityManager.GravitySourceManager.removeSource(level, controllerPos);
         this.bodyRadius = 0.0;
+        this.center = Vec3.ZERO;
     }
 
     private static double calculateStrength(CelestialBodyData body, int stellarMass, double targetBodyRadius) {
@@ -112,10 +101,6 @@ final class CfaGravityController {
         );
     }
 
-    private static int calculateCenterY(CelestialBodyData body, boolean amplified, int redstoneSignal) {
-        return Math.round(calculateVisualCenterY(body, amplified, redstoneSignal));
-    }
-
     private static float calculateVisualCenterY(CelestialBodyData body, boolean amplified, int redstoneSignal) {
         float redstoneFactor = redstoneSignal / 5.0f;
         float baseCenterY = amplified ? 6.5f : 4.5f;
@@ -138,39 +123,45 @@ final class CfaGravityController {
         return visualRadius;
     }
 
-    private void destroyEntitiesInsideBody(
-        Level level,
-        BlockPos controllerPos,
-        boolean amplified,
-        int redstoneSignal,
-        CelestialBodyData body
-    ) {
+    private void destroyEntitiesInsideBody(Level level, CelestialBodyData body) {
         if (this.bodyRadius <= 0.0) return;
-        double centerX = controllerPos.getX() + 0.5;
-        double centerY = controllerPos.getY() + calculateVisualCenterY(body, amplified, redstoneSignal);
-        double centerZ = controllerPos.getZ() + 0.5;
-        double radiusSquare = this.bodyRadius * this.bodyRadius;
         AABB bodyBounds = new AABB(
-            centerX - this.bodyRadius,
-            centerY - this.bodyRadius,
-            centerZ - this.bodyRadius,
-            centerX + this.bodyRadius,
-            centerY + this.bodyRadius,
-            centerZ + this.bodyRadius
+            this.center.x - this.bodyRadius,
+            this.center.y - this.bodyRadius,
+            this.center.z - this.bodyRadius,
+            this.center.x + this.bodyRadius,
+            this.center.y + this.bodyRadius,
+            this.center.z + this.bodyRadius
         );
         List<Entity> entities = level.getEntitiesOfClass(Entity.class, bodyBounds);
         for (Entity entity : entities) {
-            Vec3 entityCenter = entity.getBoundingBox().getCenter();
-            double dx = entityCenter.x - centerX;
-            double dy = entityCenter.y - centerY;
-            double dz = entityCenter.z - centerZ;
-            if (dx * dx + dy * dy + dz * dz > radiusSquare) continue;
+            if (!intersectsSphere(entity.getBoundingBox(), this.center, this.bodyRadius)) continue;
+            if (isEternal(entity)) continue;
             if (entity instanceof LivingEntity living) {
                 applyCelestialDamage(level, body, living);
             } else {
                 entity.discard();
             }
         }
+    }
+
+    private static boolean isEternal(Entity entity) {
+        ItemStack stack = switch (entity) {
+            case ItemEntity itemEntity -> itemEntity.getItem();
+            case ThrownHeavyHalberdEntity heavyHalberd -> heavyHalberd.getWeaponItem();
+            default -> ItemStack.EMPTY;
+        };
+        return stack.has(ModComponents.ETERNAL);
+    }
+
+    private static boolean intersectsSphere(AABB box, Vec3 center, double radius) {
+        double x = Math.max(box.minX, Math.min(center.x, box.maxX));
+        double y = Math.max(box.minY, Math.min(center.y, box.maxY));
+        double z = Math.max(box.minZ, Math.min(center.z, box.maxZ));
+        double dx = x - center.x;
+        double dy = y - center.y;
+        double dz = z - center.z;
+        return dx * dx + dy * dy + dz * dz <= radius * radius;
     }
 
     private static void applyCelestialDamage(Level level, CelestialBodyData body, LivingEntity living) {
@@ -180,11 +171,11 @@ final class CfaGravityController {
                 living.hurtOrSimulate(ModDamageTypes.lostInTime(level), Float.MAX_VALUE);
             } else {
                 // noinspection deprecation
-                living.hurtOrSimulate(level.damageSources().inFire(), Float.MAX_VALUE);
+                living.hurtOrSimulate(level.damageSources().inFire(), STAR_CONTACT_DAMAGE);
             }
         } else {
             // noinspection deprecation
-            living.hurtOrSimulate(level.damageSources().fall(), Float.MAX_VALUE);
+            living.hurtOrSimulate(level.damageSources().fall(), PLANET_CONTACT_DAMAGE);
         }
     }
 }

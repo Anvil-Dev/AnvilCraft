@@ -11,21 +11,11 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_ember_metal_ingot": {
+    "has_negative_matter": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:ember_metal_ingot"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
-    },
-    "has_negative_matter_block": {
-      "conditions": {
-        "items": [
-          {
-            "items": "anvilcraft:negative_matter_block"
+            "items": "anvilcraft:negative_matter"
           }
         ]
       },
@@ -64,8 +54,7 @@
       "has_neutronium_ingot",
       "has_charged_neutronium_ingot",
       "has_stable_neutronium_ingot",
-      "has_negative_matter_block",
-      "has_ember_metal_ingot"
+      "has_negative_matter"
     ]
   ],
   "rewards": {

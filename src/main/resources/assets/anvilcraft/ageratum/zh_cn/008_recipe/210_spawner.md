@@ -18,8 +18,13 @@ items:
 
 ## 怨念琥珀块
 
+### 怨恨值
+
+- 抓到怪物的<ref item="anvilcraft:resin_block"/>的*怨恨值*才能大于0
+- 怨恨值 = [0%-10%的随机数] + [负面效果数量 * 5%] + [血量距离满血每下降5%，增加1%]
+
 - <ref item="anvilcraft:resin_block"/>可被[时移](../004_block/200_corrupted_beacon.md)为<ref item="anvilcraft:amber_block"/>
-- 如果<ref item="anvilcraft:resin_block"/>中含有**非被动生物**，则有 5% 的概率产生<ref item="anvilcraft:resentful_amber_block"/>
+- 如果<ref item="anvilcraft:resin_block"/>中含有**非被动生物**，则有 [_怨恨值_] 的概率产生<ref item="anvilcraft:resentful_amber_block"/>
 - 利用<ref item="anvilcraft:resentful_amber_block"/>和<ref item="anvilcraft:cursed_gold_block"/>，可以生产对应的<ref item="minecraft:spawner"/>
 
 ## 制作刷怪笼

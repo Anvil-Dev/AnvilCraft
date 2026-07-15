@@ -1,21 +1,18 @@
 package dev.dubhe.anvilcraft.block.entity.megastructure;
 
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilFluidInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.List;
 
 public class ExtractorHandler extends BaseMegastructureHandler {
     private static final int FLUID_PER_TICK = 250;
+    private int fluidRoundRobin = 0;
 
     @Override
     public String name() {
@@ -32,13 +29,13 @@ public class ExtractorHandler extends BaseMegastructureHandler {
         List<PlanetaryResourceSet.WeightedFluidStack> fluids = be.getPlanetaryResourceSet().getFluids();
         if (fluids.isEmpty()) return;
 
-        List<CelestialForgingAnvilFluidInterfaceBlockEntity> fluidInterfaces = findFluidInterfaces(be);
-        if (fluidInterfaces.isEmpty()) return;
+        var fluidInterfaces = this.findOutputFluidInterfaces(be);
+        if (fluidInterfaces.size() == 0) return;
 
         int totalWeight = fluids.stream().mapToInt(PlanetaryResourceSet.WeightedFluidStack::weight).sum();
         if (totalWeight <= 0) return;
 
-        for (CelestialForgingAnvilFluidInterfaceBlockEntity fluidInterface : fluidInterfaces) {
+        for (int batch = 0; batch < fluidInterfaces.size(); batch++) {
             int roll = be.getLevel().getRandom().nextInt(totalWeight);
             int cumulative = 0;
             Identifier chosenFluid = null;
@@ -58,11 +55,15 @@ public class ExtractorHandler extends BaseMegastructureHandler {
             FluidStack output = new FluidStack(fluid, FLUID_PER_TICK);
             if (output.isEmpty()) continue;
 
-            ResourceHandler<FluidResource> tank = fluidInterface.getFluidHandler();
-            try (Transaction tx = Transaction.openRoot()) {
-                int filled = tank.insert(FluidResource.of(output), output.getAmount(), tx);
-                if (filled > 0) tx.commit();
+            FluidOutputResult result = fillOutputFluid(fluidInterfaces, output, this.fluidRoundRobin);
+            if (result.filled() > 0) {
+                this.fluidRoundRobin = result.nextIndex();
             }
         }
+    }
+
+    @Override
+    public void onClear(CelestialForgingAnvilBlockEntity be) {
+        this.fluidRoundRobin = 0;
     }
 }

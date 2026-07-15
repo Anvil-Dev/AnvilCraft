@@ -409,11 +409,10 @@ public class RegistrumBlockRecipeLoader {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern(" A ")
-            .pattern("BCB")
+            .pattern("B B")
             .pattern("BBB")
             .define('A', Ingredient.of(ModItems.NEUTRONIUM_INGOT, ModItems.CHARGED_NEUTRONIUM_INGOT, ModItems.STABLE_NEUTRONIUM_INGOT))
-            .define('B', ModItems.EMBER_METAL_INGOT)
-            .define('C', ModBlocks.NEGATIVE_MATTER_BLOCK)
+            .define('B', ModItems.NEGATIVE_MATTER)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.NEUTRONIUM_INGOT), AnvilCraftDatagen.has(lookup, ModItems.NEUTRONIUM_INGOT))
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.CHARGED_NEUTRONIUM_INGOT),
@@ -423,11 +422,7 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.hasItem(ModItems.STABLE_NEUTRONIUM_INGOT),
                 AnvilCraftDatagen.has(lookup, ModItems.STABLE_NEUTRONIUM_INGOT)
             )
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModBlocks.NEGATIVE_MATTER_BLOCK),
-                AnvilCraftDatagen.has(lookup, ModBlocks.NEGATIVE_MATTER_BLOCK)
-            )
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_INGOT), AnvilCraftDatagen.has(lookup, ModItems.EMBER_METAL_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.NEGATIVE_MATTER), AnvilCraftDatagen.has(lookup, ModItems.NEGATIVE_MATTER))
             .save(provider);
     }
 
@@ -2491,6 +2486,65 @@ public class RegistrumBlockRecipeLoader {
             .define('A', Items.COPPER_INGOT)
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.COPPER_INGOT), AnvilCraftDatagen.has(lookup, Items.COPPER_INGOT))
             .save(provider, AnvilCraft.recipe("copper_pressure_plate_from_" + location1.getPath().replace('/', '_')));
+    }
+
+    public static <T extends Block> void redstoneWire(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get(), 4)
+            .pattern("CRC")
+            .define('C', ModItemTags.COPPER_NUGGETS)
+            .define('R', Items.REDSTONE)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.REDSTONE),
+                AnvilCraftDatagen.has(lookup, Items.REDSTONE)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Block> void expCollector(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
+            .pattern("ABA")
+            .pattern(" C ")
+            .pattern("ADA")
+            .define('A', ModItems.ROYAL_STEEL_INGOT)
+            .define('B', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
+            .define('C', Blocks.SCULK_CATALYST)
+            .define('D', ModBlocks.FLUID_TANK)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT),
+                AnvilCraftDatagen.has(lookup, ModItems.ROYAL_STEEL_INGOT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
+                AnvilCraftDatagen.has(lookup, ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Blocks.SCULK_CATALYST),
+                AnvilCraftDatagen.has(lookup, Blocks.SCULK_CATALYST)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.FLUID_TANK),
+                AnvilCraftDatagen.has(lookup, ModBlocks.FLUID_TANK)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Block> void tradingStation(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
+            .pattern("WWW")
+            .pattern("S S")
+            .pattern("PBP")
+            .define('B', Blocks.BARREL)
+            .define('P', ItemTags.PLANKS)
+            .define('S', Items.STICK)
+            .define('W', ItemTags.WOOL)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.BARREL), AnvilCraftDatagen.has(lookup, Blocks.BARREL))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ItemTags.PLANKS), AnvilCraftDatagen.has(lookup, ItemTags.PLANKS))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.STICK), AnvilCraftDatagen.has(lookup, Items.STICK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ItemTags.WOOL), AnvilCraftDatagen.has(lookup, ItemTags.WOOL))
+            .save(provider);
     }
 
     private static SingleItemRecipeBuilder stonecutting(Ingredient ingredient, ItemLike result) {

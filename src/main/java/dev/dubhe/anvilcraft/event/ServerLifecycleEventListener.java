@@ -9,9 +9,12 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.api.world.load.RandomChuckTickLoadManager;
+import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
+import dev.dubhe.anvilcraft.block.entity.ExpCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModHammerInits;
 import dev.dubhe.anvilcraft.inventory.state.StorageMenuState;
+import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
@@ -26,6 +29,7 @@ public class ServerLifecycleEventListener {
         ModHammerInits.init();
         HammerManager.register();
         LevelLoadManager.notifyServerStarted();
+        ExpCollectorBlockEntity.clearPoachingCollectors();
         ItemCollectorBlockEntity.clearPoachingCollectors();
     }
 
@@ -36,6 +40,11 @@ public class ServerLifecycleEventListener {
         HeatCollectorManager.tickAll();
         RandomChuckTickLoadManager.tick();
         FluidNetworkManager.INSTANCE.tick();
+    }
+
+    @SubscribeEvent
+    public static void onTick(ServerTickEvent.Post event) {
+        RedstoneWireNetworkManager.tick();
     }
 
     @SubscribeEvent
@@ -50,6 +59,8 @@ public class ServerLifecycleEventListener {
         FluidNetworkManager.INSTANCE.clear();
         SoundHelper.INSTANCE.clear();
         StorageMenuState.clear();
+        ExpCollectorBlockEntity.clearPoachingCollectors();
         ItemCollectorBlockEntity.clearPoachingCollectors();
+        LaserGunItem.clearStates();
     }
 }

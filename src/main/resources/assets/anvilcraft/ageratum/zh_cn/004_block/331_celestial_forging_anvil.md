@@ -5,9 +5,6 @@ navigation:
 items:
   - anvilcraft:celestial_forging_anvil
   - anvilcraft:celestial_forging_anvil_amplifier
-  - anvilcraft:celestial_forging_anvil_logistics_interface
-  - anvilcraft:celestial_forging_anvil_fluid_interface
-  - anvilcraft:celestial_forging_anvil_laser_interface
 ---
 
 # <ref item="anvilcraft:celestial_forging_anvil"/>
@@ -72,53 +69,11 @@ items:
 1. 成功绑定天体后
 2. 在<ref item="anvilcraft:celestial_forging_anvil"/>的GUI下方，点击绑定按钮
 3. 在<ref item="anvilcraft:celestial_forging_anvil"/>的GUI右侧，选择*巨构*并提交对应**建筑材料**
-4. 通过各种接口输入原材料，然后提取资源
+4. 通过各种接口输入原材料，然后提取资源（[点我](332_interface.md)查看详情）
 
 <tip>
 若要移除巨构，只需解绑再绑定星球
 </tip>
-
-## 使用接口
-
-### <ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/>
-
-<recipe id="anvilcraft:celestial_forging_anvil_logistics_interface"/>
-
-- 能容纳16种物品，每种物品可以储存1组
-- 收到红石信号时，主动尝试向前输出物品
-
-<warning>
-部分情况下，可能会输出大量同种物品，若<ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/>数量不足，物品会损失
-</warning>
-
-### <ref item="anvilcraft:celestial_forging_anvil_fluid_interface"/>
-
-<recipe id="anvilcraft:celestial_forging_anvil_fluid_interface"/>
-
-- **持续耗电** 128kW
-- 能容纳4种流体，每种流体可以储存80桶
-- 收到红石信号时，主动尝试向管道输出流体
-
-### <ref item="anvilcraft:celestial_forging_anvil_laser_interface"/>
-
-<row halign="center">
-<recipe id="anvilcraft:celestial_forging_anvil_laser_interface"/>
-<recipe id="anvilcraft:celestial_forging_anvil_laser_interface_from_large_laser"/>
-</row>
-
-- 接收激光
-- 收到红石信号时，主动尝试向前发射激光
-
-## 维持巨构运行
-
-- 不同的巨构拥有不同的建造条件，要求特定种类的星球
-- 部分巨构需要输入物品、流体、激光或电力，前三者需要通过*接口*输入
-- 部分巨构可以产出物品、流体、激光或电力，前三者需要通过*接口*输出
-
-## 获取资源
-
-- 通常情况下，若存在多个<ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/>，会轮流进行输出，每秒共计输出 20个 物品
-- 通常情况下，每个<ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/>独立进行输出，每秒各自输出 5B(桶) 流体
 
 ## 行星级巨构
 
@@ -154,7 +109,7 @@ items:
 |   戴森球   |     恒星     |   无    | 持续发电，发电量正相关于天体的*温度*和*半径*                                                      |
 | 恒星演化加速器 | 恒星（不包括白矮星） |   无    | 使恒星加速演化                                                                       |
 |  磁星线圈   |    中子星     |   无    | 持续发电，发电量正相关于天体的*磁场强度*和*转速*                                                    |
-|  虫洞稳定器  |     黑洞     |   无    | [虫洞](332_wormhole.md)                                                         |
+|  虫洞稳定器  |     黑洞     |   无    | [虫洞](332_teleportation.md)                                                    |
 |  彭罗斯球   |     黑洞     |   激光   | 同等级[伽马激光](../001_feature/332_gamma_laser.md)                                  |
 |  物质解压器  |   中子星、黑洞   | *伽马激光* | 默认每10秒产出1个中子锭（中子星）或每gt产出1虚空物质（黑洞），每级*伽马激光*提供一倍工作效率                            |
 
