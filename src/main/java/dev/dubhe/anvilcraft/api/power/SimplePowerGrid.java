@@ -92,7 +92,6 @@ public class SimplePowerGrid {
         this.infinitePower = infinitePower;
         this.blocks.addAll(powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
         this.powerComponentInfoList.addAll(powerComponentInfoList);
-        this.createTransmitterVisualLines();
     }
 
     public SimplePowerGrid(PowerGrid grid) {
@@ -212,6 +211,30 @@ public class SimplePowerGrid {
             ));
         }
         this.setPowerTransmitterLines(lines);
+    }
+
+    public void rebuildTransmitterVisualLines(@Nullable SimplePowerGrid previous) {
+        if (previous != null && this.hasSameTransmitters(previous)) {
+            this.powerTransmitterLines = previous.powerTransmitterLines;
+            return;
+        }
+        this.createTransmitterVisualLines();
+    }
+
+    private boolean hasSameTransmitters(SimplePowerGrid other) {
+        Set<PowerComponentInfo> transmitters = new HashSet<>();
+        Set<PowerComponentInfo> otherTransmitters = new HashSet<>();
+        for (PowerComponentInfo component : this.powerComponentInfoList) {
+            if (component.type() == PowerComponentType.TRANSMITTER) {
+                transmitters.add(component);
+            }
+        }
+        for (PowerComponentInfo component : other.powerComponentInfoList) {
+            if (component.type() == PowerComponentType.TRANSMITTER) {
+                otherTransmitters.add(component);
+            }
+        }
+        return transmitters.equals(otherTransmitters);
     }
 
     public static boolean isOverlap(Vec3 a, int rangeA, Vec3 b, int rangeB) {
