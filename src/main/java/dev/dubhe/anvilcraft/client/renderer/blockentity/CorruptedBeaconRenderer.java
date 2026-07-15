@@ -138,9 +138,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
             if (direction.lengthSqr() < 1.0E-6) continue;
             poseStack.pushPose();
             if (data.viewBobCompensation != null) {
-                poseStack.last().pose().set(
-                    data.viewBobCompensation.mul(poseStack.last().pose(), new Matrix4f())
-                );
+                poseStack.last().pose().mul(data.viewBobCompensation);
             }
             poseStack.translate(
                 data.start.x - camera.x,
@@ -229,7 +227,6 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
             float[] c1 = corners[(i + 1) % 4];
             vc.addVertex(pose, c0[0], baseY, c0[1]).setColor(r, g, b, alpha);
             vc.addVertex(pose, c1[0], baseY, c1[1]).setColor(r, g, b, alpha);
-            vc.addVertex(pose, cx, apexY, cz).setColor(r, g, b, tipAlpha);
             vc.addVertex(pose, cx, apexY, cz).setColor(r, g, b, tipAlpha);
         }
     }

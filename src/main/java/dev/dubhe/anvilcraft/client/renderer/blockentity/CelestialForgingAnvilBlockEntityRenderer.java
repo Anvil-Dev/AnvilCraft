@@ -433,7 +433,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (canRender) {
             float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);
             float bodyRot = (blockEntity.getBodyRotation() + partialTick) * rotationBoost;
-            /// 锥形托举光束放入延迟队列，在 AFTER_WEATHER 阶段渲染以避免云层遮挡。
+            /// 锥形托举光束放入延迟队列，在 AFTER_LEVEL 阶段渲染以避免云层遮挡。
             if (beamHeight > 0.01f && animProgress > 0.01f) {
                 deferredTractorBeams.add(new TractorBeamData(blockEntity.getBlockPos(), beamHeight, animProgress));
             }
@@ -1169,7 +1169,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     ) {
         if (beamHeight <= 0.01f || animProgress <= 0.01f) return;
 
-        VertexConsumer vc = bufferSource.getBuffer(ModRenderTypes.STELLAR_BEAM);
+        VertexConsumer vc = bufferSource.getBuffer(ModRenderTypes.TRACTOR_BEAM);
         PoseStack.Pose pose = poseStack.last();
         float apexY = BEAM_BASE_Y + beamHeight;
 
@@ -1220,7 +1220,6 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             float[] c1 = corners[(i + 1) % 4];
             vc.addVertex(pose, c0[0], BEAM_BASE_Y, c0[1]).setColor(r, g, b, 1.0f);
             vc.addVertex(pose, c1[0], BEAM_BASE_Y, c1[1]).setColor(r, g, b, 1.0f);
-            vc.addVertex(pose, cx, apexY, cz).setColor(ar, ag, ab, 1.0f);
             vc.addVertex(pose, cx, apexY, cz).setColor(ar, ag, ab, 1.0f);
         }
     }
