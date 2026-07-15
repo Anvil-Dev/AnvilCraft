@@ -91,7 +91,7 @@ public class ConcreteRecipeLoader {
                     .save(
                         provider,
                         AnvilCraft.of("cement_dyeing/%s/%s".formatted(colorName, family.recipeName()))
-                    );
+                );
             }
         }
     }
