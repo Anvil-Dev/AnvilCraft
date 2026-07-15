@@ -317,7 +317,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.IONOCRAFT_BACKPACK.asItem(), "Allows creative flight while equipped, requires power from the energy grid or capacitors in the inventory");
         NORMAL.put(ModBlocks.BLOCK_COMPARATOR.asItem(), "Outputs signal when side blocks are the same, right-click to switch to precise state detection mode");
         NORMAL.put(ModBlocks.ITEM_DETECTOR.asItem(), "Detects specific items behind (drops/containers) to output redstone signal");
-        NORMAL.put(ModBlocks.IMPACT_PILE.asItem(), "Place on Bedrock and strike with falling anvil to create Moneral Fountain");
+        NORMAL.put(ModBlocks.IMPACT_PILE.asItem(), "Place on Bedrock or Deepslate and strike with falling anvil to create Moneral Fountain");
         NORMAL.put(ModBlocks.OVERSEER_BLOCK.asItem(), "Chunk loader that works on Royal Steel base");
         NORMAL.put(ModBlocks.SPACE_OVERCOMPRESSOR.asItem(), "Compresses items into Neutronium Ingots, compresses multiblock outputs into drops");
         NORMAL.put(ModBlocks.ACCELERATION_RING.asItem(), "Creates acceleration field for anvils, projectiles, or players with Anvil Hammer");
@@ -488,7 +488,7 @@ public class ItemTooltipManager {
         SHIFT.put(
             ModBlocks.SMART_BLOCK_PLACER.asItem(), """
                 Advanced block placer with 5x5x5 placement area, configurable via GUI
-                Supports pickup mode (from containers) and move mode (direct block movement)
+                Supports pickup mode (from containers or drops) and move mode (direct block movement)
                 Requires power supply, consumes 8 kW
                 Put Structure Disk to enable Blue Print Mode, consumes 64 kW"""
         );
@@ -518,7 +518,8 @@ public class ItemTooltipManager {
         SHIFT.put(
             ModBlocks.HELIOSTATS.asItem(), """
                 Right‑click a Netherite Block or Tungsten Block with the handheld heliostat to set target block
-                After placing the heliostat, it will heat the targeted block during the day, as well as the blocks above it"""
+                After placing the heliostat, it will heat the targeted block during the day, as well as the blocks above it
+                Right‑click a targeted heliostat to inherit its target"""
         );
         SHIFT.put(
             ModBlocks.OVERSEER_BLOCK.asItem(),
