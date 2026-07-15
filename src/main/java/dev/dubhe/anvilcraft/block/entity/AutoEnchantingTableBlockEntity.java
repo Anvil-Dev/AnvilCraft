@@ -304,7 +304,11 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
     }
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {
-        return FluidUtil.interactWithFluidHandler(player, hand, worldPosition, this.getFluidHandler());
+        try (Transaction transaction = Transaction.openRoot()) {
+            boolean success = FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.getFluidHandler(), transaction);
+            if (success) transaction.commit();
+            return success;
+        }
     }
 
     public static void applyEnchantment(ItemStack item, ItemStack enchantedBook) {

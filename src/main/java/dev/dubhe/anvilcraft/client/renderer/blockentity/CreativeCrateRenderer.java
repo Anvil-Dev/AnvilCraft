@@ -63,30 +63,27 @@ public class CreativeCrateRenderer implements BlockEntityRenderer<CreativeCrateB
         // 在六个面的近表面渲染物品，参考 1.21.1 的渲染位置
         for (int side = 0; side < 6; side++) {
             poseStack.pushPose();
-            poseStack.scale(0.5f, 0.5f, 0.5f);
             switch (side) {
-                case 0 -> poseStack.translate(1f, 1f, 0.2f);
+                case 0 -> poseStack.translate(0.5, 0.5, 0.9);
                 case 1 -> {
-                    poseStack.translate(1f, 1f, 1.8f);
+                    poseStack.translate(0.5, 0.5, 0.1);
                     poseStack.mulPose(Axis.YP.rotationDegrees(180));
                 }
                 case 2 -> {
-                    poseStack.translate(0.2f, 1f, 1f);
+                    poseStack.translate(0.9, 0.5, 0.5);
                     poseStack.mulPose(Axis.YP.rotationDegrees(90));
                 }
                 case 3 -> {
-                    poseStack.translate(1.8f, 1f, 1f);
+                    poseStack.translate(0.1, 0.5, 0.5);
                     poseStack.mulPose(Axis.YP.rotationDegrees(270));
                 }
                 case 4 -> {
-                    poseStack.translate(1f, 0.2f, 1f);
+                    poseStack.translate(0.5, 0.9, 0.5);
                     poseStack.mulPose(Axis.XP.rotationDegrees(90));
-                    poseStack.mulPose(Axis.ZP.rotationDegrees(270));
                 }
                 case 5 -> {
-                    poseStack.translate(1f, 1.8f, 1f);
+                    poseStack.translate(0.5, 0.1, 0.5);
                     poseStack.mulPose(Axis.XP.rotationDegrees(270));
-                    poseStack.mulPose(Axis.ZP.rotationDegrees(270));
                 }
                 default -> {
                     // This should never happen as side is always 0-5
