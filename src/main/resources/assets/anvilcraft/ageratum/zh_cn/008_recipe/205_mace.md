@@ -39,7 +39,7 @@ navigation:
 
 <recipe id="anvilcraft:jewel_crafting/ominous_trial_key"/>
 
-使用<ref item="minecraft:ominous_trial_key"/>打开对应等级的<ref item="minecraft:vault"/>，盖绿获得<ref item="minecraft:heavy_core"/>
+使用<ref item="minecraft:ominous_trial_key"/>打开对应等级的<ref item="minecraft:vault"/>，概率获得<ref item="minecraft:heavy_core"/>
 
 # 量产<ref item="minecraft:heavy_core"/>
 

@@ -227,7 +227,9 @@ public class ItemTagLoader {
 
         provider.rawBuilder(ModItemTags.SUPER_HEATING_BOOST_PRODUCTION)
             .addTag(Tags.Items.RAW_MATERIALS.location())
-            .addTag(Tags.Items.ORES.location());
+            .addTag(Tags.Items.ORES.location())
+            .addElement(ItemTagLoader.findId(Items.SEA_PICKLE))
+            .addElement(ItemTagLoader.findId(Items.CACTUS));
 
         provider.rawBuilder(ModItemTags.RAW_MUTTON)
             .addElement(ItemTagLoader.findId(Items.MUTTON));

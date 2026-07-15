@@ -628,6 +628,7 @@ public class ModBlocks {
     public static final BlockEntry<NeoforgeBlock> NEOFORGE = REGISTRUM
         .block("neoforge", NeoforgeBlock::new)
         .initialProperties(() -> Blocks.CAKE)
+        .lang("NeoForge")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .tag(ItemTags.ANVIL)

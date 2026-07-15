@@ -409,11 +409,10 @@ public class RegistrumBlockRecipeLoader {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
             .pattern(" A ")
-            .pattern("BCB")
+            .pattern("B B")
             .pattern("BBB")
             .define('A', Ingredient.of(ModItems.NEUTRONIUM_INGOT, ModItems.CHARGED_NEUTRONIUM_INGOT, ModItems.STABLE_NEUTRONIUM_INGOT))
-            .define('B', ModItems.EMBER_METAL_INGOT)
-            .define('C', ModBlocks.NEGATIVE_MATTER_BLOCK)
+            .define('B', ModItems.NEGATIVE_MATTER)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.NEUTRONIUM_INGOT), AnvilCraftDatagen.has(lookup, ModItems.NEUTRONIUM_INGOT))
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModItems.CHARGED_NEUTRONIUM_INGOT),
@@ -423,11 +422,7 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.hasItem(ModItems.STABLE_NEUTRONIUM_INGOT),
                 AnvilCraftDatagen.has(lookup, ModItems.STABLE_NEUTRONIUM_INGOT)
             )
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModBlocks.NEGATIVE_MATTER_BLOCK),
-                AnvilCraftDatagen.has(lookup, ModBlocks.NEGATIVE_MATTER_BLOCK)
-            )
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.EMBER_METAL_INGOT), AnvilCraftDatagen.has(lookup, ModItems.EMBER_METAL_INGOT))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.NEGATIVE_MATTER), AnvilCraftDatagen.has(lookup, ModItems.NEGATIVE_MATTER))
             .save(provider);
     }
 

@@ -29,7 +29,7 @@ items:
 ## 发电
 
 - <ref item="anvilcraft:negative_matter_block"/>蕴含了的丰富虚空能，可以增强<ref item="anvilcraft:void_energy_collector"/>的发电能力：
-  - 对<ref item="anvilcraft:void_energy_collector"/>而言，检测范围内每一个的负物质会抵消物质带来的影响
+  - 对<ref item="anvilcraft:void_energy_collector"/>而言，检测范围内每一个负物质会抵消物质带来的影响
   - 多余的负物质可以增加发电量：
     - 11个及以上：1024kW
     - 21个及以上：2048kW

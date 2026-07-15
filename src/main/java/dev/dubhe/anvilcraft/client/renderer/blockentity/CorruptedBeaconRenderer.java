@@ -87,7 +87,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
     }
 
     /**
-     * 在天气与云层完成后渲染本帧收集的腐化信标光束。
+     * 在关卡完成后渲染本帧收集的腐化信标光束。
      */
     public static void renderDeferredBeams(
         PoseStack pose,
@@ -111,8 +111,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
             if (direction.lengthSqr() < 1.0E-6) continue;
             pose.pushPose();
             if (data.viewBobCompensation() != null) {
-                pose.last().pose().set(
-                    data.viewBobCompensation().mul(pose.last().pose(), new Matrix4f()));
+                pose.last().pose().mul(data.viewBobCompensation());
             }
             pose.translate(
                 data.start().x - cameraPosition.x,
@@ -259,7 +258,6 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
             float[] c1 = corners[(i + 1) % 4];
             beamVertex(vc, matrix, c0[0], baseY, c0[1], red, green, blue, alpha);
             beamVertex(vc, matrix, c1[0], baseY, c1[1], red, green, blue, alpha);
-            beamVertex(vc, matrix, cx, apexY, cz, red, green, blue, tipAlpha);
             beamVertex(vc, matrix, cx, apexY, cz, red, green, blue, tipAlpha);
         }
     }

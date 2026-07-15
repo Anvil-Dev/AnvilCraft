@@ -31,8 +31,7 @@ You can use <ref item="anvilcraft:resin_block"/> to capture zombies
 
 # Convenient Crafting
 
-After obtaining the first <ref item="anvilcraft:giant_anvil"/>,
-you can produce <ref item="anvilcraft:giant_anvil"/> through **multi-block conversion**
+After obtaining the first <ref item="anvilcraft:giant_anvil"/>, you can produce <ref item="anvilcraft:giant_anvil"/> through **multi-block conversion**
 
 # Function
 
@@ -61,7 +60,7 @@ If you don't like the look of <ref item="minecraft:crafting_table"/>, try <ref i
 
 - When the center of <ref item="anvilcraft:giant_anvil"/> strikes <ref item="anvilcraft:heavy_iron_block"/>, it performs a **ground shaking** operation
 - At this point, it affects blocks or entities on the same horizontal plane. Depending on the blocks surrounding <ref item="anvilcraft:heavy_iron_block"/>, the shaking produces different effects
-- Each additional block of fall height expands the affected range by 1 ring
+- Each additional block of fall height expands the affected range by 1 ring, up to a maximum of 16 (configurable in settings)
 
 ### Definitions
 
@@ -108,3 +107,7 @@ If you don't like the look of <ref item="minecraft:crafting_table"/>, try <ref i
 |    <ref item="minecraft:hay_block"/>                   | Harvests and replants crops including wheat, pumpkins, berries, cocoa beans, and nether wart. Can operate on cocoa beans on connected logs above the work plane |
 | <ref item="minecraft:oak_log"/> and any other **log**   | Logs, leaves, stems, wart blocks, cacti, chorus plants, and sugar cane. Can destroy connected blocks above the work plane |
 |  <ref item="minecraft:amethyst_block"/>                | Amethyst clusters                                      |
+
+<info>
+When using <ref item="minecraft:amethyst_block"/>, it also matures buds on budding amethyst
+</info>

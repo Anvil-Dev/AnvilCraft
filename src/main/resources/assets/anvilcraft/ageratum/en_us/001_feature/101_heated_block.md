@@ -42,6 +42,7 @@ items:
 - An <color=#cc44cc>abstract concept</color> reflecting a block's temperature
 - Temperature levels can be raised and maintained via external heating
 - <ref item="minecraft:netherite_block"/> and <ref item="anvilcraft:tungsten_block"/> have 5 temperature levels:
+
   - <color=#666666>Normal</color>
   - <color=#661111>Heated</color>
   - <color=#aa2222>Redhot</color>
@@ -80,7 +81,7 @@ items:
 
 |                     Heating Method                      |                Heating Capacity                 | Duration Increase (s) |
 |:---------------------------------------------:|:-----------------------------------:|:--------|
-|      <ref item="anvilcraft:heater"/>      | <color=#661111>Heated</color> | 0.1     |
+|      <ref item="anvilcraft:heater"/> or <ref item="anvilcraft:burning_heater"/>      | <color=#661111>Heated</color> | 0.1     |
 | <ref item="anvilcraft:mineral_fountain"/> | <color=#aa2222>Redhot</color> | 1       |
 |    <ref item="anvilcraft:heliostats"/>    |                 Variable                  | 4       |
 |    <ref item="anvilcraft:ruby_laser"/>    |                 Variable                  | 0.1     |

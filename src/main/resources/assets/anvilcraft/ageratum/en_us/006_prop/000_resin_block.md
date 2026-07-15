@@ -20,3 +20,7 @@ e.g., villagers can be captured; zombies need the Weakness effect applied to be 
 </info>
 
 - Can be automated using a <ref item="minecraft:dispenser"/>
+
+# Resentment Value
+
+- When <ref item="anvilcraft:resin_block"/> captures a creature, its tooltip displays the **Resentment Value**. See [Resentment Value](../008_recipe/210_spawner.md#resentment-value) for details

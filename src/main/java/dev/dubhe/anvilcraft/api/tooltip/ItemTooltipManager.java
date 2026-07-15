@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.ChatFormatting;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -44,7 +45,7 @@ public class ItemTooltipManager {
         NORMAL.put(
             ModBlocks.ROYAL_ANVIL.asItem(), """
                 Never triggers Too Expensive
-                Indestructible with broad compatibility""");
+                Explosion proof, does not degrade from falling""");
         NORMAL.put(ModBlocks.ROYAL_GRINDSTONE.asItem(), "Removes curses and enchantment penalties, Explosion proof");
         NORMAL.put(ModBlocks.ROYAL_SMITHING_TABLE.asItem(), "Does not consume Smithing Templates, Explosion proof");
         NORMAL.put(ModBlocks.HEATER.asItem(), "Heating the block above, consumes 16 kW");
@@ -108,8 +109,9 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.ITEM_COLLECTOR.asItem(), "Adjust power consumption based on range and cooling, from 2kW to 32kW");
         NORMAL.put(
             ModBlocks.EMBER_ANVIL.asItem(), """
-               Enhanced compatibility with a soul seemingly hidden deep within; Anvil Looting can obtain player-only drops
-               Indestructible and Wither proof""");
+               Enhanced compatibility with a soul seemingly hidden deep within
+               Anvil Looting can obtain player-only drops
+               Wither proof, does not degrade from falling""");
         NORMAL.put(ModBlocks.EMBER_GRINDSTONE.asItem(), "Extracts enchantments onto books, Wither proof");
         NORMAL.put(ModBlocks.EMBER_SMITHING_TABLE.asItem(), "All-in-one combination smithing, Wither proof");
         NORMAL.put(ModBlocks.EMBER_METAL_BLOCK.asItem(), "A large block of Netherite tempered in fire for eons, Wither proof");
@@ -285,12 +287,12 @@ public class ItemTooltipManager {
         NORMAL.put(
             ModBlocks.FROST_ANVIL.asItem(), """
                 Slower enchantment penalty growth, repairs any item with Frost Metal, free renaming
-                Indestructible and Explosion proof"""
+                Explosion proof, does not degrade from falling"""
         );
         NORMAL.put(
             ModBlocks.TRANSCENDENCE_ANVIL.asItem(), """
                 Ignores enchantment level limits, and Anvil Looting produces additional drops
-                Indestructible; its drops are also immune to most forms of destruction""");
+                Immune to most destruction methods, does not degrade from falling""");
         NORMAL.put(
             ModBlocks.TRANSCENDENCE_DECO_BLOCK.asItem(),
             "Transcendium decorative block; its low Transcendium content means it is not indestructible"
@@ -325,7 +327,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.IONOCRAFT_BACKPACK.asItem(), "Allows creative flight while equipped, requires power from the energy grid or capacitors in the inventory");
         NORMAL.put(ModBlocks.BLOCK_COMPARATOR.asItem(), "Outputs signal when side blocks are the same, right-click to switch to precise state detection mode");
         NORMAL.put(ModBlocks.ITEM_DETECTOR.asItem(), "Detects specific items behind (drops/containers) to output redstone signal");
-        NORMAL.put(ModBlocks.IMPACT_PILE.asItem(), "Place on Bedrock and strike with falling anvil to create Moneral Fountain");
+        NORMAL.put(ModBlocks.IMPACT_PILE.asItem(), "Place on Bedrock or Deepslate and strike with falling anvil to create Moneral Fountain");
         NORMAL.put(ModBlocks.SPACE_OVERCOMPRESSOR.asItem(), "Compresses items into Neutronium Ingots, compresses multiblock outputs into drops");
         NORMAL.put(ModBlocks.ACCELERATION_RING.asItem(), "Creates acceleration field for anvils, projectiles, or players with Anvil Hammer");
         NORMAL.put(ModBlocks.DEFLECTION_RING.asItem(), "Deflects passing objects 90°, detect speed with Comparator");
@@ -357,11 +359,15 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
         NORMAL.put(
             ModBlocks.FLUID_TANK.asItem(),
-            "Stores 16B of fluid, expands to 640B when surrounded by Menger Sponges"
+            """
+                Stores 16B of fluid, expands to 640B when surrounded by Menger Sponges
+                Can interact with Dispensers for fluid transfer"""
         );
         NORMAL.put(
             ModBlocks.LARGE_FLUID_TANK.asItem(),
-            "Stores 320 buckets of fluid, reaches infinite capacity when paired with Menger Sponges"
+            """
+                Stores 320B of fluid, reaches infinite capacity when paired with Menger Sponges
+                Can interact with Dispensers for fluid transfer"""
         );
         NORMAL.put(ModBlocks.DRAIN.asItem(), "Transfers fluid vertically, outputting downward and drawing from above");
         NORMAL.put(ModBlocks.REDSTONE_WIRE.asItem(), "Transmit redstone signals more precisely");
@@ -408,7 +414,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.LARGE_LASER.asItem(), "Equivalent to 16 lasers, outputs 16 intensity levels of laser, consumes 256 kW");
         NORMAL.put(
             ModBlocks.SUGAR_BLOCK.asItem(), """
-            A large block of sugar.
+            A large block of sugar
             Also a piezoelectric crystal, but seems fragile"""
         );
         NORMAL.put(
@@ -434,6 +440,14 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.ANVIL_RAILGUN.get(), "Hold right-click to consumes power to charge up and launch a high-speed anvil");
         NORMAL.put(ModItems.SPECTRAL_SLINGSHOT.get(), "Hold right-click to consume power and fires spectral weapons");
         NORMAL.put(ModItems.ENERGY_WEAPON_PLATFORM.get(), "640 MFE stored, but will only inherit the result of Energy Weapon Making");
+        NORMAL.put(
+            ModBlocks.INFINITE_COLLECTOR.asItem(), """
+            Generates power by collecting both heat and charge, no upper power limit
+            Provides a baseline output of 256 kW"""
+        );
+        NORMAL.put(ModBlocks.LOAD_MONITOR.asItem(), "Monitor the grid load condition, can output a signal by redstone comparator");
+        NORMAL.put(ModBlocks.CHUTE.asItem(), "An advanced Hopper, can transfer a full stack of items at a time");
+        NORMAL.put(ModBlocks.MAGNETIC_CHUTE.asItem(), "An advanced Chute, with the ability to transport items vertically");
 
         SHIFT.put(
             ModItems.LASER_GUN.get(), """
@@ -499,7 +513,7 @@ public class ItemTooltipManager {
         SHIFT.put(
             ModBlocks.SMART_BLOCK_PLACER.asItem(), """
                 Advanced block placer with 5x5x5 placement area, configurable via GUI
-                Supports pickup mode (from containers) and move mode (direct block movement)
+                Supports pickup mode (from containers or drops) and move mode (direct block movement)
                 Requires power supply, consumes 8 kW
                 Put Structure Disk to enable Blue Print Mode, consumes 64 kW"""
         );
@@ -534,7 +548,8 @@ public class ItemTooltipManager {
         SHIFT.put(
             ModBlocks.HELIOSTATS.asItem(), """
                 Right‑click a Netherite Block or Tungsten Block with the handheld heliostat to set target block
-                After placing the heliostat, it will heat the targeted block during the day, as well as the blocks above it"""
+                After placing the heliostat, it will heat the targeted block during the day, as well as the blocks above it
+                Right‑click a targeted heliostat to inherit its target"""
         );
         SHIFT.put(
             ModBlocks.OVERSEER.asItem(),
@@ -587,6 +602,23 @@ public class ItemTooltipManager {
                 Can be set to trade with players or villagers
                 Villagers will actively trade with stations that have valid offers and fair prices
                 Has 12 slots for temporary item storage"""
+        );
+        SHIFT.put(
+            ModBlocks.CHUTE.asItem(), """
+                Can set item filter
+                Shift and left-click a slot to disable it
+                Use scroll wheel to set slot stack limit
+                Multiple Chutes connected turn into a Simple Chute
+                Simple Chute has only one slot and cannot be locked by redstone"""
+        );
+        SHIFT.put(
+            ModBlocks.MAGNETIC_CHUTE.asItem(), """
+                The output items will be launched with speed
+                Can set item filter
+                Shift and left-click a slot to disable it
+                Use scroll wheel to set slot stack limit
+                Multiple Magnetic Chutes connected turn into a Simple Magnetic Chute
+                Simple Magnetic Chute has only one slot and cannot be locked by redstone"""
         );
         SHIFT.put(
             ModItems.DRAGON_ROD.asItem(),
@@ -643,21 +675,21 @@ public class ItemTooltipManager {
                     "Ember (yellow): drops smelted results directly; Core Shard Ore and Void Stone have no smelted form and remain unchanged"
                 ).withColor(0xFFAA00));
             } else {
-                builder.accept(ItemTooltipManager.getItemTooltip(item));
+                ItemTooltipManager.addNormalTooltip(builder, item);
                 builder.accept(SHIFT_TIP);
             }
         } else if (SHIFT.containsKey(item)) {
             // SHIFT 物品：默认显示短文本+提示，按住 Shift 显示长文本(.shift)
             if (flags.hasShiftDown()) {
-                builder.accept(ItemTooltipManager.getItemTooltipShift(item));
+                ItemTooltipManager.addShiftTooltip(builder, item);
             } else {
                 if (NORMAL.containsKey(item)) {
-                    builder.accept(ItemTooltipManager.getItemTooltip(item));
+                    ItemTooltipManager.addNormalTooltip(builder, item);
                 }
                 builder.accept(SHIFT_TIP);
             }
         } else if (NORMAL.containsKey(item)) {
-            builder.accept(ItemTooltipManager.getItemTooltip(item));
+            ItemTooltipManager.addNormalTooltip(builder, item);
         }
         if (stack.is(ModItemTags.REINFORCED_CONCRETE)) {
             Identifier key = BuiltInRegistries.ITEM.getKey(item);
@@ -668,18 +700,25 @@ public class ItemTooltipManager {
         }
     }
 
-    private static Component getItemTooltip(Item item) {
-        return Component.translatable(ItemTooltipManager.getTranslationKey(item)).withStyle(ChatFormatting.GRAY);
+    private static void addTranslatedTooltip(Consumer<Component> builder, String key) {
+        for (String line : I18n.get(key).split("\n")) {
+            builder.accept(Component.literal(line).withStyle(ChatFormatting.GRAY));
+        }
     }
 
-    private static Component getItemTooltipShift(Item item) {
+    private static void addNormalTooltip(Consumer<Component> builder, Item item) {
+        ItemTooltipManager.addTranslatedTooltip(builder, ItemTooltipManager.getTranslationKey(item));
+    }
+
+    private static void addShiftTooltip(Consumer<Component> builder, Item item) {
         if (item == ModItems.PILL_BOX.asItem()) {
-            return Component.translatable(
+            builder.accept(Component.translatable(
                 getTranslationKeyShift(item),
                 Component.keybind("key.anvilcraft.use_pill_box")
-            ).withStyle(ChatFormatting.GRAY);
+            ).withStyle(ChatFormatting.GRAY));
+            return;
         }
-        return Component.translatable(getTranslationKeyShift(item)).withStyle(ChatFormatting.GRAY);
+        ItemTooltipManager.addTranslatedTooltip(builder, ItemTooltipManager.getTranslationKeyShift(item));
     }
 
     public static String getTranslationKey(Item item) {

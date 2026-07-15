@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:item_crush",
+  "ingredients": [
+    {
+      "items": "minecraft:ink_sac"
+    }
+  ],
+  "results": [
+    {
+      "count": 2,
+      "id": "minecraft:black_dye"
+    }
+  ]
+}

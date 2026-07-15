@@ -52,7 +52,7 @@ import java.util.Map;
  * 负责束星环骨骼层级、红石驱动的平滑缩放、天体自转、动态行星贴图、恒星颜色与光晕、
  * 大气层、天体环、托举光束以及超新星闪光和放射光束。
  */
-@SuppressWarnings({"checkstyle:VariableDeclarationUsageDistance", "checkstyle:OverloadMethodsDeclarationOrder"})
+@SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
 public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlockEntity, CFARenderState> {
     private final @Nullable SkullModelBase playerHeadModel;
     private final RandomSource supernovaRandom = RandomSource.create();
@@ -63,7 +63,6 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     public static final StandaloneModelKey<BlockStateModel> RING4 = key("CFA Ring 4");
     public static final StandaloneModelKey<BlockStateModel> RING5 = key("CFA Ring 5");
     public static final StandaloneModelKey<BlockStateModel> RING6 = key("CFA Ring 6");
-
     // ==================== 巨构模型 ====================
     public static final StandaloneModelKey<BlockStateModel> R1_EXCAVATOR = key("CFA Ring 1 Excavator");
     public static final StandaloneModelKey<BlockStateModel> R1_EXCAVATOR_OFF = key("CFA Ring 1 Excavator Off");
@@ -80,37 +79,28 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE = key("CFA Ring 4 Penrose Sphere");
     public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE_FIX = key("CFA Ring 4 Penrose Fix");
     public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE_LASER = key("CFA Ring 4 Penrose Laser");
-    public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE_LASER_OFF =
-        key("CFA Ring 4 Penrose Laser Off");
-    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR =
-        key("CFA Ring 4 Matter Decompressor");
-    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR_FIX =
-        key("CFA Ring 4 Decompressor Fix");
-    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR_RING =
-        key("CFA Ring 4 Decompressor Ring");
-    public static final StandaloneModelKey<BlockStateModel> R4_WORMHOLE_STABILIZER =
-        key("CFA Ring 4 Wormhole Stabilizer");
+    public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE_LASER_OFF = key("CFA Ring 4 Penrose Laser Off");
+    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR = key("CFA Ring 4 Matter Decompressor");
+    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR_FIX = key("CFA Ring 4 Decompressor Fix");
+    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR_RING = key("CFA Ring 4 Decompressor Ring");
+    public static final StandaloneModelKey<BlockStateModel> R4_WORMHOLE_STABILIZER = key("CFA Ring 4 Wormhole Stabilizer");
     public static final StandaloneModelKey<BlockStateModel> R5_ACCELERATOR = key("CFA Ring 5 Accelerator");
     public static final StandaloneModelKey<BlockStateModel> R6_ACCELERATOR = key("CFA Ring 6 Accelerator");
-
     // ==================== 天体模型 ====================
     public static final StandaloneModelKey<BlockStateModel> BODY_STAR = key("CFA Body Star");
     public static final StandaloneModelKey<BlockStateModel> BODY_NEUTRON_STAR = key("CFA Body Neutron Star");
     public static final StandaloneModelKey<BlockStateModel> BODY_NEUTRON_STAR_JET = key("CFA Body Neutron Star Jet");
     public static final StandaloneModelKey<BlockStateModel> BODY_BLACK_HOLE = key("CFA Body Black Hole");
-
     // 使用独立复杂模型的特殊天体。
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_ARID = key("CFA Body Planet Arid");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_WET = key("CFA Body Planet Wet");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_BOGGY = key("CFA Body Planet Boggy");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_OCEANIC = key("CFA Body Planet Oceanic");
-    public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_ATMOSPHERELESS =
-        key("CFA Body Planet Atmosphereless");
+    public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_ATMOSPHERELESS = key("CFA Body Planet Atmosphereless");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_GIANT = key("CFA Body Planet Giant");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_OVERWORLD = key("CFA Body Planet Overworld");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_FLESH = key("CFA Body Planet Flesh");
-    public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_INTELLIGENCE =
-        key("CFA Body Planet Intelligence");
+    public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_INTELLIGENCE = key("CFA Body Planet Intelligence");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_SHATTERED = key("CFA Body Planet Shattered");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_HOLLOW = key("CFA Body Planet Hollow");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_ERROR = key("CFA Body Planet Error");

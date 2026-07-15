@@ -134,9 +134,16 @@ public class AnvilCraftClient {
     }
 
     @SubscribeEvent
-    public static void renderDeferredBeams(RenderLevelStageEvent.AfterWeather event) {
+    public static void renderDeferredBeams(RenderLevelStageEvent.AfterLevel event) {
         PoseStack pose = event.getPoseStack();
+        RenderTarget mainTarget = Minecraft.getInstance().getMainRenderTarget();
+        RenderTarget weatherTarget = event.getLevelRenderer().getWeatherTarget();
+        if (weatherTarget != null) {
+            mainTarget.copyDepthFrom(weatherTarget);
+        }
         MultiBufferSource.BufferSource bufferSource = event.getLevelRenderer().renderBuffers.bufferSource();
+        pose.pushPose();
+        pose.last().pose().mul(event.getModelViewMatrix());
         CFARenderer.renderDeferredTractorBeams(
             pose,
             bufferSource,
@@ -147,6 +154,7 @@ public class AnvilCraftClient {
             bufferSource,
             event.getLevelRenderState().cameraRenderState.pos
         );
+        pose.popPose();
     }
 
     @SubscribeEvent

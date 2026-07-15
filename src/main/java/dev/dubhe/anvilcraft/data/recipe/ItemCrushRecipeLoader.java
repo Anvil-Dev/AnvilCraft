@@ -148,6 +148,10 @@ public class ItemCrushRecipeLoader {
         flower(provider, Items.PEONY, Items.PINK_DYE, 4);
         flower(provider, Items.PINK_PETALS, Items.PINK_DYE);
         flower(provider, Items.PINK_TULIP, Items.PINK_DYE);
+        flower(provider, Items.BONE_MEAL, Items.WHITE_DYE);
+        flower(provider, Items.INK_SAC, Items.BLACK_DYE);
+        flower(provider, Items.COCOA_BEANS, Items.BROWN_DYE);
+        flower(provider, Items.LAPIS_LAZULI, Items.BLUE_DYE);
     }
 
     private static void tool(RegistrumRecipeProvider provider, ItemLike tool, ItemLike result) {

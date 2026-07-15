@@ -32,6 +32,8 @@ items:
 
 <recipe id="anvilcraft:resonator_core"/>
 
+> 使用<ref item="anvilcraft:ember_smithing_table"/>合成
+
 <row halign="center">
 <recipe id="anvilcraft:four_to_one_smithing/ember_metal_resonator"/>
 <recipe id="anvilcraft:four_to_one_smithing/frost_metal_resonator"/>
@@ -39,7 +41,6 @@ items:
 
 # 相关
 
-- [余烬锻造台](../004_block/221_ember_smithing_table.md)
 - [余烬金属工具](../002_material/211_ember_metal.md)
 - [浮霜金属工具](../002_material/202_frost_metal.md)
 - [超限金属工具](../002_material/312_transcendium.md)

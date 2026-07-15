@@ -31,6 +31,10 @@ items:
 
 <structure id="../../structures/pipe_node.nbt"/>
 
+## <ref item="minecraft:cauldron"/> Support
+
+- Pipes support <ref item="minecraft:cauldron"/>, but <ref item="minecraft:cauldron"/> is special, only allowing a full bucket (1000mB) of fluid to be inserted or extracted at once
+
 # <ref item="anvilcraft:pump"/>
 
 <recipe id="anvilcraft:pump"/>

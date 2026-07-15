@@ -94,6 +94,8 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.mob_transform_with_item", "Mob Transform with Held Item");
         provider.add("gui.anvilcraft.category.mob_transform_with_item.chance_per_item", "Chance Per Item: %s%%");
 
+        provider.add("gui.anvilcraft.category.energy_weapon", "Energy Weapon");
+
         provider.add("jei.anvilcraft.tooltip.not_consumed", "Not Consumed");
 
         provider.add("jei.anvilcraft.info.geode_1", "Finds Amethyst Geodes nearby when using.");
