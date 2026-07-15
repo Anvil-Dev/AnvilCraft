@@ -76,6 +76,7 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.BATCH_CRAFTER);
         this.plain(ModBlocks.BATCH_CUTTER);
         this.plain(ModBlocks.ITEM_COLLECTOR);
+        this.plain(ModBlocks.EXP_COLLECTOR);
         this.plain(ModBlocks.BLOCK_DEVOURER);
         this.plain(ModBlocks.BLOCK_PLACER);
         this.plain(ModBlocks.SMART_BLOCK_PLACER);

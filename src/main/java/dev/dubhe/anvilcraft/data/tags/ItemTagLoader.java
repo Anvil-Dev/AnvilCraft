@@ -219,7 +219,9 @@ public class ItemTagLoader {
         provider.rawBuilder(ModItemTags.COMPRESS_ITEM)
             .addElement(ItemTagLoader.findId(Items.SNOW_BLOCK))
             .addElement(ItemTagLoader.findId(Items.WHITE_WOOL))
+            .addElement(ItemTagLoader.findId(Items.MAGMA_BLOCK))
             .addElement(ItemTagLoader.findId(ModBlocks.HEAVY_IRON_BLOCK.asItem()))
+            .addElement(ItemTagLoader.findId(ModBlocks.LEVITATION_POWDER_BLOCK.asItem()))
             .addTag(Tags.Items.INGOTS.location())
             .addTag(Tags.Items.STORAGE_BLOCKS.location());
 
@@ -244,6 +246,7 @@ public class ItemTagLoader {
 
         provider.rawBuilder(ModItemTags.DISINTEGRATION_SUPPORTED)
             .addTag(ItemTags.MINING_LOOT_ENCHANTABLE.location())
+            .addElement(ModItems.LASER_GUN.getId())
             .addElement(ModItems.FROST_METAL_PICKAXE.getId())
             .addElement(ModItems.FROST_METAL_AXE.getId())
             .addElement(ModItems.FROST_METAL_SHOVEL.getId())
@@ -253,6 +256,7 @@ public class ItemTagLoader {
 
         provider.rawBuilder(ModItemTags.SMELTING_SUPPORTED)
             .addTag(ItemTags.MINING_LOOT_ENCHANTABLE.location())
+            .addElement(ModItems.LASER_GUN.getId())
             .addElement(ModItems.EMBER_METAL_PICKAXE.getId())
             .addElement(ModItems.EMBER_METAL_AXE.getId())
             .addElement(ModItems.EMBER_METAL_SHOVEL.getId())

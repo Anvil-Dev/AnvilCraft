@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.network;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
+import dev.dubhe.anvilcraft.inventory.component.CyclingValueHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -26,8 +26,8 @@ public record CyclingValueSyncPacket(int index, String name) implements IServerb
 
     @Override
     public void handleOnServer(Player player) {
-        if (player.containerMenu instanceof ItemCollectorMenu menu) {
-            menu.notify(this.index, this.name);
+        if (player.containerMenu instanceof CyclingValueHandler handler) {
+            handler.notify(this.index, this.name);
         }
     }
 }

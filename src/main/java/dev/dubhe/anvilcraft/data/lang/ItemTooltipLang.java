@@ -38,7 +38,7 @@ public class ItemTooltipLang {
         provider.add("tooltip.anvilcraft.item.disk.clear", "Shift + Right click to clear data stored");
         provider.add("tooltip.anvilcraft.heliostats.adjacent_heliostats", "Adjacent heliostats detected.");
 
-        provider.add("item.anvilcraft.ionocraft_backpack.flight_time", "Remaining Flight Time: %ds");
+        provider.add("item.anvilcraft.ionocraft_backpack.flight_time", "Remaining Flight Time: %sm %ss");
 
         provider.add("tooltip.anvilcraft.press_key", "Hold [%s] for more information");
 

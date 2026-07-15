@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "anvilcraft:green_cement",
+  "ingredients": [
+    {
+      "items": "#minecraft:wool"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:green_wool"
+    }
+  ]
+}

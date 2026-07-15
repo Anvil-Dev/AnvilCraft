@@ -6,6 +6,18 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 public class ScreenTooltipLang {
     // 禁用行长警告"""
     public static void init(RegistrumLangProvider provider) {
+        provider.add(
+            "screen.anvilcraft.tooltip.trading_station.break_failed",
+            "Please do not break someone else's Trading Station! Hold Shift to forcibly break it"
+        );
+        provider.add(
+            "screen.anvilcraft.range_no_overlap",
+            "The working ranges of two identical blocks must not overlap"
+        );
+        provider.add(
+            "screen.anvilcraft.range_overlap",
+            "No other identical block is allowed within the %1$s×%1$s range."
+        );
         provider.add("screen.anvilcraft.tooltip.cfa_interface", "It must be placed tightly against the side of the Celestial Forging Anvil bottom");
         provider.add("screen.anvilcraft.tooltip.cfa_amplifier", "It must be placed diagonally on the Celestial Forging Anvil");
     }

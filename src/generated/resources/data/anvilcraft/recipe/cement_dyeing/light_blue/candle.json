@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "anvilcraft:light_blue_cement",
+  "ingredients": [
+    {
+      "items": "#minecraft:candles"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:light_blue_candle"
+    }
+  ]
+}

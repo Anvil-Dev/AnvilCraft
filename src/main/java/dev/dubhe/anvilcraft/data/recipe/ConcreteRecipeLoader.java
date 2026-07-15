@@ -10,16 +10,33 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
 import net.minecraft.core.HolderGetter;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.Tags;
 
+import java.util.List;
 import java.util.Map;
 
 public class ConcreteRecipeLoader {
+    private static final List<DyeableFamily> DYEABLE_FAMILIES = List.of(
+        new DyeableFamily("wool", ItemTags.WOOL, "wool"),
+        new DyeableFamily("wool_carpet", ItemTags.WOOL_CARPETS, "carpet"),
+        new DyeableFamily("bed", ItemTags.BEDS, "bed"),
+        new DyeableFamily("candle", ItemTags.CANDLES, "candle"),
+        new DyeableFamily("terracotta", ItemTags.TERRACOTTA, "terracotta"),
+        new DyeableFamily("glazed_terracotta", Tags.Items.GLAZED_TERRACOTTAS, "glazed_terracotta"),
+        new DyeableFamily("stained_glass", Tags.Items.GLASS_BLOCKS_CHEAP, "stained_glass"),
+        new DyeableFamily("stained_glass_pane", Tags.Items.GLASS_PANES, "stained_glass_pane"),
+        new DyeableFamily("concrete", Tags.Items.CONCRETES, "concrete"),
+        new DyeableFamily("concrete_powder", Tags.Items.CONCRETE_POWDERS, "concrete_powder")
+    );
+
     public static void init(RegistrumRecipeProvider provider) {
         initConcrete(provider);
         initCementStaining(provider);
+        initCementDyeing(provider);
     }
 
     private static void initConcrete(RegistrumRecipeProvider provider) {
@@ -56,5 +73,29 @@ public class ConcreteRecipeLoader {
                 .requires(color.dyeItem())
                 .save(provider, AnvilCraft.of("cement_staining/%s".formatted(color.getSerializedName())));
         }
+    }
+
+    private static void initCementDyeing(RegistrumRecipeProvider provider) {
+        HolderGetter<Item> items = provider.getItems();
+        for (Color color : Color.values()) {
+            String colorName = color.getSerializedName();
+            CementCauldronBlock cauldron = ModBlocks.CEMENT_CAULDRONS.get(color).get();
+            for (DyeableFamily family : DYEABLE_FAMILIES) {
+                Item result = BuiltInRegistries.ITEM.getValue(
+                    Identifier.withDefaultNamespace("%s_%s".formatted(colorName, family.resultSuffix()))
+                );
+                BulgingRecipe.builder()
+                    .cauldron(cauldron)
+                    .requires(items, family.ingredients())
+                    .result(result)
+                    .save(
+                        provider,
+                        AnvilCraft.of("cement_dyeing/%s/%s".formatted(colorName, family.recipeName()))
+                    );
+            }
+        }
+    }
+
+    private record DyeableFamily(String recipeName, TagKey<Item> ingredients, String resultSuffix) {
     }
 }

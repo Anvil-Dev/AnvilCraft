@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "anvilcraft:cyan_cement",
+  "ingredients": [
+    {
+      "items": "#c:glass_panes"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:cyan_stained_glass_pane"
+    }
+  ]
+}

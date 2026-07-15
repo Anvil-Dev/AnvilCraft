@@ -23,6 +23,7 @@ import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DischargerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.ExpCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
@@ -96,6 +97,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeFluidTankRendere
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.DischargerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.DrainBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.ExpCollectorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FluidTankRenderer;
@@ -133,6 +135,12 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<ItemCollectorBlockEntity> ITEM_COLLECTOR = REGISTRUM
         .blockEntity("item_collector", ItemCollectorBlockEntity::new)
         .validBlock(ModBlocks.ITEM_COLLECTOR)
+        .register();
+
+    public static final BlockEntityEntry<ExpCollectorBlockEntity> EXP_COLLECTOR = REGISTRUM
+        .blockEntity("exp_collector", ExpCollectorBlockEntity::new)
+        .validBlock(ModBlocks.EXP_COLLECTOR)
+        .renderer(() -> ExpCollectorBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<ItemDetectorBlockEntity> ITEM_DETECTOR = REGISTRUM

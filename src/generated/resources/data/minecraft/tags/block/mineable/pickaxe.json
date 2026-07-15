@@ -52,6 +52,7 @@
     "anvilcraft:batch_crafter",
     "anvilcraft:batch_cutter",
     "anvilcraft:item_collector",
+    "anvilcraft:exp_collector",
     "anvilcraft:charger",
     "anvilcraft:discharger",
     "anvilcraft:active_silencer",

@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.api.world.load.RandomChuckTickLoadManager;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
+import dev.dubhe.anvilcraft.block.entity.ExpCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModHammerInits;
 import dev.dubhe.anvilcraft.inventory.state.StorageMenuState;
@@ -28,6 +29,7 @@ public class ServerLifecycleEventListener {
         ModHammerInits.init();
         HammerManager.register();
         LevelLoadManager.notifyServerStarted();
+        ExpCollectorBlockEntity.clearPoachingCollectors();
         ItemCollectorBlockEntity.clearPoachingCollectors();
     }
 
@@ -57,6 +59,7 @@ public class ServerLifecycleEventListener {
         FluidNetworkManager.INSTANCE.clear();
         SoundHelper.INSTANCE.clear();
         StorageMenuState.clear();
+        ExpCollectorBlockEntity.clearPoachingCollectors();
         ItemCollectorBlockEntity.clearPoachingCollectors();
         LaserGunItem.clearStates();
     }

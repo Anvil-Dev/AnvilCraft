@@ -118,6 +118,7 @@ import dev.dubhe.anvilcraft.block.power.batch.BaseBatchCraftingBlock;
 import dev.dubhe.anvilcraft.block.power.batch.BatchCrafterBlock;
 import dev.dubhe.anvilcraft.block.power.batch.BatchCutterBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.DischargerBlock;
+import dev.dubhe.anvilcraft.block.power.consumer.ExpCollectorBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.HeaterBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.power.consumer.ItemCollectorBlock;
@@ -1141,6 +1142,16 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::itemCollector)
         .register();
 
+    public static final BlockEntry<ExpCollectorBlock> EXP_COLLECTOR = REGISTRUM
+        .block("exp_collector", ExpCollectorBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
+        .simpleItem()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::expCollector)
+        .register();
+
     public static final BlockEntry<ChargerBlock> CHARGER = REGISTRUM.block("charger", ChargerBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
@@ -1383,7 +1394,7 @@ public class ModBlocks {
         .loot(FlexibleMultiPartBlock::loot)
         .tag(BlockTags.MINEABLE_WITH_AXE)
         .item(TradingStationBlockItem::new)
-        .model(DataGenUtil::onlyInfo)
+        .model(() -> DataGenUtil.blockItem())
         .build()
         .recipe(RegistrumBlockRecipeLoader::tradingStation)
         .register();
@@ -3386,7 +3397,7 @@ public class ModBlocks {
 
     public static final BlockEntry<ExcitedStateVoidMatterBlock> EXCITED_STATE_VOID_MATTER_BLOCK = REGISTRUM
         .block("excited_state_void_matter_block", ExcitedStateVoidMatterBlock::new)
-        .lang("Excited State Void Matter")
+        .lang("Excited State Void Matter Block")
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
         .properties(BlockBehaviour.Properties::noOcclusion)
         .blockstate(DataGenUtil::onlyState)

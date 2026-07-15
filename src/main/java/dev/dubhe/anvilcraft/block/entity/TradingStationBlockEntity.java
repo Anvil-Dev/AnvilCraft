@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.TradingStationBlock;
 import dev.dubhe.anvilcraft.block.state.DirectionVertical2PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -11,6 +12,7 @@ import dev.dubhe.anvilcraft.inventory.TradingStationMenu;
 import dev.dubhe.anvilcraft.inventory.container.FilterOnlyContainer;
 import dev.dubhe.anvilcraft.item.property.component.FilterContent;
 import dev.dubhe.anvilcraft.mixin.accessor.VillagerAccessor;
+import dev.dubhe.anvilcraft.saved.trading.TradingStationMessageManager;
 import it.unimi.dsi.fastutil.ints.Int2IntArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import lombok.Getter;
@@ -27,6 +29,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.npc.villager.Villager;
@@ -40,6 +43,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -61,6 +65,8 @@ public class TradingStationBlockEntity extends BlockEntity
     public static final String FILTERS_NBT_ID = "Filters";
     public static final String ALLOW_PLAYER_NBT_ID = "AllowPlayer";
     public static final String ALLOW_VILLAGER_NBT_ID = "AllowVillager";
+    public static final String ALLOW_INPUT_NBT_ID = "AllowInput";
+    public static final String ALLOW_OUTPUT_NBT_ID = "AllowOutput";
 
     private final FilteredItemStackHandler handler = new FilteredItemStackHandler(12) {
         @Override
@@ -155,6 +161,8 @@ public class TradingStationBlockEntity extends BlockEntity
         this.filters.serialize(output.child(FILTERS_NBT_ID));
         output.putBoolean(ALLOW_PLAYER_NBT_ID, this.playerAllowed);
         output.putBoolean(ALLOW_VILLAGER_NBT_ID, this.villagerAllowed);
+        output.putBoolean(ALLOW_INPUT_NBT_ID, this.inputAllowed);
+        output.putBoolean(ALLOW_OUTPUT_NBT_ID, this.outputAllowed);
     }
 
     @Override
@@ -165,12 +173,24 @@ public class TradingStationBlockEntity extends BlockEntity
         input.child(FILTERS_NBT_ID).ifPresent(this.filters::deserialize);
         this.playerAllowed = input.getBooleanOr(ALLOW_PLAYER_NBT_ID, false);
         this.villagerAllowed = input.getBooleanOr(ALLOW_VILLAGER_NBT_ID, false);
+        this.inputAllowed = input.getBooleanOr(ALLOW_INPUT_NBT_ID, false);
+        this.outputAllowed = input.getBooleanOr(ALLOW_OUTPUT_NBT_ID, false);
         TradingStationBlockEntity.popoutInvalidItems(this.getLevel(), this.getBlockPos(), this.handler);
     }
 
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        TagValueOutput output = TagValueOutput.createWithContext(
+            new ProblemReporter.Collector(this.problemPath()),
+            registries
+        );
+        this.saveAdditional(output);
+        return output.buildResult();
     }
 
     @Override
@@ -196,6 +216,8 @@ public class TradingStationBlockEntity extends BlockEntity
         this.handler.serializeFiltering(output.child(STORAGE_FILTERING_NBT_ID));
         output.putBoolean(ALLOW_PLAYER_NBT_ID, this.playerAllowed);
         output.putBoolean(ALLOW_VILLAGER_NBT_ID, this.villagerAllowed);
+        output.putBoolean(ALLOW_INPUT_NBT_ID, this.inputAllowed);
+        output.putBoolean(ALLOW_OUTPUT_NBT_ID, this.outputAllowed);
     }
 
     @Override
@@ -213,6 +235,8 @@ public class TradingStationBlockEntity extends BlockEntity
         input.child(STORAGE_FILTERING_NBT_ID).ifPresent(this.handler::deserializeFiltering);
         this.playerAllowed = input.getBooleanOr(ALLOW_PLAYER_NBT_ID, false);
         this.villagerAllowed = input.getBooleanOr(ALLOW_VILLAGER_NBT_ID, false);
+        this.inputAllowed = input.getBooleanOr(ALLOW_INPUT_NBT_ID, false);
+        this.outputAllowed = input.getBooleanOr(ALLOW_OUTPUT_NBT_ID, false);
         TradingStationBlockEntity.popoutInvalidItems(this.getLevel(), this.getBlockPos(), this.handler);
         TradingStationBlockEntity.updateAndSend(this);
     }
@@ -496,6 +520,14 @@ public class TradingStationBlockEntity extends BlockEntity
         if (level == null) return;
         if (this.owner == null) this.owner = owner;
         TradingStationBlockEntity.updateAndSend(this);
+    }
+
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        super.preRemoveSideEffects(pos, state);
+        if (!(this.level instanceof ServerLevel serverLevel)) return;
+        ItemHandlerUtil.dropAllToPos(this.handler, serverLevel, pos.getCenter());
+        TradingStationMessageManager.get().onNonPlayerBreak(serverLevel, pos);
     }
 
     @Override

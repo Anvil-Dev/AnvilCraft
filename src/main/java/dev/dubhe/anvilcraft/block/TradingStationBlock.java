@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
-import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.TradingStationBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
@@ -159,15 +158,6 @@ public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertica
             TradingStationMessageManager.get().onPlayerBreak(serverside, this.getMainPartPos(pos, state), player);
         }
         return super.onDestroyedByPlayer(state, level, pos, player, tool, willHarvest, fluid);
-    }
-
-    @Override
-    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
-        if (level.getBlockEntity(pos) instanceof TradingStationBlockEntity be) {
-            ItemHandlerUtil.dropAllToPos(be.getHandler(), level, pos.getCenter());
-            TradingStationMessageManager.get().onNonPlayerBreak(level, pos);
-        }
-        super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
     }
 
     public Collection<BlockState> getBottomStates() {

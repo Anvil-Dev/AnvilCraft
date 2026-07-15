@@ -364,6 +364,8 @@ public class ItemTooltipManager {
             "Stores 320 buckets of fluid, reaches infinite capacity when paired with Menger Sponges"
         );
         NORMAL.put(ModBlocks.DRAIN.asItem(), "Transfers fluid vertically, outputting downward and drawing from above");
+        NORMAL.put(ModBlocks.REDSTONE_WIRE.asItem(), "Transmit redstone signals more precisely");
+        NORMAL.put(ModBlocks.TRADING_STATION.asItem(), "Trading platform for players and villagers");
         NORMAL.put(
             ModBlocks.CORRUPTED_BEACON.asItem(),
             "Releases the wither power within the beacon, its beam accelerates time flow or causes mutations"
@@ -572,6 +574,19 @@ public class ItemTooltipManager {
                 Draining: when more than 1 B is stored and there is space below, outputs fluid downward and fills the entire space from the bottom up
                 Suction: when less than 3 B is stored and the same fluid is above, draws fluid from above and can empty the entire space above
                 Does not interact with fluid at the same height; fluid can be stored for free only when it forms an infinite source"""
+        );
+        SHIFT.put(
+            ModBlocks.REDSTONE_WIRE.asItem(), """
+                It can be attached to any full face of a block,
+                only inputs and outputs redstone signals at its breaks (ends)
+                The redstone signal level does not decay within the wire,
+                and the wire will not output the signal received from redstone dust back to redstone dust"""
+        );
+        SHIFT.put(
+            ModBlocks.TRADING_STATION.asItem(), """
+                Can be set to trade with players or villagers
+                Villagers will actively trade with stations that have valid offers and fair prices
+                Has 12 slots for temporary item storage"""
         );
         SHIFT.put(
             ModItems.DRAGON_ROD.asItem(),

@@ -5,7 +5,6 @@ import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.block.TradingStationBlock;
 import dev.dubhe.anvilcraft.block.entity.TradingStationBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.TradingStationRenderState;
-import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -16,6 +15,7 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.Direction;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -26,6 +26,7 @@ import java.util.List;
 
 public class TradingStationBlockEntityRenderer
     implements BlockEntityRenderer<TradingStationBlockEntity, TradingStationRenderState> {
+    private static final int ITEM_LIGHT = 0xFFFFFF;
     private final ItemModelResolver itemModelResolver;
 
     public TradingStationBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
@@ -50,7 +51,17 @@ public class TradingStationBlockEntityRenderer
         for (int i = 0; i < 2; i++) {
             ItemStack stack = be.getFilters().getItem(i);
             if (!stack.isEmpty()) {
-                items.add(FeatureRendererSupport.initialize(stack, this.itemModelResolver));
+                ItemClusterRenderState item = new ItemClusterRenderState();
+                item.seed = ItemClusterRenderState.getSeedForItemStack(stack);
+                this.itemModelResolver.updateForTopItem(
+                    item.item,
+                    stack,
+                    ItemDisplayContext.GROUND,
+                    be.getLevel(),
+                    null,
+                    item.seed
+                );
+                items.add(item);
             }
         }
         state.setItems(items);
@@ -74,8 +85,7 @@ public class TradingStationBlockEntityRenderer
                 items.getFirst(),
                 0.5F,
                 0.5F,
-                state.getRotation(),
-                state.lightCoords
+                state.getRotation()
             );
         } else {
             Direction dir = state.getFacing();
@@ -87,8 +97,7 @@ public class TradingStationBlockEntityRenderer
                 items.getFirst(),
                 dir.getAxis() == Direction.Axis.X ? firstOffset : 0.5F,
                 dir.getAxis() == Direction.Axis.Z ? firstOffset : 0.5F,
-                state.getRotation(),
-                state.lightCoords
+                state.getRotation()
             );
             renderItem(
                 pose,
@@ -96,8 +105,7 @@ public class TradingStationBlockEntityRenderer
                 items.get(1),
                 dir.getAxis() == Direction.Axis.X ? secondOffset : 0.5F,
                 dir.getAxis() == Direction.Axis.Z ? secondOffset : 0.5F,
-                state.getRotation(),
-                state.lightCoords
+                state.getRotation()
             );
         }
     }
@@ -108,8 +116,7 @@ public class TradingStationBlockEntityRenderer
         ItemClusterRenderState cluster,
         float x,
         float z,
-        float rotation,
-        int light
+        float rotation
     ) {
         pose.pushPose();
         pose.translate(x, 1.0F, z);
@@ -119,7 +126,7 @@ public class TradingStationBlockEntityRenderer
             pose.scale(0.85F, 0.85F, 0.85F);
         }
         pose.mulPose(Axis.YP.rotationDegrees(rotation));
-        item.submit(pose, collector, light, OverlayTexture.NO_OVERLAY, cluster.outlineColor);
+        item.submit(pose, collector, ITEM_LIGHT, OverlayTexture.NO_OVERLAY, cluster.outlineColor);
         pose.popPose();
     }
 

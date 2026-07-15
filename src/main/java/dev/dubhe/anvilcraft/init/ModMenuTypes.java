@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.EmberAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberSmithingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EnergyWeaponMakeScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.ExpCollectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.FilterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.FrostAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.FrostGrindstoneScreen;
@@ -43,6 +44,7 @@ import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
 import dev.dubhe.anvilcraft.inventory.EnergyWeaponMakeMenu;
+import dev.dubhe.anvilcraft.inventory.ExpCollectorMenu;
 import dev.dubhe.anvilcraft.inventory.FilterMenu;
 import dev.dubhe.anvilcraft.inventory.FrostAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.FrostGrindstoneMenu;
@@ -115,6 +117,9 @@ public class ModMenuTypes {
         .register();
     public static final MenuEntry<ItemCollectorMenu> ITEM_COLLECTOR = REGISTRUM
         .menu("item_collector", ItemCollectorMenu::new, () -> ItemCollectorScreen::new)
+        .register();
+    public static final MenuEntry<ExpCollectorMenu> EXP_COLLECTOR = REGISTRUM
+        .menu("exp_collector", ExpCollectorMenu::new, () -> ExpCollectorScreen::new)
         .register();
     public static final MenuEntry<ItemDetectorMenu> ITEM_DETECTOR = REGISTRUM
         .menu("item_detector", ItemDetectorMenu::new, () -> ItemDetectorScreen::new)

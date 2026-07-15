@@ -10,6 +10,7 @@ public class LangHandler {
         JadeLang.init(provider);
         WthitLang.init(provider);
         OtherLang.init(provider);
+        MessageLang.init(provider);
         ScreenLang.init(provider);
         JeiLang.init(provider);
         EnchantmentDescriptionsLang.init(provider);

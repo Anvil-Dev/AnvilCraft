@@ -276,10 +276,13 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
         ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
         super.appendHoverText(stack, context, display, builder, tooltipFlag);
         int energy = getEnergyStored(stack);
-        int flightSeconds = energy / FLIGHT_CONSUMPTION / 20;
+        int totalSeconds = energy / FLIGHT_CONSUMPTION / 20;
+        int minutes = totalSeconds / 60;
+        int seconds = totalSeconds % 60;
         builder.accept(Component.translatable(
             "item.anvilcraft.ionocraft_backpack.flight_time",
-            Component.literal(String.valueOf(flightSeconds)).withStyle(ChatFormatting.GOLD)
+            Component.literal(String.valueOf(minutes)).withStyle(ChatFormatting.GOLD),
+            Component.literal(String.valueOf(seconds)).withStyle(ChatFormatting.GOLD)
         ).withStyle(ChatFormatting.GRAY));
     }
 }

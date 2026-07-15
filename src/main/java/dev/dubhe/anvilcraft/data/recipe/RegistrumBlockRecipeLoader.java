@@ -2506,6 +2506,35 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Block> void expCollector(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
+            .pattern("ABA")
+            .pattern(" C ")
+            .pattern("ADA")
+            .define('A', ModItems.ROYAL_STEEL_INGOT)
+            .define('B', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
+            .define('C', Blocks.SCULK_CATALYST)
+            .define('D', ModBlocks.FLUID_TANK)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.ROYAL_STEEL_INGOT),
+                AnvilCraftDatagen.has(lookup, ModItems.ROYAL_STEEL_INGOT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK),
+                AnvilCraftDatagen.has(lookup, ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Blocks.SCULK_CATALYST),
+                AnvilCraftDatagen.has(lookup, Blocks.SCULK_CATALYST)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.FLUID_TANK),
+                AnvilCraftDatagen.has(lookup, ModBlocks.FLUID_TANK)
+            )
+            .save(provider);
+    }
+
     public static <T extends Block> void tradingStation(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())

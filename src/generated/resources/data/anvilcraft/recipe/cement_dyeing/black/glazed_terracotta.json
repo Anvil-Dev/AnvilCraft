@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "anvilcraft:black_cement",
+  "ingredients": [
+    {
+      "items": "#c:glazed_terracottas"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:black_glazed_terracotta"
+    }
+  ]
+}

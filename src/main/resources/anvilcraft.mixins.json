@@ -29,6 +29,7 @@
     "EnchantmentPredicateMixin",
     "EnchantmentsPredicateMixin",
     "EntityMixin",
+    "ExperienceOrbMixin",
     "FallingBlockEntityMixin",
     "FallingBlockMixin",
     "FlyingHitEntityMixin",
