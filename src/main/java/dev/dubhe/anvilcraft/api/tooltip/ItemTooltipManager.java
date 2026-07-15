@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.resources.language.I18n;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
@@ -54,7 +55,7 @@ public class ItemTooltipManager {
         NORMAL.put(
             ModBlocks.ROYAL_ANVIL.asItem(), """
                 Never triggers Too Expensive
-                Indestructible with broad compatibility""");
+                Explosion proof, does not degrade from falling""");
         NORMAL.put(ModBlocks.ROYAL_GRINDSTONE.asItem(), "Removes curses and enchantment penalties, Explosion proof");
         NORMAL.put(ModBlocks.ROYAL_SMITHING_TABLE.asItem(), "Does not consume Smithing Templates, Explosion proof");
         NORMAL.put(ModBlocks.HEATER.asItem(), "Heating the block above, consumes 16 kW");
@@ -112,8 +113,9 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.ITEM_COLLECTOR.asItem(), "Adjust power consumption based on range and cooling, from 2kW to 32kW");
         NORMAL.put(
             ModBlocks.EMBER_ANVIL.asItem(), """
-               Enhanced compatibility with a soul seemingly hidden deep within; Anvil Looting can obtain player-only drops
-               Indestructible and Wither proof""");
+               Enhanced compatibility with a soul seemingly hidden deep within
+               Anvil Looting can obtain player-only drops
+               Wither proof, does not degrade from falling""");
         NORMAL.put(ModBlocks.EMBER_GRINDSTONE.asItem(), "Extracts enchantments onto books, Wither proof");
         NORMAL.put(ModBlocks.EMBER_SMITHING_TABLE.asItem(), "All-in-one combination smithing, Wither proof");
         NORMAL.put(ModBlocks.EMBER_METAL_BLOCK.asItem(), "A large block of Netherite tempered in fire for eons, Wither proof");
@@ -287,12 +289,12 @@ public class ItemTooltipManager {
         NORMAL.put(
             ModBlocks.FROST_ANVIL.asItem(), """
             Slower enchantment penalty growth, repairs any item with Frost Metal, free renaming
-            Indestructible and Explosion proof"""
+            Explosion proof, does not degrade from falling"""
         );
         NORMAL.put(
             ModBlocks.TRANSCENDENCE_ANVIL.asItem(), """
             Ignores enchantment level limits, and Anvil Looting produces additional drops
-            Indestructible; its drops are also immune to most forms of destruction""");
+            Immune to most destruction methods, does not degrade from falling""");
         NORMAL.put(ModBlocks.TRANSCENDENCE_DECO_BLOCK.asItem(), "Transcendium decorative block; its low Transcendium content means it is not indestructible");
         NORMAL.put(ModBlocks.TRANSCENDENCE_DECO_OUTLINE.asItem(), "Transcendium decorative block; its low Transcendium content means it is not indestructible");
         NORMAL.put(ModBlocks.FROST_GRINDSTONE.asItem(), "Selectively removes individual enchantments, Explosion proof");
@@ -399,6 +401,12 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.ANVIL_RAILGUN.get(), "Hold right-click to consumes power to charge up and launch a high-speed anvil");
         NORMAL.put(ModItems.SPECTRAL_SLINGSHOT.get(), "Hold right-click to consume power and fires spectral weapons");
         NORMAL.put(ModItems.ENERGY_WEAPON_PLATFORM.get(), "640 MFE stored, but will only inherit the result of Energy Weapon Making");
+        NORMAL.put(
+            ModBlocks.INFINITE_COLLECTOR.asItem(), """
+            Generates power by collecting both heat and charge, no upper power limit
+            Provides a baseline output of 256 kW"""
+        );
+        NORMAL.put(ModBlocks.LOAD_MONITOR.asItem(), "Monitor the grid load condition, can output a signal by redstone comparator");
 
         SHIFT.put(
             ModItems.LASER_GUN.get(), """
@@ -649,16 +657,16 @@ public class ItemTooltipManager {
                     tooltip.add(1, Component.literal("Frost (light blue): drops Experience Gems instead of ores, 10% chance per mined block; Core Shard Ore and Void Stone also convert to EXP").withColor(0xB4F0F6));
                     tooltip.add(1, Component.literal("Royal (cyan): drops raw ore blocks instead of raw materials, including Core Shard Ore and Void Stone").withColor(0x00FFBF));
                 } else {
-                    tooltip.add(1, getItemTooltipShift(item));
+                    addShiftTooltip(tooltip, item);
                 }
             } else {
                 if (NORMAL.containsKey(item)) {
-                    tooltip.add(1, getItemTooltip(item));
+                    addNormalTooltip(tooltip, item);
                 }
                 tooltip.add(1, Component.translatable("tooltip.anvilcraft.press_key", Component.literal("[Shift]").withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.DARK_GRAY));
             }
         } else if (NORMAL.containsKey(item)) {
-            tooltip.add(1, getItemTooltip(item));
+            addNormalTooltip(tooltip, item);
         }
         if (stack.is(ModBlocks.POWER_CONVERTER_SMALL.asItem())) {
             tooltip.add(
@@ -697,18 +705,31 @@ public class ItemTooltipManager {
         }
     }
 
-    private static Component getItemTooltip(Item item) {
-        return Component.translatable(getTranslationKey(item)).withStyle(ChatFormatting.GRAY);
+    /**
+     * 添加翻译后的tooltip，自动将 \n 拆分为多行
+     */
+    private static void addTranslatedTooltip(List<Component> tooltip, String key) {
+        String text = I18n.get(key);
+        String[] lines = text.split("\n");
+        for (int i = lines.length - 1; i >= 0; i--) {
+            tooltip.add(1, Component.literal(lines[i]).withStyle(ChatFormatting.GRAY));
+        }
     }
 
-    private static Component getItemTooltipShift(Item item) {
+    private static void addNormalTooltip(List<Component> tooltip, Item item) {
+        addTranslatedTooltip(tooltip, getTranslationKey(item));
+    }
+
+    private static void addShiftTooltip(List<Component> tooltip, Item item) {
         if (item == ModItems.PILL_BOX.asItem()) {
-            return Component.translatable(
+            tooltip.add(
+                1, Component.translatable(
                 getTranslationKeyShift(item),
                 Component.keybind("key.anvilcraft.use_pill_box")
-            ).withStyle(ChatFormatting.GRAY);
+            ).withStyle(ChatFormatting.GRAY));
+            return;
         }
-        return Component.translatable(getTranslationKeyShift(item)).withStyle(ChatFormatting.GRAY);
+        addTranslatedTooltip(tooltip, getTranslationKeyShift(item));
     }
 
     public static String getTranslationKey(Item item) {
