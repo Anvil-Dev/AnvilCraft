@@ -10,8 +10,8 @@ import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
 import dev.dubhe.anvilcraft.util.WatchableCyclingValue;
+import lombok.AccessLevel;
 import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -51,8 +51,11 @@ public class ItemCollectorBlockEntity extends BlockEntity
     IDiskCloneable,
     IHasAffectRange,
     IItemHandlerHolder {
-    @Setter
+    private static final int POACHING_POWER_GRACE_TICKS = 2;
+
     private PowerGrid grid;
+    @Getter(AccessLevel.NONE)
+    private long poachingPowerGraceEndTick = Long.MIN_VALUE;
 
     private final WatchableCyclingValue<Integer> rangeRadius = new WatchableCyclingValue<>(
         "rangeRadius", thiz -> this.setChanged(),
@@ -108,6 +111,19 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public BlockPos getPos() {
         return this.getBlockPos();
+    }
+
+    @Override
+    public void setGrid(@Nullable PowerGrid grid) {
+        if (grid == null && this.grid != null && this.grid.isWorking() && this.level != null) {
+            this.poachingPowerGraceEndTick = this.level.getGameTime() + POACHING_POWER_GRACE_TICKS;
+        }
+        this.grid = grid;
+    }
+
+    public boolean canPoach() {
+        return this.isGridWorking()
+            || this.level != null && this.level.getGameTime() < this.poachingPowerGraceEndTick;
     }
 
     private static final Map<Integer, Map<Integer, Integer>> POWER_CONSUMPTION = Map.of(

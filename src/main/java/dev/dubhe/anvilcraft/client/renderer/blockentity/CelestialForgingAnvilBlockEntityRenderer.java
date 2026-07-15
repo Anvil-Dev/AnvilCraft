@@ -1138,13 +1138,13 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     private static final int BEAM_GLOW_LAYERS = 4;
     private static final float BEAM_GLOW_HALF_STEP = 0.06f; /// 每层相对核心额外加宽的半宽
 
-    /// 延迟渲染队列：托举光束在 AFTER_WEATHER 阶段渲染以解决云层遮挡
+    /// 延迟渲染队列：托举光束在 AFTER_LEVEL 阶段渲染以解决云层遮挡
     private static final java.util.List<TractorBeamData> deferredTractorBeams = new java.util.ArrayList<>();
 
     private record TractorBeamData(BlockPos pos, float beamHeight, float animProgress) {}
 
     /**
-     * 在 AFTER_WEATHER 阶段由 RenderEventListener 调用，渲染所有延迟托举光束。
+     * 在 AFTER_LEVEL 阶段由 RenderEventListener 调用，渲染所有延迟托举光束。
      */
     public static void renderDeferredTractorBeams(PoseStack poseStack, MultiBufferSource bufferSource, Vec3 camera) {
         if (deferredTractorBeams.isEmpty()) return;
