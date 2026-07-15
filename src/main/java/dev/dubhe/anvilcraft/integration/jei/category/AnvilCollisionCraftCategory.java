@@ -1,8 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
-import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
@@ -12,6 +10,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.BlockTagUtil;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
@@ -22,6 +21,7 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
@@ -48,6 +48,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder<AnvilCollisionCraftRecipe>> {
+    private static final String HIT_BLOCK = "hit_block";
+    private static final String TRANSFORM_INPUT_BLOCK = "transform_input_block";
+    private static final String TRANSFORM_OUTPUT_BLOCK = "transform_output_block";
+
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -125,32 +129,50 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
             JeiSlotUtil.addOutputSlots(builder, chanceItemStacks);
         }
 
-        // 将被撞击的方块加入addInvisibleIngredients中
-        builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addIngredients(
-            Ingredient.of(
-                recipe.hitBlock().getBlocks().stream().map(
-                    blockHolder -> new ItemStack(blockHolder.value())
-                )
-            )
-        );
+        // Clickable slots use transparent renderers so the custom block previews stay visible.
+        JeiBlockIngredientUtil.addInputSlot(builder, HIT_BLOCK, 70, 24, 18, 18, recipe.hitBlock());
 
-        // 将转换方块加入addInvisibleIngredients中
         if (!recipe.transformBlocks().isEmpty()) {
-            BlockStatePredicate inputBlock = recipe.transformBlocks().getLast().inputBlock();
-            builder.addInvisibleIngredients(RecipeIngredientRole.INPUT).addIngredients(
-                Ingredient.of(inputBlock.getBlocks().stream().map(
-                    blockHolder -> new ItemStack(blockHolder.value()))
-                )
+            boolean hasItemOutputs = !recipe.outputItems().isEmpty();
+            int x = hasItemOutputs ? 102 : 110;
+            int inputHeight = hasItemOutputs ? 10 : 18;
+            int outputY = hasItemOutputs ? 10 : 43;
+            int outputHeight = hasItemOutputs ? 10 : 18;
+            JeiBlockIngredientUtil.addSlot(
+                builder,
+                RecipeIngredientRole.INPUT,
+                TRANSFORM_INPUT_BLOCK,
+                x,
+                0,
+                18,
+                inputHeight,
+                recipe.transformBlocks().stream()
+                    .flatMap(transform -> transform.inputBlock().getBlocks().stream())
+                    .map(block -> new ItemStack(block.value()))
+                    .toList()
             );
-
-            builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT).addIngredients(
-                Ingredient.of(
-                    recipe.transformBlocks().stream().map(
-                        blockTransform -> new ItemStack(blockTransform.outputBlock().state().getBlock())
-                    )
-                )
+            JeiBlockIngredientUtil.addSlot(
+                builder,
+                RecipeIngredientRole.OUTPUT,
+                TRANSFORM_OUTPUT_BLOCK,
+                x,
+                outputY,
+                18,
+                outputHeight,
+                recipe.transformBlocks().stream()
+                    .map(transform -> new ItemStack(transform.outputBlock().state().getBlock()))
+                    .toList()
             );
         }
+    }
+
+    @Override
+    public void createRecipeExtras(
+        IRecipeExtrasBuilder builder,
+        RecipeHolder<AnvilCollisionCraftRecipe> recipeHolder,
+        IFocusGroup focuses
+    ) {
+        JeiBlockIngredientUtil.suppressHoverOverlays(builder);
     }
 
     @Override
@@ -166,10 +188,11 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
         // explosion
         explosion.draw(guiGraphics, 72, 16);
 
-        for (int i = recipe.hitBlock().getBlocks().size() - 1; i >= 0; i--) {
-            List<BlockState> input = recipe.hitBlock().constructStatesForRender();
-            if (input.isEmpty()) continue;
-            BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
+        List<BlockState> hitBlockStates = recipe.hitBlock().constructStatesForRender();
+        if (!hitBlockStates.isEmpty()) {
+            BlockState renderedState = JeiBlockIngredientUtil
+                .getDisplayedState(recipeSlotsView, HIT_BLOCK, hitBlockStates)
+                .orElse(hitBlockStates.getFirst());
             // 特判: 如果是大铁砧 则将BlockState改为cube=center,half=mid_center 并修改scale使其大小合理
             // 建议下次写类似大铁砧的方块的时候 把registerDefaultState注册成有材质的中心位置
             // 当然也可以不RenderHelper.renderBlock 直接加进setRecipe的输入输出槽当物品看
@@ -197,11 +220,12 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
             if (!recipe.transformBlocks().isEmpty() && recipe.outputItems().isEmpty()) {
                 List<BlockTransform> blockTransforms = recipe.transformBlocks();
                 for (BlockTransform blockTransform : blockTransforms) {
-                    BlockStatePredicate inputBlock = blockTransform.inputBlock();
-                    List<BlockState> inputBlockState = inputBlock.constructStatesForRender();
-                    BlockState inputBlockRenderedState = inputBlockState.get(
-                        (int) ((System.currentTimeMillis() / 1000) % inputBlockState.size())
-                    );
+                    List<BlockState> inputBlockStates = recipe.transformBlocks().stream()
+                        .flatMap(transform -> transform.inputBlock().constructStatesForRender().stream())
+                        .toList();
+                    BlockState inputBlockRenderedState = JeiBlockIngredientUtil
+                        .getDisplayedState(recipeSlotsView, TRANSFORM_INPUT_BLOCK, inputBlockStates)
+                        .orElse(inputBlockStates.getFirst());
                     RenderSupport.renderBlock(
                         guiGraphics,
                         inputBlockRenderedState,
@@ -212,8 +236,12 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                         RenderSupport.SINGLE_BLOCK
                     );
 
-                    ChanceBlockState outputBlock = blockTransform.outputBlock();
-                    BlockState outputBlockState = outputBlock.state();
+                    List<BlockState> outputBlockStates = recipe.transformBlocks().stream()
+                        .map(transform -> transform.outputBlock().state())
+                        .toList();
+                    BlockState outputBlockState = JeiBlockIngredientUtil
+                        .getDisplayedState(recipeSlotsView, TRANSFORM_OUTPUT_BLOCK, outputBlockStates)
+                        .orElse(outputBlockStates.getFirst());
                     RenderSupport.renderBlock(
                         guiGraphics,
                         outputBlockState,
@@ -241,11 +269,12 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
             if (!recipe.transformBlocks().isEmpty() && !recipe.outputItems().isEmpty()) {
                 List<BlockTransform> blockTransforms = recipe.transformBlocks();
                 for (BlockTransform blockTransform : blockTransforms) {
-                    BlockStatePredicate inputBlock = blockTransform.inputBlock();
-                    List<BlockState> inputBlockState = inputBlock.constructStatesForRender();
-                    BlockState inputBlockRenderedState = inputBlockState.get(
-                        (int) ((System.currentTimeMillis() / 1000) % inputBlockState.size())
-                    );
+                    List<BlockState> inputBlockStates = recipe.transformBlocks().stream()
+                        .flatMap(transform -> transform.inputBlock().constructStatesForRender().stream())
+                        .toList();
+                    BlockState inputBlockRenderedState = JeiBlockIngredientUtil
+                        .getDisplayedState(recipeSlotsView, TRANSFORM_INPUT_BLOCK, inputBlockStates)
+                        .orElse(inputBlockStates.getFirst());
                     RenderSupport.renderBlock(
                         guiGraphics,
                         inputBlockRenderedState,
@@ -256,8 +285,12 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                         RenderSupport.SINGLE_BLOCK
                     );
 
-                    ChanceBlockState outputBlock = blockTransform.outputBlock();
-                    BlockState outputBlockState = outputBlock.state();
+                    List<BlockState> outputBlockStates = recipe.transformBlocks().stream()
+                        .map(transform -> transform.outputBlock().state())
+                        .toList();
+                    BlockState outputBlockState = JeiBlockIngredientUtil
+                        .getDisplayedState(recipeSlotsView, TRANSFORM_OUTPUT_BLOCK, outputBlockStates)
+                        .orElse(outputBlockStates.getFirst());
                     RenderSupport.renderBlock(
                         guiGraphics,
                         outputBlockState,

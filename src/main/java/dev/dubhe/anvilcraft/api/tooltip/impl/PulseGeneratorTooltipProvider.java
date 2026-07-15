@@ -7,6 +7,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PulseGeneratorTooltipProvider extends ITooltipProvider.BlockEntityTooltipProvider {
@@ -26,7 +27,7 @@ public class PulseGeneratorTooltipProvider extends ITooltipProvider.BlockEntityT
         String reverseKey = pulseGenerator.isOutputInvert()
             ? "screen.anvilcraft.button.pulse_generator.reverse.on"
             : "screen.anvilcraft.button.pulse_generator.reverse.off";
-        return List.of(
+        List<Component> lines = new ArrayList<>(List.of(
             Component.translatable("tooltip.anvilcraft.pulse_generator.title").withStyle(ChatFormatting.BLUE),
             ITooltipProvider.withIndentAndMerge(Component.translatable(modeKey).withStyle(ChatFormatting.GRAY)),
             ITooltipProvider.withIndentAndMerge(Component.translatable(reverseKey).withStyle(ChatFormatting.GRAY)),
@@ -38,7 +39,14 @@ public class PulseGeneratorTooltipProvider extends ITooltipProvider.BlockEntityT
                 "tooltip.anvilcraft.pulse_generator.output_duration",
                 FormattingUtil.toFormattedTime(pulseGenerator.getSignalDuration(), 5)
             ).withStyle(ChatFormatting.GRAY))
-        );
+        ));
+        if (pulseGenerator.isProcessing()) {
+            lines.add(ITooltipProvider.withIndentAndMerge(Component.translatable(
+                "tooltip.anvilcraft.pulse_generator.remaining_time",
+                FormattingUtil.toFormattedTime(pulseGenerator.getPhaseRemainingTicks())
+            ).withStyle(ChatFormatting.GRAY)));
+        }
+        return lines;
     }
 
     @Override

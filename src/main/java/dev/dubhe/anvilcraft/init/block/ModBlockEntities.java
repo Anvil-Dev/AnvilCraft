@@ -105,6 +105,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankBlockEntit
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
@@ -326,7 +327,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<PulseGeneratorBlockEntity> PULSE_GENERATOR = REGISTRUM.blockEntity(
         "pulse_generator",
         PulseGeneratorBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.PULSE_GENERATOR).register();
+    ).validBlocks(ModBlocks.PULSE_GENERATOR).renderer(() -> PulseGeneratorBlockEntityRenderer::new).register();
 
     public static final BlockEntityEntry<AdvancedComparatorBlockEntity> ADVANCED_COMPARATOR = REGISTRUM.blockEntity(
         "advanced_comparator",

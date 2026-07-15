@@ -14,6 +14,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.MAGNET); // 手持磁铁
         this.plain(ModItems.DISK); // 磁盘
         this.plain(ModItems.STRUCTURE_DISK); // 结构磁盘
+        this.plain(ModItems.FILTER); // 过滤器
         this.plain(ModItems.ANVIL_HAMMER); // 铁砧锤
         this.plain(ModItems.ROYAL_ANVIL_HAMMER); // 皇家铁砧锤
         this.plain(ModItems.EMBER_ANVIL_HAMMER); // 余烬铁砧锤
@@ -51,11 +52,11 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.TRANSCENDENCE_HEAVY_HALBERD); // 超限重戟
         this.plain(ModItems.SPECTRAL_SLINGSHOT); // 幻灵弹弓
         this.plain(ModItems.ENERGY_WEAPON_PLATFORM); // 能量武器平台
-        this.energy(ModItems.SPECTRAL_WEAPON_LAUNCHER); // 幻灵武器发射器
-        this.energy(ModItems.ANVIL_RAILGUN); // 铁砧轨道炮
-        this.energy(ModItems.CORRUPTED_BEACON_ACTIVATOR); // 腐化信标激发器
-        this.energy(ModItems.TESLA_GUN); // 特斯拉枪
-        this.energy(ModItems.LASER_GUN); // 激光枪
+        this.plain(ModItems.SPECTRAL_WEAPON_LAUNCHER); // 幻灵武器发射器
+        this.plain(ModItems.ANVIL_RAILGUN); // 铁砧轨道炮
+        this.plain(ModItems.CORRUPTED_BEACON_ACTIVATOR); // 腐化信标激发器
+        this.plain(ModItems.TESLA_GUN); // 特斯拉枪
+        this.plain(ModItems.LASER_GUN); // 激光枪
         this.plain(ModItems.IONOCRAFT); // 飘升机
         this.ionoCraftBackpack(ModItems.IONOCRAFT_BACKPACK); // 飘升机背包
         this.plain(ModItems.CAPACITOR); // 电容器

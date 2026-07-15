@@ -194,8 +194,10 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
             if (be instanceof FishTankBlockEntity tank) {
                 IItemHandler handler = tank.getItemHandler();
                 for (int slot = 0; slot < handler.getSlots(); slot++) {
-                    ItemStack stack = handler.extractItem(slot, Integer.MAX_VALUE, false);
-                    if (!stack.isEmpty()) Block.popResource(level, pos, stack);
+                    ItemStack stack;
+                    while (!(stack = handler.extractItem(slot, Integer.MAX_VALUE, false)).isEmpty()) {
+                        Block.popResource(level, pos, stack);
+                    }
                 }
                 tank.dropFish();
             }

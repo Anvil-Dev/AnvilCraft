@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.command.MultiBlockCommand;
 import dev.dubhe.anvilcraft.command.MultiphaseCommand;
 import dev.dubhe.anvilcraft.command.OverseerCommand;
 import dev.dubhe.anvilcraft.command.PowergridCommand;
+import dev.dubhe.anvilcraft.command.TickSprintVoteCommand;
 import dev.dubhe.anvilcraft.init.ModInspections;
 import net.minecraft.commands.CommandSourceStack;
 
@@ -19,6 +20,7 @@ public class ModCommands {
         MultiphaseCommand.registerCommand(root);
         MultiBlockCommand.registerCommand(root);
         OverseerCommand.registerCommand(root);
+        TickSprintVoteCommand.registerCommand(root);
         dispatcher.register(root);
     }
 }

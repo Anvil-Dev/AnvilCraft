@@ -16,5 +16,14 @@ public class BlockLang {
             "block.anvilcraft.spacetime_supercomputer.tick_sprint_countdown_in_progress",
             "A Tick Sprint countdown is already in progress"
         );
+        provider.add(
+            "block.anvilcraft.spacetime_supercomputer.tick_sprint_confirmation",
+            "The Spacetime Supercomputer requested a Tick Sprint:"
+        );
+        provider.add("block.anvilcraft.spacetime_supercomputer.tick_sprint_allow", "✓ Allow");
+        provider.add("block.anvilcraft.spacetime_supercomputer.tick_sprint_allowed", "This command execution was allowed");
+        provider.add("block.anvilcraft.spacetime_supercomputer.tick_sprint_cancelled", "Tick Sprint command execution cancelled");
+        provider.add("block.anvilcraft.spacetime_supercomputer.tick_sprint_reject", "✗ Reject");
+        provider.add("block.anvilcraft.spacetime_supercomputer.tick_sprint_rejected", "This command execution was rejected");
     }
 }

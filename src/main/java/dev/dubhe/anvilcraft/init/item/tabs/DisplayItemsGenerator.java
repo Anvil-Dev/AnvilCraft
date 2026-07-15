@@ -4,11 +4,9 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.ItemLike;
 
@@ -34,16 +32,6 @@ public abstract class DisplayItemsGenerator implements CreativeModeTab.DisplayIt
             return;
         }
         this.output.accept(item);
-    }
-
-    public void energy(ItemLike item) {
-        if (this.output == null) {
-            return;
-        }
-        ItemStack stack = item.asItem().getDefaultInstance();
-        stack.set(ModComponents.STORED_ENERGY, 0);
-        stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(1));
-        this.output.accept(stack);
     }
 
     public void ionoCraftBackpack(ItemLike item) {

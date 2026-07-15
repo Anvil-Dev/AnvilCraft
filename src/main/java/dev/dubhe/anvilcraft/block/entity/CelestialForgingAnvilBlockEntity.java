@@ -19,9 +19,11 @@ import dev.dubhe.anvilcraft.block.entity.megastructure.ExcavatorHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.PenroseSphereHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.WormholeStabilizerHandler;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
+import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
@@ -49,6 +51,7 @@ import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -640,7 +643,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     }
 
     /// 销毁进入天体视觉边界内的实体。恒星用火焰伤害，行星用摔落伤害，
-    /// 非生物实体直接丢弃。黑洞使用特殊伤害类型。
+    /// 非生物实体直接丢弃，持有永恒物品的实体除外。黑洞使用特殊伤害类型。
     private void destroyEntitiesAtCenter() {
         if (currentBodyRadius <= 0) return;
 
@@ -660,6 +663,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         List<Entity> entities = Objects.requireNonNull(level).getEntitiesOfClass(Entity.class, bodyBox);
         for (Entity entity : entities) {
             if (!intersectsSphere(entity.getBoundingBox(), currentGravityCenter, r)) continue;
+            if (isEternal(entity)) continue;
 
             if (entity instanceof LivingEntity living) {
                 applyCelestialDamage(living);
@@ -667,6 +671,15 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                 entity.discard();
             }
         }
+    }
+
+    private static boolean isEternal(Entity entity) {
+        ItemStack stack = switch (entity) {
+            case ItemEntity itemEntity -> itemEntity.getItem();
+            case ThrownHeavyHalberdEntity heavyHalberd -> heavyHalberd.getWeaponItem();
+            default -> ItemStack.EMPTY;
+        };
+        return stack.has(ModComponents.ETERNAL);
     }
 
     private static boolean intersectsSphere(AABB box, Vec3 center, double radius) {
