@@ -407,6 +407,8 @@ public class ItemTooltipManager {
             Provides a baseline output of 256 kW"""
         );
         NORMAL.put(ModBlocks.LOAD_MONITOR.asItem(), "Monitor the grid load condition, can output a signal by redstone comparator");
+        NORMAL.put(ModBlocks.CHUTE.asItem(), "An advanced Hopper, can transfer a full stack of items at a time");
+        NORMAL.put(ModBlocks.MAGNETIC_CHUTE.asItem(), "An advanced Chute, with the ability to transport items vertically");
 
         SHIFT.put(
             ModItems.LASER_GUN.get(), """
@@ -460,8 +462,8 @@ public class ItemTooltipManager {
         );
         SHIFT.put(
             ModBlocks.SPECTRAL_ANVIL.asItem(), """
-            When the upper magnet is demagnetized, a phantom shadow is created and falls downward
-            It can pass through transparent blocks, and no matter the actual height, the impact is always treated as a 2‑block fall"""
+                When the upper magnet is demagnetized, a phantom shadow is created and falls downward
+                It can pass through transparent blocks, and no matter the actual height, the impact is always treated as a 2‑block fall"""
         );
         SHIFT.put(
             ModBlocks.BLOCK_PLACER.asItem(), """
@@ -540,9 +542,9 @@ public class ItemTooltipManager {
                 When holding, consume the totems in the box when needed, and after consuming the totem, you may receive a secret gift"""
         );
         SHIFT.put(ModBlocks.PUMP.asItem(), """
-            Provides 10 blocks of headlift on both input and output sides (including the pump itself)
-            Also functions as check valve, allowing liquid to flow through only in the pump's direction
-            A redstone signal disables the pump""");
+                Provides 10 blocks of headlift on both input and output sides (including the pump itself)
+                Also functions as check valve, allowing liquid to flow through only in the pump's direction
+                A redstone signal disables the pump""");
         SHIFT.put(
             ModBlocks.CREATIVE_CRATE.asItem(), """
                 Provides infinite items of a set type: place items inside to configure
@@ -584,6 +586,23 @@ public class ItemTooltipManager {
                 Can be set to trade with players or villagers
                 Villagers will actively trade with stations that have valid offers and fair prices
                 Has 12 slots for temporary item storage"""
+        );
+        SHIFT.put(
+            ModBlocks.CHUTE.asItem(), """
+                Can set item filter
+                Shift and left‑click a slot to disable it
+                Use scroll wheel to set slot stack limit
+                Multiple Chutes connected turn into a Simple Chute
+                Simple Chute has only one slot and cannot be locked by redstone"""
+        );
+        SHIFT.put(
+            ModBlocks.MAGNETIC_CHUTE.asItem(), """
+                The output items will be launched with speed
+                Can set item filter
+                Shift and left‑click a slot to disable it
+                Use scroll wheel to set slot stack limit
+                Multiple Magnetic Chutes connected turn into a Simple Magnetic Chute
+                Simple Magnetic Chute has only one slot and cannot be locked by redstone"""
         );
 
         Map<Item, String> allTooltips = Maps.newHashMap();
