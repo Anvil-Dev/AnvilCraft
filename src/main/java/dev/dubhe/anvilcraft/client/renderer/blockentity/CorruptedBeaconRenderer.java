@@ -42,7 +42,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
     private static final float BEAM_G = 0.0f;
     private static final float BEAM_B = 0.05f;
 
-    /// 延迟渲染队列：光束在 AFTER_WEATHER 阶段渲染
+    /// 延迟渲染队列：光束在 AFTER_LEVEL 阶段渲染
     private static final List<BeamRenderData> deferredBeams = new ArrayList<>();
     private static final List<WeaponBeamRenderData> deferredWeaponBeams = new ArrayList<>();
 
@@ -109,7 +109,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
     }
 
     /**
-     * 在 AFTER_WEATHER 阶段由 RenderEventListener 调用，渲染所有延迟光束。
+     * 在 AFTER_LEVEL 阶段由 RenderEventListener 调用，渲染所有延迟光束。
      * 事件回调会立即提交对应的渲染批次。
      */
     public static void renderDeferredBeams(PoseStack poseStack, MultiBufferSource bufferSource, Vec3 camera) {
@@ -138,9 +138,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
             if (direction.lengthSqr() < 1.0E-6) continue;
             poseStack.pushPose();
             if (data.viewBobCompensation != null) {
-                poseStack.last().pose().set(
-                    data.viewBobCompensation.mul(poseStack.last().pose(), new Matrix4f())
-                );
+                poseStack.last().pose().mul(data.viewBobCompensation);
             }
             poseStack.translate(
                 data.start.x - camera.x,
@@ -229,7 +227,6 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
             float[] c1 = corners[(i + 1) % 4];
             vc.addVertex(pose, c0[0], baseY, c0[1]).setColor(r, g, b, alpha);
             vc.addVertex(pose, c1[0], baseY, c1[1]).setColor(r, g, b, alpha);
-            vc.addVertex(pose, cx, apexY, cz).setColor(r, g, b, tipAlpha);
             vc.addVertex(pose, cx, apexY, cz).setColor(r, g, b, tipAlpha);
         }
     }

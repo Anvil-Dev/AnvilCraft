@@ -357,7 +357,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         ItemStack itemStack = this.getItem().copy();
         boolean flag = false;
         for (ItemCollectorBlockEntity collector : list) {
-            if (collector.isGridWorking()
+            if (collector.canPoach()
                 && !collector.getBlockState().getValue(ItemCollectorBlock.POWERED)
                 && collector.shape().contains(this.position())
                 && !collector.isRemoved()) {

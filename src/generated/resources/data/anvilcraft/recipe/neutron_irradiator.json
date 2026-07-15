@@ -14,15 +14,12 @@
       }
     ],
     "B": {
-      "item": "anvilcraft:ember_metal_ingot"
-    },
-    "C": {
-      "item": "anvilcraft:negative_matter_block"
+      "item": "anvilcraft:negative_matter"
     }
   },
   "pattern": [
     " A ",
-    "BCB",
+    "B B",
     "BBB"
   ],
   "result": {

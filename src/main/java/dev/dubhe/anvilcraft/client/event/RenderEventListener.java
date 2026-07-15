@@ -57,15 +57,25 @@ public class RenderEventListener {
     }
 
     @SubscribeEvent
-    public static void onRenderAfterWeather(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_WEATHER) return;
+    public static void onRenderAfterLevel(RenderLevelStageEvent event) {
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_LEVEL) return;
         PoseStack poseStack = event.getPoseStack();
-        MultiBufferSource.BufferSource bufferSource =
-            event.getLevelRenderer().renderBuffers.bufferSource();
+        LevelRenderer levelRenderer = event.getLevelRenderer();
+        var mainTarget = Minecraft.getInstance().getMainRenderTarget();
+        var weatherTarget = levelRenderer.getWeatherTarget();
+        if (weatherTarget != null) {
+            mainTarget.copyDepthFrom(weatherTarget);
+            mainTarget.bindWrite(false);
+        }
+        MultiBufferSource.BufferSource bufferSource = levelRenderer.renderBuffers.bufferSource();
         Vec3 camera = event.getCamera().getPosition();
+        poseStack.pushPose();
+        poseStack.last().pose().mul(event.getModelViewMatrix());
         CelestialForgingAnvilBlockEntityRenderer.renderDeferredTractorBeams(poseStack, bufferSource, camera);
         CorruptedBeaconRenderer.renderDeferredBeams(poseStack, bufferSource, camera);
+        bufferSource.endBatch(ModRenderTypes.TRACTOR_BEAM);
         bufferSource.endBatch(ModRenderTypes.CORRUPTED_BEACON_BEAM);
+        poseStack.popPose();
     }
 
     @SubscribeEvent

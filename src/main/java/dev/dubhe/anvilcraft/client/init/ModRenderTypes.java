@@ -296,13 +296,29 @@ public class ModRenderTypes {
             .createCompositeState(false)
     );
 
+    public static final RenderType TRACTOR_BEAM = RenderType.create(
+        "anvilcraft:tractor_beam",
+        DefaultVertexFormat.POSITION_COLOR,
+        VertexFormat.Mode.TRIANGLES,
+        1536,
+        false,
+        false,
+        RenderType.CompositeState.builder()
+            .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
+            .setTransparencyState(ADDITIVE_TRANSPARENCY)
+            .setCullState(NO_CULL)
+            .setDepthTestState(LEQUAL_DEPTH_TEST)
+            .setWriteMaskState(COLOR_WRITE)
+            .createCompositeState(false)
+    );
+
     public static final RenderType CORRUPTED_BEACON_BEAM = RenderType.create(
         "anvilcraft:corrupted_beacon_beam",
         DefaultVertexFormat.POSITION_COLOR,
-        VertexFormat.Mode.QUADS,
+        VertexFormat.Mode.TRIANGLES,
         1536,
         false,
-        true,
+        false,
         RenderType.CompositeState.builder()
             .setShaderState(RenderStateShard.POSITION_COLOR_SHADER)
             .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
