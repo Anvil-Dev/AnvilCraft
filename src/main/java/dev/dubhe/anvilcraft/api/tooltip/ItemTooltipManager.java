@@ -337,8 +337,16 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.PUMP.asItem(), "Pumps fluids, consumes 32 kW");
         NORMAL.put(ModBlocks.CREATIVE_CRATE.asItem(), "Infinite item storage and supply");
         NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
-        NORMAL.put(ModBlocks.FLUID_TANK.asItem(), "Stores 16B of fluid, expands to 640B when surrounded by Menger Sponges");
-        NORMAL.put(ModBlocks.LARGE_FLUID_TANK.asItem(), "Stores 320 buckets of fluid, reaches infinite capacity when paired with Menger Sponges");
+        NORMAL.put(
+            ModBlocks.FLUID_TANK.asItem(), """
+                Stores 16B of fluid, expands to 640B when surrounded by Menger Sponges
+                Can interact with Dispensers for fluid transfer"""
+        );
+        NORMAL.put(
+            ModBlocks.LARGE_FLUID_TANK.asItem(), """
+                Stores 320B of fluid, reaches infinite capacity when paired with Menger Sponges
+                Can interact with Dispensers for fluid transfer"""
+        );
         NORMAL.put(ModBlocks.DRAIN.asItem(), "Transfers fluid vertically, outputting downward and drawing from above");
         NORMAL.put(ModBlocks.CORRUPTED_BEACON.asItem(), "Releases the wither power within the beacon, its beam accelerates time flow or causes mutations");
         NORMAL.put(ModBlocks.LARGE_CAKE.asItem(), "A cake, a very big cake. 27 bites, each bite fills you up");
@@ -489,7 +497,8 @@ public class ItemTooltipManager {
                 It is sturdier than it looks and can be used as a substitute for the alchemy pot to perform related anvil synthesis
                 Wearing it on your head provides a temporary underwater breathing effect
                 Right-click the top with an item in hand to place the item inside
-                Right-click the lower part of the fish tank with a tropical fish bucket in hand to release the tropical fish"""
+                Right-click the lower part of the fish tank with a tropical fish bucket in hand to release the tropical fish
+                Can interact with Dispensers for fluid transfer"""
         );
         SHIFT.put(
             ModBlocks.BLOCK_DEVOURER.asItem(), """
