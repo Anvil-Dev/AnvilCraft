@@ -11,11 +11,11 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_plates/copper": {
+    "has_redstone_wire": {
       "conditions": {
         "items": [
           {
-            "items": "#c:plates/copper"
+            "items": "anvilcraft:redstone_wire"
           }
         ]
       },
@@ -31,7 +31,7 @@
   "requirements": [
     [
       "has_the_recipe",
-      "has_plates/copper",
+      "has_redstone_wire",
       "has_hardend_resin"
     ]
   ],

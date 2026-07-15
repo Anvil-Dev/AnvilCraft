@@ -102,7 +102,7 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemResource
                 Vec3 center = this.getBlockPos().relative(this.getDirection()).getCenter();
                 List<ItemEntity> itemEntities = Objects.requireNonNull(this.getLevel()).getEntitiesOfClass(
                     ItemEntity.class,
-                    new AABB(this.getBlockPos().relative(this.getDirection())),
+                    new AABB(this.getBlockPos().relative(this.getDirection())).expandTowards(0, -0.5, 0),
                     itemEntity -> !itemEntity.getItem().isEmpty()
                 );
                 AABB aabb = new AABB(

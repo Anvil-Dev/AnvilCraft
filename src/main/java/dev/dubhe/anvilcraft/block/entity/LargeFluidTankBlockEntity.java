@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.fluid.InfinityFluidTank;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
+import dev.dubhe.anvilcraft.util.TankUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -32,6 +33,7 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidResourceHandlerHolder {
     public static final int CAPACITY = 320 * FluidType.BUCKET_VOLUME;
     public static final int BIG_CAPACITY = 12800 * FluidType.BUCKET_VOLUME;
+    private static final int CHECK_INTERVAL = 100;
     protected final InfinityFluidTank tank = new InfinityFluidTank(CAPACITY, false) {
         @Override
         protected void onContentsChanged(int index, FluidStack stack) {
@@ -40,6 +42,7 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
         }
     };
     protected boolean bigger = false;
+    private int tickCounter;
 
     public LargeFluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -66,6 +69,14 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
         if (!state.getValue(LargeFluidTankBlock.HALF).equals(Cube3x3PartHalf.MID_CENTER)) return;
         this.checkInfinity();
         setChanged();
+        if (++this.tickCounter % CHECK_INTERVAL == 0 && this.level != null && !this.level.isClientSide()) {
+            boolean valid = TankUtil.isMengerStructure(this.level, this.getBlockPos(), 9);
+            if (this.bigger && !valid) {
+                this.onUnformed();
+            } else if (!this.bigger && valid) {
+                this.onFormed();
+            }
+        }
     }
 
     protected void checkInfinity() {

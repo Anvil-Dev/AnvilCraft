@@ -72,6 +72,21 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
         return CfaInterfaceScanner.findFluidInterfaces(Objects.requireNonNull(be.getLevel()), be.getBlockPos());
     }
 
+    protected CfaInterfaceScanner.PrioritizedInterfaces<ResourceHandler<ItemResource>> findOutputLogisticsInterfaces(
+        CelestialForgingAnvilBlockEntity be
+    ) {
+        return CfaInterfaceScanner.findPrioritizedLogisticsInterfaces(
+            Objects.requireNonNull(be.getLevel()), be.getBlockPos()
+        );
+    }
+
+    protected CfaInterfaceScanner.PrioritizedInterfaces<CelestialForgingAnvilFluidInterfaceBlockEntity>
+        findOutputFluidInterfaces(CelestialForgingAnvilBlockEntity be) {
+        return CfaInterfaceScanner.findPrioritizedFluidInterfaces(
+            Objects.requireNonNull(be.getLevel()), be.getBlockPos()
+        );
+    }
+
     protected void scanAdjacentBlocks(Consumer<BlockPos> consumer, CelestialForgingAnvilBlockEntity be) {
         CfaInterfaceScanner.scanAdjacentBlocks(be.getBlockPos(), Objects.requireNonNull(be.getLevel()), consumer);
     }
@@ -91,6 +106,62 @@ public abstract class BaseMegastructureHandler implements IMegastructureHandler 
             tx.commit();
         }
         return remainder;
+    }
+
+    protected record ItemOutputResult(ItemStack remainder, int nextIndex) {
+    }
+
+    protected static ItemOutputResult insertOutputItem(
+        CfaInterfaceScanner.PrioritizedInterfaces<ResourceHandler<ItemResource>> interfaces,
+        ItemStack stack,
+        int startIndex
+    ) {
+        List<ResourceHandler<ItemResource>> handlers = interfaces.preferred();
+        ItemStack remainder = stack.copy();
+        if (handlers.isEmpty() || remainder.isEmpty()) return new ItemOutputResult(remainder, startIndex);
+
+        int normalizedStart = Math.floorMod(startIndex, handlers.size());
+        int nextIndex = normalizedStart;
+        for (int attempt = 0; attempt < handlers.size() && !remainder.isEmpty(); attempt++) {
+            int index = (normalizedStart + attempt) % handlers.size();
+            int before = remainder.getCount();
+            remainder = insertIntoHandler(handlers.get(index), remainder);
+            if (remainder.getCount() < before) {
+                nextIndex = (index + 1) % handlers.size();
+            }
+        }
+        return new ItemOutputResult(remainder, nextIndex);
+    }
+
+    protected record FluidOutputResult(int filled, int nextIndex) {
+    }
+
+    protected static FluidOutputResult fillOutputFluid(
+        CfaInterfaceScanner.PrioritizedInterfaces<CelestialForgingAnvilFluidInterfaceBlockEntity> interfaces,
+        FluidStack stack,
+        int startIndex
+    ) {
+        List<CelestialForgingAnvilFluidInterfaceBlockEntity> handlers = interfaces.preferred();
+        if (handlers.isEmpty() || stack.isEmpty()) return new FluidOutputResult(0, startIndex);
+
+        int remaining = stack.getAmount();
+        int normalizedStart = Math.floorMod(startIndex, handlers.size());
+        int nextIndex = normalizedStart;
+        for (int attempt = 0; attempt < handlers.size() && remaining > 0; attempt++) {
+            int index = (normalizedStart + attempt) % handlers.size();
+            ResourceHandler<FluidResource> handler = handlers.get(index).getInternalFluidHandler();
+            FluidStack output = stack.copyWithAmount(remaining);
+            int filled;
+            try (Transaction transaction = Transaction.openRoot()) {
+                filled = handler.insert(FluidResource.of(output), remaining, transaction);
+                if (filled > 0) transaction.commit();
+            }
+            if (filled > 0) {
+                remaining -= Math.min(filled, remaining);
+                nextIndex = (index + 1) % handlers.size();
+            }
+        }
+        return new FluidOutputResult(stack.getAmount() - remaining, nextIndex);
     }
 
     /** 从 ResourceHandler 指定槽位读取物品栈。 */

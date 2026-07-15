@@ -141,11 +141,13 @@ public class EnergyWeaponMakeMenu extends AbstractContainerMenu {
     public void setSelectedIndex(int selectedIndex) {
         this.selectedIndex = selectedIndex;
 
+        for (int i = 0; i < 6; i++) {
+            this.getFilteredSlot(i).resetFilter();
+        }
+
         if (selectedIndex == -1) {
             for (int i = 0; i < 6; i++) {
-                FilteredSlot slot = this.getFilteredSlot(i);
-                slot.resetFilter();
-                ItemStack stack = slot.getItem();
+                ItemStack stack = this.getFilteredSlot(i).getItem();
                 if (stack.isEmpty()) continue;
                 this.inventory.add(stack);
             }
@@ -190,14 +192,16 @@ public class EnergyWeaponMakeMenu extends AbstractContainerMenu {
                 Slot destSlot = this.getSlot(i);
                 if (!destSlot.mayPlace(stack)) continue;
                 if (!destSlot.hasItem()) {
-                    destSlot.setByPlayer(stack);
-                    slot.setByPlayer(ItemStack.EMPTY);
+                    int canSet = Math.min(stack.getCount(), destSlot.getMaxStackSize(stack));
+                    destSlot.setByPlayer(stack.copyWithCount(canSet));
+                    stack.shrink(canSet);
+                    slot.setByPlayer(stack);
                 } else {
                     ItemStack dest = destSlot.getItem();
                     if (!ItemStack.isSameItemSameComponents(dest, stack)) continue;
-                    if (dest.getCount() >= dest.getMaxStackSize()) continue;
+                    if (dest.getCount() >= destSlot.getMaxStackSize(stack)) continue;
 
-                    int canSet = dest.getMaxStackSize() - dest.getCount();
+                    int canSet = destSlot.getMaxStackSize(stack) - dest.getCount();
                     canSet = Math.min(stack.getCount(), canSet);
                     dest.grow(canSet);
                     stack.shrink(canSet);

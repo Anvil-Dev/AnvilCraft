@@ -11,6 +11,7 @@ import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -25,6 +26,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.stream.Stream;
 
 public record SlidingBlockInfo(Vec3i offset, BlockState state, @Nullable BlockEntity blockEntity) {
@@ -108,7 +110,18 @@ public record SlidingBlockInfo(Vec3i offset, BlockState state, @Nullable BlockEn
 
     public CompoundTag beTag() {
         if (this.blockEntity == null) return new CompoundTag();
-        return this.blockEntity.saveWithFullMetadata(this.blockEntity.getLevel().registryAccess());
+        if (this.blockEntity.getLevel() != null) {
+            return this.blockEntity.saveWithFullMetadata(this.blockEntity.getLevel().registryAccess());
+        }
+        CompoundTag tag = this.blockEntity.saveWithoutMetadata(RegistryAccess.EMPTY);
+        tag.putString(
+            "id",
+            Objects.requireNonNull(BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(this.blockEntity.getType())).toString()
+        );
+        tag.putInt("x", this.blockEntity.getBlockPos().getX());
+        tag.putInt("y", this.blockEntity.getBlockPos().getY());
+        tag.putInt("z", this.blockEntity.getBlockPos().getZ());
+        return tag;
     }
 
     public IntIntPair getPos2D(Direction side) {

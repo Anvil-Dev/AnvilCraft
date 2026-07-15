@@ -12,6 +12,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.CauldronFluidContent;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
@@ -157,8 +158,12 @@ public final class FluidNetworkScanner {
      * 记录一条 part↔part 无向邻接边。
      */
     private static void link(Map<BlockPos, List<BlockPos>> adjacency, BlockPos a, BlockPos b) {
-        adjacency.computeIfAbsent(a, _ -> new ArrayList<>()).add(b.immutable());
-        adjacency.computeIfAbsent(b, _ -> new ArrayList<>()).add(a.immutable());
+        BlockPos immutableA = a.immutable();
+        BlockPos immutableB = b.immutable();
+        List<BlockPos> fromA = adjacency.computeIfAbsent(immutableA, _ -> new ArrayList<>());
+        if (!fromA.contains(immutableB)) fromA.add(immutableB);
+        List<BlockPos> fromB = adjacency.computeIfAbsent(immutableB, _ -> new ArrayList<>());
+        if (!fromB.contains(immutableA)) fromB.add(immutableA);
     }
 
     /**
@@ -346,6 +351,8 @@ public final class FluidNetworkScanner {
         if (!level.isLoaded(containerPos)) {
             return;
         }
+        BlockPos immutablePos = containerPos.immutable();
+        if (endpoints.stream().anyMatch(endpoint -> endpoint.containerPos().equals(immutablePos))) return;
         ResourceHandler<FluidResource> handler = containerHandler(level, containerPos, sideToPipe);
         if (handler == null) {
             return;
@@ -354,6 +361,14 @@ public final class FluidNetworkScanner {
             return;
         }
         int effectiveHeight = containerPos.getY() + phi;
-        endpoints.add(new FluidEndpoint(containerPos.immutable(), attachPipePos.immutable(), sideToPipe, handler, effectiveHeight));
+        boolean cauldron = CauldronFluidContent.getForBlock(level.getBlockState(containerPos).getBlock()) != null;
+        endpoints.add(new FluidEndpoint(
+            immutablePos,
+            attachPipePos.immutable(),
+            sideToPipe,
+            handler,
+            effectiveHeight,
+            cauldron
+        ));
     }
 }

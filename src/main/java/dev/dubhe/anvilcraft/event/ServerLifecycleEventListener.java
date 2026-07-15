@@ -9,9 +9,11 @@ import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.api.world.load.RandomChuckTickLoadManager;
+import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModHammerInits;
 import dev.dubhe.anvilcraft.inventory.state.StorageMenuState;
+import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
@@ -39,6 +41,11 @@ public class ServerLifecycleEventListener {
     }
 
     @SubscribeEvent
+    public static void onTick(ServerTickEvent.Post event) {
+        RedstoneWireNetworkManager.tick();
+    }
+
+    @SubscribeEvent
     public static void onServerStopping(ServerStoppingEvent event) {
         PowerGrid.isServerClosing = true;
     }
@@ -51,5 +58,6 @@ public class ServerLifecycleEventListener {
         SoundHelper.INSTANCE.clear();
         StorageMenuState.clear();
         ItemCollectorBlockEntity.clearPoachingCollectors();
+        LaserGunItem.clearStates();
     }
 }

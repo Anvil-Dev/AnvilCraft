@@ -11,7 +11,8 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
-import dev.dubhe.anvilcraft.block.RedstoneComputerBlock;
+import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
+import dev.dubhe.anvilcraft.block.TradingStationBlock;
 import dev.dubhe.anvilcraft.block.WipBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
@@ -78,6 +79,8 @@ import dev.dubhe.anvilcraft.block.heatable.IncandescentBlock;
 import dev.dubhe.anvilcraft.block.heatable.NormalBlock;
 import dev.dubhe.anvilcraft.block.heatable.OverheatedEmberMetalBlock;
 import dev.dubhe.anvilcraft.block.heatable.RedhotBlock;
+import dev.dubhe.anvilcraft.block.item.RedstoneWireBlockItem;
+import dev.dubhe.anvilcraft.block.item.TradingStationBlockItem;
 import dev.dubhe.anvilcraft.block.laser.LargeLaserBlock;
 import dev.dubhe.anvilcraft.block.laser.LaserReceiverBlock;
 import dev.dubhe.anvilcraft.block.laser.LensBlock;
@@ -202,6 +205,7 @@ import dev.dubhe.anvilcraft.block.workstation.frost.FrostSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.workstation.royal.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.royal.RoyalGrindstoneBlock;
 import dev.dubhe.anvilcraft.block.workstation.royal.RoyalSmithingTableBlock;
+import dev.dubhe.anvilcraft.data.generator.RedstoneWireBlockStateGenerator;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumBlockRecipeLoader;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
@@ -214,6 +218,7 @@ import dev.dubhe.anvilcraft.item.block.FishTankBlockItem;
 import dev.dubhe.anvilcraft.item.block.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.item.block.FrostMetalBlockItem;
 import dev.dubhe.anvilcraft.item.block.HasMobBlockItem;
+import dev.dubhe.anvilcraft.item.block.HeatCollectorBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeatableBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeliostatsItem;
 import dev.dubhe.anvilcraft.item.block.InfiniteCollectorBlockItem;
@@ -228,6 +233,7 @@ import dev.dubhe.anvilcraft.item.block.SuperHeavyBlockItem;
 import dev.dubhe.anvilcraft.item.block.TeslaTowerItem;
 import dev.dubhe.anvilcraft.item.block.UncontainableBlockItem;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
+import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.util.registrater.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
@@ -251,6 +257,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.ItemTags;
@@ -942,7 +949,8 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<HeatCollectorBlock> HEAT_COLLECTOR = REGISTRUM.block("heat_collector", HeatCollectorBlock::new)
-        .simpleItem()
+        .item(HeatCollectorBlockItem::new)
+        .build()
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1367,6 +1375,19 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::jewelCraftingTable)
         .register();
 
+    public static final BlockEntry<TradingStationBlock> TRADING_STATION = REGISTRUM
+        .block("trading_station", TradingStationBlock::new)
+        .initialProperties(() -> Blocks.OAK_PLANKS)
+        .properties(p -> p.isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .loot(FlexibleMultiPartBlock::loot)
+        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .item(TradingStationBlockItem::new)
+        .model(DataGenUtil::onlyInfo)
+        .build()
+        .recipe(RegistrumBlockRecipeLoader::tradingStation)
+        .register();
+
     public static final BlockEntry<TransparentCraftingTableBlock> TRANSPARENT_CRAFTING_TABLE = REGISTRUM.block(
             "transparent_crafting_table",
             TransparentCraftingTableBlock::new
@@ -1760,18 +1781,6 @@ public class ModBlocks {
             );
         })
         .recipe(RegistrumBlockRecipeLoader::propelPiston)
-        .simpleItem()
-        .register();
-
-    public static final BlockEntry<RedstoneComputerBlock> REDSTONE_COMPUTER = REGISTRUM
-        .block("redstone_computer", RedstoneComputerBlock::new)
-        .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(properties -> properties
-            .strength(3.0F, 3.5F)
-            .noOcclusion()
-            .isRedstoneConductor(ModBlocks::never))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .blockstate(DataGenUtil::onlyState)
         .simpleItem()
         .register();
 
@@ -2648,6 +2657,10 @@ public class ModBlocks {
         .lang("Block of Amber with Mob")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(HasMobBlockItem::new)
+        .properties(properties -> properties.component(
+            ModComponents.SAVED_ENTITY,
+            new SavedEntity(EntityType.MOOSHROOM, new CompoundTag(), false)
+        ))
         .build()
         .initialProperties(ModBlocks.AMBER_BLOCK)
         .loot((ctx, prov) -> {
@@ -2669,6 +2682,10 @@ public class ModBlocks {
         .lang("Resentful Block of Amber")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(HasMobBlockItem::new)
+        .properties(properties -> properties.component(
+            ModComponents.SAVED_ENTITY,
+            new SavedEntity(EntityType.ZOMBIE, new CompoundTag(), true)
+        ))
         .build()
         .initialProperties(ModBlocks.AMBER_BLOCK)
         .loot((ctx, prov) -> {
@@ -4225,6 +4242,20 @@ public class ModBlocks {
                         .when(silkTouch.invert()))
             );
         })
+        .register();
+
+    public static final BlockEntry<RedstoneWireBlock> REDSTONE_WIRE = REGISTRUM.block(
+            "redstone_wire",
+            RedstoneWireBlock::new
+        )
+        .lang("Redstone Wire")
+        .initialProperties(() -> Blocks.REDSTONE_WIRE)
+        .properties(BlockBehaviour.Properties::noOcclusion)
+        .blockstate(() -> RedstoneWireBlockStateGenerator::generate)
+        .item(RedstoneWireBlockItem::new)
+        .model(() -> DataGenUtil.blockItem("_item"))
+        .build()
+        .recipe(RegistrumBlockRecipeLoader::redstoneWire)
         .register();
 
     public static final BlockEntry<? extends TimeCountedPressurePlateBlock> COPPER_PRESSURE_PLATE = REGISTRUM.block(

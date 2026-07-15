@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
@@ -19,6 +20,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
@@ -31,6 +33,7 @@ import java.util.List;
 /// <p>该配方用于在铁砧下落时超级加热物品，需要在铁砧下方放置加热器作为热源</p>
 @Getter
 public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe> {
+    private final boolean hasRoyalPreference;
     public static final RecipeSerializer<SuperHeatingRecipe> SERIALIZER = new RecipeSerializer<>(
         RecordCodecBuilder.mapCodec(instance -> instance.group(
             ItemIngredientPredicate.CODEC.listOf()
@@ -64,6 +67,18 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
         HasCauldronSimple hasCauldron
     ) {
         super(createProperty(itemIngredients, results, hasCauldron));
+        this.hasRoyalPreference = results.stream().anyMatch(
+            result -> result.stack().is(ModItems.ROYAL_STEEL_INGOT.get())
+                      || result.stack().is(ModBlocks.ROYAL_STEEL_BLOCK.get().asItem())
+        );
+    }
+
+    @Override
+    public ItemStack assemble(InWorldRecipeContext context) {
+        if (this.hasRoyalPreference) {
+            context.put(RoyalPreferenceOutcome.IS_ROYAL_STEEL_RECIPE, true);
+        }
+        return super.assemble(context);
     }
 
     private static Property createProperty(

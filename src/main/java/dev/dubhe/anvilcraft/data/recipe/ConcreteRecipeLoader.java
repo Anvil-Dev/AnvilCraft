@@ -18,6 +18,11 @@ import java.util.Map;
 
 public class ConcreteRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
+        initConcrete(provider);
+        initCementStaining(provider);
+    }
+
+    private static void initConcrete(RegistrumRecipeProvider provider) {
         HolderGetter<Item> items = provider.getItems();
         for (Map.Entry<Color, BlockEntry<CementCauldronBlock>> entry : ModBlocks.CEMENT_CAULDRONS.entrySet()) {
             Color color = entry.getKey();
@@ -39,6 +44,17 @@ public class ConcreteRecipeLoader {
                 .requires(Items.IRON_BARS, 8)
                 .result(reinforcedConcrete, 16)
                 .save(provider, AnvilCraft.of("concrete/anvilcraft_reinforced_concrete_%s".formatted(color.getSerializedName())));
+        }
+    }
+
+    private static void initCementStaining(RegistrumRecipeProvider provider) {
+        Identifier cementTag = Identifier.fromNamespaceAndPath("c", "cement");
+        for (Color color : Color.values()) {
+            BulgingRecipe.builder()
+                .fluidTag(cementTag)
+                .transform(AnvilCraft.of("%s_cement".formatted(color.getSerializedName())))
+                .requires(color.dyeItem())
+                .save(provider, AnvilCraft.of("cement_staining/%s".formatted(color.getSerializedName())));
         }
     }
 }

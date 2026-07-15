@@ -21,12 +21,17 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.particle.FlyTowardsPositionParticle;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
@@ -96,6 +101,13 @@ public class AnvilCraftClient {
         ModFluids.onRegisterFluidType(e);
         ItemExtensionImpl itemExtensionInstance = new ItemExtensionImpl();
         e.registerItem(itemExtensionInstance, ModItems.IONOCRAFT_BACKPACK);
+        e.registerItem(
+            new EnergyWeaponExtensionImpl(),
+            ModItems.ANVIL_RAILGUN,
+            ModItems.CORRUPTED_BEACON_ACTIVATOR,
+            ModItems.TESLA_GUN,
+            ModItems.LASER_GUN
+        );
     }
 
     @SubscribeEvent
@@ -175,6 +187,24 @@ public class AnvilCraftClient {
                 return IonoCraftBackpackItem.TEXTURE_OFF;
             }
             return IClientItemExtensions.super.getArmorTexture(itemStack, type, layer, defaultId);
+        }
+    }
+
+    public static class EnergyWeaponExtensionImpl implements IClientItemExtensions {
+        @Override
+        public HumanoidModel.@Nullable ArmPose getArmPose(
+            LivingEntity entity,
+            InteractionHand hand,
+            ItemStack stack
+        ) {
+            if (!entity.isUsingItem() || entity.getUseItem().getItem() != stack.getItem()) return null;
+            if (stack.getItem() instanceof AnvilRailgunItem
+                && entity instanceof Player player
+                && AnvilRailgunItem.isLoading(player, stack, hand)
+            ) {
+                return HumanoidModel.ArmPose.CROSSBOW_CHARGE;
+            }
+            return HumanoidModel.ArmPose.CROSSBOW_HOLD;
         }
     }
 }

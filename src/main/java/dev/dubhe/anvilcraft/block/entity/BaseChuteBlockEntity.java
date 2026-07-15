@@ -14,8 +14,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.network.protocol.game.ClientboundTeleportEntityPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Containers;
+import net.minecraft.world.entity.PositionMoveRotation;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -37,13 +41,17 @@ import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 @Getter
 public abstract class BaseChuteBlockEntity
     extends BaseMachineBlockEntity
     implements IFilterBlockEntity, IDiskCloneable, IItemResourceHandlerHolder {
+    private static final int EJECTED_ITEM_TRACK_TICKS = 20;
 
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
         @Override
@@ -56,6 +64,19 @@ public abstract class BaseChuteBlockEntity
     @Setter
     private int cooldown = 0;
     private long tickedGameTime;
+    private final List<TrackedEjectedItem> trackedEjectedItems = new ArrayList<>();
+
+    private static final class TrackedEjectedItem {
+        private final ItemEntity item;
+        private boolean wasOnGround;
+        private int ticksLeft;
+
+        private TrackedEjectedItem(ItemEntity item) {
+            this.item = item;
+            this.wasOnGround = item.onGround();
+            this.ticksLeft = EJECTED_ITEM_TRACK_TICKS;
+        }
+    }
 
     protected BaseChuteBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -121,6 +142,7 @@ public abstract class BaseChuteBlockEntity
     /// 溜槽 tick
     public void tick() {
         if (this.level == null) return;
+        this.tickEjectedItemTracking();
         if (this.cooldown > 0) this.cooldown--;
         this.tickedGameTime = this.level.getGameTime();
         boolean resetCD = false;
@@ -157,7 +179,7 @@ public abstract class BaseChuteBlockEntity
             if (Objects.requireNonNull(this.getLevel()).noCollision(aabb)) {
                 List<ItemEntity> itemEntities = this.getLevel().getEntitiesOfClass(
                     ItemEntity.class,
-                    new AABB(this.getBlockPos().relative(this.getOutputDirection())),
+                    new AABB(this.getBlockPos().relative(this.getOutputDirection())).expandTowards(0, -0.5, 0),
                     itemEntity -> !itemEntity.getItem().isEmpty()
                 );
                 for (int i = 0; i < this.itemHandler.size(); i++) {
@@ -187,6 +209,7 @@ public abstract class BaseChuteBlockEntity
                     this.applySpeed(itemEntity, this.getOutputDirection());
                     itemEntity.setDefaultPickUpDelay();
                     this.getLevel().addFreshEntity(itemEntity);
+                    this.trackEjectedItem(itemEntity);
                     this.itemHandler.set(i, resource, accessible - dropping);
                     resetCD = true;
                     break;
@@ -278,6 +301,44 @@ public abstract class BaseChuteBlockEntity
 
     protected void applySpeed(ItemEntity itemEntity, Direction direction) {
 
+    }
+
+    private void trackEjectedItem(ItemEntity itemEntity) {
+        if (this.level == null || this.level.isClientSide()) return;
+        if (itemEntity.getDeltaMovement().horizontalDistanceSqr() < 1.0E-7) return;
+        this.trackedEjectedItems.add(new TrackedEjectedItem(itemEntity));
+    }
+
+    private void tickEjectedItemTracking() {
+        if (!(this.level instanceof ServerLevel serverLevel) || this.trackedEjectedItems.isEmpty()) return;
+        Iterator<TrackedEjectedItem> iterator = this.trackedEjectedItems.iterator();
+        while (iterator.hasNext()) {
+            TrackedEjectedItem tracked = iterator.next();
+            ItemEntity item = tracked.item;
+            if (!item.isAlive()) {
+                iterator.remove();
+                continue;
+            }
+            boolean onGround = item.onGround();
+            if (onGround && !tracked.wasOnGround) {
+                serverLevel.getChunkSource().sendToTrackingPlayersAndSelf(
+                    item,
+                    ClientboundTeleportEntityPacket.teleport(
+                        item.getId(), PositionMoveRotation.of(item), Set.of(), item.onGround()
+                    )
+                );
+                serverLevel.getChunkSource().sendToTrackingPlayersAndSelf(
+                    item,
+                    new ClientboundSetEntityMotionPacket(item)
+                );
+                iterator.remove();
+                continue;
+            }
+            tracked.wasOnGround = onGround;
+            if (--tracked.ticksLeft <= 0) {
+                iterator.remove();
+            }
+        }
     }
 
     @Override

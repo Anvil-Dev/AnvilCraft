@@ -1,0 +1,12 @@
+{
+  "type": "anvilcraft:bulging",
+  "fluid": "minecraft:null",
+  "fluidTag": "c:cement",
+  "ingredients": [
+    {
+      "items": "minecraft:magenta_dye"
+    }
+  ],
+  "results": [],
+  "transform": "anvilcraft:magenta_cement"
+}

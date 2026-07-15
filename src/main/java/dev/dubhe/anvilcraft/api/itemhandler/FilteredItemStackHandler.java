@@ -16,6 +16,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemStacksResourceHandler;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -238,9 +239,13 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
         Optional<ValueInput.ValueInputList> inventoryOp = input.childrenList("Inventory");
         if (inventoryOp.isEmpty()) return;
         this.filterEnabled = input.getBooleanOr("FilterEnabled", false);
-        ValueInput.ValueInputList inventory = inventoryOp.get();
+        final ValueInput.ValueInputList inventory = inventoryOp.get();
         int size = input.getIntOr("Size", -1);
         if (size < 0) return;
+        Collections.fill(this.stacks, ItemStack.EMPTY);
+        Collections.fill(this.filteredItems, ItemStack.EMPTY);
+        Collections.fill(this.disabled, false);
+        Collections.fill(this.slotLimits, IFilterBlockEntity.DEFAULT_SLOT_LIMIT);
         for (ValueInput entry : inventory) {
             int slot = entry.getIntOr("Slot", -1);
             if (slot < 0) continue;

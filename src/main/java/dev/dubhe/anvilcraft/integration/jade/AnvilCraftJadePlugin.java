@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.block.WipBlock;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.production.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.utility.MengerSpongeBlock;
 import dev.dubhe.anvilcraft.integration.jade.provider.BurningHeaterProvider;
@@ -15,6 +16,7 @@ import dev.dubhe.anvilcraft.integration.jade.provider.DischargerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.HeatableBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.ItemDetectorProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.LargeFluidTankProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.MultiPartPowerBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.PowerBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.RubyPrismProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.SmartBlockPlacerProvider;
@@ -61,6 +63,7 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerFluidStorage(CreativeFluidTankProvider.INSTANCE, CreativeFluidTankBlockEntity.class);
         registration.registerFluidStorage(LargeFluidTankProvider.INSTANCE, LargeFluidTankBlock.class);
         registration.registerBlockDataProvider(WipBlockProvider.INSTANCE, WipBlock.class);
+        registration.registerBlockDataProvider(MultiPartPowerBlockProvider.INSTANCE, AbstractMultiPartBlock.class);
     }
 
     @Override

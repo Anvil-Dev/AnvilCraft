@@ -197,7 +197,11 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
             PistonPushInfo ppi = new PistonPushInfo(above, state.getValue(FACING));
             ppi.extending = true;
             if (MOVING_PISTON_MAP.containsKey(pos)) {
-                MOVING_PISTON_MAP.get(pos).fromPos = above;
+                PistonPushInfo info = MOVING_PISTON_MAP.get(pos);
+                info.fromPos = above;
+                info.direction = state.getValue(FACING);
+                info.extending = true;
+                info.isSourcePiston = false;
             } else MOVING_PISTON_MAP.put(pos, ppi);
         }
         if (level.isClientSide()) return;

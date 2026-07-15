@@ -6,9 +6,8 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModToolMaterials;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Ferocious;
-import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
+import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.tool.HeavyHalberdItem;
-import dev.dubhe.anvilcraft.saved.multiphase.Multiphase;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Unit;
@@ -25,7 +24,7 @@ public class TranscendenceHeavyHalberdItem extends HeavyHalberdItem {
             17,
             -2.4F,
             properties.fireResistant()
-                .component(ModComponents.MULTIPHASE, new MultiphaseRef())
+                .component(ModComponents.MULTIPHASE, Multiphase.create())
                 .component(DataComponents.ITEM_NAME, Multiphase.firstPhaseName(NAME))
                 .component(ModComponents.ETERNAL, Eternal.DEFAULT)
                 .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)

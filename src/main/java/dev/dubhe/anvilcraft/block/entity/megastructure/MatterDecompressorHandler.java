@@ -8,8 +8,6 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
-import net.neoforged.neoforge.transfer.ResourceHandler;
-import net.neoforged.neoforge.transfer.item.ItemResource;
 
 import java.util.List;
 
@@ -54,15 +52,14 @@ public class MatterDecompressorHandler extends BaseMegastructureHandler {
         if (bodyClass == CelestialBodyClass.BLACK_HOLE) {
             ItemLike voidMatter = ModItems.VOID_MATTER.get();
             ItemStack output = new ItemStack(voidMatter, efficiency);
-            List<ResourceHandler<ItemResource>> logistics = findLogisticsInterfaces(be);
-            this.tryInsert(logistics, output);
+            this.tryInsert(be, output);
 
             // 激发态虚空物质：概率 = ((B-4)×2)%，最低为0，B是磁场强度
             if (magneticField > 4) {
                 int chance = (magneticField - 4) * 2;
                 if (be.getLevel().getRandom().nextInt(100) < chance) {
                     ItemStack specialOutput = new ItemStack(ModItems.EXCITED_STATE_VOID_MATTER.get(), 1);
-                    this.tryInsert(logistics, specialOutput);
+                    this.tryInsert(be, specialOutput);
                 }
             }
         } else {
@@ -73,31 +70,26 @@ public class MatterDecompressorHandler extends BaseMegastructureHandler {
                 this.counter = 0;
                 ItemLike neutroniumIngot = ModItems.NEUTRONIUM_INGOT.get();
                 ItemStack output = new ItemStack(neutroniumIngot, 1);
-                List<ResourceHandler<ItemResource>> logistics = findLogisticsInterfaces(be);
-                this.tryInsert(logistics, output);
+                this.tryInsert(be, output);
 
                 // 充能中子锭：概率 = ((B-3)^2)%，最低为0，B是磁场强度
                 if (magneticField > 3) {
                     int chance = (magneticField - 3) * (magneticField - 3);
                     if (be.getLevel().getRandom().nextInt(100) < chance) {
                         ItemStack specialOutput = new ItemStack(ModItems.CHARGED_NEUTRONIUM_INGOT.get(), 1);
-                        this.tryInsert(logistics, specialOutput);
+                        this.tryInsert(be, specialOutput);
                     }
                 }
             }
         }
     }
 
-    private void tryInsert(List<ResourceHandler<ItemResource>> logistics, ItemStack output) {
-        if (logistics.isEmpty()) return;
-        int startIdx = this.logisticsRoundRobin % logistics.size();
-        for (int attempt = 0; attempt < logistics.size(); attempt++) {
-            int idx = (startIdx + attempt) % logistics.size();
-            ItemStack remainder = insertIntoHandler(logistics.get(idx), output);
-            if (remainder.getCount() < output.getCount()) {
-                this.logisticsRoundRobin = (idx + 1) % logistics.size();
-                return;
-            }
+    private void tryInsert(CelestialForgingAnvilBlockEntity be, ItemStack output) {
+        var logistics = this.findOutputLogisticsInterfaces(be);
+        if (logistics.size() == 0) return;
+        ItemOutputResult result = insertOutputItem(logistics, output, this.logisticsRoundRobin);
+        if (result.remainder().getCount() < output.getCount()) {
+            this.logisticsRoundRobin = result.nextIndex();
         }
     }
 

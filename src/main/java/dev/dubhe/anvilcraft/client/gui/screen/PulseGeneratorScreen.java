@@ -40,23 +40,45 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
         SharedTextures.textureGui("machine/pulse_generator/button_minus_m");
 
     private final Minecraft minecraft;
+    private byte pendingStartMode;
+    private boolean pendingOutputInvert;
+    private int pendingWaitingTime;
+    private int pendingSignalDuration;
     private @Nullable TextWidget waitingTime;
     private @Nullable TextWidget signalDuration;
 
     public PulseGeneratorScreen(PulseGeneratorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title, 176, 77);
         this.minecraft = Minecraft.getInstance();
+        this.pendingStartMode = menu.getBlockEntity().getStartMode().index();
+        this.pendingOutputInvert = menu.getBlockEntity().isOutputInvert();
+        this.pendingWaitingTime = menu.getBlockEntity().getWaitingTime();
+        this.pendingSignalDuration = menu.getBlockEntity().getSignalDuration();
     }
 
     @Override
     public void onClose() {
         ClientPacketDistributor.sendToServer(new PulseGeneratorUpdatePacket(
-            this.menu.getBlockEntity().getStartMode().index(),
-            this.menu.getBlockEntity().isOutputInvert(),
-            this.menu.getBlockEntity().getWaitingTime(),
-            this.menu.getBlockEntity().getSignalDuration()
+            this.pendingStartMode,
+            this.pendingOutputInvert,
+            this.pendingWaitingTime,
+            this.pendingSignalDuration
         ));
         super.onClose();
+    }
+
+    private void addWaitingTime(int delta) {
+        this.pendingWaitingTime = Math.clamp(this.pendingWaitingTime + delta, 0, 24000);
+        if (this.pendingWaitingTime == 0 && this.pendingSignalDuration == 0) {
+            this.pendingSignalDuration = 1;
+        }
+    }
+
+    private void addSignalDuration(int delta) {
+        this.pendingSignalDuration = Math.clamp(this.pendingSignalDuration + delta, 0, 24000);
+        if (this.pendingSignalDuration == 0 && this.pendingWaitingTime == 0) {
+            this.pendingWaitingTime = 1;
+        }
     }
 
     @Override
@@ -74,7 +96,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             16,
             16,
             32,
-            (_, index) -> this.menu.setStartMode((byte) index),
+            (_, index) -> this.pendingStartMode = (byte) index,
             List.of(
                 Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.rising"),
                 Component.translatable("screen.anvilcraft.button.pulse_generator.start_mode.falling"),
@@ -90,7 +112,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             16,
             16,
             32,
-            (_, index) -> this.menu.setOutputInvert(index == 1),
+            (_, index) -> this.pendingOutputInvert = index == 1,
             List.of(
                 Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.off"),
                 Component.translatable("screen.anvilcraft.button.pulse_generator.reverse.on")
@@ -149,33 +171,33 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             this.topPos + 38,
             32, 9,
             this.minecraft.font,
-            () -> Component.literal(FormattingUtil.toFormattedTime(this.menu.getBlockEntity().getWaitingTime(), 5))
+            () -> Component.literal(FormattingUtil.toFormattedTime(this.pendingWaitingTime, 5))
         ).setRenderMode(TextWidget.RenderMode.SCALED).alignCenter();
         this.signalDuration = new TextWidget(
             this.leftPos + 115,
             this.topPos + 38,
             32, 9,
             this.minecraft.font,
-            () -> Component.literal(FormattingUtil.toFormattedTime(this.menu.getBlockEntity().getSignalDuration(), 5))
+            () -> Component.literal(FormattingUtil.toFormattedTime(this.pendingSignalDuration, 5))
         ).setRenderMode(TextWidget.RenderMode.SCALED).alignCenter();
-        startMode.setCurrent(this.menu.getBlockEntity().getStartMode().index());
-        outputMode.setCurrent(this.menu.getBlockEntity().isOutputInvert() ? 1 : 0);
+        startMode.setCurrent(this.pendingStartMode);
+        outputMode.setCurrent(this.pendingOutputInvert ? 1 : 0);
         this.addRenderableWidget(startMode);
         this.addRenderableWidget(outputMode);
         this.addRenderableOnly(this.waitingTime);
-        this.addRenderableWidget(addTickFunc.apply(62, this.menu::addWaitingTime));
-        this.addRenderableWidget(addSecFunc.apply(74, this.menu::addWaitingTime));
-        this.addRenderableWidget(addMinFunc.apply(86, this.menu::addWaitingTime));
-        this.addRenderableWidget(minusTickFunc.apply(62, this.menu::addWaitingTime));
-        this.addRenderableWidget(minusSecFunc.apply(74, this.menu::addWaitingTime));
-        this.addRenderableWidget(minusMinFunc.apply(86, this.menu::addWaitingTime));
+        this.addRenderableWidget(addTickFunc.apply(62, this::addWaitingTime));
+        this.addRenderableWidget(addSecFunc.apply(74, this::addWaitingTime));
+        this.addRenderableWidget(addMinFunc.apply(86, this::addWaitingTime));
+        this.addRenderableWidget(minusTickFunc.apply(62, this::addWaitingTime));
+        this.addRenderableWidget(minusSecFunc.apply(74, this::addWaitingTime));
+        this.addRenderableWidget(minusMinFunc.apply(86, this::addWaitingTime));
         this.addRenderableOnly(this.signalDuration);
-        this.addRenderableWidget(addTickFunc.apply(114, this.menu::addSignalDuration));
-        this.addRenderableWidget(addSecFunc.apply(126, this.menu::addSignalDuration));
-        this.addRenderableWidget(addMinFunc.apply(138, this.menu::addSignalDuration));
-        this.addRenderableWidget(minusTickFunc.apply(114, this.menu::addSignalDuration));
-        this.addRenderableWidget(minusSecFunc.apply(126, this.menu::addSignalDuration));
-        this.addRenderableWidget(minusMinFunc.apply(138, this.menu::addSignalDuration));
+        this.addRenderableWidget(addTickFunc.apply(114, this::addSignalDuration));
+        this.addRenderableWidget(addSecFunc.apply(126, this::addSignalDuration));
+        this.addRenderableWidget(addMinFunc.apply(138, this::addSignalDuration));
+        this.addRenderableWidget(minusTickFunc.apply(114, this::addSignalDuration));
+        this.addRenderableWidget(minusSecFunc.apply(126, this::addSignalDuration));
+        this.addRenderableWidget(minusMinFunc.apply(138, this::addSignalDuration));
     }
 
     @Override
@@ -211,11 +233,11 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             this.waitingTime.getY() + this.waitingTime.getHeight()
         )) {
             if (this.minecraft.hasControlDown()) {
-                this.menu.addWaitingTime(scrollY < 0 ? -20 : 20);
+                this.addWaitingTime(scrollY < 0 ? -20 : 20);
             } else if (this.minecraft.hasShiftDown()) {
-                this.menu.addWaitingTime(scrollY < 0 ? -1200 : 1200);
+                this.addWaitingTime(scrollY < 0 ? -1200 : 1200);
             } else {
-                this.menu.addWaitingTime(scrollY < 0 ? -1 : 1);
+                this.addWaitingTime(scrollY < 0 ? -1 : 1);
             }
         }
         if (MathUtil.isInRange(
@@ -227,11 +249,11 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             this.signalDuration.getY() + this.signalDuration.getHeight()
         )) {
             if (this.minecraft.hasControlDown()) {
-                this.menu.addSignalDuration(scrollY < 0 ? -20 : 20);
+                this.addSignalDuration(scrollY < 0 ? -20 : 20);
             } else if (this.minecraft.hasShiftDown()) {
-                this.menu.addSignalDuration(scrollY < 0 ? -1200 : 1200);
+                this.addSignalDuration(scrollY < 0 ? -1200 : 1200);
             } else {
-                this.menu.addSignalDuration(scrollY < 0 ? -1 : 1);
+                this.addSignalDuration(scrollY < 0 ? -1 : 1);
             }
         }
         return true;

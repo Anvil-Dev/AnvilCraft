@@ -23,7 +23,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +34,13 @@ import java.util.Optional;
 /// @param heatData 热量数据列表
 /// @param distance 距离范围
 public record ProduceHeat(List<HeatData> heatData, Distance distance) implements IRecipeOutcome<ProduceHeat> {
+    private static final BlockPos[] CAULDRON_NEIGHBORS = {
+        new BlockPos(1, -1, 0),
+        new BlockPos(-1, -1, 0),
+        new BlockPos(0, -1, 1),
+        new BlockPos(0, -1, -1)
+    };
+
     /// 创建一个新的产生热量配方结果构建器
     ///
     /// @return 构建器实例
@@ -56,8 +62,9 @@ public record ProduceHeat(List<HeatData> heatData, Distance distance) implements
     @Override
     public void accept(InWorldRecipeContext context) {
         ServerLevel level = context.getLevel();
-        Vec3 center = context.getPos();
-        for (BlockPos pos : this.distance.getAllPosesInRange(center)) {
+        BlockPos center = BlockPos.containing(context.getPos());
+        for (BlockPos offset : CAULDRON_NEIGHBORS) {
+            BlockPos pos = center.offset(offset);
             BlockState state = level.getBlockState(pos);
             if (!state.is(ModBlockTags.HEATABLE_BLOCKS)) continue;
 

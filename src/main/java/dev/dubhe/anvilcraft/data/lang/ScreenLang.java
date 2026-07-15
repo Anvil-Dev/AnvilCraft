@@ -37,6 +37,10 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.button.pulse_generator.start_mode.loop", "Mode: Loop Mode");
         provider.add("screen.anvilcraft.button.pulse_generator.reverse.off", "Reverse Mode: Off");
         provider.add("screen.anvilcraft.button.pulse_generator.reverse.on", "Reverse Mode: On");
+        provider.add("tooltip.anvilcraft.pulse_generator.title", "Pulse Generator Settings:");
+        provider.add("tooltip.anvilcraft.pulse_generator.delay", "Delay: %s");
+        provider.add("tooltip.anvilcraft.pulse_generator.output_duration", "Output Duration: %s");
+        provider.add("tooltip.anvilcraft.pulse_generator.remaining_time", "Remaining Time: %s");
 
         provider.add("screen.anvilcraft.filter.scroll_to_change", "Scroll mouse to change count");
         provider.add("screen.anvilcraft.filter.shift_to_scroll_faster", "Hold Shift to scroll faster");
@@ -82,6 +86,7 @@ public class ScreenLang {
 
         provider.add("tooltip.anvilcraft.redstone.title", "Redstone Stats:");
         provider.add("tooltip.anvilcraft.redstone.power", "  Power: %d");
+        provider.add("tooltip.anvilcraft.redstone.output_to_redstone", "  Can Output to Redstone: %d");
         provider.add("tooltip.anvilcraft.redstone.output_power", "  Output Power: %d");
         provider.add("tooltip.anvilcraft.redstone.output_mode", "  Output Mode: %s");
         provider.add("tooltip.anvilcraft.redstone.output_mode.compare", "Compare");

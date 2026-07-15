@@ -7,6 +7,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -133,9 +134,11 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
                 if (SpectralSlingshotItem.canTakeOutAmmo(inHand)) player.addItem(stack); // 如果能拿出来，那么拿出来
                 inHand.set(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY);
                 // 装载走正常的使用流程
-                this.startSoundPlayed = false;
-                this.midLoadSoundPlayed = false;
-                player.startUsingItem(hand);
+                if (!SpectralSlingshotItem.getSlingShotAmmo(player).isEmpty()) {
+                    this.startSoundPlayed = false;
+                    this.midLoadSoundPlayed = false;
+                    player.startUsingItem(hand);
+                }
             }
             return InteractionResult.CONSUME;
         } else if (!SpectralSlingshotItem.getSlingShotAmmo(player).isEmpty()) {
@@ -234,11 +237,23 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
             shooter.getX(),
             shooter.getY(),
             shooter.getZ(),
-            SoundEvents.CROSSBOW_SHOOT,
+            this.getShootSound(),
             shooter.getSoundSource(),
-            1.0F,
-            f
+            this.getShootVolume(),
+            f * this.getShootPitch()
         );
+    }
+
+    protected SoundEvent getShootSound() {
+        return SoundEvents.CROSSBOW_SHOOT;
+    }
+
+    protected float getShootVolume() {
+        return 1.0F;
+    }
+
+    protected float getShootPitch() {
+        return 1.0F;
     }
 
     private static Vector3f getProjectileShotVector(LivingEntity shooter, Vec3 distance, float angle) {

@@ -120,7 +120,7 @@ public class RubyPrismBlock extends BaseLaserBlock implements IHammerRemovable, 
     @Override
     public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
         if (blockEntity instanceof BaseLaserBlockEntity laserBlockEntity) {
-            laserBlockEntity.markChanged();
+            laserBlockEntity.resetLaserStateAfterMove();
         }
     }
 }

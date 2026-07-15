@@ -4,7 +4,9 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.recipe.outcome.IRecipeOutcome;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
+import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeData;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeOutcomeTypes;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
@@ -28,6 +30,13 @@ import java.util.Random;
 import java.util.function.Supplier;
 
 public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeOutcome<RoyalPreferenceOutcome> {
+    public static final InWorldRecipeData<Boolean> IS_ROYAL_STEEL_RECIPE = InWorldRecipeData.of(
+        AnvilCraft.of("is_royal_steel_recipe"),
+        false
+    );
+    private static final Vec3 INPUT_RANGE = new Vec3(0.75, 0.75, 0.75);
+    private static final Vec3 INPUT_OFFSET = new Vec3(0.0, -0.375, 0.0);
+    private static final Vec3 OUTPUT_OFFSET = new Vec3(0.0, -0.75, 0.0);
 
     @Override
     public IRecipeOutcome.Type<RoyalPreferenceOutcome> getType() {
@@ -38,19 +47,17 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
     public void accept(InWorldRecipeContext context) {
         ServerLevel level = context.getLevel();
         Vec3 pos = context.getPos();
-        AABB searchBox = new AABB(pos, pos).inflate(1.0);
-        List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class, searchBox);
-        boolean found = false;
-        for (ItemEntity itemEntity : itemEntities) {
+        if (!context.get(IS_ROYAL_STEEL_RECIPE)) return;
+
+        Vec3 inputCenter = pos.add(INPUT_OFFSET);
+        AABB inputBox = new AABB(inputCenter, inputCenter).inflate(INPUT_RANGE.x, INPUT_RANGE.y, INPUT_RANGE.z);
+        for (ItemEntity itemEntity : level.getEntitiesOfClass(ItemEntity.class, inputBox)) {
             if (RoyalPreference.isRoyalPreferred(level, itemEntity.getItem())) {
-                found = true;
-                break;
+                int count = context.getInt(this.result.count());
+                ItemStack stackToDrop = this.result.stack().create().copyWithCount(count);
+                AnvilUtil.dropItems(List.of(stackToDrop), level, pos.add(OUTPUT_OFFSET));
+                return;
             }
-        }
-        if (found) {
-            int count = context.getInt(this.result.count());
-            ItemStack stackToDrop = this.result.stack().create().copyWithCount(count);
-            AnvilUtil.dropItems(List.of(stackToDrop), level, pos);
         }
     }
 

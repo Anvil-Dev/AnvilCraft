@@ -6,10 +6,12 @@ import dev.dubhe.anvilcraft.client.renderer.entity.AscendingBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.CauldronOutletRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.IonocraftRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.MagnetizedNodeEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.entity.RailgunAnvilRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.SlidingBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.SpectralBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.SpectralProjectileRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.ThrownHeavyHalberdRenderer;
+import dev.dubhe.anvilcraft.client.renderer.entity.WeaponBeamRenderer;
 import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
 import dev.dubhe.anvilcraft.entity.CauldronOutletEntity;
 import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
@@ -18,6 +20,7 @@ import dev.dubhe.anvilcraft.entity.FloatingBlockEntity;
 import dev.dubhe.anvilcraft.entity.IonocraftEntity;
 import dev.dubhe.anvilcraft.entity.LevitatingBlockEntity;
 import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
+import dev.dubhe.anvilcraft.entity.RailgunAnvilEntity;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import dev.dubhe.anvilcraft.entity.SpectralProjectileEntity;
 import dev.dubhe.anvilcraft.entity.StandableFallingBlockEntity;
@@ -26,12 +29,25 @@ import dev.dubhe.anvilcraft.entity.ThrownEmberMetalHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.entity.ThrownFrostMetalHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.entity.ThrownTranscendenceHeavyHalberdEntity;
+import dev.dubhe.anvilcraft.entity.WeaponBeamEntity;
 import net.minecraft.client.renderer.entity.FallingBlockRenderer;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 
 public class ModEntities {
+    public static final EntityEntry<? extends RailgunAnvilEntity> RAILGUN_ANVIL = AnvilCraft.REGISTRUM
+        .<RailgunAnvilEntity>entity("railgun_anvil", RailgunAnvilEntity::new, MobCategory.MISC)
+        .properties(builder -> builder.sized(0.98F, 0.98F).clientTrackingRange(80).updateInterval(1).noLootTable())
+        .renderer(() -> RailgunAnvilRenderer::new)
+        .register();
+
+    public static final EntityEntry<? extends WeaponBeamEntity> WEAPON_BEAM = AnvilCraft.REGISTRUM
+        .<WeaponBeamEntity>entity("weapon_beam", WeaponBeamEntity::new, MobCategory.MISC)
+        .properties(builder -> builder.sized(0.01F, 0.01F).clientTrackingRange(80).updateInterval(1).noLootTable())
+        .renderer(() -> WeaponBeamRenderer::new)
+        .register();
+
     public static final EntityEntry<? extends AnimateAscendingBlockEntity> ASCENDING_BLOCK_ENTITY = AnvilCraft.REGISTRUM
         .entity("animate_ascending_block", AnimateAscendingBlockEntity::new, MobCategory.MISC)
         .properties(EntityType.Builder::noLootTable)

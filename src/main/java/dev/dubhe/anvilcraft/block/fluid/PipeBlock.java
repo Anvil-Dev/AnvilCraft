@@ -33,6 +33,8 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -41,6 +43,9 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.Tags;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
@@ -306,6 +311,19 @@ public abstract class PipeBlock extends Block
         return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        List<ItemStack> drops = new ArrayList<>(super.getDrops(state, params));
+        BlockEntity blockEntity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+        if (state.getValue(HAS_CHECK_VALVE)
+            && blockEntity instanceof AbstractPipeBlockEntity checkValve
+            && !checkValve.isEmpty()
+        ) {
+            drops.add(new ItemStack(ModItems.CHECK_VALVE.get(), checkValve.baseFlowCopy().size()));
+        }
+        return drops;
+    }
+
     /**
      * 构建直管/弯管的碰撞箱：中心体 + 两端按端头状态拼接 arm。
      */
@@ -531,6 +549,7 @@ public abstract class PipeBlock extends Block
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         if (!level.isClientSide()) {
+            FluidNetworkManager.INSTANCE.addAdjacentContainers(level, pos);
             FluidNetworkManager.INSTANCE.markDirty(level);
         }
     }
@@ -580,19 +599,33 @@ public abstract class PipeBlock extends Block
         if (oldState.hasProperty(HAS_CHECK_VALVE) && oldState.getValue(HAS_CHECK_VALVE)) {
             AbstractPipeBlockEntity oldValve = getCheckValve(level, pos);
             if (oldValve != null && !oldValve.isEmpty()) {
-                savedFlows = oldValve.baseFlowCopy();
+                Map<Direction, Direction> oldFlows = oldValve.baseFlowCopy();
+                savedFlows = new EnumMap<>(Direction.class);
+                for (Map.Entry<Direction, Direction> entry : oldFlows.entrySet()) {
+                    if (hasConnectionToward(newState, entry.getKey())) {
+                        savedFlows.put(entry.getKey(), entry.getValue());
+                    } else if (!level.isClientSide()) {
+                        Block.popResource(level, pos, new ItemStack(ModItems.CHECK_VALVE.get()));
+                    }
+                }
                 savedPowered = oldValve.isPowered();
+                newState = newState.setValue(HAS_CHECK_VALVE, !savedFlows.isEmpty());
+            } else {
                 newState = newState.setValue(HAS_CHECK_VALVE, true);
             }
+        } else {
+            newState = newState.setValue(HAS_CHECK_VALVE, false);
         }
 
         level.setBlockAndUpdate(pos, newState);
 
-        if (savedFlows != null) {
+        if (savedFlows != null && !savedFlows.isEmpty()) {
             AbstractPipeBlockEntity newValve = getCheckValve(level, pos);
             if (newValve != null) {
                 newValve.restore(savedFlows, savedPowered);
-                newValve.sendUpdate();
+                if (!level.isClientSide()) {
+                    newValve.sendUpdate();
+                }
             }
         }
     }

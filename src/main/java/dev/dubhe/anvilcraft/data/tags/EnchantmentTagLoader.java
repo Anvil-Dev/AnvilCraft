@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.data.tags;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumTagsProvider;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
+import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.neoforged.neoforge.common.Tags;
@@ -14,6 +15,10 @@ public class EnchantmentTagLoader {
     public static void init(RegistrumTagsProvider<Enchantment> provider) {
         provider.rawBuilder(Tags.Enchantments.INCREASE_BLOCK_DROPS)
             .addOptionalElement(ModEnchantments.HARVEST_KEY.identifier());
+
+        provider.rawBuilder(EnchantmentTags.IN_ENCHANTING_TABLE)
+            .addOptionalElement(ModEnchantments.SMELTING_KEY.identifier())
+            .addOptionalElement(ModEnchantments.DISINTEGRATION_KEY.identifier());
 
         provider.rawBuilder(ModEnchantmentTags.DISABLED_PASSED)
             .addElement(Enchantments.MENDING.identifier());

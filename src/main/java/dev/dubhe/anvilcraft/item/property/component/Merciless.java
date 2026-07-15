@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.item.property.component;
 
+import com.mojang.datafixers.util.Unit;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -29,7 +31,7 @@ import java.util.function.Consumer;
 public record Merciless() implements TooltipProvider {
     public static final Merciless DEFAULT = new Merciless();
     public static final Identifier MERCILESS_ID = AnvilCraft.of("merciless");
-    public static final MapCodec<Merciless> CODEC = MapCodec.unit(Merciless.DEFAULT);
+    public static final MapCodec<Merciless> CODEC = Codec.EMPTY.xmap(a -> Merciless.DEFAULT, a -> Unit.INSTANCE);
     public static final StreamCodec<ByteBuf, Merciless> STREAM_CODEC = StreamCodec.unit(Merciless.DEFAULT);
 
     public static void tick(ServerPlayer player) {
@@ -39,13 +41,41 @@ public record Merciless() implements TooltipProvider {
     }
 
     private static void tick(ItemStack stack) {
+        absorbEnchantments(stack);
+    }
+
+    public static void enable(ItemStack stack) {
+        stack.set(ModComponents.MERCILESS, DEFAULT);
+        absorbEnchantments(stack);
+    }
+
+    public static void disable(ItemStack stack) {
+        stack.remove(ModComponents.MERCILESS);
+        ItemEnchantments enchantments = stack.getOrDefault(
+            ModComponents.MERCILESS_ENCHANTMENTS,
+            ItemEnchantments.EMPTY
+        );
+        if (!enchantments.isEmpty()) {
+            stack.set(DataComponents.ENCHANTMENTS, enchantments);
+        }
+        stack.remove(ModComponents.MERCILESS_ENCHANTMENTS);
+        removeAttributeModifiers(stack);
+    }
+
+    public static void absorbEnchantments(ItemStack stack) {
         ItemEnchantments enchantments = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
-        if (enchantments.isEmpty()) return;
+        ItemEnchantments mercilessEnchs = stack.getOrDefault(
+            ModComponents.MERCILESS_ENCHANTMENTS,
+            ItemEnchantments.EMPTY
+        );
+        if (enchantments.isEmpty()) {
+            if (mercilessEnchs.isEmpty()) removeAttributeModifiers(stack);
+            return;
+        }
 
         int levels = 0;
 
         // 将已无情的魔咒的等级添至总等级
-        ItemEnchantments mercilessEnchs = stack.getOrDefault(ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantments.EMPTY);
         for (Holder<Enchantment> enchantment : mercilessEnchs.keySet()) {
             levels += mercilessEnchs.getLevel(enchantment);
         }
@@ -60,6 +90,7 @@ public record Merciless() implements TooltipProvider {
             int mercilessLevel = mercilessEnchs.getLevel(enchantment);
             if (mercilessLevel == level) {
                 level++;
+                levels++;
             } else {
                 level = Math.max(level, mercilessLevel);
                 levels += level - mercilessLevel;
@@ -100,8 +131,26 @@ public record Merciless() implements TooltipProvider {
         stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
     }
 
+    private static void removeAttributeModifiers(ItemStack stack) {
+        ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
+        boolean found = false;
+        for (ItemAttributeModifiers.Entry entry : stack.getAttributeModifiers().modifiers()) {
+            if (entry.modifier().is(MERCILESS_ID)) {
+                found = true;
+            } else {
+                builder.add(entry.attribute(), entry.modifier(), entry.slot());
+            }
+        }
+        if (found) stack.set(DataComponents.ATTRIBUTE_MODIFIERS, builder.build());
+    }
+
     @Override
-    public void addToTooltip(Item.TooltipContext context, Consumer<Component> consumer, TooltipFlag flag, DataComponentGetter components) {
+    public void addToTooltip(
+        Item.TooltipContext context,
+        Consumer<Component> consumer,
+        TooltipFlag flag,
+        DataComponentGetter components
+    ) {
         consumer.accept(Component.translatable("tooltip.anvilcraft.property.merciless").withColor(0xB4F0F6));
     }
 }

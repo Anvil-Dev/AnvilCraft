@@ -294,7 +294,12 @@ public class ModItems {
         .register();
     public static final ItemEntry<AnvilHammerItem> ANVIL_HAMMER = REGISTRUM.item("anvil_hammer", AnvilHammerItem::new)
         .properties(properties -> properties.durability(35).enchantable(14).repairable(Items.IRON_INGOT))
-        .tag(ItemTags.MACE_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE, ModItemTags.ANVIL_HAMMER)
+        .tag(
+            ItemTags.MACE_ENCHANTABLE,
+            ItemTags.DURABILITY_ENCHANTABLE,
+            ItemTags.WEAPON_ENCHANTABLE,
+            ModItemTags.ANVIL_HAMMER
+        )
         .model(DataGenUtil::onlyInfo)
         .recipe(RegistrumItemRecipeLoader::anvilHammer)
         .register();
@@ -404,6 +409,7 @@ public class ModItems {
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.MACE_ENCHANTABLE,
             ItemTags.TRIDENT_ENCHANTABLE,
+            ItemTags.WEAPON_ENCHANTABLE,
             ItemTags.SWEEPING_ENCHANTABLE,
             ModItemTags.HEAVY_HALBERD,
             ModItemTags.EXPLOSION_PROOF
@@ -419,6 +425,7 @@ public class ModItems {
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.MACE_ENCHANTABLE,
             ItemTags.TRIDENT_ENCHANTABLE,
+            ItemTags.WEAPON_ENCHANTABLE,
             ItemTags.SWEEPING_ENCHANTABLE,
             ModItemTags.HEAVY_HALBERD,
             ModItemTags.EXPLOSION_PROOF
@@ -434,6 +441,7 @@ public class ModItems {
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.MACE_ENCHANTABLE,
             ItemTags.TRIDENT_ENCHANTABLE,
+            ItemTags.WEAPON_ENCHANTABLE,
             ItemTags.SWEEPING_ENCHANTABLE,
             ModItemTags.HEAVY_HALBERD,
             ModItemTags.EXPLOSION_PROOF

@@ -7,6 +7,12 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
+import dev.dubhe.anvilcraft.inventory.OpenedHammerSource;
+import dev.dubhe.anvilcraft.inventory.PortableAnvilMenu;
+import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;
+import dev.dubhe.anvilcraft.inventory.TranscendenceAnvilMenu;
 import dev.dubhe.anvilcraft.mixin.invoker.BlockBehaviourInvoker;
 import dev.dubhe.anvilcraft.network.RocketJumpPacket;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
@@ -14,7 +20,7 @@ import dev.dubhe.anvilcraft.util.MultiPartBlockUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -22,6 +28,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
@@ -29,9 +36,15 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.FireworkRocketEntity;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.Fireworks;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
@@ -44,15 +57,19 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 
 public class AnvilHammerItem extends Item {
+    public static final int PORTABLE_ANVIL_USE_TICKS = 40;
     public static final Property<?>[] SUPPORTED_PROPERTIES = {
         BlockStateProperties.FACING,
         BlockStateProperties.FACING_HOPPER,
@@ -100,6 +117,9 @@ public class AnvilHammerItem extends Item {
         state = level.getBlockState(pos);
         block = state.getBlock();
         BlockPos posToRemove = pos;
+        BreakBlockEvent breakEvent = new BreakBlockEvent(level, posToRemove, state, player);
+        NeoForge.EVENT_BUS.post(breakEvent);
+        if (breakEvent.isCanceled()) return;
         final List<ItemStack> drops = player.isCreative() ? List.of() : BreakBlockUtil.dropSilkTouch(level, pos);
         block.playerWillDestroy(level, posToRemove, state, player);
         level.destroyBlock(posToRemove, false);
@@ -160,12 +180,58 @@ public class AnvilHammerItem extends Item {
         return true;
     }
 
+    public static void openPortableAnvil(Player player, int inventorySlot) {
+        if (!(player instanceof ServerPlayer serverPlayer)) return;
+        OpenedHammerSource source = OpenedHammerSource.fromInventory(serverPlayer.getInventory(), inventorySlot);
+        openPortableAnvil(serverPlayer, source);
+    }
+
+    private static void openPortableAnvil(ServerPlayer serverPlayer, @Nullable OpenedHammerSource source) {
+        if (source == null) return;
+        if (!serverPlayer.containerMenu.getCarried().isEmpty()) return;
+        if (serverPlayer.containerMenu != serverPlayer.inventoryMenu) {
+            serverPlayer.closeContainer();
+        }
+        MenuProvider provider = new SimpleMenuProvider(
+            (id, playerInventory, menuPlayer) -> createPortableAnvilMenu(id, playerInventory, source),
+            Component.translatable("container.repair")
+        );
+        ModMenuTypes.open(serverPlayer, provider);
+    }
+
+    public static void openPortableAnvilFromMenuSlot(Player player, int menuSlotId) {
+        if (!(player instanceof ServerPlayer serverPlayer)) return;
+        if (!serverPlayer.containerMenu.getCarried().isEmpty()) return;
+        if (menuSlotId < 0 || menuSlotId >= serverPlayer.containerMenu.slots.size()) return;
+        Slot slot = serverPlayer.containerMenu.getSlot(menuSlotId);
+        OpenedHammerSource source = OpenedHammerSource.fromMenuSlot(slot, serverPlayer.getInventory());
+        openPortableAnvil(serverPlayer, source);
+    }
+
+    private static AbstractContainerMenu createPortableAnvilMenu(
+        int id,
+        Inventory playerInventory,
+        OpenedHammerSource source
+    ) {
+        Item hammerItem = source.openedHammerItem();
+        if (hammerItem == ModItems.ROYAL_ANVIL_HAMMER.get()) {
+            return new RoyalAnvilMenu(id, playerInventory, ContainerLevelAccess.NULL, source);
+        }
+        if (hammerItem == ModItems.EMBER_ANVIL_HAMMER.get()) {
+            return new EmberAnvilMenu(id, playerInventory, ContainerLevelAccess.NULL, source);
+        }
+        if (hammerItem == ModItems.TRANSCENDENCE_ANVIL_HAMMER.get()) {
+            return new TranscendenceAnvilMenu(id, playerInventory, ContainerLevelAccess.NULL, source);
+        }
+        return new PortableAnvilMenu(id, playerInventory, ContainerLevelAccess.NULL, source);
+    }
+
     /// 右键方块
     public static void useBlock(
         ServerPlayer player, BlockPos blockPos, ServerLevel level, ItemStack anvilHammer, InteractionHand hand,
         BlockHitResult result
     ) {
-        if (rocketJump(player, level, blockPos)) return;
+        if (rocketJump(player, level, result)) return;
         if (!level.mayInteract(player, blockPos)) return;
         if (!player.getAbilities().mayBuild) return;
         if (player.isShiftKeyDown()) {
@@ -174,29 +240,83 @@ public class AnvilHammerItem extends Item {
             return;
         }
         TriggerUtil.anvilHammerClickBlock(level, blockPos, "right_click");
+        if (interactWithBlock(player, blockPos, level, anvilHammer, hand, result)) return;
+        HammerManager.getChange(level.getBlockState(blockPos).getBlock()).change(player, blockPos, level, anvilHammer);
+    }
+
+    public static boolean interactWithBlock(
+        Player player,
+        BlockPos blockPos,
+        Level level,
+        ItemStack anvilHammer,
+        InteractionHand hand,
+        BlockHitResult result
+    ) {
         BlockState state = level.getBlockState(blockPos);
         Block block = state.getBlock();
         MenuProvider provider = ((BlockBehaviourInvoker) block).invokeGetMenuProvider(state, level, blockPos);
         if (provider != null) {
-            ModMenuTypes.open(player, provider, blockPos);
-            return;
+            if (player instanceof ServerPlayer serverPlayer) {
+                ModMenuTypes.open(serverPlayer, provider, blockPos);
+            }
+            return true;
         }
-        if (state.useItemOn(anvilHammer, level, player, hand, result) != InteractionResult.PASS) return;
-        if (state.useWithoutItem(level, player, result) != InteractionResult.PASS) return;
-        HammerManager.getChange(block).change(player, blockPos, level, anvilHammer);
+        if (state.useItemOn(anvilHammer, level, player, hand, result) != InteractionResult.PASS) return true;
+        return state.useWithoutItem(level, player, result) != InteractionResult.PASS;
     }
 
-    private static boolean rocketJump(@Nullable ServerPlayer serverPlayer, ServerLevel level, BlockPos blockPos) {
+    @Override
+    public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
+        player.startUsingItem(usedHand);
+        return InteractionResult.CONSUME;
+    }
+
+    @Override
+    public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity livingEntity) {
+        if (!level.isClientSide() && livingEntity instanceof ServerPlayer player) {
+            int slot = player.getUsedItemHand() == InteractionHand.MAIN_HAND
+                       ? player.getInventory().getSelectedSlot()
+                       : Inventory.SLOT_OFFHAND;
+            openPortableAnvil(player, slot);
+        }
+        return stack;
+    }
+
+    @Override
+    public int getUseDuration(ItemStack stack, LivingEntity entity) {
+        return PORTABLE_ANVIL_USE_TICKS;
+    }
+
+    @Override
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
+        return ItemUseAnimation.NONE;
+    }
+
+    private static boolean rocketJump(
+        @Nullable ServerPlayer serverPlayer,
+        ServerLevel level,
+        BlockHitResult result
+    ) {
         if (!AnvilHammerItem.canRocketJump(serverPlayer)) return false;
         ItemStack stack = serverPlayer.getOffhandItem();
         Fireworks fireworks = stack.get(DataComponents.FIREWORKS);
-        int i = fireworks.flightDuration();
+        int i = Objects.requireNonNull(fireworks).flightDuration();
+        Vec3 location = result.getLocation();
+        Vec3 offset = Vec3.atLowerCornerOf(result.getDirection().getUnitVec3i()).scale(0.15);
+        FireworkRocketEntity rocket = new FireworkRocketEntity(
+            level,
+            serverPlayer,
+            location.x + offset.x,
+            location.y + offset.y,
+            location.z + offset.z,
+            stack
+        );
+        level.addFreshEntity(rocket);
         if (!serverPlayer.getAbilities().instabuild) stack.shrink(1);
         double power = i * 0.75 + 0.5;
-        serverPlayer.setDeltaMovement(0, power, 0);
+        Vec3 movement = serverPlayer.getDeltaMovement();
+        serverPlayer.setDeltaMovement(movement.x, power, movement.z);
         PacketDistributor.sendToPlayer(serverPlayer, new RocketJumpPacket(power));
-        level.sendParticles(ParticleTypes.FIREWORK, serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(), 20, 0, 0.5, 0, 0.05);
-        level.playSound(null, blockPos, SoundEvents.FIREWORK_ROCKET_LAUNCH, SoundSource.AMBIENT, 3.0F, 1.0F);
         return true;
     }
 
@@ -226,12 +346,15 @@ public class AnvilHammerItem extends Item {
         return switch (AnvilCraftClient.CONFIG.goggleMode) {
             case ALWAYS_SHOW -> true;
             case WEARING_HAMMER -> AnvilHammerItem.isWearing(player);
-            case HOLDING_HAMMER -> {
-                if (player.getMainHandItem().getItem() instanceof AnvilHammerItem) yield true;
-                yield player.getOffhandItem().getItem() instanceof AnvilHammerItem;
-            }
+            case HOLDING_HAMMER -> AnvilHammerItem.isHolding(player);
+            case WEARING_OR_HOLDING_HAMMER -> AnvilHammerItem.isWearing(player) || AnvilHammerItem.isHolding(player);
             case TOGGLE_WITH_KEY -> AnvilHammerItem.goggleEnabled;
         };
+    }
+
+    private static boolean isHolding(Player player) {
+        return player.getMainHandItem().getItem() instanceof AnvilHammerItem
+            || player.getOffhandItem().getItem() instanceof AnvilHammerItem;
     }
 
     protected float getAttackDamageModifierAmount() {

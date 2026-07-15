@@ -865,12 +865,12 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void circuitBoard(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get())
-            .requires(ModItemTags.COPPER_PLATES)
-            .requires(ModItems.HARDEND_RESIN)
-            .requires(ModItems.HARDEND_RESIN)
-            .requires(ModItems.HARDEND_RESIN)
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.COPPER_PLATES), AnvilCraftDatagen.has(lookup, ModItemTags.COPPER_PLATES))
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
+            .pattern("W")
+            .pattern("R")
+            .define('W', ModBlocks.REDSTONE_WIRE)
+            .define('R', ModItems.HARDEND_RESIN)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.REDSTONE_WIRE), AnvilCraftDatagen.has(lookup, ModBlocks.REDSTONE_WIRE))
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.HARDEND_RESIN), AnvilCraftDatagen.has(lookup, ModItems.HARDEND_RESIN))
             .save(provider);
     }

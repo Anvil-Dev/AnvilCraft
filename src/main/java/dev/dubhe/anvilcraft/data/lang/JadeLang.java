@@ -12,19 +12,19 @@ public class JadeLang {
         provider.add("config.jade.plugin_anvilcraft.heatable_block_provider", "Heatable Block");
         provider.add("config.jade.plugin_anvilcraft.burning_heater_provider", "Burning Heater");
         provider.add("config.jade.plugin_anvilcraft.burning_heater_client_provider", "Burning Heater (Client)");
-        provider.add("config.jade.plugin_anvilcraft.charger_provider", "Charger");
+        provider.add("config.jade.plugin_anvilcraft.charger_provider", "Charging Progress");
         provider.add("config.jade.plugin_anvilcraft.charger_client_provider", "Charger (Client)");
-        provider.add("config.jade.plugin_anvilcraft.discharger_provider", "Discharger");
+        provider.add("config.jade.plugin_anvilcraft.discharger_provider", "Discharging Progress");
         provider.add("config.jade.plugin_anvilcraft.discharger_client_provider", "Discharger (Client)");
         provider.add("config.jade.plugin_anvilcraft.menger_sponge_client_provider", "Menger Sponge (Client)");
-        provider.add("config.jade.plugin_anvilcraft.wip_block", "Work In Progress Block");
+        provider.add("config.jade.plugin_anvilcraft.wip_block", "Processing Block");
 
         provider.add("tooltip.anvilcraft.jade.power_information", "Power Grid: %s");
         provider.add("tooltip.anvilcraft.jade.ruby_prism.power", "Laser level: %d");
         provider.add("tooltip.anvilcraft.jade.item_detector", "Detection Range: %d");
         provider.add("tooltip.anvilcraft.jade.infinity", "∞");
 
-        provider.add("tooltip.anvilcraft.charger.jade.working_progress", "Working Progress: %s");
+        provider.add("tooltip.anvilcraft.charger.jade.working_progress", "Charging Progress: %s");
         provider.add("tooltip.anvilcraft.charger.jade.time", "%1$s / %2$s");
         provider.add("tooltip.anvilcraft.charger.jade.energy", "%1$s / %2$s");
 
@@ -36,7 +36,7 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.wip_block.jade.step_count", "Steps Executed: %d");
 
         provider.add("tooltip.anvilcraft.burning_heater.jade.state", "State: %s");
-        provider.add("tooltip.anvilcraft.burning_heater.jade.state.off", "Off");
+        provider.add("tooltip.anvilcraft.burning_heater.jade.state.off", "Extinguished");
         provider.add("tooltip.anvilcraft.burning_heater.jade.state.smoldering", "Smoldering");
         provider.add("tooltip.anvilcraft.burning_heater.jade.state.lit", "Lit");
         provider.add("tooltip.anvilcraft.burning_heater.jade.burn_time", "Burn Time: %s");
@@ -57,6 +57,6 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.missing.skip", "Skip");
         provider.add("tooltip.anvilcraft.smart_block_placer.jade.missing.stop", "Stop");
 
-        provider.add("tooltip.anvilcraft.crab_trap.jade.fishing", "Fishing: %s");
+        provider.add("tooltip.anvilcraft.crab_trap.jade.fishing", "Fishing Attempts: %s");
     }
 }

@@ -113,7 +113,9 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
                 default -> Orientation.NORTH_UP;
             };
         };
-        return defaultBlockState().setValue(ORIENTATION, orientation);
+        return defaultBlockState()
+            .setValue(ORIENTATION, orientation)
+            .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     /**
@@ -177,6 +179,7 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
         boolean movedByPiston
     ) {
         if (level.isClientSide()) return;
+        FluidNetworkManager.INSTANCE.addAdjacentContainers(level, pos);
         boolean hasSignal = level.hasNeighborSignal(pos);
         if (hasSignal != state.getValue(POWERED)) {
             level.setBlock(pos, state.setValue(POWERED, hasSignal), 2);
@@ -187,6 +190,7 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
         if (!level.isClientSide()) {
+            FluidNetworkManager.INSTANCE.addAdjacentContainers(level, pos);
             FluidNetworkManager.INSTANCE.markDirty(level);
         }
     }

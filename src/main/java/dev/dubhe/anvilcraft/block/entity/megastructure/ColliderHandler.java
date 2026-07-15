@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity.megastructure;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLogisticsInterfaceBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CfaInterfaceScanner;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -259,7 +260,7 @@ public class ColliderHandler extends BaseMegastructureHandler {
 
     private void completeColliderCycle(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null) return;
-        List<ResourceHandler<ItemResource>> logistics = findLogisticsInterfaces(be);
+        var logistics = this.findOutputLogisticsInterfaces(be);
 
         var recipes = RecipesRecord.getRecipes(be.getLevel()).byType(ModRecipeTypes.ANVIL_COLLISION_CRAFT.get());
 
@@ -286,17 +287,27 @@ public class ColliderHandler extends BaseMegastructureHandler {
         int hitRemaining = hitReserved - collisionCount;
         if (hitRemaining > 0) {
             ItemStack hitReturn = this.reservedHitBlock.copyWithCount(hitRemaining);
-            this.returnToLogistics(logistics, hitReturn);
+            hitReturn = this.returnToLogistics(logistics, hitReturn);
+            if (!hitReturn.isEmpty() && logistics.size() == 0) {
+                dropItemOnGround(hitReturn, be.getLevel(), be.getBlockPos());
+            }
         }
 
         if (consumeAnvil) {
             int anvilRemaining = anvilReserved - collisionCount;
             if (anvilRemaining > 0) {
-                this.returnToLogistics(logistics, this.reservedAnvil.copyWithCount(anvilRemaining));
+                ItemStack anvilReturn = this.reservedAnvil.copyWithCount(anvilRemaining);
+                anvilReturn = this.returnToLogistics(logistics, anvilReturn);
+                if (!anvilReturn.isEmpty() && logistics.size() == 0) {
+                    dropItemOnGround(anvilReturn, be.getLevel(), be.getBlockPos());
+                }
             }
         } else {
             if (!this.reservedAnvil.isEmpty()) {
-                this.returnToLogistics(logistics, this.reservedAnvil.copy());
+                ItemStack anvilReturn = this.returnToLogistics(logistics, this.reservedAnvil.copy());
+                if (!anvilReturn.isEmpty()) {
+                    dropItemOnGround(anvilReturn, be.getLevel(), be.getBlockPos());
+                }
             }
         }
 
@@ -306,11 +317,9 @@ public class ColliderHandler extends BaseMegastructureHandler {
                     ItemStackTemplate template = chanceStack.stack();
                     ItemStack output = new ItemStack(template.item(), template.count());
                     if (output.isEmpty()) continue;
-                    for (ResourceHandler<ItemResource> handler : logistics) {
-                        ItemStack remainder = insertIntoHandler(handler, output);
-                        if (remainder.getCount() < output.getCount()) {
-                            break;
-                        }
+                    ItemOutputResult result = insertOutputItem(logistics, output, this.logisticsRoundRobin);
+                    if (result.remainder().getCount() < output.getCount()) {
+                        this.logisticsRoundRobin = result.nextIndex();
                     }
                 }
             }
@@ -320,32 +329,33 @@ public class ColliderHandler extends BaseMegastructureHandler {
         this.resetColliderState(be);
     }
 
-    private void returnToLogistics(List<ResourceHandler<ItemResource>> logistics, ItemStack stack) {
-        if (logistics.isEmpty()) {
-            // 缺少世界引用时无法生成掉落物，只能丢弃。
-            return;
+    private ItemStack returnToLogistics(
+        CfaInterfaceScanner.PrioritizedInterfaces<ResourceHandler<ItemResource>> logistics,
+        ItemStack stack
+    ) {
+        if (logistics.size() == 0) return stack;
+        ItemOutputResult result = insertOutputItem(logistics, stack, this.logisticsRoundRobin);
+        if (result.remainder().getCount() < stack.getCount()) {
+            this.logisticsRoundRobin = result.nextIndex();
         }
-        int startIdx = this.logisticsRoundRobin % logistics.size();
-        for (int attempt = 0; attempt < logistics.size(); attempt++) {
-            int idx = (startIdx + attempt) % logistics.size();
-            ItemStack remainder = insertIntoHandler(logistics.get(idx), stack);
-            if (remainder.getCount() < stack.getCount()) {
-                this.logisticsRoundRobin = (idx + 1) % logistics.size();
-                if (remainder.isEmpty()) return;
-                stack = remainder;
-            }
-        }
+        return result.remainder();
     }
 
     private void outputColliderReservedItems(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null) return;
-        List<ResourceHandler<ItemResource>> logistics = findLogisticsInterfaces(be);
+        var logistics = this.findOutputLogisticsInterfaces(be);
 
-        if (!this.reservedAnvil.isEmpty() && !logistics.isEmpty()) {
-            this.returnToLogistics(logistics, this.reservedAnvil.copy());
+        if (!this.reservedAnvil.isEmpty()) {
+            ItemStack remaining = this.returnToLogistics(logistics, this.reservedAnvil.copy());
+            if (!remaining.isEmpty()) {
+                dropItemOnGround(remaining, be.getLevel(), be.getBlockPos());
+            }
         }
-        if (!this.reservedHitBlock.isEmpty() && !logistics.isEmpty()) {
-            this.returnToLogistics(logistics, this.reservedHitBlock.copy());
+        if (!this.reservedHitBlock.isEmpty()) {
+            ItemStack remaining = this.returnToLogistics(logistics, this.reservedHitBlock.copy());
+            if (!remaining.isEmpty()) {
+                dropItemOnGround(remaining, be.getLevel(), be.getBlockPos());
+            }
         }
 
         this.resetColliderState(be);

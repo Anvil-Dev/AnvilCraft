@@ -8,12 +8,12 @@ import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Ferocious;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
-import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
+import dev.dubhe.anvilcraft.item.tool.DragonRodItem;
+import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
 import dev.dubhe.anvilcraft.network.PlayerSettingsSyncPacket;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
-import dev.dubhe.anvilcraft.util.PlayerUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
@@ -39,6 +39,7 @@ public class PlayerTickEventHandler {
     public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             IonoCraftBackpackItem.onPlayerLoggedOut(serverPlayer.getUUID());
+            LaserGunItem.clearState(serverPlayer.getUUID());
         }
     }
 
@@ -52,8 +53,7 @@ public class PlayerTickEventHandler {
             Merciless.tick(serverPlayer);
             Ferocious.tick(serverPlayer);
             Eternal.tick(serverPlayer);
-        } else if (PlayerUtil.isClient(event.getEntity())) {
-            MultiphaseRef.tick(event.getEntity());
+            DragonRodItem.tickContinuousDevour(serverPlayer);
         }
     }
 

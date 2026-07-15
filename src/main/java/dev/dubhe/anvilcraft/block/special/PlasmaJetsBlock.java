@@ -43,6 +43,11 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
         ) {
             return false;
         }
+        BlockCache cache = new BlockCache(level);
+        if (cache.getBlockState(pos.below()).getBlock() instanceof IIgnitableCauldron cauldron
+            && cauldron.getFluidAmount(cache, pos.below()) < 250) {
+            return false;
+        }
         for (int i = 0; i < 8; i++) {
             if (!level.getBlockState(pos.above(i)).isAir()) {
                 return false;

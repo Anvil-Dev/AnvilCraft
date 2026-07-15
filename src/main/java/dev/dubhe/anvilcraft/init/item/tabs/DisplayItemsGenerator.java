@@ -35,16 +35,6 @@ public abstract class DisplayItemsGenerator implements CreativeModeTab.DisplayIt
         this.output.accept(item);
     }
 
-    public void energy(ItemLike item) {
-        if (this.output == null) {
-            return;
-        }
-        ItemStack stack = item.asItem().getDefaultInstance();
-        stack.set(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY);
-        this.output.accept(stack);
-        this.output.accept(item.asItem().getDefaultInstance());
-    }
-
     public void ionoCraftBackpack(ItemLike item) {
         if (this.output == null) {
             return;

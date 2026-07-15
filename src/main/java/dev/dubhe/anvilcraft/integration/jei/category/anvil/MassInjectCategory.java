@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
@@ -15,6 +16,7 @@ import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
@@ -34,6 +36,8 @@ import java.util.Comparator;
 import java.util.List;
 
 public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInjectRecipe>> {
+    private static final String SPACE_OVERCOMPRESSOR = "space_overcompressor";
+
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -92,6 +96,23 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
             .addRichTooltipCallback((_, tooltip) -> tooltip.add(
                 Component.translatable(KEY_MASS_NEEDED, SpaceOvercompressorBlockEntity.DISPLAYED_MASS).withStyle(ChatFormatting.GOLD)
             ));
+        JeiBlockIngredientUtil.addSlot(
+            builder,
+            RecipeIngredientRole.CRAFTING_STATION,
+            SPACE_OVERCOMPRESSOR,
+            72,
+            34,
+            18,
+            19,
+            ModBlocks.SPACE_OVERCOMPRESSOR.get()
+        );
+    }
+
+    @Override
+    public void createRecipeExtras(
+        IRecipeExtrasBuilder builder, RecipeHolder<MassInjectRecipe> recipeHolder, IFocusGroup focuses
+    ) {
+        JeiBlockIngredientUtil.suppressHoverOverlays(builder);
     }
 
     @Override

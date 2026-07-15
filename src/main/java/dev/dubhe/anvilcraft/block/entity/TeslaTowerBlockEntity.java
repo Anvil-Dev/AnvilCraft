@@ -64,8 +64,9 @@ import java.util.UUID;
 @Slf4j
 public class TeslaTowerBlockEntity extends BlockEntity
     implements IPowerConsumer, MenuProvider, IDiskCloneable {
+    private static final int STRIKE_COOLDOWN_TICKS = 4 * 20;
     private final ArrayList<Pair<TeslaFilter, String>> whiteList = new ArrayList<>();
-    private int tickCount = 0;
+    private int tickCount = STRIKE_COOLDOWN_TICKS;
     private int flashTimer = 0;
     @Getter
     private long lastStrikeTime = 0;
@@ -101,7 +102,9 @@ public class TeslaTowerBlockEntity extends BlockEntity
     @Override
     public int getInputPower() {
         if (this.level == null) return 0;
-        return this.level.getBlockState(getBlockPos()).getValue(TeslaTowerBlock.HALF) == Vertical4PartHalf.BOTTOM ? 128 : 0;
+        BlockState state = this.level.getBlockState(getBlockPos());
+        return state.getValue(TeslaTowerBlock.HALF) == Vertical4PartHalf.BOTTOM
+            && state.getValue(TeslaTowerBlock.SWITCH) == Switch.ON ? 128 : 0;
     }
 
     @Override
@@ -195,9 +198,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
         BlockState state = this.level.getBlockState(getBlockPos());
         if (!state.is(ModBlocks.TESLA_TOWER.get())) return;
         if (state.getValue(TeslaTowerBlock.HALF) != Vertical4PartHalf.BOTTOM) return;
-        if (state.getValue(TeslaTowerBlock.SWITCH) == Switch.OFF && this.getGrid() != null) {
-            this.getGrid().remove(this);
-        } else if (state.getValue(TeslaTowerBlock.SWITCH) == Switch.ON && this.getGrid() == null) {
+        if (this.getGrid() == null) {
             PowerGrid.addComponent(this);
         }
         if (this.getComponentType() == PowerComponentType.INVALID) {
@@ -219,7 +220,8 @@ public class TeslaTowerBlockEntity extends BlockEntity
                 this.level.sendBlockUpdated(this.getBlockPos(), state, state, 2);
             }
         }
-        if (state.getValue(TeslaTowerBlock.OVERLOAD) || state.getValue(TeslaTowerBlock.SWITCH) == Switch.OFF) {
+        if (!this.isGridWorking() || state.getValue(TeslaTowerBlock.SWITCH) == Switch.OFF) {
+            this.tickCount = STRIKE_COOLDOWN_TICKS;
             final boolean hasChanged = this.targetEntity != null || this.targetEntityUUID != null || this.targetLightningRod != null;
             this.targetEntity = null;
             this.targetEntityUUID = null;
@@ -235,7 +237,7 @@ public class TeslaTowerBlockEntity extends BlockEntity
             this.tickCount--;
             return;
         }
-        this.tickCount = 80;
+        this.tickCount = STRIKE_COOLDOWN_TICKS;
         this.tickCount--;
         AABB aabb = new AABB(this.getBlockPos().above(3)).expandTowards(8, 8, 8).expandTowards(-8, -8, -8);
         if (this.targetEntity != null) {

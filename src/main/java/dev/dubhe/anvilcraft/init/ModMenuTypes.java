@@ -30,6 +30,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureScannerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureToolScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TeslaTowerScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.TradingStationScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceAnvilScreen;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import dev.dubhe.anvilcraft.inventory.AdvancedComparatorMenu;
@@ -50,6 +51,7 @@ import dev.dubhe.anvilcraft.inventory.ItemCollectorMenu;
 import dev.dubhe.anvilcraft.inventory.ItemDetectorMenu;
 import dev.dubhe.anvilcraft.inventory.JewelCraftingMenu;
 import dev.dubhe.anvilcraft.inventory.MagneticChuteMenu;
+import dev.dubhe.anvilcraft.inventory.PortableAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.PulseGeneratorMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
@@ -60,14 +62,20 @@ import dev.dubhe.anvilcraft.inventory.StorageMenu;
 import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
+import dev.dubhe.anvilcraft.inventory.TradingStationMenu;
 import dev.dubhe.anvilcraft.inventory.TranscendenceAnvilMenu;
+import net.minecraft.client.gui.screens.inventory.AnvilScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
+import net.minecraft.world.inventory.AnvilMenu;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
 public class ModMenuTypes {
+    public static final MenuEntry<AnvilMenu> PORTABLE_ANVIL = REGISTRUM
+        .menu("portable_anvil", (type, id, inv) -> new PortableAnvilMenu(id, inv), () -> AnvilScreen::new)
+        .register();
     public static final MenuEntry<BatchCrafterMenu> BATCH_CRAFTER = REGISTRUM
         .menu("batch_crafter", BatchCrafterMenu::new, () -> BatchCrafterScreen::new)
         .register();
@@ -182,6 +190,9 @@ public class ModMenuTypes {
         .register();
     public static final MenuEntry<EnergyWeaponMakeMenu> ENERGY_WEAPON_MAKE = REGISTRUM
         .menu("energy_weapon_make", EnergyWeaponMakeMenu::new, () -> EnergyWeaponMakeScreen::new)
+        .register();
+    public static final MenuEntry<TradingStationMenu> TRADING_STATION = REGISTRUM
+        .menu("trading_station", TradingStationMenu::new, () -> TradingStationScreen::new)
         .register();
     public static final MenuEntry<CelestialForgingAnvilMenu> CELESTIAL_FORGING_ANVIL = REGISTRUM
         .menu("celestial_forging_anvil", CelestialForgingAnvilMenu::new, () -> CelestialForgingAnvilScreen::new)

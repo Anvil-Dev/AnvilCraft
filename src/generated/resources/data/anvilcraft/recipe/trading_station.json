@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "B": "minecraft:barrel",
+    "P": "#minecraft:planks",
+    "S": "minecraft:stick",
+    "W": "#minecraft:wool"
+  },
+  "pattern": [
+    "WWW",
+    "S S",
+    "PBP"
+  ],
+  "result": {
+    "id": "anvilcraft:trading_station"
+  }
+}

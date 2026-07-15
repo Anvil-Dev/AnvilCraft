@@ -89,7 +89,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
 
     @Setter
     private PowerGrid grid;
-    private int cd = this.cooldown.next();
+    private int cd;
     private int oldCooldown = -1;
     private int oldRange = -1;
     @Nullable
@@ -108,6 +108,8 @@ public class ItemCollectorBlockEntity extends BlockEntity
 
     public ItemCollectorBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
+        this.cooldown.next();
+        this.resetCooldown();
     }
 
     @Override
@@ -198,14 +200,17 @@ public class ItemCollectorBlockEntity extends BlockEntity
     public void gridTick() {
         if (level == null || level.isClientSide()) return;
 
+        BlockState state = level.getBlockState(getBlockPos());
+        if (!this.isGridWorking()
+            || state.hasProperty(ItemCollectorBlock.POWERED) && state.getValue(ItemCollectorBlock.POWERED)) {
+            this.resetCooldown();
+            return;
+        }
         if (this.cd > 1) {
             this.cd--;
             return;
         }
         if (this.boundingBox == null) return;
-        if (!this.isGridWorking()) return;
-        BlockState state = level.getBlockState(getBlockPos());
-        if (state.hasProperty(ItemCollectorBlock.POWERED) && state.getValue(ItemCollectorBlock.POWERED)) return;
         List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class, this.boundingBox);
         for (ItemEntity itemEntity : itemEntities) {
             this.acceptItemEntity(itemEntity);
@@ -215,6 +220,10 @@ public class ItemCollectorBlockEntity extends BlockEntity
         } else {
             this.cd = 5; // 这个地方是给“即便是截胡模式也主动吸取物品”的设定准备的，暂时随便写了个数值
         }
+    }
+
+    private void resetCooldown() {
+        this.cd = this.cooldown.get() > 0 ? this.cooldown.get() : 5;
     }
 
     public TriState acceptItemEntity(ItemEntity itemEntity) {

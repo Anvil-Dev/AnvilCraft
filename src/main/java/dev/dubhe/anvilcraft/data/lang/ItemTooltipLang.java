@@ -10,6 +10,7 @@ public class ItemTooltipLang {
         ItemTooltipManager.getShiftMap().forEach((item, s) -> provider.add(ItemTooltipManager.getTranslationKeyShift(item), s));
         provider.add("tooltip.anvilcraft.item.reinforced_concrete", "Creeper proof");
         provider.add("tooltip.anvilcraft.item.recipe.processing.chance", "%1$s%% Chance");
+        provider.add("tooltip.anvilcraft.item.resin_block.resentment", "Resentment: %s%%");
         provider.add("tooltip.anvilcraft.creative_container.content", "Content: %s");
 
         provider.add("tooltip.anvilcraft.item.structure_tool.line_1", "Developer tool");
@@ -37,7 +38,7 @@ public class ItemTooltipLang {
         provider.add("tooltip.anvilcraft.item.disk.clear", "Shift + Right click to clear data stored");
         provider.add("tooltip.anvilcraft.heliostats.adjacent_heliostats", "Adjacent heliostats detected.");
 
-        provider.add("item.anvilcraft.ionocraft_backpack.flight_time", "Flight Time: %ds");
+        provider.add("item.anvilcraft.ionocraft_backpack.flight_time", "Remaining Flight Time: %ds");
 
         provider.add("tooltip.anvilcraft.press_key", "Hold [%s] for more information");
 

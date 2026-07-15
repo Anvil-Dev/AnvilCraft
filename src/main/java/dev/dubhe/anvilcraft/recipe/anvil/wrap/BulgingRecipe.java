@@ -177,6 +177,11 @@ public class BulgingRecipe extends AbstractProcessRecipe<BulgingRecipe> {
             return this;
         }
 
+        public Builder fluidTag(Identifier fluidTag) {
+            this.hasCauldron.fluidTag(fluidTag);
+            return this;
+        }
+
         @Override
         protected BulgingRecipe of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results) {
             return new BulgingRecipe(itemIngredients, results, this.hasCauldron.build());

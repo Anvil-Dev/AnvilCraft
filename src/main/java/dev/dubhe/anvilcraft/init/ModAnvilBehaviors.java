@@ -4,7 +4,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.anvil.BeaconConversionBehavior;
 import dev.dubhe.anvilcraft.anvil.BlockDevourerBehavior;
 import dev.dubhe.anvilcraft.anvil.BlockPlacerBehavior;
-import dev.dubhe.anvilcraft.anvil.CementStainingBehavior;
 import dev.dubhe.anvilcraft.anvil.GunpowderBlockBehavior;
 import dev.dubhe.anvilcraft.anvil.HitBeeNestBehavior;
 import dev.dubhe.anvilcraft.anvil.HitCrabTrapBehavior;
@@ -18,7 +17,6 @@ import dev.dubhe.anvilcraft.anvil.SugarBlockBehavior;
 import dev.dubhe.anvilcraft.anvil.TimeWarpPlayerBehavior;
 import dev.dubhe.anvilcraft.anvil.TranscendiumBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilBehaviorRegisterEvent;
-import dev.dubhe.anvilcraft.block.cauldron.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.storage.GunpowderBlock;
 import dev.dubhe.anvilcraft.block.storage.SugarBlock;
 import dev.dubhe.anvilcraft.block.utility.BlockDevourerBlock;
@@ -41,7 +39,6 @@ public class ModAnvilBehaviors {
         );
         event.registerBehavior(Blocks.SPAWNER, new HitSpawnerBehavior());
         event.registerBehavior(ModBlocks.CRAB_TRAP.get(), new HitCrabTrapBehavior());
-        event.registerBehavior(state -> state.getBlock() instanceof CementCauldronBlock, new CementStainingBehavior());
         event.registerBehavior(ModBlocks.SPACE_OVERCOMPRESSOR.get(), new MassInjectBehavior());
         event.registerBehavior(state -> state.is(ModBlockTags.STORAGE_BLOCKS_LEAD), new ResetVaultBehavior());
         event.registerBehavior(

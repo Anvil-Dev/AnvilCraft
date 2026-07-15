@@ -64,7 +64,10 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.all_in_one.description", "Craft a hammer and try its various functions");
 
         provider.add("advancements.anvilcraft.salted_fish_turns_over.title", "The salted fish turns over");
-        provider.add("advancements.anvilcraft.salted_fish_turns_over.description", "Use an anvil hammer to turn a block comparator to a horizontal state");
+        provider.add(
+            "advancements.anvilcraft.salted_fish_turns_over.description",
+            "Use an Anvil Hammer to turn a Block Comparator from a horizontal position to an upright position"
+        );
 
         provider.add("advancements.anvilcraft.hammer.title", "Everyone's a nail to a hammer");
         provider.add("advancements.anvilcraft.hammer.description", "Use an anvil hammer to kill mobs");
@@ -129,8 +132,11 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.self_in_flaming.title", "Self in flaming");
         provider.add("advancements.anvilcraft.self_in_flaming.description", "Using fire reforge to repair any ember metal tools or weapons");
 
-        provider.add("advancements.anvilcraft.ice_and_fire.title", "Ice and Fire");
-        provider.add("advancements.anvilcraft.ice_and_fire.description", "Obtain ember workstations and frost workstations");
+        provider.add("advancements.anvilcraft.ice_and_fire.title", "A Song of Ice and Fire");
+        provider.add(
+            "advancements.anvilcraft.ice_and_fire.description",
+            "Obtain the Ember Smithing Table, Ember Anvil, Ember Grindstone, Frost Smithing Table, Frost Anvil, and Frost Grindstone"
+        );
 
         provider.add("advancements.anvilcraft.giant_age.title", "The Age of Giants");
         provider.add("advancements.anvilcraft.giant_age.description", "Convert a zombie holding anvil to a giant using the beam of corruption beacon to get giant anvil");
@@ -168,8 +174,8 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.void_generate_energy.title", "The void gives energy its purpose");
         provider.add("advancements.anvilcraft.void_generate_energy.description", "Use void collector to generate energy");
 
-        provider.add("advancements.anvilcraft.saikou_scrubber.title", "Saikou scrubber");
-        provider.add("advancements.anvilcraft.saikou_scrubber.description", "Obtain menger sponge");
+        provider.add("advancements.anvilcraft.saikou_scrubber.title", "Ultimate Dishcloth");
+        provider.add("advancements.anvilcraft.saikou_scrubber.description", "Obtain a Menger Sponge");
 
         provider.add("advancements.anvilcraft.infinity_capacity.title", "Infinity capacity");
         provider.add("advancements.anvilcraft.infinity_capacity.description", "Construct infinity capacity fluid tank with large fluid tank and menger sponge");

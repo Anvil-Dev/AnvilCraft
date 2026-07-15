@@ -39,8 +39,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
@@ -642,46 +642,13 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
     /// 根据 Scanner 朝向旋转方块状态
     private BlockState rotateBlockStateForPreview(BlockState state, Direction scannerFacing) {
-        if (scannerFacing == Direction.NORTH) return state;
-
-        if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-            Direction blockFacing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
-            Direction rotatedFacing = this.rotateDirection(blockFacing, scannerFacing);
-            return state.setValue(BlockStateProperties.HORIZONTAL_FACING, rotatedFacing);
-        }
-
-        if (state.hasProperty(HorizontalDirectionalBlock.FACING)) {
-            Direction blockFacing = state.getValue(HorizontalDirectionalBlock.FACING);
-            Direction rotatedFacing = this.rotateDirection(blockFacing, scannerFacing);
-            return state.setValue(HorizontalDirectionalBlock.FACING, rotatedFacing);
-        }
-
-        if (state.hasProperty(BlockStateProperties.FACING)) {
-            Direction blockFacing = state.getValue(BlockStateProperties.FACING);
-            Direction rotatedFacing = this.rotateDirection6Way(blockFacing, scannerFacing);
-            return state.setValue(BlockStateProperties.FACING, rotatedFacing);
-        }
-
-        return state;
-    }
-
-    private Direction rotateDirection(Direction blockFacing, Direction scannerFacing) {
-        return switch (scannerFacing) {
-            case SOUTH -> blockFacing.getOpposite();
-            case WEST -> blockFacing.getClockWise();
-            case EAST -> blockFacing.getCounterClockWise();
-            default -> blockFacing;
+        Rotation rotation = switch (scannerFacing) {
+            case SOUTH -> Rotation.CLOCKWISE_180;
+            case WEST -> Rotation.CLOCKWISE_90;
+            case EAST -> Rotation.COUNTERCLOCKWISE_90;
+            default -> Rotation.NONE;
         };
-    }
-
-    private Direction rotateDirection6Way(Direction blockFacing, Direction scannerFacing) {
-        if (blockFacing == Direction.UP || blockFacing == Direction.DOWN) return blockFacing;
-        return switch (scannerFacing) {
-            case SOUTH -> blockFacing.getOpposite();
-            case WEST -> blockFacing.getClockWise();
-            case EAST -> blockFacing.getCounterClockWise();
-            default -> blockFacing;
-        };
+        return state.rotate(rotation);
     }
 
     @SuppressWarnings("unused")

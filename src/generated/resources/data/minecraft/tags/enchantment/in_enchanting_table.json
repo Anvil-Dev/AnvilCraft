@@ -1,0 +1,12 @@
+{
+  "values": [
+    {
+      "id": "anvilcraft:smelting",
+      "required": false
+    },
+    {
+      "id": "anvilcraft:disintegration",
+      "required": false
+    }
+  ]
+}

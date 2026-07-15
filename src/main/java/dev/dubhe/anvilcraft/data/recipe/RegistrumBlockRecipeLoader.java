@@ -2493,6 +2493,36 @@ public class RegistrumBlockRecipeLoader {
             .save(provider, AnvilCraft.recipe("copper_pressure_plate_from_" + location1.getPath().replace('/', '_')));
     }
 
+    public static <T extends Block> void redstoneWire(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.REDSTONE, ctx.get(), 4)
+            .pattern("CRC")
+            .define('C', ModItemTags.COPPER_NUGGETS)
+            .define('R', Items.REDSTONE)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.REDSTONE),
+                AnvilCraftDatagen.has(lookup, Items.REDSTONE)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Block> void tradingStation(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
+            .pattern("WWW")
+            .pattern("S S")
+            .pattern("PBP")
+            .define('B', Blocks.BARREL)
+            .define('P', ItemTags.PLANKS)
+            .define('S', Items.STICK)
+            .define('W', ItemTags.WOOL)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.BARREL), AnvilCraftDatagen.has(lookup, Blocks.BARREL))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ItemTags.PLANKS), AnvilCraftDatagen.has(lookup, ItemTags.PLANKS))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.STICK), AnvilCraftDatagen.has(lookup, Items.STICK))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ItemTags.WOOL), AnvilCraftDatagen.has(lookup, ItemTags.WOOL))
+            .save(provider);
+    }
+
     private static SingleItemRecipeBuilder stonecutting(Ingredient ingredient, ItemLike result) {
         return RegistrumBlockRecipeLoader.stonecutting(ingredient, result, 1);
     }

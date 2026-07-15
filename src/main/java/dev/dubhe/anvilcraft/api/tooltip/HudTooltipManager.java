@@ -19,6 +19,8 @@ import dev.dubhe.anvilcraft.api.tooltip.impl.InjectedBlockEntityTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.InjectedBlockTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.PowerComponentTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.PropelPistonTooltipProvider;
+import dev.dubhe.anvilcraft.api.tooltip.impl.PulseGeneratorTooltipProvider;
+import dev.dubhe.anvilcraft.api.tooltip.impl.RedstoneWireTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.RubyPrismTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.impl.SpaceOvercompressorTooltipProvider;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IAffectRangeProvider;
@@ -73,6 +75,8 @@ public class HudTooltipManager {
         INSTANCE.registerBlockEntityTooltip(new CfaLogisticsInterfaceTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new CfaLaserInterfaceTooltipProvider());
         INSTANCE.registerBlockEntityTooltip(new CfaFluidInterfaceTooltipProvider());
+        INSTANCE.registerBlockEntityTooltip(new PulseGeneratorTooltipProvider());
+        INSTANCE.registerBlockTooltip(new RedstoneWireTooltipProvider());
         INSTANCE.registerBlockTooltip(new CrabTrapTooltipProvider());
     }
 

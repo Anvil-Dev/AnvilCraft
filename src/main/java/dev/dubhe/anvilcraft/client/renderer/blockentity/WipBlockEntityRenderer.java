@@ -36,7 +36,6 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
 
     private static final Map<Identifier, StandaloneModelKey<BlockStateModel>> MODEL_KEYS = new HashMap<>();
 
-    public static final StandaloneModelKey<BlockStateModel> REDSTONE_COMPUTER_WIP = registerModel("block/redstone_computer_wip");
     public static final StandaloneModelKey<BlockStateModel> SPACETIME_SUPERCOMPUTER_WIP = registerModel(
         "block/spacetime_supercomputer_wip"
     );

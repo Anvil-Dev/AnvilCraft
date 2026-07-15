@@ -10,7 +10,11 @@ import net.neoforged.fml.config.ModConfig;
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.CLIENT)
 public class AnvilCraftClientConfig {
     @Comment("The mode of the anvil hammer goggle info")
-    public GoggleMode goggleMode = GoggleMode.WEARING_HAMMER;
+    public GoggleMode goggleMode = GoggleMode.WEARING_OR_HOLDING_HAMMER;
+
+    @Comment("Scale of the anvil hammer radial menu")
+    @BoundedDiscrete(min = 0.5, max = 2.0)
+    public float anvilHammerRadialMenuScale = 1.0F;
 
     @Comment("Render distance of heliostats block entity")
     @BoundedDiscrete(min = 32, max = 512)
@@ -75,15 +79,15 @@ public class AnvilCraftClientConfig {
     @CollapsibleObject
     public IonoCraftBackpackHud ionoCraftBackpackHud = new IonoCraftBackpackHud();
 
-    @Comment("Add a tooltip line that shows multiphase stored ID")
-    public boolean showMultiphaseStoredId = false;
-
     @Comment("Toggle the behaviour when exiting the Category Setting menu")
     public ExitBehaviourMode exitCategorySettingBehaviour = ExitBehaviourMode.CONFIRM;
 
     public static class IonoCraftBackpackHud {
         @Comment("If true, will show Ionocraft Backpack current power in hud")
         public boolean enabled = true;
+
+        @Comment("If true, will show charged capacitor counts in hud")
+        public boolean capacitorCountEnabled = true;
 
         @Comment("The Gui Hud Scale")
         @BoundedDiscrete(min = 0, max = 8)
@@ -100,6 +104,7 @@ public class AnvilCraftClientConfig {
         ALWAYS_SHOW,
         WEARING_HAMMER,
         HOLDING_HAMMER,
+        WEARING_OR_HOLDING_HAMMER,
         TOGGLE_WITH_KEY
     }
 

@@ -58,6 +58,7 @@ import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.TradingStationBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.WhiteHoleBlockEntity;
@@ -94,6 +95,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeCrateRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeFluidTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.DischargerRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.DrainBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.FluidTankRenderer;
@@ -105,9 +107,11 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.InfiniteCollectorRendere
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.TradingStationBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 
@@ -338,6 +342,7 @@ public class ModBlockEntities {
 
     public static final BlockEntityEntry<PulseGeneratorBlockEntity> PULSE_GENERATOR = REGISTRUM
         .blockEntity("pulse_generator", PulseGeneratorBlockEntity::createBlockEntity)
+        .renderer(() -> PulseGeneratorBlockEntityRenderer::new)
         .validBlocks(ModBlocks.PULSE_GENERATOR)
         .register();
 
@@ -501,6 +506,12 @@ public class ModBlockEntities {
         .validBlock(ModBlocks.STRUCTURE_SCANNER)
         .register();
 
+    public static final BlockEntityEntry<TradingStationBlockEntity> TRADING_STATION = REGISTRUM
+        .blockEntity("trading_station", TradingStationBlockEntity::new)
+        .validBlock(ModBlocks.TRADING_STATION)
+        .renderer(() -> TradingStationBlockEntityRenderer::new)
+        .register();
+
     public static final BlockEntityEntry<LargeLaserBlockEntity> LARGE_LASER = REGISTRUM
         .blockEntity("large_laser", LargeLaserBlockEntity::new)
         .validBlock(ModBlocks.LARGE_LASER)
@@ -535,6 +546,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<DrainBlockEntity> DRAIN = REGISTRUM
         .blockEntity("drain", DrainBlockEntity::new)
         .validBlock(ModBlocks.DRAIN)
+        .renderer(() -> DrainBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<CreativeFluidTankBlockEntity> CREATIVE_FLUID_TANK = REGISTRUM

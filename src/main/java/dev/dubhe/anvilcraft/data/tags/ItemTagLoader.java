@@ -242,6 +242,24 @@ public class ItemTagLoader {
         provider.rawBuilder(ModItemTags.RAW_RABBIT)
             .addElement(ItemTagLoader.findId(Items.RABBIT));
 
+        provider.rawBuilder(ModItemTags.DISINTEGRATION_SUPPORTED)
+            .addTag(ItemTags.MINING_LOOT_ENCHANTABLE.location())
+            .addElement(ModItems.FROST_METAL_PICKAXE.getId())
+            .addElement(ModItems.FROST_METAL_AXE.getId())
+            .addElement(ModItems.FROST_METAL_SHOVEL.getId())
+            .addElement(ModItems.FROST_METAL_HOE.getId())
+            .addElement(ModItems.FROST_METAL_SWORD.getId())
+            .addElement(ModItems.FROST_METAL_HEAVY_HALBERD.getId());
+
+        provider.rawBuilder(ModItemTags.SMELTING_SUPPORTED)
+            .addTag(ItemTags.MINING_LOOT_ENCHANTABLE.location())
+            .addElement(ModItems.EMBER_METAL_PICKAXE.getId())
+            .addElement(ModItems.EMBER_METAL_AXE.getId())
+            .addElement(ModItems.EMBER_METAL_SHOVEL.getId())
+            .addElement(ModItems.EMBER_METAL_HOE.getId())
+            .addElement(ModItems.EMBER_METAL_SWORD.getId())
+            .addElement(ModItems.EMBER_METAL_HEAVY_HALBERD.getId());
+
         provider.rawBuilder(ModItemTags.AMETHYST_TOOL_MATERIALS)
             .addElement(ItemTagLoader.findId(Items.AMETHYST_SHARD));
 

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.utility.redstone;
 
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
+import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
@@ -57,7 +58,10 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
     public static final IntegerProperty POWER = IntegerProperty.create("power", 0, 15);
     public static final EnumProperty<Mode> MODE = EnumProperty.create("mode", Mode.class);
 
-    protected static final VoxelShape SHAPE = Block.box(0.0, 0.0, 0.0, 16.0, 4.0, 16.0);
+    protected static final VoxelShape SHAPE = ShapeUtil.merge(
+        Block.box(0.0, 0.0, 0.0, 16.0, 4.0, 16.0),
+        Block.box(4.0, 4.0, 4.0, 12.0, 16.0, 12.0)
+    );
 
     public AdvancedComparatorBlock(Properties properties) {
         super(properties);

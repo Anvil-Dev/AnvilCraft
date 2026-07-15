@@ -32,6 +32,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidStacksResourceHandler;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 import org.jspecify.annotations.Nullable;
 
 /**
@@ -45,6 +46,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
 
     @Getter
     private final FluidStacksResourceHandler tank;
+    private final ResourceHandler<FluidResource> externalTank;
 
     @Setter
     @Nullable
@@ -75,6 +77,67 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
             @Override
             protected void onContentsChanged(int index, FluidStack previousContents) {
                 CelestialForgingAnvilFluidInterfaceBlockEntity.this.setChanged();
+            }
+        };
+        this.externalTank = new ResourceHandler<>() {
+            @Override
+            public int size() {
+                return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.size();
+            }
+
+            @Override
+            public FluidResource getResource(int index) {
+                return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.getResource(index);
+            }
+
+            @Override
+            public long getAmountAsLong(int index) {
+                return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.getAmountAsLong(index);
+            }
+
+            @Override
+            public long getCapacityAsLong(int index, FluidResource resource) {
+                return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.getCapacityAsLong(index, resource);
+            }
+
+            @Override
+            public boolean isValid(int index, FluidResource resource) {
+                return !CelestialForgingAnvilFluidInterfaceBlockEntity.this.isActive()
+                    && CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.isValid(index, resource);
+            }
+
+            @Override
+            public int insert(
+                int index, FluidResource resource, int amount, TransactionContext transaction
+            ) {
+                if (CelestialForgingAnvilFluidInterfaceBlockEntity.this.isActive()) return 0;
+                return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.insert(
+                    index, resource, amount, transaction
+                );
+            }
+
+            @Override
+            public int insert(FluidResource resource, int amount, TransactionContext transaction) {
+                if (CelestialForgingAnvilFluidInterfaceBlockEntity.this.isActive()) return 0;
+                return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.insert(
+                    resource, amount, transaction
+                );
+            }
+
+            @Override
+            public int extract(
+                int index, FluidResource resource, int amount, TransactionContext transaction
+            ) {
+                return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.extract(
+                    index, resource, amount, transaction
+                );
+            }
+
+            @Override
+            public int extract(FluidResource resource, int amount, TransactionContext transaction) {
+                return CelestialForgingAnvilFluidInterfaceBlockEntity.this.tank.extract(
+                    resource, amount, transaction
+                );
             }
         };
     }
@@ -171,11 +234,24 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
     }
 
     /**
-     * 返回供管道和巨构访问的流体处理器。
+     * 返回供外部管道访问的流体处理器。
      */
     @SuppressWarnings("unused")
     public ResourceHandler<FluidResource> getFluidHandler() {
+        return this.externalTank;
+    }
+
+    /**
+     * 返回供锻星砧内部产出和状态同步使用的流体处理器。
+     */
+    public ResourceHandler<FluidResource> getInternalFluidHandler() {
         return this.tank;
+    }
+
+    private boolean isActive() {
+        BlockState state = this.getBlockState();
+        return state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)
+            && state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE);
     }
 
     /// 服务器端 tick：在主动模式（铁砧锤切换的 ACTIVE）且有电时，向 FACING 方向泵送流体。

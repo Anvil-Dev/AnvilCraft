@@ -5,6 +5,26 @@
     "#minecraft:leaves",
     "minecraft:iron_bars",
     "minecraft:mangrove_roots",
-    "minecraft:copper_grate"
+    "minecraft:copper_grate",
+    {
+      "id": "#ae2:glass_cable",
+      "required": false
+    },
+    {
+      "id": "#ae2:covered_cable",
+      "required": false
+    },
+    {
+      "id": "#ae2:smart_cable",
+      "required": false
+    },
+    {
+      "id": "#ae2:covered_dense_cable",
+      "required": false
+    },
+    {
+      "id": "#ae2:smart_dense_cable",
+      "required": false
+    }
   ]
 }

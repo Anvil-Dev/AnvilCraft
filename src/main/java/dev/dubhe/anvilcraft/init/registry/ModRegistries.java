@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
 import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.number.INumberProvider;
 import dev.dubhe.anvilcraft.api.recipe.result.modifier.IResultModifier;
-import dev.dubhe.anvilcraft.api.uuid.IUuidProvider;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import net.minecraft.core.Registry;
@@ -29,9 +28,6 @@ public class ModRegistries {
     public static final Registry<ICustomDataComponent.Type<?>> CUSTOM_DATA_TYPE = ModRegistries.simple(
         ModRegistryKeys.CUSTOM_DATA_TYPE
     );
-    public static final Registry<IUuidProvider.Type<?>> UUID_PROVIDER_TYPE = ModRegistries.simple(
-        ModRegistryKeys.UUID_PROVIDER_TYPE
-    );
     public static final Registry<INumberProvider.Type<?>> NUMBER_PROVIDER_TYPE = ModRegistries.simple(
         ModRegistryKeys.NUMBER_PROVIDER_TYPE
     );
@@ -45,7 +41,6 @@ public class ModRegistries {
         event.register(ModRegistries.AMULET_DEF_TYPE);
         event.register(ModRegistries.MODIFIER_TYPE);
         event.register(ModRegistries.CUSTOM_DATA_TYPE);
-        event.register(ModRegistries.UUID_PROVIDER_TYPE);
         event.register(ModRegistries.NUMBER_PROVIDER_TYPE);
         event.register(ModRegistries.CATEGORY_TYPE);
     }

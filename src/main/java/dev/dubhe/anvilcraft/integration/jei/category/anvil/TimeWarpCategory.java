@@ -145,7 +145,7 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
                     Minecraft.getInstance().font,
                     Component.translatable(
                         "gui.anvilcraft.category.time_warp.produce_fluid",
-                        -recipe.getHasCauldron().consume(),
+                        recipe.getHasCauldron().produce(),
                         recipe.getHasCauldron().getTransformCauldron().getName()),
                     0,
                     70,

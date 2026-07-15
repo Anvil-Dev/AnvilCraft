@@ -534,6 +534,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
             level,
             worldPosition,
             this.isAmplify,
+            this.amplifierPresent,
             this.celestialBodyData,
             this.stellarMass,
             this.getRedstoneSignal()

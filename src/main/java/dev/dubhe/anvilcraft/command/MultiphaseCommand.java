@@ -1,207 +1,94 @@
 package dev.dubhe.anvilcraft.command;
 
+import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
-import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
-import dev.anvilcraft.lib.v2.util.component.IComponentInfo;
-import dev.anvilcraft.lib.v2.util.component.MultilineComponentHelper;
-import dev.anvilcraft.lib.v2.util.component.TranslatableInfo;
-import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.command.SubCommand;
-import dev.dubhe.anvilcraft.api.command.SubCommand2;
-import dev.dubhe.anvilcraft.init.command.ModSuggestionProviders;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.item.property.component.MultiphaseRef;
-import dev.dubhe.anvilcraft.saved.multiphase.Multiphase;
-import dev.dubhe.anvilcraft.saved.multiphase.Multiphases;
+import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.util.CommandUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.arguments.UuidArgument;
-import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.commands.Commands;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.HoverEvent;
-import net.minecraft.network.chat.Style;
-
-import java.util.UUID;
-import java.util.function.Supplier;
-
-// CHECKSTYLE.SUPPRESS: AvoidStaticImport for +2 lines
-import static net.minecraft.commands.Commands.argument;
-import static net.minecraft.commands.Commands.literal;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.server.permissions.Permissions;
+import net.minecraft.world.item.ItemStack;
 
 public class MultiphaseCommand {
-    private static final SimpleCommandExceptionType ERROR_NOT_PLAYER = new SimpleCommandExceptionType(
-        Component.translatable("command.anvilcraft.multiphase.apply.not_player")
+    private static final SimpleCommandExceptionType ERROR_NO_MULTIPHASE = new SimpleCommandExceptionType(
+        Component.translatable("command.anvilcraft.multiphase.no_item")
+    );
+    private static final SimpleCommandExceptionType ERROR_MAX_PHASES = new SimpleCommandExceptionType(
+        Component.translatable("command.anvilcraft.multiphase.add.full")
     );
 
     public static void registerCommand(LiteralArgumentBuilder<CommandSourceStack> parent) {
-        Supplier<RequiredArgumentBuilder<CommandSourceStack, UUID>> idPoint = () -> argument("id", UuidArgument.uuid())
-            .suggests(ModSuggestionProviders.ALL_MULTIPHASES_ID);
-
         parent.then(
-            CommandUtil.simplePoint(literal("multiphase"), argument("id", UuidArgument.uuid()), MultiphaseCommand::showInfo)
-                .then(CommandUtil.simplePoint(literal("info"), idPoint.get(), MultiphaseCommand::showInfo))
-                .then(CommandUtil.simplePoint(literal("remove"), idPoint.get(), MultiphaseCommand::remove))
+            Commands.literal("multiphase")
+                .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER))
+                .executes(MultiphaseCommand::showInfo)
+                .then(Commands.literal("info").executes(MultiphaseCommand::showInfo))
                 .then(
-                    literal("recover")
+                    Commands.literal("add")
+                        .executes(context -> addPhases(context, 1))
                         .then(
-                            argument("id", UuidArgument.uuid())
-                                .suggests(ModSuggestionProviders.ALL_RECOVERABLE_MULTIPHASES_ID)
-                                .executes(MultiphaseCommand::recover)
-                        )
-                        .then(literal("clear").executes(MultiphaseCommand::clearRecover))
-                )
-                .then(CommandUtil.simplePoint(literal("apply"), idPoint.get(), MultiphaseCommand::apply2Stack))
-        );
-    }
-
-    private static int showInfo(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        CommandSourceStack source = ctx.getSource();
-
-        return MultiphaseCommand.execWithContent(
-            ctx,
-            (id, multiphase) -> {
-                var helper = MultilineComponentHelper.create()
-                    .addln("command.anvilcraft.multiphase.info.multiphase_id", id)
-                    .list(
-                        Component.translatable("command.anvilcraft.multiphase.info.phases"),
-                        multiphase.phases(),
-                        phase -> new IComponentInfo[] {
-                            new TranslatableInfo(
-                                "command.anvilcraft.multiphase.info.custom_name",
-                                phase.customName().orElse(
-                                    Component.translatable("command.anvilcraft.multiphase.info.name.empty").withStyle(ChatFormatting.RED)
-                                )
-                            ),
-                            new TranslatableInfo(
-                                "command.anvilcraft.multiphase.info.item_name",
-                                phase.itemName().orElse(
-                                    Component.translatable("command.anvilcraft.multiphase.info.name.empty").withStyle(ChatFormatting.RED)
-                                )
-                            ),
-                            new TranslatableInfo(
-                                "command.anvilcraft.multiphase.info.repair_cost",
-                                phase.repairCost()
-                            ),
-                            new TranslatableInfo(
-                                "command.anvilcraft.multiphase.info.enchantments",
-                                phase.enchantments()
-                            )
-                        }
-                    );
-                return CommandUtil.sendSuccess(source, helper::build);
-            }
-        );
-    }
-
-    private static int remove(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        CommandSourceStack source = ctx.getSource();
-
-        return MultiphaseCommand.execWithUUID(
-            ctx,
-            id -> {
-                if (Multiphases.get().remove(id, source.registryAccess())) {
-                    var command = "/anvilcraft multiphase recover " + id;
-                    return CommandUtil.sendSuccess(
-                        source,
-                        "command.anvilcraft.multiphase.remove.success",
-                        id,
-                        Component.literal(command).withStyle(
-                            Style.EMPTY
-                                .withColor(ChatFormatting.GREEN)
-                                .withClickEvent(new ClickEvent.SuggestCommand(command))
-                                .withHoverEvent(new HoverEvent.ShowText(
-                                    Component.translatable("command.anvilcraft.multiphase.remove.success.hovering")
+                            Commands.argument("count", IntegerArgumentType.integer(1, Multiphase.MAX_PHASE_COUNT))
+                                .executes(context -> addPhases(
+                                    context,
+                                    IntegerArgumentType.getInteger(context, "count")
                                 ))
                         )
-                    );
-                }
-                throw CommandUtil.notFound(AnvilCraft.of("multiphase"), id);
-            }
+                )
         );
     }
 
-    private static int recover(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        CommandSourceStack source = ctx.getSource();
+    private static int showInfo(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
+        ItemStack stack = getMultiphaseStack(context.getSource());
+        Multiphase multiphase = stack.get(ModComponents.MULTIPHASE).capture(stack);
+        stack.set(ModComponents.MULTIPHASE, multiphase);
 
-        return MultiphaseCommand.execWithUUID(
-            ctx,
-            id -> {
-                if (Multiphases.get().recover(id, source.registryAccess())) {
-                    return CommandUtil.sendSuccess(source, "command.anvilcraft.multiphase.recover.success", id);
-                }
-                throw CommandUtil.notFound(AnvilCraft.of("multiphase"), id);
-            }
-        );
-    }
-
-    private static int clearRecover(CommandContext<CommandSourceStack> ctx) {
-        Multiphases.get().clearRecoverFromCommand();
-        return CommandUtil.sendSuccess(ctx.getSource(), "command.anvilcraft.multiphase.recover.clear.success");
-    }
-
-    private static int apply2Stack(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
-        CommandSourceStack source = ctx.getSource();
-
-        return MultiphaseCommand.execWithUUID(
-            ctx,
-            id -> {
-                if (!Multiphases.get().contains(id)) throw CommandUtil.notFound(AnvilCraft.of("multiphase"), id);
-                if (!source.isPlayer()) throw MultiphaseCommand.ERROR_NOT_PLAYER.create();
-                source.getPlayer().getMainHandItem().set(ModComponents.MULTIPHASE, new MultiphaseRef(id));
-                return CommandUtil.sendSuccess(source, "command.anvilcraft.multiphase.recover.success", id);
-            }
-        );
-    }
-
-    private static int execWithUUID(CommandContext<CommandSourceStack> ctx, SubCommand<UUID> sub) throws CommandSyntaxException {
-        CommandSourceStack source = ctx.getSource();
-
-        UUID id;
-        try {
-            id = UuidArgument.getUuid(ctx, "id");
-        } catch (IllegalArgumentException e) {
-            if (!source.isPlayer()) throw CommandUtil.ERROR_NO_ID.create();
-            var player = source.getPlayer();
-            if (player == null) throw CommandUtil.ERROR_NO_ID.create();
-
-            var stack = player.getMainHandItem();
-            if (stack.isEmpty()) throw CommandUtil.ERROR_NO_ID.create();
-
-            var multiphase = stack.get(ModComponents.MULTIPHASE);
-            if (multiphase == null) throw CommandUtil.ERROR_NO_ID.create();
-
-            id = multiphase.id().get();
+        MutableComponent message = Component.translatable(
+            "command.anvilcraft.multiphase.info.summary",
+            multiphase.phases().size(),
+            multiphase.activePhase() + 1,
+            multiphase.merciless()
+        ).withStyle(ChatFormatting.LIGHT_PURPLE);
+        for (int i = 0; i < multiphase.phases().size(); i++) {
+            Multiphase.Phase phase = multiphase.phases().get(i);
+            message.append(Component.literal("\n")).append(Component.translatable(
+                "command.anvilcraft.multiphase.info.phase",
+                i + 1,
+                multiphase.phaseDisplayName(i, false),
+                phase.repairCost(),
+                phase.enchantments()
+            ));
         }
-
-        return sub.run(id);
+        return CommandUtil.sendSuccess(context.getSource(), () -> message);
     }
 
-    private static int execWithContent(CommandContext<CommandSourceStack> ctx, SubCommand<Multiphase> sub) throws CommandSyntaxException {
-        return MultiphaseCommand.execWithUUID(
-            ctx,
-            id -> {
-                var contentOp = Multiphases.get().get(id);
-                if (contentOp.isEmpty()) throw CommandUtil.notFound(AnvilCraft.of("multiphase"), id);
-                return sub.run(contentOp.get());
-            }
+    private static int addPhases(CommandContext<CommandSourceStack> context, int requested) throws CommandSyntaxException {
+        ItemStack stack = getMultiphaseStack(context.getSource());
+        int added = 0;
+        for (int i = 0; i < requested; i++) {
+            Multiphase multiphase = stack.get(ModComponents.MULTIPHASE);
+            if (multiphase == null || !multiphase.addPhase(stack)) break;
+            added++;
+        }
+        if (added == 0) throw ERROR_MAX_PHASES.create();
+        int phaseCount = stack.get(ModComponents.MULTIPHASE).phases().size();
+        return CommandUtil.sendSuccess(
+            context.getSource(),
+            "command.anvilcraft.multiphase.add.success",
+            added,
+            phaseCount
         );
     }
 
-    private static int execWithContent(
-        CommandContext<CommandSourceStack> ctx,
-        SubCommand2<UUID, Multiphase> sub
-    ) throws CommandSyntaxException {
-        return MultiphaseCommand.execWithUUID(
-            ctx,
-            id -> {
-                var contentOp = Multiphases.get().get(id);
-                if (contentOp.isEmpty()) throw CommandUtil.notFound(AnvilCraft.of("multiphase"), id);
-                return sub.run(id, contentOp.get());
-            }
-        );
+    private static ItemStack getMultiphaseStack(CommandSourceStack source) throws CommandSyntaxException {
+        ItemStack stack = source.getPlayerOrException().getMainHandItem();
+        if (!stack.has(ModComponents.MULTIPHASE)) throw ERROR_NO_MULTIPHASE.create();
+        return stack;
     }
 }

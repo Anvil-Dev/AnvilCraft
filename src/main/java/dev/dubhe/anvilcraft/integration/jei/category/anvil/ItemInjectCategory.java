@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
@@ -14,8 +15,10 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
+import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
@@ -33,6 +36,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.List;
 
 public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInjectRecipe>> {
+    private static final String INPUT_BLOCK = "input_block";
+
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -83,8 +88,24 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<ItemInjectRecipe> recipeHolder, IFocusGroup focuses) {
         ItemInjectRecipe recipe = recipeHolder.value();
         JeiSlotUtil.addInputSlots(builder, recipe.getInputItems());
-        JeiRecipeUtil.addInvisibleInput(builder, recipe.getFirstInputBlock());
-        JeiRecipeUtil.addInvisibleOutput(builder, recipe.getFirstResultBlock());
+        JeiBlockIngredientUtil.addInputSlot(builder, INPUT_BLOCK, 72, 34, 18, 19, recipe.getFirstInputBlock());
+        JeiBlockIngredientUtil.addSlot(
+            builder,
+            RecipeIngredientRole.OUTPUT,
+            "output_block",
+            124,
+            24,
+            16,
+            18,
+            recipe.getFirstResultBlock().state().getBlock()
+        );
+    }
+
+    @Override
+    public void createRecipeExtras(
+        IRecipeExtrasBuilder builder, RecipeHolder<ItemInjectRecipe> recipeHolder, IFocusGroup focuses
+    ) {
+        JeiBlockIngredientUtil.suppressHoverOverlays(builder);
     }
 
     @Override
@@ -101,15 +122,18 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
 
         List<BlockState> input = recipe.getFirstInputBlock().constructStatesForRender();
         if (input.isEmpty()) return;
-        BlockState renderedState = input.get((int) ((System.currentTimeMillis() / 1000) % input.size()));
-        if (renderedState == null) return;
-        RenderSupport.renderBlock(graphics, renderedState, 81, 40, 20);
+        BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(view, INPUT_BLOCK, input)
+            .orElse(input.getFirst());
+        int inputScale = JeiBlockIngredientUtil.getRenderablePreviewScale(renderedState, 20);
+        RenderSupport.renderBlock(graphics, renderedState, 81, 40, inputScale);
 
         this.arrowIn.draw(graphics, 54, 30);
         this.arrowOut.draw(graphics, 92, 29);
 
         JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
-        RenderSupport.renderBlock(graphics, recipe.getFirstResultBlock().state(), 133, 30, 20);
+        BlockState resultState = JeiBlockIngredientUtil.getRenderablePreviewState(recipe.getFirstResultBlock().state());
+        int resultScale = JeiBlockIngredientUtil.getRenderablePreviewScale(resultState, 20);
+        RenderSupport.renderBlock(graphics, resultState, 133, 30, resultScale);
     }
 
     @Override
