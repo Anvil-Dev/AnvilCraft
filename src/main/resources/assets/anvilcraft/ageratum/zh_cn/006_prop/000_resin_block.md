@@ -20,3 +20,7 @@ eg:村民可以抓取;僵尸需要对其施加虚弱效果才能抓取;铁傀儡
 </info>
 
 - 可以通过<ref item="minecraft:dispenser"/>自动化操作
+
+# 怨恨值
+
+<ref item="anvilcraft:resin_block"/>抓到生物时在tooltips中显示其怨恨值，具体机制详见[怨恨值](../008_recipe/210_spawner.md#怨恨值)

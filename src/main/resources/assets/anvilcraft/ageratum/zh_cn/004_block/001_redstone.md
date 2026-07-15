@@ -7,6 +7,7 @@ items:
   - anvilcraft:pulse_generator
   - anvilcraft:item_detector
   - anvilcraft:advanced_comparator
+  - anvilcraft:redstone_wire
 ---
 
 # 额外红石元件
@@ -69,3 +70,13 @@ items:
 - 从上往下<color=#999922>第一个按钮</color>可启用窗口模式：在信号位于一定区间时输出信号
 - 从上往下<color=#999922>第二个按钮</color>可启用反转模式：在原来不输出信号的时候输出信号，反之亦然
 - 从上往下<color=#999922>第三个按钮</color>启用后，将两侧收到的红石信号作为阈值(不分左右，高者为上阈值)
+
+# <ref item="anvilcraft:redstone_wire"/>
+
+<recipe id="anvilcraft:redstone_wire"/>
+
+深邃而强大，我也搞不懂，手册以后再写
+
+- 可以沿着墙壁或天花板放置
+- 底座绝缘，不接受红石信号
+- 传输红石信号不衰减
