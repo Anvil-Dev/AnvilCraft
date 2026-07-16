@@ -62,7 +62,7 @@ public class SimplePowerGrid {
     private final BlockPos pos;
     private final List<BlockPos> blocks = new ArrayList<>();
     private final List<PowerComponentInfo> powerComponentInfoList = new ArrayList<>();
-    private final List<Line> powerTransmitterLines = new ArrayList<>();
+    private List<Line> powerTransmitterLines = new ArrayList<>();
     private final int generate; // 发电功率
     private final int consume; // 耗电功率
     private final boolean infinitePower; // 是否有无限电力
@@ -93,7 +93,6 @@ public class SimplePowerGrid {
         this.infinitePower = infinitePower;
         blocks.addAll(powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
         this.powerComponentInfoList.addAll(powerComponentInfoList);
-        createTransmitterVisualLines();
     }
 
     public SimplePowerGrid(PowerGrid grid) {
@@ -267,6 +266,30 @@ public class SimplePowerGrid {
                 }
             }
         }
+    }
+
+    public void rebuildTransmitterVisualLines(@Nullable SimplePowerGrid previous) {
+        if (previous != null && this.hasSameTransmitters(previous)) {
+            this.powerTransmitterLines = previous.powerTransmitterLines;
+            return;
+        }
+        this.createTransmitterVisualLines();
+    }
+
+    private boolean hasSameTransmitters(SimplePowerGrid other) {
+        Set<PowerComponentInfo> transmitters = new HashSet<>();
+        Set<PowerComponentInfo> otherTransmitters = new HashSet<>();
+        for (PowerComponentInfo component : this.powerComponentInfoList) {
+            if (component.type() == PowerComponentType.TRANSMITTER) {
+                transmitters.add(component);
+            }
+        }
+        for (PowerComponentInfo component : other.powerComponentInfoList) {
+            if (component.type() == PowerComponentType.TRANSMITTER) {
+                otherTransmitters.add(component);
+            }
+        }
+        return transmitters.equals(otherTransmitters);
     }
 
     private void createMergedOutlineShape() {

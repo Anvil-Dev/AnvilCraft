@@ -35,6 +35,10 @@ public class FastShape {
         shapes.add(shape);
     }
 
+    public void remove(AABB shape) {
+        this.shapes.remove(shape);
+    }
+
     public static FastShape create(List<AABB> shapes) {
         return new FastShape(shapes);
     }

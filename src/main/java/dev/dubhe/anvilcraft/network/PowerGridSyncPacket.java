@@ -34,6 +34,7 @@ public record PowerGridSyncPacket(SimplePowerGrid grid) implements IClientboundP
         PowerGridSupport.getGridMap().compute(
             this.grid.getId(),
             (id, grid) -> {
+                this.grid.rebuildTransmitterVisualLines(grid);
                 if (grid != null) grid.destroy();
                 return this.grid;
             }
