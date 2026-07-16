@@ -175,7 +175,6 @@ public class LargeCauldronBlockEntityRenderer implements BlockEntityRenderer<Lar
     }
 
     private void drawFire(PoseStack pose, MultiBufferSource buffers, int overlay, float surfaceY) {
-        BakedModel fire = this.dispatcher.getBlockModelShaper().getModelManager().getModel(FIRE);
         pose.pushPose();
         pose.translate(-1.0F, surfaceY - FIRE_MODEL_SURFACE_Y * 3.0F, -1.0F);
         pose.scale(3.0F, 3.0F, 3.0F);
@@ -183,7 +182,7 @@ public class LargeCauldronBlockEntityRenderer implements BlockEntityRenderer<Lar
             pose.last(),
             buffers.getBuffer(RenderType.CUTOUT),
             null,
-            fire,
+            this.dispatcher.getBlockModelShaper().getModelManager().getModel(FIRE),
             1.0F,
             1.0F,
             1.0F,

@@ -421,6 +421,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public boolean handleGiantAnvilImpact(AnvilEvent.OnLand event) {
         LargeCauldronBlockEntity main = this.getMainPart();
         Level level = main.level;
@@ -593,7 +594,6 @@ public class LargeCauldronBlockEntity extends BlockEntity
         while (consumed < itemBudget) {
             ItemStack processingInput = source.getStackInSlot(slot);
             if (processingInput.isEmpty()) break;
-            int before = processingInput.getCount();
             InWorldRecipeContext context = new InWorldRecipeContext(level, contextPos, anvil);
             if (fuelConsumed || executed) {
                 context.put(SuperHeatingRecipe.ConsumeFuel.FUEL_CONSUMED, true);
@@ -607,8 +607,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
             if (!current.executed()) break;
             executed = true;
             damageAnvil |= current.damageAnvil();
-            int after = source.getStackInSlot(slot).getCount();
-            int consumedNow = before - after;
+            int consumedNow = processingInput.getCount() - source.getStackInSlot(slot).getCount();
             if (consumedNow <= 0) break;
             consumed += consumedNow;
         }
@@ -627,7 +626,9 @@ public class LargeCauldronBlockEntity extends BlockEntity
             if (!allowItemCompression && recipe instanceof ItemCompressRecipe) continue;
             if (processingInput.isEmpty()) {
                 if (!isFluidOnlyRecipe(recipe)) continue;
-            } else if (!recipeAnchoredByInput(recipe, processingInput)) continue;
+            } else if (!recipeAnchoredByInput(recipe, processingInput)) {
+                continue;
+            }
             if (!recipe.matches(context, level)) continue;
             recipe.assemble(context, level.registryAccess());
             NeoForge.EVENT_BUS.post(new InWorldRecipeEvent(recipe.getType(), holder.id(), recipe, context));
@@ -892,28 +893,32 @@ public class LargeCauldronBlockEntity extends BlockEntity
         PreviewState state,
         Vec3 contextPos
     ) {
-        if (predicate instanceof HasItemIngredient itemIngredient) {
-            int slot = state.findItem(itemIngredient);
-            if (slot < 0) return false;
-            state.items.get(slot).shrink(itemIngredient.getItem().count());
-            state.usedItemSlots.add(slot);
-            return true;
-        }
-        if (predicate instanceof HasCauldron cauldron) {
-            if ((cauldron.ignited() && !this.ignited) || !this.targetsThisCauldron(cauldron, contextPos)) {
-                return false;
+        switch (predicate) {
+            case HasItemIngredient itemIngredient -> {
+                int slot = state.findItem(itemIngredient);
+                if (slot < 0) return false;
+                state.items.get(slot).shrink(itemIngredient.getItem().count());
+                state.usedItemSlots.add(slot);
+                return true;
             }
-            if (!applyFluidPredicate(state.fluids, cauldron)) return false;
-            state.fluidPredicates.add(cauldron);
-            return true;
-        }
-        if (predicate instanceof HasBlockBase<?> block) {
-            BlockPos pos = BlockPos.containing(contextPos.add(block.getOffset()));
-            return block.getPredicate().test(this.level, this.level.getBlockState(pos), this.level.getBlockEntity(pos));
-        }
-        if (predicate instanceof HasAnvil anvil) {
-            boolean matches = anvil.anvil().testWithoutEntity(ModBlocks.GIANT_ANVIL.getDefaultState());
-            return matches != anvil.inverted();
+            case HasCauldron cauldron -> {
+                if ((cauldron.ignited() && !this.ignited) || !this.targetsThisCauldron(cauldron, contextPos)) {
+                    return false;
+                }
+                if (!applyFluidPredicate(state.fluids, cauldron)) return false;
+                state.fluidPredicates.add(cauldron);
+                return true;
+            }
+            case HasBlockBase<?> block -> {
+                BlockPos pos = BlockPos.containing(contextPos.add(block.getOffset()));
+                return block.getPredicate().test(this.level, this.level.getBlockState(pos), this.level.getBlockEntity(pos));
+            }
+            case HasAnvil anvil -> {
+                boolean matches = anvil.anvil().testWithoutEntity(ModBlocks.GIANT_ANVIL.getDefaultState());
+                return matches != anvil.inverted();
+            }
+            default -> {
+            }
         }
         return false;
     }

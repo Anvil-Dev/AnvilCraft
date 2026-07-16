@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.state;
 
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
+import lombok.Getter;
 import net.minecraft.util.StringRepresentable;
 
 public enum LensType implements StringRepresentable {
@@ -10,6 +11,7 @@ public enum LensType implements StringRepresentable {
     EMBER("ember", BlockMiningEffect.MAX_SMELTING);
 
     private final String name;
+    @Getter
     private final BlockMiningEffect miningEffect;
 
     LensType(String name, BlockMiningEffect miningEffect) {
@@ -22,7 +24,4 @@ public enum LensType implements StringRepresentable {
         return this.name;
     }
 
-    public BlockMiningEffect getMiningEffect() {
-        return miningEffect;
-    }
 }

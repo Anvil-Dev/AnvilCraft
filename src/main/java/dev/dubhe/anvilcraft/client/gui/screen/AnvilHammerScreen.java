@@ -302,8 +302,6 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         float z,
         float scale
     ) {
-        BlockPos modelPos = modelTarget.pos();
-        BlockState block = modelTarget.state();
         final float partialTick = minecraft.getTimer().getGameTimeDeltaPartialTick(true);
         poseStack.pushPose();
         poseStack.translate(-7 * this.radialMenuScale, 7 * this.radialMenuScale, 0);
@@ -317,6 +315,8 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
 
         RenderSystem.setShaderColor(1F, 1F, 1F, 1F);
 
+        BlockPos modelPos = modelTarget.pos();
+        BlockState block = modelTarget.state();
         final FluidState fluidState = block.getFluidState();
         MultiBufferSource.BufferSource buffers =
             Minecraft.getInstance().renderBuffers().bufferSource();

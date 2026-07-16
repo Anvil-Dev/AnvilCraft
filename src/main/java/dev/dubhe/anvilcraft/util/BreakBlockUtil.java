@@ -19,7 +19,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SnowLayerBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -31,12 +30,6 @@ import java.util.List;
 import java.util.Optional;
 
 public class BreakBlockUtil {
-    private static final ItemStack SHEARS_INSTANCE = Items.SHEARS.getDefaultInstance();
-
-    public static ItemStack getDummySilkTouchTool(ServerLevel level) {
-        return createTool(level, Blocks.STONE.defaultBlockState(), BlockMiningEffect.SILK_TOUCH);
-    }
-
     public static List<ItemStack> dropWithTool(ServerLevel level, BlockPos pos, ItemStack tool) {
         BlockState state = level.getBlockState(pos);
         if (state.isAir()) return List.of();
@@ -60,10 +53,6 @@ public class BreakBlockUtil {
         }
     }
 
-    public static List<ItemStack> drop(ServerLevel level, BlockPos pos) {
-        return drop(level, pos, BlockMiningEffect.NORMAL);
-    }
-
     public static List<ItemStack> drop(ServerLevel level, BlockPos pos, BlockMiningEffect effect) {
         BlockState state = level.getBlockState(pos);
         if (state.isAir()) return List.of();
@@ -74,6 +63,14 @@ public class BreakBlockUtil {
         ServerLevel level, BlockPos pos, BlockState state, BlockMiningEffect effect, @Nullable ItemStack baseTool
     ) {
         return drop(level, pos, state, level.getBlockEntity(pos), effect, baseTool);
+    }
+
+    private static List<ItemStack> drop(
+        ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity,
+        BlockMiningEffect effect, @Nullable ItemStack baseTool
+    ) {
+        ItemStack tool = baseTool == null ? createTool(level, state, effect) : effect.applyTo(level, baseTool);
+        return dropWithTool(level, pos, state, blockEntity, tool);
     }
 
     public static List<ItemStack> dropVirtual(
@@ -88,6 +85,17 @@ public class BreakBlockUtil {
         BlockState state = level.getBlockState(pos);
         if (state.isAir()) return List.of();
         return dropForLaser(level, pos, state, level.getBlockEntity(pos), effect);
+    }
+
+    private static List<ItemStack> dropForLaser(
+        ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, BlockMiningEffect effect
+    ) {
+        if (effect.isDisintegration()) {
+            return level.random.nextFloat() <= 0.25f
+                   ? List.of(ModItems.EXP_GEM.asStack())
+                   : List.of();
+        }
+        return drop(level, pos, state, blockEntity, effect, null);
     }
 
     public static List<ItemStack> dropVirtualForLaser(
@@ -122,65 +130,8 @@ public class BreakBlockUtil {
         return Optional.empty();
     }
 
-    private static List<ItemStack> dropForLaser(
-        ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, BlockMiningEffect effect
-    ) {
-        if (effect.isDisintegration()) {
-            return level.random.nextFloat() <= 0.25f
-                ? List.of(ModItems.EXP_GEM.asStack())
-                : List.of();
-        }
-        return drop(level, pos, state, blockEntity, effect, null);
-    }
-
-    private static List<ItemStack> drop(
-        ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity,
-        BlockMiningEffect effect, @Nullable ItemStack baseTool
-    ) {
-        ItemStack tool = baseTool == null ? createTool(level, state, effect) : effect.applyTo(level, baseTool);
-        return dropWithTool(level, pos, state, blockEntity, tool);
-    }
-
     public static List<ItemStack> dropSilkTouch(ServerLevel level, BlockPos pos) {
         return drop(level, pos, BlockMiningEffect.SILK_TOUCH);
-    }
-
-    public static List<ItemStack> dropSmelt(ServerLevel level, BlockPos pos) {
-        return drop(level, pos, BlockMiningEffect.SMELTING);
-    }
-
-    /**
-     * @deprecated Use {@link #drop(ServerLevel, BlockPos, BlockMiningEffect)} with a smelting effect.
-     */
-    @Deprecated
-    public static List<ItemStack> dropSmelt(ServerLevel level, BlockPos pos, int multiplier) {
-        BlockMiningEffect effect = multiplier > 1 ? BlockMiningEffect.MAX_SMELTING : BlockMiningEffect.SMELTING;
-        return drop(level, pos, effect);
-    }
-
-    public static ItemStack getDummyFortune5Tool(ServerLevel level) {
-        return createTool(level, Blocks.STONE.defaultBlockState(), BlockMiningEffect.FORTUNE_5);
-    }
-
-    public static List<ItemStack> dropFortune5(ServerLevel level, BlockPos pos) {
-        return drop(level, pos, BlockMiningEffect.FORTUNE_5);
-    }
-
-    public static List<ItemStack> dropSilkTouchOrShears(ServerLevel level, BlockPos pos) {
-        List<ItemStack> drops = dropWithTool(level, pos, SHEARS_INSTANCE);
-        if (drops.stream().allMatch(ItemStack::isEmpty)) return dropSilkTouch(level, pos);
-        return drops;
-    }
-
-    public static List<ItemStack> dropFromSnowLayers(BlockState state) {
-        if (!state.hasProperty(SnowLayerBlock.LAYERS)) return List.of();
-        int layers = state.getValue(SnowLayerBlock.LAYERS);
-        return List.of(layers <= 7 ? new ItemStack(Blocks.SNOW, layers) :
-            Blocks.SNOW_BLOCK.asItem().getDefaultInstance());
-    }
-
-    public static ItemStack getDummyDisintegrationTool(ServerLevel level) {
-        return createTool(level, Blocks.STONE.defaultBlockState(), BlockMiningEffect.DISINTEGRATION);
     }
 
     public static ItemStack createTool(ServerLevel level, BlockState state, BlockMiningEffect effect) {
