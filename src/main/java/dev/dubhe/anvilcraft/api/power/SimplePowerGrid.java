@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.Line;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.util.ColorUtil;
-import dev.dubhe.anvilcraft.util.VirtualThreadFactoryImpl;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -22,6 +21,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -37,7 +37,7 @@ import java.util.concurrent.Future;
 
 @Getter
 public class SimplePowerGrid {
-    private static ExecutorService EXECUTOR;
+    private static @Nullable ExecutorService EXECUTOR;
     public static final Codec<SimplePowerGrid> CODEC = RecordCodecBuilder.create(ins -> ins.group(
         Codec.INT.fieldOf("hash").forGetter(o -> o.id),
         Codec.STRING.fieldOf("level").forGetter(o -> o.level),
@@ -53,7 +53,7 @@ public class SimplePowerGrid {
     );
 
     static {
-        recreateExecutor();
+        recreateExecutorLimitedParallelism();
     }
 
     private final Random random = new Random();
@@ -68,7 +68,7 @@ public class SimplePowerGrid {
     private final boolean infinitePower; // 是否有无限电力
     private final int color;
     private List<Line> powerGridBoundLines = new ArrayList<>();
-    private Future<?> shapeFuture;
+    private @Nullable Future<?> shapeFuture;
 
     /**
      * 简单电网
@@ -93,7 +93,6 @@ public class SimplePowerGrid {
         this.infinitePower = infinitePower;
         blocks.addAll(powerComponentInfoList.stream().map(PowerComponentInfo::pos).toList());
         this.powerComponentInfoList.addAll(powerComponentInfoList);
-        createMergedOutlineShape();
         createTransmitterVisualLines();
     }
 
@@ -194,11 +193,16 @@ public class SimplePowerGrid {
         return Optional.empty();
     }
 
-    public static void recreateExecutor() {
+    public static void recreateExecutorLimitedParallelism() {
         if (EXECUTOR != null) {
             EXECUTOR.shutdownNow();
         }
-        EXECUTOR = Executors.newThreadPerTaskExecutor(new VirtualThreadFactoryImpl());
+        EXECUTOR = Executors.newFixedThreadPool(
+            Math.max(
+                Runtime.getRuntime().availableProcessors() / 4,
+                4
+            )
+        );
     }
 
     public static SimplePowerGrid decode(FriendlyByteBuf buf) {
@@ -266,7 +270,9 @@ public class SimplePowerGrid {
     }
 
     private void createMergedOutlineShape() {
-        if (SimplePowerGrid.EXECUTOR.isShutdown()) SimplePowerGrid.recreateExecutor();
+        if (SimplePowerGrid.EXECUTOR == null || SimplePowerGrid.EXECUTOR.isShutdown()) {
+            SimplePowerGrid.recreateExecutorLimitedParallelism();
+        }
         this.shapeFuture = SimplePowerGrid.EXECUTOR.submit(() -> {
             List<VoxelShape> input = new ArrayList<>();
             for (PowerComponentInfo it : powerComponentInfoList) {
@@ -298,8 +304,15 @@ public class SimplePowerGrid {
     }
 
     public void destroy() {
-        if (!shapeFuture.isDone()) {
+        if (this.shapeFuture != null && !this.shapeFuture.isDone()) {
             shapeFuture.cancel(true);
+        }
+    }
+
+    /// 显式请求电网边框
+    public void requestGridOutline() {
+        if (this.shapeFuture == null) {
+            this.createMergedOutlineShape();
         }
     }
 }
