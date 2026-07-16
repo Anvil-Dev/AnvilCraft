@@ -407,6 +407,7 @@ public class ModBlocks {
         .lang("Large Cauldron")
         .initialProperties(() -> Blocks.CAULDRON)
         .properties(p -> p
+            .forceSolidOn()
             .noOcclusion()
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200f)

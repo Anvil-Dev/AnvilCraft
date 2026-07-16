@@ -5,8 +5,8 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.TradingStationBlockEntity;
-import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
+import dev.dubhe.anvilcraft.block.multipart.WaterloggedFlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.DirectionVertical2PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -43,10 +44,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Set;
 
-public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertical2PartHalf, DirectionProperty, Direction>
+public class TradingStationBlock extends WaterloggedFlexibleMultiPartBlock<DirectionVertical2PartHalf, DirectionProperty, Direction>
     implements MultiPartBlockEntity<DirectionVertical2PartHalf, TradingStationBlock>, IHammerChangeable {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<DirectionVertical2PartHalf> HALF = EnumProperty.create("half", DirectionVertical2PartHalf.class);
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public TradingStationBlock(Properties properties) {
         super(properties);
@@ -54,6 +56,7 @@ public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertica
             this.defaultBlockState()
                 .setValue(HALF, DirectionVertical2PartHalf.BOTTOM)
                 .setValue(FACING, Direction.NORTH)
+                .setValue(WATERLOGGED, false)
         );
     }
 
@@ -61,7 +64,7 @@ public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertica
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction dir = context.getHorizontalDirection().getOpposite();
         if (dir.getAxis().isVertical()) dir = Direction.NORTH;
-        return this.defaultBlockState().setValue(FACING, dir);
+        return this.waterloggedStateForPlacement(context, this.defaultBlockState().setValue(FACING, dir));
     }
 
     @Override

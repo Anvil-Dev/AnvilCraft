@@ -56,18 +56,22 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.fluids.capability.wrappers.BucketPickupHandlerWrapper;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -175,10 +179,29 @@ public class LargeCauldronBlockEntity extends BlockEntity
         LargeCauldronBlockEntity entity
     ) {
         if (!entity.isMainPart()) return;
+        entity.absorbFluidSources(level);
         entity.refreshIgnited();
         entity.applyFluidEffects((ServerLevel) level);
         entity.hurtEntitiesInside((ServerLevel) level);
         entity.reforgeItemsInLava(level);
+    }
+
+    private void absorbFluidSources(Level level) {
+        BlockPos intakeCenter = this.worldPosition.above(2);
+        for (int slot = 0; slot < FOOTPRINT_OFFSETS.length; slot++) {
+            BlockPos sourcePos = positionForFootprint(intakeCenter, slot);
+            FluidState fluidState = level.getFluidState(sourcePos);
+            if (fluidState.isEmpty() || !fluidState.isSource()) continue;
+            BlockState sourceState = level.getBlockState(sourcePos);
+            if (!(sourceState.getBlock() instanceof BucketPickup bucketPickup)) continue;
+            IFluidHandler source = new BucketPickupHandlerWrapper(null, bucketPickup, level, sourcePos);
+            FluidUtil.tryFluidTransfer(
+                this.fluids,
+                source,
+                new FluidStack(fluidState.getType(), FluidType.BUCKET_VOLUME),
+                true
+            );
+        }
     }
 
     @Override

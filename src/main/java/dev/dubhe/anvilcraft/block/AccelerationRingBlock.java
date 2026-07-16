@@ -5,8 +5,8 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
-import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
+import dev.dubhe.anvilcraft.block.multipart.WaterloggedFlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -38,10 +38,11 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 
-public class AccelerationRingBlock extends FlexibleMultiPartBlock<DirectionCube3x3PartHalf, DirectionProperty, Direction>
+public class AccelerationRingBlock extends WaterloggedFlexibleMultiPartBlock<DirectionCube3x3PartHalf, DirectionProperty, Direction>
     implements MultiPartBlockEntity<DirectionCube3x3PartHalf, AccelerationRingBlock>, IHammerRemovable, IHammerChangeable {
     public static final EnumProperty<DirectionCube3x3PartHalf> HALF = EnumProperty.create("half", DirectionCube3x3PartHalf.class);
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
 
@@ -51,6 +52,7 @@ public class AccelerationRingBlock extends FlexibleMultiPartBlock<DirectionCube3
             .any()
             .setValue(HALF, DirectionCube3x3PartHalf.BOTTOM_CENTER)
             .setValue(FACING, Direction.NORTH)
+            .setValue(WATERLOGGED, false)
             .setValue(OVERLOAD, true)
             .setValue(SWITCH, IPowerComponent.Switch.ON));
     }
@@ -71,7 +73,8 @@ public class AccelerationRingBlock extends FlexibleMultiPartBlock<DirectionCube3
     }
 
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(HALF, FACING, OVERLOAD, SWITCH);
+        super.createBlockStateDefinition(builder);
+        builder.add(OVERLOAD, SWITCH);
     }
 
     @Override
@@ -82,13 +85,32 @@ public class AccelerationRingBlock extends FlexibleMultiPartBlock<DirectionCube3
 
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState()
+        BlockState state = this.defaultBlockState()
             .setValue(
                 FACING,
                 context.getPlayer() != null && context.getPlayer().isShiftKeyDown()
                 ? context.getNearestLookingDirection().getOpposite()
                 : context.getNearestLookingDirection()
             );
+        return this.waterloggedStateForPlacement(context, state);
+    }
+
+    public boolean isChannelWaterlogged(Level level, BlockPos mainPos, BlockState mainState) {
+        Direction.Axis axis = mainState.getValue(FACING).getAxis();
+        for (DirectionCube3x3PartHalf part : this.getParts()) {
+            if (!isChannelPart(part, axis)) continue;
+            BlockState partState = level.getBlockState(mainPos.offset(this.offsetFrom(mainState, part)));
+            if (partState.is(this) && partState.getValue(WATERLOGGED)) return true;
+        }
+        return false;
+    }
+
+    private static boolean isChannelPart(DirectionCube3x3PartHalf part, Direction.Axis axis) {
+        return switch (axis) {
+            case X -> part.getOffsetY() == 1 && part.getOffsetZ() == 0;
+            case Y -> part.getOffsetX() == 0 && part.getOffsetZ() == 0;
+            case Z -> part.getOffsetX() == 0 && part.getOffsetY() == 1;
+        };
     }
 
     @Override
