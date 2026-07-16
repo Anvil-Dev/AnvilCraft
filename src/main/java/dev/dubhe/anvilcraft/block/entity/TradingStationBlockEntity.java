@@ -55,6 +55,8 @@ public class TradingStationBlockEntity extends BlockEntity
     public static final String FILTERS_NBT_ID = "Filters";
     public static final String ALLOW_PLAYER_NBT_ID = "AllowPlayer";
     public static final String ALLOW_VILLAGER_NBT_ID = "AllowVillager";
+    public static final String ALLOW_INPUT_NBT_ID = "AllowInput";
+    public static final String ALLOW_OUTPUT_NBT_ID = "AllowOutput";
 
     private final FilteredItemStackHandler handler = new FilteredItemStackHandler(12) {
         @Override
@@ -160,6 +162,8 @@ public class TradingStationBlockEntity extends BlockEntity
         tag.put(FILTERS_NBT_ID, this.filters.serializeNBT(registries));
         tag.putBoolean(ALLOW_PLAYER_NBT_ID, this.playerAllowed);
         tag.putBoolean(ALLOW_VILLAGER_NBT_ID, this.villagerAllowed);
+        tag.putBoolean(ALLOW_INPUT_NBT_ID, this.inputAllowed);
+        tag.putBoolean(ALLOW_OUTPUT_NBT_ID, this.outputAllowed);
     }
 
     @Override
@@ -179,6 +183,8 @@ public class TradingStationBlockEntity extends BlockEntity
         this.filters.deserializeNBT(registries, tag.getCompound(FILTERS_NBT_ID));
         this.playerAllowed = tag.getBoolean(ALLOW_PLAYER_NBT_ID);
         this.villagerAllowed = tag.getBoolean(ALLOW_VILLAGER_NBT_ID);
+        this.inputAllowed = tag.getBoolean(ALLOW_INPUT_NBT_ID);
+        this.outputAllowed = tag.getBoolean(ALLOW_OUTPUT_NBT_ID);
         TradingStationBlockEntity.popoutInvalidItems(this.getLevel(), this.getBlockPos(), this.handler);
         TradingStationBlockEntity.updateAndSend(this);
     }

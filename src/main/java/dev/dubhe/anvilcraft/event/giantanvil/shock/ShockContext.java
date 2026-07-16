@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.event.giantanvil.shock;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
+import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -12,6 +13,7 @@ import net.minecraft.world.level.block.Block;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public record ShockContext(
     Level level, BlockPos centerPos, FallingGiantAnvilEntity fallingGiantAnvil, List<BlockPos> rangePosList, float fallDistance
@@ -103,5 +105,21 @@ public record ShockContext(
             }
         }
         return true;
+    }
+
+    public Optional<BlockMiningEffect> getBorderMiningEffect() {
+        BlockMiningEffect effect = null;
+        for (Direction direction : HORIZONTAL) {
+            Optional<BlockMiningEffect> current = BlockMiningEffect.fromAnvil(
+                level.getBlockState(centerPos.relative(direction)).getBlock()
+            );
+            if (current.isEmpty()) return Optional.empty();
+            if (effect == null) {
+                effect = current.get();
+            } else if (!effect.equals(current.get())) {
+                return Optional.empty();
+            }
+        }
+        return Optional.ofNullable(effect);
     }
 }

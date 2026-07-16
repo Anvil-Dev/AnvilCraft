@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:item_inject/nesting_shulker_box"
+        "recipe": "anvilcraft:multiblock_conversion/large_cauldron"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:item_inject/nesting_shulker_box"
+      "anvilcraft:multiblock_conversion/large_cauldron"
     ]
   }
 }

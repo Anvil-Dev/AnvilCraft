@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
+import dev.dubhe.anvilcraft.entity.RailgunAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
@@ -25,6 +26,7 @@ import org.jetbrains.annotations.Nullable;
 public class AccelerateManager {
     public static final double MAX_ACCELERATED_SPEED = 512.0;
     private static final double MAX_PLAYER_SPEED = 20.0;
+    private static final double WATERLOGGED_RING_SPEED = 1.0;
 
     public static void handleAcceleration(Entity entity) {
         if (!canBeAccelerated(entity)) return;
@@ -33,6 +35,7 @@ public class AccelerateManager {
         if (clampedMovement != currentMovement) entity.setDeltaMovement(clampedMovement);
         Level level = entity.level();
         Vec3 center = getMovementCenter(entity);
+        boolean passesWaterloggedRing = passesWaterloggedAccelerationRing(entity, center, clampedMovement);
         BlockPos selectedRing = null;
         Direction selectedDirection = null;
         double bestAlignment = Double.NEGATIVE_INFINITY;
@@ -50,6 +53,9 @@ public class AccelerateManager {
             bestAlignment = alignment;
         }
         if (selectedRing != null) applyAcceleration(entity, selectedRing, selectedDirection);
+        if (passesWaterloggedRing) {
+            entity.setDeltaMovement(limitAnvilSpeed(entity, entity.getDeltaMovement()));
+        }
     }
 
     private static boolean isActiveAccelerationRing(BlockState state) {
@@ -154,6 +160,76 @@ public class AccelerateManager {
         return scaled.scale(limit / scaledLength);
     }
 
+    public static Vec3 limitAnvilSpeed(Entity entity, Vec3 movement) {
+        if (!isAnvil(entity)) return movement;
+        double speedSqr = movement.lengthSqr();
+        if (!Double.isFinite(speedSqr)) return Vec3.ZERO;
+        double limitSqr = WATERLOGGED_RING_SPEED * WATERLOGGED_RING_SPEED;
+        if (speedSqr <= limitSqr) return movement;
+        return movement.scale(WATERLOGGED_RING_SPEED / Math.sqrt(speedSqr));
+    }
+
+    private static boolean isAnvil(Entity entity) {
+        if (entity instanceof FallingBlockEntity falling) return falling.getBlockState().is(BlockTags.ANVIL);
+        return entity instanceof RailgunAnvilEntity railgun && railgun.getBlockState().is(BlockTags.ANVIL);
+    }
+
+    private static boolean passesWaterloggedAccelerationRing(Entity entity, Vec3 start, Vec3 movement) {
+        if (!isAnvil(entity)) return false;
+        double movementSqr = movement.lengthSqr();
+        if (!Double.isFinite(movementSqr) || movementSqr < 1.0E-12) return false;
+        double waterloggedProgress = firstWaterloggedAccelerationRingProgress(
+            entity.level(),
+            start,
+            movement,
+            movementSqr
+        );
+        if (!Double.isFinite(waterloggedProgress)) return false;
+        BlockPos deflectionRing = DeflectionRingBlockEntity.findFirstRing(entity, start, movement);
+        if (deflectionRing == null) return true;
+        double deflectionProgress = deflectionRing.getCenter().subtract(start).dot(movement) / movementSqr;
+        return waterloggedProgress <= deflectionProgress;
+    }
+
+    private static double firstWaterloggedAccelerationRingProgress(
+        Level level,
+        Vec3 start,
+        Vec3 movement,
+        double movementSqr
+    ) {
+        Vec3 end = start.add(movement);
+        double nearestProgress = Double.POSITIVE_INFINITY;
+        for (BlockPos ringPos : AccelerationRingBlockEntity.getRingsAlongMovement(level, start, movement)) {
+            BlockState state = level.getBlockState(ringPos);
+            if (!(state.getBlock() instanceof AccelerationRingBlock block)
+                || !isActiveAccelerationRing(state)
+                || !block.isChannelWaterlogged(level, ringPos, state)) {
+                continue;
+            }
+            Direction positive = switch (state.getValue(AccelerationRingBlock.FACING).getAxis()) {
+                case X -> Direction.EAST;
+                case Y -> Direction.UP;
+                case Z -> Direction.SOUTH;
+            };
+            AABB channel = AABB.encapsulatingFullBlocks(
+                ringPos.relative(positive.getOpposite()),
+                ringPos.relative(positive)
+            );
+            double progress;
+            if (channel.contains(start)) {
+                progress = 0.0;
+            } else {
+                var clipped = channel.clip(start, end);
+                if (clipped.isEmpty()) continue;
+                progress = clipped.get().subtract(start).dot(movement) / movementSqr;
+            }
+            if (progress >= 0.0 && progress <= 1.0 && progress < nearestProgress) {
+                nearestProgress = progress;
+            }
+        }
+        return nearestProgress;
+    }
+
     static boolean isPlayerCanBeAccelerated(Player player) {
         Iterable<ItemStack> armorSlots = player.getArmorSlots();
         boolean hasHammer = false;
@@ -171,6 +247,11 @@ public class AccelerateManager {
 
     public static void applyAcceleration(Entity entity, AccelerationEntry entry) {
         applyAcceleration(entity, entry.ringPos(), entry.direction());
+        BlockState state = entity.level().getBlockState(entry.ringPos());
+        if (state.getBlock() instanceof AccelerationRingBlock block
+            && block.isChannelWaterlogged(entity.level(), entry.ringPos(), state)) {
+            entity.setDeltaMovement(limitAnvilSpeed(entity, entity.getDeltaMovement()));
+        }
     }
 
     private static void applyAcceleration(Entity entity, BlockPos ringPos, Direction direction) {

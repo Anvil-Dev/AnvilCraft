@@ -57,27 +57,12 @@ public class GiantAnvilShockEventListener {
                 }
             }).then(
                 // test anvil type
-                TreeNode.multiple(
-                    TreeNode.<ShockContext>predicatedExecutable(it ->
-                        (it.unwrap().testBorder(AnvilBlock.class) || it.unwrap().testBorder(ModBlocks.SPECTRAL_ANVIL))
-                        && !it.unwrap().testBorder(ModBlocks.ROYAL_ANVIL)
-                        && !it.unwrap().testBorder(ModBlocks.FROST_ANVIL)
-                        && !it.unwrap().testBorder(ModBlocks.EMBER_ANVIL)
-                        && !it.unwrap().testBorder(ModBlocks.TRANSCENDENCE_ANVIL)
-                    ).executes(it -> it.putAttachment(DESTROY_MODE, DestroyMode.NORMAL)),
-                    TreeNode.<ShockContext>predicatedExecutable(
-                        it -> it.unwrap().testBorder(ModBlocks.ROYAL_ANVIL)
-                    ).executes(it -> it.putAttachment(DESTROY_MODE, DestroyMode.SILK_TOUCH)),
-                    TreeNode.<ShockContext>predicatedExecutable(
-                        it -> it.unwrap().testBorder(ModBlocks.FROST_ANVIL)
-                    ).executes(it -> it.putAttachment(DESTROY_MODE, DestroyMode.DISINTEGRATION)),
-                    TreeNode.<ShockContext>predicatedExecutable(
-                        it -> it.unwrap().testBorder(ModBlocks.EMBER_ANVIL)
-                    ).executes(it -> it.putAttachment(DESTROY_MODE, DestroyMode.AUTO_SMELTING)),
-                    TreeNode.<ShockContext>predicatedExecutable(
-                        it -> it.unwrap().testBorder(ModBlocks.TRANSCENDENCE_ANVIL)
-                    ).executes(it -> it.putAttachment(DESTROY_MODE, DestroyMode.FORTUNE))
-                )
+                TreeNode.<ShockContext>predicatedExecutable(
+                    it -> it.unwrap().getBorderMiningEffect().isPresent()
+                ).executes(it -> it.putAttachment(
+                    DESTROY_MODE,
+                    DestroyMode.fromEffect(it.unwrap().getBorderMiningEffect().orElseThrow())
+                ))
             ).then(
                 // test block type
                 TreeNode.multiple(

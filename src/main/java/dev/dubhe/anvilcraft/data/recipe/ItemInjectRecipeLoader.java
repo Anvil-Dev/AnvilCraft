@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -20,22 +19,5 @@ public class ItemInjectRecipeLoader {
             .resultBlock(Blocks.GILDED_BLACKSTONE)
             .save(provider);
 
-        ItemInjectRecipe.builder()
-            .requires(Items.SHULKER_BOX)
-            .inputBlock(Blocks.SHULKER_BOX)
-            .resultBlock(ModBlocks.NESTING_SHULKER_BOX)
-            .save(provider);
-
-        ItemInjectRecipe.builder()
-            .requires(ModBlocks.NESTING_SHULKER_BOX)
-            .inputBlock(Blocks.SHULKER_BOX)
-            .resultBlock(ModBlocks.OVER_NESTING_SHULKER_BOX)
-            .save(provider);
-
-        ItemInjectRecipe.builder()
-            .requires(ModBlocks.OVER_NESTING_SHULKER_BOX)
-            .inputBlock(Blocks.SHULKER_BOX)
-            .resultBlock(ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX)
-            .save(provider);
     }
 }

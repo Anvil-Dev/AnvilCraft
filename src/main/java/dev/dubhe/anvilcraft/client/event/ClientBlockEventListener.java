@@ -60,11 +60,11 @@ public class ClientBlockEventListener {
         Property<?> property = AnvilHammerItem.findModifyableProperty(targetBlockState);
         LocalPlayer player = Minecraft.getInstance().player;
         if (player == null) return false;
+        if (player.isShiftKeyDown()) {
+            PacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand, hitVec));
+            return true;
+        }
         if (property != null) {
-            if (event.getEntity().isShiftKeyDown()) {
-                PacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand, hitVec));
-                return true;
-            }
             if (!event.getEntity().getAbilities().mayBuild) return false;
             if (!AnvilHammerItem.ableToUseAnvilHammer(event.getLevel(), event.getPos(), event.getEntity())) return false;
             List<BlockState> possibleStates = StateUtil.findPossibleStatesForProperty(targetBlockState, property);

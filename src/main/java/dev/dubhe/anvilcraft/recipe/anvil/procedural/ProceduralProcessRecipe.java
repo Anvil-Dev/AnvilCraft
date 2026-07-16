@@ -59,6 +59,10 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
      */
     public final Optional<ResourceLocation> displayedModel;
     /**
+     * Models used after each completed step. The legacy displayed model is used when no model exists for a step.
+     */
+    public final List<ResourceLocation> displayedModels;
+    /**
      * 需要执行多个循环的配方中，后续循环（即不是第一圈）中每个循环的初始步骤
      * 对于单圈的配方来说不需要有
      */
@@ -73,6 +77,7 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
         ItemStack icon,
         int loop,
         Optional<ResourceLocation> displayedModel,
+        List<ResourceLocation> displayedModels,
         Optional<ProceduralProcessStep> multiLoopFirstStep
     ) {
         this.initialBlock = initialBlock;
@@ -81,7 +86,18 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
         this.icon = icon;
         this.loop = loop;
         this.displayedModel = displayedModel;
+        this.displayedModels = List.copyOf(displayedModels);
         this.multiLoopFirstStep = multiLoopFirstStep;
+    }
+
+    public Optional<ResourceLocation> getDisplayedModelForStep(int stepCount) {
+        if (stepCount > 0 && !steps.isEmpty()) {
+            int modelIndex = (stepCount - 1) % steps.size();
+            if (modelIndex < displayedModels.size()) {
+                return Optional.of(displayedModels.get(modelIndex));
+            }
+        }
+        return displayedModel;
     }
 
     /**

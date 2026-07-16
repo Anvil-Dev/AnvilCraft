@@ -1,0 +1,67 @@
+{
+  "type": "anvilcraft:procedural_process",
+  "icon": {
+    "count": 1,
+    "id": "minecraft:shulker_box"
+  },
+  "initial_block": {
+    "blocks": "minecraft:purpur_block"
+  },
+  "loop": 1,
+  "result_block": {
+    "block": "minecraft:shulker_box"
+  },
+  "steps": [
+    {
+      "content": {
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "minecraft:purpur_block"
+        },
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
+          {
+            "items": "minecraft:ender_pearl"
+          }
+        ]
+      },
+      "index": 0
+    },
+    {
+      "content": {
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "anvilcraft:wip_block"
+        },
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
+          {
+            "items": "minecraft:ender_eye"
+          }
+        ]
+      },
+      "index": 1
+    },
+    {
+      "content": {
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "anvilcraft:wip_block"
+        },
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
+          {
+            "items": "minecraft:ender_chest"
+          }
+        ]
+      },
+      "index": 2
+    }
+  ]
+}

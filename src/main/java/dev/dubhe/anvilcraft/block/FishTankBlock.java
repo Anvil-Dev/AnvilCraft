@@ -34,6 +34,8 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityTicker;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -54,6 +56,8 @@ import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
+
+import static dev.dubhe.anvilcraft.block.PropelPiston.createTickerHelper;
 
 public class FishTankBlock extends Block implements IMoveableEntityBlock, HammerRotateBehavior, IHammerRemovable, IIgnitableCauldron {
     public static final BooleanProperty TROPICAL = BooleanProperty.create("tropical");
@@ -242,7 +246,9 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
                     .ifPresent(FishTankBlockEntity::tryAutoOutputResults);
             }
         }
-        level.playSound(player, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0f, 1.0f);
+        if (!level.isClientSide()) {
+            level.playSound(null, pos, SoundEvents.SMITHING_TABLE_USE, SoundSource.BLOCKS, 1.0f, 1.0f);
+        }
         return ItemInteractionResult.SUCCESS;
     }
 
@@ -284,6 +290,16 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.FISH_TANK.create(pos, state);
+    }
+
+    @Override
+    public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(
+        Level level,
+        BlockState state,
+        BlockEntityType<T> type
+    ) {
+        if (level.isClientSide()) return null;
+        return createTickerHelper(type, ModBlockEntities.FISH_TANK.get(), FishTankBlockEntity::serverTick);
     }
 
     @Override

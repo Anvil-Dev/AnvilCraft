@@ -14,6 +14,70 @@ import net.minecraft.world.level.block.Blocks;
 
 public class ProceduralProcessRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
+        ProceduralProcessRecipeBuilder.of(Blocks.SHULKER_BOX)
+            .addStep(
+                BlockCompressRecipe.builder()
+                    .input(Blocks.SHULKER_BOX)
+                    .input(Blocks.SHULKER_BOX)
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .addStep(
+                BlockCompressRecipe.builder()
+                    .input(Blocks.SHULKER_BOX)
+                    .input(ModBlocks.WIP_BLOCK.get())
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .addStep(
+                BlockCompressRecipe.builder()
+                    .input(Blocks.SHULKER_BOX)
+                    .input(ModBlocks.WIP_BLOCK.get())
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .addStep(
+                BlockCompressRecipe.builder()
+                    .input(ModBlocks.VOID_MATTER_BLOCK.get())
+                    .input(ModBlocks.WIP_BLOCK.get())
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .result(ModBlocks.SPACE_OVERCOMPRESSOR)
+            .icon(ModBlocks.SPACE_OVERCOMPRESSOR.asStack())
+            .displayedModels(
+                AnvilCraft.of("block/nesting_shulker_box"),
+                AnvilCraft.of("block/over_nesting_shulker_box"),
+                AnvilCraft.of("block/supercritical_nesting_shulker_box")
+            )
+            .save(provider);
+
+        ProceduralProcessRecipeBuilder.of(Blocks.PURPUR_BLOCK)
+            .addStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(Blocks.PURPUR_BLOCK)
+                    .requires(Items.ENDER_PEARL)
+                    .resultBlock(ModBlocks.WIP_BLOCK)
+                    .buildRecipe()
+            )
+            .addStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(ModBlocks.WIP_BLOCK)
+                    .requires(Items.ENDER_EYE)
+                    .resultBlock(ModBlocks.WIP_BLOCK)
+                    .buildRecipe()
+            )
+            .addStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(ModBlocks.WIP_BLOCK)
+                    .requires(Items.ENDER_CHEST)
+                    .resultBlock(ModBlocks.WIP_BLOCK)
+                    .buildRecipe()
+            )
+            .result(Blocks.SHULKER_BOX)
+            .icon(Items.SHULKER_BOX.getDefaultInstance())
+            .save(provider);
+
         // 时空超算
         ProceduralProcessRecipeBuilder.of(ModBlocks.ADVANCED_COMPARATOR.get())
             .addStep(

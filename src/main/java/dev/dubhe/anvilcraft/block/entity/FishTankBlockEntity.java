@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.init.block.ModFluidTags;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
+import dev.dubhe.anvilcraft.util.FireReforgingUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -343,6 +344,22 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
 
     public FishTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+    }
+
+    public static void serverTick(Level level, BlockPos pos, BlockState state, FishTankBlockEntity entity) {
+        if (!entity.fluidHandler.getFluid().is(Fluids.LAVA)) return;
+        boolean changed = false;
+        for (int slot = 0; slot < entity.input.getSlots(); slot++) {
+            changed |= FireReforgingUtil.repair(
+                entity.input.getStackInSlot(slot),
+                FireReforgingUtil.LAVA_REPAIR_PER_TICK,
+                level,
+                pos
+            );
+        }
+        if (!changed) return;
+        entity.setChanged();
+        entity.sendUpdate();
     }
 
     @Override
@@ -690,35 +707,20 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
      */
     public static @Unmodifiable List<ItemStack> extractAllFromTank(IItemHandler handler, TriState containsIngredient) {
         List<ItemStack> result = new ArrayList<>();
-        for (int i = 0; i < 8; i++) {
-            ItemStack extracted = handler.extractItem(i, Integer.MAX_VALUE, true);
-            if (extracted.isEmpty()) continue;
-            int count = extracted.getCount();
-            int maxSize = extracted.getMaxStackSize();
-            if (count < maxSize) {
-                result.add(handler.extractItem(i, count, false));
-                continue;
-            }
-            for (; count > 0; count -= maxSize) {
-                result.add(handler.extractItem(i, Math.min(count, maxSize), false));
-            }
-        }
+        extractSlots(handler, 0, 8, result);
         if (!containsIngredient.isFalse() && (containsIngredient.isDefault() || result.isEmpty())) {
-            for (int i = 8; i < 16; i++) {
-                ItemStack extracted = handler.extractItem(i, Integer.MAX_VALUE, true);
-                if (extracted.isEmpty()) continue;
-                int count = extracted.getCount();
-                int maxSize = extracted.getMaxStackSize();
-                if (count < maxSize) {
-                    result.add(handler.extractItem(i, count, false));
-                    continue;
-                }
-                for (; count > 0; count -= maxSize) {
-                    result.add(handler.extractItem(i, Math.min(count, maxSize), false));
-                }
-            }
+            extractSlots(handler, 8, 16, result);
         }
         return ImmutableList.copyOf(result);
+    }
+
+    private static void extractSlots(IItemHandler handler, int from, int to, List<ItemStack> result) {
+        for (int slot = from; slot < to; slot++) {
+            ItemStack extracted;
+            while (!(extracted = handler.extractItem(slot, Integer.MAX_VALUE, false)).isEmpty()) {
+                result.add(extracted);
+            }
+        }
     }
 
     /**
@@ -796,7 +798,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             entity.lavaHurt();
         } else if (entity.canFluidExtinguish(stack.getFluidType()) && entity.isOnFire()) {
             entity.clearFire();
-            if (entity.mayInteract(level, pos)) {
+            boolean creativePlayer = entity instanceof Player player && player.isCreative();
+            if (!creativePlayer && entity.mayInteract(level, pos)) {
                 this.fluidHandler.drain(250, IFluidHandler.FluidAction.EXECUTE);
             }
             if (stack.is(ModFluids.POWDER_SNOW)) {

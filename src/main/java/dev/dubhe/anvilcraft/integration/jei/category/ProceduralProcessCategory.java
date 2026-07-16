@@ -209,7 +209,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
                         BLOCK_Y + 10 * j,
                         10 - 10 * j,
                         12,
-                        RenderSupport.wipEntity(recipeHolder.id())
+                        RenderSupport.wipEntity(recipeHolder.id(), i)
                     );
                 }
                 RenderSupport.renderBlock(

@@ -35,7 +35,7 @@ abstract class EmbChunkBuilderMeshingTaskMixin {
     ) {
         BlockPos blockPos = context.pos();
         if (Minecraft.getInstance().screen instanceof IHasHammerEffect hammerEffect && hammerEffect.shouldSkipRebuildBlock()) {
-            BlockPos blockPos1 = hammerEffect.renderingBlockPos();
+            BlockPos blockPos1 = hammerEffect.hiddenBlockPos();
             if (!blockPos1.equals(blockPos)) {
                 original.call(
                     instance,

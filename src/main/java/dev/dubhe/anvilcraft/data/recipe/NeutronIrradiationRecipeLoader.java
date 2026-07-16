@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.recipe.outcome.ProduceExplosion;
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -20,7 +21,11 @@ public class NeutronIrradiationRecipeLoader {
             .save(provider);
 
         ExtendInWorldRecipeBuilder.extendCompatible(ModRecipeTriggers.ON_ANVIL_FALL_ON)
-            .hasItemIngredient(builder -> builder.of(ModItemTags.RADIATIONS).offset(0.0, -0.375, 0.0).range(0.75, 0.75, 0.75))
+            .hasItemIngredient(builder -> builder
+                .of(ModBlocks.URANIUM_BLOCK.asItem(), ModBlocks.PLUTONIUM_BLOCK.asItem())
+                .offset(0.0, -0.375, 0.0)
+                .range(0.75, 0.75, 0.75)
+            )
             .hasCauldron(0, -1, 0)
             .hasBlock(builder -> builder.of(ModBlocks.NEUTRON_IRRADIATOR.get()).offset(0, -2, 0))
             .chooseOne(builder -> builder.choice(
@@ -32,6 +37,7 @@ public class NeutronIrradiationRecipeLoader {
                     ConstantValue.exactly(1f)
                 ), 1f
             ))
-            .save(provider, "radiation_block_explosion");
+            .group("neutron_irradiation")
+            .save(provider, AnvilCraft.of("radiation_block_explosion"));
     }
 }

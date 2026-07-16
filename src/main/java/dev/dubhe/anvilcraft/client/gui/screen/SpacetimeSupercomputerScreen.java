@@ -461,7 +461,7 @@ public class SpacetimeSupercomputerScreen extends Screen {
         // 渲染标题
         int x = (this.width - 256) / 2;
         int y = (this.height - 166) / 2;
-        guiGraphics.drawString(this.font, this.title, x + (256 - this.font.width(this.title)) / 2, y, 4210752, false);
+        guiGraphics.drawString(this.font, this.title, x + (256 - this.font.width(this.title)) / 2, y + 2, 4210752, false);
 
         // 渲染命令列表标题
         RenderUtil.drawScrollingShadowlessString(

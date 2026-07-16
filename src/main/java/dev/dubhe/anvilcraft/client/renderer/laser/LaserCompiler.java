@@ -156,11 +156,11 @@ public class LaserCompiler {
     }
 
     private static float[] getLensColor(LensType type) {
-        return switch (type) {
-            case ROYAL -> new float[]{0.0f, 1.0f, 0.75f};
-            case FROST -> new float[]{0.35f, 0.55f, 1.0f};
-            case EMBER -> new float[]{1.0f, 0.85f, 0.0f};
-            default -> new float[]{1.0f, 0.05f, 0.05f};
+        int color = type.getMiningEffect().getLaserColor();
+        return new float[]{
+            (color >> 16 & 0xFF) / 255.0f,
+            (color >> 8 & 0xFF) / 255.0f,
+            (color & 0xFF) / 255.0f
         };
     }
 

@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:stamping/shulker_box_from_supercritical_nesting_shulker_box"
+        "recipe": "anvilcraft:procedural_process/space_overcompressor"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:stamping/shulker_box_from_supercritical_nesting_shulker_box"
+      "anvilcraft:procedural_process/space_overcompressor"
     ]
   }
 }

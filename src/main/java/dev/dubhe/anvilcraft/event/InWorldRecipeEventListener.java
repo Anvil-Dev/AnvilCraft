@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.recipe.event.InWorldRecipeManagerEvent;
 import dev.anvilcraft.lib.v2.recipe.event.ItemCacheEvent;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.VanillaRecipesWrap;
@@ -15,6 +16,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -56,6 +58,21 @@ public class InWorldRecipeEventListener {
     public static void spawnItemEntity(ItemCacheEvent.SpawnItemEntity event) {
         ItemEntity entity = event.getEntity();
         entity.anvilcraft$setIsAdsorbable(false);
+        BlockPos pos = entity.blockPosition();
+        LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(
+            entity.level(),
+            pos,
+            entity.level().getBlockState(pos)
+        );
+        if (cauldron != null) {
+            ItemStack remaining = cauldron.insertRecipeOutput(entity.getItem());
+            if (remaining.isEmpty()) {
+                entity.discard();
+            } else {
+                entity.setItem(remaining);
+            }
+            return;
+        }
         entity.level().getBlockEntity(entity.blockPosition(), ModBlockEntities.FISH_TANK.get())
             .ifPresent(be -> be.getOutput().setStackInSlot(0, be.getOutput().getStackInSlot(0)));
     }

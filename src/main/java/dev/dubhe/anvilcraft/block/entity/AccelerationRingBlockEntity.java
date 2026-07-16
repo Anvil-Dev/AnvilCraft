@@ -77,6 +77,11 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         return index == null ? List.of() : index.getBlocksAlongMovement(start, movement);
     }
 
+    public static Iterable<BlockPos> getRingsAlongMovement(Level level, Vec3 start, Vec3 movement) {
+        AccelerationIndex index = LEVEL_ACCELERATION_INDEX.get(level);
+        return index == null ? List.of() : index.getRingsAlongMovement(start, movement);
+    }
+
     public static void clear(Level level) {
         LEVEL_ACCELERATION_INDEX.remove(level);
     }
@@ -330,13 +335,24 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         private final HashMap<BlockPos, AABB> areas = new HashMap<>();
         private final HashMap<BlockPos, LongArrayList> areaSections = new HashMap<>();
         private final Long2ObjectOpenHashMap<HashSet<BlockPos>> bySection = new Long2ObjectOpenHashMap<>();
+        private final Long2ObjectOpenHashMap<HashSet<BlockPos>> ringsBySection = new Long2ObjectOpenHashMap<>();
 
         private void add(BlockPos pos) {
-            positions.add(pos.immutable());
+            BlockPos immutablePos = pos.immutable();
+            if (!positions.add(immutablePos)) return;
+            ringsBySection.computeIfAbsent(SectionPos.asLong(immutablePos), ignored -> new HashSet<>())
+                .add(immutablePos);
         }
 
         private void remove(BlockPos pos) {
-            positions.remove(pos);
+            if (positions.remove(pos)) {
+                long sectionKey = SectionPos.asLong(pos);
+                HashSet<BlockPos> sectionPositions = ringsBySection.get(sectionKey);
+                if (sectionPositions != null) {
+                    sectionPositions.remove(pos);
+                    if (sectionPositions.isEmpty()) ringsBySection.remove(sectionKey);
+                }
+            }
             removeArea(pos);
         }
 
@@ -392,6 +408,19 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
         }
 
         private Iterable<BlockPos> getBlocksAlongMovement(Vec3 start, Vec3 movement) {
+            return getBlocksAlongMovement(start, movement, bySection);
+        }
+
+        private Iterable<BlockPos> getRingsAlongMovement(Vec3 start, Vec3 movement) {
+            return getBlocksAlongMovement(start, movement, ringsBySection);
+        }
+
+        @SuppressWarnings("checkstyle:OverloadMethodsDeclarationOrder")
+        private static Iterable<BlockPos> getBlocksAlongMovement(
+            Vec3 start,
+            Vec3 movement,
+            Long2ObjectOpenHashMap<HashSet<BlockPos>> sectionIndex
+        ) {
             double movementSqr = movement.lengthSqr();
             if (!Double.isFinite(movementSqr)) return List.of();
             Vec3 end = start.add(movement);
@@ -402,7 +431,8 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
             int endSectionY = SectionPos.blockToSectionCoord(end.y);
             int endSectionZ = SectionPos.blockToSectionCoord(end.z);
             if (sectionX == endSectionX && sectionY == endSectionY && sectionZ == endSectionZ) {
-                return getBlocksAt(start);
+                HashSet<BlockPos> sectionPositions = sectionIndex.get(SectionPos.asLong(sectionX, sectionY, sectionZ));
+                return sectionPositions == null ? List.of() : sectionPositions;
             }
 
             int stepX = Double.compare(movement.x, 0.0);
@@ -435,7 +465,7 @@ public class AccelerationRingBlockEntity extends BlockEntity implements IPowerCo
                                     + 1;
             HashSet<BlockPos> candidates = new HashSet<>();
             while (remainingSections-- > 0) {
-                HashSet<BlockPos> sectionPositions = bySection.get(SectionPos.asLong(sectionX, sectionY, sectionZ));
+                HashSet<BlockPos> sectionPositions = sectionIndex.get(SectionPos.asLong(sectionX, sectionY, sectionZ));
                 if (sectionPositions != null) candidates.addAll(sectionPositions);
                 if (sectionX == endSectionX && sectionY == endSectionY && sectionZ == endSectionZ) break;
 

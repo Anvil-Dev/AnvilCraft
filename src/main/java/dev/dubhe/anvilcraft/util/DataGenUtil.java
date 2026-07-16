@@ -30,7 +30,6 @@ import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.AlternativesEntry;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.minecraft.world.level.storage.loot.predicates.MatchTool;
@@ -158,23 +157,4 @@ public class DataGenUtil {
         );
     }
 
-    public static void nestingShulkerBoxLoot(RegistrumBlockLootTables lootTables, Block block) {
-        lootTables.add(
-            block,
-            LootTable.lootTable()
-                .withPool(
-                    LootPool.lootPool()
-                        .when(ExplosionCondition.survivesExplosion())
-                        .setRolls(ConstantValue.exactly(1.0F))
-                        .add(
-                            LootItem.lootTableItem(block)
-                                .apply(
-                                    CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
-                                        .include(DataComponents.CUSTOM_NAME)
-                                        .include(ModComponents.OVER_LIMIT_CONTAINER)
-                                )
-                        )
-                )
-        );
-    }
 }

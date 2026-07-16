@@ -4,7 +4,7 @@ import dev.dubhe.anvilcraft.block.LensBlock;
 import dev.dubhe.anvilcraft.block.state.LensType;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
-import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,7 +21,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.Tags;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class LensBlockEntity extends BaseLaserBlockEntity {
@@ -58,6 +57,11 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
     }
 
     @Override
+    public BlockMiningEffect getMiningEffect() {
+        return getBlockState().getValue(LensBlock.TYPE).getMiningEffect();
+    }
+
+    @Override
     public void onIrradiated(BaseLaserBlockEntity source) {
         if (determineEmissionDirection(source)) {
             super.onIrradiated(source);
@@ -69,6 +73,12 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
     public void onCancelingIrradiation(BaseLaserBlockEntity source) {
         super.onCancelingIrradiation(source);
         this.enabled = !this.irradiateSelfLaserBlockSet.isEmpty();
+    }
+
+    @Override
+    public void resetLaserStateAfterMove() {
+        this.enabled = false;
+        super.resetLaserStateAfterMove();
     }
 
     private boolean determineEmissionDirection(BaseLaserBlockEntity source) {
@@ -112,14 +122,6 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
             return;
         }
         super.deliverItem(drops, direction, sourceBlockPos);
-    }
-
-    private List<ItemStack> getFrostDrops(ServerLevel serverLevel) {
-        List<ItemStack> drops = new ArrayList<>();
-        if (serverLevel.random.nextFloat() <= 0.25f) {
-            drops.add(new ItemStack(ModItems.EXP_GEM.get()));
-        }
-        return drops;
     }
 
     private BlockPos scanIrradiateBlockPos(int expectedLength, Direction direction, BlockPos originPos) {
@@ -206,12 +208,11 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
             boolean isLensSpecialTarget = lensType != LensType.NONE
                 && (irradiateBlock.is(ModBlocks.VOID_STONE) || irradiateBlock.is(ModBlocks.EARTH_CORE_SHARD_ORE));
             if (isOreTarget || isLensSpecialTarget) {
-                List<ItemStack> drops = switch (lensType) {
-                    case ROYAL -> BreakBlockUtil.dropSilkTouch(serverLevel, this.irradiateBlockPos);
-                    case FROST -> getFrostDrops(serverLevel);
-                    case EMBER -> BreakBlockUtil.dropSmelt(serverLevel, this.irradiateBlockPos, 2);
-                    default -> BreakBlockUtil.drop(serverLevel, this.irradiateBlockPos);
-                };
+                List<ItemStack> drops = BreakBlockUtil.dropForLaser(
+                    serverLevel,
+                    this.irradiateBlockPos,
+                    lensType.getMiningEffect()
+                );
                 this.deliverItem(drops, direction, this.irradiateBlockPos);
             }
         }

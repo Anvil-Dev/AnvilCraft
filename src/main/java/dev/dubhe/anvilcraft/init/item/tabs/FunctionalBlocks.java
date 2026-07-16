@@ -37,10 +37,11 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.HEATER); // 电加热器
 
         this.plain(Items.CAULDRON); // 炼药锅
+        this.plain(ModBlocks.LARGE_CAULDRON); // 大型炼药锅
         this.plain(ModBlocks.FISH_TANK); // 鱼缸
+        this.plain(ModBlocks.MENGER_SPONGE); // 门格海绵
         this.plain(ModBlocks.FLUID_TANK); // 流体储罐
         this.plain(ModBlocks.LARGE_FLUID_TANK); // 大型流体储罐
-        this.plain(ModBlocks.MENGER_SPONGE); // 门格海绵
         this.plain(ModBlocks.DRAIN); // 排水口
         this.plain(ModItems.PIPE); // 管道
         this.plain(ModBlocks.PUMP); // 泵

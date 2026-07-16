@@ -35,6 +35,7 @@ public class PowerGridSupport {
         for (SimplePowerGrid grid : PowerGridSupport.GRID_MAP.values()) {
             if (!grid.shouldRender(camera)) continue;
             if (!grid.getLevel().equals(level)) continue;
+            grid.requestGridOutline();
             for (Line line : grid.getPowerGridBoundLines()) {
                 line.render(poseStack, consumer, camera, grid.getColor());
             }
@@ -75,7 +76,7 @@ public class PowerGridSupport {
     }
 
     public static void clearAllGrid() {
-        SimplePowerGrid.recreateExecutor();
+        SimplePowerGrid.recreateExecutorLimitedParallelism();
         for (SimplePowerGrid value : GRID_MAP.values()) {
             value.destroy();
         }

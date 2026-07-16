@@ -78,6 +78,14 @@ public class MultiBlockRecipeLoader {
             .symbol('B', Tags.Blocks.GLASS_BLOCKS)
             .save(provider, AnvilCraft.of("multiblock/large_fluid_tank"));
 
+        MultiblockRecipe.builder("anvilcraft:large_cauldron", 1)
+            .layer("AAA", "AAA", "AAA")
+            .layer("ABA", "B B", "ABA")
+            .layer("ABA", "B B", "ABA")
+            .symbol('A', "anvilcraft:cut_heavy_iron_block")
+            .symbol('B', "anvilcraft:tempering_glass")
+            .save(provider);
+
         MultiblockRecipe.builder(ModBlocks.MENGER_SPONGE)
             .layer("AAA", "A A", "AAA")
             .layer("A A", " B ", "A A")

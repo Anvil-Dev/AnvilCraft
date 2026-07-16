@@ -34,6 +34,7 @@ import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LaserReceiverBlockEntity;
@@ -76,9 +77,6 @@ import dev.dubhe.anvilcraft.block.entity.heatable.HeatedBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.IncandescentBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.OverheatedBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.RedhotBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.nesting.NestingShulkerBoxBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.nesting.OverNestingShulkerBoxBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.nesting.SupercriticalNestingShulkerBoxBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.plate.TimeCountedPressurePlateBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorBlockEntityRender;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingBERenderer;
@@ -101,6 +99,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.InfiniteCollectorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeCauldronBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer;
@@ -390,21 +389,6 @@ public class ModBlockEntities {
         .validBlocks(ModBlocks.SHULKER_CONTAINER)
         .register();
 
-    public static final BlockEntityEntry<NestingShulkerBoxBlockEntity> NESTING_SHULKER_BOX = REGISTRUM
-        .blockEntity("nesting_shulker_box", NestingShulkerBoxBlockEntity::new)
-        .validBlocks(ModBlocks.NESTING_SHULKER_BOX)
-        .register();
-
-    public static final BlockEntityEntry<OverNestingShulkerBoxBlockEntity> OVER_NESTING_SHULKER_BOX = REGISTRUM
-        .blockEntity("over_nesting_shulker_box", OverNestingShulkerBoxBlockEntity::new)
-        .validBlocks(ModBlocks.OVER_NESTING_SHULKER_BOX)
-        .register();
-
-    public static final BlockEntityEntry<SupercriticalNestingShulkerBoxBlockEntity> SUPERCRITICAL_NESTING_SHULKER_BOX = REGISTRUM
-        .blockEntity("supercritical_nesting_shulker_box", SupercriticalNestingShulkerBoxBlockEntity::new)
-        .validBlocks(ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX)
-        .register();
-
     public static final BlockEntityEntry<FluidTankBlockEntity> FLUID_TANK = REGISTRUM
         .blockEntity("fluid_tank", FluidTankBlockEntity::new)
         .validBlocks(ModBlocks.FLUID_TANK)
@@ -415,6 +399,12 @@ public class ModBlockEntities {
         .blockEntity("large_fluid_tank", LargeFluidTankBlockEntity::new)
         .validBlocks(ModBlocks.LARGE_FLUID_TANK)
         .renderer(() -> LargeFluidTankBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<LargeCauldronBlockEntity> LARGE_CAULDRON = REGISTRUM
+        .blockEntity("large_cauldron", LargeCauldronBlockEntity::new)
+        .validBlocks(ModBlocks.LARGE_CAULDRON)
+        .renderer(() -> LargeCauldronBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<CelestialForgingAnvilBlockEntity> CELESTIAL_FORGING_ANVIL = REGISTRUM

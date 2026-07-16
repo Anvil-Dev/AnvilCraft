@@ -10,6 +10,8 @@ import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.LargeCauldronFluidHandler;
+import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipePredicateTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
@@ -120,6 +122,12 @@ public record HasCauldron(
         BlockCache cache = context.computeIfAbsent(BlockCache.BLOCK_CACHE);
         if (!cache.getBlockState(pos).is(BlockTags.CAULDRONS)) return false;
 
+        if (cache.getBlockEntity(pos) instanceof LargeCauldronBlockEntity cauldron) {
+            if (this.consume() > LargeCauldronFluidHandler.TANK_CAPACITY
+                || this.produce() > LargeCauldronFluidHandler.TANK_CAPACITY) return false;
+            return cauldron.testFluidRecipe(context, this);
+        }
+
         // 消耗/产生比锅容量大 否决
         double capacity = HasCauldron.getCapacity(cache, pos);
         if (this.consume() > capacity || this.produce() > capacity) return false;
@@ -159,11 +167,15 @@ public record HasCauldron(
 
     @Override
     public void accept(InWorldRecipeContext context) {
+        BlockPos pos = BlockPos.containing(context.getPos().add(this.offset()));
+        BlockCache cache = context.computeIfAbsent(BlockCache.BLOCK_CACHE);
+        if (cache.getBlockEntity(pos) instanceof LargeCauldronBlockEntity cauldron) {
+            cauldron.acceptFluidRecipe(context);
+            return;
+        }
         if (context.getLevel().getRandom().nextFloat() > this.chance()) return;
         if (this.fluid().equals(EMPTY) && !HasCauldron.isNotEmpty(this.transform())) return;
 
-        BlockPos pos = BlockPos.containing(context.getPos().add(this.offset()));
-        BlockCache cache = context.computeIfAbsent(BlockCache.BLOCK_CACHE);
         double cur = HasCauldron.getCur(cache, pos);
         double afterConsume = cur - this.consume();
         double amount = afterConsume + this.produce();
@@ -178,6 +190,30 @@ public record HasCauldron(
         }
 
         context.putAcceptor(BlockCache.BLOCK_CACHE.location(), BlockCache.DEFAULT_ACCEPTOR);
+    }
+
+    @Override
+    public void snapshot(InWorldRecipeContext context) {
+        LargeCauldronBlockEntity cauldron = this.getLargeCauldron(context);
+        if (cauldron != null) cauldron.snapshotFluidRecipe(context, this);
+    }
+
+    @Override
+    public void rollback(InWorldRecipeContext context) {
+        LargeCauldronBlockEntity cauldron = this.getLargeCauldron(context);
+        if (cauldron != null) cauldron.rollbackFluidRecipe(context);
+    }
+
+    @Override
+    public void clearStack(InWorldRecipeContext context) {
+        LargeCauldronBlockEntity cauldron = this.getLargeCauldron(context);
+        if (cauldron != null) cauldron.clearFluidRecipeStack(context);
+    }
+
+    private @Nullable LargeCauldronBlockEntity getLargeCauldron(InWorldRecipeContext context) {
+        BlockPos pos = BlockPos.containing(context.getPos().add(this.offset()));
+        BlockCache cache = context.computeIfAbsent(BlockCache.BLOCK_CACHE);
+        return cache.getBlockEntity(pos) instanceof LargeCauldronBlockEntity cauldron ? cauldron : null;
     }
 
     /**

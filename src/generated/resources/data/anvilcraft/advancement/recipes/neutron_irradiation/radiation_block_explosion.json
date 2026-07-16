@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:item_inject/over_nesting_shulker_box"
+        "recipe": "anvilcraft:radiation_block_explosion"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:item_inject/over_nesting_shulker_box"
+      "anvilcraft:radiation_block_explosion"
     ]
   }
 }

@@ -69,25 +69,6 @@ public class StampingRecipeLoader {
             .result(ModFoodItems.COCOA_POWDER)
             .save(provider);
 
-        StampingRecipe.builder()
-            .requires(ModBlocks.NESTING_SHULKER_BOX)
-            .result(Items.SHULKER_BOX)
-            .result(Items.SHULKER_BOX)
-            .save(provider, AnvilCraft.of("stamping/shulker_box_from_nesting_shulker_box"));
-        StampingRecipe.builder()
-            .requires(ModBlocks.OVER_NESTING_SHULKER_BOX)
-            .result(Items.SHULKER_BOX)
-            .result(Items.SHULKER_BOX)
-            .result(Items.SHULKER_BOX)
-            .save(provider, AnvilCraft.of("stamping/shulker_box_from_over_nesting_shulker_box"));
-        StampingRecipe.builder()
-            .requires(ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX)
-            .result(Items.SHULKER_BOX)
-            .result(Items.SHULKER_BOX)
-            .result(Items.SHULKER_BOX)
-            .result(Items.SHULKER_BOX)
-            .save(provider, AnvilCraft.of("stamping/shulker_box_from_supercritical_nesting_shulker_box"));
-
         StampingUniqueItemsRecipe.builderUnique()
             .requires(ModItemTags.TEMPLATES, 2)
             .result(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE)

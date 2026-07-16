@@ -5,8 +5,8 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.TradingStationBlockEntity;
-import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
+import dev.dubhe.anvilcraft.block.multipart.WaterloggedFlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.DirectionVertical2PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -43,10 +44,11 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 import java.util.Set;
 
-public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertical2PartHalf, DirectionProperty, Direction>
+public class TradingStationBlock extends WaterloggedFlexibleMultiPartBlock<DirectionVertical2PartHalf, DirectionProperty, Direction>
     implements MultiPartBlockEntity<DirectionVertical2PartHalf, TradingStationBlock>, IHammerChangeable {
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<DirectionVertical2PartHalf> HALF = EnumProperty.create("half", DirectionVertical2PartHalf.class);
+    public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
     public TradingStationBlock(Properties properties) {
         super(properties);
@@ -54,6 +56,7 @@ public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertica
             this.defaultBlockState()
                 .setValue(HALF, DirectionVertical2PartHalf.BOTTOM)
                 .setValue(FACING, Direction.NORTH)
+                .setValue(WATERLOGGED, false)
         );
     }
 
@@ -61,7 +64,7 @@ public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertica
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction dir = context.getHorizontalDirection().getOpposite();
         if (dir.getAxis().isVertical()) dir = Direction.NORTH;
-        return this.defaultBlockState().setValue(FACING, dir);
+        return this.waterloggedStateForPlacement(context, this.defaultBlockState().setValue(FACING, dir));
     }
 
     @Override
@@ -147,22 +150,20 @@ public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertica
     @Override
     public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         if (level instanceof ServerLevel serverside) {
-            // Resolve to main part so onPlayerBreak can find the BlockEntity and check ownership.
-            // Otherwise breaking the top half adds topPos to playerBroke while the cascade
-            // removes the bottom half via onNonPlayerBreak, which looks for bottomPos — mismatch.
-            TradingStationMessageManager.get().onPlayerBreak(serverside, this.getMainPartPos(pos, state), player);
+            TradingStationMessageManager.get().onPlayerBreak(serverside, pos, player);
         }
         return super.onDestroyedByPlayer(state, level, pos, player, willHarvest, fluid);
     }
 
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (level.isClientSide()) return;
-        if (!(level.getBlockEntity(pos) instanceof TradingStationBlockEntity be)) return;
-
-        ItemHandlerUtil.dropAllToPos(be.getHandler(), level, pos.getCenter());
-        if ((state.getBlock() != this || !state.equals(newState)) && level instanceof ServerLevel serverside) {
-            TradingStationMessageManager.get().onNonPlayerBreak(serverside, pos);
+        if (!level.isClientSide() && !state.is(newState.getBlock())) {
+            if (level.getBlockEntity(pos) instanceof TradingStationBlockEntity be) {
+                ItemHandlerUtil.dropAllToPos(be.getHandler(), level, pos.getCenter());
+                if (level instanceof ServerLevel serverside) {
+                    TradingStationMessageManager.get().onNonPlayerBreak(serverside, pos);
+                }
+            }
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
@@ -188,24 +189,23 @@ public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertica
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return switch (state.getValue(HALF)) {
-            case BOTTOM -> Shapes.block();
-            case TOP -> switch (state.getValue(FACING)) {
-                case NORTH -> TOP_NORTH;
-                case WEST -> TOP_WEST;
-                case SOUTH -> TOP_SOUTH;
-                case EAST -> TOP_EAST;
-                case UP, DOWN -> Shapes.empty();
-            };
+        if (state.getValue(HALF) == DirectionVertical2PartHalf.TOP) return Shapes.empty();
+        return switch (state.getValue(FACING)) {
+            case NORTH -> NORTH;
+            case WEST -> WEST;
+            case SOUTH -> SOUTH;
+            case EAST -> EAST;
+            case UP, DOWN -> Shapes.empty();
         };
     }
 
-    private static final VoxelShape TOP_NORTH = ShapeUtil.merge(
-        new AABB(0, 14, 0, 16, 16, 16),
-        new AABB(0, 0, 11, 2, 14, 14),
-        new AABB(14, 0, 11, 16, 14, 14)
+    private static final VoxelShape NORTH = ShapeUtil.merge(
+        new AABB(0, 0, 0, 16, 16, 16),
+        new AABB(0, 30, 0, 16, 32, 16),
+        new AABB(0, 16, 11, 2, 30, 14),
+        new AABB(14, 16, 11, 16, 30, 14)
     );
-    private static final VoxelShape TOP_WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, TOP_NORTH);
-    private static final VoxelShape TOP_SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, TOP_NORTH);
-    private static final VoxelShape TOP_EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, TOP_NORTH);
+    private static final VoxelShape WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, NORTH);
+    private static final VoxelShape SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, NORTH);
+    private static final VoxelShape EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, NORTH);
 }

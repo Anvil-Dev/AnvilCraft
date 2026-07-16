@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LensBlockEntity;
 import dev.dubhe.anvilcraft.block.state.LensType;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -36,7 +36,7 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
-public class LensBlock extends BaseLaserBlock implements IHammerRemovable {
+public class LensBlock extends BaseLaserBlock implements IHammerRemovable, IMoveableEntityBlock {
 
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
     public static final EnumProperty<LensType> TYPE = EnumProperty.create("type", LensType.class);
@@ -234,15 +234,14 @@ public class LensBlock extends BaseLaserBlock implements IHammerRemovable {
      */
     private static void resetLensLaserState(Level level, BlockPos pos) {
         if (level.getBlockEntity(pos) instanceof LensBlockEntity lensBe) {
-            if (lensBe.getIrradiateBlockPos() != null) {
-                BlockEntity targetBe = level.getBlockEntity(lensBe.getIrradiateBlockPos());
-                if (targetBe instanceof BaseLaserBlockEntity targetLaserBe) {
-                    targetLaserBe.onCancelingIrradiation(lensBe);
-                }
-            }
-            lensBe.updateIrradiateBlockPos(null);
-            lensBe.clearIrradiateSelfLaserBlockSet();
-            lensBe.markChanged();
+            lensBe.resetLaserStateAfterMove();
+        }
+    }
+
+    @Override
+    public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity be) {
+        if (be instanceof LensBlockEntity lensBe) {
+            lensBe.resetLaserStateAfterMove();
         }
     }
 
