@@ -409,6 +409,7 @@ public class ModBlocks {
         .properties(p -> p
             .noOcclusion()
             .isValidSpawn(Blocks::never)
+            .explosionResistance(1200f)
             .isViewBlocking(ModBlocks::never))
         .loot(SimpleMultiPartBlock::loot)
         .item(LargeCauldronBlock.Item::new)

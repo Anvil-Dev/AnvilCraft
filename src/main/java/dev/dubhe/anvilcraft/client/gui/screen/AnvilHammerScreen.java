@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.api.hammer.IHasHammerEffect;
 import dev.dubhe.anvilcraft.api.input.IMouseHandlerExtension;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
+import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder.ModelRenderTarget;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
@@ -114,12 +115,15 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     private final Minecraft minecraft = Minecraft.getInstance();
     private final float radialMenuScale = AnvilCraft.CLIENT_CONFIG.anvilHammerRadialMenuScale;
     private final BlockPos targetBlockPos;
+    private final BlockState initialBlockState;
+    private final ModelRenderTarget initialModelTarget;
     private final Property<?> property;
     private final List<BlockState> possibleStates;
     private final Camera camera;
 
     private final BlockAndTintGetter fullBrightLevel = new FullBrightLevelProxy(this.minecraft.level);
     private BlockState currentBlockState;
+    private ModelRenderTarget currentModelTarget;
     private final List<SelectionItem> items = new ArrayList<>();
     private long displayTime = System.currentTimeMillis();
     private boolean animationStarted = false;
@@ -139,12 +143,15 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     ) {
         super(Component.translatable("screen.anvilcraft.anvil_hammer.title"));
         this.targetBlockPos = targetBlockPos;
+        this.initialBlockState = initialBlockState;
         this.currentBlockState = initialBlockState;
         this.property = property;
         this.possibleStates = possibleStates;
         this.camera = Minecraft.getInstance().gameRenderer.getMainCamera();
         this.hand = hand;
         this.hitVec = hitVec;
+        this.initialModelTarget = this.getModelRenderTarget(initialBlockState);
+        this.currentModelTarget = this.initialModelTarget;
     }
 
     @Override
@@ -173,13 +180,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
                         detectionStart,
                         detectionEnd,
                         state,
-                        state.getBlock() instanceof IMultiPartBlockModelHolder holder
-                        ? withPropertyValue(
-                            holder.mapRealModelHolderBlock(this.minecraft.level, this.targetBlockPos, state),
-                            this.property,
-                            state
-                        )
-                        : state,
+                        this.getModelRenderTarget(state),
                         Component.literal(
                             "%s".formatted(
                                 PROPERTY_TOSTRING.invokeWithArguments(
@@ -206,8 +207,21 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         ).mul(1, -1);
     }
 
-    private <T extends Comparable<T>> BlockState withPropertyValue(BlockState state, Property<T> property, BlockState blockState) {
-        return state.trySetValue(property, blockState.getValue(property));
+    private ModelRenderTarget getModelRenderTarget(BlockState previewState) {
+        if (previewState.getBlock() instanceof IMultiPartBlockModelHolder holder) {
+            return holder.getModelRenderTarget(
+                Objects.requireNonNull(this.minecraft.level),
+                this.targetBlockPos,
+                this.initialBlockState,
+                previewState
+            );
+        }
+        return new ModelRenderTarget(this.targetBlockPos, previewState);
+    }
+
+    private void setCurrentBlockState(BlockState state) {
+        this.currentBlockState = state;
+        this.currentModelTarget = this.getModelRenderTarget(state);
     }
 
     @Override
@@ -226,7 +240,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
                 selectionIdx--;
             }
         }
-        this.currentBlockState = this.possibleStates.get(selectionIdx);
+        this.setCurrentBlockState(this.possibleStates.get(selectionIdx));
         this.targetAngle = this.items.stream()
             .filter(it -> it.state == this.currentBlockState)
             .findFirst()
@@ -261,7 +275,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             .findFirst()
             .ifPresent(it -> {
                 this.targetAngle = it.angle;
-                this.currentBlockState = it.state;
+                this.setCurrentBlockState(it.state);
             });
         return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
     }
@@ -282,12 +296,14 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
     @SuppressWarnings({"SameParameterValue", "deprecation"})
     private void renderRotatedBlock(
         PoseStack poseStack,
-        BlockState block,
+        ModelRenderTarget modelTarget,
         float x,
         float y,
         float z,
         float scale
     ) {
+        BlockPos modelPos = modelTarget.pos();
+        BlockState block = modelTarget.state();
         final float partialTick = minecraft.getTimer().getGameTimeDeltaPartialTick(true);
         poseStack.pushPose();
         poseStack.translate(-7 * this.radialMenuScale, 7 * this.radialMenuScale, 0);
@@ -312,7 +328,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             VertexConsumer bufferBuilder = buffers.getBuffer(renderType);
             blockRenderDispatcher.renderBatched(
                 block,
-                this.targetBlockPos,
+                modelPos,
                 this.fullBrightLevel,
                 poseStack,
                 bufferBuilder,
@@ -328,7 +344,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
                 block = block.setValue(LiquidBlock.LEVEL, block.getFluidState().getAmount());
             }
             blockRenderDispatcher.renderLiquid(
-                this.targetBlockPos,
+                modelPos,
                 this.fullBrightLevel,
                 new VertexConsumerWithPose(
                     buffers.getBuffer(ItemBlockRenderTypes.getRenderLayer(fluidState)),
@@ -340,7 +356,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             );
             buffers.endLastBatch();
         }
-        BlockEntity blockEntity = Objects.requireNonNull(this.minecraft.level).getBlockEntity(this.targetBlockPos);
+        BlockEntity blockEntity = Objects.requireNonNull(this.minecraft.level).getBlockEntity(modelPos);
         if (blockEntity != null && blockEntity.getBlockState().is(block.getBlock())) {
             BlockEntityRenderer<BlockEntity> renderer = this.minecraft.getBlockEntityRenderDispatcher().getRenderer(blockEntity);
             if (renderer != null) {
@@ -407,7 +423,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             if (value.state.getBlock() instanceof IMultiPartBlockModelHolder) {
                 renderRotatedBlock(
                     poseStack,
-                    value.modelBlock,
+                    value.modelTarget,
                     x + 5 * this.radialMenuScale,
                     y - 4 * this.radialMenuScale,
                     100,
@@ -416,7 +432,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             } else {
                 renderRotatedBlock(
                     poseStack,
-                    value.modelBlock,
+                    value.modelTarget,
                     x,
                     y,
                     100,
@@ -491,7 +507,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             if (value.state.getBlock() instanceof IMultiPartBlockModelHolder) {
                 renderRotatedBlock(
                     poseStack,
-                    value.modelBlock,
+                    value.modelTarget,
                     x + 4 * this.radialMenuScale,
                     y - 4 * this.radialMenuScale,
                     -100,
@@ -500,7 +516,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             } else {
                 renderRotatedBlock(
                     poseStack,
-                    value.modelBlock,
+                    value.modelTarget,
                     x,
                     y,
                     -100,
@@ -568,7 +584,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         if (!this.shouldRebuildChunk) return;
         this.shouldRebuildChunk = false;
         Minecraft.getInstance().levelRenderer.setBlockDirty(
-            this.targetBlockPos,
+            this.hiddenBlockPos(),
             false
         );
     }
@@ -628,8 +644,9 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
 
     @Override
     public void removed() {
+        this.restoreHiddenBlock();
         if (!this.animationStarted) {
-            this.currentBlockState = this.currentBlockState.cycle(this.property);
+            this.setCurrentBlockState(this.currentBlockState.cycle(this.property));
         }
         if (!this.validate) {
             super.removed();
@@ -667,8 +684,16 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
             super.removed();
             return;
         }
-        Minecraft.getInstance().levelRenderer.setBlockDirty(this.targetBlockPos, false);
         super.removed();
+    }
+
+    private void restoreHiddenBlock() {
+        this.shouldRebuildChunk = true;
+        BlockPos hiddenPos = this.hiddenBlockPos();
+        Minecraft.getInstance().levelRenderer.setBlockDirty(hiddenPos, false);
+        if (!this.targetBlockPos.equals(hiddenPos)) {
+            Minecraft.getInstance().levelRenderer.setBlockDirty(this.targetBlockPos, false);
+        }
     }
 
     @Override
@@ -760,12 +785,17 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
 
     @Override
     public BlockPos renderingBlockPos() {
-        return this.targetBlockPos;
+        return this.currentModelTarget.pos();
+    }
+
+    @Override
+    public BlockPos hiddenBlockPos() {
+        return this.initialModelTarget.pos();
     }
 
     @Override
     public BlockState renderingBlockState() {
-        return this.currentBlockState;
+        return this.currentModelTarget.state();
     }
 
     @Override
@@ -782,7 +812,7 @@ public class AnvilHammerScreen extends Screen implements IHasHammerEffect {
         float detectionAngleStart,
         float detectionAngleEnd,
         BlockState state,
-        BlockState modelBlock,
+        ModelRenderTarget modelTarget,
         Component description
     ) {
     }

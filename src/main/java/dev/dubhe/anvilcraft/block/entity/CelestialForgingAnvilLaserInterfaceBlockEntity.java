@@ -10,14 +10,18 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
+import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
@@ -44,6 +48,8 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     private int receivedLaserLevel = 0;
     @Getter
     private boolean receivedGamma = false;
+    @Getter
+    private BlockMiningEffect receivedMiningEffect = BlockMiningEffect.NORMAL;
     @Getter
     private boolean laserValid = false;
     @Getter
@@ -133,7 +139,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         int level = source.getLaserLevel();
         boolean gamma = source instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaSource
             && cfaSource.isEmittingGamma();
-        onLaserReceived(level, gamma);
+        onLaserReceived(level, gamma, source.getMiningEffect());
         /// 不进行链式传递——不调用 super.onIrradiated(source)
     }
 
@@ -169,8 +175,13 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     }
 
     public void onLaserReceived(int level, boolean gamma) {
+        onLaserReceived(level, gamma, BlockMiningEffect.NORMAL);
+    }
+
+    public void onLaserReceived(int level, boolean gamma, BlockMiningEffect miningEffect) {
         this.receivedLaserLevel = level;
         this.receivedGamma = gamma;
+        this.receivedMiningEffect = miningEffect;
         this.laserValid = (requiredLaserLevel > 0
             && level >= requiredLaserLevel
             && gamma == requiredGamma);
@@ -180,6 +191,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     public void resetLaser() {
         this.receivedLaserLevel = 0;
         this.receivedGamma = false;
+        this.receivedMiningEffect = BlockMiningEffect.NORMAL;
         this.laserValid = false;
         this.setChanged();
     }
@@ -553,6 +565,13 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     private void writeLaserData(CompoundTag tag) {
         tag.putInt("receivedLaserLevel", receivedLaserLevel);
         tag.putBoolean("receivedGamma", receivedGamma);
+        if (receivedMiningEffect.enchantment() != null) {
+            tag.putString("receivedMiningEnchantment", receivedMiningEffect.enchantment().location().toString());
+            tag.putInt("receivedMiningEnchantmentLevel", receivedMiningEffect.level());
+        } else {
+            tag.remove("receivedMiningEnchantment");
+            tag.remove("receivedMiningEnchantmentLevel");
+        }
         tag.putInt("requiredLaserLevel", requiredLaserLevel);
         tag.putBoolean("requiredGamma", requiredGamma);
         tag.putBoolean("laserValid", laserValid);
@@ -561,9 +580,18 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     private void readLaserData(CompoundTag tag) {
         this.receivedLaserLevel = tag.getInt("receivedLaserLevel");
         this.receivedGamma = tag.getBoolean("receivedGamma");
+        this.receivedMiningEffect = readMiningEffect(tag);
         this.requiredLaserLevel = tag.getInt("requiredLaserLevel");
         this.requiredGamma = tag.getBoolean("requiredGamma");
         this.laserValid = tag.getBoolean("laserValid");
+    }
+
+    private static BlockMiningEffect readMiningEffect(CompoundTag tag) {
+        if (!tag.contains("receivedMiningEnchantment")) return BlockMiningEffect.NORMAL;
+        ResourceLocation location = ResourceLocation.tryParse(tag.getString("receivedMiningEnchantment"));
+        int level = tag.getInt("receivedMiningEnchantmentLevel");
+        if (location == null || level <= 0) return BlockMiningEffect.NORMAL;
+        return new BlockMiningEffect(ResourceKey.create(Registries.ENCHANTMENT, location), level);
     }
 
     /// === 网络同步 ===

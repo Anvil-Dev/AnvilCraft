@@ -58,7 +58,13 @@ public class InWorldRecipeEventListener {
     public static void spawnItemEntity(ItemCacheEvent.SpawnItemEntity event) {
         ItemEntity entity = event.getEntity();
         entity.anvilcraft$setIsAdsorbable(false);
-        if (entity.level().getBlockEntity(entity.blockPosition()) instanceof LargeCauldronBlockEntity cauldron) {
+        BlockPos pos = entity.blockPosition();
+        LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(
+            entity.level(),
+            pos,
+            entity.level().getBlockState(pos)
+        );
+        if (cauldron != null) {
             ItemStack remaining = cauldron.insertRecipeOutput(entity.getItem());
             if (remaining.isEmpty()) {
                 entity.discard();

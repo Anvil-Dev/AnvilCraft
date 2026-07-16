@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializable<CompoundTag> {
-    public static final int TANK_COUNT = 9;
-    public static final int TANK_CAPACITY = 32 * FluidType.BUCKET_VOLUME;
+    public static final int TANK_COUNT = 8;
+    public static final int TANK_CAPACITY = 64 * FluidType.BUCKET_VOLUME;
     public static final int TOTAL_CAPACITY = TANK_COUNT * TANK_CAPACITY;
     private final Runnable changeListener;
     private final FluidTank[] tanks = new FluidTank[TANK_COUNT];

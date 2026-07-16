@@ -10,8 +10,10 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 
+import java.util.function.Predicate;
+
 public class LargeCauldronInputHandler implements IItemHandlerModifiable, INBTSerializable<CompoundTag> {
-    public static final int SLOT_COUNT = 9;
+    public static final int SLOT_COUNT = 8;
     public static final int STACK_MULTIPLIER = 9;
     private final Runnable changeListener;
     private NonNullList<UnlimitedItemStack> stacks = NonNullList.withSize(SLOT_COUNT, UnlimitedItemStack.EMPTY);
@@ -29,6 +31,17 @@ public class LargeCauldronInputHandler implements IItemHandlerModifiable, INBTSe
     public ItemStack getStackInSlot(int slot) {
         validateSlot(slot);
         return this.stacks.get(slot).toStack();
+    }
+
+    public boolean mutateStackInSlot(int slot, Predicate<ItemStack> mutator) {
+        validateSlot(slot);
+        UnlimitedItemStack existing = this.stacks.get(slot);
+        if (existing.isEmpty()) return false;
+        ItemStack stack = existing.getStack().copy();
+        if (!mutator.test(stack)) return false;
+        existing.setStack(stack);
+        this.onContentsChanged();
+        return true;
     }
 
     @Override

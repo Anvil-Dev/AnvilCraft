@@ -5,7 +5,10 @@
     {
       "type": "anvillib_recipe:has_item_ingredient",
       "item": {
-        "items": "#anvilcraft:radiations"
+        "items": [
+          "anvilcraft:uranium_block",
+          "anvilcraft:plutonium_block"
+        ]
       },
       "offset": [
         0.0,

@@ -160,13 +160,18 @@ public abstract class LivingEntityMixin extends Entity {
             }
         }
 
-        if (totemItem != null) {
-            ItemStack itemStack = totemItem.copy();
-            boolean result = handler.execute(damageSource, self, totemItem);
+        if (totemItem == null) {
+            cir.setReturnValue(false);
+            return;
+        }
+
+        ItemStack itemStack = totemItem.copy();
+        boolean result = handler.execute(damageSource, self, totemItem);
+        if (result) {
             handler.shrink(totemItem);
-            if (result && itemStack.is(ModItems.TOTEM_OF_RAGE)) {
+            if (itemStack.is(ModItems.TOTEM_OF_RAGE)) {
                 this.anvilcraft$raged = true;
-            } else if (result && itemStack.is(ModItems.AMULET_BOX)) {
+            } else if (itemStack.is(ModItems.AMULET_BOX)) {
                 List<ItemStack> totems = itemStack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY).totems();
                 if (!totems.isEmpty()) {
                     if (totems.getFirst().is(ModItems.TOTEM_OF_RAGE)) {
@@ -174,10 +179,8 @@ public abstract class LivingEntityMixin extends Entity {
                     }
                 }
             }
-            cir.setReturnValue(result);
         }
-
-        cir.setReturnValue(totemItem != null);
+        cir.setReturnValue(result);
     }
 
     @Inject(

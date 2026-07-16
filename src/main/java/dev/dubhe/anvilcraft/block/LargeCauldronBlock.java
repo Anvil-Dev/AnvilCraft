@@ -7,10 +7,13 @@ import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -103,6 +106,11 @@ public class LargeCauldronBlock
     }
 
     @Override
+    protected VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
+        return Shapes.block();
+    }
+
+    @Override
     protected RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
     }
@@ -143,13 +151,36 @@ public class LargeCauldronBlock
         if (stack.is(ModItemTags.ANVIL_HAMMER)) return ItemInteractionResult.SUCCESS;
         LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
         if (cauldron == null) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (isExtractionSurface(state, hit) && hand == InteractionHand.MAIN_HAND) {
+            int slot = LargeCauldronBlockEntity.inputSlotForPart(state.getValue(HALF));
+            if (stack.isEmpty()) {
+                return cauldron.extractItemsToHand(player, hand, slot)
+                    ? ItemInteractionResult.sidedSuccess(level.isClientSide())
+                    : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            }
+            if (!level.isClientSide()) cauldron.insertFromHand(stack, slot);
+            return ItemInteractionResult.sidedSuccess(level.isClientSide());
+        }
+        if (stack.is(ModBlocks.MENGER_SPONGE.asItem())) {
+            if (cauldron.clearFluids() && !level.isClientSide()) {
+                level.playSound(
+                    null,
+                    cauldron.getBlockPos(),
+                    SoundEvents.SPONGE_ABSORB,
+                    SoundSource.BLOCKS,
+                    1.0F,
+                    1.0F
+                );
+            }
+            return ItemInteractionResult.sidedSuccess(level.isClientSide());
+        }
         if (cauldron.interactWithFluid(player, hand, hit)) {
             return ItemInteractionResult.sidedSuccess(level.isClientSide());
         }
         if (hand != InteractionHand.MAIN_HAND || stack.isEmpty() || !canInsertAt(state, hit)) {
             return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
-        int preferredSlot = LargeCauldronBlockEntity.slotForPart(state.getValue(HALF));
+        int preferredSlot = LargeCauldronBlockEntity.inputSlotForPart(state.getValue(HALF));
         if (level.isClientSide()) return ItemInteractionResult.SUCCESS;
         return cauldron.insertFromHand(stack, preferredSlot)
             ? ItemInteractionResult.SUCCESS
@@ -162,6 +193,10 @@ public class LargeCauldronBlock
         return hit.getDirection() == Direction.UP || hit.getDirection().getAxis().isHorizontal();
     }
 
+    private static boolean isExtractionSurface(BlockState state, BlockHitResult hit) {
+        return state.getValue(HALF).getOffsetY() == 0 && hit.getDirection() == Direction.UP;
+    }
+
     @Override
     protected InteractionResult useWithoutItem(
         BlockState state,
@@ -170,11 +205,12 @@ public class LargeCauldronBlock
         Player player,
         BlockHitResult hit
     ) {
+        if (!player.getMainHandItem().isEmpty()) return InteractionResult.PASS;
         Cube3x3PartHalf part = state.getValue(HALF);
-        if (part.getOffsetY() != 0 || hit.getDirection() != Direction.UP) return InteractionResult.PASS;
+        if (!isExtractionSurface(state, hit)) return InteractionResult.PASS;
         LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
         if (cauldron == null) return InteractionResult.PASS;
-        int slot = LargeCauldronBlockEntity.slotForPart(part);
+        int slot = LargeCauldronBlockEntity.inputSlotForPart(part);
         return cauldron.extractItemsToHand(player, InteractionHand.MAIN_HAND, slot)
             ? InteractionResult.sidedSuccess(level.isClientSide())
             : InteractionResult.PASS;
@@ -185,7 +221,7 @@ public class LargeCauldronBlock
         if (!level.isClientSide() && entity instanceof ItemEntity item) {
             LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
             if (cauldron != null) {
-                cauldron.absorbItem(item, LargeCauldronBlockEntity.slotForPart(state.getValue(HALF)));
+                cauldron.absorbItem(item, LargeCauldronBlockEntity.inputSlotForPart(state.getValue(HALF)));
             }
         }
         super.stepOn(level, pos, state, entity);
@@ -196,7 +232,7 @@ public class LargeCauldronBlock
         if (level.isClientSide() || !(entity instanceof ItemEntity item)) return;
         LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
         if (cauldron != null) {
-            cauldron.absorbItem(item, LargeCauldronBlockEntity.slotForPart(state.getValue(HALF)));
+            cauldron.absorbItem(item, LargeCauldronBlockEntity.inputSlotForPart(state.getValue(HALF)));
         }
     }
 

@@ -46,10 +46,12 @@ public class LargeCauldronTooltipProvider extends ITooltipProvider.BlockEntityTo
         }
 
         lines.add(heading("tooltip.anvilcraft.large_cauldron.fluids"));
+        boolean topLayer = true;
         for (int tank = cauldron.getFluids().getTanks() - 1; tank >= 0; tank--) {
             FluidStack fluid = cauldron.getFluids().getFluidInTank(tank);
             if (fluid.isEmpty()) continue;
-            lines.add(fluidLine(fluid, categoriesForFluid(previews, fluid)));
+            lines.add(fluidLine(fluid, categoriesForFluid(previews, fluid), topLayer && cauldron.isIgnited()));
+            topLayer = false;
         }
         return lines;
     }
@@ -67,11 +69,16 @@ public class LargeCauldronTooltipProvider extends ITooltipProvider.BlockEntityTo
         return ITooltipProvider.withIndentAndMerge(line);
     }
 
-    private static Component fluidLine(FluidStack fluid, Set<String> categories) {
+    private static Component fluidLine(FluidStack fluid, Set<String> categories, boolean burning) {
         MutableComponent line = Component.empty()
             .append(fluid.getHoverName())
             .append(Component.literal(" " + UnitUtil.fluidUnit(fluid.getAmount(), false)))
             .withStyle(ChatFormatting.GRAY);
+        if (burning) {
+            line.append(Component.translatable(
+                "tooltip.anvilcraft.large_cauldron.burning"
+            ).withStyle(ChatFormatting.RED));
+        }
         appendRecipeSuffix(line, categories);
         return ITooltipProvider.withIndentAndMerge(line);
     }

@@ -3,17 +3,24 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.util.ClientTickRecorder;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.fluid.LargeCauldronFluidHandler;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.items.IItemHandler;
 
@@ -21,6 +28,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class LargeCauldronBlockEntityRenderer implements BlockEntityRenderer<LargeCauldronBlockEntity> {
+    private static final ModelResourceLocation FIRE =
+        ModelResourceLocation.standalone(AnvilCraft.of("block/fire_cauldron_fire4"));
     private static final float WALL = 0.25F + 0.001F;
     private static final float MIN_XZ = -1.0F + WALL;
     private static final float MAX_XZ = 2.0F - WALL;
@@ -28,16 +37,20 @@ public class LargeCauldronBlockEntityRenderer implements BlockEntityRenderer<Lar
     private static final float MAX_Y = 1.75F - 0.001F;
     private static final float CONTENT_HEIGHT = MAX_Y - MIN_Y;
     private static final float INPUT_CELL_SPACING = 0.68F;
+    private static final float FIRE_MODEL_SURFACE_Y = 1.0F - (1.0F / 16.0F + 0.001F);
     private static final int[][] SLOT_OFFSETS = {
-        {0, 0}, {-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}
+        {-1, 0}, {1, 0}, {0, -1}, {0, 1}, {-1, -1}, {-1, 1}, {1, -1}, {1, 1}
     };
 
-    public LargeCauldronBlockEntityRenderer(BlockEntityRendererProvider.Context ignored) {
+    private final BlockRenderDispatcher dispatcher;
+
+    public LargeCauldronBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+        this.dispatcher = context.getBlockRenderDispatcher();
     }
 
     @Override
     public AABB getRenderBoundingBox(LargeCauldronBlockEntity blockEntity) {
-        return new AABB(blockEntity.getBlockPos()).inflate(1.0);
+        return new AABB(blockEntity.getBlockPos()).inflate(1.0, 4.0, 1.0);
     }
 
     @Override
@@ -60,6 +73,9 @@ public class LargeCauldronBlockEntityRenderer implements BlockEntityRenderer<Lar
         float itemY = Mth.clamp(MIN_Y + CONTENT_HEIGHT * fill - 0.08F, MIN_Y + 0.06F, MAX_Y - 0.12F);
         this.drawItems(cauldron, pose, buffers, light, overlay, itemY, fill);
         this.drawFluids(fluids, pose, buffers, light);
+        if (cauldron.isIgnited()) {
+            this.drawFire(pose, buffers, overlay, MIN_Y + CONTENT_HEIGHT * fill);
+        }
     }
 
     private void drawItems(
@@ -156,5 +172,26 @@ public class LargeCauldronBlockEntityRenderer implements BlockEntityRenderer<Lar
             minY = maxY;
         }
         if (buffers instanceof MultiBufferSource.BufferSource source) source.endBatch();
+    }
+
+    private void drawFire(PoseStack pose, MultiBufferSource buffers, int overlay, float surfaceY) {
+        BakedModel fire = this.dispatcher.getBlockModelShaper().getModelManager().getModel(FIRE);
+        pose.pushPose();
+        pose.translate(-1.0F, surfaceY - FIRE_MODEL_SURFACE_Y * 3.0F, -1.0F);
+        pose.scale(3.0F, 3.0F, 3.0F);
+        this.dispatcher.getModelRenderer().renderModel(
+            pose.last(),
+            buffers.getBuffer(RenderType.CUTOUT),
+            null,
+            fire,
+            1.0F,
+            1.0F,
+            1.0F,
+            LightTexture.FULL_BRIGHT,
+            overlay,
+            ModelData.EMPTY,
+            RenderType.cutout()
+        );
+        pose.popPose();
     }
 }

@@ -171,7 +171,11 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         if (this.tickCount >= cooldown) {
             this.tickCount = 0;
             if (irradiateBlock.is(Tags.Blocks.ORES)) {
-                List<ItemStack> drops = BreakBlockUtil.drop(serverLevel, this.irradiateBlockPos);
+                List<ItemStack> drops = BreakBlockUtil.dropForLaser(
+                    serverLevel,
+                    this.irradiateBlockPos,
+                    getMiningEffect()
+                );
                 this.deliverItem(drops, direction, this.irradiateBlockPos);
             }
         }

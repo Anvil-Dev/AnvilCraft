@@ -92,6 +92,7 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.large_cauldron.inputs", "Input Items:");
         provider.add("tooltip.anvilcraft.large_cauldron.outputs", "Output Items:");
         provider.add("tooltip.anvilcraft.large_cauldron.fluids", "Fluids:");
+        provider.add("tooltip.anvilcraft.large_cauldron.burning", " burning");
         provider.add("tooltip.anvilcraft.large_cauldron.will_process", " will be processed by %s");
 
         provider.add("tooltip.anvilcraft.redstone.title", "Redstone Stats:");
@@ -414,7 +415,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.fluid_interface.title", "Fluid Interface"); // 流体接口
         provider.add("screen.anvilcraft.cfa.laser_interface.title", "Laser Interface"); // 激光接口
         provider.add("screen.anvilcraft.cfa.interface.empty", "(Empty)"); // (空)
-        provider.add("screen.anvilcraft.cfa.laser_interface.received", "Receiving Laser: Lv.%s+"); // 接收激光: 等级.%s+
+        provider.add("screen.anvilcraft.cfa.laser_interface.received", "Receiving Laser: Lv.%s"); // 接收激光: Lv.%s
         provider.add("screen.anvilcraft.cfa.laser_interface.received_gamma", "Receiving Gamma Laser: Lv.%s+"); // 接收伽马激光: 等级.%s+
         provider.add("screen.anvilcraft.cfa.laser_interface.emitting", "Emitting Laser: Lv.%s+"); // 发射激光: 等级.%s+
         provider.add("screen.anvilcraft.cfa.laser_interface.emitting_gamma", "Emitting Gamma Laser: Lv.%s+"); // 发射伽马激光: 等级.%s+
