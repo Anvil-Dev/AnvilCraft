@@ -8,7 +8,11 @@ items:
 
 # <ref item="anvilcraft:large_fluid_tank"/>
 
+> super~big~tank
+
 <item id="anvilcraft:large_fluid_tank"/>
+
+- Obtained through [multi-block conversion](210_giant_anvil.md#function)
 
 - Can hold 320B of fluid
 
