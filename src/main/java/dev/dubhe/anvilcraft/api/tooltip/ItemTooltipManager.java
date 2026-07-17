@@ -479,7 +479,7 @@ public class ItemTooltipManager {
         SHIFT.put(
             ModItems.SPECTRAL_SLINGSHOT.get(), """
                 Hold right-click to load your offhand weapon into the Spectral Slingshot
-                Once loaded, right-click again to fire a spectral copy of that weapon, dealing damager"""
+                Once loaded, right-click again to fire a spectral copy of that weapon, dealing damage"""
         );
         SHIFT.put(
             ModItems.ENERGY_WEAPON_PLATFORM.get(), """
@@ -645,12 +645,6 @@ public class ItemTooltipManager {
                 Use scroll wheel to set slot stack limit
                 Multiple Magnetic Chutes connected turn into a Simple Magnetic Chute
                 Simple Magnetic Chute has only one slot and cannot be locked by redstone"""
-        );
-        SHIFT.put(
-            ModBlocks.GIANT_ANVIL.asItem(), """
-                Can be used for Multiblock Crafting and Multiblock Conversion
-                Works with ground blocks to trigger Ground Shaking
-                Can also perform crafting actions with a Giant Cauldron"""
         );
         SHIFT.put(
             ModBlocks.GIANT_ANVIL.asItem(), """

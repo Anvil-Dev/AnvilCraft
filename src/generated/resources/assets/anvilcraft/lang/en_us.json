@@ -1804,7 +1804,7 @@
   "tooltip.anvilcraft.item.spectral_anvil": "Creates phantom shadows when the upper magnet is demagnetized",
   "tooltip.anvilcraft.item.spectral_anvil.shift": "When the upper magnet is demagnetized, a phantom shadow is created and falls downward\nIt can pass through transparent blocks, and no matter the actual height, the impact is always treated as a 2‑block fall",
   "tooltip.anvilcraft.item.spectral_slingshot": "Hold right-click to fire spectral weapons",
-  "tooltip.anvilcraft.item.spectral_slingshot.shift": "Hold right-click to load your offhand weapon into the Spectral Slingshot\nOnce loaded, right-click again to fire a spectral copy of that weapon, dealing damager",
+  "tooltip.anvilcraft.item.spectral_slingshot.shift": "Hold right-click to load your offhand weapon into the Spectral Slingshot\nOnce loaded, right-click again to fire a spectral copy of that weapon, dealing damage",
   "tooltip.anvilcraft.item.spectral_weapon_launcher": "Hold right-click to consume power and fires spectral weapons",
   "tooltip.anvilcraft.item.spectral_weapon_launcher.shift": "Hold right-click to load your offhand weapon into the Spectral Weapon Launcher\nOnce loaded, right-click again to fire a spectral copy of that weapon, dealing damage\nEach shot has a cooldown, which can be reduced by enchanting the launcher",
   "tooltip.anvilcraft.item.stable_neutronium_ingot": "No more passing through blocks",
