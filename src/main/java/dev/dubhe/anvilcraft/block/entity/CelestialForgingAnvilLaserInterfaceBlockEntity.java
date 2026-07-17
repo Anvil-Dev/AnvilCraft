@@ -8,14 +8,18 @@ import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
+import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
@@ -43,6 +47,8 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     private int receivedLaserLevel = 0;
     @Getter
     private boolean receivedGamma = false;
+    @Getter
+    private BlockMiningEffect receivedMiningEffect = BlockMiningEffect.NORMAL;
     @Getter
     private boolean laserValid = false;
     @Getter
@@ -154,7 +160,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         int level = source.getLaserLevel();
         boolean gamma = source instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaSource
             && cfaSource.isEmittingGamma();
-        this.onLaserReceived(level, gamma);
+        this.onLaserReceived(level, gamma, source.getMiningEffect());
         // 接口是接收终点，不调用父类继续传递激光。
     }
 
@@ -195,8 +201,13 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     }
 
     public void onLaserReceived(int level, boolean gamma) {
+        this.onLaserReceived(level, gamma, BlockMiningEffect.NORMAL);
+    }
+
+    public void onLaserReceived(int level, boolean gamma, BlockMiningEffect miningEffect) {
         this.receivedLaserLevel = level;
         this.receivedGamma = gamma;
+        this.receivedMiningEffect = miningEffect;
         this.laserValid = (this.requiredLaserLevel > 0
             && level >= this.requiredLaserLevel
             && gamma == this.requiredGamma);
@@ -206,6 +217,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     public void resetLaser() {
         this.receivedLaserLevel = 0;
         this.receivedGamma = false;
+        this.receivedMiningEffect = BlockMiningEffect.NORMAL;
         this.laserValid = false;
         this.setChanged();
     }
@@ -456,6 +468,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         super.saveAdditional(output);
         output.putInt("receivedLaserLevel", this.receivedLaserLevel);
         output.putBoolean("receivedGamma", this.receivedGamma);
+        this.writeMiningEffect(output);
         output.putInt("requiredLaserLevel", this.requiredLaserLevel);
         output.putBoolean("requiredGamma", this.requiredGamma);
         output.putBoolean("laserValid", this.laserValid);
@@ -466,6 +479,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         super.loadAdditional(input);
         this.receivedLaserLevel = input.getIntOr("receivedLaserLevel", 0);
         this.receivedGamma = input.getBooleanOr("receivedGamma", false);
+        this.receivedMiningEffect = readMiningEffect(input);
         this.requiredLaserLevel = input.getIntOr("requiredLaserLevel", 0);
         this.requiredGamma = input.getBooleanOr("requiredGamma", false);
         this.laserValid = input.getBooleanOr("laserValid", false);
@@ -480,12 +494,36 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         CompoundTag tag = super.getUpdateTag(registries);
         tag.putInt("receivedLaserLevel", this.receivedLaserLevel);
         tag.putBoolean("receivedGamma", this.receivedGamma);
+        if (this.receivedMiningEffect.enchantment() != null) {
+            tag.putString(
+                "receivedMiningEnchantment",
+                this.receivedMiningEffect.enchantment().identifier().toString()
+            );
+            tag.putInt("receivedMiningEnchantmentLevel", this.receivedMiningEffect.level());
+        }
         tag.putInt("requiredLaserLevel", this.requiredLaserLevel);
         tag.putBoolean("requiredGamma", this.requiredGamma);
         tag.putBoolean("laserValid", this.laserValid);
         tag.putBoolean("gamma", this.emittingGamma);
         tag.putInt("gammaLevel", this.gammaLevel);
         return tag;
+    }
+
+    private void writeMiningEffect(ValueOutput output) {
+        if (this.receivedMiningEffect.enchantment() == null) return;
+        output.putString(
+            "receivedMiningEnchantment",
+            this.receivedMiningEffect.enchantment().identifier().toString()
+        );
+        output.putInt("receivedMiningEnchantmentLevel", this.receivedMiningEffect.level());
+    }
+
+    private static BlockMiningEffect readMiningEffect(ValueInput input) {
+        String id = input.getStringOr("receivedMiningEnchantment", "");
+        int level = input.getIntOr("receivedMiningEnchantmentLevel", 0);
+        Identifier identifier = Identifier.tryParse(id);
+        if (identifier == null || level <= 0) return BlockMiningEffect.NORMAL;
+        return new BlockMiningEffect(ResourceKey.create(Registries.ENCHANTMENT, identifier), level);
     }
 
     // === 网络同步辅助方法 ===

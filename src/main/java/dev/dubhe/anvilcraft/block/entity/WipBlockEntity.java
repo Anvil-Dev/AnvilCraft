@@ -62,6 +62,7 @@ public class WipBlockEntity extends BlockEntity {
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         TagValueOutput output = TagValueOutput.createWithContext(
             new ProblemReporter.Collector(this.problemPath()), registries);
+        output.putInt("StepCount", this.stepCount);
         output.store("InitialBlock", BlockState.CODEC, this.initialBlock);
         if (this.recipeId != null) {
             output.putString("Recipe", this.recipeId.toString());

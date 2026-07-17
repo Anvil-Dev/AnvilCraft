@@ -1,21 +1,30 @@
 package dev.dubhe.anvilcraft.block.entity.megastructure;
 
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
+import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 
 import java.util.ArrayList;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 public class ExcavatorHandler extends BaseMegastructureHandler {
     private static final int LASER_THRESHOLD = 16;
@@ -24,6 +33,7 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
     @Getter
     private boolean laserActive = false;
     private int logisticsRoundRobin = 0;
+    private final Map<Item, Optional<BlockState>> rawMaterialOres = new IdentityHashMap<>();
 
     @Override
     public String name() {
@@ -45,8 +55,8 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         }
         if (be.getPlanetaryResourceSet() == null) return;
 
-        int laserCount = this.countValidLasersLocal(be);
-        boolean hasValidLaser = laserCount > 0;
+        List<CelestialForgingAnvilLaserInterfaceBlockEntity> validLasers = this.findValidLasers(be);
+        boolean hasValidLaser = !validLasers.isEmpty();
         if (this.laserActive != hasValidLaser) {
             this.laserActive = hasValidLaser;
             be.setChanged();
@@ -54,7 +64,6 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         }
 
         if (!hasValidLaser) return;
-        final int efficiency = Math.min(laserCount, MAX_LASERS);
 
         List<PlanetaryResourceSet.WeightedItemStack> miningPool = new ArrayList<>();
         miningPool.addAll(be.getPlanetaryResourceSet().getMinerals());
@@ -76,25 +85,53 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         }
         if (chosenItem == null) chosenItem = miningPool.getFirst().itemId();
 
-        ItemLike item = BuiltInRegistries.ITEM.get(chosenItem)
-            .map(h -> (net.minecraft.world.level.ItemLike) h.value()).orElse(Items.AIR);
-        if (item.asItem() == Items.AIR) return;
-        ItemStack output = new ItemStack(item, efficiency);
+        Item item = BuiltInRegistries.ITEM.get(chosenItem).map(holder -> holder.value()).orElse(Items.AIR);
+        if (item == Items.AIR) return;
+
+        List<ItemStack> outputs = new ArrayList<>();
+        Block resourceBlock = Block.byItem(item);
+        BlockState resourceState = resourceBlock == Blocks.AIR ? null : resourceBlock.defaultBlockState();
+        if (resourceState == null && be.getLevel() instanceof ServerLevel serverLevel) {
+            resourceState = this.rawMaterialOres.computeIfAbsent(
+                item,
+                ignored -> BreakBlockUtil.findOreForRawMaterial(serverLevel, be.getBlockPos(), item.getDefaultInstance())
+            ).orElse(null);
+        }
+        if (resourceState != null && be.getLevel() instanceof ServerLevel serverLevel) {
+            for (CelestialForgingAnvilLaserInterfaceBlockEntity laser : validLasers) {
+                outputs.addAll(BreakBlockUtil.dropVirtualForLaser(
+                    serverLevel,
+                    be.getBlockPos(),
+                    resourceState,
+                    laser.getReceivedMiningEffect()
+                ));
+            }
+        } else {
+            for (int i = 0; i < validLasers.size(); i++) {
+                outputs.add(item.getDefaultInstance());
+            }
+        }
+        if (outputs.isEmpty()) return;
 
         var logistics = this.findOutputLogisticsInterfaces(be);
         if (logistics.size() == 0) return;
 
-        ItemOutputResult result = insertOutputItem(logistics, output, this.logisticsRoundRobin);
-        if (result.remainder().getCount() < output.getCount()) {
-            this.logisticsRoundRobin = result.nextIndex();
+        for (ItemStack output : outputs) {
+            ItemOutputResult result = insertOutputItem(logistics, output, this.logisticsRoundRobin);
+            if (result.remainder().getCount() < output.getCount()) {
+                this.logisticsRoundRobin = result.nextIndex();
+            }
         }
     }
 
-    private int countValidLasersLocal(CelestialForgingAnvilBlockEntity be) {
-        return (int) dev.dubhe.anvilcraft.block.entity.CfaInterfaceScanner.findLaserInterfaces(be.getLevel(), be.getBlockPos())
+    private List<CelestialForgingAnvilLaserInterfaceBlockEntity> findValidLasers(
+        CelestialForgingAnvilBlockEntity be
+    ) {
+        return this.findLaserInterfaces(be)
             .stream()
-            .filter(l -> l.getReceivedLaserLevel() >= LASER_THRESHOLD)
-            .count();
+            .filter(laser -> laser.getReceivedLaserLevel() >= LASER_THRESHOLD)
+            .limit(MAX_LASERS)
+            .toList();
     }
 
     @Override

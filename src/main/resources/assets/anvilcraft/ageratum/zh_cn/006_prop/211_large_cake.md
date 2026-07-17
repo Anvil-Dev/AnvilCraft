@@ -51,7 +51,7 @@ items:
 
 # 制造
 
-<recipe id="anvilcraft:cooking/cake_base_block"/>
+<recipe id="anvilcraft:fast_cooking/cake_base_block"/>
 <row halign="center">
 <recipe id="anvilcraft:item_compress/cream_block"/>
 <recipe id="anvilcraft:block_compress/cake_block"/>

@@ -52,7 +52,7 @@ public abstract class SectionCompilerMixin {
     ) {
         if (Minecraft.getInstance().screen instanceof IHasHammerEffect hammerEffect
             && hammerEffect.shouldSkipRebuildBlock()
-            && hammerEffect.renderingBlockPos().equals(pos)
+            && hammerEffect.hiddenBlockPos().equals(pos)
         ) {
             return;
         }

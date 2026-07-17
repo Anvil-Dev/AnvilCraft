@@ -26,7 +26,7 @@ Provides 8 saturation and 8 hunger points
 
 <row halign="center">
 <recipe id="anvilcraft:item_crush/flour"/>
-<recipe id="anvilcraft:bulging/dough"/>
+<recipe id="anvilcraft:solid_liquid/dough"/>
 <recipe id="anvilcraft:smoking_warp_dough_2_bread"/>
 <recipe id="anvilcraft:stamping/cream"/>
 <recipe id="anvilcraft:stamping/paper_from_sugar_cane"/>

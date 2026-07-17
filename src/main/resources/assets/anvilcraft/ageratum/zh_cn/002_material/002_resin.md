@@ -30,8 +30,8 @@ items:
 
 <row halign="center">
 <recipe id="anvilcraft:resin_block"/>
-<recipe id="anvilcraft:cooking/hardend_resin"/>
-<recipe id="anvilcraft:boiling/slime_ball"/>
+<recipe id="anvilcraft:fast_cooking/hardend_resin"/>
+<recipe id="anvilcraft:fast_cooking/slime_ball"/>
 </row>
 
 # <ref item="anvilcraft:hardend_resin"/>

@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 
 public record HammerChangeFlexibleMultiPartBlockPacket(BlockPos pos, BlockState state, Direction direction) implements IServerboundPacket {
     public static final Type<HammerChangeFlexibleMultiPartBlockPacket> TYPE = IPacket.type(AnvilCraft.of(
@@ -40,12 +41,17 @@ public record HammerChangeFlexibleMultiPartBlockPacket(BlockPos pos, BlockState 
         if (!level.isLoaded(this.pos)) {
             return;
         }
-        if (!(this.state.getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?> block)) return;
+        BlockState currentState = level.getBlockState(this.pos);
+        if (!(currentState.getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?> block)) return;
         if (this.direction == null) return;
+        EnumProperty<Direction> property = currentState.hasProperty(BlockStateProperties.FACING)
+            ? BlockStateProperties.FACING
+            : BlockStateProperties.HORIZONTAL_FACING;
+        if (!currentState.hasProperty(property) || !property.getPossibleValues().contains(this.direction)) return;
         block.change(
             this.pos,
             level,
-            state -> state.setValue(BlockStateProperties.FACING, this.direction)
+            state -> state.setValue(property, this.direction)
         );
     }
 }

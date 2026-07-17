@@ -19,8 +19,7 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.item_crush", "Item Crush");
         provider.add("gui.anvilcraft.category.unpack", "Unpack");
 
-        provider.add("gui.anvilcraft.category.cooking", "Cooking");
-        provider.add("gui.anvilcraft.category.boiling", "Boiling");
+        provider.add("gui.anvilcraft.category.fast_cooking", "Fast Cooking");
 
         provider.add("gui.anvilcraft.category.stamping", "Stamping");
 
@@ -41,13 +40,11 @@ public class JeiLang {
         );
         provider.add("gui.anvilcraft.category.mass_inject.items_needed", "Items Needed: %s");
 
-        provider.add("gui.anvilcraft.category.cement_staining", "Cement Staining");
+        provider.add("gui.anvilcraft.category.solid_liquid", "Solid-Liquid Reaction");
+        provider.add("gui.anvilcraft.category.solid_liquid.consume_fluid", "Consume: %1$d mB of %2$s");
+        provider.add("gui.anvilcraft.category.solid_liquid.produce_fluid", "Produce: %1$d mB of %2$s");
 
-        provider.add("gui.anvilcraft.category.concrete", "Concrete");
-
-        provider.add("gui.anvilcraft.category.bulging", "Bulging");
-        provider.add("gui.anvilcraft.category.bulging.consume_fluid", "Consume: %1$d mB of %2$s");
-        provider.add("gui.anvilcraft.category.bulging.produce_fluid", "Produce: %1$d mB of %2$s");
+        provider.add("gui.anvilcraft.category.fluid_mixing", "Fluid Mixing");
 
         provider.add("gui.anvilcraft.category.time_warp", "Time Warp");
         provider.add("gui.anvilcraft.category.time_warp.consume_fluid", "Consume: %1$d mB of %2$s");
@@ -55,6 +52,7 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.time_warp.need_activated", "Need Activated");
 
         provider.add("gui.anvilcraft.category.neutron_irradiation", "Neutron Irradiation");
+        provider.add("gui.anvilcraft.category.neutron_irradiation.explosion", "Explodes");
 
         provider.add("gui.anvilcraft.category.multiblock", "Multiblock Crafting");
         provider.add("gui.anvilcraft.category.multiblock.all_layers", "All Layers Visible");
@@ -77,11 +75,11 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.beacon_conversion.activate", "Use this item to activate beacon");
         provider.add("gui.anvilcraft.category.beacon_conversion.beacon_base", "Use this block as beacon base");
 
-        provider.add("gui.anvilcraft.category.void_decay", "Void Decay");
-        provider.add("gui.anvilcraft.category.void_decay.random_tick", "The block at center will be converted when received random tick");
-        provider.add("gui.anvilcraft.category.void_decay.center", "Put this block at center");
-        provider.add("gui.anvilcraft.category.void_decay.around", "Put this block adjacent to the center block");
-        provider.add("gui.anvilcraft.category.void_decay.not_consumed", "Not consumed in conversion");
+        provider.add("gui.anvilcraft.category.decay", "Decay");
+        provider.add("gui.anvilcraft.category.decay.random_tick", "The block at center will decay on a random tick");
+        provider.add("gui.anvilcraft.category.decay.center", "Put this block at the center");
+        provider.add("gui.anvilcraft.category.decay.around", "Place these blocks around the center as shown");
+        provider.add("gui.anvilcraft.category.decay.not_consumed", "Not consumed during decay");
 
         provider.add("gui.anvilcraft.category.charger_charging", "Charger Charging");
         provider.add("gui.anvilcraft.category.charger_charging.power_consume", "Power Consume: %s");
@@ -91,37 +89,11 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.multiple_to_one_smithing", "Multiple To One Smithing");
 
         provider.add("gui.anvilcraft.category.mob_transform", "Mob Transform in Corrupted Beacon Beam");
-        provider.add("gui.anvilcraft.category.mob_transform_with_item", "Mob Transform with Held Item");
-        provider.add("gui.anvilcraft.category.mob_transform_with_item.chance_per_item", "Chance Per Item: %s%%");
+        provider.add("gui.anvilcraft.category.mob_transform.chance_per_item", "Chance Per Item: %s%%");
 
         provider.add("gui.anvilcraft.category.energy_weapon", "Energy Weapon");
 
         provider.add("jei.anvilcraft.tooltip.not_consumed", "Not Consumed");
-
-        provider.add("jei.anvilcraft.info.geode_1", "Finds Amethyst Geodes nearby when using.");
-        provider.add("jei.anvilcraft.info.geode_2", "Dropped by Budding Amethyst blocks.");
-        provider.add("jei.anvilcraft.info.geode_3", "You can also find it in the Bonus Chest");
-        provider.add("jei.anvilcraft.info.geode_4", "Or trade it from a Jeweler Villager");
-
-        provider.add(
-            "jei.anvilcraft.info.royal_steel_upgrade_smithing_template_1",
-            "You can find it in the chest of the village weapons smith."
-        );
-        provider.add("jei.anvilcraft.info.royal_steel_upgrade_smithing_template_2", "Or you can trade with the jeweler.");
-
-        provider.add("jei.anvilcraft.info.craw_claw", "You can obtain this from crab traps placed in the water.");
-
-        provider.add("jei.anvilcraft.info.capacitor", "You can charge the empty capacitor in the charger to obtain it.");
-
-        provider.add(
-            "jei.anvilcraft.info.end_dust",
-            "Any falling block, except for anvils and Dragon Egg, will be converted into End Dust when fall through end portal."
-        );
-
-        provider.add(
-            "jei.anvilcraft.info.mob_transform_with_item",
-            "Right-clicking mobs with the corresponding item in its Mob-Transform-with-Held-Item recipes can force the mob to hold it."
-        );
 
         provider.add("gui.anvilcraft.category.anvil_collision", "Anvil Collision");
         provider.add("gui.anvilcraft.category.anvil_collision.maxcount", "Max Count: %s");
@@ -130,14 +102,15 @@ public class JeiLang {
 
         provider.add("gui.anvilcraft.category.procedural_process", "Block Sequence Assembly");
 
-        provider.add("gui.anvilcraft.category.transcendium_recipe", "Transcendium Recipe");
-        provider.add("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_0", "The amount of enchantments is 0");
-        provider.add("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_1_10", "The amount of enchantments is 1-10");
-        provider.add("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_11_14", "The amount of enchantments is 11-14");
-        provider.add("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_15", "The amount of enchantments is 15");
-        provider.add("gui.anvilcraft.category.transcendium_recipe.enchantments_amount_>16", "The amount of enchantments is 16 or more");
-        provider.add("gui.anvilcraft.category.transcendium_recipe.amount_is_3", "Amount is amount of enchantments x 3");
-        provider.add("gui.anvilcraft.category.transcendium_recipe.amount_is_1", "Amount is amount of enchantments x 1");
-        provider.add("gui.anvilcraft.category.transcendium_recipe.probability", "probability: (10 x (amount of enchantments)) / 100");
+        provider.add("gui.anvilcraft.category.item_compress.supercapacitor.resin", "Resin block containing a lightning-charged Creeper");
+        provider.add("gui.anvilcraft.category.item_compress.supercapacitor_empty.resin", "Resin block containing an uncharged Creeper");
+        provider.add(
+            "gui.anvilcraft.category.item_compress.supercapacitor.chance",
+            "50% chance to produce a Supercapacitor; otherwise explodes"
+        );
+        provider.add("gui.anvilcraft.category.item_inject.transcendium.enchantments", "Required enchantment count: %s");
+        provider.add("gui.anvilcraft.category.item_inject.transcendium.chance", "Neutronium Ingot chance: 10 x enchantment count percent");
+        provider.add("gui.anvilcraft.category.item_inject.transcendium.amount_x3", "Amount: enchantment count x 3");
+        provider.add("gui.anvilcraft.category.item_inject.transcendium.amount_x1", "Amount: enchantment count");
     }
 }

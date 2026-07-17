@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "anvilcraft:orange_cement",
+  "ingredients": [
+    {
+      "items": "#minecraft:candles"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:orange_candle"
+    }
+  ]
+}

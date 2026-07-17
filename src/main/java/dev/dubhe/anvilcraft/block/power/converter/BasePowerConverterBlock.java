@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
@@ -31,6 +32,7 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
     private final int inputPower;
 
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
     /// 基本电源转换器模块
@@ -39,6 +41,7 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
         registerDefaultState(
             stateDefinition.any()
                 .setValue(FACING, Direction.DOWN)
+                .setValue(POWERED, false)
                 .setValue(OVERLOAD, true)
         );
         this.inputPower = inputPower;
@@ -46,7 +49,7 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, OVERLOAD);
+        builder.add(FACING, POWERED, OVERLOAD);
     }
 
     @Override
@@ -62,7 +65,25 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return defaultBlockState().setValue(FACING, context.getClickedFace().getOpposite());
+        return defaultBlockState()
+            .setValue(FACING, context.getClickedFace().getOpposite())
+            .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+    }
+
+    @Override
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        @Nullable Orientation orientation,
+        boolean movedByPiston
+    ) {
+        if (level.isClientSide()) return;
+        boolean powered = level.hasNeighborSignal(pos);
+        if (state.getValue(POWERED) != powered) {
+            level.setBlock(pos, state.setValue(POWERED, powered), Block.UPDATE_CLIENTS);
+        }
     }
 
     @Nullable

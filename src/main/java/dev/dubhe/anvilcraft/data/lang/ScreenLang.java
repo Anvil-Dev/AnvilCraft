@@ -36,6 +36,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.button.filter_mode_any", "Any");
         provider.add("screen.anvilcraft.button.filter_mode_all", "All");
         provider.add("screen.anvilcraft.button.record", "Retention item filtering: %s");
+        provider.add("screen.anvilcraft.batch_crafter.switch_recipe", "Switch crafting recipe");
 
         provider.add("screen.anvilcraft.button.compare_mode_hysteresis", "Mode: Hysteresis");
         provider.add("screen.anvilcraft.button.compare_mode_window", "Mode: Window");
@@ -214,7 +215,6 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.resonator.pickaxe", "Pickaxe");
 
         provider.add("screen.anvilcraft.multiphase.title", "Switch phase");
-        provider.add("screen.anvilcraft.multiphase.merciless", "-Merciless");
 
         provider.add("screen.anvilcraft.multitool.title", "Switch tool");
         provider.add("screen.anvilcraft.multitool.all", "Enable All");

@@ -42,6 +42,15 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
     public static final StandaloneModelKey<BlockStateModel> NETHERITE_BLOCK_WIP = registerModel("block/netherite_block_wip");
     public static final StandaloneModelKey<BlockStateModel> HEAVY_IRON_BLOCK_WIP = registerModel("block/heavy_iron_block_wip");
     public static final StandaloneModelKey<BlockStateModel> ANCIENT_SEA_REEF_WIP = registerModel("block/ancient_sea_reef_wip");
+    public static final StandaloneModelKey<BlockStateModel> NESTING_SHULKER_BOX = registerModel(
+        "block/nesting_shulker_box"
+    );
+    public static final StandaloneModelKey<BlockStateModel> OVER_NESTING_SHULKER_BOX = registerModel(
+        "block/over_nesting_shulker_box"
+    );
+    public static final StandaloneModelKey<BlockStateModel> SUPERCRITICAL_NESTING_SHULKER_BOX = registerModel(
+        "block/supercritical_nesting_shulker_box"
+    );
 
     private static StandaloneModelKey<BlockStateModel> registerModel(String path) {
         Identifier id = AnvilCraft.of(path);
@@ -96,7 +105,7 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
                 ResourceKey<net.minecraft.world.item.crafting.Recipe<?>> key = ResourceKey.create(Registries.RECIPE, recipeId);
                 RecipeHolder<?> holder = RecipesRecord.getRecipes(level).byKey(key);
                 if (holder != null && holder.value() instanceof ProceduralProcessRecipe ppr) {
-                    return ppr.getDisplayedModel().orElse(null);
+                    return ppr.getDisplayedModelForStep(be.getStepCount()).orElse(null);
                 }
                 return null;
             });

@@ -7,12 +7,9 @@ import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
-import dev.dubhe.anvilcraft.block.workstation.TranscendenceAnvilBlock;
-import dev.dubhe.anvilcraft.block.workstation.ember.EmberAnvilBlock;
-import dev.dubhe.anvilcraft.block.workstation.frost.FrostAnvilBlock;
-import dev.dubhe.anvilcraft.block.workstation.royal.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
+import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import dev.dubhe.anvilcraft.util.MultiPartBlockUtil;
 import dev.dubhe.anvilcraft.util.PistonMoveGuard;
@@ -22,11 +19,9 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -284,8 +279,9 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         BlockState devourBlockState = level.getBlockState(devourBlockPos);
         if (devourBlockState.isAir()) return;
         if (!BlockDevourerBlock.canDevour(devourBlockState)) return;
+        BlockMiningEffect miningEffect = BlockMiningEffect.fromAnvil(anvil).orElse(BlockMiningEffect.NORMAL);
         if (
-            !(anvil instanceof FrostAnvilBlock)
+            !miningEffect.isDisintegration()
             && devourBlockState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
             && level.getRandom().nextDouble() > 0.05
         ) {
@@ -294,27 +290,11 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         }
         devourBlockPos = MultiPartBlockUtil.getChainableMainPartPos(level, devourBlockPos);
         devourBlockState = level.getBlockState(devourBlockPos);
-        if (anvil instanceof FrostAnvilBlock) {
-            ServerPlayer destroyer = AnvilCraftFakePlayers.getDestroyer().offerPlayer(level);
-            ItemStack dummyTool = BreakBlockUtil.getDummyDisintegrationTool(level);
-            AnvilCraftFakePlayers.getDestroyer().enabledDestroy(destroyer, dummyTool);
-            ExperienceOrb.award(
-                level,
-                center,
-                EnchantmentHelper.processBlockExperience(
-                    level,
-                    dummyTool,
-                    devourBlockState.getExpDrop(level, devourBlockPos, level.getBlockEntity(devourBlockPos), destroyer, dummyTool)
-                )
-            );
-            AnvilCraftFakePlayers.getDestroyer().disable(destroyer);
-        } else {
-            List<ItemStack> dropList = switch (anvil) {
-                case RoyalAnvilBlock ignore -> BreakBlockUtil.dropSilkTouch(level, devourBlockPos);
-                case EmberAnvilBlock ignore -> BreakBlockUtil.dropSmelt(level, devourBlockPos);
-                case TranscendenceAnvilBlock ignore -> BreakBlockUtil.dropFortune5(level, devourBlockPos);
-                case null, default -> BreakBlockUtil.drop(level, devourBlockPos);
-            };
+        if (miningEffect.isDisintegration()) {
+            BreakBlockUtil.dropExperience(level, devourBlockPos, devourBlockState, miningEffect);
+        }
+        List<ItemStack> dropList = BreakBlockUtil.drop(level, devourBlockPos, miningEffect);
+        if (!miningEffect.isDisintegration()) {
             ResourceHandler<ItemResource> source = level.getCapability(Capabilities.Item.BLOCK, devourBlockPos, null);
             boolean skipContentTransfer = source == null;
             for (ItemStack itemStack : dropList) {

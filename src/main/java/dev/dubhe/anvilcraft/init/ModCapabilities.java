@@ -9,10 +9,12 @@ import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.VoidFluidHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.SolidCauldronExtractor;
+import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.cauldron.ObsidianCauldronBlock;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
+import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
@@ -59,9 +61,6 @@ public class ModCapabilities {
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.ITEM_COLLECTOR.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.MAGNETIC_CHUTE.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CONFINEMENT_CHAMBER.get(), ModCapabilities::item);
-        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.NESTING_SHULKER_BOX.get(), ModCapabilities::item);
-        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.OVER_NESTING_SHULKER_BOX.get(), ModCapabilities::item);
-        event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.SUPERCRITICAL_NESTING_SHULKER_BOX.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.BURNING_HEATER.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.FISH_TANK.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CREATIVE_CRATE.get(), ModCapabilities::item);
@@ -72,6 +71,11 @@ public class ModCapabilities {
             Capabilities.Item.BLOCK,
             ModCapabilities.multiblock(LargeCrateBlock.class, LargeCrateBlockEntity.class, ModCapabilities::item),
             ModBlocks.LARGE_CRATE.get()
+        );
+        event.registerBlock(
+            Capabilities.Item.BLOCK,
+            ModCapabilities.multiblock(LargeCauldronBlock.class, LargeCauldronBlockEntity.class, ModCapabilities::item),
+            ModBlocks.LARGE_CAULDRON.get()
         );
 
         event.registerBlock(
@@ -100,6 +104,11 @@ public class ModCapabilities {
             Capabilities.Fluid.BLOCK,
             ModCapabilities.multiblock(LargeFluidTankBlock.class, LargeFluidTankBlockEntity.class, ModCapabilities::fluid),
             ModBlocks.LARGE_FLUID_TANK.get()
+        );
+        event.registerBlock(
+            Capabilities.Fluid.BLOCK,
+            ModCapabilities.multiblock(LargeCauldronBlock.class, LargeCauldronBlockEntity.class, ModCapabilities::fluid),
+            ModBlocks.LARGE_CAULDRON.get()
         );
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.DRAIN.get(), ModCapabilities::fluid);
         event.registerBlockEntity(Capabilities.Fluid.BLOCK, ModBlockEntities.CREATIVE_FLUID_TANK.get(), ModCapabilities::fluid);

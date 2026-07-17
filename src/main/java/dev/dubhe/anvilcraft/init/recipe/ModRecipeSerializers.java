@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.TempleDemandRecipe;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
+import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.PillRecipe;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
@@ -18,14 +19,13 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockProcessingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockSmearRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.BoilingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.CookingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.FastCookingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.NeutronIrradiationRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingDiffRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
@@ -103,17 +103,17 @@ public class ModRecipeSerializers {
         "squeezing",
         () -> SqueezingRecipe.SERIALIZER
     );
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<CookingRecipe>> COOKING = DF.register(
-        "cooking",
-        () -> CookingRecipe.SERIALIZER
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<FastCookingRecipe>> FAST_COOKING = DF.register(
+        "fast_cooking",
+        () -> FastCookingRecipe.SERIALIZER
     );
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BoilingRecipe>> BOILING = DF.register(
-        "boiling",
-        () -> BoilingRecipe.SERIALIZER
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<SolidLiquidRecipe>> SOLID_LIQUID = DF.register(
+        "solid_liquid",
+        () -> SolidLiquidRecipe.SERIALIZER
     );
-    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<BulgingRecipe>> BULGING = DF.register(
-        "bulging",
-        () -> BulgingRecipe.SERIALIZER
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<FluidMixingRecipe>> FLUID_MIXING = DF.register(
+        "fluid_mixing",
+        () -> FluidMixingRecipe.SERIALIZER
     );
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<NeutronIrradiationRecipe>> NEUTRON_IRRADIATION = DF.register(
         "neutron_irradiation",

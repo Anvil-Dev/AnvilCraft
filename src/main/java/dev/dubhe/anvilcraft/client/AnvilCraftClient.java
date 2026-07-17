@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
 import dev.dubhe.anvilcraft.client.init.ModPostEffects;
 import dev.dubhe.anvilcraft.client.particle.IonoCraftBackpackExhaustParticle;
+import dev.dubhe.anvilcraft.client.particle.OverseerTrailParticle;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
@@ -168,6 +169,7 @@ public class AnvilCraftClient {
             ModParticles.IONOCRAFT_BACKPACK_EXHAUST.get(),
             IonoCraftBackpackExhaustParticle.Provider::new
         );
+        e.registerSpriteSet(ModParticles.OVERSEER_TRAIL.get(), OverseerTrailParticle.Provider::new);
     }
 
     public static class ItemExtensionImpl implements IClientItemExtensions {

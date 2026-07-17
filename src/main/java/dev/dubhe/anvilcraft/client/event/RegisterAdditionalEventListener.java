@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.FishTankRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.InfiniteCollectorRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeCauldronBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
@@ -267,6 +268,10 @@ public class RegisterAdditionalEventListener {
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/oil_cauldron_fire4"))
         );
         event.register(
+            LargeCauldronBlockEntityRenderer.FIRE,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/fire_cauldron_fire4"))
+        );
+        event.register(
             SmartBlockPlacerRenderer.BASE_MODEL,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/smart_block_placer_base"))
         );
@@ -322,6 +327,18 @@ public class RegisterAdditionalEventListener {
         event.register(
             WipBlockEntityRenderer.ANCIENT_SEA_REEF_WIP,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/ancient_sea_reef_wip"))
+        );
+        event.register(
+            WipBlockEntityRenderer.NESTING_SHULKER_BOX,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/nesting_shulker_box"))
+        );
+        event.register(
+            WipBlockEntityRenderer.OVER_NESTING_SHULKER_BOX,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/over_nesting_shulker_box"))
+        );
+        event.register(
+            WipBlockEntityRenderer.SUPERCRITICAL_NESTING_SHULKER_BOX,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/supercritical_nesting_shulker_box"))
         );
     }
 

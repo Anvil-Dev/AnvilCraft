@@ -1,0 +1,19 @@
+{
+  "type": "anvilcraft:fast_cooking",
+  "ingredients": [
+    {
+      "items": "#c:foods/dough"
+    },
+    {
+      "items": "minecraft:egg"
+    },
+    {
+      "items": "minecraft:sugar"
+    }
+  ],
+  "results": [
+    {
+      "id": "anvilcraft:cake_base_block"
+    }
+  ]
+}

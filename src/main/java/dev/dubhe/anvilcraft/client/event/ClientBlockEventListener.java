@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.network.CreativeCrateAttackPacket;
+import dev.dubhe.anvilcraft.network.HammerUsePacket;
 import dev.dubhe.anvilcraft.util.StateUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -82,6 +83,10 @@ public class ClientBlockEventListener {
         BlockHitResult hitVec
     ) {
         Level level = event.getLevel();
+        if (event.getEntity().isShiftKeyDown()) {
+            ClientPacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand, hitVec));
+            return true;
+        }
         Property<?> property = AnvilHammerItem.findModifyableProperty(targetBlockState);
         return WheelLifecycleEventListener.openHammerWheel(
             level.getGameTime(),

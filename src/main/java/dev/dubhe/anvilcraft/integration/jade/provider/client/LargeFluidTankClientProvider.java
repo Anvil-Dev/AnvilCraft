@@ -1,12 +1,12 @@
 package dev.dubhe.anvilcraft.integration.jade.provider.client;
 
-import com.google.common.collect.ImmutableList;
 import dev.dubhe.anvilcraft.integration.jade.provider.LargeFluidTankProvider;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.material.Fluids;
+import org.jspecify.annotations.Nullable;
 import snownee.jade.api.Accessor;
 import snownee.jade.api.fluid.JadeFluidObject;
 import snownee.jade.api.ui.JadeUI;
@@ -17,7 +17,7 @@ import snownee.jade.api.view.IClientExtensionProvider;
 import snownee.jade.api.view.ViewGroup;
 import snownee.jade.util.FluidTextHelper;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 public enum LargeFluidTankClientProvider implements IClientExtensionProvider<FluidView.Data, FluidView> {
@@ -25,10 +25,20 @@ public enum LargeFluidTankClientProvider implements IClientExtensionProvider<Flu
 
     @Override
     public List<ClientViewGroup<FluidView>> getClientGroups(Accessor<?> accessor, List<ViewGroup<FluidView.Data>> groups) {
-        if (groups.isEmpty() || groups.getFirst().views.isEmpty()) return ImmutableList.of();
-        FluidView.Data data = groups.getFirst().views.getFirst();
+        List<ClientViewGroup<FluidView>> result = new ArrayList<>();
+        for (ViewGroup<FluidView.Data> group : groups) {
+            List<FluidView> views = group.views.stream()
+                .map(LargeFluidTankClientProvider::createView)
+                .filter(java.util.Objects::nonNull)
+                .toList();
+            if (!views.isEmpty()) result.add(new ClientViewGroup<>(views));
+        }
+        return result;
+    }
+
+    private static @Nullable FluidView createView(FluidView.Data data) {
         JadeFluidObject fluid = data.fluids().getFirst();
-        if (fluid.isEmpty()) return ImmutableList.of();
+        if (fluid.isEmpty()) return null;
         long amount = fluid.getAmount();
         long capacity = data.capacity();
         MutableComponent infinity = Component.translatable("tooltip.anvilcraft.jade.infinity").withStyle(ChatFormatting.GRAY);
@@ -44,7 +54,7 @@ public enum LargeFluidTankClientProvider implements IClientExtensionProvider<Flu
                 NarratableComponent.attach(Component.literal(view.max.getString()), view.max)
             );
         }
-        return Collections.singletonList(new ClientViewGroup<>(Collections.singletonList(view)));
+        return view;
     }
 
     @Override

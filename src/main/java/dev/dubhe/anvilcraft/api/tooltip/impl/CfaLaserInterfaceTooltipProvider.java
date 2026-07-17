@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.api.tooltip.impl;
 
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
+import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 
@@ -30,8 +31,10 @@ public class CfaLaserInterfaceTooltipProvider
                 lines.add(Component.translatable("screen.anvilcraft.cfa.laser_interface.received_gamma", received)
                     .withStyle(ChatFormatting.DARK_PURPLE));
             } else {
+                BlockMiningEffect effect = laser.getReceivedMiningEffect();
                 lines.add(Component.translatable("screen.anvilcraft.cfa.laser_interface.received", received)
-                    .withStyle(ChatFormatting.RED));
+                    .append(effect.getDisplaySuffix())
+                    .withColor(effect.getLaserColor()));
             }
         } else if (emittingGamma && gammaLevel > 0) {
             lines.add(Component.translatable("screen.anvilcraft.cfa.laser_interface.emitting_gamma", gammaLevel)

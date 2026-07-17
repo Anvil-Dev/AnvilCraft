@@ -16,7 +16,7 @@ public class CommandLang {
         provider.add("command.anvilcraft.multiphase.no_item", "The main-hand item does not have Multiphase");
         provider.add(
             "command.anvilcraft.multiphase.info.summary",
-            "Multiphase spaces: %1$s, active: %2$s, Merciless: %3$s"
+            "Multiphase spaces: %1$s, active: %2$s"
         );
         provider.add(
             "command.anvilcraft.multiphase.info.phase",

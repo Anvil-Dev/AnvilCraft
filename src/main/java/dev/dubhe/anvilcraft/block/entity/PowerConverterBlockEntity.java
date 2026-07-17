@@ -56,6 +56,11 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     }
 
     @Override
+    public int getInputPower() {
+        return this.getBlockState().getValue(BasePowerConverterBlock.POWERED) ? 0 : this.inputPower;
+    }
+
+    @Override
     public @Nullable EnergyHandler getEnergyHandler(@Nullable Direction side) {
         if (side == null) return new PowerConverterEnergyStore();
         if (side == getBlockState().getValue(BasePowerConverterBlock.FACING)) return new PowerConverterEnergyStore();
@@ -108,6 +113,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     public void tick() {
         if (this.level != null) {
             flushState(this.level, getBlockPos());
+            if (this.getBlockState().getValue(BasePowerConverterBlock.POWERED)) return;
         }
         if (this.cooldown == 0) {
             this.cooldown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jade;
 
 import dev.dubhe.anvilcraft.block.WipBlock;
+import dev.dubhe.anvilcraft.block.container.FluidTankBlock;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
@@ -61,6 +62,7 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerBlockDataProvider(SmartBlockPlacerProvider.INSTANCE, Block.class);
         registration.registerItemStorage(CreativeCrateProvider.INSTANCE, CreativeCrateBlockEntity.class);
         registration.registerFluidStorage(CreativeFluidTankProvider.INSTANCE, CreativeFluidTankBlockEntity.class);
+        registration.registerFluidStorage(LargeFluidTankProvider.INSTANCE, FluidTankBlock.class);
         registration.registerFluidStorage(LargeFluidTankProvider.INSTANCE, LargeFluidTankBlock.class);
         registration.registerBlockDataProvider(WipBlockProvider.INSTANCE, WipBlock.class);
         registration.registerBlockDataProvider(MultiPartPowerBlockProvider.INSTANCE, AbstractMultiPartBlock.class);

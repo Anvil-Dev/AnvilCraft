@@ -7,17 +7,19 @@ import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
+import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.NeoforgeBlock;
 import dev.dubhe.anvilcraft.block.workstation.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.ember.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.frost.FrostAnvilBlock;
-import dev.dubhe.anvilcraft.block.workstation.royal.RoyalAnvilBlock;
+import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStepManager;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
+import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
@@ -29,7 +31,6 @@ import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -63,11 +64,16 @@ public class AnvilEventListener {
         BlockPos pos = event.getPos();
         final BlockState blockState = level.getBlockState(pos);
         TriggerUtil.anvilOnGround(level, pos);
+        final BlockPos hitBlockPos = pos.below();
+        final BlockState hitBlockState = level.getBlockState(hitBlockPos);
+        if (event.getEntity() instanceof FallingGiantAnvilEntity
+            && hitBlockState.is(ModBlocks.LARGE_CAULDRON)) {
+            LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, hitBlockPos, hitBlockState);
+            if (cauldron != null && cauldron.handleGiantAnvilImpact(event)) return;
+        }
         if (ProceduralProcessStepManager.checkAnyMatches(event)) {
             return;
         }
-        final BlockPos hitBlockPos = pos.below();
-        final BlockState hitBlockState = level.getBlockState(hitBlockPos);
         BlockPos belowPos = hitBlockPos.below();
         BlockState hitBelowState = level.getBlockState(belowPos);
         if (hitBelowState.is(Blocks.STONECUTTER)) {
@@ -113,68 +119,18 @@ public class AnvilEventListener {
         if (state.getBlock().getExplosionResistance() >= 1200.0) event.setAnvilDamage(true);
         if (state.getDestroySpeed(level, pos) < 0) return;
 
-        if (// noDropsButExp
-            Optional.of(event.getEntity())
-            .map(FallingBlockEntity::getBlockState)
-            .map(b1 -> b1.getBlock() instanceof FrostAnvilBlock)
-            .orElse(false)
-        ) {
-            ServerPlayer destroyer = AnvilCraftFakePlayers.getDestroyer().offerPlayer(serverLevel);
-            ItemStack dummyTool = BreakBlockUtil.getDummyDisintegrationTool(serverLevel);
-            AnvilCraftFakePlayers.getDestroyer().enabledDestroy(destroyer, dummyTool);
-            ExperienceOrb.award(
-                serverLevel,
-                pos.getCenter(),
-                EnchantmentHelper.processBlockExperience(
-                    serverLevel,
-                    dummyTool,
-                    state.getExpDrop(level, pos, level.getBlockEntity(pos), destroyer, dummyTool)
-                )
-            );
-            state.spawnAfterBreak(serverLevel, pos, dummyTool, true);
-            if (state.getBlock() instanceof IHasMultiBlock multiBlock) {
-                multiBlock.onRemove(level, pos, state);
-            }
-            level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
-            AnvilCraftFakePlayers.getDestroyer().disable(destroyer);
-            return;
-        }
-        final boolean smeltDrop = Optional.of(event.getEntity())
-            .map(FallingBlockEntity::getBlockState)
-            .map(b -> b.getBlock() instanceof EmberAnvilBlock)
-            .orElse(false);
-        final boolean silkTouch = Optional.of(event.getEntity())
-            .map(FallingBlockEntity::getBlockState)
-            .map(b -> b.getBlock() instanceof RoyalAnvilBlock)
-            .orElse(false);
-        final boolean fortune5 = Optional.of(event.getEntity())
-            .map(FallingBlockEntity::getBlockState)
-            .map(b -> b.getBlock() instanceof TranscendenceAnvilBlock)
-            .orElse(false);
-
-        ItemStack dummyTool;
-        if (silkTouch) {
-            dummyTool = BreakBlockUtil.getDummySilkTouchTool(serverLevel);
-        } else if (fortune5) {
-            dummyTool = BreakBlockUtil.getDummyFortune5Tool(serverLevel);
-        } else {
-            dummyTool = ItemStack.EMPTY;
+        BlockMiningEffect miningEffect = BlockMiningEffect.fromAnvil(event.getEntity().getBlockState().getBlock())
+            .orElse(BlockMiningEffect.NORMAL);
+        ItemStack dummyTool = BreakBlockUtil.createTool(serverLevel, state, miningEffect);
+        if (miningEffect.isDisintegration()) {
+            BreakBlockUtil.dropExperience(serverLevel, pos, state, miningEffect);
         }
         state.spawnAfterBreak(serverLevel, pos, dummyTool, false);
         if (state.getBlock() instanceof IHasMultiBlock multiBlock) {
             multiBlock.onRemove(level, pos, state);
         }
 
-        List<ItemStack> drops;
-        if (smeltDrop) {
-            drops = BreakBlockUtil.dropSmelt(serverLevel, pos);
-        } else if (silkTouch) {
-            drops = BreakBlockUtil.dropSilkTouch(serverLevel, pos);
-        } else if (fortune5) {
-            drops = BreakBlockUtil.dropFortune5(serverLevel, pos);
-        } else {
-            drops = BreakBlockUtil.drop(serverLevel, pos);
-        }
+        List<ItemStack> drops = BreakBlockUtil.drop(serverLevel, pos, miningEffect);
         AnvilUtil.dropItems(drops, level, pos.getCenter());
         level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
     }

@@ -36,6 +36,10 @@ public class ModParticles {
         "ionocraft_backpack_exhaust", () -> new SimpleParticleType(false)
     );
 
+    public static final Supplier<SimpleParticleType> OVERSEER_TRAIL = REGISTER.register(
+        "overseer_trail", () -> new SimpleParticleType(false)
+    );
+
     public static void register(IEventBus modBus) {
         REGISTER.register(modBus);
     }

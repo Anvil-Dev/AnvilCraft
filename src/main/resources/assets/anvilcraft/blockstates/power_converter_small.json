@@ -1,28 +1,54 @@
 {
     "variants": {
-        "overload=false,facing=down": {
+        "powered=false,overload=false,facing=down": {
             "model": "anvilcraft:block/power_converter_small"
         },
-        "overload=false,facing=up": {
+        "powered=false,overload=false,facing=up": {
             "model": "anvilcraft:block/power_converter_small",
             "x": 180
         },
-        "overload=false,facing=north": {
+        "powered=false,overload=false,facing=north": {
             "model": "anvilcraft:block/power_converter_small",
             "x": 270
         },
-        "overload=false,facing=east": {
+        "powered=false,overload=false,facing=east": {
             "model": "anvilcraft:block/power_converter_small",
             "x": 270,
             "y": 90
         },
-        "overload=false,facing=south": {
+        "powered=false,overload=false,facing=south": {
             "model": "anvilcraft:block/power_converter_small",
             "x": 270,
             "y": 180
         },
-        "overload=false,facing=west": {
+        "powered=false,overload=false,facing=west": {
             "model": "anvilcraft:block/power_converter_small",
+            "x": 270,
+            "y": 270
+        },
+        "powered=true,overload=false,facing=down": {
+            "model": "anvilcraft:block/power_converter_overload_small"
+        },
+        "powered=true,overload=false,facing=up": {
+            "model": "anvilcraft:block/power_converter_overload_small",
+            "x": 180
+        },
+        "powered=true,overload=false,facing=north": {
+            "model": "anvilcraft:block/power_converter_overload_small",
+            "x": 270
+        },
+        "powered=true,overload=false,facing=east": {
+            "model": "anvilcraft:block/power_converter_overload_small",
+            "x": 270,
+            "y": 90
+        },
+        "powered=true,overload=false,facing=south": {
+            "model": "anvilcraft:block/power_converter_overload_small",
+            "x": 270,
+            "y": 180
+        },
+        "powered=true,overload=false,facing=west": {
+            "model": "anvilcraft:block/power_converter_overload_small",
             "x": 270,
             "y": 270
         },

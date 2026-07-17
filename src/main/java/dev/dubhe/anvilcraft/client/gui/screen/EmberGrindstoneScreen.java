@@ -9,12 +9,15 @@ import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
 import dev.dubhe.anvilcraft.network.EmberGrindstoneSyncPacket;
 import dev.dubhe.anvilcraft.util.EnchantmentData;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
@@ -210,6 +213,9 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
                 int y = this.topPos + 23 + 18 * ((i - this.head) / 3);
 
                 if (!MathUtil.isInRange(event.x(), event.y(), x, y, x + 18, y + 18)) continue;
+                Minecraft.getInstance().getSoundManager().play(
+                    SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F)
+                );
                 if (this.menu.getSelectedIndex() == i) {
                     this.menu.setSelectedEnchantment(-1);
                     ClientPacketDistributor.sendToServer(new EmberGrindstoneSyncPacket(-1));

@@ -13,7 +13,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,7 +26,7 @@ public class RenderSupport {
     private static final int MAX_CACHE_SIZE = 64;
     private static final float WIP_PREVIEW_SCALE = 0.6F;
     private static final LinkedHashMap<BlockState, BlockEntity> BLOCK_ENTITY_CACHE = new LinkedHashMap<>();
-    private static final LinkedHashMap<Identifier, LevelLike> WIP_LEVEL_CACHE = new LinkedHashMap<>();
+    private static final LinkedHashMap<WipPreviewKey, LevelLike> WIP_LEVEL_CACHE = new LinkedHashMap<>();
     // private static final RandomSource RANDOM = RandomSource.createThreadLocalInstance();
     // public static final Vector3f L1 = new Vector3f(0.4F, 0.0F, 1.0F).normalize();
     // public static final Vector3f L2 = new Vector3f(-0.4F, 1.0F, -0.2F).normalize();
@@ -60,6 +59,7 @@ public class RenderSupport {
     public static void renderWipBlock(
         GuiGraphicsExtractor graphics,
         Identifier recipeId,
+        int stepCount,
         float x,
         float y,
         float size
@@ -73,14 +73,16 @@ public class RenderSupport {
             currentClientLevel = level;
             WIP_LEVEL_CACHE.clear();
         }
-        if (!WIP_LEVEL_CACHE.containsKey(recipeId) && WIP_LEVEL_CACHE.size() >= MAX_CACHE_SIZE) {
+        WipPreviewKey key = new WipPreviewKey(recipeId, stepCount);
+        if (!WIP_LEVEL_CACHE.containsKey(key) && WIP_LEVEL_CACHE.size() >= MAX_CACHE_SIZE) {
             WIP_LEVEL_CACHE.pollFirstEntry();
         }
-        LevelLike preview = WIP_LEVEL_CACHE.computeIfAbsent(recipeId, id -> {
+        LevelLike preview = WIP_LEVEL_CACHE.computeIfAbsent(key, previewKey -> {
             LevelLike result = new LevelLike(level);
             result.setBlockState(BlockPos.ZERO, ModBlocks.WIP_BLOCK.get().defaultBlockState());
             if (result.getBlockEntity(BlockPos.ZERO) instanceof WipBlockEntity wip) {
-                wip.setRecipeId(id);
+                wip.setRecipeId(previewKey.recipeId());
+                wip.setStepCount(previewKey.stepCount());
             }
             return result;
         });
@@ -149,5 +151,8 @@ public class RenderSupport {
             }
         });
         return opt;
+    }
+
+    private record WipPreviewKey(Identifier recipeId, int stepCount) {
     }
 }

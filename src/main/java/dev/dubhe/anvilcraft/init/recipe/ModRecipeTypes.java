@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyRecipe;
 import dev.dubhe.anvilcraft.block.entity.celestial.TempleDemandRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
+import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
@@ -15,14 +16,13 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockProcessingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockSmearRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.BoilingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.CookingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.FastCookingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCrushRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemInjectRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.NeutronIrradiationRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingDiffRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
@@ -61,9 +61,12 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeType<?>, RecipeType<ItemInjectRecipe>> ITEM_INJECT = registerType("item_inject");
     public static final DeferredHolder<RecipeType<?>, RecipeType<MassInjectRecipe>> MASS_INJECT = registerType("mass_inject");
     public static final DeferredHolder<RecipeType<?>, RecipeType<SqueezingRecipe>> SQUEEZING = registerType("squeezing");
-    public static final DeferredHolder<RecipeType<?>, RecipeType<CookingRecipe>> COOKING = registerType("cooking");
-    public static final DeferredHolder<RecipeType<?>, RecipeType<BoilingRecipe>> BOILING = registerType("boiling");
-    public static final DeferredHolder<RecipeType<?>, RecipeType<BulgingRecipe>> BULGING = registerType("bulging");
+    public static final DeferredHolder<RecipeType<?>, RecipeType<FastCookingRecipe>> FAST_COOKING =
+        registerType("fast_cooking");
+    public static final DeferredHolder<RecipeType<?>, RecipeType<SolidLiquidRecipe>> SOLID_LIQUID =
+        registerType("solid_liquid");
+    public static final DeferredHolder<RecipeType<?>, RecipeType<FluidMixingRecipe>> FLUID_MIXING =
+        registerType("fluid_mixing");
     public static final DeferredHolder<RecipeType<?>, RecipeType<NeutronIrradiationRecipe>> NEUTRON_IRRADIATION = registerType(
         "neutron_irradiation"
     );

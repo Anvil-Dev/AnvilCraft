@@ -34,8 +34,8 @@ items:
 ## Solid-Liquid Conversion
 
 <row>
-<recipe id="anvilcraft:bulging/exp_gem"/>
-<recipe id="anvilcraft:bulging/exp_fluid_cauldron"/>
+<recipe id="anvilcraft:solid_liquid/exp_gem"/>
+<recipe id="anvilcraft:solid_liquid/exp_fluid_cauldron"/>
 </row>
 
 - A full cauldron of experience fluid hit by an anvil consumes all the fluid to produce one Experience Gem

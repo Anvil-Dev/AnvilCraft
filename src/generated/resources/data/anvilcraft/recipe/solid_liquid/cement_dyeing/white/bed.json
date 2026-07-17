@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "anvilcraft:white_cement",
+  "ingredients": [
+    {
+      "items": "#minecraft:beds"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:white_bed"
+    }
+  ]
+}

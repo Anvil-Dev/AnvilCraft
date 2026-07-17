@@ -48,7 +48,7 @@ items:
 
 # Cement
 
-<recipe id="anvilcraft:bulging/cement_cauldron"/>
+<recipe id="anvilcraft:solid_liquid/cement_cauldron"/>
 
 - The cement produced defaults to gray. Dropping dye into the cauldron and striking with an anvil can change the color.
 

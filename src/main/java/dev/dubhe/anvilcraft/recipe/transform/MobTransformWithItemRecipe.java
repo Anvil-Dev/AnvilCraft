@@ -5,7 +5,6 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
-import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import net.minecraft.core.RegistryAccess;
@@ -45,7 +44,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public record MobTransformWithItemRecipe(
     EntityType<?> input,
@@ -127,10 +125,7 @@ public record MobTransformWithItemRecipe(
     }
 
     public boolean testItem(ItemStack item) {
-        AtomicBoolean result = new AtomicBoolean(false);
-        ListUtil.safelyGet(this.itemIngredients(), 0)
-            .ifPresent(ingredient -> result.set(ingredient.test(item)));
-        return result.get();
+        return !this.itemIngredients().isEmpty() && this.itemIngredients().getFirst().test(item);
     }
 
     @Override

@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.AbstractProcessRecipe;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -21,9 +20,10 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
     private final BlockStatePredicate initialBlock;
     private final List<ProceduralProcessStep> steps = new ArrayList<>();
     private ChanceBlockState resultBlock = null;
-    private ItemStack icon = null;
+    private Optional<ItemStackTemplate> icon = Optional.empty();
     private int loop = 1;
     private Optional<Identifier> displayedModel = Optional.empty();
+    private final List<Identifier> displayedModels = new ArrayList<>();
     private Optional<ProceduralProcessStep> mfs = Optional.empty();
 
     public ProceduralProcessRecipeBuilder(BlockStatePredicate initialBlock) {
@@ -65,8 +65,8 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
         return this;
     }
 
-    public ProceduralProcessRecipeBuilder icon(ItemStack icon) {
-        this.icon = icon;
+    public ProceduralProcessRecipeBuilder icon(ItemStackTemplate icon) {
+        this.icon = Optional.of(icon);
         return this;
     }
 
@@ -90,6 +90,12 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
         return this;
     }
 
+    public ProceduralProcessRecipeBuilder displayedModels(Identifier... modelIds) {
+        this.displayedModels.clear();
+        this.displayedModels.addAll(List.of(modelIds));
+        return this;
+    }
+
     @Override
     public ProceduralProcessRecipe buildRecipe() {
         if (this.resultBlock == null) {
@@ -99,9 +105,6 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
                 this.resultBlock = new ChanceBlockState(Blocks.AIR.defaultBlockState(), 1f);
             }
         }
-        if (this.icon == null) {
-            this.icon = ItemStack.EMPTY;
-        }
         return new ProceduralProcessRecipe(
             this.initialBlock,
             this.steps,
@@ -109,6 +112,7 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
             this.icon,
             this.loop,
             this.displayedModel,
+            this.displayedModels,
             this.mfs
         );
     }
@@ -120,6 +124,9 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
         }
         if (this.steps.isEmpty()) {
             throw new IllegalArgumentException("Procedural Procession must have at least one step, RecipeId: " + id);
+        }
+        if (this.displayedModels.size() > this.steps.size()) {
+            throw new IllegalArgumentException("Displayed model count must not exceed step count, RecipeId: " + id);
         }
         for (ProceduralProcessStep step : this.steps) {
             if (!(step.content instanceof AbstractProcessRecipe<?>)) {
