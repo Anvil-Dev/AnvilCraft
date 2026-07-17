@@ -44,4 +44,8 @@ public class StorageSetting {
     private SortMode sort;
     private OrderMode order;
     private NbtDisplayMode nbtDisplay;
+
+    public StorageSetting() {
+        this(SearchMode.CLEAR, SortMode.COUNT, OrderMode.SEQUENTIAL, NbtDisplayMode.UNFOLD);
+    }
 }

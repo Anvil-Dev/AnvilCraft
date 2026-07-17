@@ -117,30 +117,31 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
         FilterContent content = filterStack.get(ModComponents.FILTER_CONTENT);
         if (content == null) return false;
 
-        boolean contentIsBlackList = content.blackList();
+        return content.blackList() == content.filter(stack);
+    }
+
+    public boolean filter(ItemStack stack) {
         // 遍历过滤列表中的每个物品进行匹配检查
-        for (ItemStack itemStack : content.list()) {
+        for (ItemStack itemStack : this.list()) {
             if (itemStack.isEmpty()) continue;
-            if (FilterContent.filter(itemStack, stack, content.includeComponents())) {
+            if (FilterContent.filter(itemStack, stack, this.includeComponents())) {
                 // 如果是白名单模式，找到匹配项则返回true；如果是黑名单模式，找到匹配项则返回false
-                return !contentIsBlackList;
+                return !this.blackList();
             }
         }
-
         // 如果是黑名单模式且未找到匹配项则返回true，否则返回false
-        return contentIsBlackList;
+        return this.blackList();
     }
 
     @Override
     public void addToTooltip(Item.TooltipContext ctx, Consumer<Component> consumer, TooltipFlag flag, DataComponentGetter components) {
-        FilterContent content = components.get(ModComponents.FILTER_CONTENT);
         Component matchComponent = Component.translatable(
-            content.includeComponents()
+            this.includeComponents()
             ? "screen.anvilcraft.filter.match_component"
             : "screen.anvilcraft.filter.mismatch_component"
         );
         Component listMode = Component.translatable(
-            content.blackList()
+            this.blackList()
             ? "screen.anvilcraft.filter.black_list"
             : "screen.anvilcraft.filter.white_list"
         );
@@ -150,5 +151,27 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
                 .append(listMode)
                 .withStyle(ChatFormatting.GRAY)
         );
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof FilterContent(NonNullList<ItemStack> list1, boolean components, boolean blackList1))) return false;
+        if (this.blackList != blackList1 || this.includeComponents() != components || this.list.size() != list1.size()) return false;
+        for (int i = 0; i < this.list().size(); i++) {
+            if (!ItemStack.isSameItemSameComponents(this.list.get(i), list1.get(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = Objects.hash(this.includeComponents(), this.blackList());
+        for (ItemStack stack : this.list()) {
+            hash *= 31;
+            hash += ItemStack.hashItemAndComponents(stack);
+        }
+        return hash;
     }
 }

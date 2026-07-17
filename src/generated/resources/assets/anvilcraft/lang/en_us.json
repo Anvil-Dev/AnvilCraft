@@ -1786,6 +1786,7 @@
   "screen.anvilcraft.storage.category.mode.blocklist": "Block Display",
   "screen.anvilcraft.storage.category.mode.unlimited": "Unlimited",
   "screen.anvilcraft.storage.category.name": "Name: %s",
+  "screen.anvilcraft.storage.category.setting.title": "Category Setting",
   "screen.anvilcraft.storage.category.tooltip": "Left click to move to alternates, right click to pin to top",
   "screen.anvilcraft.structure_scanner.info_title": "Structure Info",
   "screen.anvilcraft.structure_scanner.ready": "Scan ready",

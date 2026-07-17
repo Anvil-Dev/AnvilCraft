@@ -22,8 +22,6 @@ public class ModCategoryTypes {
         AnvilCraft.MOD_ID
     );
 
-    public static final DeferredHolder<ICategory.Type<?>, ICategory.HolderHolder.Type> WRAPPER = REGISTER
-        .register("wrapped", ICategory.HolderHolder.Type::new);
     public static final DeferredHolder<ICategory.Type<?>, BlockCategory.Type> BLOCK = REGISTER
         .register("block", BlockCategory.Type::new);
     public static final DeferredHolder<ICategory.Type<?>, UnstackableCategory.Type> UNSTACKABLE = REGISTER

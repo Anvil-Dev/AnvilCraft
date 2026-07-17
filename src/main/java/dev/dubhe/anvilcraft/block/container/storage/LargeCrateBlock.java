@@ -1,14 +1,14 @@
 package dev.dubhe.anvilcraft.block.container.storage;
 
+import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
-import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import dev.dubhe.anvilcraft.network.multiple.StoragePackets;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -17,7 +17,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -30,6 +29,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.api.distmarker.Dist;
 
 public class LargeCrateBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>
@@ -95,14 +95,13 @@ public class LargeCrateBlock
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        BlockEntity blockEntity = level.getBlockEntity(pos);
+        BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
         if (blockEntity instanceof LargeCrateBlockEntity entity) {
-            if (player instanceof ServerPlayer serverPlayer) {
-                if (serverPlayer.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
-                StoragePackets.sync(serverPlayer, entity.getId(), serverPlayer.registryAccess());
-                ModMenuTypes.open(serverPlayer, entity, pos);
+            if (player.isSpectator()) return InteractionResult.PASS;
+            if (player instanceof ServerPlayer) {
                 return InteractionResult.SUCCESS_SERVER;
-            } else {
+            } else if (level.isClientSide()) {
+                DistExecutor.run(Dist.CLIENT, () -> () -> StorageScreen.openScreen(entity.getBlockPos()));
                 return InteractionResult.SUCCESS;
             }
         }

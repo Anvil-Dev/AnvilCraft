@@ -656,8 +656,9 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.storage.category.mode.allowlist", "Allow Display");
         provider.add("screen.anvilcraft.storage.category.mode.blocklist", "Block Display");
         provider.add("screen.anvilcraft.storage.category.tooltip", "Left click to move to alternates, right click to pin to top");
-        provider.add("screen.anvilcraft.storage.category.add", "Left click when holding Filter to add custom category");
-        provider.add("screen.anvilcraft.storage.category.alternate.removable", "Left click to select, right click to delete this category");
-        provider.add("screen.anvilcraft.storage.category.alternate.unremovable", "Left click to select");
+        provider.add("screen.anvilcraft.storage.category.add", "Left click when selecting Filter to add custom category");
+        provider.add("screen.anvilcraft.storage.category.alternate.removable", "Left click to list, right click to delete this category");
+        provider.add("screen.anvilcraft.storage.category.alternate.unremovable", "Left click to list");
+        provider.add("screen.anvilcraft.storage.category.setting.title", "Category Setting");
     }
 }

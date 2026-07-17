@@ -3,8 +3,9 @@ package dev.dubhe.anvilcraft.saved.storage.category;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
-import dev.dubhe.anvilcraft.item.utility.FilterItem;
+import dev.dubhe.anvilcraft.item.property.component.FilterContent;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -14,11 +15,15 @@ import net.minecraft.world.item.ItemStackTemplate;
 
 import java.util.Objects;
 
-public record FilterCategory(ItemStackTemplate icon, Component name, ItemStack filter) implements ICategory {
+public record FilterCategory(ItemStackTemplate icon, Component name, FilterContent filter) implements ICategory {
     private static final Component DEFAULT_NAME = Component.translatable("category.anvilcraft.filter");
 
     public static FilterCategory from(ItemStack filter) {
-        return new FilterCategory(ItemStackTemplate.fromNonEmptyStack(filter), FilterCategory.findNameFromFilter(filter), filter);
+        return new FilterCategory(
+            ItemStackTemplate.fromNonEmptyStack(filter),
+            FilterCategory.findNameFromFilter(filter),
+            Objects.requireNonNull(filter.get(ModComponents.FILTER_CONTENT), "Not valid filter content")
+        );
     }
 
     private static Component findNameFromFilter(ItemStack filter) {
@@ -27,25 +32,12 @@ public record FilterCategory(ItemStackTemplate icon, Component name, ItemStack f
 
     @Override
     public boolean test(UnlimitedItemStack stack) {
-        return FilterItem.filter(this.filter, stack.getStack());
+        return this.filter.filter(stack.getStack());
     }
 
     @Override
     public Type getType() {
         return ModCategoryTypes.FILTER.get();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (!(o instanceof FilterCategory(ItemStackTemplate icon1, Component name1, ItemStack filter1))) return false;
-        return Objects.equals(this.name(), name1)
-               && ItemStack.isSameItemSameComponents(this.filter(), filter1)
-               && Objects.equals(this.icon(), icon1);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(this.icon(), this.name()) * 31 + ItemStack.hashItemAndComponents(this.filter());
     }
 
     public static class Type implements ICategory.Type<FilterCategory> {
@@ -56,7 +48,7 @@ public record FilterCategory(ItemStackTemplate icon, Component name, ItemStack f
             ComponentSerialization.flatRestrictedCodec(Integer.MAX_VALUE)
                 .fieldOf("name")
                 .forGetter(FilterCategory::name),
-            ItemStack.OPTIONAL_CODEC
+            FilterContent.CODEC
                 .fieldOf("filter")
                 .forGetter(FilterCategory::filter),
             FilterCategory::new
@@ -66,7 +58,7 @@ public record FilterCategory(ItemStackTemplate icon, Component name, ItemStack f
             FilterCategory::icon,
             ComponentSerialization.STREAM_CODEC,
             FilterCategory::name,
-            ItemStack.OPTIONAL_STREAM_CODEC,
+            FilterContent.STREAM_CODEC,
             FilterCategory::filter,
             FilterCategory::new
         );

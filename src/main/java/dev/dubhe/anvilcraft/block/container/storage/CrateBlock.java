@@ -1,23 +1,23 @@
 package dev.dubhe.anvilcraft.block.container.storage;
 
+import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
-import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import dev.dubhe.anvilcraft.network.multiple.StoragePackets;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.api.distmarker.Dist;
 import org.jspecify.annotations.Nullable;
 
 public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
@@ -52,12 +52,11 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
     ) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof CrateBlockEntity entity) {
-            if (player instanceof ServerPlayer serverPlayer) {
-                if (serverPlayer.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;
-                StoragePackets.sync(serverPlayer, entity.getId(), serverPlayer.registryAccess());
-                ModMenuTypes.open(serverPlayer, entity, pos);
+            if (player.isSpectator()) return InteractionResult.PASS;
+            if (player instanceof ServerPlayer) {
                 return InteractionResult.SUCCESS_SERVER;
-            } else {
+            } else if (level.isClientSide()) {
+                DistExecutor.run(Dist.CLIENT, () -> () -> StorageScreen.openScreen(entity.getBlockPos()));
                 return InteractionResult.SUCCESS;
             }
         }
