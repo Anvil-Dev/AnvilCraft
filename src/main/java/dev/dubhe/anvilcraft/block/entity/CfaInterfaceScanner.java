@@ -2,8 +2,10 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.items.IItemHandler;
 
 import java.util.ArrayList;
@@ -52,7 +54,7 @@ public final class CfaInterfaceScanner {
         List<CelestialForgingAnvilLaserInterfaceBlockEntity> result = new ArrayList<>();
         if (level == null) return result;
         scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
-            BlockEntity be = level.getBlockEntity(checkPos);
+            BlockEntity be = getLoadedBlockEntity(level, checkPos);
             if (be instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laserBe) {
                 result.add(laserBe);
             }
@@ -64,7 +66,7 @@ public final class CfaInterfaceScanner {
         List<IItemHandler> result = new ArrayList<>();
         if (level == null) return result;
         scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
-            BlockEntity be = level.getBlockEntity(checkPos);
+            BlockEntity be = getLoadedBlockEntity(level, checkPos);
             if (be instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logisticsBe) {
                 result.add(logisticsBe.getItemHandler());
             }
@@ -79,7 +81,7 @@ public final class CfaInterfaceScanner {
         List<IItemHandler> passive = new ArrayList<>();
         if (level == null) return new PrioritizedInterfaces<>(active, passive);
         scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
-            BlockEntity be = level.getBlockEntity(checkPos);
+            BlockEntity be = getLoadedBlockEntity(level, checkPos);
             if (be instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logisticsBe) {
                 (isActive(logisticsBe) ? active : passive).add(logisticsBe.getItemHandler());
             }
@@ -93,7 +95,7 @@ public final class CfaInterfaceScanner {
         List<CelestialForgingAnvilFluidInterfaceBlockEntity> result = new ArrayList<>();
         if (level == null) return result;
         scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
-            BlockEntity be = level.getBlockEntity(checkPos);
+            BlockEntity be = getLoadedBlockEntity(level, checkPos);
             if (be instanceof CelestialForgingAnvilFluidInterfaceBlockEntity fluidBe) {
                 result.add(fluidBe);
             }
@@ -107,7 +109,7 @@ public final class CfaInterfaceScanner {
         List<CelestialForgingAnvilFluidInterfaceBlockEntity> passive = new ArrayList<>();
         if (level == null) return new PrioritizedInterfaces<>(active, passive);
         scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
-            BlockEntity be = level.getBlockEntity(checkPos);
+            BlockEntity be = getLoadedBlockEntity(level, checkPos);
             if (be instanceof CelestialForgingAnvilFluidInterfaceBlockEntity fluidBe) {
                 (isActive(fluidBe) ? active : passive).add(fluidBe);
             }
@@ -126,7 +128,7 @@ public final class CfaInterfaceScanner {
         Map<BlockPos, T> result = new HashMap<>();
         if (level == null) return result;
         scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
-            BlockEntity be = level.getBlockEntity(checkPos);
+            BlockEntity be = getLoadedBlockEntity(level, checkPos);
             if (type.isInstance(be)) {
                 BlockPos relOffset = new BlockPos(
                     checkPos.getX() - controllerPos.getX(), 0,
@@ -135,5 +137,17 @@ public final class CfaInterfaceScanner {
             }
         });
         return result;
+    }
+
+    /**
+     * Reads a block entity without synchronously loading a chunk. This is important while a
+     * celestial forging anvil is being removed as part of chunk unloading.
+     */
+    private static BlockEntity getLoadedBlockEntity(Level level, BlockPos pos) {
+        if (level instanceof ServerLevel serverLevel) {
+            LevelChunk chunk = serverLevel.getChunkSource().getChunkNow(pos.getX() >> 4, pos.getZ() >> 4);
+            return chunk == null ? null : chunk.getBlockEntity(pos);
+        }
+        return level.isLoaded(pos) ? level.getBlockEntity(pos) : null;
     }
 }

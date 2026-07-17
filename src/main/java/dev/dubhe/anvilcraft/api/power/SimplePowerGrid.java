@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.Line;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.util.ColorUtil;
+import dev.dubhe.anvilcraft.util.geometry.DelaunayTriangulator;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -24,6 +25,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -62,7 +64,7 @@ public class SimplePowerGrid {
     private final BlockPos pos;
     private final List<BlockPos> blocks = new ArrayList<>();
     private final List<PowerComponentInfo> powerComponentInfoList = new ArrayList<>();
-    private List<Line> powerTransmitterLines = new ArrayList<>();
+    private Set<Line> powerTransmitterLines = Set.of();
     private final int generate; // 发电功率
     private final int consume; // 耗电功率
     private final boolean infinitePower; // 是否有无限电力
@@ -239,33 +241,53 @@ public class SimplePowerGrid {
     }
 
     private void createTransmitterVisualLines() {
-        List<Map.Entry<BlockPos, AABB>> shapes = this.powerComponentInfoList.stream()
+        if (!this.powerTransmitterLines.isEmpty()) return;
+        List<Map.Entry<Vec3, Integer>> shapes = this.powerComponentInfoList.stream()
             .filter(it -> it.type() == PowerComponentType.TRANSMITTER)
-            .map(it -> Map.entry(
-                it.pos(), new AABB(
-                    -it.range() + it.pos().getX(),
-                    -it.range() + it.pos().getY(),
-                    -it.range() + it.pos().getZ(),
-                    it.range() + 1 + it.pos().getX(),
-                    it.range() + 1 + it.pos().getY(),
-                    it.range() + 1 + it.pos().getZ()
-                )
-            ))
+            .map(it -> Map.entry(it.pos().getCenter(), it.range()))
             .toList();
-
-        for (int i = 0; i < shapes.size(); i++) {
-            Map.Entry<BlockPos, AABB> e1 = shapes.get(i);
-            for (int j = i + 1; j < shapes.size(); j++) {
-                Map.Entry<BlockPos, AABB> e2 = shapes.get(j);
-                AABB a = e1.getValue();
-                AABB b = e2.getValue();
-                if (a.intersects(b)) {
-                    Vec3 start = e1.getKey().getCenter();
-                    Vec3 end = e2.getKey().getCenter();
-                    powerTransmitterLines.add(new Line(start, end));
-                }
+        if (shapes.size() <= 2) {
+            if (shapes.size() == 2) {
+                this.powerTransmitterLines = Set.of(
+                    new Line(
+                        shapes.get(0).getKey(),
+                        shapes.get(1).getKey(),
+                        (float) shapes.get(0).getKey().distanceTo(shapes.get(1).getKey())
+                    )
+                );
             }
+            return;
         }
+        Map<Vec3, Integer> ranges = new HashMap<>();
+        for (Map.Entry<Vec3, Integer> shape : shapes) {
+            ranges.put(shape.getKey(), shape.getValue());
+        }
+        List<Vec3> points = shapes.stream().map(Map.Entry::getKey).toList();
+        Set<Line> lines = new HashSet<>();
+        for (DelaunayTriangulator.Edge edge : DelaunayTriangulator.triangulate(
+            points.size(), index -> {
+                Vec3 point = points.get(index);
+                double offset = (point.y - 1024) / 2048;
+                return new DelaunayTriangulator.Point(index, point.x + offset, point.z + offset);
+            }
+        )) {
+            Vec3 start = points.get(edge.a());
+            Vec3 end = points.get(edge.b());
+            int startRange = ranges.getOrDefault(start, 0);
+            int endRange = ranges.getOrDefault(end, 0);
+            if (!SimplePowerGrid.isOverlap(start, startRange, end, endRange)) continue;
+            lines.add(new Line(start, end, (float) start.distanceTo(end)));
+        }
+        this.powerTransmitterLines = lines;
+    }
+
+    public static boolean isOverlap(Vec3 a, int rangeA, Vec3 b, int rangeB) {
+        return a.x - rangeA - 0.5 < b.x + rangeB + 0.5
+               && a.x + rangeA + 0.5 > b.x - rangeB - 0.5
+               && a.y - rangeA - 0.5 < b.y + rangeB + 0.5
+               && a.y + rangeA + 0.5 > b.y - rangeB - 0.5
+               && a.z - rangeA - 0.5 < b.z + rangeB + 0.5
+               && a.z + rangeA + 0.5 > b.z - rangeB - 0.5;
     }
 
     public void rebuildTransmitterVisualLines(@Nullable SimplePowerGrid previous) {

@@ -102,6 +102,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.InfiniteCollectorRendere
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeCauldronBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.OverseerBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntityRenderer;
@@ -227,7 +228,7 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<OverseerBlockEntity> OVERSEER = REGISTRUM.blockEntity(
         "overseer",
         OverseerBlockEntity::createBlockEntity
-    ).validBlock(ModBlocks.OVERSEER_BLOCK).register();
+    ).renderer(() -> OverseerBlockEntityRenderer::new).validBlock(ModBlocks.OVERSEER_BLOCK).register();
 
     public static final BlockEntityEntry<ChargerBlockEntity> CHARGER = REGISTRUM.blockEntity("charger", ChargerBlockEntity::new)
         .renderer(() -> ChargerBlockRenderer::new)

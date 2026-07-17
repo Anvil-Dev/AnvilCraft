@@ -29,12 +29,13 @@ import org.jetbrains.annotations.Nullable;
 public class OverseerBlock
     extends SimpleMultiPartBlock<Vertical3PartHalf>
     implements IHammerRemovable, IHasMultiBlock, EntityBlock {
-    private static final VoxelShape OVERSEER_BASE =
-        Shapes.or(Block.box(0, 0, 0, 16, 4, 16), Block.box(2, 8, 2, 14, 16, 14));
-    private static final VoxelShape OVERSEER_MID = Block.box(2, 0, 2, 14, 16, 14);
-    private static final VoxelShape OVERSEER_TOP = Block.box(2, 0, 2, 14, 16, 14);
+    private static final VoxelShape OVERSEER_BOTTOM =
+        Shapes.or(Block.box(0, 0, 0, 16, 4, 16), Block.box(2, 8, 2, 14, 48, 14));
+    private static final VoxelShape OVERSEER_MID = OVERSEER_BOTTOM.move(0, -1, 0);
+    private static final VoxelShape OVERSEER_TOP = OVERSEER_BOTTOM.move(0, -2, 0);
+    public static final int MAX_LEVEL = 4;
     public static final EnumProperty<Vertical3PartHalf> HALF = EnumProperty.create("half", Vertical3PartHalf.class);
-    public static final IntegerProperty LEVEL = IntegerProperty.create("level", 0, 3);
+    public static final IntegerProperty LEVEL = IntegerProperty.create("level", 0, MAX_LEVEL);
 
     public OverseerBlock(Properties properties) {
         super(properties);
@@ -68,6 +69,10 @@ public class OverseerBlock
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
+        if (state.getValue(HALF) == Vertical3PartHalf.MID
+            && state.getValue(LEVEL) == MAX_LEVEL) {
+            return RenderShape.INVISIBLE;
+        }
         return RenderShape.MODEL;
     }
 
@@ -81,7 +86,7 @@ public class OverseerBlock
         return switch (state.getValue(HALF)) {
             case TOP -> OVERSEER_TOP;
             case MID -> OVERSEER_MID;
-            case BOTTOM -> OVERSEER_BASE;
+            case BOTTOM -> OVERSEER_BOTTOM;
         };
     }
 
