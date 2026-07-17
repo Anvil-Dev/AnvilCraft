@@ -130,6 +130,8 @@ public class ItemTooltipManager {
             ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.asItem(), """
                Extreme heat has broken its mass-energy balance; injecting mass will transform it into Transcendium
                May degrade into Netherite upon cooling""");
+        NORMAL.put(ModBlocks.EMBER_DECO_BLOCK.asItem(), "Ember Metal decorative block, low content, not explosion proof");
+        NORMAL.put(ModBlocks.EMBER_DECO_OUTLINE.asItem(), "Ember Metal decorative block, low content, not explosion proof");
         NORMAL.put(ModItems.EMBER_METAL_INGOT.get(), "A piece of Netherite tempered in fire for eons");
         NORMAL.put(ModItems.FROST_METAL_INGOT.get(), "A piece of Royal Steel tempered in extreme cold for eons");
         NORMAL.put(ModItems.MAGNET_INGOT.get(), "A magnetized iron ingot");
@@ -295,8 +297,8 @@ public class ItemTooltipManager {
             ModBlocks.TRANSCENDENCE_ANVIL.asItem(), """
             Ignores enchantment level limits, and Anvil Looting produces additional drops
             Immune to most destruction methods, does not degrade from falling""");
-        NORMAL.put(ModBlocks.TRANSCENDENCE_DECO_BLOCK.asItem(), "Transcendium decorative block; its low Transcendium content means it is not indestructible");
-        NORMAL.put(ModBlocks.TRANSCENDENCE_DECO_OUTLINE.asItem(), "Transcendium decorative block; its low Transcendium content means it is not indestructible");
+        NORMAL.put(ModBlocks.TRANSCENDENCE_DECO_BLOCK.asItem(), "Transcendium decorative block – low content, not indestructible.");
+        NORMAL.put(ModBlocks.TRANSCENDENCE_DECO_OUTLINE.asItem(), "Transcendium decorative block – low content, not indestructible.");
         NORMAL.put(ModBlocks.FROST_GRINDSTONE.asItem(), "Selectively removes individual enchantments, Explosion proof");
         NORMAL.put(ModBlocks.FROST_SMITHING_TABLE.asItem(), "Works with Permutation and Deformation smithing templates, Explosion proof");
         NORMAL.put(ModBlocks.FROST_METAL_BLOCK.asItem(), "A large block of Royal Steel tempered in extreme cold for eons, Explosion proof");
@@ -305,12 +307,14 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CUT_FROST_METAL_PILLAR.asItem(), "Frost Metal decorative block, Explosion proof");
         NORMAL.put(ModBlocks.CUT_FROST_METAL_SLAB.asItem(), "Frost Metal decorative block, Explosion proof");
         NORMAL.put(ModBlocks.CUT_FROST_METAL_STAIRS.asItem(), "Frost Metal decorative block, Explosion proof");
+        NORMAL.put(ModBlocks.FROST_DECO_BLOCK.asItem(), "Frost Metal decorative block, low content, not explosion proof");
+        NORMAL.put(ModBlocks.FROST_DECO_OUTLINE.asItem(), "Frost Metal decorative block, low content, not explosion proof");
         NORMAL.put(ModBlocks.SPECTRAL_ANVIL.asItem(), "Creates phantom shadows when the upper magnet is demagnetized");
         NORMAL.put(ModBlocks.BLOCK_PLACER.asItem(), "Places blocks in front when powered by redstone");
         NORMAL.put(ModBlocks.STRUCTURE_SCANNER.asItem(), "Scans and stores structures in Structure Disk");
         NORMAL.put(ModItems.STRUCTURE_DISK.get(), "Stores structure data, used in blueprint mode of Smart Block Placer");
         NORMAL.put(ModBlocks.SMART_BLOCK_PLACER.asItem(), "Advanced block placer with 5x5x5 configurable placement area");
-        NORMAL.put(ModBlocks.FISH_TANK.asItem(), "Used for anvil synthesis and provides underwater breathing when worn");
+        NORMAL.put(ModBlocks.FISH_TANK.asItem(), "It is sturdier than it looks, used for anvil synthesis");
         NORMAL.put(ModBlocks.BLOCK_DEVOURER.asItem(), "Breaks 3×3 area of blocks in front when powered by redstone");
         NORMAL.put(ModBlocks.INDUCTION_LIGHT.asItem(), "Provides lighting and configurable special modes");
         NORMAL.put(ModBlocks.HELIOSTATS.asItem(), "Heats targeted blocks during the day");
@@ -407,7 +411,8 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.CORRUPTED_BEACON_ACTIVATOR.get(), "Hold right-click to consume power and fire a corruption beam");
         NORMAL.put(ModItems.TESLA_GUN.get(), "Hold right-click to consume power and fire chain lightning that bounces between mobs");
         NORMAL.put(ModItems.ANVIL_RAILGUN.get(), "Hold right-click to consumes power to charge up and launch a high-speed anvil");
-        NORMAL.put(ModItems.SPECTRAL_SLINGSHOT.get(), "Hold right-click to consume power and fires spectral weapons");
+        NORMAL.put(ModItems.SPECTRAL_WEAPON_LAUNCHER.get(), "Hold right-click to consume power and fires spectral weapons");
+        NORMAL.put(ModItems.SPECTRAL_SLINGSHOT.get(), "Hold right-click to fire spectral weapons");
         NORMAL.put(ModItems.ENERGY_WEAPON_PLATFORM.get(), "640 MFE stored, but will only inherit the result of Energy Weapon Making");
         NORMAL.put(
             ModBlocks.INFINITE_COLLECTOR.asItem(), """
@@ -417,6 +422,28 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.LOAD_MONITOR.asItem(), "Monitor the grid load condition, can output a signal by redstone comparator");
         NORMAL.put(ModBlocks.CHUTE.asItem(), "An advanced Hopper, can transfer a full stack of items at a time");
         NORMAL.put(ModBlocks.MAGNETIC_CHUTE.asItem(), "An advanced Chute, with the ability to transport items vertically");
+        NORMAL.put(ModBlocks.EXP_COLLECTOR.asItem(), "Collect nearby Exp orbs and convert them into Exp Fluid");
+        NORMAL.put(ModBlocks.GIANT_ANVIL.asItem(), "An extremely huge anvil");
+        NORMAL.put(ModBlocks.LARGE_CAULDRON.asItem(), "An extremely huge cauldron");
+        NORMAL.put(ModBlocks.STAMPING_PLATFORM.asItem(), "Performs stamping recipes");
+        NORMAL.put(ModBlocks.CRUSHING_TABLE.asItem(), "Performs crushing recipes");
+        NORMAL.put(
+            ModBlocks.JEWEL_CRAFTING_TABLE.asItem(), """
+                A crafting station for rare items
+                Amulets, Smithing Templates, Music Discs, Trial Keys, Totems, and more"""
+        );
+        NORMAL.put(ModFoodItems.CHOCOLATE.get(), "Tasty chocolate made with real cocoa butter, eat a bite to gain Speed");
+        NORMAL.put(ModFoodItems.CHOCOLATE_BLACK.get(), "Tasty dark chocolate made with real cocoa butter, eat a bite to gain Haste");
+        NORMAL.put(ModFoodItems.CHOCOLATE_WHITE.get(), "Tasty white chocolate made with real cocoa butter, eat a bite to gain Jump Boost");
+        NORMAL.put(ModItems.SEEDS_PACK.get(), "Open to obtain a random seed or crop");
+        NORMAL.put(ModItems.EXP_GEM.get(), "Right-click to extract the XP contained inside");
+        NORMAL.put(ModBlocks.CONTROLLABLE_SAND.asItem(), "Sand that can be controlled by redstone to rise or fall");
+        NORMAL.put(ModBlocks.PLYWOOD_BLOCK.asItem(), "Solid wood? Not a chance");
+        NORMAL.put(ModBlocks.PLYWOOD_STAIRS.asItem(), "Solid wood? Not a chance");
+        NORMAL.put(ModBlocks.PLYWOOD_SLAB.asItem(), "Solid wood? Not a chance");
+        NORMAL.put(ModBlocks.ANCIENT_SEA_REEF.asItem(), "A chunk of sea reef – looks like it's hiding some treasure");
+        NORMAL.put(ModBlocks.VOID_MATTER_BLOCK.asItem(), "A chunk of void...");
+        NORMAL.put(ModBlocks.CREATIVE_GENERATOR.asItem(), "Provides up to 8192 kW of power, can also be used as a load");
 
         SHIFT.put(
             ModItems.LASER_GUN.get(), """
@@ -444,10 +471,15 @@ public class ItemTooltipManager {
                 Enchanting the Anvil Railgun can boost damage, reduce charge time, or change its firing behavior"""
         );
         SHIFT.put(
-            ModItems.SPECTRAL_SLINGSHOT.get(), """
-                Hold right-click to load your offhand weapon into the Spectral Slingshot
+            ModItems.SPECTRAL_WEAPON_LAUNCHER.get(), """
+                Hold right-click to load your offhand weapon into the Spectral Weapon Launcher
                 Once loaded, right-click again to fire a spectral copy of that weapon, dealing damage
                 Each shot has a cooldown, which can be reduced by enchanting the launcher"""
+        );
+        SHIFT.put(
+            ModItems.SPECTRAL_SLINGSHOT.get(), """
+                Hold right-click to load your offhand weapon into the Spectral Slingshot
+                Once loaded, right-click again to fire a spectral copy of that weapon, dealing damager"""
         );
         SHIFT.put(
             ModItems.ENERGY_WEAPON_PLATFORM.get(), """
@@ -494,7 +526,7 @@ public class ItemTooltipManager {
         );
         SHIFT.put(
             ModBlocks.FISH_TANK.asItem(), """
-                It is sturdier than it looks and can be used as a substitute for the alchemy pot to perform related anvil synthesis
+                Can be used as a substitute for the alchemy pot to perform related anvil synthesis
                 Wearing it on your head provides a temporary underwater breathing effect
                 Right-click the top with an item in hand to place the item inside
                 Right-click the lower part of the fish tank with a tropical fish bucket in hand to release the tropical fish
@@ -613,6 +645,24 @@ public class ItemTooltipManager {
                 Use scroll wheel to set slot stack limit
                 Multiple Magnetic Chutes connected turn into a Simple Magnetic Chute
                 Simple Magnetic Chute has only one slot and cannot be locked by redstone"""
+        );
+        SHIFT.put(
+            ModBlocks.GIANT_ANVIL.asItem(), """
+                Can be used for Multiblock Crafting and Multiblock Conversion
+                Works with ground blocks to trigger Ground Shaking
+                Can also perform crafting actions with a Giant Cauldron"""
+        );
+        SHIFT.put(
+            ModBlocks.GIANT_ANVIL.asItem(), """
+                Can be used for Multiblock Crafting and Multiblock Conversion
+                Works with ground blocks to trigger Ground Shaking
+                Can also perform crafting actions with a Giant Cauldron"""
+        );
+        SHIFT.put(
+            ModBlocks.LARGE_CAULDRON.asItem(), """
+                Can perform all cauldron crafting recipes
+                Compatible with multiple processing types via different base blocks
+                Can store multiple fluids"""
         );
 
         Map<Item, String> allTooltips = Maps.newHashMap();
