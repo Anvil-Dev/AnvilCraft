@@ -44,6 +44,10 @@ public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
             .subtitle("subtitles.anvilcraft.giant_anvil_resin_shock")
             .with(sound(ResourceLocation.withDefaultNamespace("block.slime_block.break"), SoundDefinition.SoundType.EVENT)));
 
+        add(ModSoundEvents.NEOFORGE_LAND, definition()
+            .subtitle("subtitles.entity.fox.ambient")
+            .with(sound(ResourceLocation.withDefaultNamespace("entity.fox.ambient"), SoundDefinition.SoundType.EVENT)));
+
         add(ModSoundEvents.TESLA_TOWER_STRIKE, definition()
             .subtitle("subtitles.anvilcraft.tesla_tower_strike")
             .with(sound(AnvilCraft.of("tesla_tower_strike"))));

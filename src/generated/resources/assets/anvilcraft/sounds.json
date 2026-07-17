@@ -45,6 +45,15 @@
     ],
     "subtitle": "subtitles.anvilcraft.giant_anvil_shock"
   },
+  "neoforge_land": {
+    "sounds": [
+      {
+        "type": "event",
+        "name": "entity.fox.ambient"
+      }
+    ],
+    "subtitle": "subtitles.entity.fox.ambient"
+  },
   "plasma_jet": {
     "sounds": [
       {
