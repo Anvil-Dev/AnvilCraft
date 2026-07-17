@@ -683,7 +683,7 @@
   "command.anvilcraft.multiphase.add.full": "This item already has four enchantment spaces",
   "command.anvilcraft.multiphase.add.success": "Added %1$s enchantment space(s); total: %2$s",
   "command.anvilcraft.multiphase.info.phase": "[%1$s] %2$s, repair cost: %3$s, enchantments: %4$s",
-  "command.anvilcraft.multiphase.info.summary": "Multiphase spaces: %1$s, active: %2$s, Merciless: %3$s",
+  "command.anvilcraft.multiphase.info.summary": "Multiphase spaces: %1$s, active: %2$s",
   "command.anvilcraft.multiphase.no_item": "The main-hand item does not have Multiphase",
   "command.anvilcraft.overseer.entry": "[%1$s]@Lv.%2$s, random tick: %3$s",
   "command.anvilcraft.overseer.head": "All overseers in %s",

@@ -35,20 +35,18 @@ public class MultiphasePackets {
         }
     }
 
-    public record ChangePhase(InteractionHand hand, byte index, boolean merciless) implements IServerboundPacket {
+    public record ChangePhase(InteractionHand hand, byte index) implements IServerboundPacket {
         public static final Type<ChangePhase> TYPE = MultiphasePackets.of("change_phase");
         public static final StreamCodec<ByteBuf, ChangePhase> STREAM_CODEC = StreamCodec.composite(
             StreamCodecUtil.enumStreamCodec(InteractionHand.class),
             ChangePhase::hand,
             ByteBufCodecs.BYTE,
             ChangePhase::index,
-            ByteBufCodecs.BOOL,
-            ChangePhase::merciless,
             ChangePhase::new
         );
 
-        public ChangePhase(InteractionHand hand, int index, boolean merciless) {
-            this(hand, (byte) index, merciless);
+        public ChangePhase(InteractionHand hand, int index) {
+            this(hand, (byte) index);
         }
 
         @Override
@@ -60,7 +58,7 @@ public class MultiphasePackets {
         public void handleOnServer(Player player) {
             ItemStack stack = player.getItemInHand(this.hand);
             if (!stack.has(ModComponents.MULTIPHASE)) return;
-            stack.get(ModComponents.MULTIPHASE).select(stack, this.index, this.merciless);
+            stack.get(ModComponents.MULTIPHASE).select(stack, this.index);
         }
     }
 

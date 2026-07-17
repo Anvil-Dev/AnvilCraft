@@ -730,7 +730,7 @@ public class ModBlocks {
         .lang("Electric Heater")
         .properties(properties -> properties.isValidSpawn(Blocks::never)
             .noOcclusion()
-            .lightLevel(state -> state.getValue(OVERLOAD) ? 0 : 15))
+            .lightLevel(state -> state.getValue(OVERLOAD) || state.getValue(BlockStateProperties.POWERED) ? 0 : 15))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .build()
@@ -916,7 +916,7 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.isValidSpawn(Blocks::never).lightLevel(state -> {
-            if (state.getValue(OVERLOAD)) {
+            if (state.getValue(OVERLOAD) || state.getValue(BlockStateProperties.POWERED)) {
                 return 6;
             } else {
                 return 15;
@@ -938,7 +938,7 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.isValidSpawn(Blocks::never).lightLevel(state -> {
-            if (state.getValue(OVERLOAD)) {
+            if (state.getValue(OVERLOAD) || state.getValue(BlockStateProperties.POWERED)) {
                 return 6;
             } else {
                 return 15;
@@ -960,7 +960,7 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.isValidSpawn(Blocks::never).lightLevel(state -> {
-            if (state.getValue(OVERLOAD)) {
+            if (state.getValue(OVERLOAD) || state.getValue(BlockStateProperties.POWERED)) {
                 return 6;
             } else {
                 return 15;

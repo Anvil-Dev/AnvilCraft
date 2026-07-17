@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -30,11 +31,12 @@ import org.jetbrains.annotations.Nullable;
 
 public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
     public static final VoxelShape SHAPE = Shapes.or(Block.box(0, 2, 0, 16, 16, 16), Block.box(1, 0, 1, 15, 2, 15));
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
     public HeaterBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(OVERLOAD, true));
+        this.registerDefaultState(this.stateDefinition.any().setValue(POWERED, false).setValue(OVERLOAD, true));
     }
 
     @Override
@@ -45,7 +47,9 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
     @Override
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(OVERLOAD, true);
+        return this.defaultBlockState()
+            .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()))
+            .setValue(OVERLOAD, true);
     }
 
     @Nullable
@@ -56,7 +60,23 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(OVERLOAD);
+        builder.add(POWERED, OVERLOAD);
+    }
+
+    @Override
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
+        if (level.isClientSide) return;
+        boolean powered = level.hasNeighborSignal(pos);
+        if (state.getValue(POWERED) != powered) {
+            level.setBlock(pos, state.setValue(POWERED, powered), Block.UPDATE_CLIENTS);
+        }
     }
 
     @Override
@@ -76,6 +96,7 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
         if (state.is(ModBlocks.HEATER.get())
+            && !state.getValue(POWERED)
             && !state.getValue(OVERLOAD)
             && !entity.isSteppingCarefully()
             && entity instanceof LivingEntity) {

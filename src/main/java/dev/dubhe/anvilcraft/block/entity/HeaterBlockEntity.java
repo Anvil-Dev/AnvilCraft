@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
-import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.block.HeaterBlock;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import lombok.Getter;
@@ -39,7 +39,7 @@ public class HeaterBlockEntity extends BlockEntity implements IPowerConsumer {
 
     @Override
     public int getInputPower() {
-        return HeaterBlockEntity.POWER;
+        return this.getBlockState().getValue(HeaterBlock.POWERED) ? 0 : HeaterBlockEntity.POWER;
     }
 
     @Override
@@ -53,14 +53,11 @@ public class HeaterBlockEntity extends BlockEntity implements IPowerConsumer {
     }
 
     public void tick(Level level, BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
-        if (level.hasNeighborSignal(pos)) {
-            if (state.hasProperty(IPowerComponent.OVERLOAD) && !state.getValue(IPowerComponent.OVERLOAD)) {
-                level.setBlockAndUpdate(pos, state.setValue(IPowerComponent.OVERLOAD, true));
-            }
+        this.flushState(level, pos);
+        if (this.getBlockState().getValue(HeaterBlock.POWERED)) {
+            HeaterManager.removeProducer(pos, level, ModHeaterInfos.HEATER);
             return;
         }
-        this.flushState(level, pos);
         HeaterManager.addProducer(pos, level, ModHeaterInfos.HEATER);
     }
 
