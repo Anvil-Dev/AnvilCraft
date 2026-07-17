@@ -37,11 +37,7 @@
   },
   "rotation_speed": 4,
   "seed_items": [
-    "minecraft:magma_block",
-    "minecraft:netherrack",
-    "minecraft:blackstone",
-    "minecraft:basalt",
-    "anvilcraft:earth_core_shard_block"
+    "minecraft:magma_block"
   ],
   "space": 9,
   "time": 13

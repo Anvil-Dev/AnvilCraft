@@ -62,14 +62,7 @@ public class SpecialCelestialBodyRecipeLoader {
                 2,
                 0f,
                 List.of(
-                    mc("grass_block"),
-                    mc("podzol"),
-                    mc("mycelium"),
-                    mc("dirt"),
-                    mc("coarse_dirt"),
-                    mc("rooted_dirt"),
-                    mc("moss_block"),
-                    mc("mud")
+                    mc("grass_block")
                 ),
                 List.of(item("minecraft:raw_copper", 50), item("minecraft:raw_iron", 30), item("minecraft:raw_gold", 20)),
                 List.of(item("minecraft:water", 100)),
@@ -120,7 +113,7 @@ public class SpecialCelestialBodyRecipeLoader {
                 2,
                 2,
                 22f,
-                List.of(anvil("rotten_flesh_block"), mc("bone_block")),
+                List.of(anvil("rotten_flesh_block")),
                 List.of(
                     item("minecraft:rotten_flesh", 30),
                     item("minecraft:bone", 30),
@@ -181,7 +174,7 @@ public class SpecialCelestialBodyRecipeLoader {
                 0,
                 4,
                 0f,
-                List.of(mc("magma_block"), mc("netherrack"), mc("blackstone"), mc("basalt"), anvil("earth_core_shard_block")),
+                List.of(mc("magma_block")),
                 List.of(
                     item("anvilcraft:raw_tungsten", 30),
                     item("minecraft:raw_gold", 30),
@@ -240,7 +233,7 @@ public class SpecialCelestialBodyRecipeLoader {
                 -1,
                 0,
                 0f,
-                List.of(anvil("creative_generator"), mc("command_block"), mc("structure_block")),
+                List.of(anvil("creative_generator")),
                 List.of(),
                 List.of(),
                 List.of(),
