@@ -21,10 +21,12 @@ import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.util.Mth;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidType;
+
+import java.util.Comparator;
+import java.util.List;
 
 public class LargeFluidTankBlockEntityRenderer implements BlockEntityRenderer<LargeFluidTankBlockEntity> {
     public LargeFluidTankBlockEntityRenderer(BlockEntityRendererProvider.Context ignore) {
@@ -37,42 +39,54 @@ public class LargeFluidTankBlockEntityRenderer implements BlockEntityRenderer<La
 
     @Override
     public void render(
-        LargeFluidTankBlockEntity tank, float tickDelta, PoseStack ms, MultiBufferSource vertexConsumers, int light, int overlay) {
-        if (tank.getTank().getFluid().isEmpty()) return;
+        LargeFluidTankBlockEntity tank,
+        float tickDelta,
+        PoseStack ms,
+        MultiBufferSource vertexConsumers,
+        int light,
+        int overlay
+    ) {
         if (!tank.isMainPart()) return;
+        List<FluidStack> fluids = tank.getStoredFluids().stream()
+            .filter(fluid -> !fluid.isEmpty())
+            .sorted(Comparator
+                .comparingInt(FluidStack::getAmount)
+                .reversed()
+                .thenComparing(fluid -> BuiltInRegistries.FLUID.getKey(fluid.getFluid()).toString()))
+            .toList();
+        if (fluids.isEmpty()) return;
 
-        /*
-         *
-         * // Uncomment to allow the liquid to rotate with the tank ms.pushPose(); ms.translate(0.5, 0.5, 0.5);
-         * FacingToRotation.get(tank.getForward(), tank.getUp()).push(ms); ms.translate(-0.5, -0.5, -0.5);
-         */
-        float fill = (float) tank.getTank().getFluid().getAmount() / tank.getTank().getCapacity();
-        if (fill <= 0.025) fill = 0.025f;
-        fill = Mth.clamp(fill, 0, 1);
-
-        drawFluidInTank(ms, vertexConsumers, light, tank.getTank().getFluid(), fill);
-
-        // ms.popPose();
+        long totalAmount = fluids.stream().mapToLong(FluidStack::getAmount).sum();
+        long renderAmount = tank.isEnhanced()
+            ? Math.max(totalAmount, LargeFluidTankBlockEntity.INFINITY_THRESHOLD)
+            : LargeFluidTankBlockEntity.BASE_CAPACITY;
+        double layerBottom = 0;
+        for (FluidStack fluid : fluids) {
+            if (layerBottom >= 1) break;
+            double layerTop = Math.min(1, layerBottom + (double) fluid.getAmount() / renderAmount);
+            drawFluidInTank(ms, vertexConsumers, light, fluid, layerBottom, layerTop);
+            layerBottom = layerTop;
+        }
     }
 
     private static final float TANK_W = 4 / 16f + 0.001f; // avoiding Z-fighting
 
-    public static void drawFluidInTank(PoseStack ps, MultiBufferSource mbs, int light, FluidStack fluid, float fill) {
+    public static void drawFluidInTank(
+        PoseStack ps,
+        MultiBufferSource mbs,
+        int light,
+        FluidStack fluid,
+        double layerBottom,
+        double layerTop
+    ) {
         float height = 3 - 2 * TANK_W;
 
         float minX = TANK_W - 1;
-        float minY = TANK_W - 1;
+        float minY = (float) (TANK_W - 1 + layerBottom * height);
         float minZ = TANK_W - 1;
         float maxX = 2 - TANK_W;
-        float maxY = 2 - TANK_W;
+        float maxY = (float) (TANK_W - 1 + layerTop * height);
         float maxZ = 2 - TANK_W;
-
-        FluidType attributes = fluid.getFluid().getFluidType();
-        if (attributes.isLighterThanAir()) {
-            minY = maxY - fill * height;
-        } else {
-            maxY = minY + fill * height;
-        }
 
         FluidRenderHelper.INSTANCE.renderFluidBox(
             fluid,

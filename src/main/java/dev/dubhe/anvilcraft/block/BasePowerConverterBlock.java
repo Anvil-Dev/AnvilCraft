@@ -31,6 +31,7 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
     private final int inputPower;
 
     public static final DirectionProperty FACING = BlockStateProperties.FACING;
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
     /**
@@ -41,6 +42,7 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
         registerDefaultState(
             stateDefinition.any()
                 .setValue(FACING, Direction.DOWN)
+                .setValue(POWERED, false)
                 .setValue(OVERLOAD, true)
         );
         this.inputPower = inputPower;
@@ -48,7 +50,7 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, OVERLOAD);
+        builder.add(FACING, POWERED, OVERLOAD);
     }
 
     @Override
@@ -64,7 +66,25 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return defaultBlockState().setValue(FACING, context.getClickedFace().getOpposite());
+        return defaultBlockState()
+            .setValue(FACING, context.getClickedFace().getOpposite())
+            .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+    }
+
+    @Override
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
+        if (level.isClientSide) return;
+        boolean powered = level.hasNeighborSignal(pos);
+        if (state.getValue(POWERED) != powered) {
+            level.setBlock(pos, state.setValue(POWERED, powered), Block.UPDATE_CLIENTS);
+        }
     }
 
     @Nullable

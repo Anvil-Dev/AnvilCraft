@@ -18,11 +18,13 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -32,6 +34,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -47,6 +50,9 @@ public class LargeCauldronBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>
     implements MultiPartBlockEntity<Cube3x3PartHalf, LargeCauldronBlock>, IHammerRemovable {
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
+    private static final double WALL_THICKNESS = 0.25;
+    private static final double BOTTOM_WALL_MIN_Y = 0.5;
+    private static final double CLIMBING_EPSILON = 1.0E-5;
     private static final Map<Cube3x3PartHalf, VoxelShape> SHAPES = createShapes();
 
     public LargeCauldronBlock(Properties properties) {
@@ -103,6 +109,59 @@ public class LargeCauldronBlock
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return SHAPES.get(state.getValue(HALF));
+    }
+
+    @Override
+    public boolean isLadder(BlockState state, LevelReader level, BlockPos pos, LivingEntity entity) {
+        return entity != null && touchesWall(state, pos, entity.getBoundingBox());
+    }
+
+    public static @Nullable BlockPos findClimbableWall(LevelReader level, LivingEntity entity) {
+        AABB box = entity.getBoundingBox();
+        BlockPos min = BlockPos.containing(
+            box.minX - CLIMBING_EPSILON,
+            box.minY - CLIMBING_EPSILON,
+            box.minZ - CLIMBING_EPSILON
+        );
+        BlockPos max = BlockPos.containing(
+            box.maxX + CLIMBING_EPSILON,
+            box.maxY + CLIMBING_EPSILON,
+            box.maxZ + CLIMBING_EPSILON
+        );
+        for (BlockPos pos : BlockPos.betweenClosed(min, max)) {
+            BlockState state = level.getBlockState(pos);
+            if (state.getBlock() instanceof LargeCauldronBlock && touchesWall(state, pos, box)) {
+                return pos.immutable();
+            }
+        }
+        return null;
+    }
+
+    private static boolean touchesWall(BlockState state, BlockPos pos, AABB box) {
+        Cube3x3PartHalf part = state.getValue(HALF);
+        double wallMinY = pos.getY() + (part.getOffsetY() == 0 ? BOTTOM_WALL_MIN_Y : 0.0);
+        double wallMaxY = pos.getY() + 1.0;
+        if (!overlaps(box.minY, box.maxY, wallMinY, wallMaxY)) return false;
+
+        if (part.getOffsetX() != 0 && overlaps(box.minZ, box.maxZ, pos.getZ(), pos.getZ() + 1.0)) {
+            double wallMinX = pos.getX() + (part.getOffsetX() < 0 ? 0.0 : 1.0 - WALL_THICKNESS);
+            double wallMaxX = wallMinX + WALL_THICKNESS;
+            if (touches(box.minX, box.maxX, wallMinX, wallMaxX)) return true;
+        }
+        if (part.getOffsetZ() != 0 && overlaps(box.minX, box.maxX, pos.getX(), pos.getX() + 1.0)) {
+            double wallMinZ = pos.getZ() + (part.getOffsetZ() < 0 ? 0.0 : 1.0 - WALL_THICKNESS);
+            double wallMaxZ = wallMinZ + WALL_THICKNESS;
+            return touches(box.minZ, box.maxZ, wallMinZ, wallMaxZ);
+        }
+        return false;
+    }
+
+    private static boolean touches(double min, double max, double wallMin, double wallMax) {
+        return Math.abs(max - wallMin) <= CLIMBING_EPSILON || Math.abs(min - wallMax) <= CLIMBING_EPSILON;
+    }
+
+    private static boolean overlaps(double min, double max, double otherMin, double otherMax) {
+        return max > otherMin + CLIMBING_EPSILON && min < otherMax - CLIMBING_EPSILON;
     }
 
     @Override

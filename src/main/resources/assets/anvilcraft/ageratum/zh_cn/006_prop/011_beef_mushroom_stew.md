@@ -8,7 +8,7 @@ items:
 
 # 牛肉炖蘑菇
 
-<recipe id="anvilcraft:boiling/beef_mushroom_stew"/>
+<recipe id="anvilcraft:fast_cooking/beef_mushroom_stew"/>
 
 提供16饱和度和10饥饿值
 

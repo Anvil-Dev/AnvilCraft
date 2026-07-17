@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "anvilcraft:yellow_cement",
+  "ingredients": [
+    {
+      "items": "#c:glass_blocks/cheap"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:yellow_stained_glass"
+    }
+  ]
+}

@@ -81,6 +81,7 @@ import dev.dubhe.anvilcraft.item.abnormal.RadiationItem;
 import dev.dubhe.anvilcraft.item.abnormal.SuperHeavyItem;
 import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
+import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.property.component.Providence;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.WrappedOthersAmulet;
@@ -105,6 +106,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
@@ -311,6 +313,11 @@ public class ModItems {
         .item("transcendence_dragon_rod", properties -> new DragonRodItem(properties, 13))
         .properties(properties -> properties.durability(3156)
             .fireResistant()
+            .component(ModComponents.MULTIPHASE, Multiphase.create())
+            .component(
+                DataComponents.ITEM_NAME,
+                Multiphase.firstPhaseName(Component.translatable("item.anvilcraft.transcendence_dragon_rod"))
+            )
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
             .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
             .component(ModComponents.PROVIDENCE, Providence.INSTANCE)

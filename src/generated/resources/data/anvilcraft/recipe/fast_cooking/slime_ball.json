@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:fast_cooking",
+  "fluid": "minecraft:water",
+  "ingredients": [
+    {
+      "items": "#c:resin"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:slime_ball"
+    }
+  ]
+}

@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.util.anvil;
 
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -19,6 +21,8 @@ import net.minecraft.world.item.enchantment.ItemEnchantments;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.LongPredicate;
 import java.util.function.ToIntFunction;
@@ -66,8 +70,11 @@ public class AnvilMenuResult {
         @Nullable String itemName,
         LongPredicate onAnvilChangeEventSender
     ) {
-        this.shouldCancel = false;
+        this.result = ItemStack.EMPTY;
+        this.xpCost = 0;
+        this.repairItemCountCost = 0;
         this.onlyRenaming = false;
+        this.shouldCancel = false;
 
         // 左侧为空或无法存储魔咒，则返回
         if (inputLeft.isEmpty() || !EnchantmentHelper.canStoreEnchantments(inputLeft)) {
@@ -87,6 +94,11 @@ public class AnvilMenuResult {
         // 发送事件，若事件取消，则返回
         if (!onAnvilChangeEventSender.test(tax)) {
             this.result = ItemStack.EMPTY;
+            return;
+        }
+
+        if (this.isMultiphaseMerge(inputLeft, inputRight)) {
+            this.createMultiphaseResult(player, inputLeft, inputRight, itemName);
             return;
         }
 
@@ -189,6 +201,113 @@ public class AnvilMenuResult {
         this.result = result;
     }
 
+    private boolean isMultiphaseMerge(ItemStack inputLeft, ItemStack inputRight) {
+        return !inputRight.isEmpty()
+               && inputLeft.is(inputRight.getItem())
+               && inputLeft.has(ModComponents.MULTIPHASE)
+               && inputRight.has(ModComponents.MULTIPHASE);
+    }
+
+    private void createMultiphaseResult(
+        Player player,
+        ItemStack inputLeft,
+        ItemStack inputRight,
+        @Nullable String itemName
+    ) {
+        Multiphase left = Objects.requireNonNull(inputLeft.get(ModComponents.MULTIPHASE)).capture(inputLeft.copy());
+        Multiphase right = Objects.requireNonNull(inputRight.get(ModComponents.MULTIPHASE)).capture(inputRight.copy());
+        List<Multiphase.Phase> mergedPhases = new ArrayList<>(left.phases());
+        boolean[] matchedRight = new boolean[right.phases().size()];
+        int matchedCount = 0;
+        int price = 0;
+        long tax = 0;
+        boolean hasOperation = false;
+
+        for (int leftIndex = 0; leftIndex < left.phases().size(); leftIndex++) {
+            int rightIndex = findMatchingPhase(left, leftIndex, right, matchedRight);
+            if (rightIndex < 0) {
+                if (left.phases().size() <= right.phases().size()) return;
+                continue;
+            }
+
+            matchedRight[rightIndex] = true;
+            matchedCount++;
+            Multiphase.Phase leftPhase = left.phases().get(leftIndex);
+            Multiphase.Phase rightPhase = right.phases().get(rightIndex);
+            if (rightPhase.enchantments().isEmpty()) continue;
+
+            ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(leftPhase.enchantments());
+            int phasePrice = this.applyEnchantment(
+                player,
+                inputLeft,
+                enchantments,
+                rightPhase.enchantments(),
+                false,
+                0
+            );
+            if (this.shouldCancel) return;
+
+            price = Math.clamp((long) price + phasePrice, 0, Integer.MAX_VALUE);
+            tax = Math.clamp(
+                tax + (long) leftPhase.repairCost() + rightPhase.repairCost(),
+                0,
+                Integer.MAX_VALUE
+            );
+            mergedPhases.set(
+                leftIndex,
+                new Multiphase.Phase(
+                    leftPhase.customName(),
+                    this.calculateFinalPhaseRepairCost(leftPhase.repairCost(), rightPhase.repairCost()),
+                    enchantments.toImmutable()
+                )
+            );
+            hasOperation = true;
+        }
+
+        if (matchedCount != Math.min(left.phases().size(), right.phases().size())) return;
+        for (int rightIndex = 0; rightIndex < right.phases().size(); rightIndex++) {
+            if (matchedRight[rightIndex]) continue;
+            mergedPhases.add(right.phases().get(rightIndex));
+            hasOperation = true;
+        }
+        if (!hasOperation) return;
+        if (price == 0) price = 1;
+
+        Multiphase merged = new Multiphase(mergedPhases, left.activePhase());
+        ItemStack result = inputLeft.copy();
+        merged.initialize(result);
+        RenamingResult renamingResult = this.renaming(inputLeft, inputRight, itemName, null, price, result);
+        int finalPrice = Math.clamp(tax + (long) renamingResult.price(), 0, Integer.MAX_VALUE);
+        this.xpCost = finalPrice;
+        this.checkRenamingCostOverflow(finalPrice, tax, renamingResult.namingCost());
+
+        merged = merged.capture(result);
+        merged.initialize(result);
+        this.result = result;
+    }
+
+    private static int findMatchingPhase(
+        Multiphase left,
+        int leftIndex,
+        Multiphase right,
+        boolean[] matchedRight
+    ) {
+        String leftName = left.phaseDisplayName(leftIndex).getString();
+        for (int rightIndex = 0; rightIndex < right.phases().size(); rightIndex++) {
+            if (!matchedRight[rightIndex] && leftName.equals(right.phaseDisplayName(rightIndex).getString())) {
+                return rightIndex;
+            }
+        }
+        return -1;
+    }
+
+    private int calculateFinalPhaseRepairCost(int leftRepairCost, int rightRepairCost) {
+        if (!this.useNewRepairCostAlgorithm) {
+            return AnvilMenu.calculateIncreasedRepairCost(Math.max(leftRepairCost, rightRepairCost));
+        }
+        return Math.clamp((long) leftRepairCost + rightRepairCost + 1, 0, Integer.MAX_VALUE);
+    }
+
     private @Nullable ChatFormatting computeExtraFormatting(ItemStack inputRight) {
         if (!inputRight.has(DataComponents.CUSTOM_NAME)) {
             this.shouldCancel = true;
@@ -256,7 +375,24 @@ public class AnvilMenuResult {
         boolean usingBook,
         int price
     ) {
-        ItemEnchantments enchantmentsOnRight = EnchantmentHelper.getEnchantmentsForCrafting(inputRight);
+        return this.applyEnchantment(
+            player,
+            inputLeft,
+            enchantments,
+            EnchantmentHelper.getEnchantmentsForCrafting(inputRight),
+            usingBook,
+            price
+        );
+    }
+
+    private int applyEnchantment(
+        Player player,
+        ItemStack inputLeft,
+        ItemEnchantments.Mutable enchantments,
+        ItemEnchantments enchantmentsOnRight,
+        boolean usingBook,
+        int price
+    ) {
         boolean isAnyCompatible = false;
         boolean isAnyNotCompatible = false;
         for (Object2IntMap.Entry<Holder<Enchantment>> entry : enchantmentsOnRight.entrySet()) {

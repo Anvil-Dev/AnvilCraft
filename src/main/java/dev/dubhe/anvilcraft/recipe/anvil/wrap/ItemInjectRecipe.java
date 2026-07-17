@@ -53,7 +53,7 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
                 .setBlockInputOffset(new Vec3i(0, -1, 0))
                 .setInputBlocks(blockIngredient)
                 .setBlockOutputOffset(new Vec3i(0, -1, 0))
-                .setResultBlocks(blockResult)
+                .setResultBlocks(blockResult == null ? List.of() : List.of(blockResult))
         );
     }
 
@@ -96,9 +96,10 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
                 .fieldOf("block_ingredient")
                 .forGetter(ItemInjectRecipe::getFirstInputBlock),
             ChanceBlockState.CODEC.codec()
-                .fieldOf("block_result")
-                .forGetter(ItemInjectRecipe::getFirstResultBlock)
-        ).apply(instance, ItemInjectRecipe::new));
+                .optionalFieldOf("block_result")
+                .forGetter(recipe -> recipe.getResultBlocks().stream().findFirst())
+        ).apply(instance, (ingredients, results, blockIngredient, blockResult) ->
+            new ItemInjectRecipe(ingredients, results, blockIngredient, blockResult.orElse(null))));
 
         /**
          * 流编解码器
@@ -110,9 +111,10 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
             ItemInjectRecipe::getResultItems,
             BlockStatePredicate.STREAM_CODEC,
             ItemInjectRecipe::getFirstInputBlock,
-            ChanceBlockState.STREAM_CODEC,
-            ItemInjectRecipe::getFirstResultBlock,
-            ItemInjectRecipe::new
+            ByteBufCodecs.optional(ChanceBlockState.STREAM_CODEC),
+            recipe -> recipe.getResultBlocks().stream().findFirst(),
+            (ingredients, results, blockIngredient, blockResult) ->
+                new ItemInjectRecipe(ingredients, results, blockIngredient, blockResult.orElse(null))
         );
 
         @Override
@@ -192,6 +194,9 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
             if (this.itemIngredients.isEmpty()) {
                 throw new IllegalArgumentException("Recipe ingredients must not be empty, RecipeId: " + id);
             }
+            if (this.results.isEmpty() && this.blockResult == null) {
+                throw new IllegalArgumentException("Recipe must have an item or block result, RecipeId: " + id);
+            }
         }
 
         @Override
@@ -201,7 +206,7 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
 
         @Override
         public Item getResult() {
-            return WrapUtils.getItem(blockResult);
+            return blockResult == null ? super.getResult() : WrapUtils.getItem(blockResult);
         }
 
         @Override

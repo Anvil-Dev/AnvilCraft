@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -31,6 +32,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<NeutronIrradiationRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
@@ -41,6 +45,7 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
     private final ITickTimer timer;
     private final IDrawable arrowIn;
     private final IDrawable arrowOut;
+    private final IDrawable explosion;
 
     public NeutronIrradiationCategory(IGuiHelper helper) {
         slotDefault = JeiRenderHelper.getSlotDefault(helper);
@@ -49,6 +54,7 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
         timer = helper.createTickTimer(30, 60, true);
         arrowIn = JeiRenderHelper.getArrowInput(helper);
         arrowOut = JeiRenderHelper.getArrowOutput(helper);
+        explosion = JeiRenderHelper.getExplosion(helper);
     }
 
     @Override
@@ -139,7 +145,9 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
         arrowOut.draw(guiGraphics, 92, 19);
 
         JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
-        if (!recipe.getResultItems().isEmpty()) {
+        if (isExplosionRecipe(recipeHolder)) {
+            explosion.draw(guiGraphics, 124, 16);
+        } else if (!recipe.getResultItems().isEmpty()) {
             if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
                 JeiSlotUtil.drawOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
             } else {
@@ -161,17 +169,18 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
         double mouseY
     ) {
         NeutronIrradiationRecipe recipe = recipeHolder.value();
+        boolean explosionRecipe = isExplosionRecipe(recipeHolder);
+        if (explosionRecipe && mouseX >= 120 && mouseX <= 156 && mouseY >= 12 && mouseY <= 48) {
+            tooltip.add(Component.translatable("gui.anvilcraft.category.neutron_irradiation.explosion"));
+        }
         if (mouseX >= 72 && mouseX <= 90) {
-            if (mouseY >= 24 && mouseY <= 43) {
-                Component text;
-                text = Blocks.CAULDRON.getName();
-                tooltip.add(text);
-            }
-            if (mouseY >= 34 && mouseY <= 53) {
+            if (mouseY >= 24 && mouseY < 34) {
+                tooltip.add(Blocks.CAULDRON.getName());
+            } else if (mouseY >= 34 && mouseY <= 53) {
                 tooltip.add(ModBlocks.NEUTRON_IRRADIATOR.get().getName());
             }
         }
-        if (mouseX >= 124 && mouseX <= 140) {
+        if (!explosionRecipe && mouseX >= 124 && mouseX <= 140) {
             if (mouseY >= 24 && mouseY <= 42) {
                 Component text;
                 if (recipe.getResultItems().isEmpty()) {
@@ -183,9 +192,24 @@ public class NeutronIrradiationCategory implements IRecipeCategory<RecipeHolder<
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
+        List<RecipeHolder<NeutronIrradiationRecipe>> recipes = new ArrayList<>(
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.NEUTRON_IRRADIATION_TYPE.get())
+        );
+        recipes.add(new RecipeHolder<>(
+            AnvilCraft.of("neutron_irradiation/uranium_block_explosion"),
+            NeutronIrradiationRecipe.builder().requires(ModBlocks.URANIUM_BLOCK).buildRecipe()
+        ));
+        recipes.add(new RecipeHolder<>(
+            AnvilCraft.of("neutron_irradiation/plutonium_block_explosion"),
+            NeutronIrradiationRecipe.builder().requires(ModBlocks.PLUTONIUM_BLOCK).buildRecipe()
+        ));
         registration.addRecipes(
             AnvilCraftJeiPlugin.NEUTRON_IRRADIATION,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.NEUTRON_IRRADIATION_TYPE.get()));
+            recipes);
+    }
+
+    private static boolean isExplosionRecipe(RecipeHolder<NeutronIrradiationRecipe> recipeHolder) {
+        return recipeHolder.id().getPath().endsWith("_block_explosion");
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {

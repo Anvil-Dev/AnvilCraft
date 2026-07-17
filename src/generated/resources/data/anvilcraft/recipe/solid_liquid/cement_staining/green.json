@@ -1,0 +1,12 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "minecraft:null",
+  "fluidTag": "c:cement",
+  "ingredients": [
+    {
+      "items": "minecraft:green_dye"
+    }
+  ],
+  "results": [],
+  "transform": "anvilcraft:green_cement"
+}

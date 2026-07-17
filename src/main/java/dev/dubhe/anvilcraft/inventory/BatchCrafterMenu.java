@@ -18,20 +18,19 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Getter
 public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, ContainerListener {
     public final BatchCrafterBlockEntity blockEntity;
     private final Slot resultSlot;
     private final Level level;
+    private List<RecipeHolder<CraftingRecipe>> recipes = List.of();
 
     public BatchCrafterMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, Objects.requireNonNull(inventory.player.level().getBlockEntity(extraData.readBlockPos())));
@@ -195,17 +194,18 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
         this.onChanged();
     }
 
-    private void onChanged() {
-        // if (!level.isClientSide) return;
-        RecipeManager recipeManager = level.getRecipeManager();
-        Optional<RecipeHolder<CraftingRecipe>> recipe = recipeManager.getRecipeFor(
-            RecipeType.CRAFTING, blockEntity.getDummyCraftingContainer().asCraftInput(), level);
-        if (recipe.isPresent()) {
-            ItemStack resultItem = recipe.get().value().getResultItem(level.registryAccess());
-            this.resultSlot.set(resultItem);
-        } else {
+    public void onChanged() {
+        this.recipes = this.blockEntity.getRecipes();
+        if (this.recipes.isEmpty()) {
             this.resultSlot.set(ItemStack.EMPTY);
+            return;
         }
+        if (this.blockEntity.getSelecting() < 0 || this.blockEntity.getSelecting() >= this.recipes.size()) {
+            this.blockEntity.setSelecting(0);
+        }
+        ItemStack resultItem = this.recipes.get(this.blockEntity.getSelecting()).value()
+            .assemble(this.blockEntity.getDummyCraftingContainer().asCraftInput(), this.level.registryAccess());
+        this.resultSlot.set(resultItem);
     }
 
     @Override

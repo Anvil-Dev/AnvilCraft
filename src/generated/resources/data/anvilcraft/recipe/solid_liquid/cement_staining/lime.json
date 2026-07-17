@@ -1,0 +1,12 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "minecraft:null",
+  "fluidTag": "c:cement",
+  "ingredients": [
+    {
+      "items": "minecraft:lime_dye"
+    }
+  ],
+  "results": [],
+  "transform": "anvilcraft:lime_cement"
+}

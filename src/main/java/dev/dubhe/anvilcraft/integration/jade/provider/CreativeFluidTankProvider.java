@@ -42,7 +42,10 @@ public class CreativeFluidTankProvider extends FluidStorageProvider.ForBlock {
             JadeFluidObject fluidObj = JadeFluidObject.of(stack.getFluid(), stack.getAmount());
 
             tooltip.add(
-                helper.progress(1.0f, stack.getHoverName().copy().append(" ").append(Component.translatable("tooltip.anvilcraft.infinity")),
+                helper.progress(1.0f, stack.getHoverName().copy()
+                    .withStyle(ChatFormatting.WHITE)
+                    .append(" ")
+                    .append(Component.translatable("tooltip.anvilcraft.infinity").withStyle(ChatFormatting.GRAY)),
                 helper.progressStyle().overlay(helper.fluid(fluidObj)),
                 BoxStyle.getNestedBox(), true)
             );

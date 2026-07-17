@@ -33,6 +33,9 @@ public record Ferocious() {
     }
 
     private static void tick(ItemStack stack) {
+        if (stack.has(ModComponents.MERCILESS) || stack.has(ModComponents.MERCILESS_ENCHANTMENTS)) {
+            Merciless.disable(stack);
+        }
         ItemEnchantments enchantments = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
         if (enchantments.isEmpty()) return;
 

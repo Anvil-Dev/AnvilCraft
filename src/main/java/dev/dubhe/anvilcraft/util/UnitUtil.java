@@ -93,6 +93,10 @@ public class UnitUtil {
     }
 
     public static String fluidUnit(int amount, boolean original) {
+        return fluidUnit((long) amount, original);
+    }
+
+    public static String fluidUnit(long amount, boolean original) {
         if (original) {
             return amount + " mB";
         }
