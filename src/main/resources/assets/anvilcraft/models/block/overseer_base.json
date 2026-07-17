@@ -1,11 +1,11 @@
 {
+	"format_version": "1.21.11",
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/block",
 	"textures": {
 		"particle": "anvilcraft:block/overseer_base_0",
 		"side": "anvilcraft:block/overseer_base_0",
-		"bottom": "anvilcraft:block/overseer_bottom",
-		"top": "anvilcraft:block/overseer_top"
+		"bottom": "anvilcraft:block/overseer_bottom"
 	},
 	"elements": [
 		{
@@ -18,17 +18,6 @@
 				"west": {"uv": [0, 12, 16, 16], "texture": "#side"},
 				"up": {"uv": [0, 0, 16, 16], "texture": "#bottom"},
 				"down": {"uv": [0, 0, 16, 16], "texture": "#bottom"}
-			}
-		},
-		{
-			"from": [2, 8, 2],
-			"to": [14, 20, 14],
-			"faces": {
-				"north": {"uv": [2, 0, 14, 12], "texture": "#side"},
-				"east": {"uv": [2, 0, 14, 12], "texture": "#side"},
-				"south": {"uv": [2, 0, 14, 12], "texture": "#side"},
-				"west": {"uv": [2, 0, 14, 12], "texture": "#side"},
-				"down": {"uv": [2, 2, 14, 14], "texture": "#top"}
 			}
 		}
 	]

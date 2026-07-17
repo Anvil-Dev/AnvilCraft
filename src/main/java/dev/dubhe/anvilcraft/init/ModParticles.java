@@ -18,6 +18,9 @@ public class ModParticles {
     public static final Supplier<SimpleParticleType> IONOCRAFT_BACKPACK_EXHAUST = REGISTER.register(
         "ionocraft_backpack_exhaust", () -> new SimpleParticleType(false)
     );
+    public static final Supplier<SimpleParticleType> OVERSEER_TRAIL = REGISTER.register(
+        "overseer_trail", () -> new SimpleParticleType(false)
+    );
 
     public static final Supplier<SimpleParticleType> ANVILON_ENERGY = REGISTER.register(
         "anvilon_energy", () -> new SimpleParticleType(false)
