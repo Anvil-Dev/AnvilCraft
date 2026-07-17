@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.NeoforgeBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
@@ -74,22 +75,25 @@ public class AnvilEventListener {
         if (event.getEntity() instanceof FallingGiantAnvilEntity
             && hitBlockState.is(ModBlocks.LARGE_CAULDRON)) {
             LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, hitBlockPos, hitBlockState);
-            if (cauldron != null && cauldron.handleGiantAnvilImpact(event)) return;
+            if (cauldron != null && cauldron.handleGiantAnvilImpact(event)) {
+                handleBehaviors(level, hitBlockPos, hitBlockState, event);
+                return;
+            }
         }
-        BlockPos belowPos = hitBlockPos.below();
-        BlockState hitBelowState = level.getBlockState(belowPos);
-        if (hitBelowState.is(Blocks.STONECUTTER)) {
-            brokeBlock(level, hitBlockPos, event);
+        BlockPos breakBlockPos = hitBlockPos;
+        if (hitBlockState.getBlock() instanceof AbstractMultiPartBlock<?> multiPartBlock) {
+            BlockPos mainPartPos = multiPartBlock.getMainPartPos(hitBlockPos, hitBlockState);
+            if (level.getBlockState(mainPartPos).is(multiPartBlock)) breakBlockPos = mainPartPos;
+        }
+        BlockState breakBlockState = level.getBlockState(breakBlockPos);
+        if (hasStonecutterBelow(level, breakBlockPos, breakBlockState)) {
+            brokeBlock(level, breakBlockPos, event);
             return;
         }
         if (!ProceduralProcessStepManager.checkAnyMatches(event)) {
             handleNeoAnvilRecipe(event);
         }
-        for (IAnvilBehavior behavior : IAnvilBehavior.findMatching(hitBlockState)) {
-            if (behavior.handle(level, hitBlockPos, hitBlockState, event.getFallDistance(), event)) {
-                return;
-            }
-        }
+        if (handleBehaviors(level, hitBlockPos, hitBlockState, event)) return;
         if (blockState.is(ModBlocks.NEOFORGE)) {
             if (event.getFallDistance() > 1) {
                 if (level.random.nextDouble() < 0.01) {
@@ -97,6 +101,18 @@ public class AnvilEventListener {
                 }
             }
         }
+    }
+
+    private static boolean handleBehaviors(
+        Level level,
+        BlockPos hitBlockPos,
+        BlockState hitBlockState,
+        AnvilEvent.OnLand event
+    ) {
+        for (IAnvilBehavior behavior : IAnvilBehavior.findMatching(hitBlockState)) {
+            if (behavior.handle(level, hitBlockPos, hitBlockState, event.getFallDistance(), event)) return true;
+        }
+        return false;
     }
 
     public static void handleNeoAnvilRecipe(AnvilEvent.OnLand event) {
@@ -115,6 +131,29 @@ public class AnvilEventListener {
         } finally {
             GiantAnvilBlock.SUPPRESS_DROPS.set(false);
         }
+    }
+
+    private static boolean hasStonecutterBelow(Level level, BlockPos pos, BlockState state) {
+        if (state.getBlock() instanceof AbstractMultiPartBlock<?> multiPartBlock) {
+            return hasStonecutterBelowAnyPart(level, pos, state, multiPartBlock);
+        }
+        return level.getBlockState(pos.below()).is(Blocks.STONECUTTER);
+    }
+
+    private static <P extends Enum<P>> boolean hasStonecutterBelowAnyPart(
+        Level level,
+        BlockPos mainPartPos,
+        BlockState mainPartState,
+        AbstractMultiPartBlock<P> multiPartBlock
+    ) {
+        for (P part : multiPartBlock.getParts()) {
+            BlockPos partPos = mainPartPos.offset(multiPartBlock.offsetFrom(mainPartState, part));
+            if (level.getBlockState(partPos).is(multiPartBlock)
+                && level.getBlockState(partPos.below()).is(Blocks.STONECUTTER)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static void brokeBlock(Level level, BlockPos pos, AnvilEvent.OnLand event) {
