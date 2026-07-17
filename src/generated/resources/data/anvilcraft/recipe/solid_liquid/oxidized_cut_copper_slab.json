@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "minecraft:water",
+  "ingredients": [
+    {
+      "items": "minecraft:weathered_cut_copper_slab"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:oxidized_cut_copper_slab"
+    }
+  ]
+}

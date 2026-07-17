@@ -22,6 +22,8 @@ import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.util.Mth;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 public class FluidTankBlockEntityRenderer implements BlockEntityRenderer<FluidTankBlockEntity> {
     public FluidTankBlockEntityRenderer(BlockEntityRendererProvider.Context ignore) {
@@ -30,23 +32,19 @@ public class FluidTankBlockEntityRenderer implements BlockEntityRenderer<FluidTa
     @Override
     public void render(
         FluidTankBlockEntity tank, float tickDelta, PoseStack ms, MultiBufferSource vertexConsumers, int light, int overlay) {
-        if (tank.getTank().getFluid().isEmpty()) return;
+        IFluidHandler handler = tank.getFluidHandler();
+        FluidStack fluid = handler.getFluidInTank(0);
+        if (fluid.isEmpty()) return;
 
-        /*
-         *
-         * // Uncomment to allow the liquid to rotate with the tank ms.pushPose(); ms.translate(0.5, 0.5, 0.5);
-         * FacingToRotation.get(tank.getForward(), tank.getUp()).push(ms); ms.translate(-0.5, -0.5, -0.5);
-         */
-        float fill = (float) tank.getTank().getFluid().getAmount() / tank.getTank().getCapacity();
+        float fill = (float) fluid.getAmount() / handler.getTankCapacity(0);
         fill = Mth.clamp(fill, 0, 1);
 
         FluidTankRenderUtil.drawFluidInTank(
             ms,
             vertexConsumers,
             light,
-            tank.getTank().getFluid(),
+            fluid,
             fill
         );
-        // ms.popPose();
     }
 }

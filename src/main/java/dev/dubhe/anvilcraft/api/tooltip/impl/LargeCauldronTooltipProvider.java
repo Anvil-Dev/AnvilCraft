@@ -42,7 +42,7 @@ public class LargeCauldronTooltipProvider extends ITooltipProvider.BlockEntityTo
 
         lines.add(heading("tooltip.anvilcraft.large_cauldron.outputs"));
         for (ItemStack stack : aggregateOutputs(cauldron)) {
-            lines.add(itemLine(stack, Set.of()));
+            lines.add(itemLine(stack, categoriesForOutput(previews, cauldron, stack)));
         }
 
         lines.add(heading("tooltip.anvilcraft.large_cauldron.fluids"));
@@ -121,6 +121,22 @@ public class LargeCauldronTooltipProvider extends ITooltipProvider.BlockEntityTo
                     result.add(preview.categoryPath());
                     break;
                 }
+            }
+        }
+        return result;
+    }
+
+    private static Set<String> categoriesForOutput(
+        List<LargeCauldronBlockEntity.RecipePreview> previews,
+        LargeCauldronBlockEntity cauldron,
+        ItemStack displayed
+    ) {
+        Set<String> result = new LinkedHashSet<>();
+        for (int slot = 0; slot < cauldron.getOutputHandler().getSlots(); slot++) {
+            ItemStack stack = cauldron.getOutputHandler().getStackInSlot(slot);
+            if (!ItemStack.isSameItemSameComponents(displayed, stack)) continue;
+            for (LargeCauldronBlockEntity.RecipePreview preview : previews) {
+                if (preview.outputSlot() == slot) result.add(preview.categoryPath());
             }
         }
         return result;

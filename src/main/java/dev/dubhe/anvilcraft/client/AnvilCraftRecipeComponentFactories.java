@@ -14,14 +14,13 @@ import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockCompressRecipeCo
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockCrushRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockProcessingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBlockSmearRecipeComponent;
-import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBoilingRecipeComponent;
-import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDBulgingRecipeComponent;
-import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDCookingRecipeComponent;
+import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDFastCookingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDItemCompressRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDItemCrushRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDItemInjectRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDMeshRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDNeutronIrradiationRecipeComponent;
+import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDSolidLiquidRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDSqueezingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDStampingRecipeComponent;
 import dev.dubhe.anvilcraft.client.markdown.recipe.anvil.MDSuperHeatingRecipeComponent;
@@ -45,26 +44,18 @@ public class AnvilCraftRecipeComponentFactories {
     );
 
     public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
-        BOILING = RECIPE_COMPONENT_FACTORIES.register(
-        "boiling", () -> MDRecipeComponent.RecipeComponentFactory.create(
-            ModRecipeTypes.BOILING_TYPE.get(),
-            MDBoilingRecipeComponent::new
+        SOLID_LIQUID = RECIPE_COMPONENT_FACTORIES.register(
+        "solid_liquid", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.SOLID_LIQUID_TYPE.get(),
+            MDSolidLiquidRecipeComponent::new
         )
     );
 
     public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
-        BULGING = RECIPE_COMPONENT_FACTORIES.register(
-        "bulging", () -> MDRecipeComponent.RecipeComponentFactory.create(
-            ModRecipeTypes.BULGING_TYPE.get(),
-            MDBulgingRecipeComponent::new
-        )
-    );
-
-    public static final DeferredHolder<MDRecipeComponent.RecipeComponentFactory<?>, MDRecipeComponent.RecipeComponentFactory<?>>
-        COOKING = RECIPE_COMPONENT_FACTORIES.register(
-        "cooking", () -> MDRecipeComponent.RecipeComponentFactory.create(
-            ModRecipeTypes.COOKING_TYPE.get(),
-            MDCookingRecipeComponent::new
+        FAST_COOKING = RECIPE_COMPONENT_FACTORIES.register(
+        "fast_cooking", () -> MDRecipeComponent.RecipeComponentFactory.create(
+            ModRecipeTypes.FAST_COOKING_TYPE.get(),
+            MDFastCookingRecipeComponent::new
         )
     );
 

@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "anvilcraft:brown_cement",
+  "ingredients": [
+    {
+      "items": "#c:glass_panes"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:brown_stained_glass_pane"
+    }
+  ]
+}

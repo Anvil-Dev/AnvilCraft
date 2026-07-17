@@ -11,12 +11,14 @@ import dev.dubhe.anvilcraft.api.totem.TotemManager;
 import dev.dubhe.anvilcraft.api.totem.handler.TotemHandler;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.FrostAnvilBlock;
+import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -51,6 +53,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 @Mixin(LivingEntity.class)
@@ -77,8 +80,21 @@ public abstract class LivingEntityMixin extends Entity {
     @Shadow
     protected int lastHurtByPlayerTime;
 
+    @Shadow
+    private Optional<BlockPos> lastClimbablePos;
+
     private LivingEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
+    }
+
+    @Inject(method = "onClimbable", at = @At("RETURN"), cancellable = true)
+    private void anvilcraft$climbLargeCauldronWall(CallbackInfoReturnable<Boolean> cir) {
+        if (cir.getReturnValue() || this.isSpectator()) return;
+        LivingEntity self = (LivingEntity) (Object) this;
+        BlockPos wallPos = LargeCauldronBlock.findClimbableWall(this.level(), self);
+        if (wallPos == null) return;
+        this.lastClimbablePos = Optional.of(wallPos);
+        cir.setReturnValue(true);
     }
 
     @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true)

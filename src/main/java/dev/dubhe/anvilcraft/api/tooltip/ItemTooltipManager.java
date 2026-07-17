@@ -339,12 +339,12 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
         NORMAL.put(
             ModBlocks.FLUID_TANK.asItem(), """
-                Stores 16B of fluid, expands to 640B when surrounded by Menger Sponges
+                Stores 16B of fluid; Menger Sponges expand it to 12800B and make it infinite when full
                 Can interact with Dispensers for fluid transfer"""
         );
         NORMAL.put(
             ModBlocks.LARGE_FLUID_TANK.asItem(), """
-                Stores 320B of fluid, reaches infinite capacity when paired with Menger Sponges
+                Stores 320B shared by any number of fluids; Menger Sponges unlock unlimited total storage
                 Can interact with Dispensers for fluid transfer"""
         );
         NORMAL.put(ModBlocks.DRAIN.asItem(), "Transfers fluid vertically, outputting downward and drawing from above");

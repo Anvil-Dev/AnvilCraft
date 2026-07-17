@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "minecraft:water",
+  "ingredients": [
+    {
+      "items": "minecraft:exposed_copper"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:weathered_copper"
+    }
+  ]
+}

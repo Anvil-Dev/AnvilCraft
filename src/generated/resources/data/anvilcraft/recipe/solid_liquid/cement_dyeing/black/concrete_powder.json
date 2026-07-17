@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "anvilcraft:black_cement",
+  "ingredients": [
+    {
+      "items": "#c:concrete_powders"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:black_concrete_powder"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "minecraft:water",
+  "ingredients": [
+    {
+      "items": "minecraft:purple_concrete_powder"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:purple_concrete"
+    }
+  ]
+}

@@ -48,7 +48,7 @@ items:
 
 # 水泥
 
-<recipe id="anvilcraft:bulging/cement_cauldron"/>
+<recipe id="anvilcraft:solid_liquid/cement_cauldron"/>
 
 - 制作出的水泥默认为灰色，向锅中投入染料并砸击可改变颜色
 

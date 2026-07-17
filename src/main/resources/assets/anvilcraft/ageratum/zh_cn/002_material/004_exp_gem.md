@@ -34,8 +34,8 @@ items:
 ## 固液转换
 
 <row>
-<recipe id="anvilcraft:bulging/exp_gem"/>
-<recipe id="anvilcraft:bulging/exp_fluid_cauldron"/>
+<recipe id="anvilcraft:solid_liquid/exp_gem"/>
+<recipe id="anvilcraft:solid_liquid/exp_fluid_cauldron"/>
 </row>
 
 - 一满锅经验流体被铁砧砸，消耗所有流体产生一个经验宝石
