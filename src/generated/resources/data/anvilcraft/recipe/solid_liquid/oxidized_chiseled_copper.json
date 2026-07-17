@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "minecraft:water",
+  "ingredients": [
+    {
+      "items": "minecraft:weathered_chiseled_copper"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:oxidized_chiseled_copper"
+    }
+  ]
+}

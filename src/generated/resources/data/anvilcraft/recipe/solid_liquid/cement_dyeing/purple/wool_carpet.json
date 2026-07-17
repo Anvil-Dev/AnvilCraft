@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "anvilcraft:purple_cement",
+  "ingredients": [
+    {
+      "items": "#minecraft:wool_carpets"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:purple_carpet"
+    }
+  ]
+}

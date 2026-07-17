@@ -85,6 +85,7 @@ public class ModFoodItems {
     public static final ItemEntry<Item> CHOCOLATE_BLACK = REGISTRUM
         .item("chocolate_black", p -> new Item(p.food(ModFoods.CHOCOLATE_BLACK)))
         .tag(Tags.Items.FOODS)
+        .lang("Dark Chocolate")
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.FOOD, ctx.get(), 4)
                 .pattern("AAA")
@@ -110,6 +111,7 @@ public class ModFoodItems {
     public static final ItemEntry<Item> CHOCOLATE_WHITE = REGISTRUM
         .item("chocolate_white", p -> new Item(p.food(ModFoods.CHOCOLATE_WHITE)))
         .tag(Tags.Items.FOODS)
+        .lang("White Chocolate")
         .recipe((ctx, provider) -> {
             ShapedRecipeBuilder.shaped(RecipeCategory.FOOD, ctx.get(), 4)
                 .pattern("AAA")

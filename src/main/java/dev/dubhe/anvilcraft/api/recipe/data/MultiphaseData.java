@@ -52,8 +52,7 @@ public class MultiphaseData implements ICustomDataComponent<Multiphase> {
                 Multiphase.Phase.fromInput(ctx.getInput(RecipeInputSlot.input(0))),
                 Multiphase.Phase.fromInput(ctx.getInput(RecipeInputSlot.input(1)))
             ),
-            0,
-            false
+            0
         );
     }
 

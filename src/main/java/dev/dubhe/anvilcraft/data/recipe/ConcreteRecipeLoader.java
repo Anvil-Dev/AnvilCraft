@@ -6,7 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.BulgingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
@@ -48,19 +48,20 @@ public class ConcreteRecipeLoader {
             Item reinforcedConcrete = BuiltInRegistries.ITEM.get(
                 AnvilCraft.of("reinforced_concrete_%s".formatted(color.getSerializedName()))
             );
-            BulgingRecipe.builder()
+            SolidLiquidRecipe.builder()
                 .cauldron(cauldronBlock)
                 .requires(Tags.Items.GRAVELS, 4)
                 .requires(Tags.Items.SANDS, 4)
                 .result(concrete, 16)
-                .save(provider, AnvilCraft.of("concrete/minecraft_%s_concrete".formatted(color.getSerializedName())));
-            BulgingRecipe.builder()
+                .save(provider, AnvilCraft.of("solid_liquid/concrete/minecraft_%s_concrete".formatted(color.getSerializedName())));
+            SolidLiquidRecipe.builder()
                 .cauldron(cauldronBlock)
                 .requires(Tags.Items.GRAVELS, 2)
                 .requires(Tags.Items.SANDS, 2)
                 .requires(Items.IRON_BARS, 8)
                 .result(reinforcedConcrete, 16)
-                .save(provider, AnvilCraft.of("concrete/anvilcraft_reinforced_concrete_%s".formatted(color.getSerializedName())));
+                .save(provider, AnvilCraft.of("solid_liquid/concrete/anvilcraft_reinforced_concrete_%s"
+                    .formatted(color.getSerializedName())));
         }
     }
 
@@ -71,11 +72,11 @@ public class ConcreteRecipeLoader {
         ResourceLocation cementTag = ResourceLocation.fromNamespaceAndPath("c", "cement");
         for (Color color : Color.values()) {
             ResourceLocation targetCement = AnvilCraft.of("%s_cement".formatted(color.getSerializedName()));
-            BulgingRecipe.builder()
+            SolidLiquidRecipe.builder()
                 .fluidTag(cementTag)
                 .transform(targetCement)
                 .requires(color.dyeItem())
-                .save(provider, AnvilCraft.of("cement_staining/%s".formatted(color.getSerializedName())));
+                .save(provider, AnvilCraft.of("solid_liquid/cement_staining/%s".formatted(color.getSerializedName())));
         }
     }
 
@@ -90,11 +91,11 @@ public class ConcreteRecipeLoader {
                 Item result = BuiltInRegistries.ITEM.get(
                     ResourceLocation.withDefaultNamespace("%s_%s".formatted(colorName, family.resultSuffix()))
                 );
-                BulgingRecipe.builder()
+                SolidLiquidRecipe.builder()
                 .cauldron(cauldron)
                 .requires(family.ingredients())
                 .result(result)
-                .save(provider, AnvilCraft.of("cement_dyeing/%s/%s".formatted(colorName, family.recipeName()))
+                .save(provider, AnvilCraft.of("solid_liquid/cement_dyeing/%s/%s".formatted(colorName, family.recipeName()))
                 );
             }
         }

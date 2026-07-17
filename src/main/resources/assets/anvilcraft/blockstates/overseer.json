@@ -1,40 +1,57 @@
 {
-  "variants": {
-    "half=top,level=0": {
-      "model": "anvilcraft:block/overseer_top_0"
+  "multipart": [
+    {
+      "when": {
+        "half": "bottom"
+      },
+      "apply": {
+        "model": "anvilcraft:block/overseer_base"
+      }
     },
-    "half=top,level=1": {
-      "model": "anvilcraft:block/overseer_top_0"
+    {
+      "when": {
+        "half": "mid",
+        "level": "0"
+      },
+      "apply": {
+        "model": "anvilcraft:block/overseer_head_0"
+      }
     },
-    "half=top,level=2": {
-      "model": "anvilcraft:block/overseer_top_0"
+    {
+      "when": {
+        "half": "mid",
+        "level": "1"
+      },
+      "apply": {
+        "model": "anvilcraft:block/overseer_head_1"
+      }
     },
-    "half=top,level=3": {
-      "model": "anvilcraft:block/overseer_top_1"
+    {
+      "when": {
+        "half": "mid",
+        "level": "2"
+      },
+      "apply": {
+        "model": "anvilcraft:block/overseer_head_2"
+      }
     },
-    "half=mid,level=0": {
-      "model": "anvilcraft:block/overseer_mid_0"
+    {
+      "when": {
+        "half": "mid",
+        "level": "3"
+      },
+      "apply": {
+        "model": "anvilcraft:block/overseer_head_3"
+      }
     },
-    "half=mid,level=1": {
-      "model": "anvilcraft:block/overseer_mid_0"
-    },
-    "half=mid,level=2": {
-      "model": "anvilcraft:block/overseer_mid_1"
-    },
-    "half=mid,level=3": {
-      "model": "anvilcraft:block/overseer_mid_1"
-    },
-    "half=bottom,level=0": {
-      "model": "anvilcraft:block/overseer_base_0"
-    },
-    "half=bottom,level=1": {
-      "model": "anvilcraft:block/overseer_base_1"
-    },
-    "half=bottom,level=2": {
-      "model": "anvilcraft:block/overseer_base_1"
-    },
-    "half=bottom,level=3": {
-      "model": "anvilcraft:block/overseer_base_1"
+    {
+      "when": {
+        "half": "mid",
+        "level": "4"
+      },
+      "apply": {
+        "model": "anvilcraft:block/overseer_head_3"
+      }
     }
-  }
+  ]
 }

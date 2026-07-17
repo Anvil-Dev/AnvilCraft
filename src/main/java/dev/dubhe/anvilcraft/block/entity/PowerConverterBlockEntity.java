@@ -108,6 +108,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     public void tick() {
         if (this.level != null) {
             flushState(this.level, getBlockPos());
+            if (this.getBlockState().getValue(BasePowerConverterBlock.POWERED)) return;
         }
         if (cooldown == 0) {
             cooldown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
@@ -147,7 +148,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
 
     @Override
     public int getInputPower() {
-        return inputPower;
+        return this.getBlockState().getValue(BasePowerConverterBlock.POWERED) ? 0 : inputPower;
     }
 
     @Override

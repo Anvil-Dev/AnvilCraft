@@ -12,9 +12,7 @@
   "resources": {},
   "rotation_speed": 0,
   "seed_items": [
-    "anvilcraft:creative_generator",
-    "minecraft:command_block",
-    "minecraft:structure_block"
+    "anvilcraft:creative_generator"
   ],
   "space": 64,
   "time": 64

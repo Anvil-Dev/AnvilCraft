@@ -86,11 +86,11 @@ When placed on <ref item="minecraft:scaffolding"/>, the **Item Meshing** operati
 Meshing produces about half of the material back as byproduct, allowing for recycling
 </info>
 
-# Bulging
+# Solid-Liquid Reaction
 
-When placed on a water-filled <ref item="minecraft:cauldron"/>, the **Item Bulging** operation is performed. Both materials and results are in the cauldron, consuming one layer of water.
+When placed on a fluid-filled <ref item="minecraft:cauldron"/>, the **Solid-Liquid Reaction** operation is performed. Items and fluids participate together in the reaction.
 
-<structure id="../../structures/bulging.snbt"/>
+<structure id="../../structures/solid_liquid.snbt"/>
 
 - Copper Blocks -> Oxidized Copper Blocks
 - Dirt -> Clay
@@ -100,11 +100,11 @@ When placed on a water-filled <ref item="minecraft:cauldron"/>, the **Item Bulgi
 - Coral -> Corresponding Coral Block
 - Dried Kelp -> Kelp
 
-# Cooking
+# Fast Cooking
 
-When placed on a <ref item="minecraft:cauldron"/> and <ref item="minecraft:campfire"/>, the **Item Cooking** operation is performed. Both materials and results are in the cauldron. Some recipes require water.
+When placed on a <ref item="minecraft:cauldron"/> above a lit <ref item="minecraft:campfire"/>, the **Fast Cooking** operation is performed. Recipes may use either a dry cauldron or a water-filled cauldron.
 
-<structure id="../../structures/cooking.snbt"/>
+<structure id="../../structures/fast_cooking.snbt"/>
 
 - Automatically compatible with all smoker recipes and campfire recipes; water is not required in these cases
 

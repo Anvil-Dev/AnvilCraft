@@ -192,7 +192,7 @@ public class VanillaRecipesWrap {
         VanillaRecipesWrap.recipes.add(
             new RecipeHolder<>(
                 location,
-                CookingRecipe.builder()
+                FastCookingRecipe.builder()
                     .requires(ingredient.predicate())
                     .result(result)
                     .buildRecipe()
@@ -215,7 +215,7 @@ public class VanillaRecipesWrap {
         VanillaRecipesWrap.recipes.add(
             new RecipeHolder<>(
                 location,
-                CookingRecipe.builder()
+                FastCookingRecipe.builder()
                     .requires(ingredient.predicate())
                     .result(result)
                     .buildRecipe()

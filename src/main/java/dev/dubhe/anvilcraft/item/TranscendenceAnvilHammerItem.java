@@ -4,13 +4,17 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
+import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.property.component.Providence;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.level.block.Block;
 
 public class TranscendenceAnvilHammerItem extends AnvilHammerItem {
+    public static final Component NAME = Component.translatable("item.anvilcraft.transcendence_anvil_hammer");
+
     /**
      * 初始化铁砧锤
      *
@@ -19,6 +23,8 @@ public class TranscendenceAnvilHammerItem extends AnvilHammerItem {
     public TranscendenceAnvilHammerItem(Properties properties) {
         super(
             properties.fireResistant()
+                .component(ModComponents.MULTIPHASE, Multiphase.create())
+                .component(DataComponents.ITEM_NAME, Multiphase.firstPhaseName(NAME))
                 .component(ModComponents.ETERNAL, Eternal.INSTANCE)
                 .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
                 .component(ModComponents.PROVIDENCE, Providence.INSTANCE));

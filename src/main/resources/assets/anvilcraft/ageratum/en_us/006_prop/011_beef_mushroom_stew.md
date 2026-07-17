@@ -8,7 +8,7 @@ items:
 
 # Beef Mushroom Stew
 
-<recipe id="anvilcraft:boiling/beef_mushroom_stew"/>
+<recipe id="anvilcraft:fast_cooking/beef_mushroom_stew"/>
 
 Provides 16 saturation and 10 hunger points
 

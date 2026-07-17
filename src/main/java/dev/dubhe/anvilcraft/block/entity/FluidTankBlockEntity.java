@@ -23,37 +23,20 @@ import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.IFluidTank;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHolder {
-    public static final int CAPACITY = 16 * FluidType.BUCKET_VOLUME;
-    public static final int BIG_CAPACITY = 640 * FluidType.BUCKET_VOLUME;
+    public static final int BASE_CAPACITY = 16 * FluidType.BUCKET_VOLUME;
+    public static final int INFINITY_THRESHOLD = 12800 * FluidType.BUCKET_VOLUME;
     private static final int CHECK_INTERVAL = 100;
-    private int tickCounter = 0;
-    protected boolean isBigger = false;
-    protected final FluidTank tank = new FluidTank(CAPACITY) {
-        @Override
-        public FluidTank readFromNBT(HolderLookup.Provider lookupProvider, CompoundTag nbt) {
-            FluidTank tank = super.readFromNBT(lookupProvider, nbt);
-            this.onContentsChanged();
-            return tank;
-        }
+    private static final String TAG_TANK = "Tank";
 
-        @Override
-        protected void onContentsChanged() {
-            FluidTankBlockEntity.this.setChanged();
-            FluidTankBlockEntity.this.updateLightLevel();
-            FluidTankBlockEntity.this.updateBlock();
-        }
-    };
-
-    private void updateBlock() {
-        if (this.level != null) {
-            this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
-        }
-    }
+    private final SingleFluidTankHandler tank = new SingleFluidTankHandler(
+        BASE_CAPACITY,
+        INFINITY_THRESHOLD,
+        this::onTankChanged
+    );
+    private int tickCounter;
 
     public FluidTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -76,76 +59,60 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     }
 
     public void onFormed() {
-        this.isBigger = true;
-        this.tank.setCapacity(BIG_CAPACITY);
-        this.setChanged();
+        this.tank.setEnhanced(true);
     }
 
     public void onUnformed() {
-        this.isBigger = false;
-        this.tank.setCapacity(CAPACITY);
-        this.setChanged();
+        this.tank.setEnhanced(false);
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, FluidTankBlockEntity entity) {
-        if (level.isClientSide) return;
-        if (++entity.tickCounter % CHECK_INTERVAL != 0) return;
+        if (level.isClientSide || ++entity.tickCounter % CHECK_INTERVAL != 0) return;
         boolean valid = TankUtil.isMengerStructure(level, pos, 3);
-        if (entity.isBigger && !valid) {
+        if (entity.tank.isEnhanced() && !valid) {
             entity.onUnformed();
-        } else if (!entity.isBigger && valid) {
+        } else if (!entity.tank.isEnhanced() && valid) {
             entity.onFormed();
         }
     }
 
-    private void updateLightLevel() {
-        if (this.level == null) {
-            return;
+    private void onTankChanged() {
+        this.setChanged();
+        this.updateLightLevel();
+        if (this.level != null) {
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_ALL);
         }
-
-        BlockPos pos = this.getBlockPos();
-        AuxiliaryLightManager manager = this.level.getAuxLightManager(pos);
-        if (manager == null) {
-            return;
-        }
-        manager.setLightAt(pos, this.computeLightLevel());
     }
 
-    private int computeLightLevel() {
-        FluidStack stack = this.tank.getFluid();
+    private void updateLightLevel() {
+        if (this.level == null) return;
+        AuxiliaryLightManager manager = this.level.getAuxLightManager(this.getBlockPos());
+        if (manager == null) return;
+
+        FluidStack fluid = this.tank.getFluid();
         float fill = (float) this.tank.getFluidAmount() / this.tank.getCapacity();
-        return (int) Math.ceil(stack.getFluidType().getLightLevel(stack) * fill);
+        manager.setLightAt(
+            this.getBlockPos(),
+            (int) Math.ceil(fluid.getFluidType().getLightLevel(fluid) * fill)
+        );
     }
 
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
-        tag.putBoolean("bigger", this.isBigger);
-        CompoundTag tankNbt = tank.writeToNBT(provider, new CompoundTag());
-        if (!tankNbt.isEmpty()) {
-            tag.put("tank", tankNbt);
-        }
+        tag.put(TAG_TANK, this.tank.writeToNBT(provider, new CompoundTag()));
     }
 
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
-        this.isBigger = tag.getBoolean("bigger");
-        if (this.isBigger) {
-            this.onFormed();
-        } else {
-            this.onUnformed();
-        }
-        tank.readFromNBT(provider, tag.getCompound("tank"));
+        this.tank.readFromNBT(provider, tag.getCompound(TAG_TANK));
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putBoolean("bigger", this.isBigger);
-        CompoundTag fluidTag = new CompoundTag();
-        tank.writeToNBT(registries, fluidTag);
-        tag.put("tank", fluidTag);
+        tag.put(TAG_TANK, this.tank.writeToNBT(registries, new CompoundTag()));
         return tag;
     }
 
@@ -156,25 +123,25 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {
         if (this.level != null
-            && FluidHandlerWrapper.tryInteractWithBottle(player, hand, tank, this.level, this.getBlockPos())) {
+            && FluidHandlerWrapper.tryInteractWithBottle(player, hand, this.tank, this.level, this.getBlockPos())) {
             return true;
         }
-        return FluidUtil.interactWithFluidHandler(player, hand, tank);
+        return FluidUtil.interactWithFluidHandler(player, hand, this.tank);
     }
 
     public int getRedstoneSignal() {
-        int amount = this.getTank().getFluid().getAmount();
-        int capacity = this.getTank().getCapacity();
+        int amount = this.tank.getFluidAmount();
+        int capacity = this.tank.getCapacity();
         int strength = amount == 0 ? 0 : amount * (Redstone.SIGNAL_MAX - 1) / capacity + 1;
-        strength = Mth.clamp(strength, Redstone.SIGNAL_MIN, Redstone.SIGNAL_MAX);
-        return strength;
+        return Mth.clamp(strength, Redstone.SIGNAL_MIN, Redstone.SIGNAL_MAX);
     }
 
-    public IFluidTank getTank() {
-        return tank;
-    }
-
+    @Override
     public IFluidHandler getFluidHandler() {
-        return tank;
+        return this.tank;
+    }
+
+    public boolean isInfinite() {
+        return this.tank.isInfinite();
     }
 }

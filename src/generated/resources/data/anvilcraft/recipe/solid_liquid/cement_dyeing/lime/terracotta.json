@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "anvilcraft:lime_cement",
+  "ingredients": [
+    {
+      "items": "#minecraft:terracotta"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:lime_terracotta"
+    }
+  ]
+}

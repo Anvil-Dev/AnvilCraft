@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "minecraft:water",
+  "ingredients": [
+    {
+      "items": "minecraft:tube_coral"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:tube_coral_block"
+    }
+  ]
+}

@@ -139,12 +139,9 @@ public class WheelLifecycleEventListener {
 
     private static @Nullable WheelMenuModel getMultiphaseWheel(InteractionHand hand, ItemStack holding, Multiphase multiphase) {
         int phaseCount = multiphase.phases().size();
-        WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(phaseCount * 2);
+        WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(phaseCount);
         for (int i = 0; i < phaseCount; i++) {
-            addMultiphaseWheelEntry(builder, hand, holding, multiphase, i, false);
-        }
-        for (int i = 0; i < phaseCount; i++) {
-            addMultiphaseWheelEntry(builder, hand, holding, multiphase, i, true);
+            addMultiphaseWheelEntry(builder, hand, holding, multiphase, i);
         }
         return builder.build();
     }
@@ -154,20 +151,18 @@ public class WheelLifecycleEventListener {
         InteractionHand hand,
         ItemStack holding,
         Multiphase multiphase,
-        int phaseIndex,
-        boolean merciless
+        int phaseIndex
     ) {
-        String id = "phase_" + phaseIndex + (merciless ? "_merciless" : "");
         builder.action(
-            id,
-            multiphase.phaseDisplayName(phaseIndex, merciless),
+            "phase_" + phaseIndex,
+            multiphase.phaseDisplayName(phaseIndex),
             (graphics, pose, width, height) -> {
                 ItemStack copied = holding.copy();
-                multiphase.applySelectionPreview(copied, phaseIndex, merciless);
+                multiphase.applySelectionPreview(copied, phaseIndex);
                 graphics.renderItem(copied, 2, 2, 9910597);
             },
             ctx -> PacketDistributor.sendToServer(
-                new MultiphasePackets.ChangePhase(hand, phaseIndex, merciless)
+                new MultiphasePackets.ChangePhase(hand, phaseIndex)
             )
         );
     }

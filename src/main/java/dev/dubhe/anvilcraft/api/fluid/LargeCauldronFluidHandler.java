@@ -94,13 +94,8 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
 
     @Override
     public FluidStack drain(FluidStack resource, FluidAction action) {
-        if (resource.isEmpty()) return FluidStack.EMPTY;
-        List<Integer> order = this.layerOrder(DrainOrder.TOP, TOTAL_CAPACITY);
-        if (order.isEmpty()) return FluidStack.EMPTY;
-        int layer = order.getFirst();
-        return FluidStack.isSameFluidSameComponents(this.tanks[layer].getFluid(), resource)
-            ? this.drainLayer(layer, resource.getAmount(), action)
-            : FluidStack.EMPTY;
+        return this.drainFirstMatching(
+            resource, action, this.layerOrder(DrainOrder.TOP, TOTAL_CAPACITY));
     }
 
     @Override
@@ -129,6 +124,19 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
             return FluidStack.EMPTY;
         }
         return this.drainLayer(layer, resource.getAmount(), action);
+    }
+
+    private FluidStack drainFirstMatching(
+        FluidStack resource, FluidAction action, List<Integer> order
+    ) {
+        if (resource.isEmpty()) return FluidStack.EMPTY;
+        for (int layer : order) {
+            FluidStack stored = this.getFluidInTank(layer);
+            if (FluidStack.isSameFluidSameComponents(stored, resource)) {
+                return this.drainLayer(layer, resource.getAmount(), action);
+            }
+        }
+        return FluidStack.EMPTY;
     }
 
     private FluidStack drainLayer(int layer, int maxDrain, FluidAction action) {
@@ -308,14 +316,7 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
 
         @Override
         public FluidStack drain(FluidStack resource, FluidAction action) {
-            if (resource.isEmpty()) return FluidStack.EMPTY;
-            List<Integer> order = this.order();
-            if (order.isEmpty()) return FluidStack.EMPTY;
-            int layer = order.getFirst();
-            FluidStack stored = LargeCauldronFluidHandler.this.getFluidInTank(layer);
-            return FluidStack.isSameFluidSameComponents(stored, resource)
-                ? LargeCauldronFluidHandler.this.drainLayer(layer, resource.getAmount(), action)
-                : FluidStack.EMPTY;
+            return LargeCauldronFluidHandler.this.drainFirstMatching(resource, action, this.order());
         }
 
         @Override

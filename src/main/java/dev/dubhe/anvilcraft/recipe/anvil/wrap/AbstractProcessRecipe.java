@@ -113,10 +113,10 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
      * @return 首个输入方块
      */
     public BlockStatePredicate getFirstInputBlock() {
-        return Objects.requireNonNullElseGet(
-            this.getInputBlocks().getFirst(),
-            () -> BlockStatePredicate.builder().of(Blocks.AIR).build()
-        );
+        List<BlockStatePredicate> inputBlocks = this.getInputBlocks();
+        return inputBlocks.isEmpty()
+               ? BlockStatePredicate.builder().of(Blocks.AIR).build()
+               : Objects.requireNonNullElseGet(inputBlocks.getFirst(), () -> BlockStatePredicate.builder().of(Blocks.AIR).build());
     }
 
     /**
@@ -134,10 +134,10 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
      * @return 首个结果方块
      */
     public ChanceBlockState getFirstResultBlock() {
-        return Objects.requireNonNullElseGet(
-            this.getResultBlocks().getFirst(),
-            () -> new ChanceBlockState(Blocks.AIR.defaultBlockState(), 1.0f)
-        );
+        List<ChanceBlockState> resultBlocks = this.getResultBlocks();
+        return resultBlocks.isEmpty()
+               ? new ChanceBlockState(Blocks.AIR.defaultBlockState(), 1.0f)
+               : Objects.requireNonNullElseGet(resultBlocks.getFirst(), () -> new ChanceBlockState(Blocks.AIR.defaultBlockState(), 1.0f));
     }
 
     /**

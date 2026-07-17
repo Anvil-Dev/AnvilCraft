@@ -16,4 +16,4 @@ items:
 
 Upon consumption, removes all negative effects from the player; if there are no negative effects, inflicts 30 seconds of Poison 5
 
-<recipe id="anvilcraft:cooking/utusan"/>
+<recipe id="anvilcraft:fast_cooking/utusan"/>

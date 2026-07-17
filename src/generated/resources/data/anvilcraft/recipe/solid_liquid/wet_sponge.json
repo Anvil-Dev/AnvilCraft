@@ -1,0 +1,15 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "consume": 250,
+  "fluid": "minecraft:water",
+  "ingredients": [
+    {
+      "items": "anvilcraft:sponge_gemmule"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:wet_sponge"
+    }
+  ]
+}

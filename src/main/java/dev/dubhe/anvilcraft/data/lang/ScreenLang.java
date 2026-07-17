@@ -24,6 +24,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.button.filter_mode_any", "Any");
         provider.add("screen.anvilcraft.button.filter_mode_all", "All");
         provider.add("screen.anvilcraft.button.record", "Retention item filtering: %s");
+        provider.add("screen.anvilcraft.batch_crafter.switch_recipe", "Switch crafting recipe");
 
         provider.add("screen.anvilcraft.button.compare_mode_hysteresis", "Mode: Hysteresis");
         provider.add("screen.anvilcraft.button.compare_mode_window", "Mode: Window");

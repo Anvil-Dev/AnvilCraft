@@ -17,7 +17,7 @@ items:
 # 海绵增殖
 
 <row halign="center">
-<recipe id="anvilcraft:bulging/wet_sponge"/>
+<recipe id="anvilcraft:solid_liquid/wet_sponge"/>
 <recipe id="anvilcraft:unpack/sponge_gemmule"/>
 </row>
 

@@ -14,6 +14,8 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,26 +38,45 @@ public class FluidTankTooltipProvider extends ITooltipProvider.BlockEntityToolti
             if (player != null && player.isShiftKeyDown()) {
                 original = true;
             }
-            int amount = tank.getFluidHandler().getFluidInTank(0).getAmount();
+            IFluidHandler handler = tank.getFluidHandler();
+            long amount = 0;
+            List<FluidStack> fluids = new ArrayList<>();
+            for (int i = 0; i < handler.getTanks(); i++) {
+                FluidStack fluid = handler.getFluidInTank(i);
+                if (fluid.isEmpty()) continue;
+                amount += fluid.getAmount();
+                fluids.add(fluid);
+            }
             if (amount > 0) {
                 lines.add(Component.translatable("tooltip.anvilcraft.fluid_tank.fluid")
                     .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)));
-                lines.add(Component.literal("  ").append(tank.getFluidHandler().getFluidInTank(0).getHoverName())
-                    .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+                for (FluidStack fluid : fluids) {
+                    Component fluidAmount = value instanceof LargeFluidTankBlockEntity largeTank
+                        && largeTank.isInfinite(fluid)
+                        ? Component.literal(" ∞")
+                        : Component.literal(" " + UnitUtil.fluidUnit(fluid.getAmount(), original));
+                    lines.add(Component.literal("  ").append(fluid.getHoverName()).append(fluidAmount)
+                        .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
+                }
             }
             lines.add(Component.translatable("tooltip.anvilcraft.fluid_tank.capacity")
                     .setStyle(Style.EMPTY.applyFormat(ChatFormatting.BLUE)));
-            if (value instanceof LargeFluidTankBlockEntity be && be.isInfinity()) {
+            boolean infinity = value instanceof LargeFluidTankBlockEntity largeTank && largeTank.isEnhanced()
+                || value instanceof FluidTankBlockEntity smallTank && smallTank.isInfinite();
+            if (infinity) {
                 lines.add(Component.translatable(
                         "tooltip.anvilcraft.fluid_tank.capacity.value.infinity",
                         UnitUtil.fluidUnit(amount, original)
                     )
                     .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
             } else {
+                int capacity = value instanceof LargeFluidTankBlockEntity
+                    ? LargeFluidTankBlockEntity.BASE_CAPACITY
+                    : handler.getTankCapacity(0);
                 lines.add(Component.translatable(
                         "tooltip.anvilcraft.fluid_tank.capacity.value",
                         UnitUtil.fluidUnit(amount, original),
-                        UnitUtil.fluidUnit(tank.getFluidHandler().getTankCapacity(0), original)
+                        UnitUtil.fluidUnit(capacity, original)
                     )
                     .setStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY)));
             }
