@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
+import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
 import dev.dubhe.anvilcraft.saved.setting.mode.NbtDisplayMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SearchMode;
@@ -125,9 +126,9 @@ public class StorageScreen extends Screen {
         this.search.setBordered(false);
         this.search.setResponder(content -> {
             SettingClientStub.update(content);
-            this.reorder();
+            this.reorder(false);
         });
-        this.addRenderableWidget(new SwitchableButton(
+        SwitchableButton searchMode = this.addRenderableWidget(new SwitchableButton(
             this.left + 2,
             this.top + 23,
             24,
@@ -139,14 +140,17 @@ public class StorageScreen extends Screen {
             20,
             24,
             40,
-            (_, index) -> SettingClientStub.update(SearchMode.values()[index])
+            (_, index) -> {
+                SettingClientStub.update(SearchMode.values()[index]);
+                this.reorder();
+            }
         ));
         List<Identifier> sortTextures = Lists.newArrayList(
             StorageScreen.SORT_COUNT,
             StorageScreen.SORT_MOD,
             StorageScreen.SORT_NAME
         );
-        this.addRenderableWidget(new SwitchableButton(
+        SwitchableButton sortMode = this.addRenderableWidget(new SwitchableButton(
             this.left + 28,
             this.top + 23,
             24,
@@ -157,10 +161,10 @@ public class StorageScreen extends Screen {
             40,
             (_, index) -> {
                 SettingClientStub.update(SortMode.values()[index]);
-                this.reorder(true);
+                this.reorder();
             }
         ));
-        this.addRenderableWidget(new SwitchableButton(
+        SwitchableButton orderMode = this.addRenderableWidget(new SwitchableButton(
             this.left + 54,
             this.top + 23,
             24,
@@ -182,10 +186,10 @@ public class StorageScreen extends Screen {
                     sortTextures.set(0, StorageScreen.SORT_COUNT_REVERSED);
                     sortTextures.set(2, StorageScreen.SORT_NAME_REVERSED);
                 }
-                this.reorder(true);
+                this.reorder();
             }
         ));
-        this.addRenderableWidget(new SwitchableButton(
+        SwitchableButton nbtMode = this.addRenderableWidget(new SwitchableButton(
             this.left + 80,
             this.top + 23,
             24,
@@ -212,14 +216,20 @@ public class StorageScreen extends Screen {
                 if (this.categories != null) {
                     this.categories.rebuild(setting);
                 }
-                if (setting.storage().getOrder() == OrderMode.SEQUENTIAL) {
+                StorageSetting storage = setting.storage();
+                this.search.setValue(storage.getSearchContent());
+                searchMode.setCurrent(storage.getSearch().ordinal());
+                sortMode.setCurrent(storage.getSort().ordinal());
+                orderMode.setCurrent(storage.getOrder().ordinal());
+                nbtMode.setCurrent(storage.getNbtDisplay().ordinal());
+                if (storage.getOrder() == OrderMode.SEQUENTIAL) {
                     sortTextures.set(0, StorageScreen.SORT_COUNT);
                     sortTextures.set(2, StorageScreen.SORT_NAME);
                 } else {
                     sortTextures.set(0, StorageScreen.SORT_COUNT_REVERSED);
                     sortTextures.set(2, StorageScreen.SORT_NAME_REVERSED);
                 }
-                this.reorder(true);
+                this.reorder();
             },
             this.screenExecutor
         );
@@ -441,8 +451,8 @@ public class StorageScreen extends Screen {
         }
 
         if (event.button() == 0 || event.button() == 1) {
-            int storageSlot = this.getStorageSlot(event.x(), event.y());
-            if (storageSlot != -1 && this.minecraft.gameMode != null) {
+            Integer storageSlot = this.getStorageSlot(event.x(), event.y());
+            if (storageSlot != null && this.minecraft.gameMode != null) {
                 this.interactWithStorage(storageSlot, event.button());
                 return true;
             }
@@ -502,7 +512,7 @@ public class StorageScreen extends Screen {
                 this.carried = result.carried();
                 this.player.inventoryMenu.setCarried(this.carried);
                 if (result.changed()) {
-                    this.reorder();
+                    this.reorder(false);
                 }
             },
             this.screenExecutor
@@ -664,6 +674,24 @@ public class StorageScreen extends Screen {
         return true;
     }
 
+    private @Nullable Integer getStorageSlot(double mouseX, double mouseY) {
+        int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
+        for (int displayIndex = 0; displayIndex < StorageScreen.VISIBLE_STORAGE_SLOTS; displayIndex++) {
+            int orderIndex = firstOrderIndex + displayIndex;
+            int x = this.left + StorageScreen.STORAGE_X
+                + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
+            int y = this.top + StorageScreen.STORAGE_Y
+                + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
+            if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
+                if (orderIndex < this.order.size()) {
+                    return this.order.getInt(orderIndex);
+                }
+                return this.carried.isEmpty() ? null : 0;
+            }
+        }
+        return null;
+    }
+
     private int getInventorySlot(double mouseX, double mouseY) {
         int y = this.top + 140 + 58;
         for (int column = 0; column < 9; column++) {
@@ -691,24 +719,6 @@ public class StorageScreen extends Screen {
         Window window = this.minecraft.getWindow();
         MouseHandler handler = this.minecraft.mouseHandler;
         return this.getInventorySlot(handler.getScaledXPos(window), handler.getScaledYPos(window));
-    }
-
-    private int getStorageSlot(double mouseX, double mouseY) {
-        int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
-        for (int displayIndex = 0; displayIndex < StorageScreen.VISIBLE_STORAGE_SLOTS; displayIndex++) {
-            int orderIndex = firstOrderIndex + displayIndex;
-            if (orderIndex >= this.order.size()) {
-                return -1;
-            }
-            int x = this.left + StorageScreen.STORAGE_X
-                + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
-            int y = this.top + StorageScreen.STORAGE_Y
-                + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
-            if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
-                return this.order.getInt(orderIndex);
-            }
-        }
-        return -1;
     }
 
     private int getScreenSlot(int invSlot) {
