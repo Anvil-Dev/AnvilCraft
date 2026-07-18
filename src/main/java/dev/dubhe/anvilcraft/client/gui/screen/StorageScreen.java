@@ -92,7 +92,10 @@ public class StorageScreen extends Screen {
         ));
         this.search.setValue(SettingClientStub.setting().storage().getSearchContent());
         this.search.setBordered(false);
-        this.search.setResponder(SettingClientStub::update);
+        this.search.setResponder(content -> {
+            SettingClientStub.update(content);
+            this.reorder();
+        });
         this.addRenderableWidget(new SwitchableButton(
             this.left + 2,
             this.top + 23,

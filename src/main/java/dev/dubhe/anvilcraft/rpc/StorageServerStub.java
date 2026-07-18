@@ -17,6 +17,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -27,9 +28,12 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.Method;
@@ -37,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
 import java.util.function.Function;
@@ -188,19 +193,31 @@ public final class StorageServerStub {
 
     private IntList getOrder(TypeLimitItemStacksResourceHandler items, StorageSetting setting) {
         SortOptions options = new SortOptions(setting.getSort(), setting.getOrder());
-        return this.orders.computeIfAbsent(options, _ -> StorageServerStub.createOrder(items, options));
+        String search = setting.getSearchContent().strip().toLowerCase(Locale.ROOT);
+        if (!search.isEmpty()) {
+            return StorageServerStub.createOrder(items, options, search);
+        }
+        return this.orders.computeIfAbsent(options, _ -> StorageServerStub.createOrder(items, options, ""));
     }
 
-    private static IntList createOrder(TypeLimitItemStacksResourceHandler items, SortOptions options) {
+    private static IntList createOrder(TypeLimitItemStacksResourceHandler items, SortOptions options, String search) {
         List<OrderEntry> entries = new ArrayList<>(items.size());
+        boolean requiresName = options.sort() == SortMode.NAME
+            || search.isEmpty()
+            || search.charAt(0) != '@' && search.charAt(0) != '#';
         for (int index = 0; index < items.size(); index++) {
             long amount = items.getAmountAsLong(index);
             if (amount <= 0) {
                 continue;
             }
-            var stack = items.getResource(index).toStack();
+            ItemResource resource = items.getResource(index);
+            ItemStack stack = resource.toStack();
             Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
-            entries.add(new OrderEntry(index, amount, id, stack.getHoverName().getString()));
+            String name = requiresName ? stack.getHoverName().getString() : "";
+            if (!StorageServerStub.matchesSearch(resource.typeHolder(), id, name, search)) {
+                continue;
+            }
+            entries.add(new OrderEntry(index, amount, id, name));
         }
 
         Comparator<OrderEntry> comparator = StorageServerStub.getComparator(options);
@@ -211,6 +228,26 @@ public final class StorageServerStub {
             order.add(entry.index());
         }
         return order;
+    }
+
+    private static boolean matchesSearch(Holder<Item> item, Identifier id, String name, String search) {
+        if (search.isEmpty()) {
+            return true;
+        }
+        if (search.charAt(0) == '@') {
+            return id.getNamespace().toLowerCase(Locale.ROOT).contains(search.substring(1));
+        }
+        if (search.charAt(0) == '#') {
+            String tagSearch = search.substring(1);
+            return item.tags().anyMatch(tag -> StorageServerStub.matchesTag(tag.location(), tagSearch));
+        }
+        return name.toLowerCase(Locale.ROOT).contains(search)
+            || id.getPath().toLowerCase(Locale.ROOT).contains(search);
+    }
+
+    private static boolean matchesTag(Identifier id, String search) {
+        return id.toString().toLowerCase(Locale.ROOT).contains(search)
+            || id.getPath().toLowerCase(Locale.ROOT).contains(search);
     }
 
     private static @NonNull Comparator<OrderEntry> getComparator(SortOptions options) {
