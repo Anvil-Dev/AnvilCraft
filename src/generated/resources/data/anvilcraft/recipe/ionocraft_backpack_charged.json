@@ -7,7 +7,7 @@
       "item": "anvilcraft:ionocraft"
     },
     "B": {
-      "item": "anvilcraft:capacitor_empty"
+      "item": "anvilcraft:capacitor"
     },
     "C": {
       "tag": "c:plates/tin"
@@ -22,6 +22,9 @@
     "CDC"
   ],
   "result": {
+    "components": {
+      "anvilcraft:stored_energy": 16000000
+    },
     "count": 1,
     "id": "anvilcraft:ionocraft_backpack"
   }

@@ -8,6 +8,7 @@ import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -404,20 +405,40 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void ionocraftBackpack(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        // Empty capacitor → empty backpack
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("ABA")
             .pattern("ABA")
             .pattern("CDC")
             .define('A', ModItems.IONOCRAFT.asItem())
-            .define('B', ModItemTags.CAPACITOR)
+            .define('B', ModItems.CAPACITOR_EMPTY)
             .define('C', ModItemTags.TIN_PLATES)
             .define('D', Items.LEATHER_CHESTPLATE)
             .group(ctx.getId().toString())
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.IONOCRAFT.asItem()), RegistrumRecipeProvider.has(ModItems.IONOCRAFT.asItem()))
-            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.CAPACITOR), RegistrumRecipeProvider.has(ModItemTags.CAPACITOR))
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.CAPACITOR_EMPTY.asItem()),
+                RegistrumRecipeProvider.has(ModItems.CAPACITOR_EMPTY.asItem()))
             .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TIN_PLATES), RegistrumRecipeProvider.has(ModItemTags.TIN_PLATES))
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.LEATHER_CHESTPLATE), RegistrumRecipeProvider.has(Items.LEATHER_CHESTPLATE))
             .save(provider);
+        // Charged capacitor → backpack with 16 MFE stored
+        ItemStack charged = new ItemStack(ctx.get());
+        charged.set(ModComponents.STORED_ENERGY, 16000000);
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, charged)
+            .pattern("ABA")
+            .pattern("ABA")
+            .pattern("CDC")
+            .define('A', ModItems.IONOCRAFT.asItem())
+            .define('B', ModItems.CAPACITOR)
+            .define('C', ModItemTags.TIN_PLATES)
+            .define('D', Items.LEATHER_CHESTPLATE)
+            .group(ctx.getId().toString())
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.IONOCRAFT.asItem()), RegistrumRecipeProvider.has(ModItems.IONOCRAFT.asItem()))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.CAPACITOR.asItem()), RegistrumRecipeProvider.has(ModItems.CAPACITOR.asItem()))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.TIN_PLATES), RegistrumRecipeProvider.has(ModItemTags.TIN_PLATES))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.LEATHER_CHESTPLATE), RegistrumRecipeProvider.has(Items.LEATHER_CHESTPLATE))
+            .save(provider, AnvilCraft.of("ionocraft_backpack_charged"));
     }
 
     public static <T extends Item> void permutationTemplateItem(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
