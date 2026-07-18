@@ -16,20 +16,26 @@ Utilize [Anvil Looting](../001_feature/000_anvil_loot.md) combined with the [Dis
 
 ## Diagram
 
-<structure id="../../structures/machine/iron.snbt"/>
+<structure id="../../structures/machine/iron.nbt"/>
 
 <tip>
 Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust display height
 </tip>
 
-- Place the Iron Golem at the button's location; the glass panes will restrict its movement
-- Set all repeaters to 3 ticks (excessively high frequency will cause surplus iron ingots fired by the dispenser to not be retrieved by the chute in time)
-- Set the chute next to the dispenser to filter: Iron Ingot
-- Set the chute next to the dropper to filter: Anvil
+- Place the Iron Golem at the *button*'s location; the *glass panes* will restrict its movement
+- Set all repeaters to 3 ticks (excessively high frequency will cause surplus iron ingots fired by the <ref item="minecraft:dispenser"/> to not be retrieved by the chute in time)
+- Set the <ref item="anvilcraft:magnetic_chute"/> next to the <ref item="minecraft:dispenser"/> to filter: Iron Ingot
+- Set the <ref item="anvilcraft:magnetic_chute"/> next to the dropper to filter: Anvil
 - Remember to place an anvil after building
 
 <info>
-- All <ref item="minecraft:glass"/> can be replaced with any full block
-- All <ref item="minecraft:smooth_stone"/> can be replaced with any full opaque block
+- All _reinforced concrete_ does not need to be built; it is only for counting blocks
+- All <ref item="minecraft:glass"/> can be replaced with any full opaque block
+- All <ref item="minecraft:smooth_stone"/> can be replaced with any full block
 - All <ref item="minecraft:smooth_stone_slab"/> can be replaced with any slab
+- All <ref item="minecraft:anvil"/> can be replaced with any anvil, except <ref item="minecraft:damaged_anvil"/>, as it will disappear directly without dropping anything
 </info>
+
+<warning>
+The top <ref item="anvilcraft:magnetic_chute"/> must not be replaced, otherwise the *anvil* may fly out from the side
+</warning>

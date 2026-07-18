@@ -16,20 +16,26 @@ navigation:
 
 ## 图示
 
-<structure id="../../structures/machine/iron.snbt"/>
+<structure id="../../structures/machine/iron.nbt"/>
 
 <tip>
 左键调整位置；右键调整角度；PgUP/PgDN调整显示高度
 </tip>
 
-- 在按钮所在位置安置铁傀儡，玻璃板会限制其移动
-- 中继器都调为3档（过高的频率会使得发射器发射出的多余铁锭来不及被溜槽收回）
-- 发射器边上的溜槽设置过滤：铁锭
-- 投掷器边上的设置过滤：铁砧
+- 在*按钮*所在位置安置铁傀儡，*玻璃板*会限制其移动
+- 中继器都调为3档（过高的频率会使得<ref item="minecraft:dispenser"/>发射出的多余铁锭来不及被溜槽收回）
+- <ref item="minecraft:dispenser"/>边上的<ref item="anvilcraft:magnetic_chute"/>设置过滤：铁锭
+- 投掷器边上的<ref item="anvilcraft:magnetic_chute"/>过滤：铁砧
 - 做完后记得放入一个铁砧
 
 <info>
+- 所有 _钢筋混凝土_ 不必搭建，只是为了方便数格子
 - 所有 <ref item="minecraft:glass"/> 可替换为 任意完整方块
 - 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整不透明方块
 - 所有 <ref item="minecraft:smooth_stone_slab"/> 可替换为 任意台阶
+- 所有 <ref item="minecraft:anvil"/> 可替换为 任意铁砧 ，除了<ref item="minecraft:damaged_anvil"/>，因为它会直接消失没有掉落物
 </info>
+
+<warning>
+最上面的<ref item="anvilcraft:magnetic_chute"/>不可替换，否则*铁砧*有概率从侧边飞出去
+</warning>

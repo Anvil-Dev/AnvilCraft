@@ -81,7 +81,7 @@ To remove a mega structure, simply unbind and rebind the planet
 
 |     Mega Structure     |            Construction Condition            |                            Input                            |                                       Output                                        |
 |:----------------------:|:--------------------------------------------:|:-----------------------------------------------------------:|:-----------------------------------------------------------------------------------:|
-|  Planetary Excavator   |        Large satellite, rocky planet         | Level 16 [Laser](201_basic_laser.md#laser) (cannot be *Gamma Laser*) |                                  Items (minerals)                                   |
+|  Planetary Excavator   |        Large satellite, rocky planet         | Level 16 [Laser](201_basic_laser.md#laser) (cannot be *Gamma Laser*) |                                  Items (minerals); Compatible with <ref item="anvilcraft:lens"/>                                   |
 |  Planetary Extractor   |         Rocky planet with **liquid**         |                            None                            |                             Fluid (planetary resources)                             |
 |      Eco Station       |  Rocky planet with **biological resources**  |                         Power 1MW                          |                        Items & Fluid (biological resources)                         |
 |         Temple         | Rocky planet with **low-level civilization** |                       Specific items                       |                                  Items (offerings)                                  |

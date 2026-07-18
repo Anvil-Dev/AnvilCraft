@@ -15,13 +15,13 @@ items:
 
 <gradient start="#991155" end="#bbaa55">释放了曾被封印的凋灵之力</gradient>
 
-# 腐化信标
+# <ref item="anvilcraft:corrupted_beacon"/>
 
 ## 获取
 
-1. 完全使用<ref item="anvilcraft:cursed_gold_block"/>作为信标底座，
-2. 消耗<ref item="anvilcraft:cursed_gold_ingot"/>激活信标
-3. 信标有概率转化为<ref item="anvilcraft:corrupted_beacon"/>(底座层数越多，转化概率越大)，此时天气被控制为雷雨天
+1. 完全使用<ref item="anvilcraft:cursed_gold_block"/>作为*信标底座*
+2. 消耗<ref item="anvilcraft:cursed_gold_ingot"/>激活<ref item="minecraft:beacon"/>
+3. <ref item="minecraft:beacon"/>有概率转化为<ref item="anvilcraft:corrupted_beacon"/>(底座层数越多，转化概率越大)，此时天气被控制为雷雨天
 
 | 层数 |  概率  | 基座诅咒金块 |   等价诅咒金锭    | 期望成功转化所需次数 | 95%的把握成功转化所需次数 |
 |:--:|:----:|:------:|:-----------:|:----------:|:--------------:|
@@ -30,13 +30,13 @@ items:
 | 3  | 20%  |   83   | 747 = 11组43 |     5      |       14       |
 | 4  | 100% |  164   | 1479 = 23组4 |     1      |       1        |
 
-> **自动化**：使用铁砧将诅咒金锭压入信标
+> **自动化**：使用铁砧将<ref item="anvilcraft:cursed_gold_ingot"/>压入<ref item="minecraft:beacon"/>
 
 ## 功能
 
 <structure id="../../structures/corrupted_beacon.snbt"/>
 
-- 此结构可以实现时移操作，此时腐化信标必须是激活状态
+- 此结构可以实现时移操作，此时<ref item="anvilcraft:corrupted_beacon"/>必须是激活状态
 
 > 这意味着如果使用磁铁块控制顶上的铁砧，其必须为<ref item="anvilcraft:hollow_magnet_block"/>
 

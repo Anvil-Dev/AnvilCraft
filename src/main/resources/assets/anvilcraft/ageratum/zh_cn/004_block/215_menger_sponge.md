@@ -14,7 +14,7 @@ items:
 
 ## 获取
 
-- 依赖[多方块合成](210_giant_anvil.md#功能)
+- 通过[多方块合成](210_giant_anvil.md#功能)获得
 
 <tip>
 建议[量产海绵](../008_recipe/002_sponge_gemmule.md)

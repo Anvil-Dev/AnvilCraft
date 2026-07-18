@@ -14,7 +14,7 @@ A sponge with infinite surface area
 
 ## Acquisition
 
-- Relies on [multi-block crafting](210_giant_anvil.md#function)
+- Obtained through [multi-block crafting](210_giant_anvil.md#function)
 
 <tip>
 Recommended: [mass-produce sponges](../008_recipe/002_sponge_gemmule.md)
