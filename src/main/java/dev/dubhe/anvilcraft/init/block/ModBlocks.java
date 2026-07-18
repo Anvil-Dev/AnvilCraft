@@ -1020,6 +1020,7 @@ public class ModBlocks {
     public static final BlockEntry<ExpCollectorBlock> EXP_COLLECTOR = REGISTRUM
         .block("exp_collector", ExpCollectorBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .lang("EXP Collector")
         .properties((properties) -> properties
             .noOcclusion()
             .isValidSpawn(Blocks::never)
@@ -3498,6 +3499,7 @@ public class ModBlocks {
         .block("exp_fluid_cauldron", ExpFluidCauldronBlock::new)
         .initialProperties(() -> Blocks.CAULDRON)
         .blockstate(DataGenUtil::noExtraModelOrState)
+        .lang("EXP Fluid Cauldron")
         .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
         .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
@@ -3781,6 +3783,7 @@ public class ModBlocks {
             .liquid()
             .sound(SoundType.EMPTY)
             .strength(100.0F))
+        .lang("EXP Fluid")
         .blockstate(ModelProviderUtil::liquid)
         .register();
 

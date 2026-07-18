@@ -67,7 +67,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.TESLA_GUN);
         this.plain(ModItems.LASER_GUN);
         this.plain(ModItems.IONOCRAFT);
-        this.plain(ModItems.IONOCRAFT_BACKPACK);
+        this.ionoCraftBackpack(ModItems.IONOCRAFT_BACKPACK);
 
         // Energy storage.
         this.plain(ModItems.CAPACITOR);

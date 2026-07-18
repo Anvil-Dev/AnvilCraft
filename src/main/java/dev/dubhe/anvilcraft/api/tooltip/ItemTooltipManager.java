@@ -134,26 +134,26 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.EMBER_DECO_OUTLINE.asItem(), "Ember Metal decorative block, low content, not explosion proof");
         NORMAL.put(ModItems.EMBER_METAL_INGOT.get(), "A piece of Netherite tempered in fire for eons");
         NORMAL.put(ModItems.FROST_METAL_INGOT.get(), "A piece of Royal Steel tempered in extreme cold for eons");
-        NORMAL.put(ModItems.MAGNET_INGOT.get(), "A magnetized iron ingot");
-        NORMAL.put(ModItems.TUNGSTEN_INGOT.get(), "A heat-resistant and dense metal, material for Ancient Debris");
-        NORMAL.put(ModBlocks.TUNGSTEN_BLOCK.asItem(), "A large block of heat-resistant, high-density metal that can be heated to extreme temperatures");
-        NORMAL.put(ModItems.TITANIUM_INGOT.get(), "A strong and lightweight metal");
+        NORMAL.put(ModItems.MAGNET_INGOT.get(), "A piece of magnetized iron");
+        NORMAL.put(ModItems.TUNGSTEN_INGOT.get(), "A piece of heat-resistant, dense metal, material for Ancient Debris");
+        NORMAL.put(ModBlocks.TUNGSTEN_BLOCK.asItem(), "A large block of heat-resistant, dense metal that can be heated to extreme temperatures");
+        NORMAL.put(ModItems.TITANIUM_INGOT.get(), "A piece of strong, lightweight metal");
         NORMAL.put(ModBlocks.TITANIUM_BLOCK.asItem(), "A large block of strong, lightweight metal");
-        NORMAL.put(ModItems.ZINC_INGOT.get(), "A lightweight metal");
+        NORMAL.put(ModItems.ZINC_INGOT.get(), "A piece of lightweight metal");
         NORMAL.put(ModBlocks.ZINC_BLOCK.asItem(), "A large block of lightweight metal");
-        NORMAL.put(ModItems.TIN_INGOT.get(), "A soft and corrosion-resistant metal");
+        NORMAL.put(ModItems.TIN_INGOT.get(), "A piece of soft, corrosion-resistant metal");
         NORMAL.put(ModBlocks.TIN_BLOCK.asItem(), "A large block of soft, corrosion-resistant metal");
-        NORMAL.put(ModItems.LEAD_INGOT.get(), "A dense and heavy metal");
+        NORMAL.put(ModItems.LEAD_INGOT.get(), "A piece of dense, heavy metal");
         NORMAL.put(ModBlocks.LEAD_BLOCK.asItem(), "A large block of dense, heavy metal that absorbs radiation and slows the decay of radioactive blocks");
-        NORMAL.put(ModItems.SILVER_INGOT.get(), "A highly reflective metal");
+        NORMAL.put(ModItems.SILVER_INGOT.get(), "A piece of highly reflective metal");
         NORMAL.put(ModBlocks.SILVER_BLOCK.asItem(), "A large block of highly reflective metal");
-        NORMAL.put(ModItems.URANIUM_INGOT.get(), "Radioactive — handle with care");
+        NORMAL.put(ModItems.URANIUM_INGOT.get(), "A piece of radioactive material — handle with care");
         NORMAL.put(ModBlocks.URANIUM_BLOCK.asItem(), "A large block of radioactive material that continuously releases heat but decays when multiple blocks are adjacent");
-        NORMAL.put(ModItems.PLUTONIUM_INGOT.get(), "Highly radioactive — cannot be mined naturally, obtained from uranium transmutation");
+        NORMAL.put(ModItems.PLUTONIUM_INGOT.get(), "A piece of highly radioactive material — cannot be mined naturally, obtained from uranium transmutation");
         NORMAL.put(ModBlocks.PLUTONIUM_BLOCK.asItem(), "A large block of highly radioactive material obtained only by transmuting uranium; continuously releases heat but decays when multiple blocks are adjacent");
-        NORMAL.put(ModItems.BRONZE_INGOT.get(), "A durable copper-tin alloy");
+        NORMAL.put(ModItems.BRONZE_INGOT.get(), "A piece of durable copper-tin alloy");
         NORMAL.put(ModBlocks.BRONZE_BLOCK.asItem(), "A large block of durable copper-tin alloy");
-        NORMAL.put(ModItems.BRASS_INGOT.get(), "A corrosion-resistant copper-zinc alloy");
+        NORMAL.put(ModItems.BRASS_INGOT.get(), "A piece of corrosion-resistant copper-zinc alloy");
         NORMAL.put(ModBlocks.BRASS_BLOCK.asItem(), "A large block of corrosion-resistant copper-zinc alloy");
         NORMAL.put(ModBlocks.CUT_BRONZE_BLOCK.asItem(), "Bronze decorative block");
         NORMAL.put(ModBlocks.CUT_BRONZE_STAIRS.asItem(), "Bronze decorative block");
@@ -169,14 +169,14 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.EMBER_METAL_NUGGET.get(), "A small piece of Netherite tempered in fire for eons");
         NORMAL.put(ModItems.FROST_METAL_NUGGET.get(), "A small piece of Royal Steel tempered in extreme cold for eons");
         NORMAL.put(ModItems.TRANSCENDIUM_NUGGET.get(), "A small piece of strong-interaction matter sustained by magic, immune to most forms of destruction");
-        NORMAL.put(ModItems.TUNGSTEN_NUGGET.get(), "A small piece of heat-resistant, high-density metal");
-        NORMAL.put(ModItems.TITANIUM_NUGGET.get(), "A small piece of Titanium");
-        NORMAL.put(ModItems.ZINC_NUGGET.get(), "A small piece of Zinc");
-        NORMAL.put(ModItems.TIN_NUGGET.get(), "A small piece of Tin");
-        NORMAL.put(ModItems.LEAD_NUGGET.get(), "A small piece of Lead");
-        NORMAL.put(ModItems.SILVER_NUGGET.get(), "A small piece of Silver");
-        NORMAL.put(ModItems.URANIUM_NUGGET.get(), "A small piece of Uranium");
-        NORMAL.put(ModItems.PLUTONIUM_NUGGET.get(), "A small piece of highly radioactive material obtained only by transmuting uranium");
+        NORMAL.put(ModItems.TUNGSTEN_NUGGET.get(), "A small piece of heat-resistant, high-density metal, material for Ancient Debris");
+        NORMAL.put(ModItems.TITANIUM_NUGGET.get(), "A small piece of strong, lightweight metal");
+        NORMAL.put(ModItems.ZINC_NUGGET.get(), "A small piece of lightweight metal");
+        NORMAL.put(ModItems.TIN_NUGGET.get(), "A small piece of soft, corrosion-resistant metal");
+        NORMAL.put(ModItems.LEAD_NUGGET.get(), "A small piece of dense, heavy metal");
+        NORMAL.put(ModItems.SILVER_NUGGET.get(), "A small piece of highly reflective metal");
+        NORMAL.put(ModItems.URANIUM_NUGGET.get(), "A small piece of radioactive material — handle with care");
+        NORMAL.put(ModItems.PLUTONIUM_NUGGET.get(), "A small piece of highly radioactive material, cannot be mined naturally, obtained from uranium transmutation");
         NORMAL.put(ModItems.BRONZE_NUGGET.get(), "A small piece of durable copper-tin alloy");
         NORMAL.put(ModItems.BRASS_NUGGET.get(), "A small piece of corrosion-resistant copper-zinc alloy");
         NORMAL.put(ModItems.TIN_CAN.asItem(), "Tin cans can be combined with any food to obtain canned food");
@@ -347,14 +347,16 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
         NORMAL.put(
             ModBlocks.FLUID_TANK.asItem(), """
-                Stores 16B of fluid; Menger Sponges expand it to 12800B and make it infinite when full
+                Stores 16B of fluids
+                Menger Sponges expand it to 12800B and make it infinite when full
                 Can interact with Dispensers for fluid transfer"""
         );
         NORMAL.put(
             ModBlocks.LARGE_FLUID_TANK.asItem(), """
-                Stores 320B shared by any number of fluids; Menger Sponges unlock unlimited total storage
-                Can interact with Dispensers for fluid transfer
-                Can store multiple fluids"""
+                Stores 320B shared by any number of fluids
+                Menger Sponges unlock unlimited total storage
+                Can store multiple fluids, each type of fluid that reaches 12800B will be converted to infinite
+                Can interact with Dispensers for fluid transfer"""
         );
         NORMAL.put(ModBlocks.DRAIN.asItem(), "Transfers fluid vertically, outputting downward and drawing from above");
         NORMAL.put(ModBlocks.CORRUPTED_BEACON.asItem(), "Releases the wither power within the beacon, its beam accelerates time flow or causes mutations");
@@ -365,7 +367,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CONFINED_MASS_ANVILON.asItem(), "Confinement chamber for mass-type Anvilon");
         NORMAL.put(ModBlocks.CONFINED_ENERGY_ANVILON.asItem(), "Confinement chamber for energy-type Anvilon");
         NORMAL.put(ModBlocks.CONFINED_NEUTRONIUM_INGOT_BLOCK.asItem(), "A confinement chamber containing a Charged Neutronium Ingot");
-        NORMAL.put(ModBlocks.NEUTRON_IRRADIATOR.asItem(), "Performs neutron irradiation recipes, absorbs confined anvilons for block procedural process");
+        NORMAL.put(ModBlocks.NEUTRON_IRRADIATOR.asItem(), "Perform neutron irradiation recipes, absorbs confined anvilons for block procedural process");
         NORMAL.put(ModBlocks.CAKE_BASE_BLOCK.asItem(), "A block of cake base, use a shovel as a spoon to eat it");
         NORMAL.put(ModBlocks.CREAM_BLOCK.asItem(), "A block of cream, use a shovel as a spoon to eat it");
         NORMAL.put(ModBlocks.BERRY_CREAM_BLOCK.asItem(), "A block of berry cream, use a shovel as a spoon to eat it");
@@ -422,16 +424,16 @@ public class ItemTooltipManager {
         NORMAL.put(
             ModBlocks.INFINITE_COLLECTOR.asItem(), """
             Generates power by collecting both heat and charge, no upper power limit
-            Provides a baseline output of 256 kW"""
+            Provide a baseline output of 256 kW"""
         );
         NORMAL.put(ModBlocks.LOAD_MONITOR.asItem(), "Monitor the grid load condition, can output a signal by redstone comparator");
         NORMAL.put(ModBlocks.CHUTE.asItem(), "An advanced Hopper, can transfer a full stack of items at a time");
         NORMAL.put(ModBlocks.MAGNETIC_CHUTE.asItem(), "An advanced Chute, with the ability to transport items vertically");
-        NORMAL.put(ModBlocks.EXP_COLLECTOR.asItem(), "Collect nearby Exp orbs and convert them into Exp Fluid");
+        NORMAL.put(ModBlocks.EXP_COLLECTOR.asItem(), "Collect nearby EXP orbs and convert them into EXP Fluid");
         NORMAL.put(ModBlocks.GIANT_ANVIL.asItem(), "An extremely huge anvil");
         NORMAL.put(ModBlocks.LARGE_CAULDRON.asItem(), "An extremely huge cauldron");
-        NORMAL.put(ModBlocks.STAMPING_PLATFORM.asItem(), "Performs stamping recipes");
-        NORMAL.put(ModBlocks.CRUSHING_TABLE.asItem(), "Performs crushing recipes");
+        NORMAL.put(ModBlocks.STAMPING_PLATFORM.asItem(), "Perform stamping recipes");
+        NORMAL.put(ModBlocks.CRUSHING_TABLE.asItem(), "Perform crushing recipes");
         NORMAL.put(
             ModBlocks.JEWEL_CRAFTING_TABLE.asItem(), """
                 A crafting station for rare items
@@ -441,14 +443,14 @@ public class ItemTooltipManager {
         NORMAL.put(ModFoodItems.CHOCOLATE_BLACK.get(), "Tasty dark chocolate made with real cocoa butter, eat a bite to gain Haste");
         NORMAL.put(ModFoodItems.CHOCOLATE_WHITE.get(), "Tasty white chocolate made with real cocoa butter, eat a bite to gain Jump Boost");
         NORMAL.put(ModItems.SEEDS_PACK.get(), "Open to obtain a random seed or crop");
-        NORMAL.put(ModItems.EXP_GEM.get(), "Right-click to extract the XP contained inside");
+        NORMAL.put(ModItems.EXP_GEM.get(), "Right-click to extract the EXP contained inside");
         NORMAL.put(ModBlocks.CONTROLLABLE_SAND.asItem(), "Sand that can be controlled by redstone to rise or fall");
         NORMAL.put(ModBlocks.PLYWOOD_BLOCK.asItem(), "Solid wood? Not a chance");
         NORMAL.put(ModBlocks.PLYWOOD_STAIRS.asItem(), "Solid wood? Not a chance");
         NORMAL.put(ModBlocks.PLYWOOD_SLAB.asItem(), "Solid wood? Not a chance");
         NORMAL.put(ModBlocks.ANCIENT_SEA_REEF.asItem(), "A chunk of sea reef – looks like it's hiding some treasure");
         NORMAL.put(ModBlocks.VOID_MATTER_BLOCK.asItem(), "A chunk of void...");
-        NORMAL.put(ModBlocks.CREATIVE_GENERATOR.asItem(), "Provides up to 8192 kW of power, can also be used as a load");
+        NORMAL.put(ModBlocks.CREATIVE_GENERATOR.asItem(), "Provide up to 8192 kW of power, can also be used as a load");
         NORMAL.put(ModFoodItems.COCOA_BUTTER.asItem(), "One hundred percent natural pure cocoa butter!");
 
         SHIFT.put(

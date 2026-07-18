@@ -1,11 +1,11 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_capacitor_empty": {
+    "has_capacitor": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:capacitor_empty"
+            "items": "anvilcraft:capacitor"
           }
         ]
       },
@@ -43,7 +43,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:ionocraft_backpack"
+        "recipe": "anvilcraft:ionocraft_backpack_charged"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -52,14 +52,14 @@
     [
       "has_the_recipe",
       "has_ionocraft",
-      "has_capacitor_empty",
+      "has_capacitor",
       "has_plates/tin",
       "has_leather_chestplate"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:ionocraft_backpack"
+      "anvilcraft:ionocraft_backpack_charged"
     ]
   }
 }
