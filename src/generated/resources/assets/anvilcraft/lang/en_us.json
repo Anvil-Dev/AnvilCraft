@@ -1583,7 +1583,7 @@
   "tooltip.anvilcraft.item.chocolate_white": "Tasty white chocolate made with real cocoa butter, eat a bite to gain Jump Boost",
   "tooltip.anvilcraft.item.chute": "An advanced Hopper, can transfer a full stack of items at a time",
   "tooltip.anvilcraft.item.chute.shift": "Can set item filter\nShift and left‑click a slot to disable it\nUse scroll wheel to set slot stack limit\nMultiple Chutes connected turn into a Simple Chute\nSimple Chute has only one slot and cannot be locked by redstone",
-  "tooltip.anvilcraft.item.cocoa_butter": "100% natural pure cocoa butter!",
+  "tooltip.anvilcraft.item.cocoa_butter": "One hundred percent natural pure cocoa butter!",
   "tooltip.anvilcraft.item.comrade_amulet": "Signable by players via right-click, prevents damage from signed players",
   "tooltip.anvilcraft.item.confined_energy_anvilon": "Confinement chamber for energy-type Anvilon",
   "tooltip.anvilcraft.item.confined_mass_anvilon": "Confinement chamber for mass-type Anvilon",
