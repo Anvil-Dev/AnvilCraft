@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.saved.setting.mode.NbtDisplayMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SearchMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
+import dev.dubhe.anvilcraft.util.FormattingUtil;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -29,15 +30,19 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.FontDescription;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.client.ItemDecoratorHandler;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
@@ -60,6 +65,7 @@ public class StorageScreen extends Screen {
     private static final Identifier SLIDER = SharedTextures.textureGui("misc/storage_station/slider_big");
     private static final Identifier SLOT_HIGHLIGHT_BACK_SPRITE = Identifier.withDefaultNamespace("container/slot_highlight_back");
     private static final Identifier SLOT_HIGHLIGHT_FRONT_SPRITE = Identifier.withDefaultNamespace("container/slot_highlight_front");
+    private static final Identifier SMALL_FONT = Identifier.fromNamespaceAndPath("anvilcraft", "small");
     private static final int BG_WIDTH = 300;
     private static final int BG_HEIGHT = 222;
     private static final int STORAGE_COLUMNS = 9;
@@ -313,8 +319,7 @@ public class StorageScreen extends Screen {
             if (!stack.isEmpty()) {
                 ItemStack itemStack = stack.toStack();
                 graphics.item(itemStack, x, y);
-                String countText = stack.getCount() == 1 ? null : Integer.toString(stack.getCount());
-                graphics.itemDecorations(this.font, itemStack, x, y, countText);
+                StorageScreen.itemDecorations(graphics, this.minecraft, itemStack, x, y);
                 if (hovered && this.carried.isEmpty()) {
                     graphics.setTooltipForNextFrame(this.font, itemStack, mouseX, mouseY);
                 }
@@ -809,5 +814,42 @@ public class StorageScreen extends Screen {
             0,
             Math.ceilDiv(this.order.size(), StorageScreen.STORAGE_COLUMNS) - StorageScreen.STORAGE_ROWS
         );
+    }
+
+    @SuppressWarnings("UnstableApiUsage")
+    private static void itemDecorations(GuiGraphicsExtractor graphic, Minecraft minecraft, ItemStack stack, int x, int y) {
+        if (stack.isEmpty()) {
+            return;
+        }
+
+        graphic.pose().pushMatrix();
+        // region graphic.itemBar(stack, x, y);
+        if (stack.isBarVisible()) {
+            int left = x + 2;
+            int top = y + 13;
+            graphic.fill(RenderPipelines.GUI, left, top, left + 13, top + 2, -16777216);
+            graphic.fill(RenderPipelines.GUI, left, top, left + stack.getBarWidth(), top + 1, ARGB.opaque(stack.getBarColor()));
+        }
+        // endregion
+        // region graphic.itemCooldown(stack, x, y);
+        LocalPlayer player = minecraft.player;
+        float cooldown = player == null
+                         ? 0.0F
+                         : player.getCooldowns().getCooldownPercent(stack, minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true));
+        if (cooldown > 0.0F) {
+            int top = y + Mth.floor(16.0F * (1.0F - cooldown));
+            int bottom = top + Mth.ceil(16.0F * cooldown);
+            graphic.fill(RenderPipelines.GUI, x, top, x + 16, bottom, Integer.MAX_VALUE);
+        }
+        // endregion
+        // region graphic.itemCount(minecraft.font, stack, x, y, null);
+        if (stack.getCount() != 1) {
+            Component amount = Component.literal(FormattingUtil.toAbbrNum(stack.getCount()))
+                .withStyle(style -> style.withFont(new FontDescription.Resource(StorageScreen.SMALL_FONT)));
+            graphic.text(minecraft.font, amount, x + 17 - minecraft.font.width(amount), y + 9, -1, true);
+        }
+        // endregion
+        graphic.pose().popMatrix();
+        ItemDecoratorHandler.of(stack).render(graphic, minecraft.font, stack, x, y);
     }
 }
