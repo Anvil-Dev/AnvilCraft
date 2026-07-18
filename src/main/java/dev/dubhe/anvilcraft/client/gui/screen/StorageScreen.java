@@ -702,7 +702,6 @@ public class StorageScreen extends Screen {
             slots.add(this.order.getInt(orderIndex));
         }
 
-        this.contents.clear();
         StorageClientStub.sync(this.sourcePos, slots).whenCompleteAsync(
             (result, error) -> {
                 if (request != this.syncRequest || error != null || result.version() < this.version) {
