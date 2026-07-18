@@ -347,7 +347,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
         NORMAL.put(
             ModBlocks.FLUID_TANK.asItem(), """
-                Stores 16B of flui
+                Stores 16B of fluids
                 Menger Sponges expand it to 12800B and make it infinite when full
                 Can interact with Dispensers for fluid transfer"""
         );
@@ -355,8 +355,8 @@ public class ItemTooltipManager {
             ModBlocks.LARGE_FLUID_TANK.asItem(), """
                 Stores 320B shared by any number of fluids
                 Menger Sponges unlock unlimited total storage
-                Can interact with Dispensers for fluid transfer
-                Can store multiple fluids"""
+                Can store multiple fluids, each type of fluid that reaches 12800B will be converted to infinite
+                Can interact with Dispensers for fluid transfer"""
         );
         NORMAL.put(ModBlocks.DRAIN.asItem(), "Transfers fluid vertically, outputting downward and drawing from above");
         NORMAL.put(ModBlocks.CORRUPTED_BEACON.asItem(), "Releases the wither power within the beacon, its beam accelerates time flow or causes mutations");
