@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.Window;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.client.gui.component.category.CategoryList;
 import dev.dubhe.anvilcraft.client.rpc.SettingClientStub;
@@ -8,6 +9,7 @@ import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.MouseHandler;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
@@ -78,6 +80,7 @@ public class StorageScreen extends Screen {
         );
     }
 
+    // region Extract(Render)
     @Override
     public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         graphics.blit(
@@ -165,6 +168,53 @@ public class StorageScreen extends Screen {
         graphics.item(this.carried, mouseX - 8, mouseY - 8);
         graphics.itemDecorations(this.font, this.carried, mouseX - 8, mouseY - 8);
     }
+    // endregion
+
+    @Override
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (super.mouseClicked(event, doubleClick)) {
+            return true;
+        }
+
+        if (event.button() == 0 || event.button() == 1) {
+            int slot = this.getInventorySlot(event.x(), event.y());
+            if (slot == -1 || this.minecraft.gameMode == null) {
+                return false;
+            }
+
+            this.player.inventoryMenu.setCarried(this.carried);
+            this.minecraft.gameMode.handleContainerInput(
+                this.player.inventoryMenu.containerId,
+                this.getScreenSlot(slot),
+                event.button(),
+                ContainerInput.PICKUP,
+                this.player
+            );
+            this.carried = this.player.inventoryMenu.getCarried();
+            return true;
+        } else if (event.button() == 2) {
+            int slot = this.getScreenSlot();
+            if (slot == -1 || this.minecraft.gameMode == null) {
+                return false;
+            }
+
+            if (!this.minecraft.options.keyPickItem.isActiveAndMatches(InputConstants.Type.MOUSE.getOrCreate(event.input()))) {
+                return false;
+            }
+
+            this.minecraft.gameMode.handleContainerInput(
+                this.player.inventoryMenu.containerId,
+                slot,
+                0,
+                ContainerInput.CLONE,
+                this.player
+            );
+            this.carried = this.player.inventoryMenu.getCarried();
+            return true;
+        }
+
+        return false;
+    }
 
     @Override
     public boolean keyPressed(KeyEvent event) {
@@ -174,57 +224,67 @@ public class StorageScreen extends Screen {
         } else if (this.minecraft.options.keyInventory.isActiveAndMatches(key)) {
             this.onClose();
             return true;
+        } else {
+            int hoveredSlot = this.getInventorySlot();
+            if (hoveredSlot == -1 || this.minecraft.gameMode == null) {
+                return false;
+            }
+
+            // Forge MC-146650: Needs to return true when the key is handled
+            boolean handled = this.checkHotbarKeyPressed(event);
+            if (!Objects.requireNonNull(this.minecraft.player).getInventory().getItem(hoveredSlot).isEmpty()) {
+                hoveredSlot = this.getScreenSlot(hoveredSlot);
+                if (this.minecraft.options.keyDrop.isActiveAndMatches(key)) {
+                    this.minecraft.gameMode.handleContainerInput(
+                        this.player.inventoryMenu.containerId,
+                        hoveredSlot,
+                        event.hasControlDown() ? 1 : 0,
+                        ContainerInput.THROW,
+                        this.player
+                    );
+                    handled = true;
+                }
+            } else if (this.minecraft.options.keyDrop.isActiveAndMatches(key)) {
+                // Forge MC-146650: Emulate MC bug, so we don't drop from hotbar when pressing drop without hovering over a item.
+                handled = true;
+            }
+
+            return handled;
+        }
+    }
+
+    protected boolean checkHotbarKeyPressed(KeyEvent event) {
+        int hoveredSlot = this.getScreenSlot();
+        if (hoveredSlot == -1 || this.minecraft.gameMode == null) {
+            return false;
+        }
+
+        InputConstants.Key key = InputConstants.getKey(event);
+        if (this.carried.isEmpty()) {
+            if (this.minecraft.options.keySwapOffhand.isActiveAndMatches(key)) {
+                this.minecraft.gameMode.handleContainerInput(
+                    this.player.inventoryMenu.containerId,
+                    hoveredSlot,
+                    40,
+                    ContainerInput.SWAP,
+                    this.player
+                );
+                return true;
+            }
+            for (int i = 0; i < 9; i++) {
+                if (this.minecraft.options.keyHotbarSlots[i].isActiveAndMatches(key)) {
+                    this.minecraft.gameMode.handleContainerInput(
+                        this.player.inventoryMenu.containerId,
+                        hoveredSlot,
+                        i,
+                        ContainerInput.SWAP,
+                        this.player
+                    );
+                    return true;
+                }
+            }
         }
         return false;
-    }
-
-    @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        if (super.mouseClicked(event, doubleClick)) {
-            return true;
-        }
-        if (event.button() != 0 && event.button() != 1) {
-            return false;
-        }
-
-        int slot = this.getInventorySlot(event.x(), event.y());
-        if (slot == -1 || this.minecraft.gameMode == null) {
-            return false;
-        }
-
-        this.player.inventoryMenu.setCarried(this.carried);
-        this.minecraft.gameMode.handleContainerInput(
-            this.player.inventoryMenu.containerId,
-            slot < 9 ? slot + 36 : slot,
-            event.button(),
-            ContainerInput.PICKUP,
-            this.player
-        );
-        this.carried = this.player.inventoryMenu.getCarried();
-        return true;
-    }
-
-    private int getInventorySlot(double mouseX, double mouseY) {
-        int y = this.top + 140 + 58;
-        for (int column = 0; column < 9; column++) {
-            int x = this.left + 114 + 18 * column;
-            if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
-                return column;
-            }
-        }
-
-        for (int row = 0; row < 3; row++) {
-            y = this.top + 140 + 18 * row;
-            int slot = 9 + row * 9;
-            for (int column = 0; column < 9; column++) {
-                int x = this.left + 114 + 18 * column;
-                if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
-                    return slot;
-                }
-                slot++;
-            }
-        }
-        return -1;
     }
 
     @Override
@@ -262,23 +322,6 @@ public class StorageScreen extends Screen {
         super.removed();
     }
 
-    // protected boolean checkHotbarKeyPressed(KeyEvent event) {
-    //     var key = com.mojang.blaze3d.platform.InputConstants.getKey(event);
-    //     if (this.carried.isEmpty() && this.hoveredSlot != null) {
-    //         if (this.minecraft.options.keySwapOffhand.isActiveAndMatches(key)) {
-    //             this.slotClicked(this.hoveredSlot, this.hoveredSlot.index, 40, ContainerInput.SWAP);
-    //             return true;
-    //         }
-    //         for (int i = 0; i < 9; i++) {
-    //             if (this.minecraft.options.keyHotbarSlots[i].isActiveAndMatches(key)) {
-    //                 this.slotClicked(this.hoveredSlot, this.hoveredSlot.index, i, ContainerInput.SWAP);
-    //                 return true;
-    //             }
-    //         }
-    //     }
-    //     return false;
-    // }
-
     @Override
     public boolean isPauseScreen() {
         return false;
@@ -287,6 +330,43 @@ public class StorageScreen extends Screen {
     @Override
     public boolean isInGameUi() {
         return true;
+    }
+
+    private int getInventorySlot(double mouseX, double mouseY) {
+        int y = this.top + 140 + 58;
+        for (int column = 0; column < 9; column++) {
+            int x = this.left + 114 + 18 * column;
+            if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
+                return column;
+            }
+        }
+
+        for (int row = 0; row < 3; row++) {
+            y = this.top + 140 + 18 * row;
+            int slot = 9 + row * 9;
+            for (int column = 0; column < 9; column++) {
+                int x = this.left + 114 + 18 * column;
+                if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
+                    return slot;
+                }
+                slot++;
+            }
+        }
+        return -1;
+    }
+
+    private int getInventorySlot() {
+        Window window = this.minecraft.getWindow();
+        MouseHandler handler = this.minecraft.mouseHandler;
+        return this.getInventorySlot(handler.getScaledXPos(window), handler.getScaledYPos(window));
+    }
+
+    private int getScreenSlot(int invSlot) {
+        return invSlot < 9 ? invSlot + 36 : invSlot;
+    }
+
+    private int getScreenSlot() {
+        return this.getScreenSlot(this.getInventorySlot());
     }
 
     private void reorder() {
