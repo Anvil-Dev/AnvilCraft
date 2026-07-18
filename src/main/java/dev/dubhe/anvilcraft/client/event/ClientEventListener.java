@@ -18,7 +18,6 @@ import dev.dubhe.anvilcraft.client.support.StructureDiskPreviewSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.HammerOpenedAnvilMenu;
-import dev.dubhe.anvilcraft.inventory.state.StorageMenuState;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.network.DragonRodStopDevourPacket;
 import dev.dubhe.anvilcraft.network.OpenHammerAnvilPacket;
@@ -102,7 +101,6 @@ public class ClientEventListener {
     public static void onClientPlayerDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
         SoundHelper.INSTANCE.clear();
         RecipesRecord.CLIENTSIDE = null;
-        StorageMenuState.clear();
         ItemCollectorBlockEntity.clearPoachingCollectors();
     }
 

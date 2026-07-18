@@ -92,7 +92,7 @@ public final class SettingClientStub {
         return new PlayerSetting(
             new ArrayList<>(listed),
             new ArrayList<>(setting.custom()),
-            new StorageSetting(storage.getSearch(), storage.getSort(), storage.getOrder(), storage.getNbtDisplay())
+            new StorageSetting("", storage.getSearch(), storage.getSort(), storage.getOrder(), storage.getNbtDisplay())
         );
     }
 
@@ -103,6 +103,7 @@ public final class SettingClientStub {
         cached.listed().addAll(committed.listed());
         cached.custom().clear();
         cached.custom().addAll(committed.custom());
+        cached.storage().setSearchContent(committed.storage().getSearchContent());
         cached.storage().setSearch(committed.storage().getSearch());
         cached.storage().setSort(committed.storage().getSort());
         cached.storage().setOrder(committed.storage().getOrder());
@@ -127,22 +128,34 @@ public final class SettingClientStub {
     }
 
     public static void update(List<CategoryEntry> categories) {
+        List<CategoryEntry> listed = SettingClientStub.setting().listed();
+        listed.clear();
+        listed.addAll(categories);
         RPC.call(RpcTarget.server(), SettingServerStub::update, SettingClientStub.playerId(), categories);
     }
 
+    public static void update(String content) {
+        SettingClientStub.setting().storage().setSearchContent(content);
+        RPC.call(RpcTarget.server(), SettingServerStub::update, SettingClientStub.playerId(), content);
+    }
+
     public static void update(SearchMode mode) {
+        SettingClientStub.setting().storage().setSearch(mode);
         RPC.call(RpcTarget.server(), SettingServerStub::update, SettingClientStub.playerId(), mode);
     }
 
     public static void update(SortMode mode) {
+        SettingClientStub.setting().storage().setSort(mode);
         RPC.call(RpcTarget.server(), SettingServerStub::update, SettingClientStub.playerId(), mode);
     }
 
     public static void update(OrderMode mode) {
+        SettingClientStub.setting().storage().setOrder(mode);
         RPC.call(RpcTarget.server(), SettingServerStub::update, SettingClientStub.playerId(), mode);
     }
 
     public static void update(NbtDisplayMode mode) {
+        SettingClientStub.setting().storage().setNbtDisplay(mode);
         RPC.call(RpcTarget.server(), SettingServerStub::update, SettingClientStub.playerId(), mode);
     }
 

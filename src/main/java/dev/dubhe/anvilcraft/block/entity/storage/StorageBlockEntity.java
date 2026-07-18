@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.storage;
 
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.inventory.state.StorageMenuState;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.saved.storage.StorageType;
 import lombok.Getter;
@@ -95,14 +94,6 @@ public class StorageBlockEntity extends BlockEntity {
     @Override
     protected void collectImplicitComponents(DataComponentMap.Builder components) {
         components.set(ModComponents.STORAGE, new StorageRef(this.storageType, this.id));
-    }
-
-    @Override
-    public void setRemoved() {
-        super.setRemoved();
-        if (this.id != null) {
-            StorageMenuState.clear(this.id);
-        }
     }
 
     public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {

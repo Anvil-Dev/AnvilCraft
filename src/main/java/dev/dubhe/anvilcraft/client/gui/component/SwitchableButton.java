@@ -11,14 +11,13 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public class SwitchableButton extends Button {
-    private final List<Identifier> textures = new ArrayList<>();
+    private final List<Identifier> textures;
     private final List<Component> message;
     private final int texYDiff;
     private final int textureWidth;
@@ -54,7 +53,7 @@ public class SwitchableButton extends Button {
         List<Component> message
     ) {
         super(x, y, width, height, Component.empty(), onPress, DEFAULT_NARRATION);
-        this.textures.addAll(textures);
+        this.textures = textures;
         this.message = message;
         this.texYDiff = texYDiff;
         this.textureWidth = textureWidth;

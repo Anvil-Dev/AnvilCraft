@@ -650,6 +650,20 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.structure_scanner.tooltip.too_large", "Structure is too large to save");
         provider.add("screen.anvilcraft.structure_scanner.tooltip.unknown_blocks", "Structure contains unknown blocks");
 
+        provider.add("screen.anvilcraft.storage.search.edit", "Search");
+        provider.add("screen.anvilcraft.storage.search", "Search Mode: Currently %s");
+        provider.add("screen.anvilcraft.storage.search.clear", "Clear");
+        provider.add("screen.anvilcraft.storage.search.retention", "Retention");
+        provider.add("screen.anvilcraft.storage.sort", "Sort Mode: Currently %s");
+        provider.add("screen.anvilcraft.storage.sort.count", "by Count");
+        provider.add("screen.anvilcraft.storage.sort.mod", "by Mod ID");
+        provider.add("screen.anvilcraft.storage.sort.name", "by Display Name");
+        provider.add("screen.anvilcraft.storage.order", "Sort Order: Currently %s");
+        provider.add("screen.anvilcraft.storage.order.sequential", "Sequential");
+        provider.add("screen.anvilcraft.storage.order.reverse", "Reverse");
+        provider.add("screen.anvilcraft.storage.nbt", "Should Fold Items with Diff. NBT: Currently %s");
+        provider.add("screen.anvilcraft.storage.nbt.unfold", "False");
+        provider.add("screen.anvilcraft.storage.nbt.fold", "True");
         provider.add("screen.anvilcraft.storage.category.name", "Name: %s");
         provider.add("screen.anvilcraft.storage.category.mode", "Mode: %s");
         provider.add("screen.anvilcraft.storage.category.mode.unlimited", "Unlimited");

@@ -23,6 +23,6 @@ public enum OrderMode implements StringRepresentable {
     }
 
     public Component getModeName() {
-        return Component.translatable("screen.anvilcraft.storage.sort_order." + this.getSerializedName());
+        return Component.translatable("screen.anvilcraft.storage.order." + this.getSerializedName());
     }
 }

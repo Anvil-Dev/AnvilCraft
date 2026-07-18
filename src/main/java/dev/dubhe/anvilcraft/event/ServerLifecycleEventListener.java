@@ -13,8 +13,8 @@ import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.block.entity.ExpCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.ModHammerInits;
-import dev.dubhe.anvilcraft.inventory.state.StorageMenuState;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
+import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
@@ -58,7 +58,7 @@ public class ServerLifecycleEventListener {
         PowerGrid.clear();
         FluidNetworkManager.INSTANCE.clear();
         SoundHelper.INSTANCE.clear();
-        StorageMenuState.clear();
+        StorageServerStub.clear();
         ExpCollectorBlockEntity.clearPoachingCollectors();
         ItemCollectorBlockEntity.clearPoachingCollectors();
         LaserGunItem.clearStates();

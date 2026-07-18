@@ -81,6 +81,15 @@ public final class SettingServerStub {
     @RemoteCallable(validator = OwnSettingValidator.class)
     public static void update(
         @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
+        String content
+    ) {
+        PlayerSettings.getSetting(playerId).storage().setSearchContent(content);
+        PlayerSettings.get().setDirty();
+    }
+
+    @RemoteCallable(validator = OwnSettingValidator.class)
+    public static void update(
+        @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
         @CallableParam(clazz = SearchMode.class, field = "STREAM_CODEC") SearchMode mode
     ) {
         PlayerSettings.getSetting(playerId).storage().setSearch(mode);
