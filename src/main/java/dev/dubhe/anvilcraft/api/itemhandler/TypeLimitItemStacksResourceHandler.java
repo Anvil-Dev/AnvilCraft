@@ -130,6 +130,7 @@ public class TypeLimitItemStacksResourceHandler implements ResourceHandler<ItemR
             }
             // 找不到不塞，下一个
         }
+        this.updateStacksSize();
     }
 
     public void addSpaceSize(IntUnaryOperator adder) {

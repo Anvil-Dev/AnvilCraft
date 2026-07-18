@@ -34,6 +34,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.Method;
@@ -110,6 +111,51 @@ public final class StorageServerStub {
         );
     }
 
+    @CallableParam(clazz = InteractionResult.class, field = "STREAM_CODEC")
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult interact(
+        @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
+        long sourcePos,
+        int slot,
+        int button
+    ) {
+        if (button != 0 && button != 1) {
+            throw new IllegalArgumentException("Invalid storage interaction button: " + button);
+        }
+
+        BaseStorage storage = StorageServerStub.getStorage(playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        TypeLimitItemStacksResourceHandler items = storage.getItems();
+        ItemStack carried = player.inventoryMenu.getCarried();
+        boolean changed = false;
+        if (!carried.isEmpty()) {
+            int amount = button == 0 ? carried.getCount() : 1;
+            try (Transaction transaction = Transaction.openRoot()) {
+                int inserted = items.insert(ItemResource.of(carried), amount, transaction);
+                if (inserted > 0) {
+                    transaction.commit();
+                    carried.shrink(inserted);
+                    changed = true;
+                }
+            }
+        } else if (slot >= 0 && slot < items.size() && items.getAmountAsLong(slot) > 0) {
+            ItemResource resource = items.getResource(slot);
+            ItemStack itemStack = resource.toStack();
+            int count = Math.toIntExact(items.getAmountAsLong(slot));
+            int amount = Math.min(button == 0 ? count : Math.ceilDiv(count, 2), itemStack.getMaxStackSize());
+            try (Transaction transaction = Transaction.openRoot()) {
+                int extracted = items.extract(slot, resource, amount, transaction);
+                if (extracted > 0) {
+                    transaction.commit();
+                    carried = itemStack.copyWithCount(extracted);
+                    player.inventoryMenu.setCarried(carried);
+                    changed = true;
+                }
+            }
+        }
+        return new InteractionResult(carried, changed);
+    }
+
     public static void onContentsChanged(UUID storageId) {
         StorageServerStub stub = StorageServerStub.get(storageId);
         stub.version++;
@@ -177,6 +223,16 @@ public final class StorageServerStub {
             StackUpdate.STREAM_CODEC.apply(ByteBufCodecs.list()),
             SyncResult::updates,
             SyncResult::new
+        );
+    }
+
+    public record InteractionResult(ItemStack carried, boolean changed) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, InteractionResult> STREAM_CODEC = StreamCodec.composite(
+            ItemStack.OPTIONAL_STREAM_CODEC,
+            InteractionResult::carried,
+            ByteBufCodecs.BOOL,
+            InteractionResult::changed,
+            InteractionResult::new
         );
     }
 
@@ -266,6 +322,15 @@ public final class StorageServerStub {
     }
 
     private static BaseStorage getStorage(UUID playerId, long sourcePos) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        BlockEntity blockEntity = player.level().getBlockEntity(BlockPos.of(sourcePos));
+        if (!(blockEntity instanceof StorageBlockEntity storage) || storage.getId() == null) {
+            throw new IllegalStateException("Cannot access storage without a storage block entity");
+        }
+        return Storages.get().get(storage.getId()).orElseThrow();
+    }
+
+    private static ServerPlayer getServerPlayer(UUID playerId) {
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
         if (server == null) {
             throw new IllegalStateException("Cannot access storage without a running server");
@@ -274,11 +339,7 @@ public final class StorageServerStub {
         if (player == null) {
             throw new IllegalStateException("Cannot access storage without a server player");
         }
-        BlockEntity blockEntity = player.level().getBlockEntity(BlockPos.of(sourcePos));
-        if (!(blockEntity instanceof StorageBlockEntity storage) || storage.getId() == null) {
-            throw new IllegalStateException("Cannot access storage without a storage block entity");
-        }
-        return Storages.get().get(storage.getId()).orElseThrow();
+        return player;
     }
 
     private StorageServerStub() {

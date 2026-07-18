@@ -88,9 +88,11 @@ public class StorageScreen extends Screen {
     private int scrollRow;
     private int reorderRequest;
     private int syncRequest;
+    private int interactionRequest;
     private int metadataCooldown;
     private boolean orderLoaded;
     private boolean metadataPending;
+    private boolean interactionPending;
     private int left;
     private int top;
     private int titleLabelX;
@@ -439,6 +441,12 @@ public class StorageScreen extends Screen {
         }
 
         if (event.button() == 0 || event.button() == 1) {
+            int storageSlot = this.getStorageSlot(event.x(), event.y());
+            if (storageSlot != -1 && this.minecraft.gameMode != null) {
+                this.interactWithStorage(storageSlot, event.button());
+                return true;
+            }
+
             int slot = this.getInventorySlot(event.x(), event.y());
             if (slot == -1 || this.minecraft.gameMode == null) {
                 return false;
@@ -476,6 +484,29 @@ public class StorageScreen extends Screen {
         }
 
         return false;
+    }
+
+    private void interactWithStorage(int slot, int button) {
+        if (this.minecraft.gameMode == null || this.interactionPending) {
+            return;
+        }
+        this.interactionPending = true;
+        this.player.inventoryMenu.setCarried(this.carried);
+        int request = ++this.interactionRequest;
+        StorageClientStub.interact(this.sourcePos, slot, button).whenCompleteAsync(
+            (result, error) -> {
+                this.interactionPending = false;
+                if (request != this.interactionRequest || error != null) {
+                    return;
+                }
+                this.carried = result.carried();
+                this.player.inventoryMenu.setCarried(this.carried);
+                if (result.changed()) {
+                    this.reorder();
+                }
+            },
+            this.screenExecutor
+        );
     }
 
     @Override
@@ -660,6 +691,24 @@ public class StorageScreen extends Screen {
         Window window = this.minecraft.getWindow();
         MouseHandler handler = this.minecraft.mouseHandler;
         return this.getInventorySlot(handler.getScaledXPos(window), handler.getScaledYPos(window));
+    }
+
+    private int getStorageSlot(double mouseX, double mouseY) {
+        int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
+        for (int displayIndex = 0; displayIndex < StorageScreen.VISIBLE_STORAGE_SLOTS; displayIndex++) {
+            int orderIndex = firstOrderIndex + displayIndex;
+            if (orderIndex >= this.order.size()) {
+                return -1;
+            }
+            int x = this.left + StorageScreen.STORAGE_X
+                + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
+            int y = this.top + StorageScreen.STORAGE_Y
+                + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
+            if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
+                return this.order.getInt(orderIndex);
+            }
+        }
+        return -1;
     }
 
     private int getScreenSlot(int invSlot) {

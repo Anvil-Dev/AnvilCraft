@@ -47,6 +47,21 @@ public final class StorageClientStub {
         );
     }
 
+    public static CompletableFuture<StorageServerStub.InteractionResult> interact(
+        BlockPos sourcePos,
+        int slot,
+        int button
+    ) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::interact,
+            playerId(),
+            sourcePos.asLong(),
+            slot,
+            button
+        );
+    }
+
     private static UUID playerId() {
         Player player = Minecraft.getInstance().player;
         if (player == null) {
