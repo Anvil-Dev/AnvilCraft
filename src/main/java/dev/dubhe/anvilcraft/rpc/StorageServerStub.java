@@ -162,7 +162,7 @@ public final class StorageServerStub {
         public static final StreamCodec<RegistryFriendlyByteBuf, StackUpdate> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT,
             StackUpdate::index,
-            UnlimitedItemStack.STREAM_CODEC,
+            UnlimitedItemStack.OPTIONAL_STREAM_CODEC,
             StackUpdate::stack,
             StackUpdate::new
         );

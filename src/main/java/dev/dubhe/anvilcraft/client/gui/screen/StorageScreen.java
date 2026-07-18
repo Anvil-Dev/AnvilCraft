@@ -5,16 +5,22 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import dev.anvilcraft.lib.v2.util.MathUtil;
+import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.client.gui.component.category.CategoryList;
 import dev.dubhe.anvilcraft.client.rpc.SettingClientStub;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
+import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.setting.mode.NbtDisplayMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SearchMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -50,10 +56,23 @@ public class StorageScreen extends Screen {
     private static final Identifier ORDER_REVERSE = SharedTextures.textureGui("misc/storage_station/reverse_order");
     private static final Identifier NBT_UNFOLD = SharedTextures.textureGui("misc/storage_station/nbt_unfold");
     private static final Identifier NBT_FOLD = SharedTextures.textureGui("misc/storage_station/nbt_fold");
+    private static final Identifier SLIDER = SharedTextures.textureGui("misc/storage_station/slider_big");
     private static final Identifier SLOT_HIGHLIGHT_BACK_SPRITE = Identifier.withDefaultNamespace("container/slot_highlight_back");
     private static final Identifier SLOT_HIGHLIGHT_FRONT_SPRITE = Identifier.withDefaultNamespace("container/slot_highlight_front");
     private static final int BG_WIDTH = 300;
     private static final int BG_HEIGHT = 222;
+    private static final int STORAGE_COLUMNS = 9;
+    private static final int STORAGE_ROWS = 6;
+    private static final int VISIBLE_STORAGE_SLOTS = STORAGE_COLUMNS * STORAGE_ROWS;
+    private static final int STORAGE_X = 114;
+    private static final int STORAGE_Y = 18;
+    private static final int SLOT_SIZE = 18;
+    private static final int SLIDER_X = 280;
+    private static final int SLIDER_Y = 18;
+    private static final int SLIDER_WIDTH = 12;
+    private static final int SLIDER_HEIGHT = 15;
+    private static final int SLIDER_TRACK_HEIGHT = 106;
+    private static final int METADATA_REFRESH_INTERVAL = 10;
     private final BlockPos sourcePos;
     private final Player player;
 
@@ -61,7 +80,17 @@ public class StorageScreen extends Screen {
     private @Nullable CategoryList categories;
 
     private ItemStack carried = ItemStack.EMPTY;
+    private IntList order = new IntArrayList();
+    private final Int2ObjectMap<UnlimitedItemStack> contents = new Int2ObjectOpenHashMap<>();
     private double fullness;
+    private long version = -1;
+    private long orderVersion = -1;
+    private int scrollRow;
+    private int reorderRequest;
+    private int syncRequest;
+    private int metadataCooldown;
+    private boolean orderLoaded;
+    private boolean metadataPending;
     private int left;
     private int top;
     private int titleLabelX;
@@ -124,7 +153,10 @@ public class StorageScreen extends Screen {
             20,
             24,
             40,
-            (_, index) -> SettingClientStub.update(SortMode.values()[index])
+            (_, index) -> {
+                SettingClientStub.update(SortMode.values()[index]);
+                this.reorder(true);
+            }
         ));
         this.addRenderableWidget(new SwitchableButton(
             this.left + 54,
@@ -148,6 +180,7 @@ public class StorageScreen extends Screen {
                     sortTextures.set(0, StorageScreen.SORT_COUNT_REVERSED);
                     sortTextures.set(2, StorageScreen.SORT_NAME_REVERSED);
                 }
+                this.reorder(true);
             }
         ));
         this.addRenderableWidget(new SwitchableButton(
@@ -184,13 +217,21 @@ public class StorageScreen extends Screen {
                     sortTextures.set(0, StorageScreen.SORT_COUNT_REVERSED);
                     sortTextures.set(2, StorageScreen.SORT_NAME_REVERSED);
                 }
+                this.reorder(true);
             },
             this.screenExecutor
         );
-        StorageClientStub.load(this.sourcePos).thenAcceptAsync(
-            fullness -> this.fullness = fullness,
-            this.screenExecutor
-        );
+        this.refreshMetadata();
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (this.metadataCooldown > 0) {
+            this.metadataCooldown--;
+        } else {
+            this.refreshMetadata();
+        }
     }
 
     // region Extract(Render)
@@ -229,10 +270,71 @@ public class StorageScreen extends Screen {
             0xFF404040,
             false
         );
+        this.extractStorageContents(graphics, mouseX, mouseY);
         this.extractPlayerInventory(graphics, mouseX, mouseY);
         super.extractRenderState(graphics, mouseX, mouseY, a);
         this.extractCarriedItem(graphics, mouseX, mouseY);
         this.extractTooltip(graphics, mouseX, mouseY);
+    }
+
+    private void extractStorageContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
+        for (int displayIndex = 0; displayIndex < StorageScreen.VISIBLE_STORAGE_SLOTS; displayIndex++) {
+            int orderIndex = firstOrderIndex + displayIndex;
+            if (orderIndex >= this.order.size()) {
+                break;
+            }
+
+            int x = this.left + StorageScreen.STORAGE_X
+                + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
+            int y = this.top + StorageScreen.STORAGE_Y
+                + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
+            boolean hovered = MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17);
+            if (hovered) {
+                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_BACK_SPRITE, x - 4, y - 4, 24, 24);
+            }
+
+            UnlimitedItemStack stack = this.contents.getOrDefault(
+                this.order.getInt(orderIndex),
+                UnlimitedItemStack.EMPTY
+            );
+            if (!stack.isEmpty()) {
+                ItemStack itemStack = stack.toStack();
+                graphics.item(itemStack, x, y);
+                String countText = stack.getCount() == 1 ? null : Integer.toString(stack.getCount());
+                graphics.itemDecorations(this.font, itemStack, x, y, countText);
+                if (hovered && this.carried.isEmpty()) {
+                    graphics.setTooltipForNextFrame(this.font, itemStack, mouseX, mouseY);
+                }
+            }
+
+            if (hovered) {
+                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_FRONT_SPRITE, x - 4, y - 4, 24, 24);
+            }
+        }
+        this.extractStorageSlider(graphics);
+    }
+
+    private void extractStorageSlider(GuiGraphicsExtractor graphics) {
+        int maxScrollRow = this.getMaxScrollRow();
+        int sliderOffset = maxScrollRow == 0
+            ? 0
+            : Math.round(
+                (StorageScreen.SLIDER_TRACK_HEIGHT - StorageScreen.SLIDER_HEIGHT)
+                    * (float) this.scrollRow / maxScrollRow
+            );
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED,
+            StorageScreen.SLIDER,
+            this.left + StorageScreen.SLIDER_X,
+            this.top + StorageScreen.SLIDER_Y + sliderOffset,
+            0,
+            0,
+            StorageScreen.SLIDER_WIDTH,
+            StorageScreen.SLIDER_HEIGHT,
+            StorageScreen.SLIDER_WIDTH,
+            StorageScreen.SLIDER_HEIGHT
+        );
     }
 
     private void extractPlayerInventory(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
@@ -377,6 +479,34 @@ public class StorageScreen extends Screen {
     }
 
     @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (
+            scrollY == 0
+            || !MathUtil.isInRange(
+                mouseX,
+                mouseY,
+                this.left + StorageScreen.STORAGE_X - 2,
+                this.top + StorageScreen.SLIDER_Y,
+                this.left + StorageScreen.SLIDER_X + StorageScreen.SLIDER_WIDTH,
+                this.top + StorageScreen.STORAGE_Y + StorageScreen.STORAGE_ROWS * StorageScreen.SLOT_SIZE
+            )
+        ) {
+            return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        }
+
+        int nextScrollRow = Mth.clamp(
+            this.scrollRow + (scrollY > 0 ? -1 : 1),
+            0,
+            this.getMaxScrollRow()
+        );
+        if (nextScrollRow != this.scrollRow) {
+            this.scrollRow = nextScrollRow;
+            this.syncVisible();
+        }
+        return true;
+    }
+
+    @Override
     public boolean keyPressed(KeyEvent event) {
         if (this.search != null && this.search.isFocused()) {
             this.search.keyPressed(event);
@@ -454,6 +584,9 @@ public class StorageScreen extends Screen {
 
     @Override
     public void removed() {
+        this.reorderRequest++;
+        this.syncRequest++;
+        this.metadataPending = false;
         if (!this.carried.isEmpty() && this.minecraft.gameMode != null) {
             this.player.inventoryMenu.setCarried(this.carried);
             Inventory inventory = this.player.getInventory();
@@ -538,6 +671,85 @@ public class StorageScreen extends Screen {
     }
 
     private void reorder() {
-        StorageClientStub.reorder(this.sourcePos);
+        this.reorder(true);
+    }
+
+    private void reorder(boolean resetScroll) {
+        int request = ++this.reorderRequest;
+        if (resetScroll) {
+            this.scrollRow = 0;
+        }
+        StorageClientStub.reorder(this.sourcePos).whenCompleteAsync(
+            (updatedOrder, error) -> {
+                if (request != this.reorderRequest || error != null) {
+                    return;
+                }
+                this.order = new IntArrayList(updatedOrder);
+                this.orderLoaded = true;
+                this.scrollRow = Mth.clamp(this.scrollRow, 0, this.getMaxScrollRow());
+                this.syncVisible();
+            },
+            this.screenExecutor
+        );
+    }
+
+    private void syncVisible() {
+        int request = ++this.syncRequest;
+        int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
+        int endOrderIndex = Math.min(firstOrderIndex + StorageScreen.VISIBLE_STORAGE_SLOTS, this.order.size());
+        IntArrayList slots = new IntArrayList(endOrderIndex - firstOrderIndex);
+        for (int orderIndex = firstOrderIndex; orderIndex < endOrderIndex; orderIndex++) {
+            slots.add(this.order.getInt(orderIndex));
+        }
+
+        this.contents.clear();
+        StorageClientStub.sync(this.sourcePos, slots).whenCompleteAsync(
+            (result, error) -> {
+                if (request != this.syncRequest || error != null || result.version() < this.version) {
+                    return;
+                }
+                this.version = result.version();
+                this.fullness = result.fullness();
+                for (StorageServerStub.StackUpdate update : result.updates()) {
+                    if (update.stack().isEmpty()) {
+                        this.contents.remove(update.index());
+                    } else {
+                        this.contents.put(update.index(), update.stack());
+                    }
+                }
+            },
+            this.screenExecutor
+        );
+    }
+
+    private void refreshMetadata() {
+        if (this.metadataPending) {
+            return;
+        }
+        this.metadataPending = true;
+        this.metadataCooldown = StorageScreen.METADATA_REFRESH_INTERVAL;
+        StorageClientStub.loadMetadata(this.sourcePos).whenCompleteAsync(
+            (metadata, error) -> {
+                this.metadataPending = false;
+                if (error != null) {
+                    return;
+                }
+                this.fullness = metadata.fullness();
+                if (!this.orderLoaded || metadata.orderVersion() != this.orderVersion) {
+                    this.orderVersion = metadata.orderVersion();
+                    this.reorder(false);
+                } else if (metadata.version() != this.version) {
+                    this.syncVisible();
+                }
+            },
+            this.screenExecutor
+        );
+    }
+
+    private int getMaxScrollRow() {
+        return Math.max(
+            0,
+            Math.ceilDiv(this.order.size(), StorageScreen.STORAGE_COLUMNS) - StorageScreen.STORAGE_ROWS
+        );
     }
 }
