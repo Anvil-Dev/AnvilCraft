@@ -40,7 +40,7 @@ public class AdvancementLang {
 
         // region anvil processing line
         provider.add("advancements.anvilcraft.dang.title", "Dang!");
-        provider.add("advancements.anvilcraft.dang.description", "Perform anything anvil crafting");
+        provider.add("advancements.anvilcraft.dang.description", "Perform any anvil crafting");
 
         provider.add("advancements.anvilcraft.stone_crusher.title", "Stone crusher");
         provider.add("advancements.anvilcraft.stone_crusher.description", "Use an anvil to cobblestone to obtain gravel, then smash gravel to obtain sand");

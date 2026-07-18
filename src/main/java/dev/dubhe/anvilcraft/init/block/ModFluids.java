@@ -40,7 +40,8 @@ public class ModFluids {
     );
     public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(Registries.FLUID, AnvilCraft.MOD_ID);
 
-    public static final DeferredHolder<FluidType, FluidType> EXP_FLUID_TYPE = FLUID_TYPES.register(
+    public static final DeferredHolder<FluidType, FluidType> EXP_FLUID_TYPE = FLUID_TYPES
+        .register(
         "exp_fluid",
         () -> new FluidType(FluidType.Properties.create()
             .descriptionId("block.anvilcraft.exp_fluid")
