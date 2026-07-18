@@ -15,7 +15,7 @@ items:
 
 <gradient start="#991155" end="#bbaa55">Releases the sealed Wither power</gradient>
 
-# Corrupted Beacon
+# <ref item="anvilcraft:corrupted_beacon"/>
 
 ## Acquisition
 
@@ -36,7 +36,7 @@ items:
 
 <structure id="../../structures/corrupted_beacon.snbt"/>
 
-- This structure enables time-warp operations; the corrupted beacon must be in an active state
+- This structure enables time-warp operations; <ref item="anvilcraft:corrupted_beacon"/> must be in an active state
 
 > This means that if a magnet block is used to control the anvil above, it must be <ref item="anvilcraft:hollow_magnet_block"/>
 

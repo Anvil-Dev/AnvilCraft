@@ -53,7 +53,7 @@ items:
 # Processing
 
 - Recipes can only be executed by striking the <ref item="anvilcraft:large_cauldron"/> with a <ref item="anvilcraft:giant_anvil"/>
-- Processing efficiency is equivalent to 9 <ref item="anvilcraft:cauldron"/>s working on items simultaneously
+- Processing efficiency is equivalent to 9 <ref item="minecraft:cauldron"/>s working on **processing items** or **block squeezing**
 - Place working <ref item="anvilcraft:heater"/> and <ref item="anvilcraft:corrupted_beacon"/> blocks at the bottom to enable the <ref item="anvilcraft:giant_anvil"/> to perform *high-temperature smelting* and *time-shifting* abilities
 
 <info>

@@ -28,9 +28,9 @@ navigation:
 机器**_不可旋转_**，确保树苗在机器的*西北角*，否则树无法生长！
 </warning>
 
-1. *物品收集器*设置收集半径: 8
-2. *物品收集器*下方的溜槽设置过滤: 树苗
-3. *物品收集器*侧边的溜槽设置过滤: 原木、木棍
+1. <ref item="anvilcraft:item_collector"/>设置收集半径: 8
+2. <ref item="anvilcraft:item_collector"/>侧边的<ref item="anvilcraft:magnetic_chute"/>设置过滤: 树苗
+3. <ref item="anvilcraft:item_collector"/>下方的<ref item="anvilcraft:chute"/>设置过滤: 原木、木棍
 
-- 所有 <ref item="minecraft:glass"/> 可替换为 任意完整方块
-- 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整不透明方块
+- 所有 <ref item="minecraft:glass"/> 可替换为 任意完整不透明方块
+- 所有 <ref item="minecraft:smooth_stone"/> 可替换为 任意完整方块

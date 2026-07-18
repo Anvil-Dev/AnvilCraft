@@ -53,7 +53,7 @@ items:
 # 加工
 
 - 只有通过<ref item="anvilcraft:giant_anvil"/>砸击<ref item="anvilcraft:large_cauldron"/>才能执行各种配方
-- 加工效率相当于9个<ref item="anvilcraft:cauldron"/>在加工物品
+- 加工效率相当于 9 个<ref item="minecraft:cauldron"/>在**加工物品**或**方块压榨**
 - 可以在底部放置工作的<ref item="anvilcraft:heater"/>和<ref item="anvilcraft:corrupted_beacon"/>等方块，使得<ref item="anvilcraft:giant_anvil"/>同时具备执行*高温熔炼*和*时移*的能力
 
 <info>
