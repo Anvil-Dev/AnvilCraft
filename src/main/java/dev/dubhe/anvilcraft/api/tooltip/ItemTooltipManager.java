@@ -318,7 +318,11 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.BLOCK_DEVOURER.asItem(), "Breaks 3×3 area of blocks in front when powered by redstone");
         NORMAL.put(ModBlocks.INDUCTION_LIGHT.asItem(), "Provides lighting and configurable special modes");
         NORMAL.put(ModBlocks.HELIOSTATS.asItem(), "Heats targeted blocks during the day");
-        NORMAL.put(ModItems.IONOCRAFT_BACKPACK.asItem(), "Allows creative flight while equipped, requires power from the energy grid or capacitors in the inventory");
+        NORMAL.put(
+            ModItems.IONOCRAFT_BACKPACK.asItem(), """
+            Allows creative flight while equipped
+            Requires power from the energy grid or capacitors in the inventory
+            Can not use Super Capacitor""");
         NORMAL.put(ModBlocks.BLOCK_COMPARATOR.asItem(), "Outputs signal when side blocks are the same, right-click to switch to precise state detection mode");
         NORMAL.put(ModBlocks.ITEM_DETECTOR.asItem(), "Detects specific items behind (drops/containers) to output redstone signal");
         NORMAL.put(ModBlocks.IMPACT_PILE.asItem(), "Place on Bedrock or Deepslate and strike with falling anvil to create Moneral Fountain");
@@ -349,7 +353,8 @@ public class ItemTooltipManager {
         NORMAL.put(
             ModBlocks.LARGE_FLUID_TANK.asItem(), """
                 Stores 320B shared by any number of fluids; Menger Sponges unlock unlimited total storage
-                Can interact with Dispensers for fluid transfer"""
+                Can interact with Dispensers for fluid transfer
+                Can store multiple fluids"""
         );
         NORMAL.put(ModBlocks.DRAIN.asItem(), "Transfers fluid vertically, outputting downward and drawing from above");
         NORMAL.put(ModBlocks.CORRUPTED_BEACON.asItem(), "Releases the wither power within the beacon, its beam accelerates time flow or causes mutations");
@@ -444,6 +449,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.ANCIENT_SEA_REEF.asItem(), "A chunk of sea reef – looks like it's hiding some treasure");
         NORMAL.put(ModBlocks.VOID_MATTER_BLOCK.asItem(), "A chunk of void...");
         NORMAL.put(ModBlocks.CREATIVE_GENERATOR.asItem(), "Provides up to 8192 kW of power, can also be used as a load");
+        NORMAL.put(ModFoodItems.COCOA_BUTTER.asItem(), "100% natural pure cocoa butter!");
 
         SHIFT.put(
             ModItems.LASER_GUN.get(), """
