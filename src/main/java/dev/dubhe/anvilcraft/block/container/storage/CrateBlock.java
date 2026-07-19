@@ -20,6 +20,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
     public CrateBlock(Properties properties) {
         super(properties);
@@ -28,6 +31,25 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.CRATE.create(pos, state);
+    }
+
+    public static List<CrateBlockEntity> getNearbyCrates(Level level, BlockPos sourcePos) {
+        List<CrateBlockEntity> crates = new ArrayList<>();
+        CrateBlockEntity source = null;
+        for (BlockPos pos : BlockPos.betweenClosed(sourcePos.offset(-1, -1, -1), sourcePos.offset(1, 1, 1))) {
+            if (!(level.getBlockEntity(pos) instanceof CrateBlockEntity crate)) {
+                continue;
+            }
+            if (pos.equals(sourcePos)) {
+                source = crate;
+            } else {
+                crates.add(crate);
+            }
+        }
+        if (source != null) {
+            crates.add(source);
+        }
+        return crates;
     }
 
     @Override

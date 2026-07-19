@@ -7,6 +7,8 @@ import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.itemhandler.TypeLimitItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
+import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
 import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
@@ -76,9 +78,9 @@ public final class StorageServerStub {
         @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
         long sourcePos
     ) {
-        BaseStorage storage = StorageServerStub.getStorage(playerId, sourcePos);
-        StorageServerStub stub = StorageServerStub.get(playerId, storage.getId());
-        return new Metadata(stub.version, stub.orderVersion, storage.getItems().getFullness());
+        StorageView view = StorageServerStub.getView(playerId, sourcePos);
+        StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
+        return new Metadata(stub.version, stub.orderVersion, view.fullness());
     }
 
     @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC")
@@ -87,10 +89,10 @@ public final class StorageServerStub {
         @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
         long sourcePos
     ) {
-        BaseStorage storage = StorageServerStub.getStorage(playerId, sourcePos);
-        StorageServerStub stub = StorageServerStub.get(playerId, storage.getId());
+        StorageView view = StorageServerStub.getView(playerId, sourcePos);
+        StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
         StorageSetting setting = PlayerSettings.getSetting(playerId).storage();
-        IntList order = stub.getOrder(storage.getItems(), setting);
+        IntList order = stub.getOrder(view, setting);
         return new IntArrayList(order);
     }
 
@@ -105,20 +107,19 @@ public final class StorageServerStub {
             throw new IllegalArgumentException("Cannot sync more than " + StorageServerStub.MAX_SYNC_SLOTS + " slots at once");
         }
 
-        BaseStorage storage = StorageServerStub.getStorage(playerId, sourcePos);
-        StorageServerStub stub = StorageServerStub.get(playerId, storage.getId());
-        TypeLimitItemStacksResourceHandler items = storage.getItems();
+        StorageView view = StorageServerStub.getView(playerId, sourcePos);
+        StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
         List<StackUpdate> updates = new ArrayList<>();
         IntOpenHashSet visited = new IntOpenHashSet(slots.size());
         for (int index : slots) {
             if (index < 0 || !visited.add(index)) {
                 continue;
             }
-            updates.add(new StackUpdate(index, StorageServerStub.getStack(items, index)));
+            updates.add(new StackUpdate(index, StorageServerStub.getStack(view, index)));
         }
         return new SyncResult(
             stub.version,
-            storage.getItems().getFullness(),
+            view.fullness(),
             updates
         );
     }
@@ -142,47 +143,46 @@ public final class StorageServerStub {
             throw new IllegalArgumentException("Invalid storage interaction button: " + button);
         }
 
-        BaseStorage storage = StorageServerStub.getStorage(playerId, sourcePos);
+        StorageView view = StorageServerStub.getView(playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
-        TypeLimitItemStacksResourceHandler items = storage.getItems();
         ItemStack carried = player.inventoryMenu.getCarried();
         boolean changed = false;
         if (action == StorageServerStub.QUICK_MOVE_TO_STORAGE) {
-            changed = StorageServerStub.moveInventoryStackToStorage(player, items, slot);
+            changed = StorageServerStub.moveInventoryStackToStorage(player, view, slot);
         } else if (action == StorageServerStub.CLONE) {
             if (
                 player.hasInfiniteMaterials()
                 && carried.isEmpty()
                 && slot >= 0
-                && slot < items.size()
-                && items.getAmountAsLong(slot) > 0
+                && slot < view.size()
+                && view.amount(slot) > 0
             ) {
-                ItemStack stack = items.getResource(slot).toStack();
+                ItemStack stack = view.resource(slot).toStack();
                 carried = stack.copyWithCount(stack.getMaxStackSize());
                 player.inventoryMenu.setCarried(carried);
             }
         } else if (action == StorageServerStub.THROW) {
-            changed = StorageServerStub.throwStorageStack(player, items, slot, button);
+            changed = StorageServerStub.throwStorageStack(player, view, slot, button);
         } else if (action == StorageServerStub.QUICK_MOVE_FROM_STORAGE) {
-            changed = StorageServerStub.moveStorageStackToInventory(player, items, slot);
+            changed = StorageServerStub.moveStorageStackToInventory(player, view, slot);
         } else if (!carried.isEmpty()) {
             int amount = button == 0 ? carried.getCount() : 1;
             try (Transaction transaction = Transaction.openRoot()) {
-                int inserted = items.insert(ItemResource.of(carried), amount, transaction);
+                int inserted = view.insert(ItemResource.of(carried), amount, transaction);
                 if (inserted > 0) {
                     transaction.commit();
                     carried.shrink(inserted);
                     changed = true;
                 }
             }
-        } else if (slot >= 0 && slot < items.size() && items.getAmountAsLong(slot) > 0) {
-            ItemResource resource = items.getResource(slot);
+        } else if (slot >= 0 && slot < view.size() && view.amount(slot) > 0) {
+            ItemResource resource = view.resource(slot);
             ItemStack itemStack = resource.toStack();
-            int count = Math.toIntExact(items.getAmountAsLong(slot));
+            int count = view.amount(slot);
             int maxPickup = Math.min(itemStack.getMaxStackSize(), count);
             int amount = button == 0 ? maxPickup : Math.ceilDiv(maxPickup, 2);
             try (Transaction transaction = Transaction.openRoot()) {
-                int extracted = items.extract(slot, resource, amount, transaction);
+                int extracted = view.extract(slot, resource, amount, transaction);
                 if (extracted > 0) {
                     transaction.commit();
                     carried = itemStack.copyWithCount(extracted);
@@ -205,17 +205,16 @@ public final class StorageServerStub {
         long sourcePos,
         boolean all
     ) {
-        BaseStorage storage = StorageServerStub.getStorage(playerId, sourcePos);
+        StorageView view = StorageServerStub.getView(playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
-        TypeLimitItemStacksResourceHandler items = storage.getItems();
         boolean changed = false;
         for (int slot = Inventory.SELECTION_SIZE; slot < Inventory.INVENTORY_SIZE; slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
-            if (stack.isEmpty() || !all && !StorageServerStub.matchesStorageItem(items, stack)) {
+            if (stack.isEmpty() || !all && !StorageServerStub.matchesStorageItem(view, stack)) {
                 continue;
             }
             try (Transaction transaction = Transaction.openRoot()) {
-                int inserted = items.insert(ItemResource.of(stack), stack.getCount(), transaction);
+                int inserted = view.insert(ItemResource.of(stack), stack.getCount(), transaction);
                 if (inserted > 0) {
                     transaction.commit();
                     stack.shrink(inserted);
@@ -236,9 +235,8 @@ public final class StorageServerStub {
         @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
         long sourcePos
     ) {
-        BaseStorage storage = StorageServerStub.getStorage(playerId, sourcePos);
+        StorageView view = StorageServerStub.getView(playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
-        TypeLimitItemStacksResourceHandler items = storage.getItems();
         boolean changed = false;
         Inventory inventory = player.getInventory();
         for (int slot = Inventory.SELECTION_SIZE; slot < Inventory.INVENTORY_SIZE; slot++) {
@@ -251,15 +249,15 @@ public final class StorageServerStub {
             if (amount <= 0) {
                 continue;
             }
-            for (int index = 0; index < items.size() && amount > 0; index++) {
+            for (int index = 0; index < view.size() && amount > 0; index++) {
                 if (
-                    items.getAmountAsLong(index) <= 0
-                    || !ItemStack.isSameItemSameComponents(items.getResource(index).toStack(), stack)
+                    view.amount(index) <= 0
+                    || !ItemStack.isSameItemSameComponents(view.resource(index).toStack(), stack)
                 ) {
                     continue;
                 }
                 try (Transaction transaction = Transaction.openRoot()) {
-                    int extracted = items.extract(index, resource, amount, transaction);
+                    int extracted = view.extract(index, resource, amount, transaction);
                     if (extracted > 0) {
                         transaction.commit();
                         stack.grow(extracted);
@@ -276,12 +274,9 @@ public final class StorageServerStub {
         return new DepositResult(changed);
     }
 
-    private static boolean matchesStorageItem(TypeLimitItemStacksResourceHandler items, ItemStack stack) {
-        for (int index = 0; index < items.size(); index++) {
-            if (
-                items.getAmountAsLong(index) > 0
-                && ItemStack.isSameItemSameComponents(items.getResource(index).toStack(), stack)
-            ) {
+    private static boolean matchesStorageItem(StorageView view, ItemStack stack) {
+        for (int index = 0; index < view.size(); index++) {
+            if (view.amount(index) > 0 && ItemStack.isSameItemSameComponents(view.resource(index).toStack(), stack)) {
                 return true;
             }
         }
@@ -290,7 +285,7 @@ public final class StorageServerStub {
 
     private static boolean moveInventoryStackToStorage(
         ServerPlayer player,
-        TypeLimitItemStacksResourceHandler items,
+        StorageView view,
         int slot
     ) {
         Inventory inventory = player.getInventory();
@@ -302,7 +297,7 @@ public final class StorageServerStub {
             return false;
         }
         try (Transaction transaction = Transaction.openRoot()) {
-            int inserted = items.insert(ItemResource.of(stack), stack.getCount(), transaction);
+            int inserted = view.insert(ItemResource.of(stack), stack.getCount(), transaction);
             if (inserted <= 0) {
                 return false;
             }
@@ -314,23 +309,23 @@ public final class StorageServerStub {
 
     private static boolean moveStorageStackToInventory(
         ServerPlayer player,
-        TypeLimitItemStacksResourceHandler items,
+        StorageView view,
         int slot
     ) {
-        if (slot < 0 || slot >= items.size() || items.getAmountAsLong(slot) <= 0) {
+        if (slot < 0 || slot >= view.size() || view.amount(slot) <= 0) {
             return false;
         }
-        ItemResource resource = items.getResource(slot);
+        ItemResource resource = view.resource(slot);
         ItemStack stack = resource.toStack();
         int amount = Math.min(
-            Math.toIntExact(items.getAmountAsLong(slot)),
+            view.amount(slot),
             StorageServerStub.getInventorySpace(player.getInventory(), stack)
         );
         if (amount <= 0) {
             return false;
         }
         try (Transaction transaction = Transaction.openRoot()) {
-            int extracted = items.extract(slot, resource, amount, transaction);
+            int extracted = view.extract(slot, resource, amount, transaction);
             if (extracted <= 0) {
                 return false;
             }
@@ -355,7 +350,7 @@ public final class StorageServerStub {
 
     private static boolean throwStorageStack(
         ServerPlayer player,
-        TypeLimitItemStacksResourceHandler items,
+        StorageView view,
         int slot,
         int button
     ) {
@@ -363,18 +358,18 @@ public final class StorageServerStub {
             !player.inventoryMenu.getCarried().isEmpty()
             || !player.canDropItems()
             || slot < 0
-            || slot >= items.size()
-            || items.getAmountAsLong(slot) <= 0
+            || slot >= view.size()
+            || view.amount(slot) <= 0
         ) {
             return false;
         }
-        ItemResource resource = items.getResource(slot);
+        ItemResource resource = view.resource(slot);
         ItemStack stack = resource.toStack();
         int stackCount = stack.getMaxStackSize();
         long requested = button == 0 ? 1 : (long) stackCount * (button == 1 ? 1 : 9);
-        int amount = Math.toIntExact(Math.min(items.getAmountAsLong(slot), requested));
+        int amount = Math.min(view.amount(slot), Math.toIntExact(requested));
         try (Transaction transaction = Transaction.openRoot()) {
-            int extracted = items.extract(slot, resource, amount, transaction);
+            int extracted = view.extract(slot, resource, amount, transaction);
             if (extracted <= 0) {
                 return false;
             }
@@ -512,33 +507,33 @@ public final class StorageServerStub {
         return stub;
     }
 
-    private static UnlimitedItemStack getStack(TypeLimitItemStacksResourceHandler items, int index) {
-        if (index >= items.size() || items.getAmountAsLong(index) <= 0) {
+    private static UnlimitedItemStack getStack(StorageView view, int index) {
+        if (index >= view.size() || view.amount(index) <= 0) {
             return UnlimitedItemStack.EMPTY;
         }
-        return new UnlimitedItemStack(items.getResource(index), Math.toIntExact(items.getAmountAsLong(index)));
+        return new UnlimitedItemStack(view.resource(index), view.amount(index));
     }
 
-    private IntList getOrder(TypeLimitItemStacksResourceHandler items, StorageSetting setting) {
+    private IntList getOrder(StorageView view, StorageSetting setting) {
         SortOptions options = new SortOptions(setting.getSort(), setting.getOrder());
         String search = setting.getSearchContent().strip().toLowerCase(Locale.ROOT);
         if (!search.isEmpty()) {
-            return StorageServerStub.createOrder(items, options, search);
+            return StorageServerStub.createOrder(view, options, search);
         }
-        return this.orders.computeIfAbsent(options, _ -> StorageServerStub.createOrder(items, options, ""));
+        return this.orders.computeIfAbsent(options, _ -> StorageServerStub.createOrder(view, options, ""));
     }
 
-    private static IntList createOrder(TypeLimitItemStacksResourceHandler items, SortOptions options, String search) {
-        List<OrderEntry> entries = new ArrayList<>(items.size());
+    private static IntList createOrder(StorageView view, SortOptions options, String search) {
+        List<OrderEntry> entries = new ArrayList<>(view.size());
         boolean requiresName = options.sort() == SortMode.NAME
             || search.isEmpty()
             || search.charAt(0) != '@' && search.charAt(0) != '#';
-        for (int index = 0; index < items.size(); index++) {
-            long amount = items.getAmountAsLong(index);
+        for (int index = 0; index < view.size(); index++) {
+            long amount = view.amount(index);
             if (amount <= 0) {
                 continue;
             }
-            ItemResource resource = items.getResource(index);
+            ItemResource resource = view.resource(index);
             ItemStack stack = resource.toStack();
             Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
             String name = requiresName ? stack.getHoverName().getString() : "";
@@ -618,9 +613,118 @@ public final class StorageServerStub {
         this.storageId = storageId;
     }
 
+    private static StorageView getView(UUID playerId, long sourcePos) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        BlockPos pos = BlockPos.of(sourcePos);
+        BlockEntity blockEntity = player.level().getBlockEntity(pos);
+        if (!(blockEntity instanceof StorageBlockEntity storage) || storage.getId() == null) {
+            throw new IllegalStateException("Cannot access storage without a storage block entity");
+        }
+        BaseStorage primary = Storages.get().get(storage.getId()).orElseThrow();
+        String search = PlayerSettings.getSetting(playerId).storage().getSearchContent().strip();
+        if (search.isEmpty() || !(storage instanceof CrateBlockEntity)) {
+            return new StorageView(List.of(primary), List.of());
+        }
+        List<BaseStorage> storages = new ArrayList<>();
+        for (CrateBlockEntity crate : CrateBlock.getNearbyCrates(player.level(), pos)) {
+            if (crate.getId() != null) {
+                Storages.get().get(crate.getId()).ifPresent(storages::add);
+            }
+        }
+        return new StorageView(storages, List.of());
+    }
+
     private record SortOptions(SortMode sort, OrderMode order) {
     }
 
     private record OrderEntry(int index, long amount, Identifier id, String name) {
+    }
+
+    private static final class StorageView {
+        private final List<BaseStorage> storages;
+        private final List<Entry> entries = new ArrayList<>();
+
+        private StorageView(List<BaseStorage> storages, List<Entry> ignored) {
+            this.storages = storages;
+            Map<ItemResource, Entry> merged = new HashMap<>();
+            for (int storageIndex = 0; storageIndex < storages.size(); storageIndex++) {
+                TypeLimitItemStacksResourceHandler items = storages.get(storageIndex).getItems();
+                for (int slot = 0; slot < items.size(); slot++) {
+                    if (items.getAmountAsLong(slot) <= 0) continue;
+                    ItemResource resource = items.getResource(slot);
+                    Entry entry = merged.get(resource);
+                    if (entry == null) {
+                        entry = new Entry(resource, 0, storageIndex, slot);
+                        merged.put(resource, entry);
+                        this.entries.add(entry);
+                    }
+                    entry.amount += Math.toIntExact(items.getAmountAsLong(slot));
+                }
+            }
+        }
+
+        BaseStorage primary() {
+            return this.storages.getLast();
+        }
+
+        int size() {
+            return this.entries.size();
+        }
+
+        int amount(int index) {
+            return this.entries.get(index).amount;
+        }
+
+        ItemResource resource(int index) {
+            return this.entries.get(index).resource;
+        }
+
+        double fullness() {
+            return this.primary().getItems().getFullness();
+        }
+
+        int insert(ItemResource resource, int amount, Transaction tx) {
+            int inserted = 0;
+            for (int i = 0; i < this.storages.size() - 1; i++) {
+                TypeLimitItemStacksResourceHandler items = this.storages.get(i).getItems();
+                if (!contains(items, resource)) continue;
+                inserted += items.insert(resource, amount - inserted, tx);
+                if (inserted == amount) return inserted;
+            }
+            TypeLimitItemStacksResourceHandler primaryItems = this.primary().getItems();
+            inserted += primaryItems.insert(resource, amount - inserted, tx);
+            if (inserted == amount) return inserted;
+            for (int i = 0; i < this.storages.size() - 1; i++) {
+                inserted += this.storages.get(i).getItems().insert(resource, amount - inserted, tx);
+                if (inserted == amount) return inserted;
+            }
+            return inserted;
+        }
+
+        private static boolean contains(TypeLimitItemStacksResourceHandler items, ItemResource resource) {
+            for (int i = 0; i < items.size(); i++) {
+                if (items.getAmountAsLong(i) > 0 && items.getResource(i).equals(resource)) return true;
+            }
+            return false;
+        }
+
+        int extract(int index, ItemResource resource, int amount, Transaction tx) {
+            Entry e = this.entries.get(index);
+            return this.storages.get(e.storageIndex).getItems().extract(e.slot, resource, amount, tx);
+        }
+
+        private static final class Entry {
+            final ItemResource resource;
+            int amount;
+            final int storageIndex;
+            final int slot;
+
+            Entry(ItemResource resource, int amount, int storageIndex, int slot) {
+                this.resource = resource;
+                this.amount = amount;
+                this.storageIndex = storageIndex;
+                this.slot = slot;
+            }
+        }
     }
 }
