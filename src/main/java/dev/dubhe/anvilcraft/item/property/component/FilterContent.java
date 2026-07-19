@@ -117,7 +117,7 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
         FilterContent content = filterStack.get(ModComponents.FILTER_CONTENT);
         if (content == null) return false;
 
-        return content.blackList() == content.filter(stack);
+        return content.filter(stack);
     }
 
     public boolean filter(ItemStack stack) {
