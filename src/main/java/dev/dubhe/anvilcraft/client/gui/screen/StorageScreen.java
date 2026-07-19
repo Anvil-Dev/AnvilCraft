@@ -97,6 +97,7 @@ public class StorageScreen extends Screen {
     private IntList order = new IntArrayList();
     private final Int2ObjectMap<UnlimitedItemStack> contents = new Int2ObjectOpenHashMap<>();
     private double fullness;
+    private StorageServerStub.@Nullable Capacity capacity;
     private long version = -1;
     private long orderVersion = -1;
     private int scrollRow;
@@ -448,7 +449,12 @@ public class StorageScreen extends Screen {
     }
 
     private void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        if (MathUtil.isInRange(mouseX, mouseY, this.left + 2, this.top + 23, this.left + 26, this.top + 43)) {
+        if (MathUtil.isInRange(mouseX, mouseY, this.left + 106, this.top, this.left + 300, this.top + 13)) {
+            Component tooltip = this.getCapacityTooltip();
+            if (tooltip != null) {
+                graphics.setTooltipForNextFrame(tooltip, mouseX, mouseY);
+            }
+        } else if (MathUtil.isInRange(mouseX, mouseY, this.left + 2, this.top + 23, this.left + 26, this.top + 43)) {
             graphics.setTooltipForNextFrame(
                 Component.translatable(
                     "screen.anvilcraft.storage.search",
@@ -485,6 +491,39 @@ public class StorageScreen extends Screen {
                 mouseY
             );
         }
+    }
+
+    private @Nullable Component getCapacityTooltip() {
+        StorageServerStub.Capacity capacity = this.capacity;
+        if (capacity == null) {
+            return null;
+        }
+        boolean unlimitedSpace = capacity.spaceSize() == Integer.MAX_VALUE;
+        boolean unlimitedTypes = capacity.typeLimit() == Integer.MAX_VALUE;
+        if (unlimitedSpace && unlimitedTypes) {
+            return null;
+        }
+        if (unlimitedSpace) {
+            return Component.translatable(
+                "screen.anvilcraft.storage.capacity.types",
+                capacity.typeCount(),
+                capacity.typeLimit()
+            );
+        }
+        if (unlimitedTypes) {
+            return Component.translatable(
+                "screen.anvilcraft.storage.capacity.space",
+                capacity.space(),
+                capacity.spaceSize()
+            );
+        }
+        return Component.translatable(
+            "screen.anvilcraft.storage.capacity",
+            capacity.space(),
+            capacity.spaceSize(),
+            capacity.typeCount(),
+            capacity.typeLimit()
+        );
     }
 
     private void extractCarriedItem(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
@@ -1040,6 +1079,7 @@ public class StorageScreen extends Screen {
                     return;
                 }
                 this.fullness = metadata.fullness();
+                this.capacity = metadata.capacity();
                 if (!this.orderLoaded || metadata.orderVersion() != this.orderVersion) {
                     this.orderVersion = metadata.orderVersion();
                     this.reorder(false);

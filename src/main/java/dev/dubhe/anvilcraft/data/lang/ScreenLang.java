@@ -664,6 +664,9 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.storage.nbt", "Should Fold Items with Diff. NBT: Currently %s");
         provider.add("screen.anvilcraft.storage.nbt.unfold", "False");
         provider.add("screen.anvilcraft.storage.nbt.fold", "True");
+        provider.add("screen.anvilcraft.storage.capacity", "Total Capacity: %1$s/%2$s, Types: %3$s/%4$s");
+        provider.add("screen.anvilcraft.storage.capacity.space", "Total Capacity: %1$s/%2$s");
+        provider.add("screen.anvilcraft.storage.capacity.types", "Types: %1$s/%2$s");
         provider.add("screen.anvilcraft.storage.category.name", "Name: %s");
         provider.add("screen.anvilcraft.storage.category.mode", "Mode: %s");
         provider.add("screen.anvilcraft.storage.category.mode.unlimited", "Unlimited");

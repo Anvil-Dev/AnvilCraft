@@ -83,7 +83,7 @@ public final class StorageServerStub {
     ) {
         StorageView view = StorageServerStub.getView(playerId, sourcePos);
         StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
-        return new Metadata(stub.version, stub.orderVersion, view.fullness());
+        return new Metadata(stub.version, stub.orderVersion, view.fullness(), view.capacity());
     }
 
     @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC")
@@ -432,7 +432,7 @@ public final class StorageServerStub {
         }
     }
 
-    public record Metadata(long version, long orderVersion, double fullness) {
+    public record Metadata(long version, long orderVersion, double fullness, Capacity capacity) {
         public static final StreamCodec<ByteBuf, Metadata> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_LONG,
             Metadata::version,
@@ -440,7 +440,23 @@ public final class StorageServerStub {
             Metadata::orderVersion,
             ByteBufCodecs.DOUBLE,
             Metadata::fullness,
+            Capacity.STREAM_CODEC,
+            Metadata::capacity,
             Metadata::new
+        );
+    }
+
+    public record Capacity(int space, int spaceSize, int typeCount, int typeLimit) {
+        public static final StreamCodec<ByteBuf, Capacity> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT,
+            Capacity::space,
+            ByteBufCodecs.VAR_INT,
+            Capacity::spaceSize,
+            ByteBufCodecs.VAR_INT,
+            Capacity::typeCount,
+            ByteBufCodecs.VAR_INT,
+            Capacity::typeLimit,
+            Capacity::new
         );
     }
 
@@ -709,6 +725,11 @@ public final class StorageServerStub {
 
         double fullness() {
             return this.primary().getItems().getFullness();
+        }
+
+        Capacity capacity() {
+            TypeLimitItemStacksResourceHandler items = this.primary().getItems();
+            return new Capacity(items.getSpace(), items.getSpaceSize(), items.getTypeCount(), items.getTypeLimit());
         }
 
         int insert(ItemResource resource, int amount, Transaction tx) {
