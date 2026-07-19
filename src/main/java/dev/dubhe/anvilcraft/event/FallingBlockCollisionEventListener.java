@@ -42,6 +42,7 @@ public class FallingBlockCollisionEventListener {
 
     @SubscribeEvent
     public static void anvilCollisionCraft(AnvilEvent.CollisionBlock event) {
+        if (event.isCanceled()) return;
         Vec3 entityPos = event.getEntity().position();
         Level level = event.getLevel();
         BlockPos pos = event.getPos();
