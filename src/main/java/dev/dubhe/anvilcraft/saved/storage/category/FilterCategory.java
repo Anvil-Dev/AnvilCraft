@@ -19,6 +19,7 @@ public record FilterCategory(ItemStackTemplate icon, Component name, FilterConte
     private static final Component DEFAULT_NAME = Component.translatable("category.anvilcraft.filter");
 
     public static FilterCategory from(ItemStack filter) {
+        filter = filter.copyWithCount(1);
         return new FilterCategory(
             ItemStackTemplate.fromNonEmptyStack(filter),
             FilterCategory.findNameFromFilter(filter),

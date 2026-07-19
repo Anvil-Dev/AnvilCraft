@@ -129,31 +129,35 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
             .orElseGet(() -> new LargeCrateStorage(targetId));
         TypeLimitItemStacksResourceHandler targetItems = target.getItems();
         Set<UUID> sourceIds = new HashSet<>();
-        try (Transaction tx = Transaction.openRoot()) {
-            for (CrateBlockEntity crate : crates) {
-                UUID sourceId = crate.getId();
-                if (sourceId == null || !sourceIds.add(sourceId)) continue;
-                Optional<BaseStorage> sourceOp = Storages.get().get(sourceId);
-                if (sourceOp.isEmpty()) continue;
-                BaseStorage source = sourceOp.get();
-                TypeLimitItemStacksResourceHandler items = source.getItems();
-                for (int i = 0; i < items.size(); i++) {
-                    if (items.getAmountAsLong(i) <= 0) continue;
-                    ItemResource resource = items.getResource(i);
-                    int amount = Math.toIntExact(items.getAmountAsLong(i));
-                    if (targetItems.insert(resource, amount, tx) != amount) return InteractionResult.FAIL;
+        try (Transaction root = Transaction.openRoot()) {
+            try (Transaction transaction = Transaction.open(root)) {
+                for (CrateBlockEntity crate : crates) {
+                    UUID sourceId = crate.getId();
+                    if (sourceId == null || !sourceIds.add(sourceId)) continue;
+                    Optional<BaseStorage> sourceOp = Storages.get().get(sourceId);
+                    if (sourceOp.isEmpty()) continue;
+                    BaseStorage source = sourceOp.get();
+                    TypeLimitItemStacksResourceHandler items = source.getItems();
+                    for (int i = 0; i < items.size(); i++) {
+                        long amountAsLong = items.getAmountAsLong(i);
+                        if (amountAsLong <= 0) continue;
+                        ItemResource resource = items.getResource(i);
+                        int amount = Math.toIntExact(amountAsLong);
+                        if (targetItems.insert(resource, amount, transaction) != amount) return InteractionResult.FAIL;
+                    }
                 }
+                transaction.commit();
             }
-            tx.commit();
-        }
-        Storages.get().put(target);
-        for (UUID sourceId : sourceIds) {
-            Storages.get().remove(sourceId);
-        }
-        LargeCrateBlock largeCrate = ModBlocks.LARGE_CRATE.get();
-        BlockState defaultState = largeCrate.defaultBlockState();
-        for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
-            level.setBlock(origin.offset(part.getOffset()), defaultState.setValue(LargeCrateBlock.HALF, part), 3);
+            Storages.get().put(target);
+            for (UUID sourceId : sourceIds) {
+                Storages.get().remove(sourceId);
+            }
+            LargeCrateBlock largeCrate = ModBlocks.LARGE_CRATE.get();
+            BlockState defaultState = largeCrate.defaultBlockState();
+            for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
+                level.setBlockAndUpdate(origin.offset(part.getOffset()), defaultState.setValue(LargeCrateBlock.HALF, part));
+            }
+            root.commit();
         }
         if (level.getBlockEntity(origin) instanceof StorageBlockEntity storage) storage.setId(target.getId());
         if (!player.hasInfiniteMaterials()) largeCrateStack.shrink(1);

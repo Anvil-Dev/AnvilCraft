@@ -332,7 +332,7 @@ public class CategorySettingsScreen extends Screen {
         }
 
         if (this.alternate.canScroll()) {
-            int top = this.left + 7;
+            int top = this.top + 7;
             int bottom = top + 120;
             graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
