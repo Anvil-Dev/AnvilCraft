@@ -70,6 +70,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     private static final double EPSILON = 1.0 / 1024.0;
     public static final int CAPACITY = FluidType.BUCKET_VOLUME;
     public static final int MAX_TROPICAL_FISH = 4;
+    private static final IItemHandler EMPTY_RECIPE_OUTPUT = new ItemStackHandler(0);
 
     private static final Vec3 FLUID_CONTENT_AREA_MIN = new Vec3(0.0625, 0.0625, 0.0625);
     private static final Vec3 FLUID_CONTENT_AREA_MAX = new Vec3(0.9375, 0.9375, 0.9375);
@@ -340,6 +341,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             FishTankBlockEntity.this.sendUpdate();
         }
     };
+    private boolean processingOutput;
+    private long lastRecipeProcessingGameTime = Long.MIN_VALUE;
     private boolean ignited = false;
 
     public FishTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -419,6 +422,48 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     @Override
     public ItemStackHandler getItemHandler() {
         return this.proxy;
+    }
+
+    @Override
+    public IItemHandler getInput() {
+        return this.processingOutput ? this.output : this.input;
+    }
+
+    @Override
+    public IItemHandler getOutput() {
+        return this.processingOutput ? EMPTY_RECIPE_OUTPUT : this.output;
+    }
+
+    public PollableItemHandler getInputHandler() {
+        return this.input;
+    }
+
+    public ItemStackHandler getOutputHandler() {
+        return this.output;
+    }
+
+    public void beginRecipeProcessing() {
+        boolean hasInput = !isEmpty(this.input);
+        long gameTime = this.level == null ? Long.MIN_VALUE + 1 : this.level.getGameTime();
+        this.processingOutput = !hasInput
+            && !isEmpty(this.output)
+            && gameTime != this.lastRecipeProcessingGameTime;
+        if (hasInput || this.processingOutput) this.lastRecipeProcessingGameTime = gameTime;
+    }
+
+    public void finishRecipeProcessing() {
+        this.processingOutput = false;
+    }
+
+    public ItemStack insertRecipeOutput(ItemStack stack) {
+        return ItemHandlerUtil.insertItem(this.output, stack, false);
+    }
+
+    private static boolean isEmpty(IItemHandler handler) {
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            if (!handler.getStackInSlot(slot).isEmpty()) return false;
+        }
+        return true;
     }
 
     // region 持久化

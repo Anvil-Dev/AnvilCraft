@@ -5,7 +5,6 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.fluids.CauldronFluidContent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
@@ -74,6 +73,8 @@ public class FluidPipeNetwork {
     private final Map<BlockPos, Map<Direction, Direction>> faceFlow;
     private final List<FluidEndpoint> endpoints;
     private final List<FluidEndpoint> cauldronEndpoints;
+    private final List<FluidEndpoint> entityEndpoints;
+    private final Set<FluidEndpoint> disconnectedEntityEndpoints = new HashSet<>();
     private final boolean directionalConstraints;
     /** 端点按等效高度<b>降序</b>预排序（作为源的遍历顺序），构建时排一次，避免每 tick 重排。 */
     private final List<FluidEndpoint> sourcesByHeightDesc;
@@ -113,9 +114,13 @@ public class FluidPipeNetwork {
         this.endpoints = endpoints;
         this.directionalConstraints = !valves.isEmpty() || !diodes.isEmpty() || !faceFlow.isEmpty();
         this.cauldronEndpoints = new ArrayList<>();
+        this.entityEndpoints = new ArrayList<>();
         for (FluidEndpoint endpoint : endpoints) {
             if (endpoint.cauldron()) {
                 this.cauldronEndpoints.add(endpoint);
+            }
+            if (endpoint.entity() != null) {
+                this.entityEndpoints.add(endpoint);
             }
         }
         // 预排序一次（缓存网络下每 tick 复用）
@@ -146,6 +151,9 @@ public class FluidPipeNetwork {
         }
         // 源已按等效高度降序预排序：高处先流，一 tick 内可级联下泄
         for (FluidEndpoint source : sourcesByHeightDesc) {
+            if (!isEndpointConnected(source)) {
+                continue;
+            }
             distributeFromSource(source);
         }
     }
@@ -167,7 +175,7 @@ public class FluidPipeNetwork {
         }
         reachabilityCache.clear();
         distributeFromSource(new FluidEndpoint(
-            srcPos, entryPipePos, null, srcHandler, sourceEffectiveHeight, false));
+            srcPos, entryPipePos, null, srcHandler, sourceEffectiveHeight, false, null));
     }
 
     /** 从单个源端点向所有更低的端点分配其持有的流体。 */
@@ -337,6 +345,9 @@ public class FluidPipeNetwork {
         FluidEndpoint source, FluidStack stored, TreeMap<Integer, List<FluidEndpoint>> targetsByHeight
     ) {
         for (FluidEndpoint higher : sourcesByHeightDesc) {
+            if (!isEndpointConnected(higher)) {
+                continue;
+            }
             if (higher.effectiveHeight() <= source.effectiveHeight()) {
                 return false;
             }
@@ -383,7 +394,10 @@ public class FluidPipeNetwork {
     private boolean canTarget(
         FluidEndpoint source, int tankIdx, FluidEndpoint target, FluidStack stored, Reachability reach
     ) {
-        if (target == source || target.effectiveHeight() >= source.effectiveHeight()) {
+        if (!isEndpointConnected(source)
+            || !isEndpointConnected(target)
+            || target == source
+            || target.effectiveHeight() >= source.effectiveHeight()) {
             return false;
         }
         if (target.handler().equals(source.handler())) {
@@ -437,16 +451,39 @@ public class FluidPipeNetwork {
     }
 
     private boolean canTickEndpoints() {
+        disconnectedEntityEndpoints.clear();
+        for (FluidEndpoint endpoint : entityEndpoints) {
+            if (!FluidContainerLookup.isEntityConnectedToPipe(
+                level,
+                endpoint.containerPos(),
+                endpoint.sideToPipe(),
+                endpoint.entity()
+            )) {
+                disconnectedEntityEndpoints.add(endpoint);
+            }
+        }
         for (FluidEndpoint endpoint : cauldronEndpoints) {
+            if (endpoint.entity() != null) {
+                continue;
+            }
             if (!level.isLoaded(endpoint.containerPos())) {
                 return false;
             }
-            if (CauldronFluidContent.getForBlock(level.getBlockState(endpoint.containerPos()).getBlock()) == null) {
+            FluidContainerLookup.Result container = FluidContainerLookup.find(
+                level,
+                endpoint.containerPos(),
+                endpoint.sideToPipe()
+            );
+            if (container == null || !container.cauldron()) {
                 FluidNetworkManager.INSTANCE.markDirty(level);
                 return false;
             }
         }
         return true;
+    }
+
+    private boolean isEndpointConnected(FluidEndpoint endpoint) {
+        return !disconnectedEntityEndpoints.contains(endpoint);
     }
 
     private boolean fillFirstWholeCauldronTarget(

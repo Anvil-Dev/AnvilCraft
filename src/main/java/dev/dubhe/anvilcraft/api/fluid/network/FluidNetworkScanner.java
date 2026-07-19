@@ -11,8 +11,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.CauldronFluidContent;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.ArrayDeque;
@@ -53,8 +51,7 @@ public final class FluidNetworkScanner {
 
     /** 判断某位置是否为流体容器（提供 IFluidHandler 且非管道部件）。供管理器剔除失效容器用。 */
     public static boolean isContainer(Level level, BlockPos pos) {
-        return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, null) != null
-            && !isPipePart(level.getBlockState(pos));
+        return !isPipePart(level.getBlockState(pos)) && FluidContainerLookup.find(level, pos, null) != null;
     }
 
     /**
@@ -85,11 +82,11 @@ public final class FluidNetworkScanner {
             ? PUMP_HALF_LIFT : 0;
     }
 
-    private static IFluidHandler containerHandler(Level level, BlockPos pos, Direction sideToPipe) {
+    private static FluidContainerLookup.Result container(Level level, BlockPos pos, Direction sideToPipe) {
         if (isPipePart(level.getBlockState(pos))) {
             return null;
         }
-        return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, sideToPipe);
+        return FluidContainerLookup.find(level, pos, sideToPipe);
     }
 
     /**
@@ -297,16 +294,23 @@ public final class FluidNetworkScanner {
         if (endpoints.containsKey(immutablePos)) {
             return;
         }
-        IFluidHandler handler = containerHandler(level, containerPos, sideToPipe);
-        if (handler == null) {
+        FluidContainerLookup.Result container = container(level, containerPos, sideToPipe);
+        if (container == null) {
             return;
         }
+        IFluidHandler handler = container.handler();
         if (!seenHandlers.add(handler)) {
             return;
         }
         int effectiveHeight = containerPos.getY() + phi;
-        boolean cauldron = CauldronFluidContent.getForBlock(level.getBlockState(containerPos).getBlock()) != null;
         endpoints.put(immutablePos, new FluidEndpoint(
-            immutablePos, attachPipePos.immutable(), sideToPipe, handler, effectiveHeight, cauldron));
+            immutablePos,
+            attachPipePos.immutable(),
+            sideToPipe,
+            handler,
+            effectiveHeight,
+            container.cauldron(),
+            container.entity()
+        ));
     }
 }
