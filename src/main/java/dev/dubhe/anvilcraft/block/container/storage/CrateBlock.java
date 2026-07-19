@@ -2,10 +2,21 @@ package dev.dubhe.anvilcraft.block.container.storage;
 
 import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.api.itemhandler.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
+import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.property.component.StorageRef;
+import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
+import dev.dubhe.anvilcraft.saved.storage.LargeCrateStorage;
+import dev.dubhe.anvilcraft.saved.storage.StorageType;
+import dev.dubhe.anvilcraft.saved.storage.Storages;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -18,10 +29,16 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
 
 public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
     public CrateBlock(Properties properties) {
@@ -75,6 +92,10 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof CrateBlockEntity entity) {
             if (player.isSpectator()) return InteractionResult.PASS;
+            if (player.isShiftKeyDown() && itemStack.is(ModBlocks.LARGE_CRATE.asItem())) {
+                if (level.isClientSide()) return InteractionResult.SUCCESS;
+                return CrateBlock.mergeIntoLargeCrate(level, pos, hitResult.getDirection(), itemStack, player);
+            }
             if (player instanceof ServerPlayer) {
                 return InteractionResult.SUCCESS_SERVER;
             } else if (level.isClientSide()) {
@@ -83,5 +104,66 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
             }
         }
         return super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
+    }
+
+    private static InteractionResult mergeIntoLargeCrate(
+        Level level,
+        BlockPos center,
+        Direction clickedFace,
+        ItemStack largeCrateStack,
+        Player player
+    ) {
+        BlockPos origin = CrateBlock.getLargeCrateOrigin(center, clickedFace);
+        List<CrateBlockEntity> crates = new ArrayList<>();
+        for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
+            BlockPos pos = origin.offset(part.getOffset());
+            if (!(level.getBlockEntity(pos) instanceof CrateBlockEntity crate)) return InteractionResult.FAIL;
+            crates.add(crate);
+        }
+        StorageRef ref = largeCrateStack.get(ModComponents.STORAGE);
+        UUID targetId = ref != null && ref.type() == StorageType.LARGE_CRATE
+            ? ref.id().orElseGet(UUID::randomUUID)
+            : UUID.randomUUID();
+        BaseStorage target = Storages.get().get(targetId, LargeCrateStorage.class)
+            .map(BaseStorage.class::cast)
+            .orElseGet(() -> new LargeCrateStorage(targetId));
+        TypeLimitItemStacksResourceHandler targetItems = target.getItems();
+        Set<UUID> sourceIds = new HashSet<>();
+        try (Transaction tx = Transaction.openRoot()) {
+            for (CrateBlockEntity crate : crates) {
+                UUID sourceId = crate.getId();
+                if (sourceId == null || !sourceIds.add(sourceId)) continue;
+                Optional<BaseStorage> sourceOp = Storages.get().get(sourceId);
+                if (sourceOp.isEmpty()) continue;
+                BaseStorage source = sourceOp.get();
+                TypeLimitItemStacksResourceHandler items = source.getItems();
+                for (int i = 0; i < items.size(); i++) {
+                    if (items.getAmountAsLong(i) <= 0) continue;
+                    ItemResource resource = items.getResource(i);
+                    int amount = Math.toIntExact(items.getAmountAsLong(i));
+                    if (targetItems.insert(resource, amount, tx) != amount) return InteractionResult.FAIL;
+                }
+            }
+            tx.commit();
+        }
+        Storages.get().put(target);
+        for (UUID sourceId : sourceIds) {
+            Storages.get().remove(sourceId);
+        }
+        LargeCrateBlock largeCrate = ModBlocks.LARGE_CRATE.get();
+        BlockState defaultState = largeCrate.defaultBlockState();
+        for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
+            level.setBlock(origin.offset(part.getOffset()), defaultState.setValue(LargeCrateBlock.HALF, part), 3);
+        }
+        if (level.getBlockEntity(origin) instanceof StorageBlockEntity storage) storage.setId(target.getId());
+        if (!player.hasInfiniteMaterials()) largeCrateStack.shrink(1);
+        return InteractionResult.SUCCESS_SERVER;
+    }
+
+    private static BlockPos getLargeCrateOrigin(BlockPos center, Direction clickedFace) {
+        return switch (clickedFace.getAxis()) {
+            case X, Z -> center.relative(clickedFace.getOpposite()).below();
+            case Y -> center.offset(0, clickedFace == Direction.UP ? -2 : 0, 0);
+        };
     }
 }
