@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.rpc;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
 import dev.anvilcraft.lib.v2.rpc.CallableParam;
 import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
@@ -40,8 +42,10 @@ import org.jspecify.annotations.NonNull;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -49,6 +53,7 @@ import java.util.UUID;
 import java.util.function.Function;
 
 public final class StorageServerStub {
+    private static final int MAX_PLAYER_STUBS = 5;
     private static final int MAX_SYNC_SLOTS = 256;
     public static final int PICKUP = 0;
     public static final int QUICK_MOVE_FROM_STORAGE = 1;
@@ -58,8 +63,9 @@ public final class StorageServerStub {
     public static final StreamCodec<ByteBuf, IntList> ORDER_STREAM_CODEC = ByteBufCodecs.VAR_INT
         .apply(ByteBufCodecs.list())
         .map(IntArrayList::new, Function.identity());
-    private static final Map<UUID, StorageServerStub> STUBS = new HashMap<>();
+    private static final Multimap<UUID, StorageServerStub> STUBS = ArrayListMultimap.create();
 
+    private final UUID storageId;
     private long version;
     private long orderVersion;
     private final Map<SortOptions, IntList> orders = new HashMap<>();
@@ -71,7 +77,7 @@ public final class StorageServerStub {
         long sourcePos
     ) {
         BaseStorage storage = StorageServerStub.getStorage(playerId, sourcePos);
-        StorageServerStub stub = StorageServerStub.get(storage.getId());
+        StorageServerStub stub = StorageServerStub.get(playerId, storage.getId());
         return new Metadata(stub.version, stub.orderVersion, storage.getItems().getFullness());
     }
 
@@ -82,7 +88,7 @@ public final class StorageServerStub {
         long sourcePos
     ) {
         BaseStorage storage = StorageServerStub.getStorage(playerId, sourcePos);
-        StorageServerStub stub = StorageServerStub.get(storage.getId());
+        StorageServerStub stub = StorageServerStub.get(playerId, storage.getId());
         StorageSetting setting = PlayerSettings.getSetting(playerId).storage();
         IntList order = stub.getOrder(storage.getItems(), setting);
         return new IntArrayList(order);
@@ -100,7 +106,7 @@ public final class StorageServerStub {
         }
 
         BaseStorage storage = StorageServerStub.getStorage(playerId, sourcePos);
-        StorageServerStub stub = StorageServerStub.get(storage.getId());
+        StorageServerStub stub = StorageServerStub.get(playerId, storage.getId());
         TypeLimitItemStacksResourceHandler items = storage.getItems();
         List<StackUpdate> updates = new ArrayList<>();
         IntOpenHashSet visited = new IntOpenHashSet(slots.size());
@@ -190,6 +196,96 @@ public final class StorageServerStub {
             player.inventoryMenu.broadcastChanges();
         }
         return new InteractionResult(carried, changed);
+    }
+
+    @CallableParam(clazz = DepositResult.class, field = "STREAM_CODEC")
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static DepositResult deposit(
+        @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
+        long sourcePos,
+        boolean all
+    ) {
+        BaseStorage storage = StorageServerStub.getStorage(playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        TypeLimitItemStacksResourceHandler items = storage.getItems();
+        boolean changed = false;
+        for (int slot = Inventory.SELECTION_SIZE; slot < Inventory.INVENTORY_SIZE; slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (stack.isEmpty() || !all && !StorageServerStub.matchesStorageItem(items, stack)) {
+                continue;
+            }
+            try (Transaction transaction = Transaction.openRoot()) {
+                int inserted = items.insert(ItemResource.of(stack), stack.getCount(), transaction);
+                if (inserted > 0) {
+                    transaction.commit();
+                    stack.shrink(inserted);
+                    changed = true;
+                }
+            }
+        }
+        if (changed) {
+            player.getInventory().setChanged();
+            player.inventoryMenu.broadcastChanges();
+        }
+        return new DepositResult(changed);
+    }
+
+    @CallableParam(clazz = DepositResult.class, field = "STREAM_CODEC")
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static DepositResult take(
+        @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
+        long sourcePos
+    ) {
+        BaseStorage storage = StorageServerStub.getStorage(playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        TypeLimitItemStacksResourceHandler items = storage.getItems();
+        boolean changed = false;
+        Inventory inventory = player.getInventory();
+        for (int slot = Inventory.SELECTION_SIZE; slot < Inventory.INVENTORY_SIZE; slot++) {
+            ItemStack stack = inventory.getItem(slot);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            ItemResource resource = ItemResource.of(stack);
+            int amount = inventory.getMaxStackSize(stack) - stack.getCount();
+            if (amount <= 0) {
+                continue;
+            }
+            for (int index = 0; index < items.size() && amount > 0; index++) {
+                if (
+                    items.getAmountAsLong(index) <= 0
+                    || !ItemStack.isSameItemSameComponents(items.getResource(index).toStack(), stack)
+                ) {
+                    continue;
+                }
+                try (Transaction transaction = Transaction.openRoot()) {
+                    int extracted = items.extract(index, resource, amount, transaction);
+                    if (extracted > 0) {
+                        transaction.commit();
+                        stack.grow(extracted);
+                        amount -= extracted;
+                        changed = true;
+                    }
+                }
+            }
+        }
+        if (changed) {
+            inventory.setChanged();
+            player.inventoryMenu.broadcastChanges();
+        }
+        return new DepositResult(changed);
+    }
+
+    private static boolean matchesStorageItem(TypeLimitItemStacksResourceHandler items, ItemStack stack) {
+        for (int index = 0; index < items.size(); index++) {
+            if (
+                items.getAmountAsLong(index) > 0
+                && ItemStack.isSameItemSameComponents(items.getResource(index).toStack(), stack)
+            ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static boolean moveInventoryStackToStorage(
@@ -296,10 +392,17 @@ public final class StorageServerStub {
     }
 
     public static void onContentsChanged(UUID storageId) {
-        StorageServerStub stub = StorageServerStub.get(storageId);
-        stub.version++;
-        stub.orderVersion = stub.version;
-        stub.orders.clear();
+        for (StorageServerStub stub : StorageServerStub.STUBS.values()) {
+            if (stub.storageId.equals(storageId)) {
+                stub.version++;
+                stub.orderVersion = stub.version;
+                stub.orders.clear();
+            }
+        }
+    }
+
+    public static void remove(UUID playerId) {
+        StorageServerStub.STUBS.removeAll(playerId);
     }
 
     public static void clear() {
@@ -375,8 +478,38 @@ public final class StorageServerStub {
         );
     }
 
-    private static StorageServerStub get(UUID storageId) {
-        return StorageServerStub.STUBS.computeIfAbsent(storageId, _ -> new StorageServerStub());
+    public record DepositResult(boolean changed) {
+        public static final StreamCodec<ByteBuf, DepositResult> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.BOOL,
+            DepositResult::changed,
+            DepositResult::new
+        );
+    }
+
+    private static StorageServerStub get(UUID playerId, UUID storageId) {
+        Collection<StorageServerStub> stubs = StorageServerStub.STUBS.get(playerId);
+        StorageServerStub cached = null;
+        Iterator<StorageServerStub> iterator = stubs.iterator();
+        while (iterator.hasNext()) {
+            StorageServerStub stub = iterator.next();
+            if (stub.storageId.equals(storageId)) {
+                cached = stub;
+                iterator.remove();
+                break;
+            }
+        }
+        if (cached != null) {
+            StorageServerStub.STUBS.put(playerId, cached);
+            return cached;
+        }
+        if (stubs.size() >= StorageServerStub.MAX_PLAYER_STUBS) {
+            iterator = stubs.iterator();
+            iterator.next();
+            iterator.remove();
+        }
+        StorageServerStub stub = new StorageServerStub(storageId);
+        StorageServerStub.STUBS.put(playerId, stub);
+        return stub;
     }
 
     private static UnlimitedItemStack getStack(TypeLimitItemStacksResourceHandler items, int index) {
@@ -481,7 +614,8 @@ public final class StorageServerStub {
         return player;
     }
 
-    private StorageServerStub() {
+    private StorageServerStub(UUID storageId) {
+        this.storageId = storageId;
     }
 
     private record SortOptions(SortMode sort, OrderMode order) {

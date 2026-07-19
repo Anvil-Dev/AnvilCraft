@@ -64,6 +64,25 @@ public final class StorageClientStub {
         );
     }
 
+    public static CompletableFuture<StorageServerStub.DepositResult> deposit(BlockPos sourcePos, boolean all) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::deposit,
+            playerId(),
+            sourcePos.asLong(),
+            all
+        );
+    }
+
+    public static CompletableFuture<StorageServerStub.DepositResult> take(BlockPos sourcePos) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::take,
+            playerId(),
+            sourcePos.asLong()
+        );
+    }
+
     private static UUID playerId() {
         Player player = Minecraft.getInstance().player;
         if (player == null) {

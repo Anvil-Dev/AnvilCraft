@@ -7,6 +7,7 @@ import com.mojang.blaze3d.platform.Window;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
+import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.category.CategoryList;
 import dev.dubhe.anvilcraft.client.rpc.SettingClientStub;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
@@ -56,6 +57,8 @@ public class StorageScreen extends Screen {
     private static final Identifier BACKGROUND = SharedTextures.bg("misc", "storage_station");
     private static final Identifier CAPACITY = SharedTextures.textureGui("misc/storage_station/capacity");
     private static final Identifier SEARCH_CLEAR = SharedTextures.textureGui("misc/storage_station/search_clear");
+    private static final Identifier PUT = SharedTextures.textureGui("misc/storage_station/put");
+    private static final Identifier TAKE = SharedTextures.textureGui("misc/storage_station/take");
     private static final Identifier SEARCH_RETENTION = SharedTextures.textureGui("misc/storage_station/search_retention");
     private static final Identifier SORT_COUNT = SharedTextures.textureGui("misc/storage_station/sort_by_number");
     private static final Identifier SORT_MOD = SharedTextures.textureGui("misc/storage_station/sort_by_mod");
@@ -143,7 +146,7 @@ public class StorageScreen extends Screen {
             SettingClientStub.update(content);
             this.reorder(false);
         });
-        SwitchableButton searchMode = this.addRenderableWidget(new SwitchableButton(
+        final SwitchableButton searchMode = this.addRenderableWidget(new SwitchableButton(
             this.left + 2,
             this.top + 23,
             24,
@@ -165,7 +168,7 @@ public class StorageScreen extends Screen {
             StorageScreen.SORT_MOD,
             StorageScreen.SORT_NAME
         );
-        SwitchableButton sortMode = this.addRenderableWidget(new SwitchableButton(
+        final SwitchableButton sortMode = this.addRenderableWidget(new SwitchableButton(
             this.left + 28,
             this.top + 23,
             24,
@@ -179,7 +182,7 @@ public class StorageScreen extends Screen {
                 this.reorder();
             }
         ));
-        SwitchableButton orderMode = this.addRenderableWidget(new SwitchableButton(
+        final SwitchableButton orderMode = this.addRenderableWidget(new SwitchableButton(
             this.left + 54,
             this.top + 23,
             24,
@@ -204,7 +207,7 @@ public class StorageScreen extends Screen {
                 this.reorder();
             }
         ));
-        SwitchableButton nbtMode = this.addRenderableWidget(new SwitchableButton(
+        final SwitchableButton nbtMode = this.addRenderableWidget(new SwitchableButton(
             this.left + 80,
             this.top + 23,
             24,
@@ -224,6 +227,42 @@ public class StorageScreen extends Screen {
             SettingClientStub.setting(),
             _ -> this.reorder(),
             _ -> this.minecraft.setScreenAndShow(new CategorySettingsScreen(this.sourcePos))
+        ));
+        this.addRenderableWidget(new TexturedButton(
+            this.left + 278,
+            this.top + 139,
+            18,
+            20,
+            StorageScreen.PUT,
+            20,
+            18,
+            40,
+            _ -> StorageClientStub.deposit(StorageScreen.this.sourcePos, this.minecraft.hasShiftDown()).thenAcceptAsync(
+                result -> {
+                    if (result.changed()) {
+                        StorageScreen.this.reorder(false);
+                    }
+                },
+                StorageScreen.this.screenExecutor
+            )
+        ));
+        this.addRenderableWidget(new TexturedButton(
+            this.left + 278,
+            this.top + 161,
+            18,
+            20,
+            StorageScreen.TAKE,
+            20,
+            18,
+            40,
+            _ -> StorageClientStub.take(StorageScreen.this.sourcePos).thenAcceptAsync(
+                result -> {
+                    if (result.changed()) {
+                        StorageScreen.this.reorder(false);
+                    }
+                },
+                StorageScreen.this.screenExecutor
+            )
         ));
 
         SettingClientStub.load().thenAcceptAsync(
@@ -782,7 +821,7 @@ public class StorageScreen extends Screen {
                     handled = true;
                 }
             } else if (this.minecraft.options.keyDrop.isActiveAndMatches(key)) {
-                // Forge MC-146650: Emulate MC bug, so we don't drop from hotbar when pressing drop without hovering over a item.
+                // Forge MC-146650: Emulate MC bug, so we don't drop from hotbar when pressing drop without hovering over an item.
                 handled = true;
             }
 
