@@ -1202,5 +1202,6 @@
   "title.anvilcraft.patchouli.struct.multiblock": "多塊方之化作",
   "title.anvilcraft.patchouli.struct.overseer": "都督：區塊之所載",
   "title.anvilcraft.patchouli.structural_engineering": "結構工",
-  "title.anvilcraft.patchouli.technology_application": "技術用"
+  "title.anvilcraft.patchouli.technology_application": "技術用",
+  "config.jade.plugin_anvilcraft.crab_trap": "箄"
 }

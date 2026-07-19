@@ -1466,5 +1466,14 @@
   "tooltip.anvilcraft.item.fe_collector": "收集 FE 發電",
   "tooltip.anvilcraft.item.frost_anvil": "防爆",
   "tooltip.anvilcraft.item.frost_grindstone": "防爆",
-  "tooltip.anvilcraft.item.frost_metal_block": "防爆"
+  "tooltip.anvilcraft.item.frost_metal_block": "防爆",
+  "config.jade.plugin_anvilcraft.crab_trap": "蟹籠",
+  "screen.anvilcraft.celestial_forging_anvil": "鍛星鐵砧",
+  "screen.anvilcraft.cfa.class.black_hole": "黑洞",
+  "tooltip.anvilcraft.item.ember_dragon_rod": "攜帶型方塊吞噬器",
+  "tooltip.anvilcraft.item.ember_dragon_rod.shift": "攜帶型方塊吞噬器，左鍵挖掘方塊，右鍵調整作用範圍（範圍越大，耐久消耗越高）",
+  "tooltip.anvilcraft.item.royal_dragon_rod": "攜帶型方塊吞噬器",
+  "tooltip.anvilcraft.item.royal_dragon_rod.shift": "攜帶型方塊吞噬器，左鍵挖掘方塊，右鍵調整作用範圍（範圍越大，耐久消耗越高）",
+  "tooltip.anvilcraft.item.transcendence_dragon_rod": "攜帶型方塊吞噬器",
+  "tooltip.anvilcraft.item.transcendence_dragon_rod.shift": "攜帶型方塊吞噬器，左鍵挖掘方塊，右鍵調整作用範圍（範圍越大，耐久消耗越高）"
 }
