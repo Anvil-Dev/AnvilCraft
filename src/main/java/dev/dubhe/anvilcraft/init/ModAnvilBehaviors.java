@@ -24,7 +24,7 @@ import dev.dubhe.anvilcraft.block.GunpowderBlock;
 import dev.dubhe.anvilcraft.block.SugarBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import net.minecraft.world.level.block.AbstractCauldronBlock;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -51,7 +51,7 @@ public class ModAnvilBehaviors {
         event.registerBehavior(state -> state.getBlock() instanceof GunpowderBlock, new GunpowderBlockBehavior());
         event.registerBehavior(state -> state.is(ModBlocks.IMPACT_PILE), new ImpactPileBehavior());
         event.registerBehavior(state -> state.getBlock() instanceof SugarBlock, new SugarBlockBehavior());
-        event.registerBehavior(state -> state.getBlock() instanceof AbstractCauldronBlock, new TimeWarpPlayerBehavior());
+        event.registerBehavior(state -> state.is(BlockTags.CAULDRONS), new TimeWarpPlayerBehavior());
         event.registerBehavior(Blocks.BEACON, new BeaconConversionBehavior());
         event.registerBehavior(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get(), new TranscendiumBehavior());
         event.registerBehavior(

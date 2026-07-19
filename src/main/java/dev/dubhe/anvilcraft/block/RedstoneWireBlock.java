@@ -54,6 +54,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
     private static final Map<Direction, VoxelShape> DOT_SHAPES = new EnumMap<>(Direction.class);
     private static final Map<Direction, List<VoxelShape>> SIDE_SHAPES = new EnumMap<>(Direction.class);
     private static final Map<Direction, List<VoxelShape>> CORNER_SHAPES = new EnumMap<>(Direction.class);
+    private static final Map<Direction, List<VoxelShape>> CORNER_SP_SHAPES = new EnumMap<>(Direction.class);
     private static final Map<Direction, List<VoxelShape>> UP_SHAPES = new EnumMap<>(Direction.class);
 
     static {
@@ -63,15 +64,18 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
             DOT_SHAPES.put(attachment, transformedBox(attachment, north, 4.0, 0.0, 4.0, 12.0, 2.5, 12.0));
             List<VoxelShape> sides = new ArrayList<>(4);
             List<VoxelShape> corners = new ArrayList<>(4);
+            List<VoxelShape> specialCorners = new ArrayList<>(4);
             List<VoxelShape> ups = new ArrayList<>(4);
             for (int index = 0; index < 4; index++) {
                 Direction tangent = getLocalDirection(attachment, index);
                 sides.add(transformedBox(attachment, tangent, 5.0, 0.0, 0.0, 11.0, 2.0, 8.0));
                 corners.add(transformedBox(attachment, tangent, 5.0, 0.0, -2.0, 11.0, 2.0, 8.0));
+                specialCorners.add(transformedBox(attachment, tangent, 5.0, 0.0, -1.0, 11.0, 2.0, 8.0));
                 ups.add(transformedBox(attachment, tangent, 5.0, 1.0, -0.1, 11.0, 18.0, 2.0));
             }
             SIDE_SHAPES.put(attachment, List.copyOf(sides));
             CORNER_SHAPES.put(attachment, List.copyOf(corners));
+            CORNER_SP_SHAPES.put(attachment, List.copyOf(specialCorners));
             UP_SHAPES.put(attachment, List.copyOf(ups));
         }
     }
@@ -124,11 +128,14 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         VoxelShape shape = state.getValue(DOT) ? DOT_SHAPES.get(attachment) : Shapes.empty();
         for (int index = 0; index < 4; index++) {
             ConnectionType side = state.getValue(CONNECTION_PROPERTIES.get(index));
-            if (side.isConnected() && side != ConnectionType.CORNER) {
+            if (side.isConnected() && side != ConnectionType.CORNER && side != ConnectionType.CORNER_SP) {
                 shape = Shapes.or(shape, SIDE_SHAPES.get(attachment).get(index));
             }
             if (side == ConnectionType.CORNER) {
                 shape = Shapes.or(shape, CORNER_SHAPES.get(attachment).get(index));
+            }
+            if (side == ConnectionType.CORNER_SP) {
+                shape = Shapes.or(shape, CORNER_SP_SHAPES.get(attachment).get(index));
             }
             if (side == ConnectionType.UP) {
                 shape = Shapes.or(shape, UP_SHAPES.get(attachment).get(index));
@@ -180,17 +187,21 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
     public boolean canConnectRedstone(
         BlockState state, BlockGetter level, BlockPos pos, @Nullable Direction direction
     ) {
-        if (direction == null || !direction.getAxis().isHorizontal()) {
+        Direction terminalDirection;
+        if (direction == null) {
+            // 原版红石粉检查斜向下方的方块时不带方向；此时只暴露侧面导线的向上开放断口。
+            terminalDirection = Direction.UP;
+        } else if (!direction.getAxis().isHorizontal()) {
             return false;
+        } else {
+            terminalDirection = direction.getOpposite();
         }
-        Direction terminalDirection = direction.getOpposite();
         int index = getLocalIndex(state.getValue(ATTACHMENT), terminalDirection);
         if (index < 0 || !state.getValue(CONNECTION_PROPERTIES.get(index)).isConnected()) {
             return false;
         }
-        Connection[] cached = RedstoneWireNetworkManager.getConnections(level, pos);
         // 内部接线端只负责连通网络；仅开放端点应被外部元件视为红石接口。
-        return (cached == null ? findConnection(level, pos, state, index) : cached[index]) == null;
+        return this.isOpenTerminal(level, pos, state, index);
     }
 
     @Override
@@ -231,6 +242,38 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         return (cached == null ? findConnection(level, pos, state, index) : cached[index]) != null;
     }
 
+    private boolean isOpenTerminal(BlockGetter level, BlockPos pos, BlockState state, int index) {
+        Connection[] cached = RedstoneWireNetworkManager.getConnections(level, pos);
+        return (cached == null ? findConnection(level, pos, state, index) : cached[index]) == null;
+    }
+
+    /** 供原版红石粉采样斜下方导线的非粉线信号，避免该特殊连接只改变外观。 */
+    public static int getUpwardDustSignal(BlockGetter level, BlockPos dustPos) {
+        int power = 0;
+        for (Direction towardWire : Direction.Plane.HORIZONTAL) {
+            BlockPos wirePos = dustPos.relative(towardWire).below();
+            BlockState wireState = level.getBlockState(wirePos);
+            if (!(wireState.getBlock() instanceof RedstoneWireBlock wire)) {
+                continue;
+            }
+            Direction attachment = towardWire.getOpposite();
+            if (wireState.getValue(ATTACHMENT) != attachment) {
+                continue;
+            }
+            int index = getLocalIndex(attachment, Direction.UP);
+            if (index < 0
+                || !wireState.getValue(CONNECTION_PROPERTIES.get(index)).isConnected()
+                || !hasUpwardDustConnection(level, wirePos, wireState, index)
+                || !wire.isOpenTerminal(level, wirePos, wireState, index)) {
+                continue;
+            }
+            power = Math.max(power, RedstoneWireNetworkManager.getNonDustPower(
+                level, wirePos, wireState.getValue(POWER)
+            ));
+        }
+        return power;
+    }
+
     /** 根据当前世界重新计算指定导线的四向外观状态。 */
     BlockState connectionState(BlockGetter level, BlockPos pos, BlockState oldState) {
         return this.connectionState(level, pos, oldState, findConnections(level, pos, oldState));
@@ -249,8 +292,11 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         int second = -1;
         for (int index = 0; index < 4; index++) {
             Connection connection = connections[index];
-            ConnectionType side = getConnection(level, pos, result, index, connection);
-            result = result.setValue(CONNECTION_PROPERTIES.get(index), side);
+            EnumProperty<ConnectionType> property = CONNECTION_PROPERTIES.get(index);
+            ConnectionType side = getConnection(
+                level, pos, result, index, connection, oldState.getValue(property).isConnected()
+            );
+            result = result.setValue(property, side);
             if (side.isConnected()) {
                 if (first < 0) {
                     first = index;
@@ -284,11 +330,20 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
     }
 
     private static ConnectionType getConnection(
-        BlockGetter level, BlockPos pos, BlockState state, int index, @Nullable Connection connection
+        BlockGetter level,
+        BlockPos pos,
+        BlockState state,
+        int index,
+        @Nullable Connection connection,
+        boolean wasConnected
     ) {
         if (connection != null) {
             // 导线到导线的几何关系决定 SIDE、CORNER 或 UP，应优先于普通红石接口外观。
             return connection.side();
+        }
+        if (wasConnected && hasUpwardDustConnection(level, pos, state, index)) {
+            // 原版粉线通过 canConnectRedstone(null) 吸引到这个断口，使用专用短拐角避免模型插入粉线。
+            return ConnectionType.CORNER_SP;
         }
         Direction tangent = getLocalDirection(state.getValue(ATTACHMENT), index);
         BlockPos adjacentPos = pos.relative(tangent);
@@ -306,6 +361,24 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
             || state.is(Blocks.TARGET)
             || state.is(Blocks.REDSTONE_TORCH)
             || state.is(Blocks.REDSTONE_WALL_TORCH);
+    }
+
+    /** 侧面导线向上断开时，检查支撑方块顶面的原版红石粉斜角连接。 */
+    private static boolean hasUpwardDustConnection(BlockGetter level, BlockPos pos, BlockState state, int index) {
+        Direction attachment = state.getValue(ATTACHMENT);
+        if (!attachment.getAxis().isHorizontal() || getLocalDirection(attachment, index) != Direction.UP) {
+            return false;
+        }
+        return level.getBlockState(pos.relative(attachment).above()).is(Blocks.REDSTONE_WIRE);
+    }
+
+    /** 返回开放端点实际对应的外部方块位置；斜角红石粉位于支撑方块的顶面。 */
+    static BlockPos terminalTarget(BlockGetter level, BlockPos pos, BlockState state, Direction tangent) {
+        int index = getLocalIndex(state.getValue(ATTACHMENT), tangent);
+        if (index >= 0 && hasUpwardDustConnection(level, pos, state, index)) {
+            return pos.relative(state.getValue(ATTACHMENT)).above();
+        }
+        return pos.relative(tangent);
     }
 
     /**
@@ -672,7 +745,9 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         /** 沿前方完整方块的侧面向上爬升。 */
         UP("up", true),
         /** 绕同一支撑方块的边缘连接到另一个附着面。 */
-        CORNER("corner", true);
+        CORNER("corner", true),
+        /** 向上的开放断口连接支撑方块顶面的原版红石粉。 */
+        CORNER_SP("corner_sp", true);
 
         private final String name;
         @Getter

@@ -40,6 +40,7 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
 
     @Override
     public void onCancelingIrradiation(BaseLaserBlockEntity baseLaserBlockEntity) {
+        if (!irradiateSelfLaserBlockSet.contains(baseLaserBlockEntity)) return;
         super.onCancelingIrradiation(baseLaserBlockEntity);
         enabled = !irradiateSelfLaserBlockSet.isEmpty();
     }

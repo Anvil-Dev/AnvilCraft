@@ -1,7 +1,11 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.api.block.ICauldronGeometry;
 import dev.dubhe.anvilcraft.block.Layered4LevelCauldronBlock;
 import net.minecraft.core.BlockPos;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.Block;
@@ -9,10 +13,12 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.fluids.CauldronFluidContent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -234,5 +240,33 @@ public class CauldronUtil {
     public static boolean compatibleForFill(BlockState state, Block cauldronContent, int fillLevel) {
         if (fillLevel <= 0) return true;
         return remainSpaceFor(state, cauldronContent) >= fillLevel;
+    }
+
+    public static AABB getInnerArea(BlockPos pos, BlockState state) {
+        if (state.getBlock() instanceof ICauldronGeometry geometry) {
+            return geometry.getCauldronInnerArea(pos, state);
+        }
+        return new AABB(pos);
+    }
+
+    public static List<BlockPos> getBottomPositions(BlockPos pos, BlockState state) {
+        if (state.getBlock() instanceof ICauldronGeometry geometry) {
+            return geometry.getCauldronBottomPositions(pos, state);
+        }
+        return List.of(pos.below());
+    }
+
+    public static boolean isEntityInside(BlockPos pos, BlockState state, Entity entity) {
+        return getInnerArea(pos, state).contains(entity.position());
+    }
+
+    public static void hurtFromHeaterBelow(Entity entity) {
+        if (!(entity instanceof LivingEntity) || entity.level().isClientSide()) return;
+        BlockPos pos = entity.blockPosition();
+        BlockState state = entity.level().getBlockState(pos);
+        if (!state.is(BlockTags.CAULDRONS) || !isEntityInside(pos, state, entity)) return;
+        for (BlockPos bottomPos : getBottomPositions(pos, state)) {
+            if (HeaterUtil.hurtEntity(entity.level(), entity.level().getBlockState(bottomPos), entity)) return;
+        }
     }
 }

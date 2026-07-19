@@ -50,6 +50,13 @@ public class RedstoneWireBlockStateGenerator {
                         .condition(RedstoneWireBlock.ATTACHMENT, attachment)
                         .condition(property, ConnectionType.CORNER)
                         .end();
+                    if (RedstoneWireBlock.getLocalDirection(attachment, index) == Direction.UP) {
+                        ModelFile sideCornerSp = sideCornerSpModel(provider, attachment, index);
+                        multipart.part().modelFile(sideCornerSp).addModel()
+                            .condition(RedstoneWireBlock.ATTACHMENT, attachment)
+                            .condition(property, ConnectionType.CORNER_SP)
+                            .end();
+                    }
                 }
                 multipart.part().modelFile(up).addModel()
                     .condition(RedstoneWireBlock.ATTACHMENT, attachment)
@@ -137,6 +144,32 @@ public class RedstoneWireBlockStateGenerator {
             face(Direction.EAST, "#1", 6, 0, 7, 10, 90, true, null),
             face(Direction.WEST, "#1", 6, 0, 7, 10, 90, true, null),
             face(Direction.UP, "#1", 6, 0, 10, 10, 0, true, null)
+        ));
+        return model;
+    }
+
+    /** 生成墙面向上断口连接支撑方块顶面红石粉时使用的专用短拐角。 */
+    private static BlockModelBuilder sideCornerSpModel(
+        RegistrumBlockstateProvider provider, Direction attachment, int index
+    ) {
+        Direction tangent = RedstoneWireBlock.getLocalDirection(attachment, index);
+        BlockModelBuilder model = model(provider, attachment, "side_corner_sp_" + index)
+            .texture("0", AnvilCraft.of("block/redstone_wire_line"))
+            .texture("1", AnvilCraft.of("block/redstone_wire_line_overlay"))
+            .texture("particle", AnvilCraft.of("block/redstone_wire_line"));
+        addBoxWithRotatedUvs(model, attachment, tangent, 5.0, 0.0, 0.0, 11.0, 1.0, 8.0, List.of(
+            face(Direction.NORTH, "#0", 5, 0, 11, 1, 0, false, Direction.NORTH),
+            face(Direction.EAST, "#0", 10, 0, 11, 8, 90, false, null),
+            face(Direction.WEST, "#0", 5, 8, 6, 0, 90, false, null),
+            face(Direction.UP, "#0", 5, 0, 11, 8),
+            face(Direction.DOWN, "#0", 11, 0, 5, 8, 0, false, Direction.DOWN)
+        ));
+        addBoxWithRotatedUvs(model, attachment, tangent, 6.0, 0.01, -1.0, 10.0, 2.0, 8.0, List.of(
+            face(Direction.NORTH, "#1", 6, 0, 10, 1, 0, true, Direction.NORTH),
+            face(Direction.EAST, "#1", 6, 0, 7, 9, 90, true, null),
+            face(Direction.WEST, "#1", 6, 0, 7, 9, 90, true, null),
+            face(Direction.UP, "#1", 6, 0, 10, 9, 0, true, null),
+            face(Direction.DOWN, "#1", 6, 0, 10, 9, 0, true, null)
         ));
         return model;
     }

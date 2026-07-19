@@ -291,7 +291,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
         public static final int FUEL_COST_TICKS = 240 * 20;
 
         /**
-         * 标记一次铁砧落地事件中是否已消耗过燃料，防止多个物品匹配时重复消耗
+         * 标记当前配方上下文是否已消耗过燃料，避免同一结果被重复接受
          */
         public static final InWorldRecipeData<Boolean> FUEL_CONSUMED =
             InWorldRecipeData.of(AnvilCraft.of("super_heating_fuel_consumed"), false);

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.entity.IAnvilCraftEntityExtension;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
@@ -109,6 +110,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
             List<FallingBlockEntity> entities =
                 level.getEntitiesOfClass(FallingBlockEntity.class, new AABB(currentPos));
             for (FallingBlockEntity entity : entities) {
+                if (entity instanceof IAnvilCraftEntityExtension) continue;
                 BlockState state2 = entity.getBlockState();
                 if (state2.is(BlockTags.ANVIL) && !state2.is(ModBlockTags.NON_MAGNETIC)) {
                     level.destroyBlock(magnetPos.below(), true);

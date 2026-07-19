@@ -191,6 +191,15 @@
     },
     {
       "apply": {
+        "model": "anvilcraft:block/redstone_wire/north/side_corner_sp_0"
+      },
+      "when": {
+        "attachment": "north",
+        "north": "corner_sp"
+      }
+    },
+    {
+      "apply": {
         "model": "anvilcraft:block/redstone_wire/north/up_0"
       },
       "when": {
@@ -304,6 +313,15 @@
       "when": {
         "attachment": "south",
         "north": "corner"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/redstone_wire/south/side_corner_sp_0"
+      },
+      "when": {
+        "attachment": "south",
+        "north": "corner_sp"
       }
     },
     {
@@ -425,6 +443,15 @@
     },
     {
       "apply": {
+        "model": "anvilcraft:block/redstone_wire/west/side_corner_sp_0"
+      },
+      "when": {
+        "attachment": "west",
+        "north": "corner_sp"
+      }
+    },
+    {
+      "apply": {
         "model": "anvilcraft:block/redstone_wire/west/up_0"
       },
       "when": {
@@ -538,6 +565,15 @@
       "when": {
         "attachment": "east",
         "north": "corner"
+      }
+    },
+    {
+      "apply": {
+        "model": "anvilcraft:block/redstone_wire/east/side_corner_sp_0"
+      },
+      "when": {
+        "attachment": "east",
+        "north": "corner_sp"
       }
     },
     {

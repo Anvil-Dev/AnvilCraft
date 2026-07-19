@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.entity.IAnvilCraftEntityExtension;
 import dev.dubhe.anvilcraft.api.event.UseMagnetEvent;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
@@ -43,6 +44,21 @@ public abstract class MagnetUtil {
         if (player == null) return InteractionResult.PASS;
         if (!player.isShiftKeyDown()) return InteractionResult.PASS;
         BlockPos pos = context.getClickedPos();
+        if (player.isShiftKeyDown()) {
+            AABB entityArea = new AABB(pos).inflate(0.08D);
+            for (Entity entity : level.getEntities(
+                player,
+                entityArea,
+                candidate -> candidate instanceof IAnvilCraftEntityExtension
+                    && candidate.isAlive()
+            )) {
+                IAnvilCraftEntityExtension extension = (IAnvilCraftEntityExtension) entity;
+                if (extension.anvilcraft$acceptMagnetization(player, context.getItemInHand())) {
+                    player.getCooldowns().addCooldown(item, 5);
+                    return InteractionResult.sidedSuccess(level.isClientSide());
+                }
+            }
+        }
         BlockState blockState = level.getBlockState(pos);
         if (blockState.isAir()) return InteractionResult.PASS;
         double maxY = blockState.getCollisionShape(level, pos).max(Direction.Axis.Y, 0.5, 0.5);

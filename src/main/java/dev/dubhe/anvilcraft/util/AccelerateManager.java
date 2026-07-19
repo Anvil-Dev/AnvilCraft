@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.dubhe.anvilcraft.api.entity.IAnvilCraftEntityExtension;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
@@ -67,8 +68,12 @@ public class AccelerateManager {
 
     public static boolean canBeAccelerated(Entity entity) {
         return entity instanceof FallingBlockEntity fallingBlockEntity
-               && fallingBlockEntity.getBlockState().is(BlockTags.ANVIL)
-               && !fallingBlockEntity.getBlockState().is(ModBlockTags.NON_MAGNETIC)
+               && (fallingBlockEntity.getBlockState().is(BlockTags.ANVIL)
+                   || entity instanceof IAnvilCraftEntityExtension extension
+                   && extension.anvilcraft$isMagnetized())
+               && (!(entity instanceof IAnvilCraftEntityExtension extension)
+                   ? !fallingBlockEntity.getBlockState().is(ModBlockTags.NON_MAGNETIC)
+                   : extension.anvilcraft$isMagnetized())
                || entity instanceof Projectile
                || (entity instanceof Player player && isPlayerCanBeAccelerated(player));
     }
@@ -170,7 +175,10 @@ public class AccelerateManager {
     }
 
     private static boolean isAnvil(Entity entity) {
-        if (entity instanceof FallingBlockEntity falling) return falling.getBlockState().is(BlockTags.ANVIL);
+        if (entity instanceof FallingBlockEntity falling) {
+            return falling.getBlockState().is(BlockTags.ANVIL)
+                || entity instanceof IAnvilCraftEntityExtension extension && extension.anvilcraft$isMagnetized();
+        }
         return entity instanceof RailgunAnvilEntity railgun && railgun.getBlockState().is(BlockTags.ANVIL);
     }
 

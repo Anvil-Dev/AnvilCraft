@@ -404,14 +404,15 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     public void setRemoved() {
         super.setRemoved();
         if (this.level == null) return;
+        if (this.level.isClientSide()) {
+            CacheableBERenderingPipeline.getInstance().blockRemoved(this);
+            return;
+        }
         if (this.irradiateBlockPos == null) return;
         if (!this.level.isLoaded(this.irradiateBlockPos)) return;
         BlockEntity targetBe = this.level.getBlockEntity(this.irradiateBlockPos);
         if (targetBe instanceof BaseLaserBlockEntity irradiateBlockEntity) {
             irradiateBlockEntity.onCancelingIrradiation(this);
-        }
-        if (this.level.isClientSide()) {
-            CacheableBERenderingPipeline.getInstance().update(this);
         }
     }
 

@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.api.injection.IExplosionExtension;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.BlockTransform;
 import it.unimi.dsi.fastutil.objects.ObjectListIterator;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Explosion;
@@ -34,6 +35,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Mixin(Explosion.class)
 abstract class ExplosionMixin implements IExplosionExtension {
@@ -93,6 +95,8 @@ abstract class ExplosionMixin implements IExplosionExtension {
         @Share("isExplosionBlockTransformed") LocalBooleanRef isExplosionBlockTransformed,
         @Local(ordinal = 0) BlockPos pos
     ) {
+        // The shared local is reused for every ray iteration in explode().
+        isExplosionBlockTransformed.set(false);
         Block block = level.getBlockState(pos).getBlock();
         ArrayList<BlockTransform> blockTransforms = new ArrayList<>(this.anvilcraft$blockTransformMap.get(block));
         if (blockTransforms.isEmpty()) return;
@@ -138,8 +142,14 @@ abstract class ExplosionMixin implements IExplosionExtension {
     @Override
     public void anvilcraft$setBlockTransformExplosion(Collection<BlockTransform> blockTransformExplosions) {
         for (BlockTransform blockTransform : blockTransformExplosions) {
-            for (BlockState state : blockTransform.inputBlock().getStatesCache()) {
-                Block block = state.getBlock();
+            Set<Block> inputBlocks = new HashSet<>();
+            blockTransform.inputBlock().getBlocks().unwrap().ifLeft(tag ->
+                BuiltInRegistries.BLOCK.getTagOrEmpty(tag).forEach(holder -> inputBlocks.add(holder.value()))
+            );
+            blockTransform.inputBlock().getBlocks().unwrap().ifRight(holders ->
+                holders.forEach(holder -> inputBlocks.add(holder.value()))
+            );
+            for (Block block : inputBlocks) {
                 this.anvilcraft$blockTransformMap.put(block, blockTransform);
             }
         }

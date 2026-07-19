@@ -181,39 +181,16 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
     /**
      * 消耗燃烧时间（用于铁砧合成）
      *
-     * <p>直接从燃料槽扣除物品来抵消耗，避免 tryConsumeFuel 下个 tick 立刻补满导致消耗不可见。
-     * 同时强制向客户端同步，让 tooltip/Jade 显示最新值。</p>
+     * <p>从当前缓存中精确扣除燃烧时间，并立即更新燃烧状态和客户端显示。</p>
      *
      * @param ticks 消耗的tick数
      */
     public void consumeBurnTime(int ticks) {
-        int remaining = ticks;
-
-        // 1. 优先从燃料槽中直接扣除物品
-        while (remaining > 0) {
-            ItemStack fuel = this.itemHandler.getStackInSlot(0);
-            int burnTimePerItem = getItemBurnTime(fuel);
-            if (burnTimePerItem <= 0) break;
-
-            int itemsToConsume = (remaining + burnTimePerItem - 1) / burnTimePerItem;
-            itemsToConsume = Math.min(itemsToConsume, fuel.getCount());
-            if (itemsToConsume <= 0) break;
-
-            remaining -= itemsToConsume * burnTimePerItem;
-            this.itemHandler.extractItem(0, itemsToConsume, false);
-            if (fuel.hasCraftingRemainingItem() && this.itemHandler.getStackInSlot(0).isEmpty()) {
-                this.itemHandler.setStackInSlot(0, fuel.getCraftingRemainingItem());
-            }
-        }
-
-        // 2. 物品不够的部分从 burnTime 缓冲区扣除
-        if (remaining > 0) {
-            this.burnTime = Math.max(0, this.burnTime - remaining);
-        }
-
+        if (ticks <= 0) return;
+        this.burnTime = Math.max(0, this.burnTime - ticks);
         setChanged();
-        // 强制向客户端同步，确保 tooltip/Jade 显示最新值
         if (level != null && !level.isClientSide()) {
+            updateBurningState(level, worldPosition, getBlockState());
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
         }

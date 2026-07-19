@@ -9,6 +9,7 @@ import dev.anvilcraft.lib.v2.recipe.predicate.IRecipePredicate;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
+import dev.dubhe.anvilcraft.api.entity.IEntityCauldron;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.LargeCauldronFluidHandler;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
@@ -26,11 +27,13 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -120,7 +123,8 @@ public record HasCauldron(
         // 不是锅 否决
         BlockPos pos = BlockPos.containing(context.getPos().add(this.offset()));
         BlockCache cache = context.computeIfAbsent(BlockCache.BLOCK_CACHE);
-        if (!cache.getBlockState(pos).is(BlockTags.CAULDRONS)) return false;
+        IEntityCauldron entityCauldron = findEntityCauldron(context, pos);
+        if (!cache.getBlockState(pos).is(BlockTags.CAULDRONS) && entityCauldron == null) return false;
 
         if (cache.getBlockEntity(pos) instanceof LargeCauldronBlockEntity cauldron) {
             if (this.consume() > LargeCauldronFluidHandler.TANK_CAPACITY
@@ -129,26 +133,28 @@ public record HasCauldron(
         }
 
         // 消耗/产生比锅容量大 否决
-        double capacity = HasCauldron.getCapacity(cache, pos);
+        double capacity = HasCauldron.getCapacity(cache, pos, entityCauldron);
         if (this.consume() > capacity || this.produce() > capacity) return false;
 
         // 锅中流体检查不通过 否决
-        ResourceLocation curFluid = HasCauldron.getCurFluid(cache, pos);
+        ResourceLocation curFluid = HasCauldron.getCurFluid(cache, pos, entityCauldron);
         if (this.hasCheck() && !this.matchesFluid(curFluid)) return false;
 
         // 如果锅必须为可点燃锅
         if (this.ignited) {
-            // 锅不为可点燃锅 否决
-            if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
-            // 锅未点燃 否决
-            if (!cauldron.isIgnited(cache, pos)) return false;
+            if (entityCauldron != null) {
+                if (!entityCauldron.anvilcraft$isIgnited()) return false;
+            } else {
+                if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
+                if (!cauldron.isIgnited(cache, pos)) return false;
+            }
         }
 
         // 不消耗且不产生 通过
         if (this.consume() == 0 && this.produce() == 0) return true;
 
         // 消耗量大于存量 否决
-        double cur = HasCauldron.getCur(cache, pos);
+        double cur = HasCauldron.getCur(cache, pos, entityCauldron);
         if (this.consume() > cur) return false;
 
         // 最终总量超出容量 否决
@@ -176,7 +182,8 @@ public record HasCauldron(
         if (context.getLevel().getRandom().nextFloat() > this.chance()) return;
         if (this.fluid().equals(EMPTY) && !HasCauldron.isNotEmpty(this.transform())) return;
 
-        double cur = HasCauldron.getCur(cache, pos);
+        IEntityCauldron entityCauldron = findEntityCauldron(context, pos);
+        double cur = HasCauldron.getCur(cache, pos, entityCauldron);
         double afterConsume = cur - this.consume();
         double amount = afterConsume + this.produce();
 
@@ -184,9 +191,9 @@ public record HasCauldron(
         if (!HasCauldron.isNotEmpty(newFluid)) newFluid = this.fluid();
         if (!HasCauldron.isNotEmpty(newFluid)) return;
         if (amount > 0 && HasCauldron.isNotEmpty(newFluid)) {
-            HasCauldron.applyFluid(cache, pos, newFluid, amount, this.ignited);
+            HasCauldron.applyFluid(cache, pos, newFluid, amount, this.ignited, entityCauldron);
         } else {
-            HasCauldron.applyEmpty(cache, pos);
+            HasCauldron.applyEmpty(cache, pos, entityCauldron);
         }
 
         context.putAcceptor(BlockCache.BLOCK_CACHE.location(), BlockCache.DEFAULT_ACCEPTOR);
@@ -250,9 +257,12 @@ public record HasCauldron(
     }
 
     public static double getCapacity(BlockCache cache, BlockPos pos) {
-        return cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder
-               ? holder.getFluidHandler().getTankCapacity(0)
-               : 1000;
+        return getCapacity(cache, pos, null);
+    }
+
+    private static double getCapacity(BlockCache cache, BlockPos pos, @Nullable IEntityCauldron entityCauldron) {
+        IFluidHandler handler = getFluidHandler(cache, pos, entityCauldron);
+        return handler == null ? 1000 : handler.getTankCapacity(0);
     }
 
     /**
@@ -262,11 +272,22 @@ public record HasCauldron(
      */
     @SuppressWarnings("deprecation")
     public static ResourceLocation getCurFluid(BlockCache cache, BlockPos pos) {
-        return cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder
-               ? holder.getFluidHandler().getFluidInTank(0).getFluidHolder().getKey().location()
-               : cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron
-                 ? cauldron.getFluid(cache, pos).builtInRegistryHolder().key().location()
-                 : WrapUtils.cauldron2Fluid(cache.getBlockState(pos).getBlock());
+        return getCurFluid(cache, pos, null);
+    }
+
+    private static ResourceLocation getCurFluid(
+        BlockCache cache,
+        BlockPos pos,
+        @Nullable IEntityCauldron entityCauldron
+    ) {
+        IFluidHandler handler = getFluidHandler(cache, pos, entityCauldron);
+        if (handler != null) {
+            FluidStack stack = handler.getFluidInTank(0);
+            return stack.isEmpty() ? EMPTY : stack.getFluidHolder().getKey().location();
+        }
+        return cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron
+               ? cauldron.getFluid(cache, pos).builtInRegistryHolder().key().location()
+               : WrapUtils.cauldron2Fluid(cache.getBlockState(pos).getBlock());
     }
 
     /**
@@ -275,7 +296,12 @@ public record HasCauldron(
      * @return 炼药锅方块
      */
     public static double getCur(BlockCache cache, BlockPos pos) {
-        if (cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder) return holder.getFluidHandler().getFluidInTank(0).getAmount();
+        return getCur(cache, pos, null);
+    }
+
+    private static double getCur(BlockCache cache, BlockPos pos, @Nullable IEntityCauldron entityCauldron) {
+        IFluidHandler handler = getFluidHandler(cache, pos, entityCauldron);
+        if (handler != null) return handler.getFluidInTank(0).getAmount();
         BlockState state = cache.getBlockState(pos);
         if (state.is(Blocks.CAULDRON)) return 0.0;
         IntegerProperty property = CauldronUtil.LEVEL_4;
@@ -289,8 +315,12 @@ public record HasCauldron(
     }
 
     public static void applyEmpty(BlockCache cache, BlockPos pos) {
-        if (cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder) {
-            IFluidHandler handler = holder.getFluidHandler();
+        applyEmpty(cache, pos, null);
+    }
+
+    private static void applyEmpty(BlockCache cache, BlockPos pos, @Nullable IEntityCauldron entityCauldron) {
+        IFluidHandler handler = getFluidHandler(cache, pos, entityCauldron);
+        if (handler != null) {
             handler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
         } else {
             cache.setBlock(pos, Blocks.CAULDRON);
@@ -298,11 +328,23 @@ public record HasCauldron(
     }
 
     public static void applyFluid(BlockCache cache, BlockPos pos, ResourceLocation fluid, double mb, boolean ignited) {
+        applyFluid(cache, pos, fluid, mb, ignited, null);
+    }
+
+    private static void applyFluid(
+        BlockCache cache,
+        BlockPos pos,
+        ResourceLocation fluid,
+        double mb,
+        boolean ignited,
+        @Nullable IEntityCauldron entityCauldron
+    ) {
         if (cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
             if (cauldron.isIgnited(cache, pos)) ignited = true;
         }
-        if (cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder) {
-            IFluidHandler handler = holder.getFluidHandler();
+        if (entityCauldron != null && entityCauldron.anvilcraft$isIgnited()) ignited = true;
+        IFluidHandler handler = getFluidHandler(cache, pos, entityCauldron);
+        if (handler != null) {
             FluidStack fluidInTank = handler.getFluidInTank(0);
             Fluid target = BuiltInRegistries.FLUID.get(fluid);
             if (fluidInTank.is(target)) {
@@ -334,6 +376,35 @@ public record HasCauldron(
         if (cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
             if (cauldron.isIgnited(cache, pos) != ignited) cauldron.setIgnited(cache, pos, ignited);
         }
+        if (entityCauldron != null && entityCauldron.anvilcraft$isIgnited() != ignited) {
+            entityCauldron.anvilcraft$setIgnited(ignited);
+        }
+    }
+
+    private static @Nullable IFluidHandler getFluidHandler(
+        BlockCache cache,
+        BlockPos pos,
+        @Nullable IEntityCauldron entityCauldron
+    ) {
+        if (entityCauldron != null) return entityCauldron.getFluidHandler();
+        return cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder ? holder.getFluidHandler() : null;
+    }
+
+    private static @Nullable IEntityCauldron findEntityCauldron(InWorldRecipeContext context, BlockPos pos) {
+        Vec3 center = pos.getCenter();
+        IEntityCauldron closest = null;
+        double closestDistance = Double.POSITIVE_INFINITY;
+        for (Entity entity : context.getLevel().getEntitiesOfClass(
+            Entity.class,
+            new AABB(pos).inflate(0.0625),
+            entity -> entity.isAlive() && entity instanceof IEntityCauldron
+        )) {
+            double distance = entity.getBoundingBox().getCenter().distanceToSqr(center);
+            if (distance >= closestDistance) continue;
+            closest = (IEntityCauldron) entity;
+            closestDistance = distance;
+        }
+        return closest;
     }
 
     /**
