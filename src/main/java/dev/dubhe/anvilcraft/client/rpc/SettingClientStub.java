@@ -127,11 +127,11 @@ public final class SettingClientStub {
         RPC.call(RpcTarget.server(), SettingServerStub::addCustom, SettingClientStub.playerId(), category);
     }
 
-    public static void update(List<CategoryEntry> categories) {
+    public static CompletableFuture<List<CategoryEntry>> update(List<CategoryEntry> categories) {
         List<CategoryEntry> listed = SettingClientStub.setting().listed();
         listed.clear();
         listed.addAll(categories);
-        RPC.call(RpcTarget.server(), SettingServerStub::update, SettingClientStub.playerId(), categories);
+        return RPC.invoke(RpcTarget.server(), SettingServerStub::update, SettingClientStub.playerId(), categories);
     }
 
     public static void update(String content) {

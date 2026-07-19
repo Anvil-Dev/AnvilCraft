@@ -37,6 +37,11 @@ public record PlayerSetting(List<CategoryEntry> listed, List<ICategory> custom, 
         PlayerSetting::new
     );
 
+    public PlayerSetting {
+        listed = new ArrayList<>(listed);
+        custom = new ArrayList<>(custom);
+    }
+
     public PlayerSetting() {
         this(new ArrayList<>(), new ArrayList<>(), new StorageSetting());
     }

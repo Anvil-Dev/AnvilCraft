@@ -67,8 +67,9 @@ public final class SettingServerStub {
         PlayerSettings.get().setDirty();
     }
 
+    @CallableParam(clazz = CategoryEntry.class, field = "LIST_STREAM_CODEC")
     @RemoteCallable(validator = OwnSettingValidator.class)
-    public static void update(
+    public static List<CategoryEntry> update(
         @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
         @CallableParam(clazz = CategoryEntry.class, field = "LIST_STREAM_CODEC") List<CategoryEntry> categories
     ) {
@@ -76,6 +77,7 @@ public final class SettingServerStub {
         listed.clear();
         listed.addAll(categories);
         PlayerSettings.get().setDirty();
+        return listed;
     }
 
     @RemoteCallable(validator = OwnSettingValidator.class)

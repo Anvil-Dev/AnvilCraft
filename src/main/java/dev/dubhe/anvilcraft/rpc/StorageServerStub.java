@@ -10,12 +10,15 @@ import dev.dubhe.anvilcraft.api.itemhandler.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
+import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
 import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
 import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
 import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
+import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryEntry;
+import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryMode;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
@@ -91,7 +94,7 @@ public final class StorageServerStub {
     ) {
         StorageView view = StorageServerStub.getView(playerId, sourcePos);
         StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
-        StorageSetting setting = PlayerSettings.getSetting(playerId).storage();
+        PlayerSetting setting = PlayerSettings.getSetting(playerId);
         IntList order = stub.getOrder(view, setting);
         return new IntArrayList(order);
     }
@@ -514,16 +517,25 @@ public final class StorageServerStub {
         return new UnlimitedItemStack(view.resource(index), view.amount(index));
     }
 
-    private IntList getOrder(StorageView view, StorageSetting setting) {
-        SortOptions options = new SortOptions(setting.getSort(), setting.getOrder());
-        String search = setting.getSearchContent().strip().toLowerCase(Locale.ROOT);
-        if (!search.isEmpty()) {
-            return StorageServerStub.createOrder(view, options, search);
+    private IntList getOrder(StorageView view, PlayerSetting setting) {
+        StorageSetting storageSetting = setting.storage();
+        SortOptions options = new SortOptions(storageSetting.getSort(), storageSetting.getOrder());
+        String search = storageSetting.getSearchContent().strip().toLowerCase(Locale.ROOT);
+        List<CategoryEntry> categories = setting.listed();
+        boolean hasCategoryRestriction = categories.stream()
+            .anyMatch(entry -> entry.getMode() != CategoryMode.UNLIMITED);
+        if (!search.isEmpty() || hasCategoryRestriction) {
+            return StorageServerStub.createOrder(view, options, search, categories);
         }
-        return this.orders.computeIfAbsent(options, _ -> StorageServerStub.createOrder(view, options, ""));
+        return this.orders.computeIfAbsent(options, _ -> StorageServerStub.createOrder(view, options, "", categories));
     }
 
-    private static IntList createOrder(StorageView view, SortOptions options, String search) {
+    private static IntList createOrder(
+        StorageView view,
+        SortOptions options,
+        String search,
+        List<CategoryEntry> categories
+    ) {
         List<OrderEntry> entries = new ArrayList<>(view.size());
         boolean requiresName = options.sort() == SortMode.NAME
             || search.isEmpty()
@@ -537,7 +549,8 @@ public final class StorageServerStub {
             ItemStack stack = resource.toStack();
             Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
             String name = requiresName ? stack.getHoverName().getString() : "";
-            if (!StorageServerStub.matchesSearch(resource.typeHolder(), id, name, search)) {
+            UnlimitedItemStack unlimitedStack = new UnlimitedItemStack(resource, Math.toIntExact(amount));
+            if (!StorageServerStub.matchesFilters(resource.typeHolder(), unlimitedStack, id, name, search, categories)) {
                 continue;
             }
             entries.add(new OrderEntry(index, amount, id, name));
@@ -553,19 +566,34 @@ public final class StorageServerStub {
         return order;
     }
 
-    private static boolean matchesSearch(Holder<Item> item, Identifier id, String name, String search) {
-        if (search.isEmpty()) {
-            return true;
+    private static boolean matchesFilters(
+        Holder<Item> item,
+        UnlimitedItemStack stack,
+        Identifier id,
+        String name,
+        String search,
+        List<CategoryEntry> categories
+    ) {
+        boolean matchesSearch = search.isEmpty()
+            || search.charAt(0) == '@' && id.getNamespace().toLowerCase(Locale.ROOT).contains(search.substring(1))
+            || search.charAt(0) == '#'
+               && item.tags().anyMatch(tag -> StorageServerStub.matchesTag(tag.location(), search.substring(1)))
+            || search.charAt(0) != '@' && search.charAt(0) != '#'
+               && (
+                   name.toLowerCase(Locale.ROOT).contains(search)
+                   || id.getPath().toLowerCase(Locale.ROOT).contains(search)
+               );
+        if (!matchesSearch) {
+            return false;
         }
-        if (search.charAt(0) == '@') {
-            return id.getNamespace().toLowerCase(Locale.ROOT).contains(search.substring(1));
+
+        for (CategoryEntry entry : categories) {
+            if (entry.getMode() == CategoryMode.UNLIMITED) continue;
+            if (entry.getMode() == CategoryMode.ALLOWLIST != entry.getCategory().test(stack)) {
+                return false;
+            }
         }
-        if (search.charAt(0) == '#') {
-            String tagSearch = search.substring(1);
-            return item.tags().anyMatch(tag -> StorageServerStub.matchesTag(tag.location(), tagSearch));
-        }
-        return name.toLowerCase(Locale.ROOT).contains(search)
-            || id.getPath().toLowerCase(Locale.ROOT).contains(search);
+        return true;
     }
 
     private static boolean matchesTag(Identifier id, String search) {
