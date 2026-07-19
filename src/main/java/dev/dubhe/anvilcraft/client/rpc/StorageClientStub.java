@@ -50,7 +50,8 @@ public final class StorageClientStub {
     public static CompletableFuture<StorageServerStub.InteractionResult> interact(
         BlockPos sourcePos,
         int slot,
-        int button
+        int button,
+        int action
     ) {
         return RPC.invoke(
             RpcTarget.server(),
@@ -58,7 +59,8 @@ public final class StorageClientStub {
             playerId(),
             sourcePos.asLong(),
             slot,
-            button
+            button,
+            action
         );
     }
 

@@ -143,7 +143,7 @@ public class FormattingUtil {
         }
 
         String[] units = {"K", "M", "B"};
-        long[] thresholds = {1000L, 1_000_000L, 1_000_000_000L};
+        int[] thresholds = {1000, 1_000_000, 1_000_000_000};
 
         for (int i = thresholds.length - 1; i >= 0; i--) {
             if (number >= thresholds[i]) {

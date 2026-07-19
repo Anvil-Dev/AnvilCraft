@@ -26,6 +26,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.Item;
@@ -49,6 +50,11 @@ import java.util.function.Function;
 
 public final class StorageServerStub {
     private static final int MAX_SYNC_SLOTS = 256;
+    public static final int PICKUP = 0;
+    public static final int QUICK_MOVE_FROM_STORAGE = 1;
+    public static final int QUICK_MOVE_TO_STORAGE = 2;
+    public static final int CLONE = 3;
+    public static final int THROW = 4;
     public static final StreamCodec<ByteBuf, IntList> ORDER_STREAM_CODEC = ByteBufCodecs.VAR_INT
         .apply(ByteBufCodecs.list())
         .map(IntArrayList::new, Function.identity());
@@ -117,9 +123,16 @@ public final class StorageServerStub {
         @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
         long sourcePos,
         int slot,
-        int button
+        int button,
+        int action
     ) {
-        if (button != 0 && button != 1) {
+        if (action < StorageServerStub.PICKUP || action > StorageServerStub.THROW) {
+            throw new IllegalArgumentException("Invalid storage interaction action: " + action);
+        }
+        if (
+            action == StorageServerStub.PICKUP && button != 0 && button != 1
+            || action == StorageServerStub.THROW && (button < 0 || button > 2)
+        ) {
             throw new IllegalArgumentException("Invalid storage interaction button: " + button);
         }
 
@@ -128,7 +141,25 @@ public final class StorageServerStub {
         TypeLimitItemStacksResourceHandler items = storage.getItems();
         ItemStack carried = player.inventoryMenu.getCarried();
         boolean changed = false;
-        if (!carried.isEmpty()) {
+        if (action == StorageServerStub.QUICK_MOVE_TO_STORAGE) {
+            changed = StorageServerStub.moveInventoryStackToStorage(player, items, slot);
+        } else if (action == StorageServerStub.CLONE) {
+            if (
+                player.hasInfiniteMaterials()
+                && carried.isEmpty()
+                && slot >= 0
+                && slot < items.size()
+                && items.getAmountAsLong(slot) > 0
+            ) {
+                ItemStack stack = items.getResource(slot).toStack();
+                carried = stack.copyWithCount(stack.getMaxStackSize());
+                player.inventoryMenu.setCarried(carried);
+            }
+        } else if (action == StorageServerStub.THROW) {
+            changed = StorageServerStub.throwStorageStack(player, items, slot, button);
+        } else if (action == StorageServerStub.QUICK_MOVE_FROM_STORAGE) {
+            changed = StorageServerStub.moveStorageStackToInventory(player, items, slot);
+        } else if (!carried.isEmpty()) {
             int amount = button == 0 ? carried.getCount() : 1;
             try (Transaction transaction = Transaction.openRoot()) {
                 int inserted = items.insert(ItemResource.of(carried), amount, transaction);
@@ -142,7 +173,8 @@ public final class StorageServerStub {
             ItemResource resource = items.getResource(slot);
             ItemStack itemStack = resource.toStack();
             int count = Math.toIntExact(items.getAmountAsLong(slot));
-            int amount = Math.min(button == 0 ? count : Math.ceilDiv(count, 2), itemStack.getMaxStackSize());
+            int maxPickup = Math.min(itemStack.getMaxStackSize(), count);
+            int amount = button == 0 ? maxPickup : Math.ceilDiv(maxPickup, 2);
             try (Transaction transaction = Transaction.openRoot()) {
                 int extracted = items.extract(slot, resource, amount, transaction);
                 if (extracted > 0) {
@@ -153,7 +185,114 @@ public final class StorageServerStub {
                 }
             }
         }
+        if (changed) {
+            player.getInventory().setChanged();
+            player.inventoryMenu.broadcastChanges();
+        }
         return new InteractionResult(carried, changed);
+    }
+
+    private static boolean moveInventoryStackToStorage(
+        ServerPlayer player,
+        TypeLimitItemStacksResourceHandler items,
+        int slot
+    ) {
+        Inventory inventory = player.getInventory();
+        if (slot < 0 || slot >= Inventory.INVENTORY_SIZE) {
+            return false;
+        }
+        ItemStack stack = inventory.getItem(slot);
+        if (stack.isEmpty()) {
+            return false;
+        }
+        try (Transaction transaction = Transaction.openRoot()) {
+            int inserted = items.insert(ItemResource.of(stack), stack.getCount(), transaction);
+            if (inserted <= 0) {
+                return false;
+            }
+            transaction.commit();
+            stack.shrink(inserted);
+            return true;
+        }
+    }
+
+    private static boolean moveStorageStackToInventory(
+        ServerPlayer player,
+        TypeLimitItemStacksResourceHandler items,
+        int slot
+    ) {
+        if (slot < 0 || slot >= items.size() || items.getAmountAsLong(slot) <= 0) {
+            return false;
+        }
+        ItemResource resource = items.getResource(slot);
+        ItemStack stack = resource.toStack();
+        int amount = Math.min(
+            Math.toIntExact(items.getAmountAsLong(slot)),
+            StorageServerStub.getInventorySpace(player.getInventory(), stack)
+        );
+        if (amount <= 0) {
+            return false;
+        }
+        try (Transaction transaction = Transaction.openRoot()) {
+            int extracted = items.extract(slot, resource, amount, transaction);
+            if (extracted <= 0) {
+                return false;
+            }
+            transaction.commit();
+            player.getInventory().add(stack.copyWithCount(extracted));
+            return true;
+        }
+    }
+
+    private static int getInventorySpace(Inventory inventory, ItemStack stack) {
+        long space = 0;
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+            ItemStack existing = inventory.getItem(slot);
+            if (existing.isEmpty()) {
+                space += stack.getMaxStackSize();
+            } else if (ItemStack.isSameItemSameComponents(existing, stack) && existing.isStackable()) {
+                space += Math.max(0, inventory.getMaxStackSize(existing) - existing.getCount());
+            }
+        }
+        return (int) Math.min(Integer.MAX_VALUE, space);
+    }
+
+    private static boolean throwStorageStack(
+        ServerPlayer player,
+        TypeLimitItemStacksResourceHandler items,
+        int slot,
+        int button
+    ) {
+        if (
+            !player.inventoryMenu.getCarried().isEmpty()
+            || !player.canDropItems()
+            || slot < 0
+            || slot >= items.size()
+            || items.getAmountAsLong(slot) <= 0
+        ) {
+            return false;
+        }
+        ItemResource resource = items.getResource(slot);
+        ItemStack stack = resource.toStack();
+        int stackCount = stack.getMaxStackSize();
+        long requested = button == 0 ? 1 : (long) stackCount * (button == 1 ? 1 : 9);
+        int amount = Math.toIntExact(Math.min(items.getAmountAsLong(slot), requested));
+        try (Transaction transaction = Transaction.openRoot()) {
+            int extracted = items.extract(slot, resource, amount, transaction);
+            if (extracted <= 0) {
+                return false;
+            }
+            transaction.commit();
+            int remaining = extracted;
+            while (remaining > 0) {
+                int dropCount = Math.min(stackCount, remaining);
+                ItemStack dropped = stack.copyWithCount(dropCount);
+                player.drop(dropped, true);
+                player.handleCreativeModeItemDrop(dropped);
+                remaining -= dropCount;
+            }
+            return true;
+        }
     }
 
     public static void onContentsChanged(UUID storageId) {
