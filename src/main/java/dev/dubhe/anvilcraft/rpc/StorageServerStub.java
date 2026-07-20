@@ -25,6 +25,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -42,7 +43,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -53,17 +54,14 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 
 public final class StorageServerStub {
     private static final int MAX_PLAYER_STUBS = 5;
     private static final int MAX_SYNC_SLOTS = 256;
-    public static final int PICKUP = 0;
-    public static final int QUICK_MOVE_FROM_STORAGE = 1;
-    public static final int QUICK_MOVE_TO_STORAGE = 2;
-    public static final int CLONE = 3;
-    public static final int THROW = 4;
+    private static final ThreadLocal<HolderLookup.@Nullable Provider> REGISTRIES = new ThreadLocal<>();
     @SuppressWarnings("unused")
     public static final StreamCodec<ByteBuf, IntList> ORDER_STREAM_CODEC = ByteBufCodecs.VAR_INT
         .apply(ByteBufCodecs.list())
@@ -75,9 +73,15 @@ public final class StorageServerStub {
     private long orderVersion;
     private final Map<SortOptions, IntList> orders = new HashMap<>();
 
+    private static HolderLookup.Provider getAndClear() {
+        HolderLookup.Provider registries = StorageServerStub.REGISTRIES.get();
+        StorageServerStub.REGISTRIES.remove();
+        return Objects.requireNonNull(registries);
+    }
+
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static Metadata load(UUID playerId, long sourcePos) {
-        StorageView view = StorageServerStub.getView(playerId, sourcePos);
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
         return new Metadata(stub.version, stub.orderVersion, view.fullness(), view.capacity());
     }
@@ -85,9 +89,10 @@ public final class StorageServerStub {
     @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC")
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static IntList reorder(UUID playerId, long sourcePos) {
-        StorageView view = StorageServerStub.getView(playerId, sourcePos);
+        HolderLookup.Provider registries = StorageServerStub.getAndClear();
+        StorageView view = StorageServerStub.getView(registries, playerId, sourcePos);
         StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
-        PlayerSetting setting = PlayerSettings.getSetting(playerId);
+        PlayerSetting setting = PlayerSettings.getSetting(registries, playerId);
         IntList order = stub.getOrder(view, setting);
         return new IntArrayList(order);
     }
@@ -99,10 +104,11 @@ public final class StorageServerStub {
         @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC") IntList slots
     ) {
         if (slots.size() > StorageServerStub.MAX_SYNC_SLOTS) {
+            REGISTRIES.remove();
             throw new IllegalArgumentException("Cannot sync more than " + StorageServerStub.MAX_SYNC_SLOTS + " slots at once");
         }
 
-        StorageView view = StorageServerStub.getView(playerId, sourcePos);
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
         List<StackUpdate> updates = new ArrayList<>();
         IntOpenHashSet visited = new IntOpenHashSet(slots.size());
@@ -112,20 +118,17 @@ public final class StorageServerStub {
             }
             updates.add(new StackUpdate(index, StorageServerStub.getStack(view, index)));
         }
-        return new SyncResult(
-            stub.version,
-            view.fullness(),
-            updates
-        );
+        return new SyncResult(stub.version, view.fullness(), updates);
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static InteractionResult interact(UUID playerId, long sourcePos, int slot, int button, StorageInput action) {
         if (!action.isValid(button)) {
+            REGISTRIES.remove();
             throw new IllegalArgumentException("Invalid storage interaction button: " + button);
         }
 
-        StorageView view = StorageServerStub.getView(playerId, sourcePos);
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         ItemStack carried = player.inventoryMenu.getCarried();
         boolean changed = false;
@@ -182,7 +185,7 @@ public final class StorageServerStub {
 
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static DepositResult deposit(UUID playerId, long sourcePos, boolean all) {
-        StorageView view = StorageServerStub.getView(playerId, sourcePos);
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         boolean changed = false;
         for (int slot = Inventory.SELECTION_SIZE; slot < Inventory.INVENTORY_SIZE; slot++) {
@@ -208,7 +211,7 @@ public final class StorageServerStub {
 
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static DepositResult take(UUID playerId, long sourcePos) {
-        StorageView view = StorageServerStub.getView(playerId, sourcePos);
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         boolean changed = false;
         Inventory inventory = player.getInventory();
@@ -379,7 +382,15 @@ public final class StorageServerStub {
 
     public static final class StorageAccessValidator implements IRemoteCallableValidator {
         @Override
-        public boolean validate(@NonNull IPayloadContext ctx, @NonNull Method method, Object @NonNull [] args) {
+        public boolean validate(IPayloadContext ctx, Method method, Object[] args) {
+            boolean valid = this.isValid(ctx, args);
+            if (valid) {
+                StorageServerStub.REGISTRIES.set(ctx.player().registryAccess());
+            }
+            return valid;
+        }
+
+        private boolean isValid(IPayloadContext ctx, Object[] args) {
             if (
                 !(ctx.player() instanceof ServerPlayer player)
                 || args.length < 2
@@ -392,13 +403,13 @@ public final class StorageServerStub {
             BlockPos pos = BlockPos.of(sourcePos);
             BlockEntity blockEntity = player.level().getBlockEntity(pos);
             return blockEntity instanceof StorageBlockEntity storage
-                && storage.getId() != null
-                && Storages.get().get(storage.getId()).isPresent()
-                && AbstractContainerMenu.stillValid(
-                    ContainerLevelAccess.create(player.level(), pos),
-                    player,
-                    storage.getBlockState().getBlock()
-                );
+                   && storage.getId() != null
+                   && Storages.get().get(storage.getId()).isPresent()
+                   && AbstractContainerMenu.stillValid(
+                ContainerLevelAccess.create(player.level(), pos),
+                player,
+                storage.getBlockState().getBlock()
+            );
         }
     }
 
@@ -587,7 +598,7 @@ public final class StorageServerStub {
             || id.getPath().toLowerCase(Locale.ROOT).contains(search);
     }
 
-    private static @NonNull Comparator<OrderEntry> getComparator(SortOptions options) {
+    private static Comparator<OrderEntry> getComparator(SortOptions options) {
         Comparator<OrderEntry> comparator = switch (options.sort()) {
             case COUNT -> Comparator.comparingLong(OrderEntry::amount);
             case MOD -> Comparator.comparing(entry -> entry.id().getNamespace());
@@ -618,7 +629,7 @@ public final class StorageServerStub {
         this.storageId = storageId;
     }
 
-    private static StorageView getView(UUID playerId, long sourcePos) {
+    private static StorageView getView(HolderLookup.Provider registries, UUID playerId, long sourcePos) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         BlockPos pos = BlockPos.of(sourcePos);
         BlockEntity blockEntity = player.level().getBlockEntity(pos);
@@ -626,7 +637,7 @@ public final class StorageServerStub {
             throw new IllegalStateException("Cannot access storage without a storage block entity");
         }
         BaseStorage primary = Storages.get().get(storage.getId()).orElseThrow();
-        String search = PlayerSettings.getSetting(playerId).storage().getSearchContent().strip();
+        String search = PlayerSettings.getSetting(registries, playerId).storage().getSearchContent().strip();
         if (search.isEmpty() || !(storage instanceof CrateBlockEntity)) {
             return new StorageView(List.of(primary), List.of());
         }

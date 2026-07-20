@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.saved.BetterSavedData;
 import lombok.Getter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -46,13 +47,13 @@ public class PlayerSettings extends BetterSavedData {
         return BetterSavedData.get(PlayerSettings.TYPE, PlayerSettings.CLIENT_COPY);
     }
 
-    public static PlayerSetting getSetting(NameAndId nai) {
-        return PlayerSettings.get().settings.computeIfAbsent(nai.id(), _ -> new PlayerSetting());
+    public static PlayerSetting getSetting(HolderLookup.Provider registries, NameAndId nai) {
+        return PlayerSettings.get().settings.computeIfAbsent(nai.id(), _ -> new PlayerSetting(registries));
     }
 
     /// 请保证传入的 ID 是玩家档案 ID，而非玩家实体 ID！
-    public static PlayerSetting getSetting(UUID id) {
-        return PlayerSettings.get().settings.computeIfAbsent(id, _ -> new PlayerSetting());
+    public static PlayerSetting getSetting(HolderLookup.Provider registries, UUID id) {
+        return PlayerSettings.get().settings.computeIfAbsent(id, _ -> new PlayerSetting(registries));
     }
 
     @Override

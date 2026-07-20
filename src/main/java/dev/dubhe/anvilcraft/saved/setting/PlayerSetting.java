@@ -1,10 +1,14 @@
 package dev.dubhe.anvilcraft.saved.setting;
 
+import com.google.common.collect.Lists;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
+import dev.dubhe.anvilcraft.init.storage.ModCategories;
 import dev.dubhe.anvilcraft.saved.storage.category.FilterCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryEntry;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -37,13 +41,23 @@ public record PlayerSetting(List<CategoryEntry> listed, List<ICategory> custom, 
         PlayerSetting::new
     );
 
-    public PlayerSetting {
-        listed = new ArrayList<>(listed);
-        custom = new ArrayList<>(custom);
+    public PlayerSetting(List<CategoryEntry> listed, List<ICategory> custom, StorageSetting storage) {
+        this.listed = new ArrayList<>(listed);
+        this.custom = new ArrayList<>(custom);
+        this.storage = storage;
     }
 
-    public PlayerSetting() {
-        this(new ArrayList<>(), new ArrayList<>(), new StorageSetting());
+    public PlayerSetting(HolderLookup.Provider registries) {
+        this(PlayerSetting.initialize(registries), new ArrayList<>(), new StorageSetting());
+    }
+
+    private static List<CategoryEntry> initialize(HolderLookup.Provider registries) {
+        HolderLookup.RegistryLookup<ICategory> lookup = registries.lookupOrThrow(ModRegistryKeys.CATEGORY);
+        return Lists.newArrayList(
+            new CategoryEntry(lookup.getOrThrow(ModCategories.MINECRAFT).value()),
+            new CategoryEntry(lookup.getOrThrow(ModCategories.BLOCK).value()),
+            new CategoryEntry(lookup.getOrThrow(ModCategories.UNSTACKABLE).value())
+        );
     }
 
     public void list(ICategory category) {
