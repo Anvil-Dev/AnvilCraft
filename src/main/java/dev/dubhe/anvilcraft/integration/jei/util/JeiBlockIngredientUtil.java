@@ -12,6 +12,7 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.gui.inputs.RecipeSlotUnderMouse;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
@@ -35,8 +36,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-/** JEI slots that make custom-rendered block previews interactive without drawing an item over them. */
+/** JEI slots that make custom-rendered previews interactive without drawing an ingredient over them. */
 public final class JeiBlockIngredientUtil {
+    static final String PREVIEW_SLOT_PREFIX = "anvilcraft:preview/";
     private static final String SLOT_PREFIX = "anvilcraft:block_preview/";
 
     private JeiBlockIngredientUtil() {
@@ -88,7 +90,9 @@ public final class JeiBlockIngredientUtil {
 
     public static void suppressHoverOverlays(IRecipeExtrasBuilder builder) {
         List<IRecipeSlotDrawable> slots = builder.getRecipeSlots().getSlots().stream()
-            .filter(slot -> slot.getSlotName().filter(name -> name.startsWith(SLOT_PREFIX)).isPresent())
+            .filter(slot -> slot.getSlotName()
+                .filter(name -> name.startsWith(SLOT_PREFIX) || name.startsWith(PREVIEW_SLOT_PREFIX))
+                .isPresent())
             .toList();
         if (!slots.isEmpty()) {
             builder.addWidget(new NoHoverSlotsWidget(slots));
@@ -102,7 +106,7 @@ public final class JeiBlockIngredientUtil {
     ) {
         if (states.isEmpty()) return Optional.empty();
         Optional<Block> displayedBlock = recipeSlotsView.findSlotByName(SLOT_PREFIX + slotName)
-            .flatMap(slot -> slot.getDisplayedItemStack())
+            .flatMap(IRecipeSlotView::getDisplayedItemStack)
             .map(ItemStack::getItem)
             .filter(BlockItem.class::isInstance)
             .map(BlockItem.class::cast)

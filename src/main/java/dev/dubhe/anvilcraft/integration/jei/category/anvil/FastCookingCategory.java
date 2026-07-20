@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
@@ -13,9 +14,12 @@ import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.FastCookingRecipe;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
+import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
+import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
@@ -30,6 +34,9 @@ import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class FastCookingCategory extends AbstractProgressCategory<FastCookingRecipe> {
+    private static final String INPUT_FLUID = "input_fluid";
+    private static final String OUTPUT_FLUID = "output_fluid";
+
     public FastCookingCategory(IGuiHelper helper) {
         super(
             helper,
@@ -42,6 +49,32 @@ public class FastCookingCategory extends AbstractProgressCategory<FastCookingRec
     @Override
     public RecipeType<RecipeHolder<FastCookingRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.FAST_COOKING;
+    }
+
+    @Override
+    public void setRecipe(
+        IRecipeLayoutBuilder builder,
+        RecipeHolder<FastCookingRecipe> recipeHolder,
+        IFocusGroup focuses
+    ) {
+        super.setRecipe(builder, recipeHolder, focuses);
+        FastCookingRecipe recipe = recipeHolder.value();
+        HasCauldronSimple cauldron = recipe.getHasCauldron();
+        JeiFluidIngredientUtil.addInputSlot(builder, INPUT_FLUID, 72, 24, 18, 19, cauldron);
+        if (recipe.getResultItems().isEmpty()) {
+            JeiFluidIngredientUtil.addOutputSlot(builder, OUTPUT_FLUID, 124, 24, 18, 19, cauldron);
+        } else {
+            JeiFluidIngredientUtil.addOutputIngredients(builder, cauldron);
+        }
+    }
+
+    @Override
+    public void createRecipeExtras(
+        IRecipeExtrasBuilder builder,
+        RecipeHolder<FastCookingRecipe> recipeHolder,
+        IFocusGroup focuses
+    ) {
+        JeiFluidIngredientUtil.suppressHoverOverlays(builder);
     }
 
     @Override

@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
@@ -19,9 +20,9 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
@@ -49,6 +50,9 @@ import java.util.Optional;
 public class SolidLiquidCategory implements IRecipeCategory<RecipeHolder<SolidLiquidRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
+
+    private static final String INPUT_FLUID = "input_fluid";
+    private static final String OUTPUT_FLUID = "output_fluid";
 
     private final IDrawable icon;
     private final IDrawable slotDefault;
@@ -111,7 +115,37 @@ public class SolidLiquidCategory implements IRecipeCategory<RecipeHolder<SolidLi
         if (!recipe.getResultItems().isEmpty()) {
             JeiSlotUtil.addOutputSlots(builder, recipe.getResultItems());
         }
-        addFluidIngredients(builder, recipe);
+        JeiFluidIngredientUtil.addInputSlot(
+            builder,
+            INPUT_FLUID,
+            72,
+            34,
+            18,
+            19,
+            recipe.getHasCauldron()
+        );
+        if (recipe.getResultItems().isEmpty()) {
+            JeiFluidIngredientUtil.addOutputSlot(
+                builder,
+                OUTPUT_FLUID,
+                124,
+                24,
+                18,
+                19,
+                recipe.getHasCauldron()
+            );
+        } else {
+            JeiFluidIngredientUtil.addOutputIngredients(builder, recipe.getHasCauldron());
+        }
+    }
+
+    @Override
+    public void createRecipeExtras(
+        IRecipeExtrasBuilder builder,
+        RecipeHolder<SolidLiquidRecipe> recipeHolder,
+        IFocusGroup focuses
+    ) {
+        JeiFluidIngredientUtil.suppressHoverOverlays(builder);
     }
 
     @Override
@@ -131,7 +165,7 @@ public class SolidLiquidCategory implements IRecipeCategory<RecipeHolder<SolidLi
             20,
             12,
             RenderSupport.SINGLE_BLOCK);
-        Block material = getDisplayedInputCauldron(recipe);
+        Block material = getDisplayedInputCauldron(recipe, recipeSlotsView);
         BlockState state = CauldronUtil.fullState(material);
         RenderSupport.renderBlock(guiGraphics, state, 81, 40, 10, 12, RenderSupport.SINGLE_BLOCK);
 
@@ -209,7 +243,7 @@ public class SolidLiquidCategory implements IRecipeCategory<RecipeHolder<SolidLi
         if (mouseX >= 72 && mouseX <= 90) {
             if (mouseY >= 34 && mouseY <= 53) {
                 HasCauldronSimple hasCauldron = recipe.getHasCauldron();
-                Block material = getDisplayedInputCauldron(recipe);
+                Block material = getDisplayedInputCauldron(recipe, recipeSlotsView);
                 Component text;
                 if (hasCauldron.fluidTag() != null) {
                     text = material.getName();
@@ -248,28 +282,12 @@ public class SolidLiquidCategory implements IRecipeCategory<RecipeHolder<SolidLi
         }
     }
 
-    private void addFluidIngredients(IRecipeLayoutBuilder builder, SolidLiquidRecipe recipe) {
-        HasCauldronSimple hasCauldron = recipe.getHasCauldron();
-        if (hasCauldron.fluidTag() != null) {
-            BuiltInRegistries.FLUID.getTag(TagKey.create(Registries.FLUID, hasCauldron.fluidTag()))
-                .ifPresent(fluids -> {
-                    var ingredients = builder.addInvisibleIngredients(RecipeIngredientRole.INPUT);
-                    fluids.stream()
-                        .filter(holder -> holder.value().defaultFluidState().isSource())
-                        .forEach(holder -> ingredients.addFluidStack(holder.value()));
-                });
-        } else if (HasCauldron.isNotEmpty(hasCauldron.fluid())) {
-            builder.addInvisibleIngredients(RecipeIngredientRole.INPUT)
-                .addFluidStack(BuiltInRegistries.FLUID.get(hasCauldron.fluid()));
-        }
-        if (HasCauldron.isNotEmpty(hasCauldron.transform())) {
-            builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
-                .addFluidStack(BuiltInRegistries.FLUID.get(hasCauldron.transform()));
-        }
-    }
-
-    private Block getDisplayedInputCauldron(SolidLiquidRecipe recipe) {
-        return getDisplayedTaggedFluid(recipe)
+    private Block getDisplayedInputCauldron(
+        SolidLiquidRecipe recipe,
+        IRecipeSlotsView recipeSlotsView
+    ) {
+        return JeiFluidIngredientUtil.getDisplayedFluid(recipeSlotsView, INPUT_FLUID)
+            .or(() -> getDisplayedTaggedFluid(recipe))
             .map(BuiltInRegistries.FLUID::getKey)
             .map(HasCauldron::getDefaultCauldron)
             .orElseGet(() -> recipe.getHasCauldron().getFluidCauldron());
