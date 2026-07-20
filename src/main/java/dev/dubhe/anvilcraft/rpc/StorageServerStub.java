@@ -25,7 +25,6 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -65,6 +64,7 @@ public final class StorageServerStub {
     public static final int QUICK_MOVE_TO_STORAGE = 2;
     public static final int CLONE = 3;
     public static final int THROW = 4;
+    @SuppressWarnings("unused")
     public static final StreamCodec<ByteBuf, IntList> ORDER_STREAM_CODEC = ByteBufCodecs.VAR_INT
         .apply(ByteBufCodecs.list())
         .map(IntArrayList::new, Function.identity());
@@ -75,12 +75,8 @@ public final class StorageServerStub {
     private long orderVersion;
     private final Map<SortOptions, IntList> orders = new HashMap<>();
 
-    @CallableParam(clazz = Metadata.class, field = "STREAM_CODEC")
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static Metadata load(
-        @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
-        long sourcePos
-    ) {
+    public static Metadata load(UUID playerId, long sourcePos) {
         StorageView view = StorageServerStub.getView(playerId, sourcePos);
         StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
         return new Metadata(stub.version, stub.orderVersion, view.fullness(), view.capacity());
@@ -88,10 +84,7 @@ public final class StorageServerStub {
 
     @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC")
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static IntList reorder(
-        @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
-        long sourcePos
-    ) {
+    public static IntList reorder(UUID playerId, long sourcePos) {
         StorageView view = StorageServerStub.getView(playerId, sourcePos);
         StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
         PlayerSetting setting = PlayerSettings.getSetting(playerId);
@@ -99,10 +92,9 @@ public final class StorageServerStub {
         return new IntArrayList(order);
     }
 
-    @CallableParam(clazz = SyncResult.class, field = "STREAM_CODEC")
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static SyncResult sync(
-        @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
+        UUID playerId,
         long sourcePos,
         @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC") IntList slots
     ) {
@@ -127,22 +119,9 @@ public final class StorageServerStub {
         );
     }
 
-    @CallableParam(clazz = InteractionResult.class, field = "STREAM_CODEC")
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static InteractionResult interact(
-        @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
-        long sourcePos,
-        int slot,
-        int button,
-        int action
-    ) {
-        if (action < StorageServerStub.PICKUP || action > StorageServerStub.THROW) {
-            throw new IllegalArgumentException("Invalid storage interaction action: " + action);
-        }
-        if (
-            action == StorageServerStub.PICKUP && button != 0 && button != 1
-            || action == StorageServerStub.THROW && (button < 0 || button > 2)
-        ) {
+    public static InteractionResult interact(UUID playerId, long sourcePos, int slot, int button, StorageInput action) {
+        if (!action.isValid(button)) {
             throw new IllegalArgumentException("Invalid storage interaction button: " + button);
         }
 
@@ -150,9 +129,9 @@ public final class StorageServerStub {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         ItemStack carried = player.inventoryMenu.getCarried();
         boolean changed = false;
-        if (action == StorageServerStub.QUICK_MOVE_TO_STORAGE) {
+        if (action == StorageInput.QUICK_MOVE_TO_STORAGE) {
             changed = StorageServerStub.moveInventoryStackToStorage(player, view, slot);
-        } else if (action == StorageServerStub.CLONE) {
+        } else if (action == StorageInput.CLONE) {
             if (
                 player.hasInfiniteMaterials()
                 && carried.isEmpty()
@@ -164,9 +143,9 @@ public final class StorageServerStub {
                 carried = stack.copyWithCount(stack.getMaxStackSize());
                 player.inventoryMenu.setCarried(carried);
             }
-        } else if (action == StorageServerStub.THROW) {
+        } else if (action == StorageInput.THROW) {
             changed = StorageServerStub.throwStorageStack(player, view, slot, button);
-        } else if (action == StorageServerStub.QUICK_MOVE_FROM_STORAGE) {
+        } else if (action == StorageInput.QUICK_MOVE_FROM_STORAGE) {
             changed = StorageServerStub.moveStorageStackToInventory(player, view, slot);
         } else if (!carried.isEmpty()) {
             int amount = button == 0 ? carried.getCount() : 1;
@@ -201,13 +180,8 @@ public final class StorageServerStub {
         return new InteractionResult(carried, changed);
     }
 
-    @CallableParam(clazz = DepositResult.class, field = "STREAM_CODEC")
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static DepositResult deposit(
-        @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
-        long sourcePos,
-        boolean all
-    ) {
+    public static DepositResult deposit(UUID playerId, long sourcePos, boolean all) {
         StorageView view = StorageServerStub.getView(playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         boolean changed = false;
@@ -232,12 +206,8 @@ public final class StorageServerStub {
         return new DepositResult(changed);
     }
 
-    @CallableParam(clazz = DepositResult.class, field = "STREAM_CODEC")
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static DepositResult take(
-        @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
-        long sourcePos
-    ) {
+    public static DepositResult take(UUID playerId, long sourcePos) {
         StorageView view = StorageServerStub.getView(playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         boolean changed = false;
@@ -630,15 +600,6 @@ public final class StorageServerStub {
             comparator = comparator.reversed();
         }
         return comparator;
-    }
-
-    private static BaseStorage getStorage(UUID playerId, long sourcePos) {
-        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
-        BlockEntity blockEntity = player.level().getBlockEntity(BlockPos.of(sourcePos));
-        if (!(blockEntity instanceof StorageBlockEntity storage) || storage.getId() == null) {
-            throw new IllegalStateException("Cannot access storage without a storage block entity");
-        }
-        return Storages.get().get(storage.getId()).orElseThrow();
     }
 
     private static ServerPlayer getServerPlayer(UUID playerId) {

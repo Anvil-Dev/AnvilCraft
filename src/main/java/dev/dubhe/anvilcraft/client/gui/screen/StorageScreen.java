@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.client.rpc.SettingClientStub;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
+import dev.dubhe.anvilcraft.rpc.StorageInput;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
 import dev.dubhe.anvilcraft.saved.setting.mode.NbtDisplayMode;
@@ -589,9 +590,9 @@ public class StorageScreen extends Screen {
         if (event.button() == 0 || event.button() == 1) {
             Integer storageSlot = this.getStorageSlot(event.x(), event.y());
             if (storageSlot != null && this.minecraft.gameMode != null) {
-                int action = event.hasShiftDown()
-                    ? StorageServerStub.QUICK_MOVE_FROM_STORAGE
-                    : StorageServerStub.PICKUP;
+                StorageInput action = event.hasShiftDown()
+                                      ? StorageInput.QUICK_MOVE_FROM_STORAGE
+                                      : StorageInput.PICKUP;
                 this.interactWithStorage(storageSlot, event.button(), action);
                 return true;
             }
@@ -603,7 +604,7 @@ public class StorageScreen extends Screen {
             this.lastClickedInventorySlot = slot;
 
             if (event.hasShiftDown()) {
-                this.interactWithStorage(slot, event.button(), StorageServerStub.QUICK_MOVE_TO_STORAGE);
+                this.interactWithStorage(slot, event.button(), StorageInput.QUICK_MOVE_TO_STORAGE);
                 return true;
             }
 
@@ -636,7 +637,7 @@ public class StorageScreen extends Screen {
                 && this.carried.isEmpty()
                 && this.minecraft.options.keyPickItem.isActiveAndMatches(InputConstants.Type.MOUSE.getOrCreate(event.input()))
             ) {
-                this.interactWithStorage(storageSlot, 0, StorageServerStub.CLONE);
+                this.interactWithStorage(storageSlot, 0, StorageInput.CLONE);
                 return true;
             }
 
@@ -760,7 +761,7 @@ public class StorageScreen extends Screen {
         );
     }
 
-    private void interactWithStorage(int slot, int button, int action) {
+    private void interactWithStorage(int slot, int button, StorageInput action) {
         if (this.minecraft.gameMode == null || this.interactionPending) {
             return;
         }
@@ -828,15 +829,11 @@ public class StorageScreen extends Screen {
             Integer storageSlot = this.getStorageSlot();
             if (storageSlot != null && this.minecraft.gameMode != null) {
                 if (this.minecraft.options.keyPickItem.isActiveAndMatches(key)) {
-                    this.interactWithStorage(storageSlot, 0, StorageServerStub.CLONE);
+                    this.interactWithStorage(storageSlot, 0, StorageInput.CLONE);
                     return true;
                 } else if (this.minecraft.options.keyDrop.isActiveAndMatches(key)) {
                     int dropMode = event.hasControlDown() ? event.hasShiftDown() ? 2 : 1 : 0;
-                    this.interactWithStorage(
-                        storageSlot,
-                        dropMode,
-                        StorageServerStub.THROW
-                    );
+                    this.interactWithStorage(storageSlot, dropMode, StorageInput.THROW);
                     return true;
                 }
             }
