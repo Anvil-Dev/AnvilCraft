@@ -74,6 +74,13 @@ public class InWorldRecipeEventListener {
             return;
         }
         entity.level().getBlockEntity(entity.blockPosition(), ModBlockEntities.FISH_TANK.get())
-            .ifPresent(be -> be.getOutput().setStackInSlot(0, be.getOutput().getStackInSlot(0)));
+            .ifPresent(be -> {
+                ItemStack remaining = be.insertRecipeOutput(entity.getItem());
+                if (remaining.isEmpty()) {
+                    entity.discard();
+                } else {
+                    entity.setItem(remaining);
+                }
+            });
     }
 }

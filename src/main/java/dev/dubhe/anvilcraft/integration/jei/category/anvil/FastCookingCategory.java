@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -8,7 +9,9 @@ import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.FastCookingRecipe;
+import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
@@ -16,6 +19,7 @@ import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -23,6 +27,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class FastCookingCategory extends AbstractProgressCategory<FastCookingRecipe> {
     public FastCookingCategory(IGuiHelper helper) {
@@ -83,6 +88,34 @@ public class FastCookingCategory extends AbstractProgressCategory<FastCookingRec
         } else {
             JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
         }
+
+        HasCauldronSimple hasCauldron = recipe.getHasCauldron();
+        if (HasCauldron.isNotEmpty(hasCauldron.transform())) {
+            BlockState cauldron = CauldronUtil.fullState(hasCauldron.getTransformCauldron());
+            RenderSupport.renderBlock(guiGraphics, cauldron, 133, 30, 0, 12, RenderSupport.SINGLE_BLOCK);
+        }
+
+        Component fluidText = null;
+        if (recipe.isProduceFluid()) {
+            fluidText = Component.translatable(
+                "gui.anvilcraft.category.fast_cooking.produce_fluid",
+                hasCauldron.produce(),
+                hasCauldron.getTransformCauldron().getName()
+            );
+        } else if (recipe.isConsumeFluid()) {
+            fluidText = Component.translatable(
+                "gui.anvilcraft.category.fast_cooking.consume_fluid",
+                hasCauldron.consume(),
+                hasCauldron.getFluidCauldron().getName()
+            );
+        }
+        if (fluidText != null) {
+            PoseStack pose = guiGraphics.pose();
+            pose.pushPose();
+            pose.scale(0.8F, 0.8F, 1.0F);
+            guiGraphics.drawString(Minecraft.getInstance().font, fluidText, 0, 70, 0xFF000000, false);
+            pose.popPose();
+        }
     }
 
     @Override
@@ -93,11 +126,16 @@ public class FastCookingCategory extends AbstractProgressCategory<FastCookingRec
         double mouseX,
         double mouseY
     ) {
-        if (mouseX < 72 || mouseX > 90 || mouseY < 24 || mouseY > 43) return;
         FastCookingRecipe recipe = recipeHolder.value();
-        tooltip.add(recipe.getHasCauldron().getFluidCauldron() == Blocks.CAULDRON
-            ? Blocks.CAULDRON.getName()
-            : CauldronUtil.fullState(recipe.getHasCauldron().getFluidCauldron()).getBlock().getName());
+        if (mouseX >= 72 && mouseX <= 90 && mouseY >= 24 && mouseY <= 43) {
+            tooltip.add(recipe.getHasCauldron().getFluidCauldron() == Blocks.CAULDRON
+                ? Blocks.CAULDRON.getName()
+                : CauldronUtil.fullState(recipe.getHasCauldron().getFluidCauldron()).getBlock().getName());
+        }
+        if (mouseX >= 124 && mouseX <= 140 && mouseY >= 24 && mouseY <= 42
+            && HasCauldron.isNotEmpty(recipe.getHasCauldron().transform())) {
+            tooltip.add(recipe.getHasCauldron().getTransformCauldron().getName());
+        }
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
