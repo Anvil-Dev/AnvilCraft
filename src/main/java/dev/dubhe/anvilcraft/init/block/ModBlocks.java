@@ -175,6 +175,7 @@ import dev.dubhe.anvilcraft.block.item.ChuteBlockItem;
 import dev.dubhe.anvilcraft.block.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.block.item.EndDustBlockItem;
 import dev.dubhe.anvilcraft.block.item.FishTankBlockItem;
+import dev.dubhe.anvilcraft.block.item.FluidTankBlockItem;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.FrostMetalBlockItem;
 import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
@@ -247,6 +248,7 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.level.BlockGetter;
@@ -377,7 +379,9 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .simpleItem()
+        .item(FluidTankBlockItem::new)
+        .properties(properties -> properties.component(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY))
+        .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::fluidTank)
         .register();

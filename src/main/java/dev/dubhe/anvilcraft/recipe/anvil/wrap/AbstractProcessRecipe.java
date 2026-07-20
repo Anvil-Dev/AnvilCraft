@@ -6,9 +6,11 @@ import dev.anvilcraft.lib.v2.recipe.InWorldRecipe;
 import dev.anvilcraft.lib.v2.recipe.outcome.IRecipeOutcome;
 import dev.anvilcraft.lib.v2.recipe.outcome.SetBlock;
 import dev.anvilcraft.lib.v2.recipe.outcome.SpawnItem;
+import dev.anvilcraft.lib.v2.recipe.outcome.function.IOutcomeFunction;
 import dev.anvilcraft.lib.v2.recipe.predicate.IRecipePredicate;
 import dev.anvilcraft.lib.v2.recipe.predicate.block.HasBlock;
 import dev.anvilcraft.lib.v2.recipe.predicate.block.HasBlockIngredient;
+import dev.anvilcraft.lib.v2.recipe.predicate.function.IPredicateFunction;
 import dev.anvilcraft.lib.v2.recipe.predicate.item.HasItemIngredient;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
@@ -41,7 +43,9 @@ import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -461,6 +465,9 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          */
         private List<ItemIngredientPredicate> inputItems = null;
 
+        /** Optional functions applied to each matched input item. */
+        private final Map<Integer, List<IPredicateFunction<?>>> inputItemFunctions = new HashMap<>();
+
         /**
          * 物品输出偏移量
          */
@@ -470,6 +477,9 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * 结果物品列表
          */
         private List<ChanceItemStack> resultItems = null;
+
+        /** Optional functions applied to each spawned item result. */
+        private final Map<Integer, List<IOutcomeFunction<?>>> resultItemFunctions = new HashMap<>();
 
         /**
          * 方块输入偏移量
@@ -531,6 +541,19 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          */
         public Property addOutcome(IRecipeOutcome<?> outcome) {
             this.extraOutcomes.add(outcome);
+            return this;
+        }
+
+        public Property addInputItemFunction(int index, IPredicateFunction<?> function) {
+            this.inputItemFunctions.computeIfAbsent(index, ignored -> new ArrayList<>()).add(function);
+            return this;
+        }
+
+        public Property addResultItemFunction(
+            int index,
+            IOutcomeFunction<?> function
+        ) {
+            this.resultItemFunctions.computeIfAbsent(index, ignored -> new ArrayList<>()).add(function);
             return this;
         }
 
@@ -816,8 +839,10 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         private List<IRecipePredicate<?>> getConflictingPredicates() {
             List<IRecipePredicate<?>> predicates = new ArrayList<>();
             if (this.inputItems != null) {
-                for (ItemIngredientPredicate ingredient : this.inputItems) {
-                    predicates.add(HasItemIngredient.fromPredicate(ingredient, this.itemInputOffset, this.itemInputRange));
+                for (int i = 0; i < this.inputItems.size(); i++) {
+                    ItemIngredientPredicate ingredient = this.inputItems.get(i);
+                    List<IPredicateFunction<?>> functions = this.inputItemFunctions.getOrDefault(i, List.of());
+                    predicates.add(new HasItemIngredient(this.itemInputOffset, this.itemInputRange, ingredient, functions));
                 }
             }
             return predicates;
@@ -831,8 +856,16 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         private List<IRecipeOutcome<?>> getOutcomes() {
             List<IRecipeOutcome<?>> outcomes = new ArrayList<>();
             if (this.resultItems != null) {
-                for (ChanceItemStack chanceItemStack : this.resultItems) {
-                    outcomes.add(SpawnItem.fromChance(chanceItemStack, this.itemOutputOffset));
+                for (int i = 0; i < this.resultItems.size(); i++) {
+                    ChanceItemStack chanceItemStack = this.resultItems.get(i);
+                    List<IOutcomeFunction<?>> functions =
+                        this.resultItemFunctions.getOrDefault(i, List.of());
+                    outcomes.add(new SpawnItem(
+                        chanceItemStack.stack(),
+                        this.itemOutputOffset,
+                        chanceItemStack.count(),
+                        functions
+                    ));
                 }
             }
             if (this.resultBlocks != null) {

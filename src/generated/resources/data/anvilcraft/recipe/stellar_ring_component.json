@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": {
+      "item": "anvilcraft:transcendium_ingot"
+    },
+    "B": {
+      "item": "anvilcraft:acceleration_ring"
+    },
+    "C": {
+      "item": "anvilcraft:deflection_ring"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "BCB",
+    "ABA"
+  ],
+  "result": {
+    "count": 4,
+    "id": "anvilcraft:stellar_ring_component"
+  }
+}

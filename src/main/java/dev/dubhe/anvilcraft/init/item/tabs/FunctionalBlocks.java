@@ -41,6 +41,7 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.FISH_TANK); // 鱼缸
         this.plain(ModBlocks.MENGER_SPONGE); // 门格海绵
         this.plain(ModBlocks.FLUID_TANK); // 流体储罐
+        this.plain(ModItems.FLUID_TANK_MINECART);
         this.plain(ModBlocks.LARGE_FLUID_TANK); // 大型流体储罐
         this.plain(ModBlocks.DRAIN); // 排水口
         this.plain(ModItems.PIPE); // 管道

@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.network.RedstoneWirePowerSyncPacket;
 import it.unimi.dsi.fastutil.bytes.ByteArrayList;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.longs.Long2ByteOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectLinkedOpenHashMap;
@@ -15,6 +17,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -22,9 +25,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
+import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.IdentityHashMap;
+import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 
@@ -32,7 +38,7 @@ import javax.annotation.Nullable;
  * 按维度维护无衰减红石导线的连通网络、连接拓扑和信号缓存。
  *
  * <p>每个 {@link Network} 代表当前已加载区块中的一个连通分量。Manager 只在拓扑改变时重新搜索导线，
- * 普通信号变化则复用缓存的开放端点采样最大输入，再把同一强度写回整张网络。</p>
+ * 普通信号变化则复用缓存的开放端点采样最大输入，再把同一强度同步到客户端。</p>
  *
  * <p>这些数据都是可由世界状态重建的运行时缓存，不写入存档。</p>
  */
@@ -117,6 +123,30 @@ public final class RedstoneWireNetworkManager {
         LEVELS.remove(level);
     }
 
+    /** 将指定区块中当前已求值的导线功率发送给刚开始观察该区块的玩家。 */
+    public static void syncChunk(ServerPlayer player, ServerLevel level, ChunkAccess chunk) {
+        LevelNetworks state = state(level);
+        state.runUpdates();
+        for (RedstoneWirePowerSyncPacket packet : state.createChunkSync(chunk.getPos())) {
+            PacketDistributor.sendToPlayer(player, packet);
+        }
+    }
+
+    /** 清除客户端已移除导线的功率缓存。 */
+    public static void wireRemoved(Level level, BlockPos pos) {
+        if (level instanceof ServerLevel serverLevel) {
+            PacketDistributor.sendToPlayersTrackingChunk(
+                serverLevel,
+                new ChunkPos(pos),
+                new RedstoneWirePowerSyncPacket(
+                    new ChunkPos(pos).toLong(),
+                    false,
+                    List.of(new RedstoneWirePowerSyncPacket.PowerGroup(0, new int[]{RedstoneWirePowerSyncPacket.pack(pos)}))
+                )
+            );
+        }
+    }
+
     /** 扫描新加载区块中的导线，并将它们作为待建网种子。 */
     public static void chunkLoaded(ServerLevel level, ChunkAccess chunk) {
         LevelNetworks state = state(level);
@@ -159,34 +189,43 @@ public final class RedstoneWireNetworkManager {
     /**
      * 返回网络可以安全输出给原版红石粉的信号强度。
      *
-     * <p>服务端使用网络缓存；客户端没有该缓存时使用同步到方块状态中的强度作为显示期回退值。</p>
+     * <p>服务端使用网络缓存；客户端使用已同步的总功率作为显示期回退值。</p>
      */
     static int getNonDustPower(BlockGetter level, BlockPos pos, int clientFallback) {
         if (!(level instanceof ServerLevel serverLevel)) {
             return clientFallback;
         }
-        LevelNetworks state = LEVELS.get(serverLevel);
-        if (state == null) {
-            return 0;
-        }
-        Network network = state.byWire.get(pos.asLong());
+        Network network = state(serverLevel).getOrBuildNetwork(pos.asLong());
         return network == null || !network.valid || network.overflow ? 0 : network.nonDustPower;
     }
 
     /** 为服务端提示查询返回非红石粉输入强度，必要时同步建立当前位置的网络。 */
     public static int getNonDustPower(ServerLevel level, BlockPos pos) {
         LevelNetworks state = state(level);
-        long packedPos = pos.asLong();
-        Network network = state.byWire.get(packedPos);
-        if (network == null && level.getBlockState(pos).getBlock() instanceof RedstoneWireBlock) {
-            // 提示请求可能早于 tick 中的区块种子处理，按需建网可避免首帧错误显示为零。
-            state.rebuildFromSeeds(new LongOpenHashSet(new long[]{packedPos}));
-            network = state.byWire.get(packedPos);
-            if (network != null && !network.overflow) {
-                state.recompute(network);
-            }
-        }
+        Network network = state.getOrBuildNetwork(pos.asLong());
         return network == null || !network.valid || network.overflow ? 0 : network.nonDustPower;
+    }
+
+    /**
+     * 返回服务端网络或客户端同步缓存中的当前总功率。
+     *
+     * <p>服务端返回权威网络值，客户端返回最近一次从服务端收到的值；附属模组可以使用同一个查询，
+     * 不再读取已经移除的方块状态属性。</p>
+     */
+    public static int getPower(BlockGetter level, BlockPos pos) {
+        if (level instanceof ServerLevel serverLevel) {
+            return getPower(serverLevel, pos);
+        }
+        if (level instanceof Level clientLevel && clientLevel.isClientSide()) {
+            return RedstoneWireClientPowerCache.get(clientLevel, pos);
+        }
+        return 0;
+    }
+
+    /** 为服务端红石查询返回总输入强度，必要时同步建立当前位置的网络。 */
+    public static int getPower(ServerLevel level, BlockPos pos) {
+        Network network = state(level).getOrBuildNetwork(pos.asLong());
+        return network == null || !network.valid ? 0 : network.totalPower;
     }
 
     private static LevelNetworks state(ServerLevel level) {
@@ -277,6 +316,104 @@ public final class RedstoneWireNetworkManager {
             this.runUpdates();
         }
 
+        /** 按需取得位置所属网络，供红石查询和客户端同步请求使用。 */
+        @Nullable
+        private Network getOrBuildNetwork(long packedPos) {
+            Network network = this.byWire.get(packedPos);
+            if (network == null && this.level.getBlockState(BlockPos.of(packedPos)).getBlock() instanceof RedstoneWireBlock) {
+                this.requestTopologyUpdate(packedPos);
+                network = this.byWire.get(packedPos);
+            }
+            return network;
+        }
+
+        /** 生成一个区块的完整客户端功率快照；零功率位置无需写入分组。 */
+        private List<RedstoneWirePowerSyncPacket> createChunkSync(ChunkPos chunkPos) {
+            IntArrayList[] positionsByPower = new IntArrayList[16];
+            ObjectOpenHashSet<Network> networks = this.byChunk.get(chunkPos.toLong());
+            if (networks != null) {
+                for (Network network : networks) {
+                    if (!network.valid) {
+                        continue;
+                    }
+                    for (LongIterator iterator = network.nodes.keySet().iterator(); iterator.hasNext();) {
+                        long packedPos = iterator.nextLong();
+                        if (ChunkPos.asLong(BlockPos.getX(packedPos) >> 4, BlockPos.getZ(packedPos) >> 4)
+                            != chunkPos.toLong()) {
+                            continue;
+                        }
+                        int power = Math.clamp(network.totalPower, 0, 15);
+                        if (power == 0) {
+                            continue;
+                        }
+                        if (positionsByPower[power] == null) {
+                            positionsByPower[power] = new IntArrayList();
+                        }
+                        positionsByPower[power].add(RedstoneWirePowerSyncPacket.pack(BlockPos.of(packedPos)));
+                    }
+                }
+            }
+            return chunkSyncPackets(chunkPos.toLong(), positionsByPower);
+        }
+
+        /** 将一张网络的新功率按区块批量发送给正在观察这些区块的玩家。 */
+        private void syncNetworkPower(Network network) {
+            Long2ObjectOpenHashMap<IntArrayList> positionsByChunk = new Long2ObjectOpenHashMap<>();
+            for (LongIterator iterator = network.nodes.keySet().iterator(); iterator.hasNext();) {
+                long packedPos = iterator.nextLong();
+                long chunkPos = ChunkPos.asLong(BlockPos.getX(packedPos) >> 4, BlockPos.getZ(packedPos) >> 4);
+                positionsByChunk.computeIfAbsent(chunkPos, ignored -> new IntArrayList())
+                    .add(RedstoneWirePowerSyncPacket.pack(BlockPos.of(packedPos)));
+            }
+            int power = Math.clamp(network.totalPower, 0, 15);
+            for (var entry : positionsByChunk.long2ObjectEntrySet()) {
+                ChunkPos chunkPos = new ChunkPos(entry.getLongKey());
+                PacketDistributor.sendToPlayersTrackingChunk(
+                    this.level,
+                    chunkPos,
+                    new RedstoneWirePowerSyncPacket(
+                        entry.getLongKey(),
+                        false,
+                        List.of(new RedstoneWirePowerSyncPacket.PowerGroup(power, entry.getValue().toIntArray()))
+                    )
+                );
+            }
+        }
+
+        private static List<RedstoneWirePowerSyncPacket> chunkSyncPackets(
+            long chunkPos, IntArrayList[] positionsByPower
+        ) {
+            List<RedstoneWirePowerSyncPacket> packets = new ArrayList<>();
+            List<RedstoneWirePowerSyncPacket.PowerGroup> groups = new ArrayList<>();
+            int packetPositions = 0;
+            for (int power = 0; power < positionsByPower.length; power++) {
+                IntArrayList positions = positionsByPower[power];
+                if (positions == null || positions.isEmpty()) {
+                    continue;
+                }
+                int[] values = positions.toIntArray();
+                for (int offset = 0; offset < values.length;) {
+                    int count = Math.min(values.length - offset, MAX_NETWORK_SIZE - packetPositions);
+                    groups.add(new RedstoneWirePowerSyncPacket.PowerGroup(
+                        power, Arrays.copyOfRange(values, offset, offset + count)
+                    ));
+                    offset += count;
+                    packetPositions += count;
+                    if (packetPositions == MAX_NETWORK_SIZE) {
+                        packets.add(new RedstoneWirePowerSyncPacket(
+                            chunkPos, packets.isEmpty(), List.copyOf(groups)
+                        ));
+                        groups.clear();
+                        packetPositions = 0;
+                    }
+                }
+            }
+            if (!groups.isEmpty() || packets.isEmpty()) {
+                packets.add(new RedstoneWirePowerSyncPacket(chunkPos, packets.isEmpty(), List.copyOf(groups)));
+            }
+            return List.copyOf(packets);
+        }
+
         /** 交替处理拓扑和信号脏集合，直到稳定或达到单次收敛上限。 */
         private void runUpdates() {
             if (this.processingUpdates) {
@@ -315,6 +452,7 @@ public final class RedstoneWireNetworkManager {
         private void rebuildFromSeeds(LongOpenHashSet changedPositions) {
             ObjectOpenHashSet<Network> affected = new ObjectOpenHashSet<>();
             LongOpenHashSet rebuildSeeds = new LongOpenHashSet(changedPositions);
+            Long2ByteOpenHashMap inheritedPowers = new Long2ByteOpenHashMap();
             for (LongIterator iterator = changedPositions.iterator(); iterator.hasNext();) {
                 long packedPos = iterator.nextLong();
                 Network oldNetwork = this.byWire.get(packedPos);
@@ -342,6 +480,9 @@ public final class RedstoneWireNetworkManager {
             }
 
             for (Network network : affected) {
+                for (LongIterator iterator = network.nodes.keySet().iterator(); iterator.hasNext();) {
+                    inheritedPowers.put(iterator.nextLong(), (byte) network.totalPower);
+                }
                 // 连通分量增删一个节点都可能发生拆分或合并，局部修补容易留下错误归属，因此整体失效后重建。
                 this.invalidate(network, rebuildSeeds, Long.MIN_VALUE);
             }
@@ -356,7 +497,7 @@ public final class RedstoneWireNetworkManager {
                     }
                     BlockPos pos = BlockPos.of(seed);
                     if (this.level.getBlockState(pos).getBlock() instanceof RedstoneWireBlock) {
-                        this.buildNetwork(seed);
+                        this.buildNetwork(seed, inheritedPowers);
                     }
                 }
             } finally {
@@ -365,10 +506,11 @@ public final class RedstoneWireNetworkManager {
         }
 
         /** 从一个导线种子广度优先构建完整连通分量及其四向连接缓存。 */
-        private void buildNetwork(long seed) {
+        private void buildNetwork(long seed, Long2ByteOpenHashMap inheritedPowers) {
             Long2ObjectLinkedOpenHashMap<Node> nodes = new Long2ObjectLinkedOpenHashMap<>();
             LongArrayFIFOQueue queue = new LongArrayFIFOQueue();
             LongOpenHashSet queued = new LongOpenHashSet();
+            int inheritedPower = 0;
             queue.enqueue(seed);
             queued.add(seed);
             boolean overflow = false;
@@ -379,6 +521,9 @@ public final class RedstoneWireNetworkManager {
                 BlockState state = this.level.getBlockState(pos);
                 if (!(state.getBlock() instanceof RedstoneWireBlock)) {
                     continue;
+                }
+                if (inheritedPowers.containsKey(packedPos)) {
+                    inheritedPower = Math.max(inheritedPower, Byte.toUnsignedInt(inheritedPowers.get(packedPos)));
                 }
                 RedstoneWireBlock.Connection[] connections = RedstoneWireBlock.findConnections(this.level, pos, state);
                 nodes.put(packedPos, new Node(connections));
@@ -402,8 +547,7 @@ public final class RedstoneWireNetworkManager {
                 }
             }
 
-            int currentPower = this.level.getBlockState(BlockPos.of(seed)).getValue(RedstoneWireBlock.POWER);
-            Network network = new Network(nodes, overflow, currentPower);
+            Network network = new Network(nodes, overflow, inheritedPower);
             for (LongIterator iterator = nodes.keySet().iterator(); iterator.hasNext();) {
                 long nodePos = iterator.nextLong();
                 this.byWire.put(nodePos, network);
@@ -414,7 +558,7 @@ public final class RedstoneWireNetworkManager {
                 }
             }
             if (overflow) {
-                // 节点集合不完整时无法可靠识别端点或统一信号，保留旧方块状态比输出错误信号更安全。
+                // 节点集合不完整时无法可靠识别端点或统一信号；保留继承功率，直到网络重新完整建成。
                 this.warnOverflow(seed);
                 return;
             }
@@ -454,6 +598,7 @@ public final class RedstoneWireNetworkManager {
             }
             int totalPower = 0;
             int nonDustPower = 0;
+            boolean wasSuppressingSignal = SUPPRESS_SIGNAL.get();
             SUPPRESS_SIGNAL.set(true);
             try {
                 // 只遍历预计算的端点，不扫描内部节点；长导线的信号采样成本由端子数而非总长度决定。
@@ -473,36 +618,27 @@ public final class RedstoneWireNetworkManager {
                     }
                 }
             } finally {
-                // ThreadLocal 必须在所有异常路径复位，否则后续红石查询会把整条导线永久视为无信号源。
-                SUPPRESS_SIGNAL.set(false);
+                // 恢复进入前的值，嵌套求值不能提前解除外层网络的防自激保护。
+                SUPPRESS_SIGNAL.set(wasSuppressingSignal);
             }
 
             boolean totalChanged = network.totalPower != totalPower;
             boolean nonDustChanged = network.nonDustPower != nonDustPower;
             boolean updateTerminals = totalChanged || nonDustChanged || network.needsTerminalUpdate;
-            if (!updateTerminals && !network.needsPowerNormalization) {
-                // 输入和拓扑均未变化时不写 BlockState，也不制造多余的邻居更新。
+            if (!updateTerminals && !network.needsPowerSync) {
+                // 输入和拓扑均未变化时不发送同步，也不制造多余的邻居更新。
                 return;
             }
             network.totalPower = totalPower;
             network.nonDustPower = nonDustPower;
-            if (totalChanged || network.needsPowerNormalization) {
-                // POWER 保存在每个方块状态中供客户端着色和常规红石查询使用，所以变更时必须整网归一化。
-                for (LongIterator iterator = network.nodes.keySet().iterator(); iterator.hasNext();) {
-                    BlockPos pos = BlockPos.of(iterator.nextLong());
-                    BlockState state = this.level.getBlockState(pos);
-                    if (state.getBlock() instanceof RedstoneWireBlock
-                        && state.getValue(RedstoneWireBlock.POWER) != totalPower) {
-                        this.level.setBlock(
-                            pos, state.setValue(RedstoneWireBlock.POWER, totalPower), Block.UPDATE_CLIENTS
-                        );
-                    }
-                }
-                network.needsPowerNormalization = false;
+            if (totalChanged || network.needsPowerSync) {
+                // 功率是网络派生数据，按区块同步给客户端而不是写入每个方块状态。
+                this.syncNetworkPower(network);
+                network.needsPowerSync = false;
             }
             network.needsTerminalUpdate = false;
             if (updateTerminals) {
-                // 等所有节点都具有新 POWER 后再通知端点，外部元件不会读到同一网络中的混合强度。
+                // 等客户端同步和网络值更新后再通知端点，外部元件不会观察到混合强度。
                 this.notifyTerminalChanges(network);
             }
         }
@@ -561,7 +697,7 @@ public final class RedstoneWireNetworkManager {
             }
             this.lastOverflowWarning = gameTime;
             AnvilCraft.LOGGER.warn(
-                "Redstone wire network at {} exceeds {} nodes; update was skipped to preserve its previous state",
+                "Redstone wire network at {} exceeds {} nodes; update was skipped to preserve its previous power",
                 BlockPos.of(seed),
                 MAX_NETWORK_SIZE
             );
@@ -653,9 +789,9 @@ public final class RedstoneWireNetworkManager {
         /** 网络跨越的已加载区块，用于快速响应卸载。 */
         private final LongOpenHashSet chunks = new LongOpenHashSet();
         private boolean valid = true;
-        /** 新网络继承种子 POWER，仅用于过渡，首次求值必须统一所有节点。 */
-        private boolean needsPowerNormalization = true;
-        // 重建不会继承旧网络的 nonDustPower，因此首次采样即使总 POWER 相同也必须通知全部端点。
+        /** 新网络继承旧网络功率，仅用于过渡，首次求值必须同步所有节点。 */
+        private boolean needsPowerSync = true;
+        // 重建不会继承旧网络的 nonDustPower，因此首次采样即使总功率相同也必须通知全部端点。
         private boolean needsTerminalUpdate = true;
         /** 所有外部输入（包括原版红石粉）的最大强度。 */
         private int totalPower;

@@ -572,11 +572,12 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
 
     // region 玩家交互
     public boolean tryInteractWithTank(Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (hand != InteractionHand.MAIN_HAND) return false;
         if (this.level == null) return false;
         ItemStack inHand = player.getItemInHand(hand);
-        if (this.interactWithFish(this.level, player, hand, inHand, hitResult)) return true;
+        if (hand == InteractionHand.MAIN_HAND
+            && this.interactWithFish(this.level, player, hand, inHand, hitResult)) return true;
         if (this.interactWithFluid(player, hand)) return true;
+        if (hand != InteractionHand.MAIN_HAND) return false;
         return this.interactWithItems(this.level, player, hand, inHand, hitResult.getLocation());
     }
 
@@ -817,7 +818,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             player.awardStat(fillTank ? Stats.FILL_CAULDRON : Stats.USE_CAULDRON);
             player.awardStat(Stats.ITEM_USED.get(inHand.getItem()));
         }
-        return interacted;
+        return interacted || FishTankBlockEntity.canDrainFluidFromItem(inHand);
     }
 
     private static boolean canDrainFluidFromItem(ItemStack stack) {

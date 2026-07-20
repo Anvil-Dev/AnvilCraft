@@ -46,7 +46,7 @@ public abstract class DestroyType {
                             if (isFellingApplicableBlock(state)) {
                                 List<ItemStack> itemStack = mode.apply(state, it, context);
                                 level.setBlockAndUpdate(it, Blocks.AIR.defaultBlockState());
-                                DestroyType.dropItems(itemStack, it, level);
+                                mode.dropItems(itemStack, it, context);
                                 return true;
                             }
                             return false;
@@ -71,17 +71,17 @@ public abstract class DestroyType {
                 if (state.isAir()) continue;
                 if (state.getBlock() instanceof CropBlock cropBlock && cropBlock.isMaxAge(state)) {
                     List<ItemStack> itemStack = mode.apply(state, pos, context);
-                    DestroyType.dropItems(itemStack, pos, level);
+                    mode.dropItems(itemStack, pos, context);
                     level.setBlockAndUpdate(destroyLayer, cropBlock.getStateForAge(0));
                     continue;
                 }
                 if (state.is(Blocks.NETHER_WART) && state.getValue(NetherWartBlock.AGE) == 3) {
-                    Block.dropResources(state, level, destroyLayer);
+                    mode.dropItems(mode.apply(state, destroyLayer, context), destroyLayer, context);
                     level.setBlockAndUpdate(destroyLayer, state.setValue(NetherWartBlock.AGE, 0));
                     continue;
                 }
                 if (state.is(Blocks.SWEET_BERRY_BUSH) && state.getValue(SweetBerryBushBlock.AGE) >= 2) {
-                    Block.dropResources(state, level, destroyLayer);
+                    mode.dropItems(mode.apply(state, destroyLayer, context), destroyLayer, context);
                     level.setBlockAndUpdate(destroyLayer, state.setValue(SweetBerryBushBlock.AGE, 1));
                     continue;
                 }
@@ -97,7 +97,7 @@ public abstract class DestroyType {
                             if (blockState.is(Blocks.COCOA) && blockState.getValue(CocoaBlock.AGE) == 2) {
                                 List<ItemStack> itemStack = mode.apply(blockState, it, context);
                                 level.setBlockAndUpdate(it, blockState.setValue(CocoaBlock.AGE, 0));
-                                DestroyType.dropItems(itemStack, it, level);
+                                mode.dropItems(itemStack, it, context);
                                 return true;
                             }
                             return blockState.is(BlockTags.JUNGLE_LOGS);
@@ -106,7 +106,7 @@ public abstract class DestroyType {
                 }
                 if (state.is(Blocks.MELON) || state.is(Blocks.PUMPKIN)) {
                     List<ItemStack> itemStack = mode.apply(state, pos, context);
-                    DestroyType.dropItems(itemStack, pos, level);
+                    mode.dropItems(itemStack, pos, context);
                     level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
                 }
                 if (state.is(Blocks.PITCHER_CROP) && state.getValue(PitcherCropBlock.AGE) == 4) {
@@ -129,12 +129,12 @@ public abstract class DestroyType {
                             context
                         );
                     }
-                    DestroyType.dropItems(itemStack, pos, level);
+                    mode.dropItems(itemStack, pos, context);
                 }
                 if (state.is(Blocks.TORCHFLOWER)) {
                     List<ItemStack> itemStack = mode.apply(state, pos.below(), context);
                     level.setBlockAndUpdate(pos, Blocks.TORCHFLOWER_CROP.defaultBlockState());
-                    DestroyType.dropItems(itemStack, pos, level);
+                    mode.dropItems(itemStack, pos, context);
                 }
                 boolean found = false;
                 for (int i = 0; i < 2; i++) {
@@ -158,7 +158,7 @@ public abstract class DestroyType {
                                 List<ItemStack> itemStack = mode.apply(blockState, it, context);
                                 if (blockState.hasProperty(CaveVinesPlantBlock.BERRIES)) {
                                     level.setBlockAndUpdate(it, blockState.setValue(CaveVinesPlantBlock.BERRIES, false));
-                                    DestroyType.dropItems(itemStack, it, level);
+                                    mode.dropItems(itemStack, it, context);
                                 }
                                 return true;
                             }
@@ -187,7 +187,7 @@ public abstract class DestroyType {
                         drops = mode.apply(state, pos, context, TOOL);
                     }
 
-                    DestroyType.dropItems(drops, pos, level);
+                    mode.dropItems(drops, pos, context);
                     level.destroyBlock(pos, false);
                 }
             }
@@ -203,7 +203,7 @@ public abstract class DestroyType {
                 if (pos.distSqr(context.centerPos().above()) <= 2) continue;
                 if (state.getBlock().defaultDestroyTime() < 0) continue;
                 List<ItemStack> drops = mode.apply(state, pos, context);
-                DestroyType.dropItems(drops, pos, level);
+                mode.dropItems(drops, pos, context);
                 level.destroyBlock(pos, false);
             }
         }
@@ -224,7 +224,7 @@ public abstract class DestroyType {
                 ) {
                     level.destroyBlock(pos, false);
                     List<ItemStack> dropItems = mode.apply(state, pos, context);
-                    DestroyType.dropItems(dropItems, pos, level);
+                    mode.dropItems(dropItems, pos, context);
                     continue;
                 }
 
@@ -236,7 +236,7 @@ public abstract class DestroyType {
                     budding.anvilcraft$tryBreakClusters(level, pos, state, (clusterPos, clusterState) -> {
                         level.destroyBlock(clusterPos, false);
                         List<ItemStack> dropItems = mode.apply(clusterState, clusterPos, context);
-                        DestroyType.dropItems(dropItems, clusterPos, level);
+                        mode.dropItems(dropItems, clusterPos, context);
                     });
                 }
             }
@@ -247,10 +247,4 @@ public abstract class DestroyType {
     public static final int VISIT_LIMIT = 1024;
 
     public abstract void accept(ShockContext context, List<BlockPos> list, DestroyMode mode);
-
-    private static void dropItems(List<ItemStack> itemStacks, BlockPos pos, Level level) {
-        for (ItemStack itemStack : itemStacks) {
-            Block.popResource(level, pos, itemStack);
-        }
-    }
 }

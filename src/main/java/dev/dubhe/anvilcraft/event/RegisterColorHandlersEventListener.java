@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
+import dev.dubhe.anvilcraft.block.RedstoneWireClientPowerCache;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import net.minecraft.core.component.DataComponents;
@@ -16,11 +16,16 @@ import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 public class RegisterColorHandlersEventListener {
     @SubscribeEvent
     public static void registerBlockColorHandlersEvent(RegisterColorHandlersEvent.Block event) {
-        // 复用原版红石粉的强度到颜色映射，使服务端同步的 POWER 能直接驱动导线覆盖层明暗。
+        // 复用原版红石粉的强度到颜色映射，功率来自服务端网络管理器同步的客户端缓存。
         event.register(
-            (state, level, pos, tintIndex) -> tintIndex == 0
-                ? RedStoneWireBlock.getColorForPower(state.getValue(RedstoneWireBlock.POWER))
-                : -1,
+            (state, level, pos, tintIndex) -> {
+                if (tintIndex != 0) {
+                    return -1;
+                }
+                return RedStoneWireBlock.getColorForPower(
+                    pos == null ? 0 : RedstoneWireClientPowerCache.getCurrent(pos)
+                );
+            },
             ModBlocks.REDSTONE_WIRE.get()
         );
     }

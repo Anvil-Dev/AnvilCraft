@@ -1,0 +1,16 @@
+{
+  "type": "anvilcraft:unpack",
+  "ingredients": [
+    {
+      "items": "minecraft:hopper_minecart"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:minecart"
+    },
+    {
+      "id": "minecraft:hopper"
+    }
+  ]
+}

@@ -86,6 +86,11 @@ public class ModComponents {
         builder -> builder.persistent(ChargedProjectiles.CODEC).networkSynchronized(ChargedProjectiles.STREAM_CODEC)
     );
 
+    public static final DataComponentType<Integer> RAILGUN_INFINITE_AMMO_MASK = register(
+        "railgun_infinite_ammo_mask",
+        builder -> builder.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
+    );
+
     public static final DataComponentType<Unit> FIRE_REFORGING = registerEmpty("reforging");
 
     public static final DataComponentType<Multiphase> MULTIPHASE = register(

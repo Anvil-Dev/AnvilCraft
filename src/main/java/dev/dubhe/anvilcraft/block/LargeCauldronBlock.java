@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.block.ICauldronGeometry;
+import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
@@ -249,6 +250,12 @@ public class LargeCauldronBlock
         if (stack.is(ModItemTags.ANVIL_HAMMER)) return ItemInteractionResult.SUCCESS;
         LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
         if (cauldron == null) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        if (cauldron.interactWithFluid(player, hand, hit)) {
+            return ItemInteractionResult.sidedSuccess(level.isClientSide());
+        }
+        if (FluidHandlerWrapper.isFluidInteractionItem(stack)) {
+            return ItemInteractionResult.sidedSuccess(level.isClientSide());
+        }
         if (isExtractionSurface(state, hit) && hand == InteractionHand.MAIN_HAND) {
             int slot = LargeCauldronBlockEntity.inputSlotForPart(state.getValue(HALF));
             if (stack.isEmpty()) {
@@ -270,9 +277,6 @@ public class LargeCauldronBlock
                     1.0F
                 );
             }
-            return ItemInteractionResult.sidedSuccess(level.isClientSide());
-        }
-        if (cauldron.interactWithFluid(player, hand, hit)) {
             return ItemInteractionResult.sidedSuccess(level.isClientSide());
         }
         if (hand != InteractionHand.MAIN_HAND || stack.isEmpty() || !canInsertAt(state, hit)) {

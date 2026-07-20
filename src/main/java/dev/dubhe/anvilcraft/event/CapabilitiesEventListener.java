@@ -7,9 +7,11 @@ import dev.dubhe.anvilcraft.api.fluid.PowderSnowWrapper;
 import dev.dubhe.anvilcraft.api.fluid.VoidFluidHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.HoneyCauldronWrapper;
 import dev.dubhe.anvilcraft.block.entity.FeCollectorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
@@ -62,7 +64,7 @@ public class CapabilitiesEventListener {
         event.registerBlockEntity(
             Capabilities.ItemHandler.BLOCK,
             ModBlockEntities.LARGE_CAULDRON.get(),
-            (be, side) -> be.getAutomationItemHandler(side)
+            LargeCauldronBlockEntity::getAutomationItemHandler
         );
 
         event.registerBlock(
@@ -87,13 +89,19 @@ public class CapabilitiesEventListener {
         event.registerBlockEntity(
             Capabilities.FluidHandler.BLOCK,
             ModBlockEntities.LARGE_CAULDRON.get(),
-            (be, side) -> be.getAutomationFluidHandler(side)
+            LargeCauldronBlockEntity::getAutomationFluidHandler
         );
 
         event.registerBlockEntity(
             Capabilities.FluidHandler.BLOCK,
             ModBlockEntities.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE.get(),
             (be, side) -> be.getFluidHandler()
+        );
+
+        event.registerEntity(
+            Capabilities.FluidHandler.ENTITY,
+            ModEntities.FLUID_TANK_MINECART.get(),
+            (cart, side) -> cart.getFluidHandler()
         );
 
         // 门格海绵：通过管道输入的流体被无限吸收并消失（只进不出）
