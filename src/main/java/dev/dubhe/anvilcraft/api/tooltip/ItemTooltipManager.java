@@ -353,7 +353,7 @@ public class ItemTooltipManager {
         );
         NORMAL.put(
             ModBlocks.LARGE_FLUID_TANK.asItem(), """
-                Stores 320B shared by any number of fluids
+                Stores 512B shared by any number of fluids
                 Menger Sponges unlock unlimited total storage
                 Can store multiple fluids, each type of fluid that reaches 12800B will be converted to infinite
                 Can interact with Dispensers for fluid transfer"""

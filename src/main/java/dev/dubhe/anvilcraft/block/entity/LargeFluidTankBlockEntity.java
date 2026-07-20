@@ -31,7 +31,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import java.util.List;
 
 public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHandlerHolder {
-    public static final int BASE_CAPACITY = 320 * FluidType.BUCKET_VOLUME;
+    public static final int BASE_CAPACITY = 512 * FluidType.BUCKET_VOLUME;
     public static final int INFINITY_THRESHOLD = 12800 * FluidType.BUCKET_VOLUME;
     private static final int CHECK_INTERVAL = 100;
     private static final String TAG_TANK = "Tank";

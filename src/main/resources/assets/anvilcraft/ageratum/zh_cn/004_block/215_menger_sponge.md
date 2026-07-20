@@ -30,7 +30,7 @@ items:
 
 - 当<ref item="anvilcraft:fluid_tank"/>位于一个3x3x3<ref item="anvilcraft:menger_sponge"/>结构中心时，其容量变为12800B。流体装满后可无限输入与输出；结构被破坏时会清除无限状态并恢复为16B
 
-- <ref item="anvilcraft:large_fluid_tank"/>通常可不限种类地存储总计320B流体。当其位于一个9x9x9<ref item="anvilcraft:menger_sponge"/>结构中心时，总容量不再受限；每种流体达到12800B后会分别进入无限状态，可无限输入与输出
+- <ref item="anvilcraft:large_fluid_tank"/>通常可不限种类地存储总计512B流体。当其位于一个9x9x9<ref item="anvilcraft:menger_sponge"/>结构中心时，总容量不再受限；每种流体达到12800B后会分别进入无限状态，可无限输入与输出
 
 ### 结构的判断条件
 

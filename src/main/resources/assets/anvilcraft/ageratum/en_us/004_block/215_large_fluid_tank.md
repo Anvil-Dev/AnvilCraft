@@ -14,5 +14,5 @@ items:
 
 - Obtained through [multi-block conversion](210_giant_anvil.md#function)
 
-- Can hold 320B of fluid
+- Can hold 512B of fluid
 
