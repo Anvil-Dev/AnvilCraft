@@ -70,6 +70,17 @@ public class Storages extends SavedData {
         return Util.castSafely(this.storages.get(id), clazz);
     }
 
+    public void put(BaseStorage storage) {
+        this.storages.put(storage.getId(), storage);
+        this.setDirty();
+    }
+
+    public void remove(UUID id) {
+        if (this.storages.remove(id) != null) {
+            this.setDirty();
+        }
+    }
+
     public <T extends BaseStorage> T getOrCreate(UUID id, Class<T> clazz) {
         BaseStorage storage = this.storages.get(id);
         if (storage == null) {

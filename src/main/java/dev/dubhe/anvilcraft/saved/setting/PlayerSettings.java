@@ -10,7 +10,7 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.level.saveddata.SavedDataType;
 
 import java.util.HashMap;
@@ -46,14 +46,20 @@ public class PlayerSettings extends BetterSavedData {
         return BetterSavedData.get(PlayerSettings.TYPE, PlayerSettings.CLIENT_COPY);
     }
 
-    public static PlayerSetting getSetting(Player player) {
-        return PlayerSettings.get().settings.computeIfAbsent(player.getGameProfile().id(), _ -> new PlayerSetting());
+    public static PlayerSetting getSetting(NameAndId nai) {
+        return PlayerSettings.get().settings.computeIfAbsent(nai.id(), _ -> new PlayerSetting());
+    }
+
+    /// 请保证传入的 ID 是玩家档案 ID，而非玩家实体 ID！
+    public static PlayerSetting getSetting(UUID id) {
+        return PlayerSettings.get().settings.computeIfAbsent(id, _ -> new PlayerSetting());
     }
 
     @Override
     protected void registerDataFixers() {
     }
 
+    @SuppressWarnings("DataFlowIssue")
     @Override
     protected Packet<? extends CustomPacketPayload> createPacket(RegistryAccess registryAccess) {
         return null;

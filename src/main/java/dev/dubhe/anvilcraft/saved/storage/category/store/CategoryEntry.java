@@ -7,7 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+
+import java.util.List;
 
 @Getter
 @RequiredArgsConstructor
@@ -29,6 +32,8 @@ public class CategoryEntry {
         CategoryEntry::getMode,
         CategoryEntry::new
     );
+    public static final StreamCodec<RegistryFriendlyByteBuf, List<CategoryEntry>> LIST_STREAM_CODEC = CategoryEntry.STREAM_CODEC
+        .apply(ByteBufCodecs.list());
     private final ICategory category;
     private CategoryMode mode = CategoryMode.UNLIMITED;
 

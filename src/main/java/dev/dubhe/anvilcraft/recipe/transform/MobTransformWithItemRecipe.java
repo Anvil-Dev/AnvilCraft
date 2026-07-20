@@ -30,6 +30,7 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
 import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
@@ -145,12 +146,12 @@ public record MobTransformWithItemRecipe(
 
     @Override
     public PlacementInfo placementInfo() {
-        return null;
+        return PlacementInfo.NOT_PLACEABLE;
     }
 
     @Override
     public RecipeBookCategory recipeBookCategory() {
-        return null;
+        return RecipeBookCategories.CRAFTING_MISC;
     }
 
     @Override

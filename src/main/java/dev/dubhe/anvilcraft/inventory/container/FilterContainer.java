@@ -12,6 +12,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
+import java.util.Optional;
+
 @Getter
 public class FilterContainer implements Container {
     @Setter
@@ -24,14 +26,28 @@ public class FilterContainer implements Container {
         this.player = player;
         this.position = position;
         this.stack = stack;
-        this.content = stack.getOrDefault(ModComponents.FILTER_CONTENT, new FilterContent());
+        this.content = Optional.ofNullable(stack.get(ModComponents.FILTER_CONTENT))
+            .filter(filter -> {
+                for (ItemStack content : filter.list()) {
+                    if (!content.isEmpty()) return true;
+                }
+                return false;
+            })
+            .orElse(new FilterContent());
     }
 
     public FilterContainer(Inventory inventory, FriendlyByteBuf buf) {
         this.player = inventory.player;
         this.position = buf.readInt();
         this.stack = inventory.getItem(this.position);
-        this.content = this.stack.getOrDefault(ModComponents.FILTER_CONTENT, new FilterContent());
+        this.content = Optional.ofNullable(this.stack.get(ModComponents.FILTER_CONTENT))
+            .filter(filter -> {
+                for (ItemStack content : filter.list()) {
+                    if (!content.isEmpty()) return true;
+                }
+                return false;
+            })
+            .orElse(new FilterContent());
     }
 
     @Override

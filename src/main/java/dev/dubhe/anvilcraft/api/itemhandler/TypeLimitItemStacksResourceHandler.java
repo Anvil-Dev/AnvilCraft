@@ -60,9 +60,12 @@ public class TypeLimitItemStacksResourceHandler implements ResourceHandler<ItemR
         TypeLimitItemStacksResourceHandler::getSpaceSize,
         TypeLimitItemStacksResourceHandler::new
     );
+    @Getter
     private int typeLimit;
+    @Getter
     private int spaceSize;
     private final NonNullList<UnlimitedItemStack> stacks = TypeLimitItemStacksResourceHandler.constructStackList();
+    @Getter
     private int space = 0;
 
     private final ArrayList<StackJournal> snapshotJournals = new ArrayList<>();
@@ -130,6 +133,7 @@ public class TypeLimitItemStacksResourceHandler implements ResourceHandler<ItemR
             }
             // 找不到不塞，下一个
         }
+        this.updateStacksSize();
     }
 
     public void addSpaceSize(IntUnaryOperator adder) {
@@ -167,6 +171,16 @@ public class TypeLimitItemStacksResourceHandler implements ResourceHandler<ItemR
 
     public double getFullness() {
         return (double) this.space / this.spaceSize;
+    }
+
+    public int getTypeCount() {
+        int count = 0;
+        for (UnlimitedItemStack stack : this.stacks) {
+            if (!stack.isEmpty()) {
+                count++;
+            }
+        }
+        return count;
     }
 
     @Override

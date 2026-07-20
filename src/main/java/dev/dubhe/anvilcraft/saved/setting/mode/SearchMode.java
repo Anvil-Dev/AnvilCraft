@@ -13,8 +13,8 @@ import java.util.Locale;
 import java.util.function.Consumer;
 
 public enum SearchMode implements StringRepresentable {
-    CLEAR(text -> text.withStyle(ChatFormatting.RED)),
-    RETENTION(text -> text.withStyle(ChatFormatting.GREEN)),
+    CLEAR(text -> text.withStyle(ChatFormatting.GRAY)),
+    RETENTION(text -> text.withStyle(ChatFormatting.WHITE)),
     ;
 
     public static final Codec<SearchMode> CODEC = StringRepresentable.fromEnum(SearchMode::values);

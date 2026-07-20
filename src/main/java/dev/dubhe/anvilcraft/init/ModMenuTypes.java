@@ -27,7 +27,6 @@ import dev.dubhe.anvilcraft.client.gui.screen.RoyalGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.RoyalSmithingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.SliderScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.SmartBlockPlacerScreen;
-import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureScannerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StructureToolScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TeslaTowerScreen;
@@ -60,7 +59,6 @@ import dev.dubhe.anvilcraft.inventory.RoyalGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import dev.dubhe.anvilcraft.inventory.SliderMenu;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
-import dev.dubhe.anvilcraft.inventory.StorageMenu;
 import dev.dubhe.anvilcraft.inventory.StructureScannerMenu;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
@@ -74,6 +72,7 @@ import net.minecraft.world.inventory.AnvilMenu;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
+@SuppressWarnings("DataFlowIssue")
 public class ModMenuTypes {
     public static final MenuEntry<AnvilMenu> PORTABLE_ANVIL = REGISTRUM
         .menu("portable_anvil", (type, id, inv) -> new PortableAnvilMenu(id, inv), () -> AnvilScreen::new)
@@ -202,10 +201,6 @@ public class ModMenuTypes {
     public static final MenuEntry<CelestialForgingAnvilMenu> CELESTIAL_FORGING_ANVIL = REGISTRUM
         .menu("celestial_forging_anvil", CelestialForgingAnvilMenu::new, () -> CelestialForgingAnvilScreen::new)
         .register();
-    public static final MenuEntry<StorageMenu> STORAGE = REGISTRUM
-        .menu("storage", StorageMenu::new, () -> StorageScreen::new)
-        .register();
-
     public static final MenuEntry<ControlValveMenu> CONTROL_VALVE = REGISTRUM
         .menu("control_valve", ControlValveMenu::new, () -> ControlValveScreen::new)
         .register();

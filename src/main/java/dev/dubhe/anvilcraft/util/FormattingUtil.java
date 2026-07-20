@@ -136,4 +136,30 @@ public class FormattingUtil {
         }
         return Component.literal(progressStr.toString()).withStyle(format);
     }
+
+    public static String toAbbrNum(int number) {
+        if (number < 1000) {
+            return String.valueOf(number);
+        }
+
+        String[] units = {"K", "M", "B"};
+        int[] thresholds = {1000, 1_000_000, 1_000_000_000};
+
+        for (int i = thresholds.length - 1; i >= 0; i--) {
+            if (number >= thresholds[i]) {
+                // 使用向下取整（舍去法）
+                double result = (double) number / thresholds[i];
+                // 保留一位小数，向下取整
+                double floored = Math.floor(result * 10) / 10.0;
+                String unit = units[i];
+                if (floored == Math.floor(floored)) {
+                    return String.format("%.0f%s", floored, unit);
+                }
+                // 否则显示一位小数
+                return String.format("%.1f%s", floored, unit);
+            }
+        }
+
+        return String.valueOf(number);
+    }
 }

@@ -103,8 +103,8 @@ public class CategoryList extends AbstractContainerWidget {
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
         if (this.scrollable.isScrolling()) {
-            int top = this.getY() + 18;
-            this.scrollable.scrollOnDrag(10, event.y(), top, top + 112);
+            int top = this.getY();
+            this.scrollable.scrollOnDrag(10, event.y(), top, top + 160);
             return true;
         }
         return super.mouseDragged(event, dx, dy);
@@ -136,6 +136,7 @@ public class CategoryList extends AbstractContainerWidget {
             button.setPosition(this.getX(), this.getY() + (i - this.head) * 20);
             button.extractRenderState(graphics, mouseX, mouseY, a);
         }
+        this.extractScrollbar(graphics, mouseX, mouseY);
     }
 
     @Override

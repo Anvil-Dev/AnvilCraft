@@ -10,8 +10,8 @@ import dev.dubhe.anvilcraft.saved.storage.category.HasComponentCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import dev.dubhe.anvilcraft.saved.storage.category.NamespaceCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.OrCategory;
+import dev.dubhe.anvilcraft.saved.storage.category.RecipeBookCategoryCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.UnstackableCategory;
-import dev.dubhe.anvilcraft.saved.storage.category.client.RecipeBookCategoryCategory;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -22,8 +22,6 @@ public class ModCategoryTypes {
         AnvilCraft.MOD_ID
     );
 
-    public static final DeferredHolder<ICategory.Type<?>, ICategory.HolderHolder.Type> WRAPPER = REGISTER
-        .register("wrapped", ICategory.HolderHolder.Type::new);
     public static final DeferredHolder<ICategory.Type<?>, BlockCategory.Type> BLOCK = REGISTER
         .register("block", BlockCategory.Type::new);
     public static final DeferredHolder<ICategory.Type<?>, UnstackableCategory.Type> UNSTACKABLE = REGISTER

@@ -66,8 +66,8 @@ public class ModCapabilities {
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.FISH_TANK.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CREATIVE_CRATE.get(), ModCapabilities::item);
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.TRADING_STATION.get(), ModCapabilities::item);
-
         event.registerBlockEntity(Capabilities.Item.BLOCK, ModBlockEntities.CRATE.get(), ModCapabilities::item);
+
         event.registerBlock(
             Capabilities.Item.BLOCK,
             ModCapabilities.multiblock(LargeCrateBlock.class, LargeCrateBlockEntity.class, ModCapabilities::item),

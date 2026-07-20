@@ -265,14 +265,17 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.ColorRGBA;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.ColoredFallingBlock;
@@ -514,7 +517,12 @@ public class ModBlocks {
             .noOcclusion()
             .isValidSpawn(ModBlocks::never)
         )
-        .item(SimpleMultiPartBlockItem::new)
+        .item((block, properties) -> new SimpleMultiPartBlockItem<>(block, properties) {
+            @Override
+            public boolean doesSneakBypassUse(ItemStack stack, LevelReader level, BlockPos pos, Player player) {
+                return true;
+            }
+        })
         .properties(properties -> properties
             .stacksTo(16)
             .component(ModComponents.STORAGE, StorageRef.largeCrate())
