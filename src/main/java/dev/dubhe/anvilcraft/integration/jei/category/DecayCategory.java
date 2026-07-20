@@ -117,11 +117,19 @@ public class DecayCategory implements IRecipeCategory<DecayRecipe> {
                     tooltip.addAll(List.of(this.aroundTooltip, this.notConsumedTooltip)));
         }
         if (!recipe.fixedNeighbors().isEmpty()) {
-            recipe.fixedNeighbors().values().stream().distinct().findFirst().ifPresent(block ->
-                builder.addSlot(RecipeIngredientRole.CATALYST, 27, 102)
+            recipe.fixedNeighbors().values().stream().distinct().findFirst().ifPresent(block -> {
+                RecipeIngredientRole role = block == ModBlocks.CONFINEMENT_CHAMBER.get()
+                                            ? RecipeIngredientRole.INPUT
+                                            : RecipeIngredientRole.CATALYST;
+                builder.addSlot(role, 27, 102)
                     .addItemStack(new ItemStack(block, countFixedNeighbors(recipe, block)))
-                    .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                        tooltip.addAll(List.of(this.aroundTooltip, this.notConsumedTooltip))));
+                    .addRichTooltipCallback((recipeSlotView, tooltip) -> {
+                        tooltip.add(this.aroundTooltip);
+                        if (block != ModBlocks.CONFINEMENT_CHAMBER.get()) {
+                            tooltip.add(this.notConsumedTooltip);
+                        }
+                    });
+            });
         }
 
         if (recipe.resultTag() != null) {
@@ -130,6 +138,10 @@ public class DecayCategory implements IRecipeCategory<DecayRecipe> {
                 .stream()
                 .flatMap(HolderSet.ListBacked::stream)
                 .map(holder -> holder.value().asItem().getDefaultInstance())
+                .forEach(stack -> builder.addOutputSlot().addItemStack(stack));
+        } else if (recipe.centers().size() == 1 && recipe.results().size() > 1) {
+            recipe.results().stream()
+                .map(DecayCategory::getResultStack)
                 .forEach(stack -> builder.addOutputSlot().addItemStack(stack));
         } else {
             builder.addOutputSlot()
@@ -180,7 +192,9 @@ public class DecayCategory implements IRecipeCategory<DecayRecipe> {
         double mouseX,
         double mouseY
     ) {
-        if (mouseX >= 5 && mouseX <= 45 && mouseY >= 15 && mouseY <= 65) {
+        if (!isImmediateDecay(recipe)
+            && mouseX >= 5 && mouseX <= 45
+            && mouseY >= 15 && mouseY <= 65) {
             tooltip.add(this.randomTickTooltip);
         }
     }
@@ -212,6 +226,12 @@ public class DecayCategory implements IRecipeCategory<DecayRecipe> {
         return (int) recipe.fixedNeighbors().values().stream().filter(block::equals).count();
     }
 
+    private static boolean isImmediateDecay(DecayRecipe recipe) {
+        Block excitedVoidMatter = ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK.get();
+        return recipe.centers().contains(excitedVoidMatter)
+               || recipe.fixedNeighbors().containsValue(excitedVoidMatter);
+    }
+
     private static ItemStack getResultStack(Block block) {
         if (block == Blocks.LAVA) return Items.LAVA_BUCKET.getDefaultInstance();
         return new ItemStack(block);
@@ -223,6 +243,11 @@ public class DecayCategory implements IRecipeCategory<DecayRecipe> {
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addRecipeCatalyst(ModBlocks.VOID_MATTER_BLOCK.asStack(), AnvilCraftJeiPlugin.DECAY);
+        registration.addRecipeCatalyst(
+            ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK.asStack(),
+            AnvilCraftJeiPlugin.DECAY
+        );
+        registration.addRecipeCatalyst(ModBlocks.CONFINEMENT_CHAMBER.asStack(), AnvilCraftJeiPlugin.DECAY);
         registration.addRecipeCatalyst(ModBlocks.PLUTONIUM_BLOCK.asStack(), AnvilCraftJeiPlugin.DECAY);
         registration.addRecipeCatalyst(ModBlocks.URANIUM_BLOCK.asStack(), AnvilCraftJeiPlugin.DECAY);
         registration.addRecipeCatalyst(ModBlocks.LEAD_BLOCK.asStack(), AnvilCraftJeiPlugin.DECAY);
