@@ -1112,7 +1112,7 @@
   "tooltip.anvilcraft.item.energy_weapon_platform": "已存储 320MJ，但只会继承至能量武器制作产物中",
   "tooltip.anvilcraft.power_converter.fe_stored.value": "  %dk/%dk",
   "tooltip.anvilcraft.item.charger": "为物品接入国家电网，支持手动放置或自动化输入",
-  "message.anvilcraft.trading_station.break.onliners": "在线玩家：",
+  "message.anvilcraft.trading_station.break.onliners": "在线玩家： ",
   "message.anvilcraft.trading_station.break.pos": "位置： 在 %4$s 的 %1$d %2$d %3$d",
   "tooltip.anvilcraft.fe_collector.energy": "  %dk/%dk",
   "tooltip.anvilcraft.item.block_comparator": "比较左右两侧方块是否相同，相同时输出信号，右键切换模式可进行精确状态探测",
@@ -1440,5 +1440,11 @@
   "advancements.anvilcraft.placer_shuttle.title": "我又跳出来了 我又站回去了",
   "advancements.anvilcraft.placer_shuttle.description": "让两个ai电屑钳版来回移动一个方块",
   "death.attack.anvilcraft.gamma_laser": "%1$s想变成绿巨人，但他不是布鲁斯班纳",
-  "block.anvilcraft.simple_magnetic_chute": "没 脑 子 的 磁 场 转 动 的 发 福 的 H O P"
+  "block.anvilcraft.simple_magnetic_chute": "没 脑 子 的 磁 场 转 动 的 发 福 的 H O P",
+  "config.jade.plugin_anvilcraft.crab_trap": "屑笼",
+  "screen.anvilcraft.celestial_forging_anvil": "天朝编造哐当",
+  "screen.anvilcraft.cfa.class.black_hole": "大胃袋",
+  "tooltip.anvilcraft.item.ember_dragon_rod": "左键我的，右键调整作用范围（范围越大，耐久消耗越高）",
+  "tooltip.anvilcraft.item.royal_dragon_rod": "左键我的，右键调整作用范围（范围越大，耐久消耗越高）",
+  "tooltip.anvilcraft.item.transcendence_dragon_rod": "左键我的，右键调整作用范围（范围越大，耐久消耗越高）"
 }
