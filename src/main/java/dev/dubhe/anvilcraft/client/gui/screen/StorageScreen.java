@@ -1026,10 +1026,33 @@ public class StorageScreen extends Screen {
                 if (request != this.reorderRequest || error != null) {
                     return;
                 }
-                this.order = new IntArrayList(updatedOrder);
+                IntList reordered = new IntArrayList(updatedOrder);
                 this.orderLoaded = true;
-                this.scrollRow = Mth.clamp(this.scrollRow, 0, this.getMaxScrollRow());
-                this.syncVisible();
+                int reorderedScrollRow = Mth.clamp(this.scrollRow, 0, this.getMaxScrollRow(reordered));
+                this.syncReordered(reordered, reorderedScrollRow, request);
+            },
+            this.screenExecutor
+        );
+    }
+
+    private void syncReordered(IntList reordered, int reorderedScrollRow, int reorderRequest) {
+        int request = ++this.syncRequest;
+        StorageClientStub.sync(this.sourcePos, this.getVisibleSlots(reordered, reorderedScrollRow)).whenCompleteAsync(
+            (result, error) -> {
+                if (reorderRequest != this.reorderRequest) {
+                    return;
+                }
+                if (error != null) {
+                    this.orderLoaded = false;
+                    return;
+                }
+                if (request != this.syncRequest || result.version() < this.version) {
+                    this.reorder(false);
+                    return;
+                }
+                this.applySyncResult(result);
+                this.order = reordered;
+                this.scrollRow = reorderedScrollRow;
             },
             this.screenExecutor
         );
@@ -1037,30 +1060,37 @@ public class StorageScreen extends Screen {
 
     private void syncVisible() {
         int request = ++this.syncRequest;
-        int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
-        int endOrderIndex = Math.min(firstOrderIndex + StorageScreen.VISIBLE_STORAGE_SLOTS, this.order.size());
-        IntArrayList slots = new IntArrayList(endOrderIndex - firstOrderIndex);
-        for (int orderIndex = firstOrderIndex; orderIndex < endOrderIndex; orderIndex++) {
-            slots.add(this.order.getInt(orderIndex));
-        }
-
-        StorageClientStub.sync(this.sourcePos, slots).whenCompleteAsync(
+        StorageClientStub.sync(this.sourcePos, this.getVisibleSlots(this.order, this.scrollRow)).whenCompleteAsync(
             (result, error) -> {
                 if (request != this.syncRequest || error != null || result.version() < this.version) {
                     return;
                 }
-                this.version = result.version();
-                this.fullness = result.fullness();
-                for (StorageServerStub.StackUpdate update : result.updates()) {
-                    if (update.stack().isEmpty()) {
-                        this.contents.remove(update.index());
-                    } else {
-                        this.contents.put(update.index(), update.stack());
-                    }
-                }
+                this.applySyncResult(result);
             },
             this.screenExecutor
         );
+    }
+
+    private IntList getVisibleSlots(IntList order, int scrollRow) {
+        int firstOrderIndex = scrollRow * StorageScreen.STORAGE_COLUMNS;
+        int endOrderIndex = Math.min(firstOrderIndex + StorageScreen.VISIBLE_STORAGE_SLOTS, order.size());
+        IntArrayList slots = new IntArrayList(endOrderIndex - firstOrderIndex);
+        for (int orderIndex = firstOrderIndex; orderIndex < endOrderIndex; orderIndex++) {
+            slots.add(order.getInt(orderIndex));
+        }
+        return slots;
+    }
+
+    private void applySyncResult(StorageServerStub.SyncResult result) {
+        this.version = result.version();
+        this.fullness = result.fullness();
+        for (StorageServerStub.StackUpdate update : result.updates()) {
+            if (update.stack().isEmpty()) {
+                this.contents.remove(update.index());
+            } else {
+                this.contents.put(update.index(), update.stack());
+            }
+        }
     }
 
     private void refreshMetadata() {
@@ -1089,9 +1119,13 @@ public class StorageScreen extends Screen {
     }
 
     private int getMaxScrollRow() {
+        return this.getMaxScrollRow(this.order);
+    }
+
+    private int getMaxScrollRow(IntList order) {
         return Math.max(
             0,
-            Math.ceilDiv(this.order.size(), StorageScreen.STORAGE_COLUMNS) - StorageScreen.STORAGE_ROWS
+            Math.ceilDiv(order.size(), StorageScreen.STORAGE_COLUMNS) - StorageScreen.STORAGE_ROWS
         );
     }
 
