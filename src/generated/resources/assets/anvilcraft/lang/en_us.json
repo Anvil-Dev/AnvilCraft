@@ -776,6 +776,8 @@
   "gui.anvilcraft.category.decay.random_tick": "The block at center will decay on a random tick",
   "gui.anvilcraft.category.energy_weapon": "Energy Weapon",
   "gui.anvilcraft.category.fast_cooking": "Fast Cooking",
+  "gui.anvilcraft.category.fast_cooking.consume_fluid": "Consume: %1$d mB of %2$s",
+  "gui.anvilcraft.category.fast_cooking.produce_fluid": "Produce: %1$d mB of %2$s",
   "gui.anvilcraft.category.fluid_mixing": "Fluid Mixing",
   "gui.anvilcraft.category.item_compress": "Item Compress",
   "gui.anvilcraft.category.item_compress.supercapacitor.chance": "50% chance to produce a Supercapacitor; otherwise explodes",

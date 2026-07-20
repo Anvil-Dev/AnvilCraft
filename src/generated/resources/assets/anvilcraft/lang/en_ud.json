@@ -776,6 +776,8 @@
   "gui.anvilcraft.category.decay.random_tick": "ʞɔᴉʇ ɯopuɐɹ ɐ uo ʎɐɔǝp ꞁꞁᴉʍ ɹǝʇuǝɔ ʇɐ ʞɔoꞁq ǝɥ⟘",
   "gui.anvilcraft.category.energy_weapon": "uodɐǝM ʎᵷɹǝuƎ",
   "gui.anvilcraft.category.fast_cooking": "ᵷuᴉʞooƆ ʇsɐℲ",
+  "gui.anvilcraft.category.fast_cooking.consume_fluid": "%2$s ɟo ᗺɯ %1$d :ǝɯnsuoƆ",
+  "gui.anvilcraft.category.fast_cooking.produce_fluid": "%2$s ɟo ᗺɯ %1$d :ǝɔnpoɹԀ",
   "gui.anvilcraft.category.fluid_mixing": "ᵷuᴉxᴉW pᴉnꞁℲ",
   "gui.anvilcraft.category.item_compress": "ssǝɹdɯoƆ ɯǝʇI",
   "gui.anvilcraft.category.item_compress.supercapacitor.chance": "sǝpoꞁdxǝ ǝsᴉʍɹǝɥʇo ⸵ɹoʇᴉɔɐdɐɔɹǝdnS ɐ ǝɔnpoɹd oʇ ǝɔuɐɥ% c0ϛ",
