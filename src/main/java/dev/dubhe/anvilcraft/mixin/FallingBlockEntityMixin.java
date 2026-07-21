@@ -472,14 +472,45 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void anvilcraft$applyFallingBlockHorizontalGravity(CallbackInfo ci) {
+        if (this.anvilcraft$discardLevitationPowderAboveBuildHeight()) return;
         if (this.isNoGravity() || AccelerateManager.isControlledByRing(this)) return;
         Vec3 gravityVector = GravityManager.getGravityVector(this);
         this.setDeltaMovement(this.getDeltaMovement().add(gravityVector.x, 0, gravityVector.z));
     }
 
-    @Inject(method = "tick", at = @At("HEAD"))
+    @Inject(
+        method = "tick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;"
+                     + "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V",
+            shift = At.Shift.AFTER
+        ),
+        cancellable = true
+    )
+    private void anvilcraft$discardLevitationPowderAfterMovement(CallbackInfo ci) {
+        if (this.anvilcraft$discardLevitationPowderAboveBuildHeight()) {
+            ci.cancel();
+        }
+    }
+
+    @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$handleAcceleration(CallbackInfo ci) {
         anvilcraft$positionBeforeTick = position();
+        if (this.anvilcraft$discardLevitationPowderAboveBuildHeight()) {
+            ci.cancel();
+            return;
+        }
         AccelerateManager.handleAcceleration(this);
+    }
+
+    @Unique
+    private boolean anvilcraft$discardLevitationPowderAboveBuildHeight() {
+        if (!this.blockState.is(ModBlocks.LEVITATION_POWDER_BLOCK.get())
+            || this.blockPosition().getY() < this.level().getMaxBuildHeight()) {
+            return false;
+        }
+        this.discard();
+        return true;
     }
 }

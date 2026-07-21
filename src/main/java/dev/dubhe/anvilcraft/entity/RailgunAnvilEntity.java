@@ -116,16 +116,7 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
             Vec3 projectileMovement = accelerationEntry == null
                                       ? movement
                                       : movement.scale(accelerationEntry.progress());
-            EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(
-                this.level(), this, this.position(), this.position().add(projectileMovement),
-                this.getBoundingBox().expandTowards(projectileMovement).inflate(0.5),
-                entity -> entity instanceof LivingEntity
-                    && entity.isAttackable()
-                    && !hitEntities.contains(entity.getUUID())
-            );
-            if (entityHit != null) {
-                hit(entityHit);
-            }
+            hitEntitiesAlongPath(projectileMovement);
         }
         MovementResult result = moveInSubsteps(movement, isFlying() ? accelerationEntry : null);
         if (result.converted()) return;
@@ -137,6 +128,20 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
             this.setDeltaMovement(reflected.x, Math.min(0.0, reflected.y), reflected.z);
         } else {
             this.setDeltaMovement(0.0, Math.min(0.0, movement.y), 0.0);
+        }
+    }
+
+    private void hitEntitiesAlongPath(Vec3 movement) {
+        while (isFlying()) {
+            EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(
+                this.level(), this, this.position(), this.position().add(movement),
+                this.getBoundingBox().expandTowards(movement).inflate(0.5),
+                entity -> entity instanceof LivingEntity
+                    && entity.isAttackable()
+                    && !hitEntities.contains(entity.getUUID())
+            );
+            if (entityHit == null) return;
+            hit(entityHit);
         }
     }
 
