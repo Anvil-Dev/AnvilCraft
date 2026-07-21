@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item;
 
+import dev.dubhe.anvilcraft.api.tooltip.FluidTankItemTooltip;
 import dev.dubhe.anvilcraft.entity.FluidTankMinecartEntity;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import net.minecraft.core.BlockPos;
@@ -7,12 +8,14 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -23,6 +26,8 @@ import net.minecraft.world.level.block.state.properties.RailShape;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.List;
+
 /** Item used to place and dispense a {@link FluidTankMinecartEntity}. */
 public class FluidTankMinecartItem extends Item {
     public FluidTankMinecartItem(Properties properties) {
@@ -30,6 +35,22 @@ public class FluidTankMinecartItem extends Item {
             .stacksTo(1)
             .component(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY));
         DispenserBlock.registerBehavior(this, new DispenseBehavior());
+    }
+
+    @Override
+    public void appendHoverText(
+        ItemStack stack,
+        TooltipContext context,
+        List<Component> tooltipComponents,
+        TooltipFlag tooltipFlag
+    ) {
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        FluidTankItemTooltip.appendFixedTank(
+            stack,
+            context,
+            tooltipComponents,
+            FluidTankMinecartEntity.CAPACITY
+        );
     }
 
     private static FluidTankMinecartEntity createMinecart(

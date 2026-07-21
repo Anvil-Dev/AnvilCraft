@@ -16,6 +16,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.DISK);
         this.plain(ModItems.STRUCTURE_DISK);
         this.plain(ModItems.FILTER);
+        this.plain(ModItems.FLUID_TANK_MINECART); // 流体储罐矿车
 
         // Anvil hammers and enchanted starter tools.
         this.plain(ModItems.ANVIL_HAMMER);
@@ -123,8 +124,6 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.TIN_CAN);
         this.plain(ModFoodItems.CANNED_FOOD);
         this.plain(ModItems.SEEDS_PACK);
-
-        //
         this.plain(ModItems.STRUCTURE_TOOL);
     }
 }

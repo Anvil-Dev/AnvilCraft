@@ -167,7 +167,7 @@ public class FluidTankMinecartEntity extends AbstractMinecart implements IFluidH
 
     @Override
     public ItemStack getPickResult() {
-        return this.createDropStack();
+        return this.createItemStack(false);
     }
 
     @Override
@@ -179,8 +179,12 @@ public class FluidTankMinecartEntity extends AbstractMinecart implements IFluidH
     }
 
     public ItemStack createDropStack() {
+        return this.createItemStack(true);
+    }
+
+    private ItemStack createItemStack(boolean includeFluid) {
         ItemStack stack = new ItemStack(ModItems.FLUID_TANK_MINECART.get());
-        if (!this.tank.isEmpty()) {
+        if (includeFluid && !this.tank.isEmpty()) {
             CompoundTag tankData = new CompoundTag();
             tankData.put(TAG_TANK, this.tank.writeToNBT(this.registryAccess(), new CompoundTag()));
             net.minecraft.world.item.BlockItem.setBlockEntityData(

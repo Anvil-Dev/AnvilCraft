@@ -178,6 +178,7 @@ import dev.dubhe.anvilcraft.block.item.FishTankBlockItem;
 import dev.dubhe.anvilcraft.block.item.FluidTankBlockItem;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.FrostMetalBlockItem;
+import dev.dubhe.anvilcraft.block.item.LargeFluidTankBlockItem;
 import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeatCollectorBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeatableBlockItem;
@@ -397,8 +398,10 @@ public class ModBlocks {
             .isValidSpawn(Blocks::never)
             .isViewBlocking(ModBlocks::never))
         .loot(SimpleMultiPartBlock::loot)
-        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
-        .properties((properties) -> properties.stacksTo(16))
+        .item(LargeFluidTankBlockItem::new)
+        .properties(properties -> properties
+            .stacksTo(16)
+            .component(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
