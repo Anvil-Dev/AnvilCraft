@@ -15,11 +15,9 @@ import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -44,8 +42,6 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
     public static final EnumProperty<ConnectionType> SOUTH = EnumProperty.create("south", ConnectionType.class);
     public static final EnumProperty<ConnectionType> WEST = EnumProperty.create("west", ConnectionType.class);
     public static final List<EnumProperty<ConnectionType>> CONNECTION_PROPERTIES = List.of(NORTH, EAST, SOUTH, WEST);
-    /** 整个连通网络共享的信号强度。 */
-    public static final IntegerProperty POWER = BlockStateProperties.POWER;
     /** 从导线位置指向其支撑方块的方向。 */
     public static final DirectionProperty ATTACHMENT = DirectionProperty.create("attachment");
     /** 是否在中心绘制接线点。 */
@@ -88,7 +84,6 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
             .setValue(EAST, ConnectionType.NONE)
             .setValue(SOUTH, ConnectionType.SIDE)
             .setValue(WEST, ConnectionType.NONE)
-            .setValue(POWER, 0)
             .setValue(ATTACHMENT, Direction.DOWN)
             .setValue(DOT, false));
     }
@@ -147,7 +142,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         if (!oldState.is(this)) {
-            // POWER 或外观状态的内部改写不改变网络成员，只有真正新增导线时才使拓扑缓存失效。
+            // 外观状态的内部改写不改变网络成员，只有真正新增导线时才使拓扑缓存失效。
             RedstoneWireNetworkManager.topologyChanged(level, pos);
         }
     }
@@ -157,6 +152,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         super.onRemove(state, level, pos, newState, movedByPiston);
         if (!newState.is(this)) {
             // 先完成方块替换再重建，连接搜索才能看到移除后的真实世界状态。
+            RedstoneWireNetworkManager.wireRemoved(level, pos);
             RedstoneWireNetworkManager.topologyChanged(level, pos);
         }
     }
@@ -179,7 +175,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
 
     @Override
     protected boolean isSignalSource(BlockState state) {
-        // 网络采样外部输入时临时关闭自身输出，否则上一轮 POWER 会被重新读作输入并造成自激锁存。
+        // 网络采样外部输入时临时关闭自身输出，否则上一轮功率会被重新读作输入并造成自激锁存。
         return !RedstoneWireNetworkManager.isSuppressingSignal();
     }
 
@@ -224,16 +220,18 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
             return 0;
         }
         BlockState receiver = level.getBlockState(pos.relative(outputDirection));
+        int power = RedstoneWireNetworkManager.getPower(level, pos);
         if (receiver.is(Blocks.REDSTONE_WIRE)) {
-            // 不把来自原版红石粉的输入再输出给红石粉，使得红石导线整体像一个完整方块，且避免无衰减网络与粉线组成正反馈回路。
-            return RedstoneWireNetworkManager.getNonDustPower(level, pos, state.getValue(POWER));
+            // 不把来自原版红石粉的输入再输出给红石粉，使导线整体像一个完整方块，
+            // 且避免无衰减网络与粉线组成正反馈回路。
+            return RedstoneWireNetworkManager.getNonDustPower(level, pos, power);
         }
-        return state.getValue(POWER);
+        return power;
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(NORTH, EAST, SOUTH, WEST, POWER, ATTACHMENT, DOT);
+        builder.add(NORTH, EAST, SOUTH, WEST, ATTACHMENT, DOT);
     }
 
     private boolean hasWireConnection(BlockGetter level, BlockPos pos, BlockState state, int index) {
@@ -267,9 +265,8 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
                 || !wire.isOpenTerminal(level, wirePos, wireState, index)) {
                 continue;
             }
-            power = Math.max(power, RedstoneWireNetworkManager.getNonDustPower(
-                level, wirePos, wireState.getValue(POWER)
-            ));
+            int totalPower = RedstoneWireNetworkManager.getPower(level, wirePos);
+            power = Math.max(power, RedstoneWireNetworkManager.getNonDustPower(level, wirePos, totalPower));
         }
         return power;
     }
@@ -283,9 +280,8 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
     BlockState connectionState(
         BlockGetter level, BlockPos pos, BlockState oldState, Connection[] connections
     ) {
-        // 从空状态开始可以清除已经断开的旧方向，同时保留由网络统一维护的 POWER 和附着面。
+        // 从空状态开始可以清除已经断开的旧方向，同时保留附着面。
         BlockState result = emptyState(this.defaultBlockState()
-            .setValue(POWER, oldState.getValue(POWER))
             .setValue(ATTACHMENT, oldState.getValue(ATTACHMENT)));
         int connectionCount = 0;
         int first = -1;

@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity.fluid;
 
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
+import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -188,7 +189,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
         if (target == null) {
             return searchResult.pending() ? FillResult.SEARCHING : FillResult.NONE;
         }
-        if (classifyForFill(level, target, fluid) != FILL_TARGET) {
+        if (fillSearch == null || !fillSearch.isTargetStillReachable(level, target.asLong())) {
             fillSearch = null;
             return FillResult.SEARCHING;
         }
@@ -624,6 +625,10 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             return SearchResult.EXHAUSTED;
         }
 
+        private boolean isTargetStillReachable(Level level, long target) {
+            return layerSearch != null && layerSearch.isTargetStillReachable(level, target);
+        }
+
         /** 返回是否应周期性重建边界，以吸收外部方块/流体变化。 */
         private boolean acceptFilled(long target) {
             if (layerSearch == null) {
@@ -637,13 +642,16 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
 
     private static final class FillLayerSearch {
         private final long drainPos;
+        private final long entry;
         private final Fluid fluid;
         private final LongOpenHashSet discovered = new LongOpenHashSet(MAX_NODES);
+        private final Long2LongOpenHashMap predecessors = new Long2LongOpenHashMap(MAX_NODES);
         private final LongOpenHashSet candidates = new LongOpenHashSet();
         private final LongArrayFIFOQueue queue = new LongArrayFIFOQueue(MAX_NODES);
 
         private FillLayerSearch(long drainPos, long entry, Fluid fluid) {
             this.drainPos = drainPos;
+            this.entry = entry;
             this.fluid = fluid;
             discovered.add(entry);
             queue.enqueue(entry);
@@ -662,12 +670,13 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
                         candidates.add(current);
                     } else if (fillType == FILL_SOURCE) {
                         for (Direction direction : Direction.Plane.HORIZONTAL) {
-                            discover(level, offset(cursor, direction), cursor);
+                            discover(level, offset(cursor, direction), current, cursor);
                             cursor.set(BlockPos.getX(current), BlockPos.getY(current), BlockPos.getZ(current));
                         }
                         discover(
                             level,
                             BlockPos.asLong(cursor.getX(), cursor.getY() - 1, cursor.getZ()),
+                            current,
                             cursor
                         );
                     }
@@ -726,10 +735,11 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             }
         }
 
-        private void discover(Level level, long pos, BlockPos.MutableBlockPos cursor) {
+        private void discover(Level level, long pos, long predecessor, BlockPos.MutableBlockPos cursor) {
             if (!discovered.add(pos)) {
                 return;
             }
+            predecessors.put(pos, predecessor);
             cursor.set(BlockPos.getX(pos), BlockPos.getY(pos), BlockPos.getZ(pos));
             int fillType = classifyForFill(level, cursor, fluid);
             if (fillType == FILL_SOURCE) {
@@ -737,6 +747,32 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
             } else if (fillType == FILL_TARGET) {
                 candidates.add(pos);
             }
+        }
+
+        /**
+         * 缓存候选可能因洞口被封而与入口断开。沿首次发现时的前驱链复核当前源方块，
+         * 任一路径节点失效就让上层重建搜索；重建时仍存在的其他通路会被重新发现。
+         */
+        private boolean isTargetStillReachable(Level level, long target) {
+            BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+            cursor.set(BlockPos.getX(target), BlockPos.getY(target), BlockPos.getZ(target));
+            if (!discovered.contains(target) || classifyForFill(level, cursor, fluid) != FILL_TARGET) {
+                return false;
+            }
+
+            long current = target;
+            int remaining = discovered.size();
+            while (current != entry && remaining-- > 0) {
+                if (!predecessors.containsKey(current)) {
+                    return false;
+                }
+                current = predecessors.get(current);
+                cursor.set(BlockPos.getX(current), BlockPos.getY(current), BlockPos.getZ(current));
+                if (classifyForFill(level, cursor, fluid) != FILL_SOURCE) {
+                    return false;
+                }
+            }
+            return current == entry;
         }
 
         private void acceptFilled(long target) {

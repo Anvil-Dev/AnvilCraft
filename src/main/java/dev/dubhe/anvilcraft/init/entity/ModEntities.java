@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.util.entry.EntityEntry;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.entity.AscendingBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.CauldronOutletRenderer;
+import dev.dubhe.anvilcraft.client.renderer.entity.FluidTankMinecartRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.IonocraftRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.MagnetizedNodeEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.entity.RailgunAnvilRenderer;
@@ -17,6 +18,7 @@ import dev.dubhe.anvilcraft.entity.CauldronOutletEntity;
 import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import dev.dubhe.anvilcraft.entity.FloatingBlockEntity;
+import dev.dubhe.anvilcraft.entity.FluidTankMinecartEntity;
 import dev.dubhe.anvilcraft.entity.IonocraftEntity;
 import dev.dubhe.anvilcraft.entity.LevitatingBlockEntity;
 import dev.dubhe.anvilcraft.entity.MagnetizedNodeEntity;
@@ -159,6 +161,16 @@ public class ModEntities {
             .updateInterval(20))
         .renderer(() -> SpectralProjectileRenderer::new)
         .tag(EntityTypeTags.ARROWS)
+        .register();
+
+    public static final EntityEntry<? extends FluidTankMinecartEntity> FLUID_TANK_MINECART = AnvilCraft.REGISTRUM
+        .<FluidTankMinecartEntity>entity("fluid_tank_minecart", FluidTankMinecartEntity::new, MobCategory.MISC)
+        .properties(it -> it
+            .sized(1.0F, 0.7F)
+            .passengerAttachments(0.1875F)
+            .clientTrackingRange(8)
+            .updateInterval(3))
+        .renderer(() -> FluidTankMinecartRenderer::new)
         .register();
 
     public static void register() {

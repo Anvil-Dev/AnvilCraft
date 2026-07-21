@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftDestroyerFakePlayer;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftKillerFakePlayer;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
+import dev.dubhe.anvilcraft.block.RedstoneWireClientPowerCache;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
@@ -32,6 +33,8 @@ public class LevelEventListener {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
             // 主动拆除跨区块缓存，避免网络继续引用已卸载节点或从其读取幽灵信号。
             RedstoneWireNetworkManager.chunkUnloaded(serverLevel, event.getChunk().getPos());
+        } else if (event.getLevel() instanceof Level level) {
+            RedstoneWireClientPowerCache.clearChunk(level, event.getChunk().getPos());
         }
     }
 
@@ -55,6 +58,7 @@ public class LevelEventListener {
         if (event.getLevel() instanceof Level level) {
             AccelerationRingBlockEntity.clear(level);
             DeflectionRingBlockEntity.clear(level);
+            RedstoneWireClientPowerCache.clear(level);
         }
         if (event.getLevel() instanceof ServerLevel serverLevel) {
             LevelLoadManager.removeAll(serverLevel);

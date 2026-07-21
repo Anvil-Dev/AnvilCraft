@@ -40,6 +40,24 @@ public class RegistrumItemRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Item> void fluidTankMinecart(
+        DataGenContext<Item, T> ctx,
+        RegistrumRecipeProvider provider
+    ) {
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.TRANSPORTATION, ctx.get())
+            .requires(ModBlocks.FLUID_TANK)
+            .requires(Items.MINECART)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.FLUID_TANK),
+                RegistrumRecipeProvider.has(ModBlocks.FLUID_TANK)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.MINECART),
+                RegistrumRecipeProvider.has(Items.MINECART)
+            )
+            .save(provider);
+    }
+
     public static <T extends Item> void magnet(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
             .pattern(" A ")
@@ -1398,6 +1416,81 @@ public class RegistrumItemRecipeLoader {
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.NEGATIVE_MATTER_BLOCK.asItem()),
                 AnvilCraftDatagen.has(ModBlocks.NEGATIVE_MATTER_BLOCK)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Item> void stellarRingComponent(
+        DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
+    ) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 4)
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ABA")
+            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('B', ModBlocks.ACCELERATION_RING)
+            .define('C', ModBlocks.DEFLECTION_RING)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.ACCELERATION_RING.asItem()),
+                AnvilCraftDatagen.has(ModBlocks.ACCELERATION_RING)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.DEFLECTION_RING.asItem()),
+                AnvilCraftDatagen.has(ModBlocks.DEFLECTION_RING)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Item> void magnetarCoilComponent(
+        DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
+    ) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ABA")
+            .pattern("ACA")
+            .pattern("ABA")
+            .define('A', Items.COPPER_BLOCK)
+            .define('B', ModItems.TRANSCENDIUM_INGOT)
+            .define('C', ModBlocks.INFINITE_COLLECTOR)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.COPPER_BLOCK),
+                AnvilCraftDatagen.has(Items.COPPER_BLOCK)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.INFINITE_COLLECTOR.asItem()),
+                AnvilCraftDatagen.has(ModBlocks.INFINITE_COLLECTOR)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Item> void stellarEvolutionAcceleratorComponent(
+        DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
+    ) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 2)
+            .pattern(" A ")
+            .pattern("BCB")
+            .pattern("BCB")
+            .define('A', ModBlocks.CORRUPTED_BEACON)
+            .define('B', ModItems.TRANSCENDIUM_INGOT)
+            .define('C', ModBlocks.CURSED_GOLD_BLOCK)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.CORRUPTED_BEACON.asItem()),
+                AnvilCraftDatagen.has(ModBlocks.CORRUPTED_BEACON)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.CURSED_GOLD_BLOCK.asItem()),
+                AnvilCraftDatagen.has(ModBlocks.CURSED_GOLD_BLOCK)
             )
             .save(provider);
     }

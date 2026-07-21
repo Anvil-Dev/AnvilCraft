@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.tooltip.impl;
 
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
+import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.network.RedstoneWirePowerRequestPacket;
 import dev.dubhe.anvilcraft.util.CompatUtil;
@@ -20,8 +21,8 @@ import java.util.List;
 /**
  * 为自定义红石导线提供铁砧锤 HUD 信息。
  *
- * <p>方块状态中已有整网 {@code POWER}，只有防反馈使用的非红石粉输入强度需要按需向服务端查询，
- * 从而避免为每根导线创建方块实体。</p>
+ * <p>整网功率由服务端网络管理器同步到客户端缓存；防反馈使用的非红石粉输入强度按需查询，
+ * 两者都不需要为每根导线创建方块实体。</p>
  */
 public class RedstoneWireTooltipProvider extends ITooltipProvider.BlockTooltipProvider {
     /** 同一位置两次服务端请求之间的最小游戏刻数。 */
@@ -63,7 +64,7 @@ public class RedstoneWireTooltipProvider extends ITooltipProvider.BlockTooltipPr
         List<Component> lines = new ArrayList<>(3);
         lines.add(Component.translatable("tooltip.anvilcraft.redstone.title").withStyle(ChatFormatting.BLUE));
         lines.add(Component.translatable(
-            "tooltip.anvilcraft.redstone.power", state.getValue(RedstoneWireBlock.POWER)
+            "tooltip.anvilcraft.redstone.power", RedstoneWireNetworkManager.getPower(level, pos)
         ).withStyle(ChatFormatting.GRAY));
         int nonDustPower = NON_DUST_POWER.get(packedPos);
         if (nonDustPower >= 0) {
