@@ -9,16 +9,32 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class DummyWolf extends Wolf {
+    private static final Map<UUID, DummyWolf> CACHE = new HashMap<>();
+
     public DummyWolf(Level level) {
         super(EntityType.WOLF, level);
     }
 
     public static @Nullable DummyWolf fromPlayer(Level level, @Nullable Player player) {
         if (player == null) return null;
-        DummyWolf wolf = new DummyWolf(level);
-        wolf.setPos(player.position());
-        return wolf;
+        UUID id = player.getGameProfile().getId();
+        DummyWolf cache = DummyWolf.CACHE.get(id);
+        if (cache == null) {
+            DummyWolf dummy = new DummyWolf(level);
+            dummy.setPos(player.position());
+            DummyWolf.CACHE.put(id, dummy);
+            cache = dummy;
+        }
+        return cache;
+    }
+
+    public static void clear(Player player) {
+        DummyWolf.CACHE.remove(player.getGameProfile().getId());
     }
 
     @Override

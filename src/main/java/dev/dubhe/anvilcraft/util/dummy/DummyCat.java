@@ -9,16 +9,32 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class DummyCat extends Cat {
+    private static final Map<UUID, DummyCat> CACHE = new HashMap<>();
+
     public DummyCat(Level level) {
         super(EntityType.CAT, level);
     }
 
     public static @Nullable DummyCat fromPlayer(Level level, @Nullable Player player) {
         if (player == null) return null;
-        DummyCat cat = new DummyCat(level);
-        cat.setPos(player.position());
-        return cat;
+        UUID id = player.getGameProfile().getId();
+        DummyCat cache = DummyCat.CACHE.get(id);
+        if (cache == null) {
+            DummyCat dummy = new DummyCat(level);
+            dummy.setPos(player.position());
+            DummyCat.CACHE.put(id, dummy);
+            cache = dummy;
+        }
+        return cache;
+    }
+
+    public static void clear(Player player) {
+        DummyCat.CACHE.remove(player.getGameProfile().getId());
     }
 
     @Override
