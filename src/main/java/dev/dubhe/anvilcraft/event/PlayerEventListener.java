@@ -21,6 +21,8 @@ import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.DevourUtil;
 import dev.dubhe.anvilcraft.util.GravityManager;
+import dev.dubhe.anvilcraft.util.dummy.DummyCat;
+import dev.dubhe.anvilcraft.util.dummy.DummyWolf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -49,6 +51,13 @@ import java.util.Objects;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class PlayerEventListener {
+    @SubscribeEvent
+    public static void loggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        Player player = event.getEntity();
+        DummyCat.clear(player);
+        DummyWolf.clear(player);
+    }
+
     @SubscribeEvent
     public static void useEntity(PlayerInteractEvent.EntityInteract event) {
         InteractionHand hand = event.getHand();
@@ -160,7 +169,7 @@ public class PlayerEventListener {
     @SubscribeEvent
     public static void onJoinedServer(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            SpacetimeSupercomputerBlockEntity.cancelPendingTickSprints(serverPlayer.getServer());
+            SpacetimeSupercomputerBlockEntity.cancelPendingTickSprints(Objects.requireNonNull(serverPlayer.getServer()));
             RecipeCaches.sync(serverPlayer);
         }
     }
