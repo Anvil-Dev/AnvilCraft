@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "anvilcraft:pink_cement",
+  "ingredients": [
+    {
+      "items": "#c:concrete_powders"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:pink_concrete_powder"
+    }
+  ]
+}

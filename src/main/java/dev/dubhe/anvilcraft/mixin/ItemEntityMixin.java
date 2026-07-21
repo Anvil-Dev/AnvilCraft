@@ -11,7 +11,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.util.TriggerUtil;
+import dev.dubhe.anvilcraft.util.FireReforgingUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
@@ -106,16 +106,10 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     @Inject(method = "tick", at = @At("HEAD"))
     private void fireReforging(CallbackInfo ci) {
         ItemStack item = this.getItem();
-        if (!item.isEmpty() && item.get(ModComponents.FIRE_REFORGING) != null) {
-            if (!this.getItem().isDamaged()) return;
-            Block block = this.level().getBlockState(this.blockPosition()).getBlock();
-            if (REPAIR_EFFICIENCY.containsKey(block)) {
-                this.getItem().setDamageValue(this.getItem().getDamageValue() - REPAIR_EFFICIENCY.get(block));
-                if (this.anvilcraft$blockPos != null) {
-                    TriggerUtil.fireReforge(this.level(), this.anvilcraft$blockPos);
-                }
-            }
-        }
+        Block block = this.level().getBlockState(this.blockPosition()).getBlock();
+        Integer repairAmount = REPAIR_EFFICIENCY.get(block);
+        if (repairAmount == null) return;
+        FireReforgingUtil.repair(item, repairAmount, this.level(), this.anvilcraft$blockPos);
     }
 
     @Inject(method = "hurtServer", at = @At("HEAD"), cancellable = true)

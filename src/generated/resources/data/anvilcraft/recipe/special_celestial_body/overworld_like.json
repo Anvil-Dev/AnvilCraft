@@ -121,14 +121,7 @@
   },
   "rotation_speed": 2,
   "seed_items": [
-    "minecraft:grass_block",
-    "minecraft:podzol",
-    "minecraft:mycelium",
-    "minecraft:dirt",
-    "minecraft:coarse_dirt",
-    "minecraft:rooted_dirt",
-    "minecraft:moss_block",
-    "minecraft:mud"
+    "minecraft:grass_block"
   ],
   "space": 14,
   "texture": "planet_overworld",

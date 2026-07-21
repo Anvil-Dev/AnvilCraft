@@ -18,8 +18,9 @@ public class RecipeHandler {
         NeutronIrradiationRecipeLoader.init(provider);
         TimeWarpRecipeLoader.init(provider);
         BlockSmearRecipeLoader.init(provider);
-        CookingRecipeLoader.init(provider);
-        BulgingRecipeLoader.init(provider);
+        FastCookingRecipeLoader.init(provider);
+        SolidLiquidRecipeLoader.init(provider);
+        FluidMixingRecipeLoader.init(provider);
         ItemInjectRecipeLoader.init(provider);
         MassInjectRecipeLoader.init(provider);
         SqueezingRecipeLoader.init(provider);

@@ -11,7 +11,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
@@ -76,7 +75,7 @@ public abstract class AbstractMultiPartBlock<P extends Enum<P>> extends Block im
             if (!neighbourState.is(this)
                 || !neighbourState.hasProperty(this.getPart())
                 || neighbourState.getValue(this.getPart()) != part) {
-                return Blocks.AIR.defaultBlockState();
+                return state.getFluidState().createLegacyBlock();
             }
         }
         return super.updateShape(state, level, ticks, pos, directionToNeighbour, neighbourPos, neighbourState, random);

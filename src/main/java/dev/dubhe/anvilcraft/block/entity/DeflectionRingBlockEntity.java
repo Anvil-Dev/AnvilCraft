@@ -304,6 +304,9 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
     @SuppressWarnings("SuspiciousNameCombination")
     public void accelerate() {
         if (this.level == null) return;
+        BlockState ringState = this.getBlockState();
+        boolean waterloggedChannel = ringState.getBlock() instanceof DeflectionRingBlock block
+                                     && block.isChannelWaterlogged(this.level, this.getBlockPos(), ringState);
         List<Entity> entities2 = this.level.getEntitiesOfClass(
             Entity.class,
             new AABB(getBlockPos()),
@@ -327,6 +330,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
                 case WEST -> new Vec3(0, v.z, -v.y);
                 case EAST -> new Vec3(0, -v.z, v.y);
             };
+            if (waterloggedChannel) v = AccelerateManager.limitAnvilSpeed(entity, v);
             Vec3 fixedPos = v.normalize()
                 .scale(DEFLECTION_EXIT_OFFSET)
                 .subtract(AccelerateManager.getMovementOffset(entity));
@@ -356,10 +360,14 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
         );
         for (Entity entity : entities) {
             if (!accelerationArea.contains(AccelerateManager.getMovementCenter(entity))) continue;
-            entity.setDeltaMovement(AccelerateManager.clampMovement(
+            Vec3 acceleratedMovement = AccelerateManager.clampMovement(
                 entity,
                 entity.getDeltaMovement().scale(1.0204081632653061)
-            ));
+            );
+            if (waterloggedChannel) {
+                acceleratedMovement = AccelerateManager.limitAnvilSpeed(entity, acceleratedMovement);
+            }
+            entity.setDeltaMovement(acceleratedMovement);
             if (level.isClientSide()) continue;
             this.updateLastEntitySpeed(entity.getDeltaMovement().length());
         }

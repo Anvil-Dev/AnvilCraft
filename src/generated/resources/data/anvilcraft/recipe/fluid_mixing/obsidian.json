@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:fluid_mixing",
+  "ingredients": [
+    {
+      "amount": 1000,
+      "ingredient": "minecraft:water"
+    },
+    {
+      "amount": 1000,
+      "ingredient": "minecraft:lava"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:obsidian"
+    }
+  ]
+}

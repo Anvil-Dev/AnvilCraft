@@ -3,8 +3,8 @@ package dev.dubhe.anvilcraft.block;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.block.entity.TradingStationBlockEntity;
-import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
+import dev.dubhe.anvilcraft.block.multipart.WaterloggedFlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.DirectionVertical2PartHalf;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -40,7 +40,8 @@ import org.jspecify.annotations.Nullable;
 import java.util.Collection;
 import java.util.Set;
 
-public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertical2PartHalf, EnumProperty<Direction>, Direction>
+public class TradingStationBlock
+    extends WaterloggedFlexibleMultiPartBlock<DirectionVertical2PartHalf, EnumProperty<Direction>, Direction>
     implements MultiPartBlockEntity<DirectionVertical2PartHalf, TradingStationBlock>, IHammerChangeable {
     public static final EnumProperty<Direction> FACING = BlockStateProperties.HORIZONTAL_FACING;
     public static final EnumProperty<DirectionVertical2PartHalf> HALF = EnumProperty.create("half", DirectionVertical2PartHalf.class);
@@ -58,7 +59,7 @@ public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertica
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction dir = context.getHorizontalDirection().getOpposite();
         if (dir.getAxis().isVertical()) dir = Direction.NORTH;
-        return this.defaultBlockState().setValue(FACING, dir);
+        return this.waterloggedStateForPlacement(context, this.defaultBlockState().setValue(FACING, dir));
     }
 
     @Override
@@ -181,24 +182,23 @@ public class TradingStationBlock extends FlexibleMultiPartBlock<DirectionVertica
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return switch (state.getValue(HALF)) {
-            case BOTTOM -> Shapes.block();
-            case TOP -> switch (state.getValue(FACING)) {
-                case NORTH -> TOP_NORTH;
-                case WEST -> TOP_WEST;
-                case SOUTH -> TOP_SOUTH;
-                case EAST -> TOP_EAST;
-                case UP, DOWN -> Shapes.empty();
-            };
+        if (state.getValue(HALF) == DirectionVertical2PartHalf.TOP) return Shapes.empty();
+        return switch (state.getValue(FACING)) {
+            case NORTH -> NORTH;
+            case WEST -> WEST;
+            case SOUTH -> SOUTH;
+            case EAST -> EAST;
+            case UP, DOWN -> Shapes.empty();
         };
     }
 
-    private static final VoxelShape TOP_NORTH = ShapeUtil.merge(
-        new AABB(0, 14, 0, 16, 16, 16),
-        new AABB(0, 0, 11, 2, 14, 14),
-        new AABB(14, 0, 11, 16, 14, 14)
+    private static final VoxelShape NORTH = ShapeUtil.merge(
+        new AABB(0, 0, 0, 16, 16, 16),
+        new AABB(0, 30, 0, 16, 32, 16),
+        new AABB(0, 16, 11, 2, 30, 14),
+        new AABB(14, 16, 11, 16, 30, 14)
     );
-    private static final VoxelShape TOP_WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, TOP_NORTH);
-    private static final VoxelShape TOP_SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, TOP_NORTH);
-    private static final VoxelShape TOP_EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, TOP_NORTH);
+    private static final VoxelShape WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, NORTH);
+    private static final VoxelShape SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, NORTH);
+    private static final VoxelShape EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, NORTH);
 }

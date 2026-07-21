@@ -10,11 +10,13 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
 import dev.dubhe.anvilcraft.util.TankUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
@@ -24,6 +26,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import org.jspecify.annotations.Nullable;
 
 public class FluidTankBlock extends BaseEntityBlock implements HammerRotateBehavior, IHammerRemovable, IController {
@@ -98,5 +101,32 @@ public class FluidTankBlock extends BaseEntityBlock implements HammerRotateBehav
     public void onUnformed(Level level, MultiblockState state) {
         level.getBlockEntity(state.getControllerPos(), ModBlockEntities.FLUID_TANK.get())
             .ifPresent(FluidTankBlockEntity::onUnformed);
+    }
+
+    @Override
+    public boolean hasAnalogOutputSignal(BlockState blockState) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(
+        BlockState blockState,
+        Level level,
+        BlockPos blockPos,
+        Direction direction
+    ) {
+        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+        return blockEntity instanceof FluidTankBlockEntity tank ? tank.getRedstoneSignal() : 0;
+    }
+
+    @Override
+    public boolean hasDynamicLightEmission(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+        AuxiliaryLightManager manager = level.getAuxLightManager(pos);
+        return manager == null ? 0 : manager.getLightAt(pos);
     }
 }

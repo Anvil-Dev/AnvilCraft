@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 import dev.dubhe.anvilcraft.saved.WormholeNetwork;
+import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -177,9 +178,10 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         if (this.tickCount >= cooldown) {
             this.tickCount = 0;
             if (irradiateBlock.is(Tags.Blocks.ORES)) {
-                List<ItemStack> drops = dev.dubhe.anvilcraft.util.BreakBlockUtil.drop(
+                List<ItemStack> drops = BreakBlockUtil.dropForLaser(
                     serverLevel,
-                    this.irradiateBlockPos
+                    this.irradiateBlockPos,
+                    this.getMiningEffect()
                 );
                 this.deliverItem(drops, direction, this.irradiateBlockPos);
             }

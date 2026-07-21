@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.PlacementInfo;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeBookCategories;
@@ -28,18 +29,20 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
     public final BlockStatePredicate initialBlock;
     public final List<ProceduralProcessStep> steps;
     public final ChanceBlockState resultBlock;
-    public final ItemStack icon;
+    public final Optional<ItemStackTemplate> icon;
     public final int loop;
     public final Optional<Identifier> displayedModel;
+    public final List<Identifier> displayedModels;
     public final Optional<ProceduralProcessStep> multiLoopFirstStep;
 
     public ProceduralProcessRecipe(
         BlockStatePredicate initialBlock,
         List<ProceduralProcessStep> steps,
         ChanceBlockState resultBlock,
-        ItemStack icon,
+        Optional<ItemStackTemplate> icon,
         int loop,
         Optional<Identifier> displayedModel,
+        List<Identifier> displayedModels,
         Optional<ProceduralProcessStep> multiLoopFirstStep
     ) {
         if (steps.isEmpty()) {
@@ -54,7 +57,18 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
         this.icon = icon;
         this.loop = loop;
         this.displayedModel = displayedModel;
+        this.displayedModels = List.copyOf(displayedModels);
         this.multiLoopFirstStep = multiLoopFirstStep;
+    }
+
+    public Optional<Identifier> getDisplayedModelForStep(int stepCount) {
+        if (stepCount > 0 && !this.steps.isEmpty()) {
+            int modelIndex = (stepCount - 1) % this.steps.size();
+            if (modelIndex < this.displayedModels.size()) {
+                return Optional.of(this.displayedModels.get(modelIndex));
+            }
+        }
+        return this.displayedModel;
     }
 
     public static WipBlockEntity getWipBlockFromContext(InWorldRecipeContext ctx) {
@@ -78,7 +92,7 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
 
     @Override
     public ItemStack assemble(InWorldRecipeContext ctx) {
-        return this.icon.copy();
+        return this.icon.map(ItemStackTemplate::create).orElse(ItemStack.EMPTY);
     }
 
     @Override

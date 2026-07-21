@@ -38,8 +38,7 @@
   },
   "rotation_speed": 2,
   "seed_items": [
-    "anvilcraft:rotten_flesh_block",
-    "minecraft:bone_block"
+    "anvilcraft:rotten_flesh_block"
   ],
   "space": 10,
   "texture": "planet_flesh",

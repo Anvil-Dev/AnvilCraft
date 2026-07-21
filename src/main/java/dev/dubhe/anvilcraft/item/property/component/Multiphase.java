@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public record Multiphase(List<Phase> phases, int activePhase, boolean merciless) implements TooltipProvider {
+public record Multiphase(List<Phase> phases, int activePhase) implements TooltipProvider {
     public static final int MIN_PHASE_COUNT = 2;
     public static final int MAX_PHASE_COUNT = 4;
     private static final List<String> DEFAULT_NAMES = List.of("α", "β", "γ", "δ");
@@ -35,8 +35,8 @@ public record Multiphase(List<Phase> phases, int activePhase, boolean merciless)
     private static final MapCodec<Multiphase> DATA_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         Phase.CODEC.codec().listOf().fieldOf("phases").forGetter(Multiphase::phases),
         Codec.INT.fieldOf("active_phase").forGetter(Multiphase::activePhase),
-        Codec.BOOL.fieldOf("merciless").forGetter(Multiphase::merciless)
-    ).apply(instance, Multiphase::new));
+        Codec.BOOL.optionalFieldOf("merciless", false).forGetter(ignored -> false)
+    ).apply(instance, (phases, activePhase, ignored) -> new Multiphase(phases, activePhase)));
     private static final MapCodec<Multiphase> LEGACY_CODEC = Codec.PASSTHROUGH.fieldOf("id").xmap(
         ignored -> create(),
         ignored -> new Dynamic<>(JsonOps.INSTANCE, JsonOps.INSTANCE.emptyMap())
@@ -50,8 +50,6 @@ public record Multiphase(List<Phase> phases, int activePhase, boolean merciless)
         Multiphase::phases,
         ByteBufCodecs.VAR_INT,
         Multiphase::activePhase,
-        ByteBufCodecs.BOOL,
-        Multiphase::merciless,
         Multiphase::new
     );
 
@@ -66,7 +64,7 @@ public record Multiphase(List<Phase> phases, int activePhase, boolean merciless)
     }
 
     public static Multiphase create() {
-        return new Multiphase(List.of(Phase.EMPTY, Phase.EMPTY), 0, false);
+        return new Multiphase(List.of(Phase.EMPTY, Phase.EMPTY), 0);
     }
 
     public static Component makeName(int index) {
@@ -87,51 +85,40 @@ public record Multiphase(List<Phase> phases, int activePhase, boolean merciless)
         return name.copy().append(makeSuffix(0));
     }
 
-    public Component phaseDisplayName(int index, boolean withMerciless) {
-        Component name = this.phases.get(index).customName().isPresent()
+    public Component phaseDisplayName(int index) {
+        return this.phases.get(index).customName().isPresent()
             ? this.phases.get(index).customName().get().copy()
             : makeName(index);
-        if (withMerciless) {
-            return name.copy().append(Component.translatable("screen.anvilcraft.multiphase.merciless"));
-        }
-        return name;
     }
 
     public Multiphase capture(ItemStack stack) {
-        ItemEnchantments enchantments;
-        if (this.merciless) {
-            Merciless.absorbEnchantments(stack);
-            enchantments = stack.getOrDefault(ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantments.EMPTY);
-        } else {
-            enchantments = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
-        }
+        Merciless.disable(stack);
+        ItemEnchantments enchantments = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
         List<Phase> captured = new ArrayList<>(this.phases);
         captured.set(this.activePhase, Phase.capture(stack, enchantments));
-        return new Multiphase(captured, this.activePhase, this.merciless);
+        return new Multiphase(captured, this.activePhase);
     }
 
     public Multiphase forDisplay(ItemStack stack) {
         ItemEnchantments enchantments = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
-        if (this.merciless) {
-            enchantments = EnchantmentUtil.merge(
-                enchantments,
-                stack.getOrDefault(ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantments.EMPTY)
-            );
-        }
+        enchantments = EnchantmentUtil.merge(
+            enchantments,
+            stack.getOrDefault(ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantments.EMPTY)
+        );
         List<Phase> displayed = new ArrayList<>(this.phases);
         displayed.set(this.activePhase, Phase.capture(stack, enchantments));
-        return new Multiphase(displayed, this.activePhase, this.merciless);
+        return new Multiphase(displayed, this.activePhase);
     }
 
-    public void select(ItemStack stack, int phaseIndex, boolean enableMerciless) {
+    public void select(ItemStack stack, int phaseIndex) {
         if (phaseIndex < 0 || phaseIndex >= this.phases.size()) return;
-        Multiphase selected = this.capture(stack).withSelection(phaseIndex, enableMerciless);
+        Multiphase selected = this.capture(stack).withSelection(phaseIndex);
         selected.applyToStack(stack);
         stack.set(ModComponents.MULTIPHASE, selected);
     }
 
     public void cycle(ItemStack stack) {
-        this.select(stack, (this.activePhase + 1) % this.phases.size(), this.merciless);
+        this.select(stack, (this.activePhase + 1) % this.phases.size());
     }
 
     public void initialize(ItemStack stack) {
@@ -144,17 +131,17 @@ public record Multiphase(List<Phase> phases, int activePhase, boolean merciless)
         if (captured.phases.size() >= MAX_PHASE_COUNT) return false;
         List<Phase> expanded = new ArrayList<>(captured.phases);
         expanded.add(Phase.EMPTY);
-        stack.set(ModComponents.MULTIPHASE, new Multiphase(expanded, captured.activePhase, captured.merciless));
+        stack.set(ModComponents.MULTIPHASE, new Multiphase(expanded, captured.activePhase));
         return true;
     }
 
-    public void applySelectionPreview(ItemStack stack, int phaseIndex, boolean enableMerciless) {
+    public void applySelectionPreview(ItemStack stack, int phaseIndex) {
         if (phaseIndex < 0 || phaseIndex >= this.phases.size()) return;
-        this.withSelection(phaseIndex, enableMerciless).applyToStack(stack);
+        this.withSelection(phaseIndex).applyToStack(stack);
     }
 
-    private Multiphase withSelection(int phaseIndex, boolean enableMerciless) {
-        return new Multiphase(this.phases, phaseIndex, enableMerciless);
+    private Multiphase withSelection(int phaseIndex) {
+        return new Multiphase(this.phases, phaseIndex);
     }
 
     private void applyToStack(ItemStack stack) {
@@ -164,7 +151,6 @@ public record Multiphase(List<Phase> phases, int activePhase, boolean merciless)
             DataComponents.ITEM_NAME,
             stack.getItem().getName(stack.getItem().getDefaultInstance()).copy().append(makeSuffix(this.activePhase))
         );
-        if (this.merciless) Merciless.enable(stack);
     }
 
     @Override

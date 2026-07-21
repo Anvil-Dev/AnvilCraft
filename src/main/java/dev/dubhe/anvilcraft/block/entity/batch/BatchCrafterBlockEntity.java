@@ -1,12 +1,13 @@
 package dev.dubhe.anvilcraft.block.entity.batch;
 
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.PollableFilteredItemStackHandler;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
+import dev.dubhe.anvilcraft.network.BatchCrafterSelectPacket;
 import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
+import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.NonNullList;
@@ -23,11 +24,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.item.ItemUtil;
@@ -35,6 +37,7 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 import java.util.Optional;
@@ -47,6 +50,7 @@ import java.util.stream.IntStream;
 public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
     private static final AtomicInteger COUNTER = new AtomicInteger(0);
     private final Deque<BatchCrafterCache> cache = new ArrayDeque<>();
+    private int selecting;
 
     public BatchCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState, COUNTER.incrementAndGet());
@@ -73,15 +77,22 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
             return;
         }
 
-        ServerLevel level = Util.cast(this.level);
-        RecipeManager manager = level.recipeAccess();
         CraftingInput input = this.dummyCraftingContainer.asCraftInput();
-        Optional<RecipeHolder<CraftingRecipe>> recipeOp = manager.getRecipeFor(
-            RecipeType.CRAFTING,
-            input,
-            level
-        );
-        this.updateDisplayItem(recipeOp.map(recipe -> recipe.value().assemble(input)).orElse(ItemStack.EMPTY));
+        List<RecipeHolder<CraftingRecipe>> recipes = this.getRecipes(input);
+        if (recipes.isEmpty()) {
+            boolean selectionChanged = this.selecting != 0;
+            this.selecting = 0;
+            if (selectionChanged) {
+                PacketDistributor.sendToAllPlayers(new BatchCrafterSelectPacket(this.selecting, this.getPos()));
+            }
+            this.updateDisplayItem(ItemStack.EMPTY);
+        } else {
+            if (this.selecting < 0 || this.selecting >= recipes.size()) {
+                this.selecting = 0;
+                PacketDistributor.sendToAllPlayers(new BatchCrafterSelectPacket(this.selecting, this.getPos()));
+            }
+            this.updateDisplayItem(recipes.get(this.selecting).value().assemble(input));
+        }
 
         PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(
             this.getDisplayingStack(),
@@ -94,34 +105,27 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
     public boolean craft(ServerLevel level) {
         if (this.craftingContainer.isEmpty()) return false;
         if (this.cantCraft()) return false;
-        ItemStack result;
-        
+        CraftingInput input = this.craftingContainer.asCraftInput();
         Optional<BatchCrafterCache> cacheOp = this.cache.stream()
             .filter(recipe -> recipe.test(this.craftingContainer))
             .findFirst();
-        Optional<RecipeHolder<CraftingRecipe>> holderOp;
-        List<ItemStack> craftRemaining;
+        List<RecipeHolder<CraftingRecipe>> recipes;
         if (cacheOp.isPresent()) {
-            BatchCrafterCache crafterCache = cacheOp.get();
-            holderOp = crafterCache.getRecipe();
-            craftRemaining = crafterCache.getRemaining();
+            recipes = cacheOp.get().getRecipes();
         } else {
-            CraftingInput input = this.craftingContainer.asCraftInput();
-            holderOp = level.recipeAccess().getRecipeFor(RecipeType.CRAFTING, input, level);
-            NonNullList<ItemStack> remainingItems = holderOp.map(recipe -> recipe.value().getRemainingItems(input))
-                .orElse(NonNullList.create());
-            BatchCrafterCache cache = new BatchCrafterCache(this.craftingContainer, holderOp, remainingItems);
-            craftRemaining = remainingItems;
+            recipes = this.getRecipes(input);
+            BatchCrafterCache cache = new BatchCrafterCache(this.craftingContainer, recipes);
             this.cache.push(cache);
             while (this.cache.size() >= 10) {
                 this.cache.pop();
             }
         }
-        if (holderOp.isEmpty()) return false;
-        
-        result = holderOp.get().value().assemble(this.craftingContainer.asCraftInput());
+        if (recipes.isEmpty()) return false;
+        if (this.selecting < 0 || this.selecting >= recipes.size()) this.setSelecting(0);
+        RecipeHolder<CraftingRecipe> holder = recipes.get(this.selecting);
+        ItemStack result = holder.value().assemble(input);
         this.displayingStack = result.copy();
-        if (!level.isClientSide()) PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(this.displayingStack, this.getPos()));
+        PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(this.displayingStack, this.getPos()));
         if (!result.isItemEnabled(level.enabledFeatures())) return false;
 
         int times = IntStream.range(0, this.handler.size())
@@ -132,6 +136,7 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
             .orElse(0);
         if (times < 1) return false;
         result.setCount(result.getCount() * times);
+        List<ItemStack> craftRemaining = new ArrayList<>(holder.value().getRemainingItems(input));
         if (!craftRemaining.isEmpty()) {
             craftRemaining = craftRemaining.stream()
                 .map(stack -> stack.copyWithCount(stack.getCount() * times))
@@ -163,15 +168,49 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
         return new BatchCrafterMenu(ModMenuTypes.BATCH_CRAFTER.get(), i, inventory, this);
     }
 
-    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
+    public List<RecipeHolder<CraftingRecipe>> getRecipes() {
+        return this.getRecipes(this.dummyCraftingContainer.asCraftInput());
+    }
+
+    private List<RecipeHolder<CraftingRecipe>> getRecipes(CraftingInput input) {
+        if (this.level == null) return List.of();
+        return RecipesRecord.getRecipes(this.level)
+            .getRecipesFor(RecipeType.CRAFTING, input, this.level)
+            .toList();
+    }
+
+    public void setSelecting(int selecting) {
+        List<RecipeHolder<CraftingRecipe>> recipes = this.getRecipes();
+        this.selecting = recipes.isEmpty() ? 0 : Math.floorMod(selecting, recipes.size());
+        CraftingInput input = this.dummyCraftingContainer.asCraftInput();
+        this.updateDisplayItem(
+            recipes.isEmpty() ? ItemStack.EMPTY : recipes.get(this.selecting).value().assemble(input)
+        );
+        this.setChanged();
+
+        if (this.level != null && !this.level.isClientSide()) {
+            PacketDistributor.sendToAllPlayers(new BatchCrafterSelectPacket(this.selecting, this.getPos()));
+            PacketDistributor.sendToAllPlayers(new UpdateDisplayItemPacket(this.getDisplayingStack(), this.getPos()));
+        }
+    }
+
+    @Override
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("Selecting", this.selecting);
+    }
+
+    @Override
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        this.selecting = input.getIntOr("Selecting", 0);
+    }
+
     public static class BatchCrafterCache implements Predicate<Container> {
         private final Container container;
 
         @Getter
-        private final Optional<RecipeHolder<CraftingRecipe>> recipe;
-
-        @Getter
-        private final NonNullList<ItemStack> remaining;
+        private final List<RecipeHolder<CraftingRecipe>> recipes;
 
         /// 合成器缓存
         ///
@@ -180,8 +219,7 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
         /// @param remaining 返还物品
         public BatchCrafterCache(
             Container container,
-            Optional<RecipeHolder<CraftingRecipe>> recipe,
-            NonNullList<ItemStack> remaining
+            List<RecipeHolder<CraftingRecipe>> recipes
         ) {
             this.container = new SimpleContainer(container.getContainerSize());
             for (int i = 0; i < container.getContainerSize(); i++) {
@@ -189,8 +227,7 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
                 item.setCount(1);
                 this.container.setItem(i, item);
             }
-            this.recipe = recipe;
-            this.remaining = remaining;
+            this.recipes = List.copyOf(recipes);
         }
 
         @Override

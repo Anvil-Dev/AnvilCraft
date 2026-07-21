@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "anvilcraft:blue_cement",
+  "ingredients": [
+    {
+      "items": "#c:glazed_terracottas"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:blue_glazed_terracotta"
+    }
+  ]
+}

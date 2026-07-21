@@ -2,10 +2,12 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import dev.dubhe.anvilcraft.api.itemhandler.SlotItemHandlerWithFilter;
 import dev.dubhe.anvilcraft.client.gui.component.EnableFilterButton;
+import dev.dubhe.anvilcraft.client.gui.component.RecipeCycleButton;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.item.utility.FilterItem;
+import dev.dubhe.anvilcraft.network.BatchCrafterSelectPacket;
 import dev.dubhe.anvilcraft.network.SlotDisableChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterChangePacket;
 import dev.dubhe.anvilcraft.network.SlotFilterMaxStackSizeChangePacket;
@@ -30,6 +32,7 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
 
     @Getter
     private EnableFilterButton enableFilterButton = null;
+    private RecipeCycleButton recipeCycleButton;
 
     private final BatchCrafterMenu menu;
 
@@ -41,8 +44,30 @@ public class BatchCrafterScreen extends BaseMachineScreen<BatchCrafterMenu> impl
     @Override
     protected void init() {
         super.init();
+        this.recipeCycleButton = new RecipeCycleButton(
+            this.leftPos + 151,
+            this.topPos + 17,
+            button -> {
+                int recipeCount = this.menu.getRecipes().size();
+                if (recipeCount <= 1) return;
+                int selecting = (this.menu.getBlockEntity().getSelecting() + 1) % recipeCount;
+                this.menu.getBlockEntity().setSelecting(selecting);
+                this.menu.refreshResult();
+                ClientPacketDistributor.sendToServer(new BatchCrafterSelectPacket(
+                    selecting,
+                    this.menu.getBlockEntity().getPos()
+                ));
+            }
+        );
+        this.addRenderableWidget(this.recipeCycleButton);
         this.enableFilterButton = this.enableFilterButtonSupplier.apply(this.leftPos, this.topPos);
         this.addRenderableWidget(this.enableFilterButton);
+    }
+
+    @Override
+    protected void containerTick() {
+        super.containerTick();
+        if (this.recipeCycleButton != null) this.recipeCycleButton.active = this.menu.getRecipes().size() > 1;
     }
 
     @Override

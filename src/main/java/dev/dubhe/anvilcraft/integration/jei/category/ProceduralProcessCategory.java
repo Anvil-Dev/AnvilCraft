@@ -158,7 +158,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     ) {
         ProceduralProcessRecipe recipe = holder.value();
         renderPredicate(
-            graphics, view, INITIAL_BLOCK, recipe.getInitialBlock(), holder, STEP_X - 20, BLOCK_Y, 18
+            graphics, view, INITIAL_BLOCK, recipe.getInitialBlock(), 0, holder, STEP_X - 20, BLOCK_Y, 18
         );
 
         int visibleSteps = Math.min(recipe.getSteps().size(), MAX_VISIBLE_STEPS);
@@ -177,6 +177,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
                     view,
                     stepBlockSlotName(index, inputIndex),
                     inputBlocks.get(inputIndex),
+                    index,
                     holder,
                     x - 9,
                     BLOCK_Y + inputIndex * 10,
@@ -211,6 +212,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         IRecipeSlotsView view,
         String slotName,
         BlockStatePredicate predicate,
+        int stepCount,
         RecipeHolder<ProceduralProcessRecipe> holder,
         int x,
         int y,
@@ -221,7 +223,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         BlockState state = JeiBlockIngredientUtil.getDisplayedState(view, slotName, states).orElse(states.getFirst());
         size = JeiBlockIngredientUtil.getRenderablePreviewScale(state, size);
         if (state.getBlock() instanceof WipBlock) {
-            RenderSupport.renderWipBlock(graphics, holder.id().identifier(), x, y, size);
+            RenderSupport.renderWipBlock(graphics, holder.id().identifier(), stepCount, x, y, size);
         } else {
             RenderSupport.renderBlock(graphics, state, x, y, size);
         }

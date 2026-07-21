@@ -1,0 +1,82 @@
+{
+	"format_version": "1.21.11",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"3": "anvilcraft:block/overseer_top",
+		"4": "anvilcraft:block/overseer_top_0",
+		"5": "anvilcraft:block/overseer_mid_0",
+		"particle": "anvilcraft:block/overseer_base_1",
+		"side": "anvilcraft:block/overseer_base_1"
+	},
+	"elements": [
+		{
+			"from": [2, 20, 2],
+			"to": [14, 32, 14],
+			"faces": {
+				"north": {"uv": [2, 4, 14, 16], "texture": "#4"},
+				"east": {"uv": [2, 4, 14, 16], "texture": "#4"},
+				"south": {"uv": [2, 4, 14, 16], "texture": "#4"},
+				"west": {"uv": [2, 4, 14, 16], "texture": "#4"},
+				"up": {"uv": [2, 2, 14, 14], "texture": "#3"}
+			}
+		},
+		{
+			"from": [2, -8, 2],
+			"to": [14, 4, 14],
+			"faces": {
+				"north": {"uv": [2, 0, 14, 12], "texture": "#side"},
+				"east": {"uv": [2, 0, 14, 12], "texture": "#side"},
+				"south": {"uv": [2, 0, 14, 12], "texture": "#side"},
+				"west": {"uv": [2, 0, 14, 12], "texture": "#side"},
+				"down": {"uv": [2, 2, 14, 14], "texture": "#3"}
+			}
+		},
+		{
+			"from": [2, 4, 2],
+			"to": [14, 20, 14],
+			"faces": {
+				"north": {"uv": [2, 0, 14, 16], "texture": "#5"},
+				"east": {"uv": [2, 0, 14, 16], "texture": "#5"},
+				"south": {"uv": [2, 0, 14, 16], "texture": "#5"},
+				"west": {"uv": [2, 0, 14, 16], "texture": "#5"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"translation": [0, 0.75, 1.25],
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"thirdperson_lefthand": {
+			"translation": [0, 0.75, 1.25],
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"firstperson_righthand": {
+			"rotation": [15, 45, 0],
+			"translation": [2, 2, 0],
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"firstperson_lefthand": {
+			"rotation": [15, 45, 0],
+			"translation": [2, 2, 0],
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"ground": {
+			"rotation": [-90, 0, 0],
+			"translation": [0, 2, 0],
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"gui": {
+			"rotation": [30, -135, 0],
+			"scale": [0.3, 0.3, 0.3]
+		},
+		"head": {
+			"translation": [0, 20, 0],
+			"scale": [0.75, 0.75, 0.75]
+		},
+		"fixed": {
+			"scale": [0.33, 0.33, 0.33]
+		}
+	}
+}

@@ -1,0 +1,13 @@
+{
+  "type": "anvilcraft:fast_cooking",
+  "ingredients": [
+    {
+      "items": "#c:resin"
+    }
+  ],
+  "results": [
+    {
+      "id": "anvilcraft:hardend_resin"
+    }
+  ]
+}

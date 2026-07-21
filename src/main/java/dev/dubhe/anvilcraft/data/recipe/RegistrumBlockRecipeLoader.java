@@ -135,8 +135,7 @@ public class RegistrumBlockRecipeLoader {
         ItemInjectRecipe.builder()
             .requires(ModBlocks.SPACETIME_SUPERCOMPUTER)
             .inputBlock(ModBlocks.GIANT_ANVIL)
-            .resultBlock(ctx)
-            .result(ctx.get(), 3)
+            .result(ctx.get(), 4)
             .save(provider);
     }
 

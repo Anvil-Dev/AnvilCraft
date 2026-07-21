@@ -148,7 +148,7 @@ public class VanillaRecipesWrap {
         ItemStackTemplate result = recipe.result;
         // noinspection ConstantValue
         if (result == null) return;
-        CookingRecipe cooking = CookingRecipe.builder()
+        FastCookingRecipe cooking = FastCookingRecipe.builder()
             .requires(new ItemIngredientPredicate(
                 Optional.of(input.getValues()),
                 1,
@@ -173,7 +173,7 @@ public class VanillaRecipesWrap {
         if (VanillaRecipesWrap.smokingRecipes.containsKey(result.item().value())) return;
         Ingredient input = recipe.input();
         if (input.isEmpty() || input.isCustom()) return;
-        CookingRecipe cooking = CookingRecipe.builder()
+        FastCookingRecipe cooking = FastCookingRecipe.builder()
             .requires(new ItemIngredientPredicate(
                 Optional.of(input.getValues()),
                 1,

@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "anvilcraft:gray_cement",
+  "ingredients": [
+    {
+      "items": "#minecraft:wool"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:gray_wool"
+    }
+  ]
+}

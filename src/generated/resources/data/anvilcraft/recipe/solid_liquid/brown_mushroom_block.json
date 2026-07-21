@@ -1,0 +1,22 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "minecraft:water",
+  "ingredients": [
+    {
+      "items": "minecraft:brown_mushroom"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:brown_mushroom_block"
+    },
+    {
+      "count": {
+        "type": "minecraft:binomial",
+        "n": 1.0,
+        "p": 0.1
+      },
+      "id": "minecraft:mushroom_stem"
+    }
+  ]
+}
