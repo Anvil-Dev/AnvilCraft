@@ -84,7 +84,6 @@ public class LargeFluidTankItemRenderer extends BlockEntityWithoutLevelRenderer 
             return;
         }
 
-        boolean enhanced = tankTag.getBoolean(TAG_ENHANCED);
         List<FluidStack> fluids = new ArrayList<>();
         ListTag fluidsTag = tankTag.getList(TAG_FLUIDS, Tag.TAG_COMPOUND);
         for (int i = 0; i < fluidsTag.size(); i++) {
@@ -101,6 +100,7 @@ public class LargeFluidTankItemRenderer extends BlockEntityWithoutLevelRenderer 
             .reversed()
             .thenComparing(fluid -> BuiltInRegistries.FLUID.getKey(fluid.getFluid()).toString()));
 
+        boolean enhanced = tankTag.getBoolean(TAG_ENHANCED);
         long totalAmount = fluids.stream().mapToLong(FluidStack::getAmount).sum();
         long renderAmount = enhanced
             ? Math.max(totalAmount, LargeFluidTankBlockEntity.INFINITY_THRESHOLD)
