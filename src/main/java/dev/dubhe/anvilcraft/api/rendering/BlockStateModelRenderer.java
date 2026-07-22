@@ -24,6 +24,17 @@ public class BlockStateModelRenderer {
         Minecraft.getInstance().getBlockColors()
     );
 
+    @Getter
+    private final ModelBlockRenderer tessellatorNoLighting = new ModelBlockRenderer(
+        false,
+        true,
+        Minecraft.getInstance().getBlockColors()
+    );
+
+    BlockStateModelRenderer() {
+        this.tessellatorNoLighting.lighter = new FullBrightNoOpLighter();
+    }
+
     @Nullable
     public WrappedBlockStateModel getModel(BlockStateModelTessellateState state) {
         return this.cache.get(state);
