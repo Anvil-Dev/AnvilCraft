@@ -2,25 +2,29 @@ package dev.dubhe.anvilcraft.recipe.anvil.outcome;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.recipe.cache.IItemHandlerCache;
+import dev.anvilcraft.lib.v2.recipe.cache.ItemCache;
+import dev.anvilcraft.lib.v2.recipe.cache.item.ICacheOutput;
 import dev.anvilcraft.lib.v2.recipe.outcome.IRecipeOutcome;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeData;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
+import dev.dubhe.anvilcraft.api.entity.IEntityCauldron;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeOutcomeTypes;
-import dev.dubhe.anvilcraft.util.AnvilUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -71,32 +75,31 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
 
         BlockPos belowPos = BlockPos.containing(pos.x, pos.y - 1, pos.z);
 
-        if (level.getBlockEntity(belowPos) instanceof LargeCauldronBlockEntity cauldron
-            && cauldron.hasInputMatching(stack -> RoyalPreference.isRoyalPreferred(level, stack))) {
-            int count = context.getInt(result.count());
-            ItemStack bonus = result.stack().copyWithCount(count);
-            ItemStack remaining = cauldron.insertRecipeOutput(bonus);
-            if (!remaining.isEmpty()) AnvilUtil.dropItems(List.of(remaining), level, pos.add(OUTPUT_OFFSET));
-            return;
+        BlockEntity blockEntity = level.getBlockEntity(belowPos);
+        boolean hasRecipeCache = false;
+        if (blockEntity instanceof IItemHandlerCache cache) {
+            hasRecipeCache = true;
+            if (hasRoyalPreferred(level, cache.getInput())) {
+                addBonus(context);
+                return;
+            }
         }
 
-        // 优先检查鱼缸容器（容器合成场景）
-        IItemHandler handler = level.getCapability(
-            Capabilities.ItemHandler.BLOCK, belowPos, null);
-        if (handler != null) {
-            for (int slot = 0; slot < handler.getSlots(); slot++) {
-                ItemStack stack = handler.getStackInSlot(slot);
-                if (!stack.isEmpty() && RoyalPreference.isRoyalPreferred(level, stack)) {
-                    // 鱼缸场景：双倍产物放入容器输出槽
-                    int count = context.getInt(result.count());
-                    ItemStack bonus = result.stack().copyWithCount(count);
-                    ItemStack remaining = insertIntoHandler(handler, bonus);
-                    if (!remaining.isEmpty()) {
-                        // 容器满了则掉落到输出位置
-                        AnvilUtil.dropItems(List.of(remaining), level, pos.add(OUTPUT_OFFSET));
-                    }
-                    return;
-                }
+        IItemHandlerCache entityCauldron = findEntityCauldron(level, belowPos);
+        if (entityCauldron != null) {
+            hasRecipeCache = true;
+            if (hasRoyalPreferred(level, entityCauldron.getInput())) {
+                addBonus(context);
+                return;
+            }
+        }
+
+        if (!hasRecipeCache) {
+            IItemHandler handler = level.getCapability(
+                Capabilities.ItemHandler.BLOCK, belowPos, null);
+            if (handler != null && hasRoyalPreferred(level, handler)) {
+                addBonus(context);
+                return;
             }
         }
 
@@ -106,30 +109,46 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
             INPUT_RANGE.x, INPUT_RANGE.y, INPUT_RANGE.z);
         for (ItemEntity itemEntity : level.getEntitiesOfClass(ItemEntity.class, inputBox)) {
             if (RoyalPreference.isRoyalPreferred(level, itemEntity.getItem())) {
-                // 炼药锅场景：双倍产物掉落到与其他产物一致的高度
-                int count = context.getInt(result.count());
-                ItemStack stackToDrop = result.stack().copyWithCount(count);
-                AnvilUtil.dropItems(List.of(stackToDrop), level, pos.add(OUTPUT_OFFSET));
+                addBonus(context);
                 return;
             }
         }
     }
 
-    /**
-     * 尝试将物品插入容器，返回未能插入的部分
-     */
-    private static ItemStack insertIntoHandler(IItemHandler handler, ItemStack stack) {
-        ItemStack remaining = stack;
-        // 优先插入输出槽（0-7），然后尝试所有槽
-        for (int slot = 0; slot < 8 && slot < handler.getSlots(); slot++) {
-            remaining = handler.insertItem(slot, remaining, false);
-            if (remaining.isEmpty()) return ItemStack.EMPTY;
-        }
+    private void addBonus(InWorldRecipeContext context) {
+        ItemStack bonus = result.stack().copyWithCount(context.getInt(result.count()));
+        if (bonus.isEmpty()) return;
+        ItemCache cache = context.computeIfAbsent(ItemCache.ITEM_CACHE);
+        ICacheOutput output = cache.getOutput(bonus, context.getPos().add(OUTPUT_OFFSET));
+        output.grow(bonus, true);
+        context.putAcceptor(ItemCache.ITEM_CACHE.location(), ItemCache.DEFAULT_ACCEPTOR);
+    }
+
+    private static boolean hasRoyalPreferred(ServerLevel level, IItemHandler handler) {
         for (int slot = 0; slot < handler.getSlots(); slot++) {
-            remaining = handler.insertItem(slot, remaining, false);
-            if (remaining.isEmpty()) return ItemStack.EMPTY;
+            ItemStack stack = handler.getStackInSlot(slot);
+            if (!stack.isEmpty() && RoyalPreference.isRoyalPreferred(level, stack)) return true;
         }
-        return remaining;
+        return false;
+    }
+
+    private static @Nullable IItemHandlerCache findEntityCauldron(ServerLevel level, BlockPos pos) {
+        Vec3 center = pos.getCenter();
+        Entity closest = null;
+        double closestDistance = Double.POSITIVE_INFINITY;
+        for (Entity entity : level.getEntitiesOfClass(
+            Entity.class,
+            new AABB(pos).inflate(0.0625),
+            entity -> entity.isAlive()
+                      && entity instanceof IEntityCauldron
+                      && entity instanceof IItemHandlerCache
+        )) {
+            double distance = entity.getBoundingBox().getCenter().distanceToSqr(center);
+            if (distance >= closestDistance) continue;
+            closest = entity;
+            closestDistance = distance;
+        }
+        return closest instanceof IItemHandlerCache cache ? cache : null;
     }
 
     @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "OptionalAssignedToNull"})
