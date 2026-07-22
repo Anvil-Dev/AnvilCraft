@@ -506,32 +506,10 @@ public class StorageScreen extends Screen {
         if (capacity == null) {
             return null;
         }
-        boolean unlimitedSpace = capacity.spaceSize() == Integer.MAX_VALUE;
-        boolean unlimitedTypes = capacity.typeLimit() == Integer.MAX_VALUE;
-        if (unlimitedSpace && unlimitedTypes) {
-            return null;
+        if (capacity.typeLimit() != Integer.MAX_VALUE) {
+            return Component.translatable("screen.anvilcraft.storage.capacity.space", capacity.space(), capacity.spaceSize());
         }
-        if (unlimitedSpace) {
-            return Component.translatable(
-                "screen.anvilcraft.storage.capacity.types",
-                capacity.typeCount(),
-                capacity.typeLimit()
-            );
-        }
-        if (unlimitedTypes) {
-            return Component.translatable(
-                "screen.anvilcraft.storage.capacity.space",
-                capacity.space(),
-                capacity.spaceSize()
-            );
-        }
-        return Component.translatable(
-            "screen.anvilcraft.storage.capacity.both",
-            capacity.space(),
-            capacity.spaceSize(),
-            capacity.typeCount(),
-            capacity.typeLimit()
-        );
+        return Component.translatable("screen.anvilcraft.storage.capacity.types", capacity.typeCount(), capacity.typeLimit());
     }
 
     private void extractCarriedItem(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {

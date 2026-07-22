@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-public class ShulkerContainerBlockEntity extends StorageBlockEntity { // TODO: 实现潜影集装箱功能
+public class ShulkerContainerBlockEntity extends StorageBlockEntity {
     private final Set<UUID> openers = new HashSet<>();
     private final ContainerOpenersCounter openersCounter = new ContainerOpenersCounter() {
         @Override

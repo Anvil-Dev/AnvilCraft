@@ -664,7 +664,6 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.storage.nbt", "Should Fold Items with Diff. NBT: Currently %s");
         provider.add("screen.anvilcraft.storage.nbt.unfold", "False");
         provider.add("screen.anvilcraft.storage.nbt.fold", "True");
-        provider.add("screen.anvilcraft.storage.capacity.both", "Space per Type: %1$s/%2$s, Types: %3$s/%4$s");
         provider.add("screen.anvilcraft.storage.capacity.space", "Total Capacity: %1$s/%2$s");
         provider.add("screen.anvilcraft.storage.capacity.types", "Types: %1$s/%2$s");
         provider.add("screen.anvilcraft.storage.category.name", "Name: %s");
@@ -677,5 +676,17 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.storage.category.alternate.removable", "Left click to list, right click to delete this category");
         provider.add("screen.anvilcraft.storage.category.alternate.unremovable", "Left click to list");
         provider.add("screen.anvilcraft.storage.category.setting.title", "Category Setting");
+        provider.add("tooltip.anvilcraft.large_crate.0", "Inject 1 Space Overcompressor and");
+        provider.add("tooltip.anvilcraft.large_crate.1", "6 Netherite Blocks into the top of");
+        provider.add("tooltip.anvilcraft.large_crate.2", "a Large Crate to upgrade it to Shulker Container");
+        provider.add("tooltip.anvilcraft.large_crate.3", "This process is irreversible");
+        provider.add("tooltip.anvilcraft.shulker_container.0", "Inject more Space Overcompressors into");
+        provider.add("tooltip.anvilcraft.shulker_container.1", "Shulker Container to increase the max size per type");
+        provider.add("tooltip.anvilcraft.shulker_container.2", "This process is irreversible");
+        provider.add("tooltip.anvilcraft.shulker_container.3", "Each injected Space Overcompressor will");
+        provider.add("tooltip.anvilcraft.shulker_container.4", "double its max size, with a max size");
+        provider.add("tooltip.anvilcraft.shulker_container.5", "limit of 1048576 (i.e. up to four upgrades)");
+        provider.add("tooltip.anvilcraft.shulker_container.6", "Currently injected times: %s");
+        provider.add("tooltip.anvilcraft.shulker_container.6.waiting", "Waiting for syncing");
     }
 }

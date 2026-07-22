@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
@@ -745,6 +746,8 @@ public final class StorageServerStub {
             if (items instanceof SpaceSizeItemStacksResourceHandler spaceHandler) {
                 space = spaceHandler.getSpace();
                 spaceSize = spaceHandler.getSpaceSize();
+            } else if (items instanceof TypeLimitItemStacksResourceHandler typeHandler) {
+                spaceSize = typeHandler.getSpaceSize();
             }
             return new Capacity(space, spaceSize, items.getTypeCount(), items.getTypeLimit());
         }
