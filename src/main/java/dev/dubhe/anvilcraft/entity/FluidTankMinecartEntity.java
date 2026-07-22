@@ -135,13 +135,18 @@ public class FluidTankMinecartEntity extends AbstractMinecart implements IFluidH
     @Override
     protected void applyNaturalSlowdown() {
         // Keep the same fill-dependent friction as AbstractMinecartContainer.
-        int amount = this.tank.getFluidAmount();
-        int signal = amount == 0
-            ? 0
-            : Mth.floor((float) amount * 14.0F / this.tank.getCapacity()) + 1;
+        int signal = this.getComparatorLevel();
         float friction = 0.98F + (15 - signal) * 0.001F;
         if (this.isInWater()) friction *= 0.95F;
         this.setDeltaMovement(this.getDeltaMovement().multiply(friction, 0.0, friction));
+    }
+
+    @Override
+    public int getComparatorLevel() {
+        int amount = this.tank.getFluidAmount();
+        return amount == 0
+            ? 0
+            : Mth.floor((float) amount * 14.0F / this.tank.getCapacity()) + 1;
     }
 
     @Override
