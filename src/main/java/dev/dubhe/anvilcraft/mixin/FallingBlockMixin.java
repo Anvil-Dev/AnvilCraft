@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.DeflectionRingBlock;
@@ -22,7 +23,6 @@ import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -34,8 +34,6 @@ public abstract class FallingBlockMixin extends Block {
     public FallingBlockMixin(Properties properties) {
         super(properties);
     }
-
-    @Shadow public abstract void falling(FallingBlockEntity entity);
 
     @Inject(
         method = "tick", at = @At("HEAD"), cancellable = true
@@ -138,10 +136,10 @@ public abstract class FallingBlockMixin extends Block {
                 FallingBlockEntity entity = FallingGiantAnvilEntity.fall(
                     level, mainPartPos, mainPartState, false
                 );
-                this.falling(entity);
+                entity.setHurtsEntities(10.0F, AnvilCraft.CONFIG.giantAnvilFallDamageMax);
             } else {
                 FallingBlockEntity entity = FallingBlockEntity.fall(level, pos, state);
-                this.falling(entity);
+                ((FallingBlock) (Object) this).falling(entity);
             }
             ci.cancel();
         } else {

@@ -430,7 +430,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         public boolean mayPlace(ItemStack stack) {
             ItemStack filter = blockEntity.getMaterialFilter();
             if (filter.isEmpty() || filter.is(Items.BARRIER)) return false;
-            return ItemStack.isSameItemSameComponents(filter, stack);
+            return ItemStack.isSameItem(filter, stack);
         }
 
         @Override

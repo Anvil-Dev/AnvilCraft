@@ -16,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -123,6 +124,10 @@ public final class GravityManager {
                 || item.is(ModBlocks.LEVITATION_POWDER_BLOCK.get().asItem())) {
                 return GravityType.MICRO_ANTI_GRAVITY;
             }
+        }
+        if (entity instanceof FallingBlockEntity fallingBlockEntity) {
+            GravityType gravityType = getFallingBlockGravityType(fallingBlockEntity.getBlockState().getBlock());
+            if (gravityType != GravityType.NORMAL) return gravityType;
         }
         if (entity instanceof StandableLevitatingBlockEntity || entity instanceof LevitatingBlockEntity) {
             return GravityType.ANTI_GRAVITY;
