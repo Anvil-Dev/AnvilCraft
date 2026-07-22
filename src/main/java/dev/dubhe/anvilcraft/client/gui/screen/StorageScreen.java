@@ -6,6 +6,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.category.CategoryList;
@@ -90,6 +91,7 @@ public class StorageScreen extends Screen {
     private static final int METADATA_REFRESH_INTERVAL = 10;
     private final BlockPos sourcePos;
     private final Player player;
+    private final boolean tracksOpenState;
 
     private @Nullable EditBox search;
     private @Nullable CategoryList categories;
@@ -122,6 +124,8 @@ public class StorageScreen extends Screen {
         super(Objects.requireNonNull(Minecraft.getInstance().level).getBlockState(sourcePos).getBlock().getName());
         this.sourcePos = sourcePos;
         this.player = Objects.requireNonNull(Minecraft.getInstance().player);
+        this.tracksOpenState = Minecraft.getInstance().level.getBlockState(sourcePos).getBlock()
+            instanceof ShulkerContainerBlock;
     }
 
     public static void openScreen(BlockPos sourcePos) {
@@ -130,6 +134,9 @@ public class StorageScreen extends Screen {
 
     @Override
     protected void init() {
+        if (this.tracksOpenState) {
+            StorageClientStub.setOpen(this.sourcePos, true);
+        }
         this.left = (this.width - StorageScreen.BG_WIDTH) / 2;
         this.top = (this.height - StorageScreen.BG_HEIGHT) / 2;
         this.titleLabelX = (StorageScreen.BG_WIDTH - 106 - this.font.width(this.title)) / 2 + 106;
@@ -905,6 +912,9 @@ public class StorageScreen extends Screen {
         this.reorderRequest++;
         this.syncRequest++;
         this.metadataPending = false;
+        if (this.tracksOpenState && this.minecraft.player != null) {
+            StorageClientStub.setOpen(this.sourcePos, false);
+        }
         if (!this.carried.isEmpty() && this.minecraft.gameMode != null) {
             this.player.inventoryMenu.setCarried(this.carried);
             Inventory inventory = this.player.getInventory();

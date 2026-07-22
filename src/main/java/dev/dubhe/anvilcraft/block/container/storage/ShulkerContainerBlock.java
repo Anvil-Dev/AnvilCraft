@@ -11,7 +11,9 @@ import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -97,6 +99,21 @@ public class ShulkerContainerBlock
     @Override
     public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.SHULKER_CONTAINER.create(pos, state);
+    }
+
+    @Override
+    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof ShulkerContainerBlockEntity entity) {
+            entity.recheckOpeners();
+        }
+    }
+
+    public void setOpened(Level level, BlockPos pos, boolean opened) {
+        BlockState state = level.getBlockState(pos);
+        if (state.is(this) && state.getValue(OPENED) != opened) {
+            this.updateState(level, pos, OPENED, opened, Block.UPDATE_ALL);
+        }
     }
 
     @Override

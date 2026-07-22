@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourc
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
@@ -85,6 +86,15 @@ public final class StorageServerStub {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
         return new Metadata(stub.version, stub.orderVersion, view.fullness(), view.capacity());
+    }
+
+    @RemoteCallable(validator = StorageOpenStateValidator.class)
+    public static void setOpen(UUID playerId, long sourcePos, boolean opened) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        BlockEntity blockEntity = player.level().getBlockEntity(BlockPos.of(sourcePos));
+        if (blockEntity instanceof ShulkerContainerBlockEntity shulkerContainer) {
+            shulkerContainer.setOpen(player, opened);
+        }
     }
 
     @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC")
@@ -413,6 +423,30 @@ public final class StorageServerStub {
         }
     }
 
+    public static final class StorageOpenStateValidator implements IRemoteCallableValidator {
+        @Override
+        public boolean validate(IPayloadContext ctx, Method method, Object[] args) {
+            if (
+                !(ctx.player() instanceof ServerPlayer player)
+                || args.length != 3
+                || !(args[0] instanceof UUID playerId)
+                || !player.getGameProfile().id().equals(playerId)
+                || !(args[1] instanceof Long sourcePos)
+                || !(args[2] instanceof Boolean opened)
+            ) {
+                return false;
+            }
+            BlockPos pos = BlockPos.of(sourcePos);
+            BlockEntity blockEntity = player.level().getBlockEntity(pos);
+            return blockEntity instanceof ShulkerContainerBlockEntity
+                   && (!opened || AbstractContainerMenu.stillValid(
+                ContainerLevelAccess.create(player.level(), pos),
+                player,
+                blockEntity.getBlockState().getBlock()
+            ));
+        }
+    }
+
     public record Metadata(long version, long orderVersion, double fullness, Capacity capacity) {
         public static final StreamCodec<ByteBuf, Metadata> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_LONG,
@@ -633,10 +667,15 @@ public final class StorageServerStub {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         BlockPos pos = BlockPos.of(sourcePos);
         BlockEntity blockEntity = player.level().getBlockEntity(pos);
-        if (!(blockEntity instanceof StorageBlockEntity storage) || storage.getId() == null) {
+        if (!(blockEntity instanceof StorageBlockEntity storage)) {
             throw new IllegalStateException("Cannot access storage without a storage block entity");
         }
-        BaseStorage<?> primary = Storages.get().getOrCreate(storage.getId(), storage.getStorageType().clazz());
+        UUID id = storage.getId();
+        if (id == null) {
+            id = UUID.randomUUID();
+            storage.setId(id);
+        }
+        BaseStorage<?> primary = Storages.get().getOrCreate(id, storage.getStorageType().clazz());
         String search = PlayerSettings.getSetting(registries, playerId).storage().getSearchContent().strip();
         if (search.isEmpty() || !(storage instanceof CrateBlockEntity)) {
             return new StorageView(List.of(primary), List.of());

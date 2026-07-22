@@ -16,6 +16,8 @@ import dev.dubhe.anvilcraft.anvil.ResetVaultBehavior;
 import dev.dubhe.anvilcraft.anvil.SugarBlockBehavior;
 import dev.dubhe.anvilcraft.anvil.TimeWarpPlayerBehavior;
 import dev.dubhe.anvilcraft.anvil.TranscendiumBehavior;
+import dev.dubhe.anvilcraft.anvil.Upgrade2ShulkerContainerBehavior;
+import dev.dubhe.anvilcraft.anvil.UpgradeShulkerContainerBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilBehaviorRegisterEvent;
 import dev.dubhe.anvilcraft.block.storage.GunpowderBlock;
 import dev.dubhe.anvilcraft.block.storage.SugarBlock;
@@ -56,5 +58,7 @@ public class ModAnvilBehaviors {
             state -> state.is(ModBlocks.MAGNET_BLOCK.get()) || state.is(ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get()),
             new MagnetBlockBehavior()
         );
+        event.registerBehavior(ModBlocks.LARGE_CRATE.get(), new Upgrade2ShulkerContainerBehavior());
+        event.registerBehavior(ModBlocks.SHULKER_CONTAINER.get(), new UpgradeShulkerContainerBehavior());
     }
 }

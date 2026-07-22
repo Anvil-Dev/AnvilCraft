@@ -26,6 +26,16 @@ public final class StorageClientStub {
         );
     }
 
+    public static void setOpen(BlockPos sourcePos, boolean opened) {
+        RPC.call(
+            RpcTarget.server(),
+            StorageServerStub::setOpen,
+            playerId(),
+            sourcePos.asLong(),
+            opened
+        );
+    }
+
     public static CompletableFuture<IntList> reorder(BlockPos sourcePos) {
         return RPC.invoke(
             RpcTarget.server(),
