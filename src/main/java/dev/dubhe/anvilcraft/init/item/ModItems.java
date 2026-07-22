@@ -38,6 +38,7 @@ import dev.dubhe.anvilcraft.item.ingredients.RoyalSteelIngotItem;
 import dev.dubhe.anvilcraft.item.ingredients.SuperCapacitorItem;
 import dev.dubhe.anvilcraft.item.ingredients.TopazItem;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
+import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.WrappedOthersAmulet;
 import dev.dubhe.anvilcraft.item.property.predicate.IntegerComponentPredicate;
@@ -115,6 +116,7 @@ import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.component.predicates.DataComponentPredicate;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.ItemTags;
@@ -391,6 +393,11 @@ public class ModItems {
             .enchantable(13)
             .repairable(ModItemTags.TRANSCENDIUM_TOOL_MATERIALS)
             .fireResistant()
+            .component(ModComponents.MULTIPHASE, Multiphase.create())
+            .component(
+                DataComponents.ITEM_NAME,
+                Multiphase.firstPhaseName(Component.translatable("item.anvilcraft.transcendence_dragon_rod"))
+            )
             .component(ModComponents.ETERNAL, Eternal.DEFAULT)
             .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
             .component(ModComponents.PROVIDENCE, Unit.INSTANCE)

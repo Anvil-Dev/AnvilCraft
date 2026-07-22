@@ -1,84 +1,104 @@
 package dev.dubhe.anvilcraft.init.item.tabs;
 
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
+import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.world.item.BucketItem;
 
 public class Ingredients extends DisplayItemsGenerator {
     @Override
     public void accept() {
-        this.plain(ModItems.MAGNET_INGOT); // 磁铁锭
-        this.plain(ModItems.SPONGE_GEMMULE); // 海绵芽球
-        this.plain(ModItems.ROYAL_STEEL_INGOT); // 皇家钢锭
-        this.plain(ModItems.ROYAL_STEEL_NUGGET); // 皇家钢粒
-        this.plain(ModItems.FROST_METAL_INGOT); // 浮霜金属锭
-        this.plain(ModItems.FROST_METAL_NUGGET); // 浮霜金属粒
-        this.plain(ModItems.EMBER_METAL_INGOT); // 余烬金属锭
-        this.plain(ModItems.EMBER_METAL_NUGGET); // 余烬金属粒
-        this.plain(ModItems.TRANSCENDIUM_INGOT); // 超限合金锭
-        this.plain(ModItems.TRANSCENDIUM_NUGGET); // 超限合金粒
-        this.plain(ModItems.CURSED_GOLD_INGOT); // 诅咒金锭
-        this.plain(ModItems.CURSED_GOLD_NUGGET); // 诅咒金粒
-        this.plain(ModItems.TOPAZ); // 黄玉
-        this.plain(ModItems.RUBY); // 红宝石
-        this.plain(ModItems.SAPPHIRE); // 蓝宝石
-        this.plain(ModItems.EXP_GEM); // 经验宝石
-        this.plain(ModItems.RESIN); // 树脂
-        this.plain(ModItems.AMBER); // 琥珀
-        this.plain(ModItems.HARDEND_RESIN); // 硬化树脂
-        this.plain(ModItems.WOOD_FIBER); // 木质纤维
-        this.plain(ModItems.CIRCUIT_BOARD); // 电路板
-        this.plain(ModItems.PROCESSOR); // 处理器
-        this.plain(ModItems.TUNGSTEN_NUGGET); // 钨粒
-        this.plain(ModItems.TUNGSTEN_INGOT); // 钨锭
-        this.plain(ModItems.TITANIUM_NUGGET); // 钛粒
-        this.plain(ModItems.TITANIUM_INGOT); // 钛锭
-        this.plain(ModItems.ZINC_NUGGET); // 锌粒
-        this.plain(ModItems.ZINC_INGOT); // 锌锭
-        this.plain(ModItems.TIN_NUGGET); // 锡粒
-        this.plain(ModItems.TIN_INGOT); // 锡锭
-        this.plain(ModItems.LEAD_NUGGET); // 铅粒
-        this.plain(ModItems.LEAD_INGOT); // 铅锭
-        this.plain(ModItems.SILVER_NUGGET); // 银粒
-        this.plain(ModItems.SILVER_INGOT); // 银锭
-        this.plain(ModItems.URANIUM_NUGGET); // 铀粒
-        this.plain(ModItems.URANIUM_INGOT); // 铀锭
-        this.plain(ModItems.PLUTONIUM_NUGGET); // 钚粒
-        this.plain(ModItems.PLUTONIUM_INGOT); // 钚锭
-        this.plain(ModItems.COPPER_NUGGET); // 铜粒
-        this.plain(ModItems.BRONZE_INGOT); // 青铜锭
-        this.plain(ModItems.BRONZE_NUGGET); // 青铜粒
-        this.plain(ModItems.BRASS_INGOT); // 黄铜锭
-        this.plain(ModItems.BRASS_NUGGET); // 黄铜粒
-        this.plain(ModItems.LIME_POWDER); // 石灰粉
-        this.plain(ModItems.LEVITATION_POWDER); // 飘浮粉
-        this.plain(ModItems.RAW_ZINC); // 粗锌
-        this.plain(ModItems.RAW_TIN); // 粗锡
-        this.plain(ModItems.RAW_TITANIUM); // 粗钛
-        this.plain(ModItems.RAW_TUNGSTEN); // 粗钨
-        this.plain(ModItems.RAW_LEAD); // 粗铅
-        this.plain(ModItems.RAW_SILVER); // 粗银
-        this.plain(ModItems.RAW_URANIUM); // 粗铀
-        this.plain(ModItems.VOID_MATTER); // 虚空物质
-        this.plain(ModItems.EXCITED_STATE_VOID_MATTER); // 激发态虚空物质
-        this.plain(ModItems.EARTH_CORE_SHARD); // 地核碎片
-        this.plain(ModItems.MULTIPHASE_MATTER); // 多相物质
-        this.plain(ModItems.HEAVY_HALBERD_CORE); // 重戟核心
-        this.plain(ModItems.RESONATOR_CORE); // 共振器核心
-        this.plain(ModItems.MULTIPHASE_TRANSCENDIUM); // 多相超限合金
-        this.plain(ModItems.NEGATIVE_MATTER); // 负物质
-        this.plain(ModItems.NEGATIVE_MATTER_NUGGET); // 负物质粒
-        this.plain(ModItems.DYSON_SPHERE_COMPONENT); // 戴森球组件
-        this.plain(ModItems.PENROSE_SPHERE_COMPONENT); // 彭罗斯球组件
-        this.plain(ModItems.MATTER_DECOMPRESSOR_COMPONENT); // 物质解压器组件
-        this.plain(ModItems.WORMHOLE_STABILIZER_COMPONENT); // 虫洞稳定器组件
-        this.plain(ModItems.NEUTRONIUM_INGOT); // 中子锭
-        this.plain(ModItems.STABLE_NEUTRONIUM_INGOT); // 稳态中子锭
-        this.plain(ModItems.CHARGED_NEUTRONIUM_INGOT); // 充能中子锭
-        this.plain(ModItems.EXP_BUCKET); // 液态经验桶
-        this.plain(ModItems.OIL_BUCKET); // 原油桶
-        this.plain(ModItems.MELT_GEM_BUCKET); // 熔融宝石桶
-        for (ItemEntry<BucketItem> entry : ModItems.CEMENT_BUCKETS.values()) { // x色水泥桶
+        this.plain(ModItems.SPONGE_GEMMULE);
+        this.plain(ModItems.AMBER);
+        this.plain(ModItems.RESIN);
+        this.plain(ModItems.HARDEND_RESIN);
+        this.plain(ModItems.WOOD_FIBER);
+        this.plain(ModItems.LIME_POWDER);
+        this.plain(ModItems.CRAB_CLAW);
+        this.plain(ModItems.LEVITATION_POWDER);
+
+        this.plain(ModItems.MAGNET_INGOT);
+        this.plain(ModItems.ROYAL_STEEL_INGOT);
+        this.plain(ModItems.ROYAL_STEEL_NUGGET);
+        this.plain(ModItems.FROST_METAL_INGOT);
+        this.plain(ModItems.FROST_METAL_NUGGET);
+        this.plain(ModItems.EMBER_METAL_INGOT);
+        this.plain(ModItems.EMBER_METAL_NUGGET);
+        this.plain(ModItems.TRANSCENDIUM_INGOT);
+        this.plain(ModItems.TRANSCENDIUM_NUGGET);
+        this.plain(ModItems.CURSED_GOLD_INGOT);
+        this.plain(ModItems.CURSED_GOLD_NUGGET);
+
+        this.plain(ModItems.RAW_ZINC);
+        this.plain(ModItems.RAW_TIN);
+        this.plain(ModItems.RAW_TITANIUM);
+        this.plain(ModItems.RAW_TUNGSTEN);
+        this.plain(ModItems.RAW_LEAD);
+        this.plain(ModItems.RAW_SILVER);
+        this.plain(ModItems.RAW_URANIUM);
+
+        this.plain(ModItems.ZINC_INGOT);
+        this.plain(ModItems.TIN_INGOT);
+        this.plain(ModItems.TITANIUM_INGOT);
+        this.plain(ModItems.TUNGSTEN_INGOT);
+        this.plain(ModItems.LEAD_INGOT);
+        this.plain(ModItems.SILVER_INGOT);
+        this.plain(ModItems.URANIUM_INGOT);
+        this.plain(ModItems.PLUTONIUM_INGOT);
+        this.plain(ModItems.BRONZE_INGOT);
+        this.plain(ModItems.BRASS_INGOT);
+
+        this.plain(ModItems.ZINC_NUGGET);
+        this.plain(ModItems.TIN_NUGGET);
+        this.plain(ModItems.TITANIUM_NUGGET);
+        this.plain(ModItems.TUNGSTEN_NUGGET);
+        this.plain(ModItems.LEAD_NUGGET);
+        this.plain(ModItems.SILVER_NUGGET);
+        this.plain(ModItems.URANIUM_NUGGET);
+        this.plain(ModItems.PLUTONIUM_NUGGET);
+        this.plain(ModItems.BRONZE_NUGGET);
+        this.plain(ModItems.BRASS_NUGGET);
+        this.plain(ModItems.COPPER_NUGGET);
+
+        this.plain(ModItems.TOPAZ);
+        this.plain(ModItems.RUBY);
+        this.plain(ModItems.SAPPHIRE);
+        this.plain(ModItems.EXP_GEM);
+        this.plain(ModItems.CIRCUIT_BOARD);
+        this.plain(ModItems.PROCESSOR);
+
+        this.plain(ModItems.HEAVY_HALBERD_CORE);
+        this.plain(ModItems.RESONATOR_CORE);
+        this.plain(ModItems.MULTIPHASE_TRANSCENDIUM);
+        this.plain(ModItems.DYSON_SPHERE_COMPONENT);
+        this.plain(ModItems.PENROSE_SPHERE_COMPONENT);
+        this.plain(ModItems.MATTER_DECOMPRESSOR_COMPONENT);
+        this.plain(ModItems.WORMHOLE_STABILIZER_COMPONENT);
+
+        this.plain(ModItems.VOID_MATTER);
+        this.plain(ModItems.EXCITED_STATE_VOID_MATTER);
+        this.plain(ModItems.EARTH_CORE_SHARD);
+        this.plain(ModItems.MULTIPHASE_MATTER);
+        this.plain(ModItems.NEGATIVE_MATTER);
+        this.plain(ModItems.NEGATIVE_MATTER_NUGGET);
+        this.plain(ModItems.NEUTRONIUM_INGOT);
+        this.plain(ModItems.STABLE_NEUTRONIUM_INGOT);
+        this.plain(ModItems.CHARGED_NEUTRONIUM_INGOT);
+
+        this.plain(ModItems.CREAM);
+        this.plain(ModItems.DOUGH);
+        this.plain(ModItems.FLOUR);
+        this.plain(ModItems.COCOA_POWDER);
+        this.plain(ModItems.COCOA_LIQUOR);
+        this.plain(ModItems.COCOA_BUTTER);
+        this.plain(ModFoodItems.CHOCOLATE);
+        this.plain(ModFoodItems.CHOCOLATE_BLACK);
+        this.plain(ModFoodItems.CHOCOLATE_WHITE);
+
+        this.plain(ModItems.EXP_BUCKET);
+        this.plain(ModItems.OIL_BUCKET);
+        this.plain(ModItems.MELT_GEM_BUCKET);
+        for (ItemEntry<BucketItem> entry : ModItems.CEMENT_BUCKETS.values()) {
             this.plain(entry.asItem());
         }
     }

@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.decoration.heavyiron.HeavyIronBeamBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
-import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderGetter;
@@ -83,6 +82,14 @@ public class MultiBlockRecipeLoader {
             .symbol('A', ModBlocks.CUT_BRASS_BLOCK)
             .symbol('B', Tags.Blocks.GLASS_BLOCKS)
             .save(provider, AnvilCraft.of("multiblock/large_fluid_tank"));
+
+        MultiblockRecipe.builder(ModBlocks.LARGE_CAULDRON, 1)
+            .layer("AAA", "AAA", "AAA")
+            .layer("ABA", "B B", "ABA")
+            .layer("ABA", "B B", "ABA")
+            .symbol('A', ModBlocks.CUT_HEAVY_IRON_BLOCK)
+            .symbol('B', ModBlocks.TEMPERING_GLASS)
+            .save(provider, AnvilCraft.of("multiblock/large_cauldron"));
 
         MultiblockRecipe.builder(ModBlocks.MENGER_SPONGE)
             .layer("AAA", "A A", "AAA")

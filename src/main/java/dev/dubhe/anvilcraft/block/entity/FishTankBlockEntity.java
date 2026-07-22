@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.mixin.accessor.StacksResourceHandlerAccessor;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
+import dev.dubhe.anvilcraft.util.FireReforgingUtil;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -349,6 +350,23 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
     public FishTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
+    }
+
+    public static void serverTick(Level level, BlockPos pos, BlockState state, FishTankBlockEntity entity) {
+        if (!entity.fluidHandler.getStack().is(Fluids.LAVA)) return;
+        boolean changed = false;
+        for (int slot = 0; slot < entity.input.size(); slot++) {
+            ItemResource resource = entity.input.getResource(slot);
+            if (resource.isEmpty()) continue;
+            int amount = entity.input.getAmountAsInt(slot);
+            ItemStack stack = resource.toStack(amount);
+            if (!FireReforgingUtil.repair(stack, FireReforgingUtil.LAVA_REPAIR_PER_TICK, level, pos)) continue;
+            entity.input.set(slot, ItemResource.of(stack), amount);
+            changed = true;
+        }
+        if (!changed) return;
+        entity.setChanged();
+        entity.sendUpdate();
     }
 
     @Override
@@ -875,7 +893,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             effectApplier.apply(InsideBlockEffectType.EXTINGUISH);
             FluidResource resource = FluidResource.of(stack);
             try (Transaction transaction = Transaction.openRoot()) {
-                if (entity.mayInteract(serverside, pos)) {
+                boolean creativePlayer = entity instanceof Player player && player.isCreative();
+                if (!creativePlayer && entity.mayInteract(serverside, pos)) {
                     this.fluidHandler.extract(0, resource, 250, transaction);
                 }
                 if (stack.is(ModFluids.POWDER_SNOW)) {

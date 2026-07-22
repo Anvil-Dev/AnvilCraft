@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.recipe.generate.JewelCraftingRecipeGeneratingCache;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -19,14 +20,20 @@ import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.common.util.RegistryUtil;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<JewelCraftingRecipe>> {
     public static final int WIDTH = 162;
@@ -102,9 +109,21 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
+        List<RecipeHolder<JewelCraftingRecipe>> recipes = new ArrayList<>(
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.JEWEL_CRAFTING.get())
+        );
+        Set<ResourceKey<Recipe<?>>> recipeIds = new HashSet<>();
+        recipes.forEach(recipe -> recipeIds.add(recipe.id()));
+        var connection = Minecraft.getInstance().getConnection();
+        if (connection != null) {
+            new JewelCraftingRecipeGeneratingCache(connection.registryAccess()).buildRecipes()
+                .ifPresent(generated -> generated.stream()
+                    .filter(recipe -> recipeIds.add(recipe.id()))
+                    .forEach(recipes::add));
+        }
         registration.addRecipes(
             AnvilCraftJeiPlugin.JEWEL_CRAFTING,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.JEWEL_CRAFTING.get())
+            recipes
         );
     }
 

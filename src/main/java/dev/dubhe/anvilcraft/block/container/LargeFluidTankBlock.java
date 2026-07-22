@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
 import dev.dubhe.anvilcraft.util.TankUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -32,6 +33,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import org.jspecify.annotations.Nullable;
 
 public class LargeFluidTankBlock
@@ -135,6 +137,34 @@ public class LargeFluidTankBlock
     }
 
     @Override
+    public boolean hasAnalogOutputSignal(BlockState blockState) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(
+        BlockState blockState,
+        Level level,
+        BlockPos blockPos,
+        Direction direction
+    ) {
+        BlockEntity blockEntity = level.getBlockEntity(blockPos);
+        return blockEntity instanceof LargeFluidTankBlockEntity tank ? tank.getRedstoneSignal() : 0;
+    }
+
+    @Override
+    public boolean hasDynamicLightEmission(BlockState state) {
+        return true;
+    }
+
+    @Override
+    public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
+        BlockPos mainPartPos = this.getMainPartPos(pos, state);
+        AuxiliaryLightManager manager = level.getAuxLightManager(mainPartPos);
+        return manager == null ? 0 : manager.getLightAt(mainPartPos);
+    }
+
+    @Override
     public Block getBlock() {
         return this;
     }
@@ -159,6 +189,6 @@ public class LargeFluidTankBlock
 
     @Override
     public BlockPos correctPos(ServerLevel level, BlockPos pos, BlockState state) {
-        return pos.offset(state.getValue(HALF).getOffset()).offset(this.getMainPartOffset());
+        return this.getMainPartPos(pos, state);
     }
 }

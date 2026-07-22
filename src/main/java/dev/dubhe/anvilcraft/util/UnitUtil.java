@@ -78,4 +78,25 @@ public class UnitUtil {
             }
         }
     }
+
+    public static String fluidUnit(int amount, boolean original) {
+        return fluidUnit((long) amount, original);
+    }
+
+    public static String fluidUnit(long amount, boolean original) {
+        if (original) return amount + " mB";
+        if (amount < 1000) return String.format("%d mB", amount);
+        if (amount < 1000000) {
+            double bucketValue = (double) amount / 1000;
+            double truncated = Math.floor(bucketValue * 100) / 100;
+            return truncated == Math.floor(truncated)
+                ? String.format("%.0f B", truncated)
+                : String.format("%.2f B", truncated);
+        }
+        double kiloBucketValue = (double) amount / 1000000;
+        double truncated = Math.floor(kiloBucketValue * 100) / 100;
+        return truncated == Math.floor(truncated)
+            ? String.format("%.0f KB", truncated)
+            : String.format("%.2f KB", truncated);
+    }
 }

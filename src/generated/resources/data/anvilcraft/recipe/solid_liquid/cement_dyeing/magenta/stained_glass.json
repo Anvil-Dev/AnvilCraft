@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "anvilcraft:magenta_cement",
+  "ingredients": [
+    {
+      "items": "#c:glass_blocks/cheap"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:magenta_stained_glass"
+    }
+  ]
+}

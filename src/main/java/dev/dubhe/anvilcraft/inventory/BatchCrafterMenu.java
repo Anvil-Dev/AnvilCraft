@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.component.ReadOnlySlot;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -20,22 +19,19 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.RecipeManager;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 
 @Getter
 public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, ContainerListener {
     public final BatchCrafterBlockEntity blockEntity;
     private final Slot resultSlot;
     private final Level level;
+    private List<RecipeHolder<CraftingRecipe>> recipes = List.of();
 
     public BatchCrafterMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, Objects.requireNonNull(inventory.player.level().getBlockEntity(extraData.readBlockPos())));
@@ -71,7 +67,7 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
         }
 
         this.addSlot(this.resultSlot = new ReadOnlySlot(new SimpleContainer(1), 0, 8 + 7 * 18, 18 + 2 * 18));
-        this.onChanged();
+        this.refreshResult();
         this.addSlotListener(this);
     }
 
@@ -198,31 +194,25 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     @Override
     public void setItem(int slotId, int stateId, ItemStack stack) {
         super.setItem(slotId, stateId, stack);
-        this.onChanged();
+        this.refreshResult();
     }
 
-    private void onChanged() {
-        if (!(this.level instanceof ServerLevel serverLevel)) return;
-        RecipeManager recipeManager = serverLevel.recipeAccess();
-        Optional<RecipeHolder<CraftingRecipe>> recipe = recipeManager.getRecipeFor(
-            RecipeType.CRAFTING,
-            this.blockEntity.getDummyCraftingContainer().asCraftInput(),
-            serverLevel
-        );
-        if (recipe.isPresent()) {
-            this.resultSlot.set(switch (recipe.get().value()) {
-                case ShapedRecipe shaped -> shaped.result.create();
-                case ShapelessRecipe shapeless -> shapeless.result.create();
-                default -> recipe.get().value().assemble(this.blockEntity.getDummyCraftingContainer().asCraftInput());
-            });
-        } else {
+    public void refreshResult() {
+        this.recipes = this.blockEntity.getRecipes();
+        if (this.recipes.isEmpty()) {
             this.resultSlot.set(ItemStack.EMPTY);
+            return;
         }
+        if (this.blockEntity.getSelecting() < 0 || this.blockEntity.getSelecting() >= this.recipes.size()) {
+            this.blockEntity.setSelecting(0);
+        }
+        this.resultSlot.set(this.recipes.get(this.blockEntity.getSelecting()).value()
+            .assemble(this.blockEntity.getDummyCraftingContainer().asCraftInput()));
     }
 
     @Override
     public void slotChanged(AbstractContainerMenu container, int dataSlotIndex, ItemStack stack) {
-        this.onChanged();
+        this.refreshResult();
     }
 
     @Override
@@ -231,6 +221,6 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
 
     @Override
     public void flush() {
-        this.onChanged();
+        this.refreshResult();
     }
 }

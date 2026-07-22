@@ -3,17 +3,20 @@ package dev.dubhe.anvilcraft.block.workstation;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.block.better.BetterAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.inventory.NeoforgeMenu;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleMenuProvider;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.FallingBlockEntity;
@@ -86,6 +89,14 @@ public class NeoforgeBlock extends BetterAnvilBlock {
     @Override
     public void falling(FallingBlockEntity entity) {
         entity.setHurtsEntities(2.0F, 20);
+    }
+
+    @Override
+    public void fallOn(Level level, BlockState state, BlockPos pos, Entity entity, double fallDistance) {
+        if (entity instanceof Player) {
+            level.playSound(null, pos, ModSoundEvents.NEOFORGE_LAND.get(), SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
+        super.fallOn(level, state, pos, entity, fallDistance);
     }
 
     public static void damage(Level level, BlockPos pos) {

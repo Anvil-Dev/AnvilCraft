@@ -14,7 +14,7 @@ items:
 
 # Acquisition
 
-<recipe id="anvilcraft:bulging/cement_cauldron"/>
+<recipe id="anvilcraft:solid_liquid/cement_cauldron"/>
 - The cement produced is gray by default; throw dye into the cauldron and crush to change the color
 
 # Function

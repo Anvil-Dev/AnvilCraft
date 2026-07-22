@@ -42,7 +42,7 @@ public class WrappedBlockStateModel extends Model<BlockStateModelTessellateState
     ) {
         Minecraft mc = Minecraft.getInstance();
         StandaloneModelKey<BlockStateModel> key = this.state.key();
-        ModelBlockRenderer tessellator = this.renderer.getTessellator();
+        ModelBlockRenderer tessellator = this.renderer.getTessellatorNoLighting();
         BlockStateModel model = mc.getModelManager().getStandaloneModel(key);
 
         tessellator.tesselateBlock(

@@ -52,15 +52,14 @@ public class MultiphaseCommand {
         MutableComponent message = Component.translatable(
             "command.anvilcraft.multiphase.info.summary",
             multiphase.phases().size(),
-            multiphase.activePhase() + 1,
-            multiphase.merciless()
+            multiphase.activePhase() + 1
         ).withStyle(ChatFormatting.LIGHT_PURPLE);
         for (int i = 0; i < multiphase.phases().size(); i++) {
             Multiphase.Phase phase = multiphase.phases().get(i);
             message.append(Component.literal("\n")).append(Component.translatable(
                 "command.anvilcraft.multiphase.info.phase",
                 i + 1,
-                multiphase.phaseDisplayName(i, false),
+                multiphase.phaseDisplayName(i),
                 phase.repairCost(),
                 phase.enchantments()
             ));

@@ -45,7 +45,7 @@ public class OverseerBlockEntity extends BlockEntity {
     public void tick(Level level, BlockPos pos, BlockState state) {
         if (level instanceof ServerLevel serverLevel) {
             // 如果底座上方不是监督者，直接破坏底座，结束方法
-            if (!this.isBaseValid()) {
+            if (!this.checkBlocks()) {
                 if (LevelLoadManager.checkRegistered(pos)) {
                     LevelLoadManager.unregister(pos, level);
                 }
@@ -53,9 +53,11 @@ public class OverseerBlockEntity extends BlockEntity {
             }
             int newlevel = this.checkBaseSupportsLevel(level, pos);
             boolean newRandomTick = this.waterLoggedBlockCount >= 4;
-            if (newlevel == this.oldlevel && newRandomTick == this.oldRandomTick) {
+            boolean levelChanged = newlevel != this.oldlevel;
+            if (!levelChanged && newRandomTick == this.oldRandomTick) {
                 return;
             }
+            if (levelChanged) this.updateDisplayedLevel(newlevel);
             if (this.oldlevel > -1 || LevelLoadManager.checkRegistered(pos)) {
                 LevelLoadManager.unregister(pos, level);
                 this.oldlevel = -1;
@@ -109,18 +111,15 @@ public class OverseerBlockEntity extends BlockEntity {
         return supportLevel;
     }
 
-    private boolean isBaseValid() {
-        BlockPos thizPos = getBlockPos();
-        if (!this.checkBlocks()) return false;
-        int supportsLevel = this.checkBaseSupportsLevel(this.level, thizPos);
+    private void updateDisplayedLevel(int levelValue) {
         for (int i = 0; i < 3; i++) {
             BlockPos pos = getBlockPos().relative(Direction.Axis.Y, i);
             BlockState state = level.getBlockState(pos);
-            if (level.getBlockState(pos).is(ModBlocks.OVERSEER)) {
-                level.setBlock(pos, state.setValue(OverseerBlock.LEVEL, supportsLevel), 2);
+            if (state.is(ModBlocks.OVERSEER)
+                && state.getValue(OverseerBlock.LEVEL) != levelValue) {
+                level.setBlock(pos, state.setValue(OverseerBlock.LEVEL, levelValue), 2);
             }
         }
-        return supportsLevel >= 0;
     }
 
     private boolean checkBlocks() {

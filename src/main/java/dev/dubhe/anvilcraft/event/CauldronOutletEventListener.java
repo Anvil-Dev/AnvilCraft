@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.entity.CauldronOutletEntity;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
@@ -36,6 +37,7 @@ public class CauldronOutletEventListener {
         if (
             !blockState.is(BlockTags.CAULDRONS)
             || !(itemStack.getItem() instanceof AnvilHammerItem)
+            || blockState.getBlock() instanceof LargeCauldronBlock
         ) {
             return;
         }
@@ -55,13 +57,14 @@ public class CauldronOutletEventListener {
         } else {
             newPosition = calculateMouthPosition(blockPos, direction);
         }
+        if (level.isClientSide()) return;
 
         // 检查该位置是否已有口，有就移除并播放音效
         CauldronOutletEntity existingMouth = findExistingCauldronMouthAtPosition(level, blockPos, newPosition);
 
         if (existingMouth != null) {
             existingMouth.discard();
-            level.playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
+            playOutletSound(level, blockPos);
             return;
         }
 
@@ -71,7 +74,11 @@ public class CauldronOutletEventListener {
         // 创建炼药锅口实体，播放音效
         CauldronOutletEntity cauldronMouthEntity = new CauldronOutletEntity(level, newPosition, blockPos, direction);
         level.addFreshEntity(cauldronMouthEntity);
-        level.playSound(null, blockPos, SoundEvents.ANVIL_LAND, SoundSource.BLOCKS, 1.0F, 1.0F);
+        playOutletSound(level, blockPos);
+    }
+
+    private static void playOutletSound(Level level, BlockPos pos) {
+        level.playSound(null, pos, SoundEvents.SMITHING_TABLE_USE, SoundSource.BLOCKS, 0.8F, 1.0F);
     }
 
     private static Direction getDirectionFromPlayerFacing(Direction clickedFace, Player player) {
@@ -84,12 +91,12 @@ public class CauldronOutletEventListener {
 
     private static List<CauldronOutletEntity> getCauldronMouths(Level level, BlockPos cauldronPos) {
         AABB searchBox = new AABB(
-            cauldronPos.getX() - 2,
-            cauldronPos.getY() - 2,
-            cauldronPos.getZ() - 2,
-            cauldronPos.getX() + 2,
-            cauldronPos.getY() + 2,
-            cauldronPos.getZ() + 2
+            cauldronPos.getX() - 4,
+            cauldronPos.getY() - 4,
+            cauldronPos.getZ() - 4,
+            cauldronPos.getX() + 4,
+            cauldronPos.getY() + 4,
+            cauldronPos.getZ() + 4
         );
         return level.getEntitiesOfClass(CauldronOutletEntity.class, searchBox, entity -> entity.getCauldronPos().equals(cauldronPos));
     }

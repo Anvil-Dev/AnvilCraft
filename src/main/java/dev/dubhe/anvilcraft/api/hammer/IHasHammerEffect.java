@@ -11,6 +11,10 @@ public interface IHasHammerEffect {
 
     BlockPos renderingBlockPos();
 
+    default BlockPos hiddenBlockPos() {
+        return this.renderingBlockPos();
+    }
+
     BlockState renderingBlockState();
 
     RenderType renderType();

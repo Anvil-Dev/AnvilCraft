@@ -10,20 +10,22 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
     public void accept() {
         this.plain(ModItems.GUIDE_BOOK);
         this.plain(ModItems.GEODE);
-        this.plain(ModItems.CRAB_CLAW);
         this.plain(ModItems.MAGNET);
+        this.plain(ModItems.CRAB_CLAW);
         this.plain(ModItems.DISK);
         this.plain(ModItems.STRUCTURE_DISK);
         this.plain(ModItems.FILTER);
+
         this.plain(ModItems.ANVIL_HAMMER);
         this.plain(ModItems.ROYAL_ANVIL_HAMMER);
         this.plain(ModItems.EMBER_ANVIL_HAMMER);
         this.plain(ModItems.TRANSCENDENCE_ANVIL_HAMMER);
         this.enchanting(ModItems.AMETHYST_PICKAXE, Enchantments.FORTUNE, 3);
         this.enchanting(ModItems.AMETHYST_AXE, ModEnchantments.FELLING_KEY, 1);
+        this.enchanting(ModItems.AMETHYST_SHOVEL, Enchantments.EFFICIENCY, 3);
         this.enchanting(ModItems.AMETHYST_HOE, ModEnchantments.HARVEST_KEY, 1);
         this.enchanting(ModItems.AMETHYST_SWORD, ModEnchantments.BEHEADING_KEY, 1);
-        this.enchanting(ModItems.AMETHYST_SHOVEL, Enchantments.EFFICIENCY, 3);
+
         this.plain(ModItems.ROYAL_STEEL_PICKAXE);
         this.plain(ModItems.ROYAL_STEEL_AXE);
         this.plain(ModItems.ROYAL_STEEL_SHOVEL);
@@ -40,6 +42,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.EMBER_METAL_HOE);
         this.plain(ModItems.EMBER_METAL_SWORD);
         this.plain(ModItems.MULTITOOL_ITEM);
+
         this.plain(ModItems.DRAGON_ROD);
         this.plain(ModItems.ROYAL_DRAGON_ROD);
         this.plain(ModItems.EMBER_DRAGON_ROD);
@@ -50,6 +53,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.FROST_METAL_HEAVY_HALBERD);
         this.plain(ModItems.EMBER_METAL_HEAVY_HALBERD);
         this.plain(ModItems.TRANSCENDENCE_HEAVY_HALBERD);
+
         this.plain(ModItems.SPECTRAL_SLINGSHOT);
         this.plain(ModItems.ENERGY_WEAPON_PLATFORM);
         this.plain(ModItems.SPECTRAL_WEAPON_LAUNCHER);
@@ -58,11 +62,13 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.TESLA_GUN);
         this.plain(ModItems.LASER_GUN);
         this.plain(ModItems.IONOCRAFT);
-        this.ionoCraftBackpack(ModItems.IONOCRAFT_BACKPACK);
+        this.plain(ModItems.IONOCRAFT_BACKPACK);
+
         this.plain(ModItems.CAPACITOR);
         this.plain(ModItems.CAPACITOR_EMPTY);
         this.plain(ModItems.SUPER_CAPACITOR);
         this.plain(ModItems.SUPER_CAPACITOR_EMPTY);
+
         this.plain(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE);
         this.plain(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE);
         this.plain(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE);
@@ -72,6 +78,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE);
         this.plain(ModItems.FOUR_TO_ONE_SMITHING_TEMPLATE);
         this.plain(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE);
+
         this.plain(ModItems.RECOVERY_PEARL);
         this.plain(ModItems.TOTEM_OF_RECOVERY);
         this.plain(ModItems.TOTEM_OF_RAGE);
@@ -89,6 +96,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.GEM_AMULET);
         this.plain(ModItems.NATURE_AMULET);
         this.plain(ModItems.AMULET_BOX);
+
         this.plain(ModItems.CREAM);
         this.plain(ModItems.DOUGH);
         this.plain(ModItems.FLOUR);

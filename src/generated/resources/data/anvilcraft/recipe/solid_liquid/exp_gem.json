@@ -1,0 +1,11 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "consume": 1000,
+  "fluid": "anvilcraft:exp_fluid",
+  "ingredients": [],
+  "results": [
+    {
+      "id": "anvilcraft:exp_gem"
+    }
+  ]
+}

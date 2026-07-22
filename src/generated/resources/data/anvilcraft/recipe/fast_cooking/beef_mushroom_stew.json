@@ -1,0 +1,23 @@
+{
+  "type": "anvilcraft:fast_cooking",
+  "fluid": "minecraft:water",
+  "ingredients": [
+    {
+      "items": "minecraft:beef"
+    },
+    {
+      "items": "minecraft:brown_mushroom"
+    },
+    {
+      "items": "minecraft:red_mushroom"
+    },
+    {
+      "items": "minecraft:bowl"
+    }
+  ],
+  "results": [
+    {
+      "id": "anvilcraft:beef_mushroom_stew"
+    }
+  ]
+}

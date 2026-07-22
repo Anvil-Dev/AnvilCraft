@@ -86,11 +86,11 @@ items:
 过筛额外产出约一半原料，可循环利用
 </info>
 
-# 膨发
+# 固液反应
 
-下方是装水<ref item="minecraft:cauldron"/>时，执行**物品膨发**操作，原料和产物都在锅中，消耗一层水
+下方是装水<ref item="minecraft:cauldron"/>时，执行**固液反应**操作，原料和产物都在锅中，消耗一层水
 
-<structure id="../../structures/bulging.snbt"/>
+<structure id="../../structures/solid_liquid.snbt"/>
 
 - 铜制方块→锈蚀铜制方块
 - 泥土→黏土
@@ -100,11 +100,11 @@ items:
 - 珊瑚→对应珊瑚块
 - 干海带→海带
 
-# 烹饪
+# 快速烹饪
 
-下方是<ref item="minecraft:cauldron"/>和<ref item="minecraft:campfire"/>时， 执行**烹饪**操作，原料和产物都在锅中，有的配方需要水
+下方是<ref item="minecraft:cauldron"/>和<ref item="minecraft:campfire"/>时， 执行**快速烹饪**操作，原料和产物都在锅中，有的配方需要水
 
-<structure id="../../structures/cooking.snbt"/>
+<structure id="../../structures/fast_cooking.snbt"/>
 
 - 自动兼容所有烟熏炉配方和营火配方，此时不需要水
 

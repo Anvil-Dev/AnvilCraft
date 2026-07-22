@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
+import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -61,6 +62,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     protected @Nullable BaseLaserBlockEntity irradiatedLaserTarget = null;
     protected int laserLinkRevision = 0;
     protected int irradiatedLaserTargetRevision = -1;
+    private BlockMiningEffect lastEmittedMiningEffect = BlockMiningEffect.NORMAL;
     @Getter
     protected int laserLevel = 0;
 
@@ -134,6 +136,19 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             .sum();
     }
 
+    public BlockMiningEffect getMiningEffect() {
+        BlockMiningEffect effect = null;
+        for (BaseLaserBlockEntity source : this.irradiateSelfLaserBlockSet) {
+            BlockMiningEffect sourceEffect = source.getMiningEffect();
+            if (effect == null) {
+                effect = sourceEffect;
+            } else if (!effect.equals(sourceEffect)) {
+                return BlockMiningEffect.NORMAL;
+            }
+        }
+        return effect == null ? BlockMiningEffect.NORMAL : effect;
+    }
+
     public void syncTo(ServerPlayer player) {
         PacketDistributor.sendToPlayer(
             player,
@@ -190,15 +205,18 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         }
         int newLaserLevel = this.calculateLaserLevel();
         boolean laserLevelChanged = this.laserLevel != newLaserLevel;
+        BlockMiningEffect miningEffect = this.getMiningEffect();
+        boolean miningEffectChanged = !this.lastEmittedMiningEffect.equals(miningEffect);
         this.updateLaserLevel(newLaserLevel);
         if (
             newLaserTarget != null
             && !this.isInIrradiateSelfLaserBlockSet(newLaserTarget)
         ) {
             boolean needsIrradiationUpdate = targetChanged
-                                             || targetEntityChanged
-                                             || targetRevisionChanged
-                                             || laserLevelChanged;
+                                              || targetEntityChanged
+                                              || targetRevisionChanged
+                                              || laserLevelChanged
+                                              || miningEffectChanged;
             if (needsIrradiationUpdate && !newLaserTarget.getIgnoreFace().contains(direction)) {
                 this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
                 newLaserTarget.onIrradiated(this);
@@ -206,6 +224,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                 this.irradiatedLaserTargetRevision = newLaserTarget.laserLinkRevision;
             }
         }
+        this.lastEmittedMiningEffect = miningEffect;
         this.updateIrradiateBlockPos(tempIrradiateBlockPos);
 
         if (!(this.level instanceof ServerLevel serverLevel)) return;
@@ -238,9 +257,10 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         if (this.tickCount >= cooldown) {
             this.tickCount = 0;
             if (irradiateBlock.is(Tags.Blocks.ORES)) {
-                List<ItemStack> drops = BreakBlockUtil.drop(
+                List<ItemStack> drops = BreakBlockUtil.dropForLaser(
                     serverLevel,
-                    this.irradiateBlockPos
+                    this.irradiateBlockPos,
+                    this.getMiningEffect()
                 );
                 this.deliverItem(drops, direction, this.irradiateBlockPos);
             }

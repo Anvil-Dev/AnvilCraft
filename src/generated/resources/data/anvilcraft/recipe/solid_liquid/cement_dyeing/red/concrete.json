@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "anvilcraft:red_cement",
+  "ingredients": [
+    {
+      "items": "#c:concretes"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:red_concrete"
+    }
+  ]
+}

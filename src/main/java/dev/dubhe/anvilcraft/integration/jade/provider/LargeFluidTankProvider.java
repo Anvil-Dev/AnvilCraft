@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.integration.jade.provider;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.fluid.InfinityFluidTank;
+import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import net.minecraft.resources.Identifier;
-import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.Nullable;
@@ -14,7 +15,7 @@ import snownee.jade.api.view.FluidView;
 import snownee.jade.api.view.IServerExtensionProvider;
 import snownee.jade.api.view.ViewGroup;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 public enum LargeFluidTankProvider implements IServerExtensionProvider<FluidView.Data> {
@@ -24,24 +25,33 @@ public enum LargeFluidTankProvider implements IServerExtensionProvider<FluidView
     @Override
     public @Nullable List<ViewGroup<FluidView.Data>> getGroups(Accessor<?> accessor) {
         if (!(accessor instanceof BlockAccessor blockAccessor)) return null;
-        ResourceHandler<FluidResource> handler = accessor.getLevel().getCapability(
-            Capabilities.Fluid.BLOCK,
-            blockAccessor.getHitResult().getBlockPos(),
-            null
-        );
-        if (handler == null) return null;
-        FluidResource resource = handler.getResource(0);
-        long amount = handler.getAmountAsLong(0);
-        if (!(handler instanceof InfinityFluidTank infinity)) {
-            return Collections.singletonList(new ViewGroup<>(Collections.singletonList(new FluidView.Data(
-                JadeFluidObject.of(resource.getFluid(), amount),
-                handler.getCapacityAsInt(0, resource)
-            ))));
+        if (blockAccessor.getBlockEntity() instanceof FluidTankBlockEntity tank) {
+            ResourceHandler<FluidResource> handler = tank.getFluidHandler();
+            FluidResource resource = handler.getResource(0);
+            if (resource.isEmpty()) return null;
+            long capacity = tank.isInfinite()
+                ? Integer.MAX_VALUE
+                : handler.getCapacityAsLong(0, resource);
+            FluidView.Data data = new FluidView.Data(
+                JadeFluidObject.of(resource.getFluid(), handler.getAmountAsLong(0)),
+                capacity
+            );
+            return List.of(new ViewGroup<>(List.of(data)));
         }
-        return Collections.singletonList(new ViewGroup<>(Collections.singletonList(new FluidView.Data(
-            JadeFluidObject.of(resource.getFluid(), amount),
-            infinity.isInfinity() ? Integer.MAX_VALUE : infinity.getCapacityAsInt(0, resource)
-        ))));
+        if (!(blockAccessor.getBlockEntity() instanceof LargeFluidTankBlockEntity tank)) return null;
+
+        long capacity = tank.isEnhanced()
+            ? LargeFluidTankBlockEntity.INFINITY_THRESHOLD
+            : LargeFluidTankBlockEntity.BASE_CAPACITY;
+        List<FluidView.Data> fluids = new ArrayList<>();
+        for (FluidStack fluid : tank.getStoredFluids()) {
+            if (fluid.isEmpty()) continue;
+            fluids.add(new FluidView.Data(
+                JadeFluidObject.of(fluid.getFluid(), fluid.getAmount()),
+                tank.isInfinite(fluid) ? Integer.MAX_VALUE : capacity
+            ));
+        }
+        return fluids.isEmpty() ? null : List.of(new ViewGroup<>(fluids));
     }
 
     @Override
@@ -51,6 +61,6 @@ public enum LargeFluidTankProvider implements IServerExtensionProvider<FluidView
 
     @Override
     public Identifier getUid() {
-        return LargeFluidTankProvider.UID;
+        return UID;
     }
 }

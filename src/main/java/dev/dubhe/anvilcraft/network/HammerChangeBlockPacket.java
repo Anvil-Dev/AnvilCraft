@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.IServerboundPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.HammerChangeBlockEvent;
+import dev.dubhe.anvilcraft.block.entity.LensBlockEntity;
 import dev.dubhe.anvilcraft.block.logistics.chute.ChuteBlock;
 import dev.dubhe.anvilcraft.block.utility.redstone.BlockComparatorBlock;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
@@ -86,6 +87,9 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
             }
         }
         level.setBlock(this.pos, this.state, Block.UPDATE_ALL_IMMEDIATE);
+        if (level.getBlockEntity(this.pos) instanceof LensBlockEntity lensBlockEntity) {
+            lensBlockEntity.resetLaserStateAfterMove();
+        }
         TriggerUtil.anvilHammerChangeBlock(level, this.pos, blockState, this.state);
         level.playSound(
             null,

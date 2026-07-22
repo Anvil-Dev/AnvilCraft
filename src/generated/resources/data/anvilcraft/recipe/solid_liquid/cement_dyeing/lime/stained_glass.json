@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "anvilcraft:lime_cement",
+  "ingredients": [
+    {
+      "items": "#c:glass_blocks/cheap"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:lime_stained_glass"
+    }
+  ]
+}

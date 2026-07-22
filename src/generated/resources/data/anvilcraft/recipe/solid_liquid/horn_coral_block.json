@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "minecraft:water",
+  "ingredients": [
+    {
+      "items": "minecraft:horn_coral"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:horn_coral_block"
+    }
+  ]
+}

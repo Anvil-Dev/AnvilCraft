@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "fluid": "minecraft:water",
+  "ingredients": [
+    {
+      "items": "minecraft:fire_coral"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:fire_coral_block"
+    }
+  ]
+}

@@ -17,6 +17,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -40,9 +41,10 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
                 .fieldOf("block_ingredient")
                 .forGetter(ItemInjectRecipe::getFirstInputBlock),
             ChanceBlockState.CODEC.codec()
-                .fieldOf("block_result")
-                .forGetter(ItemInjectRecipe::getFirstResultBlock)
-        ).apply(instance, ItemInjectRecipe::new)),
+                .optionalFieldOf("block_result")
+                .forGetter(recipe -> recipe.getResultBlocks().stream().findFirst())
+        ).apply(instance, (ingredients, results, blockIngredient, blockResult) ->
+            new ItemInjectRecipe(ingredients, results, blockIngredient, blockResult.orElse(null)))),
         StreamCodec.composite(
             ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
             ItemInjectRecipe::getInputItems,
@@ -50,9 +52,10 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
             ItemInjectRecipe::getResultItems,
             BlockStatePredicate.STREAM_CODEC,
             ItemInjectRecipe::getFirstInputBlock,
-            ChanceBlockState.STREAM_CODEC,
-            ItemInjectRecipe::getFirstResultBlock,
-            ItemInjectRecipe::new
+            ByteBufCodecs.optional(ChanceBlockState.STREAM_CODEC),
+            recipe -> recipe.getResultBlocks().stream().findFirst(),
+            (ingredients, results, blockIngredient, blockResult) ->
+                new ItemInjectRecipe(ingredients, results, blockIngredient, blockResult.orElse(null))
         )
     );
 
@@ -66,7 +69,7 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
         List<ItemIngredientPredicate> itemIngredients,
         List<ChanceItemStack> results,
         BlockStatePredicate blockIngredient,
-        ChanceBlockState blockResult
+        @Nullable ChanceBlockState blockResult
     ) {
         super(
             new Property()
@@ -77,7 +80,7 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
                 .setBlockInputOffset(new Vec3i(0, -1, 0))
                 .setInputBlocks(blockIngredient)
                 .setBlockOutputOffset(new Vec3i(0, -1, 0))
-                .setResultBlocks(blockResult)
+                .setResultBlocks(blockResult == null ? List.of() : List.of(blockResult))
         );
     }
 
@@ -104,7 +107,7 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
         BlockStatePredicate.Builder blockIngredient = BlockStatePredicate.builder();
 
         /// 方块结果
-        ChanceBlockState blockResult = null;
+        @Nullable ChanceBlockState blockResult = null;
 
         /// 设置输入方块
         ///
@@ -154,6 +157,9 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
             if (this.itemIngredients.isEmpty()) {
                 throw new IllegalArgumentException("Recipe ingredients must not be empty, RecipeId: " + id);
             }
+            if (this.results.isEmpty() && this.blockResult == null) {
+                throw new IllegalArgumentException("Recipe must have an item or block result, RecipeId: " + id);
+            }
         }
 
         @Override
@@ -163,7 +169,7 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
 
         @Override
         public ItemStackTemplate getResult() {
-            return WrapUtils.getItem(this.blockResult);
+            return this.blockResult == null ? super.getResult() : WrapUtils.getItem(this.blockResult);
         }
 
         @Override

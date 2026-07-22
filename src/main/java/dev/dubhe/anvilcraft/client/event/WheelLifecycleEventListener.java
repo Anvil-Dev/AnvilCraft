@@ -10,6 +10,8 @@ import dev.anvilcraft.lib.v2.wheel.api.WheelMenuModel;
 import dev.anvilcraft.lib.v2.wheel.client.input.WheelScreenController;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
+import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder;
+import dev.dubhe.anvilcraft.block.multipart.IMultiPartBlockModelHolder.ModelRenderTarget;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
@@ -48,6 +50,7 @@ import org.jspecify.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -232,9 +235,14 @@ public class WheelLifecycleEventListener {
         List<BlockState> possibleStates,
         Vec2 camera
     ) {
+        Level level = Objects.requireNonNull(Minecraft.getInstance().level);
+        BlockState initialState = level.getBlockState(targetPos);
         WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(possibleStates.size());
         possibleStates
             .forEach(state -> {
+                ModelRenderTarget modelTarget = state.getBlock() instanceof IMultiPartBlockModelHolder holder
+                    ? holder.getModelRenderTarget(level, targetPos, initialState, state)
+                    : new ModelRenderTarget(targetPos, state);
                 String name = property.getName(Util.cast(state.getValue(property)));
                 WheelEntryAction action;
                 if (state.getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?>) {
@@ -268,7 +276,7 @@ public class WheelLifecycleEventListener {
                         pose.translate(0, 0, 0);
                         pose.mulPose(Axis.XP.rotationDegrees(camera.x));
                         pose.mulPose(Axis.YP.rotationDegrees(camera.y + 180F));
-                        GuiRenderExtras.tessellateBlock(graphics, state, -15f, -5, pose);
+                        GuiRenderExtras.tessellateBlock(graphics, modelTarget.state(), -15f, -5, pose);
                     },
                     action
                 );
@@ -278,12 +286,9 @@ public class WheelLifecycleEventListener {
 
     private static WheelMenuModel getMultiphaseWheel(InteractionHand hand, ItemStack holding, Multiphase multiphase) {
         int phaseCount = multiphase.phases().size();
-        WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(phaseCount * 2);
+        WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(phaseCount);
         for (int i = 0; i < phaseCount; i++) {
-            addMultiphaseWheelEntry(builder, hand, holding, multiphase, i, false);
-        }
-        for (int i = 0; i < phaseCount; i++) {
-            addMultiphaseWheelEntry(builder, hand, holding, multiphase, i, true);
+            addMultiphaseWheelEntry(builder, hand, holding, multiphase, i);
         }
         return builder.build();
     }
@@ -293,20 +298,18 @@ public class WheelLifecycleEventListener {
         InteractionHand hand,
         ItemStack holding,
         Multiphase multiphase,
-        int phaseIndex,
-        boolean merciless
+        int phaseIndex
     ) {
-        String id = "phase_" + phaseIndex + (merciless ? "_merciless" : "");
         builder.action(
-            id,
-            multiphase.phaseDisplayName(phaseIndex, merciless),
+            "phase_" + phaseIndex,
+            multiphase.phaseDisplayName(phaseIndex),
             (graphics, _, _, _) -> {
                 ItemStack copied = holding.copy();
-                multiphase.applySelectionPreview(copied, phaseIndex, merciless);
+                multiphase.applySelectionPreview(copied, phaseIndex);
                 graphics.item(copied, 2, 2, 9910597);
             },
             _ -> ClientPacketDistributor.sendToServer(
-                new MultiphasePackets.ChangePhase(hand, phaseIndex, merciless)
+                new MultiphasePackets.ChangePhase(hand, phaseIndex)
             )
         );
     }

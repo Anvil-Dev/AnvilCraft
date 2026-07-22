@@ -75,12 +75,6 @@ public class BlockCompressRecipeLoader {
             Blocks.DIRT,
             Blocks.MYCELIUM
         );
-        BlockCompressRecipeLoader.recipe(
-            provider,
-            ModBlocks.VOID_MATTER_BLOCK.get(),
-            ModBlocks.SUPERCRITICAL_NESTING_SHULKER_BOX.get(),
-            ModBlocks.SPACE_OVERCOMPRESSOR.get()
-        );
     }
 
     private static void recipe(RegistrumRecipeProvider provider, Block block, Block result) {

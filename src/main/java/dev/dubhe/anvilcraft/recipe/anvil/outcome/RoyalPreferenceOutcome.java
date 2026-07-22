@@ -7,9 +7,11 @@ import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeData;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeOutcomeTypes;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -48,6 +50,18 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
         ServerLevel level = context.getLevel();
         Vec3 pos = context.getPos();
         if (!context.get(IS_ROYAL_STEEL_RECIPE)) return;
+
+        BlockPos belowPos = BlockPos.containing(pos.x, pos.y - 1, pos.z);
+        if (level.getBlockEntity(belowPos) instanceof LargeCauldronBlockEntity cauldron
+            && cauldron.hasInputMatching(stack -> RoyalPreference.isRoyalPreferred(level, stack))) {
+            int count = context.getInt(this.result.count());
+            ItemStack bonus = this.result.stack().create().copyWithCount(count);
+            ItemStack remaining = cauldron.insertRecipeOutput(bonus);
+            if (!remaining.isEmpty()) {
+                AnvilUtil.dropItems(List.of(remaining), level, pos.add(OUTPUT_OFFSET));
+            }
+            return;
+        }
 
         Vec3 inputCenter = pos.add(INPUT_OFFSET);
         AABB inputBox = new AABB(inputCenter, inputCenter).inflate(INPUT_RANGE.x, INPUT_RANGE.y, INPUT_RANGE.z);
