@@ -6,7 +6,8 @@ import dev.anvilcraft.lib.v2.rpc.CallableParam;
 import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
-import dev.dubhe.anvilcraft.api.itemhandler.TypeLimitItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
@@ -404,7 +405,6 @@ public final class StorageServerStub {
             BlockEntity blockEntity = player.level().getBlockEntity(pos);
             return blockEntity instanceof StorageBlockEntity storage
                    && storage.getId() != null
-                   && Storages.get().get(storage.getId()).isPresent()
                    && AbstractContainerMenu.stillValid(
                 ContainerLevelAccess.create(player.level(), pos),
                 player,
@@ -636,12 +636,12 @@ public final class StorageServerStub {
         if (!(blockEntity instanceof StorageBlockEntity storage) || storage.getId() == null) {
             throw new IllegalStateException("Cannot access storage without a storage block entity");
         }
-        BaseStorage primary = Storages.get().get(storage.getId()).orElseThrow();
+        BaseStorage<?> primary = Storages.get().getOrCreate(storage.getId(), storage.getStorageType().clazz());
         String search = PlayerSettings.getSetting(registries, playerId).storage().getSearchContent().strip();
         if (search.isEmpty() || !(storage instanceof CrateBlockEntity)) {
             return new StorageView(List.of(primary), List.of());
         }
-        List<BaseStorage> storages = new ArrayList<>();
+        List<BaseStorage<?>> storages = new ArrayList<>();
         for (CrateBlockEntity crate : CrateBlock.getNearbyCrates(player.level(), pos)) {
             if (crate.getId() != null) {
                 Storages.get().get(crate.getId()).ifPresent(storages::add);
@@ -657,14 +657,14 @@ public final class StorageServerStub {
     }
 
     private static final class StorageView {
-        private final List<BaseStorage> storages;
+        private final List<BaseStorage<?>> storages;
         private final List<Entry> entries = new ArrayList<>();
 
-        private StorageView(List<BaseStorage> storages, List<Entry> ignored) {
+        private StorageView(List<BaseStorage<?>> storages, List<Entry> ignored) {
             this.storages = storages;
             Map<ItemResource, Entry> merged = new HashMap<>();
             for (int storageIndex = 0; storageIndex < storages.size(); storageIndex++) {
-                TypeLimitItemStacksResourceHandler items = storages.get(storageIndex).getItems();
+                UnlimitedItemStacksResourceHandler items = storages.get(storageIndex).getItems();
                 for (int slot = 0; slot < items.size(); slot++) {
                     if (items.getAmountAsLong(slot) <= 0) continue;
                     ItemResource resource = items.getResource(slot);
@@ -679,7 +679,7 @@ public final class StorageServerStub {
             }
         }
 
-        BaseStorage primary() {
+        BaseStorage<?> primary() {
             return this.storages.getLast();
         }
 
@@ -700,19 +700,25 @@ public final class StorageServerStub {
         }
 
         Capacity capacity() {
-            TypeLimitItemStacksResourceHandler items = this.primary().getItems();
-            return new Capacity(items.getSpace(), items.getSpaceSize(), items.getTypeCount(), items.getTypeLimit());
+            UnlimitedItemStacksResourceHandler items = this.primary().getItems();
+            int space = 0;
+            int spaceSize = Integer.MAX_VALUE;
+            if (items instanceof SpaceSizeItemStacksResourceHandler spaceHandler) {
+                space = spaceHandler.getSpace();
+                spaceSize = spaceHandler.getSpaceSize();
+            }
+            return new Capacity(space, spaceSize, items.getTypeCount(), items.getTypeLimit());
         }
 
         int insert(ItemResource resource, int amount, Transaction tx) {
             int inserted = 0;
             for (int i = 0; i < this.storages.size() - 1; i++) {
-                TypeLimitItemStacksResourceHandler items = this.storages.get(i).getItems();
+                UnlimitedItemStacksResourceHandler items = this.storages.get(i).getItems();
                 if (!contains(items, resource)) continue;
                 inserted += items.insert(resource, amount - inserted, tx);
                 if (inserted == amount) return inserted;
             }
-            TypeLimitItemStacksResourceHandler primaryItems = this.primary().getItems();
+            UnlimitedItemStacksResourceHandler primaryItems = this.primary().getItems();
             inserted += primaryItems.insert(resource, amount - inserted, tx);
             if (inserted == amount) return inserted;
             for (int i = 0; i < this.storages.size() - 1; i++) {
@@ -722,7 +728,7 @@ public final class StorageServerStub {
             return inserted;
         }
 
-        private static boolean contains(TypeLimitItemStacksResourceHandler items, ItemResource resource) {
+        private static boolean contains(UnlimitedItemStacksResourceHandler items, ItemResource resource) {
             for (int i = 0; i < items.size(); i++) {
                 if (items.getAmountAsLong(i) > 0 && items.getResource(i).equals(resource)) return true;
             }

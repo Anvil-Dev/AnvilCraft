@@ -519,7 +519,7 @@ public class StorageScreen extends Screen {
             );
         }
         return Component.translatable(
-            "screen.anvilcraft.storage.capacity",
+            "screen.anvilcraft.storage.capacity.both",
             capacity.space(),
             capacity.spaceSize(),
             capacity.typeCount(),
