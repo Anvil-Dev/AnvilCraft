@@ -22,7 +22,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -70,18 +69,24 @@ public class HeatCollectorManager {
     private final Set<BlockPos> infiniteCollectors = Collections.synchronizedSet(new HashSet<>());
 
     public static void clear() {
-        INSTANCES.clear();
+        synchronized (INSTANCES) {
+            INSTANCES.clear();
+        }
     }
 
     /**
      * 获取当前维度的HeatCollectorManager
      */
     public static HeatCollectorManager getInstance(Level level) {
+        if (level.isClientSide) return new HeatCollectorManager(level);
         synchronized (INSTANCES) {
-            if (INSTANCES.get(level) == null) {
-                HeatCollectorManager.INSTANCES.put(level, new HeatCollectorManager(level));
-            }
-            return HeatCollectorManager.INSTANCES.get(level);
+            return INSTANCES.computeIfAbsent(level, HeatCollectorManager::new);
+        }
+    }
+
+    private static Optional<HeatCollectorManager> getExistingInstance(Level level) {
+        synchronized (INSTANCES) {
+            return Optional.ofNullable(INSTANCES.get(level));
         }
     }
 
@@ -97,19 +102,21 @@ public class HeatCollectorManager {
     }
 
     public static void addHeatCollector(BlockPos pos, Level level) {
+        if (level.isClientSide) return;
         getInstance(level).heatCollectors.add(pos);
     }
 
     public static void removeHeatCollector(BlockPos pos, Level level) {
-        getInstance(level).heatCollectors.remove(pos);
+        getExistingInstance(level).ifPresent(manager -> manager.heatCollectors.remove(pos));
     }
 
     public static void addInfiniteCollector(BlockPos pos, Level level) {
+        if (level.isClientSide) return;
         getInstance(level).infiniteCollectors.add(pos);
     }
 
     public static void removeInfiniteCollector(BlockPos pos, Level level) {
-        getInstance(level).infiniteCollectors.remove(pos);
+        getExistingInstance(level).ifPresent(manager -> manager.infiniteCollectors.remove(pos));
     }
 
     HeatCollectorManager(Level level) {
@@ -117,7 +124,11 @@ public class HeatCollectorManager {
     }
 
     public static void tickAll() {
-        INSTANCES.values().forEach(HeatCollectorManager::tick);
+        List<HeatCollectorManager> managers;
+        synchronized (INSTANCES) {
+            managers = List.copyOf(INSTANCES.values());
+        }
+        managers.forEach(HeatCollectorManager::tick);
     }
 
     private void tick() {
@@ -204,26 +215,30 @@ public class HeatCollectorManager {
      */
     private List<IHeatCollector> getCollectorsFromNWToSE() {
         List<IHeatCollector> collectors = new ArrayList<>();
-        for (Iterator<BlockPos> iterator = this.heatCollectors.iterator(); iterator.hasNext(); ) {
-            BlockPos pos = iterator.next();
+        for (BlockPos pos : copyPositions(this.heatCollectors)) {
             BlockEntity be = this.level.getBlockEntity(pos);
             if (be instanceof HeatCollectorBlockEntity hc) {
                 collectors.add(hc);
             } else {
-                iterator.remove();
+                this.heatCollectors.remove(pos);
             }
         }
-        for (Iterator<BlockPos> iterator = this.infiniteCollectors.iterator(); iterator.hasNext(); ) {
-            BlockPos pos = iterator.next();
+        for (BlockPos pos : copyPositions(this.infiniteCollectors)) {
             BlockEntity be = this.level.getBlockEntity(pos);
             if (be instanceof InfiniteCollectorBlockEntity ic) {
                 collectors.add(ic);
             } else {
-                iterator.remove();
+                this.infiniteCollectors.remove(pos);
             }
         }
         collectors.sort(Comparator.comparing(IHeatCollector::getCollectorPos));
         return collectors;
+    }
+
+    private static List<BlockPos> copyPositions(Set<BlockPos> positions) {
+        synchronized (positions) {
+            return List.copyOf(positions);
+        }
     }
 
     private record Entry(BlockPos pos, BlockState state, HeatSourceEntry entry) {

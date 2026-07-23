@@ -225,8 +225,8 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         for (int i = 0; i < 4; i++) {
             float[] c0 = corners[i];
             float[] c1 = corners[(i + 1) % 4];
-            vc.addVertex(pose, c0[0], baseY, c0[1]).setColor(r, g, b, alpha);
             vc.addVertex(pose, c1[0], baseY, c1[1]).setColor(r, g, b, alpha);
+            vc.addVertex(pose, c0[0], baseY, c0[1]).setColor(r, g, b, alpha);
             vc.addVertex(pose, cx, apexY, cz).setColor(r, g, b, tipAlpha);
         }
     }

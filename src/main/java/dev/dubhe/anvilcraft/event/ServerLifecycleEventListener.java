@@ -47,6 +47,7 @@ public class ServerLifecycleEventListener {
     public static void onServerStopped(ServerStoppedEvent event) {
         PowerGrid.isServerClosing = false;
         PowerGrid.clear();
+        HeatCollectorManager.clear();
         FluidNetworkManager.INSTANCE.clear();
         RecipeCaches.unload();
         SoundHelper.INSTANCE.clear();

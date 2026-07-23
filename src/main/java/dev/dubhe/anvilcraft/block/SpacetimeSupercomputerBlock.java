@@ -14,6 +14,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -23,6 +24,9 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -35,6 +39,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.stream.Stream;
 
 public class SpacetimeSupercomputerBlock extends BetterBaseEntityBlock implements IHammerRemovable {
+    public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
+
     public static final VoxelShape SHAPE = Stream.of(
         box(3, 2, 3, 13, 14, 13),
         box(0, 0, 0, 16, 2, 16),
@@ -48,6 +54,12 @@ public class SpacetimeSupercomputerBlock extends BetterBaseEntityBlock implement
 
     public SpacetimeSupercomputerBlock(Properties properties) {
         super(properties);
+        this.registerDefaultState(this.stateDefinition.any().setValue(POWERED, false));
+    }
+
+    @Override
+    public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
+        return this.defaultBlockState().setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
@@ -59,9 +71,20 @@ public class SpacetimeSupercomputerBlock extends BetterBaseEntityBlock implement
         BlockPos neighborPos,
         boolean movedByPiston
     ) {
-        if (level.hasNeighborSignal(pos)) {
+        if (level.isClientSide()) return;
+        boolean powered = level.hasNeighborSignal(pos);
+        boolean wasPowered = state.getValue(POWERED);
+        if (powered != wasPowered) {
+            level.setBlock(pos, state.setValue(POWERED, powered), 2);
+        }
+        if (powered && !wasPowered) {
             level.scheduleTick(pos, this, 1);
         }
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(POWERED);
     }
 
     @Override
