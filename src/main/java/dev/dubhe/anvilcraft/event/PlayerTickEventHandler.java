@@ -15,8 +15,11 @@ import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
 import dev.dubhe.anvilcraft.network.PlayerSettingsSyncPacket;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
+import dev.dubhe.anvilcraft.util.dummy.DummyCat;
+import dev.dubhe.anvilcraft.util.dummy.DummyWolf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -38,7 +41,10 @@ public class PlayerTickEventHandler {
 
     @SubscribeEvent
     public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
-        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+        Player player = event.getEntity();
+        DummyCat.clear(player);
+        DummyWolf.clear(player);
+        if (player instanceof ServerPlayer serverPlayer) {
             IonoCraftBackpackItem.onPlayerLoggedOut(serverPlayer.getUUID());
             LaserGunItem.clearState(serverPlayer.getUUID());
             StorageServerStub.remove(serverPlayer.getUUID());
