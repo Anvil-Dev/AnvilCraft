@@ -1,5 +1,10 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.Setter;
+import lombok.experimental.Accessors;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -9,7 +14,6 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<CompoundTag> {
@@ -99,7 +103,7 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
         long result = (long) stored.fluid().getAmount() + resource.getAmount();
         stored.fluid().setAmount((int) Math.min(result, this.infinityThreshold));
         if (result >= this.infinityThreshold) {
-            stored.setInfinite(true);
+            stored.infinite(true);
         }
         this.changeListener.run();
     }
@@ -155,26 +159,7 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
     void setEnhanced(boolean enhanced) {
         if (this.enhanced == enhanced) return;
         this.enhanced = enhanced;
-        if (!enhanced) {
-            this.reduceToNormalCapacity();
-        }
         this.changeListener.run();
-    }
-
-    private void reduceToNormalCapacity() {
-        int remaining = this.baseCapacity;
-        Iterator<StoredFluid> iterator = this.fluids.iterator();
-        while (iterator.hasNext()) {
-            StoredFluid stored = iterator.next();
-            stored.setInfinite(false);
-            if (remaining <= 0) {
-                iterator.remove();
-                continue;
-            }
-            int amount = Math.min(stored.fluid().getAmount(), remaining);
-            stored.fluid().setAmount(amount);
-            remaining -= amount;
-        }
     }
 
     private int getRemainingCapacity() {
@@ -218,31 +203,15 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
                 && amount == this.infinityThreshold;
             this.fluids.add(new StoredFluid(fluid.copyWithAmount(amount), infinite));
         }
-        if (!this.enhanced) {
-            this.reduceToNormalCapacity();
-        }
         this.changeListener.run();
     }
 
+    @Accessors(fluent = true, chain = false)
+    @AllArgsConstructor
+    @Data
     private static final class StoredFluid {
         private final FluidStack fluid;
+        @Setter(AccessLevel.PRIVATE)
         private boolean infinite;
-
-        private StoredFluid(FluidStack fluid, boolean infinite) {
-            this.fluid = fluid;
-            this.infinite = infinite;
-        }
-
-        private FluidStack fluid() {
-            return this.fluid;
-        }
-
-        private boolean infinite() {
-            return this.infinite;
-        }
-
-        private void setInfinite(boolean infinite) {
-            this.infinite = infinite;
-        }
     }
 }
