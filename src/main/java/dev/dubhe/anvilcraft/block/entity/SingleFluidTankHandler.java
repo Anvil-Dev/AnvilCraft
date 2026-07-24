@@ -68,9 +68,6 @@ final class SingleFluidTankHandler extends FluidTank {
         this.enhanced = enhanced;
         this.infinite = enhanced && this.getFluidAmount() >= this.infinityThreshold;
         super.setCapacity(enhanced ? this.infinityThreshold : this.baseCapacity);
-        if (this.getFluidAmount() > this.capacity) {
-            this.fluid.setAmount(this.capacity);
-        }
         this.changeListener.run();
     }
 
