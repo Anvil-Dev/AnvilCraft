@@ -61,6 +61,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -98,7 +99,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     /// 遍历结构包围盒内全部 18 个方块位置，取各方块邻居信号的最大值。
     /// 结果缓存 REDSTONE_SIGNAL_CACHE_TICKS 刻，到期或 neighborChanged 触发时重算。
     public int getRedstoneSignal() {
-        if (level == null) return 0;
+        // Comparator output is not guaranteed to be available in a freshly loaded client chunk.
+        if (level == null || level.isClientSide()) return cachedRedstoneSignal;
         long now = level.getGameTime();
         if (redstoneSignalCacheTick >= 0 && now - redstoneSignalCacheTick < REDSTONE_SIGNAL_CACHE_TICKS) {
             return cachedRedstoneSignal;
@@ -122,7 +124,18 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         redstoneSignalCacheTick = -1;
     }
 
+    private void syncRedstoneSignalIfChanged() {
+        if (level == null || level.isClientSide()) return;
+        getRedstoneSignal();
+        if (cachedRedstoneSignal != syncedRedstoneSignal) {
+            syncedRedstoneSignal = cachedRedstoneSignal;
+            setChanged();
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+        }
+    }
+
     private int cachedRedstoneSignal = 0;
+    private int syncedRedstoneSignal = 0;
     private long redstoneSignalCacheTick = -1;
     private static final int REDSTONE_SIGNAL_CACHE_TICKS = 5;
 
@@ -548,6 +561,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     }
 
     public void serverTick() {
+        syncRedstoneSignalIfChanged();
         /// 超新星闪光计时（服务端）——递减以免同步出陈旧的激活状态。
         if (supernovaFlashTicks > 0) {
             supernovaFlashTicks--;
@@ -1161,6 +1175,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putBoolean("amplified", this.isAmplify);
+        tag.putInt("redstoneSignal", this.cachedRedstoneSignal);
         tag.putLong("bodySeed", this.bodySeed);
         tag.putInt("stellarMass", this.stellarMass);
 
@@ -1232,6 +1247,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.isAmplify = tag.getBoolean("amplified");
+        this.cachedRedstoneSignal = Math.max(0, Math.min(tag.getInt("redstoneSignal"), 15));
+        this.syncedRedstoneSignal = this.cachedRedstoneSignal;
+        this.redstoneSignalCacheTick = -1;
         this.stellarMass = tag.getInt("stellarMass");
         this.locked = tag.getBoolean("locked");
         this.amplifierPresent = tag.getBoolean("amplifierPresent");
@@ -1333,6 +1351,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         tag.putBoolean("amplified", this.isAmplify);
+        tag.putInt("redstoneSignal", getRedstoneSignal());
+        this.syncedRedstoneSignal = this.cachedRedstoneSignal;
         tag.putLong("bodySeed", this.bodySeed);
         tag.putInt("stellarMass", this.stellarMass);
 
@@ -1385,6 +1405,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider lookupProvider) {
         super.handleUpdateTag(tag, lookupProvider);
         this.isAmplify = tag.getBoolean("amplified");
+        this.cachedRedstoneSignal = Math.max(0, Math.min(tag.getInt("redstoneSignal"), 15));
+        this.syncedRedstoneSignal = this.cachedRedstoneSignal;
+        this.redstoneSignalCacheTick = -1;
         this.stellarMass = tag.getInt("stellarMass");
         this.locked = tag.getBoolean("locked");
         this.amplifierPresent = tag.getBoolean("amplifierPresent");

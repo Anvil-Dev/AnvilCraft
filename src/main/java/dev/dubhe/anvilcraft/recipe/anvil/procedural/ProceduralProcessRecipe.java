@@ -59,7 +59,9 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
      */
     public final Optional<ResourceLocation> displayedModel;
     /**
-     * Models used after each completed step. The legacy displayed model is used when no model exists for a step.
+     * Models used as the process advances. Single-loop recipes advance after each completed step, while multi-loop
+     * recipes advance when the first step of the next loop is completed. The legacy displayed model is used when no
+     * model exists for the current progress.
      */
     public final List<ResourceLocation> displayedModels;
     /**
@@ -92,7 +94,7 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
 
     public Optional<ResourceLocation> getDisplayedModelForStep(int stepCount) {
         if (stepCount > 0 && !steps.isEmpty()) {
-            int modelIndex = (stepCount - 1) % steps.size();
+            int modelIndex = loop > 1 ? (stepCount - 1) / steps.size() : stepCount - 1;
             if (modelIndex < displayedModels.size()) {
                 return Optional.of(displayedModels.get(modelIndex));
             }

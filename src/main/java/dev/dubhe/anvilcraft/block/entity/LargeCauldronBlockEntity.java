@@ -584,20 +584,12 @@ public class LargeCauldronBlockEntity extends BlockEntity
         for (RecipeHolder<FluidMixingRecipe> holder
             : level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.FLUID_MIXING_TYPE.get())) {
             FluidMixingRecipe recipe = holder.value();
-            var remainingFluids = recipe.consume(storedFluids);
-            if (remainingFluids.isEmpty()) continue;
-
-            LargeCauldronFluidHandler simulatedFluids = new LargeCauldronFluidHandler(() -> {});
-            simulatedFluids.setFluids(remainingFluids.get());
-            boolean fluidsFit = true;
-            for (FluidStack result : recipe.getFluidResults()) {
-                int filled = simulatedFluids.fill(result.copy(), IFluidHandler.FluidAction.EXECUTE);
-                if (filled != result.getAmount()) {
-                    fluidsFit = false;
-                    break;
-                }
-            }
-            if (!fluidsFit) continue;
+            int maximumBatches = recipe.getMaximumBatches(storedFluids);
+            if (maximumBatches <= 0) continue;
+            List<FluidStack> mixedFluids = recipe.consumesMaximum()
+                ? findLargestFluidMixingResult(recipe, storedFluids, maximumBatches)
+                : simulateFluidMixing(recipe, storedFluids, 1);
+            if (mixedFluids == null) continue;
 
             ItemStackHandler simulatedOutput = new ItemStackHandler(this.output.getSlots());
             for (int slot = 0; slot < this.output.getSlots(); slot++) {
@@ -612,13 +604,52 @@ public class LargeCauldronBlockEntity extends BlockEntity
             }
             if (!fits) continue;
 
-            this.fluids.setFluids(simulatedFluids.copyFluids());
+            this.fluids.setFluids(mixedFluids);
             for (ItemStack result : recipe.getItemResults()) {
                 ItemHandlerHelper.insertItem(this.output, result.copy(), false);
             }
             return true;
         }
         return false;
+    }
+
+    private static @Nullable List<FluidStack> findLargestFluidMixingResult(
+        FluidMixingRecipe recipe,
+        List<FluidStack> storedFluids,
+        int maximumBatches
+    ) {
+        int low = 1;
+        int high = maximumBatches;
+        List<FluidStack> best = null;
+        while (low <= high) {
+            int middle = low + (high - low) / 2;
+            List<FluidStack> candidate = simulateFluidMixing(recipe, storedFluids, middle);
+            if (candidate == null) {
+                high = middle - 1;
+            } else {
+                best = candidate;
+                low = middle + 1;
+            }
+        }
+        return best;
+    }
+
+    private static @Nullable List<FluidStack> simulateFluidMixing(
+        FluidMixingRecipe recipe,
+        List<FluidStack> storedFluids,
+        int batches
+    ) {
+        var remainingFluids = recipe.consume(storedFluids, batches);
+        var fluidResults = recipe.getFluidResults(batches);
+        if (remainingFluids.isEmpty() || fluidResults.isEmpty()) return null;
+
+        LargeCauldronFluidHandler simulatedFluids = new LargeCauldronFluidHandler(() -> {});
+        simulatedFluids.setFluids(remainingFluids.get());
+        for (FluidStack result : fluidResults.get()) {
+            int filled = simulatedFluids.fill(result.copy(), IFluidHandler.FluidAction.EXECUTE);
+            if (filled != result.getAmount()) return null;
+        }
+        return simulatedFluids.copyFluids();
     }
 
     private RecipeExecution tryProcessItemGroup(

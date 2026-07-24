@@ -1218,8 +1218,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         for (int i = 0; i < 4; i++) {
             float[] c0 = corners[i];
             float[] c1 = corners[(i + 1) % 4];
-            vc.addVertex(pose, c0[0], BEAM_BASE_Y, c0[1]).setColor(r, g, b, 1.0f);
             vc.addVertex(pose, c1[0], BEAM_BASE_Y, c1[1]).setColor(r, g, b, 1.0f);
+            vc.addVertex(pose, c0[0], BEAM_BASE_Y, c0[1]).setColor(r, g, b, 1.0f);
             vc.addVertex(pose, cx, apexY, cz).setColor(ar, ag, ab, 1.0f);
         }
     }

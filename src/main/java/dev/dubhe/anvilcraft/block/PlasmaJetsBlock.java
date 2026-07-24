@@ -101,4 +101,18 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
         cache.accept();
         return true;
     }
+
+    public static boolean usesContinuousFuel(Level level, BlockPos pos) {
+        BlockCache cache = new BlockCache(level);
+        if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
+        return cauldron.usesContinuousPlasmaJetFuel(cache, pos);
+    }
+
+    public static boolean tryConsumeContinuousFuel(Level level, BlockPos pos, int amount) {
+        BlockCache cache = new BlockCache(level);
+        if (!(cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron)) return false;
+        if (!cauldron.consumeContinuousPlasmaJetFuel(cache, pos, amount)) return false;
+        cache.accept();
+        return true;
+    }
 }

@@ -25,4 +25,12 @@ public interface IIgnitableCauldron {
     default boolean consumeOnce(BlockCache cache, BlockPos pos) {
         return false;
     }
+
+    default boolean usesContinuousPlasmaJetFuel(BlockCache cache, BlockPos pos) {
+        return false;
+    }
+
+    default boolean consumeContinuousPlasmaJetFuel(BlockCache cache, BlockPos pos, int amount) {
+        return false;
+    }
 }

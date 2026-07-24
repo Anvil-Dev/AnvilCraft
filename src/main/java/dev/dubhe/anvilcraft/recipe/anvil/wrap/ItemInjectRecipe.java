@@ -51,6 +51,7 @@ public class ItemInjectRecipe extends AbstractProcessRecipe<ItemInjectRecipe> {
                 .setItemOutputOffset(new Vec3(0.0, -1.0, 0.0))
                 .setResultItems(results)
                 .setBlockInputOffset(new Vec3i(0, -1, 0))
+                .setConsumeInputBlocks(blockResult == null)
                 .setInputBlocks(blockIngredient)
                 .setBlockOutputOffset(new Vec3i(0, -1, 0))
                 .setResultBlocks(blockResult == null ? List.of() : List.of(blockResult))

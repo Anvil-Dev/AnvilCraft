@@ -11,7 +11,6 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessStep;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.AbstractProcessRecipe;
-import dev.dubhe.anvilcraft.util.AgeratumUtil;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
@@ -25,6 +24,8 @@ import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import net.minecraft.Util;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -49,6 +50,8 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     public static final int ITEM_Y = 20;
     public static final int BLOCK_Y = 50;
     public static final int FLOW_Y = 72;
+    private static final long LOOP_CYCLE_MILLIS = 1500L;
+    private static final int CYCLE_SIZE = 16;
 
     private final IDrawable slotDefault;
     private final IDrawable cycle;
@@ -172,6 +175,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         int gap = STEPS_LENGTH / size - STEP_LENGTH;
         int stepX = STEP_X + gap / 2;
         int stepDx = STEP_LENGTH + gap;
+        int displayedLoop = getDisplayedLoop(recipe);
 
         for (int i = 0; i < size; i++) {
             ProceduralProcessStep step = recipe.getSteps().get(i);
@@ -209,7 +213,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
                         BLOCK_Y + 10 * j,
                         10 - 10 * j,
                         12,
-                        RenderSupport.wipEntity(recipeHolder.id(), i)
+                        RenderSupport.wipEntity(recipeHolder.id(), displayedLoop * recipe.getSteps().size() + i)
                     );
                 }
                 RenderSupport.renderBlock(
@@ -226,9 +230,8 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
 
         // loop
         if (recipe.getLoop() > 1) {
-            Component text = Component.literal(String.valueOf(recipe.getLoop())).withColor(0xFFFFFF);
-            AgeratumUtil.renderText(guiGraphics, text, WIDTH / 2 + 68, FLOW_Y + 4, 1.2f);
-            this.cycle.draw(guiGraphics, WIDTH / 2 + 47, FLOW_Y);
+            this.cycle.draw(guiGraphics, WIDTH / 2 + 45, FLOW_Y);
+            drawLoopCounter(guiGraphics, displayedLoop + 1, recipe.getLoop());
         }
         this.arrowLong.draw(guiGraphics, WIDTH / 2 - 32, FLOW_Y + 4);
 
@@ -262,5 +265,18 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
 
     private static String stepBlockSlotName(int step, int block) {
         return "step_" + step + "_block_" + block;
+    }
+
+    private static int getDisplayedLoop(ProceduralProcessRecipe recipe) {
+        if (recipe.getLoop() <= 1) return 0;
+        return (int) ((Util.getMillis() / LOOP_CYCLE_MILLIS) % recipe.getLoop());
+    }
+
+    private static void drawLoopCounter(GuiGraphics guiGraphics, int currentLoop, int loopCount) {
+        Component text = Component.literal(currentLoop + "/" + loopCount);
+        var font = Minecraft.getInstance().font;
+        int textX = WIDTH - font.width(text);
+        int textY = FLOW_Y + (CYCLE_SIZE - font.lineHeight) / 2 + 2;
+        guiGraphics.drawString(font, text, textX, textY, 0xFFFFFFFF, true);
     }
 }

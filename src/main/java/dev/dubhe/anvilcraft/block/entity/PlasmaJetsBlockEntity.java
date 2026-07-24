@@ -49,17 +49,31 @@ import javax.annotation.Nullable;
 
 public class PlasmaJetsBlockEntity extends BlockEntity {
     private static final int MAX_DURATION = 10 * 60 * 20;
+    private static final int CONTINUOUS_FUEL_INTERVAL = 12;
+    private static final int CONTINUOUS_FUEL_AMOUNT = 1;
     private final Set<TubeWallLayer> tubeWalls = new HashSet<>();
     private @Nullable BlockPos cauldronPos = null;
     private int duration = 0;
+    private int continuousFuelTimer = 0;
 
     public PlasmaJetsBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
     public PlasmaJetsBlockEntity(BlockPos pos, BlockState blockState, int duration, Set<TubeWallLayer> tubeWalls) {
+        this(pos, blockState, duration, 0, tubeWalls);
+    }
+
+    private PlasmaJetsBlockEntity(
+        BlockPos pos,
+        BlockState blockState,
+        int duration,
+        int continuousFuelTimer,
+        Set<TubeWallLayer> tubeWalls
+    ) {
         super(ModBlockEntities.PLASMA_JETS.get(), pos, blockState);
         this.duration = duration;
+        this.continuousFuelTimer = continuousFuelTimer;
         this.tubeWalls.addAll(tubeWalls);
         this.cauldronPos = this.getBlockPos().below(this.tubeWalls.size() + 1);
     }
@@ -89,7 +103,13 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         this.tubeWalls.add(TubeWallLayer.of(pos));
         this.level.removeBlock(pos, false);
         this.level.setBlock(pos.above(), ModBlocks.PLASMA_JETS.getDefaultState(), 3);
-        this.level.setBlockEntity(new PlasmaJetsBlockEntity(pos.above(), this.getBlockState(), this.duration, this.tubeWalls));
+        this.level.setBlockEntity(new PlasmaJetsBlockEntity(
+            pos.above(),
+            this.getBlockState(),
+            this.duration,
+            this.continuousFuelTimer,
+            this.tubeWalls
+        ));
         HeaterManager.addProducer(this.getBlockPos().above(), level, ModHeaterInfos.NO_MAGNET_PLASMA_JETS);
         HeaterManager.addProducer(this.getBlockPos().above(), level, ModHeaterInfos.MAGNET_PLASMA_JETS);
         return true;
@@ -197,6 +217,20 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     }
 
     protected void refreshDuration(Level level) {
+        if (this.cauldronPos != null && PlasmaJetsBlock.usesContinuousFuel(level, this.cauldronPos)) {
+            if (--this.continuousFuelTimer <= 0) {
+                if (!PlasmaJetsBlock.tryConsumeContinuousFuel(
+                    level,
+                    this.cauldronPos,
+                    CONTINUOUS_FUEL_AMOUNT
+                )) {
+                    level.removeBlock(this.getBlockPos(), false);
+                    return;
+                }
+                this.continuousFuelTimer = CONTINUOUS_FUEL_INTERVAL;
+            }
+            return;
+        }
         this.duration--;
         if (
             this.duration + MAX_DURATION / 2 < MAX_DURATION
@@ -312,6 +346,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.putInt("duration", this.duration);
+        tag.putInt("continuous_fuel_timer", this.continuousFuelTimer);
         ListTag tubeWalls = new ListTag();
         for (TubeWallLayer layer : this.tubeWalls) {
             tubeWalls.add(TubeWallLayer.CODEC.encode(layer, NbtOps.INSTANCE, new CompoundTag()).getOrThrow());
@@ -323,6 +358,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.duration = tag.getInt("duration");
+        this.continuousFuelTimer = tag.getInt("continuous_fuel_timer");
         ListTag tubeWalls = tag.getList("tube_walls", Tag.TAG_COMPOUND);
         for (Tag tubeWallTag1 : tubeWalls) {
             if (!(tubeWallTag1 instanceof CompoundTag tubeWallTag)) {

@@ -16,7 +16,6 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.DISK);
         this.plain(ModItems.STRUCTURE_DISK);
         this.plain(ModItems.FILTER);
-        this.plain(ModItems.FLUID_TANK_MINECART); // 流体储罐矿车
 
         // Anvil hammers and enchanted starter tools.
         this.plain(ModItems.ANVIL_HAMMER);
@@ -59,6 +58,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.EMBER_METAL_HEAVY_HALBERD);
         this.plain(ModItems.TRANSCENDENCE_HEAVY_HALBERD);
 
+        this.plain(ModItems.FLUID_TANK_MINECART); // 流体储罐矿车
         // Ranged and energy weapons.
         this.plain(ModItems.SPECTRAL_SLINGSHOT);
         this.plain(ModItems.ENERGY_WEAPON_PLATFORM);
