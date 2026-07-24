@@ -120,6 +120,13 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.ACCELERATION_RING); // 加速环
         this.plain(ModBlocks.DEFLECTION_RING); // 偏转环
 
+        this.plain(ModBlocks.CONFINED_TIME_ANVILON); // 约束仓
+        this.plain(ModBlocks.CONFINED_SPACE_ANVILON); // 约束空间砧子
+        this.plain(ModBlocks.CONFINED_MASS_ANVILON); // 约束质量砧子
+        this.plain(ModBlocks.CONFINED_ENERGY_ANVILON); // 约束能量砧子
+        this.plain(ModBlocks.CONFINED_NEUTRONIUM_INGOT_BLOCK); // 约束充能中子锭
+        this.plain(ModBlocks.CONFINEMENT_CHAMBER); // 约束仓
+
         this.plain(ModBlocks.SPACETIME_SUPERCOMPUTER); // 时空超算
         this.plain(ModBlocks.CELESTIAL_FORGING_ANVIL); // 锻星砧
         this.plain(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER); // 锻星砧增幅器

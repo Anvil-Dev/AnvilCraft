@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 public class Ingredients extends DisplayItemsGenerator {
     @Override
     public void accept() {
-        // Natural and organic materials.
         this.plain(ModItems.SPONGE_GEMMULE);
         this.plain(ModItems.AMBER);
         this.plain(ModItems.RESIN);
@@ -16,28 +15,12 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.CRAB_CLAW);
         this.plain(ModItems.LEVITATION_POWDER);
 
-        // Special metal families, ordered as ingot then nugget.
         this.plain(ModItems.MAGNET_INGOT);
         this.plain(ModItems.ROYAL_STEEL_INGOT);
-        this.plain(ModItems.ROYAL_STEEL_NUGGET);
         this.plain(ModItems.FROST_METAL_INGOT);
-        this.plain(ModItems.FROST_METAL_NUGGET);
         this.plain(ModItems.EMBER_METAL_INGOT);
-        this.plain(ModItems.EMBER_METAL_NUGGET);
         this.plain(ModItems.TRANSCENDIUM_INGOT);
-        this.plain(ModItems.TRANSCENDIUM_NUGGET);
         this.plain(ModItems.CURSED_GOLD_INGOT);
-        this.plain(ModItems.CURSED_GOLD_NUGGET);
-
-        // Common metal families.
-        this.plain(ModItems.RAW_ZINC);
-        this.plain(ModItems.RAW_TIN);
-        this.plain(ModItems.RAW_TITANIUM);
-        this.plain(ModItems.RAW_TUNGSTEN);
-        this.plain(ModItems.RAW_LEAD);
-        this.plain(ModItems.RAW_SILVER);
-        this.plain(ModItems.RAW_URANIUM);
-
         this.plain(ModItems.ZINC_INGOT);
         this.plain(ModItems.TIN_INGOT);
         this.plain(ModItems.TITANIUM_INGOT);
@@ -60,6 +43,19 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.BRONZE_NUGGET);
         this.plain(ModItems.BRASS_NUGGET);
         this.plain(ModItems.COPPER_NUGGET);
+        this.plain(ModItems.ROYAL_STEEL_NUGGET);
+        this.plain(ModItems.FROST_METAL_NUGGET);
+        this.plain(ModItems.EMBER_METAL_NUGGET);
+        this.plain(ModItems.TRANSCENDIUM_NUGGET);
+        this.plain(ModItems.CURSED_GOLD_NUGGET);
+
+        this.plain(ModItems.RAW_ZINC);
+        this.plain(ModItems.RAW_TIN);
+        this.plain(ModItems.RAW_TITANIUM);
+        this.plain(ModItems.RAW_TUNGSTEN);
+        this.plain(ModItems.RAW_LEAD);
+        this.plain(ModItems.RAW_SILVER);
+        this.plain(ModItems.RAW_URANIUM);
 
         // Gems and progression materials.
         this.plain(ModItems.TOPAZ);
@@ -68,6 +64,17 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.EXP_GEM);
         this.plain(ModItems.CIRCUIT_BOARD);
         this.plain(ModItems.PROCESSOR);
+
+        // Smithing templates.
+        this.plain(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE);
+        this.plain(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE);
+        this.plain(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE);
+        this.plain(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE);
+        this.plain(ModItems.PERMUTATION_TEMPLATE_ITEM);
+        this.plain(ModItems.DEFORMATION_TEMPLATE_ITEM);
+        this.plain(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE);
+        this.plain(ModItems.FOUR_TO_ONE_SMITHING_TEMPLATE);
+        this.plain(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE);
 
         // Advanced components.
         this.plain(ModItems.HEAVY_HALBERD_CORE);
@@ -99,9 +106,6 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModFoodItems.COCOA_POWDER);
         this.plain(ModFoodItems.COCOA_LIQUOR);
         this.plain(ModFoodItems.COCOA_BUTTER);
-        this.plain(ModFoodItems.CHOCOLATE);
-        this.plain(ModFoodItems.CHOCOLATE_BLACK);
-        this.plain(ModFoodItems.CHOCOLATE_WHITE);
 
         // Fluid ingredients.
         this.plain(ModItems.EXP_BUCKET);
