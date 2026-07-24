@@ -54,17 +54,6 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity> {
         if (end.lengthSqr() < 1.0E-6) return;
         Entity owner = entity.getOwner();
         Minecraft minecraft = Minecraft.getInstance();
-        if (entity.getStyle() == WeaponBeamEntity.CORRUPTED) {
-            Vec3 start = entity.getPosition(partialTick).add(originOffset);
-            Matrix4f viewBobCompensation = owner == minecraft.player
-                && minecraft.options.getCameraType().isFirstPerson()
-                && minecraft.options.bobView().get()
-                && owner instanceof Player player
-                ? createViewBobCompensation(player, partialTick).pose()
-                : null;
-            CorruptedBeaconRenderer.deferWeaponBeam(start, start.add(end), viewBobCompensation);
-            return;
-        }
         poseStack.pushPose();
         if (owner == minecraft.player
             && minecraft.options.getCameraType().isFirstPerson()
@@ -74,6 +63,7 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity> {
         }
         poseStack.translate(originOffset.x, originOffset.y, originOffset.z);
         switch (entity.getStyle()) {
+            case WeaponBeamEntity.CORRUPTED -> renderCorruptedBeam(end, poseStack, buffers);
             case WeaponBeamEntity.LASER -> renderLaserBeam(end, entity.getStrength(), poseStack, buffers);
             default -> renderTeslaArc(entity, end, poseStack, buffers);
         }
@@ -170,6 +160,22 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity> {
             (float) end.length(),
             laserLevel,
             buffers::getBuffer
+        );
+        poseStack.popPose();
+    }
+
+    private static void renderCorruptedBeam(Vec3 end, PoseStack poseStack, MultiBufferSource buffers) {
+        poseStack.pushPose();
+        rotateLocalYTo(end, poseStack);
+        poseStack.scale(0.5f, 1.0f, 0.5f);
+        CorruptedBeaconRenderer.renderBeam(
+            buffers.getBuffer(ModRenderTypes.CORRUPTED_BEACON_BEAM),
+            poseStack.last(),
+            0.0f,
+            0.0f,
+            0.0f,
+            (float) end.length(),
+            0.5f
         );
         poseStack.popPose();
     }

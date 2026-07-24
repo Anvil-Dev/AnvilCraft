@@ -5,9 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
-import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlockEntityRenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.client.support.SeismicBounceManager;
@@ -54,28 +51,6 @@ public class RenderEventListener {
             camera,
             deltaTracker
         );
-    }
-
-    @SubscribeEvent
-    public static void onRenderAfterLevel(RenderLevelStageEvent event) {
-        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_LEVEL) return;
-        PoseStack poseStack = event.getPoseStack();
-        LevelRenderer levelRenderer = event.getLevelRenderer();
-        var mainTarget = Minecraft.getInstance().getMainRenderTarget();
-        var weatherTarget = levelRenderer.getWeatherTarget();
-        if (weatherTarget != null) {
-            mainTarget.copyDepthFrom(weatherTarget);
-            mainTarget.bindWrite(false);
-        }
-        MultiBufferSource.BufferSource bufferSource = levelRenderer.renderBuffers.bufferSource();
-        Vec3 camera = event.getCamera().getPosition();
-        poseStack.pushPose();
-        poseStack.last().pose().mul(event.getModelViewMatrix());
-        CelestialForgingAnvilBlockEntityRenderer.renderDeferredTractorBeams(poseStack, bufferSource, camera);
-        CorruptedBeaconRenderer.renderDeferredBeams(poseStack, bufferSource, camera);
-        bufferSource.endBatch(ModRenderTypes.TRACTOR_BEAM);
-        bufferSource.endBatch(ModRenderTypes.CORRUPTED_BEACON_BEAM);
-        poseStack.popPose();
     }
 
     @SubscribeEvent
