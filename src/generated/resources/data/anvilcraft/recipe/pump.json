@@ -15,8 +15,7 @@
   },
   "pattern": [
     "PCP",
-    "P P",
-    " M "
+    "PMP"
   ],
   "result": {
     "count": 2,

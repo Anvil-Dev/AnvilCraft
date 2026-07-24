@@ -58,7 +58,6 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.EMBER_METAL_HEAVY_HALBERD);
         this.plain(ModItems.TRANSCENDENCE_HEAVY_HALBERD);
 
-        this.plain(ModItems.FLUID_TANK_MINECART); // 流体储罐矿车
         // Ranged and energy weapons.
         this.plain(ModItems.SPECTRAL_SLINGSHOT);
         this.plain(ModItems.ENERGY_WEAPON_PLATFORM);
@@ -76,16 +75,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.SUPER_CAPACITOR);
         this.plain(ModItems.SUPER_CAPACITOR_EMPTY);
 
-        // Smithing templates.
-        this.plain(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE);
-        this.plain(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE);
-        this.plain(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE);
-        this.plain(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE);
-        this.plain(ModItems.PERMUTATION_TEMPLATE_ITEM);
-        this.plain(ModItems.DEFORMATION_TEMPLATE_ITEM);
-        this.plain(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE);
-        this.plain(ModItems.FOUR_TO_ONE_SMITHING_TEMPLATE);
-        this.plain(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE);
+        this.plain(ModItems.FLUID_TANK_MINECART); // 流体储罐矿车
 
         // Recovery items and amulets.
         this.plain(ModItems.RECOVERY_PEARL);
@@ -107,12 +97,6 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.AMULET_BOX);
 
         // Food and consumables. Ingredient foods also appear in Ingredients.
-        this.plain(ModFoodItems.CREAM);
-        this.plain(ModFoodItems.DOUGH);
-        this.plain(ModFoodItems.FLOUR);
-        this.plain(ModFoodItems.COCOA_POWDER);
-        this.plain(ModFoodItems.COCOA_LIQUOR);
-        this.plain(ModFoodItems.COCOA_BUTTER);
         this.plain(ModFoodItems.CHOCOLATE);
         this.plain(ModFoodItems.CHOCOLATE_BLACK);
         this.plain(ModFoodItems.CHOCOLATE_WHITE);

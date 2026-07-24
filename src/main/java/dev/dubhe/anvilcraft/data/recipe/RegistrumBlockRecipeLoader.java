@@ -2066,12 +2066,11 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void cfaFluidInterface(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get(), 8)
+            .pattern("AAA")
             .pattern("ABA")
-            .pattern("BCB")
-            .pattern("ABA")
+            .pattern("AAA")
             .define('A', ModBlocks.PUMP)
-            .define('B', ModBlocks.PUMP)
-            .define('C', ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .define('B', ModBlocks.SPACETIME_SUPERCOMPUTER)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER),
                 RegistrumRecipeProvider.has(ModBlocks.SPACETIME_SUPERCOMPUTER))
             .save(provider);
@@ -2150,8 +2149,7 @@ public class RegistrumBlockRecipeLoader {
     public static <T extends Block> void pump(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get().asItem(), 2)
             .pattern("PCP")
-            .pattern("P P")
-            .pattern(" M ")
+            .pattern("PMP")
             .define('P', Blocks.PISTON)
             .define('C', ModBlocks.PIPE_STRAIGHT.asItem())
             .define('M', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)

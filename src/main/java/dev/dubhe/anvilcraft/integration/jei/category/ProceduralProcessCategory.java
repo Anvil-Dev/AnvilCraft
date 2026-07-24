@@ -178,7 +178,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         int displayedLoop = getDisplayedLoop(recipe);
 
         for (int i = 0; i < size; i++) {
-            ProceduralProcessStep step = recipe.getSteps().get(i);
+            ProceduralProcessStep step = getDisplayedStep(recipe, i, displayedLoop);
             if (!(step.getContent() instanceof AbstractProcessRecipe<?> stepRecipe)) continue;
 
             // anvil
@@ -270,6 +270,17 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     private static int getDisplayedLoop(ProceduralProcessRecipe recipe) {
         if (recipe.getLoop() <= 1) return 0;
         return (int) ((Util.getMillis() / LOOP_CYCLE_MILLIS) % recipe.getLoop());
+    }
+
+    private static ProceduralProcessStep getDisplayedStep(
+        ProceduralProcessRecipe recipe,
+        int stepIndex,
+        int displayedLoop
+    ) {
+        if (stepIndex == 0 && displayedLoop > 0) {
+            return recipe.getMultiLoopFirstStep().orElse(recipe.getSteps().getFirst());
+        }
+        return recipe.getSteps().get(stepIndex);
     }
 
     private static void drawLoopCounter(GuiGraphics guiGraphics, int currentLoop, int loopCount) {

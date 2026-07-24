@@ -55,7 +55,6 @@ public class UnpackRecipeLoader {
         unpackMinecart(provider, Items.FURNACE_MINECART, Items.FURNACE, "furnace_minecart");
         unpackMinecart(provider, Items.TNT_MINECART, Items.TNT, "tnt_minecart");
         unpackMinecart(provider, Items.HOPPER_MINECART, Items.HOPPER, "hopper_minecart");
-        unpackMinecart(provider, Items.COMMAND_BLOCK_MINECART, Items.COMMAND_BLOCK, "command_block_minecart");
     }
 
     private static void unpackMinecart(

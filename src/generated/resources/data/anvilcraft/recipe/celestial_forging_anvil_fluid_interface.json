@@ -6,16 +6,13 @@
       "item": "anvilcraft:pump"
     },
     "B": {
-      "item": "anvilcraft:pump"
-    },
-    "C": {
       "item": "anvilcraft:spacetime_supercomputer"
     }
   },
   "pattern": [
+    "AAA",
     "ABA",
-    "BCB",
-    "ABA"
+    "AAA"
   ],
   "result": {
     "count": 8,
