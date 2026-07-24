@@ -35,7 +35,10 @@ public class PlayerTickEventHandler {
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            PacketDistributor.sendToPlayer(serverPlayer, new PlayerSettingsSyncPacket(PlayerSettings.getSetting(serverPlayer.nameAndId())));
+            PacketDistributor.sendToPlayer(
+                serverPlayer,
+                new PlayerSettingsSyncPacket(PlayerSettings.getSetting(serverPlayer.registryAccess(), serverPlayer.nameAndId()))
+            );
         }
     }
 

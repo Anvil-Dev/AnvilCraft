@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.block.container.storage;
 
 import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.api.itemhandler.TypeLimitItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
@@ -124,20 +124,20 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
         UUID targetId = ref != null && ref.type() == StorageType.LARGE_CRATE
             ? ref.id().orElseGet(UUID::randomUUID)
             : UUID.randomUUID();
-        BaseStorage target = Storages.get().get(targetId, LargeCrateStorage.class)
+        BaseStorage<?> target = Storages.get().get(targetId, LargeCrateStorage.class)
             .map(BaseStorage.class::cast)
             .orElseGet(() -> new LargeCrateStorage(targetId));
-        TypeLimitItemStacksResourceHandler targetItems = target.getItems();
+        UnlimitedItemStacksResourceHandler targetItems = target.getItems();
         Set<UUID> sourceIds = new HashSet<>();
         try (Transaction root = Transaction.openRoot()) {
             try (Transaction transaction = Transaction.open(root)) {
                 for (CrateBlockEntity crate : crates) {
                     UUID sourceId = crate.getId();
                     if (sourceId == null || !sourceIds.add(sourceId)) continue;
-                    Optional<BaseStorage> sourceOp = Storages.get().get(sourceId);
+                    Optional<BaseStorage<?>> sourceOp = Storages.get().get(sourceId);
                     if (sourceOp.isEmpty()) continue;
-                    BaseStorage source = sourceOp.get();
-                    TypeLimitItemStacksResourceHandler items = source.getItems();
+                    BaseStorage<?> source = sourceOp.get();
+                    UnlimitedItemStacksResourceHandler items = source.getItems();
                     for (int i = 0; i < items.size(); i++) {
                         long amountAsLong = items.getAmountAsLong(i);
                         if (amountAsLong <= 0) continue;

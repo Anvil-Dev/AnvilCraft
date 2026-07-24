@@ -227,6 +227,7 @@ import dev.dubhe.anvilcraft.item.block.MultiphaseMatterBlockItem;
 import dev.dubhe.anvilcraft.item.block.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.item.block.RadiationBlockItem;
 import dev.dubhe.anvilcraft.item.block.ResinBlockItem;
+import dev.dubhe.anvilcraft.item.block.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.item.block.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.item.block.SuperHeavyBlockItem;
 import dev.dubhe.anvilcraft.item.block.TeslaTowerItem;
@@ -553,12 +554,14 @@ public class ModBlocks {
         .loot(FlexibleMultiPartBlock::loot)
         .properties(properties -> properties
             .noOcclusion()
+            .explosionResistance(1200)
             .isValidSpawn(ModBlocks::never)
             .requiresCorrectToolForDrops()
         )
-        .item(FlexibleMultiPartBlockItem::new)
+        .item(ShulkerContainerBlockItem::new)
         .properties(properties -> properties
-            .stacksTo(16)
+            .fireResistant()
+            .stacksTo(1)
             .component(ModComponents.STORAGE, StorageRef.shulkerContainer())
         )
         .model(DataGenUtil::oversizedItem)
@@ -573,12 +576,14 @@ public class ModBlocks {
         .loot(SimpleMultiPartBlock::loot)
         .properties(properties -> properties
             .noOcclusion()
+            .explosionResistance(1200)
             .isValidSpawn(ModBlocks::never)
             .requiresCorrectToolForDrops()
         )
         .item(SimpleMultiPartBlockItem::new)
         .properties(properties -> properties
-            .stacksTo(16)
+            .fireResistant()
+            .stacksTo(1)
             .component(ModComponents.STORAGE, StorageRef.hyperdimension())
         )
         .model(DataGenUtil::oversizedItem)
@@ -1418,7 +1423,7 @@ public class ModBlocks {
         .loot(FlexibleMultiPartBlock::loot)
         .tag(BlockTags.MINEABLE_WITH_AXE)
         .item(TradingStationBlockItem::new)
-        .model(() -> DataGenUtil.blockItem())
+        .model(DataGenUtil::blockItem)
         .build()
         .recipe(RegistrumBlockRecipeLoader::tradingStation)
         .register();

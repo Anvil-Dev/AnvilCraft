@@ -25,26 +25,34 @@ import java.util.UUID;
 public class Storages extends SavedData {
     public static final Identifier ID = AnvilCraft.of("storages");
     public static final MapCodec<Storages> CODEC = CodecUtil.mapCodec(
-        Codec.unboundedMap(UUIDUtil.STRING_CODEC, BaseStorage.CODEC.codec())
+            Codec.unboundedMap(UUIDUtil.STRING_CODEC, BaseStorage.CODEC.codec())
             .fieldOf("storages")
-            .forGetter(Storages::getStorages),
+            .forGetter(Storages::getStoragesForCodec),
         RecoverStation.codec(BaseStorage.CODEC)
             .fieldOf("recover")
-            .forGetter(Storages::getRecover),
+            .forGetter(Storages::getRecoverForCodec),
         Storages::new
     );
     public static final SavedDataType<Storages> TYPE = new SavedDataType<>(Storages.ID, Storages::new, Storages.CODEC.codec());
     public static final Storages CLIENT_COPY = new Storages();
-    private final Map<UUID, BaseStorage> storages;
-    private final RecoverStation<BaseStorage> recover;
+    private final Map<UUID, BaseStorage<?>> storages;
+    private final RecoverStation<BaseStorage<?>> recover;
 
     private Storages() {
         this(new HashMap<>(), RecoverStation.create(AnvilCraft.CONFIG.storageRecoverMaxSize));
     }
 
-    private Storages(Map<UUID, BaseStorage> storages, RecoverStation<BaseStorage> recover) {
+    private Storages(Map<UUID, BaseStorage<?>> storages, RecoverStation<BaseStorage<?>> recover) {
         this.storages = new HashMap<>(storages);
         this.recover = recover;
+    }
+
+    private Map<UUID, BaseStorage<?>> getStoragesForCodec() {
+        return this.storages;
+    }
+
+    private RecoverStation<BaseStorage<?>> getRecoverForCodec() {
+        return this.recover;
     }
 
     public static Storages get() {
@@ -62,15 +70,15 @@ public class Storages extends SavedData {
         return storage.computeIfAbsent(Storages.TYPE);
     }
 
-    public Optional<BaseStorage> get(UUID id) {
+    public Optional<BaseStorage<?>> get(UUID id) {
         return Optional.ofNullable(this.storages.get(id));
     }
 
-    public <T extends BaseStorage> Optional<T> get(UUID id, Class<T> clazz) {
+    public <T extends BaseStorage<?>> Optional<T> get(UUID id, Class<T> clazz) {
         return Util.castSafely(this.storages.get(id), clazz);
     }
 
-    public void put(BaseStorage storage) {
+    public void put(BaseStorage<?> storage) {
         this.storages.put(storage.getId(), storage);
         this.setDirty();
     }
@@ -81,11 +89,12 @@ public class Storages extends SavedData {
         }
     }
 
-    public <T extends BaseStorage> T getOrCreate(UUID id, Class<T> clazz) {
-        BaseStorage storage = this.storages.get(id);
+    public <T extends BaseStorage<?>> T getOrCreate(UUID id, Class<T> clazz) {
+        BaseStorage<?> storage = this.storages.get(id);
         if (storage == null) {
             T empty = Util.cast(StorageType.find(clazz).newInstance(id));
             this.storages.put(id, empty);
+            this.setDirty();
             return empty;
         }
         return Util.castSafely(storage, clazz).orElseThrow(() -> new IllegalArgumentException(

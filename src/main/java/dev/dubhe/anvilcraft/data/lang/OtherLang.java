@@ -75,5 +75,9 @@ public class OtherLang {
             "Must be placed on the corner of a Celestial Forging Anvil");
         provider.add("message.anvilcraft.disk.extreme_body_requires_crystal",
             "Extreme celestial body data can only be stored using singularity crystals.");
+
+        provider.add("component_content.anvilcraft.mod_name.unknown", "Unknown <%s>");
+        provider.add("component_content.anvilcraft.mod_name.minecraft", "Minecraft");
+        provider.add("component_content.anvilcraft.mod_name.anvilcraft", "AnvilCraft");
     }
 }

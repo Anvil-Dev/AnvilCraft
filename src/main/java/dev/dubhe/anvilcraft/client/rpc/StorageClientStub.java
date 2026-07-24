@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.rpc;
 
 import dev.anvilcraft.lib.v2.rpc.RPC;
 import dev.anvilcraft.lib.v2.rpc.RpcTarget;
+import dev.dubhe.anvilcraft.rpc.StorageInput;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.Minecraft;
@@ -22,6 +23,16 @@ public final class StorageClientStub {
             StorageServerStub::load,
             playerId(),
             sourcePos.asLong()
+        );
+    }
+
+    public static void setOpen(BlockPos sourcePos, boolean opened) {
+        RPC.call(
+            RpcTarget.server(),
+            StorageServerStub::setOpen,
+            playerId(),
+            sourcePos.asLong(),
+            opened
         );
     }
 
@@ -51,7 +62,7 @@ public final class StorageClientStub {
         BlockPos sourcePos,
         int slot,
         int button,
-        int action
+        StorageInput action
     ) {
         return RPC.invoke(
             RpcTarget.server(),

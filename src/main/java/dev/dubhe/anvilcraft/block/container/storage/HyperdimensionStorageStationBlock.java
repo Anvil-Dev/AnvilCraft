@@ -112,6 +112,7 @@ public class HyperdimensionStorageStationBlock
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return switch (state.getValue(HALF)) {
+            case BOTTOM_CENTER -> BOTTOM_CENTER;
             case BOTTOM_W -> BOTTOM_W;
             case BOTTOM_E -> BOTTOM_E;
             case BOTTOM_N -> BOTTOM_N;
@@ -120,11 +121,16 @@ public class HyperdimensionStorageStationBlock
             case BOTTOM_WS -> BOTTOM_SW;
             case BOTTOM_EN -> BOTTOM_NE;
             case BOTTOM_ES -> BOTTOM_SE;
-            case MID_CENTER, BOTTOM_CENTER, MID_N, MID_S, MID_E, MID_W, TOP_CENTER -> MID_CENTER;
+            case MID_CENTER -> MID_CENTER;
+            case MID_N -> MID_N;
+            case MID_W -> MID_W;
+            case MID_S -> MID_S;
+            case MID_E -> MID_E;
             case MID_WN -> MID_NW;
             case MID_WS -> MID_SW;
             case MID_EN -> MID_NE;
             case MID_ES -> MID_SE;
+            case TOP_CENTER -> TOP_CENTER;
             case TOP_W -> TOP_W;
             case TOP_E -> TOP_E;
             case TOP_N -> TOP_N;
@@ -165,6 +171,13 @@ public class HyperdimensionStorageStationBlock
     protected static final VoxelShape BOTTOM_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, BOTTOM_NW);
     protected static final VoxelShape BOTTOM_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, BOTTOM_NW);
     protected static final VoxelShape BOTTOM_NE = ShapeUtil.rotate(Direction.Axis.Y, 270, BOTTOM_NW);
+
+    protected static final VoxelShape MID_N = Block.boxZ(16, 4, 16);
+    protected static final VoxelShape MID_W = ShapeUtil.rotate(Direction.Axis.Y, 90, MID_N);
+    protected static final VoxelShape MID_S = ShapeUtil.rotate(Direction.Axis.Y, 180, MID_N);
+    protected static final VoxelShape MID_E = ShapeUtil.rotate(Direction.Axis.Y, 270, MID_N);
+    protected static final VoxelShape BOTTOM_CENTER = ShapeUtil.rotate(Direction.Axis.X, 90, MID_N);
+    protected static final VoxelShape TOP_CENTER = ShapeUtil.rotate(Direction.Axis.X, 270, MID_N);
 
     protected static final VoxelShape MID_NW = ShapeUtil.rotate(Direction.Axis.Z, 90, BOTTOM_N);
     protected static final VoxelShape MID_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, MID_NW);

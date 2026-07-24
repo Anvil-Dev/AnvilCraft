@@ -6,9 +6,12 @@ import dev.anvilcraft.lib.v2.rpc.CallableParam;
 import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
-import dev.dubhe.anvilcraft.api.itemhandler.TypeLimitItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
@@ -25,7 +28,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -43,7 +46,7 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
-import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -54,17 +57,15 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.function.Function;
 
 public final class StorageServerStub {
     private static final int MAX_PLAYER_STUBS = 5;
     private static final int MAX_SYNC_SLOTS = 256;
-    public static final int PICKUP = 0;
-    public static final int QUICK_MOVE_FROM_STORAGE = 1;
-    public static final int QUICK_MOVE_TO_STORAGE = 2;
-    public static final int CLONE = 3;
-    public static final int THROW = 4;
+    private static final ThreadLocal<HolderLookup.@Nullable Provider> REGISTRIES = new ThreadLocal<>();
+    @SuppressWarnings("unused")
     public static final StreamCodec<ByteBuf, IntList> ORDER_STREAM_CODEC = ByteBufCodecs.VAR_INT
         .apply(ByteBufCodecs.list())
         .map(IntArrayList::new, Function.identity());
@@ -75,42 +76,51 @@ public final class StorageServerStub {
     private long orderVersion;
     private final Map<SortOptions, IntList> orders = new HashMap<>();
 
-    @CallableParam(clazz = Metadata.class, field = "STREAM_CODEC")
+    private static HolderLookup.Provider getAndClear() {
+        HolderLookup.Provider registries = StorageServerStub.REGISTRIES.get();
+        StorageServerStub.REGISTRIES.remove();
+        return Objects.requireNonNull(registries);
+    }
+
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static Metadata load(
-        @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
-        long sourcePos
-    ) {
-        StorageView view = StorageServerStub.getView(playerId, sourcePos);
+    public static Metadata load(UUID playerId, long sourcePos) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
         return new Metadata(stub.version, stub.orderVersion, view.fullness(), view.capacity());
     }
 
+    @RemoteCallable(validator = StorageOpenStateValidator.class)
+    public static void setOpen(UUID playerId, long sourcePos, boolean opened) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        BlockEntity blockEntity = player.level().getBlockEntity(BlockPos.of(sourcePos));
+        if (blockEntity instanceof ShulkerContainerBlockEntity shulkerContainer) {
+            shulkerContainer.setOpen(player, opened);
+        }
+    }
+
     @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC")
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static IntList reorder(
-        @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
-        long sourcePos
-    ) {
-        StorageView view = StorageServerStub.getView(playerId, sourcePos);
+    public static IntList reorder(UUID playerId, long sourcePos) {
+        HolderLookup.Provider registries = StorageServerStub.getAndClear();
+        StorageView view = StorageServerStub.getView(registries, playerId, sourcePos);
         StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
-        PlayerSetting setting = PlayerSettings.getSetting(playerId);
+        PlayerSetting setting = PlayerSettings.getSetting(registries, playerId);
         IntList order = stub.getOrder(view, setting);
         return new IntArrayList(order);
     }
 
-    @CallableParam(clazz = SyncResult.class, field = "STREAM_CODEC")
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static SyncResult sync(
-        @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
+        UUID playerId,
         long sourcePos,
         @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC") IntList slots
     ) {
         if (slots.size() > StorageServerStub.MAX_SYNC_SLOTS) {
+            REGISTRIES.remove();
             throw new IllegalArgumentException("Cannot sync more than " + StorageServerStub.MAX_SYNC_SLOTS + " slots at once");
         }
 
-        StorageView view = StorageServerStub.getView(playerId, sourcePos);
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
         List<StackUpdate> updates = new ArrayList<>();
         IntOpenHashSet visited = new IntOpenHashSet(slots.size());
@@ -120,39 +130,23 @@ public final class StorageServerStub {
             }
             updates.add(new StackUpdate(index, StorageServerStub.getStack(view, index)));
         }
-        return new SyncResult(
-            stub.version,
-            view.fullness(),
-            updates
-        );
+        return new SyncResult(stub.version, view.fullness(), updates);
     }
 
-    @CallableParam(clazz = InteractionResult.class, field = "STREAM_CODEC")
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static InteractionResult interact(
-        @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
-        long sourcePos,
-        int slot,
-        int button,
-        int action
-    ) {
-        if (action < StorageServerStub.PICKUP || action > StorageServerStub.THROW) {
-            throw new IllegalArgumentException("Invalid storage interaction action: " + action);
-        }
-        if (
-            action == StorageServerStub.PICKUP && button != 0 && button != 1
-            || action == StorageServerStub.THROW && (button < 0 || button > 2)
-        ) {
+    public static InteractionResult interact(UUID playerId, long sourcePos, int slot, int button, StorageInput action) {
+        if (!action.isValid(button)) {
+            REGISTRIES.remove();
             throw new IllegalArgumentException("Invalid storage interaction button: " + button);
         }
 
-        StorageView view = StorageServerStub.getView(playerId, sourcePos);
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         ItemStack carried = player.inventoryMenu.getCarried();
         boolean changed = false;
-        if (action == StorageServerStub.QUICK_MOVE_TO_STORAGE) {
+        if (action == StorageInput.QUICK_MOVE_TO_STORAGE) {
             changed = StorageServerStub.moveInventoryStackToStorage(player, view, slot);
-        } else if (action == StorageServerStub.CLONE) {
+        } else if (action == StorageInput.CLONE) {
             if (
                 player.hasInfiniteMaterials()
                 && carried.isEmpty()
@@ -164,9 +158,9 @@ public final class StorageServerStub {
                 carried = stack.copyWithCount(stack.getMaxStackSize());
                 player.inventoryMenu.setCarried(carried);
             }
-        } else if (action == StorageServerStub.THROW) {
+        } else if (action == StorageInput.THROW) {
             changed = StorageServerStub.throwStorageStack(player, view, slot, button);
-        } else if (action == StorageServerStub.QUICK_MOVE_FROM_STORAGE) {
+        } else if (action == StorageInput.QUICK_MOVE_FROM_STORAGE) {
             changed = StorageServerStub.moveStorageStackToInventory(player, view, slot);
         } else if (!carried.isEmpty()) {
             int amount = button == 0 ? carried.getCount() : 1;
@@ -201,14 +195,9 @@ public final class StorageServerStub {
         return new InteractionResult(carried, changed);
     }
 
-    @CallableParam(clazz = DepositResult.class, field = "STREAM_CODEC")
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static DepositResult deposit(
-        @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
-        long sourcePos,
-        boolean all
-    ) {
-        StorageView view = StorageServerStub.getView(playerId, sourcePos);
+    public static DepositResult deposit(UUID playerId, long sourcePos, boolean all) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         boolean changed = false;
         for (int slot = Inventory.SELECTION_SIZE; slot < Inventory.INVENTORY_SIZE; slot++) {
@@ -232,13 +221,9 @@ public final class StorageServerStub {
         return new DepositResult(changed);
     }
 
-    @CallableParam(clazz = DepositResult.class, field = "STREAM_CODEC")
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static DepositResult take(
-        @CallableParam(clazz = UUIDUtil.class, field = "STREAM_CODEC") UUID playerId,
-        long sourcePos
-    ) {
-        StorageView view = StorageServerStub.getView(playerId, sourcePos);
+    public static DepositResult take(UUID playerId, long sourcePos) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         boolean changed = false;
         Inventory inventory = player.getInventory();
@@ -409,7 +394,15 @@ public final class StorageServerStub {
 
     public static final class StorageAccessValidator implements IRemoteCallableValidator {
         @Override
-        public boolean validate(@NonNull IPayloadContext ctx, @NonNull Method method, Object @NonNull [] args) {
+        public boolean validate(IPayloadContext ctx, Method method, Object[] args) {
+            boolean valid = this.isValid(ctx, args);
+            if (valid) {
+                StorageServerStub.REGISTRIES.set(ctx.player().registryAccess());
+            }
+            return valid;
+        }
+
+        private boolean isValid(IPayloadContext ctx, Object[] args) {
             if (
                 !(ctx.player() instanceof ServerPlayer player)
                 || args.length < 2
@@ -422,13 +415,36 @@ public final class StorageServerStub {
             BlockPos pos = BlockPos.of(sourcePos);
             BlockEntity blockEntity = player.level().getBlockEntity(pos);
             return blockEntity instanceof StorageBlockEntity storage
-                && storage.getId() != null
-                && Storages.get().get(storage.getId()).isPresent()
-                && AbstractContainerMenu.stillValid(
-                    ContainerLevelAccess.create(player.level(), pos),
-                    player,
-                    storage.getBlockState().getBlock()
-                );
+                   && storage.getId() != null
+                   && AbstractContainerMenu.stillValid(
+                ContainerLevelAccess.create(player.level(), pos),
+                player,
+                storage.getBlockState().getBlock()
+            );
+        }
+    }
+
+    public static final class StorageOpenStateValidator implements IRemoteCallableValidator {
+        @Override
+        public boolean validate(IPayloadContext ctx, Method method, Object[] args) {
+            if (
+                !(ctx.player() instanceof ServerPlayer player)
+                || args.length != 3
+                || !(args[0] instanceof UUID playerId)
+                || !player.getGameProfile().id().equals(playerId)
+                || !(args[1] instanceof Long sourcePos)
+                || !(args[2] instanceof Boolean opened)
+            ) {
+                return false;
+            }
+            BlockPos pos = BlockPos.of(sourcePos);
+            BlockEntity blockEntity = player.level().getBlockEntity(pos);
+            return blockEntity instanceof ShulkerContainerBlockEntity
+                   && (!opened || AbstractContainerMenu.stillValid(
+                ContainerLevelAccess.create(player.level(), pos),
+                player,
+                blockEntity.getBlockState().getBlock()
+            ));
         }
     }
 
@@ -617,7 +633,7 @@ public final class StorageServerStub {
             || id.getPath().toLowerCase(Locale.ROOT).contains(search);
     }
 
-    private static @NonNull Comparator<OrderEntry> getComparator(SortOptions options) {
+    private static Comparator<OrderEntry> getComparator(SortOptions options) {
         Comparator<OrderEntry> comparator = switch (options.sort()) {
             case COUNT -> Comparator.comparingLong(OrderEntry::amount);
             case MOD -> Comparator.comparing(entry -> entry.id().getNamespace());
@@ -630,15 +646,6 @@ public final class StorageServerStub {
             comparator = comparator.reversed();
         }
         return comparator;
-    }
-
-    private static BaseStorage getStorage(UUID playerId, long sourcePos) {
-        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
-        BlockEntity blockEntity = player.level().getBlockEntity(BlockPos.of(sourcePos));
-        if (!(blockEntity instanceof StorageBlockEntity storage) || storage.getId() == null) {
-            throw new IllegalStateException("Cannot access storage without a storage block entity");
-        }
-        return Storages.get().get(storage.getId()).orElseThrow();
     }
 
     private static ServerPlayer getServerPlayer(UUID playerId) {
@@ -657,19 +664,24 @@ public final class StorageServerStub {
         this.storageId = storageId;
     }
 
-    private static StorageView getView(UUID playerId, long sourcePos) {
+    private static StorageView getView(HolderLookup.Provider registries, UUID playerId, long sourcePos) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         BlockPos pos = BlockPos.of(sourcePos);
         BlockEntity blockEntity = player.level().getBlockEntity(pos);
-        if (!(blockEntity instanceof StorageBlockEntity storage) || storage.getId() == null) {
+        if (!(blockEntity instanceof StorageBlockEntity storage)) {
             throw new IllegalStateException("Cannot access storage without a storage block entity");
         }
-        BaseStorage primary = Storages.get().get(storage.getId()).orElseThrow();
-        String search = PlayerSettings.getSetting(playerId).storage().getSearchContent().strip();
+        UUID id = storage.getId();
+        if (id == null) {
+            id = UUID.randomUUID();
+            storage.setId(id);
+        }
+        BaseStorage<?> primary = Storages.get().getOrCreate(id, storage.getStorageType().clazz());
+        String search = PlayerSettings.getSetting(registries, playerId).storage().getSearchContent().strip();
         if (search.isEmpty() || !(storage instanceof CrateBlockEntity)) {
             return new StorageView(List.of(primary), List.of());
         }
-        List<BaseStorage> storages = new ArrayList<>();
+        List<BaseStorage<?>> storages = new ArrayList<>();
         for (CrateBlockEntity crate : CrateBlock.getNearbyCrates(player.level(), pos)) {
             if (crate.getId() != null) {
                 Storages.get().get(crate.getId()).ifPresent(storages::add);
@@ -685,14 +697,14 @@ public final class StorageServerStub {
     }
 
     private static final class StorageView {
-        private final List<BaseStorage> storages;
+        private final List<BaseStorage<?>> storages;
         private final List<Entry> entries = new ArrayList<>();
 
-        private StorageView(List<BaseStorage> storages, List<Entry> ignored) {
+        private StorageView(List<BaseStorage<?>> storages, List<Entry> ignored) {
             this.storages = storages;
             Map<ItemResource, Entry> merged = new HashMap<>();
             for (int storageIndex = 0; storageIndex < storages.size(); storageIndex++) {
-                TypeLimitItemStacksResourceHandler items = storages.get(storageIndex).getItems();
+                UnlimitedItemStacksResourceHandler items = storages.get(storageIndex).getItems();
                 for (int slot = 0; slot < items.size(); slot++) {
                     if (items.getAmountAsLong(slot) <= 0) continue;
                     ItemResource resource = items.getResource(slot);
@@ -707,7 +719,7 @@ public final class StorageServerStub {
             }
         }
 
-        BaseStorage primary() {
+        BaseStorage<?> primary() {
             return this.storages.getLast();
         }
 
@@ -728,19 +740,27 @@ public final class StorageServerStub {
         }
 
         Capacity capacity() {
-            TypeLimitItemStacksResourceHandler items = this.primary().getItems();
-            return new Capacity(items.getSpace(), items.getSpaceSize(), items.getTypeCount(), items.getTypeLimit());
+            UnlimitedItemStacksResourceHandler items = this.primary().getItems();
+            int space = 0;
+            int spaceSize = Integer.MAX_VALUE;
+            if (items instanceof SpaceSizeItemStacksResourceHandler spaceHandler) {
+                space = spaceHandler.getSpace();
+                spaceSize = spaceHandler.getSpaceSize();
+            } else if (items instanceof TypeLimitItemStacksResourceHandler typeHandler) {
+                spaceSize = typeHandler.getSpaceSize();
+            }
+            return new Capacity(space, spaceSize, items.getTypeCount(), items.getTypeLimit());
         }
 
         int insert(ItemResource resource, int amount, Transaction tx) {
             int inserted = 0;
             for (int i = 0; i < this.storages.size() - 1; i++) {
-                TypeLimitItemStacksResourceHandler items = this.storages.get(i).getItems();
+                UnlimitedItemStacksResourceHandler items = this.storages.get(i).getItems();
                 if (!contains(items, resource)) continue;
                 inserted += items.insert(resource, amount - inserted, tx);
                 if (inserted == amount) return inserted;
             }
-            TypeLimitItemStacksResourceHandler primaryItems = this.primary().getItems();
+            UnlimitedItemStacksResourceHandler primaryItems = this.primary().getItems();
             inserted += primaryItems.insert(resource, amount - inserted, tx);
             if (inserted == amount) return inserted;
             for (int i = 0; i < this.storages.size() - 1; i++) {
@@ -750,7 +770,7 @@ public final class StorageServerStub {
             return inserted;
         }
 
-        private static boolean contains(TypeLimitItemStacksResourceHandler items, ItemResource resource) {
+        private static boolean contains(UnlimitedItemStacksResourceHandler items, ItemResource resource) {
             for (int i = 0; i < items.size(); i++) {
                 if (items.getAmountAsLong(i) > 0 && items.getResource(i).equals(resource)) return true;
             }

@@ -6,6 +6,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.Window;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.category.CategoryList;
@@ -13,6 +14,7 @@ import dev.dubhe.anvilcraft.client.rpc.SettingClientStub;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
+import dev.dubhe.anvilcraft.rpc.StorageInput;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
 import dev.dubhe.anvilcraft.saved.setting.mode.NbtDisplayMode;
@@ -89,6 +91,7 @@ public class StorageScreen extends Screen {
     private static final int METADATA_REFRESH_INTERVAL = 10;
     private final BlockPos sourcePos;
     private final Player player;
+    private final boolean tracksOpenState;
 
     private @Nullable EditBox search;
     private @Nullable CategoryList categories;
@@ -121,6 +124,8 @@ public class StorageScreen extends Screen {
         super(Objects.requireNonNull(Minecraft.getInstance().level).getBlockState(sourcePos).getBlock().getName());
         this.sourcePos = sourcePos;
         this.player = Objects.requireNonNull(Minecraft.getInstance().player);
+        this.tracksOpenState = Minecraft.getInstance().level.getBlockState(sourcePos).getBlock()
+            instanceof ShulkerContainerBlock;
     }
 
     public static void openScreen(BlockPos sourcePos) {
@@ -129,6 +134,9 @@ public class StorageScreen extends Screen {
 
     @Override
     protected void init() {
+        if (this.tracksOpenState) {
+            StorageClientStub.setOpen(this.sourcePos, true);
+        }
         this.left = (this.width - StorageScreen.BG_WIDTH) / 2;
         this.top = (this.height - StorageScreen.BG_HEIGHT) / 2;
         this.titleLabelX = (StorageScreen.BG_WIDTH - 106 - this.font.width(this.title)) / 2 + 106;
@@ -498,32 +506,10 @@ public class StorageScreen extends Screen {
         if (capacity == null) {
             return null;
         }
-        boolean unlimitedSpace = capacity.spaceSize() == Integer.MAX_VALUE;
-        boolean unlimitedTypes = capacity.typeLimit() == Integer.MAX_VALUE;
-        if (unlimitedSpace && unlimitedTypes) {
-            return null;
+        if (capacity.typeLimit() != Integer.MAX_VALUE) {
+            return Component.translatable("screen.anvilcraft.storage.capacity.space", capacity.space(), capacity.spaceSize());
         }
-        if (unlimitedSpace) {
-            return Component.translatable(
-                "screen.anvilcraft.storage.capacity.types",
-                capacity.typeCount(),
-                capacity.typeLimit()
-            );
-        }
-        if (unlimitedTypes) {
-            return Component.translatable(
-                "screen.anvilcraft.storage.capacity.space",
-                capacity.space(),
-                capacity.spaceSize()
-            );
-        }
-        return Component.translatable(
-            "screen.anvilcraft.storage.capacity",
-            capacity.space(),
-            capacity.spaceSize(),
-            capacity.typeCount(),
-            capacity.typeLimit()
-        );
+        return Component.translatable("screen.anvilcraft.storage.capacity.types", capacity.typeCount(), capacity.typeLimit());
     }
 
     private void extractCarriedItem(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
@@ -589,9 +575,9 @@ public class StorageScreen extends Screen {
         if (event.button() == 0 || event.button() == 1) {
             Integer storageSlot = this.getStorageSlot(event.x(), event.y());
             if (storageSlot != null && this.minecraft.gameMode != null) {
-                int action = event.hasShiftDown()
-                    ? StorageServerStub.QUICK_MOVE_FROM_STORAGE
-                    : StorageServerStub.PICKUP;
+                StorageInput action = event.hasShiftDown()
+                                      ? StorageInput.QUICK_MOVE_FROM_STORAGE
+                                      : StorageInput.PICKUP;
                 this.interactWithStorage(storageSlot, event.button(), action);
                 return true;
             }
@@ -603,7 +589,7 @@ public class StorageScreen extends Screen {
             this.lastClickedInventorySlot = slot;
 
             if (event.hasShiftDown()) {
-                this.interactWithStorage(slot, event.button(), StorageServerStub.QUICK_MOVE_TO_STORAGE);
+                this.interactWithStorage(slot, event.button(), StorageInput.QUICK_MOVE_TO_STORAGE);
                 return true;
             }
 
@@ -636,7 +622,7 @@ public class StorageScreen extends Screen {
                 && this.carried.isEmpty()
                 && this.minecraft.options.keyPickItem.isActiveAndMatches(InputConstants.Type.MOUSE.getOrCreate(event.input()))
             ) {
-                this.interactWithStorage(storageSlot, 0, StorageServerStub.CLONE);
+                this.interactWithStorage(storageSlot, 0, StorageInput.CLONE);
                 return true;
             }
 
@@ -760,7 +746,7 @@ public class StorageScreen extends Screen {
         );
     }
 
-    private void interactWithStorage(int slot, int button, int action) {
+    private void interactWithStorage(int slot, int button, StorageInput action) {
         if (this.minecraft.gameMode == null || this.interactionPending) {
             return;
         }
@@ -828,15 +814,11 @@ public class StorageScreen extends Screen {
             Integer storageSlot = this.getStorageSlot();
             if (storageSlot != null && this.minecraft.gameMode != null) {
                 if (this.minecraft.options.keyPickItem.isActiveAndMatches(key)) {
-                    this.interactWithStorage(storageSlot, 0, StorageServerStub.CLONE);
+                    this.interactWithStorage(storageSlot, 0, StorageInput.CLONE);
                     return true;
                 } else if (this.minecraft.options.keyDrop.isActiveAndMatches(key)) {
                     int dropMode = event.hasControlDown() ? event.hasShiftDown() ? 2 : 1 : 0;
-                    this.interactWithStorage(
-                        storageSlot,
-                        dropMode,
-                        StorageServerStub.THROW
-                    );
+                    this.interactWithStorage(storageSlot, dropMode, StorageInput.THROW);
                     return true;
                 }
             }
@@ -908,6 +890,9 @@ public class StorageScreen extends Screen {
         this.reorderRequest++;
         this.syncRequest++;
         this.metadataPending = false;
+        if (this.tracksOpenState && this.minecraft.player != null) {
+            StorageClientStub.setOpen(this.sourcePos, false);
+        }
         if (!this.carried.isEmpty() && this.minecraft.gameMode != null) {
             this.player.inventoryMenu.setCarried(this.carried);
             Inventory inventory = this.player.getInventory();
@@ -1029,10 +1014,33 @@ public class StorageScreen extends Screen {
                 if (request != this.reorderRequest || error != null) {
                     return;
                 }
-                this.order = new IntArrayList(updatedOrder);
+                IntList reordered = new IntArrayList(updatedOrder);
                 this.orderLoaded = true;
-                this.scrollRow = Mth.clamp(this.scrollRow, 0, this.getMaxScrollRow());
-                this.syncVisible();
+                int reorderedScrollRow = Mth.clamp(this.scrollRow, 0, this.getMaxScrollRow(reordered));
+                this.syncReordered(reordered, reorderedScrollRow, request);
+            },
+            this.screenExecutor
+        );
+    }
+
+    private void syncReordered(IntList reordered, int reorderedScrollRow, int reorderRequest) {
+        int request = ++this.syncRequest;
+        StorageClientStub.sync(this.sourcePos, this.getVisibleSlots(reordered, reorderedScrollRow)).whenCompleteAsync(
+            (result, error) -> {
+                if (reorderRequest != this.reorderRequest) {
+                    return;
+                }
+                if (error != null) {
+                    this.orderLoaded = false;
+                    return;
+                }
+                if (request != this.syncRequest || result.version() < this.version) {
+                    this.reorder(false);
+                    return;
+                }
+                this.applySyncResult(result);
+                this.order = reordered;
+                this.scrollRow = reorderedScrollRow;
             },
             this.screenExecutor
         );
@@ -1040,30 +1048,37 @@ public class StorageScreen extends Screen {
 
     private void syncVisible() {
         int request = ++this.syncRequest;
-        int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
-        int endOrderIndex = Math.min(firstOrderIndex + StorageScreen.VISIBLE_STORAGE_SLOTS, this.order.size());
-        IntArrayList slots = new IntArrayList(endOrderIndex - firstOrderIndex);
-        for (int orderIndex = firstOrderIndex; orderIndex < endOrderIndex; orderIndex++) {
-            slots.add(this.order.getInt(orderIndex));
-        }
-
-        StorageClientStub.sync(this.sourcePos, slots).whenCompleteAsync(
+        StorageClientStub.sync(this.sourcePos, this.getVisibleSlots(this.order, this.scrollRow)).whenCompleteAsync(
             (result, error) -> {
                 if (request != this.syncRequest || error != null || result.version() < this.version) {
                     return;
                 }
-                this.version = result.version();
-                this.fullness = result.fullness();
-                for (StorageServerStub.StackUpdate update : result.updates()) {
-                    if (update.stack().isEmpty()) {
-                        this.contents.remove(update.index());
-                    } else {
-                        this.contents.put(update.index(), update.stack());
-                    }
-                }
+                this.applySyncResult(result);
             },
             this.screenExecutor
         );
+    }
+
+    private IntList getVisibleSlots(IntList order, int scrollRow) {
+        int firstOrderIndex = scrollRow * StorageScreen.STORAGE_COLUMNS;
+        int endOrderIndex = Math.min(firstOrderIndex + StorageScreen.VISIBLE_STORAGE_SLOTS, order.size());
+        IntArrayList slots = new IntArrayList(endOrderIndex - firstOrderIndex);
+        for (int orderIndex = firstOrderIndex; orderIndex < endOrderIndex; orderIndex++) {
+            slots.add(order.getInt(orderIndex));
+        }
+        return slots;
+    }
+
+    private void applySyncResult(StorageServerStub.SyncResult result) {
+        this.version = result.version();
+        this.fullness = result.fullness();
+        for (StorageServerStub.StackUpdate update : result.updates()) {
+            if (update.stack().isEmpty()) {
+                this.contents.remove(update.index());
+            } else {
+                this.contents.put(update.index(), update.stack());
+            }
+        }
     }
 
     private void refreshMetadata() {
@@ -1092,9 +1107,13 @@ public class StorageScreen extends Screen {
     }
 
     private int getMaxScrollRow() {
+        return this.getMaxScrollRow(this.order);
+    }
+
+    private int getMaxScrollRow(IntList order) {
         return Math.max(
             0,
-            Math.ceilDiv(this.order.size(), StorageScreen.STORAGE_COLUMNS) - StorageScreen.STORAGE_ROWS
+            Math.ceilDiv(order.size(), StorageScreen.STORAGE_COLUMNS) - StorageScreen.STORAGE_ROWS
         );
     }
 

@@ -21,7 +21,7 @@ public enum StorageType implements StringRepresentable {
     public static final Codec<StorageType> CODEC = StringRepresentable.fromEnum(StorageType::values);
     public static final StreamCodec<ByteBuf, StorageType> STREAM_CODEC = StreamCodecUtil.enumStreamCodec(StorageType.class);
 
-    public static StorageType find(Class<? extends BaseStorage> clazz) {
+    public static StorageType find(Class<? extends BaseStorage<?>> clazz) {
         return switch (clazz.getSimpleName()) {
             case "CrateStorage" -> StorageType.CRATE;
             case "LargeCrateStorage" -> StorageType.LARGE_CRATE;
@@ -31,7 +31,7 @@ public enum StorageType implements StringRepresentable {
         };
     }
 
-    public static StorageType find(BaseStorage storage) {
+    public static StorageType find(BaseStorage<?> storage) {
         return switch (storage) {
             case CrateStorage _ -> StorageType.CRATE;
             case LargeCrateStorage _ -> StorageType.LARGE_CRATE;
@@ -41,7 +41,7 @@ public enum StorageType implements StringRepresentable {
         };
     }
 
-    public MapCodec<? extends BaseStorage> codec() {
+    public MapCodec<? extends BaseStorage<?>> codec() {
         return switch (this) {
             case CRATE -> CrateStorage.CODEC;
             case LARGE_CRATE -> LargeCrateStorage.CODEC;
@@ -50,7 +50,7 @@ public enum StorageType implements StringRepresentable {
         };
     }
 
-    public StreamCodec<RegistryFriendlyByteBuf, ? extends BaseStorage> streamCodec() {
+    public StreamCodec<RegistryFriendlyByteBuf, ? extends BaseStorage<?>> streamCodec() {
         return switch (this) {
             case CRATE -> CrateStorage.STREAM_CODEC;
             case LARGE_CRATE -> LargeCrateStorage.STREAM_CODEC;
@@ -59,7 +59,7 @@ public enum StorageType implements StringRepresentable {
         };
     }
 
-    public BaseStorage newInstance(UUID id) {
+    public BaseStorage<?> newInstance(UUID id) {
         return switch (this) {
             case CRATE -> new CrateStorage(id);
             case LARGE_CRATE -> new LargeCrateStorage(id);
@@ -68,7 +68,7 @@ public enum StorageType implements StringRepresentable {
         };
     }
 
-    public Class<? extends BaseStorage> clazz() {
+    public Class<? extends BaseStorage<?>> clazz() {
         return switch (this) {
             case CRATE -> CrateStorage.class;
             case LARGE_CRATE -> LargeCrateStorage.class;

@@ -43,6 +43,7 @@ public class StorageBlockEntity extends BlockEntity {
             return;
         }
         this.id = id;
+        this.setChanged();
         if (this.level != null) {
             BlockState state = this.getBlockState();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, Block.UPDATE_ALL);

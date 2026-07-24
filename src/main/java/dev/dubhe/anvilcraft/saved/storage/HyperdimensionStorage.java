@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.saved.storage;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
-import dev.dubhe.anvilcraft.api.itemhandler.TypeLimitItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import it.unimi.dsi.fastutil.ints.IntObjectBiConsumer;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -11,19 +11,19 @@ import net.minecraft.network.codec.StreamCodec;
 
 import java.util.UUID;
 
-public class HyperdimensionStorage extends BaseStorage {
+public class HyperdimensionStorage extends BaseStorage<UnlimitedItemStacksResourceHandler> {
     public static final MapCodec<HyperdimensionStorage> CODEC = CodecUtil.mapCodec(
         UUIDUtil.CODEC
             .fieldOf("storage_id")
             .forGetter(HyperdimensionStorage::getId),
-        TypeLimitItemStacksResourceHandler.CODEC
+        UnlimitedItemStacksResourceHandler.CODEC
             .forGetter(HyperdimensionStorage::getItems),
         HyperdimensionStorage::of
     );
     public static final StreamCodec<RegistryFriendlyByteBuf, HyperdimensionStorage> STREAM_CODEC = StreamCodec.composite(
         UUIDUtil.STREAM_CODEC,
         HyperdimensionStorage::getId,
-        TypeLimitItemStacksResourceHandler.STREAM_CODEC,
+        UnlimitedItemStacksResourceHandler.STREAM_CODEC,
         HyperdimensionStorage::getItems,
         HyperdimensionStorage::of
     );
@@ -32,15 +32,15 @@ public class HyperdimensionStorage extends BaseStorage {
         super(id);
     }
 
-    private static HyperdimensionStorage of(UUID id, TypeLimitItemStacksResourceHandler items) {
+    private static HyperdimensionStorage of(UUID id, UnlimitedItemStacksResourceHandler items) {
         HyperdimensionStorage storage = new HyperdimensionStorage(id);
         storage.getItems().sync(items);
         return storage;
     }
 
     @Override
-    protected TypeLimitItemStacksResourceHandler constructItemHandler(IntObjectBiConsumer<UnlimitedItemStack> onContentsChanged) {
-        return new TypeLimitItemStacksResourceHandler(65536) {
+    protected UnlimitedItemStacksResourceHandler constructItemHandler(IntObjectBiConsumer<UnlimitedItemStack> onContentsChanged) {
+        return new UnlimitedItemStacksResourceHandler(65536) {
             @Override
             protected void onContentsChanged(int index, UnlimitedItemStack original) {
                 onContentsChanged.accept(index, original);

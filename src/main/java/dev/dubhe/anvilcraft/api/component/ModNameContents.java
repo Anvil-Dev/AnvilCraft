@@ -21,6 +21,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/// # 模组名称内容
+///
+/// 首先尝试寻找翻译键为 `component_content.anvilcraft.mod_name.{id}` 的 [Component]；
+///
+/// 其次尝试找到 [ModNameContents#id] 对应的模组的显示名称；
+///
+/// 若都没有，则显示翻译键为 `component_content.anvilcraft.mod_name.unknown` 的 [Component]，并传入 [ModNameContents#id] 作为参数
 @Getter(AccessLevel.PROTECTED)
 public class ModNameContents implements ComponentContents {
     public static final MapCodec<ModNameContents> CODEC = CodecUtil.mapCodec(
@@ -32,6 +39,7 @@ public class ModNameContents implements ComponentContents {
     private static final String KEY = "component_content.anvilcraft.mod_name.unknown";
     private final String id;
     private @Nullable Language decomposedWith;
+    private @Nullable String keyCache;
     private List<FormattedText> decomposedParts = ImmutableList.of();
 
     public ModNameContents(String id) {
@@ -45,6 +53,15 @@ public class ModNameContents implements ComponentContents {
         }
 
         this.decomposedWith = currentLanguage;
+
+        if (this.keyCache == null) {
+            this.keyCache = "component_content.anvilcraft.mod_name." + this.id;
+        }
+        Component component = currentLanguage.getComponent(this.keyCache);
+        if (component != null) {
+            this.decomposedParts = ImmutableList.of(component);
+            return;
+        }
 
         Optional<String> modNameOp = ModList.get()
             .getModContainerById(this.id)

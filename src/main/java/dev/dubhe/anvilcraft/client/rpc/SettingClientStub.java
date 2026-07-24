@@ -19,6 +19,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
@@ -62,7 +63,9 @@ public final class SettingClientStub {
         synchronized (SettingClientStub.class) {
             if (SettingClientStub.fallbackSetting == null || !playerId.equals(SettingClientStub.fallbackPlayerId)) {
                 SettingClientStub.fallbackPlayerId = playerId;
-                SettingClientStub.fallbackSetting = new PlayerSetting();
+                SettingClientStub.fallbackSetting = new PlayerSetting(
+                    Objects.requireNonNull(Minecraft.getInstance().getConnection()).registryAccess()
+                );
             }
             return SettingClientStub.fallbackSetting;
         }
@@ -109,22 +112,6 @@ public final class SettingClientStub {
         cached.storage().setOrder(committed.storage().getOrder());
         cached.storage().setNbtDisplay(committed.storage().getNbtDisplay());
         ClientPacketDistributor.sendToServer(new PlayerSettingsSyncPacket(committed));
-    }
-
-    public static void list(ICategory category) {
-        RPC.call(RpcTarget.server(), SettingServerStub::list, SettingClientStub.playerId(), category);
-    }
-
-    public static CompletableFuture<CategoryEntry> unlist(int index) {
-        return RPC.invoke(RpcTarget.server(), SettingServerStub::unlist, SettingClientStub.playerId(), index);
-    }
-
-    public static void pinToTop(int index) {
-        RPC.call(RpcTarget.server(), SettingServerStub::pinToTop, SettingClientStub.playerId(), index);
-    }
-
-    public static void addCustom(ICategory category) {
-        RPC.call(RpcTarget.server(), SettingServerStub::addCustom, SettingClientStub.playerId(), category);
     }
 
     public static CompletableFuture<List<CategoryEntry>> update(List<CategoryEntry> categories) {
