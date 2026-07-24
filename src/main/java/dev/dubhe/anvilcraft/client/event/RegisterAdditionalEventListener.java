@@ -92,10 +92,17 @@ public class RegisterAdditionalEventListener {
 
         // WIP models
         event.register(standaloneBlock("ancient_sea_reef_wip"));
+        event.register(standaloneBlock("ancient_sea_reef_wip_2"));
         event.register(standaloneBlock("ancient_debris_wip"));
         event.register(standaloneBlock("netherite_block_wip"));
+        event.register(standaloneBlock("netherite_block_wip_2"));
         event.register(standaloneBlock("heavy_iron_block_wip"));
+        event.register(standaloneBlock("heavy_iron_block_wip_2"));
         event.register(standaloneBlock("spacetime_supercomputer_wip"));
+        event.register(standaloneBlock("spacetime_supercomputer_wip_2"));
+        event.register(standaloneBlock("spacetime_supercomputer_wip_3"));
+        event.register(standaloneBlock("shulker_box_wip"));
+        event.register(standaloneBlock("shulker_box_wip_2"));
         event.register(standaloneBlock("nesting_shulker_box"));
         event.register(standaloneBlock("over_nesting_shulker_box"));
         event.register(standaloneBlock("supercritical_nesting_shulker_box"));

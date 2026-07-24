@@ -178,7 +178,8 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
     }
 
     /**
-     * Sets the WIP model used after each completed step, in step order.
+     * Sets the WIP models in process order. Models advance by step for a single-loop recipe and by loop for a
+     * multi-loop recipe.
      */
     public ProceduralProcessRecipeBuilder displayedModels(ResourceLocation... modelIds) {
         this.displayedModels.clear();
@@ -218,8 +219,11 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
         if (steps.isEmpty()) {
             throw new IllegalArgumentException("Procedural Procession must have at least one step, RecipeId: " + id);
         }
-        if (displayedModels.size() > steps.size()) {
-            throw new IllegalArgumentException("Displayed model count must not exceed step count, RecipeId: " + id);
+        int displayedModelLimit = loop > 1 ? loop : steps.size();
+        if (displayedModels.size() > displayedModelLimit) {
+            throw new IllegalArgumentException(
+                "Displayed model count must not exceed process stage count, RecipeId: " + id
+            );
         }
         for (ProceduralProcessStep step : steps) {
             if (!(step.content instanceof AbstractProcessRecipe<?>)) {
