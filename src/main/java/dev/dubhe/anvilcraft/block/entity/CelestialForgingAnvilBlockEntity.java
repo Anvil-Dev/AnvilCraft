@@ -1648,7 +1648,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     }
 
     /// 清除活动巨构及所有相关状态，恢复为束星环。
-    private void clearMegastructure() {
+    public void clearMegastructure() {
         megastructureManager.clearMegastructure(this);
         /// 清除材料过滤器（仍由 BE 持有）
         this.materialFilter = new ItemStack(Items.BARRIER);

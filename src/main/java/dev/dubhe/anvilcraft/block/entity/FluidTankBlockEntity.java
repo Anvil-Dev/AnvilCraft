@@ -90,7 +90,7 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
         if (manager == null) return;
 
         FluidStack fluid = this.tank.getFluid();
-        float fill = (float) this.tank.getFluidAmount() / this.tank.getCapacity();
+        float fill = Math.min(1.0F, (float) this.tank.getFluidAmount() / this.tank.getCapacity());
         manager.setLightAt(
             this.getBlockPos(),
             (int) Math.ceil(fluid.getFluidType().getLightLevel(fluid) * fill)
@@ -119,6 +119,15 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    @SuppressWarnings("deprecation")
+    public void removeComponentsFromTag(CompoundTag tag) {
+        super.removeComponentsFromTag(tag);
+        CompoundTag tankTag = tag.getCompound(TAG_TANK);
+        SingleFluidTankHandler.normalizeForItem(tankTag);
+        tag.put(TAG_TANK, tankTag);
     }
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {

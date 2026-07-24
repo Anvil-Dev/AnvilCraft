@@ -151,6 +151,18 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
+    @Override
+    @SuppressWarnings("deprecation")
+    public void removeComponentsFromTag(CompoundTag tag) {
+        super.removeComponentsFromTag(tag);
+        if (this.level != null) {
+            tag.put(TAG_TANK, this.getMainPart().tank.serializeNBT(this.level.registryAccess()));
+        }
+        CompoundTag tankTag = tag.getCompound(TAG_TANK);
+        MultiFluidTankHandler.normalizeForItem(tankTag);
+        tag.put(TAG_TANK, tankTag);
+    }
+
     public boolean onPlayerUse(Player player, InteractionHand hand) {
         if (this.level != null
             && FluidHandlerWrapper.tryInteractWithBottle(

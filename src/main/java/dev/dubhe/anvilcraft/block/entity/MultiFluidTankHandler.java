@@ -159,6 +159,9 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
     void setEnhanced(boolean enhanced) {
         if (this.enhanced == enhanced) return;
         this.enhanced = enhanced;
+        for (StoredFluid stored : this.fluids) {
+            stored.infinite(enhanced && stored.fluid().getAmount() >= this.infinityThreshold);
+        }
         this.changeListener.run();
     }
 
@@ -204,6 +207,14 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
             this.fluids.add(new StoredFluid(fluid.copyWithAmount(amount), infinite));
         }
         this.changeListener.run();
+    }
+
+    static void normalizeForItem(CompoundTag tag) {
+        tag.putBoolean(TAG_ENHANCED, false);
+        ListTag fluidsTag = tag.getList(TAG_FLUIDS, Tag.TAG_COMPOUND);
+        for (int i = 0; i < fluidsTag.size(); i++) {
+            fluidsTag.getCompound(i).putBoolean(TAG_INFINITE, false);
+        }
     }
 
     @Accessors(fluent = true, chain = false)

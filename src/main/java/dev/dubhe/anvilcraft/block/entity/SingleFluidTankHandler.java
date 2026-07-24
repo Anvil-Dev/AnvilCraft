@@ -38,6 +38,7 @@ final class SingleFluidTankHandler extends FluidTank {
             }
             return resource.getAmount();
         }
+        if (!this.enhanced && this.getSpace() == 0) return 0;
 
         boolean reachesInfinity = this.enhanced
             && !resource.isEmpty()
@@ -85,9 +86,6 @@ final class SingleFluidTankHandler extends FluidTank {
         this.infinite = false;
         super.setCapacity(this.enhanced ? this.infinityThreshold : this.baseCapacity);
         super.readFromNBT(provider, tag);
-        if (this.getFluidAmount() > this.capacity) {
-            this.fluid.setAmount(this.capacity);
-        }
         this.infinite = this.enhanced
             && tag.getBoolean(TAG_INFINITE)
             && this.getFluidAmount() == this.infinityThreshold;
@@ -101,5 +99,10 @@ final class SingleFluidTankHandler extends FluidTank {
         tag.putBoolean(TAG_ENHANCED, this.enhanced);
         tag.putBoolean(TAG_INFINITE, this.infinite);
         return tag;
+    }
+
+    static void normalizeForItem(CompoundTag tag) {
+        tag.putBoolean(TAG_ENHANCED, false);
+        tag.putBoolean(TAG_INFINITE, false);
     }
 }
