@@ -14,6 +14,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -127,8 +128,7 @@ public class FluidTankMinecartEntity extends AbstractMinecart implements IFluidR
     @Override
     protected Vec3 applyNaturalSlowdown(Vec3 movement) {
         // 与原版容器矿车一致：装载越多，摩擦越大
-        int amount = this.tank.getStack().getAmount();
-        int signal = amount == 0 ? 0 : amount * 14 / CAPACITY + 1;
+        int signal = this.getComparatorLevel();
         float friction = 0.98F + (15 - signal) * 0.001F;
         Vec3 newMovement = movement.multiply(friction, 0.0, friction);
         return this.isInWater() ? newMovement.scale(0.95F) : newMovement;
@@ -218,6 +218,12 @@ public class FluidTankMinecartEntity extends AbstractMinecart implements IFluidR
         this.lastSyncedFluid = fluid.copy();
         this.entityData.set(FLUID_ID, fluid.isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(fluid.getFluid()));
         this.entityData.set(FLUID_AMOUNT, fluid.getAmount());
+    }
+
+    /// 按罐内存量给出的比较器强度，同时用于摩擦计算
+    public int getComparatorLevel() {
+        int amount = this.tank.getStack().getAmount();
+        return amount == 0 ? 0 : Mth.floor(amount * 14.0F / CAPACITY) + 1;
     }
 
     /// 获取用于渲染的流体内容；客户端读取同步数据，服务端直接读罐

@@ -1062,7 +1062,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         if (option.needsMaterial()) {
             ItemStack contained = this.materialContainer.getItem(0);
             ItemStack required = option.material().copyWithCount(option.materialCount());
-            if (!ItemStack.isSameItemSameComponents(contained, required) || contained.getCount() < required.getCount()) {
+            if (!ItemStack.isSameItem(contained, required) || contained.getCount() < required.getCount()) {
                 return;
             }
             contained.shrink(required.getCount());

@@ -23,6 +23,7 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.ObserverBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -40,7 +41,7 @@ import java.util.Map;
  * <p>每个 {@link Network} 代表当前已加载区块中的一个连通分量。Manager 只在拓扑改变时重新搜索导线，
  * 普通信号变化则复用缓存的开放端点采样最大输入，再把同一强度同步到客户端。</p>
  *
- * <p>这些数据都是可由世界状态重建的运行时缓存，不写入存档。</p>
+ * <p>网络和功率数据都是可由世界状态重建的运行时缓存；只有玩家手动编辑的少量端口覆盖单独写入存档。</p>
  */
 public final class RedstoneWireNetworkManager {
     /** 单张网络允许缓存的最大导线数，防止恶意或异常拓扑耗尽服务器时间和内存。 */
@@ -84,6 +85,10 @@ public final class RedstoneWireNetworkManager {
         Network network = state.byWire.get(packedPos);
         if (network == null || !network.valid) {
             // 新加载、刚放置或已经失效的位置没有可信缓存，只能从该点重新发现连通分量。
+            if (level.getBlockState(neighborPos).is(Blocks.OBSERVER)) {
+                // 先记录侦测器区块，确保本轮首次建网不会跳过其邻居扫描。
+                state.rememberObserver(neighborPos);
+            }
             state.requestTopologyUpdate(packedPos);
             return;
         }
@@ -92,6 +97,14 @@ public final class RedstoneWireNetworkManager {
         if (node == null || !(blockState.getBlock() instanceof RedstoneWireBlock block)) {
             state.requestTopologyUpdate(packedPos);
             return;
+        }
+
+        BlockState neighborState = level.getBlockState(neighborPos);
+        if (neighborBlock == Blocks.OBSERVER
+            || network.observers != null && network.observers.contains(neighborPos.asLong())
+            || neighborState.is(Blocks.OBSERVER)) {
+            // 侦测器不参与导线拓扑；只维护单个索引项，避免为放置、旋转或移除侦测器重建整网。
+            state.refreshObserver(network, neighborPos, neighborState);
         }
 
         if (block.connectionState(level, pos, blockState, node.connections) != blockState) {
@@ -146,9 +159,10 @@ public final class RedstoneWireNetworkManager {
         }
     }
 
-    /** 清除客户端已移除导线的功率缓存。 */
+    /** 清除已移除导线的持久化端口覆盖和客户端功率缓存。 */
     public static void wireRemoved(Level level, BlockPos pos) {
         if (level instanceof ServerLevel serverLevel) {
+            state(serverLevel).connectionOverrides.clear(pos.asLong());
             PacketDistributor.sendToPlayersTrackingChunk(
                 serverLevel,
                 ChunkPos.containing(pos),
@@ -166,8 +180,15 @@ public final class RedstoneWireNetworkManager {
         LevelNetworks state = state(level);
         // 只扫描区块自己的方块，避免加载事件为了找网络而同步加载相邻区块。
         chunk.findBlocks(
-            blockState -> blockState.getBlock() instanceof RedstoneWireBlock,
-            (pos, blockState) -> state.topologySeeds.add(pos.asLong())
+            blockState -> blockState.getBlock() instanceof RedstoneWireBlock || blockState.is(Blocks.OBSERVER),
+            (pos, blockState) -> {
+                if (blockState.getBlock() instanceof RedstoneWireBlock) {
+                    state.topologySeeds.add(pos.asLong());
+                } else {
+                    // 观察者所在区块可能独立于导线区块卸载、重载；已有网络无需因此重建。
+                    state.indexObserver(pos, blockState);
+                }
+            }
         );
     }
 
@@ -197,6 +218,49 @@ public final class RedstoneWireNetworkManager {
         // 溢出网络的节点集合不完整，使用其连接缓存会把截断边界误判为开放端点。
         Node node = network == null || !network.valid || network.overflow ? null : network.nodes.get(pos.asLong());
         return node == null ? null : node.connections;
+    }
+
+    /** 返回玩家为指定导线强制保留的开放端口掩码。 */
+    static int getForcedTerminalMask(BlockGetter level, BlockPos pos) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return 0;
+        }
+        return state(serverLevel).connectionOverrides.forcedMask(pos.asLong());
+    }
+
+    /** 返回玩家为指定导线强制隐藏并断开的端口掩码。 */
+    static int getHiddenConnectionMask(BlockGetter level, BlockPos pos) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return 0;
+        }
+        return state(serverLevel).connectionOverrides.hiddenMask(pos.asLong());
+    }
+
+    /** 按点击方向切换开放端口或导线间连接；客户端只进行成功预测。 */
+    static boolean editConnection(
+        Level level,
+        BlockPos pos,
+        BlockState blockState,
+        int index,
+        boolean onConnectionSegment,
+        int turnIndex
+    ) {
+        if (level.isClientSide()) {
+            // 客户端没有持久化覆盖数据，只按当前可见形状预测交互是否命中了线段或空侧。
+            return !blockState.getValue(RedstoneWireBlock.CONNECTION_PROPERTIES.get(index)).isConnected()
+                || onConnectionSegment;
+        }
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+        return state(serverLevel).editConnection(pos, blockState, index, onConnectionSegment, turnIndex);
+    }
+
+    /** 改挂面等操作会改变局部方向定义，因此必须清除旧端口覆盖。 */
+    static void clearConnectionOverrides(Level level, BlockPos pos) {
+        if (level instanceof ServerLevel serverLevel) {
+            state(serverLevel).connectionOverrides.clear(pos.asLong());
+        }
     }
 
     /**
@@ -242,7 +306,7 @@ public final class RedstoneWireNetworkManager {
     }
 
     private static LevelNetworks state(ServerLevel level) {
-        // 网络没有需要持久化的数据，首次真正访问该维度时再惰性创建即可。
+        // 网络缓存无需持久化；LevelNetworks 首次访问时同时惰性取得该维度的稀疏端口覆盖数据。
         return LEVELS.computeIfAbsent(level, LevelNetworks::new);
     }
 
@@ -295,6 +359,7 @@ public final class RedstoneWireNetworkManager {
     /** 单个服务端维度中的全部导线网络状态。 */
     private static final class LevelNetworks {
         private final ServerLevel level;
+        private final RedstoneWireConnectionOverrides connectionOverrides;
         /** 从导线位置直接定位所属网络，避免每次信号查询重新遍历连通分量。 */
         private final Long2ObjectOpenHashMap<Network> byWire = new Long2ObjectOpenHashMap<>();
         /** 反向记录每个区块涉及的网络，用于区块卸载时精确失效。 */
@@ -303,6 +368,8 @@ public final class RedstoneWireNetworkManager {
         private final LongOpenHashSet topologySeeds = new LongOpenHashSet();
         /** 拓扑仍有效、只需重新采样输入的网络。 */
         private final ObjectOpenHashSet<Network> dirtySignals = new ObjectOpenHashSet<>();
+        /** 当前已加载且曾扫描到原版侦测器的区块，用于跳过绝大多数无关邻居查询。 */
+        private final LongOpenHashSet observerChunks = new LongOpenHashSet();
         /** 防止写回连接外观产生的导线邻居通知再次触发拓扑重建。 */
         private boolean applyingTopology;
         /** 防止邻居通知重入更新循环；重入请求只加入集合，由外层循环合并处理。 */
@@ -311,6 +378,7 @@ public final class RedstoneWireNetworkManager {
 
         private LevelNetworks(ServerLevel level) {
             this.level = level;
+            this.connectionOverrides = RedstoneWireConnectionOverrides.get(level);
         }
 
         private void requestTopologyUpdate(long pos) {
@@ -327,6 +395,212 @@ public final class RedstoneWireNetworkManager {
 
         private void tick() {
             this.runUpdates();
+        }
+
+        /** 切换一个端口的手动覆盖，并让原有拓扑更新队列重建受影响的连通分量。 */
+        private boolean editConnection(
+            BlockPos pos, BlockState blockState, int index, boolean onConnectionSegment, int turnIndex
+        ) {
+            long packedPos = pos.asLong();
+            int bit = 1 << index;
+            int forcedMask = this.connectionOverrides.forcedMask(packedPos);
+            int hiddenMask = this.connectionOverrides.hiddenMask(packedPos);
+            RedstoneWireBlock.Connection geometric = RedstoneWireBlock.findGeometricConnection(
+                this.level, pos, blockState, index
+            );
+            boolean sideVisible = blockState.getValue(
+                RedstoneWireBlock.CONNECTION_PROPERTIES.get(index)
+            ).isConnected();
+            boolean changed;
+            if (sideVisible) {
+                if (!onConnectionSegment) {
+                    return false;
+                }
+                boolean hasTarget = geometric != null
+                    || RedstoneWireBlock.hasConnectionTarget(this.level, pos, blockState, index);
+                if ((forcedMask & bit) != 0 && !hasTarget) {
+                    int visibleMask = connectionMask(blockState);
+                    int newForcedMask = forcedMask & ~bit;
+                    if (isCorner(visibleMask)) {
+                        // 拐角上移除一侧时，把另一侧及其对向固定为完整直线，后续空侧点击才能继续累加分叉。
+                        int remaining = visibleMask & ~bit;
+                        int remainingIndex = Integer.numberOfTrailingZeros(remaining);
+                        newForcedMask |= remaining | 1 << ((remainingIndex + 2) % 4);
+                        changed = this.connectionOverrides.setForcedMask(packedPos, newForcedMask);
+                    } else if (isStraight(visibleMask)) {
+                        // 直线的人工端口不能只清除标记，否则自动回退会立刻把同一侧重新画出。
+                        changed = this.connectionOverrides.setForcedMask(packedPos, newForcedMask);
+                        changed |= this.connectionOverrides.setHidden(packedPos, index, true);
+                    } else {
+                        changed = this.connectionOverrides.setForcedMask(packedPos, newForcedMask);
+                    }
+                } else {
+                    // 自动端口、外部红石端口和真实导线连接都可被关闭；真实导线同步关闭另一端。
+                    changed = this.connectionOverrides.setForcedMask(packedPos, forcedMask & ~bit);
+                    changed |= this.connectionOverrides.setHidden(packedPos, index, true);
+                    changed |= this.setNeighborPortsHidden(pos, geometric, true);
+                }
+            } else {
+                if ((hiddenMask & bit) != 0) {
+                    // 点击被关闭后的空侧恢复端口；若没有真实邻线，则保留为开放断口。
+                    changed = this.connectionOverrides.setHidden(packedPos, index, false);
+                    changed |= this.setNeighborPortsHidden(pos, geometric, false);
+                    if (geometric == null) {
+                        changed |= this.connectionOverrides.setForcedMask(packedPos, forcedMask | bit);
+                    }
+                } else {
+                    int targetMask = 0;
+                    for (int direction = 0; direction < 4; direction++) {
+                        if (RedstoneWireBlock.hasConnectionTarget(this.level, pos, blockState, direction)) {
+                            targetMask |= 1 << direction;
+                        }
+                    }
+                    int visibleMask = connectionMask(blockState);
+                    int newForcedMask;
+                    if (forcedMask == 0
+                        && hiddenMask == 0
+                        && Integer.bitCount(targetMask) <= 1
+                        && isStraight(visibleMask)) {
+                        // 未编辑直线第一次点击侧面时形成拐角：优先保留真实接入端，否则保留靠近点击点的一端。
+                        int anchor = targetMask == 0 ? turnIndex : Integer.numberOfTrailingZeros(targetMask);
+                        newForcedMask = bit | 1 << anchor;
+                    } else {
+                        // 固定当前可见方向，避免自动补出的半边在新增第三个端口时被替换掉。
+                        newForcedMask = forcedMask | visibleMask | bit;
+                    }
+                    changed = this.connectionOverrides.setForcedMask(packedPos, newForcedMask);
+                }
+            }
+            if (changed) {
+                this.requestTopologyUpdate(packedPos);
+            }
+            return changed;
+        }
+
+        /** 将一条几何连接另一端的端口同步隐藏或恢复。 */
+        private boolean setNeighborPortsHidden(
+            BlockPos pos, RedstoneWireBlock.@Nullable Connection geometric, boolean hidden
+        ) {
+            if (geometric == null) {
+                return false;
+            }
+            boolean changed = false;
+            for (long neighbor : geometric.positions()) {
+                BlockPos neighborPos = BlockPos.of(neighbor);
+                BlockState neighborState = this.level.getBlockState(neighborPos);
+                if (!(neighborState.getBlock() instanceof RedstoneWireBlock)) {
+                    continue;
+                }
+                int neighborIndex = RedstoneWireBlock.findGeometricConnectionIndex(
+                    this.level, neighborPos, neighborState, pos
+                );
+                if (neighborIndex < 0) {
+                    continue;
+                }
+                if (hidden) {
+                    int neighborForcedMask = this.connectionOverrides.forcedMask(neighbor);
+                    changed |= this.connectionOverrides.setForcedMask(
+                        neighbor, neighborForcedMask & ~(1 << neighborIndex)
+                    );
+                }
+                changed |= this.connectionOverrides.setHidden(neighbor, neighborIndex, hidden);
+            }
+            return changed;
+        }
+
+        private static int connectionMask(BlockState state) {
+            int mask = 0;
+            for (int index = 0; index < 4; index++) {
+                if (state.getValue(RedstoneWireBlock.CONNECTION_PROPERTIES.get(index)).isConnected()) {
+                    mask |= 1 << index;
+                }
+            }
+            return mask;
+        }
+
+        private static boolean isStraight(int mask) {
+            return mask == 0b0101 || mask == 0b1010;
+        }
+
+        private static boolean isCorner(int mask) {
+            if (Integer.bitCount(mask) != 2) {
+                return false;
+            }
+            int first = Integer.numberOfTrailingZeros(mask);
+            return (mask & (1 << ((first + 2) % 4))) == 0;
+        }
+
+        /** 记录一个当前确实为侦测器的相邻位置，不会为普通邻居变化分配额外状态。 */
+        private void rememberObserver(BlockPos observerPos) {
+            this.observerChunks.add(ChunkPos.pack(observerPos.getX() >> 4, observerPos.getZ() >> 4));
+        }
+
+        /** 更新一个可能的侦测器位置与当前网络的对应关系。 */
+        private void refreshObserver(Network network, BlockPos observerPos, BlockState observerState) {
+            long packedObserverPos = observerPos.asLong();
+            this.removeObserver(network, packedObserverPos);
+            this.indexObserver(network, observerPos, observerState);
+        }
+
+        /** 将区块加载时发现的侦测器加入它正在观察的已有导线网络。 */
+        private void indexObserver(BlockPos observerPos, BlockState observerState) {
+            this.observerChunks.add(ChunkPos.pack(observerPos.getX() >> 4, observerPos.getZ() >> 4));
+            Direction facing = observerState.getValue(ObserverBlock.FACING);
+            Network network = this.byWire.get(observerPos.relative(facing).asLong());
+            if (network != null && network.valid && !network.overflow) {
+                this.addObserver(network, observerPos.asLong());
+            }
+        }
+
+        /** 仅当侦测器的检测面正对这张网络中的导线时才登记。 */
+        private void indexObserver(Network network, BlockPos observerPos, BlockState observerState) {
+            if (!observerState.is(Blocks.OBSERVER)) {
+                return;
+            }
+            Direction facing = observerState.getValue(ObserverBlock.FACING);
+            if (network.nodes.containsKey(observerPos.relative(facing).asLong())) {
+                this.observerChunks.add(ChunkPos.pack(observerPos.getX() >> 4, observerPos.getZ() >> 4));
+                this.addObserver(network, observerPos.asLong());
+            }
+        }
+
+        /** 建网时一次性建立观察者索引，后续功率变化无需扫描所有导线的六个相邻方块。 */
+        private void indexObservers(Network network) {
+            if (this.observerChunks.isEmpty()) {
+                return;
+            }
+            for (LongIterator iterator = network.nodes.keySet().iterator(); iterator.hasNext();) {
+                BlockPos wirePos = BlockPos.of(iterator.nextLong());
+                for (Direction direction : Direction.values()) {
+                    BlockPos observerPos = wirePos.relative(direction);
+                    long observerChunk = ChunkPos.pack(observerPos.getX() >> 4, observerPos.getZ() >> 4);
+                    if (!this.observerChunks.contains(observerChunk) || !this.level.hasChunkAt(observerPos)) {
+                        continue;
+                    }
+                    BlockState observerState = this.level.getBlockState(observerPos);
+                    if (observerState.is(Blocks.OBSERVER)
+                        && observerState.getValue(ObserverBlock.FACING) == direction.getOpposite()) {
+                        this.addObserver(network, observerPos.asLong());
+                    }
+                }
+            }
+        }
+
+        private void addObserver(Network network, long observerPos) {
+            if (network.observers == null) {
+                network.observers = new LongOpenHashSet();
+            }
+            network.observers.add(observerPos);
+        }
+
+        private void removeObserver(Network network, long observerPos) {
+            if (network.observers == null) {
+                return;
+            }
+            network.observers.remove(observerPos);
+            if (network.observers.isEmpty()) {
+                network.observers = null;
+            }
         }
 
         /** 按需取得位置所属网络，供红石查询和客户端同步请求使用。 */
@@ -576,6 +850,8 @@ public final class RedstoneWireNetworkManager {
                 return;
             }
 
+            this.indexObservers(network);
+
             LongOpenHashSet topologyChanged = new LongOpenHashSet();
             // BFS 完成后统一写回外观，避免搜索过程被自己尚未完成的状态修改影响。
             for (Long2ObjectMap.Entry<Node> entry : nodes.long2ObjectEntrySet()) {
@@ -591,7 +867,8 @@ public final class RedstoneWireNetworkManager {
                 Direction attachment = state.getValue(RedstoneWireBlock.ATTACHMENT);
                 for (int index = 0; index < 4; index++) {
                     if (state.getValue(RedstoneWireBlock.CONNECTION_PROPERTIES.get(index)).isConnected()
-                        && entry.getValue().connections[index] == null) {
+                        && entry.getValue().connections[index] == null
+                        && !RedstoneWireBlock.isManuallyHidden(this.level, pos, state, index)) {
                         // 有可见连接形状但没有内部导线的位置才是对外采样和输出的电气端子。
                         network.terminalWires.add(entry.getLongKey());
                         Direction terminalDirection = RedstoneWireBlock.getLocalDirection(attachment, index);
@@ -649,10 +926,50 @@ public final class RedstoneWireNetworkManager {
                 this.syncNetworkPower(network);
                 network.needsPowerSync = false;
             }
+            if (totalChanged) {
+                this.notifyObservers(network);
+            }
             network.needsTerminalUpdate = false;
             if (updateTerminals) {
                 // 等客户端同步和网络值更新后再通知端点，外部元件不会观察到混合强度。
                 this.notifyTerminalChanges(network);
+            }
+        }
+
+        /**
+         * 让正在观察导线的原版侦测器按原版 updateShape 语义产生脉冲。
+         *
+         * <p>索引中只保存侦测器位置，因此功率变化的额外成本与侦测器数量相关，而与网络长度无关。</p>
+         */
+        private void notifyObservers(Network network) {
+            LongOpenHashSet observers = network.observers;
+            if (observers == null) {
+                return;
+            }
+            for (LongIterator iterator = observers.iterator(); iterator.hasNext();) {
+                BlockPos observerPos = BlockPos.of(iterator.nextLong());
+                if (!this.level.hasChunkAt(observerPos)) {
+                    iterator.remove();
+                    continue;
+                }
+                BlockState observerState = this.level.getBlockState(observerPos);
+                if (!observerState.is(Blocks.OBSERVER)) {
+                    iterator.remove();
+                    continue;
+                }
+                Direction facing = observerState.getValue(ObserverBlock.FACING);
+                if (!network.nodes.containsKey(observerPos.relative(facing).asLong())) {
+                    iterator.remove();
+                    continue;
+                }
+                if (!observerState.getValue(ObserverBlock.POWERED)
+                    && !this.level.getBlockTicks().hasScheduledTick(observerPos, Blocks.OBSERVER)) {
+                    // ObserverBlock.startSignal 的原版延迟与去重规则；无需制造虚假的导线 BlockState 更新。
+                    this.level.scheduleTick(observerPos, Blocks.OBSERVER, 2);
+                }
+            }
+            if (observers.isEmpty()) {
+                network.observers = null;
             }
         }
 
@@ -723,6 +1040,7 @@ public final class RedstoneWireNetworkManager {
         private void chunkUnloaded(long chunkPos) {
             // 卸载区块中的待处理位置已经不可访问，不能保留为下一 tick 的建网种子。
             removeChunkPositions(this.topologySeeds, chunkPos);
+            this.observerChunks.remove(chunkPos);
             ObjectOpenHashSet<Network> affected = this.byChunk.remove(chunkPos);
             if (affected == null) {
                 return;
@@ -804,6 +1122,9 @@ public final class RedstoneWireNetworkManager {
         private final ByteArrayList terminalDirections = new ByteArrayList();
         /** 网络跨越的已加载区块，用于快速响应卸载。 */
         private final LongOpenHashSet chunks = new LongOpenHashSet();
+        /** 检测面正对网络中任意导线的原版侦测器位置；没有侦测器的网络不分配集合。 */
+        @Nullable
+        private LongOpenHashSet observers;
         private boolean valid = true;
         /** 新网络继承旧网络功率，仅用于过渡，首次求值必须同步所有节点。 */
         private boolean needsPowerSync = true;
