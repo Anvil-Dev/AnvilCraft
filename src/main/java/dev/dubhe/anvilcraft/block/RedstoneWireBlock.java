@@ -13,13 +13,10 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RedStoneWireBlock;
-import net.minecraft.world.level.block.SlabBlock;
-import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
-import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -556,7 +553,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         }
 
         boolean canClimbFromCurrent = canClimb(level, pos, attachment, tangent);
-        // 没有直接连接时才检查隔着完整方块高度的上下坡关系，复现红石粉沿方块侧面爬升的行为。
+        // 没有直接连接时才检查隔着一格高度的上下坡关系，复现红石粉沿完整碰撞面爬升的行为。
         for (Direction candidateAttachment : Direction.values()) {
             if (!canShareClimbingEdge(attachment, candidateAttachment)) {
                 continue;
@@ -767,16 +764,14 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         BlockPos bridgePos = pos.relative(tangent);
         BlockState bridge = level.getBlockState(bridgePos);
         return !level.getBlockState(pos.relative(outward)).isRedstoneConductor(level, pos.relative(outward))
-            && isFullHeightSupport(level, bridgePos, bridge, tangent.getOpposite());
+            && hasFullCollisionFace(level, bridgePos, bridge, tangent.getOpposite());
     }
 
-    /** 双层半砖和楼梯的两个面因为方块类型会被排除为可爬的墙，但是实际上是完整的，加回来为可爬的墙 */
-    private static boolean isFullHeightSupport(
+    /** 只有朝向导线的碰撞面完整时才允许爬升，与支撑方块的具体类型无关。 */
+    private static boolean hasFullCollisionFace(
         BlockGetter level, BlockPos pos, BlockState state, Direction side
     ) {
-        return (!(state.getBlock() instanceof SlabBlock) || state.getValue(SlabBlock.TYPE) == SlabType.DOUBLE)
-            && !(state.getBlock() instanceof StairBlock)
-            && state.isFaceSturdy(level, pos, side);
+        return Block.isFaceFull(state.getCollisionShape(level, pos), side);
     }
 
     /**
@@ -999,7 +994,7 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         NONE("none", false),
         /** 沿当前附着面延伸。 */
         SIDE("side", true),
-        /** 沿前方完整方块的侧面向上爬升。 */
+        /** 沿前方方块的完整碰撞面向上爬升。 */
         UP("up", true),
         /** 绕同一支撑方块的边缘连接到另一个附着面。 */
         CORNER("corner", true),
