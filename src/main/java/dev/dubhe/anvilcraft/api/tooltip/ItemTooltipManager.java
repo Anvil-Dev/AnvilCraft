@@ -114,7 +114,10 @@ public class ItemTooltipManager {
                Wither proof, does not degrade from falling""");
         NORMAL.put(ModBlocks.EMBER_GRINDSTONE.asItem(), "Extracts enchantments onto books, Wither proof");
         NORMAL.put(ModBlocks.EMBER_SMITHING_TABLE.asItem(), "All-in-one combination smithing, Wither proof");
-        NORMAL.put(ModBlocks.EMBER_METAL_BLOCK.asItem(), "A large block of Netherite tempered in fire for eons, Wither proof");
+        NORMAL.put(
+            ModBlocks.EMBER_METAL_BLOCK.asItem(),
+            "A large block of heat-resistant Netherite tempered in fire for eons, Wither proof"
+        );
         NORMAL.put(
             ModBlocks.EMBER_GLASS.asItem(),
             "Ember Metal glass, Wither proof, No tools required on collect"
@@ -127,8 +130,8 @@ public class ItemTooltipManager {
             ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.asItem(), """
                 Extreme heat has broken its mass-energy balance; injecting mass will transform it into Transcendium
                 May degrade into Netherite upon cooling""");
-        NORMAL.put(ModItems.EMBER_METAL_INGOT.get(), "A piece of Netherite tempered in fire for eons");
-        NORMAL.put(ModItems.FROST_METAL_INGOT.get(), "A piece of Royal Steel tempered in extreme cold for eons");
+        NORMAL.put(ModItems.EMBER_METAL_INGOT.get(), "A piece of heat-resistant Netherite tempered in fire for eons");
+        NORMAL.put(ModItems.FROST_METAL_INGOT.get(), "A piece of cold-resistant Royal Steel tempered in extreme cold for eons");
         NORMAL.put(ModItems.MAGNET_INGOT.get(), "A magnetized iron ingot");
         NORMAL.put(ModItems.TUNGSTEN_INGOT.get(), "A heat-resistant and dense metal, material for Ancient Debris");
         NORMAL.put(ModBlocks.TUNGSTEN_BLOCK.asItem(), "A large block of heat-resistant, high-density metal that can be heated to extreme temperatures");
@@ -167,8 +170,8 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CUT_BRASS_PILLAR.asItem(), "Brass decorative block");
         NORMAL.put(ModBlocks.CHISELED_BRASS_BLOCK.asItem(), "Brass decorative block");
         NORMAL.put(ModItems.ROYAL_STEEL_NUGGET.get(), "A small piece of iron infused with gem magic");
-        NORMAL.put(ModItems.EMBER_METAL_NUGGET.get(), "A small piece of Netherite tempered in fire for eons");
-        NORMAL.put(ModItems.FROST_METAL_NUGGET.get(), "A small piece of Royal Steel tempered in extreme cold for eons");
+        NORMAL.put(ModItems.EMBER_METAL_NUGGET.get(), "A small piece of heat-resistant Netherite tempered in fire for eons");
+        NORMAL.put(ModItems.FROST_METAL_NUGGET.get(), "A small piece of cold-resistant Royal Steel tempered in extreme cold for eons");
         NORMAL.put(ModItems.TUNGSTEN_NUGGET.get(), "A small piece of heat-resistant, high-density metal");
         NORMAL.put(ModItems.TITANIUM_NUGGET.get(), "A small piece of Titanium");
         NORMAL.put(ModItems.ZINC_NUGGET.get(), "A small piece of Zinc");
@@ -308,7 +311,7 @@ public class ItemTooltipManager {
         );
         NORMAL.put(
             ModBlocks.FROST_METAL_BLOCK.asItem(),
-            "A large block of Royal Steel tempered in extreme cold for eons, Explosion proof"
+            "A large block of cold-resistant Royal Steel tempered in extreme cold for eons, Explosion proof"
         );
         NORMAL.put(ModBlocks.FROST_GLASS.asItem(), "Frost Metal glass, Explosion proof, No tools required on collect");
         NORMAL.put(ModBlocks.CUT_FROST_METAL_BLOCK.asItem(), "Frost Metal decorative block, Explosion proof");
