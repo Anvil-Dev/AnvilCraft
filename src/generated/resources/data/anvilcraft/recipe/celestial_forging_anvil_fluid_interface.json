@@ -3,13 +3,12 @@
   "category": "misc",
   "key": {
     "A": "anvilcraft:pump",
-    "B": "anvilcraft:pump",
-    "C": "anvilcraft:spacetime_supercomputer"
+    "B": "anvilcraft:spacetime_supercomputer"
   },
   "pattern": [
+    "AAA",
     "ABA",
-    "BCB",
-    "ABA"
+    "AAA"
   ],
   "result": {
     "count": 8,

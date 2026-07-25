@@ -54,7 +54,6 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.EMBER_METAL_HEAVY_HALBERD);
         this.plain(ModItems.TRANSCENDENCE_HEAVY_HALBERD);
 
-        this.plain(ModItems.FLUID_TANK_MINECART); // 流体储罐矿车
         this.plain(ModItems.SPECTRAL_SLINGSHOT);
         this.plain(ModItems.ENERGY_WEAPON_PLATFORM);
         this.plain(ModItems.SPECTRAL_WEAPON_LAUNCHER);
@@ -70,15 +69,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.SUPER_CAPACITOR);
         this.plain(ModItems.SUPER_CAPACITOR_EMPTY);
 
-        this.plain(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE);
-        this.plain(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE);
-        this.plain(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE);
-        this.plain(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE);
-        this.plain(ModItems.PERMUTATION_TEMPLATE);
-        this.plain(ModItems.DEFORMATION_TEMPLATE);
-        this.plain(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE);
-        this.plain(ModItems.FOUR_TO_ONE_SMITHING_TEMPLATE);
-        this.plain(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE);
+        this.plain(ModItems.FLUID_TANK_MINECART); // 流体储罐矿车
 
         this.plain(ModItems.RECOVERY_PEARL);
         this.plain(ModItems.TOTEM_OF_RECOVERY);
@@ -98,12 +89,6 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.NATURE_AMULET);
         this.plain(ModItems.AMULET_BOX);
 
-        this.plain(ModItems.CREAM);
-        this.plain(ModItems.DOUGH);
-        this.plain(ModItems.FLOUR);
-        this.plain(ModItems.COCOA_POWDER);
-        this.plain(ModItems.COCOA_LIQUOR);
-        this.plain(ModItems.COCOA_BUTTER);
         this.plain(ModFoodItems.CHOCOLATE);
         this.plain(ModFoodItems.CHOCOLATE_BLACK);
         this.plain(ModFoodItems.CHOCOLATE_WHITE);

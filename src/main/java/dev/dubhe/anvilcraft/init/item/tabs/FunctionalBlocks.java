@@ -117,6 +117,13 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.ACCELERATION_RING);
         this.plain(ModBlocks.DEFLECTION_RING);
 
+        this.plain(ModBlocks.CONFINED_TIME_ANVILON);
+        this.plain(ModBlocks.CONFINED_SPACE_ANVILON);
+        this.plain(ModBlocks.CONFINED_MASS_ANVILON);
+        this.plain(ModBlocks.CONFINED_ENERGY_ANVILON);
+        this.plain(ModBlocks.CONFINED_NEUTRONIUM_INGOT_BLOCK);
+        this.plain(ModBlocks.CONFINEMENT_CHAMBER);
+
         this.plain(ModBlocks.SPACETIME_SUPERCOMPUTER);
         this.plain(ModBlocks.CELESTIAL_FORGING_ANVIL);
         this.plain(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER);
