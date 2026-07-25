@@ -48,6 +48,8 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReferenceArray;
+import java.util.function.Supplier;
 
 /**
  * 管道系统抽象基类，定义了所有管道类型共用的方块状态属性、碰撞箱形状、
@@ -128,11 +130,58 @@ public abstract class PipeBlock extends Block
      */
     static final VoxelShape NODE_CENTER = box(3, 3, 3, 13, 13, 13);
 
+    /** 六个方向；{@code values()} 每次调用都会克隆数组，热路径统一复用这份共享副本。 */
+    static final Direction[] DIRECTIONS = Direction.values();
+
+    /** 按方向预建的无端头臂，避免每次取形状都重新构造。 */
+    private static final VoxelShape[] NO_END_ARMS = new VoxelShape[DIRECTIONS.length];
+    /** 按方向预建的有端头臂。 */
+    private static final VoxelShape[] END_ARMS = new VoxelShape[DIRECTIONS.length];
+    /** 直管 / 弯管形状缓存：两端方向 x 两个端头开关。 */
+    private static final AtomicReferenceArray<VoxelShape> TWO_ARM_SHAPES =
+        new AtomicReferenceArray<>(DIRECTIONS.length * DIRECTIONS.length * 4);
+
+    static {
+        for (Direction dir : DIRECTIONS) {
+            NO_END_ARMS[dir.ordinal()] = buildNoEnd(dir);
+            END_ARMS[dir.ordinal()] = buildEnd(dir);
+        }
+    }
+
     /**
-     * 创建指定方向的无端头臂碰撞箱（对应 pipe_no_end 模型）。
+     * 惰性填充形状缓存。
+     *
+     * <p>形状只由方块状态决定，但带实体上下文的碰撞查询绕过原版的 per-state 缓存，
+     * 每次都会回到 {@code getShape}；在那里现算 {@link Shapes#or} 会让管道附近的每个实体
+     * 每 tick 都产生大量形状合并与分配。相同状态算出的形状等价，先写入者胜出即可。</p>
+     */
+    static VoxelShape cachedShape(AtomicReferenceArray<VoxelShape> cache, int key, Supplier<VoxelShape> builder) {
+        VoxelShape cached = cache.get(key);
+        if (cached != null) {
+            return cached;
+        }
+        VoxelShape shape = builder.get();
+        cache.compareAndSet(key, null, shape);
+        return shape;
+    }
+
+    /**
+     * 取指定方向的无端头臂碰撞箱（对应 pipe_no_end 模型）。
      * 从中心体表面延伸到方块边界，4 px 深，8×8 截面。
      */
     static VoxelShape makeNoEnd(Direction dir) {
+        return NO_END_ARMS[dir.ordinal()];
+    }
+
+    /**
+     * 取指定方向的有端头臂碰撞箱（对应 pipe_end 模型）。
+     * ring（2 px 深，8×8 截面）+ cap（2 px 深，10×10 截面，与面齐平）。
+     */
+    static VoxelShape makeEnd(Direction dir) {
+        return END_ARMS[dir.ordinal()];
+    }
+
+    private static VoxelShape buildNoEnd(Direction dir) {
         return switch (dir) {
             case DOWN -> box(4, 0, 4, 12, 4, 12);
             case UP -> box(4, 12, 4, 12, 16, 12);
@@ -143,11 +192,8 @@ public abstract class PipeBlock extends Block
         };
     }
 
-    /**
-     * 创建指定方向的有端头臂碰撞箱（对应 pipe_end 模型）。
-     * ring（2 px 深，8×8 截面）+ cap（2 px 深，10×10 截面，与面齐平）。
-     */
-    static VoxelShape makeEnd(Direction dir) {
+    private static VoxelShape buildEnd(Direction dir) {
+        // ring：内层，紧贴中心体，8×8 截面
         VoxelShape ring = switch (dir) {
             case DOWN -> box(4, 2, 4, 12, 4, 12);
             case UP -> box(4, 12, 4, 12, 14, 12);
@@ -328,18 +374,16 @@ public abstract class PipeBlock extends Block
      * 构建直管/弯管的碰撞箱：中心体 + 两端按端头状态拼接 arm。
      */
     public VoxelShape getShape(BlockState state, Direction startDir, Direction endDir) {
-        VoxelShape shape = PIPE_CENTER;
-        if (state.getValue(HAS_END_START)) {
-            shape = Shapes.or(shape, makeEnd(startDir));
-        } else {
-            shape = Shapes.or(shape, makeNoEnd(startDir));
-        }
-        if (state.getValue(HAS_END_END)) {
-            shape = Shapes.or(shape, makeEnd(endDir));
-        } else {
-            shape = Shapes.or(shape, makeNoEnd(endDir));
-        }
-        return shape;
+        boolean endStart = state.getValue(HAS_END_START);
+        boolean endEnd = state.getValue(HAS_END_END);
+        // 两端方向 x 两个端头开关唯一决定形状，直管与弯管共用同一张缓存表。
+        int key = ((startDir.ordinal() * DIRECTIONS.length + endDir.ordinal()) * 2 + (endStart ? 1 : 0)) * 2
+            + (endEnd ? 1 : 0);
+        return cachedShape(TWO_ARM_SHAPES, key, () -> Shapes.or(
+            PIPE_CENTER,
+            endStart ? makeEnd(startDir) : makeNoEnd(startDir),
+            endEnd ? makeEnd(endDir) : makeNoEnd(endDir)
+        ));
     }
 
     // ======================== Check Valve System ========================
