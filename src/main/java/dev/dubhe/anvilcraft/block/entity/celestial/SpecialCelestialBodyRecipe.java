@@ -39,7 +39,7 @@ import javax.annotation.Nullable;
 ///
 /// {@code model} 字段在两种渲染模式下含义不同：
 /// - needs_custom_model=false → 贴图名，用于 {@code CelestialBodyTextureBakery} 程序化生成贴图
-/// - needs_custom_model=true  → 模型名，加载 {@code block/celestial_body/<model>} BakedModel
+/// - needs_custom_model=true  → 模型资源 ID；旧格式模型名仍加载 AnvilCraft 天体模型目录中的模型
 @SuppressWarnings("checkstyle:LineLength")
 public record SpecialCelestialBodyRecipe(
     String name,

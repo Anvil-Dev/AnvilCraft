@@ -970,11 +970,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             .getModel(ModelResourceLocation.standalone(special.getModelLocation()));
         if (model == Minecraft.getInstance().getModelManager().getMissingModel()) return;
 
-        VertexConsumer consumer = bufferSource.getBuffer(RenderType.cutout());
-        Minecraft.getInstance()
-            .getBlockRenderer()
-            .getModelRenderer()
-            .renderModel(poseStack.last(), consumer, null, model, 1.0f, 1.0f, 1.0f, LightTexture.FULL_BRIGHT, packedOverlay);
+        CelestialBodyRenderer.renderCustomModel(poseStack.last(), bufferSource, model, packedOverlay);
     }
 
     /// 使用玩家皮肤纹理渲染玩家头颅天体。

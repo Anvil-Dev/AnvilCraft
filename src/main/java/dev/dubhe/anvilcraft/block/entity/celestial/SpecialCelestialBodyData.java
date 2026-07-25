@@ -84,8 +84,12 @@ public record SpecialCelestialBodyData(
         return RingType.NONE;
     }
 
-    /// 获取此特殊天体的独立模型/贴图资源路径
+    /// 获取此特殊天体的独立模型/贴图资源路径。
+    /// 无命名空间的旧格式仍指向 AnvilCraft 的天体模型目录；完整资源 ID 则直接使用。
     public ResourceLocation getModelLocation() {
+        if (model.indexOf(':') >= 0) {
+            return ResourceLocation.parse(model);
+        }
         return AnvilCraft.of("block/celestial_body/" + model);
     }
 

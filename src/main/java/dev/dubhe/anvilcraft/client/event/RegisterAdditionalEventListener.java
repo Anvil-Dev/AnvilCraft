@@ -2,7 +2,9 @@ package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlockEntityRenderer;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -89,6 +91,7 @@ public class RegisterAdditionalEventListener {
         event.register(standaloneBlock("celestial_body/neutron_star"));
         event.register(standaloneBlock("celestial_body/neutron_star_jet"));
         event.register(standaloneBlock("celestial_body/black_hole"));
+        registerCelestialBodyModels(event);
 
         // WIP models
         event.register(standaloneBlock("ancient_sea_reef_wip"));
@@ -114,5 +117,27 @@ public class RegisterAdditionalEventListener {
 
     private static ModelResourceLocation standaloneItem(String path) {
         return ModelResourceLocation.standalone(AnvilCraft.of("item/" + path));
+    }
+
+    /**
+     * 自动注册资源包中提供的天体模型。
+     */
+    private static void registerCelestialBodyModels(ModelEvent.RegisterAdditional event) {
+        Minecraft.getInstance()
+            .getResourceManager()
+            .listResources("models/block/celestial_body", location -> location.getPath().endsWith(".json"))
+            .keySet()
+            .stream()
+            .map(RegisterAdditionalEventListener::toStandaloneModel)
+            .forEach(event::register);
+    }
+
+    private static ModelResourceLocation toStandaloneModel(ResourceLocation resourceLocation) {
+        String resourcePath = resourceLocation.getPath();
+        String modelPath = resourcePath.substring("models/".length(), resourcePath.length() - ".json".length());
+        ResourceLocation modelLocation = ResourceLocation.fromNamespaceAndPath(
+            resourceLocation.getNamespace(), modelPath
+        );
+        return ModelResourceLocation.standalone(modelLocation);
     }
 }

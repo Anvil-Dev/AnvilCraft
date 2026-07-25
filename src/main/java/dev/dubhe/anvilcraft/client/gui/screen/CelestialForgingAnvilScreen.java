@@ -954,19 +954,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         guiGraphics.pose().mulPose(Axis.YP.rotation(rotY));
         guiGraphics.pose().translate(-0.5, -0.5, -0.5);
 
-        var modelRenderer = minecraft.getBlockRenderer().getModelRenderer();
         var buf = guiGraphics.bufferSource();
-        modelRenderer.renderModel(
-            guiGraphics.pose().last(),
-            buf.getBuffer(RenderType.cutout()),
-            null,
-            model,
-            1.0f,
-            1.0f,
-            1.0f,
-            LightTexture.FULL_BRIGHT,
-            0
-        );
+        CelestialBodyRenderer.renderCustomModel(guiGraphics.pose().last(), buf, model, 0);
 
         /// 为拥有大气的复杂模型天体渲染大气层
         if (special.hasAtmosphere() && special.temperature() != null) {
