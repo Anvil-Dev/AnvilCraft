@@ -473,7 +473,10 @@ public final class RedstoneWireNetworkManager {
                 for (int index = 0; index < network.terminalWires.size(); index++) {
                     BlockPos wirePos = BlockPos.of(network.terminalWires.getLong(index));
                     Direction tangent = Direction.values()[network.terminalDirections.getByte(index)];
-                    BlockPos inputPos = wirePos.relative(tangent);
+                    BlockState wireState = this.level.getBlockState(wirePos);
+                    BlockPos inputPos = wireState.getBlock() instanceof RedstoneWireBlock
+                        ? RedstoneWireBlock.terminalTarget(this.level, wirePos, wireState, tangent)
+                        : wirePos.relative(tangent);
                     BlockState inputState = this.level.getBlockState(inputPos);
                     int inputPower = this.level.getSignal(inputPos, tangent);
                     totalPower = Math.max(totalPower, inputPower);
@@ -525,7 +528,11 @@ public final class RedstoneWireNetworkManager {
                 long source = network.terminalWires.getLong(index);
                 BlockPos sourcePos = BlockPos.of(source);
                 Direction tangent = Direction.values()[network.terminalDirections.getByte(index)];
-                long target = sourcePos.relative(tangent).asLong();
+                BlockState sourceState = this.level.getBlockState(sourcePos);
+                BlockPos targetPos = sourceState.getBlock() instanceof RedstoneWireBlock
+                    ? RedstoneWireBlock.terminalTarget(this.level, sourcePos, sourceState, tangent)
+                    : sourcePos.relative(tangent);
+                long target = targetPos.asLong();
                 byte mask = (byte) (excludedFaces.get(target) | 1 << tangent.getOpposite().ordinal());
                 excludedFaces.put(target, mask);
                 // 多个端点指向同一方块时只需任选一个真实导线作为邻居变化来源。

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.block.ICauldronGeometry;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.laser.PropelPistonBlock;
@@ -47,11 +48,12 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
 import java.util.EnumMap;
+import java.util.List;
 import java.util.Map;
 
 public class LargeCauldronBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>
-    implements MultiPartBlockEntity<Cube3x3PartHalf, LargeCauldronBlock>, IHammerRemovable {
+    implements MultiPartBlockEntity<Cube3x3PartHalf, LargeCauldronBlock>, IHammerRemovable, ICauldronGeometry {
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
     private static final double WALL_THICKNESS = 0.25;
     private static final double BOTTOM_WALL_MIN_Y = 0.5;
@@ -99,6 +101,27 @@ public class LargeCauldronBlock
     }
 
     @Override
+    public AABB getCauldronInnerArea(BlockPos pos, BlockState state) {
+        BlockPos mainPos = this.getMainPartPos(pos, state);
+        return new AABB(
+            mainPos.getX() - 0.75,
+            mainPos.getY() - 0.5,
+            mainPos.getZ() - 0.75,
+            mainPos.getX() + 1.75,
+            mainPos.getY() + 1.75,
+            mainPos.getZ() + 1.75
+        );
+    }
+
+    @Override
+    public List<BlockPos> getCauldronBottomPositions(BlockPos pos, BlockState state) {
+        BlockPos center = this.getMainPartPos(pos, state).below(2);
+        return BlockPos.betweenClosedStream(center.offset(-1, 0, -1), center.offset(1, 0, 1))
+            .map(BlockPos::immutable)
+            .toList();
+    }
+
+    @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return this.createBlockEntity(pos, state);
     }
@@ -125,7 +148,11 @@ public class LargeCauldronBlock
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPES.get(state.getValue(HALF));
+        Cube3x3PartHalf part = state.getValue(HALF);
+        if (part.getOffsetY() == 2 && context.isHoldingItem(ModBlocks.GIANT_ANVIL.asItem())) {
+            return Shapes.block();
+        }
+        return SHAPES.get(part);
     }
 
     @Override

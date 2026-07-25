@@ -25,17 +25,16 @@ import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.NeutronIrradiatorBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
-import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.outcome.ConsumeBurningHeaterFuel;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
+import dev.dubhe.anvilcraft.util.CauldronUtil;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -191,7 +190,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         entity.absorbFluidSources(level);
         entity.refreshIgnited();
         entity.applyFluidEffects((ServerLevel) level);
-        entity.hurtEntitiesInside((ServerLevel) level);
+        entity.hurtEntitiesInsideFromCampfire((ServerLevel) level);
         entity.reforgeItemsInLava(level);
     }
 
@@ -496,7 +495,6 @@ public class LargeCauldronBlockEntity extends BlockEntity
         for (int slot = 0; slot < main.output.size(); slot++) {
             if (!getStack(main.output, slot).isEmpty()) initialOutputSlots.add(slot);
         }
-        Set<BlockPos> fuelCharged = new HashSet<>();
         int processed = 0;
         boolean madeProgress;
         do {
@@ -507,21 +505,17 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 List<BlockPos> candidates = helpers.isEmpty()
                     ? List.of(slotPos.below())
                     : orderedHelpers(slotPos, helpers, base);
-                RecipeAttempt attempt = main.tryProcessItemGroup(
+                RecipeExecution execution = main.tryProcessItemGroup(
                     serverLevel,
                     base,
                     candidates,
                     event.getEntity(),
                     slot,
                     false,
-                    fuelCharged,
                     allowItemCompression
                 );
-                if (!attempt.execution().executed()) continue;
-                if (level.getBlockState(attempt.helper()).is(ModBlocks.BURNING_HEATER)) {
-                    fuelCharged.add(attempt.helper());
-                }
-                if (attempt.execution().damageAnvil()) event.setAnvilDamage(true);
+                if (!execution.executed()) continue;
+                if (execution.damageAnvil()) event.setAnvilDamage(true);
                 processed++;
                 madeProgress = true;
             }
@@ -533,21 +527,17 @@ public class LargeCauldronBlockEntity extends BlockEntity
         for (int slot : initialOutputSlots) {
             if (processed >= MAX_PROCESS_EFFICIENCY) break;
             if (getStack(main.output, slot).isEmpty()) continue;
-            RecipeAttempt attempt = main.tryProcessItemGroup(
+            RecipeExecution execution = main.tryProcessItemGroup(
                 serverLevel,
                 base,
                 centerCandidates,
                 event.getEntity(),
                 slot,
                 true,
-                fuelCharged,
                 allowItemCompression
             );
-            if (!attempt.execution().executed()) continue;
-            if (level.getBlockState(attempt.helper()).is(ModBlocks.BURNING_HEATER)) {
-                fuelCharged.add(attempt.helper());
-            }
-            if (attempt.execution().damageAnvil()) event.setAnvilDamage(true);
+            if (!execution.executed()) continue;
+            if (execution.damageAnvil()) event.setAnvilDamage(true);
             processed++;
         }
 
@@ -557,19 +547,15 @@ public class LargeCauldronBlockEntity extends BlockEntity
                     processed++;
                     continue;
                 }
-                RecipeAttempt attempt = main.tryProcessFluidRecipe(
+                RecipeExecution execution = main.tryProcessFluidRecipe(
                     serverLevel,
                     base,
                     centerCandidates,
                     event.getEntity(),
-                    fuelCharged,
                     allowItemCompression
                 );
-                if (!attempt.execution().executed()) break;
-                if (level.getBlockState(attempt.helper()).is(ModBlocks.BURNING_HEATER)) {
-                    fuelCharged.add(attempt.helper());
-                }
-                if (attempt.execution().damageAnvil()) event.setAnvilDamage(true);
+                if (!execution.executed()) break;
+                if (execution.damageAnvil()) event.setAnvilDamage(true);
                 processed++;
             }
         }
@@ -619,14 +605,13 @@ public class LargeCauldronBlockEntity extends BlockEntity
         return false;
     }
 
-    private RecipeAttempt tryProcessItemGroup(
+    private RecipeExecution tryProcessItemGroup(
         ServerLevel level,
         BlockPos base,
         List<BlockPos> candidates,
         Entity anvil,
         int slot,
         boolean outputSource,
-        Set<BlockPos> fuelCharged,
         boolean allowItemCompression
     ) {
         for (BlockPos helper : candidates) {
@@ -649,7 +634,6 @@ public class LargeCauldronBlockEntity extends BlockEntity
                     anvil,
                     slot,
                     outputSource,
-                    fuelCharged.contains(helper),
                     allowItemCompression
                 );
             } finally {
@@ -657,29 +641,25 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 this.processingOutput = false;
                 this.processingOutputInputs.clear();
             }
-            if (execution.executed()) return new RecipeAttempt(execution, helper);
+            if (execution.executed()) return execution;
         }
-        return RecipeAttempt.EMPTY;
+        return RecipeExecution.EMPTY;
     }
 
-    private RecipeAttempt tryProcessFluidRecipe(
+    private RecipeExecution tryProcessFluidRecipe(
         ServerLevel level,
         BlockPos base,
         List<BlockPos> candidates,
         Entity anvil,
-        Set<BlockPos> fuelCharged,
         boolean allowItemCompression
     ) {
         for (BlockPos helper : candidates) {
             Vec3 contextPos = new Vec3(helper.getX() + 0.5, base.getY() + 1.0, helper.getZ() + 0.5);
             InWorldRecipeContext context = new InWorldRecipeContext(level, contextPos, anvil);
-            if (fuelCharged.contains(helper)) {
-                context.put(ConsumeBurningHeaterFuel.FUEL_CONSUMED, true);
-            }
             RecipeExecution execution = triggerOneRecipe(level, context, ItemStack.EMPTY, allowItemCompression);
-            if (execution.executed()) return new RecipeAttempt(execution, helper);
+            if (execution.executed()) return execution;
         }
-        return RecipeAttempt.EMPTY;
+        return RecipeExecution.EMPTY;
     }
 
     private RecipeExecution triggerRecipeGroup(
@@ -688,7 +668,6 @@ public class LargeCauldronBlockEntity extends BlockEntity
         Entity anvil,
         int slot,
         boolean outputSource,
-        boolean fuelConsumed,
         boolean allowItemCompression
     ) {
         ResourceHandler<ItemResource> source = outputSource ? this.output : this.input;
@@ -702,9 +681,6 @@ public class LargeCauldronBlockEntity extends BlockEntity
             ItemStack processingInput = getStack(source, slot);
             if (processingInput.isEmpty()) break;
             InWorldRecipeContext context = new InWorldRecipeContext(level, contextPos, anvil);
-            if (fuelConsumed || executed) {
-                context.put(ConsumeBurningHeaterFuel.FUEL_CONSUMED, true);
-            }
             RecipeExecution current = triggerOneRecipe(
                 level,
                 context,
@@ -1237,39 +1213,26 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private AABB contentArea() {
-        return new AABB(
-            this.worldPosition.getX() - 0.75,
-            this.worldPosition.getY() - 0.5,
-            this.worldPosition.getZ() - 0.75,
-            this.worldPosition.getX() + 1.75,
-            this.worldPosition.getY() + 1.75,
-            this.worldPosition.getZ() + 1.75
-        );
+        return CauldronUtil.getInnerArea(this.worldPosition, this.getBlockState());
     }
 
-    private void hurtEntitiesInside(ServerLevel level) {
+    private void hurtEntitiesInsideFromCampfire(ServerLevel level) {
         BlockPos base = this.worldPosition.below();
         boolean normalCampfire = false;
         boolean soulCampfire = false;
-        boolean heater = false;
         for (int slot = 0; slot < FOOTPRINT_OFFSETS.length; slot++) {
             BlockState state = level.getBlockState(positionForFootprint(base, slot).below());
             if (CampfireBlock.isLitCampfire(state)) {
                 soulCampfire |= state.is(Blocks.SOUL_CAMPFIRE);
                 normalCampfire |= state.is(Blocks.CAMPFIRE);
             }
-            heater |= state.is(ModBlocks.HEATER) && !state.getValue(HeaterBlock.OVERLOAD);
         }
-        if (!normalCampfire && !soulCampfire && !heater) return;
+        if (!normalCampfire && !soulCampfire) return;
 
         AABB inside = this.contentArea();
         for (LivingEntity living : level.getEntitiesOfClass(LivingEntity.class, inside)) {
             if (living.fireImmune() || living.isSteppingCarefully()) continue;
-            if (heater) {
-                living.hurt(ModDamageTypes.heaterBurn(level), 4.0F);
-            } else {
-                living.hurt(level.damageSources().inFire(), soulCampfire ? 2.0F : 1.0F);
-            }
+            living.hurt(level.damageSources().inFire(), soulCampfire ? 2.0F : 1.0F);
         }
     }
 
@@ -1411,10 +1374,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private record RecipeExecution(boolean executed, boolean damageAnvil) {
-    }
-
-    private record RecipeAttempt(RecipeExecution execution, @Nullable BlockPos helper) {
-        private static final RecipeAttempt EMPTY = new RecipeAttempt(new RecipeExecution(false, false), null);
+        private static final RecipeExecution EMPTY = new RecipeExecution(false, false);
     }
 
     public record RecipePreview(

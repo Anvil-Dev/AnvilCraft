@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.api.entity.IAnvilCraftEntityExtension;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.event.EntityThroughPortalEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IEntityExtension;
@@ -242,6 +243,10 @@ public abstract class EntityMixin implements IEntityExtension {
         Optional<FallingBlockEntity> entityOp = Util.castSafely(this, FallingBlockEntity.class);
         if (entityOp.isEmpty() || !this.horizontalCollision) return;
         FallingBlockEntity self = entityOp.get();
+        if (self instanceof IAnvilCraftEntityExtension extension
+            && !extension.anvilcraft$canCollisionCraft()) {
+            return;
+        }
         BlockPos blockPos = BlockPos.containing(this.position.add(this.anvil$beforeBoundingMovement
             .scale(0.55 / this.anvil$beforeBoundingMovement.length())
             .multiply(1, 0, 1)));

@@ -393,6 +393,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
 
         if (level.isClientSide()) {
             Objects.requireNonNull(CachedBlockEntityRenderingPipeline.getInstance()).blockRemoved(this);
+            return;
         }
 
         if (this.irradiateBlockPos == null) return;

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.entity.IAnvilCraftEntityExtension;
 import dev.dubhe.anvilcraft.block.special.BlackHoleBlock;
 import dev.dubhe.anvilcraft.block.special.WhiteHoleBlock;
 import dev.dubhe.anvilcraft.entity.LevitatingBlockEntity;
@@ -107,6 +108,10 @@ public final class GravityManager {
     }
 
     public static GravityType getGravityType(Entity entity) {
+        if (entity instanceof IAnvilCraftEntityExtension extension) {
+            GravityType supplied = extension.anvilcraft$getGravityType();
+            if (supplied != null) return supplied;
+        }
         if (entity instanceof ItemEntity itemEntity) {
             var item = itemEntity.getItem();
             if (item.is(ModItems.NEGATIVE_MATTER_NUGGET.get())
@@ -139,11 +144,16 @@ public final class GravityManager {
     }
 
     public static Vec3 getGravityVector(Entity entity, double baseGravity) {
-        return GravitySourceManager.calculateGravityVector(
+        Vec3 gravity = GravitySourceManager.calculateGravityVector(
             entity.level(),
             entity.getBoundingBox().getCenter(),
             Math.abs(baseGravity)
-        ).scale(getGravityType(entity).getScalar());
+        );
+        if (entity instanceof IAnvilCraftEntityExtension extension) {
+            Vec3 additional = extension.anvilcraft$getAdditionalGravity(Math.abs(baseGravity));
+            if (isFinite(additional)) gravity = gravity.add(additional);
+        }
+        return gravity.scale(getGravityType(entity).getScalar());
     }
 
     /**
@@ -191,11 +201,11 @@ public final class GravityManager {
     }
 
     public static Vec3 getNetGravityVectorForFallingBlock(Entity entity) {
-        return getNetGravityVectorForFallingBlock(
-            entity.level(),
-            entity.getBoundingBox().getCenter(),
-            getGravityType(entity)
-        );
+        GravityType gravityType = getGravityType(entity);
+        double scalar = gravityType.getScalar();
+        double baseGravity = 0.04 * getDimensionGravity(entity.level());
+        Vec3 baseGravityVector = new Vec3(0, -baseGravity * scalar, 0);
+        return baseGravityVector.add(getGravityVector(entity, 0.04));
     }
 
     public static void registerDimensionGravity(ResourceKey<Level> dimension, double gravity) {
