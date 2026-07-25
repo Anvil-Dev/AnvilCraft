@@ -1026,7 +1026,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     /**
      * 清除当前巨构及其状态，恢复为普通束星环。
      */
-    private void clearMegastructure() {
+    public void clearMegastructure() {
         this.megastructureManager.clearMegastructure(this);
         // 清理仍由控制器持有的建材过滤状态。
         this.materialFilter = new ItemStack(Items.BARRIER);

@@ -41,6 +41,7 @@ public class HeatCollectorManager {
         registerEntry(HeatSourceEntry.predicateAlways(16, state -> state.is(ModBlockTags.REDHOT_BLOCKS)));
         registerEntry(HeatSourceEntry.predicateAlways(64, state -> state.is(ModBlockTags.GLOWING_BLOCKS)));
         registerEntry(HeatSourceEntry.predicateAlways(256, state -> state.is(ModBlockTags.INCANDESCENT_BLOCKS)));
+        registerEntry(HeatSourceEntry.predicateAlways(2048, state -> state.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())));
         registerEntry(HeatSourceEntry.predicateAlways(1024, state -> state.is(ModBlockTags.OVERHEATED_BLOCKS)));
 
         registerEntry(HeatSourceEntry.simple(2, Blocks.MAGMA_BLOCK, Blocks.NETHERRACK));

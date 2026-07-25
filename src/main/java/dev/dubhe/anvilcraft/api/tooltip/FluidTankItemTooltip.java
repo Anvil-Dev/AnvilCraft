@@ -52,7 +52,7 @@ public final class FluidTankItemTooltip {
         boolean enhanced = tankTag.getBooleanOr(TAG_ENHANCED, false);
         boolean infinite = enhanced && tankTag.getBooleanOr(TAG_INFINITE, false);
         int capacity = enhanced ? enhancedCapacity : baseCapacity;
-        List<TooltipFluid> fluids = readSingleFluid(tankTag, context.registries(), capacity);
+        List<TooltipFluid> fluids = readSingleFluid(tankTag, context.registries(), Integer.MAX_VALUE);
         if (infinite && !fluids.isEmpty()) {
             fluids.set(0, new TooltipFluid(fluids.getFirst().fluid(), true));
         }
@@ -119,13 +119,17 @@ public final class FluidTankItemTooltip {
         HolderLookup.@Nullable Provider registries
     ) {
         List<TooltipFluid> fluids = new ArrayList<>();
+        boolean enhanced = tankTag.getBooleanOr(TAG_ENHANCED, false);
         ListTag fluidsTag = tankTag.getListOrEmpty(TAG_FLUIDS);
         for (int i = 0; i < fluidsTag.size(); i++) {
             CompoundTag storedFluidTag = fluidsTag.getCompound(i).orElse(null);
             if (storedFluidTag == null) continue;
             FluidStack fluid = readFluid(storedFluidTag);
             if (!fluid.isEmpty()) {
-                fluids.add(new TooltipFluid(fluid, storedFluidTag.getBooleanOr(TAG_INFINITE, false)));
+                fluids.add(new TooltipFluid(
+                    fluid,
+                    enhanced && storedFluidTag.getBooleanOr(TAG_INFINITE, false)
+                ));
             }
         }
         return fluids;

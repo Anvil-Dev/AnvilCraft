@@ -17,6 +17,8 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -147,6 +149,23 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
     @Override
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    @Override
+    public void removeComponentsFromTag(ValueOutput output) {
+        super.removeComponentsFromTag(output);
+        output.discard("Tank");
+        this.getMainPart().tank.serializeForItem(output.child("Tank"));
+    }
+
+    public void saveToDrop(ItemStack stack, HolderLookup.Provider registries) {
+        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+        this.saveCustomOnly(output);
+        this.removeComponentsFromTag(output);
+        output.discard("Tank");
+        this.getMainPart().tank.serializeForDrop(output.child("Tank"));
+        BlockItem.setBlockEntityData(stack, this.getType(), output);
+        stack.applyComponents(this.collectComponents());
     }
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {

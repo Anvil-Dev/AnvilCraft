@@ -64,7 +64,7 @@ public class ProceduralProcessRecipeLoader {
             .addStep(
                 ItemInjectRecipe.builder()
                     .inputBlock(ModBlocks.WIP_BLOCK)
-                    .requires(Items.ENDER_CHEST)
+                    .requires(Items.CHEST)
                     .resultBlock(ModBlocks.WIP_BLOCK)
                     .buildRecipe()
             )

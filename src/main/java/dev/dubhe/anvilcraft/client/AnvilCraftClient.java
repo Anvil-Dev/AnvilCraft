@@ -12,7 +12,6 @@ import dev.dubhe.anvilcraft.client.particle.OverseerTrailParticle;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.laser.CachedLaserBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
@@ -146,11 +145,6 @@ public class AnvilCraftClient {
         pose.pushPose();
         pose.last().pose().mul(event.getModelViewMatrix());
         CFARenderer.renderDeferredTractorBeams(
-            pose,
-            bufferSource,
-            event.getLevelRenderState().cameraRenderState.pos
-        );
-        CorruptedBeaconRenderer.renderDeferredBeams(
             pose,
             bufferSource,
             event.getLevelRenderState().cameraRenderState.pos

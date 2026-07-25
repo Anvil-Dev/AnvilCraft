@@ -133,12 +133,27 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
     public void deserialize(ValueInput input) {
         this.enhanced = input.getBooleanOr("Enhanced", false);
         this.fluid = input.read("Fluid", FluidStack.OPTIONAL_CODEC).orElse(FluidStack.EMPTY);
-        int capacity = this.enhanced ? this.infinityThreshold : this.baseCapacity;
-        if (this.fluid.getAmount() > capacity) this.fluid.setAmount(capacity);
         this.infinite = this.enhanced
             && input.getBooleanOr("Infinite", false)
             && this.fluid.getAmount() == this.infinityThreshold;
         this.changeListener.run();
+    }
+
+    void serializeForItem(ValueOutput output) {
+        this.serializeDetached(output, Integer.MAX_VALUE);
+    }
+
+    void serializeForDrop(ValueOutput output) {
+        this.serializeDetached(output, this.baseCapacity);
+    }
+
+    private void serializeDetached(ValueOutput output, int maxAmount) {
+        FluidStack detachedFluid = this.fluid.isEmpty()
+            ? FluidStack.EMPTY
+            : this.fluid.copyWithAmount(Math.min(this.fluid.getAmount(), maxAmount));
+        output.store("Fluid", FluidStack.OPTIONAL_CODEC, detachedFluid);
+        output.putBoolean("Enhanced", false);
+        output.putBoolean("Infinite", false);
     }
 
     private record TankState(FluidStack fluid, boolean enhanced, boolean infinite) {

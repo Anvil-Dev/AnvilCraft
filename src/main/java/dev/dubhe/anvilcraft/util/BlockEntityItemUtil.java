@@ -15,6 +15,8 @@ public final class BlockEntityItemUtil {
     public static void saveToItem(BlockEntity blockEntity, ItemStack stack, HolderLookup.Provider registries) {
         TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
         blockEntity.saveCustomOnly(output);
+        blockEntity.removeComponentsFromTag(output);
         BlockItem.setBlockEntityData(stack, blockEntity.getType(), output);
+        stack.applyComponents(blockEntity.collectComponents());
     }
 }

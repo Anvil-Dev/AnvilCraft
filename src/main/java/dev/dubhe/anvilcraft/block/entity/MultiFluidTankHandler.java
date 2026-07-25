@@ -149,7 +149,9 @@ final class MultiFluidTankHandler implements ResourceHandler<FluidResource>, Val
     void setEnhanced(boolean enhanced) {
         if (this.enhanced == enhanced) return;
         this.enhanced = enhanced;
-        if (!enhanced) this.clearInfinite();
+        for (StoredFluid stored : this.fluids) {
+            stored.setInfinite(enhanced && stored.fluid().getAmount() >= this.infinityThreshold);
+        }
         this.changeListener.run();
     }
 
@@ -178,6 +180,29 @@ final class MultiFluidTankHandler implements ResourceHandler<FluidResource>, Val
         }
         if (!this.enhanced) this.clearInfinite();
         this.changeListener.run();
+    }
+
+    void serializeForItem(ValueOutput output) {
+        this.serializeDetached(output, Long.MAX_VALUE);
+    }
+
+    void serializeForDrop(ValueOutput output) {
+        this.serializeDetached(output, this.baseCapacity);
+    }
+
+    private void serializeDetached(ValueOutput output, long maxAmount) {
+        List<FluidStack> detachedFluids = new ArrayList<>();
+        long remaining = maxAmount;
+        for (StoredFluid stored : this.fluids) {
+            if (remaining <= 0) break;
+            int amount = (int) Math.min(stored.fluid().getAmount(), remaining);
+            if (amount <= 0) continue;
+            detachedFluids.add(stored.fluid().copyWithAmount(amount));
+            remaining -= amount;
+        }
+        output.store("Fluids", FLUIDS_CODEC, detachedFluids);
+        output.store("Infinite", FLAGS_CODEC, detachedFluids.stream().map(ignored -> false).toList());
+        output.putBoolean("Enhanced", false);
     }
 
     /// 取消扩容时只清掉无限化标记，保留已存流体，避免修改容量导致存量凭空减少

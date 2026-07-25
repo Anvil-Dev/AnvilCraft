@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
-import dev.dubhe.anvilcraft.util.BlockEntityItemUtil;
 import dev.dubhe.anvilcraft.util.TankUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -93,7 +92,7 @@ public class FluidTankBlock extends BaseEntityBlock implements HammerRotateBehav
             && !tank.getFluidHandler().getResource(0).isEmpty()) {
             for (ItemStack drop : drops) {
                 if (drop.is(this.asItem())) {
-                    BlockEntityItemUtil.saveToItem(tank, drop, params.getLevel().registryAccess());
+                    tank.saveToDrop(drop, params.getLevel().registryAccess());
                 }
             }
         }

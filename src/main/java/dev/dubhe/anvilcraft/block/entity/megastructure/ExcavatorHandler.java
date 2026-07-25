@@ -4,6 +4,8 @@ import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
+import dev.dubhe.anvilcraft.block.entity.celestial.RockyPlanetData;
+import dev.dubhe.anvilcraft.block.entity.celestial.ShatteredPlanet;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
@@ -14,6 +16,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -53,9 +56,11 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
             this.laserActive = false;
             return;
         }
+        List<CelestialForgingAnvilLaserInterfaceBlockEntity> laserInterfaces = this.findLaserInterfaces(be);
+        if (this.tryShatterPlanet(be, laserInterfaces)) return;
         if (be.getPlanetaryResourceSet() == null) return;
 
-        List<CelestialForgingAnvilLaserInterfaceBlockEntity> validLasers = this.findValidLasers(be);
+        List<CelestialForgingAnvilLaserInterfaceBlockEntity> validLasers = this.findValidLasers(laserInterfaces);
         boolean hasValidLaser = !validLasers.isEmpty();
         if (this.laserActive != hasValidLaser) {
             this.laserActive = hasValidLaser;
@@ -124,11 +129,38 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         }
     }
 
-    private List<CelestialForgingAnvilLaserInterfaceBlockEntity> findValidLasers(
-        CelestialForgingAnvilBlockEntity be
+    private boolean tryShatterPlanet(
+        CelestialForgingAnvilBlockEntity be,
+        List<CelestialForgingAnvilLaserInterfaceBlockEntity> lasers
     ) {
-        return this.findLaserInterfaces(be)
-            .stream()
+        if (!(be.getCelestialBodyData() instanceof RockyPlanetData)) return false;
+        boolean receivedGamma = lasers.stream()
+            .anyMatch(laser -> laser.isReceivedGamma() && laser.getReceivedLaserLevel() > 0);
+        if (!receivedGamma || be.getLevel() == null) return false;
+
+        be.clearMegastructure();
+        be.setCelestialBodyData(ShatteredPlanet.createBody());
+        be.setPlanetaryResourceSet(ShatteredPlanet.createResources());
+        be.setAgeAnvilCount(ShatteredPlanet.AGE_ANVIL_COUNT);
+        be.setStellarMass(ShatteredPlanet.MASS_ANVIL_COUNT);
+        be.setChanged();
+        be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), Block.UPDATE_ALL);
+        be.getLevel().explode(
+            null,
+            be.getBlockPos().getX() + 0.5,
+            be.getBodyCenterWorldY(),
+            be.getBlockPos().getZ() + 0.5,
+            3.0F,
+            Level.ExplosionInteraction.BLOCK
+        );
+        return true;
+    }
+
+    private List<CelestialForgingAnvilLaserInterfaceBlockEntity> findValidLasers(
+        List<CelestialForgingAnvilLaserInterfaceBlockEntity> lasers
+    ) {
+        return lasers.stream()
+            .filter(laser -> !laser.isReceivedGamma())
             .filter(laser -> laser.getReceivedLaserLevel() >= LASER_THRESHOLD)
             .limit(MAX_LASERS)
             .toList();

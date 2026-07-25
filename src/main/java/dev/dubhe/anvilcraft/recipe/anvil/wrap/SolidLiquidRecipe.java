@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
@@ -36,7 +37,10 @@ public class SolidLiquidRecipe extends AbstractProcessRecipe<SolidLiquidRecipe> 
                 .fieldOf("results")
                 .forGetter(SolidLiquidRecipe::getResultItems),
             HasCauldronSimple.CODEC
-                .forGetter(SolidLiquidRecipe::getHasCauldron)
+                .forGetter(SolidLiquidRecipe::getHasCauldron),
+            Codec.INT
+                .optionalFieldOf("max_efficiency", Integer.MAX_VALUE)
+                .forGetter(SolidLiquidRecipe::maxEfficiency)
         ).apply(instance, SolidLiquidRecipe::new)),
         StreamCodec.composite(
             ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
@@ -45,6 +49,8 @@ public class SolidLiquidRecipe extends AbstractProcessRecipe<SolidLiquidRecipe> 
             SolidLiquidRecipe::getResultItems,
             HasCauldronSimple.STREAM_CODEC,
             SolidLiquidRecipe::getHasCauldron,
+            ByteBufCodecs.INT,
+            SolidLiquidRecipe::maxEfficiency,
             SolidLiquidRecipe::new
         )
     );
@@ -59,6 +65,15 @@ public class SolidLiquidRecipe extends AbstractProcessRecipe<SolidLiquidRecipe> 
         List<ChanceItemStack> results,
         HasCauldronSimple hasCauldron
     ) {
+        this(itemIngredients, results, hasCauldron, Integer.MAX_VALUE);
+    }
+
+    public SolidLiquidRecipe(
+        List<ItemIngredientPredicate> itemIngredients,
+        List<ChanceItemStack> results,
+        HasCauldronSimple hasCauldron,
+        int maxEfficiency
+    ) {
         super(
             new Property()
                 .setItemInputOffset(new Vec3(0.0, -0.375, 0.0))
@@ -67,7 +82,8 @@ public class SolidLiquidRecipe extends AbstractProcessRecipe<SolidLiquidRecipe> 
                 .setItemOutputOffset(new Vec3(0.0, -0.75, 0.0))
                 .setResultItems(results)
                 .setCauldronOffset(new Vec3i(0, -1, 0))
-                .setHasCauldron(hasCauldron)
+                .setHasCauldron(hasCauldron),
+            maxEfficiency
         );
     }
 
@@ -115,6 +131,7 @@ public class SolidLiquidRecipe extends AbstractProcessRecipe<SolidLiquidRecipe> 
     public static class Builder extends SimpleAbstractBuilder<SolidLiquidRecipe, Builder> {
         /// 炼药锅条件构建器
         private final HasCauldronSimple.Builder hasCauldron = HasCauldronSimple.empty();
+        private int maxEfficiency = Integer.MAX_VALUE;
 
         /// 设置炼药锅流体
         ///
@@ -183,9 +200,14 @@ public class SolidLiquidRecipe extends AbstractProcessRecipe<SolidLiquidRecipe> 
             return this;
         }
 
+        public Builder maxEfficiency(int maxEfficiency) {
+            this.maxEfficiency = maxEfficiency;
+            return this;
+        }
+
         @Override
         protected SolidLiquidRecipe of(List<ItemIngredientPredicate> itemIngredients, List<ChanceItemStack> results) {
-            return new SolidLiquidRecipe(itemIngredients, results, this.hasCauldron.build());
+            return new SolidLiquidRecipe(itemIngredients, results, this.hasCauldron.build(), this.maxEfficiency);
         }
 
         @Override

@@ -62,6 +62,10 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
     ///
     /// @param property 配方属性
     public AbstractProcessRecipe(Property property) {
+        this(property, Integer.MAX_VALUE);
+    }
+
+    protected AbstractProcessRecipe(Property property, int maxEfficiency) {
         super(
             property.getIcon(),
             ModRecipeTriggers.ON_ANVIL_FALL_ON.get(),
@@ -69,7 +73,8 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
             property.getNonConflictingPredicates(),
             property.getOutcomes(),
             property.getPriority(),
-            false
+            false,
+            maxEfficiency
         );
         this.property = property;
     }

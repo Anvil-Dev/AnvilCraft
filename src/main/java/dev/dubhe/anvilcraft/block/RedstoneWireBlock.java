@@ -312,23 +312,17 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         int visibleMask = connectedMask(result);
         int connectionCount = Integer.bitCount(visibleMask);
         if (connectionCount == 0) {
-            // 孤立导线优先保留旧直线轴；被玩家隐藏一端时改用另一条可用轴，避免隐藏端口被回退逻辑画回。
-            int fallbackMask = fallbackMask(oldState, hiddenTerminalMask);
+            // 孤立导线保留旧直线轴，即使两端均被手动断开也不能退化为空形态。
+            int fallbackMask = fallbackMask(oldState);
             for (int index = 0; index < 4; index++) {
                 if ((fallbackMask & (1 << index)) != 0) {
                     result = result.setValue(CONNECTION_PROPERTIES.get(index), ConnectionType.SIDE);
                 }
             }
         } else if (connectionCount == 1) {
-            // 单端连接优先补齐反方向；若该端被隐藏，则补一条其它可用方向，保留可见的非点状形态。
+            // 以最后剩下的方向为轴补齐反向，保证导线最少始终是一条直线。
             int first = Integer.numberOfTrailingZeros(visibleMask);
-            int opposite = (first + 2) % 4;
-            int fallback = (hiddenTerminalMask & (1 << opposite)) == 0
-                ? opposite
-                : firstAvailableDirection(hiddenTerminalMask, 1 << first);
-            if (fallback >= 0) {
-                result = result.setValue(CONNECTION_PROPERTIES.get(fallback), ConnectionType.SIDE);
-            }
+            result = result.setValue(CONNECTION_PROPERTIES.get((first + 2) % 4), ConnectionType.SIDE);
         }
 
         visibleMask = connectedMask(result);
@@ -336,9 +330,8 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         int first = connectionCount == 0 ? -1 : Integer.numberOfTrailingZeros(visibleMask);
         int secondMask = first < 0 ? 0 : visibleMask & ~(1 << first);
         int second = secondMask == 0 ? -1 : Integer.numberOfTrailingZeros(secondMask);
-        // 直线不需要中心贴图；单端、拐角或三岔以上需要中心点遮住各段模型的接缝。
-        boolean dot = connectionCount == 1
-            || connectionCount >= 3
+        // 直线不需要中心贴图；拐角或三岔以上需要中心点遮住各段模型的接缝。
+        boolean dot = connectionCount >= 3
             || connectionCount == 2 && second != (first + 2) % 4;
         return result.setValue(DOT, dot);
     }
@@ -353,29 +346,9 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         return mask;
     }
 
-    private static int fallbackMask(BlockState oldState, int hiddenMask) {
+    private static int fallbackMask(BlockState oldState) {
         boolean eastWest = oldState.getValue(EAST).isConnected() || oldState.getValue(WEST).isConnected();
-        int preferred = eastWest ? 0b1010 : 0b0101;
-        int alternate = eastWest ? 0b0101 : 0b1010;
-        int available = (~hiddenMask) & 0x0F;
-        if ((preferred & available) == preferred) {
-            return preferred;
-        }
-        if ((alternate & available) == alternate) {
-            return alternate;
-        }
-        int first = Integer.numberOfTrailingZeros(available);
-        if (first >= 4) {
-            return 0;
-        }
-        int remaining = available & ~(1 << first);
-        int second = Integer.numberOfTrailingZeros(remaining);
-        return second >= 4 ? 1 << first : (1 << first) | (1 << second);
-    }
-
-    private static int firstAvailableDirection(int hiddenMask, int excludedMask) {
-        int available = (~hiddenMask) & ~excludedMask & 0x0F;
-        return available == 0 ? -1 : Integer.numberOfTrailingZeros(available);
+        return eastWest ? 0b1010 : 0b0101;
     }
 
     private static BlockState emptyState(BlockState state) {

@@ -43,7 +43,7 @@
         },
         "ingredients": [
           {
-            "items": "minecraft:ender_chest"
+            "items": "minecraft:chest"
           }
         ]
       },
