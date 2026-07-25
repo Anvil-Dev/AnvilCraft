@@ -97,9 +97,8 @@ final class SingleFluidTankHandler implements ResourceHandler<FluidResource>, Va
     void setEnhanced(boolean enhanced) {
         if (this.enhanced == enhanced) return;
         this.enhanced = enhanced;
+        // 缩容时只调整容量上限，不截断已存流体，避免修改容量导致存量凭空减少
         this.infinite = enhanced && this.fluid.getAmount() >= this.infinityThreshold;
-        int capacity = enhanced ? this.infinityThreshold : this.baseCapacity;
-        if (this.fluid.getAmount() > capacity) this.fluid.setAmount(capacity);
         this.changeListener.run();
     }
 
