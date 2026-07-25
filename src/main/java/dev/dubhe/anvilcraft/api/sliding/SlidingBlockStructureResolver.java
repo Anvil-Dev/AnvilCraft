@@ -99,7 +99,8 @@ public class SlidingBlockStructureResolver {
                 || !(oldState.anvilcraft$canStickTo(oldPos, nowPos, nowState)
                     && nowState.anvilcraft$canStickTo(nowPos, oldPos, oldState))
                 || !PistonBaseBlock.isPushable(
-                    nowState, this.level, nowPos, this.pushDirection, false, direction.getOpposite())
+                    nowState, this.level, nowPos, this.pushDirection, false, this.pushDirection.getOpposite())
+                || nowPos.equals(this.startPos)
             ) {
                 break;
             }
