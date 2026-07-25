@@ -19,12 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.data.ModelData;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBeaconBlockEntity> {
@@ -41,14 +36,6 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
     private static final float BEAM_R = 0.02f;
     private static final float BEAM_G = 0.0f;
     private static final float BEAM_B = 0.05f;
-
-    /// 延迟渲染队列：光束在 AFTER_LEVEL 阶段渲染
-    private static final List<BeamRenderData> deferredBeams = new ArrayList<>();
-    private static final List<WeaponBeamRenderData> deferredWeaponBeams = new ArrayList<>();
-
-    private record BeamRenderData(BlockPos pos, int beamTopY) {}
-
-    private record WeaponBeamRenderData(Vec3 start, Vec3 end, @Nullable Matrix4f viewBobCompensation) {}
 
     @SuppressWarnings("unused")
     public CorruptedBeaconRenderer(BlockEntityRendererProvider.Context context) {
@@ -104,62 +91,10 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         int beamTopY = blockEntity.getBeamHeight();
         int posY = blockEntity.getBlockPos().getY();
         if (beamTopY > posY + 1) {
-            deferredBeams.add(new BeamRenderData(blockEntity.getBlockPos(), beamTopY));
+            VertexConsumer beamConsumer = buffer.getBuffer(ModRenderTypes.CORRUPTED_BEACON_BEAM);
+            float beamHeight = (float) (beamTopY - posY) - BEAM_BASE_Y;
+            renderBeam(beamConsumer, poseStack.last(), 0.5f, BEAM_BASE_Y, 0.5f, beamHeight);
         }
-    }
-
-    /**
-     * 在 AFTER_LEVEL 阶段由 RenderEventListener 调用，渲染所有延迟光束。
-     * 事件回调会立即提交对应的渲染批次。
-     */
-    public static void renderDeferredBeams(PoseStack poseStack, MultiBufferSource bufferSource, Vec3 camera) {
-        if (deferredBeams.isEmpty() && deferredWeaponBeams.isEmpty()) return;
-
-        VertexConsumer vc = bufferSource.getBuffer(ModRenderTypes.CORRUPTED_BEACON_BEAM);
-
-        for (BeamRenderData data : deferredBeams) {
-            poseStack.pushPose();
-            poseStack.translate(
-                data.pos.getX() - camera.x,
-                data.pos.getY() - camera.y,
-                data.pos.getZ() - camera.z
-            );
-
-            float beamHeight = (float) (data.beamTopY - data.pos.getY()) - BEAM_BASE_Y;
-            if (beamHeight > 0.01f) {
-                renderBeam(vc, poseStack.last(), 0.5f, BEAM_BASE_Y, 0.5f, beamHeight);
-            }
-
-            poseStack.popPose();
-        }
-
-        for (WeaponBeamRenderData data : deferredWeaponBeams) {
-            Vec3 direction = data.end.subtract(data.start);
-            if (direction.lengthSqr() < 1.0E-6) continue;
-            poseStack.pushPose();
-            if (data.viewBobCompensation != null) {
-                poseStack.last().pose().mul(data.viewBobCompensation);
-            }
-            poseStack.translate(
-                data.start.x - camera.x,
-                data.start.y - camera.y,
-                data.start.z - camera.z
-            );
-            poseStack.mulPose(new Quaternionf().rotationTo(
-                new Vector3f(0.0f, 1.0f, 0.0f),
-                direction.toVector3f().normalize()
-            ));
-            poseStack.scale(0.5f, 1.0f, 0.5f);
-            renderBeam(vc, poseStack.last(), 0.0f, 0.0f, 0.0f, (float) direction.length(), 0.5f);
-            poseStack.popPose();
-        }
-
-        deferredBeams.clear();
-        deferredWeaponBeams.clear();
-    }
-
-    public static void deferWeaponBeam(Vec3 start, Vec3 end, @Nullable Matrix4f viewBobCompensation) {
-        deferredWeaponBeams.add(new WeaponBeamRenderData(start, end, viewBobCompensation));
     }
 
     public static void renderBeam(
@@ -225,8 +160,8 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         for (int i = 0; i < 4; i++) {
             float[] c0 = corners[i];
             float[] c1 = corners[(i + 1) % 4];
-            vc.addVertex(pose, c1[0], baseY, c1[1]).setColor(r, g, b, alpha);
             vc.addVertex(pose, c0[0], baseY, c0[1]).setColor(r, g, b, alpha);
+            vc.addVertex(pose, c1[0], baseY, c1[1]).setColor(r, g, b, alpha);
             vc.addVertex(pose, cx, apexY, cz).setColor(r, g, b, tipAlpha);
         }
     }

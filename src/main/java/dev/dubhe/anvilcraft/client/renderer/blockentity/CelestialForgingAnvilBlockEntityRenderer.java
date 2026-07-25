@@ -28,7 +28,6 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
@@ -433,10 +432,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (canRender) {
             float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);
             float bodyRot = (blockEntity.getBodyRotation() + partialTick) * rotationBoost;
-            /// 锥形托举光束放入延迟队列，在 AFTER_LEVEL 阶段渲染以避免云层遮挡。
-            if (beamHeight > 0.01f && animProgress > 0.01f) {
-                deferredTractorBeams.add(new TractorBeamData(blockEntity.getBlockPos(), beamHeight, animProgress));
-            }
+            renderTractorBeam(beamHeight, animProgress, poseStack, multiBufferSource);
             /// 天体缩放完全由 StarData.size() 驱动，坍缩期间通过 applyCollapseColor() 缩小 —— 无需额外的 pose 缩放。
             renderCelestialBody(
                 effectiveBodyData,
@@ -1138,29 +1134,6 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     private static final int BEAM_GLOW_LAYERS = 4;
     private static final float BEAM_GLOW_HALF_STEP = 0.06f; /// 每层相对核心额外加宽的半宽
 
-    /// 延迟渲染队列：托举光束在 AFTER_LEVEL 阶段渲染以解决云层遮挡
-    private static final java.util.List<TractorBeamData> deferredTractorBeams = new java.util.ArrayList<>();
-
-    private record TractorBeamData(BlockPos pos, float beamHeight, float animProgress) {}
-
-    /**
-     * 在 AFTER_LEVEL 阶段由 RenderEventListener 调用，渲染所有延迟托举光束。
-     */
-    public static void renderDeferredTractorBeams(PoseStack poseStack, MultiBufferSource bufferSource, Vec3 camera) {
-        if (deferredTractorBeams.isEmpty()) return;
-        for (TractorBeamData data : deferredTractorBeams) {
-            poseStack.pushPose();
-            poseStack.translate(
-                data.pos.getX() - camera.x,
-                data.pos.getY() - camera.y,
-                data.pos.getZ() - camera.z
-            );
-            renderTractorBeam(data.beamHeight, data.animProgress, poseStack, bufferSource);
-            poseStack.popPose();
-        }
-        deferredTractorBeams.clear();
-    }
-
     private static void renderTractorBeam(
         float beamHeight,
         float animProgress,
@@ -1218,8 +1191,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         for (int i = 0; i < 4; i++) {
             float[] c0 = corners[i];
             float[] c1 = corners[(i + 1) % 4];
-            vc.addVertex(pose, c1[0], BEAM_BASE_Y, c1[1]).setColor(r, g, b, 1.0f);
             vc.addVertex(pose, c0[0], BEAM_BASE_Y, c0[1]).setColor(r, g, b, 1.0f);
+            vc.addVertex(pose, c1[0], BEAM_BASE_Y, c1[1]).setColor(r, g, b, 1.0f);
             vc.addVertex(pose, cx, apexY, cz).setColor(ar, ag, ab, 1.0f);
         }
     }

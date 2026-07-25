@@ -479,7 +479,8 @@ public class ScreenLang {
                 §fPlanetary mineral resources§r
                 ———————
                 Side Effects:
-                §fReduces liquid coverage, causes biological extinction until the planet becomes a Deathly Planet§r"""
+                §fReduces liquid coverage, causes biological extinction until the planet becomes a Deathly Planet§r
+                §dGamma lasers shatter ordinary planets and destroy the excavator§r"""
         );
         provider.add("screen.anvilcraft.cfa.megastructure.planet_exctractor.usage",
             """

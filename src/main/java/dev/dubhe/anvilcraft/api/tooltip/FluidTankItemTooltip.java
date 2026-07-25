@@ -48,7 +48,7 @@ public final class FluidTankItemTooltip {
         boolean enhanced = tankTag.getBoolean(TAG_ENHANCED);
         boolean infinite = enhanced && tankTag.getBoolean(TAG_INFINITE);
         int capacity = enhanced ? enhancedCapacity : baseCapacity;
-        List<TooltipFluid> fluids = readSingleFluid(tankTag, context.registries(), capacity);
+        List<TooltipFluid> fluids = readSingleFluid(tankTag, context.registries(), Integer.MAX_VALUE);
         if (infinite && !fluids.isEmpty()) {
             fluids.set(0, new TooltipFluid(fluids.get(0).fluid(), true));
         }
@@ -75,12 +75,12 @@ public final class FluidTankItemTooltip {
     private static List<TooltipFluid> readSingleFluid(
         CompoundTag tankTag,
         HolderLookup.Provider registries,
-        int capacity
+        int maxAmount
     ) {
         if (registries == null || !tankTag.contains(TAG_FLUID, Tag.TAG_COMPOUND)) return new ArrayList<>();
         FluidStack fluid = FluidStack.parseOptional(registries, tankTag.getCompound(TAG_FLUID));
         if (fluid.isEmpty()) return new ArrayList<>();
-        fluid.setAmount(Math.min(fluid.getAmount(), capacity));
+        fluid.setAmount(Math.min(fluid.getAmount(), maxAmount));
         return new ArrayList<>(List.of(new TooltipFluid(fluid, false)));
     }
 
@@ -90,12 +90,13 @@ public final class FluidTankItemTooltip {
     ) {
         List<TooltipFluid> fluids = new ArrayList<>();
         if (registries == null) return fluids;
+        boolean enhanced = tankTag.getBoolean(TAG_ENHANCED);
         ListTag fluidsTag = tankTag.getList(TAG_FLUIDS, Tag.TAG_COMPOUND);
         for (int i = 0; i < fluidsTag.size(); i++) {
             CompoundTag storedFluidTag = fluidsTag.getCompound(i);
             FluidStack fluid = FluidStack.parseOptional(registries, storedFluidTag.getCompound(TAG_FLUID));
             if (!fluid.isEmpty()) {
-                fluids.add(new TooltipFluid(fluid, storedFluidTag.getBoolean(TAG_INFINITE)));
+                fluids.add(new TooltipFluid(fluid, enhanced && storedFluidTag.getBoolean(TAG_INFINITE)));
             }
         }
         return fluids;

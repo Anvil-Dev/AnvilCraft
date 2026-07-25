@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.api.power;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.Line;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
@@ -32,7 +31,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Set;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -69,7 +67,7 @@ public class SimplePowerGrid {
     private final int consume; // 耗电功率
     private final boolean infinitePower; // 是否有无限电力
     private final int color;
-    private List<Line> powerGridBoundLines = new ArrayList<>();
+    private volatile List<Line> powerGridBoundLines = List.of();
     private @Nullable Future<?> shapeFuture;
 
     /**
@@ -325,23 +323,38 @@ public class SimplePowerGrid {
                 float size = it.range() * 2 + 1;
                 input.add(Shapes.create(AABB.ofSize(center, size, size, size)));
             }
-            // noinspection CatchMayIgnoreException
             try {
-                Future<VoxelShape> future = ShapeUtil.threadedJoin(input, BooleanOp.OR, EXECUTOR);
-                VoxelShape shape = future.get();
+                VoxelShape shape = mergeShapes(input);
                 List<Line> lines = new ArrayList<>();
                 shape.forAllEdges((minX, minY, minZ, maxX, maxY, maxZ) -> {
                     Vec3 min = new Vec3(minX, minY, minZ);
                     Vec3 max = new Vec3(maxX, maxY, maxZ);
                     lines.add(new Line(min, max));
                 });
-                this.powerGridBoundLines = lines;
-            } catch (Throwable e) {
-                if (e instanceof ExecutionException) {
-                    AnvilCraft.LOGGER.error("Exception thrown while building power grid shape.", e);
-                }
+                this.powerGridBoundLines = List.copyOf(lines);
+            } catch (RuntimeException e) {
+                AnvilCraft.LOGGER.error("Exception thrown while building power grid shape.", e);
             }
         });
+    }
+
+    private static VoxelShape mergeShapes(List<VoxelShape> input) {
+        if (input.isEmpty()) return Shapes.empty();
+
+        // Keep all merge work in this task: nested submissions can starve the bounded executor.
+        List<VoxelShape> shapes = input;
+        while (shapes.size() > 1) {
+            List<VoxelShape> merged = new ArrayList<>((shapes.size() + 1) / 2);
+            for (int i = 0; i < shapes.size(); i += 2) {
+                if (i + 1 < shapes.size()) {
+                    merged.add(Shapes.join(shapes.get(i), shapes.get(i + 1), BooleanOp.OR));
+                } else {
+                    merged.add(shapes.get(i));
+                }
+            }
+            shapes = merged;
+        }
+        return shapes.getFirst();
     }
 
     private BlockPos offset(BlockPos pos) {

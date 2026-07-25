@@ -113,8 +113,8 @@ public abstract class EntityMixin implements IEntityExtension {
     }
 
     @ModifyVariable(method = "move", at = @At("HEAD"), argsOnly = true)
-    private Vec3 anvilcraft$applySweptGravity(Vec3 movement) {
-        return GravityManager.applySweptGravity((Entity) (Object) this, movement);
+    private Vec3 anvilcraft$applyGravityMovementEffects(Vec3 movement) {
+        return GravityManager.applyMovementEffects((Entity) (Object) this, movement);
     }
 
     @WrapOperation(
