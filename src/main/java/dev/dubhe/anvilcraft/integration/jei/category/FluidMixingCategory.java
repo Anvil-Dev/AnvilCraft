@@ -95,6 +95,8 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
         IFocusGroup focuses
     ) {
         FluidMixingRecipe recipe = recipeHolder.value();
+
+        // Input Fluid
         List<SizedFluidIngredient> ingredients = recipe.getFluidIngredients();
         IIngredientAcceptor<?> bucketIngredients = builder.addInvisibleIngredients(RecipeIngredientRole.INPUT);
         for (int index = 0; index < ingredients.size(); index++) {
@@ -104,7 +106,7 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
                 RecipeIngredientRole.INPUT,
                 position.x() + 1,
                 position.y() + 1
-            ).setFluidRenderer(ingredient.amount(), true, 16, 16);
+            ).setFluidRenderer(ingredient.amount(), false, 16, 16);
             for (FluidStack fluid : ingredient.getFluids()) {
                 recipeSlot.addFluidStack(
                     fluid.getFluid(),

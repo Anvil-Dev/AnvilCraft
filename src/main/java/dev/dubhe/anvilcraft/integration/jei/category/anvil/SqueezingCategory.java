@@ -4,16 +4,15 @@ import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
-import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidIngredientUtil;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SqueezingRecipe;
-import dev.dubhe.anvilcraft.util.CauldronUtil;
+import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import dev.dubhe.anvilcraft.util.TooltipUtil;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -30,11 +29,9 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
@@ -42,15 +39,20 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 挤压配方类别 - 使用 3D 方块渲染展示输入/输出方块，流体使用 JEI 流体格子展示。
+ */
 public class SqueezingCategory implements IRecipeCategory<RecipeHolder<SqueezingRecipe>> {
     private static final String INPUT_BLOCK = "input_block";
     private static final String OUTPUT_BLOCK = "output_block";
-    private static final String INPUT_FLUID = "input_fluid";
     private static final String OUTPUT_FLUID = "output_fluid";
 
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
+    public static final int FLUID_X = 125;
+    public static final int FLUID_Y = 46;
 
+    private final IDrawable slotDefault;
     private final IDrawable arrowDefault;
     private final IDrawable icon;
     private final ITickTimer timer;
@@ -58,6 +60,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
 
     public SqueezingCategory(IGuiHelper helper) {
         arrowDefault = JeiRenderHelper.getArrowDefault(helper);
+        slotDefault = JeiRenderHelper.getSlotDefault(helper);
         icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
         title = Component.translatable("gui.anvilcraft.category.squeezing");
         timer = helper.createTickTimer(30, 60, true);
@@ -92,54 +95,26 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
     public void setRecipe(
         IRecipeLayoutBuilder builder, RecipeHolder<SqueezingRecipe> recipeHolder, IFocusGroup focuses) {
         SqueezingRecipe recipe = recipeHolder.value();
-        JeiBlockIngredientUtil.addSlot(
-            builder,
-            RecipeIngredientRole.INPUT,
-            INPUT_BLOCK,
-            40,
-            24,
-            18,
-            18,
-            recipe.getInputBlocks().stream()
+
+        if (!recipe.getInputBlocks().isEmpty()) {
+            List<ItemStack> inputs = recipe.getInputBlocks().stream()
                 .flatMap(input -> input.getBlocks().stream())
                 .map(block -> new ItemStack(block.value()))
-                .toList()
-        );
+                .toList();
+            JeiBlockIngredientUtil.addSlot(builder, RecipeIngredientRole.INPUT, INPUT_BLOCK, 40, 22, 18, 18, inputs);
+        }
+
         if (!recipe.getResultBlocks().isEmpty()) {
-            JeiBlockIngredientUtil.addSlot(
-                builder,
-                RecipeIngredientRole.OUTPUT,
-                OUTPUT_BLOCK,
-                100,
-                24,
-                20,
-                18,
-                recipe.getResultBlocks().stream()
-                    .map(result -> new ItemStack(result.state().getBlock()))
-                    .toList()
-            );
+            List<ItemStack> outputs = recipe.getResultBlocks().stream()
+                .map(result -> new ItemStack(result.state().getBlock()))
+                .toList();
+            JeiBlockIngredientUtil.addSlot(builder, RecipeIngredientRole.OUTPUT, OUTPUT_BLOCK, 100, 22, 20, 18, outputs);
         }
         for (ChanceItemStack output : recipe.getResultItems()) {
             builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
                 .addItemStack(output.stack().copyWithCount(output.getMaxCount()));
         }
-        JeiFluidIngredientUtil.addInputSlot(
-            builder,
-            INPUT_FLUID,
-            40,
-            42,
-            20,
-            11,
-            recipe.getHasCauldron()
-        );
-        JeiFluidIngredientUtil.addOutputSlot(
-            builder,
-            OUTPUT_FLUID,
-            100,
-            42,
-            20,
-            11,
-            recipe.getHasCauldron()
+        JeiFluidUtil.addOutputSlot(builder, OUTPUT_FLUID, FLUID_X, FLUID_Y, 16, 16, recipe.getHasCauldron()
         );
     }
 
@@ -158,30 +133,18 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         double mouseY
     ) {
         SqueezingRecipe recipe = recipeHolder.value();
-        ResourceLocation id = getRegistryName(recipeHolder);
         if (mouseX >= 40 && mouseX <= 58) {
-            if (mouseY >= 24 && mouseY <= 42) {
+            if (mouseY >= 20 && mouseY <= 38) {
                 tooltip.addAll(TooltipUtil.tooltip(recipe.getInputBlocks().getFirst().constructStatesForRender().getFirst().getBlock()));
-            }
-            if (mouseY >= 42 && mouseY <= 52) {
-                tooltip.addAll(TooltipUtil.tooltip(Blocks.CAULDRON));
             }
         }
         if (mouseX >= 100 && mouseX <= 120) {
-            if (mouseY >= 24 && mouseY <= 42) {
+            if (mouseY >= 20 && mouseY <= 38) {
                 List<ChanceBlockState> result = recipe.getResultBlocks();
                 if (result.isEmpty()) return;
                 tooltip.addAll(
                     TooltipUtil.tooltip(result.get((int) ((System.currentTimeMillis() / 1000) % result.size())).state().getBlock())
                 );
-            }
-            if (mouseY >= 42 && mouseY <= 52) {
-                Block block = recipe.getHasCauldron().getTransformCauldron();
-                if (id != null) {
-                    tooltip.addAll(TooltipUtil.recipeIDTooltip(block, id));
-                } else {
-                    tooltip.addAll(TooltipUtil.tooltip(block));
-                }
             }
         }
     }
@@ -216,24 +179,19 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         RenderSupport.renderBlock(guiGraphics, renderedState, 50, 30, 10, 12, RenderSupport.SINGLE_BLOCK);
         RenderSupport.renderBlock(guiGraphics, Blocks.CAULDRON.defaultBlockState(), 50, 40, 0, 12, RenderSupport.SINGLE_BLOCK);
 
-        arrowDefault.draw(guiGraphics, 73, 35);
+        arrowDefault.draw(guiGraphics, 73, 28);
 
-        RenderSupport.renderBlock(guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 20, 20, 12, RenderSupport.SINGLE_BLOCK);
-        RenderSupport.renderBlock(guiGraphics, getCauldron(recipe), 110, 40, 0, 12, RenderSupport.SINGLE_BLOCK);
+        HasCauldronSimple cauldronFluid = recipe.getHasCauldron();
+        if (HasCauldron.isNotEmpty(cauldronFluid.transform())) {
+            slotDefault.draw(guiGraphics, FLUID_X - 1, FLUID_Y - 1);
+        }
+
         List<ChanceBlockState> result = recipe.getResultBlocks();
         if (result.isEmpty()) return;
         List<BlockState> resultStates = result.stream().map(ChanceBlockState::state).toList();
         renderedState = JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, OUTPUT_BLOCK, resultStates)
             .orElse(resultStates.getFirst());
         RenderSupport.renderBlock(guiGraphics, renderedState, 110, 30, 10, 12, RenderSupport.SINGLE_BLOCK);
-    }
-
-    static BlockState getCauldron(SqueezingRecipe recipe) {
-        if (recipe.isProduceFluid()) {
-            return Blocks.CAULDRON.defaultBlockState();
-        } else {
-            return CauldronUtil.fullState(HasCauldron.getDefaultCauldron(recipe.getHasCauldron().transform()));
-        }
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
@@ -244,8 +202,6 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.SQUEEZING);
-        registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.SQUEEZING);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.FISH_TANK), AnvilCraftJeiPlugin.SQUEEZING);
+        AnvilCraftJeiPlugin.addAnvilCauldronCatalysts(registration, AnvilCraftJeiPlugin.SQUEEZING);
     }
 }

@@ -26,19 +26,20 @@ import dev.dubhe.anvilcraft.integration.jei.category.ProceduralProcessCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCompressCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCrushCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockSmearCategory;
-import dev.dubhe.anvilcraft.integration.jei.category.anvil.FastCookingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.ItemCompressCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.ItemCrushCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.ItemInjectCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.MassInjectCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.MeshRecipeCategory;
-import dev.dubhe.anvilcraft.integration.jei.category.anvil.NeutronIrradiationCategory;
-import dev.dubhe.anvilcraft.integration.jei.category.anvil.SolidLiquidCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.SqueezingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.StampingCategory;
-import dev.dubhe.anvilcraft.integration.jei.category.anvil.SuperHeatingCategory;
-import dev.dubhe.anvilcraft.integration.jei.category.anvil.TimeWarpCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.UnpackCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid.AbstractLiquidCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid.FastCookingCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid.NeutronIrradiationCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid.SolidLiquidCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid.SuperHeatingCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid.TimeWarpCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.extension.CanningFoodExtension;
 import dev.dubhe.anvilcraft.integration.jei.category.extension.PillRecipeExtension;
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockConversionCategory;
@@ -96,6 +97,9 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.ItemLike;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @JeiPlugin
 public class AnvilCraftJeiPlugin implements IModPlugin {
 
@@ -107,6 +111,12 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         ModBlocks.TRANSCENDENCE_ANVIL,
         ModBlocks.SPECTRAL_ANVIL,
         ModBlocks.GIANT_ANVIL
+    );
+
+    public static final ImmutableList<ItemLike> CAULDRON_PROCESSING_CATALYSTS = ImmutableList.of(
+        Items.CAULDRON,
+        ModBlocks.FISH_TANK,
+        ModBlocks.LARGE_CAULDRON
     );
 
     public static final RecipeType<MeshRecipeGroup> MESH = createRecipeType("mesh", MeshRecipeGroup.class);
@@ -165,6 +175,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final RecipeType<MineralFountainJeiRecipe> MINERAL_FOUNTAIN =
         createRecipeType("mineral_fountain", MineralFountainJeiRecipe.class);
 
+    private final List<AbstractLiquidCategory<?>> liquidCategories = new ArrayList<>();
+
     @Override
     public ResourceLocation getPluginUid() {
         return AnvilCraft.of("jei_plugin");
@@ -216,13 +228,9 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         MassInjectCategory.registerRecipeCatalysts(registration);
         ItemCompressCategory.registerRecipeCatalysts(registration);
         UnpackCategory.registerRecipeCatalysts(registration);
-        FastCookingCategory.registerRecipeCatalysts(registration);
         StampingCategory.registerRecipeCatalysts(registration);
-        SuperHeatingCategory.registerRecipeCatalysts(registration);
-        SolidLiquidCategory.registerRecipeCatalysts(registration);
+        liquidCategories.forEach(cat -> cat.registerRecipeCatalysts(registration));
         FluidMixingCategory.registerRecipeCatalysts(registration);
-        TimeWarpCategory.registerRecipeCatalysts(registration);
-        NeutronIrradiationCategory.registerRecipeCatalysts(registration);
         MultiBlockCraftingCategory.registerRecipeCatalysts(registration);
         MultiBlockConversionCategory.registerRecipeCatalysts(registration);
         JewelCraftingCategory.registerRecipeCatalysts(registration);
@@ -264,13 +272,14 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new MassInjectCategory(guiHelper));
         registration.addRecipeCategories(new ItemCompressCategory(guiHelper));
         registration.addRecipeCategories(new UnpackCategory(guiHelper));
-        registration.addRecipeCategories(new FastCookingCategory(guiHelper));
+        liquidCategories.add(new FastCookingCategory(guiHelper));
         registration.addRecipeCategories(new StampingCategory(guiHelper));
-        registration.addRecipeCategories(new SuperHeatingCategory(guiHelper));
-        registration.addRecipeCategories(new SolidLiquidCategory(guiHelper));
+        liquidCategories.add(new SuperHeatingCategory(guiHelper));
+        liquidCategories.add(new SolidLiquidCategory(guiHelper));
         registration.addRecipeCategories(new FluidMixingCategory(guiHelper));
-        registration.addRecipeCategories(new TimeWarpCategory(guiHelper));
-        registration.addRecipeCategories(new NeutronIrradiationCategory(guiHelper));
+        liquidCategories.add(new TimeWarpCategory(guiHelper));
+        liquidCategories.add(new NeutronIrradiationCategory(guiHelper));
+        liquidCategories.forEach(registration::addRecipeCategories);
         registration.addRecipeCategories(new MultiBlockCraftingCategory(guiHelper));
         registration.addRecipeCategories(new MultiBlockConversionCategory(guiHelper));
         registration.addRecipeCategories(new JewelCraftingCategory(guiHelper));
@@ -349,6 +358,13 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
 
     public static void addAnvilProcessingCatalysts(IRecipeCatalystRegistration registration, RecipeType<?> recipeType) {
         ANVIL_PROCESSING_CATALYSTS.forEach(item ->
+            registration.addRecipeCatalyst(new ItemStack(item), recipeType));
+    }
+
+    public static void addAnvilCauldronCatalysts(IRecipeCatalystRegistration registration, RecipeType<?> recipeType) {
+        ANVIL_PROCESSING_CATALYSTS.forEach(item ->
+            registration.addRecipeCatalyst(new ItemStack(item), recipeType));
+        CAULDRON_PROCESSING_CATALYSTS.forEach(item ->
             registration.addRecipeCatalyst(new ItemStack(item), recipeType));
     }
 }

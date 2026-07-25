@@ -75,8 +75,8 @@ public class EnergyWeaponCategory implements IRecipeCategory<RecipeHolder<Energy
         EnergyWeaponMakeRecipe recipe = recipeHolder.value();
         ArrayList<ItemIngredientPredicate> ingredients = new ArrayList<>(recipe.ingredients());
         ingredients.addFirst(ItemIngredientPredicate.of(ModItems.ENERGY_WEAPON_PLATFORM).build());
-        JeiSlotUtil.addInputSlots(builder, ingredients);
-        JeiSlotUtil.addOutputSlots(builder, List.of(ChanceItemStack.of(recipe.result())));
+        JeiSlotUtil.addDefaultInputSlots(builder, ingredients);
+        JeiSlotUtil.addDefaultOutputSlots(builder, List.of(ChanceItemStack.of(recipe.result())));
     }
 
     @Override
@@ -88,8 +88,8 @@ public class EnergyWeaponCategory implements IRecipeCategory<RecipeHolder<Energy
         double mouseY
     ) {
         arrow.draw(guiGraphics, 80, 27);
-        JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipeHolder.value().ingredients().size() + 1);
-        JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, 1);
+        JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, recipeHolder.value().ingredients().size() + 1);
+        JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slotDefault, 1);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

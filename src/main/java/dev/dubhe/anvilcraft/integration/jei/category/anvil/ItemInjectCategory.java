@@ -101,7 +101,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         ItemInjectRecipe recipe = recipeHolder.value();
         int transcendiumTier = getTranscendiumTier(recipeHolder);
         if (transcendiumTier >= 0) {
-            builder.addSlot(RecipeIngredientRole.INPUT, 21, 24)
+            builder.addSlot(RecipeIngredientRole.INPUT, JeiSlotUtil.INPUT_X, JeiSlotUtil.ITEM_Y)
                 .addIngredients(Ingredient.of(recipe.getInputItems().getFirst().getItems()))
                 .addRichTooltipCallback((slotView, tooltip) -> tooltip.add(Component.translatable(
                     "gui.anvilcraft.category.item_inject.transcendium.enchantments",
@@ -114,7 +114,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
                     }
                 ).withStyle(ChatFormatting.GOLD)));
         } else {
-            JeiSlotUtil.addInputSlots(builder, recipe.getInputItems());
+            JeiSlotUtil.addItemInputSlots(builder, recipe.getInputItems());
         }
         JeiBlockIngredientUtil.addInputSlot(builder, INPUT_BLOCK, 72, 34, 18, 19, recipe.getFirstInputBlock());
         if (transcendiumTier >= 0) {
@@ -173,14 +173,14 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         arrowIn.draw(guiGraphics, 54, 30);
         arrowOut.draw(guiGraphics, 92, 29);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
+        JeiSlotUtil.drawItemInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
         int transcendiumTier = getTranscendiumTier(recipeHolder);
         if (transcendiumTier >= 0) {
             drawTranscendiumOutputSlots(guiGraphics, transcendiumTier);
         } else if (!recipe.getResultItems().isEmpty()) {
             IDrawable outputSlot = JeiRecipeUtil.isChance(recipe.getResultItems()) ? slotProbability : slotDefault;
             if (recipe.getResultBlocks().isEmpty()) {
-                JeiSlotUtil.drawOutputSlots(guiGraphics, outputSlot, recipe.getResultItems().size());
+                JeiSlotUtil.drawItemOutputSlots(guiGraphics, outputSlot, recipe.getResultItems().size());
             } else {
                 for (int i = 0; i < recipe.getResultItems().size(); i++) {
                     outputSlot.draw(guiGraphics, 106 + i * 19, 14);
@@ -238,7 +238,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
     private static void addOutputSlots(IRecipeLayoutBuilder builder, ItemInjectRecipe recipe) {
         if (recipe.getResultItems().isEmpty()) return;
         if (recipe.getResultBlocks().isEmpty()) {
-            JeiSlotUtil.addOutputSlots(builder, recipe.getResultItems());
+            JeiSlotUtil.addItemOutputSlots(builder, recipe.getResultItems());
             return;
         }
         for (int index = 0; index < recipe.getResultItems().size(); index++) {

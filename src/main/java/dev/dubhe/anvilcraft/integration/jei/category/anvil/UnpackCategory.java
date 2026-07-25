@@ -67,11 +67,11 @@ public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
         arrowIn.draw(guiGraphics, 54, 30);
         arrowOutputFromBelow.draw(guiGraphics, 92, 29);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
+        JeiSlotUtil.drawItemInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
         if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
+            JeiSlotUtil.drawItemOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
         } else {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
+            JeiSlotUtil.drawItemOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
         }
     }
 

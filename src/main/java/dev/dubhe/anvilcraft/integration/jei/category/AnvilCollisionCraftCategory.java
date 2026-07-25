@@ -106,7 +106,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
     ) {
         AnvilCollisionCraftRecipe recipe = recipeHolder.value();
         // 将此配方需要的铁砧加入输入槽
-        builder.addInputSlot(21, 24).addIngredients(
+        builder.addInputSlot(JeiSlotUtil.INPUT_X, JeiSlotUtil.DEFAULT_Y).addIngredients(
             Ingredient.of(
                 recipe.anvil().getBlocks().stream().map(
                     blockHolder -> new ItemStack(blockHolder.value())
@@ -126,7 +126,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                     }
                 }
             }
-            JeiSlotUtil.addOutputSlots(builder, chanceItemStacks);
+            JeiSlotUtil.addDefaultOutputSlots(builder, chanceItemStacks);
         }
 
         // Clickable slots use transparent renderers so the custom block previews stay visible.
@@ -319,12 +319,12 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
         }
 
         // 绘制输入输出槽
-        JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, 1);
+        JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, 1);
         if (!recipe.outputItems().isEmpty()) {
             if (JeiRecipeUtil.isChance(recipe.outputItems())) {
-                JeiSlotUtil.drawOutputSlots(guiGraphics, slotProbability, recipe.outputItems().size());
+                JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slotProbability, recipe.outputItems().size());
             } else {
-                JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, recipe.outputItems().size());
+                JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slotDefault, recipe.outputItems().size());
             }
         }
 

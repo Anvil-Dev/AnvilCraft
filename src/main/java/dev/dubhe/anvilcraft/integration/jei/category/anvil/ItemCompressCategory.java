@@ -27,7 +27,6 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
@@ -66,20 +65,20 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
             return;
         }
         List<ItemIngredientPredicate> inputs = recipe.getInputItems();
-        builder.addSlot(RecipeIngredientRole.INPUT, 11, 15).addIngredients(Ingredient.of(inputs.get(0).getItems()));
-        builder.addSlot(RecipeIngredientRole.INPUT, 30, 15)
+        builder.addSlot(RecipeIngredientRole.INPUT, 11, JeiSlotUtil.ITEM_Y).addIngredients(Ingredient.of(inputs.getFirst().getItems()));
+        builder.addSlot(RecipeIngredientRole.INPUT, 30, JeiSlotUtil.ITEM_Y)
             .addItemStack(resinWithCreeper(powered))
             .addRichTooltipCallback((slotView, tooltip) ->
                 tooltip.add(Component.translatable(powered
-                    ? "gui.anvilcraft.category.item_compress.supercapacitor.resin"
-                    : "gui.anvilcraft.category.item_compress.supercapacitor_empty.resin")));
+                                                   ? "gui.anvilcraft.category.item_compress.supercapacitor.resin"
+                                                   : "gui.anvilcraft.category.item_compress.supercapacitor_empty.resin")));
         if (powered) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, 125, 24)
+            builder.addSlot(RecipeIngredientRole.OUTPUT, 125, JeiSlotUtil.DEFAULT_Y)
                 .addItemStack(ModItems.SUPER_CAPACITOR.asStack())
                 .addRichTooltipCallback((slotView, tooltip) ->
                     tooltip.add(Component.translatable("gui.anvilcraft.category.item_compress.supercapacitor.chance")));
         } else {
-            JeiSlotUtil.addOutputSlots(builder, recipe.getResultItems());
+            JeiSlotUtil.addItemOutputSlots(builder, recipe.getResultItems());
         }
     }
 
@@ -89,7 +88,8 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
         IRecipeSlotsView recipeSlotsView,
         GuiGraphics guiGraphics,
         double mouseX,
-        double mouseY) {
+        double mouseY
+    ) {
         final ItemCompressRecipe recipe = recipeHolder.value();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderSupport.renderBlock(
@@ -99,19 +99,20 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
             22 + anvilYOffset,
             20,
             12,
-            RenderSupport.SINGLE_BLOCK);
+            RenderSupport.SINGLE_BLOCK
+        );
         RenderSupport.renderBlock(
             guiGraphics, Blocks.CAULDRON.defaultBlockState(), 81, 40, 10, 12, RenderSupport.SINGLE_BLOCK);
 
         arrowIn.draw(guiGraphics, 54, 30);
         arrowOut.draw(guiGraphics, 92, 29);
 
-        JeiSlotUtil.drawInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
+        JeiSlotUtil.drawItemInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
         if (recipeHolder.id().getPath().equals(SUPERCAPACITOR)
             || JeiRecipeUtil.isChance(recipe.getResultItems())) {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
+            JeiSlotUtil.drawItemOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
         } else {
-            JeiSlotUtil.drawOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
+            JeiSlotUtil.drawItemOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
         }
     }
 
@@ -145,8 +146,6 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.ITEM_COMPRESS);
-        registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.ITEM_COMPRESS);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.FISH_TANK), AnvilCraftJeiPlugin.ITEM_COMPRESS);
+        AnvilCraftJeiPlugin.addAnvilCauldronCatalysts(registration, AnvilCraftJeiPlugin.ITEM_COMPRESS);
     }
 }
