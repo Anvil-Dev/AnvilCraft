@@ -90,16 +90,16 @@ public class SlidingBlockStructureResolver {
 
         BlockState oldState;
         while (nowState.isStickyBlock()) {
-            BlockPos nowPos = originPos.relative(direction.getOpposite(), toPushSize);
-            BlockPos oldPos = nowPos.relative(direction);
+            BlockPos nowPos = originPos.relative(this.pushDirection.getOpposite(), toPushSize);
+            BlockPos oldPos = nowPos.relative(this.pushDirection);
             oldState = nowState;
             nowState = this.level.getBlockState(nowPos);
             if (
                 nowState.isAir()
                 || !(oldState.anvilcraft$canStickTo(oldPos, nowPos, nowState)
-                    && nowState.anvilcraft$canStickTo(nowPos, oldPos, oldState))
+                     && nowState.anvilcraft$canStickTo(nowPos, oldPos, oldState))
                 || !PistonBaseBlock.isPushable(
-                    nowState, this.level, nowPos, this.pushDirection, false, direction.getOpposite())
+                    nowState, this.level, nowPos, this.pushDirection, false, this.pushDirection.getOpposite())
             ) {
                 break;
             }
@@ -110,14 +110,14 @@ public class SlidingBlockStructureResolver {
         int addedCount = 0;
 
         for (int i = toPushSize - 1; i >= 0; i--) {
-            this.toPush.add(originPos.relative(direction.getOpposite(), i));
+            this.toPush.add(originPos.relative(this.pushDirection.getOpposite(), i));
             addedCount++;
         }
 
         int addingIndex = 1;
 
         while (true) {
-            BlockPos addingPos = originPos.relative(direction, addingIndex);
+            BlockPos addingPos = originPos.relative(this.pushDirection, addingIndex);
             int addingToPushExist = this.toPush.indexOf(addingPos);
             if (addingToPushExist > -1) {
                 this.reorderListAtCollision(addedCount, addingToPushExist);
@@ -140,7 +140,7 @@ public class SlidingBlockStructureResolver {
 
             if (
                 !PistonBaseBlock.isPushable(
-                nowState, this.level, addingPos, this.pushDirection, true, direction)
+                    nowState, this.level, addingPos, this.pushDirection, true, this.pushDirection)
             ) {
                 return false;
             }
