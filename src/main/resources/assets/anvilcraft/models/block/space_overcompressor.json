@@ -1,11 +1,12 @@
 {
+	"format_version": "1.21.11",
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/cube",
 	"render_type": "minecraft:cutout",
 	"textures": {
 		"0": "anvilcraft:block/space_overcompressor",
 		"1": "anvilcraft:block/space_overcompressor_inner",
-		"2": "anvilcraft:block/void_matter_block",
+		"2": "anvilcraft:block/nesting_shulker_inner_surface",
 		"3": "anvilcraft:block/space_overcompressor_center",
 		"particle": "anvilcraft:block/space_overcompressor"
 	},
@@ -313,7 +314,7 @@
 			"scale": [0.4, 0.4, 0.4]
 		},
 		"firstperson_lefthand": {
-			"rotation": [0, 225, 0],
+			"rotation": [0, -135, 0],
 			"scale": [0.4, 0.4, 0.4]
 		},
 		"ground": {
@@ -321,7 +322,7 @@
 			"scale": [0.25, 0.25, 0.25]
 		},
 		"gui": {
-			"rotation": [30, 225, 0],
+			"rotation": [30, -135, 0],
 			"scale": [0.625, 0.625, 0.625]
 		},
 		"fixed": {
@@ -335,6 +336,7 @@
 		{
 			"name": "group",
 			"origin": [8, 8, 8],
+			"scope": 0,
 			"color": 0,
 			"shade": false,
 			"children": [1, 2, 3]
@@ -342,36 +344,42 @@
 		{
 			"name": "group",
 			"origin": [8, 8, 8],
+			"scope": 0,
 			"color": 0,
 			"children": [4, 5, 6]
 		},
 		{
 			"name": "group",
 			"origin": [8, 8, 8],
+			"scope": 0,
 			"color": 0,
 			"children": [7, 8, 9]
 		},
 		{
 			"name": "group",
 			"origin": [8, 8, 8],
+			"scope": 0,
 			"color": 0,
 			"children": [10, 11, 12]
 		},
 		{
 			"name": "group",
 			"origin": [8, 8, 8],
+			"scope": 0,
 			"color": 0,
 			"children": [13, 14, 15]
 		},
 		{
 			"name": "group",
 			"origin": [8, 8, 8],
+			"scope": 0,
 			"color": 0,
 			"children": [16, 17, 18]
 		},
 		{
 			"name": "group",
 			"origin": [8, 8, 8],
+			"scope": 0,
 			"color": 0,
 			"children": [19, 20, 21]
 		},
