@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
@@ -28,9 +29,16 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.Map;
 
 import static dev.dubhe.anvilcraft.block.PropelPiston.createTickerHelper;
 
@@ -41,6 +49,16 @@ public class LargeLaserBlock extends FlexibleMultiPartBlock<DirectionCube3x3Part
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
 
+    private static final VoxelShape DOWN_COLLISION_SHAPE = ShapeUtil.merge(
+        new AABB(0, -7, -16, 16, 32, 32),
+        new AABB(-16, -7, 0, 32, 32, 16),
+        new AABB(-10, -7, -10, 0, 32, 26),
+        new AABB(16, -7, -10, 26, 32, 26),
+        new AABB(3, -16, 3, 13, -10, 13),
+        new AABB(-5, -10, -5, 21, -7, 21)
+    );
+    private static final Map<Direction, Map<DirectionCube3x3PartHalf, VoxelShape>> COLLISION_SHAPES = makeCollisionShapes();
+
     public LargeLaserBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
@@ -49,6 +67,69 @@ public class LargeLaserBlock extends FlexibleMultiPartBlock<DirectionCube3x3Part
             .setValue(FACING, Direction.DOWN)
             .setValue(OVERLOAD, true)
             .setValue(SWITCH, IPowerComponent.Switch.ON)
+        );
+    }
+
+    private static Map<Direction, Map<DirectionCube3x3PartHalf, VoxelShape>> makeCollisionShapes() {
+        Map<Direction, Map<DirectionCube3x3PartHalf, VoxelShape>> shapes = new EnumMap<>(Direction.class);
+        shapes.put(Direction.DOWN, makePartShapes(DOWN_COLLISION_SHAPE));
+        shapes.put(Direction.UP, makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 180, DOWN_COLLISION_SHAPE)));
+        shapes.put(Direction.SOUTH, makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 90, DOWN_COLLISION_SHAPE)));
+        shapes.put(Direction.NORTH, makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 270, DOWN_COLLISION_SHAPE)));
+        shapes.put(Direction.WEST, makePartShapes(ShapeUtil.rotate(
+            Direction.Axis.Y,
+            270,
+            ShapeUtil.rotate(Direction.Axis.X, 90, DOWN_COLLISION_SHAPE)
+        )));
+        shapes.put(Direction.EAST, makePartShapes(ShapeUtil.rotate(
+            Direction.Axis.Y,
+            270,
+            ShapeUtil.rotate(Direction.Axis.X, 270, DOWN_COLLISION_SHAPE)
+        )));
+        return shapes;
+    }
+
+    private static Map<DirectionCube3x3PartHalf, VoxelShape> makePartShapes(VoxelShape shape) {
+        Map<DirectionCube3x3PartHalf, VoxelShape> shapes = new EnumMap<>(DirectionCube3x3PartHalf.class);
+        for (DirectionCube3x3PartHalf part : DirectionCube3x3PartHalf.values()) {
+            ArrayList<AABB> partBoxes = new ArrayList<>();
+            for (AABB box : shape.toAabbs()) {
+                AABB clipped = clipToPart(scale16(box), part);
+                if (clipped != null) partBoxes.add(clipped);
+            }
+            shapes.put(
+                part,
+                partBoxes.isEmpty()
+                    ? Shapes.empty()
+                    : ShapeUtil.merge(partBoxes.toArray(AABB[]::new))
+            );
+        }
+        return shapes;
+    }
+
+    private static AABB scale16(AABB box) {
+        return new AABB(box.getMinPosition().scale(16), box.getMaxPosition().scale(16));
+    }
+
+    @Nullable
+    private static AABB clipToPart(AABB box, DirectionCube3x3PartHalf part) {
+        double originX = part.getOffsetX() * 16.0;
+        double originY = (part.getOffsetY() - DirectionCube3x3PartHalf.MID_CENTER.getOffsetY()) * 16.0;
+        double originZ = part.getOffsetZ() * 16.0;
+        double minX = Math.max(box.minX, originX);
+        double minY = Math.max(box.minY, originY);
+        double minZ = Math.max(box.minZ, originZ);
+        double maxX = Math.min(box.maxX, originX + 16.0);
+        double maxY = Math.min(box.maxY, originY + 16.0);
+        double maxZ = Math.min(box.maxZ, originZ + 16.0);
+        if (minX >= maxX || minY >= maxY || minZ >= maxZ) return null;
+        return new AABB(
+            minX - originX,
+            minY - originY,
+            minZ - originZ,
+            maxX - originX,
+            maxY - originY,
+            maxZ - originZ
         );
     }
 
@@ -139,6 +220,16 @@ public class LargeLaserBlock extends FlexibleMultiPartBlock<DirectionCube3x3Part
     @Override
     protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
         return true;
+    }
+
+    @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return COLLISION_SHAPES.get(state.getValue(FACING)).get(state.getValue(HALF));
+    }
+
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return this.getShape(state, level, pos, context);
     }
 
     @Override
