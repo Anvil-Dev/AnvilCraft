@@ -15,15 +15,16 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import org.joml.Vector3fc;
 import org.jspecify.annotations.Nullable;
 
-import java.util.function.Consumer;
-
 /// 在物品形态的流体储罐里额外渲染出内部流体
-public class FluidTankItemRenderer implements SpecialModelRenderer<FluidTankItemRenderState> {
+public class FluidTankItemRenderer extends BaseFluidTankItemRenderer {
     /// 与方块实体渲染保持一致的壁厚，避免与外壳 Z-fighting
     private static final float TANK_W = 1 / 16F + 0.001F;
+
+    public FluidTankItemRenderer() {
+        super(ModBlocks.FLUID_TANK.get().defaultBlockState(), 0.0F, 1.0F);
+    }
 
     @Override
     public @Nullable FluidTankItemRenderState extractArgument(ItemStack stack) {
@@ -49,6 +50,7 @@ public class FluidTankItemRenderer implements SpecialModelRenderer<FluidTankItem
         boolean hasFoil,
         int outlineColor
     ) {
+        this.submitShell(poseStack, collector, lightCoords, overlayCoords, outlineColor);
         if (argument == null) return;
         FluidResource resource = argument.getResource();
         if (resource == null || resource.isEmpty()) return;
@@ -80,10 +82,6 @@ public class FluidTankItemRenderer implements SpecialModelRenderer<FluidTankItem
                 false
             )
         );
-    }
-
-    @Override
-    public void getExtents(Consumer<Vector3fc> output) {
     }
 
     public record Unbaked() implements SpecialModelRenderer.Unbaked<FluidTankItemRenderState> {

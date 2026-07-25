@@ -3,7 +3,9 @@ package dev.dubhe.anvilcraft.client.renderer.item;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.tooltip.FluidTankItemTooltip;
+import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
+import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.client.renderer.item.state.FluidTankItemRenderState;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -16,18 +18,25 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import org.joml.Vector3fc;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Consumer;
 
 /// 在物品形态的大型储罐里按高度分层渲染多种流体
-public class LargeFluidTankItemRenderer implements SpecialModelRenderer<FluidTankItemRenderState> {
+public class LargeFluidTankItemRenderer extends BaseFluidTankItemRenderer {
     /// 大型储罐是 3x3x3 多方块，物品模型按整体缩放，壁厚也按整体计
     private static final float TANK_W = 4 / 16F + 0.001F;
+
+    public LargeFluidTankItemRenderer() {
+        super(
+            ModBlocks.LARGE_FLUID_TANK.get().defaultBlockState()
+                .setValue(LargeFluidTankBlock.HALF, Cube3x3PartHalf.MID_CENTER),
+            -1.0F,
+            2.0F
+        );
+    }
 
     @Override
     public @Nullable FluidTankItemRenderState extractArgument(ItemStack stack) {
@@ -73,9 +82,9 @@ public class LargeFluidTankItemRenderer implements SpecialModelRenderer<FluidTan
         boolean hasFoil,
         int outlineColor
     ) {
+        this.submitShell(poseStack, collector, lightCoords, overlayCoords, outlineColor);
         if (argument == null) return;
-        // 物品模型把 3 格储罐压进一个方块，流体盒的高度按同样比例分摊
-        float height = 1 - 2 * TANK_W;
+        float height = 3 - 2 * TANK_W;
         for (FluidTankItemRenderState.Layer layer : argument.getLayers()) {
             FluidResource resource = layer.resource();
             FluidModel model = FluidRenderHelper.getModel(
@@ -85,20 +94,20 @@ public class LargeFluidTankItemRenderer implements SpecialModelRenderer<FluidTan
             var tintSource = model.fluidTintSource();
             int tintColor = tintSource != null ? tintSource.colorAsStack(resource.toStack(1)) : -1;
             TextureAtlasSprite sprite = model.stillMaterial().sprite();
-            float minY = TANK_W + layer.bottom() * height;
-            float maxY = TANK_W + layer.top() * height;
+            float minY = TANK_W - 1 + layer.bottom() * height;
+            float maxY = TANK_W - 1 + layer.top() * height;
             collector.submitCustomGeometry(
                 poseStack,
                 FluidTankItemRenderState.FLUID_RENDER_TYPE,
                 (pose, buffer) -> FluidRenderHelper.INSTANCE.renderFluidBox(
                     sprite,
                     resource,
-                    TANK_W,
+                    TANK_W - 1,
                     minY,
-                    TANK_W,
-                    1 - TANK_W,
+                    TANK_W - 1,
+                    2 - TANK_W,
                     maxY,
-                    1 - TANK_W,
+                    2 - TANK_W,
                     tintColor,
                     buffer,
                     pose,
@@ -108,10 +117,6 @@ public class LargeFluidTankItemRenderer implements SpecialModelRenderer<FluidTan
                 )
             );
         }
-    }
-
-    @Override
-    public void getExtents(Consumer<Vector3fc> output) {
     }
 
     public record Unbaked() implements SpecialModelRenderer.Unbaked<FluidTankItemRenderState> {
