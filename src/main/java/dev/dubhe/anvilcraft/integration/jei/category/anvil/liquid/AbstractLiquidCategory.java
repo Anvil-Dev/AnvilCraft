@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidUtil;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiItemUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
@@ -78,11 +79,46 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
     public void setRecipe(
         IRecipeLayoutBuilder builder, RecipeHolder<T> recipeHolder, IFocusGroup focuses) {
         T recipe = recipeHolder.value();
-        JeiSlotUtil.addItemInputSlots(builder, recipe.getInputItems());
-        JeiSlotUtil.addItemOutputSlots(builder, recipe.getResultItems());
         HasCauldronSimple cauldron = recipe.getHasCauldron();
-        JeiFluidUtil.addFluidInputSlot(builder, INPUT_FLUID, 16, 16, cauldron);
-        JeiFluidUtil.addFluidOutputSlot(builder, OUTPUT_FLUID, 16, 16, cauldron);
+        final boolean hasInputItems = !recipe.getInputItems().isEmpty();
+        final boolean hasOutputItems = !recipe.getResultItems().isEmpty();
+        final boolean hasInputFluid = cauldron.fluidTag() != null || HasCauldron.isNotEmpty(cauldron.fluid());
+        final boolean hasOutputFluid = HasCauldron.isNotEmpty(cauldron.transform());
+
+        final boolean inputMixed = hasInputItems && hasInputFluid;
+        final boolean outputMixed = hasOutputItems && hasOutputFluid;
+
+        // 输入 — 仅存在一种时居中，二者皆有则分上下
+        if (hasInputItems) {
+            if (inputMixed) {
+                JeiItemUtil.addItemInputSlots(builder, recipe.getInputItems());
+            } else {
+                JeiItemUtil.addDefaultInputSlots(builder, recipe.getInputItems());
+            }
+        }
+        if (hasInputFluid) {
+            if (inputMixed) {
+                JeiFluidUtil.addFluidInputSlot(builder, INPUT_FLUID, 16, 16, cauldron);
+            } else {
+                JeiFluidUtil.addDefaultInputSlot(builder, INPUT_FLUID, 16, 16, cauldron);
+            }
+        }
+
+        // 输出 — 仅存在一种时居中，二者皆有则分上下
+        if (hasOutputItems) {
+            if (outputMixed) {
+                JeiItemUtil.addItemOutputSlots(builder, recipe.getResultItems());
+            } else {
+                JeiItemUtil.addDefaultOutputSlots(builder, recipe.getResultItems());
+            }
+        }
+        if (hasOutputFluid) {
+            if (outputMixed) {
+                JeiFluidUtil.addFluidOutputSlot(builder, OUTPUT_FLUID, 16, 16, cauldron);
+            } else {
+                JeiFluidUtil.addDefaultOutputSlot(builder, OUTPUT_FLUID, 16, 16, cauldron);
+            }
+        }
     }
 
     @Override
@@ -99,6 +135,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         double mouseX,
         double mouseY
     ) {
+
         // 加工图例及箭头
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderSupport.renderBlock(guiGraphics, Blocks.ANVIL.defaultBlockState(), 81, 12 + anvilYOffset, 20, 12, RenderSupport.SINGLE_BLOCK);
@@ -107,18 +144,50 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         arrowIn.draw(guiGraphics, 54, 22);
         arrowOut.draw(guiGraphics, 92, 22);
 
-        // 物品
         T recipe = recipeHolder.value();
-        JeiSlotUtil.drawItemInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
-        drawOutputSlots(guiGraphics, recipeHolder);
-
-        // 流体
         HasCauldronSimple cauldron = recipe.getHasCauldron();
-        if (cauldron.fluidTag() != null || HasCauldron.isNotEmpty(cauldron.fluid())) {
-            JeiFluidUtil.drawFluidInputSlots(guiGraphics, slotDefault, 1);
+
+        final boolean hasInputItems = !recipe.getInputItems().isEmpty();
+        final boolean hasOutputItems = !recipe.getResultItems().isEmpty();
+        final boolean hasInputFluid = cauldron.fluidTag() != null || HasCauldron.isNotEmpty(cauldron.fluid());
+        final boolean hasOutputFluid = HasCauldron.isNotEmpty(cauldron.transform());
+
+        final boolean inputMixed = hasInputItems && hasInputFluid;
+        final boolean outputMixed = hasOutputItems && hasOutputFluid;
+
+        // 输入物品
+        if (hasInputItems) {
+            if (inputMixed) {
+                JeiSlotUtil.drawItemInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
+            } else {
+                JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
+            }
         }
-        if (HasCauldron.isNotEmpty(cauldron.transform())) {
-            JeiFluidUtil.drawFluidOutputSlots(guiGraphics, slotDefault, 1);
+        // 输出物品（子类可重写）
+        IDrawable slot = JeiRecipeUtil.isChance(recipe.getResultItems()) ? slotProbability : slotDefault;
+        if (hasOutputItems) {
+            if (outputMixed) {
+                JeiSlotUtil.drawItemOutputSlots(guiGraphics, slot, recipe.getResultItems().size());
+            } else {
+                JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slot, recipe.getResultItems().size());
+            }
+        }
+
+        // 输入流体
+        if (hasInputFluid) {
+            if (inputMixed) {
+                JeiSlotUtil.drawFluidInputSlots(guiGraphics, slotDefault, 1);
+            } else {
+                JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, 1);
+            }
+        }
+        // 输出流体
+        if (hasOutputFluid) {
+            if (outputMixed) {
+                JeiSlotUtil.drawFluidOutputSlots(guiGraphics, slotDefault, 1);
+            } else {
+                JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slotDefault, 1);
+            }
         }
 
         // 火锅
@@ -138,19 +207,5 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
      */
     protected BlockState getProcessBlock() {
         return Blocks.AIR.defaultBlockState();
-    }
-
-    /**
-     * 绘制输出物品格子背景，子类可重写以自定义（如爆炸图标）。
-     */
-    protected void drawOutputSlots(GuiGraphics guiGraphics, RecipeHolder<T> recipeHolder) {
-        T recipe = recipeHolder.value();
-        if (!recipe.getResultItems().isEmpty()) {
-            if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
-                JeiSlotUtil.drawItemOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
-            } else {
-                JeiSlotUtil.drawItemOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
-            }
-        }
     }
 }

@@ -4,13 +4,8 @@ import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
-import mezz.jei.api.gui.drawable.IDrawable;
-import mezz.jei.api.gui.ingredient.IRecipeSlotView;
-import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
-import mezz.jei.api.neoforge.NeoForgeTypes;
 import mezz.jei.api.recipe.RecipeIngredientRole;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -20,12 +15,10 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
-import java.util.Optional;
 
 /**
  * 共享的 JEI 流体成分工具，将流体内容渲染为格子而非大锅方块。
@@ -36,16 +29,18 @@ public final class JeiFluidUtil {
     private JeiFluidUtil() {
     }
 
-    public static void drawFluidInputSlots(GuiGraphics guiGraphics, IDrawable slot, int inputSize) {
-        JeiSlotUtil.drawSlots(guiGraphics, slot, inputSize, JeiSlotUtil.INPUT_X - 1, JeiSlotUtil.FLUID_Y - 1);
-    }
-
-    public static void drawFluidOutputSlots(GuiGraphics guiGraphics, IDrawable slot, int inputSize) {
-        JeiSlotUtil.drawSlots(guiGraphics, slot, inputSize, JeiSlotUtil.OUTPUT_X - 1, JeiSlotUtil.FLUID_Y - 1);
-    }
-
+    /**
+     * 存在物品时流体位置向下偏移
+     */
     public static void addFluidInputSlot(IRecipeLayoutBuilder builder, String name, int width, int height, HasCauldronSimple cauldron) {
         addInputSlot(builder, name, JeiSlotUtil.INPUT_X, JeiSlotUtil.FLUID_Y, width, height, cauldron);
+    }
+
+    /**
+     * 默认的居中位置
+     */
+    public static void addDefaultInputSlot(IRecipeLayoutBuilder builder, String name, int width, int height, HasCauldronSimple cauldron) {
+        addInputSlot(builder, name, JeiSlotUtil.INPUT_X, JeiSlotUtil.DEFAULT_Y, width, height, cauldron);
     }
 
     public static void addInputSlot(
@@ -59,12 +54,22 @@ public final class JeiFluidUtil {
     ) {
         addSlot(
             builder, RecipeIngredientRole.INPUT, name, x, y, width, height,
-            getInputFluids(cauldron), cauldron.consume()
+            getFluids(cauldron.fluid(), cauldron.fluidTag()), cauldron.consume()
         );
     }
 
+    /**
+     * 存在物品时流体位置向下偏移
+     */
     public static void addFluidOutputSlot(IRecipeLayoutBuilder builder, String name, int width, int height, HasCauldronSimple cauldron) {
         addOutputSlot(builder, name, JeiSlotUtil.OUTPUT_X, JeiSlotUtil.FLUID_Y, width, height, cauldron);
+    }
+
+    /**
+     * 默认的居中位置
+     */
+    public static void addDefaultOutputSlot(IRecipeLayoutBuilder builder, String name, int width, int height, HasCauldronSimple cauldron) {
+        addOutputSlot(builder, name, JeiSlotUtil.OUTPUT_X, JeiSlotUtil.DEFAULT_Y, width, height, cauldron);
     }
 
     public static void addOutputSlot(
@@ -80,27 +85,6 @@ public final class JeiFluidUtil {
             builder, RecipeIngredientRole.OUTPUT, name, x, y, width, height,
             getFluids(cauldron.transform(), null), cauldron.produce()
         );
-    }
-
-    /**
-     * 注册流体及其桶，不创建可见的预览格子。
-     */
-    public static void addOutputIngredients(IRecipeLayoutBuilder builder, HasCauldronSimple cauldron) {
-        addInvisibleIngredients(
-            builder, RecipeIngredientRole.OUTPUT,
-            getFluids(cauldron.transform(), null), cauldron.produce()
-        );
-    }
-
-    public static void suppressHoverOverlays(IRecipeExtrasBuilder builder) {
-        JeiBlockIngredientUtil.suppressHoverOverlays(builder);
-    }
-
-    public static Optional<Fluid> getDisplayedFluid(IRecipeSlotsView recipeSlotsView, String name) {
-        return recipeSlotsView.findSlotByName(SLOT_PREFIX + name)
-            .flatMap(IRecipeSlotView::getDisplayedIngredient)
-            .flatMap(ingredient -> ingredient.getIngredient(NeoForgeTypes.FLUID_STACK))
-            .map(FluidStack::getFluid);
     }
 
     private static void addSlot(
@@ -123,19 +107,6 @@ public final class JeiFluidUtil {
         addBucketIngredients(builder, role, fluids);
     }
 
-    private static void addInvisibleIngredients(
-        IRecipeLayoutBuilder builder,
-        RecipeIngredientRole role,
-        List<Fluid> fluids,
-        int amount
-    ) {
-        if (fluids.isEmpty()) return;
-        long ingredientAmount = amount > 0 ? amount : FluidType.BUCKET_VOLUME;
-        var fluidIngredients = builder.addInvisibleIngredients(role);
-        fluids.forEach(fluid -> fluidIngredients.addFluidStack(fluid, ingredientAmount));
-        addBucketIngredients(builder, role, fluids);
-    }
-
     private static void addBucketIngredients(
         IRecipeLayoutBuilder builder,
         RecipeIngredientRole role,
@@ -150,10 +121,6 @@ public final class JeiFluidUtil {
         if (!buckets.isEmpty()) {
             builder.addInvisibleIngredients(role).addItemStacks(buckets);
         }
-    }
-
-    private static List<Fluid> getInputFluids(HasCauldronSimple cauldron) {
-        return getFluids(cauldron.fluid(), cauldron.fluidTag());
     }
 
     private static List<Fluid> getFluids(ResourceLocation fluidId, @Nullable ResourceLocation fluidTag) {
@@ -173,6 +140,10 @@ public final class JeiFluidUtil {
             .map(Holder::value)
             .filter(fluid -> fluid.defaultFluidState().isSource())
             .toList();
+    }
+
+    public static void suppressHoverOverlays(IRecipeExtrasBuilder builder) {
+        JeiBlockIngredientUtil.suppressHoverOverlays(builder);
     }
 
 }

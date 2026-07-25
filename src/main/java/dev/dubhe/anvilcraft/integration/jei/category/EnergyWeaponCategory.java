@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiItemUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
@@ -75,8 +76,8 @@ public class EnergyWeaponCategory implements IRecipeCategory<RecipeHolder<Energy
         EnergyWeaponMakeRecipe recipe = recipeHolder.value();
         ArrayList<ItemIngredientPredicate> ingredients = new ArrayList<>(recipe.ingredients());
         ingredients.addFirst(ItemIngredientPredicate.of(ModItems.ENERGY_WEAPON_PLATFORM).build());
-        JeiSlotUtil.addDefaultInputSlots(builder, ingredients);
-        JeiSlotUtil.addDefaultOutputSlots(builder, List.of(ChanceItemStack.of(recipe.result())));
+        JeiItemUtil.addDefaultInputSlots(builder, ingredients);
+        JeiItemUtil.addDefaultOutputSlots(builder, List.of(ChanceItemStack.of(recipe.result())));
     }
 
     @Override

@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.BlockTagUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiItemUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
@@ -126,7 +127,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                     }
                 }
             }
-            JeiSlotUtil.addDefaultOutputSlots(builder, chanceItemStacks);
+            JeiItemUtil.addDefaultOutputSlots(builder, chanceItemStacks);
         }
 
         // Clickable slots use transparent renderers so the custom block previews stay visible.

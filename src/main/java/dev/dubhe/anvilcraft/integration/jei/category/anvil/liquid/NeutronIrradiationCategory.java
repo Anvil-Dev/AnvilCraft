@@ -43,6 +43,20 @@ public class NeutronIrradiationCategory extends AbstractLiquidCategory<NeutronIr
     }
 
     @Override
+    public void draw(
+        RecipeHolder<NeutronIrradiationRecipe> recipeHolder,
+        IRecipeSlotsView recipeSlotsView,
+        GuiGraphics guiGraphics,
+        double mouseX,
+        double mouseY
+    ) {
+        if (isExplosionRecipe(recipeHolder)) {
+            explosion.draw(guiGraphics, 124, 16);
+        }
+        super.draw(recipeHolder, recipeSlotsView, guiGraphics, mouseX, mouseY);
+    }
+
+    @Override
     public RecipeType<RecipeHolder<NeutronIrradiationRecipe>> getRecipeType() {
         return AnvilCraftJeiPlugin.NEUTRON_IRRADIATION;
     }
@@ -52,15 +66,6 @@ public class NeutronIrradiationCategory extends AbstractLiquidCategory<NeutronIr
         return ModBlocks.NEUTRON_IRRADIATOR
             .get()
             .defaultBlockState();
-    }
-
-    @Override
-    protected void drawOutputSlots(GuiGraphics guiGraphics, RecipeHolder<NeutronIrradiationRecipe> recipeHolder) {
-        if (isExplosionRecipe(recipeHolder)) {
-            explosion.draw(guiGraphics, 124, 16);
-        } else {
-            super.drawOutputSlots(guiGraphics, recipeHolder);
-        }
     }
 
     @Override

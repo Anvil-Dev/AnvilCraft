@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiItemUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
@@ -65,7 +66,7 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
             return;
         }
         List<ItemIngredientPredicate> inputs = recipe.getInputItems();
-        builder.addSlot(RecipeIngredientRole.INPUT, 11, JeiSlotUtil.ITEM_Y).addIngredients(Ingredient.of(inputs.getFirst().getItems()));
+        builder.addSlot(RecipeIngredientRole.INPUT, 11, JeiSlotUtil.DEFAULT_Y).addIngredients(Ingredient.of(inputs.getFirst().getItems()));
         builder.addSlot(RecipeIngredientRole.INPUT, 30, JeiSlotUtil.ITEM_Y)
             .addItemStack(resinWithCreeper(powered))
             .addRichTooltipCallback((slotView, tooltip) ->
@@ -78,7 +79,7 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
                 .addRichTooltipCallback((slotView, tooltip) ->
                     tooltip.add(Component.translatable("gui.anvilcraft.category.item_compress.supercapacitor.chance")));
         } else {
-            JeiSlotUtil.addItemOutputSlots(builder, recipe.getResultItems());
+            JeiItemUtil.addDefaultOutputSlots(builder, recipe.getResultItems());
         }
     }
 
@@ -107,12 +108,12 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
         arrowIn.draw(guiGraphics, 54, 30);
         arrowOut.draw(guiGraphics, 92, 29);
 
-        JeiSlotUtil.drawItemInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
+        JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
         if (recipeHolder.id().getPath().equals(SUPERCAPACITOR)
             || JeiRecipeUtil.isChance(recipe.getResultItems())) {
-            JeiSlotUtil.drawItemOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
+            JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slotProbability, recipe.getResultItems().size());
         } else {
-            JeiSlotUtil.drawItemOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
+            JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slotDefault, recipe.getResultItems().size());
         }
     }
 

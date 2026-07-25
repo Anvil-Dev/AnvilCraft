@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
+import dev.dubhe.anvilcraft.integration.jei.util.JeiItemUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
-import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.AbstractProcessRecipe;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -64,7 +64,7 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<T> recipeHolder, IFocusGroup focuses) {
         T recipe = recipeHolder.value();
-        JeiSlotUtil.addItemInputSlots(builder, recipe.getInputItems());
-        JeiSlotUtil.addItemOutputSlots(builder, recipe.getResultItems());
+        JeiItemUtil.addDefaultInputSlots(builder, recipe.getInputItems());
+        JeiItemUtil.addDefaultOutputSlots(builder, recipe.getResultItems());
     }
 }
