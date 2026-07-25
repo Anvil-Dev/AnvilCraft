@@ -49,15 +49,18 @@ public class FluidMixingRecipe implements Recipe<FluidMixingRecipe.Input> {
     private final List<ItemStackTemplate> itemResults;
     @Getter
     private final List<FluidStack> fluidResults;
+    private final boolean consumeMaximum;
 
     public FluidMixingRecipe(
         List<SizedFluidIngredient> ingredients,
         List<ItemStackTemplate> itemResults,
-        List<FluidStack> fluidResults
+        List<FluidStack> fluidResults,
+        boolean consumeMaximum
     ) {
         this.ingredients = List.copyOf(ingredients);
         this.itemResults = List.copyOf(itemResults);
         this.fluidResults = fluidResults.stream().map(FluidStack::copy).toList();
+        this.consumeMaximum = consumeMaximum;
     }
 
     public static Builder builder(HolderGetter<Fluid> fluids) {
@@ -80,23 +83,62 @@ public class FluidMixingRecipe implements Recipe<FluidMixingRecipe.Input> {
         return this.itemResults.size() + this.fluidResults.size();
     }
 
+    public boolean consumesMaximum() {
+        return this.consumeMaximum;
+    }
+
     /**
      * Returns the fluid state after consumption, or an empty optional when the ingredients cannot all be matched.
      */
     public Optional<List<FluidStack>> consume(List<FluidStack> storedFluids) {
-        List<FluidStack> remaining = copyFluids(storedFluids);
-        return this.consumeIngredient(0, remaining) ? Optional.of(remaining) : Optional.empty();
+        return this.consume(storedFluids, 1);
     }
 
-    private boolean consumeIngredient(int ingredientIndex, List<FluidStack> remaining) {
+    public Optional<List<FluidStack>> consume(List<FluidStack> storedFluids, int batches) {
+        if (batches <= 0) return Optional.empty();
+        List<FluidStack> remaining = copyFluids(storedFluids);
+        return this.consumeIngredient(0, batches, remaining) ? Optional.of(remaining) : Optional.empty();
+    }
+
+    public int getMaximumBatches(List<FluidStack> storedFluids) {
+        if (!this.consumeMaximum) return this.consume(storedFluids).isPresent() ? 1 : 0;
+        long storedAmount = storedFluids.stream().mapToLong(FluidStack::getAmount).sum();
+        long amountPerBatch = this.ingredients.stream().mapToLong(SizedFluidIngredient::amount).sum();
+        int low = 0;
+        int high = (int) Math.min(Integer.MAX_VALUE, storedAmount / Math.max(1L, amountPerBatch));
+        while (low < high) {
+            int middle = low + (high - low + 1) / 2;
+            if (this.consume(storedFluids, middle).isPresent()) {
+                low = middle;
+            } else {
+                high = middle - 1;
+            }
+        }
+        return low;
+    }
+
+    public Optional<List<FluidStack>> getFluidResults(int batches) {
+        if (batches <= 0) return Optional.empty();
+        List<FluidStack> results = new ArrayList<>(this.fluidResults.size());
+        for (FluidStack result : this.fluidResults) {
+            long amount = (long) result.getAmount() * batches;
+            if (amount > Integer.MAX_VALUE) return Optional.empty();
+            results.add(result.copyWithAmount((int) amount));
+        }
+        return Optional.of(results);
+    }
+
+    private boolean consumeIngredient(int ingredientIndex, int batches, List<FluidStack> remaining) {
         if (ingredientIndex >= this.ingredients.size()) return true;
         SizedFluidIngredient ingredient = this.ingredients.get(ingredientIndex);
+        long requiredAmount = (long) ingredient.amount() * batches;
+        if (requiredAmount > Integer.MAX_VALUE) return false;
         for (int tank = 0; tank < remaining.size(); tank++) {
             FluidStack stored = remaining.get(tank);
-            if (!ingredient.test(stored)) continue;
-            int amount = stored.getAmount() - ingredient.amount();
+            if (!ingredient.test(stored) || stored.getAmount() < requiredAmount) continue;
+            int amount = stored.getAmount() - (int) requiredAmount;
             remaining.set(tank, amount == 0 ? FluidStack.EMPTY : stored.copyWithAmount(amount));
-            if (this.consumeIngredient(ingredientIndex + 1, remaining)) return true;
+            if (this.consumeIngredient(ingredientIndex + 1, batches, remaining)) return true;
             remaining.set(tank, stored);
         }
         return false;
@@ -194,7 +236,9 @@ public class FluidMixingRecipe implements Recipe<FluidMixingRecipe.Input> {
                 ITEM_RESULTS_CODEC.optionalFieldOf("results", List.<ItemStackTemplate>of())
                     .forGetter(FluidMixingRecipe::getItemResultTemplates),
                 FLUID_RESULTS_CODEC.optionalFieldOf("fluid_results", List.<FluidStack>of())
-                    .forGetter(FluidMixingRecipe::getFluidResults)
+                    .forGetter(FluidMixingRecipe::getFluidResults),
+                Codec.BOOL.optionalFieldOf("consume_maximum", false)
+                    .forGetter(FluidMixingRecipe::consumesMaximum)
             ).apply(instance, FluidMixingRecipe::new)).validate(Serializer::validateResults);
         private static final StreamCodec<RegistryFriendlyByteBuf, FluidMixingRecipe> STREAM_CODEC =
             StreamCodec.composite(
@@ -204,6 +248,8 @@ public class FluidMixingRecipe implements Recipe<FluidMixingRecipe.Input> {
                 FluidMixingRecipe::getItemResultTemplates,
                 FluidStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
                 FluidMixingRecipe::getFluidResults,
+                ByteBufCodecs.BOOL,
+                FluidMixingRecipe::consumesMaximum,
                 FluidMixingRecipe::new
             );
 
@@ -212,6 +258,10 @@ public class FluidMixingRecipe implements Recipe<FluidMixingRecipe.Input> {
             if (resultCount < 1 || resultCount > MAX_RESULTS) {
                 return DataResult.error(() ->
                     "Fluid mixing recipes must contain between 1 and " + MAX_RESULTS + " total results");
+            }
+            if (recipe.consumesMaximum() && (!recipe.itemResults.isEmpty() || recipe.fluidResults.isEmpty())) {
+                return DataResult.error(() ->
+                    "Maximum-consumption fluid mixing recipes must have fluid results only");
             }
             return DataResult.success(recipe);
         }
@@ -230,6 +280,7 @@ public class FluidMixingRecipe implements Recipe<FluidMixingRecipe.Input> {
         private final List<SizedFluidIngredient> ingredients = new ArrayList<>();
         private final List<ItemStackTemplate> itemResults = new ArrayList<>();
         private final List<FluidStack> fluidResults = new ArrayList<>();
+        private boolean consumeMaximum;
 
         private Builder(HolderGetter<Fluid> fluids) {
             this.fluids = fluids;
@@ -267,9 +318,19 @@ public class FluidMixingRecipe implements Recipe<FluidMixingRecipe.Input> {
             return this;
         }
 
+        public Builder consumeMaximum() {
+            this.consumeMaximum = true;
+            return this;
+        }
+
         @Override
         public FluidMixingRecipe buildRecipe() {
-            return new FluidMixingRecipe(this.ingredients, this.itemResults, this.fluidResults);
+            return new FluidMixingRecipe(
+                this.ingredients,
+                this.itemResults,
+                this.fluidResults,
+                this.consumeMaximum
+            );
         }
 
         @Override
@@ -284,6 +345,11 @@ public class FluidMixingRecipe implements Recipe<FluidMixingRecipe.Input> {
             }
             if (this.fluidResults.stream().anyMatch(FluidStack::isEmpty)) {
                 throw new IllegalArgumentException("Fluid mixing recipe has an empty fluid result, RecipeId: " + id);
+            }
+            if (this.consumeMaximum && (!this.itemResults.isEmpty() || this.fluidResults.isEmpty())) {
+                throw new IllegalArgumentException(
+                    "Maximum-consumption fluid mixing recipe must have fluid results only, RecipeId: " + id
+                );
             }
         }
 

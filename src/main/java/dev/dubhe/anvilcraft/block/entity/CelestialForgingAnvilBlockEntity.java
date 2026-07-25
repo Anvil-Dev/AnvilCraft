@@ -44,6 +44,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -77,7 +78,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * {@code REDSTONE_SIGNAL_CACHE_TICKS} 刻；缓存过期或主动失效后重新计算。
      */
     public int getRedstoneSignal() {
-        if (level == null) return 0;
+        // 客户端刚加载区块时比较器输出不一定可用，直接用同步来的缓存值
+        if (this.level == null || this.level.isClientSide()) return this.cachedRedstoneSignal;
         long now = level.getGameTime();
         if (this.redstoneSignalCacheTick >= 0 && now - this.redstoneSignalCacheTick < REDSTONE_SIGNAL_CACHE_TICKS) {
             return this.cachedRedstoneSignal;
@@ -103,7 +105,24 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         this.redstoneSignalCacheTick = -1;
     }
 
+    /// 红石信号变化时同步给客户端，避免界面显示陈旧值
+    private void syncRedstoneSignalIfChanged() {
+        if (this.level == null || this.level.isClientSide()) return;
+        this.getRedstoneSignal();
+        if (this.cachedRedstoneSignal != this.syncedRedstoneSignal) {
+            this.syncedRedstoneSignal = this.cachedRedstoneSignal;
+            this.setChanged();
+            this.level.sendBlockUpdated(
+                this.worldPosition,
+                this.getBlockState(),
+                this.getBlockState(),
+                Block.UPDATE_CLIENTS
+            );
+        }
+    }
+
     private int cachedRedstoneSignal = 0;
+    private int syncedRedstoneSignal = 0;
     private long redstoneSignalCacheTick = -1;
     private static final int REDSTONE_SIGNAL_CACHE_TICKS = 5;
 
@@ -528,6 +547,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     }
 
     public void serverTick() {
+        this.syncRedstoneSignalIfChanged();
         this.searchController.serverTick(this);
 
         this.gravityController.tick(
@@ -863,6 +883,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         tag.putBoolean("amplified", this.isAmplify);
+        tag.putInt("redstoneSignal", this.getRedstoneSignal());
+        this.syncedRedstoneSignal = this.cachedRedstoneSignal;
         tag.putLong("bodySeed", this.bodySeed);
         tag.putInt("stellarMass", this.stellarMass);
 

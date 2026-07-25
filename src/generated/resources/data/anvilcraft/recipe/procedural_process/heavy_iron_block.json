@@ -1,6 +1,12 @@
 {
   "type": "anvilcraft:procedural_process",
-  "displayed_model": "anvilcraft:block/heavy_iron_block_wip",
+  "displayed_models": [
+    "anvilcraft:block/heavy_iron_block_wip",
+    "anvilcraft:block/heavy_iron_block_wip_2"
+  ],
+  "icon": {
+    "id": "anvilcraft:heavy_iron_block"
+  },
   "initial_block": {
     "blocks": "minecraft:iron_block"
   },

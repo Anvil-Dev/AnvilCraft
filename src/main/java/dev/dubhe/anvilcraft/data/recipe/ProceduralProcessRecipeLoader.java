@@ -64,19 +64,23 @@ public class ProceduralProcessRecipeLoader {
             .addStep(
                 ItemInjectRecipe.builder()
                     .inputBlock(ModBlocks.WIP_BLOCK)
-                    .requires(Items.ENDER_EYE)
-                    .resultBlock(ModBlocks.WIP_BLOCK)
-                    .buildRecipe()
-            )
-            .addStep(
-                ItemInjectRecipe.builder()
-                    .inputBlock(ModBlocks.WIP_BLOCK)
                     .requires(Items.ENDER_CHEST)
                     .resultBlock(ModBlocks.WIP_BLOCK)
                     .buildRecipe()
             )
+            .addStep(
+                BlockCompressRecipe.builder()
+                    .input(Blocks.PURPUR_BLOCK)
+                    .input(ModBlocks.WIP_BLOCK.get())
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
             .result(Blocks.SHULKER_BOX)
             .icon(new ItemStackTemplate(Items.SHULKER_BOX))
+            .displayedModels(
+                AnvilCraft.of("block/shulker_box_wip"),
+                AnvilCraft.of("block/shulker_box_wip_2")
+            )
             .save(provider);
 
         // 红石计算机
@@ -92,7 +96,12 @@ public class ProceduralProcessRecipeLoader {
                 .inputBlock(ModBlocks.WIP_BLOCK.get()).requires(ModItems.TRANSCENDIUM_NUGGET)
                 .resultBlock(ModBlocks.WIP_BLOCK).buildRecipe())
             .result(ModBlocks.SPACETIME_SUPERCOMPUTER)
-            .displayedModel(AnvilCraft.of("block/spacetime_supercomputer_wip"))
+            .icon(new ItemStackTemplate(ModBlocks.SPACETIME_SUPERCOMPUTER.asItem()))
+            .displayedModels(
+                AnvilCraft.of("block/spacetime_supercomputer_wip"),
+                AnvilCraft.of("block/spacetime_supercomputer_wip_2"),
+                AnvilCraft.of("block/spacetime_supercomputer_wip_3")
+            )
             .loop(3)
             .multipleLoopFirstStep(BlockProcessingRecipe.builder()
                 .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.TIME)
@@ -111,7 +120,12 @@ public class ProceduralProcessRecipeLoader {
                 .inputBlock(ModBlocks.WIP_BLOCK.get()).requires(ModItems.TRANSCENDIUM_NUGGET)
                 .resultBlock(ModBlocks.WIP_BLOCK).buildRecipe())
             .result(ModBlocks.SPACETIME_SUPERCOMPUTER)
-            .displayedModel(AnvilCraft.of("block/spacetime_supercomputer_wip"))
+            .icon(new ItemStackTemplate(ModBlocks.SPACETIME_SUPERCOMPUTER.asItem()))
+            .displayedModels(
+                AnvilCraft.of("block/spacetime_supercomputer_wip"),
+                AnvilCraft.of("block/spacetime_supercomputer_wip_2"),
+                AnvilCraft.of("block/spacetime_supercomputer_wip_3")
+            )
             .loop(3)
             .multipleLoopFirstStep(BlockProcessingRecipe.builder()
                 .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.SPACE)
@@ -127,7 +141,8 @@ public class ProceduralProcessRecipeLoader {
                 .fakeTimeWarp(ModBlocks.WIP_BLOCK.get())
                 .result(ModBlocks.WIP_BLOCK.get()).buildRecipe())
             .result(Blocks.ANCIENT_DEBRIS)
-            .displayedModel(AnvilCraft.of("block/ancient_debris_wip"))
+            .icon(new ItemStackTemplate(Blocks.ANCIENT_DEBRIS.asItem()))
+            .displayedModels(AnvilCraft.of("block/ancient_debris_wip"))
             .save(provider);
 
         // 下界合金块
@@ -142,7 +157,11 @@ public class ProceduralProcessRecipeLoader {
                 .fakeSuperHeating(ModBlocks.WIP_BLOCK.get())
                 .result(ModBlocks.WIP_BLOCK.get()).buildRecipe())
             .result(Blocks.NETHERITE_BLOCK)
-            .displayedModel(AnvilCraft.of("block/netherite_block_wip"))
+            .icon(new ItemStackTemplate(Blocks.NETHERITE_BLOCK.asItem()))
+            .displayedModels(
+                AnvilCraft.of("block/netherite_block_wip"),
+                AnvilCraft.of("block/netherite_block_wip_2")
+            )
             .loop(2)
             .multipleLoopFirstStep(BlockCompressRecipe.builder()
                 .input(Blocks.RAW_GOLD_BLOCK).input(ModBlocks.WIP_BLOCK.get())
@@ -158,7 +177,11 @@ public class ProceduralProcessRecipeLoader {
                 .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.MASS)
                 .result(ModBlocks.WIP_BLOCK.get()).buildRecipe())
             .result(ModBlocks.HEAVY_IRON_BLOCK)
-            .displayedModel(AnvilCraft.of("block/heavy_iron_block_wip"))
+            .icon(new ItemStackTemplate(ModBlocks.HEAVY_IRON_BLOCK.asItem()))
+            .displayedModels(
+                AnvilCraft.of("block/heavy_iron_block_wip"),
+                AnvilCraft.of("block/heavy_iron_block_wip_2")
+            )
             .loop(2)
             .multipleLoopFirstStep(BlockCompressRecipe.builder()
                 .input(Blocks.IRON_BLOCK).input(ModBlocks.WIP_BLOCK.get())
@@ -177,7 +200,11 @@ public class ProceduralProcessRecipeLoader {
                 .fakeTimeWarp(ModBlocks.WIP_BLOCK.get())
                 .result(ModBlocks.WIP_BLOCK.get()).buildRecipe())
             .result(ModBlocks.ANCIENT_SEA_REEF)
-            .displayedModel(AnvilCraft.of("block/ancient_sea_reef_wip"))
+            .icon(new ItemStackTemplate(ModBlocks.ANCIENT_SEA_REEF.asItem()))
+            .displayedModels(
+                AnvilCraft.of("block/ancient_sea_reef_wip"),
+                AnvilCraft.of("block/ancient_sea_reef_wip_2")
+            )
             .save(provider);
     }
 }

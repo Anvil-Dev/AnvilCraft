@@ -256,8 +256,9 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         for (int i = 0; i < 4; i++) {
             float[] c0 = corners[i];
             float[] c1 = corners[(i + 1) % 4];
-            beamVertex(vc, matrix, c0[0], baseY, c0[1], red, green, blue, alpha);
+            // 交换前两个顶点的顺序，修正三角面朝向
             beamVertex(vc, matrix, c1[0], baseY, c1[1], red, green, blue, alpha);
+            beamVertex(vc, matrix, c0[0], baseY, c0[1], red, green, blue, alpha);
             beamVertex(vc, matrix, cx, apexY, cz, red, green, blue, tipAlpha);
         }
     }

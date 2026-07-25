@@ -1,5 +1,9 @@
 {
   "type": "anvilcraft:procedural_process",
+  "displayed_models": [
+    "anvilcraft:block/shulker_box_wip",
+    "anvilcraft:block/shulker_box_wip_2"
+  ],
   "icon": {
     "id": "minecraft:shulker_box"
   },
@@ -39,7 +43,7 @@
         },
         "ingredients": [
           {
-            "items": "minecraft:ender_eye"
+            "items": "minecraft:ender_chest"
           }
         ]
       },
@@ -47,18 +51,18 @@
     },
     {
       "content": {
-        "type": "anvilcraft:item_inject",
-        "block_ingredient": {
-          "blocks": "anvilcraft:wip_block"
-        },
-        "block_result": {
-          "block": "anvilcraft:wip_block"
-        },
-        "ingredients": [
+        "type": "anvilcraft:block_compress",
+        "inputs": [
           {
-            "items": "minecraft:ender_chest"
+            "blocks": "minecraft:purpur_block"
+          },
+          {
+            "blocks": "anvilcraft:wip_block"
           }
-        ]
+        ],
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
       },
       "index": 2
     }

@@ -243,4 +243,5 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     private static String stepBlockSlotName(int step, int block) {
         return "step_" + step + "_block_" + block;
     }
+
 }
