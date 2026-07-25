@@ -27,6 +27,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 import javax.annotation.Nullable;
 
 /**
@@ -51,6 +52,22 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
     private static final Map<Direction, List<VoxelShape>> CORNER_SHAPES = new EnumMap<>(Direction.class);
     private static final Map<Direction, List<VoxelShape>> CORNER_SP_SHAPES = new EnumMap<>(Direction.class);
     private static final Map<Direction, List<VoxelShape>> UP_SHAPES = new EnumMap<>(Direction.class);
+
+    /** 连接类型数量；{@code values()} 每次调用都会克隆数组，键计算在热路径上只读这个常量。 */
+    private static final int CONNECTION_TYPE_COUNT = ConnectionType.values().length;
+    /** 影响形状的状态组合数：附着面 x 四个方向的连接类型 x 中心接点。 */
+    private static final int SHAPE_STATE_COUNT =
+        Direction.values().length * CONNECTION_TYPE_COUNT * CONNECTION_TYPE_COUNT
+            * CONNECTION_TYPE_COUNT * CONNECTION_TYPE_COUNT * 2;
+    /**
+     * 按状态索引缓存合并后的形状。
+     *
+     * <p>形状只由方块状态决定，但带实体上下文的碰撞查询会绕过原版的 per-state 缓存，
+     * 每次都重新调用 {@code getShape}；如果在这里现算 {@link Shapes#or}，导线附近每个实体
+     * 每 tick 都会产生大量形状合并与分配。实际用到的组合远少于全部 7500 种，因此惰性填充。</p>
+     */
+    private static final AtomicReferenceArray<VoxelShape> SHAPE_CACHE =
+        new AtomicReferenceArray<>(SHAPE_STATE_COUNT);
 
     static {
         // 碰撞/选取形状只由附着方向和连接类型决定，预计算可避免每次光线检测都重复坐标变换与形状合并。
@@ -118,6 +135,27 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        int key = shapeKey(state);
+        VoxelShape cached = SHAPE_CACHE.get(key);
+        if (cached != null) {
+            return cached;
+        }
+        VoxelShape shape = buildShape(state);
+        // 同一状态在多线程下算出的形状等价，先写入者胜出即可，不需要额外同步。
+        SHAPE_CACHE.compareAndSet(key, null, shape);
+        return shape;
+    }
+
+    /** 把影响形状的状态属性压成缓存下标。 */
+    private static int shapeKey(BlockState state) {
+        int key = state.getValue(ATTACHMENT).ordinal();
+        for (int index = 0; index < 4; index++) {
+            key = key * CONNECTION_TYPE_COUNT + state.getValue(CONNECTION_PROPERTIES.get(index)).ordinal();
+        }
+        return key * 2 + (state.getValue(DOT) ? 1 : 0);
+    }
+
+    private static VoxelShape buildShape(BlockState state) {
         Direction attachment = state.getValue(ATTACHMENT);
         VoxelShape shape = state.getValue(DOT) ? DOT_SHAPES.get(attachment) : Shapes.empty();
         for (int index = 0; index < 4; index++) {
