@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.api.entity.fakeplayer;
 
 import com.mojang.authlib.GameProfile;
-import lombok.Data;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -15,17 +14,18 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.IntFunction;
+import javax.annotation.Nullable;
 
-public class AnvilCraftDestroyerFakePlayer {
+public class AnvilCraftFakeDestroyer {
     static final IntFunction<GameProfile> FAKE_PROFILE_FACTORY = num -> new GameProfile(
         UUID.randomUUID(),
-        "[Destroyer of AnvilCraft No." + num + "]"
+        "[AnvilCraft Fake Destroyer No." + num + "]"
     );
     private static final Queue<Destroyer> DISABLED_DESTROYERS = new ConcurrentLinkedQueue<>();
     private static final List<Destroyer> ENABLED_DESTROYERS = Collections.synchronizedList(new ArrayList<>());
-    private static ItemStack DUMMY_BREAK_TOOL = null;
+    private static @Nullable ItemStack DUMMY_BREAK_TOOL = null;
 
-    public AnvilCraftDestroyerFakePlayer() {
+    public AnvilCraftFakeDestroyer() {
     }
 
     public ServerPlayer offerPlayer(ServerLevel level) {
@@ -34,7 +34,7 @@ public class AnvilCraftDestroyerFakePlayer {
             destroyer = new Destroyer(level, ENABLED_DESTROYERS.size());
         }
         ENABLED_DESTROYERS.add(destroyer);
-        return destroyer.getPlayer();
+        return destroyer.player();
     }
 
     public void enabledDestroy(ServerPlayer player, ItemStack itemStack) {
@@ -45,29 +45,26 @@ public class AnvilCraftDestroyerFakePlayer {
     }
 
     public void disable(ServerPlayer player) {
-        ENABLED_DESTROYERS.stream()
-            .filter(destroyer -> destroyer.getUUID().equals(player.getUUID()))
-            .findFirst()
-            .ifPresent(destroyer -> {
-                destroyer.getPlayer().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                DISABLED_DESTROYERS.offer(destroyer);
-                ENABLED_DESTROYERS.remove(destroyer);
-            });
+        for (Destroyer destroyer : AnvilCraftFakeDestroyer.ENABLED_DESTROYERS) {
+            if (!destroyer.getUUID().equals(player.getUUID())) continue;
+            destroyer.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            DISABLED_DESTROYERS.offer(destroyer);
+            ENABLED_DESTROYERS.remove(destroyer);
+            break;
+        }
     }
 
-    @Data
-    public static final class Destroyer {
-        private final GameProfile profile;
-        private final ServerPlayer player;
+    public record Destroyer(ServerPlayer player, GameProfile profile) {
+        public Destroyer(ServerLevel player, int profile) {
+            this(FakePlayerFactory.get(player, Destroyer.create(profile)), Destroyer.create(profile));
+        }
 
-        public Destroyer(ServerLevel level, int index) {
-            this.profile = FAKE_PROFILE_FACTORY.apply(index + 1);
-            this.player = FakePlayerFactory.get(level, this.profile);
+        private static GameProfile create(int profile) {
+            return AnvilCraftFakeDestroyer.FAKE_PROFILE_FACTORY.apply(profile + 1);
         }
 
         public UUID getUUID() {
             return this.player.getUUID();
         }
     }
-
 }

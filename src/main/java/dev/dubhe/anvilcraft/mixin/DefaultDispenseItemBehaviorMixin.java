@@ -6,7 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -40,12 +40,13 @@ public abstract class DefaultDispenseItemBehaviorMixin {
         BlockPos targetBlockPos = blockSource.pos().relative(direction);
         BlockState targetState = blockSource.level().getBlockState(targetBlockPos);
         if (!(targetState.getBlock() instanceof AbstractCauldronBlock cauldronBlock)) return;
-        Player player = AnvilCraftFakePlayers.anvilcraftBlockPlacer.getPlayer();
+        ServerPlayer player = AnvilCraftFakePlayers.getBlockPlacer().offerPlayer(blockSource.level());
         ItemStack itemStack = item.copy();
         itemStack.setCount(1);
         player.setItemInHand(player.getUsedItemHand(), itemStack);
         cauldronBlock.useItemOn(itemStack, targetState, blockSource.level(), targetBlockPos, player, player.getUsedItemHand(), null);
         ItemStack result = player.getItemInHand(player.getUsedItemHand());
+        AnvilCraftFakePlayers.getBlockPlacer().disable(player);
         if (result.is(item.getItem())) return;
         ItemStack out;
         if (item.getCount() == 1) {

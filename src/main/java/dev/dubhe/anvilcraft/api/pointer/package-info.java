@@ -1,7 +1,7 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 @FieldsAreNonnullByDefault
-package dev.dubhe.anvilcraft.api.entity.player;
+package dev.dubhe.anvilcraft.api.pointer;
 
 import com.mojang.logging.annotations.FieldsAreNonnullByDefault;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;

@@ -21,17 +21,20 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.IntFunction;
+import javax.annotation.Nullable;
 
-public class AnvilCraftKillerFakePlayer {
+public class AnvilCraftFakeKiller {
     static final IntFunction<GameProfile> FAKE_PROFILE_FACTORY = num -> new GameProfile(
-        UUID.randomUUID(), "[Killer of AnvilCraft No." + num + "]");
+        UUID.randomUUID(),
+        "[AnvilCraft Fake Killer No." + num + "]"
+    );
     private static final Queue<Killer> DISABLED_KILLERS = new ConcurrentLinkedQueue<>();
     private static final List<Killer> ENABLED_KILLERS = Collections.synchronizedList(new ArrayList<>());
 
-    private static ItemStack DUMMY_LOOTING_5_WEAPON = null;
-    private static ItemStack DUMMY_DISINTEGRATION_WEAPON = null;
+    private static @Nullable ItemStack DUMMY_LOOTING_5_WEAPON = null;
+    private static @Nullable ItemStack DUMMY_DISINTEGRATION_WEAPON = null;
 
-    public AnvilCraftKillerFakePlayer() {
+    public AnvilCraftFakeKiller() {
     }
 
     public ServerPlayer offerPlayer(ServerLevel level) {

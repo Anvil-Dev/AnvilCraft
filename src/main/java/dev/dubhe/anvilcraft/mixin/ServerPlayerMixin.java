@@ -95,7 +95,7 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
         if (value.getEntity() instanceof FallingBlockEntity falling
             && Util.instanceOfAny(falling.getBlockState().getBlock(), EmberAnvilBlock.class, TranscendenceAnvilBlock.class)
         ) {
-            ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer((ServerLevel) this.level());
+            ServerPlayer killer = AnvilCraftFakePlayers.getKiller().offerPlayer((ServerLevel) this.level());
             this.lastHurtByPlayer = killer;
             this.lastHurtByPlayerTime = 1;
             killerRef.set(killer);
@@ -104,7 +104,7 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
                 falling, killer, value.getSourcePosition()
             );
             if (falling.getBlockState().getBlock() instanceof TranscendenceAnvilBlock) {
-                AnvilCraftFakePlayers.anvilcraftKiller.enableLooting5((ServerLevel) this.level(), killer);
+                AnvilCraftFakePlayers.getKiller().enableLooting5((ServerLevel) this.level(), killer);
             }
             return source;
         }
@@ -114,7 +114,7 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
     @Inject(method = "die", at = @At("RETURN"))
     private void disableKiller(DamageSource cause, CallbackInfo ci, @Share("killer") LocalRef<ServerPlayer> killerRef) {
         if (killerRef.get() == null) return;
-        AnvilCraftFakePlayers.anvilcraftKiller.disable(killerRef.get());
+        AnvilCraftFakePlayers.getKiller().disable(killerRef.get());
     }
 
     @Override

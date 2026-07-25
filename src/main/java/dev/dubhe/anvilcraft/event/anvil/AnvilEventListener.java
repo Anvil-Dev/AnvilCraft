@@ -264,11 +264,13 @@ public class AnvilEventListener {
     ) {
         Optional<ServerPlayer> killerOp = Optional.empty();
         if (enableKiller) {
-            ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer(level);
+            ServerPlayer killer = AnvilCraftFakePlayers.getKiller().offerPlayer(level);
             builder.withParameter(LootContextParams.DAMAGE_SOURCE, entity.level().damageSources().playerAttack(killer))
                 .withParameter(LootContextParams.ATTACKING_ENTITY, killer)
                 .withParameter(LootContextParams.LAST_DAMAGE_PLAYER, killer);
-            if (enableLooting5) AnvilCraftFakePlayers.anvilcraftKiller.enableLooting5(level, killer);
+            if (enableLooting5) {
+                AnvilCraftFakePlayers.getKiller().enableLooting5(level, killer);
+            }
             killerOp = Optional.of(killer);
         }
         LootParams lootParams = builder.create(LootContextParamSets.ENTITY);
@@ -276,7 +278,7 @@ public class AnvilEventListener {
         AnvilUtil.dropItems(lootTable.getRandomItems(lootParams), level, pos);
         if (rate >= 0.6) AnvilUtil.dropItems(lootTable.getRandomItems(lootParams), level, pos);
         if (rate >= 0.8) AnvilUtil.dropItems(lootTable.getRandomItems(lootParams), level, pos);
-        killerOp.ifPresent(killer -> AnvilCraftFakePlayers.anvilcraftKiller.disable(killer));
+        killerOp.ifPresent(killer -> AnvilCraftFakePlayers.getKiller().disable(killer));
     }
 
     private static void dropExps(
@@ -285,7 +287,7 @@ public class AnvilEventListener {
         Vec3 pos,
         double rate
     ) {
-        ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer(level);
+        ServerPlayer killer = AnvilCraftFakePlayers.getKiller().offerPlayer(level);
         int baseExp = entity.getExperienceReward(level, killer);
         int expMultiplier = 1;
         if (rate >= 0.8) {
@@ -294,6 +296,6 @@ public class AnvilEventListener {
             expMultiplier = 2;
         }
         ExperienceOrb.award(level, pos, baseExp * expMultiplier);
-        AnvilCraftFakePlayers.anvilcraftKiller.disable(killer);
+        AnvilCraftFakePlayers.getKiller().disable(killer);
     }
 }

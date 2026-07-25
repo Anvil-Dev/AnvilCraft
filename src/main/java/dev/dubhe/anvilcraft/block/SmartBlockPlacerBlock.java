@@ -131,20 +131,20 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
-        Level level,
+        Level current,
         BlockState state,
         BlockEntityType<T> type
     ) {
-        if (level.isClientSide()) {
-            return (level1, pos, state1, entity) -> {
+        if (current.isClientSide()) {
+            return (level, pos, state1, entity) -> {
                 if (entity instanceof SmartBlockPlacerBlockEntity be) {
                     be.tickClient();
                 }
             };
         } else {
-            return (level1, pos, state1, entity) -> {
+            return (level, pos, state1, entity) -> {
                 if (entity instanceof SmartBlockPlacerBlockEntity be) {
-                    be.tickServer(level1, pos);
+                    be.tickServer(level, pos);
                 }
             };
         }
@@ -161,18 +161,17 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
         if (level.isClientSide) {
             return InteractionResult.SUCCESS;
         }
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof SmartBlockPlacerBlockEntity placerEntity) {
-            if (player.getItemInHand(InteractionHand.MAIN_HAND).is(ModItems.DISK.get())
-                || player.getItemInHand(InteractionHand.OFF_HAND).is(ModItems.DISK.get())) {
-                InteractionHand hand = player.getItemInHand(InteractionHand.MAIN_HAND).is(ModItems.DISK.get())
-                    ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-                return placerEntity.useDisk(level, player, hand, player.getItemInHand(hand), hitResult);
+        BlockEntity be = level.getBlockEntity(pos);
+        if (be instanceof SmartBlockPlacerBlockEntity placerEntity) {
+            if (player.getMainHandItem().is(ModItems.DISK.get())) {
+                return placerEntity.useDisk(level, player, InteractionHand.MAIN_HAND, player.getMainHandItem(), hitResult);
+            } else if (player.getOffhandItem().is(ModItems.DISK.get())) {
+                return placerEntity.useDisk(level, player, InteractionHand.OFF_HAND, player.getOffhandItem(), hitResult);
             }
             if (player instanceof ServerPlayer serverPlayer) {
-                var menuProvider = state.getMenuProvider(level, pos);
-                if (menuProvider != null) {
-                    ModMenuTypes.open(serverPlayer, menuProvider, pos);
+                var provider = state.getMenuProvider(level, pos);
+                if (provider != null) {
+                    ModMenuTypes.open(serverPlayer, provider, pos);
                 }
             }
         }
