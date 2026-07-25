@@ -22,6 +22,7 @@ import net.neoforged.neoforge.common.Tags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 
 /**
  * 管道节点（多向连接器），最多支持六个方向的连接。
@@ -40,6 +41,11 @@ import java.util.List;
  * 节点↔节点 或 节点↔IFluidHandler 的连接。
  */
 public class PipeNodeBlock extends PipeBlock {
+
+    private static final int NODE_PIPE_COUNT = NodePipe.values().length;
+    /** 节点形状缓存：六个方向各三种连接状态，共 729 种组合。 */
+    private static final AtomicReferenceArray<VoxelShape> SHAPES =
+        new AtomicReferenceArray<>((int) Math.pow(NODE_PIPE_COUNT, DIRECTIONS.length));
 
     /**
      * 节点默认全方向无臂
@@ -75,8 +81,21 @@ public class PipeNodeBlock extends PipeBlock {
      */
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
+        return cachedShape(SHAPES, shapeKey(state), () -> buildShape(state));
+    }
+
+    /** 把六个方向的连接状态压成缓存下标。 */
+    private static int shapeKey(BlockState state) {
+        int key = 0;
+        for (Direction dir : DIRECTIONS) {
+            key = key * NODE_PIPE_COUNT + state.getValue(getPropertyForDirection(dir)).ordinal();
+        }
+        return key;
+    }
+
+    private static VoxelShape buildShape(BlockState state) {
         VoxelShape shape = NODE_CENTER;
-        for (Direction dir : Direction.values()) {
+        for (Direction dir : DIRECTIONS) {
             NodePipe value = state.getValue(getPropertyForDirection(dir));
             if (value == NodePipe.PIPE) {
                 shape = Shapes.or(shape, makeNoEnd(dir));
