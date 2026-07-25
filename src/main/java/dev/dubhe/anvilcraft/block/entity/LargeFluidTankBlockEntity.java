@@ -17,6 +17,8 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -156,11 +158,16 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
     public void removeComponentsFromTag(CompoundTag tag) {
         super.removeComponentsFromTag(tag);
         if (this.level != null) {
-            tag.put(TAG_TANK, this.getMainPart().tank.serializeNBT(this.level.registryAccess()));
+            tag.put(TAG_TANK, this.getMainPart().tank.serializeForItem(this.level.registryAccess()));
         }
-        CompoundTag tankTag = tag.getCompound(TAG_TANK);
-        MultiFluidTankHandler.normalizeForItem(tankTag);
-        tag.put(TAG_TANK, tankTag);
+    }
+
+    public void saveToDrop(ItemStack stack, HolderLookup.Provider registries) {
+        CompoundTag tag = this.saveCustomOnly(registries);
+        this.removeComponentsFromTag(tag);
+        tag.put(TAG_TANK, this.getMainPart().tank.serializeForDrop(registries));
+        BlockItem.setBlockEntityData(stack, this.getType(), tag);
+        stack.applyComponents(this.collectComponents());
     }
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {

@@ -209,12 +209,32 @@ final class MultiFluidTankHandler implements IFluidHandler, INBTSerializable<Com
         this.changeListener.run();
     }
 
-    static void normalizeForItem(CompoundTag tag) {
+    CompoundTag serializeForItem(HolderLookup.Provider provider) {
+        return this.serializeDetached(provider, Long.MAX_VALUE);
+    }
+
+    CompoundTag serializeForDrop(HolderLookup.Provider provider) {
+        return this.serializeDetached(provider, this.baseCapacity);
+    }
+
+    private CompoundTag serializeDetached(HolderLookup.Provider provider, long maxAmount) {
+        CompoundTag tag = new CompoundTag();
         tag.putBoolean(TAG_ENHANCED, false);
-        ListTag fluidsTag = tag.getList(TAG_FLUIDS, Tag.TAG_COMPOUND);
-        for (int i = 0; i < fluidsTag.size(); i++) {
-            fluidsTag.getCompound(i).putBoolean(TAG_INFINITE, false);
+        ListTag fluidsTag = new ListTag();
+        long remaining = maxAmount;
+        for (StoredFluid stored : this.fluids) {
+            if (remaining <= 0) break;
+            int amount = (int) Math.min(stored.fluid().getAmount(), remaining);
+            if (amount <= 0) continue;
+
+            CompoundTag fluidTag = new CompoundTag();
+            fluidTag.put(TAG_FLUID, stored.fluid().copyWithAmount(amount).save(provider));
+            fluidTag.putBoolean(TAG_INFINITE, false);
+            fluidsTag.add(fluidTag);
+            remaining -= amount;
         }
+        tag.put(TAG_FLUIDS, fluidsTag);
+        return tag;
     }
 
     @Accessors(fluent = true, chain = false)

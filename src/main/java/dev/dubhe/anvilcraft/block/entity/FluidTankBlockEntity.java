@@ -13,6 +13,8 @@ import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -125,9 +127,17 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     @SuppressWarnings("deprecation")
     public void removeComponentsFromTag(CompoundTag tag) {
         super.removeComponentsFromTag(tag);
-        CompoundTag tankTag = tag.getCompound(TAG_TANK);
-        SingleFluidTankHandler.normalizeForItem(tankTag);
-        tag.put(TAG_TANK, tankTag);
+        if (this.level != null) {
+            tag.put(TAG_TANK, this.tank.serializeForItem(this.level.registryAccess()));
+        }
+    }
+
+    public void saveToDrop(ItemStack stack, HolderLookup.Provider registries) {
+        CompoundTag tag = this.saveCustomOnly(registries);
+        this.removeComponentsFromTag(tag);
+        tag.put(TAG_TANK, this.tank.serializeForDrop(registries));
+        BlockItem.setBlockEntityData(stack, this.getType(), tag);
+        stack.applyComponents(this.collectComponents());
     }
 
     public boolean onPlayerUse(Player player, InteractionHand hand) {

@@ -7,6 +7,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 final class SingleFluidTankHandler extends FluidTank {
+    private static final String TAG_FLUID = "Fluid";
     private static final String TAG_ENHANCED = "Enhanced";
     private static final String TAG_INFINITE = "Infinite";
 
@@ -101,8 +102,22 @@ final class SingleFluidTankHandler extends FluidTank {
         return tag;
     }
 
-    static void normalizeForItem(CompoundTag tag) {
+    CompoundTag serializeForItem(HolderLookup.Provider provider) {
+        return this.serializeDetached(provider, Integer.MAX_VALUE);
+    }
+
+    CompoundTag serializeForDrop(HolderLookup.Provider provider) {
+        return this.serializeDetached(provider, this.baseCapacity);
+    }
+
+    private CompoundTag serializeDetached(HolderLookup.Provider provider, int maxAmount) {
+        CompoundTag tag = new CompoundTag();
+        if (!this.fluid.isEmpty()) {
+            int amount = Math.min(this.fluid.getAmount(), maxAmount);
+            tag.put(TAG_FLUID, this.fluid.copyWithAmount(amount).save(provider));
+        }
         tag.putBoolean(TAG_ENHANCED, false);
         tag.putBoolean(TAG_INFINITE, false);
+        return tag;
     }
 }
