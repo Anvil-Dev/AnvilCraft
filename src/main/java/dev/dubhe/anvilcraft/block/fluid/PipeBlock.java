@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidContainerLookup;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -39,7 +40,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.Tags;
 import org.jspecify.annotations.Nullable;
 
@@ -225,7 +225,7 @@ public abstract class PipeBlock extends Block
      * 26.1 使用 Capabilities.Fluid.BLOCK 和 3-参数 getCapability。
      */
     public static boolean isFluidHandler(Level level, BlockPos pos) {
-        return level.getCapability(Capabilities.Fluid.BLOCK, pos, null) != null;
+        return FluidContainerLookup.find(level, pos, null) != null;
     }
 
     /**
@@ -248,7 +248,7 @@ public abstract class PipeBlock extends Block
         if (state.getBlock() instanceof ControlValveBlock) {
             return ControlValveBlock.isConnectableFace(state, towardNeighbor);
         }
-        return level.getCapability(Capabilities.Fluid.BLOCK, pos, null) != null;
+        return FluidContainerLookup.find(level, pos, towardNeighbor) != null;
     }
 
     /**

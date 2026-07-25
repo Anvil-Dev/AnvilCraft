@@ -36,7 +36,7 @@ import net.neoforged.neoforge.transfer.transaction.Transaction;
 import java.util.List;
 
 public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidResourceHandlerHolder {
-    public static final int BASE_CAPACITY = 320 * FluidType.BUCKET_VOLUME;
+    public static final int BASE_CAPACITY = 512 * FluidType.BUCKET_VOLUME;
     public static final int INFINITY_THRESHOLD = 12800 * FluidType.BUCKET_VOLUME;
     private static final int CHECK_INTERVAL = 100;
 

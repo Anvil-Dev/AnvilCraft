@@ -95,6 +95,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     IFluidResourceHandlerHolder {
     private static final double EPSILON = 1.0 / 1024.0;
     public static final int MAX_TROPICAL_FISH = 4;
+    private static final ItemStacksResourceHandler EMPTY_RECIPE_OUTPUT = new ItemStacksResourceHandler(0);
 
     private static final Vec3 FLUID_CONTENT_AREA_MIN = new Vec3(0.0625, 0.0625, 0.0625);
     private static final Vec3 FLUID_CONTENT_AREA_MAX = new Vec3(0.9375, 0.9375, 0.9375);
@@ -346,6 +347,8 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             }
         }
     };
+    private boolean processingOutput;
+    private long lastRecipeProcessingGameTime = Long.MIN_VALUE;
     private boolean ignited = false;
 
     public FishTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -425,6 +428,50 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     @Override
     public ItemStacksResourceHandler getItemHandler() {
         return this.proxy;
+    }
+
+    @Override
+    public ResourceHandler<ItemResource> getInput() {
+        return this.processingOutput ? this.output : this.input;
+    }
+
+    @Override
+    public ResourceHandler<ItemResource> getOutput() {
+        // 复用输出槽做原料时，配方缓存不能同时把同一个容器当成输出，否则快照会互相覆盖
+        return this.processingOutput ? EMPTY_RECIPE_OUTPUT : this.output;
+    }
+
+    public PollableItemHandler getInputHandler() {
+        return this.input;
+    }
+
+    public ItemStacksResourceHandler getOutputHandler() {
+        return this.output;
+    }
+
+    /// 输入槽为空时，允许本 tick 把输出槽中的产物当作原料再加工一次
+    public void beginRecipeProcessing() {
+        boolean hasInput = !isEmpty(this.input);
+        long gameTime = this.level == null ? Long.MIN_VALUE + 1 : this.level.getGameTime();
+        this.processingOutput = !hasInput
+            && !isEmpty(this.output)
+            && gameTime != this.lastRecipeProcessingGameTime;
+        if (hasInput || this.processingOutput) this.lastRecipeProcessingGameTime = gameTime;
+    }
+
+    public void finishRecipeProcessing() {
+        this.processingOutput = false;
+    }
+
+    public ItemStack insertRecipeOutput(ItemStack stack) {
+        return ItemHandlerUtil.insertItem(this.output, stack, false);
+    }
+
+    private static boolean isEmpty(ResourceHandler<ItemResource> handler) {
+        for (int slot = 0; slot < handler.size(); slot++) {
+            if (!handler.getResource(slot).isEmpty()) return false;
+        }
+        return true;
     }
 
     // region 持久化

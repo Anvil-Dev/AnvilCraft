@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.IHasMultiBlock;
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
+import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
@@ -15,6 +16,7 @@ import dev.dubhe.anvilcraft.block.workstation.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.ember.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.frost.FrostAnvilBlock;
 import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
@@ -116,14 +118,20 @@ public class AnvilEventListener {
         FallingBlockEntity entity = event.getEntity();
         InWorldRecipeManager manager = level.recipeAccess().anvillib$getInWorldRecipeManager();
         InWorldRecipeContext context = new InWorldRecipeContext(level, pos.getCenter().subtract(0.0, 0.5, 0.0), entity);
-        manager.trigger(ModRecipeTriggers.ON_ANVIL_FALL_ON, context);
-        boolean damageAnvil = context.get(DamageAnvil.DAMAGE_ANVIL);
-        if (!event.isAnvilDamage()) event.setAnvilDamage(damageAnvil);
-        GiantAnvilBlock.SUPPRESS_DROPS.set(true);
+        FishTankBlockEntity fishTank = level.getBlockEntity(pos.below(), ModBlockEntities.FISH_TANK.get()).orElse(null);
+        if (fishTank != null) fishTank.beginRecipeProcessing();
         try {
-            context.accept();
+            manager.trigger(ModRecipeTriggers.ON_ANVIL_FALL_ON, context);
+            boolean damageAnvil = context.get(DamageAnvil.DAMAGE_ANVIL);
+            if (!event.isAnvilDamage()) event.setAnvilDamage(damageAnvil);
+            GiantAnvilBlock.SUPPRESS_DROPS.set(true);
+            try {
+                context.accept();
+            } finally {
+                GiantAnvilBlock.SUPPRESS_DROPS.set(false);
+            }
         } finally {
-            GiantAnvilBlock.SUPPRESS_DROPS.set(false);
+            if (fishTank != null) fishTank.finishRecipeProcessing();
         }
     }
 

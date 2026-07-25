@@ -20,6 +20,8 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.unpack", "Unpack");
 
         provider.add("gui.anvilcraft.category.fast_cooking", "Fast Cooking");
+        provider.add("gui.anvilcraft.category.fast_cooking.consume_fluid", "Consume: %1$d mB of %2$s");
+        provider.add("gui.anvilcraft.category.fast_cooking.produce_fluid", "Produce: %1$d mB of %2$s");
 
         provider.add("gui.anvilcraft.category.stamping", "Stamping");
 
