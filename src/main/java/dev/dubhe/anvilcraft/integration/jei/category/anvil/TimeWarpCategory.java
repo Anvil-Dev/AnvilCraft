@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
@@ -17,6 +18,7 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.category.IRecipeCategory;
@@ -38,6 +40,9 @@ import org.jspecify.annotations.Nullable;
 public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
+
+    private static final String INPUT_FLUID = "input_fluid";
+    private static final String OUTPUT_FLUID = "output_fluid";
 
     private final IDrawable slotDefault;
     private final IDrawable slotProbability;
@@ -91,6 +96,21 @@ public class TimeWarpCategory implements IRecipeCategory<RecipeHolder<TimeWarpRe
         TimeWarpRecipe recipe = recipeHolder.value();
         JeiSlotUtil.addInputSlots(builder, recipe.getInputItems());
         if (!recipe.getResultItems().isEmpty()) JeiSlotUtil.addOutputSlots(builder, recipe.getResultItems());
+        JeiFluidIngredientUtil.addInputSlot(builder, INPUT_FLUID, 72, 24, 18, 19, recipe.getHasCauldron());
+        if (recipe.getResultItems().isEmpty()) {
+            JeiFluidIngredientUtil.addOutputSlot(builder, OUTPUT_FLUID, 124, 24, 18, 19, recipe.getHasCauldron());
+        } else {
+            JeiFluidIngredientUtil.addOutputIngredients(builder, recipe.getHasCauldron());
+        }
+    }
+
+    @Override
+    public void createRecipeExtras(
+        IRecipeExtrasBuilder builder,
+        RecipeHolder<TimeWarpRecipe> recipeHolder,
+        IFocusGroup focuses
+    ) {
+        JeiFluidIngredientUtil.suppressHoverOverlays(builder);
     }
 
     @Override

@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
@@ -43,6 +44,8 @@ import java.util.List;
 public class SqueezingCategory implements IRecipeCategory<RecipeHolder<SqueezingRecipe>> {
     private static final String INPUT_BLOCK = "input_block";
     private static final String OUTPUT_BLOCK = "output_block";
+    private static final String INPUT_FLUID = "input_fluid";
+    private static final String OUTPUT_FLUID = "output_fluid";
 
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
@@ -117,6 +120,24 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         }
         builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
             .addItemStacks(recipe.getResultItems().stream().map(stack -> stack.stack().create()).toList());
+        JeiFluidIngredientUtil.addInputSlot(
+            builder,
+            INPUT_FLUID,
+            40,
+            42,
+            20,
+            11,
+            recipe.getHasCauldron()
+        );
+        JeiFluidIngredientUtil.addOutputSlot(
+            builder,
+            OUTPUT_FLUID,
+            100,
+            42,
+            20,
+            11,
+            recipe.getHasCauldron()
+        );
     }
 
     @Override
