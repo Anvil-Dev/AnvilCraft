@@ -178,13 +178,13 @@ public final class CelestialRefactorRegistry {
             // R4 巨构，主要用于小型恒星和致密天体。
             options.add(CelestialRefactorOption.withMaterial(4, "stellar_ring_collider",
                 ringModel(4, "collider"), prefix + "stellar_ring_collider",
-                ModBlocks.ACCELERATION_RING.asItem(), 16));
+                ModItems.STELLAR_RING_COMPONENT, 8));
             options.add(CelestialRefactorOption.withMaterial(4, "dyson_sphere_small",
                 ringModel(4, "dyson_sphere"), prefix + "dyson_sphere_small",
                 ModItems.DYSON_SPHERE_COMPONENT, 16));
             options.add(CelestialRefactorOption.withMaterial(4, "magnetar_coil",
                 ringModel(4, "coil"), prefix + "magnetar_coil",
-                ModBlocks.INFINITE_COLLECTOR.asItem(), 4));
+                ModItems.MAGNETAR_COIL_COMPONENT, 4));
             options.add(CelestialRefactorOption.withMaterial(4, "penrose_sphere",
                 ringModel(4, "penrose_sphere"), prefix + "penrose_sphere",
                 ModItems.PENROSE_SPHERE_COMPONENT, 8));
@@ -196,7 +196,7 @@ public final class CelestialRefactorRegistry {
                 ModItems.WORMHOLE_STABILIZER_COMPONENT, 4));
             options.add(CelestialRefactorOption.withMaterial(5, "stellar_evolution_accelerator",
                 ringModel(5, "stellar_evolution_accelerator"), prefix + "stellar_evolution_accelerator",
-                ModBlocks.CORRUPTED_BEACON.asItem(), 8));
+                ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT, 8));
         }
         if (innermostRing <= 5 && 5 <= maxRing) {
             // R5 巨构，主要用于大型恒星。
@@ -205,7 +205,7 @@ public final class CelestialRefactorRegistry {
                 ModItems.DYSON_SPHERE_COMPONENT, 32));
             options.add(CelestialRefactorOption.withMaterial(6, "stellar_evolution_accelerator",
                 ringModel(6, "stellar_evolution_accelerator"), prefix + "stellar_evolution_accelerator",
-                ModBlocks.CORRUPTED_BEACON.asItem(), 8));
+                ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT, 8));
         }
         return options;
     }

@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.entity;
 
 import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
+import dev.dubhe.anvilcraft.util.AccelerateManager;
+import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
@@ -78,21 +80,43 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
             this.discard();
         } else {
             ++this.time;
-            if (!this.isNoGravity()) {
-                this.setDeltaMovement(this.getDeltaMovement().add(0.0, -0.04, 0.0));
+            Vec3 gravity = GravityManager.getNetGravityVectorForFallingBlock(this);
+            Direction gravityDirection = gravity.lengthSqr() < 1.0E-5
+                ? Direction.DOWN
+                : Direction.getApproximateNearest(gravity.x, gravity.y, gravity.z);
+            boolean controlledByRing = AccelerateManager.isControlledByRing(this);
+            if (!this.isNoGravity() && !controlledByRing) {
+                this.setDeltaMovement(this.getDeltaMovement().add(gravity));
             }
 
+            Vec3 positionBeforeMove = this.position();
             this.move(MoverType.SELF, this.getDeltaMovement());
-            if (this.getDeltaMovement().y < 0F) {
-                this.fallDistance -= (float) this.getDeltaMovement().y;
-            }
-            if (this.getDeltaMovement().y > 0F) {
+            double directionalDistance = this.position().subtract(positionBeforeMove).dot(
+                Vec3.atLowerCornerOf(gravityDirection.getUnitVec3i())
+            );
+            if (directionalDistance > 0) {
+                this.fallDistance += (float) directionalDistance;
+            } else if (directionalDistance < 0) {
                 this.fallDistance = 0;
             }
             if (this.level() instanceof ServerLevel serverLevel) {
                 BlockPos blockPos = this.blockPosition();
                 Block block = this.blockState.getBlock();
-                if (!this.onGround()) {
+                boolean landed = !controlledByRing && this.anvilcraft$hasBlockCollision(gravityDirection);
+                BlockPos blockingPos = this.anvilcraft$getBlockingFacePos(blockPos, gravityDirection);
+                if (landed && blockingPos != null) {
+                    BlockState blockingState = this.level().getBlockState(blockingPos);
+                    float friction = blockingState.getFriction(this.level(), blockingPos, this);
+                    boolean isMovingSlowly = this.getDeltaMovement().lengthSqr() < 0.04;
+                    boolean heldByFriction = isMovingSlowly
+                                             && this.anvilcraft$isHeldByFriction(
+                                                 gravity, gravityDirection, friction
+                                             );
+                    if (!heldByFriction && this.anvilcraft$hasSlidingPath(blockPos, gravity, gravityDirection)) {
+                        landed = false;
+                    }
+                }
+                if (!landed) {
                     if (
                         this.time > 100
                         && (blockPos.getY() <= this.level().getMinY() || blockPos.getY() > this.level().getMaxY())
@@ -106,27 +130,28 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
                     }
                 } else {
                     BlockState blockState = this.level().getBlockState(blockPos);
-                    this.setDeltaMovement(this.getDeltaMovement().multiply(0.7, -0.5, 0.7));
+                    this.anvilcraft$reflectVelocity(gravityDirection);
                     DirectionalPlaceContext placeContext = new DirectionalPlaceContext(
-                        this.level(), blockPos, Direction.DOWN, ItemStack.EMPTY, Direction.UP);
+                        this.level(), blockPos, gravityDirection, ItemStack.EMPTY, gravityDirection.getOpposite());
                     boolean isMovingPiston = false;
                     boolean canBeReplaced = true;
                     boolean canSurvive = this.blockState.canSurvive(this.level(), blockPos.below());
-                    boolean isFree = true;
                     for (int i = -1; i <= 1; i++) {
                         for (int j = -1; j <= 1; j++) {
-                            BlockPos offsetPos = blockPos.offset(i, -1, j);
-                            isMovingPiston = isMovingPiston
-                                || this.level().getBlockState(offsetPos).is(Blocks.MOVING_PISTON);
                             for (int k = -1; k <= 1; k++) {
                                 canBeReplaced = canBeReplaced
                                     && this.level()
                                     .getBlockState(blockPos.offset(i, k, j))
                                     .canBeReplaced(placeContext);
                             }
-                            isFree = isFree && FallingBlock.isFree(this.level().getBlockState(offsetPos.below()));
+                            BlockPos collisionPos = this.anvilcraft$getFacePos(
+                                blockPos, gravityDirection, i, j, 1
+                            );
+                            isMovingPiston = isMovingPiston
+                                || this.level().getBlockState(collisionPos).is(Blocks.MOVING_PISTON);
                         }
                     }
+                    boolean isFree = blockingPos == null;
                     if (!isMovingPiston) {
                         if (canBeReplaced && canSurvive && !isFree) {
                             if (this.blockState.hasProperty(BlockStateProperties.WATERLOGGED)
@@ -167,6 +192,77 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
             }
             this.setDeltaMovement(this.getDeltaMovement().scale(0.98));
         }
+    }
+
+    private boolean anvilcraft$hasBlockCollision(Direction gravityDirection) {
+        if (gravityDirection == Direction.DOWN && this.onGround()) return true;
+        Vec3 normal = Vec3.atLowerCornerOf(gravityDirection.getUnitVec3i()).scale(0.001);
+        return this.level().getBlockCollisions(this, this.getBoundingBox().move(normal)).iterator().hasNext();
+    }
+
+    private BlockPos anvilcraft$getBlockingFacePos(BlockPos center, Direction direction) {
+        for (int i = -1; i <= 1; i++) {
+            for (int j = -1; j <= 1; j++) {
+                BlockPos pos = this.anvilcraft$getFacePos(center, direction, i, j);
+                if (!FallingBlock.isFree(this.level().getBlockState(pos))) return pos;
+            }
+        }
+        return null;
+    }
+
+    private BlockPos anvilcraft$getFacePos(BlockPos center, Direction direction, int i, int j) {
+        return this.anvilcraft$getFacePos(center, direction, i, j, 2);
+    }
+
+    private BlockPos anvilcraft$getFacePos(
+        BlockPos center,
+        Direction direction,
+        int i,
+        int j,
+        int distance
+    ) {
+        return switch (direction.getAxis()) {
+            case X -> center.offset(direction.getStepX() * distance, i, j);
+            case Y -> center.offset(i, direction.getStepY() * distance, j);
+            case Z -> center.offset(i, j, direction.getStepZ() * distance);
+        };
+    }
+
+    private boolean anvilcraft$isHeldByFriction(Vec3 gravity, Direction direction, float friction) {
+        double normalForce = Math.abs(gravity.get(direction.getAxis()));
+        double tangentialForce = Math.sqrt(Math.max(0, gravity.lengthSqr() - normalForce * normalForce));
+        return tangentialForce < normalForce * (1.0 - friction) * 2.0;
+    }
+
+    private boolean anvilcraft$hasSlidingPath(BlockPos center, Vec3 gravity, Direction primaryDirection) {
+        if (this.anvilcraft$canSlide(center, gravity.x, Direction.EAST, Direction.WEST, primaryDirection)) {
+            return true;
+        }
+        if (this.anvilcraft$canSlide(center, gravity.y, Direction.UP, Direction.DOWN, primaryDirection)) {
+            return true;
+        }
+        return this.anvilcraft$canSlide(center, gravity.z, Direction.SOUTH, Direction.NORTH, primaryDirection);
+    }
+
+    private boolean anvilcraft$canSlide(
+        BlockPos center,
+        double gravityComponent,
+        Direction positive,
+        Direction negative,
+        Direction primaryDirection
+    ) {
+        if (Math.abs(gravityComponent) <= 1.0E-5) return false;
+        Direction direction = gravityComponent > 0 ? positive : negative;
+        return direction != primaryDirection && this.anvilcraft$getBlockingFacePos(center, direction) == null;
+    }
+
+    private void anvilcraft$reflectVelocity(Direction gravityDirection) {
+        Vec3 movement = this.getDeltaMovement();
+        this.setDeltaMovement(switch (gravityDirection.getAxis()) {
+            case X -> movement.multiply(-0.5, 0.7, 0.7);
+            case Y -> movement.multiply(0.7, -0.5, 0.7);
+            case Z -> movement.multiply(0.7, 0.7, -0.5);
+        });
     }
 
     @Override

@@ -1,0 +1,16 @@
+{
+  "type": "anvilcraft:unpack",
+  "ingredients": [
+    {
+      "items": "minecraft:tnt_minecart"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:minecart"
+    },
+    {
+      "id": "minecraft:tnt"
+    }
+  ]
+}

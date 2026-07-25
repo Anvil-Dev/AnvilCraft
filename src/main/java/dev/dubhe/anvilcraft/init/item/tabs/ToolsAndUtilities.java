@@ -15,6 +15,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.DISK);
         this.plain(ModItems.STRUCTURE_DISK);
         this.plain(ModItems.FILTER);
+        this.plain(ModItems.FLUID_TANK_MINECART); // 流体储罐矿车
 
         this.plain(ModItems.ANVIL_HAMMER);
         this.plain(ModItems.ROYAL_ANVIL_HAMMER);

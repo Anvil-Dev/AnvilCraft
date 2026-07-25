@@ -56,7 +56,9 @@ public record RedstoneWirePowerRequestPacket(BlockPos pos) implements IServerbou
         PacketDistributor.sendToPlayer(
             serverPlayer,
             new RedstoneWirePowerResponsePacket(
-                this.pos, RedstoneWireNetworkManager.getNonDustPower(serverPlayer.level(), this.pos)
+                this.pos,
+                RedstoneWireNetworkManager.getPower(serverPlayer.level(), this.pos),
+                RedstoneWireNetworkManager.getNonDustPower(serverPlayer.level(), this.pos)
             )
         );
     }

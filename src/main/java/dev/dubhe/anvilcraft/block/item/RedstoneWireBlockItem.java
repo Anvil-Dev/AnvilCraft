@@ -26,10 +26,6 @@ public class RedstoneWireBlockItem extends BlockItem {
             if (placementState != null
                 && placementState.getValue(RedstoneWireBlock.ATTACHMENT)
                     != oldState.getValue(RedstoneWireBlock.ATTACHMENT)) {
-                // 改挂面只改变几何拓扑，保留当前 POWER 可避免操作瞬间在客户端闪烁成未充能颜色。
-                placementState = placementState.setValue(
-                    RedstoneWireBlock.POWER, oldState.getValue(RedstoneWireBlock.POWER)
-                );
                 if (wire.reattach(level, pos, placementState)) {
                     // 使用 sidedSuccess 保持原版 BlockItem 的客户端手部反馈，同时由服务端决定最终状态。
                     return InteractionResult.SUCCESS;

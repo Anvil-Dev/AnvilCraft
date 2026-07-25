@@ -204,6 +204,8 @@ import dev.dubhe.anvilcraft.block.workstation.frost.FrostSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.workstation.royal.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.royal.RoyalGrindstoneBlock;
 import dev.dubhe.anvilcraft.block.workstation.royal.RoyalSmithingTableBlock;
+import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.data.generator.RedstoneWireBlockStateGenerator;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumBlockRecipeLoader;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -215,12 +217,14 @@ import dev.dubhe.anvilcraft.item.block.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.block.EndDustBlockItem;
 import dev.dubhe.anvilcraft.item.block.FishTankBlockItem;
 import dev.dubhe.anvilcraft.item.block.FlexibleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.item.block.FluidTankBlockItem;
 import dev.dubhe.anvilcraft.item.block.FrostMetalBlockItem;
 import dev.dubhe.anvilcraft.item.block.HasMobBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeatCollectorBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeatableBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeliostatsItem;
 import dev.dubhe.anvilcraft.item.block.InfiniteCollectorBlockItem;
+import dev.dubhe.anvilcraft.item.block.LargeFluidTankBlockItem;
 import dev.dubhe.anvilcraft.item.block.LevitationBlockItem;
 import dev.dubhe.anvilcraft.item.block.MengerSpongeBlockItem;
 import dev.dubhe.anvilcraft.item.block.MultiphaseMatterBlockItem;
@@ -269,6 +273,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.level.BlockGetter;
@@ -452,7 +457,9 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .simpleItem()
+        .item(FluidTankBlockItem::new)
+        .model(() -> DataGenUtil.specialBlockItem(FluidTankItemRenderer.Unbaked.INSTANCE, false))
+        .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::fluidTank)
         .register();
@@ -468,9 +475,9 @@ public class ModBlocks {
             .isValidSpawn(Blocks::never)
             .isViewBlocking(ModBlocks::never))
         .loot(SimpleMultiPartBlock::loot)
-        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
+        .item(LargeFluidTankBlockItem::new)
         .properties(properties -> properties.stacksTo(16))
-        .model(DataGenUtil::oversizedItem)
+        .model(() -> DataGenUtil.specialBlockItem(LargeFluidTankItemRenderer.Unbaked.INSTANCE, true))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)

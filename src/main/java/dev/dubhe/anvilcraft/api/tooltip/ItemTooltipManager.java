@@ -409,10 +409,34 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.asItem(), "Teleports players and entities between two portals");
         NORMAL.put(ModBlocks.LENS.asItem(), "Use special glass to enchant lasers");
         NORMAL.put(ModItems.CHECK_VALVE.get(), "Allows fluid to flow in only one direction");
-        NORMAL.put(ModItems.DYSON_SPHERE_COMPONENT.get(), "Material for crafting the Dyson Sphere");
-        NORMAL.put(ModItems.PENROSE_SPHERE_COMPONENT.get(), "Material for crafting the Penrose Sphere");
-        NORMAL.put(ModItems.MATTER_DECOMPRESSOR_COMPONENT.get(), "Material for crafting the Matter Decompressor");
-        NORMAL.put(ModItems.WORMHOLE_STABILIZER_COMPONENT.get(), "Material for crafting the Wormhole Stabilizer");
+        NORMAL.put(
+            ModItems.DYSON_SPHERE_COMPONENT.get(),
+            "Material for building a Dyson Sphere, used in the Celestial Forging Anvil"
+        );
+        NORMAL.put(
+            ModItems.PENROSE_SPHERE_COMPONENT.get(),
+            "Material for building a Penrose Sphere, used in the Celestial Forging Anvil"
+        );
+        NORMAL.put(
+            ModItems.MATTER_DECOMPRESSOR_COMPONENT.get(),
+            "Material for building a Matter Decompressor, used in the Celestial Forging Anvil"
+        );
+        NORMAL.put(
+            ModItems.WORMHOLE_STABILIZER_COMPONENT.get(),
+            "Material for building a Wormhole Stabilizer, used in the Celestial Forging Anvil"
+        );
+        NORMAL.put(
+            ModItems.STELLAR_RING_COMPONENT.get(),
+            "Material for building a Stellar Ring Collider, used in the Celestial Forging Anvil"
+        );
+        NORMAL.put(
+            ModItems.MAGNETAR_COIL_COMPONENT.get(),
+            "Material for building a Magnetar Coil, used in the Celestial Forging Anvil"
+        );
+        NORMAL.put(
+            ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT.get(),
+            "Material for building a Stellar Evolution Accelerator, used in the Celestial Forging Anvil"
+        );
         NORMAL.put(ModBlocks.LARGE_LASER.asItem(), "Equivalent to 16 lasers, outputs 16 intensity levels of laser, consumes 256 kW");
         NORMAL.put(
             ModBlocks.SUGAR_BLOCK.asItem(), """

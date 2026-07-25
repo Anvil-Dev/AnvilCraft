@@ -38,6 +38,7 @@ import net.minecraft.client.renderer.item.properties.conditional.ComponentMatche
 import net.minecraft.client.renderer.item.properties.conditional.FishingRodCast;
 import net.minecraft.client.renderer.item.properties.conditional.IsUsingItem;
 import net.minecraft.client.renderer.item.properties.select.ComponentContents;
+import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -250,6 +251,23 @@ public class DataGenUtil {
                     ctx.get(),
                     ItemModelUtils.plainModel(ctx.getId().withPrefix("block/")),
                     new ClientItem.Properties(true, true, 1.0F)
+                );
+            }
+        };
+    }
+
+    /// 生成带自定义特殊渲染器的方块物品模型
+    public static <T extends Item> NonNullBiConsumer<DataGenContext<Item, T>, RegistrumItemModelGenerator> specialBlockItem(
+        SpecialModelRenderer.Unbaked<?> renderer,
+        boolean oversized
+    ) {
+        return new NonNullBiConsumer<>() {
+            @Override
+            public void accept(DataGenContext<Item, T> ctx, RegistrumItemModelGenerator generator) {
+                generator.itemModelOutput.accept(
+                    ctx.get(),
+                    ItemModelUtils.specialModel(ctx.getId().withPrefix("block/"), renderer),
+                    new ClientItem.Properties(oversized, oversized, 1.0F)
                 );
             }
         };

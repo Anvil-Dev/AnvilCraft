@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.api.block.ICauldronGeometry;
+import dev.dubhe.anvilcraft.api.fluid.FluidInteractionItems;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.laser.PropelPistonBlock;
@@ -254,6 +255,13 @@ public class LargeCauldronBlock
         if (stack.is(ModItemTags.ANVIL_HAMMER)) return InteractionResult.SUCCESS;
         LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
         if (cauldron == null) return InteractionResult.PASS;
+        if (cauldron.interactWithFluid(player, hand, hit)) {
+            return Util.sidedSuccess(level);
+        }
+        // 手持桶/瓶等流体交互物品时吞掉交互，避免落到默认方块行为里误放置
+        if (FluidInteractionItems.isFluidInteractionItem(stack)) {
+            return Util.sidedSuccess(level);
+        }
         if (isExtractionSurface(state, hit) && hand == InteractionHand.MAIN_HAND) {
             int slot = LargeCauldronBlockEntity.inputSlotForPart(state.getValue(HALF));
             if (stack.isEmpty()) {
@@ -275,9 +283,6 @@ public class LargeCauldronBlock
                     1.0F
                 );
             }
-            return Util.sidedSuccess(level);
-        }
-        if (cauldron.interactWithFluid(player, hand, hit)) {
             return Util.sidedSuccess(level);
         }
         if (hand != InteractionHand.MAIN_HAND || stack.isEmpty() || !canInsertAt(state, hit)) {

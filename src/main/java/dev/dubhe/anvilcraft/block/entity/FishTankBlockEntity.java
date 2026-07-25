@@ -71,10 +71,12 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.TransferPreconditions;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -532,11 +534,12 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
     // region 玩家交互
     public boolean tryInteractWithTank(Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (hand != InteractionHand.MAIN_HAND) return false;
         if (this.level == null) return false;
         ItemStack inHand = player.getItemInHand(hand);
-        if (this.interactWithFish(this.level, player, hand, inHand, hitResult)) return true;
+        if (hand == InteractionHand.MAIN_HAND
+            && this.interactWithFish(this.level, player, hand, inHand, hitResult)) return true;
         if (this.interactWithFluid(this.level, player, hand, inHand)) return true;
+        if (hand != InteractionHand.MAIN_HAND) return false;
         return this.interactWithItems(this.level, player, hand, inHand, hitResult.getLocation());
     }
 
@@ -809,14 +812,31 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
                 this.fluidHandler
             );
         }
-        return FishTankBlockEntity.tryDrainFilledBottle(
+        if (FishTankBlockEntity.tryDrainFilledBottle(
             level,
             this.getBlockPos(),
             player,
             inHand,
             result -> player.setItemInHand(hand, ItemUtils.createFilledResult(inHand, player, result)),
             this.fluidHandler
-        );
+        )) {
+            return true;
+        }
+        // 手持可倒出流体的容器时也算交互成功，避免副手交互落到默认方块行为
+        return FishTankBlockEntity.canDrainFluidFromItem(inHand);
+    }
+
+    /// 物品自身是否装有可倒出的流体
+    private static boolean canDrainFluidFromItem(ItemStack stack) {
+        if (stack.isEmpty()) return false;
+        ItemStack single = stack.copyWithCount(1);
+        ResourceHandler<FluidResource> handler =
+            single.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forStack(single));
+        if (handler == null) return false;
+        for (int index = 0; index < handler.size(); index++) {
+            if (!handler.getResource(index).isEmpty() && handler.getAmountAsInt(index) > 0) return true;
+        }
+        return false;
     }
 
     public static boolean tryFillEmptyBottle(

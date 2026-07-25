@@ -45,6 +45,25 @@ public class RegistrumItemRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Item> void fluidTankMinecart(
+        DataGenContext<Item, T> ctx,
+        RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.TRANSPORTATION, ctx.get())
+            .requires(ModBlocks.FLUID_TANK)
+            .requires(Items.MINECART)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.FLUID_TANK),
+                AnvilCraftDatagen.has(lookup, ModBlocks.FLUID_TANK)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.MINECART),
+                AnvilCraftDatagen.has(lookup, Items.MINECART)
+            )
+            .save(provider);
+    }
+
     public static <T extends Item> void magnet(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.TOOLS, ctx.get())
@@ -1627,6 +1646,63 @@ public class RegistrumItemRecipeLoader {
                 .unlockedBy(AnvilCraftDatagen.hasItem(ingredient), AnvilCraftDatagen.has(lookup, ingredient))
                 .save(provider);
         };
+    }
+
+    public static <T extends Item> void stellarRingComponent(
+        DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        // 超限合金锭 加速环 超限合金锭 / 加速环 偏转环 加速环 / 超限合金锭 加速环 超限合金锭 → 4个
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 4)
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ABA")
+            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('B', ModBlocks.ACCELERATION_RING)
+            .define('C', ModBlocks.DEFLECTION_RING)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Item> void magnetarCoilComponent(
+        DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        // 铜块 超限合金锭 铜块 / 铜块 无限集能器 铜块 / 铜块 超限合金锭 铜块
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
+            .pattern("ABA")
+            .pattern("ACA")
+            .pattern("ABA")
+            .define('A', Items.COPPER_BLOCK)
+            .define('B', ModItems.TRANSCENDIUM_INGOT)
+            .define('C', ModBlocks.INFINITE_COLLECTOR)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Item> void stellarEvolutionAcceleratorComponent(
+        DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        // 空 腐化信标 空 / 超限合金锭 诅咒之金块 超限合金锭 ×2 → 2个
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 2)
+            .pattern(" A ")
+            .pattern("BCB")
+            .pattern("BCB")
+            .define('A', ModBlocks.CORRUPTED_BEACON)
+            .define('B', ModItems.TRANSCENDIUM_INGOT)
+            .define('C', ModBlocks.CURSED_GOLD_BLOCK)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT)
+            )
+            .save(provider);
     }
 
     // ==== Pipe Recipe ====

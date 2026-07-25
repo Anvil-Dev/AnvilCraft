@@ -106,10 +106,12 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
         int amount = infinity
             ? MAX_AMMO - loaded.size()
             : Math.min(source.getCount(), MAX_AMMO - loaded.size());
+        int infiniteAmmoMask = infiniteAmmoMask(weapon, loaded.size());
         for (int i = 0; i < amount; i++) loaded.add(source.copyWithCount(1));
+        if (infinity) infiniteAmmoMask |= ammoMask(amount) << (loaded.size() - amount);
         if (!infinity && !player.hasInfiniteMaterials()) source.shrink(amount);
         if (inventorySlot >= 0 && source.isEmpty()) player.getInventory().removeItem(inventorySlot, 1);
-        setAmmo(weapon, loaded);
+        setAmmo(weapon, loaded, infiniteAmmoMask);
         player.level().playSound(
             null,
             player.blockPosition(),
@@ -129,8 +131,13 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
         ItemStack projectileStack = loaded.getFirst();
         boolean infinity = enchantmentLevel(level, weapon, Enchantments.INFINITY) > 0
                            && projectileStack.is(Items.ANVIL);
-        if (!infinity) loaded.removeFirst();
-        setAmmo(weapon, loaded);
+        int infiniteAmmoMask = infiniteAmmoMask(weapon, loaded.size());
+        boolean loadedByInfinity = (infiniteAmmoMask & 1) != 0;
+        if (!infinity) {
+            loaded.removeFirst();
+            infiniteAmmoMask >>>= 1;
+        }
+        setAmmo(weapon, loaded, infiniteAmmoMask);
 
         int projectileCount = enchantmentLevel(level, weapon, Enchantments.MULTISHOT) > 0 ? 3 : 1;
         int piercing = enchantmentLevel(level, weapon, Enchantments.PIERCING);
@@ -141,13 +148,14 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
         Block block = ((BlockItem) projectileStack.getItem()).getBlock();
         for (int i = 0; i < projectileCount; i++) {
             boolean center = i == 0;
-            boolean returns = loyalty && center && !infinity;
+            boolean ghost = !center || infinity || loadedByInfinity;
+            boolean returns = loyalty && center && !ghost;
             RailgunAnvilEntity projectile = RailgunAnvilEntity.create(
                 level,
                 player,
                 block.defaultBlockState(),
                 weapon,
-                !center || infinity,
+                ghost,
                 returns,
                 piercing,
                 knockback
@@ -218,9 +226,24 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
         return weapon.getOrDefault(DataComponents.CHARGED_PROJECTILES, ChargedProjectiles.EMPTY).itemCopies();
     }
 
-    private static void setAmmo(ItemStack weapon, List<ItemStack> ammo) {
+    private static void setAmmo(ItemStack weapon, List<ItemStack> ammo, int infiniteAmmoMask) {
         weapon.set(ModComponents.RAILGUN_AMMO, ChargedProjectiles.ofNonEmpty(ammo));
+        weapon.set(ModComponents.RAILGUN_INFINITE_AMMO_MASK, infiniteAmmoMask & ammoMask(ammo.size()));
         weapon.remove(DataComponents.CHARGED_PROJECTILES);
+    }
+
+    private static int infiniteAmmoMask(ItemStack weapon, int ammoSize) {
+        int validMask = ammoMask(ammoSize);
+        Integer stored = weapon.get(ModComponents.RAILGUN_INFINITE_AMMO_MASK);
+        if (stored == null) {
+            // 升级前装填的弹药视作无限弹，避免凭空生成的铁砧被回收
+            return validMask;
+        }
+        return stored & validMask;
+    }
+
+    private static int ammoMask(int ammoSize) {
+        return (1 << Math.min(ammoSize, MAX_AMMO)) - 1;
     }
 
     @Override

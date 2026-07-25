@@ -74,6 +74,9 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.PENROSE_SPHERE_COMPONENT);
         this.plain(ModItems.MATTER_DECOMPRESSOR_COMPONENT);
         this.plain(ModItems.WORMHOLE_STABILIZER_COMPONENT);
+        this.plain(ModItems.STELLAR_RING_COMPONENT);
+        this.plain(ModItems.MAGNETAR_COIL_COMPONENT);
+        this.plain(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT);
 
         this.plain(ModItems.VOID_MATTER);
         this.plain(ModItems.EXCITED_STATE_VOID_MATTER);

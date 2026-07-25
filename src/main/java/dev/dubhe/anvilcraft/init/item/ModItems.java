@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.data.recipe.RegistrumItemRecipeLoader;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
+import dev.dubhe.anvilcraft.item.FluidTankMinecartItem;
 import dev.dubhe.anvilcraft.item.RubyItem;
 import dev.dubhe.anvilcraft.item.SapphireItem;
 import dev.dubhe.anvilcraft.item.StructureDiskItem;
@@ -881,6 +882,12 @@ public class ModItems {
     public static final ItemEntry<Item> TIN_CAN = REGISTRUM.item("tin_can", Item::new)
         .register();
 
+    public static final ItemEntry<FluidTankMinecartItem> FLUID_TANK_MINECART = REGISTRUM
+        .item("fluid_tank_minecart", FluidTankMinecartItem::new)
+        .lang("Fluid Tank Minecart")
+        .recipe(RegistrumItemRecipeLoader::fluidTankMinecart)
+        .register();
+
     public static final ItemEntry<Item> RECOVERY_PEARL = REGISTRUM.item("recovery_pearl", Item::new)
         .properties(properties -> properties.stacksTo(16).useCooldown(1))
         .recipe(RegistrumItemRecipeLoader::recoveryPearl)
@@ -1236,14 +1243,38 @@ public class ModItems {
 
     public static final ItemEntry<Item> DYSON_SPHERE_COMPONENT = REGISTRUM.item("dyson_sphere_component", Item::new)
         .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.DEFAULT))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::dysonSphereComponent)
         .register();
 
     public static final ItemEntry<Item> PENROSE_SPHERE_COMPONENT = REGISTRUM.item("penrose_sphere_component", Item::new)
         .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.DEFAULT))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::penroseSphereComponent)
+        .register();
+
+    public static final ItemEntry<Item> STELLAR_RING_COMPONENT = REGISTRUM.item("stellar_ring_component", Item::new)
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.DEFAULT))
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .recipe(RegistrumItemRecipeLoader::stellarRingComponent)
+        .register();
+
+    public static final ItemEntry<Item> MAGNETAR_COIL_COMPONENT = REGISTRUM.item("magnetar_coil_component", Item::new)
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.DEFAULT))
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .recipe(RegistrumItemRecipeLoader::magnetarCoilComponent)
+        .register();
+
+    public static final ItemEntry<Item> STELLAR_EVOLUTION_ACCELERATOR_COMPONENT = REGISTRUM
+        .item("stellar_evolution_accelerator_component", Item::new)
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.DEFAULT))
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .recipe(RegistrumItemRecipeLoader::stellarEvolutionAcceleratorComponent)
         .register();
 
     public static final ItemEntry<SuperHeavyItem> NEUTRONIUM_INGOT = REGISTRUM.item("neutronium_ingot", SuperHeavyItem::new)
