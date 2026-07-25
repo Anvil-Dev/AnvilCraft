@@ -7,6 +7,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 final class SingleFluidTankHandler extends FluidTank {
+    private static final String TAG_FLUID = "Fluid";
     private static final String TAG_ENHANCED = "Enhanced";
     private static final String TAG_INFINITE = "Infinite";
 
@@ -38,6 +39,7 @@ final class SingleFluidTankHandler extends FluidTank {
             }
             return resource.getAmount();
         }
+        if (!this.enhanced && this.getSpace() == 0) return 0;
 
         boolean reachesInfinity = this.enhanced
             && !resource.isEmpty()
@@ -85,9 +87,6 @@ final class SingleFluidTankHandler extends FluidTank {
         this.infinite = false;
         super.setCapacity(this.enhanced ? this.infinityThreshold : this.baseCapacity);
         super.readFromNBT(provider, tag);
-        if (this.getFluidAmount() > this.capacity) {
-            this.fluid.setAmount(this.capacity);
-        }
         this.infinite = this.enhanced
             && tag.getBoolean(TAG_INFINITE)
             && this.getFluidAmount() == this.infinityThreshold;
@@ -100,6 +99,25 @@ final class SingleFluidTankHandler extends FluidTank {
         super.writeToNBT(provider, tag);
         tag.putBoolean(TAG_ENHANCED, this.enhanced);
         tag.putBoolean(TAG_INFINITE, this.infinite);
+        return tag;
+    }
+
+    CompoundTag serializeForItem(HolderLookup.Provider provider) {
+        return this.serializeDetached(provider, Integer.MAX_VALUE);
+    }
+
+    CompoundTag serializeForDrop(HolderLookup.Provider provider) {
+        return this.serializeDetached(provider, this.baseCapacity);
+    }
+
+    private CompoundTag serializeDetached(HolderLookup.Provider provider, int maxAmount) {
+        CompoundTag tag = new CompoundTag();
+        if (!this.fluid.isEmpty()) {
+            int amount = Math.min(this.fluid.getAmount(), maxAmount);
+            tag.put(TAG_FLUID, this.fluid.copyWithAmount(amount).save(provider));
+        }
+        tag.putBoolean(TAG_ENHANCED, false);
+        tag.putBoolean(TAG_INFINITE, false);
         return tag;
     }
 }

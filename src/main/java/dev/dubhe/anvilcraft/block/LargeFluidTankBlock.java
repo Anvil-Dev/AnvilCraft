@@ -24,7 +24,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -38,7 +37,6 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import org.jetbrains.annotations.Nullable;
 
@@ -157,24 +155,11 @@ public class LargeFluidTankBlock
         if (blockEntity instanceof LargeFluidTankBlockEntity tank && !tank.getStoredFluids().isEmpty()) {
             for (ItemStack drop : drops) {
                 if (drop.is(this.asItem())) {
-                    tank.saveToItem(drop, params.getLevel().registryAccess());
+                    tank.saveToDrop(drop, params.getLevel().registryAccess());
                 }
             }
         }
         return drops;
-    }
-
-    @Override
-    public ItemStack getCloneItemStack(
-        BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player
-    ) {
-        ItemStack stack = new ItemStack(this);
-        BlockPos mainPartPos = this.getMainPartPos(pos, state);
-        BlockEntity blockEntity = level.getBlockEntity(mainPartPos);
-        if (blockEntity instanceof LargeFluidTankBlockEntity tank && !tank.getStoredFluids().isEmpty()) {
-            tank.saveToItem(stack, level.registryAccess());
-        }
-        return stack;
     }
 
     @Override

@@ -458,6 +458,10 @@ public final class RedstoneWireNetworkManager {
                     changed = this.connectionOverrides.setForcedMask(packedPos, newForcedMask);
                 }
             }
+            RedstoneWireBlock.Connection[] connections = RedstoneWireBlock.findConnections(
+                this.level, pos, blockState
+            );
+            changed |= this.ensureMinimumConnections(pos, blockState, connections, index, turnIndex);
             if (changed) {
                 this.requestTopologyUpdate(packedPos);
             }
@@ -493,6 +497,74 @@ public final class RedstoneWireNetworkManager {
                 changed |= this.connectionOverrides.setHidden(neighbor, neighborIndex, hidden);
             }
             return changed;
+        }
+
+        /** 补齐真实开放端口，保证断开点击方向后仍至少有两个方向参与连接和端点收发。 */
+        private boolean ensureMinimumConnections(
+            BlockPos pos,
+            BlockState blockState,
+            RedstoneWireBlock.Connection[] connections,
+            int disconnectedIndex,
+            int turnIndex
+        ) {
+            if (this.connectionOverrides.hiddenMask(pos.asLong()) == 0) {
+                return false;
+            }
+            RedstoneWireBlock block = (RedstoneWireBlock) blockState.getBlock();
+            BlockState connectedState = block.connectionState(this.level, pos, blockState, connections);
+            int visibleMask = connectionMask(connectedState);
+            int activeMask = visibleMask;
+            for (int index = 0; index < 4; index++) {
+                if (RedstoneWireBlock.isManuallyHidden(this.level, pos, connectedState, index)) {
+                    activeMask &= ~(1 << index);
+                }
+            }
+            if (Integer.bitCount(activeMask) >= 2) {
+                return false;
+            }
+
+            int requiredMask;
+            if (activeMask != 0) {
+                int remaining = Integer.numberOfTrailingZeros(activeMask);
+                int added = (remaining + 2) % 4;
+                if (added == disconnectedIndex) {
+                    // 两向直线删除一端时不能把原端接回，改按点击位置向左或向右形成拐角。
+                    added = turnIndex;
+                }
+                requiredMask = (1 << remaining) | (1 << added);
+            } else if (disconnectedIndex >= 0) {
+                // 兼容已经退化为单端的旧状态：沿点击侧向恢复一条直线，并避开刚断开的方向。
+                requiredMask = (1 << turnIndex) | (1 << ((turnIndex + 2) % 4));
+            } else {
+                // 旧存档可能已经没有真实方向；此时沿最后可见的轴恢复，完全空时回退到南北轴。
+                requiredMask = (visibleMask & 0b1010) != 0 ? 0b1010 : 0b0101;
+            }
+
+            long packedPos = pos.asLong();
+            int forcedMask = this.connectionOverrides.forcedMask(packedPos);
+            boolean changed = this.connectionOverrides.setForcedMask(packedPos, forcedMask | requiredMask);
+            for (int index = 0; index < 4; index++) {
+                if ((requiredMask & (1 << index)) == 0) {
+                    continue;
+                }
+                changed |= this.connectionOverrides.setHidden(packedPos, index, false);
+                RedstoneWireBlock.Connection geometric = RedstoneWireBlock.findGeometricConnection(
+                    this.level, pos, connectedState, index
+                );
+                changed |= this.setNeighborPortsHidden(pos, geometric, false);
+            }
+            return changed;
+        }
+
+        /** 求连接前修复旧覆盖数据，使迁移后的首轮建网也遵守最少两向约束。 */
+        private RedstoneWireBlock.Connection[] findNormalizedConnections(BlockPos pos, BlockState blockState) {
+            RedstoneWireBlock.Connection[] connections = RedstoneWireBlock.findConnections(
+                this.level, pos, blockState
+            );
+            if (this.ensureMinimumConnections(pos, blockState, connections, -1, -1)) {
+                connections = RedstoneWireBlock.findConnections(this.level, pos, blockState);
+            }
+            return connections;
         }
 
         private static int connectionMask(BlockState state) {
@@ -739,7 +811,7 @@ public final class RedstoneWireNetworkManager {
                     continue;
                 }
                 // 新放置的导线可能把多个既有网络桥接起来，因此还要收集它当前连接到的所有邻居网络。
-                RedstoneWireBlock.Connection[] connections = RedstoneWireBlock.findConnections(this.level, pos, state);
+                RedstoneWireBlock.Connection[] connections = this.findNormalizedConnections(pos, state);
                 for (RedstoneWireBlock.Connection connection : connections) {
                     if (connection == null) {
                         continue;
@@ -799,7 +871,7 @@ public final class RedstoneWireNetworkManager {
                 if (inheritedPowers.containsKey(packedPos)) {
                     inheritedPower = Math.max(inheritedPower, Byte.toUnsignedInt(inheritedPowers.get(packedPos)));
                 }
-                RedstoneWireBlock.Connection[] connections = RedstoneWireBlock.findConnections(this.level, pos, state);
+                RedstoneWireBlock.Connection[] connections = this.findNormalizedConnections(pos, state);
                 nodes.put(packedPos, new Node(connections));
                 if (nodes.size() >= MAX_NETWORK_SIZE) {
                     // 恰好等于上限且没有更多邻居仍是完整网络；只有真正被截断时才标记 overflow。

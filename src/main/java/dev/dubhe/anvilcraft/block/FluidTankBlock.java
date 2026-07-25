@@ -92,7 +92,7 @@ public class FluidTankBlock extends BaseEntityBlock implements HammerRotateBehav
             && !tank.getFluidHandler().getFluidInTank(0).isEmpty()) {
             for (ItemStack drop : drops) {
                 if (drop.is(this.asItem())) {
-                    tank.saveToItem(drop, params.getLevel().registryAccess());
+                    tank.saveToDrop(drop, params.getLevel().registryAccess());
                 }
             }
         }
