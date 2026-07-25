@@ -1,18 +1,22 @@
 package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.ModifyReturnValue;
+import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.util.mixin.ProvidenceRef;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantedItemInUse;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.enchantment.Enchantments;
@@ -125,5 +129,13 @@ abstract class EnchantmentHelperMixin {
                 return;
             }
         }
+    }
+
+    @WrapMethod(method = "has")
+    private static boolean ignorePreventDropWhenEternal(ItemStack stack, DataComponentType<?> componentType, Operation<Boolean> original) {
+        if (componentType.equals(EnchantmentEffectComponents.PREVENT_EQUIPMENT_DROP) && stack.has(ModComponents.ETERNAL)) {
+            return false;
+        }
+        return original.call(stack, componentType);
     }
 }
