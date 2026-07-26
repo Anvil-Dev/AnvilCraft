@@ -6,7 +6,9 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
@@ -54,6 +56,35 @@ public class CelestialBodyRenderer {
     }
 
     /// === 公共渲染方法 ===
+
+    /// 按模型 JSON 声明的 render_type 渲染独立天体模型。
+    public static void renderCustomModel(
+        PoseStack.Pose pose,
+        MultiBufferSource bufferSource,
+        BakedModel model,
+        int packedOverlay
+    ) {
+        ModelData modelData = ModelData.EMPTY;
+        for (RenderType renderType : model.getRenderTypes(
+            Blocks.IRON_BARS.defaultBlockState(),
+            RandomSource.create(42L),
+            modelData
+        )) {
+            Minecraft.getInstance().getBlockRenderer().getModelRenderer().renderModel(
+                pose,
+                bufferSource.getBuffer(renderType),
+                null,
+                model,
+                1.0f,
+                1.0f,
+                1.0f,
+                LightTexture.FULL_BRIGHT,
+                packedOverlay,
+                modelData,
+                renderType
+            );
+        }
+    }
 
     public static void renderPlanetBody(PoseStack ps, VertexConsumer vc, int light, int overlay) {
         renderPlanetCube(ps, vc, light, overlay, LIGHT_DIR);

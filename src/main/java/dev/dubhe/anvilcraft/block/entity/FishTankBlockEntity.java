@@ -304,7 +304,11 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             if (!state.getValue(FishTankBlock.OUTLET)) return;
             Direction outletDir = state.getValue(FishTankBlock.FACING);
             BlockPos pos = FishTankBlockEntity.this.getBlockPos();
-            List<IItemHandler> targets = ItemHandlerUtil.getTargetItemHandlerList(pos.relative(outletDir), null, level);
+            List<IItemHandler> targets = ItemHandlerUtil.getOutletTargetItemHandlerList(
+                pos.relative(outletDir),
+                null,
+                level
+            );
 
             this.autoOutputting = true;
             try {
@@ -708,7 +712,11 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         if (level == null || level.isClientSide()) return;
         BlockPos pos = this.getBlockPos();
         Direction outletDir = this.getBlockState().getValue(FishTankBlock.FACING);
-        List<IItemHandler> targets = ItemHandlerUtil.getTargetItemHandlerList(pos.relative(outletDir), null, level);
+        List<IItemHandler> targets = ItemHandlerUtil.getOutletTargetItemHandlerList(
+            pos.relative(outletDir),
+            null,
+            level
+        );
         if (targets == null || targets.isEmpty()) {
             // 开口被有碰撞的方块堵住时不输出，物品留在输出槽等待下次重试
             if (FishTankBlockEntity.isOutletBlocked(level, pos, outletDir)) return;
