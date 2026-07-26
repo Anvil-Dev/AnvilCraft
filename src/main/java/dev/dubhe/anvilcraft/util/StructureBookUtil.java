@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -32,27 +31,30 @@ public class StructureBookUtil {
      * 逻辑: 蓝图需求 - 世界中已放置 = 还需要放置
      */
     public static void generateMaterialListBookToOutput(Level level, BlockPos placerPos, SmartBlockPlacerBlockEntity blockEntity) {
-        var loadedStructure = blockEntity.getLoadedStructure();
-        if (loadedStructure == null || loadedStructure.isEmpty()) {
+        BlockState[] blueprintStates = blockEntity.getBlueprintStates();
+        if (!blockEntity.hasBlueprint()) {
             return;
         }
 
         // 第一步: 统计蓝图中需要的方块数量
         // 过滤掉多方块方块的次要部件，只统计主体部件（每个多方块结构只需1个方块物品）
         Map<Block, Integer> requiredBlocks = new LinkedHashMap<>();
-        for (var blockPosition : loadedStructure.blocks) {
-            // 跳过多方块方块的次要部件
-            if (StructureLoadUtil.isMultiblockSecondaryPart(blockPosition.state())) {
+        for (BlockState state : blueprintStates) {
+            if (state.isAir()) {
                 continue;
             }
-            Block block = blockPosition.state().getBlock();
+            // 跳过多方块方块的次要部件
+            if (StructureLoadUtil.isMultiblockSecondaryPart(state)) {
+                continue;
+            }
+            Block block = state.getBlock();
             // 检查是否是可堆叠方块，如果是则累加堆叠数量
-            int stackCount = getStackCountFromState(blockPosition.state());
+            int stackCount = getStackCountFromState(state);
             requiredBlocks.merge(block, stackCount, Integer::sum);
         }
 
         // 第二步: 统计世界中已放置的方块数量
-        Map<Block, Integer> placedBlocks = countPlacedBlocksInStructure(level, placerPos, loadedStructure, blockEntity);
+        Map<Block, Integer> placedBlocks = countPlacedBlocksInStructure(level, blueprintStates, blockEntity);
 
         // 第三步: 计算还需要的方块 = 需求 - 已放置
         Map<Block, Integer> neededBlocks = new LinkedHashMap<>();
@@ -70,7 +72,7 @@ public class StructureBookUtil {
         if (neededBlocks.isEmpty()) {
             ItemStack book = new ItemStack(Items.BOOK);
             blockEntity.getOutputBookInventory().setItem(0, book);
-            LOGGER.info("Structure complete: {} (all blocks placed), output book", loadedStructure.diskData.name());
+            LOGGER.info("Structure complete: {} (all blocks placed), output book", blockEntity.getLoadedStructureName());
             return;
         }
 
@@ -84,7 +86,7 @@ public class StructureBookUtil {
 
         // 获取是否为蓝图move模式
         boolean isPickupMode = blockEntity.isPickupMode();
-        boolean isBlueprintMode = !blockEntity.getDiskInventory().getItem(0).isEmpty();
+        boolean isBlueprintMode = !blockEntity.getBlueprintItemHandler().getStackInSlot(0).isEmpty();
         boolean isBlueprintMoveMode = isBlueprintMode && !isPickupMode;
 
         for (Map.Entry<Block, Integer> entry : neededBlocks.entrySet()) {
@@ -132,7 +134,10 @@ public class StructureBookUtil {
         if (pages.isEmpty()) {
             ItemStack book = new ItemStack(Items.BOOK);
             blockEntity.getOutputBookInventory().setItem(0, book);
-            LOGGER.info("Structure material available: {} (all needed blocks available), output book", loadedStructure.diskData.name());
+            LOGGER.info(
+                "Structure material available: {} (all needed blocks available), output book",
+                blockEntity.getLoadedStructureName()
+            );
             return;
         }
 
@@ -151,7 +156,7 @@ public class StructureBookUtil {
         blockEntity.getOutputBookInventory().setItem(0, writtenBook);
         LOGGER.info(
             "Generated material list book for structure: {} (needed: {}/{} blocks, placed: {})",
-            loadedStructure.diskData.name(),
+            blockEntity.getLoadedStructureName(),
             neededBlocks.size(),
             requiredBlocks.size(),
             placedBlocks.values().stream().mapToInt(Integer::intValue).sum()
@@ -164,40 +169,27 @@ public class StructureBookUtil {
     @SuppressWarnings("unused")
     private static Map<Block, Integer> countPlacedBlocksInStructure(
         Level level,
-        BlockPos placerPos,
-        StructureLoadUtil.StructureData loadedStructure,
+        BlockState[] blueprintStates,
         SmartBlockPlacerBlockEntity blockEntity
     ) {
         Map<Block, Integer> placedBlocks = new LinkedHashMap<>();
-
-        Direction facing = level.getBlockState(placerPos).getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
-        boolean upsideDown = level.getBlockState(placerPos).getValue(dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock.UPSIDE_DOWN);
-
-        // 使用 buildBlueprintPositions 获取所有实际位置
-        List<net.minecraft.core.BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(
-            placerPos,
-            facing,
-            upsideDown,
-            loadedStructure
-        );
-
-        if (allPositions.isEmpty() || loadedStructure.blocks.isEmpty()) {
-            return placedBlocks;
-        }
 
         int totalPlaced = 0;
         int totalChecked = 0;
 
         // 遍历所有位置，检查世界中是否已经放置了正确的方块
-        for (int i = 0; i < loadedStructure.blocks.size() && i < allPositions.size(); i++) {
-            BlockState expectedState = loadedStructure.blocks.get(i).state();
+        for (int index = 0; index < blueprintStates.length; index++) {
+            if (blueprintStates[index].isAir()) {
+                continue;
+            }
+            BlockState expectedState = blockEntity.getBlueprintStateForPlacement(index);
 
             // 跳过多方块方块的次要部件，与需求统计保持一致
             if (StructureLoadUtil.isMultiblockSecondaryPart(expectedState)) {
                 continue;
             }
 
-            BlockPos targetPos = allPositions.get(i);
+            BlockPos targetPos = blockEntity.getBlueprintPosition(index);
             BlockState worldState = level.getBlockState(targetPos);
 
             totalChecked++;

@@ -200,8 +200,8 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
                 BlockEntity blockEntity = level.getBlockEntity(pos);
                 if (blockEntity instanceof SmartBlockPlacerBlockEntity placerEntity) {
                     // 掉落Disk物品栏中的物品
-                    for (int i = 0; i < placerEntity.getDiskInventory().getContainerSize(); i++) {
-                        ItemStack stack = placerEntity.getDiskInventory().getItem(i);
+                    for (int i = 0; i < placerEntity.getBlueprintItemHandler().getSlots(); i++) {
+                        ItemStack stack = placerEntity.getBlueprintItemHandler().getStackInSlot(i);
                         if (!stack.isEmpty()) {
                             Vec3 vec3 = pos.getCenter();
                             net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(

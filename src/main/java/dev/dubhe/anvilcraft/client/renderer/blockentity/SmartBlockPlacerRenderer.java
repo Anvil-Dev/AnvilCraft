@@ -21,15 +21,9 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockPlacerBlockEntity> {
-    // 位置列表缓存
-    private final Map<String, List<BlockPos>> positionCache = new HashMap<>();
-    
     private static final ModelResourceLocation BASE_MODEL = ModelResourceLocation.standalone(
         AnvilCraft.of("block/smart_block_placer_base")
     );
@@ -556,24 +550,21 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
      */
     @Nullable
     private BlockPos getNextTargetPosition(SmartBlockPlacerBlockEntity entity, Direction facing, boolean upsideDown) {
-        // 蓝图模式：使用结构数据计算目标位置
-        var loadedStructure = entity.getLoadedStructure();
-        if (loadedStructure != null && !loadedStructure.isEmpty()) {
-            // 先旋转结构数据，再计算目标位置
-            var rotatedStructure = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(
-                loadedStructure);
-            if (!rotatedStructure.isEmpty()) {
-                return getBlueprintTargetPosition(entity, facing, upsideDown, rotatedStructure);
-            }
-            return null;
+        if (entity.hasBlueprint()) {
+            return entity.getCurrentBlueprintTargetPosition();
         }
         
         // 普通模式：使用 layerPositions
         BlockPos basePos = entity.getBlockPos().relative(facing.getOpposite(), -4);
         
-        Map<Integer, Set<Integer>> layerPositions = entity.getLayerPositions();
+        boolean[] layerPositions = entity.getLayerPositions();
         
-        List<BlockPos> allPositions = buildOrderedPositionsForRenderer(basePos, facing, layerPositions, upsideDown);
+        List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildOrderedPositions(
+            basePos,
+            facing,
+            layerPositions,
+            upsideDown
+        );
         
         if (allPositions.isEmpty()) {
             return null;
@@ -620,158 +611,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         return null;
     }
     
-    /**
-     * 获取蓝图模式的目标位置
-     */
-    @Nullable
-    private BlockPos getBlueprintTargetPosition(SmartBlockPlacerBlockEntity entity, Direction facing, boolean upsideDown, 
-        dev.dubhe.anvilcraft.util.StructureLoadUtil.StructureData structure) {
-        
-        // 直接使用 BlockEntity 提供的方法获取当前目标位置
-        // 这个方法会正确处理 currentPlacementIndex 到实际索引的转换
-        BlockPos currentTarget = entity.getCurrentBlueprintTargetPosition();
-        
-        if (currentTarget == null) {
-            return null;
-        }
-        
-        // 获取当前钳子中的方块类型
-        net.minecraft.world.item.ItemStack heldItem = entity.getCurrentHeldBlock();
-        net.minecraft.world.level.block.Block heldBlock = null;
-        if (!heldItem.isEmpty() && heldItem.getItem() instanceof net.minecraft.world.item.BlockItem heldBlockItem) {
-            heldBlock = heldBlockItem.getBlock();
-        }
-        
-        // 如果有 heldBlock，检查当前位置是否匹配
-        if (heldBlock != null) {
-            if (entity.getLevel() == null) {
-                return null;
-            }
-            
-            net.minecraft.world.level.block.state.BlockState targetState = entity.getLevel().getBlockState(currentTarget);
-            
-            // 检查位置是否可以放置
-            boolean canPlace = false;
-            if (targetState.isAir()) {
-                canPlace = true;
-            } else if (!targetState.getFluidState().isEmpty()) {
-                canPlace = true;
-            } else if (canBeStacked(
-                                targetState, heldItem.getItem()
-                                                 instanceof net.minecraft.world.item.BlockItem
-                                             ? (net.minecraft.world.item.BlockItem) heldItem.getItem() : null)) {
-                canPlace = true;
-            } else if (canBeStacked(targetState, null)) {
-                canPlace = true;
-            }
-            
-            if (canPlace) {
-                // 检查这个位置在蓝图中需要的方块是否与 heldBlock 匹配
-                int currentIndex = entity.getCurrentPlacementIndex();
-                // 使用传入的 structure 参数（已经是旋转后的数据）
-                List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(structure, upsideDown);
-                
-                if (currentIndex < orderedIndices.size()) {
-                    int actualIndex = orderedIndices.get(currentIndex);
-                    if (actualIndex < structure.blocks.size()) {
-                        net.minecraft.world.level.block.Block requiredBlock = structure.blocks.get(actualIndex).state().getBlock();
-                        if (requiredBlock == heldBlock) {
-                            return currentTarget;
-                        }
-                    }
-                }
-            }
-            
-            // 当前位置不匹配，查找下一个匹配的位置
-            List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(
-                entity.getBlockPos(), facing, upsideDown, structure);
-            List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(structure, upsideDown);
-            
-            int currentOrderIndex = entity.getCurrentPlacementIndex();
-            for (int i = 1; i < orderedIndices.size(); i++) {
-                int orderIndex = (currentOrderIndex + i) % orderedIndices.size();
-                int actualIndex = orderedIndices.get(orderIndex);
-                BlockPos targetPos = allPositions.get(actualIndex);
-                
-                if (entity.getLevel() == null) {
-                    return null;
-                }
-                
-                net.minecraft.world.level.block.state.BlockState loopState = entity.getLevel().getBlockState(targetPos);
-                
-                boolean loopCanPlace = loopState.isAir() || !loopState.getFluidState().isEmpty()
-                    || canBeStacked(loopState, heldItem.getItem() instanceof net.minecraft.world.item.BlockItem
-                        ? (net.minecraft.world.item.BlockItem) heldItem.getItem() : null)
-                    || canBeStacked(loopState, null);
-                
-                if (!loopCanPlace) {
-                    continue;
-                }
-                
-                if (actualIndex < structure.blocks.size()) {
-                    net.minecraft.world.level.block.Block requiredBlock = structure.blocks.get(actualIndex).state().getBlock();
-                    if (requiredBlock == heldBlock) {
-                        return targetPos;
-                    }
-                }
-            }
-        } else {
-            // 没有 heldBlock，返回当前目标位置（如果可以放置）
-            if (entity.getLevel() == null) {
-                return null;
-            }
-            
-            net.minecraft.world.level.block.state.BlockState targetState = entity.getLevel().getBlockState(currentTarget);
-            
-            if (targetState.isAir() || !targetState.getFluidState().isEmpty()) {
-                return currentTarget;
-            }
-            
-            // 当前位置不可放置，查找下一个空位
-            List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(
-                entity.getBlockPos(), facing, upsideDown, structure);
-            List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(structure, upsideDown);
-            
-            int currentOrderIndex = entity.getCurrentPlacementIndex();
-            for (int i = 1; i < orderedIndices.size(); i++) {
-                int orderIndex = (currentOrderIndex + i) % orderedIndices.size();
-                int actualIndex = orderedIndices.get(orderIndex);
-                BlockPos targetPos = allPositions.get(actualIndex);
-                
-                if (entity.getLevel() == null) {
-                    return null;
-                }
-                
-                net.minecraft.world.level.block.state.BlockState state = entity.getLevel().getBlockState(targetPos);
-                
-                if (state.isAir() || !state.getFluidState().isEmpty()) {
-                    return targetPos;
-                }
-            }
-        }
-        
-        return null;
-    }
-    
-    /**
-     * 构建有序的放置位置列表
-     */
-    private List<BlockPos> buildOrderedPositionsForRenderer(
-        BlockPos basePos, Direction facing, Map<Integer, Set<Integer>> layerPositions, boolean upsideDown) {
-        String cacheKey = basePos.toShortString() + "_" + facing.getName() + "_" + upsideDown + "_" + layerPositions.hashCode();
-        
-        if (this.positionCache.containsKey(cacheKey)) {
-            return this.positionCache.get(cacheKey);
-        }
-        
-        List<BlockPos> positions = SmartBlockPlacerBlockEntity.buildOrderedPositions(basePos, facing, layerPositions, upsideDown);
-        
-        this.positionCache.put(cacheKey, positions);
-        
-        return positions;
-    }
-    
-
     @SuppressWarnings({"checkstyle:EmptyLineSeparator", "deprecation"})
     private void renderModel(
         PoseStack poseStack, MultiBufferSource buffer, ModelResourceLocation model, int packedLight, int packedOverlay) {

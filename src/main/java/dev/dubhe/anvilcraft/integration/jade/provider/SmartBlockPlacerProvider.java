@@ -19,7 +19,7 @@ public enum SmartBlockPlacerProvider implements IBlockComponentProvider, IServer
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         if (!(accessor.getBlockEntity() instanceof SmartBlockPlacerBlockEntity be)) return;
 
-        boolean isBlueprint = be.getLoadedStructure() != null && !be.getLoadedStructure().isEmpty();
+        boolean isBlueprint = be.hasBlueprint();
 
         // Operation Mode: Normal / Blueprint
         ChatFormatting modeColor = isBlueprint ? ChatFormatting.AQUA : ChatFormatting.GRAY;

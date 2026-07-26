@@ -18,6 +18,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
@@ -57,7 +58,7 @@ public class ItemEntityPointer implements ITargetPointer {
 
     @Override
     public boolean isStillValid(Level level) {
-        ItemEntity entity = this.getEntity();
+        ItemEntity entity = this.getEntity(level);
         if (entity == null) {
             return false;
         }
@@ -65,19 +66,29 @@ public class ItemEntityPointer implements ITargetPointer {
     }
 
     @Override
+    public boolean matches(BlockState requiredState) {
+        return this.stack.getItem() instanceof net.minecraft.world.item.BlockItem item
+            && item.getBlock() == requiredState.getBlock();
+    }
+
+    @Override
     public boolean applyToPos(ServerLevel level, BlockPos pos) {
-        ItemEntity entity = this.getEntity();
+        ItemEntity entity = this.getEntity(level);
         if (entity == null || !this.isStillValid(level)) {
             return false;
         }
 
-        ItemStack stack = entity.getItem();
+        ItemStack stack = entity.getItem().copy();
+        int initialCount = stack.getCount();
         ItemStack result = ITargetPointer.placeToPos(level, pos, stack);
-        if (ItemStack.matches(stack, result)) {
+        int consumed = initialCount - result.getCount();
+        if (consumed <= 0) {
             return false;
         }
 
-        entity.setItem(result);
+        ItemStack remaining = entity.getItem();
+        remaining.shrink(consumed);
+        entity.setItem(remaining);
         if (entity.getItem().isEmpty()) {
             entity.discard();
         }
@@ -137,7 +148,12 @@ public class ItemEntityPointer implements ITargetPointer {
         }
 
         @Override
-        public @Nullable ItemEntityPointer point(Level level, BlockPos pos, Direction facing) {
+        public @Nullable ItemEntityPointer point(
+            Level level,
+            BlockPos pos,
+            Direction facing,
+            @Nullable BlockState requiredState
+        ) {
             List<ItemEntity> entities;
             if (this.filter == null) {
                 entities = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos));
@@ -147,7 +163,13 @@ public class ItemEntityPointer implements ITargetPointer {
             if (entities.isEmpty()) {
                 return null;
             }
-            return new ItemEntityPointer(this, entities.getFirst());
+            for (ItemEntity entity : entities) {
+                ItemEntityPointer pointer = new ItemEntityPointer(this, entity);
+                if (requiredState == null || pointer.matches(requiredState)) {
+                    return pointer;
+                }
+            }
+            return null;
         }
     }
 }

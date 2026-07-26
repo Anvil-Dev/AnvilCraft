@@ -16,6 +16,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
@@ -28,6 +29,18 @@ public interface ITargetPointer {
     boolean isStillValid(Level level);
 
     boolean applyToPos(ServerLevel level, BlockPos pos);
+
+    default boolean applyToPos(ServerLevel level, BlockPos pos, BlockState state) {
+        if (!this.matches(state) || !this.applyToPos(level, pos)) {
+            return false;
+        }
+        level.setBlock(pos, state, 3);
+        return true;
+    }
+
+    default boolean matches(BlockState state) {
+        return true;
+    }
 
     static ItemStack placeToPos(ServerLevel level, BlockPos pos, ItemStack stack) {
         IBlockItem item = null;
@@ -52,6 +65,6 @@ public interface ITargetPointer {
 
     interface Type<T extends ITargetPointer> extends ISerializer<T> {
         @Nullable
-        T point(Level level, BlockPos pos, Direction facing);
+        T point(Level level, BlockPos pos, Direction facing, @Nullable BlockState requiredState);
     }
 }

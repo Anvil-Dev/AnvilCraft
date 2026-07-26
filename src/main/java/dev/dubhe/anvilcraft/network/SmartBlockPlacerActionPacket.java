@@ -90,7 +90,7 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
                     boolean selected = Boolean.parseBoolean(parts[2]);
                     
                     // 验证数据范围
-                    if (layer < 0 || layer > 4) {
+                    if (layer < 0 || layer >= SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE) {
                         AnvilCraft.LOGGER.warn(
                             "Player {} attempted to set invalid layer {} for SmartBlockPlacer at {}",
                             player.getName().getString(),
@@ -100,7 +100,7 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
                         return;
                     }
                     
-                    if (position < 0 || position > 24) {
+                    if (position < 0 || position >= SmartBlockPlacerBlockEntity.POSITIONS_PER_LAYER) {
                         AnvilCraft.LOGGER.warn(
                             "Player {} attempted to set invalid position {} for SmartBlockPlacer at {}",
                             player.getName().getString(),

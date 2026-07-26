@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.item.IBlockItem;
 import dev.dubhe.anvilcraft.api.pointer.BlockItemHandlerPointer;
+import dev.dubhe.anvilcraft.api.pointer.BlockPointer;
 import dev.dubhe.anvilcraft.api.pointer.ITargetPointer;
 import dev.dubhe.anvilcraft.api.pointer.ItemEntityPointer;
 import net.minecraft.world.item.BlockItem;
@@ -33,6 +34,10 @@ public class ModTargetPointers {
             "block_item_handler_only_block_item",
             () -> new BlockItemHandlerPointer.Type(stack -> stack.getItem() instanceof BlockItem || stack.getItem() instanceof IBlockItem)
         );
+    public static final DeferredHolder<ITargetPointer.Type<?>, BlockPointer.Type> BLOCK = REGISTER.register(
+        "block",
+        BlockPointer.Type::new
+    );
 
     public static void register(IEventBus modEventBus) {
         REGISTER.register(modEventBus);

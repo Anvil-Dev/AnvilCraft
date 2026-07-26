@@ -286,13 +286,13 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         }
         BlockPos placePos = blockPos.relative(direction, distance);
         // 放置方块
-        if (AnvilCraftFakePlayers.anvilcraftBlockPlacer.placeBlock(
+        if (AnvilCraftFakePlayers.getBlockPlacer().placeBlock(
             level,
             placePos,
             orientation,
             blockItem,
-            placeItem) == InteractionResult.FAIL
-        ) {
+            placeItem
+        ) == InteractionResult.FAIL) {
             return;
         }
         

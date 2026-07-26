@@ -16,6 +16,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
 
 import java.util.function.Function;
@@ -61,6 +62,12 @@ public class BlockItemHandlerPointer implements ITargetPointer {
     }
 
     @Override
+    public boolean matches(BlockState requiredState) {
+        return this.stack.getItem() instanceof net.minecraft.world.item.BlockItem item
+            && item.getBlock() == requiredState.getBlock();
+    }
+
+    @Override
     public boolean applyToPos(ServerLevel level, BlockPos pos) {
         IItemHandler handler = this.getHandler(level);
         if (handler == null || !this.isStillValid(level)) {
@@ -72,12 +79,14 @@ public class BlockItemHandlerPointer implements ITargetPointer {
             return false;
         }
 
+        int initialCount = stack.getCount();
         ItemStack result = ITargetPointer.placeToPos(level, pos, stack);
-        if (ItemStack.matches(stack, result)) {
+        int consumed = initialCount - result.getCount();
+        if (consumed <= 0) {
             return false;
         }
 
-        handler.extractItem(this.slot, this.stack.getCount() - result.getCount(), false);
+        handler.extractItem(this.slot, consumed, false);
         return true;
     }
 
@@ -143,7 +152,12 @@ public class BlockItemHandlerPointer implements ITargetPointer {
         }
 
         @Override
-        public @Nullable BlockItemHandlerPointer point(Level level, BlockPos pos, Direction facing) {
+        public @Nullable BlockItemHandlerPointer point(
+            Level level,
+            BlockPos pos,
+            Direction facing,
+            @Nullable BlockState requiredState
+        ) {
             IItemHandler handler = ItemHandlerUtil.getSourceItemHandler(pos, facing, level);
             if (handler == null) {
                 return null;
@@ -154,7 +168,10 @@ public class BlockItemHandlerPointer implements ITargetPointer {
                 if (!filter.test(inSlot)) {
                     continue;
                 }
-                return new BlockItemHandlerPointer(this, pos, facing, i, inSlot);
+                BlockItemHandlerPointer pointer = new BlockItemHandlerPointer(this, pos, facing, i, inSlot);
+                if (requiredState == null || pointer.matches(requiredState)) {
+                    return pointer;
+                }
             }
             return null;
         }
