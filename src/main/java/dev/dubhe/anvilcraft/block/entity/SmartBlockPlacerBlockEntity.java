@@ -135,6 +135,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         super(type, pos, blockState);
     }
 
+    @Override
+    public void onLoad() {
+        super.onLoad();
+        if (this.level != null
+            && !this.level.isClientSide()
+            && !this.blueprintItemHandler.getStackInSlot(0).isEmpty()) {
+            this.onBlueprintItemChanged();
+        }
+    }
+
     public static SmartBlockPlacerBlockEntity createBlockEntity(
         BlockEntityType<?> type,
         BlockPos pos,
@@ -471,7 +481,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         ItemStack blueprint = this.blueprintItemHandler.getStackInSlot(0);
         StructureDiskData data = blueprint.get(ModComponents.STRUCTURE_DISK_DATA);
         Direction scannerFacing = data == null ? Direction.NORTH : data.direction();
-        return switch ((scannerFacing.get2DDataValue() - targetFacing.get2DDataValue()) % 4) {
+        int quarterTurns = Math.floorMod(
+            targetFacing.getOpposite().get2DDataValue() - scannerFacing.get2DDataValue(),
+            4
+        );
+        return switch (quarterTurns) {
             case 1 -> Rotation.CLOCKWISE_90;
             case 2 -> Rotation.CLOCKWISE_180;
             case 3 -> Rotation.COUNTERCLOCKWISE_90;
@@ -659,7 +673,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         int columnOffset = (POSITION_GRID_SIZE - diskData.sizeX()) / 2;
         int rowOffset = (POSITION_GRID_SIZE - diskData.sizeZ()) / 2;
         for (StructureLoadUtil.BlockPosition block : structure.blocks) {
-            int column = columnOffset + block.x();
+            int column = columnOffset + diskData.sizeX() - block.x() - 1;
             int row = rowOffset + diskData.sizeZ() - block.z() - 1;
             int layer = block.y();
             if (!isValidLayer(layer)
