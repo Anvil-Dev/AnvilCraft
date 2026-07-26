@@ -785,6 +785,7 @@
   "gui.anvilcraft.category.block_compress": "Block Compress",
   "gui.anvilcraft.category.block_crush": "Block Crush",
   "gui.anvilcraft.category.block_smear": "Block Smear",
+  "gui.anvilcraft.category.cauldron.need_ignite": "Need Fire",
   "gui.anvilcraft.category.chance": "Chance: %s%%",
   "gui.anvilcraft.category.charger_charging": "Charger Charging",
   "gui.anvilcraft.category.charger_charging.power_consume": "Power Consume: %s",

@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiItemUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
@@ -105,7 +106,11 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         ItemInjectRecipe recipe = recipeHolder.value();
         int transcendiumTier = getTranscendiumTier(recipeHolder);
         if (transcendiumTier >= 0) {
-            IRecipeSlotBuilder inputSlot = builder.addSlot(RecipeIngredientRole.INPUT, 21, 24)
+            IRecipeSlotBuilder inputSlot = builder.addSlot(
+                RecipeIngredientRole.INPUT,
+                JeiSlotUtil.INPUT_X,
+                JeiSlotUtil.DEFAULT_Y
+            )
                 .add(Ingredient.of(Arrays.stream(recipe.getInputItems().getFirst().getItems())
                     .map(template -> template.item().value())));
             inputSlot.addRichTooltipCallback((slotView, tooltip) -> tooltip.add(Component.translatable(
@@ -119,7 +124,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
                 }
             ).withStyle(ChatFormatting.GOLD)));
         } else {
-            JeiSlotUtil.addInputSlots(builder, recipe.getInputItems());
+            JeiItemUtil.addDefaultInputSlots(builder, recipe.getInputItems());
         }
         JeiBlockIngredientUtil.addInputSlot(builder, INPUT_BLOCK, 72, 34, 18, 19, recipe.getFirstInputBlock());
         if (transcendiumTier >= 0) {
@@ -171,7 +176,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         this.arrowIn.draw(graphics, 54, 30);
         this.arrowOut.draw(graphics, 92, 29);
 
-        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
+        JeiSlotUtil.drawDefaultInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
         int transcendiumTier = getTranscendiumTier(recipeHolder);
         if (transcendiumTier >= 0) {
             this.drawTranscendiumOutputSlots(graphics, transcendiumTier);
@@ -180,13 +185,14 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
                                    ? this.slotProbability
                                    : this.slotDefault;
             if (recipe.getResultBlocks().isEmpty()) {
-                JeiSlotUtil.drawOutputSlots(graphics, outputSlot, recipe.getResultItems().size());
+                JeiSlotUtil.drawDefaultOutputSlots(graphics, outputSlot, recipe.getResultItems().size());
             } else {
                 for (int i = 0; i < recipe.getResultItems().size(); i++) {
                     outputSlot.draw(graphics, 106 + i * 19, 14);
                 }
             }
         }
+
         if (!recipe.getResultBlocks().isEmpty()) {
             BlockState resultState = JeiBlockIngredientUtil.getRenderablePreviewState(recipe.getFirstResultBlock().state());
             int resultScale = JeiBlockIngredientUtil.getRenderablePreviewScale(resultState, 20);
@@ -228,7 +234,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
     private static void addOutputSlots(IRecipeLayoutBuilder builder, ItemInjectRecipe recipe) {
         if (recipe.getResultItems().isEmpty()) return;
         if (recipe.getResultBlocks().isEmpty()) {
-            JeiSlotUtil.addOutputSlots(builder, recipe.getResultItems());
+            JeiItemUtil.addDefaultOutputSlots(builder, recipe.getResultItems());
             return;
         }
         for (int index = 0; index < recipe.getResultItems().size(); index++) {

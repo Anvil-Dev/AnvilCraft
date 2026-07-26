@@ -29,6 +29,7 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.super_heating.consume_fluid", "Consume: %1$d mB of %2$s");
         provider.add("gui.anvilcraft.category.super_heating.produce_fluid", "Produce: %1$d mB of %2$s");
         provider.add("gui.anvilcraft.category.super_heating.need_activated", "Need Activated");
+        provider.add("gui.anvilcraft.category.cauldron.need_ignite", "Need Fire");
 
         provider.add("gui.anvilcraft.category.squeezing", "Squeezing");
 
