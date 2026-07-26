@@ -25,6 +25,8 @@ import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -265,6 +267,7 @@ public class RegisterAdditionalEventListener {
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_hollow")));
         event.register(CFARenderer.BODY_PLANET_ERROR,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_error")));
+        registerCelestialBodyModels(event);
         event.register(
             FishTankRenderer.FIRE,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/oil_cauldron_fire4"))
@@ -370,6 +373,26 @@ public class RegisterAdditionalEventListener {
             WipBlockEntityRenderer.SHULKER_BOX_WIP_2,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/shulker_box_wip_2"))
         );
+    }
+
+    /** 自动注册资源包中提供的天体模型。 */
+    private static void registerCelestialBodyModels(ModelEvent.RegisterStandalone event) {
+        Minecraft.getInstance()
+            .getResourceManager()
+            .listResources("models/block/celestial_body", location -> location.getPath().endsWith(".json"))
+            .keySet()
+            .stream()
+            .map(RegisterAdditionalEventListener::toModelLocation)
+            .forEach(modelLocation -> event.register(
+                CFARenderer.getSpecialBodyModel(modelLocation),
+                SimpleUnbakedStandaloneModel.blockStateModel(modelLocation)
+            ));
+    }
+
+    private static Identifier toModelLocation(Identifier resourceLocation) {
+        String resourcePath = resourceLocation.getPath();
+        String modelPath = resourcePath.substring("models/".length(), resourcePath.length() - ".json".length());
+        return Identifier.fromNamespaceAndPath(resourceLocation.getNamespace(), modelPath);
     }
 
     @SubscribeEvent

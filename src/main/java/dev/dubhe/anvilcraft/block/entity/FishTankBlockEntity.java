@@ -318,33 +318,43 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             if (level == null || level.isClientSide()) return;
             BlockState state = FishTankBlockEntity.this.getBlockState();
             if (!state.getValue(FishTankBlock.OUTLET)) return;
+            Direction outletDir = state.getValue(FishTankBlock.FACING);
+            BlockPos pos = FishTankBlockEntity.this.getBlockPos();
+            List<ResourceHandler<ItemResource>> targets = ItemHandlerUtil.getOutletTargetItemHandlerList(
+                pos.relative(outletDir),
+                null,
+                level
+            );
+            this.autoOutputting = true;
             try (Transaction transaction = Transaction.openRoot()) {
                 ItemResource resourceIn = this.getResource(index);
                 if (resourceIn.isEmpty()) return;
-                int extracted = this.extract(index, resourceIn, Integer.MAX_VALUE, transaction);
-                if (extracted <= 0) return;
-                Direction outletDir = state.getValue(FishTankBlock.FACING);
-
-                BlockPos pos = FishTankBlockEntity.this.getBlockPos();
-                List<ResourceHandler<ItemResource>> targets = ItemHandlerUtil.getTargetItemHandlerList(
-                    pos.relative(outletDir),
-                    null,
-                    level
-                );
                 if (targets == null || targets.isEmpty()) {
-                    FishTankBlockEntity.popResourceFromFace(level, pos, outletDir, resourceIn.toStack(extracted));
+                    if (FishTankBlockEntity.isOutletBlocked(level, pos, outletDir)) return;
+                    int extracted = this.extract(index, resourceIn, Integer.MAX_VALUE, transaction);
+                    if (extracted <= 0) return;
                     transaction.commit();
+                    FishTankBlockEntity.popResourceFromFace(level, pos, outletDir, resourceIn.toStack(extracted));
+                    FishTankBlockEntity.this.setChanged();
+                    FishTankBlockEntity.this.refreshIgnited();
+                    FishTankBlockEntity.this.sendUpdate();
                     return;
                 }
-                int remaining = extracted;
+                int available = this.getAmountAsInt(index);
+                int remaining = available;
                 for (ResourceHandler<ItemResource> target : targets) {
-                    ItemStack remainingCache = resourceIn.toStack(remaining);
-                    if (ItemHandlerUtil.insertItem(target, remainingCache, true).getCount() <= 0) continue;
-                    remaining -= ItemHandlerUtil.insertItem(target, remainingCache, false).getCount();
+                    remaining -= target.insert(resourceIn, remaining, transaction);
                     if (remaining == 0) break;
                 }
-                this.autoOutputting = true;
-                this.set(index, resourceIn, remaining);
+                int transferred = available - remaining;
+                if (transferred <= 0) return;
+                int extracted = this.extract(index, resourceIn, transferred, transaction);
+                if (extracted != transferred) return;
+                transaction.commit();
+                FishTankBlockEntity.this.setChanged();
+                FishTankBlockEntity.this.refreshIgnited();
+                FishTankBlockEntity.this.sendUpdate();
+            } finally {
                 this.autoOutputting = false;
             }
         }
@@ -667,7 +677,11 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         if (level == null || level.isClientSide()) return;
         BlockPos pos = this.getBlockPos();
         Direction outletDir = this.getBlockState().getValue(FishTankBlock.FACING);
-        List<ResourceHandler<ItemResource>> targets = ItemHandlerUtil.getTargetItemHandlerList(pos.relative(outletDir), null, level);
+        List<ResourceHandler<ItemResource>> targets = ItemHandlerUtil.getOutletTargetItemHandlerList(
+            pos.relative(outletDir),
+            null,
+            level
+        );
         if (targets == null || targets.isEmpty()) {
             // 开口被有碰撞的方块堵住时不输出，物品留在输出槽等待下次重试
             if (isOutletBlocked(level, pos, outletDir)) return;
@@ -687,20 +701,21 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             this.sendUpdate();
             return;
         }
-        for (ResourceHandler<ItemResource> target : targets) {
-            for (int i = 0; i < 8; i++) {
-                try (Transaction transaction = Transaction.openRoot()) {
-                    ItemResource resource = this.output.getResource(i);
-                    if (resource.isEmpty()) continue;
-                    int extracted = this.output.extract(i, resource, Integer.MAX_VALUE, transaction);
-                    if (extracted <= 0) continue;
-                    ItemStack inserted = ItemHandlerUtil.insertItem(target, resource.toStack(extracted), true);
-                    if (inserted.isEmpty()) continue;
-                    inserted = ItemHandlerUtil.insertItem(target, resource.toStack(extracted), false);
-                    if (inserted.isEmpty()) continue;
-                    this.output.insert(i, resource, extracted - inserted.getCount(), transaction);
-                    transaction.commit();
+        for (int i = 0; i < 8; i++) {
+            try (Transaction transaction = Transaction.openRoot()) {
+                ItemResource resource = this.output.getResource(i);
+                if (resource.isEmpty()) continue;
+                int available = this.output.getAmountAsInt(i);
+                int remaining = available;
+                for (ResourceHandler<ItemResource> target : targets) {
+                    remaining -= target.insert(resource, remaining, transaction);
+                    if (remaining == 0) break;
                 }
+                int transferred = available - remaining;
+                if (transferred <= 0) continue;
+                int extracted = this.output.extract(i, resource, transferred, transaction);
+                if (extracted != transferred) continue;
+                transaction.commit();
             }
         }
         this.setChanged();
