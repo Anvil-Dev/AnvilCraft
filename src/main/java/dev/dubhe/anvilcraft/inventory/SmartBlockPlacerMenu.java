@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.component.BookOnlySlot;
 import dev.dubhe.anvilcraft.util.StructureBookUtil;
+import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
@@ -25,6 +26,7 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
     @Nullable
     private final SmartBlockPlacerBlockEntity blockEntity;
     private final Level level;
+    @Getter
     private final SimpleContainer bookInventory;
     private final SimpleContainer outputBookInventory;
 
@@ -109,7 +111,6 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
         }
     }
 
-    @SuppressWarnings("resource")
     public SmartBlockPlacerMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, Objects.requireNonNull(
@@ -119,10 +120,6 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
     @Nullable
     public SmartBlockPlacerBlockEntity getBlockEntity() {
         return this.blockEntity;
-    }
-
-    public SimpleContainer getBookInventory() {
-        return this.bookInventory;
     }
 
     // Slot索引常量
