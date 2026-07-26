@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.itemhandler;
 
 import com.google.common.collect.ImmutableList;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
@@ -189,16 +190,36 @@ public class ItemHandlerUtil {
             list.add(input);
             return list;
         }
-        AABB aabb = new AABB(inputBlockPos);
+        AABB aabb = new AABB(inputBlockPos).inflate(0.01D);
         list = level.getEntitiesOfClass(
-                Entity.class, aabb, e -> e instanceof ContainerEntity)
+                Entity.class,
+                aabb,
+                entity -> entity.isAlive()
+                    && BlockPos.containing(entity.getBoundingBox().getCenter()).equals(inputBlockPos))
             .stream()
-            .map(e -> e.getCapability(
-                Capabilities.ItemHandler.ENTITY,
-                null
-            ))
+            .map(e -> e instanceof IItemHandlerHolder holder
+                ? holder.getItemHandler()
+                : e.getCapability(Capabilities.ItemHandler.ENTITY, null))
+            .filter(handler -> handler != null)
             .toList();
         return list;
+    }
+
+    public static @Nullable List<IItemHandler> getOutletTargetItemHandlerList(
+        BlockPos inputBlockPos,
+        @Nullable Direction context,
+        @Nullable Level level
+    ) {
+        if (level == null) return null;
+        LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(
+            level,
+            inputBlockPos,
+            level.getBlockState(inputBlockPos)
+        );
+        if (cauldron != null) {
+            return List.of(cauldron.getInputHandler());
+        }
+        return getTargetItemHandlerList(inputBlockPos, context, level);
     }
 
     public static int countItemsInHandler(IItemHandler handler) {

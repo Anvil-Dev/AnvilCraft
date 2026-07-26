@@ -55,6 +55,7 @@ public class CauldronOutletEventListener {
         }
 
         removeExistingOutlets(level, cauldronPos);
+        removeOpposingOutlet(level, cauldronPos, direction);
         level.addFreshEntity(new CauldronOutletEntity(level, position, cauldronPos, direction));
         playOutletSound(level, cauldronPos);
     }
@@ -79,7 +80,7 @@ public class CauldronOutletEventListener {
         return level.getEntitiesOfClass(
             CauldronOutletEntity.class,
             searchBox,
-            entity -> entity.getCauldronPos().equals(cauldronPos)
+            entity -> !entity.isRemoved() && entity.getCauldronPos().equals(cauldronPos)
         );
     }
 
@@ -97,6 +98,13 @@ public class CauldronOutletEventListener {
     private static void removeExistingOutlets(Level level, BlockPos cauldronPos) {
         for (CauldronOutletEntity outlet : getOutlets(level, cauldronPos)) {
             outlet.kill();
+        }
+    }
+
+    private static void removeOpposingOutlet(Level level, BlockPos cauldronPos, Direction direction) {
+        BlockPos targetPos = cauldronPos.relative(direction);
+        for (CauldronOutletEntity outlet : getOutlets(level, targetPos)) {
+            if (outlet.getAttachedDirection() == direction.getOpposite()) outlet.kill();
         }
     }
 
