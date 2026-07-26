@@ -173,6 +173,8 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
      * @return 当前构建器实例，支持链式调用
      */
     public ProceduralProcessRecipeBuilder displayedModel(ResourceLocation modelId) {
+        modelId = ResourceLocation.fromNamespaceAndPath(modelId.getNamespace(),
+            "block/wip_display/" + modelId.getPath());
         this.displayedModel = Optional.of(modelId);
         return this;
     }
@@ -183,7 +185,11 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
      */
     public ProceduralProcessRecipeBuilder displayedModels(ResourceLocation... modelIds) {
         this.displayedModels.clear();
-        this.displayedModels.addAll(List.of(modelIds));
+        for (ResourceLocation modelId : modelIds) {
+            modelId = ResourceLocation.fromNamespaceAndPath(modelId.getNamespace(),
+                "block/wip_display/" + modelId.getPath());
+            this.displayedModels.add(modelId);
+        }
         return this;
     }
 

@@ -1,8 +1,8 @@
 {
   "type": "anvilcraft:procedural_process",
   "displayed_models": [
-    "anvilcraft:block/ancient_sea_reef_wip",
-    "anvilcraft:block/ancient_sea_reef_wip_2"
+    "anvilcraft:block/wip_display/ancient_sea_reef_wip",
+    "anvilcraft:block/wip_display/ancient_sea_reef_wip_2"
   ],
   "icon": {
     "count": 1,

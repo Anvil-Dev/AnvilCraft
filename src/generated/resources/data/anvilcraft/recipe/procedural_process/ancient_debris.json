@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:procedural_process",
   "displayed_models": [
-    "anvilcraft:block/ancient_debris_wip"
+    "anvilcraft:block/wip_display/ancient_debris_wip"
   ],
   "icon": {
     "count": 1,
