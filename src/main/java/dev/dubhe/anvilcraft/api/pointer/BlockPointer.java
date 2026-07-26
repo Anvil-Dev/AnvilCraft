@@ -58,7 +58,7 @@ public class BlockPointer implements ITargetPointer {
 
     @Override
     public boolean matches(BlockState requiredState) {
-        return this.state.is(requiredState.getBlock());
+        return this.state.equals(requiredState);
     }
 
     @Override
@@ -149,7 +149,7 @@ public class BlockPointer implements ITargetPointer {
             if (state.isAir()) {
                 return null;
             }
-            if (requiredState != null && !state.is(requiredState.getBlock())) {
+            if (requiredState != null && !state.equals(requiredState)) {
                 return null;
             }
             if (!PistonBaseBlock.isPushable(state, level, pos, facing.getOpposite(), false, facing.getOpposite())) {

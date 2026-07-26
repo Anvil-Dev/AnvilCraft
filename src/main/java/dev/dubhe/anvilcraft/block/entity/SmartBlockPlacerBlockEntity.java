@@ -412,6 +412,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     private void updateMissingBlock(ServerLevel level, @Nullable Either<ItemStack, BlockState> missingBlock) {
+        if (this.blueprintPlacementMode == BlueprintPlacementMode.SKIP) {
+            missingBlock = null;
+        }
         if (displayedBlocksMatch(this.missingBlock, missingBlock)) {
             return;
         }
@@ -736,6 +739,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             ItemStack legacyMissingItem = ItemStack.parseOptional(registries, tag.getCompound("missingBlockItem"));
             this.missingBlock = legacyMissingItem.isEmpty() ? null : Either.left(legacyMissingItem);
         }
+        if (this.blueprintPlacementMode == BlueprintPlacementMode.SKIP) {
+            this.missingBlock = null;
+        }
         this.currentHeldBlock = loadDisplayedBlock(tag, "currentHeldBlock", registries);
     }
 
@@ -807,6 +813,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             ? BlueprintPlacementMode.SKIP
             : BlueprintPlacementMode.WAIT;
         this.pointer = null;
+        this.missingBlock = null;
         this.syncPositionSelection();
     }
 
@@ -1044,6 +1051,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             ? BlueprintPlacementMode.CODEC.parse(ops, data.get("blueprintPlacementMode"))
                 .result().orElse(this.blueprintPlacementMode)
             : this.blueprintPlacementMode;
+        if (this.blueprintPlacementMode == BlueprintPlacementMode.SKIP) {
+            this.missingBlock = null;
+        }
         this.phase = data.contains("phase")
             ? ExecutionPhase.CODEC.parse(ops, data.get("phase")).result().orElse(this.phase)
             : this.phase;
