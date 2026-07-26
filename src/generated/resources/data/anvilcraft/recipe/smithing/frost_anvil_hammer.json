@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": "anvilcraft:frost_metal_block",
+  "base": "anvilcraft:royal_anvil_hammer",
+  "result": {
+    "id": "anvilcraft:frost_anvil_hammer"
+  },
+  "template": "anvilcraft:frost_metal_upgrade_smithing_template"
+}

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.integration.jei.category;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
@@ -8,6 +9,8 @@ import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
+import dev.dubhe.anvilcraft.integration.jei.recipe.LiquidEnchantmentFluidMixingRecipe;
+import dev.dubhe.anvilcraft.integration.jei.recipe.LiquidEnchantmentJeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
@@ -24,8 +27,11 @@ import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -35,12 +41,20 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMixingRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
     private static final float MODEL_SCALE = 7.5F;
+    private static final int LIQUID_ENCHANTMENT_INPUT_COUNT = 4;
+    private static final Component HEATER_ACTIVE = Component.translatable(
+        "gui.anvilcraft.category.super_heating.need_activated"
+    ).withStyle(ChatFormatting.GOLD);
+    private static final Component NOT_CONSUMED = Component.translatable(
+        "jei.anvilcraft.tooltip.not_consumed"
+    ).withStyle(ChatFormatting.GOLD);
 
     private final IDrawable icon;
     private final IDrawable slot;
@@ -95,6 +109,10 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
         IFocusGroup focuses
     ) {
         FluidMixingRecipe recipe = recipeHolder.value();
+        if (recipe instanceof LiquidEnchantmentFluidMixingRecipe liquidEnchantmentRecipe) {
+            setLiquidEnchantmentRecipe(builder, liquidEnchantmentRecipe);
+            return;
+        }
 
         // Input Fluid
         List<SizedFluidIngredient> ingredients = recipe.getFluidIngredients();
@@ -134,6 +152,61 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
         }
     }
 
+    private static void setLiquidEnchantmentRecipe(
+        IRecipeLayoutBuilder builder,
+        LiquidEnchantmentFluidMixingRecipe recipe
+    ) {
+        addFluidSlot(
+            builder,
+            RecipeIngredientRole.INPUT,
+            inputPosition(LIQUID_ENCHANTMENT_INPUT_COUNT, 0),
+            List.of(recipe.getBlankInput()),
+            false
+        );
+        IRecipeSlotBuilder enchantedInput = addFluidSlot(
+            builder,
+            RecipeIngredientRole.INPUT,
+            inputPosition(LIQUID_ENCHANTMENT_INPUT_COUNT, 1),
+            recipe.getEnchantedInputs(),
+            false
+        );
+        SlotPosition lapisPosition = inputPosition(LIQUID_ENCHANTMENT_INPUT_COUNT, 2);
+        builder.addSlot(RecipeIngredientRole.INPUT, lapisPosition.x() + 1, lapisPosition.y() + 1)
+            .add(new ItemStack(Items.LAPIS_LAZULI));
+        SlotPosition heaterPosition = inputPosition(LIQUID_ENCHANTMENT_INPUT_COUNT, 3);
+        builder.addSlot(RecipeIngredientRole.RENDER_ONLY, heaterPosition.x() + 1, heaterPosition.y() + 1)
+            .addItemStacks(List.of(ModBlocks.HEATER.asStack(), ModBlocks.BURNING_HEATER.asStack()))
+            .addRichTooltipCallback((slotView, tooltip) -> {
+                tooltip.add(HEATER_ACTIVE);
+                tooltip.add(NOT_CONSUMED);
+            });
+
+        IRecipeSlotBuilder output = addFluidSlot(
+            builder,
+            RecipeIngredientRole.OUTPUT,
+            fluidOutputPosition(1, 0, false),
+            recipe.getEnchantedResults(),
+            true
+        );
+        builder.createFocusLink(enchantedInput, output);
+    }
+
+    private static IRecipeSlotBuilder addFluidSlot(
+        IRecipeLayoutBuilder builder,
+        RecipeIngredientRole role,
+        SlotPosition position,
+        List<FluidStack> fluids,
+        boolean showCapacity
+    ) {
+        int amount = fluids.getFirst().getAmount();
+        IRecipeSlotBuilder slot = builder.addSlot(role, position.x() + 1, position.y() + 1)
+            .setFluidRenderer(amount, showCapacity, 16, 16);
+        for (FluidStack fluid : fluids) {
+            slot.add(fluid.getFluid(), fluid.getAmount(), fluid.getComponentsPatch());
+        }
+        return slot;
+    }
+
     @Override
     public void draw(
         RecipeHolder<FluidMixingRecipe> recipeHolder,
@@ -143,8 +216,11 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
         double mouseY
     ) {
         FluidMixingRecipe recipe = recipeHolder.value();
-        for (int index = 0; index < recipe.getFluidIngredients().size(); index++) {
-            SlotPosition position = inputPosition(recipe.getFluidIngredients().size(), index);
+        int inputCount = recipe instanceof LiquidEnchantmentFluidMixingRecipe
+            ? LIQUID_ENCHANTMENT_INPUT_COUNT
+            : recipe.getFluidIngredients().size();
+        for (int index = 0; index < inputCount; index++) {
+            SlotPosition position = inputPosition(inputCount, index);
             this.slot.draw(guiGraphics, position.x(), position.y());
         }
         for (int index = 0; index < recipe.getItemResults().size(); index++) {
@@ -198,9 +274,19 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
+        List<RecipeHolder<FluidMixingRecipe>> recipes = new ArrayList<>(
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.FLUID_MIXING.get())
+        );
+        var enchantments = LiquidEnchantmentJeiRecipeUtil.getEnchantments(false);
+        if (!enchantments.isEmpty()) {
+            recipes.add(new RecipeHolder<>(
+                ResourceKey.create(Registries.RECIPE, AnvilCraft.of("jei/fluid_mixing/liquid_enchantment_assimilation")),
+                new LiquidEnchantmentFluidMixingRecipe(enchantments)
+            ));
+        }
         registration.addRecipes(
             AnvilCraftJeiPlugin.FLUID_MIXING,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.FLUID_MIXING.get())
+            recipes
         );
     }
 

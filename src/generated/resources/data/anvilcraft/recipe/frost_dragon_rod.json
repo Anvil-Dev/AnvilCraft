@@ -3,9 +3,9 @@
   "category": "equipment",
   "ingredients": [
     "anvilcraft:block_devourer",
-    "anvilcraft:transcendence_anvil_hammer"
+    "anvilcraft:frost_anvil_hammer"
   ],
   "result": {
-    "id": "anvilcraft:transcendence_dragon_rod"
+    "id": "anvilcraft:frost_dragon_rod"
   }
 }

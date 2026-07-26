@@ -4,11 +4,13 @@ import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.TankUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -19,12 +21,14 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.redstone.Redstone;
 import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
@@ -168,6 +172,54 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
         stack.applyComponents(this.collectComponents());
     }
 
+    public static boolean isEmptyItem(ItemStack stack, HolderLookup.Provider registries) {
+        if (!stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())) return false;
+        return readItemTank(stack, registries).getTotalAmount() == 0;
+    }
+
+    public static ItemStack fillItem(
+        ItemStack stack,
+        List<FluidStack> fluids,
+        HolderLookup.Provider registries
+    ) {
+        if (fluids.isEmpty() || !isEmptyItem(stack, registries)) return ItemStack.EMPTY;
+
+        MultiFluidTankHandler itemTank = new MultiFluidTankHandler(
+            BASE_CAPACITY,
+            INFINITY_THRESHOLD,
+            () -> {}
+        );
+        try (Transaction transaction = Transaction.openRoot()) {
+            for (FluidStack fluid : fluids) {
+                if (fluid.isEmpty()) return ItemStack.EMPTY;
+                int inserted = itemTank.insert(FluidResource.of(fluid), fluid.getAmount(), transaction);
+                if (inserted != fluid.getAmount()) return ItemStack.EMPTY;
+            }
+            transaction.commit();
+        }
+
+        ItemStack result = stack.copyWithCount(1);
+        TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
+        itemTank.serializeForItem(output.child("Tank"));
+        BlockItem.setBlockEntityData(result, ModBlockEntities.LARGE_FLUID_TANK.get(), output);
+        return result;
+    }
+
+    private static MultiFluidTankHandler readItemTank(ItemStack stack, HolderLookup.Provider registries) {
+        MultiFluidTankHandler itemTank = new MultiFluidTankHandler(
+            BASE_CAPACITY,
+            INFINITY_THRESHOLD,
+            () -> {}
+        );
+        itemTank.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, getTankData(stack)));
+        return itemTank;
+    }
+
+    private static CompoundTag getTankData(ItemStack stack) {
+        TypedEntityData<?> data = stack.get(DataComponents.BLOCK_ENTITY_DATA);
+        return data == null ? new CompoundTag() : data.copyTagWithoutId().getCompoundOrEmpty("Tank");
+    }
+
     public boolean onPlayerUse(Player player, InteractionHand hand) {
         try (Transaction transaction = Transaction.openRoot()) {
             boolean success = FluidUtil.interactWithFluidHandler(player, hand, this.getBlockPos(), this.getFluidHandler(), transaction);
@@ -209,6 +261,11 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
 
     public boolean isInfinite(FluidStack fluid) {
         return this.getMainPart().tank.isInfinite(fluid);
+    }
+
+    public boolean containsInfiniteFluid() {
+        return this.getMainPart().tank.copyFluids().stream()
+            .anyMatch(fluid -> fluid.getAmount() >= INFINITY_THRESHOLD);
     }
 
     public List<FluidStack> getStoredFluids() {

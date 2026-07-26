@@ -68,7 +68,6 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE);
         this.plain(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE);
         this.plain(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE);
-        this.plain(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE);
         this.plain(ModItems.PERMUTATION_TEMPLATE);
         this.plain(ModItems.DEFORMATION_TEMPLATE);
         this.plain(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE);

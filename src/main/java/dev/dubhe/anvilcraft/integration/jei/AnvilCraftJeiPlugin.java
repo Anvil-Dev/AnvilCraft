@@ -272,6 +272,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addCraftingStation(RecipeTypes.ANVIL, new ItemStack(ModBlocks.SPECTRAL_ANVIL));
 
         registration.addCraftingStation(RecipeTypes.SMITHING, new ItemStack(ModBlocks.ROYAL_SMITHING_TABLE));
+        registration.addCraftingStation(RecipeTypes.SMITHING, new ItemStack(ModBlocks.TRANSCENDENCE_SMITHING_TABLE));
     }
 
     @Override

@@ -65,6 +65,11 @@ final class CfaGammaLaserEffects {
         int updateFlags
     ) {
         if (target == null || gammaLevel < 4 || level.getGameTime() % 20 != 0) return;
+        BlockState targetState = level.getBlockState(target);
+        if (!targetState.is(ModBlocks.EMBER_METAL_BLOCK.get())
+            && !targetState.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())) {
+            return;
+        }
         int areaSize = gammaLevel >= 16 ? 7 : gammaLevel >= 12 ? 5 : gammaLevel >= 8 ? 3 : 1;
         int thickness = gammaLevel >= 16 ? 3 : gammaLevel >= 12 ? 2 : 1;
         int halfSize = areaSize / 2;

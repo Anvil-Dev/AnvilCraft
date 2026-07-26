@@ -29,10 +29,12 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
+import dev.dubhe.anvilcraft.recipe.LiquidEnchantmentCauldronRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
@@ -93,6 +95,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class LargeCauldronBlockEntity extends BlockEntity
@@ -498,6 +501,12 @@ public class LargeCauldronBlockEntity extends BlockEntity
             if (!getStack(main.output, slot).isEmpty()) initialOutputSlots.add(slot);
         }
         int processed = 0;
+        Set<Integer> specialRecipeSlots = new HashSet<>();
+        for (int slot = 0; slot < main.input.size() && processed < MAX_PROCESS_EFFICIENCY; slot++) {
+            if (!main.tryProcessLiquidEnchantmentRecipe(serverLevel, base, slot)) continue;
+            specialRecipeSlots.add(slot);
+            processed++;
+        }
         for (RecipePass recipePass : itemRecipePasses) {
             boolean madeProgress;
             do {
@@ -505,6 +514,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 // Slot order must not override recipe priority when ingredients occupy different cauldron cells.
                 for (int slot : orderedInputSlots(serverLevel, main.input, recipePass)) {
                     if (processed >= MAX_PROCESS_EFFICIENCY) break;
+                    if (specialRecipeSlots.contains(slot)) continue;
                     BlockPos slotPos = positionForInputSlot(base, slot);
                     List<BlockPos> candidates = helpers.isEmpty()
                         ? List.of(slotPos.below())
@@ -569,6 +579,62 @@ public class LargeCauldronBlockEntity extends BlockEntity
             }
         }
         return true;
+    }
+
+    private boolean tryProcessLiquidEnchantmentRecipe(ServerLevel level, BlockPos base, int slot) {
+        ItemStack starting = getStack(this.input, slot);
+        if (starting.isEmpty()) return false;
+        int itemBudget = starting.getMaxStackSize();
+        int consumed = 0;
+        boolean processed = false;
+        while (consumed < itemBudget) {
+            ItemStack item = getStack(this.input, slot);
+            if (item.isEmpty()) break;
+            var heatingHelper = this.findActiveHeatingHelper(base, slot);
+            var matched = LiquidEnchantmentCauldronRecipe.match(
+                this.fluids.copyFluids(),
+                item,
+                heatingHelper.isPresent()
+            );
+            if (matched.isEmpty()) break;
+            LiquidEnchantmentCauldronRecipe.Result result = matched.get();
+            if (!result.itemResult().isEmpty() && !canInsertItem(this.output, result.itemResult())) {
+                break;
+            }
+
+            this.fluids.setFluids(result.fluids());
+            extractItem(this.input, slot, result.itemCost());
+            if (!result.itemResult().isEmpty()) {
+                insertItem(this.output, result.itemResult());
+            }
+            if (result.consumesHeat()) {
+                consumeHeatingFuel(level, heatingHelper.orElseThrow());
+            }
+            consumed += result.itemCost();
+            processed = true;
+        }
+        return processed;
+    }
+
+    private Optional<BlockPos> findActiveHeatingHelper(BlockPos base, int inputSlot) {
+        List<BlockPos> heaters = new ArrayList<>();
+        for (int slot = 0; slot < FOOTPRINT_OFFSETS.length; slot++) {
+            BlockPos helper = positionForFootprint(base, slot).below();
+            if (isActiveHeatingHelper(this.level.getBlockState(helper))) heaters.add(helper);
+        }
+        BlockPos inputPos = positionForInputSlot(base, inputSlot);
+        return orderedHelpers(inputPos, heaters, base).stream().findFirst();
+    }
+
+    private static boolean isActiveHeatingHelper(BlockState state) {
+        if (state.is(ModBlocks.HEATER)) return !state.getValue(HeaterBlock.OVERLOAD);
+        return state.is(ModBlocks.BURNING_HEATER) && state.getValue(BurningHeaterBlock.LEVEL) == 2;
+    }
+
+    private static void consumeHeatingFuel(ServerLevel level, BlockPos helper) {
+        if (level.getBlockEntity(helper) instanceof BurningHeaterBlockEntity heater) {
+            heater.consumeBurnTime(240 * 20);
+        }
     }
 
     private boolean tryProcessFluidMixingRecipe(ServerLevel level) {
@@ -1421,9 +1487,10 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private static int findTank(List<FluidStack> fluids, Identifier id) {
+        FluidStack target = new FluidStack(BuiltInRegistries.FLUID.getValue(id), 1);
         for (int i = 0; i < fluids.size(); i++) {
             FluidStack fluid = fluids.get(i);
-            if (!fluid.isEmpty() && BuiltInRegistries.FLUID.getKey(fluid.getFluid()).equals(id)) return i;
+            if (FluidStack.isSameFluidSameComponents(fluid, target)) return i;
         }
         return -1;
     }
@@ -1543,6 +1610,13 @@ public class LargeCauldronBlockEntity extends BlockEntity
             int inserted = handler.insert(ItemResource.of(stack), stack.getCount(), transaction);
             if (inserted > 0) transaction.commit();
             return inserted == stack.getCount() ? ItemStack.EMPTY : stack.copyWithCount(stack.getCount() - inserted);
+        }
+    }
+
+    private static boolean canInsertItem(ResourceHandler<ItemResource> handler, ItemStack stack) {
+        if (stack.isEmpty()) return true;
+        try (Transaction transaction = Transaction.openRoot()) {
+            return handler.insert(ItemResource.of(stack), stack.getCount(), transaction) == stack.getCount();
         }
     }
 

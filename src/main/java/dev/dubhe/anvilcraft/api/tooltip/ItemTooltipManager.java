@@ -32,6 +32,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
         NORMAL.put(ModItems.ROYAL_ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
         NORMAL.put(ModItems.EMBER_ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
+        NORMAL.put(ModItems.FROST_ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
         NORMAL.put(ModItems.TRANSCENDENCE_ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
         NORMAL.put(ModBlocks.CURSED_GOLD_BLOCK.asItem(), "Carriers will be cursed");
         NORMAL.put(ModItems.CURSED_GOLD_INGOT.get(), "Carriers will be cursed");
@@ -48,6 +49,10 @@ public class ItemTooltipManager {
                 Explosion proof, does not degrade from falling""");
         NORMAL.put(ModBlocks.ROYAL_GRINDSTONE.asItem(), "Removes curses and enchantment penalties, Explosion proof");
         NORMAL.put(ModBlocks.ROYAL_SMITHING_TABLE.asItem(), "Does not consume Smithing Templates, Explosion proof");
+        NORMAL.put(
+            ModBlocks.TRANSCENDENCE_SMITHING_TABLE.asItem(),
+            "Performs all smithing operations without physical templates\nExplosion, Wither and Ender Dragon proof"
+        );
         NORMAL.put(ModBlocks.HEATER.asItem(), "Heating the block above, consumes 16 kW");
         NORMAL.put(
             ModBlocks.BURNING_HEATER.asItem(), """
@@ -297,6 +302,12 @@ public class ItemTooltipManager {
                 Ignores enchantment level limits, and Anvil Looting produces additional drops
                 Immune to most destruction methods, does not degrade from falling""");
         NORMAL.put(
+            ModBlocks.TRANSCENDENCE_GRINDSTONE.asItem(),
+            """
+                Removes curses and enchantment penalties, selectively removes or transfers multiple enchantments
+                Immune to most destruction methods"""
+        );
+        NORMAL.put(
             ModBlocks.TRANSCENDENCE_DECO_BLOCK.asItem(),
             "Transcendium decorative block; its low Transcendium content means it is not indestructible"
         );
@@ -336,6 +347,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.DEFLECTION_RING.asItem(), "Deflects passing objects 90°, detect speed with Comparator");
         NORMAL.put(ModItems.DRAGON_ROD.asItem(), "Portable block devourer with adjustable range");
         NORMAL.put(ModItems.EMBER_DRAGON_ROD.asItem(), "Portable block devourer with adjustable range");
+        NORMAL.put(ModItems.FROST_DRAGON_ROD.asItem(), "Portable block devourer with adjustable range");
         NORMAL.put(ModItems.ROYAL_DRAGON_ROD.asItem(), "Portable block devourer with adjustable range");
         NORMAL.put(ModItems.TRANSCENDENCE_DRAGON_ROD.asItem(), "Portable block devourer with adjustable range");
         NORMAL.put(ModItems.FILTER.asItem(), "Matches items based on configuration, usable in any filter slot");
@@ -655,6 +667,10 @@ public class ItemTooltipManager {
         );
         SHIFT.put(
             ModItems.EMBER_DRAGON_ROD.asItem(),
+            "Portable block devourer, left-click to mine, right-click to adjust range, larger range costs more durability"
+        );
+        SHIFT.put(
+            ModItems.FROST_DRAGON_ROD.asItem(),
             "Portable block devourer, left-click to mine, right-click to adjust range, larger range costs more durability"
         );
         SHIFT.put(

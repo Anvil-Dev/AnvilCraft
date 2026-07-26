@@ -51,9 +51,11 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.ROYAL_GRINDSTONE);
         this.plain(ModBlocks.FROST_GRINDSTONE);
         this.plain(ModBlocks.EMBER_GRINDSTONE);
+        this.plain(ModBlocks.TRANSCENDENCE_GRINDSTONE);
         this.plain(ModBlocks.ROYAL_SMITHING_TABLE);
         this.plain(ModBlocks.FROST_SMITHING_TABLE);
         this.plain(ModBlocks.EMBER_SMITHING_TABLE);
+        this.plain(ModBlocks.TRANSCENDENCE_SMITHING_TABLE);
 
         this.plain(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK);
         this.plain(ModBlocks.TRANSMISSION_POLE);

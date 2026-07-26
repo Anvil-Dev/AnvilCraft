@@ -23,6 +23,7 @@ import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
 import dev.dubhe.anvilcraft.util.GravityManager;
+import dev.dubhe.anvilcraft.util.InfiniteFluidTankBreakProtection;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -57,6 +58,11 @@ public class PlayerEventListener {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
             SpacetimeSupercomputerBlockEntity.cancelPendingTickSprints(serverPlayer.level().getServer());
         }
+    }
+
+    @SubscribeEvent
+    public static void onLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        InfiniteFluidTankBreakProtection.clear(event.getEntity());
     }
 
     @SubscribeEvent

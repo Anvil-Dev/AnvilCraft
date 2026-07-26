@@ -14,6 +14,8 @@ import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.TradingStationBlock;
+import dev.dubhe.anvilcraft.block.TranscendenceGrindstoneBlock;
+import dev.dubhe.anvilcraft.block.TranscendenceSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.WipBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
@@ -235,6 +237,7 @@ import dev.dubhe.anvilcraft.item.block.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.item.block.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.item.block.SuperHeavyBlockItem;
 import dev.dubhe.anvilcraft.item.block.TeslaTowerItem;
+import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.util.registrater.DataGenUtil;
@@ -807,7 +810,6 @@ public class ModBlocks {
             "transcendence_anvil",
             TranscendenceAnvilBlock::new
         )
-        .recipe(RegistrumBlockRecipeLoader::transcendenceAnvil)
         .initialProperties(() -> Blocks.ANVIL)
         .tag(
             BlockTags.WITHER_IMMUNE,
@@ -829,6 +831,58 @@ public class ModBlocks {
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
         .tag(ItemTags.ANVIL, ModItemTags.EXPLOSION_PROOF)
+        .build()
+        .register();
+
+    public static final BlockEntry<TranscendenceGrindstoneBlock> TRANSCENDENCE_GRINDSTONE = REGISTRUM.block(
+            "transcendence_grindstone",
+            TranscendenceGrindstoneBlock::new
+        )
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .tag(
+            BlockTags.WITHER_IMMUNE,
+            BlockTags.DRAGON_IMMUNE,
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.NEEDS_DIAMOND_TOOL,
+            ModBlockTags.COLLISION_IMMUNE
+        )
+        .properties(properties -> properties
+            .lightLevel(state -> 9)
+            .noOcclusion()
+            .emissiveRendering(ModBlocks::always)
+            .strength(50.0F, 1200.0F)
+        )
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .build()
+        .register();
+
+    public static final BlockEntry<TranscendenceSmithingTableBlock> TRANSCENDENCE_SMITHING_TABLE = REGISTRUM.block(
+            "transcendence_smithing_table",
+            TranscendenceSmithingTableBlock::new
+        )
+        .lang("Transcendence Smithing Table")
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .tag(
+            BlockTags.WITHER_IMMUNE,
+            BlockTags.DRAGON_IMMUNE,
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.NEEDS_DIAMOND_TOOL,
+            ModBlockTags.COLLISION_IMMUNE
+        )
+        .properties(properties -> properties
+            .lightLevel(state -> 9)
+            .noOcclusion()
+            .emissiveRendering(ModBlocks::always)
+            .strength(50.0F, 1200.0F)
+        )
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.DEFAULT))
+        .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .register();
 
