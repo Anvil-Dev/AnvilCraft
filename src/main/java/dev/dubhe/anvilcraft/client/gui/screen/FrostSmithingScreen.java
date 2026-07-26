@@ -13,7 +13,6 @@ import dev.dubhe.anvilcraft.network.multiple.FrostSmithingPackets;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
 import net.minecraft.client.gui.screens.inventory.InventoryScreen;
-import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -31,7 +30,7 @@ import org.joml.Vector3f;
 import java.util.List;
 import java.util.Optional;
 
-public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
+public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("crafting", "frost_smithing_table");
 
     private static final ResourceLocation LEFT =

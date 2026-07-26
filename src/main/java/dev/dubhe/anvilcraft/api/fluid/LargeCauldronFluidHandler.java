@@ -53,8 +53,7 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
     @Override
     public boolean isFluidValid(int tank, FluidStack stack) {
         if (stack.isEmpty()) return false;
-        int matching = this.findFluidType(stack);
-        return matching < 0 || FluidStack.isSameFluidSameComponents(this.tanks[matching].getFluid(), stack);
+        return this.findFluid(stack) >= 0 || this.activeLayers() < TANK_COUNT;
     }
 
     @Override
@@ -64,11 +63,7 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
 
     private int fill(FluidStack resource, FluidAction action, boolean atBottom) {
         if (resource.isEmpty()) return 0;
-        int matching = this.findFluidType(resource);
-        if (matching >= 0
-            && !FluidStack.isSameFluidSameComponents(this.tanks[matching].getFluid(), resource)) {
-            return 0;
-        }
+        int matching = this.findFluid(resource);
 
         List<FluidStack> layers = this.nonEmptyFluids();
         if (matching < 0 && layers.size() >= TANK_COUNT) return 0;
@@ -119,10 +114,8 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
 
     public FluidStack drainStoredFluid(FluidStack resource, FluidAction action) {
         if (resource.isEmpty()) return FluidStack.EMPTY;
-        int layer = this.findFluidType(resource);
-        if (layer < 0 || !FluidStack.isSameFluidSameComponents(this.tanks[layer].getFluid(), resource)) {
-            return FluidStack.EMPTY;
-        }
+        int layer = this.findFluid(resource);
+        if (layer < 0) return FluidStack.EMPTY;
         return this.drainLayer(layer, resource.getAmount(), action);
     }
 
@@ -157,9 +150,9 @@ public class LargeCauldronFluidHandler implements IFluidHandler, INBTSerializabl
         return result;
     }
 
-    private int findFluidType(FluidStack resource) {
+    private int findFluid(FluidStack resource) {
         for (int i = 0; i < this.activeLayers(); i++) {
-            if (this.tanks[i].getFluid().getFluid() == resource.getFluid()) return i;
+            if (FluidStack.isSameFluidSameComponents(this.tanks[i].getFluid(), resource)) return i;
         }
         return -1;
     }

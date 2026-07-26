@@ -436,10 +436,18 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         this.maxTransmissionDistance = originalMaxDistance;
     }
 
-    /// 加热光束法向截面区域内的所有余烬金属方块。面积随伽马等级缩放：≥4→1×1，≥8→3×3，≥12→5×5×2，≥16→7×7×3。
+    /// 直接命中余烬金属块时，加热光束法向截面区域内的所有余烬金属方块。面积随伽马等级缩放：≥4→1×1，≥8→3×3，≥12→5×5×2，≥16→7×7×3。
     private void tryHeatEmberMetal(Direction direction) {
         if (this.level == null || gammaLevel < 4) return;
         if (this.level.getGameTime() % 20 != 0) return;
+
+        BlockPos hitPos = this.irradiateBlockPos;
+        if (hitPos == null) return;
+        BlockState hitState = this.level.getBlockState(hitPos);
+        if (!hitState.is(ModBlocks.EMBER_METAL_BLOCK.get())
+            && !hitState.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())) {
+            return;
+        }
 
         int areaSize;
         int thickness;
@@ -458,8 +466,6 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         }
 
         int halfSize = areaSize / 2;
-        BlockPos hitPos = this.irradiateBlockPos;
-        if (hitPos == null) return;
 
         Direction[] perpendiculars = switch (direction.getAxis()) {
             case X -> new Direction[]{Direction.UP, Direction.NORTH};

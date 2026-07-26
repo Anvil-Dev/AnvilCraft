@@ -39,6 +39,7 @@ import dev.dubhe.anvilcraft.item.EnergyWeaponPlatformItem;
 import dev.dubhe.anvilcraft.item.ExpGemItem;
 import dev.dubhe.anvilcraft.item.FilterItem;
 import dev.dubhe.anvilcraft.item.FluidTankMinecartItem;
+import dev.dubhe.anvilcraft.item.FrostAnvilHammerItem;
 import dev.dubhe.anvilcraft.item.FrostMetalAxeItem;
 import dev.dubhe.anvilcraft.item.FrostMetalHeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.FrostMetalHoeItem;
@@ -82,6 +83,7 @@ import dev.dubhe.anvilcraft.item.abnormal.RadiationItem;
 import dev.dubhe.anvilcraft.item.abnormal.SuperHeavyItem;
 import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
+import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.property.component.Providence;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
@@ -89,7 +91,6 @@ import dev.dubhe.anvilcraft.item.property.component.amulet.WrappedOthersAmulet;
 import dev.dubhe.anvilcraft.item.template.EmberMetalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.template.FrostMetalUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.template.RoyalSteelUpgradeTemplateItem;
-import dev.dubhe.anvilcraft.item.template.TranscendiumUpgradeTemplateItem;
 import dev.dubhe.anvilcraft.item.template.frost.DeformationTemplateItem;
 import dev.dubhe.anvilcraft.item.template.frost.PermutationTemplateItem;
 import dev.dubhe.anvilcraft.item.template.mto.EightToOneTemplateItem;
@@ -101,6 +102,7 @@ import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
 import dev.dubhe.anvilcraft.item.weapon.TeslaGunItem;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
@@ -283,9 +285,15 @@ public class ModItems {
         .properties(properties -> properties.durability(2031))
         .model(DataGenUtil::noExtraModelOrState)
         .register();
+    public static final ItemEntry<FrostAnvilHammerItem> FROST_ANVIL_HAMMER = REGISTRUM
+        .item("frost_anvil_hammer", FrostAnvilHammerItem::new)
+        .recipe(RegistrumItemRecipeLoader::frostAnvilHammer)
+        .tag(ItemTags.MACE_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE, ItemTags.WEAPON_ENCHANTABLE, ModItemTags.ANVIL_HAMMER)
+        .properties(properties -> properties.durability(2031))
+        .model(DataGenUtil::noExtraModelOrState)
+        .register();
     public static final ItemEntry<TranscendenceAnvilHammerItem> TRANSCENDENCE_ANVIL_HAMMER = REGISTRUM
         .item("transcendence_anvil_hammer", TranscendenceAnvilHammerItem::new)
-        .recipe(RegistrumItemRecipeLoader::transcendenceAnvilHammer)
         .tag(ItemTags.MACE_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE, ModItemTags.ANVIL_HAMMER)
         .properties(properties -> properties.durability(3156))
         .model(DataGenUtil::noExtraModelOrState)
@@ -310,6 +318,13 @@ public class ModItems {
         .model(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumItemRecipeLoader::emberDragonRod)
         .register();
+    public static final ItemEntry<DragonRodItem> FROST_DRAGON_ROD = REGISTRUM
+        .item("frost_dragon_rod", properties -> new DragonRodItem(properties, 9, BlockMiningEffect.DISINTEGRATION))
+        .properties(properties -> properties.durability(2031).component(ModComponents.MERCILESS, Merciless.DEFAULT))
+        .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
+        .model(DataGenUtil::noExtraModelOrState)
+        .recipe(RegistrumItemRecipeLoader::frostDragonRod)
+        .register();
     public static final ItemEntry<DragonRodItem> TRANSCENDENCE_DRAGON_ROD = REGISTRUM
         .item("transcendence_dragon_rod", properties -> new DragonRodItem(properties, 13))
         .properties(properties -> properties.durability(3156)
@@ -325,7 +340,6 @@ public class ModItems {
         )
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::noExtraModelOrState)
-        .recipe(RegistrumItemRecipeLoader::transcendenceDragonRod)
         .register();
     public static final ItemEntry<FrostMetalHeavyHalberdItem> FROST_METAL_HEAVY_HALBERD = REGISTRUM
         .item("frost_metal_heavy_halberd", FrostMetalHeavyHalberdItem::new)
@@ -509,12 +523,6 @@ public class ModItems {
         .item("ember_metal_upgrade_smithing_template", EmberMetalUpgradeTemplateItem::new)
         .lang("Smithing Template").tag(ModItemTags.TEMPLATES)
         .register();
-    public static final ItemEntry<TranscendiumUpgradeTemplateItem> TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE = REGISTRUM
-        .item("transcendium_upgrade_smithing_template", TranscendiumUpgradeTemplateItem::new)
-        .lang("Smithing Template")
-        .tag(ModItemTags.TEMPLATES)
-        .register();
-
     public static final ItemEntry<PermutationTemplateItem> PERMUTATION_TEMPLATE_ITEM = REGISTRUM
         .item("permutation_smithing_template", PermutationTemplateItem::new)
         .recipe(RegistrumItemRecipeLoader::permutationTemplateItem)

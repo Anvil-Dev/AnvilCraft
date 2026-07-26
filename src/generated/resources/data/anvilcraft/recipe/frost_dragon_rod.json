@@ -6,11 +6,11 @@
       "item": "anvilcraft:block_devourer"
     },
     {
-      "item": "anvilcraft:transcendence_anvil_hammer"
+      "item": "anvilcraft:frost_anvil_hammer"
     }
   ],
   "result": {
     "count": 1,
-    "id": "anvilcraft:transcendence_dragon_rod"
+    "id": "anvilcraft:frost_dragon_rod"
   }
 }

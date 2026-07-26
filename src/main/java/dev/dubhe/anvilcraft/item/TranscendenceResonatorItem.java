@@ -138,8 +138,10 @@ public class TranscendenceResonatorItem extends ResonatorItem {
         }
         if (elapsedTicks < RESONANCE_MINING_TICKS) return;
 
+        boolean destroyed = livingEntity instanceof ServerPlayer player
+            && player.gameMode.destroyBlock(target.hitPos());
         targets.remove(livingEntity);
-        if (livingEntity instanceof ServerPlayer player && player.gameMode.destroyBlock(target.hitPos())) {
+        if (destroyed) {
             level.playSound(null, target.hitPos(), SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.BLOCKS, 1.0f, 0.7f);
         }
         sendMiningEffects(level, target.effectPositions(), 0);
@@ -169,6 +171,12 @@ public class TranscendenceResonatorItem extends ResonatorItem {
 
     private Map<LivingEntity, MiningTarget> miningTargets(Level level) {
         return level.isClientSide ? this.clientMiningTargets : this.serverMiningTargets;
+    }
+
+    public static boolean isResonanceMining(Level level, Player player, BlockPos pos) {
+        if (!(player.getUseItem().getItem() instanceof TranscendenceResonatorItem resonator)) return false;
+        MiningTarget target = resonator.miningTargets(level).get(player);
+        return target != null && target.hitPos().equals(pos);
     }
 
     private void stopResonanceMining(Level level, LivingEntity livingEntity, MiningTarget target) {

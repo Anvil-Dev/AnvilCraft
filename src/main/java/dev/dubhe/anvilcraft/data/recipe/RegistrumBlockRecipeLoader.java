@@ -367,18 +367,6 @@ public class RegistrumBlockRecipeLoader {
             .save(provider, AnvilCraft.of("smithing/ember_smithing_table"));
     }
 
-    public static <T extends Block> void transcendenceAnvil(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        SmithingTransformRecipeBuilder.smithing(
-                Ingredient.of(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE),
-                Ingredient.of(ModBlocks.EMBER_ANVIL),
-                Ingredient.of(ModBlocks.TRANSCENDIUM_BLOCK),
-                RecipeCategory.MISC,
-                ctx.get().asItem()
-            )
-            .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.TRANSCENDIUM_BLOCK))
-            .save(provider, AnvilCraft.of("smithing/transcendence_anvil"));
-    }
-
     public static <T extends Block> void heater(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("ABA")

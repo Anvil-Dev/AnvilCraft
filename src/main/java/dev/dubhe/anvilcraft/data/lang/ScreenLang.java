@@ -55,18 +55,13 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.ember_grindstone.cost", "Exp. Cost: %d");
         provider.add("screen.anvilcraft.frost_grindstone.title", "Disenchant");
         provider.add("screen.anvilcraft.ember_grindstone.earn", "Exp. Earn: %d");
+        provider.add("screen.anvilcraft.transcendence_grindstone.title", "Transcendence Grindstone");
 
         provider.add("screen.anvilcraft.royal_steel_upgrade_smithing_template", "Royal Steel Upgrade");
         provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description", "Put the Royal Steel Ingot or Royal Steel Block");
         provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to", "Anvil, Smithing Table, Grindstone, Anvil Hammer, Amethyst Tools, Golden Tools, Iron Tools, Diamond Tools");
         provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.base_slot_description", "Put upgradable item");
         provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.upgrade_ingredients", "Royal Steel Ingot or Royal Steel Block");
-
-        provider.add("screen.anvilcraft.transcendium_upgrade_smithing_template", "Transcendium Upgrade");
-        provider.add("screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.upgrade_ingredients", "Transcendium Ingot or Transcendium Block");
-        provider.add("screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.applies_to", "Ember Metal Anvil, Ember Anvil Hammer, Ember Dragon Rod");
-        provider.add("screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.base_slot_description", "Put upgradable item");
-        provider.add("screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.additions_slot_description", "Put the Transcendium Ingot or Transcendium Block");
 
         provider.add("screen.anvilcraft.item_collector.title", "Item Collector");
         provider.add("screen.anvilcraft.item_collector.range", "Range");
@@ -195,10 +190,22 @@ public class ScreenLang {
         provider.add("hud.anvilcraft.ionocraft_backpack_power", "Ionocraft Backpack Power Remaining: %d%%");
 
         provider.add("screen.anvilcraft.frost_metal_upgrade_smithing_template", "Frost Metal Upgrade");
-        provider.add("screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.additions_slot_description", "Put the Frost Metal Ingot");
-        provider.add("screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.applies_to", "Royal Steel Tools");
-        provider.add("screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.base_slot_description", "Put upgradable item");
-        provider.add("screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.upgrade_ingredients", "Frost Metal Ingot");
+        provider.add(
+            "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.additions_slot_description",
+            "Put the Frost Metal Ingot or Frost Metal Block"
+        );
+        provider.add(
+            "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.applies_to",
+            "Royal Steel Anvil Hammer, Royal Steel Tools"
+        );
+        provider.add(
+            "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.base_slot_description",
+            "Put upgradable item"
+        );
+        provider.add(
+            "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.upgrade_ingredients",
+            "Frost Metal Ingot or Frost Metal Block"
+        );
 
         provider.add("screen.anvilcraft.ember_smithing.tooltip.missing_template", "Add Multiple to One Template");
         provider.add("screen.anvilcraft.ember_smithing.two.missing", "Add Multiphase Transcendium");

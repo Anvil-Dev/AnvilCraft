@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.DevourUtil;
 import dev.dubhe.anvilcraft.util.GravityManager;
+import dev.dubhe.anvilcraft.util.InfiniteFluidTankBreakProtection;
 import dev.dubhe.anvilcraft.util.dummy.DummyCat;
 import dev.dubhe.anvilcraft.util.dummy.DummyWolf;
 import net.minecraft.core.BlockPos;
@@ -56,6 +57,7 @@ public class PlayerEventListener {
         Player player = event.getEntity();
         DummyCat.clear(player);
         DummyWolf.clear(player);
+        InfiniteFluidTankBreakProtection.clear(player);
     }
 
     @SubscribeEvent

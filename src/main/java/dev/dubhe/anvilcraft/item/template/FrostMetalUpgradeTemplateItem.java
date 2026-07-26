@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item.template;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -29,6 +30,8 @@ public class FrostMetalUpgradeTemplateItem extends SmithingTemplateItem {
         ResourceLocation.withDefaultNamespace("item/empty_slot_pickaxe");
     private static final ResourceLocation EMPTY_SLOT_INGOT =
         ResourceLocation.withDefaultNamespace("item/empty_slot_ingot");
+    private static final ResourceLocation EMPTY_SLOT_HAMMER = AnvilCraft.of("item/empty_slot_hammer");
+    private static final ResourceLocation EMPTY_SLOT_BLOCK = AnvilCraft.of("item/empty_slot_block");
 
     public FrostMetalUpgradeTemplateItem(@SuppressWarnings("unused") Properties properties) {
         super(
@@ -37,8 +40,8 @@ public class FrostMetalUpgradeTemplateItem extends SmithingTemplateItem {
             UPGRADE,
             UPGRADE_BASE_SLOT_DESCRIPTION,
             UPGRADE_ADDITIONS_SLOT_DESCRIPTION,
-            List.of(EMPTY_SLOT_PICKAXE),
-            List.of(EMPTY_SLOT_INGOT));
+            List.of(EMPTY_SLOT_PICKAXE, EMPTY_SLOT_HAMMER),
+            List.of(EMPTY_SLOT_INGOT, EMPTY_SLOT_BLOCK));
     }
 
     @Override

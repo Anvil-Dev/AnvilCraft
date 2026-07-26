@@ -1,0 +1,29 @@
+{
+  "type": "anvilcraft:two_to_one_smithing",
+  "inputs": [
+    {
+      "items": "anvilcraft:ember_dragon_rod"
+    },
+    {
+      "items": "anvilcraft:frost_dragon_rod"
+    }
+  ],
+  "material": {
+    "items": "anvilcraft:multiphase_transcendium"
+  },
+  "modifiers": [
+    {
+      "type": "anvilcraft:copy_data",
+      "types": [
+        {
+          "type": "anvilcraft:multiphase",
+          "input_type": "two"
+        }
+      ]
+    }
+  ],
+  "result": "anvilcraft:transcendence_dragon_rod",
+  "template": {
+    "items": "anvilcraft:two_to_one_smithing_template"
+  }
+}

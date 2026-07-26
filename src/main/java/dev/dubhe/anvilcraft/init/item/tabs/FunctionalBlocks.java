@@ -51,10 +51,12 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.ROYAL_GRINDSTONE); // 皇家砂轮
         this.plain(ModBlocks.FROST_GRINDSTONE); // 浮霜砂轮
         this.plain(ModBlocks.EMBER_GRINDSTONE); // 余烬砂轮
+        this.plain(ModBlocks.TRANSCENDENCE_GRINDSTONE); // 超限砂轮
 
         this.plain(ModBlocks.ROYAL_SMITHING_TABLE); // 皇家锻造台
         this.plain(ModBlocks.FROST_SMITHING_TABLE); // 浮霜锻造台
         this.plain(ModBlocks.EMBER_SMITHING_TABLE); // 余烬锻造台
+        this.plain(ModBlocks.TRANSCENDENCE_SMITHING_TABLE); // 超限锻造台
 
         this.plain(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK); // 磁电核心
         this.plain(ModBlocks.TRANSMISSION_POLE); // 输电杆

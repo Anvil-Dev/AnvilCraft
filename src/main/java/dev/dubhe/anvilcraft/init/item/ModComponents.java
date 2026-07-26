@@ -20,11 +20,13 @@ import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.component.ChargedProjectiles;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -141,6 +143,11 @@ public class ModComponents {
     public static final DataComponentType<ItemEnchantments> DISABLED_ENCHANTMENTS = register(
         "disabled_enchantments",
         b -> b.persistent(ItemEnchantments.CODEC).networkSynchronized(ItemEnchantments.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<Holder<Enchantment>> LIQUID_ENCHANTMENT = register(
+        "liquid_enchantment",
+        b -> b.persistent(Enchantment.CODEC).networkSynchronized(Enchantment.STREAM_CODEC)
     );
 
     public static final DataComponentType<Boolean> CAN_TAKE_OUT_AMMO = register(
