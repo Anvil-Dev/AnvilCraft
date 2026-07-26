@@ -11,3 +11,7 @@ No longer using bulky iron golems, this generates large amounts of <ref item="mi
 <structure id="../../structures/machine/more_iron.nbt"/>
 
 <ref item="anvilcraft:pulse_generator"/> set to (Cycle mode | 9gt | 0gt)
+
+<warning>
+Speed may vary in different environments. If the machine breaks, feel free to adjust the settings
+</warning>

@@ -12,3 +12,6 @@ navigation:
 
 <ref item="anvilcraft:pulse_generator"/>设置为(循环模式| 9gt | 0gt)
 
+<warning>
+不同环境下速度可能有所差别，如果机器坏了，可以自行调整
+</warning>
