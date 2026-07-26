@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.pointer;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
@@ -65,6 +66,11 @@ public class BlockItemHandlerPointer implements ITargetPointer {
     public boolean matches(BlockState requiredState) {
         return this.stack.getItem() instanceof net.minecraft.world.item.BlockItem item
             && item.getBlock() == requiredState.getBlock();
+    }
+
+    @Override
+    public Either<ItemStack, BlockState> getDisplayedBlock() {
+        return Either.left(this.stack.copyWithCount(1));
     }
 
     @Override

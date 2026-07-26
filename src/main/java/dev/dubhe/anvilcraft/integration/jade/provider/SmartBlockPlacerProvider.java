@@ -42,7 +42,7 @@ public enum SmartBlockPlacerProvider implements IBlockComponentProvider, IServer
 
         // Blueprint name (only in blueprint mode)
         if (isBlueprint) {
-            String name = be.getLoadedStructureName();
+            String name = be.getBlueprint().name();
             if (!name.isEmpty()) {
                 tooltip.add(Component.translatable(
                     "tooltip.anvilcraft.smart_block_placer.jade.blueprint_name",

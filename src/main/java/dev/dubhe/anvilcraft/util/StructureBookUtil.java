@@ -27,13 +27,13 @@ public class StructureBookUtil {
     public static final Logger LOGGER = LoggerFactory.getLogger(StructureBookUtil.class);
 
     /**
-     * 生成材料清单到输出书槽位
+     * 生成材料清单
      * 逻辑: 蓝图需求 - 世界中已放置 = 还需要放置
      */
-    public static void generateMaterialListBookToOutput(Level level, BlockPos placerPos, SmartBlockPlacerBlockEntity blockEntity) {
-        BlockState[] blueprintStates = blockEntity.getBlueprintStates();
+    public static ItemStack createMaterialListBook(Level level, BlockPos placerPos, SmartBlockPlacerBlockEntity blockEntity) {
+        BlockState[] blueprintStates = blockEntity.getBlueprint().states();
         if (!blockEntity.hasBlueprint()) {
-            return;
+            return ItemStack.EMPTY;
         }
 
         // 第一步: 统计蓝图中需要的方块数量
@@ -71,9 +71,8 @@ public class StructureBookUtil {
         // 如果所有方块都已放置完成，输出普通的书
         if (neededBlocks.isEmpty()) {
             ItemStack book = new ItemStack(Items.BOOK);
-            blockEntity.getOutputBookInventory().setItem(0, book);
-            LOGGER.info("Structure complete: {} (all blocks placed), output book", blockEntity.getLoadedStructureName());
-            return;
+            LOGGER.info("Structure complete: {} (all blocks placed), output book", blockEntity.getBlueprint().name());
+            return book;
         }
 
         // 生成书页内容
@@ -133,12 +132,11 @@ public class StructureBookUtil {
         // 如果pages为空（所有需要的方块都有足够存量），输出普通的书
         if (pages.isEmpty()) {
             ItemStack book = new ItemStack(Items.BOOK);
-            blockEntity.getOutputBookInventory().setItem(0, book);
             LOGGER.info(
                 "Structure material available: {} (all needed blocks available), output book",
-                blockEntity.getLoadedStructureName()
+                blockEntity.getBlueprint().name()
             );
-            return;
+            return book;
         }
 
         // 设置书的专用组件
@@ -152,15 +150,14 @@ public class StructureBookUtil {
         );
         writtenBook.set(DataComponents.WRITTEN_BOOK_CONTENT, bookContent);
 
-        // 放入输出槽位
-        blockEntity.getOutputBookInventory().setItem(0, writtenBook);
         LOGGER.info(
             "Generated material list book for structure: {} (needed: {}/{} blocks, placed: {})",
-            blockEntity.getLoadedStructureName(),
+            blockEntity.getBlueprint().name(),
             neededBlocks.size(),
             requiredBlocks.size(),
             placedBlocks.values().stream().mapToInt(Integer::intValue).sum()
         );
+        return writtenBook;
     }
 
     /**

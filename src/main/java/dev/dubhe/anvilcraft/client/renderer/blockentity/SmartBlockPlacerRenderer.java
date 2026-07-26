@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.datafixers.util.Either;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
@@ -16,9 +17,12 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -238,11 +242,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         applyHorizontalRotation(poseStack, facing, upsideDown);
         poseStack.translate(0, upsideDown ? 0.5 : -1.5, 0);
 
-        boolean isCurrentlyPowered = entity.isPowered();
-        boolean hasRedstoneSignal = entity.isHasRedstoneSignal();
-        
-        entity.updateClientAnimationState(isCurrentlyPowered, hasRedstoneSignal);
-        
         // 初始化动画变量
         float baseSwingAngle = 0f;
         float upperArmAngle = 0f;
@@ -251,7 +250,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         float animationProgress = 0f;
         boolean isAnimationPlaying = false;
         
-        boolean isWorking = entity.getPlaceCooldown() > 0;
+        boolean isWorking = entity.canOperate() && entity.getPlaceCooldown() > 0;
         
         // 检测是否需要开始收回动画
         boolean wasWorkingLastFrame = entity.getClientAnimationStartTime() != 0;
@@ -287,7 +286,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         }
         
         // 重新开始工作时取消收回状态
-        if (isCurrentlyPowered && !hasRedstoneSignal && isWorking) {
+        if (isWorking) {
             entity.setClientIsRetracting(false);
         }
         
@@ -322,12 +321,10 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     entity.setClientLastTargetPos(null);
                 }
             }
-        } else if (isCurrentlyPowered && !hasRedstoneSignal && isWorking && retractAnimLevel != null) {
+        } else if (isWorking && retractAnimLevel != null) {
             long currentTime = retractAnimLevel.getGameTime();
             long animStartTime = entity.getClientAnimationStartTime();
             BlockPos animTargetPos = entity.getClientLastTargetPos();
-            
-            boolean hasValidWorkItem = !entity.getCurrentHeldBlock().isEmpty() || animStartTime != 0;
             
             // 如果动画已播放完成，检查工作条件
             if (animStartTime != 0 && animTargetPos != null) {
@@ -390,7 +387,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 }
             }
             
-            if (animStartTime == 0 && hasValidWorkItem) {
+            if (animStartTime == 0) {
                 BlockPos targetPos = getNextTargetPosition(entity, facing, upsideDown);
                 if (targetPos != null && entity.getLevel() != null) {
                     entity.getLevel().playLocalSound(
@@ -516,29 +513,28 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
     }
     
-    private boolean canBeStacked(net.minecraft.world.level.block.state.BlockState state,
-        @Nullable net.minecraft.world.item.BlockItem blockItem) {
+    private boolean canBeStacked(BlockState state, @Nullable Block heldBlock) {
         if (state.is(net.minecraft.world.level.block.Blocks.TURTLE_EGG)) {
             if (state.getValue(net.minecraft.world.level.block.TurtleEggBlock.EGGS) < 4) {
-                return blockItem == null || state.getBlock() == blockItem.getBlock();
+                return heldBlock == null || state.is(heldBlock);
             }
             return false;
         }
         if (state.is(net.minecraft.world.level.block.Blocks.SEA_PICKLE)) {
             if (state.getValue(net.minecraft.world.level.block.SeaPickleBlock.PICKLES) < 4) {
-                return blockItem == null || state.getBlock() == blockItem.getBlock();
+                return heldBlock == null || state.is(heldBlock);
             }
             return false;
         }
         if (state.getBlock() instanceof net.minecraft.world.level.block.CandleBlock) {
             if (state.getValue(net.minecraft.world.level.block.CandleBlock.CANDLES) < 4) {
-                return blockItem == null || state.getBlock() == blockItem.getBlock();
+                return heldBlock == null || state.is(heldBlock);
             }
             return false;
         }
         if (state.is(net.minecraft.world.level.block.Blocks.PINK_PETALS)) {
             if (state.getValue(net.minecraft.world.level.block.state.properties.BlockStateProperties.FLOWER_AMOUNT) < 4) {
-                return blockItem == null || state.getBlock() == blockItem.getBlock();
+                return heldBlock == null || state.is(heldBlock);
             }
             return false;
         }
@@ -595,15 +591,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             }
             
             if (!targetState.isAir()) {
-                net.minecraft.world.item.ItemStack heldItem = entity.getCurrentHeldBlock();
-                if (!heldItem.isEmpty() && heldItem.getItem() instanceof net.minecraft.world.item.BlockItem heldBlockItem) {
-                    if (canBeStacked(targetState, heldBlockItem)) {
-                        return targetPos;
-                    }
-                } else if (heldItem.isEmpty()) {
-                    if (canBeStacked(targetState, null)) {
-                        return targetPos;
-                    }
+                Block heldBlock = getDisplayedBlock(entity.getCurrentHeldBlock());
+                if (canBeStacked(targetState, heldBlock)) {
+                    return targetPos;
                 }
             }
         }
@@ -630,9 +620,8 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     
     private void renderHeldBlock(
         PoseStack poseStack, MultiBufferSource buffer, SmartBlockPlacerBlockEntity entity, int packedLight, int packedOverlay) {
-        ItemStack stack = entity.getCurrentHeldBlock();
-        
-        if (stack.isEmpty()) {
+        Either<ItemStack, BlockState> heldBlock = entity.getCurrentHeldBlock();
+        if (heldBlock == null) {
             return;
         }
         
@@ -641,18 +630,40 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         poseStack.mulPose(Axis.XP.rotationDegrees(-40));
         poseStack.scale(0.65f, 0.65f, 0.65f);
         
-        net.minecraft.client.renderer.entity.ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
-        itemRenderer.renderStatic(
-            stack,
-            net.minecraft.world.item.ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
-            packedLight,
-            packedOverlay,
-            poseStack,
-            buffer,
-            entity.getLevel(),
-            0
-        );
+        heldBlock
+            .ifLeft(stack -> Minecraft.getInstance().getItemRenderer().renderStatic(
+                stack,
+                net.minecraft.world.item.ItemDisplayContext.THIRD_PERSON_RIGHT_HAND,
+                packedLight,
+                packedOverlay,
+                poseStack,
+                buffer,
+                entity.getLevel(),
+                0
+            ))
+            .ifRight(state -> {
+                poseStack.translate(-0.5F, -0.5F, -0.5F);
+                Minecraft.getInstance().getBlockRenderer().renderSingleBlock(
+                    state,
+                    poseStack,
+                    buffer,
+                    packedLight,
+                    packedOverlay,
+                    ModelData.EMPTY,
+                    null
+                );
+            });
         
         poseStack.popPose();
+    }
+
+    private static @Nullable Block getDisplayedBlock(@Nullable Either<ItemStack, BlockState> displayedBlock) {
+        if (displayedBlock == null) {
+            return null;
+        }
+        return displayedBlock.map(
+            stack -> stack.getItem() instanceof BlockItem blockItem ? blockItem.getBlock() : null,
+            BlockState::getBlock
+        );
     }
 }

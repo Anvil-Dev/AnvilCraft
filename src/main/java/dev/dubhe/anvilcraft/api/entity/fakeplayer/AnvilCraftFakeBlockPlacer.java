@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.api.entity.fakeplayer;
 
 import com.mojang.authlib.GameProfile;
 import dev.dubhe.anvilcraft.block.state.Orientation;
-import dev.dubhe.anvilcraft.util.BlockItemPlacementStateOverride;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Data;
 import net.minecraft.core.BlockPos;
@@ -120,17 +119,7 @@ public class AnvilCraftFakeBlockPlacer {
                 stack,
                 blockHitResult
             );
-        InteractionResult ir;
-        if (placementState == null) {
-            ir = blockItem.place(blockPlaceContext);
-        } else {
-            BlockItemPlacementStateOverride.set(placementState);
-            try {
-                ir = blockItem.place(blockPlaceContext);
-            } finally {
-                BlockItemPlacementStateOverride.clear();
-            }
-        }
+        InteractionResult ir = blockItem.place(blockPlaceContext);
         if (ir == InteractionResult.FAIL) {
             this.disable(player);
             return ir;

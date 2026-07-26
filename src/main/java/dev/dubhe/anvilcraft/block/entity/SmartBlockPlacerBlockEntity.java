@@ -1,6 +1,7 @@
 
 package dev.dubhe.anvilcraft.block.entity;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.api.event.SmartBlockPlacerFindPointerEvent;
 import dev.dubhe.anvilcraft.api.item.IDiskCloneable;
@@ -15,7 +16,6 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
-import dev.dubhe.anvilcraft.util.StructureBookUtil;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,7 +37,6 @@ import net.minecraft.resources.RegistryOps;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -61,13 +60,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.UUID;
 import javax.annotation.Nullable;
 
 @Getter
 @Setter
 public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerConsumer, MenuProvider, IDiskCloneable, IItemHandlerHolder {
-    private static final ThreadLocal<Boolean> BLOCK_BEING_MOVED = ThreadLocal.withInitial(() -> false);
     private static final int PLACEMENT_INTERVAL = 20;
     public static final int POSITION_GRID_SIZE = 5;
     public static final int POSITIONS_PER_LAYER = POSITION_GRID_SIZE * POSITION_GRID_SIZE;
@@ -90,12 +87,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private int selectedLayer;
     private int currentPlacementIndex;
     private final boolean[] layerPositions = new boolean[POSITION_COUNT];
-    private final BlockState[] blueprintStates = new BlockState[POSITION_COUNT];
-    private String loadedStructureName = "";
-    private @Nullable UUID loadedStructureUuid;
-    private boolean invalidStructure;
-    private ItemStack missingBlockItem = ItemStack.EMPTY;
-    private ItemStack currentHeldBlock = ItemStack.EMPTY;
+    private StructureBlueprint blueprint = StructureBlueprint.empty();
+    private @Nullable Either<ItemStack, BlockState> missingBlock;
+    private @Nullable Either<ItemStack, BlockState> currentHeldBlock;
     private boolean loadingBlueprintInventory;
 
     private final ItemStackHandler blueprintItemHandler = new ItemStackHandler(1) {
@@ -125,30 +119,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
     };
 
-    private final SimpleContainer bookInventory = new SimpleContainer(1) {
-        @Override
-        public void setChanged() {
-            super.setChanged();
-            SmartBlockPlacerBlockEntity.this.setChanged();
-            Level level = SmartBlockPlacerBlockEntity.this.getLevel();
-            if (!SmartBlockPlacerBlockEntity.this.loadingBlueprintInventory
-                && level != null && !level.isClientSide() && !this.getItem(0).isEmpty()) {
-                StructureBookUtil.generateMaterialListBookToOutput(
-                    level,
-                    SmartBlockPlacerBlockEntity.this.getBlockPos(),
-                    SmartBlockPlacerBlockEntity.this
-                );
-            }
-        }
-    };
-    private final SimpleContainer outputBookInventory = new SimpleContainer(1) {
-        @Override
-        public void setChanged() {
-            super.setChanged();
-            SmartBlockPlacerBlockEntity.this.setChanged();
-        }
-    };
-
     private long clientAnimationStartTime;
     private @Nullable BlockPos clientLastTargetPos;
     private boolean clientIsRetracting;
@@ -163,7 +133,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     private SmartBlockPlacerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
-        Arrays.fill(this.blueprintStates, Blocks.AIR.defaultBlockState());
     }
 
     public static SmartBlockPlacerBlockEntity createBlockEntity(
@@ -172,14 +141,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         BlockState blockState
     ) {
         return new SmartBlockPlacerBlockEntity(type, pos, blockState);
-    }
-
-    public static boolean isBlockBeingMovedByPlacer() {
-        return BLOCK_BEING_MOVED.get();
-    }
-
-    public static void setBlockBeingMovedByPlacer(boolean moving) {
-        BLOCK_BEING_MOVED.set(moving);
     }
 
     /**
@@ -208,13 +169,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      */
     public @Nullable ITargetPointer refreshPointer(ServerLevel level) {
         int previousPlacementIndex = this.currentPlacementIndex;
+        Either<ItemStack, BlockState> previousHeldBlock = this.currentHeldBlock;
         ITargetPointer found = this.findPointer(level);
         boolean changed = found != this.pointer || previousPlacementIndex != this.currentPlacementIndex;
         this.pointer = found;
-        if (found == null && !this.currentHeldBlock.isEmpty()) {
-            this.currentHeldBlock = ItemStack.EMPTY;
-            changed = true;
+        if (found == null) {
+            this.currentHeldBlock = null;
+        } else if (this.target == TargetMode.POSITION) {
+            this.currentHeldBlock = found.getDisplayedBlock();
         }
+        changed |= !displayedBlocksMatch(previousHeldBlock, this.currentHeldBlock);
         if (changed) {
             this.setChanged();
             level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
@@ -242,14 +206,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
             ITargetPointer found = this.findPointer(level, blueprintTarget.state());
             if (found != null) {
-                this.updateMissingBlockItem(level, ItemStack.EMPTY);
-                this.currentHeldBlock = blueprintTarget.state().getBlock().asItem().getDefaultInstance();
+                this.updateMissingBlock(level, null);
+                this.currentHeldBlock = this.createDisplayedBlock(blueprintTarget.state());
                 return found;
             }
-            this.updateMissingBlockItem(
-                level,
-                blueprintTarget.state().getBlock().asItem().getDefaultInstance()
-            );
+            this.updateMissingBlock(level, this.createDisplayedBlock(blueprintTarget.state()));
             if (this.blueprintPlacementMode == BlueprintPlacementMode.WAIT) {
                 return null;
             }
@@ -259,12 +220,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     private @Nullable ITargetPointer findPointer(ServerLevel level, @Nullable BlockState requiredState) {
-        if (this.pointer != null
+        if (
+            this.pointer != null
             && this.pointer.isStillValid(level)
-            && (requiredState == null || this.pointer.matches(requiredState))) {
+            && (requiredState == null || this.pointer.matches(requiredState))
+        ) {
             return this.pointer;
         }
-        SmartBlockPlacerFindPointerEvent event = new SmartBlockPlacerFindPointerEvent(
+        SmartBlockPlacerFindPointerEvent event = NeoForge.EVENT_BUS.post(new SmartBlockPlacerFindPointerEvent(
             level,
             this.getSourcePos(),
             this.getFacing(),
@@ -272,20 +235,25 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.target,
             this.phase,
             requiredState
-        );
-        SmartBlockPlacerFindPointerEvent postedEvent = NeoForge.EVENT_BUS.post(event);
-        if (postedEvent.isCanceled()) {
+        ));
+        if (event.isCanceled()) {
             return null;
         }
-        return postedEvent.getPointer();
+        return event.getPointer();
     }
 
     public void tickClient() {
-        this.advancePhaseProgress();
+        if (this.canOperate()) {
+            this.advancePhaseProgress();
+        }
     }
 
     public void tickServer(Level level, BlockPos pos) {
         if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        this.flushState(serverLevel, pos);
+        if (!this.canOperate()) {
             return;
         }
         if (Objects.requireNonNull(this.phase) == ExecutionPhase.IDLE) {
@@ -372,16 +340,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         if (pointer.applyToPos(level, blueprintTarget.pos(), blueprintTarget.state())) {
             this.advanceBlueprintIndex(blueprintTarget.orderIndex());
-            this.updateMissingBlockItem(level, ItemStack.EMPTY);
+            this.updateMissingBlock(level, null);
             this.pointer = null;
             this.setChanged();
             return;
         }
         this.pointer = null;
-        this.updateMissingBlockItem(
-            level,
-            blueprintTarget.state().getBlock().asItem().getDefaultInstance()
-        );
+        this.updateMissingBlock(level, this.createDisplayedBlock(blueprintTarget.state()));
         if (this.blueprintPlacementMode == BlueprintPlacementMode.SKIP) {
             this.advanceBlueprintIndex(blueprintTarget.orderIndex());
         }
@@ -392,7 +357,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         for (int checked = 0; checked < POSITION_COUNT; checked++) {
             int orderIndex = Math.floorMod(this.currentPlacementIndex, POSITION_COUNT);
             int storageIndex = getStorageIndexForOrder(orderIndex);
-            BlockState storedState = this.blueprintStates[storageIndex];
+            BlockState storedState = this.blueprint.states()[storageIndex];
             if (storedState.isAir()) {
                 this.advanceBlueprintIndex(orderIndex);
                 continue;
@@ -411,10 +376,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 continue;
             }
             if (!worldState.canBeReplaced()) {
-                this.updateMissingBlockItem(
-                    level,
-                    requiredState.getBlock().asItem().getDefaultInstance()
-                );
+                this.updateMissingBlock(level, this.createDisplayedBlock(requiredState));
                 if (this.blueprintPlacementMode == BlueprintPlacementMode.WAIT) {
                     return null;
                 }
@@ -431,13 +393,34 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.setChanged();
     }
 
-    private void updateMissingBlockItem(ServerLevel level, ItemStack stack) {
-        if (ItemStack.matches(this.missingBlockItem, stack)) {
+    private Either<ItemStack, BlockState> createDisplayedBlock(BlockState state) {
+        ItemStack stack = state.getBlock().asItem().getDefaultInstance();
+        if (this.operation == OperationMode.PICKUP && !stack.isEmpty()) {
+            return Either.left(stack);
+        }
+        return Either.right(state);
+    }
+
+    private void updateMissingBlock(ServerLevel level, @Nullable Either<ItemStack, BlockState> missingBlock) {
+        if (displayedBlocksMatch(this.missingBlock, missingBlock)) {
             return;
         }
-        this.missingBlockItem = stack;
+        this.missingBlock = missingBlock;
         this.setChanged();
         level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
+    }
+
+    private static boolean displayedBlocksMatch(
+        @Nullable Either<ItemStack, BlockState> first,
+        @Nullable Either<ItemStack, BlockState> second
+    ) {
+        if (first == null || second == null) {
+            return first == second;
+        }
+        return first.map(
+            stack -> second.left().map(other -> ItemStack.matches(stack, other)).orElse(false),
+            state -> second.right().map(state::equals).orElse(false)
+        );
     }
 
     private static int getStorageIndexForOrder(int orderIndex) {
@@ -480,7 +463,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (storageIndex < 0 || storageIndex >= POSITION_COUNT) {
             return Blocks.AIR.defaultBlockState();
         }
-        BlockState state = this.blueprintStates[storageIndex].rotate(this.getBlueprintRotation(targetFacing));
+        BlockState state = this.blueprint.states()[storageIndex].rotate(this.getBlueprintRotation(targetFacing));
         return upsideDown ? flipHalfPropertyStatic(state) : state;
     }
 
@@ -488,19 +471,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         ItemStack blueprint = this.blueprintItemHandler.getStackInSlot(0);
         StructureDiskData data = blueprint.get(ModComponents.STRUCTURE_DISK_DATA);
         Direction scannerFacing = data == null ? Direction.NORTH : data.direction();
-        int placerRotation = switch (targetFacing) {
-            case EAST -> 1;
-            case SOUTH -> 2;
-            case WEST -> 3;
-            default -> 0;
-        };
-        int scannerCorrection = switch (scannerFacing) {
-            case NORTH -> 2;
-            case WEST -> 3;
-            case EAST -> 1;
-            default -> 0;
-        };
-        return switch ((placerRotation + scannerCorrection) % 4) {
+        return switch ((scannerFacing.get2DDataValue() - targetFacing.get2DDataValue()) % 4) {
             case 1 -> Rotation.CLOCKWISE_90;
             case 2 -> Rotation.CLOCKWISE_180;
             case 3 -> Rotation.COUNTERCLOCKWISE_90;
@@ -515,6 +486,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     private record BlueprintTarget(int orderIndex, BlockPos pos, BlockState state) {
+    }
+
+    public record StructureBlueprint(String name, BlockState[] states, boolean invalid) {
+        private static StructureBlueprint empty() {
+            BlockState[] states = new BlockState[POSITION_COUNT];
+            Arrays.fill(states, Blocks.AIR.defaultBlockState());
+            return new StructureBlueprint("", states, false);
+        }
     }
 
     private boolean hasAvailablePosition(ServerLevel level) {
@@ -652,7 +631,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.target = blueprint.isEmpty() ? TargetMode.POSITION : TargetMode.BLUEPRINT;
         this.currentPlacementIndex = 0;
         this.pointer = null;
-        this.missingBlockItem = ItemStack.EMPTY;
+        this.missingBlock = null;
+        this.currentHeldBlock = null;
         if (blueprint.isEmpty()) {
             this.clearBlueprint();
         } else if (this.level != null && !this.level.isClientSide()) {
@@ -666,15 +646,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         ItemStack blueprint = this.blueprintItemHandler.getStackInSlot(0);
         StructureDiskData diskData = blueprint.get(ModComponents.STRUCTURE_DISK_DATA);
         if (blueprint.isEmpty() || diskData == null || this.level == null) {
-            this.invalidStructure = !blueprint.isEmpty();
+            this.blueprint = new StructureBlueprint("", this.blueprint.states(), !blueprint.isEmpty());
             return;
         }
 
-        this.loadedStructureName = diskData.name();
-        this.loadedStructureUuid = diskData.uuid();
         StructureLoadUtil.StructureData structure = StructureLoadUtil.loadStructureFromDisk(this.level, blueprint);
         if (structure == null || structure.isEmpty()) {
-            this.invalidStructure = true;
+            this.blueprint = new StructureBlueprint(diskData.name(), this.blueprint.states(), true);
             return;
         }
 
@@ -691,21 +669,19 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 continue;
             }
             int position = row * POSITION_GRID_SIZE + column;
-            this.blueprintStates[getPositionIndex(layer, position)] = block.state();
+            this.blueprint.states()[getPositionIndex(layer, position)] = block.state();
         }
+        this.blueprint = new StructureBlueprint(diskData.name(), this.blueprint.states(), false);
     }
 
     private void clearBlueprint() {
-        Arrays.fill(this.blueprintStates, Blocks.AIR.defaultBlockState());
-        this.loadedStructureName = "";
-        this.loadedStructureUuid = null;
-        this.invalidStructure = false;
+        this.blueprint = StructureBlueprint.empty();
     }
 
-    private void saveBlueprintStates(CompoundTag tag, HolderLookup.Provider registries) {
+    private void saveBlueprintData(CompoundTag tag, HolderLookup.Provider registries) {
         ListTag states = new ListTag();
         for (int index = 0; index < POSITION_COUNT; index++) {
-            BlockState state = this.blueprintStates[index];
+            BlockState state = this.blueprint.states()[index];
             if (state.isAir()) {
                 continue;
             }
@@ -715,18 +691,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             states.add(entry);
         }
         tag.put("blueprintStates", states);
-        tag.putString("loadedStructureName", this.loadedStructureName);
-        if (this.loadedStructureUuid != null) {
-            tag.putUUID("loadedStructureUuid", this.loadedStructureUuid);
-        }
-        tag.putBoolean("invalidStructure", this.invalidStructure);
-        if (!this.missingBlockItem.isEmpty()) {
-            tag.put("missingBlockItem", this.missingBlockItem.save(registries));
-        }
+        tag.putString("loadedStructureName", this.blueprint.name());
+        tag.putBoolean("invalidStructure", this.blueprint.invalid());
+        saveDisplayedBlock(tag, "missingBlock", this.missingBlock, registries);
+        saveDisplayedBlock(tag, "currentHeldBlock", this.currentHeldBlock, registries);
     }
 
-    private void loadBlueprintStates(CompoundTag tag, HolderLookup.Provider registries) {
-        Arrays.fill(this.blueprintStates, Blocks.AIR.defaultBlockState());
+    private void loadBlueprintData(CompoundTag tag, HolderLookup.Provider registries) {
+        BlockState[] blueprintStates = new BlockState[POSITION_COUNT];
+        Arrays.fill(blueprintStates, Blocks.AIR.defaultBlockState());
         ListTag states = tag.getList("blueprintStates", Tag.TAG_COMPOUND);
         for (int listIndex = 0; listIndex < states.size(); listIndex++) {
             CompoundTag entry = states.getCompound(listIndex);
@@ -734,30 +707,69 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (index < 0 || index >= POSITION_COUNT || !entry.contains("state", Tag.TAG_COMPOUND)) {
                 continue;
             }
-            this.blueprintStates[index] = NbtUtils.readBlockState(
+            blueprintStates[index] = NbtUtils.readBlockState(
                 registries.lookupOrThrow(Registries.BLOCK),
                 entry.getCompound("state")
             );
         }
-        this.loadedStructureName = tag.getString("loadedStructureName");
-        this.loadedStructureUuid = tag.hasUUID("loadedStructureUuid") ? tag.getUUID("loadedStructureUuid") : null;
-        this.invalidStructure = tag.getBoolean("invalidStructure");
-        this.missingBlockItem = tag.contains("missingBlockItem", Tag.TAG_COMPOUND)
-            ? ItemStack.parseOptional(registries, tag.getCompound("missingBlockItem"))
-            : ItemStack.EMPTY;
+        this.blueprint = new StructureBlueprint(
+            tag.getString("loadedStructureName"),
+            blueprintStates,
+            tag.getBoolean("invalidStructure")
+        );
+        this.missingBlock = loadDisplayedBlock(tag, "missingBlock", registries);
+        if (this.missingBlock == null && tag.contains("missingBlockItem", Tag.TAG_COMPOUND)) {
+            ItemStack legacyMissingItem = ItemStack.parseOptional(registries, tag.getCompound("missingBlockItem"));
+            this.missingBlock = legacyMissingItem.isEmpty() ? null : Either.left(legacyMissingItem);
+        }
+        this.currentHeldBlock = loadDisplayedBlock(tag, "currentHeldBlock", registries);
+    }
+
+    private static void saveDisplayedBlock(
+        CompoundTag tag,
+        String key,
+        @Nullable Either<ItemStack, BlockState> displayedBlock,
+        HolderLookup.Provider registries
+    ) {
+        if (displayedBlock == null) {
+            return;
+        }
+        CompoundTag displayedBlockTag = new CompoundTag();
+        displayedBlock
+            .ifLeft(stack -> displayedBlockTag.put("item", stack.save(registries)))
+            .ifRight(state -> displayedBlockTag.put("state", NbtUtils.writeBlockState(state)));
+        tag.put(key, displayedBlockTag);
+    }
+
+    private static @Nullable Either<ItemStack, BlockState> loadDisplayedBlock(
+        CompoundTag tag,
+        String key,
+        HolderLookup.Provider registries
+    ) {
+        if (!tag.contains(key, Tag.TAG_COMPOUND)) {
+            return null;
+        }
+        CompoundTag displayedBlockTag = tag.getCompound(key);
+        if (displayedBlockTag.contains("item", Tag.TAG_COMPOUND)) {
+            ItemStack stack = ItemStack.parseOptional(registries, displayedBlockTag.getCompound("item"));
+            return stack.isEmpty() ? null : Either.left(stack);
+        }
+        if (displayedBlockTag.contains("state", Tag.TAG_COMPOUND)) {
+            return Either.right(NbtUtils.readBlockState(
+                registries.lookupOrThrow(Registries.BLOCK),
+                displayedBlockTag.getCompound("state")
+            ));
+        }
+        return null;
     }
 
     public boolean hasBlueprint() {
-        for (BlockState state : this.blueprintStates) {
+        for (BlockState state : this.blueprint.states()) {
             if (!state.isAir()) {
                 return true;
             }
         }
         return false;
-    }
-
-    public boolean hasInvalidStructure() {
-        return this.invalidStructure;
     }
 
     public boolean isPickupMode() {
@@ -767,6 +779,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     public void setPickupMode(boolean pickupMode) {
         this.operation = pickupMode ? OperationMode.PICKUP : OperationMode.MOVE;
         this.pointer = null;
+        this.missingBlock = null;
+        this.currentHeldBlock = null;
         this.syncPositionSelection();
     }
 
@@ -786,7 +800,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         for (int checked = 0; checked < POSITION_COUNT; checked++) {
             int orderIndex = Math.floorMod(this.currentPlacementIndex + checked, POSITION_COUNT);
             int storageIndex = getStorageIndexForOrder(orderIndex);
-            if (!this.blueprintStates[storageIndex].isAir()) {
+            if (!this.blueprint.states()[storageIndex].isAir()) {
                 return this.getBlueprintPosition(storageIndex);
             }
         }
@@ -802,7 +816,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         if (this.target == TargetMode.BLUEPRINT) {
             for (int index = 0; index < POSITION_COUNT; index++) {
-                if (this.blueprintStates[index].isAir()) {
+                if (this.blueprint.states()[index].isAir()) {
                     continue;
                 }
                 total++;
@@ -825,19 +839,24 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         return this.phase == ExecutionPhase.IDLE ? 0 : 1;
     }
 
-    public boolean isPowered() {
-        return this.getBlockState().hasProperty(SmartBlockPlacerBlock.POWERED)
-            && this.getBlockState().getValue(SmartBlockPlacerBlock.POWERED);
+    public boolean isOverloaded() {
+        BlockState state = this.getCurrentBlockState();
+        return state.hasProperty(SmartBlockPlacerBlock.OVERLOAD)
+            && state.getValue(SmartBlockPlacerBlock.OVERLOAD);
     }
 
-    public boolean isHasRedstoneSignal() {
-        return this.level != null && this.level.hasNeighborSignal(this.getBlockPos());
+    public boolean isRedstoneLocked() {
+        BlockState state = this.getCurrentBlockState();
+        return state.hasProperty(SmartBlockPlacerBlock.POWERED)
+            && state.getValue(SmartBlockPlacerBlock.POWERED);
     }
 
-    public void updateClientAnimationState(boolean powered, boolean hasRedstoneSignal) {
-        if (!powered || hasRedstoneSignal) {
-            this.clientAnimationStartTime = 0;
-        }
+    public boolean canOperate() {
+        return !this.isOverloaded() && !this.isRedstoneLocked();
+    }
+
+    private BlockState getCurrentBlockState() {
+        return this.level == null ? this.getBlockState() : this.level.getBlockState(this.getBlockPos());
     }
 
     public static BlockState flipHalfPropertyStatic(BlockState state) {
@@ -891,10 +910,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.put("phase", ExecutionPhase.CODEC.encodeStart(ops, this.phase).getOrThrow());
         tag.putFloat("progress", this.progress);
         tag.put("blueprintInventory", this.blueprintItemHandler.serializeNBT(registries));
-        tag.put("bookInventory", this.bookInventory.createTag(registries));
-        tag.put("outputBookInventory", this.outputBookInventory.createTag(registries));
         this.savePositionSelection(tag);
-        this.saveBlueprintStates(tag, registries);
+        this.saveBlueprintData(tag, registries);
         if (this.pointer != null) {
             tag.put("pointer", ITargetPointer.CODEC.encodeStart(ops, this.pointer).getOrThrow());
         }
@@ -923,13 +940,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             if (tag.contains("blueprintInventory", Tag.TAG_COMPOUND)) {
                 this.blueprintItemHandler.deserializeNBT(registries, tag.getCompound("blueprintInventory"));
             }
-            this.bookInventory.fromTag(tag.getList("bookInventory", Tag.TAG_COMPOUND), registries);
-            this.outputBookInventory.fromTag(tag.getList("outputBookInventory", Tag.TAG_COMPOUND), registries);
         } finally {
             this.loadingBlueprintInventory = false;
         }
         this.loadPositionSelection(tag);
-        this.loadBlueprintStates(tag, registries);
+        this.loadBlueprintData(tag, registries);
         this.target = this.blueprintItemHandler.getStackInSlot(0).isEmpty()
             ? TargetMode.POSITION
             : TargetMode.BLUEPRINT;

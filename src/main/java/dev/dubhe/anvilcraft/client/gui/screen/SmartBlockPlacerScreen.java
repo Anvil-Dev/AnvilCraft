@@ -12,6 +12,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.datafixers.util.Either;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
@@ -33,9 +34,11 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -49,6 +52,7 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL30;
@@ -56,9 +60,7 @@ import org.lwjgl.opengl.GL30;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.UUID;
 import javax.annotation.Nullable;
 
 public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPlacerMenu> {
@@ -130,7 +132,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
     private boolean cachedShowAllLayers = true;
     private boolean cachedPickupMode = true;
     private boolean cachedBlueprintMode = false;  // 缓存蓝图模式状态
-    private @Nullable UUID cachedStructureUuid = null;  // 缓存结构UUID，用于检测结构变化
+    private BlockState[] cachedBlueprintStates = new BlockState[SmartBlockPlacerBlockEntity.POSITION_COUNT];
     private long cachedGameTimeBlockType = -1;  // 用于追踪方块类型的游戏时间
 
     // 蓝图名字滚动相关
@@ -677,7 +679,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         }
 
         // 蓝图模式下渲染书槽位的虚影（当槽位为空时）
-        if (this.isBlueprintMode && blockEntity != null && blockEntity.getBookInventory().getItem(0).isEmpty()) {
+        if (this.isBlueprintMode && this.menu.getBookInventory().getItem(0).isEmpty()) {
             // 获取书物品
             ItemStack bookStack = Items.BOOK.getDefaultInstance();
             if (!bookStack.isEmpty()) {
@@ -755,6 +757,35 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         final int maskColor = 0x99777777;  // 调整透明度，数值越大越透明
         g.renderItem(stack, x, y, 0);
         g.fill(RenderType.guiOverlay(), x, y, x + 16, y + 16, maskColor);
+    }
+
+    private void renderDisplayedBlock(
+        GuiGraphics guiGraphics,
+        Either<ItemStack, BlockState> displayedBlock,
+        int x,
+        int y
+    ) {
+        displayedBlock
+            .ifLeft(stack -> guiGraphics.renderFakeItem(stack, x, y))
+            .ifRight(state -> {
+                guiGraphics.pose().pushPose();
+                guiGraphics.pose().translate(x + 8.0F, y + 12.0F, 100.0F);
+                guiGraphics.pose().scale(10.0F, -10.0F, 10.0F);
+                guiGraphics.pose().mulPose(Axis.XP.rotationDegrees(30.0F));
+                guiGraphics.pose().mulPose(Axis.YP.rotationDegrees(45.0F));
+                guiGraphics.pose().translate(-0.5F, -0.5F, -0.5F);
+                Minecraft.getInstance().getBlockRenderer().renderSingleBlock(
+                    state,
+                    guiGraphics.pose(),
+                    guiGraphics.bufferSource(),
+                    LightTexture.FULL_BRIGHT,
+                    OverlayTexture.NO_OVERLAY,
+                    ModelData.EMPTY,
+                    null
+                );
+                guiGraphics.flush();
+                guiGraphics.pose().popPose();
+            });
     }
 
     @Override
@@ -871,8 +902,8 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         // 检查缺失方块图标的tooltip
         if (blockEntity != null) {
-            ItemStack missingItem = blockEntity.getMissingBlockItem();
-            if (!missingItem.isEmpty()) {
+            Either<ItemStack, BlockState> missingBlock = blockEntity.getMissingBlock();
+            if (missingBlock != null) {
                 int textX = this.structureInfoBaseX + 4;
                 int textY = this.structureInfoBaseY;
                 Component missingText = Component.translatable("screen.anvilcraft.smart_block_placer.missing.block");
@@ -882,7 +913,11 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 int iconHeight = 16;
 
                 if (mouseX >= iconX && mouseX < iconX + iconWidth && mouseY >= iconY && mouseY < iconY + iconHeight) {
-                    tooltipsToRender.add(new TooltipRenderInfo(this.font, this.getTooltipFromContainerItem(missingItem), mouseX, mouseY));
+                    List<Component> tooltip = missingBlock.map(
+                        this::getTooltipFromContainerItem,
+                        state -> List.of(state.getBlock().getName())
+                    );
+                    tooltipsToRender.add(new TooltipRenderInfo(this.font, tooltip, mouseX, mouseY));
                 }
             }
         }
@@ -1021,7 +1056,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         // 渲染已加载的结构名称（提高图层，与“没有选区”文本一致）
         var blockEntity = this.menu.getBlockEntity();
         if (blockEntity != null) {
-            String structureName = blockEntity.getLoadedStructureName();
+            String structureName = blockEntity.getBlueprint().name();
             if (!structureName.isEmpty()) {
                 // 禁用深度测试，确保文本在最上层渲染
                 RenderSystem.disableDepthTest();
@@ -1085,18 +1120,23 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 }
 
                 // 显示缺失方块信息（服务端同步）
-                ItemStack missingItem = blockEntity.getMissingBlockItem();
-                if (!missingItem.isEmpty()) {
+                Either<ItemStack, BlockState> missingBlock = blockEntity.getMissingBlock();
+                if (missingBlock != null) {
                     Component missingText = Component.translatable("screen.anvilcraft.smart_block_placer.missing.block");
                     guiGraphics.drawString(this.font, missingText, textX, textY + 20, 0xFF5555, false);
                     // 渲染缺失方块图标
-                    guiGraphics.renderFakeItem(missingItem, textX + this.font.width(missingText) + 4, textY + 18);
+                    this.renderDisplayedBlock(
+                        guiGraphics,
+                        missingBlock,
+                        textX + this.font.width(missingText) + 4,
+                        textY + 18
+                    );
                 }
 
                 guiGraphics.pose().popPose();
                 // 恢复深度测试
                 RenderSystem.enableDepthTest();
-            } else if (blockEntity.hasInvalidStructure()
+            } else if (blockEntity.getBlueprint().invalid()
                        && !blockEntity.getBlueprintItemHandler().getStackInSlot(0).isEmpty()) {
                 // 磁盘存在但结构数据无效，显示提示信息（带滚动效果）
                 // 额外检查磁盘槽位是否为空，确保拿走磁盘后提示消失
@@ -1226,11 +1266,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         long currentGameTime = this.minecraft.level.getGameTime();
         long currentBlockTypeTime = currentGameTime / (PREVIEW_BLOCK_SWITCH_INTERVAL * 2);
 
-        // 获取当前结构UUID（用于检测结构变化）
-        UUID currentStructureUuid = null;
-        if (this.isBlueprintMode) {
-            currentStructureUuid = blockEntity.getLoadedStructureUuid();
-        }
+        BlockState[] currentBlueprintStates = blockEntity.getBlueprint().states();
 
         boolean needsRebuild = this.cachedPreviewLevelLike == null
                                || !Arrays.equals(this.cachedLayerPositions, this.layerPositions)
@@ -1238,7 +1274,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                                || this.cachedShowAllLayers != this.showAllLayers
                                || this.cachedPickupMode != this.isPickupMode
                                || this.cachedBlueprintMode != this.isBlueprintMode
-                               || !Objects.equals(this.cachedStructureUuid, currentStructureUuid)
+                               || !Arrays.equals(this.cachedBlueprintStates, currentBlueprintStates)
                                || this.cachedGameTimeBlockType != currentBlockTypeTime;
 
         if (needsRebuild) {
@@ -1248,7 +1284,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             this.cachedShowAllLayers = this.showAllLayers;
             this.cachedPickupMode = this.isPickupMode;
             this.cachedBlueprintMode = this.isBlueprintMode;
-            this.cachedStructureUuid = currentStructureUuid;
+            this.cachedBlueprintStates = currentBlueprintStates.clone();
             this.cachedGameTimeBlockType = currentBlockTypeTime;
         }
 
@@ -1307,7 +1343,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         // 蓝图模式：渲染磁盘中的结构
         if (this.isBlueprintMode) {
-            BlockState[] blueprintStates = blockEntity.getBlueprintStates();
+            BlockState[] blueprintStates = blockEntity.getBlueprint().states();
             for (int layer = 0; layer < SmartBlockPlacerBlockEntity.POSITION_GRID_SIZE; layer++) {
                 for (int position = 0; position < SmartBlockPlacerBlockEntity.POSITIONS_PER_LAYER; position++) {
                     int index = SmartBlockPlacerBlockEntity.getPositionIndex(layer, position);

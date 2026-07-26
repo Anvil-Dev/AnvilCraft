@@ -215,23 +215,6 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
                             level.addFreshEntity(itemEntity);
                         }
                     }
-                    
-                    // 掉落书物品栏中的物品（输入书，如果有的话）
-                    for (int i = 0; i < placerEntity.getBookInventory().getContainerSize(); i++) {
-                        ItemStack stack = placerEntity.getBookInventory().getItem(i);
-                        if (!stack.isEmpty()) {
-                            Vec3 vec3 = pos.getCenter();
-                            net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
-                                level,
-                                vec3.x,
-                                vec3.y,
-                                vec3.z,
-                                stack
-                            );
-                            itemEntity.setDefaultPickUpDelay();
-                            level.addFreshEntity(itemEntity);
-                        }
-                    }
                 }
             }
             super.onRemove(state, level, pos, newState, movedByPiston);

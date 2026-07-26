@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.pointer;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import dev.anvilcraft.lib.v2.util.ISerializer;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
@@ -40,6 +41,10 @@ public interface ITargetPointer {
 
     default boolean matches(BlockState state) {
         return true;
+    }
+
+    default @Nullable Either<ItemStack, BlockState> getDisplayedBlock() {
+        return null;
     }
 
     static ItemStack placeToPos(ServerLevel level, BlockPos pos, ItemStack stack) {

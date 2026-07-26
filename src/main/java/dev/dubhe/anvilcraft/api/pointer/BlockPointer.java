@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.pointer;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
@@ -7,7 +8,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.util.Util;
-import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.init.ModRegistries;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -16,6 +16,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.piston.PistonBaseBlock;
@@ -40,6 +41,9 @@ public class BlockPointer implements ITargetPointer {
 
     @Override
     public boolean isStillValid(Level level) {
+        if (this.state.isAir()) {
+            return false;
+        }
         BlockState current = level.getBlockState(this.pos);
         if (!current.is(this.state.getBlock())) {
             return false;
@@ -58,39 +62,39 @@ public class BlockPointer implements ITargetPointer {
     }
 
     @Override
+    public Either<ItemStack, BlockState> getDisplayedBlock() {
+        return Either.right(this.state);
+    }
+
+    @Override
     public boolean applyToPos(ServerLevel level, BlockPos pos) {
         if (!this.isStillValid(level)) {
             return false;
         }
 
-        SmartBlockPlacerBlockEntity.setBlockBeingMovedByPlacer(true);
-        try {
-            BlockEntity entity = null;
-            if (this.state.getBlock() instanceof IMoveableEntityBlock) {
-                entity = level.getBlockEntity(this.pos);
-                if (entity != null) {
-                    level.removeBlockEntity(this.pos);
-                }
+        BlockEntity entity = null;
+        if (this.state.getBlock() instanceof IMoveableEntityBlock) {
+            entity = level.getBlockEntity(this.pos);
+            if (entity != null) {
+                level.removeBlockEntity(this.pos);
             }
-            level.removeBlock(this.pos, true);
-
-            BlockState state = this.state;
-            if (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED)) {
-                state = state.setValue(BlockStateProperties.WATERLOGGED, Boolean.FALSE);
-            }
-            level.setBlock(pos, state, 67);
-            if (state.getBlock() instanceof IMoveableEntityBlock block && entity != null) {
-                entity.worldPosition = pos;
-                entity.clearRemoved();
-                level.removeBlockEntity(pos);
-                level.setBlockEntity(entity);
-                block.notifyMoved(level, pos, state, entity);
-            }
-            level.neighborChanged(pos, state.getBlock(), pos);
-            return true;
-        } finally {
-            SmartBlockPlacerBlockEntity.setBlockBeingMovedByPlacer(false);
         }
+        level.removeBlock(this.pos, true);
+
+        BlockState state = this.state;
+        if (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED)) {
+            state = state.setValue(BlockStateProperties.WATERLOGGED, Boolean.FALSE);
+        }
+        level.setBlock(pos, state, 67);
+        if (state.getBlock() instanceof IMoveableEntityBlock block && entity != null) {
+            entity.worldPosition = pos;
+            entity.clearRemoved();
+            level.removeBlockEntity(pos);
+            level.setBlockEntity(entity);
+            block.notifyMoved(level, pos, state, entity);
+        }
+        level.neighborChanged(pos, state.getBlock(), pos);
+        return true;
     }
 
     public static class Type implements ITargetPointer.Type<BlockPointer> {
@@ -142,6 +146,9 @@ public class BlockPointer implements ITargetPointer {
             @Nullable BlockState requiredState
         ) {
             BlockState state = level.getBlockState(pos);
+            if (state.isAir()) {
+                return null;
+            }
             if (requiredState != null && !state.is(requiredState.getBlock())) {
                 return null;
             }

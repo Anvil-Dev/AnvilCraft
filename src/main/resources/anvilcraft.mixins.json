@@ -9,7 +9,6 @@
     "AvoidEntityGoalMixin",
     "BeaconMenuMixin",
     "BlockBehaviourMixin",
-    "BlockItemMixin",
     "BlockMixin",
     "BlockStateMixin",
     "BuddingAmethystBlockMixin",
