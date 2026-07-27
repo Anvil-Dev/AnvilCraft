@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.integration.jade.provider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.Nullable;
 import snownee.jade.api.Accessor;
 import snownee.jade.api.BlockAccessor;
@@ -20,13 +22,19 @@ public enum CreativeFluidTankProvider implements IServerExtensionProvider<FluidV
     @Override
     public @Nullable List<ViewGroup<FluidView.Data>> getGroups(Accessor<?> accessor) {
         if (!(accessor instanceof BlockAccessor blockAccessor)) return null;
+        ResourceHandler<FluidResource> handler = accessor.getLevel().getCapability(
+            Capabilities.Fluid.BLOCK,
+            blockAccessor.getHitResult().getBlockPos(),
+            null
+        );
+        if (handler == null) return null;
+        FluidResource resource = handler.getResource(0);
+        if (resource.isEmpty()) return null;
         FluidView.Data data = new FluidView.Data(
             JadeFluidObject.of(
-                accessor.getLevel().getCapability(
-                    Capabilities.Fluid.BLOCK,
-                    blockAccessor.getHitResult().getBlockPos(),
-                    null
-                ).getResource(0).getFluid()
+                resource.getFluid(),
+                handler.getAmountAsLong(0),
+                resource.getComponentsPatch()
             ),
             Integer.MAX_VALUE
         );

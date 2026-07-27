@@ -68,6 +68,12 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.frost_grindstone.title", "Disenchant");
         provider.add("screen.anvilcraft.ember_grindstone.earn", "Exp. Earn: %d");
         provider.add("screen.anvilcraft.transcendence_grindstone.title", "Transcendence Grindstone");
+        provider.add("screen.anvilcraft.transcendence_grindstone.penalty", "Penalty: %1$s / %2$s");
+        provider.add(
+            "screen.anvilcraft.transcendence_grindstone.modifier_slot.tooltip",
+            "Accepts gold ingots or blocks, books, weapons or tools, and empty small or large fluid tanks; "
+                + "leave empty to disenchant"
+        );
 
         provider.add("screen.anvilcraft.royal_steel_upgrade_smithing_template", "Royal Steel Upgrade");
         provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description", "Put the Royal Steel Ingot or Royal Steel Block");
