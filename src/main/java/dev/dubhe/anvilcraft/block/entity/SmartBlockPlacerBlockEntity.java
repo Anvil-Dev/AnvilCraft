@@ -76,7 +76,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     private OperationMode operation = OperationMode.PICKUP;
     private TargetMode target = TargetMode.POSITION;
-    private BlueprintPlacementMode blueprintPlacementMode = BlueprintPlacementMode.SKIP;
+    private BlueprintPlacementMode placement = BlueprintPlacementMode.SKIP;
     private ExecutionPhase phase = ExecutionPhase.IDLE;
     /**
      * 当前阶段的执行进度；<br>
@@ -221,7 +221,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 return found;
             }
             this.updateMissingBlock(level, this.createDisplayedBlock(blueprintTarget.state()));
-            if (this.blueprintPlacementMode == BlueprintPlacementMode.WAIT) {
+            if (this.placement == BlueprintPlacementMode.WAIT) {
                 return null;
             }
             this.advanceBlueprintIndex(blueprintTarget.orderIndex());
@@ -357,7 +357,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         this.pointer = null;
         this.updateMissingBlock(level, this.createDisplayedBlock(blueprintTarget.state()));
-        if (this.blueprintPlacementMode == BlueprintPlacementMode.SKIP) {
+        if (this.placement == BlueprintPlacementMode.SKIP) {
             this.advanceBlueprintIndex(blueprintTarget.orderIndex());
         }
         this.setChanged();
@@ -387,7 +387,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
             if (!worldState.canBeReplaced()) {
                 this.updateMissingBlock(level, this.createDisplayedBlock(requiredState));
-                if (this.blueprintPlacementMode == BlueprintPlacementMode.WAIT) {
+                if (this.placement == BlueprintPlacementMode.WAIT) {
                     return null;
                 }
                 this.advanceBlueprintIndex(orderIndex);
@@ -412,7 +412,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     private void updateMissingBlock(ServerLevel level, @Nullable Either<ItemStack, BlockState> missingBlock) {
-        if (this.blueprintPlacementMode == BlueprintPlacementMode.SKIP) {
+        if (this.placement == BlueprintPlacementMode.SKIP) {
             missingBlock = null;
         }
         if (displayedBlocksMatch(this.missingBlock, missingBlock)) {
@@ -430,10 +430,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (first == null || second == null) {
             return first == second;
         }
-        return first.map(
+        return Boolean.TRUE.equals(first.map(
             stack -> second.left().map(other -> ItemStack.matches(stack, other)).orElse(false),
             state -> second.right().map(state::equals).orElse(false)
-        );
+        ));
     }
 
     private static int getStorageIndexForOrder(int orderIndex) {
@@ -739,7 +739,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             ItemStack legacyMissingItem = ItemStack.parseOptional(registries, tag.getCompound("missingBlockItem"));
             this.missingBlock = legacyMissingItem.isEmpty() ? null : Either.left(legacyMissingItem);
         }
-        if (this.blueprintPlacementMode == BlueprintPlacementMode.SKIP) {
+        if (this.placement == BlueprintPlacementMode.SKIP) {
             this.missingBlock = null;
         }
         this.currentHeldBlock = loadDisplayedBlock(tag, "currentHeldBlock", registries);
@@ -805,11 +805,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     public boolean isSkipMissingMode() {
-        return this.blueprintPlacementMode == BlueprintPlacementMode.SKIP;
+        return this.placement == BlueprintPlacementMode.SKIP;
     }
 
     public void setSkipMissingMode(boolean skipMissingMode) {
-        this.blueprintPlacementMode = skipMissingMode
+        this.placement = skipMissingMode
             ? BlueprintPlacementMode.SKIP
             : BlueprintPlacementMode.WAIT;
         this.pointer = null;
@@ -924,10 +924,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
         tag.put("operation", OperationMode.CODEC.encodeStart(ops, this.operation).getOrThrow());
         tag.put("target", TargetMode.CODEC.encodeStart(ops, this.target).getOrThrow());
-        tag.put(
-            "blueprintPlacementMode",
-            BlueprintPlacementMode.CODEC.encodeStart(ops, this.blueprintPlacementMode).getOrThrow()
-        );
+        tag.put("placement", BlueprintPlacementMode.CODEC.encodeStart(ops, this.placement).getOrThrow());
         tag.put("phase", ExecutionPhase.CODEC.encodeStart(ops, this.phase).getOrThrow());
         tag.putFloat("progress", this.progress);
         tag.put("blueprintInventory", this.blueprintItemHandler.serializeNBT(registries));
@@ -942,19 +939,18 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         RegistryOps<Tag> ops = registries.createSerializationContext(NbtOps.INSTANCE);
-        this.operation = tag.contains("operation")
-            ? OperationMode.CODEC.parse(ops, tag.get("operation")).result().orElse(OperationMode.PICKUP)
-            : OperationMode.PICKUP;
-        this.target = tag.contains("target")
-            ? TargetMode.CODEC.parse(ops, tag.get("target")).result().orElse(TargetMode.POSITION)
-            : TargetMode.POSITION;
-        this.blueprintPlacementMode = tag.contains("blueprintPlacementMode")
-            ? BlueprintPlacementMode.CODEC.parse(ops, tag.get("blueprintPlacementMode"))
-                .result().orElse(BlueprintPlacementMode.SKIP)
-            : BlueprintPlacementMode.SKIP;
-        this.phase = tag.contains("phase")
-            ? ExecutionPhase.CODEC.parse(ops, tag.get("phase")).result().orElse(ExecutionPhase.IDLE)
-            : ExecutionPhase.IDLE;
+        if (tag.contains("operation")) {
+            this.operation = OperationMode.CODEC.parse(ops, tag.get("operation")).result().orElse(OperationMode.PICKUP);
+        }
+        if (tag.contains("target")) {
+            this.target = TargetMode.CODEC.parse(ops, tag.get("target")).result().orElse(TargetMode.POSITION);
+        }
+        if (tag.contains("placement")) {
+            this.placement = BlueprintPlacementMode.CODEC.parse(ops, tag.get("placement")).result().orElse(BlueprintPlacementMode.SKIP);
+        }
+        if (tag.contains("phase")) {
+            this.phase = ExecutionPhase.CODEC.parse(ops, tag.get("phase")).result().orElse(ExecutionPhase.IDLE);
+        }
         this.progress = tag.getFloat("progress");
         this.loadingBlueprintInventory = true;
         try {
@@ -1023,12 +1019,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         RegistryOps<Tag> ops = this.getLevel().registryAccess().createSerializationContext(NbtOps.INSTANCE);
         tag.put("operation", OperationMode.CODEC.encodeStart(ops, this.operation).getOrThrow());
         tag.put("target", TargetMode.CODEC.encodeStart(ops, this.target).getOrThrow());
-        tag.put(
-            "blueprintPlacementMode",
-            BlueprintPlacementMode.CODEC.encodeStart(ops, this.blueprintPlacementMode).getOrThrow()
-        );
-        tag.put("phase", ExecutionPhase.CODEC.encodeStart(ops, this.phase).getOrThrow());
-        tag.putFloat("progress", this.progress);
+        tag.put("placement", BlueprintPlacementMode.CODEC.encodeStart(ops, this.placement).getOrThrow());
         this.savePositionSelection(tag);
         if (this.pointer != null) {
             tag.put("pointer", ITargetPointer.CODEC.encodeStart(ops, this.pointer).getOrThrow());
@@ -1041,23 +1032,21 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return;
         }
         RegistryOps<Tag> ops = this.getLevel().registryAccess().createSerializationContext(NbtOps.INSTANCE);
-        this.operation = data.contains("operation")
-            ? OperationMode.CODEC.parse(ops, data.get("operation")).result().orElse(this.operation)
-            : this.operation;
-        this.target = data.contains("target")
-            ? TargetMode.CODEC.parse(ops, data.get("target")).result().orElse(this.target)
-            : this.target;
-        this.blueprintPlacementMode = data.contains("blueprintPlacementMode")
-            ? BlueprintPlacementMode.CODEC.parse(ops, data.get("blueprintPlacementMode"))
-                .result().orElse(this.blueprintPlacementMode)
-            : this.blueprintPlacementMode;
-        if (this.blueprintPlacementMode == BlueprintPlacementMode.SKIP) {
+        if (data.contains("operation")) {
+            OperationMode.CODEC.parse(ops, data.get("operation")).result()
+                .ifPresent(operation -> this.operation = operation);
+        }
+        if (data.contains("target")) {
+            TargetMode.CODEC.parse(ops, data.get("target")).result()
+                .ifPresent(target -> this.target = target);
+        }
+        if (data.contains("placement")) {
+            BlueprintPlacementMode.CODEC.parse(ops, data.get("placement")).result()
+                .ifPresent(placement -> this.placement = placement);
+        }
+        if (this.placement == BlueprintPlacementMode.SKIP) {
             this.missingBlock = null;
         }
-        this.phase = data.contains("phase")
-            ? ExecutionPhase.CODEC.parse(ops, data.get("phase")).result().orElse(this.phase)
-            : this.phase;
-        this.progress = data.getFloat("progress");
         this.loadPositionSelection(data);
         if (data.contains("pointer")) {
             this.pointer = ITargetPointer.CODEC.parse(ops, data.get("pointer")).result().orElse(null);
