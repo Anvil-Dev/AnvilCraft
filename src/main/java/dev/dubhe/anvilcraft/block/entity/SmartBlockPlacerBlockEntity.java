@@ -57,13 +57,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 import javax.annotation.Nullable;
 
 @Getter
 @Setter
 public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerConsumer, MenuProvider, IDiskCloneable, IItemHandlerHolder {
-    private static final int PLACEMENT_INTERVAL = 20;
     public static final int POSITION_GRID_SIZE = 5;
     public static final int POSITIONS_PER_LAYER = POSITION_GRID_SIZE * POSITION_GRID_SIZE;
     public static final int POSITION_COUNT = POSITION_GRID_SIZE * POSITIONS_PER_LAYER;
@@ -78,9 +76,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private ExecutionPhase phase = ExecutionPhase.IDLE;
     /**
      * 当前阶段的执行进度；<br>
-     * 仅在 {@link SmartBlockPlacerBlockEntity#phase} 不为 {@link ExecutionPhase#IDLE} 时可用
+     * 取值范围为 0 到 1
      */
-    private float progress = 0.0F;
+    private float phaseProgress = 0.0F;
     private @Nullable ITargetPointer pointer;
     private int selectedLayer;
     private int currentPlacementIndex;
@@ -117,13 +115,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
     };
 
-    private long clientAnimationStartTime;
-    private @Nullable BlockPos clientLastTargetPos;
-    private boolean clientIsRetracting;
-    private long clientRetractStartTime;
-    private float[] clientRetractStartAngles = new float[4];
-    private float clientRetractStartProgress;
-    private boolean retractSoundPlayed;
+    private @Nullable BlockPos clientAnimationTargetPos;
+    private boolean clientRetractSoundPlayed;
 
     // region Lifecycle and Target
     public SmartBlockPlacerBlockEntity(BlockPos pos, BlockState blockState) {
@@ -254,6 +247,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     // region Execution
     public void tickClient() {
+        if (this.phase == ExecutionPhase.IDLE) {
+            this.clientAnimationTargetPos = null;
+            this.clientRetractSoundPlayed = false;
+        }
         if (this.canOperate()) {
             this.advancePhaseProgress();
         }
@@ -267,42 +264,35 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (!this.canOperate()) {
             return;
         }
-        if (Objects.requireNonNull(this.phase) == ExecutionPhase.IDLE) {
-            if (this.refreshPointer(serverLevel) != null) {
-                this.changePhase(serverLevel, pos, ExecutionPhase.PREPARE);
+        if (this.phase == ExecutionPhase.IDLE) {
+            if (this.advancePhaseProgress() && this.refreshPointer(serverLevel) != null) {
+                this.transitionToPhase(serverLevel, pos, ExecutionPhase.PREPARE);
             }
         } else if (this.phase == ExecutionPhase.PREPARE) {
             if (this.advancePhaseProgress()) {
-                this.changePhase(serverLevel, pos, ExecutionPhase.EXTEND);
+                this.transitionToPhase(serverLevel, pos, ExecutionPhase.EXTEND);
             }
         } else if (this.phase == ExecutionPhase.EXTEND) {
             if (this.advancePhaseProgress()) {
                 this.applyToTargetPosition(serverLevel);
-                this.changePhase(serverLevel, pos, ExecutionPhase.RESET);
+                this.transitionToPhase(serverLevel, pos, ExecutionPhase.RESET);
             }
         } else if (this.phase == ExecutionPhase.RESET) {
             if (this.advancePhaseProgress()) {
-                ExecutionPhase nextPhase = ExecutionPhase.IDLE;
-                if (this.refreshPointer(serverLevel) != null) {
-                    nextPhase = ExecutionPhase.PREPARE;
-                }
-                this.changePhase(serverLevel, pos, nextPhase);
+                this.transitionToPhase(serverLevel, pos, ExecutionPhase.IDLE);
             }
         }
     }
 
     private boolean advancePhaseProgress() {
-        if (this.phase == ExecutionPhase.IDLE) {
-            return false;
-        }
-        float phaseInterval = PLACEMENT_INTERVAL * this.phase.getIntervalPercent();
-        this.progress = Math.min(this.progress + 1.0F / phaseInterval, 1.0F);
-        return this.progress >= 1.0F;
+        int phaseDuration = this.phase.getDurationTicks();
+        this.phaseProgress = Math.min(this.phaseProgress + 1.0F / phaseDuration, 1.0F);
+        return this.phaseProgress >= 1.0F;
     }
 
-    private void changePhase(ServerLevel level, BlockPos pos, ExecutionPhase phase) {
-        this.phase = phase;
-        this.progress = 0.0F;
+    private void transitionToPhase(ServerLevel level, BlockPos pos, ExecutionPhase nextPhase) {
+        this.phase = nextPhase;
+        this.phaseProgress = 0.0F;
         this.setChanged();
         level.sendBlockUpdated(pos, this.getBlockState(), this.getBlockState(), 3);
     }
@@ -749,7 +739,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         );
         this.missingBlock = loadDisplayedBlock(tag, "missingBlock", registries);
         if (this.missingBlock == null) {
-            this.missingBlock = loadLegacyDisplayedBlock(tag, "missingBlockItem", registries);
+            this.missingBlock = loadLegacyDisplayedBlock(tag, registries);
         }
         if (this.placement == BlueprintPlacementMode.SKIP) {
             this.missingBlock = null;
@@ -795,15 +785,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         return null;
     }
 
-    private static @Nullable Either<ItemStack, BlockState> loadLegacyDisplayedBlock(
-        CompoundTag tag,
-        String key,
-        HolderLookup.Provider registries
-    ) {
-        if (!tag.contains(key, Tag.TAG_COMPOUND)) {
+    private static @Nullable Either<ItemStack, BlockState> loadLegacyDisplayedBlock(CompoundTag tag, HolderLookup.Provider registries) {
+        if (!tag.contains("missingBlockItem", Tag.TAG_COMPOUND)) {
             return null;
         }
-        ItemStack stack = ItemStack.parseOptional(registries, tag.getCompound(key));
+        ItemStack stack = ItemStack.parseOptional(registries, tag.getCompound("missingBlockItem"));
         return stack.isEmpty() ? null : Either.left(stack);
     }
     // endregion
@@ -882,8 +868,24 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         return total == 0 ? 0 : Math.min(15, placed * 15 / total);
     }
 
-    public int getPlaceCooldown() {
-        return this.phase == ExecutionPhase.IDLE ? 0 : 1;
+    public boolean isAnimationActive() {
+        return this.phase != ExecutionPhase.IDLE;
+    }
+
+    public float getAnimationProgress(float partialTick) {
+        if (!this.isAnimationActive()) {
+            return 0.0F;
+        }
+        float interpolatedPhaseProgress = this.phaseProgress;
+        if (this.canOperate()) {
+            interpolatedPhaseProgress = Math.min(
+                interpolatedPhaseProgress + partialTick / this.phase.getDurationTicks(),
+                1.0F
+            );
+        }
+        float elapsedTicks = this.phase.getAnimationStartTick()
+            + interpolatedPhaseProgress * this.phase.getDurationTicks();
+        return elapsedTicks / ExecutionPhase.getAnimationDurationTicks();
     }
 
     public boolean isOverloaded() {
@@ -930,7 +932,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.put("target", TargetMode.CODEC.encodeStart(ops, this.target).getOrThrow());
         tag.put("placement", BlueprintPlacementMode.CODEC.encodeStart(ops, this.placement).getOrThrow());
         tag.put("phase", ExecutionPhase.CODEC.encodeStart(ops, this.phase).getOrThrow());
-        tag.putFloat("progress", this.progress);
+        tag.putFloat("progress", this.phaseProgress);
         tag.put("blueprintInventory", this.blueprintItemHandler.serializeNBT(registries));
         this.savePositionSelection(tag);
         this.saveBlueprintData(tag, registries);
@@ -956,7 +958,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (tag.contains("phase")) {
             this.phase = ExecutionPhase.CODEC.parse(ops, tag.get("phase")).result().orElse(ExecutionPhase.IDLE);
         }
-        this.progress = tag.getFloat("progress");
+        this.phaseProgress = tag.getFloat("progress");
         this.loadBlueprintItem(tag, registries);
         this.loadPositionSelection(tag);
         this.loadBlueprintData(tag, registries);
@@ -1162,17 +1164,23 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     @Getter
     public enum ExecutionPhase implements StringRepresentable {
-        IDLE(0.0F),
-        PREPARE(0.3F),
-        EXTEND(0.4F),
-        RESET(0.3F),
+        IDLE(0, 6),
+        PREPARE(0, 6),
+        EXTEND(6, 8),
+        RESET(14, 6),
         ;
 
         public static final Codec<ExecutionPhase> CODEC = StringRepresentable.fromEnum(ExecutionPhase::values);
-        private final float intervalPercent;
+        private final int animationStartTick;
+        private final int durationTicks;
 
-        ExecutionPhase(float intervalPercent) {
-            this.intervalPercent = intervalPercent;
+        ExecutionPhase(int animationStartTick, int durationTicks) {
+            this.animationStartTick = animationStartTick;
+            this.durationTicks = durationTicks;
+        }
+
+        public static int getAnimationDurationTicks() {
+            return RESET.animationStartTick + RESET.durationTicks;
         }
 
         @Override

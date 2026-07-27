@@ -61,7 +61,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         AnvilCraft.of("block/smart_block_placer_claw_open")
     );
 
-    private static final WorkingAnimationScheme WORKING_ANIMATION_SCHEME = new WorkingAnimationScheme();
+    private static final PlacementAnimation PLACEMENT_ANIMATION = new PlacementAnimation();
     private static final ItemDisplayContext HELD_ITEM_CONTEXT = ItemDisplayContext.THIRD_PERSON_RIGHT_HAND;
 
     private final BlockRenderDispatcher blockRenderer;
@@ -79,12 +79,11 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
     /**
      * 工作动画方案（放置方块时）
      */
-    private static class WorkingAnimationScheme {
+    private static class PlacementAnimation {
         // 机械臂参数（单位：Minecraft方块）
         private static final float UPPER_ARM_LENGTH = 2.5f;  // 大臂长度
         private static final float FOREARM_LENGTH = 2.5f;    // 小臂长度
         private static final float BASE_HEIGHT = 0.0f;       // 底座关节高度（相对于底座模型）
-        private static final int ANIMATION_DURATION_TICKS = 20; // 动画总持续时间：20tick = 1秒
         
         /**
          * 计算机械臂角度
@@ -224,12 +223,6 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             return new float[]{baseAngle, upperArmAngle, forearmAngle, clawAngle};
         }
 
-        /**
-         * 获取动画持续时间
-         */
-        public int getAnimationDurationTicks() {
-            return ANIMATION_DURATION_TICKS;
-        }
     }
 
     private record ArmRenderState(
@@ -275,142 +268,15 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         float animationProgress = 0f;
         boolean isAnimationPlaying = false;
         
-        boolean isWorking = entity.canOperate() && entity.getPlaceCooldown() > 0;
-        
-        // 检测是否需要开始收回动画
-        boolean wasWorkingLastFrame = entity.getClientAnimationStartTime() != 0;
-        boolean shouldStartRetract = wasWorkingLastFrame && !isWorking && !entity.isClientIsRetracting();
-        if (shouldStartRetract && level != null) {
-            long animStartTime = entity.getClientAnimationStartTime();
-            BlockPos animTargetPos = entity.getClientLastTargetPos();
-            
-            if (animTargetPos != null) {
-                if (!entity.isRetractSoundPlayed()) {
-                    level.playLocalSound(
-                        entity.getBlockPos(),
-                        ModSoundEvents.SMART_BLOCK_PLACER_RETRACT.get(),
-                        SoundSource.BLOCKS,
-                        0.4f,
-                        1.3f,
-                        false
-                    );
-                }
-                entity.setClientIsRetracting(true);
-                entity.setClientRetractStartTime(level.getGameTime());
-                
-                long elapsedTicks = level.getGameTime() - animStartTime;
-                float interruptProgress = Math.min(1.0f, (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME
-                    .getAnimationDurationTicks());
-                float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
-                    animTargetPos, entity.getBlockPos(), facing, upsideDown, interruptProgress
-                );
-                entity.setClientRetractStartAngles(angles);
-                entity.setClientRetractStartProgress(interruptProgress);
-            }
-        }
-        
-        // 重新开始工作时取消收回状态
-        if (isWorking) {
-            entity.setClientIsRetracting(false);
-        }
-        
-        if (entity.isClientIsRetracting() && level != null) {
-            long currentTime = level.getGameTime();
-            long elapsedRetractTicks = currentTime - entity.getClientRetractStartTime();
-            
-            float startProgress = entity.getClientRetractStartProgress();
-            float remainingProgress = 1.0f - startProgress;
-            float retractDuration = WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() * remainingProgress;
-            
-            if (retractDuration <= 0) {
-                entity.setClientIsRetracting(false);
-                entity.setClientAnimationStartTime(0);
-                entity.setClientLastTargetPos(null);
-            } else {
-                float retractProgress = Math.min(
-                    1.0f,
-                    (elapsedRetractTicks + partialTick) / retractDuration
-                );
-                
-                float[] startAngles = entity.getClientRetractStartAngles();
-                baseSwingAngle = startAngles[0] * (1f - retractProgress);
-                upperArmAngle = startAngles[1] * (1f - retractProgress);
-                forearmAngle = startAngles[2] * (1f - retractProgress);
-                clawAngle = startAngles[3] * (1f - retractProgress);
-                
-                if (retractProgress >= 1.0f) {
-                    entity.setClientIsRetracting(false);
-                    entity.setClientAnimationStartTime(0);
-                    entity.setClientLastTargetPos(null);
-                }
-            }
-        } else if (isWorking && level != null) {
-            long currentTime = level.getGameTime();
-            long animStartTime = entity.getClientAnimationStartTime();
-            BlockPos animTargetPos = entity.getClientLastTargetPos();
-            
-            // 如果动画已播放完成，检查工作条件
-            if (animStartTime != 0 && animTargetPos != null) {
-                long elapsedTicks = currentTime - animStartTime;
-                boolean animationCompleted = elapsedTicks >= WORKING_ANIMATION_SCHEME.getAnimationDurationTicks() + 5;
-                
-                if (animationCompleted) {
-                    BlockPos targetPos = getNextTargetPosition(entity, level, facing, upsideDown);
-                    if (targetPos == null || targetPos.equals(animTargetPos)) {
-                        if (!entity.isClientIsRetracting()) {
-                            if (!entity.isRetractSoundPlayed()) {
-                                level.playLocalSound(
-                                    entity.getBlockPos(),
-                                    ModSoundEvents.SMART_BLOCK_PLACER_RETRACT.get(),
-                                    SoundSource.BLOCKS,
-                                    0.4f,
-                                    1.3f,
-                                    false
-                                );
-                            }
-                            entity.setClientIsRetracting(true);
-                            entity.setClientRetractStartTime(currentTime);
-                            
-                            float[] endAngles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
-                                animTargetPos, entity.getBlockPos(), facing, upsideDown, 1.0f
-                            );
-                            entity.setClientRetractStartAngles(endAngles);
-                            entity.setClientRetractStartProgress(1.0f);
-                            
-                            entity.setClientAnimationStartTime(0);
-                            entity.setClientLastTargetPos(null);
-                        }
-                    } else {
-                        level.playLocalSound(
-                            entity.getBlockPos(),
-                            ModSoundEvents.SMART_BLOCK_PLACER_EXTEND.get(),
-                            SoundSource.BLOCKS,
-                            0.4f,
-                            1.3f,
-                            false
-                        );
-                        if (level.random.nextFloat() < 0.6f) {
-                            level.playLocalSound(
-                                entity.getBlockPos(),
-                                ModSoundEvents.SMART_BLOCK_PLACER_SHULKER_OPEN.get(),
-                                SoundSource.BLOCKS,
-                                0.4f,
-                                1.5f,
-                                false
-                            );
-                        }
-                        entity.setClientAnimationStartTime(currentTime);
-                        entity.setClientLastTargetPos(targetPos);
-                        entity.setRetractSoundPlayed(false);
-                        animStartTime = currentTime;
-                        animTargetPos = targetPos;
-                    }
-                }
-            }
-            
-            if (animStartTime == 0) {
-                BlockPos targetPos = getNextTargetPosition(entity, level, facing, upsideDown);
-                if (targetPos != null) {
+        boolean animationActive = entity.isAnimationActive();
+        BlockPos animationTargetPos = entity.getClientAnimationTargetPos();
+        if (!animationActive || level == null) {
+            entity.setClientAnimationTargetPos(null);
+            entity.setClientRetractSoundPlayed(false);
+        } else {
+            if (animationTargetPos == null) {
+                animationTargetPos = getNextTargetPosition(entity, level, facing, upsideDown);
+                if (animationTargetPos != null) {
                     level.playLocalSound(
                         entity.getBlockPos(),
                         ModSoundEvents.SMART_BLOCK_PLACER_EXTEND.get(),
@@ -429,30 +295,13 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                             false
                         );
                     }
-                    entity.setClientAnimationStartTime(currentTime);
-                    entity.setClientLastTargetPos(targetPos);
-                    entity.setRetractSoundPlayed(false);
-                    animStartTime = currentTime;
-                    animTargetPos = targetPos;
+                    entity.setClientAnimationTargetPos(animationTargetPos);
                 }
             }
-            
-            // 播放动画
-            if (animStartTime != 0 && animTargetPos != null) {
+            if (animationTargetPos != null) {
                 isAnimationPlaying = true;
-                long elapsedTicks = currentTime - animStartTime;
-
-                if (elapsedTicks < WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()) {
-                    animationProgress = Math.min(
-                        1.0f,
-                        (elapsedTicks + partialTick) / (float) WORKING_ANIMATION_SCHEME.getAnimationDurationTicks()
-                    );
-                } else {
-                    animationProgress = 1.0f;
-                }
-
-                // 进入阶段4（收回阶段）时播放收回音效
-                if (!entity.isRetractSoundPlayed() && animationProgress >= 0.7f) {
+                animationProgress = entity.getAnimationProgress(partialTick);
+                if (!entity.isClientRetractSoundPlayed() && animationProgress >= 0.7f) {
                     level.playLocalSound(
                         entity.getBlockPos(),
                         ModSoundEvents.SMART_BLOCK_PLACER_RETRACT.get(),
@@ -461,11 +310,10 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                         1.3f,
                         false
                     );
-                    entity.setRetractSoundPlayed(true);
+                    entity.setClientRetractSoundPlayed(true);
                 }
-
-                float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
-                    animTargetPos, entity.getBlockPos(), facing, upsideDown, animationProgress
+                float[] angles = PLACEMENT_ANIMATION.calculateArmAngles(
+                    animationTargetPos, entity.getBlockPos(), facing, upsideDown, animationProgress
                 );
                 baseSwingAngle = angles[0];
                 upperArmAngle = angles[1];
