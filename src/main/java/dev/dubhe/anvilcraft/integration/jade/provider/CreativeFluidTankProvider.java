@@ -39,7 +39,11 @@ public class CreativeFluidTankProvider extends FluidStorageProvider.ForBlock {
                 return;
             }
 
-            JadeFluidObject fluidObj = JadeFluidObject.of(stack.getFluid(), stack.getAmount());
+            JadeFluidObject fluidObj = JadeFluidObject.of(
+                stack.getFluid(),
+                stack.getAmount(),
+                stack.getComponentsPatch()
+            );
 
             tooltip.add(
                 helper.progress(1.0f, stack.getHoverName().copy()

@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.integration.jade.provider;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.fluid.LargeCauldronFluidHandler;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
@@ -17,6 +19,7 @@ import snownee.jade.api.fluid.JadeFluidObject;
 import snownee.jade.api.ui.BoxStyle;
 import snownee.jade.api.ui.IElementHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class FluidTankProvider extends FluidStorageProvider.ForBlock {
@@ -28,37 +31,67 @@ public class FluidTankProvider extends FluidStorageProvider.ForBlock {
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         BlockEntity blockEntity = accessor.getBlockEntity();
-        List<FluidStack> fluids;
-        if (blockEntity instanceof FluidTankBlockEntity tank && tank.isInfinite()) {
-            fluids = List.of(tank.getFluidHandler().getFluidInTank(0));
-        } else if (blockEntity instanceof LargeFluidTankBlockEntity tank) {
-            fluids = tank.getStoredFluids();
-            if (fluids.stream().noneMatch(tank::isInfinite)) return;
-        } else {
-            return;
+        List<FluidEntry> fluids;
+        switch (blockEntity) {
+            case FluidTankBlockEntity tank -> {
+                FluidStack fluid = tank.getFluidHandler().getFluidInTank(0).copy();
+                fluids = List.of(new FluidEntry(
+                    fluid,
+                    tank.getFluidHandler().getTankCapacity(0),
+                    tank.isInfinite()
+                ));
+            }
+            case LargeFluidTankBlockEntity tank -> {
+                int capacity = tank.isEnhanced()
+                               ? LargeFluidTankBlockEntity.INFINITY_THRESHOLD
+                               : LargeFluidTankBlockEntity.BASE_CAPACITY;
+                fluids = tank.getStoredFluids().stream()
+                    .map(fluid -> new FluidEntry(fluid, capacity, tank.isInfinite(fluid)))
+                    .toList();
+            }
+            case LargeCauldronBlockEntity cauldron -> {
+                LargeCauldronFluidHandler handler = cauldron.getFluids();
+                fluids = new ArrayList<>(handler.getTanks());
+                for (int tank = 0; tank < handler.getTanks(); tank++) {
+                    FluidStack fluid = handler.getFluidInTank(tank);
+                    if (!fluid.isEmpty()) {
+                        fluids.add(new FluidEntry(fluid.copy(), handler.getTankCapacity(tank), false));
+                    }
+                }
+            }
+            case null, default -> {
+                return;
+            }
         }
+        boolean hasComponents = fluids.stream().anyMatch(FluidEntry::hasComponents);
+        boolean hasInfiniteFluid = fluids.stream().anyMatch(FluidEntry::infinite);
+        if (!hasComponents && !hasInfiniteFluid) return;
 
-        tooltip.clear();
-        tooltip.add(Component.translatable(accessor.getBlock().getDescriptionId()).withStyle(ChatFormatting.WHITE));
+        if (!hasComponents) {
+            tooltip.clear();
+            tooltip.add(Component.translatable(accessor.getBlock().getDescriptionId()).withStyle(ChatFormatting.WHITE));
+        }
         IElementHelper helper = IElementHelper.get();
-        for (FluidStack fluid : fluids) {
+        for (FluidEntry entry : fluids) {
+            FluidStack fluid = entry.fluid();
             if (fluid.isEmpty()) continue;
-            boolean infinite = blockEntity instanceof FluidTankBlockEntity
-                || ((LargeFluidTankBlockEntity) blockEntity).isInfinite(fluid);
-            int capacity = blockEntity instanceof FluidTankBlockEntity
-                ? FluidTankBlockEntity.INFINITY_THRESHOLD
-                : LargeFluidTankBlockEntity.INFINITY_THRESHOLD;
             Component fluidName = fluid.getHoverName().copy().withStyle(ChatFormatting.WHITE);
-            Component text = infinite
+            Component text = entry.infinite()
                 ? fluidName.copy()
                     .append(" ")
                     .append(Component.translatable("tooltip.anvilcraft.infinity").withStyle(ChatFormatting.GRAY))
                 : fluidName.copy().append(Component.literal(
                     " " + UnitUtil.fluidUnit(fluid.getAmount(), false)
-                        + " / " + UnitUtil.fluidUnit(capacity, false)
+                        + " / " + UnitUtil.fluidUnit(entry.capacity(), false)
                 ).withStyle(ChatFormatting.GRAY));
-            JadeFluidObject fluidObject = JadeFluidObject.of(fluid.getFluid(), fluid.getAmount());
-            float progress = infinite ? 1 : (float) fluid.getAmount() / capacity;
+            JadeFluidObject fluidObject = JadeFluidObject.of(
+                fluid.getFluid(),
+                fluid.getAmount(),
+                fluid.getComponentsPatch()
+            );
+            float progress = entry.infinite()
+                ? 1
+                : Math.min(1, (float) fluid.getAmount() / entry.capacity());
             tooltip.add(helper.progress(
                 progress,
                 text,
@@ -72,5 +105,11 @@ public class FluidTankProvider extends FluidStorageProvider.ForBlock {
     @Override
     public ResourceLocation getUid() {
         return AnvilCraft.of("fluid_tank");
+    }
+
+    private record FluidEntry(FluidStack fluid, int capacity, boolean infinite) {
+        private boolean hasComponents() {
+            return !this.fluid.getComponentsPatch().isEmpty();
+        }
     }
 }

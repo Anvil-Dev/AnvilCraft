@@ -719,6 +719,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.INSTANCE))
         .tag(ItemTags.ANVIL, ModItemTags.EXPLOSION_PROOF)
         .build()
         .register();
@@ -744,6 +745,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.INSTANCE))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .register();

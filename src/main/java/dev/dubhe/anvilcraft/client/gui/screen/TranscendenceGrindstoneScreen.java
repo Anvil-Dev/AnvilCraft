@@ -24,6 +24,10 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 public class TranscendenceGrindstoneScreen extends AbstractContainerScreen<TranscendenceGrindstoneMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("crafting", "transcendence_grindstone");
+    private static final int MODIFIER_SLOT_INDEX = 1;
+    private static final Component MODIFIER_SLOT_TOOLTIP = Component.translatable(
+        "screen.anvilcraft.transcendence_grindstone.modifier_slot.tooltip"
+    );
 
     private final Player player;
     private final Scrollable scrollable = new Scrollable() {
@@ -105,16 +109,16 @@ public class TranscendenceGrindstoneScreen extends AbstractContainerScreen<Trans
         this.drawGoldLabel(
             guiGraphics,
             Component.translatable("screen.anvilcraft.royal_grindstone.will_remove"),
-            11
+            27
         );
         this.drawGoldLabel(
             guiGraphics,
             Component.translatable(
-                "screen.anvilcraft.royal_grindstone.repair_cost",
+                "screen.anvilcraft.transcendence_grindstone.penalty",
                 this.menu.getRemovedRepairCost(),
                 this.menu.getTotalRepairCost()
             ),
-            22
+            38
         );
         this.drawGoldLabel(
             guiGraphics,
@@ -123,12 +127,7 @@ public class TranscendenceGrindstoneScreen extends AbstractContainerScreen<Trans
                 this.menu.getRemovedCurseCount(),
                 this.menu.getTotalCurseCount()
             ),
-            33
-        );
-        this.drawGoldLabel(
-            guiGraphics,
-            Component.translatable("screen.anvilcraft.royal_grindstone.gold_cost", this.menu.getUsedGold()),
-            44
+            49
         );
     }
 
@@ -136,23 +135,31 @@ public class TranscendenceGrindstoneScreen extends AbstractContainerScreen<Trans
         float scale = 0.75f;
         guiGraphics.pose().pushPose();
         guiGraphics.pose().scale(scale, scale, 1.0f);
-        guiGraphics.drawString(this.font, component, (int) (65 / scale), (int) (y / scale), 8453920, false);
+        guiGraphics.drawString(this.font, component, (int) (66 / scale), (int) (y / scale), 8453920, false);
         guiGraphics.pose().popPose();
     }
 
     @Override
     protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
-        if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
-            ItemStack stack = this.hoveredSlot.getItem();
-            guiGraphics.renderTooltip(
-                this.font,
-                this.getTooltipFromContainerItem(stack),
-                stack.getTooltipImage(),
-                stack,
-                x,
-                y
-            );
-        } else if (this.renderingTooltipEnchantedBook != null) {
+        if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null) {
+            if (this.hoveredSlot.hasItem()) {
+                ItemStack stack = this.hoveredSlot.getItem();
+                guiGraphics.renderTooltip(
+                    this.font,
+                    this.getTooltipFromContainerItem(stack),
+                    stack.getTooltipImage(),
+                    stack,
+                    x,
+                    y
+                );
+                return;
+            }
+            if (this.hoveredSlot.index == MODIFIER_SLOT_INDEX) {
+                guiGraphics.renderTooltip(this.font, this.font.split(MODIFIER_SLOT_TOOLTIP, 150), x, y);
+                return;
+            }
+        }
+        if (this.renderingTooltipEnchantedBook != null) {
             guiGraphics.renderTooltip(
                 this.font,
                 this.getTooltipFromContainerItem(this.renderingTooltipEnchantedBook),
