@@ -461,6 +461,9 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         for (int i = 0; i < allPositions.size(); i++) {
             int index = (currentIndex + i) % allPositions.size();
             BlockPos targetPos = allPositions.get(index);
+            if (!SmartBlockPlacerBlockEntity.isTargetUnobstructed(level, targetPos)) {
+                continue;
+            }
             BlockState targetState = level.getBlockState(targetPos);
             
             if (targetState.isAir()) {

@@ -49,6 +49,8 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -195,7 +197,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
      */
     private @Nullable ITargetPointer findPointer(ServerLevel level) {
         if (this.target == TargetMode.POSITION) {
-            if (!this.hasAvailablePosition(level)) {
+            if (this.selectNextPositionTarget(level) == null) {
                 return null;
             }
             return this.findPointer(level, null);
@@ -270,7 +272,16 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
         } else if (this.phase == ExecutionPhase.PREPARE) {
             if (this.advancePhaseProgress()) {
-                this.transitionToPhase(serverLevel, pos, ExecutionPhase.EXTEND);
+                if (!this.isCurrentTargetAvailable(serverLevel)) {
+                    this.skipCurrentTarget();
+                    this.pointer = null;
+                    this.currentHeldBlock = null;
+                    this.transitionToPhase(serverLevel, pos, ExecutionPhase.IDLE);
+                } else if (this.refreshPointer(serverLevel) != null) {
+                    this.transitionToPhase(serverLevel, pos, ExecutionPhase.EXTEND);
+                } else {
+                    this.transitionToPhase(serverLevel, pos, ExecutionPhase.IDLE);
+                }
             }
         } else if (this.phase == ExecutionPhase.EXTEND) {
             if (this.advancePhaseProgress()) {
@@ -312,32 +323,36 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (positions.isEmpty()) {
             return;
         }
-        if (this.currentPlacementIndex >= positions.size()) {
-            this.currentPlacementIndex = 0;
+        int index = Math.floorMod(this.currentPlacementIndex, positions.size());
+        BlockPos targetPos = positions.get(index);
+        if (!isTargetAvailable(level, targetPos)) {
+            this.advancePositionIndex(index, positions.size());
+            return;
         }
-        for (int offset = 0; offset < positions.size(); offset++) {
-            int index = (this.currentPlacementIndex + offset) % positions.size();
-            BlockPos targetPos = positions.get(index);
-            if (!level.getBlockState(targetPos).canBeReplaced()) {
-                continue;
-            }
-            if (pointer.applyToPos(level, targetPos)) {
-                this.currentPlacementIndex = (index + 1) % positions.size();
-                return;
-            }
-            if (!pointer.isStillValid(level)) {
-                return;
-            }
+        if (pointer.applyToPos(level, targetPos)) {
+            this.advancePositionIndex(index, positions.size());
+        } else if (pointer.isStillValid(level)) {
+            this.advancePositionIndex(index, positions.size());
         }
     }
 
     private void applyToBlueprintPosition(ServerLevel level) {
+        int expectedOrderIndex = Math.floorMod(this.currentPlacementIndex, POSITION_COUNT);
         BlueprintTarget blueprintTarget = this.findNextBlueprintTarget(level);
         ITargetPointer pointer = this.pointer;
         if (blueprintTarget == null || pointer == null || !pointer.isStillValid(level)) {
             return;
         }
+        if (blueprintTarget.orderIndex() != expectedOrderIndex) {
+            this.pointer = null;
+            return;
+        }
         if (!pointer.matches(blueprintTarget.state())) {
+            this.pointer = null;
+            return;
+        }
+        if (!isTargetAvailable(level, blueprintTarget.pos())) {
+            this.advanceBlueprintIndex(blueprintTarget.orderIndex());
             this.pointer = null;
             return;
         }
@@ -374,7 +389,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 continue;
             }
             if (worldState.is(requiredState.getBlock())) {
-                level.setBlock(targetPos, requiredState, 3);
                 this.advanceBlueprintIndex(orderIndex);
                 continue;
             }
@@ -386,9 +400,59 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 this.advanceBlueprintIndex(orderIndex);
                 continue;
             }
+            if (!isTargetUnobstructed(level, targetPos)) {
+                this.advanceBlueprintIndex(orderIndex);
+                continue;
+            }
             return new BlueprintTarget(orderIndex, targetPos, requiredState);
         }
         return null;
+    }
+
+    private boolean isCurrentTargetAvailable(ServerLevel level) {
+        if (this.target == TargetMode.BLUEPRINT) {
+            int orderIndex = Math.floorMod(this.currentPlacementIndex, POSITION_COUNT);
+            int storageIndex = getStorageIndexForOrder(orderIndex);
+            if (this.blueprint.states()[storageIndex].isAir()) {
+                return false;
+            }
+            BlockPos targetPos = this.getBlueprintPosition(storageIndex);
+            BlockState requiredState = this.getBlueprintStateForPlacement(storageIndex);
+            BlockState worldState = level.getBlockState(targetPos);
+            return !worldState.is(requiredState.getBlock()) && isTargetAvailable(level, targetPos);
+        }
+
+        List<BlockPos> positions = this.getOrderedPositionTargets();
+        if (positions.isEmpty()) {
+            return false;
+        }
+        BlockPos targetPos = positions.get(Math.floorMod(this.currentPlacementIndex, positions.size()));
+        return isTargetAvailable(level, targetPos);
+    }
+
+    private void skipCurrentTarget() {
+        if (this.target == TargetMode.BLUEPRINT) {
+            this.advanceBlueprintIndex(Math.floorMod(this.currentPlacementIndex, POSITION_COUNT));
+            return;
+        }
+        List<BlockPos> positions = this.getOrderedPositionTargets();
+        if (!positions.isEmpty()) {
+            int index = Math.floorMod(this.currentPlacementIndex, positions.size());
+            this.advancePositionIndex(index, positions.size());
+        }
+    }
+
+    private void advancePositionIndex(int index, int positionCount) {
+        this.currentPlacementIndex = (index + 1) % positionCount;
+        this.setChanged();
+    }
+
+    private static boolean isTargetAvailable(Level level, BlockPos targetPos) {
+        return level.getBlockState(targetPos).canBeReplaced() && isTargetUnobstructed(level, targetPos);
+    }
+
+    public static boolean isTargetUnobstructed(Level level, BlockPos targetPos) {
+        return level.isUnobstructed(null, Shapes.create(new AABB(targetPos)));
     }
 
     private void advanceBlueprintIndex(int orderIndex) {
@@ -510,13 +574,20 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     // endregion
 
     // region Position Selection
-    private boolean hasAvailablePosition(ServerLevel level) {
-        for (BlockPos pos : this.getOrderedPositionTargets()) {
-            if (level.getBlockState(pos).canBeReplaced()) {
-                return true;
+    private @Nullable BlockPos selectNextPositionTarget(ServerLevel level) {
+        List<BlockPos> positions = this.getOrderedPositionTargets();
+        for (int offset = 0; offset < positions.size(); offset++) {
+            int index = Math.floorMod(this.currentPlacementIndex + offset, positions.size());
+            BlockPos targetPos = positions.get(index);
+            if (isTargetAvailable(level, targetPos)) {
+                if (this.currentPlacementIndex != index) {
+                    this.currentPlacementIndex = index;
+                    this.setChanged();
+                }
+                return targetPos;
             }
         }
-        return false;
+        return null;
     }
 
     private List<BlockPos> getOrderedPositionTargets() {
@@ -830,12 +901,24 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     public @Nullable BlockPos getCurrentBlueprintTargetPosition() {
+        Level level = this.getLevel();
         for (int checked = 0; checked < POSITION_COUNT; checked++) {
             int orderIndex = Math.floorMod(this.currentPlacementIndex + checked, POSITION_COUNT);
             int storageIndex = getStorageIndexForOrder(orderIndex);
-            if (!this.blueprint.states()[storageIndex].isAir()) {
-                return this.getBlueprintPosition(storageIndex);
+            if (this.blueprint.states()[storageIndex].isAir()) {
+                continue;
             }
+            BlockPos targetPos = this.getBlueprintPosition(storageIndex);
+            if (level != null) {
+                BlockState requiredState = this.getBlueprintStateForPlacement(storageIndex);
+                BlockState worldState = level.getBlockState(targetPos);
+                if (worldState.is(requiredState.getBlock())
+                    || !worldState.canBeReplaced()
+                    || !isTargetUnobstructed(level, targetPos)) {
+                    continue;
+                }
+            }
+            return targetPos;
         }
         return null;
     }
@@ -853,7 +936,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                     continue;
                 }
                 total++;
-                if (level.getBlockState(this.getBlueprintPosition(index)).equals(this.getBlueprintStateForPlacement(index))) {
+                BlockState requiredState = this.getBlueprintStateForPlacement(index);
+                if (level.getBlockState(this.getBlueprintPosition(index)).is(requiredState.getBlock())) {
                     placed++;
                 }
             }
