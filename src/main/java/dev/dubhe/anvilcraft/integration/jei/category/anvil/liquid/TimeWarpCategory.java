@@ -6,10 +6,13 @@ import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
+import mezz.jei.api.gui.builder.ITooltipBuilder;
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -46,9 +49,23 @@ public class TimeWarpCategory extends AbstractLiquidCategory<TimeWarpRecipe> {
     }
 
     @Override
-    public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        super.registerRecipeCatalysts(registration);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.CORRUPTED_BEACON), getRecipeType());
+    public void getTooltip(
+        ITooltipBuilder tooltip,
+        RecipeHolder<TimeWarpRecipe> recipeHolder,
+        IRecipeSlotsView recipeSlotsView,
+        double mouseX,
+        double mouseY
+    ) {
+        if (mouseX >= 72 && mouseX <= 90 && mouseY >= 34 && mouseY <= 53) {
+            tooltip.add(ModBlocks.CORRUPTED_BEACON.get().getName());
+            tooltip.add(Component.translatable("gui.anvilcraft.category.time_warp.need_activated")
+                .withStyle(ChatFormatting.RED));
+        }
+    }
+
+    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+        AnvilCraftJeiPlugin.addAnvilCauldronCatalysts(registration, AnvilCraftJeiPlugin.TIME_WARP);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.CORRUPTED_BEACON), AnvilCraftJeiPlugin.TIME_WARP);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

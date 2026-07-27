@@ -17,6 +17,7 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
+import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import net.minecraft.client.Minecraft;
@@ -196,10 +197,6 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
             int textWidth = Minecraft.getInstance().font.width(text);
             guiGraphics.drawString(Minecraft.getInstance().font, text, 81 - textWidth / 2, 55, 0xFF000000, false);
         }
-    }
-
-    public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        AnvilCraftJeiPlugin.addAnvilCauldronCatalysts(registration, getRecipeType());
     }
 
     /**

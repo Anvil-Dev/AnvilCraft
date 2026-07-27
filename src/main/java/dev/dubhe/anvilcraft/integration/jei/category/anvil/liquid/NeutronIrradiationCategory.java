@@ -18,6 +18,7 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -76,17 +77,18 @@ public class NeutronIrradiationCategory extends AbstractLiquidCategory<NeutronIr
         double mouseX,
         double mouseY
     ) {
-        if (isExplosionRecipe(recipeHolder)
-            && mouseX >= 120 && mouseX <= 156
-            && mouseY >= 12 && mouseY <= 48) {
+        boolean explosionRecipe = isExplosionRecipe(recipeHolder);
+        if (explosionRecipe && mouseX >= 120 && mouseX <= 156 && mouseY >= 12 && mouseY <= 48) {
             tooltip.add(Component.translatable("gui.anvilcraft.category.neutron_irradiation.explosion"));
+        }
+        if (mouseX >= 72 && mouseX <= 90 && mouseY >= 34 && mouseY <= 53) {
+            tooltip.add(ModBlocks.NEUTRON_IRRADIATOR.get().getName());
         }
     }
 
-    @Override
-    public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        super.registerRecipeCatalysts(registration);
-        registration.addRecipeCatalyst(new ItemStack(ModBlocks.NEUTRON_IRRADIATOR), getRecipeType());
+    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+        AnvilCraftJeiPlugin.addAnvilCauldronCatalysts(registration, AnvilCraftJeiPlugin.NEUTRON_IRRADIATION);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.NEUTRON_IRRADIATOR), AnvilCraftJeiPlugin.NEUTRON_IRRADIATION);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

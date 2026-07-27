@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.RecipeType;
+import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -24,6 +25,10 @@ public class SolidLiquidCategory extends AbstractLiquidCategory<SolidLiquidRecip
             ),
             Component.translatable("gui.anvilcraft.category.solid_liquid")
         );
+    }
+
+    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+        AnvilCraftJeiPlugin.addAnvilCauldronCatalysts(registration, AnvilCraftJeiPlugin.SOLID_LIQUID);
     }
 
     @Override

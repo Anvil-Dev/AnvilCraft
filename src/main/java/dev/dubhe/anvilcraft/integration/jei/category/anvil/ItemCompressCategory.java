@@ -66,8 +66,8 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
             return;
         }
         List<ItemIngredientPredicate> inputs = recipe.getInputItems();
-        builder.addSlot(RecipeIngredientRole.INPUT, 11, JeiSlotUtil.DEFAULT_Y).addIngredients(Ingredient.of(inputs.getFirst().getItems()));
-        builder.addSlot(RecipeIngredientRole.INPUT, 30, JeiSlotUtil.ITEM_Y)
+        builder.addSlot(RecipeIngredientRole.INPUT, 12, JeiSlotUtil.DEFAULT_Y).addIngredients(Ingredient.of(inputs.getFirst().getItems()));
+        builder.addSlot(RecipeIngredientRole.INPUT, 31, JeiSlotUtil.DEFAULT_Y)
             .addItemStack(resinWithCreeper(powered))
             .addRichTooltipCallback((slotView, tooltip) ->
                 tooltip.add(Component.translatable(powered
