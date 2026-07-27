@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
+import dev.dubhe.anvilcraft.util.BlockStateUtil;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,9 +49,6 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.Half;
-import net.minecraft.world.level.block.state.properties.SlabType;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
@@ -127,6 +125,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private float clientRetractStartProgress;
     private boolean retractSoundPlayed;
 
+    // region Lifecycle and Target
     public SmartBlockPlacerBlockEntity(BlockPos pos, BlockState blockState) {
         this(ModBlockEntities.SMART_BLOCK_PLACER.get(), pos, blockState);
     }
@@ -251,7 +250,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         return event.getPointer();
     }
+    // endregion
 
+    // region Execution
     public void tickClient() {
         if (this.canOperate()) {
             this.advancePhaseProgress();
@@ -305,7 +306,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.setChanged();
         level.sendBlockUpdated(pos, this.getBlockState(), this.getBlockState(), 3);
     }
+    // endregion
 
+    // region Placement
     private void applyToTargetPosition(ServerLevel level) {
         if (this.target == TargetMode.BLUEPRINT) {
             this.applyToBlueprintPosition(level);
@@ -435,7 +438,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             state -> second.right().map(state::equals).orElse(false)
         ));
     }
+    // endregion
 
+    // region Blueprint Placement
     private static int getStorageIndexForOrder(int orderIndex) {
         int layer = orderIndex / POSITIONS_PER_LAYER;
         int inLayer = orderIndex % POSITIONS_PER_LAYER;
@@ -477,7 +482,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return Blocks.AIR.defaultBlockState();
         }
         BlockState state = this.blueprint.states()[storageIndex].rotate(this.getBlueprintRotation(targetFacing));
-        return upsideDown ? flipHalfPropertyStatic(state) : state;
+        return upsideDown ? BlockStateUtil.flipVerticalProperties(state) : state;
     }
 
     private Rotation getBlueprintRotation(Direction targetFacing) {
@@ -512,7 +517,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return new StructureBlueprint("", states, false);
         }
     }
+    // endregion
 
+    // region Position Selection
     private boolean hasAvailablePosition(ServerLevel level) {
         for (BlockPos pos : this.getOrderedPositionTargets()) {
             if (level.getBlockState(pos).canBeReplaced()) {
@@ -617,17 +624,21 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.currentPlacementIndex = Math.max(0, tag.getInt("currentPlacementIndex"));
         Arrays.fill(this.layerPositions, false);
         if (tag.contains("layerPositions", Tag.TAG_BYTE_ARRAY)) {
-            byte[] storedPositions = tag.getByteArray("layerPositions");
-            for (int index = 0; index < Math.min(POSITION_COUNT, storedPositions.length); index++) {
-                this.layerPositions[index] = storedPositions[index] != 0;
-            }
+            this.loadPositionArray(tag.getByteArray("layerPositions"));
             return;
         }
+        this.loadLegacyPositionSelection(tag);
+    }
+
+    private void loadPositionArray(byte[] storedPositions) {
+        for (int index = 0; index < Math.min(POSITION_COUNT, storedPositions.length); index++) {
+            this.layerPositions[index] = storedPositions[index] != 0;
+        }
+    }
+
+    private void loadLegacyPositionSelection(CompoundTag tag) {
         if (tag.contains("positionMarks", Tag.TAG_BYTE_ARRAY)) {
-            byte[] storedPositions = tag.getByteArray("positionMarks");
-            for (int index = 0; index < Math.min(POSITION_COUNT, storedPositions.length); index++) {
-                this.layerPositions[index] = storedPositions[index] != 0;
-            }
+            this.loadPositionArray(tag.getByteArray("positionMarks"));
             return;
         }
         if (!tag.contains("layerPositions", Tag.TAG_COMPOUND)) {
@@ -642,7 +653,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
         }
     }
+    // endregion
 
+    // region Blueprint Data
     private void onBlueprintItemChanged() {
         ItemStack blueprint = this.blueprintItemHandler.getStackInSlot(0);
         this.target = blueprint.isEmpty() ? TargetMode.POSITION : TargetMode.BLUEPRINT;
@@ -735,9 +748,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             tag.getBoolean("invalidStructure")
         );
         this.missingBlock = loadDisplayedBlock(tag, "missingBlock", registries);
-        if (this.missingBlock == null && tag.contains("missingBlockItem", Tag.TAG_COMPOUND)) {
-            ItemStack legacyMissingItem = ItemStack.parseOptional(registries, tag.getCompound("missingBlockItem"));
-            this.missingBlock = legacyMissingItem.isEmpty() ? null : Either.left(legacyMissingItem);
+        if (this.missingBlock == null) {
+            this.missingBlock = loadLegacyDisplayedBlock(tag, "missingBlockItem", registries);
         }
         if (this.placement == BlueprintPlacementMode.SKIP) {
             this.missingBlock = null;
@@ -783,6 +795,20 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         return null;
     }
 
+    private static @Nullable Either<ItemStack, BlockState> loadLegacyDisplayedBlock(
+        CompoundTag tag,
+        String key,
+        HolderLookup.Provider registries
+    ) {
+        if (!tag.contains(key, Tag.TAG_COMPOUND)) {
+            return null;
+        }
+        ItemStack stack = ItemStack.parseOptional(registries, tag.getCompound(key));
+        return stack.isEmpty() ? null : Either.left(stack);
+    }
+    // endregion
+
+    // region State
     public boolean hasBlueprint() {
         for (BlockState state : this.blueprint.states()) {
             if (!state.isAir()) {
@@ -879,29 +905,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private BlockState getCurrentBlockState() {
         return this.level == null ? this.getBlockState() : this.level.getBlockState(this.getBlockPos());
     }
-
-    public static BlockState flipHalfPropertyStatic(BlockState state) {
-        if (state.hasProperty(BlockStateProperties.HALF)) {
-            Half half = state.getValue(BlockStateProperties.HALF);
-            state = state.setValue(BlockStateProperties.HALF, half == Half.TOP ? Half.BOTTOM : Half.TOP);
-        }
-        if (state.hasProperty(BlockStateProperties.SLAB_TYPE)) {
-            SlabType slabType = state.getValue(BlockStateProperties.SLAB_TYPE);
-            state = state.setValue(BlockStateProperties.SLAB_TYPE, switch (slabType) {
-                case BOTTOM -> SlabType.TOP;
-                case TOP -> SlabType.BOTTOM;
-                case DOUBLE -> SlabType.DOUBLE;
-            });
-        }
-        if (state.hasProperty(BlockStateProperties.VERTICAL_DIRECTION)) {
-            Direction direction = state.getValue(BlockStateProperties.VERTICAL_DIRECTION);
-            state = state.setValue(
-                BlockStateProperties.VERTICAL_DIRECTION,
-                direction == Direction.UP ? Direction.DOWN : Direction.UP
-            );
-        }
-        return state;
-    }
+    // endregion
 
     // region BlockEntity - Update
     @Override
@@ -948,18 +952,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (tag.contains("placement")) {
             this.placement = BlueprintPlacementMode.CODEC.parse(ops, tag.get("placement")).result().orElse(BlueprintPlacementMode.SKIP);
         }
+        this.loadLegacyModeData(tag, ops);
         if (tag.contains("phase")) {
             this.phase = ExecutionPhase.CODEC.parse(ops, tag.get("phase")).result().orElse(ExecutionPhase.IDLE);
         }
         this.progress = tag.getFloat("progress");
-        this.loadingBlueprintInventory = true;
-        try {
-            if (tag.contains("blueprintInventory", Tag.TAG_COMPOUND)) {
-                this.blueprintItemHandler.deserializeNBT(registries, tag.getCompound("blueprintInventory"));
-            }
-        } finally {
-            this.loadingBlueprintInventory = false;
-        }
+        this.loadBlueprintItem(tag, registries);
         this.loadPositionSelection(tag);
         this.loadBlueprintData(tag, registries);
         this.target = this.blueprintItemHandler.getStackInSlot(0).isEmpty()
@@ -968,6 +966,65 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         if (tag.contains("pointer")) {
             this.pointer = ITargetPointer.CODEC.parse(ops, tag.get("pointer")).result().orElse(null);
         }
+    }
+
+    private void loadBlueprintItem(CompoundTag tag, HolderLookup.Provider registries) {
+        this.loadingBlueprintInventory = true;
+        try {
+            if (tag.contains("blueprintInventory", Tag.TAG_COMPOUND)) {
+                this.blueprintItemHandler.deserializeNBT(registries, tag.getCompound("blueprintInventory"));
+            } else {
+                this.loadLegacyBlueprintItem(tag, registries);
+            }
+        } finally {
+            this.loadingBlueprintInventory = false;
+        }
+    }
+
+    private void loadLegacyModeData(CompoundTag tag, RegistryOps<Tag> ops) {
+        if (!tag.contains("operation") && tag.contains("isPickupMode", Tag.TAG_BYTE)) {
+            this.operation = tag.getBoolean("isPickupMode") ? OperationMode.PICKUP : OperationMode.MOVE;
+        }
+        if (tag.contains("placement")) {
+            return;
+        }
+        if (tag.contains("blueprintPlacementMode")) {
+            this.placement = BlueprintPlacementMode.CODEC.parse(ops, tag.get("blueprintPlacementMode"))
+                .result().orElse(BlueprintPlacementMode.SKIP);
+        } else if (tag.contains("isSkipMissingMode", Tag.TAG_BYTE)) {
+            this.placement = tag.getBoolean("isSkipMissingMode")
+                ? BlueprintPlacementMode.SKIP
+                : BlueprintPlacementMode.WAIT;
+        }
+    }
+
+    private void loadLegacyBlueprintItem(CompoundTag tag, HolderLookup.Provider registries) {
+        ItemStack blueprintItem = ItemStack.EMPTY;
+        if (tag.contains("diskInventory", Tag.TAG_COMPOUND)) {
+            blueprintItem = ItemStack.parseOptional(registries, tag.getCompound("diskInventory"));
+        } else if (tag.contains("diskInventory", Tag.TAG_LIST)) {
+            blueprintItem = loadLegacyBlueprintItem(tag.getList("diskInventory", Tag.TAG_COMPOUND), registries);
+        }
+        if (blueprintItem.isEmpty() && tag.contains("Items", Tag.TAG_LIST)) {
+            blueprintItem = loadLegacyBlueprintItem(tag.getList("Items", Tag.TAG_COMPOUND), registries);
+        }
+        if (blueprintItem.is(ModItems.STRUCTURE_DISK.get())) {
+            this.blueprintItemHandler.setStackInSlot(0, blueprintItem);
+        }
+    }
+
+    private static ItemStack loadLegacyBlueprintItem(ListTag items, HolderLookup.Provider registries) {
+        for (int index = 0; index < items.size(); index++) {
+            CompoundTag entry = items.getCompound(index);
+            CompoundTag itemTag = entry.contains("Item", Tag.TAG_COMPOUND)
+                ? entry.getCompound("Item")
+                : entry;
+            ItemStack stack = ItemStack.parseOptional(registries, itemTag);
+            if (stack.is(ModItems.STRUCTURE_DISK.get())) {
+                return stack;
+            }
+        }
+        return ItemStack.EMPTY;
     }
     // endregion
 
@@ -1044,6 +1101,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             BlueprintPlacementMode.CODEC.parse(ops, data.get("placement")).result()
                 .ifPresent(placement -> this.placement = placement);
         }
+        this.loadLegacyModeData(data, ops);
         if (this.placement == BlueprintPlacementMode.SKIP) {
             this.missingBlock = null;
         }
@@ -1055,6 +1113,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
     // endregion
 
+    // region Modes
     public enum OperationMode implements StringRepresentable {
         PICKUP,
         MOVE,
@@ -1121,4 +1180,5 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return this.name().toLowerCase(Locale.ROOT);
         }
     }
+    // endregion
 }

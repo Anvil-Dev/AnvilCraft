@@ -6,6 +6,7 @@ import com.mojang.datafixers.util.Pair;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.mixin.accessor.CropBlockAccessor;
 import dev.dubhe.anvilcraft.mixin.accessor.GrowingPlantAccessor;
+import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderOwner;
@@ -31,6 +32,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
+import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.level.material.Fluid;
@@ -166,6 +168,31 @@ public class BlockStateUtil {
         if (additionalItem.isEmpty()) return List.of(baseItem);
         if (baseItem.isEmpty()) return List.of(additionalItem);
         return List.of(baseItem, additionalItem);
+    }
+
+    public static BlockState flipVerticalProperties(BlockState state) {
+        if (state.hasProperty(BlockStateProperties.HALF)) {
+            Half half = state.getValue(BlockStateProperties.HALF);
+            state = state.setValue(BlockStateProperties.HALF, half == Half.TOP ? Half.BOTTOM : Half.TOP);
+        }
+        if (state.hasProperty(BlockStateProperties.SLAB_TYPE)) {
+            SlabType slabType = state.getValue(BlockStateProperties.SLAB_TYPE);
+            state = state.setValue(
+                BlockStateProperties.SLAB_TYPE, switch (slabType) {
+                    case BOTTOM -> SlabType.TOP;
+                    case TOP -> SlabType.BOTTOM;
+                    case DOUBLE -> SlabType.DOUBLE;
+                }
+            );
+        }
+        if (state.hasProperty(BlockStateProperties.VERTICAL_DIRECTION)) {
+            Direction direction = state.getValue(BlockStateProperties.VERTICAL_DIRECTION);
+            state = state.setValue(
+                BlockStateProperties.VERTICAL_DIRECTION,
+                direction == Direction.UP ? Direction.DOWN : Direction.UP
+            );
+        }
+        return state;
     }
 
     public static class BlockHolderLookup implements HolderLookup<Block>, HolderOwner<Block> {
