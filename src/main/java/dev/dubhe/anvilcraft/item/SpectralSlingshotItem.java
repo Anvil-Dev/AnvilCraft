@@ -538,12 +538,17 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
         boolean isCrit,
         @Nullable LivingEntity target
     ) {
+        // 装填后可能会移除多重射击，发射数量应以发射时的附魔为准。
+        int projectileCount = Math.max(
+            1,
+            Math.min(projectileItems.size(), EnchantmentHelper.processProjectileCount(level, weapon, shooter, 1))
+        );
         float f = EnchantmentHelper.processProjectileSpread(level, weapon, shooter, 0.0F);
-        float f1 = projectileItems.size() == 1 ? 0.0F : 2.0F * f / (float) (projectileItems.size() - 1);
-        float f2 = (float) ((projectileItems.size() - 1) % 2) * f1 / 2.0F;
+        float f1 = projectileCount == 1 ? 0.0F : 2.0F * f / (float) (projectileCount - 1);
+        float f2 = (float) ((projectileCount - 1) % 2) * f1 / 2.0F;
         float f3 = 1.0F;
 
-        for (int i = 0; i < projectileItems.size(); ++i) {
+        for (int i = 0; i < projectileCount; ++i) {
             ItemStack itemstack = projectileItems.get(i);
             if (!itemstack.isEmpty()) {
                 float f4 = f2 + f3 * (float) ((i + 1) / 2) * f1;

@@ -6,8 +6,11 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.network.HammerUsePacket;
+import dev.dubhe.anvilcraft.network.InfiniteFluidTankBreakModifierPacket;
+import dev.dubhe.anvilcraft.util.InfiniteFluidTankBreakProtection;
 import dev.dubhe.anvilcraft.util.StateUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
@@ -27,6 +30,19 @@ import java.util.List;
 
 @EventBusSubscriber(value = Dist.CLIENT)
 public class ClientBlockEventListener {
+    @SubscribeEvent
+    public static void syncInfiniteFluidTankBreakModifiers(PlayerInteractEvent.LeftClickBlock event) {
+        if (!event.getLevel().isClientSide()) return;
+        if (event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.START
+            && event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.CLIENT_HOLD) {
+            return;
+        }
+        if (!InfiniteFluidTankBreakProtection.isProtected(event.getLevel(), event.getPos())) return;
+
+        boolean modifiersHeld = Screen.hasControlDown() && Screen.hasShiftDown() && Screen.hasAltDown();
+        PacketDistributor.sendToServer(new InfiniteFluidTankBreakModifierPacket(event.getPos(), modifiersHeld));
+    }
+
     /**
      * 侦听右键方块事件
      *

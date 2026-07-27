@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.fluid.PipeCheckValveBlockEntity;
+import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -16,6 +17,7 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import org.joml.Vector3f;
 
 import java.util.List;
@@ -57,6 +59,11 @@ public class PipeCheckValveBERenderer implements BlockEntityRenderer<PipeCheckVa
         }
         Level level = be.getLevel();
         if (level == null) {
+            return;
+        }
+        BlockState state = level.getBlockState(be.getBlockPos());
+        if (!state.hasProperty(PipeBlock.HAS_CHECK_VALVE)
+            || !state.getValue(PipeBlock.HAS_CHECK_VALVE)) {
             return;
         }
         BakedModel model = Minecraft.getInstance().getModelManager().getModel(ARM);

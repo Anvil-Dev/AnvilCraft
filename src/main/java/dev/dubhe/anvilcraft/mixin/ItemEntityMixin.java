@@ -453,7 +453,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         Object[] result = {null, Double.MAX_VALUE};
         BlockPos.betweenClosedStream(area).forEach(pos -> {
             BlockState state = this.level().getBlockState(pos);
-            if (!anvilcraft$isMagnetBlock(state)) return;
+            if (!anvilcraft$isMagnetBlock(state) || state.getValue(MagnetBlock.LIT)) return;
             for (AABB box : state.getCollisionShape(this.level(), pos).toAabbs()) {
                 AABB wb = box.move(pos);
                 Vec3 p = new Vec3(

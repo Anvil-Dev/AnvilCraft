@@ -257,6 +257,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.TRANSCENDENCE_ANVIL), RecipeTypes.ANVIL);
 
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.ROYAL_SMITHING_TABLE), RecipeTypes.SMITHING);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.TRANSCENDENCE_SMITHING_TABLE), RecipeTypes.SMITHING);
     }
 
     @Override

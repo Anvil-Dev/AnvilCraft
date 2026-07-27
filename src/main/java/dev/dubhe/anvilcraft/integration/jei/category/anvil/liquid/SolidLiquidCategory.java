@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
+import dev.dubhe.anvilcraft.integration.jei.recipe.ComplexFluidJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import mezz.jei.api.helpers.IGuiHelper;
@@ -37,9 +38,11 @@ public class SolidLiquidCategory extends AbstractLiquidCategory<SolidLiquidRecip
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
-        List<RecipeHolder<SolidLiquidRecipe>> holders = JeiRecipeUtil.getRecipeHoldersFromType(
-            ModRecipeTypes.SOLID_LIQUID_TYPE.get()
-        );
-        registration.addRecipes(AnvilCraftJeiPlugin.SOLID_LIQUID, holders);
+        List<RecipeHolder<SolidLiquidRecipe>> recipes = JeiRecipeUtil
+            .getRecipeHoldersFromType(ModRecipeTypes.SOLID_LIQUID_TYPE.get())
+            .stream()
+            .filter(holder -> !ComplexFluidJeiRecipe.isComplex(holder.value()))
+            .toList();
+        registration.addRecipes(AnvilCraftJeiPlugin.SOLID_LIQUID, recipes);
     }
 }

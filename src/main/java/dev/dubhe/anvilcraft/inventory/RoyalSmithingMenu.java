@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.ItemCombinerMenu;
 import net.minecraft.world.inventory.ItemCombinerMenuSlotDefinition;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -23,7 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
-public class RoyalSmithingMenu extends ItemCombinerMenu {
+public class RoyalSmithingMenu extends AdjacentSmithingMenu {
     private final Level level;
 
     @Nullable
@@ -68,6 +67,11 @@ public class RoyalSmithingMenu extends ItemCombinerMenu {
                 .anyMatch(smithingRecipe -> smithingRecipe.value().isAdditionIngredient(itemStack)))
             .withResultSlot(3, 106, 48)
             .build();
+    }
+
+    @Override
+    protected boolean isUsableTemplate(ItemStack stack) {
+        return this.recipes.stream().anyMatch(recipe -> recipe.value().isTemplateIngredient(stack));
     }
 
     protected boolean isValidBlock(BlockState state) {

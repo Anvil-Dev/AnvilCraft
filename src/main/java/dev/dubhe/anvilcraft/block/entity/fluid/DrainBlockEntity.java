@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -419,7 +420,12 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
 
     private static void removeFluidSilently(Level level, BlockPos target) {
         int flags = Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE;
-        level.setBlock(target, Blocks.AIR.defaultBlockState(), flags);
+        BlockState state = level.getBlockState(target);
+        BlockState dryState = state.hasProperty(BlockStateProperties.WATERLOGGED)
+                              && state.getValue(BlockStateProperties.WATERLOGGED)
+            ? state.setValue(BlockStateProperties.WATERLOGGED, false)
+            : Blocks.AIR.defaultBlockState();
+        level.setBlock(target, dryState, flags);
     }
 
     private void prepareFlowCleanup(Fluid fluid) {

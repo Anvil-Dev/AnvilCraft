@@ -12,6 +12,9 @@ public class ScreenTooltipLang {
         provider.add("screen.anvilcraft.tooltip.cfa_amplifier", "It must be placed diagonally on the Celestial Forging Anvil");
 
         provider.add("screen.anvilcraft.tooltip.trading_station.break_failed", "Please do not break someone else's Trading Station! Hold Shift to forcibly break it");
+        provider.add("screen.anvilcraft.tooltip.fluid_tank.break_confirm", "This tank contains infinite fluid. Mine it again while holding Ctrl+Shift+Alt to confirm removal");
+        provider.add("screen.anvilcraft.tooltip.fluid_tank.break_modifiers", "Hold Ctrl+Shift+Alt while mining to remove this infinite-fluid tank");
+        provider.add("screen.anvilcraft.tooltip.fluid_tank.tool_break_failed", "Infinite-fluid tanks cannot be removed with an Anvil Hammer or Dragon Rod");
 
         provider.add("screen.anvilcraft.range_no_overlap", "The working ranges of two identical blocks must not overlap");
         provider.add("screen.anvilcraft.range_overlap", "No other identical block is allowed within the %1$s×%1$s range.");

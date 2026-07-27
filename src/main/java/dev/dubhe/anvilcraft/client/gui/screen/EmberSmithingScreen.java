@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
 import dev.dubhe.anvilcraft.item.template.mto.BaseMultipleToOneTemplateItem;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
-import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
@@ -18,7 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 import java.util.Optional;
 
-public class EmberSmithingScreen extends ItemCombinerScreen<EmberSmithingMenu> {
+public class EmberSmithingScreen extends AdjacentSmithingScreen<EmberSmithingMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("crafting", "ember_smithing_table");
 
     // 空槽位纹理 - 模板

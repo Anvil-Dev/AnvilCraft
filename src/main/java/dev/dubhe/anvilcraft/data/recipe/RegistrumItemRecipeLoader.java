@@ -288,16 +288,27 @@ public class RegistrumItemRecipeLoader {
             .save(provider, AnvilCraft.of("smithing/ember_anvil_hammer"));
     }
 
-    public static <T extends Item> void transcendenceAnvilHammer(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+    public static <T extends Item> void frostAnvilHammer(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.TOOLS, ctx.get())
+            .pattern("A")
+            .pattern("B")
+            .pattern("C")
+            .define('A', ModBlocks.FROST_ANVIL)
+            .define('B', Items.LIGHTNING_ROD)
+            .define('C', ModItems.FROST_METAL_INGOT)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FROST_ANVIL), RegistrumRecipeProvider.has(ModBlocks.FROST_ANVIL))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.LIGHTNING_ROD), RegistrumRecipeProvider.has(Items.LIGHTNING_ROD))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.FROST_METAL_INGOT), RegistrumRecipeProvider.has(ModItems.FROST_METAL_INGOT))
+            .save(provider);
         SmithingTransformRecipeBuilder.smithing(
-                Ingredient.of(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE),
-                Ingredient.of(ModItems.EMBER_ANVIL_HAMMER),
-                Ingredient.of(ModBlocks.TRANSCENDIUM_BLOCK),
+                Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
+                Ingredient.of(ModItems.ROYAL_ANVIL_HAMMER),
+                Ingredient.of(ModBlocks.FROST_METAL_BLOCK),
                 RecipeCategory.TOOLS,
                 ctx.get()
             )
-            .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.TRANSCENDIUM_BLOCK))
-            .save(provider, AnvilCraft.of("smithing/transcendence_anvil_hammer"));
+            .unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK))
+            .save(provider, AnvilCraft.of("smithing/frost_anvil_hammer"));
     }
 
     public static <T extends Item> void dragonRod(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
@@ -351,23 +362,16 @@ public class RegistrumItemRecipeLoader {
         ).unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.EMBER_METAL_BLOCK)).save(provider, ctx.getId().withPrefix("smithing/"));
     }
 
-    public static <T extends Item> void transcendenceDragonRod(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+    public static <T extends Item> void frostDragonRod(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, ctx.get())
             .requires(ModBlocks.BLOCK_DEVOURER)
-            .requires(ModItems.TRANSCENDENCE_ANVIL_HAMMER)
+            .requires(ModItems.FROST_ANVIL_HAMMER)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BLOCK_DEVOURER), AnvilCraftDatagen.has(ModBlocks.BLOCK_DEVOURER))
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDENCE_ANVIL_HAMMER),
-                AnvilCraftDatagen.has(ModItems.TRANSCENDENCE_ANVIL_HAMMER)
+                AnvilCraftDatagen.hasItem(ModItems.FROST_ANVIL_HAMMER),
+                AnvilCraftDatagen.has(ModItems.FROST_ANVIL_HAMMER)
             )
             .save(provider);
-        SmithingTransformRecipeBuilder.smithing(
-            Ingredient.of(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE),
-            Ingredient.of(ModItems.EMBER_DRAGON_ROD),
-            Ingredient.of(ModBlocks.TRANSCENDIUM_BLOCK),
-            RecipeCategory.TOOLS,
-            ctx.get()
-        ).unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.TRANSCENDIUM_BLOCK)).save(provider, ctx.getId().withPrefix("smithing/"));
     }
 
     public static <T extends Item> void energyWeaponPlatform(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
@@ -1227,17 +1231,18 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void multiphaseTranscendium(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        SmithingTransformRecipeBuilder.smithing(
-                Ingredient.of(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE),
-                Ingredient.of(ModItems.MULTIPHASE_MATTER),
-                Ingredient.of(ModItems.TRANSCENDIUM_INGOT),
-                RecipeCategory.MISC,
-                ctx.get()
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+            .requires(ModItems.MULTIPHASE_MATTER)
+            .requires(ModItems.TRANSCENDIUM_INGOT)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MULTIPHASE_MATTER),
+                AnvilCraftDatagen.has(ModItems.MULTIPHASE_MATTER)
             )
-            .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE))
-            .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.MULTIPHASE_MATTER))
-            .unlocks("hasitem", AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT))
-            .save(provider, AnvilCraft.of("multiphase_transcendium"));
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT)
+            )
+            .save(provider);
     }
 
     public static <T extends Item> void negativeMatter(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
