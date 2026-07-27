@@ -1,8 +1,8 @@
 {
   "type": "anvilcraft:procedural_process",
   "displayed_models": [
-    "anvilcraft:block/shulker_box_wip",
-    "anvilcraft:block/shulker_box_wip_2"
+    "anvilcraft:block/wip_display/shulker_box_wip",
+    "anvilcraft:block/wip_display/shulker_box_wip_2"
   ],
   "icon": {
     "count": 1,

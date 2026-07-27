@@ -46,9 +46,9 @@ public class ProceduralProcessRecipeLoader {
             .result(ModBlocks.SPACE_OVERCOMPRESSOR)
             .icon(ModBlocks.SPACE_OVERCOMPRESSOR.asStack())
             .displayedModels(
-                AnvilCraft.of("block/nesting_shulker_box"),
-                AnvilCraft.of("block/over_nesting_shulker_box"),
-                AnvilCraft.of("block/supercritical_nesting_shulker_box")
+                AnvilCraft.of("nesting_shulker_box"),
+                AnvilCraft.of("over_nesting_shulker_box"),
+                AnvilCraft.of("supercritical_nesting_shulker_box")
             )
             .save(provider);
 
@@ -77,8 +77,8 @@ public class ProceduralProcessRecipeLoader {
             .result(Blocks.SHULKER_BOX)
             .icon(Items.SHULKER_BOX.getDefaultInstance())
             .displayedModels(
-                AnvilCraft.of("block/shulker_box_wip"),
-                AnvilCraft.of("block/shulker_box_wip_2")
+                AnvilCraft.of("shulker_box_wip"),
+                AnvilCraft.of("shulker_box_wip_2")
             )
             .save(provider);
 
@@ -106,9 +106,9 @@ public class ProceduralProcessRecipeLoader {
             .result(ModBlocks.SPACETIME_SUPERCOMPUTER)
             .icon(ModBlocks.SPACETIME_SUPERCOMPUTER.asStack())
             .displayedModels(
-                AnvilCraft.of("block/spacetime_supercomputer_wip"),
-                AnvilCraft.of("block/spacetime_supercomputer_wip_2"),
-                AnvilCraft.of("block/spacetime_supercomputer_wip_3")
+                AnvilCraft.of("spacetime_supercomputer_wip"),
+                AnvilCraft.of("spacetime_supercomputer_wip_2"),
+                AnvilCraft.of("spacetime_supercomputer_wip_3")
             )
             .loop(3)
             .multipleLoopFirstStep(
@@ -141,9 +141,9 @@ public class ProceduralProcessRecipeLoader {
             .result(ModBlocks.SPACETIME_SUPERCOMPUTER)
             .icon(ModBlocks.SPACETIME_SUPERCOMPUTER.asStack())
             .displayedModels(
-                AnvilCraft.of("block/spacetime_supercomputer_wip"),
-                AnvilCraft.of("block/spacetime_supercomputer_wip_2"),
-                AnvilCraft.of("block/spacetime_supercomputer_wip_3")
+                AnvilCraft.of("spacetime_supercomputer_wip"),
+                AnvilCraft.of("spacetime_supercomputer_wip_2"),
+                AnvilCraft.of("spacetime_supercomputer_wip_3")
             )
             .loop(3)
             .multipleLoopFirstStep(
@@ -171,7 +171,7 @@ public class ProceduralProcessRecipeLoader {
             )
             .result(Blocks.ANCIENT_DEBRIS)
             .icon(Blocks.ANCIENT_DEBRIS.asItem().getDefaultInstance())
-            .displayedModels(AnvilCraft.of("block/ancient_debris_wip"))
+            .displayedModels(AnvilCraft.of("ancient_debris_wip"))
             .save(provider);
 
         // 下界合金块
@@ -199,8 +199,8 @@ public class ProceduralProcessRecipeLoader {
             .result(Blocks.NETHERITE_BLOCK)
             .icon(Blocks.NETHERITE_BLOCK.asItem().getDefaultInstance())
             .displayedModels(
-                AnvilCraft.of("block/netherite_block_wip"),
-                AnvilCraft.of("block/netherite_block_wip_2")
+                AnvilCraft.of("netherite_block_wip"),
+                AnvilCraft.of("netherite_block_wip_2")
             )
             .loop(2)
             .multipleLoopFirstStep(
@@ -230,8 +230,8 @@ public class ProceduralProcessRecipeLoader {
             .result(ModBlocks.HEAVY_IRON_BLOCK)
             .icon(ModBlocks.HEAVY_IRON_BLOCK.asStack())
             .displayedModels(
-                AnvilCraft.of("block/heavy_iron_block_wip"),
-                AnvilCraft.of("block/heavy_iron_block_wip_2")
+                AnvilCraft.of("heavy_iron_block_wip"),
+                AnvilCraft.of("heavy_iron_block_wip_2")
             )
             .loop(2)
             .multipleLoopFirstStep(
@@ -268,8 +268,8 @@ public class ProceduralProcessRecipeLoader {
             .result(ModBlocks.ANCIENT_SEA_REEF)
             .icon(ModBlocks.ANCIENT_SEA_REEF.asItem().getDefaultInstance())
             .displayedModels(
-                AnvilCraft.of("block/ancient_sea_reef_wip"),
-                AnvilCraft.of("block/ancient_sea_reef_wip_2")
+                AnvilCraft.of("ancient_sea_reef_wip"),
+                AnvilCraft.of("ancient_sea_reef_wip_2")
             )
             .save(provider);
     }
