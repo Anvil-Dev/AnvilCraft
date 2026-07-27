@@ -214,7 +214,11 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
             dropResources(state, level, pos);
             level.removeBlock(pos, false);
         } else {
-            RedstoneWireNetworkManager.neighborChanged(level, pos, neighborBlock, null);
+            // Orientation 仅在实验性红石模式下携带传播方向；普通模式由管理器扫描相邻方块。
+            BlockPos neighborPos = orientation == null
+                ? null
+                : pos.relative(orientation.getFront().getOpposite());
+            RedstoneWireNetworkManager.neighborChanged(level, pos, neighborBlock, neighborPos);
         }
     }
 

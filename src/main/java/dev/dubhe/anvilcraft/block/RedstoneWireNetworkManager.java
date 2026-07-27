@@ -85,7 +85,9 @@ public final class RedstoneWireNetworkManager {
         Network network = state.byWire.get(packedPos);
         if (network == null || !network.valid) {
             // 新加载、刚放置或已经失效的位置没有可信缓存，只能从该点重新发现连通分量。
-            if (level.getBlockState(neighborPos).is(Blocks.OBSERVER)) {
+            if (neighborPos == null) {
+                state.rememberAdjacentObservers(pos);
+            } else if (level.hasChunkAt(neighborPos) && level.getBlockState(neighborPos).is(Blocks.OBSERVER)) {
                 // 先记录侦测器区块，确保本轮首次建网不会跳过其邻居扫描。
                 state.rememberObserver(neighborPos);
             }
@@ -99,12 +101,16 @@ public final class RedstoneWireNetworkManager {
             return;
         }
 
-        BlockState neighborState = level.getBlockState(neighborPos);
-        if (neighborBlock == Blocks.OBSERVER
-            || network.observers != null && network.observers.contains(neighborPos.asLong())
-            || neighborState.is(Blocks.OBSERVER)) {
-            // 侦测器不参与导线拓扑；只维护单个索引项，避免为放置、旋转或移除侦测器重建整网。
-            state.refreshObserver(network, neighborPos, neighborState);
+        if (neighborPos == null) {
+            state.refreshAdjacentObservers(network, pos);
+        } else {
+            BlockState neighborState = level.getBlockState(neighborPos);
+            if (neighborBlock == Blocks.OBSERVER
+                || network.observers != null && network.observers.contains(neighborPos.asLong())
+                || neighborState.is(Blocks.OBSERVER)) {
+                // 侦测器不参与导线拓扑；只维护单个索引项，避免为放置、旋转或移除侦测器重建整网。
+                state.refreshObserver(network, neighborPos, neighborState);
+            }
         }
 
         if (block.connectionState(level, pos, blockState, node.connections) != blockState) {
@@ -605,6 +611,27 @@ public final class RedstoneWireNetworkManager {
         /** 记录一个当前确实为侦测器的相邻位置，不会为普通邻居变化分配额外状态。 */
         private void rememberObserver(BlockPos observerPos) {
             this.observerChunks.add(ChunkPos.pack(observerPos.getX() >> 4, observerPos.getZ() >> 4));
+        }
+
+        /** 记录当前导线六个相邻位置中的侦测器，供尚未建成的网络首次索引。 */
+        private void rememberAdjacentObservers(BlockPos wirePos) {
+            for (Direction direction : Direction.values()) {
+                BlockPos observerPos = wirePos.relative(direction);
+                if (this.level.hasChunkAt(observerPos) && this.level.getBlockState(observerPos).is(Blocks.OBSERVER)) {
+                    this.rememberObserver(observerPos);
+                }
+            }
+        }
+
+        /** 在来源位置未知时刷新当前导线周围的全部侦测器索引。 */
+        private void refreshAdjacentObservers(Network network, BlockPos wirePos) {
+            for (Direction direction : Direction.values()) {
+                BlockPos observerPos = wirePos.relative(direction);
+                if (!this.level.hasChunkAt(observerPos)) {
+                    continue;
+                }
+                this.refreshObserver(network, observerPos, this.level.getBlockState(observerPos));
+            }
         }
 
         /** 更新一个可能的侦测器位置与当前网络的对应关系。 */
