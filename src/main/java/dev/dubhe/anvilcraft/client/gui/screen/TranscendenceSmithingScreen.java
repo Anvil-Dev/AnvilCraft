@@ -13,10 +13,10 @@ import dev.dubhe.anvilcraft.item.template.mto.BaseMultipleToOneTemplateItem;
 import dev.dubhe.anvilcraft.network.multiple.TranscendenceSmithingPackets;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
-import net.minecraft.client.input.MouseButtonEvent;
-import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.state.ArmorStandRenderState;
 import net.minecraft.client.renderer.item.ItemModelResolver;
@@ -41,7 +41,6 @@ import net.minecraft.world.item.equipment.Equippable;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
-
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;

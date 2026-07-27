@@ -57,7 +57,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
 
     @Override
     public Component getTitle() {
-        return title;
+        return this.title;
     }
 
     @Override
@@ -72,7 +72,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
 
     @Override
     public @Nullable IDrawable getIcon() {
-        return icon;
+        return this.icon;
     }
 
     @Override
@@ -140,7 +140,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 12 + anvilYOffset, 20);
         RenderSupport.renderBlock(graphics, Blocks.CAULDRON.defaultBlockState(), 81, 30, 20);
-        RenderSupport.renderBlock(graphics, getProcessBlock(), 81, 40, 20);
+        RenderSupport.renderBlock(graphics, this.getProcessBlock(), 81, 40, 20);
         this.arrowIn.draw(graphics, 54, 22);
         this.arrowOut.draw(graphics, 92, 22);
 

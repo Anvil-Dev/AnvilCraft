@@ -19,7 +19,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -41,7 +40,7 @@ public class NeutronIrradiationCategory extends AbstractLiquidCategory<NeutronIr
             ),
             Component.translatable("gui.anvilcraft.category.neutron_irradiation")
         );
-        explosion = JeiRenderHelper.getExplosion(helper);
+        this.explosion = JeiRenderHelper.getExplosion(helper);
     }
 
     @Override
@@ -88,7 +87,7 @@ public class NeutronIrradiationCategory extends AbstractLiquidCategory<NeutronIr
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         super.registerRecipeCatalysts(registration);
-        registration.addCraftingStation(getRecipeType(), ModBlocks.NEUTRON_IRRADIATOR);
+        registration.addCraftingStation(this.getRecipeType(), ModBlocks.NEUTRON_IRRADIATOR);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

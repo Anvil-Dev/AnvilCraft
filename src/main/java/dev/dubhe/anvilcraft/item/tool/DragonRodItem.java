@@ -102,9 +102,7 @@ public class DragonRodItem extends Item {
         if (centerState.getDestroySpeed(level, centerPos) < 0.0F) return;
         ItemStack dragonRod = player.getItemInHand(hand);
         if (!canDevour(player, dragonRod)) return;
-        BlockMiningEffect miningEffect = dragonRod.getItem() instanceof DragonRodItem item
-                                          ? item.miningEffect
-                                          : BlockMiningEffect.NORMAL;
+
         int range = dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, DevourRange.THREE).getRange();
         range = (range - 1) / 2;
         Iterable<BlockPos> devouringPoses;
@@ -134,6 +132,9 @@ public class DragonRodItem extends Item {
                 infiniteFluidTankBlocked = true;
                 continue;
             }
+            BlockMiningEffect miningEffect = dragonRod.getItem() instanceof DragonRodItem item
+                                             ? item.miningEffect
+                                             : BlockMiningEffect.NORMAL;
             if (!miningEffect.isDisintegration()
                 && devouringState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
                 && level.getRandom().nextDouble() > 0.05) {

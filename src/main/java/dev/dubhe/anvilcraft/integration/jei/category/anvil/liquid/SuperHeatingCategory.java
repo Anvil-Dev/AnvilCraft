@@ -12,8 +12,6 @@ import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
@@ -42,8 +40,8 @@ public class SuperHeatingCategory extends AbstractLiquidCategory<SuperHeatingRec
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         super.registerRecipeCatalysts(registration);
-        registration.addCraftingStation(getRecipeType(), ModBlocks.HEATER);
-        registration.addCraftingStation(getRecipeType(), ModBlocks.BURNING_HEATER);
+        registration.addCraftingStation(this.getRecipeType(), ModBlocks.HEATER);
+        registration.addCraftingStation(this.getRecipeType(), ModBlocks.BURNING_HEATER);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

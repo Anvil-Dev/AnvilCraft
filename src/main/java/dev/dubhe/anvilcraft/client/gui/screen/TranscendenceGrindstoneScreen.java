@@ -9,9 +9,9 @@ import dev.dubhe.anvilcraft.inventory.TranscendenceGrindstoneMenu;
 import dev.dubhe.anvilcraft.network.TranscendenceGrindstoneSyncPacket;
 import dev.dubhe.anvilcraft.util.EnchantmentData;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.renderer.RenderPipelines;
-import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -263,9 +263,11 @@ public class TranscendenceGrindstoneScreen extends AbstractContainerScreen<Trans
                 int y = this.topPos + 23 + 18 * ((index - this.head) / 3);
                 if (!MathUtil.isInRange(event.x(), event.y(), x, y, x + 18, y + 18)) continue;
 
-                if (this.minecraft != null) this.minecraft.getSoundManager().play(
-                    SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f)
-                );
+                if (this.minecraft != null) {
+                    this.minecraft.getSoundManager().play(
+                        SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f)
+                    );
+                }
                 boolean select = !this.menu.getSelectedIndexes().contains(index);
                 if (select) {
                     this.menu.select(index);

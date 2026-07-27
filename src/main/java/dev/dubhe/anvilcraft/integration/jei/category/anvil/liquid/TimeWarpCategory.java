@@ -11,8 +11,6 @@ import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -48,7 +46,7 @@ public class TimeWarpCategory extends AbstractLiquidCategory<TimeWarpRecipe> {
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         super.registerRecipeCatalysts(registration);
-        registration.addCraftingStation(getRecipeType(), ModBlocks.CORRUPTED_BEACON);
+        registration.addCraftingStation(this.getRecipeType(), ModBlocks.CORRUPTED_BEACON);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

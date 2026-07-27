@@ -34,7 +34,6 @@ import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
@@ -1613,19 +1612,19 @@ public class LargeCauldronBlockEntity extends BlockEntity
         }
     }
 
-    private static boolean canInsertItem(ResourceHandler<ItemResource> handler, ItemStack stack) {
-        if (stack.isEmpty()) return true;
-        try (Transaction transaction = Transaction.openRoot()) {
-            return handler.insert(ItemResource.of(stack), stack.getCount(), transaction) == stack.getCount();
-        }
-    }
-
     private static ItemStack insertItem(ResourceHandler<ItemResource> handler, int slot, ItemStack stack) {
         if (stack.isEmpty()) return ItemStack.EMPTY;
         try (Transaction transaction = Transaction.openRoot()) {
             int inserted = handler.insert(slot, ItemResource.of(stack), stack.getCount(), transaction);
             if (inserted > 0) transaction.commit();
             return inserted == stack.getCount() ? ItemStack.EMPTY : stack.copyWithCount(stack.getCount() - inserted);
+        }
+    }
+
+    private static boolean canInsertItem(ResourceHandler<ItemResource> handler, ItemStack stack) {
+        if (stack.isEmpty()) return true;
+        try (Transaction transaction = Transaction.openRoot()) {
+            return handler.insert(ItemResource.of(stack), stack.getCount(), transaction) == stack.getCount();
         }
     }
 

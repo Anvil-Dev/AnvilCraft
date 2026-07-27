@@ -11,7 +11,6 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.DataSlot;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.item.ItemStack;
-
 import org.jspecify.annotations.Nullable;
 
 public class FrostAnvilMenu extends AnvilMenu implements HammerOpenedAnvilMenu {

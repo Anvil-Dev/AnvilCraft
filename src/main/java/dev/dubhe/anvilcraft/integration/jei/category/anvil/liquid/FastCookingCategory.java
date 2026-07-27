@@ -10,9 +10,7 @@ import mezz.jei.api.recipe.types.IRecipeHolderType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.CampfireBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,7 +40,7 @@ public class FastCookingCategory extends AbstractLiquidCategory<FastCookingRecip
     @Override
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         super.registerRecipeCatalysts(registration);
-        registration.addCraftingStation(getRecipeType(), Items.CAMPFIRE);
+        registration.addCraftingStation(this.getRecipeType(), Items.CAMPFIRE);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
