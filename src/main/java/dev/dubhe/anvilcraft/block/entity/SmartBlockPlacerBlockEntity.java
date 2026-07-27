@@ -132,11 +132,22 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     @Override
     public void onLoad() {
         super.onLoad();
-        if (this.level != null
-            && !this.level.isClientSide()
-            && !this.blueprintItemHandler.getStackInSlot(0).isEmpty()) {
+        if (this.level == null || this.level.isClientSide()) {
+            return;
+        }
+        this.resetExecutionState();
+        if (!this.blueprintItemHandler.getStackInSlot(0).isEmpty()) {
             this.onBlueprintItemChanged();
         }
+    }
+
+    private void resetExecutionState() {
+        this.phase = ExecutionPhase.IDLE;
+        this.phaseProgress = 0.0F;
+        this.pointer = null;
+        this.currentHeldBlock = null;
+        this.clientAnimationTargetPos = null;
+        this.clientRetractSoundPlayed = false;
     }
 
     public static SmartBlockPlacerBlockEntity createBlockEntity(
@@ -1020,9 +1031,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.put("blueprintInventory", this.blueprintItemHandler.serializeNBT(registries));
         this.savePositionSelection(tag);
         this.saveBlueprintData(tag, registries);
-        if (this.pointer != null) {
-            tag.put("pointer", ITargetPointer.CODEC.encodeStart(ops, this.pointer).getOrThrow());
-        }
     }
 
     @Override
@@ -1049,9 +1057,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.target = this.blueprintItemHandler.getStackInSlot(0).isEmpty()
             ? TargetMode.POSITION
             : TargetMode.BLUEPRINT;
-        if (tag.contains("pointer")) {
-            this.pointer = ITargetPointer.CODEC.parse(ops, tag.get("pointer")).result().orElse(null);
-        }
+        this.pointer = null;
     }
 
     private void loadBlueprintItem(CompoundTag tag, HolderLookup.Provider registries) {
@@ -1164,9 +1170,6 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         tag.put("target", TargetMode.CODEC.encodeStart(ops, this.target).getOrThrow());
         tag.put("placement", BlueprintPlacementMode.CODEC.encodeStart(ops, this.placement).getOrThrow());
         this.savePositionSelection(tag);
-        if (this.pointer != null) {
-            tag.put("pointer", ITargetPointer.CODEC.encodeStart(ops, this.pointer).getOrThrow());
-        }
     }
 
     @Override
@@ -1192,9 +1195,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.missingBlock = null;
         }
         this.loadPositionSelection(data);
-        if (data.contains("pointer")) {
-            this.pointer = ITargetPointer.CODEC.parse(ops, data.get("pointer")).result().orElse(null);
-        }
+        this.resetExecutionState();
         this.syncPositionSelection();
     }
     // endregion

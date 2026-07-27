@@ -31,35 +31,29 @@ public class BlockItemHandlerPointer implements ITargetPointer {
     private final Direction dir;
     private final int slot;
     private final ItemStack stack;
-    private @Nullable IItemHandler handler;
 
     public BlockItemHandlerPointer(Type type, BlockPos pos, Direction dir, int slot, ItemStack stack) {
         this.type = type;
         this.pos = pos;
         this.dir = dir;
         this.slot = slot;
-        this.stack = stack;
+        this.stack = stack.copy();
     }
 
-    @Nullable
-    public IItemHandler getHandler(Level level) {
-        if (this.handler == null) {
-            IItemHandler handler = ItemHandlerUtil.getSourceItemHandler(this.pos, this.dir, level);
-            if (handler == null) {
-                return null;
-            }
-            this.handler = handler;
-        }
-        return this.handler;
+    private @Nullable IItemHandler resolveHandler(Level level) {
+        return ItemHandlerUtil.getSourceItemHandler(this.pos, this.dir, level);
     }
 
     @Override
     public boolean isStillValid(Level level) {
-        IItemHandler handler = this.getHandler(level);
-        if (handler == null) {
-            return false;
-        }
-        return ItemStack.isSameItemSameComponents(handler.getStackInSlot(slot), this.stack);
+        IItemHandler handler = this.resolveHandler(level);
+        return handler != null && this.matchesStoredStack(handler);
+    }
+
+    private boolean matchesStoredStack(IItemHandler handler) {
+        return this.slot >= 0
+            && this.slot < handler.getSlots()
+            && ItemStack.isSameItemSameComponents(handler.getStackInSlot(this.slot), this.stack);
     }
 
     @Override
@@ -75,8 +69,8 @@ public class BlockItemHandlerPointer implements ITargetPointer {
 
     @Override
     public boolean applyToPos(ServerLevel level, BlockPos pos) {
-        IItemHandler handler = this.getHandler(level);
-        if (handler == null || !this.isStillValid(level)) {
+        IItemHandler handler = this.resolveHandler(level);
+        if (handler == null || !this.matchesStoredStack(handler)) {
             return false;
         }
 

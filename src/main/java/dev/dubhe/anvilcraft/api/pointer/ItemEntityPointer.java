@@ -37,7 +37,7 @@ public class ItemEntityPointer implements ITargetPointer {
 
     public ItemEntityPointer(Type type, UUID id, ItemStack stack) {
         this.id = id;
-        this.stack = stack;
+        this.stack = stack.copy();
         this.type = type;
     }
 
