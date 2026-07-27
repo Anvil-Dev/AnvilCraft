@@ -39,10 +39,9 @@ public class FastCookingCategory extends AbstractLiquidCategory<FastCookingRecip
         return Blocks.CAMPFIRE.defaultBlockState().setValue(CampfireBlock.LIT, true);
     }
 
-    @Override
-    public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        super.registerRecipeCatalysts(registration);
-        registration.addRecipeCatalyst(new ItemStack(Items.CAMPFIRE), getRecipeType());
+    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
+        AnvilCraftJeiPlugin.addAnvilCauldronCatalysts(registration, AnvilCraftJeiPlugin.FAST_COOKING);
+        registration.addRecipeCatalyst(new ItemStack(Items.CAMPFIRE), AnvilCraftJeiPlugin.FAST_COOKING);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
