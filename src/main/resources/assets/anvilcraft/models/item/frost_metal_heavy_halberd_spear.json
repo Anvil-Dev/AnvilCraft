@@ -1,0 +1,6 @@
+{
+	"parent": "anvilcraft:item/ember_metal_heavy_halberd_spear",
+	"textures": {
+		"1": "anvilcraft:item/frost_metal_gear"
+	}
+}
