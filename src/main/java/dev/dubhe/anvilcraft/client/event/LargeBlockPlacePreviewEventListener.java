@@ -84,33 +84,35 @@ public class LargeBlockPlacePreviewEventListener {
         MultiBufferSource.BufferSource bufferSource = event.getLevelRenderer().renderBuffers.bufferSource();
         BlockHitResult target = event.getTarget();
         Direction direction = target.getDirection();
-        BlockPos pos = target.getBlockPos().relative(direction);
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.lines());
         Inventory inventory = player.getInventory();
+        InteractionHand hand = InteractionHand.MAIN_HAND;
         ItemStack item = inventory.getItem(inventory.selected);
         if (!(item.getItem() instanceof BlockItem)) {
+            hand = InteractionHand.OFF_HAND;
             item = player.getItemInHand(InteractionHand.OFF_HAND);
         }
         if (item.getItem() instanceof BlockItem blockItem) {
             if (blockItem.getBlock() instanceof AbstractMultiPartBlock<?> block) {
-                validateCanRender(item, blockItem, pos);
-                // Build the actual placement state from the hit result
-                BlockPlaceContext context = new BlockPlaceContext(player, player.getUsedItemHand(), item, new BlockHitResult(
+                // 使用命中结果构造与实际放置一致的状态和基准位置
+                BlockPlaceContext context = new BlockPlaceContext(player, hand, item, new BlockHitResult(
                     event.getTarget().getLocation(),
                     direction,
                     target.getBlockPos(),
                     target.isInside()
                 ));
+                BlockPos pos = context.getClickedPos();
+                validateCanRender(item, blockItem, pos);
                 BlockState state = getPlacementState(block, blockItem, context);
                 Pair<VoxelShape, List<BlockPos>> pair = getShapeAndErrorPosList(level, block, pos, state);
                 if (!pair.second().isEmpty()) {
                     if (blockItem instanceof SimpleMultiPartBlockItem<?> simpleMultiPartBlockItem) {
                         int distance = simpleMultiPartBlockItem.getMaxOffsetDistance(direction);
-                        pos = pos.relative(direction, distance - 1);
+                        pos = target.getBlockPos().relative(direction, distance);
                     }
                     if (blockItem instanceof FlexibleMultiPartBlockItem<?, ?, ?> flexibleMultiPartBlockItem) {
                         int distance = flexibleMultiPartBlockItem.getMaxOffsetDistance(state, direction);
-                        pos = pos.relative(direction, distance - 1);
+                        pos = target.getBlockPos().relative(direction, distance);
                     }
                     pair = getShapeAndErrorPosList(level, block, pos, state);
                 }
