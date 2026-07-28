@@ -11,6 +11,7 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -25,6 +26,7 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
@@ -190,17 +192,19 @@ public class ItemHandlerUtil {
             list.add(input);
             return list;
         }
+        // 玩家也暴露物品能力，但不应被机器当作目标容器
         AABB aabb = new AABB(inputBlockPos).inflate(0.01D);
         list = level.getEntitiesOfClass(
                 Entity.class,
                 aabb,
                 entity -> entity.isAlive()
+                    && !(entity instanceof Player)
                     && BlockPos.containing(entity.getBoundingBox().getCenter()).equals(inputBlockPos))
             .stream()
             .map(e -> e instanceof IItemHandlerHolder holder
                 ? holder.getItemHandler()
                 : e.getCapability(Capabilities.ItemHandler.ENTITY, null))
-            .filter(handler -> handler != null)
+            .filter(Objects::nonNull)
             .toList();
         return list;
     }
