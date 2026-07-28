@@ -35,19 +35,22 @@ public class AnvilCraftFakeBlockPlacer {
         UUID.randomUUID(),
         "[AnvilCraft Fake Block Placer No." + num + "]"
     );
-    private static final Queue<Placer> DISABLED_PLACERS = new ConcurrentLinkedQueue<>();
-    private static final List<Placer> ENABLED_PLACERS = Collections.synchronizedList(new ArrayList<>());
+    private final Queue<Placer> disabledPlacers = new ConcurrentLinkedQueue<>();
+    private final List<Placer> enabledPlacers = Collections.synchronizedList(new ArrayList<>());
 
     public AnvilCraftFakeBlockPlacer() {
     }
 
     public ServerPlayer offerPlayer(ServerLevel level) {
-        Placer killer = DISABLED_PLACERS.poll();
-        if (killer == null) {
-            killer = new Placer(level, ENABLED_PLACERS.size());
+        Placer placer;
+        do {
+            placer = this.disabledPlacers.poll();
+        } while (placer != null && placer.getPlayer().level() != level);
+        if (placer == null) {
+            placer = new Placer(level, this.enabledPlacers.size());
         }
-        ENABLED_PLACERS.add(killer);
-        return killer.getPlayer();
+        this.enabledPlacers.add(placer);
+        return placer.getPlayer();
     }
 
     /// 放置方块
@@ -157,13 +160,13 @@ public class AnvilCraftFakeBlockPlacer {
     }
 
     public void disable(ServerPlayer player) {
-        ENABLED_PLACERS.stream()
+        this.enabledPlacers.stream()
             .filter(placer -> placer.getUUID().equals(player.getUUID()))
             .findFirst()
             .ifPresent(placer -> {
                 placer.getPlayer().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                DISABLED_PLACERS.offer(placer);
-                ENABLED_PLACERS.remove(placer);
+                this.disabledPlacers.offer(placer);
+                this.enabledPlacers.remove(placer);
             });
     }
 
