@@ -1,9 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jade.provider;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.api.fluid.LargeCauldronFluidHandler;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
@@ -19,7 +17,6 @@ import snownee.jade.api.fluid.JadeFluidObject;
 import snownee.jade.api.ui.BoxStyle;
 import snownee.jade.api.ui.IElementHelper;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class FluidTankProvider extends FluidStorageProvider.ForBlock {
@@ -49,28 +46,15 @@ public class FluidTankProvider extends FluidStorageProvider.ForBlock {
                     .map(fluid -> new FluidEntry(fluid, capacity, tank.isInfinite(fluid)))
                     .toList();
             }
-            case LargeCauldronBlockEntity cauldron -> {
-                LargeCauldronFluidHandler handler = cauldron.getFluids();
-                fluids = new ArrayList<>(handler.getTanks());
-                for (int tank = 0; tank < handler.getTanks(); tank++) {
-                    FluidStack fluid = handler.getFluidInTank(tank);
-                    if (!fluid.isEmpty()) {
-                        fluids.add(new FluidEntry(fluid.copy(), handler.getTankCapacity(tank), false));
-                    }
-                }
-            }
             case null, default -> {
                 return;
             }
         }
-        boolean hasComponents = fluids.stream().anyMatch(FluidEntry::hasComponents);
         boolean hasInfiniteFluid = fluids.stream().anyMatch(FluidEntry::infinite);
-        if (!hasComponents && !hasInfiniteFluid) return;
+        if (!hasInfiniteFluid) return;
 
-        if (!hasComponents) {
-            tooltip.clear();
-            tooltip.add(Component.translatable(accessor.getBlock().getDescriptionId()).withStyle(ChatFormatting.WHITE));
-        }
+        tooltip.clear();
+        tooltip.add(Component.translatable(accessor.getBlock().getDescriptionId()).withStyle(ChatFormatting.WHITE));
         IElementHelper helper = IElementHelper.get();
         for (FluidEntry entry : fluids) {
             FluidStack fluid = entry.fluid();
@@ -108,8 +92,5 @@ public class FluidTankProvider extends FluidStorageProvider.ForBlock {
     }
 
     private record FluidEntry(FluidStack fluid, int capacity, boolean infinite) {
-        private boolean hasComponents() {
-            return !this.fluid.getComponentsPatch().isEmpty();
-        }
     }
 }

@@ -60,6 +60,7 @@ public class ItemTooltipLang {
             "tooltip.anvilcraft.resonator.mining_desc",
             "Press [%s] to change modes. Auto mode supports all tools and can “resonance‑mine” most blocks when holding right‑click"
         );
+        provider.add("tooltip.anvilcraft.heavy_halberd.desc", "Press [%s] to switch modes");
 
         provider.add("tooltip.anvilcraft.thought", "Press [%s] for more info");
 

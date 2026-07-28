@@ -1,16 +1,25 @@
 package dev.dubhe.anvilcraft.item;
 
+import com.mojang.blaze3d.vertex.PoseStack;
+import dev.dubhe.anvilcraft.client.renderer.item.ItemUseAnimationTransform;
 import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderOwner;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.Position;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -19,6 +28,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -26,6 +37,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.EquipmentSlotGroup;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.AttributeModifier;
@@ -41,7 +53,9 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.SwordItem;
 import net.minecraft.world.item.Tier;
 import net.minecraft.world.item.TieredItem;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -54,13 +68,20 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.common.ItemAbilities;
 import net.neoforged.neoforge.common.ItemAbility;
-import org.jetbrains.annotations.Nullable;
+import org.jetbrains.annotations.Range;
 
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 
 public abstract class HeavyHalberdItem extends TieredItem implements ProjectileItem {
+    public static final int TRIDENT_MODE = 0;
+    public static final int SPEAR_MODE = 1;
+    public static final int SWORD_MODE = 2;
+    public static final int MACE_MODE = 3;
+
     public HeavyHalberdItem(Tier tier, Properties properties) {
         super(
             tier,
@@ -103,6 +124,20 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
         rules.addAll(SwordItem.createToolProperties().rules());
         rules.addAll(tier.createToolProperties(BlockTags.MINEABLE_WITH_AXE).rules());
         return new Tool(rules, 1.0F, 2);
+    }
+
+    public static int getMode(ItemStack stack) {
+        return Math.clamp(
+            stack.getOrDefault(DataComponents.CUSTOM_MODEL_DATA, CustomModelData.DEFAULT).value(),
+            TRIDENT_MODE,
+            MACE_MODE
+        );
+    }
+
+    public static void setMode(Player player, InteractionHand hand, @Range(from = TRIDENT_MODE, to = MACE_MODE) int mode) {
+        ItemStack heavyHalberd = player.getItemInHand(hand);
+        if (!(heavyHalberd.getItem() instanceof HeavyHalberdItem)) return;
+        heavyHalberd.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(Math.clamp(mode, TRIDENT_MODE, MACE_MODE)));
     }
 
     public static void checkTooDamaged(Tier tier, ItemStack stack) {
@@ -176,10 +211,39 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
     @Override
     @SuppressWarnings({"removal"})
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(new IClientItemExtensions() {
+            @Override
+            public boolean applyForgeHandTransform(
+                PoseStack poseStack,
+                LocalPlayer player,
+                HumanoidArm arm,
+                ItemStack stack,
+                float partialTick,
+                float equipProgress,
+                float swingProgress
+            ) {
+                if (getMode(stack) != SWORD_MODE) return false;
+                return ItemUseAnimationTransform.applySwordBlock(poseStack, player, arm, equipProgress);
+            }
+        });
         ItemProperties.register(
             this,
             ResourceLocation.withDefaultNamespace("throwing"),
-            (stack, level, entity, data) -> entity != null && entity.isUsingItem() && entity.getUseItem() == stack ? 1.0F : 0.0F
+            (stack, level, entity, data) -> entity != null
+                && getMode(stack) == TRIDENT_MODE
+                && entity.isUsingItem()
+                && entity.getUseItem() == stack ? 1.0F : 0.0F
+        );
+    }
+
+    @Override
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltipComponents, TooltipFlag tooltipFlag) {
+        super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
+        tooltipComponents.add(
+            Component.translatable(
+                "tooltip.anvilcraft.heavy_halberd.desc",
+                Component.keybind("key.anvilcraft.switch_tool_mode")
+            ).withStyle(ChatFormatting.GRAY)
         );
     }
 
@@ -199,12 +263,16 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
      */
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return UseAnim.SPEAR;
+        return switch (getMode(stack)) {
+            case TRIDENT_MODE -> UseAnim.SPEAR;
+            case SWORD_MODE -> UseAnim.BLOCK;
+            default -> UseAnim.NONE;
+        };
     }
 
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        return 72000;
+        return getMode(stack) == TRIDENT_MODE || getMode(stack) == SWORD_MODE ? 72000 : 0;
     }
 
     /**
@@ -212,6 +280,7 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
      */
     @Override
     public void releaseUsing(ItemStack stack, Level level, LivingEntity entityLiving, int timeLeft) {
+        if (getMode(stack) != TRIDENT_MODE) return;
         if (!(entityLiving instanceof Player player)) return;
         int i = this.getUseDuration(stack, entityLiving) - timeLeft;
         if (i < 10) return;
@@ -263,12 +332,40 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
         ItemStack itemstack = player.getItemInHand(hand);
         if (isTooDamagedToUse(itemstack)) {
             return InteractionResultHolder.fail(itemstack);
-        } else if (EnchantmentHelper.getTridentSpinAttackStrength(itemstack, player) > 0.0F && !player.isInWaterOrRain()) {
-            return InteractionResultHolder.fail(itemstack);
-        } else {
+        }
+        if (getMode(itemstack) == SWORD_MODE) {
             player.startUsingItem(hand);
             return InteractionResultHolder.consume(itemstack);
         }
+        if (getMode(itemstack) != TRIDENT_MODE) {
+            return InteractionResultHolder.pass(itemstack);
+        }
+        if (EnchantmentHelper.getTridentSpinAttackStrength(itemstack, player) > 0.0F && !player.isInWaterOrRain()) {
+            return InteractionResultHolder.fail(itemstack);
+        }
+        player.startUsingItem(hand);
+        return InteractionResultHolder.consume(itemstack);
+    }
+
+    @Override
+    public int getEnchantmentLevel(ItemStack stack, Holder<Enchantment> enchantment) {
+        return isEnchantmentActive(stack, enchantment) ? stack.getTagEnchantments().getLevel(enchantment) : 0;
+    }
+
+    @Override
+    public ItemEnchantments getAllEnchantments(ItemStack stack, HolderLookup.RegistryLookup<Enchantment> lookup) {
+        ItemEnchantments enchantments = stack.getTagEnchantments();
+        ItemEnchantments.Mutable activeEnchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+        for (Holder<Enchantment> enchantment : enchantments.keySet()) {
+            if (isEnchantmentActive(stack, enchantment)) {
+                activeEnchantments.set(enchantment, enchantments.getLevel(enchantment));
+            }
+        }
+        return activeEnchantments.toImmutable();
+    }
+
+    private static boolean isEnchantmentActive(ItemStack stack, Holder<Enchantment> enchantment) {
+        return stack.is(enchantment.value().definition().supportedItems());
     }
 
     @Override
@@ -358,6 +455,47 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
 
     @Override
     public boolean canPerformAction(ItemStack stack, ItemAbility itemAbility) {
-        return ItemAbilities.DEFAULT_TRIDENT_ACTIONS.contains(itemAbility) || ItemAbilities.DEFAULT_SWORD_ACTIONS.contains(itemAbility);
+        return switch (getMode(stack)) {
+            case TRIDENT_MODE -> ItemAbilities.DEFAULT_TRIDENT_ACTIONS.contains(itemAbility);
+            case SWORD_MODE -> ItemAbilities.DEFAULT_SWORD_ACTIONS.contains(itemAbility)
+                               || ItemAbilities.DEFAULT_SHIELD_ACTIONS.contains(itemAbility);
+            default -> false;
+        };
+    }
+
+    public static class HeavyHalberdHolder extends Holder.Reference<Item> {
+        public HeavyHalberdHolder(Holder.Reference.Type type, HolderOwner<Item> owner, ResourceKey<Item> key, Item value) {
+            super(type, owner, key, value);
+        }
+
+        public boolean is(int mode, TagKey<Item> tagKey) {
+            return isModeEnabled(mode, tagKey) && super.is(tagKey);
+        }
+
+        public boolean is(int mode, HolderSet<Item> holders) {
+            if (holders instanceof HolderSet.Named<Item> named) {
+                return isModeEnabled(mode, named.key()) && holders.contains(this);
+            }
+            return holders.contains(this);
+        }
+
+        private static boolean isModeEnabled(int mode, TagKey<Item> tagKey) {
+            if (tagKey.equals(ItemTags.SWORDS)
+                || tagKey.equals(ItemTags.SWORD_ENCHANTABLE)
+                || tagKey.equals(ItemTags.SHARP_WEAPON_ENCHANTABLE)
+            ) {
+                return mode == SWORD_MODE;
+            }
+            if (tagKey.equals(ItemTags.TRIDENT_ENCHANTABLE)) {
+                return mode == TRIDENT_MODE;
+            }
+            if (tagKey.equals(ItemTags.MACE_ENCHANTABLE)) {
+                return mode == MACE_MODE;
+            }
+            if (tagKey.equals(ItemTags.FIRE_ASPECT_ENCHANTABLE) || tagKey.equals(ItemTags.WEAPON_ENCHANTABLE)) {
+                return mode == SWORD_MODE || mode == MACE_MODE;
+            }
+            return true;
+        }
     }
 }

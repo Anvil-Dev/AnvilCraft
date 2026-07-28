@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.IAnvilCraftEntityExtension;
 import dev.dubhe.anvilcraft.block.BlackHoleBlock;
 import dev.dubhe.anvilcraft.block.WhiteHoleBlock;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.entity.LevitatingBlockEntity;
 import dev.dubhe.anvilcraft.entity.StandableFallingBlockEntity;
 import dev.dubhe.anvilcraft.entity.StandableLevitatingBlockEntity;
@@ -50,6 +51,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class GravityManager {
     private static final double MIN_SWEPT_MOVEMENT_SQR = 0.98 * 0.98;
     private static final double VECTOR_EPSILON = 1.0e-12;
+    private static final double BODY_CONTACT_TOLERANCE = 1.0e-7;
     private static final int MAX_BODY_COLLISIONS_PER_MOVE = 4;
     private static final double MAX_SOURCE_STRENGTH = 1.0e6;
     private static final int MAX_SOURCE_RADIUS = 512;
@@ -171,6 +173,36 @@ public final class GravityManager {
             ? movement
             : GravitySourceManager.clipMovementToBodies(entity, movement);
         return applySweptGravity(entity, collisionResolvedMovement, flyingPlayer);
+    }
+
+    public static void applyBodyContactEffects(Entity entity) {
+        boolean flyingPlayer = entity instanceof Player player && player.getAbilities().flying;
+        if (entity.level().isClientSide()
+            || entity.isRemoved()
+            || entity.noPhysics
+            || entity.isSpectator()
+            || flyingPlayer) {
+            return;
+        }
+
+        GravityFieldIndex index = GRAVITY_FIELDS.get(entity.level());
+        if (index == null) return;
+
+        AABB box = entity.getBoundingBox();
+        for (GravitySource source : index.sourcesIntersecting(box.inflate(BODY_CONTACT_TOLERANCE))) {
+            if (!AabbSphereCollision.intersects(
+                box,
+                source.center(),
+                source.type().bodyRadius(),
+                BODY_CONTACT_TOLERANCE
+            )) {
+                continue;
+            }
+            if (entity.level().getBlockEntity(source.id()) instanceof CelestialForgingAnvilBlockEntity anvil) {
+                anvil.handleEntityContact(entity);
+                if (entity.isRemoved()) return;
+            }
+        }
     }
 
     /** 对相邻两次常规采样之间被完整穿过的引力场进行积分。 */
@@ -541,6 +573,20 @@ public final class GravityManager {
             int chunkX = ((int) Math.floor(position.x)) >> 4;
             int chunkZ = ((int) Math.floor(position.z)) >> 4;
             return sourcesByChunk.getOrDefault(ChunkPos.asLong(chunkX, chunkZ), Set.of());
+        }
+
+        Collection<GravitySource> sourcesIntersecting(AABB box) {
+            Set<GravitySource> result = new LinkedHashSet<>();
+            int minChunkX = ((int) Math.floor(box.minX)) >> 4;
+            int maxChunkX = ((int) Math.floor(box.maxX)) >> 4;
+            int minChunkZ = ((int) Math.floor(box.minZ)) >> 4;
+            int maxChunkZ = ((int) Math.floor(box.maxZ)) >> 4;
+            for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+                for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
+                    result.addAll(sourcesByChunk.getOrDefault(ChunkPos.asLong(chunkX, chunkZ), Set.of()));
+                }
+            }
+            return result;
         }
 
         Collection<GravitySource> sourcesAlong(Vec3 start, Vec3 end) {

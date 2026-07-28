@@ -232,6 +232,12 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.resonator.hoe", "Hoe");
         provider.add("screen.anvilcraft.resonator.pickaxe", "Pickaxe");
 
+        provider.add("screen.anvilcraft.heavy_halberd.title", "Switch heavy halberd mode");
+        provider.add("screen.anvilcraft.heavy_halberd.trident", "Trident");
+        provider.add("screen.anvilcraft.heavy_halberd.spear", "Spear");
+        provider.add("screen.anvilcraft.heavy_halberd.sword", "Sword");
+        provider.add("screen.anvilcraft.heavy_halberd.mace", "Mace");
+
         provider.add("screen.anvilcraft.multiphase.title", "Switch phase");
         provider.add("screen.anvilcraft.multiphase.merciless", "-Merciless");
 
