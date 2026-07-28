@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.util.AnvilUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -160,11 +161,13 @@ public class ItemHandlerUtil {
             list.add(input);
             return list;
         }
+        // 玩家也暴露物品能力，但不应被机器当作目标容器
         AABB aabb = new AABB(inputBlockPos).inflate(0.01D);
         list = level.getEntitiesOfClass(
             Entity.class,
             aabb,
             entity -> entity.isAlive()
+                && !(entity instanceof Player)
                 && BlockPos.containing(entity.getBoundingBox().getCenter()).equals(inputBlockPos)
         ).stream().map(entity -> entity instanceof IItemResourceHandlerHolder holder
             ? holder.getItemHandler()
