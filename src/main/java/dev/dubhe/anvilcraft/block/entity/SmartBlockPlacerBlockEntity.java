@@ -488,7 +488,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     private Either<ItemStack, BlockState> createDisplayedBlock(Level level, BlockState state) {
         if (this.operation == OperationMode.PICKUP) {
-            ItemStack stack = BlockPlacementRules.getPrimaryPlacementItem(level.registryAccess(), state);
+            ItemStack stack = BlockPlacementRules.getPrimaryPlacementItem(
+                level.registryAccess(),
+                state.getBlock().defaultBlockState()
+            );
             if (stack != null) {
                 return Either.left(stack);
             }
