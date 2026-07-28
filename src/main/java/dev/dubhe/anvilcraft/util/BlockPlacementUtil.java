@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.api.IHasMultiBlock;
+import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.item.IBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
@@ -118,16 +119,25 @@ public final class BlockPlacementUtil {
         }
 
         for (PlacedBlueprintPart part : placedParts) {
-            level.setBlock(part.pos(), part.requiredState(), Block.UPDATE_CLIENTS);
+            BlockState inheritedState = BlockPlacementRules.applyBlueprintStateRules(
+                level.registryAccess(),
+                part.placedState(),
+                part.requiredState()
+            );
+            level.setBlock(part.pos(), inheritedState, Block.UPDATE_CLIENTS);
         }
 
         List<BlockState> contextualStates = new ArrayList<>(placedParts.size());
         boolean valid = true;
         for (PlacedBlueprintPart part : placedParts) {
-            BlockState contextualState = Block.updateFromNeighbourShapes(part.requiredState(), level, part.pos());
-            contextualStates.add(contextualState);
-            if (!contextualState.is(part.requiredState().getBlock())
-                || !contextualState.canSurvive(level, part.pos())) {
+            BlockState contextualState = Block.updateFromNeighbourShapes(level.getBlockState(part.pos()), level, part.pos());
+            BlockState finalState = BlockPlacementRules.applyBlueprintStateRules(
+                level.registryAccess(),
+                contextualState,
+                part.requiredState()
+            );
+            contextualStates.add(finalState);
+            if (!finalState.is(part.requiredState().getBlock()) || !finalState.canSurvive(level, part.pos())) {
                 valid = false;
             }
         }
@@ -172,7 +182,7 @@ public final class BlockPlacementUtil {
         }
         if (block instanceof DoorBlock || block instanceof DoublePlantBlock) {
             return state.hasProperty(DOUBLE_BLOCK_HALF)
-                && state.getValue(DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER;
+                   && state.getValue(DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER;
         }
         return block instanceof AbstractMultiPartBlock<?> multiPartBlock && !multiPartBlock.isMainPart(state);
     }

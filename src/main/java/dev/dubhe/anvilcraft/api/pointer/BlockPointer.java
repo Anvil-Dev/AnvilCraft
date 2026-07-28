@@ -8,6 +8,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
 import dev.dubhe.anvilcraft.init.ModRegistries;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -58,7 +59,7 @@ public class BlockPointer implements ITargetPointer {
 
     @Override
     public boolean matches(Level level, BlockState requiredState) {
-        return this.state.equals(requiredState);
+        return this.state.is(requiredState.getBlock());
     }
 
     @Override
@@ -68,6 +69,28 @@ public class BlockPointer implements ITargetPointer {
 
     @Override
     public boolean applyToPos(ServerLevel level, BlockPos pos) {
+        BlockState targetState = this.state;
+        if (targetState.hasProperty(BlockStateProperties.WATERLOGGED)
+            && targetState.getValue(BlockStateProperties.WATERLOGGED)) {
+            targetState = targetState.setValue(BlockStateProperties.WATERLOGGED, Boolean.FALSE);
+        }
+        return this.moveToPos(level, pos, targetState);
+    }
+
+    @Override
+    public boolean applyToPos(ServerLevel level, BlockPos pos, BlockState requiredState) {
+        if (!this.matches(level, requiredState)) {
+            return false;
+        }
+        BlockState targetState = BlockPlacementRules.applyBlueprintStateRules(
+            level.registryAccess(),
+            this.state,
+            requiredState
+        );
+        return this.moveToPos(level, pos, targetState);
+    }
+
+    private boolean moveToPos(ServerLevel level, BlockPos pos, BlockState targetState) {
         if (!this.isStillValid(level)) {
             return false;
         }
@@ -81,19 +104,15 @@ public class BlockPointer implements ITargetPointer {
         }
         level.removeBlock(this.pos, true);
 
-        BlockState state = this.state;
-        if (state.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED)) {
-            state = state.setValue(BlockStateProperties.WATERLOGGED, Boolean.FALSE);
-        }
-        level.setBlock(pos, state, 67);
-        if (state.getBlock() instanceof IMoveableEntityBlock block && entity != null) {
+        level.setBlock(pos, targetState, 67);
+        if (targetState.getBlock() instanceof IMoveableEntityBlock block && entity != null) {
             entity.worldPosition = pos;
             entity.clearRemoved();
             level.removeBlockEntity(pos);
             level.setBlockEntity(entity);
-            block.notifyMoved(level, pos, state, entity);
+            block.notifyMoved(level, pos, targetState, entity);
         }
-        level.neighborChanged(pos, state.getBlock(), pos);
+        level.neighborChanged(pos, targetState.getBlock(), pos);
         return true;
     }
 
@@ -149,7 +168,7 @@ public class BlockPointer implements ITargetPointer {
             if (state.isAir()) {
                 return null;
             }
-            if (requiredState != null && !state.equals(requiredState)) {
+            if (requiredState != null && !state.is(requiredState.getBlock())) {
                 return null;
             }
             if (!PistonBaseBlock.isPushable(state, level, pos, facing.getOpposite(), false, facing.getOpposite())) {

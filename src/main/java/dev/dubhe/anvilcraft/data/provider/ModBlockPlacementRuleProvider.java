@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.data.provider;
 
 import com.google.gson.JsonElement;
 import com.mojang.serialization.JsonOps;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.placement.BlockPlacementRuleSet;
 import dev.dubhe.anvilcraft.block.placement.BlockPlacementRuleSet.StateRule;
 import dev.dubhe.anvilcraft.init.ModRegistries;
@@ -33,6 +34,7 @@ import java.util.Map;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Stream;
 
 /**
  * Generates built-in state-to-placement-item mappings, one file per block.
@@ -55,19 +57,44 @@ public final class ModBlockPlacementRuleProvider implements DataProvider {
     @Override
     public CompletableFuture<?> run(CachedOutput output) {
         Map<Block, List<StateRule>> rulesByBlock = new LinkedHashMap<>();
+        Map<Block, Map<String, String>> stateRulesByBlock = new LinkedHashMap<>();
         BuiltInRegistries.BLOCK.forEach(block -> addStateCountRules(rulesByBlock, block));
         addSpecialItemRules(rulesByBlock);
+        addBlueprintStateRules(stateRulesByBlock);
 
-        List<CompletableFuture<?>> saves = new ArrayList<>(rulesByBlock.size());
-        rulesByBlock.entrySet().stream()
-            .sorted(Map.Entry.comparingByKey(Comparator.comparing(BuiltInRegistries.BLOCK::getKey)))
-            .forEach(entry -> {
-                ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(entry.getKey());
-                BlockPlacementRuleSet ruleSet = new BlockPlacementRuleSet(entry.getValue());
-                JsonElement json = BlockPlacementRuleSet.CODEC.encodeStart(JsonOps.INSTANCE, ruleSet).getOrThrow();
-                saves.add(DataProvider.saveStable(output, json, this.pathProvider.json(blockId)));
-            });
+        List<CompletableFuture<?>> saves = new ArrayList<>(rulesByBlock.size() + stateRulesByBlock.size() + 1);
+        Map<String, String> defaultStateRules = new LinkedHashMap<>();
+        defaultStateRules.put("", "powered=false,lit=false,waterlogged=false");
+        this.saveRuleSet(
+            output,
+            saves,
+            AnvilCraft.of("default"),
+            new BlockPlacementRuleSet(List.of(), defaultStateRules)
+        );
+
+        Stream.concat(rulesByBlock.keySet().stream(), stateRulesByBlock.keySet().stream())
+            .distinct()
+            .sorted(Comparator.comparing(BuiltInRegistries.BLOCK::getKey))
+            .forEach(block -> this.saveRuleSet(
+                output,
+                saves,
+                BuiltInRegistries.BLOCK.getKey(block),
+                new BlockPlacementRuleSet(
+                    rulesByBlock.getOrDefault(block, List.of()),
+                    stateRulesByBlock.getOrDefault(block, Map.of())
+                )
+            ));
         return CompletableFuture.allOf(saves.toArray(CompletableFuture[]::new));
+    }
+
+    private void saveRuleSet(
+        CachedOutput output,
+        List<CompletableFuture<?>> saves,
+        ResourceLocation id,
+        BlockPlacementRuleSet ruleSet
+    ) {
+        JsonElement json = BlockPlacementRuleSet.CODEC.encodeStart(JsonOps.INSTANCE, ruleSet).getOrThrow();
+        saves.add(DataProvider.saveStable(output, json, this.pathProvider.json(id)));
     }
 
     private static void addStateCountRules(Map<Block, List<StateRule>> rulesByBlock, Block block) {
@@ -140,6 +167,21 @@ public final class ModBlockPlacementRuleProvider implements DataProvider {
                 addRule(rulesByBlock, block, "", candleCake.candleBlock.asItem(), 1);
             }
         });
+    }
+
+    private static void addBlueprintStateRules(Map<Block, Map<String, String>> stateRulesByBlock) {
+        addStateRule(stateRulesByBlock, Blocks.PISTON, "", "extended=false");
+        addStateRule(stateRulesByBlock, Blocks.STICKY_PISTON, "", "extended=false");
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private static void addStateRule(
+        Map<Block, Map<String, String>> stateRulesByBlock,
+        Block block,
+        String properties,
+        String directives
+    ) {
+        stateRulesByBlock.computeIfAbsent(block, ignored -> new LinkedHashMap<>()).put(properties, directives);
     }
 
     private static void addRule(
