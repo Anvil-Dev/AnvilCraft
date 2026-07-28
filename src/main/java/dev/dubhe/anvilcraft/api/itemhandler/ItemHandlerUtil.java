@@ -11,8 +11,6 @@ import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -162,18 +160,11 @@ public class ItemHandlerUtil {
         );
         if (itemHandler != null) return itemHandler;
         AABB aabb = new AABB(inputBlockPos);
-        List<ContainerEntity> entities = level.getEntitiesOfClass(
-                Entity.class, aabb, e -> e instanceof ContainerEntity && !((ContainerEntity) e).isEmpty())
-            .stream()
-            .map(it -> (ContainerEntity) it)
-            .toList();
-        if (!entities.isEmpty()) {
-            itemHandler = ((Entity) entities.getFirst()).getCapability(
-                Capabilities.ItemHandler.ENTITY,
-                null
-            );
+        for (Entity entity : level.getEntitiesOfClass(Entity.class, aabb, Entity::isAlive)) {
+            itemHandler = entity.getCapability(Capabilities.ItemHandler.ENTITY_AUTOMATION, context);
+            if (itemHandler != null && hasItems(itemHandler)) return itemHandler;
         }
-        return itemHandler;
+        return null;
     }
 
     public static @Nullable List<IItemHandler> getTargetItemHandlerList(
@@ -192,21 +183,25 @@ public class ItemHandlerUtil {
             list.add(input);
             return list;
         }
-        // 玩家也暴露物品能力，但不应被机器当作目标容器
+        // 仅接受明确支持自动化的实体，避免访问玩家或生物的背包和装备栏
         AABB aabb = new AABB(inputBlockPos).inflate(0.01D);
         list = level.getEntitiesOfClass(
                 Entity.class,
                 aabb,
                 entity -> entity.isAlive()
-                    && !(entity instanceof Player)
                     && BlockPos.containing(entity.getBoundingBox().getCenter()).equals(inputBlockPos))
             .stream()
-            .map(e -> e instanceof IItemHandlerHolder holder
-                ? holder.getItemHandler()
-                : e.getCapability(Capabilities.ItemHandler.ENTITY, null))
+            .map(entity -> entity.getCapability(Capabilities.ItemHandler.ENTITY_AUTOMATION, context))
             .filter(Objects::nonNull)
             .toList();
         return list;
+    }
+
+    private static boolean hasItems(IItemHandler handler) {
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            if (!handler.getStackInSlot(slot).isEmpty()) return true;
+        }
+        return false;
     }
 
     public static @Nullable List<IItemHandler> getOutletTargetItemHandlerList(
