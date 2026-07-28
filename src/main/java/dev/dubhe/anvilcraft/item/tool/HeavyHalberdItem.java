@@ -53,6 +53,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.ItemAttributeModifiers;
 import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.item.component.Weapon;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
@@ -78,6 +79,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
             properties
                 .attributes(HeavyHalberdItem.createAttributes(material, attackDamage, attackSpeed))
                 .component(DataComponents.TOOL, HeavyHalberdItem.createToolProperties(material))
+                .component(DataComponents.WEAPON, new Weapon(1))
                 .component(ModComponents.HEAVY_HALBERD_MODE, HeavyHalberdMode.TRIDENT)
                 .rarity(Rarity.EPIC)
         );
@@ -148,7 +150,6 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
             copyComponentIfMissing(stack, spear, DataComponents.MINIMUM_ATTACK_CHARGE);
             copyComponentIfMissing(stack, spear, DataComponents.SWING_ANIMATION);
             copyComponentIfMissing(stack, spear, DataComponents.USE_EFFECTS);
-            copyComponentIfMissing(stack, spear, DataComponents.WEAPON);
             return;
         }
         stack.remove(DataComponents.DAMAGE_TYPE);
@@ -158,7 +159,6 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
         stack.remove(DataComponents.MINIMUM_ATTACK_CHARGE);
         stack.remove(DataComponents.SWING_ANIMATION);
         stack.remove(DataComponents.USE_EFFECTS);
-        stack.remove(DataComponents.WEAPON);
     }
 
     private static <T> void copyComponentIfMissing(
@@ -178,8 +178,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
                || stack.has(DataComponents.ATTACK_RANGE)
                || stack.has(DataComponents.MINIMUM_ATTACK_CHARGE)
                || stack.has(DataComponents.SWING_ANIMATION)
-               || stack.has(DataComponents.USE_EFFECTS)
-               || stack.has(DataComponents.WEAPON);
+               || stack.has(DataComponents.USE_EFFECTS);
     }
 
     public static void checkTooDamaged(ToolMaterial material, ItemStack stack) {
@@ -407,7 +406,6 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
 
     @Override
     public void postHurtEnemy(ItemStack stack, LivingEntity target, LivingEntity attacker) {
-        stack.hurtAndBreak(1, attacker, EquipmentSlot.MAINHAND);
         if (getMode(stack) == HeavyHalberdMode.MACE && MaceItem.canSmashAttack(attacker)) {
             attacker.resetFallDistance();
         }
