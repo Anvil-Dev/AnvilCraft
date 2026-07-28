@@ -53,6 +53,13 @@ final class AabbSphereCollision {
         return inwardSpeed < 0 ? vector.subtract(outwardNormal.scale(inwardSpeed)) : vector;
     }
 
+    static boolean intersects(AABB box, Vec3 sphereCenter, double sphereRadius, double tolerance) {
+        if (sphereRadius <= 0) return false;
+        Vec3 closest = closestPoint(box, sphereCenter);
+        double contactRadius = sphereRadius + Math.max(0, tolerance);
+        return closest.distanceToSqr(sphereCenter) <= contactRadius * contactRadius;
+    }
+
     private static @Nullable Hit findInInterval(
         AABB box,
         Vec3 movement,

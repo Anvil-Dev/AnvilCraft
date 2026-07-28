@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModDataComponentPredicates;
 import dev.dubhe.anvilcraft.item.property.component.StoredEnergy;
 import dev.dubhe.anvilcraft.item.property.predicate.IntegerComponentPredicate;
+import dev.dubhe.anvilcraft.item.tool.HeavyHalberdMode;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import dev.dubhe.anvilcraft.item.tool.ResonateMode;
 import lombok.AccessLevel;
@@ -168,10 +169,33 @@ public class DataGenUtil {
                 Identifier id = ModelLocationUtils.getModelLocation(item);
                 generator.itemModelOutput.accept(
                     item,
-                    ItemModelUtils.conditional(
-                        new IsUsingItem(),
-                        ItemModelUtils.plainModel(id.withSuffix("_throwing")),
-                        ItemModelUtils.plainModel(id)
+                    ItemModelUtils.select(
+                        new ComponentContents<>(ModComponents.HEAVY_HALBERD_MODE),
+                        ItemModelUtils.conditional(
+                            new IsUsingItem(),
+                            ItemModelUtils.plainModel(id.withSuffix("_throwing")),
+                            ItemModelUtils.plainModel(id)
+                        ),
+                        ItemModelUtils.when(
+                            HeavyHalberdMode.TRIDENT,
+                            ItemModelUtils.conditional(
+                                new IsUsingItem(),
+                                ItemModelUtils.plainModel(id.withSuffix("_throwing")),
+                                ItemModelUtils.plainModel(id)
+                            )
+                        ),
+                        ItemModelUtils.when(
+                            HeavyHalberdMode.SPEAR,
+                            ItemModelUtils.plainModel(id.withSuffix("_spear"))
+                        ),
+                        ItemModelUtils.when(
+                            HeavyHalberdMode.SWORD,
+                            ItemModelUtils.plainModel(id.withSuffix("_sword"))
+                        ),
+                        ItemModelUtils.when(
+                            HeavyHalberdMode.MACE,
+                            ItemModelUtils.plainModel(id.withSuffix("_mace"))
+                        )
                     )
                 );
             }

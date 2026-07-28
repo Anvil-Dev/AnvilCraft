@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.tool.HeavyHalberdItem;
 import dev.dubhe.anvilcraft.util.mixin.ProvidenceRef;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
@@ -33,6 +34,31 @@ abstract class EnchantmentHelperMixin {
     @WrapOperation(
         method = "runIterationOnItem("
                  + "Lnet/minecraft/world/item/ItemStack;"
+                 + "Lnet/minecraft/world/item/enchantment/EnchantmentHelper$EnchantmentVisitor;"
+                 + ")V",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/item/enchantment/EnchantmentHelper$EnchantmentVisitor;"
+                     + "accept(Lnet/minecraft/core/Holder;I)V"
+        )
+    )
+    private static void filterHeavyHalberdEnchantments(
+        EnchantmentHelper.EnchantmentVisitor instance,
+        Holder<Enchantment> enchantment,
+        int level,
+        Operation<Void> original,
+        @Local(argsOnly = true) ItemStack stack
+    ) {
+        if (stack.getItem() instanceof HeavyHalberdItem
+            && !HeavyHalberdItem.isEnchantmentActive(stack, enchantment)) {
+            return;
+        }
+        original.call(instance, enchantment, level);
+    }
+
+    @WrapOperation(
+        method = "runIterationOnItem("
+                 + "Lnet/minecraft/world/item/ItemStack;"
                  + "Lnet/minecraft/world/entity/EquipmentSlot;"
                  + "Lnet/minecraft/world/entity/LivingEntity;"
                  + "Lnet/minecraft/world/item/enchantment/EnchantmentHelper$EnchantmentInSlotVisitor;"
@@ -51,6 +77,11 @@ abstract class EnchantmentHelperMixin {
         Operation<Void> original,
         @Local(name = "enchantment") Holder<Enchantment> enchantment
     ) {
+        ItemStack stack = enchantedItemInUse.itemStack();
+        if (stack.getItem() instanceof HeavyHalberdItem
+            && !HeavyHalberdItem.isEnchantmentActive(stack, enchantment)) {
+            return;
+        }
         if (!enchantment.is(ModEnchantmentTags.PROVIDENCE_BONUS)) {
             original.call(instance, holder, i, enchantedItemInUse);
             return;

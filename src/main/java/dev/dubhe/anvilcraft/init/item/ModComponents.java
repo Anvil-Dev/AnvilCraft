@@ -24,6 +24,7 @@ import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
+import dev.dubhe.anvilcraft.item.tool.HeavyHalberdMode;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import dev.dubhe.anvilcraft.item.tool.ResonateMode;
 import net.minecraft.core.Holder;
@@ -178,6 +179,11 @@ public class ModComponents {
     public static final DataComponentType<MultitoolMode> MULTITOOL_MODE = register(
         "multitool_mode",
         b -> b.persistent(MultitoolMode.CODEC).networkSynchronized(MultitoolMode.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<HeavyHalberdMode> HEAVY_HALBERD_MODE = register(
+        "heavy_halberd_mode",
+        b -> b.persistent(HeavyHalberdMode.CODEC).networkSynchronized(HeavyHalberdMode.STREAM_CODEC)
     );
 
     public static final DataComponentType<ItemContainerContents> BURNING_HEATER_CONTENTS = register(

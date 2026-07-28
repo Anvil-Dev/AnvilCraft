@@ -37,6 +37,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -571,6 +572,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     }
 
     /** 强制移除当前重力源，供结构拆除和方块实体卸载时立即清理缓存。 */
+    public void handleEntityContact(Entity entity) {
+        this.gravityController.handleEntityContact(level, this.celestialBodyData, entity);
+    }
     public void removeGravitySource() {
         this.gravityController.remove(level, worldPosition);
     }

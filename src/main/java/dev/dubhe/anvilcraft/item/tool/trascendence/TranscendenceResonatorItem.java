@@ -24,6 +24,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -40,7 +41,7 @@ import java.util.WeakHashMap;
 
 public class TranscendenceResonatorItem extends ResonatorItem {
     public static final Component NAME = Component.translatable("item.anvilcraft.transcendence_resonator");
-    private static final int RESONANCE_MINING_TICKS = 10;
+    public static final int RESONANCE_MINING_TICKS = 10;
     private static final int USE_DURATION = 72000;
 
     private final Map<LivingEntity, MiningTarget> clientMiningTargets = new WeakHashMap<>();
@@ -111,6 +112,20 @@ public class TranscendenceResonatorItem extends ResonatorItem {
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
         return USE_DURATION;
+    }
+
+    @Override
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
+        return getMode(stack) == ResonateMode.AUTO ? ItemUseAnimation.CROSSBOW : ItemUseAnimation.NONE;
+    }
+
+    public static float resonanceMiningProgress(Level level, Player player, float partialTick) {
+        if (!(player.getUseItem().getItem() instanceof TranscendenceResonatorItem resonator)) return -1.0F;
+        if (!resonator.miningTargets(level).containsKey(player)) return -1.0F;
+
+        ItemStack stack = player.getUseItem();
+        int elapsedTicks = stack.getUseDuration(player) - player.getUseItemRemainingTicks();
+        return Math.min(1.0F, (elapsedTicks + partialTick) / RESONANCE_MINING_TICKS);
     }
 
     @Override

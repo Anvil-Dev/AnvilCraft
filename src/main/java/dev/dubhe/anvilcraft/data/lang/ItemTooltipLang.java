@@ -46,6 +46,7 @@ public class ItemTooltipLang {
             "tooltip.anvilcraft.pill_box",
             "Store pills, right-click to take one pill each, and press [%s] to use them in the inventory"
         );
+        provider.add("tooltip.anvilcraft.heavy_halberd.desc", "Press [%s] to switch modes");
 
         provider.add("tooltip.anvilcraft.resonator.desc", "Press [%s] to switch modes. Auto mode supports all tools");
         provider.add("tooltip.anvilcraft.resonator.mining_desc", "Press [%s] to change modes. Auto mode supports all tools and can “resonance‑mine” most blocks when holding right‑click");

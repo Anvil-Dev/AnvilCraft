@@ -19,6 +19,8 @@ import dev.dubhe.anvilcraft.item.property.component.amulet.ComradeAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.item.tool.DragonRodItem;
+import dev.dubhe.anvilcraft.item.tool.HeavyHalberdItem;
+import dev.dubhe.anvilcraft.item.tool.HeavyHalberdMode;
 import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import dev.dubhe.anvilcraft.network.DragonRodDevourPacket;
@@ -38,11 +40,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
+import net.neoforged.neoforge.event.entity.living.LivingShieldBlockEvent;
 import net.neoforged.neoforge.event.entity.living.LivingUseTotemEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
@@ -186,12 +191,32 @@ public class PlayerEventListener {
 
     @SubscribeEvent
     public static void onPlayerHurt(LivingIncomingDamageEvent event) {
-        if (
-            event.getEntity() instanceof ServerPlayer player
-            && AmuletManager.get(player.registryAccess()).shouldImmune(player, event.getSource())
-        ) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        if (AmuletManager.get(player.registryAccess()).shouldImmune(player, event.getSource())) {
             event.setCanceled(true);
         }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onPlayerBlockWithHeavyHalberd(LivingIncomingDamageEvent event) {
+        if (!(event.getEntity() instanceof Player player)) return;
+        if (isBlockingWithHeavyHalberd(player) && event.getSource().is(Tags.DamageTypes.IS_PHYSICAL)) {
+            event.setAmount(event.getAmount() * 0.5F);
+        }
+    }
+
+    @SubscribeEvent(priority = EventPriority.LOWEST)
+    public static void onPlayerShieldBlock(LivingShieldBlockEvent event) {
+        if (!(event.getEntity() instanceof Player player) || !isBlockingWithHeavyHalberd(player)) return;
+        // 剑模式沿用旧版剑格挡，不触发盾牌的全额减伤、耐久消耗和禁用逻辑。
+        event.setBlocked(false);
+    }
+
+    private static boolean isBlockingWithHeavyHalberd(Player player) {
+        ItemStack useItem = player.getUseItem();
+        return player.isUsingItem()
+               && useItem.getItem() instanceof HeavyHalberdItem
+               && HeavyHalberdItem.getMode(useItem) == HeavyHalberdMode.SWORD;
     }
 
     @SubscribeEvent

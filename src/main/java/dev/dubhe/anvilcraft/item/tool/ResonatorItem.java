@@ -97,12 +97,18 @@ public abstract class ResonatorItem extends Item {
         super.appendHoverText(stack, context, display, builder, tooltipFlag);
         if (this.isTranscendence(stack)) {
             builder.accept(
-                Component.translatable("tooltip.anvilcraft.resonator.mining_desc", "Shift")
+                Component.translatable(
+                    "tooltip.anvilcraft.resonator.mining_desc",
+                    Component.keybind("key.anvilcraft.switch_tool_mode")
+                )
                     .withStyle(ChatFormatting.GRAY)
             );
         } else {
             builder.accept(
-                Component.translatable("tooltip.anvilcraft.resonator.desc", "Shift")
+                Component.translatable(
+                    "tooltip.anvilcraft.resonator.desc",
+                    Component.keybind("key.anvilcraft.switch_tool_mode")
+                )
                     .withStyle(ChatFormatting.GRAY)
             );
         }

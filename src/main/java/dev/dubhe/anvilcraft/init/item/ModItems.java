@@ -443,6 +443,8 @@ public class ModItems {
         )
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
+            ItemTags.SPEARS,
+            ItemTags.SWORDS,
             ItemTags.MACE_ENCHANTABLE,
             ItemTags.TRIDENT_ENCHANTABLE,
             ItemTags.WEAPON_ENCHANTABLE,
@@ -459,6 +461,8 @@ public class ModItems {
         )
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
+            ItemTags.SPEARS,
+            ItemTags.SWORDS,
             ItemTags.MACE_ENCHANTABLE,
             ItemTags.TRIDENT_ENCHANTABLE,
             ItemTags.WEAPON_ENCHANTABLE,
@@ -475,6 +479,8 @@ public class ModItems {
         )
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
+            ItemTags.SPEARS,
+            ItemTags.SWORDS,
             ItemTags.MACE_ENCHANTABLE,
             ItemTags.TRIDENT_ENCHANTABLE,
             ItemTags.WEAPON_ENCHANTABLE,

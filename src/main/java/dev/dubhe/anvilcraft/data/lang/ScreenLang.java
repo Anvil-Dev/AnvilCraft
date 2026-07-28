@@ -213,7 +213,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.ember_smithing.four.missing", "Add Resonator Core, Heavy Halberd Core, Multiphase Transcendium or Frost Metal Block");
         provider.add("screen.anvilcraft.ember_smithing.eight.missing", "Add Multiphase Matter");
         provider.add("screen.anvilcraft.ember_smithing.multiphase_matter.missing_tools", "Add a Shear, a Flint and Steel, a Brush, a Spyglass, a Magnet, a Fishing Rod, a Carrot on a Stick and a Warped Fungus on a Stick");
-        provider.add("screen.anvilcraft.ember_smithing.heavy_halberd_core.missing_tools", "Add a sword and an axe of the same type, a Trident and a Mace");
+        provider.add("screen.anvilcraft.ember_smithing.heavy_halberd_core.missing_tools", "Add a sword and a spear of the same type, a Trident and a Mace");
         provider.add("screen.anvilcraft.ember_smithing.resonator_core.missing_tools", "Add same Ember or Frost metal tools");
         provider.add("screen.anvilcraft.ember_smithing.frost_metal_block.missing_tools", "Add Amulets in same category");
         provider.add("screen.anvilcraft.ember_smithing.multiphase_transcendium.missing_tools", "Add a Ember Metal Resonator or Heavy Halberd and a Frost Metal Resonator or Heavy Halberd");
@@ -226,6 +226,12 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.resonator.shovel", "Shovel");
         provider.add("screen.anvilcraft.resonator.hoe", "Hoe");
         provider.add("screen.anvilcraft.resonator.pickaxe", "Pickaxe");
+
+        provider.add("screen.anvilcraft.heavy_halberd.title", "Switch heavy halberd mode");
+        provider.add("screen.anvilcraft.heavy_halberd.trident", "Trident");
+        provider.add("screen.anvilcraft.heavy_halberd.spear", "Spear");
+        provider.add("screen.anvilcraft.heavy_halberd.sword", "Sword");
+        provider.add("screen.anvilcraft.heavy_halberd.mace", "Mace");
 
         provider.add("screen.anvilcraft.multiphase.title", "Switch phase");
 

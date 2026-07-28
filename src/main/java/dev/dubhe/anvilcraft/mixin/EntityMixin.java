@@ -308,6 +308,11 @@ public abstract class EntityMixin implements IEntityExtension {
         cir.setReturnValue(newGravity);
     }
 
+    @Inject(method = "move", at = @At("RETURN"))
+    private void anvilcraft$applyCelestialBodyContactEffects(MoverType type, Vec3 movement, CallbackInfo ci) {
+        GravityManager.applyBodyContactEffects((Entity) (Object) this);
+    }
+
     @Inject(method = "tick", at = @At("TAIL"))
     private void anvilcraft$ApplyHorizontalGravity(CallbackInfo ci) {
         Entity entity = (Entity) (Object) this;
