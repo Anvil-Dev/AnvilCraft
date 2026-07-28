@@ -24,7 +24,6 @@ import org.jetbrains.annotations.Nullable;
 public class PowerConverterBlockEntity extends BlockEntity implements IPowerConsumer {
     private PowerGrid grid = null;
     private int inputPower;
-    private int cooldown = 0;
     int energy = 0;
 
     public PowerConverterBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -55,7 +54,6 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.saveAdditional(tag, provider);
         tag.putInt("InputPower", inputPower);
-        tag.putInt("Cooldown", cooldown);
         tag.putInt("Energy", energy);
     }
 
@@ -63,7 +61,6 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
         inputPower = tag.getInt("InputPower");
-        cooldown = tag.getInt("Cooldown");
         energy = tag.getInt("Energy");
     }
 
@@ -102,26 +99,30 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
         return getMaxEnergy();
     }
 
-    /**
-     * tick
-     */
-    public void tick() {
+    @Override
+    public void gridTick() {
         if (this.level != null) {
             flushState(this.level, getBlockPos());
             if (this.getBlockState().getValue(BasePowerConverterBlock.POWERED)) return;
         }
-        if (cooldown == 0) {
-            cooldown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
-            if (getBlockState().getValue(BasePowerConverterBlock.OVERLOAD)) return;
-            int amountTick = (int) (inputPower
-                                    * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency
-                                    * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
-            );
-            int amount = amountTick * AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
-            this.energy = Math.min(this.energy + amount, getMaxEnergy());
-            setChanged();
-        } else {
-            cooldown--;
+        if (getBlockState().getValue(BasePowerConverterBlock.OVERLOAD)) return;
+        int amountTick = (int) (inputPower
+                * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency
+                * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
+        );
+        int amount = amountTick * PowerGrid.GRID_TICK;
+        this.energy = Math.min(this.energy + amount, getMaxEnergy());
+        setChanged();
+    }
+
+    /**
+     * tick
+     */
+
+    public void tick() {
+        if (this.level != null) {
+            flushState(this.level, getBlockPos());
+            if (this.getBlockState().getValue(BasePowerConverterBlock.POWERED)) return;
         }
         pushEnergy();
         if (this.level != null && level.getGameTime() % 20 == 0) {
