@@ -583,7 +583,7 @@ public final class GravityManager {
             int maxChunkZ = ((int) Math.floor(box.maxZ)) >> 4;
             for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
                 for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-                    result.addAll(sourcesByChunk.getOrDefault(ChunkPos.pack(chunkX, chunkZ), Set.of()));
+                    result.addAll(this.sourcesByChunk.getOrDefault(ChunkPos.pack(chunkX, chunkZ), Set.of()));
                 }
             }
             return result;
