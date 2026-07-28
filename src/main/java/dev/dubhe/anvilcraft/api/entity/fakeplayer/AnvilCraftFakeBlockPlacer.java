@@ -170,6 +170,21 @@ public class AnvilCraftFakeBlockPlacer {
             });
     }
 
+    public void clear(ServerLevel level) {
+        this.disabledPlacers.removeIf(placer -> clearIfInLevel(placer.getPlayer(), level));
+        synchronized (this.enabledPlacers) {
+            this.enabledPlacers.removeIf(placer -> clearIfInLevel(placer.getPlayer(), level));
+        }
+    }
+
+    private static boolean clearIfInLevel(ServerPlayer player, ServerLevel level) {
+        if (player.level() != level) {
+            return false;
+        }
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        return true;
+    }
+
     @Data
     public static final class Placer {
         private final GameProfile profile;

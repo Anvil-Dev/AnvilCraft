@@ -61,6 +61,7 @@ public class LevelEventListener {
             RedstoneWireClientPowerCache.clear(level);
         }
         if (event.getLevel() instanceof ServerLevel serverLevel) {
+            AnvilCraftFakePlayers.clear(serverLevel);
             LevelLoadManager.removeAll(serverLevel);
             // LEVELS 按 ServerLevel 对象持有强引用，世界卸载时清理才能释放整张拓扑缓存。
             RedstoneWireNetworkManager.clear(serverLevel);

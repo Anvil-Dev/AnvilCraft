@@ -21,37 +21,56 @@ public class AnvilCraftFakeDestroyer {
         UUID.randomUUID(),
         "[AnvilCraft Fake Destroyer No." + num + "]"
     );
-    private static final Queue<Destroyer> DISABLED_DESTROYERS = new ConcurrentLinkedQueue<>();
-    private static final List<Destroyer> ENABLED_DESTROYERS = Collections.synchronizedList(new ArrayList<>());
-    private static @Nullable ItemStack DUMMY_BREAK_TOOL = null;
+    private final Queue<Destroyer> disabledDestroyers = new ConcurrentLinkedQueue<>();
+    private final List<Destroyer> enabledDestroyers = Collections.synchronizedList(new ArrayList<>());
+    private @Nullable ItemStack dummyBreakTool;
 
     public AnvilCraftFakeDestroyer() {
     }
 
     public ServerPlayer offerPlayer(ServerLevel level) {
-        Destroyer destroyer = DISABLED_DESTROYERS.poll();
+        Destroyer destroyer;
+        do {
+            destroyer = this.disabledDestroyers.poll();
+        } while (destroyer != null && destroyer.player().level() != level);
         if (destroyer == null) {
-            destroyer = new Destroyer(level, ENABLED_DESTROYERS.size());
+            destroyer = new Destroyer(level, this.enabledDestroyers.size());
         }
-        ENABLED_DESTROYERS.add(destroyer);
+        this.enabledDestroyers.add(destroyer);
         return destroyer.player();
     }
 
     public void enabledDestroy(ServerPlayer player, ItemStack itemStack) {
-        if (DUMMY_BREAK_TOOL == null) {
-            DUMMY_BREAK_TOOL = itemStack;
+        if (this.dummyBreakTool == null) {
+            this.dummyBreakTool = itemStack;
         }
-        player.setItemInHand(InteractionHand.MAIN_HAND, DUMMY_BREAK_TOOL.copy());
+        player.setItemInHand(InteractionHand.MAIN_HAND, this.dummyBreakTool.copy());
     }
 
     public void disable(ServerPlayer player) {
-        for (Destroyer destroyer : AnvilCraftFakeDestroyer.ENABLED_DESTROYERS) {
+        for (Destroyer destroyer : this.enabledDestroyers) {
             if (!destroyer.getUUID().equals(player.getUUID())) continue;
             destroyer.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-            DISABLED_DESTROYERS.offer(destroyer);
-            ENABLED_DESTROYERS.remove(destroyer);
+            this.disabledDestroyers.offer(destroyer);
+            this.enabledDestroyers.remove(destroyer);
             break;
         }
+    }
+
+    public void clear(ServerLevel level) {
+        this.disabledDestroyers.removeIf(destroyer -> clearIfInLevel(destroyer.player(), level));
+        synchronized (this.enabledDestroyers) {
+            this.enabledDestroyers.removeIf(destroyer -> clearIfInLevel(destroyer.player(), level));
+        }
+        this.dummyBreakTool = null;
+    }
+
+    private static boolean clearIfInLevel(ServerPlayer player, ServerLevel level) {
+        if (player.level() != level) {
+            return false;
+        }
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        return true;
     }
 
     public record Destroyer(ServerPlayer player, GameProfile profile) {
