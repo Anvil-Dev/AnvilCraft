@@ -1,6 +1,6 @@
 {
 	"parent": "anvilcraft:item/ember_metal_resonance_pickaxe",
 	"textures": {
-		"1": "anvilcraft:item/frost_metalgear"
+		"1": "anvilcraft:item/frost_metal_gear"
 	}
 }
