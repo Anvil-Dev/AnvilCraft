@@ -1,0 +1,24 @@
+{
+  "rules": [
+    {
+      "count": 1,
+      "item": "minecraft:blue_candle",
+      "properties": "candles=1"
+    },
+    {
+      "count": 2,
+      "item": "minecraft:blue_candle",
+      "properties": "candles=2"
+    },
+    {
+      "count": 3,
+      "item": "minecraft:blue_candle",
+      "properties": "candles=3"
+    },
+    {
+      "count": 4,
+      "item": "minecraft:blue_candle",
+      "properties": "candles=4"
+    }
+  ]
+}

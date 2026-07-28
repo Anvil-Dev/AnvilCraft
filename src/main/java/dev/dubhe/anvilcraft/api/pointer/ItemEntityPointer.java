@@ -6,8 +6,9 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
 import dev.dubhe.anvilcraft.init.ModRegistries;
-import dev.dubhe.anvilcraft.util.BlockStateUtil;
+import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,7 +19,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -70,9 +70,8 @@ public class ItemEntityPointer implements ITargetPointer {
     }
 
     @Override
-    public boolean matches(BlockState requiredState) {
-        return this.stack.getItem() instanceof BlockItem item
-            && item.getBlock() == requiredState.getBlock();
+    public boolean matches(Level level, BlockState requiredState) {
+        return BlockPlacementRules.getPlacementItemCount(level.registryAccess(), requiredState, this.stack) > 0;
     }
 
     @Override
@@ -87,7 +86,7 @@ public class ItemEntityPointer implements ITargetPointer {
 
     @Override
     public boolean applyToPos(ServerLevel level, BlockPos pos, BlockState requiredState) {
-        if (!this.matches(requiredState)) {
+        if (!this.matches(level, requiredState)) {
             return false;
         }
         return this.placeToPos(level, pos, requiredState);
@@ -101,7 +100,12 @@ public class ItemEntityPointer implements ITargetPointer {
             return false;
         }
 
-        int requiredCount = requiredState == null ? 1 : BlockStateUtil.getPlacementItemCount(requiredState, this.stack);
+        int requiredCount = requiredState == null
+            ? 1
+            : BlockPlacementRules.getPlacementItemCount(level.registryAccess(), requiredState, this.stack);
+        if (requiredCount < 0) {
+            return false;
+        }
         List<ItemEntity> sourceEntities = this.getSourceEntities(level, entity);
         if (sourceEntities.stream().mapToInt(source -> source.getItem().getCount()).sum() < requiredCount) {
             return false;
@@ -109,7 +113,7 @@ public class ItemEntityPointer implements ITargetPointer {
 
         ItemStack stack = this.stack.copyWithCount(requiredCount);
         int initialCount = stack.getCount();
-        ItemStack result = ITargetPointer.placeToPos(level, pos, stack, requiredState);
+        ItemStack result = BlockPlacementUtil.placeBlock(level, pos, stack, requiredState);
         int consumed = initialCount - result.getCount();
         if (consumed <= 0) {
             return false;
@@ -224,12 +228,16 @@ public class ItemEntityPointer implements ITargetPointer {
                 if (requiredState == null) {
                     return pointer;
                 }
-                int requiredCount = BlockStateUtil.getPlacementItemCount(requiredState, entity.getItem());
+                int requiredCount = BlockPlacementRules.getPlacementItemCount(
+                    level.registryAccess(),
+                    requiredState,
+                    entity.getItem()
+                );
                 int availableCount = pointer.getSourceEntities(serverLevel, entity)
                     .stream()
                     .mapToInt(source -> source.getItem().getCount())
                     .sum();
-                if (pointer.matches(requiredState) && availableCount >= requiredCount) {
+                if (requiredCount > 0 && pointer.matches(level, requiredState) && availableCount >= requiredCount) {
                     return pointer;
                 }
             }

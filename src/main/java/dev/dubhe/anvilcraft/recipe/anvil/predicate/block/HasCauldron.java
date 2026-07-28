@@ -164,7 +164,7 @@ public record HasCauldron(
         // 锅中有流体 且 转换有效 且 前后流体类型不同 且 锅中流体没有消耗完 否决
         // 例外：consume==0 && produce==0 表示仅交换流体类型（如水泥染色），允许通过
         if (cur > 0 && HasCauldron.isNotEmpty(this.transform()) && !curFluid.equals(this.transform()) && afterConsume != 0) {
-            if (!(this.consume() == 0 && this.produce() == 0)) return false;
+            return false;
         }
 
         // 全部通过
@@ -270,11 +270,11 @@ public record HasCauldron(
      *
      * @return 炼药锅方块
      */
-    @SuppressWarnings("deprecation")
     public static ResourceLocation getCurFluid(BlockCache cache, BlockPos pos) {
         return getCurFluid(cache, pos, null);
     }
 
+    @SuppressWarnings("deprecation")
     private static ResourceLocation getCurFluid(
         BlockCache cache,
         BlockPos pos,
@@ -283,7 +283,7 @@ public record HasCauldron(
         IFluidHandler handler = getFluidHandler(cache, pos, entityCauldron);
         if (handler != null) {
             FluidStack stack = handler.getFluidInTank(0);
-            return stack.isEmpty() ? EMPTY : stack.getFluidHolder().getKey().location();
+            return stack.isEmpty() ? EMPTY : BuiltInRegistries.FLUID.getKey(stack.getFluid());
         }
         return cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron
                ? cauldron.getFluid(cache, pos).builtInRegistryHolder().key().location()
@@ -518,7 +518,7 @@ public record HasCauldron(
         private int produce = 0;
         private float chance = 1;
         private boolean ignited = false;
-        private ResourceLocation fluidTag = null;
+        private @Nullable ResourceLocation fluidTag = null;
 
         /**
          * 设置偏移量

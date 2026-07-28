@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
+import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.block.BlockColors;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -461,7 +462,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         for (int i = 0; i < allPositions.size(); i++) {
             int index = (currentIndex + i) % allPositions.size();
             BlockPos targetPos = allPositions.get(index);
-            if (!SmartBlockPlacerBlockEntity.isTargetUnobstructed(level, targetPos)) {
+            if (!BlockPlacementUtil.isTargetUnobstructed(level, targetPos)) {
                 continue;
             }
             BlockState targetState = level.getBlockState(targetPos);

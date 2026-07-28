@@ -4,10 +4,11 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
-import dev.dubhe.anvilcraft.util.BlockStateUtil;
+import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
 import it.unimi.dsi.fastutil.objects.Object2IntMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.Getter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -117,6 +118,10 @@ public class BlockPattern {
     }
 
     public List<ItemStack> toIngredientList() {
+        return this.toIngredientList(null);
+    }
+
+    public List<ItemStack> toIngredientList(@Nullable HolderLookup.Provider registries) {
         Object2IntMap<BlockState> states = new Object2IntOpenHashMap<>();
         for (List<String> layer : this.getLayers()) {
             for (String s : layer) {
@@ -131,7 +136,7 @@ public class BlockPattern {
             }
         }
         Map<ItemStack, Integer> ingredients = ItemStackMap.createTypeAndTagMap();
-        states.forEach((state, stateCount) -> BlockStateUtil.ingredientsForPlacement(state)
+        states.forEach((state, stateCount) -> BlockPlacementRules.getPlacementIngredients(registries, state)
             .forEach(stack -> {
                 int stackCount = stack.getCount();
                 if (stackCount <= 0) return;

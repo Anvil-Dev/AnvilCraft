@@ -57,7 +57,7 @@ public class BlockPointer implements ITargetPointer {
     }
 
     @Override
-    public boolean matches(BlockState requiredState) {
+    public boolean matches(Level level, BlockState requiredState) {
         return this.state.equals(requiredState);
     }
 

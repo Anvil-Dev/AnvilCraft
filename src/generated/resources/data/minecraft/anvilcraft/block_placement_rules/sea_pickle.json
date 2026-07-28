@@ -1,0 +1,24 @@
+{
+  "rules": [
+    {
+      "count": 1,
+      "item": "minecraft:sea_pickle",
+      "properties": "pickles=1"
+    },
+    {
+      "count": 2,
+      "item": "minecraft:sea_pickle",
+      "properties": "pickles=2"
+    },
+    {
+      "count": 3,
+      "item": "minecraft:sea_pickle",
+      "properties": "pickles=3"
+    },
+    {
+      "count": 4,
+      "item": "minecraft:sea_pickle",
+      "properties": "pickles=4"
+    }
+  ]
+}

@@ -30,6 +30,7 @@ import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
@@ -131,7 +132,10 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 70)
             .addItemStack(recipe.value().getResult().copy());
 
-        List<ItemStack> ingredientList = recipe.value().getPattern().toIngredientList();
+        var level = Minecraft.getInstance().level;
+        List<ItemStack> ingredientList = recipe.value().getPattern().toIngredientList(
+            level == null ? null : level.registryAccess()
+        );
         ingredientList.sort(BY_COUNT_DECREASING);
 
         int slotIndex = 0;
@@ -151,11 +155,9 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             int row = slotIndex / 9;
             int col = slotIndex % 9;
             var slot = builder.addSlot(RecipeIngredientRole.INPUT, col * 18 + 1, START_HEIGHT + row * 18 + 1);
-            net.minecraft.core.registries.BuiltInRegistries.ITEM.getTag(itemTag).ifPresent(tag -> {
-                tag.stream().forEach(holder -> {
-                    slot.addItemStack(new ItemStack(holder.value(), count));
-                });
-            });
+            BuiltInRegistries.ITEM.getTag(itemTag).ifPresent(tag -> tag.stream().forEach(
+                holder -> slot.addItemStack(new ItemStack(holder.value(), count))
+            ));
             slotIndex++;
         }
     }

@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.pointer.ITargetPointer;
 import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.number.INumberProvider;
 import dev.dubhe.anvilcraft.api.recipe.result.modifier.IResultModifier;
+import dev.dubhe.anvilcraft.block.placement.BlockPlacementRuleSet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -28,6 +29,9 @@ public class ModRegistries {
     );
 
     public static final ResourceKey<Registry<IAmuletDefinition>> AMULET_DEF_KEY = ModRegistries.key("amulet_definition");
+
+    public static final ResourceKey<Registry<BlockPlacementRuleSet>> BLOCK_PLACEMENT_RULES_KEY =
+        ModRegistries.key("block_placement_rules");
 
     public static final ResourceKey<Registry<IResultModifier.Type<?>>> MODIFIER_KEY = ResourceKey.createRegistryKey(
         AnvilCraft.of("result_modifier")
@@ -69,6 +73,11 @@ public class ModRegistries {
     @SubscribeEvent
     public static void registerDatapackRegistries(DataPackRegistryEvent.NewRegistry event) {
         event.dataPackRegistry(ModRegistries.AMULET_DEF_KEY, IAmuletDefinition.DIRECT_CODEC, IAmuletDefinition.DIRECT_CODEC);
+        event.dataPackRegistry(
+            ModRegistries.BLOCK_PLACEMENT_RULES_KEY,
+            BlockPlacementRuleSet.CODEC,
+            BlockPlacementRuleSet.CODEC
+        );
     }
 
     private static <T> ResourceKey<Registry<T>> key(String name) {
