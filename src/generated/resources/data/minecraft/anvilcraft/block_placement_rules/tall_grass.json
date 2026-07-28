@@ -1,8 +1,8 @@
 {
   "rules": [
     {
-      "count": 2,
-      "item": "minecraft:short_grass",
+      "count": 1,
+      "item": "minecraft:tall_grass",
       "properties": ""
     }
   ]

@@ -368,12 +368,21 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         BlockPlacementUtil.BlueprintLayout blueprintLayout = this.getBlueprintLayout();
         List<BlockPlacementUtil.BlueprintPartSnapshot> partSnapshots = blueprintLayout.capturePartSnapshots(
             level,
+            blueprintTarget.pos(),
             blueprintTarget.state()
         );
-        if (pointer.applyToPos(level, blueprintTarget.pos(), blueprintTarget.state())) {
-            BlockPlacementUtil.applyBlueprintStates(level, partSnapshots);
+        if (!BlockPlacementUtil.areTargetsAvailable(level, partSnapshots)) {
             this.advanceBlueprintIndex(blueprintTarget.orderIndex());
-            this.updateMissingBlock(level, null);
+            this.pointer = null;
+            return;
+        }
+        if (pointer.applyToPos(level, blueprintTarget.pos(), blueprintTarget.state())) {
+            if (BlockPlacementUtil.applyBlueprintStates(level, partSnapshots)) {
+                this.advanceBlueprintIndex(blueprintTarget.orderIndex());
+                this.updateMissingBlock(level, null);
+            } else {
+                this.updateMissingBlock(level, this.createDisplayedBlock(level, blueprintTarget.state()));
+            }
             this.pointer = null;
             this.setChanged();
             return;

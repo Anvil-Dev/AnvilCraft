@@ -45,11 +45,11 @@ public record BlockPlacementRuleSet(List<StateRule> rules, Map<String, String> s
             .toList();
     }
 
-    public BlockState applyStateRules(BlockState baseState, BlockState blueprintState, BlockState resultState) {
+    public BlockState applyStateRules(BlockState blueprintState, BlockState resultState) {
         BlockState result = resultState;
         for (Map.Entry<String, String> entry : this.state.entrySet()) {
             if (matchesExpression(blueprintState, entry.getKey())) {
-                result = applyStateDirectives(baseState, blueprintState, result, entry.getValue());
+                result = applyStateDirectives(blueprintState, result, entry.getValue());
             }
         }
         return result;
@@ -67,7 +67,6 @@ public record BlockPlacementRuleSet(List<StateRule> rules, Map<String, String> s
     }
 
     private static BlockState applyStateDirectives(
-        BlockState baseState,
         BlockState blueprintState,
         BlockState resultState,
         String directives
@@ -79,7 +78,11 @@ public record BlockPlacementRuleSet(List<StateRule> rules, Map<String, String> s
                 continue;
             }
             if (directive.startsWith("!") && !directive.contains("=")) {
-                result = copyNamedProperty(result, baseState, directive.substring(1));
+                result = copyNamedProperty(
+                    result,
+                    result.getBlock().defaultBlockState(),
+                    directive.substring(1)
+                );
                 continue;
             }
             String[] assignment = directive.split("=", 2);

@@ -64,7 +64,7 @@ public final class ModBlockPlacementRuleProvider implements DataProvider {
 
         List<CompletableFuture<?>> saves = new ArrayList<>(rulesByBlock.size() + stateRulesByBlock.size() + 1);
         Map<String, String> defaultStateRules = new LinkedHashMap<>();
-        defaultStateRules.put("", "powered=false,lit=false,waterlogged=false");
+        defaultStateRules.put("", "!powered,!lit,!waterlogged");
         this.saveRuleSet(
             output,
             saves,
@@ -157,8 +157,8 @@ public final class ModBlockPlacementRuleProvider implements DataProvider {
         addRule(rulesByBlock, Blocks.ATTACHED_PUMPKIN_STEM, "", Items.PUMPKIN_SEEDS, 1);
         addRule(rulesByBlock, Blocks.BAMBOO_SAPLING, "", Items.BAMBOO, 1);
         addRule(rulesByBlock, Blocks.BIG_DRIPLEAF_STEM, "", Items.BIG_DRIPLEAF, 1);
-        addRule(rulesByBlock, Blocks.TALL_GRASS, "", Items.SHORT_GRASS, 2);
-        addRule(rulesByBlock, Blocks.LARGE_FERN, "", Items.FERN, 2);
+        addRule(rulesByBlock, Blocks.TALL_GRASS, "", Items.TALL_GRASS, 1);
+        addRule(rulesByBlock, Blocks.LARGE_FERN, "", Items.LARGE_FERN, 1);
         addRule(rulesByBlock, Blocks.PISTON_HEAD, "", Items.PISTON, -1);
 
         BuiltInRegistries.BLOCK.forEach(block -> {

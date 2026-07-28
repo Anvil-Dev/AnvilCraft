@@ -1,8 +1,8 @@
 {
   "rules": [
     {
-      "count": 2,
-      "item": "minecraft:fern",
+      "count": 1,
+      "item": "minecraft:large_fern",
       "properties": ""
     }
   ]

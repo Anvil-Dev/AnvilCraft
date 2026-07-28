@@ -61,7 +61,7 @@ public final class BlockPlacementRules {
         BlockState result = BlockPlacementRuleSet.inheritBlueprintState(baseState, blueprintState);
         return registries.lookup(ModRegistries.BLOCK_PLACEMENT_RULES_KEY).map(lookup -> {
             BlockState transformed = lookup.get(DEFAULT_RULE_KEY)
-                .map(holder -> holder.value().applyStateRules(baseState, blueprintState, result))
+                .map(holder -> holder.value().applyStateRules(blueprintState, result))
                 .orElse(result);
             ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(blueprintState.getBlock());
             ResourceKey<BlockPlacementRuleSet> blockRuleKey = ResourceKey.create(
@@ -69,7 +69,7 @@ public final class BlockPlacementRules {
                 blockId
             );
             return lookup.get(blockRuleKey)
-                .map(holder -> holder.value().applyStateRules(baseState, blueprintState, transformed))
+                .map(holder -> holder.value().applyStateRules(blueprintState, transformed))
                 .orElse(transformed);
         }).orElse(result);
     }

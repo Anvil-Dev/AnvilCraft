@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -105,7 +106,12 @@ public final class BlockPlacementUtil {
         return level.isUnobstructed(null, Shapes.create(new AABB(targetPos)));
     }
 
-    public static void applyBlueprintStates(ServerLevel level, List<BlueprintPartSnapshot> snapshots) {
+    public static boolean areTargetsAvailable(Level level, List<BlueprintPartSnapshot> snapshots) {
+        return !snapshots.isEmpty()
+            && snapshots.stream().allMatch(snapshot -> isTargetAvailable(level, snapshot.pos()));
+    }
+
+    public static boolean applyBlueprintStates(ServerLevel level, List<BlueprintPartSnapshot> snapshots) {
         List<PlacedBlueprintPart> placedParts = new ArrayList<>();
         for (BlueprintPartSnapshot snapshot : snapshots) {
             BlockState placedState = level.getBlockState(snapshot.pos());
@@ -114,8 +120,9 @@ public final class BlockPlacementUtil {
                 placedParts.add(new PlacedBlueprintPart(snapshot.pos(), snapshot.requiredState(), placedState));
             }
         }
-        if (placedParts.isEmpty()) {
-            return;
+        if (placedParts.size() != snapshots.size()) {
+            restoreBlueprintSnapshots(level, snapshots);
+            return false;
         }
 
         for (PlacedBlueprintPart part : placedParts) {
@@ -142,10 +149,19 @@ public final class BlockPlacementUtil {
             }
         }
 
+        if (!valid) {
+            restoreBlueprintSnapshots(level, snapshots);
+            return false;
+        }
         for (int index = 0; index < placedParts.size(); index++) {
-            PlacedBlueprintPart part = placedParts.get(index);
-            BlockState finalState = valid ? contextualStates.get(index) : part.placedState();
-            level.setBlock(part.pos(), finalState, Block.UPDATE_ALL);
+            level.setBlock(placedParts.get(index).pos(), contextualStates.get(index), Block.UPDATE_ALL);
+        }
+        return true;
+    }
+
+    private static void restoreBlueprintSnapshots(ServerLevel level, List<BlueprintPartSnapshot> snapshots) {
+        for (BlueprintPartSnapshot snapshot : snapshots) {
+            level.setBlock(snapshot.pos(), snapshot.previousState(), Block.UPDATE_ALL);
         }
     }
 
@@ -185,6 +201,88 @@ public final class BlockPlacementUtil {
                    && state.getValue(DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER;
         }
         return block instanceof AbstractMultiPartBlock<?> multiPartBlock && !multiPartBlock.isMainPart(state);
+    }
+
+    public static List<MultiblockPart> getExpectedMultiblockParts(BlockPos pos, BlockState state) {
+        Block block = state.getBlock();
+        if (block instanceof AbstractMultiPartBlock<?> multiPartBlock) {
+            return getExpectedCustomMultiblockParts(pos, state, multiPartBlock);
+        }
+        if (block instanceof BedBlock) {
+            Direction facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+            BlockPos footPos = state.getValue(BED_PART) == BedPart.HEAD
+                ? pos.relative(facing.getOpposite())
+                : pos;
+            BlockState footState = state.setValue(BED_PART, BedPart.FOOT);
+            return List.of(
+                new MultiblockPart(footPos, footState),
+                new MultiblockPart(footPos.relative(facing), footState.setValue(BED_PART, BedPart.HEAD))
+            );
+        }
+        if (block instanceof DoorBlock || block instanceof DoublePlantBlock) {
+            BlockPos lowerPos = state.getValue(DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER ? pos.below() : pos;
+            BlockState lowerState = state.setValue(DOUBLE_BLOCK_HALF, DoubleBlockHalf.LOWER);
+            return List.of(
+                new MultiblockPart(lowerPos, lowerState),
+                new MultiblockPart(lowerPos.above(), lowerState.setValue(DOUBLE_BLOCK_HALF, DoubleBlockHalf.UPPER))
+            );
+        }
+        return List.of(new MultiblockPart(pos, state));
+    }
+
+    private static <P extends Enum<P>> List<MultiblockPart> getExpectedCustomMultiblockParts(
+        BlockPos pos,
+        BlockState state,
+        AbstractMultiPartBlock<P> block
+    ) {
+        BlockPos mainPos = block.getMainPartPos(pos, state);
+        BlockState mainState = state;
+        for (P part : block.getParts()) {
+            BlockState partState = block.placedState(part, state);
+            if (block.isMainPart(partState)) {
+                mainState = partState;
+                break;
+            }
+        }
+        List<MultiblockPart> parts = new ArrayList<>();
+        for (P part : block.getParts()) {
+            parts.add(new MultiblockPart(
+                mainPos.offset(block.offsetFrom(mainState, part)),
+                block.placedState(part, mainState)
+            ));
+        }
+        return List.copyOf(parts);
+    }
+
+    public static List<MultiblockPart> getPresentMultiblockParts(Level level, BlockPos pos, BlockState state) {
+        List<MultiblockPart> expectedParts = getExpectedMultiblockParts(pos, state);
+        List<MultiblockPart> presentParts = new ArrayList<>(expectedParts.size());
+        for (MultiblockPart expectedPart : expectedParts) {
+            BlockState presentState = level.getBlockState(expectedPart.pos());
+            if (!matchesMultiblockPart(presentState, expectedPart.state())) {
+                return List.of();
+            }
+            presentParts.add(new MultiblockPart(expectedPart.pos(), presentState));
+        }
+        return List.copyOf(presentParts);
+    }
+
+    private static boolean matchesMultiblockPart(BlockState state, BlockState expectedState) {
+        if (!state.is(expectedState.getBlock())) {
+            return false;
+        }
+        Block block = state.getBlock();
+        if (block instanceof AbstractMultiPartBlock<?> multiPartBlock) {
+            Property<?> partProperty = multiPartBlock.getPart();
+            return state.getOptionalValue(partProperty).equals(expectedState.getOptionalValue(partProperty));
+        }
+        if (block instanceof BedBlock) {
+            return state.getValue(BED_PART) == expectedState.getValue(BED_PART);
+        }
+        if (block instanceof DoorBlock || block instanceof DoublePlantBlock) {
+            return state.getValue(DOUBLE_BLOCK_HALF) == expectedState.getValue(DOUBLE_BLOCK_HALF);
+        }
+        return true;
     }
 
     private static BlockState transformBlueprintState(
@@ -301,18 +399,41 @@ public final class BlockPlacementUtil {
             );
         }
 
-        public List<BlueprintPartSnapshot> capturePartSnapshots(Level level, BlockState requiredState) {
+        public List<BlueprintPartSnapshot> capturePartSnapshots(
+            Level level,
+            BlockPos targetPos,
+            BlockState requiredState
+        ) {
             List<BlueprintPartSnapshot> snapshots = new ArrayList<>();
-            for (int storageIndex = 0; storageIndex < this.states.length; storageIndex++) {
-                BlockState partState = this.getState(storageIndex);
-                if (!partState.is(requiredState.getBlock())) {
-                    continue;
+            for (MultiblockPart expectedPart : getExpectedMultiblockParts(targetPos, requiredState)) {
+                int storageIndex = this.getStorageIndex(expectedPart.pos());
+                if (storageIndex < 0) {
+                    return List.of();
                 }
-                BlockPos partPos = this.getPosition(storageIndex);
-                snapshots.add(new BlueprintPartSnapshot(partPos, partState, level.getBlockState(partPos)));
+                BlockState partState = this.getState(storageIndex);
+                if (!matchesMultiblockPart(partState, expectedPart.state())) {
+                    return List.of();
+                }
+                snapshots.add(new BlueprintPartSnapshot(
+                    expectedPart.pos(),
+                    partState,
+                    level.getBlockState(expectedPart.pos())
+                ));
             }
-            return snapshots;
+            return List.copyOf(snapshots);
         }
+
+        private int getStorageIndex(BlockPos pos) {
+            for (int storageIndex = 0; storageIndex < this.states.length; storageIndex++) {
+                if (this.getPosition(storageIndex).equals(pos)) {
+                    return storageIndex;
+                }
+            }
+            return -1;
+        }
+    }
+
+    public record MultiblockPart(BlockPos pos, BlockState state) {
     }
 
     public record BlueprintPartSnapshot(BlockPos pos, BlockState requiredState, BlockState previousState) {
