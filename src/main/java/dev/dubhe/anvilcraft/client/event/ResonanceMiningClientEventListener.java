@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.ResonatorItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.phys.HitResult;
@@ -21,7 +20,7 @@ public class ResonanceMiningClientEventListener {
         if (minecraft.hitResult.getType() != HitResult.Type.MISS) return;
 
         var stack = minecraft.player.getItemInHand(event.getHand());
-        if (!stack.is(ModItems.TRANSCENDENCE_RESONATOR)) return;
+        if (!(stack.getItem() instanceof ResonatorItem)) return;
         if (ResonatorItem.getMode(stack) != ResonatorItem.AUTO_MODE) return;
 
         event.setSwingHand(false);

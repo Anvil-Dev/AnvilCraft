@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.hud;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.item.TranscendenceResonatorItem;
+import dev.dubhe.anvilcraft.item.ResonatorItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import dev.dubhe.anvilcraft.util.WeaponRaycastUtil;
@@ -51,9 +51,9 @@ public final class EnergyWeaponUseHUD {
                 progress = AnvilRailgunItem.chargeProgress(player.level(), stack, elapsed, partialTick);
             }
             case LaserGunItem laserGunItem -> progress = LASER_PROGRESS.get(player, stack, partialTick);
-            case TranscendenceResonatorItem transcendenceResonatorItem -> {
+            case ResonatorItem resonatorItem -> {
                 LASER_PROGRESS.reset();
-                progress = TranscendenceResonatorItem.resonanceMiningProgress(player.level(), player, partialTick);
+                progress = ResonatorItem.resonanceMiningProgress(player.level(), player, partialTick);
             }
             default -> {
                 LASER_PROGRESS.reset();
