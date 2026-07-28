@@ -81,12 +81,12 @@ public abstract class ResonatorItem extends TieredItem {
 
         if (isTranscendence(stack)) {
             tooltipComponents.add(
-                Component.translatable("tooltip.anvilcraft.resonator.mining_desc", Component.keybind("key.anvilcraft.switch_resonate_mode"))
+                Component.translatable("tooltip.anvilcraft.resonator.mining_desc", Component.keybind("key.anvilcraft.switch_tool_mode"))
                     .withStyle(ChatFormatting.GRAY)
             );
         } else {
             tooltipComponents.add(
-                Component.translatable("tooltip.anvilcraft.resonator.desc", Component.keybind("key.anvilcraft.switch_resonate_mode"))
+                Component.translatable("tooltip.anvilcraft.resonator.desc", Component.keybind("key.anvilcraft.switch_tool_mode"))
                     .withStyle(net.minecraft.ChatFormatting.GRAY)
             );
         }

@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.item;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
+import dev.dubhe.anvilcraft.client.renderer.item.ItemUseAnimationTransform;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
@@ -8,6 +10,7 @@ import dev.dubhe.anvilcraft.item.property.component.Ferocious;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.property.component.Providence;
 import dev.dubhe.anvilcraft.network.ResonanceMiningEffectPacket;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -18,9 +21,11 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ChunkPos;
@@ -28,16 +33,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
+import java.util.function.Consumer;
 
 public class TranscendenceResonatorItem extends ResonatorItem {
     public static final Component NAME = Component.translatable("item.anvilcraft.transcendence_resonator");
-    private static final int RESONANCE_MINING_TICKS = 10;
+    public static final int RESONANCE_MINING_TICKS = 10;
     private static final int USE_DURATION = 72000;
 
     private final Map<LivingEntity, MiningTarget> clientMiningTargets = new WeakHashMap<>();
@@ -60,6 +67,33 @@ public class TranscendenceResonatorItem extends ResonatorItem {
     @Override
     protected double getBaseAttackDamage() {
         return 17;
+    }
+
+    @Override
+    @SuppressWarnings("removal")
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(new IClientItemExtensions() {
+            @Override
+            public boolean applyForgeHandTransform(
+                PoseStack poseStack,
+                LocalPlayer player,
+                HumanoidArm arm,
+                ItemStack stack,
+                float partialTick,
+                float equipProgress,
+                float swingProgress
+            ) {
+                return ItemUseAnimationTransform.applyCrossbowCharge(
+                    poseStack,
+                    player,
+                    arm,
+                    stack,
+                    partialTick,
+                    equipProgress,
+                    RESONANCE_MINING_TICKS
+                );
+            }
+        });
     }
 
     @Override
@@ -108,6 +142,20 @@ public class TranscendenceResonatorItem extends ResonatorItem {
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
         return USE_DURATION;
+    }
+
+    @Override
+    public UseAnim getUseAnimation(ItemStack stack) {
+        return getMode(stack) == AUTO_MODE ? UseAnim.CROSSBOW : UseAnim.NONE;
+    }
+
+    public static float resonanceMiningProgress(Level level, Player player, float partialTick) {
+        if (!(player.getUseItem().getItem() instanceof TranscendenceResonatorItem resonator)) return -1.0F;
+        if (!resonator.miningTargets(level).containsKey(player)) return -1.0F;
+
+        ItemStack stack = player.getUseItem();
+        int elapsedTicks = stack.getUseDuration(player) - player.getUseItemRemainingTicks();
+        return Math.min(1.0F, (elapsedTicks + partialTick) / RESONANCE_MINING_TICKS);
     }
 
     @Override

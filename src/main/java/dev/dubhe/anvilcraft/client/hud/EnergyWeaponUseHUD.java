@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.hud;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.item.TranscendenceResonatorItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import dev.dubhe.anvilcraft.util.WeaponRaycastUtil;
@@ -42,16 +43,22 @@ public final class EnergyWeaponUseHUD {
         ItemStack stack = player.getUseItem();
         float partialTick = deltaTracker.getGameTimeDeltaPartialTick(minecraft.isPaused());
         float progress;
-        if (stack.getItem() instanceof AnvilRailgunItem) {
-            LASER_PROGRESS.reset();
-            if (AnvilRailgunItem.isLoading(player, stack, player.getUsedItemHand())) return;
-            int elapsed = stack.getUseDuration(player) - player.getUseItemRemainingTicks();
-            progress = AnvilRailgunItem.chargeProgress(player.level(), stack, elapsed, partialTick);
-        } else if (stack.getItem() instanceof LaserGunItem) {
-            progress = LASER_PROGRESS.get(player, stack, partialTick);
-        } else {
-            LASER_PROGRESS.reset();
-            return;
+        switch (stack.getItem()) {
+            case AnvilRailgunItem anvilRailgunItem -> {
+                LASER_PROGRESS.reset();
+                if (AnvilRailgunItem.isLoading(player, stack, player.getUsedItemHand())) return;
+                int elapsed = stack.getUseDuration(player) - player.getUseItemRemainingTicks();
+                progress = AnvilRailgunItem.chargeProgress(player.level(), stack, elapsed, partialTick);
+            }
+            case LaserGunItem laserGunItem -> progress = LASER_PROGRESS.get(player, stack, partialTick);
+            case TranscendenceResonatorItem transcendenceResonatorItem -> {
+                LASER_PROGRESS.reset();
+                progress = TranscendenceResonatorItem.resonanceMiningProgress(player.level(), player, partialTick);
+            }
+            default -> {
+                LASER_PROGRESS.reset();
+                return;
+            }
         }
 
         if (progress <= 0.0F) return;

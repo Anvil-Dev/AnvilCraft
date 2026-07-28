@@ -4,6 +4,9 @@
 		"1": "anvilcraft:item/frost_metal_gear"
 	},
 	"overrides": [
+		{"predicate": {"custom_model_data": 1}, "model": "anvilcraft:item/frost_metal_heavy_halberd_spear"},
+		{"predicate": {"custom_model_data": 2}, "model": "anvilcraft:item/frost_metal_heavy_halberd_sword"},
+		{"predicate": {"custom_model_data": 3}, "model": "anvilcraft:item/frost_metal_heavy_halberd_mace"},
 		{"predicate": {"throwing": 1}, "model": "anvilcraft:item/frost_metal_heavy_halberd_throwing"}
 	]
 }
