@@ -396,9 +396,14 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     private @Nullable BlueprintTarget findNextBlueprintTarget(ServerLevel level) {
+        if (this.currentPlacementIndex >= POSITION_COUNT) {
+            this.currentPlacementIndex = 0;
+            this.setChanged();
+            return null;
+        }
         BlockPlacementUtil.BlueprintLayout blueprintLayout = this.getBlueprintLayout();
-        for (int checked = 0; checked < POSITION_COUNT; checked++) {
-            int orderIndex = Math.floorMod(this.currentPlacementIndex, POSITION_COUNT);
+        while (this.currentPlacementIndex < POSITION_COUNT) {
+            int orderIndex = this.currentPlacementIndex;
             int storageIndex = blueprintLayout.getStorageIndexForOrder(orderIndex);
             BlockState storedState = this.blueprint.states()[storageIndex];
             if (storedState.isAir()) {
@@ -431,6 +436,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
             return new BlueprintTarget(orderIndex, targetPos, requiredState);
         }
+        this.currentPlacementIndex = 0;
+        this.setChanged();
         return null;
     }
 
@@ -475,7 +482,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     private void advanceBlueprintIndex(int orderIndex) {
-        this.currentPlacementIndex = (orderIndex + 1) % POSITION_COUNT;
+        this.currentPlacementIndex = orderIndex + 1;
         this.setChanged();
     }
 
@@ -900,8 +907,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     public @Nullable BlockPos getCurrentBlueprintTargetPosition() {
         Level level = this.getLevel();
         BlockPlacementUtil.BlueprintLayout blueprintLayout = this.getBlueprintLayout();
-        for (int checked = 0; checked < POSITION_COUNT; checked++) {
-            int orderIndex = Math.floorMod(this.currentPlacementIndex + checked, POSITION_COUNT);
+        for (int orderIndex = this.currentPlacementIndex; orderIndex < POSITION_COUNT; orderIndex++) {
             int storageIndex = blueprintLayout.getStorageIndexForOrder(orderIndex);
             if (this.blueprint.states()[storageIndex].isAir()) {
                 continue;
