@@ -1680,6 +1680,7 @@
   "tooltip.anvilcraft.item.energy_weapon_platform": "640 MFE stored, but will only inherit the result of Energy Weapon Making",
   "tooltip.anvilcraft.item.energy_weapon_platform.shift": "640 MFE stored, but will only inherit the result of Energy Weapon Making\nCan be crafted with different materials to create various energy weapons\nConsumes capacitors to restore power",
   "tooltip.anvilcraft.item.excited_state_void_matter": "The substance of black hole singularities, more unstable than ordinary void matter",
+  "tooltip.anvilcraft.item.excited_state_void_matter_block": "A chunk of void... exciting void... comes from a Black Hole",
   "tooltip.anvilcraft.item.exp_collector": "Collect nearby EXP orbs and convert them into EXP Fluid",
   "tooltip.anvilcraft.item.exp_gem": "Right-click to extract the EXP contained inside",
   "tooltip.anvilcraft.item.exposed_copper_pressure_plate": "Redstone signal increases with pressing time, also a copper plate",

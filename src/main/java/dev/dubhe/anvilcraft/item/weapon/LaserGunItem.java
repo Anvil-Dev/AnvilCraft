@@ -195,7 +195,7 @@ public class LaserGunItem extends EnergyWeaponItem {
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return UseAnim.NONE;
+        return UseAnim.BOW;
     }
 
     private static final class LaserState {

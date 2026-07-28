@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
+import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.particle.FlyTowardsPositionParticle;
 import net.minecraft.world.InteractionHand;
@@ -118,6 +119,9 @@ public class AnvilCraftClient {
             if (stack.getItem() instanceof AnvilRailgunItem && entity instanceof Player player
                 && AnvilRailgunItem.isLoading(player, stack, hand)) {
                 return HumanoidModel.ArmPose.CROSSBOW_CHARGE;
+            }
+            if (stack.getItem() instanceof LaserGunItem) {
+                return HumanoidModel.ArmPose.BOW_AND_ARROW;
             }
             return HumanoidModel.ArmPose.CROSSBOW_HOLD;
         }

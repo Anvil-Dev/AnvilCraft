@@ -75,7 +75,10 @@
             "blocks": "anvilcraft:wip_block"
           },
           {
-            "blocks": "anvilcraft:heater",
+            "blocks": [
+              "anvilcraft:heater",
+              "anvilcraft:burning_heater"
+            ],
             "properties": [
               {
                 "overload": "false"
