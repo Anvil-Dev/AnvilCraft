@@ -19,11 +19,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.DoublePlantBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.api.distmarker.Dist;
 import org.jetbrains.annotations.Nullable;
@@ -336,8 +336,8 @@ public class StructureLoadUtil {
             return true;
         }
 
-        // 门（DOOR）：由上下两个方块组成
-        return block instanceof DoorBlock;
+        // 门和双层植物：由上下两个方块组成
+        return block instanceof DoorBlock || block instanceof DoublePlantBlock;
     }
 
     /**
@@ -357,27 +357,15 @@ public class StructureLoadUtil {
                 && state.getValue(BlockStateProperties.BED_PART) == BedPart.HEAD;
         }
 
-        // 检查原版门：LOWER是主体部件，UPPER是次要部件
-        if (block instanceof DoorBlock) {
+        // 检查原版门和双层植物：LOWER是主体部件，UPPER是次要部件
+        if (block instanceof DoorBlock || block instanceof DoublePlantBlock) {
             return state.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)
                 && state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER;
         }
 
-        // 检查模组多方块方块：
-        // 主体部件 = 方块默认状态中的部件（即 BlockItem.place() 时放置在点击位置的部件）
-        // 次要部件 = 所有其他部件
+        // 检查模组多方块方块
         if (block instanceof AbstractMultiPartBlock<?> multiPartBlock) {
-            try {
-                BlockState defaultState = block.defaultBlockState();
-                Property<?> partProperty = multiPartBlock.getPart();
-                if (defaultState.hasProperty(partProperty) && state.hasProperty(partProperty)) {
-                    Comparable<?> defaultPart = defaultState.getValue(partProperty);
-                    Comparable<?> statePart = state.getValue(partProperty);
-                    return !statePart.equals(defaultPart);
-                }
-            } catch (Exception e) {
-                LOGGER.debug("Failed to determine multi-block part type for {}: {}", block, e.getMessage());
-            }
+            return !multiPartBlock.isMainPart(state);
         }
 
         return false;

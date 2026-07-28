@@ -43,6 +43,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.Rotation;
@@ -367,7 +368,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             this.pointer = null;
             return;
         }
+        List<BlueprintPartSnapshot> partSnapshots = this.captureBlueprintPartSnapshots(level, blueprintTarget.state());
         if (pointer.applyToPos(level, blueprintTarget.pos(), blueprintTarget.state())) {
+            this.applyBlueprintStates(level, partSnapshots);
             this.advanceBlueprintIndex(blueprintTarget.orderIndex());
             this.updateMissingBlock(level, null);
             this.pointer = null;
@@ -394,12 +397,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
             BlockPos targetPos = this.getBlueprintPosition(storageIndex);
             BlockState requiredState = this.getBlueprintStateForPlacement(storageIndex);
-            BlockState worldState = level.getBlockState(targetPos);
-            if (worldState.equals(requiredState)) {
+            if (StructureLoadUtil.isMultiblockSecondaryPart(requiredState)) {
                 this.advanceBlueprintIndex(orderIndex);
                 continue;
             }
-            if (worldState.is(requiredState.getBlock())) {
+            BlockState worldState = level.getBlockState(targetPos);
+            if (isBlueprintStatePresent(level, targetPos, requiredState)) {
                 this.advanceBlueprintIndex(orderIndex);
                 continue;
             }
@@ -429,8 +432,9 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             }
             BlockPos targetPos = this.getBlueprintPosition(storageIndex);
             BlockState requiredState = this.getBlueprintStateForPlacement(storageIndex);
-            BlockState worldState = level.getBlockState(targetPos);
-            return !worldState.is(requiredState.getBlock()) && isTargetAvailable(level, targetPos);
+            return !StructureLoadUtil.isMultiblockSecondaryPart(requiredState)
+                && !isBlueprintStatePresent(level, targetPos, requiredState)
+                && isTargetAvailable(level, targetPos);
         }
 
         List<BlockPos> positions = this.getOrderedPositionTargets();
@@ -466,6 +470,62 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         return level.isUnobstructed(null, Shapes.create(new AABB(targetPos)));
     }
 
+    private List<BlueprintPartSnapshot> captureBlueprintPartSnapshots(Level level, BlockState requiredState) {
+        List<BlueprintPartSnapshot> snapshots = new ArrayList<>();
+        for (int storageIndex = 0; storageIndex < POSITION_COUNT; storageIndex++) {
+            BlockState partState = this.getBlueprintStateForPlacement(storageIndex);
+            if (!partState.is(requiredState.getBlock())) {
+                continue;
+            }
+            BlockPos partPos = this.getBlueprintPosition(storageIndex);
+            snapshots.add(new BlueprintPartSnapshot(partPos, partState, level.getBlockState(partPos)));
+        }
+        return snapshots;
+    }
+
+    private void applyBlueprintStates(ServerLevel level, List<BlueprintPartSnapshot> snapshots) {
+        List<PlacedBlueprintPart> placedParts = new ArrayList<>();
+        for (BlueprintPartSnapshot snapshot : snapshots) {
+            BlockState placedState = level.getBlockState(snapshot.pos());
+            if (!snapshot.previousState().is(snapshot.requiredState().getBlock())
+                && placedState.is(snapshot.requiredState().getBlock())) {
+                placedParts.add(new PlacedBlueprintPart(snapshot.pos(), snapshot.requiredState(), placedState));
+            }
+        }
+        if (placedParts.isEmpty()) {
+            return;
+        }
+
+        for (PlacedBlueprintPart part : placedParts) {
+            level.setBlock(part.pos(), part.requiredState(), Block.UPDATE_CLIENTS);
+        }
+
+        List<BlockState> contextualStates = new ArrayList<>(placedParts.size());
+        boolean valid = true;
+        for (PlacedBlueprintPart part : placedParts) {
+            BlockState contextualState = Block.updateFromNeighbourShapes(part.requiredState(), level, part.pos());
+            contextualStates.add(contextualState);
+            if (!contextualState.is(part.requiredState().getBlock()) || !contextualState.canSurvive(level, part.pos())) {
+                valid = false;
+            }
+        }
+
+        for (int index = 0; index < placedParts.size(); index++) {
+            PlacedBlueprintPart part = placedParts.get(index);
+            BlockState finalState = valid ? contextualStates.get(index) : part.placedState();
+            level.setBlock(part.pos(), finalState, Block.UPDATE_ALL);
+        }
+    }
+
+    private static boolean isBlueprintStatePresent(Level level, BlockPos pos, BlockState requiredState) {
+        BlockState worldState = level.getBlockState(pos);
+        if (!worldState.is(requiredState.getBlock())) {
+            return false;
+        }
+        BlockState contextualState = Block.updateFromNeighbourShapes(worldState, level, pos);
+        return contextualState.is(worldState.getBlock()) && contextualState.canSurvive(level, pos);
+    }
+
     private void advanceBlueprintIndex(int orderIndex) {
         this.currentPlacementIndex = (orderIndex + 1) % POSITION_COUNT;
         this.setChanged();
@@ -474,6 +534,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private Either<ItemStack, BlockState> createDisplayedBlock(BlockState state) {
         ItemStack stack = state.getBlock().asItem().getDefaultInstance();
         if (this.operation == OperationMode.PICKUP && !stack.isEmpty()) {
+            stack.setCount(BlockStateUtil.getPlacementItemCount(state, stack));
             return Either.left(stack);
         }
         return Either.right(state);
@@ -573,6 +634,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     private record BlueprintTarget(int orderIndex, BlockPos pos, BlockState state) {
+    }
+
+    private record BlueprintPartSnapshot(BlockPos pos, BlockState requiredState, BlockState previousState) {
+    }
+
+    private record PlacedBlueprintPart(BlockPos pos, BlockState requiredState, BlockState placedState) {
     }
 
     public record StructureBlueprint(String name, BlockState[] states, boolean invalid) {
@@ -922,8 +989,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             BlockPos targetPos = this.getBlueprintPosition(storageIndex);
             if (level != null) {
                 BlockState requiredState = this.getBlueprintStateForPlacement(storageIndex);
+                if (StructureLoadUtil.isMultiblockSecondaryPart(requiredState)) {
+                    continue;
+                }
                 BlockState worldState = level.getBlockState(targetPos);
-                if (worldState.is(requiredState.getBlock())
+                if (isBlueprintStatePresent(level, targetPos, requiredState)
                     || !worldState.canBeReplaced()
                     || !isTargetUnobstructed(level, targetPos)) {
                     continue;
@@ -948,7 +1018,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 }
                 total++;
                 BlockState requiredState = this.getBlueprintStateForPlacement(index);
-                if (level.getBlockState(this.getBlueprintPosition(index)).is(requiredState.getBlock())) {
+                if (isBlueprintStatePresent(level, this.getBlueprintPosition(index), requiredState)) {
                     placed++;
                 }
             }

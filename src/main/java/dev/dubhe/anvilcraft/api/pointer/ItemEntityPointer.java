@@ -7,6 +7,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.ModRegistries;
+import dev.dubhe.anvilcraft.util.BlockStateUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -17,6 +18,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -33,7 +35,6 @@ public class ItemEntityPointer implements ITargetPointer {
     private final Type type;
     private final UUID id;
     private final ItemStack stack;
-    private @Nullable ItemEntity entity;
 
     public ItemEntityPointer(Type type, UUID id, ItemStack stack) {
         this.id = id;
@@ -47,14 +48,16 @@ public class ItemEntityPointer implements ITargetPointer {
 
     @Nullable
     public ItemEntity getEntity(Level level) {
-        if (this.entity == null) {
-            Entity entity = level.getEntities().get(this.id);
-            if (!(entity instanceof ItemEntity item)) {
-                return null;
-            }
-            this.entity = item;
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return null;
         }
-        return this.entity;
+        Entity entity = serverLevel.getEntities().get(this.id);
+        if (!(entity instanceof ItemEntity item)
+            || item.level() != level
+            || !serverLevel.isPositionEntityTicking(item.blockPosition())) {
+            return null;
+        }
+        return item;
     }
 
     @Override
@@ -68,7 +71,7 @@ public class ItemEntityPointer implements ITargetPointer {
 
     @Override
     public boolean matches(BlockState requiredState) {
-        return this.stack.getItem() instanceof net.minecraft.world.item.BlockItem item
+        return this.stack.getItem() instanceof BlockItem item
             && item.getBlock() == requiredState.getBlock();
     }
 
@@ -79,26 +82,63 @@ public class ItemEntityPointer implements ITargetPointer {
 
     @Override
     public boolean applyToPos(ServerLevel level, BlockPos pos) {
+        return this.placeToPos(level, pos, null);
+    }
+
+    @Override
+    public boolean applyToPos(ServerLevel level, BlockPos pos, BlockState requiredState) {
+        if (!this.matches(requiredState)) {
+            return false;
+        }
+        return this.placeToPos(level, pos, requiredState);
+    }
+
+    private boolean placeToPos(ServerLevel level, BlockPos pos, @Nullable BlockState requiredState) {
         ItemEntity entity = this.getEntity(level);
-        if (entity == null || !this.isStillValid(level)) {
+        if (entity == null
+            || entity.isRemoved()
+            || !ItemStack.isSameItemSameComponents(entity.getItem(), this.stack)) {
             return false;
         }
 
-        ItemStack stack = entity.getItem().copy();
+        int requiredCount = requiredState == null ? 1 : BlockStateUtil.getPlacementItemCount(requiredState, this.stack);
+        List<ItemEntity> sourceEntities = this.getSourceEntities(level, entity);
+        if (sourceEntities.stream().mapToInt(source -> source.getItem().getCount()).sum() < requiredCount) {
+            return false;
+        }
+
+        ItemStack stack = this.stack.copyWithCount(requiredCount);
         int initialCount = stack.getCount();
-        ItemStack result = ITargetPointer.placeToPos(level, pos, stack);
+        ItemStack result = ITargetPointer.placeToPos(level, pos, stack, requiredState);
         int consumed = initialCount - result.getCount();
         if (consumed <= 0) {
             return false;
         }
 
-        ItemStack remaining = entity.getItem();
-        remaining.shrink(consumed);
-        entity.setItem(remaining);
-        if (entity.getItem().isEmpty()) {
-            entity.discard();
+        int remainingCount = requiredCount;
+        for (ItemEntity source : sourceEntities) {
+            ItemStack remaining = source.getItem().copy();
+            int consumedFromEntity = Math.min(remainingCount, remaining.getCount());
+            remaining.shrink(consumedFromEntity);
+            remainingCount -= consumedFromEntity;
+            if (remaining.isEmpty()) {
+                source.discard();
+            } else {
+                source.setItem(remaining);
+            }
+            if (remainingCount == 0) {
+                break;
+            }
         }
-        return true;
+        return remainingCount == 0;
+    }
+
+    private List<ItemEntity> getSourceEntities(ServerLevel level, ItemEntity entity) {
+        return level.getEntitiesOfClass(
+            ItemEntity.class,
+            new AABB(entity.blockPosition()),
+            source -> source.isAlive() && ItemStack.isSameItemSameComponents(source.getItem(), this.stack)
+        );
     }
 
     public static class Type implements ITargetPointer.Type<ItemEntityPointer> {
@@ -160,18 +200,36 @@ public class ItemEntityPointer implements ITargetPointer {
             Direction facing,
             @Nullable BlockState requiredState
         ) {
+            if (!(level instanceof ServerLevel serverLevel)) {
+                return null;
+            }
             List<ItemEntity> entities;
             if (this.filter == null) {
-                entities = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos));
+                entities = serverLevel.getEntitiesOfClass(ItemEntity.class, new AABB(pos));
             } else {
-                entities = level.getEntitiesOfClass(ItemEntity.class, new AABB(pos), entity -> this.filter.test(entity.getItem()));
+                entities = serverLevel.getEntitiesOfClass(
+                    ItemEntity.class,
+                    new AABB(pos),
+                    entity -> this.filter.test(entity.getItem())
+                );
             }
             if (entities.isEmpty()) {
                 return null;
             }
             for (ItemEntity entity : entities) {
+                if (!serverLevel.isPositionEntityTicking(entity.blockPosition())) {
+                    continue;
+                }
                 ItemEntityPointer pointer = new ItemEntityPointer(this, entity);
-                if (requiredState == null || pointer.matches(requiredState)) {
+                if (requiredState == null) {
+                    return pointer;
+                }
+                int requiredCount = BlockStateUtil.getPlacementItemCount(requiredState, entity.getItem());
+                int availableCount = pointer.getSourceEntities(serverLevel, entity)
+                    .stream()
+                    .mapToInt(source -> source.getItem().getCount())
+                    .sum();
+                if (pointer.matches(requiredState) && availableCount >= requiredCount) {
                     return pointer;
                 }
             }

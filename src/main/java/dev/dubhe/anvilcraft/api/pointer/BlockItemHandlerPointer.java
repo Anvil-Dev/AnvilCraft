@@ -8,6 +8,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.init.ModRegistries;
+import dev.dubhe.anvilcraft.util.BlockStateUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -69,25 +70,52 @@ public class BlockItemHandlerPointer implements ITargetPointer {
 
     @Override
     public boolean applyToPos(ServerLevel level, BlockPos pos) {
+        return this.placeToPos(level, pos, null);
+    }
+
+    @Override
+    public boolean applyToPos(ServerLevel level, BlockPos pos, BlockState requiredState) {
+        if (!this.matches(requiredState)) {
+            return false;
+        }
+        return this.placeToPos(level, pos, requiredState);
+    }
+
+    private boolean placeToPos(ServerLevel level, BlockPos pos, @Nullable BlockState requiredState) {
         IItemHandler handler = this.resolveHandler(level);
         if (handler == null || !this.matchesStoredStack(handler)) {
             return false;
         }
 
-        ItemStack stack = handler.extractItem(this.slot, this.stack.getCount(), true);
-        if (!ItemStack.isSameItemSameComponents(stack, this.stack)) {
+        int requiredCount = requiredState == null ? 1 : BlockStateUtil.getPlacementItemCount(requiredState, this.stack);
+        if (this.extractMatchingItems(handler, requiredCount, true) != requiredCount) {
             return false;
         }
 
+        ItemStack stack = this.stack.copyWithCount(requiredCount);
         int initialCount = stack.getCount();
-        ItemStack result = ITargetPointer.placeToPos(level, pos, stack);
+        ItemStack result = ITargetPointer.placeToPos(level, pos, stack, requiredState);
         int consumed = initialCount - result.getCount();
         if (consumed <= 0) {
             return false;
         }
 
-        handler.extractItem(this.slot, consumed, false);
-        return true;
+        return this.extractMatchingItems(handler, requiredCount, false) == requiredCount;
+    }
+
+    private int extractMatchingItems(IItemHandler handler, int amount, boolean simulate) {
+        int extractedCount = 0;
+        for (int slot = 0; slot < handler.getSlots() && extractedCount < amount; slot++) {
+            ItemStack inSlot = handler.getStackInSlot(slot);
+            if (!ItemStack.isSameItemSameComponents(inSlot, this.stack)) {
+                continue;
+            }
+            ItemStack extracted = handler.extractItem(slot, amount - extractedCount, simulate);
+            if (ItemStack.isSameItemSameComponents(extracted, this.stack)) {
+                extractedCount += extracted.getCount();
+            }
+        }
+        return extractedCount;
     }
 
     public static class Type implements ITargetPointer.Type<BlockItemHandlerPointer> {
@@ -169,7 +197,12 @@ public class BlockItemHandlerPointer implements ITargetPointer {
                     continue;
                 }
                 BlockItemHandlerPointer pointer = new BlockItemHandlerPointer(this, pos, facing, i, inSlot);
-                if (requiredState == null || pointer.matches(requiredState)) {
+                if (requiredState == null) {
+                    return pointer;
+                }
+                int requiredCount = BlockStateUtil.getPlacementItemCount(requiredState, inSlot);
+                if (pointer.matches(requiredState)
+                    && pointer.extractMatchingItems(handler, requiredCount, true) == requiredCount) {
                     return pointer;
                 }
             }

@@ -170,6 +170,14 @@ public class BlockStateUtil {
         return List.of(baseItem, additionalItem);
     }
 
+    public static int getPlacementItemCount(BlockState state, ItemStack stack) {
+        return ingredientsForPlacement(state).stream()
+            .filter(ingredient -> ItemStack.isSameItem(ingredient, stack))
+            .mapToInt(ItemStack::getCount)
+            .findFirst()
+            .orElse(1);
+    }
+
     public static BlockState flipVerticalProperties(BlockState state) {
         if (state.hasProperty(BlockStateProperties.HALF)) {
             Half half = state.getValue(BlockStateProperties.HALF);

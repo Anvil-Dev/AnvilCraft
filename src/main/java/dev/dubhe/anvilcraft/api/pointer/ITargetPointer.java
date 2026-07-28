@@ -18,6 +18,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 
 import javax.annotation.Nullable;
 
@@ -35,8 +36,7 @@ public interface ITargetPointer {
         if (!this.matches(state) || !this.applyToPos(level, pos)) {
             return false;
         }
-        level.setBlock(pos, state, 3);
-        return true;
+        return level.getBlockState(pos).is(state.getBlock());
     }
 
     default boolean matches(BlockState state) {
@@ -48,6 +48,10 @@ public interface ITargetPointer {
     }
 
     static ItemStack placeToPos(ServerLevel level, BlockPos pos, ItemStack stack) {
+        return placeToPos(level, pos, stack, null);
+    }
+
+    static ItemStack placeToPos(ServerLevel level, BlockPos pos, ItemStack stack, @Nullable BlockState requiredState) {
         IBlockItem item = null;
         if (stack.getItem() instanceof IBlockItem i) {
             item = i;
@@ -60,10 +64,32 @@ public interface ITargetPointer {
 
         ServerPlayer player = AnvilCraftFakePlayers.getBlockPlacer().offerPlayer(level);
         player.setItemInHand(InteractionHand.MAIN_HAND, stack);
+        if (requiredState != null) {
+            orientPlayerForState(player, requiredState);
+        }
         item.place(level, pos, player, InteractionHand.MAIN_HAND);
         ItemStack result = player.getMainHandItem();
         AnvilCraftFakePlayers.getBlockPlacer().disable(player);
         return result;
+    }
+
+    private static void orientPlayerForState(ServerPlayer player, BlockState state) {
+        Direction facing = null;
+        if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+            facing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
+        } else if (state.hasProperty(BlockStateProperties.FACING)) {
+            facing = state.getValue(BlockStateProperties.FACING);
+        }
+        if (facing == null) {
+            return;
+        }
+        if (facing.getAxis().isVertical()) {
+            player.setXRot(facing == Direction.UP ? -90.0F : 90.0F);
+            return;
+        }
+        player.setXRot(0.0F);
+        player.setYRot(facing.toYRot());
+        player.setYHeadRot(facing.toYRot());
     }
 
     Type<? extends ITargetPointer> getType();
