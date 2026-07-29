@@ -11,6 +11,8 @@ import dev.dubhe.anvilcraft.block.RedstoneWireClientPowerCache;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
+import dev.dubhe.anvilcraft.util.dummy.DummyCat;
+import dev.dubhe.anvilcraft.util.dummy.DummyWolf;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -56,12 +58,15 @@ public class LevelEventListener {
             AccelerationRingBlockEntity.clear(level);
             DeflectionRingBlockEntity.clear(level);
             RedstoneWireClientPowerCache.clear(level);
-            if (accessor instanceof ServerLevel serverLevel) {
-                LevelLoadManager.removeAll(serverLevel);
-                // LEVELS 按 ServerLevel 对象持有强引用，世界卸载时清理才能释放整张拓扑缓存。
-                RedstoneWireNetworkManager.clear(serverLevel);
-            }
             HeatCollectorManager.remove(level);
+            DummyCat.clear(level);
+            DummyWolf.clear(level);
+        }
+        if (accessor instanceof ServerLevel serverLevel) {
+            AnvilCraftFakePlayers.clear(serverLevel);
+            LevelLoadManager.removeAll(serverLevel);
+            // LEVELS 按 ServerLevel 对象持有强引用，世界卸载时清理才能释放整张拓扑缓存。
+            RedstoneWireNetworkManager.clear(serverLevel);
         }
     }
 }

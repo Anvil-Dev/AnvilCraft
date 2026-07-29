@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.api.entity.fakeplayer;
 
 import com.mojang.authlib.GameProfile;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
-import lombok.Data;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -28,67 +27,76 @@ public class AnvilCraftFakeKiller {
         UUID.randomUUID(),
         "[AnvilCraft Fake Killer No." + num + "]"
     );
-    private static final Queue<Killer> DISABLED_KILLERS = new ConcurrentLinkedQueue<>();
-    private static final List<Killer> ENABLED_KILLERS = Collections.synchronizedList(new ArrayList<>());
+    private final Queue<Killer> disabledKillers = new ConcurrentLinkedQueue<>();
+    private final List<Killer> enabledKillers = Collections.synchronizedList(new ArrayList<>());
 
-    private static @Nullable ItemStack DUMMY_LOOTING_5_WEAPON = null;
-    private static @Nullable ItemStack DUMMY_DISINTEGRATION_WEAPON = null;
+    private @Nullable ItemStack dummyLooting5Weapon;
+    private @Nullable ItemStack dummyDisintegrationWeapon;
 
     public AnvilCraftFakeKiller() {
     }
 
     public ServerPlayer offerPlayer(ServerLevel level) {
-        Killer killer = DISABLED_KILLERS.poll();
+        Killer killer = this.disabledKillers.poll();
         if (killer == null) {
-            killer = new Killer(level, ENABLED_KILLERS.size());
+            killer = new Killer(level, this.enabledKillers.size());
         }
-        ENABLED_KILLERS.add(killer);
-        return killer.getPlayer();
+        this.enabledKillers.add(killer);
+        return killer.player();
     }
 
     public void enableLooting5(ServerLevel level, ServerPlayer player) {
-        if (DUMMY_LOOTING_5_WEAPON == null) {
+        if (this.dummyLooting5Weapon == null) {
             ItemStack weapon = Items.POTATO.getDefaultInstance();
             weapon.set(DataComponents.CUSTOM_NAME, Component.literal("Looting 5 Potato!!!"));
             level.holderLookup(Registries.ENCHANTMENT)
                 .get(Enchantments.LOOTING)
                 .ifPresent(e -> weapon.enchant(e, 5));
-            DUMMY_LOOTING_5_WEAPON = weapon;
+            this.dummyLooting5Weapon = weapon;
         }
-        player.setItemInHand(InteractionHand.MAIN_HAND, DUMMY_LOOTING_5_WEAPON.copy());
+        player.setItemInHand(InteractionHand.MAIN_HAND, this.dummyLooting5Weapon.copy());
     }
 
     public void enableDisintegration(ServerLevel level, ServerPlayer player) {
-        if (DUMMY_DISINTEGRATION_WEAPON == null) {
+        if (this.dummyDisintegrationWeapon == null) {
             ItemStack weapon = Items.QUARTZ.getDefaultInstance();
             weapon.set(DataComponents.CUSTOM_NAME, Component.literal("Disintegration Quartz!!!"));
             level.holderLookup(Registries.ENCHANTMENT)
                 .get(ModEnchantments.DISINTEGRATION_KEY)
                 .ifPresent(e -> weapon.enchant(e, 1));
-            DUMMY_DISINTEGRATION_WEAPON = weapon;
+            this.dummyDisintegrationWeapon = weapon;
         }
-        player.setItemInHand(InteractionHand.MAIN_HAND, DUMMY_DISINTEGRATION_WEAPON.copy());
+        player.setItemInHand(InteractionHand.MAIN_HAND, this.dummyDisintegrationWeapon.copy());
     }
 
     public void disable(ServerPlayer player) {
-        ENABLED_KILLERS.stream()
-            .filter(killer -> killer.getUUID().equals(player.getUUID()))
-            .findFirst()
-            .ifPresent(killer -> {
-                killer.getPlayer().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                DISABLED_KILLERS.offer(killer);
-                ENABLED_KILLERS.remove(killer);
-            });
+        synchronized (this.enabledKillers) {
+            for (Killer killer : this.enabledKillers) {
+                if (!killer.getUUID().equals(player.getUUID())) continue;
+                killer.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                this.disabledKillers.offer(killer);
+                this.enabledKillers.remove(killer);
+                break;
+            }
+        }
     }
 
-    @Data
-    public static final class Killer {
-        private final GameProfile profile;
-        private final ServerPlayer player;
+    public void clear(ServerLevel level) {
+        this.disabledKillers.removeIf(killer -> AnvilCraftFakePlayers.clearIfInLevel(killer.player(), level));
+        synchronized (this.enabledKillers) {
+            this.enabledKillers.removeIf(killer -> AnvilCraftFakePlayers.clearIfInLevel(killer.player(), level));
+        }
+        this.dummyLooting5Weapon = null;
+        this.dummyDisintegrationWeapon = null;
+    }
 
-        private Killer(ServerLevel level, int index) {
-            this.profile = FAKE_PROFILE_FACTORY.apply(index + 1);
-            this.player = FakePlayerFactory.get(level, this.profile);
+    public record Killer(ServerPlayer player) {
+        public Killer(ServerLevel level, int profile) {
+            this(FakePlayerFactory.get(level, Killer.create(profile)));
+        }
+
+        private static GameProfile create(int profile) {
+            return AnvilCraftFakeKiller.FAKE_PROFILE_FACTORY.apply(profile + 1);
         }
 
         public UUID getUUID() {
