@@ -7,6 +7,7 @@
       "items": "minecraft:purple_dye"
     }
   ],
+  "max_efficiency": 1,
   "results": [],
   "transform": "anvilcraft:purple_cement"
 }

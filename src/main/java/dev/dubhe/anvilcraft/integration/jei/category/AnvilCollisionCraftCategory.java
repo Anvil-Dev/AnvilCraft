@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.BlockTagUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiItemUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
@@ -105,12 +106,13 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
     ) {
         AnvilCollisionCraftRecipe recipe = recipeHolder.value();
         // 将此配方需要的铁砧加入输入槽
-        builder.addInputSlot(21, 24).add(Ingredient.of(recipe.anvil().getBlocks().stream().map(Holder::value)));
+        builder.addInputSlot(JeiSlotUtil.INPUT_X, JeiSlotUtil.DEFAULT_Y)
+            .add(Ingredient.of(recipe.anvil().getBlocks().stream().map(Holder::value)));
 
         // 如果有输出物品则添加到输出
         if (!recipe.outputItems().isEmpty()) {
             List<ChanceItemStack> chanceItemStacks = getChanceItemStacks(recipe);
-            JeiSlotUtil.addOutputSlots(builder, chanceItemStacks);
+            JeiItemUtil.addDefaultOutputSlots(builder, chanceItemStacks);
         }
 
         // 将被撞击的方块加入addInvisibleIngredients中
@@ -309,12 +311,12 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
         }
 
         // 绘制输入输出槽
-        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, 1);
+        JeiSlotUtil.drawDefaultInputSlots(graphics, this.slotDefault, 1);
         if (!recipe.outputItems().isEmpty()) {
             if (JeiRecipeUtil.isChance(recipe.outputItems())) {
-                JeiSlotUtil.drawOutputSlots(graphics, this.slotProbability, recipe.outputItems().size());
+                JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotProbability, recipe.outputItems().size());
             } else {
-                JeiSlotUtil.drawOutputSlots(graphics, this.slotDefault, recipe.outputItems().size());
+                JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotDefault, recipe.outputItems().size());
             }
         }
 

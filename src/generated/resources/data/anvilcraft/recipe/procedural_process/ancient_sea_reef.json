@@ -1,6 +1,12 @@
 {
   "type": "anvilcraft:procedural_process",
-  "displayed_model": "anvilcraft:block/ancient_sea_reef_wip",
+  "displayed_models": [
+    "anvilcraft:block/ancient_sea_reef_wip",
+    "anvilcraft:block/ancient_sea_reef_wip_2"
+  ],
+  "icon": {
+    "id": "anvilcraft:ancient_sea_reef"
+  },
   "initial_block": {
     "blocks": "minecraft:wet_sponge"
   },

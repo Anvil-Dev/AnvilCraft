@@ -57,8 +57,7 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
     public boolean isValid(int index, FluidResource resource) {
         Objects.checkIndex(index, TANK_COUNT);
         if (resource.isEmpty()) return false;
-        int matching = this.findFluidType(resource);
-        return matching < 0 || this.getResource(matching).equals(resource);
+        return this.findFluid(resource) >= 0 || this.fluids.size() < TANK_COUNT;
     }
 
     @Override
@@ -79,8 +78,7 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
         TransactionContext transaction
     ) {
         TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
-        int matching = this.findFluidType(resource);
-        if (matching >= 0 && !this.getResource(matching).equals(resource)) return 0;
+        int matching = this.findFluid(resource);
         if (matching < 0 && this.fluids.size() >= TANK_COUNT) return 0;
 
         int stored = matching < 0 ? 0 : this.fluids.get(matching).getAmount();
@@ -188,10 +186,9 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
         this.setFluids(input.read("Fluids", FLUIDS_CODEC).orElse(List.of()));
     }
 
-    private int findFluidType(FluidResource resource) {
-        FluidStack candidate = resource.toStack(1);
+    private int findFluid(FluidResource resource) {
         for (int layer = 0; layer < this.fluids.size(); layer++) {
-            if (this.fluids.get(layer).getFluid() == candidate.getFluid()) return layer;
+            if (this.getResource(layer).equals(resource)) return layer;
         }
         return -1;
     }

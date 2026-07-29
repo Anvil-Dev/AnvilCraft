@@ -14,11 +14,8 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
-
-import java.util.List;
 
 /**
  * 管理单个锻星砧天体的重力源和天体表面碰撞伤害。
@@ -29,9 +26,6 @@ final class CfaGravityController {
     private static final float PLANET_CONTACT_DAMAGE = 38.0f;
     // 66 * 0.84 * 0.36 = 19.9584 after full Protection IV diamond armor.
     private static final float STAR_CONTACT_DAMAGE = 66.0f;
-
-    private double bodyRadius;
-    private Vec3 center = Vec3.ZERO;
 
     void tick(
         @Nullable Level level,
@@ -56,7 +50,7 @@ final class CfaGravityController {
         double targetBodyRadius = calculateBodyRadius(body, signal);
         int targetRadius = calculateGravityRadius(body, amplified, signal);
         double targetStrength = calculateStrength(body, stellarMass, targetBodyRadius);
-        this.center = new Vec3(
+        Vec3 center = new Vec3(
             controllerPos.getX() + 0.5,
             controllerPos.getY() + calculateVisualCenterY(body, amplified, signal),
             controllerPos.getZ() + 0.5
@@ -66,17 +60,12 @@ final class CfaGravityController {
             targetRadius,
             targetBodyRadius
         );
-        GravityManager.GravitySourceManager.upsertSource(level, controllerPos, this.center, type);
-        this.bodyRadius = targetBodyRadius;
-
-        this.destroyEntitiesInsideBody(level, body);
+        GravityManager.GravitySourceManager.upsertSource(level, controllerPos, center, type);
     }
 
     void remove(@Nullable Level level, BlockPos controllerPos) {
         if (level == null || level.isClientSide()) return;
         GravityManager.GravitySourceManager.removeSource(level, controllerPos);
-        this.bodyRadius = 0.0;
-        this.center = Vec3.ZERO;
     }
 
     private static double calculateStrength(CelestialBodyData body, int stellarMass, double targetBodyRadius) {
@@ -123,25 +112,19 @@ final class CfaGravityController {
         return visualRadius;
     }
 
-    private void destroyEntitiesInsideBody(Level level, CelestialBodyData body) {
-        if (this.bodyRadius <= 0.0) return;
-        AABB bodyBounds = new AABB(
-            this.center.x - this.bodyRadius,
-            this.center.y - this.bodyRadius,
-            this.center.z - this.bodyRadius,
-            this.center.x + this.bodyRadius,
-            this.center.y + this.bodyRadius,
-            this.center.z + this.bodyRadius
-        );
-        List<Entity> entities = level.getEntitiesOfClass(Entity.class, bodyBounds);
-        for (Entity entity : entities) {
-            if (!intersectsSphere(entity.getBoundingBox(), this.center, this.bodyRadius)) continue;
-            if (isEternal(entity)) continue;
-            if (entity instanceof LivingEntity living) {
-                applyCelestialDamage(level, body, living);
-            } else {
-                entity.discard();
-            }
+    void handleEntityContact(@Nullable Level level, @Nullable CelestialBodyData body, Entity entity) {
+        if (level == null
+            || level.isClientSide()
+            || body == null
+            || entity.level() != level
+            || entity.isRemoved()
+            || isEternal(entity)) {
+            return;
+        }
+        if (entity instanceof LivingEntity living) {
+            applyCelestialDamage(level, body, living);
+        } else {
+            entity.discard();
         }
     }
 
@@ -152,16 +135,6 @@ final class CfaGravityController {
             default -> ItemStack.EMPTY;
         };
         return stack.has(ModComponents.ETERNAL);
-    }
-
-    private static boolean intersectsSphere(AABB box, Vec3 center, double radius) {
-        double x = Math.max(box.minX, Math.min(center.x, box.maxX));
-        double y = Math.max(box.minY, Math.min(center.y, box.maxY));
-        double z = Math.max(box.minZ, Math.min(center.z, box.maxZ));
-        double dx = x - center.x;
-        double dy = y - center.y;
-        double dz = z - center.z;
-        return dx * dx + dy * dy + dz * dz <= radius * radius;
     }
 
     private static void applyCelestialDamage(Level level, CelestialBodyData body, LivingEntity living) {

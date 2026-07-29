@@ -44,6 +44,30 @@ public class UnpackRecipeLoader {
             .requires(Items.PRISMARINE_BRICKS)
             .result(Items.PRISMARINE_SHARD, 9)
             .save(provider, AnvilCraft.of("unpack/prismine_shard_from_prismine_bricks"));
+
+        UnpackRecipe.builder()
+            .requires(ModItems.FLUID_TANK_MINECART)
+            .result(Items.MINECART)
+            .result(ModBlocks.FLUID_TANK)
+            .save(provider, AnvilCraft.of("unpack/fluid_tank_minecart"));
+
+        unpackMinecart(provider, Items.CHEST_MINECART, Items.CHEST, "chest_minecart");
+        unpackMinecart(provider, Items.FURNACE_MINECART, Items.FURNACE, "furnace_minecart");
+        unpackMinecart(provider, Items.TNT_MINECART, Items.TNT, "tnt_minecart");
+        unpackMinecart(provider, Items.HOPPER_MINECART, Items.HOPPER, "hopper_minecart");
+    }
+
+    private static void unpackMinecart(
+        RegistrumRecipeProvider provider,
+        ItemLike combinedMinecart,
+        ItemLike component,
+        String name
+    ) {
+        UnpackRecipe.builder()
+            .requires(combinedMinecart)
+            .result(Items.MINECART)
+            .result(component)
+            .save(provider, AnvilCraft.of("unpack/" + name));
     }
 
     private static void unpack(RegistrumRecipeProvider provider, ItemLike input, ItemLike result, int count) {

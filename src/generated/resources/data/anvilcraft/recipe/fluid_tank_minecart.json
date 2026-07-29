@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    "anvilcraft:fluid_tank",
+    "minecraft:minecart"
+  ],
+  "result": {
+    "id": "anvilcraft:fluid_tank_minecart"
+  }
+}

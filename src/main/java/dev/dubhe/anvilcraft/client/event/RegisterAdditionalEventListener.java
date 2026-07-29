@@ -21,8 +21,12 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.CrabClawItemInHandRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
+import net.minecraft.client.Minecraft;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -263,6 +267,7 @@ public class RegisterAdditionalEventListener {
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_hollow")));
         event.register(CFARenderer.BODY_PLANET_ERROR,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_error")));
+        registerCelestialBodyModels(event);
         event.register(
             FishTankRenderer.FIRE,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/oil_cauldron_fire4"))
@@ -340,12 +345,62 @@ public class RegisterAdditionalEventListener {
             WipBlockEntityRenderer.SUPERCRITICAL_NESTING_SHULKER_BOX,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/supercritical_nesting_shulker_box"))
         );
+        event.register(
+            WipBlockEntityRenderer.SPACETIME_SUPERCOMPUTER_WIP_2,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/spacetime_supercomputer_wip_2"))
+        );
+        event.register(
+            WipBlockEntityRenderer.SPACETIME_SUPERCOMPUTER_WIP_3,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/spacetime_supercomputer_wip_3"))
+        );
+        event.register(
+            WipBlockEntityRenderer.NETHERITE_BLOCK_WIP_2,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/netherite_block_wip_2"))
+        );
+        event.register(
+            WipBlockEntityRenderer.HEAVY_IRON_BLOCK_WIP_2,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/heavy_iron_block_wip_2"))
+        );
+        event.register(
+            WipBlockEntityRenderer.ANCIENT_SEA_REEF_WIP_2,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/ancient_sea_reef_wip_2"))
+        );
+        event.register(
+            WipBlockEntityRenderer.SHULKER_BOX_WIP,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/shulker_box_wip"))
+        );
+        event.register(
+            WipBlockEntityRenderer.SHULKER_BOX_WIP_2,
+            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/shulker_box_wip_2"))
+        );
+    }
+
+    /** 自动注册资源包中提供的天体模型。 */
+    private static void registerCelestialBodyModels(ModelEvent.RegisterStandalone event) {
+        Minecraft.getInstance()
+            .getResourceManager()
+            .listResources("models/block/celestial_body", location -> location.getPath().endsWith(".json"))
+            .keySet()
+            .stream()
+            .map(RegisterAdditionalEventListener::toModelLocation)
+            .forEach(modelLocation -> event.register(
+                CFARenderer.getSpecialBodyModel(modelLocation),
+                SimpleUnbakedStandaloneModel.blockStateModel(modelLocation)
+            ));
+    }
+
+    private static Identifier toModelLocation(Identifier resourceLocation) {
+        String resourcePath = resourceLocation.getPath();
+        String modelPath = resourcePath.substring("models/".length(), resourcePath.length() - ".json".length());
+        return Identifier.fromNamespaceAndPath(resourceLocation.getNamespace(), modelPath);
     }
 
     @SubscribeEvent
     public static void registerSpecialRenderers(RegisterSpecialModelRendererEvent event) {
         event.register(AnvilCraft.of("spectral_slingshot"), SpectralSlingshotRenderer.Unbaked.CODEC);
         event.register(AnvilCraft.of("spectral_weapon_launcher"), SpectralWeaponLauncherRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("fluid_tank"), FluidTankItemRenderer.Unbaked.CODEC);
+        event.register(AnvilCraft.of("large_fluid_tank"), LargeFluidTankItemRenderer.Unbaked.CODEC);
     }
 
     /** 注册锻星砧界面使用的画中画渲染器。 */

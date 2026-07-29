@@ -116,17 +116,31 @@ public class DecayCategory implements IRecipeCategory<DecayRecipe> {
                     tooltip.addAll(List.of(this.aroundTooltip, this.notConsumedTooltip)));
         }
         if (!recipe.fixedNeighbors().isEmpty()) {
-            recipe.fixedNeighbors().values().stream().distinct().findFirst().ifPresent(block ->
-                builder.addSlot(RecipeIngredientRole.RENDER_ONLY, 27, 102)
+            recipe.fixedNeighbors().values().stream().distinct().findFirst().ifPresent(block -> {
+                // 封存室会被消耗，作为输入展示；其余固定邻居只是催化剂
+                RecipeIngredientRole role = block == ModBlocks.CONFINEMENT_CHAMBER.get()
+                                            ? RecipeIngredientRole.INPUT
+                                            : RecipeIngredientRole.CRAFTING_STATION;
+                builder.addSlot(role, 27, 102)
                     .add(new ItemStack(block, countFixedNeighbors(recipe, block)))
-                    .addRichTooltipCallback((recipeSlotView, tooltip) ->
-                        tooltip.addAll(List.of(this.aroundTooltip, this.notConsumedTooltip))));
+                    .addRichTooltipCallback((recipeSlotView, tooltip) -> {
+                        tooltip.add(this.aroundTooltip);
+                        if (block != ModBlocks.CONFINEMENT_CHAMBER.get()) {
+                            tooltip.add(this.notConsumedTooltip);
+                        }
+                    });
+            });
         }
 
         if (recipe.resultTag() != null) {
             for (var holder : RegistryUtil.getRegistry(Registries.BLOCK).getTagOrEmpty(recipe.resultTag())) {
                 builder.addOutputSlot().add(holder.value().asItem().getDefaultInstance());
             }
+        } else if (recipe.centers().size() == 1 && recipe.results().size() > 1) {
+            // 单一中心方块可以衰变出多种产物，逐个占一格便于滚动查看
+            recipe.results().stream()
+                .map(DecayCategory::getResultStack)
+                .forEach(stack -> builder.addOutputSlot().add(stack));
         } else {
             builder.addOutputSlot()
                 .addItemStacks(recipe.results().stream().map(DecayCategory::getResultStack).toList());
@@ -176,7 +190,9 @@ public class DecayCategory implements IRecipeCategory<DecayRecipe> {
         double mouseX,
         double mouseY
     ) {
-        if (mouseX >= 5 && mouseX <= 45 && mouseY >= 15 && mouseY <= 65) {
+        if (!isImmediateDecay(recipe)
+            && mouseX >= 5 && mouseX <= 45
+            && mouseY >= 15 && mouseY <= 65) {
             tooltip.add(this.randomTickTooltip);
         }
     }
@@ -208,6 +224,12 @@ public class DecayCategory implements IRecipeCategory<DecayRecipe> {
         return (int) recipe.fixedNeighbors().values().stream().filter(block::equals).count();
     }
 
+    private static boolean isImmediateDecay(DecayRecipe recipe) {
+        Block excitedVoidMatter = ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK.get();
+        return recipe.centers().contains(excitedVoidMatter)
+               || recipe.fixedNeighbors().containsValue(excitedVoidMatter);
+    }
+
     private static ItemStack getResultStack(Block block) {
         if (block == Blocks.LAVA) return Items.LAVA_BUCKET.getDefaultInstance();
         return new ItemStack(block);
@@ -221,6 +243,8 @@ public class DecayCategory implements IRecipeCategory<DecayRecipe> {
         registration.addCraftingStation(
             AnvilCraftJeiPlugin.DECAY,
             ModBlocks.VOID_MATTER_BLOCK,
+            ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK,
+            ModBlocks.CONFINEMENT_CHAMBER,
             ModBlocks.PLUTONIUM_BLOCK,
             ModBlocks.URANIUM_BLOCK,
             ModBlocks.LEAD_BLOCK

@@ -71,10 +71,12 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.TransferPreconditions;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.item.ItemResource;
@@ -95,6 +97,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     IFluidResourceHandlerHolder {
     private static final double EPSILON = 1.0 / 1024.0;
     public static final int MAX_TROPICAL_FISH = 4;
+    private static final ItemStacksResourceHandler EMPTY_RECIPE_OUTPUT = new ItemStacksResourceHandler(0);
 
     private static final Vec3 FLUID_CONTENT_AREA_MIN = new Vec3(0.0625, 0.0625, 0.0625);
     private static final Vec3 FLUID_CONTENT_AREA_MAX = new Vec3(0.9375, 0.9375, 0.9375);
@@ -315,37 +318,49 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             if (level == null || level.isClientSide()) return;
             BlockState state = FishTankBlockEntity.this.getBlockState();
             if (!state.getValue(FishTankBlock.OUTLET)) return;
+            Direction outletDir = state.getValue(FishTankBlock.FACING);
+            BlockPos pos = FishTankBlockEntity.this.getBlockPos();
+            List<ResourceHandler<ItemResource>> targets = ItemHandlerUtil.getOutletTargetItemHandlerList(
+                pos.relative(outletDir),
+                null,
+                level
+            );
+            this.autoOutputting = true;
             try (Transaction transaction = Transaction.openRoot()) {
                 ItemResource resourceIn = this.getResource(index);
                 if (resourceIn.isEmpty()) return;
-                int extracted = this.extract(index, resourceIn, Integer.MAX_VALUE, transaction);
-                if (extracted <= 0) return;
-                Direction outletDir = state.getValue(FishTankBlock.FACING);
-
-                BlockPos pos = FishTankBlockEntity.this.getBlockPos();
-                List<ResourceHandler<ItemResource>> targets = ItemHandlerUtil.getTargetItemHandlerList(
-                    pos.relative(outletDir),
-                    null,
-                    level
-                );
                 if (targets == null || targets.isEmpty()) {
-                    FishTankBlockEntity.popResourceFromFace(level, pos, outletDir, resourceIn.toStack(extracted));
+                    if (FishTankBlockEntity.isOutletBlocked(level, pos, outletDir)) return;
+                    int extracted = this.extract(index, resourceIn, Integer.MAX_VALUE, transaction);
+                    if (extracted <= 0) return;
                     transaction.commit();
+                    FishTankBlockEntity.popResourceFromFace(level, pos, outletDir, resourceIn.toStack(extracted));
+                    FishTankBlockEntity.this.setChanged();
+                    FishTankBlockEntity.this.refreshIgnited();
+                    FishTankBlockEntity.this.sendUpdate();
                     return;
                 }
-                int remaining = extracted;
+                int available = this.getAmountAsInt(index);
+                int remaining = available;
                 for (ResourceHandler<ItemResource> target : targets) {
-                    ItemStack remainingCache = resourceIn.toStack(remaining);
-                    if (ItemHandlerUtil.insertItem(target, remainingCache, true).getCount() <= 0) continue;
-                    remaining -= ItemHandlerUtil.insertItem(target, remainingCache, false).getCount();
+                    remaining -= target.insert(resourceIn, remaining, transaction);
                     if (remaining == 0) break;
                 }
-                this.autoOutputting = true;
-                this.set(index, resourceIn, remaining);
+                int transferred = available - remaining;
+                if (transferred <= 0) return;
+                int extracted = this.extract(index, resourceIn, transferred, transaction);
+                if (extracted != transferred) return;
+                transaction.commit();
+                FishTankBlockEntity.this.setChanged();
+                FishTankBlockEntity.this.refreshIgnited();
+                FishTankBlockEntity.this.sendUpdate();
+            } finally {
                 this.autoOutputting = false;
             }
         }
     };
+    private boolean processingOutput;
+    private long lastRecipeProcessingGameTime = Long.MIN_VALUE;
     private boolean ignited = false;
 
     public FishTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
@@ -427,6 +442,50 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         return this.proxy;
     }
 
+    @Override
+    public ResourceHandler<ItemResource> getInput() {
+        return this.processingOutput ? this.output : this.input;
+    }
+
+    @Override
+    public ResourceHandler<ItemResource> getOutput() {
+        // 复用输出槽做原料时，配方缓存不能同时把同一个容器当成输出，否则快照会互相覆盖
+        return this.processingOutput ? EMPTY_RECIPE_OUTPUT : this.output;
+    }
+
+    public PollableItemHandler getInputHandler() {
+        return this.input;
+    }
+
+    public ItemStacksResourceHandler getOutputHandler() {
+        return this.output;
+    }
+
+    /// 输入槽为空时，允许本 tick 把输出槽中的产物当作原料再加工一次
+    public void beginRecipeProcessing() {
+        boolean hasInput = !isEmpty(this.input);
+        long gameTime = this.level == null ? Long.MIN_VALUE + 1 : this.level.getGameTime();
+        this.processingOutput = !hasInput
+            && !isEmpty(this.output)
+            && gameTime != this.lastRecipeProcessingGameTime;
+        if (hasInput || this.processingOutput) this.lastRecipeProcessingGameTime = gameTime;
+    }
+
+    public void finishRecipeProcessing() {
+        this.processingOutput = false;
+    }
+
+    public ItemStack insertRecipeOutput(ItemStack stack) {
+        return ItemHandlerUtil.insertItem(this.output, stack, false);
+    }
+
+    private static boolean isEmpty(ResourceHandler<ItemResource> handler) {
+        for (int slot = 0; slot < handler.size(); slot++) {
+            if (!handler.getResource(slot).isEmpty()) return false;
+        }
+        return true;
+    }
+
     // region 持久化
     @Override
     protected void saveAdditional(ValueOutput output) {
@@ -485,11 +544,12 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
     // region 玩家交互
     public boolean tryInteractWithTank(Player player, InteractionHand hand, BlockHitResult hitResult) {
-        if (hand != InteractionHand.MAIN_HAND) return false;
         if (this.level == null) return false;
         ItemStack inHand = player.getItemInHand(hand);
-        if (this.interactWithFish(this.level, player, hand, inHand, hitResult)) return true;
+        if (hand == InteractionHand.MAIN_HAND
+            && this.interactWithFish(this.level, player, hand, inHand, hitResult)) return true;
         if (this.interactWithFluid(this.level, player, hand, inHand)) return true;
+        if (hand != InteractionHand.MAIN_HAND) return false;
         return this.interactWithItems(this.level, player, hand, inHand, hitResult.getLocation());
     }
 
@@ -617,7 +677,11 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         if (level == null || level.isClientSide()) return;
         BlockPos pos = this.getBlockPos();
         Direction outletDir = this.getBlockState().getValue(FishTankBlock.FACING);
-        List<ResourceHandler<ItemResource>> targets = ItemHandlerUtil.getTargetItemHandlerList(pos.relative(outletDir), null, level);
+        List<ResourceHandler<ItemResource>> targets = ItemHandlerUtil.getOutletTargetItemHandlerList(
+            pos.relative(outletDir),
+            null,
+            level
+        );
         if (targets == null || targets.isEmpty()) {
             // 开口被有碰撞的方块堵住时不输出，物品留在输出槽等待下次重试
             if (isOutletBlocked(level, pos, outletDir)) return;
@@ -637,20 +701,21 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             this.sendUpdate();
             return;
         }
-        for (ResourceHandler<ItemResource> target : targets) {
-            for (int i = 0; i < 8; i++) {
-                try (Transaction transaction = Transaction.openRoot()) {
-                    ItemResource resource = this.output.getResource(i);
-                    if (resource.isEmpty()) continue;
-                    int extracted = this.output.extract(i, resource, Integer.MAX_VALUE, transaction);
-                    if (extracted <= 0) continue;
-                    ItemStack inserted = ItemHandlerUtil.insertItem(target, resource.toStack(extracted), true);
-                    if (inserted.isEmpty()) continue;
-                    inserted = ItemHandlerUtil.insertItem(target, resource.toStack(extracted), false);
-                    if (inserted.isEmpty()) continue;
-                    this.output.insert(i, resource, extracted - inserted.getCount(), transaction);
-                    transaction.commit();
+        for (int i = 0; i < 8; i++) {
+            try (Transaction transaction = Transaction.openRoot()) {
+                ItemResource resource = this.output.getResource(i);
+                if (resource.isEmpty()) continue;
+                int available = this.output.getAmountAsInt(i);
+                int remaining = available;
+                for (ResourceHandler<ItemResource> target : targets) {
+                    remaining -= target.insert(resource, remaining, transaction);
+                    if (remaining == 0) break;
                 }
+                int transferred = available - remaining;
+                if (transferred <= 0) continue;
+                int extracted = this.output.extract(i, resource, transferred, transaction);
+                if (extracted != transferred) continue;
+                transaction.commit();
             }
         }
         this.setChanged();
@@ -762,14 +827,31 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
                 this.fluidHandler
             );
         }
-        return FishTankBlockEntity.tryDrainFilledBottle(
+        if (FishTankBlockEntity.tryDrainFilledBottle(
             level,
             this.getBlockPos(),
             player,
             inHand,
             result -> player.setItemInHand(hand, ItemUtils.createFilledResult(inHand, player, result)),
             this.fluidHandler
-        );
+        )) {
+            return true;
+        }
+        // 手持可倒出流体的容器时也算交互成功，避免副手交互落到默认方块行为
+        return FishTankBlockEntity.canDrainFluidFromItem(inHand);
+    }
+
+    /// 物品自身是否装有可倒出的流体
+    private static boolean canDrainFluidFromItem(ItemStack stack) {
+        if (stack.isEmpty()) return false;
+        ItemStack single = stack.copyWithCount(1);
+        ResourceHandler<FluidResource> handler =
+            single.getCapability(Capabilities.Fluid.ITEM, ItemAccess.forStack(single));
+        if (handler == null) return false;
+        for (int index = 0; index < handler.size(); index++) {
+            if (!handler.getResource(index).isEmpty() && handler.getAmountAsInt(index) > 0) return true;
+        }
+        return false;
     }
 
     public static boolean tryFillEmptyBottle(

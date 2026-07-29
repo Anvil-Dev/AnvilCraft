@@ -4,6 +4,9 @@
     "anvilcraft:royal_steel_sword",
     "anvilcraft:frost_metal_sword",
     "anvilcraft:ember_metal_sword",
+    "anvilcraft:frost_metal_heavy_halberd",
+    "anvilcraft:ember_metal_heavy_halberd",
+    "anvilcraft:transcendence_heavy_halberd",
     "#anvilcraft:tools/heavy_halberd"
   ]
 }

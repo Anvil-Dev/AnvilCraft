@@ -5,7 +5,6 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.fluids.CauldronFluidContent;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
@@ -45,6 +44,8 @@ public class FluidPipeNetwork {
     private final Map<BlockPos, Map<Direction, Direction>> faceFlow;
     private final List<FluidEndpoint> endpoints;
     private final List<FluidEndpoint> cauldronEndpoints;
+    private final List<FluidEndpoint> entityEndpoints;
+    private final Set<FluidEndpoint> disconnectedEntityEndpoints = new HashSet<>();
     private final boolean directionalConstraints;
     private final List<FluidEndpoint> sourcesByHeightDesc;
     private final Map<BlockPos, Map<FluidResource, Reachability>> reachabilityCache = new HashMap<>();
@@ -80,6 +81,7 @@ public class FluidPipeNetwork {
         this.faceFlow = faceFlow;
         this.endpoints = endpoints;
         this.cauldronEndpoints = endpoints.stream().filter(FluidEndpoint::cauldron).toList();
+        this.entityEndpoints = endpoints.stream().filter(endpoint -> endpoint.entity() != null).toList();
         this.directionalConstraints = !valves.isEmpty() || !diodes.isEmpty() || !faceFlow.isEmpty();
         this.sourcesByHeightDesc = new ArrayList<>(endpoints);
         this.sourcesByHeightDesc.sort(Comparator.comparingInt(FluidEndpoint::effectiveHeight).reversed());
@@ -96,6 +98,7 @@ public class FluidPipeNetwork {
             }
         }
         for (FluidEndpoint source : this.sourcesByHeightDesc) {
+            if (!this.isEndpointConnected(source)) continue;
             this.distributeFromSource(source);
         }
     }
@@ -267,6 +270,7 @@ public class FluidPipeNetwork {
         FluidResource stored,
         Reachability reach
     ) {
+        if (!this.isEndpointConnected(source) || !this.isEndpointConnected(target)) return false;
         if (target == source || target.effectiveHeight() >= source.effectiveHeight()) return false;
         if (target.handler().equals(source.handler())) return false;
         if (source.cauldron() || target.cauldron()) {
@@ -283,6 +287,7 @@ public class FluidPipeNetwork {
         TreeMap<Integer, List<FluidEndpoint>> targetsByHeight
     ) {
         for (FluidEndpoint higher : this.sourcesByHeightDesc) {
+            if (!this.isEndpointConnected(higher)) continue;
             if (higher.effectiveHeight() <= source.effectiveHeight()) return false;
             if (higher.handler().equals(source.handler())) continue;
             for (int i = 0; i < higher.handler().size(); i++) {
@@ -383,14 +388,37 @@ public class FluidPipeNetwork {
     }
 
     private boolean canTickEndpoints() {
+        this.disconnectedEntityEndpoints.clear();
+        for (FluidEndpoint endpoint : this.entityEndpoints) {
+            if (!FluidContainerLookup.isEntityConnectedToPipe(
+                this.level,
+                endpoint.containerPos(),
+                endpoint.sideToPipe(),
+                endpoint.entity()
+            )) {
+                this.disconnectedEntityEndpoints.add(endpoint);
+            }
+        }
         for (FluidEndpoint endpoint : this.cauldronEndpoints) {
+            // 实体炼药锅由上面的接触判定负责，不看方块状态
+            if (endpoint.entity() != null) continue;
             if (!this.level.isLoaded(endpoint.containerPos())) return false;
-            if (CauldronFluidContent.getForBlock(this.level.getBlockState(endpoint.containerPos()).getBlock()) == null) {
+            FluidContainerLookup.Result container = FluidContainerLookup.find(
+                this.level,
+                endpoint.containerPos(),
+                endpoint.sideToPipe()
+            );
+            if (container == null || !container.cauldron()) {
                 FluidNetworkManager.INSTANCE.markDirty(this.level);
                 return false;
             }
         }
         return true;
+    }
+
+    /// 实体端点在本 tick 是否仍与管道接触；方块端点恒为 true。
+    private boolean isEndpointConnected(FluidEndpoint endpoint) {
+        return !this.disconnectedEntityEndpoints.contains(endpoint);
     }
 
     private void onTransferred(FluidEndpoint source) {

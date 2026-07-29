@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.api.itemhandler;
 
 import com.google.common.collect.ImmutableList;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.utility.BlockPlacerBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
@@ -9,6 +10,7 @@ import dev.dubhe.anvilcraft.util.AnvilUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.vehicle.ContainerEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -159,13 +161,36 @@ public class ItemHandlerUtil {
             list.add(input);
             return list;
         }
-        AABB aabb = new AABB(inputBlockPos);
+        // 玩家也暴露物品能力，但不应被机器当作目标容器
+        AABB aabb = new AABB(inputBlockPos).inflate(0.01D);
         list = level.getEntitiesOfClass(
             Entity.class,
             aabb,
-            e -> e instanceof ContainerEntity
-        ).stream().map(e -> e.getCapability(Capabilities.Item.ENTITY, null)).toList();
+            entity -> entity.isAlive()
+                && !(entity instanceof Player)
+                && BlockPos.containing(entity.getBoundingBox().getCenter()).equals(inputBlockPos)
+        ).stream().map(entity -> entity instanceof IItemResourceHandlerHolder holder
+            ? holder.getItemHandler()
+            : entity.getCapability(Capabilities.Item.ENTITY, null)
+        ).filter(handler -> handler != null).toList();
         return list;
+    }
+
+    public static @Nullable List<ResourceHandler<ItemResource>> getOutletTargetItemHandlerList(
+        BlockPos inputBlockPos,
+        @Nullable Direction context,
+        @Nullable Level level
+    ) {
+        if (level == null) return null;
+        LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(
+            level,
+            inputBlockPos,
+            level.getBlockState(inputBlockPos)
+        );
+        if (cauldron != null) {
+            return List.of(cauldron.getInputHandler());
+        }
+        return getTargetItemHandlerList(inputBlockPos, context, level);
     }
 
     public static int countItemsInHandler(ResourceHandler<ItemResource> handler) {

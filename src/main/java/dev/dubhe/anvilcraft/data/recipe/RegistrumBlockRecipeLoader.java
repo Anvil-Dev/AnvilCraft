@@ -87,12 +87,11 @@ public class RegistrumBlockRecipeLoader {
     ) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 8)
+            .pattern("AAA")
             .pattern("ABA")
-            .pattern("BCB")
-            .pattern("ABA")
+            .pattern("AAA")
             .define('A', ModBlocks.PUMP)
-            .define('B', ModBlocks.PUMP)
-            .define('C', ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .define('B', ModBlocks.SPACETIME_SUPERCOMPUTER)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER),
                 AnvilCraftDatagen.has(lookup, ModBlocks.SPACETIME_SUPERCOMPUTER)
@@ -507,20 +506,6 @@ public class RegistrumBlockRecipeLoader {
             AnvilCraftDatagen.hasItem(ModBlocks.EMBER_METAL_BLOCK),
             AnvilCraftDatagen.has(lookup, ModBlocks.EMBER_METAL_BLOCK)
         ).save(provider, AnvilCraft.recipe("smithing/ember_smithing_table"));
-    }
-
-    public static <T extends Block> void transcendenceAnvil(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        HolderGetter<Item> lookup = provider.getItems();
-        SmithingTransformRecipeBuilder.smithing(
-            Ingredient.of(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE),
-            Ingredient.of(ModBlocks.EMBER_ANVIL),
-            Ingredient.of(ModBlocks.TRANSCENDIUM_BLOCK),
-            RecipeCategory.MISC,
-            ctx.get().asItem()
-        ).unlocks(
-            AnvilCraftDatagen.hasItem(ModBlocks.TRANSCENDIUM_BLOCK),
-            AnvilCraftDatagen.has(lookup, ModBlocks.TRANSCENDIUM_BLOCK)
-        ).save(provider, AnvilCraft.recipe("smithing/transcendence_anvil"));
     }
 
     public static <T extends Block> void heater(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
@@ -2564,10 +2549,10 @@ public class RegistrumBlockRecipeLoader {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 2)
             .pattern("PCP")
-            .pattern("PBP")
+            .pattern("PMP")
             .define('P', Items.PISTON)
             .define('C', ModBlocks.PIPE_STRAIGHT)
-            .define('B', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
+            .define('M', ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK)
             .group(ctx.getId().toString())
             .unlockedBy(AnvilCraftDatagen.hasItem(Items.PISTON), AnvilCraftDatagen.has(lookup, Items.PISTON))
             .unlockedBy(

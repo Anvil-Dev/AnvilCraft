@@ -14,7 +14,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.ItemCombinerMenu;
 import net.minecraft.world.inventory.ItemCombinerMenuSlotDefinition;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -27,7 +26,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public class FrostSmithingMenu extends ItemCombinerMenu {
+public class FrostSmithingMenu extends AdjacentSmithingMenu {
     private final Level level;
 
     private final List<RecipeHolder<? extends IFrostSmithingRecipe>> recipes;
@@ -89,6 +88,11 @@ public class FrostSmithingMenu extends ItemCombinerMenu {
                 stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInput(stack))
             ).withResultSlot(3, 106, 48)
             .build();
+    }
+
+    @Override
+    protected boolean isUsableTemplate(ItemStack stack) {
+        return this.recipes.stream().anyMatch(recipe -> recipe.value().isTemplate(stack));
     }
 
     @Override

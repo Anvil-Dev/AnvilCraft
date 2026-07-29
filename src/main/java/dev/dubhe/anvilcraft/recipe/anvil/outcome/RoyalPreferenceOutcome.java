@@ -2,27 +2,34 @@ package dev.dubhe.anvilcraft.recipe.anvil.outcome;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.recipe.cache.ItemCache;
+import dev.anvilcraft.lib.v2.recipe.cache.ItemResourceHandlerCache;
+import dev.anvilcraft.lib.v2.recipe.cache.item.ICacheOutput;
 import dev.anvilcraft.lib.v2.recipe.outcome.IRecipeOutcome;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeData;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
+import dev.dubhe.anvilcraft.api.entity.IEntityCauldron;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeOutcomeTypes;
-import dev.dubhe.anvilcraft.util.AnvilUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -52,27 +59,82 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
         if (!context.get(IS_ROYAL_STEEL_RECIPE)) return;
 
         BlockPos belowPos = BlockPos.containing(pos.x, pos.y - 1, pos.z);
-        if (level.getBlockEntity(belowPos) instanceof LargeCauldronBlockEntity cauldron
-            && cauldron.hasInputMatching(stack -> RoyalPreference.isRoyalPreferred(level, stack))) {
-            int count = context.getInt(this.result.count());
-            ItemStack bonus = this.result.stack().create().copyWithCount(count);
-            ItemStack remaining = cauldron.insertRecipeOutput(bonus);
-            if (!remaining.isEmpty()) {
-                AnvilUtil.dropItems(List.of(remaining), level, pos.add(OUTPUT_OFFSET));
+
+        BlockEntity blockEntity = level.getBlockEntity(belowPos);
+        boolean hasRecipeCache = false;
+        if (blockEntity instanceof ItemResourceHandlerCache cache) {
+            hasRecipeCache = true;
+            if (hasRoyalPreferred(level, cache.getInput())) {
+                this.addBonus(context);
+                return;
             }
-            return;
         }
 
+        ItemResourceHandlerCache entityCauldron = findEntityCauldron(level, belowPos);
+        if (entityCauldron != null) {
+            hasRecipeCache = true;
+            if (hasRoyalPreferred(level, entityCauldron.getInput())) {
+                this.addBonus(context);
+                return;
+            }
+        }
+
+        // 没有配方缓存的容器（如原版容器）退回到直接读能力
+        if (!hasRecipeCache) {
+            ResourceHandler<ItemResource> handler = level.getCapability(Capabilities.Item.BLOCK, belowPos, null);
+            if (handler != null && hasRoyalPreferred(level, handler)) {
+                this.addBonus(context);
+                return;
+            }
+        }
+
+        // 炼药锅场景：扫描掉落物
         Vec3 inputCenter = pos.add(INPUT_OFFSET);
         AABB inputBox = new AABB(inputCenter, inputCenter).inflate(INPUT_RANGE.x, INPUT_RANGE.y, INPUT_RANGE.z);
         for (ItemEntity itemEntity : level.getEntitiesOfClass(ItemEntity.class, inputBox)) {
             if (RoyalPreference.isRoyalPreferred(level, itemEntity.getItem())) {
-                int count = context.getInt(this.result.count());
-                ItemStack stackToDrop = this.result.stack().create().copyWithCount(count);
-                AnvilUtil.dropItems(List.of(stackToDrop), level, pos.add(OUTPUT_OFFSET));
+                this.addBonus(context);
                 return;
             }
         }
+    }
+
+    /// 把加倍产物交给配方物品缓存，由缓存决定放进容器还是掉落
+    private void addBonus(InWorldRecipeContext context) {
+        ItemStack bonus = this.result.stack().create().copyWithCount(context.getInt(this.result.count()));
+        if (bonus.isEmpty()) return;
+        ItemCache cache = context.computeIfAbsent(ItemCache.ITEM_CACHE);
+        ICacheOutput output = cache.getOutput(bonus, context.getPos().add(OUTPUT_OFFSET));
+        output.grow(bonus, true);
+        context.putAcceptor(ItemCache.ITEM_CACHE.location(), ItemCache.DEFAULT_ACCEPTOR);
+    }
+
+    private static boolean hasRoyalPreferred(ServerLevel level, ResourceHandler<ItemResource> handler) {
+        for (int slot = 0; slot < handler.size(); slot++) {
+            ItemStack stack = handler.getResource(slot).toStack(handler.getAmountAsInt(slot));
+            if (!stack.isEmpty() && RoyalPreference.isRoyalPreferred(level, stack)) return true;
+        }
+        return false;
+    }
+
+    /// 查找占据该位置、可作为配方容器的实体炼药锅
+    private static @Nullable ItemResourceHandlerCache findEntityCauldron(ServerLevel level, BlockPos pos) {
+        Vec3 center = pos.getCenter();
+        Entity closest = null;
+        double closestDistance = Double.POSITIVE_INFINITY;
+        for (Entity entity : level.getEntitiesOfClass(
+            Entity.class,
+            new AABB(pos).inflate(0.0625),
+            entity -> entity.isAlive()
+                      && entity instanceof IEntityCauldron
+                      && entity instanceof ItemResourceHandlerCache
+        )) {
+            double distance = entity.getBoundingBox().getCenter().distanceToSqr(center);
+            if (distance >= closestDistance) continue;
+            closest = entity;
+            closestDistance = distance;
+        }
+        return closest instanceof ItemResourceHandlerCache cache ? cache : null;
     }
 
     @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "OptionalAssignedToNull"})

@@ -25,17 +25,17 @@ import dev.dubhe.anvilcraft.block.workstation.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.NeutronIrradiatorBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
-import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.outcome.ConsumeBurningHeaterFuel;
+import dev.dubhe.anvilcraft.recipe.LiquidEnchantmentCauldronRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
+import dev.dubhe.anvilcraft.util.CauldronUtil;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -94,6 +94,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class LargeCauldronBlockEntity extends BlockEntity
@@ -191,7 +192,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         entity.absorbFluidSources(level);
         entity.refreshIgnited();
         entity.applyFluidEffects((ServerLevel) level);
-        entity.hurtEntitiesInside((ServerLevel) level);
+        entity.hurtEntitiesInsideFromCampfire((ServerLevel) level);
         entity.reforgeItemsInLava(level);
     }
 
@@ -490,65 +491,72 @@ public class LargeCauldronBlockEntity extends BlockEntity
 
         BlockPos base = main.worldPosition.below();
         List<BlockPos> helpers = main.findActiveHelpers(base);
-        boolean allowItemCompression = helpers.isEmpty();
+        List<RecipePass> itemRecipePasses = helpers.isEmpty()
+            ? List.of(RecipePass.ALL)
+            : List.of(RecipePass.NON_COMPRESSION, RecipePass.COMPRESSION_ONLY);
         List<FluidStack> initialFluids = main.fluids.copyFluids();
         List<Integer> initialOutputSlots = new ArrayList<>();
         for (int slot = 0; slot < main.output.size(); slot++) {
             if (!getStack(main.output, slot).isEmpty()) initialOutputSlots.add(slot);
         }
-        Set<BlockPos> fuelCharged = new HashSet<>();
         int processed = 0;
-        boolean madeProgress;
-        do {
-            madeProgress = false;
-            for (int slot = 0; slot < INPUT_SLOT_OFFSETS.length && processed < MAX_PROCESS_EFFICIENCY; slot++) {
-                if (main.input.getStackInSlot(slot).isEmpty()) continue;
-                BlockPos slotPos = positionForInputSlot(base, slot);
-                List<BlockPos> candidates = helpers.isEmpty()
-                    ? List.of(slotPos.below())
-                    : orderedHelpers(slotPos, helpers, base);
-                RecipeAttempt attempt = main.tryProcessItemGroup(
-                    serverLevel,
-                    base,
-                    candidates,
-                    event.getEntity(),
-                    slot,
-                    false,
-                    fuelCharged,
-                    allowItemCompression
-                );
-                if (!attempt.execution().executed()) continue;
-                if (level.getBlockState(attempt.helper()).is(ModBlocks.BURNING_HEATER)) {
-                    fuelCharged.add(attempt.helper());
+        Set<Integer> specialRecipeSlots = new HashSet<>();
+        for (int slot = 0; slot < main.input.size() && processed < MAX_PROCESS_EFFICIENCY; slot++) {
+            if (!main.tryProcessLiquidEnchantmentRecipe(serverLevel, base, slot)) continue;
+            specialRecipeSlots.add(slot);
+            processed++;
+        }
+        for (RecipePass recipePass : itemRecipePasses) {
+            boolean madeProgress;
+            do {
+                madeProgress = false;
+                // Slot order must not override recipe priority when ingredients occupy different cauldron cells.
+                for (int slot : orderedInputSlots(serverLevel, main.input, recipePass)) {
+                    if (processed >= MAX_PROCESS_EFFICIENCY) break;
+                    if (specialRecipeSlots.contains(slot)) continue;
+                    BlockPos slotPos = positionForInputSlot(base, slot);
+                    List<BlockPos> candidates = helpers.isEmpty()
+                        ? List.of(slotPos.below())
+                        : orderedHelpers(slotPos, helpers, base);
+                    RecipeExecution execution = main.tryProcessItemGroup(
+                        serverLevel,
+                        base,
+                        candidates,
+                        event.getEntity(),
+                        slot,
+                        false,
+                        recipePass
+                    );
+                    if (!execution.executed()) continue;
+                    if (execution.damageAnvil()) event.setAnvilDamage(true);
+                    processed++;
+                    madeProgress = true;
                 }
-                if (attempt.execution().damageAnvil()) event.setAnvilDamage(true);
-                processed++;
-                madeProgress = true;
-            }
-        } while (madeProgress && processed < MAX_PROCESS_EFFICIENCY);
+            } while (madeProgress && processed < MAX_PROCESS_EFFICIENCY);
+            if (processed >= MAX_PROCESS_EFFICIENCY) break;
+        }
 
         List<BlockPos> centerCandidates = helpers.isEmpty()
             ? List.of(base.below())
             : orderedHelpers(base, helpers, base);
-        for (int slot : initialOutputSlots) {
-            if (processed >= MAX_PROCESS_EFFICIENCY) break;
-            if (getStack(main.output, slot).isEmpty()) continue;
-            RecipeAttempt attempt = main.tryProcessItemGroup(
-                serverLevel,
-                base,
-                centerCandidates,
-                event.getEntity(),
-                slot,
-                true,
-                fuelCharged,
-                allowItemCompression
-            );
-            if (!attempt.execution().executed()) continue;
-            if (level.getBlockState(attempt.helper()).is(ModBlocks.BURNING_HEATER)) {
-                fuelCharged.add(attempt.helper());
+        for (RecipePass recipePass : itemRecipePasses) {
+            for (int slot : initialOutputSlots) {
+                if (processed >= MAX_PROCESS_EFFICIENCY) break;
+                if (getStack(main.output, slot).isEmpty()) continue;
+                RecipeExecution execution = main.tryProcessItemGroup(
+                    serverLevel,
+                    base,
+                    centerCandidates,
+                    event.getEntity(),
+                    slot,
+                    true,
+                    recipePass
+                );
+                if (!execution.executed()) continue;
+                if (execution.damageAnvil()) event.setAnvilDamage(true);
+                processed++;
             }
-            if (attempt.execution().damageAnvil()) event.setAnvilDamage(true);
-            processed++;
+            if (processed >= MAX_PROCESS_EFFICIENCY) break;
         }
 
         if (sameFluids(initialFluids, main.fluids.copyFluids())) {
@@ -557,23 +565,75 @@ public class LargeCauldronBlockEntity extends BlockEntity
                     processed++;
                     continue;
                 }
-                RecipeAttempt attempt = main.tryProcessFluidRecipe(
+                RecipeExecution execution = main.tryProcessFluidRecipe(
                     serverLevel,
                     base,
                     centerCandidates,
                     event.getEntity(),
-                    fuelCharged,
-                    allowItemCompression
+                    RecipePass.NON_COMPRESSION
                 );
-                if (!attempt.execution().executed()) break;
-                if (level.getBlockState(attempt.helper()).is(ModBlocks.BURNING_HEATER)) {
-                    fuelCharged.add(attempt.helper());
-                }
-                if (attempt.execution().damageAnvil()) event.setAnvilDamage(true);
+                if (!execution.executed()) break;
+                if (execution.damageAnvil()) event.setAnvilDamage(true);
                 processed++;
             }
         }
         return true;
+    }
+
+    private boolean tryProcessLiquidEnchantmentRecipe(ServerLevel level, BlockPos base, int slot) {
+        ItemStack starting = getStack(this.input, slot);
+        if (starting.isEmpty()) return false;
+        int itemBudget = starting.getMaxStackSize();
+        int consumed = 0;
+        boolean processed = false;
+        while (consumed < itemBudget) {
+            ItemStack item = getStack(this.input, slot);
+            if (item.isEmpty()) break;
+            var heatingHelper = this.findActiveHeatingHelper(base, slot);
+            var matched = LiquidEnchantmentCauldronRecipe.match(
+                this.fluids.copyFluids(),
+                item,
+                heatingHelper.isPresent()
+            );
+            if (matched.isEmpty()) break;
+            LiquidEnchantmentCauldronRecipe.Result result = matched.get();
+            if (!result.itemResult().isEmpty() && !canInsertItem(this.output, result.itemResult())) {
+                break;
+            }
+
+            this.fluids.setFluids(result.fluids());
+            extractItem(this.input, slot, result.itemCost());
+            if (!result.itemResult().isEmpty()) {
+                insertItem(this.output, result.itemResult());
+            }
+            if (result.consumesHeat()) {
+                consumeHeatingFuel(level, heatingHelper.orElseThrow());
+            }
+            consumed += result.itemCost();
+            processed = true;
+        }
+        return processed;
+    }
+
+    private Optional<BlockPos> findActiveHeatingHelper(BlockPos base, int inputSlot) {
+        List<BlockPos> heaters = new ArrayList<>();
+        for (int slot = 0; slot < FOOTPRINT_OFFSETS.length; slot++) {
+            BlockPos helper = positionForFootprint(base, slot).below();
+            if (isActiveHeatingHelper(this.level.getBlockState(helper))) heaters.add(helper);
+        }
+        BlockPos inputPos = positionForInputSlot(base, inputSlot);
+        return orderedHelpers(inputPos, heaters, base).stream().findFirst();
+    }
+
+    private static boolean isActiveHeatingHelper(BlockState state) {
+        if (state.is(ModBlocks.HEATER)) return !state.getValue(HeaterBlock.OVERLOAD);
+        return state.is(ModBlocks.BURNING_HEATER) && state.getValue(BurningHeaterBlock.LEVEL) == 2;
+    }
+
+    private static void consumeHeatingFuel(ServerLevel level, BlockPos helper) {
+        if (level.getBlockEntity(helper) instanceof BurningHeaterBlockEntity heater) {
+            heater.consumeBurnTime(240 * 20);
+        }
     }
 
     private boolean tryProcessFluidMixingRecipe(ServerLevel level) {
@@ -581,20 +641,12 @@ public class LargeCauldronBlockEntity extends BlockEntity
         for (RecipeHolder<FluidMixingRecipe> holder
             : RecipesRecord.getRecipes(level).byType(ModRecipeTypes.FLUID_MIXING.get())) {
             FluidMixingRecipe recipe = holder.value();
-            var remainingFluids = recipe.consume(storedFluids);
-            if (remainingFluids.isEmpty()) continue;
-
-            LargeCauldronFluidHandler simulatedFluids = new LargeCauldronFluidHandler(() -> {});
-            simulatedFluids.setFluids(remainingFluids.get());
-            boolean fluidsFit = true;
-            for (FluidStack result : recipe.getFluidResults()) {
-                int filled = insertFluid(simulatedFluids, result);
-                if (filled != result.getAmount()) {
-                    fluidsFit = false;
-                    break;
-                }
-            }
-            if (!fluidsFit) continue;
+            int maximumBatches = recipe.getMaximumBatches(storedFluids);
+            if (maximumBatches <= 0) continue;
+            List<FluidStack> mixedFluids = recipe.consumesMaximum()
+                ? findLargestFluidMixingResult(recipe, storedFluids, maximumBatches)
+                : simulateFluidMixing(recipe, storedFluids, 1);
+            if (mixedFluids == null) continue;
 
             ItemStacksResourceHandler simulatedOutput = new ItemStacksResourceHandler(this.output.size());
             for (int slot = 0; slot < this.output.size(); slot++) {
@@ -610,7 +662,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
             }
             if (!fits) continue;
 
-            this.fluids.setFluids(simulatedFluids.copyFluids());
+            this.fluids.setFluids(mixedFluids);
             for (ItemStack result : recipe.getItemResults()) {
                 insertItem(this.output, result.copy());
             }
@@ -619,15 +671,53 @@ public class LargeCauldronBlockEntity extends BlockEntity
         return false;
     }
 
-    private RecipeAttempt tryProcessItemGroup(
+    private static @Nullable List<FluidStack> findLargestFluidMixingResult(
+        FluidMixingRecipe recipe,
+        List<FluidStack> storedFluids,
+        int maximumBatches
+    ) {
+        int low = 1;
+        int high = maximumBatches;
+        List<FluidStack> best = null;
+        while (low <= high) {
+            int middle = low + (high - low) / 2;
+            List<FluidStack> candidate = simulateFluidMixing(recipe, storedFluids, middle);
+            if (candidate == null) {
+                high = middle - 1;
+            } else {
+                best = candidate;
+                low = middle + 1;
+            }
+        }
+        return best;
+    }
+
+    private static @Nullable List<FluidStack> simulateFluidMixing(
+        FluidMixingRecipe recipe,
+        List<FluidStack> storedFluids,
+        int batches
+    ) {
+        var remainingFluids = recipe.consume(storedFluids, batches);
+        var fluidResults = recipe.getFluidResults(batches);
+        if (remainingFluids.isEmpty() || fluidResults.isEmpty()) return null;
+
+        LargeCauldronFluidHandler simulatedFluids = new LargeCauldronFluidHandler(() -> {});
+        simulatedFluids.setFluids(remainingFluids.get());
+        for (FluidStack result : fluidResults.get()) {
+            int filled = insertFluid(simulatedFluids, result);
+            if (filled != result.getAmount()) return null;
+        }
+        return simulatedFluids.copyFluids();
+    }
+
+    private RecipeExecution tryProcessItemGroup(
         ServerLevel level,
         BlockPos base,
         List<BlockPos> candidates,
         Entity anvil,
         int slot,
         boolean outputSource,
-        Set<BlockPos> fuelCharged,
-        boolean allowItemCompression
+        RecipePass recipePass
     ) {
         for (BlockPos helper : candidates) {
             final Vec3 contextPos = new Vec3(helper.getX() + 0.5, base.getY() + 1.0, helper.getZ() + 0.5);
@@ -649,37 +739,32 @@ public class LargeCauldronBlockEntity extends BlockEntity
                     anvil,
                     slot,
                     outputSource,
-                    fuelCharged.contains(helper),
-                    allowItemCompression
+                    recipePass
                 );
             } finally {
                 this.processingSlot = -1;
                 this.processingOutput = false;
                 this.processingOutputInputs.clear();
             }
-            if (execution.executed()) return new RecipeAttempt(execution, helper);
+            if (execution.executed()) return execution;
         }
-        return RecipeAttempt.EMPTY;
+        return RecipeExecution.EMPTY;
     }
 
-    private RecipeAttempt tryProcessFluidRecipe(
+    private RecipeExecution tryProcessFluidRecipe(
         ServerLevel level,
         BlockPos base,
         List<BlockPos> candidates,
         Entity anvil,
-        Set<BlockPos> fuelCharged,
-        boolean allowItemCompression
+        RecipePass recipePass
     ) {
         for (BlockPos helper : candidates) {
             Vec3 contextPos = new Vec3(helper.getX() + 0.5, base.getY() + 1.0, helper.getZ() + 0.5);
             InWorldRecipeContext context = new InWorldRecipeContext(level, contextPos, anvil);
-            if (fuelCharged.contains(helper)) {
-                context.put(ConsumeBurningHeaterFuel.FUEL_CONSUMED, true);
-            }
-            RecipeExecution execution = triggerOneRecipe(level, context, ItemStack.EMPTY, allowItemCompression);
-            if (execution.executed()) return new RecipeAttempt(execution, helper);
+            RecipeExecution execution = triggerOneRecipe(level, context, ItemStack.EMPTY, recipePass);
+            if (execution.executed()) return execution;
         }
-        return RecipeAttempt.EMPTY;
+        return RecipeExecution.EMPTY;
     }
 
     private RecipeExecution triggerRecipeGroup(
@@ -688,8 +773,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         Entity anvil,
         int slot,
         boolean outputSource,
-        boolean fuelConsumed,
-        boolean allowItemCompression
+        RecipePass recipePass
     ) {
         ResourceHandler<ItemResource> source = outputSource ? this.output : this.input;
         ItemStack starting = getStack(source, slot);
@@ -702,14 +786,11 @@ public class LargeCauldronBlockEntity extends BlockEntity
             ItemStack processingInput = getStack(source, slot);
             if (processingInput.isEmpty()) break;
             InWorldRecipeContext context = new InWorldRecipeContext(level, contextPos, anvil);
-            if (fuelConsumed || executed) {
-                context.put(ConsumeBurningHeaterFuel.FUEL_CONSUMED, true);
-            }
             RecipeExecution current = triggerOneRecipe(
                 level,
                 context,
                 processingInput,
-                allowItemCompression
+                recipePass
             );
             if (!current.executed()) break;
             executed = true;
@@ -725,12 +806,12 @@ public class LargeCauldronBlockEntity extends BlockEntity
         ServerLevel level,
         InWorldRecipeContext context,
         ItemStack processingInput,
-        boolean allowItemCompression
+        RecipePass recipePass
     ) {
         InWorldRecipeManager manager = level.getServer().getRecipeManager().anvillib$getInWorldRecipeManager();
         for (RecipeHolder<InWorldRecipe> holder : manager.recipeHolders.get(ModRecipeTriggers.ON_ANVIL_FALL_ON.get())) {
             InWorldRecipe recipe = holder.value();
-            if (!allowItemCompression && recipe instanceof ItemCompressRecipe) continue;
+            if (!recipePass.accepts(recipe)) continue;
             if (processingInput.isEmpty()) {
                 if (!isFluidOnlyRecipe(recipe)) continue;
             } else if (!recipeAnchoredByInput(recipe, processingInput)) {
@@ -751,6 +832,42 @@ public class LargeCauldronBlockEntity extends BlockEntity
             return new RecipeExecution(true, damageAnvil);
         }
         return new RecipeExecution(false, false);
+    }
+
+    /// 按可匹配配方的最高优先级排列非空输入槽，避免槽位顺序盖过配方优先级
+    private static List<Integer> orderedInputSlots(
+        ServerLevel level,
+        ResourceHandler<ItemResource> input,
+        RecipePass recipePass
+    ) {
+        List<Integer> slots = new ArrayList<>();
+        for (int slot = 0; slot < input.size(); slot++) {
+            if (!getStack(input, slot).isEmpty()) slots.add(slot);
+        }
+        InWorldRecipeManager manager = level.recipeAccess().anvillib$getInWorldRecipeManager();
+        slots.sort(
+            Comparator.comparingInt((Integer slot) -> highestAnchoredRecipePriority(
+                manager,
+                getStack(input, slot),
+                recipePass
+            )).reversed().thenComparingInt(Integer::intValue)
+        );
+        return slots;
+    }
+
+    private static int highestAnchoredRecipePriority(
+        InWorldRecipeManager manager,
+        ItemStack stack,
+        RecipePass recipePass
+    ) {
+        int priority = Integer.MIN_VALUE;
+        for (RecipeHolder<InWorldRecipe> holder
+            : manager.recipeHolders.get(ModRecipeTriggers.ON_ANVIL_FALL_ON.get())) {
+            InWorldRecipe recipe = holder.value();
+            if (!recipePass.accepts(recipe)) continue;
+            if (recipeAnchoredByInput(recipe, stack)) priority = Math.max(priority, recipe.priority());
+        }
+        return priority;
     }
 
     private static boolean isFluidOnlyRecipe(InWorldRecipe recipe) {
@@ -809,16 +926,16 @@ public class LargeCauldronBlockEntity extends BlockEntity
             return this.recipePreviewCache;
         }
 
-        List<RecipeHolder<InWorldRecipe>> recipes = this.getPreviewRecipes();
+        BlockPos base = this.worldPosition.below();
+        List<BlockPos> helpers = this.findActiveHelpers(base);
+        boolean itemCompressionLast = !helpers.isEmpty();
+        List<RecipeHolder<InWorldRecipe>> recipes = this.getPreviewRecipes(itemCompressionLast);
         if (recipes.isEmpty()) {
             this.recipePreviewGameTime = gameTime;
             this.recipePreviewCache = List.of();
             return this.recipePreviewCache;
         }
 
-        BlockPos base = this.worldPosition.below();
-        List<BlockPos> helpers = this.findActiveHelpers(base);
-        boolean allowItemCompression = helpers.isEmpty();
         List<RecipePreview> previews = new ArrayList<>();
         for (int slot = 0; slot < INPUT_SLOT_OFFSETS.length; slot++) {
             ItemStack stack = this.input.getStackInSlot(slot);
@@ -834,8 +951,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
                     slot,
                     false,
                     helper,
-                    base,
-                    allowItemCompression
+                    base
                 );
                 if (preview == null) continue;
                 previews.add(preview);
@@ -854,8 +970,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
                     slot,
                     true,
                     helper,
-                    base,
-                    allowItemCompression
+                    base
                 );
                 if (preview == null) continue;
                 previews.add(preview);
@@ -866,8 +981,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
             RecipePreview preview = this.previewFirstFluidRecipe(
                 recipes,
                 helper,
-                base,
-                allowItemCompression
+                base
             );
             if (preview == null) continue;
             previews.add(preview);
@@ -879,7 +993,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     @SuppressWarnings("unchecked")
-    private List<RecipeHolder<InWorldRecipe>> getPreviewRecipes() {
+    private List<RecipeHolder<InWorldRecipe>> getPreviewRecipes(boolean itemCompressionLast) {
         List<RecipeHolder<InWorldRecipe>> recipes = new ArrayList<>();
         for (RecipeHolder<?> holder : RecipesRecord.getRecipes(this.level).values()) {
             if (!(holder.value() instanceof InWorldRecipe recipe)) continue;
@@ -887,8 +1001,12 @@ public class LargeCauldronBlockEntity extends BlockEntity
             recipes.add((RecipeHolder<InWorldRecipe>) (RecipeHolder<?>) holder);
         }
         recipes.sort(
-            Comparator.comparingInt((RecipeHolder<InWorldRecipe> holder) -> holder.value().priority())
-                .reversed()
+            Comparator.<RecipeHolder<InWorldRecipe>>comparingInt(
+                holder -> itemCompressionLast && holder.value() instanceof ItemCompressRecipe ? 1 : 0
+            ).thenComparing(
+                Comparator.comparingInt((RecipeHolder<InWorldRecipe> holder) -> holder.value().priority())
+                    .reversed()
+            )
                 .thenComparing(holder -> holder.id().toString())
         );
         return recipes;
@@ -900,13 +1018,11 @@ public class LargeCauldronBlockEntity extends BlockEntity
         int slot,
         boolean outputSource,
         BlockPos helper,
-        BlockPos base,
-        boolean allowItemCompression
+        BlockPos base
     ) {
         Vec3 contextPos = new Vec3(helper.getX() + 0.5, base.getY() + 1.0, helper.getZ() + 0.5);
         for (RecipeHolder<InWorldRecipe> holder : recipes) {
             InWorldRecipe recipe = holder.value();
-            if (!allowItemCompression && recipe instanceof ItemCompressRecipe) continue;
             if (!recipeUsesInput(recipe, getStack(source, slot))) continue;
             PreviewState state = new PreviewState(
                 copyItemStacks(source),
@@ -934,13 +1050,11 @@ public class LargeCauldronBlockEntity extends BlockEntity
     private @Nullable RecipePreview previewFirstFluidRecipe(
         Collection<RecipeHolder<InWorldRecipe>> recipes,
         BlockPos helper,
-        BlockPos base,
-        boolean allowItemCompression
+        BlockPos base
     ) {
         Vec3 contextPos = new Vec3(helper.getX() + 0.5, base.getY() + 1.0, helper.getZ() + 0.5);
         for (RecipeHolder<InWorldRecipe> holder : recipes) {
             InWorldRecipe recipe = holder.value();
-            if (!allowItemCompression && recipe instanceof ItemCompressRecipe) continue;
             if (!isFluidOnlyRecipe(recipe)) continue;
             PreviewState state = new PreviewState(
                 copyItemStacks(this.input),
@@ -1237,39 +1351,26 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private AABB contentArea() {
-        return new AABB(
-            this.worldPosition.getX() - 0.75,
-            this.worldPosition.getY() - 0.5,
-            this.worldPosition.getZ() - 0.75,
-            this.worldPosition.getX() + 1.75,
-            this.worldPosition.getY() + 1.75,
-            this.worldPosition.getZ() + 1.75
-        );
+        return CauldronUtil.getInnerArea(this.worldPosition, this.getBlockState());
     }
 
-    private void hurtEntitiesInside(ServerLevel level) {
+    private void hurtEntitiesInsideFromCampfire(ServerLevel level) {
         BlockPos base = this.worldPosition.below();
         boolean normalCampfire = false;
         boolean soulCampfire = false;
-        boolean heater = false;
         for (int slot = 0; slot < FOOTPRINT_OFFSETS.length; slot++) {
             BlockState state = level.getBlockState(positionForFootprint(base, slot).below());
             if (CampfireBlock.isLitCampfire(state)) {
                 soulCampfire |= state.is(Blocks.SOUL_CAMPFIRE);
                 normalCampfire |= state.is(Blocks.CAMPFIRE);
             }
-            heater |= state.is(ModBlocks.HEATER) && !state.getValue(HeaterBlock.OVERLOAD);
         }
-        if (!normalCampfire && !soulCampfire && !heater) return;
+        if (!normalCampfire && !soulCampfire) return;
 
         AABB inside = this.contentArea();
         for (LivingEntity living : level.getEntitiesOfClass(LivingEntity.class, inside)) {
             if (living.fireImmune() || living.isSteppingCarefully()) continue;
-            if (heater) {
-                living.hurt(ModDamageTypes.heaterBurn(level), 4.0F);
-            } else {
-                living.hurt(level.damageSources().inFire(), soulCampfire ? 2.0F : 1.0F);
-            }
+            living.hurt(level.damageSources().inFire(), soulCampfire ? 2.0F : 1.0F);
         }
     }
 
@@ -1385,9 +1486,10 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private static int findTank(List<FluidStack> fluids, Identifier id) {
+        FluidStack target = new FluidStack(BuiltInRegistries.FLUID.getValue(id), 1);
         for (int i = 0; i < fluids.size(); i++) {
             FluidStack fluid = fluids.get(i);
-            if (!fluid.isEmpty() && BuiltInRegistries.FLUID.getKey(fluid.getFluid()).equals(id)) return i;
+            if (FluidStack.isSameFluidSameComponents(fluid, target)) return i;
         }
         return -1;
     }
@@ -1410,11 +1512,23 @@ public class LargeCauldronBlockEntity extends BlockEntity
         return result;
     }
 
-    private record RecipeExecution(boolean executed, boolean damageAnvil) {
+    private enum RecipePass {
+        ALL,
+        NON_COMPRESSION,
+        COMPRESSION_ONLY;
+
+        private boolean accepts(InWorldRecipe recipe) {
+            boolean compression = recipe instanceof ItemCompressRecipe;
+            return switch (this) {
+                case ALL -> true;
+                case NON_COMPRESSION -> !compression;
+                case COMPRESSION_ONLY -> compression;
+            };
+        }
     }
 
-    private record RecipeAttempt(RecipeExecution execution, @Nullable BlockPos helper) {
-        private static final RecipeAttempt EMPTY = new RecipeAttempt(new RecipeExecution(false, false), null);
+    private record RecipeExecution(boolean executed, boolean damageAnvil) {
+        private static final RecipeExecution EMPTY = new RecipeExecution(false, false);
     }
 
     public record RecipePreview(
@@ -1504,6 +1618,13 @@ public class LargeCauldronBlockEntity extends BlockEntity
             int inserted = handler.insert(slot, ItemResource.of(stack), stack.getCount(), transaction);
             if (inserted > 0) transaction.commit();
             return inserted == stack.getCount() ? ItemStack.EMPTY : stack.copyWithCount(stack.getCount() - inserted);
+        }
+    }
+
+    private static boolean canInsertItem(ResourceHandler<ItemResource> handler, ItemStack stack) {
+        if (stack.isEmpty()) return true;
+        try (Transaction transaction = Transaction.openRoot()) {
+            return handler.insert(ItemResource.of(stack), stack.getCount(), transaction) == stack.getCount();
         }
     }
 

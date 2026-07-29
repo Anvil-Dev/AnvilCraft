@@ -37,6 +37,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -44,6 +45,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -77,7 +79,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
      * {@code REDSTONE_SIGNAL_CACHE_TICKS} 刻；缓存过期或主动失效后重新计算。
      */
     public int getRedstoneSignal() {
-        if (level == null) return 0;
+        // 客户端刚加载区块时比较器输出不一定可用，直接用同步来的缓存值
+        if (this.level == null || this.level.isClientSide()) return this.cachedRedstoneSignal;
         long now = level.getGameTime();
         if (this.redstoneSignalCacheTick >= 0 && now - this.redstoneSignalCacheTick < REDSTONE_SIGNAL_CACHE_TICKS) {
             return this.cachedRedstoneSignal;
@@ -103,7 +106,24 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         this.redstoneSignalCacheTick = -1;
     }
 
+    /// 红石信号变化时同步给客户端，避免界面显示陈旧值
+    private void syncRedstoneSignalIfChanged() {
+        if (this.level == null || this.level.isClientSide()) return;
+        this.getRedstoneSignal();
+        if (this.cachedRedstoneSignal != this.syncedRedstoneSignal) {
+            this.syncedRedstoneSignal = this.cachedRedstoneSignal;
+            this.setChanged();
+            this.level.sendBlockUpdated(
+                this.worldPosition,
+                this.getBlockState(),
+                this.getBlockState(),
+                Block.UPDATE_CLIENTS
+            );
+        }
+    }
+
     private int cachedRedstoneSignal = 0;
+    private int syncedRedstoneSignal = 0;
     private long redstoneSignalCacheTick = -1;
     private static final int REDSTONE_SIGNAL_CACHE_TICKS = 5;
 
@@ -528,6 +548,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     }
 
     public void serverTick() {
+        this.syncRedstoneSignalIfChanged();
         this.searchController.serverTick(this);
 
         this.gravityController.tick(
@@ -551,6 +572,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     }
 
     /** 强制移除当前重力源，供结构拆除和方块实体卸载时立即清理缓存。 */
+    public void handleEntityContact(Entity entity) {
+        this.gravityController.handleEntityContact(level, this.celestialBodyData, entity);
+    }
     public void removeGravitySource() {
         this.gravityController.remove(level, worldPosition);
     }
@@ -863,6 +887,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         tag.putBoolean("amplified", this.isAmplify);
+        tag.putInt("redstoneSignal", this.getRedstoneSignal());
+        this.syncedRedstoneSignal = this.cachedRedstoneSignal;
         tag.putLong("bodySeed", this.bodySeed);
         tag.putInt("stellarMass", this.stellarMass);
 
@@ -1004,7 +1030,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     /**
      * 清除当前巨构及其状态，恢复为普通束星环。
      */
-    private void clearMegastructure() {
+    public void clearMegastructure() {
         this.megastructureManager.clearMegastructure(this);
         // 清理仍由控制器持有的建材过滤状态。
         this.materialFilter = new ItemStack(Items.BARRIER);
@@ -1062,7 +1088,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         if (option.needsMaterial()) {
             ItemStack contained = this.materialContainer.getItem(0);
             ItemStack required = option.material().copyWithCount(option.materialCount());
-            if (!ItemStack.isSameItemSameComponents(contained, required) || contained.getCount() < required.getCount()) {
+            if (!ItemStack.isSameItem(contained, required) || contained.getCount() < required.getCount()) {
                 return;
             }
             contained.shrink(required.getCount());

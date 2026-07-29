@@ -45,6 +45,25 @@ public class RegistrumItemRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Item> void fluidTankMinecart(
+        DataGenContext<Item, T> ctx,
+        RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.TRANSPORTATION, ctx.get())
+            .requires(ModBlocks.FLUID_TANK)
+            .requires(Items.MINECART)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.FLUID_TANK),
+                AnvilCraftDatagen.has(lookup, ModBlocks.FLUID_TANK)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.MINECART),
+                AnvilCraftDatagen.has(lookup, Items.MINECART)
+            )
+            .save(provider);
+    }
+
     public static <T extends Item> void magnet(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapedRecipeBuilder.shaped(lookup, RecipeCategory.TOOLS, ctx.get())
@@ -294,17 +313,40 @@ public class RegistrumItemRecipeLoader {
             .save(provider, AnvilCraft.recipe("smithing/ember_anvil_hammer"));
     }
 
-    public static <T extends Item> void transcendenceAnvilHammer(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+    public static <T extends Item> void frostAnvilHammer(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.TOOLS, ctx.get())
+            .pattern("A")
+            .pattern("B")
+            .pattern("C")
+            .define('A', ModBlocks.FROST_ANVIL)
+            .define('B', Items.LIGHTNING_ROD)
+            .define('C', ModItems.FROST_METAL_INGOT)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.FROST_ANVIL),
+                AnvilCraftDatagen.has(lookup, ModBlocks.FROST_ANVIL)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.LIGHTNING_ROD),
+                AnvilCraftDatagen.has(lookup, Items.LIGHTNING_ROD)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.FROST_METAL_INGOT),
+                AnvilCraftDatagen.has(lookup, ModItems.FROST_METAL_INGOT)
+            )
+            .save(provider);
         SmithingTransformRecipeBuilder.smithing(
-                Ingredient.of(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE),
-                Ingredient.of(ModItems.EMBER_ANVIL_HAMMER),
-                Ingredient.of(ModBlocks.TRANSCENDIUM_BLOCK),
+                Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
+                Ingredient.of(ModItems.ROYAL_ANVIL_HAMMER),
+                Ingredient.of(ModBlocks.FROST_METAL_BLOCK),
                 RecipeCategory.TOOLS,
                 ctx.get()
             )
-            .unlocks(AnvilCraftDatagen.hasItem(ModBlocks.TRANSCENDIUM_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.TRANSCENDIUM_BLOCK))
-            .save(provider, AnvilCraft.recipe("smithing/transcendence_anvil_hammer"));
+            .unlocks(
+                AnvilCraftDatagen.hasItem(ModBlocks.FROST_METAL_BLOCK),
+                AnvilCraftDatagen.has(lookup, ModBlocks.FROST_METAL_BLOCK)
+            )
+            .save(provider, AnvilCraft.recipe("smithing/frost_anvil_hammer"));
     }
 
     public static <T extends Item> void dragonRod(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
@@ -366,27 +408,17 @@ public class RegistrumItemRecipeLoader {
         ).save(provider, ctx.getId().withPrefix("smithing/").toString());
     }
 
-    public static <T extends Item> void transcendenceDragonRod(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+    public static <T extends Item> void frostDragonRod(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
         ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.TOOLS, ctx.get())
             .requires(ModBlocks.BLOCK_DEVOURER)
-            .requires(ModItems.TRANSCENDENCE_ANVIL_HAMMER)
+            .requires(ModItems.FROST_ANVIL_HAMMER)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BLOCK_DEVOURER), AnvilCraftDatagen.has(lookup, ModBlocks.BLOCK_DEVOURER))
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDENCE_ANVIL_HAMMER),
-                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDENCE_ANVIL_HAMMER)
+                AnvilCraftDatagen.hasItem(ModItems.FROST_ANVIL_HAMMER),
+                AnvilCraftDatagen.has(lookup, ModItems.FROST_ANVIL_HAMMER)
             )
             .save(provider);
-        SmithingTransformRecipeBuilder.smithing(
-            Ingredient.of(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE),
-            Ingredient.of(ModItems.EMBER_DRAGON_ROD),
-            Ingredient.of(ModBlocks.TRANSCENDIUM_BLOCK),
-            RecipeCategory.TOOLS,
-            ctx.get()
-        ).unlocks(
-            AnvilCraftDatagen.hasItem(ModBlocks.TRANSCENDIUM_BLOCK),
-            AnvilCraftDatagen.has(lookup, ModBlocks.TRANSCENDIUM_BLOCK)
-        ).save(provider, ctx.getId().withPrefix("smithing/").toString());
     }
 
     public static <T extends Item> void energyWeaponPlatform(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
@@ -1359,20 +1391,18 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void multiphaseTranscendium(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        SmithingTransformRecipeBuilder.smithing(
-                Ingredient.of(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE),
-                Ingredient.of(ModItems.MULTIPHASE_MATTER),
-                Ingredient.of(ModItems.TRANSCENDIUM_INGOT),
-                RecipeCategory.MISC,
-                ctx.get()
+        ShapelessRecipeBuilder.shapeless(lookup, RecipeCategory.MISC, ctx.get())
+            .requires(ModItems.MULTIPHASE_MATTER)
+            .requires(ModItems.TRANSCENDIUM_INGOT)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.MULTIPHASE_MATTER),
+                AnvilCraftDatagen.has(lookup, ModItems.MULTIPHASE_MATTER)
             )
-            .unlocks(
-                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE),
-                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT)
             )
-            .unlocks(AnvilCraftDatagen.hasItem(ModItems.MULTIPHASE_MATTER), AnvilCraftDatagen.has(lookup, ModItems.MULTIPHASE_MATTER))
-            .unlocks(AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT), AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT))
-            .save(provider, AnvilCraft.recipe("multiphase_transcendium"));
+            .save(provider);
     }
 
     public static <T extends Item> void negativeMatter(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
@@ -1627,6 +1657,63 @@ public class RegistrumItemRecipeLoader {
                 .unlockedBy(AnvilCraftDatagen.hasItem(ingredient), AnvilCraftDatagen.has(lookup, ingredient))
                 .save(provider);
         };
+    }
+
+    public static <T extends Item> void stellarRingComponent(
+        DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        // 超限合金锭 加速环 超限合金锭 / 加速环 偏转环 加速环 / 超限合金锭 加速环 超限合金锭 → 4个
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 4)
+            .pattern("ABA")
+            .pattern("BCB")
+            .pattern("ABA")
+            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('B', ModBlocks.ACCELERATION_RING)
+            .define('C', ModBlocks.DEFLECTION_RING)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Item> void magnetarCoilComponent(
+        DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        // 铜块 超限合金锭 铜块 / 铜块 无限集能器 铜块 / 铜块 超限合金锭 铜块
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get())
+            .pattern("ABA")
+            .pattern("ACA")
+            .pattern("ABA")
+            .define('A', Items.COPPER_BLOCK)
+            .define('B', ModItems.TRANSCENDIUM_INGOT)
+            .define('C', ModBlocks.INFINITE_COLLECTOR)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Item> void stellarEvolutionAcceleratorComponent(
+        DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider
+    ) {
+        HolderGetter<Item> lookup = provider.getItems();
+        // 空 腐化信标 空 / 超限合金锭 诅咒之金块 超限合金锭 ×2 → 2个
+        ShapedRecipeBuilder.shaped(lookup, RecipeCategory.MISC, ctx.get(), 2)
+            .pattern(" A ")
+            .pattern("BCB")
+            .pattern("BCB")
+            .define('A', ModBlocks.CORRUPTED_BEACON)
+            .define('B', ModItems.TRANSCENDIUM_INGOT)
+            .define('C', ModBlocks.CURSED_GOLD_BLOCK)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(lookup, ModItems.TRANSCENDIUM_INGOT)
+            )
+            .save(provider);
     }
 
     // ==== Pipe Recipe ====

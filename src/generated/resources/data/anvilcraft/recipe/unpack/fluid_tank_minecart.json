@@ -1,0 +1,16 @@
+{
+  "type": "anvilcraft:unpack",
+  "ingredients": [
+    {
+      "items": "anvilcraft:fluid_tank_minecart"
+    }
+  ],
+  "results": [
+    {
+      "id": "minecraft:minecart"
+    },
+    {
+      "id": "anvilcraft:fluid_tank"
+    }
+  ]
+}

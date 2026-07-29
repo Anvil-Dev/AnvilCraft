@@ -82,8 +82,10 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
     public void setRecipe(
         IRecipeLayoutBuilder builder, RecipeHolder<ChargerChargingRecipe> recipeHolder, IFocusGroup focuses) {
         ChargerChargingRecipe recipe = recipeHolder.value();
-        builder.addSlot(RecipeIngredientRole.INPUT, 21, 24).add(recipe.ingredient());
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 125, 24).add(recipe.result());
+        builder.addSlot(RecipeIngredientRole.INPUT, JeiSlotUtil.INPUT_X, JeiSlotUtil.DEFAULT_Y)
+            .add(recipe.ingredient());
+        builder.addSlot(RecipeIngredientRole.OUTPUT, JeiSlotUtil.OUTPUT_X, JeiSlotUtil.DEFAULT_Y)
+            .add(recipe.result());
         builder.addInvisibleIngredients(RecipeIngredientRole.CRAFTING_STATION)
             .add(recipe.getProcessingBlock().asItem().getDefaultInstance());
     }
@@ -108,8 +110,8 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
         this.arrowIn.draw(graphics, 54, 30);
         this.arrowOut.draw(graphics, 92, 29);
 
-        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, 1);
-        JeiSlotUtil.drawOutputSlots(graphics, this.slotDefault, 1);
+        JeiSlotUtil.drawDefaultInputSlots(graphics, this.slotDefault, 1);
+        JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotDefault, 1);
 
         Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();

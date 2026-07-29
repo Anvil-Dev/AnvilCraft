@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_block_devourer": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:block_devourer"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_frost_anvil_hammer": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:frost_anvil_hammer"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:frost_dragon_rod"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_block_devourer",
+      "has_frost_anvil_hammer"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:frost_dragon_rod"
+    ]
+  }
+}

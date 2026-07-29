@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
+import dev.dubhe.anvilcraft.util.BlockEntityItemUtil;
 import dev.dubhe.anvilcraft.util.TankUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -18,10 +19,13 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
@@ -32,9 +36,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import org.jspecify.annotations.Nullable;
+
+import java.util.List;
 
 public class LargeFluidTankBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>
@@ -92,6 +101,20 @@ public class LargeFluidTankBlock
         return ModBlockEntities.LARGE_FLUID_TANK.create(pos, state);
     }
 
+    @Override
+    public void setPlacedBy(
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        @Nullable LivingEntity placer,
+        ItemStack stack
+    ) {
+        super.setPlacedBy(level, pos, state, placer, stack);
+        BlockPos mainPartPos = this.getMainPartPos(pos, state);
+        Player player = placer instanceof Player placingPlayer ? placingPlayer : null;
+        BlockItem.updateCustomBlockEntityTag(level, player, mainPartPos, stack);
+    }
+
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
@@ -124,6 +147,37 @@ public class LargeFluidTankBlock
         }
         return InteractionResult.PASS;
 
+    }
+
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        List<ItemStack> drops = super.getDrops(state, params);
+        BlockEntity blockEntity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+        if (blockEntity instanceof LargeFluidTankBlockEntity tank && !tank.getStoredFluids().isEmpty()) {
+            for (ItemStack drop : drops) {
+                if (drop.is(this.asItem())) {
+                    tank.saveToDrop(drop, params.getLevel().registryAccess());
+                }
+            }
+        }
+        return drops;
+    }
+
+    @Override
+    public ItemStack getCloneItemStack(
+        LevelReader level,
+        BlockPos pos,
+        BlockState state,
+        boolean includeData,
+        Player player
+    ) {
+        ItemStack stack = new ItemStack(this);
+        if (!includeData) return stack;
+        BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
+        if (blockEntity instanceof LargeFluidTankBlockEntity tank && !tank.getStoredFluids().isEmpty()) {
+            BlockEntityItemUtil.saveToItem(tank, stack, level.registryAccess());
+        }
+        return stack;
     }
 
     @Override

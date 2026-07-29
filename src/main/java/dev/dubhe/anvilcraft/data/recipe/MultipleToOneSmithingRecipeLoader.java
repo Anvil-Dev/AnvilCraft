@@ -23,6 +23,18 @@ public class MultipleToOneSmithingRecipeLoader {
     public static void two(RegistrumRecipeProvider provider) {
         TwoToOneSmithingRecipe.builder()
             .material(ModItems.MULTIPHASE_TRANSCENDIUM)
+            .input(ModItems.EMBER_ANVIL_HAMMER)
+            .input(ModItems.FROST_ANVIL_HAMMER)
+            .resultCopy(ModItems.TRANSCENDENCE_ANVIL_HAMMER, MultiphaseData.two())
+            .save(provider);
+        TwoToOneSmithingRecipe.builder()
+            .material(ModItems.MULTIPHASE_TRANSCENDIUM)
+            .input(ModItems.EMBER_DRAGON_ROD)
+            .input(ModItems.FROST_DRAGON_ROD)
+            .resultCopy(ModItems.TRANSCENDENCE_DRAGON_ROD, MultiphaseData.two())
+            .save(provider);
+        TwoToOneSmithingRecipe.builder()
+            .material(ModItems.MULTIPHASE_TRANSCENDIUM)
             .input(ModItems.EMBER_METAL_HEAVY_HALBERD)
             .input(ModItems.FROST_METAL_HEAVY_HALBERD)
             .resultCopy(ModItems.TRANSCENDENCE_HEAVY_HALBERD, MultiphaseData.two())
@@ -32,6 +44,24 @@ public class MultipleToOneSmithingRecipeLoader {
             .input(ModItems.EMBER_METAL_RESONATOR)
             .input(ModItems.FROST_METAL_RESONATOR)
             .resultCopy(ModItems.TRANSCENDENCE_RESONATOR, MultiphaseData.two())
+            .save(provider);
+        TwoToOneSmithingRecipe.builder()
+            .material(ModItems.MULTIPHASE_TRANSCENDIUM)
+            .input(ModBlocks.EMBER_ANVIL)
+            .input(ModBlocks.FROST_ANVIL)
+            .result(ModBlocks.TRANSCENDENCE_ANVIL)
+            .save(provider);
+        TwoToOneSmithingRecipe.builder()
+            .material(ModItems.MULTIPHASE_TRANSCENDIUM)
+            .input(ModBlocks.EMBER_GRINDSTONE)
+            .input(ModBlocks.FROST_GRINDSTONE)
+            .result(ModBlocks.TRANSCENDENCE_GRINDSTONE)
+            .save(provider);
+        TwoToOneSmithingRecipe.builder()
+            .material(ModItems.MULTIPHASE_TRANSCENDIUM)
+            .input(ModBlocks.EMBER_SMITHING_TABLE)
+            .input(ModBlocks.FROST_SMITHING_TABLE)
+            .result(ModBlocks.TRANSCENDENCE_SMITHING_TABLE)
             .save(provider);
     }
 

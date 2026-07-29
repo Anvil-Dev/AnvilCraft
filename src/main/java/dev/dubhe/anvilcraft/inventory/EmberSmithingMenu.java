@@ -12,7 +12,6 @@ import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
-import net.minecraft.world.inventory.ItemCombinerMenu;
 import net.minecraft.world.inventory.ItemCombinerMenuSlotDefinition;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -28,7 +27,7 @@ import java.util.Collection;
 import java.util.List;
 
 @SuppressWarnings("unused")
-public class EmberSmithingMenu extends ItemCombinerMenu {
+public class EmberSmithingMenu extends AdjacentSmithingMenu {
     private final Level level;
 
     @Nullable
@@ -110,6 +109,11 @@ public class EmberSmithingMenu extends ItemCombinerMenu {
             54,
             stack -> recipes.stream().anyMatch(recipe -> recipe.value().isInputIngredient(7, stack))
         ).withResultSlot(10, 151, 48).build();
+    }
+
+    @Override
+    protected boolean isUsableTemplate(ItemStack stack) {
+        return this.recipes.stream().anyMatch(recipe -> recipe.value().isTemplateIngredient(stack));
     }
 
     @Override

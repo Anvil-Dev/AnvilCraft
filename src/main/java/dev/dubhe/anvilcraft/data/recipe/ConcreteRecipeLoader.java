@@ -73,6 +73,7 @@ public class ConcreteRecipeLoader {
                 .fluidTag(cementTag)
                 .transform(AnvilCraft.of("%s_cement".formatted(color.getSerializedName())))
                 .requires(color.dyeItem())
+                .maxEfficiency(1)
                 .save(provider, AnvilCraft.of("solid_liquid/cement_staining/%s".formatted(color.getSerializedName())));
         }
     }

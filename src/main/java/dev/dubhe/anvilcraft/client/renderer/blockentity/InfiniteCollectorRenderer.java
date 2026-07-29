@@ -30,7 +30,8 @@ public class InfiniteCollectorRenderer extends PowerProducerRenderer<InfiniteCol
     }
 
     @Override
-    protected float magic() {
-        return 0.055F;
+    protected float rotation(InfiniteCollectorBlockEntity blockEntity, float partialTick) {
+        return blockEntity.getRotation()
+            + (float) (Math.log(blockEntity.getServerPower() + 1) * 0.5F * partialTick);
     }
 }

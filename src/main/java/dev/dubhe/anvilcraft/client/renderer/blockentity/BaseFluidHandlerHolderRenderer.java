@@ -58,6 +58,8 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
+        state.setResource(null);
+        state.setFill(0.0F);
         ResourceHandler<FluidResource> tank = be.getFluidHandler();
         FluidResource resource = tank.getResource(0);
         if (resource.isEmpty()) return;

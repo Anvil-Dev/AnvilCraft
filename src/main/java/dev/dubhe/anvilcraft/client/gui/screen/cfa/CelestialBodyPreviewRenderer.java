@@ -102,14 +102,7 @@ public final class CelestialBodyPreviewRenderer {
     }
 
     static StandaloneModelKey<BlockStateModel> resolveSpecialModel(SpecialCelestialBodyData special) {
-        return switch (special.textureName()) {
-            case "planet_flesh" -> CFARenderer.BODY_PLANET_FLESH;
-            case "planet_intelligence" -> CFARenderer.BODY_PLANET_INTELLIGENCE;
-            case "planet_shattered" -> CFARenderer.BODY_PLANET_SHATTERED;
-            case "planet_hollow" -> CFARenderer.BODY_PLANET_HOLLOW;
-            case "planet_overworld" -> CFARenderer.BODY_PLANET_OVERWORLD;
-            default -> CFARenderer.BODY_PLANET_ERROR;
-        };
+        return CFARenderer.getSpecialBodyModel(special.getModelLocation());
     }
 
     private static StandaloneModelKey<BlockStateModel> resolveMegastructureModel(CelestialRefactorOption option) {

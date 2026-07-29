@@ -31,8 +31,14 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
     public final ChanceBlockState resultBlock;
     public final Optional<ItemStackTemplate> icon;
     public final int loop;
+    /// 配方执行过程中用于展示的半成品模型
     public final Optional<Identifier> displayedModel;
+    /// 随流程推进依次使用的模型。单圈配方每完成一步推进一次，多圈配方在下一圈的首步完成时推进；
+    /// 当前进度没有对应模型时回退到 [#displayedModel]
     public final List<Identifier> displayedModels;
+    /// 需要执行多个循环的配方中，后续循环（即不是第一圈）中每个循环的初始步骤
+    ///
+    /// <p>对于单圈的配方来说不需要有</p>
     public final Optional<ProceduralProcessStep> multiLoopFirstStep;
 
     public ProceduralProcessRecipe(
@@ -63,7 +69,8 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
 
     public Optional<Identifier> getDisplayedModelForStep(int stepCount) {
         if (stepCount > 0 && !this.steps.isEmpty()) {
-            int modelIndex = (stepCount - 1) % this.steps.size();
+            // 多圈配方按圈推进模型，单圈配方按步推进
+            int modelIndex = this.loop > 1 ? (stepCount - 1) / this.steps.size() : stepCount - 1;
             if (modelIndex < this.displayedModels.size()) {
                 return Optional.of(this.displayedModels.get(modelIndex));
             }

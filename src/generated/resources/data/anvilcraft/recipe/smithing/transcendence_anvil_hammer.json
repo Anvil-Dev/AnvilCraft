@@ -1,9 +1,0 @@
-{
-  "type": "minecraft:smithing_transform",
-  "addition": "anvilcraft:transcendium_block",
-  "base": "anvilcraft:ember_anvil_hammer",
-  "result": {
-    "id": "anvilcraft:transcendence_anvil_hammer"
-  },
-  "template": "anvilcraft:transcendium_upgrade_smithing_template"
-}

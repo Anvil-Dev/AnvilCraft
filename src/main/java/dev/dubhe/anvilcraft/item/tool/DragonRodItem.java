@@ -8,7 +8,9 @@ import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.DevourRange;
+import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
+import dev.dubhe.anvilcraft.util.InfiniteFluidTankBreakProtection;
 import dev.dubhe.anvilcraft.util.ItemResourceHelper;
 import dev.dubhe.anvilcraft.util.MultiPartBlockUtil;
 import it.unimi.dsi.fastutil.ints.IntIterators;
@@ -55,14 +57,20 @@ import java.util.UUID;
 @Slf4j
 public class DragonRodItem extends Item {
     public static final Identifier COOLDOWN_GROUP = AnvilCraft.of("dragon_rods");
+    private final BlockMiningEffect miningEffect;
     private static final Map<UUID, Long> LAST_TRANSCENDENCE_DEVOUR_TICK = new HashMap<>();
     private static final Set<UUID> CONTINUOUS_DEVOUR_PLAYERS = new HashSet<>();
 
     public DragonRodItem(Properties properties) {
+        this(properties, DevourRange.THREE, BlockMiningEffect.NORMAL);
+    }
+
+    public DragonRodItem(Properties properties, DevourRange defaultRange, BlockMiningEffect miningEffect) {
         super(properties
-            .component(ModComponents.DEVOUR_RANGE, DevourRange.THREE)
+            .component(ModComponents.DEVOUR_RANGE, defaultRange)
             .rarity(Rarity.UNCOMMON)
         );
+        this.miningEffect = miningEffect;
     }
 
     @Override
@@ -94,6 +102,7 @@ public class DragonRodItem extends Item {
         if (centerState.getDestroySpeed(level, centerPos) < 0.0F) return;
         ItemStack dragonRod = player.getItemInHand(hand);
         if (!canDevour(player, dragonRod)) return;
+
         int range = dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, DevourRange.THREE).getRange();
         range = (range - 1) / 2;
         Iterable<BlockPos> devouringPoses;
@@ -114,11 +123,20 @@ public class DragonRodItem extends Item {
         }
         devouringPoses = Streams.stream(devouringPoses).map(BlockPos::immutable).toList();
 
+        boolean infiniteFluidTankBlocked = false;
         for (BlockPos devouringPos : devouringPoses) {
             BlockState devouringState = level.getBlockState(devouringPos);
             if (devouringState.isAir()) continue;
             if (!BlockDevourerBlock.canDevour(devouringState)) continue;
-            if (devouringState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
+            if (InfiniteFluidTankBreakProtection.isProtected(level, devouringPos)) {
+                infiniteFluidTankBlocked = true;
+                continue;
+            }
+            BlockMiningEffect miningEffect = dragonRod.getItem() instanceof DragonRodItem item
+                                             ? item.miningEffect
+                                             : BlockMiningEffect.NORMAL;
+            if (!miningEffect.isDisintegration()
+                && devouringState.is(ModBlockTags.BLOCK_DEVOURER_PROBABILITY_DROPPING)
                 && level.getRandom().nextDouble() > 0.05) {
                 level.destroyBlock(devouringPos, false);
                 continue;
@@ -128,19 +146,20 @@ public class DragonRodItem extends Item {
             devouringState = level.getBlockState(devouringPos);
 
             if (!player.getAbilities().instabuild) {
+                ItemStack miningTool = miningEffect.applyTo(level, dragonRod);
                 int expCount = EnchantmentHelper.processBlockExperience(
                     level,
-                    dragonRod,
+                    miningTool,
                     devouringState.getExpDrop(
                         level,
                         devouringPos,
                         level.getBlockEntity(devouringPos),
                         player,
-                        dragonRod
+                        miningTool
                     )
                 );
                 player.giveExperiencePoints(expCount);
-                List<ItemStack> dropList = BreakBlockUtil.dropWithTool(level, devouringPos, dragonRod);
+                List<ItemStack> dropList = BreakBlockUtil.dropWithTool(level, devouringPos, miningTool);
                 Inventory inventory = player.getInventory();
                 for (ItemStack drop : dropList) {
                     if (drop.isEmpty()) continue;
@@ -151,7 +170,7 @@ public class DragonRodItem extends Item {
                 }
                 // 特判雕纹书架一类
                 ResourceHandler<ItemResource> source = level.getCapability(Capabilities.Item.BLOCK, devouringPos, null);
-                if (source != null && dropList.isEmpty()) {
+                if (!miningEffect.isDisintegration() && source != null && dropList.isEmpty()) {
                     for (IntListIterator it = IntIterators.fromTo(0, source.size()); it.hasNext(); ) {
                         int slot = it.nextInt();
                         ItemStack stack = ItemResourceHelper.getStackInSlot(source, slot);
@@ -178,6 +197,9 @@ public class DragonRodItem extends Item {
                 devouringState.getBlock().playerWillDestroy(level, devouringPos, devouringState, player);
             }
             level.destroyBlock(devouringPos, false);
+        }
+        if (infiniteFluidTankBlocked) {
+            InfiniteFluidTankBreakProtection.showToolBreakDenied(player);
         }
 
         if (dragonRod.is(ModItems.TRANSCENDENCE_DRAGON_ROD)) {

@@ -364,9 +364,10 @@ public class PipeBlockItem extends Item {
         BlockState targetState = level.getBlockState(targetPos);
         Block targetBlock = targetState.getBlock();
 
-        boolean shiftDown = player != null && player.isShiftKeyDown();
         boolean clickedOnPipe = targetBlock instanceof PipeBlock;
         boolean clickedOnFluidHandler = PipeBlock.isFluidHandlerOrConnectablePump(level, targetPos, clickedFace);
+        boolean clickedOnEntityFluidHandler = targetState.canBeReplaced() && clickedOnFluidHandler;
+        boolean shiftDown = player != null && player.isShiftKeyDown() && !clickedOnEntityFluidHandler;
 
         if (shiftDown || (!clickedOnPipe && !clickedOnFluidHandler)) {
             Direction.Axis axis = getLookAxis(player);

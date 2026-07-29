@@ -10,4 +10,6 @@ items:
 
 <item id="anvilcraft:large_fluid_tank"/>
 
-- 可以存放 320B 液体
+- 通过[多方块转换](210_giant_anvil.md#功能)获得
+
+- 可以存放 512B 液体
