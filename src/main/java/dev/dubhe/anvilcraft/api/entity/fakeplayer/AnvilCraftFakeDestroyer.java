@@ -45,34 +45,28 @@ public class AnvilCraftFakeDestroyer {
     }
 
     public void disable(ServerPlayer player) {
-        for (Destroyer destroyer : this.enabledDestroyers) {
-            if (!destroyer.getUUID().equals(player.getUUID())) continue;
-            destroyer.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-            this.disabledDestroyers.offer(destroyer);
-            this.enabledDestroyers.remove(destroyer);
-            break;
+        synchronized (this.enabledDestroyers) {
+            for (Destroyer destroyer : this.enabledDestroyers) {
+                if (!destroyer.getUUID().equals(player.getUUID())) continue;
+                destroyer.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                this.disabledDestroyers.offer(destroyer);
+                this.enabledDestroyers.remove(destroyer);
+                break;
+            }
         }
     }
 
     public void clear(ServerLevel level) {
-        this.disabledDestroyers.removeIf(destroyer -> clearIfInLevel(destroyer.player(), level));
+        this.disabledDestroyers.removeIf(destroyer -> AnvilCraftFakePlayers.clearIfInLevel(destroyer.player(), level));
         synchronized (this.enabledDestroyers) {
-            this.enabledDestroyers.removeIf(destroyer -> clearIfInLevel(destroyer.player(), level));
+            this.enabledDestroyers.removeIf(destroyer -> AnvilCraftFakePlayers.clearIfInLevel(destroyer.player(), level));
         }
         this.dummyBreakTool = null;
     }
 
-    private static boolean clearIfInLevel(ServerPlayer player, ServerLevel level) {
-        if (player.level() != level) {
-            return false;
-        }
-        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-        return true;
-    }
-
     public record Destroyer(ServerPlayer player) {
-        public Destroyer(ServerLevel player, int profile) {
-            this(FakePlayerFactory.get(player, Destroyer.create(profile)));
+        public Destroyer(ServerLevel level, int profile) {
+            this(FakePlayerFactory.get(level, Destroyer.create(profile)));
         }
 
         private static GameProfile create(int profile) {

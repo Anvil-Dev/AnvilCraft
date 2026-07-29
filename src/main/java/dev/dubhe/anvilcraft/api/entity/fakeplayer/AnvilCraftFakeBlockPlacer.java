@@ -169,33 +169,27 @@ public class AnvilCraftFakeBlockPlacer {
     }
 
     public void disable(ServerPlayer player) {
-        for (Placer placer : this.enabledPlacers) {
-            if (!placer.getUUID().equals(player.getUUID())) continue;
-            placer.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-            this.disabledPlacers.offer(placer);
-            this.enabledPlacers.remove(placer);
-            break;
+        synchronized (this.enabledPlacers) {
+            for (Placer placer : this.enabledPlacers) {
+                if (!placer.getUUID().equals(player.getUUID())) continue;
+                placer.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                this.disabledPlacers.offer(placer);
+                this.enabledPlacers.remove(placer);
+                break;
+            }
         }
     }
 
     public void clear(ServerLevel level) {
-        this.disabledPlacers.removeIf(placer -> clearIfInLevel(placer.player(), level));
+        this.disabledPlacers.removeIf(placer -> AnvilCraftFakePlayers.clearIfInLevel(placer.player(), level));
         synchronized (this.enabledPlacers) {
-            this.enabledPlacers.removeIf(placer -> clearIfInLevel(placer.player(), level));
+            this.enabledPlacers.removeIf(placer -> AnvilCraftFakePlayers.clearIfInLevel(placer.player(), level));
         }
-    }
-
-    private static boolean clearIfInLevel(ServerPlayer player, ServerLevel level) {
-        if (player.level() != level) {
-            return false;
-        }
-        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-        return true;
     }
 
     public record Placer(ServerPlayer player) {
-        public Placer(ServerLevel player, int profile) {
-            this(FakePlayerFactory.get(player, Placer.create(profile)));
+        public Placer(ServerLevel level, int profile) {
+            this(FakePlayerFactory.get(level, Placer.create(profile)));
         }
 
         private static GameProfile create(int profile) {

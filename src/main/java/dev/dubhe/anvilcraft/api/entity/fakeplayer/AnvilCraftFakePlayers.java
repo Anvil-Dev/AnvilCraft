@@ -1,6 +1,9 @@
 package dev.dubhe.anvilcraft.api.entity.fakeplayer;
 
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import org.jspecify.annotations.Nullable;
 
@@ -37,5 +40,13 @@ public class AnvilCraftFakePlayers {
             AnvilCraftFakePlayers.destroyer.clear(level);
         }
         FakePlayerFactory.unloadLevel(level);
+    }
+
+    static boolean clearIfInLevel(ServerPlayer player, ServerLevel level) {
+        if (player.level() != level) {
+            return false;
+        }
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        return true;
     }
 }
