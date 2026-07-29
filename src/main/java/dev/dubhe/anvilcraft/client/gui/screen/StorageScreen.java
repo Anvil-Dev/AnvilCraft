@@ -98,6 +98,7 @@ public class StorageScreen extends Screen {
     private static final int SLIDER_HEIGHT = 15;
     private static final int SLIDER_TRACK_HEIGHT = 106;
     private static final int METADATA_REFRESH_INTERVAL = 10;
+    private static final int MAX_PRESERVED_SYNC_ATTEMPTS = 3;
     private final BlockPos sourcePos;
     private final Player player;
     private final boolean tracksOpenState;
@@ -1210,6 +1211,10 @@ public class StorageScreen extends Screen {
     }
 
     private void syncPreservedOrder() {
+        this.syncPreservedOrder(1);
+    }
+
+    private void syncPreservedOrder(int attempt) {
         int request = ++this.syncRequest;
         int reorderRequest = this.reorderRequest;
         StorageClientStub.reorder(this.sourcePos).whenCompleteAsync(
@@ -1244,7 +1249,11 @@ public class StorageScreen extends Screen {
                                     return;
                                 }
                                 if (!currentOrder.equals(confirmedOrder) || !this.applyPreservedSyncResults(results)) {
-                                    this.syncPreservedOrder();
+                                    if (attempt < StorageScreen.MAX_PRESERVED_SYNC_ATTEMPTS) {
+                                        this.syncPreservedOrder(attempt + 1);
+                                    } else {
+                                        this.reorder(false);
+                                    }
                                     return;
                                 }
                                 this.orderVersion = this.version;
@@ -1294,6 +1303,7 @@ public class StorageScreen extends Screen {
         for (StorageServerStub.StackUpdate update : result.updates()) {
             if (update.stack().isEmpty()) {
                 if (this.contents.containsKey(update.index())) {
+                    // Keep the resource mapped to this logical slot while its current count is zero.
                     this.emptySlots.add(update.index());
                 }
             } else {
@@ -1328,7 +1338,7 @@ public class StorageScreen extends Screen {
 
         Map<ItemResource, Integer> logicalSlots = new HashMap<>();
         for (int logicalSlot : this.order) {
-            UnlimitedItemStack stack = Objects.requireNonNull(this.contents.get(logicalSlot));
+            UnlimitedItemStack stack = this.contents.get(logicalSlot);
             logicalSlots.put(ItemResource.of(stack.toStack()), logicalSlot);
             this.emptySlots.add(logicalSlot);
         }
