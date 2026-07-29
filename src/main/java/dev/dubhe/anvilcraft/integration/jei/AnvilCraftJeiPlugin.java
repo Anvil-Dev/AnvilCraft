@@ -99,7 +99,6 @@ import mezz.jei.api.runtime.IClickableIngredient;
 import mezz.jei.gui.GuiProperties;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -206,35 +205,6 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         ProceduralProcessCategory.registerRecipes(registration);
         EnergyWeaponCategory.registerRecipes(registration);
         MineralFountainCategory.registerRecipes(registration);
-
-        registration.addItemStackInfo(
-            new ItemStack(ModItems.GEODE.get()),
-            Component.translatable("jei.anvilcraft.info.geode_1"),
-            Component.translatable("jei.anvilcraft.info.geode_2"),
-            Component.translatable("jei.anvilcraft.info.geode_3"),
-            Component.translatable("jei.anvilcraft.info.geode_4")
-        );
-        registration.addItemStackInfo(
-            new ItemStack(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE.get()),
-            Component.translatable("jei.anvilcraft.info.royal_steel_upgrade_smithing_template_1"),
-            Component.translatable("jei.anvilcraft.info.royal_steel_upgrade_smithing_template_2")
-        );
-        registration.addItemStackInfo(
-            new ItemStack(ModItems.CRAB_CLAW.get()),
-            Component.translatable("jei.anvilcraft.info.craw_claw")
-        );
-        registration.addItemStackInfo(
-            new ItemStack(ModItems.CAPACITOR.get()),
-            Component.translatable("jei.anvilcraft.info.capacitor")
-        );
-        registration.addItemStackInfo(
-            ModBlocks.END_DUST.asStack(),
-            Component.translatable("jei.anvilcraft.info.end_dust")
-        );
-        registration.addItemStackInfo(
-            Items.ZOMBIE_SPAWN_EGG.getDefaultInstance(),
-            Component.translatable("jei.anvilcraft.info.mob_transform_with_item")
-        );
     }
 
     @Override

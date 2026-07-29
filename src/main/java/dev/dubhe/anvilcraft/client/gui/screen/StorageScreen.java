@@ -49,12 +49,17 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.ItemDecoratorHandler;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 public class StorageScreen extends Screen {
     private static final Identifier BACKGROUND = SharedTextures.bg("misc", "storage_station");
@@ -99,7 +104,9 @@ public class StorageScreen extends Screen {
 
     private ItemStack carried = ItemStack.EMPTY;
     private IntList order = new IntArrayList();
+    private IntList displayOrder = new IntArrayList();
     private final Int2ObjectMap<UnlimitedItemStack> contents = new Int2ObjectOpenHashMap<>();
+    private final Int2ObjectMap<UnlimitedItemStack> foldedContents = new Int2ObjectOpenHashMap<>();
     private double fullness;
     private StorageServerStub.@Nullable Capacity capacity;
     private long version = -1;
@@ -112,6 +119,7 @@ public class StorageScreen extends Screen {
     private boolean orderLoaded;
     private boolean metadataPending;
     private boolean interactionPending;
+    private boolean nbtFolded;
     private final IntSet quickCraftSlots = new IntOpenHashSet();
     private boolean quickCrafting;
     private int quickCraftingButton;
@@ -229,7 +237,10 @@ public class StorageScreen extends Screen {
             20,
             24,
             40,
-            (_, index) -> SettingClientStub.update(NbtDisplayMode.values()[index])
+            (_, index) -> {
+                SettingClientStub.update(NbtDisplayMode.values()[index]);
+                this.reorder();
+            }
         ));
         this.categories = this.addRenderableWidget(new CategoryList(
             this.left + 7,
@@ -358,7 +369,7 @@ public class StorageScreen extends Screen {
         int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
         for (int displayIndex = 0; displayIndex < StorageScreen.VISIBLE_STORAGE_SLOTS; displayIndex++) {
             int orderIndex = firstOrderIndex + displayIndex;
-            if (orderIndex >= this.order.size()) {
+            if (orderIndex >= this.displayOrder.size()) {
                 break;
             }
 
@@ -371,10 +382,7 @@ public class StorageScreen extends Screen {
                 graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_BACK_SPRITE, x - 4, y - 4, 24, 24);
             }
 
-            UnlimitedItemStack stack = this.contents.getOrDefault(
-                this.order.getInt(orderIndex),
-                UnlimitedItemStack.EMPTY
-            );
+            UnlimitedItemStack stack = this.getDisplayedStack(this.displayOrder.getInt(orderIndex));
             if (!stack.isEmpty()) {
                 ItemStack itemStack = stack.toStack();
                 graphics.item(itemStack, x, y);
@@ -793,7 +801,9 @@ public class StorageScreen extends Screen {
         );
         if (nextScrollRow != this.scrollRow) {
             this.scrollRow = nextScrollRow;
-            this.syncVisible();
+            if (!this.nbtFolded) {
+                this.syncVisible();
+            }
         }
         return true;
     }
@@ -975,13 +985,10 @@ public class StorageScreen extends Screen {
             int y = this.top + StorageScreen.STORAGE_Y
                     + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
             if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
-                if (orderIndex >= this.order.size()) {
+                if (orderIndex >= this.displayOrder.size()) {
                     return null;
                 }
-                UnlimitedItemStack stack = this.contents.getOrDefault(
-                    this.order.getInt(orderIndex),
-                    UnlimitedItemStack.EMPTY
-                );
+                UnlimitedItemStack stack = this.getDisplayedStack(this.displayOrder.getInt(orderIndex));
                 return stack.isEmpty() ? null : new ItemArea(stack.toStack(), x, y);
             }
         }
@@ -1013,8 +1020,8 @@ public class StorageScreen extends Screen {
             int y = this.top + StorageScreen.STORAGE_Y
                 + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
             if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
-                if (orderIndex < this.order.size()) {
-                    return this.order.getInt(orderIndex);
+                if (orderIndex < this.displayOrder.size()) {
+                    return this.displayOrder.getInt(orderIndex);
                 }
                 return this.carried.isEmpty() ? null : -1;
             }
@@ -1081,17 +1088,21 @@ public class StorageScreen extends Screen {
                 }
                 IntList reordered = new IntArrayList(updatedOrder);
                 this.orderLoaded = true;
-                int reorderedScrollRow = Mth.clamp(this.scrollRow, 0, this.getMaxScrollRow(reordered));
-                this.syncReordered(reordered, reorderedScrollRow, request);
+                this.syncReordered(reordered, this.scrollRow, request);
             },
             this.screenExecutor
         );
     }
 
-    private void syncReordered(IntList reordered, int reorderedScrollRow, int reorderRequest) {
+    private void syncReordered(IntList reordered, int requestedScrollRow, int reorderRequest) {
+        boolean foldNbt = SettingClientStub.setting().storage().getNbtDisplay() == NbtDisplayMode.FOLD;
+        int reorderedScrollRow = foldNbt
+                                 ? requestedScrollRow
+                                 : Mth.clamp(requestedScrollRow, 0, this.getMaxScrollRow(reordered));
+        IntList slots = foldNbt ? reordered : this.getVisibleSlots(reordered, reorderedScrollRow);
         int request = ++this.syncRequest;
-        StorageClientStub.sync(this.sourcePos, this.getVisibleSlots(reordered, reorderedScrollRow)).whenCompleteAsync(
-            (result, error) -> {
+        this.syncSlots(slots).whenCompleteAsync(
+            (results, error) -> {
                 if (reorderRequest != this.reorderRequest) {
                     return;
                 }
@@ -1099,29 +1110,61 @@ public class StorageScreen extends Screen {
                     this.orderLoaded = false;
                     return;
                 }
-                if (request != this.syncRequest || result.version() < this.version) {
+                if (request != this.syncRequest) {
                     this.reorder(false);
                     return;
                 }
-                this.applySyncResult(result);
+                if (!this.applySyncResults(results)) {
+                    this.reorder(false);
+                    return;
+                }
                 this.order = reordered;
-                this.scrollRow = reorderedScrollRow;
+                this.rebuildDisplayOrder(foldNbt);
+                this.scrollRow = Mth.clamp(reorderedScrollRow, 0, this.getMaxScrollRow());
             },
             this.screenExecutor
         );
     }
 
     private void syncVisible() {
+        boolean foldNbt = this.nbtFolded;
+        IntList slots = foldNbt
+                        ? this.order
+                        : this.getVisibleSlots(this.displayOrder, this.scrollRow);
         int request = ++this.syncRequest;
-        StorageClientStub.sync(this.sourcePos, this.getVisibleSlots(this.order, this.scrollRow)).whenCompleteAsync(
-            (result, error) -> {
-                if (request != this.syncRequest || error != null || result.version() < this.version) {
+        this.syncSlots(slots).whenCompleteAsync(
+            (results, error) -> {
+                if (request != this.syncRequest || error != null) {
                     return;
                 }
-                this.applySyncResult(result);
+                if (this.applySyncResults(results)) {
+                    if (foldNbt) {
+                        this.rebuildDisplayOrder(true);
+                        this.scrollRow = Mth.clamp(this.scrollRow, 0, this.getMaxScrollRow());
+                    }
+                } else {
+                    this.reorder(false);
+                }
             },
             this.screenExecutor
         );
+    }
+
+    private CompletableFuture<List<StorageServerStub.SyncResult>> syncSlots(IntList slots) {
+        List<CompletableFuture<StorageServerStub.SyncResult>> requests = new ArrayList<>();
+        for (int start = 0; start < slots.size(); start += StorageScreen.VISIBLE_STORAGE_SLOTS) {
+            int end = Math.min(start + StorageScreen.VISIBLE_STORAGE_SLOTS, slots.size());
+            IntArrayList batch = new IntArrayList(end - start);
+            for (int index = start; index < end; index++) {
+                batch.add(slots.getInt(index));
+            }
+            requests.add(StorageClientStub.sync(this.sourcePos, batch));
+        }
+        if (requests.isEmpty()) {
+            requests.add(StorageClientStub.sync(this.sourcePos, new IntArrayList()));
+        }
+        return CompletableFuture.allOf(requests.toArray(CompletableFuture<?>[]::new))
+            .thenApply(_ -> requests.stream().map(CompletableFuture::join).toList());
     }
 
     private IntList getVisibleSlots(IntList order, int scrollRow) {
@@ -1144,6 +1187,48 @@ public class StorageScreen extends Screen {
                 this.contents.put(update.index(), update.stack());
             }
         }
+    }
+
+    private boolean applySyncResults(List<StorageServerStub.SyncResult> results) {
+        long syncedVersion = results.getFirst().version();
+        if (syncedVersion < this.version || results.stream().anyMatch(result -> result.version() != syncedVersion)) {
+            return false;
+        }
+        results.forEach(this::applySyncResult);
+        return true;
+    }
+
+    private void rebuildDisplayOrder(boolean foldNbt) {
+        this.nbtFolded = foldNbt;
+        this.foldedContents.clear();
+        if (!foldNbt) {
+            this.displayOrder = new IntArrayList(this.order);
+            return;
+        }
+
+        IntArrayList foldedOrder = new IntArrayList();
+        Map<Item, Integer> representatives = new HashMap<>();
+        for (int slot : this.order) {
+            UnlimitedItemStack stack = this.contents.getOrDefault(slot, UnlimitedItemStack.EMPTY);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            Integer representative = representatives.putIfAbsent(stack.getItem(), slot);
+            if (representative == null) {
+                foldedOrder.add(slot);
+                this.foldedContents.put(slot, stack.copy());
+                continue;
+            }
+            UnlimitedItemStack folded = Objects.requireNonNull(this.foldedContents.get(representative.intValue()));
+            long count = (long) folded.getCount() + stack.getCount();
+            folded.setCount((int) Math.min(count, Integer.MAX_VALUE));
+        }
+        this.displayOrder = foldedOrder;
+    }
+
+    private UnlimitedItemStack getDisplayedStack(int slot) {
+        Int2ObjectMap<UnlimitedItemStack> displayedContents = this.nbtFolded ? this.foldedContents : this.contents;
+        return displayedContents.getOrDefault(slot, UnlimitedItemStack.EMPTY);
     }
 
     private void refreshMetadata() {
@@ -1172,7 +1257,7 @@ public class StorageScreen extends Screen {
     }
 
     private int getMaxScrollRow() {
-        return this.getMaxScrollRow(this.order);
+        return this.getMaxScrollRow(this.displayOrder);
     }
 
     private int getMaxScrollRow(IntList order) {
