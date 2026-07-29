@@ -8,6 +8,7 @@ items:
   - anvilcraft:heavy_halberd_core
   - anvilcraft:ember_metal_heavy_halberd
   - anvilcraft:frost_metal_heavy_halberd
+  - anvilcraft:transcendence_heavy_halberd
 ---
 
 # Heavy Halberd
@@ -19,17 +20,13 @@ items:
 <item id="anvilcraft:transcendence_heavy_halberd"/>
 </row>
 
-<color=#0075ff>The Heavy Halberd combines the traits of a sword, axe, heavy hammer, and trident into one powerful weapon</color>
-- The **Heavy Halberd Core** is the core material for crafting a Heavy Halberd
-- The Heavy Halberd can function as any of the four weapons used to craft it
-  1. It is compatible with all enchantments for swords, heavy hammers, and tridents
-  2. Its attack damage is the same as an axe
-  3. Its attack speed is the same as a sword
-  4. It also inherits their mining properties
-  5. Falling from a height can trigger the heavy hammer's slam attack
-  6. Holding right-click allows it to be thrown like a trident (damage is calculated based on speed, similar to arrows)
-  7. When it has the Loyalty enchantment, throwing it into the void will cause it to return to the player
-  8. The Heavy Halberd does not break completely; similar to Elytra, it loses all bonuses, functions, etc.; attack damage becomes 0, most enchantments stop working, and [Ruthless](../001_feature/201_properties.md#ruthless) from Frost Metal also stops working
+- A versatile weapon that can be used as four types of melee weapons, but all modes benefit from the heavy hammer's fall damage bonus
+- When durability is depleted, it does not break completely, similar to <ref item="minecraft:elytra"/>
+- Hold [Left Alt] to bring up a radial menu with four options, each providing a different right-click ability
+  - <ref item="minecraft:trident"/> mode: right-click to throw
+  - Spear mode: right-click to stab (no function in MC versions without spears)
+  - Sword mode: right-click to block, reducing physical damage taken
+  - <ref item="minecraft:mace"/> mode: right-click has no function, but attack speed is very fast
 
 ## Crafting
 

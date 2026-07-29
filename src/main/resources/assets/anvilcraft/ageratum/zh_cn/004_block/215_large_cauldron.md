@@ -52,3 +52,7 @@ items:
 得益于超大容量，<ref item="anvilcraft:large_cauldron"/>可以完成*复杂流体反应*：
 - 输入流体种类大于等于 2 种
 - 输入流体需求大于 1000mB
+
+## 液态魔咒
+
+在<ref item="anvilcraft:large_cauldron"/>中完成[液态魔咒](../002_material/210_liquid_enchantment.md)相关的配方

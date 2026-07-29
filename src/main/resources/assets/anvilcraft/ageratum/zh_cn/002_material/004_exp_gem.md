@@ -10,6 +10,8 @@ items:
 
 # 经验流体
 
+> 将经验以物品或流体的形态存储
+
 <info>
 1000mb 经验流体 = 1 * <ref item="anvilcraft:exp_gem"/> = 50 玩家经验值
 </info>
@@ -27,7 +29,6 @@ items:
 ## 榨取幽匿
 
 - 幽匿块在炼药锅上被砸，有10%概率增加一层经验流体
-- 如果获得并使用[浮霜铁砧](../004_block/233_frost_anvil.md)，则该概率变为40%
 
 # <ref item="anvilcraft:exp_gem"/>
 

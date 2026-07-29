@@ -16,6 +16,7 @@ items:
 
 - 不消耗任何锻造模板的特殊锻造台
 - 通常需要配合<ref item="anvilcraft:permutation_smithing_template"/>或<ref item="anvilcraft:deformation_smithing_template"/>使用
+- 可以自动调用相邻容器内的锻造模板
 
 # 嬗变锻造
 
@@ -37,6 +38,7 @@ items:
 保留物品的材质，转换其形态
 
 消耗<ref item="anvilcraft:frost_metal_ingot"/>使以下工具形态之间可以相互转换：
+
 - 剑，斧，镐，锄，锹
 - 头盔，胸甲，腿甲，靴子
 - 弓，弩

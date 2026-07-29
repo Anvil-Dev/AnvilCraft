@@ -62,3 +62,13 @@ items:
 
 </info>
 
+# Complex Fluid Reactions
+
+Thanks to its large capacity, <ref item="anvilcraft:large_cauldron"/> can perform *complex fluid reactions*:
+- Requires 2 or more types of input fluids
+- Requires more than 1000mB of input fluid
+
+## Liquid Enchantment
+
+Completes [Liquid Enchantment](../002_material/210_liquid_enchantment.md) related recipes in the <ref item="anvilcraft:large_cauldron"/>
+

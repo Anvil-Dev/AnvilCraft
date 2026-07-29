@@ -16,8 +16,8 @@ items:
 ## 功能
 
 - 不消耗任何锻造模板的特殊锻造台
-- 只能用于多合一配方
-- 通常需要配合<ref item="anvilcraft:four_to_one_smithing_template"/>等多合一模板使用
+- 通常需要配合*多合一锻造模板*使用，完成多合一锻造
+- 可以调用相邻容器内的锻造模板
 
 # 多合一锻造模板
 
@@ -42,8 +42,8 @@ items:
 # 模板解离
 
 1. 将有附魔的<ref item="anvilcraft:eight_to_one_smithing_template"/>物品实体用任意方式摧毁
-2. 随机取一条附魔(选择有可能重复)，按如下列表生成新物品
-3. 最多选择4次(即最多通过这种方式产生4个新模板)
+2. 随机取一条<ref item="anvilcraft:eight_to_one_smithing_template"/>拥有的附魔(选择有可能重复)，按如下列表生成新物品
+3. 最多选择4次，即最多通过这种方式产生4个新模板
 
 <row halign="center" valign="center">
 <item id="minecraft:snout_armor_trim_smithing_template"/>
@@ -94,7 +94,3 @@ items:
 <item id="minecraft:shaper_armor_trim_smithing_template"/>
 ->  其他附魔
 </row>
-
-<info>
-如果选择了4次，且4次的结果（指生成的新模板）都不同，则额外生成一个超限<ref item="anvilcraft:transcendium_upgrade_smithing_template"/>
-</info>
