@@ -68,7 +68,7 @@ public class SimplePowerGrid {
     private final int consume; // 耗电功率
     private final boolean infinitePower; // 是否包含无限电力源
     private final int color;
-    private List<Line> powerGridBoundLines = new ArrayList<>();
+    private volatile List<Line> powerGridBoundLines = List.of();
     private @Nullable Future<?> shapeFuture;
 
     /// 简单电网

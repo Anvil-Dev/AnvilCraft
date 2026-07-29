@@ -43,7 +43,6 @@ public class ItemStackMixin {
             builder
         ));
     }
-
     @WrapMethod(method = "typeHolder")
     private Holder<Item> storeStack(
         Operation<Holder<Item>> original,

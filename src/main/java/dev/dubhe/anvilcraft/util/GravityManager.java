@@ -1,6 +1,8 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.entity.IAnvilCraftEntityExtension;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.special.BlackHoleBlock;
 import dev.dubhe.anvilcraft.block.special.WhiteHoleBlock;
 import dev.dubhe.anvilcraft.entity.LevitatingBlockEntity;
@@ -15,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.item.FallingBlockEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.Projectile;
@@ -25,6 +28,7 @@ import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -47,12 +51,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class GravityManager {
     private static final double MIN_SWEPT_MOVEMENT_SQR = 0.98 * 0.98;
     private static final double VECTOR_EPSILON = 1.0e-12;
-    private static final double BODY_COLLISION_MARGIN = 1.0e-4;
+    private static final double BODY_CONTACT_TOLERANCE = 1.0e-7;
+    private static final int MAX_BODY_COLLISIONS_PER_MOVE = 4;
     private static final double MAX_SOURCE_STRENGTH = 1.0e6;
     private static final int MAX_SOURCE_RADIUS = 512;
     private static final SweptGravity ZERO_SWEPT_GRAVITY = new SweptGravity(Vec3.ZERO, Vec3.ZERO);
 
-    // Level identity is significant: an integrated server and its client use the same dimension key.
+    // 此处必须按 Level 实例区分：集成服务器及其客户端会使用同一个维度键。
     private static final Map<Level, GravityFieldIndex> GRAVITY_FIELDS = new ConcurrentHashMap<>();
     private static final Map<ResourceKey<Level>, Double> DIMENSION_GRAVITY_MAP = new HashMap<>();
 
@@ -107,6 +112,10 @@ public final class GravityManager {
     }
 
     public static GravityType getGravityType(Entity entity) {
+        if (entity instanceof IAnvilCraftEntityExtension extension) {
+            GravityType supplied = extension.anvilcraft$getGravityType();
+            if (supplied != null) return supplied;
+        }
         if (entity instanceof ItemEntity itemEntity) {
             var item = itemEntity.getItem();
             if (item.is(ModItems.NEGATIVE_MATTER_NUGGET.get())
@@ -118,6 +127,10 @@ public final class GravityManager {
                 || item.is(ModBlocks.LEVITATION_POWDER_BLOCK.get().asItem())) {
                 return GravityType.MICRO_ANTI_GRAVITY;
             }
+        }
+        if (entity instanceof FallingBlockEntity fallingBlockEntity) {
+            GravityType gravityType = getFallingBlockGravityType(fallingBlockEntity.getBlockState().getBlock());
+            if (gravityType != GravityType.NORMAL) return gravityType;
         }
         if (entity instanceof StandableLevitatingBlockEntity || entity instanceof LevitatingBlockEntity) {
             return GravityType.ANTI_GRAVITY;
@@ -139,40 +152,79 @@ public final class GravityManager {
     }
 
     public static Vec3 getGravityVector(Entity entity, double baseGravity) {
-        return GravitySourceManager.calculateGravityVector(
+        Vec3 gravity = GravitySourceManager.calculateGravityVector(
             entity.level(),
             entity.getBoundingBox().getCenter(),
             Math.abs(baseGravity)
-        ).scale(getGravityType(entity).getScalar());
+        );
+        if (entity instanceof IAnvilCraftEntityExtension extension) {
+            Vec3 additional = extension.anvilcraft$getAdditionalGravity(Math.abs(baseGravity));
+            if (isFinite(additional)) gravity = gravity.add(additional);
+        }
+        return gravity.scale(getGravityType(entity).getScalar());
     }
 
     /**
-     * Prevents fast entities from tunneling through visual celestial bodies and integrates fields that are crossed
-     * completely between two ordinary point samples.
+     * 处理实体与可见天体的碰撞，并对相邻两次常规采样之间被完整穿过的引力场进行积分。
      */
-    public static Vec3 applySweptGravity(Entity entity, Vec3 movement) {
+    public static Vec3 applyMovementEffects(Entity entity, Vec3 movement) {
         boolean flyingPlayer = entity instanceof Player player && player.getAbilities().flying;
-        Vec3 clippedMovement = entity.noPhysics || entity.isSpectator() || flyingPlayer
+        Vec3 collisionResolvedMovement = entity.noPhysics || entity.isSpectator() || flyingPlayer
             ? movement
             : GravitySourceManager.clipMovementToBodies(entity, movement);
-        if (clippedMovement.lengthSqr() <= MIN_SWEPT_MOVEMENT_SQR
+        return applySweptGravity(entity, collisionResolvedMovement, flyingPlayer);
+    }
+
+    public static void applyBodyContactEffects(Entity entity) {
+        boolean flyingPlayer = entity instanceof Player player && player.getAbilities().flying;
+        if (entity.level().isClientSide()
+            || entity.isRemoved()
+            || entity.noPhysics
+            || entity.isSpectator()
+            || flyingPlayer) {
+            return;
+        }
+
+        GravityFieldIndex index = GRAVITY_FIELDS.get(entity.level());
+        if (index == null) return;
+
+        AABB box = entity.getBoundingBox();
+        for (GravitySource source : index.sourcesIntersecting(box.inflate(BODY_CONTACT_TOLERANCE))) {
+            if (!AabbSphereCollision.intersects(
+                box,
+                source.center(),
+                source.type().bodyRadius(),
+                BODY_CONTACT_TOLERANCE
+            )) {
+                continue;
+            }
+            if (entity.level().getBlockEntity(source.id()) instanceof CelestialForgingAnvilBlockEntity anvil) {
+                anvil.handleEntityContact(entity);
+                if (entity.isRemoved()) return;
+            }
+        }
+    }
+
+    /** 对相邻两次常规采样之间被完整穿过的引力场进行积分。 */
+    private static Vec3 applySweptGravity(Entity entity, Vec3 movement, boolean flyingPlayer) {
+        if (movement.lengthSqr() <= MIN_SWEPT_MOVEMENT_SQR
             || entity.isNoGravity()
             || AccelerateManager.isControlledByRing(entity)
             || flyingPlayer) {
-            return clippedMovement;
+            return movement;
         }
 
-        SweptGravity sweptGravity = GravitySourceManager.calculateSweptGravity(entity, clippedMovement);
+        SweptGravity sweptGravity = GravitySourceManager.calculateSweptGravity(entity, movement);
         double gravityScalar = getGravityType(entity).getScalar();
         Vec3 movementImpulse = sweptGravity.movementImpulse().scale(gravityScalar);
         Vec3 velocityImpulse = sweptGravity.velocityImpulse().scale(gravityScalar);
-        if (!isFinite(movementImpulse) || !isFinite(velocityImpulse)) return clippedMovement;
+        if (!isFinite(movementImpulse) || !isFinite(velocityImpulse)) return movement;
         if (movementImpulse.lengthSqr() <= VECTOR_EPSILON && velocityImpulse.lengthSqr() <= VECTOR_EPSILON) {
-            return clippedMovement;
+            return movement;
         }
 
         entity.setDeltaMovement(entity.getDeltaMovement().add(velocityImpulse));
-        return clippedMovement.add(movementImpulse);
+        return movement.add(movementImpulse);
     }
 
     private static boolean isFinite(Vec3 vector) {
@@ -191,11 +243,11 @@ public final class GravityManager {
     }
 
     public static Vec3 getNetGravityVectorForFallingBlock(Entity entity) {
-        return getNetGravityVectorForFallingBlock(
-            entity.level(),
-            entity.getBoundingBox().getCenter(),
-            getGravityType(entity)
-        );
+        GravityType gravityType = getGravityType(entity);
+        double scalar = gravityType.getScalar();
+        double baseGravity = 0.04 * getDimensionGravity(entity.level());
+        Vec3 baseGravityVector = new Vec3(0, -baseGravity * scalar, 0);
+        return baseGravityVector.add(getGravityVector(entity, 0.04));
     }
 
     public static void registerDimensionGravity(ResourceKey<Level> dimension, double gravity) {
@@ -330,27 +382,63 @@ public final class GravityManager {
             GravityFieldIndex index = GRAVITY_FIELDS.get(entity.level());
             if (index == null) return movement;
 
-            Vec3 start = entity.getBoundingBox().getCenter();
-            double entityRadius = Math.max(entity.getBbWidth(), entity.getBbHeight()) * 0.5;
-            double firstHit = 1.0;
-            for (GravitySource source : index.sourcesAlong(start, start.add(movement))) {
-                if (source.type().bodyRadius() <= 0) continue;
-                double expandedRadius = source.type().bodyRadius() + entityRadius;
-                Vec3 relativeStart = start.subtract(source.center());
-                double c = relativeStart.lengthSqr() - expandedRadius * expandedRadius;
-                if (c <= 0) continue;
-                double b = 2.0 * relativeStart.dot(movement);
-                double a = movement.lengthSqr();
-                double discriminant = b * b - 4.0 * a * c;
-                if (discriminant < 0) continue;
-                double enter = (-b - Math.sqrt(discriminant)) / (2.0 * a);
-                if (enter >= 0 && enter < firstHit) firstHit = enter;
-            }
-            if (firstHit >= 1.0) return movement;
+            AABB box = entity.getBoundingBox();
+            Vec3 resolved = Vec3.ZERO;
+            Vec3 remaining = movement;
+            Vec3 velocity = entity.getDeltaMovement();
+            GravitySource previousCollisionSource = null;
+            boolean collided = false;
+            for (int iteration = 0; iteration < MAX_BODY_COLLISIONS_PER_MOVE; iteration++) {
+                BodyCollision firstCollision = findFirstBodyCollision(index, box, remaining, previousCollisionSource);
+                if (firstCollision == null) {
+                    resolved = resolved.add(remaining);
+                    remaining = Vec3.ZERO;
+                    break;
+                }
 
-            double clippedScale = Math.min(1.0, firstHit + BODY_COLLISION_MARGIN / movement.length());
-            entity.setDeltaMovement(entity.getDeltaMovement().scale(clippedScale));
-            return movement.scale(clippedScale);
+                collided = true;
+                AabbSphereCollision.Hit hit = firstCollision.hit();
+                Vec3 movementToContact = remaining.scale(hit.time());
+                resolved = resolved.add(movementToContact);
+                box = box.move(movementToContact);
+
+                Vec3 movementAfterContact = remaining.scale(1 - hit.time());
+                remaining = AabbSphereCollision.removeInwardComponent(movementAfterContact, hit.normal());
+                velocity = AabbSphereCollision.removeInwardComponent(velocity, hit.normal());
+                previousCollisionSource = firstCollision.source();
+
+                if (remaining.lengthSqr() <= VECTOR_EPSILON) {
+                    resolved = resolved.add(remaining);
+                    remaining = Vec3.ZERO;
+                    break;
+                }
+            }
+
+            if (collided) entity.setDeltaMovement(velocity);
+            return resolved;
+        }
+
+        private static @Nullable BodyCollision findFirstBodyCollision(
+            GravityFieldIndex index,
+            AABB box,
+            Vec3 movement,
+            @Nullable GravitySource ignoredSource
+        ) {
+            Vec3 start = box.getCenter();
+            BodyCollision firstCollision = null;
+            for (GravitySource source : index.sourcesAlong(start, start.add(movement))) {
+                if (source.type().bodyRadius() <= 0 || source.equals(ignoredSource)) continue;
+                AabbSphereCollision.Hit hit = AabbSphereCollision.findFirst(
+                    box,
+                    movement,
+                    source.center(),
+                    source.type().bodyRadius()
+                );
+                if (hit != null && (firstCollision == null || hit.time() < firstCollision.hit().time())) {
+                    firstCollision = new BodyCollision(source, hit);
+                }
+            }
+            return firstCollision;
         }
 
         private static SweptGravity calculateSweptGravity(Entity entity, Vec3 movement) {
@@ -446,6 +534,9 @@ public final class GravityManager {
         }
     }
 
+    private record BodyCollision(GravitySource source, AabbSphereCollision.Hit hit) {
+    }
+
     private static final class GravityFieldIndex {
         private final Map<BlockPos, GravitySource> sourcesById = new HashMap<>();
         private final Map<Long, Set<GravitySource>> sourcesByChunk = new HashMap<>();
@@ -482,6 +573,20 @@ public final class GravityManager {
             int chunkX = ((int) Math.floor(position.x)) >> 4;
             int chunkZ = ((int) Math.floor(position.z)) >> 4;
             return this.sourcesByChunk.getOrDefault(ChunkPos.pack(chunkX, chunkZ), Set.of());
+        }
+
+        Collection<GravitySource> sourcesIntersecting(AABB box) {
+            Set<GravitySource> result = new LinkedHashSet<>();
+            int minChunkX = ((int) Math.floor(box.minX)) >> 4;
+            int maxChunkX = ((int) Math.floor(box.maxX)) >> 4;
+            int minChunkZ = ((int) Math.floor(box.minZ)) >> 4;
+            int maxChunkZ = ((int) Math.floor(box.maxZ)) >> 4;
+            for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+                for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
+                    result.addAll(this.sourcesByChunk.getOrDefault(ChunkPos.pack(chunkX, chunkZ), Set.of()));
+                }
+            }
+            return result;
         }
 
         Collection<GravitySource> sourcesAlong(Vec3 start, Vec3 end) {

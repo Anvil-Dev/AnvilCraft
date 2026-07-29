@@ -28,7 +28,9 @@ import java.util.Optional;
 import java.util.Random;
 
 /**
- * 定义可通过锻星砧种子物品发现的隐藏特殊天体。
+ * 特殊天体配方，通过种子物品在锻星砧中发现隐藏天体。
+ * {@code textureName} 在使用自定义模型时可填写完整资源标识；旧格式模型名仍加载
+ * AnvilCraft 天体模型目录中的模型。
  */
 public record SpecialCelestialBodyRecipe(
     String name,

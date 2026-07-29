@@ -20,6 +20,8 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.unpack", "Unpack");
 
         provider.add("gui.anvilcraft.category.fast_cooking", "Fast Cooking");
+        provider.add("gui.anvilcraft.category.fast_cooking.consume_fluid", "Consume: %1$d mB of %2$s");
+        provider.add("gui.anvilcraft.category.fast_cooking.produce_fluid", "Produce: %1$d mB of %2$s");
 
         provider.add("gui.anvilcraft.category.stamping", "Stamping");
 
@@ -27,6 +29,7 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.super_heating.consume_fluid", "Consume: %1$d mB of %2$s");
         provider.add("gui.anvilcraft.category.super_heating.produce_fluid", "Produce: %1$d mB of %2$s");
         provider.add("gui.anvilcraft.category.super_heating.need_activated", "Need Activated");
+        provider.add("gui.anvilcraft.category.cauldron.need_ignite", "Need Fire");
 
         provider.add("gui.anvilcraft.category.squeezing", "Squeezing");
 
@@ -40,11 +43,11 @@ public class JeiLang {
         );
         provider.add("gui.anvilcraft.category.mass_inject.items_needed", "Items Needed: %s");
 
-        provider.add("gui.anvilcraft.category.solid_liquid", "Solid-Liquid Reaction");
+        provider.add("gui.anvilcraft.category.solid_liquid", "Fluid Reaction");
         provider.add("gui.anvilcraft.category.solid_liquid.consume_fluid", "Consume: %1$d mB of %2$s");
         provider.add("gui.anvilcraft.category.solid_liquid.produce_fluid", "Produce: %1$d mB of %2$s");
 
-        provider.add("gui.anvilcraft.category.fluid_mixing", "Fluid Mixing");
+        provider.add("gui.anvilcraft.category.fluid_mixing", "Complex Fluid Reaction");
 
         provider.add("gui.anvilcraft.category.time_warp", "Time Warp");
         provider.add("gui.anvilcraft.category.time_warp.consume_fluid", "Consume: %1$d mB of %2$s");
@@ -100,7 +103,7 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.anvil_collision.consume", "Consume Anvil: %d");
         provider.add("gui.anvilcraft.category.anvil_collision.speed", "Need Speed: %s");
 
-        provider.add("gui.anvilcraft.category.procedural_process", "Block Sequence Assembly");
+        provider.add("gui.anvilcraft.category.procedural_process", "Block Sequence Processing");
 
         provider.add("gui.anvilcraft.category.item_compress.supercapacitor.resin", "Resin block containing a lightning-charged Creeper");
         provider.add("gui.anvilcraft.category.item_compress.supercapacitor_empty.resin", "Resin block containing an uncharged Creeper");

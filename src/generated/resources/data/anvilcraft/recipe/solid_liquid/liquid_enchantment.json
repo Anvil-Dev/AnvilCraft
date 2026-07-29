@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "consume": 2000,
+  "fluid": "anvilcraft:exp_fluid",
+  "ingredients": [
+    {
+      "count": 3,
+      "items": "minecraft:lapis_lazuli"
+    }
+  ],
+  "produce": 1,
+  "results": [],
+  "transform": "anvilcraft:liquid_enchantment"
+}

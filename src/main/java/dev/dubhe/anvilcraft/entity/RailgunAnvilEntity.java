@@ -124,18 +124,7 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
             Vec3 projectileMovement = accelerationEntry == null
                                       ? movement
                                       : movement.scale(accelerationEntry.progress());
-            EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(
-                this.level(),
-                this,
-                this.position(),
-                this.position().add(projectileMovement),
-                this.getBoundingBox().expandTowards(projectileMovement).inflate(0.5),
-                entity -> entity instanceof LivingEntity
-                          && entity.isAttackable()
-                          && !this.hitEntities.contains(entity.getUUID()),
-                0.3F
-            );
-            if (entityHit != null) this.hit(entityHit);
+            this.hitEntitiesAlongPath(projectileMovement);
         }
         MovementResult result = this.moveInSubsteps(movement, this.isFlying() ? accelerationEntry : null);
         if (result.converted()) return;
@@ -147,6 +136,25 @@ public class RailgunAnvilEntity extends FallingBlockEntity {
             this.setDeltaMovement(reflected.x, Math.min(0.0, reflected.y), reflected.z);
         } else {
             this.setDeltaMovement(0.0, Math.min(0.0, movement.y), 0.0);
+        }
+    }
+
+    /// 一次移动可能穿过多个实体，逐个命中直到路径上再无可击中的目标
+    private void hitEntitiesAlongPath(Vec3 movement) {
+        while (this.isFlying()) {
+            EntityHitResult entityHit = ProjectileUtil.getEntityHitResult(
+                this.level(),
+                this,
+                this.position(),
+                this.position().add(movement),
+                this.getBoundingBox().expandTowards(movement).inflate(0.5),
+                entity -> entity instanceof LivingEntity
+                          && entity.isAttackable()
+                          && !this.hitEntities.contains(entity.getUUID()),
+                0.3F
+            );
+            if (entityHit == null) return;
+            this.hit(entityHit);
         }
     }
 

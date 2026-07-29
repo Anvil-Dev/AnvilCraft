@@ -8,7 +8,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.DataSlot;
-import net.minecraft.world.inventory.ItemCombinerMenu;
 import net.minecraft.world.inventory.ItemCombinerMenuSlotDefinition;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -26,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 @SuppressWarnings("unused")
-public class RoyalSmithingMenu extends ItemCombinerMenu {
+public class RoyalSmithingMenu extends AdjacentSmithingMenu {
     private final Level level;
     private final RecipePropertySet baseItemTest;
     private final RecipePropertySet templateItemTest;
@@ -70,6 +69,11 @@ public class RoyalSmithingMenu extends ItemCombinerMenu {
             .withSlot(2, 44, 48, additionItemTest::test)
             .withResultSlot(3, 98, 48)
             .build();
+    }
+
+    @Override
+    protected boolean isUsableTemplate(ItemStack stack) {
+        return this.templateItemTest.test(stack);
     }
 
     @Override

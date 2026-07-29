@@ -1,6 +1,10 @@
 {
+  "hand_animation_on_swap": false,
   "model": {
-    "type": "minecraft:model",
-    "model": "anvilcraft:block/fluid_tank"
+    "type": "minecraft:special",
+    "base": "anvilcraft:block/fluid_tank",
+    "model": {
+      "type": "anvilcraft:fluid_tank"
+    }
   }
 }

@@ -344,20 +344,24 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
 
     @Override
     public boolean consumeOnce(BlockCache cache, BlockPos pos) {
-        BlockEntity blockEntity = cache.getBlockEntity(pos);
-        if (!(blockEntity instanceof FishTankBlockEntity be)) {
-            return false;
-        }
+        return this.consumeContinuousPlasmaJetFuel(cache, pos, 250);
+    }
+
+    @Override
+    public boolean usesContinuousPlasmaJetFuel(BlockCache cache, BlockPos pos) {
+        return true;
+    }
+
+    @Override
+    public boolean consumeContinuousPlasmaJetFuel(BlockCache cache, BlockPos pos, int amount) {
+        if (amount <= 0) return false;
+        if (!(cache.getBlockEntity(pos) instanceof FishTankBlockEntity be)) return false;
         try (Transaction transaction = Transaction.openRoot()) {
             FluidStackResourceHandler handler = be.getFluidHandler();
             FluidResource resource = handler.getResource(0);
-            if (resource.isEmpty()) {
-                return false;
-            }
-            int extracted = handler.extract(resource, 250, transaction);
-            if (extracted < 250) {
-                return false;
-            }
+            if (resource.isEmpty()) return false;
+            int extracted = handler.extract(resource, amount, transaction);
+            if (extracted < amount) return false;
             transaction.commit();
             return true;
         }

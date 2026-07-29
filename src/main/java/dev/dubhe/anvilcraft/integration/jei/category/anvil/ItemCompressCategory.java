@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiItemUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
@@ -71,20 +72,20 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
             return;
         }
         List<ItemIngredientPredicate> inputs = recipe.getInputItems();
-        JeiSlotUtil.addSlotWithCount(builder, 11, 15, inputs.getFirst());
-        builder.addSlot(RecipeIngredientRole.INPUT, 30, 15)
+        JeiSlotUtil.addSlotWithCount(builder, 11, JeiSlotUtil.DEFAULT_Y, inputs.getFirst());
+        builder.addSlot(RecipeIngredientRole.INPUT, 30, JeiSlotUtil.ITEM_Y)
             .add(resinWithCreeper(powered))
             .addRichTooltipCallback((slotView, tooltip) ->
                 tooltip.add(Component.translatable(powered
-                    ? "gui.anvilcraft.category.item_compress.supercapacitor.resin"
-                    : "gui.anvilcraft.category.item_compress.supercapacitor_empty.resin")));
+                                                   ? "gui.anvilcraft.category.item_compress.supercapacitor.resin"
+                                                   : "gui.anvilcraft.category.item_compress.supercapacitor_empty.resin")));
         if (powered) {
-            builder.addSlot(RecipeIngredientRole.OUTPUT, 125, 24)
+            builder.addSlot(RecipeIngredientRole.OUTPUT, JeiSlotUtil.OUTPUT_X, JeiSlotUtil.DEFAULT_Y)
                 .add(ModItems.SUPER_CAPACITOR.asStack())
                 .addRichTooltipCallback((slotView, tooltip) ->
                     tooltip.add(Component.translatable("gui.anvilcraft.category.item_compress.supercapacitor.chance")));
         } else {
-            JeiSlotUtil.addOutputSlots(builder, recipe.getResultItems());
+            JeiItemUtil.addDefaultOutputSlots(builder, recipe.getResultItems());
         }
     }
 
@@ -104,12 +105,12 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
         this.arrowIn.draw(graphics, 54, 30);
         this.arrowOutFromBelow.draw(graphics, 92, 29);
 
-        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
+        JeiSlotUtil.drawDefaultInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
         if (recipeHolder.id().identifier().getPath().equals(SUPERCAPACITOR)
             || JeiRecipeUtil.isChance(recipe.getResultItems())) {
-            JeiSlotUtil.drawOutputSlots(graphics, this.slotProbability, recipe.getResultItems().size());
+            JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotProbability, recipe.getResultItems().size());
         } else {
-            JeiSlotUtil.drawOutputSlots(graphics, this.slotDefault, recipe.getResultItems().size());
+            JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotDefault, recipe.getResultItems().size());
         }
     }
 
@@ -145,7 +146,6 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.ITEM_COMPRESS);
-        AnvilCraftJeiPlugin.addCauldronCatalysts(registration, AnvilCraftJeiPlugin.ITEM_COMPRESS);
+        AnvilCraftJeiPlugin.addAnvilCauldronCatalysts(registration, AnvilCraftJeiPlugin.ITEM_COMPRESS);
     }
 }

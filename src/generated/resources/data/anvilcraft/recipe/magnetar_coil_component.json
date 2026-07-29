@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "A": "minecraft:copper_block",
+    "B": "anvilcraft:transcendium_ingot",
+    "C": "anvilcraft:infinite_collector"
+  },
+  "pattern": [
+    "ABA",
+    "ACA",
+    "ABA"
+  ],
+  "result": {
+    "id": "anvilcraft:magnetar_coil_component"
+  }
+}

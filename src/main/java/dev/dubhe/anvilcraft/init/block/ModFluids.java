@@ -4,10 +4,12 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.fluid.MeltGemFluid;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.fluid.HoneyFluid;
+import dev.dubhe.anvilcraft.fluid.LiquidEnchantmentFluid;
 import dev.dubhe.anvilcraft.fluid.PowderSnowFluid;
 import dev.dubhe.anvilcraft.fluid.PrimordialMatterFluid;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.ColorUtil;
+import dev.dubhe.anvilcraft.util.LiquidEnchantmentClientFluidTypeExtension;
 import dev.dubhe.anvilcraft.util.ModClientFluidTypeExtensionImpl;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
@@ -233,6 +235,14 @@ public class ModFluids {
         "primordial_matter", PrimordialMatterFluid::new
     );
 
+    public static final DeferredHolder<FluidType, FluidType> LIQUID_ENCHANTMENT_TYPE = FLUID_TYPES.register(
+        "liquid_enchantment", () -> LiquidEnchantmentFluid.TYPE
+    );
+
+    public static final DeferredHolder<Fluid, LiquidEnchantmentFluid> LIQUID_ENCHANTMENT = FLUIDS.register(
+        "liquid_enchantment", LiquidEnchantmentFluid::new
+    );
+
     public static final DeferredHolder<FluidType, FluidType> POWDER_SNOW_TYPE = DeferredHolder.create(
         NeoForgeRegistries.FLUID_TYPES.key(),
         Identifier.withDefaultNamespace("powder_snow")
@@ -305,6 +315,10 @@ public class ModFluids {
         e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xB7EEDE, 2.0F), MELT_GEM_TYPE);
         e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xFFC200, 1.0F), HONEY_TYPE);
         e.registerFluidType(new ModClientFluidTypeExtensionImpl(0xE6CFFF, 0.5F), PRIMORDIAL_MATTER_TYPE);
+        e.registerFluidType(
+            new LiquidEnchantmentClientFluidTypeExtension(),
+            LIQUID_ENCHANTMENT_TYPE
+        );
         e.registerFluidType(new ModClientFluidTypeExtensionImpl(), POWDER_SNOW_TYPE);
     }
 

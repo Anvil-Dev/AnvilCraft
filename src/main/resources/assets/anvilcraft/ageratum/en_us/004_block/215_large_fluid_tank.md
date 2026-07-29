@@ -10,5 +10,7 @@ items:
 
 <item id="anvilcraft:large_fluid_tank"/>
 
-- Can hold 320B of fluid
+- Obtained through [multi-block conversion](210_giant_anvil.md#function)
+
+- Can hold 512B of fluid
 

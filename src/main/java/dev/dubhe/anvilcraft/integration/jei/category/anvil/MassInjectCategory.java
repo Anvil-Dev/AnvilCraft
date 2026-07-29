@@ -91,8 +91,10 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<MassInjectRecipe> recipeHolder, IFocusGroup focuses) {
         MassInjectRecipe recipe = recipeHolder.value();
-        builder.addSlot(RecipeIngredientRole.INPUT, 21, 24).add(recipe.getIngredient());
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 125, 24).add(ModItems.NEUTRONIUM_INGOT.asStack())
+        builder.addSlot(RecipeIngredientRole.INPUT, JeiSlotUtil.INPUT_X, JeiSlotUtil.DEFAULT_Y)
+            .add(recipe.getIngredient());
+        builder.addSlot(RecipeIngredientRole.OUTPUT, JeiSlotUtil.OUTPUT_X, JeiSlotUtil.DEFAULT_Y)
+            .add(ModItems.NEUTRONIUM_INGOT.asStack())
             .addRichTooltipCallback((_, tooltip) -> tooltip.add(
                 Component.translatable(KEY_MASS_NEEDED, SpaceOvercompressorBlockEntity.DISPLAYED_MASS).withStyle(ChatFormatting.GOLD)
             ));
@@ -131,8 +133,8 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
         this.arrowIn.draw(graphics, 54, 30);
         this.arrowOutputFromBelow.draw(graphics, 92, 29);
 
-        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, 1);
-        JeiSlotUtil.drawOutputSlots(graphics, this.slotDefault, 1);
+        JeiSlotUtil.drawDefaultInputSlots(graphics, this.slotDefault, 1);
+        JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotDefault, 1);
 
         Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();

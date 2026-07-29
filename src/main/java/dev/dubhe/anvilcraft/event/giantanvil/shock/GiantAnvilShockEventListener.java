@@ -4,6 +4,8 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.behavior.BehaviorTree;
 import dev.dubhe.anvilcraft.api.behavior.TreeNode;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
+import dev.dubhe.anvilcraft.api.giantanvil.IShockEntity;
+import dev.dubhe.anvilcraft.api.giantanvil.ShockAnvilBehavior;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -15,6 +17,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.FallingBlockEntity;
@@ -58,11 +61,11 @@ public class GiantAnvilShockEventListener {
             }).then(
                 // test anvil type
                 TreeNode.<ShockContext>predicatedExecutable(
-                    it -> it.unwrap().getBorderMiningEffect().isPresent()
-                ).executes(it -> it.putAttachment(
-                    DESTROY_MODE,
-                    DestroyMode.fromEffect(it.unwrap().getBorderMiningEffect().orElseThrow())
-                ))
+                    it -> it.unwrap().getBorderAnvilBehavior().isPresent()
+                ).executes(it -> {
+                    ShockAnvilBehavior behavior = it.unwrap().getBorderAnvilBehavior().orElseThrow();
+                    it.putAttachment(DESTROY_MODE, DestroyMode.fromAnvilBehavior(behavior));
+                })
             ).then(
                 // test block type
                 TreeNode.multiple(
@@ -111,7 +114,7 @@ public class GiantAnvilShockEventListener {
                     BlockState state = level.getBlockState(pos);
                     if (state.is(ModBlocks.SPECTRAL_ANVIL.get())) {
                         FallingSpectralBlockEntity entity = FallingSpectralBlockEntity.fall(level, pos, state, false, true);
-                        entity.setDeltaMovement(0, 0.31, 0);
+                        entity.setDeltaMovement(0, ShockContext.bounceVelocityForHeight(1.0D), 0);
                     } else if (state.getBlock() instanceof AnvilBlock) {
                         FallingBlockEntity entity = new FallingBlockEntity(
                             level,
@@ -123,9 +126,20 @@ public class GiantAnvilShockEventListener {
                                 : state
                         );
                         level.setBlock(pos, state.getFluidState().createLegacyBlock(), 3);
-                        entity.setDeltaMovement(0, 0.31, 0);
+                        entity.setDeltaMovement(0, ShockContext.bounceVelocityForHeight(1.0D), 0);
                         level.addFreshEntity(entity);
                     }
+                }
+                for (Entity entity : it.unwrap().getShockEntitiesInRange()) {
+                    if (!(entity instanceof IShockEntity shockEntity)) continue;
+                    double heightMultiplier = shockEntity.anvilcraft$getShockBounceHeightMultiplier();
+                    double upwardSpeed = ShockContext.bounceVelocityForHeight(heightMultiplier);
+                    if (upwardSpeed <= 0.0D) continue;
+                    Vec3 movement = entity.getDeltaMovement();
+                    entity.setDeltaMovement(movement.x, upwardSpeed, movement.z);
+                    entity.setOnGround(false);
+                    entity.resetFallDistance();
+                    entity.hurtMarked = true;
                 }
                 // 让范围内的生物原地弹跳
                 int radius = (int) Math.min(Math.ceil(it.unwrap().fallDistance()), AnvilCraft.CONFIG.giantAnvilMaxShockRadius);

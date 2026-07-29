@@ -67,18 +67,19 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.ember_grindstone.cost", "Exp. Cost: %d");
         provider.add("screen.anvilcraft.frost_grindstone.title", "Disenchant");
         provider.add("screen.anvilcraft.ember_grindstone.earn", "Exp. Earn: %d");
+        provider.add("screen.anvilcraft.transcendence_grindstone.title", "Transcendence Grindstone");
+        provider.add("screen.anvilcraft.transcendence_grindstone.penalty", "Penalty: %1$s / %2$s");
+        provider.add(
+            "screen.anvilcraft.transcendence_grindstone.modifier_slot.tooltip",
+            "Accepts gold ingots or blocks, books, weapons or tools, and empty small or large fluid tanks; "
+                + "leave empty to disenchant"
+        );
 
         provider.add("screen.anvilcraft.royal_steel_upgrade_smithing_template", "Royal Steel Upgrade");
         provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.additions_slot_description", "Put the Royal Steel Ingot or Royal Steel Block");
         provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to", "Anvil, Smithing Table, Grindstone, Anvil Hammer, Amethyst Tools, Golden Tools, Iron Tools, Diamond Tools");
         provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.base_slot_description", "Put upgradable item");
         provider.add("screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.upgrade_ingredients", "Royal Steel Ingot or Royal Steel Block");
-
-        provider.add("screen.anvilcraft.transcendium_upgrade_smithing_template", "Transcendium Upgrade");
-        provider.add("screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.upgrade_ingredients", "Transcendium Ingot or Transcendium Block");
-        provider.add("screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.applies_to", "Ember Metal Anvil, Ember Anvil Hammer, Ember Dragon Rod");
-        provider.add("screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.base_slot_description", "Put upgradable item");
-        provider.add("screen.anvilcraft.smithing_template.transcendium_upgrade_smithing_template.additions_slot_description", "Put the Transcendium Ingot or Transcendium Block");
 
         provider.add("screen.anvilcraft.item_collector.title", "Item Collector");
         provider.add("screen.anvilcraft.item_collector.range", "Range");
@@ -190,17 +191,29 @@ public class ScreenLang {
         provider.add("hud.anvilcraft.ionocraft_backpack_power", "Ionocraft Backpack Power Remaining: %d%%");
 
         provider.add("screen.anvilcraft.frost_metal_upgrade_smithing_template", "Frost Metal Upgrade");
-        provider.add("screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.additions_slot_description", "Put the Frost Metal Ingot");
-        provider.add("screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.applies_to", "Royal Steel Tools");
-        provider.add("screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.base_slot_description", "Put upgradable item");
-        provider.add("screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.upgrade_ingredients", "Frost Metal Ingot");
+        provider.add(
+            "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.additions_slot_description",
+            "Put the Frost Metal Ingot or Frost Metal Block"
+        );
+        provider.add(
+            "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.applies_to",
+            "Royal Steel Anvil Hammer, Royal Steel Tools"
+        );
+        provider.add(
+            "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.base_slot_description",
+            "Put upgradable item"
+        );
+        provider.add(
+            "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.upgrade_ingredients",
+            "Frost Metal Ingot or Frost Metal Block"
+        );
 
         provider.add("screen.anvilcraft.ember_smithing.tooltip.missing_template", "Add Multiple to One Template");
         provider.add("screen.anvilcraft.ember_smithing.two.missing", "Add Multiphase Transcendium");
         provider.add("screen.anvilcraft.ember_smithing.four.missing", "Add Resonator Core, Heavy Halberd Core, Multiphase Transcendium or Frost Metal Block");
         provider.add("screen.anvilcraft.ember_smithing.eight.missing", "Add Multiphase Matter");
         provider.add("screen.anvilcraft.ember_smithing.multiphase_matter.missing_tools", "Add a Shear, a Flint and Steel, a Brush, a Spyglass, a Magnet, a Fishing Rod, a Carrot on a Stick and a Warped Fungus on a Stick");
-        provider.add("screen.anvilcraft.ember_smithing.heavy_halberd_core.missing_tools", "Add a sword and an axe of the same type, a Trident and a Mace");
+        provider.add("screen.anvilcraft.ember_smithing.heavy_halberd_core.missing_tools", "Add a sword and a spear of the same type, a Trident and a Mace");
         provider.add("screen.anvilcraft.ember_smithing.resonator_core.missing_tools", "Add same Ember or Frost metal tools");
         provider.add("screen.anvilcraft.ember_smithing.frost_metal_block.missing_tools", "Add Amulets in same category");
         provider.add("screen.anvilcraft.ember_smithing.multiphase_transcendium.missing_tools", "Add a Ember Metal Resonator or Heavy Halberd and a Frost Metal Resonator or Heavy Halberd");
@@ -213,6 +226,12 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.resonator.shovel", "Shovel");
         provider.add("screen.anvilcraft.resonator.hoe", "Hoe");
         provider.add("screen.anvilcraft.resonator.pickaxe", "Pickaxe");
+
+        provider.add("screen.anvilcraft.heavy_halberd.title", "Switch heavy halberd mode");
+        provider.add("screen.anvilcraft.heavy_halberd.trident", "Trident");
+        provider.add("screen.anvilcraft.heavy_halberd.spear", "Spear");
+        provider.add("screen.anvilcraft.heavy_halberd.sword", "Sword");
+        provider.add("screen.anvilcraft.heavy_halberd.mace", "Mace");
 
         provider.add("screen.anvilcraft.multiphase.title", "Switch phase");
 
@@ -425,7 +444,8 @@ public class ScreenLang {
                 §fPlanetary mineral resources§r
                 ———————
                 Side Effects:
-                §fReduces liquid coverage, causes biological extinction until the planet becomes a Deathly Planet§r"""
+                §fReduces liquid coverage, causes biological extinction until the planet becomes a Deathly Planet§r
+                §dGamma lasers shatter ordinary planets and destroy the excavator§r"""
         );
         provider.add("screen.anvilcraft.cfa.megastructure.planet_exctractor.usage",
             """

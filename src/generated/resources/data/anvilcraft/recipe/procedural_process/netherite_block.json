@@ -1,6 +1,12 @@
 {
   "type": "anvilcraft:procedural_process",
-  "displayed_model": "anvilcraft:block/netherite_block_wip",
+  "displayed_models": [
+    "anvilcraft:block/netherite_block_wip",
+    "anvilcraft:block/netherite_block_wip_2"
+  ],
+  "icon": {
+    "id": "minecraft:netherite_block"
+  },
   "initial_block": {
     "blocks": "minecraft:ancient_debris"
   },

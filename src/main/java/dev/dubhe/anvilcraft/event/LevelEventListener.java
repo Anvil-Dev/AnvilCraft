@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakeKiller;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.heat.collector.HeatCollectorManager;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
+import dev.dubhe.anvilcraft.block.RedstoneWireClientPowerCache;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
@@ -32,6 +33,8 @@ public class LevelEventListener {
     public static void onChunkUnload(ChunkEvent.Unload event) {
         if (event.getLevel() instanceof ServerLevel serverLevel) {
             RedstoneWireNetworkManager.chunkUnloaded(serverLevel, event.getChunk().getPos());
+        } else if (event.getLevel() instanceof Level level) {
+            RedstoneWireClientPowerCache.clearChunk(level, event.getChunk().getPos());
         }
     }
 
@@ -52,8 +55,10 @@ public class LevelEventListener {
         if (accessor instanceof Level level) {
             AccelerationRingBlockEntity.clear(level);
             DeflectionRingBlockEntity.clear(level);
+            RedstoneWireClientPowerCache.clear(level);
             if (accessor instanceof ServerLevel serverLevel) {
                 LevelLoadManager.removeAll(serverLevel);
+                // LEVELS 按 ServerLevel 对象持有强引用，世界卸载时清理才能释放整张拓扑缓存。
                 RedstoneWireNetworkManager.clear(serverLevel);
             }
             HeatCollectorManager.remove(level);

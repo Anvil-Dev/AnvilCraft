@@ -32,6 +32,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
         NORMAL.put(ModItems.ROYAL_ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
         NORMAL.put(ModItems.EMBER_ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
+        NORMAL.put(ModItems.FROST_ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
         NORMAL.put(ModItems.TRANSCENDENCE_ANVIL_HAMMER.get(), "It's a hammer, an anvil, a wrench, goggles, and a mace");
         NORMAL.put(ModBlocks.CURSED_GOLD_BLOCK.asItem(), "Carriers will be cursed");
         NORMAL.put(ModItems.CURSED_GOLD_INGOT.get(), "Carriers will be cursed");
@@ -48,6 +49,10 @@ public class ItemTooltipManager {
                 Explosion proof, does not degrade from falling""");
         NORMAL.put(ModBlocks.ROYAL_GRINDSTONE.asItem(), "Removes curses and enchantment penalties, Explosion proof");
         NORMAL.put(ModBlocks.ROYAL_SMITHING_TABLE.asItem(), "Does not consume Smithing Templates, Explosion proof");
+        NORMAL.put(
+            ModBlocks.TRANSCENDENCE_SMITHING_TABLE.asItem(),
+            "Performs all smithing operations without physical templates\nExplosion, Wither and Ender Dragon proof"
+        );
         NORMAL.put(ModBlocks.HEATER.asItem(), "Heating the block above, consumes 16 kW");
         NORMAL.put(
             ModBlocks.BURNING_HEATER.asItem(), """
@@ -114,7 +119,10 @@ public class ItemTooltipManager {
                Wither proof, does not degrade from falling""");
         NORMAL.put(ModBlocks.EMBER_GRINDSTONE.asItem(), "Extracts enchantments onto books, Wither proof");
         NORMAL.put(ModBlocks.EMBER_SMITHING_TABLE.asItem(), "All-in-one combination smithing, Wither proof");
-        NORMAL.put(ModBlocks.EMBER_METAL_BLOCK.asItem(), "A large block of Netherite tempered in fire for eons, Wither proof");
+        NORMAL.put(
+            ModBlocks.EMBER_METAL_BLOCK.asItem(),
+            "A large block of heat-resistant Netherite tempered in fire for eons, Wither proof"
+        );
         NORMAL.put(
             ModBlocks.EMBER_GLASS.asItem(),
             "Ember Metal glass, Wither proof, No tools required on collect"
@@ -127,8 +135,8 @@ public class ItemTooltipManager {
             ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.asItem(), """
                 Extreme heat has broken its mass-energy balance; injecting mass will transform it into Transcendium
                 May degrade into Netherite upon cooling""");
-        NORMAL.put(ModItems.EMBER_METAL_INGOT.get(), "A piece of Netherite tempered in fire for eons");
-        NORMAL.put(ModItems.FROST_METAL_INGOT.get(), "A piece of Royal Steel tempered in extreme cold for eons");
+        NORMAL.put(ModItems.EMBER_METAL_INGOT.get(), "A piece of heat-resistant Netherite tempered in fire for eons");
+        NORMAL.put(ModItems.FROST_METAL_INGOT.get(), "A piece of cold-resistant Royal Steel tempered in extreme cold for eons");
         NORMAL.put(ModItems.MAGNET_INGOT.get(), "A magnetized iron ingot");
         NORMAL.put(ModItems.TUNGSTEN_INGOT.get(), "A heat-resistant and dense metal, material for Ancient Debris");
         NORMAL.put(ModBlocks.TUNGSTEN_BLOCK.asItem(), "A large block of heat-resistant, high-density metal that can be heated to extreme temperatures");
@@ -167,8 +175,8 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CUT_BRASS_PILLAR.asItem(), "Brass decorative block");
         NORMAL.put(ModBlocks.CHISELED_BRASS_BLOCK.asItem(), "Brass decorative block");
         NORMAL.put(ModItems.ROYAL_STEEL_NUGGET.get(), "A small piece of iron infused with gem magic");
-        NORMAL.put(ModItems.EMBER_METAL_NUGGET.get(), "A small piece of Netherite tempered in fire for eons");
-        NORMAL.put(ModItems.FROST_METAL_NUGGET.get(), "A small piece of Royal Steel tempered in extreme cold for eons");
+        NORMAL.put(ModItems.EMBER_METAL_NUGGET.get(), "A small piece of heat-resistant Netherite tempered in fire for eons");
+        NORMAL.put(ModItems.FROST_METAL_NUGGET.get(), "A small piece of cold-resistant Royal Steel tempered in extreme cold for eons");
         NORMAL.put(ModItems.TUNGSTEN_NUGGET.get(), "A small piece of heat-resistant, high-density metal");
         NORMAL.put(ModItems.TITANIUM_NUGGET.get(), "A small piece of Titanium");
         NORMAL.put(ModItems.ZINC_NUGGET.get(), "A small piece of Zinc");
@@ -294,6 +302,12 @@ public class ItemTooltipManager {
                 Ignores enchantment level limits, and Anvil Looting produces additional drops
                 Immune to most destruction methods, does not degrade from falling""");
         NORMAL.put(
+            ModBlocks.TRANSCENDENCE_GRINDSTONE.asItem(),
+            """
+                Removes curses and enchantment penalties, selectively removes or transfers multiple enchantments
+                Immune to most destruction methods"""
+        );
+        NORMAL.put(
             ModBlocks.TRANSCENDENCE_DECO_BLOCK.asItem(),
             "Transcendium decorative block; its low Transcendium content means it is not indestructible"
         );
@@ -308,7 +322,7 @@ public class ItemTooltipManager {
         );
         NORMAL.put(
             ModBlocks.FROST_METAL_BLOCK.asItem(),
-            "A large block of Royal Steel tempered in extreme cold for eons, Explosion proof"
+            "A large block of cold-resistant Royal Steel tempered in extreme cold for eons, Explosion proof"
         );
         NORMAL.put(ModBlocks.FROST_GLASS.asItem(), "Frost Metal glass, Explosion proof, No tools required on collect");
         NORMAL.put(ModBlocks.CUT_FROST_METAL_BLOCK.asItem(), "Frost Metal decorative block, Explosion proof");
@@ -333,6 +347,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.DEFLECTION_RING.asItem(), "Deflects passing objects 90°, detect speed with Comparator");
         NORMAL.put(ModItems.DRAGON_ROD.asItem(), "Portable block devourer with adjustable range");
         NORMAL.put(ModItems.EMBER_DRAGON_ROD.asItem(), "Portable block devourer with adjustable range");
+        NORMAL.put(ModItems.FROST_DRAGON_ROD.asItem(), "Portable block devourer with adjustable range");
         NORMAL.put(ModItems.ROYAL_DRAGON_ROD.asItem(), "Portable block devourer with adjustable range");
         NORMAL.put(ModItems.TRANSCENDENCE_DRAGON_ROD.asItem(), "Portable block devourer with adjustable range");
         NORMAL.put(ModItems.FILTER.asItem(), "Matches items based on configuration, usable in any filter slot");
@@ -366,7 +381,9 @@ public class ItemTooltipManager {
         NORMAL.put(
             ModBlocks.LARGE_FLUID_TANK.asItem(),
             """
-                Stores 320B shared by any number of fluids; Menger Sponges unlock unlimited total storage
+                Stores 512B shared by any number of fluids
+                Menger Sponges unlock unlimited total storage
+                Can store multiple fluids, each type of fluid that reaches 12800B will be converted to infinite
                 Can interact with Dispensers for fluid transfer"""
         );
         NORMAL.put(ModBlocks.DRAIN.asItem(), "Transfers fluid vertically, outputting downward and drawing from above");
@@ -407,10 +424,34 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.asItem(), "Teleports players and entities between two portals");
         NORMAL.put(ModBlocks.LENS.asItem(), "Use special glass to enchant lasers");
         NORMAL.put(ModItems.CHECK_VALVE.get(), "Allows fluid to flow in only one direction");
-        NORMAL.put(ModItems.DYSON_SPHERE_COMPONENT.get(), "Material for crafting the Dyson Sphere");
-        NORMAL.put(ModItems.PENROSE_SPHERE_COMPONENT.get(), "Material for crafting the Penrose Sphere");
-        NORMAL.put(ModItems.MATTER_DECOMPRESSOR_COMPONENT.get(), "Material for crafting the Matter Decompressor");
-        NORMAL.put(ModItems.WORMHOLE_STABILIZER_COMPONENT.get(), "Material for crafting the Wormhole Stabilizer");
+        NORMAL.put(
+            ModItems.DYSON_SPHERE_COMPONENT.get(),
+            "Material for building a Dyson Sphere, used in the Celestial Forging Anvil"
+        );
+        NORMAL.put(
+            ModItems.PENROSE_SPHERE_COMPONENT.get(),
+            "Material for building a Penrose Sphere, used in the Celestial Forging Anvil"
+        );
+        NORMAL.put(
+            ModItems.MATTER_DECOMPRESSOR_COMPONENT.get(),
+            "Material for building a Matter Decompressor, used in the Celestial Forging Anvil"
+        );
+        NORMAL.put(
+            ModItems.WORMHOLE_STABILIZER_COMPONENT.get(),
+            "Material for building a Wormhole Stabilizer, used in the Celestial Forging Anvil"
+        );
+        NORMAL.put(
+            ModItems.STELLAR_RING_COMPONENT.get(),
+            "Material for building a Stellar Ring Collider, used in the Celestial Forging Anvil"
+        );
+        NORMAL.put(
+            ModItems.MAGNETAR_COIL_COMPONENT.get(),
+            "Material for building a Magnetar Coil, used in the Celestial Forging Anvil"
+        );
+        NORMAL.put(
+            ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT.get(),
+            "Material for building a Stellar Evolution Accelerator, used in the Celestial Forging Anvil"
+        );
         NORMAL.put(ModBlocks.LARGE_LASER.asItem(), "Equivalent to 16 lasers, outputs 16 intensity levels of laser, consumes 256 kW");
         NORMAL.put(
             ModBlocks.SUGAR_BLOCK.asItem(), """
@@ -626,6 +667,10 @@ public class ItemTooltipManager {
         );
         SHIFT.put(
             ModItems.EMBER_DRAGON_ROD.asItem(),
+            "Portable block devourer, left-click to mine, right-click to adjust range, larger range costs more durability"
+        );
+        SHIFT.put(
+            ModItems.FROST_DRAGON_ROD.asItem(),
             "Portable block devourer, left-click to mine, right-click to adjust range, larger range costs more durability"
         );
         SHIFT.put(

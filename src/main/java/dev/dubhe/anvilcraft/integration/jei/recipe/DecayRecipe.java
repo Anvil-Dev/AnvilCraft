@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.recipe;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.storage.ExcitedStateVoidMatterBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
@@ -39,8 +40,8 @@ public record DecayRecipe(
         if (resultTag == null && results.isEmpty()) {
             throw new IllegalArgumentException("Decay recipe must have results or a result tag");
         }
-        if (resultTag == null && results.size() != centers.size()) {
-            throw new IllegalArgumentException("Direct decay results must match the number of center blocks");
+        if (resultTag == null && centers.size() > 1 && results.size() != centers.size()) {
+            throw new IllegalArgumentException("Multi-center decay results must match the number of center blocks");
         }
     }
 
@@ -85,6 +86,30 @@ public record DecayRecipe(
                 null,
                 List.of(UP, DOWN, LEFT, RIGHT, FRONT, BACK),
                 Map.of()
+            ),
+            new DecayRecipe(
+                AnvilCraft.of("decay/excited_state_void_matter"),
+                List.of(ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK.get()),
+                ExcitedStateVoidMatterBlock.getDecayProducts(),
+                null,
+                List.of(RIGHT),
+                Map.of()
+            ),
+            new DecayRecipe(
+                AnvilCraft.of("decay/excited_state_void_matter_confined_anvil"),
+                List.of(ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK.get()),
+                ExcitedStateVoidMatterBlock.getConfinedAnvilons(),
+                null,
+                List.of(RIGHT),
+                Map.of(LEFT, ModBlocks.CONFINEMENT_CHAMBER.get())
+            ),
+            new DecayRecipe(
+                AnvilCraft.of("decay/void_matter_near_excited_state"),
+                List.of(ModBlocks.VOID_MATTER_BLOCK.get()),
+                List.of(),
+                ModBlockTags.VOID_DECAY_PRODUCTS,
+                List.of(),
+                Map.of(RIGHT, ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK.get())
             )
         );
     }

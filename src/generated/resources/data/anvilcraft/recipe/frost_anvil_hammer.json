@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "A": "anvilcraft:frost_anvil",
+    "B": "minecraft:lightning_rod",
+    "C": "anvilcraft:frost_metal_ingot"
+  },
+  "pattern": [
+    "A",
+    "B",
+    "C"
+  ],
+  "result": {
+    "id": "anvilcraft:frost_anvil_hammer"
+  }
+}

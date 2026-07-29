@@ -34,26 +34,16 @@ public class FastCookingRecipe extends AbstractProcessRecipe<FastCookingRecipe> 
         ChanceItemStack.CODEC.listOf()
             .optionalFieldOf("results", List.of())
             .forGetter(FastCookingRecipe::getResultItems),
-        Identifier.CODEC
-            .optionalFieldOf("fluid", HasCauldron.EMPTY)
-            .forGetter(recipe -> recipe.getHasCauldron().fluid())
-    ).apply(instance, (ingredients, results, fluid) -> new FastCookingRecipe(
-        ingredients,
-        results,
-        HasCauldronSimple.fluid(fluid).build()
-    )));
+        HasCauldronSimple.CODEC.forGetter(FastCookingRecipe::getHasCauldron)
+    ).apply(instance, FastCookingRecipe::new));
     private static final StreamCodec<RegistryFriendlyByteBuf, FastCookingRecipe> STREAM_CODEC = StreamCodec.composite(
         ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
         FastCookingRecipe::getInputItems,
         ChanceItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
         FastCookingRecipe::getResultItems,
-        Identifier.STREAM_CODEC,
-        recipe -> recipe.getHasCauldron().fluid(),
-        (ingredients, results, fluid) -> new FastCookingRecipe(
-            ingredients,
-            results,
-            HasCauldronSimple.fluid(fluid).build()
-        )
+        HasCauldronSimple.STREAM_CODEC,
+        FastCookingRecipe::getHasCauldron,
+        FastCookingRecipe::new
     );
     public static final RecipeSerializer<FastCookingRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
 
@@ -95,6 +85,16 @@ public class FastCookingRecipe extends AbstractProcessRecipe<FastCookingRecipe> 
         return new Builder();
     }
 
+    public boolean isConsumeFluid() {
+        HasCauldronSimple hasCauldron = this.getHasCauldron();
+        return HasCauldron.isNotEmpty(hasCauldron.fluid()) && hasCauldron.consume() > 0;
+    }
+
+    public boolean isProduceFluid() {
+        HasCauldronSimple hasCauldron = this.getHasCauldron();
+        return HasCauldron.isNotEmpty(hasCauldron.transform()) && hasCauldron.produce() > 0;
+    }
+
     public static class Builder extends SimpleAbstractBuilder<FastCookingRecipe, Builder> {
         private final HasCauldronSimple.Builder hasCauldron = HasCauldronSimple.empty();
 
@@ -105,6 +105,21 @@ public class FastCookingRecipe extends AbstractProcessRecipe<FastCookingRecipe> 
 
         public Builder cauldron(Block cauldron) {
             this.hasCauldron.fluid(WrapUtils.cauldron2Fluid(cauldron));
+            return this;
+        }
+
+        public Builder transform(Identifier fluid) {
+            this.hasCauldron.transform(fluid);
+            return this;
+        }
+
+        public Builder consume(int amount) {
+            this.hasCauldron.consume(amount);
+            return this;
+        }
+
+        public Builder produce(int amount) {
+            this.hasCauldron.produce(amount);
             return this;
         }
 

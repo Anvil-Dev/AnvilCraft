@@ -1,14 +1,14 @@
 package dev.dubhe.anvilcraft.block.power.consumer;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.api.block.IDamagingHeater;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
+import dev.dubhe.anvilcraft.util.HeaterUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -29,7 +29,7 @@ import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
-public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
+public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable, IDamagingHeater {
     public static final VoxelShape SHAPE = Shapes.or(Block.box(0, 2, 0, 16, 16, 16), Block.box(1, 0, 1, 15, 2, 15));
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
@@ -95,13 +95,13 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable {
 
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
-        if (!state.getValue(POWERED)
-            && !state.getValue(OVERLOAD)
-            && !entity.isSteppingCarefully()
-            && entity instanceof LivingEntity) {
-            entity.hurt(ModDamageTypes.heaterBurn(level), 4.0F);
-        }
+        HeaterUtil.hurtEntity(level, state, entity);
         super.stepOn(level, pos, state, entity);
+    }
+
+    @Override
+    public boolean isActive(BlockState state) {
+        return !state.getValue(POWERED) && !state.getValue(OVERLOAD);
     }
 
     @Override

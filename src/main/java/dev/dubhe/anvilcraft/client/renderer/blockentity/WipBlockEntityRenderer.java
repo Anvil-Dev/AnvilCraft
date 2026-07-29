@@ -51,6 +51,27 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
     public static final StandaloneModelKey<BlockStateModel> SUPERCRITICAL_NESTING_SHULKER_BOX = registerModel(
         "block/supercritical_nesting_shulker_box"
     );
+    public static final StandaloneModelKey<BlockStateModel> SPACETIME_SUPERCOMPUTER_WIP_2 = registerModel(
+        "block/spacetime_supercomputer_wip_2"
+    );
+    public static final StandaloneModelKey<BlockStateModel> SPACETIME_SUPERCOMPUTER_WIP_3 = registerModel(
+        "block/spacetime_supercomputer_wip_3"
+    );
+    public static final StandaloneModelKey<BlockStateModel> NETHERITE_BLOCK_WIP_2 = registerModel(
+        "block/netherite_block_wip_2"
+    );
+    public static final StandaloneModelKey<BlockStateModel> HEAVY_IRON_BLOCK_WIP_2 = registerModel(
+        "block/heavy_iron_block_wip_2"
+    );
+    public static final StandaloneModelKey<BlockStateModel> ANCIENT_SEA_REEF_WIP_2 = registerModel(
+        "block/ancient_sea_reef_wip_2"
+    );
+    public static final StandaloneModelKey<BlockStateModel> SHULKER_BOX_WIP = registerModel(
+        "block/shulker_box_wip"
+    );
+    public static final StandaloneModelKey<BlockStateModel> SHULKER_BOX_WIP_2 = registerModel(
+        "block/shulker_box_wip_2"
+    );
 
     private static StandaloneModelKey<BlockStateModel> registerModel(String path) {
         Identifier id = AnvilCraft.of(path);

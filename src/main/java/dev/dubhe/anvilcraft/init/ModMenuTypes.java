@@ -32,6 +32,8 @@ import dev.dubhe.anvilcraft.client.gui.screen.StructureToolScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TeslaTowerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TradingStationScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceAnvilScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceGrindstoneScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceSmithingScreen;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import dev.dubhe.anvilcraft.inventory.AdvancedComparatorMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
@@ -64,6 +66,8 @@ import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
 import dev.dubhe.anvilcraft.inventory.TeslaTowerMenu;
 import dev.dubhe.anvilcraft.inventory.TradingStationMenu;
 import dev.dubhe.anvilcraft.inventory.TranscendenceAnvilMenu;
+import dev.dubhe.anvilcraft.inventory.TranscendenceGrindstoneMenu;
+import dev.dubhe.anvilcraft.inventory.TranscendenceSmithingMenu;
 import net.minecraft.client.gui.screens.inventory.AnvilScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -175,6 +179,20 @@ public class ModMenuTypes {
 
     public static final MenuEntry<TranscendenceAnvilMenu> TRANSCENDENCE_ANVIL = REGISTRUM
         .menu("transcendence_anvil", (type, id, inv) -> new TranscendenceAnvilMenu(id, inv), () -> TranscendenceAnvilScreen::new)
+        .register();
+    public static final MenuEntry<TranscendenceGrindstoneMenu> TRANSCENDENCE_GRINDSTONE = REGISTRUM
+        .menu(
+            "transcendence_grindstone",
+            (type, id, inv) -> new TranscendenceGrindstoneMenu(type, id, inv),
+            () -> TranscendenceGrindstoneScreen::new
+        )
+        .register();
+    public static final MenuEntry<TranscendenceSmithingMenu> TRANSCENDENCE_SMITHING = REGISTRUM
+        .menu(
+            "transcendence_smithing_table",
+            (type, id, inv) -> new TranscendenceSmithingMenu(type, id, inv),
+            () -> TranscendenceSmithingScreen::new
+        )
         .register();
 
     public static final MenuEntry<FrostAnvilMenu> FROST_ANVIL = REGISTRUM

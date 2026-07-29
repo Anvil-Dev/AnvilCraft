@@ -1,0 +1,11 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "equipment",
+  "ingredients": [
+    "anvilcraft:block_devourer",
+    "anvilcraft:frost_anvil_hammer"
+  ],
+  "result": {
+    "id": "anvilcraft:frost_dragon_rod"
+  }
+}

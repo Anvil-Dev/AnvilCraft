@@ -38,6 +38,27 @@ public class LargeFluidTankRenderer extends BaseFluidHandlerHolderRenderer<Large
     }
 
     @Override
+    public boolean shouldRender(LargeFluidTankBlockEntity blockEntity, Vec3 cameraPosition) {
+        return blockEntity.isMainPart() && super.shouldRender(blockEntity, cameraPosition);
+    }
+
+    @Override
+    public void extractRenderState(
+        LargeFluidTankBlockEntity be,
+        FluidHandlerRenderState state,
+        float partialTicks,
+        Vec3 cameraPosition,
+        ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
+    ) {
+        if (!be.isMainPart()) {
+            state.setResource(null);
+            state.setFill(0.0F);
+            return;
+        }
+        super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
+    }
+
+    @Override
     protected void updateTankW(
         LargeFluidTankBlockEntity be,
         FluidHandlerRenderState state,
@@ -55,6 +76,6 @@ public class LargeFluidTankRenderer extends BaseFluidHandlerHolderRenderer<Large
 
     @Override
     public AABB getRenderBoundingBox(LargeFluidTankBlockEntity blockEntity) {
-        return new AABB(blockEntity.getBlockPos().above()).inflate(1);
+        return new AABB(blockEntity.getBlockPos()).inflate(1);
     }
 }

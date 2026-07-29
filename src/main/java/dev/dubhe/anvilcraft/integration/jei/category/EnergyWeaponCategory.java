@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiItemUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
@@ -75,8 +76,8 @@ public class EnergyWeaponCategory implements IRecipeCategory<RecipeHolder<Energy
         EnergyWeaponMakeRecipe recipe = recipeHolder.value();
         ArrayList<ItemIngredientPredicate> ingredients = new ArrayList<>(recipe.ingredients());
         ingredients.addFirst(ItemIngredientPredicate.of(ModItems.ENERGY_WEAPON_PLATFORM).build());
-        JeiSlotUtil.addInputSlots(builder, ingredients);
-        JeiSlotUtil.addOutputSlots(builder, List.of(ChanceItemStack.of(recipe.result())));
+        JeiItemUtil.addDefaultInputSlots(builder, ingredients);
+        JeiItemUtil.addDefaultOutputSlots(builder, List.of(ChanceItemStack.of(recipe.result())));
     }
 
     @Override
@@ -88,8 +89,8 @@ public class EnergyWeaponCategory implements IRecipeCategory<RecipeHolder<Energy
         double mouseY
     ) {
         this.arrow.draw(graphics, 80, 27);
-        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipeHolder.value().ingredients().size() + 1);
-        JeiSlotUtil.drawOutputSlots(graphics, this.slotDefault, 1);
+        JeiSlotUtil.drawDefaultInputSlots(graphics, this.slotDefault, recipeHolder.value().ingredients().size() + 1);
+        JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotDefault, 1);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

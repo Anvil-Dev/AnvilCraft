@@ -1,14 +1,57 @@
 {
   "model": {
-    "type": "minecraft:condition",
-    "on_false": {
-      "type": "minecraft:model",
-      "model": "anvilcraft:item/frost_metal_heavy_halberd"
+    "type": "minecraft:select",
+    "cases": [
+      {
+        "model": {
+          "type": "minecraft:condition",
+          "on_false": {
+            "type": "minecraft:model",
+            "model": "anvilcraft:item/frost_metal_heavy_halberd"
+          },
+          "on_true": {
+            "type": "minecraft:model",
+            "model": "anvilcraft:item/frost_metal_heavy_halberd_throwing"
+          },
+          "property": "minecraft:using_item"
+        },
+        "when": "trident"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "anvilcraft:item/frost_metal_heavy_halberd_spear"
+        },
+        "when": "spear"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "anvilcraft:item/frost_metal_heavy_halberd_sword"
+        },
+        "when": "sword"
+      },
+      {
+        "model": {
+          "type": "minecraft:model",
+          "model": "anvilcraft:item/frost_metal_heavy_halberd_mace"
+        },
+        "when": "mace"
+      }
+    ],
+    "component": "anvilcraft:heavy_halberd_mode",
+    "fallback": {
+      "type": "minecraft:condition",
+      "on_false": {
+        "type": "minecraft:model",
+        "model": "anvilcraft:item/frost_metal_heavy_halberd"
+      },
+      "on_true": {
+        "type": "minecraft:model",
+        "model": "anvilcraft:item/frost_metal_heavy_halberd_throwing"
+      },
+      "property": "minecraft:using_item"
     },
-    "on_true": {
-      "type": "minecraft:model",
-      "model": "anvilcraft:item/frost_metal_heavy_halberd_throwing"
-    },
-    "property": "minecraft:using_item"
+    "property": "minecraft:component"
   }
 }

@@ -49,6 +49,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     private static final int ITEM_Y = 20;
     private static final int BLOCK_Y = 50;
     private static final int FLOW_Y = 72;
+    private static final long LOOP_CYCLE_MILLIS = 1500L;
 
     private final IDrawable icon;
     private final IDrawable slot;
@@ -162,8 +163,9 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         );
 
         int visibleSteps = Math.min(recipe.getSteps().size(), MAX_VISIBLE_STEPS);
+        int displayedLoop = getDisplayedLoop(recipe);
         for (int index = 0; index < visibleSteps; index++) {
-            ProceduralProcessStep step = recipe.getSteps().get(index);
+            ProceduralProcessStep step = getDisplayedStep(recipe, index, displayedLoop);
             if (!(step.getContent() instanceof AbstractProcessRecipe<?> process)) continue;
             int x = stepX(index, visibleSteps);
             RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), x - 10, 3, 20);
@@ -177,7 +179,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
                     view,
                     stepBlockSlotName(index, inputIndex),
                     inputBlocks.get(inputIndex),
-                    index,
+                    displayedLoop * recipe.getSteps().size() + index,
                     holder,
                     x - 9,
                     BLOCK_Y + inputIndex * 10,
@@ -242,5 +244,21 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
 
     private static String stepBlockSlotName(int step, int block) {
         return "step_" + step + "_block_" + block;
+    }
+
+    private static int getDisplayedLoop(ProceduralProcessRecipe recipe) {
+        if (recipe.getLoop() <= 1) return 0;
+        return (int) ((System.currentTimeMillis() / LOOP_CYCLE_MILLIS) % recipe.getLoop());
+    }
+
+    private static ProceduralProcessStep getDisplayedStep(
+        ProceduralProcessRecipe recipe,
+        int stepIndex,
+        int displayedLoop
+    ) {
+        if (stepIndex == 0 && displayedLoop > 0) {
+            return recipe.getMultiLoopFirstStep().orElse(recipe.getSteps().getFirst());
+        }
+        return recipe.getSteps().get(stepIndex);
     }
 }

@@ -3,13 +3,13 @@
   "category": "misc",
   "group": "anvilcraft:pump",
   "key": {
-    "B": "anvilcraft:magnetoelectric_core",
     "C": "anvilcraft:pipe",
+    "M": "anvilcraft:magnetoelectric_core",
     "P": "minecraft:piston"
   },
   "pattern": [
     "PCP",
-    "PBP"
+    "PMP"
   ],
   "result": {
     "count": 2,

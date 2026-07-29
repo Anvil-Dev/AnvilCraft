@@ -51,9 +51,11 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.ROYAL_GRINDSTONE);
         this.plain(ModBlocks.FROST_GRINDSTONE);
         this.plain(ModBlocks.EMBER_GRINDSTONE);
+        this.plain(ModBlocks.TRANSCENDENCE_GRINDSTONE);
         this.plain(ModBlocks.ROYAL_SMITHING_TABLE);
         this.plain(ModBlocks.FROST_SMITHING_TABLE);
         this.plain(ModBlocks.EMBER_SMITHING_TABLE);
+        this.plain(ModBlocks.TRANSCENDENCE_SMITHING_TABLE);
 
         this.plain(ModBlocks.MAGNETO_ELECTRIC_CORE_BLOCK);
         this.plain(ModBlocks.TRANSMISSION_POLE);
@@ -116,6 +118,13 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.MINERAL_FOUNTAIN);
         this.plain(ModBlocks.ACCELERATION_RING);
         this.plain(ModBlocks.DEFLECTION_RING);
+
+        this.plain(ModBlocks.CONFINED_TIME_ANVILON);
+        this.plain(ModBlocks.CONFINED_SPACE_ANVILON);
+        this.plain(ModBlocks.CONFINED_MASS_ANVILON);
+        this.plain(ModBlocks.CONFINED_ENERGY_ANVILON);
+        this.plain(ModBlocks.CONFINED_NEUTRONIUM_INGOT_BLOCK);
+        this.plain(ModBlocks.CONFINEMENT_CHAMBER);
 
         this.plain(ModBlocks.SPACETIME_SUPERCOMPUTER);
         this.plain(ModBlocks.CELESTIAL_FORGING_ANVIL);

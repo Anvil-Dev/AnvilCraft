@@ -66,15 +66,15 @@ public class StampingCategory extends AbstractProgressCategory<BaseStampingRecip
         this.arrowOutFromBelow.draw(graphics, 92, 29);
 
         if (recipe instanceof StampingDiffRecipe) {
-            JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.getDiffInputItems().size());
+            JeiSlotUtil.drawDefaultInputSlots(graphics, this.slotDefault, recipe.getDiffInputItems().size());
         } else {
-            JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
+            JeiSlotUtil.drawDefaultInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
         }
 
         if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
-            JeiSlotUtil.drawOutputSlots(graphics, this.slotProbability, recipe.getResultItems().size());
+            JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotProbability, recipe.getResultItems().size());
         } else {
-            JeiSlotUtil.drawOutputSlots(graphics, this.slotDefault, recipe.getResultItems().size());
+            JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotDefault, recipe.getResultItems().size());
         }
     }
 
