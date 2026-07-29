@@ -44,3 +44,7 @@ Can be used with <ref item="anvilcraft:heat_collector"/> to generate power
 | [8,11]    |            1             |
 | [12,15]   |            4             |
 | [16,+∞)   |           20             |
+
+# Destroying a Planet
+
+If a *Gamma Laser* is input to the [Planetary Excavator](../004_block/331_celestial_forging_anvil.md#planetary-mega-structures), it will directly destroy the planet, leaving a *Broken Planet*

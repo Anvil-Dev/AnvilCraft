@@ -10,14 +10,12 @@ items:
 
 <recipe id="anvilcraft:smithing/ember_anvil"/>
 
-## Function
+## Forge Capabilities
 
-- <ref item="anvilcraft:ember_anvil"/> never takes damage
 - Has all the smithing capabilities of <ref item="anvilcraft:royal_anvil"/>
-- Even in survival mode, can forcibly add some incompatible enchantments to items
+- Can forcibly apply compatible enchantments to items
 
----
+## Processing Capabilities
 
-## Related
-- [Anvil Mining](../001_feature/000_anvil_destroy.md)
-- [Anvil Looting](../001_feature/000_anvil_loot.md)
+- When participating in [Anvil Mining](../001_feature/000_anvil_destroy.md), gains [Smelting](../001_feature/100_enchantment.md#smelting) effect
+- When participating in [Anvil Looting](../001_feature/000_anvil_loot.md), can produce drops that would normally require **player kills**

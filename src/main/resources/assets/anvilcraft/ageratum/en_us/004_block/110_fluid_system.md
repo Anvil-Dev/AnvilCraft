@@ -16,6 +16,7 @@ items:
 <recipe id="anvilcraft:fluid_tank"/>
 
 - <ref item="anvilcraft:fluid_tank"/> can hold 16B of fluid
+- When broken, the item form retains the fluid
 
 # Flowing Downstream
 

@@ -8,12 +8,12 @@ items:
   - anvilcraft:ember_metal_block
   - anvilcraft:ember_metal_ingot
   - anvilcraft:ember_metal_nugget
+  - anvilcraft:ember_metal_upgrade_smithing_template
   - anvilcraft:ember_metal_pickaxe
   - anvilcraft:ember_metal_axe
   - anvilcraft:ember_metal_shovel
   - anvilcraft:ember_metal_hoe
   - anvilcraft:ember_metal_sword
-  - anvilcraft:ember_dragon_rod
 ---
 
 # 余烬金属
@@ -26,27 +26,30 @@ items:
 
 <gradient start="#ff7a00" end="#9f9f23"> 以烈火立誓，此身即永恒 </gradient>
 
-# 合成
+## 合成
 
 <row halign="center">
 <recipe id="anvilcraft:time_warp/ember_metal_ingot_0"/>
 <recipe id="anvilcraft:time_warp/ember_metal_ingot_1"/>
+</row>
+
+<row halign="center">
 <recipe id="anvilcraft:time_warp/ember_metal_ingot_2"/>
 <recipe id="anvilcraft:time_warp/ember_metal_ingot_3"/>
 </row>
 
-# 功能
+# 余烬锻造模板
 
-- 用于合成机器
-- 与<ref item="anvilcraft:ember_metal_upgrade_smithing_template"/>配合，升级工具
+<recipe id="anvilcraft:stamping/ember_metal_upgrade_smithing_template"/>
+
+将[皇家钢工具](110_royal_steel.md)升级为*余烬金属工具*
 
 # 余烬金属工具
 
 - 耐久以及挖掘等级与*下界合金工具*相同
 - 拥有[属性：重铸](../001_feature/201_properties.md)
-- 不被火焰和熔岩所伤害
+- 不会被火焰和熔岩摧毁
 
-<row halign="center">
 <recipe id="anvilcraft:smithing/ember_metal_pickaxe"/>
 <recipe id="anvilcraft:smithing/ember_metal_axe"/>
 <recipe id="anvilcraft:smithing/ember_metal_shovel"/>
@@ -54,11 +57,3 @@ items:
 <recipe id="anvilcraft:smithing/ember_metal_sword"/>
 <recipe id="anvilcraft:smithing/ember_anvil_hammer"/>
 <recipe id="anvilcraft:smithing/ember_dragon_rod"/>
-</row>
-
-# 相关
-
-- [铁砧锤](../005_tool/000_anvil_hammer.md)
-- [龙杖](../005_tool/101_dragon_rod.md)
-- [皇家钢工具](110_royal_steel.md)
-- [共振器](../005_tool/301_resonator.md)

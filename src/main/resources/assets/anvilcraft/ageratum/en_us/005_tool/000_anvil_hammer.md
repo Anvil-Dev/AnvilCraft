@@ -2,32 +2,17 @@
 navigation:
   title: "Anvil Hammer"
   icon: "anvilcraft:anvil_hammer"
-categories:
-  - tools
 items:
   - anvilcraft:anvil_hammer
   - anvilcraft:royal_anvil_hammer
+  - anvilcraft:frost_anvil_hammer
   - anvilcraft:ember_anvil_hammer
   - anvilcraft:transcendence_anvil_hammer
 ---
 
 # Anvil Hammer
 
-<row halign="center">
-<item id="anvilcraft:anvil_hammer"/>
-<item id="anvilcraft:royal_anvil_hammer"/>
-<item id="anvilcraft:ember_anvil_hammer"/>
-<item id="anvilcraft:transcendence_anvil_hammer"/>
-</row>
-
----
-
 <recipe id="anvilcraft:anvil_hammer"/>
-
-
-It can later be upgraded to the [Royal version](../002_material/110_royal_steel.md)
-
----
 
 ## Functions
 
@@ -40,4 +25,22 @@ It can later be upgraded to the [Royal version](../002_material/110_royal_steel.
 - Heavy Hammer: falling from a height and attacking a creature deals additional damage equivalent to an anvil falling
 - When holding the Anvil Hammer in your main hand, use a <ref item="minecraft:firework_rocket"/> in your offhand on the block beneath your feet to perform an upward **Rocket Jump**; higher-tier fireworks jump higher
 
-> *Note: left-clicking blocks, left-click attacking creatures, and headbutting creatures consume Anvil Hammer durability; other actions do not*
+<warning>
+Note: left-clicking blocks, left-click attacking creatures, and headbutting creatures consume Anvil Hammer durability; other actions do not
+</warning>
+
+# Related
+
+<row halign="center">
+<item id="anvilcraft:royal_anvil_hammer"/>
+<item id="anvilcraft:frost_anvil_hammer"/>
+<item id="anvilcraft:ember_anvil_hammer"/>
+<item id="anvilcraft:transcendence_anvil_hammer"/>
+</row>
+
+<ref item="anvilcraft:anvil_hammer"/> can be upgraded with higher-tier materials
+
+- [Royal Steel Tools](../002_material/110_royal_steel.md)
+- [Frost Metal Tools](../002_material/202_frost_metal.md)
+- [Ember Metal Tools](../002_material/211_ember_metal.md)
+- [Transcendium Tools](../002_material/312_transcendium.md)

@@ -17,7 +17,7 @@ items:
 
 # <ref item="anvilcraft:corrupted_beacon"/>
 
-## 获取
+# 获取
 
 1. 完全使用<ref item="anvilcraft:cursed_gold_block"/>作为*信标底座*
 2. 消耗<ref item="anvilcraft:cursed_gold_ingot"/>激活<ref item="minecraft:beacon"/>
@@ -32,15 +32,44 @@ items:
 
 > **自动化**：使用铁砧将<ref item="anvilcraft:cursed_gold_ingot"/>压入<ref item="minecraft:beacon"/>
 
-## 功能
+# 加工时移配方
+
+- <ref item="anvilcraft:corrupted_beacon"/>只能使用<ref item="anvilcraft:cursed_gold_block"/>作为基座激活
+- 激活后，下述结构可以实现时移操作
 
 <structure id="../../structures/corrupted_beacon.snbt"/>
 
-- 此结构可以实现时移操作，此时<ref item="anvilcraft:corrupted_beacon"/>必须是激活状态
+<info>
+和<ref item="minecraft:beacon"/>不同，上方的方块不会妨碍<ref item="anvilcraft:corrupted_beacon"/>的激活
+</info>
 
-> 这意味着如果使用磁铁块控制顶上的铁砧，其必须为<ref item="anvilcraft:hollow_magnet_block"/>
+## 主要用途
 
-## 特性
+- [量产世界基底方块](../008_recipe/200_world_block.md)
+- [量产钻石](../008_recipe/201_diamond.md)
+- [量产海洋之心](../008_recipe/205_sea_heart.md)
+- [量产宝石](../008_recipe/204_gem.md)
+- [量产下界合金](../008_recipe/210_netherite_ingot.md)
+
+<info>
+金属块都可被时移为粗矿形式，用于<ref item="anvilcraft:mineral_fountain"/>
+</info>
+
+<row halign="center">
+<recipe id="anvilcraft:time_warp/raw_copper"/>
+</row>
+
+<row halign="center">
+<recipe id="anvilcraft:time_warp/budding_amethyst"/>
+<recipe id="anvilcraft:time_warp/wither_skeleton_skull"/>
+</row>
+
+<row halign="center">
+<recipe id="anvilcraft:time_warp/wither_rose"/>
+<recipe id="anvilcraft:time_warp/crying_obsidian"/>
+</row>
+
+# 生物交互
 
 - 信标光柱会赋予生物**凋零**效果
 - 转化特定生物：
@@ -58,25 +87,3 @@ items:
 |      蠹虫      |         末影螨          |
 |      骷髅      |    20%凋零骷髅、80%流浪者    |
 | **村民召唤**的铁傀儡 |         监守者          |
-
-# 时移
-
-<row halign="center">
-<recipe id="anvilcraft:time_warp/raw_copper"/>
-<recipe id="anvilcraft:time_warp/budding_amethyst"/>
-<recipe id="anvilcraft:time_warp/wither_skeleton_skull"/>
-<recipe id="anvilcraft:time_warp/wither_rose"/>
-<recipe id="anvilcraft:time_warp/crying_obsidian"/>
-</row>
-
-<info>
-金属块都可被时移为粗矿形式，用于<ref item="anvilcraft:mineral_fountain"/>
-</info>
-
-# 用途
-
-- [量产世界基底方块](../008_recipe/200_world_block.md)
-- [量产钻石](../008_recipe/201_diamond.md)
-- [量产海洋之心](../008_recipe/205_sea_heart.md)
-- [量产宝石](../008_recipe/204_gem.md)
-- [量产下界合金](../008_recipe/210_netherite_ingot.md)

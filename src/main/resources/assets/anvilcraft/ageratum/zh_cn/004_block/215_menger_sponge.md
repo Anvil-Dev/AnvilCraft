@@ -25,12 +25,15 @@ items:
 - 作为方块时，接触到流体时，可以吸收半径销毁6格及以内的任何流体，且永不饱和
 - 作为物品时可以清空炼药锅内的流体(可通过发射器自动化)
 
-
 ## 对储罐的增幅
 
-- 当<ref item="anvilcraft:fluid_tank"/>位于一个3x3x3<ref item="anvilcraft:menger_sponge"/>结构中心时，其容量变为12800B。流体装满后可无限输入与输出；结构被破坏时会清除无限状态并恢复为16B
-
+- 当<ref item="anvilcraft:fluid_tank"/>位于一个3x3x3<ref item="anvilcraft:menger_sponge"/>结构中心时，其容量变为12800B。流体装满后可无限输入与输出
 - <ref item="anvilcraft:large_fluid_tank"/>通常可不限种类地存储总计512B流体。当其位于一个9x9x9<ref item="anvilcraft:menger_sponge"/>结构中心时，总容量不再受限；每种流体达到12800B后会分别进入无限状态，可无限输入与输出
+
+<warning>
+- 结构被破坏时退出无限状态
+- 储罐被破坏时，只会保留原本可容纳的流体量，超出部分全部消失
+</warning>
 
 ### 结构的判断条件
 
