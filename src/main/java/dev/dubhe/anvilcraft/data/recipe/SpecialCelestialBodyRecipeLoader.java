@@ -23,7 +23,6 @@ public class SpecialCelestialBodyRecipeLoader {
         createOverworldLike(provider);
         createFleshPlanet(provider);
         createIntelligentPlanet(provider);
-        createShatteredPlanet(provider);
         createHollowPlanet(provider);
         createErrorPlanet(provider);
     }
@@ -89,18 +88,6 @@ public class SpecialCelestialBodyRecipeLoader {
             58, 12, 12, 18, false, Optional.of(LiquidCoverage.HIGH), 1, 2, 2.71828f,
             List.of(anvil("spacetime_supercomputer")),
             List.of(), List.of(item("anvilcraft:exp_fluid", 100)),
-            List.of(), List.of(), List.of(), List.of()
-        ));
-    }
-
-    private static void createShatteredPlanet(RegistrumRecipeProvider provider) {
-        saveRecipe(provider, "shattered_planet", new SpecialCelestialBodyRecipe(
-            "shattered_planet", "planet_shattered", true,
-            13, 9, 13, 27, false, Optional.of(LiquidCoverage.MEDIUM), 0, 4, 0f,
-            List.of(mc("magma_block")),
-            List.of(item("anvilcraft:raw_tungsten", 30), item("minecraft:raw_gold", 30),
-                item("anvilcraft:raw_silver", 30), item("anvilcraft:earth_core_shard", 10)),
-            List.of(item("minecraft:lava", 100)),
             List.of(), List.of(), List.of(), List.of()
         ));
     }

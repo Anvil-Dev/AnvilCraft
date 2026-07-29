@@ -1,0 +1,20 @@
+{
+  "type": "anvilcraft:two_to_one_smithing",
+  "inputs": [
+    {
+      "items": "anvilcraft:ember_grindstone"
+    },
+    {
+      "items": "anvilcraft:frost_grindstone"
+    }
+  ],
+  "material": {
+    "items": "anvilcraft:multiphase_transcendium"
+  },
+  "result": {
+    "id": "anvilcraft:transcendence_grindstone"
+  },
+  "template": {
+    "items": "anvilcraft:two_to_one_smithing_template"
+  }
+}

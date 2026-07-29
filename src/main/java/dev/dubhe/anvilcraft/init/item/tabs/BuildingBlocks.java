@@ -136,12 +136,7 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.EARTH_CORE_SHARD_BLOCK);
         this.plain(ModBlocks.MULTIPHASE_MATTER_BLOCK);
         this.plain(ModBlocks.NEGATIVE_MATTER_BLOCK);
-        this.plain(ModBlocks.CONFINED_TIME_ANVILON);
-        this.plain(ModBlocks.CONFINED_SPACE_ANVILON);
-        this.plain(ModBlocks.CONFINED_MASS_ANVILON);
-        this.plain(ModBlocks.CONFINED_ENERGY_ANVILON);
-        this.plain(ModBlocks.CONFINED_NEUTRONIUM_INGOT_BLOCK);
-        this.plain(ModBlocks.CONFINEMENT_CHAMBER);
+
         this.plain(ModBlocks.SINGULARITY_CRYSTAL);
 
         // Heated and incandescent metal variants.

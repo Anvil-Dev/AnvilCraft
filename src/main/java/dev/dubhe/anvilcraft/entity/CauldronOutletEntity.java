@@ -199,7 +199,7 @@ public class CauldronOutletEntity extends Entity {
         // 输出口前方的方块，如果是容器则优先输入进容器，输入不进的部分再作为掉落物输出
         ResourceHandler<ItemResource> containerTarget = null;
         if (this.level() instanceof ServerLevel) {
-            List<ResourceHandler<ItemResource>> targets = ItemHandlerUtil.getTargetItemHandlerList(
+            List<ResourceHandler<ItemResource>> targets = ItemHandlerUtil.getOutletTargetItemHandlerList(
                 cauldronPos.relative(attachedDirection),
                 attachedDirection.getOpposite(),
                 this.level()

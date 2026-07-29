@@ -1436,8 +1436,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         if (option.needsMaterial()) {
             ItemStack inSlot = be.getMaterialContainer().getItem(0);
             ItemStack required = option.material().copyWithCount(option.materialCount());
-            if (!ItemStack.isSameItemSameComponents(inSlot, required)
-                || inSlot.getCount() < required.getCount()) {
+            if (!ItemStack.isSameItem(inSlot, required) || inSlot.getCount() < required.getCount()) {
                 this.showRefactorError(Component.translatable("screen.anvilcraft.cfa.insufficient_materials"));
                 return;
             }

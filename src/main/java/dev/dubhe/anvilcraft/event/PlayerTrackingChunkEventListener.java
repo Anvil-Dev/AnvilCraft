@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.event;
 
+import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -17,5 +18,6 @@ public class PlayerTrackingChunkEventListener {
                 laserBE.syncTo(event.getPlayer());
             }
         }
+        RedstoneWireNetworkManager.syncChunk(event.getPlayer(), event.getLevel(), chunk);
     }
 }

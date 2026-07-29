@@ -1,14 +1,14 @@
 package dev.dubhe.anvilcraft.block.workstation;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.api.block.IDamagingHeater;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
+import dev.dubhe.anvilcraft.util.HeaterUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -29,7 +29,7 @@ import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
-public class BurningHeaterBlock extends BaseEntityBlock implements IHammerRemovable {
+public class BurningHeaterBlock extends BaseEntityBlock implements IHammerRemovable, IDamagingHeater {
     /**
      * 燃烧等级：0=熄灭，1=阴燃(0-300s)，2=点燃(≥300s)
      */
@@ -106,11 +106,12 @@ public class BurningHeaterBlock extends BaseEntityBlock implements IHammerRemova
 
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
-        if (state.getValue(LEVEL) > 0
-            && !entity.isSteppingCarefully()
-            && entity instanceof LivingEntity) {
-            entity.hurt(ModDamageTypes.heaterBurn(level), 4.0F);
-        }
+        HeaterUtil.hurtEntity(level, state, entity);
         super.stepOn(level, pos, state, entity);
+    }
+
+    @Override
+    public boolean isActive(BlockState state) {
+        return state.getValue(LEVEL) > 0;
     }
 }

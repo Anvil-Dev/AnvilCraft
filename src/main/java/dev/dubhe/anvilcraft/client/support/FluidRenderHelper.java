@@ -19,6 +19,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.mixin.accessor.FluidStateModelSetAccessor;
+import dev.dubhe.anvilcraft.util.LiquidEnchantmentClientFluidTypeExtension;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.block.FluidStateModelSet;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -26,6 +27,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.material.Fluid;
+import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.joml.Vector3f;
 
@@ -64,28 +66,33 @@ public final class FluidRenderHelper {
             pose.translate(-center.x, -center.y, -center.z);
         }
 
-        for (Direction side : Direction.values()) {
-            if (side == Direction.DOWN && !renderBottom) continue;
+        IClientFluidTypeExtensions extension = IClientFluidTypeExtensions.of(fluid.getFluid());
+        int[] colors = extension instanceof LiquidEnchantmentClientFluidTypeExtension liquidEnchantment
+            ? liquidEnchantment.getLayerColors(fluid.toStack(1))
+            : new int[]{color};
+        for (int layerColor : colors) {
+            for (Direction side : Direction.values()) {
+                if (side == Direction.DOWN && !renderBottom) continue;
 
-            boolean positive = side.getAxisDirection() == Direction.AxisDirection.POSITIVE;
-            if (side.getAxis()
-                .isHorizontal()) {
-                if (side.getAxis() == Direction.Axis.X) {
-                    renderStillTiledFace(
-                        side, minZ, minY, maxZ, maxY, positive ? maxX : minX,
-                        builder, pose, light, color, sprite
-                    );
+                boolean positive = side.getAxisDirection() == Direction.AxisDirection.POSITIVE;
+                if (side.getAxis().isHorizontal()) {
+                    if (side.getAxis() == Direction.Axis.X) {
+                        renderStillTiledFace(
+                            side, minZ, minY, maxZ, maxY, positive ? maxX : minX,
+                            builder, pose, light, layerColor, sprite
+                        );
+                    } else {
+                        renderStillTiledFace(
+                            side, minX, minY, maxX, maxY, positive ? maxZ : minZ,
+                            builder, pose, light, layerColor, sprite
+                        );
+                    }
                 } else {
                     renderStillTiledFace(
-                        side, minX, minY, maxX, maxY, positive ? maxZ : minZ,
-                        builder, pose, light, color, sprite
+                        side, minX, minZ, maxX, maxZ, positive ? maxY : minY,
+                        builder, pose, light, layerColor, sprite
                     );
                 }
-            } else {
-                renderStillTiledFace(
-                    side, minX, minZ, maxX, maxZ, positive ? maxY : minY,
-                    builder, pose, light, color, sprite
-                );
             }
         }
     }

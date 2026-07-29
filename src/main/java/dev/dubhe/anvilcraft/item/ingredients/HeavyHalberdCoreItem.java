@@ -16,8 +16,8 @@ import java.util.List;
 public class HeavyHalberdCoreItem extends Item implements IMultipleMaterial {
     private static final Identifier EMPTY_SLOT_SWORD =
         Identifier.withDefaultNamespace("item/empty_slot_sword");
-    private static final Identifier EMPTY_SLOT_AXE =
-        Identifier.withDefaultNamespace("item/empty_slot_axe");
+    private static final Identifier EMPTY_SLOT_SPEAR =
+        Identifier.withDefaultNamespace("container/slot/spear");
     private static final Identifier EMPTY_SLOT_TRIDENT =
         AnvilCraft.of("item/empty_slot_trident");
     private static final Identifier EMPTY_SLOT_MACE =
@@ -25,7 +25,7 @@ public class HeavyHalberdCoreItem extends Item implements IMultipleMaterial {
     private static final Component MISSING_TOOLS_TOOLTIP = Component.translatable(
         "screen.anvilcraft.ember_smithing.heavy_halberd_core.missing_tools");
     private static final List<Identifier> EMPTY_SLOT_TEXTURES = List.of(
-        EMPTY_SLOT_SWORD, EMPTY_SLOT_AXE, EMPTY_SLOT_TRIDENT, EMPTY_SLOT_MACE);
+        EMPTY_SLOT_SWORD, EMPTY_SLOT_SPEAR, EMPTY_SLOT_TRIDENT, EMPTY_SLOT_MACE);
 
     public HeavyHalberdCoreItem(Properties properties) {
         super(properties);
@@ -42,8 +42,8 @@ public class HeavyHalberdCoreItem extends Item implements IMultipleMaterial {
         for (ItemStack input : inputs) {
             if (input.is(ItemTags.SWORDS)) {
                 textures.remove(EMPTY_SLOT_SWORD);
-            } else if (input.is(ItemTags.AXES)) {
-                textures.remove(EMPTY_SLOT_AXE);
+            } else if (input.is(ItemTags.SPEARS)) {
+                textures.remove(EMPTY_SLOT_SPEAR);
             } else if (input.is(Items.TRIDENT)) {
                 textures.remove(EMPTY_SLOT_TRIDENT);
             } else if (input.is(Tags.Items.TOOLS_MACE)) {

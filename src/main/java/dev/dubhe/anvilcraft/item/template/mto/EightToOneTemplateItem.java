@@ -58,6 +58,10 @@ public class EightToOneTemplateItem extends BaseMultipleToOneTemplateItem {
             add(Items.SHAPER_ARMOR_TRIM_SMITHING_TEMPLATE);
         }
     };
+    private final List<Item> randomTemplates = java.util.stream.Stream.concat(
+        this.enchantmentMappings.values().stream(),
+        this.otherTemplate.stream()
+    ).distinct().toList();
 
     public static final Component MISSING_TOOLTIP = Component.translatable(
         "screen.anvilcraft.ember_smithing.eight.missing");
@@ -106,7 +110,7 @@ public class EightToOneTemplateItem extends BaseMultipleToOneTemplateItem {
                 }
 
                 if (Set.copyOf(result).size() == 4) {
-                    result.add(ModItems.TRANSCENDIUM_UPGRADE_SMITHING_TEMPLATE.get());
+                    result.add(this.randomTemplates.get(level.getRandom().nextInt(this.randomTemplates.size())));
                 }
 
                 for (Item item : result) {

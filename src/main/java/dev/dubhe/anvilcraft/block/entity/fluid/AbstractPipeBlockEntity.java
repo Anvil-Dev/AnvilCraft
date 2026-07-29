@@ -304,6 +304,7 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
      * @param targetCurDirection    目标端朝向；{@code null} 表示容器即 {@code targetCurPos}
      * @param targetEffectiveHeight 目标端容器等效高度
      */
+    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public static void moveFluidByEffectiveHeight(
         Level level,
         BlockPos sourceCurPos,

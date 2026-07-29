@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.recipe.event.ItemCacheEvent;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.MeshRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.VanillaRecipesWrap;
 import dev.dubhe.anvilcraft.recipe.generate.MeshRecipeGeneratingCache;
@@ -61,12 +62,23 @@ public class InWorldRecipeEventListener {
             pos,
             entity.level().getBlockState(pos)
         );
-        if (cauldron == null) return;
-        ItemStack remaining = cauldron.insertRecipeOutput(entity.getItem());
-        if (remaining.isEmpty()) {
-            entity.discard();
-        } else {
-            entity.setItem(remaining);
+        if (cauldron != null) {
+            ItemStack remaining = cauldron.insertRecipeOutput(entity.getItem());
+            if (remaining.isEmpty()) {
+                entity.discard();
+            } else {
+                entity.setItem(remaining);
+            }
+            return;
         }
+        entity.level().getBlockEntity(pos, ModBlockEntities.FISH_TANK.get())
+            .ifPresent(be -> {
+                ItemStack remaining = be.insertRecipeOutput(entity.getItem());
+                if (remaining.isEmpty()) {
+                    entity.discard();
+                } else {
+                    entity.setItem(remaining);
+                }
+            });
     }
 }

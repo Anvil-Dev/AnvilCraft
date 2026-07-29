@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.item.ModAmulets;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.transform.MobTransformWithItemRecipe;
+import dev.dubhe.anvilcraft.util.CauldronUtil;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.damagesource.DamageTypes;
@@ -66,6 +67,7 @@ public class LivingEntityEventListener {
 
     @SubscribeEvent
     public static void onTick(EntityTickEvent.Post event) {
+        CauldronUtil.hurtFromHeaterBelow(event.getEntity());
         Mob entity = Util.castSafely(event.getEntity(), Mob.class).orElse(null);
         if (entity == null) return;
         if (!(entity.getTarget() instanceof Player player)) return;

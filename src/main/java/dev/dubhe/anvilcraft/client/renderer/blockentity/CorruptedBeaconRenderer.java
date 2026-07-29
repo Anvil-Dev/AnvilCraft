@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.workstation.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.CorruptedBeaconRenderState;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -17,14 +16,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
 import org.jspecify.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
 
 public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBeaconBlockEntity, CorruptedBeaconRenderState> {
 
@@ -38,14 +30,6 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
     private static final float GLOW_R = 0.055f;
     private static final float GLOW_G = 0.004f;
     private static final float GLOW_B = 0.095f;
-    private static final Map<BlockPos, BeamRenderData> DEFERRED_BEAMS = new LinkedHashMap<>();
-    private static final List<WeaponBeamRenderData> DEFERRED_WEAPON_BEAMS = new ArrayList<>();
-
-    private record BeamRenderData(BlockPos pos, float beamHeight) {
-    }
-
-    private record WeaponBeamRenderData(Vec3 start, Vec3 end, @Nullable Matrix4f viewBobCompensation) {
-    }
 
     public CorruptedBeaconRenderer(BlockEntityRendererProvider.Context ignored) {
     }
@@ -83,59 +67,14 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         if (!state.isLit()) return;
         float beamHeight = state.getBeamHeight();
         if (beamHeight <= 0.01f) return;
-        DEFERRED_BEAMS.put(state.blockPos, new BeamRenderData(state.blockPos, beamHeight));
+        collector.submitCustomGeometry(
+            pose,
+            ModRenderTypes.CORRUPTED_BEACON_BEAM,
+            (last, consumer) -> emitBeaconBeam(consumer, last.pose(), beamHeight)
+        );
     }
 
-    /**
-     * 在关卡完成后渲染本帧收集的腐化信标光束。
-     */
-    public static void renderDeferredBeams(
-        PoseStack pose,
-        MultiBufferSource.BufferSource bufferSource,
-        Vec3 cameraPosition
-    ) {
-        if (DEFERRED_BEAMS.isEmpty() && DEFERRED_WEAPON_BEAMS.isEmpty()) return;
-        VertexConsumer consumer = bufferSource.getBuffer(ModRenderTypes.CORRUPTED_BEACON_BEAM);
-        for (BeamRenderData data : DEFERRED_BEAMS.values()) {
-            pose.pushPose();
-            pose.translate(
-                data.pos().getX() - cameraPosition.x(),
-                data.pos().getY() - cameraPosition.y(),
-                data.pos().getZ() - cameraPosition.z()
-            );
-            emitDeferredBeam(consumer, pose.last().pose(), data.beamHeight());
-            pose.popPose();
-        }
-        for (WeaponBeamRenderData data : DEFERRED_WEAPON_BEAMS) {
-            Vec3 direction = data.end().subtract(data.start());
-            if (direction.lengthSqr() < 1.0E-6) continue;
-            pose.pushPose();
-            if (data.viewBobCompensation() != null) {
-                pose.last().pose().mul(data.viewBobCompensation());
-            }
-            pose.translate(
-                data.start().x - cameraPosition.x,
-                data.start().y - cameraPosition.y,
-                data.start().z - cameraPosition.z
-            );
-            pose.mulPose(new Quaternionf().rotationTo(
-                new Vector3f(0.0F, 1.0F, 0.0F),
-                direction.toVector3f().normalize()
-            ));
-            pose.scale(0.5F, 1.0F, 0.5F);
-            emitWeaponBeam(consumer, pose.last().pose(), (float) direction.length());
-            pose.popPose();
-        }
-        bufferSource.endBatch(ModRenderTypes.CORRUPTED_BEACON_BEAM);
-        DEFERRED_BEAMS.clear();
-        DEFERRED_WEAPON_BEAMS.clear();
-    }
-
-    public static void deferWeaponBeam(Vec3 start, Vec3 end, @Nullable Matrix4f viewBobCompensation) {
-        DEFERRED_WEAPON_BEAMS.add(new WeaponBeamRenderData(start, end, viewBobCompensation));
-    }
-
-    private static void emitWeaponBeam(VertexConsumer consumer, Matrix4f matrix, float length) {
+    public static void renderWeaponBeam(VertexConsumer consumer, Matrix4f matrix, float length) {
         for (int layer = BEAM_GLOW_LAYERS; layer >= 1; layer--) {
             float half = BEAM_INNER_HALF + BEAM_GLOW_HALF_STEP * layer * 0.5F;
             float falloff = 1.0F / (layer + 1);
@@ -171,7 +110,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         );
     }
 
-    private static void emitDeferredBeam(VertexConsumer consumer, Matrix4f matrix, float beamHeight) {
+    private static void emitBeaconBeam(VertexConsumer consumer, Matrix4f matrix, float beamHeight) {
         float apexY = BEAM_BASE_Y + beamHeight;
         for (int layer = BEAM_GLOW_LAYERS; layer >= 1; layer--) {
             float half = BEAM_INNER_HALF + BEAM_GLOW_HALF_STEP * layer;

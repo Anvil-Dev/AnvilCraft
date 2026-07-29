@@ -85,7 +85,7 @@ public class ExcitedStateVoidMatterBlock extends Block {
         }
     }
 
-    private static List<Block> getDecayProducts() {
+    public static List<Block> getDecayProducts() {
         return List.of(
             Blocks.REDSTONE_BLOCK,
             Blocks.LAPIS_BLOCK,
@@ -99,7 +99,7 @@ public class ExcitedStateVoidMatterBlock extends Block {
         );
     }
 
-    private static List<Block> getConfinedAnvilons() {
+    public static List<Block> getConfinedAnvilons() {
         return List.of(
             ModBlocks.CONFINED_TIME_ANVILON.get(),
             ModBlocks.CONFINED_SPACE_ANVILON.get(),

@@ -12,7 +12,7 @@ import dev.dubhe.anvilcraft.client.particle.OverseerTrailParticle;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CFARenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.ItemUseAnimationTransform;
 import dev.dubhe.anvilcraft.client.renderer.laser.CachedLaserBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
@@ -22,15 +22,20 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.tool.HeavyHalberdItem;
+import dev.dubhe.anvilcraft.item.tool.HeavyHalberdMode;
+import dev.dubhe.anvilcraft.item.tool.trascendence.TranscendenceResonatorItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.particle.FlyTowardsPositionParticle;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.resources.model.EquipmentClientInfo;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -109,6 +114,13 @@ public class AnvilCraftClient {
             ModItems.TESLA_GUN,
             ModItems.LASER_GUN
         );
+        e.registerItem(
+            new HeavyHalberdExtensionImpl(),
+            ModItems.FROST_METAL_HEAVY_HALBERD,
+            ModItems.EMBER_METAL_HEAVY_HALBERD,
+            ModItems.TRANSCENDENCE_HEAVY_HALBERD
+        );
+        e.registerItem(new TranscendenceResonatorExtensionImpl(), ModItems.TRANSCENDENCE_RESONATOR);
     }
 
     @SubscribeEvent
@@ -146,11 +158,6 @@ public class AnvilCraftClient {
         pose.pushPose();
         pose.last().pose().mul(event.getModelViewMatrix());
         CFARenderer.renderDeferredTractorBeams(
-            pose,
-            bufferSource,
-            event.getLevelRenderState().cameraRenderState.pos
-        );
-        CorruptedBeaconRenderer.renderDeferredBeams(
             pose,
             bufferSource,
             event.getLevelRenderState().cameraRenderState.pos
@@ -215,6 +222,48 @@ public class AnvilCraftClient {
                 return HumanoidModel.ArmPose.CROSSBOW_CHARGE;
             }
             return HumanoidModel.ArmPose.CROSSBOW_HOLD;
+        }
+    }
+
+    public static class HeavyHalberdExtensionImpl implements IClientItemExtensions {
+        @Override
+        public boolean applyForgeHandTransform(
+            PoseStack poseStack,
+            LocalPlayer player,
+            HumanoidArm arm,
+            ItemStack stack,
+            float partialTick,
+            float equipProgress,
+            float swingProgress
+        ) {
+            if (!(stack.getItem() instanceof HeavyHalberdItem)
+                || HeavyHalberdItem.getMode(stack) != HeavyHalberdMode.SWORD) {
+                return false;
+            }
+            return ItemUseAnimationTransform.applySwordBlock(poseStack, player, arm, equipProgress);
+        }
+    }
+
+    public static class TranscendenceResonatorExtensionImpl implements IClientItemExtensions {
+        @Override
+        public boolean applyForgeHandTransform(
+            PoseStack poseStack,
+            LocalPlayer player,
+            HumanoidArm arm,
+            ItemStack stack,
+            float partialTick,
+            float equipProgress,
+            float swingProgress
+        ) {
+            return ItemUseAnimationTransform.applyCrossbowCharge(
+                poseStack,
+                player,
+                arm,
+                stack,
+                partialTick,
+                equipProgress,
+                TranscendenceResonatorItem.RESONANCE_MINING_TICKS
+            );
         }
     }
 }

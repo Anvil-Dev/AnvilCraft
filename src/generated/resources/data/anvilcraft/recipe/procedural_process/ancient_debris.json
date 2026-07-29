@@ -1,6 +1,11 @@
 {
   "type": "anvilcraft:procedural_process",
-  "displayed_model": "anvilcraft:block/ancient_debris_wip",
+  "displayed_models": [
+    "anvilcraft:block/ancient_debris_wip"
+  ],
+  "icon": {
+    "id": "minecraft:ancient_debris"
+  },
   "initial_block": {
     "blocks": "anvilcraft:tungsten_block"
   },

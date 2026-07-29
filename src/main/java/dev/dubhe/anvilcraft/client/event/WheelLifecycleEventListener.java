@@ -16,6 +16,8 @@ import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
+import dev.dubhe.anvilcraft.item.tool.HeavyHalberdItem;
+import dev.dubhe.anvilcraft.item.tool.HeavyHalberdMode;
 import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolMode;
 import dev.dubhe.anvilcraft.item.tool.ResonateMode;
@@ -23,6 +25,7 @@ import dev.dubhe.anvilcraft.item.tool.ResonatorItem;
 import dev.dubhe.anvilcraft.network.HammerChangeBlockPacket;
 import dev.dubhe.anvilcraft.network.HammerChangeFlexibleMultiPartBlockPacket;
 import dev.dubhe.anvilcraft.network.HammerUsePacket;
+import dev.dubhe.anvilcraft.network.SwitchHeavyHalberdModePacket;
 import dev.dubhe.anvilcraft.network.SwitchMultitoolModePacket;
 import dev.dubhe.anvilcraft.network.SwitchResonateModePacket;
 import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
@@ -71,6 +74,10 @@ public class WheelLifecycleEventListener {
     private static boolean resonatorKeyWasDown = false;
     private static @Nullable Optional<WheelMenuModel> resonatorWheelCache = null;
 
+    private static long heavyHalberdKeyTime = -1L;
+    private static boolean heavyHalberdKeyWasDown = false;
+    private static @Nullable Optional<WheelMenuModel> heavyHalberdWheelCache = null;
+
     private static long multitoolKeyTime = -1L;
     private static boolean multitoolKeyWasDown = false;
     private static @Nullable Optional<WheelMenuModel> multitoolWheelCache = null;
@@ -93,6 +100,7 @@ public class WheelLifecycleEventListener {
         long gameTime = level.getGameTime();
         WheelLifecycleEventListener.openMultiphaseWheel(gameTime);
         WheelLifecycleEventListener.openResonatorWheel(gameTime);
+        WheelLifecycleEventListener.openHeavyHalberdWheel(gameTime);
         WheelLifecycleEventListener.openMultitoolWheel(gameTime);
     }
 
@@ -284,6 +292,31 @@ public class WheelLifecycleEventListener {
         return builder.build();
     }
 
+    private static void openHeavyHalberdWheel(long gameTime) {
+        if (
+            WheelLifecycleEventListener.heavyHalberdKeyTime > 0
+            && gameTime - WheelLifecycleEventListener.heavyHalberdKeyTime > 4
+        ) {
+            if (WheelLifecycleEventListener.heavyHalberdWheelCache == null) {
+                LocalPlayer player = Minecraft.getInstance().player;
+                if (player == null) return;
+                InteractionHand hand = InteractionHand.MAIN_HAND;
+                ItemStack stack = player.getMainHandItem();
+                if (!(stack.getItem() instanceof HeavyHalberdItem)) {
+                    hand = InteractionHand.OFF_HAND;
+                    stack = player.getOffhandItem();
+                }
+                if (!(stack.getItem() instanceof HeavyHalberdItem)) return;
+                WheelLifecycleEventListener.heavyHalberdWheelCache = Optional.ofNullable(
+                    WheelLifecycleEventListener.getHeavyHalberdWheel(hand, stack)
+                );
+            }
+            if (WheelLifecycleEventListener.heavyHalberdWheelCache.isEmpty()) return;
+            CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.heavyHalberdWheelCache.get());
+            WheelLifecycleEventListener.heavyHalberdKeyWasDown = true;
+        }
+    }
+
     private static WheelMenuModel getMultiphaseWheel(InteractionHand hand, ItemStack holding, Multiphase multiphase) {
         int phaseCount = multiphase.phases().size();
         WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(phaseCount);
@@ -375,6 +408,60 @@ public class WheelLifecycleEventListener {
                 },
                 ctx -> ClientPacketDistributor.sendToServer(
                     new SwitchResonateModePacket(hand, ctx.slotIndex())
+                )
+            )
+            .build();
+    }
+
+    private static WheelMenuModel getHeavyHalberdWheel(InteractionHand hand, ItemStack holding) {
+        return WheelMenuBuilder.create()
+            .slotsPerPage(4)
+            .action(
+                "trident",
+                Component.translatable("screen.anvilcraft.heavy_halberd.trident"),
+                (graphics, _, _, _) -> {
+                    ItemStack copied = holding.copy();
+                    copied.set(ModComponents.HEAVY_HALBERD_MODE, HeavyHalberdMode.TRIDENT);
+                    graphics.item(copied, 2, 2, 9910597);
+                },
+                ctx -> ClientPacketDistributor.sendToServer(
+                    new SwitchHeavyHalberdModePacket(hand, HeavyHalberdMode.values()[ctx.slotIndex()])
+                )
+            )
+            .action(
+                "spear",
+                Component.translatable("screen.anvilcraft.heavy_halberd.spear"),
+                (graphics, _, _, _) -> {
+                    ItemStack copied = holding.copy();
+                    copied.set(ModComponents.HEAVY_HALBERD_MODE, HeavyHalberdMode.SPEAR);
+                    graphics.item(copied, 2, 2, 9910597);
+                },
+                ctx -> ClientPacketDistributor.sendToServer(
+                    new SwitchHeavyHalberdModePacket(hand, HeavyHalberdMode.values()[ctx.slotIndex()])
+                )
+            )
+            .action(
+                "sword",
+                Component.translatable("screen.anvilcraft.heavy_halberd.sword"),
+                (graphics, _, _, _) -> {
+                    ItemStack copied = holding.copy();
+                    copied.set(ModComponents.HEAVY_HALBERD_MODE, HeavyHalberdMode.SWORD);
+                    graphics.item(copied, 2, 2, 9910597);
+                },
+                ctx -> ClientPacketDistributor.sendToServer(
+                    new SwitchHeavyHalberdModePacket(hand, HeavyHalberdMode.values()[ctx.slotIndex()])
+                )
+            )
+            .action(
+                "mace",
+                Component.translatable("screen.anvilcraft.heavy_halberd.mace"),
+                (graphics, _, _, _) -> {
+                    ItemStack copied = holding.copy();
+                    copied.set(ModComponents.HEAVY_HALBERD_MODE, HeavyHalberdMode.MACE);
+                    graphics.item(copied, 2, 2, 9910597);
+                },
+                ctx -> ClientPacketDistributor.sendToServer(
+                    new SwitchHeavyHalberdModePacket(hand, HeavyHalberdMode.values()[ctx.slotIndex()])
                 )
             )
             .build();
@@ -503,6 +590,7 @@ public class WheelLifecycleEventListener {
         }
         if (ModKeyMappings.SWITCH_TOOL_MODE.get().matches(event.getKeyEvent())) {
             WheelLifecycleEventListener.processResonatorPress(client, event.getAction());
+            WheelLifecycleEventListener.processHeavyHalberdPress(client, event.getAction());
             WheelLifecycleEventListener.processMultitoolPress(client, event.getAction());
         }
     }
@@ -519,6 +607,7 @@ public class WheelLifecycleEventListener {
         }
         if (ModKeyMappings.SWITCH_TOOL_MODE.get().matchesMouse(new MouseButtonEvent(0, 0, event.getMouseButtonInfo()))) {
             WheelLifecycleEventListener.processResonatorPress(client, event.getAction());
+            WheelLifecycleEventListener.processHeavyHalberdPress(client, event.getAction());
             WheelLifecycleEventListener.processMultitoolPress(client, event.getAction());
         }
     }
@@ -597,6 +686,25 @@ public class WheelLifecycleEventListener {
         if (action == GLFW.GLFW_PRESS) {
             if (!WheelLifecycleEventListener.multitoolKeyWasDown) {
                 WheelLifecycleEventListener.multitoolKeyTime = client.level.getGameTime();
+            }
+        }
+    }
+
+    private static void processHeavyHalberdPress(Minecraft client, int action) {
+        if (client.level == null) return;
+        if (action == GLFW.GLFW_RELEASE) {
+            if (WheelLifecycleEventListener.heavyHalberdKeyWasDown) {
+                CONTROLLER.onHoldKeyReleased();
+            }
+            WheelLifecycleEventListener.heavyHalberdKeyWasDown = false;
+            WheelLifecycleEventListener.heavyHalberdKeyTime = -1L;
+            WheelLifecycleEventListener.heavyHalberdWheelCache = null;
+            return;
+        }
+        if (Minecraft.getInstance().screen != null) return;
+        if (action == GLFW.GLFW_PRESS) {
+            if (!WheelLifecycleEventListener.heavyHalberdKeyWasDown) {
+                WheelLifecycleEventListener.heavyHalberdKeyTime = client.level.getGameTime();
             }
         }
     }

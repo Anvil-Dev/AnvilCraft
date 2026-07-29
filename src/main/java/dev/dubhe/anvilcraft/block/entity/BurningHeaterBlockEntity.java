@@ -173,42 +173,19 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemResour
         }
     }
 
+    /**
+     * 消耗燃烧时间（用于铁砧合成）
+     *
+     * <p>从当前缓存中精确扣除燃烧时间，并立即更新燃烧状态和客户端显示。</p>
+     *
+     * @param ticks 消耗的tick数
+     */
     public void consumeBurnTime(int ticks) {
-        int remaining = ticks;
-
-        while (remaining > 0) {
-            ItemResource fuelResource = this.itemHandler.getResource(0);
-            if (fuelResource.isEmpty()) break;
-            int fuelCount = this.itemHandler.getAmountAsInt(0);
-            int burnTimePerItem = getItemBurnTime(fuelResource.toStack());
-            if (burnTimePerItem <= 0) break;
-
-            int itemsToConsume = (remaining + burnTimePerItem - 1) / burnTimePerItem;
-            itemsToConsume = Math.min(itemsToConsume, fuelCount);
-            if (itemsToConsume <= 0) break;
-
-            remaining -= itemsToConsume * burnTimePerItem;
-            try (Transaction tx = Transaction.openRoot()) {
-                this.itemHandler.extract(0, fuelResource, itemsToConsume, tx);
-                tx.commit();
-            }
-            ItemStack fuelStack = fuelResource.toStack(itemsToConsume);
-            var remainder = fuelStack.getCraftingRemainder();
-            if (remainder != null && this.itemHandler.getResource(0).isEmpty()) {
-                ItemStack remainderStack = remainder.create();
-                this.itemHandler.set(0,
-                    ItemResource.of(remainderStack.getItem(), remainderStack.getComponentsPatch()),
-                    remainderStack.getCount()
-                );
-            }
-        }
-
-        if (remaining > 0) {
-            this.burnTime = Math.max(0, this.burnTime - remaining);
-        }
-
+        if (ticks <= 0) return;
+        this.burnTime = Math.max(0, this.burnTime - ticks);
         setChanged();
         if (level != null && !level.isClientSide()) {
+            this.updateBurningState(level, worldPosition, getBlockState());
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
         }

@@ -8,6 +8,8 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import dev.dubhe.anvilcraft.network.CreativeCrateAttackPacket;
 import dev.dubhe.anvilcraft.network.HammerUsePacket;
+import dev.dubhe.anvilcraft.network.InfiniteFluidTankBreakModifierPacket;
+import dev.dubhe.anvilcraft.util.InfiniteFluidTankBreakProtection;
 import dev.dubhe.anvilcraft.util.StateUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
@@ -52,6 +54,20 @@ public class ClientBlockEventListener {
         if (client.level == null) {
             creativeCrateAttackPos = null;
         }
+    }
+
+    @SubscribeEvent
+    public static void syncInfiniteFluidTankBreakModifiers(PlayerInteractEvent.LeftClickBlock event) {
+        if (!event.getLevel().isClientSide()) return;
+        if (event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.START
+            && event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.CLIENT_HOLD) {
+            return;
+        }
+        if (!InfiniteFluidTankBreakProtection.isProtected(event.getLevel(), event.getPos())) return;
+
+        Minecraft client = Minecraft.getInstance();
+        boolean modifiersHeld = client.hasControlDown() && client.hasShiftDown() && client.hasAltDown();
+        ClientPacketDistributor.sendToServer(new InfiniteFluidTankBreakModifierPacket(event.getPos(), modifiersHeld));
     }
 
     /// 侦听右键方块事件

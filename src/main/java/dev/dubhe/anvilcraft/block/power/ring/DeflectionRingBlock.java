@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.power.ring;
 
+import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
@@ -30,12 +31,16 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.redstone.Orientation;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.EnumMap;
+import java.util.Map;
 
 public class DeflectionRingBlock
     extends WaterloggedFlexibleMultiPartBlock<DirectionCube3x3PartHalf, EnumProperty<Direction>, Direction>
@@ -45,6 +50,17 @@ public class DeflectionRingBlock
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
     public static final EnumProperty<IPowerComponent.Switch> SWITCH = IPowerComponent.SWITCH;
 
+    private static final VoxelShape Y_AXIS_COLLISION_SHAPE = ShapeUtil.merge(
+        new AABB(-16, -16, -3, 32, 0, 19),
+        new AABB(-11, -16, -11, 27, 0, 27),
+        new AABB(-16, 16, -3, 32, 32, 19),
+        new AABB(-11, 16, -11, 27, 32, 27),
+        new AABB(-3, -16, -16, 19, 0, 32),
+        new AABB(-3, 16, -16, 19, 32, 32)
+    );
+    private static final Map<Direction.Axis, Map<DirectionCube3x3PartHalf, VoxelShape>> COLLISION_SHAPES =
+        makeCollisionShapes();
+
     public DeflectionRingBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
@@ -53,6 +69,58 @@ public class DeflectionRingBlock
             .setValue(FACING, Direction.NORTH)
             .setValue(OVERLOAD, true)
             .setValue(SWITCH, IPowerComponent.Switch.ON));
+    }
+
+    private static Map<Direction.Axis, Map<DirectionCube3x3PartHalf, VoxelShape>> makeCollisionShapes() {
+        Map<Direction.Axis, Map<DirectionCube3x3PartHalf, VoxelShape>> shapes = new EnumMap<>(Direction.Axis.class);
+        shapes.put(Direction.Axis.Y, makePartShapes(Y_AXIS_COLLISION_SHAPE));
+        shapes.put(Direction.Axis.Z, makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 90, Y_AXIS_COLLISION_SHAPE)));
+        shapes.put(Direction.Axis.X, makePartShapes(ShapeUtil.rotate(Direction.Axis.Z, 90, Y_AXIS_COLLISION_SHAPE)));
+        return shapes;
+    }
+
+    private static Map<DirectionCube3x3PartHalf, VoxelShape> makePartShapes(VoxelShape shape) {
+        Map<DirectionCube3x3PartHalf, VoxelShape> shapes = new EnumMap<>(DirectionCube3x3PartHalf.class);
+        for (DirectionCube3x3PartHalf part : DirectionCube3x3PartHalf.values()) {
+            ArrayList<AABB> partBoxes = new ArrayList<>();
+            for (AABB box : shape.toAabbs()) {
+                AABB clipped = clipToPart(scale16(box), part);
+                if (clipped != null) partBoxes.add(clipped);
+            }
+            shapes.put(
+                part,
+                partBoxes.isEmpty()
+                    ? Shapes.empty()
+                    : ShapeUtil.merge(partBoxes.toArray(AABB[]::new))
+            );
+        }
+        return shapes;
+    }
+
+    private static AABB scale16(AABB box) {
+        return new AABB(box.getMinPosition().scale(16), box.getMaxPosition().scale(16));
+    }
+
+    @Nullable
+    private static AABB clipToPart(AABB box, DirectionCube3x3PartHalf part) {
+        double originX = part.getOffsetX() * 16.0;
+        double originY = (part.getOffsetY() - DirectionCube3x3PartHalf.MID_CENTER.getOffsetY()) * 16.0;
+        double originZ = part.getOffsetZ() * 16.0;
+        double minX = Math.max(box.minX, originX);
+        double minY = Math.max(box.minY, originY);
+        double minZ = Math.max(box.minZ, originZ);
+        double maxX = Math.min(box.maxX, originX + 16.0);
+        double maxY = Math.min(box.maxY, originY + 16.0);
+        double maxZ = Math.min(box.maxZ, originZ + 16.0);
+        if (minX >= maxX || minY >= maxY || minZ >= maxZ) return null;
+        return new AABB(
+            minX - originX,
+            minY - originY,
+            minZ - originZ,
+            maxX - originX,
+            maxY - originY,
+            maxZ - originZ
+        );
     }
 
     @Override
@@ -145,11 +213,16 @@ public class DeflectionRingBlock
         if (context.isHoldingItem(state.getBlock().asItem())) {
             return Shapes.block();
         }
-        return switch (state.getValue(FACING).getAxis()) {
-            case Z -> state.getValue(HALF).getOffset().getZ() == 0 ? Shapes.empty() : Shapes.block();
-            case X -> state.getValue(HALF).getOffset().getX() == 0 ? Shapes.empty() : Shapes.block();
-            case Y -> state.getValue(HALF).getOffset().getY() == 1 ? Shapes.empty() : Shapes.block();
-        };
+        return getPreciseShape(state);
+    }
+
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return getPreciseShape(state);
+    }
+
+    private static VoxelShape getPreciseShape(BlockState state) {
+        return COLLISION_SHAPES.get(state.getValue(FACING).getAxis()).get(state.getValue(HALF));
     }
 
     @Override

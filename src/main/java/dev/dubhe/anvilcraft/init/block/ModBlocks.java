@@ -14,6 +14,8 @@ import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
 import dev.dubhe.anvilcraft.block.TradingStationBlock;
+import dev.dubhe.anvilcraft.block.TranscendenceGrindstoneBlock;
+import dev.dubhe.anvilcraft.block.TranscendenceSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.WipBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.cake.BerryCreamBlock;
@@ -204,6 +206,8 @@ import dev.dubhe.anvilcraft.block.workstation.frost.FrostSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.workstation.royal.RoyalAnvilBlock;
 import dev.dubhe.anvilcraft.block.workstation.royal.RoyalGrindstoneBlock;
 import dev.dubhe.anvilcraft.block.workstation.royal.RoyalSmithingTableBlock;
+import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.data.generator.RedstoneWireBlockStateGenerator;
 import dev.dubhe.anvilcraft.data.recipe.RegistrumBlockRecipeLoader;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -215,12 +219,14 @@ import dev.dubhe.anvilcraft.item.block.CursedBlockItem;
 import dev.dubhe.anvilcraft.item.block.EndDustBlockItem;
 import dev.dubhe.anvilcraft.item.block.FishTankBlockItem;
 import dev.dubhe.anvilcraft.item.block.FlexibleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.item.block.FluidTankBlockItem;
 import dev.dubhe.anvilcraft.item.block.FrostMetalBlockItem;
 import dev.dubhe.anvilcraft.item.block.HasMobBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeatCollectorBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeatableBlockItem;
 import dev.dubhe.anvilcraft.item.block.HeliostatsItem;
 import dev.dubhe.anvilcraft.item.block.InfiniteCollectorBlockItem;
+import dev.dubhe.anvilcraft.item.block.LargeFluidTankBlockItem;
 import dev.dubhe.anvilcraft.item.block.LevitationBlockItem;
 import dev.dubhe.anvilcraft.item.block.MengerSpongeBlockItem;
 import dev.dubhe.anvilcraft.item.block.MultiphaseMatterBlockItem;
@@ -231,6 +237,7 @@ import dev.dubhe.anvilcraft.item.block.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.item.block.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.item.block.SuperHeavyBlockItem;
 import dev.dubhe.anvilcraft.item.block.TeslaTowerItem;
+import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.util.registrater.DataGenUtil;
@@ -269,6 +276,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.level.BlockGetter;
@@ -452,7 +460,9 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .simpleItem()
+        .item(FluidTankBlockItem::new)
+        .model(() -> DataGenUtil.specialBlockItem(FluidTankItemRenderer.Unbaked.INSTANCE, false))
+        .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::fluidTank)
         .register();
@@ -468,9 +478,9 @@ public class ModBlocks {
             .isValidSpawn(Blocks::never)
             .isViewBlocking(ModBlocks::never))
         .loot(SimpleMultiPartBlock::loot)
-        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
+        .item(LargeFluidTankBlockItem::new)
         .properties(properties -> properties.stacksTo(16))
-        .model(DataGenUtil::oversizedItem)
+        .model(() -> DataGenUtil.specialBlockItem(LargeFluidTankItemRenderer.Unbaked.INSTANCE, true))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -800,7 +810,6 @@ public class ModBlocks {
             "transcendence_anvil",
             TranscendenceAnvilBlock::new
         )
-        .recipe(RegistrumBlockRecipeLoader::transcendenceAnvil)
         .initialProperties(() -> Blocks.ANVIL)
         .tag(
             BlockTags.WITHER_IMMUNE,
@@ -821,7 +830,61 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.DEFAULT))
         .tag(ItemTags.ANVIL, ModItemTags.EXPLOSION_PROOF)
+        .build()
+        .register();
+
+    public static final BlockEntry<TranscendenceGrindstoneBlock> TRANSCENDENCE_GRINDSTONE = REGISTRUM.block(
+            "transcendence_grindstone",
+            TranscendenceGrindstoneBlock::new
+        )
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .tag(
+            BlockTags.WITHER_IMMUNE,
+            BlockTags.DRAGON_IMMUNE,
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.NEEDS_DIAMOND_TOOL,
+            ModBlockTags.COLLISION_IMMUNE
+        )
+        .properties(properties -> properties
+            .lightLevel(state -> 9)
+            .noOcclusion()
+            .emissiveRendering(ModBlocks::always)
+            .strength(50.0F, 1200.0F)
+        )
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.DEFAULT))
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .build()
+        .register();
+
+    public static final BlockEntry<TranscendenceSmithingTableBlock> TRANSCENDENCE_SMITHING_TABLE = REGISTRUM.block(
+            "transcendence_smithing_table",
+            TranscendenceSmithingTableBlock::new
+        )
+        .lang("Transcendence Smithing Table")
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .tag(
+            BlockTags.WITHER_IMMUNE,
+            BlockTags.DRAGON_IMMUNE,
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.NEEDS_DIAMOND_TOOL,
+            ModBlockTags.COLLISION_IMMUNE
+        )
+        .properties(properties -> properties
+            .lightLevel(state -> 9)
+            .noOcclusion()
+            .emissiveRendering(ModBlocks::always)
+            .strength(50.0F, 1200.0F)
+        )
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.DEFAULT))
+        .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .register();
 

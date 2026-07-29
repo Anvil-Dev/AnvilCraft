@@ -20,6 +20,18 @@ public class ScreenTooltipLang {
         );
         provider.add("screen.anvilcraft.tooltip.cfa_interface", "It must be placed tightly against the side of the Celestial Forging Anvil bottom");
         provider.add("screen.anvilcraft.tooltip.cfa_amplifier", "It must be placed diagonally on the Celestial Forging Anvil");
+        provider.add(
+            "screen.anvilcraft.tooltip.fluid_tank.break_confirm",
+            "This tank contains infinite fluid. Mine it again while holding Ctrl+Shift+Alt to confirm removal"
+        );
+        provider.add(
+            "screen.anvilcraft.tooltip.fluid_tank.break_modifiers",
+            "Hold Ctrl+Shift+Alt while mining to remove this infinite-fluid tank"
+        );
+        provider.add(
+            "screen.anvilcraft.tooltip.fluid_tank.tool_break_failed",
+            "Infinite-fluid tanks cannot be removed with an Anvil Hammer or Dragon Rod"
+        );
     }
     // 启用行长警告"""
 }

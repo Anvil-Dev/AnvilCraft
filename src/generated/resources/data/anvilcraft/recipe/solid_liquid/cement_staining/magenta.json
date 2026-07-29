@@ -7,6 +7,7 @@
       "items": "minecraft:magenta_dye"
     }
   ],
+  "max_efficiency": 1,
   "results": [],
   "transform": "anvilcraft:magenta_cement"
 }

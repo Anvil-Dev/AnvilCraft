@@ -12,7 +12,6 @@ import dev.dubhe.anvilcraft.item.template.frost.PermutationTemplateItem;
 import dev.dubhe.anvilcraft.network.multiple.FrostSmithingPackets;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
-import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.state.ArmorStandRenderState;
@@ -36,7 +35,7 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 import java.util.Optional;
 
-public class FrostSmithingScreen extends ItemCombinerScreen<FrostSmithingMenu> {
+public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMenu> {
     private static final Identifier BACKGROUND = SharedTextures.bg("crafting", "frost_smithing_table");
 
     private static final Identifier LEFT =

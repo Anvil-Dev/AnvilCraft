@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.item.utility.EnergyWeaponPlatformItem;
@@ -122,6 +123,12 @@ public class ModCapabilities {
             Capabilities.Fluid.BLOCK,
             (level, pos, state, blockEntity, side) -> VoidFluidHandler.INSTANCE,
             ModBlocks.MENGER_SPONGE.get()
+        );
+
+        event.registerEntity(
+            Capabilities.Fluid.ENTITY,
+            ModEntities.FLUID_TANK_MINECART.get(),
+            (cart, side) -> cart.getFluidHandler()
         );
 
 

@@ -101,19 +101,10 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity, WeaponB
         CameraRenderState camera
     ) {
         if (!state.isVisible()) return;
-        Vec3 end = state.getEndOffset();
+        final Vec3 end = state.getEndOffset();
         ViewBobCompensation compensation = state.isCompensateViewBob()
             ? createViewBobCompensation(camera)
             : null;
-        if (state.getStyle() == WeaponBeamEntity.CORRUPTED) {
-            Vec3 start = state.getOrigin().add(state.getOriginOffset());
-            CorruptedBeaconRenderer.deferWeaponBeam(
-                start,
-                start.add(end),
-                compensation == null ? null : compensation.pose()
-            );
-            return;
-        }
 
         pose.pushPose();
         if (compensation != null) {
@@ -121,7 +112,19 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity, WeaponB
             pose.last().normal().set(compensation.normal().mul(pose.last().normal(), new Matrix3f()));
         }
         pose.translate(state.getOriginOffset().x, state.getOriginOffset().y, state.getOriginOffset().z);
-        if (state.getStyle() == WeaponBeamEntity.LASER) {
+        if (state.getStyle() == WeaponBeamEntity.CORRUPTED) {
+            rotateLocalYTo(end, pose);
+            pose.scale(0.5F, 1.0F, 0.5F);
+            collector.submitCustomGeometry(
+                pose,
+                ModRenderTypes.CORRUPTED_BEACON_BEAM,
+                (last, consumer) -> CorruptedBeaconRenderer.renderWeaponBeam(
+                    consumer,
+                    last.pose(),
+                    (float) end.length()
+                )
+            );
+        } else if (state.getStyle() == WeaponBeamEntity.LASER) {
             rotateLocalYTo(end, pose);
             if (state.getLaser() != null) LaserCompiler.submit(pose, state.getLaser(), collector, false);
         } else {

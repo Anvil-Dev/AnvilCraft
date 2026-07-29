@@ -8,6 +8,7 @@ import com.llamalad7.mixinextras.sugar.ref.LocalRef;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.tool.HeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.tool.MultitoolItem;
 import dev.dubhe.anvilcraft.item.tool.ResonatorItem;
 import net.minecraft.core.Holder;
@@ -38,7 +39,9 @@ abstract class HolderReferenceMixin<T> {
         T value,
         Operation<Holder.Reference<T>> original
     ) {
-        if (value instanceof ResonatorItem item) {
+        if (value instanceof HeavyHalberdItem item) {
+            return Util.cast(new HeavyHalberdItem.HeavyHalberdHolder(type, Util.cast(owner), Util.cast(key), item));
+        } else if (value instanceof ResonatorItem item) {
             return Util.cast(new ResonatorItem.ResonatorHolder(type, Util.cast(owner), Util.cast(key), item));
         } else if (value instanceof MultitoolItem item) {
             return Util.cast(new MultitoolItem.MultitoolHolder(type, Util.cast(owner), Util.cast(key), item));
@@ -57,7 +60,9 @@ abstract class HolderReferenceMixin<T> {
         if (stored == null) {
             return original.call(tag);
         }
-        if (Util.cast(this) instanceof ResonatorItem.ResonatorHolder holder) {
+        if (Util.cast(this) instanceof HeavyHalberdItem.HeavyHalberdHolder holder) {
+            return holder.is(HeavyHalberdItem.getMode(stored), Util.cast(tag));
+        } else if (Util.cast(this) instanceof ResonatorItem.ResonatorHolder holder) {
             return holder.is(stored.get(ModComponents.RESONATE_MODE), Util.cast(tag));
         } else if (Util.cast(this) instanceof MultitoolItem.MultitoolHolder holder) {
             return holder.is(stored.get(ModComponents.MULTITOOL_MODE), Util.cast(tag));

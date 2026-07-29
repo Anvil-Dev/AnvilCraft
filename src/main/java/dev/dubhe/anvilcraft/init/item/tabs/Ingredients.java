@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.init.item.tabs;
 
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
-import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.world.item.BucketItem;
 
@@ -19,24 +18,10 @@ public class Ingredients extends DisplayItemsGenerator {
 
         this.plain(ModItems.MAGNET_INGOT);
         this.plain(ModItems.ROYAL_STEEL_INGOT);
-        this.plain(ModItems.ROYAL_STEEL_NUGGET);
         this.plain(ModItems.FROST_METAL_INGOT);
-        this.plain(ModItems.FROST_METAL_NUGGET);
         this.plain(ModItems.EMBER_METAL_INGOT);
-        this.plain(ModItems.EMBER_METAL_NUGGET);
         this.plain(ModItems.TRANSCENDIUM_INGOT);
-        this.plain(ModItems.TRANSCENDIUM_NUGGET);
         this.plain(ModItems.CURSED_GOLD_INGOT);
-        this.plain(ModItems.CURSED_GOLD_NUGGET);
-
-        this.plain(ModItems.RAW_ZINC);
-        this.plain(ModItems.RAW_TIN);
-        this.plain(ModItems.RAW_TITANIUM);
-        this.plain(ModItems.RAW_TUNGSTEN);
-        this.plain(ModItems.RAW_LEAD);
-        this.plain(ModItems.RAW_SILVER);
-        this.plain(ModItems.RAW_URANIUM);
-
         this.plain(ModItems.ZINC_INGOT);
         this.plain(ModItems.TIN_INGOT);
         this.plain(ModItems.TITANIUM_INGOT);
@@ -59,6 +44,19 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.BRONZE_NUGGET);
         this.plain(ModItems.BRASS_NUGGET);
         this.plain(ModItems.COPPER_NUGGET);
+        this.plain(ModItems.ROYAL_STEEL_NUGGET);
+        this.plain(ModItems.FROST_METAL_NUGGET);
+        this.plain(ModItems.EMBER_METAL_NUGGET);
+        this.plain(ModItems.TRANSCENDIUM_NUGGET);
+        this.plain(ModItems.CURSED_GOLD_NUGGET);
+
+        this.plain(ModItems.RAW_ZINC);
+        this.plain(ModItems.RAW_TIN);
+        this.plain(ModItems.RAW_TITANIUM);
+        this.plain(ModItems.RAW_TUNGSTEN);
+        this.plain(ModItems.RAW_LEAD);
+        this.plain(ModItems.RAW_SILVER);
+        this.plain(ModItems.RAW_URANIUM);
 
         this.plain(ModItems.TOPAZ);
         this.plain(ModItems.RUBY);
@@ -67,6 +65,15 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.CIRCUIT_BOARD);
         this.plain(ModItems.PROCESSOR);
 
+        this.plain(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE);
+        this.plain(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE);
+        this.plain(ModItems.EMBER_METAL_UPGRADE_SMITHING_TEMPLATE);
+        this.plain(ModItems.PERMUTATION_TEMPLATE);
+        this.plain(ModItems.DEFORMATION_TEMPLATE);
+        this.plain(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE);
+        this.plain(ModItems.FOUR_TO_ONE_SMITHING_TEMPLATE);
+        this.plain(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE);
+
         this.plain(ModItems.HEAVY_HALBERD_CORE);
         this.plain(ModItems.RESONATOR_CORE);
         this.plain(ModItems.MULTIPHASE_TRANSCENDIUM);
@@ -74,6 +81,9 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.PENROSE_SPHERE_COMPONENT);
         this.plain(ModItems.MATTER_DECOMPRESSOR_COMPONENT);
         this.plain(ModItems.WORMHOLE_STABILIZER_COMPONENT);
+        this.plain(ModItems.STELLAR_RING_COMPONENT);
+        this.plain(ModItems.MAGNETAR_COIL_COMPONENT);
+        this.plain(ModItems.STELLAR_EVOLUTION_ACCELERATOR_COMPONENT);
 
         this.plain(ModItems.VOID_MATTER);
         this.plain(ModItems.EXCITED_STATE_VOID_MATTER);
@@ -91,9 +101,6 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.COCOA_POWDER);
         this.plain(ModItems.COCOA_LIQUOR);
         this.plain(ModItems.COCOA_BUTTER);
-        this.plain(ModFoodItems.CHOCOLATE);
-        this.plain(ModFoodItems.CHOCOLATE_BLACK);
-        this.plain(ModFoodItems.CHOCOLATE_WHITE);
 
         this.plain(ModItems.EXP_BUCKET);
         this.plain(ModItems.OIL_BUCKET);

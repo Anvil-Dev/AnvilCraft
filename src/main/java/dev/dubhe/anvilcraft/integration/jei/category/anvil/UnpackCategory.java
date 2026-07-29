@@ -55,11 +55,11 @@ public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
         int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
         RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 71, 17 + anvilYOffset, 20);
 
-        JeiSlotUtil.drawInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
+        JeiSlotUtil.drawDefaultInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
         if (JeiRecipeUtil.isChance(recipe.getResultItems())) {
-            JeiSlotUtil.drawOutputSlots(graphics, this.slotProbability, recipe.getResultItems().size());
+            JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotProbability, recipe.getResultItems().size());
         } else {
-            JeiSlotUtil.drawOutputSlots(graphics, this.slotDefault, recipe.getResultItems().size());
+            JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotDefault, recipe.getResultItems().size());
         }
     }
 

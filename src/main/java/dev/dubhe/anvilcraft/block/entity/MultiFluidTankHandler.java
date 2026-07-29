@@ -12,7 +12,6 @@ import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
 
@@ -150,7 +149,9 @@ final class MultiFluidTankHandler implements ResourceHandler<FluidResource>, Val
     void setEnhanced(boolean enhanced) {
         if (this.enhanced == enhanced) return;
         this.enhanced = enhanced;
-        if (!enhanced) this.reduceToNormalCapacity();
+        for (StoredFluid stored : this.fluids) {
+            stored.setInfinite(enhanced && stored.fluid().getAmount() >= this.infinityThreshold);
+        }
         this.changeListener.run();
     }
 
@@ -177,23 +178,37 @@ final class MultiFluidTankHandler implements ResourceHandler<FluidResource>, Val
                 && amount == this.infinityThreshold;
             this.fluids.add(new StoredFluid(fluid.copyWithAmount(amount), isInfinite));
         }
-        if (!this.enhanced) this.reduceToNormalCapacity();
+        if (!this.enhanced) this.clearInfinite();
         this.changeListener.run();
     }
 
-    private void reduceToNormalCapacity() {
-        int remaining = this.baseCapacity;
-        Iterator<StoredFluid> iterator = this.fluids.iterator();
-        while (iterator.hasNext()) {
-            StoredFluid stored = iterator.next();
-            stored.setInfinite(false);
-            if (remaining <= 0) {
-                iterator.remove();
-                continue;
-            }
-            int amount = Math.min(stored.fluid().getAmount(), remaining);
-            stored.fluid().setAmount(amount);
+    void serializeForItem(ValueOutput output) {
+        this.serializeDetached(output, Long.MAX_VALUE);
+    }
+
+    void serializeForDrop(ValueOutput output) {
+        this.serializeDetached(output, this.baseCapacity);
+    }
+
+    private void serializeDetached(ValueOutput output, long maxAmount) {
+        List<FluidStack> detachedFluids = new ArrayList<>();
+        long remaining = maxAmount;
+        for (StoredFluid stored : this.fluids) {
+            if (remaining <= 0) break;
+            int amount = (int) Math.min(stored.fluid().getAmount(), remaining);
+            if (amount <= 0) continue;
+            detachedFluids.add(stored.fluid().copyWithAmount(amount));
             remaining -= amount;
+        }
+        output.store("Fluids", FLUIDS_CODEC, detachedFluids);
+        output.store("Infinite", FLAGS_CODEC, detachedFluids.stream().map(ignored -> false).toList());
+        output.putBoolean("Enhanced", false);
+    }
+
+    /// 取消扩容时只清掉无限化标记，保留已存流体，避免修改容量导致存量凭空减少
+    private void clearInfinite() {
+        for (StoredFluid stored : this.fluids) {
+            stored.setInfinite(false);
         }
     }
 

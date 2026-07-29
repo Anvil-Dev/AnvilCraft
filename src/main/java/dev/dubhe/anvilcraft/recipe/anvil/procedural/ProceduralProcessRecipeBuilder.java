@@ -90,6 +90,7 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
         return this;
     }
 
+    /// 按流程顺序设置半成品模型：单圈配方按步推进，多圈配方按圈推进
     public ProceduralProcessRecipeBuilder displayedModels(Identifier... modelIds) {
         this.displayedModels.clear();
         this.displayedModels.addAll(List.of(modelIds));
@@ -125,8 +126,11 @@ public class ProceduralProcessRecipeBuilder extends AbstractRecipeBuilder<Proced
         if (this.steps.isEmpty()) {
             throw new IllegalArgumentException("Procedural Procession must have at least one step, RecipeId: " + id);
         }
-        if (this.displayedModels.size() > this.steps.size()) {
-            throw new IllegalArgumentException("Displayed model count must not exceed step count, RecipeId: " + id);
+        int displayedModelLimit = this.loop > 1 ? this.loop : this.steps.size();
+        if (this.displayedModels.size() > displayedModelLimit) {
+            throw new IllegalArgumentException(
+                "Displayed model count must not exceed process stage count, RecipeId: " + id
+            );
         }
         for (ProceduralProcessStep step : this.steps) {
             if (!(step.content instanceof AbstractProcessRecipe<?>)) {

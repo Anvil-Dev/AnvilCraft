@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity.fluid;
 import dev.dubhe.anvilcraft.api.fluid.FluidStackResourceHandler;
 import dev.dubhe.anvilcraft.api.fluid.IFluidResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
+import it.unimi.dsi.fastutil.longs.Long2LongOpenHashMap;
 import it.unimi.dsi.fastutil.longs.LongArrayFIFOQueue;
 import it.unimi.dsi.fastutil.longs.LongIterator;
 import it.unimi.dsi.fastutil.longs.LongOpenHashSet;
@@ -140,7 +141,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
         if (target == null) {
             return searchResult.pending() ? FillResult.SEARCHING : FillResult.NONE;
         }
-        if (classifyForFill(level, target, fluid) != FILL_TARGET) {
+        if (this.fillSearch == null || !this.fillSearch.isTargetStillReachable(level, target.asLong())) {
             this.fillSearch = null;
             return FillResult.SEARCHING;
         }
@@ -494,6 +495,10 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
             return SearchResult.EXHAUSTED;
         }
 
+        private boolean isTargetStillReachable(Level level, long target) {
+            return this.layerSearch != null && this.layerSearch.isTargetStillReachable(level, target);
+        }
+
         private boolean acceptFilled(long target) {
             if (this.layerSearch == null) return true;
             this.layerSearch.acceptFilled(target);
@@ -504,13 +509,16 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
 
     private static final class FillLayerSearch {
         private final long drainPos;
+        private final long entry;
         private final Fluid fluid;
         private final LongOpenHashSet discovered = new LongOpenHashSet(MAX_NODES);
+        private final Long2LongOpenHashMap predecessors = new Long2LongOpenHashMap(MAX_NODES);
         private final LongOpenHashSet candidates = new LongOpenHashSet();
         private final LongArrayFIFOQueue queue = new LongArrayFIFOQueue(MAX_NODES);
 
         private FillLayerSearch(long drainPos, long entry, Fluid fluid) {
             this.drainPos = drainPos;
+            this.entry = entry;
             this.fluid = fluid;
             this.discovered.add(entry);
             this.queue.enqueue(entry);
@@ -529,12 +537,13 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
                         this.candidates.add(current);
                     } else if (fillType == FILL_SOURCE) {
                         for (Direction direction : Direction.Plane.HORIZONTAL) {
-                            this.discover(level, offset(cursor, direction), cursor);
+                            this.discover(level, offset(cursor, direction), current, cursor);
                             cursor.set(BlockPos.getX(current), BlockPos.getY(current), BlockPos.getZ(current));
                         }
                         this.discover(
                             level,
                             BlockPos.asLong(cursor.getX(), cursor.getY() - 1, cursor.getZ()),
+                            current,
                             cursor
                         );
                     }
@@ -589,8 +598,9 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
             }
         }
 
-        private void discover(Level level, long pos, BlockPos.MutableBlockPos cursor) {
+        private void discover(Level level, long pos, long predecessor, BlockPos.MutableBlockPos cursor) {
             if (!this.discovered.add(pos)) return;
+            this.predecessors.put(pos, predecessor);
             cursor.set(BlockPos.getX(pos), BlockPos.getY(pos), BlockPos.getZ(pos));
             int fillType = classifyForFill(level, cursor, this.fluid);
             if (fillType == FILL_SOURCE) {
@@ -598,6 +608,29 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
             } else if (fillType == FILL_TARGET) {
                 this.candidates.add(pos);
             }
+        }
+
+        /**
+         * 缓存候选可能因洞口被封而与入口断开。沿首次发现时的前驱链复核当前源方块，
+         * 任一路径节点失效就让上层重建搜索；重建时仍存在的其他通路会被重新发现。
+         */
+        private boolean isTargetStillReachable(Level level, long target) {
+            BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
+            cursor.set(BlockPos.getX(target), BlockPos.getY(target), BlockPos.getZ(target));
+            if (!this.discovered.contains(target)
+                || classifyForFill(level, cursor, this.fluid) != FILL_TARGET) {
+                return false;
+            }
+
+            long current = target;
+            int remaining = this.discovered.size();
+            while (current != this.entry && remaining-- > 0) {
+                if (!this.predecessors.containsKey(current)) return false;
+                current = this.predecessors.get(current);
+                cursor.set(BlockPos.getX(current), BlockPos.getY(current), BlockPos.getZ(current));
+                if (classifyForFill(level, cursor, this.fluid) != FILL_SOURCE) return false;
+            }
+            return current == this.entry;
         }
 
         private void acceptFilled(long target) {

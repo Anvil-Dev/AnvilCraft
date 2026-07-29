@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init;
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.AmuletRaffleProbability;
+import dev.dubhe.anvilcraft.inventory.SmithingTemplateFavorites;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -28,6 +29,15 @@ public class ModDataAttachments {
             .serialize(Codec.BOOL.fieldOf("zombificated_by_curse"))
             .build()
     );
+
+    public static final Supplier<AttachmentType<SmithingTemplateFavorites>> SMITHING_TEMPLATE_FAVORITES =
+        ATTACHMENT_TYPES.register(
+            "smithing_template_favorites",
+            () -> AttachmentType.builder(() -> SmithingTemplateFavorites.EMPTY)
+                .serialize(SmithingTemplateFavorites.CODEC)
+                .copyOnDeath()
+                .build()
+        );
 
     public static void register(IEventBus eventBus) {
         ATTACHMENT_TYPES.register(eventBus);

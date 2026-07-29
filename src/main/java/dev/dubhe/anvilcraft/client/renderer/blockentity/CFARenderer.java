@@ -46,6 +46,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 锻星砧的世界内渲染器，将 1.21 的即时渲染实现迁移到 26.1 的提取与提交架构。
@@ -104,6 +105,8 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_SHATTERED = key("CFA Body Planet Shattered");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_HOLLOW = key("CFA Body Planet Hollow");
     public static final StandaloneModelKey<BlockStateModel> BODY_PLANET_ERROR = key("CFA Body Planet Error");
+    private static final Map<Identifier, StandaloneModelKey<BlockStateModel>> CUSTOM_BODY_MODELS =
+        new ConcurrentHashMap<>();
 
     private static StandaloneModelKey<BlockStateModel> key(String desc) {
         return new StandaloneModelKey<>(() -> "AnvilCraft: " + desc + " Model");
@@ -426,7 +429,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             }
             // 粉碎、空洞、血肉、智慧和错误天体使用独立复杂模型。
             case SpecialCelestialBodyData special when special.needsCustomModel() -> state.setComplexBodyModel(
-                FeatureRendererSupport.createTessellation(selectComplexBodyModel(special), false, true));
+                FeatureRendererSupport.createTessellation(getSpecialBodyModel(special.getModelLocation()), false, true));
             case StarData star -> {
                 boolean translucent = star.bodyClass() == CelestialBodyClass.BLACK_HOLE;
                 state.setBodyModel(FeatureRendererSupport.createTessellation(
@@ -474,16 +477,12 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         return BODY_STAR;
     }
 
-    private static StandaloneModelKey<BlockStateModel> selectComplexBodyModel(SpecialCelestialBodyData s) {
-        return switch (s.textureName()) {
-            case "planet_flesh" -> BODY_PLANET_FLESH;
-            case "planet_intelligence" -> BODY_PLANET_INTELLIGENCE;
-            case "planet_shattered" -> BODY_PLANET_SHATTERED;
-            case "planet_hollow" -> BODY_PLANET_HOLLOW;
-            case "planet_error" -> BODY_PLANET_ERROR;
-            case "planet_overworld" -> BODY_PLANET_OVERWORLD;
-            default -> BODY_PLANET_ERROR;
-        };
+    /** 获取资源包天体模型对应的稳定独立模型键。 */
+    public static StandaloneModelKey<BlockStateModel> getSpecialBodyModel(Identifier modelLocation) {
+        return CUSTOM_BODY_MODELS.computeIfAbsent(
+            modelLocation,
+            location -> key("CFA Custom Body " + location)
+        );
     }
 
     @Override

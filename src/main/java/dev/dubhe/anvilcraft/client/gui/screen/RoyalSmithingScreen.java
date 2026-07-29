@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.CyclingSlotBackground;
-import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
 import net.minecraft.client.renderer.entity.state.ArmorStandRenderState;
@@ -28,7 +27,7 @@ import org.joml.Vector3f;
 import java.util.List;
 import java.util.Optional;
 
-public class RoyalSmithingScreen extends ItemCombinerScreen<RoyalSmithingMenu> {
+public class RoyalSmithingScreen extends AdjacentSmithingScreen<RoyalSmithingMenu> {
     private static final Identifier SMITHING_LOCATION = SharedTextures.bg("crafting", "royal_smithing_table");
     private static final Identifier EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM =
         Identifier.withDefaultNamespace("item/empty_slot_smithing_template_armor_trim");
