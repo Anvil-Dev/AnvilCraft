@@ -1144,7 +1144,7 @@ public class ModItems {
     }
 
     private static ItemEntry<BucketItem> registerCementBucket(Color color) {
-        return REGISTRUM.item("%s_cement_bucket".formatted(color), ModItems.bucket(ModFluids.SOURCE_CEMENTS.get(color)))
+        return REGISTRUM.item("%s_cement_bucket".formatted(color), ModItems.bucket(() -> ModFluids.SOURCE_CEMENTS.get(color).get()))
             .tag(Tags.Items.BUCKETS, ModItemTags.CEMENT_BUCKETS)
             .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
             .model(ModelProviderUtil::bucket)
