@@ -193,9 +193,9 @@ public class AnvilCraftFakeBlockPlacer {
         return true;
     }
 
-    public record Placer(ServerPlayer player, GameProfile profile) {
+    public record Placer(ServerPlayer player) {
         public Placer(ServerLevel player, int profile) {
-            this(FakePlayerFactory.get(player, Placer.create(profile)), Placer.create(profile));
+            this(FakePlayerFactory.get(player, Placer.create(profile)));
         }
 
         private static GameProfile create(int profile) {

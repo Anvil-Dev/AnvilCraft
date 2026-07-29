@@ -70,9 +70,9 @@ public class AnvilCraftFakeDestroyer {
         return true;
     }
 
-    public record Destroyer(ServerPlayer player, GameProfile profile) {
+    public record Destroyer(ServerPlayer player) {
         public Destroyer(ServerLevel player, int profile) {
-            this(FakePlayerFactory.get(player, Destroyer.create(profile)), Destroyer.create(profile));
+            this(FakePlayerFactory.get(player, Destroyer.create(profile)));
         }
 
         private static GameProfile create(int profile) {

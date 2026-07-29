@@ -96,9 +96,9 @@ public class AnvilCraftFakeKiller {
         return true;
     }
 
-    public record Killer(ServerPlayer player, GameProfile profile) {
+    public record Killer(ServerPlayer player) {
         public Killer(ServerLevel player, int profile) {
-            this(FakePlayerFactory.get(player, Killer.create(profile)), Killer.create(profile));
+            this(FakePlayerFactory.get(player, Killer.create(profile)));
         }
 
         private static GameProfile create(int profile) {
