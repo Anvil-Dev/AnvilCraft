@@ -36,6 +36,7 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -281,7 +282,7 @@ public class StorageScreen extends Screen {
                     this.categories.rebuild(setting);
                 }
                 StorageSetting storage = setting.storage();
-                this.search.setValue(storage.getSearchContent());
+                Objects.requireNonNull(this.search).setValue(storage.getSearchContent());
                 searchMode.setCurrent(storage.getSearch().ordinal());
                 sortMode.setCurrent(storage.getSort().ordinal());
                 orderMode.setCurrent(storage.getOrder().ordinal());
@@ -507,9 +508,9 @@ public class StorageScreen extends Screen {
             return null;
         }
         if (capacity.typeLimit() != Integer.MAX_VALUE) {
-            return Component.translatable("screen.anvilcraft.storage.capacity.space", capacity.space(), capacity.spaceSize());
+            return Component.translatable("screen.anvilcraft.storage.capacity.types", capacity.typeCount(), capacity.typeLimit());
         }
-        return Component.translatable("screen.anvilcraft.storage.capacity.types", capacity.typeCount(), capacity.typeLimit());
+        return Component.translatable("screen.anvilcraft.storage.capacity.space", capacity.space(), capacity.spaceSize());
     }
 
     private void extractCarriedItem(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
@@ -937,6 +938,70 @@ public class StorageScreen extends Screen {
     @Override
     public boolean isInGameUi() {
         return true;
+    }
+
+    public int getLeftPos() {
+        return this.left;
+    }
+
+    public int getTopPos() {
+        return this.top;
+    }
+
+    public int getImageWidth() {
+        return StorageScreen.BG_WIDTH;
+    }
+
+    public int getImageHeight() {
+        return StorageScreen.BG_HEIGHT;
+    }
+
+    public @Nullable ItemStack getItemUnderMouse(double mouseX, double mouseY) {
+        ItemArea itemArea = this.getItemAreaData(mouseX, mouseY);
+        return itemArea == null ? null : itemArea.stack().copy();
+    }
+
+    public @Nullable Rect2i getItemArea(double mouseX, double mouseY) {
+        ItemArea itemArea = this.getItemAreaData(mouseX, mouseY);
+        return itemArea == null ? null : new Rect2i(itemArea.x(), itemArea.y(), 16, 16);
+    }
+
+    private @Nullable ItemArea getItemAreaData(double mouseX, double mouseY) {
+        int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
+        for (int displayIndex = 0; displayIndex < StorageScreen.VISIBLE_STORAGE_SLOTS; displayIndex++) {
+            int orderIndex = firstOrderIndex + displayIndex;
+            int x = this.left + StorageScreen.STORAGE_X
+                    + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
+            int y = this.top + StorageScreen.STORAGE_Y
+                    + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
+            if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
+                if (orderIndex >= this.order.size()) {
+                    return null;
+                }
+                UnlimitedItemStack stack = this.contents.getOrDefault(
+                    this.order.getInt(orderIndex),
+                    UnlimitedItemStack.EMPTY
+                );
+                return stack.isEmpty() ? null : new ItemArea(stack.toStack(), x, y);
+            }
+        }
+
+        int inventorySlot = this.getInventorySlot(mouseX, mouseY);
+        if (inventorySlot == -1) {
+            return null;
+        }
+        ItemStack stack = this.player.getInventory().getItem(inventorySlot);
+        if (stack.isEmpty()) {
+            return null;
+        }
+        int x = this.left + 114 + 18 * (inventorySlot % 9);
+        int y = inventorySlot < 9
+                ? this.top + 140 + 58
+                : this.top + 140 + 18 * ((inventorySlot - 9) / 9);
+        return new ItemArea(stack, x, y);
+    }
+
+    private record ItemArea(ItemStack stack, int x, int y) {
     }
 
     private @Nullable Integer getStorageSlot(double mouseX, double mouseY) {
