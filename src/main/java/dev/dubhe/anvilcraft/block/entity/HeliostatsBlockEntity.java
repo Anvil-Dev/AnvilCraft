@@ -25,14 +25,14 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 public class HeliostatsBlockEntity extends BlockEntity {
     @Getter
-    private BlockPos irritatePos;
+    private @Nullable BlockPos irritatePos;
 
     @Getter
     @Setter
@@ -55,7 +55,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
 
     private Vec3 getSurfaceVec3(Vec3 vec31, Vec3 vec32) {
         if (vec31.hashCode() + vec32.hashCode() == surfaceVec3Hash) return surfaceVec3;
-        if (level == null) return vec31;
+        if (level == null || this.irritatePos == null) return vec31;
         if (!level.getBlockState(irritatePos.north()).isAir()
             && !level.getBlockState(irritatePos.south()).isAir()
             && !level.getBlockState(irritatePos.east()).isAir()
@@ -69,6 +69,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
         float x = vec2.x > 0 ? 0.49f : -0.49f;
         float y = vec2.y > 0 ? 0.49f : -0.49f;
         if (y / k < 0.5 && y / k > -0.5) {
+            // noinspection SuspiciousNameCombination
             return vec31.add(y, 0, y / k);
         }
         if (k * x < 0.5 && k * x > -0.5) {
@@ -129,18 +130,21 @@ public class HeliostatsBlockEntity extends BlockEntity {
         Player player = this.level.isClientSide()
                         ? Objects.requireNonNull(Minecraft.getInstance().player)
                         : AnvilCraftFakePlayers.getBlockPlacer().offerPlayer(Util.cast(this.level));
-        BlockHitResult blockHitResult = this.level.clip(new ClipContext(
-            this.getBlockPos().getCenter().add(0f, 1.376f, 0f),
-            irritateVec3,
-            ClipContext.Block.COLLIDER,
-            ClipContext.Fluid.NONE,
-            player
-        ));
-        if (!blockHitResult.getBlockPos().equals(irritatePos)) {
-            return WorkResult.OBSCURED;
-        }
-        if (!this.level.isClientSide()) {
-            AnvilCraftFakePlayers.getBlockPlacer().disable(Util.cast(player));
+        try {
+            BlockHitResult blockHitResult = this.level.clip(new ClipContext(
+                this.getBlockPos().getCenter().add(0f, 1.376f, 0f),
+                irritateVec3,
+                ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE,
+                player
+            ));
+            if (!blockHitResult.getBlockPos().equals(irritatePos)) {
+                return WorkResult.OBSCURED;
+            }
+        } finally {
+            if (!this.level.isClientSide()) {
+                AnvilCraftFakePlayers.getBlockPlacer().disable(Util.cast(player));
+            }
         }
         double sunAngle = this.level.getSunAngle(1);
         sunAngle = sunAngle <= Math.PI / 2 * 3 ? sunAngle + Math.PI / 2 : sunAngle - Math.PI / 2 * 3;

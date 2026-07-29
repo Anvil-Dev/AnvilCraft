@@ -41,12 +41,25 @@ public abstract class DefaultDispenseItemBehaviorMixin {
         BlockState targetState = blockSource.level().getBlockState(targetBlockPos);
         if (!(targetState.getBlock() instanceof AbstractCauldronBlock cauldronBlock)) return;
         ServerPlayer player = AnvilCraftFakePlayers.getBlockPlacer().offerPlayer(blockSource.level());
-        ItemStack itemStack = item.copy();
-        itemStack.setCount(1);
-        player.setItemInHand(player.getUsedItemHand(), itemStack);
-        cauldronBlock.useItemOn(itemStack, targetState, blockSource.level(), targetBlockPos, player, player.getUsedItemHand(), null);
-        ItemStack result = player.getItemInHand(player.getUsedItemHand());
-        AnvilCraftFakePlayers.getBlockPlacer().disable(player);
+        ItemStack result;
+        try {
+            ItemStack itemStack = item.copy();
+            itemStack.setCount(1);
+            player.setItemInHand(player.getUsedItemHand(), itemStack);
+            // noinspection DataFlowIssue
+            cauldronBlock.useItemOn(
+                itemStack,
+                targetState,
+                blockSource.level(),
+                targetBlockPos,
+                player,
+                player.getUsedItemHand(),
+                null
+            );
+            result = player.getItemInHand(player.getUsedItemHand());
+        } finally {
+            AnvilCraftFakePlayers.getBlockPlacer().disable(player);
+        }
         if (result.is(item.getItem())) return;
         ItemStack out;
         if (item.getCount() == 1) {

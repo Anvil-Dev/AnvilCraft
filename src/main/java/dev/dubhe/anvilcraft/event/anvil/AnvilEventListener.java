@@ -263,22 +263,25 @@ public class AnvilEventListener {
         boolean enableLooting5
     ) {
         Optional<ServerPlayer> killerOp = Optional.empty();
-        if (enableKiller) {
-            ServerPlayer killer = AnvilCraftFakePlayers.getKiller().offerPlayer(level);
-            builder.withParameter(LootContextParams.DAMAGE_SOURCE, entity.level().damageSources().playerAttack(killer))
-                .withParameter(LootContextParams.ATTACKING_ENTITY, killer)
-                .withParameter(LootContextParams.LAST_DAMAGE_PLAYER, killer);
-            if (enableLooting5) {
-                AnvilCraftFakePlayers.getKiller().enableLooting5(level, killer);
+        try {
+            if (enableKiller) {
+                ServerPlayer killer = AnvilCraftFakePlayers.getKiller().offerPlayer(level);
+                killerOp = Optional.of(killer);
+                builder.withParameter(LootContextParams.DAMAGE_SOURCE, entity.level().damageSources().playerAttack(killer))
+                    .withParameter(LootContextParams.ATTACKING_ENTITY, killer)
+                    .withParameter(LootContextParams.LAST_DAMAGE_PLAYER, killer);
+                if (enableLooting5) {
+                    AnvilCraftFakePlayers.getKiller().enableLooting5(level, killer);
+                }
             }
-            killerOp = Optional.of(killer);
+            LootParams lootParams = builder.create(LootContextParamSets.ENTITY);
+            LootTable lootTable = level.getServer().reloadableRegistries().getLootTable(entity.getLootTable());
+            AnvilUtil.dropItems(lootTable.getRandomItems(lootParams), level, pos);
+            if (rate >= 0.6) AnvilUtil.dropItems(lootTable.getRandomItems(lootParams), level, pos);
+            if (rate >= 0.8) AnvilUtil.dropItems(lootTable.getRandomItems(lootParams), level, pos);
+        } finally {
+            killerOp.ifPresent(killer -> AnvilCraftFakePlayers.getKiller().disable(killer));
         }
-        LootParams lootParams = builder.create(LootContextParamSets.ENTITY);
-        LootTable lootTable = level.getServer().reloadableRegistries().getLootTable(entity.getLootTable());
-        AnvilUtil.dropItems(lootTable.getRandomItems(lootParams), level, pos);
-        if (rate >= 0.6) AnvilUtil.dropItems(lootTable.getRandomItems(lootParams), level, pos);
-        if (rate >= 0.8) AnvilUtil.dropItems(lootTable.getRandomItems(lootParams), level, pos);
-        killerOp.ifPresent(killer -> AnvilCraftFakePlayers.getKiller().disable(killer));
     }
 
     private static void dropExps(
@@ -288,14 +291,17 @@ public class AnvilEventListener {
         double rate
     ) {
         ServerPlayer killer = AnvilCraftFakePlayers.getKiller().offerPlayer(level);
-        int baseExp = entity.getExperienceReward(level, killer);
-        int expMultiplier = 1;
-        if (rate >= 0.8) {
-            expMultiplier = 3;
-        } else if (rate >= 0.6) {
-            expMultiplier = 2;
+        try {
+            int baseExp = entity.getExperienceReward(level, killer);
+            int expMultiplier = 1;
+            if (rate >= 0.8) {
+                expMultiplier = 3;
+            } else if (rate >= 0.6) {
+                expMultiplier = 2;
+            }
+            ExperienceOrb.award(level, pos, baseExp * expMultiplier);
+        } finally {
+            AnvilCraftFakePlayers.getKiller().disable(killer);
         }
-        ExperienceOrb.award(level, pos, baseExp * expMultiplier);
-        AnvilCraftFakePlayers.getKiller().disable(killer);
     }
 }

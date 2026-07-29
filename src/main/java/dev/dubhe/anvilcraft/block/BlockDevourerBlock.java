@@ -269,13 +269,16 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         }
         if (!(devourBlockState.getBlock() instanceof DoublePlantBlock)) {
             ServerPlayer player = AnvilCraftFakePlayers.getBlockPlacer().offerPlayer(level);
-            devourBlockState.getBlock().playerWillDestroy(
-                level,
-                devourBlockPos,
-                devourBlockState,
-                player
-            );
-            AnvilCraftFakePlayers.getBlockPlacer().disable(player);
+            try {
+                devourBlockState.getBlock().playerWillDestroy(
+                    level,
+                    devourBlockPos,
+                    devourBlockState,
+                    player
+                );
+            } finally {
+                AnvilCraftFakePlayers.getBlockPlacer().disable(player);
+            }
         }
         level.destroyBlock(devourBlockPos, false);
         TriggerUtil.devourerDevourBlock(level, devourBlockPos, devourBlockState.getBlock());

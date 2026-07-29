@@ -97,49 +97,51 @@ public class AnvilCraftFakeBlockPlacer {
         }
         if (!(level instanceof ServerLevel serverLevel)) return InteractionResult.FAIL;
         ServerPlayer player = this.offerPlayer(serverLevel);
-        // 获取fakePlayer的方向 与放置器的方向不太一样
-        Orientation fakePlayerOrientation = orientation.flipHorizontalIfVertical();
-        player.setYRot(fakePlayerOrientation.getYRotation());
-        // net.minecraft.core.Direction#orderedByNearest 方法判断的是玩家的yHeadRot，设置YRot时需要将
-        // 该字段一并设置，以使得部分方块的方向检测正确
-        player.setYHeadRot(fakePlayerOrientation.getYRotation());
-        player.setXRot(fakePlayerOrientation.getXRotation());
-        Vec3 clickClickLocation = this.getPosFromOrientation(orientation);
-        double x = clickClickLocation.x;
-        double y = clickClickLocation.y;
-        double z = clickClickLocation.z;
-        BlockHitResult blockHitResult = new BlockHitResult(
-            pos.getCenter().add(-0.5, -0.5, -0.5).add(x, 1 - y, z),
-            orientation.getDirection().getOpposite(),
-            pos,
-            false
-        );
-        BlockPlaceContext blockPlaceContext =
-            new BlockPlaceContext(
-                level,
-                player,
-                player.getUsedItemHand(),
-                stack,
-                blockHitResult
+        try {
+            // 获取fakePlayer的方向 与放置器的方向不太一样
+            Orientation fakePlayerOrientation = orientation.flipHorizontalIfVertical();
+            player.setYRot(fakePlayerOrientation.getYRotation());
+            // net.minecraft.core.Direction#orderedByNearest 方法判断的是玩家的yHeadRot，设置YRot时需要将
+            // 该字段一并设置，以使得部分方块的方向检测正确
+            player.setYHeadRot(fakePlayerOrientation.getYRotation());
+            player.setXRot(fakePlayerOrientation.getXRotation());
+            Vec3 clickClickLocation = this.getPosFromOrientation(orientation);
+            double x = clickClickLocation.x;
+            double y = clickClickLocation.y;
+            double z = clickClickLocation.z;
+            BlockHitResult blockHitResult = new BlockHitResult(
+                pos.getCenter().add(-0.5, -0.5, -0.5).add(x, 1 - y, z),
+                orientation.getDirection().getOpposite(),
+                pos,
+                false
             );
-        InteractionResult ir = blockItem.place(blockPlaceContext);
-        if (ir == InteractionResult.FAIL) {
+            BlockPlaceContext blockPlaceContext =
+                new BlockPlaceContext(
+                    level,
+                    player,
+                    player.getUsedItemHand(),
+                    stack,
+                    blockHitResult
+                );
+            InteractionResult ir = blockItem.place(blockPlaceContext);
+            if (ir == InteractionResult.FAIL) {
+                return ir;
+            }
+            BlockState blockState = level.getBlockState(pos);
+            SoundType soundType = blockState.getSoundType(level, pos, player);
+            level.playSound(
+                player,
+                pos,
+                soundType.getPlaceSound(),
+                SoundSource.BLOCKS,
+                (soundType.getVolume() + 1.0F) / 2.0F,
+                soundType.getPitch() * 0.8F
+            );
+            TriggerUtil.placerPlaceBlock(level, pos, blockState.getBlock());
+            return InteractionResult.SUCCESS;
+        } finally {
             this.disable(player);
-            return ir;
         }
-        BlockState blockState = level.getBlockState(pos);
-        SoundType soundType = blockState.getSoundType(level, pos, player);
-        level.playSound(
-            player,
-            pos,
-            soundType.getPlaceSound(),
-            SoundSource.BLOCKS,
-            (soundType.getVolume() + 1.0F) / 2.0F,
-            soundType.getPitch() * 0.8F
-        );
-        TriggerUtil.placerPlaceBlock(level, pos, blockState.getBlock());
-        this.disable(player);
-        return InteractionResult.SUCCESS;
     }
 
     private Vec3 getPosFromOrientation(Orientation orientation) {
