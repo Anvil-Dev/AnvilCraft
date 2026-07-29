@@ -1,13 +1,41 @@
 package dev.dubhe.anvilcraft.api.entity.fakeplayer;
 
-import dev.dubhe.anvilcraft.api.entity.player.IAnvilCraftBlockPlacer;
+import net.minecraft.server.level.ServerLevel;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 public class AnvilCraftFakePlayers {
     public static Set<String> BLOCK_PLACER_BLACKLIST = new HashSet<>();
-    public static IAnvilCraftBlockPlacer anvilcraftBlockPlacer = null;
-    public static AnvilCraftKillerFakePlayer anvilcraftKiller = null;
-    public static AnvilCraftDestroyerFakePlayer anvilcraftDestroyer = null;
+    public static @Nullable AnvilCraftFakeBlockPlacer blockPlacer = null;
+    public static @Nullable AnvilCraftFakeKiller killer = null;
+    public static @Nullable AnvilCraftFakeDestroyer destroyer = null;
+
+    public static AnvilCraftFakeBlockPlacer getBlockPlacer() {
+        return Objects.requireNonNull(AnvilCraftFakePlayers.blockPlacer);
+    }
+
+    public static AnvilCraftFakeKiller getKiller() {
+        return Objects.requireNonNull(AnvilCraftFakePlayers.killer);
+    }
+
+    public static AnvilCraftFakeDestroyer getDestroyer() {
+        return Objects.requireNonNull(AnvilCraftFakePlayers.destroyer);
+    }
+
+    public static void clear(ServerLevel level) {
+        if (AnvilCraftFakePlayers.blockPlacer != null) {
+            AnvilCraftFakePlayers.blockPlacer.clear(level);
+        }
+        if (AnvilCraftFakePlayers.killer != null) {
+            AnvilCraftFakePlayers.killer.clear(level);
+        }
+        if (AnvilCraftFakePlayers.destroyer != null) {
+            AnvilCraftFakePlayers.destroyer.clear(level);
+        }
+        FakePlayerFactory.unloadLevel(level);
+    }
 }

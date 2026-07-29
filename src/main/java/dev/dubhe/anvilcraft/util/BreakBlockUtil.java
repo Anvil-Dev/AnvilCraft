@@ -39,8 +39,8 @@ public class BreakBlockUtil {
     private static List<ItemStack> dropWithTool(
         ServerLevel level, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack tool
     ) {
-        ServerPlayer fakePlayer = AnvilCraftFakePlayers.anvilcraftDestroyer.offerPlayer(level);
-        AnvilCraftFakePlayers.anvilcraftDestroyer.enabledDestroy(fakePlayer, tool);
+        ServerPlayer fakePlayer = AnvilCraftFakePlayers.getDestroyer().offerPlayer(level);
+        AnvilCraftFakePlayers.getDestroyer().enabledDestroy(fakePlayer, tool);
         try {
             LootParams.Builder builder = new LootParams.Builder(level)
                 .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
@@ -49,7 +49,7 @@ public class BreakBlockUtil {
                 .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
             return state.getDrops(builder);
         } finally {
-            AnvilCraftFakePlayers.anvilcraftDestroyer.disable(fakePlayer);
+            AnvilCraftFakePlayers.getDestroyer().disable(fakePlayer);
         }
     }
 
@@ -146,13 +146,13 @@ public class BreakBlockUtil {
         ServerLevel level, BlockPos pos, BlockState state, BlockMiningEffect effect
     ) {
         ItemStack tool = createTool(level, state, effect);
-        ServerPlayer fakePlayer = AnvilCraftFakePlayers.anvilcraftDestroyer.offerPlayer(level);
-        AnvilCraftFakePlayers.anvilcraftDestroyer.enabledDestroy(fakePlayer, tool);
+        ServerPlayer fakePlayer = AnvilCraftFakePlayers.getDestroyer().offerPlayer(level);
+        AnvilCraftFakePlayers.getDestroyer().enabledDestroy(fakePlayer, tool);
         try {
             int experience = state.getExpDrop(level, pos, level.getBlockEntity(pos), fakePlayer, tool);
             return EnchantmentHelper.processBlockExperience(level, tool, experience);
         } finally {
-            AnvilCraftFakePlayers.anvilcraftDestroyer.disable(fakePlayer);
+            AnvilCraftFakePlayers.getDestroyer().disable(fakePlayer);
         }
     }
 

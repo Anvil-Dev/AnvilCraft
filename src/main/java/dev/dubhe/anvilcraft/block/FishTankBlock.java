@@ -9,7 +9,6 @@ import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.FishTankBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluidTags;
@@ -195,8 +194,7 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
 
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!level.isClientSide() && !state.is(newState.getBlock()) && !movedByPiston
-            && !SmartBlockPlacerBlockEntity.isBlockBeingMovedByPlacer()) {
+        if (!level.isClientSide() && !state.is(newState.getBlock()) && !movedByPiston) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof FishTankBlockEntity tank) {
                 IItemHandler handler = tank.getItemHandler();

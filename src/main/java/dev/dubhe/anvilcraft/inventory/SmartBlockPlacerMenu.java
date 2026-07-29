@@ -4,8 +4,10 @@ import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.component.BookOnlySlot;
-import dev.dubhe.anvilcraft.inventory.component.StructureDiskOnlySlot;
+import dev.dubhe.anvilcraft.util.StructureBookUtil;
+import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -15,6 +17,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.items.SlotItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
@@ -23,49 +26,76 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
     @Nullable
     private final SmartBlockPlacerBlockEntity blockEntity;
     private final Level level;
+    @Getter
+    private final SimpleContainer bookInventory;
+    private final SimpleContainer outputBookInventory;
 
     public SmartBlockPlacerMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory, BlockEntity machine) {
         super(menuType, containerId);
         this.blockEntity = (SmartBlockPlacerBlockEntity) machine;
         this.level = inventory.player.level();
+        this.outputBookInventory = new SimpleContainer(1);
+        this.bookInventory = new SimpleContainer(1) {
+            @Override
+            public void setChanged() {
+                super.setChanged();
+                if (level.isClientSide()) {
+                    return;
+                }
+                ItemStack book = this.getItem(0);
+                outputBookInventory.setItem(
+                    0,
+                    book.isEmpty()
+                        ? ItemStack.EMPTY
+                        : StructureBookUtil.createMaterialListBook(level, blockEntity.getBlockPos(), blockEntity)
+                );
+            }
+        };
 
         // 添加Structure Disk物品栏槽位（1个槽位）
         // Smart Block Placer 需要限制结构大小不超过 5x5x5
         int diskSlotX = 8;
         int diskSlotY = 119;
-        this.addSlot(new StructureDiskOnlySlot(
-            this.blockEntity.getDiskInventory(),
+        this.addSlot(new SlotItemHandler(
+            this.blockEntity.getBlueprintItemHandler(),
             0,
             diskSlotX,
-            diskSlotY,
-            true,  // enforceSizeLimit: 强制限制 5x5x5
-            // 提取条件：只有当书槽位为空时才能取出磁盘
-            () -> this.blockEntity.getBookInventory().getItem(0).isEmpty()
-        ));
+            diskSlotY
+        ) {
+            @Override
+            public boolean mayPickup(Player player) {
+                return bookInventory.getItem(0).isEmpty();
+            }
+
+            @Override
+            public int getMaxStackSize() {
+                return 1;
+            }
+        });
         
         // 添加蓝图模式书物品栏槽位（输入，1个槽位，只在蓝图模式下显示）
         int bookSlotX = 46;
         int bookSlotY = 86;
         this.addSlot(new BookOnlySlot(
-            this.blockEntity.getBookInventory(),
+            this.bookInventory,
             0,
             bookSlotX,
             bookSlotY,
             // 可见性条件：只有当结构磁盘槽位有物品时才可见
-            () -> !this.blockEntity.getDiskInventory().getItem(0).isEmpty()
+            () -> !this.blockEntity.getBlueprintItemHandler().getStackInSlot(0).isEmpty()
         ));
         
         // 添加蓝图模式输出书物品栏槽位（输出，1个槽位，只在蓝图模式下显示）
         int outputBookSlotX = 84;
         int outputBookSlotY = 86;
         this.addSlot(new dev.dubhe.anvilcraft.inventory.component.WrittenBookOnlySlot(
-            this.blockEntity.getOutputBookInventory(),
+            this.outputBookInventory,
             0,
             outputBookSlotX,
             outputBookSlotY,
             // 可见性条件：只有当结构磁盘槽位有物品时才可见
-            () -> !this.blockEntity.getDiskInventory().getItem(0).isEmpty()
+            () -> !this.blockEntity.getBlueprintItemHandler().getStackInSlot(0).isEmpty()
         ));
 
         // 添加玩家物品栏（主物品栏3行9列）
@@ -81,7 +111,6 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
         }
     }
 
-    @SuppressWarnings("resource")
     public SmartBlockPlacerMenu(
         @Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
         this(menuType, containerId, inventory, Objects.requireNonNull(
@@ -114,7 +143,7 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
             // Structure Disk槽位（索引0）的物品移动到玩家物品栏
             if (index < STRUCTURE_DISK_SLOT_COUNT) {
                 // 检查书槽位是否有书，如果有则不允许取出磁盘
-                if (this.blockEntity != null && !this.blockEntity.getBookInventory().getItem(0).isEmpty()) {
+                if (this.blockEntity != null && !this.bookInventory.getItem(0).isEmpty()) {
                     return ItemStack.EMPTY;
                 }
                 if (!this.moveItemStackTo(originalStack, 
@@ -139,7 +168,8 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
             // 玩家物品栏的物品移动
             else if (index < TOTAL_SLOT_COUNT) {
                 // 检查是否是蓝图模式
-                boolean isBlueprintMode = this.blockEntity != null && !this.blockEntity.getDiskInventory().getItem(0).isEmpty();
+                boolean isBlueprintMode = this.blockEntity != null
+                    && !this.blockEntity.getBlueprintItemHandler().getStackInSlot(0).isEmpty();
                 
                 if (originalStack.is(ModItems.STRUCTURE_DISK.get())) {
                     // Structure Disk尝试移动到Disk槽位
@@ -197,5 +227,14 @@ public class SmartBlockPlacerMenu extends AbstractContainerMenu {
             player,
             ModBlocks.SMART_BLOCK_PLACER.get()
         );
+    }
+
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        if (!player.level().isClientSide()) {
+            this.clearContainer(player, this.outputBookInventory);
+            this.clearContainer(player, this.bookInventory);
+        }
     }
 }

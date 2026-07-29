@@ -23,6 +23,7 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
+import dev.dubhe.anvilcraft.init.ModTargetPointers;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
@@ -114,6 +115,7 @@ public class AnvilCraft {
         ModLootItemFunctions.LOOT_FUNCTION_TYPES.register(modEventBus);
         ModLootItemConditions.LOOT_CONDITION_TYPES.register(modEventBus);
         ModLootModifiers.register(modEventBus);
+        ModTargetPointers.register(modEventBus);
         TeslaFilter.init();
         ModAmuletTypes.register(modEventBus);
         ModAmuletDefinitionTypes.register(modEventBus);

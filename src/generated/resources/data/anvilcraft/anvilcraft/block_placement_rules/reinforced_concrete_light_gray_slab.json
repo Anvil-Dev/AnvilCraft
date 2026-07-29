@@ -1,0 +1,19 @@
+{
+  "rules": [
+    {
+      "count": 1,
+      "item": "anvilcraft:reinforced_concrete_light_gray_slab",
+      "properties": "type=bottom"
+    },
+    {
+      "count": 1,
+      "item": "anvilcraft:reinforced_concrete_light_gray_slab",
+      "properties": "type=top"
+    },
+    {
+      "count": 2,
+      "item": "anvilcraft:reinforced_concrete_light_gray_slab",
+      "properties": "type=double"
+    }
+  ]
+}

@@ -185,7 +185,10 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
             it -> RecipeUtil.getTagRenderSlots(it.value().getInputPattern())
         );
 
-        List<ItemStack> inputItems = recipe.value().getInputPattern().toIngredientList();
+        var level = Minecraft.getInstance().level;
+        List<ItemStack> inputItems = recipe.value().getInputPattern().toIngredientList(
+            level == null ? null : level.registryAccess()
+        );
         inputItems.sort(BY_COUNT_DECREASING);
 
         int inputSlotIndex = 0;
@@ -203,15 +206,15 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
             var slot = builder.addSlot(
                 RecipeIngredientRole.INPUT, this.inputSlotPosX(inputSlotIndex) + 1, this.slotPosY(inputSlotIndex) + 1
             );
-            net.minecraft.core.registries.BuiltInRegistries.ITEM.getTag(itemTag).ifPresent(tag -> {
-                tag.stream().forEach(holder -> {
-                    slot.addItemStack(new ItemStack(holder.value(), count));
-                });
-            });
+            net.minecraft.core.registries.BuiltInRegistries.ITEM.getTag(itemTag).ifPresent(tag -> tag.stream().forEach(
+                holder -> slot.addItemStack(new ItemStack(holder.value(), count))
+            ));
             inputSlotIndex++;
         }
 
-        List<ItemStack> outputItems = recipe.value().getOutputPattern().toIngredientList();
+        List<ItemStack> outputItems = recipe.value().getOutputPattern().toIngredientList(
+            level == null ? null : level.registryAccess()
+        );
         outputItems.sort(BY_COUNT_DECREASING);
 
         for (int i = 0; i < outputItems.size(); i++) {

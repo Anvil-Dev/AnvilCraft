@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -267,12 +268,17 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
             transferLecternContents(level, itemHandlerList, center, lectern, insertEnabled, dropOriginalPlace);
         }
         if (!(devourBlockState.getBlock() instanceof DoublePlantBlock)) {
-            devourBlockState.getBlock().playerWillDestroy(
-                level,
-                devourBlockPos,
-                devourBlockState,
-                AnvilCraftFakePlayers.anvilcraftBlockPlacer.getPlayer()
-            );
+            ServerPlayer player = AnvilCraftFakePlayers.getBlockPlacer().offerPlayer(level);
+            try {
+                devourBlockState.getBlock().playerWillDestroy(
+                    level,
+                    devourBlockPos,
+                    devourBlockState,
+                    player
+                );
+            } finally {
+                AnvilCraftFakePlayers.getBlockPlacer().disable(player);
+            }
         }
         level.destroyBlock(devourBlockPos, false);
         TriggerUtil.devourerDevourBlock(level, devourBlockPos, devourBlockState.getBlock());

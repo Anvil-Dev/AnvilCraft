@@ -19,7 +19,7 @@ public enum SmartBlockPlacerProvider implements IBlockComponentProvider, IServer
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         if (!(accessor.getBlockEntity() instanceof SmartBlockPlacerBlockEntity be)) return;
 
-        boolean isBlueprint = be.getLoadedStructure() != null && !be.getLoadedStructure().isEmpty();
+        boolean isBlueprint = be.hasBlueprint();
 
         // Operation Mode: Normal / Blueprint
         ChatFormatting modeColor = isBlueprint ? ChatFormatting.AQUA : ChatFormatting.GRAY;
@@ -42,7 +42,7 @@ public enum SmartBlockPlacerProvider implements IBlockComponentProvider, IServer
 
         // Blueprint name (only in blueprint mode)
         if (isBlueprint) {
-            String name = be.getLoadedStructureName();
+            String name = be.getBlueprint().name();
             if (!name.isEmpty()) {
                 tooltip.add(Component.translatable(
                     "tooltip.anvilcraft.smart_block_placer.jade.blueprint_name",

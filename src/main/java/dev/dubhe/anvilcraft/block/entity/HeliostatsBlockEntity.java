@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
@@ -12,6 +13,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.biome.Biome;
@@ -23,14 +25,14 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 public class HeliostatsBlockEntity extends BlockEntity {
     @Getter
-    private BlockPos irritatePos;
+    private @Nullable BlockPos irritatePos;
 
     @Getter
     @Setter
@@ -53,7 +55,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
 
     private Vec3 getSurfaceVec3(Vec3 vec31, Vec3 vec32) {
         if (vec31.hashCode() + vec32.hashCode() == surfaceVec3Hash) return surfaceVec3;
-        if (level == null) return vec31;
+        if (level == null || this.irritatePos == null) return vec31;
         if (!level.getBlockState(irritatePos.north()).isAir()
             && !level.getBlockState(irritatePos.south()).isAir()
             && !level.getBlockState(irritatePos.east()).isAir()
@@ -67,6 +69,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
         float x = vec2.x > 0 ? 0.49f : -0.49f;
         float y = vec2.y > 0 ? 0.49f : -0.49f;
         if (y / k < 0.5 && y / k > -0.5) {
+            // noinspection SuspiciousNameCombination
             return vec31.add(y, 0, y / k);
         }
         if (k * x < 0.5 && k * x > -0.5) {
@@ -87,9 +90,9 @@ public class HeliostatsBlockEntity extends BlockEntity {
     }
 
     private WorkResult validatePos(@Nullable BlockPos irritatePos) {
-        normalVector3f = new Vector3f();
-        if (level == null) return WorkResult.UNKNOWN;
-        if (level.isClientSide && Minecraft.getInstance().player == null) return WorkResult.UNKNOWN;
+        this.normalVector3f = new Vector3f();
+        if (this.level == null) return WorkResult.UNKNOWN;
+        if (this.level.isClientSide && Minecraft.getInstance().player == null) return WorkResult.UNKNOWN;
         if (irritatePos == null) return WorkResult.UNSPECIFIED_IRRADIATION_BLOCK;
         if (getBlockPos().getCenter().distanceTo(irritatePos.getCenter()) > 64) {
             return WorkResult.TOO_FAR;
@@ -101,13 +104,13 @@ public class HeliostatsBlockEntity extends BlockEntity {
                     if (dx == 0 && dz == 0 && dy == 0) continue;
                     if (dy == 0) {
                         BlockPos pos = getBlockPos().offset(dx, dy, dz);
-                        if (level.getBlockState(pos).is(ModBlocks.HELIOSTATS)) {
+                        if (this.level.getBlockState(pos).is(ModBlocks.HELIOSTATS)) {
                             return WorkResult.ADJACENT_HELIOSTATS;
                         }
                     }
                     if (dy == 1) {
                         BlockPos pos = getBlockPos().offset(dx, dy, dz);
-                        BlockState bs = level.getBlockState(pos);
+                        BlockState bs = this.level.getBlockState(pos);
                         if (!bs.isAir() && !(bs.getBlock() instanceof HalfTransparentBlock)) {
                             return WorkResult.OBSCURED;
                         }
@@ -115,39 +118,45 @@ public class HeliostatsBlockEntity extends BlockEntity {
                 }
             }
         }
-        if (level.isRainingAt(getBlockPos().above())
-            || level.getBrightness(LightLayer.SKY, getBlockPos().above()) != 15
-            || (level.isRaining()
-                && level.getBiome(getBlockPos().above()).value()
+        if (this.level.isRainingAt(getBlockPos().above())
+            || this.level.getBrightness(LightLayer.SKY, getBlockPos().above()) != 15
+            || (this.level.isRaining()
+                && this.level.getBiome(getBlockPos().above()).value()
                     .getPrecipitationAt(getBlockPos().above()) == Biome.Precipitation.SNOW)
         ) {
             return WorkResult.NO_SUN;
         }
-        Vec3 irritateVec3 =
-            getSurfaceVec3(irritatePos.getCenter(), getBlockPos().getCenter());
-        BlockHitResult blockHitResult = level.clip(new ClipContext(
-            getBlockPos().getCenter().add(0f, 1.376f, 0f),
-            irritateVec3,
-            ClipContext.Block.COLLIDER,
-            ClipContext.Fluid.NONE,
-            level.isClientSide
-                ? Objects.requireNonNull(Minecraft.getInstance().player)
-                : AnvilCraftFakePlayers.anvilcraftBlockPlacer.getPlayer())
-        );
-        if (!blockHitResult.getBlockPos().equals(irritatePos)) {
-            return WorkResult.OBSCURED;
+        Vec3 irritateVec3 = this.getSurfaceVec3(irritatePos.getCenter(), getBlockPos().getCenter());
+        Player player = this.level.isClientSide()
+                        ? Objects.requireNonNull(Minecraft.getInstance().player)
+                        : AnvilCraftFakePlayers.getBlockPlacer().offerPlayer(Util.cast(this.level));
+        try {
+            BlockHitResult blockHitResult = this.level.clip(new ClipContext(
+                this.getBlockPos().getCenter().add(0f, 1.376f, 0f),
+                irritateVec3,
+                ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE,
+                player
+            ));
+            if (!blockHitResult.getBlockPos().equals(irritatePos)) {
+                return WorkResult.OBSCURED;
+            }
+        } finally {
+            if (!this.level.isClientSide()) {
+                AnvilCraftFakePlayers.getBlockPlacer().disable(Util.cast(player));
+            }
         }
-        double sunAngle = level.getSunAngle(1);
+        double sunAngle = this.level.getSunAngle(1);
         sunAngle = sunAngle <= Math.PI / 2 * 3 ? sunAngle + Math.PI / 2 : sunAngle - Math.PI / 2 * 3;
         if (sunAngle > Math.PI) return WorkResult.NO_SUN;
         Vector3f sunVector3f = new Vector3f((float) Math.cos(sunAngle), (float) Math.sin(sunAngle), 0).normalize();
-        irritateVector3f = new Vector3f(
+        this.irritateVector3f = new Vector3f(
             (float) (irritateVec3.x - getBlockPos().getX()),
             (float) (irritateVec3.y - getBlockPos().getY()),
             (float) (irritateVec3.z - getBlockPos().getZ())
         ).normalize();
-        normalVector3f = sunVector3f.add(irritateVector3f).div(2);
-        if (normalVector3f.y < 0) {
+        this.normalVector3f = sunVector3f.add(this.irritateVector3f).div(2);
+        if (this.normalVector3f.y < 0) {
             return WorkResult.NO_ROTATION_ANGLE;
         }
         return WorkResult.SUCCESS;

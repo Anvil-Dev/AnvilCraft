@@ -103,7 +103,7 @@ public abstract class LivingEntityMixin extends Entity {
             case FallingBlockEntity falling when !this.level().isClientSide -> {
                 Block anvil = falling.getBlockState().getBlock();
                 if (!Util.instanceOfAny(anvil, FrostAnvilBlock.class, EmberAnvilBlock.class, TranscendenceAnvilBlock.class)) return value;
-                ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer((ServerLevel) this.level());
+                ServerPlayer killer = AnvilCraftFakePlayers.getKiller().offerPlayer((ServerLevel) this.level());
                 this.lastHurtByPlayer = killer;
                 this.lastHurtByPlayerTime = 1;
                 killerRef.set(killer);
@@ -114,7 +114,7 @@ public abstract class LivingEntityMixin extends Entity {
                     value.getSourcePosition()
                 );
                 if (anvil instanceof TranscendenceAnvilBlock) {
-                    AnvilCraftFakePlayers.anvilcraftKiller.enableLooting5((ServerLevel) this.level(), killer);
+                    AnvilCraftFakePlayers.getKiller().enableLooting5((ServerLevel) this.level(), killer);
                 }
                 return source;
             }
@@ -127,7 +127,7 @@ public abstract class LivingEntityMixin extends Entity {
     @Inject(method = "die", at = @At("RETURN"))
     private void disableKiller(DamageSource cause, CallbackInfo ci, @Share("killer") LocalRef<ServerPlayer> killerRef) {
         if (killerRef.get() == null) return;
-        AnvilCraftFakePlayers.anvilcraftKiller.disable(killerRef.get());
+        AnvilCraftFakePlayers.getKiller().disable(killerRef.get());
     }
 
     @Inject(

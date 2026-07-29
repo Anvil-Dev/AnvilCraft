@@ -24,7 +24,7 @@ import dev.dubhe.anvilcraft.recipe.multiblock.BlockPattern;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
-import dev.dubhe.anvilcraft.util.BlockStateUtil;
+import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
 import lombok.Setter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -44,7 +44,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.Property;
-import org.jetbrains.annotations.Nullable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
@@ -59,6 +58,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
 
 public class StructureToolScreen extends AbstractContainerScreen<StructureToolMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("misc", "structure_tool");
@@ -78,13 +78,10 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
 
     private static char currentSymbol;
 
-    private TexturedButton dataGenButton;
-    private TexturedButton kubejsButton;
-    private TexturedButton jsonButton;
     private static final int SLOT_ID_RESULT = 36;
 
     @Setter
-    private StructureData structureData;
+    private @Nullable StructureData structureData;
 
     public StructureToolScreen(StructureToolMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -97,7 +94,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         int offsetX = (this.width - this.imageWidth) / 2;
         int offsetY = (this.height - this.imageHeight) / 2;
 
-        dataGenButton = addRenderableWidget(new TexturedButton(
+        this.addRenderableWidget(new TexturedButton(
             offsetX + 122,
             offsetY + 21,
             46,
@@ -128,7 +125,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
                 minecraft.player.closeContainer();
             }
         ));
-        kubejsButton = addRenderableWidget(new TexturedButton(
+        this.addRenderableWidget(new TexturedButton(
             offsetX + 122,
             offsetY + 37,
             46,
@@ -139,7 +136,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             32,
             button -> button.setFocused(false)
         ));
-        jsonButton = addRenderableWidget(new TexturedButton(
+        this.addRenderableWidget(new TexturedButton(
             offsetX + 122,
             offsetY + 53,
             46,
@@ -163,13 +160,13 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
                     );
                     return;
                 }
-                String defaultName = switch (recipe) {
-                    case IDatagen datagenRecipe -> datagenRecipe.getSuggestedName();
-                    default -> Integer.toHexString(recipe.hashCode());
-                };
-                String pathString = getFilePath(defaultName, "*.json");
+                String defaultName = recipe instanceof IDatagen datagenRecipe
+                    ? datagenRecipe.getSuggestedName()
+                    : Integer.toHexString(recipe.hashCode());
+                String pathString = getFilePath(defaultName);
                 if (pathString == null) {
-                    minecraft.player.displayClientMessage(Component.translatable("message.anvilcraft.no_file_selected")
+                    minecraft.player.displayClientMessage(
+                        Component.translatable("message.anvilcraft.no_file_selected")
                             .withStyle(ChatFormatting.RED),
                         false
                     );
@@ -184,7 +181,8 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
                         jsonString,
                         StandardCharsets.UTF_8,
                         StandardOpenOption.CREATE,
-                        StandardOpenOption.WRITE);
+                        StandardOpenOption.WRITE
+                    );
                     minecraft.player.displayClientMessage(
                         Component.translatable("message.anvilcraft.file_saved", pathString),
                         false
@@ -279,10 +277,10 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
     }
 
     @Nullable
-    private static String getFilePath(String defaultName, String filter) {
+    private static String getFilePath(String defaultName) {
         try (MemoryStack stack = MemoryStack.stackPush()) {
             PointerBuffer filterBuffer = stack.mallocPointer(1);
-            filterBuffer.put(stack.UTF8(filter));
+            filterBuffer.put(stack.UTF8("*.json"));
             filterBuffer.flip();
             return TinyFileDialogs.tinyfd_saveFileDialog("Save", defaultName, filterBuffer, null);
         }
@@ -379,7 +377,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         state.getProperties().stream()
             .filter(p -> recordAllStates
                 || DEFAULT_RECORDED_PROPERTIES.contains(p)
-                || (BlockStateUtil.isMultifaceLike(block)
+                || (BlockPlacementUtil.isMultifaceLike(block)
                 && p instanceof BooleanProperty
                 && PipeBlock.PROPERTY_BY_DIRECTION.containsValue(p)))
             .forEach(p -> predicate.copyPropertyFrom(state, p));

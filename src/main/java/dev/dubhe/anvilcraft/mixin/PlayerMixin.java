@@ -52,7 +52,7 @@ abstract class PlayerMixin extends LivingEntity {
             && Util.instanceOfAny(falling.getBlockState().getBlock(), EmberAnvilBlock.class, TranscendenceAnvilBlock.class)
             && !this.level().isClientSide
         ) {
-            ServerPlayer killer = AnvilCraftFakePlayers.anvilcraftKiller.offerPlayer((ServerLevel) this.level());
+            ServerPlayer killer = AnvilCraftFakePlayers.getKiller().offerPlayer((ServerLevel) this.level());
             this.lastHurtByPlayer = killer;
             this.lastHurtByPlayerTime = 1;
             killerRef.set(killer);
@@ -61,7 +61,7 @@ abstract class PlayerMixin extends LivingEntity {
                 falling, killer, value.getSourcePosition()
             );
             if (falling.getBlockState().getBlock() instanceof TranscendenceAnvilBlock) {
-                AnvilCraftFakePlayers.anvilcraftKiller.enableLooting5((ServerLevel) this.level(), killer);
+                AnvilCraftFakePlayers.getKiller().enableLooting5((ServerLevel) this.level(), killer);
             }
             return source;
         }
@@ -71,7 +71,7 @@ abstract class PlayerMixin extends LivingEntity {
     @Inject(method = "die", at = @At("RETURN"))
     private void disableKiller(DamageSource cause, CallbackInfo ci, @Share("killer") LocalRef<ServerPlayer> killerRef) {
         if (killerRef.get() == null) return;
-        AnvilCraftFakePlayers.anvilcraftKiller.disable(killerRef.get());
+        AnvilCraftFakePlayers.getKiller().disable(killerRef.get());
     }
 
     @ModifyReturnValue(method = "isScoping", at = @At("RETURN"))

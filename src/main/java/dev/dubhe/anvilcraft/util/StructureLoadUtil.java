@@ -1,9 +1,6 @@
 package dev.dubhe.anvilcraft.util;
 
 import dev.anvilcraft.lib.v2.util.DistExecutor;
-import dev.dubhe.anvilcraft.api.IHasMultiBlock;
-import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
-import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import net.minecraft.client.Minecraft;
@@ -16,14 +13,7 @@ import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BedBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BedPart;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
-import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.storage.LevelResource;
 import net.neoforged.api.distmarker.Dist;
 import org.jetbrains.annotations.Nullable;
@@ -58,7 +48,7 @@ public class StructureLoadUtil {
      */
     @Nullable
     public static StructureData loadStructureFromDiskForPreview(Level level, ItemStack diskStack) {
-        return loadStructureFromDisk(level, diskStack, false);
+        return loadStructureFromDisk(level, diskStack);
     }
 
     /**
@@ -71,20 +61,6 @@ public class StructureLoadUtil {
     @Nullable
     public static StructureData loadStructureFromDisk(Level level, ItemStack diskStack) {
         // 不过滤多方块方块，保留所有部件以便智能放置器正确应用蓝图状态
-        return loadStructureFromDisk(level, diskStack, false);
-    }
-
-    /**
-     * 从结构磁盘读取结构数据
-     *
-     * @param level            世界实例
-     * @param diskStack        结构磁盘物品
-     * @param filterMultiblock 是否过滤多方块方块
-     * @return 结构数据，如果读取失败返回 null
-     */
-    @Nullable
-    private static StructureData loadStructureFromDisk(Level level, ItemStack diskStack, boolean filterMultiblock) {
-
         // 从磁盘读取结构信息
         StructureDiskData structureDiskData = diskStack.get(ModComponents.STRUCTURE_DISK_DATA);
         if (structureDiskData == null) {
@@ -127,7 +103,7 @@ public class StructureLoadUtil {
             // 解析结构数据
             HolderLookup.Provider registry = level.registryAccess();
             StructureData data = new StructureData(structureDiskData);
-            StructureLoadUtil.parseStructureNBT(data, structureTag, registry, filterMultiblock);
+            StructureLoadUtil.parseStructureNBT(data, structureTag, registry);
 
             // LOGGER.debug("Structure loaded: {} ({} blocks)", structureName, data.blocks.size());
             return data;
@@ -143,13 +119,11 @@ public class StructureLoadUtil {
      *
      * @param tag              NBT标签
      * @param registry         注册表
-     * @param filterMultiblock 是否过滤多方块方块
      */
     private static void parseStructureNBT(
         StructureData data,
         CompoundTag tag,
-        HolderLookup.Provider registry,
-        boolean filterMultiblock
+        HolderLookup.Provider registry
     ) {
         // 读取 palette
         ListTag paletteTag = tag.getList("palette", 10);  // 10 = COMPOUND
@@ -179,12 +153,7 @@ public class StructureLoadUtil {
                 if (stateIndex >= 0 && stateIndex < palette.size()) {
                     BlockState state = palette.get(stateIndex);
 
-                    // 根据参数决定是否过滤多方块方块
-                    // 只过滤次要部件(secondary parts)，保留主体部件(main/anchor parts)
-                    // 主体部件通过 BlockItem.place() 可以自动创建所有次要部件
-                    if (!filterMultiblock || !isMultiblockBlock(state) || !isMultiblockSecondaryPart(state)) {
-                        data.blocks.add(new BlockPosition(x, y, z, state));
-                    }
+                    data.blocks.add(new BlockPosition(x, y, z, state));
                 }
             }
         }
@@ -307,79 +276,4 @@ public class StructureLoadUtil {
     public record BlockPosition(int x, int y, int z, BlockState state) {
     }
 
-    public static boolean isMultiblockBlock(BlockState state) {
-        return isMultiblockBlock(state.getBlock());
-    }
-
-    /**
-     * 检查一个方块是否为多方块方块
-     *
-     * @param block 方块
-     * @return 如果是多方块方块返回true
-     */
-    public static boolean isMultiblockBlock(Block block) {
-        // 使用switch表达式检查是否实现了多方块方块相关接口
-        if (
-            switch (block) {
-                case MultiPartBlockEntity<?, ?> ignored1 -> true;
-                case AbstractMultiPartBlock<?> ignored2 -> true;
-                case IHasMultiBlock ignored3 -> true;
-                default -> false;
-            }
-        ) {
-            return true;
-        }
-
-        // 检查原版多方块方块
-        // 床（BED）：由两个方块组成
-        if (block instanceof BedBlock) {
-            return true;
-        }
-
-        // 门（DOOR）：由上下两个方块组成
-        return block instanceof DoorBlock;
-    }
-
-    /**
-     * 检查一个方块状态是否为多方块方块的次要部件（非主体/锚点部件）
-     * 次要部件在智能放置器加载结构时会被过滤掉，因为主体部件通过 BlockItem.place()
-     * 可以自动创建所有次要部件
-     *
-     * @param state 方块状态
-     * @return 如果是次要部件返回true
-     */
-    public static boolean isMultiblockSecondaryPart(BlockState state) {
-        Block block = state.getBlock();
-
-        // 检查原版床：FOOT是主体部件，HEAD是次要部件
-        if (block instanceof BedBlock) {
-            return state.hasProperty(BlockStateProperties.BED_PART)
-                && state.getValue(BlockStateProperties.BED_PART) == BedPart.HEAD;
-        }
-
-        // 检查原版门：LOWER是主体部件，UPPER是次要部件
-        if (block instanceof DoorBlock) {
-            return state.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)
-                && state.getValue(BlockStateProperties.DOUBLE_BLOCK_HALF) == DoubleBlockHalf.UPPER;
-        }
-
-        // 检查模组多方块方块：
-        // 主体部件 = 方块默认状态中的部件（即 BlockItem.place() 时放置在点击位置的部件）
-        // 次要部件 = 所有其他部件
-        if (block instanceof AbstractMultiPartBlock<?> multiPartBlock) {
-            try {
-                BlockState defaultState = block.defaultBlockState();
-                Property<?> partProperty = multiPartBlock.getPart();
-                if (defaultState.hasProperty(partProperty) && state.hasProperty(partProperty)) {
-                    Comparable<?> defaultPart = defaultState.getValue(partProperty);
-                    Comparable<?> statePart = state.getValue(partProperty);
-                    return !statePart.equals(defaultPart);
-                }
-            } catch (Exception e) {
-                LOGGER.debug("Failed to determine multi-block part type for {}: {}", block, e.getMessage());
-            }
-        }
-
-        return false;
-    }
 }
