@@ -1097,14 +1097,14 @@ public class ModItems {
         .properties(properties -> properties.fireResistant().stacksTo(1))
         .register();
 
-    public static final ItemEntry<BucketItem> EXP_BUCKET = REGISTRUM.item("exp_bucket", ModItems.bucket(ModFluids.EXP_FLUID.get()))
+    public static final ItemEntry<BucketItem> EXP_BUCKET = REGISTRUM.item("exp_bucket", ModItems.bucket(ModFluids.EXP_FLUID))
         .tag(ModItemTags.EXP_BUCKETS, Tags.Items.BUCKETS)
         .lang("EXP Bucket")
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucket)
         .register();
 
-    public static final ItemEntry<BucketItem> OIL_BUCKET = REGISTRUM.item("oil_bucket", ModItems.bucket(ModFluids.OIL.get()))
+    public static final ItemEntry<BucketItem> OIL_BUCKET = REGISTRUM.item("oil_bucket", ModItems.bucket(ModFluids.OIL))
         .tag(ModItemTags.OIL_BUCKETS, Tags.Items.BUCKETS)
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucket)
@@ -1112,7 +1112,7 @@ public class ModItems {
 
     public static final Object2ObjectMap<Color, ItemEntry<BucketItem>> CEMENT_BUCKETS = registerAllCementBuckets();
 
-    public static ItemEntry<BucketItem> MELT_GEM_BUCKET = REGISTRUM.item("melt_gem_bucket", ModItems.bucket(ModFluids.MELT_GEM.get()))
+    public static ItemEntry<BucketItem> MELT_GEM_BUCKET = REGISTRUM.item("melt_gem_bucket", ModItems.bucket(ModFluids.MELT_GEM))
         .tag(Tags.Items.BUCKETS)
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucket)
@@ -1144,7 +1144,7 @@ public class ModItems {
     }
 
     private static ItemEntry<BucketItem> registerCementBucket(Color color) {
-        return REGISTRUM.item("%s_cement_bucket".formatted(color), ModItems.bucket(ModFluids.SOURCE_CEMENTS.get(color).get()))
+        return REGISTRUM.item("%s_cement_bucket".formatted(color), ModItems.bucket(ModFluids.SOURCE_CEMENTS.get(color)))
             .tag(Tags.Items.BUCKETS, ModItemTags.CEMENT_BUCKETS)
             .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
             .model(ModelProviderUtil::bucket)
@@ -1175,7 +1175,7 @@ public class ModItems {
         };
     }
 
-    private static <T extends Fluid> NonNullFunction<Item.Properties, BucketItem> bucket(T fluid) {
-        return properties -> new BucketItem(fluid, properties);
+    private static <T extends Fluid> NonNullFunction<Item.Properties, BucketItem> bucket(Supplier<T> fluid) {
+        return properties -> new BucketItem(fluid.get(), properties);
     }
 }
