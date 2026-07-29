@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.api.item;
 
-import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -17,7 +17,7 @@ public interface IBlockItem {
     }
 
     class Wrapped implements IBlockItem {
-        private static final Object2ObjectArrayMap<BlockItem, Wrapped> INSTANCES = new Object2ObjectArrayMap<>();
+        private static final Object2ObjectOpenHashMap<BlockItem, Wrapped> INSTANCES = new Object2ObjectOpenHashMap<>();
         private final BlockItem item;
 
         private Wrapped(BlockItem item) {
