@@ -6,6 +6,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +15,6 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.IntFunction;
-import javax.annotation.Nullable;
 
 public class AnvilCraftFakeDestroyer {
     static final IntFunction<GameProfile> FAKE_PROFILE_FACTORY = num -> new GameProfile(
@@ -29,10 +29,7 @@ public class AnvilCraftFakeDestroyer {
     }
 
     public ServerPlayer offerPlayer(ServerLevel level) {
-        Destroyer destroyer;
-        do {
-            destroyer = this.disabledDestroyers.poll();
-        } while (destroyer != null && destroyer.player().level() != level);
+        Destroyer destroyer = this.disabledDestroyers.poll();
         if (destroyer == null) {
             destroyer = new Destroyer(level, this.enabledDestroyers.size());
         }

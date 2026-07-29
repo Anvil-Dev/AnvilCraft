@@ -42,10 +42,7 @@ public class AnvilCraftFakeBlockPlacer {
     }
 
     public ServerPlayer offerPlayer(ServerLevel level) {
-        Placer placer;
-        do {
-            placer = this.disabledPlacers.poll();
-        } while (placer != null && placer.player().level() != level);
+        Placer placer = this.disabledPlacers.poll();
         if (placer == null) {
             placer = new Placer(level, this.enabledPlacers.size());
         }
@@ -135,7 +132,6 @@ public class AnvilCraftFakeBlockPlacer {
                 }
             }
             if (ir == InteractionResult.FAIL) {
-                this.disable(player);
                 return ir;
             }
             BlockState blockState = level.getBlockState(pos);
@@ -149,7 +145,6 @@ public class AnvilCraftFakeBlockPlacer {
                 soundType.getPitch() * 0.8F
             );
             TriggerUtil.placerPlaceBlock(level, pos, blockState.getBlock());
-            this.disable(player);
             return InteractionResult.SUCCESS;
         } finally {
             this.disable(player);
@@ -174,14 +169,13 @@ public class AnvilCraftFakeBlockPlacer {
     }
 
     public void disable(ServerPlayer player) {
-        this.enabledPlacers.stream()
-            .filter(placer -> placer.getUUID().equals(player.getUUID()))
-            .findFirst()
-            .ifPresent(placer -> {
-                placer.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                this.disabledPlacers.offer(placer);
-                this.enabledPlacers.remove(placer);
-            });
+        for (Placer placer : this.enabledPlacers) {
+            if (!placer.getUUID().equals(player.getUUID())) continue;
+            placer.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            this.disabledPlacers.offer(placer);
+            this.enabledPlacers.remove(placer);
+            break;
+        }
     }
 
     public void clear(ServerLevel level) {

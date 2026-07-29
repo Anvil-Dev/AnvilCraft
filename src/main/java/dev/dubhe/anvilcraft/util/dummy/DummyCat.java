@@ -9,7 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,15 +28,19 @@ public class DummyCat extends Cat {
         DummyCat cache = DummyCat.CACHE.get(id);
         if (cache == null) {
             DummyCat dummy = new DummyCat(level);
-            dummy.setPos(player.position());
             DummyCat.CACHE.put(id, dummy);
             cache = dummy;
         }
+        cache.setPos(player.position());
         return cache;
     }
 
     public static void clear(Player player) {
         DummyCat.CACHE.remove(player.getGameProfile().id());
+    }
+
+    public static void clear(Level level) {
+        DummyCat.CACHE.values().removeIf(cat -> cat.level() == level);
     }
 
     @Override

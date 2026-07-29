@@ -9,7 +9,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,15 +28,19 @@ public class DummyWolf extends Wolf {
         DummyWolf cache = DummyWolf.CACHE.get(id);
         if (cache == null) {
             DummyWolf dummy = new DummyWolf(level);
-            dummy.setPos(player.position());
             DummyWolf.CACHE.put(id, dummy);
             cache = dummy;
         }
+        cache.setPos(player.position());
         return cache;
     }
 
     public static void clear(Player player) {
         DummyWolf.CACHE.remove(player.getGameProfile().id());
+    }
+
+    public static void clear(Level level) {
+        DummyWolf.CACHE.values().removeIf(wolf -> wolf.level() == level);
     }
 
     @Override

@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.neoforged.neoforge.common.util.FakePlayerFactory;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,7 +21,6 @@ import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.function.IntFunction;
-import javax.annotation.Nullable;
 
 public class AnvilCraftFakeKiller {
     static final IntFunction<GameProfile> FAKE_PROFILE_FACTORY = num -> new GameProfile(
@@ -37,10 +37,7 @@ public class AnvilCraftFakeKiller {
     }
 
     public ServerPlayer offerPlayer(ServerLevel level) {
-        Killer killer;
-        do {
-            killer = this.disabledKillers.poll();
-        } while (killer != null && killer.player().level() != level);
+        Killer killer = this.disabledKillers.poll();
         if (killer == null) {
             killer = new Killer(level, this.enabledKillers.size());
         }
@@ -73,14 +70,13 @@ public class AnvilCraftFakeKiller {
     }
 
     public void disable(ServerPlayer player) {
-        this.enabledKillers.stream()
-            .filter(killer -> killer.getUUID().equals(player.getUUID()))
-            .findFirst()
-            .ifPresent(killer -> {
-                killer.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                this.disabledKillers.offer(killer);
-                this.enabledKillers.remove(killer);
-            });
+        for (Killer killer : this.enabledKillers) {
+            if (!killer.getUUID().equals(player.getUUID())) continue;
+            killer.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            this.disabledKillers.offer(killer);
+            this.enabledKillers.remove(killer);
+            break;
+        }
     }
 
     public void clear(ServerLevel level) {
