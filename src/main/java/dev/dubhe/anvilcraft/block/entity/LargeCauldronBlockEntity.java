@@ -33,10 +33,12 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
+import dev.dubhe.anvilcraft.recipe.LiquidEnchantmentCauldronRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.ItemCompressRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
 import net.minecraft.core.BlockPos;
@@ -90,6 +92,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 public class LargeCauldronBlockEntity extends BlockEntity
@@ -506,6 +509,12 @@ public class LargeCauldronBlockEntity extends BlockEntity
             if (!main.output.getStackInSlot(slot).isEmpty()) initialOutputSlots.add(slot);
         }
         int processed = 0;
+        Set<Integer> specialRecipeSlots = new HashSet<>();
+        for (int slot = 0; slot < main.input.getSlots() && processed < MAX_PROCESS_EFFICIENCY; slot++) {
+            if (!main.tryProcessLiquidEnchantmentRecipe(serverLevel, base, slot)) continue;
+            specialRecipeSlots.add(slot);
+            processed++;
+        }
         for (RecipePass recipePass : itemRecipePasses) {
             boolean madeProgress;
             do {
@@ -513,6 +522,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
                 // Slot order must not override recipe priority when ingredients occupy different cauldron cells.
                 for (int slot : orderedInputSlots(serverLevel, main.input, recipePass)) {
                     if (processed >= MAX_PROCESS_EFFICIENCY) break;
+                    if (specialRecipeSlots.contains(slot)) continue;
                     BlockPos slotPos = positionForInputSlot(base, slot);
                     List<BlockPos> candidates = helpers.isEmpty()
                         ? List.of(slotPos.below())
@@ -577,6 +587,63 @@ public class LargeCauldronBlockEntity extends BlockEntity
             }
         }
         return true;
+    }
+
+    private boolean tryProcessLiquidEnchantmentRecipe(ServerLevel level, BlockPos base, int slot) {
+        ItemStack starting = this.input.getStackInSlot(slot);
+        if (starting.isEmpty()) return false;
+        int itemBudget = starting.getMaxStackSize();
+        int consumed = 0;
+        boolean processed = false;
+        while (consumed < itemBudget) {
+            ItemStack item = this.input.getStackInSlot(slot);
+            if (item.isEmpty()) break;
+            var heatingHelper = this.findActiveHeatingHelper(base, slot);
+            var matched = LiquidEnchantmentCauldronRecipe.match(
+                this.fluids.copyFluids(),
+                item,
+                heatingHelper.isPresent()
+            );
+            if (matched.isEmpty()) break;
+            LiquidEnchantmentCauldronRecipe.Result result = matched.get();
+            if (!result.itemResult().isEmpty()
+                && !ItemHandlerHelper.insertItem(this.output, result.itemResult(), true).isEmpty()) {
+                break;
+            }
+
+            this.fluids.setFluids(result.fluids());
+            this.input.extractItem(slot, result.itemCost(), false);
+            if (!result.itemResult().isEmpty()) {
+                ItemHandlerHelper.insertItem(this.output, result.itemResult(), false);
+            }
+            if (result.consumesHeat()) {
+                consumeHeatingFuel(level, heatingHelper.orElseThrow());
+            }
+            consumed += result.itemCost();
+            processed = true;
+        }
+        return processed;
+    }
+
+    private Optional<BlockPos> findActiveHeatingHelper(BlockPos base, int inputSlot) {
+        List<BlockPos> heaters = new ArrayList<>();
+        for (int slot = 0; slot < FOOTPRINT_OFFSETS.length; slot++) {
+            BlockPos helper = positionForFootprint(base, slot).below();
+            if (isActiveHeatingHelper(this.level.getBlockState(helper))) heaters.add(helper);
+        }
+        BlockPos inputPos = positionForInputSlot(base, inputSlot);
+        return orderedHelpers(inputPos, heaters, base).stream().findFirst();
+    }
+
+    private static boolean isActiveHeatingHelper(BlockState state) {
+        if (state.is(ModBlocks.HEATER)) return !state.getValue(HeaterBlock.OVERLOAD);
+        return state.is(ModBlocks.BURNING_HEATER) && state.getValue(BurningHeaterBlock.LEVEL) == 2;
+    }
+
+    private static void consumeHeatingFuel(ServerLevel level, BlockPos helper) {
+        if (level.getBlockEntity(helper) instanceof BurningHeaterBlockEntity heater) {
+            heater.consumeBurnTime(SuperHeatingRecipe.ConsumeFuel.FUEL_COST_TICKS);
+        }
     }
 
     private boolean tryProcessFluidMixingRecipe(ServerLevel level) {
@@ -1425,9 +1492,10 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     private static int findTank(List<FluidStack> fluids, ResourceLocation id) {
+        FluidStack target = new FluidStack(BuiltInRegistries.FLUID.get(id), 1);
         for (int i = 0; i < fluids.size(); i++) {
             FluidStack fluid = fluids.get(i);
-            if (!fluid.isEmpty() && BuiltInRegistries.FLUID.getKey(fluid.getFluid()).equals(id)) return i;
+            if (FluidStack.isSameFluidSameComponents(fluid, target)) return i;
         }
         return -1;
     }

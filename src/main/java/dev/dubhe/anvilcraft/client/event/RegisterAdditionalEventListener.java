@@ -94,21 +94,7 @@ public class RegisterAdditionalEventListener {
         registerCelestialBodyModels(event);
 
         // WIP models
-        event.register(standaloneBlock("ancient_sea_reef_wip"));
-        event.register(standaloneBlock("ancient_sea_reef_wip_2"));
-        event.register(standaloneBlock("ancient_debris_wip"));
-        event.register(standaloneBlock("netherite_block_wip"));
-        event.register(standaloneBlock("netherite_block_wip_2"));
-        event.register(standaloneBlock("heavy_iron_block_wip"));
-        event.register(standaloneBlock("heavy_iron_block_wip_2"));
-        event.register(standaloneBlock("spacetime_supercomputer_wip"));
-        event.register(standaloneBlock("spacetime_supercomputer_wip_2"));
-        event.register(standaloneBlock("spacetime_supercomputer_wip_3"));
-        event.register(standaloneBlock("shulker_box_wip"));
-        event.register(standaloneBlock("shulker_box_wip_2"));
-        event.register(standaloneBlock("nesting_shulker_box"));
-        event.register(standaloneBlock("over_nesting_shulker_box"));
-        event.register(standaloneBlock("supercritical_nesting_shulker_box"));
+        registerWipDisplayModels(event);
     }
 
     private static ModelResourceLocation standaloneBlock(String path) {
@@ -123,9 +109,20 @@ public class RegisterAdditionalEventListener {
      * 自动注册资源包中提供的天体模型。
      */
     private static void registerCelestialBodyModels(ModelEvent.RegisterAdditional event) {
+        registerModelsWithPathPrefix(event, "block/celestial_body");
+    }
+
+    /**
+     * 自动注册资源包中提供的方块序列加工的中间态展示模型
+     */
+    private static void registerWipDisplayModels(ModelEvent.RegisterAdditional event) {
+        registerModelsWithPathPrefix(event, "block/wip_display");
+    }
+
+    private static void registerModelsWithPathPrefix(ModelEvent.RegisterAdditional event, String prefix) {
         Minecraft.getInstance()
             .getResourceManager()
-            .listResources("models/block/celestial_body", location -> location.getPath().endsWith(".json"))
+            .listResources("models/" + prefix, location -> location.getPath().endsWith(".json"))
             .keySet()
             .stream()
             .map(RegisterAdditionalEventListener::toStandaloneModel)

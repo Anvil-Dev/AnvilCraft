@@ -71,6 +71,14 @@ public class SolidLiquidRecipeLoader {
             .save(provider);
 
         SolidLiquidRecipe.builder()
+            .cauldron(ModFluids.EXP_FLUID.getId())
+            .consume(2000)
+            .transform(ModFluids.LIQUID_ENCHANTMENT.getId())
+            .produce(1)
+            .requires(Items.LAPIS_LAZULI, 3)
+            .save(provider, AnvilCraft.of("solid_liquid/liquid_enchantment"));
+
+        SolidLiquidRecipe.builder()
             .cauldron(NeoForgeMod.MILK.getId())
             .consume(1000)
             .result(ModFoodItems.CREAM, 4)

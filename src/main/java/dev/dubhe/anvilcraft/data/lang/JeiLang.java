@@ -44,11 +44,11 @@ public class JeiLang {
         );
         provider.add("gui.anvilcraft.category.mass_inject.items_needed", "Items Needed: %s");
 
-        provider.add("gui.anvilcraft.category.solid_liquid", "Solid-Liquid Reaction");
+        provider.add("gui.anvilcraft.category.solid_liquid", "Fluid Reaction");
         provider.add("gui.anvilcraft.category.solid_liquid.consume_fluid", "Consume: %1$d mB of %2$s");
         provider.add("gui.anvilcraft.category.solid_liquid.produce_fluid", "Produce: %1$d mB of %2$s");
 
-        provider.add("gui.anvilcraft.category.fluid_mixing", "Fluid Reaction");
+        provider.add("gui.anvilcraft.category.fluid_mixing", "Complex Fluid Reaction");
 
         provider.add("gui.anvilcraft.category.time_warp", "Time Warp");
         provider.add("gui.anvilcraft.category.time_warp.consume_fluid", "Consume: %1$d mB of %2$s");

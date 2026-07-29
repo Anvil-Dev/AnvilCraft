@@ -443,12 +443,17 @@ public abstract class PipeBlock extends Block
         }
         be.removeValve(face);
         if (be.isEmpty()) {
-            level.setBlock(pos, state.setValue(HAS_CHECK_VALVE, false), Block.UPDATE_ALL);
+            setBlockWithoutCheckValve(level, pos, state);
         } else {
             be.sendUpdate();
         }
         FluidNetworkManager.INSTANCE.markDirty(level);
         return true;
+    }
+
+    private static void setBlockWithoutCheckValve(Level level, BlockPos pos, BlockState state) {
+        level.removeBlockEntity(pos);
+        level.setBlock(pos, state.setValue(HAS_CHECK_VALVE, false), Block.UPDATE_ALL);
     }
 
     /**
@@ -608,7 +613,7 @@ public abstract class PipeBlock extends Block
                     level.setBlock(pos, newState.setValue(HAS_CHECK_VALVE, true), Block.UPDATE_ALL);
                 }
             } else {
-                level.setBlockAndUpdate(pos, newState.setValue(HAS_CHECK_VALVE, false));
+                setBlockWithoutCheckValve(level, pos, newState);
             }
             return;
         }
@@ -628,7 +633,7 @@ public abstract class PipeBlock extends Block
             }
         }
         if (filtered.isEmpty()) {
-            level.setBlockAndUpdate(pos, newState.setValue(HAS_CHECK_VALVE, false));
+            setBlockWithoutCheckValve(level, pos, newState);
             return;
         }
         // 客户端与服务端分别用合适的 setBlock 方式，写入 BE 数据确保即时渲染
@@ -720,6 +725,11 @@ public abstract class PipeBlock extends Block
     @Override
     public void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         super.onPlace(state, level, pos, oldState, movedByPiston);
+        // 同类直管仅改变轴向时不会触发方块实体的常规移除，需要显式清理失效的止逆阀数据。
+        if (!state.getValue(HAS_CHECK_VALVE)
+            && level.getBlockEntity(pos) instanceof PipeCheckValveBlockEntity) {
+            level.removeBlockEntity(pos);
+        }
         if (!level.isClientSide) {
             FluidNetworkManager.INSTANCE.addAdjacentContainers(level, pos);
             FluidNetworkManager.INSTANCE.markDirty(level);

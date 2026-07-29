@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.HeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
 import dev.dubhe.anvilcraft.item.ResonatorItem;
 import net.minecraft.core.Holder;
@@ -29,26 +30,34 @@ public abstract class ItemStackMixin implements DataComponentHolder {
         method = "is(Lnet/minecraft/tags/TagKey;)Z",
         at = @At(value = "INVOKE", target = "Lnet/minecraft/core/Holder$Reference;is(Lnet/minecraft/tags/TagKey;)Z")
     )
-    private boolean tryUseResonatorVer1(Holder.Reference<Item> instance, TagKey<Item> tagKey, Operation<Boolean> original) {
-        if (instance instanceof ResonatorItem.ResonatorHolder holder) {
-            return holder.is(ResonatorItem.getMode(Util.cast(this)), tagKey);
-        } else if (instance instanceof MultitoolItem.MultitoolHolder holder) {
-            return holder.is(MultitoolItem.getMode(Util.cast(this)), tagKey);
-        }
-        return original.call(instance, tagKey);
+    private boolean tryUseModeSpecificHolderForTag(
+        Holder.Reference<Item> instance,
+        TagKey<Item> tagKey,
+        Operation<Boolean> original
+    ) {
+        return switch (instance) {
+            case HeavyHalberdItem.HeavyHalberdHolder holder -> holder.is(HeavyHalberdItem.getMode(Util.cast(this)), tagKey);
+            case ResonatorItem.ResonatorHolder holder -> holder.is(ResonatorItem.getMode(Util.cast(this)), tagKey);
+            case MultitoolItem.MultitoolHolder holder -> holder.is(MultitoolItem.getMode(Util.cast(this)), tagKey);
+            default -> original.call(instance, tagKey);
+        };
     }
 
     @WrapOperation(
         method = "is(Lnet/minecraft/core/HolderSet;)Z",
         at = @At(value = "INVOKE", target = "Lnet/minecraft/core/HolderSet;contains(Lnet/minecraft/core/Holder;)Z")
     )
-    private boolean tryUseResonatorVer2(HolderSet<Item> instance, Holder<Item> holder0, Operation<Boolean> original) {
-        if (instance instanceof MultitoolItem.MultitoolHolder holder) {
-            return holder.is(MultitoolItem.getMode(Util.cast(this)), instance);
-        } else if (instance instanceof ResonatorItem.ResonatorHolder holder) {
-            return holder.is(ResonatorItem.getMode(Util.cast(this)), instance);
-        }
-        return original.call(instance, holder0);
+    private boolean tryUseModeSpecificHolderForSet(
+        HolderSet<Item> instance,
+        Holder<Item> holder0,
+        Operation<Boolean> original
+    ) {
+        return switch (holder0) {
+            case HeavyHalberdItem.HeavyHalberdHolder holder -> holder.is(HeavyHalberdItem.getMode(Util.cast(this)), instance);
+            case MultitoolItem.MultitoolHolder holder -> holder.is(MultitoolItem.getMode(Util.cast(this)), instance);
+            case ResonatorItem.ResonatorHolder holder -> holder.is(ResonatorItem.getMode(Util.cast(this)), instance);
+            default -> original.call(instance, holder0);
+        };
     }
 
     @Inject(

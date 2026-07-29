@@ -175,8 +175,6 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final RecipeType<MineralFountainJeiRecipe> MINERAL_FOUNTAIN =
         createRecipeType("mineral_fountain", MineralFountainJeiRecipe.class);
 
-    private final List<AbstractLiquidCategory<?>> liquidCategories = new ArrayList<>();
-
     @Override
     public ResourceLocation getPluginUid() {
         return AnvilCraft.of("jei_plugin");
@@ -229,7 +227,11 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         ItemCompressCategory.registerRecipeCatalysts(registration);
         UnpackCategory.registerRecipeCatalysts(registration);
         StampingCategory.registerRecipeCatalysts(registration);
-        liquidCategories.forEach(cat -> cat.registerRecipeCatalysts(registration));
+        FastCookingCategory.registerRecipeCatalysts(registration);
+        NeutronIrradiationCategory.registerRecipeCatalysts(registration);
+        SolidLiquidCategory.registerRecipeCatalysts(registration);
+        SuperHeatingCategory.registerRecipeCatalysts(registration);
+        TimeWarpCategory.registerRecipeCatalysts(registration);
         FluidMixingCategory.registerRecipeCatalysts(registration);
         MultiBlockCraftingCategory.registerRecipeCatalysts(registration);
         MultiBlockConversionCategory.registerRecipeCatalysts(registration);
@@ -255,6 +257,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.TRANSCENDENCE_ANVIL), RecipeTypes.ANVIL);
 
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.ROYAL_SMITHING_TABLE), RecipeTypes.SMITHING);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.TRANSCENDENCE_SMITHING_TABLE), RecipeTypes.SMITHING);
     }
 
     @Override
@@ -272,14 +275,13 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new MassInjectCategory(guiHelper));
         registration.addRecipeCategories(new ItemCompressCategory(guiHelper));
         registration.addRecipeCategories(new UnpackCategory(guiHelper));
-        liquidCategories.add(new FastCookingCategory(guiHelper));
+        registration.addRecipeCategories(new FastCookingCategory(guiHelper));
         registration.addRecipeCategories(new StampingCategory(guiHelper));
-        liquidCategories.add(new SuperHeatingCategory(guiHelper));
-        liquidCategories.add(new SolidLiquidCategory(guiHelper));
+        registration.addRecipeCategories(new SuperHeatingCategory(guiHelper));
+        registration.addRecipeCategories(new SolidLiquidCategory(guiHelper));
         registration.addRecipeCategories(new FluidMixingCategory(guiHelper));
-        liquidCategories.add(new TimeWarpCategory(guiHelper));
-        liquidCategories.add(new NeutronIrradiationCategory(guiHelper));
-        liquidCategories.forEach(registration::addRecipeCategories);
+        registration.addRecipeCategories(new TimeWarpCategory(guiHelper));
+        registration.addRecipeCategories(new NeutronIrradiationCategory(guiHelper));
         registration.addRecipeCategories(new MultiBlockCraftingCategory(guiHelper));
         registration.addRecipeCategories(new MultiBlockConversionCategory(guiHelper));
         registration.addRecipeCategories(new JewelCraftingCategory(guiHelper));

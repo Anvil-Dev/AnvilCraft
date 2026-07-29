@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
+import dev.dubhe.anvilcraft.inventory.FrostAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.OpenedHammerSource;
 import dev.dubhe.anvilcraft.inventory.PortableAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;
@@ -16,6 +17,7 @@ import dev.dubhe.anvilcraft.inventory.TranscendenceAnvilMenu;
 import dev.dubhe.anvilcraft.mixin.invoker.BlockBehaviourInvoker;
 import dev.dubhe.anvilcraft.network.RocketJumpPacket;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
+import dev.dubhe.anvilcraft.util.InfiniteFluidTankBreakProtection;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -112,6 +114,10 @@ public class AnvilHammerItem extends Item implements Equipable {
         Block block = state.getBlock();
         if (!state.is(ModBlockTags.HAMMER_REMOVABLE) && !(block instanceof IHammerRemovable)) return;
         pos = getChainableMainPartPos(level, pos);
+        if (InfiniteFluidTankBreakProtection.isProtected(level, pos)) {
+            InfiniteFluidTankBreakProtection.showToolBreakDenied(player);
+            return;
+        }
         state = level.getBlockState(pos);
         block = state.getBlock();
         BlockPos posToRemove = pos;
@@ -218,6 +224,9 @@ public class AnvilHammerItem extends Item implements Equipable {
         }
         if (hammerItem == ModItems.EMBER_ANVIL_HAMMER.get()) {
             return new EmberAnvilMenu(id, playerInventory, net.minecraft.world.inventory.ContainerLevelAccess.NULL, source);
+        }
+        if (hammerItem == ModItems.FROST_ANVIL_HAMMER.get()) {
+            return new FrostAnvilMenu(id, playerInventory, net.minecraft.world.inventory.ContainerLevelAccess.NULL, source);
         }
         if (hammerItem == ModItems.TRANSCENDENCE_ANVIL_HAMMER.get()) {
             return new TranscendenceAnvilMenu(id, playerInventory, net.minecraft.world.inventory.ContainerLevelAccess.NULL, source);

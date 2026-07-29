@@ -65,7 +65,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -493,8 +492,6 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
     /// 引力源状态
     private boolean gravitySourceActive = false;
-    private double currentBodyRadius = 0;
-    private Vec3 currentGravityCenter = Vec3.ZERO;
     /// 基础引力影响半径（方块），对应 ringScale=6.0 时覆盖最外层束星环。
     private static final int BASE_GRAVITY_RADIUS = 4;
 
@@ -606,11 +603,6 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         /// 管理恒星引力源
         updateGravitySource();
 
-        /// 销毁进入天体视觉边界内的实体
-        if (gravitySourceActive && level != null) {
-            destroyEntitiesAtCenter();
-        }
-
         /// 巨构建造逻辑（委托给处理类）
         megastructureManager.serverTick(this);
     }
@@ -640,8 +632,6 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             GravityManager.GravitySourceType type = new GravityManager.GravitySourceType(strength, radius, bodyRadius);
             GravityManager.GravitySourceManager.upsertSource(level, worldPosition, center, type);
             gravitySourceActive = true;
-            currentBodyRadius = bodyRadius;
-            currentGravityCenter = center;
         } else if (gravitySourceActive) {
             removeGravitySource();
         }
@@ -652,38 +642,22 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (level == null || level.isClientSide()) return;
         GravityManager.GravitySourceManager.removeSource(level, worldPosition);
         gravitySourceActive = false;
-        currentBodyRadius = 0;
-        currentGravityCenter = Vec3.ZERO;
     }
 
-    /// 销毁进入天体视觉边界内的实体。恒星用火焰伤害，行星用摔落伤害，
-    /// 非生物实体直接丢弃，持有永恒物品的实体除外。黑洞使用特殊伤害类型。
-    private void destroyEntitiesAtCenter() {
-        if (currentBodyRadius <= 0) return;
+    public void handleEntityContact(Entity entity) {
+        if (!gravitySourceActive
+            || level == null
+            || level.isClientSide()
+            || entity.level() != level
+            || entity.isRemoved()
+            || isEternal(entity)) {
+            return;
+        }
 
-        double vx = currentGravityCenter.x;
-        double vy = currentGravityCenter.y;
-        double vz = currentGravityCenter.z;
-        double r = currentBodyRadius;
-
-        AABB bodyBox = new AABB(
-            vx - r,
-            vy - r,
-            vz - r,
-            vx + r,
-            vy + r,
-            vz + r
-        );
-        List<Entity> entities = Objects.requireNonNull(level).getEntitiesOfClass(Entity.class, bodyBox);
-        for (Entity entity : entities) {
-            if (!intersectsSphere(entity.getBoundingBox(), currentGravityCenter, r)) continue;
-            if (isEternal(entity)) continue;
-
-            if (entity instanceof LivingEntity living) {
-                applyCelestialDamage(living);
-            } else {
-                entity.discard();
-            }
+        if (entity instanceof LivingEntity living) {
+            applyCelestialDamage(living);
+        } else {
+            entity.discard();
         }
     }
 
@@ -696,17 +670,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         return stack.has(ModComponents.ETERNAL);
     }
 
-    private static boolean intersectsSphere(AABB box, Vec3 center, double radius) {
-        double x = Math.max(box.minX, Math.min(center.x, box.maxX));
-        double y = Math.max(box.minY, Math.min(center.y, box.maxY));
-        double z = Math.max(box.minZ, Math.min(center.z, box.maxZ));
-        double dx = x - center.x;
-        double dy = y - center.y;
-        double dz = z - center.z;
-        return dx * dx + dy * dy + dz * dz <= radius * radius;
-    }
-
-    /// 对进入天体视觉边界的生物施加对应伤害。
+    /// Applies the corresponding damage when a living entity contacts the celestial body.
     private void applyCelestialDamage(LivingEntity living) {
         if (celestialBodyData instanceof StarData star) {
             if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {

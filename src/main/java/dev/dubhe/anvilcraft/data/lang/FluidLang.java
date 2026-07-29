@@ -11,5 +11,7 @@ public class FluidLang {
         provider.add("block.anvilcraft.milk", "Milk");
         provider.add("block.anvilcraft.honey", "Honey");
         provider.add("block.anvilcraft.primordial_matter", "Primordial Matter");
+        provider.add("block.anvilcraft.liquid_enchantment", "Liquid Enchantment");
+        provider.add("block.anvilcraft.liquid_enchantment.enchanted", "Liquid Enchantment (%s)");
     }
 }

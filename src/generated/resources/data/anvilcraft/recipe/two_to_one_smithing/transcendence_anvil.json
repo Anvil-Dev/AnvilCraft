@@ -1,0 +1,18 @@
+{
+  "type": "anvilcraft:two_to_one_smithing",
+  "inputs": [
+    {
+      "items": "anvilcraft:ember_anvil"
+    },
+    {
+      "items": "anvilcraft:frost_anvil"
+    }
+  ],
+  "material": {
+    "items": "anvilcraft:multiphase_transcendium"
+  },
+  "result": "anvilcraft:transcendence_anvil",
+  "template": {
+    "items": "anvilcraft:two_to_one_smithing_template"
+  }
+}

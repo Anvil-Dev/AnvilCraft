@@ -5,11 +5,13 @@ import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.block.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.TankUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
@@ -19,6 +21,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -170,6 +173,52 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
         stack.applyComponents(this.collectComponents());
     }
 
+    public static boolean isEmptyItem(ItemStack stack, HolderLookup.Provider registries) {
+        if (!stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())) return false;
+        return readItemTank(stack, registries).getTotalAmount() == 0;
+    }
+
+    public static ItemStack fillItem(
+        ItemStack stack,
+        List<FluidStack> fluids,
+        HolderLookup.Provider registries
+    ) {
+        if (fluids.isEmpty() || !isEmptyItem(stack, registries)) return ItemStack.EMPTY;
+
+        MultiFluidTankHandler itemTank = new MultiFluidTankHandler(
+            BASE_CAPACITY,
+            INFINITY_THRESHOLD,
+            () -> {}
+        );
+        for (FluidStack fluid : fluids) {
+            if (fluid.isEmpty()
+                || itemTank.fill(fluid, IFluidHandler.FluidAction.EXECUTE) != fluid.getAmount()) {
+                return ItemStack.EMPTY;
+            }
+        }
+
+        ItemStack result = stack.copyWithCount(1);
+        CompoundTag blockEntityData = getItemData(stack);
+        blockEntityData.put(TAG_TANK, itemTank.serializeForItem(registries));
+        BlockItem.setBlockEntityData(result, ModBlockEntities.LARGE_FLUID_TANK.get(), blockEntityData);
+        return result;
+    }
+
+    private static MultiFluidTankHandler readItemTank(ItemStack stack, HolderLookup.Provider registries) {
+        MultiFluidTankHandler itemTank = new MultiFluidTankHandler(
+            BASE_CAPACITY,
+            INFINITY_THRESHOLD,
+            () -> {}
+        );
+        itemTank.deserializeNBT(registries, getItemData(stack).getCompound(TAG_TANK));
+        return itemTank;
+    }
+
+    private static CompoundTag getItemData(ItemStack stack) {
+        CustomData data = stack.get(DataComponents.BLOCK_ENTITY_DATA);
+        return data == null ? new CompoundTag() : data.copyTag();
+    }
+
     public boolean onPlayerUse(Player player, InteractionHand hand) {
         if (this.level != null
             && FluidHandlerWrapper.tryInteractWithBottle(
@@ -218,6 +267,11 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidHand
 
     public boolean isInfinite(FluidStack fluid) {
         return this.getMainPart().tank.isInfinite(fluid);
+    }
+
+    public boolean containsInfiniteFluid() {
+        return this.getMainPart().tank.copyFluids().stream()
+            .anyMatch(fluid -> fluid.getAmount() >= INFINITY_THRESHOLD);
     }
 
     public List<FluidStack> getStoredFluids() {

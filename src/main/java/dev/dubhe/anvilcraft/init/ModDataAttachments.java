@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init;
 
 import com.mojang.serialization.Codec;
 import dev.dubhe.anvilcraft.api.amulet.AmuletRaffleProbability;
+import dev.dubhe.anvilcraft.inventory.SmithingTemplateFavorites;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -24,6 +25,15 @@ public class ModDataAttachments {
     public static final Supplier<AttachmentType<AmuletRaffleProbability>> AMULET_RAFFLE_PROBABILITY = ATTACHMENT_TYPES.register(
         "amulet_raffle_probability", () -> AttachmentType.builder(() -> AmuletRaffleProbability.EMPTY)
             .serialize(AmuletRaffleProbability.CODEC.codec()).copyOnDeath().build());
+
+    public static final Supplier<AttachmentType<SmithingTemplateFavorites>> SMITHING_TEMPLATE_FAVORITES =
+        ATTACHMENT_TYPES.register(
+            "smithing_template_favorites",
+            () -> AttachmentType.builder(() -> SmithingTemplateFavorites.EMPTY)
+                .serialize(SmithingTemplateFavorites.CODEC)
+                .copyOnDeath()
+                .build()
+        );
 
     public static void register(IEventBus eventBus) {
         ATTACHMENT_TYPES.register(eventBus);

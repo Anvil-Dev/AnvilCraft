@@ -1,8 +1,8 @@
 {
   "type": "anvilcraft:procedural_process",
   "displayed_models": [
-    "anvilcraft:block/netherite_block_wip",
-    "anvilcraft:block/netherite_block_wip_2"
+    "anvilcraft:block/wip_display/netherite_block_wip",
+    "anvilcraft:block/wip_display/netherite_block_wip_2"
   ],
   "icon": {
     "count": 1,
@@ -75,7 +75,10 @@
             "blocks": "anvilcraft:wip_block"
           },
           {
-            "blocks": "anvilcraft:heater",
+            "blocks": [
+              "anvilcraft:heater",
+              "anvilcraft:burning_heater"
+            ],
             "properties": [
               {
                 "overload": "false"

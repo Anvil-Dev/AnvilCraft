@@ -115,5 +115,9 @@ public class MultipleToOneSmithingCategory implements IRecipeCategory<RecipeHold
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.EMBER_SMITHING_TABLE), AnvilCraftJeiPlugin.MULTIPLE_TO_ONE_SMITHING);
+        registration.addRecipeCatalyst(
+            new ItemStack(ModBlocks.TRANSCENDENCE_SMITHING_TABLE),
+            AnvilCraftJeiPlugin.MULTIPLE_TO_ONE_SMITHING
+        );
     }
 }

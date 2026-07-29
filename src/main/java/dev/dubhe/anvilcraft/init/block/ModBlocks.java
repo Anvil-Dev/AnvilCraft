@@ -138,6 +138,8 @@ import dev.dubhe.anvilcraft.block.SugarBlock;
 import dev.dubhe.anvilcraft.block.TeslaTowerBlock;
 import dev.dubhe.anvilcraft.block.TradingStationBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
+import dev.dubhe.anvilcraft.block.TranscendenceGrindstoneBlock;
+import dev.dubhe.anvilcraft.block.TranscendenceSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.TranscendiumBlock;
 import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.TransparentCraftingTableBlock;
@@ -175,15 +177,15 @@ import dev.dubhe.anvilcraft.block.item.ChuteBlockItem;
 import dev.dubhe.anvilcraft.block.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.block.item.EndDustBlockItem;
 import dev.dubhe.anvilcraft.block.item.FishTankBlockItem;
-import dev.dubhe.anvilcraft.block.item.FluidTankBlockItem;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.block.item.FluidTankBlockItem;
 import dev.dubhe.anvilcraft.block.item.FrostMetalBlockItem;
-import dev.dubhe.anvilcraft.block.item.LargeFluidTankBlockItem;
 import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeatCollectorBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeatableBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeliostatsItem;
 import dev.dubhe.anvilcraft.block.item.InfiniteCollectorBlockItem;
+import dev.dubhe.anvilcraft.block.item.LargeFluidTankBlockItem;
 import dev.dubhe.anvilcraft.block.item.LevitationBlockItem;
 import dev.dubhe.anvilcraft.block.item.MengerSpongeBlockItem;
 import dev.dubhe.anvilcraft.block.item.MultiphaseMatterBlockItem;
@@ -227,6 +229,7 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.SingularityCrystalItem;
 import dev.dubhe.anvilcraft.item.TeslaTowerItem;
+import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.loot.conditions.RandomChanceWithFortuneCondition;
 import dev.dubhe.anvilcraft.util.DangerUtil;
 import dev.dubhe.anvilcraft.util.DataGenUtil;
@@ -696,7 +699,6 @@ public class ModBlocks {
             "transcendence_anvil",
             TranscendenceAnvilBlock::new
         )
-        .recipe(RegistrumBlockRecipeLoader::transcendenceAnvil)
         .initialProperties(() -> Blocks.ANVIL)
         .tag(
             BlockTags.WITHER_IMMUNE,
@@ -717,7 +719,61 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.INSTANCE))
         .tag(ItemTags.ANVIL, ModItemTags.EXPLOSION_PROOF)
+        .build()
+        .register();
+
+    public static final BlockEntry<TranscendenceGrindstoneBlock> TRANSCENDENCE_GRINDSTONE = REGISTRUM.block(
+            "transcendence_grindstone",
+            TranscendenceGrindstoneBlock::new
+        )
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .tag(
+            BlockTags.WITHER_IMMUNE,
+            BlockTags.DRAGON_IMMUNE,
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.NEEDS_DIAMOND_TOOL,
+            ModBlockTags.COLLISION_IMMUNE
+        )
+        .properties(properties -> properties
+            .lightLevel(state -> 9)
+            .noOcclusion()
+            .emissiveRendering(ModBlocks::always)
+            .strength(50.0f, 1200f)
+        )
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.INSTANCE))
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .build()
+        .register();
+
+    public static final BlockEntry<TranscendenceSmithingTableBlock> TRANSCENDENCE_SMITHING_TABLE = REGISTRUM.block(
+            "transcendence_smithing_table",
+            TranscendenceSmithingTableBlock::new
+        )
+        .lang("Transcendence Smithing Table")
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .tag(
+            BlockTags.WITHER_IMMUNE,
+            BlockTags.DRAGON_IMMUNE,
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.NEEDS_DIAMOND_TOOL,
+            ModBlockTags.COLLISION_IMMUNE
+        )
+        .properties(properties -> properties
+            .lightLevel(state -> 9)
+            .noOcclusion()
+            .emissiveRendering(ModBlocks::always)
+            .strength(50.0f, 1200f)
+        )
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.INSTANCE))
+        .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .register();
 

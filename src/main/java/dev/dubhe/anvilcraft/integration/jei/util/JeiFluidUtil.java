@@ -15,6 +15,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.neoforged.neoforge.fluids.FluidType;
 import org.jetbrains.annotations.Nullable;
 
@@ -54,7 +55,7 @@ public final class JeiFluidUtil {
     ) {
         addSlot(
             builder, RecipeIngredientRole.INPUT, name, x, y, width, height,
-            getFluids(cauldron.fluid(), cauldron.fluidTag()), cauldron.consume()
+            getFluids(cauldron.fluid(), cauldron.fluidTag()), cauldron.consume(), 1.0f
         );
     }
 
@@ -83,7 +84,7 @@ public final class JeiFluidUtil {
     ) {
         addSlot(
             builder, RecipeIngredientRole.OUTPUT, name, x, y, width, height,
-            getFluids(cauldron.transform(), null), cauldron.produce()
+            getFluids(cauldron.transform(), null), cauldron.produce(), cauldron.chance()
         );
     }
 
@@ -96,7 +97,8 @@ public final class JeiFluidUtil {
         int width,
         int height,
         List<Fluid> fluids,
-        int amount
+        int amount,
+        float chance
     ) {
         if (fluids.isEmpty()) return;
         long displayAmount = amount > 0 ? amount : FluidType.BUCKET_VOLUME;
@@ -104,6 +106,10 @@ public final class JeiFluidUtil {
             .setSlotName(SLOT_PREFIX + name)
             .setFluidRenderer(displayAmount, false, width, height);
         fluids.forEach(fluid -> slot.addFluidStack(fluid, displayAmount));
+        if (chance < 1.0f) {
+            slot.addRichTooltipCallback((slotView, tooltip) ->
+                tooltip.addAll(JeiRecipeUtil.getTooltips(ConstantValue.exactly(chance))));
+        }
         addBucketIngredients(builder, role, fluids);
     }
 

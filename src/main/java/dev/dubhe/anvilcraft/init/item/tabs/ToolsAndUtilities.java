@@ -20,6 +20,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         // Anvil hammers and enchanted starter tools.
         this.plain(ModItems.ANVIL_HAMMER);
         this.plain(ModItems.ROYAL_ANVIL_HAMMER);
+        this.plain(ModItems.FROST_ANVIL_HAMMER);
         this.plain(ModItems.EMBER_ANVIL_HAMMER);
         this.plain(ModItems.TRANSCENDENCE_ANVIL_HAMMER);
         this.enchanting(ModItems.AMETHYST_PICKAXE, Enchantments.FORTUNE, 3);
@@ -49,6 +50,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         // Specialized melee and resonance tools.
         this.plain(ModItems.DRAGON_ROD);
         this.plain(ModItems.ROYAL_DRAGON_ROD);
+        this.plain(ModItems.FROST_DRAGON_ROD);
         this.plain(ModItems.EMBER_DRAGON_ROD);
         this.plain(ModItems.TRANSCENDENCE_DRAGON_ROD);
         this.plain(ModItems.FROST_METAL_RESONATOR);

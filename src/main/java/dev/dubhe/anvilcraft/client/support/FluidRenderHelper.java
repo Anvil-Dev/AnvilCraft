@@ -18,6 +18,7 @@ package dev.dubhe.anvilcraft.client.support;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.dubhe.anvilcraft.util.LiquidEnchantmentClientFluidTypeExtension;
 import dev.dubhe.anvilcraft.util.ModClientFluidTypeExtensionImpl;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -117,7 +118,9 @@ public final class FluidRenderHelper {
         var renderProps = IClientFluidTypeExtensions.of(fluid.getFluid());
         final TextureAtlasSprite stillTexture = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
             .apply(renderProps.getStillTexture(fluid));
-        final int color = renderProps.getTintColor(fluid);
+        final int[] colors = renderProps instanceof LiquidEnchantmentClientFluidTypeExtension extension
+            ? extension.getLayerColors(fluid)
+            : new int[]{renderProps.getTintColor(fluid)};
 
         int blockLightIn = (light >> 4) & 0xF;
         int luminosity = Math.max(blockLightIn, fluid.getFluidType().getLightLevel());
@@ -131,23 +134,25 @@ public final class FluidRenderHelper {
             ms.translate(-center.x, -center.y, -center.z);
         }
 
-        for (Direction side : Direction.values()) {
-            if (side == Direction.DOWN && !renderBottom) continue;
+        for (int color : colors) {
+            for (Direction side : Direction.values()) {
+                if (side == Direction.DOWN && !renderBottom) continue;
 
-            // 水平面用侧面贴图（流动），上下面用静止贴图
-            TextureAtlasSprite tex = side.getAxis().isHorizontal() ? sideTexture : stillTexture;
-            boolean positive = side.getAxisDirection() == Direction.AxisDirection.POSITIVE;
-            if (side.getAxis().isHorizontal()) {
-                if (side.getAxis() == Direction.Axis.X) {
-                    renderStillTiledFace(side, minZ, minY, maxZ, maxY, positive ? maxX : minX,
-                        builder, ms, light, color, tex);
+                // 水平面用侧面贴图（流动），上下面用静止贴图
+                TextureAtlasSprite tex = side.getAxis().isHorizontal() ? sideTexture : stillTexture;
+                boolean positive = side.getAxisDirection() == Direction.AxisDirection.POSITIVE;
+                if (side.getAxis().isHorizontal()) {
+                    if (side.getAxis() == Direction.Axis.X) {
+                        renderStillTiledFace(side, minZ, minY, maxZ, maxY, positive ? maxX : minX,
+                            builder, ms, light, color, tex);
+                    } else {
+                        renderStillTiledFace(side, minX, minY, maxX, maxY, positive ? maxZ : minZ,
+                            builder, ms, light, color, tex);
+                    }
                 } else {
-                    renderStillTiledFace(side, minX, minY, maxX, maxY, positive ? maxZ : minZ,
+                    renderStillTiledFace(side, minX, minZ, maxX, maxZ, positive ? maxY : minY,
                         builder, ms, light, color, tex);
                 }
-            } else {
-                renderStillTiledFace(side, minX, minZ, maxX, maxZ, positive ? maxY : minY,
-                    builder, ms, light, color, tex);
             }
         }
 

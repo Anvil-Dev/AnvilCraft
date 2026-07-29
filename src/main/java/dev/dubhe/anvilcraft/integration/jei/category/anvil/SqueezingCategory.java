@@ -53,6 +53,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
     public static final int FLUID_Y = 46;
 
     private final IDrawable slotDefault;
+    private final IDrawable slotProbability;
     private final IDrawable arrowDefault;
     private final IDrawable icon;
     private final ITickTimer timer;
@@ -61,6 +62,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
     public SqueezingCategory(IGuiHelper helper) {
         arrowDefault = JeiRenderHelper.getArrowDefault(helper);
         slotDefault = JeiRenderHelper.getSlotDefault(helper);
+        slotProbability = JeiRenderHelper.getSlotProbability(helper);
         icon = helper.createDrawableItemStack(new ItemStack(Items.ANVIL));
         title = Component.translatable("gui.anvilcraft.category.squeezing");
         timer = helper.createTickTimer(30, 60, true);
@@ -161,7 +163,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderSupport.renderBlock(
             guiGraphics,
-            Blocks.ANVIL.defaultBlockState(),
+            getRenderedAnvilState(recipe),
             50,
             12 + anvilYOffset,
             20,
@@ -183,7 +185,8 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
 
         HasCauldronSimple cauldronFluid = recipe.getHasCauldron();
         if (HasCauldron.isNotEmpty(cauldronFluid.transform())) {
-            slotDefault.draw(guiGraphics, FLUID_X - 1, FLUID_Y - 1);
+            IDrawable fluidSlot = cauldronFluid.chance() < 1.0f ? slotProbability : slotDefault;
+            fluidSlot.draw(guiGraphics, FLUID_X - 1, FLUID_Y - 1);
         }
 
         List<ChanceBlockState> result = recipe.getResultBlocks();
@@ -192,6 +195,18 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         renderedState = JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, OUTPUT_BLOCK, resultStates)
             .orElse(resultStates.getFirst());
         RenderSupport.renderBlock(guiGraphics, renderedState, 110, 30, 10, 12, RenderSupport.SINGLE_BLOCK);
+    }
+
+    private static BlockState getRenderedAnvilState(SqueezingRecipe recipe) {
+        if (recipe.getHasAnvil().inverted()) {
+            return Blocks.ANVIL.defaultBlockState();
+        }
+        List<BlockState> states = recipe.getHasAnvil().anvil().constructStatesForRender();
+        if (states.isEmpty()) {
+            return Blocks.ANVIL.defaultBlockState();
+        }
+        int index = (int) ((System.currentTimeMillis() / 1000) % states.size());
+        return states.get(index);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

@@ -125,3 +125,4 @@ runs/
 **/skills/
 .claude/
 ref/
+/AGENT.md

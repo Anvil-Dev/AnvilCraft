@@ -1,8 +1,8 @@
 {
   "type": "anvilcraft:procedural_process",
   "displayed_models": [
-    "anvilcraft:block/heavy_iron_block_wip",
-    "anvilcraft:block/heavy_iron_block_wip_2"
+    "anvilcraft:block/wip_display/heavy_iron_block_wip",
+    "anvilcraft:block/wip_display/heavy_iron_block_wip_2"
   ],
   "icon": {
     "count": 1,
