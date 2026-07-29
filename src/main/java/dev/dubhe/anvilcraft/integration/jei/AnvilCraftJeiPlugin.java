@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.FilterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ItemCollectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ItemDetectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.JewelCraftingScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -83,6 +84,9 @@ import dev.dubhe.anvilcraft.recipe.multiple.BaseMultipleToOneSmithingRecipe;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
+import mezz.jei.api.gui.builder.IClickableIngredientFactory;
+import mezz.jei.api.gui.handlers.IGlobalGuiHandler;
+import mezz.jei.api.gui.handlers.IGuiProperties;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.types.IRecipeHolderType;
@@ -93,7 +97,10 @@ import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
 import mezz.jei.api.registration.IVanillaCategoryExtensionRegistration;
-import net.minecraft.network.chat.Component;
+import mezz.jei.api.runtime.IClickableIngredient;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -102,6 +109,7 @@ import net.minecraft.world.level.ItemLike;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @JeiPlugin
 public class AnvilCraftJeiPlugin implements IModPlugin {
@@ -204,35 +212,6 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         ProceduralProcessCategory.registerRecipes(registration);
         EnergyWeaponCategory.registerRecipes(registration);
         MineralFountainCategory.registerRecipes(registration);
-
-        registration.addItemStackInfo(
-            new ItemStack(ModItems.GEODE.get()),
-            Component.translatable("jei.anvilcraft.info.geode_1"),
-            Component.translatable("jei.anvilcraft.info.geode_2"),
-            Component.translatable("jei.anvilcraft.info.geode_3"),
-            Component.translatable("jei.anvilcraft.info.geode_4")
-        );
-        registration.addItemStackInfo(
-            new ItemStack(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE.get()),
-            Component.translatable("jei.anvilcraft.info.royal_steel_upgrade_smithing_template_1"),
-            Component.translatable("jei.anvilcraft.info.royal_steel_upgrade_smithing_template_2")
-        );
-        registration.addItemStackInfo(
-            new ItemStack(ModItems.CRAB_CLAW.get()),
-            Component.translatable("jei.anvilcraft.info.craw_claw")
-        );
-        registration.addItemStackInfo(
-            new ItemStack(ModItems.CAPACITOR.get()),
-            Component.translatable("jei.anvilcraft.info.capacitor")
-        );
-        registration.addItemStackInfo(
-            ModBlocks.END_DUST.asStack(),
-            Component.translatable("jei.anvilcraft.info.end_dust")
-        );
-        registration.addItemStackInfo(
-            Items.ZOMBIE_SPAWN_EGG.getDefaultInstance(),
-            Component.translatable("jei.anvilcraft.info.mob_transform_with_item")
-        );
     }
 
     @Override
@@ -325,6 +304,64 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
 
     @Override
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
+        registration.addGuiScreenHandler(
+            StorageScreen.class,
+            screen -> screen.width > 0 && screen.height > 0 ? new IGuiProperties() {
+                @Override
+                public Class<? extends Screen> screenClass() {
+                    return StorageScreen.class;
+                }
+
+                @Override
+                public int guiLeft() {
+                    return screen.getLeftPos();
+                }
+
+                @Override
+                public int guiTop() {
+                    return screen.getTopPos();
+                }
+
+                @Override
+                public int guiXSize() {
+                    return screen.getImageWidth();
+                }
+
+                @Override
+                public int guiYSize() {
+                    return screen.getImageHeight();
+                }
+
+                @Override
+                public int screenWidth() {
+                    return screen.width;
+                }
+
+                @Override
+                public int screenHeight() {
+                    return screen.height;
+                }
+            } : null
+        );
+        registration.addGlobalGuiHandler(new IGlobalGuiHandler() {
+            @Override
+            public Optional<? extends IClickableIngredient<?>> getClickableIngredientUnderMouse(
+                IClickableIngredientFactory builder,
+                double mouseX,
+                double mouseY
+            ) {
+                if (!(Minecraft.getInstance().screen instanceof StorageScreen screen)) {
+                    return Optional.empty();
+                }
+                ItemStack stack = screen.getItemUnderMouse(mouseX, mouseY);
+                Rect2i area = screen.getItemArea(mouseX, mouseY);
+                if (stack == null || stack.isEmpty() || area == null) {
+                    return Optional.empty();
+                }
+                return builder.createBuilder(stack).buildWithArea(area);
+            }
+        });
+
         registration.addRecipeClickArea(
             JewelCraftingScreen.class,
             100,
