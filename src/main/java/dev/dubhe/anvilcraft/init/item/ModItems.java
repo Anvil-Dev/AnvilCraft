@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.registrum.util.CreativeModeTabModifier;
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullConsumer;
+import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.item.CheckValveItem;
 import dev.dubhe.anvilcraft.block.item.PipeBlockItem;
@@ -107,6 +108,7 @@ import dev.dubhe.anvilcraft.util.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -128,6 +130,7 @@ import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
+import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.Tags;
@@ -141,7 +144,7 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 @SuppressWarnings({"unused", "CodeBlock2Expr"})
 public class ModItems {
     public static final ItemEntry<GuideBookItem> GUIDE_BOOK = REGISTRUM.item("guide_book", GuideBookItem::new)
-        .properties(p -> p.stacksTo(1))
+        .properties(properties -> properties.stacksTo(1))
         .tag(ItemTags.BOOKSHELF_BOOKS)
         .model(DataGenUtil::noExtraModelOrState)
         .lang("AnvilCraft Guide Book")
@@ -295,32 +298,37 @@ public class ModItems {
     public static final ItemEntry<TranscendenceAnvilHammerItem> TRANSCENDENCE_ANVIL_HAMMER = REGISTRUM
         .item("transcendence_anvil_hammer", TranscendenceAnvilHammerItem::new)
         .tag(ItemTags.MACE_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE, ModItemTags.ANVIL_HAMMER)
-        .properties(properties -> properties.durability(3156))
+        .properties(properties -> properties.durability(3156).rarity(Rarity.EPIC))
         .model(DataGenUtil::noExtraModelOrState)
         .register();
     public static final ItemEntry<DragonRodItem> DRAGON_ROD = REGISTRUM.item("dragon_rod", properties -> new DragonRodItem(properties, 3))
-        .properties(properties -> properties.durability(35))
+        .properties(properties -> properties.durability(35).rarity(Rarity.UNCOMMON))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumItemRecipeLoader::dragonRod)
         .register();
     public static final ItemEntry<DragonRodItem> ROYAL_DRAGON_ROD = REGISTRUM
         .item("royal_dragon_rod", properties -> new DragonRodItem(properties, 6))
-        .properties(properties -> properties.durability(150))
+        .properties(properties -> properties.durability(150).rarity(Rarity.UNCOMMON))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumItemRecipeLoader::royalDragonRod)
         .register();
     public static final ItemEntry<DragonRodItem> EMBER_DRAGON_ROD = REGISTRUM
         .item("ember_dragon_rod", properties -> new DragonRodItem(properties, 9))
-        .properties(properties -> properties.durability(2031).fireResistant().component(ModComponents.FIRE_REFORGING, Unit.INSTANCE))
+        .properties(properties -> properties.durability(2031)
+            .fireResistant()
+            .component(ModComponents.FIRE_REFORGING, Unit.INSTANCE)
+            .rarity(Rarity.UNCOMMON))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD, ModItemTags.EXPLOSION_PROOF)
         .model(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumItemRecipeLoader::emberDragonRod)
         .register();
     public static final ItemEntry<DragonRodItem> FROST_DRAGON_ROD = REGISTRUM
         .item("frost_dragon_rod", properties -> new DragonRodItem(properties, 9, BlockMiningEffect.DISINTEGRATION))
-        .properties(properties -> properties.durability(2031).component(ModComponents.MERCILESS, Merciless.DEFAULT))
+        .properties(properties -> properties.durability(2031)
+            .component(ModComponents.MERCILESS, Merciless.DEFAULT)
+            .rarity(Rarity.UNCOMMON))
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumItemRecipeLoader::frostDragonRod)
@@ -337,6 +345,7 @@ public class ModItems {
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
             .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
             .component(ModComponents.PROVIDENCE, Providence.INSTANCE)
+            .rarity(Rarity.EPIC)
         )
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.MINING_LOOT_ENCHANTABLE, ModItemTags.DRAGON_ROD)
         .model(DataGenUtil::noExtraModelOrState)
@@ -369,6 +378,7 @@ public class ModItems {
         .register();
     public static final ItemEntry<TranscendenceHeavyHalberdItem> TRANSCENDENCE_HEAVY_HALBERD = REGISTRUM
         .item("transcendence_heavy_halberd", TranscendenceHeavyHalberdItem::new)
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.MACE_ENCHANTABLE,
@@ -382,6 +392,7 @@ public class ModItems {
         .register();
     public static final ItemEntry<FrostMetalResonatorItem> FROST_METAL_RESONATOR = REGISTRUM
         .item("frost_metal_resonator", FrostMetalResonatorItem::new)
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.MINING_ENCHANTABLE,
@@ -393,6 +404,7 @@ public class ModItems {
         .register();
     public static final ItemEntry<EmberMetalResonatorItem> EMBER_METAL_RESONATOR = REGISTRUM
         .item("ember_metal_resonator", EmberMetalResonatorItem::new)
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.MINING_ENCHANTABLE,
@@ -404,6 +416,7 @@ public class ModItems {
         .register();
     public static final ItemEntry<TranscendenceResonatorItem> TRANSCENDENCE_RESONATOR = REGISTRUM
         .item("transcendence_resonator", TranscendenceResonatorItem::new)
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .tag(
             ItemTags.DURABILITY_ENCHANTABLE,
             ItemTags.MINING_ENCHANTABLE,
@@ -428,14 +441,14 @@ public class ModItems {
             ItemTags.FISHING_ENCHANTABLE,
             ItemTags.STRIDER_TEMPT_ITEMS
         )
-        .properties((properties) -> properties.durability(2031).fireResistant())
+        .properties(properties -> properties.durability(2031).fireResistant())
         .model(DataGenUtil::noExtraModelOrState)
         .register();
 
     public static final ItemEntry<? extends SpectralSlingshotItem> SPECTRAL_SLINGSHOT = REGISTRUM
         .item("spectral_slingshot", SpectralSlingshotItem::new)
         .tag(ItemTags.DURABILITY_ENCHANTABLE, ItemTags.CROSSBOW_ENCHANTABLE)
-        .properties((properties) -> properties.durability(1561))
+        .properties(properties -> properties.durability(1561))
         .model(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumItemRecipeLoader::spectralSlingshot)
         .register();
@@ -494,7 +507,7 @@ public class ModItems {
 
     public static final ItemEntry<? extends IonoCraftBackpackItem> IONOCRAFT_BACKPACK = REGISTRUM
         .item("ionocraft_backpack", IonoCraftBackpackItem::new)
-        .initialProperties(() -> new Item.Properties().durability(ArmorItem.Type.CHESTPLATE.getDurability(15)))
+        .properties(properties -> properties.durability(ArmorItem.Type.CHESTPLATE.getDurability(15)))
         .model((ctx, prov) -> {
             ItemModelBuilder offModel = prov.getBuilder(prov.name(ctx.lazy()))
                 .parent(new ModelFile.UncheckedModelFile("item/generated"))
@@ -526,13 +539,13 @@ public class ModItems {
     public static final ItemEntry<PermutationTemplateItem> PERMUTATION_TEMPLATE_ITEM = REGISTRUM
         .item("permutation_smithing_template", PermutationTemplateItem::new)
         .recipe(RegistrumItemRecipeLoader::permutationTemplateItem)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.TEMPLATES, ModItemTags.EXPLOSION_PROOF)
         .register();
     public static final ItemEntry<DeformationTemplateItem> DEFORMATION_TEMPLATE_ITEM = REGISTRUM
         .item("deformation_smithing_template", DeformationTemplateItem::new)
         .recipe(RegistrumItemRecipeLoader::deformationTemplateItem)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.TEMPLATES, ModItemTags.EXPLOSION_PROOF)
         .register();
 
@@ -550,18 +563,18 @@ public class ModItems {
         .tag(ModItemTags.MULTIPLE_TO_ONE_SMITHING_TEMPLATES).register();
 
     public static final ItemEntry<DiskItem> DISK = REGISTRUM.item("disk", DiskItem::new)
-        .properties(p -> p.stacksTo(1))
+        .properties(properties -> properties.stacksTo(1))
         .recipe(RegistrumItemRecipeLoader::disk)
         .register();
 
     public static final ItemEntry<StructureDiskItem> STRUCTURE_DISK = REGISTRUM.item("structure_disk", StructureDiskItem::new)
-        .properties(p -> p.stacksTo(1))
+        .properties(properties -> properties.stacksTo(1))
         .recipe(RegistrumItemRecipeLoader::structureDiskConversion)
         .register();
 
     public static final ItemEntry<FilterItem> FILTER = REGISTRUM.item("filter", FilterItem::new)
         .recipe(RegistrumItemRecipeLoader::filter)
-        .properties((properties) -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(16))
         .register();
 
     public static final ItemEntry<CrabClawItem> CRAB_CLAW = REGISTRUM.item("crab_claw", CrabClawItem::new)
@@ -569,19 +582,19 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<AmuletBoxItem> AMULET_BOX = REGISTRUM.item("amulet_box", AmuletBoxItem::new)
-        .properties((properties) -> properties.stacksTo(1))
+        .properties(properties -> properties.stacksTo(1))
         .register();
 
     public static final ItemEntry<Item> TOTEM_OF_RECOVERY = REGISTRUM.item("totem_of_recovery", Item::new)
         .lang("Totem of Recovery")
-        .properties((properties) -> properties.stacksTo(1).rarity(Rarity.UNCOMMON))
+        .properties(properties -> properties.stacksTo(1).rarity(Rarity.UNCOMMON))
         .tag(ModItemTags.TOTEM)
         .recipe(RegistrumItemRecipeLoader::totemOfRecovery)
         .register();
 
     public static final ItemEntry<Item> TOTEM_OF_RAGE = REGISTRUM.item("totem_of_rage", Item::new)
         .lang("Totem of Rage")
-        .properties((properties) -> properties.stacksTo(1).rarity(Rarity.UNCOMMON))
+        .properties(properties -> properties.stacksTo(1).rarity(Rarity.UNCOMMON))
         .tag(ModItemTags.TOTEM)
         .recipe(RegistrumItemRecipeLoader::totemOfRage)
         .register();
@@ -710,19 +723,21 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<RecoveryPearl> RECOVERY_PEARL = REGISTRUM.item("recovery_pearl", RecoveryPearl::new)
-        .properties((properties) -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(16))
         .recipe(RegistrumItemRecipeLoader::recoveryPearl)
         .register();
 
     public static final ItemEntry<SeedsPackItem> SEEDS_PACK = REGISTRUM.item("seeds_pack", SeedsPackItem::new).register();
     public static final ItemEntry<StructureToolItem> STRUCTURE_TOOL = REGISTRUM.item("structure_tool", StructureToolItem::new)
         .model((ctx, provider) -> provider.generated(ctx::get, ResourceLocation.parse("item/paper")))
-        .properties(properties -> properties.stacksTo(1).component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true))
+        .properties(properties -> properties.stacksTo(1)
+            .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true)
+            .rarity(Rarity.EPIC))
         .register();
 
     public static final ItemEntry<PillBoxItem> PILL_BOX = REGISTRUM
         .item("pill_box", PillBoxItem::new)
-        .properties((properties) -> properties.stacksTo(1))
+        .properties(properties -> properties.stacksTo(1))
         .recipe(RegistrumItemRecipeLoader::pillBox)
         .register();
 
@@ -758,25 +773,25 @@ public class ModItems {
 
     public static final ItemEntry<EmberMetalIngotItem> EMBER_METAL_INGOT = REGISTRUM
         .item("ember_metal_ingot", EmberMetalIngotItem::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(Tags.Items.INGOTS, ItemTags.BEACON_PAYMENT_ITEMS)
         .recipe(RegistrumItemRecipeLoader::emberMetalIngot)
         .register();
 
     public static final ItemEntry<? extends Item> EMBER_METAL_NUGGET = REGISTRUM.item("ember_metal_nugget", Item::new)
         .tag(Tags.Items.NUGGETS)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .recipe(RegistrumItemRecipeLoader::emberMetalNugget)
         .register();
 
     public static final ItemEntry<? extends Item> TRANSCENDIUM_INGOT = REGISTRUM.item("transcendium_ingot", Item::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.fireResistant().rarity(Rarity.EPIC))
         .tag(Tags.Items.INGOTS, ModItemTags.EXPLOSION_PROOF, ModItemTags.TRANSCENDIUM_INGOTS, ItemTags.BEACON_PAYMENT_ITEMS)
         .recipe(RegistrumItemRecipeLoader::transcendiumIngot)
         .register();
 
     public static final ItemEntry<? extends Item> TRANSCENDIUM_NUGGET = REGISTRUM.item("transcendium_nugget", Item::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.fireResistant().rarity(Rarity.EPIC))
         .tag(Tags.Items.NUGGETS, ModItemTags.EXPLOSION_PROOF, ModItemTags.TRANSCENDIUM_NUGGETS)
         .recipe(RegistrumItemRecipeLoader::transcendiumNugget)
         .register();
@@ -825,12 +840,12 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<Item> TUNGSTEN_NUGGET = REGISTRUM.item("tungsten_nugget", Item::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.TUNGSTEN_NUGGETS, Tags.Items.NUGGETS)
         .recipe(RegistrumItemRecipeLoader::tungstenNugget)
         .register();
     public static final ItemEntry<Item> TUNGSTEN_INGOT = REGISTRUM.item("tungsten_ingot", Item::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.TUNGSTEN_INGOTS, Tags.Items.INGOTS, ItemTags.BEACON_PAYMENT_ITEMS)
         .recipe(RegistrumItemRecipeLoader::tungstenIngot)
         .register();
@@ -934,7 +949,7 @@ public class ModItems {
         .recipe(RegistrumItemRecipeLoader::rawTitanium)
         .register();
     public static final ItemEntry<Item> RAW_TUNGSTEN = REGISTRUM.item("raw_tungsten", Item::new)
-        .initialProperties(() -> new Item.Properties().fireResistant()).tag(Tags.Items.RAW_MATERIALS, ModItemTags.RAW_TUNGSTEN)
+        .properties(Item.Properties::fireResistant).tag(Tags.Items.RAW_MATERIALS, ModItemTags.RAW_TUNGSTEN)
         .recipe(RegistrumItemRecipeLoader::rawTungsten)
         .register();
     public static final ItemEntry<Item> RAW_LEAD = REGISTRUM.item("raw_lead", Item::new)
@@ -960,7 +975,7 @@ public class ModItems {
         .recipe(RegistrumItemRecipeLoader::excitedStateVoidMatter)
         .register();
     public static final ItemEntry<Item> EARTH_CORE_SHARD = REGISTRUM.item("earth_core_shard", Item::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .recipe(RegistrumItemRecipeLoader::earthCoreShard)
         .register();
 
@@ -982,7 +997,7 @@ public class ModItems {
 
     public static final ItemEntry<MultiphaseTranscendiumItem> MULTIPHASE_TRANSCENDIUM = REGISTRUM
         .item("multiphase_transcendium", MultiphaseTranscendiumItem::new)
-        .properties(Item.Properties::fireResistant)
+        .properties(properties -> properties.fireResistant().rarity(Rarity.EPIC))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::multiphaseTranscendium)
         .register();
@@ -999,93 +1014,108 @@ public class ModItems {
         .register();
 
     public static final ItemEntry<Item> DYSON_SPHERE_COMPONENT = REGISTRUM.item("dyson_sphere_component", Item::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
-        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.INSTANCE))
+        .properties(properties -> properties
+            .fireResistant()
+            .rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+        )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::dysonSphereComponent)
         .register();
 
     public static final ItemEntry<Item> PENROSE_SPHERE_COMPONENT = REGISTRUM.item("penrose_sphere_component", Item::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
-        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.INSTANCE))
+        .properties(properties -> properties
+            .fireResistant()
+            .rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+        )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::penroseSphereComponent)
         .register();
 
     public static final ItemEntry<Item> MATTER_DECOMPRESSOR_COMPONENT = REGISTRUM.item("matter_decompressor_component", Item::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
-        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.INSTANCE))
+        .properties(properties -> properties
+            .fireResistant()
+            .rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+        )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::matterDecompressorComponent)
         .register();
 
     public static final ItemEntry<Item> WORMHOLE_STABILIZER_COMPONENT = REGISTRUM.item("wormhole_stabilizer_component", Item::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
-        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.INSTANCE))
+        .properties(properties -> properties
+            .fireResistant()
+            .rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+        )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::wormholeStabilizerComponent)
         .register();
 
     public static final ItemEntry<Item> STELLAR_RING_COMPONENT = REGISTRUM.item("stellar_ring_component", Item::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
-        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.INSTANCE))
+        .properties(properties -> properties
+            .fireResistant()
+            .rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+        )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::stellarRingComponent)
         .register();
 
     public static final ItemEntry<Item> MAGNETAR_COIL_COMPONENT = REGISTRUM.item("magnetar_coil_component", Item::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
-        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.INSTANCE))
+        .properties(properties -> properties
+            .fireResistant()
+            .rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+        )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::magnetarCoilComponent)
         .register();
 
     public static final ItemEntry<Item> STELLAR_EVOLUTION_ACCELERATOR_COMPONENT = REGISTRUM
         .item("stellar_evolution_accelerator_component", Item::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
-        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.INSTANCE))
+        .properties(properties -> properties
+            .fireResistant()
+            .rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+        )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::stellarEvolutionAcceleratorComponent)
         .register();
 
     public static final ItemEntry<SuperHeavyItem> NEUTRONIUM_INGOT = REGISTRUM.item("neutronium_ingot", SuperHeavyItem::new)
         .tag(Tags.Items.INGOTS, ItemTags.BEACON_PAYMENT_ITEMS)
-        .initialProperties(() -> new Item.Properties().fireResistant())
-        .properties((properties) -> properties.stacksTo(1))
+        .properties(properties -> properties.fireResistant().stacksTo(1))
         .register();
     public static final ItemEntry<SuperHeavyItem> STABLE_NEUTRONIUM_INGOT = REGISTRUM.item("stable_neutronium_ingot", SuperHeavyItem::new)
         .tag(Tags.Items.INGOTS, ItemTags.BEACON_PAYMENT_ITEMS)
-        .initialProperties(() -> new Item.Properties().fireResistant())
-        .properties((properties) -> properties.stacksTo(1))
+        .properties(properties -> properties.fireResistant().stacksTo(1))
         .recipe(RegistrumItemRecipeLoader::stableNeutroniumIngot)
         .register();
     public static final ItemEntry<SuperHeavyItem> CHARGED_NEUTRONIUM_INGOT = REGISTRUM.item("charged_neutronium_ingot", SuperHeavyItem::new)
         .tag(Tags.Items.INGOTS, ItemTags.BEACON_PAYMENT_ITEMS)
-        .initialProperties(() -> new Item.Properties().fireResistant())
-        .properties((properties) -> properties.stacksTo(1))
+        .properties(properties -> properties.fireResistant().stacksTo(1))
         .register();
 
-    public static final ItemEntry<BucketItem> EXP_BUCKET = REGISTRUM.item("exp_bucket", p -> new BucketItem(ModFluids.EXP_FLUID.get(), p))
+    public static final ItemEntry<BucketItem> EXP_BUCKET = REGISTRUM.item("exp_bucket", ModItems.bucket(() -> ModFluids.EXP_FLUID))
         .tag(ModItemTags.EXP_BUCKETS, Tags.Items.BUCKETS)
         .lang("EXP Bucket")
-        .initialProperties(() -> new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET))
+        .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucket)
         .register();
 
-    public static final ItemEntry<BucketItem> OIL_BUCKET = REGISTRUM.item("oil_bucket", p -> new BucketItem(ModFluids.OIL.get(), p))
+    public static final ItemEntry<BucketItem> OIL_BUCKET = REGISTRUM.item("oil_bucket", ModItems.bucket(() -> ModFluids.OIL))
         .tag(ModItemTags.OIL_BUCKETS, Tags.Items.BUCKETS)
-        .initialProperties(() -> new Item.Properties().stacksTo(1).craftRemainder(Items.BUCKET))
+        .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucket)
         .register();
 
     public static final Object2ObjectMap<Color, ItemEntry<BucketItem>> CEMENT_BUCKETS = registerAllCementBuckets();
 
-    public static ItemEntry<BucketItem> MELT_GEM_BUCKET = REGISTRUM.item(
-            "melt_gem_bucket",
-            p -> new BucketItem(ModFluids.MELT_GEM.get(), p)
-        )
+    public static ItemEntry<BucketItem> MELT_GEM_BUCKET = REGISTRUM.item("melt_gem_bucket", ModItems.bucket(() -> ModFluids.MELT_GEM))
         .tag(Tags.Items.BUCKETS)
-        .properties(p -> p.stacksTo(1).craftRemainder(Items.BUCKET))
+        .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucket)
         .register();
 
@@ -1115,9 +1145,9 @@ public class ModItems {
     }
 
     private static ItemEntry<BucketItem> registerCementBucket(Color color) {
-        return REGISTRUM.item("%s_cement_bucket".formatted(color), p -> new BucketItem(ModFluids.SOURCE_CEMENTS.get(color).get(), p))
+        return REGISTRUM.item("%s_cement_bucket".formatted(color), ModItems.bucket(() -> ModFluids.SOURCE_CEMENTS.get(color)))
             .tag(Tags.Items.BUCKETS, ModItemTags.CEMENT_BUCKETS)
-            .properties(p -> p.stacksTo(1).craftRemainder(Items.BUCKET))
+            .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
             .model(ModelProviderUtil::bucket)
             .register();
     }
@@ -1144,5 +1174,9 @@ public class ModItems {
         return (ctx, modifier) -> {
             modifier.accept(enchanted(ctx.get(), enchKey, level, modifier.getParameters().holders()));
         };
+    }
+
+    private static <T extends Fluid> NonNullFunction<Item.Properties, BucketItem> bucket(Supplier<Holder<T>> fluid) {
+        return properties -> new BucketItem(fluid.get().value(), properties);
     }
 }

@@ -142,6 +142,9 @@ public class FishTankBlock extends Block implements IMoveableEntityBlock, Hammer
 
     @Override
     protected int getLightBlock(BlockState state, BlockGetter level, BlockPos pos) {
+        if (!ModBlockEntities.FISH_TANK.isBound()) {
+            return 0;
+        }
         return level.getBlockEntity(pos, ModBlockEntities.FISH_TANK.get())
             .map(be -> be.getFluidHandler().getFluid().getFluidType())
             .map(FluidType::getLightLevel)

@@ -297,7 +297,7 @@ import static dev.dubhe.anvilcraft.api.power.IPowerComponent.SWITCH;
 public class ModBlocks {
     public static final BlockEntry<GiantAnvilBlock> GIANT_ANVIL = REGISTRUM.block("giant_anvil", GiantAnvilBlock::new)
         .initialProperties(() -> Blocks.ANVIL)
-        .properties(p -> p
+        .properties(properties -> properties
             .noOcclusion()
             .isValidSpawn(Blocks::never)
             .strength(4.0F)
@@ -306,7 +306,7 @@ public class ModBlocks {
             .isViewBlocking(ModBlocks::never))
         .loot(SimpleMultiPartBlock::loot)
         .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
-        .properties((properties) -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(16))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(ModBlockTags.GIANT_ANVIL, BlockTags.MINEABLE_WITH_PICKAXE)
@@ -332,7 +332,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> HOLLOW_MAGNET_BLOCK = REGISTRUM.block("hollow_magnet_block", HollowMagnetBlock::new)
         .lang("Hollowed Block of Magnet")
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.isValidSpawn(Blocks::never))
+        .properties(properties -> properties.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.MAGNET, BlockTags.NEEDS_STONE_TOOL)
@@ -354,7 +354,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRUM.block("stamping_platform", StampingPlatformBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.isValidSpawn(Blocks::never))
+        .properties(properties -> properties.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::horizontalFacingBlock)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -363,7 +363,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> CRUSHING_TABLE = REGISTRUM.block("crushing_table", CrushingTableBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.isValidSpawn(Blocks::never))
+        .properties(properties -> properties.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -381,7 +381,7 @@ public class ModBlocks {
 
     public static final BlockEntry<FluidTankBlock> FLUID_TANK = REGISTRUM.block("fluid_tank", FluidTankBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(FluidTankBlockItem::new)
         .properties(properties -> properties.component(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY))
@@ -395,7 +395,7 @@ public class ModBlocks {
             LargeFluidTankBlock::new
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p
+        .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
             .isValidSpawn(Blocks::never)
@@ -416,7 +416,7 @@ public class ModBlocks {
         )
         .lang("Large Cauldron")
         .initialProperties(() -> Blocks.CAULDRON)
-        .properties(p -> p
+        .properties(properties -> properties
             .forceSolidOn()
             .noOcclusion()
             .isValidSpawn(Blocks::never)
@@ -433,7 +433,7 @@ public class ModBlocks {
     public static final BlockEntry<DrainBlock> DRAIN = REGISTRUM.block("drain", DrainBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .lang("Drain")
-        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .properties(properties -> properties.noOcclusion().sound(SoundType.METAL))
         .blockstate(DataGenUtil::simple)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -441,7 +441,7 @@ public class ModBlocks {
 
     public static final BlockEntry<PumpBlock> PUMP = REGISTRUM.block("pump", PumpBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .properties(properties -> properties.noOcclusion().sound(SoundType.METAL))
         .blockstate((ctx, provider) -> {
             provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
                 boolean powered = state.getValue(PumpBlock.POWERED);
@@ -474,7 +474,7 @@ public class ModBlocks {
     public static final BlockEntry<ControlValveBlock> CONTROL_VALVE = REGISTRUM.block("control_valve", ControlValveBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .lang("Control Valve")
-        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .properties(properties -> properties.noOcclusion().sound(SoundType.METAL))
         .blockstate((ctx, provider) -> {
             var model = provider.models().getExistingFile(AnvilCraft.of("block/control_valve"));
             provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
@@ -497,28 +497,28 @@ public class ModBlocks {
 
     public static final BlockEntry<PipeStraightBlock> PIPE_STRAIGHT = REGISTRUM.block("pipe_straight", PipeStraightBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .properties(properties -> properties.noOcclusion().sound(SoundType.METAL))
         .blockstate(PipeBlockStateGenerator::pipeStraightBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<PipeCornerBlock> PIPE_CORNER = REGISTRUM.block("pipe_corner", PipeCornerBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .properties(properties -> properties.noOcclusion().sound(SoundType.METAL))
         .blockstate(PipeBlockStateGenerator::pipeCornerBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<PipeNodeBlock> PIPE_NODE = REGISTRUM.block("pipe_node", PipeNodeBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().sound(SoundType.METAL))
+        .properties(properties -> properties.noOcclusion().sound(SoundType.METAL))
         .blockstate(PipeBlockStateGenerator::pipeNodeBlock)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<? extends Block> CORRUPTED_BEACON = REGISTRUM.block("corrupted_beacon", CorruptedBeaconBlock::new)
         .initialProperties(() -> Blocks.BEACON)
-        .properties(p -> p.isValidSpawn(Blocks::never))
+        .properties(properties -> properties.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -527,11 +527,11 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> NEUTRON_IRRADIATOR = REGISTRUM.block("neutron_irradiator", NeutronIrradiatorBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .properties(p -> p.strength(50.0f, 1200f).lightLevel(state -> 7).emissiveRendering(ModBlocks::always))
+        .properties(properties -> properties.strength(50.0f, 1200f).lightLevel(state -> 7).emissiveRendering(ModBlocks::always))
         .recipe(RegistrumBlockRecipeLoader::neutronIrradiator)
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, BlockTags.MINEABLE_WITH_PICKAXE)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .build()
         .register();
 
@@ -540,7 +540,7 @@ public class ModBlocks {
             SpectralAnvilBlock::new
         )
         .initialProperties(() -> Blocks.GLASS)
-        .properties(p -> p.mapColor(MapColor.METAL)
+        .properties(properties -> properties.mapColor(MapColor.METAL)
             .isValidSpawn(Blocks::never)
             .requiresCorrectToolForDrops()
             .strength(5.0F, 1200.0F)
@@ -567,7 +567,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> ROYAL_ANVIL = REGISTRUM.block("royal_anvil", RoyalAnvilBlock::new)
         .recipe(RegistrumBlockRecipeLoader::royalAnvil)
         .initialProperties(() -> Blocks.ANVIL)
-        .properties(p -> p.isValidSpawn(Blocks::never).strength(5.0f, 1200f))
+        .properties(properties -> properties.isValidSpawn(Blocks::never).strength(5.0f, 1200f))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .tag(ItemTags.ANVIL)
@@ -578,7 +578,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> ROYAL_GRINDSTONE = REGISTRUM.block("royal_grindstone", RoyalGrindstoneBlock::new)
         .recipe(RegistrumBlockRecipeLoader::royalGrindstone)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.isValidSpawn(Blocks::never).strength(5.0f, 1200f))
+        .properties(properties -> properties.isValidSpawn(Blocks::never).strength(5.0f, 1200f))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
@@ -590,7 +590,7 @@ public class ModBlocks {
         )
         .recipe(RegistrumBlockRecipeLoader::royalSmithingTable)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
@@ -665,7 +665,7 @@ public class ModBlocks {
         )
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ItemTags.ANVIL)
         .build()
         .register();
@@ -677,7 +677,7 @@ public class ModBlocks {
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .build()
         .register();
 
@@ -691,7 +691,7 @@ public class ModBlocks {
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .build()
         .register();
 
@@ -718,8 +718,11 @@ public class ModBlocks {
         )
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
-        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.INSTANCE))
+        .properties(properties -> properties
+            .fireResistant()
+            .rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+        )
         .tag(ItemTags.ANVIL, ModItemTags.EXPLOSION_PROOF)
         .build()
         .register();
@@ -744,8 +747,11 @@ public class ModBlocks {
         )
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
-        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.INSTANCE))
+        .properties(properties -> properties
+            .fireResistant()
+            .rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+        )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .register();
@@ -771,8 +777,11 @@ public class ModBlocks {
         )
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
-        .properties(properties -> properties.component(ModComponents.ETERNAL, Eternal.INSTANCE))
+        .properties(properties -> properties
+            .fireResistant()
+            .rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+        )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .register();
@@ -862,7 +871,7 @@ public class ModBlocks {
 
     public static final BlockEntry<InductionLightBlock> INDUCTION_LIGHT = REGISTRUM.block("induction_light", InductionLightBlock::new)
         .initialProperties(ModBlocks.MAGNET_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).lightLevel(state -> {
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never).lightLevel(state -> {
             if (state.getValue(InductionLightBlock.POWERED)) return 0;
             if (state.getValue(InductionLightBlock.OVERLOAD)) return 7;
             return 15;
@@ -886,7 +895,7 @@ public class ModBlocks {
         .item(HeatCollectorBlockItem::new)
         .build()
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumBlockRecipeLoader::heatCollector)
@@ -895,7 +904,7 @@ public class ModBlocks {
     public static final BlockEntry<InfiniteCollectorBlock> INFINITE_COLLECTOR =
         REGISTRUM.block("infinite_collector", InfiniteCollectorBlock::new)
             .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-            .properties(p -> p
+            .properties(properties -> properties
                 .noOcclusion()
                 .isValidSpawn(Blocks::never)
                 .lightLevel(state -> 7)
@@ -911,7 +920,7 @@ public class ModBlocks {
             )
             .blockstate(DataGenUtil::noExtraModelOrState)
             .item(InfiniteCollectorBlockItem::new)
-            .properties(Item.Properties::fireResistant)
+            .properties(properties -> properties.fireResistant().rarity(Rarity.EPIC))
             .tag(ModItemTags.EXPLOSION_PROOF)
             .build()
             .recipe(RegistrumBlockRecipeLoader::infiniteCollector)
@@ -922,7 +931,7 @@ public class ModBlocks {
             VoidEnergyCollectorBlock::new
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200f))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200f))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
@@ -958,7 +967,7 @@ public class ModBlocks {
 
     public static final BlockEntry<LoadMonitorBlock> LOAD_MONITOR = REGISTRUM.block("load_monitor", LoadMonitorBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.isValidSpawn(Blocks::never).lightLevel(state -> {
+        .properties(properties -> properties.isValidSpawn(Blocks::never).lightLevel(state -> {
             if (state.getValue(OVERLOAD)) {
                 return 6;
             } else {
@@ -978,7 +987,7 @@ public class ModBlocks {
             PowerConverterSmallBlock::new
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.isValidSpawn(Blocks::never).lightLevel(state -> {
+        .properties(properties -> properties.isValidSpawn(Blocks::never).lightLevel(state -> {
             if (state.getValue(OVERLOAD) || state.getValue(BlockStateProperties.POWERED)) {
                 return 6;
             } else {
@@ -1000,7 +1009,7 @@ public class ModBlocks {
             PowerConverterMiddleBlock::new
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.isValidSpawn(Blocks::never).lightLevel(state -> {
+        .properties(properties -> properties.isValidSpawn(Blocks::never).lightLevel(state -> {
             if (state.getValue(OVERLOAD) || state.getValue(BlockStateProperties.POWERED)) {
                 return 6;
             } else {
@@ -1022,7 +1031,7 @@ public class ModBlocks {
             PowerConverterBigBlock::new
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.isValidSpawn(Blocks::never).lightLevel(state -> {
+        .properties(properties -> properties.isValidSpawn(Blocks::never).lightLevel(state -> {
             if (state.getValue(OVERLOAD) || state.getValue(BlockStateProperties.POWERED)) {
                 return 6;
             } else {
@@ -1053,7 +1062,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> BATCH_CRAFTER = REGISTRUM.block("batch_crafter", BatchCrafterBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::batchCrafter)
@@ -1063,7 +1072,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> BATCH_CUTTER = REGISTRUM.block("batch_cutter", BatchCutterBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::batchCutter)
@@ -1073,7 +1082,7 @@ public class ModBlocks {
 
     public static final BlockEntry<ItemCollectorBlock> ITEM_COLLECTOR = REGISTRUM.block("item_collector", ItemCollectorBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.isValidSpawn(Blocks::never))
+        .properties(properties -> properties.isValidSpawn(Blocks::never))
         .simpleItem()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1084,7 +1093,7 @@ public class ModBlocks {
         .block("exp_collector", ExpCollectorBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .lang("EXP Collector")
-        .properties((properties) -> properties
+        .properties(properties -> properties
             .noOcclusion()
             .isValidSpawn(Blocks::never)
         )
@@ -1096,7 +1105,7 @@ public class ModBlocks {
 
     public static final BlockEntry<ChargerBlock> CHARGER = REGISTRUM.block("charger", ChargerBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1105,7 +1114,7 @@ public class ModBlocks {
 
     public static final BlockEntry<DischargerBlock> DISCHARGER = REGISTRUM.block("discharger", DischargerBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -1115,11 +1124,10 @@ public class ModBlocks {
 
     public static final BlockEntry<BlockDevourerBlock> BLOCK_DEVOURER = REGISTRUM.block("block_devourer", BlockDevourerBlock::new)
         .item()
-        .properties(Item.Properties::fireResistant)
-        .properties(p -> p.rarity(Rarity.UNCOMMON))
+        .properties(properties -> properties.fireResistant().rarity(Rarity.UNCOMMON))
         .build()
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200f))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200f))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumBlockRecipeLoader::blockDevourer)
@@ -1128,7 +1136,7 @@ public class ModBlocks {
     public static final BlockEntry<BlockPlacerBlock> BLOCK_PLACER = REGISTRUM.block("block_placer", BlockPlacerBlock::new)
         .simpleItem()
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumBlockRecipeLoader::blockPlacer)
@@ -1137,7 +1145,7 @@ public class ModBlocks {
     public static final BlockEntry<SmartBlockPlacerBlock> SMART_BLOCK_PLACER = REGISTRUM
         .block("smart_block_placer", SmartBlockPlacerBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.strength(1.5F, 6.0F).noOcclusion())
+        .properties(properties -> properties.strength(1.5F, 6.0F).noOcclusion())
         .blockstate((ctx, provider) -> {
             provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
                 Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
@@ -1185,7 +1193,7 @@ public class ModBlocks {
         .block("structure_scanner", StructureScannerBlock::new)
         .lang("Structure Scanner")
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate((ctx, provider) -> {
             var model = provider.models().getExistingFile(AnvilCraft.of("block/structure_scanner"));
             provider.getVariantBuilder(ctx.get()).forAllStates(state -> {
@@ -1215,7 +1223,7 @@ public class ModBlocks {
 
     public static final BlockEntry<RubyLaserBlock> RUBY_LASER = REGISTRUM.block("ruby_laser", RubyLaserBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.lightLevel(it -> {
+        .properties(properties -> properties.lightLevel(it -> {
             if (it.getValue(RubyLaserBlock.SWITCH) == Switch.ON) {
                 return 15;
             } else {
@@ -1239,7 +1247,7 @@ public class ModBlocks {
             .isViewBlocking(ModBlocks::never))
         .loot(FlexibleMultiPartBlock::loot)
         .item(FlexibleMultiPartBlockItem<DirectionCube3x3PartHalf, DirectionProperty, Direction>::new)
-        .properties((properties) -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(16))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1247,7 +1255,7 @@ public class ModBlocks {
 
     public static final BlockEntry<RubyPrismBlock> RUBY_PRISM = REGISTRUM.block("ruby_prism", RubyPrismBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumBlockRecipeLoader::rubyPrism)
         .simpleItem()
@@ -1256,7 +1264,7 @@ public class ModBlocks {
 
     public static final BlockEntry<LensBlock> LENS = REGISTRUM.block("lens", LensBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never).isViewBlocking(ModBlocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never).isViewBlocking(ModBlocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1267,7 +1275,7 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .initialProperties(ModBlocks.RUBY_PRISM::get)
-        .properties((properties) -> properties.noOcclusion()
+        .properties(properties -> properties.noOcclusion()
             .isValidSpawn(Blocks::never)
             .isRedstoneConductor(ModBlocks::never)
             .requiresCorrectToolForDrops()
@@ -1279,7 +1287,7 @@ public class ModBlocks {
     public static final BlockEntry<ActiveSilencerBlock> ACTIVE_SILENCER = REGISTRUM.block("active_silencer", ActiveSilencerBlock::new)
         .simpleItem()
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
         .recipe(RegistrumBlockRecipeLoader::activeSilencer)
@@ -1287,7 +1295,7 @@ public class ModBlocks {
 
     public static final BlockEntry<BlockComparatorBlock> BLOCK_COMPARATOR = REGISTRUM.block("block_comparator", BlockComparatorBlock::new)
         .initialProperties(() -> Blocks.OBSERVER)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::blockComparator)
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -1296,7 +1304,7 @@ public class ModBlocks {
 
     public static final BlockEntry<ItemDetectorBlock> ITEM_DETECTOR = REGISTRUM.block("item_detector", ItemDetectorBlock::new)
         .initialProperties(() -> Blocks.DAYLIGHT_DETECTOR)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::itemDetector)
         .blockstate((ctx, provider) -> {
@@ -1373,7 +1381,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<PropelPiston> PROPEL_PISTON = REGISTRUM.block("propel_piston", PropelPiston::new)
-        .properties((properties) -> {
+        .properties(properties -> {
             return properties.mapColor(MapColor.TERRACOTTA_WHITE).requiresCorrectToolForDrops().strength(1.5f).noOcclusion();
         })
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1395,7 +1403,7 @@ public class ModBlocks {
 
     public static final BlockEntry<OverseerBlock> OVERSEER_BLOCK = REGISTRUM.block("overseer", OverseerBlock::new)
         .initialProperties(() -> Blocks.OBSIDIAN)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot(SimpleMultiPartBlock::loot)
         .item(SimpleMultiPartBlockItem<Vertical3PartHalf>::new)
@@ -1422,7 +1430,7 @@ public class ModBlocks {
 
     public static final BlockEntry<TradingStationBlock> TRADING_STATION = REGISTRUM.block("trading_station", TradingStationBlock::new)
         .initialProperties(() -> Blocks.OAK_PLANKS)
-        .properties(p -> p.isValidSpawn(Blocks::never))
+        .properties(properties -> properties.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot(FlexibleMultiPartBlock::loot)
         .tag(BlockTags.MINEABLE_WITH_AXE)
@@ -1458,7 +1466,7 @@ public class ModBlocks {
 
     public static final BlockEntry<MengerSpongeBlock> MENGER_SPONGE = REGISTRUM.block("menger_sponge", MengerSpongeBlock::new)
         .initialProperties(() -> Blocks.SPONGE)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_HOE)
         .item(MengerSpongeBlockItem::new)
@@ -1484,7 +1492,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> CHUTE = REGISTRUM.block("chute", ChuteBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(ChuteBlockItem::new)
         .onRegister(blockItem -> Item.BY_BLOCK.put(ModBlocks.SIMPLE_CHUTE.get(), blockItem))
@@ -1495,7 +1503,7 @@ public class ModBlocks {
 
     public static final BlockEntry<MagneticChuteBlock> MAGNETIC_CHUTE = REGISTRUM.block("magnetic_chute", MagneticChuteBlock::new)
         .initialProperties(ModBlocks.CHUTE)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(ChuteBlockItem::new)
         .build()
@@ -1505,7 +1513,7 @@ public class ModBlocks {
 
     public static final BlockEntry<SimpleChuteBlock> SIMPLE_CHUTE = REGISTRUM.block("simple_chute", SimpleChuteBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, ModBlocks.CHUTE))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1516,7 +1524,7 @@ public class ModBlocks {
             SimpleMagneticChuteBlock::new
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, ModBlocks.MAGNETIC_CHUTE))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1528,13 +1536,13 @@ public class ModBlocks {
         .blockstate((context, provider) -> provider.simpleBlock(context.get(), DangerUtil.genConfiguredModel("block/impact_pile").get()))
         .recipe(RegistrumBlockRecipeLoader::impactPile)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .build()
         .register();
 
     public static final BlockEntry<MineralFountainBlock> MINERAL_FOUNTAIN = REGISTRUM.block("mineral_fountain", MineralFountainBlock::new)
         .initialProperties(() -> Blocks.REINFORCED_DEEPSLATE)
-        .properties(p -> p.noLootTable().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.noLootTable().isValidSpawn(Blocks::never))
         .simpleItem()
         .blockstate((context, provider) -> provider.simpleBlock(
             context.get(),
@@ -1624,7 +1632,7 @@ public class ModBlocks {
         .loot(FlexibleMultiPartBlock::loot)
         .properties(it -> it.isSuffocating(ModBlocks::never).noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200))
         .item(FlexibleMultiPartBlockItem<DirectionCube3x3PartHalf, DirectionProperty, Direction>::new)
-        .properties((properties) -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(16))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1635,7 +1643,7 @@ public class ModBlocks {
         .loot(FlexibleMultiPartBlock::loot)
         .properties(it -> it.isSuffocating(ModBlocks::never).noOcclusion().isValidSpawn(Blocks::never).explosionResistance(1200))
         .item(FlexibleMultiPartBlockItem<DirectionCube3x3PartHalf, DirectionProperty, Direction>::new)
-        .properties((properties) -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(16))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1644,20 +1652,22 @@ public class ModBlocks {
     public static final BlockEntry<SpacetimeSupercomputerBlock> SPACETIME_SUPERCOMPUTER = REGISTRUM
         .block("spacetime_supercomputer", SpacetimeSupercomputerBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties((properties) -> properties
+        .properties(properties -> properties
             .noOcclusion()
             .explosionResistance(1200)
             .isValidSpawn(Blocks::never)
             .isSuffocating(ModBlocks::never))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_DIAMOND_TOOL)
         .blockstate(DataGenUtil::simple)
-        .simpleItem()
+        .item()
+        .properties(properties -> properties.rarity(Rarity.EPIC))
+        .build()
         .register();
 
     public static final BlockEntry<CelestialForgingAnvilBlock> CELESTIAL_FORGING_ANVIL = REGISTRUM
         .block("celestial_forging_anvil", CelestialForgingAnvilBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties((properties) -> properties
+        .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .isViewBlocking(ModBlocks::never)
             .noOcclusion()
@@ -1674,7 +1684,7 @@ public class ModBlocks {
         })
         .tag((BlockTags.MINEABLE_WITH_PICKAXE), BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item(CelestialForgingAnvilBlockItem::new)
-        .properties((properties) -> properties.stacksTo(1))
+        .properties(properties -> properties.stacksTo(1).rarity(Rarity.EPIC))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .register();
@@ -1684,14 +1694,14 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::cfaAmplifier)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .loot(FlexibleMultiPartBlock::loot)
-        .properties((properties) -> properties
+        .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
         .item(CelestialForgingAnvilAmplifierBlockItem::new)
-        .properties((properties) -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(16).rarity(Rarity.EPIC))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag((BlockTags.MINEABLE_WITH_PICKAXE), BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
@@ -1702,13 +1712,14 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::cfaLogisticsInterface)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .properties((properties) -> properties
+        .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
         .item(CelestialForgingAnvilInterfaceBlockItem::new)
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .build()
         .tag((BlockTags.MINEABLE_WITH_PICKAXE), BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .register();
@@ -1718,13 +1729,14 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::cfaFluidInterface)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate(DataGenUtil::horizontalFacingWithActive)
-        .properties((properties) -> properties
+        .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
         .item(CelestialForgingAnvilInterfaceBlockItem::new)
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .build()
         .tag((BlockTags.MINEABLE_WITH_PICKAXE), BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .register();
@@ -1734,13 +1746,14 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::cfaLaserInterface)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .properties((properties) -> properties
+        .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
         .item(CelestialForgingAnvilInterfaceBlockItem::new)
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .build()
         .tag((BlockTags.MINEABLE_WITH_PICKAXE), BlockTags.WITHER_IMMUNE)
         .register();
@@ -1750,13 +1763,14 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::cfaInterfacePlaceholder)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .properties((properties) -> properties
+        .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
         .item(CelestialForgingAnvilInterfaceBlockItem::new)
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .build()
         .tag((BlockTags.MINEABLE_WITH_PICKAXE), BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE)
         .register();
@@ -1766,7 +1780,7 @@ public class ModBlocks {
         .lang("Celestial Forging Anvil Portal")
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .loot(FlexibleMultiPartBlock::loot)
-        .properties((properties) -> properties
+        .properties(properties -> properties
             .noOcclusion()
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
@@ -1775,6 +1789,7 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item(CelestialForgingAnvilPortalBlockItem::new)
         .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/celestial_forging_anvil_gate")))
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .build()
         .recipe(RegistrumBlockRecipeLoader::celestialForgingAnvilPortal)
         .register();
@@ -1784,7 +1799,7 @@ public class ModBlocks {
             MagnetoElectricCoreBlock::new
         )
         .initialProperties(() -> Blocks.COPPER_BLOCK)
-        .properties((properties) -> properties.lightLevel((blockState) -> 6).noOcclusion().isValidSpawn(Blocks::never))
+        .properties(properties -> properties.lightLevel((blockState) -> 6).noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::magnetoElectricCoreBlock)
@@ -1792,7 +1807,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<CrabTrapBlock> CRAB_TRAP = REGISTRUM.block("crab_trap", CrabTrapBlock::new)
-        .properties(p -> p.sound(SoundType.SCAFFOLDING).strength(2))
+        .properties(properties -> properties.sound(SoundType.SCAFFOLDING).strength(2))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .properties(BlockBehaviour.Properties::noOcclusion)
         .item(PlaceInWaterBlockItem::new)
@@ -1818,7 +1833,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> ROYAL_STEEL_BLOCK = REGISTRUM.block("royal_steel_block", Block::new)
         .lang("Block of Royal Steel")
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .item()
         .tag(Tags.Items.STORAGE_BLOCKS)
         .build()
@@ -1836,7 +1851,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> SMOOTH_ROYAL_STEEL_BLOCK = REGISTRUM.block("smooth_royal_steel_block", Block::new)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, ModBlockTags.OVERSEER_BASE, ModBlockTags.HAMMER_REMOVABLE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::smoothRoyalSteelBlock)
         .register();
@@ -1844,7 +1859,7 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_BLOCK = REGISTRUM.block("cut_royal_steel_block", Block::new)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, ModBlockTags.OVERSEER_BASE, ModBlockTags.HAMMER_REMOVABLE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::cutRoyalSteelBlock)
         .register();
@@ -1855,7 +1870,7 @@ public class ModBlocks {
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, ModBlockTags.OVERSEER_BASE, ModBlockTags.HAMMER_REMOVABLE)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::cutRoyalSteelPillar)
@@ -1870,7 +1885,7 @@ public class ModBlocks {
             ModBlockTags.HAMMER_REMOVABLE
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .blockstate((ctx, provider) -> provider.slabBlock(
             ctx.get(),
             AnvilCraft.of("block/cut_royal_steel_block"),
@@ -1885,7 +1900,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> CUT_ROYAL_STEEL_STAIRS = REGISTRUM.block(
             "cut_royal_steel_stairs",
-            (properties) -> new StairBlock(ModBlocks.CUT_ROYAL_STEEL_BLOCK.getDefaultState(), properties)
+            properties -> new StairBlock(ModBlocks.CUT_ROYAL_STEEL_BLOCK.getDefaultState(), properties)
         )
         .tag(
             BlockTags.MINEABLE_WITH_PICKAXE,
@@ -1895,7 +1910,7 @@ public class ModBlocks {
             ModBlockTags.HAMMER_REMOVABLE
         )
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/cut_royal_steel_block")))
         .item()
         .tag(ItemTags.STAIRS)
@@ -2047,8 +2062,8 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<StainedGlassBlock> FROST_DECO_OUTLINE = REGISTRUM
-        .block("frost_deco_outline", (properties) -> new StainedGlassBlock(DyeColor.WHITE, properties))
-        .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10).emissiveRendering(ModBlocks::always))
+        .block("frost_deco_outline", properties -> new StainedGlassBlock(DyeColor.WHITE, properties))
+        .properties(properties -> properties.noOcclusion().lightLevel((state) -> 10).emissiveRendering(ModBlocks::always))
         .initialProperties(() -> Blocks.STONE)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -2076,7 +2091,7 @@ public class ModBlocks {
             DangerUtil.genConfiguredModel("block/ember_metal_block").get()
         ))
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.HEATABLE_BLOCKS)
         .build()
         .recipe(RegistrumBlockRecipeLoader::emberMetalBlock)
@@ -2095,7 +2110,7 @@ public class ModBlocks {
             DangerUtil.genConfiguredModel("block/cut_ember_metal_block").get()
         ))
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .build()
         .recipe(RegistrumBlockRecipeLoader::cutEmberMetalBlock)
         .defaultLoot()
@@ -2110,7 +2125,7 @@ public class ModBlocks {
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::cutEmberMetalPillar)
@@ -2131,7 +2146,7 @@ public class ModBlocks {
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ItemTags.SLABS)
         .build()
         .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
@@ -2140,7 +2155,7 @@ public class ModBlocks {
 
     public static final BlockEntry<EmberMetalStairBlock> CUT_EMBER_METAL_STAIRS = REGISTRUM.block(
             "cut_ember_metal_stairs",
-            (properties) -> new EmberMetalStairBlock(ModBlocks.CUT_EMBER_METAL_BLOCK.getDefaultState(), properties)
+            properties -> new EmberMetalStairBlock(ModBlocks.CUT_EMBER_METAL_BLOCK.getDefaultState(), properties)
         )
         .tag(
             BlockTags.MINEABLE_WITH_PICKAXE,
@@ -2153,7 +2168,7 @@ public class ModBlocks {
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ItemTags.STAIRS)
         .build()
         .recipe(RegistrumBlockRecipeLoader::cutEmberMetalStairs)
@@ -2167,8 +2182,8 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<StainedGlassBlock> EMBER_DECO_OUTLINE = REGISTRUM
-        .block("ember_deco_outline", (properties) -> new StainedGlassBlock(DyeColor.YELLOW, properties))
-        .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10).emissiveRendering(ModBlocks::always))
+        .block("ember_deco_outline", properties -> new StainedGlassBlock(DyeColor.YELLOW, properties))
+        .properties(properties -> properties.noOcclusion().lightLevel((state) -> 10).emissiveRendering(ModBlocks::always))
         .initialProperties(() -> Blocks.STONE)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -2194,7 +2209,7 @@ public class ModBlocks {
             DangerUtil.genConfiguredModel("block/transcendium_block").get()
         ))
         .item()
-        .properties(Item.Properties::fireResistant)
+        .properties(properties -> properties.fireResistant().rarity(Rarity.EPIC))
         .tag(ModItemTags.EXPLOSION_PROOF, Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_TRANSCENDIUM)
         .build()
         .recipe(RegistrumBlockRecipeLoader::transcendiumBlock)
@@ -2208,8 +2223,8 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<StainedGlassBlock> TRANSCENDENCE_DECO_OUTLINE = REGISTRUM
-        .block("transcendence_deco_outline", (properties) -> new StainedGlassBlock(DyeColor.PURPLE, properties))
-        .properties((properties) -> properties.noOcclusion().lightLevel((state) -> 10).emissiveRendering(ModBlocks::always))
+        .block("transcendence_deco_outline", properties -> new StainedGlassBlock(DyeColor.PURPLE, properties))
+        .properties(properties -> properties.noOcclusion().lightLevel((state) -> 10).emissiveRendering(ModBlocks::always))
         .initialProperties(() -> Blocks.STONE)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::noExtraModelOrState)
@@ -2218,7 +2233,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_BLOCK = REGISTRUM.block("heavy_iron_block", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.noOcclusion().strength(5.0f, 1200f))
+        .properties(properties -> properties.noOcclusion().strength(5.0f, 1200f))
         .blockstate((context, provider) -> provider.simpleBlock(
             context.get(),
             DangerUtil.genConfiguredModel("block/heavy_iron_block").get()
@@ -2230,7 +2245,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_BLOCK = REGISTRUM.block("polished_heavy_iron_block", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
         .recipe(RegistrumBlockRecipeLoader::polishedHeavyIronBlock)
@@ -2238,7 +2253,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_SLAB = REGISTRUM.block("polished_heavy_iron_slab", SlabBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .blockstate((ctx, provider) -> provider.slabBlock(
             ctx.get(),
             AnvilCraft.of("block/polished_heavy_iron_block"),
@@ -2254,10 +2269,10 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> POLISHED_HEAVY_IRON_STAIRS = REGISTRUM.block(
             "polished_heavy_iron_stairs",
-            (properties) -> new StairBlock(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.getDefaultState(), properties)
+            properties -> new StairBlock(ModBlocks.POLISHED_HEAVY_IRON_BLOCK.getDefaultState(), properties)
         )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/polished_heavy_iron_block")))
         .item()
         .tag(ItemTags.STAIRS)
@@ -2268,7 +2283,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_BLOCK = REGISTRUM.block("cut_heavy_iron_block", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
         .recipe(RegistrumBlockRecipeLoader::cutHeavyIronBlock)
@@ -2276,7 +2291,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_SLAB = REGISTRUM.block("cut_heavy_iron_slab", SlabBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .blockstate((ctx, provider) -> provider.slabBlock(
             ctx.get(),
             AnvilCraft.of("block/cut_heavy_iron_block"),
@@ -2292,10 +2307,10 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> CUT_HEAVY_IRON_STAIRS = REGISTRUM.block(
             "cut_heavy_iron_stairs",
-            (properties) -> new StairBlock(ModBlocks.CUT_HEAVY_IRON_BLOCK.getDefaultState(), properties)
+            properties -> new StairBlock(ModBlocks.CUT_HEAVY_IRON_BLOCK.getDefaultState(), properties)
         )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/cut_heavy_iron_block")))
         .item()
         .tag(ItemTags.STAIRS)
@@ -2306,7 +2321,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_PLATE = REGISTRUM.block("heavy_iron_plate", HeavyIronPlateBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
@@ -2315,7 +2330,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_COLUMN = REGISTRUM.block("heavy_iron_column", Block::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL)
@@ -2324,7 +2339,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> HEAVY_IRON_BEAM = REGISTRUM.block("heavy_iron_beam", HeavyIronBeamBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.strength(5.0f, 1200f))
+        .properties(properties -> properties.strength(5.0f, 1200f))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .model(DataGenUtil::noExtraModelOrState)
@@ -2429,7 +2444,7 @@ public class ModBlocks {
         .lang("Block of Tungsten")
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.STORAGE_BLOCKS_TUNGSTEN, Tags.Items.STORAGE_BLOCKS, ModItemTags.HEATABLE_BLOCKS)
         .build()
         .tag(
@@ -2463,7 +2478,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<? extends Block> URANIUM_BLOCK = REGISTRUM
-        .block("uranium_block", p -> new RadioactiveBlock(p, ModBlocks.LEAD_BLOCK))
+        .block("uranium_block", properties -> new RadioactiveBlock(properties, ModBlocks.LEAD_BLOCK))
         .lang("Block of Uranium")
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.BEACON_BASE_BLOCKS, Tags.Blocks.STORAGE_BLOCKS, ModBlockTags.STORAGE_BLOCKS_URANIUM)
@@ -2474,7 +2489,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<? extends Block> PLUTONIUM_BLOCK = REGISTRUM
-        .block("plutonium_block", p -> new RadioactiveBlock(p, ModBlocks.URANIUM_BLOCK))
+        .block("plutonium_block", properties -> new RadioactiveBlock(properties, ModBlocks.URANIUM_BLOCK))
         .lang("Block of Plutonium")
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .tag(
@@ -2507,7 +2522,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<? extends StairBlock> CUT_BRONZE_STAIRS = REGISTRUM
-        .block("cut_bronze_stairs", (properties) -> new StairBlock(ModBlocks.CUT_BRONZE_BLOCK.getDefaultState(), properties))
+        .block("cut_bronze_stairs", properties -> new StairBlock(ModBlocks.CUT_BRONZE_BLOCK.getDefaultState(), properties))
         .initialProperties(BRONZE_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/cut_bronze_block")))
@@ -2559,7 +2574,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<? extends StairBlock> CUT_BRASS_STAIRS = REGISTRUM
-        .block("cut_brass_stairs", (properties) -> new StairBlock(ModBlocks.CUT_BRASS_BLOCK.getDefaultState(), properties))
+        .block("cut_brass_stairs", properties -> new StairBlock(ModBlocks.CUT_BRASS_BLOCK.getDefaultState(), properties))
         .initialProperties(BRASS_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate((ctx, provider) -> provider.stairsBlock(ctx.get(), AnvilCraft.of("block/cut_brass_block")))
@@ -2777,7 +2792,7 @@ public class ModBlocks {
         })
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, Tags.Blocks.GLASS_BLOCKS)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(Tags.Items.GLASS_BLOCKS)
         .build()
         .register();
@@ -2846,7 +2861,7 @@ public class ModBlocks {
     public static final BlockEntry<ArrowBlock> ARROW = REGISTRUM
         .block("arrow", ArrowBlock::new)
         .initialProperties(() -> Blocks.STONE)
-        .properties(p -> p.noOcclusion().noCollission().lightLevel(bs -> 10))
+        .properties(properties -> properties.noOcclusion().noCollission().lightLevel(bs -> 10))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
@@ -2855,7 +2870,7 @@ public class ModBlocks {
     public static final BlockEntry<InstructBlock> CHECK_MARK = REGISTRUM
         .block("check_mark", InstructBlock::new)
         .initialProperties(() -> Blocks.STONE)
-        .properties(p -> p.noOcclusion().noCollission().lightLevel(bs -> 10))
+        .properties(properties -> properties.noOcclusion().noCollission().lightLevel(bs -> 10))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
@@ -2864,7 +2879,7 @@ public class ModBlocks {
     public static final BlockEntry<InstructBlock> CROSS_MARK = REGISTRUM
         .block("cross_mark", InstructBlock::new)
         .initialProperties(() -> Blocks.STONE)
-        .properties(p -> p.noOcclusion().noCollission().lightLevel(bs -> 10))
+        .properties(properties -> properties.noOcclusion().noCollission().lightLevel(bs -> 10))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
@@ -2873,7 +2888,7 @@ public class ModBlocks {
     public static final BlockEntry<InstructBlock> EXCLAMATION_MARK = REGISTRUM
         .block("exclamation_mark", InstructBlock::new)
         .initialProperties(() -> Blocks.STONE)
-        .properties(p -> p.noOcclusion().noCollission().lightLevel(bs -> 10))
+        .properties(properties -> properties.noOcclusion().noCollission().lightLevel(bs -> 10))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
@@ -2882,17 +2897,14 @@ public class ModBlocks {
     public static final BlockEntry<InstructBlock> QUESTION_MARK = REGISTRUM
         .block("question_mark", InstructBlock::new)
         .initialProperties(() -> Blocks.STONE)
-        .properties(p -> p.noOcclusion().noCollission().lightLevel(bs -> 10))
+        .properties(properties -> properties.noOcclusion().noCollission().lightLevel(bs -> 10))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .register();
 
     public static final BlockEntry<WipBlock> WIP_BLOCK = REGISTRUM.block("wip_block", WipBlock::new)
-        .properties(
-            p -> p.noOcclusion()
-                .lightLevel(bs -> 1)
-        )
+        .properties(properties -> properties.noOcclusion().lightLevel(bs -> 1))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .register();
 
@@ -2976,14 +2988,14 @@ public class ModBlocks {
             ctx.add(prov, builder);
         })
         .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
-        .properties((properties) -> properties.stacksTo(16))
+        .properties(properties -> properties.stacksTo(16))
         .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
         .build()
         .register();
 
     public static final BlockEntry<StepEffectBlock> CHOCOLATE_BLOCK = REGISTRUM.block(
             "chocolate_block",
-            p -> new StepEffectBlock(p, StepEffectBlock::stepOnChocolateBlock)
+            properties -> new StepEffectBlock(properties, StepEffectBlock::stepOnChocolateBlock)
         )
         .lang("Block of Chocolate")
         .initialProperties(() -> Blocks.STONE)
@@ -2996,7 +3008,7 @@ public class ModBlocks {
 
     public static final BlockEntry<StepEffectBlock> BLACK_CHOCOLATE_BLOCK = REGISTRUM.block(
             "black_chocolate_block",
-            p -> new StepEffectBlock(p, StepEffectBlock::stepOnBlackChocolateBlock)
+            properties -> new StepEffectBlock(properties, StepEffectBlock::stepOnBlackChocolateBlock)
         )
         .lang("Block of Black Chocolate")
         .initialProperties(() -> Blocks.STONE)
@@ -3009,7 +3021,7 @@ public class ModBlocks {
 
     public static final BlockEntry<StepEffectBlock> WHITE_CHOCOLATE_BLOCK = REGISTRUM.block(
             "white_chocolate_block",
-            p -> new StepEffectBlock(p, StepEffectBlock::stepOnWhiteChocolateBlock)
+            properties -> new StepEffectBlock(properties, StepEffectBlock::stepOnWhiteChocolateBlock)
         )
         .lang("Block of White Chocolate")
         .initialProperties(() -> Blocks.STONE)
@@ -3022,7 +3034,7 @@ public class ModBlocks {
 
     public static final BlockEntry<StepEffectSlabBlock> CHOCOLATE_SLAB = REGISTRUM.block(
             "chocolate_slab",
-            p -> new StepEffectSlabBlock(p, StepEffectBlock::stepOnChocolateBlock)
+            properties -> new StepEffectSlabBlock(properties, StepEffectBlock::stepOnChocolateBlock)
         )
         .initialProperties(() -> Blocks.STONE)
         .item()
@@ -3037,7 +3049,7 @@ public class ModBlocks {
 
     public static final BlockEntry<StepEffectSlabBlock> BLACK_CHOCOLATE_SLAB = REGISTRUM.block(
             "black_chocolate_slab",
-            p -> new StepEffectSlabBlock(p, StepEffectBlock::stepOnBlackChocolateBlock)
+            properties -> new StepEffectSlabBlock(properties, StepEffectBlock::stepOnBlackChocolateBlock)
         )
         .initialProperties(() -> Blocks.STONE)
         .item()
@@ -3052,7 +3064,7 @@ public class ModBlocks {
 
     public static final BlockEntry<StepEffectSlabBlock> WHITE_CHOCOLATE_SLAB = REGISTRUM.block(
             "white_chocolate_slab",
-            p -> new StepEffectSlabBlock(p, StepEffectBlock::stepOnWhiteChocolateBlock)
+            properties -> new StepEffectSlabBlock(properties, StepEffectBlock::stepOnWhiteChocolateBlock)
         )
         .initialProperties(() -> Blocks.STONE)
         .item()
@@ -3067,7 +3079,11 @@ public class ModBlocks {
 
     public static final BlockEntry<StepEffectStairBlock> CHOCOLATE_STAIRS = REGISTRUM.block(
             "chocolate_stairs",
-            p -> new StepEffectStairBlock(ModBlocks.CHOCOLATE_BLOCK.getDefaultState(), p, StepEffectBlock::stepOnChocolateBlock)
+            properties -> new StepEffectStairBlock(
+                ModBlocks.CHOCOLATE_BLOCK.getDefaultState(),
+                properties,
+                StepEffectBlock::stepOnChocolateBlock
+            )
         )
         .initialProperties(() -> Blocks.STONE)
         .item()
@@ -3082,7 +3098,11 @@ public class ModBlocks {
 
     public static final BlockEntry<StepEffectStairBlock> BLACK_CHOCOLATE_STAIRS = REGISTRUM.block(
             "black_chocolate_stairs",
-            p -> new StepEffectStairBlock(ModBlocks.BLACK_CHOCOLATE_BLOCK.getDefaultState(), p, StepEffectBlock::stepOnBlackChocolateBlock)
+            properties -> new StepEffectStairBlock(
+                ModBlocks.BLACK_CHOCOLATE_BLOCK.getDefaultState(),
+                properties,
+                StepEffectBlock::stepOnBlackChocolateBlock
+            )
         )
         .initialProperties(() -> Blocks.STONE)
         .item()
@@ -3097,7 +3117,11 @@ public class ModBlocks {
 
     public static final BlockEntry<StepEffectStairBlock> WHITE_CHOCOLATE_STAIRS = REGISTRUM.block(
             "white_chocolate_stairs",
-            p -> new StepEffectStairBlock(ModBlocks.WHITE_CHOCOLATE_BLOCK.getDefaultState(), p, StepEffectBlock::stepOnWhiteChocolateBlock)
+            properties -> new StepEffectStairBlock(
+                ModBlocks.WHITE_CHOCOLATE_BLOCK.getDefaultState(),
+                properties,
+                StepEffectBlock::stepOnWhiteChocolateBlock
+            )
         )
         .initialProperties(() -> Blocks.STONE)
         .item()
@@ -3119,7 +3143,7 @@ public class ModBlocks {
         .lang("Heated Block of Netherite")
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .item(HeatableBlockItem::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.HEATABLE_BLOCKS)
         .build()
         .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, Blocks.NETHERITE_BLOCK))
@@ -3130,7 +3154,7 @@ public class ModBlocks {
         .lang("Heated Block of Tungsten")
         .initialProperties(ModBlocks.TUNGSTEN_BLOCK)
         .item(HeatableBlockItem::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.HEATABLE_BLOCKS)
         .build()
         .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, ModBlocks.TUNGSTEN_BLOCK))
@@ -3140,9 +3164,9 @@ public class ModBlocks {
     public static final BlockEntry<RedhotBlock> REDHOT_NETHERITE_BLOCK = REGISTRUM.block("redhot_netherite_block", RedhotBlock::new)
         .lang("Redhot Block of Netherite")
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.lightLevel(it -> 3))
+        .properties(properties -> properties.lightLevel(it -> 3))
         .item(HeatableBlockItem::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.HEATABLE_BLOCKS)
         .build()
         .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, ModBlocks.HEATED_NETHERITE_BLOCK))
@@ -3152,9 +3176,9 @@ public class ModBlocks {
     public static final BlockEntry<RedhotBlock> REDHOT_TUNGSTEN_BLOCK = REGISTRUM.block("redhot_tungsten_block", RedhotBlock::new)
         .lang("Redhot Block of Tungsten")
         .initialProperties(ModBlocks.TUNGSTEN_BLOCK)
-        .properties(p -> p.lightLevel(it -> 3))
+        .properties(properties -> properties.lightLevel(it -> 3))
         .item(HeatableBlockItem::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.HEATABLE_BLOCKS)
         .build()
         .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, ModBlocks.HEATED_TUNGSTEN_BLOCK))
@@ -3164,9 +3188,9 @@ public class ModBlocks {
     public static final BlockEntry<GlowingBlock> GLOWING_NETHERITE_BLOCK = REGISTRUM.block("glowing_netherite_block", GlowingBlock::new)
         .lang("Glowing Block of Netherite")
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.lightLevel(it -> 7))
+        .properties(properties -> properties.lightLevel(it -> 7))
         .item(HeatableBlockItem::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.HEATABLE_BLOCKS)
         .build()
         .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, ModBlocks.REDHOT_NETHERITE_BLOCK))
@@ -3176,9 +3200,9 @@ public class ModBlocks {
     public static final BlockEntry<GlowingBlock> GLOWING_TUNGSTEN_BLOCK = REGISTRUM.block("glowing_tungsten_block", GlowingBlock::new)
         .lang("Glowing Block of Tungsten")
         .initialProperties(ModBlocks.TUNGSTEN_BLOCK)
-        .properties(p -> p.lightLevel(it -> 7))
+        .properties(properties -> properties.lightLevel(it -> 7))
         .item(HeatableBlockItem::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.HEATABLE_BLOCKS)
         .build()
         .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, ModBlocks.REDHOT_TUNGSTEN_BLOCK))
@@ -3191,9 +3215,9 @@ public class ModBlocks {
         )
         .lang("Incandescent Block of Netherite")
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .properties(p -> p.lightLevel(it -> 15))
+        .properties(properties -> properties.lightLevel(it -> 15))
         .item(HeatableBlockItem::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.HEATABLE_BLOCKS)
         .build()
         .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, ModBlocks.GLOWING_NETHERITE_BLOCK))
@@ -3206,9 +3230,9 @@ public class ModBlocks {
         )
         .lang("Incandescent Block of Tungsten")
         .initialProperties(ModBlocks.TUNGSTEN_BLOCK)
-        .properties(p -> p.lightLevel(it -> 15))
+        .properties(properties -> properties.lightLevel(it -> 15))
         .item(HeatableBlockItem::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.HEATABLE_BLOCKS)
         .build()
         .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, ModBlocks.GLOWING_TUNGSTEN_BLOCK))
@@ -3226,7 +3250,7 @@ public class ModBlocks {
             DangerUtil.genConfiguredModel("block/overheated_ember_metal_block").get()
         ))
         .item(HeatableBlockItem::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.HEATABLE_BLOCKS, ModItemTags.EXPLOSION_PROOF)
         .build()
         .loot((tables, block) -> DataGenUtil.dropOtherAndSelfWhenSilkTouch(tables, block, ModBlocks.EMBER_METAL_BLOCK))
@@ -3275,7 +3299,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.RAW_IRON_BLOCK)
         .recipe(RegistrumBlockRecipeLoader::rawTungstenBlock)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.STORAGE_BLOCKS_RAW_TUNGSTEN, Tags.Items.STORAGE_BLOCKS)
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_RAW_TUNGSTEN)
@@ -3393,7 +3417,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.DIAMOND_BLOCK)
         .properties(properties -> properties.explosionResistance(1200))
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(Tags.Items.ORES, ModItemTags.EARTH_CORE_SHARD_ORES)
         .build()
         .loot((tables, block) -> tables.add(block, tables.createOreDrop(block, ModItems.EARTH_CORE_SHARD.get())))
@@ -3446,7 +3470,7 @@ public class ModBlocks {
         ))
         .recipe(RegistrumBlockRecipeLoader::excitedStateVoidMatterBlock)
         .item()
-        .initialProperties(() -> new Item.Properties().stacksTo(16)
+        .properties(properties -> properties.stacksTo(16)
             .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true))
         .tag(ModItemTags.VOID_RESISTANT, Tags.Items.STORAGE_BLOCKS)
         .build()
@@ -3463,7 +3487,7 @@ public class ModBlocks {
         .properties(properties -> properties.explosionResistance(1200))
         .recipe(RegistrumBlockRecipeLoader::earthCoreShardBlock)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(ModItemTags.STORAGE_BLOCKS_EARTH_CORE_SHARD, Tags.Items.STORAGE_BLOCKS)
         .build()
         .tag(
@@ -3483,7 +3507,7 @@ public class ModBlocks {
             DangerUtil.genConfiguredModel("block/multiphase_matter_block").get()
         ))
         .item(MultiphaseMatterBlockItem::new)
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(Item.Properties::fireResistant)
         .tag(Tags.Items.STORAGE_BLOCKS, ModItemTags.STORAGE_BLOCKS_MULTIPHASE_MATTER)
         .build()
         .tag(
@@ -3526,7 +3550,7 @@ public class ModBlocks {
 
     public static final BlockEntry<MeltGemCauldron> MELT_GEM_CAULDRON = REGISTRUM.block("melt_gem_cauldron", MeltGemCauldron::new)
         .initialProperties(() -> Blocks.CAULDRON)
-        .properties(p -> p.lightLevel(s -> 15))
+        .properties(properties -> properties.lightLevel(s -> 15))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, Items.CAULDRON))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.CAULDRONS)
@@ -3668,7 +3692,7 @@ public class ModBlocks {
     private static BlockEntry<StairBlock> registerReinforcedConcreteStairBlock(Color color, BlockEntry<ReinforcedConcreteBlock> parent) {
         return REGISTRUM.block(
                 "reinforced_concrete_" + color + "_stair",
-                (properties) -> new StairBlock(parent.getDefaultState(), properties)
+                properties -> new StairBlock(parent.getDefaultState(), properties)
             )
             .initialProperties(() -> Blocks.TERRACOTTA)
             .properties(properties -> properties.destroyTime(2.0f).explosionResistance(15.0f))
@@ -3717,7 +3741,7 @@ public class ModBlocks {
     }
 
     private static BlockEntry<CementCauldronBlock> registerCementCauldron(Color color) {
-        return REGISTRUM.block("%s_cement_cauldron".formatted(color), p -> new CementCauldronBlock(p, color))
+        return REGISTRUM.block("%s_cement_cauldron".formatted(color), properties -> new CementCauldronBlock(properties, color))
             .initialProperties(() -> Blocks.CAULDRON)
             .blockstate((ctx, provider) -> {
                 provider.simpleBlock(
@@ -3836,7 +3860,7 @@ public class ModBlocks {
 
     public static final BlockEntry<ExpFluidBlock> EXP_FLUID = REGISTRUM.block(
             "exp_fluid",
-            p -> new ExpFluidBlock(ModFluids.EXP_FLUID.get(), p)
+            properties -> new ExpFluidBlock(ModFluids.EXP_FLUID.get(), properties)
         )
         .properties(it -> it.mapColor(MapColor.COLOR_GREEN)
             .replaceable()
@@ -3851,7 +3875,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<LiquidBlock> OIL = REGISTRUM.block(
-            "oil", p -> new LiquidBlock(ModFluids.OIL.get(), p))
+            "oil", properties -> new LiquidBlock(ModFluids.OIL.get(), properties))
         .properties(it -> it.mapColor(MapColor.TERRACOTTA_BLACK)
             .replaceable()
             .noCollission()
@@ -3889,7 +3913,7 @@ public class ModBlocks {
     }
 
     public static BlockEntry<LiquidBlock> MELT_GEM = REGISTRUM
-        .block("melt_gem", p -> new LiquidBlock(ModFluids.MELT_GEM.get(), p))
+        .block("melt_gem", properties -> new LiquidBlock(ModFluids.MELT_GEM.get(), properties))
         .properties(it -> it.mapColor(MapColor.EMERALD)
             .lightLevel(s -> 15)
             .replaceable()
@@ -3910,7 +3934,7 @@ public class ModBlocks {
         .properties(PropertiesProviderUtil::confinedAnvilon)
         .blockstate(DataGenUtil::simple)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.fireResistant().rarity(Rarity.EPIC))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .register();
@@ -3923,7 +3947,7 @@ public class ModBlocks {
         .properties(PropertiesProviderUtil::confinedAnvilon)
         .blockstate(DataGenUtil::simple)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.fireResistant().rarity(Rarity.EPIC))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .register();
@@ -3936,7 +3960,7 @@ public class ModBlocks {
         .properties(PropertiesProviderUtil::confinedAnvilon)
         .blockstate(DataGenUtil::simple)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.fireResistant().rarity(Rarity.EPIC))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .register();
@@ -3949,7 +3973,7 @@ public class ModBlocks {
         .properties(PropertiesProviderUtil::confinedAnvilon)
         .blockstate(DataGenUtil::simple)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.fireResistant().rarity(Rarity.EPIC))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .register();
@@ -3962,7 +3986,7 @@ public class ModBlocks {
         .properties(PropertiesProviderUtil::confinedAnvilon)
         .blockstate(DataGenUtil::simple)
         .item(SuperHeavyBlockItem::new)
-        .initialProperties(() -> new Item.Properties().fireResistant().stacksTo(16))
+        .properties(properties -> properties.fireResistant().rarity(Rarity.EPIC).stacksTo(16))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .recipe(RegistrumBlockRecipeLoader::confinedNeutroniumIngotBlock)
@@ -3976,7 +4000,7 @@ public class ModBlocks {
         .properties(PropertiesProviderUtil::confinedAnvilon)
         .blockstate(DataGenUtil::simple)
         .item()
-        .initialProperties(() -> new Item.Properties().fireResistant())
+        .properties(properties -> properties.fireResistant().rarity(Rarity.EPIC))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .recipe(RegistrumBlockRecipeLoader::confinementChamber)
@@ -3985,14 +4009,14 @@ public class ModBlocks {
     public static final BlockEntry<Block> SINGULARITY_CRYSTAL = REGISTRUM.block("singularity_crystal", Block::new)
         .initialProperties(() -> ModBlocks.CONFINEMENT_CHAMBER.get())
         .blockstate(DataGenUtil::simple)
-        .properties((properties) -> properties.pushReaction(PushReaction.BLOCK)
+        .properties(properties -> properties.pushReaction(PushReaction.BLOCK)
             .lightLevel((state) -> 15)
             .noOcclusion()
             .strength(50F, 1200.0F)
             .requiresCorrectToolForDrops())
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.NEEDS_TRANSCENDIUM_TOOL, ModBlockTags.COLLISION_IMMUNE)
         .item(SingularityCrystalItem::new)
-        .initialProperties(() -> new Item.Properties().fireResistant().stacksTo(1))
+        .properties(properties -> properties.fireResistant().stacksTo(1).rarity(Rarity.EPIC))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .recipe(RegistrumBlockRecipeLoader::singularityCrystal)
@@ -4090,7 +4114,7 @@ public class ModBlocks {
 
     public static final BlockEntry<StairBlock> CUT_FLINT_STAIRS_BLOCK = REGISTRUM.block(
             "cut_flint_stairs",
-            (properties) -> new StairBlock(FLINT_BLOCK.getDefaultState(), properties)
+            properties -> new StairBlock(FLINT_BLOCK.getDefaultState(), properties)
         )
         .initialProperties(FLINT_BLOCK::get)
         .blockstate((ctx, provider) -> {
@@ -4130,7 +4154,7 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<? extends StairBlock> PLYWOOD_STAIRS = REGISTRUM
-        .block("plywood_stairs", (properties) -> new StairBlock(ModBlocks.PLYWOOD_BLOCK.getDefaultState(), properties))
+        .block("plywood_stairs", properties -> new StairBlock(ModBlocks.PLYWOOD_BLOCK.getDefaultState(), properties))
         .initialProperties(PLYWOOD_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_AXE, BlockTags.STAIRS, BlockTags.WOODEN_STAIRS)
         .blockstate((ctx, provider) -> {
@@ -4167,7 +4191,7 @@ public class ModBlocks {
     public static final BlockEntry<Block> ANCIENT_SEA_REEF = REGISTRUM
         .block("ancient_sea_reef", Block::new)
         .initialProperties(() -> Blocks.STONE)
-        .properties(p -> p
+        .properties(properties -> properties
             .noOcclusion()
             .requiresCorrectToolForDrops()
             .isValidSpawn(ModBlocks::never)
@@ -4340,6 +4364,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .model(DataGenUtil::noExtraModelOrState)
+        .properties(properties -> properties.rarity(Rarity.EPIC))
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
@@ -4347,41 +4372,49 @@ public class ModBlocks {
     public static final BlockEntry<CreativeFluidTankBlock> CREATIVE_FLUID_TANK = REGISTRUM
         .block("creative_fluid_tank", CreativeFluidTankBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties((properties) -> properties
+        .properties(properties -> properties
             .explosionResistance(Float.MAX_VALUE)
             .isValidSpawn(Blocks::never)
             .noOcclusion())
         .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::simple)
-        .simpleItem()
+        .item()
+        .properties(properties -> properties.rarity(Rarity.EPIC))
+        .build()
         .register();
 
     public static final BlockEntry<CreativeCrateBlock> CREATIVE_CRATE = REGISTRUM
         .block("creative_crate", CreativeCrateBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .properties((properties) -> properties
+        .properties(properties -> properties
             .explosionResistance(Float.MAX_VALUE)
             .isValidSpawn(Blocks::never)
             .noOcclusion())
         .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::simple)
-        .simpleItem()
+        .item()
+        .properties(properties -> properties.rarity(Rarity.EPIC))
+        .build()
         .register();
 
     public static final BlockEntry<BlackHoleBlock> BLACK_HOLE = REGISTRUM.block("black_hole", BlackHoleBlock::new)
         .initialProperties(() -> Blocks.OBSIDIAN)
-        .properties(p -> p.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
+        .properties(properties -> properties.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
         .blockstate((ctx, provider) -> {
         })
-        .simpleItem()
+        .item()
+        .properties(properties -> properties.rarity(Rarity.EPIC))
+        .build()
         .register();
 
     public static final BlockEntry<WhiteHoleBlock> WHITE_HOLE = REGISTRUM.block("white_hole", WhiteHoleBlock::new)
         .initialProperties(() -> Blocks.OBSIDIAN)
-        .properties(p -> p.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
+        .properties(properties -> properties.strength(10000.0F, 10000.0F).lightLevel(state -> 15).emissiveRendering(ModBlocks::always))
         .blockstate((ctx, provider) -> {
         })
-        .simpleItem()
+        .item()
+        .properties(properties -> properties.rarity(Rarity.EPIC))
+        .build()
         .register();
 
     public static void register() {
