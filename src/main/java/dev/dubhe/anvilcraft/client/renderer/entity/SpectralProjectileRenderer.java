@@ -100,7 +100,13 @@ public class SpectralProjectileRenderer<T extends SpectralProjectileEntity> exte
                 bufferSource,
                 packedLight,
                 OverlayTexture.NO_OVERLAY,
-                bakedModel
+                bakedModel.getOverrides().resolve(
+                    bakedModel,
+                    itemStack,
+                    null,
+                    null,
+                    42
+                )
             );
             poseStack.popPose();
             if (!isGui3d) {
