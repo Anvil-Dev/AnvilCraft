@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakeDestroyer;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakeKiller;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.heat.collector.HeatCollectorManager;
-import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
@@ -52,11 +51,10 @@ public class LevelEventListener {
         if (accessor instanceof Level level) {
             AccelerationRingBlockEntity.clear(level);
             DeflectionRingBlockEntity.clear(level);
-            if (accessor instanceof ServerLevel serverLevel) {
-                LevelLoadManager.removeAll(serverLevel);
-                RedstoneWireNetworkManager.clear(serverLevel);
-            }
             HeatCollectorManager.remove(level);
+        }
+        if (event.getLevel() instanceof ServerLevel serverLevel) {
+            AnvilCraftFakePlayers.clear(serverLevel);
         }
     }
 }

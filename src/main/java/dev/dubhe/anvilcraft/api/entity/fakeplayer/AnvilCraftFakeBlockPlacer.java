@@ -4,7 +4,6 @@ import com.mojang.authlib.GameProfile;
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.util.BlockItemPlacementStateOverride;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
-import lombok.Data;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.server.level.ServerLevel;
@@ -36,19 +35,22 @@ public class AnvilCraftFakeBlockPlacer {
         UUID.randomUUID(),
         "[AnvilCraft Fake Block Placer No." + num + "]"
     );
-    private static final Queue<Placer> DISABLED_PLACERS = new ConcurrentLinkedQueue<>();
-    private static final List<Placer> ENABLED_PLACERS = Collections.synchronizedList(new ArrayList<>());
+    private final Queue<Placer> disabledPlacers = new ConcurrentLinkedQueue<>();
+    private final List<Placer> enabledPlacers = Collections.synchronizedList(new ArrayList<>());
 
     public AnvilCraftFakeBlockPlacer() {
     }
 
     public ServerPlayer offerPlayer(ServerLevel level) {
-        Placer killer = DISABLED_PLACERS.poll();
-        if (killer == null) {
-            killer = new Placer(level, ENABLED_PLACERS.size());
+        Placer placer;
+        do {
+            placer = this.disabledPlacers.poll();
+        } while (placer != null && placer.player().level() != level);
+        if (placer == null) {
+            placer = new Placer(level, this.enabledPlacers.size());
         }
-        ENABLED_PLACERS.add(killer);
-        return killer.getPlayer();
+        this.enabledPlacers.add(placer);
+        return placer.player();
     }
 
     /// 放置方块
@@ -95,59 +97,63 @@ public class AnvilCraftFakeBlockPlacer {
         }
         if (!(level instanceof ServerLevel serverLevel)) return InteractionResult.FAIL;
         ServerPlayer player = this.offerPlayer(serverLevel);
-        // 获取fakePlayer的方向 与放置器的方向不太一样
-        Orientation fakePlayerOrientation = orientation.flipHorizontalIfVertical();
-        player.setYRot(fakePlayerOrientation.getYRotation());
-        // net.minecraft.core.Direction#orderedByNearest 方法判断的是玩家的yHeadRot，设置YRot时需要将
-        // 该字段一并设置，以使得部分方块的方向检测正确
-        player.setYHeadRot(fakePlayerOrientation.getYRotation());
-        player.setXRot(fakePlayerOrientation.getXRotation());
-        Vec3 clickClickLocation = this.getPosFromOrientation(orientation);
-        double x = clickClickLocation.x;
-        double y = clickClickLocation.y;
-        double z = clickClickLocation.z;
-        BlockHitResult blockHitResult = new BlockHitResult(
-            pos.getCenter().add(-0.5, -0.5, -0.5).add(x, 1 - y, z),
-            orientation.getDirection().getOpposite(),
-            pos,
-            false
-        );
-        BlockPlaceContext blockPlaceContext =
-            new BlockPlaceContext(
-                level,
-                player,
-                player.getUsedItemHand(),
-                stack,
-                blockHitResult
+        try {
+            // 获取fakePlayer的方向 与放置器的方向不太一样
+            Orientation fakePlayerOrientation = orientation.flipHorizontalIfVertical();
+            player.setYRot(fakePlayerOrientation.getYRotation());
+            // net.minecraft.core.Direction#orderedByNearest 方法判断的是玩家的yHeadRot，设置YRot时需要将
+            // 该字段一并设置，以使得部分方块的方向检测正确
+            player.setYHeadRot(fakePlayerOrientation.getYRotation());
+            player.setXRot(fakePlayerOrientation.getXRotation());
+            Vec3 clickClickLocation = this.getPosFromOrientation(orientation);
+            double x = clickClickLocation.x;
+            double y = clickClickLocation.y;
+            double z = clickClickLocation.z;
+            BlockHitResult blockHitResult = new BlockHitResult(
+                pos.getCenter().add(-0.5, -0.5, -0.5).add(x, 1 - y, z),
+                orientation.getDirection().getOpposite(),
+                pos,
+                false
             );
-        InteractionResult ir;
-        if (placementState == null) {
-            ir = blockItem.place(blockPlaceContext);
-        } else {
-            BlockItemPlacementStateOverride.set(placementState);
-            try {
+            BlockPlaceContext blockPlaceContext =
+                new BlockPlaceContext(
+                    level,
+                    player,
+                    player.getUsedItemHand(),
+                    stack,
+                    blockHitResult
+                );
+            InteractionResult ir;
+            if (placementState == null) {
                 ir = blockItem.place(blockPlaceContext);
-            } finally {
-                BlockItemPlacementStateOverride.clear();
+            } else {
+                BlockItemPlacementStateOverride.set(placementState);
+                try {
+                    ir = blockItem.place(blockPlaceContext);
+                } finally {
+                    BlockItemPlacementStateOverride.clear();
+                }
             }
-        }
-        if (ir == InteractionResult.FAIL) {
+            if (ir == InteractionResult.FAIL) {
+                this.disable(player);
+                return ir;
+            }
+            BlockState blockState = level.getBlockState(pos);
+            SoundType soundType = blockState.getSoundType(level, pos, player);
+            level.playSound(
+                player,
+                pos,
+                soundType.getPlaceSound(),
+                SoundSource.BLOCKS,
+                (soundType.getVolume() + 1.0F) / 2.0F,
+                soundType.getPitch() * 0.8F
+            );
+            TriggerUtil.placerPlaceBlock(level, pos, blockState.getBlock());
             this.disable(player);
-            return ir;
+            return InteractionResult.SUCCESS;
+        } finally {
+            this.disable(player);
         }
-        BlockState blockState = level.getBlockState(pos);
-        SoundType soundType = blockState.getSoundType(level, pos, player);
-        level.playSound(
-            player,
-            pos,
-            soundType.getPlaceSound(),
-            SoundSource.BLOCKS,
-            (soundType.getVolume() + 1.0F) / 2.0F,
-            soundType.getPitch() * 0.8F
-        );
-        TriggerUtil.placerPlaceBlock(level, pos, blockState.getBlock());
-        this.disable(player);
-        return InteractionResult.SUCCESS;
     }
 
     private Vec3 getPosFromOrientation(Orientation orientation) {
@@ -168,24 +174,38 @@ public class AnvilCraftFakeBlockPlacer {
     }
 
     public void disable(ServerPlayer player) {
-        ENABLED_PLACERS.stream()
+        this.enabledPlacers.stream()
             .filter(placer -> placer.getUUID().equals(player.getUUID()))
             .findFirst()
             .ifPresent(placer -> {
-                placer.getPlayer().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
-                DISABLED_PLACERS.offer(placer);
-                ENABLED_PLACERS.remove(placer);
+                placer.player().setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+                this.disabledPlacers.offer(placer);
+                this.enabledPlacers.remove(placer);
             });
     }
 
-    @Data
-    public static final class Placer {
-        private final GameProfile profile;
-        private final ServerPlayer player;
+    public void clear(ServerLevel level) {
+        this.disabledPlacers.removeIf(placer -> clearIfInLevel(placer.player(), level));
+        synchronized (this.enabledPlacers) {
+            this.enabledPlacers.removeIf(placer -> clearIfInLevel(placer.player(), level));
+        }
+    }
 
-        private Placer(ServerLevel level, int index) {
-            this.profile = FAKE_PROFILE_FACTORY.apply(index + 1);
-            this.player = FakePlayerFactory.get(level, this.profile);
+    private static boolean clearIfInLevel(ServerPlayer player, ServerLevel level) {
+        if (player.level() != level) {
+            return false;
+        }
+        player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+        return true;
+    }
+
+    public record Placer(ServerPlayer player, GameProfile profile) {
+        public Placer(ServerLevel player, int profile) {
+            this(FakePlayerFactory.get(player, Placer.create(profile)), Placer.create(profile));
+        }
+
+        private static GameProfile create(int profile) {
+            return AnvilCraftFakeBlockPlacer.FAKE_PROFILE_FACTORY.apply(profile + 1);
         }
 
         public UUID getUUID() {
