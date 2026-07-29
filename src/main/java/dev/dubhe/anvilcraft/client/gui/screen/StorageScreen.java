@@ -22,6 +22,8 @@ import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SearchMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
+import it.unimi.dsi.fastutil.ints.Int2IntMap;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -52,6 +54,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.ItemDecoratorHandler;
+import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -107,6 +110,10 @@ public class StorageScreen extends Screen {
     private IntList displayOrder = new IntArrayList();
     private final Int2ObjectMap<UnlimitedItemStack> contents = new Int2ObjectOpenHashMap<>();
     private final Int2ObjectMap<UnlimitedItemStack> foldedContents = new Int2ObjectOpenHashMap<>();
+    private final Int2IntMap foldedCounts = new Int2IntOpenHashMap();
+    private final Int2IntMap serverSlots = new Int2IntOpenHashMap();
+    private final IntSet emptySlots = new IntOpenHashSet();
+    private List<IntList> foldedGroups = List.of();
     private double fullness;
     private StorageServerStub.@Nullable Capacity capacity;
     private long version = -1;
@@ -119,7 +126,11 @@ public class StorageScreen extends Screen {
     private boolean orderLoaded;
     private boolean metadataPending;
     private boolean interactionPending;
+    private boolean interactionSyncPending;
     private boolean nbtFolded;
+    private boolean preservingOrder;
+    private boolean remappedOrder;
+    private int nextLogicalSlot;
     private final IntSet quickCraftSlots = new IntOpenHashSet();
     private boolean quickCrafting;
     private int quickCraftingButton;
@@ -133,6 +144,7 @@ public class StorageScreen extends Screen {
         super(Objects.requireNonNull(Minecraft.getInstance().level).getBlockState(sourcePos).getBlock().getName());
         this.sourcePos = sourcePos;
         this.player = Objects.requireNonNull(Minecraft.getInstance().player);
+        this.serverSlots.defaultReturnValue(-1);
         this.tracksOpenState = Minecraft.getInstance().level.getBlockState(sourcePos).getBlock()
             instanceof ShulkerContainerBlock;
     }
@@ -382,11 +394,19 @@ public class StorageScreen extends Screen {
                 graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_BACK_SPRITE, x - 4, y - 4, 24, 24);
             }
 
-            UnlimitedItemStack stack = this.getDisplayedStack(this.displayOrder.getInt(orderIndex));
+            int slot = this.displayOrder.getInt(orderIndex);
+            UnlimitedItemStack stack = this.getDisplayedStack(slot);
             if (!stack.isEmpty()) {
                 ItemStack itemStack = stack.toStack();
                 graphics.item(itemStack, x, y);
-                StorageScreen.itemDecorations(graphics, this.minecraft, itemStack, x, y);
+                StorageScreen.itemDecorations(
+                    graphics,
+                    this.minecraft,
+                    itemStack,
+                    this.getDisplayedCount(slot, stack),
+                    x,
+                    y
+                );
                 if (hovered && this.carried.isEmpty()) {
                     graphics.setTooltipForNextFrame(this.font, itemStack, mouseX, mouseY);
                 }
@@ -762,17 +782,24 @@ public class StorageScreen extends Screen {
         this.interactionPending = true;
         this.player.inventoryMenu.setCarried(this.carried);
         int request = ++this.interactionRequest;
-        StorageClientStub.interact(this.sourcePos, slot, button, action).whenCompleteAsync(
+        int serverSlot = action == StorageInput.QUICK_MOVE_TO_STORAGE ? slot : this.serverSlots.get(slot);
+        StorageClientStub.interact(this.sourcePos, serverSlot, button, action).whenCompleteAsync(
             (result, error) -> {
-                this.interactionPending = false;
                 if (request != this.interactionRequest || error != null) {
+                    this.interactionPending = false;
                     return;
                 }
                 this.carried = result.carried();
                 this.player.inventoryMenu.setCarried(this.carried);
                 if (result.changed()) {
+                    if (this.preservingOrder) {
+                        this.interactionSyncPending = true;
+                        this.syncPreservedOrder();
+                        return;
+                    }
                     this.reorder(false);
                 }
+                this.interactionPending = false;
             },
             this.screenExecutor
         );
@@ -810,6 +837,15 @@ public class StorageScreen extends Screen {
 
     @Override
     public boolean keyPressed(KeyEvent event) {
+        if (
+            (event.key() == InputConstants.KEY_LSHIFT || event.key() == InputConstants.KEY_RSHIFT)
+            && !this.preservingOrder
+        ) {
+            this.preservingOrder = true;
+            this.reorderRequest++;
+            this.syncRequest++;
+        }
+
         if (this.search != null && this.search.isFocused()) {
             this.search.keyPressed(event);
             return true;
@@ -860,6 +896,20 @@ public class StorageScreen extends Screen {
 
             return handled;
         }
+    }
+
+    @Override
+    public boolean keyReleased(KeyEvent event) {
+        if (
+            (event.key() == InputConstants.KEY_LSHIFT || event.key() == InputConstants.KEY_RSHIFT)
+            && !event.hasShiftDown()
+            && this.preservingOrder
+        ) {
+            this.preservingOrder = false;
+            this.reorder(false);
+            return true;
+        }
+        return super.keyReleased(event);
     }
 
     protected boolean checkHotbarKeyPressed(KeyEvent event) {
@@ -1099,9 +1149,8 @@ public class StorageScreen extends Screen {
         int reorderedScrollRow = foldNbt
                                  ? requestedScrollRow
                                  : Mth.clamp(requestedScrollRow, 0, this.getMaxScrollRow(reordered));
-        IntList slots = foldNbt ? reordered : this.getVisibleSlots(reordered, reorderedScrollRow);
         int request = ++this.syncRequest;
-        this.syncSlots(slots).whenCompleteAsync(
+        this.syncSlots(reordered).whenCompleteAsync(
             (results, error) -> {
                 if (reorderRequest != this.reorderRequest) {
                     return;
@@ -1114,19 +1163,29 @@ public class StorageScreen extends Screen {
                     this.reorder(false);
                     return;
                 }
-                if (!this.applySyncResults(results)) {
+                if (!this.applyReorderedSyncResults(results) || !this.hasContents(reordered)) {
                     this.reorder(false);
                     return;
                 }
                 this.order = reordered;
+                this.resetServerSlots(reordered);
                 this.rebuildDisplayOrder(foldNbt);
                 this.scrollRow = Mth.clamp(reorderedScrollRow, 0, this.getMaxScrollRow());
+                this.finishInteractionSync();
             },
             this.screenExecutor
         );
     }
 
     private void syncVisible() {
+        if (this.preservingOrder) {
+            this.syncPreservedOrder();
+            return;
+        }
+        if (this.remappedOrder) {
+            this.reorder(false);
+            return;
+        }
         boolean foldNbt = this.nbtFolded;
         IntList slots = foldNbt
                         ? this.order
@@ -1139,12 +1198,64 @@ public class StorageScreen extends Screen {
                 }
                 if (this.applySyncResults(results)) {
                     if (foldNbt) {
-                        this.rebuildDisplayOrder(true);
+                        this.rebuildFoldedDisplay(true);
                         this.scrollRow = Mth.clamp(this.scrollRow, 0, this.getMaxScrollRow());
                     }
                 } else {
                     this.reorder(false);
                 }
+            },
+            this.screenExecutor
+        );
+    }
+
+    private void syncPreservedOrder() {
+        int request = ++this.syncRequest;
+        int reorderRequest = this.reorderRequest;
+        StorageClientStub.reorder(this.sourcePos).whenCompleteAsync(
+            (updatedOrder, reorderError) -> {
+                if (
+                    request != this.syncRequest
+                    || reorderRequest != this.reorderRequest
+                    || !this.preservingOrder
+                    || reorderError != null
+                ) {
+                    return;
+                }
+                IntList currentOrder = new IntArrayList(updatedOrder);
+                this.syncSlots(currentOrder).whenCompleteAsync(
+                    (results, syncError) -> {
+                        if (
+                            request != this.syncRequest
+                            || reorderRequest != this.reorderRequest
+                            || !this.preservingOrder
+                            || syncError != null
+                        ) {
+                            return;
+                        }
+                        StorageClientStub.reorder(this.sourcePos).whenCompleteAsync(
+                            (confirmedOrder, confirmationError) -> {
+                                if (
+                                    request != this.syncRequest
+                                    || reorderRequest != this.reorderRequest
+                                    || !this.preservingOrder
+                                    || confirmationError != null
+                                ) {
+                                    return;
+                                }
+                                if (!currentOrder.equals(confirmedOrder) || !this.applyPreservedSyncResults(results)) {
+                                    this.syncPreservedOrder();
+                                    return;
+                                }
+                                this.orderVersion = this.version;
+                                this.scrollRow = Mth.clamp(this.scrollRow, 0, this.getMaxScrollRow());
+                                this.finishInteractionSync();
+                            },
+                            this.screenExecutor
+                        );
+                    },
+                    this.screenExecutor
+                );
             },
             this.screenExecutor
         );
@@ -1182,46 +1293,173 @@ public class StorageScreen extends Screen {
         this.fullness = result.fullness();
         for (StorageServerStub.StackUpdate update : result.updates()) {
             if (update.stack().isEmpty()) {
-                this.contents.remove(update.index());
+                if (this.contents.containsKey(update.index())) {
+                    this.emptySlots.add(update.index());
+                }
             } else {
                 this.contents.put(update.index(), update.stack());
+                this.emptySlots.remove(update.index());
             }
         }
     }
 
     private boolean applySyncResults(List<StorageServerStub.SyncResult> results) {
-        long syncedVersion = results.getFirst().version();
-        if (syncedVersion < this.version || results.stream().anyMatch(result -> result.version() != syncedVersion)) {
+        if (this.hasInconsistentVersion(results)) {
             return false;
         }
         results.forEach(this::applySyncResult);
         return true;
     }
 
+    private boolean applyReorderedSyncResults(List<StorageServerStub.SyncResult> results) {
+        if (this.hasInconsistentVersion(results)) {
+            return false;
+        }
+        this.contents.clear();
+        this.emptySlots.clear();
+        results.forEach(this::applySyncResult);
+        return true;
+    }
+
+    private boolean applyPreservedSyncResults(List<StorageServerStub.SyncResult> results) {
+        if (this.hasInconsistentVersion(results)) {
+            return false;
+        }
+
+        Map<ItemResource, Integer> logicalSlots = new HashMap<>();
+        for (int logicalSlot : this.order) {
+            UnlimitedItemStack stack = Objects.requireNonNull(this.contents.get(logicalSlot));
+            logicalSlots.put(ItemResource.of(stack.toStack()), logicalSlot);
+            this.emptySlots.add(logicalSlot);
+        }
+        this.serverSlots.clear();
+
+        for (StorageServerStub.SyncResult result : results) {
+            this.version = result.version();
+            this.fullness = result.fullness();
+            for (StorageServerStub.StackUpdate update : result.updates()) {
+                if (update.stack().isEmpty()) {
+                    continue;
+                }
+                ItemResource resource = ItemResource.of(update.stack().toStack());
+                Integer logicalSlot = logicalSlots.get(resource);
+                if (logicalSlot == null) {
+                    logicalSlot = this.nextLogicalSlot++;
+                    logicalSlots.put(resource, logicalSlot);
+                    this.order.add(logicalSlot.intValue());
+                }
+                this.contents.put(logicalSlot.intValue(), update.stack());
+                this.emptySlots.remove(logicalSlot.intValue());
+                this.serverSlots.put(logicalSlot.intValue(), update.index());
+            }
+        }
+
+        if (this.nbtFolded) {
+            this.rebuildFoldedGroups(true);
+        } else {
+            this.displayOrder = new IntArrayList(this.order);
+        }
+        this.remappedOrder = true;
+        return true;
+    }
+
+    private boolean hasInconsistentVersion(List<StorageServerStub.SyncResult> results) {
+        long syncedVersion = results.getFirst().version();
+        return syncedVersion < this.version
+            || results.stream().anyMatch(result -> result.version() != syncedVersion);
+    }
+
+    private void resetServerSlots(IntList slots) {
+        this.serverSlots.clear();
+        this.nextLogicalSlot = 0;
+        this.remappedOrder = false;
+        for (int slot : slots) {
+            this.serverSlots.put(slot, slot);
+            this.nextLogicalSlot = Math.max(this.nextLogicalSlot, slot + 1);
+        }
+    }
+
+    private boolean hasContents(IntList slots) {
+        for (int slot : slots) {
+            if (!this.contents.containsKey(slot)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void finishInteractionSync() {
+        if (this.interactionSyncPending) {
+            this.interactionSyncPending = false;
+            this.interactionPending = false;
+        }
+    }
+
     private void rebuildDisplayOrder(boolean foldNbt) {
         this.nbtFolded = foldNbt;
         this.foldedContents.clear();
+        this.foldedCounts.clear();
         if (!foldNbt) {
+            this.foldedGroups = List.of();
             this.displayOrder = new IntArrayList(this.order);
             return;
         }
 
-        IntArrayList foldedOrder = new IntArrayList();
-        Map<Item, Integer> representatives = new HashMap<>();
+        this.rebuildFoldedGroups(false);
+    }
+
+    private void rebuildFoldedGroups(boolean preserveRepresentatives) {
+        List<IntList> groups = new ArrayList<>();
+        Map<Item, IntList> groupsByItem = new HashMap<>();
         for (int slot : this.order) {
             UnlimitedItemStack stack = this.contents.getOrDefault(slot, UnlimitedItemStack.EMPTY);
             if (stack.isEmpty()) {
                 continue;
             }
-            Integer representative = representatives.putIfAbsent(stack.getItem(), slot);
-            if (representative == null) {
-                foldedOrder.add(slot);
-                this.foldedContents.put(slot, stack.copy());
-                continue;
+            IntList group = groupsByItem.get(stack.getItem());
+            if (group == null) {
+                group = new IntArrayList();
+                groupsByItem.put(stack.getItem(), group);
+                groups.add(group);
             }
-            UnlimitedItemStack folded = Objects.requireNonNull(this.foldedContents.get(representative.intValue()));
-            long count = (long) folded.getCount() + stack.getCount();
-            folded.setCount((int) Math.min(count, Integer.MAX_VALUE));
+            group.add(slot);
+        }
+        this.foldedGroups = groups;
+        this.rebuildFoldedDisplay(preserveRepresentatives);
+    }
+
+    private void rebuildFoldedDisplay(boolean preserveRepresentatives) {
+        IntArrayList foldedOrder = new IntArrayList(this.foldedGroups.size());
+        this.foldedContents.clear();
+        this.foldedCounts.clear();
+        for (int groupIndex = 0; groupIndex < this.foldedGroups.size(); groupIndex++) {
+            IntList group = this.foldedGroups.get(groupIndex);
+            int representative = group.getInt(0);
+            if (preserveRepresentatives && groupIndex < this.displayOrder.size()) {
+                int previousRepresentative = this.displayOrder.getInt(groupIndex);
+                if (group.contains(previousRepresentative)) {
+                    representative = previousRepresentative;
+                }
+            }
+
+            long count = 0;
+            boolean foundNonEmpty = preserveRepresentatives && this.getStoredCount(representative) > 0;
+            for (int slot : group) {
+                int slotCount = this.getStoredCount(slot);
+                count = Math.min(count + slotCount, Integer.MAX_VALUE);
+                if (!foundNonEmpty && slotCount > 0) {
+                    representative = slot;
+                    foundNonEmpty = true;
+                }
+            }
+
+            UnlimitedItemStack stack = Objects.requireNonNull(this.contents.get(representative));
+            UnlimitedItemStack folded = stack.copy();
+            int foldedCount = (int) count;
+            folded.setCount(Math.max(foldedCount, 1));
+            foldedOrder.add(representative);
+            this.foldedContents.put(representative, folded);
+            this.foldedCounts.put(representative, foldedCount);
         }
         this.displayOrder = foldedOrder;
     }
@@ -1229,6 +1467,15 @@ public class StorageScreen extends Screen {
     private UnlimitedItemStack getDisplayedStack(int slot) {
         Int2ObjectMap<UnlimitedItemStack> displayedContents = this.nbtFolded ? this.foldedContents : this.contents;
         return displayedContents.getOrDefault(slot, UnlimitedItemStack.EMPTY);
+    }
+
+    private int getDisplayedCount(int slot, UnlimitedItemStack stack) {
+        return this.nbtFolded ? this.foldedCounts.get(slot) : this.emptySlots.contains(slot) ? 0 : stack.getCount();
+    }
+
+    private int getStoredCount(int slot) {
+        UnlimitedItemStack stack = this.contents.getOrDefault(slot, UnlimitedItemStack.EMPTY);
+        return this.emptySlots.contains(slot) ? 0 : stack.getCount();
     }
 
     private void refreshMetadata() {
@@ -1247,7 +1494,11 @@ public class StorageScreen extends Screen {
                 this.capacity = metadata.capacity();
                 if (!this.orderLoaded || metadata.orderVersion() != this.orderVersion) {
                     this.orderVersion = metadata.orderVersion();
-                    this.reorder(false);
+                    if (this.preservingOrder) {
+                        this.syncPreservedOrder();
+                    } else {
+                        this.reorder(false);
+                    }
                 } else if (metadata.version() != this.version) {
                     this.syncVisible();
                 }
@@ -1268,7 +1519,14 @@ public class StorageScreen extends Screen {
     }
 
     @SuppressWarnings("UnstableApiUsage")
-    private static void itemDecorations(GuiGraphicsExtractor graphic, Minecraft minecraft, ItemStack stack, int x, int y) {
+    private static void itemDecorations(
+        GuiGraphicsExtractor graphic,
+        Minecraft minecraft,
+        ItemStack stack,
+        int count,
+        int x,
+        int y
+    ) {
         if (stack.isEmpty()) {
             return;
         }
@@ -1294,11 +1552,10 @@ public class StorageScreen extends Screen {
         }
         // endregion
         // region graphic.itemCount(minecraft.font, stack, x, y, null);
-        if (stack.getCount() != 1) {
-            Component amount = Component.literal(FormattingUtil.toAbbrNum(stack.getCount()))
-                .withStyle(style -> style.withFont(new FontDescription.Resource(StorageScreen.SMALL_FONT)));
-            graphic.text(minecraft.font, amount, x + 17 - minecraft.font.width(amount), y + 9, -1, true);
-        }
+        Component amount = Component.literal(FormattingUtil.toAbbrNum(count))
+            .withStyle(style -> style.withFont(new FontDescription.Resource(StorageScreen.SMALL_FONT)));
+        int color = count == 0 ? 0xFFFFAA00 : -1;
+        graphic.text(minecraft.font, amount, x + 17 - minecraft.font.width(amount), y + 9, color, true);
         // endregion
         graphic.pose().popMatrix();
         ItemDecoratorHandler.of(stack).render(graphic, minecraft.font, stack, x, y);

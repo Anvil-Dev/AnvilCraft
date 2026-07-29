@@ -69,6 +69,7 @@ public final class StorageServerStub {
     public static final StreamCodec<ByteBuf, IntList> ORDER_STREAM_CODEC = ByteBufCodecs.VAR_INT
         .apply(ByteBufCodecs.list())
         .map(IntArrayList::new, Function.identity());
+    @SuppressWarnings("NullableProblems") // IDEA issue, will be unnecessary in sometime
     private static final Multimap<UUID, StorageServerStub> STUBS = ArrayListMultimap.create();
 
     private final UUID storageId;
@@ -306,7 +307,7 @@ public final class StorageServerStub {
         ItemResource resource = view.resource(slot);
         ItemStack stack = resource.toStack();
         int amount = Math.min(
-            view.amount(slot),
+            Math.min(view.amount(slot), stack.getMaxStackSize()),
             StorageServerStub.getInventorySpace(player.getInventory(), stack)
         );
         if (amount <= 0) {
