@@ -707,6 +707,7 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.shulker_container.4", "double its max size, with a max size");
         provider.add("tooltip.anvilcraft.shulker_container.5", "limit of 1048576 (i.e. up to four upgrades)");
         provider.add("tooltip.anvilcraft.shulker_container.6", "Currently injected times: %s");
-        provider.add("tooltip.anvilcraft.shulker_container.6.waiting", "Waiting for syncing");
+
+        provider.add("tooltip.anvilcraft.waiting", "Waiting for syncing");
     }
 }
