@@ -276,7 +276,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.level.BlockGetter;
@@ -456,17 +455,30 @@ public class ModBlocks {
         .build()
         .register();
 
+    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<FluidTankBlock> FLUID_TANK = REGISTRUM.block("fluid_tank", FluidTankBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(FluidTankBlockItem::new)
-        .model(() -> DataGenUtil.specialBlockItem(FluidTankItemRenderer.Unbaked.INSTANCE, false))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, FluidTankBlockItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                DataGenUtil.<FluidTankBlockItem>specialBlockItem(
+                    FluidTankItemRenderer.Unbaked.INSTANCE,
+                    false
+                ).accept(ctx, generator);
+            }
+        })
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::fluidTank)
         .register();
 
+    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<LargeFluidTankBlock> LARGE_FLUID_TANK = REGISTRUM.block(
             "large_fluid_tank",
             LargeFluidTankBlock::new
@@ -480,7 +492,18 @@ public class ModBlocks {
         .loot(SimpleMultiPartBlock::loot)
         .item(LargeFluidTankBlockItem::new)
         .properties(properties -> properties.stacksTo(16))
-        .model(() -> DataGenUtil.specialBlockItem(LargeFluidTankItemRenderer.Unbaked.INSTANCE, true))
+        .model(() -> new NonNullBiConsumer<>() {
+            @Override
+            public void accept(
+                DataGenContext<Item, LargeFluidTankBlockItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                DataGenUtil.<LargeFluidTankBlockItem>specialBlockItem(
+                    LargeFluidTankItemRenderer.Unbaked.INSTANCE,
+                    true
+                ).accept(ctx, generator);
+            }
+        })
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)

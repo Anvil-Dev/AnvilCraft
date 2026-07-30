@@ -46,7 +46,7 @@ public class ShulkerContainerTooltipProvider extends ITooltipProvider.BlockEntit
         }
         this.refreshUpgradeCount(value);
         Object upgradeCount = this.upgradeCount < 0
-                              ? Component.translatable("tooltip.anvilcraft.shulker_container.6.waiting")
+                              ? Component.translatable("tooltip.anvilcraft.waiting")
                               : this.upgradeCount;
         return ImmutableList.of(
             Component.translatable("tooltip.anvilcraft.shulker_container.0"),
