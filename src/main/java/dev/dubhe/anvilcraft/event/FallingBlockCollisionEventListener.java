@@ -45,8 +45,9 @@ public class FallingBlockCollisionEventListener {
     @SubscribeEvent
     public static void anvilCollisionCraft(AnvilEvent.CollisionBlock event) {
         if (event.isCanceled()) return;
-        Vec3 entityPos = event.getEntity().position();
         Level level = event.getLevel();
+        if (level.isClientSide()) return;
+        Vec3 entityPos = event.getEntity().position();
         BlockPos pos = event.getPos();
         if (AnvilCraft.CONFIG.anvilCollisionCraftSpeed > event.getSpeed()) return;
         RecipeHolder<AnvilCollisionCraftRecipe> resultRecipe = null;
