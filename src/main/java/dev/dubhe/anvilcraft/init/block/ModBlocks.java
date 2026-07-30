@@ -8,6 +8,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.generators.model.PropertyDispat
 import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
+import dev.anvilcraft.lib.v2.util.nullness.NonNullSupplier;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
@@ -276,7 +277,6 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.level.BlockGetter;
@@ -461,7 +461,12 @@ public class ModBlocks {
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(FluidTankBlockItem::new)
-        .model(() -> DataGenUtil.specialBlockItem(FluidTankItemRenderer.Unbaked.INSTANCE, false))
+        .model(new NonNullSupplier<>() {
+            @Override
+            public NonNullBiConsumer<DataGenContext<Item, FluidTankBlockItem>, RegistrumItemModelGenerator> get() {
+                return DataGenUtil.specialBlockItem(FluidTankItemRenderer.Unbaked.INSTANCE, false);
+            }
+        })
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::fluidTank)
@@ -480,7 +485,12 @@ public class ModBlocks {
         .loot(SimpleMultiPartBlock::loot)
         .item(LargeFluidTankBlockItem::new)
         .properties(properties -> properties.stacksTo(16))
-        .model(() -> DataGenUtil.specialBlockItem(LargeFluidTankItemRenderer.Unbaked.INSTANCE, true))
+        .model(new NonNullSupplier<>() {
+            @Override
+            public NonNullBiConsumer<DataGenContext<Item, LargeFluidTankBlockItem>, RegistrumItemModelGenerator> get() {
+                return DataGenUtil.specialBlockItem(LargeFluidTankItemRenderer.Unbaked.INSTANCE, true);
+            }
+        })
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
