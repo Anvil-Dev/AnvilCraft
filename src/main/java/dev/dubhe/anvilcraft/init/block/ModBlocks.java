@@ -8,7 +8,6 @@ import dev.anvilcraft.lib.v2.registrum.providers.generators.model.PropertyDispat
 import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullBiConsumer;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
-import dev.anvilcraft.lib.v2.util.nullness.NonNullSupplier;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent.Switch;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
@@ -456,15 +455,22 @@ public class ModBlocks {
         .build()
         .register();
 
+    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<FluidTankBlock> FLUID_TANK = REGISTRUM.block("fluid_tank", FluidTankBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(p -> p.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(FluidTankBlockItem::new)
-        .model(new NonNullSupplier<>() {
+        .model(() -> new NonNullBiConsumer<>() {
             @Override
-            public NonNullBiConsumer<DataGenContext<Item, FluidTankBlockItem>, RegistrumItemModelGenerator> get() {
-                return DataGenUtil.specialBlockItem(FluidTankItemRenderer.Unbaked.INSTANCE, false);
+            public void accept(
+                DataGenContext<Item, FluidTankBlockItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                DataGenUtil.<FluidTankBlockItem>specialBlockItem(
+                    FluidTankItemRenderer.Unbaked.INSTANCE,
+                    false
+                ).accept(ctx, generator);
             }
         })
         .build()
@@ -472,6 +478,7 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::fluidTank)
         .register();
 
+    @SuppressWarnings("Convert2Lambda")
     public static final BlockEntry<LargeFluidTankBlock> LARGE_FLUID_TANK = REGISTRUM.block(
             "large_fluid_tank",
             LargeFluidTankBlock::new
@@ -485,10 +492,16 @@ public class ModBlocks {
         .loot(SimpleMultiPartBlock::loot)
         .item(LargeFluidTankBlockItem::new)
         .properties(properties -> properties.stacksTo(16))
-        .model(new NonNullSupplier<>() {
+        .model(() -> new NonNullBiConsumer<>() {
             @Override
-            public NonNullBiConsumer<DataGenContext<Item, LargeFluidTankBlockItem>, RegistrumItemModelGenerator> get() {
-                return DataGenUtil.specialBlockItem(LargeFluidTankItemRenderer.Unbaked.INSTANCE, true);
+            public void accept(
+                DataGenContext<Item, LargeFluidTankBlockItem> ctx,
+                RegistrumItemModelGenerator generator
+            ) {
+                DataGenUtil.<LargeFluidTankBlockItem>specialBlockItem(
+                    LargeFluidTankItemRenderer.Unbaked.INSTANCE,
+                    true
+                ).accept(ctx, generator);
             }
         })
         .build()
