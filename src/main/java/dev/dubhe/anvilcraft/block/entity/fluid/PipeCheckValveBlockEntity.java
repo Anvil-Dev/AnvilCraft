@@ -133,7 +133,7 @@ public class PipeCheckValveBlockEntity extends BlockEntity {
             return;
         }
         long gameTime = this.level.getGameTime();
-        boolean changed = this.displayFluid.isEmpty()
+        final boolean changed = this.displayFluid.isEmpty()
             || !FluidStack.isSameFluidSameComponents(this.displayFluid, fluid);
         this.displayFluid = fluid.copyWithAmount(1);
         this.displayUntil = gameTime + DISPLAY_DURATION;
