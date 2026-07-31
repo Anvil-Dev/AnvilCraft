@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -52,6 +51,15 @@ public class PipeNodeBlock extends PipeBlock {
      */
     public PipeNodeBlock(Properties properties) {
         super(properties);
+        registerDefaultState();
+    }
+
+    public PipeNodeBlock(Properties properties, boolean glassPipe) {
+        super(properties, glassPipe);
+        registerDefaultState();
+    }
+
+    private void registerDefaultState() {
         this.registerDefaultState(this.getStateDefinition()
             .any()
             .setValue(DOWN, NodePipe.NONE)
@@ -246,8 +254,7 @@ public class PipeNodeBlock extends PipeBlock {
                 // 同轴 → 直管
                 Direction.Axis ax = pipe1.getAxis();
                 Direction neg = getDirectionFromAxis(ax, Direction.AxisDirection.NEGATIVE);
-                return ModBlocks.PIPE_STRAIGHT.get()
-                    .defaultBlockState()
+                return PipeBlock.straightVariant(state)
                     .setValue(AXIS, ax)
                     .setValue(HAS_END_START, neg == pipe1 ? !pipe1IsPipe : !pipe2IsPipe)
                     .setValue(HAS_END_END, neg == pipe1 ? !pipe2IsPipe : !pipe1IsPipe)
@@ -256,8 +263,7 @@ public class PipeNodeBlock extends PipeBlock {
                 // 异轴 → 弯管
                 CornerEnded corner = CornerEnded.fromDirections(pipe1, pipe2);
                 boolean firstIsA = corner.getFirstDirection() == pipe1;
-                return ModBlocks.PIPE_CORNER.get()
-                    .defaultBlockState()
+                return PipeBlock.cornerVariant(state)
                     .setValue(CORNER_ENDED, corner)
                     .setValue(HAS_END_START, firstIsA ? !pipe1IsPipe : !pipe2IsPipe)
                     .setValue(HAS_END_END, firstIsA ? !pipe2IsPipe : !pipe1IsPipe)
@@ -270,8 +276,7 @@ public class PipeNodeBlock extends PipeBlock {
         boolean onlyIsPipe = !pipeDirs.isEmpty();
         Direction.Axis ax = only.getAxis();
         Direction neg = getDirectionFromAxis(ax, Direction.AxisDirection.NEGATIVE);
-        return ModBlocks.PIPE_STRAIGHT.get()
-            .defaultBlockState()
+        return PipeBlock.straightVariant(state)
             .setValue(AXIS, ax)
             .setValue(HAS_END_START, neg != only || !onlyIsPipe)
             .setValue(HAS_END_END, neg == only || !onlyIsPipe)

@@ -32,6 +32,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 
 import javax.annotation.Nullable;
+import java.util.function.Supplier;
 
 /**
  * 管道放置物品，负责处理所有管道放置和连接的交互逻辑。
@@ -50,9 +51,15 @@ import javax.annotation.Nullable;
  * 点击弯管时会根据弯管状态和被点击面对弯管进行转换（→直管/节点/旋转）。
  */
 public class PipeBlockItem extends Item {
+    private final Supplier<PipeStraightBlock> straightBlock;
 
     public PipeBlockItem(Properties properties) {
+        this(properties, ModBlocks.PIPE_STRAIGHT);
+    }
+
+    public PipeBlockItem(Properties properties, Supplier<PipeStraightBlock> straightBlock) {
         super(properties);
+        this.straightBlock = straightBlock;
     }
 
     /**
@@ -260,8 +267,7 @@ public class PipeBlockItem extends Item {
                 Direction.Axis axis = occupiedEnd.getAxis();
                 Direction negDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
                 boolean negIsOccupied = negDir == occupiedEnd;
-                BlockState straightState = ModBlocks.PIPE_STRAIGHT.get()
-                    .defaultBlockState()
+                BlockState straightState = PipeBlock.straightVariant(state)
                     .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED))
                     .setValue(PipeBlock.AXIS, axis)
                     .setValue(PipeBlock.HAS_END_START, negIsOccupied ? !occupiedEndIsPipe : !towardIsPipe)
@@ -273,8 +279,7 @@ public class PipeBlockItem extends Item {
             // 弯管
             PipeBlock.CornerEnded corner = PipeBlock.CornerEnded.fromDirections(occupiedEnd, toward);
             boolean firstIsOccupied = corner.getFirstDirection() == occupiedEnd;
-            BlockState cornerState = ModBlocks.PIPE_CORNER.get()
-                .defaultBlockState()
+            BlockState cornerState = PipeBlock.cornerVariant(state)
                 .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED))
                 .setValue(PipeBlock.CORNER_ENDED, corner)
                 .setValue(PipeBlock.HAS_END_START, firstIsOccupied ? !occupiedEndIsPipe : !towardIsPipe)
@@ -296,8 +301,7 @@ public class PipeBlockItem extends Item {
         Direction dir1,
         Direction dir2
     ) {
-        BlockState nodeState = ModBlocks.PIPE_NODE.get()
-            .defaultBlockState()
+        BlockState nodeState = PipeBlock.nodeVariant(state)
             .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED));
         nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(dir1), PipeNodeBlock.evaluateNeighbor(level, pos, dir1));
         nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(dir2), PipeNodeBlock.evaluateNeighbor(level, pos, dir2));
@@ -412,7 +416,7 @@ public class PipeBlockItem extends Item {
      * 构造直管方块状态
      */
     private BlockState makeStraightState(Level level, BlockPos pos, Direction.Axis axis, boolean hasEndStart, boolean hasEndEnd) {
-        return ModBlocks.PIPE_STRAIGHT.get()
+        return straightBlock.get()
             .defaultBlockState()
             .setValue(PipeBlock.AXIS, axis)
             .setValue(PipeBlock.HAS_END_START, hasEndStart)
@@ -459,8 +463,7 @@ public class PipeBlockItem extends Item {
         // 音效与掉落等服务端副作用留在 !level.isClientSide() 块内
         if (bothOccupied) {
             // 两端都忙 → 转节点
-            BlockState nodeState = ModBlocks.PIPE_NODE.get()
-                .defaultBlockState()
+            BlockState nodeState = PipeBlock.nodeVariant(cornerState)
                 .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED));
             nodeState = nodeState.setValue(
                 PipeBlock.getPropertyForDirection(first),
@@ -489,8 +492,7 @@ public class PipeBlockItem extends Item {
                 endIsPipe = true;
             }
 
-            BlockState straightState = ModBlocks.PIPE_STRAIGHT.get()
-                .defaultBlockState()
+            BlockState straightState = PipeBlock.straightVariant(cornerState)
                 .setValue(PipeBlock.AXIS, axis)
                 .setValue(PipeBlock.HAS_END_START, !startIsPipe)
                 .setValue(PipeBlock.HAS_END_END, !endIsPipe)
@@ -506,8 +508,7 @@ public class PipeBlockItem extends Item {
             boolean occupiedEndIsPipe = PipeBlock.isNeighborPipeToward(level, cornerPos, occupiedEnd);
             boolean firstIsOccupied = newCorner.getFirstDirection() == occupiedEnd;
 
-            BlockState newCornerState = ModBlocks.PIPE_CORNER.get()
-                .defaultBlockState()
+            BlockState newCornerState = PipeBlock.cornerVariant(cornerState)
                 .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED))
                 .setValue(PipeBlock.CORNER_ENDED, newCorner)
                 .setValue(PipeBlock.HAS_END_START, firstIsOccupied && !occupiedEndIsPipe)

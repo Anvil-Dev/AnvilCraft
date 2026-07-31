@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
+import dev.dubhe.anvilcraft.block.entity.fluid.PipeCheckValveBlockEntity;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -326,6 +327,7 @@ public class FluidPipeNetwork {
                 budget -= actuallyFilled;
                 deductValves(valvePath, actuallyFilled);
                 if (actuallyFilled > 0) {
+                    showFluidInGlassPipes(drained);
                     progressed = true;
                     onTransferred(source);
                 }
@@ -581,6 +583,17 @@ public class FluidPipeNetwork {
                 return;
             }
             TriggerUtil.pipeConnectContainers(level, source.containerPos());
+        }
+    }
+
+    private void showFluidInGlassPipes(FluidStack fluid) {
+        if (level.isClientSide()) {
+            return;
+        }
+        for (BlockPos part : parts) {
+            if (level.getBlockEntity(part) instanceof PipeCheckValveBlockEntity pipe) {
+                pipe.showFluid(fluid);
+            }
         }
     }
 

@@ -33,6 +33,8 @@ import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtension
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import java.util.Set;
+
 public final class FluidRenderHelper {
     public static final FluidRenderHelper INSTANCE = new FluidRenderHelper();
 
@@ -50,12 +52,31 @@ public final class FluidRenderHelper {
         boolean renderBottom,
         boolean invertGasses
     ) {
+        this.renderFluidBox(fluid, minX, minY, minZ, maxX, maxY, maxZ, buffer, ms, light,
+            getSkippedSides(renderBottom), invertGasses);
+    }
+
+    public void renderFluidBox(
+        FluidStack fluid,
+        float minX,
+        float minY,
+        float minZ,
+        float maxX,
+        float maxY,
+        float maxZ,
+        MultiBufferSource buffer,
+        PoseStack ms,
+        int light,
+        Set<Direction> skippedSides,
+        boolean invertGasses
+    ) {
         var renderProps = IClientFluidTypeExtensions.of(fluid.getFluid());
         boolean opaque = (renderProps instanceof ModClientFluidTypeExtensionImpl ext && ext.isOpaque())
             || fluid.is(NeoForgeMod.MILK.value());
         RenderType renderType = opaque ? RenderType.cutout() : RenderType.translucent();
         VertexConsumer builder = buffer.getBuffer(renderType);
-        this.renderFluidBox(fluid, minX, minY, minZ, maxX, maxY, maxZ, builder, ms, light, renderBottom, invertGasses);
+        this.renderFluidBox(fluid, minX, minY, minZ, maxX, maxY, maxZ, builder, ms, light,
+            skippedSides, invertGasses);
     }
 
     /** {@link MultiBufferSource} 版、带自定义侧面贴图的重载（用于排水口向下流动水柱）。 */
@@ -89,11 +110,29 @@ public final class FluidRenderHelper {
         boolean renderBottom,
         boolean invertGasses
     ) {
+        this.renderFluidBox(fluid, minX, minY, minZ, maxX, maxY, maxZ, builder, ms, light,
+            getSkippedSides(renderBottom), invertGasses);
+    }
+
+    public void renderFluidBox(
+        FluidStack fluid,
+        float minX,
+        float minY,
+        float minZ,
+        float maxX,
+        float maxY,
+        float maxZ,
+        VertexConsumer builder,
+        PoseStack ms,
+        int light,
+        Set<Direction> skippedSides,
+        boolean invertGasses
+    ) {
         var renderProps = IClientFluidTypeExtensions.of(fluid.getFluid());
         final TextureAtlasSprite stillTexture = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
             .apply(renderProps.getStillTexture(fluid));
         renderFluidBox(fluid, minX, minY, minZ, maxX, maxY, maxZ, builder, ms, light,
-            renderBottom, invertGasses, stillTexture);
+            skippedSides, invertGasses, stillTexture);
     }
 
     /**
@@ -112,6 +151,25 @@ public final class FluidRenderHelper {
         PoseStack ms,
         int light,
         boolean renderBottom,
+        boolean invertGasses,
+        TextureAtlasSprite sideTexture
+    ) {
+        renderFluidBox(fluid, minX, minY, minZ, maxX, maxY, maxZ, builder, ms, light,
+            getSkippedSides(renderBottom), invertGasses, sideTexture);
+    }
+
+    public void renderFluidBox(
+        FluidStack fluid,
+        float minX,
+        float minY,
+        float minZ,
+        float maxX,
+        float maxY,
+        float maxZ,
+        VertexConsumer builder,
+        PoseStack ms,
+        int light,
+        Set<Direction> skippedSides,
         boolean invertGasses,
         TextureAtlasSprite sideTexture
     ) {
@@ -136,7 +194,7 @@ public final class FluidRenderHelper {
 
         for (int color : colors) {
             for (Direction side : Direction.values()) {
-                if (side == Direction.DOWN && !renderBottom) continue;
+                if (skippedSides.contains(side)) continue;
 
                 // 水平面用侧面贴图（流动），上下面用静止贴图
                 TextureAtlasSprite tex = side.getAxis().isHorizontal() ? sideTexture : stillTexture;
@@ -157,6 +215,10 @@ public final class FluidRenderHelper {
         }
 
         ms.popPose();
+    }
+
+    private static Set<Direction> getSkippedSides(boolean renderBottom) {
+        return renderBottom ? Set.of() : Set.of(Direction.DOWN);
     }
 
     public static void renderStillTiledFace(

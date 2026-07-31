@@ -353,7 +353,16 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.PILL_BOX.asItem(), "Store pills for quick use");
         NORMAL.put(ModItems.AMULET_BOX.asItem(), "Stores multiple active amulets or totems");
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL.asItem(), "Forge celestial bodies, build megastructures");
-        NORMAL.put(ModItems.PIPE.get(), "Transports fluids between containers, gravity-driven flow");
+        NORMAL.put(
+            ModItems.PIPE.get(), """
+            Transports fluids between containers, gravity-driven flow
+            Right-click with Glass Pane to turn it into Glass Pipe"""
+        );
+        NORMAL.put(
+            ModItems.GLASS_PIPE.get(), """
+            Creative mode only
+            Use an Anvil Hammer to convert it into normal Pipe"""
+        );
         NORMAL.put(ModBlocks.PUMP.asItem(), "Pumps fluids, consumes 32 kW");
         NORMAL.put(ModBlocks.CREATIVE_CRATE.asItem(), "Infinite item storage and supply");
         NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");

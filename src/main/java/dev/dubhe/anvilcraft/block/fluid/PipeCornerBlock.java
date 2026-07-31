@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.BlockGetter;
@@ -26,6 +25,15 @@ public class PipeCornerBlock extends PipeBlock {
      */
     public PipeCornerBlock(Properties properties) {
         super(properties);
+        registerDefaultState();
+    }
+
+    public PipeCornerBlock(Properties properties, boolean glassPipe) {
+        super(properties, glassPipe);
+        registerDefaultState();
+    }
+
+    private void registerDefaultState() {
         this.registerDefaultState(this.getStateDefinition()
             .any()
             .setValue(CORNER_ENDED, CornerEnded.UP_NORTH)
@@ -99,7 +107,7 @@ public class PipeCornerBlock extends PipeBlock {
             boolean neighborIsValve = neighborState.getBlock() instanceof ControlValveBlock
                 && ControlValveBlock.isConnectableFace(neighborState, neighborDir.getOpposite());
             if (isNeighborPipeToward(level, pos, neighborDir) || neighborIsPump || neighborIsValve) {
-                BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState().setValue(WATERLOGGED, state.getValue(WATERLOGGED));
+                BlockState nodeState = PipeBlock.nodeVariant(state).setValue(WATERLOGGED, state.getValue(WATERLOGGED));
                 for (Direction dir : Direction.values()) {
                     nodeState = nodeState.setValue(getPropertyForDirection(dir), PipeNodeBlock.evaluateNeighbor(level, pos, dir));
                 }

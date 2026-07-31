@@ -498,7 +498,14 @@ public class ModBlockEntities {
 
     public static final BlockEntityEntry<PipeCheckValveBlockEntity> PIPE_CHECK_VALVE = REGISTRUM
         .blockEntity("pipe_check_valve", PipeCheckValveBlockEntity::new)
-        .validBlocks(ModBlocks.PIPE_STRAIGHT, ModBlocks.PIPE_CORNER, ModBlocks.PIPE_NODE)
+        .validBlocks(
+            ModBlocks.PIPE_STRAIGHT,
+            ModBlocks.PIPE_CORNER,
+            ModBlocks.PIPE_NODE,
+            ModBlocks.GLASS_PIPE_STRAIGHT,
+            ModBlocks.GLASS_PIPE_CORNER,
+            ModBlocks.GLASS_PIPE_NODE
+        )
         .renderer(() -> PipeCheckValveBERenderer::new)
         .register();
 

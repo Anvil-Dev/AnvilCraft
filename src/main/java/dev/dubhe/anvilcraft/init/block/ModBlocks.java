@@ -516,6 +516,36 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
+    public static final BlockEntry<PipeStraightBlock> GLASS_PIPE_STRAIGHT = REGISTRUM
+        .block("glass_pipe_straight", properties -> new PipeStraightBlock(properties, true))
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .lang("Glass Pipe Straight")
+        .properties(properties -> properties.noOcclusion().sound(SoundType.METAL))
+        .blockstate(PipeBlockStateGenerator::glassPipeStraightBlock)
+        .loot((tables, block) -> tables.dropOther(block, ModItems.PIPE))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PipeCornerBlock> GLASS_PIPE_CORNER = REGISTRUM
+        .block("glass_pipe_corner", properties -> new PipeCornerBlock(properties, true))
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .lang("Glass Pipe Corner")
+        .properties(properties -> properties.noOcclusion().sound(SoundType.METAL))
+        .blockstate(PipeBlockStateGenerator::glassPipeCornerBlock)
+        .loot((tables, block) -> tables.dropOther(block, ModItems.PIPE))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PipeNodeBlock> GLASS_PIPE_NODE = REGISTRUM
+        .block("glass_pipe_node", properties -> new PipeNodeBlock(properties, true))
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .lang("Glass Pipe Node")
+        .properties(properties -> properties.noOcclusion().sound(SoundType.METAL))
+        .blockstate(PipeBlockStateGenerator::glassPipeNodeBlock)
+        .loot((tables, block) -> tables.dropOther(block, ModItems.PIPE))
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
     public static final BlockEntry<? extends Block> CORRUPTED_BEACON = REGISTRUM.block("corrupted_beacon", CorruptedBeaconBlock::new)
         .initialProperties(() -> Blocks.BEACON)
         .properties(properties -> properties.isValidSpawn(Blocks::never))

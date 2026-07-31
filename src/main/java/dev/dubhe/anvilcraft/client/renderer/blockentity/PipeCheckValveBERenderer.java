@@ -6,6 +6,10 @@ import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.fluid.PipeCheckValveBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
+import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
+import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
+import dev.dubhe.anvilcraft.block.fluid.PipeStraightBlock;
+import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -18,10 +22,13 @@ import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.joml.Vector3f;
 
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 管道面止逆阀渲染器：为每个装阀的面渲染一段单臂阀体模型
@@ -38,6 +45,12 @@ public class PipeCheckValveBERenderer implements BlockEntityRenderer<PipeCheckVa
     private static final ModelResourceLocation ARM =
         ModelResourceLocation.standalone(AnvilCraft.of("block/check_valve_arm"));
     private static final RandomSource RANDOM = RandomSource.create();
+    private static final float FLUID_MIN = 5.0f / 16.0f;
+    private static final float FLUID_MAX = 11.0f / 16.0f;
+    private static final float FLUID_ARM_MIN = 1.0f / 16.0f;
+    private static final float FLUID_ARM_MAX = 15.0f / 16.0f;
+    private static final float FLUID_STRAIGHT_ARM_MIN = 0.0f;
+    private static final float FLUID_STRAIGHT_ARM_MAX = 1.0f;
 
     @SuppressWarnings("unused")
     public PipeCheckValveBERenderer(BlockEntityRendererProvider.Context context) {
@@ -53,17 +66,18 @@ public class PipeCheckValveBERenderer implements BlockEntityRenderer<PipeCheckVa
         int packedLight,
         int packedOverlay
     ) {
-        Map<Direction, Direction> flows = be.effectiveFlows();
-        if (flows.isEmpty()) {
-            return;
-        }
         Level level = be.getLevel();
         if (level == null) {
             return;
         }
         BlockState state = level.getBlockState(be.getBlockPos());
+        renderDisplayFluid(be, state, poseStack, buffer, packedLight);
         if (!state.hasProperty(PipeBlock.HAS_CHECK_VALVE)
             || !state.getValue(PipeBlock.HAS_CHECK_VALVE)) {
+            return;
+        }
+        Map<Direction, Direction> flows = be.effectiveFlows();
+        if (flows.isEmpty()) {
             return;
         }
         BakedModel model = Minecraft.getInstance().getModelManager().getModel(ARM);
@@ -82,6 +96,181 @@ public class PipeCheckValveBERenderer implements BlockEntityRenderer<PipeCheckVa
             poseStack.translate(-0.5, -0.5, -0.5);
             renderShaded(poseStack.last(), consumer, model, packedLight, packedOverlay, level);
             poseStack.popPose();
+        }
+    }
+
+    private static void renderDisplayFluid(
+        PipeCheckValveBlockEntity be,
+        BlockState state,
+        PoseStack poseStack,
+        MultiBufferSource buffer,
+        int packedLight
+    ) {
+        if (!(state.getBlock() instanceof PipeBlock pipe) || !pipe.isGlassPipe()) {
+            return;
+        }
+        FluidStack fluid = be.getDisplayFluid();
+        if (fluid.isEmpty()) {
+            return;
+        }
+        float[] min = {FLUID_MIN, FLUID_MIN, FLUID_MIN};
+        float[] max = {FLUID_MAX, FLUID_MAX, FLUID_MAX};
+        if (state.getBlock() instanceof PipeStraightBlock) {
+            Direction.Axis axis = state.getValue(PipeBlock.AXIS);
+            Direction startDirection = Direction.get(Direction.AxisDirection.NEGATIVE, axis);
+            Direction endDirection = Direction.get(Direction.AxisDirection.POSITIVE, axis);
+            extendFluidBounds(
+                startDirection,
+                min,
+                max,
+                FLUID_STRAIGHT_ARM_MIN,
+                FLUID_STRAIGHT_ARM_MAX
+            );
+            extendFluidBounds(
+                endDirection,
+                min,
+                max,
+                FLUID_STRAIGHT_ARM_MIN,
+                FLUID_STRAIGHT_ARM_MAX
+            );
+            renderFluidBox(
+                fluid,
+                min,
+                max,
+                poseStack,
+                buffer,
+                packedLight,
+                EnumSet.of(startDirection, endDirection)
+            );
+            return;
+        } else if (state.getBlock() instanceof PipeCornerBlock) {
+            PipeBlock.CornerEnded corner = state.getValue(PipeBlock.CORNER_ENDED);
+            Direction firstDirection = corner.getFirstDirection();
+            Direction secondDirection = corner.getSecondDirection();
+            renderFluidBox(
+                fluid,
+                min,
+                max,
+                poseStack,
+                buffer,
+                packedLight,
+                EnumSet.of(firstDirection, secondDirection)
+            );
+
+            EnumSet<Direction> firstSkippedSides = EnumSet.of(firstDirection.getOpposite(), firstDirection);
+            renderFluidArm(fluid, firstDirection, poseStack, buffer, packedLight, firstSkippedSides);
+
+            EnumSet<Direction> secondSkippedSides = EnumSet.of(secondDirection.getOpposite(), secondDirection);
+            renderFluidArm(fluid, secondDirection, poseStack, buffer, packedLight, secondSkippedSides);
+            return;
+        } else if (state.getBlock() instanceof PipeNodeBlock) {
+            EnumSet<Direction> skippedSides = EnumSet.noneOf(Direction.class);
+            for (Direction direction : Direction.values()) {
+                PipeBlock.NodePipe nodePipe = state.getValue(PipeBlock.getPropertyForDirection(direction));
+                if (nodePipe != PipeBlock.NodePipe.NONE) {
+                    skippedSides.add(direction);
+                }
+            }
+            renderFluidBox(fluid, min, max, poseStack, buffer, packedLight, skippedSides);
+            for (Direction direction : skippedSides) {
+                renderFluidArm(
+                    fluid,
+                    direction,
+                    poseStack,
+                    buffer,
+                    packedLight,
+                    EnumSet.of(direction.getOpposite(), direction)
+                );
+            }
+            return;
+        }
+        renderFluidBox(fluid, min, max, poseStack, buffer, packedLight);
+    }
+
+    private static void renderFluidArm(
+        FluidStack fluid,
+        Direction direction,
+        PoseStack poseStack,
+        MultiBufferSource buffer,
+        int packedLight,
+        Set<Direction> skippedSides
+    ) {
+        float[] min = {FLUID_MIN, FLUID_MIN, FLUID_MIN};
+        float[] max = {FLUID_MAX, FLUID_MAX, FLUID_MAX};
+        extendFluidArmBounds(direction, min, max);
+        renderFluidBox(fluid, min, max, poseStack, buffer, packedLight, skippedSides);
+    }
+
+    private static void renderFluidBox(
+        FluidStack fluid,
+        float[] min,
+        float[] max,
+        PoseStack poseStack,
+        MultiBufferSource buffer,
+        int packedLight
+    ) {
+        renderFluidBox(fluid, min, max, poseStack, buffer, packedLight, Set.of());
+    }
+
+    private static void renderFluidBox(
+        FluidStack fluid,
+        float[] min,
+        float[] max,
+        PoseStack poseStack,
+        MultiBufferSource buffer,
+        int packedLight,
+        Set<Direction> skippedSides
+    ) {
+        FluidRenderHelper.INSTANCE.renderFluidBox(
+            fluid,
+            min[0], min[1], min[2],
+            max[0], max[1], max[2],
+            buffer, poseStack, packedLight,
+            skippedSides, false
+        );
+    }
+
+    private static void extendFluidBounds(Direction direction, float[] min, float[] max) {
+        extendFluidBounds(direction, min, max, FLUID_ARM_MIN, FLUID_ARM_MAX);
+    }
+
+    private static void extendFluidBounds(Direction direction, float[] min, float[] max, float armMin, float armMax) {
+        switch (direction) {
+            case DOWN -> min[1] = armMin;
+            case UP -> max[1] = armMax;
+            case NORTH -> min[2] = armMin;
+            case SOUTH -> max[2] = armMax;
+            case WEST -> min[0] = armMin;
+            case EAST -> max[0] = armMax;
+        }
+    }
+
+    private static void extendFluidArmBounds(Direction direction, float[] min, float[] max) {
+        switch (direction) {
+            case DOWN -> {
+                min[1] = FLUID_STRAIGHT_ARM_MIN;
+                max[1] = FLUID_MIN;
+            }
+            case UP -> {
+                min[1] = FLUID_MAX;
+                max[1] = FLUID_STRAIGHT_ARM_MAX;
+            }
+            case NORTH -> {
+                min[2] = FLUID_STRAIGHT_ARM_MIN;
+                max[2] = FLUID_MIN;
+            }
+            case SOUTH -> {
+                min[2] = FLUID_MAX;
+                max[2] = FLUID_STRAIGHT_ARM_MAX;
+            }
+            case WEST -> {
+                min[0] = FLUID_STRAIGHT_ARM_MIN;
+                max[0] = FLUID_MIN;
+            }
+            case EAST -> {
+                min[0] = FLUID_MAX;
+                max[0] = FLUID_STRAIGHT_ARM_MAX;
+            }
         }
     }
 

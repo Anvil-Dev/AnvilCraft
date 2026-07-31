@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.fluid;
 
+import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,6 +15,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
@@ -37,6 +39,10 @@ import java.util.Map;
  * 扫描时读取本 BE 的面约束完成。
  */
 public class PipeCheckValveBlockEntity extends BlockEntity {
+    private static final String TAG_DISPLAY_FLUID = "DisplayFluid";
+    private static final String TAG_DISPLAY_UNTIL = "DisplayUntil";
+    private static final int DISPLAY_DURATION = 40;
+    private static final int DISPLAY_SYNC_INTERVAL = 20;
 
     /** 各装有止逆阀的面 → 无红石信号时允许流出的世界方向（基准方向）。 */
     private final Map<Direction, Direction> baseFlow = new EnumMap<>(Direction.class);
@@ -44,6 +50,9 @@ public class PipeCheckValveBlockEntity extends BlockEntity {
     /** 红石反向：任意侧收到红石信号则所有面流向反转。 */
     @Getter
     private boolean powered = false;
+    private FluidStack displayFluid = FluidStack.EMPTY;
+    private long displayUntil = Long.MIN_VALUE;
+    private long lastDisplaySync = Long.MIN_VALUE;
 
     public PipeCheckValveBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -109,6 +118,32 @@ public class PipeCheckValveBlockEntity extends BlockEntity {
         return new EnumMap<>(baseFlow);
     }
 
+    public FluidStack getDisplayFluid() {
+        if (this.level == null || this.displayFluid.isEmpty() || this.level.getGameTime() > this.displayUntil) {
+            return FluidStack.EMPTY;
+        }
+        return this.displayFluid;
+    }
+
+    public void showFluid(FluidStack fluid) {
+        if (fluid.isEmpty() || this.level == null || this.level.isClientSide()) {
+            return;
+        }
+        if (!(this.getBlockState().getBlock() instanceof PipeBlock pipe) || !pipe.isGlassPipe()) {
+            return;
+        }
+        long gameTime = this.level.getGameTime();
+        boolean changed = this.displayFluid.isEmpty()
+            || !FluidStack.isSameFluidSameComponents(this.displayFluid, fluid);
+        this.displayFluid = fluid.copyWithAmount(1);
+        this.displayUntil = gameTime + DISPLAY_DURATION;
+        this.setChanged();
+        if (changed || gameTime - this.lastDisplaySync >= DISPLAY_SYNC_INTERVAL) {
+            this.lastDisplaySync = gameTime;
+            this.sendUpdate();
+        }
+    }
+
     /** 用迁移快照恢复面映射与红石状态。 */
     public void restore(Map<Direction, Direction> saved, boolean powered) {
         baseFlow.clear();
@@ -141,6 +176,13 @@ public class PipeCheckValveBlockEntity extends BlockEntity {
         super.loadAdditional(tag, registries);
         this.powered = tag.getBoolean("Powered");
         readValves(tag.getList("Valves", Tag.TAG_COMPOUND));
+        if (tag.contains(TAG_DISPLAY_FLUID, Tag.TAG_COMPOUND)) {
+            this.displayFluid = FluidStack.parseOptional(registries, tag.getCompound(TAG_DISPLAY_FLUID));
+            this.displayUntil = tag.getLong(TAG_DISPLAY_UNTIL);
+        } else {
+            this.displayFluid = FluidStack.EMPTY;
+            this.displayUntil = Long.MIN_VALUE;
+        }
     }
 
     @Override
@@ -148,6 +190,10 @@ public class PipeCheckValveBlockEntity extends BlockEntity {
         CompoundTag tag = super.getUpdateTag(registries);
         tag.putBoolean("Powered", powered);
         tag.put("Valves", writeValves());
+        if (!this.displayFluid.isEmpty()) {
+            tag.put(TAG_DISPLAY_FLUID, this.displayFluid.save(registries));
+            tag.putLong(TAG_DISPLAY_UNTIL, this.displayUntil);
+        }
         return tag;
     }
 
