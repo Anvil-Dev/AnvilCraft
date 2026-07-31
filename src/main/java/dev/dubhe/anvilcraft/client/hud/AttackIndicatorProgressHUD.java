@@ -22,7 +22,10 @@ public final class AttackIndicatorProgressHUD {
         int x = graphics.guiWidth() / 2 - 8;
         int y = graphics.guiHeight() / 2 + 9;
         int progressWidth = Math.min(AttackIndicatorProgressHUD.WIDTH, (int) (clamped * 17.0F));
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, AttackIndicatorProgressHUD.BACKGROUND, x, y, AttackIndicatorProgressHUD.WIDTH, AttackIndicatorProgressHUD.HEIGHT);
+        graphics.blitSprite(
+            RenderPipelines.GUI_TEXTURED, AttackIndicatorProgressHUD.BACKGROUND, x, y, AttackIndicatorProgressHUD.WIDTH,
+            AttackIndicatorProgressHUD.HEIGHT
+        );
         if (progressWidth > 0) {
             graphics.blitSprite(
                 RenderPipelines.GUI_TEXTURED,

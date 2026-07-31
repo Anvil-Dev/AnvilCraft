@@ -100,8 +100,10 @@ public class GravitationalLensSupport {
         Matrix4f viewProj = GravitationalLensSupport.buildViewProj(cameraState, projectionMatrix);
         Vector3f cameraPos = cameraState.pos.toVector3f();
 
-        GravitationalLensSupport.collectFromSet(GravitationalLensSupport.CLIENT_BLACK_HOLE_POSITIONS, cameraPos, viewProj, blackHoleDir, result);
-        GravitationalLensSupport.collectFromSet(GravitationalLensSupport.CLIENT_WHITE_HOLE_POSITIONS, cameraPos, viewProj, whiteHoleDir, result);
+        GravitationalLensSupport.collectFromSet(
+            GravitationalLensSupport.CLIENT_BLACK_HOLE_POSITIONS, cameraPos, viewProj, blackHoleDir, result);
+        GravitationalLensSupport.collectFromSet(
+            GravitationalLensSupport.CLIENT_WHITE_HOLE_POSITIONS, cameraPos, viewProj, whiteHoleDir, result);
 
         // Sort nearest first, then take the closest maxCount
         result.sort((a, b) -> Float.compare(a.cameraDistance, b.cameraDistance));

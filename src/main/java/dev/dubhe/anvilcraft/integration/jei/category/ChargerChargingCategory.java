@@ -118,7 +118,10 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
         pose.scale(0.8F, 0.8F);
         graphics.text(
             Minecraft.getInstance().font,
-            Component.translatable(recipe.power() < 0 ? ChargerChargingCategory.KEY_POWER_CONSUME : ChargerChargingCategory.KEY_POWER_PRODUCE, Math.abs(recipe.power())),
+            Component.translatable(
+                recipe.power() < 0 ? ChargerChargingCategory.KEY_POWER_CONSUME : ChargerChargingCategory.KEY_POWER_PRODUCE,
+                Math.abs(recipe.power())
+            ),
             0,
             10,
             0xFF000000,

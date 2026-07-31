@@ -38,8 +38,9 @@ public class GravitationalLensPostEffect {
     private static final int BLACK_HOLES_LENS_PARAMS_OFFSET = 0;
     private static final int BLACK_HOLES_ARRAY_OFFSET = 16;
     private static final int BLACK_HOLE_STRIDE = 16;
-    private static final int BLACK_HOLES_SIZE = GravitationalLensPostEffect.BLACK_HOLES_ARRAY_OFFSET + GravitationalLensPostEffect.MAX_HOLES
-                                                                                                       * GravitationalLensPostEffect.BLACK_HOLE_STRIDE;
+    private static final int BLACK_HOLES_SIZE =
+        GravitationalLensPostEffect.BLACK_HOLES_ARRAY_OFFSET
+        + GravitationalLensPostEffect.MAX_HOLES * GravitationalLensPostEffect.BLACK_HOLE_STRIDE;
 
     @Getter
     private final RenderTarget lensOutputTarget = new TextureTarget("Gravitational Lens Result", 854, 480, false);

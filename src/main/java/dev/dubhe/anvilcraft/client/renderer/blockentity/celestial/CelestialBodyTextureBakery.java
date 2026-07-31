@@ -58,13 +58,15 @@ public class CelestialBodyTextureBakery {
 
     @Nullable
     public static Identifier getOrBakeBody(CelestialBodyData data) {
-        return CelestialBodyTextureBakery.CACHE.computeIfAbsent(CelestialBodyTextureBakery.cacheKey(data), k -> CelestialBodyTextureBakery.bakeBody(data, k));
+        return CelestialBodyTextureBakery.CACHE.computeIfAbsent(
+            CelestialBodyTextureBakery.cacheKey(data), k -> CelestialBodyTextureBakery.bakeBody(data, k));
     }
 
     @Nullable
     public static Identifier getOrBakeRing(CelestialBodyData data) {
         if (data.ringType() == RingType.NONE) return null;
-        return CelestialBodyTextureBakery.CACHE.computeIfAbsent(CelestialBodyTextureBakery.ringCacheKey(data), k -> CelestialBodyTextureBakery.bakeRing(data, k));
+        return CelestialBodyTextureBakery.CACHE.computeIfAbsent(
+            CelestialBodyTextureBakery.ringCacheKey(data), k -> CelestialBodyTextureBakery.bakeRing(data, k));
     }
 
     private record TexSet(String base, @Nullable String overlay, String palette) {

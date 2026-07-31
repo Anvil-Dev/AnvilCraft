@@ -96,7 +96,8 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
         builder.addSlot(RecipeIngredientRole.OUTPUT, JeiSlotUtil.OUTPUT_X, JeiSlotUtil.DEFAULT_Y)
             .add(ModItems.NEUTRONIUM_INGOT.asStack())
             .addRichTooltipCallback((_, tooltip) -> tooltip.add(
-                Component.translatable(MassInjectCategory.KEY_MASS_NEEDED, SpaceOvercompressorBlockEntity.DISPLAYED_MASS).withStyle(ChatFormatting.GOLD)
+                Component.translatable(MassInjectCategory.KEY_MASS_NEEDED, SpaceOvercompressorBlockEntity.DISPLAYED_MASS)
+                    .withStyle(ChatFormatting.GOLD)
             ));
         JeiBlockIngredientUtil.addSlot(
             builder,
@@ -149,7 +150,8 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
         );
         graphics.text(
             Minecraft.getInstance().font,
-            Component.translatable(MassInjectCategory.KEY_ITEMS_NEEDED, Math.ceilDiv(SpaceOvercompressorBlockEntity.NEUTRONIUM_INGOT_MASS, recipe.getMass())),
+            Component.translatable(
+                MassInjectCategory.KEY_ITEMS_NEEDED, Math.ceilDiv(SpaceOvercompressorBlockEntity.NEUTRONIUM_INGOT_MASS, recipe.getMass())),
             0,
             70,
             0xFF000000,

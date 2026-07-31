@@ -44,12 +44,14 @@ public class SharedTextures {
     public static final Identifier SMART_BLOCK_PLACER_LAYER_3 = SharedTextures.textureGui("machine/smart_block_placer/layer_3");
     public static final Identifier SMART_BLOCK_PLACER_LAYER_4 = SharedTextures.textureGui("machine/smart_block_placer/layer_4");
     public static final Identifier SMART_BLOCK_PLACER_LAYER_5 = SharedTextures.textureGui("machine/smart_block_placer/layer_5");
-    public static final Identifier SMART_BLOCK_PLACER_POSITION_SELECT = SharedTextures.textureGui("machine/smart_block_placer/position_select");
+    public static final Identifier SMART_BLOCK_PLACER_POSITION_SELECT = SharedTextures.textureGui(
+        "machine/smart_block_placer/position_select");
     public static final Identifier SMART_BLOCK_PLACER_LAYER_ALL = SharedTextures.textureGui("machine/smart_block_placer/layer_all");
     public static final Identifier SMART_BLOCK_PLACER_LAYER_SINGLE = SharedTextures.textureGui("machine/smart_block_placer/layer_single");
     public static final Identifier SMART_BLOCK_PLACER_PICKUP_MODE = SharedTextures.textureGui("machine/smart_block_placer/pickup_mode");
     public static final Identifier SMART_BLOCK_PLACER_MOVE_MODE = SharedTextures.textureGui("machine/smart_block_placer/move_mode");
-    public static final Identifier SMART_BLOCK_PLACER_BLUEPRINT_MODE = SharedTextures.textureGui("machine/smart_block_placer/blueprint_mode");
+    public static final Identifier SMART_BLOCK_PLACER_BLUEPRINT_MODE = SharedTextures.textureGui(
+        "machine/smart_block_placer/blueprint_mode");
     public static final Identifier SMART_BLOCK_PLACER_SKIP_MISSING = SharedTextures.textureGui("machine/smart_block_placer/skip_missing");
     public static final Identifier SMART_BLOCK_PLACER_STOP_MISSING = SharedTextures.textureGui("machine/smart_block_placer/stop_missing");
 

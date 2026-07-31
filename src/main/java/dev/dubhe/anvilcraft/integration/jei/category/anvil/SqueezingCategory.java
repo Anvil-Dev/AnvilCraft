@@ -34,7 +34,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -87,7 +86,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
     }
 
     @Override
-    public @Nullable IDrawable getIcon() {
+    public IDrawable getIcon() {
         return this.icon;
     }
 
@@ -117,7 +116,8 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
             builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
                 .add(output.stack().withCount(output.getMaxCount()));
         }
-        JeiFluidUtil.addOutputSlot(builder, SqueezingCategory.OUTPUT_FLUID, SqueezingCategory.FLUID_X, SqueezingCategory.FLUID_Y, 16, 16, recipe.getHasCauldron());
+        JeiFluidUtil.addOutputSlot(
+            builder, SqueezingCategory.OUTPUT_FLUID, SqueezingCategory.FLUID_X, SqueezingCategory.FLUID_Y, 16, 16, recipe.getHasCauldron());
     }
 
     @Override

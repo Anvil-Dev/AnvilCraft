@@ -26,8 +26,10 @@ public class ModCategoryTypes {
         .register("block", BlockCategory.Type::new);
     public static final DeferredHolder<ICategory.Type<?>, UnstackableCategory.Type> UNSTACKABLE = ModCategoryTypes.REGISTER
         .register("unstackable", UnstackableCategory.Type::new);
-    public static final DeferredHolder<ICategory.Type<?>, AndCategory.Type> AND = ModCategoryTypes.REGISTER.register("and", AndCategory.Type::new);
-    public static final DeferredHolder<ICategory.Type<?>, OrCategory.Type> OR = ModCategoryTypes.REGISTER.register("or", OrCategory.Type::new);
+    public static final DeferredHolder<ICategory.Type<?>, AndCategory.Type> AND = ModCategoryTypes.REGISTER.register(
+        "and", AndCategory.Type::new);
+    public static final DeferredHolder<ICategory.Type<?>, OrCategory.Type> OR = ModCategoryTypes.REGISTER.register(
+        "or", OrCategory.Type::new);
     public static final DeferredHolder<ICategory.Type<?>, HasComponentCategory.Type> HAS_COMPONENT = ModCategoryTypes.REGISTER
         .register("has_component", HasComponentCategory.Type::new);
     public static final DeferredHolder<ICategory.Type<?>, NamespaceCategory.Type> NAMESPACE = ModCategoryTypes.REGISTER

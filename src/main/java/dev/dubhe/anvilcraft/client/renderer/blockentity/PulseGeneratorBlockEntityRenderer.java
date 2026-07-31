@@ -72,28 +72,40 @@ public class PulseGeneratorBlockEntityRenderer
         SubmitNodeCollector collector,
         CameraRenderState camera
     ) {
-        if (state.getIndicator() == null) return;
         pose.pushPose();
         pose.translate(0.5f, 0.0f, 0.5f);
         pose.mulPose(Axis.YP.rotationDegrees(-state.getFacing().toYRot()));
         pose.translate(-0.5f, 0.0f, -0.5f);
-        float phaseStartAngle = state.isOutputting() ? PulseGeneratorBlockEntityRenderer.END_ANGLE : PulseGeneratorBlockEntityRenderer.START_ANGLE;
-        PulseGeneratorBlockEntityRenderer.translateOnTable(pose, PulseGeneratorBlockEntityRenderer.INDICATOR_OFFSET_Z);
-        PulseGeneratorBlockEntityRenderer.rotateOnTable(pose, phaseStartAngle + (PulseGeneratorBlockEntityRenderer.END_ANGLE - PulseGeneratorBlockEntityRenderer.START_ANGLE) * state.getPhaseProgress());
+        float phaseStartAngle =
+            state.isOutputting() ? PulseGeneratorBlockEntityRenderer.END_ANGLE : PulseGeneratorBlockEntityRenderer.START_ANGLE;
+        PulseGeneratorBlockEntityRenderer.translateOnTable(pose);
+        PulseGeneratorBlockEntityRenderer.rotateOnTable(
+            pose, phaseStartAngle + (PulseGeneratorBlockEntityRenderer.END_ANGLE - PulseGeneratorBlockEntityRenderer.START_ANGLE)
+                                    * state.getPhaseProgress()
+        );
         state.getIndicator().submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
         pose.popPose();
     }
 
-    private static void translateOnTable(PoseStack pose, float offsetZ) {
-        pose.translate(PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_X, PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Y, PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Z);
+    private static void translateOnTable(PoseStack pose) {
+        pose.translate(
+            PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_X, PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Y,
+            PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Z
+        );
         pose.mulPose(Axis.XP.rotationDegrees(PulseGeneratorBlockEntityRenderer.TABLE_ANGLE));
-        pose.translate(0.0f, 0.0f, offsetZ);
+        pose.translate(0.0f, 0.0f, PulseGeneratorBlockEntityRenderer.INDICATOR_OFFSET_Z);
         pose.mulPose(Axis.XP.rotationDegrees(-PulseGeneratorBlockEntityRenderer.TABLE_ANGLE));
-        pose.translate(-PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_X, -PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Y, -PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Z);
+        pose.translate(
+            -PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_X, -PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Y,
+            -PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Z
+        );
     }
 
     private static void rotateOnTable(PoseStack pose, float angle) {
-        pose.translate(PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_X, PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Y, PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Z);
+        pose.translate(
+            PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_X, PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Y,
+            PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Z
+        );
         pose.mulPose(Axis.XP.rotationDegrees(PulseGeneratorBlockEntityRenderer.TABLE_ANGLE));
         pose.translate(
             PulseGeneratorBlockEntityRenderer.INDICATOR_PIVOT_X - PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_X,
@@ -107,6 +119,9 @@ public class PulseGeneratorBlockEntityRenderer
             PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Z - PulseGeneratorBlockEntityRenderer.INDICATOR_PIVOT_Z
         );
         pose.mulPose(Axis.XP.rotationDegrees(-PulseGeneratorBlockEntityRenderer.TABLE_ANGLE));
-        pose.translate(-PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_X, -PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Y, -PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Z);
+        pose.translate(
+            -PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_X, -PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Y,
+            -PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Z
+        );
     }
 }

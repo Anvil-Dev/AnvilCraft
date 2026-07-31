@@ -32,7 +32,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -158,7 +157,7 @@ public class LargeCauldronBlock
 
     @Override
     public boolean isLadder(BlockState state, LevelReader level, BlockPos pos, LivingEntity entity) {
-        return entity != null && LargeCauldronBlock.touchesWall(state, pos, entity.getBoundingBox());
+        return LargeCauldronBlock.touchesWall(state, pos, entity.getBoundingBox());
     }
 
     public static @Nullable BlockPos findClimbableWall(LevelReader level, LivingEntity entity) {
@@ -202,7 +201,8 @@ public class LargeCauldronBlock
     }
 
     private static boolean touches(double min, double max, double wallMin, double wallMax) {
-        return Math.abs(max - wallMin) <= LargeCauldronBlock.CLIMBING_EPSILON || Math.abs(min - wallMax) <= LargeCauldronBlock.CLIMBING_EPSILON;
+        return Math.abs(max - wallMin) <= LargeCauldronBlock.CLIMBING_EPSILON || Math.abs(min - wallMax)
+                                                                                 <= LargeCauldronBlock.CLIMBING_EPSILON;
     }
 
     private static boolean overlaps(double min, double max, double otherMin, double otherMax) {
@@ -212,11 +212,6 @@ public class LargeCauldronBlock
     @Override
     protected VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
         return Shapes.block();
-    }
-
-    @Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
     }
 
     @Override

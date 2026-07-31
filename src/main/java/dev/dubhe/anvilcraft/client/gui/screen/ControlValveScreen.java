@@ -207,7 +207,8 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
 
     @Override
     public @Nullable Rect2i getGhostSlotArea(int slotIndex) {
-        return slotIndex == ControlValveScreen.FILTER_GHOST_ID ? new Rect2i(ControlValveScreen.FILTER_X, ControlValveScreen.FILTER_Y, 16, 16) : null;
+        return slotIndex == ControlValveScreen.FILTER_GHOST_ID ? new Rect2i(
+            ControlValveScreen.FILTER_X, ControlValveScreen.FILTER_Y, 16, 16) : null;
     }
 
     @Override
@@ -223,7 +224,8 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
-        if (event.button() == 0 && this.isHovering(ControlValveScreen.FILTER_X, ControlValveScreen.FILTER_Y, 16, 16, event.x(), event.y())) {
+        if (event.button() == 0 && this.isHovering(
+            ControlValveScreen.FILTER_X, ControlValveScreen.FILTER_Y, 16, 16, event.x(), event.y())) {
             this.sendFilter(ControlValveScreen.fluidOf(this.getMenu().getCarried()));
             return true;
         }

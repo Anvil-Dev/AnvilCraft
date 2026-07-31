@@ -38,7 +38,10 @@ public final class CelestialBodyInfoFormatter {
         List<Component> lines = new ArrayList<>();
         boolean isError = body instanceof SpecialCelestialBodyData special && special.isErrorPlanet();
 
-        lines.add(Component.translatable(CelestialBodyInfoFormatter.PREFIX + "type", Component.translatable(CelestialBodyInfoFormatter.typeKey(body))));
+        lines.add(Component.translatable(
+            CelestialBodyInfoFormatter.PREFIX + "type",
+            Component.translatable(CelestialBodyInfoFormatter.typeKey(body))
+        ));
         lines.add(CelestialBodyInfoFormatter.measurement(
             "age", isError ? "???" : CelestialForgingAnvilMenu.formatAgeOffset(ageAnvilCount, offsetAge)
         ));
@@ -140,18 +143,21 @@ public final class CelestialBodyInfoFormatter {
     }
 
     private static Component temperatureText(@Nullable Temperature temperature) {
-        String key = temperature == null ? CelestialBodyInfoFormatter.PREFIX + "none" : CelestialBodyInfoFormatter.PREFIX + "temp." + temperature.getSerializedName();
+        String key = temperature == null ? CelestialBodyInfoFormatter.PREFIX + "none"
+                                         : CelestialBodyInfoFormatter.PREFIX + "temp." + temperature.getSerializedName();
         return Component.translatable(CelestialBodyInfoFormatter.PREFIX + "temp", Component.translatable(key));
     }
 
     private static Component atmosphereText(boolean hasAtmosphere) {
         return Component.translatable(
-            CelestialBodyInfoFormatter.PREFIX + "atmos", Component.translatable(hasAtmosphere ? CelestialBodyInfoFormatter.PREFIX + "atmos.yes" : CelestialBodyInfoFormatter.PREFIX + "none")
+            CelestialBodyInfoFormatter.PREFIX + "atmos", Component.translatable(
+                hasAtmosphere ? CelestialBodyInfoFormatter.PREFIX + "atmos.yes" : CelestialBodyInfoFormatter.PREFIX + "none")
         );
     }
 
     private static Component liquidText(@Nullable LiquidCoverage coverage) {
-        String key = coverage == null ? CelestialBodyInfoFormatter.PREFIX + "none" : CelestialBodyInfoFormatter.PREFIX + "liquid." + coverage.getSerializedName();
+        String key = coverage == null ? CelestialBodyInfoFormatter.PREFIX + "none"
+                                      : CelestialBodyInfoFormatter.PREFIX + "liquid." + coverage.getSerializedName();
         return Component.translatable(CelestialBodyInfoFormatter.PREFIX + "liquid", Component.translatable(key));
     }
 
@@ -181,7 +187,8 @@ public final class CelestialBodyInfoFormatter {
     }
 
     private static Component axialTiltText(float tilt) {
-        return Component.translatable(CelestialBodyInfoFormatter.PREFIX + "tilt", CelestialBodyInfoFormatter.formatThreeSignificantFigures(tilt) + "°");
+        return Component.translatable(
+            CelestialBodyInfoFormatter.PREFIX + "tilt", CelestialBodyInfoFormatter.formatThreeSignificantFigures(tilt) + "°");
     }
 
     private static String rockyTypeKey(RockyPlanetData body) {

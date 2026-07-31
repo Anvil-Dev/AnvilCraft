@@ -59,8 +59,18 @@ public class PaletteColorMapper {
         for (int row = 1; row < palette.getHeight() - 1; row++) {
             if (PaletteColorMapper.isBlackRow(palette, row)) continue;
             boolean hasAbove = false, hasBelow = false;
-            for (int r = 0; r < row; r++) { if (PaletteColorMapper.isBlackRow(palette, r)) {hasAbove = true; break; } }
-            for (int r = row + 1; r < palette.getHeight(); r++) { if (PaletteColorMapper.isBlackRow(palette, r)) {hasBelow = true; break; } }
+            for (int r = 0; r < row; r++) {
+                if (PaletteColorMapper.isBlackRow(palette, r)) {
+                    hasAbove = true;
+                    break;
+                }
+            }
+            for (int r = row + 1; r < palette.getHeight(); r++) {
+                if (PaletteColorMapper.isBlackRow(palette, r)) {
+                    hasBelow = true;
+                    break;
+                }
+            }
             if (hasAbove && hasBelow) return row;
         }
         return -1;
@@ -120,9 +130,8 @@ public class PaletteColorMapper {
                 if (red == 0 && green == 0 && blue == 0) continue;
 
                 // 使用红色通道作为灰度参考值。
-                int gray = red;
-                Integer idx = grayToIndex.get(gray);
-                if (idx == null) idx = PaletteColorMapper.findClosestGrayIndex(gray, refGrays);
+                Integer idx = grayToIndex.get(red);
+                if (idx == null) idx = PaletteColorMapper.findClosestGrayIndex(red, refGrays);
                 idx = Math.clamp(idx, 0, paletteColors.length - 1);
 
                 int pc = paletteColors[idx]; // 色板像素同样采用 ARGB 格式。

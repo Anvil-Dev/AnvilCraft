@@ -171,7 +171,6 @@ public abstract class AdjacentSmithingScreen<M extends AdjacentSmithingMenu> ext
     }
 
     private void playTemplateClickSound() {
-        if (this.minecraft == null) return;
         this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
     }
 
@@ -240,7 +239,9 @@ public abstract class AdjacentSmithingScreen<M extends AdjacentSmithingMenu> ext
         int column = relativeX / AdjacentSmithingScreen.SLOT_SIZE;
         int row = relativeY / AdjacentSmithingScreen.SLOT_SIZE;
         if (column >= AdjacentSmithingScreen.COLUMN_COUNT || row >= AdjacentSmithingScreen.VISIBLE_ROW_COUNT) return ItemStack.EMPTY;
-        if (relativeX % AdjacentSmithingScreen.SLOT_SIZE >= 16 || relativeY % AdjacentSmithingScreen.SLOT_SIZE >= 16) return ItemStack.EMPTY;
+        if (relativeX % AdjacentSmithingScreen.SLOT_SIZE >= 16 || relativeY % AdjacentSmithingScreen.SLOT_SIZE >= 16) {
+            return ItemStack.EMPTY;
+        }
         int index = (this.scrollRow + row) * AdjacentSmithingScreen.COLUMN_COUNT + column;
         List<ItemStack> templates = this.filteredTemplates();
         return index < templates.size() ? templates.get(index) : ItemStack.EMPTY;

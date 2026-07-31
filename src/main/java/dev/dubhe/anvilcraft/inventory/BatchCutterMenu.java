@@ -90,7 +90,8 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
     private static final int HOTBAR_SLOT_COUNT = 9;
     private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
     private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
-    private static final int PLAYER_INVENTORY_SLOT_COUNT = BatchCutterMenu.PLAYER_INVENTORY_COLUMN_COUNT * BatchCutterMenu.PLAYER_INVENTORY_ROW_COUNT;
+    private static final int PLAYER_INVENTORY_SLOT_COUNT =
+        BatchCutterMenu.PLAYER_INVENTORY_COLUMN_COUNT * BatchCutterMenu.PLAYER_INVENTORY_ROW_COUNT;
     private static final int VANILLA_SLOT_COUNT = BatchCutterMenu.HOTBAR_SLOT_COUNT + BatchCutterMenu.PLAYER_INVENTORY_SLOT_COUNT;
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = BatchCutterMenu.VANILLA_FIRST_SLOT_INDEX + BatchCutterMenu.VANILLA_SLOT_COUNT;
@@ -166,7 +167,8 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
 
     @Override
     public boolean stillValid(Player player) {
-        return AbstractContainerMenu.stillValid(ContainerLevelAccess.create(this.level, this.entity.getBlockPos()), player, ModBlocks.BATCH_CUTTER.get());
+        return AbstractContainerMenu.stillValid(
+            ContainerLevelAccess.create(this.level, this.entity.getBlockPos()), player, ModBlocks.BATCH_CUTTER.get());
     }
 
     @Override

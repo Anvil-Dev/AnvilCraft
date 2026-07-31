@@ -37,7 +37,8 @@ public class MDChargerChargingRecipeComponent extends MDRecipeComponent {
         BlockState charger = this.recipe.getProcessingBlock().defaultBlockState().setValue(ChargerBlock.OVERLOAD, false);
         AgeratumUtil.renderBlock(context, charger, mouseX, mouseY, 24, 28);
 
-        String keyPower = this.recipe.power() < 0 ? MDChargerChargingRecipeComponent.KEY_POWER_CONSUME : MDChargerChargingRecipeComponent.KEY_POWER_PRODUCE;
+        String keyPower = this.recipe.power() < 0 ? MDChargerChargingRecipeComponent.KEY_POWER_CONSUME
+                                                  : MDChargerChargingRecipeComponent.KEY_POWER_PRODUCE;
         Component power = Component.translatable(keyPower, Math.abs(this.recipe.power()));
         AgeratumUtil.renderText(graphics, power, 10, 8);
 

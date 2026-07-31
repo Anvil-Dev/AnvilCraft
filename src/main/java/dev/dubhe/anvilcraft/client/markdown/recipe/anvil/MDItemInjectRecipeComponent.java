@@ -41,7 +41,8 @@ public class MDItemInjectRecipeComponent extends MDBaseAnvilRecipeComponent {
         List<BlockState> states = this.inputBlock.constructStatesForRender();
         if (!states.isEmpty()) {
             BlockState blockState = states.get(RecipeUtil.getDisplayIndex(states.size()));
-            AgeratumUtil.renderBlock(context, blockState, mouseX, mouseY, MDBaseAnvilRecipeComponent.INPUT_BLOCK_X, MDBaseAnvilRecipeComponent.BLOCK_Y);
+            AgeratumUtil.renderBlock(
+                context, blockState, mouseX, mouseY, MDBaseAnvilRecipeComponent.INPUT_BLOCK_X, MDBaseAnvilRecipeComponent.BLOCK_Y);
         }
     }
 }

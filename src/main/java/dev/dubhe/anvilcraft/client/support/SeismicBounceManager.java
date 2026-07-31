@@ -72,7 +72,10 @@ public class SeismicBounceManager {
 
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
-                if (Math.abs(dx) <= SeismicBounceManager.CENTER_EXCLUSION_RADIUS && Math.abs(dz) <= SeismicBounceManager.CENTER_EXCLUSION_RADIUS) continue;
+                if (Math.abs(dx) <= SeismicBounceManager.CENTER_EXCLUSION_RADIUS
+                    && Math.abs(dz) <= SeismicBounceManager.CENTER_EXCLUSION_RADIUS) {
+                    continue;
+                }
 
                 int dist = Math.max(Math.abs(dx), Math.abs(dz));
                 BlockPos pos = center.offset(dx, 0, dz);

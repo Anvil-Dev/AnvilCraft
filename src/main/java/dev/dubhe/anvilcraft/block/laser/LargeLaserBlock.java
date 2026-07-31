@@ -60,30 +60,37 @@ public class LargeLaserBlock extends FlexibleMultiPartBlock<DirectionCube3x3Part
     public LargeLaserBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
-            .any()
-            .setValue(LargeLaserBlock.HALF, DirectionCube3x3PartHalf.BOTTOM_CENTER)
-            .setValue(LargeLaserBlock.FACING, Direction.DOWN)
-            .setValue(LargeLaserBlock.OVERLOAD, true)
-            .setValue(LargeLaserBlock.SWITCH, IPowerComponent.Switch.ON)
+                                      .any()
+                                      .setValue(LargeLaserBlock.HALF, DirectionCube3x3PartHalf.BOTTOM_CENTER)
+                                      .setValue(LargeLaserBlock.FACING, Direction.DOWN)
+                                      .setValue(LargeLaserBlock.OVERLOAD, true)
+                                      .setValue(LargeLaserBlock.SWITCH, IPowerComponent.Switch.ON)
         );
     }
 
     private static Map<Direction, Map<DirectionCube3x3PartHalf, VoxelShape>> makeCollisionShapes() {
         Map<Direction, Map<DirectionCube3x3PartHalf, VoxelShape>> shapes = new EnumMap<>(Direction.class);
         shapes.put(Direction.DOWN, LargeLaserBlock.makePartShapes(LargeLaserBlock.DOWN_COLLISION_SHAPE));
-        shapes.put(Direction.UP, LargeLaserBlock.makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 180, LargeLaserBlock.DOWN_COLLISION_SHAPE)));
-        shapes.put(Direction.SOUTH, LargeLaserBlock.makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 90, LargeLaserBlock.DOWN_COLLISION_SHAPE)));
-        shapes.put(Direction.NORTH, LargeLaserBlock.makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 270, LargeLaserBlock.DOWN_COLLISION_SHAPE)));
-        shapes.put(Direction.WEST, LargeLaserBlock.makePartShapes(ShapeUtil.rotate(
-            Direction.Axis.Y,
-            270,
-            ShapeUtil.rotate(Direction.Axis.X, 90, LargeLaserBlock.DOWN_COLLISION_SHAPE)
-        )));
-        shapes.put(Direction.EAST, LargeLaserBlock.makePartShapes(ShapeUtil.rotate(
-            Direction.Axis.Y,
-            270,
-            ShapeUtil.rotate(Direction.Axis.X, 270, LargeLaserBlock.DOWN_COLLISION_SHAPE)
-        )));
+        shapes.put(
+            Direction.UP, LargeLaserBlock.makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 180, LargeLaserBlock.DOWN_COLLISION_SHAPE)));
+        shapes.put(
+            Direction.SOUTH, LargeLaserBlock.makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 90, LargeLaserBlock.DOWN_COLLISION_SHAPE)));
+        shapes.put(
+            Direction.NORTH, LargeLaserBlock.makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 270, LargeLaserBlock.DOWN_COLLISION_SHAPE)));
+        shapes.put(
+            Direction.WEST, LargeLaserBlock.makePartShapes(ShapeUtil.rotate(
+                Direction.Axis.Y,
+                270,
+                ShapeUtil.rotate(Direction.Axis.X, 90, LargeLaserBlock.DOWN_COLLISION_SHAPE)
+            ))
+        );
+        shapes.put(
+            Direction.EAST, LargeLaserBlock.makePartShapes(ShapeUtil.rotate(
+                Direction.Axis.Y,
+                270,
+                ShapeUtil.rotate(Direction.Axis.X, 270, LargeLaserBlock.DOWN_COLLISION_SHAPE)
+            ))
+        );
         return shapes;
     }
 

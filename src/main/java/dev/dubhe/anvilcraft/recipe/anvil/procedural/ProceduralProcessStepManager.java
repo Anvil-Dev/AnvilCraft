@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueInput;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,7 +35,7 @@ public class ProceduralProcessStepManager {
     public static Map<Block, List<ProceduralProcessStep>> PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY = new HashMap<>();
     public static Set<Block> PROCEDURAL_PROCESS_EXIST_STEP_INQUIRY = new HashSet<>();
     public static final int WIP_BLOCK_DETECTION_DEPTH = 2;
-    private static RecipeMap initializedRecipes;
+    private static @Nullable RecipeMap initializedRecipes;
 
     public static void initialize(RecipeMap recipes) {
         ProceduralProcessStepManager.initialize(List.copyOf(recipes.values()));
@@ -133,7 +134,7 @@ public class ProceduralProcessStepManager {
                             if (entry != null) {
                                 sl.setBlock(pos, entry.getKey(), Block.UPDATE_ALL);
                                 BlockEntity be = sl.getBlockEntity(pos);
-                                if (entry.getValue() != null && be != null) {
+                                if (be != null) {
                                     be.loadCustomOnly(TagValueInput.create(
                                         ProblemReporter.DISCARDING,
                                         sl.registryAccess(),
@@ -158,7 +159,8 @@ public class ProceduralProcessStepManager {
                     }
                 }
             } else {
-                List<ProceduralProcessStep> possibleSteps = ProceduralProcessStepManager.PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY.get(state.getBlock());
+                List<ProceduralProcessStep> possibleSteps = ProceduralProcessStepManager.PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY.get(
+                    state.getBlock());
                 if (possibleSteps == null || possibleSteps.isEmpty()) return false;
                 for (ProceduralProcessStep step : possibleSteps) {
                     InWorldRecipeContext contextOfStep = new InWorldRecipeContext(
@@ -192,7 +194,7 @@ public class ProceduralProcessStepManager {
                                     if (entry != null) {
                                         sl.setBlock(pos1, entry.getKey(), Block.UPDATE_ALL);
                                         BlockEntity be = sl.getBlockEntity(pos1);
-                                        if (entry.getValue() != null && be != null) {
+                                        if (be != null) {
                                             be.loadCustomOnly(TagValueInput.create(
                                                 ProblemReporter.DISCARDING,
                                                 sl.registryAccess(),

@@ -138,7 +138,7 @@ public abstract class PipeBlock extends Block
     /** 按方向预建的有端头臂。 */
     private static final VoxelShape[] END_ARMS = new VoxelShape[PipeBlock.DIRECTIONS.length];
     /** 直管 / 弯管形状缓存：两端方向 x 两个端头开关。 */
-    private static final AtomicReferenceArray<VoxelShape> TWO_ARM_SHAPES =
+    private static final AtomicReferenceArray<@Nullable VoxelShape> TWO_ARM_SHAPES =
         new AtomicReferenceArray<>(PipeBlock.DIRECTIONS.length * PipeBlock.DIRECTIONS.length * 4);
 
     static {
@@ -155,7 +155,11 @@ public abstract class PipeBlock extends Block
      * 每次都会回到 {@code getShape}；在那里现算 {@link Shapes#or} 会让管道附近的每个实体
      * 每 tick 都产生大量形状合并与分配。相同状态算出的形状等价，先写入者胜出即可。</p>
      */
-    static VoxelShape cachedShape(AtomicReferenceArray<VoxelShape> cache, int key, Supplier<VoxelShape> builder) {
+    static VoxelShape cachedShape(
+        AtomicReferenceArray<@Nullable VoxelShape> cache,
+        int key,
+        Supplier<VoxelShape> builder
+    ) {
         VoxelShape cached = cache.get(key);
         if (cached != null) {
             return cached;
@@ -215,7 +219,8 @@ public abstract class PipeBlock extends Block
 
     public PipeBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.getStateDefinition().any().setValue(PipeBlock.WATERLOGGED, false).setValue(PipeBlock.HAS_CHECK_VALVE, false));
+        this.registerDefaultState(
+            this.getStateDefinition().any().setValue(PipeBlock.WATERLOGGED, false).setValue(PipeBlock.HAS_CHECK_VALVE, false));
     }
 
     @Override
@@ -400,7 +405,6 @@ public abstract class PipeBlock extends Block
     /**
      * 根据射线命中检测结果确定玩家点击了哪个臂方向。
      */
-    @Nullable
     public static Direction getArmDirection(BlockPos pos, BlockHitResult hitResult) {
         Vec3 loc = hitResult.getLocation();
         double bx = loc.x - pos.getX();
@@ -481,7 +485,7 @@ public abstract class PipeBlock extends Block
         if (level.isClientSide()) return InteractionResult.SUCCESS;
 
         Direction face = PipeBlock.getArmDirection(pos, hitResult);
-        if (face == null || !this.hasArmToward(state, face)) {
+        if (!this.hasArmToward(state, face)) {
             return InteractionResult.PASS;
         }
 
@@ -513,8 +517,6 @@ public abstract class PipeBlock extends Block
         if (level.isClientSide()) return InteractionResult.SUCCESS;
 
         Direction face = PipeBlock.getArmDirection(pos, hitResult);
-        if (face == null) return InteractionResult.PASS;
-
         AbstractPipeBlockEntity valve = PipeBlock.getCheckValve(level, pos);
         if (valve == null || !valve.hasValveOn(face)) {
             return InteractionResult.PASS;
@@ -579,7 +581,7 @@ public abstract class PipeBlock extends Block
         BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult
     ) {
         Direction face = PipeBlock.getArmDirection(pos, hitResult);
-        if (face != null && this.hasArmToward(state, face)) {
+        if (this.hasArmToward(state, face)) {
             AbstractPipeBlockEntity valve = PipeBlock.getCheckValve(level, pos);
             if (valve != null && valve.hasValveOn(face)) {
                 return this.detachCheckValve(state, level, pos, player, hitResult);

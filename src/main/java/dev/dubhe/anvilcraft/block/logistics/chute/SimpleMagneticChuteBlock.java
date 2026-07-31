@@ -104,7 +104,10 @@ public class SimpleMagneticChuteBlock
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(SimpleMagneticChuteBlock.FACING, SimpleMagneticChuteBlock.ENABLED, SimpleMagneticChuteBlock.WATERLOGGED, SimpleMagneticChuteBlock.HEAD);
+        builder.add(
+            SimpleMagneticChuteBlock.FACING, SimpleMagneticChuteBlock.ENABLED, SimpleMagneticChuteBlock.WATERLOGGED,
+            SimpleMagneticChuteBlock.HEAD
+        );
     }
 
     /**
@@ -218,10 +221,14 @@ public class SimpleMagneticChuteBlock
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
         return switch (state.getValue(SimpleMagneticChuteBlock.FACING)) {
             case DOWN -> SimpleMagneticChuteBlock.SHAPE_DOWN;
-            case NORTH -> state.getValue(SimpleMagneticChuteBlock.HEAD) ? SimpleMagneticChuteBlock.SHAPE_N_HEAD : SimpleMagneticChuteBlock.SHAPE_N;
-            case SOUTH -> state.getValue(SimpleMagneticChuteBlock.HEAD) ? SimpleMagneticChuteBlock.SHAPE_S_HEAD : SimpleMagneticChuteBlock.SHAPE_S;
-            case WEST -> state.getValue(SimpleMagneticChuteBlock.HEAD) ? SimpleMagneticChuteBlock.SHAPE_W_HEAD : SimpleMagneticChuteBlock.SHAPE_W;
-            case EAST -> state.getValue(SimpleMagneticChuteBlock.HEAD) ? SimpleMagneticChuteBlock.SHAPE_E_HEAD : SimpleMagneticChuteBlock.SHAPE_E;
+            case NORTH -> state.getValue(SimpleMagneticChuteBlock.HEAD) ? SimpleMagneticChuteBlock.SHAPE_N_HEAD
+                                                                        : SimpleMagneticChuteBlock.SHAPE_N;
+            case SOUTH -> state.getValue(SimpleMagneticChuteBlock.HEAD) ? SimpleMagneticChuteBlock.SHAPE_S_HEAD
+                                                                        : SimpleMagneticChuteBlock.SHAPE_S;
+            case WEST -> state.getValue(SimpleMagneticChuteBlock.HEAD) ? SimpleMagneticChuteBlock.SHAPE_W_HEAD
+                                                                       : SimpleMagneticChuteBlock.SHAPE_W;
+            case EAST -> state.getValue(SimpleMagneticChuteBlock.HEAD) ? SimpleMagneticChuteBlock.SHAPE_E_HEAD
+                                                                       : SimpleMagneticChuteBlock.SHAPE_E;
             default -> SimpleMagneticChuteBlock.SHAPE_UP;
         };
     }

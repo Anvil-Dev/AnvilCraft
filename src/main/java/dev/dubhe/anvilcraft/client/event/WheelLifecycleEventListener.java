@@ -85,9 +85,11 @@ public class WheelLifecycleEventListener {
     /** 判断当前是否正在通过长按铁砧锤打开方块状态选择轮。 */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isHammerWheelOpen() {
-        return WheelLifecycleEventListener.hammerKeyWasDown && WheelLifecycleEventListener.hammerWheelCache != null && WheelLifecycleEventListener.hammerWheelCache.isPresent();
+        return WheelLifecycleEventListener.hammerKeyWasDown && WheelLifecycleEventListener.hammerWheelCache != null
+               && WheelLifecycleEventListener.hammerWheelCache.isPresent();
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isHammerWheelModel(WheelMenuModel model) {
         return WheelLifecycleEventListener.hammerWheelCache != null && WheelLifecycleEventListener.hammerWheelCache.orElse(null) == model;
     }
@@ -307,7 +309,7 @@ public class WheelLifecycleEventListener {
                     stack = player.getOffhandItem();
                 }
                 if (!(stack.getItem() instanceof HeavyHalberdItem)) return;
-                WheelLifecycleEventListener.heavyHalberdWheelCache = Optional.ofNullable(
+                WheelLifecycleEventListener.heavyHalberdWheelCache = Optional.of(
                     WheelLifecycleEventListener.getHeavyHalberdWheel(hand, stack)
                 );
             }

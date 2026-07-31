@@ -98,7 +98,8 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     ) {
         ProceduralProcessRecipe recipe = holder.value();
         JeiBlockIngredientUtil.addInputSlot(
-            builder, ProceduralProcessCategory.INITIAL_BLOCK, ProceduralProcessCategory.STEP_X - 29, ProceduralProcessCategory.BLOCK_Y - 6, 18, 18, recipe.initialBlock()
+            builder, ProceduralProcessCategory.INITIAL_BLOCK, ProceduralProcessCategory.STEP_X - 29, ProceduralProcessCategory.BLOCK_Y - 6,
+            18, 18, recipe.initialBlock()
         );
         JeiBlockIngredientUtil.addSlot(
             builder,
@@ -116,7 +117,8 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
             ProceduralProcessStep step = recipe.steps().get(index);
             if (!(step.getContent() instanceof AbstractProcessRecipe<?> process)) continue;
             for (int blockIndex = 0; blockIndex < process.getInputBlocks().size(); blockIndex++) {
-                int y = blockIndex == 0 ? ProceduralProcessCategory.BLOCK_Y - 6 : ProceduralProcessCategory.BLOCK_Y + 12 + 10 * (blockIndex - 1);
+                int y = blockIndex == 0 ? ProceduralProcessCategory.BLOCK_Y - 6
+                                        : ProceduralProcessCategory.BLOCK_Y + 12 + 10 * (blockIndex - 1);
                 int height = blockIndex == 0 ? 18 : 10;
                 JeiBlockIngredientUtil.addInputSlot(
                     builder,
@@ -159,7 +161,8 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     ) {
         ProceduralProcessRecipe recipe = holder.value();
         ProceduralProcessCategory.renderPredicate(
-            graphics, view, ProceduralProcessCategory.INITIAL_BLOCK, recipe.initialBlock(), 0, holder, ProceduralProcessCategory.STEP_X - 20, ProceduralProcessCategory.BLOCK_Y, 18
+            graphics, view, ProceduralProcessCategory.INITIAL_BLOCK, recipe.initialBlock(), 0, holder,
+            ProceduralProcessCategory.STEP_X - 20, ProceduralProcessCategory.BLOCK_Y, 18
         );
 
         int visibleSteps = Math.min(recipe.steps().size(), ProceduralProcessCategory.MAX_VISIBLE_STEPS);

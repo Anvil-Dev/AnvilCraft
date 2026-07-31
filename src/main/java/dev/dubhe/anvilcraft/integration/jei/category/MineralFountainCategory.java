@@ -93,7 +93,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     }
 
     @Override
-    public @Nullable IDrawable getIcon() {
+    public IDrawable getIcon() {
         return this.icon;
     }
 
@@ -176,8 +176,9 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         }
 
         if (!recipe.fromBlocks().isEmpty()) {
-            JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, MineralFountainCategory.FROM_BLOCK, recipe.fromBlocks()).ifPresent(state ->
-                RenderSupport.renderBlock(graphics, state, 48, 39.5f, MineralFountainCategory.BLOCK_SCALE)
+            JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, MineralFountainCategory.FROM_BLOCK, recipe.fromBlocks()).ifPresent(
+                state ->
+                    RenderSupport.renderBlock(graphics, state, 48, 39.5f, MineralFountainCategory.BLOCK_SCALE)
             );
         }
 

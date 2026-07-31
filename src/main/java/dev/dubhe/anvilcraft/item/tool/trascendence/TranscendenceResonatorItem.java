@@ -105,7 +105,8 @@ public class TranscendenceResonatorItem extends ResonatorItem {
         MiningTarget target = new MiningTarget(hitResult, context.getHand(), TranscendenceResonatorItem.getEffectPositions(level, pos));
         this.miningTargets(level).put(player, target);
         player.startUsingItem(context.getHand());
-        TranscendenceResonatorItem.sendMiningEffects(level, target.effectPositions(), TranscendenceResonatorItem.RESONANCE_MINING_TICKS + 2);
+        TranscendenceResonatorItem.sendMiningEffects(
+            level, target.effectPositions(), TranscendenceResonatorItem.RESONANCE_MINING_TICKS + 2);
         return InteractionResult.CONSUME;
     }
 
@@ -173,7 +174,9 @@ public class TranscendenceResonatorItem extends ResonatorItem {
 
         TranscendenceResonatorItem.sendMiningEffects(level, target.effectPositions(), 0);
         int elapsedTicks = this.getUseDuration(stack, livingEntity) - remainingUseDuration;
-        if (elapsedTicks >= TranscendenceResonatorItem.RESONANCE_MINING_TICKS || !(livingEntity instanceof ServerPlayer player)) return true;
+        if (elapsedTicks >= TranscendenceResonatorItem.RESONANCE_MINING_TICKS || !(livingEntity instanceof ServerPlayer player)) {
+            return true;
+        }
 
         BlockHitResult hit = TranscendenceResonatorItem.getTargetedBlock(player);
         if (hit == null || !target.hitPos().equals(hit.getBlockPos())) return true;
@@ -241,6 +244,7 @@ public class TranscendenceResonatorItem extends ResonatorItem {
         return hit.getType() == HitResult.Type.BLOCK ? (BlockHitResult) hit : null;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean canResonanceMine(BlockState state, Level level, BlockPos pos) {
         if (state.isAir()) return false;
         return state.getDestroySpeed(level, pos) >= 0.0F;

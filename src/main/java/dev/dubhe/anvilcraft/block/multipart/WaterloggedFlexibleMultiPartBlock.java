@@ -41,7 +41,8 @@ public abstract class WaterloggedFlexibleMultiPartBlock<
     }
 
     protected final BlockState waterloggedStateForPlacement(BlockPlaceContext context, BlockState state) {
-        return state.setValue(WaterloggedFlexibleMultiPartBlock.WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).is(Fluids.WATER));
+        return state.setValue(
+            WaterloggedFlexibleMultiPartBlock.WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).is(Fluids.WATER));
     }
 
     @Override

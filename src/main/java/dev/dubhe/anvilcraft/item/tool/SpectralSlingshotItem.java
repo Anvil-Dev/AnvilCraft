@@ -62,7 +62,6 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
     public Predicate<ItemStack> getAllSupportedProjectiles() {
         return _ -> true;
     }
@@ -322,7 +321,8 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
         // 这个应该只用来播放音效了，所以应该不用改
         if (!level.isClientSide()) {
             CrossbowItem.ChargingSounds sounds = this.getChargingSounds(stack);
-            float tickPercent = (float) (stack.getUseDuration(entity) - ticksRemaining) / SpectralSlingshotItem.getChargeDuration(stack, entity);
+            float tickPercent = (float) (stack.getUseDuration(entity) - ticksRemaining) / SpectralSlingshotItem.getChargeDuration(
+                stack, entity);
             if (tickPercent < 0.2F) {
                 this.startSoundPlayed = false;
                 this.midLoadSoundPlayed = false;

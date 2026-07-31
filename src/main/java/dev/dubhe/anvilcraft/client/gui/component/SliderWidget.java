@@ -168,7 +168,8 @@ public class SliderWidget extends AbstractWidget {
         this.isHovered = this.isInSlider(mouseX, mouseY);
         double prop = this.getProportion();
         int offsetX = this.posX + (int) ((this.length) * prop);
-        graphics.blit(RenderPipelines.GUI_TEXTURED, SliderWidget.SLIDER, offsetX, this.posY, 0, this.isHovered || this.scroll ? 8 : 0, 16, 8, 16, 16);
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED, SliderWidget.SLIDER, offsetX, this.posY, 0, this.isHovered || this.scroll ? 8 : 0, 16, 8, 16, 16);
     }
 
     @Override

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.item.IPermutationMaterial;
+import dev.dubhe.anvilcraft.api.recipe.result.RecipeResult;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
@@ -189,7 +190,8 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
         this.inputIcon.extractRenderState(this.menu, graphics, a, this.leftPos, this.topPos);
 
         if (!this.menu.getSlot(0).getItem().isEmpty()) {
-            this.modifyButtons(this.menu.selected != -1 && this.menu.results.size() != 1);
+            List<RecipeResult> results = this.menu.results;
+            this.modifyButtons(this.menu.selected != -1 && results != null && results.size() != 1);
         } else {
             this.modifyButtons(false);
         }
@@ -212,10 +214,13 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
     }
 
     private void modifyButtons(boolean enabled) {
-        this.left.active = enabled;
-        this.left.visible = enabled;
-        this.right.active = enabled;
-        this.right.visible = enabled;
+        TexturedButton left = this.left;
+        TexturedButton right = this.right;
+        if (left == null || right == null) return;
+        left.active = enabled;
+        left.visible = enabled;
+        right.active = enabled;
+        right.visible = enabled;
     }
 
     @Override
@@ -282,7 +287,8 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
         ItemStack template = this.menu.getSlot(0).getItem();
         if (template.isEmpty()) {
             if (this.hoveredSlot.index == 0) {
-                graphics.setTooltipForNextFrame(this.font, this.font.split(FrostSmithingScreen.MISSING_TEMPLATE_TOOLTIP, 115), mouseX, mouseY);
+                graphics.setTooltipForNextFrame(
+                    this.font, this.font.split(FrostSmithingScreen.MISSING_TEMPLATE_TOOLTIP, 115), mouseX, mouseY);
             }
             return;
         }

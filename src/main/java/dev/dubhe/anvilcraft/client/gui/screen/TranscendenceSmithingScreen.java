@@ -373,7 +373,8 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     private void extractTemplateItems(GuiGraphicsExtractor graphics) {
         List<ItemStack> templates = this.filteredTemplates();
         int start = this.scrollRow * TranscendenceSmithingScreen.COLUMN_COUNT;
-        int end = Math.min(start + TranscendenceSmithingScreen.COLUMN_COUNT * TranscendenceSmithingScreen.VISIBLE_ROW_COUNT, templates.size());
+        int end = Math.min(
+            start + TranscendenceSmithingScreen.COLUMN_COUNT * TranscendenceSmithingScreen.VISIBLE_ROW_COUNT, templates.size());
         for (int index = start; index < end; index++) {
             int visibleIndex = index - start;
             int x = this.panelX() + TranscendenceSmithingScreen.TEMPLATE_GRID_X
@@ -394,7 +395,10 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     private void extractVirtualTemplate(GuiGraphicsExtractor graphics) {
         ItemStack template = this.menu.getSelectedTemplate();
         if (template.isEmpty()) return;
-        graphics.item(template, this.leftPos + TranscendenceSmithingScreen.VIRTUAL_TEMPLATE_X, this.topPos + TranscendenceSmithingScreen.VIRTUAL_TEMPLATE_Y);
+        graphics.item(
+            template, this.leftPos + TranscendenceSmithingScreen.VIRTUAL_TEMPLATE_X,
+            this.topPos + TranscendenceSmithingScreen.VIRTUAL_TEMPLATE_Y
+        );
     }
 
     private void extractSlotIcons(GuiGraphicsExtractor graphics, float partialTick) {
@@ -508,10 +512,14 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     }
 
     private void extractVirtualTemplateTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        if (!this.isHovering(TranscendenceSmithingScreen.VIRTUAL_TEMPLATE_X, TranscendenceSmithingScreen.VIRTUAL_TEMPLATE_Y, 16, 16, mouseX, mouseY)) return;
+        if (!this.isHovering(
+            TranscendenceSmithingScreen.VIRTUAL_TEMPLATE_X, TranscendenceSmithingScreen.VIRTUAL_TEMPLATE_Y, 16, 16, mouseX, mouseY)) {
+            return;
+        }
         ItemStack template = this.menu.getSelectedTemplate();
         if (template.isEmpty()) {
-            graphics.setTooltipForNextFrame(this.font, this.font.split(TranscendenceSmithingScreen.MISSING_TEMPLATE_TOOLTIP, 115), mouseX, mouseY);
+            graphics.setTooltipForNextFrame(
+                this.font, this.font.split(TranscendenceSmithingScreen.MISSING_TEMPLATE_TOOLTIP, 115), mouseX, mouseY);
             return;
         }
         graphics.setTooltipForNextFrame(
@@ -526,11 +534,12 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
 
     private void extractOnboardingTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (this.extractErrorTooltip(graphics, mouseX, mouseY)) return;
-        if (this.hoveredSlot == null || !this.hoveredSlot.getItem().isEmpty()) return;
+        Slot hoveredSlot = this.hoveredSlot;
+        if (hoveredSlot == null || !hoveredSlot.getItem().isEmpty()) return;
         switch (this.menu.getMode()) {
-            case ROYAL -> this.extractRoyalSlotTooltip(graphics, mouseX, mouseY);
-            case EMBER -> this.extractEmberSlotTooltip(graphics, mouseX, mouseY);
-            case FROST -> this.extractFrostSlotTooltip(graphics, mouseX, mouseY);
+            case ROYAL -> this.extractRoyalSlotTooltip(graphics, mouseX, mouseY, hoveredSlot);
+            case EMBER -> this.extractEmberSlotTooltip(graphics, mouseX, mouseY, hoveredSlot);
+            case FROST -> this.extractFrostSlotTooltip(graphics, mouseX, mouseY, hoveredSlot);
             default -> throw new IllegalStateException("Unknown smithing mode: " + this.menu.getMode());
         }
     }
@@ -554,10 +563,10 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
         return false;
     }
 
-    private void extractRoyalSlotTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+    private void extractRoyalSlotTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, Slot hoveredSlot) {
         Item item = this.menu.getSelectedTemplate().getItem();
         if (!(item instanceof SmithingTemplateItem template)) return;
-        Component tooltip = switch (this.hoveredSlot.index) {
+        Component tooltip = switch (hoveredSlot.index) {
             case TranscendenceSmithingMenu.ROYAL_FROST_FIRST_INPUT_SLOT -> template.getBaseSlotDescription();
             case TranscendenceSmithingMenu.ROYAL_FROST_SECOND_INPUT_SLOT -> template.getAdditionSlotDescription();
             default -> null;
@@ -567,10 +576,10 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
         }
     }
 
-    private void extractEmberSlotTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+    private void extractEmberSlotTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, Slot hoveredSlot) {
         Item item = this.menu.getSelectedTemplate().getItem();
         if (!(item instanceof BaseMultipleToOneTemplateItem template)) return;
-        if (this.hoveredSlot.index == TranscendenceSmithingMenu.EMBER_MATERIAL_SLOT) {
+        if (hoveredSlot.index == TranscendenceSmithingMenu.EMBER_MATERIAL_SLOT) {
             graphics.setTooltipForNextFrame(
                 this.font,
                 this.font.split(template.getMaterialTooltip(), 115),
@@ -579,8 +588,8 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
             );
             return;
         }
-        if (this.hoveredSlot.index < TranscendenceSmithingMenu.EMBER_INPUT_SLOT_START
-            || this.hoveredSlot.index >= TranscendenceSmithingMenu.EMBER_INPUT_SLOT_END) {
+        if (hoveredSlot.index < TranscendenceSmithingMenu.EMBER_INPUT_SLOT_START
+            || hoveredSlot.index >= TranscendenceSmithingMenu.EMBER_INPUT_SLOT_END) {
             return;
         }
         ItemStack material = this.menu.getEmberMaterial();
@@ -593,23 +602,23 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
         }
     }
 
-    private void extractFrostSlotTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+    private void extractFrostSlotTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY, Slot hoveredSlot) {
         Item item = this.menu.getSelectedTemplate().getItem();
         if (item instanceof PermutationTemplateItem permutation) {
-            if (this.hoveredSlot.index == TranscendenceSmithingMenu.ROYAL_FROST_FIRST_INPUT_SLOT) {
+            if (hoveredSlot.index == TranscendenceSmithingMenu.ROYAL_FROST_FIRST_INPUT_SLOT) {
                 graphics.setTooltipForNextFrame(
                     this.font,
                     this.font.split(permutation.getMaterialTooltip(), 115),
                     mouseX,
                     mouseY
                 );
-            } else if (this.hoveredSlot.index == TranscendenceSmithingMenu.ROYAL_FROST_SECOND_INPUT_SLOT
+            } else if (hoveredSlot.index == TranscendenceSmithingMenu.ROYAL_FROST_SECOND_INPUT_SLOT
                 && this.menu.getRoyalFrostFirstInput().getItem() instanceof IPermutationMaterial material) {
                 Component tooltip = material.getInputTooltip(this.menu.getRoyalFrostFirstInput());
                 graphics.setTooltipForNextFrame(this.font, this.font.split(tooltip, 115), mouseX, mouseY);
             }
         } else if (item instanceof DeformationTemplateItem deformation
-            && this.hoveredSlot.index == TranscendenceSmithingMenu.ROYAL_FROST_SECOND_INPUT_SLOT) {
+            && hoveredSlot.index == TranscendenceSmithingMenu.ROYAL_FROST_SECOND_INPUT_SLOT) {
             graphics.setTooltipForNextFrame(
                 this.font,
                 this.font.split(deformation.getInputTooltip(), 115),
@@ -667,7 +676,6 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     }
 
     private void playTemplateClickSound() {
-        if (this.minecraft == null) return;
         this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0f));
     }
 
@@ -714,8 +722,11 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
         if (relativeX < 0 || relativeY < 0) return ItemStack.EMPTY;
         int column = relativeX / TranscendenceSmithingScreen.TEMPLATE_SLOT_SIZE;
         int row = relativeY / TranscendenceSmithingScreen.TEMPLATE_SLOT_SIZE;
-        if (column >= TranscendenceSmithingScreen.COLUMN_COUNT || row >= TranscendenceSmithingScreen.VISIBLE_ROW_COUNT) return ItemStack.EMPTY;
-        if (relativeX % TranscendenceSmithingScreen.TEMPLATE_SLOT_SIZE >= 16 || relativeY % TranscendenceSmithingScreen.TEMPLATE_SLOT_SIZE >= 16) {
+        if (column >= TranscendenceSmithingScreen.COLUMN_COUNT || row >= TranscendenceSmithingScreen.VISIBLE_ROW_COUNT) {
+            return ItemStack.EMPTY;
+        }
+        if (relativeX % TranscendenceSmithingScreen.TEMPLATE_SLOT_SIZE >= 16
+            || relativeY % TranscendenceSmithingScreen.TEMPLATE_SLOT_SIZE >= 16) {
             return ItemStack.EMPTY;
         }
         int index = (this.scrollRow + row) * TranscendenceSmithingScreen.COLUMN_COUNT + column;
@@ -733,7 +744,8 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     }
 
     private int maxScrollRow() {
-        int rowCount = (this.filteredTemplates().size() + TranscendenceSmithingScreen.COLUMN_COUNT - 1) / TranscendenceSmithingScreen.COLUMN_COUNT;
+        int rowCount =
+            (this.filteredTemplates().size() + TranscendenceSmithingScreen.COLUMN_COUNT - 1) / TranscendenceSmithingScreen.COLUMN_COUNT;
         return Math.max(0, rowCount - TranscendenceSmithingScreen.VISIBLE_ROW_COUNT);
     }
 
@@ -749,29 +761,30 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
             return;
         }
         double sliderCenter = mouseY - this.panelY() - TranscendenceSmithingScreen.SLIDER_MIN_Y - 6;
-        double progress = Mth.clamp(sliderCenter / (TranscendenceSmithingScreen.SLIDER_MAX_Y - TranscendenceSmithingScreen.SLIDER_MIN_Y), 0.0, 1.0);
+        double progress = Mth.clamp(
+            sliderCenter / (TranscendenceSmithingScreen.SLIDER_MAX_Y - TranscendenceSmithingScreen.SLIDER_MIN_Y), 0.0, 1.0);
         this.scrollRow = Mth.clamp((int) Math.round(progress * maxScrollRow), 0, maxScrollRow);
     }
 
     private boolean isOverTemplateGrid(double mouseX, double mouseY) {
         return mouseX >= this.panelX() + 3
-            && mouseX < this.panelX() + 66
-            && mouseY >= this.panelY() + 17
-            && mouseY < this.panelY() + 129;
+               && mouseX < this.panelX() + 66
+               && mouseY >= this.panelY() + 17
+               && mouseY < this.panelY() + 129;
     }
 
     private boolean isOverTemplatePanel(double mouseX, double mouseY) {
         return mouseX >= this.panelX()
-            && mouseX < this.panelX() + TranscendenceSmithingScreen.PANEL_WIDTH
-            && mouseY >= this.panelY()
-            && mouseY < this.panelY() + TranscendenceSmithingScreen.PANEL_HEIGHT;
+               && mouseX < this.panelX() + TranscendenceSmithingScreen.PANEL_WIDTH
+               && mouseY >= this.panelY()
+               && mouseY < this.panelY() + TranscendenceSmithingScreen.PANEL_HEIGHT;
     }
 
     private boolean isOverSlider(double mouseX, double mouseY) {
         return mouseX >= this.panelX() + TranscendenceSmithingScreen.SLIDER_X
-            && mouseX < this.panelX() + TranscendenceSmithingScreen.SLIDER_X + 8
-            && mouseY >= this.panelY() + TranscendenceSmithingScreen.SLIDER_MIN_Y
-            && mouseY < this.panelY() + TranscendenceSmithingScreen.SLIDER_MAX_Y + 12;
+               && mouseX < this.panelX() + TranscendenceSmithingScreen.SLIDER_X + 8
+               && mouseY >= this.panelY() + TranscendenceSmithingScreen.SLIDER_MIN_Y
+               && mouseY < this.panelY() + TranscendenceSmithingScreen.SLIDER_MAX_Y + 12;
     }
 
     private int panelX() {

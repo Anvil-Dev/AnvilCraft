@@ -89,7 +89,8 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
     public MagneticChuteBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-            this.stateDefinition.any().setValue(MagneticChuteBlock.FACING, Direction.DOWN).setValue(MagneticChuteBlock.ENABLED, true).setValue(MagneticChuteBlock.HEAD, false));
+            this.stateDefinition.any().setValue(MagneticChuteBlock.FACING, Direction.DOWN).setValue(MagneticChuteBlock.ENABLED, true)
+                .setValue(MagneticChuteBlock.HEAD, false));
     }
 
     @Override

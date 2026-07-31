@@ -230,12 +230,14 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         )).setResponder(this::onSearchTextChange);
 
         SoundManager manager = Minecraft.getInstance().getSoundManager();
-        // noinspection NullableProblems
-        BuiltInRegistries.SOUND_EVENT.stream()
-            .map(it -> Pair.of(it.location(), manager.getSoundEvent(it.location())))
-            .filter(it -> it.second() != null)
-            .filter(it -> it.second().getSubtitle() != null)
-            .forEach(it -> this.allSounds.add(Pair.of(it.first(), it.second().getSubtitle())));
+        BuiltInRegistries.SOUND_EVENT.forEach(soundEvent -> {
+            var sound = manager.getSoundEvent(soundEvent.location());
+            if (sound == null) return;
+            Component subtitle = sound.getSubtitle();
+            if (subtitle != null) {
+                this.allSounds.add(Pair.of(soundEvent.location(), subtitle));
+            }
+        });
         this.filteredSounds.addAll(this.allSounds);
     }
 
@@ -359,7 +361,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         int i = totalCount + 1 - 8;
         if (i > 1) {
             int maxY = posY + ActiveSilencerScreen.SCROLL_BAR_HEIGHT - ActiveSilencerScreen.SCROLLER_HEIGHT;
-            int scrollY = (int) (posY + (scrollOff / (totalCount - 7F)) * (ActiveSilencerScreen.SCROLL_BAR_HEIGHT - ActiveSilencerScreen.SCROLLER_HEIGHT));
+            int scrollY = (int) (posY + (scrollOff / (totalCount - 7F)) * (ActiveSilencerScreen.SCROLL_BAR_HEIGHT
+                                                                           - ActiveSilencerScreen.SCROLLER_HEIGHT));
             scrollY = Mth.clamp(scrollY, posY, maxY);
 
             graphics.blit(RenderPipelines.GUI_TEXTURED, ActiveSilencerScreen.SLIDER, posX, scrollY, 0, 0, 5, 9, 10, 9);

@@ -46,6 +46,7 @@ public abstract class EnergyWeaponItem extends Item {
         return true;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     protected boolean canStartUsing(Player player, ItemStack weapon, int minimumEnergy) {
         if (this.hasEnergyAvailable(player, weapon, minimumEnergy)) return true;
         EnergyWeaponItem.showInsufficientPower(player);
@@ -88,6 +89,9 @@ public abstract class EnergyWeaponItem extends Item {
 
     @Override
     public int getBarColor(ItemStack stack) {
-        return ColorUtil.lerpColor((float) EnergyWeaponItem.getEnergy(stack) / EnergyWeaponItem.MAX_ENERGY, EnergyWeaponItem.BAR_COLOR, EnergyWeaponItem.FULL_BAR_COLOR);
+        return ColorUtil.lerpColor(
+            (float) EnergyWeaponItem.getEnergy(stack) / EnergyWeaponItem.MAX_ENERGY, EnergyWeaponItem.BAR_COLOR,
+            EnergyWeaponItem.FULL_BAR_COLOR
+        );
     }
 }

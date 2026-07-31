@@ -83,7 +83,11 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
         if (this.tryFormMatrix(level, pos)) {
             return;
         }
-        if (state.getValue(TransparentCraftingTableBlock.TYPE) != Type.SINGLE) level.setBlockAndUpdate(pos, state.setValue(TransparentCraftingTableBlock.TYPE, Type.SINGLE));
+        if (state.getValue(TransparentCraftingTableBlock.TYPE) != Type.SINGLE) {
+            level.setBlockAndUpdate(pos, state.setValue(
+                TransparentCraftingTableBlock.TYPE, Type.SINGLE)
+            );
+        }
         Direction.Plane.HORIZONTAL.stream()
             .map(pos::relative)
             .filter(poz -> {

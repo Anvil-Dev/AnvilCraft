@@ -420,7 +420,8 @@ public class TradingStationBlockEntity extends BlockEntity
         if (req.isEmpty()) return false;
         if (!FilterContent.filter(req, result, !req.getComponentsPatch().isEmpty())) return false;
         if (req.getCount() > result.getCount()) return false;
-        return TradingStationBlockEntity.assignProvideFilters(this.filters.getItem(0), this.filters.getItem(1), offer.getCostA(), offer.getCostB());
+        return TradingStationBlockEntity.assignProvideFilters(
+            this.filters.getItem(0), this.filters.getItem(1), offer.getCostA(), offer.getCostB());
     }
 
     private static boolean assignProvideFilters(ItemStack p0, ItemStack p1, ItemStack costA, ItemStack costB) {
@@ -463,6 +464,7 @@ public class TradingStationBlockEntity extends BlockEntity
         return true;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean removeMatching(ItemStack cost, ItemStack[] snapshot) {
         int remaining = cost.getCount();
         for (int i = 0; i < snapshot.length && remaining > 0; i++) {

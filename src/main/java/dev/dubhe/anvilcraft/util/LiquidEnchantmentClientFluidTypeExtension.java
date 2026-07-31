@@ -20,10 +20,11 @@ public class LiquidEnchantmentClientFluidTypeExtension extends ModClientFluidTyp
     public int[] getLayerColors(FluidStack stack) {
         Optional<Holder<Enchantment>> enchantment = LiquidEnchantmentUtil.getEnchantment(stack);
         if (enchantment.isEmpty()) return LiquidEnchantmentClientFluidTypeExtension.BASE_LAYER;
-        int enchantmentLayer = (LiquidEnchantmentClientFluidTypeExtension.ENCHANTMENT_ALPHA << 24) | LiquidEnchantmentUtil.getColor(enchantment.get());
+        int enchantmentLayer = (LiquidEnchantmentClientFluidTypeExtension.ENCHANTMENT_ALPHA << 24) | LiquidEnchantmentUtil.getColor(
+            enchantment.get());
         return enchantment.get().is(EnchantmentTags.CURSE)
-            ? new int[]{0xFFFFFFFF, enchantmentLayer, LiquidEnchantmentClientFluidTypeExtension.CURSE_LAYER}
-            : new int[]{0xFFFFFFFF, enchantmentLayer};
+               ? new int[] {0xFFFFFFFF, enchantmentLayer, LiquidEnchantmentClientFluidTypeExtension.CURSE_LAYER}
+               : new int[] {0xFFFFFFFF, enchantmentLayer};
     }
 
     public int getTintColor(FluidStack stack) {

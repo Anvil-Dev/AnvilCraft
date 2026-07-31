@@ -37,7 +37,10 @@ public class RoyalSmithingScreen extends AdjacentSmithingScreen<RoyalSmithingMen
         Component.translatable("container.upgrade.missing_template_tooltip");
     private static final Component ERROR_TOOLTIP = Component.translatable("container.upgrade.error_tooltip");
     private static final List<Identifier> EMPTY_SLOT_SMITHING_TEMPLATES =
-        List.of(RoyalSmithingScreen.EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM, RoyalSmithingScreen.EMPTY_SLOT_SMITHING_TEMPLATE_NETHERITE_UPGRADE);
+        List.of(
+            RoyalSmithingScreen.EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM,
+            RoyalSmithingScreen.EMPTY_SLOT_SMITHING_TEMPLATE_NETHERITE_UPGRADE
+        );
     private static final Vector3f ARMOR_STAND_TRANSLATION = new Vector3f(0.0F, 1.0F, 0.0F);
     public static final Quaternionf ARMOR_STAND_ANGLE =
         new Quaternionf().rotationXYZ(0.43633232F, 0.0F, (float) Math.PI);

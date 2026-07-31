@@ -90,7 +90,8 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
 
         // 炼药锅场景：扫描掉落物
         Vec3 inputCenter = pos.add(RoyalPreferenceOutcome.INPUT_OFFSET);
-        AABB inputBox = new AABB(inputCenter, inputCenter).inflate(RoyalPreferenceOutcome.INPUT_RANGE.x, RoyalPreferenceOutcome.INPUT_RANGE.y, RoyalPreferenceOutcome.INPUT_RANGE.z);
+        AABB inputBox = new AABB(inputCenter, inputCenter).inflate(
+            RoyalPreferenceOutcome.INPUT_RANGE.x, RoyalPreferenceOutcome.INPUT_RANGE.y, RoyalPreferenceOutcome.INPUT_RANGE.z);
         for (ItemEntity itemEntity : level.getEntitiesOfClass(ItemEntity.class, inputBox)) {
             if (RoyalPreference.isRoyalPreferred(level, itemEntity.getItem())) {
                 this.addBonus(context);

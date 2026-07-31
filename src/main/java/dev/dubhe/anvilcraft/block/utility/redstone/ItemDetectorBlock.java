@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.block.utility.redstone;
 
-
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -26,11 +24,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -82,11 +80,6 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
     }
 
     @Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
-    }
-
-    @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction direction = context.getHorizontalDirection();
         return this.defaultBlockState().setValue(ItemDetectorBlock.FACING, direction.getOpposite());
@@ -94,7 +87,10 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
-        if (level.isClientSide() || (oldState.is(this) && state.getValue(ItemDetectorBlock.FACING) == oldState.getValue(ItemDetectorBlock.FACING))) return;
+        if (level.isClientSide() || (oldState.is(this) && state.getValue(ItemDetectorBlock.FACING) == oldState.getValue(
+            ItemDetectorBlock.FACING))) {
+            return;
+        }
         if (level.getBlockEntity(pos) instanceof ItemDetectorBlockEntity blockEntity) {
             blockEntity.recalcDetectionRange();
         }

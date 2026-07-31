@@ -54,7 +54,8 @@ public abstract class MDBaseAnvilRecipeComponent extends MDRecipeComponent {
 
         // 渲染加工环境方块
         int anvilY = MDBaseAnvilRecipeComponent.BLOCK_Y - 2 * AgeratumUtil.BLOCK_SIZE;
-        AgeratumUtil.renderBlock(context, Blocks.ANVIL.defaultBlockState(), mouseX, mouseY, MDBaseAnvilRecipeComponent.INPUT_BLOCK_X, anvilY);
+        AgeratumUtil.renderBlock(
+            context, Blocks.ANVIL.defaultBlockState(), mouseX, mouseY, MDBaseAnvilRecipeComponent.INPUT_BLOCK_X, anvilY);
 
         for (int i = 0; i < this.getInputBlockStates().size(); i++) {
             BlockState inputBlock = this.getInputBlockStates().get(i);

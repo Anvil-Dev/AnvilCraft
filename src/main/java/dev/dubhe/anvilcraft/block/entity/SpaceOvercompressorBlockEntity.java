@@ -88,12 +88,15 @@ public class SpaceOvercompressorBlockEntity extends BlockEntity {
         Level level = this.level;
         if (level == null) return;
         BlockPos pos = this.getBlockPos();
-        int produceCount = (int) Math.min(SpaceOvercompressorBlockEntity.MAX_OUTPUT_PER_TIME, this.storedMass / SpaceOvercompressorBlockEntity.NEUTRONIUM_INGOT_MASS);
+        int produceCount = (int) Math.min(
+            SpaceOvercompressorBlockEntity.MAX_OUTPUT_PER_TIME, this.storedMass / SpaceOvercompressorBlockEntity.NEUTRONIUM_INGOT_MASS);
         if (produceCount <= 0) return;
         this.storedMass -= produceCount * SpaceOvercompressorBlockEntity.NEUTRONIUM_INGOT_MASS;
-        AnvilUtil.dropItems(List.of(ModItems.NEUTRONIUM_INGOT.asStack(produceCount)),
+        AnvilUtil.dropItems(
+            List.of(ModItems.NEUTRONIUM_INGOT.asStack(produceCount)),
             level,
-            pos.below().getCenter());
+            pos.below().getCenter()
+        );
     }
 
     public Component displayStoredMass() {

@@ -15,7 +15,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -134,11 +133,6 @@ public class LaserReceiverBlock extends BaseLaserBlock implements IHammerRemovab
     }
 
     @Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
-    }
-
-    @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.LASER_RECEIVER.create(pos, state);
     }
@@ -146,7 +140,8 @@ public class LaserReceiverBlock extends BaseLaserBlock implements IHammerRemovab
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide()) return null;
-        return BaseEntityBlock.createTickerHelper(type, ModBlockEntities.LASER_RECEIVER.get(), (level1, pos, state1, entity) -> entity.tick(level));
+        return BaseEntityBlock.createTickerHelper(
+            type, ModBlockEntities.LASER_RECEIVER.get(), (level1, pos, state1, entity) -> entity.tick(level));
     }
 
     @Override

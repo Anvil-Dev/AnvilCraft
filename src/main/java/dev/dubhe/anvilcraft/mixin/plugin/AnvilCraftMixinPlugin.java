@@ -27,9 +27,11 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         AnvilCraftMixinPlugin.hasZetaPiston = this.isLoaded("org/violetmoon/zeta/piston/ZetaPistonStructureResolver.class");
         AnvilCraftMixinPlugin.hasReiScreen = this.isLoaded("me/shedaniel/rei/impl/client/gui/screen/DefaultDisplayViewingScreen.class");
         AnvilCraftMixinPlugin.hasCreate = this.isLoaded("com/simibubi/create/Create.class");
-        AnvilCraftMixinPlugin.hasAE2 = FMLLoader.getCurrent().getLoadingModList().getMods().stream().anyMatch(it -> it.getModId().equals("ae2"));
+        AnvilCraftMixinPlugin.hasAE2 = FMLLoader.getCurrent().getLoadingModList().getMods().stream().anyMatch(
+            it -> it.getModId().equals("ae2"));
         AnvilCraftMixinPlugin.hasCerbonBetterBeacons = this.isLoaded("com/cerbon/better_beacons/BetterBeacons.class");
-        AnvilCraftMixinPlugin.hasJei = FMLLoader.getCurrent().getLoadingModList().getMods().stream().anyMatch(it -> it.getModId().equals("jei"));
+        AnvilCraftMixinPlugin.hasJei = FMLLoader.getCurrent().getLoadingModList().getMods().stream().anyMatch(
+            it -> it.getModId().equals("jei"));
         AnvilCraftMixinPlugin.hasArchitectury = this.isLoaded("dev/architectury/neoforge/ArchitecturyNeoForge");
     }
 

@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.workstation;
 
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -23,6 +22,7 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -67,8 +67,9 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
     public StructureScannerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-            this.stateDefinition.any().setValue(StructureScannerBlock.FACING, Direction.NORTH).setValue(StructureScannerBlock.POWERED, false).setValue(
-                StructureScannerBlock.UPSIDE_DOWN, false)
+            this.stateDefinition.any().setValue(StructureScannerBlock.FACING, Direction.NORTH)
+                .setValue(StructureScannerBlock.POWERED, false).setValue(
+                    StructureScannerBlock.UPSIDE_DOWN, false)
         );
     }
 

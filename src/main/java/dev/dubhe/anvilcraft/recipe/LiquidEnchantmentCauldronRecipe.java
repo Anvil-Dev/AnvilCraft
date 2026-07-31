@@ -54,7 +54,10 @@ public final class LiquidEnchantmentCauldronRecipe {
         if (blank.isEmpty() || enchanted.isEmpty()) return Optional.empty();
 
         LargeCauldronFluidHandler simulated = LiquidEnchantmentCauldronRecipe.copyHandler(fluids);
-        if (!LiquidEnchantmentCauldronRecipe.drain(simulated, blank, 1) || !LiquidEnchantmentCauldronRecipe.drain(simulated, enchanted, 8)) return Optional.empty();
+        if (!LiquidEnchantmentCauldronRecipe.drain(simulated, blank, 1)
+            || !LiquidEnchantmentCauldronRecipe.drain(simulated, enchanted, 8)) {
+            return Optional.empty();
+        }
         FluidStack result = enchanted.copyWithAmount(9);
         if (!LiquidEnchantmentCauldronRecipe.fill(simulated, result)) return Optional.empty();
         return Optional.of(new Result(simulated.copyFluids(), 1, ItemStack.EMPTY, true));
@@ -93,6 +96,7 @@ public final class LiquidEnchantmentCauldronRecipe {
         return handler;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean drain(LargeCauldronFluidHandler handler, FluidStack fluid, int amount) {
         try (Transaction transaction = Transaction.openRoot()) {
             int extracted = handler.extract(FluidResource.of(fluid), amount, transaction);
@@ -102,6 +106,7 @@ public final class LiquidEnchantmentCauldronRecipe {
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean fill(LargeCauldronFluidHandler handler, FluidStack fluid) {
         try (Transaction transaction = Transaction.openRoot()) {
             int inserted = handler.insert(FluidResource.of(fluid), fluid.getAmount(), transaction);

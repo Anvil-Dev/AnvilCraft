@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.workstation;
 
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.block.better.BetterAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -28,6 +27,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
@@ -67,7 +67,9 @@ public class NeoforgeBlock extends BetterAnvilBlock {
         BlockHitResult hit
     ) {
         if (level.isClientSide()) return InteractionResult.SUCCESS;
-        ModMenuTypes.open((ServerPlayer) player, state.getMenuProvider(level, pos));
+        MenuProvider menuProvider = state.getMenuProvider(level, pos);
+        if (menuProvider == null) return InteractionResult.PASS;
+        ModMenuTypes.open((ServerPlayer) player, menuProvider);
         player.awardStat(Stats.INTERACT_WITH_ANVIL);
         return InteractionResult.CONSUME;
     }

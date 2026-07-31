@@ -16,7 +16,8 @@ public class ModEnchantmentEffectComponents {
     private static final DeferredRegister<DataComponentType<?>> REGISTER =
         DeferredRegister.create(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, AnvilCraft.MOD_ID);
 
-    public static final DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>> USE_ON_BLOCK = ModEnchantmentEffectComponents.register(
+    public static final DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>> USE_ON_BLOCK =
+        ModEnchantmentEffectComponents.register(
         "use_on_block",
         it -> it.persistent(
             ConditionalEffect.codec(
@@ -25,7 +26,8 @@ public class ModEnchantmentEffectComponents {
         )
     );
 
-    public static final DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>> POST_BREAK_BLOCK = ModEnchantmentEffectComponents.register(
+    public static final DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>> POST_BREAK_BLOCK =
+        ModEnchantmentEffectComponents.register(
         "post_break_block",
         it -> it.persistent(
             ConditionalEffect.codec(

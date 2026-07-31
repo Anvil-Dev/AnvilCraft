@@ -95,10 +95,12 @@ public class BatchCrafterMenu extends BaseMachineMenu implements IFilterMenu, Co
     private static final int HOTBAR_SLOT_COUNT = 9;
     private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
     private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
-    private static final int PLAYER_INVENTORY_SLOT_COUNT = BatchCrafterMenu.PLAYER_INVENTORY_COLUMN_COUNT * BatchCrafterMenu.PLAYER_INVENTORY_ROW_COUNT;
+    private static final int PLAYER_INVENTORY_SLOT_COUNT =
+        BatchCrafterMenu.PLAYER_INVENTORY_COLUMN_COUNT * BatchCrafterMenu.PLAYER_INVENTORY_ROW_COUNT;
     private static final int VANILLA_SLOT_COUNT = BatchCrafterMenu.HOTBAR_SLOT_COUNT + BatchCrafterMenu.PLAYER_INVENTORY_SLOT_COUNT;
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
-    private static final int TE_INVENTORY_FIRST_SLOT_INDEX = BatchCrafterMenu.VANILLA_FIRST_SLOT_INDEX + BatchCrafterMenu.VANILLA_SLOT_COUNT;
+    private static final int TE_INVENTORY_FIRST_SLOT_INDEX =
+        BatchCrafterMenu.VANILLA_FIRST_SLOT_INDEX + BatchCrafterMenu.VANILLA_SLOT_COUNT;
 
     // THIS YOU HAVE TO DEFINE!
     private static final int TE_INVENTORY_SLOT_COUNT = 9; // must be the number of slots you have!

@@ -15,6 +15,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.Set;
@@ -33,7 +34,7 @@ public class IonoCraftBackpackClientHandler {
     /** 服务器同步的正在用背包飞行的玩家 entityId 集合 */
     private static final Set<Integer> SYNCED_FLYING_PLAYERS = Collections.newSetFromMap(new ConcurrentHashMap<>());
     /** 上一个 level 引用，用于检测世界切换/断连并清理飞行集合 */
-    private static ClientLevel lastLevel = null;
+    private static @Nullable ClientLevel lastLevel;
 
     /**
      * 由 {@code IonoCraftBackpackFlyingPacket} 在客户端调用，记录服务器同步的飞行状态。
@@ -86,16 +87,18 @@ public class IonoCraftBackpackClientHandler {
         double cosYaw = Math.cos(yawRad);
         double sinYaw = Math.sin(yawRad);
 
-        double backX = sinYaw;
         double backZ = -cosYaw;
 
-        double[][] exhausts = {{IonoCraftBackpackClientHandler.SIDE_OFFSET, IonoCraftBackpackClientHandler.BACK_OFFSET}, {-IonoCraftBackpackClientHandler.SIDE_OFFSET, IonoCraftBackpackClientHandler.BACK_OFFSET}};
+        double[][] exhausts = {
+            {IonoCraftBackpackClientHandler.SIDE_OFFSET, IonoCraftBackpackClientHandler.BACK_OFFSET},
+            {-IonoCraftBackpackClientHandler.SIDE_OFFSET, IonoCraftBackpackClientHandler.BACK_OFFSET}
+        };
 
         for (double[] exhaust : exhausts) {
             double sideComp = exhaust[0];
             double backComp = exhaust[1];
 
-            double worldX = player.getX() + sideComp * (-cosYaw) + backComp * backX;
+            double worldX = player.getX() + sideComp * (-cosYaw) + backComp * sinYaw;
             double worldZ = player.getZ() + sideComp * (-sinYaw) + backComp * backZ;
             double worldY = player.getY() + IonoCraftBackpackClientHandler.Y_OFFSET;
 

@@ -11,6 +11,7 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientSuggestionProvider;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.commands.CommandBuildContext;
 import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.RegistryAccess;
@@ -18,6 +19,7 @@ import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.flag.FeatureFlagSet;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.function.BiConsumer;
 
 public class SapcetimeSupercomputerCommandSuggestions extends CommandSuggestions {
@@ -82,6 +84,12 @@ public class SapcetimeSupercomputerCommandSuggestions extends CommandSuggestions
         }
 
         this.commandUsage.clear();
+        LocalPlayer player = this.minecraft.player;
+        if (player == null) {
+            this.pendingSuggestions = null;
+            return;
+        }
+        ClientSuggestionProvider suggestionProvider = player.connection.getSuggestionsProvider();
         StringReader reader = new StringReader(command);
         boolean startsWithSlash = reader.canRead() && reader.peek() == '/';
         if (startsWithSlash) {
@@ -91,19 +99,22 @@ public class SapcetimeSupercomputerCommandSuggestions extends CommandSuggestions
         boolean isCommand = this.commandsOnly || startsWithSlash;
         int cursorPosition = this.input.getCursorPosition();
         if (isCommand) {
-            CommandDispatcher<ClientSuggestionProvider> commands = SapcetimeSupercomputerCommandSuggestions.buildCommands(this.commandFactory);
+            CommandDispatcher<ClientSuggestionProvider> commands = SapcetimeSupercomputerCommandSuggestions.buildCommands(
+                this.commandFactory);
             if (this.currentParse == null) {
-                this.currentParse = commands.parse(reader, this.minecraft.player.connection.getSuggestionsProvider());
+                this.currentParse = commands.parse(reader, suggestionProvider);
                 this.currentParseIsCommand = true;
                 this.currentParseIsMessage = CommandSuggestions.hasMessageArguments(this.currentParse);
             }
+            var currentParse = Objects.requireNonNull(this.currentParse);
 
             int parseStart = this.onlyShowIfCursorPastError ? reader.getCursor() : 1;
             if (cursorPosition >= parseStart && (this.suggestions == null || !this.keepSuggestions)) {
-                this.pendingSuggestions = commands.getCompletionSuggestions(this.currentParse, cursorPosition);
-                this.pendingSuggestions.thenAccept(suggestionResult -> {
-                    if (this.pendingSuggestions.isDone()) {
-                        this.updateUsageInfo(this.currentParse, suggestionResult);
+                var pendingSuggestions = commands.getCompletionSuggestions(currentParse, cursorPosition);
+                this.pendingSuggestions = pendingSuggestions;
+                pendingSuggestions.thenAccept(suggestionResult -> {
+                    if (pendingSuggestions.isDone()) {
+                        this.updateUsageInfo(currentParse, suggestionResult);
                     }
                 });
             }
@@ -111,7 +122,7 @@ public class SapcetimeSupercomputerCommandSuggestions extends CommandSuggestions
             this.currentParseIsMessage = true;
             String partialCommand = command.substring(0, cursorPosition);
             int lastWord = CommandSuggestions.getLastWordIndex(partialCommand);
-            Collection<String> nonCommandSuggestions = this.minecraft.player.connection.getSuggestionsProvider().getCustomTabSuggestions();
+            Collection<String> nonCommandSuggestions = suggestionProvider.getCustomTabSuggestions();
             this.pendingSuggestions = SharedSuggestionProvider.suggest(
                     nonCommandSuggestions, new SuggestionsBuilder(partialCommand, lastWord)
             );

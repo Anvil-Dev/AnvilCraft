@@ -18,12 +18,15 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.Nullable;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 /**
+ * Defines a procedural process recipe.
+ *
  * @param displayedModel     配方执行过程中用于展示的半成品模型
  * @param displayedModels    随流程推进依次使用的模型。单圈配方每完成一步推进一次，多圈配方在下一圈的首步完成时推进；
  *                           当前进度没有对应模型时回退到 [#displayedModel() ]
@@ -36,30 +39,14 @@ public record ProceduralProcessRecipe(BlockStatePredicate initialBlock, List<Pro
                                       List<Identifier> displayedModels, Optional<ProceduralProcessStep> multiLoopFirstStep) implements
     Recipe<InWorldRecipeContext> {
 
-    public ProceduralProcessRecipe(
-        BlockStatePredicate initialBlock,
-        List<ProceduralProcessStep> steps,
-        ChanceBlockState resultBlock,
-        Optional<ItemStackTemplate> icon,
-        int loop,
-        Optional<Identifier> displayedModel,
-        List<Identifier> displayedModels,
-        Optional<ProceduralProcessStep> multiLoopFirstStep
-    ) {
+    public ProceduralProcessRecipe {
         if (steps.isEmpty()) {
             throw new IllegalArgumentException("Procedural process recipe must have at least one step");
         }
         if (loop <= 0) {
             throw new IllegalArgumentException("Procedural process recipe loop count must be at least 1");
         }
-        this.initialBlock = initialBlock;
-        this.steps = steps;
-        this.resultBlock = resultBlock;
-        this.icon = icon;
-        this.loop = loop;
-        this.displayedModel = displayedModel;
-        this.displayedModels = List.copyOf(displayedModels);
-        this.multiLoopFirstStep = multiLoopFirstStep;
+        displayedModels = List.copyOf(displayedModels);
     }
 
     public Optional<Identifier> getDisplayedModelForStep(int stepCount) {
@@ -73,7 +60,7 @@ public record ProceduralProcessRecipe(BlockStatePredicate initialBlock, List<Pro
         return this.displayedModel;
     }
 
-    public static WipBlockEntity getWipBlockFromContext(InWorldRecipeContext ctx) {
+    public static @Nullable WipBlockEntity getWipBlockFromContext(InWorldRecipeContext ctx) {
         Level l = ctx.getLevel();
         if (l instanceof ServerLevel sl) {
             BlockPos potentialPos = BlockPos.containing(ctx.getPos());

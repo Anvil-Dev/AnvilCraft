@@ -799,7 +799,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             // 获取所有位置
             Direction facing = this.getFacing(this.getBlockPos(), this.level);
             boolean upsideDown = this.level.getBlockState(this.getBlockPos()).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
-            List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(this.getBlockPos(), facing, upsideDown, rotatedData);
+            List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(
+                this.getBlockPos(), facing, upsideDown, rotatedData);
 
             if (allPositions.isEmpty()) {
                 return 0;
@@ -2052,7 +2053,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
             SmartBlockPlacerBlockEntity.updatePlacedBlock(level, targetPos);
 
-            if (targetPos.equals(this.expectedShuttleTarget)) {
+            if (Objects.equals(targetPos, this.expectedShuttleTarget)) {
                 TriggerUtil.placerShuttle(level, targetPos);
                 this.expectedShuttleTarget = null;
             }
@@ -2937,7 +2938,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         boolean upsideDown = this.level.getBlockState(this.getBlockPos()).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
 
         StructureLoadUtil.StructureData rotatedData = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(this.loadedStructure);
-        List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(this.getBlockPos(), facing, upsideDown, rotatedData);
+        List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(
+            this.getBlockPos(), facing, upsideDown, rotatedData);
 
         if (allPositions.isEmpty()) {
             return null;
@@ -3382,7 +3384,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             });
 
             for (int[] rowCol : rowColList) {
-                positions.add(SmartBlockPlacerBlockEntity.calculateTargetPosition(basePos, facing, rowCol[0], rowCol[1], layer, upsideDown));
+                positions.add(
+                    SmartBlockPlacerBlockEntity.calculateTargetPosition(basePos, facing, rowCol[0], rowCol[1], layer, upsideDown));
             }
         }
         return positions;

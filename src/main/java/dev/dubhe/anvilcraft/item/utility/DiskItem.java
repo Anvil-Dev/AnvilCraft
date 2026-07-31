@@ -98,7 +98,8 @@ public class DiskItem extends Item implements IItemTooltipProvider {
             diskCloneable.applyDiskData(input);
             player.sendOverlayMessage(DiskItem.MESSAGE_APPLIED);
         } else {
-            TagValueOutput output = TagValueOutput.createWithContext(new ProblemReporter.ScopedCollector(DiskItem.log), level.registryAccess());
+            TagValueOutput output = TagValueOutput.createWithContext(
+                new ProblemReporter.ScopedCollector(DiskItem.log), level.registryAccess());
             output.store("StoredFrom", BuiltInRegistries.BLOCK_ENTITY_TYPE.byNameCodec(), blockEntity.getType());
             diskCloneable.storeDiskData(output);
             CompoundTag tag = output.buildResult();
@@ -195,10 +196,12 @@ public class DiskItem extends Item implements IItemTooltipProvider {
             .toList();
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean isCompatible(CompoundTag tag, BlockEntity blockEntity, IDiskCloneable diskCloneable) {
         String storedFrom = tag.getStringOr("StoredFrom", "");
-        String targetType = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity.getType()).toString();
-        if (storedFrom.equals(targetType)) return true;
+        var targetType = BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(blockEntity.getType());
+        if (targetType == null) return false;
+        if (storedFrom.equals(targetType.toString())) return true;
 
         List<String> storedGroups = DiskItem.loadCompatibleGroups(tag);
         if (storedGroups.isEmpty()) return false;

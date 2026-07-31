@@ -84,7 +84,10 @@ public class LargeCauldronBlockEntityRenderer
             1.0F
         );
         state.setFill(fill);
-        float itemY = Mth.clamp(LargeCauldronBlockEntityRenderer.MIN_Y + LargeCauldronBlockEntityRenderer.CONTENT_HEIGHT * fill - 0.08F, LargeCauldronBlockEntityRenderer.MIN_Y + 0.06F, LargeCauldronBlockEntityRenderer.MAX_Y - 0.12F);
+        float itemY = Mth.clamp(
+            LargeCauldronBlockEntityRenderer.MIN_Y + LargeCauldronBlockEntityRenderer.CONTENT_HEIGHT * fill - 0.08F,
+            LargeCauldronBlockEntityRenderer.MIN_Y + 0.06F, LargeCauldronBlockEntityRenderer.MAX_Y - 0.12F
+        );
         float bob = fill > 0 ? Mth.sin(ClientTickRecorder.getTicks() / 12.0F) * 0.025F : 0.0F;
         this.extractItems(cauldron, state, itemY + bob);
         for (int layer = 0; layer < fluids.size(); layer++) {

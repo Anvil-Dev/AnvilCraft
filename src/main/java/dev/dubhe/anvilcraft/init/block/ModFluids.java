@@ -105,7 +105,8 @@ public class ModFluids {
             () -> new BaseFlowingFluid.Flowing(ModFluids.OIL_PROPERTIES)
         );
 
-    public static final BaseFlowingFluid.Properties OIL_PROPERTIES = new BaseFlowingFluid.Properties(ModFluids.OIL_TYPE, ModFluids.OIL, ModFluids.FLOWING_OIL)
+    public static final BaseFlowingFluid.Properties OIL_PROPERTIES = new BaseFlowingFluid.Properties(
+        ModFluids.OIL_TYPE, ModFluids.OIL, ModFluids.FLOWING_OIL)
         .bucket(() -> ModItems.OIL_BUCKET.asItem())
         .block(ModBlocks.OIL)
         .tickRate(10)
@@ -113,8 +114,10 @@ public class ModFluids {
         .explosionResistance(100);
 
     public static final Object2ObjectMap<Color, DeferredHolder<FluidType, FluidType>> CEMENT_TYPES = ModFluids.registerAllCementTypes();
-    public static final Object2ObjectMap<Color, DeferredHolder<Fluid, BaseFlowingFluid>> SOURCE_CEMENTS = ModFluids.registerAllSourceCement();
-    public static final Object2ObjectMap<Color, DeferredHolder<Fluid, BaseFlowingFluid>> FLOWING_CEMENTS = ModFluids.registerAllFlowingCement();
+    public static final Object2ObjectMap<Color, DeferredHolder<Fluid, BaseFlowingFluid>> SOURCE_CEMENTS =
+        ModFluids.registerAllSourceCement();
+    public static final Object2ObjectMap<Color, DeferredHolder<Fluid, BaseFlowingFluid>> FLOWING_CEMENTS =
+        ModFluids.registerAllFlowingCement();
     public static final Object2ObjectMap<Color, BaseFlowingFluid.Properties> CEMENT_PROPERTIES = ModFluids.createAllCementProperties();
 
     private static Object2ObjectMap<Color, DeferredHolder<FluidType, FluidType>> registerAllCementTypes() {
@@ -150,7 +153,8 @@ public class ModFluids {
     }
 
     private static DeferredHolder<Fluid, BaseFlowingFluid> registerSourceCement(Color color) {
-        return ModFluids.FLUIDS.register("%s_cement".formatted(color), () -> new BaseFlowingFluid.Source(ModFluids.CEMENT_PROPERTIES.get(color)));
+        return ModFluids.FLUIDS.register(
+            "%s_cement".formatted(color), () -> new BaseFlowingFluid.Source(ModFluids.CEMENT_PROPERTIES.get(color)));
     }
 
     private static Object2ObjectMap<Color, DeferredHolder<Fluid, BaseFlowingFluid>> registerAllFlowingCement() {
@@ -179,7 +183,8 @@ public class ModFluids {
     }
 
     private static BaseFlowingFluid.Properties createCementProperties(Color color) {
-        return new BaseFlowingFluid.Properties(ModFluids.CEMENT_TYPES.get(color), ModFluids.SOURCE_CEMENTS.get(color), ModFluids.FLOWING_CEMENTS.get(color))
+        return new BaseFlowingFluid.Properties(
+            ModFluids.CEMENT_TYPES.get(color), ModFluids.SOURCE_CEMENTS.get(color), ModFluids.FLOWING_CEMENTS.get(color))
             .bucket(() -> ModItems.CEMENT_BUCKETS.get(color).asItem())
             .block(ModBlocks.CEMENTS.get(color))
             .explosionResistance(100);

@@ -131,7 +131,8 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
 
     private void checkIfTriggered(Level level, BlockState blockState, BlockPos blockPos) {
         boolean triggered = blockState.getValue(BlockPlacerBlock.TRIGGERED);
-        if (triggered != BlockPlacerBlock.hasNeighborSignal(level, blockPos, blockState.getValue(BlockPlacerBlock.ORIENTATION).getDirection())) {
+        if (triggered != BlockPlacerBlock.hasNeighborSignal(
+            level, blockPos, blockState.getValue(BlockPlacerBlock.ORIENTATION).getDirection())) {
             BlockState changedState = blockState.setValue(BlockPlacerBlock.TRIGGERED, !triggered);
             level.setBlock(blockPos, changedState, 2);
             if (triggered) {

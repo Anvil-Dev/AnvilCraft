@@ -226,10 +226,12 @@ public class FluidMixingRecipe implements Recipe<FluidMixingRecipe.Input> {
             ));
         private static final Codec<List<ItemStackTemplate>> ITEM_RESULTS_CODEC =
             ItemStackTemplate.CODEC.listOf().validate(results ->
-                                                          Serializer.validateSize(results, 0, FluidMixingRecipe.MAX_ITEM_RESULTS, "Fluid mixing item results"));
+                                                          Serializer.validateSize(
+                                                              results, 0, FluidMixingRecipe.MAX_ITEM_RESULTS, "Fluid mixing item results"));
         private static final Codec<List<FluidStack>> FLUID_RESULTS_CODEC =
             FluidStack.CODEC.listOf().validate(results ->
-                                                   Serializer.validateSize(results, 0, FluidMixingRecipe.MAX_FLUID_RESULTS, "Fluid mixing fluid results"));
+                                                   Serializer.validateSize(
+                                                       results, 0, FluidMixingRecipe.MAX_FLUID_RESULTS, "Fluid mixing fluid results"));
         private static final MapCodec<FluidMixingRecipe> CODEC =
             RecordCodecBuilder.<FluidMixingRecipe>mapCodec(instance -> instance.group(
                 Serializer.INGREDIENTS_CODEC.fieldOf("ingredients").forGetter(FluidMixingRecipe::getFluidIngredients),
@@ -339,9 +341,10 @@ public class FluidMixingRecipe implements Recipe<FluidMixingRecipe.Input> {
             Builder.validateCount(this.ingredients.size(), 2, FluidMixingRecipe.MAX_INGREDIENTS, "ingredients", id);
             Builder.validateCount(this.itemResults.size(), 0, FluidMixingRecipe.MAX_ITEM_RESULTS, "item results", id);
             Builder.validateCount(this.fluidResults.size(), 0, FluidMixingRecipe.MAX_FLUID_RESULTS, "fluid results", id);
-            Builder.validateCount(this.itemResults.size() + this.fluidResults.size(), 1, FluidMixingRecipe.MAX_RESULTS, "total results", id);
+            Builder.validateCount(
+                this.itemResults.size() + this.fluidResults.size(), 1, FluidMixingRecipe.MAX_RESULTS, "total results", id);
             if (this.itemResults.stream().anyMatch(result ->
-                result.item().value() == Items.AIR || result.count() <= 0)) {
+                                                       result.item().value() == Items.AIR || result.count() <= 0)) {
                 throw new IllegalArgumentException("Fluid mixing recipe has an empty result, RecipeId: " + id);
             }
             if (this.fluidResults.stream().anyMatch(FluidStack::isEmpty)) {

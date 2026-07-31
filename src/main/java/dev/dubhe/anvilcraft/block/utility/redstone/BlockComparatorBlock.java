@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.block.utility.redstone;
 
-
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
@@ -23,6 +21,7 @@ import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -258,7 +257,8 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
 
     @Override
     protected int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
-        return blockState.getValue(BlockComparatorBlock.POWERED) && blockState.getValue(BlockComparatorBlock.FACING_WITH_AXIS).getFacing() == side ? 15 : 0;
+        return blockState.getValue(BlockComparatorBlock.POWERED) && blockState.getValue(BlockComparatorBlock.FACING_WITH_AXIS).getFacing()
+                                                                    == side ? 15 : 0;
     }
 
     @Override
@@ -282,7 +282,8 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(BlockComparatorBlock.FACING_WITH_AXIS, state.getValue(BlockComparatorBlock.FACING_WITH_AXIS).rotate(rotation));
+        return state.setValue(
+            BlockComparatorBlock.FACING_WITH_AXIS, state.getValue(BlockComparatorBlock.FACING_WITH_AXIS).rotate(rotation));
     }
 
     @Override

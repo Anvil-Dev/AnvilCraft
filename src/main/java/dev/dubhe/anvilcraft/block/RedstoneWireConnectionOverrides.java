@@ -92,7 +92,8 @@ final class RedstoneWireConnectionOverrides extends SavedData {
             try {
                 CompoundTag root = storage.readTagFromDisk(dataFile, null, 0);
                 CompoundTag data = root.getCompound("data").orElse(root);
-                if (!data.contains(RedstoneWireConnectionOverrides.WIRES_KEY) && !data.contains(RedstoneWireConnectionOverrides.LEGACY_WIRES_KEY)) {
+                if (!data.contains(RedstoneWireConnectionOverrides.WIRES_KEY) && !data.contains(
+                    RedstoneWireConnectionOverrides.LEGACY_WIRES_KEY)) {
                     continue;
                 }
                 RedstoneWireConnectionOverrides result = RedstoneWireConnectionOverrides.loadEntries(data);
@@ -141,12 +142,14 @@ final class RedstoneWireConnectionOverrides extends SavedData {
     private static RedstoneWireConnectionOverrides loadEntries(CompoundTag data) {
         RedstoneWireConnectionOverrides result = new RedstoneWireConnectionOverrides();
         ListTag wires = data.contains(RedstoneWireConnectionOverrides.WIRES_KEY)
-            ? data.getListOrEmpty(RedstoneWireConnectionOverrides.WIRES_KEY)
-            : data.getListOrEmpty(RedstoneWireConnectionOverrides.LEGACY_WIRES_KEY);
+                        ? data.getListOrEmpty(RedstoneWireConnectionOverrides.WIRES_KEY)
+                        : data.getListOrEmpty(RedstoneWireConnectionOverrides.LEGACY_WIRES_KEY);
         for (int index = 0; index < wires.size(); index++) {
             CompoundTag wire = wires.getCompoundOrEmpty(index);
-            String posKey = wire.contains(RedstoneWireConnectionOverrides.POS_KEY) ? RedstoneWireConnectionOverrides.POS_KEY : RedstoneWireConnectionOverrides.LEGACY_POS_KEY;
-            String flagsKey = wire.contains(RedstoneWireConnectionOverrides.FLAGS_KEY) ? RedstoneWireConnectionOverrides.FLAGS_KEY : RedstoneWireConnectionOverrides.LEGACY_FLAGS_KEY;
+            String posKey = wire.contains(RedstoneWireConnectionOverrides.POS_KEY) ? RedstoneWireConnectionOverrides.POS_KEY
+                                                                                   : RedstoneWireConnectionOverrides.LEGACY_POS_KEY;
+            String flagsKey = wire.contains(RedstoneWireConnectionOverrides.FLAGS_KEY) ? RedstoneWireConnectionOverrides.FLAGS_KEY
+                                                                                       : RedstoneWireConnectionOverrides.LEGACY_FLAGS_KEY;
             if (!wire.contains(posKey) || !wire.contains(flagsKey)) {
                 continue;
             }
@@ -176,7 +179,8 @@ final class RedstoneWireConnectionOverrides extends SavedData {
 
     boolean setForcedMask(long pos, int mask) {
         int flags = Byte.toUnsignedInt(this.entries.get(pos));
-        return this.setFlags(pos, flags & ~RedstoneWireConnectionOverrides.DIRECTION_MASK | mask & RedstoneWireConnectionOverrides.DIRECTION_MASK);
+        return this.setFlags(
+            pos, flags & ~RedstoneWireConnectionOverrides.DIRECTION_MASK | mask & RedstoneWireConnectionOverrides.DIRECTION_MASK);
     }
 
     boolean setHidden(long pos, int index, boolean hidden) {

@@ -77,7 +77,8 @@ public class SpectralAnvilBlock extends Block implements IHammerRemovable {
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
             .setValue(SpectralAnvilBlock.FACING, context.getHorizontalDirection().getClockWise())
-            .setValue(SpectralAnvilBlock.POWERED, context.getLevel().getBlockState(context.getClickedPos().above()).is(ModBlockTags.MAGNET));
+            .setValue(
+                SpectralAnvilBlock.POWERED, context.getLevel().getBlockState(context.getClickedPos().above()).is(ModBlockTags.MAGNET));
     }
 
     @Override

@@ -83,7 +83,8 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
     private static final int HOTBAR_SLOT_COUNT = 9;
     private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
     private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
-    private static final int PLAYER_INVENTORY_SLOT_COUNT = BaseChuteMenu.PLAYER_INVENTORY_COLUMN_COUNT * BaseChuteMenu.PLAYER_INVENTORY_ROW_COUNT;
+    private static final int PLAYER_INVENTORY_SLOT_COUNT =
+        BaseChuteMenu.PLAYER_INVENTORY_COLUMN_COUNT * BaseChuteMenu.PLAYER_INVENTORY_ROW_COUNT;
     private static final int VANILLA_SLOT_COUNT = BaseChuteMenu.HOTBAR_SLOT_COUNT + BaseChuteMenu.PLAYER_INVENTORY_SLOT_COUNT;
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
     private static final int TE_INVENTORY_FIRST_SLOT_INDEX = BaseChuteMenu.VANILLA_FIRST_SLOT_INDEX + BaseChuteMenu.VANILLA_SLOT_COUNT;
@@ -109,7 +110,10 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
             }
         } else if (index < BaseChuteMenu.TE_INVENTORY_FIRST_SLOT_INDEX + BaseChuteMenu.TE_INVENTORY_SLOT_COUNT) {
             // This is a TE slot so merge the stack into the players inventory
-            if (!this.moveItemStackTo(sourceStack, BaseChuteMenu.VANILLA_FIRST_SLOT_INDEX, BaseChuteMenu.VANILLA_FIRST_SLOT_INDEX + BaseChuteMenu.VANILLA_SLOT_COUNT, false)) {
+            if (!this.moveItemStackTo(
+                sourceStack, BaseChuteMenu.VANILLA_FIRST_SLOT_INDEX,
+                BaseChuteMenu.VANILLA_FIRST_SLOT_INDEX + BaseChuteMenu.VANILLA_SLOT_COUNT, false
+            )) {
                 return ItemStack.EMPTY;
             }
         } else {
@@ -157,7 +161,8 @@ public abstract class BaseChuteMenu<T extends BaseChuteBlockEntity> extends Base
 
     @Override
     public boolean stillValid(Player player) {
-        return AbstractContainerMenu.stillValid(ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()), player, this.getBlock());
+        return AbstractContainerMenu.stillValid(
+            ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()), player, this.getBlock());
     }
 
     protected abstract Block getBlock();

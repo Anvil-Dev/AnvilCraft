@@ -257,8 +257,11 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
-        graphics.blit(RenderPipelines
-            .GUI_TEXTURED, StructureScannerScreen.BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight(), 256, 256);
+        graphics.blit(
+            RenderPipelines
+                .GUI_TEXTURED, StructureScannerScreen.BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(),
+            this.getImageHeight(), 256, 256
+        );
 
         // 渲染磁盘槽位的虚影（当槽位为空时）
         var blockEntity = this.menu.getBlockEntity();
@@ -292,8 +295,11 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         this.renderInfoPanel(graphics);
 
         // 渲染STRUCTURE_TOOL_LOCKED贴图
-        graphics.blit(RenderPipelines
-            .GUI_TEXTURED, StructureScannerScreen.STRUCTURE_TOOL_LOCKED_TEXTURE, this.leftPos + 6, this.topPos + 18, 0, 0, 126, 26, 126, 26);
+        graphics.blit(
+            RenderPipelines
+                .GUI_TEXTURED, StructureScannerScreen.STRUCTURE_TOOL_LOCKED_TEXTURE, this.leftPos + 6, this.topPos + 18, 0, 0, 126, 26, 126,
+            26
+        );
 
         // 收集并渲染所有tooltip
         List<TooltipRenderInfo> tooltipsToRender = new ArrayList<>();
@@ -626,15 +632,15 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
         List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks = this.cachedBlockEntity.getScannedBlocks();
 
-            if (!scannedBlocks.isEmpty()) {
-                for (StructureScannerBlockEntity.CachedBlockData data : scannedBlocks) {
-                    int renderY = upsideDown ? (Math.max(1, rangeY) - 1 - data.y()) : data.y();
-                    BlockPos renderPos = new BlockPos(data.x(), renderY, data.z() + 1);
-                    BlockPos worldPos = this.cachedBlockEntity.getBlockPos().offset(renderPos);
-                    BlockState rotatedState = this.rotateBlockStateForPreview(data.state(), facing, level, worldPos);
-                    previewLevelLike.setBlockState(renderPos, rotatedState);
-                }
+        if (!scannedBlocks.isEmpty()) {
+            for (StructureScannerBlockEntity.CachedBlockData data : scannedBlocks) {
+                int renderY = upsideDown ? (Math.max(1, rangeY) - 1 - data.y()) : data.y();
+                BlockPos renderPos = new BlockPos(data.x(), renderY, data.z() + 1);
+                BlockPos worldPos = this.cachedBlockEntity.getBlockPos().offset(renderPos);
+                BlockState rotatedState = this.rotateBlockStateForPreview(data.state(), facing, level, worldPos);
+                previewLevelLike.setBlockState(renderPos, rotatedState);
             }
+        }
 
         this.cachedPreviewLevelLike = previewLevelLike;
         this.cachedPreviewFacing = facing;
@@ -751,7 +757,8 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
             this.previewRotationY += deltaX * StructureScannerScreen.ROTATION_SENSITIVITY;
             this.previewRotationX += deltaY * StructureScannerScreen.ROTATION_SENSITIVITY;
-            this.previewRotationX = Math.clamp(this.previewRotationX, StructureScannerScreen.MIN_ROTATION_X, StructureScannerScreen.MAX_ROTATION_X);
+            this.previewRotationX = Math.clamp(
+                this.previewRotationX, StructureScannerScreen.MIN_ROTATION_X, StructureScannerScreen.MAX_ROTATION_X);
 
             this.lastMouseX = currentMouseX;
             this.lastMouseY = currentMouseY;

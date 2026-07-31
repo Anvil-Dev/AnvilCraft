@@ -13,7 +13,8 @@ public class ModRecipePredicateTypes {
     public static final DeferredRegister<IRecipePredicate.Type<?>> PREDICATE_TYPE = DeferredRegister
         .create(LibRegistries.PREDICATE_TYPE_REGISTRY, AnvilCraft.MOD_ID);
 
-    public static final DeferredHolder<IRecipePredicate.Type<?>, HasCauldron.Type> HAS_CAULDRON = ModRecipePredicateTypes.PREDICATE_TYPE.register(
+    public static final DeferredHolder<IRecipePredicate.Type<?>, HasCauldron.Type> HAS_CAULDRON =
+        ModRecipePredicateTypes.PREDICATE_TYPE.register(
         "has_cauldron",
         HasCauldron.Type::new
     );
@@ -23,7 +24,8 @@ public class ModRecipePredicateTypes {
         HasAnvil.Type::new
     );
 
-    public static final DeferredHolder<IRecipePredicate.Type<?>, HasDiffItems.Type> HAS_DIFF_ITEMS = ModRecipePredicateTypes.PREDICATE_TYPE.register(
+    public static final DeferredHolder<IRecipePredicate.Type<?>, HasDiffItems.Type> HAS_DIFF_ITEMS =
+        ModRecipePredicateTypes.PREDICATE_TYPE.register(
         "has_diff_items",
         HasDiffItems.Type::new
     );

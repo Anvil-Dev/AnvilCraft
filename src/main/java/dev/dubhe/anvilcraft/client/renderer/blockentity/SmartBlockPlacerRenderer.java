@@ -183,13 +183,14 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 float cosForearm = (WorkingAnimationScheme.UPPER_ARM_LENGTH * WorkingAnimationScheme.UPPER_ARM_LENGTH
                                     + WorkingAnimationScheme.FOREARM_LENGTH * WorkingAnimationScheme.FOREARM_LENGTH
                                     - clampedDist * clampedDist)
-                    / (2 * WorkingAnimationScheme.UPPER_ARM_LENGTH * WorkingAnimationScheme.FOREARM_LENGTH);
+                                   / (2 * WorkingAnimationScheme.UPPER_ARM_LENGTH * WorkingAnimationScheme.FOREARM_LENGTH);
                 cosForearm = Math.clamp(cosForearm, -1.0f, 1.0f);
                 float forearmAngleFromUpper = (float) Math.toDegrees(Math.acos(cosForearm));
 
-                float cosUpperArm = (clampedDist * clampedDist + WorkingAnimationScheme.UPPER_ARM_LENGTH * WorkingAnimationScheme.UPPER_ARM_LENGTH
-                                     - WorkingAnimationScheme.FOREARM_LENGTH
-                                       * WorkingAnimationScheme.FOREARM_LENGTH)
+                float cosUpperArm =
+                    (clampedDist * clampedDist + WorkingAnimationScheme.UPPER_ARM_LENGTH * WorkingAnimationScheme.UPPER_ARM_LENGTH
+                     - WorkingAnimationScheme.FOREARM_LENGTH
+                       * WorkingAnimationScheme.FOREARM_LENGTH)
                     / (2 * clampedDist * WorkingAnimationScheme.UPPER_ARM_LENGTH);
                 cosUpperArm = Math.clamp(cosUpperArm, -1.0f, 1.0f);
                 float upperArmAngleFromTarget = (float) Math.toDegrees(Math.acos(cosUpperArm));

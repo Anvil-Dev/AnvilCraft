@@ -336,7 +336,8 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         }
         BlockPos above = pos.above();
         BlockState state1 = level.getBlockState(above);
-        if (!state1.is(this) || !state1.hasProperty(GiantAnvilBlock.HALF) || state1.getValue(GiantAnvilBlock.HALF) != Cube3x3PartHalf.MID_CENTER) {
+        if (!state1.is(this) || !state1.hasProperty(GiantAnvilBlock.HALF) || state1.getValue(GiantAnvilBlock.HALF)
+                                                                             != Cube3x3PartHalf.MID_CENTER) {
             return;
         }
         this.removePartsAndUpdate(level, pos);

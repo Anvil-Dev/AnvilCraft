@@ -106,7 +106,8 @@ public class OverseerBlockEntityRenderer implements BlockEntityRenderer<Overseer
         if (Math.abs(movement) < 0.0001F) return;
 
         BlockPos pos = blockEntity.getBlockPos();
-        double trailY = pos.getY() + previousBob + (movement > 0 ? OverseerBlockEntityRenderer.HEAD_MIN_Y : OverseerBlockEntityRenderer.HEAD_MAX_Y);
+        double trailY =
+            pos.getY() + previousBob + (movement > 0 ? OverseerBlockEntityRenderer.HEAD_MIN_Y : OverseerBlockEntityRenderer.HEAD_MAX_Y);
         for (int i = 0; i < 2; i++) {
             double x = pos.getX() + 0.125 + level.getRandom().nextDouble() * 0.75;
             double z = pos.getZ() + 0.125 + level.getRandom().nextDouble() * 0.75;

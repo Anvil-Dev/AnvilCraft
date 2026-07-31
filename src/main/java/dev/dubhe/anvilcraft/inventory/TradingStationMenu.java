@@ -121,10 +121,12 @@ public class TradingStationMenu extends AbstractContainerMenu implements IFilter
     private static final int HOTBAR_SLOT_COUNT = 9;
     private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
     private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
-    private static final int PLAYER_INVENTORY_SLOT_COUNT = TradingStationMenu.PLAYER_INVENTORY_COLUMN_COUNT * TradingStationMenu.PLAYER_INVENTORY_ROW_COUNT;
+    private static final int PLAYER_INVENTORY_SLOT_COUNT =
+        TradingStationMenu.PLAYER_INVENTORY_COLUMN_COUNT * TradingStationMenu.PLAYER_INVENTORY_ROW_COUNT;
     private static final int VANILLA_SLOT_COUNT = TradingStationMenu.HOTBAR_SLOT_COUNT + TradingStationMenu.PLAYER_INVENTORY_SLOT_COUNT;
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
-    private static final int TE_INVENTORY_FIRST_SLOT_INDEX = TradingStationMenu.VANILLA_FIRST_SLOT_INDEX + TradingStationMenu.VANILLA_SLOT_COUNT;
+    private static final int TE_INVENTORY_FIRST_SLOT_INDEX =
+        TradingStationMenu.VANILLA_FIRST_SLOT_INDEX + TradingStationMenu.VANILLA_SLOT_COUNT;
 
     // THIS YOU HAVE TO DEFINE!
     private static final int TE_INVENTORY_SLOT_COUNT = 12; // must be the number of slots you have!
@@ -145,8 +147,10 @@ public class TradingStationMenu extends AbstractContainerMenu implements IFilter
             }
         } else if (index < TradingStationMenu.TE_INVENTORY_FIRST_SLOT_INDEX + TradingStationMenu.TE_INVENTORY_SLOT_COUNT) {
             // This is a TE slot so merge the stack into the players inventory
-            if (!this.moveItemStackTo(sourceStack, TradingStationMenu.VANILLA_FIRST_SLOT_INDEX, TradingStationMenu.VANILLA_FIRST_SLOT_INDEX
-                                                                                                + TradingStationMenu.VANILLA_SLOT_COUNT, false)) {
+            if (!this.moveItemStackTo(
+                sourceStack, TradingStationMenu.VANILLA_FIRST_SLOT_INDEX, TradingStationMenu.VANILLA_FIRST_SLOT_INDEX
+                                                                          + TradingStationMenu.VANILLA_SLOT_COUNT, false
+            )) {
                 return ItemStack.EMPTY;
             }
         } else if (index < TradingStationMenu.TE_INVENTORY_FIRST_SLOT_INDEX + TradingStationMenu.TE_INVENTORY_SLOT_COUNT + 3) {
@@ -206,6 +210,7 @@ public class TradingStationMenu extends AbstractContainerMenu implements IFilter
 
     @Override
     public boolean stillValid(Player player) {
-        return AbstractContainerMenu.stillValid(ContainerLevelAccess.create(this.level, this.be.getBlockPos()), player, ModBlocks.TRADING_STATION.get());
+        return AbstractContainerMenu.stillValid(
+            ContainerLevelAccess.create(this.level, this.be.getBlockPos()), player, ModBlocks.TRADING_STATION.get());
     }
 }

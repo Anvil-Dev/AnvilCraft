@@ -3174,10 +3174,14 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::whiteChocolateStairs)
         .register();
 
-    public static final Object2ObjectMap<Color, BlockEntry<ReinforcedConcreteBlock>> REINFORCED_CONCRETES = ModBlocks.registerReinforcedConcretes();
-    public static final Object2ObjectMap<Color, BlockEntry<SlabBlock>> REINFORCED_CONCRETE_SLABS = ModBlocks.registerReinforcedConcreteSlabs();
-    public static final Object2ObjectMap<Color, BlockEntry<StairBlock>> REINFORCED_CONCRETE_STAIRS = ModBlocks.registerReinforcedConcreteStairs();
-    public static final Object2ObjectMap<Color, BlockEntry<WallBlock>> REINFORCED_CONCRETE_WALLS = ModBlocks.registerReinforcedConcreteWalls();
+    public static final Object2ObjectMap<Color, BlockEntry<ReinforcedConcreteBlock>> REINFORCED_CONCRETES =
+        ModBlocks.registerReinforcedConcretes();
+    public static final Object2ObjectMap<Color, BlockEntry<SlabBlock>> REINFORCED_CONCRETE_SLABS =
+        ModBlocks.registerReinforcedConcreteSlabs();
+    public static final Object2ObjectMap<Color, BlockEntry<StairBlock>> REINFORCED_CONCRETE_STAIRS =
+        ModBlocks.registerReinforcedConcreteStairs();
+    public static final Object2ObjectMap<Color, BlockEntry<WallBlock>> REINFORCED_CONCRETE_WALLS =
+        ModBlocks.registerReinforcedConcreteWalls();
 
     public static final BlockEntry<HeatedBlock> HEATED_NETHERITE_BLOCK = REGISTRUM.block("heated_netherite_block", HeatedBlock::new)
         .lang("Heated Block of Netherite")

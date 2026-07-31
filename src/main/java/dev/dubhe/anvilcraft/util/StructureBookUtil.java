@@ -146,7 +146,8 @@ public class StructureBookUtil {
         if (pages.isEmpty()) {
             ItemStack book = new ItemStack(Items.BOOK);
             blockEntity.getOutputBookInventory().setItem(0, book);
-            StructureBookUtil.LOGGER.info("Structure material available: {} (all needed blocks available), output book", loadedStructure.diskData.name());
+            StructureBookUtil.LOGGER.info(
+                "Structure material available: {} (all needed blocks available), output book", loadedStructure.diskData.name());
             return;
         }
 

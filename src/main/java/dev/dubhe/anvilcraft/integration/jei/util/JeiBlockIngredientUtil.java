@@ -31,6 +31,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +45,7 @@ public final class JeiBlockIngredientUtil {
     private JeiBlockIngredientUtil() {
     }
 
-    public static IRecipeSlotBuilder addInputSlot(
+    public static void addInputSlot(
         IRecipeLayoutBuilder builder,
         String name,
         int x,
@@ -56,7 +57,7 @@ public final class JeiBlockIngredientUtil {
         List<ItemStack> stacks = input.getBlocks().stream()
             .map(holder -> new ItemStack(holder.value()))
             .toList();
-        return JeiBlockIngredientUtil.addSlot(builder, RecipeIngredientRole.INPUT, name, x, y, width, height, stacks);
+        JeiBlockIngredientUtil.addSlot(builder, RecipeIngredientRole.INPUT, name, x, y, width, height, stacks);
     }
 
     public static IRecipeSlotBuilder addSlot(
@@ -91,7 +92,8 @@ public final class JeiBlockIngredientUtil {
     public static void suppressHoverOverlays(IRecipeExtrasBuilder builder) {
         List<IRecipeSlotDrawable> slots = builder.getRecipeSlots().getSlots().stream()
             .filter(slot -> slot.getSlotName()
-                .filter(name -> name.startsWith(JeiBlockIngredientUtil.SLOT_PREFIX) || name.startsWith(JeiBlockIngredientUtil.PREVIEW_SLOT_PREFIX))
+                .filter(name -> name.startsWith(JeiBlockIngredientUtil.SLOT_PREFIX) || name.startsWith(
+                    JeiBlockIngredientUtil.PREVIEW_SLOT_PREFIX))
                 .isPresent())
             .toList();
         if (!slots.isEmpty()) {
@@ -183,7 +185,7 @@ public final class JeiBlockIngredientUtil {
         }
     }
 
-    @SuppressWarnings("removal")
+    @SuppressWarnings({"removal", "NonExtendableApiUsage"})
     private record NoHoverRecipeSlot(IRecipeSlotDrawable delegate) implements IRecipeSlotDrawable {
         @Override
         public Stream<ITypedIngredient<?>> getAllIngredients() {
@@ -191,7 +193,7 @@ public final class JeiBlockIngredientUtil {
         }
 
         @Override
-        public List<ITypedIngredient<?>> getAllIngredientsList() {
+        public List<@Nullable ITypedIngredient<?>> getAllIngredientsList() {
             return this.delegate.getAllIngredientsList();
         }
 

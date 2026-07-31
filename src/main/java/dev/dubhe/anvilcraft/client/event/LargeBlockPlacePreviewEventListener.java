@@ -35,6 +35,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ExtractBlockOutlineRenderStateEvent;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -49,7 +50,7 @@ public class LargeBlockPlacePreviewEventListener {
     private static final Runnable changeBoundColorWhite = () -> LargeBlockPlacePreviewEventListener.boundColor = 0xffffffff;
 
     private static ItemStack currentItem = ItemStack.EMPTY;
-    private static BlockPos currentPos = null;
+    private static @Nullable BlockPos currentPos;
 
     private static List<BlockPos> cachedErrorPosList = new ObjectArrayList<>();
 
@@ -95,14 +96,17 @@ public class LargeBlockPlacePreviewEventListener {
                 if (blockItem.getBlock() instanceof AbstractMultiPartBlock<?> block) {
                     LargeBlockPlacePreviewEventListener.validateCanRender(item, blockItem, pos);
                     // Build the actual placement state from the hit result
-                    BlockPlaceContext context = new BlockPlaceContext(player, player.getUsedItemHand(), item, new BlockHitResult(
+                    BlockPlaceContext context = new BlockPlaceContext(
+                        player, player.getUsedItemHand(), item, new BlockHitResult(
                         target.getLocation(),
                         direction,
                         target.getBlockPos(),
                         target.isInside()
-                    ));
+                    )
+                    );
                     BlockState placementState = LargeBlockPlacePreviewEventListener.getPlacementState(block, blockItem, context);
-                    Pair<VoxelShape, List<BlockPos>> pair = LargeBlockPlacePreviewEventListener.getShapeAndErrorPosList(level, block, pos, placementState);
+                    Pair<VoxelShape, List<BlockPos>> pair = LargeBlockPlacePreviewEventListener.getShapeAndErrorPosList(
+                        level, block, pos, placementState);
                     if (!pair.second().isEmpty()) {
                         if (blockItem instanceof SimpleMultiPartBlockItem<?> simpleMultiPartBlockItem) {
                             int distance = simpleMultiPartBlockItem.getMaxOffsetDistance(direction);

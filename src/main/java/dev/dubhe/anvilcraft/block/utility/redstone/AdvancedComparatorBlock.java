@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.block.utility.redstone;
 
-
-import net.minecraft.world.level.block.state.BlockBehaviour;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
@@ -32,6 +30,7 @@ import net.minecraft.world.level.SignalGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -78,7 +77,10 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(HorizontalDirectionalBlock.FACING, AdvancedComparatorBlock.INPUT, AdvancedComparatorBlock.POWER, AdvancedComparatorBlock.MODE, AdvancedComparatorBlock.POWERED);
+        builder.add(
+            HorizontalDirectionalBlock.FACING, AdvancedComparatorBlock.INPUT, AdvancedComparatorBlock.POWER, AdvancedComparatorBlock.MODE,
+            AdvancedComparatorBlock.POWERED
+        );
     }
 
     @Override

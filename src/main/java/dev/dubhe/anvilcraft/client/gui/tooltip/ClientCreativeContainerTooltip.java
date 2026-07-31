@@ -47,7 +47,10 @@ public class ClientCreativeContainerTooltip implements ClientTooltipComponent {
             } else {
                 graphics.item(entry.item(), x, rowY);
             }
-            graphics.text(font, entry.text(), x + ClientCreativeContainerTooltip.TEXT_X_OFFSET, rowY + ClientCreativeContainerTooltip.TEXT_Y_OFFSET, 0xFFFFFFFF, false);
+            graphics.text(
+                font, entry.text(), x + ClientCreativeContainerTooltip.TEXT_X_OFFSET, rowY + ClientCreativeContainerTooltip.TEXT_Y_OFFSET,
+                0xFFFFFFFF, false
+            );
             row++;
         }
     }
@@ -62,6 +65,9 @@ public class ClientCreativeContainerTooltip implements ClientTooltipComponent {
         if (tintSource == null) return;
         TextureAtlasSprite sprite = model.stillMaterial().sprite();
         int tint = tintSource.colorAsStack(resource.toStack(1));
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, ClientCreativeContainerTooltip.ICON_SIZE, ClientCreativeContainerTooltip.ICON_SIZE, tint);
+        graphics.blitSprite(
+            RenderPipelines.GUI_TEXTURED, sprite, x, y, ClientCreativeContainerTooltip.ICON_SIZE, ClientCreativeContainerTooltip.ICON_SIZE,
+            tint
+        );
     }
 }

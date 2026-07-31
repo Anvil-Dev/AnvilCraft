@@ -112,18 +112,31 @@ public class StructureDiskPreviewSupport {
             previewX = 5;
         }
 
-        graphics.fill(previewX - 2, previewY - 2, previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, previewY + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, 0xF0100010);
+        graphics.fill(
+            previewX - 2, previewY - 2, previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 2,
+            previewY + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, 0xF0100010
+        );
 
         graphics.fill(previewX - 2, previewY - 2, previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, previewY - 1, 0x505000ff);
-        graphics.fill(previewX - 2, previewY + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, previewY + StructureDiskPreviewSupport.PREVIEW_SIZE
-                                                                                                                                                      + 3, 0x505000ff);
+        graphics.fill(
+            previewX - 2, previewY + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 2,
+            previewY + StructureDiskPreviewSupport.PREVIEW_SIZE
+            + 3, 0x505000ff
+        );
         graphics.fill(previewX - 2, previewY - 1, previewX - 1, previewY + StructureDiskPreviewSupport.PREVIEW_SIZE + 3, 0x505000ff);
-        graphics.fill(previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 1, previewY - 1, previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, previewY + StructureDiskPreviewSupport.PREVIEW_SIZE
-                                                                                                                                                      + 3, 0x505000ff);
+        graphics.fill(
+            previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 1, previewY - 1, previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 2,
+            previewY + StructureDiskPreviewSupport.PREVIEW_SIZE
+            + 3, 0x505000ff
+        );
 
-        int maxDim = Math.max(cache.structureData.diskData.sizeX(),
-            Math.max(cache.structureData.diskData.sizeY(),
-                cache.structureData.diskData.sizeZ()));
+        int maxDim = Math.max(
+            cache.structureData.diskData.sizeX(),
+            Math.max(
+                cache.structureData.diskData.sizeY(),
+                cache.structureData.diskData.sizeZ()
+            )
+        );
         int scale = Math.max(1, 30 / maxDim);
 
         RenderSupport.renderLevelLike(
@@ -161,7 +174,8 @@ public class StructureDiskPreviewSupport {
         // 2. 检查是否有服务端返回的 NBT 待处理数据
         CompoundTag pendingData = StructureDiskPreviewSupport.PENDING_PREVIEW_DATA.get(uuid);
         if (pendingData != null) {
-            StructureLoadUtil.StructureData data = StructureDiskPreviewSupport.parsePreviewNbt(pendingData, diskData, level.registryAccess());
+            StructureLoadUtil.StructureData data = StructureDiskPreviewSupport.parsePreviewNbt(
+                pendingData, diskData, level.registryAccess());
             if (data != null && !data.isEmpty()) {
                 LevelLike levelLike = StructureDiskPreviewSupport.buildLevelLike(data);
                 if (levelLike != null) {

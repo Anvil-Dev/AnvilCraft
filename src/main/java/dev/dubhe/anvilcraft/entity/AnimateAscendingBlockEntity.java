@@ -80,7 +80,8 @@ public class AnimateAscendingBlockEntity extends Entity {
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(AnimateAscendingBlockEntity.DATA_START_POS, BlockPos.ZERO).define(AnimateAscendingBlockEntity.DATA_END_POS, BlockPos.ZERO);
+        builder.define(AnimateAscendingBlockEntity.DATA_START_POS, BlockPos.ZERO).define(
+            AnimateAscendingBlockEntity.DATA_END_POS, BlockPos.ZERO);
     }
 
     @Override

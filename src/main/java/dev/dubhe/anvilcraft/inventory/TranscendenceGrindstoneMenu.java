@@ -236,6 +236,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         return this.getMode() == Mode.GOLD;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isTransferMode() {
         Mode mode = this.getMode();
         return mode == Mode.BOOK || mode == Mode.ITEM;
@@ -547,14 +548,20 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         ItemStack original = clicked.copy();
         if (index == 2) {
             ItemStack moving = clicked.copy();
-            if (!this.moveItemStackTo(moving, TranscendenceGrindstoneMenu.PLAYER_INVENTORY_SLOT_START, TranscendenceGrindstoneMenu.PLAYER_INVENTORY_SLOT_END, true)) {
+            if (!this.moveItemStackTo(
+                moving, TranscendenceGrindstoneMenu.PLAYER_INVENTORY_SLOT_START, TranscendenceGrindstoneMenu.PLAYER_INVENTORY_SLOT_END,
+                true
+            )) {
                 return ItemStack.EMPTY;
             }
             slot.onTake(player, clicked);
             return original;
         }
         if (index < TranscendenceGrindstoneMenu.PLAYER_INVENTORY_SLOT_START) {
-            if (!this.moveItemStackTo(clicked, TranscendenceGrindstoneMenu.PLAYER_INVENTORY_SLOT_START, TranscendenceGrindstoneMenu.PLAYER_INVENTORY_SLOT_END, false)) {
+            if (!this.moveItemStackTo(
+                clicked, TranscendenceGrindstoneMenu.PLAYER_INVENTORY_SLOT_START, TranscendenceGrindstoneMenu.PLAYER_INVENTORY_SLOT_END,
+                false
+            )) {
                 return ItemStack.EMPTY;
             }
         } else if (TranscendenceGrindstoneMenu.isValidSource(clicked) && !this.getSlot(0).hasItem()) {

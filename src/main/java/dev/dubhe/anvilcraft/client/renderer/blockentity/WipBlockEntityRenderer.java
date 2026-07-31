@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.state.WipBlockRenderStat
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
 import dev.dubhe.anvilcraft.recipe.sync.RecipesRecord;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.BlockModelRenderState;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
@@ -39,10 +40,14 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
     public static final StandaloneModelKey<BlockStateModel> SPACETIME_SUPERCOMPUTER_WIP = WipBlockEntityRenderer.registerModel(
         "block/spacetime_supercomputer_wip"
     );
-    public static final StandaloneModelKey<BlockStateModel> ANCIENT_DEBRIS_WIP = WipBlockEntityRenderer.registerModel("block/ancient_debris_wip");
-    public static final StandaloneModelKey<BlockStateModel> NETHERITE_BLOCK_WIP = WipBlockEntityRenderer.registerModel("block/netherite_block_wip");
-    public static final StandaloneModelKey<BlockStateModel> HEAVY_IRON_BLOCK_WIP = WipBlockEntityRenderer.registerModel("block/heavy_iron_block_wip");
-    public static final StandaloneModelKey<BlockStateModel> ANCIENT_SEA_REEF_WIP = WipBlockEntityRenderer.registerModel("block/ancient_sea_reef_wip");
+    public static final StandaloneModelKey<BlockStateModel> ANCIENT_DEBRIS_WIP = WipBlockEntityRenderer.registerModel(
+        "block/ancient_debris_wip");
+    public static final StandaloneModelKey<BlockStateModel> NETHERITE_BLOCK_WIP = WipBlockEntityRenderer.registerModel(
+        "block/netherite_block_wip");
+    public static final StandaloneModelKey<BlockStateModel> HEAVY_IRON_BLOCK_WIP = WipBlockEntityRenderer.registerModel(
+        "block/heavy_iron_block_wip");
+    public static final StandaloneModelKey<BlockStateModel> ANCIENT_SEA_REEF_WIP = WipBlockEntityRenderer.registerModel(
+        "block/ancient_sea_reef_wip");
     public static final StandaloneModelKey<BlockStateModel> NESTING_SHULKER_BOX = WipBlockEntityRenderer.registerModel(
         "block/nesting_shulker_box"
     );
@@ -103,14 +108,14 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
     ) {
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
         Minecraft mc = Minecraft.getInstance();
-        Level level = be.getLevel();
+        ClientLevel level = mc.level;
         if (level == null) return;
 
         BlockStateModel model = this.getDisplayedModel(be, level, mc);
         BlockModelRenderState blockModelState = new BlockModelRenderState();
         if (model != null) {
             model.collectParts(
-                mc.level,
+                level,
                 be.getBlockPos(),
                 be.getBlockState(),
                 RandomSource.create(be.getInitialBlock().getSeed(be.getBlockPos())),
@@ -142,7 +147,7 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
         }
         // Fallback: render the initial block's model
         BlockState initialState = be.getInitialBlock();
-        if (initialState != null && !initialState.isAir()) {
+        if (!initialState.isAir()) {
             return mc.getModelManager().getBlockStateModelSet().get(initialState);
         }
         return null;
@@ -155,7 +160,6 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
         SubmitNodeCollector collector,
         CameraRenderState camera
     ) {
-        if (state.getBlockModel() == null) return;
         pose.pushPose();
         state.getBlockModel().submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
         pose.popPose();

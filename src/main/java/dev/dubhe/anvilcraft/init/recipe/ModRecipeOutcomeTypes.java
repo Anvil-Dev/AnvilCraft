@@ -27,7 +27,8 @@ public class ModRecipeOutcomeTypes {
         ProduceHeat.Type::new
     );
 
-    public static final DeferredHolder<IRecipeOutcome.Type<?>, RoyalPreferenceOutcome.Type> ROYAL_PREFERENCE = ModRecipeOutcomeTypes.OUTCOME_TYPE.register(
+    public static final DeferredHolder<IRecipeOutcome.Type<?>, RoyalPreferenceOutcome.Type> ROYAL_PREFERENCE =
+        ModRecipeOutcomeTypes.OUTCOME_TYPE.register(
         "royal_preference",
         RoyalPreferenceOutcome.Type::new
     );

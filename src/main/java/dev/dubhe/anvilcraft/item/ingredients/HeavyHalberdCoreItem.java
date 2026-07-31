@@ -25,7 +25,9 @@ public class HeavyHalberdCoreItem extends Item implements IMultipleMaterial {
     private static final Component MISSING_TOOLS_TOOLTIP = Component.translatable(
         "screen.anvilcraft.ember_smithing.heavy_halberd_core.missing_tools");
     private static final List<Identifier> EMPTY_SLOT_TEXTURES = List.of(
-        HeavyHalberdCoreItem.EMPTY_SLOT_SWORD, HeavyHalberdCoreItem.EMPTY_SLOT_SPEAR, HeavyHalberdCoreItem.EMPTY_SLOT_TRIDENT, HeavyHalberdCoreItem.EMPTY_SLOT_MACE);
+        HeavyHalberdCoreItem.EMPTY_SLOT_SWORD, HeavyHalberdCoreItem.EMPTY_SLOT_SPEAR, HeavyHalberdCoreItem.EMPTY_SLOT_TRIDENT,
+        HeavyHalberdCoreItem.EMPTY_SLOT_MACE
+    );
 
     public HeavyHalberdCoreItem(Properties properties) {
         super(properties);

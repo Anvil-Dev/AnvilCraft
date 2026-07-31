@@ -95,7 +95,10 @@ public class WeaponBeamEntity extends Entity {
     }
 
     public Vec3 getEndOffset() {
-        return new Vec3(this.entityData.get(WeaponBeamEntity.END_X), this.entityData.get(WeaponBeamEntity.END_Y), this.entityData.get(WeaponBeamEntity.END_Z));
+        return new Vec3(
+            this.entityData.get(WeaponBeamEntity.END_X), this.entityData.get(WeaponBeamEntity.END_Y),
+            this.entityData.get(WeaponBeamEntity.END_Z)
+        );
     }
 
     public int getStyle() {

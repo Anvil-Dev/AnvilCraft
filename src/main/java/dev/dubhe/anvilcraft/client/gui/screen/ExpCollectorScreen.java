@@ -152,7 +152,12 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
     @Override
     protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         super.extractTooltip(graphics, mouseX, mouseY);
-        if (!this.isHovering(ExpCollectorScreen.FLUID_X, ExpCollectorScreen.FLUID_Y, ExpCollectorScreen.FLUID_WIDTH, ExpCollectorScreen.FLUID_HEIGHT, mouseX, mouseY)) return;
+        if (!this.isHovering(
+            ExpCollectorScreen.FLUID_X, ExpCollectorScreen.FLUID_Y, ExpCollectorScreen.FLUID_WIDTH, ExpCollectorScreen.FLUID_HEIGHT, mouseX,
+            mouseY
+        )) {
+            return;
+        }
         ResourceHandler<FluidResource> handler = this.menu.getBlockEntity().getFluidHandler();
         graphics.setTooltipForNextFrame(
             this.font,
@@ -169,7 +174,10 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
         if (event.button() == 1
-            && this.isHovering(ExpCollectorScreen.FLUID_X, ExpCollectorScreen.FLUID_Y, ExpCollectorScreen.FLUID_WIDTH, ExpCollectorScreen.FLUID_HEIGHT, event.x(), event.y())) {
+            && this.isHovering(
+            ExpCollectorScreen.FLUID_X, ExpCollectorScreen.FLUID_Y, ExpCollectorScreen.FLUID_WIDTH, ExpCollectorScreen.FLUID_HEIGHT,
+            event.x(), event.y()
+        )) {
             ClientPacketDistributor.sendToServer(
                 new ExpCollectorSyncPacket(this.menu.getBlockEntity().getBlockPos())
             );

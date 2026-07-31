@@ -51,7 +51,8 @@ public final class InfiniteFluidTankBreakProtection {
 
         InfiniteFluidTankBreakProtection.MODIFIER_AUTHORIZATIONS.put(
             playerId,
-            new TimedTarget(level.dimension(), pos.immutable(), level.getGameTime() + InfiniteFluidTankBreakProtection.MODIFIER_AUTHORIZATION_DURATION)
+            new TimedTarget(
+                level.dimension(), pos.immutable(), level.getGameTime() + InfiniteFluidTankBreakProtection.MODIFIER_AUTHORIZATION_DURATION)
         );
     }
 
