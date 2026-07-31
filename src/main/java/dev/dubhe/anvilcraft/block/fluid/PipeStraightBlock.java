@@ -143,9 +143,8 @@ public class PipeStraightBlock extends PipeBlock {
 
         // 轴端更新：开/关端头
         Direction startDir = getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
-        Direction ignore = getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
-        boolean neighborIsPipe = level.getBlockState(neighborPos).getBlock() instanceof PipeBlock;
-        this.changePipeState(level, pos, state, startDir, neighborDir, neighborIsPipe);
+        boolean neighborIsSameKindPipe = isNeighborSameKindPipeToward(state, level, pos, neighborDir);
+        this.changePipeState(level, pos, state, startDir, neighborDir, neighborIsSameKindPipe);
     }
 
     /**
@@ -162,8 +161,8 @@ public class PipeStraightBlock extends PipeBlock {
         Direction negDir = getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
         Direction posDir = getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
         BlockState newState = state
-            .setValue(HAS_END_START, !isNeighborPipeToward(level, pos, negDir))
-            .setValue(HAS_END_END, !isNeighborPipeToward(level, pos, posDir));
+            .setValue(HAS_END_START, !isNeighborSameKindPipeToward(state, level, pos, negDir))
+            .setValue(HAS_END_END, !isNeighborSameKindPipeToward(state, level, pos, posDir));
         if (newState != state) {
             setBlockPreservingValve(level, pos, state, newState);
         }

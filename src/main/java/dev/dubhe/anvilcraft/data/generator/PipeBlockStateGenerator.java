@@ -28,10 +28,6 @@ public class PipeBlockStateGenerator {
         pipeStraightBlock(ctx, provider, "pipe_straight", "pipe_no_end", "pipe_end");
     }
 
-    public static <T extends Block> void glassPipeStraightBlock(DataGenContext<Block, T> ctx, RegistrumBlockstateProvider provider) {
-        pipeStraightBlock(ctx, provider, "glass_pipe_straight", "glass_pipe_no_end", "glass_pipe_end");
-    }
-
     private static <T extends Block> void pipeStraightBlock(
         DataGenContext<Block, T> ctx,
         RegistrumBlockstateProvider provider,
@@ -158,12 +154,12 @@ public class PipeBlockStateGenerator {
             .end();
     }
 
-    public static <T extends Block> void pipeCornerBlock(DataGenContext<Block, T> ctx, RegistrumBlockstateProvider provider) {
-        pipeCornerBlock(ctx, provider, "pipe_side_corner", "pipe_no_end", "pipe_end");
+    public static <T extends Block> void glassPipeStraightBlock(DataGenContext<Block, T> ctx, RegistrumBlockstateProvider provider) {
+        pipeStraightBlock(ctx, provider, "glass_pipe_straight", "glass_pipe_no_end", "glass_pipe_end");
     }
 
-    public static <T extends Block> void glassPipeCornerBlock(DataGenContext<Block, T> ctx, RegistrumBlockstateProvider provider) {
-        pipeCornerBlock(ctx, provider, "glass_pipe_side_corner", "glass_pipe_no_end", "glass_pipe_end");
+    public static <T extends Block> void pipeCornerBlock(DataGenContext<Block, T> ctx, RegistrumBlockstateProvider provider) {
+        pipeCornerBlock(ctx, provider, "pipe_side_corner", "pipe_no_end", "pipe_end");
     }
 
     private static <T extends Block> void pipeCornerBlock(
@@ -391,12 +387,12 @@ public class PipeBlockStateGenerator {
             .end();
     }
 
-    public static <T extends Block> void pipeNodeBlock(DataGenContext<Block, T> ctx, RegistrumBlockstateProvider provider) {
-        pipeNodeBlock(ctx, provider, "pipe_node", "pipe_no_end", "pipe_end");
+    public static <T extends Block> void glassPipeCornerBlock(DataGenContext<Block, T> ctx, RegistrumBlockstateProvider provider) {
+        pipeCornerBlock(ctx, provider, "glass_pipe_side_corner", "glass_pipe_no_end", "glass_pipe_end");
     }
 
-    public static <T extends Block> void glassPipeNodeBlock(DataGenContext<Block, T> ctx, RegistrumBlockstateProvider provider) {
-        pipeNodeBlock(ctx, provider, "glass_pipe_node", "glass_pipe_no_end", "glass_pipe_end");
+    public static <T extends Block> void pipeNodeBlock(DataGenContext<Block, T> ctx, RegistrumBlockstateProvider provider) {
+        pipeNodeBlock(ctx, provider, "pipe_node", "pipe_no_end", "pipe_end");
     }
 
     private static <T extends Block> void pipeNodeBlock(
@@ -496,5 +492,9 @@ public class PipeBlockStateGenerator {
             .addModel()
             .condition(PipeNodeBlock.UP, PipeBlock.NodePipe.PIPE)
             .end();
+    }
+
+    public static <T extends Block> void glassPipeNodeBlock(DataGenContext<Block, T> ctx, RegistrumBlockstateProvider provider) {
+        pipeNodeBlock(ctx, provider, "glass_pipe_node", "glass_pipe_no_end", "glass_pipe_end");
     }
 }

@@ -103,7 +103,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeCauldronBlockEntity
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.OverseerBlockEntityRenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
@@ -506,7 +506,7 @@ public class ModBlockEntities {
             ModBlocks.GLASS_PIPE_CORNER,
             ModBlocks.GLASS_PIPE_NODE
         )
-        .renderer(() -> PipeCheckValveBERenderer::new)
+        .renderer(() -> PipeBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<DrainBlockEntity> DRAIN = REGISTRUM

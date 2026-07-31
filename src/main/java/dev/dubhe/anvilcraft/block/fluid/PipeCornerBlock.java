@@ -117,7 +117,7 @@ public class PipeCornerBlock extends PipeBlock {
         }
 
         // 弯管方向：开/关端头
-        boolean neighborIsPipeToward = isNeighborPipeToward(level, pos, neighborDir);
+        boolean neighborIsPipeToward = isNeighborSameKindPipeToward(state, level, pos, neighborDir);
         Direction startDir = corner.getFirstDirection();
         this.changePipeState(level, pos, state, startDir, neighborDir, neighborIsPipeToward);
     }
@@ -136,8 +136,8 @@ public class PipeCornerBlock extends PipeBlock {
         Direction first = corner.getFirstDirection();
         Direction second = corner.getSecondDirection();
         BlockState newState = state
-            .setValue(HAS_END_START, !isNeighborPipeToward(level, pos, first))
-            .setValue(HAS_END_END, !isNeighborPipeToward(level, pos, second));
+            .setValue(HAS_END_START, !isNeighborSameKindPipeToward(state, level, pos, first))
+            .setValue(HAS_END_END, !isNeighborSameKindPipeToward(state, level, pos, second));
         if (newState != state) {
             setBlockPreservingValve(level, pos, state, newState);
         }

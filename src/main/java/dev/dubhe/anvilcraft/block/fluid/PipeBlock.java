@@ -289,23 +289,23 @@ public abstract class PipeBlock extends Block
     }
 
     /**
-     * 判断指定方块状态在给定方向上是否有管道连接（不考虑端头状态）。
+     * 判断指定方块状态在给定方向上是否有管道臂/连接（不考虑端头是否可见）。
      * <ul>
      *   <li>直管：方向与轴向相同即为有连接</li>
      *   <li>弯管：方向为弯管两方向之一即为有连接</li>
-     *   <li>节点：该方向为 {@link NodePipe#PIPE} 即为有连接</li>
+     *   <li>节点：该方向非 {@link NodePipe#NONE} 即为有连接</li>
      * </ul>
      *
      * @param state  方块状态
      * @param toward 从此方块看向邻居的方向
-     * @return 是否有管道连接朝向该方向
+     * @return 是否有管道臂/连接朝向该方向
      */
     public static boolean hasConnectionToward(BlockState state, Direction toward) {
         Block block = state.getBlock();
         return switch (block) {
             case PipeStraightBlock ignored -> toward.getAxis() == state.getValue(AXIS);
             case PipeCornerBlock ignored -> state.getValue(CORNER_ENDED).containsDirection(toward);
-            case PipeNodeBlock ignored -> state.getValue(getPropertyForDirection(toward)) == NodePipe.PIPE;
+            case PipeNodeBlock ignored -> state.getValue(getPropertyForDirection(toward)) != NodePipe.NONE;
             default -> false;
         };
     }
@@ -323,6 +323,27 @@ public abstract class PipeBlock extends Block
         BlockPos neighborPos = pos.relative(dir);
         BlockState neighborState = level.getBlockState(neighborPos);
         return neighborState.getBlock() instanceof PipeBlock && hasConnectionToward(neighborState, dir.getOpposite());
+    }
+
+    /**
+     * 检查指定方向的邻居是否为同类管道且其连接朝向本方块。
+     * 普通管道与玻璃管道互相连接时仍连通，但模型端头需要保留。
+     *
+     * @param state 本方块状态
+     * @param level 世界
+     * @param pos   本方块位置
+     * @param dir   从此方块看向邻居的方向
+     * @return 邻居同类管道是否朝向本方块
+     */
+    public static boolean isNeighborSameKindPipeToward(BlockState state, Level level, BlockPos pos, Direction dir) {
+        if (!(state.getBlock() instanceof PipeBlock pipe)) {
+            return false;
+        }
+        BlockPos neighborPos = pos.relative(dir);
+        BlockState neighborState = level.getBlockState(neighborPos);
+        return neighborState.getBlock() instanceof PipeBlock neighborPipe
+            && pipe.isGlassPipe() == neighborPipe.isGlassPipe()
+            && hasConnectionToward(neighborState, dir.getOpposite());
     }
 
     /**
@@ -746,10 +767,10 @@ public abstract class PipeBlock extends Block
 
     /**
      * 更新直管/弯管的端头状态。
-     * 根据邻居是否为管道来决定端头开关：
+     * 根据邻居是否为同类管道来决定端头开关：
      * <ul>
-     *   <li>邻居是管道 → {@code HAS_END_*} = false（无端头，开放）</li>
-     *   <li>邻居非管道 → {@code HAS_END_*} = true（有端头，封闭）</li>
+     *   <li>邻居是同类管道 → {@code HAS_END_*} = false（无端头，开放）</li>
+     *   <li>邻居非同类管道 → {@code HAS_END_*} = true（有端头，封闭）</li>
      * </ul>
      *
      * @param level                世界
@@ -757,7 +778,7 @@ public abstract class PipeBlock extends Block
      * @param state                当前方块状态
      * @param startDir             第一端方向（用于区分 HAS_END_START / HAS_END_END）
      * @param neighborDir          邻居方向
-     * @param neighborIsPipeToward 邻居是否为对准的管道
+     * @param neighborIsPipeToward 邻居是否为对准的同类管道
      */
     protected void changePipeState(
         Level level,

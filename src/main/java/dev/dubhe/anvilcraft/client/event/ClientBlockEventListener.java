@@ -102,7 +102,9 @@ public class ClientBlockEventListener {
                 event.getEntity(), event.getPos(), event.getLevel(), event.getEntity().getItemInHand(hand), hand, hitVec
             );
             PacketDistributor.sendToServer(new HammerUsePacket(event.getPos(), hand, hitVec));
-            return interacted;
+            boolean canChange = event.getEntity().getAbilities().mayBuild
+                && AnvilHammerItem.ableToUseAnvilHammer(event.getLevel(), event.getPos(), event.getEntity());
+            return interacted || canChange;
         }
     }
 }
