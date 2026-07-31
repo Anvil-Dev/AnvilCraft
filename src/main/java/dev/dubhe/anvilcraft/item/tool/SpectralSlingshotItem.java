@@ -62,6 +62,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public Predicate<ItemStack> getAllSupportedProjectiles() {
         return _ -> true;
     }
@@ -160,8 +161,8 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
     @Override
     public boolean releaseUsing(ItemStack stack, Level level, LivingEntity entityLiving, int timeLeft) {
         int i = this.getUseDuration(stack, entityLiving) - timeLeft;
-        float f = getPowerForTime(i, stack, entityLiving);
-        if (f >= 1.0F && !isCharged(stack) && tryLoadProjectiles(entityLiving, stack)) {
+        float f = SpectralSlingshotItem.getPowerForTime(i, stack, entityLiving);
+        if (f >= 1.0F && !SpectralSlingshotItem.isCharged(stack) && SpectralSlingshotItem.tryLoadProjectiles(entityLiving, stack)) {
             CrossbowItem.ChargingSounds sounds = this.getChargingSounds(stack);
             sounds.end().ifPresent(
                 sound -> level.playSound(
@@ -177,7 +178,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
             );
         }
         int timeHeld = this.getUseDuration(stack, entityLiving) - timeLeft;
-        return getPowerForTime(timeHeld, stack, entityLiving) >= 1.0F && isCharged(stack);
+        return SpectralSlingshotItem.getPowerForTime(timeHeld, stack, entityLiving) >= 1.0F && SpectralSlingshotItem.isCharged(stack);
     }
 
     private static boolean tryLoadProjectiles(LivingEntity shooter, ItemStack crossbowStack) {
@@ -222,7 +223,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
             double d1 = target.getZ() - shooter.getZ();
             double d2 = Math.sqrt(d0 * d0 + d1 * d1);
             double d3 = target.getY(0.3333333333333333) - projectile.getY() + d2 * 0.2F;
-            vector3f = getProjectileShotVector(shooter, new Vec3(d0, d3, d1), angle);
+            vector3f = SpectralSlingshotItem.getProjectileShotVector(shooter, new Vec3(d0, d3, d1), angle);
         } else {
             Vec3 vec3 = shooter.getUpVector(1.0F);
             Quaternionf quaternionf = new Quaternionf().setAngleAxis((angle * (float) (Math.PI / 180.0)), vec3.x, vec3.y, vec3.z);
@@ -231,7 +232,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
         }
 
         projectile.shoot(vector3f.x(), vector3f.y(), vector3f.z(), velocity, inaccuracy);
-        float f = getShotPitch(shooter.getRandom(), index);
+        float f = SpectralSlingshotItem.getShotPitch(shooter.getRandom(), index);
         shooter.level().playSound(
             null,
             shooter.getX(),
@@ -307,7 +308,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
     }
 
     private static float getShotPitch(RandomSource random, int index) {
-        return index == 0 ? 1.0F : getRandomShotPitch((index & 1) == 1, random);
+        return index == 0 ? 1.0F : SpectralSlingshotItem.getRandomShotPitch((index & 1) == 1, random);
     }
 
     private static float getRandomShotPitch(boolean isHighPitched, RandomSource random) {
@@ -321,7 +322,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
         // 这个应该只用来播放音效了，所以应该不用改
         if (!level.isClientSide()) {
             CrossbowItem.ChargingSounds sounds = this.getChargingSounds(stack);
-            float tickPercent = (float) (stack.getUseDuration(entity) - ticksRemaining) / getChargeDuration(stack, entity);
+            float tickPercent = (float) (stack.getUseDuration(entity) - ticksRemaining) / SpectralSlingshotItem.getChargeDuration(stack, entity);
             if (tickPercent < 0.2F) {
                 this.startSoundPlayed = false;
                 this.midLoadSoundPlayed = false;
@@ -355,7 +356,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
                 ));
             }
 
-            if (tickPercent >= 1.0F && !isCharged(stack) && tryLoadProjectiles(entity, stack)) {
+            if (tickPercent >= 1.0F && !SpectralSlingshotItem.isCharged(stack) && SpectralSlingshotItem.tryLoadProjectiles(entity, stack)) {
                 sounds.end().ifPresent(
                     sound -> level.playSound(
                         null,
@@ -374,7 +375,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
 
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        return getChargeDuration(stack, entity) + 3;
+        return SpectralSlingshotItem.getChargeDuration(stack, entity) + 3;
     }
 
     public static int getChargeDuration(ItemStack stack, LivingEntity shooter) {
@@ -389,11 +390,12 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
     }
 
     CrossbowItem.ChargingSounds getChargingSounds(ItemStack stack) {
-        return EnchantmentHelper.pickHighestLevel(stack, EnchantmentEffectComponents.CROSSBOW_CHARGING_SOUNDS).orElse(DEFAULT_SOUNDS);
+        return EnchantmentHelper.pickHighestLevel(stack, EnchantmentEffectComponents.CROSSBOW_CHARGING_SOUNDS).orElse(
+            SpectralSlingshotItem.DEFAULT_SOUNDS);
     }
 
     private static float getPowerForTime(int timeLeft, ItemStack stack, LivingEntity shooter) {
-        float f = (float) timeLeft / (float) getChargeDuration(stack, shooter);
+        float f = (float) timeLeft / (float) SpectralSlingshotItem.getChargeDuration(stack, shooter);
         if (f > 1.0F) {
             f = 1.0F;
         }
@@ -504,7 +506,7 @@ public class SpectralSlingshotItem extends ProjectileWeaponItem {
                 level.addFreshEntity(projectile);
                 // 插入的代码，预存一下里面的东西
                 ChargedProjectiles chargedProjectiles = weapon.get(DataComponents.CHARGED_PROJECTILES);
-                boolean canTakeOut = canTakeOutAmmo(weapon);
+                boolean canTakeOut = SpectralSlingshotItem.canTakeOutAmmo(weapon);
                 ItemStack stack1 = ItemStack.EMPTY;
                 if (canTakeOut && chargedProjectiles != null) stack1 = chargedProjectiles.itemCopies().getFirst().copy();
                 // 原版的hurtAndBreak()

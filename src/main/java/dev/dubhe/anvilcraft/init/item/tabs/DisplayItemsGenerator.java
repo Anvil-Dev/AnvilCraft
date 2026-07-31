@@ -50,7 +50,7 @@ public abstract class DisplayItemsGenerator implements CreativeModeTab.DisplayIt
         if (this.output == null || this.itemDisplayParameters == null) {
             return;
         }
-        this.output.accept(enchanting(this.itemDisplayParameters, item, enchKey, level));
+        this.output.accept(DisplayItemsGenerator.enchanting(this.itemDisplayParameters, item, enchKey, level));
     }
 
     private static ItemStack enchanting(

@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -36,20 +37,20 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable, ID
 
     public HeaterBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(POWERED, false).setValue(OVERLOAD, true));
+        this.registerDefaultState(this.stateDefinition.any().setValue(HeaterBlock.POWERED, false).setValue(HeaterBlock.OVERLOAD, true));
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(HeaterBlock::new);
+        return BlockBehaviour.simpleCodec(HeaterBlock::new);
     }
 
     @Override
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-            .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()))
-            .setValue(OVERLOAD, true);
+            .setValue(HeaterBlock.POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()))
+            .setValue(HeaterBlock.OVERLOAD, true);
     }
 
     @Nullable
@@ -60,7 +61,7 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable, ID
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(POWERED, OVERLOAD);
+        builder.add(HeaterBlock.POWERED, HeaterBlock.OVERLOAD);
     }
 
     @Override
@@ -74,8 +75,8 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable, ID
     ) {
         if (level.isClientSide()) return;
         boolean powered = level.hasNeighborSignal(pos);
-        if (state.getValue(POWERED) != powered) {
-            level.setBlock(pos, state.setValue(POWERED, powered), Block.UPDATE_CLIENTS);
+        if (state.getValue(HeaterBlock.POWERED) != powered) {
+            level.setBlock(pos, state.setValue(HeaterBlock.POWERED, powered), Block.UPDATE_CLIENTS);
         }
     }
 
@@ -89,7 +90,7 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable, ID
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide()) return null;
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             type, ModBlockEntities.HEATER.get(), (level1, pos, state1, entity) -> entity.tick(level1, pos));
     }
 
@@ -101,7 +102,7 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable, ID
 
     @Override
     public boolean isActive(BlockState state) {
-        return !state.getValue(POWERED) && !state.getValue(OVERLOAD);
+        return !state.getValue(HeaterBlock.POWERED) && !state.getValue(HeaterBlock.OVERLOAD);
     }
 
     @Override
@@ -111,7 +112,7 @@ public class HeaterBlock extends BaseEntityBlock implements IHammerRemovable, ID
         BlockGetter level,
         BlockPos pos,
         CollisionContext context) {
-        return SHAPE;
+        return HeaterBlock.SHAPE;
     }
 
     @Override

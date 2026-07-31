@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.workstation;
 
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -18,7 +19,7 @@ public class SpaceOvercompressorBlock extends BetterBaseEntityBlock implements I
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(SpaceOvercompressorBlock::new);
+        return BlockBehaviour.simpleCodec(SpaceOvercompressorBlock::new);
     }
 
     @Override

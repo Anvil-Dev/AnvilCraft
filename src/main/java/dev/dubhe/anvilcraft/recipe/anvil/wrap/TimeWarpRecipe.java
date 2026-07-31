@@ -95,7 +95,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
 
     @Override
     public RecipeSerializer<TimeWarpRecipe> getSerializer() {
-        return SERIALIZER;
+        return TimeWarpRecipe.SERIALIZER;
     }
 
     /// 创建一个构建器实例
@@ -355,7 +355,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
         @Override
         public void validate(Identifier id) {
             HasCauldronSimple hasCauldronSimple = this.hasCauldron.build();
-            if (itemIngredients.isEmpty()
+            if (this.itemIngredients.isEmpty()
                 && (hasCauldronSimple.fluid().equals(HasCauldron.EMPTY)
                     || hasCauldronSimple.fluid().equals(HasCauldron.NULL))) {
                 throw new IllegalArgumentException("Recipe input must not be empty, RecipeId: " + id);

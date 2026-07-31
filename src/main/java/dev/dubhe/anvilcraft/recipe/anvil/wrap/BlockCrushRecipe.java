@@ -64,7 +64,7 @@ public class BlockCrushRecipe extends AbstractProcessRecipe<BlockCrushRecipe> {
 
     @Override
     public RecipeSerializer<BlockCrushRecipe> getSerializer() {
-        return SERIALIZER;
+        return BlockCrushRecipe.SERIALIZER;
     }
 
     /// 创建一个构建器实例

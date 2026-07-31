@@ -20,9 +20,9 @@ public class PistonMoveBlockListener {
     private static final Map<Block, Double> CHARGE_NUMS = new HashMap<>();
 
     static {
-        CHARGE_NUMS.put(Blocks.COPPER_BLOCK, 1d / 4);
-        CHARGE_NUMS.put(Blocks.EXPOSED_COPPER, 1d / 8);
-        CHARGE_NUMS.put(Blocks.WEATHERED_COPPER, 1d / 16);
+        PistonMoveBlockListener.CHARGE_NUMS.put(Blocks.COPPER_BLOCK, 1d / 4);
+        PistonMoveBlockListener.CHARGE_NUMS.put(Blocks.EXPOSED_COPPER, 1d / 8);
+        PistonMoveBlockListener.CHARGE_NUMS.put(Blocks.WEATHERED_COPPER, 1d / 16);
     }
 
     /// 活塞移动方块
@@ -31,7 +31,7 @@ public class PistonMoveBlockListener {
             BlockState blockState = level.getBlockState(pos);
             if (!(blockState.getBlock() instanceof MagnetBlock)) continue;
             if (blockState.getValue(MagnetBlock.LIT)) continue;
-            double n = getChargeNum(level, pos);
+            double n = PistonMoveBlockListener.getChargeNum(level, pos);
             if (n <= 0) {
                 continue;
             }
@@ -43,8 +43,8 @@ public class PistonMoveBlockListener {
         double max = 0d;
         for (Direction face : Direction.values()) {
             Block block = level.getBlockState(pos.relative(face)).getBlock();
-            if (!CHARGE_NUMS.containsKey(block)) continue;
-            max = max < CHARGE_NUMS.get(block) ? CHARGE_NUMS.get(block) : max;
+            if (!PistonMoveBlockListener.CHARGE_NUMS.containsKey(block)) continue;
+            max = max < PistonMoveBlockListener.CHARGE_NUMS.get(block) ? PistonMoveBlockListener.CHARGE_NUMS.get(block) : max;
         }
         return max;
     }

@@ -21,7 +21,8 @@ public final class TooltipUtil {
         tooltip.add(block.getName());
         tooltip.add(Component.literal(key.toString()).withStyle(ChatFormatting.DARK_GRAY));
         tooltip.add(
-            Component.literal(getModName(key.getNamespace())).withStyle(ChatFormatting.BLUE).withStyle(Style.EMPTY.withItalic(true))
+            Component.literal(
+                TooltipUtil.getModName(key.getNamespace())).withStyle(ChatFormatting.BLUE).withStyle(Style.EMPTY.withItalic(true))
         );
         return tooltip;
     }
@@ -33,7 +34,8 @@ public final class TooltipUtil {
         tooltip.add(Component.literal(key.toString()).withStyle(ChatFormatting.DARK_GRAY));
         tooltip.add(Component.translatable("jei.tooltip.recipe.id", id.toString()).withStyle(ChatFormatting.DARK_GRAY));
         tooltip.add(
-            Component.literal(getModName(key.getNamespace())).withStyle(ChatFormatting.BLUE).withStyle(Style.EMPTY.withItalic(true))
+            Component.literal(
+                TooltipUtil.getModName(key.getNamespace())).withStyle(ChatFormatting.BLUE).withStyle(Style.EMPTY.withItalic(true))
         );
         return tooltip;
     }

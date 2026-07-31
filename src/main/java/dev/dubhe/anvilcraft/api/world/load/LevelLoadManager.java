@@ -20,27 +20,27 @@ public class LevelLoadManager {
     /// @param loadChuckData 区块区域数据
     /// @param level         世界
     public static void register(BlockPos centerPos, LoadChuckData loadChuckData, ServerLevel level) {
-        if (LEVEL_LOAD_CHUCK_AREA_MAP.containsKey(centerPos)) return;
-        LEVEL_LOAD_CHUCK_AREA_MAP.put(centerPos, loadChuckData);
-        reload(level);
+        if (LevelLoadManager.LEVEL_LOAD_CHUCK_AREA_MAP.containsKey(centerPos)) return;
+        LevelLoadManager.LEVEL_LOAD_CHUCK_AREA_MAP.put(centerPos, loadChuckData);
+        LevelLoadManager.reload(level);
     }
 
     public static boolean checkRegistered(BlockPos pos) {
-        return LEVEL_LOAD_CHUCK_AREA_MAP.containsKey(pos);
+        return LevelLoadManager.LEVEL_LOAD_CHUCK_AREA_MAP.containsKey(pos);
     }
 
     static void lazy(Runnable runnable) {
-        if (serverStarted) {
+        if (LevelLoadManager.serverStarted) {
             runnable.run();
         } else {
-            lazyCalls.add(runnable);
+            LevelLoadManager.lazyCalls.add(runnable);
         }
     }
 
     public static void notifyServerStarted() {
-        serverStarted = true;
-        while (!lazyCalls.isEmpty()) {
-            lazyCalls.poll().run();
+        LevelLoadManager.serverStarted = true;
+        while (!LevelLoadManager.lazyCalls.isEmpty()) {
+            LevelLoadManager.lazyCalls.poll().run();
         }
     }
 
@@ -49,29 +49,29 @@ public class LevelLoadManager {
     /// @param centerPos 中心坐标
     /// @param level     世界
     public static void unregister(BlockPos centerPos, Level level) {
-        if (!LEVEL_LOAD_CHUCK_AREA_MAP.containsKey(centerPos)) return;
-        LEVEL_LOAD_CHUCK_AREA_MAP.get(centerPos).markRemoved();
+        if (!LevelLoadManager.LEVEL_LOAD_CHUCK_AREA_MAP.containsKey(centerPos)) return;
+        LevelLoadManager.LEVEL_LOAD_CHUCK_AREA_MAP.get(centerPos).markRemoved();
         if (level instanceof ServerLevel serverLevel) {
-            reload(serverLevel);
+            LevelLoadManager.reload(serverLevel);
         }
     }
 
     public static void reload(ServerLevel serverLevel) {
-        LEVEL_LOAD_CHUCK_AREA_MAP.values().stream()
+        LevelLoadManager.LEVEL_LOAD_CHUCK_AREA_MAP.values().stream()
             .filter(it -> !it.isRemoved())
             .forEach(it -> it.apply(serverLevel));
-        LEVEL_LOAD_CHUCK_AREA_MAP.values().stream()
+        LevelLoadManager.LEVEL_LOAD_CHUCK_AREA_MAP.values().stream()
             .filter(LoadChuckData::isRemoved)
             .forEach(it -> it.discard(serverLevel));
-        LEVEL_LOAD_CHUCK_AREA_MAP.values()
+        LevelLoadManager.LEVEL_LOAD_CHUCK_AREA_MAP.values()
             .removeIf(LoadChuckData::isRemoved);
     }
 
     public static void removeAll(ServerLevel level) {
-        LEVEL_LOAD_CHUCK_AREA_MAP.values().forEach(it -> {
+        LevelLoadManager.LEVEL_LOAD_CHUCK_AREA_MAP.values().forEach(it -> {
             it.markRemoved();
             it.discard(level);
         });
-        LEVEL_LOAD_CHUCK_AREA_MAP.clear();
+        LevelLoadManager.LEVEL_LOAD_CHUCK_AREA_MAP.clear();
     }
 }

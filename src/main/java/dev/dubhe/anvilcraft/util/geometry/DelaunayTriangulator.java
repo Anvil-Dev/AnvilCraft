@@ -17,7 +17,7 @@ public final class DelaunayTriangulator {
     }
 
     public static Set<Edge> triangulate(Collection<Point> input) {
-        return triangulate(new ArrayList<>(input));
+        return DelaunayTriangulator.triangulate(new ArrayList<>(input));
     }
 
     public static Set<Edge> triangulate(int pointCount, IntFunction<Point> pointFactory) {
@@ -25,17 +25,17 @@ public final class DelaunayTriangulator {
         for (int index = 0; index < pointCount; index++) {
             points.add(pointFactory.apply(index));
         }
-        return triangulate(points);
+        return DelaunayTriangulator.triangulate(points);
     }
 
     private static Set<Edge> triangulate(List<Point> input) {
-        List<Point> points = deduplicate(input);
+        List<Point> points = DelaunayTriangulator.deduplicate(input);
         if (points.size() < 2) return Set.of();
         if (points.size() == 2) {
             return Set.of(new Edge(points.get(0).id(), points.get(1).id()));
         }
 
-        SuperTriangle superTriangle = createSuperTriangle(points);
+        SuperTriangle superTriangle = DelaunayTriangulator.createSuperTriangle(points);
         int superA = points.size();
         int superB = points.size() + 1;
         int superC = points.size() + 2;
@@ -55,9 +55,9 @@ public final class DelaunayTriangulator {
         for (int pointIndex = 0; pointIndex < inputSize; pointIndex++) {
             Point point = points.get(pointIndex);
             badTriangles.clear();
-            int seedTriangle = findSeedTriangle(triangles, point, lastHitTriangle);
+            int seedTriangle = DelaunayTriangulator.findSeedTriangle(triangles, point, lastHitTriangle);
             if (seedTriangle == -1) continue;
-            collectBadTriangles(triangles, point, seedTriangle, queue, badTriangles);
+            DelaunayTriangulator.collectBadTriangles(triangles, point, seedTriangle, queue, badTriangles);
             if (badTriangles.isEmpty()) continue;
             lastHitTriangle = seedTriangle;
 
@@ -66,7 +66,7 @@ public final class DelaunayTriangulator {
                 triangles.setVisitStamp(triangleIndex, badTriangleStamp);
             }
             boundaryEdges.clear();
-            collectBoundaryEdges(triangles, badTriangles, badTriangleStamp, boundaryEdges);
+            DelaunayTriangulator.collectBoundaryEdges(triangles, badTriangles, badTriangleStamp, boundaryEdges);
             for (int triangleIndex : badTriangles) {
                 triangles.remove(triangleIndex);
             }
@@ -78,8 +78,8 @@ public final class DelaunayTriangulator {
                 if (edge.outsideNeighbor() != -1) {
                     triangles.replaceNeighbor(edge.outsideNeighbor(), edge.a(), edge.b(), triangleIndex);
                 }
-                registerLocalEdge(localEdges, triangles, triangleIndex, edge.b(), point.id(), 1);
-                registerLocalEdge(localEdges, triangles, triangleIndex, point.id(), edge.a(), 2);
+                DelaunayTriangulator.registerLocalEdge(localEdges, triangles, triangleIndex, edge.b(), point.id(), 1);
+                DelaunayTriangulator.registerLocalEdge(localEdges, triangles, triangleIndex, point.id(), edge.a(), 2);
             }
         }
 
@@ -103,7 +103,7 @@ public final class DelaunayTriangulator {
             && triangles.containsInCircumcircle(lastHitTriangle, point)) {
             return lastHitTriangle;
         }
-        int walkedTriangle = walkSeedTriangle(triangles, point, lastHitTriangle);
+        int walkedTriangle = DelaunayTriangulator.walkSeedTriangle(triangles, point, lastHitTriangle);
         if (walkedTriangle != -1) return walkedTriangle;
         for (int triangleIndex = 0; triangleIndex < triangles.size(); triangleIndex++) {
             if (!triangles.isAlive(triangleIndex)) continue;
@@ -166,15 +166,15 @@ public final class DelaunayTriangulator {
         List<Point> points = new ArrayList<>(input.size());
         Set<Long> seen = HashSet.newHashSet(input.size());
         for (Point point : input) {
-            long key = quantizedKey(point.x(), point.y());
+            long key = DelaunayTriangulator.quantizedKey(point.x(), point.y());
             if (seen.add(key)) points.add(point);
         }
         return points;
     }
 
     private static long quantizedKey(double x, double y) {
-        long qx = Math.round(x / EPSILON);
-        long qy = Math.round(y / EPSILON);
+        long qx = Math.round(x / DelaunayTriangulator.EPSILON);
+        long qy = Math.round(y / DelaunayTriangulator.EPSILON);
         return (qx * 31) ^ qy;
     }
 
@@ -185,7 +185,7 @@ public final class DelaunayTriangulator {
         List<BoundaryEdge> boundaryEdges
     ) {
         for (int triangleIndex : badTriangles) {
-            addBoundaryEdge(
+            DelaunayTriangulator.addBoundaryEdge(
                 boundaryEdges,
                 triangles,
                 badTriangleStamp,
@@ -194,7 +194,7 @@ public final class DelaunayTriangulator {
                 triangles.getVertexB(triangleIndex),
                 0
             );
-            addBoundaryEdge(
+            DelaunayTriangulator.addBoundaryEdge(
                 boundaryEdges,
                 triangles,
                 badTriangleStamp,
@@ -203,7 +203,7 @@ public final class DelaunayTriangulator {
                 triangles.getVertexC(triangleIndex),
                 1
             );
-            addBoundaryEdge(
+            DelaunayTriangulator.addBoundaryEdge(
                 boundaryEdges,
                 triangles,
                 badTriangleStamp,
@@ -237,7 +237,7 @@ public final class DelaunayTriangulator {
         int b,
         int side
     ) {
-        long key = packEdge(a, b);
+        long key = DelaunayTriangulator.packEdge(a, b);
         EdgeReference other = localEdges.putIfAbsent(key, new EdgeReference(triangleIndex, side));
         if (other == null) return;
         triangles.setNeighbor(triangleIndex, side, other.triangleIndex());
@@ -262,7 +262,7 @@ public final class DelaunayTriangulator {
             if (point.y() > maxY) maxY = point.y();
         }
         double delta = Math.max(maxX - minX, maxY - minY);
-        if (delta < EPSILON) delta = 1.0;
+        if (delta < DelaunayTriangulator.EPSILON) delta = 1.0;
         double midX = (minX + maxX) * 0.5;
         double midY = (minY + maxY) * 0.5;
         return new SuperTriangle(
@@ -326,20 +326,20 @@ public final class DelaunayTriangulator {
             Point p1 = points.get(a);
             Point p2 = points.get(b);
             Point p3 = points.get(c);
-            double determinant = determinant(p1, p2, p3);
-            if (Math.abs(determinant) <= EPSILON) return -1;
+            double determinant = TriangleBuffer.determinant(p1, p2, p3);
+            if (Math.abs(determinant) <= DelaunayTriangulator.EPSILON) return -1;
             this.vertexA.add(a);
             this.vertexB.add(b);
             this.vertexC.add(c);
             double centerX = (
-                                 (square(p1.x()) + square(p1.y())) * (p2.y() - p3.y())
-                                 + (square(p2.x()) + square(p2.y())) * (p3.y() - p1.y())
-                                 + (square(p3.x()) + square(p3.y())) * (p1.y() - p2.y())
+                                 (TriangleBuffer.square(p1.x()) + TriangleBuffer.square(p1.y())) * (p2.y() - p3.y())
+                                 + (TriangleBuffer.square(p2.x()) + TriangleBuffer.square(p2.y())) * (p3.y() - p1.y())
+                                 + (TriangleBuffer.square(p3.x()) + TriangleBuffer.square(p3.y())) * (p1.y() - p2.y())
                              ) / determinant;
             double centerY = (
-                                 (square(p1.x()) + square(p1.y())) * (p3.x() - p2.x())
-                                 + (square(p2.x()) + square(p2.y())) * (p1.x() - p3.x())
-                                 + (square(p3.x()) + square(p3.y())) * (p2.x() - p1.x())
+                                 (TriangleBuffer.square(p1.x()) + TriangleBuffer.square(p1.y())) * (p3.x() - p2.x())
+                                 + (TriangleBuffer.square(p2.x()) + TriangleBuffer.square(p2.y())) * (p1.x() - p3.x())
+                                 + (TriangleBuffer.square(p3.x()) + TriangleBuffer.square(p3.y())) * (p2.x() - p1.x())
                              ) / determinant;
             this.circumcenterX.add(centerX);
             this.circumcenterY.add(centerY);
@@ -369,7 +369,7 @@ public final class DelaunayTriangulator {
         }
 
         private void registerEdge(HashMap<Long, EdgeReference> edges, int triangleIndex, int a, int b, int side) {
-            long key = packEdge(a, b);
+            long key = DelaunayTriangulator.packEdge(a, b);
             EdgeReference other = edges.putIfAbsent(key, new EdgeReference(triangleIndex, side));
             if (other == null) return;
             this.setNeighbor(triangleIndex, side, other.triangleIndex());
@@ -399,15 +399,15 @@ public final class DelaunayTriangulator {
         }
 
         private void replaceNeighbor(int triangleIndex, int a, int b, int neighbor) {
-            if (matchesEdge(this.getVertexA(triangleIndex), this.getVertexB(triangleIndex), a, b)) {
+            if (TriangleBuffer.matchesEdge(this.getVertexA(triangleIndex), this.getVertexB(triangleIndex), a, b)) {
                 this.neighborAB.set(triangleIndex, neighbor);
                 return;
             }
-            if (matchesEdge(this.getVertexB(triangleIndex), this.getVertexC(triangleIndex), a, b)) {
+            if (TriangleBuffer.matchesEdge(this.getVertexB(triangleIndex), this.getVertexC(triangleIndex), a, b)) {
                 this.neighborBC.set(triangleIndex, neighbor);
                 return;
             }
-            if (matchesEdge(this.getVertexC(triangleIndex), this.getVertexA(triangleIndex), a, b)) {
+            if (TriangleBuffer.matchesEdge(this.getVertexC(triangleIndex), this.getVertexA(triangleIndex), a, b)) {
                 this.neighborCA.set(triangleIndex, neighbor);
             }
         }
@@ -429,7 +429,7 @@ public final class DelaunayTriangulator {
             int neighborAB = this.neighborAB(triangleIndex);
             if (neighborAB != -1 && this.isAlive(neighborAB)) {
                 double distanceSquared = this.squaredDistanceToCircumcenter(neighborAB, point);
-                if (distanceSquared + EPSILON < bestDistanceSquared) {
+                if (distanceSquared + DelaunayTriangulator.EPSILON < bestDistanceSquared) {
                     bestDistanceSquared = distanceSquared;
                     nextTriangle = neighborAB;
                 }
@@ -437,7 +437,7 @@ public final class DelaunayTriangulator {
             int neighborBC = this.neighborBC(triangleIndex);
             if (neighborBC != -1 && this.isAlive(neighborBC)) {
                 double distanceSquared = this.squaredDistanceToCircumcenter(neighborBC, point);
-                if (distanceSquared + EPSILON < bestDistanceSquared) {
+                if (distanceSquared + DelaunayTriangulator.EPSILON < bestDistanceSquared) {
                     bestDistanceSquared = distanceSquared;
                     nextTriangle = neighborBC;
                 }
@@ -445,7 +445,7 @@ public final class DelaunayTriangulator {
             int neighborCA = this.neighborCA(triangleIndex);
             if (neighborCA != -1 && this.isAlive(neighborCA)) {
                 double distanceSquared = this.squaredDistanceToCircumcenter(neighborCA, point);
-                if (distanceSquared + EPSILON < bestDistanceSquared) {
+                if (distanceSquared + DelaunayTriangulator.EPSILON < bestDistanceSquared) {
                     nextTriangle = neighborCA;
                 }
             }
@@ -461,7 +461,7 @@ public final class DelaunayTriangulator {
         private boolean containsInCircumcircle(int triangleIndex, Point point) {
             double dx = point.x() - this.circumcenterX.get(triangleIndex);
             double dy = point.y() - this.circumcenterY.get(triangleIndex);
-            return dx * dx + dy * dy <= this.circumradiusSquared.get(triangleIndex) + EPSILON;
+            return dx * dx + dy * dy <= this.circumradiusSquared.get(triangleIndex) + DelaunayTriangulator.EPSILON;
         }
 
         private void remove(int triangleIndex) {

@@ -21,7 +21,7 @@ public final class StorageClientStub {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::load,
-            playerId(),
+            StorageClientStub.playerId(),
             sourcePos.asLong()
         );
     }
@@ -30,7 +30,7 @@ public final class StorageClientStub {
         RPC.call(
             RpcTarget.server(),
             StorageServerStub::setOpen,
-            playerId(),
+            StorageClientStub.playerId(),
             sourcePos.asLong(),
             opened
         );
@@ -40,7 +40,7 @@ public final class StorageClientStub {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::reorder,
-            playerId(),
+            StorageClientStub.playerId(),
             sourcePos.asLong()
         );
     }
@@ -52,7 +52,7 @@ public final class StorageClientStub {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::sync,
-            playerId(),
+            StorageClientStub.playerId(),
             sourcePos.asLong(),
             slots
         );
@@ -67,7 +67,7 @@ public final class StorageClientStub {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::interact,
-            playerId(),
+            StorageClientStub.playerId(),
             sourcePos.asLong(),
             slot,
             button,
@@ -79,7 +79,7 @@ public final class StorageClientStub {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::deposit,
-            playerId(),
+            StorageClientStub.playerId(),
             sourcePos.asLong(),
             all
         );
@@ -89,7 +89,7 @@ public final class StorageClientStub {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::take,
-            playerId(),
+            StorageClientStub.playerId(),
             sourcePos.asLong()
         );
     }

@@ -47,7 +47,7 @@ public final class SmithingTemplatePackets {
 
         @Override
         public Type<Sync> type() {
-            return TYPE;
+            return Sync.TYPE;
         }
 
         @Override
@@ -74,7 +74,7 @@ public final class SmithingTemplatePackets {
 
         @Override
         public Type<Action> type() {
-            return TYPE;
+            return Action.TYPE;
         }
 
         @Override

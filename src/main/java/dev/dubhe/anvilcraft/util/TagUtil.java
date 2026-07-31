@@ -22,13 +22,10 @@ public class TagUtil {
     }
 
     public static Iterable<ItemStack> getItemStacksFromTag(TagKey<Item> tag, RegistryAccess registry) {
-        Iterable<Holder<Item>> iterable = getValuesFromTag(Registries.ITEM, tag, registry);
+        Iterable<Holder<Item>> iterable = TagUtil.getValuesFromTag(Registries.ITEM, tag, registry);
         return Iterables.transform(
             iterable,
-            holder -> {
-                if (holder == null) throw new NullPointerException("The item recipes is null");
-                return holder.value().getDefaultInstance();
-            }
+            holder -> holder.value().getDefaultInstance()
         );
     }
 

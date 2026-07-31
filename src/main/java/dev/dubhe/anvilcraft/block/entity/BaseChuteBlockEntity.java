@@ -74,7 +74,7 @@ public abstract class BaseChuteBlockEntity
         private TrackedEjectedItem(ItemEntity item) {
             this.item = item;
             this.wasOnGround = item.onGround();
-            this.ticksLeft = EJECTED_ITEM_TRACK_TICKS;
+            this.ticksLeft = BaseChuteBlockEntity.EJECTED_ITEM_TRACK_TICKS;
         }
     }
 
@@ -218,7 +218,7 @@ public abstract class BaseChuteBlockEntity
         }
         // 尝试从上方容器输入
         if (this.inventoryFull()) {
-            this.level.updateNeighbourForOutputSignal(getBlockPos(), getBlockState().getBlock());
+            this.level.updateNeighbourForOutputSignal(this.getBlockPos(), this.getBlockState().getBlock());
             if (resetCD) this.cooldown = AnvilCraft.CONFIG.chuteMaxCooldown;
             return;
         }
@@ -253,7 +253,7 @@ public abstract class BaseChuteBlockEntity
                 resetCD = true;
             }
         }
-        this.level.updateNeighbourForOutputSignal(getBlockPos(), getBlockState().getBlock());
+        this.level.updateNeighbourForOutputSignal(this.getBlockPos(), this.getBlockState().getBlock());
         if (resetCD) this.cooldown = AnvilCraft.CONFIG.chuteMaxCooldown;
     }
 
@@ -398,6 +398,8 @@ public abstract class BaseChuteBlockEntity
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         super.preRemoveSideEffects(pos, state);
-        Containers.dropContents(this.level, pos, this.itemHandler.getStacks());
+        if (this.level != null) {
+            Containers.dropContents(this.level, pos, this.itemHandler.getStacks());
+        }
     }
 }

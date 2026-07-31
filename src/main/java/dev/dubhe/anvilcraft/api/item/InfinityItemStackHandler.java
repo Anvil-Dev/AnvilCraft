@@ -30,7 +30,6 @@ public class InfinityItemStackHandler implements ResourceHandler<ItemResource> {
 
     @Override
     public long getCapacityAsLong(int index, ItemResource resource) {
-        if (resource == null) return 0;
         return Integer.MAX_VALUE;
     }
 

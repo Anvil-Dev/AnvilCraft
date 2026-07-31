@@ -90,17 +90,17 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
     private static final int HOTBAR_SLOT_COUNT = 9;
     private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
     private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
-    private static final int PLAYER_INVENTORY_SLOT_COUNT = PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
-    private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
+    private static final int PLAYER_INVENTORY_SLOT_COUNT = BatchCutterMenu.PLAYER_INVENTORY_COLUMN_COUNT * BatchCutterMenu.PLAYER_INVENTORY_ROW_COUNT;
+    private static final int VANILLA_SLOT_COUNT = BatchCutterMenu.HOTBAR_SLOT_COUNT + BatchCutterMenu.PLAYER_INVENTORY_SLOT_COUNT;
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
-    private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
+    private static final int TE_INVENTORY_FIRST_SLOT_INDEX = BatchCutterMenu.VANILLA_FIRST_SLOT_INDEX + BatchCutterMenu.VANILLA_SLOT_COUNT;
 
     // THIS YOU HAVE TO DEFINE!
     private static final int TE_INVENTORY_SLOT_COUNT = 1; // must be the number of slots you have!
 
     @Override
     public ItemStack quickMoveStack(Player playerIn, int index) {
-        Slot sourceSlot = slots.get(index);
+        Slot sourceSlot = this.slots.get(index);
         // noinspection ConstantValue
         if (sourceSlot == null || !sourceSlot.hasItem()) {
             return ItemStack.EMPTY; // EMPTY_ITEM
@@ -108,17 +108,17 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
         ItemStack sourceStack = sourceSlot.getItem();
         final ItemStack copyOfSourceStack = sourceStack.copy();
         // Check if the slot clicked is one of the vanilla container slots
-        if (index < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
+        if (index < BatchCutterMenu.VANILLA_FIRST_SLOT_INDEX + BatchCutterMenu.VANILLA_SLOT_COUNT) {
             // This is a vanilla container slot so merge the stack into the tile inventory
             if (this.moveItemToActiveSlot(sourceStack)) {
                 return ItemStack.EMPTY; // EMPTY_ITEM
             }
-        } else if (index < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
+        } else if (index < BatchCutterMenu.TE_INVENTORY_FIRST_SLOT_INDEX + BatchCutterMenu.TE_INVENTORY_SLOT_COUNT) {
             // This is a TE slot so merge the stack into the players inventory
-            if (!moveItemStackTo(
+            if (!this.moveItemStackTo(
                 sourceStack,
-                VANILLA_FIRST_SLOT_INDEX,
-                VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT,
+                BatchCutterMenu.VANILLA_FIRST_SLOT_INDEX,
+                BatchCutterMenu.VANILLA_FIRST_SLOT_INDEX + BatchCutterMenu.VANILLA_SLOT_COUNT,
                 false
             )) {
                 return ItemStack.EMPTY;
@@ -166,7 +166,7 @@ public class BatchCutterMenu extends BaseMachineMenu implements IFilterMenu, Con
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(ContainerLevelAccess.create(this.level, this.entity.getBlockPos()), player, ModBlocks.BATCH_CUTTER.get());
+        return AbstractContainerMenu.stillValid(ContainerLevelAccess.create(this.level, this.entity.getBlockPos()), player, ModBlocks.BATCH_CUTTER.get());
     }
 
     @Override

@@ -28,7 +28,8 @@ public class MDBlockCrushRecipeComponent extends MDBaseAnvilRecipeComponent {
             List<BlockState> states = this.inputBlocks.get(i).constructStatesForRender();
             if (!states.isEmpty()) {
                 BlockState blockState = states.get(RecipeUtil.getDisplayIndex(states.size()));
-                AgeratumUtil.renderBlock(context, blockState, mouseX, mouseY, INPUT_BLOCK_X, BLOCK_Y + i * AgeratumUtil.BLOCK_SIZE);
+                AgeratumUtil.renderBlock(context, blockState, mouseX, mouseY, MDBaseAnvilRecipeComponent.INPUT_BLOCK_X, MDBaseAnvilRecipeComponent.BLOCK_Y
+                                                                                                                        + i * AgeratumUtil.BLOCK_SIZE);
             }
         }
     }

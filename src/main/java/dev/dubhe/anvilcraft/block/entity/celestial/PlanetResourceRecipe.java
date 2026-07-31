@@ -52,7 +52,7 @@ public record PlanetResourceRecipe(
         }
 
         public static Category fromName(String name) {
-            for (Category value : values()) {
+            for (Category value : Category.values()) {
                 if (value.name.equals(name)) return value;
             }
             throw new IllegalArgumentException("Unknown planet resource category: " + name);
@@ -271,7 +271,7 @@ public record PlanetResourceRecipe(
     };
 
     public static final RecipeSerializer<PlanetResourceRecipe> SERIALIZER = new RecipeSerializer<>(
-        CODEC, STREAM_CODEC
+        PlanetResourceRecipe.CODEC, PlanetResourceRecipe.STREAM_CODEC
     );
 
     @Override
@@ -327,7 +327,7 @@ public record PlanetResourceRecipe(
 
     @Override
     public RecipeSerializer<PlanetResourceRecipe> getSerializer() {
-        return SERIALIZER;
+        return PlanetResourceRecipe.SERIALIZER;
     }
 
     @Override

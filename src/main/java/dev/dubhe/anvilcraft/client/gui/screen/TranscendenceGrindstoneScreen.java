@@ -155,8 +155,8 @@ public class TranscendenceGrindstoneScreen extends AbstractContainerScreen<Trans
                 );
                 return;
             }
-            if (this.hoveredSlot.index == MODIFIER_SLOT_INDEX) {
-                graphics.setTooltipForNextFrame(this.font, this.font.split(MODIFIER_SLOT_TOOLTIP, 150), x, y);
+            if (this.hoveredSlot.index == TranscendenceGrindstoneScreen.MODIFIER_SLOT_INDEX) {
+                graphics.setTooltipForNextFrame(this.font, this.font.split(TranscendenceGrindstoneScreen.MODIFIER_SLOT_TOOLTIP, 150), x, y);
                 return;
             }
         }
@@ -215,7 +215,7 @@ public class TranscendenceGrindstoneScreen extends AbstractContainerScreen<Trans
         super.extractBackground(graphics, mouseX, mouseY, partialTick);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            TranscendenceGrindstoneScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,

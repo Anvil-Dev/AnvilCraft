@@ -20,6 +20,6 @@ public final class AnvilHammerSlotOverlay {
         if (slot.container != inventory) return;
         if (slot.getContainerSlot() != menu.anvilcraft$getOpenedHammerSlot()) return;
         if (!slot.getItem().is(ModItemTags.ANVIL_HAMMER)) return;
-        guiGraphics.fill(slot.x, slot.y, slot.x + 16, slot.y + 16, COLOR);
+        guiGraphics.fill(slot.x, slot.y, slot.x + 16, slot.y + 16, AnvilHammerSlotOverlay.COLOR);
     }
 }

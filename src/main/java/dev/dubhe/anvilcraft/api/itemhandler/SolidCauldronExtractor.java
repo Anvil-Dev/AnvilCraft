@@ -35,7 +35,7 @@ public class SolidCauldronExtractor extends SnapshotJournal<BlockState> implemen
 
     public static SolidCauldronExtractor get(Level level, BlockPos pos, Predicate<BlockState> validCauldron) {
         SolidCauldronExtractor.WrapperLocation location = new SolidCauldronExtractor.WrapperLocation(level, pos.immutable());
-        return WRAPPERS.computeIfAbsent(location, location1 -> new SolidCauldronExtractor(validCauldron, location1));
+        return SolidCauldronExtractor.WRAPPERS.computeIfAbsent(location, location1 -> new SolidCauldronExtractor(validCauldron, location1));
     }
 
     private final Predicate<BlockState> validCauldron;

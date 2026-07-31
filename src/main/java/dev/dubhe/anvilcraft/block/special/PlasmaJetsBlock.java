@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -30,7 +31,7 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(PlasmaJetsBlock::new);
+        return BlockBehaviour.simpleCodec(PlasmaJetsBlock::new);
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -72,7 +73,7 @@ public class PlasmaJetsBlock extends BaseEntityBlock {
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createTickerHelper(type, ModBlockEntities.PLASMA_JETS.get(), PlasmaJetsBlockEntity::tick);
+        return BaseEntityBlock.createTickerHelper(type, ModBlockEntities.PLASMA_JETS.get(), PlasmaJetsBlockEntity::tick);
     }
 
     @Override

@@ -22,7 +22,7 @@ public final class CelestialSearchHistory {
             return;
         }
         this.entries.addFirst(new Entry(body, resources));
-        while (this.entries.size() > MAX_ENTRIES) {
+        while (this.entries.size() > CelestialSearchHistory.MAX_ENTRIES) {
             this.entries.removeLast();
         }
         this.resetBrowsing();
@@ -86,8 +86,8 @@ public final class CelestialSearchHistory {
 
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
-        tag.putInt("size", Math.min(this.entries.size(), MAX_ENTRIES));
-        for (int i = 0; i < Math.min(this.entries.size(), MAX_ENTRIES); i++) {
+        tag.putInt("size", Math.min(this.entries.size(), CelestialSearchHistory.MAX_ENTRIES));
+        for (int i = 0; i < Math.min(this.entries.size(), CelestialSearchHistory.MAX_ENTRIES); i++) {
             tag.put("h" + i, this.entries.get(i).toTag());
         }
         return tag;
@@ -96,7 +96,7 @@ public final class CelestialSearchHistory {
     /** 同时兼容当前“天体加资源”格式和旧版仅保存天体的格式。 */
     public void load(CompoundTag tag) {
         this.clear();
-        int size = Math.min(tag.getIntOr("size", 0), MAX_ENTRIES);
+        int size = Math.min(tag.getIntOr("size", 0), CelestialSearchHistory.MAX_ENTRIES);
         for (int i = 0; i < size; i++) {
             String key = "h" + i;
             if (!tag.contains(key)) continue;

@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class MeltGemCauldronBlock extends BaseCauldronBlock implements IHammerRemovable {
@@ -16,7 +17,7 @@ public class MeltGemCauldronBlock extends BaseCauldronBlock implements IHammerRe
 
     @Override
     protected MapCodec<? extends AbstractCauldronBlock> codec() {
-        return simpleCodec(MeltGemCauldronBlock::new);
+        return BlockBehaviour.simpleCodec(MeltGemCauldronBlock::new);
     }
 
     @Override

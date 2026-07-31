@@ -8,7 +8,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import java.util.function.Consumer;
 
 public class ModLootContextParamSets {
-    public static final ContextKeySet USE_ON_ITEM = register(
+    public static final ContextKeySet USE_ON_ITEM = ModLootContextParamSets.register(
         "use_on_item",
         it -> it.required(LootContextParams.THIS_ENTITY)
             .required(LootContextParams.ORIGIN)
@@ -17,7 +17,7 @@ public class ModLootContextParamSets {
             .required(LootContextParams.ENCHANTMENT_LEVEL)
     );
 
-    public static final ContextKeySet POST_BREAK_BLOCK = register(
+    public static final ContextKeySet POST_BREAK_BLOCK = ModLootContextParamSets.register(
         "post_break_block",
         it -> it.required(LootContextParams.THIS_ENTITY)
             .required(LootContextParams.ORIGIN)

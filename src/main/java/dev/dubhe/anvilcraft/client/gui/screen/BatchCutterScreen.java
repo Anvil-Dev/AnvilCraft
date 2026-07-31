@@ -86,7 +86,7 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            BatchCutterScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,
@@ -194,8 +194,8 @@ public class BatchCutterScreen extends BaseMachineScreen<BatchCutterMenu> implem
             && filterSlot.isFilter()
             && !filterSlot.getItem().isEmpty()
         ) {
-            components.add(SCROLL_WHEEL_TO_CHANGE_STACK_LIMIT_TOOLTIP);
-            components.add(SHIFT_TO_SCROLL_FASTER_TOOLTIP);
+            components.add(IFilterScreen.SCROLL_WHEEL_TO_CHANGE_STACK_LIMIT_TOOLTIP);
+            components.add(IFilterScreen.SHIFT_TO_SCROLL_FASTER_TOOLTIP);
         }
         return components;
     }

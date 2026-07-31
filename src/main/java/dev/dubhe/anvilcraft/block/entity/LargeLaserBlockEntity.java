@@ -38,29 +38,29 @@ public class LargeLaserBlockEntity extends BaseLaserBlockEntity implements IPowe
         if (this.grid == null) {
             return;
         }
-        if (!getBlockState().getValue(LargeLaserBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
-        if (!(getBlockState().getBlock() instanceof LargeLaserBlock block)) return;
-        if (this.grid.isWorking() && getBlockState().getValue(LargeLaserBlock.OVERLOAD)) {
-            block.updateState(this.level, getBlockPos(), LargeLaserBlock.OVERLOAD, false, 3);
-        } else if (!this.grid.isWorking() && !getBlockState().getValue(LargeLaserBlock.OVERLOAD)) {
-            block.updateState(this.level, getBlockPos(), LargeLaserBlock.OVERLOAD, true, 3);
+        if (!this.getBlockState().getValue(LargeLaserBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
+        if (!(this.getBlockState().getBlock() instanceof LargeLaserBlock block)) return;
+        if (this.grid.isWorking() && this.getBlockState().getValue(LargeLaserBlock.OVERLOAD)) {
+            block.updateState(this.level, this.getBlockPos(), LargeLaserBlock.OVERLOAD, false, 3);
+        } else if (!this.grid.isWorking() && !this.getBlockState().getValue(LargeLaserBlock.OVERLOAD)) {
+            block.updateState(this.level, this.getBlockPos(), LargeLaserBlock.OVERLOAD, true, 3);
         }
         if (this.isSwitchedOn()) {
-            emitLaser(this.getFacing());
+            this.emitLaser(this.getFacing());
         } else {
-            if (irradiateBlockPos != null
-                && level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity irradiateBlockEntity
+            if (this.irradiateBlockPos != null
+                && level.getBlockEntity(this.irradiateBlockPos) instanceof BaseLaserBlockEntity irradiateBlockEntity
             ) {
                 irradiateBlockEntity.onCancelingIrradiation(this);
             }
-            updateIrradiateBlockPos(null);
+            this.updateIrradiateBlockPos(null);
         }
         super.tick(level);
     }
 
     public boolean isSwitchedOn() {
-        return getBlockState().getValue(LargeLaserBlock.SWITCH) == Switch.ON
-            && !getBlockState().getValue(LargeLaserBlock.OVERLOAD);
+        return this.getBlockState().getValue(LargeLaserBlock.SWITCH) == Switch.ON
+               && !this.getBlockState().getValue(LargeLaserBlock.OVERLOAD);
     }
 
     @Override
@@ -79,8 +79,8 @@ public class LargeLaserBlockEntity extends BaseLaserBlockEntity implements IPowe
 
     @Override
     public int getInputPower() {
-        if (level == null) return 256;
-        return getBlockState().getValue(LargeLaserBlock.SWITCH) == Switch.OFF ? 0 : 256;
+        if (this.level == null) return 256;
+        return this.getBlockState().getValue(LargeLaserBlock.SWITCH) == Switch.OFF ? 0 : 256;
     }
 
     @Override
@@ -91,10 +91,10 @@ public class LargeLaserBlockEntity extends BaseLaserBlockEntity implements IPowe
     @Override
     public PowerComponentType getComponentType() {
         if (this.level == null) return PowerComponentType.INVALID;
-        if (!this.level.getBlockState(getBlockPos()).hasProperty(LargeLaserBlock.HALF)) {
+        if (!this.level.getBlockState(this.getBlockPos()).hasProperty(LargeLaserBlock.HALF)) {
             return PowerComponentType.INVALID;
         }
-        if (this.level.getBlockState(getBlockPos()).getValue(LargeLaserBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) {
+        if (this.level.getBlockState(this.getBlockPos()).getValue(LargeLaserBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) {
             return PowerComponentType.CONSUMER;
         } else {
             return PowerComponentType.INVALID;

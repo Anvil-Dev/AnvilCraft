@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.block.utility;
 
+
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -41,17 +43,17 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
 
     public ActiveSilencerBlock(Properties properties) {
         super(properties);
-        registerDefaultState(getStateDefinition().any().setValue(POWERED, false));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(ActiveSilencerBlock.POWERED, false));
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(ActiveSilencerBlock::new);
+        return BlockBehaviour.simpleCodec(ActiveSilencerBlock::new);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(POWERED);
+        builder.add(ActiveSilencerBlock.POWERED);
     }
 
     @Nullable
@@ -62,7 +64,7 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
 
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        return defaultBlockState().setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+        return this.defaultBlockState().setValue(ActiveSilencerBlock.POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
@@ -74,7 +76,7 @@ public class ActiveSilencerBlock extends BaseEntityBlock implements IHammerRemov
         @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
-        level.setBlockAndUpdate(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)));
+        level.setBlockAndUpdate(pos, state.setValue(ActiveSilencerBlock.POWERED, level.hasNeighborSignal(pos)));
     }
 
     @Override

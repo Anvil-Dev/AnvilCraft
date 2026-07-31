@@ -56,7 +56,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            ItemDetectorScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,
@@ -75,8 +75,8 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
         // filter mode
         this.cycleFilterModeButton = new CycleFilterModeButton(
-            leftPos + 75,
-            topPos + 54,
+            this.leftPos + 75,
+            this.topPos + 54,
             b -> {
                 if (!(b instanceof CycleFilterModeButton button)) return;
                 ClientPacketDistributor.sendToServer(new MachineCycleFilterModePacket(button.cycle()));
@@ -87,8 +87,8 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
         this.addRenderableWidget(this.cycleFilterModeButton);
         // range
         this.addRenderableWidget(new TextWidget(
-            leftPos + 57,
-            topPos + 24,
+            this.leftPos + 57,
+            this.topPos + 24,
             20,
             8,
             Minecraft.getInstance().font,
@@ -96,8 +96,8 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
         ));
         // range - +
         this.addRenderableWidget(new ItemCollectorButton(
-            leftPos + 43,
-            topPos + 23,
+            this.leftPos + 43,
+            this.topPos + 23,
             "minus",
             _ -> {
                 this.menu.getBlockEntity().decreaseRange();
@@ -107,8 +107,8 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             }
         ));
         this.addRenderableWidget(new ItemCollectorButton(
-            leftPos + 81,
-            topPos + 23,
+            this.leftPos + 81,
+            this.topPos + 23,
             "add",
             _ -> {
                 this.menu.getBlockEntity().increaseRange();

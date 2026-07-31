@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.monster.Shulker;
@@ -14,6 +16,18 @@ import java.util.Objects;
 import java.util.function.Predicate;
 
 public class EntityUtil {
+    public static void hurt(Entity entity, DamageSource source, float damage) {
+        if (entity.level() instanceof ServerLevel level) {
+            entity.hurtServer(level, source, damage);
+        }
+    }
+
+    public static boolean hurtOrSimulate(Entity entity, DamageSource source, float damage) {
+        return entity.level() instanceof ServerLevel level
+               ? entity.hurtServer(level, source, damage)
+               : entity.hurtClient(source);
+    }
+
     public static void setShulkerOpen(Shulker shulker) {
         try {
             Objects.requireNonNull(shulker.getAttribute(Attributes.ARMOR)).removeModifier(Shulker.COVERED_ARMOR_MODIFIER_ID);

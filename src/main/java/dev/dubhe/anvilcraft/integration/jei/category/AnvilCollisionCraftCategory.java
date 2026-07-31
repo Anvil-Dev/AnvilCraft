@@ -85,12 +85,12 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return AnvilCollisionCraftCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return AnvilCollisionCraftCategory.HEIGHT;
     }
 
     @Override
@@ -111,12 +111,12 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
 
         // 如果有输出物品则添加到输出
         if (!recipe.outputItems().isEmpty()) {
-            List<ChanceItemStack> chanceItemStacks = getChanceItemStacks(recipe);
+            List<ChanceItemStack> chanceItemStacks = AnvilCollisionCraftCategory.getChanceItemStacks(recipe);
             JeiItemUtil.addDefaultOutputSlots(builder, chanceItemStacks);
         }
 
         // 将被撞击的方块加入addInvisibleIngredients中
-        JeiBlockIngredientUtil.addInputSlot(builder, HIT_BLOCK, 70, 24, 18, 18, recipe.hitBlock());
+        JeiBlockIngredientUtil.addInputSlot(builder, AnvilCollisionCraftCategory.HIT_BLOCK, 70, 24, 18, 18, recipe.hitBlock());
 
         // 将转换方块加入addInvisibleIngredients中
         if (!recipe.transformBlocks().isEmpty()) {
@@ -128,7 +128,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
             JeiBlockIngredientUtil.addSlot(
                 builder,
                 RecipeIngredientRole.INPUT,
-                TRANSFORM_INPUT_BLOCK,
+                AnvilCollisionCraftCategory.TRANSFORM_INPUT_BLOCK,
                 x,
                 0,
                 18,
@@ -142,7 +142,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
             JeiBlockIngredientUtil.addSlot(
                 builder,
                 RecipeIngredientRole.OUTPUT,
-                TRANSFORM_OUTPUT_BLOCK,
+                AnvilCollisionCraftCategory.TRANSFORM_OUTPUT_BLOCK,
                 x,
                 outputY,
                 18,
@@ -193,7 +193,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
         List<BlockState> hitBlockStates = recipe.hitBlock().constructStatesForRender();
         if (!hitBlockStates.isEmpty()) {
             BlockState renderedState = JeiBlockIngredientUtil
-                .getDisplayedState(recipeSlotsView, HIT_BLOCK, hitBlockStates)
+                .getDisplayedState(recipeSlotsView, AnvilCollisionCraftCategory.HIT_BLOCK, hitBlockStates)
                 .orElse(hitBlockStates.getFirst());
             // 特判: 如果是大铁砧 则将BlockState改为cube=center,half=mid_center 并修改scale使其大小合理
             // 建议下次写类似大铁砧的方块的时候 把registerDefaultState注册成有材质的中心位置
@@ -218,7 +218,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                         .flatMap(transform -> transform.inputBlock().constructStatesForRender().stream())
                         .toList();
                     BlockState inputBlockRenderedState = JeiBlockIngredientUtil
-                        .getDisplayedState(recipeSlotsView, TRANSFORM_INPUT_BLOCK, inputBlockStates)
+                        .getDisplayedState(recipeSlotsView, AnvilCollisionCraftCategory.TRANSFORM_INPUT_BLOCK, inputBlockStates)
                         .orElse(inputBlockStates.getFirst());
                     RenderSupport.renderBlock(
                         graphics,
@@ -232,7 +232,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                         .map(transform -> transform.outputBlock().state())
                         .toList();
                     BlockState outputBlockState = JeiBlockIngredientUtil
-                        .getDisplayedState(recipeSlotsView, TRANSFORM_OUTPUT_BLOCK, outputBlockStates)
+                        .getDisplayedState(recipeSlotsView, AnvilCollisionCraftCategory.TRANSFORM_OUTPUT_BLOCK, outputBlockStates)
                         .orElse(outputBlockStates.getFirst());
                     RenderSupport.renderBlock(
                         graphics,
@@ -266,7 +266,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                         .flatMap(transform -> transform.inputBlock().constructStatesForRender().stream())
                         .toList();
                     BlockState inputBlockRenderedState = JeiBlockIngredientUtil
-                        .getDisplayedState(recipeSlotsView, TRANSFORM_INPUT_BLOCK, inputBlockStates)
+                        .getDisplayedState(recipeSlotsView, AnvilCollisionCraftCategory.TRANSFORM_INPUT_BLOCK, inputBlockStates)
                         .orElse(inputBlockStates.getFirst());
                     RenderSupport.renderBlock(
                         graphics,
@@ -280,7 +280,7 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                         .map(transform -> transform.outputBlock().state())
                         .toList();
                     BlockState outputBlockState = JeiBlockIngredientUtil
-                        .getDisplayedState(recipeSlotsView, TRANSFORM_OUTPUT_BLOCK, outputBlockStates)
+                        .getDisplayedState(recipeSlotsView, AnvilCollisionCraftCategory.TRANSFORM_OUTPUT_BLOCK, outputBlockStates)
                         .orElse(outputBlockStates.getFirst());
                     RenderSupport.renderBlock(
                         graphics,

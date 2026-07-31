@@ -50,8 +50,8 @@ public class TradingStationBlock
         super(properties);
         this.registerDefaultState(
             this.defaultBlockState()
-                .setValue(HALF, DirectionVertical2PartHalf.BOTTOM)
-                .setValue(FACING, Direction.NORTH)
+                .setValue(TradingStationBlock.HALF, DirectionVertical2PartHalf.BOTTOM)
+                .setValue(TradingStationBlock.FACING, Direction.NORTH)
         );
     }
 
@@ -59,7 +59,7 @@ public class TradingStationBlock
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction dir = context.getHorizontalDirection().getOpposite();
         if (dir.getAxis().isVertical()) dir = Direction.NORTH;
-        return this.waterloggedStateForPlacement(context, this.defaultBlockState().setValue(FACING, dir));
+        return this.waterloggedStateForPlacement(context, this.defaultBlockState().setValue(TradingStationBlock.FACING, dir));
     }
 
     @Override
@@ -89,7 +89,7 @@ public class TradingStationBlock
 
     @Override
     protected boolean propagatesSkylightDown(BlockState state) {
-        return state.getValue(HALF) == DirectionVertical2PartHalf.TOP;
+        return state.getValue(TradingStationBlock.HALF) == DirectionVertical2PartHalf.TOP;
     }
 
     @Override
@@ -99,23 +99,23 @@ public class TradingStationBlock
 
     @Override
     public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
+        return TradingStationBlock.FACING;
     }
 
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
-        this.change(blockPos, level, (state) -> state.cycle(FACING));
+        this.change(blockPos, level, (state) -> state.cycle(TradingStationBlock.FACING));
         return true;
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(TradingStationBlock.FACING, rotation.rotate(state.getValue(TradingStationBlock.FACING)));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
+        return state.setValue(TradingStationBlock.FACING, mirror.mirror(state.getValue(TradingStationBlock.FACING)));
     }
 
     @Override
@@ -164,17 +164,17 @@ public class TradingStationBlock
     public Collection<BlockState> getBottomStates() {
         return Set.of(
             this.defaultBlockState()
-                .setValue(HALF, DirectionVertical2PartHalf.BOTTOM)
-                .setValue(FACING, Direction.NORTH),
+                .setValue(TradingStationBlock.HALF, DirectionVertical2PartHalf.BOTTOM)
+                .setValue(TradingStationBlock.FACING, Direction.NORTH),
             this.defaultBlockState()
-                .setValue(HALF, DirectionVertical2PartHalf.BOTTOM)
-                .setValue(FACING, Direction.SOUTH),
+                .setValue(TradingStationBlock.HALF, DirectionVertical2PartHalf.BOTTOM)
+                .setValue(TradingStationBlock.FACING, Direction.SOUTH),
             this.defaultBlockState()
-                .setValue(HALF, DirectionVertical2PartHalf.BOTTOM)
-                .setValue(FACING, Direction.EAST),
+                .setValue(TradingStationBlock.HALF, DirectionVertical2PartHalf.BOTTOM)
+                .setValue(TradingStationBlock.FACING, Direction.EAST),
             this.defaultBlockState()
-                .setValue(HALF, DirectionVertical2PartHalf.BOTTOM)
-                .setValue(FACING, Direction.WEST)
+                .setValue(TradingStationBlock.HALF, DirectionVertical2PartHalf.BOTTOM)
+                .setValue(TradingStationBlock.FACING, Direction.WEST)
         );
     }
 
@@ -182,12 +182,12 @@ public class TradingStationBlock
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        if (state.getValue(HALF) == DirectionVertical2PartHalf.TOP) return Shapes.empty();
-        return switch (state.getValue(FACING)) {
-            case NORTH -> NORTH;
-            case WEST -> WEST;
-            case SOUTH -> SOUTH;
-            case EAST -> EAST;
+        if (state.getValue(TradingStationBlock.HALF) == DirectionVertical2PartHalf.TOP) return Shapes.empty();
+        return switch (state.getValue(TradingStationBlock.FACING)) {
+            case NORTH -> TradingStationBlock.NORTH;
+            case WEST -> TradingStationBlock.WEST;
+            case SOUTH -> TradingStationBlock.SOUTH;
+            case EAST -> TradingStationBlock.EAST;
             case UP, DOWN -> Shapes.empty();
         };
     }
@@ -198,7 +198,7 @@ public class TradingStationBlock
         new AABB(0, 16, 11, 2, 30, 14),
         new AABB(14, 16, 11, 16, 30, 14)
     );
-    private static final VoxelShape WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, NORTH);
-    private static final VoxelShape SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, NORTH);
-    private static final VoxelShape EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, NORTH);
+    private static final VoxelShape WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, TradingStationBlock.NORTH);
+    private static final VoxelShape SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, TradingStationBlock.NORTH);
+    private static final VoxelShape EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, TradingStationBlock.NORTH);
 }

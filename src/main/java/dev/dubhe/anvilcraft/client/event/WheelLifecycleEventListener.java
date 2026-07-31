@@ -85,11 +85,11 @@ public class WheelLifecycleEventListener {
     /** 判断当前是否正在通过长按铁砧锤打开方块状态选择轮。 */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isHammerWheelOpen() {
-        return hammerKeyWasDown && hammerWheelCache != null && hammerWheelCache.isPresent();
+        return WheelLifecycleEventListener.hammerKeyWasDown && WheelLifecycleEventListener.hammerWheelCache != null && WheelLifecycleEventListener.hammerWheelCache.isPresent();
     }
 
     public static boolean isHammerWheelModel(WheelMenuModel model) {
-        return hammerWheelCache != null && hammerWheelCache.orElse(null) == model;
+        return WheelLifecycleEventListener.hammerWheelCache != null && WheelLifecycleEventListener.hammerWheelCache.orElse(null) == model;
     }
 
     @SubscribeEvent
@@ -152,7 +152,7 @@ public class WheelLifecycleEventListener {
             ));
         }
         if (WheelLifecycleEventListener.hammerWheelCache.isEmpty()) return false;
-        CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.hammerWheelCache.get());
+        WheelLifecycleEventListener.CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.hammerWheelCache.get());
         WheelLifecycleEventListener.hammerKeyWasDown = true;
         return true;
     }
@@ -180,7 +180,7 @@ public class WheelLifecycleEventListener {
                 );
             }
             if (WheelLifecycleEventListener.multiphaseWheelCache.isEmpty()) return;
-            CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.multiphaseWheelCache.get());
+            WheelLifecycleEventListener.CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.multiphaseWheelCache.get());
             WheelLifecycleEventListener.multiphaseKeyWasDown = true;
         }
     }
@@ -203,11 +203,11 @@ public class WheelLifecycleEventListener {
         }
         if (gameTime - WheelLifecycleEventListener.resonatorKeyTime > 4) {
             if (WheelLifecycleEventListener.resonatorWheelCache.isEmpty()) return;
-            CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.resonatorWheelCache.get());
+            WheelLifecycleEventListener.CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.resonatorWheelCache.get());
             WheelLifecycleEventListener.resonatorKeyWasDown = true;
         } else {
             if (WheelLifecycleEventListener.resonatorWheelCache.isEmpty()) return;
-            CONTROLLER.openTap(WheelLifecycleEventListener.resonatorWheelCache.get());
+            WheelLifecycleEventListener.CONTROLLER.openTap(WheelLifecycleEventListener.resonatorWheelCache.get());
         }
     }
 
@@ -229,11 +229,11 @@ public class WheelLifecycleEventListener {
         }
         if (gameTime - WheelLifecycleEventListener.multitoolKeyTime > 4) {
             if (WheelLifecycleEventListener.multitoolWheelCache.isEmpty()) return;
-            CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.multitoolWheelCache.get());
+            WheelLifecycleEventListener.CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.multitoolWheelCache.get());
             WheelLifecycleEventListener.multitoolKeyWasDown = true;
         } else {
             if (WheelLifecycleEventListener.multitoolWheelCache.isEmpty()) return;
-            CONTROLLER.openTap(WheelLifecycleEventListener.multitoolWheelCache.get());
+            WheelLifecycleEventListener.CONTROLLER.openTap(WheelLifecycleEventListener.multitoolWheelCache.get());
         }
     }
 
@@ -312,7 +312,7 @@ public class WheelLifecycleEventListener {
                 );
             }
             if (WheelLifecycleEventListener.heavyHalberdWheelCache.isEmpty()) return;
-            CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.heavyHalberdWheelCache.get());
+            WheelLifecycleEventListener.CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.heavyHalberdWheelCache.get());
             WheelLifecycleEventListener.heavyHalberdKeyWasDown = true;
         }
     }
@@ -321,7 +321,7 @@ public class WheelLifecycleEventListener {
         int phaseCount = multiphase.phases().size();
         WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(phaseCount);
         for (int i = 0; i < phaseCount; i++) {
-            addMultiphaseWheelEntry(builder, hand, holding, multiphase, i);
+            WheelLifecycleEventListener.addMultiphaseWheelEntry(builder, hand, holding, multiphase, i);
         }
         return builder.build();
     }
@@ -616,7 +616,7 @@ public class WheelLifecycleEventListener {
         if (client.level == null) return;
         if (action == GLFW.GLFW_RELEASE) {
             if (WheelLifecycleEventListener.hammerKeyWasDown) {
-                CONTROLLER.onHoldKeyReleased();
+                WheelLifecycleEventListener.CONTROLLER.onHoldKeyReleased();
             }
             WheelLifecycleEventListener.hammerKeyWasDown = false;
             WheelLifecycleEventListener.hammerKeyTime = -1L;
@@ -635,7 +635,7 @@ public class WheelLifecycleEventListener {
         if (client.level == null) return;
         if (action == GLFW.GLFW_RELEASE) {
             if (WheelLifecycleEventListener.multiphaseKeyWasDown) {
-                CONTROLLER.onHoldKeyReleased();
+                WheelLifecycleEventListener.CONTROLLER.onHoldKeyReleased();
             } else {
                 ClientPacketDistributor.sendToServer(new MultiphasePackets.SwitchPhase());
             }
@@ -656,7 +656,7 @@ public class WheelLifecycleEventListener {
         if (client.level == null) return;
         if (action == GLFW.GLFW_RELEASE) {
             if (WheelLifecycleEventListener.resonatorKeyWasDown) {
-                CONTROLLER.onHoldKeyReleased();
+                WheelLifecycleEventListener.CONTROLLER.onHoldKeyReleased();
             }
             WheelLifecycleEventListener.resonatorKeyWasDown = false;
             WheelLifecycleEventListener.resonatorKeyTime = -1L;
@@ -675,7 +675,7 @@ public class WheelLifecycleEventListener {
         if (client.level == null) return;
         if (action == GLFW.GLFW_RELEASE) {
             if (WheelLifecycleEventListener.multitoolKeyWasDown) {
-                CONTROLLER.onHoldKeyReleased();
+                WheelLifecycleEventListener.CONTROLLER.onHoldKeyReleased();
             }
             WheelLifecycleEventListener.multitoolKeyWasDown = false;
             WheelLifecycleEventListener.multitoolKeyTime = -1L;
@@ -694,7 +694,7 @@ public class WheelLifecycleEventListener {
         if (client.level == null) return;
         if (action == GLFW.GLFW_RELEASE) {
             if (WheelLifecycleEventListener.heavyHalberdKeyWasDown) {
-                CONTROLLER.onHoldKeyReleased();
+                WheelLifecycleEventListener.CONTROLLER.onHoldKeyReleased();
             }
             WheelLifecycleEventListener.heavyHalberdKeyWasDown = false;
             WheelLifecycleEventListener.heavyHalberdKeyTime = -1L;

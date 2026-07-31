@@ -11,18 +11,18 @@ import net.minecraft.util.ARGB;
 public class LaserCompiler {
     public static final float[] LASER_WIDTH;
     public static final float PIXEL = 1 / 16F;
-    public static final float HALF_PIXEL = PIXEL / 2F;
+    public static final float HALF_PIXEL = LaserCompiler.PIXEL / 2F;
 
     static {
         float[] array = new float[65];
         for (int i = 1; i <= 64; i++) {
-            array[i] = (float) Math.sqrt(i) / 2F * PIXEL;
+            array[i] = (float) Math.sqrt(i) / 2F * LaserCompiler.PIXEL;
         }
         LASER_WIDTH = array;
     }
 
     public static float laserWidth(LaserRenderState state) {
-        return LASER_WIDTH[Math.clamp(state.laserLevel, 1, 64)] + 0.001F;
+        return LaserCompiler.LASER_WIDTH[Math.clamp(state.laserLevel, 1, 64)] + 0.001F;
     }
 
     public static void submit(
@@ -32,11 +32,11 @@ public class LaserCompiler {
         boolean bloomed
     ) {
         if (state.laserLevel <= 0) return;
-        float width = laserWidth(state);
+        float width = LaserCompiler.laserWidth(state);
         nodeCollector.submitCustomGeometry(
             poseStack,
             ModRenderTypes.LASER_SOLID,
-            (pose, buffer) -> renderBox(
+            (pose, buffer) -> LaserCompiler.renderBox(
                 buffer,
                 pose,
                 -width,
@@ -54,15 +54,15 @@ public class LaserCompiler {
             poseStack,
             bloomed ? ModRenderTypes.LASER_TRANSLUCENT_BLOOM : ModRenderTypes.LASER_TRANSLUCENT,
             ((pose, buffer) -> {
-            float outerWidth = width + HALF_PIXEL;
-            renderBox(
+            float outerWidth = width + LaserCompiler.HALF_PIXEL;
+                LaserCompiler.renderBox(
                 buffer,
                 pose,
                 -outerWidth,
                 -state.offset,
                 -outerWidth,
                 outerWidth,
-                state.length + 0.5F + HALF_PIXEL,
+                state.length + 0.5F + LaserCompiler.HALF_PIXEL,
                 outerWidth,
                 ARGB.color(0.6f, state.color),
                 state.laserAtlasSprite,
@@ -84,12 +84,12 @@ public class LaserCompiler {
         TextureAtlasSprite sprite,
         TextureAtlasSprite endSprite
     ) {
-        renderQuadX(consumer, pose, maxX, maxX, minY, minZ, maxY, maxZ, color, sprite);
-        renderQuadX(consumer, pose, minX, minX, minY, maxZ, maxY, minZ, color, sprite);
-        renderQuadY(consumer, pose, maxY, maxY, minX, minZ, maxX, maxZ, ARGB.color(0.35f, color), endSprite);
+        LaserCompiler.renderQuadX(consumer, pose, maxX, maxX, minY, minZ, maxY, maxZ, color, sprite);
+        LaserCompiler.renderQuadX(consumer, pose, minX, minX, minY, maxZ, maxY, minZ, color, sprite);
+        LaserCompiler.renderQuadY(consumer, pose, maxY, maxY, minX, minZ, maxX, maxZ, ARGB.color(0.35f, color), endSprite);
         // renderQuadY(consumer, pose, minY, minY, maxX, minZ, minX, maxZ, color, endSprite);
-        renderQuadZ(consumer, pose, maxZ, maxZ, minX, maxY, maxX, minY, color, sprite);
-        renderQuadZ(consumer, pose, minZ, minZ, minX, minY, maxX, maxY, color, sprite);
+        LaserCompiler.renderQuadZ(consumer, pose, maxZ, maxZ, minX, maxY, maxX, minY, color, sprite);
+        LaserCompiler.renderQuadZ(consumer, pose, minZ, minZ, minX, minY, maxX, maxY, color, sprite);
     }
 
     private static void renderQuadX(
@@ -104,10 +104,10 @@ public class LaserCompiler {
         int color,
         TextureAtlasSprite sprite
     ) {
-        addVertex(consumer, pose, minX, maxY, minZ, sprite.getU1(), sprite.getV1(), color);
-        addVertex(consumer, pose, minX, maxY, maxZ, sprite.getU0(), sprite.getV1(), color);
-        addVertex(consumer, pose, maxX, minY, maxZ, sprite.getU0(), sprite.getV0(), color);
-        addVertex(consumer, pose, maxX, minY, minZ, sprite.getU1(), sprite.getV0(), color);
+        LaserCompiler.addVertex(consumer, pose, minX, maxY, minZ, sprite.getU1(), sprite.getV1(), color);
+        LaserCompiler.addVertex(consumer, pose, minX, maxY, maxZ, sprite.getU0(), sprite.getV1(), color);
+        LaserCompiler.addVertex(consumer, pose, maxX, minY, maxZ, sprite.getU0(), sprite.getV0(), color);
+        LaserCompiler.addVertex(consumer, pose, maxX, minY, minZ, sprite.getU1(), sprite.getV0(), color);
     }
 
     private static void renderQuadY(
@@ -122,10 +122,10 @@ public class LaserCompiler {
         int color,
         TextureAtlasSprite sprite
     ) {
-        addVertex(consumer, pose, minX, minY, minZ, sprite.getU1(), sprite.getV1(), color);
-        addVertex(consumer, pose, minX, minY, maxZ, sprite.getU0(), sprite.getV1(), color);
-        addVertex(consumer, pose, maxX, maxY, maxZ, sprite.getU0(), sprite.getV0(), color);
-        addVertex(consumer, pose, maxX, maxY, minZ, sprite.getU1(), sprite.getV0(), color);
+        LaserCompiler.addVertex(consumer, pose, minX, minY, minZ, sprite.getU1(), sprite.getV1(), color);
+        LaserCompiler.addVertex(consumer, pose, minX, minY, maxZ, sprite.getU0(), sprite.getV1(), color);
+        LaserCompiler.addVertex(consumer, pose, maxX, maxY, maxZ, sprite.getU0(), sprite.getV0(), color);
+        LaserCompiler.addVertex(consumer, pose, maxX, maxY, minZ, sprite.getU1(), sprite.getV0(), color);
     }
 
     private static void renderQuadZ(
@@ -140,10 +140,10 @@ public class LaserCompiler {
         int color,
         TextureAtlasSprite sprite
     ) {
-        addVertex(consumer, pose, minX, maxY, minZ, sprite.getU1(), sprite.getV1(), color);
-        addVertex(consumer, pose, maxX, maxY, minZ, sprite.getU0(), sprite.getV1(), color);
-        addVertex(consumer, pose, maxX, minY, maxZ, sprite.getU0(), sprite.getV0(), color);
-        addVertex(consumer, pose, minX, minY, maxZ, sprite.getU1(), sprite.getV0(), color);
+        LaserCompiler.addVertex(consumer, pose, minX, maxY, minZ, sprite.getU1(), sprite.getV1(), color);
+        LaserCompiler.addVertex(consumer, pose, maxX, maxY, minZ, sprite.getU0(), sprite.getV1(), color);
+        LaserCompiler.addVertex(consumer, pose, maxX, minY, maxZ, sprite.getU0(), sprite.getV0(), color);
+        LaserCompiler.addVertex(consumer, pose, minX, minY, maxZ, sprite.getU1(), sprite.getV0(), color);
     }
 
     private static void addVertex(

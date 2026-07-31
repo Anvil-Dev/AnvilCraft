@@ -17,7 +17,7 @@ public class ModFurnaceFuelProvider extends DataMapProvider {
 
     @Override
     protected void gather(HolderLookup.Provider provider) {
-        builder(NeoForgeDataMaps.FURNACE_FUELS).add(ModItems.WOOD_FIBER, fromItemCount(1.5), false);
+        this.builder(NeoForgeDataMaps.FURNACE_FUELS).add(ModItems.WOOD_FIBER, ModFurnaceFuelProvider.fromItemCount(1.5), false);
     }
 
     private static FurnaceFuel fromItemCount(double count) {

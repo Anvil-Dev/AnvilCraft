@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.inventory.component;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
+import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import org.jspecify.annotations.Nullable;
@@ -28,7 +30,7 @@ public class StructureDiskOnlySlot extends Slot {
      * @param enforceSizeLimit 是否强制执行 5x5x5 大小限制（Smart Block Placer 需要，Structure Scanner 不需要）
      */
     public StructureDiskOnlySlot(
-        net.minecraft.world.Container container, int slot, int x, int y,
+        Container container, int slot, int x, int y,
         boolean enforceSizeLimit
     ) {
         this(container, slot, x, y, enforceSizeLimit, null);
@@ -38,7 +40,7 @@ public class StructureDiskOnlySlot extends Slot {
      * 创建结构磁盘槽位（带提取条件）
      */
     public StructureDiskOnlySlot(
-        net.minecraft.world.Container container, int slot, int x, int y,
+        Container container, int slot, int x, int y,
         @Nullable BooleanSupplier canExtractCondition
     ) {
         this(container, slot, x, y, false, canExtractCondition);
@@ -48,7 +50,7 @@ public class StructureDiskOnlySlot extends Slot {
      * 创建结构磁盘槽位（完整参数）
      */
     public StructureDiskOnlySlot(
-        net.minecraft.world.Container container, int slot, int x, int y,
+        Container container, int slot, int x, int y,
         boolean enforceSizeLimit,
         @Nullable BooleanSupplier canExtractCondition
     ) {
@@ -84,7 +86,7 @@ public class StructureDiskOnlySlot extends Slot {
     }
 
     @Override
-    public boolean mayPickup(net.minecraft.world.entity.player.Player playerIn) {
+    public boolean mayPickup(Player playerIn) {
         // 检查提取条件(如果书槽位有书,则不允许取出)
         return this.canExtractCondition == null || this.canExtractCondition.getAsBoolean();
     }

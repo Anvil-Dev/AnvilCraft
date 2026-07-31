@@ -16,7 +16,6 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.util.Mth;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
-import org.jspecify.annotations.Nullable;
 
 /// 在储罐矿车上渲染出罐内流体
 public class FluidTankMinecartRenderer
@@ -67,19 +66,19 @@ public class FluidTankMinecartRenderer
         var tintSource = model.fluidTintSource();
         int tintColor = tintSource != null ? tintSource.colorAsStack(resource.toStack(1)) : -1;
         TextureAtlasSprite sprite = model.stillMaterial().sprite();
-        float maxY = TANK_W + (1 - 2 * TANK_W) * state.getFill();
+        float maxY = FluidTankMinecartRenderer.TANK_W + (1 - 2 * FluidTankMinecartRenderer.TANK_W) * state.getFill();
         collector.submitCustomGeometry(
             poseStack,
             FluidTankItemRenderState.FLUID_RENDER_TYPE,
             (pose, buffer) -> FluidRenderHelper.INSTANCE.renderFluidBox(
                 sprite,
                 resource,
-                TANK_W,
-                TANK_W,
-                TANK_W,
-                1 - TANK_W,
+                FluidTankMinecartRenderer.TANK_W,
+                FluidTankMinecartRenderer.TANK_W,
+                FluidTankMinecartRenderer.TANK_W,
+                1 - FluidTankMinecartRenderer.TANK_W,
                 maxY,
-                1 - TANK_W,
+                1 - FluidTankMinecartRenderer.TANK_W,
                 tintColor,
                 buffer,
                 pose,

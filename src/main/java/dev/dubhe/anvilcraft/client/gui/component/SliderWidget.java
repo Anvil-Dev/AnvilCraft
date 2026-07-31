@@ -131,19 +131,19 @@ public class SliderWidget extends AbstractWidget {
     public void onClick(MouseButtonEvent event, boolean doubleClick) {
         super.onClick(event, doubleClick);
         if (this.isInSlider(event.x(), event.y())) {
-            scrolling = true;
+            SliderWidget.scrolling = true;
             return;
         }
-        scrolling = false;
+        SliderWidget.scrolling = false;
     }
 
     @Override
     public void onDrag(MouseButtonEvent event, double dx, double dy) {
         super.onDrag(event, dx, dy);
-        if (scrolling || this.scroll) {
-            if (scrolling) {
+        if (SliderWidget.scrolling || this.scroll) {
+            if (SliderWidget.scrolling) {
                 this.scroll = true;
-                scrolling = false;
+                SliderWidget.scrolling = false;
             }
             double offset = (event.x() - 8 - this.posX) / this.length;
             this.setProportion(offset);
@@ -154,7 +154,7 @@ public class SliderWidget extends AbstractWidget {
     public void onReleased() {
         if (this.scroll) this.update();
         this.scroll = false;
-        scrolling = false;
+        SliderWidget.scrolling = false;
     }
 
     protected boolean isInSlider(double mouseX, double mouseY) {
@@ -168,7 +168,7 @@ public class SliderWidget extends AbstractWidget {
         this.isHovered = this.isInSlider(mouseX, mouseY);
         double prop = this.getProportion();
         int offsetX = this.posX + (int) ((this.length) * prop);
-        graphics.blit(RenderPipelines.GUI_TEXTURED, SLIDER, offsetX, this.posY, 0, this.isHovered || this.scroll ? 8 : 0, 16, 8, 16, 16);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, SliderWidget.SLIDER, offsetX, this.posY, 0, this.isHovered || this.scroll ? 8 : 0, 16, 8, 16, 16);
     }
 
     @Override

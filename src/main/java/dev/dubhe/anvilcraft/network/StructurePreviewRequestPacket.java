@@ -36,7 +36,7 @@ public record StructurePreviewRequestPacket(UUID structureUuid, String structure
 
     @Override
     public Type<StructurePreviewRequestPacket> type() {
-        return TYPE;
+        return StructurePreviewRequestPacket.TYPE;
     }
 
     @Override

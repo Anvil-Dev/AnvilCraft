@@ -11,8 +11,11 @@ import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.GiantAnvilShockEffectPacket;
+import dev.dubhe.anvilcraft.network.ScreenShakePacket;
+import dev.dubhe.anvilcraft.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.TickTask;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
@@ -53,9 +56,9 @@ public class GiantAnvilShockEventListener {
         ).then(
             // break mode
             TreeNode.<ShockContext>executes(it -> {
-                if (it.has(DESTROY_MODE) && it.has(DESTROY_TYPE)) {
-                    DestroyMode mode = it.getAttachment(DESTROY_MODE, DestroyMode.class);
-                    DestroyType type = it.getAttachment(DESTROY_TYPE, DestroyType.class);
+                if (it.has(GiantAnvilShockEventListener.DESTROY_MODE) && it.has(GiantAnvilShockEventListener.DESTROY_TYPE)) {
+                    DestroyMode mode = it.getAttachment(GiantAnvilShockEventListener.DESTROY_MODE, DestroyMode.class);
+                    DestroyType type = it.getAttachment(GiantAnvilShockEventListener.DESTROY_TYPE, DestroyType.class);
                     type.accept(it.unwrap(), it.unwrap().rangePosList(), mode);
                 }
             }).then(
@@ -64,28 +67,28 @@ public class GiantAnvilShockEventListener {
                     it -> it.unwrap().getBorderAnvilBehavior().isPresent()
                 ).executes(it -> {
                     ShockAnvilBehavior behavior = it.unwrap().getBorderAnvilBehavior().orElseThrow();
-                    it.putAttachment(DESTROY_MODE, DestroyMode.fromAnvilBehavior(behavior));
+                    it.putAttachment(GiantAnvilShockEventListener.DESTROY_MODE, DestroyMode.fromAnvilBehavior(behavior));
                 })
             ).then(
                 // test block type
                 TreeNode.multiple(
                     TreeNode.<ShockContext>predicatedExecutable(it ->
                         it.unwrap().testCorner(BlockTags.LOGS)
-                    ).executes(it -> it.putAttachment(DESTROY_TYPE, DestroyType.FELLING)),
+                    ).executes(it -> it.putAttachment(GiantAnvilShockEventListener.DESTROY_TYPE, DestroyType.FELLING)),
                     TreeNode.<ShockContext>predicatedExecutable(it ->
                         it.unwrap().testCorner(Blocks.HAY_BLOCK)
-                    ).executes(it -> it.putAttachment(DESTROY_TYPE, DestroyType.HARVESTING)),
+                    ).executes(it -> it.putAttachment(GiantAnvilShockEventListener.DESTROY_TYPE, DestroyType.HARVESTING)),
                     TreeNode.<ShockContext>predicatedExecutable(it ->
                         it.unwrap().testCorner(Blocks.GRASS_BLOCK)
                         || it.unwrap().testCorner(Blocks.MYCELIUM)
                         || it.unwrap().testCorner(Blocks.PODZOL)
-                    ).executes(it -> it.putAttachment(DESTROY_TYPE, DestroyType.CLEANING)),
+                    ).executes(it -> it.putAttachment(GiantAnvilShockEventListener.DESTROY_TYPE, DestroyType.CLEANING)),
                     TreeNode.<ShockContext>predicatedExecutable(it ->
                         it.unwrap().testCorner(Blocks.OBSIDIAN)
-                    ).executes(it -> it.putAttachment(DESTROY_TYPE, DestroyType.GENERAL)),
+                    ).executes(it -> it.putAttachment(GiantAnvilShockEventListener.DESTROY_TYPE, DestroyType.GENERAL)),
                     TreeNode.<ShockContext>predicatedExecutable(it ->
                         it.unwrap().testCorner(Blocks.AMETHYST_BLOCK)
-                    ).executes(it -> it.putAttachment(DESTROY_TYPE, DestroyType.BROKEN_CRYSTALS))
+                    ).executes(it -> it.putAttachment(GiantAnvilShockEventListener.DESTROY_TYPE, DestroyType.BROKEN_CRYSTALS))
                 )
             )
         ).then(
@@ -94,16 +97,16 @@ public class GiantAnvilShockEventListener {
                 it -> it.unwrap().testBorder(ModBlocks.CURSED_GOLD_BLOCK)
             ).then(
                 TreeNode.<ShockContext>predicatedExecutable(it -> it.unwrap().testCorner(ModBlocks.RUBY_BLOCK))
-                    .executes(it -> it.putAttachment(HURT_TYPE, HurtType.FIRE))
+                    .executes(it -> it.putAttachment(GiantAnvilShockEventListener.HURT_TYPE, HurtType.FIRE))
             ).then(
                 TreeNode.<ShockContext>predicatedExecutable(it -> it.unwrap().testCorner(ModBlocks.SAPPHIRE_BLOCK))
-                    .executes(it -> it.putAttachment(HURT_TYPE, HurtType.FROZEN))
+                    .executes(it -> it.putAttachment(GiantAnvilShockEventListener.HURT_TYPE, HurtType.FROZEN))
             ).then(
                 TreeNode.<ShockContext>predicatedExecutable(it -> it.unwrap().testCorner(ModBlocks.TOPAZ_BLOCK))
-                    .executes(it -> it.putAttachment(HURT_TYPE, HurtType.SHOCK))
+                    .executes(it -> it.putAttachment(GiantAnvilShockEventListener.HURT_TYPE, HurtType.SHOCK))
             ).then(
                 TreeNode.<ShockContext>predicatedExecutable(it -> it.unwrap().testCorner(ModBlocks.VOID_MATTER_BLOCK))
-                    .executes(it -> it.putAttachment(HURT_TYPE, HurtType.VOID))
+                    .executes(it -> it.putAttachment(GiantAnvilShockEventListener.HURT_TYPE, HurtType.VOID))
             )
         ).then(
             TreeNode.<ShockContext>predicatedExecutable(it ->
@@ -169,7 +172,7 @@ public class GiantAnvilShockEventListener {
                         // 下车后延迟弹起，等待客户端同步位置
                         if (level instanceof ServerLevel sl) {
                             final double finalSpeed = upwardSpeed;
-                            sl.getServer().schedule(new net.minecraft.server.TickTask(
+                            sl.getServer().schedule(new TickTask(
                                 sl.getServer().getTickCount() + 4,
                                 () -> {
                                     if (living.isAlive()) {
@@ -184,10 +187,10 @@ public class GiantAnvilShockEventListener {
                         living.hurtMarked = true;
                     }
                 }
-                it.putAttachment(NO_HURT, true);
+                it.putAttachment(GiantAnvilShockEventListener.NO_HURT, true);
             })
         ).executes(it -> {
-            if (it.has(NO_HURT)) return;
+            if (it.has(GiantAnvilShockEventListener.NO_HURT)) return;
             int radius = (int) Math.min(Math.ceil(it.unwrap().fallDistance()), AnvilCraft.CONFIG.giantAnvilMaxShockRadius);
             AABB aabb = AABB.ofSize(
                 Vec3.atCenterOf(it.unwrap().centerPos().above()),
@@ -198,13 +201,14 @@ public class GiantAnvilShockEventListener {
             Level level = it.unwrap().level();
             List<LivingEntity> e = level.getEntitiesOfClass(LivingEntity.class, aabb);
             for (LivingEntity l : e) {
-                if (it.has(HURT_TYPE)) {
-                    HurtType hurtType = it.getAttachment(HURT_TYPE, HurtType.class);
-                    l.hurt(hurtType.damageSource(l.level()), it.unwrap().fallDistance() * 2 * 2);
+                if (it.has(GiantAnvilShockEventListener.HURT_TYPE)) {
+                    HurtType hurtType = it.getAttachment(GiantAnvilShockEventListener.HURT_TYPE, HurtType.class);
+                    EntityUtil.hurt(l, hurtType.damageSource(l.level()), it.unwrap().fallDistance() * 2 * 2);
                     hurtType.postApply(l.level(), l, it.unwrap().fallDistance());
                 } else {
                     if (l.getItemBySlot(EquipmentSlot.FEET).is(Items.AIR)) {
-                        l.hurt(
+                        EntityUtil.hurt(
+                            l,
                             ModDamageTypes.fallingGiantAnvil(it.unwrap().level(), it.unwrap().fallingGiantAnvil()),
                             it.unwrap().fallDistance() * 2
                         );
@@ -218,7 +222,7 @@ public class GiantAnvilShockEventListener {
     @SubscribeEvent
     public static void onLand(AnvilEvent.GiantOnLand event) {
         ShockContext context = ShockContext.inflate(event);
-        behaviorTree.run(context);
+        GiantAnvilShockEventListener.behaviorTree.run(context);
         // 仅当冲击机制实际触发（中心为重型铁块）时才生成撼地效果
         if (event.getLevel()
                 .getBlockState(event.getPos().below(2))
@@ -238,10 +242,10 @@ public class GiantAnvilShockEventListener {
                 PacketDistributor.sendToPlayersTrackingChunk(
                     serverLevel,
                     ChunkPos.containing(event.getPos()),
-                    dev.dubhe.anvilcraft.network.ScreenShakePacket.of(
+                    ScreenShakePacket.of(
                         Vec3.atCenterOf(shockCenter),
                         radius,
-                        dev.dubhe.anvilcraft.network.ScreenShakePacket.ShakeType.GIANT_ANVIL_SHOCK
+                        ScreenShakePacket.ShakeType.GIANT_ANVIL_SHOCK
                     )
                 );
             }
@@ -257,7 +261,7 @@ public class GiantAnvilShockEventListener {
                     event.getLevel().playSound(null, event.getPos(), ModSoundEvents.GIANT_ANVIL_SHOCK.get(),
                         SoundSource.BLOCKS, 1.8f, 1.2f + event.getLevel().getRandom().nextFloat() * 0.2f);
                 }
-                spawnGroundHeave(event);
+                GiantAnvilShockEventListener.spawnGroundHeave(event);
             }
         }
     }

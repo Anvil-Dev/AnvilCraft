@@ -14,6 +14,6 @@ public enum PowerComponentType implements StringRepresentable {
 
     @Override
     public String getSerializedName() {
-        return name();
+        return this.name();
     }
 }

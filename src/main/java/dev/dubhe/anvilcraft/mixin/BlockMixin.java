@@ -55,7 +55,7 @@ abstract class BlockMixin implements IBlockExtension {
         @Local(name = "occluder") VoxelShape occluder
     ) {
         if (state.getBlock() instanceof INegativeShapeBlock<?> block) {
-            boolean b = anvilcraft$NegativeShapeFaceSkip(
+            boolean b = BlockMixin.anvilcraft$NegativeShapeFaceSkip(
                 block,
                 level,
                 pos,
@@ -83,7 +83,7 @@ abstract class BlockMixin implements IBlockExtension {
             return true;
         }
         Block.ShapePairKey key = new Block.ShapePairKey(shape, occluder);
-        Object2ByteLinkedOpenHashMap<Block.ShapePairKey> cache = OCCLUSION_CACHE.get();
+        Object2ByteLinkedOpenHashMap<Block.ShapePairKey> cache = BlockMixin.OCCLUSION_CACHE.get();
         byte cached = cache.getAndMoveToFirst(key);
         if (cached != 127) {
             return cached != 0;

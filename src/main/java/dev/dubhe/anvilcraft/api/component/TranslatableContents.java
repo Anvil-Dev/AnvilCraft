@@ -18,6 +18,7 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.ResolutionContext;
 import net.minecraft.network.chat.Style;
 import net.minecraft.util.ExtraCodecs;
+import net.neoforged.fml.loading.FMLLoader;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
@@ -25,7 +26,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,9 +33,14 @@ public class TranslatableContents implements ComponentContents {
     public static final Object[] NO_ARGS = new Object[0];
     private static final Codec<Object> PRIMITIVE_ARG_CODEC = ExtraCodecs.JAVA.validate(TranslatableContents::filterAllowedArguments);
     @SuppressWarnings("NullableProblems")
-    private static final Codec<Object> ARG_CODEC = Codec.either(PRIMITIVE_ARG_CODEC, ComponentSerialization.CODEC).xmap(
-        e -> e.map(Function.identity(), component -> Objects.requireNonNullElse(component.tryCollapseToString(), component)),
-        o -> o instanceof Component c ? Either.right(c) : Either.left(o)
+    private static final Codec<Object> ARG_CODEC = Codec.either(
+        TranslatableContents.PRIMITIVE_ARG_CODEC,
+        ComponentSerialization.CODEC
+    ).xmap(
+        e -> e.map(Objects::requireNonNull, component -> Objects.requireNonNullElse(component.tryCollapseToString(), component)),
+        o -> o instanceof Component c
+             ? Either.right(c)
+             : Either.left(Objects.requireNonNull(o, "Translation argument"))
     );
     public static final MapCodec<TranslatableContents> MAP_CODEC = CodecUtil.mapCodec(
         Codec.STRING
@@ -44,10 +49,10 @@ public class TranslatableContents implements ComponentContents {
         ComponentSerialization.flatRestrictedCodec(Integer.MAX_VALUE)
             .lenientOptionalFieldOf("fallback")
             .forGetter(o -> Optional.ofNullable(o.fallback)),
-        ARG_CODEC
+        TranslatableContents.ARG_CODEC
             .listOf()
             .optionalFieldOf("with")
-            .forGetter(o -> adjustArgs(o.args)),
+            .forGetter(o -> TranslatableContents.adjustArgs(o.args)),
         TranslatableContents::create
     );
     private static final FormattedText TEXT_PERCENT = FormattedText.of("%");
@@ -63,7 +68,7 @@ public class TranslatableContents implements ComponentContents {
     private static final Pattern FORMAT_PATTERN = Pattern.compile("%(?:(\\d+)\\$)?([A-Za-z%]|$)");
 
     private static DataResult<Object> filterAllowedArguments(@Nullable Object result) {
-        return !isAllowedPrimitiveArgument(result)
+        return !TranslatableContents.isAllowedPrimitiveArgument(result)
                ? DataResult.error(() -> "This value needs to be parsed as component")
                : DataResult.success(result);
     }
@@ -79,12 +84,12 @@ public class TranslatableContents implements ComponentContents {
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private static Object[] adjustArgs(Optional<List<Object>> args) {
-        return args.map(a -> a.isEmpty() ? NO_ARGS : a.toArray()).orElse(NO_ARGS);
+        return args.map(a -> a.isEmpty() ? TranslatableContents.NO_ARGS : a.toArray()).orElse(TranslatableContents.NO_ARGS);
     }
 
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private static TranslatableContents create(String key, Optional<Component> fallback, Optional<List<Object>> args) {
-        return new TranslatableContents(key, fallback.orElse(null), adjustArgs(args));
+        return new TranslatableContents(key, fallback.orElse(null), TranslatableContents.adjustArgs(args));
     }
 
     public TranslatableContents(String key, @Nullable Component fallback, Object[] args) {
@@ -93,10 +98,10 @@ public class TranslatableContents implements ComponentContents {
         this.args = args;
         // Neo: This is transitively called by some static initializers. To allow using Minecraft classes from tests
         // without fully initializing FML, we disable the validation if FML is not initialized.
-        var loader = net.neoforged.fml.loading.FMLLoader.getCurrentOrNull();
+        var loader = FMLLoader.getCurrentOrNull();
         if (loader != null && !loader.isProduction()) {
             for (Object arg : this.args) {
-                if (!(arg instanceof Component) && !isAllowedPrimitiveArgument(arg)) {
+                if (!(arg instanceof Component) && !TranslatableContents.isAllowedPrimitiveArgument(arg)) {
                     throw new IllegalArgumentException(
                         "TranslatableContents' arguments must be either a Component, Number, Boolean, or a String. Was given " + arg
                         + " for " + this.key);
@@ -107,7 +112,7 @@ public class TranslatableContents implements ComponentContents {
 
     @Override
     public MapCodec<TranslatableContents> codec() {
-        return MAP_CODEC;
+        return TranslatableContents.MAP_CODEC;
     }
 
     private void decompose() {
@@ -142,7 +147,7 @@ public class TranslatableContents implements ComponentContents {
     }
 
     private void decomposeTemplate(String template, Consumer<FormattedText> decomposedParts) {
-        Matcher matcher = FORMAT_PATTERN.matcher(template);
+        Matcher matcher = TranslatableContents.FORMAT_PATTERN.matcher(template);
 
         try {
             int replacementIndex = 0;
@@ -163,7 +168,7 @@ public class TranslatableContents implements ComponentContents {
                 String formatType = matcher.group(2);
                 String formatString = template.substring(start, end);
                 if ("%".equals(formatType) && "%%".equals(formatString)) {
-                    decomposedParts.accept(TEXT_PERCENT);
+                    decomposedParts.accept(TranslatableContents.TEXT_PERCENT);
                 } else {
                     if (!"s".equals(formatType)) {
                         throw new TranslatableFormatException(this, "Unsupported format: '" + formatString + "'");
@@ -197,7 +202,7 @@ public class TranslatableContents implements ComponentContents {
                 return componentArg;
             } else {
                 // noinspection ConstantValue
-                return arg == null ? TEXT_NULL : FormattedText.of(arg.toString());
+                return arg == null ? TranslatableContents.TEXT_NULL : FormattedText.of(arg.toString());
             }
         } else {
             throw new TranslatableFormatException(this, index);

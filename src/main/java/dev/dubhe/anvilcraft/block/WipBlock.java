@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
@@ -26,7 +27,7 @@ public class WipBlock extends BaseEntityBlock implements IMoveableEntityBlock {
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(WipBlock::new);
+        return BlockBehaviour.simpleCodec(WipBlock::new);
     }
 
     @Nullable

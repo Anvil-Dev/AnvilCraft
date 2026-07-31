@@ -50,7 +50,7 @@ abstract class BaseFluidTankItemRenderer implements SpecialModelRenderer<FluidTa
                 BlockAndTintGetter.EMPTY,
                 BlockPos.ZERO,
                 this.shellState,
-                RandomSource.create(MODEL_SEED),
+                RandomSource.create(BaseFluidTankItemRenderer.MODEL_SEED),
                 this.shellRenderState.setupModel(new Matrix4f(), false)
             );
             this.shellModel = model;

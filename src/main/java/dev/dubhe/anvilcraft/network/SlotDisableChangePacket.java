@@ -25,7 +25,7 @@ public record SlotDisableChangePacket(int index, boolean state) implements ISens
 
     @Override
     public Type<SlotDisableChangePacket> type() {
-        return TYPE;
+        return SlotDisableChangePacket.TYPE;
     }
 
     @Override

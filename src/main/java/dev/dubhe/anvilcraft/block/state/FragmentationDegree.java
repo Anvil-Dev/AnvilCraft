@@ -23,9 +23,9 @@ public enum FragmentationDegree implements StringRepresentable {
 
     public FragmentationDegree next() {
         return switch (this) {
-            case ZERO -> ONE;
-            case ONE -> TWO;
-            case TWO, THREE -> THREE;
+            case ZERO -> FragmentationDegree.ONE;
+            case ONE -> FragmentationDegree.TWO;
+            case TWO, THREE -> FragmentationDegree.THREE;
         };
     }
 }

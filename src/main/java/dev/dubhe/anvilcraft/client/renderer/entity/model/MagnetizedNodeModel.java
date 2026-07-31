@@ -47,7 +47,7 @@ public class MagnetizedNodeModel extends Model<MagnetizedNodeRenderState> {
 
     public MagnetizedNodeModel(ModelPart root) {
         super(root, RenderTypes::entityTranslucent);
-        this.rotating = ROTATING.bake(root);
+        this.rotating = MagnetizedNodeModel.ROTATING.bake(root);
     }
 
     public static LayerDefinition createBodyLayer() {

@@ -38,7 +38,7 @@ public class DrainBlockEntityRenderer
         Vec3 cameraPosition,
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
-        state.setTankW(TANK_W);
+        state.setTankW(DrainBlockEntityRenderer.TANK_W);
         int bottomY = be.getColumnBottomY();
         if (bottomY != Integer.MIN_VALUE) {
             state.setColumnMinY(bottomY - be.getBlockPos().getY());
@@ -66,16 +66,16 @@ public class DrainBlockEntityRenderer
         TextureAtlasSprite flowing = model.flowingMaterial().sprite();
         submitNodeCollector.submitCustomGeometry(
             poseStack,
-            FLUID_RENDER_TYPE,
+            BaseFluidHandlerHolderRenderer.FLUID_RENDER_TYPE,
             (pose, buffer) -> FluidRenderHelper.INSTANCE.renderFluidBox(
                 flowing,
                 resource,
-                COLUMN_INSET,
+                DrainBlockEntityRenderer.COLUMN_INSET,
                 minY,
-                COLUMN_INSET,
-                1 - COLUMN_INSET,
+                DrainBlockEntityRenderer.COLUMN_INSET,
+                1 - DrainBlockEntityRenderer.COLUMN_INSET,
                 0,
-                1 - COLUMN_INSET,
+                1 - DrainBlockEntityRenderer.COLUMN_INSET,
                 tintColor,
                 buffer,
                 pose,

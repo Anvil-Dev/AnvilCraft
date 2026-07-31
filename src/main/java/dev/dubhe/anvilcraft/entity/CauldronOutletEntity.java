@@ -304,33 +304,33 @@ public class CauldronOutletEntity extends Entity {
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(DATA_CAULDRON_POS, BlockPos.ZERO)
-            .define(DATA_ATTACHED_DIRECTION, Direction.UP)
-            .define(DATA_CAULDRON_STATE, Blocks.AIR.defaultBlockState());
+        builder.define(CauldronOutletEntity.DATA_CAULDRON_POS, BlockPos.ZERO)
+            .define(CauldronOutletEntity.DATA_ATTACHED_DIRECTION, Direction.UP)
+            .define(CauldronOutletEntity.DATA_CAULDRON_STATE, Blocks.AIR.defaultBlockState());
     }
 
     public BlockPos getCauldronPos() {
-        return this.entityData.get(DATA_CAULDRON_POS);
+        return this.entityData.get(CauldronOutletEntity.DATA_CAULDRON_POS);
     }
 
     public void setCauldronPos(BlockPos pos) {
-        this.entityData.set(DATA_CAULDRON_POS, pos);
+        this.entityData.set(CauldronOutletEntity.DATA_CAULDRON_POS, pos);
     }
 
     public Direction getAttachedDirection() {
-        return this.entityData.get(DATA_ATTACHED_DIRECTION);
+        return this.entityData.get(CauldronOutletEntity.DATA_ATTACHED_DIRECTION);
     }
 
     public void setAttachedDirection(Direction direction) {
-        this.entityData.set(DATA_ATTACHED_DIRECTION, direction);
+        this.entityData.set(CauldronOutletEntity.DATA_ATTACHED_DIRECTION, direction);
     }
 
     public BlockState getCauldronState() {
-        return this.entityData.get(DATA_CAULDRON_STATE);
+        return this.entityData.get(CauldronOutletEntity.DATA_CAULDRON_STATE);
     }
 
     public void setCauldronState(BlockState state) {
-        this.entityData.set(DATA_CAULDRON_STATE, state);
+        this.entityData.set(CauldronOutletEntity.DATA_CAULDRON_STATE, state);
     }
 
     @Override

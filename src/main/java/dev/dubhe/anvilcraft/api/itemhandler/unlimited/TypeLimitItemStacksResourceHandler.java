@@ -58,8 +58,8 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
 
     public TypeLimitItemStacksResourceHandler(int typeLimit, int spaceSize) {
         super(0);
-        this.typeLimit = checkTypeLimit(typeLimit);
-        this.spaceSize = checkSpaceSize(spaceSize);
+        this.typeLimit = TypeLimitItemStacksResourceHandler.checkTypeLimit(typeLimit);
+        this.spaceSize = TypeLimitItemStacksResourceHandler.checkSpaceSize(spaceSize);
     }
 
     private TypeLimitItemStacksResourceHandler(
@@ -68,8 +68,8 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
         int spaceSize
     ) {
         super(TypeLimitItemStacksResourceHandler.trim(typeLimit, spaceSize, stacks));
-        this.typeLimit = checkTypeLimit(typeLimit);
-        this.spaceSize = checkSpaceSize(spaceSize);
+        this.typeLimit = TypeLimitItemStacksResourceHandler.checkTypeLimit(typeLimit);
+        this.spaceSize = TypeLimitItemStacksResourceHandler.checkSpaceSize(spaceSize);
     }
 
     private static int checkTypeLimit(int typeLimit) {
@@ -152,7 +152,7 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
     public void addSpaceSize(IntUnaryOperator adder) {
         int newSpaceSize = adder.applyAsInt(this.spaceSize);
         if (newSpaceSize >= this.spaceSize) {
-            this.spaceSize = checkSpaceSize(newSpaceSize);
+            this.spaceSize = TypeLimitItemStacksResourceHandler.checkSpaceSize(newSpaceSize);
         }
     }
 
@@ -197,7 +197,7 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
     @Override
     public void deserialize(ValueInput input) {
         input.getInt(TypeLimitItemStacksResourceHandler.SPACE_SIZE_KEY)
-            .ifPresent(size -> this.spaceSize = Math.max(this.spaceSize, checkSpaceSize(size)));
+            .ifPresent(size -> this.spaceSize = Math.max(this.spaceSize, TypeLimitItemStacksResourceHandler.checkSpaceSize(size)));
         input.read(UnlimitedItemStacksResourceHandler.STACKS_KEY, UnlimitedItemStacksResourceHandler.STACKS_CODEC)
             .ifPresent(stacks -> this.setStacks(
                 TypeLimitItemStacksResourceHandler.trim(this.typeLimit, this.spaceSize, stacks)
@@ -251,15 +251,15 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
         int spaceSize,
         List<UnlimitedItemStack> stacks
     ) {
-        checkTypeLimit(typeLimit);
-        checkSpaceSize(spaceSize);
+        TypeLimitItemStacksResourceHandler.checkTypeLimit(typeLimit);
+        TypeLimitItemStacksResourceHandler.checkSpaceSize(spaceSize);
         NonNullList<UnlimitedItemStack> result = new NonNullList<>(new ArrayList<>(), UnlimitedItemStack.EMPTY);
         for (UnlimitedItemStack input : stacks) {
             if (input.isEmpty()) {
                 continue;
             }
 
-            int existingIndex = findMatchingSlot(result, input);
+            int existingIndex = TypeLimitItemStacksResourceHandler.findMatchingSlot(result, input);
             if (existingIndex < 0 && result.size() >= typeLimit) {
                 continue;
             }

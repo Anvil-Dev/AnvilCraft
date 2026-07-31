@@ -110,7 +110,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
     }
 
     Direction[] getConnectedSides() {
-        Direction.Axis a = getBlockState().getValue(BlockStateProperties.HORIZONTAL_AXIS);
+        Direction.Axis a = this.getBlockState().getValue(BlockStateProperties.HORIZONTAL_AXIS);
         return a == Direction.Axis.X
             ? new Direction[]{Direction.EAST, Direction.WEST}
             : new Direction[]{Direction.NORTH, Direction.SOUTH};
@@ -136,43 +136,43 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
     }
 
     void serverTick() {
-        if (level == null) return;
+        if (this.level == null) return;
 
-        if (this.energy >= PRODUCE_THRESHOLD) {
+        if (this.energy >= FeCollectorBlockEntity.PRODUCE_THRESHOLD) {
             this.producing = true;
-        } else if (this.energy < STOP_THRESHOLD) {
+        } else if (this.energy < FeCollectorBlockEntity.STOP_THRESHOLD) {
             this.producing = false;
         }
 
-        BlockState state = getBlockState();
+        BlockState state = this.getBlockState();
         if (state.getValue(FeCollectorBlock.POWERED) != this.producing) {
-            level.setBlockAndUpdate(getBlockPos(), state.setValue(FeCollectorBlock.POWERED, this.producing));
+            this.level.setBlockAndUpdate(this.getBlockPos(), state.setValue(FeCollectorBlock.POWERED, this.producing));
         }
 
         if (this.producing) {
-            this.energy -= FE_PER_TICK;
+            this.energy -= FeCollectorBlockEntity.FE_PER_TICK;
             this.time++;
-            setChanged();
+            this.setChanged();
             this.clientSyncDirty = true;
         }
 
-        if (this.energy > TRANSFER_THRESHOLD) {
+        if (this.energy > FeCollectorBlockEntity.TRANSFER_THRESHOLD) {
             this.pushExcess();
         }
-        if (this.clientSyncDirty && level.getGameTime() % 20 == 0) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
+        if (this.clientSyncDirty && this.level.getGameTime() % 20 == 0) {
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_ALL);
             this.clientSyncDirty = false;
         }
     }
 
     void pushExcess() {
-        if (level == null) return;
-        int excess = this.energy - TRANSFER_THRESHOLD;
+        if (this.level == null) return;
+        int excess = this.energy - FeCollectorBlockEntity.TRANSFER_THRESHOLD;
         if (excess <= 0) return;
         for (Direction side : this.getConnectedSides()) {
             if (excess <= 0) break;
-            EnergyHandler target = level.getCapability(
-                Capabilities.Energy.BLOCK, getBlockPos().relative(side), side.getOpposite()
+            EnergyHandler target = this.level.getCapability(
+                Capabilities.Energy.BLOCK, this.getBlockPos().relative(side), side.getOpposite()
             );
             if (target != null) {
                 try (Transaction transaction = Transaction.openRoot()) {
@@ -181,7 +181,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
                     if (accepted > 0) {
                         excess -= accepted;
                         this.energy -= accepted;
-                        setChanged();
+                        this.setChanged();
                         this.clientSyncDirty = true;
                     }
                 }
@@ -230,13 +230,13 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
 
     @Override
     public void gridTick() {
-        if (level == null || level.isClientSide()) return;
+        if (this.level == null || this.level.isClientSide()) return;
 
         final int prev = this.outputPower;
         if (this.producing) {
-            this.outputPower = (int) (FE_PER_TICK * 20
-                * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
-                / AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency);
+            this.outputPower = (int) (FeCollectorBlockEntity.FE_PER_TICK * 20
+                                      * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
+                                      / AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency);
             if (this.outputPower != prev && this.grid != null) this.grid.markChanged();
         } else if (this.outputPower > 0) {
             this.outputPower = 0;
@@ -268,14 +268,14 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
 
         @Override
         public long getCapacityAsLong() {
-            return MAX_ENERGY;
+            return FeCollectorBlockEntity.MAX_ENERGY;
         }
 
         @Override
         public int insert(int maxInsert, TransactionContext transaction) {
             if (!this.isInputSide()) return 0;
-            if (FeCollectorBlockEntity.this.energy >= MAX_ENERGY) return 0;
-            int r = Math.min(MAX_ENERGY - FeCollectorBlockEntity.this.energy, maxInsert);
+            if (FeCollectorBlockEntity.this.energy >= FeCollectorBlockEntity.MAX_ENERGY) return 0;
+            int r = Math.min(FeCollectorBlockEntity.MAX_ENERGY - FeCollectorBlockEntity.this.energy, maxInsert);
             if (r > 0) {
                 FeCollectorBlockEntity.this.energy += r;
                 if (this.side != null
@@ -283,7 +283,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
                 ) {
                     FeCollectorBlockEntity.this.lastInputSide = this.side;
                 }
-                setChanged();
+                FeCollectorBlockEntity.this.setChanged();
                 FeCollectorBlockEntity.this.clientSyncDirty = true;
             }
             return r;
@@ -296,7 +296,7 @@ public class FeCollectorBlockEntity extends BlockEntity implements IPowerProduce
             int r = Math.min(FeCollectorBlockEntity.this.energy, maxExtract);
             if (r > 0) {
                 FeCollectorBlockEntity.this.energy -= r;
-                setChanged();
+                FeCollectorBlockEntity.this.setChanged();
                 FeCollectorBlockEntity.this.clientSyncDirty = true;
             }
             return r;

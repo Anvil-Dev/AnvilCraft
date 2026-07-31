@@ -31,6 +31,6 @@ public class HeatCollectorRenderer extends PowerProducerRenderer<HeatCollectorBl
 
     @Override
     protected StandaloneModelKey<BlockStateModel> getModel() {
-        return HEAD;
+        return HeatCollectorRenderer.HEAD;
     }
 }

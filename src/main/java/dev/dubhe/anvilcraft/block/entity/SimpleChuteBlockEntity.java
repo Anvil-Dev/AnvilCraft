@@ -207,13 +207,19 @@ public class SimpleChuteBlockEntity extends BlockEntity implements IItemResource
             return;
         }
 
-        AnvilUtil.dropItems(Collections.singletonList(stack), this.level, newBe.getBlockPos().getCenter());
+        Level level = this.level;
+        if (level != null) {
+            AnvilUtil.dropItems(Collections.singletonList(stack), level, newBe.getBlockPos().getCenter());
+        }
     }
 
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         super.preRemoveSideEffects(pos, state);
         Vec3 center = pos.getCenter();
-        Containers.dropItemStack(this.level, center.x, center.y, center.z, this.itemHandler.getStack());
+        Level level = this.level;
+        if (level != null) {
+            Containers.dropItemStack(level, center.x, center.y, center.z, this.itemHandler.getStack());
+        }
     }
 }

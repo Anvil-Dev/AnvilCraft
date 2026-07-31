@@ -12,9 +12,9 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 
 public class ModMultiblockDefinitions {
-    public static final ResourceKey<MultiblockDefinition> CELESTIAL_FORGING_ANVIL = key(AnvilCraft.of("cfa"));
-    public static final ResourceKey<MultiblockDefinition> FLUID_TANK = key(AnvilCraft.of("fluid_tank"));
-    public static final ResourceKey<MultiblockDefinition> LARGE_FLUID_TANK = key(AnvilCraft.of("large_fluid_tank"));
+    public static final ResourceKey<MultiblockDefinition> CELESTIAL_FORGING_ANVIL = ModMultiblockDefinitions.key(AnvilCraft.of("cfa"));
+    public static final ResourceKey<MultiblockDefinition> FLUID_TANK = ModMultiblockDefinitions.key(AnvilCraft.of("fluid_tank"));
+    public static final ResourceKey<MultiblockDefinition> LARGE_FLUID_TANK = ModMultiblockDefinitions.key(AnvilCraft.of("large_fluid_tank"));
 
     public static void bootstrap(BootstrapContext<MultiblockDefinition> ctx) {
         ctx.register(

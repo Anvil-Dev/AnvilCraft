@@ -30,7 +30,7 @@ public class SpectralProjectileRenderer<T extends SpectralProjectileEntity> exte
 
     @Override
     public Identifier getTextureLocation(SpectralProjectileRenderState state) {
-        return ARROW_LOCATION;
+        return SpectralProjectileRenderer.ARROW_LOCATION;
     }
 
     @Override

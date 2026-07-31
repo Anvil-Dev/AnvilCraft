@@ -28,21 +28,21 @@ public class StepEffectBlock extends Block {
 
     public static void stepOnChocolateBlock(Entity entity) {
         if (!(entity instanceof Player player)) return;
-        if (entity.level().getGameTime() % EFFECT_PERIOD != 0) return;
-        player.addEffect(new MobEffectInstance(MobEffects.SPEED, EFFECT_DURATION, 9, true, true));
+        if (entity.level().getGameTime() % StepEffectBlock.EFFECT_PERIOD != 0) return;
+        player.addEffect(new MobEffectInstance(MobEffects.SPEED, StepEffectBlock.EFFECT_DURATION, 9, true, true));
     }
 
     public static void stepOnBlackChocolateBlock(Entity entity) {
         if (!(entity instanceof Player player)) return;
-        if (entity.level().getGameTime() % EFFECT_PERIOD != 0) return;
-        player.addEffect(new MobEffectInstance(MobEffects.SPEED, EFFECT_DURATION, 4, true, true));
-        player.addEffect(new MobEffectInstance(MobEffects.HASTE, EFFECT_DURATION, 3, true, true));
+        if (entity.level().getGameTime() % StepEffectBlock.EFFECT_PERIOD != 0) return;
+        player.addEffect(new MobEffectInstance(MobEffects.SPEED, StepEffectBlock.EFFECT_DURATION, 4, true, true));
+        player.addEffect(new MobEffectInstance(MobEffects.HASTE, StepEffectBlock.EFFECT_DURATION, 3, true, true));
     }
 
     public static void stepOnWhiteChocolateBlock(Entity entity) {
         if (!(entity instanceof Player player)) return;
-        if (entity.level().getGameTime() % EFFECT_PERIOD != 0) return;
-        player.addEffect(new MobEffectInstance(MobEffects.SPEED, EFFECT_DURATION, 4, true, true));
-        player.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, EFFECT_DURATION, 5, true, true));
+        if (entity.level().getGameTime() % StepEffectBlock.EFFECT_PERIOD != 0) return;
+        player.addEffect(new MobEffectInstance(MobEffects.SPEED, StepEffectBlock.EFFECT_DURATION, 4, true, true));
+        player.addEffect(new MobEffectInstance(MobEffects.JUMP_BOOST, StepEffectBlock.EFFECT_DURATION, 5, true, true));
     }
 }

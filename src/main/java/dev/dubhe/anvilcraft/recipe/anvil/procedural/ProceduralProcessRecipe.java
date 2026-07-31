@@ -5,7 +5,6 @@ import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceBlockState;
 import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -17,29 +16,25 @@ import net.minecraft.world.item.crafting.RecipeBookCategories;
 import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.level.Level;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-@Getter
-public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
-
-    public final BlockStatePredicate initialBlock;
-    public final List<ProceduralProcessStep> steps;
-    public final ChanceBlockState resultBlock;
-    public final Optional<ItemStackTemplate> icon;
-    public final int loop;
-    /// 配方执行过程中用于展示的半成品模型
-    public final Optional<Identifier> displayedModel;
-    /// 随流程推进依次使用的模型。单圈配方每完成一步推进一次，多圈配方在下一圈的首步完成时推进；
-    /// 当前进度没有对应模型时回退到 [#displayedModel]
-    public final List<Identifier> displayedModels;
-    /// 需要执行多个循环的配方中，后续循环（即不是第一圈）中每个循环的初始步骤
-    ///
-    /// <p>对于单圈的配方来说不需要有</p>
-    public final Optional<ProceduralProcessStep> multiLoopFirstStep;
+/**
+ * @param displayedModel     配方执行过程中用于展示的半成品模型
+ * @param displayedModels    随流程推进依次使用的模型。单圈配方每完成一步推进一次，多圈配方在下一圈的首步完成时推进；
+ *                           当前进度没有对应模型时回退到 [#displayedModel() ]
+ * @param multiLoopFirstStep 需要执行多个循环的配方中，后续循环（即不是第一圈）中每个循环的初始步骤
+ *
+ *                           <p>对于单圈的配方来说不需要有</p>
+ */
+public record ProceduralProcessRecipe(BlockStatePredicate initialBlock, List<ProceduralProcessStep> steps, ChanceBlockState resultBlock,
+                                      Optional<ItemStackTemplate> icon, int loop, Optional<Identifier> displayedModel,
+                                      List<Identifier> displayedModels, Optional<ProceduralProcessStep> multiLoopFirstStep) implements
+    Recipe<InWorldRecipeContext> {
 
     public ProceduralProcessRecipe(
         BlockStatePredicate initialBlock,
@@ -138,7 +133,7 @@ public class ProceduralProcessRecipe implements Recipe<InWorldRecipeContext> {
     }
 
     @Override
-    public List<net.minecraft.world.item.crafting.display.RecipeDisplay> display() {
+    public List<RecipeDisplay> display() {
         return Collections.emptyList();
     }
 }

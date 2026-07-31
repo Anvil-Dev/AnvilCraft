@@ -125,11 +125,11 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
     }
 
     public static BlockPredicateWithState of(Holder<Block> block) {
-        return of(block.value());
+        return BlockPredicateWithState.of(block.value());
     }
 
     public static BlockPredicateWithState of(String blockName) {
-        return of(BuiltInRegistries.BLOCK.getValue(Identifier.parse(blockName)));
+        return BlockPredicateWithState.of(BuiltInRegistries.BLOCK.getValue(Identifier.parse(blockName)));
     }
 
     public static BlockPredicateWithState of(TagKey<Block> blocks) {
@@ -159,10 +159,10 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
             this.defaultStates = this.block.mapBoth(
                 block -> {
                     AtomicReference<BlockState> state = new AtomicReference<>(block.defaultBlockState());
-                    if (SET_VALUE == null) return state.get();
+                    if (BlockPredicateWithState.SET_VALUE == null) return state.get();
                     this.properties.forEach((property, value) -> {
                         try {
-                            state.set((BlockState) SET_VALUE.invoke(state.get(), property, value));
+                            state.set((BlockState) BlockPredicateWithState.SET_VALUE.invoke(state.get(), property, value));
                         } catch (Exception e) {
                             AnvilCraft.LOGGER.warn(
                                 "Invalid property or value on state {}: property:{}, value:{}",
@@ -179,13 +179,13 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
                     List<BlockState> states = new ArrayList<>();
                     for (Holder<Block> holder : BuiltInRegistries.BLOCK.getOrThrow(tag)) {
                         AtomicReference<BlockState> state = new AtomicReference<>(holder.value().defaultBlockState());
-                        if (SET_VALUE == null) {
+                        if (BlockPredicateWithState.SET_VALUE == null) {
                             states.add(state.get());
                             continue;
                         }
                         this.properties.forEach((property, value) -> {
                             try {
-                                state.set((BlockState) SET_VALUE.invoke(state.get(), property, value));
+                                state.set((BlockState) BlockPredicateWithState.SET_VALUE.invoke(state.get(), property, value));
                             } catch (Exception _) {
                                 // do nothing
                             }
@@ -208,7 +208,7 @@ public class BlockPredicateWithState implements Predicate<BlockState> {
 
     private Raw toRaw() {
         Map<String, String> propertiesMap = new HashMap<>();
-        this.properties.forEach((property, value) -> propertiesMap.put(property.getName(), getNameOf(value)));
+        this.properties.forEach((property, value) -> propertiesMap.put(property.getName(), BlockPredicateWithState.getNameOf(value)));
         return new Raw(this.block, propertiesMap);
     }
 

@@ -45,7 +45,7 @@ public class FastCookingRecipe extends AbstractProcessRecipe<FastCookingRecipe> 
         FastCookingRecipe::getHasCauldron,
         FastCookingRecipe::new
     );
-    public static final RecipeSerializer<FastCookingRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+    public static final RecipeSerializer<FastCookingRecipe> SERIALIZER = new RecipeSerializer<>(FastCookingRecipe.CODEC, FastCookingRecipe.STREAM_CODEC);
 
     public FastCookingRecipe(
         List<ItemIngredientPredicate> itemIngredients,

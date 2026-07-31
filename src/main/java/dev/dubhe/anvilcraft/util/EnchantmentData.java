@@ -8,6 +8,8 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 
+import java.util.Objects;
+
 public record EnchantmentData(
     DataComponentType<ItemEnchantments> type,
     Holder<Enchantment> enchantment,
@@ -33,8 +35,9 @@ public record EnchantmentData(
             int thisWeight = EnchantmentData.weight(this.type);
             int thatWeight = EnchantmentData.weight(that.type);
             if (thisWeight == thatWeight) {
-                return BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(this.type)
-                    .compareTo(BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(that.type));
+                var thisKey = Objects.requireNonNull(BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(this.type));
+                var thatKey = Objects.requireNonNull(BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(that.type));
+                return thisKey.compareTo(thatKey);
             } else {
                 return Integer.compare(this.level, that.level);
             }

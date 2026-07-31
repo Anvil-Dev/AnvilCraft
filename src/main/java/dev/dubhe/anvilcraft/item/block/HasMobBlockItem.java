@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item.block;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.tooltip.providers.IItemTooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.HasMobBlockEntity;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
@@ -32,21 +33,19 @@ import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 import java.util.function.Consumer;
 
-public class HasMobBlockItem extends BlockItem {
+public class HasMobBlockItem extends BlockItem implements IItemTooltipProvider {
     public HasMobBlockItem(Block block, Properties properties) {
         super(block, properties);
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public void appendHoverText(
+    public void appendItemTooltip(
         ItemStack stack,
         TooltipContext context,
         TooltipDisplay display,
         Consumer<Component> builder,
         TooltipFlag tooltipFlag
     ) {
-        super.appendHoverText(stack, context, display, builder, tooltipFlag);
         if (!HasMobBlockItem.hasMob(stack)) return;
         Optional.ofNullable(context.level()).ifPresent(level -> {
             SavedEntity savedEntity = stack.get(ModComponents.SAVED_ENTITY);
@@ -68,10 +67,10 @@ public class HasMobBlockItem extends BlockItem {
 
     @Override
     protected boolean updateCustomBlockEntityTag(BlockPos pos, Level level, @Nullable Player player, ItemStack stack, BlockState state) {
-        if (hasMob(stack)) {
+        if (HasMobBlockItem.hasMob(stack)) {
             BlockEntity be = level.getBlockEntity(pos);
             if (be instanceof HasMobBlockEntity hmbe) {
-                hmbe.setEntity(getMobFromItem(level, stack));
+                hmbe.setEntity(HasMobBlockItem.getMobFromItem(level, stack));
             }
         }
         return super.updateCustomBlockEntityTag(pos, level, player, stack, state);
@@ -83,7 +82,7 @@ public class HasMobBlockItem extends BlockItem {
 
     /// 获取物品中的实体
     public static @Nullable Entity getMobFromItem(Level level, ItemStack stack) {
-        if (!hasMob(stack)) return null;
+        if (!HasMobBlockItem.hasMob(stack)) return null;
         SavedEntity savedEntity = stack.get(ModComponents.SAVED_ENTITY);
         // make idea happy
         if (savedEntity == null) return null;
@@ -126,7 +125,7 @@ public class HasMobBlockItem extends BlockItem {
     }
 
     public static ItemStack saveMobInItem(Level level, Mob entity, ItemStack stack) {
-        return saveMobInItem(level, entity, null, stack);
+        return HasMobBlockItem.saveMobInItem(level, entity, null, stack);
     }
 
     public static boolean canMobBeSaved(Mob entity, @Nullable Player player, @Nullable ItemStack stack) {
@@ -138,6 +137,6 @@ public class HasMobBlockItem extends BlockItem {
     }
 
     public static boolean canMobBeSaved(Mob entity) {
-        return canMobBeSaved(entity, null, null);
+        return HasMobBlockItem.canMobBeSaved(entity, null, null);
     }
 }

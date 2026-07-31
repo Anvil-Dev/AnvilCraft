@@ -18,6 +18,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
@@ -56,7 +57,7 @@ public class FluidTankMinecartEntity extends AbstractMinecart implements IFluidR
         EntityDataSerializers.INT
     );
 
-    private final FluidStackResourceHandler tank = new FluidStackResourceHandler(CAPACITY);
+    private final FluidStackResourceHandler tank = new FluidStackResourceHandler(FluidTankMinecartEntity.CAPACITY);
     private @Nullable BlockPos fluidNetworkPos;
     private FluidStack lastSyncedFluid = FluidStack.EMPTY;
 
@@ -77,7 +78,7 @@ public class FluidTankMinecartEntity extends AbstractMinecart implements IFluidR
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(FLUID_ID, -1).define(FLUID_AMOUNT, 0);
+        builder.define(FluidTankMinecartEntity.FLUID_ID, -1).define(FluidTankMinecartEntity.FLUID_AMOUNT, 0);
     }
 
     @Override
@@ -155,7 +156,7 @@ public class FluidTankMinecartEntity extends AbstractMinecart implements IFluidR
     }
 
     @Override
-    protected void destroy(ServerLevel level, net.minecraft.world.damagesource.DamageSource source) {
+    protected void destroy(ServerLevel level, DamageSource source) {
         this.kill(level);
         if (level.getGameRules().get(GameRules.ENTITY_DROPS)) {
             this.spawnAtLocation(level, this.createDropStack());
@@ -174,7 +175,7 @@ public class FluidTankMinecartEntity extends AbstractMinecart implements IFluidR
                 ProblemReporter.DISCARDING,
                 this.registryAccess()
             );
-            this.tank.serialize(output.child(TAG_TANK));
+            this.tank.serialize(output.child(FluidTankMinecartEntity.TAG_TANK));
             BlockItem.setBlockEntityData(stack, ModBlockEntities.FLUID_TANK.get(), output);
         }
         if (this.getCustomName() != null) {
@@ -187,7 +188,7 @@ public class FluidTankMinecartEntity extends AbstractMinecart implements IFluidR
     public void loadTankFromItem(ItemStack stack) {
         TypedEntityData<?> data = stack.get(DataComponents.BLOCK_ENTITY_DATA);
         if (data == null) return;
-        data.copyTagWithoutId().getCompound(TAG_TANK).ifPresent(tankTag -> {
+        data.copyTagWithoutId().getCompound(FluidTankMinecartEntity.TAG_TANK).ifPresent(tankTag -> {
             this.loadTank(tankTag);
             this.syncFluidData();
         });
@@ -196,13 +197,13 @@ public class FluidTankMinecartEntity extends AbstractMinecart implements IFluidR
     @Override
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
-        this.tank.serialize(output.child(TAG_TANK));
+        this.tank.serialize(output.child(FluidTankMinecartEntity.TAG_TANK));
     }
 
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
         super.readAdditionalSaveData(input);
-        this.tank.deserialize(input.childOrEmpty(TAG_TANK));
+        this.tank.deserialize(input.childOrEmpty(FluidTankMinecartEntity.TAG_TANK));
         this.syncFluidData();
     }
 
@@ -216,25 +217,25 @@ public class FluidTankMinecartEntity extends AbstractMinecart implements IFluidR
         FluidStack fluid = this.tank.getStack();
         if (FluidStack.matches(fluid, this.lastSyncedFluid)) return;
         this.lastSyncedFluid = fluid.copy();
-        this.entityData.set(FLUID_ID, fluid.isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(fluid.getFluid()));
-        this.entityData.set(FLUID_AMOUNT, fluid.getAmount());
+        this.entityData.set(FluidTankMinecartEntity.FLUID_ID, fluid.isEmpty() ? -1 : BuiltInRegistries.FLUID.getId(fluid.getFluid()));
+        this.entityData.set(FluidTankMinecartEntity.FLUID_AMOUNT, fluid.getAmount());
     }
 
     /// 按罐内存量给出的比较器强度，同时用于摩擦计算
     public int getComparatorLevel() {
         int amount = this.tank.getStack().getAmount();
-        return amount == 0 ? 0 : Mth.floor(amount * 14.0F / CAPACITY) + 1;
+        return amount == 0 ? 0 : Mth.floor(amount * 14.0F / FluidTankMinecartEntity.CAPACITY) + 1;
     }
 
     /// 获取用于渲染的流体内容；客户端读取同步数据，服务端直接读罐
     public FluidStack getSyncedFluid() {
         if (!this.level().isClientSide()) return this.tank.getStack();
-        int id = this.entityData.get(FLUID_ID);
-        int amount = this.entityData.get(FLUID_AMOUNT);
+        int id = this.entityData.get(FluidTankMinecartEntity.FLUID_ID);
+        int amount = this.entityData.get(FluidTankMinecartEntity.FLUID_AMOUNT);
         if (id < 0 || amount <= 0) return FluidStack.EMPTY;
         Fluid fluid = BuiltInRegistries.FLUID.byId(id);
         if (fluid == Fluids.EMPTY) return FluidStack.EMPTY;
-        return new FluidStack(fluid, Math.min(amount, CAPACITY));
+        return new FluidStack(fluid, Math.min(amount, FluidTankMinecartEntity.CAPACITY));
     }
 
     @Override
@@ -247,6 +248,6 @@ public class FluidTankMinecartEntity extends AbstractMinecart implements IFluidR
     }
 
     public int getCapacity() {
-        return CAPACITY;
+        return FluidTankMinecartEntity.CAPACITY;
     }
 }

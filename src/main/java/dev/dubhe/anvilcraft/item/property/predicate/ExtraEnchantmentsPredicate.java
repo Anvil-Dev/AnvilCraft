@@ -20,7 +20,7 @@ public class ExtraEnchantmentsPredicate {
     }
 
     public static class MercilessEnchantments extends EnchantmentsPredicate {
-        public static final Codec<MercilessEnchantments> CODEC = codec(MercilessEnchantments::new);
+        public static final Codec<MercilessEnchantments> CODEC = EnchantmentsPredicate.codec(MercilessEnchantments::new);
 
         protected MercilessEnchantments(List<EnchantmentPredicate> enchantments) {
             super(enchantments);
@@ -46,7 +46,7 @@ public class ExtraEnchantmentsPredicate {
     }
 
     public static class DisabledEnchantments extends EnchantmentsPredicate {
-        public static final Codec<DisabledEnchantments> CODEC = codec(DisabledEnchantments::new);
+        public static final Codec<DisabledEnchantments> CODEC = EnchantmentsPredicate.codec(DisabledEnchantments::new);
 
         protected DisabledEnchantments(List<EnchantmentPredicate> enchantments) {
             super(enchantments);

@@ -10,8 +10,10 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.world.level.saveddata.SavedDataType;
 import net.neoforged.neoforge.fluids.FluidStack;
+import org.jspecify.annotations.Nullable;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -65,7 +67,7 @@ public class WormholeInterfaceStates extends BetterSavedData {
     // ==================== 静态访问 ====================
 
     public static WormholeInterfaceStates get() {
-        return BetterSavedData.get(TYPE, CLIENT_COPY);
+        return BetterSavedData.get(WormholeInterfaceStates.TYPE, WormholeInterfaceStates.CLIENT_COPY);
     }
 
     // ==================== 接口标识生成 ====================
@@ -79,11 +81,11 @@ public class WormholeInterfaceStates extends BetterSavedData {
     }
 
     public static UUID logisticsUuid(UUID bodyUuid, int relX, int relZ) {
-        return interfaceUuid(bodyUuid, relX, relZ, TYPE_LOGISTICS);
+        return WormholeInterfaceStates.interfaceUuid(bodyUuid, relX, relZ, WormholeInterfaceStates.TYPE_LOGISTICS);
     }
 
     public static UUID fluidUuid(UUID bodyUuid, int relX, int relZ) {
-        return interfaceUuid(bodyUuid, relX, relZ, TYPE_FLUID);
+        return WormholeInterfaceStates.interfaceUuid(bodyUuid, relX, relZ, WormholeInterfaceStates.TYPE_FLUID);
     }
 
     // ==================== 物品状态访问 ====================
@@ -99,11 +101,11 @@ public class WormholeInterfaceStates extends BetterSavedData {
                 state.add(UnlimitedItemStack.EMPTY);
             }
             this.itemStates.put(uuid, state);
-            setDirty();
+            this.setDirty();
         }
         while (state.size() < slotCount) {
             state.add(UnlimitedItemStack.EMPTY);
-            setDirty();
+            this.setDirty();
         }
         return state;
     }
@@ -121,11 +123,11 @@ public class WormholeInterfaceStates extends BetterSavedData {
                 state.add(FluidStack.EMPTY);
             }
             this.fluidStates.put(uuid, state);
-            setDirty();
+            this.setDirty();
         }
         while (state.size() < tankCount) {
             state.add(FluidStack.EMPTY);
-            setDirty();
+            this.setDirty();
         }
         return state;
     }
@@ -160,7 +162,7 @@ public class WormholeInterfaceStates extends BetterSavedData {
                 entryTag.put("slots", slotsTag);
                 itemsTag.put(entry.getKey().toString(), entryTag);
             }
-            nbt.put(ITEM_STATES_KEY, itemsTag);
+            nbt.put(WormholeInterfaceStates.ITEM_STATES_KEY, itemsTag);
         }
 
         if (!this.fluidStates.isEmpty()) {
@@ -186,7 +188,7 @@ public class WormholeInterfaceStates extends BetterSavedData {
                 entryTag.put("tanks", tanksTag);
                 fluidsTag.put(entry.getKey().toString(), entryTag);
             }
-            nbt.put(FLUID_STATES_KEY, fluidsTag);
+            nbt.put(WormholeInterfaceStates.FLUID_STATES_KEY, fluidsTag);
         }
     }
 
@@ -194,8 +196,8 @@ public class WormholeInterfaceStates extends BetterSavedData {
         this.itemStates.clear();
         this.fluidStates.clear();
 
-        if (nbt.contains(ITEM_STATES_KEY)) {
-            CompoundTag itemsTag = nbt.getCompoundOrEmpty(ITEM_STATES_KEY);
+        if (nbt.contains(WormholeInterfaceStates.ITEM_STATES_KEY)) {
+            CompoundTag itemsTag = nbt.getCompoundOrEmpty(WormholeInterfaceStates.ITEM_STATES_KEY);
             for (String key : itemsTag.keySet()) {
                 UUID uuid;
                 try {
@@ -223,8 +225,8 @@ public class WormholeInterfaceStates extends BetterSavedData {
             }
         }
 
-        if (nbt.contains(FLUID_STATES_KEY)) {
-            CompoundTag fluidsTag = nbt.getCompoundOrEmpty(FLUID_STATES_KEY);
+        if (nbt.contains(WormholeInterfaceStates.FLUID_STATES_KEY)) {
+            CompoundTag fluidsTag = nbt.getCompoundOrEmpty(WormholeInterfaceStates.FLUID_STATES_KEY);
             for (String key : fluidsTag.keySet()) {
                 UUID uuid;
                 try {
@@ -260,7 +262,7 @@ public class WormholeInterfaceStates extends BetterSavedData {
     }
 
     @Override
-    protected Packet<? extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> createPacket(
+    protected @Nullable Packet<? extends CustomPacketPayload> createPacket(
         RegistryAccess registryAccess
     ) {
         // 虫洞接口状态仅在服务端使用，不向客户端同步。

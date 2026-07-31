@@ -275,7 +275,7 @@ public class EmberGrindstoneMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(this.access, player, ModBlocks.EMBER_GRINDSTONE.get());
+        return AbstractContainerMenu.stillValid(this.access, player, ModBlocks.EMBER_GRINDSTONE.get());
     }
 
     /// 移除

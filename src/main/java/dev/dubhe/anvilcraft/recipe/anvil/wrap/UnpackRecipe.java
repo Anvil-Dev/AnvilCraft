@@ -40,7 +40,7 @@ public class UnpackRecipe extends AbstractProcessRecipe<UnpackRecipe> {
         List<ItemIngredientPredicate> itemIngredients,
         List<ChanceItemStack> results
     ) {
-        super(createProperty(itemIngredients, results));
+        super(UnpackRecipe.createProperty(itemIngredients, results));
     }
 
     private static Property createProperty(
@@ -72,7 +72,7 @@ public class UnpackRecipe extends AbstractProcessRecipe<UnpackRecipe> {
             if (Arrays.stream(ingredient.getItems()).anyMatch(stack -> stack.is(ModItems.FLUID_TANK_MINECART))) {
                 property.addInputItemFunction(
                     i,
-                    new SaveComponentToTag<>(DataComponents.BLOCK_ENTITY_DATA, FLUID_TANK_DATA_PATH)
+                    new SaveComponentToTag<>(DataComponents.BLOCK_ENTITY_DATA, UnpackRecipe.FLUID_TANK_DATA_PATH)
                 );
             }
         }
@@ -80,7 +80,7 @@ public class UnpackRecipe extends AbstractProcessRecipe<UnpackRecipe> {
             if (results.get(i).stack().is(ModBlocks.FLUID_TANK.asItem())) {
                 property.addResultItemFunction(
                     i,
-                    new ApplyTagToComponent<>(DataComponents.BLOCK_ENTITY_DATA, FLUID_TANK_DATA_PATH)
+                    new ApplyTagToComponent<>(DataComponents.BLOCK_ENTITY_DATA, UnpackRecipe.FLUID_TANK_DATA_PATH)
                 );
             }
         }
@@ -94,7 +94,7 @@ public class UnpackRecipe extends AbstractProcessRecipe<UnpackRecipe> {
 
     @Override
     public RecipeSerializer<UnpackRecipe> getSerializer() {
-        return SERIALIZER;
+        return UnpackRecipe.SERIALIZER;
     }
 
     /// 创建一个构建器实例

@@ -55,7 +55,8 @@ public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IH
 
     public DetectorSlidingRailBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(POWERED, false));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(DetectorSlidingRailBlock.FACING, Direction.NORTH).setValue(
+            DetectorSlidingRailBlock.POWERED, false));
     }
 
     @Nullable
@@ -68,12 +69,12 @@ public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IH
         ) {
             facing = facing.getOpposite();
         }
-        return this.defaultBlockState().setValue(FACING, facing).setValue(POWERED, false);
+        return this.defaultBlockState().setValue(DetectorSlidingRailBlock.FACING, facing).setValue(DetectorSlidingRailBlock.POWERED, false);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, POWERED);
+        builder.add(DetectorSlidingRailBlock.FACING, DetectorSlidingRailBlock.POWERED);
     }
 
     @Override
@@ -83,9 +84,9 @@ public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IH
 
     @Override
     public VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
-        return switch (blockState.getValue(FACING).getAxis()) {
-            case X -> AABB_X;
-            case Z -> AABB_Z;
+        return switch (blockState.getValue(DetectorSlidingRailBlock.FACING).getAxis()) {
+            case X -> DetectorSlidingRailBlock.AABB_X;
+            case Z -> DetectorSlidingRailBlock.AABB_Z;
             default -> super.getShape(blockState, blockGetter, blockPos, collisionContext);
         };
     }
@@ -93,11 +94,11 @@ public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IH
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (
-            state.getValue(POWERED)
+            state.getValue(DetectorSlidingRailBlock.POWERED)
             && level.getEntitiesOfClass(SlidingBlockEntity.class, new AABB(pos.above())).isEmpty()
             && level.getEntitiesOfClass(ItemEntity.class, new AABB(pos)).isEmpty()
         ) {
-            level.setBlock(pos, state.setValue(POWERED, false), Block.UPDATE_ALL);
+            level.setBlock(pos, state.setValue(DetectorSlidingRailBlock.POWERED, false), Block.UPDATE_ALL);
             level.getBlockEntity(pos, ModBlockEntities.DETECTOR_SLIDING_RAIL.get()).ifPresent(DetectorSlidingRailBlockEntity::cleanPower);
         }
         super.tick(state, level, pos, random);
@@ -110,7 +111,7 @@ public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IH
 
     @Override
     protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction side) {
-        if (!state.getValue(POWERED)) return 0;
+        if (!state.getValue(DetectorSlidingRailBlock.POWERED)) return 0;
         return side == Direction.DOWN ? 0 : 15;
     }
 
@@ -129,27 +130,27 @@ public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IH
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         BlockState bs = level.getBlockState(blockPos);
-        level.setBlockAndUpdate(blockPos, bs.cycle(FACING));
+        level.setBlockAndUpdate(blockPos, bs.cycle(DetectorSlidingRailBlock.FACING));
         return true;
     }
 
     @Override
     public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
+        return DetectorSlidingRailBlock.FACING;
     }
 
     @Override
     public void onSlidingAbove(Level level, BlockPos pos, BlockState state, SlidingBlockEntity entity) {
         Optional<DetectorSlidingRailBlockEntity> blockEntity = level.getBlockEntity(pos, ModBlockEntities.DETECTOR_SLIDING_RAIL.get());
         blockEntity.ifPresent(detector -> detector.updatePower(entity.getBlockCount()));
-        level.setBlock(pos, state.setValue(POWERED, true), Block.UPDATE_ALL);
+        level.setBlock(pos, state.setValue(DetectorSlidingRailBlock.POWERED, true), Block.UPDATE_ALL);
         level.scheduleTick(pos, this, 20);
     }
 
     public void onItemEntitySlidingAbove(Level level, BlockPos pos, BlockState state) {
         Optional<DetectorSlidingRailBlockEntity> blockEntity = level.getBlockEntity(pos, ModBlockEntities.DETECTOR_SLIDING_RAIL.get());
         blockEntity.ifPresent(detector -> detector.updatePower(1));
-        level.setBlock(pos, state.setValue(POWERED, true), Block.UPDATE_ALL);
+        level.setBlock(pos, state.setValue(DetectorSlidingRailBlock.POWERED, true), Block.UPDATE_ALL);
         level.scheduleTick(pos, this, 20);
     }
 
@@ -161,17 +162,17 @@ public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IH
     @Override
     public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity be) {
         if (state.getBlock() != this) return;
-        level.setBlock(pos, state.setValue(POWERED, false), Block.UPDATE_ALL);
+        level.setBlock(pos, state.setValue(DetectorSlidingRailBlock.POWERED, false), Block.UPDATE_ALL);
         level.getBlockEntity(pos, ModBlockEntities.DETECTOR_SLIDING_RAIL.get()).ifPresent(DetectorSlidingRailBlockEntity::cleanPower);
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(DetectorSlidingRailBlock.FACING, rotation.rotate(state.getValue(DetectorSlidingRailBlock.FACING)));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
+        return state.setValue(DetectorSlidingRailBlock.FACING, mirror.mirror(state.getValue(DetectorSlidingRailBlock.FACING)));
     }
 }

@@ -70,7 +70,7 @@ public record PermutationRecipe(
 
     @Override
     public RecipeSerializer<PermutationRecipe> getSerializer() {
-        return SERIALIZER;
+        return PermutationRecipe.SERIALIZER;
     }
 
     public static class Builder extends BaseBuilder<Builder, PermutationRecipe> {

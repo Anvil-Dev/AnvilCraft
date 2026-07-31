@@ -46,21 +46,21 @@ public class SpectralAnvilBlock extends Block implements IHammerRemovable {
     private static final VoxelShape X_TOP = Block.box(0.0, 10.0, 3.0, 16.0, 16.0, 13.0);
     private static final VoxelShape Z_LEG1 = Block.box(5.0, 4.0, 4.0, 11.0, 10.0, 12.0);
     private static final VoxelShape Z_TOP = Block.box(3.0, 10.0, 0.0, 13.0, 16.0, 16.0);
-    private static final VoxelShape X_AXIS_AABB = Shapes.or(BASE, X_LEG1, X_TOP);
-    private static final VoxelShape Z_AXIS_AABB = Shapes.or(BASE, Z_LEG1, Z_TOP);
+    private static final VoxelShape X_AXIS_AABB = Shapes.or(SpectralAnvilBlock.BASE, SpectralAnvilBlock.X_LEG1, SpectralAnvilBlock.X_TOP);
+    private static final VoxelShape Z_AXIS_AABB = Shapes.or(SpectralAnvilBlock.BASE, SpectralAnvilBlock.Z_LEG1, SpectralAnvilBlock.Z_TOP);
 
     /// 幻灵铁砧
     public SpectralAnvilBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-            this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, false)
+            this.stateDefinition.any().setValue(SpectralAnvilBlock.FACING, Direction.NORTH).setValue(SpectralAnvilBlock.POWERED, false)
         );
     }
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        Direction direction = state.getValue(FACING);
-        return direction.getAxis() == Direction.Axis.X ? X_AXIS_AABB : Z_AXIS_AABB;
+        Direction direction = state.getValue(SpectralAnvilBlock.FACING);
+        return direction.getAxis() == Direction.Axis.X ? SpectralAnvilBlock.X_AXIS_AABB : SpectralAnvilBlock.Z_AXIS_AABB;
     }
 
     @Override
@@ -76,13 +76,13 @@ public class SpectralAnvilBlock extends Block implements IHammerRemovable {
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-            .setValue(FACING, context.getHorizontalDirection().getClockWise())
-            .setValue(POWERED, context.getLevel().getBlockState(context.getClickedPos().above()).is(ModBlockTags.MAGNET));
+            .setValue(SpectralAnvilBlock.FACING, context.getHorizontalDirection().getClockWise())
+            .setValue(SpectralAnvilBlock.POWERED, context.getLevel().getBlockState(context.getClickedPos().above()).is(ModBlockTags.MAGNET));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, POWERED);
+        builder.add(SpectralAnvilBlock.FACING, SpectralAnvilBlock.POWERED);
     }
 
     @Override
@@ -108,7 +108,8 @@ public class SpectralAnvilBlock extends Block implements IHammerRemovable {
         return new SimpleMenuProvider(
             (syncId, inventory, player) ->
                 new AnvilMenu(syncId, inventory, ContainerLevelAccess.create(level, pos)),
-            CONTAINER_TITLE);
+            SpectralAnvilBlock.CONTAINER_TITLE
+        );
     }
 
     @Override
@@ -128,7 +129,7 @@ public class SpectralAnvilBlock extends Block implements IHammerRemovable {
             FallingSpectralBlockEntity.fall(
                 level,
                 pos,
-                level.getBlockState(pos).setValue(POWERED, false),
+                level.getBlockState(pos).setValue(SpectralAnvilBlock.POWERED, false),
                 false,
                 true
             );
@@ -145,12 +146,12 @@ public class SpectralAnvilBlock extends Block implements IHammerRemovable {
         boolean movedByPiston
     ) {
         boolean hasNeighborSignal = MagnetUtil.hasMagnetism(level, pos);
-        boolean currentPowered = state.getValue(POWERED);
+        boolean currentPowered = state.getValue(SpectralAnvilBlock.POWERED);
         if (hasNeighborSignal && !currentPowered) {
-            level.setBlockAndUpdate(pos, state.setValue(POWERED, true));
+            level.setBlockAndUpdate(pos, state.setValue(SpectralAnvilBlock.POWERED, true));
         } else if (!hasNeighborSignal && currentPowered) {
             level.scheduleTick(pos, this, 4);
-            level.setBlockAndUpdate(pos, state.setValue(POWERED, false));
+            level.setBlockAndUpdate(pos, state.setValue(SpectralAnvilBlock.POWERED, false));
         }
 
 
@@ -158,11 +159,11 @@ public class SpectralAnvilBlock extends Block implements IHammerRemovable {
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(SpectralAnvilBlock.FACING, rotation.rotate(state.getValue(SpectralAnvilBlock.FACING)));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
+        return state.setValue(SpectralAnvilBlock.FACING, mirror.mirror(state.getValue(SpectralAnvilBlock.FACING)));
     }
 }

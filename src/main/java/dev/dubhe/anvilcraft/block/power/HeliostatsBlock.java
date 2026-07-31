@@ -13,6 +13,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -42,7 +43,7 @@ public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(HeliostatsBlock::new);
+        return BlockBehaviour.simpleCodec(HeliostatsBlock::new);
     }
 
     @Override
@@ -51,7 +52,7 @@ public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable
         BlockGetter level,
         BlockPos pos,
         CollisionContext context) {
-        return SHAPE;
+        return HeliostatsBlock.SHAPE;
     }
 
     @Override
@@ -67,7 +68,7 @@ public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable
 
     @Override
     protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return COLLISION_SHAPE;
+        return HeliostatsBlock.COLLISION_SHAPE;
     }
 
     @Nullable
@@ -77,7 +78,7 @@ public class HeliostatsBlock extends BaseEntityBlock implements IHammerRemovable
         BlockState state,
         BlockEntityType<T> type
     ) {
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             type,
             ModBlockEntities.HELIOSTATS.get(),
             (level1, blockPos, blockState, blockEntity) -> blockEntity.tick());

@@ -54,7 +54,7 @@ public class TranscendenceResonatorItem extends ResonatorItem {
             -3F,
             properties.fireResistant()
                 .component(ModComponents.MULTIPHASE, Multiphase.create())
-                .component(DataComponents.ITEM_NAME, Multiphase.firstPhaseName(NAME))
+                .component(DataComponents.ITEM_NAME, Multiphase.firstPhaseName(TranscendenceResonatorItem.NAME))
                 .component(ModComponents.ETERNAL, Eternal.DEFAULT)
                 .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
                 .component(ModComponents.PROVIDENCE, Unit.INSTANCE)
@@ -65,7 +65,7 @@ public class TranscendenceResonatorItem extends ResonatorItem {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         ItemStack stack = player.getItemInHand(usedHand);
-        if (ResonatorItem.getMode(stack) == ResonateMode.AUTO && !isTooDamagedToUse(stack)) {
+        if (ResonatorItem.getMode(stack) == ResonateMode.AUTO && !ResonatorItem.isTooDamagedToUse(stack)) {
             return InteractionResult.FAIL;
         }
         return super.use(level, player, usedHand);
@@ -73,7 +73,7 @@ public class TranscendenceResonatorItem extends ResonatorItem {
 
     @Override
     public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
-        if (ResonatorItem.getMode(stack) != ResonateMode.AUTO || isTooDamagedToUse(stack)) {
+        if (ResonatorItem.getMode(stack) != ResonateMode.AUTO || ResonatorItem.isTooDamagedToUse(stack)) {
             return super.onItemUseFirst(stack, context);
         }
         return this.startResonanceMining(context);
@@ -82,7 +82,7 @@ public class TranscendenceResonatorItem extends ResonatorItem {
     @Override
     public InteractionResult useOn(UseOnContext context) {
         ItemStack stack = context.getItemInHand();
-        if (ResonatorItem.getMode(stack) != ResonateMode.AUTO || isTooDamagedToUse(stack)) {
+        if (ResonatorItem.getMode(stack) != ResonateMode.AUTO || ResonatorItem.isTooDamagedToUse(stack)) {
             return super.useOn(context);
         }
         return this.startResonanceMining(context);
@@ -91,7 +91,7 @@ public class TranscendenceResonatorItem extends ResonatorItem {
     private InteractionResult startResonanceMining(UseOnContext context) {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
-        if (!canResonanceMine(level.getBlockState(pos), level, pos)) return InteractionResult.PASS;
+        if (!TranscendenceResonatorItem.canResonanceMine(level.getBlockState(pos), level, pos)) return InteractionResult.PASS;
 
         Player player = context.getPlayer();
         if (player == null) return InteractionResult.PASS;
@@ -102,21 +102,21 @@ public class TranscendenceResonatorItem extends ResonatorItem {
             pos.immutable(),
             context.isInside()
         );
-        MiningTarget target = new MiningTarget(hitResult, context.getHand(), getEffectPositions(level, pos));
+        MiningTarget target = new MiningTarget(hitResult, context.getHand(), TranscendenceResonatorItem.getEffectPositions(level, pos));
         this.miningTargets(level).put(player, target);
         player.startUsingItem(context.getHand());
-        sendMiningEffects(level, target.effectPositions(), RESONANCE_MINING_TICKS + 2);
+        TranscendenceResonatorItem.sendMiningEffects(level, target.effectPositions(), TranscendenceResonatorItem.RESONANCE_MINING_TICKS + 2);
         return InteractionResult.CONSUME;
     }
 
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        return USE_DURATION;
+        return TranscendenceResonatorItem.USE_DURATION;
     }
 
     @Override
     public ItemUseAnimation getUseAnimation(ItemStack stack) {
-        return getMode(stack) == ResonateMode.AUTO ? ItemUseAnimation.CROSSBOW : ItemUseAnimation.NONE;
+        return ResonatorItem.getMode(stack) == ResonateMode.AUTO ? ItemUseAnimation.CROSSBOW : ItemUseAnimation.NONE;
     }
 
     public static float resonanceMiningProgress(Level level, Player player, float partialTick) {
@@ -125,7 +125,7 @@ public class TranscendenceResonatorItem extends ResonatorItem {
 
         ItemStack stack = player.getUseItem();
         int elapsedTicks = stack.getUseDuration(player) - player.getUseItemRemainingTicks();
-        return Math.min(1.0F, (elapsedTicks + partialTick) / RESONANCE_MINING_TICKS);
+        return Math.min(1.0F, (elapsedTicks + partialTick) / TranscendenceResonatorItem.RESONANCE_MINING_TICKS);
     }
 
     @Override
@@ -137,14 +137,14 @@ public class TranscendenceResonatorItem extends ResonatorItem {
             return;
         }
 
-        BlockHitResult hit = getTargetedBlock(livingEntity);
+        BlockHitResult hit = TranscendenceResonatorItem.getTargetedBlock(livingEntity);
         if (hit == null || !target.hitPos().equals(hit.getBlockPos())) {
             this.stopResonanceMining(level, livingEntity, target);
             return;
         }
 
         BlockState state = level.getBlockState(target.hitPos());
-        if (!canResonanceMine(state, level, target.hitPos())) {
+        if (!TranscendenceResonatorItem.canResonanceMine(state, level, target.hitPos())) {
             this.stopResonanceMining(level, livingEntity, target);
             return;
         }
@@ -154,7 +154,7 @@ public class TranscendenceResonatorItem extends ResonatorItem {
             float pitch = 0.75F + 0.04F * elapsedTicks;
             level.playSound(null, target.hitPos(), SoundEvents.AMETHYST_BLOCK_RESONATE, SoundSource.BLOCKS, 0.8F, pitch);
         }
-        if (elapsedTicks < RESONANCE_MINING_TICKS) return;
+        if (elapsedTicks < TranscendenceResonatorItem.RESONANCE_MINING_TICKS) return;
 
         boolean destroyed = livingEntity instanceof ServerPlayer player
             && player.gameMode.destroyBlock(target.hitPos());
@@ -162,7 +162,7 @@ public class TranscendenceResonatorItem extends ResonatorItem {
         if (destroyed) {
             level.playSound(null, target.hitPos(), SoundEvents.AMETHYST_CLUSTER_BREAK, SoundSource.BLOCKS, 1.0F, 0.7F);
         }
-        sendMiningEffects(level, target.effectPositions(), 0);
+        TranscendenceResonatorItem.sendMiningEffects(level, target.effectPositions(), 0);
         livingEntity.stopUsingItem();
     }
 
@@ -171,11 +171,11 @@ public class TranscendenceResonatorItem extends ResonatorItem {
         MiningTarget target = this.miningTargets(level).remove(livingEntity);
         if (target == null) return false;
 
-        sendMiningEffects(level, target.effectPositions(), 0);
+        TranscendenceResonatorItem.sendMiningEffects(level, target.effectPositions(), 0);
         int elapsedTicks = this.getUseDuration(stack, livingEntity) - remainingUseDuration;
-        if (elapsedTicks >= RESONANCE_MINING_TICKS || !(livingEntity instanceof ServerPlayer player)) return true;
+        if (elapsedTicks >= TranscendenceResonatorItem.RESONANCE_MINING_TICKS || !(livingEntity instanceof ServerPlayer player)) return true;
 
-        BlockHitResult hit = getTargetedBlock(player);
+        BlockHitResult hit = TranscendenceResonatorItem.getTargetedBlock(player);
         if (hit == null || !target.hitPos().equals(hit.getBlockPos())) return true;
         AnvilHammerItem.useBlock(player, target.hitPos(), player.level(), stack, target.hand(), target.hitResult());
         return true;
@@ -193,7 +193,7 @@ public class TranscendenceResonatorItem extends ResonatorItem {
 
     private void stopResonanceMining(Level level, LivingEntity livingEntity, MiningTarget target) {
         this.miningTargets(level).remove(livingEntity);
-        sendMiningEffects(level, target.effectPositions(), 0);
+        TranscendenceResonatorItem.sendMiningEffects(level, target.effectPositions(), 0);
         livingEntity.stopUsingItem();
     }
 
@@ -203,7 +203,7 @@ public class TranscendenceResonatorItem extends ResonatorItem {
         if (!(state.getBlock() instanceof AbstractMultiPartBlock<?> multiPartBlock)) {
             return List.of(hitPos.immutable());
         }
-        return getMultiPartEffectPositions(level, hitPos, state, multiPartBlock);
+        return TranscendenceResonatorItem.getMultiPartEffectPositions(level, hitPos, state, multiPartBlock);
     }
 
     private static <P extends Enum<P>> List<BlockPos> getMultiPartEffectPositions(
@@ -222,7 +222,7 @@ public class TranscendenceResonatorItem extends ResonatorItem {
 
     private static void sendMiningEffects(Level level, List<BlockPos> positions, int durationTicks) {
         for (BlockPos pos : positions) {
-            sendMiningEffect(level, pos, durationTicks);
+            TranscendenceResonatorItem.sendMiningEffect(level, pos, durationTicks);
         }
     }
 

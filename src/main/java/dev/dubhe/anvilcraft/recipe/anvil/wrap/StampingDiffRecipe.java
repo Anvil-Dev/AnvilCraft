@@ -65,7 +65,7 @@ public class StampingDiffRecipe extends BaseStampingRecipe<StampingDiffRecipe> {
 
     @Override
     public RecipeSerializer<StampingDiffRecipe> getSerializer() {
-        return SERIALIZER;
+        return StampingDiffRecipe.SERIALIZER;
     }
 
     /// 创建一个构建器实例

@@ -45,9 +45,9 @@ public abstract class GuiGraphicsExtractorMixin {
             x,
             y,
             seed,
-            ANVILCRAFT$RECURSION,
-            ANVILCRAFT$MAX_RECURSION,
-            i -> ANVILCRAFT$RECURSION = i
+            GuiGraphicsExtractorMixin.ANVILCRAFT$RECURSION,
+            GuiGraphicsExtractorMixin.ANVILCRAFT$MAX_RECURSION,
+            i -> GuiGraphicsExtractorMixin.ANVILCRAFT$RECURSION = i
         );
     }
 }

@@ -69,10 +69,10 @@ public record BlockMiningEffect(@Nullable ResourceKey<Enchantment> enchantment, 
     }
 
     public int getLaserColor() {
-        if (this.is(Enchantments.SILK_TOUCH)) return SILK_TOUCH_LASER_COLOR;
-        if (this.is(ModEnchantments.DISINTEGRATION_KEY)) return DISINTEGRATION_LASER_COLOR;
-        if (this.is(ModEnchantments.SMELTING_KEY)) return SMELTING_LASER_COLOR;
-        return NORMAL_LASER_COLOR;
+        if (this.is(Enchantments.SILK_TOUCH)) return BlockMiningEffect.SILK_TOUCH_LASER_COLOR;
+        if (this.is(ModEnchantments.DISINTEGRATION_KEY)) return BlockMiningEffect.DISINTEGRATION_LASER_COLOR;
+        if (this.is(ModEnchantments.SMELTING_KEY)) return BlockMiningEffect.SMELTING_LASER_COLOR;
+        return BlockMiningEffect.NORMAL_LASER_COLOR;
     }
 
     /**
@@ -80,12 +80,12 @@ public record BlockMiningEffect(@Nullable ResourceKey<Enchantment> enchantment, 
      */
     public static Optional<BlockMiningEffect> fromAnvil(@Nullable Block block) {
         return switch (block) {
-            case RoyalAnvilBlock ignored -> Optional.of(SILK_TOUCH);
-            case FrostAnvilBlock ignored -> Optional.of(DISINTEGRATION);
-            case EmberAnvilBlock ignored -> Optional.of(SMELTING);
-            case TranscendenceAnvilBlock ignored -> Optional.of(FORTUNE_5);
-            case SpectralAnvilBlock ignored -> Optional.of(NORMAL);
-            case AnvilBlock ignored -> Optional.of(NORMAL);
+            case RoyalAnvilBlock ignored -> Optional.of(BlockMiningEffect.SILK_TOUCH);
+            case FrostAnvilBlock ignored -> Optional.of(BlockMiningEffect.DISINTEGRATION);
+            case EmberAnvilBlock ignored -> Optional.of(BlockMiningEffect.SMELTING);
+            case TranscendenceAnvilBlock ignored -> Optional.of(BlockMiningEffect.FORTUNE_5);
+            case SpectralAnvilBlock ignored -> Optional.of(BlockMiningEffect.NORMAL);
+            case AnvilBlock ignored -> Optional.of(BlockMiningEffect.NORMAL);
             case null, default -> Optional.empty();
         };
     }

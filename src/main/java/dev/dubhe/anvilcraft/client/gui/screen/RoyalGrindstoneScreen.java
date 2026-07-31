@@ -84,7 +84,7 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            RoyalGrindstoneScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,

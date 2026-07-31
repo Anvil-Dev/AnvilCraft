@@ -14,7 +14,7 @@ public class MDEnergyWeaponMakeRecipeComponent extends MDRecipeComponent {
     private final EnergyWeaponMakeRecipe recipe;
 
     public MDEnergyWeaponMakeRecipeComponent(EnergyWeaponMakeRecipe recipe, boolean enableAlignCenter) {
-        super(TEXTURE, 128, 64, enableAlignCenter);
+        super(MDEnergyWeaponMakeRecipeComponent.TEXTURE, 128, 64, enableAlignCenter);
         this.recipe = recipe;
     }
 

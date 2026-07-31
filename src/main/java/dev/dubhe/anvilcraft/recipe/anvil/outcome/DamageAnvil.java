@@ -28,7 +28,7 @@ public record DamageAnvil() implements IRecipeOutcome<DamageAnvil> {
     /// @param context 配方上下文
     @Override
     public void accept(InWorldRecipeContext context) {
-        context.put(DAMAGE_ANVIL, true);
+        context.put(DamageAnvil.DAMAGE_ANVIL, true);
     }
 
     /// 损坏铁砧配方结果类型类

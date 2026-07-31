@@ -28,15 +28,15 @@ public class CrabClawItem extends Item {
         AttributeModifier.Operation.ADD_VALUE
     );
     private static final Supplier<Multimap<Holder<Attribute>, AttributeModifier>> RANGE_MODIFIER_SUPPLIER =
-        EntityReachAttribute.getRangeModifierSupplier(RANGE_ATTRIBUTE_MODIFIER);
+        EntityReachAttribute.getRangeModifierSupplier(CrabClawItem.RANGE_ATTRIBUTE_MODIFIER);
     public static final String CRAB_CLAW_MARKER = "crabClaw";
     public static final String DUAL_CRAB_CLAW_MARKER = "dualCrabClaw";
 
     public CrabClawItem(Properties properties) {
         super(properties.attributes(
             ItemAttributeModifiers.builder()
-                .add(Attributes.BLOCK_INTERACTION_RANGE, RANGE_ATTRIBUTE_MODIFIER, EquipmentSlotGroup.HAND)
-                .add(Attributes.ENTITY_INTERACTION_RANGE, RANGE_ATTRIBUTE_MODIFIER, EquipmentSlotGroup.HAND)
+                .add(Attributes.BLOCK_INTERACTION_RANGE, CrabClawItem.RANGE_ATTRIBUTE_MODIFIER, EquipmentSlotGroup.HAND)
+                .add(Attributes.ENTITY_INTERACTION_RANGE, CrabClawItem.RANGE_ATTRIBUTE_MODIFIER, EquipmentSlotGroup.HAND)
                 .build()
         ));
     }

@@ -54,7 +54,7 @@ public class TradingStationPackets {
         public void handleOnServer(Player player) {
             if (this.slot < 0 || this.slot >= 3) return;
             Level level = player.level();
-            Optional<TradingStationBlockEntity> beOp = getOpenStation(player, this.pos);
+            Optional<TradingStationBlockEntity> beOp = TradingStationPackets.getOpenStation(player, this.pos);
             if (beOp.isEmpty()) return;
             TradingStationBlockEntity be = beOp.get();
             be.getFilters().setItem(this.slot, this.stack);
@@ -92,7 +92,7 @@ public class TradingStationPackets {
 
         @Override
         public void handleOnServer(Player player) {
-            Optional<TradingStationBlockEntity> beOp = getOpenStation(player, this.pos);
+            Optional<TradingStationBlockEntity> beOp = TradingStationPackets.getOpenStation(player, this.pos);
             if (beOp.isEmpty()) return;
             TradingStationBlockEntity be = beOp.get();
             be.setPlayerAllowed(this.playerAllowed);

@@ -43,8 +43,8 @@ public class VoidMatterBlock extends Block {
                 neighborVoidMatterCount++;
             }
         }
-        if (neighborVoidMatterCount >= VOID_DECAY_THRESHOLD) {
-            level.setBlockAndUpdate(pos, voidDecay(level, random));
+        if (neighborVoidMatterCount >= VoidMatterBlock.VOID_DECAY_THRESHOLD) {
+            level.setBlockAndUpdate(pos, VoidMatterBlock.voidDecay(level, random));
         }
     }
 

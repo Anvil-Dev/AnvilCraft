@@ -38,21 +38,21 @@ public class ClientBlockEventListener {
     public static void onCreativeCrateAttack(PlayerInteractEvent.LeftClickBlock event) {
         if (event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.START) return;
         if (!event.getLevel().getBlockState(event.getPos()).is(ModBlocks.CREATIVE_CRATE.get())) return;
-        creativeCrateAttackPos = event.getPos().immutable();
-        attackWasDown = true;
+        ClientBlockEventListener.creativeCrateAttackPos = event.getPos().immutable();
+        ClientBlockEventListener.attackWasDown = true;
     }
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft client = Minecraft.getInstance();
         boolean attackDown = client.options.keyAttack.isDown();
-        if (attackWasDown && !attackDown && creativeCrateAttackPos != null) {
-            ClientPacketDistributor.sendToServer(new CreativeCrateAttackPacket(creativeCrateAttackPos));
-            creativeCrateAttackPos = null;
+        if (ClientBlockEventListener.attackWasDown && !attackDown && ClientBlockEventListener.creativeCrateAttackPos != null) {
+            ClientPacketDistributor.sendToServer(new CreativeCrateAttackPacket(ClientBlockEventListener.creativeCrateAttackPos));
+            ClientBlockEventListener.creativeCrateAttackPos = null;
         }
-        attackWasDown = attackDown;
+        ClientBlockEventListener.attackWasDown = attackDown;
         if (client.level == null) {
-            creativeCrateAttackPos = null;
+            ClientBlockEventListener.creativeCrateAttackPos = null;
         }
     }
 
@@ -84,7 +84,7 @@ public class ClientBlockEventListener {
         if (entity.isShiftKeyDown() && !state.is(ModBlockTags.HAMMER_REMOVABLE) && !(state.getBlock() instanceof IHammerRemovable)) {
             return;
         }
-        if (event.getLevel().isClientSide() && clientHandle(event, state, hand, event.getHitVec())) {
+        if (event.getLevel().isClientSide() && ClientBlockEventListener.clientHandle(event, state, hand, event.getHitVec())) {
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
         } else if (!state.is(BlockTags.CAULDRONS) && !state.is(ModBlockTags.ANVIL_HAMMER_BLACKLIST)) {

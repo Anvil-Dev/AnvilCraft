@@ -44,7 +44,7 @@ public record BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int s
     );
 
     BoxContents(List<ItemStack> amulets, List<ItemStack> totems, int selectedItemIndex) {
-        this(amulets, totems, selectedItemIndex, computeUsage(amulets, totems));
+        this(amulets, totems, selectedItemIndex, BoxContents.computeUsage(amulets, totems));
     }
 
     public static int sum(List<ItemStack> amulets, List<ItemStack> totems, ToIntFunction<ItemStack> fn) {

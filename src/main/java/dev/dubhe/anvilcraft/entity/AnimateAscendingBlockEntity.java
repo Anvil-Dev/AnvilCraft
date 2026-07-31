@@ -63,24 +63,24 @@ public class AnimateAscendingBlockEntity extends Entity {
     }
 
     public void setStartPos(BlockPos startPos) {
-        this.entityData.set(DATA_START_POS, startPos);
+        this.entityData.set(AnimateAscendingBlockEntity.DATA_START_POS, startPos);
     }
 
     public BlockPos getStartPos() {
-        return this.entityData.get(DATA_START_POS);
+        return this.entityData.get(AnimateAscendingBlockEntity.DATA_START_POS);
     }
 
     public void setEndPos(BlockPos startPos) {
-        this.entityData.set(DATA_END_POS, startPos);
+        this.entityData.set(AnimateAscendingBlockEntity.DATA_END_POS, startPos);
     }
 
     public BlockPos getEndPos() {
-        return this.entityData.get(DATA_END_POS);
+        return this.entityData.get(AnimateAscendingBlockEntity.DATA_END_POS);
     }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(DATA_START_POS, BlockPos.ZERO).define(DATA_END_POS, BlockPos.ZERO);
+        builder.define(AnimateAscendingBlockEntity.DATA_START_POS, BlockPos.ZERO).define(AnimateAscendingBlockEntity.DATA_END_POS, BlockPos.ZERO);
     }
 
     @Override

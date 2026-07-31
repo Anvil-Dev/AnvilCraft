@@ -38,11 +38,11 @@ public final class WeaponRaycastUtil {
     }
 
     public static Vec3 visualStart(Player player, double rightOffset) {
-        return visualStart(player, 1.0F, rightOffset);
+        return WeaponRaycastUtil.visualStart(player, 1.0F, rightOffset);
     }
 
     public static Vec3 visualStart(Player player, float partialTick, double rightOffset) {
-        return visualStart(player, player.getEyePosition(partialTick), partialTick, rightOffset);
+        return WeaponRaycastUtil.visualStart(player, player.getEyePosition(partialTick), partialTick, rightOffset);
     }
 
     public static Vec3 visualStart(Player player, Vec3 eyePosition, float partialTick, double rightOffset) {
@@ -58,9 +58,9 @@ public final class WeaponRaycastUtil {
             : player.getMainArm().getOpposite();
         double side = usedArm == HumanoidArm.RIGHT ? 1.0 : -1.0;
         return eyePosition
-            .add(look.scale(MUZZLE_FORWARD_OFFSET))
+            .add(look.scale(WeaponRaycastUtil.MUZZLE_FORWARD_OFFSET))
             .add(right.scale(rightOffset * side))
-            .add(up.scale(-MUZZLE_DOWN_OFFSET));
+            .add(up.scale(-WeaponRaycastUtil.MUZZLE_DOWN_OFFSET));
     }
 
     public static Vec3 blockEnd(Level level, Entity source, Ray ray) {
@@ -96,7 +96,7 @@ public final class WeaponRaycastUtil {
         Ray ray,
         Predicate<Entity> predicate
     ) {
-        Vec3 end = blockEnd(level, source, ray);
+        Vec3 end = WeaponRaycastUtil.blockEnd(level, source, ray);
         return ProjectileUtil.getEntityHitResult(
             source,
             ray.start(),
@@ -108,8 +108,8 @@ public final class WeaponRaycastUtil {
     }
 
     public static List<LivingEntity> livingEntities(Level level, Entity source, Ray ray, int limit) {
-        Vec3 end = blockEnd(level, source, ray);
-        return livingEntitiesToEnd(level, source, new Ray(ray.start(), end), limit);
+        Vec3 end = WeaponRaycastUtil.blockEnd(level, source, ray);
+        return WeaponRaycastUtil.livingEntitiesToEnd(level, source, new Ray(ray.start(), end), limit);
     }
 
     public static List<LivingEntity> livingEntitiesToEnd(Level level, Entity source, Ray ray, int limit) {

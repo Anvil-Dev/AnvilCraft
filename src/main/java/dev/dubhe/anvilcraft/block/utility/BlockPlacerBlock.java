@@ -82,13 +82,13 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         super(properties);
         this.registerDefaultState(this.stateDefinition
             .any()
-            .setValue(ORIENTATION, Orientation.NORTH_UP)
-            .setValue(TRIGGERED, false));
+            .setValue(BlockPlacerBlock.ORIENTATION, Orientation.NORTH_UP)
+            .setValue(BlockPlacerBlock.TRIGGERED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(ORIENTATION).add(TRIGGERED);
+        builder.add(BlockPlacerBlock.ORIENTATION).add(BlockPlacerBlock.TRIGGERED);
     }
 
     @Override
@@ -109,9 +109,9 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         BlockPos pos,
         RandomSource random) {
         super.tick(state, level, pos, random);
-        if (!state.getValue(TRIGGERED)) return;
-        if (!hasNeighborSignal(level, pos, state.getValue(ORIENTATION).getDirection())) {
-            level.setBlock(pos, state.setValue(TRIGGERED, false), 2);
+        if (!state.getValue(BlockPlacerBlock.TRIGGERED)) return;
+        if (!BlockPlacerBlock.hasNeighborSignal(level, pos, state.getValue(BlockPlacerBlock.ORIENTATION).getDirection())) {
+            level.setBlock(pos, state.setValue(BlockPlacerBlock.TRIGGERED, false), 2);
         }
     }
 
@@ -130,14 +130,14 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
     }
 
     private void checkIfTriggered(Level level, BlockState blockState, BlockPos blockPos) {
-        boolean triggered = blockState.getValue(TRIGGERED);
-        if (triggered != hasNeighborSignal(level, blockPos, blockState.getValue(ORIENTATION).getDirection())) {
-            BlockState changedState = blockState.setValue(TRIGGERED, !triggered);
+        boolean triggered = blockState.getValue(BlockPlacerBlock.TRIGGERED);
+        if (triggered != BlockPlacerBlock.hasNeighborSignal(level, blockPos, blockState.getValue(BlockPlacerBlock.ORIENTATION).getDirection())) {
+            BlockState changedState = blockState.setValue(BlockPlacerBlock.TRIGGERED, !triggered);
             level.setBlock(blockPos, changedState, 2);
             if (triggered) {
                 return;
             }
-            this.placeBlock(1, level, blockPos, blockState.getValue(ORIENTATION));
+            this.placeBlock(1, level, blockPos, blockState.getValue(BlockPlacerBlock.ORIENTATION));
         }
     }
 
@@ -163,19 +163,19 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         BlockGetter level,
         BlockPos pos,
         CollisionContext context) {
-        return switch (state.getValue(ORIENTATION)) {
-            case NORTH_UP -> NORTH_UP_SHAPE;
-            case SOUTH_UP -> SOUTH_UP_SHAPE;
-            case WEST_UP -> WEST_UP_SHAPE;
-            case EAST_UP -> EAST_UP_SHAPE;
-            case UP_NORTH -> UP_NORTH_SHAPE;
-            case UP_SOUTH -> UP_SOUTH_SHAPE;
-            case UP_WEST -> UP_WEST_SHAPE;
-            case UP_EAST -> UP_EAST_SHAPE;
-            case DOWN_NORTH -> DOWN_NORTH_SHAPE;
-            case DOWN_SOUTH -> DOWN_SOUTH_SHAPE;
-            case DOWN_WEST -> DOWN_WEST_SHAPE;
-            case DOWN_EAST -> DOWN_EAST_SHAPE;
+        return switch (state.getValue(BlockPlacerBlock.ORIENTATION)) {
+            case NORTH_UP -> BlockPlacerBlock.NORTH_UP_SHAPE;
+            case SOUTH_UP -> BlockPlacerBlock.SOUTH_UP_SHAPE;
+            case WEST_UP -> BlockPlacerBlock.WEST_UP_SHAPE;
+            case EAST_UP -> BlockPlacerBlock.EAST_UP_SHAPE;
+            case UP_NORTH -> BlockPlacerBlock.UP_NORTH_SHAPE;
+            case UP_SOUTH -> BlockPlacerBlock.UP_SOUTH_SHAPE;
+            case UP_WEST -> BlockPlacerBlock.UP_WEST_SHAPE;
+            case UP_EAST -> BlockPlacerBlock.UP_EAST_SHAPE;
+            case DOWN_NORTH -> BlockPlacerBlock.DOWN_NORTH_SHAPE;
+            case DOWN_SOUTH -> BlockPlacerBlock.DOWN_SOUTH_SHAPE;
+            case DOWN_WEST -> BlockPlacerBlock.DOWN_WEST_SHAPE;
+            case DOWN_EAST -> BlockPlacerBlock.DOWN_EAST_SHAPE;
         };
     }
 
@@ -214,7 +214,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
         if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {
             orientation = orientation.opposite();
         }
-        return defaultBlockState().setValue(ORIENTATION, orientation);
+        return this.defaultBlockState().setValue(BlockPlacerBlock.ORIENTATION, orientation);
     }
 
     /// 放置方块
@@ -253,7 +253,7 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
             int i = 0;
             do {
                 if (level.getBlockState(inputPos).is(this)
-                    && level.getBlockState(inputPos).getValue(ORIENTATION).getDirection() == direction
+                    && level.getBlockState(inputPos).getValue(BlockPlacerBlock.ORIENTATION).getDirection() == direction
                 ) {
                     i++;
                     inputPos = inputPos.relative(direction.getOpposite());
@@ -347,10 +347,10 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
 
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
-        BlockState state = defaultBlockState();
+        BlockState state = this.defaultBlockState();
         state = state.setValue(
-            ORIENTATION,
-            level.getBlockState(blockPos).getValue(ORIENTATION).next()
+            BlockPlacerBlock.ORIENTATION,
+            level.getBlockState(blockPos).getValue(BlockPlacerBlock.ORIENTATION).next()
         );
         level.setBlockAndUpdate(blockPos, state);
         return true;
@@ -358,16 +358,16 @@ public class BlockPlacerBlock extends Block implements IHammerRemovable, IHammer
 
     @Override
     public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return ORIENTATION;
+        return BlockPlacerBlock.ORIENTATION;
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(ORIENTATION, state.getValue(ORIENTATION).rotate(rotation));
+        return state.setValue(BlockPlacerBlock.ORIENTATION, state.getValue(BlockPlacerBlock.ORIENTATION).rotate(rotation));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(ORIENTATION, state.getValue(ORIENTATION).mirror(mirror));
+        return state.setValue(BlockPlacerBlock.ORIENTATION, state.getValue(BlockPlacerBlock.ORIENTATION).mirror(mirror));
     }
 }

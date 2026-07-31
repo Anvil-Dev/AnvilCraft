@@ -142,17 +142,17 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
 
     @Override
     public Component getTitle() {
-        return TITLE;
+        return MultiBlockConversionCategory.TITLE;
     }
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return MultiBlockConversionCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return MultiBlockConversionCategory.HEIGHT;
     }
 
     @Override
@@ -176,7 +176,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
         );
 
         List<ItemStack> inputItems = recipe.value().getInputPattern().toIngredientList();
-        inputItems.sort(BY_COUNT_DECREASING);
+        inputItems.sort(MultiBlockConversionCategory.BY_COUNT_DECREASING);
 
         for (int i = 0; i < inputItems.size(); i++) {
             ItemStack stack = inputItems.get(i);
@@ -184,7 +184,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
         }
 
         List<ItemStack> outputItems = recipe.value().getOutputPattern().toIngredientList();
-        outputItems.sort(BY_COUNT_DECREASING);
+        outputItems.sort(MultiBlockConversionCategory.BY_COUNT_DECREASING);
 
         for (int i = 0; i < outputItems.size(); i++) {
             ItemStack stack = outputItems.get(i);
@@ -209,7 +209,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
             );
         pose.pushMatrix();
         pose.scale(0.8F, 0.8F);
-        int textX = Math.round(WIDTH / 0.8F - minecraft.font.width(currentModeTooltip) - 5);
+        int textX = Math.round(MultiBlockConversionCategory.WIDTH / 0.8F - minecraft.font.width(currentModeTooltip) - 5);
         graphics.text(minecraft.font, currentModeTooltip, textX, 0, 0xFF000000, false);
         pose.popMatrix();
         this.displayModeButton(mouseX, mouseY).draw(graphics, 149, 10);
@@ -241,8 +241,8 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 final boolean modifiedOutput = !output.isAllLayersVisible();
                 input.setAllLayersVisible(true);
                 output.setAllLayersVisible(true);
-                RenderSupport.renderLevelLike(input, graphics, 36, 44, SCALE_FAC_OVERVIEW, 8, 2.0F, false);
-                RenderSupport.renderLevelLike(output, graphics, 120, 44, SCALE_FAC_OVERVIEW, 8, 2.0F, false);
+                RenderSupport.renderLevelLike(input, graphics, 36, 44, MultiBlockConversionCategory.SCALE_FAC_OVERVIEW, 8, 2.0F, false);
+                RenderSupport.renderLevelLike(output, graphics, 120, 44, MultiBlockConversionCategory.SCALE_FAC_OVERVIEW, 8, 2.0F, false);
                 if (modifiedInput) {
                     input.setAllLayersVisible(false);
                 }
@@ -295,11 +295,11 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 drawable.setPosition(-1000, -1000);
             }
         }
-        RenderSupport.renderLevelLike(rendered, graphics, 80, 86, SCALE_FAC_LARGE, 8, 2.0F, false);
+        RenderSupport.renderLevelLike(rendered, graphics, 80, 86, MultiBlockConversionCategory.SCALE_FAC_LARGE, 8, 2.0F, false);
         Component component = this.layerTooltip(rendered);
         pose.pushMatrix();
         pose.scale(0.8F, 0.8F);
-        textX = Math.round(WIDTH / 0.8F - minecraft.font.width(component) - 5);
+        textX = Math.round(MultiBlockConversionCategory.WIDTH / 0.8F - minecraft.font.width(component) - 5);
         graphics.text(minecraft.font, component, textX, 25, 0xFF000000, false);
         pose.popMatrix();
         this.renderSwitchButton(rendered).draw(graphics, 125, 30);
@@ -331,7 +331,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
     }
 
     private Component layerTooltip(LevelLike level) {
-        if (level.isAllLayersVisible()) return ALL_LAYERS;
+        if (level.isAllLayersVisible()) return MultiBlockConversionCategory.ALL_LAYERS;
         return Component.translatable(
             "gui.anvilcraft.category.multiblock.single_layer",
             level.getCurrentVisibleLayer() + 1,
@@ -458,9 +458,9 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
 
         DisplayMode next() {
             return switch (this) {
-                case INPUT -> OUTPUT;
-                case OUTPUT -> OVERVIEW;
-                case OVERVIEW -> INPUT;
+                case INPUT -> DisplayMode.OUTPUT;
+                case OUTPUT -> DisplayMode.OVERVIEW;
+                case OVERVIEW -> DisplayMode.INPUT;
             };
         }
 

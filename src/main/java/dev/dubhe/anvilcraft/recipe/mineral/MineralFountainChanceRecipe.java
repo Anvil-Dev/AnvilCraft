@@ -83,7 +83,7 @@ public record MineralFountainChanceRecipe(Identifier dimension, BlockStatePredic
 
     @Override
     public RecipeSerializer<MineralFountainChanceRecipe> getSerializer() {
-        return SERIALIZER;
+        return MineralFountainChanceRecipe.SERIALIZER;
     }
 
     @Override
@@ -183,7 +183,7 @@ public record MineralFountainChanceRecipe(Identifier dimension, BlockStatePredic
 
         @Override
         public void save(RecipeOutput recipeOutput) {
-            save(
+            this.save(
                 recipeOutput,
                 AnvilCraft.of(this.getResult().typeHolder().getKey().identifier().getPath())
                     .withPrefix(this.getType() + "/")

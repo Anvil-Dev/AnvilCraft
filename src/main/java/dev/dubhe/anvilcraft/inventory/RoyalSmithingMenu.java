@@ -51,7 +51,7 @@ public class RoyalSmithingMenu extends AdjacentSmithingMenu {
         ContainerLevelAccess access,
         Level level
     ) {
-        super(type, containerId, inventory, access, createInputSlotDefinitions(level.recipeAccess()));
+        super(type, containerId, inventory, access, RoyalSmithingMenu.createInputSlotDefinitions(level.recipeAccess()));
         this.level = level;
         this.baseItemTest = level.recipeAccess().propertySet(RecipePropertySet.SMITHING_BASE);
         this.templateItemTest = level.recipeAccess().propertySet(RecipePropertySet.SMITHING_TEMPLATE);

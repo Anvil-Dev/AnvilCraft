@@ -6,6 +6,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
 /// 屏幕（摄像机）震动管理器 —— 纯客户端。
 /// 通过 ViewportEvent.ComputeCameraAngles 往 yaw/pitch/roll 上叠加噪声实现，
@@ -16,7 +17,7 @@ public class ScreenShakeManager {
     private static final ScreenShakeManager INSTANCE = new ScreenShakeManager();
 
     public static ScreenShakeManager getInstance() {
-        return INSTANCE;
+        return ScreenShakeManager.INSTANCE;
     }
 
     /// 触发时的强度（0 表示未激活）。剩余刻数随客户端 tick 递减。
@@ -70,7 +71,7 @@ public class ScreenShakeManager {
 
     /// 计算当前帧应叠加到摄像机的 yaw/pitch/roll 偏移（度）。
     /// 使用多个不同频率的正弦叠加，产生不规则的快速颤动而非规则摆动。
-    public float[] computeAngleOffsets(float partialTick) {
+    public float @Nullable [] computeAngleOffsets(float partialTick) {
         if (!this.isActive()) return null;
         float falloff = this.currentFalloff(partialTick);
         if (falloff <= 0.01f) return null;

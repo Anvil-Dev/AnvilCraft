@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
 import com.google.common.collect.BiMap;
-import com.google.common.collect.HashBiMap;
+import com.google.common.collect.ImmutableBiMap;
 import dev.anvilcraft.lib.v2.util.Lazy;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -31,13 +31,13 @@ public class CompatUtil {
         Util.cast(Blocks.END_PORTAL), Map.entry(ModBlocks.END_DUST.getDefaultState(), new CompoundTag()),
         Util.cast(Blocks.NETHER_PORTAL), Map.entry(ModBlocks.NETHER_DUST.getDefaultState(), new CompoundTag())
     ));
-    public static final BiMap<Identifier, Supplier<? extends AbstractCauldronBlock>> F2C_TRANSFORM = HashBiMap.create(Map.of(
+    public static final BiMap<Identifier, Supplier<? extends AbstractCauldronBlock>> F2C_TRANSFORM = ImmutableBiMap.of(
         Identifier.withDefaultNamespace("lava"),
         ModBlocks.LAVA_CAULDRON
-    ));
+    );
 
     public static @Nullable Identifier getFluidFromCauldron(Block cauldron) {
-        for (Map.Entry<Identifier, Supplier<? extends AbstractCauldronBlock>> value : F2C_TRANSFORM.entrySet()) {
+        for (Map.Entry<Identifier, Supplier<? extends AbstractCauldronBlock>> value : CompatUtil.F2C_TRANSFORM.entrySet()) {
             if (cauldron.equals(value.getValue().get())) return value.getKey();
         }
         return null;

@@ -260,7 +260,7 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     @Override
     public @Nullable AbstractContainerMenu createMenu(int containerId, Inventory inventory, Player player) {
         if (player.isSpectator()) return null;
-        if (player.level().getBlockEntity(getBlockPos()) instanceof PulseGeneratorBlockEntity blockEntity) {
+        if (player.level().getBlockEntity(this.getBlockPos()) instanceof PulseGeneratorBlockEntity blockEntity) {
             return new PulseGeneratorMenu(ModMenuTypes.PULSE_GENERATOR.get(), containerId, inventory, blockEntity);
         }
         return null;

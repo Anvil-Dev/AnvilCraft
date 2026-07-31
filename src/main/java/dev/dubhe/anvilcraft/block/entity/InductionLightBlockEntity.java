@@ -25,9 +25,9 @@ import org.jspecify.annotations.Nullable;
 public class InductionLightBlockEntity extends BlockEntity implements IPowerConsumer, IHasAffectRange {
     @Getter(AccessLevel.NONE)
     private int ripeningRangeCache = AnvilCraft.CONFIG.inductionLightBlockRipeningRange;
-    private AABB ripeningArea;
-    private AABB blockingArea;
-    private PowerGrid grid;
+    private @Nullable AABB ripeningArea;
+    private @Nullable AABB blockingArea;
+    private @Nullable PowerGrid grid;
 
     public InductionLightBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);

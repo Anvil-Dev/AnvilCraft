@@ -38,13 +38,13 @@ public class MagnetBlock extends Block implements IHammerRemovable {
 
     public MagnetBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(LIT, false));
+        this.registerDefaultState(this.stateDefinition.any().setValue(MagnetBlock.LIT, false));
     }
 
     @Override
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+        return this.defaultBlockState().setValue(MagnetBlock.LIT, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
@@ -62,7 +62,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(LIT);
+        builder.add(MagnetBlock.LIT);
     }
 
     @Override
@@ -78,19 +78,19 @@ public class MagnetBlock extends Block implements IHammerRemovable {
             return;
         }
         this.attract(state, level, pos);
-        boolean bl = state.getValue(LIT);
+        boolean bl = state.getValue(MagnetBlock.LIT);
         if (bl != level.hasNeighborSignal(pos)) {
             if (bl) {
                 level.scheduleTick(pos, this, 4);
             } else {
-                level.setBlockAndUpdate(pos, state.cycle(LIT));
+                level.setBlockAndUpdate(pos, state.cycle(MagnetBlock.LIT));
             }
         }
     }
 
     private void attract(BlockState state, Level level, BlockPos magnetPos) {
         if (level.isClientSide()) return;
-        if (!(state.getBlock() instanceof MagnetBlock) || state.getValue(LIT)) return;
+        if (!(state.getBlock() instanceof MagnetBlock) || state.getValue(MagnetBlock.LIT)) return;
         if (level.getBlockState(magnetPos.below()).is(BlockTags.ANVIL)) return;
         int distance = AnvilCraft.CONFIG.magnetAttractsDistance;
         BlockPos currentPos = magnetPos;
@@ -157,8 +157,8 @@ public class MagnetBlock extends Block implements IHammerRemovable {
         ServerLevel level,
         BlockPos pos,
         RandomSource random) {
-        if (state.getValue(LIT) && !level.hasNeighborSignal(pos)) {
-            level.setBlockAndUpdate(pos, state.cycle(LIT));
+        if (state.getValue(MagnetBlock.LIT) && !level.hasNeighborSignal(pos)) {
+            level.setBlockAndUpdate(pos, state.cycle(MagnetBlock.LIT));
         }
     }
 
@@ -169,8 +169,8 @@ public class MagnetBlock extends Block implements IHammerRemovable {
                 if (player.isShiftKeyDown()) {
                     player.addItem(ModItems.MAGNET_INGOT.get().getDefaultInstance());
                     BlockState blockState = ModBlocks.HOLLOW_MAGNET_BLOCK.get().defaultBlockState();
-                    if (blockState.hasProperty(LIT)) {
-                        blockState = blockState.setValue(LIT, level.hasNeighborSignal(pos));
+                    if (blockState.hasProperty(MagnetBlock.LIT)) {
+                        blockState = blockState.setValue(MagnetBlock.LIT, level.hasNeighborSignal(pos));
                     }
                     level.setBlockAndUpdate(pos, blockState);
                     level.playSound(null, pos, SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);

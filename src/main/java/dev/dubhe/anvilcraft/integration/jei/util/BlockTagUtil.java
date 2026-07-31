@@ -28,7 +28,7 @@ public class BlockTagUtil {
     ///     为了防止某些内容特别多的标签被特别多的配方引用造成的内存空间浪费，本方法的实现将每个{@link TagKey}
     ///     对应的原料缓存在{@link HashMap}中。
     public static Ingredient toIngredient(TagKey<Block> tag) {
-        return CACHE.computeIfAbsent(tag, t -> new BlockTagIngredient(t).toVanilla());
+        return BlockTagUtil.CACHE.computeIfAbsent(tag, t -> new BlockTagIngredient(t).toVanilla());
     }
 
     /// 根据方块标签，获取当前的用于循环展示的方块。

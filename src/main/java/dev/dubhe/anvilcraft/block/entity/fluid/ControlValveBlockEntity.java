@@ -38,8 +38,8 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
     public static final int FILTER_SLOT_COUNT = 1;
     public static final int MAX_RATE = 2000;
 
-    private final NonNullList<FluidStack> filters = NonNullList.withSize(FILTER_SLOT_COUNT, FluidStack.EMPTY);
-    private int maxRate = MAX_RATE;
+    private final NonNullList<FluidStack> filters = NonNullList.withSize(ControlValveBlockEntity.FILTER_SLOT_COUNT, FluidStack.EMPTY);
+    private int maxRate = ControlValveBlockEntity.MAX_RATE;
     private Direction facing = Direction.NORTH;
 
     public ControlValveBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -52,7 +52,7 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
     }
 
     public void setMaxRate(int maxRate) {
-        int clamped = Mth.clamp(maxRate, 0, MAX_RATE);
+        int clamped = Mth.clamp(maxRate, 0, ControlValveBlockEntity.MAX_RATE);
         if (this.maxRate == clamped) return;
         this.maxRate = clamped;
         this.setChanged();
@@ -60,7 +60,7 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
     }
 
     public boolean isLocked() {
-        BlockState state = getBlockState();
+        BlockState state = this.getBlockState();
         return state.hasProperty(ControlValveBlock.POWERED) && state.getValue(ControlValveBlock.POWERED);
     }
 
@@ -121,7 +121,7 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        this.maxRate = Mth.clamp(input.getIntOr("MaxRate", MAX_RATE), 0, MAX_RATE);
+        this.maxRate = Mth.clamp(input.getIntOr("MaxRate", ControlValveBlockEntity.MAX_RATE), 0, ControlValveBlockEntity.MAX_RATE);
         this.facing = Direction.from3DDataValue(input.getIntOr("Facing", Direction.NORTH.get3DDataValue()));
         this.readFilters(input);
     }
@@ -166,7 +166,7 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
 
     public void sendUpdate() {
         if (this.level != null) {
-            this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
         }
     }
 

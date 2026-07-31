@@ -22,13 +22,13 @@ import java.util.Optional;
 public class PlanetResourceRecipeLoader {
 
     public static void init(RegistrumRecipeProvider provider) {
-        createMineralRecipe(provider);
-        createFluidRecipes(provider);
-        createGiantItemRecipes(provider);
-        createGiantFluidRecipes(provider);
-        createBiologicalRecipe(provider);
-        createOfferingRecipe(provider);
-        createWastelandRecipe(provider);
+        PlanetResourceRecipeLoader.createMineralRecipe(provider);
+        PlanetResourceRecipeLoader.createFluidRecipes(provider);
+        PlanetResourceRecipeLoader.createGiantItemRecipes(provider);
+        PlanetResourceRecipeLoader.createGiantFluidRecipes(provider);
+        PlanetResourceRecipeLoader.createBiologicalRecipe(provider);
+        PlanetResourceRecipeLoader.createOfferingRecipe(provider);
+        PlanetResourceRecipeLoader.createWastelandRecipe(provider);
     }
 
     private static void saveRecipe(RecipeOutput output, String name, PlanetResourceRecipe recipe) {
@@ -42,7 +42,7 @@ public class PlanetResourceRecipeLoader {
     }
 
     private static void createMineralRecipe(RegistrumRecipeProvider provider) {
-        saveRecipe(provider, "mineral", new PlanetResourceRecipe(
+        PlanetResourceRecipeLoader.saveRecipe(provider, "mineral", new PlanetResourceRecipe(
             PlanetResourceRecipe.Category.MINERAL,
             Optional.of(new PlanetResourceRecipe.MineralData(
                 "c:raw_materials", "anvilcraft:non_planetary_minerals", 10
@@ -52,7 +52,7 @@ public class PlanetResourceRecipeLoader {
     }
 
     private static void createFluidRecipes(RegistrumRecipeProvider provider) {
-        saveRecipe(provider, "fluid_water", new PlanetResourceRecipe(
+        PlanetResourceRecipeLoader.saveRecipe(provider, "fluid_water", new PlanetResourceRecipe(
             PlanetResourceRecipe.Category.FLUID,
             Optional.empty(),
             Optional.of(new PlanetResourceRecipe.FluidData(
@@ -61,7 +61,7 @@ public class PlanetResourceRecipeLoader {
             Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()
         ));
 
-        saveRecipe(provider, "fluid_lava", new PlanetResourceRecipe(
+        PlanetResourceRecipeLoader.saveRecipe(provider, "fluid_lava", new PlanetResourceRecipe(
             PlanetResourceRecipe.Category.FLUID,
             Optional.empty(),
             Optional.of(new PlanetResourceRecipe.FluidData(
@@ -72,7 +72,7 @@ public class PlanetResourceRecipeLoader {
     }
 
     private static void createGiantItemRecipes(RegistrumRecipeProvider provider) {
-        saveRecipe(provider, "giant_item_ice", new PlanetResourceRecipe(
+        PlanetResourceRecipeLoader.saveRecipe(provider, "giant_item_ice", new PlanetResourceRecipe(
             PlanetResourceRecipe.Category.GIANT_ITEM,
             Optional.empty(), Optional.empty(),
             Optional.of(new PlanetResourceRecipe.GiantData(
@@ -87,7 +87,7 @@ public class PlanetResourceRecipeLoader {
     }
 
     private static void createGiantFluidRecipes(RegistrumRecipeProvider provider) {
-        saveRecipe(provider, "giant_fluid_gas", new PlanetResourceRecipe(
+        PlanetResourceRecipeLoader.saveRecipe(provider, "giant_fluid_gas", new PlanetResourceRecipe(
             PlanetResourceRecipe.Category.GIANT_FLUID,
             Optional.empty(), Optional.empty(),
             Optional.of(new PlanetResourceRecipe.GiantData(
@@ -98,7 +98,7 @@ public class PlanetResourceRecipeLoader {
             Optional.empty(), Optional.empty(), Optional.empty()
         ));
 
-        saveRecipe(provider, "giant_fluid_ice", new PlanetResourceRecipe(
+        PlanetResourceRecipeLoader.saveRecipe(provider, "giant_fluid_ice", new PlanetResourceRecipe(
             PlanetResourceRecipe.Category.GIANT_FLUID,
             Optional.empty(), Optional.empty(),
             Optional.of(new PlanetResourceRecipe.GiantData(
@@ -112,7 +112,7 @@ public class PlanetResourceRecipeLoader {
     }
 
     private static void createBiologicalRecipe(RegistrumRecipeProvider provider) {
-        saveRecipe(provider, "biological", new PlanetResourceRecipe(
+        PlanetResourceRecipeLoader.saveRecipe(provider, "biological", new PlanetResourceRecipe(
             PlanetResourceRecipe.Category.BIOLOGICAL,
             Optional.empty(), Optional.empty(), Optional.empty(),
             Optional.of(new PlanetResourceRecipe.BiologicalData(
@@ -130,7 +130,7 @@ public class PlanetResourceRecipeLoader {
     }
 
     private static void createOfferingRecipe(RegistrumRecipeProvider provider) {
-        saveRecipe(provider, "offering", new PlanetResourceRecipe(
+        PlanetResourceRecipeLoader.saveRecipe(provider, "offering", new PlanetResourceRecipe(
             PlanetResourceRecipe.Category.OFFERING,
             Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
             Optional.of(new PlanetResourceRecipe.OfferingData(
@@ -148,7 +148,7 @@ public class PlanetResourceRecipeLoader {
     }
 
     private static void createWastelandRecipe(RegistrumRecipeProvider provider) {
-        saveRecipe(provider, "wasteland", new PlanetResourceRecipe(
+        PlanetResourceRecipeLoader.saveRecipe(provider, "wasteland", new PlanetResourceRecipe(
             PlanetResourceRecipe.Category.WASTELAND,
             Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
             Optional.of(new PlanetResourceRecipe.WastelandData(

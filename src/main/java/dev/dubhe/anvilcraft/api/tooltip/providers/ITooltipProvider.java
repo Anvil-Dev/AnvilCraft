@@ -77,7 +77,7 @@ public interface ITooltipProvider<T> {
     }
 
     static Component withIndentAndMerge(Component... components) {
-        MutableComponent indentation = INDENTATION.copy();
+        MutableComponent indentation = ITooltipProvider.INDENTATION.copy();
         for (Component component : components) {
             indentation.append(component);
         }

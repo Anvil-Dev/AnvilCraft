@@ -18,7 +18,7 @@ public class MDPortalConversionRecipeComponent extends MDRecipeComponent {
     private final PortalConversionRecipe recipe;
 
     public MDPortalConversionRecipeComponent(PortalConversionRecipe recipe, boolean enableAlignCenter) {
-        super(TEXTURE, 128, 64, enableAlignCenter);
+        super(MDPortalConversionRecipeComponent.TEXTURE, 128, 64, enableAlignCenter);
         this.recipe = recipe;
     }
 
@@ -33,7 +33,7 @@ public class MDPortalConversionRecipeComponent extends MDRecipeComponent {
         if (AgeratumUtil.isHover(0, 0, 128, 64, mouseX, mouseY)) {
             if (context.tooltips().isEmpty()) {
                 context.tooltips().add(new MDRenderContext.Tooltip(
-                    List.of(Component.translatable(FALL_THROUGH, this.recipe.getPortalType().getPortalName())), Optional.empty()
+                    List.of(Component.translatable(MDPortalConversionRecipeComponent.FALL_THROUGH, this.recipe.getPortalType().getPortalName())), Optional.empty()
                 ));
             }
         }

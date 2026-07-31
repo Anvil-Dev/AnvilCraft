@@ -46,8 +46,8 @@ public class ShulkerContainerBlock
         super(properties);
         this.registerDefaultState(
             this.stateDefinition.any()
-                .setValue(HALF, OpenedCube3x3PartHalf.BOTTOM_CENTER)
-                .setValue(OPENED, false)
+                .setValue(ShulkerContainerBlock.HALF, OpenedCube3x3PartHalf.BOTTOM_CENTER)
+                .setValue(ShulkerContainerBlock.OPENED, false)
         );
     }
 
@@ -58,12 +58,12 @@ public class ShulkerContainerBlock
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(HALF, state.getValue(HALF).rotate(rotation));
+        return state.setValue(ShulkerContainerBlock.HALF, state.getValue(ShulkerContainerBlock.HALF).rotate(rotation));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(HALF, state.getValue(HALF).mirror(mirror));
+        return state.setValue(ShulkerContainerBlock.HALF, state.getValue(ShulkerContainerBlock.HALF).mirror(mirror));
     }
 
     @Override
@@ -111,8 +111,8 @@ public class ShulkerContainerBlock
 
     public void setOpened(Level level, BlockPos pos, boolean opened) {
         BlockState state = level.getBlockState(pos);
-        if (state.is(this) && state.getValue(OPENED) != opened) {
-            this.updateState(level, pos, OPENED, opened, Block.UPDATE_ALL);
+        if (state.is(this) && state.getValue(ShulkerContainerBlock.OPENED) != opened) {
+            this.updateState(level, pos, ShulkerContainerBlock.OPENED, opened, Block.UPDATE_ALL);
         }
     }
 
@@ -152,45 +152,45 @@ public class ShulkerContainerBlock
     // region VoxelShapes
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return switch (state.getValue(HALF)) {
-            case BOTTOM_CENTER -> BOTTOM_CENTER;
-            case BOTTOM_W -> BOTTOM_W;
-            case BOTTOM_E -> BOTTOM_E;
-            case BOTTOM_N -> BOTTOM_N;
-            case BOTTOM_S -> BOTTOM_S;
-            case BOTTOM_NW -> BOTTOM_NW;
-            case BOTTOM_SW -> BOTTOM_SW;
-            case BOTTOM_NE -> BOTTOM_NE;
-            case BOTTOM_SE -> BOTTOM_SE;
-            case MID_CENTER -> MID_CENTER;
-            case MID_W -> MID_W;
-            case MID_E -> MID_E;
-            case MID_N -> MID_N;
-            case MID_S -> MID_S;
-            case MID_NW -> MID_NW;
-            case MID_SW -> MID_SW;
-            case MID_NE -> MID_NE;
-            case MID_SE -> MID_SE;
-            case TOP_CENTER -> TOP_CENTER;
-            case TOP_W -> TOP_W;
-            case TOP_E -> TOP_E;
-            case TOP_N -> TOP_N;
-            case TOP_S -> TOP_S;
-            case TOP_NW -> TOP_NW;
-            case TOP_SW -> TOP_SW;
-            case TOP_NE -> TOP_NE;
-            case TOP_SE -> TOP_SE;
+        return switch (state.getValue(ShulkerContainerBlock.HALF)) {
+            case BOTTOM_CENTER -> ShulkerContainerBlock.BOTTOM_CENTER;
+            case BOTTOM_W -> ShulkerContainerBlock.BOTTOM_W;
+            case BOTTOM_E -> ShulkerContainerBlock.BOTTOM_E;
+            case BOTTOM_N -> ShulkerContainerBlock.BOTTOM_N;
+            case BOTTOM_S -> ShulkerContainerBlock.BOTTOM_S;
+            case BOTTOM_NW -> ShulkerContainerBlock.BOTTOM_NW;
+            case BOTTOM_SW -> ShulkerContainerBlock.BOTTOM_SW;
+            case BOTTOM_NE -> ShulkerContainerBlock.BOTTOM_NE;
+            case BOTTOM_SE -> ShulkerContainerBlock.BOTTOM_SE;
+            case MID_CENTER -> ShulkerContainerBlock.MID_CENTER;
+            case MID_W -> ShulkerContainerBlock.MID_W;
+            case MID_E -> ShulkerContainerBlock.MID_E;
+            case MID_N -> ShulkerContainerBlock.MID_N;
+            case MID_S -> ShulkerContainerBlock.MID_S;
+            case MID_NW -> ShulkerContainerBlock.MID_NW;
+            case MID_SW -> ShulkerContainerBlock.MID_SW;
+            case MID_NE -> ShulkerContainerBlock.MID_NE;
+            case MID_SE -> ShulkerContainerBlock.MID_SE;
+            case TOP_CENTER -> ShulkerContainerBlock.TOP_CENTER;
+            case TOP_W -> ShulkerContainerBlock.TOP_W;
+            case TOP_E -> ShulkerContainerBlock.TOP_E;
+            case TOP_N -> ShulkerContainerBlock.TOP_N;
+            case TOP_S -> ShulkerContainerBlock.TOP_S;
+            case TOP_NW -> ShulkerContainerBlock.TOP_NW;
+            case TOP_SW -> ShulkerContainerBlock.TOP_SW;
+            case TOP_NE -> ShulkerContainerBlock.TOP_NE;
+            case TOP_SE -> ShulkerContainerBlock.TOP_SE;
         };
     }
 
     protected static final VoxelShape MID_CENTER = Shapes.block();
 
     protected static final VoxelShape BOTTOM_CENTER = Block.box(0, 2, 0, 16, 16, 16);
-    protected static final VoxelShape TOP_CENTER = ShapeUtil.rotate(Direction.Axis.X, 180, BOTTOM_CENTER);
-    protected static final VoxelShape MID_N = ShapeUtil.rotate(Direction.Axis.X, 270, BOTTOM_CENTER);
-    protected static final VoxelShape MID_W = ShapeUtil.rotate(Direction.Axis.Y, 90, MID_N);
-    protected static final VoxelShape MID_S = ShapeUtil.rotate(Direction.Axis.Y, 180, MID_N);
-    protected static final VoxelShape MID_E = ShapeUtil.rotate(Direction.Axis.Y, 270, MID_N);
+    protected static final VoxelShape TOP_CENTER = ShapeUtil.rotate(Direction.Axis.X, 180, ShulkerContainerBlock.BOTTOM_CENTER);
+    protected static final VoxelShape MID_N = ShapeUtil.rotate(Direction.Axis.X, 270, ShulkerContainerBlock.BOTTOM_CENTER);
+    protected static final VoxelShape MID_W = ShapeUtil.rotate(Direction.Axis.Y, 90, ShulkerContainerBlock.MID_N);
+    protected static final VoxelShape MID_S = ShapeUtil.rotate(Direction.Axis.Y, 180, ShulkerContainerBlock.MID_N);
+    protected static final VoxelShape MID_E = ShapeUtil.rotate(Direction.Axis.Y, 270, ShulkerContainerBlock.MID_N);
 
     protected static final VoxelShape BOTTOM_N = ShapeUtil.merge(
         new AABB(0, 2, 2, 16, 16, 16),
@@ -198,9 +198,9 @@ public class ShulkerContainerBlock
         new AABB(0, 0, 0, 4, 8, 8),
         new AABB(12, 0, 0, 16, 8, 8)
     );
-    protected static final VoxelShape BOTTOM_W = ShapeUtil.rotate(Direction.Axis.Y, 90, BOTTOM_N);
-    protected static final VoxelShape BOTTOM_S = ShapeUtil.rotate(Direction.Axis.Y, 180, BOTTOM_N);
-    protected static final VoxelShape BOTTOM_E = ShapeUtil.rotate(Direction.Axis.Y, 270, BOTTOM_N);
+    protected static final VoxelShape BOTTOM_W = ShapeUtil.rotate(Direction.Axis.Y, 90, ShulkerContainerBlock.BOTTOM_N);
+    protected static final VoxelShape BOTTOM_S = ShapeUtil.rotate(Direction.Axis.Y, 180, ShulkerContainerBlock.BOTTOM_N);
+    protected static final VoxelShape BOTTOM_E = ShapeUtil.rotate(Direction.Axis.Y, 270, ShulkerContainerBlock.BOTTOM_N);
 
     protected static final VoxelShape BOTTOM_NW = ShapeUtil.merge(
         new AABB(2, 2, 2, 16, 16, 16),
@@ -208,23 +208,23 @@ public class ShulkerContainerBlock
         new AABB(0, 8, 0, 8, 12, 8),
         new AABB(0, 0, 8, 8, 8, 12)
     );
-    protected static final VoxelShape BOTTOM_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, BOTTOM_NW);
-    protected static final VoxelShape BOTTOM_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, BOTTOM_NW);
-    protected static final VoxelShape BOTTOM_NE = ShapeUtil.rotate(Direction.Axis.Y, 270, BOTTOM_NW);
+    protected static final VoxelShape BOTTOM_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, ShulkerContainerBlock.BOTTOM_NW);
+    protected static final VoxelShape BOTTOM_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, ShulkerContainerBlock.BOTTOM_NW);
+    protected static final VoxelShape BOTTOM_NE = ShapeUtil.rotate(Direction.Axis.Y, 270, ShulkerContainerBlock.BOTTOM_NW);
 
-    protected static final VoxelShape MID_NW = ShapeUtil.rotate(Direction.Axis.Z, 90, BOTTOM_N);
-    protected static final VoxelShape MID_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, MID_NW);
-    protected static final VoxelShape MID_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, MID_NW);
-    protected static final VoxelShape MID_NE = ShapeUtil.rotate(Direction.Axis.Y, 270, MID_NW);
+    protected static final VoxelShape MID_NW = ShapeUtil.rotate(Direction.Axis.Z, 90, ShulkerContainerBlock.BOTTOM_N);
+    protected static final VoxelShape MID_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, ShulkerContainerBlock.MID_NW);
+    protected static final VoxelShape MID_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, ShulkerContainerBlock.MID_NW);
+    protected static final VoxelShape MID_NE = ShapeUtil.rotate(Direction.Axis.Y, 270, ShulkerContainerBlock.MID_NW);
 
-    protected static final VoxelShape TOP_N = ShapeUtil.rotate(Direction.Axis.Z, 180, BOTTOM_N);
-    protected static final VoxelShape TOP_W = ShapeUtil.rotate(Direction.Axis.Y, 90, TOP_N);
-    protected static final VoxelShape TOP_S = ShapeUtil.rotate(Direction.Axis.Y, 180, TOP_N);
-    protected static final VoxelShape TOP_E = ShapeUtil.rotate(Direction.Axis.Y, 270, TOP_N);
+    protected static final VoxelShape TOP_N = ShapeUtil.rotate(Direction.Axis.Z, 180, ShulkerContainerBlock.BOTTOM_N);
+    protected static final VoxelShape TOP_W = ShapeUtil.rotate(Direction.Axis.Y, 90, ShulkerContainerBlock.TOP_N);
+    protected static final VoxelShape TOP_S = ShapeUtil.rotate(Direction.Axis.Y, 180, ShulkerContainerBlock.TOP_N);
+    protected static final VoxelShape TOP_E = ShapeUtil.rotate(Direction.Axis.Y, 270, ShulkerContainerBlock.TOP_N);
 
-    protected static final VoxelShape TOP_NW = ShapeUtil.rotate(Direction.Axis.X, 270, BOTTOM_NW);
-    protected static final VoxelShape TOP_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, TOP_NW);
-    protected static final VoxelShape TOP_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, TOP_NW);
-    protected static final VoxelShape TOP_NE = ShapeUtil.rotate(Direction.Axis.Y, 270, TOP_NW);
+    protected static final VoxelShape TOP_NW = ShapeUtil.rotate(Direction.Axis.X, 270, ShulkerContainerBlock.BOTTOM_NW);
+    protected static final VoxelShape TOP_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, ShulkerContainerBlock.TOP_NW);
+    protected static final VoxelShape TOP_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, ShulkerContainerBlock.TOP_NW);
+    protected static final VoxelShape TOP_NE = ShapeUtil.rotate(Direction.Axis.Y, 270, ShulkerContainerBlock.TOP_NW);
     // endregion
 }

@@ -25,36 +25,36 @@ public class AmuletSelectorSupport {
     private static @Nullable BoxContents contents = null;
 
     public static void render(GuiGraphicsExtractor graphics, int x, int y) {
-        int left = x - BACKGROUND_WIDTH / 2;
-        int top = y - BACKGROUND_HEIGHT - 5;
+        int left = x - AmuletSelectorSupport.BACKGROUND_WIDTH / 2;
+        int top = y - AmuletSelectorSupport.BACKGROUND_HEIGHT - 5;
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            AmuletSelectorSupport.BACKGROUND,
             left,
             top,
             0,
             0,
-            BACKGROUND_WIDTH,
-            BACKGROUND_HEIGHT,
-            BACKGROUND_WIDTH,
-            BACKGROUND_HEIGHT
+            AmuletSelectorSupport.BACKGROUND_WIDTH,
+            AmuletSelectorSupport.BACKGROUND_HEIGHT,
+            AmuletSelectorSupport.BACKGROUND_WIDTH,
+            AmuletSelectorSupport.BACKGROUND_HEIGHT
         );
-        if (layout != null && contents != null) {
-            layout.extract(graphics, left, top, contents);
+        if (AmuletSelectorSupport.layout != null && AmuletSelectorSupport.contents != null) {
+            AmuletSelectorSupport.layout.extract(graphics, left, top, AmuletSelectorSupport.contents);
         }
     }
 
     public static boolean hasHoveringItem() {
-        return !currentHoveringItemStack.isEmpty();
+        return !AmuletSelectorSupport.currentHoveringItemStack.isEmpty();
     }
 
     public static void setCurrentHoveringItemStack(ItemStack itemStack) {
-        if (ItemStack.isSameItemSameComponents(currentHoveringItemStack, itemStack)) return;
+        if (ItemStack.isSameItemSameComponents(AmuletSelectorSupport.currentHoveringItemStack, itemStack)) return;
         AmuletSelectorSupport.currentHoveringItemStack = itemStack;
         if (itemStack.isEmpty()) {
             AmuletSelectorSupport.contents = null;
             AmuletSelectorSupport.layout = null;
-            maxSelection = -1;
+            AmuletSelectorSupport.maxSelection = -1;
             return;
         }
 
@@ -63,58 +63,58 @@ public class AmuletSelectorSupport {
         AmuletSelectorSupport.contents = contents;
         if (contents.isEmpty()) {
             AmuletSelectorSupport.layout = Layout.EMPTY;
-            maxSelection = -1;
-            setCurrentSelectedIndex(-1);
+            AmuletSelectorSupport.maxSelection = -1;
+            AmuletSelectorSupport.setCurrentSelectedIndex(-1);
         } else {
             AmuletSelectorSupport.layout = Layout.layout(contents);
-            maxSelection = contents.getMaxSelection();
-            setCurrentSelectedIndex(contents.selection());
+            AmuletSelectorSupport.maxSelection = contents.getMaxSelection();
+            AmuletSelectorSupport.setCurrentSelectedIndex(contents.selection());
         }
     }
 
     public static void mouseScrolled(int amount) {
-        if (getCurrentSelectedIndex() == -1) return;
+        if (AmuletSelectorSupport.getCurrentSelectedIndex() == -1) return;
         if (amount > 0) {
-            next();
+            AmuletSelectorSupport.next();
         } else {
             if (amount < 0) {
-                previous();
+                AmuletSelectorSupport.previous();
             }
         }
     }
 
     public static void previous() {
-        selectDelta(-1);
+        AmuletSelectorSupport.selectDelta(-1);
     }
 
     public static void next() {
-        selectDelta(1);
+        AmuletSelectorSupport.selectDelta(1);
     }
 
     public static void selectDelta(int delta) {
-        int index = getCurrentSelectedIndex() + delta;
+        int index = AmuletSelectorSupport.getCurrentSelectedIndex() + delta;
         if (index < 0) {
-            index = maxSelection - 1;
-        } else if (index > maxSelection - 1) {
+            index = AmuletSelectorSupport.maxSelection - 1;
+        } else if (index > AmuletSelectorSupport.maxSelection - 1) {
             index = 0;
         }
-        setCurrentSelectedIndex(index);
+        AmuletSelectorSupport.setCurrentSelectedIndex(index);
     }
 
     private static int getCurrentSelectedIndex() {
-        if (contents == null) return -1;
-        return contents.selection();
+        if (AmuletSelectorSupport.contents == null) return -1;
+        return AmuletSelectorSupport.contents.selection();
     }
 
     private static void setCurrentSelectedIndex(int selection) {
-        if (!hasHoveringItem() || contents == null) return;
-        if (maxSelection <= 0) return;
-        selection = Math.clamp(selection, 0, Math.max(0, maxSelection - 1));
-        if (contents.selection() == selection) return;
-        BoxContents.Mutable mutable = contents.mutable();
+        if (!AmuletSelectorSupport.hasHoveringItem() || AmuletSelectorSupport.contents == null) return;
+        if (AmuletSelectorSupport.maxSelection <= 0) return;
+        selection = Math.clamp(selection, 0, Math.max(0, AmuletSelectorSupport.maxSelection - 1));
+        if (AmuletSelectorSupport.contents.selection() == selection) return;
+        BoxContents.Mutable mutable = AmuletSelectorSupport.contents.mutable();
         mutable.select(selection);
-        contents = mutable.immutable();
-        currentHoveringItemStack.set(ModComponents.BOX_CONTENTS, contents);
+        AmuletSelectorSupport.contents = mutable.immutable();
+        AmuletSelectorSupport.currentHoveringItemStack.set(ModComponents.BOX_CONTENTS, AmuletSelectorSupport.contents);
     }
 
     public enum Layout {
@@ -157,10 +157,10 @@ public class AmuletSelectorSupport {
                 Matrix3x2fStack pose = graphics.pose();
                 pose.pushMatrix();
                 pose.translate(0, 0);
-                graphics.fill(x + 3, y + 3, x + 3 + 53, y + 3 + 53, COLOR_FIRST);
+                graphics.fill(x + 3, y + 3, x + 3 + 53, y + 3 + 53, Layout.COLOR_FIRST);
                 this.extractTotem(graphics, x + 3, y + 3, content);
 
-                if (getCurrentSelectedIndex() == 0) {
+                if (AmuletSelectorSupport.getCurrentSelectedIndex() == 0) {
                     this.renderSelectionBox(graphics, x + 3, y + 3, x + 3 + 53, y + 3 + 53);
                 }
                 pose.popMatrix();
@@ -188,10 +188,10 @@ public class AmuletSelectorSupport {
                 Matrix3x2fStack pose = graphics.pose();
                 pose.pushMatrix();
                 pose.translate(0, 0);
-                graphics.fill(x + 3, y + 3, x + 3 + 35, y + 3 + 53, COLOR_FIRST);
+                graphics.fill(x + 3, y + 3, x + 3 + 35, y + 3 + 53, Layout.COLOR_FIRST);
                 this.extractTotem(graphics, x + 3, y + 3, content);
 
-                if (getCurrentSelectedIndex() == 0) {
+                if (AmuletSelectorSupport.getCurrentSelectedIndex() == 0) {
                     this.renderSelectionBox(graphics, x + 3, y + 3, x + 3 + 35, y + 3 + 53);
                 }
                 pose.popMatrix();
@@ -219,11 +219,11 @@ public class AmuletSelectorSupport {
                 Matrix3x2fStack pose = graphics.pose();
                 pose.pushMatrix();
                 pose.translate(0, 0);
-                graphics.fill(x + 3, y + 3, x + 3 + 35, y + 3 + 53, COLOR_FIRST);
-                graphics.fill(x + 39, y + 3, x + 39 + 35, y + 3 + 53, COLOR_SECOND);
+                graphics.fill(x + 3, y + 3, x + 3 + 35, y + 3 + 53, Layout.COLOR_FIRST);
+                graphics.fill(x + 39, y + 3, x + 39 + 35, y + 3 + 53, Layout.COLOR_SECOND);
                 this.extractTotem(graphics, x + 3, y + 3, content);
 
-                switch (getCurrentSelectedIndex()) {
+                switch (AmuletSelectorSupport.getCurrentSelectedIndex()) {
                     case 0 -> this.renderSelectionBox(graphics, x + 3, y + 3, x + 3 + 35, y + 3 + 53);
                     case 1 -> this.renderSelectionBox(graphics, x + 39, y + 3, x + 39 + 35, y + 3 + 53);
                     default -> {
@@ -272,11 +272,11 @@ public class AmuletSelectorSupport {
                 ItemStack totem = totems.get(index++);
                 int minX = x + i % 4 * 18;
                 int minY = y + i / 4 * 18;
-                graphics.fill(minX, minY, minX + 17, minY + 17, COLOR_TOTEM);
+                graphics.fill(minX, minY, minX + 17, minY + 17, Layout.COLOR_TOTEM);
                 graphics.fakeItem(totem, minX + 1, minY + 1);
                 graphics.itemDecorations(Minecraft.getInstance().font, totem, minX + 1, minY + 1);
 
-                if (index + this.alreadyUsedIndexes - 1 != getCurrentSelectedIndex()) continue;
+                if (index + this.alreadyUsedIndexes - 1 != AmuletSelectorSupport.getCurrentSelectedIndex()) continue;
                 this.renderSelectionBox(graphics, minX, minY, minX + 18, minY + 18);
             }
         }
@@ -295,16 +295,16 @@ public class AmuletSelectorSupport {
             if (widthU != 0) {
                 minX += 9;
                 maxY += 9;
-                graphics.fill(minX, minY, minX + widthU, minY + 1, COLOR_SELECTION_BOX_FRAME);
-                graphics.fill(minX, maxY - 1, minX + widthU, maxY, COLOR_SELECTION_BOX_FRAME);
+                graphics.fill(minX, minY, minX + widthU, minY + 1, Layout.COLOR_SELECTION_BOX_FRAME);
+                graphics.fill(minX, maxY - 1, minX + widthU, maxY, Layout.COLOR_SELECTION_BOX_FRAME);
                 minX -= 9;
                 maxY -= 9;
             }
             if (heightV != 0) {
                 minY += 9;
                 maxX += 9;
-                graphics.fill(minX, minY, minX + 1, minY + heightV, COLOR_SELECTION_BOX_FRAME);
-                graphics.fill(maxX - 1, minY, maxX, minY + heightV, COLOR_SELECTION_BOX_FRAME);
+                graphics.fill(minX, minY, minX + 1, minY + heightV, Layout.COLOR_SELECTION_BOX_FRAME);
+                graphics.fill(maxX - 1, minY, maxX, minY + heightV, Layout.COLOR_SELECTION_BOX_FRAME);
                 minY -= 9;
                 maxX -= 9;
             }
@@ -314,24 +314,24 @@ public class AmuletSelectorSupport {
 
         public static Layout layout(BoxContents content) {
             if (content.isEmpty()) {
-                return EMPTY;
+                return Layout.EMPTY;
             }
             if (content.isAmuletEmpty()) {
-                return NO_AMULET;
+                return Layout.NO_AMULET;
             }
             List<ItemStack> amulets = content.amulets();
-            boolean firstBigAmulet = amulets.getFirst().has(ModComponents.AMULET)
-                                     && amulets.getFirst().get(ModComponents.AMULET).getWeight() > 6;
-            boolean firstSmallAmulet = amulets.getFirst().has(ModComponents.AMULET)
-                                       && amulets.getFirst().get(ModComponents.AMULET).getWeight() <= 6;
+            var firstAmulet = amulets.getFirst().get(ModComponents.AMULET);
+            if (firstAmulet == null) return Layout.EMPTY;
+            boolean firstBigAmulet = firstAmulet.getWeight() > 6;
+            boolean firstSmallAmulet = firstAmulet.getWeight() <= 6;
             if (firstBigAmulet) {
-                return BIG_AMULET_1;
+                return Layout.BIG_AMULET_1;
             }
             if (firstSmallAmulet) {
                 if (amulets.size() == 1) {
-                    return SMALL_AMULET_1;
+                    return Layout.SMALL_AMULET_1;
                 }
-                return SMALL_AMULET_2;
+                return Layout.SMALL_AMULET_2;
             }
             return Layout.EMPTY;
         }

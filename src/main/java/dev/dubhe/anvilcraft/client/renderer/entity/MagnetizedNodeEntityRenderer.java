@@ -47,7 +47,7 @@ public class MagnetizedNodeEntityRenderer extends EntityRenderer<MagnetizedNodeE
             this.model,
             state,
             pose,
-            TEXTURE,
+            MagnetizedNodeEntityRenderer.TEXTURE,
             state.lightCoords,
             OverlayTexture.NO_OVERLAY,
             state.outlineColor,

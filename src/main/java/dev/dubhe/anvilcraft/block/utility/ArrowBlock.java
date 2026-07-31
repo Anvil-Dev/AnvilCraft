@@ -14,7 +14,7 @@ import net.minecraft.world.level.block.state.StateDefinition;
 public class ArrowBlock extends DirectionalBlock implements IHammerRemovable {
     public ArrowBlock(Properties properties) {
         super(properties);
-        registerDefaultState(getStateDefinition().any().setValue(FACING, Direction.NORTH));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(DirectionalBlock.FACING, Direction.NORTH));
     }
 
     @Override
@@ -25,22 +25,22 @@ public class ArrowBlock extends DirectionalBlock implements IHammerRemovable {
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(FACING);
+        builder.add(DirectionalBlock.FACING);
     }
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(DirectionalBlock.FACING, rotation.rotate(state.getValue(DirectionalBlock.FACING)));
     }
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
-        return this.rotate(state, mirror.getRotation(state.getValue(FACING)));
+        return this.rotate(state, mirror.getRotation(state.getValue(DirectionalBlock.FACING)));
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-            .setValue(FACING, context.getNearestLookingDirection().getOpposite());
+            .setValue(DirectionalBlock.FACING, context.getNearestLookingDirection().getOpposite());
     }
 }

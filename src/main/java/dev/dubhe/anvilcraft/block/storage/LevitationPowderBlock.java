@@ -12,6 +12,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FallingBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.Vec3;
@@ -26,7 +27,7 @@ public class LevitationPowderBlock extends FallingBlock {
 
     @Override
     protected MapCodec<? extends FallingBlock> codec() {
-        return null;
+        return BlockBehaviour.simpleCodec(LevitationPowderBlock::new);
     }
 
     @Override
@@ -37,7 +38,7 @@ public class LevitationPowderBlock extends FallingBlock {
             Vec3.atCenterOf(pos),
             GravityManager.getFallingBlockGravityType(this)
         );
-        if (gravity.lengthSqr() < MIN_GRAVITY_SQR) return;
+        if (gravity.lengthSqr() < LevitationPowderBlock.MIN_GRAVITY_SQR) return;
 
         Direction gravityDirection = Direction.getApproximateNearest(gravity.x, gravity.y, gravity.z);
         BlockPos targetPos = pos.relative(gravityDirection);

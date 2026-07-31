@@ -26,7 +26,7 @@ public record PowerGridRemovePacket(int grid) implements IClientboundPacket {
 
     @Override
     public Type<PowerGridRemovePacket> type() {
-        return TYPE;
+        return PowerGridRemovePacket.TYPE;
     }
 
     @Override

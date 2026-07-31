@@ -39,11 +39,11 @@ public class WeaponBeamEntity extends Entity {
     }
 
     public static WeaponBeamEntity create(Level level, Vec3 start, Vec3 end, int style) {
-        return create(level, start, end, style, 1, null);
+        return WeaponBeamEntity.create(level, start, end, style, 1, null);
     }
 
     public static WeaponBeamEntity create(Level level, Vec3 start, Vec3 end, int style, int strength) {
-        return create(level, start, end, style, strength, null);
+        return WeaponBeamEntity.create(level, start, end, style, strength, null);
     }
 
     public static WeaponBeamEntity create(
@@ -73,7 +73,7 @@ public class WeaponBeamEntity extends Entity {
             beam -> beam.getStyle() == style && beam.getOwnerId() == owner.getId()
         );
         if (beams.isEmpty()) {
-            level.addFreshEntity(create(level, start, end, style, strength, owner));
+            level.addFreshEntity(WeaponBeamEntity.create(level, start, end, style, strength, owner));
             return;
         }
 
@@ -86,24 +86,24 @@ public class WeaponBeamEntity extends Entity {
         this.tickCount = 0;
         this.setPos(start);
         Vec3 offset = end.subtract(start);
-        this.entityData.set(END_X, (float) offset.x);
-        this.entityData.set(END_Y, (float) offset.y);
-        this.entityData.set(END_Z, (float) offset.z);
-        this.entityData.set(STYLE, style);
-        this.entityData.set(STRENGTH, strength);
-        this.entityData.set(OWNER_ID, owner == null ? -1 : owner.getId());
+        this.entityData.set(WeaponBeamEntity.END_X, (float) offset.x);
+        this.entityData.set(WeaponBeamEntity.END_Y, (float) offset.y);
+        this.entityData.set(WeaponBeamEntity.END_Z, (float) offset.z);
+        this.entityData.set(WeaponBeamEntity.STYLE, style);
+        this.entityData.set(WeaponBeamEntity.STRENGTH, strength);
+        this.entityData.set(WeaponBeamEntity.OWNER_ID, owner == null ? -1 : owner.getId());
     }
 
     public Vec3 getEndOffset() {
-        return new Vec3(this.entityData.get(END_X), this.entityData.get(END_Y), this.entityData.get(END_Z));
+        return new Vec3(this.entityData.get(WeaponBeamEntity.END_X), this.entityData.get(WeaponBeamEntity.END_Y), this.entityData.get(WeaponBeamEntity.END_Z));
     }
 
     public int getStyle() {
-        return this.entityData.get(STYLE);
+        return this.entityData.get(WeaponBeamEntity.STYLE);
     }
 
     public int getStrength() {
-        return this.entityData.get(STRENGTH);
+        return this.entityData.get(WeaponBeamEntity.STRENGTH);
     }
 
     public @Nullable Entity getOwner() {
@@ -112,24 +112,24 @@ public class WeaponBeamEntity extends Entity {
     }
 
     public int getOwnerId() {
-        return this.entityData.get(OWNER_ID);
+        return this.entityData.get(WeaponBeamEntity.OWNER_ID);
     }
 
     @Override
     public void tick() {
         super.tick();
-        if (this.level().isClientSide() && this.getStyle() != TESLA) return;
-        if (this.tickCount > (this.getStyle() == TESLA ? 5 : 2)) this.discard();
+        if (this.level().isClientSide() && this.getStyle() != WeaponBeamEntity.TESLA) return;
+        if (this.tickCount > (this.getStyle() == WeaponBeamEntity.TESLA ? 5 : 2)) this.discard();
     }
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(END_X, 0.0F)
-            .define(END_Y, 0.0F)
-            .define(END_Z, 0.0F)
-            .define(STYLE, CORRUPTED)
-            .define(STRENGTH, 1)
-            .define(OWNER_ID, -1);
+        builder.define(WeaponBeamEntity.END_X, 0.0F)
+            .define(WeaponBeamEntity.END_Y, 0.0F)
+            .define(WeaponBeamEntity.END_Z, 0.0F)
+            .define(WeaponBeamEntity.STYLE, WeaponBeamEntity.CORRUPTED)
+            .define(WeaponBeamEntity.STRENGTH, 1)
+            .define(WeaponBeamEntity.OWNER_ID, -1);
     }
 
     @Override

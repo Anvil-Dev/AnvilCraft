@@ -21,6 +21,6 @@ public enum SpaceOvercompressorProvider implements IServerDataProvider<BlockAcce
 
     @Override
     public Identifier getUid() {
-        return UID;
+        return SpaceOvercompressorProvider.UID;
     }
 }

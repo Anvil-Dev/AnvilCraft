@@ -21,7 +21,7 @@ public enum MultiPartPowerBlockProvider implements IServerDataProvider<BlockAcce
     public void appendServerData(CompoundTag tag, BlockAccessor accessor) {
         BlockState state = accessor.getBlockState();
         if (!(state.getBlock() instanceof AbstractMultiPartBlock<?> multiPartBlock)) return;
-        PowerGrid grid = findPowerGrid(multiPartBlock, accessor.getLevel(), accessor.getPosition(), state);
+        PowerGrid grid = MultiPartPowerBlockProvider.findPowerGrid(multiPartBlock, accessor.getLevel(), accessor.getPosition(), state);
         if (grid == null) return;
         tag.putInt("generate", grid.getGenerate());
         tag.putInt("consume", grid.getConsume());
@@ -35,13 +35,13 @@ public enum MultiPartPowerBlockProvider implements IServerDataProvider<BlockAcce
         BlockState state
     ) {
         BlockPos mainPos = block.getMainPartPos(pos, state);
-        PowerGrid grid = getPowerGrid(level.getBlockEntity(mainPos));
+        PowerGrid grid = MultiPartPowerBlockProvider.getPowerGrid(level.getBlockEntity(mainPos));
         if (grid != null) return grid;
 
         for (P part : block.getParts()) {
             BlockPos partPos = pos.offset(block.offsetFrom(state, part));
             if (partPos.equals(mainPos) || !level.getBlockState(partPos).is(block)) continue;
-            grid = getPowerGrid(level.getBlockEntity(partPos));
+            grid = MultiPartPowerBlockProvider.getPowerGrid(level.getBlockEntity(partPos));
             if (grid != null) return grid;
         }
         return null;

@@ -33,11 +33,11 @@ public class UnitUtil {
     }
 
     public static String electricityUnit(int power, boolean original) {
-        return electricityUnit(power, original, false);
+        return UnitUtil.electricityUnit(power, original, false);
     }
 
     public static String electricityUnit(int power, boolean original, boolean infinite) {
-        if (infinite) return INFINITE_POWER;
+        if (infinite) return UnitUtil.INFINITE_POWER;
         if (original) return power + " kW";
         if (power < 1000) return String.format("%d kW", power);
         else if (power < 1000000) {
@@ -80,7 +80,7 @@ public class UnitUtil {
     }
 
     public static String fluidUnit(int amount, boolean original) {
-        return fluidUnit((long) amount, original);
+        return UnitUtil.fluidUnit((long) amount, original);
     }
 
     public static String fluidUnit(long amount, boolean original) {

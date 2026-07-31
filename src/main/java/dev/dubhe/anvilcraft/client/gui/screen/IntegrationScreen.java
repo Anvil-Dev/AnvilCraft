@@ -72,7 +72,7 @@ public class IntegrationScreen extends Screen {
     @Override
     protected void init() {
         this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.BOOK_PAGE_TURN, 1.0F));
-        this.layout.addTitleHeader(TITLE, this.font);
+        this.layout.addTitleHeader(IntegrationScreen.TITLE, this.font);
         this.integrationList = this.layout.addToContents(new IntegrationList());
         LinearLayout linearlayout = this.layout.addToFooter(LinearLayout.horizontal().spacing(8));
         linearlayout.addChild(Button.builder(CommonComponents.GUI_DONE, _ -> this.onClose()).build());
@@ -267,8 +267,8 @@ public class IntegrationScreen extends Screen {
             Matrix3x2fStack pose = graphics.pose();
             pose.pushMatrix();
             pose.translate(this.getContentX(), this.getContentY());
-            pose.scale(SCALE, SCALE);
-            int maxWidth = (int) (width / SCALE);
+            pose.scale(NoteIntegrationEntry.SCALE, NoteIntegrationEntry.SCALE);
+            int maxWidth = (int) (IntegrationScreen.this.width / NoteIntegrationEntry.SCALE);
             graphics.textWithWordWrap(Minecraft.getInstance().font, this.note, 0, 0, maxWidth, -1);
             pose.popMatrix();
         }

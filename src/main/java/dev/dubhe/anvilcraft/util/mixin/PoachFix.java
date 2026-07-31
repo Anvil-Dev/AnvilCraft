@@ -9,7 +9,7 @@ public class PoachFix {
     public static boolean shouldItPoach() {
         StackTraceElement[] elements = Thread.currentThread().getStackTrace();
         for (StackTraceElement element : elements) {
-            if (element.getMethodName().contains(NO_POACH_METHOD_NAME)) return false;
+            if (element.getMethodName().contains(PoachFix.NO_POACH_METHOD_NAME)) return false;
         }
         return true;
     }

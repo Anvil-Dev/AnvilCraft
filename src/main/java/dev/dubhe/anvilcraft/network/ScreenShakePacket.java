@@ -71,7 +71,7 @@ public record ScreenShakePacket(double x, double y, double z, float radius, int 
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+        return ScreenShakePacket.TYPE;
     }
 
     @Override

@@ -10,13 +10,13 @@ import net.minecraft.world.level.block.Blocks;
 
 public class BlockSmearRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
-        blockSmear(provider, Blocks.MOSS_BLOCK, Blocks.COBBLESTONE, Blocks.MOSSY_COBBLESTONE);
-        blockSmear(provider, Blocks.MOSS_BLOCK, Blocks.STONE_BRICKS, Blocks.MOSSY_STONE_BRICKS);
-        blockSmear(provider, Blocks.MOSS_BLOCK, Blocks.DIRT, Blocks.GRASS_BLOCK);
+        BlockSmearRecipeLoader.blockSmear(provider, Blocks.MOSS_BLOCK, Blocks.COBBLESTONE, Blocks.MOSSY_COBBLESTONE);
+        BlockSmearRecipeLoader.blockSmear(provider, Blocks.MOSS_BLOCK, Blocks.STONE_BRICKS, Blocks.MOSSY_STONE_BRICKS);
+        BlockSmearRecipeLoader.blockSmear(provider, Blocks.MOSS_BLOCK, Blocks.DIRT, Blocks.GRASS_BLOCK);
 
         for (Holder<Block> holder : provider.getRegistries().lookupOrThrow(Registries.BLOCK).listElements().toList()) {
             HoneycombItem.getWaxed(holder.value().defaultBlockState())
-                .ifPresent(state -> blockSmear(provider, Blocks.HONEYCOMB_BLOCK, holder.value(), state.getBlock()));
+                .ifPresent(state -> BlockSmearRecipeLoader.blockSmear(provider, Blocks.HONEYCOMB_BLOCK, holder.value(), state.getBlock()));
         }
     }
 

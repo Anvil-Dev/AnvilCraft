@@ -104,17 +104,17 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
 
     @Override
     public Component getTitle() {
-        return TITLE;
+        return MultiBlockCraftingCategory.TITLE;
     }
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return MultiBlockCraftingCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return START_HEIGHT + ROWS * 18;
+        return MultiBlockCraftingCategory.START_HEIGHT + MultiBlockCraftingCategory.ROWS * 18;
     }
 
     @Override
@@ -128,13 +128,13 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 70).add(recipe.value().getResult().create());
 
         List<ItemStack> ingredientList = recipe.value().getPattern().toIngredientList();
-        ingredientList.sort(BY_COUNT_DECREASING);
+        ingredientList.sort(MultiBlockCraftingCategory.BY_COUNT_DECREASING);
 
         for (int i = 0; i < ingredientList.size(); i++) {
             ItemStack stack = ingredientList.get(i);
             int row = i / 9;
             int col = i % 9;
-            builder.addSlot(RecipeIngredientRole.INPUT, col * 18 + 1, START_HEIGHT + row * 18 + 1).add(stack);
+            builder.addSlot(RecipeIngredientRole.INPUT, col * 18 + 1, MultiBlockCraftingCategory.START_HEIGHT + row * 18 + 1).add(stack);
         }
     }
 
@@ -209,7 +209,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
 
         pose.pushMatrix();
         pose.scale(0.8F, 0.8F);
-        int textX = Math.round(WIDTH / 0.8F - minecraft.font.width(component) - 5);
+        int textX = Math.round(MultiBlockCraftingCategory.WIDTH / 0.8F - minecraft.font.width(component) - 5);
         graphics.text(minecraft.font, component, textX, 0, 0xFF000000, false);
         int size = recipe.value().pattern.getSize();
         graphics.text(
@@ -221,9 +221,9 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         this.arrowOut.draw(graphics, 110, 60);
         this.slot.draw(graphics, 129, 69);
 
-        for (int i = 0; i < ROWS; i++) {
+        for (int i = 0; i < MultiBlockCraftingCategory.ROWS; i++) {
             for (int j = 0; j < 9; j++) {
-                this.slot.draw(graphics, j * 18, START_HEIGHT + i * 18);
+                this.slot.draw(graphics, j * 18, MultiBlockCraftingCategory.START_HEIGHT + i * 18);
             }
         }
     }

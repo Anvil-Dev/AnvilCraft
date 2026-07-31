@@ -91,11 +91,11 @@ public class SapcetimeSupercomputerCommandSuggestions extends CommandSuggestions
         boolean isCommand = this.commandsOnly || startsWithSlash;
         int cursorPosition = this.input.getCursorPosition();
         if (isCommand) {
-            CommandDispatcher<ClientSuggestionProvider> commands = buildCommands(this.commandFactory);
+            CommandDispatcher<ClientSuggestionProvider> commands = SapcetimeSupercomputerCommandSuggestions.buildCommands(this.commandFactory);
             if (this.currentParse == null) {
                 this.currentParse = commands.parse(reader, this.minecraft.player.connection.getSuggestionsProvider());
                 this.currentParseIsCommand = true;
-                this.currentParseIsMessage = hasMessageArguments(this.currentParse);
+                this.currentParseIsMessage = CommandSuggestions.hasMessageArguments(this.currentParse);
             }
 
             int parseStart = this.onlyShowIfCursorPastError ? reader.getCursor() : 1;
@@ -110,13 +110,13 @@ public class SapcetimeSupercomputerCommandSuggestions extends CommandSuggestions
         } else if (!command.isBlank()) {
             this.currentParseIsMessage = true;
             String partialCommand = command.substring(0, cursorPosition);
-            int lastWord = getLastWordIndex(partialCommand);
+            int lastWord = CommandSuggestions.getLastWordIndex(partialCommand);
             Collection<String> nonCommandSuggestions = this.minecraft.player.connection.getSuggestionsProvider().getCustomTabSuggestions();
             this.pendingSuggestions = SharedSuggestionProvider.suggest(
                     nonCommandSuggestions, new SuggestionsBuilder(partialCommand, lastWord)
             );
             if (this.currentParseIsMessage && !this.messagesAllowed) {
-                this.commandUsage.add(MESSAGES_NOT_ALLOWED_TEXT.getVisualOrderText());
+                this.commandUsage.add(CommandSuggestions.MESSAGES_NOT_ALLOWED_TEXT.getVisualOrderText());
             }
 
             this.recomputeUsageBoxWidth();

@@ -13,6 +13,7 @@ import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.players.NameAndId;
 import net.minecraft.world.level.saveddata.SavedDataType;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -60,9 +61,8 @@ public class PlayerSettings extends BetterSavedData {
     protected void registerDataFixers() {
     }
 
-    @SuppressWarnings("DataFlowIssue")
     @Override
-    protected Packet<? extends CustomPacketPayload> createPacket(RegistryAccess registryAccess) {
+    protected @Nullable Packet<? extends CustomPacketPayload> createPacket(RegistryAccess registryAccess) {
         return null;
     }
 }

@@ -60,7 +60,7 @@ public class PulseGeneratorBlockEntityRenderer
         boolean overspeed = blockEntity.isProcessing()
                             && blockEntity.getWaitingTime() + blockEntity.getSignalDuration() <= 3;
         state.setIndicator(FeatureRendererSupport.initialize(
-            overspeed ? INDICATOR_OVERSPEED : INDICATOR,
+            overspeed ? PulseGeneratorBlockEntityRenderer.INDICATOR_OVERSPEED : PulseGeneratorBlockEntityRenderer.INDICATOR,
             blockEntity
         ));
     }
@@ -77,36 +77,36 @@ public class PulseGeneratorBlockEntityRenderer
         pose.translate(0.5f, 0.0f, 0.5f);
         pose.mulPose(Axis.YP.rotationDegrees(-state.getFacing().toYRot()));
         pose.translate(-0.5f, 0.0f, -0.5f);
-        float phaseStartAngle = state.isOutputting() ? END_ANGLE : START_ANGLE;
-        translateOnTable(pose, INDICATOR_OFFSET_Z);
-        rotateOnTable(pose, phaseStartAngle + (END_ANGLE - START_ANGLE) * state.getPhaseProgress());
+        float phaseStartAngle = state.isOutputting() ? PulseGeneratorBlockEntityRenderer.END_ANGLE : PulseGeneratorBlockEntityRenderer.START_ANGLE;
+        PulseGeneratorBlockEntityRenderer.translateOnTable(pose, PulseGeneratorBlockEntityRenderer.INDICATOR_OFFSET_Z);
+        PulseGeneratorBlockEntityRenderer.rotateOnTable(pose, phaseStartAngle + (PulseGeneratorBlockEntityRenderer.END_ANGLE - PulseGeneratorBlockEntityRenderer.START_ANGLE) * state.getPhaseProgress());
         state.getIndicator().submit(pose, collector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
         pose.popPose();
     }
 
     private static void translateOnTable(PoseStack pose, float offsetZ) {
-        pose.translate(TABLE_ORIGIN_X, TABLE_ORIGIN_Y, TABLE_ORIGIN_Z);
-        pose.mulPose(Axis.XP.rotationDegrees(TABLE_ANGLE));
+        pose.translate(PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_X, PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Y, PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Z);
+        pose.mulPose(Axis.XP.rotationDegrees(PulseGeneratorBlockEntityRenderer.TABLE_ANGLE));
         pose.translate(0.0f, 0.0f, offsetZ);
-        pose.mulPose(Axis.XP.rotationDegrees(-TABLE_ANGLE));
-        pose.translate(-TABLE_ORIGIN_X, -TABLE_ORIGIN_Y, -TABLE_ORIGIN_Z);
+        pose.mulPose(Axis.XP.rotationDegrees(-PulseGeneratorBlockEntityRenderer.TABLE_ANGLE));
+        pose.translate(-PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_X, -PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Y, -PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Z);
     }
 
     private static void rotateOnTable(PoseStack pose, float angle) {
-        pose.translate(TABLE_ORIGIN_X, TABLE_ORIGIN_Y, TABLE_ORIGIN_Z);
-        pose.mulPose(Axis.XP.rotationDegrees(TABLE_ANGLE));
+        pose.translate(PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_X, PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Y, PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Z);
+        pose.mulPose(Axis.XP.rotationDegrees(PulseGeneratorBlockEntityRenderer.TABLE_ANGLE));
         pose.translate(
-            INDICATOR_PIVOT_X - TABLE_ORIGIN_X,
-            INDICATOR_PIVOT_Y - TABLE_ORIGIN_Y,
-            INDICATOR_PIVOT_Z - TABLE_ORIGIN_Z
+            PulseGeneratorBlockEntityRenderer.INDICATOR_PIVOT_X - PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_X,
+            PulseGeneratorBlockEntityRenderer.INDICATOR_PIVOT_Y - PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Y,
+            PulseGeneratorBlockEntityRenderer.INDICATOR_PIVOT_Z - PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Z
         );
         pose.mulPose(Axis.YP.rotationDegrees(angle));
         pose.translate(
-            TABLE_ORIGIN_X - INDICATOR_PIVOT_X,
-            TABLE_ORIGIN_Y - INDICATOR_PIVOT_Y,
-            TABLE_ORIGIN_Z - INDICATOR_PIVOT_Z
+            PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_X - PulseGeneratorBlockEntityRenderer.INDICATOR_PIVOT_X,
+            PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Y - PulseGeneratorBlockEntityRenderer.INDICATOR_PIVOT_Y,
+            PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Z - PulseGeneratorBlockEntityRenderer.INDICATOR_PIVOT_Z
         );
-        pose.mulPose(Axis.XP.rotationDegrees(-TABLE_ANGLE));
-        pose.translate(-TABLE_ORIGIN_X, -TABLE_ORIGIN_Y, -TABLE_ORIGIN_Z);
+        pose.mulPose(Axis.XP.rotationDegrees(-PulseGeneratorBlockEntityRenderer.TABLE_ANGLE));
+        pose.translate(-PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_X, -PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Y, -PulseGeneratorBlockEntityRenderer.TABLE_ORIGIN_Z);
     }
 }

@@ -16,6 +16,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.Nullable;
 
 import java.util.LinkedHashMap;
 import java.util.Optional;
@@ -31,13 +32,12 @@ public class RenderSupport {
     // public static final Vector3f L1 = new Vector3f(0.4F, 0.0F, 1.0F).normalize();
     // public static final Vector3f L2 = new Vector3f(-0.4F, 1.0F, -0.2F).normalize();
     private static final PoseStack.Pose BLOCK_DISPLAY_POSE;
-    private static ClientLevel currentClientLevel = null;
-    private static LevelLike.AirLevelLike airLevelLike = null;
+    private static @Nullable ClientLevel currentClientLevel;
 
     static {
         BLOCK_DISPLAY_POSE = new PoseStack.Pose();
-        BLOCK_DISPLAY_POSE.rotate(Axis.XP.rotationDegrees(30));
-        BLOCK_DISPLAY_POSE.rotate(Axis.YP.rotationDegrees(45));
+        RenderSupport.BLOCK_DISPLAY_POSE.rotate(Axis.XP.rotationDegrees(30));
+        RenderSupport.BLOCK_DISPLAY_POSE.rotate(Axis.YP.rotationDegrees(45));
     }
 
     public static void renderBlock(GuiGraphicsExtractor graphics, BlockState block, float x, float y, float size) {
@@ -52,7 +52,7 @@ public class RenderSupport {
             y + size,
             -1,
             true,
-            BLOCK_DISPLAY_POSE.copy()
+            RenderSupport.BLOCK_DISPLAY_POSE.copy()
         );
     }
 
@@ -66,18 +66,18 @@ public class RenderSupport {
     ) {
         ClientLevel level = Minecraft.getInstance().level;
         if (level == null) {
-            renderBlock(graphics, ModBlocks.WIP_BLOCK.get().defaultBlockState(), x, y, size);
+            RenderSupport.renderBlock(graphics, ModBlocks.WIP_BLOCK.get().defaultBlockState(), x, y, size);
             return;
         }
-        if (currentClientLevel != level) {
-            currentClientLevel = level;
-            WIP_LEVEL_CACHE.clear();
+        if (RenderSupport.currentClientLevel != level) {
+            RenderSupport.currentClientLevel = level;
+            RenderSupport.WIP_LEVEL_CACHE.clear();
         }
         WipPreviewKey key = new WipPreviewKey(recipeId, stepCount);
-        if (!WIP_LEVEL_CACHE.containsKey(key) && WIP_LEVEL_CACHE.size() >= MAX_CACHE_SIZE) {
-            WIP_LEVEL_CACHE.pollFirstEntry();
+        if (!RenderSupport.WIP_LEVEL_CACHE.containsKey(key) && RenderSupport.WIP_LEVEL_CACHE.size() >= RenderSupport.MAX_CACHE_SIZE) {
+            RenderSupport.WIP_LEVEL_CACHE.pollFirstEntry();
         }
-        LevelLike preview = WIP_LEVEL_CACHE.computeIfAbsent(key, previewKey -> {
+        LevelLike preview = RenderSupport.WIP_LEVEL_CACHE.computeIfAbsent(key, previewKey -> {
             LevelLike result = new LevelLike(level);
             result.setBlockState(BlockPos.ZERO, ModBlocks.WIP_BLOCK.get().defaultBlockState());
             if (result.getBlockEntity(BlockPos.ZERO) instanceof WipBlockEntity wip) {
@@ -87,7 +87,7 @@ public class RenderSupport {
             return result;
         });
         PoseStack poseStack = new PoseStack();
-        poseStack.last().set(BLOCK_DISPLAY_POSE);
+        poseStack.last().set(RenderSupport.BLOCK_DISPLAY_POSE);
         GuiRenderExtras.submitStructure(
             graphics,
             preview,
@@ -97,7 +97,7 @@ public class RenderSupport {
             y,
             x + size,
             y + size,
-            size * WIP_PREVIEW_SCALE,
+            size * RenderSupport.WIP_PREVIEW_SCALE,
             true,
             false,
             poseStack
@@ -118,9 +118,11 @@ public class RenderSupport {
         Optional<BlockPos> maxPos = level.getMaxPos();
         if (minPos.isEmpty() || maxPos.isEmpty()) return;
         PoseStack poseStack = new PoseStack();
-        poseStack.last().set(BLOCK_DISPLAY_POSE);
+        poseStack.last().set(RenderSupport.BLOCK_DISPLAY_POSE);
         Minecraft minecraft = Minecraft.getInstance();
-        float gameTime = (minecraft.level.getGameTime() + minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true));
+        ClientLevel currentLevel = minecraft.level;
+        if (currentLevel == null) return;
+        float gameTime = currentLevel.getGameTime() + minecraft.getDeltaTracker().getGameTimeDeltaPartialTick(true);
         poseStack.mulPose(Axis.YP.rotationDegrees(gameTime * rotationSpeed));
         GuiRenderExtras.submitStructure(
             graphics,
@@ -140,14 +142,14 @@ public class RenderSupport {
 
     private static Optional<BlockEntity> getCachedBlockEntity(BlockState state) {
         if (!state.hasBlockEntity()) return Optional.empty();
-        if (BLOCK_ENTITY_CACHE.containsKey(state)) return Optional.of(BLOCK_ENTITY_CACHE.get(state));
+        if (RenderSupport.BLOCK_ENTITY_CACHE.containsKey(state)) return Optional.of(RenderSupport.BLOCK_ENTITY_CACHE.get(state));
         Optional<BlockEntity> opt = Optional.of(state.getBlock())
             .filter(b -> b instanceof EntityBlock)
             .map(b -> ((EntityBlock) b).newBlockEntity(BlockPos.ZERO, state));
         opt.ifPresent(be -> {
-            BLOCK_ENTITY_CACHE.put(state, be);
-            if (BLOCK_ENTITY_CACHE.size() > MAX_CACHE_SIZE) {
-                BLOCK_ENTITY_CACHE.pollFirstEntry();
+            RenderSupport.BLOCK_ENTITY_CACHE.put(state, be);
+            if (RenderSupport.BLOCK_ENTITY_CACHE.size() > RenderSupport.MAX_CACHE_SIZE) {
+                RenderSupport.BLOCK_ENTITY_CACHE.pollFirstEntry();
             }
         });
         return opt;

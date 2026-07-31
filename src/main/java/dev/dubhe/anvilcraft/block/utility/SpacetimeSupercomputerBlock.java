@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.utility;
 
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -44,24 +45,24 @@ public class SpacetimeSupercomputerBlock extends BetterBaseEntityBlock implement
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
     public static final VoxelShape SHAPE = Stream.of(
-        box(3, 2, 3, 13, 14, 13),
-        box(0, 0, 0, 16, 2, 16),
-        box(0, 14, 0, 16, 16, 16)
+        Block.box(3, 2, 3, 13, 14, 13),
+        Block.box(0, 0, 0, 16, 2, 16),
+        Block.box(0, 14, 0, 16, 16, 16)
     ).reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR)).get();
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(SpacetimeSupercomputerBlock::new);
+        return BlockBehaviour.simpleCodec(SpacetimeSupercomputerBlock::new);
     }
 
     public SpacetimeSupercomputerBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(POWERED, false));
+        this.registerDefaultState(this.stateDefinition.any().setValue(SpacetimeSupercomputerBlock.POWERED, false));
     }
 
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+        return this.defaultBlockState().setValue(SpacetimeSupercomputerBlock.POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
@@ -76,9 +77,9 @@ public class SpacetimeSupercomputerBlock extends BetterBaseEntityBlock implement
         if (level.isClientSide()) return;
         // 只在红石信号从无到有的那一刻触发，避免持续通电时每次邻居更新都重复执行命令
         boolean powered = level.hasNeighborSignal(pos);
-        boolean wasPowered = state.getValue(POWERED);
+        boolean wasPowered = state.getValue(SpacetimeSupercomputerBlock.POWERED);
         if (powered != wasPowered) {
-            level.setBlock(pos, state.setValue(POWERED, powered), 2);
+            level.setBlock(pos, state.setValue(SpacetimeSupercomputerBlock.POWERED, powered), 2);
         }
         if (powered && !wasPowered) {
             level.scheduleTick(pos, this, 1);
@@ -87,7 +88,7 @@ public class SpacetimeSupercomputerBlock extends BetterBaseEntityBlock implement
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(POWERED);
+        builder.add(SpacetimeSupercomputerBlock.POWERED);
     }
 
     @Override
@@ -117,7 +118,7 @@ public class SpacetimeSupercomputerBlock extends BetterBaseEntityBlock implement
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
+        return SpacetimeSupercomputerBlock.SHAPE;
     }
 
     @Override
@@ -139,7 +140,7 @@ public class SpacetimeSupercomputerBlock extends BetterBaseEntityBlock implement
         if (level.isClientSide()) {
             return null;
         }
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             blockEntityType,
             ModBlockEntities.SPACETIME_SUPERCOMPUTER.get(),
             (world, pos, bs, be) -> be.tick()

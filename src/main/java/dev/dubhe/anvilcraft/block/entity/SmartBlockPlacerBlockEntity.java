@@ -35,6 +35,7 @@ import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.FrontAndTop;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
@@ -45,6 +46,7 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -71,6 +73,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Half;
@@ -112,7 +115,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     }
 
     public static int getPlacementDelay() {
-        return Math.max(1, (int) (getPlacementInterval() * 0.3f));
+        return Math.max(1, (int) (SmartBlockPlacerBlockEntity.getPlacementInterval() * 0.3f));
     }
 
     // 白名单：蓝图中需要保留的方块状态属性
@@ -170,7 +173,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
     // 基于属性名称的白名单集合（按名称匹配而非对象相等，解决不同方块同名Property非同一实例的问题）
     private static final Set<String> INHERITED_PROPERTY_NAMES =
-        INHERITED_PROPERTIES.stream().map(Property::getName).collect(ImmutableSet.toImmutableSet());
+        SmartBlockPlacerBlockEntity.INHERITED_PROPERTIES.stream().map(Property::getName).collect(ImmutableSet.toImmutableSet());
 
     // 标记当前是否有方块正在被智能放置器移动
     private static final ThreadLocal<Boolean> IS_BEING_MOVED_BY_PLACER = ThreadLocal.withInitial(() -> false);
@@ -277,7 +280,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
     @Nullable
     public BlockPos getSyncedAnimationTargetPos() {
-        return readBlockPos(this.animationTargetPosProxy.getValue());
+        return SmartBlockPlacerBlockEntity.readBlockPos(this.animationTargetPosProxy.getValue());
     }
 
     public boolean isPowered() {
@@ -376,46 +379,46 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
         // 物品栏直接保存到ValueOutput（不通过CompoundTag中转，避免兼容性问题）
-        saveInventoryToOutput(output, "diskInventory", this.diskInventory);
-        saveInventoryToOutput(output, "bookInventory", this.bookInventory);
-        saveInventoryToOutput(output, "outputBookInventory", this.outputBookInventory);
+        SmartBlockPlacerBlockEntity.saveInventoryToOutput(output, "diskInventory", this.diskInventory);
+        SmartBlockPlacerBlockEntity.saveInventoryToOutput(output, "bookInventory", this.bookInventory);
+        SmartBlockPlacerBlockEntity.saveInventoryToOutput(output, "outputBookInventory", this.outputBookInventory);
         // 其他数据仍通过CompoundTag保存
         CompoundTag tag = new CompoundTag();
         this.saveAdditionalDataToTag(tag);
-        output.store(DATA_KEY, CompoundTag.CODEC, tag);
+        output.store(SmartBlockPlacerBlockEntity.DATA_KEY, CompoundTag.CODEC, tag);
     }
 
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider ignored) {
         this.saveAdditionalDataToTag(tag);
         // 旧路径也保存物品栏（向后兼容）
-        saveItemsToTag(tag, this.diskInventory);
-        saveItemsToTag(tag, this.bookInventory);
-        saveItemsToTag(tag, this.outputBookInventory);
+        SmartBlockPlacerBlockEntity.saveItemsToTag(tag, this.diskInventory);
+        SmartBlockPlacerBlockEntity.saveItemsToTag(tag, this.bookInventory);
+        SmartBlockPlacerBlockEntity.saveItemsToTag(tag, this.outputBookInventory);
     }
 
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         // 物品栏直接从ValueInput加载
-        loadInventoryFromInput(input, "diskInventory", this.diskInventory);
+        SmartBlockPlacerBlockEntity.loadInventoryFromInput(input, "diskInventory", this.diskInventory);
         this.lastDiskItem = this.diskInventory.getItem(0).copy();
-        loadInventoryFromInput(input, "bookInventory", this.bookInventory);
-        loadInventoryFromInput(input, "outputBookInventory", this.outputBookInventory);
+        SmartBlockPlacerBlockEntity.loadInventoryFromInput(input, "bookInventory", this.bookInventory);
+        SmartBlockPlacerBlockEntity.loadInventoryFromInput(input, "outputBookInventory", this.outputBookInventory);
         // 其他数据从CompoundTag加载
-        CompoundTag tag = input.read(DATA_KEY, CompoundTag.CODEC).orElse(new CompoundTag());
+        CompoundTag tag = input.read(SmartBlockPlacerBlockEntity.DATA_KEY, CompoundTag.CODEC).orElse(new CompoundTag());
         this.loadFromTag(tag);
     }
 
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider ignored) {
         // 先加载物品栏，确保 tryLoadStructure 能正确访问到磁盘物品
         // 否则 loadFromTag 中加载的 cachedStructure 会被 tryLoadStructure 误判清空
-        loadItemsFromTag(tag, this.diskInventory);
+        SmartBlockPlacerBlockEntity.loadItemsFromTag(tag, this.diskInventory);
         this.lastDiskItem = this.diskInventory.getItem(0).copy();
-        loadItemsFromTag(tag, this.bookInventory);
-        loadItemsFromTag(tag, this.outputBookInventory);
+        SmartBlockPlacerBlockEntity.loadItemsFromTag(tag, this.bookInventory);
+        SmartBlockPlacerBlockEntity.loadItemsFromTag(tag, this.outputBookInventory);
         // 结构数据存储在 DATA_KEY 子节点下，需要提取后再传入 loadFromTag
-        CompoundTag dataTag = tag.contains(DATA_KEY)
-            ? tag.getCompoundOrEmpty(DATA_KEY)
+        CompoundTag dataTag = tag.contains(SmartBlockPlacerBlockEntity.DATA_KEY)
+            ? tag.getCompoundOrEmpty(SmartBlockPlacerBlockEntity.DATA_KEY)
             : tag;
         this.loadFromTag(dataTag);
     }
@@ -489,7 +492,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             this.placeCooldownProxy.setValue(this.placeCooldown);
             this.currentHeldBlockProxy.setValue(this.currentHeldBlock);
             this.currentPlacementIndexProxy.setValue(this.currentPlacementIndex);
-            this.animationTargetPosProxy.setValue(writeBlockPos(this.serverAnimationTargetPos));
+            this.animationTargetPosProxy.setValue(SmartBlockPlacerBlockEntity.writeBlockPos(this.serverAnimationTargetPos));
             this.isPoweredProxy.setValue(this.isPowered);
             this.hasRedstoneSignalProxy.setValue(this.hasRedstoneSignal);
             if (!level.isClientSide()) {
@@ -791,19 +794,19 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         // 蓝图模式：基于结构数据计算进度
         if (this.loadedStructure != null && !this.loadedStructure.isEmpty()) {
             // 获取旋转后的结构数据
-            StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure);
+            StructureLoadUtil.StructureData rotatedData = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(this.loadedStructure);
 
             // 获取所有位置
             Direction facing = this.getFacing(this.getBlockPos(), this.level);
             boolean upsideDown = this.level.getBlockState(this.getBlockPos()).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
-            List<BlockPos> allPositions = buildBlueprintPositions(this.getBlockPos(), facing, upsideDown, rotatedData);
+            List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(this.getBlockPos(), facing, upsideDown, rotatedData);
 
             if (allPositions.isEmpty()) {
                 return 0;
             }
 
             // 获取有序索引列表（只包含主体部件，多方块结构的次要部件已被过滤）
-            List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
+            List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(rotatedData, upsideDown);
             int totalBlocks = orderedIndices.size();
 
             if (totalBlocks == 0) {
@@ -960,12 +963,12 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         }
 
         // 获取旋转后的结构数据
-        StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure);
+        StructureLoadUtil.StructureData rotatedData = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(this.loadedStructure);
 
         // 获取所有位置
         Direction facing = this.getFacing(pos, level);
         boolean upsideDown = level.getBlockState(pos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
-        List<BlockPos> allPositions = buildBlueprintPositions(pos, facing, upsideDown, rotatedData);
+        List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(pos, facing, upsideDown, rotatedData);
 
         if (allPositions.isEmpty() || rotatedData.blocks.isEmpty()) {
             if (!this.missingBlockItem.isEmpty()) {
@@ -976,7 +979,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         }
 
         // 获取有序索引列表
-        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
+        List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(rotatedData, upsideDown);
 
         // 遍历所有位置，找到第一个未放置且缺少材料的位置
         for (int index : orderedIndices) {
@@ -1051,7 +1054,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
         StructureLoadUtil.StructureData result = new StructureLoadUtil.StructureData(originalData.diskData);
         for (var bp : originalData.blocks) {
-            BlockState rotatedState = rotateBlockStateForPreview(bp.state(), scannerFacing);
+            BlockState rotatedState = SmartBlockPlacerBlockEntity.rotateBlockStateForPreview(bp.state(), scannerFacing);
             result.blocks.add(new StructureLoadUtil.BlockPosition(bp.x(), bp.y(), bp.z(), rotatedState));
         }
 
@@ -1064,20 +1067,20 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
     private static BlockState rotateBlockStateForPreview(BlockState state, Direction scannerFacing) {
         if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
             Direction blockFacing = state.getValue(BlockStateProperties.HORIZONTAL_FACING);
-            Direction rotatedFacing = rotateDirectionForPreview(blockFacing, scannerFacing);
+            Direction rotatedFacing = SmartBlockPlacerBlockEntity.rotateDirectionForPreview(blockFacing, scannerFacing);
             return state.setValue(BlockStateProperties.HORIZONTAL_FACING, rotatedFacing);
         }
 
         if (state.hasProperty(HorizontalDirectionalBlock.FACING)) {
             Direction blockFacing = state.getValue(HorizontalDirectionalBlock.FACING);
-            Direction rotatedFacing = rotateDirectionForPreview(blockFacing, scannerFacing);
+            Direction rotatedFacing = SmartBlockPlacerBlockEntity.rotateDirectionForPreview(blockFacing, scannerFacing);
             return state.setValue(HorizontalDirectionalBlock.FACING, rotatedFacing);
         }
 
         if (state.hasProperty(BlockStateProperties.FACING)) {
             Direction blockFacing = state.getValue(BlockStateProperties.FACING);
             if (blockFacing == Direction.UP || blockFacing == Direction.DOWN) return state;
-            Direction rotatedFacing = rotateDirectionForPreview(blockFacing, scannerFacing);
+            Direction rotatedFacing = SmartBlockPlacerBlockEntity.rotateDirectionForPreview(blockFacing, scannerFacing);
             return state.setValue(BlockStateProperties.FACING, rotatedFacing);
         }
 
@@ -1163,7 +1166,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         Integer cooldownValue = this.placeCooldownProxy.getValue();
         int cooldown = cooldownValue != null ? cooldownValue : 0;
         boolean isNewCycle = cooldown > this.lastPlaceCooldown
-                             && cooldown >= getPlacementInterval();
+                             && cooldown >= SmartBlockPlacerBlockEntity.getPlacementInterval();
 
         boolean wasIdle = this.lastPlaceCooldown == 0;
         boolean isNowWorking = cooldown > 0;
@@ -1251,13 +1254,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 }
 
                 // 使用旋转后的结构数据
-                StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure);
+                StructureLoadUtil.StructureData rotatedData = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(this.loadedStructure);
 
                 // 获取倒挂状态
                 boolean upsideDown = level.getBlockState(pos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
 
                 // 获取有序索引列表
-                List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
+                List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(rotatedData, upsideDown);
                 boolean indexExhausted = this.currentPlacementIndex >= orderedIndices.size();
 
                 if (indexExhausted) {
@@ -1383,8 +1386,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         Direction facing = this.getFacing(pos, level);
         boolean upsideDown = level.getBlockState(pos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
 
-        StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure);
-        List<BlockPos> allPositions = buildBlueprintPositions(pos, facing, upsideDown, rotatedData);
+        StructureLoadUtil.StructureData rotatedData = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(this.loadedStructure);
+        List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(pos, facing, upsideDown, rotatedData);
 
         if (allPositions.isEmpty()) {
             this.currentHeldBlock = ItemStack.EMPTY;
@@ -1392,7 +1395,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         }
 
         // 获取有序索引列表
-        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
+        List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(rotatedData, upsideDown);
         if (orderedIndices.isEmpty()) {
             this.currentHeldBlock = ItemStack.EMPTY;
             return;
@@ -1591,7 +1594,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         boolean shouldDecrementCooldown = currentGameTime != this.lastTickGameTime;
 
         if (this.placeCooldown > 0 && shouldDecrementCooldown) {
-            if (this.placeCooldown == getPlacementDelay() && shouldExecute) {
+            if (this.placeCooldown == SmartBlockPlacerBlockEntity.getPlacementDelay() && shouldExecute) {
                 if (this.currentHeldBlock.isEmpty()) {
                     this.currentPlacementIndex = 0;
                 }
@@ -1608,7 +1611,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         if (this.placeCooldown == 0 && shouldExecute) {
             onCycleStart.run();
 
-            this.placeCooldown = getPlacementInterval();
+            this.placeCooldown = SmartBlockPlacerBlockEntity.getPlacementInterval();
             this.lastTickGameTime = currentGameTime;
             this.onChanged();
         }
@@ -1692,15 +1695,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         Direction facing = this.getFacing(placerPos, level);
         boolean upsideDown = level.getBlockState(placerPos).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
 
-        StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure);
-        List<BlockPos> allPositions = buildBlueprintPositions(placerPos, facing, upsideDown, rotatedData);
+        StructureLoadUtil.StructureData rotatedData = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(this.loadedStructure);
+        List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(placerPos, facing, upsideDown, rotatedData);
 
         if (allPositions.isEmpty()) {
             return false;
         }
 
         // 检查是否还有空位（按有序索引遍历，跳过次要部件）
-        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
+        List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(rotatedData, upsideDown);
         for (int index : orderedIndices) {
             // 跳过多方块方块的次要部件
             if (index < rotatedData.blocks.size()
@@ -1738,15 +1741,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             return false;
         }
 
-        StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure);
-        List<BlockPos> allPositions = buildBlueprintPositions(placerPos, facing, upsideDown, rotatedData);
+        StructureLoadUtil.StructureData rotatedData = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(this.loadedStructure);
+        List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(placerPos, facing, upsideDown, rotatedData);
 
         if (allPositions.isEmpty()) {
             return false;
         }
 
         // 检查是否还有可放置的蓝图位置（跳过次要部件）
-        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
+        List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(rotatedData, upsideDown);
         for (int index : orderedIndices) {
             // 跳过多方块方块的次要部件
             if (index < rotatedData.blocks.size()
@@ -2003,11 +2006,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             BlockState stateToPlace = this.getMovedPlacementState(sourceState, level, targetPos);
 
             // 先删除源方块，再放置，放置失败则回滚
-            IS_BEING_MOVED_BY_PLACER.set(true);
+            SmartBlockPlacerBlockEntity.IS_BEING_MOVED_BY_PLACER.set(true);
             try {
                 level.removeBlock(sourcePos, false);
             } finally {
-                IS_BEING_MOVED_BY_PLACER.set(false);
+                SmartBlockPlacerBlockEntity.IS_BEING_MOVED_BY_PLACER.set(false);
             }
 
             boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(
@@ -2017,7 +2020,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
             if (!placeSuccess) {
                 // 放置失败，回滚源方块
-                IS_BEING_MOVED_BY_PLACER.set(true);
+                SmartBlockPlacerBlockEntity.IS_BEING_MOVED_BY_PLACER.set(true);
                 try {
                     level.setBlock(sourcePos, sourceState, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
                     if (sourceBlockEntityData != null) {
@@ -2029,7 +2032,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                         }
                     }
                 } finally {
-                    IS_BEING_MOVED_BY_PLACER.set(false);
+                    SmartBlockPlacerBlockEntity.IS_BEING_MOVED_BY_PLACER.set(false);
                 }
                 this.currentHeldBlock = ItemStack.EMPTY;
                 this.currentPlacementIndex = (index + 1) % allPositions.size();
@@ -2047,7 +2050,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                 }
             }
 
-            updatePlacedBlock(level, targetPos);
+            SmartBlockPlacerBlockEntity.updatePlacedBlock(level, targetPos);
 
             if (targetPos.equals(this.expectedShuttleTarget)) {
                 TriggerUtil.placerShuttle(level, targetPos);
@@ -2120,7 +2123,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         for (var entry : neighborPlacer.layerPositions.entrySet()) {
             int layer = entry.getKey();
             for (int position : entry.getValue()) {
-                BlockPos neighborTarget = calculateTargetPosition(
+                BlockPos neighborTarget = SmartBlockPlacerBlockEntity.calculateTargetPosition(
                     basePos, neighborFacing, position / 5, position % 5, layer, upsideDown);
                 if (neighborTarget.equals(mySource)) {
                     return true;
@@ -2142,15 +2145,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         }
 
         // 获取旋转后的结构数据
-        StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure);
+        StructureLoadUtil.StructureData rotatedData = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(this.loadedStructure);
 
-        List<BlockPos> allPositions = buildBlueprintPositions(placerPos, facing, upsideDown, rotatedData);
+        List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(placerPos, facing, upsideDown, rotatedData);
         if (allPositions.isEmpty()) {
             return;
         }
 
         // 获取有序索引列表（按 y → z → x 排序）
-        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
+        List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(rotatedData, upsideDown);
         if (orderedIndices.isEmpty()) {
             return;
         }
@@ -2254,7 +2257,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             // 多方块方块使用蓝图中的朝向进行放置，确保所有部件位置正确
             Direction placementFacing = facing;
             if (StructureLoadUtil.isMultiblockBlock(requiredBlock)) {
-                Direction desiredFacing = extractDesiredHorizontalFacing(blueprintState);
+                Direction desiredFacing = SmartBlockPlacerBlockEntity.extractDesiredHorizontalFacing(blueprintState);
                 if (desiredFacing != null) {
                     placementFacing = desiredFacing;
                 }
@@ -2316,15 +2319,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         }
 
         // 获取旋转后的结构数据
-        StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure);
+        StructureLoadUtil.StructureData rotatedData = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(this.loadedStructure);
 
-        List<BlockPos> allPositions = buildBlueprintPositions(placerPos, facing, upsideDown, rotatedData);
+        List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(placerPos, facing, upsideDown, rotatedData);
         if (allPositions.isEmpty()) {
             return;
         }
 
         // 获取有序索引列表（按 y → z → x 排序）
-        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
+        List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(rotatedData, upsideDown);
         if (orderedIndices.isEmpty()) {
             return;
         }
@@ -2396,18 +2399,18 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             // 多方块方块使用蓝图中的朝向进行放置，确保所有部件位置正确
             Direction placementFacing = facing;
             if (StructureLoadUtil.isMultiblockBlock(requiredBlock)) {
-                Direction desiredFacing = extractDesiredHorizontalFacing(blueprintState);
+                Direction desiredFacing = SmartBlockPlacerBlockEntity.extractDesiredHorizontalFacing(blueprintState);
                 if (desiredFacing != null) {
                     placementFacing = desiredFacing;
                 }
             }
 
             // 先删除源方块，再使用 FakePlayer 放置方块
-            IS_BEING_MOVED_BY_PLACER.set(true);
+            SmartBlockPlacerBlockEntity.IS_BEING_MOVED_BY_PLACER.set(true);
             try {
                 level.removeBlock(sourcePos, false);
             } finally {
-                IS_BEING_MOVED_BY_PLACER.set(false);
+                SmartBlockPlacerBlockEntity.IS_BEING_MOVED_BY_PLACER.set(false);
             }
 
             boolean placeSuccess = this.tryPlaceBlockWithFakePlayer(
@@ -2417,7 +2420,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
             if (!placeSuccess) {
                 // 放置失败，回滚源方块
-                IS_BEING_MOVED_BY_PLACER.set(true);
+                SmartBlockPlacerBlockEntity.IS_BEING_MOVED_BY_PLACER.set(true);
                 try {
                     level.setBlock(sourcePos, sourceState, Block.UPDATE_CLIENTS | Block.UPDATE_NEIGHBORS);
                     if (sourceBlockEntityData != null) {
@@ -2429,7 +2432,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
                         }
                     }
                 } finally {
-                    IS_BEING_MOVED_BY_PLACER.set(false);
+                    SmartBlockPlacerBlockEntity.IS_BEING_MOVED_BY_PLACER.set(false);
                 }
                 this.currentHeldBlock = ItemStack.EMPTY;
                 this.currentPlacementIndex = (orderIndex + 1) % orderedIndices.size();
@@ -2453,7 +2456,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             }
 
             // 在目标位置发送方块更新通知
-            updatePlacedBlock(level, targetPos);
+            SmartBlockPlacerBlockEntity.updatePlacedBlock(level, targetPos);
 
             // 放置成功，清空 currentHeldBlock；下一轮 prepareHeldBlock 会重新设置
             this.currentHeldBlock = ItemStack.EMPTY;
@@ -2645,7 +2648,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
      */
     private List<BlockPos> buildOrderedPositionsFromLayers(BlockPos placerPos, Direction facing, boolean upsideDown) {
         BlockPos basePos = placerPos.relative(facing.getOpposite(), -4);
-        return buildOrderedPositions(basePos, facing, this.layerPositions, upsideDown);
+        return SmartBlockPlacerBlockEntity.buildOrderedPositions(basePos, facing, this.layerPositions, upsideDown);
     }
 
     /**
@@ -2674,7 +2677,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
         // 根据放置器朝向和Scanner朝向计算实际旋转
         // Scanner和Placer南北相反，需要修正
-        Rotation rotation = getRotationForPlacement(forward, rotatedData.diskData.direction());
+        Rotation rotation = SmartBlockPlacerBlockEntity.getRotationForPlacement(forward, rotatedData.diskData.direction());
 
         // 使用原始坐标，但相对于中心点偏移
         for (StructureLoadUtil.BlockPosition blueprintBlock : rotatedData.blocks) {
@@ -2739,7 +2742,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
      * @return Minecraft Rotation对象
      */
     private static Rotation getRotationForPlacement(Direction forward, Direction scannerFacing) {
-        int rotationSteps = calculateRotationSteps(forward, scannerFacing);
+        int rotationSteps = SmartBlockPlacerBlockEntity.calculateRotationSteps(forward, scannerFacing);
         return switch (rotationSteps) {
             case 1 -> Rotation.CLOCKWISE_90;
             case 2 -> Rotation.CLOCKWISE_180;
@@ -2793,18 +2796,18 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
         // 处理六向方块的 ORIENTATION 属性(Minecraft 原生的 FrontAndTop,用于钟等方块)
         if (state.hasProperty(BlockStateProperties.ORIENTATION)) {
-            net.minecraft.core.FrontAndTop currentOrientation =
+            FrontAndTop currentOrientation =
                 state.getValue(BlockStateProperties.ORIENTATION);
             // 倒挂时,翻转垂直方向:UP <-> DOWN,水平方向旋转180度
-            net.minecraft.core.FrontAndTop flippedOrientation = switch (currentOrientation) {
-                case DOWN_EAST -> net.minecraft.core.FrontAndTop.UP_EAST;
-                case DOWN_NORTH -> net.minecraft.core.FrontAndTop.UP_NORTH;
-                case DOWN_SOUTH -> net.minecraft.core.FrontAndTop.UP_SOUTH;
-                case DOWN_WEST -> net.minecraft.core.FrontAndTop.UP_WEST;
-                case UP_EAST -> net.minecraft.core.FrontAndTop.DOWN_EAST;
-                case UP_NORTH -> net.minecraft.core.FrontAndTop.DOWN_NORTH;
-                case UP_SOUTH -> net.minecraft.core.FrontAndTop.DOWN_SOUTH;
-                case UP_WEST -> net.minecraft.core.FrontAndTop.DOWN_WEST;
+            FrontAndTop flippedOrientation = switch (currentOrientation) {
+                case DOWN_EAST -> FrontAndTop.UP_EAST;
+                case DOWN_NORTH -> FrontAndTop.UP_NORTH;
+                case DOWN_SOUTH -> FrontAndTop.UP_SOUTH;
+                case DOWN_WEST -> FrontAndTop.UP_WEST;
+                case UP_EAST -> FrontAndTop.DOWN_EAST;
+                case UP_NORTH -> FrontAndTop.DOWN_NORTH;
+                case UP_SOUTH -> FrontAndTop.DOWN_SOUTH;
+                case UP_WEST -> FrontAndTop.DOWN_WEST;
                 // 侧向附着不需要垂直翻转
                 case WEST_UP, EAST_UP, NORTH_UP, SOUTH_UP -> currentOrientation;
             };
@@ -2827,13 +2830,13 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
         // 处理 ATTACH_FACE 属性(墙面附着方块,如按钮、压力板等)
         if (state.hasProperty(BlockStateProperties.ATTACH_FACE)) {
-            net.minecraft.world.level.block.state.properties.AttachFace currentFace =
+            AttachFace currentFace =
                 state.getValue(BlockStateProperties.ATTACH_FACE);
-            net.minecraft.world.level.block.state.properties.AttachFace flippedFace =
+            AttachFace flippedFace =
             switch (currentFace) {
-                case CEILING -> net.minecraft.world.level.block.state.properties.AttachFace.FLOOR;
-                case FLOOR -> net.minecraft.world.level.block.state.properties.AttachFace.CEILING;
-                case WALL -> net.minecraft.world.level.block.state.properties.AttachFace.WALL;
+                case CEILING -> AttachFace.FLOOR;
+                case FLOOR -> AttachFace.CEILING;
+                case WALL -> AttachFace.WALL;
             };
             return state.setValue(BlockStateProperties.ATTACH_FACE, flippedFace);
         }
@@ -2857,7 +2860,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
      * @return 翻转 half 属性后的方块状态
      */
     private static BlockState flipHalfProperty(BlockState state) {
-        return flipHalfPropertyStatic(state);
+        return SmartBlockPlacerBlockEntity.flipHalfPropertyStatic(state);
     }
 
     /**
@@ -2911,7 +2914,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         }
 
         // 获取旋转后的结构数据
-        StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure);
+        StructureLoadUtil.StructureData rotatedData = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(this.loadedStructure);
         if (index < 0 || index >= rotatedData.blocks.size()) {
             return null;
         }
@@ -2933,15 +2936,15 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         Direction facing = this.getFacing(this.getBlockPos(), this.level);
         boolean upsideDown = this.level.getBlockState(this.getBlockPos()).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
 
-        StructureLoadUtil.StructureData rotatedData = rotateStructureDataStatic(this.loadedStructure);
-        List<BlockPos> allPositions = buildBlueprintPositions(this.getBlockPos(), facing, upsideDown, rotatedData);
+        StructureLoadUtil.StructureData rotatedData = SmartBlockPlacerBlockEntity.rotateStructureDataStatic(this.loadedStructure);
+        List<BlockPos> allPositions = SmartBlockPlacerBlockEntity.buildBlueprintPositions(this.getBlockPos(), facing, upsideDown, rotatedData);
 
         if (allPositions.isEmpty()) {
             return null;
         }
 
         // 获取有序索引列表
-        List<Integer> orderedIndices = buildOrderedBlueprintIndices(rotatedData, upsideDown);
+        List<Integer> orderedIndices = SmartBlockPlacerBlockEntity.buildOrderedBlueprintIndices(rotatedData, upsideDown);
         if (orderedIndices.isEmpty() || this.currentPlacementIndex >= orderedIndices.size()) {
             return null;
         }
@@ -3160,7 +3163,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         Direction facing = this.getFacing(this.getBlockPos(), level);
 
         // 计算旋转（与buildBlueprintPositions保持一致）
-        Rotation rotation = getRotationForPlacement(facing, this.loadedStructure.diskData.direction());
+        Rotation rotation = SmartBlockPlacerBlockEntity.getRotationForPlacement(facing, this.loadedStructure.diskData.direction());
 
         // 获取原始状态并应用旋转
         StructureLoadUtil.StructureData originalData = this.loadedStructure;
@@ -3175,7 +3178,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         // 倒挂情况下，翻转 half 属性
         boolean upsideDown = level.getBlockState(this.getBlockPos()).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         if (upsideDown) {
-            rotatedState = flipHalfProperty(rotatedState);
+            rotatedState = SmartBlockPlacerBlockEntity.flipHalfProperty(rotatedState);
         }
 
         // 应用白名单过滤：只保留白名单中的状态属性
@@ -3195,7 +3198,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         Direction facing = this.getFacing(this.getBlockPos(), level);
 
         // 计算旋转（与buildBlueprintPositions保持一致）
-        Rotation rotation = getRotationForPlacement(facing, this.loadedStructure.diskData.direction());
+        Rotation rotation = SmartBlockPlacerBlockEntity.getRotationForPlacement(facing, this.loadedStructure.diskData.direction());
 
         // 使用旋转后的结构数据；index 按旋转后结构数据的索引空间解释
         StructureLoadUtil.StructureData originalData = this.loadedStructure;
@@ -3208,7 +3211,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         // 倒挂情况下，翻转 half 属性
         boolean upsideDown = level.getBlockState(this.getBlockPos()).getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         if (upsideDown) {
-            rotatedState = flipHalfProperty(rotatedState);
+            rotatedState = SmartBlockPlacerBlockEntity.flipHalfProperty(rotatedState);
         }
 
         BlockState worldState = level.getBlockState(targetPos);
@@ -3225,7 +3228,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         }
         
         // 树叶方块特殊处理:蓝图模式下默认设置 persistent=true
-        if (rotatedState.is(net.minecraft.tags.BlockTags.LEAVES)
+        if (rotatedState.is(BlockTags.LEAVES)
             && rotatedState.hasProperty(BlockStateProperties.PERSISTENT)) {
             rotatedState = rotatedState.setValue(BlockStateProperties.PERSISTENT, true);
         }
@@ -3308,8 +3311,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
 
         // 遍历状态的属性，按名称匹配白名单（解决不同方块同名Property对象不同的问题）
         for (Property<?> property : state.getProperties()) {
-            if (INHERITED_PROPERTY_NAMES.contains(property.getName())) {
-                resultState = setAllowedValue(
+            if (SmartBlockPlacerBlockEntity.INHERITED_PROPERTY_NAMES.contains(property.getName())) {
+                resultState = SmartBlockPlacerBlockEntity.setAllowedValue(
                     (Property) property, resultState, state);
             }
         }
@@ -3330,7 +3333,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
      */
     @SuppressWarnings("unused")
     public static boolean isBlockBeingMovedByPlacer() {
-        return IS_BEING_MOVED_BY_PLACER.get();
+        return SmartBlockPlacerBlockEntity.IS_BEING_MOVED_BY_PLACER.get();
     }
 
     /**
@@ -3379,7 +3382,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             });
 
             for (int[] rowCol : rowColList) {
-                positions.add(calculateTargetPosition(basePos, facing, rowCol[0], rowCol[1], layer, upsideDown));
+                positions.add(SmartBlockPlacerBlockEntity.calculateTargetPosition(basePos, facing, rowCol[0], rowCol[1], layer, upsideDown));
             }
         }
         return positions;
@@ -4118,8 +4121,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
             this.loadedStructure = this.loadStructureData(tag.getCompoundOrEmpty("cachedStructure"));
             this.loadedStructureName = tag.getStringOr("cachedStructureName", "");
             if (tag.contains("cachedStructureUuid")) {
-                this.loadedStructureUuid = net.minecraft.core.UUIDUtil.CODEC.parse(
-                    net.minecraft.nbt.NbtOps.INSTANCE, tag.getCompoundOrEmpty("cachedStructureUuid")
+                this.loadedStructureUuid = UUIDUtil.CODEC.parse(
+                    NbtOps.INSTANCE, tag.getCompoundOrEmpty("cachedStructureUuid")
                 ).result().orElse(null);
             }
             this.hasStructureDisk = true;
@@ -4296,7 +4299,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity
         // 20gt 时：普通模式 8kW，蓝图模式 64kW
         // 10gt 时：普通模式 16kW，蓝图模式 128kW
         int basePower = (this.loadedStructure != null && !this.loadedStructure.isEmpty()) ? 64 : SmartBlockPlacerBlockEntity.POWER;
-        return Math.max(1, basePower * 20 / getPlacementInterval());
+        return Math.max(1, basePower * 20 / SmartBlockPlacerBlockEntity.getPlacementInterval());
     }
 
     @Override

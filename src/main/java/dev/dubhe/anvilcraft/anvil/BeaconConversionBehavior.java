@@ -20,10 +20,10 @@ import java.util.List;
 public class BeaconConversionBehavior implements IAnvilBehavior {
     private static final Int2DoubleOpenHashMap map = new Int2DoubleOpenHashMap() {
         {
-            put(1, 0.02F);
-            put(2, 0.05F);
-            put(3, 0.2F);
-            put(4, 1F);
+            this.put(1, 0.02F);
+            this.put(2, 0.05F);
+            this.put(3, 0.2F);
+            this.put(4, 1F);
         }
     };
 
@@ -50,7 +50,7 @@ public class BeaconConversionBehavior implements IAnvilBehavior {
                 itemEntity.setItem(stack);
                 for (int i = 1; i <= 4; i++) {
                     if (beaconLevel == i) {
-                        if (level.getRandom().nextDouble() < map.get(i)) {
+                        if (level.getRandom().nextDouble() < BeaconConversionBehavior.map.get(i)) {
                             level.setBlockAndUpdate(hitBlockPos, ModBlocks.CORRUPTED_BEACON.getDefaultState());
                             return true;
                         }

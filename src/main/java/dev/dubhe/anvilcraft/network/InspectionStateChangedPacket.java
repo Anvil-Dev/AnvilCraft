@@ -22,7 +22,7 @@ public record InspectionStateChangedPacket(Identifier id, boolean state) impleme
 
     @Override
     public Type<InspectionStateChangedPacket> type() {
-        return TYPE;
+        return InspectionStateChangedPacket.TYPE;
     }
 
     @Override

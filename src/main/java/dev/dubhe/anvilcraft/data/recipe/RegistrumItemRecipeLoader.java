@@ -973,7 +973,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void tungstenIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        standardMetalIngotWithOreRecipes(
+        RegistrumItemRecipeLoader.standardMetalIngotWithOreRecipes(
             ctx,
             provider,
             ModBlocks.TUNGSTEN_BLOCK,
@@ -995,7 +995,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void titaniumIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        standardMetalIngotWithOreRecipes(
+        RegistrumItemRecipeLoader.standardMetalIngotWithOreRecipes(
             ctx,
             provider,
             ModBlocks.TITANIUM_BLOCK,
@@ -1014,7 +1014,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void zincIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        standardMetalIngotWithOreRecipes(
+        RegistrumItemRecipeLoader.standardMetalIngotWithOreRecipes(
             ctx,
             provider,
             ModBlocks.ZINC_BLOCK,
@@ -1033,7 +1033,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void tinIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        standardMetalIngotWithOreRecipes(
+        RegistrumItemRecipeLoader.standardMetalIngotWithOreRecipes(
             ctx,
             provider,
             ModBlocks.TIN_BLOCK,
@@ -1052,7 +1052,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void leadIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        standardMetalIngotWithOreRecipes(
+        RegistrumItemRecipeLoader.standardMetalIngotWithOreRecipes(
             ctx,
             provider,
             ModBlocks.LEAD_BLOCK,
@@ -1071,7 +1071,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void silverIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        standardMetalIngotWithOreRecipes(
+        RegistrumItemRecipeLoader.standardMetalIngotWithOreRecipes(
             ctx,
             provider,
             ModBlocks.SILVER_BLOCK,
@@ -1090,7 +1090,7 @@ public class RegistrumItemRecipeLoader {
     }
 
     public static <T extends Item> void uraniumIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        standardMetalIngotWithOreRecipes(
+        RegistrumItemRecipeLoader.standardMetalIngotWithOreRecipes(
             ctx,
             provider,
             ModBlocks.URANIUM_BLOCK,

@@ -17,14 +17,14 @@ public class JeiItemUtil {
      * 默认的居中位置
      */
     public static void addDefaultInputSlots(IRecipeLayoutBuilder builder, List<ItemIngredientPredicate> mergedIngredients) {
-        addInputSlots(builder, mergedIngredients, JeiSlotUtil.INPUT_X, JeiSlotUtil.DEFAULT_Y);
+        JeiItemUtil.addInputSlots(builder, mergedIngredients, JeiSlotUtil.INPUT_X, JeiSlotUtil.DEFAULT_Y);
     }
 
     /**
      * 存在流体时物品位置向上偏移
      */
     public static void addItemInputSlots(IRecipeLayoutBuilder builder, List<ItemIngredientPredicate> mergedIngredients) {
-        addInputSlots(builder, mergedIngredients, JeiSlotUtil.INPUT_X, JeiSlotUtil.ITEM_Y);
+        JeiItemUtil.addInputSlots(builder, mergedIngredients, JeiSlotUtil.INPUT_X, JeiSlotUtil.ITEM_Y);
     }
 
     public static void addInputSlots(
@@ -33,9 +33,9 @@ public class JeiItemUtil {
         int centerX,
         int centerY
     ) {
-        addSlots(
+        JeiItemUtil.addSlots(
             mergedIngredients.size(), centerX, centerY,
-            (x, y, i) -> addSlotWithCount(builder, x, y, mergedIngredients.get(i))
+            (x, y, i) -> JeiItemUtil.addSlotWithCount(builder, x, y, mergedIngredients.get(i))
         );
     }
 
@@ -43,20 +43,20 @@ public class JeiItemUtil {
      * 默认的居中位置
      */
     public static void addDefaultOutputSlots(IRecipeLayoutBuilder builder, List<ChanceItemStack> results) {
-        addOutputSlots(builder, results, JeiSlotUtil.OUTPUT_X, JeiSlotUtil.DEFAULT_Y);
+        JeiItemUtil.addOutputSlots(builder, results, JeiSlotUtil.OUTPUT_X, JeiSlotUtil.DEFAULT_Y);
     }
 
     /**
      * 存在流体时物品位置向上偏移
      */
     public static void addItemOutputSlots(IRecipeLayoutBuilder builder, List<ChanceItemStack> results) {
-        addOutputSlots(builder, results, JeiSlotUtil.OUTPUT_X, JeiSlotUtil.ITEM_Y);
+        JeiItemUtil.addOutputSlots(builder, results, JeiSlotUtil.OUTPUT_X, JeiSlotUtil.ITEM_Y);
     }
 
     public static void addOutputSlots(IRecipeLayoutBuilder builder, List<ChanceItemStack> results, int centerX, int centerY) {
-        addSlots(
+        JeiItemUtil.addSlots(
             results.size(), centerX, centerY,
-            (x, y, i) -> addOutputSlot(builder, x, y, results.get(i))
+            (x, y, i) -> JeiItemUtil.addOutputSlot(builder, x, y, results.get(i))
         );
     }
 

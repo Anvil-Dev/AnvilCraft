@@ -19,6 +19,7 @@ import net.minecraft.util.StringRepresentable;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.function.BiFunction;
 
 public record NumericTagValuePredicate(String tagKeyPath, ValueFunction requirement, long expected) {
@@ -40,11 +41,11 @@ public record NumericTagValuePredicate(String tagKeyPath, ValueFunction requirem
     );
 
     public static NumericTagValuePredicate fromJson(JsonObject jsonObject) {
-        return CODEC.decode(JsonOps.INSTANCE, jsonObject).getOrThrow().getFirst();
+        return NumericTagValuePredicate.CODEC.decode(JsonOps.INSTANCE, jsonObject).getOrThrow().getFirst();
     }
 
     public JsonElement toJson() {
-        return CODEC.encodeStart(JsonOps.INSTANCE, this).getOrThrow();
+        return NumericTagValuePredicate.CODEC.encodeStart(JsonOps.INSTANCE, this).getOrThrow();
     }
 
     public enum ValueFunction implements StringRepresentable {
@@ -71,7 +72,7 @@ public record NumericTagValuePredicate(String tagKeyPath, ValueFunction requirem
 
         @Override
         public String getSerializedName() {
-            return name();
+            return this.name();
         }
     }
 
@@ -115,7 +116,11 @@ public record NumericTagValuePredicate(String tagKeyPath, ValueFunction requirem
         }
 
         public NumericTagValuePredicate build() {
-            return new NumericTagValuePredicate(this.tagKeyPath, this.requirement, this.expected);
+            return new NumericTagValuePredicate(
+                Objects.requireNonNull(this.tagKeyPath),
+                Objects.requireNonNull(this.requirement),
+                this.expected
+            );
         }
     }
 

@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.storage;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -27,7 +28,7 @@ public class ResentfulAmberBlock extends MobAmberBlock {
         if (!level.isClientSide()) {
             return null;
         }
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             type,
             ModBlockEntities.RESENTFUL_AMBER_BLOCK.get(),
             (level1, blockPos, _, blockEntity) -> blockEntity.clientTick(level1, blockPos)

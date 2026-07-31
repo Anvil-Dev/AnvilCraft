@@ -10,15 +10,15 @@ import net.minecraft.world.level.ItemLike;
 
 public class UnpackRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
-        unpack(provider, Items.WET_SPONGE, ModItems.SPONGE_GEMMULE, 4);
-        unpack(provider, Items.MELON, Items.MELON_SLICE, 9);
-        unpack(provider, Items.SNOW_BLOCK, Items.SNOWBALL, 4);
-        unpack(provider, Items.CLAY, Items.CLAY_BALL, 4);
-        unpack(provider, Items.GLOWSTONE, Items.GLOWSTONE_DUST, 4);
-        unpack(provider, Items.QUARTZ_BLOCK, Items.QUARTZ, 4);
-        unpack(provider, Items.DRIPSTONE_BLOCK, Items.POINTED_DRIPSTONE, 4);
-        unpack(provider, Items.AMETHYST_BLOCK, Items.AMETHYST_SHARD, 4);
-        unpack(provider, Items.HONEYCOMB_BLOCK, Items.HONEYCOMB, 4);
+        UnpackRecipeLoader.unpack(provider, Items.WET_SPONGE, ModItems.SPONGE_GEMMULE, 4);
+        UnpackRecipeLoader.unpack(provider, Items.MELON, Items.MELON_SLICE, 9);
+        UnpackRecipeLoader.unpack(provider, Items.SNOW_BLOCK, Items.SNOWBALL, 4);
+        UnpackRecipeLoader.unpack(provider, Items.CLAY, Items.CLAY_BALL, 4);
+        UnpackRecipeLoader.unpack(provider, Items.GLOWSTONE, Items.GLOWSTONE_DUST, 4);
+        UnpackRecipeLoader.unpack(provider, Items.QUARTZ_BLOCK, Items.QUARTZ, 4);
+        UnpackRecipeLoader.unpack(provider, Items.DRIPSTONE_BLOCK, Items.POINTED_DRIPSTONE, 4);
+        UnpackRecipeLoader.unpack(provider, Items.AMETHYST_BLOCK, Items.AMETHYST_SHARD, 4);
+        UnpackRecipeLoader.unpack(provider, Items.HONEYCOMB_BLOCK, Items.HONEYCOMB, 4);
 
         UnpackRecipe.builder()
             .requires(Items.HONEY_BLOCK)
@@ -51,10 +51,10 @@ public class UnpackRecipeLoader {
             .result(ModBlocks.FLUID_TANK)
             .save(provider, AnvilCraft.of("unpack/fluid_tank_minecart"));
 
-        unpackMinecart(provider, Items.CHEST_MINECART, Items.CHEST, "chest_minecart");
-        unpackMinecart(provider, Items.FURNACE_MINECART, Items.FURNACE, "furnace_minecart");
-        unpackMinecart(provider, Items.TNT_MINECART, Items.TNT, "tnt_minecart");
-        unpackMinecart(provider, Items.HOPPER_MINECART, Items.HOPPER, "hopper_minecart");
+        UnpackRecipeLoader.unpackMinecart(provider, Items.CHEST_MINECART, Items.CHEST, "chest_minecart");
+        UnpackRecipeLoader.unpackMinecart(provider, Items.FURNACE_MINECART, Items.FURNACE, "furnace_minecart");
+        UnpackRecipeLoader.unpackMinecart(provider, Items.TNT_MINECART, Items.TNT, "tnt_minecart");
+        UnpackRecipeLoader.unpackMinecart(provider, Items.HOPPER_MINECART, Items.HOPPER, "hopper_minecart");
     }
 
     private static void unpackMinecart(

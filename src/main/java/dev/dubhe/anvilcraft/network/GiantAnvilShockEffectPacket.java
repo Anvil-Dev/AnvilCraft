@@ -31,7 +31,7 @@ public record GiantAnvilShockEffectPacket(BlockPos centerPos, int radius) implem
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+        return GiantAnvilShockEffectPacket.TYPE;
     }
 
     @Override

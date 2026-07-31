@@ -37,7 +37,7 @@ public class RoyalSmithingScreen extends AdjacentSmithingScreen<RoyalSmithingMen
         Component.translatable("container.upgrade.missing_template_tooltip");
     private static final Component ERROR_TOOLTIP = Component.translatable("container.upgrade.error_tooltip");
     private static final List<Identifier> EMPTY_SLOT_SMITHING_TEMPLATES =
-        List.of(EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM, EMPTY_SLOT_SMITHING_TEMPLATE_NETHERITE_UPGRADE);
+        List.of(RoyalSmithingScreen.EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM, RoyalSmithingScreen.EMPTY_SLOT_SMITHING_TEMPLATE_NETHERITE_UPGRADE);
     private static final Vector3f ARMOR_STAND_TRANSLATION = new Vector3f(0.0F, 1.0F, 0.0F);
     public static final Quaternionf ARMOR_STAND_ANGLE =
         new Quaternionf().rotationXYZ(0.43633232F, 0.0F, (float) Math.PI);
@@ -53,7 +53,7 @@ public class RoyalSmithingScreen extends AdjacentSmithingScreen<RoyalSmithingMen
     /// @param playerInventory 背包
     /// @param title           标题
     public RoyalSmithingScreen(RoyalSmithingMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title, SMITHING_LOCATION);
+        super(menu, playerInventory, title, RoyalSmithingScreen.SMITHING_LOCATION);
         this.armorStandPreview.entityType = EntityType.ARMOR_STAND;
         this.armorStandPreview.showBasePlate = false;
         this.armorStandPreview.showArms = true;
@@ -82,7 +82,7 @@ public class RoyalSmithingScreen extends AdjacentSmithingScreen<RoyalSmithingMen
     public void containerTick() {
         super.containerTick();
         Optional<SmithingTemplateItem> optional = this.getTemplateItem();
-        this.templateIcon.tick(EMPTY_SLOT_SMITHING_TEMPLATES);
+        this.templateIcon.tick(RoyalSmithingScreen.EMPTY_SLOT_SMITHING_TEMPLATES);
         this.baseIcon.tick(
             optional.map(SmithingTemplateItem::getBaseSlotEmptyIcons).orElse(List.of()));
         this.additionalIcon.tick(
@@ -119,8 +119,8 @@ public class RoyalSmithingScreen extends AdjacentSmithingScreen<RoyalSmithingMen
         graphics.entity(
             this.armorStandPreview,
             25,
-            ARMOR_STAND_TRANSLATION,
-            ARMOR_STAND_ANGLE,
+            RoyalSmithingScreen.ARMOR_STAND_TRANSLATION,
+            RoyalSmithingScreen.ARMOR_STAND_ANGLE,
             null,
             x0,
             y0,
@@ -178,14 +178,14 @@ public class RoyalSmithingScreen extends AdjacentSmithingScreen<RoyalSmithingMen
     private void extractOnboardingTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         Optional<Component> optional = Optional.empty();
         if (this.hasRecipeError() && this.isHovering(83, 48, 16, 16, mouseX, mouseY)) {
-            optional = Optional.of(ERROR_TOOLTIP);
+            optional = Optional.of(RoyalSmithingScreen.ERROR_TOOLTIP);
         }
         if (this.hoveredSlot != null) {
             ItemStack itemStack = this.menu.getSlot(0).getItem();
             ItemStack itemStack2 = this.hoveredSlot.getItem();
             if (itemStack.isEmpty()) {
                 if (this.hoveredSlot.index == 0) {
-                    optional = Optional.of(MISSING_TEMPLATE_TOOLTIP);
+                    optional = Optional.of(RoyalSmithingScreen.MISSING_TEMPLATE_TOOLTIP);
                 }
             } else {
                 Item item = itemStack.getItem();

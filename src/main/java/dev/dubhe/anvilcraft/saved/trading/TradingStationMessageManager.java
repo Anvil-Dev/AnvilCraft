@@ -26,6 +26,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,14 +46,14 @@ public class TradingStationMessageManager extends BetterSavedData {
     private static final SavedDataType<TradingStationMessageManager> TYPE = new SavedDataType<>(
         AnvilCraft.of("trading_station_messages"),
         TradingStationMessageManager::new,
-        CODEC
+        TradingStationMessageManager.CODEC
     );
     private static final TradingStationMessageManager CLIENT_COPY = new TradingStationMessageManager();
     private final List<ITradingStationMessage> messages = new ArrayList<>();
     private final List<BlockPos> playerBroke = new ArrayList<>();
 
     public static TradingStationMessageManager get() {
-        return BetterSavedData.get(TYPE, CLIENT_COPY);
+        return BetterSavedData.get(TradingStationMessageManager.TYPE, TradingStationMessageManager.CLIENT_COPY);
     }
 
     public void onPlayerBreak(ServerLevel level, BlockPos pos, Player breaker) {
@@ -131,11 +132,11 @@ public class TradingStationMessageManager extends BetterSavedData {
 
     @Override
     protected void registerDataFixers() {
-        DataFixers.registerFixer(FIXER_ID);
+        DataFixers.registerFixer(TradingStationMessageManager.FIXER_ID);
     }
 
     @Override
-    protected Packet<? extends CustomPacketPayload> createPacket(RegistryAccess registryAccess) {
+    protected @Nullable Packet<? extends CustomPacketPayload> createPacket(RegistryAccess registryAccess) {
         return null;
     }
 }

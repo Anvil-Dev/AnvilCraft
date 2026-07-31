@@ -27,7 +27,7 @@ public record SilencerSyncPacket(BlockPos pos, List<Identifier> sounds) implemen
 
     @Override
     public Type<SilencerSyncPacket> type() {
-        return TYPE;
+        return SilencerSyncPacket.TYPE;
     }
 
     @Override

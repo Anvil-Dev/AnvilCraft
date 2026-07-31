@@ -19,27 +19,27 @@ public abstract class EnergyWeaponItem extends Item {
         .withStyle(ChatFormatting.RED);
 
     protected EnergyWeaponItem(Properties properties) {
-        super(properties.component(ModComponents.STORED_ENERGY, new StoredEnergy(MAX_ENERGY)));
+        super(properties.component(ModComponents.STORED_ENERGY, new StoredEnergy(EnergyWeaponItem.MAX_ENERGY)));
     }
 
     protected boolean consumeEnergy(Player player, ItemStack weapon, int amount, int refillAmount) {
-        int energy = getEnergy(weapon);
-        if (energy < REFILL_THRESHOLD) {
+        int energy = EnergyWeaponItem.getEnergy(weapon);
+        if (energy < EnergyWeaponItem.REFILL_THRESHOLD) {
             int slot = player.getInventory().findSlotMatchingItem(ModItems.SUPER_CAPACITOR.asStack());
             if (slot >= 0) {
                 if (!player.hasInfiniteMaterials()) {
                     player.getInventory().removeItem(slot, 1);
                     player.getInventory().placeItemBackInInventory(ModItems.SUPER_CAPACITOR_EMPTY.asStack());
                 }
-                energy = Math.min(MAX_ENERGY, energy + refillAmount);
+                energy = Math.min(EnergyWeaponItem.MAX_ENERGY, energy + refillAmount);
             }
         }
         if (energy < amount) {
-            setEnergy(weapon, energy);
+            EnergyWeaponItem.setEnergy(weapon, energy);
             this.stopForInsufficientPower(player);
             return false;
         }
-        setEnergy(weapon, energy - amount);
+        EnergyWeaponItem.setEnergy(weapon, energy - amount);
         if (!this.hasEnergyAvailable(player, weapon, amount)) {
             this.stopForInsufficientPower(player);
         }
@@ -48,24 +48,24 @@ public abstract class EnergyWeaponItem extends Item {
 
     protected boolean canStartUsing(Player player, ItemStack weapon, int minimumEnergy) {
         if (this.hasEnergyAvailable(player, weapon, minimumEnergy)) return true;
-        showInsufficientPower(player);
+        EnergyWeaponItem.showInsufficientPower(player);
         return false;
     }
 
     protected boolean hasEnergyAvailable(Player player, ItemStack weapon, int amount) {
-        int energy = getEnergy(weapon);
+        int energy = EnergyWeaponItem.getEnergy(weapon);
         if (energy >= amount) return true;
-        return energy < REFILL_THRESHOLD
+        return energy < EnergyWeaponItem.REFILL_THRESHOLD
                && player.getInventory().findSlotMatchingItem(ModItems.SUPER_CAPACITOR.asStack()) >= 0;
     }
 
     protected void stopForInsufficientPower(Player player) {
-        showInsufficientPower(player);
+        EnergyWeaponItem.showInsufficientPower(player);
         player.stopUsingItem();
     }
 
     public static void showInsufficientPower(Player player) {
-        player.sendOverlayMessage(INSUFFICIENT_POWER);
+        player.sendOverlayMessage(EnergyWeaponItem.INSUFFICIENT_POWER);
     }
 
     private static int getEnergy(ItemStack stack) {
@@ -83,11 +83,11 @@ public abstract class EnergyWeaponItem extends Item {
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        return Math.round(Math.clamp((float) getEnergy(stack) / MAX_ENERGY, 0, 1) * 13);
+        return Math.round(Math.clamp((float) EnergyWeaponItem.getEnergy(stack) / EnergyWeaponItem.MAX_ENERGY, 0, 1) * 13);
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        return ColorUtil.lerpColor((float) getEnergy(stack) / MAX_ENERGY, BAR_COLOR, FULL_BAR_COLOR);
+        return ColorUtil.lerpColor((float) EnergyWeaponItem.getEnergy(stack) / EnergyWeaponItem.MAX_ENERGY, EnergyWeaponItem.BAR_COLOR, EnergyWeaponItem.FULL_BAR_COLOR);
     }
 }

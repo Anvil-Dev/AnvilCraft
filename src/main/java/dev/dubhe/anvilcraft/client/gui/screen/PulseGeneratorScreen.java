@@ -122,7 +122,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             this.leftPos + offsetX,
             this.topPos + 25,
             10, 10,
-            BUTTON_ADD_T,
+            PulseGeneratorScreen.BUTTON_ADD_T,
             10, 10, 20,
             _ -> tickAdder.accept(!this.minecraft.hasShiftDown() ? 1 : 5)
         );
@@ -130,7 +130,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             this.leftPos + offsetX,
             this.topPos + 25,
             10, 10,
-            BUTTON_ADD_S,
+            PulseGeneratorScreen.BUTTON_ADD_S,
             10, 10, 20,
             _ -> tickAdder.accept(!this.minecraft.hasShiftDown() ? 20 : 100)
         );
@@ -138,7 +138,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             this.leftPos + offsetX,
             this.topPos + 25,
             10, 10,
-            BUTTON_ADD_M,
+            PulseGeneratorScreen.BUTTON_ADD_M,
             10, 10, 20,
             _ -> tickAdder.accept(!this.minecraft.hasShiftDown() ? 1200 : 6000)
         );
@@ -146,7 +146,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             this.leftPos + offsetX,
             this.topPos + 49,
             10, 10,
-            BUTTON_MINUS_T,
+            PulseGeneratorScreen.BUTTON_MINUS_T,
             10, 10, 20,
             _ -> tickAdder.accept(!this.minecraft.hasShiftDown() ? -1 : -5)
         );
@@ -154,7 +154,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             this.leftPos + offsetX,
             this.topPos + 49,
             10, 10,
-            BUTTON_MINUS_S,
+            PulseGeneratorScreen.BUTTON_MINUS_S,
             10, 10, 20,
             _ -> tickAdder.accept(!this.minecraft.hasShiftDown() ? -20 : -100)
         );
@@ -162,7 +162,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
             this.leftPos + offsetX,
             this.topPos + 49,
             10, 10,
-            BUTTON_MINUS_M,
+            PulseGeneratorScreen.BUTTON_MINUS_M,
             10, 10, 20,
             _ -> tickAdder.accept(!this.minecraft.hasShiftDown() ? -1200 : -6000)
         );
@@ -210,7 +210,7 @@ public class PulseGeneratorScreen extends AbstractContainerScreen<PulseGenerator
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            PulseGeneratorScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,

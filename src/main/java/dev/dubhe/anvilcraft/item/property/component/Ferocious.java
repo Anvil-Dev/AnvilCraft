@@ -61,19 +61,19 @@ public record Ferocious() implements TooltipProvider {
         if (attackDamage != 0) {
             builder.add(
                 Attributes.ATTACK_DAMAGE,
-                new AttributeModifier(FEROCIOUS_ID, attackDamage, AttributeModifier.Operation.ADD_VALUE),
+                new AttributeModifier(Ferocious.FEROCIOUS_ID, attackDamage, AttributeModifier.Operation.ADD_VALUE),
                 EquipmentSlotGroup.MAINHAND
             );
         }
         if (miningEfficiency != 0) {
             builder.add(
                 Attributes.MINING_EFFICIENCY,
-                new AttributeModifier(FEROCIOUS_ID, miningEfficiency, AttributeModifier.Operation.ADD_VALUE),
+                new AttributeModifier(Ferocious.FEROCIOUS_ID, miningEfficiency, AttributeModifier.Operation.ADD_VALUE),
                 EquipmentSlotGroup.MAINHAND
             );
         }
         for (ItemAttributeModifiers.Entry entry : stack.getAttributeModifiers().modifiers()) {
-            if (!entry.modifier().is(FEROCIOUS_ID)) {
+            if (!entry.modifier().is(Ferocious.FEROCIOUS_ID)) {
                 builder.add(entry.attribute(), entry.modifier(), entry.slot());
             }
         }

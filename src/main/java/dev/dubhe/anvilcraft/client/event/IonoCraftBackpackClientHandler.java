@@ -40,9 +40,9 @@ public class IonoCraftBackpackClientHandler {
      */
     public static void onFlyingSync(int playerId, boolean flying) {
         if (flying) {
-            SYNCED_FLYING_PLAYERS.add(playerId);
+            IonoCraftBackpackClientHandler.SYNCED_FLYING_PLAYERS.add(playerId);
         } else {
-            SYNCED_FLYING_PLAYERS.remove(playerId);
+            IonoCraftBackpackClientHandler.SYNCED_FLYING_PLAYERS.remove(playerId);
         }
     }
 
@@ -55,9 +55,9 @@ public class IonoCraftBackpackClientHandler {
 
         ClientLevel level = minecraft.level;
         // 世界切换或重连时清空旧的飞行状态集合，防止内存泄漏
-        if (lastLevel != level) {
-            lastLevel = level;
-            SYNCED_FLYING_PLAYERS.clear();
+        if (IonoCraftBackpackClientHandler.lastLevel != level) {
+            IonoCraftBackpackClientHandler.lastLevel = level;
+            IonoCraftBackpackClientHandler.SYNCED_FLYING_PLAYERS.clear();
         }
         LocalPlayer localPlayer = minecraft.player;
         boolean firstPerson = minecraft.options.getCameraType() == CameraType.FIRST_PERSON;
@@ -74,10 +74,10 @@ public class IonoCraftBackpackClientHandler {
             // 本地玩家用精确 abilities；远程玩家用服务器同步的精确状态
             boolean flying = player == localPlayer
                 ? player.getAbilities().flying
-                : SYNCED_FLYING_PLAYERS.contains(player.getId());
+                : IonoCraftBackpackClientHandler.SYNCED_FLYING_PLAYERS.contains(player.getId());
             if (!flying) continue;
 
-            spawnExhaustParticles(level, player, player.getRandom());
+            IonoCraftBackpackClientHandler.spawnExhaustParticles(level, player, player.getRandom());
         }
     }
 
@@ -89,7 +89,7 @@ public class IonoCraftBackpackClientHandler {
         double backX = sinYaw;
         double backZ = -cosYaw;
 
-        double[][] exhausts = {{SIDE_OFFSET, BACK_OFFSET}, {-SIDE_OFFSET, BACK_OFFSET}};
+        double[][] exhausts = {{IonoCraftBackpackClientHandler.SIDE_OFFSET, IonoCraftBackpackClientHandler.BACK_OFFSET}, {-IonoCraftBackpackClientHandler.SIDE_OFFSET, IonoCraftBackpackClientHandler.BACK_OFFSET}};
 
         for (double[] exhaust : exhausts) {
             double sideComp = exhaust[0];
@@ -97,7 +97,7 @@ public class IonoCraftBackpackClientHandler {
 
             double worldX = player.getX() + sideComp * (-cosYaw) + backComp * backX;
             double worldZ = player.getZ() + sideComp * (-sinYaw) + backComp * backZ;
-            double worldY = player.getY() + Y_OFFSET;
+            double worldY = player.getY() + IonoCraftBackpackClientHandler.Y_OFFSET;
 
             double velX = random.nextGaussian() * 0.02;
             double velY = -0.3 - random.nextFloat() * 0.3;

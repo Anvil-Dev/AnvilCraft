@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<JewelCraftingRecipe> {
-    private static final Logger logger = logger();
+    private static final Logger logger = BaseGeneratingCache.logger();
 
     private final List<Item> potterySherds = new ArrayList<>();
 
@@ -28,7 +28,7 @@ public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<Jewe
     private void prepareRun() {
         for (Holder.Reference<Item> holder : this.registries.lookupOrThrow(Registries.ITEM).listElements().toList()) {
             if (DecoratedPotPatterns.getPatternFromItem(holder.value()) != null && !holder.value().equals(Items.BRICK)) {
-                logger.debug(
+                JewelCraftingRecipeGeneratingCache.logger.debug(
                     "Add a pottery sherd {} for generating jewel crafting recipes", BuiltInRegistries.ITEM.getKey(holder.value())
                 );
                 this.potterySherds.add(holder.value());
@@ -49,7 +49,7 @@ public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<Jewe
                 .requires(Items.BRICK, 2)
                 .source(potterySherd)
                 .buildRecipe();
-            recipeHolders.add(new RecipeHolder<>(generateRecipeId("pottery_sherds", potterySherd, potterySherd), recipe));
+            recipeHolders.add(new RecipeHolder<>(this.generateRecipeId("pottery_sherds", potterySherd, potterySherd), recipe));
         }
 
         return Optional.of(recipeHolders);

@@ -31,6 +31,6 @@ public class CreativeGeneratorRenderer extends PowerProducerRenderer<CreativeGen
 
     @Override
     protected StandaloneModelKey<BlockStateModel> getModel() {
-        return HEAD;
+        return CreativeGeneratorRenderer.HEAD;
     }
 }

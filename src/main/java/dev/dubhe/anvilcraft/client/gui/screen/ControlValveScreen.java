@@ -77,7 +77,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
             offsetY + 53,
             16,
             16,
-            BUTTON_MIN,
+            ControlValveScreen.BUTTON_MIN,
             16,
             16,
             32,
@@ -88,7 +88,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
             offsetY + 53,
             16,
             16,
-            BUTTON_MINUS,
+            ControlValveScreen.BUTTON_MINUS,
             16,
             16,
             32,
@@ -100,7 +100,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
             offsetY + 53,
             16,
             16,
-            BUTTON_ADD,
+            ControlValveScreen.BUTTON_ADD,
             16,
             16,
             32,
@@ -111,7 +111,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
             offsetY + 53,
             16,
             16,
-            BUTTON_MAX,
+            ControlValveScreen.BUTTON_MAX,
             16,
             16,
             32,
@@ -202,29 +202,29 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
 
     @Override
     public Collection<Integer> getGhostSlots() {
-        return List.of(FILTER_GHOST_ID);
+        return List.of(ControlValveScreen.FILTER_GHOST_ID);
     }
 
     @Override
     public @Nullable Rect2i getGhostSlotArea(int slotIndex) {
-        return slotIndex == FILTER_GHOST_ID ? new Rect2i(FILTER_X, FILTER_Y, 16, 16) : null;
+        return slotIndex == ControlValveScreen.FILTER_GHOST_ID ? new Rect2i(ControlValveScreen.FILTER_X, ControlValveScreen.FILTER_Y, 16, 16) : null;
     }
 
     @Override
     public void acceptGhost(Slot slot, ItemStack ingredient) {
-        this.sendFilter(fluidOf(ingredient));
+        this.sendFilter(ControlValveScreen.fluidOf(ingredient));
     }
 
     @Override
     public void acceptFluidGhost(int slotIndex, FluidStack fluid) {
-        if (slotIndex != FILTER_GHOST_ID) return;
+        if (slotIndex != ControlValveScreen.FILTER_GHOST_ID) return;
         this.sendFilter(fluid.isEmpty() ? FluidStack.EMPTY : fluid.copyWithAmount(1));
     }
 
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
-        if (event.button() == 0 && this.isHovering(FILTER_X, FILTER_Y, 16, 16, event.x(), event.y())) {
-            this.sendFilter(fluidOf(this.getMenu().getCarried()));
+        if (event.button() == 0 && this.isHovering(ControlValveScreen.FILTER_X, ControlValveScreen.FILTER_Y, 16, 16, event.x(), event.y())) {
+            this.sendFilter(ControlValveScreen.fluidOf(this.getMenu().getCarried()));
             return true;
         }
         if (event.button() == 0 && !this.isLocked() && this.slider != null) {
@@ -257,7 +257,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            ControlValveScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,
@@ -276,12 +276,12 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
         if (this.valueBox != null) this.valueBox.setEditable(!locked);
 
         super.extractContents(graphics, mouseX, mouseY, a);
-        int fx = this.leftPos + FILTER_X;
-        int fy = this.topPos + FILTER_Y;
+        int fx = this.leftPos + ControlValveScreen.FILTER_X;
+        int fy = this.topPos + ControlValveScreen.FILTER_Y;
         if (!this.filter.isEmpty()) {
             this.extractFluidSwatch(graphics, this.filter, fx, fy);
         }
-        if (this.isHovering(FILTER_X, FILTER_Y, 16, 16, mouseX, mouseY)) {
+        if (this.isHovering(ControlValveScreen.FILTER_X, ControlValveScreen.FILTER_Y, 16, 16, mouseX, mouseY)) {
             graphics.fill(fx, fy, fx + 16, fy + 16, 0x80FFFFFF);
         }
         if (locked) {
@@ -303,7 +303,7 @@ public class ControlValveScreen extends AbstractContainerScreen<ControlValveMenu
     protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         super.extractTooltip(graphics, mouseX, mouseY);
         if (!this.filter.isEmpty() && this.getMenu().getCarried().isEmpty()
-            && this.isHovering(FILTER_X, FILTER_Y, 16, 16, mouseX, mouseY)) {
+            && this.isHovering(ControlValveScreen.FILTER_X, ControlValveScreen.FILTER_Y, 16, 16, mouseX, mouseY)) {
             graphics.setTooltipForNextFrame(this.font, this.filter.getHoverName(), mouseX, mouseY);
         }
     }

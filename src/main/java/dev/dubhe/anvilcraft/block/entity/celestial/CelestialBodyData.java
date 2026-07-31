@@ -78,22 +78,26 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
 
     /** 计算指定天体的完整束星环系统缩放，不包含红石插值。 */
     static float ringSystemScale(@Nullable CelestialBodyData data, boolean isAmplify) {
-        if (data == null) return BASE_RING_SCALE;
+        if (data == null) return CelestialBodyData.BASE_RING_SCALE;
         float bodyS = data.bodyScale();
-        float proportional = bodyS * BODY_SCALE_FACTOR * RING_TO_BODY_RATIO;
+        float proportional = bodyS * CelestialBodyData.BODY_SCALE_FACTOR * CelestialBodyData.RING_TO_BODY_RATIO;
         if (data instanceof StarData) {
-            float inBoneBoost = Math.max(0.0f, INNER_BONE_BOOST_MAX - bodyS * INNER_BONE_BOOST_RATE);
+            float inBoneBoost = Math.max(0.0f, CelestialBodyData.INNER_BONE_BOOST_MAX - bodyS * CelestialBodyData.INNER_BONE_BOOST_RATE);
             return proportional + inBoneBoost;
         } else {
-            float inBoneBoost = Math.max(0.0f, INNER_BONE_BOOST_MAX * 1.5f - bodyS * INNER_BONE_BOOST_RATE);
-            return proportional * RING_SMALL_INNER_RADIUS_FACTOR + inBoneBoost;
+            float inBoneBoost = Math.max(
+                0.0f,
+                CelestialBodyData.INNER_BONE_BOOST_MAX * 1.5f
+                - bodyS * CelestialBodyData.INNER_BONE_BOOST_RATE
+            );
+            return proportional * CelestialBodyData.RING_SMALL_INNER_RADIUS_FACTOR + inBoneBoost;
         }
     }
 
     /** 计算指定天体的动态中心高度，不包含红石插值。 */
     static float dynamicCenterY(@Nullable CelestialBodyData data, boolean isAmplify) {
         if (data == null) return isAmplify ? 6.5f : 4.5f;
-        float ringScale = ringSystemScale(data, isAmplify);
+        float ringScale = CelestialBodyData.ringSystemScale(data, isAmplify);
         float baseHeight = isAmplify ? 2.5f : 1.5f;
         float height = baseHeight + ringScale * 0.74f;
         if (!(data instanceof StarData)) {

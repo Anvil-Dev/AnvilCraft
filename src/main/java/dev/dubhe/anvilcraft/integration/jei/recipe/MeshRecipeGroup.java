@@ -24,7 +24,7 @@ public record MeshRecipeGroup(ItemIngredientPredicate ingredient, List<Result> r
     public static int maxRows;
 
     public static ImmutableList<MeshRecipeGroup> getAllRecipesGrouped() {
-        maxRows = 1;
+        MeshRecipeGroup.maxRows = 1;
 
         List<MeshRecipe> recipes = JeiRecipeUtil.getRecipesFromType(ModRecipeTypes.MESH.get());
         Multimap<ItemIngredientPredicate, MeshRecipe> ingredientGrouper = ArrayListMultimap.create();
@@ -56,8 +56,8 @@ public record MeshRecipeGroup(ItemIngredientPredicate ingredient, List<Result> r
 
             jeiRecipes.add(new MeshRecipeGroup(ingredient, results));
             int rows = Mth.ceil(values.size() / 9F);
-            if (rows > maxRows) {
-                maxRows = rows;
+            if (rows > MeshRecipeGroup.maxRows) {
+                MeshRecipeGroup.maxRows = rows;
             }
         }
         return jeiRecipes.build();

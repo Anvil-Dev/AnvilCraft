@@ -19,19 +19,19 @@ public class ModDataComponentPredicates {
     );
 
     public static final DeferredHolder<DataComponentPredicate.Type<?>, DataComponentPredicate.Type<ItemSavedEntityPredicate>> SAVED_ENTITY =
-        register(
+        ModDataComponentPredicates.register(
             "saved_entity",
             ItemSavedEntityPredicate.CODEC
         );
 
     public static final DeferredHolder<DataComponentPredicate.Type<?>, DataComponentPredicate.Type<ItemEnchCountPredicate>> ENCH_COUNT =
-        register(
+        ModDataComponentPredicates.register(
             "enchantment_count",
             ItemEnchCountPredicate.CODEC.codec()
         );
 
     public static final DeferredHolder<DataComponentPredicate.Type<?>, DataComponentPredicate.Type<IntegerComponentPredicate>> INT_COMP =
-        register(
+        ModDataComponentPredicates.register(
             "integer_component",
             IntegerComponentPredicate.CODEC.codec()
         );
@@ -39,7 +39,7 @@ public class ModDataComponentPredicates {
     public static final DeferredHolder<
         DataComponentPredicate.Type<?>,
         DataComponentPredicate.Type<ExtraEnchantmentsPredicate.MercilessEnchantments>
-        > MERCILESS_ENCH = register(
+        > MERCILESS_ENCH = ModDataComponentPredicates.register(
             "merciless_enchantment",
             ExtraEnchantmentsPredicate.MercilessEnchantments.CODEC
         );
@@ -47,7 +47,7 @@ public class ModDataComponentPredicates {
     public static final DeferredHolder<
         DataComponentPredicate.Type<?>,
         DataComponentPredicate.Type<ExtraEnchantmentsPredicate.DisabledEnchantments>
-        > DISABLED_ENCH = register(
+        > DISABLED_ENCH = ModDataComponentPredicates.register(
             "disabled_enchantment",
             ExtraEnchantmentsPredicate.DisabledEnchantments.CODEC
         );
@@ -57,11 +57,11 @@ public class ModDataComponentPredicates {
         String name,
         Codec<T> codec
     ) {
-        return DF.register(name, () -> new DataComponentPredicate.TypeBase<>(codec) {
+        return ModDataComponentPredicates.DF.register(name, () -> new DataComponentPredicate.TypeBase<>(codec) {
         });
     }
 
     public static void initialize(IEventBus modEventBus) {
-        DF.register(modEventBus);
+        ModDataComponentPredicates.DF.register(modEventBus);
     }
 }

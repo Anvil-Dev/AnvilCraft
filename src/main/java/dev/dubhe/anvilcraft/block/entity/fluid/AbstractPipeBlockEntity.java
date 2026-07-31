@@ -113,27 +113,27 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        output.putBoolean(TAG_POWERED, this.powered);
+        output.putBoolean(AbstractPipeBlockEntity.TAG_POWERED, this.powered);
         this.writeValves(output);
     }
 
     @Override
     public void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        this.powered = input.getBooleanOr(TAG_POWERED, false);
+        this.powered = input.getBooleanOr(AbstractPipeBlockEntity.TAG_POWERED, false);
         this.readValves(input);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         TagValueOutput output = TagValueOutput.createWithContext(new ProblemReporter.Collector(this.problemPath()), registries);
-        output.putBoolean(TAG_POWERED, this.powered);
+        output.putBoolean(AbstractPipeBlockEntity.TAG_POWERED, this.powered);
         this.writeValves(output);
         return output.buildResult();
     }
 
     private void writeValves(ValueOutput output) {
-        ValueOutput.TypedOutputList<ValveData> list = output.list(TAG_VALVES, ValveData.CODEC);
+        ValueOutput.TypedOutputList<ValveData> list = output.list(AbstractPipeBlockEntity.TAG_VALVES, ValveData.CODEC);
         for (Map.Entry<Direction, Direction> entry : this.baseFlow.entrySet()) {
             list.add(new ValveData(entry.getKey(), entry.getValue()));
         }
@@ -141,7 +141,7 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
 
     private void readValves(ValueInput input) {
         this.baseFlow.clear();
-        for (ValveData valve : input.listOrEmpty(TAG_VALVES, ValveData.CODEC)) {
+        for (ValveData valve : input.listOrEmpty(AbstractPipeBlockEntity.TAG_VALVES, ValveData.CODEC)) {
             this.baseFlow.put(valve.face(), valve.flow());
         }
     }
@@ -169,7 +169,7 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
      * 从指定位置出发，沿管道递归追踪 PipeEnd。
      */
     public static @Nullable PipeEnd getPipeEnd(Level level, BlockPos blockPos, Direction direction, int accumulatedHeight) {
-        return getPipeEnd(level, blockPos, direction, accumulatedHeight, true);
+        return AbstractPipeBlockEntity.getPipeEnd(level, blockPos, direction, accumulatedHeight, true);
     }
 
     public static @Nullable PipeEnd getPipeEnd(
@@ -179,22 +179,22 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         BlockState blockState = level.getBlockState(blockPos);
         if (checkValves
             && blockState.getBlock() instanceof PipeBlock
-            && !canFlowThroughCheckValve(level, blockPos, direction, direction.getOpposite())) {
+            && !AbstractPipeBlockEntity.canFlowThroughCheckValve(level, blockPos, direction, direction.getOpposite())) {
             return null;
         }
         if (blockState.getBlock() instanceof PipeNodeBlock) {
             return new PipeEnd(blockPos.relative(direction.getOpposite()), direction, accumulatedHeight);
         }
         if (blockState.getBlock() instanceof PipeStraightBlock) {
-            return getPipeStraightEnd(level, blockPos, blockState, direction, accumulatedHeight, checkValves);
+            return AbstractPipeBlockEntity.getPipeStraightEnd(level, blockPos, blockState, direction, accumulatedHeight, checkValves);
         }
         if (blockState.getBlock() instanceof PipeCornerBlock) {
-            return getPipeCornerEnd(level, blockPos, blockState, direction, accumulatedHeight, checkValves);
+            return AbstractPipeBlockEntity.getPipeCornerEnd(level, blockPos, blockState, direction, accumulatedHeight, checkValves);
         }
         if (blockState.getBlock() instanceof PumpBlock) {
             Direction pumpOutputDir = blockState.getValue(PumpBlock.ORIENTATION).getDirection();
             if (direction == pumpOutputDir && level.getBlockEntity(blockPos) instanceof PumpBlockEntity pumpBe && pumpBe.canPump()) {
-                return getPumpPipeEnd(level, blockPos, direction, accumulatedHeight, checkValves);
+                return AbstractPipeBlockEntity.getPumpPipeEnd(level, blockPos, direction, accumulatedHeight, checkValves);
             }
             return null;
         }
@@ -202,7 +202,7 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
     }
 
     public static @Nullable PipeEnd getPipeEnd(Level level, BlockPos blockPos, Direction direction) {
-        return getPipeEnd(level, blockPos, direction, 0);
+        return AbstractPipeBlockEntity.getPipeEnd(level, blockPos, direction, 0);
     }
 
     public static @Nullable PipeEnd getPipeStraightEnd(
@@ -215,15 +215,15 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         if (direction.equals(startDir)) hasNext = !blockState.getValue(PipeStraightBlock.HAS_END_END);
         else hasNext = !blockState.getValue(PipeStraightBlock.HAS_END_START);
         Direction targetDir = direction.getOpposite();
-        if (checkValves && !canFlowThroughCheckValve(level, blockPos, targetDir, targetDir)) return null;
+        if (checkValves && !AbstractPipeBlockEntity.canFlowThroughCheckValve(level, blockPos, targetDir, targetDir)) return null;
         if (!hasNext) {
             BlockPos neighborPos = blockPos.relative(targetDir);
             if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
-                return getPipeEnd(level, neighborPos, direction, accumulatedHeight, checkValves);
+                return AbstractPipeBlockEntity.getPipeEnd(level, neighborPos, direction, accumulatedHeight, checkValves);
             }
             return new PipeEnd(blockPos, targetDir, accumulatedHeight);
         }
-        return getPipeEnd(level, blockPos.relative(targetDir), direction, accumulatedHeight, checkValves);
+        return AbstractPipeBlockEntity.getPipeEnd(level, blockPos.relative(targetDir), direction, accumulatedHeight, checkValves);
     }
 
     public static @Nullable PipeEnd getPipeCornerEnd(
@@ -241,15 +241,21 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
             hasNext = !blockState.getValue(PipeStraightBlock.HAS_END_START);
             targetDir = startDir;
         }
-        if (checkValves && !canFlowThroughCheckValve(level, blockPos, targetDir, targetDir)) return null;
+        if (checkValves && !AbstractPipeBlockEntity.canFlowThroughCheckValve(level, blockPos, targetDir, targetDir)) return null;
         if (!hasNext) {
             BlockPos neighborPos = blockPos.relative(targetDir);
             if (level.getBlockState(neighborPos).getBlock() instanceof PumpBlock) {
-                return getPipeEnd(level, neighborPos, targetDir.getOpposite(), accumulatedHeight, checkValves);
+                return AbstractPipeBlockEntity.getPipeEnd(level, neighborPos, targetDir.getOpposite(), accumulatedHeight, checkValves);
             }
             return new PipeEnd(blockPos, targetDir, accumulatedHeight);
         }
-        return getPipeEnd(level, blockPos.relative(targetDir), targetDir.getOpposite(), accumulatedHeight, checkValves);
+        return AbstractPipeBlockEntity.getPipeEnd(
+            level,
+            blockPos.relative(targetDir),
+            targetDir.getOpposite(),
+            accumulatedHeight,
+            checkValves
+        );
     }
 
     private static @Nullable PipeEnd getPumpPipeEnd(
@@ -262,7 +268,13 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
             || nextState.getBlock() instanceof PipeStraightBlock
             || nextState.getBlock() instanceof PipeCornerBlock
             || nextState.getBlock() instanceof PumpBlock) {
-            return getPipeEnd(level, nextPos, direction, accumulatedHeight + PumpBlockEntity.PUMP_HEADLIFT, checkValves);
+            return AbstractPipeBlockEntity.getPipeEnd(
+                level,
+                nextPos,
+                direction,
+                accumulatedHeight + PumpBlockEntity.PUMP_HEADLIFT,
+                checkValves
+            );
         }
         if (PipeBlock.isFluidHandler(level, nextPos)) {
             return new PipeEnd(pumpPos, direction.getOpposite(), accumulatedHeight + PumpBlockEntity.PUMP_HEADLIFT);
@@ -281,13 +293,20 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         if (sourceEffectiveY <= targetEffectiveY) return;
         Direction sourceDirection = sourceCurDirection.getOpposite();
         Direction targetDirection = targetCurDirection.getOpposite();
-        if (!canFlowThroughCheckValve(level, sourceCurPos, sourceCurDirection, sourceCurDirection.getOpposite())
-            || !canFlowThroughCheckValve(level, targetCurPos, targetCurDirection, targetCurDirection)
-            || !canFlowThroughCheckValve(level, sourcePos, sourceDirection, sourceDirection)
-            || !canFlowThroughCheckValve(level, targetPos, targetDirection, targetDirection.getOpposite())) {
+        if (!AbstractPipeBlockEntity.canFlowThroughCheckValve(level, sourceCurPos, sourceCurDirection, sourceCurDirection.getOpposite())
+            || !AbstractPipeBlockEntity.canFlowThroughCheckValve(level, targetCurPos, targetCurDirection, targetCurDirection)
+            || !AbstractPipeBlockEntity.canFlowThroughCheckValve(level, sourcePos, sourceDirection, sourceDirection)
+            || !AbstractPipeBlockEntity.canFlowThroughCheckValve(level, targetPos, targetDirection, targetDirection.getOpposite())) {
             return;
         }
-        moveFluid(level, sourcePos, sourceDirection, targetPos, targetDirection, sourceEffectiveY - targetEffectiveY);
+        AbstractPipeBlockEntity.moveFluid(
+            level,
+            sourcePos,
+            sourceDirection,
+            targetPos,
+            targetDirection,
+            sourceEffectiveY - targetEffectiveY
+        );
     }
 
     /**
@@ -322,20 +341,37 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         Direction sourceSide = sourceCurDirection == null ? null : sourceCurDirection.getOpposite();
         Direction targetSide = targetCurDirection == null ? null : targetCurDirection.getOpposite();
         if (sourceCurDirection != null
-            && !canFlowThroughCheckValve(level, sourceCurPos, sourceCurDirection, sourceCurDirection.getOpposite())) {
+            && !AbstractPipeBlockEntity.canFlowThroughCheckValve(
+                level,
+                sourceCurPos,
+                sourceCurDirection,
+                sourceCurDirection.getOpposite()
+            )) {
             return;
         }
         if (targetCurDirection != null
-            && !canFlowThroughCheckValve(level, targetCurPos, targetCurDirection, targetCurDirection)) {
+            && !AbstractPipeBlockEntity.canFlowThroughCheckValve(level, targetCurPos, targetCurDirection, targetCurDirection)) {
             return;
         }
-        if (sourceSide != null && !canFlowThroughCheckValve(level, sourcePos, sourceSide, sourceSide)) {
+        if (sourceSide != null && !AbstractPipeBlockEntity.canFlowThroughCheckValve(level, sourcePos, sourceSide, sourceSide)) {
             return;
         }
-        if (targetSide != null && !canFlowThroughCheckValve(level, targetPos, targetSide, targetSide.getOpposite())) {
+        if (targetSide != null && !AbstractPipeBlockEntity.canFlowThroughCheckValve(
+            level,
+            targetPos,
+            targetSide,
+            targetSide.getOpposite()
+        )) {
             return;
         }
-        moveFluid(level, sourcePos, sourceSide, targetPos, targetSide, sourceEffectiveHeight - targetEffectiveHeight);
+        AbstractPipeBlockEntity.moveFluid(
+            level,
+            sourcePos,
+            sourceSide,
+            targetPos,
+            targetSide,
+            sourceEffectiveHeight - targetEffectiveHeight
+        );
     }
 
     /**
@@ -343,8 +379,12 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
      * 替代旧的 IFluidHandler.drain()/fill() API。
      */
     public static void moveFluid(
-        Level level, BlockPos sourcePos, Direction sourceDirection,
-        BlockPos targetPos, Direction targetDirection, int heightDiff
+        Level level,
+        BlockPos sourcePos,
+        @Nullable Direction sourceDirection,
+        BlockPos targetPos,
+        @Nullable Direction targetDirection,
+        int heightDiff
     ) {
         ResourceHandler<FluidResource> source = level.getCapability(Capabilities.Fluid.BLOCK, sourcePos, sourceDirection);
         ResourceHandler<FluidResource> target = level.getCapability(Capabilities.Fluid.BLOCK, targetPos, targetDirection);
@@ -413,10 +453,15 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
         }
     }
 
-    public static void moveFluid(Level level, BlockPos sourcePos, Direction sourceDirection,
-                                  BlockPos targetPos, Direction targetDirection) {
+    public static void moveFluid(
+        Level level,
+        BlockPos sourcePos,
+        @Nullable Direction sourceDirection,
+        BlockPos targetPos,
+        @Nullable Direction targetDirection
+    ) {
         int heightDiff = sourcePos.getY() - targetPos.getY();
-        moveFluid(level, sourcePos, sourceDirection, targetPos, targetDirection, heightDiff);
+        AbstractPipeBlockEntity.moveFluid(level, sourcePos, sourceDirection, targetPos, targetDirection, heightDiff);
     }
 
     /**
@@ -426,8 +471,8 @@ public abstract class AbstractPipeBlockEntity extends BlockEntity {
 
     private record ValveData(Direction face, Direction flow) {
         private static final Codec<ValveData> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            DIRECTION_CODEC.fieldOf("Face").forGetter(ValveData::face),
-            DIRECTION_CODEC.fieldOf("Flow").forGetter(ValveData::flow)
+            AbstractPipeBlockEntity.DIRECTION_CODEC.fieldOf("Face").forGetter(ValveData::face),
+            AbstractPipeBlockEntity.DIRECTION_CODEC.fieldOf("Flow").forGetter(ValveData::flow)
         ).apply(instance, ValveData::new));
     }
 }

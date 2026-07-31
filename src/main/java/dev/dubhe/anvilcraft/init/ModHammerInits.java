@@ -10,8 +10,7 @@ public class ModHammerInits {
     /// 初始化铁砧锤处理器
     public static void init() {
         for (Block block : BuiltInRegistries.BLOCK) {
-            // noinspection deprecation
-            if (!block.builtInRegistryHolder().is(ModBlockTags.HAMMER_CHANGEABLE)) continue;
+            if (!BuiltInRegistries.BLOCK.wrapAsHolder(block).is(ModBlockTags.HAMMER_CHANGEABLE)) continue;
             HammerManager.registerChange(() -> block, HammerRotateBehavior.DEFAULT);
         }
     }

@@ -45,7 +45,7 @@ public record SavedEntity(EntityType<?> type, CompoundTag tag, boolean isMonster
     public Entity toEntity(Level level) {
         Entity entity = this.type.create(level, EntitySpawnReason.TRIGGERED);
         if (entity == null) return null;
-        try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(entity.problemPath(), log)) {
+        try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(entity.problemPath(), SavedEntity.log)) {
             entity.load(TagValueInput.create(reporter, level.registryAccess(), this.tag));
         }
         return entity;
@@ -54,7 +54,7 @@ public record SavedEntity(EntityType<?> type, CompoundTag tag, boolean isMonster
     public static SavedEntity fromEntity(Entity entity) {
         if (entity instanceof Mob mob) ResentmentUtil.initializeBaseResentment(mob);
         CompoundTag entityTag;
-        try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(entity.problemPath(), log)) {
+        try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(entity.problemPath(), SavedEntity.log)) {
             TagValueOutput output = TagValueOutput.createWithContext(reporter, entity.level().registryAccess());
             entity.saveAsPassenger(output);
             entityTag = output.buildResult();

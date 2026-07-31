@@ -15,16 +15,16 @@ import net.neoforged.neoforge.common.Tags;
 
 public class MineralFountainRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
-        mineralFountainDeepslate(provider, Tags.Blocks.STORAGE_BLOCKS_RAW_COPPER, Blocks.DEEPSLATE_COPPER_ORE);
-        mineralFountainDeepslate(provider, Tags.Blocks.STORAGE_BLOCKS_RAW_IRON, Blocks.DEEPSLATE_IRON_ORE);
-        mineralFountainDeepslate(provider, Tags.Blocks.STORAGE_BLOCKS_RAW_GOLD, Blocks.DEEPSLATE_GOLD_ORE);
-        mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_ZINC, ModBlocks.DEEPSLATE_ZINC_ORE.get());
-        mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_TIN, ModBlocks.DEEPSLATE_TIN_ORE.get());
-        mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_LEAD, ModBlocks.DEEPSLATE_LEAD_ORE.get());
-        mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_SILVER, ModBlocks.DEEPSLATE_SILVER_ORE.get());
-        mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_TITANIUM, ModBlocks.DEEPSLATE_TITANIUM_ORE.get());
-        mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_TUNGSTEN, ModBlocks.DEEPSLATE_TUNGSTEN_ORE.get());
-        mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_URANIUM, ModBlocks.DEEPSLATE_URANIUM_ORE.get());
+        MineralFountainRecipeLoader.mineralFountainDeepslate(provider, Tags.Blocks.STORAGE_BLOCKS_RAW_COPPER, Blocks.DEEPSLATE_COPPER_ORE);
+        MineralFountainRecipeLoader.mineralFountainDeepslate(provider, Tags.Blocks.STORAGE_BLOCKS_RAW_IRON, Blocks.DEEPSLATE_IRON_ORE);
+        MineralFountainRecipeLoader.mineralFountainDeepslate(provider, Tags.Blocks.STORAGE_BLOCKS_RAW_GOLD, Blocks.DEEPSLATE_GOLD_ORE);
+        MineralFountainRecipeLoader.mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_ZINC, ModBlocks.DEEPSLATE_ZINC_ORE.get());
+        MineralFountainRecipeLoader.mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_TIN, ModBlocks.DEEPSLATE_TIN_ORE.get());
+        MineralFountainRecipeLoader.mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_LEAD, ModBlocks.DEEPSLATE_LEAD_ORE.get());
+        MineralFountainRecipeLoader.mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_SILVER, ModBlocks.DEEPSLATE_SILVER_ORE.get());
+        MineralFountainRecipeLoader.mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_TITANIUM, ModBlocks.DEEPSLATE_TITANIUM_ORE.get());
+        MineralFountainRecipeLoader.mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_TUNGSTEN, ModBlocks.DEEPSLATE_TUNGSTEN_ORE.get());
+        MineralFountainRecipeLoader.mineralFountainDeepslate(provider, ModBlockTags.STORAGE_BLOCKS_RAW_URANIUM, ModBlocks.DEEPSLATE_URANIUM_ORE.get());
 
 
         MineralFountainChanceRecipe.builder()

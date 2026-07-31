@@ -61,7 +61,8 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
 
     public ActivatorSlidingRailBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(POWERED, false));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(ActivatorSlidingRailBlock.FACING, Direction.NORTH).setValue(
+            ActivatorSlidingRailBlock.POWERED, false));
     }
 
     @Nullable
@@ -72,13 +73,13 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
             facing = facing.getOpposite();
         }
         return this.defaultBlockState()
-            .setValue(FACING, facing)
-            .setValue(POWERED, this.isPowered(context.getLevel(), context.getClickedPos(), facing));
+            .setValue(ActivatorSlidingRailBlock.FACING, facing)
+            .setValue(ActivatorSlidingRailBlock.POWERED, this.isPowered(context.getLevel(), context.getClickedPos(), facing));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, POWERED);
+        builder.add(ActivatorSlidingRailBlock.FACING, ActivatorSlidingRailBlock.POWERED);
     }
 
     protected boolean findActivatorSlidingRailSignal(Level level, BlockPos pos, Direction facing, boolean searchForward) {
@@ -101,8 +102,8 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
         int x = pos.getX();
         int y = pos.getY();
         int z = pos.getZ();
-        if (!state.hasProperty(FACING)) return false;
-        Direction facing = state.getValue(FACING);
+        if (!state.hasProperty(ActivatorSlidingRailBlock.FACING)) return false;
+        Direction facing = state.getValue(ActivatorSlidingRailBlock.FACING);
         switch (facing.getAxis()) {
             case X -> x += searchForward ? 1 : -1;
             case Z -> z += searchForward ? 1 : -1;
@@ -115,10 +116,10 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
     protected boolean isSameRailWithPower(Level level, BlockPos pos, boolean searchForward, int recursionCount, Direction facing) {
         BlockState state = level.getBlockState(pos);
         if (!(state.getBlock() instanceof ActivatorSlidingRailBlock other)) return false;
-        Direction otherFacing = state.getValue(FACING);
+        Direction otherFacing = state.getValue(ActivatorSlidingRailBlock.FACING);
         if (facing.getAxis() != otherFacing.getAxis()) return false;
         boolean hasSideSignal = false;
-        for (Direction d : SIGNAL_SOURCE_SIDES) {
+        for (Direction d : ActivatorSlidingRailBlock.SIGNAL_SOURCE_SIDES) {
             if (level.hasSignal(pos.relative(d), d)) {
                 hasSideSignal = true;
                 break;
@@ -135,9 +136,9 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-        return switch (state.getValue(FACING).getAxis()) {
-            case X -> AABB_X;
-            case Z -> AABB_Z;
+        return switch (state.getValue(ActivatorSlidingRailBlock.FACING).getAxis()) {
+            case X -> ActivatorSlidingRailBlock.AABB_X;
+            case Z -> ActivatorSlidingRailBlock.AABB_Z;
             default -> super.getShape(state, level, pos, ctx);
         };
     }
@@ -145,20 +146,20 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
     private static final int[] UPDATE_POS = new int[] {-1, 1};
 
     protected void updatePower(Level level, BlockPos pos, BlockState state, BlockPos fromPos) {
-        boolean powered = state.getValue(POWERED);
+        boolean powered = state.getValue(ActivatorSlidingRailBlock.POWERED);
         boolean shouldPower = this.isPowered(level, pos);
         if (powered != shouldPower) {
-            level.setBlockAndUpdate(pos, state.setValue(POWERED, shouldPower));
+            level.setBlockAndUpdate(pos, state.setValue(ActivatorSlidingRailBlock.POWERED, shouldPower));
             this.updateAbove(level, pos);
         }
         if (powered) {
-            Direction.Axis axis = state.getValue(FACING).getAxis();
-            for (int updatePos : UPDATE_POS) {
+            Direction.Axis axis = state.getValue(ActivatorSlidingRailBlock.FACING).getAxis();
+            for (int updatePos : ActivatorSlidingRailBlock.UPDATE_POS) {
                 BlockPos pos1 = pos.relative(axis, updatePos);
                 if (pos1.equals(fromPos)) continue;
                 BlockState state1 = level.getBlockState(pos1);
                 if (!(state1.getBlock() instanceof ActivatorSlidingRailBlock other)) continue;
-                if (state1.getOptionalValue(FACING).map(Direction::getAxis).filter(axis::equals).isEmpty()) continue;
+                if (state1.getOptionalValue(ActivatorSlidingRailBlock.FACING).map(Direction::getAxis).filter(axis::equals).isEmpty()) continue;
                 level.neighborChanged(pos1, other, Orientation.random(level.getRandom()));
             }
         }
@@ -172,23 +173,23 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
             || !neighbor.equals(pos.above())
             || level.getBlockEntity(pos.above(), BlockEntityType.PISTON).map(PistonMovingBlockEntity::isSourcePiston).orElse(true)
         ) {
-            MOVING_PISTON_MAP.remove(pos);
+            ISlidingRail.MOVING_PISTON_MAP.remove(pos);
             return;
         }
         PistonPushInfo ppi = new PistonPushInfo(neighbor, dir);
-        if (MOVING_PISTON_MAP.containsKey(pos)) {
-            MOVING_PISTON_MAP.get(pos).fromPos = neighbor;
-        } else MOVING_PISTON_MAP.put(pos, ppi);
+        if (ISlidingRail.MOVING_PISTON_MAP.containsKey(pos)) {
+            ISlidingRail.MOVING_PISTON_MAP.get(pos).fromPos = neighbor;
+        } else ISlidingRail.MOVING_PISTON_MAP.put(pos, ppi);
 
         if (level instanceof Level world) {
             this.updatePower(world, pos, state, neighbor);
             Optional<ActivatorSlidingRailBlockEntity> beOp = world.getBlockEntity(pos, ModBlockEntities.ACTIVATOR_SLIDING_RAIL.get());
             if (!neighbor.equals(pos.above())) return;
             if (
-                state.getValue(POWERED)
+                state.getValue(ActivatorSlidingRailBlock.POWERED)
                     && !beOp.map(ActivatorSlidingRailBlockEntity::shouldPower).orElse(false)
                     && !world.getBlockTicks().hasScheduledTick(pos, this)
-                    && !MOVING_PISTON_MAP.containsKey(neighbor)
+                    && !ISlidingRail.MOVING_PISTON_MAP.containsKey(neighbor)
                     && level.getBlockState(pos).getBlock().equals(Blocks.MOVING_PISTON)
                     && !level.getBlockEntity(pos.above(), BlockEntityType.PISTON).map(PistonMovingBlockEntity::isSourcePiston).orElse(true)
             ) {
@@ -214,12 +215,12 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
             }
             case FALSE -> {
                 beOp.ifPresent(ActivatorSlidingRailBlockEntity::backToDefault);
-                if (!state.getValue(POWERED)) return;
+                if (!state.getValue(ActivatorSlidingRailBlock.POWERED)) return;
                 BlockPos fromPos = pos.above();
                 if (level.isEmptyBlock(fromPos)) return;
-                PistonPushInfo ppi = new PistonPushInfo(fromPos, state.getValue(FACING));
+                PistonPushInfo ppi = new PistonPushInfo(fromPos, state.getValue(ActivatorSlidingRailBlock.FACING));
                 ppi.extending = true;
-                MOVING_PISTON_MAP.put(pos, ppi);
+                ISlidingRail.MOVING_PISTON_MAP.put(pos, ppi);
             }
             case DEFAULT -> {
             }
@@ -229,7 +230,7 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
     }
 
     private boolean isPowered(Level level, BlockPos pos, Direction facing) {
-        for (Direction side : SIGNAL_SOURCE_SIDES) {
+        for (Direction side : ActivatorSlidingRailBlock.SIGNAL_SOURCE_SIDES) {
             if (level.getSignal(pos.relative(side), side) > 0) return true;
         }
         return this.findActivatorSlidingRailSignal(level, pos, facing, true)
@@ -237,7 +238,7 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
     }
 
     private boolean isPowered(Level level, BlockPos pos) {
-        for (Direction side : SIGNAL_SOURCE_SIDES) {
+        for (Direction side : ActivatorSlidingRailBlock.SIGNAL_SOURCE_SIDES) {
             if (level.getSignal(pos.relative(side), side) > 0) return true;
         }
         BlockState state = level.getBlockState(pos);
@@ -252,7 +253,7 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
 
     @Override
     protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        if (!state.getValue(POWERED)) return 0;
+        if (!state.getValue(ActivatorSlidingRailBlock.POWERED)) return 0;
         if (
             !level.getBlockEntity(pos, ModBlockEntities.ACTIVATOR_SLIDING_RAIL.get())
             .map(ActivatorSlidingRailBlockEntity::shouldPower)
@@ -271,20 +272,20 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         BlockState bs = level.getBlockState(blockPos);
-        level.setBlockAndUpdate(blockPos, bs.cycle(FACING));
+        level.setBlockAndUpdate(blockPos, bs.cycle(ActivatorSlidingRailBlock.FACING));
         return true;
     }
 
     @Override
     public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
+        return ActivatorSlidingRailBlock.FACING;
     }
 
     @Override
     public void onSlidingAbove(Level level, BlockPos pos, BlockState state, SlidingBlockEntity entity) {
         if (entity.getStartPos().equals(pos.above())) return;
-        level.setBlockAndUpdate(pos, state.setValue(FACING, entity.getMoveDirection()));
-        if (!state.getValue(POWERED)) return;
+        level.setBlockAndUpdate(pos, state.setValue(ActivatorSlidingRailBlock.FACING, entity.getMoveDirection()));
+        if (!state.getValue(ActivatorSlidingRailBlock.POWERED)) return;
         level.getBlockEntity(pos, ModBlockEntities.ACTIVATOR_SLIDING_RAIL.get()).ifPresent(ActivatorSlidingRailBlockEntity::startPulse);
         ISlidingRail.stopSlidingBlock(entity);
         if (level.getBlockTicks().hasScheduledTick(pos, this)) return;
@@ -297,7 +298,7 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
         aboveState.onNeighborChange(level, abovePos, pos);
         level.neighborChanged(aboveState, abovePos, this, Orientation.random(level.getRandom()), false);
         if (!aboveState.isRedstoneConductor(level, abovePos)) return;
-        for (Direction dir : UPDATE_SIDES) {
+        for (Direction dir : ActivatorSlidingRailBlock.UPDATE_SIDES) {
             BlockPos neighborPos = abovePos.relative(dir);
             BlockState neighborState = level.getBlockState(neighborPos);
             level.neighborChanged(neighborState, neighborPos, aboveState.getBlock(), Orientation.random(level.getRandom()), false);
@@ -311,11 +312,11 @@ public class ActivatorSlidingRailBlock extends BaseSlidingRailBlock implements I
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(ActivatorSlidingRailBlock.FACING, rotation.rotate(state.getValue(ActivatorSlidingRailBlock.FACING)));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
+        return state.setValue(ActivatorSlidingRailBlock.FACING, mirror.mirror(state.getValue(ActivatorSlidingRailBlock.FACING)));
     }
 }

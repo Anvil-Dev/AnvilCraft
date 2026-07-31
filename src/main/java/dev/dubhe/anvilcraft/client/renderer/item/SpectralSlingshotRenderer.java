@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ChargedProjectiles;
 import org.joml.Vector3fc;
 import org.jspecify.annotations.Nullable;
 
@@ -27,11 +28,12 @@ public class SpectralSlingshotRenderer implements SpecialModelRenderer<SpectralR
     @Override
     public @Nullable SpectralRenderState extractArgument(ItemStack stack) {
         if (!stack.is(ModItems.SPECTRAL_WEAPON_LAUNCHER)) return null;
-        if (!stack.has(DataComponents.CHARGED_PROJECTILES)) return null;
+        ChargedProjectiles chargedProjectiles = stack.get(DataComponents.CHARGED_PROJECTILES);
+        if (chargedProjectiles == null || chargedProjectiles.itemCopies().isEmpty()) return null;
         SpectralRenderState state = new SpectralRenderState();
         state.setSelf(FeatureRendererSupport.initialize(stack, this.resolver));
         state.setAmmo(FeatureRendererSupport.initialize(
-            stack.get(DataComponents.CHARGED_PROJECTILES).itemCopies().getFirst(),
+            chargedProjectiles.itemCopies().getFirst(),
             this.resolver
         ));
         return state;

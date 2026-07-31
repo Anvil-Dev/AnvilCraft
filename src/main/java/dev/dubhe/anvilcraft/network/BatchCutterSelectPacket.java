@@ -26,7 +26,7 @@ public record BatchCutterSelectPacket(int selecting, BlockPos pos) implements II
 
     @Override
     public Type<BatchCutterSelectPacket> type() {
-        return TYPE;
+        return BatchCutterSelectPacket.TYPE;
     }
 
     @Override

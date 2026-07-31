@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
+import dev.dubhe.anvilcraft.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -22,6 +23,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.Tags;
 
 import java.util.List;
+import java.util.Objects;
 
 public class LensBlockEntity extends BaseLaserBlockEntity {
     private boolean enabled = false;
@@ -33,12 +35,12 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
 
     @Override
     public Direction getFacing() {
-        if (irradiateBlockPos != null) {
-            Direction.Axis axis = getBlockState().getValue(LensBlock.AXIS);
+        if (this.irradiateBlockPos != null) {
+            Direction.Axis axis = this.getBlockState().getValue(LensBlock.AXIS);
             int diff = switch (axis) {
-                case X -> irradiateBlockPos.getX() - getBlockPos().getX();
-                case Y -> irradiateBlockPos.getY() - getBlockPos().getY();
-                case Z -> irradiateBlockPos.getZ() - getBlockPos().getZ();
+                case X -> this.irradiateBlockPos.getX() - this.getBlockPos().getX();
+                case Y -> this.irradiateBlockPos.getY() - this.getBlockPos().getY();
+                case Z -> this.irradiateBlockPos.getZ() - this.getBlockPos().getZ();
             };
             Direction.AxisDirection axisDir = diff > 0
                 ? Direction.AxisDirection.POSITIVE
@@ -46,7 +48,7 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
             return Direction.fromAxisAndDirection(axis, axisDir);
         }
         return Direction.fromAxisAndDirection(
-            getBlockState().getValue(LensBlock.AXIS),
+            this.getBlockState().getValue(LensBlock.AXIS),
             Direction.AxisDirection.POSITIVE
         );
     }
@@ -64,7 +66,7 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
     /// 按镜片类型给激光束染色（在渲染阶段通过 LaserRenderState.color 读取）。
     @Override
     public int getLaserColor() {
-        return switch (getBlockState().getValue(LensBlock.TYPE)) {
+        return switch (this.getBlockState().getValue(LensBlock.TYPE)) {
             case ROYAL -> 0x0000FFBF;
             case FROST -> 0x00598CFF;
             case EMBER -> 0x00FFD900;
@@ -94,9 +96,9 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
     }
 
     private boolean determineEmissionDirection(BaseLaserBlockEntity source) {
-        Direction.Axis axis = getBlockState().getValue(LensBlock.AXIS);
+        Direction.Axis axis = this.getBlockState().getValue(LensBlock.AXIS);
         BlockPos sourcePos = source.getBlockPos();
-        BlockPos myPos = getBlockPos();
+        BlockPos myPos = this.getBlockPos();
         boolean aligned = switch (axis) {
             case X -> sourcePos.getY() == myPos.getY() && sourcePos.getZ() == myPos.getZ();
             case Y -> sourcePos.getX() == myPos.getX() && sourcePos.getZ() == myPos.getZ();
@@ -122,14 +124,14 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
             this.emitLaser(this.emittingDirection);
         }
         super.tick(level);
-        if (laserLevel == 0) this.enabled = false;
-        resetState();
+        if (this.laserLevel == 0) this.enabled = false;
+        this.resetState();
     }
 
     @Override
     public void deliverItem(List<ItemStack> drops, Direction direction, BlockPos sourceBlockPos) {
-        if (!irradiateSelfLaserBlockSet.isEmpty()) {
-            BaseLaserBlockEntity upstream = irradiateSelfLaserBlockSet.iterator().next();
+        if (!this.irradiateSelfLaserBlockSet.isEmpty()) {
+            BaseLaserBlockEntity upstream = this.irradiateSelfLaserBlockSet.iterator().next();
             upstream.deliverItem(drops, direction, sourceBlockPos);
             return;
         }
@@ -153,15 +155,16 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
         );
         BaseLaserBlockEntity newLaserTarget =
             this.level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity target ? target : null;
-        boolean targetChanged = !tempIrradiateBlockPos.equals(this.irradiateBlockPos);
+        BlockPos oldIrradiateBlockPos = this.irradiateBlockPos;
+        boolean targetChanged = !Objects.equals(tempIrradiateBlockPos, oldIrradiateBlockPos);
         boolean targetEntityChanged = newLaserTarget != this.irradiatedLaserTarget;
         boolean targetRevisionChanged = newLaserTarget != null
                                         && newLaserTarget.laserLinkRevision != this.irradiatedLaserTargetRevision;
         if (targetChanged || targetEntityChanged || targetRevisionChanged) {
             if (this.irradiatedLaserTarget != null) {
                 this.irradiatedLaserTarget.onCancelingIrradiation(this);
-            } else if (targetChanged && this.irradiateBlockPos != null) {
-                BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
+            } else if (targetChanged && oldIrradiateBlockPos != null) {
+                BlockEntity oldBe = this.level.getBlockEntity(oldIrradiateBlockPos);
                 if (oldBe instanceof BaseLaserBlockEntity lastIrradiatedLaserBlockEntity) {
                     lastIrradiatedLaserBlockEntity.onCancelingIrradiation(this);
                 }
@@ -179,7 +182,7 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
                                              || targetRevisionChanged
                                              || laserLevelChanged;
             if (needsIrradiationUpdate && !newLaserTarget.getIgnoreFace().contains(direction)) {
-                this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
+                this.level.updateNeighborsAt(tempIrradiateBlockPos, this.getBlockState().getBlock());
                 newLaserTarget.onIrradiated(this);
                 this.irradiatedLaserTarget = newLaserTarget;
                 this.irradiatedLaserTargetRevision = newLaserTarget.laserLinkRevision;
@@ -205,17 +208,18 @@ public class LensBlockEntity extends BaseLaserBlockEntity {
                 trackBoundingBox,
                 Entity::isAlive
             ).forEach(livingEntity ->
-                livingEntity.hurtOrSimulate(
+                EntityUtil.hurtOrSimulate(
+                    livingEntity,
                     ModDamageTypes.laser(this.level),
                     hurt
                 )
             );
         }
         BlockState irradiateBlock = this.level.getBlockState(this.irradiateBlockPos);
-        int cooldown = COOLDOWNS[Math.clamp(this.laserLevel / 4, 0, 4)];
+        int cooldown = BaseLaserBlockEntity.COOLDOWNS[Math.clamp(this.laserLevel / 4, 0, 4)];
         if (this.tickCount >= cooldown) {
             this.tickCount = 0;
-            LensType lensType = getBlockState().getValue(LensBlock.TYPE);
+            LensType lensType = this.getBlockState().getValue(LensBlock.TYPE);
             boolean isOreTarget = irradiateBlock.is(Tags.Blocks.ORES);
             boolean isLensSpecialTarget = lensType != LensType.NONE
                 && (irradiateBlock.is(ModBlocks.VOID_STONE) || irradiateBlock.is(ModBlocks.EARTH_CORE_SHARD_ORE));

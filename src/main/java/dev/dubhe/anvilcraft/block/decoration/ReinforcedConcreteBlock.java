@@ -23,17 +23,17 @@ public class ReinforcedConcreteBlock extends Block {
 
     public ReinforcedConcreteBlock(Properties properties, Color color) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(HALF, ReinforcedConcreteHalf.SINGLE));
+        this.registerDefaultState(this.stateDefinition.any().setValue(ReinforcedConcreteBlock.HALF, ReinforcedConcreteHalf.SINGLE));
         this.color = color;
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(HALF);
+        builder.add(ReinforcedConcreteBlock.HALF);
     }
 
     private boolean checkHalf(BlockState state, ReinforcedConcreteHalf half) {
-        return state.is(this) && state.getValue(HALF) == half;
+        return state.is(this) && state.getValue(ReinforcedConcreteBlock.HALF) == half;
     }
 
     /// When piston finished a block movement, this block will receive an NC update where neighborPos is
@@ -64,34 +64,34 @@ public class ReinforcedConcreteBlock extends Block {
         if (level.isClientSide()) {
             return state;
         }
-        if (shouldIgnoreUpdate(pos, neighbourPos)) {
+        if (ReinforcedConcreteBlock.shouldIgnoreUpdate(pos, neighbourPos)) {
             return state;
         }
-        ReinforcedConcreteHalf half = state.getValue(HALF);
+        ReinforcedConcreteHalf half = state.getValue(ReinforcedConcreteBlock.HALF);
         BlockState aboveState = level.getBlockState(pos.above());
         BlockState belowState = level.getBlockState(pos.below());
         switch (half) {
             case TOP:
                 if (this.checkHalf(belowState, ReinforcedConcreteHalf.SINGLE)) {
-                    level.setBlock(pos.below(), state.setValue(HALF, ReinforcedConcreteHalf.BOTTOM), 2);
+                    level.setBlock(pos.below(), state.setValue(ReinforcedConcreteBlock.HALF, ReinforcedConcreteHalf.BOTTOM), 2);
                 } else if (!this.checkHalf(belowState, ReinforcedConcreteHalf.BOTTOM)) {
-                    state = state.setValue(HALF, ReinforcedConcreteHalf.SINGLE);
+                    state = state.setValue(ReinforcedConcreteBlock.HALF, ReinforcedConcreteHalf.SINGLE);
                 }
                 break;
             case BOTTOM:
                 if (this.checkHalf(aboveState, ReinforcedConcreteHalf.SINGLE)) {
-                    level.setBlock(pos.above(), state.setValue(HALF, ReinforcedConcreteHalf.TOP), 2);
+                    level.setBlock(pos.above(), state.setValue(ReinforcedConcreteBlock.HALF, ReinforcedConcreteHalf.TOP), 2);
                 } else if (!this.checkHalf(aboveState, ReinforcedConcreteHalf.TOP)) {
-                    state = state.setValue(HALF, ReinforcedConcreteHalf.SINGLE);
+                    state = state.setValue(ReinforcedConcreteBlock.HALF, ReinforcedConcreteHalf.SINGLE);
                 }
                 break;
             case SINGLE:
                 if (neighbourPos.equals(pos.below()) && this.checkHalf(belowState, ReinforcedConcreteHalf.SINGLE)) {
-                    state =  state.setValue(HALF, ReinforcedConcreteHalf.TOP);
-                    level.setBlock(pos.below(), state.setValue(HALF, ReinforcedConcreteHalf.BOTTOM), 2);
+                    state =  state.setValue(ReinforcedConcreteBlock.HALF, ReinforcedConcreteHalf.TOP);
+                    level.setBlock(pos.below(), state.setValue(ReinforcedConcreteBlock.HALF, ReinforcedConcreteHalf.BOTTOM), 2);
                 } else if (neighbourPos.equals(pos.above()) && this.checkHalf(aboveState, ReinforcedConcreteHalf.SINGLE)) {
-                    state = state.setValue(HALF, ReinforcedConcreteHalf.BOTTOM);
-                    level.setBlock(pos.above(), state.setValue(HALF, ReinforcedConcreteHalf.TOP), 2);
+                    state = state.setValue(ReinforcedConcreteBlock.HALF, ReinforcedConcreteHalf.BOTTOM);
+                    level.setBlock(pos.above(), state.setValue(ReinforcedConcreteBlock.HALF, ReinforcedConcreteHalf.TOP), 2);
                 }
                 break;
             default:

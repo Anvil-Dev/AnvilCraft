@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.workstation.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
+import dev.dubhe.anvilcraft.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -25,8 +26,7 @@ public class TimeWarpPlayerBehavior implements IAnvilBehavior {
         );
         if (players.isEmpty()) return false;
         for (ServerPlayer player : players) {
-            // noinspection deprecation
-            player.hurtOrSimulate(ModDamageTypes.lostInTime(level), Float.MAX_VALUE);
+            EntityUtil.hurtOrSimulate(player, ModDamageTypes.lostInTime(level), Float.MAX_VALUE);
         }
         return true;
     }

@@ -124,27 +124,27 @@ public abstract class PipeBlock extends Block
     /**
      * 管道中心体碰撞箱（对应 pipe_straight / pipe_side_corner 模型 [4,4,4]→[12,12,12]）
      */
-    static final VoxelShape PIPE_CENTER = box(4, 4, 4, 12, 12, 12);
+    static final VoxelShape PIPE_CENTER = Block.box(4, 4, 4, 12, 12, 12);
     /**
      * 节点中心体碰撞箱（对应 pipe_node 模型 [3,3,3]→[13,13,13]）
      */
-    static final VoxelShape NODE_CENTER = box(3, 3, 3, 13, 13, 13);
+    static final VoxelShape NODE_CENTER = Block.box(3, 3, 3, 13, 13, 13);
 
     /** 六个方向；{@code values()} 每次调用都会克隆数组，热路径统一复用这份共享副本。 */
     static final Direction[] DIRECTIONS = Direction.values();
 
     /** 按方向预建的无端头臂，避免每次取形状都重新构造。 */
-    private static final VoxelShape[] NO_END_ARMS = new VoxelShape[DIRECTIONS.length];
+    private static final VoxelShape[] NO_END_ARMS = new VoxelShape[PipeBlock.DIRECTIONS.length];
     /** 按方向预建的有端头臂。 */
-    private static final VoxelShape[] END_ARMS = new VoxelShape[DIRECTIONS.length];
+    private static final VoxelShape[] END_ARMS = new VoxelShape[PipeBlock.DIRECTIONS.length];
     /** 直管 / 弯管形状缓存：两端方向 x 两个端头开关。 */
     private static final AtomicReferenceArray<VoxelShape> TWO_ARM_SHAPES =
-        new AtomicReferenceArray<>(DIRECTIONS.length * DIRECTIONS.length * 4);
+        new AtomicReferenceArray<>(PipeBlock.DIRECTIONS.length * PipeBlock.DIRECTIONS.length * 4);
 
     static {
-        for (Direction dir : DIRECTIONS) {
-            NO_END_ARMS[dir.ordinal()] = buildNoEnd(dir);
-            END_ARMS[dir.ordinal()] = buildEnd(dir);
+        for (Direction dir : PipeBlock.DIRECTIONS) {
+            PipeBlock.NO_END_ARMS[dir.ordinal()] = PipeBlock.buildNoEnd(dir);
+            PipeBlock.END_ARMS[dir.ordinal()] = PipeBlock.buildEnd(dir);
         }
     }
 
@@ -170,7 +170,7 @@ public abstract class PipeBlock extends Block
      * 从中心体表面延伸到方块边界，4 px 深，8×8 截面。
      */
     static VoxelShape makeNoEnd(Direction dir) {
-        return NO_END_ARMS[dir.ordinal()];
+        return PipeBlock.NO_END_ARMS[dir.ordinal()];
     }
 
     /**
@@ -178,49 +178,49 @@ public abstract class PipeBlock extends Block
      * ring（2 px 深，8×8 截面）+ cap（2 px 深，10×10 截面，与面齐平）。
      */
     static VoxelShape makeEnd(Direction dir) {
-        return END_ARMS[dir.ordinal()];
+        return PipeBlock.END_ARMS[dir.ordinal()];
     }
 
     private static VoxelShape buildNoEnd(Direction dir) {
         return switch (dir) {
-            case DOWN -> box(4, 0, 4, 12, 4, 12);
-            case UP -> box(4, 12, 4, 12, 16, 12);
-            case NORTH -> box(4, 4, 0, 12, 12, 4);
-            case SOUTH -> box(4, 4, 12, 12, 12, 16);
-            case WEST -> box(0, 4, 4, 4, 12, 12);
-            case EAST -> box(12, 4, 4, 16, 12, 12);
+            case DOWN -> Block.box(4, 0, 4, 12, 4, 12);
+            case UP -> Block.box(4, 12, 4, 12, 16, 12);
+            case NORTH -> Block.box(4, 4, 0, 12, 12, 4);
+            case SOUTH -> Block.box(4, 4, 12, 12, 12, 16);
+            case WEST -> Block.box(0, 4, 4, 4, 12, 12);
+            case EAST -> Block.box(12, 4, 4, 16, 12, 12);
         };
     }
 
     private static VoxelShape buildEnd(Direction dir) {
         // ring：内层，紧贴中心体，8×8 截面
         VoxelShape ring = switch (dir) {
-            case DOWN -> box(4, 2, 4, 12, 4, 12);
-            case UP -> box(4, 12, 4, 12, 14, 12);
-            case NORTH -> box(4, 4, 2, 12, 12, 4);
-            case SOUTH -> box(4, 4, 12, 12, 12, 14);
-            case WEST -> box(2, 4, 4, 4, 12, 12);
-            case EAST -> box(12, 4, 4, 14, 12, 12);
+            case DOWN -> Block.box(4, 2, 4, 12, 4, 12);
+            case UP -> Block.box(4, 12, 4, 12, 14, 12);
+            case NORTH -> Block.box(4, 4, 2, 12, 12, 4);
+            case SOUTH -> Block.box(4, 4, 12, 12, 12, 14);
+            case WEST -> Block.box(2, 4, 4, 4, 12, 12);
+            case EAST -> Block.box(12, 4, 4, 14, 12, 12);
         };
         VoxelShape cap = switch (dir) {
-            case DOWN -> box(3, 0, 3, 13, 2, 13);
-            case UP -> box(3, 14, 3, 13, 16, 13);
-            case NORTH -> box(3, 3, 0, 13, 13, 2);
-            case SOUTH -> box(3, 3, 14, 13, 13, 16);
-            case WEST -> box(0, 3, 3, 2, 13, 13);
-            case EAST -> box(14, 3, 3, 16, 13, 13);
+            case DOWN -> Block.box(3, 0, 3, 13, 2, 13);
+            case UP -> Block.box(3, 14, 3, 13, 16, 13);
+            case NORTH -> Block.box(3, 3, 0, 13, 13, 2);
+            case SOUTH -> Block.box(3, 3, 14, 13, 13, 16);
+            case WEST -> Block.box(0, 3, 3, 2, 13, 13);
+            case EAST -> Block.box(14, 3, 3, 16, 13, 13);
         };
         return Shapes.or(ring, cap);
     }
 
     public PipeBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.getStateDefinition().any().setValue(WATERLOGGED, false).setValue(HAS_CHECK_VALVE, false));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(PipeBlock.WATERLOGGED, false).setValue(PipeBlock.HAS_CHECK_VALVE, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(WATERLOGGED, HAS_CHECK_VALVE);
+        builder.add(PipeBlock.WATERLOGGED, PipeBlock.HAS_CHECK_VALVE);
     }
 
     /**
@@ -235,12 +235,12 @@ public abstract class PipeBlock extends Block
      */
     public static EnumProperty<NodePipe> getPropertyForDirection(Direction direction) {
         return switch (direction) {
-            case DOWN -> DOWN;
-            case UP -> UP;
-            case NORTH -> NORTH;
-            case SOUTH -> SOUTH;
-            case WEST -> WEST;
-            case EAST -> EAST;
+            case DOWN -> PipeBlock.DOWN;
+            case UP -> PipeBlock.UP;
+            case NORTH -> PipeBlock.NORTH;
+            case SOUTH -> PipeBlock.SOUTH;
+            case WEST -> PipeBlock.WEST;
+            case EAST -> PipeBlock.EAST;
         };
     }
 
@@ -250,9 +250,9 @@ public abstract class PipeBlock extends Block
     public static boolean hasConnectionToward(BlockState state, Direction toward) {
         Block block = state.getBlock();
         return switch (block) {
-            case PipeStraightBlock ignored -> toward.getAxis() == state.getValue(AXIS);
-            case PipeCornerBlock ignored -> state.getValue(CORNER_ENDED).containsDirection(toward);
-            case PipeNodeBlock ignored -> state.getValue(getPropertyForDirection(toward)) == NodePipe.PIPE;
+            case PipeStraightBlock ignored -> toward.getAxis() == state.getValue(PipeBlock.AXIS);
+            case PipeCornerBlock ignored -> state.getValue(PipeBlock.CORNER_ENDED).containsDirection(toward);
+            case PipeNodeBlock ignored -> state.getValue(PipeBlock.getPropertyForDirection(toward)) == NodePipe.PIPE;
             default -> false;
         };
     }
@@ -263,7 +263,7 @@ public abstract class PipeBlock extends Block
     public static boolean isNeighborPipeToward(Level level, BlockPos pos, Direction dir) {
         BlockPos neighborPos = pos.relative(dir);
         BlockState neighborState = level.getBlockState(neighborPos);
-        return neighborState.getBlock() instanceof PipeBlock && hasConnectionToward(neighborState, dir.getOpposite());
+        return neighborState.getBlock() instanceof PipeBlock && PipeBlock.hasConnectionToward(neighborState, dir.getOpposite());
     }
 
     /**
@@ -301,10 +301,10 @@ public abstract class PipeBlock extends Block
      * 检查指定方向的邻居是否被"占用"（有管道对准、是流体处理器、或连接面正对本方块的泵）。
      */
     public static boolean isNeighborOccupied(Level level, BlockPos pos, Direction dir) {
-        if (isNeighborPipeToward(level, pos, dir)) {
+        if (PipeBlock.isNeighborPipeToward(level, pos, dir)) {
             return true;
         }
-        return isFluidHandlerOrConnectablePump(level, pos.relative(dir), dir.getOpposite());
+        return PipeBlock.isFluidHandlerOrConnectablePump(level, pos.relative(dir), dir.getOpposite());
     }
 
     @Override
@@ -325,9 +325,9 @@ public abstract class PipeBlock extends Block
     ) {
         BlockState newState = state;
         if (neighborDir == startDir) {
-            newState = newState.setValue(HAS_END_START, !neighborIsPipeToward);
+            newState = newState.setValue(PipeBlock.HAS_END_START, !neighborIsPipeToward);
         } else {
-            newState = newState.setValue(HAS_END_END, !neighborIsPipeToward);
+            newState = newState.setValue(PipeBlock.HAS_END_END, !neighborIsPipeToward);
         }
 
         if (!newState.equals(state)) {
@@ -346,7 +346,7 @@ public abstract class PipeBlock extends Block
         BlockState neighborState,
         RandomSource random
     ) {
-        if (state.getValue(WATERLOGGED)) {
+        if (state.getValue(PipeBlock.WATERLOGGED)) {
             ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
         return super.updateShape(state, level, ticks, pos, direction, neighborPos, neighborState, random);
@@ -354,14 +354,14 @@ public abstract class PipeBlock extends Block
 
     @Override
     public FluidState getFluidState(BlockState state) {
-        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+        return state.getValue(PipeBlock.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
     protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
         List<ItemStack> drops = new ArrayList<>(super.getDrops(state, params));
         BlockEntity blockEntity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
-        if (state.getValue(HAS_CHECK_VALVE)
+        if (state.getValue(PipeBlock.HAS_CHECK_VALVE)
             && blockEntity instanceof AbstractPipeBlockEntity checkValve
             && !checkValve.isEmpty()
         ) {
@@ -374,15 +374,16 @@ public abstract class PipeBlock extends Block
      * 构建直管/弯管的碰撞箱：中心体 + 两端按端头状态拼接 arm。
      */
     public VoxelShape getShape(BlockState state, Direction startDir, Direction endDir) {
-        boolean endStart = state.getValue(HAS_END_START);
-        boolean endEnd = state.getValue(HAS_END_END);
+        boolean endStart = state.getValue(PipeBlock.HAS_END_START);
+        boolean endEnd = state.getValue(PipeBlock.HAS_END_END);
         // 两端方向 x 两个端头开关唯一决定形状，直管与弯管共用同一张缓存表。
-        int key = ((startDir.ordinal() * DIRECTIONS.length + endDir.ordinal()) * 2 + (endStart ? 1 : 0)) * 2
+        int key = ((startDir.ordinal() * PipeBlock.DIRECTIONS.length + endDir.ordinal()) * 2 + (endStart ? 1 : 0)) * 2
             + (endEnd ? 1 : 0);
-        return cachedShape(TWO_ARM_SHAPES, key, () -> Shapes.or(
-            PIPE_CENTER,
-            endStart ? makeEnd(startDir) : makeNoEnd(startDir),
-            endEnd ? makeEnd(endDir) : makeNoEnd(endDir)
+        return PipeBlock.cachedShape(
+            PipeBlock.TWO_ARM_SHAPES, key, () -> Shapes.or(
+            PipeBlock.PIPE_CENTER,
+            endStart ? PipeBlock.makeEnd(startDir) : PipeBlock.makeNoEnd(startDir),
+            endEnd ? PipeBlock.makeEnd(endDir) : PipeBlock.makeNoEnd(endDir)
         ));
     }
 
@@ -427,7 +428,7 @@ public abstract class PipeBlock extends Block
      * 判断该管道在给定方向是否有臂（连接）。子类需覆盖以实现具体逻辑。
      */
     protected boolean hasArmToward(BlockState state, Direction dir) {
-        return hasConnectionToward(state, dir);
+        return PipeBlock.hasConnectionToward(state, dir);
     }
 
     /**
@@ -435,9 +436,9 @@ public abstract class PipeBlock extends Block
      */
     protected boolean addCheckValve(Level level, BlockPos pos, BlockState state, Direction face, Direction flowOut) {
         if (level.isClientSide()) return false;
-        BlockState newState = state.setValue(HAS_CHECK_VALVE, true);
-        setBlockPreservingValve(level, pos, newState);
-        AbstractPipeBlockEntity valve = getCheckValve(level, pos);
+        BlockState newState = state.setValue(PipeBlock.HAS_CHECK_VALVE, true);
+        PipeBlock.setBlockPreservingValve(level, pos, newState);
+        AbstractPipeBlockEntity valve = PipeBlock.getCheckValve(level, pos);
         if (valve != null) {
             valve.setValve(face, flowOut);
             valve.sendUpdate();
@@ -451,13 +452,13 @@ public abstract class PipeBlock extends Block
      */
     protected boolean removeCheckValve(Level level, BlockPos pos, BlockState state, Direction face) {
         if (level.isClientSide()) return false;
-        AbstractPipeBlockEntity valve = getCheckValve(level, pos);
+        AbstractPipeBlockEntity valve = PipeBlock.getCheckValve(level, pos);
         if (valve == null || !valve.hasValveOn(face)) return false;
         valve.removeValve(face);
         valve.sendUpdate();
         if (valve.isEmpty()) {
-            BlockState newState = state.setValue(HAS_CHECK_VALVE, false);
-            setBlockPreservingValve(level, pos, newState);
+            BlockState newState = state.setValue(PipeBlock.HAS_CHECK_VALVE, false);
+            PipeBlock.setBlockPreservingValve(level, pos, newState);
         }
         FluidNetworkManager.INSTANCE.markDirty(level);
         return true;
@@ -479,16 +480,16 @@ public abstract class PipeBlock extends Block
         }
         if (level.isClientSide()) return InteractionResult.SUCCESS;
 
-        Direction face = getArmDirection(pos, hitResult);
+        Direction face = PipeBlock.getArmDirection(pos, hitResult);
         if (face == null || !this.hasArmToward(state, face)) {
             return InteractionResult.PASS;
         }
 
         // 已有止回阀 → 不重复安装
-        AbstractPipeBlockEntity existing = getCheckValve(level, pos);
+        AbstractPipeBlockEntity existing = PipeBlock.getCheckValve(level, pos);
         if (existing != null && existing.hasValveOn(face)) {
             if (this.removeCheckValve(level, pos, state, face)) {
-                giveOrDrop(player, level, pos, new ItemStack(ModItems.CHECK_VALVE.get()));
+                PipeBlock.giveOrDrop(player, level, pos, new ItemStack(ModItems.CHECK_VALVE.get()));
                 return InteractionResult.CONSUME;
             }
             return InteractionResult.PASS;
@@ -511,16 +512,16 @@ public abstract class PipeBlock extends Block
     protected InteractionResult detachCheckValve(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
         if (level.isClientSide()) return InteractionResult.SUCCESS;
 
-        Direction face = getArmDirection(pos, hitResult);
+        Direction face = PipeBlock.getArmDirection(pos, hitResult);
         if (face == null) return InteractionResult.PASS;
 
-        AbstractPipeBlockEntity valve = getCheckValve(level, pos);
+        AbstractPipeBlockEntity valve = PipeBlock.getCheckValve(level, pos);
         if (valve == null || !valve.hasValveOn(face)) {
             return InteractionResult.PASS;
         }
 
         if (this.removeCheckValve(level, pos, state, face)) {
-            giveOrDrop(player, level, pos, new ItemStack(ModItems.CHECK_VALVE.get()));
+            PipeBlock.giveOrDrop(player, level, pos, new ItemStack(ModItems.CHECK_VALVE.get()));
             return InteractionResult.CONSUME;
         }
         return InteractionResult.PASS;
@@ -567,7 +568,7 @@ public abstract class PipeBlock extends Block
             return this.handleCheckValveInteraction(stack, state, level, pos, player, hitResult);
         }
         // 扳手或锤子拆卸止回阀
-        if ((stack.is(Tags.Items.TOOLS_WRENCH) || stack.is(ModItemTags.ANVIL_HAMMER)) && state.getValue(HAS_CHECK_VALVE)) {
+        if ((stack.is(Tags.Items.TOOLS_WRENCH) || stack.is(ModItemTags.ANVIL_HAMMER)) && state.getValue(PipeBlock.HAS_CHECK_VALVE)) {
             return this.detachCheckValve(state, level, pos, player, hitResult);
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
@@ -577,9 +578,9 @@ public abstract class PipeBlock extends Block
     protected InteractionResult useWithoutItem(
         BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult
     ) {
-        Direction face = getArmDirection(pos, hitResult);
+        Direction face = PipeBlock.getArmDirection(pos, hitResult);
         if (face != null && this.hasArmToward(state, face)) {
-            AbstractPipeBlockEntity valve = getCheckValve(level, pos);
+            AbstractPipeBlockEntity valve = PipeBlock.getCheckValve(level, pos);
             if (valve != null && valve.hasValveOn(face)) {
                 return this.detachCheckValve(state, level, pos, player, hitResult);
             }
@@ -613,7 +614,7 @@ public abstract class PipeBlock extends Block
         @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
-        if (!level.isClientSide() && state.getValue(HAS_CHECK_VALVE)) {
+        if (!level.isClientSide() && state.getValue(PipeBlock.HAS_CHECK_VALVE)) {
             this.updateCheckValvePower(level, pos, state);
         }
     }
@@ -622,7 +623,7 @@ public abstract class PipeBlock extends Block
      * 根据红石信号更新止回阀的反向状态。
      */
     protected void updateCheckValvePower(Level level, BlockPos pos, BlockState state) {
-        AbstractPipeBlockEntity valve = getCheckValve(level, pos);
+        AbstractPipeBlockEntity valve = PipeBlock.getCheckValve(level, pos);
         if (valve == null) return;
         boolean powered = level.hasNeighborSignal(pos);
         if (valve.setPowered(powered)) {
@@ -640,31 +641,31 @@ public abstract class PipeBlock extends Block
         Map<Direction, Direction> savedFlows = null;
         boolean savedPowered = false;
 
-        if (oldState.hasProperty(HAS_CHECK_VALVE) && oldState.getValue(HAS_CHECK_VALVE)) {
-            AbstractPipeBlockEntity oldValve = getCheckValve(level, pos);
+        if (oldState.hasProperty(PipeBlock.HAS_CHECK_VALVE) && oldState.getValue(PipeBlock.HAS_CHECK_VALVE)) {
+            AbstractPipeBlockEntity oldValve = PipeBlock.getCheckValve(level, pos);
             if (oldValve != null && !oldValve.isEmpty()) {
                 Map<Direction, Direction> oldFlows = oldValve.baseFlowCopy();
                 savedFlows = new EnumMap<>(Direction.class);
                 for (Map.Entry<Direction, Direction> entry : oldFlows.entrySet()) {
-                    if (hasConnectionToward(newState, entry.getKey())) {
+                    if (PipeBlock.hasConnectionToward(newState, entry.getKey())) {
                         savedFlows.put(entry.getKey(), entry.getValue());
                     } else if (!level.isClientSide()) {
                         Block.popResource(level, pos, new ItemStack(ModItems.CHECK_VALVE.get()));
                     }
                 }
                 savedPowered = oldValve.isPowered();
-                newState = newState.setValue(HAS_CHECK_VALVE, !savedFlows.isEmpty());
+                newState = newState.setValue(PipeBlock.HAS_CHECK_VALVE, !savedFlows.isEmpty());
             } else {
-                newState = newState.setValue(HAS_CHECK_VALVE, true);
+                newState = newState.setValue(PipeBlock.HAS_CHECK_VALVE, true);
             }
         } else {
-            newState = newState.setValue(HAS_CHECK_VALVE, false);
+            newState = newState.setValue(PipeBlock.HAS_CHECK_VALVE, false);
         }
 
         level.setBlockAndUpdate(pos, newState);
 
         if (savedFlows != null && !savedFlows.isEmpty()) {
-            AbstractPipeBlockEntity newValve = getCheckValve(level, pos);
+            AbstractPipeBlockEntity newValve = PipeBlock.getCheckValve(level, pos);
             if (newValve != null) {
                 newValve.restore(savedFlows, savedPowered);
                 if (!level.isClientSide()) {
@@ -712,12 +713,12 @@ public abstract class PipeBlock extends Block
         }
 
         public static CornerEnded fromDirections(Direction a, Direction b) {
-            for (CornerEnded corner : values()) {
+            for (CornerEnded corner : CornerEnded.values()) {
                 if ((corner.first == a && corner.second == b) || (corner.first == b && corner.second == a)) {
                     return corner;
                 }
             }
-            return UP_NORTH;
+            return CornerEnded.UP_NORTH;
         }
 
         @Override

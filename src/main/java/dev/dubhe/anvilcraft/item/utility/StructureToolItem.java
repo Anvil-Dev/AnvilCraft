@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.api.tooltip.providers.IHandHeldItemTooltipProvider;
+import dev.dubhe.anvilcraft.api.tooltip.providers.IItemTooltipProvider;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
@@ -32,7 +33,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.function.Consumer;
 
-public class StructureToolItem extends Item implements IHandHeldItemTooltipProvider {
+public class StructureToolItem extends Item implements IHandHeldItemTooltipProvider, IItemTooltipProvider {
     public StructureToolItem(Properties properties) {
         super(properties);
     }
@@ -117,8 +118,7 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public void appendHoverText(
+    public void appendItemTooltip(
         ItemStack stack,
         TooltipContext context,
         TooltipDisplay display,
@@ -131,11 +131,11 @@ public class StructureToolItem extends Item implements IHandHeldItemTooltipProvi
                 "tooltip.anvilcraft.item.structure_tool.min_pos", data.minX(), data.minY(), data.minZ()));
             builder.accept(Component.translatable(
                 "tooltip.anvilcraft.item.structure_tool.max_pos", data.maxX(), data.maxY(), data.maxZ()));
-            builder.accept(SHIFT_TO_CLEAR_TOOLTIP);
+            builder.accept(StructureToolItem.SHIFT_TO_CLEAR_TOOLTIP);
         } else {
-            builder.accept(DEVELOPER_TOOLTIP);
-            builder.accept(SELECT_TOOLTIP);
-            builder.accept(INPUT_TOOLTIP);
+            builder.accept(StructureToolItem.DEVELOPER_TOOLTIP);
+            builder.accept(StructureToolItem.SELECT_TOOLTIP);
+            builder.accept(StructureToolItem.INPUT_TOOLTIP);
         }
     }
 

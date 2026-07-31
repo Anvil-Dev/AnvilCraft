@@ -39,7 +39,7 @@ public class FluidMixingRecipe implements Recipe<FluidMixingRecipe.Input> {
     public static final int MAX_INGREDIENTS = 4;
     public static final int MAX_ITEM_RESULTS = 3;
     public static final int MAX_FLUID_RESULTS = 3;
-    public static final int MAX_RESULTS = MAX_ITEM_RESULTS + MAX_FLUID_RESULTS;
+    public static final int MAX_RESULTS = FluidMixingRecipe.MAX_ITEM_RESULTS + FluidMixingRecipe.MAX_FLUID_RESULTS;
     public static final RecipeSerializer<FluidMixingRecipe> SERIALIZER = new RecipeSerializer<>(
         Serializer.CODEC,
         Serializer.STREAM_CODEC
@@ -96,7 +96,7 @@ public class FluidMixingRecipe implements Recipe<FluidMixingRecipe.Input> {
 
     public Optional<List<FluidStack>> consume(List<FluidStack> storedFluids, int batches) {
         if (batches <= 0) return Optional.empty();
-        List<FluidStack> remaining = copyFluids(storedFluids);
+        List<FluidStack> remaining = FluidMixingRecipe.copyFluids(storedFluids);
         return this.consumeIngredient(0, batches, remaining) ? Optional.of(remaining) : Optional.empty();
     }
 
@@ -197,7 +197,7 @@ public class FluidMixingRecipe implements Recipe<FluidMixingRecipe.Input> {
 
     public record Input(List<FluidStack> fluids) implements RecipeInput {
         public Input {
-            fluids = copyFluids(fluids);
+            fluids = FluidMixingRecipe.copyFluids(fluids);
         }
 
         @Override
@@ -218,24 +218,24 @@ public class FluidMixingRecipe implements Recipe<FluidMixingRecipe.Input> {
 
     private static class Serializer {
         private static final Codec<List<SizedFluidIngredient>> INGREDIENTS_CODEC =
-            SizedFluidIngredient.CODEC.listOf().validate(ingredients -> validateSize(
+            SizedFluidIngredient.CODEC.listOf().validate(ingredients -> Serializer.validateSize(
                 ingredients,
                 2,
-                MAX_INGREDIENTS,
+                FluidMixingRecipe.MAX_INGREDIENTS,
                 "Fluid mixing ingredients"
             ));
         private static final Codec<List<ItemStackTemplate>> ITEM_RESULTS_CODEC =
             ItemStackTemplate.CODEC.listOf().validate(results ->
-                validateSize(results, 0, MAX_ITEM_RESULTS, "Fluid mixing item results"));
+                                                          Serializer.validateSize(results, 0, FluidMixingRecipe.MAX_ITEM_RESULTS, "Fluid mixing item results"));
         private static final Codec<List<FluidStack>> FLUID_RESULTS_CODEC =
             FluidStack.CODEC.listOf().validate(results ->
-                validateSize(results, 0, MAX_FLUID_RESULTS, "Fluid mixing fluid results"));
+                                                   Serializer.validateSize(results, 0, FluidMixingRecipe.MAX_FLUID_RESULTS, "Fluid mixing fluid results"));
         private static final MapCodec<FluidMixingRecipe> CODEC =
             RecordCodecBuilder.<FluidMixingRecipe>mapCodec(instance -> instance.group(
-                INGREDIENTS_CODEC.fieldOf("ingredients").forGetter(FluidMixingRecipe::getFluidIngredients),
-                ITEM_RESULTS_CODEC.optionalFieldOf("results", List.<ItemStackTemplate>of())
+                Serializer.INGREDIENTS_CODEC.fieldOf("ingredients").forGetter(FluidMixingRecipe::getFluidIngredients),
+                Serializer.ITEM_RESULTS_CODEC.optionalFieldOf("results", List.of())
                     .forGetter(FluidMixingRecipe::getItemResultTemplates),
-                FLUID_RESULTS_CODEC.optionalFieldOf("fluid_results", List.<FluidStack>of())
+                Serializer.FLUID_RESULTS_CODEC.optionalFieldOf("fluid_results", List.of())
                     .forGetter(FluidMixingRecipe::getFluidResults),
                 Codec.BOOL.optionalFieldOf("consume_maximum", false)
                     .forGetter(FluidMixingRecipe::consumesMaximum)
@@ -255,9 +255,10 @@ public class FluidMixingRecipe implements Recipe<FluidMixingRecipe.Input> {
 
         private static DataResult<FluidMixingRecipe> validateResults(FluidMixingRecipe recipe) {
             int resultCount = recipe.getResultCount();
-            if (resultCount < 1 || resultCount > MAX_RESULTS) {
+            if (resultCount < 1 || resultCount > FluidMixingRecipe.MAX_RESULTS) {
                 return DataResult.error(() ->
-                    "Fluid mixing recipes must contain between 1 and " + MAX_RESULTS + " total results");
+                                            "Fluid mixing recipes must contain between 1 and " + FluidMixingRecipe.MAX_RESULTS
+                                            + " total results");
             }
             if (recipe.consumesMaximum() && (!recipe.itemResults.isEmpty() || recipe.fluidResults.isEmpty())) {
                 return DataResult.error(() ->
@@ -335,10 +336,10 @@ public class FluidMixingRecipe implements Recipe<FluidMixingRecipe.Input> {
 
         @Override
         public void validate(Identifier id) {
-            validateCount(this.ingredients.size(), 2, MAX_INGREDIENTS, "ingredients", id);
-            validateCount(this.itemResults.size(), 0, MAX_ITEM_RESULTS, "item results", id);
-            validateCount(this.fluidResults.size(), 0, MAX_FLUID_RESULTS, "fluid results", id);
-            validateCount(this.itemResults.size() + this.fluidResults.size(), 1, MAX_RESULTS, "total results", id);
+            Builder.validateCount(this.ingredients.size(), 2, FluidMixingRecipe.MAX_INGREDIENTS, "ingredients", id);
+            Builder.validateCount(this.itemResults.size(), 0, FluidMixingRecipe.MAX_ITEM_RESULTS, "item results", id);
+            Builder.validateCount(this.fluidResults.size(), 0, FluidMixingRecipe.MAX_FLUID_RESULTS, "fluid results", id);
+            Builder.validateCount(this.itemResults.size() + this.fluidResults.size(), 1, FluidMixingRecipe.MAX_RESULTS, "total results", id);
             if (this.itemResults.stream().anyMatch(result ->
                 result.item().value() == Items.AIR || result.count() <= 0)) {
                 throw new IllegalArgumentException("Fluid mixing recipe has an empty result, RecipeId: " + id);

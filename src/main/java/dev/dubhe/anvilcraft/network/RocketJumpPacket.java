@@ -21,7 +21,7 @@ public record RocketJumpPacket(double power) implements IClientboundPacket {
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+        return RocketJumpPacket.TYPE;
     }
 
     @Override

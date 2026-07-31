@@ -18,20 +18,20 @@ public class ProceduralProcessSerializer {
 
     public static final MapCodec<ProceduralProcessRecipe> CODEC =
         RecordCodecBuilder.mapCodec(ins -> ins.group(
-                    BlockStatePredicate.CODEC.fieldOf("initial_block").forGetter(ProceduralProcessRecipe::getInitialBlock),
-                    ProceduralProcessStep.CODEC.listOf().fieldOf("steps").forGetter(ProceduralProcessRecipe::getSteps),
-                    ChanceBlockState.CODEC.fieldOf("result_block").forGetter(ProceduralProcessRecipe::getResultBlock),
+                    BlockStatePredicate.CODEC.fieldOf("initial_block").forGetter(ProceduralProcessRecipe::initialBlock),
+                    ProceduralProcessStep.CODEC.listOf().fieldOf("steps").forGetter(ProceduralProcessRecipe::steps),
+                    ChanceBlockState.CODEC.fieldOf("result_block").forGetter(ProceduralProcessRecipe::resultBlock),
                     ItemStackTemplate.CODEC.optionalFieldOf("icon")
-                        .forGetter(ProceduralProcessRecipe::getIcon),
-                    Codec.INT.fieldOf("loop").forGetter(ProceduralProcessRecipe::getLoop),
-                    Identifier.CODEC.optionalFieldOf("displayed_model").forGetter(ProceduralProcessRecipe::getDisplayedModel),
+                        .forGetter(ProceduralProcessRecipe::icon),
+                    Codec.INT.fieldOf("loop").forGetter(ProceduralProcessRecipe::loop),
+                    Identifier.CODEC.optionalFieldOf("displayed_model").forGetter(ProceduralProcessRecipe::displayedModel),
                     Identifier.CODEC
                         .listOf()
                         .optionalFieldOf("displayed_models", List.of())
-                        .forGetter(ProceduralProcessRecipe::getDisplayedModels),
+                        .forGetter(ProceduralProcessRecipe::displayedModels),
                     ProceduralProcessStep.CODEC
                         .optionalFieldOf("multiple_loop_first_step")
-                        .forGetter(ProceduralProcessRecipe::getMultiLoopFirstStep)
+                        .forGetter(ProceduralProcessRecipe::multiLoopFirstStep)
                 )
                 .apply(
                     ins, (initialBlock, steps, resultBlock, icon, loop, displayedModel, displayedModels, multiLoopFirstStep) ->
@@ -51,14 +51,14 @@ public class ProceduralProcessSerializer {
     public static final StreamCodec<RegistryFriendlyByteBuf, ProceduralProcessRecipe> STREAM_CODEC = new StreamCodec<>() {
         @Override
         public void encode(RegistryFriendlyByteBuf buffer, ProceduralProcessRecipe recipe) {
-            BlockStatePredicate.STREAM_CODEC.encode(buffer, recipe.getInitialBlock());
-            ProceduralProcessStep.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buffer, recipe.getSteps());
-            ChanceBlockState.STREAM_CODEC.encode(buffer, recipe.getResultBlock());
-            ByteBufCodecs.optional(ItemStackTemplate.STREAM_CODEC).encode(buffer, recipe.getIcon());
-            buffer.writeVarInt(recipe.getLoop());
-            ByteBufCodecs.optional(Identifier.STREAM_CODEC).encode(buffer, recipe.getDisplayedModel());
-            Identifier.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buffer, recipe.getDisplayedModels());
-            ByteBufCodecs.optional(ProceduralProcessStep.STREAM_CODEC).encode(buffer, recipe.getMultiLoopFirstStep());
+            BlockStatePredicate.STREAM_CODEC.encode(buffer, recipe.initialBlock());
+            ProceduralProcessStep.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buffer, recipe.steps());
+            ChanceBlockState.STREAM_CODEC.encode(buffer, recipe.resultBlock());
+            ByteBufCodecs.optional(ItemStackTemplate.STREAM_CODEC).encode(buffer, recipe.icon());
+            buffer.writeVarInt(recipe.loop());
+            ByteBufCodecs.optional(Identifier.STREAM_CODEC).encode(buffer, recipe.displayedModel());
+            Identifier.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buffer, recipe.displayedModels());
+            ByteBufCodecs.optional(ProceduralProcessStep.STREAM_CODEC).encode(buffer, recipe.multiLoopFirstStep());
         }
 
         @Override
@@ -76,5 +76,8 @@ public class ProceduralProcessSerializer {
         }
     };
 
-    public static final RecipeSerializer<ProceduralProcessRecipe> INSTANCE = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+    public static final RecipeSerializer<ProceduralProcessRecipe> INSTANCE = new RecipeSerializer<>(
+        ProceduralProcessSerializer.CODEC,
+        ProceduralProcessSerializer.STREAM_CODEC
+    );
 }

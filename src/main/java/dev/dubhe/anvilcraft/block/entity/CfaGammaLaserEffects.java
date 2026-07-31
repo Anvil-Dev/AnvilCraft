@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.heatable.OverheatedEmberMetalBlock;
 import dev.dubhe.anvilcraft.block.laser.RubyPrismBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
+import dev.dubhe.anvilcraft.util.EntityUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.BlockTags;
@@ -28,11 +29,11 @@ final class CfaGammaLaserEffects {
     }
 
     static BlockPos findTarget(Level level, BlockPos origin, Direction direction) {
-        for (int distance = 1; distance <= MAX_DISTANCE; distance++) {
+        for (int distance = 1; distance <= CfaGammaLaserEffects.MAX_DISTANCE; distance++) {
             BlockPos candidate = origin.relative(direction, distance);
             if (!level.getBlockState(candidate).is(BlockTags.REPLACEABLE)) return candidate;
         }
-        return origin.relative(direction, MAX_DISTANCE);
+        return origin.relative(direction, CfaGammaLaserEffects.MAX_DISTANCE);
     }
 
     static void destroyPrisms(Level level, BlockPos origin, Direction direction, BlockPos target) {
@@ -52,8 +53,7 @@ final class CfaGammaLaserEffects {
         Vec3 end = target.relative(direction.getOpposite()).getCenter().add(0.0625, 0.0625, 0.0625);
         level.getEntities(EntityTypeTest.forClass(LivingEntity.class), new AABB(start, end), Entity::isAlive)
             .forEach(entity -> {
-                // noinspection deprecation
-                entity.hurtOrSimulate(ModDamageTypes.gammaLaser(level), damage);
+                EntityUtil.hurtOrSimulate(entity, ModDamageTypes.gammaLaser(level), damage);
             });
     }
 
@@ -83,7 +83,7 @@ final class CfaGammaLaserEffects {
             BlockPos depthPos = target.relative(direction, depth);
             for (int first = -halfSize; first <= halfSize; first++) {
                 for (int second = -halfSize; second <= halfSize; second++) {
-                    heatEmberMetalAt(level, depthPos
+                    CfaGammaLaserEffects.heatEmberMetalAt(level, depthPos
                         .relative(perpendiculars[0], first)
                         .relative(perpendiculars[1], second), updateFlags);
                 }

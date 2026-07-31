@@ -57,14 +57,14 @@ public class ModRenderPipelines {
         .build();
 
     public static final RenderPipeline LASER_TRANSLUCENT = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
-        .withColorTargetState(new ColorTargetState(LASER_BLEND))
+        .withColorTargetState(new ColorTargetState(ModRenderPipelines.LASER_BLEND))
         .withShaderDefine("ALPHA_CUTOUT", 0.01F)
         .withDepthStencilState(DepthStencilState.DEFAULT)
         .withLocation(AnvilCraft.of("pipeline/translucent_laser"))
         .build();
 
     public static final RenderPipeline LIGHTNING = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-        .withColorTargetState(new ColorTargetState(LASER_BLEND))
+        .withColorTargetState(new ColorTargetState(ModRenderPipelines.LASER_BLEND))
         .withShaderDefine("ALPHA_CUTOUT", 0.01F)
         .withVertexFormat(DefaultVertexFormat.POSITION_TEX_COLOR, VertexFormat.Mode.QUADS)
         .withVertexShader(Identifier.withDefaultNamespace("core/position_tex_color"))
@@ -75,7 +75,7 @@ public class ModRenderPipelines {
         .build();
 
     public static final RenderPipeline SUPERNOVA_BEAM = RenderPipeline.builder(RenderPipelines.BEACON_BEAM_SNIPPET)
-        .withColorTargetState(new ColorTargetState(ADDITIVE_BLEND))
+        .withColorTargetState(new ColorTargetState(ModRenderPipelines.ADDITIVE_BLEND))
         .withShaderDefine("ALPHA_CUTOUT", 0.01F)
         .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .withCull(false)
@@ -87,7 +87,7 @@ public class ModRenderPipelines {
      * 不采样纹理且不写入深度，与 1.21 的 POSITION_COLOR 渲染类型保持一致。
      */
     public static final RenderPipeline STELLAR_BEAM = RenderPipeline.builder(RenderPipelines.DEBUG_FILLED_SNIPPET)
-        .withColorTargetState(new ColorTargetState(ADDITIVE_BLEND))
+        .withColorTargetState(new ColorTargetState(ModRenderPipelines.ADDITIVE_BLEND))
         .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .withCull(false)
         .withLocation(AnvilCraft.of("pipeline/stellar_beam"))
@@ -108,7 +108,7 @@ public class ModRenderPipelines {
         .build();
 
     public static final RenderPipeline STAR_COLOR_OVERLAY = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
-        .withColorTargetState(new ColorTargetState(MULTIPLY_BLEND))
+        .withColorTargetState(new ColorTargetState(ModRenderPipelines.MULTIPLY_BLEND))
         .withShaderDefine("ALPHA_CUTOUT", 0.01F)
         .withDepthStencilState(DepthStencilState.DEFAULT)
         .withLocation(AnvilCraft.of("pipeline/star_color_overlay"))
@@ -135,7 +135,7 @@ public class ModRenderPipelines {
         .build();
 
     public static final RenderPipeline SUPERNOVA_FLASH = RenderPipeline.builder(RenderPipelines.BLOCK_SNIPPET)
-        .withColorTargetState(new ColorTargetState(ADDITIVE_BLEND))
+        .withColorTargetState(new ColorTargetState(ModRenderPipelines.ADDITIVE_BLEND))
         .withShaderDefine("ALPHA_CUTOUT", 0.01F)
         .withDepthStencilState(new DepthStencilState(CompareOp.LESS_THAN_OR_EQUAL, false))
         .withCull(false)
@@ -151,15 +151,15 @@ public class ModRenderPipelines {
 
     @SubscribeEvent
     public static void on(RegisterRenderPipelinesEvent event) {
-        event.registerPipeline(LASER_TRANSLUCENT);
-        event.registerPipeline(LIGHTNING);
-        event.registerPipeline(SUPERNOVA_BEAM);
-        event.registerPipeline(STELLAR_BEAM);
-        event.registerPipeline(CORRUPTED_BEACON_BEAM);
-        event.registerPipeline(STAR_COLOR_OVERLAY);
-        event.registerPipeline(CELESTIAL_ATMOSPHERE);
-        event.registerPipeline(CELESTIAL_RING);
-        event.registerPipeline(SUPERNOVA_FLASH);
-        event.registerPipeline(GRAVITATIONAL_LENS);
+        event.registerPipeline(ModRenderPipelines.LASER_TRANSLUCENT);
+        event.registerPipeline(ModRenderPipelines.LIGHTNING);
+        event.registerPipeline(ModRenderPipelines.SUPERNOVA_BEAM);
+        event.registerPipeline(ModRenderPipelines.STELLAR_BEAM);
+        event.registerPipeline(ModRenderPipelines.CORRUPTED_BEACON_BEAM);
+        event.registerPipeline(ModRenderPipelines.STAR_COLOR_OVERLAY);
+        event.registerPipeline(ModRenderPipelines.CELESTIAL_ATMOSPHERE);
+        event.registerPipeline(ModRenderPipelines.CELESTIAL_RING);
+        event.registerPipeline(ModRenderPipelines.SUPERNOVA_FLASH);
+        event.registerPipeline(ModRenderPipelines.GRAVITATIONAL_LENS);
     }
 }

@@ -15,14 +15,14 @@ public class MDChargerChargingRecipeComponent extends MDRecipeComponent {
     public static final Identifier TEXTURE = AnvilCraft.of("textures/gui/ageratum/128back.png");
 
     public static final String KEY_CATEGORY = "gui.anvilcraft.category.charger_charging";
-    public static final String KEY_POWER_CONSUME = KEY_CATEGORY + ".power_consume";
-    public static final String KEY_POWER_PRODUCE = KEY_CATEGORY + ".power_produce";
-    public static final String KEY_TIME = KEY_CATEGORY + ".time";
+    public static final String KEY_POWER_CONSUME = MDChargerChargingRecipeComponent.KEY_CATEGORY + ".power_consume";
+    public static final String KEY_POWER_PRODUCE = MDChargerChargingRecipeComponent.KEY_CATEGORY + ".power_produce";
+    public static final String KEY_TIME = MDChargerChargingRecipeComponent.KEY_CATEGORY + ".time";
 
     private final ChargerChargingRecipe recipe;
 
     public MDChargerChargingRecipeComponent(ChargerChargingRecipe recipe, boolean enableAlignCenter) {
-        super(TEXTURE, 128, 64, enableAlignCenter);
+        super(MDChargerChargingRecipeComponent.TEXTURE, 128, 64, enableAlignCenter);
         this.recipe = recipe;
     }
 
@@ -37,11 +37,11 @@ public class MDChargerChargingRecipeComponent extends MDRecipeComponent {
         BlockState charger = this.recipe.getProcessingBlock().defaultBlockState().setValue(ChargerBlock.OVERLOAD, false);
         AgeratumUtil.renderBlock(context, charger, mouseX, mouseY, 24, 28);
 
-        String keyPower = this.recipe.power() < 0 ? KEY_POWER_CONSUME : KEY_POWER_PRODUCE;
+        String keyPower = this.recipe.power() < 0 ? MDChargerChargingRecipeComponent.KEY_POWER_CONSUME : MDChargerChargingRecipeComponent.KEY_POWER_PRODUCE;
         Component power = Component.translatable(keyPower, Math.abs(this.recipe.power()));
         AgeratumUtil.renderText(graphics, power, 10, 8);
 
-        Component time = Component.translatable(KEY_TIME, 0.05 * this.recipe.power());
+        Component time = Component.translatable(MDChargerChargingRecipeComponent.KEY_TIME, 0.05 * this.recipe.power());
         AgeratumUtil.renderText(graphics, time, 10, 48);
     }
 }

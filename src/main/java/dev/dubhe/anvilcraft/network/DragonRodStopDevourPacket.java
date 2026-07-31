@@ -16,7 +16,7 @@ public record DragonRodStopDevourPacket() implements IServerboundPacket {
 
     @Override
     public Type<DragonRodStopDevourPacket> type() {
-        return TYPE;
+        return DragonRodStopDevourPacket.TYPE;
     }
 
     @Override

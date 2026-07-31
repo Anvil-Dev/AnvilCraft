@@ -38,7 +38,8 @@ public class GravitationalLensPostEffect {
     private static final int BLACK_HOLES_LENS_PARAMS_OFFSET = 0;
     private static final int BLACK_HOLES_ARRAY_OFFSET = 16;
     private static final int BLACK_HOLE_STRIDE = 16;
-    private static final int BLACK_HOLES_SIZE = BLACK_HOLES_ARRAY_OFFSET + MAX_HOLES * BLACK_HOLE_STRIDE;
+    private static final int BLACK_HOLES_SIZE = GravitationalLensPostEffect.BLACK_HOLES_ARRAY_OFFSET + GravitationalLensPostEffect.MAX_HOLES
+                                                                                                       * GravitationalLensPostEffect.BLACK_HOLE_STRIDE;
 
     @Getter
     private final RenderTarget lensOutputTarget = new TextureTarget("Gravitational Lens Result", 854, 480, false);
@@ -46,19 +47,19 @@ public class GravitationalLensPostEffect {
     private final GpuBuffer transformUBO = this.device.createBuffer(
         () -> "GravitationalLensPostEffect TransformUBO",
         GpuBuffer.USAGE_COPY_DST | GpuBuffer.USAGE_UNIFORM,
-        UNIFORM_TRANSFORM_SIZE
+        GravitationalLensPostEffect.UNIFORM_TRANSFORM_SIZE
     );
     @Getter
     private final GpuBuffer samplerInfoUBO = this.device.createBuffer(
         () -> "GravitationalLensPostEffect SamplerInfoUBO",
         GpuBuffer.USAGE_COPY_DST | GpuBuffer.USAGE_UNIFORM,
-        SAMPLER_INFO_SIZE
+        GravitationalLensPostEffect.SAMPLER_INFO_SIZE
     );
     @Getter
     private final GpuBuffer blackHolesUBO = this.device.createBuffer(
         () -> "GravitationalLensPostEffect BlackHolesUBO",
         GpuBuffer.USAGE_COPY_DST | GpuBuffer.USAGE_UNIFORM,
-        BLACK_HOLES_SIZE
+        GravitationalLensPostEffect.BLACK_HOLES_SIZE
     );
     private final GpuBuffer vertexBuffer = this.device.createBuffer(
         () -> "GravitationalLensPostEffect VertexBuffer",
@@ -110,18 +111,18 @@ public class GravitationalLensPostEffect {
         float eventHorizonRadius,
         float perspectiveScale
     ) {
-        int clampedCount = Math.min(Math.min(count, holes.size()), MAX_HOLES);
+        int clampedCount = Math.min(Math.min(count, holes.size()), GravitationalLensPostEffect.MAX_HOLES);
         try (MemoryStack stack = MemoryStack.stackPush()) {
-            ByteBuffer buffer = stack.calloc(BLACK_HOLES_SIZE);
+            ByteBuffer buffer = stack.calloc(GravitationalLensPostEffect.BLACK_HOLES_SIZE);
 
-            buffer.putFloat(BLACK_HOLES_LENS_PARAMS_OFFSET, clampedCount);
-            buffer.putFloat(BLACK_HOLES_LENS_PARAMS_OFFSET + 4, lensStrength);
-            buffer.putFloat(BLACK_HOLES_LENS_PARAMS_OFFSET + 8, eventHorizonRadius);
-            buffer.putFloat(BLACK_HOLES_LENS_PARAMS_OFFSET + 12, perspectiveScale);
+            buffer.putFloat(GravitationalLensPostEffect.BLACK_HOLES_LENS_PARAMS_OFFSET, clampedCount);
+            buffer.putFloat(GravitationalLensPostEffect.BLACK_HOLES_LENS_PARAMS_OFFSET + 4, lensStrength);
+            buffer.putFloat(GravitationalLensPostEffect.BLACK_HOLES_LENS_PARAMS_OFFSET + 8, eventHorizonRadius);
+            buffer.putFloat(GravitationalLensPostEffect.BLACK_HOLES_LENS_PARAMS_OFFSET + 12, perspectiveScale);
 
             for (int i = 0; i < clampedCount; i++) {
                 HoleProjection hole = holes.get(i);
-                int offset = BLACK_HOLES_ARRAY_OFFSET + i * BLACK_HOLE_STRIDE;
+                int offset = GravitationalLensPostEffect.BLACK_HOLES_ARRAY_OFFSET + i * GravitationalLensPostEffect.BLACK_HOLE_STRIDE;
                 buffer.putFloat(offset, hole.centerU);
                 buffer.putFloat(offset + 4, hole.centerV);
                 buffer.putFloat(offset + 8, hole.cameraDistance);

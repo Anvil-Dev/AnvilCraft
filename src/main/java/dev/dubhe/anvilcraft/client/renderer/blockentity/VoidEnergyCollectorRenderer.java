@@ -31,6 +31,6 @@ public class VoidEnergyCollectorRenderer extends PowerProducerRenderer<VoidEnerg
 
     @Override
     protected StandaloneModelKey<BlockStateModel> getModel() {
-        return HEAD;
+        return VoidEnergyCollectorRenderer.HEAD;
     }
 }

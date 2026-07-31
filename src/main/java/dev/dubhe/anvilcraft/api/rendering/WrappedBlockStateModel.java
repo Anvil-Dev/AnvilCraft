@@ -16,6 +16,7 @@ import org.jspecify.annotations.NullMarked;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @NullMarked
 public class WrappedBlockStateModel extends Model<BlockStateModelTessellateState> {
@@ -26,7 +27,7 @@ public class WrappedBlockStateModel extends Model<BlockStateModelTessellateState
 
     public WrappedBlockStateModel(BlockStateModelTessellateState state, BlockStateModelRenderer renderer) {
         super(
-            EMPTY,
+            WrappedBlockStateModel.EMPTY,
             RenderTypes::entityCutout
         );
         this.state = state;
@@ -43,7 +44,10 @@ public class WrappedBlockStateModel extends Model<BlockStateModelTessellateState
         Minecraft mc = Minecraft.getInstance();
         StandaloneModelKey<BlockStateModel> key = this.state.key();
         ModelBlockRenderer tessellator = this.renderer.getTessellatorNoLighting();
-        BlockStateModel model = mc.getModelManager().getStandaloneModel(key);
+        BlockStateModel model = Objects.requireNonNull(
+            mc.getModelManager().getStandaloneModel(key),
+            "Missing standalone block model: " + key
+        );
 
         tessellator.tesselateBlock(
             ((_, _, _, bakedQuad, quadInstance) -> {

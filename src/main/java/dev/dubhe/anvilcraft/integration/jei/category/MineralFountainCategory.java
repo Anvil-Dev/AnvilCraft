@@ -84,12 +84,12 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return MineralFountainCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return MineralFountainCategory.HEIGHT;
     }
 
     @Override
@@ -99,13 +99,13 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, MineralFountainJeiRecipe recipe, IFocusGroup focuses) {
-        List<ItemStack> sideStacks = getIngredientStacks(recipe.sideBlocks());
-        for (int i = 0; i < SIDE_SLOT_AREAS.length && !sideStacks.isEmpty(); i++) {
-            int[] area = SIDE_SLOT_AREAS[i];
+        List<ItemStack> sideStacks = MineralFountainCategory.getIngredientStacks(recipe.sideBlocks());
+        for (int i = 0; i < MineralFountainCategory.SIDE_SLOT_AREAS.length && !sideStacks.isEmpty(); i++) {
+            int[] area = MineralFountainCategory.SIDE_SLOT_AREAS[i];
             JeiBlockIngredientUtil.addSlot(
                 builder,
                 RecipeIngredientRole.INPUT,
-                SIDE_BLOCK_PREFIX + i,
+                MineralFountainCategory.SIDE_BLOCK_PREFIX + i,
                 area[0],
                 area[1],
                 area[2],
@@ -114,26 +114,26 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             );
         }
 
-        List<ItemStack> fromStacks = getIngredientStacks(recipe.fromBlocks());
+        List<ItemStack> fromStacks = MineralFountainCategory.getIngredientStacks(recipe.fromBlocks());
         if (!fromStacks.isEmpty()) {
             JeiBlockIngredientUtil.addSlot(
-                builder, RecipeIngredientRole.INPUT, FROM_BLOCK, 40, 28, 16, 13, fromStacks
+                builder, RecipeIngredientRole.INPUT, MineralFountainCategory.FROM_BLOCK, 40, 28, 16, 13, fromStacks
             );
         }
 
         JeiBlockIngredientUtil.addSlot(
             builder,
             RecipeIngredientRole.OUTPUT,
-            OUTPUT_BLOCK,
+            MineralFountainCategory.OUTPUT_BLOCK,
             118,
             28,
             16,
             16,
-            getIngredientStacks(List.of(recipe.result().state()))
+            MineralFountainCategory.getIngredientStacks(List.of(recipe.result().state()))
         ).addRichTooltipCallback((slot, tooltip) -> {
             tooltip.addAll(JeiRecipeUtil.getTooltips(recipe.result().chance()));
             if (recipe.dimension() != null) {
-                tooltip.add(getDimensionName(recipe.dimension()).copy().withStyle(ChatFormatting.GRAY));
+                tooltip.add(MineralFountainCategory.getDimensionName(recipe.dimension()).copy().withStyle(ChatFormatting.GRAY));
             }
         });
 
@@ -162,32 +162,32 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         BlockState sideState = null;
         if (!sideBlocks.isEmpty()) {
             sideState = JeiBlockIngredientUtil
-                .getDisplayedState(recipeSlotsView, SIDE_BLOCK_PREFIX + 0, sideBlocks)
+                .getDisplayedState(recipeSlotsView, MineralFountainCategory.SIDE_BLOCK_PREFIX + 0, sideBlocks)
                 .orElse(sideBlocks.getFirst());
-            renderSideBlock(graphics, sideState, 0);
-            renderSideBlock(graphics, sideState, 1);
+            MineralFountainCategory.renderSideBlock(graphics, sideState, 0);
+            MineralFountainCategory.renderSideBlock(graphics, sideState, 1);
         }
 
-        RenderSupport.renderBlock(graphics, ModBlocks.MINERAL_FOUNTAIN.getDefaultState(), 48, 50, BLOCK_SCALE);
+        RenderSupport.renderBlock(graphics, ModBlocks.MINERAL_FOUNTAIN.getDefaultState(), 48, 50, MineralFountainCategory.BLOCK_SCALE);
 
         if (sideState != null) {
-            renderSideBlock(graphics, sideState, 2);
-            renderSideBlock(graphics, sideState, 3);
+            MineralFountainCategory.renderSideBlock(graphics, sideState, 2);
+            MineralFountainCategory.renderSideBlock(graphics, sideState, 3);
         }
 
         if (!recipe.fromBlocks().isEmpty()) {
-            JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, FROM_BLOCK, recipe.fromBlocks()).ifPresent(state ->
-                RenderSupport.renderBlock(graphics, state, 48, 39.5f, BLOCK_SCALE)
+            JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, MineralFountainCategory.FROM_BLOCK, recipe.fromBlocks()).ifPresent(state ->
+                RenderSupport.renderBlock(graphics, state, 48, 39.5f, MineralFountainCategory.BLOCK_SCALE)
             );
         }
 
-        RenderSupport.renderBlock(graphics, ModBlocks.MINERAL_FOUNTAIN.getDefaultState(), 126, 50, BLOCK_SCALE);
+        RenderSupport.renderBlock(graphics, ModBlocks.MINERAL_FOUNTAIN.getDefaultState(), 126, 50, MineralFountainCategory.BLOCK_SCALE);
         BlockState resultState = JeiBlockIngredientUtil.getRenderablePreviewState(recipe.result().state());
-        RenderSupport.renderBlock(graphics, resultState, 126, 39.5f, BLOCK_SCALE);
+        RenderSupport.renderBlock(graphics, resultState, 126, 39.5f, MineralFountainCategory.BLOCK_SCALE);
         this.arrow.draw(graphics, 82, 37);
 
         if (recipe.dimension() != null) {
-            Component dimensionName = getDimensionName(recipe.dimension()).copy().withStyle(ChatFormatting.WHITE);
+            Component dimensionName = MineralFountainCategory.getDimensionName(recipe.dimension()).copy().withStyle(ChatFormatting.WHITE);
             graphics.text(Minecraft.getInstance().font, dimensionName, 126, 65, 0xFFFFFFFF, true);
         }
     }
@@ -234,7 +234,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             Set<BlockState> sides = new LinkedHashSet<>();
             for (RecipeHolder<MineralFountainRecipe> normalHolder : normalRecipes) {
                 MineralFountainRecipe normalRecipe = normalHolder.value();
-                if (sharesBlock(from, normalRecipe.fromBlock().constructStatesForRender())) {
+                if (MineralFountainCategory.sharesBlock(from, normalRecipe.fromBlock().constructStatesForRender())) {
                     sides.addAll(normalRecipe.needBlock().constructStatesForRender());
                 }
             }
@@ -252,8 +252,8 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     }
 
     private static void renderSideBlock(GuiGraphicsExtractor graphics, BlockState state, int index) {
-        int[] position = SIDE_POSITIONS[index];
-        RenderSupport.renderBlock(graphics, state, position[0], position[1], BLOCK_SCALE);
+        int[] position = MineralFountainCategory.SIDE_POSITIONS[index];
+        RenderSupport.renderBlock(graphics, state, position[0], position[1], MineralFountainCategory.BLOCK_SCALE);
     }
 
     private static List<ItemStack> getIngredientStacks(List<BlockState> states) {

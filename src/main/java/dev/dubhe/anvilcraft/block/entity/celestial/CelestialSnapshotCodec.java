@@ -24,23 +24,23 @@ public final class CelestialSnapshotCodec {
         if (stack.getItem() instanceof DiskItem && DiskItem.hasDataStored(stack)) {
             return DiskItem.getData(stack).copy();
         }
-        return load(stack);
+        return CelestialSnapshotCodec.load(stack);
     }
 
     public static @Nullable CompoundTag load(ItemStack stack) {
         if (stack.getItem() instanceof DiskItem && DiskItem.hasDataStored(stack)) {
             CompoundTag data = DiskItem.getData(stack);
-            if (data.contains(BODY_KEY)) return data.copy();
+            if (data.contains(CelestialSnapshotCodec.BODY_KEY)) return data.copy();
         }
         if (!stack.is(ModBlocks.SINGULARITY_CRYSTAL.asItem())) return null;
         CustomData customData = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
-        CompoundTag snapshot = customData.copyTag().getCompoundOrEmpty(SNAPSHOT_KEY);
-        return snapshot.contains(BODY_KEY) ? snapshot.copy() : null;
+        CompoundTag snapshot = customData.copyTag().getCompoundOrEmpty(CelestialSnapshotCodec.SNAPSHOT_KEY);
+        return snapshot.contains(CelestialSnapshotCodec.BODY_KEY) ? snapshot.copy() : null;
     }
 
     public static void save(ItemStack stack, CompoundTag snapshot) {
         if (stack.getItem() instanceof DiskItem) {
-            if (containsExtremeBody(snapshot)) return;
+            if (CelestialSnapshotCodec.containsExtremeBody(snapshot)) return;
             CompoundTag diskTag = DiskItem.hasDataStored(stack)
                 ? DiskItem.getData(stack).copy()
                 : new CompoundTag();
@@ -51,14 +51,14 @@ public final class CelestialSnapshotCodec {
         if (stack.is(ModBlocks.SINGULARITY_CRYSTAL.asItem())) {
             CustomData oldCustom = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
             CompoundTag updated = oldCustom.copyTag();
-            updated.put(SNAPSHOT_KEY, snapshot.copy());
+            updated.put(CelestialSnapshotCodec.SNAPSHOT_KEY, snapshot.copy());
             stack.set(DataComponents.CUSTOM_DATA, CustomData.of(updated));
         }
     }
 
     private static boolean containsExtremeBody(CompoundTag snapshot) {
-        if (!snapshot.contains(BODY_KEY)) return false;
-        String bodyClass = snapshot.getCompoundOrEmpty(BODY_KEY).getStringOr("bodyClass", "");
+        if (!snapshot.contains(CelestialSnapshotCodec.BODY_KEY)) return false;
+        String bodyClass = snapshot.getCompoundOrEmpty(CelestialSnapshotCodec.BODY_KEY).getStringOr("bodyClass", "");
         return CelestialBodyClass.BLACK_HOLE.name().equals(bodyClass)
             || CelestialBodyClass.NEUTRON_STAR.name().equals(bodyClass);
     }

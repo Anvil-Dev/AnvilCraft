@@ -59,31 +59,31 @@ public class HudTooltipManager {
     private final List<IHandHeldItemTooltipProvider> handItemProviders = new ArrayList<>();
 
     static {
-        INSTANCE.registerBlockEntityTooltip(new ChargerTooltipProvider());
-        INSTANCE.registerBlockEntityTooltip(new DischargerTooltipProvider());
-        INSTANCE.registerBlockEntityTooltip(new HeatCollectorTooltipProvider());
-        INSTANCE.registerBlockEntityTooltip(new PowerComponentTooltipProvider());
-        INSTANCE.registerAffectRange(new AffectRangeProviderImpl());
-        INSTANCE.registerBlockEntityTooltip(new RubyPrismTooltipProvider());
-        INSTANCE.registerHandHeldItemTooltip(new HeliostatsTooltip());
-        INSTANCE.registerBlockEntityTooltip(new HeliostatsTooltipProvider());
-        INSTANCE.registerBlockEntityTooltip(new SpaceOvercompressorTooltipProvider());
-        INSTANCE.registerHandHeldItemTooltip(ModItems.STRUCTURE_TOOL.get());
-        INSTANCE.registerBlockTooltip(new InjectedBlockTooltipProvider());
-        INSTANCE.registerBlockEntityTooltip(new InjectedBlockEntityTooltipProvider());
-        INSTANCE.registerBlockEntityTooltip(new HeatableBlockTooltipProvider());
-        INSTANCE.registerBlockEntityTooltip(new BurningHeaterTooltipProvider());
-        INSTANCE.registerBlockEntityTooltip(new DeflectionRingTooltipProvider());
-        INSTANCE.registerBlockEntityTooltip(new PropelPistonTooltipProvider());
-        INSTANCE.registerBlockEntityTooltip(new LargeCauldronTooltipProvider());
-        INSTANCE.registerBlockEntityTooltip(new CfaLogisticsInterfaceTooltipProvider());
-        INSTANCE.registerBlockEntityTooltip(new CfaLaserInterfaceTooltipProvider());
-        INSTANCE.registerBlockEntityTooltip(new CfaFluidInterfaceTooltipProvider());
-        INSTANCE.registerBlockEntityTooltip(new PulseGeneratorTooltipProvider());
-        INSTANCE.registerBlockTooltip(new RedstoneWireTooltipProvider());
-        INSTANCE.registerBlockTooltip(new CrabTrapTooltipProvider());
-        INSTANCE.registerBlockEntityTooltip(new LargeCrateTooltipProvider());
-        INSTANCE.registerBlockEntityTooltip(new ShulkerContainerTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new ChargerTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new DischargerTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new HeatCollectorTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new PowerComponentTooltipProvider());
+        HudTooltipManager.INSTANCE.registerAffectRange(new AffectRangeProviderImpl());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new RubyPrismTooltipProvider());
+        HudTooltipManager.INSTANCE.registerHandHeldItemTooltip(new HeliostatsTooltip());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new HeliostatsTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new SpaceOvercompressorTooltipProvider());
+        HudTooltipManager.INSTANCE.registerHandHeldItemTooltip(ModItems.STRUCTURE_TOOL.get());
+        HudTooltipManager.INSTANCE.registerBlockTooltip(new InjectedBlockTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new InjectedBlockEntityTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new HeatableBlockTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new BurningHeaterTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new DeflectionRingTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new PropelPistonTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new LargeCauldronTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new CfaLogisticsInterfaceTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new CfaLaserInterfaceTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new CfaFluidInterfaceTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new PulseGeneratorTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockTooltip(new RedstoneWireTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockTooltip(new CrabTrapTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new LargeCrateTooltipProvider());
+        HudTooltipManager.INSTANCE.registerBlockEntityTooltip(new ShulkerContainerTooltipProvider());
     }
 
     public void registerAffectRange(AffectRangeProviderImpl affectRangeProvider) {
@@ -126,9 +126,9 @@ public class HudTooltipManager {
             tooltip,
             tooltipPosX,
             tooltipPosY,
-            BACKGROUND_COLOR,
-            BORDER_COLOR_TOP,
-            BORDER_COLOR_BOTTOM
+            HudTooltipManager.BACKGROUND_COLOR,
+            HudTooltipManager.BORDER_COLOR_TOP,
+            HudTooltipManager.BORDER_COLOR_BOTTOM
         );
     }
 
@@ -154,9 +154,9 @@ public class HudTooltipManager {
             tooltip,
             tooltipPosX,
             tooltipPosY,
-            BACKGROUND_COLOR,
-            BORDER_COLOR_TOP,
-            BORDER_COLOR_BOTTOM
+            HudTooltipManager.BACKGROUND_COLOR,
+            HudTooltipManager.BORDER_COLOR_TOP,
+            HudTooltipManager.BORDER_COLOR_BOTTOM
         );
     }
 
@@ -220,7 +220,7 @@ public class HudTooltipManager {
     private ITooltipProvider.@Nullable BlockEntityTooltipProvider determineBlockEntityTooltipProvider(BlockEntity entity) {
         return this.blockEntityProviders.stream()
             .filter(it -> it.accepts(entity))
-            .filter(it -> !shouldSuppressForJade(it))
+            .filter(it -> !HudTooltipManager.shouldSuppressForJade(it))
             .min(Comparator.comparingInt(ITooltipProvider::priority))
             .orElse(null);
     }

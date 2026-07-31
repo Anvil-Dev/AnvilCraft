@@ -31,18 +31,18 @@ public class OverseerBlock
     implements IHammerRemovable, IHasMultiBlock, EntityBlock {
     private static final VoxelShape OVERSEER_BOTTOM =
         Shapes.or(Block.box(0, 0, 0, 16, 4, 16), Block.box(2, 8, 2, 14, 48, 14));
-    private static final VoxelShape OVERSEER_MID = OVERSEER_BOTTOM.move(0, -1, 0);
-    private static final VoxelShape OVERSEER_TOP = OVERSEER_BOTTOM.move(0, -2, 0);
+    private static final VoxelShape OVERSEER_MID = OverseerBlock.OVERSEER_BOTTOM.move(0, -1, 0);
+    private static final VoxelShape OVERSEER_TOP = OverseerBlock.OVERSEER_BOTTOM.move(0, -2, 0);
     public static final int MAX_LEVEL = 4;
     public static final EnumProperty<Vertical3PartHalf> HALF = EnumProperty.create("half", Vertical3PartHalf.class);
-    public static final IntegerProperty LEVEL = IntegerProperty.create("level", 0, MAX_LEVEL);
+    public static final IntegerProperty LEVEL = IntegerProperty.create("level", 0, OverseerBlock.MAX_LEVEL);
 
     public OverseerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
             .any()
-            .setValue(HALF, Vertical3PartHalf.BOTTOM)
-            .setValue(LEVEL, 0)
+            .setValue(OverseerBlock.HALF, Vertical3PartHalf.BOTTOM)
+            .setValue(OverseerBlock.LEVEL, 0)
         );
     }
 
@@ -59,18 +59,18 @@ public class OverseerBlock
     @Override
     @Nullable
     public BlockState getPlacementState(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(HALF, Vertical3PartHalf.BOTTOM).setValue(LEVEL, 0);
+        return this.defaultBlockState().setValue(OverseerBlock.HALF, Vertical3PartHalf.BOTTOM).setValue(OverseerBlock.LEVEL, 0);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(HALF).add(LEVEL);
+        builder.add(OverseerBlock.HALF).add(OverseerBlock.LEVEL);
     }
 
     @Override
     public RenderShape getRenderShape(BlockState state) {
-        if (state.getValue(HALF) == Vertical3PartHalf.MID
-            && state.getValue(LEVEL) == MAX_LEVEL) {
+        if (state.getValue(OverseerBlock.HALF) == Vertical3PartHalf.MID
+            && state.getValue(OverseerBlock.LEVEL) == OverseerBlock.MAX_LEVEL) {
             return RenderShape.INVISIBLE;
         }
         return RenderShape.MODEL;
@@ -83,10 +83,10 @@ public class OverseerBlock
         BlockPos pos,
         CollisionContext context
     ) {
-        return switch (state.getValue(HALF)) {
-            case TOP -> OVERSEER_TOP;
-            case MID -> OVERSEER_MID;
-            case BOTTOM -> OVERSEER_BOTTOM;
+        return switch (state.getValue(OverseerBlock.HALF)) {
+            case TOP -> OverseerBlock.OVERSEER_TOP;
+            case MID -> OverseerBlock.OVERSEER_MID;
+            case BOTTOM -> OverseerBlock.OVERSEER_BOTTOM;
         };
     }
 
@@ -97,7 +97,7 @@ public class OverseerBlock
 
     @Override
     public BlockState placedState(Vertical3PartHalf part, BlockState state) {
-        return super.placedState(part, state).setValue(LEVEL, 1);
+        return super.placedState(part, state).setValue(OverseerBlock.LEVEL, 1);
     }
 
     @Nullable
@@ -111,7 +111,7 @@ public class OverseerBlock
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide()) return null;
-        if (state.getValue(HALF) != Vertical3PartHalf.BOTTOM) return null;
+        if (state.getValue(OverseerBlock.HALF) != Vertical3PartHalf.BOTTOM) return null;
         return (level1, pos, state1, entity) -> {
             if (entity instanceof OverseerBlockEntity be) be.tick(level1, pos, state1);
         };

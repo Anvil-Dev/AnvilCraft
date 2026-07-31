@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -51,23 +52,23 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
     );
 
     // 使用 ShapeUtil.rotate 自动生成其他水平朝向
-    private static final VoxelShape SHAPE_WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, SHAPE_NORTH);
-    private static final VoxelShape SHAPE_SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, SHAPE_NORTH);
-    private static final VoxelShape SHAPE_EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, SHAPE_NORTH);
+    private static final VoxelShape SHAPE_WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, SmartBlockPlacerBlock.SHAPE_NORTH);
+    private static final VoxelShape SHAPE_SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, SmartBlockPlacerBlock.SHAPE_NORTH);
+    private static final VoxelShape SHAPE_EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, SmartBlockPlacerBlock.SHAPE_NORTH);
 
     // 倒挂状态：使用 Axis.X 旋转 180 度实现 Y 轴翻转
-    private static final VoxelShape SHAPE_NORTH_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_SOUTH);
-    private static final VoxelShape SHAPE_WEST_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_WEST);
-    private static final VoxelShape SHAPE_SOUTH_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_NORTH);
-    private static final VoxelShape SHAPE_EAST_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_EAST);
+    private static final VoxelShape SHAPE_NORTH_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SmartBlockPlacerBlock.SHAPE_SOUTH);
+    private static final VoxelShape SHAPE_WEST_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SmartBlockPlacerBlock.SHAPE_WEST);
+    private static final VoxelShape SHAPE_SOUTH_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SmartBlockPlacerBlock.SHAPE_NORTH);
+    private static final VoxelShape SHAPE_EAST_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SmartBlockPlacerBlock.SHAPE_EAST);
 
     public SmartBlockPlacerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
             .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
-            .setValue(UPSIDE_DOWN, false)
-            .setValue(POWERED, false)
-            .setValue(OVERLOAD, true));
+            .setValue(SmartBlockPlacerBlock.UPSIDE_DOWN, false)
+            .setValue(SmartBlockPlacerBlock.POWERED, false)
+            .setValue(SmartBlockPlacerBlock.OVERLOAD, true));
     }
 
     public RenderShape getRenderShape(BlockState state) {
@@ -80,8 +81,13 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
-        builder.add(HorizontalDirectionalBlock.FACING, UPSIDE_DOWN, POWERED, OVERLOAD);
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(
+            HorizontalDirectionalBlock.FACING,
+            SmartBlockPlacerBlock.UPSIDE_DOWN,
+            SmartBlockPlacerBlock.POWERED,
+            SmartBlockPlacerBlock.OVERLOAD
+        );
     }
 
     @Override
@@ -100,9 +106,9 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
 
         return this.defaultBlockState()
             .setValue(HorizontalDirectionalBlock.FACING, horizontalFacing)
-            .setValue(UPSIDE_DOWN, upsideDown)
-            .setValue(POWERED, level.hasNeighborSignal(context.getClickedPos()))
-            .setValue(OVERLOAD, true);
+            .setValue(SmartBlockPlacerBlock.UPSIDE_DOWN, upsideDown)
+            .setValue(SmartBlockPlacerBlock.POWERED, level.hasNeighborSignal(context.getClickedPos()))
+            .setValue(SmartBlockPlacerBlock.OVERLOAD, true);
     }
 
     @Override
@@ -113,13 +119,13 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
         CollisionContext context
     ) {
         Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
-        boolean upsideDown = state.getValue(UPSIDE_DOWN);
+        boolean upsideDown = state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
         
         return switch (facing) {
-            case SOUTH -> upsideDown ? SHAPE_SOUTH_UPSIDE : SHAPE_SOUTH;
-            case WEST -> upsideDown ? SHAPE_WEST_UPSIDE : SHAPE_WEST;
-            case EAST -> upsideDown ? SHAPE_EAST_UPSIDE : SHAPE_EAST;
-            default -> upsideDown ? SHAPE_NORTH_UPSIDE : SHAPE_NORTH;
+            case SOUTH -> upsideDown ? SmartBlockPlacerBlock.SHAPE_SOUTH_UPSIDE : SmartBlockPlacerBlock.SHAPE_SOUTH;
+            case WEST -> upsideDown ? SmartBlockPlacerBlock.SHAPE_WEST_UPSIDE : SmartBlockPlacerBlock.SHAPE_WEST;
+            case EAST -> upsideDown ? SmartBlockPlacerBlock.SHAPE_EAST_UPSIDE : SmartBlockPlacerBlock.SHAPE_EAST;
+            default -> upsideDown ? SmartBlockPlacerBlock.SHAPE_NORTH_UPSIDE : SmartBlockPlacerBlock.SHAPE_NORTH;
         };
     }
 
@@ -181,7 +187,7 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
         if (level.isClientSide()) {
             return;
         }
-        level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
+        level.setBlock(pos, state.setValue(SmartBlockPlacerBlock.POWERED, level.hasNeighborSignal(pos)), 2);
     }
 
     @Override
@@ -194,7 +200,7 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
                     ItemStack stack = placerEntity.getDiskInventory().getItem(i);
                     if (!stack.isEmpty()) {
                         Vec3 vec3 = pos.getCenter();
-                        net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
+                        ItemEntity itemEntity = new ItemEntity(
                             level,
                             vec3.x,
                             vec3.y,
@@ -211,7 +217,7 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
                     ItemStack stack = placerEntity.getBookInventory().getItem(i);
                     if (!stack.isEmpty()) {
                         Vec3 vec3 = pos.getCenter();
-                        net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
+                        ItemEntity itemEntity = new ItemEntity(
                             level,
                             vec3.x,
                             vec3.y,
@@ -229,8 +235,8 @@ public class SmartBlockPlacerBlock extends BetterBaseEntityBlock implements IHam
 
     @Override
     public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
-            level.setBlock(pos, state.cycle(POWERED), 2);
+        if (state.getValue(SmartBlockPlacerBlock.POWERED) && !level.hasNeighborSignal(pos)) {
+            level.setBlock(pos, state.cycle(SmartBlockPlacerBlock.POWERED), 2);
         }
     }
     

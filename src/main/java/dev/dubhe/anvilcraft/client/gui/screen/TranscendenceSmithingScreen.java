@@ -87,7 +87,7 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     private static final Component MISSING_TEMPLATE_TOOLTIP =
         Component.translatable("container.upgrade.missing_template_tooltip");
     private static final Component ERROR_TOOLTIP = Component.translatable("container.upgrade.error_tooltip");
-    private static final List<Identifier> EMPTY_SLOT_DEFORMATION_MATERIAL = List.of(EMPTY_SLOT_INGOT);
+    private static final List<Identifier> EMPTY_SLOT_DEFORMATION_MATERIAL = List.of(TranscendenceSmithingScreen.EMPTY_SLOT_INGOT);
     private static final Quaternionf ARMOR_STAND_ANGLE =
         new Quaternionf().rotationXYZ(0.43633232f, 0.0f, (float) Math.PI);
     private static final Vector3f ARMOR_STAND_TRANSLATION = new Vector3f(0.0F, 1.0F, 0.0F);
@@ -173,7 +173,7 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
             this.topPos + 32,
             7,
             11,
-            LEFT,
+            TranscendenceSmithingScreen.LEFT,
             11,
             7,
             22,
@@ -184,7 +184,7 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
             this.topPos + 32,
             7,
             11,
-            RIGHT,
+            TranscendenceSmithingScreen.RIGHT,
             11,
             7,
             22,
@@ -262,7 +262,7 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
             return;
         }
         if (item instanceof DeformationTemplateItem deformation) {
-            this.firstInputIcon.tick(EMPTY_SLOT_DEFORMATION_MATERIAL);
+            this.firstInputIcon.tick(TranscendenceSmithingScreen.EMPTY_SLOT_DEFORMATION_MATERIAL);
             this.secondInputIcon.tick(deformation.getEmptySlotTextures());
             return;
         }
@@ -301,7 +301,7 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
         super.extractBackground(graphics, mouseX, mouseY, partialTick);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            TranscendenceSmithingScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,
@@ -319,7 +319,7 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
             0,
             0,
             this.getImageWidth(),
-            OVERLAY_HEIGHT,
+            TranscendenceSmithingScreen.OVERLAY_HEIGHT,
             256,
             128
         );
@@ -333,31 +333,31 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
 
     private Identifier modeOverlay() {
         return switch (this.menu.getMode()) {
-            case ROYAL -> ROYAL_OVERLAY;
-            case EMBER -> EMBER_OVERLAY;
-            case FROST -> FROST_OVERLAY;
+            case ROYAL -> TranscendenceSmithingScreen.ROYAL_OVERLAY;
+            case EMBER -> TranscendenceSmithingScreen.EMBER_OVERLAY;
+            case FROST -> TranscendenceSmithingScreen.FROST_OVERLAY;
         };
     }
 
     private void extractTemplatePanel(GuiGraphicsExtractor graphics) {
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            TEMPLATE_PANEL,
+            TranscendenceSmithingScreen.TEMPLATE_PANEL,
             this.panelX(),
             this.panelY(),
             0,
             0,
-            PANEL_WIDTH,
-            PANEL_HEIGHT,
-            PANEL_WIDTH,
-            PANEL_HEIGHT
+            TranscendenceSmithingScreen.PANEL_WIDTH,
+            TranscendenceSmithingScreen.PANEL_HEIGHT,
+            TranscendenceSmithingScreen.PANEL_WIDTH,
+            TranscendenceSmithingScreen.PANEL_HEIGHT
         );
         int maxScrollRow = this.maxScrollRow();
         if (maxScrollRow > 0) {
             graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
                 SharedTextures.SWITCH_TABLE_SLIDER,
-                this.panelX() + SLIDER_X,
+                this.panelX() + TranscendenceSmithingScreen.SLIDER_X,
                 this.sliderY(maxScrollRow),
                 0,
                 0,
@@ -372,12 +372,14 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
 
     private void extractTemplateItems(GuiGraphicsExtractor graphics) {
         List<ItemStack> templates = this.filteredTemplates();
-        int start = this.scrollRow * COLUMN_COUNT;
-        int end = Math.min(start + COLUMN_COUNT * VISIBLE_ROW_COUNT, templates.size());
+        int start = this.scrollRow * TranscendenceSmithingScreen.COLUMN_COUNT;
+        int end = Math.min(start + TranscendenceSmithingScreen.COLUMN_COUNT * TranscendenceSmithingScreen.VISIBLE_ROW_COUNT, templates.size());
         for (int index = start; index < end; index++) {
             int visibleIndex = index - start;
-            int x = this.panelX() + TEMPLATE_GRID_X + visibleIndex % COLUMN_COUNT * TEMPLATE_SLOT_SIZE;
-            int y = this.panelY() + TEMPLATE_GRID_Y + visibleIndex / COLUMN_COUNT * TEMPLATE_SLOT_SIZE;
+            int x = this.panelX() + TranscendenceSmithingScreen.TEMPLATE_GRID_X
+                    + visibleIndex % TranscendenceSmithingScreen.COLUMN_COUNT * TranscendenceSmithingScreen.TEMPLATE_SLOT_SIZE;
+            int y = this.panelY() + TranscendenceSmithingScreen.TEMPLATE_GRID_Y
+                    + visibleIndex / TranscendenceSmithingScreen.COLUMN_COUNT * TranscendenceSmithingScreen.TEMPLATE_SLOT_SIZE;
             ItemStack template = templates.get(index);
             if (this.isFavorite(template)) {
                 graphics.fill(RenderPipelines.GUI, x, y, x + 16, y + 16, 0x66FFFF00);
@@ -392,7 +394,7 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     private void extractVirtualTemplate(GuiGraphicsExtractor graphics) {
         ItemStack template = this.menu.getSelectedTemplate();
         if (template.isEmpty()) return;
-        graphics.item(template, this.leftPos + VIRTUAL_TEMPLATE_X, this.topPos + VIRTUAL_TEMPLATE_Y);
+        graphics.item(template, this.leftPos + TranscendenceSmithingScreen.VIRTUAL_TEMPLATE_X, this.topPos + TranscendenceSmithingScreen.VIRTUAL_TEMPLATE_Y);
     }
 
     private void extractSlotIcons(GuiGraphicsExtractor graphics, float partialTick) {
@@ -469,8 +471,8 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
         graphics.entity(
             this.armorStandPreview,
             25,
-            ARMOR_STAND_TRANSLATION,
-            ARMOR_STAND_ANGLE,
+            TranscendenceSmithingScreen.ARMOR_STAND_TRANSLATION,
+            TranscendenceSmithingScreen.ARMOR_STAND_ANGLE,
             null,
             this.leftPos + 131,
             this.topPos + 20,
@@ -506,10 +508,10 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     }
 
     private void extractVirtualTemplateTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        if (!this.isHovering(VIRTUAL_TEMPLATE_X, VIRTUAL_TEMPLATE_Y, 16, 16, mouseX, mouseY)) return;
+        if (!this.isHovering(TranscendenceSmithingScreen.VIRTUAL_TEMPLATE_X, TranscendenceSmithingScreen.VIRTUAL_TEMPLATE_Y, 16, 16, mouseX, mouseY)) return;
         ItemStack template = this.menu.getSelectedTemplate();
         if (template.isEmpty()) {
-            graphics.setTooltipForNextFrame(this.font, this.font.split(MISSING_TEMPLATE_TOOLTIP, 115), mouseX, mouseY);
+            graphics.setTooltipForNextFrame(this.font, this.font.split(TranscendenceSmithingScreen.MISSING_TEMPLATE_TOOLTIP, 115), mouseX, mouseY);
             return;
         }
         graphics.setTooltipForNextFrame(
@@ -538,7 +540,7 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
             if (this.hasCompleteEmberInput()
                 && this.menu.getActiveResult().isEmpty()
                 && this.isHovering(123, 48, 16, 16, mouseX, mouseY)) {
-                graphics.setTooltipForNextFrame(this.font, this.font.split(ERROR_TOOLTIP, 115), mouseX, mouseY);
+                graphics.setTooltipForNextFrame(this.font, this.font.split(TranscendenceSmithingScreen.ERROR_TOOLTIP, 115), mouseX, mouseY);
                 return true;
             }
             return false;
@@ -546,7 +548,7 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
         if (this.hasCompleteRoyalFrostInput()
             && this.menu.getActiveResult().isEmpty()
             && this.isHovering(83, 48, 16, 16, mouseX, mouseY)) {
-            graphics.setTooltipForNextFrame(this.font, this.font.split(ERROR_TOOLTIP, 115), mouseX, mouseY);
+            graphics.setTooltipForNextFrame(this.font, this.font.split(TranscendenceSmithingScreen.ERROR_TOOLTIP, 115), mouseX, mouseY);
             return true;
         }
         return false;
@@ -707,16 +709,16 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     }
 
     private ItemStack templateAt(double mouseX, double mouseY) {
-        int relativeX = (int) mouseX - this.panelX() - TEMPLATE_GRID_X;
-        int relativeY = (int) mouseY - this.panelY() - TEMPLATE_GRID_Y;
+        int relativeX = (int) mouseX - this.panelX() - TranscendenceSmithingScreen.TEMPLATE_GRID_X;
+        int relativeY = (int) mouseY - this.panelY() - TranscendenceSmithingScreen.TEMPLATE_GRID_Y;
         if (relativeX < 0 || relativeY < 0) return ItemStack.EMPTY;
-        int column = relativeX / TEMPLATE_SLOT_SIZE;
-        int row = relativeY / TEMPLATE_SLOT_SIZE;
-        if (column >= COLUMN_COUNT || row >= VISIBLE_ROW_COUNT) return ItemStack.EMPTY;
-        if (relativeX % TEMPLATE_SLOT_SIZE >= 16 || relativeY % TEMPLATE_SLOT_SIZE >= 16) {
+        int column = relativeX / TranscendenceSmithingScreen.TEMPLATE_SLOT_SIZE;
+        int row = relativeY / TranscendenceSmithingScreen.TEMPLATE_SLOT_SIZE;
+        if (column >= TranscendenceSmithingScreen.COLUMN_COUNT || row >= TranscendenceSmithingScreen.VISIBLE_ROW_COUNT) return ItemStack.EMPTY;
+        if (relativeX % TranscendenceSmithingScreen.TEMPLATE_SLOT_SIZE >= 16 || relativeY % TranscendenceSmithingScreen.TEMPLATE_SLOT_SIZE >= 16) {
             return ItemStack.EMPTY;
         }
-        int index = (this.scrollRow + row) * COLUMN_COUNT + column;
+        int index = (this.scrollRow + row) * TranscendenceSmithingScreen.COLUMN_COUNT + column;
         List<ItemStack> templates = this.filteredTemplates();
         return index < templates.size() ? templates.get(index) : ItemStack.EMPTY;
     }
@@ -731,14 +733,14 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     }
 
     private int maxScrollRow() {
-        int rowCount = (this.filteredTemplates().size() + COLUMN_COUNT - 1) / COLUMN_COUNT;
-        return Math.max(0, rowCount - VISIBLE_ROW_COUNT);
+        int rowCount = (this.filteredTemplates().size() + TranscendenceSmithingScreen.COLUMN_COUNT - 1) / TranscendenceSmithingScreen.COLUMN_COUNT;
+        return Math.max(0, rowCount - TranscendenceSmithingScreen.VISIBLE_ROW_COUNT);
     }
 
     private int sliderY(int maxScrollRow) {
-        if (maxScrollRow <= 0) return this.panelY() + SLIDER_MIN_Y;
-        int travel = SLIDER_MAX_Y - SLIDER_MIN_Y;
-        return this.panelY() + SLIDER_MIN_Y + Math.round((float) this.scrollRow / maxScrollRow * travel);
+        if (maxScrollRow <= 0) return this.panelY() + TranscendenceSmithingScreen.SLIDER_MIN_Y;
+        int travel = TranscendenceSmithingScreen.SLIDER_MAX_Y - TranscendenceSmithingScreen.SLIDER_MIN_Y;
+        return this.panelY() + TranscendenceSmithingScreen.SLIDER_MIN_Y + Math.round((float) this.scrollRow / maxScrollRow * travel);
     }
 
     private void updateScrollFromSlider(double mouseY, int maxScrollRow) {
@@ -746,8 +748,8 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
             this.scrollRow = 0;
             return;
         }
-        double sliderCenter = mouseY - this.panelY() - SLIDER_MIN_Y - 6;
-        double progress = Mth.clamp(sliderCenter / (SLIDER_MAX_Y - SLIDER_MIN_Y), 0.0, 1.0);
+        double sliderCenter = mouseY - this.panelY() - TranscendenceSmithingScreen.SLIDER_MIN_Y - 6;
+        double progress = Mth.clamp(sliderCenter / (TranscendenceSmithingScreen.SLIDER_MAX_Y - TranscendenceSmithingScreen.SLIDER_MIN_Y), 0.0, 1.0);
         this.scrollRow = Mth.clamp((int) Math.round(progress * maxScrollRow), 0, maxScrollRow);
     }
 
@@ -760,24 +762,24 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
 
     private boolean isOverTemplatePanel(double mouseX, double mouseY) {
         return mouseX >= this.panelX()
-            && mouseX < this.panelX() + PANEL_WIDTH
+            && mouseX < this.panelX() + TranscendenceSmithingScreen.PANEL_WIDTH
             && mouseY >= this.panelY()
-            && mouseY < this.panelY() + PANEL_HEIGHT;
+            && mouseY < this.panelY() + TranscendenceSmithingScreen.PANEL_HEIGHT;
     }
 
     private boolean isOverSlider(double mouseX, double mouseY) {
-        return mouseX >= this.panelX() + SLIDER_X
-            && mouseX < this.panelX() + SLIDER_X + 8
-            && mouseY >= this.panelY() + SLIDER_MIN_Y
-            && mouseY < this.panelY() + SLIDER_MAX_Y + 12;
+        return mouseX >= this.panelX() + TranscendenceSmithingScreen.SLIDER_X
+            && mouseX < this.panelX() + TranscendenceSmithingScreen.SLIDER_X + 8
+            && mouseY >= this.panelY() + TranscendenceSmithingScreen.SLIDER_MIN_Y
+            && mouseY < this.panelY() + TranscendenceSmithingScreen.SLIDER_MAX_Y + 12;
     }
 
     private int panelX() {
-        return this.leftPos - PANEL_RIGHT_BORDER;
+        return this.leftPos - TranscendenceSmithingScreen.PANEL_RIGHT_BORDER;
     }
 
     private int panelY() {
-        return this.topPos + PANEL_TOP_OFFSET;
+        return this.topPos + TranscendenceSmithingScreen.PANEL_TOP_OFFSET;
     }
 
     private void updateArmorStandPreview() {

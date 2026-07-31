@@ -8,12 +8,12 @@ import net.minecraft.world.level.material.Fluid;
 
 public class ModFluidTags {
 
-    public static final TagKey<Fluid> OIL = bindC("oil");
-    public static final TagKey<Fluid> CEMENT = bindC("cement");
-    public static final TagKey<Fluid> EXPERIENCE = bindC("experience");
-    public static final TagKey<Fluid> IGNITABLE = bind("ignitable");
+    public static final TagKey<Fluid> OIL = ModFluidTags.bindC("oil");
+    public static final TagKey<Fluid> CEMENT = ModFluidTags.bindC("cement");
+    public static final TagKey<Fluid> EXPERIENCE = ModFluidTags.bindC("experience");
+    public static final TagKey<Fluid> IGNITABLE = ModFluidTags.bind("ignitable");
 
-    public static final TagKey<Fluid> MENGER_SPONGE_CAN_ABSORB = bind("menger_sponge_can_absorb");
+    public static final TagKey<Fluid> MENGER_SPONGE_CAN_ABSORB = ModFluidTags.bind("menger_sponge_can_absorb");
 
     public static TagKey<Fluid> bindC(String id) {
         return TagKey.create(Registries.FLUID, Identifier.fromNamespaceAndPath("c", id));

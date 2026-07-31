@@ -41,17 +41,21 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final String TAG = AnvilCraft.MOD_ID + ":hollow_magnet_block";
     private static final VoxelShape REDUCE_AABB = Block.box(5.0, 0.0, 5.0, 11.0, 16.0, 11.0);
-    private static final VoxelShape AABB = Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape AABB = Shapes.join(Shapes.block(), HollowMagnetBlock.REDUCE_AABB, BooleanOp.ONLY_FIRST);
 
     public HollowMagnetBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false).setValue(LIT, false));
+        this.registerDefaultState(
+            this.stateDefinition.any()
+                .setValue(HollowMagnetBlock.WATERLOGGED, false)
+                .setValue(MagnetBlock.LIT, false)
+        );
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(WATERLOGGED);
+        builder.add(HollowMagnetBlock.WATERLOGGED);
     }
 
     @Override
@@ -61,7 +65,7 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
         BlockGetter blockGetter,
         BlockPos blockPos,
         CollisionContext collisionContext) {
-        return AABB;
+        return HollowMagnetBlock.AABB;
     }
 
     @Override
@@ -85,12 +89,12 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
         FluidState fluidState = blockPlaceContext.getLevel().getFluidState(blockPos);
         BlockState state = super.getStateForPlacement(blockPlaceContext);
         state = null != state ? state : this.defaultBlockState();
-        return state.setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
+        return state.setValue(HollowMagnetBlock.WATERLOGGED, fluidState.getType() == Fluids.WATER);
     }
 
     @Override
     public FluidState getFluidState(BlockState blockState) {
-        return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
+        return blockState.getValue(HollowMagnetBlock.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
     }
 
     @Override
@@ -104,7 +108,7 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
         BlockState blockState2,
         RandomSource random
     ) {
-        if (blockState.getValue(WATERLOGGED)) {
+        if (blockState.getValue(HollowMagnetBlock.WATERLOGGED)) {
             ticks.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelReader));
         }
         return super.updateShape(blockState, levelReader, ticks, blockPos, direction, blockPos2, blockState2, random);
@@ -122,14 +126,14 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
         if (level.isClientSide()) {
             return;
         }
-        if (state.getValue(LIT)) {
+        if (state.getValue(MagnetBlock.LIT)) {
             return;
         }
         if (entity instanceof ItemEntity itemEntity /*&& !itemEntity.getItem().tags().anyMatch(it -> it.equals(TAG))*/) {
             ItemStack item = itemEntity.getItem();
             if (item.is(Items.IRON_INGOT) && item.getCount() == 1) {
                 if (itemEntity.getOwner() instanceof ServerPlayer) {
-                    itemEntity.addTag(TAG);
+                    itemEntity.addTag(HollowMagnetBlock.TAG);
                     if (level.getRandom().nextDouble() <= 0.005) {
                         itemEntity.setItem(new ItemStack(ModItems.MAGNET_INGOT.get()));
                     }
@@ -152,8 +156,8 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
             if (stack.is(Items.IRON_INGOT)) {
                 stack.consume(1, player);
                 BlockState blockState = ModBlocks.FERRITE_CORE_MAGNET_BLOCK.get().defaultBlockState();
-                if (blockState.hasProperty(LIT)) {
-                    blockState = blockState.setValue(LIT, level.hasNeighborSignal(pos));
+                if (blockState.hasProperty(MagnetBlock.LIT)) {
+                    blockState = blockState.setValue(MagnetBlock.LIT, level.hasNeighborSignal(pos));
                 }
                 level.setBlockAndUpdate(pos, blockState);
                 level.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -161,8 +165,8 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
             } else if (stack.is(ModItems.MAGNET_INGOT)) {
                 stack.consume(1, player);
                 BlockState blockState = ModBlocks.MAGNET_BLOCK.get().defaultBlockState();
-                if (blockState.hasProperty(LIT)) {
-                    blockState = blockState.setValue(LIT, level.hasNeighborSignal(pos));
+                if (blockState.hasProperty(MagnetBlock.LIT)) {
+                    blockState = blockState.setValue(MagnetBlock.LIT, level.hasNeighborSignal(pos));
                 }
                 level.setBlockAndUpdate(pos, blockState);
                 level.playSound(null, pos, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1.0F, 1.0F);

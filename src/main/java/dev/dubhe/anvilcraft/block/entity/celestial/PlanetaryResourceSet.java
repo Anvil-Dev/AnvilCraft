@@ -157,28 +157,28 @@ public class PlanetaryResourceSet {
     public CompoundTag toTag() {
         CompoundTag tag = new CompoundTag();
         if (!this.minerals.isEmpty()) {
-            tag.put("minerals", writeItemList(this.minerals));
+            tag.put("minerals", PlanetaryResourceSet.writeItemList(this.minerals));
         }
         if (!this.fluids.isEmpty()) {
-            tag.put("fluids", writeFluidList(this.fluids));
+            tag.put("fluids", PlanetaryResourceSet.writeFluidList(this.fluids));
         }
         if (!this.giantItems.isEmpty()) {
-            tag.put("giantItems", writeItemList(this.giantItems));
+            tag.put("giantItems", PlanetaryResourceSet.writeItemList(this.giantItems));
         }
         if (!this.giantFluids.isEmpty()) {
-            tag.put("giantFluids", writeFluidList(this.giantFluids));
+            tag.put("giantFluids", PlanetaryResourceSet.writeFluidList(this.giantFluids));
         }
         if (!this.biologicalItems.isEmpty()) {
-            tag.put("biologicalItems", writeItemList(this.biologicalItems));
+            tag.put("biologicalItems", PlanetaryResourceSet.writeItemList(this.biologicalItems));
         }
         if (!this.biologicalFluids.isEmpty()) {
-            tag.put("biologicalFluids", writeFluidList(this.biologicalFluids));
+            tag.put("biologicalFluids", PlanetaryResourceSet.writeFluidList(this.biologicalFluids));
         }
         if (!this.offerings.isEmpty()) {
-            tag.put("offerings", writeItemList(this.offerings));
+            tag.put("offerings", PlanetaryResourceSet.writeItemList(this.offerings));
         }
         if (!this.wastelandItems.isEmpty()) {
-            tag.put("wastelandItems", writeItemList(this.wastelandItems));
+            tag.put("wastelandItems", PlanetaryResourceSet.writeItemList(this.wastelandItems));
         }
         tag.putBoolean("hasCivilization", this.hasCivilization);
         tag.putBoolean("isWasteland", this.isWasteland);
@@ -187,14 +187,14 @@ public class PlanetaryResourceSet {
 
     public static PlanetaryResourceSet fromTag(CompoundTag tag) {
         PlanetaryResourceSet set = new PlanetaryResourceSet();
-        tag.getList("minerals").ifPresent(listTag -> readItemList(listTag, set.minerals));
-        tag.getList("fluids").ifPresent(listTag -> readFluidList(listTag, set.fluids));
-        tag.getList("giantItems").ifPresent(listTag -> readItemList(listTag, set.giantItems));
-        tag.getList("giantFluids").ifPresent(listTag -> readFluidList(listTag, set.giantFluids));
-        tag.getList("biologicalItems").ifPresent(listTag -> readItemList(listTag, set.biologicalItems));
-        tag.getList("biologicalFluids").ifPresent(listTag -> readFluidList(listTag, set.biologicalFluids));
-        tag.getList("offerings").ifPresent(listTag -> readItemList(listTag, set.offerings));
-        tag.getList("wastelandItems").ifPresent(listTag -> readItemList(listTag, set.wastelandItems));
+        tag.getList("minerals").ifPresent(listTag -> PlanetaryResourceSet.readItemList(listTag, set.minerals));
+        tag.getList("fluids").ifPresent(listTag -> PlanetaryResourceSet.readFluidList(listTag, set.fluids));
+        tag.getList("giantItems").ifPresent(listTag -> PlanetaryResourceSet.readItemList(listTag, set.giantItems));
+        tag.getList("giantFluids").ifPresent(listTag -> PlanetaryResourceSet.readFluidList(listTag, set.giantFluids));
+        tag.getList("biologicalItems").ifPresent(listTag -> PlanetaryResourceSet.readItemList(listTag, set.biologicalItems));
+        tag.getList("biologicalFluids").ifPresent(listTag -> PlanetaryResourceSet.readFluidList(listTag, set.biologicalFluids));
+        tag.getList("offerings").ifPresent(listTag -> PlanetaryResourceSet.readItemList(listTag, set.offerings));
+        tag.getList("wastelandItems").ifPresent(listTag -> PlanetaryResourceSet.readItemList(listTag, set.wastelandItems));
         set.hasCivilization = tag.getBooleanOr("hasCivilization", false);
         set.isWasteland = tag.getBooleanOr("isWasteland", false);
         return set;

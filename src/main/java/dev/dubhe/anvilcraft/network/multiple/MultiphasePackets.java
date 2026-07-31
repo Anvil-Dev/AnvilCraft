@@ -24,12 +24,12 @@ public class MultiphasePackets {
 
         @Override
         public Type<SwitchPhase> type() {
-            return TYPE;
+            return SwitchPhase.TYPE;
         }
 
         @Override
         public void handleOnServer(Player player) {
-            ItemStack stack = findHeldMultiphase(player);
+            ItemStack stack = MultiphasePackets.findHeldMultiphase(player);
             if (stack == null) return;
             stack.get(ModComponents.MULTIPHASE).cycle(stack);
         }
@@ -51,7 +51,7 @@ public class MultiphasePackets {
 
         @Override
         public Type<ChangePhase> type() {
-            return TYPE;
+            return ChangePhase.TYPE;
         }
 
         @Override

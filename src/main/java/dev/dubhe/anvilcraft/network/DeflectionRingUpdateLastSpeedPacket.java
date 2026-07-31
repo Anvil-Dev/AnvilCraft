@@ -24,7 +24,7 @@ public record DeflectionRingUpdateLastSpeedPacket(BlockPos pos, double speed) im
 
     @Override
     public Type<DeflectionRingUpdateLastSpeedPacket> type() {
-        return TYPE;
+        return DeflectionRingUpdateLastSpeedPacket.TYPE;
     }
 
     @Override

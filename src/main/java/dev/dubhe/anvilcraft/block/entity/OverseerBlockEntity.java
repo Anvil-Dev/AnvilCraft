@@ -112,8 +112,10 @@ public class OverseerBlockEntity extends BlockEntity {
     }
 
     private void updateDisplayedLevel(int levelValue) {
+        Level level = this.level;
+        if (level == null) return;
         for (int i = 0; i < 3; i++) {
-            BlockPos pos = getBlockPos().relative(Direction.Axis.Y, i);
+            BlockPos pos = this.getBlockPos().relative(Direction.Axis.Y, i);
             BlockState state = level.getBlockState(pos);
             if (state.is(ModBlocks.OVERSEER)
                 && state.getValue(OverseerBlock.LEVEL) != levelValue) {
@@ -123,8 +125,10 @@ public class OverseerBlockEntity extends BlockEntity {
     }
 
     private boolean checkBlocks() {
+        Level level = this.level;
+        if (level == null) return false;
         for (int i = 0; i < 3; i++) {
-            BlockPos pos = getBlockPos().relative(Direction.Axis.Y, i);
+            BlockPos pos = this.getBlockPos().relative(Direction.Axis.Y, i);
             if (!level.getBlockState(pos).is(ModBlocks.OVERSEER)) {
                 return false;
             }

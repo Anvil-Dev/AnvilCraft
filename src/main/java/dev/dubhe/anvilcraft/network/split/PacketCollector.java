@@ -12,6 +12,7 @@ import net.neoforged.neoforge.common.extensions.ICommonPacketListener;
 import net.neoforged.neoforge.network.connection.ConnectionType;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.NetworkRegistry;
+import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.UUID;
@@ -19,7 +20,7 @@ import java.util.UUID;
 public class PacketCollector {
     private static final HashMap<UUID, PacketCollector> COLLECTORS = new HashMap<>();
     private final Identifier typeId;
-    private final byte[][] received;
+    private final byte[] @Nullable [] received;
 
     private final RegistryAccess registryAccess;
     private final ICommonPacketListener listener;
@@ -43,19 +44,19 @@ public class PacketCollector {
     }
 
     static void header(PacketSplitter.SplitPacketHeader header, IPayloadContext ctx) {
-        COLLECTORS.put(
+        PacketCollector.COLLECTORS.put(
             header.id(),
             new PacketCollector(header.total(), header.typeId(), ctx.player().registryAccess(), ctx.listener(), ctx.protocol(), ctx.flow())
         );
     }
 
     static void body(PacketSplitter.SplitPacketBody body) {
-        COLLECTORS.get(body.id()).getBody(body);
+        PacketCollector.COLLECTORS.get(body.id()).getBody(body);
     }
 
     private void getBody(PacketSplitter.SplitPacketBody body) {
         this.received[body.index()] = body.data();
-        for (byte[] bytes : this.received) {
+        for (byte @Nullable [] bytes : this.received) {
             if (bytes == null) return;
         }
         this.constructAndLoadPacket();

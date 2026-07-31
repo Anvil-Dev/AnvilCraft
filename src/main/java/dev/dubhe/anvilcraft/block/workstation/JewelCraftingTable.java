@@ -42,29 +42,29 @@ public class JewelCraftingTable extends Block implements IHammerRemovable {
 
     public JewelCraftingTable(Properties properties) {
         super(properties);
-        registerDefaultState(getStateDefinition().any().setValue(FACING, Direction.NORTH));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(JewelCraftingTable.FACING, Direction.NORTH));
     }
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(JewelCraftingTable.FACING, rotation.rotate(state.getValue(JewelCraftingTable.FACING)));
     }
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
-        return this.rotate(state, mirror.getRotation(state.getValue(FACING)));
+        return this.rotate(state, mirror.getRotation(state.getValue(JewelCraftingTable.FACING)));
     }
 
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-            .setValue(FACING, context.getHorizontalDirection().getOpposite());
+            .setValue(JewelCraftingTable.FACING, context.getHorizontalDirection().getOpposite());
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(JewelCraftingTable.FACING);
     }
 
     @Override
@@ -73,7 +73,7 @@ public class JewelCraftingTable extends Block implements IHammerRemovable {
         BlockGetter level,
         BlockPos pos,
         CollisionContext context) {
-        return SHAPE;
+        return JewelCraftingTable.SHAPE;
     }
 
     @Override
@@ -97,7 +97,7 @@ public class JewelCraftingTable extends Block implements IHammerRemovable {
                 inventory,
                 ContainerLevelAccess.create(level, pos)
             ),
-            getName()
+            this.getName()
         );
     }
 }

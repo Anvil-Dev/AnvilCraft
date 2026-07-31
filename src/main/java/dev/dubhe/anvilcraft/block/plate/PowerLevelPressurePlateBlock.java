@@ -14,6 +14,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BasePressurePlateBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
@@ -29,7 +30,7 @@ import java.util.Set;
 public class PowerLevelPressurePlateBlock extends BasePressurePlateBlock {
     public static final MapCodec<PowerLevelPressurePlateBlock> CODEC = RecordCodecBuilder.mapCodec(
         instance -> instance.group(
-            BlockSetType.CODEC.fieldOf("block_set_type").forGetter(block -> block.type), propertiesCodec()
+            BlockSetType.CODEC.fieldOf("block_set_type").forGetter(block -> block.type), BlockBehaviour.propertiesCodec()
         ).apply(instance, PowerLevelPressurePlateBlock::new)
     );
 
@@ -37,12 +38,12 @@ public class PowerLevelPressurePlateBlock extends BasePressurePlateBlock {
 
     public PowerLevelPressurePlateBlock(BlockSetType type, Properties properties) {
         super(properties, type);
-        this.registerDefaultState(this.stateDefinition.any().setValue(POWER, 0));
+        this.registerDefaultState(this.stateDefinition.any().setValue(PowerLevelPressurePlateBlock.POWER, 0));
     }
 
     @Override
     protected MapCodec<? extends BasePressurePlateBlock> codec() {
-        return CODEC;
+        return PowerLevelPressurePlateBlock.CODEC;
     }
 
     @Override
@@ -72,7 +73,7 @@ public class PowerLevelPressurePlateBlock extends BasePressurePlateBlock {
 
     @Override
     protected int getSignalForState(BlockState state) {
-        return state.getValue(POWER);
+        return state.getValue(PowerLevelPressurePlateBlock.POWER);
     }
 
     protected void checkPressed(@Nullable Entity entity, Level level, BlockPos pos, BlockState state, int currentSignal) {
@@ -90,7 +91,7 @@ public class PowerLevelPressurePlateBlock extends BasePressurePlateBlock {
 
     @Override
     protected int getSignalStrength(Level level, BlockPos pos) {
-        return this.getSignalStrength(level, TOUCH_AABB.move(pos), this.getEntityClasses());
+        return this.getSignalStrength(level, BasePressurePlateBlock.TOUCH_AABB.move(pos), this.getEntityClasses());
     }
 
     protected int getSignalStrength(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {
@@ -137,11 +138,11 @@ public class PowerLevelPressurePlateBlock extends BasePressurePlateBlock {
 
     @Override
     protected BlockState setSignalForState(BlockState state, int strength) {
-        return state.setValue(POWER, Math.clamp(strength, 0, 15));
+        return state.setValue(PowerLevelPressurePlateBlock.POWER, Math.clamp(strength, 0, 15));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(POWER);
+        builder.add(PowerLevelPressurePlateBlock.POWER);
     }
 }

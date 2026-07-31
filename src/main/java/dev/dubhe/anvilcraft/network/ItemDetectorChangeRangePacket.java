@@ -19,7 +19,7 @@ public record ItemDetectorChangeRangePacket(int range) implements IServerboundPa
 
     @Override
     public Type<ItemDetectorChangeRangePacket> type() {
-        return TYPE;
+        return ItemDetectorChangeRangePacket.TYPE;
     }
 
     @Override

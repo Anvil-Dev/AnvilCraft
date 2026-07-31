@@ -110,7 +110,7 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
         super.extractBackground(graphics, mouseX, mouseY, partialTick);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            ExpCollectorScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,
@@ -130,7 +130,7 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
         int amount = handler.getAmountAsInt(0);
         if (resource.isEmpty() || amount <= 0) return;
         int capacity = handler.getCapacityAsInt(0, resource);
-        int fluidHeight = Math.max(1, amount * FLUID_HEIGHT / capacity);
+        int fluidHeight = Math.max(1, amount * ExpCollectorScreen.FLUID_HEIGHT / capacity);
         FluidModel model = FluidRenderHelper.getModel(
             Minecraft.getInstance().getModelManager().getFluidStateModelSet(),
             resource.getFluid()
@@ -141,9 +141,9 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
         graphics.blitSprite(
             RenderPipelines.GUI_TEXTURED,
             sprite,
-            this.leftPos + FLUID_X,
-            this.topPos + FLUID_Y + FLUID_HEIGHT - fluidHeight,
-            FLUID_WIDTH,
+            this.leftPos + ExpCollectorScreen.FLUID_X,
+            this.topPos + ExpCollectorScreen.FLUID_Y + ExpCollectorScreen.FLUID_HEIGHT - fluidHeight,
+            ExpCollectorScreen.FLUID_WIDTH,
             fluidHeight,
             tint
         );
@@ -152,7 +152,7 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
     @Override
     protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         super.extractTooltip(graphics, mouseX, mouseY);
-        if (!this.isHovering(FLUID_X, FLUID_Y, FLUID_WIDTH, FLUID_HEIGHT, mouseX, mouseY)) return;
+        if (!this.isHovering(ExpCollectorScreen.FLUID_X, ExpCollectorScreen.FLUID_Y, ExpCollectorScreen.FLUID_WIDTH, ExpCollectorScreen.FLUID_HEIGHT, mouseX, mouseY)) return;
         ResourceHandler<FluidResource> handler = this.menu.getBlockEntity().getFluidHandler();
         graphics.setTooltipForNextFrame(
             this.font,
@@ -169,7 +169,7 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean handled) {
         if (event.button() == 1
-            && this.isHovering(FLUID_X, FLUID_Y, FLUID_WIDTH, FLUID_HEIGHT, event.x(), event.y())) {
+            && this.isHovering(ExpCollectorScreen.FLUID_X, ExpCollectorScreen.FLUID_Y, ExpCollectorScreen.FLUID_WIDTH, ExpCollectorScreen.FLUID_HEIGHT, event.x(), event.y())) {
             ClientPacketDistributor.sendToServer(
                 new ExpCollectorSyncPacket(this.menu.getBlockEntity().getBlockPos())
             );

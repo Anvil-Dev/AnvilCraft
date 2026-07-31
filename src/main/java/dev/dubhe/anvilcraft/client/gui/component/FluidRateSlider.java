@@ -16,7 +16,7 @@ public class FluidRateSlider extends AbstractWidget {
 
     public static final int MAX = 2000;
     public static final int STEP = 50;
-    private static final int TOTAL_STEPS = MAX / STEP;
+    private static final int TOTAL_STEPS = FluidRateSlider.MAX / FluidRateSlider.STEP;
 
     private final int posX;
     private final int posY;
@@ -35,11 +35,11 @@ public class FluidRateSlider extends AbstractWidget {
     }
 
     public void setValue(int value) {
-        this.value = clampSnap(value);
+        this.value = FluidRateSlider.clampSnap(value);
     }
 
     public void setExactValue(int value) {
-        this.value = Math.clamp(value, 0, MAX);
+        this.value = Math.clamp(value, 0, FluidRateSlider.MAX);
     }
 
     public void setValueWithUpdate(int value) {
@@ -48,7 +48,7 @@ public class FluidRateSlider extends AbstractWidget {
     }
 
     public void step(int direction) {
-        this.setValueWithUpdate(this.value + STEP * direction);
+        this.setValueWithUpdate(this.value + FluidRateSlider.STEP * direction);
     }
 
     private void update() {
@@ -56,12 +56,12 @@ public class FluidRateSlider extends AbstractWidget {
     }
 
     private static int clampSnap(int value) {
-        int snapped = Math.round((float) value / STEP) * STEP;
-        return Math.clamp(snapped, 0, MAX);
+        int snapped = Math.round((float) value / FluidRateSlider.STEP) * FluidRateSlider.STEP;
+        return Math.clamp(snapped, 0, FluidRateSlider.MAX);
     }
 
     private double proportion() {
-        return (double) this.value / MAX;
+        return (double) this.value / FluidRateSlider.MAX;
     }
 
     private int knobX() {
@@ -98,8 +98,8 @@ public class FluidRateSlider extends AbstractWidget {
 
     private void applyMouse(double mouseX) {
         double offset = (mouseX - this.posX - 8.0) / (this.length - 16);
-        int step = (int) Math.round(Math.clamp(offset, 0.0, 1.0) * TOTAL_STEPS);
-        this.setValueWithUpdate(step * STEP);
+        int step = (int) Math.round(Math.clamp(offset, 0.0, 1.0) * FluidRateSlider.TOTAL_STEPS);
+        this.setValueWithUpdate(step * FluidRateSlider.STEP);
     }
 
     @Override
@@ -108,7 +108,7 @@ public class FluidRateSlider extends AbstractWidget {
         boolean hovered = this.scrolling || this.isInKnob(mouseX, mouseY);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            SLIDER,
+            FluidRateSlider.SLIDER,
             this.knobX(),
             this.posY,
             0,

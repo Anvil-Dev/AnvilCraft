@@ -35,7 +35,7 @@ public class MagneticChuteBlockEntity extends BaseChuteBlockEntity {
 
     @Override
     protected boolean isEnabled() {
-        return getBlockState().getValue(MagneticChuteBlock.ENABLED);
+        return this.getBlockState().getValue(MagneticChuteBlock.ENABLED);
     }
 
     @Override
@@ -45,7 +45,7 @@ public class MagneticChuteBlockEntity extends BaseChuteBlockEntity {
 
     @Override
     protected Direction getOutputDirection() {
-        return getDirection();
+        return this.getDirection();
     }
 
     @Override
@@ -60,7 +60,7 @@ public class MagneticChuteBlockEntity extends BaseChuteBlockEntity {
 
     @Override
     protected void applySpeed(ItemEntity itemEntity, Direction direction) {
-        itemEntity.setDeltaMovement(getOutputSpeed(direction));
+        itemEntity.setDeltaMovement(MagneticChuteBlockEntity.getOutputSpeed(direction));
     }
 
     public static Vec3 getOutputSpeed(Direction direction) {

@@ -42,17 +42,17 @@ public class PumpBlockEntity extends AbstractPipeBlockEntity implements IPowerCo
 
     @Override
     public int getInputPower() {
-        return getBlockState().getValue(PumpBlock.POWERED) ? 0 : PUMP_POWER;
+        return this.getBlockState().getValue(PumpBlock.POWERED) ? 0 : PumpBlockEntity.PUMP_POWER;
     }
 
     @Override
     public @Nullable Level getCurrentLevel() {
-        return getLevel();
+        return this.getLevel();
     }
 
     @Override
     public BlockPos getPos() {
-        return getBlockPos();
+        return this.getBlockPos();
     }
 
     public boolean canPump() {

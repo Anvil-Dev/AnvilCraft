@@ -385,21 +385,21 @@ public class CategorySettingsScreen extends Screen {
 
     private void extractInventorySlotHighlightBack(GuiGraphicsExtractor graphics, int slot, int x, int y, int mouseX, int mouseY) {
         if (this.selected == slot) {
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SELECTED_BACK_SPRITE, x - 4, y - 4, 24, 24);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, CategorySettingsScreen.SLOT_SELECTED_BACK_SPRITE, x - 4, y - 4, 24, 24);
         }
 
         if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_BACK_SPRITE, x - 4, y - 4, 24, 24);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, CategorySettingsScreen.SLOT_HIGHLIGHT_BACK_SPRITE, x - 4, y - 4, 24, 24);
         }
     }
 
     private void extractInventorySlotHighlightFront(GuiGraphicsExtractor graphics, int slot, int x, int y, int mouseX, int mouseY) {
         if (this.selected == slot) {
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_SELECTED_FRONT_SPRITE, x - 4, y - 4, 24, 24);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, CategorySettingsScreen.SLOT_SELECTED_FRONT_SPRITE, x - 4, y - 4, 24, 24);
         }
 
         if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_FRONT_SPRITE, x - 4, y - 4, 24, 24);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, CategorySettingsScreen.SLOT_HIGHLIGHT_FRONT_SPRITE, x - 4, y - 4, 24, 24);
         }
     }
 

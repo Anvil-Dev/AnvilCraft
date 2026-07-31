@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.workstation;
 
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.NeutronIrradiatorBlockEntity;
@@ -40,7 +41,7 @@ public class NeutronIrradiatorBlock extends BaseEntityBlock implements IHammerRe
 
     @Override
     public VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
-        return MODEL;
+        return NeutronIrradiatorBlock.MODEL;
     }
 
     @Override
@@ -50,7 +51,7 @@ public class NeutronIrradiatorBlock extends BaseEntityBlock implements IHammerRe
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(TYPE);
+        builder.add(NeutronIrradiatorBlock.TYPE);
     }
 
     @Override
@@ -66,12 +67,12 @@ public class NeutronIrradiatorBlock extends BaseEntityBlock implements IHammerRe
 
     public NeutronIrradiatorBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(TYPE, IrradiatorType.NEUTRON));
+        this.registerDefaultState(this.stateDefinition.any().setValue(NeutronIrradiatorBlock.TYPE, IrradiatorType.NEUTRON));
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(NeutronIrradiatorBlock::new);
+        return BlockBehaviour.simpleCodec(NeutronIrradiatorBlock::new);
     }
 
     @Nullable
@@ -83,13 +84,13 @@ public class NeutronIrradiatorBlock extends BaseEntityBlock implements IHammerRe
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return createTickerHelper(type, ModBlockEntities.NEUTRON_IRRADIATOR.get(),
-            (level1, pos, state1, entity) -> entity.tick(level1, pos, state1));
+        return BaseEntityBlock.createTickerHelper(type, ModBlockEntities.NEUTRON_IRRADIATOR.get(),
+                                                  (level1, pos, state1, entity) -> entity.tick(level1, pos, state1));
     }
 
     @Override
     public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
-        IrradiatorType type = state.getValue(TYPE);
+        IrradiatorType type = state.getValue(NeutronIrradiatorBlock.TYPE);
         if (type == IrradiatorType.NEUTRON) return;
         for (int i = -1; i <= 1; i++) {
             for (int j = -1; j <= 1; j++) {

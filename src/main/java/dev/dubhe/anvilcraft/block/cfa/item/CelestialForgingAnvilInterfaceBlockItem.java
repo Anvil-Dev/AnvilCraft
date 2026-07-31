@@ -55,10 +55,11 @@ public class CelestialForgingAnvilInterfaceBlockItem extends BlockItem {
         }
         if (!cfaDir.isEmpty()) {
             if (cfaDir.contains(player.getDirection())) {
-                return getBlock().defaultBlockState()
+                return this.getBlock().defaultBlockState()
                     .setValue(CelestialForgingAnvilInterfaceBlock.FACING, player.getDirection().getOpposite());
             }
-            return getBlock().defaultBlockState().setValue(CelestialForgingAnvilInterfaceBlock.FACING, cfaDir.getFirst().getOpposite());
+            return this.getBlock().defaultBlockState()
+                .setValue(CelestialForgingAnvilInterfaceBlock.FACING, cfaDir.getFirst().getOpposite());
         }
         if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.sendSystemMessage(

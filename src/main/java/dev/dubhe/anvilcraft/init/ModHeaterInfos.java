@@ -24,7 +24,9 @@ public class ModHeaterInfos {
     public static final HeaterInfo<HeliostatsBlockEntity> HELIOSTATS = HeatRecorder.registerProducerInfo(
         HeaterInfo.blockEntity(
             ModBlockEntities.HELIOSTATS,
-            heliostats -> Set.of(heliostats.getIrritatePos(), heliostats.getIrritatePos().above()),
+            heliostats -> Optional.ofNullable(heliostats.getIrritatePos())
+                .map(pos -> Set.of(pos, pos.above()))
+                .orElse(Set.of()),
             HeatTierLine.builder()
                 .addPoint(4, HeatTier.NORMAL)
                 .addPoint(12, HeatTier.HEATED, 4)

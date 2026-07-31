@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -50,13 +51,13 @@ public class LensBlock extends BaseLaserBlock implements IHammerRemovable, IMove
         super(properties);
         this.registerDefaultState(this.stateDefinition
             .any()
-            .setValue(AXIS, Direction.Axis.Y)
-            .setValue(TYPE, LensType.NONE));
+            .setValue(LensBlock.AXIS, Direction.Axis.Y)
+            .setValue(LensBlock.TYPE, LensType.NONE));
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(LensBlock::new);
+        return BlockBehaviour.simpleCodec(LensBlock::new);
     }
 
     @Nullable
@@ -76,7 +77,7 @@ public class LensBlock extends BaseLaserBlock implements IHammerRemovable, IMove
         Level level, BlockState state, BlockEntityType<T> type
     ) {
         if (level.isClientSide()) return null;
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             type,
             ModBlockEntities.LENS.get(),
             (lvl, pos, st, be) -> be.tick(lvl)
@@ -85,23 +86,23 @@ public class LensBlock extends BaseLaserBlock implements IHammerRemovable, IMove
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(AXIS).add(TYPE);
+        builder.add(LensBlock.AXIS).add(LensBlock.TYPE);
     }
 
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-            .setValue(AXIS, context.getNearestLookingDirection().getAxis())
-            .setValue(TYPE, LensType.NONE);
+            .setValue(LensBlock.AXIS, context.getNearestLookingDirection().getAxis())
+            .setValue(LensBlock.TYPE, LensType.NONE);
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
         return switch (rotation) {
-            case COUNTERCLOCKWISE_90, CLOCKWISE_90 -> switch (state.getValue(AXIS)) {
-                case X -> state.setValue(AXIS, Direction.Axis.Z);
-                case Z -> state.setValue(AXIS, Direction.Axis.X);
+            case COUNTERCLOCKWISE_90, CLOCKWISE_90 -> switch (state.getValue(LensBlock.AXIS)) {
+                case X -> state.setValue(LensBlock.AXIS, Direction.Axis.Z);
+                case Z -> state.setValue(LensBlock.AXIS, Direction.Axis.X);
                 default -> state;
             };
             default -> state;
@@ -115,10 +116,10 @@ public class LensBlock extends BaseLaserBlock implements IHammerRemovable, IMove
         BlockPos pos,
         CollisionContext context
     ) {
-        return switch (state.getValue(AXIS)) {
-            case X -> SHAPE_X;
-            case Z -> SHAPE_Z;
-            default -> SHAPE_Y;
+        return switch (state.getValue(LensBlock.AXIS)) {
+            case X -> LensBlock.SHAPE_X;
+            case Z -> LensBlock.SHAPE_Z;
+            default -> LensBlock.SHAPE_Y;
         };
     }
 
@@ -143,19 +144,19 @@ public class LensBlock extends BaseLaserBlock implements IHammerRemovable, IMove
 
         // Anvil hammer cycles the lens axis: X → Y → Z → X
         if (stack.is(ModItemTags.ANVIL_HAMMER)) {
-            Direction.Axis currentAxis = state.getValue(AXIS);
+            Direction.Axis currentAxis = state.getValue(LensBlock.AXIS);
             Direction.Axis newAxis = switch (currentAxis) {
                 case X -> Direction.Axis.Y;
                 case Y -> Direction.Axis.Z;
                 case Z -> Direction.Axis.X;
             };
-            level.setBlockAndUpdate(pos, state.setValue(AXIS, newAxis));
-            resetLensLaserState(level, pos);
+            level.setBlockAndUpdate(pos, state.setValue(LensBlock.AXIS, newAxis));
+            LensBlock.resetLensLaserState(level, pos);
             return InteractionResult.SUCCESS;
         }
 
-        LensType currentType = state.getValue(TYPE);
-        LensType newType = getGlassType(stack);
+        LensType currentType = state.getValue(LensBlock.TYPE);
+        LensType newType = LensBlock.getGlassType(stack);
 
         if (newType == null || newType == currentType) {
             return InteractionResult.TRY_WITH_EMPTY_HAND;
@@ -166,17 +167,17 @@ public class LensBlock extends BaseLaserBlock implements IHammerRemovable, IMove
 
         // Return old glass if applicable
         if (currentType != LensType.NONE) {
-            ItemStack returnedGlass = getGlassItem(currentType);
+            ItemStack returnedGlass = LensBlock.getGlassItem(currentType);
             if (!player.getInventory().add(returnedGlass)) {
                 player.drop(returnedGlass, false);
             }
         }
 
         // Update block state
-        level.setBlockAndUpdate(pos, state.setValue(TYPE, newType));
+        level.setBlockAndUpdate(pos, state.setValue(LensBlock.TYPE, newType));
 
         // Reset laser state so upstream/downstream re-scan with new glass type
-        resetLensLaserState(level, pos);
+        LensBlock.resetLensLaserState(level, pos);
 
         return InteractionResult.SUCCESS;
     }
@@ -193,21 +194,21 @@ public class LensBlock extends BaseLaserBlock implements IHammerRemovable, IMove
             return InteractionResult.SUCCESS;
         }
 
-        LensType currentType = state.getValue(TYPE);
+        LensType currentType = state.getValue(LensBlock.TYPE);
         if (currentType == LensType.NONE) {
             return InteractionResult.PASS;
         }
 
         // Remove glass and return it to the player
-        ItemStack returnedGlass = getGlassItem(currentType);
+        ItemStack returnedGlass = LensBlock.getGlassItem(currentType);
         if (!player.getInventory().add(returnedGlass)) {
             player.drop(returnedGlass, false);
         }
 
-        level.setBlockAndUpdate(pos, state.setValue(TYPE, LensType.NONE));
+        level.setBlockAndUpdate(pos, state.setValue(LensBlock.TYPE, LensType.NONE));
 
         // Reset laser state since the lens is now pass-through
-        resetLensLaserState(level, pos);
+        LensBlock.resetLensLaserState(level, pos);
 
         return InteractionResult.SUCCESS;
     }
@@ -221,9 +222,9 @@ public class LensBlock extends BaseLaserBlock implements IHammerRemovable, IMove
         boolean dropExperience
     ) {
         super.spawnAfterBreak(state, level, pos, tool, dropExperience);
-        LensType type = state.getValue(TYPE);
+        LensType type = state.getValue(LensBlock.TYPE);
         if (type != LensType.NONE) {
-            popResource(level, pos, getGlassItem(type));
+            Block.popResource(level, pos, LensBlock.getGlassItem(type));
         }
     }
 

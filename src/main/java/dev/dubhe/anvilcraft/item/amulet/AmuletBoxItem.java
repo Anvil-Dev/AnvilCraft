@@ -44,11 +44,11 @@ public class AmuletBoxItem extends Item {
             ItemStack popped = mutable.pop();
             if (popped.isEmpty()) return false;
             slot.set(popped);
-            playRemoveOneSound(player);
+            AmuletBoxItem.playRemoveOneSound(player);
         } else {
             Optional<ItemStack> remain = mutable.tryInsert(other);
             if (remain.isEmpty()) return false;
-            playInsertSound(player);
+            AmuletBoxItem.playInsertSound(player);
             slot.set(remain.get());
         }
         itemStack.set(ModComponents.BOX_CONTENTS, mutable.immutable());
@@ -70,12 +70,12 @@ public class AmuletBoxItem extends Item {
             ItemStack itemStack = contents.pop();
             if (itemStack.isEmpty()) return false;
             slotAccess.set(itemStack);
-            playRemoveOneSound(player);
+            AmuletBoxItem.playRemoveOneSound(player);
             this.broadcastChangesOnContainerMenu(player);
         } else {
             Optional<ItemStack> remain = contents.tryInsert(other);
             if (remain.isEmpty()) return false;
-            playInsertSound(player);
+            AmuletBoxItem.playInsertSound(player);
             this.broadcastChangesOnContainerMenu(player);
             slotAccess.set(remain.get());
         }
@@ -98,7 +98,7 @@ public class AmuletBoxItem extends Item {
                     if (remain.isEmpty()) continue;
                     inventory.setItem(i, remain.get());
                 }
-                playInsertSound(player);
+                AmuletBoxItem.playInsertSound(player);
                 box.set(ModComponents.BOX_CONTENTS, mutable.immutable());
             } else if (AnvilCraft.CONFIG.amuletBoxTakeOutAllTotem) {
                 boolean dropped = false;
@@ -109,7 +109,7 @@ public class AmuletBoxItem extends Item {
                     dropped = true;
                 }
                 if (dropped) {
-                    playDropContentsSound(level, player);
+                    AmuletBoxItem.playDropContentsSound(level, player);
                 }
                 box.set(ModComponents.BOX_CONTENTS, mutable.immutable());
             }
@@ -134,7 +134,7 @@ public class AmuletBoxItem extends Item {
     @Override
     public int getBarColor(ItemStack itemStack) {
         BoxContents contents = itemStack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
-        return ColorUtil.lerpColor(contents.usage() / (float) BoxContents.CAPACITY, BAR_COLOR, FULL_BAR_COLOR);
+        return ColorUtil.lerpColor(contents.usage() / (float) BoxContents.CAPACITY, AmuletBoxItem.BAR_COLOR, AmuletBoxItem.FULL_BAR_COLOR);
     }
 
     @Override

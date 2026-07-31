@@ -26,11 +26,11 @@ public class RoyalSteelIngotItem extends Item implements IPermutationMaterial {
 
     @Override
     public Component getInputTooltip(ItemStack material) {
-        return MISSING_TOOLTIP;
+        return RoyalSteelIngotItem.MISSING_TOOLTIP;
     }
 
     @Override
     public List<Identifier> getEmptySlotTextures() {
-        return EMPTY_SLOT_TEXTURES;
+        return RoyalSteelIngotItem.EMPTY_SLOT_TEXTURES;
     }
 }

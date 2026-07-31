@@ -72,40 +72,40 @@ public interface ISlidingRail extends IBlockExtension {
         if (!level.getBlockState(neighbor).is(Blocks.MOVING_PISTON)) return;
         Direction dir = level.getBlockState(neighbor).getValue(BlockStateProperties.FACING);
         if (dir.getAxis() == Direction.Axis.Y || !neighbor.equals(pos.above())) {
-            MOVING_PISTON_MAP.remove(pos);
+            ISlidingRail.MOVING_PISTON_MAP.remove(pos);
             return;
         }
         PistonPushInfo ppi = new PistonPushInfo(neighbor, dir);
-        if (MOVING_PISTON_MAP.containsKey(pos)) {
-            MOVING_PISTON_MAP.get(pos).fromPos = neighbor;
-        } else MOVING_PISTON_MAP.put(pos, ppi);
+        if (ISlidingRail.MOVING_PISTON_MAP.containsKey(pos)) {
+            ISlidingRail.MOVING_PISTON_MAP.get(pos).fromPos = neighbor;
+        } else ISlidingRail.MOVING_PISTON_MAP.put(pos, ppi);
     }
 
     static void whenNeighborChanged(Level level, Block block, BlockPos pos, BlockPos fromPos) {
         if (level.isClientSide()) return;
         BlockState blockState = level.getBlockState(fromPos);
-        if (!MOVING_PISTON_MAP.containsKey(pos)) return;
+        if (!ISlidingRail.MOVING_PISTON_MAP.containsKey(pos)) return;
         if (blockState.is(Blocks.MOVING_PISTON)) return;
         level.scheduleTick(pos, block, 2);
     }
 
     static void whenTick(ServerLevel level, Block block, BlockPos pos) {
-        if (!MOVING_PISTON_MAP.containsKey(pos)) return;
-        PistonPushInfo info = MOVING_PISTON_MAP.get(pos);
+        if (!ISlidingRail.MOVING_PISTON_MAP.containsKey(pos)) return;
+        PistonPushInfo info = ISlidingRail.MOVING_PISTON_MAP.get(pos);
         boolean isPoweredRail = block instanceof PoweredSlidingRailBlock;
         if (!isPoweredRail && !info.extending && info.isSourcePiston) {
-            MOVING_PISTON_MAP.remove(pos);
+            ISlidingRail.MOVING_PISTON_MAP.remove(pos);
             return;
         } else if (!isPoweredRail && !info.extending) {
             info.direction = info.direction.getOpposite();
         }
         level.blockEvent(pos, block, 0, info.direction.get3DDataValue());
-        MOVING_PISTON_MAP.remove(pos);
+        ISlidingRail.MOVING_PISTON_MAP.remove(pos);
     }
 
     static boolean whenTriggerEvent(Level level, BlockPos pos, int param) {
         Direction direction = Direction.from3DDataValue(param);
-        return moveBlocks(level, pos.above(), direction);
+        return ISlidingRail.moveBlocks(level, pos.above(), direction);
     }
 
     static boolean moveBlocks(Level level, BlockPos pos, Direction facing) {
@@ -180,7 +180,7 @@ public interface ISlidingRail extends IBlockExtension {
 
     static void stopSlidingBlock(SlidingBlockEntity entity) {
         entity.stop();
-        MOVING_PISTON_MAP.remove(entity.blockPosition());
+        ISlidingRail.MOVING_PISTON_MAP.remove(entity.blockPosition());
     }
 
     static void absorbEntity(BlockPos pos, Entity entity) {

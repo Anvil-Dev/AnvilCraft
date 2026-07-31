@@ -36,7 +36,7 @@ public record HeliostatsIrradiationPacket(BlockPos pos, @Nullable BlockPos irrit
 
     @Override
     public Type<HeliostatsIrradiationPacket> type() {
-        return TYPE;
+        return HeliostatsIrradiationPacket.TYPE;
     }
 
     @Override

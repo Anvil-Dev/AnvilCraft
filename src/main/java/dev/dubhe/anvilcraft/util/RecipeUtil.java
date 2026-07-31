@@ -91,9 +91,9 @@ public class RecipeUtil {
 
     public static List<ItemStack> getItems(ItemIngredientPredicate predicate, HolderLookup<Item> items) {
         int hash = predicate.hashCode();
-        if (!INGREDIENT_CACHE.containsKey(hash)) {
+        if (!RecipeUtil.INGREDIENT_CACHE.containsKey(hash)) {
             if (predicate.items().isPresent()) {
-                INGREDIENT_CACHE.put(hash, Arrays.stream(predicate.getItems()).map(ItemStackTemplate::create).toList());
+                RecipeUtil.INGREDIENT_CACHE.put(hash, Arrays.stream(predicate.getItems()).map(ItemStackTemplate::create).toList());
             } else {
                 List<ItemStack> stacks = new ArrayList<>();
                 items.listElements()
@@ -101,9 +101,9 @@ public class RecipeUtil {
                     .map(Item::getDefaultInstance)
                     .filter(predicate)
                     .forEach(stacks::add);
-                INGREDIENT_CACHE.put(hash, List.copyOf(stacks));
+                RecipeUtil.INGREDIENT_CACHE.put(hash, List.copyOf(stacks));
             }
         }
-        return INGREDIENT_CACHE.get(hash);
+        return RecipeUtil.INGREDIENT_CACHE.get(hash);
     }
 }

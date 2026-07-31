@@ -23,7 +23,7 @@ public class PlayerHungerPressurePlateBlock extends PowerLevelPressurePlateBlock
 
     @Override
     protected int getSignalStrength(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {
-        return (int) Math.clamp(getMaxHungerPercent(level, box) * 15, 0, 15);
+        return (int) Math.clamp(PlayerHungerPressurePlateBlock.getMaxHungerPercent(level, box) * 15, 0, 15);
     }
 
     protected static float getMaxHungerPercent(Level level, AABB box) {

@@ -56,7 +56,7 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
     public void accept(InWorldRecipeContext context) {
         ServerLevel level = context.getLevel();
         Vec3 pos = context.getPos();
-        if (!context.get(IS_ROYAL_STEEL_RECIPE)) return;
+        if (!context.get(RoyalPreferenceOutcome.IS_ROYAL_STEEL_RECIPE)) return;
 
         BlockPos belowPos = BlockPos.containing(pos.x, pos.y - 1, pos.z);
 
@@ -64,16 +64,16 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
         boolean hasRecipeCache = false;
         if (blockEntity instanceof ItemResourceHandlerCache cache) {
             hasRecipeCache = true;
-            if (hasRoyalPreferred(level, cache.getInput())) {
+            if (RoyalPreferenceOutcome.hasRoyalPreferred(level, cache.getInput())) {
                 this.addBonus(context);
                 return;
             }
         }
 
-        ItemResourceHandlerCache entityCauldron = findEntityCauldron(level, belowPos);
+        ItemResourceHandlerCache entityCauldron = RoyalPreferenceOutcome.findEntityCauldron(level, belowPos);
         if (entityCauldron != null) {
             hasRecipeCache = true;
-            if (hasRoyalPreferred(level, entityCauldron.getInput())) {
+            if (RoyalPreferenceOutcome.hasRoyalPreferred(level, entityCauldron.getInput())) {
                 this.addBonus(context);
                 return;
             }
@@ -82,15 +82,15 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
         // 没有配方缓存的容器（如原版容器）退回到直接读能力
         if (!hasRecipeCache) {
             ResourceHandler<ItemResource> handler = level.getCapability(Capabilities.Item.BLOCK, belowPos, null);
-            if (handler != null && hasRoyalPreferred(level, handler)) {
+            if (handler != null && RoyalPreferenceOutcome.hasRoyalPreferred(level, handler)) {
                 this.addBonus(context);
                 return;
             }
         }
 
         // 炼药锅场景：扫描掉落物
-        Vec3 inputCenter = pos.add(INPUT_OFFSET);
-        AABB inputBox = new AABB(inputCenter, inputCenter).inflate(INPUT_RANGE.x, INPUT_RANGE.y, INPUT_RANGE.z);
+        Vec3 inputCenter = pos.add(RoyalPreferenceOutcome.INPUT_OFFSET);
+        AABB inputBox = new AABB(inputCenter, inputCenter).inflate(RoyalPreferenceOutcome.INPUT_RANGE.x, RoyalPreferenceOutcome.INPUT_RANGE.y, RoyalPreferenceOutcome.INPUT_RANGE.z);
         for (ItemEntity itemEntity : level.getEntitiesOfClass(ItemEntity.class, inputBox)) {
             if (RoyalPreference.isRoyalPreferred(level, itemEntity.getItem())) {
                 this.addBonus(context);
@@ -104,7 +104,7 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
         ItemStack bonus = this.result.stack().create().copyWithCount(context.getInt(this.result.count()));
         if (bonus.isEmpty()) return;
         ItemCache cache = context.computeIfAbsent(ItemCache.ITEM_CACHE);
-        ICacheOutput output = cache.getOutput(bonus, context.getPos().add(OUTPUT_OFFSET));
+        ICacheOutput output = cache.getOutput(bonus, context.getPos().add(RoyalPreferenceOutcome.OUTPUT_OFFSET));
         output.grow(bonus, true);
         context.putAcceptor(ItemCache.ITEM_CACHE.location(), ItemCache.DEFAULT_ACCEPTOR);
     }
@@ -192,12 +192,12 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
 
         @Override
         public MapCodec<RoyalPreferenceOutcome> codec() {
-            return CODEC;
+            return Type.CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, RoyalPreferenceOutcome> streamCodec() {
-            return STREAM_CODEC;
+            return Type.STREAM_CODEC;
         }
     }
 }

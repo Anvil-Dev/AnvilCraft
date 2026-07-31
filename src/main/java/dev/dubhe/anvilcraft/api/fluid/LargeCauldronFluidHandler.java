@@ -19,11 +19,11 @@ import java.util.Objects;
 public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>, ValueIOSerializable {
     public static final int TANK_COUNT = 8;
     public static final int TANK_CAPACITY = 64 * FluidType.BUCKET_VOLUME;
-    public static final int TOTAL_CAPACITY = TANK_COUNT * TANK_CAPACITY;
+    public static final int TOTAL_CAPACITY = LargeCauldronFluidHandler.TANK_COUNT * LargeCauldronFluidHandler.TANK_CAPACITY;
     private static final Codec<List<FluidStack>> FLUIDS_CODEC = FluidStack.OPTIONAL_CODEC.listOf();
 
     private final Runnable changeListener;
-    private final List<FluidStack> fluids = new ArrayList<>(TANK_COUNT);
+    private final List<FluidStack> fluids = new ArrayList<>(LargeCauldronFluidHandler.TANK_COUNT);
     private final FluidsJournal snapshotJournal = new FluidsJournal();
 
     public LargeCauldronFluidHandler(Runnable changeListener) {
@@ -32,37 +32,37 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
 
     @Override
     public int size() {
-        return TANK_COUNT;
+        return LargeCauldronFluidHandler.TANK_COUNT;
     }
 
     @Override
     public FluidResource getResource(int index) {
-        Objects.checkIndex(index, TANK_COUNT);
+        Objects.checkIndex(index, LargeCauldronFluidHandler.TANK_COUNT);
         return index < this.fluids.size() ? FluidResource.of(this.fluids.get(index)) : FluidResource.EMPTY;
     }
 
     @Override
     public long getAmountAsLong(int index) {
-        Objects.checkIndex(index, TANK_COUNT);
+        Objects.checkIndex(index, LargeCauldronFluidHandler.TANK_COUNT);
         return index < this.fluids.size() ? this.fluids.get(index).getAmount() : 0;
     }
 
     @Override
     public long getCapacityAsLong(int index, FluidResource resource) {
-        Objects.checkIndex(index, TANK_COUNT);
-        return TANK_CAPACITY;
+        Objects.checkIndex(index, LargeCauldronFluidHandler.TANK_COUNT);
+        return LargeCauldronFluidHandler.TANK_CAPACITY;
     }
 
     @Override
     public boolean isValid(int index, FluidResource resource) {
-        Objects.checkIndex(index, TANK_COUNT);
+        Objects.checkIndex(index, LargeCauldronFluidHandler.TANK_COUNT);
         if (resource.isEmpty()) return false;
-        return this.findFluid(resource) >= 0 || this.fluids.size() < TANK_COUNT;
+        return this.findFluid(resource) >= 0 || this.fluids.size() < LargeCauldronFluidHandler.TANK_COUNT;
     }
 
     @Override
     public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
-        Objects.checkIndex(index, TANK_COUNT);
+        Objects.checkIndex(index, LargeCauldronFluidHandler.TANK_COUNT);
         return this.insert(resource, amount, false, transaction);
     }
 
@@ -79,10 +79,10 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
     ) {
         TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
         int matching = this.findFluid(resource);
-        if (matching < 0 && this.fluids.size() >= TANK_COUNT) return 0;
+        if (matching < 0 && this.fluids.size() >= LargeCauldronFluidHandler.TANK_COUNT) return 0;
 
         int stored = matching < 0 ? 0 : this.fluids.get(matching).getAmount();
-        int inserted = Math.min(amount, TANK_CAPACITY - stored);
+        int inserted = Math.min(amount, LargeCauldronFluidHandler.TANK_CAPACITY - stored);
         if (inserted <= 0) return 0;
         this.snapshotJournal.updateSnapshots(transaction);
 
@@ -100,7 +100,7 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
 
     @Override
     public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
-        Objects.checkIndex(index, TANK_COUNT);
+        Objects.checkIndex(index, LargeCauldronFluidHandler.TANK_COUNT);
         TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
         return this.extractLayer(index, resource, amount, transaction);
     }
@@ -137,11 +137,11 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
     }
 
     public ResourceHandler<FluidResource> bottomAccess() {
-        return new LayeredView(DrainOrder.BOTTOM, TOTAL_CAPACITY, true);
+        return new LayeredView(DrainOrder.BOTTOM, LargeCauldronFluidHandler.TOTAL_CAPACITY, true);
     }
 
     public ResourceHandler<FluidResource> topAccess() {
-        return new LayeredView(DrainOrder.TOP, TOTAL_CAPACITY, false);
+        return new LayeredView(DrainOrder.TOP, LargeCauldronFluidHandler.TOTAL_CAPACITY, false);
     }
 
     public ResourceHandler<FluidResource> sideAccess(int accessibleAmount) {
@@ -154,9 +154,9 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
     }
 
     public List<FluidStack> copyFluids() {
-        List<FluidStack> result = new ArrayList<>(TANK_COUNT);
+        List<FluidStack> result = new ArrayList<>(LargeCauldronFluidHandler.TANK_COUNT);
         for (FluidStack fluid : this.fluids) result.add(fluid.copy());
-        while (result.size() < TANK_COUNT) result.add(FluidStack.EMPTY);
+        while (result.size() < LargeCauldronFluidHandler.TANK_COUNT) result.add(FluidStack.EMPTY);
         return result;
     }
 
@@ -164,8 +164,8 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
         this.fluids.clear();
         for (FluidStack fluid : fluids) {
             if (fluid.isEmpty()) continue;
-            this.fluids.add(fluid.copyWithAmount(Math.min(fluid.getAmount(), TANK_CAPACITY)));
-            if (this.fluids.size() == TANK_COUNT) break;
+            this.fluids.add(fluid.copyWithAmount(Math.min(fluid.getAmount(), LargeCauldronFluidHandler.TANK_CAPACITY)));
+            if (this.fluids.size() == LargeCauldronFluidHandler.TANK_COUNT) break;
         }
         this.changeListener.run();
     }
@@ -178,12 +178,12 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
 
     @Override
     public void serialize(ValueOutput output) {
-        output.store("Fluids", FLUIDS_CODEC, this.fluids);
+        output.store("Fluids", LargeCauldronFluidHandler.FLUIDS_CODEC, this.fluids);
     }
 
     @Override
     public void deserialize(ValueInput input) {
-        this.setFluids(input.read("Fluids", FLUIDS_CODEC).orElse(List.of()));
+        this.setFluids(input.read("Fluids", LargeCauldronFluidHandler.FLUIDS_CODEC).orElse(List.of()));
     }
 
     private int findFluid(FluidResource resource) {
@@ -254,12 +254,12 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
 
         @Override
         public int size() {
-            return TANK_COUNT;
+            return LargeCauldronFluidHandler.TANK_COUNT;
         }
 
         @Override
         public FluidResource getResource(int index) {
-            Objects.checkIndex(index, TANK_COUNT);
+            Objects.checkIndex(index, LargeCauldronFluidHandler.TANK_COUNT);
             List<Integer> order = LargeCauldronFluidHandler.this.layerOrder(this.drainOrder, this.accessibleAmount);
             return index < order.size()
                 ? LargeCauldronFluidHandler.this.getResource(order.get(index))
@@ -268,26 +268,26 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
 
         @Override
         public long getAmountAsLong(int index) {
-            Objects.checkIndex(index, TANK_COUNT);
+            Objects.checkIndex(index, LargeCauldronFluidHandler.TANK_COUNT);
             List<Integer> order = LargeCauldronFluidHandler.this.layerOrder(this.drainOrder, this.accessibleAmount);
             return index < order.size() ? LargeCauldronFluidHandler.this.getAmountAsLong(order.get(index)) : 0;
         }
 
         @Override
         public long getCapacityAsLong(int index, FluidResource resource) {
-            Objects.checkIndex(index, TANK_COUNT);
-            return TANK_CAPACITY;
+            Objects.checkIndex(index, LargeCauldronFluidHandler.TANK_COUNT);
+            return LargeCauldronFluidHandler.TANK_CAPACITY;
         }
 
         @Override
         public boolean isValid(int index, FluidResource resource) {
-            Objects.checkIndex(index, TANK_COUNT);
+            Objects.checkIndex(index, LargeCauldronFluidHandler.TANK_COUNT);
             return LargeCauldronFluidHandler.this.isValid(index, resource);
         }
 
         @Override
         public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
-            Objects.checkIndex(index, TANK_COUNT);
+            Objects.checkIndex(index, LargeCauldronFluidHandler.TANK_COUNT);
             return this.insert(resource, amount, transaction);
         }
 
@@ -298,7 +298,7 @@ public class LargeCauldronFluidHandler implements ResourceHandler<FluidResource>
 
         @Override
         public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
-            Objects.checkIndex(index, TANK_COUNT);
+            Objects.checkIndex(index, LargeCauldronFluidHandler.TANK_COUNT);
             List<Integer> order = LargeCauldronFluidHandler.this.layerOrder(this.drainOrder, this.accessibleAmount);
             return index < order.size()
                 ? LargeCauldronFluidHandler.this.extractLayer(order.get(index), resource, amount, transaction)

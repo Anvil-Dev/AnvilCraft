@@ -49,13 +49,13 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity, WeaponB
         super.extractRenderState(entity, state, partialTick);
         state.setVisible(false);
         state.setCompensateViewBob(false);
-        if (isObsoleteContinuousBeam(entity) || !isOwnerFiringContinuousBeam(entity)) return;
+        if (WeaponBeamRenderer.isObsoleteContinuousBeam(entity) || !WeaponBeamRenderer.isOwnerFiringContinuousBeam(entity)) return;
 
         Vec3 origin = entity.getPosition(partialTick);
         Vec3 originOffset = Vec3.ZERO;
         Vec3 endOffset = entity.getEndOffset();
         if (entity.getStyle() == WeaponBeamEntity.CORRUPTED || entity.getStyle() == WeaponBeamEntity.LASER) {
-            LiveBeam liveBeam = resolveLiveBeam(entity, partialTick);
+            LiveBeam liveBeam = WeaponBeamRenderer.resolveLiveBeam(entity, partialTick);
             if (liveBeam != null) {
                 originOffset = liveBeam.start().subtract(origin);
                 endOffset = liveBeam.end().subtract(liveBeam.start());
@@ -75,7 +75,7 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity, WeaponB
                 && minecraft.options.bobView().get()
         );
         if (entity.getStyle() == WeaponBeamEntity.LASER) {
-            state.setLaser(createLaserState(endOffset, entity.getStrength()));
+            state.setLaser(WeaponBeamRenderer.createLaserState(endOffset, entity.getStrength()));
         } else {
             state.setLaser(null);
         }
@@ -103,7 +103,7 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity, WeaponB
         if (!state.isVisible()) return;
         final Vec3 end = state.getEndOffset();
         ViewBobCompensation compensation = state.isCompensateViewBob()
-            ? createViewBobCompensation(camera)
+            ? WeaponBeamRenderer.createViewBobCompensation(camera)
             : null;
 
         pose.pushPose();
@@ -113,7 +113,7 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity, WeaponB
         }
         pose.translate(state.getOriginOffset().x, state.getOriginOffset().y, state.getOriginOffset().z);
         if (state.getStyle() == WeaponBeamEntity.CORRUPTED) {
-            rotateLocalYTo(end, pose);
+            WeaponBeamRenderer.rotateLocalYTo(end, pose);
             pose.scale(0.5F, 1.0F, 0.5F);
             collector.submitCustomGeometry(
                 pose,
@@ -125,10 +125,10 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity, WeaponB
                 )
             );
         } else if (state.getStyle() == WeaponBeamEntity.LASER) {
-            rotateLocalYTo(end, pose);
+            WeaponBeamRenderer.rotateLocalYTo(end, pose);
             if (state.getLaser() != null) LaserCompiler.submit(pose, state.getLaser(), collector, false);
         } else {
-            submitTeslaArc(state, end, pose, collector, camera);
+            WeaponBeamRenderer.submitTeslaArc(state, end, pose, collector, camera);
         }
         pose.popPose();
         super.submit(state, pose, collector, camera);
@@ -136,7 +136,7 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity, WeaponB
 
     private static ViewBobCompensation createViewBobCompensation(CameraRenderState camera) {
         float phase = camera.entityRenderState.backwardsInterpolatedWalkDistance;
-        float bob = camera.entityRenderState.bob * VIEW_BOB_COMPENSATION;
+        float bob = camera.entityRenderState.bob * WeaponBeamRenderer.VIEW_BOB_COMPENSATION;
         float translateX = Mth.sin(phase * (float) Math.PI) * bob * 0.5F;
         float translateY = -Math.abs(Mth.cos(phase * (float) Math.PI) * bob);
         float rotateZ = Mth.sin(phase * (float) Math.PI) * bob * 3.0F;
@@ -183,10 +183,10 @@ public class WeaponBeamRenderer extends EntityRenderer<WeaponBeamEntity, WeaponB
             ModRenderTypes.LIGHTNING,
             (last, consumer) -> {
                 Matrix4f matrix = last.pose();
-                vertex(consumer, matrix, side.reverse(), 0.0F, 0.0F);
-                vertex(consumer, matrix, end.subtract(side), 1.0F, 0.0F);
-                vertex(consumer, matrix, end.add(side), 1.0F, 1.0F);
-                vertex(consumer, matrix, side, 0.0F, 1.0F);
+                WeaponBeamRenderer.vertex(consumer, matrix, side.reverse(), 0.0F, 0.0F);
+                WeaponBeamRenderer.vertex(consumer, matrix, end.subtract(side), 1.0F, 0.0F);
+                WeaponBeamRenderer.vertex(consumer, matrix, end.add(side), 1.0F, 1.0F);
+                WeaponBeamRenderer.vertex(consumer, matrix, side, 0.0F, 1.0F);
             }
         );
     }

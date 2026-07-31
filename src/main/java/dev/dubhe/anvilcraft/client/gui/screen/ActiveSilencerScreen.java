@@ -148,7 +148,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     /// 获取屏幕上某一项的声音字幕
     public Component getSoundTextAt(int index, int variant) {
         int actualIndex = index;
-        if (variant == SOUND_FILTERED) {
+        if (variant == ActiveSilencerScreen.SOUND_FILTERED) {
             actualIndex += this.leftScrollOff;
             if (this.filteredSounds.isEmpty() || actualIndex >= this.filteredSounds.size()) return Component.empty();
             return this.filteredSounds.get(actualIndex).right();
@@ -162,7 +162,7 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     /// 获取屏幕上某一项的声音id
     public @Nullable Identifier getSoundIdAt(int index, int variant) {
         int actualIndex = index;
-        if (variant == SOUND_FILTERED) {
+        if (variant == ActiveSilencerScreen.SOUND_FILTERED) {
             actualIndex += this.leftScrollOff;
             if (this.filteredSounds.isEmpty() || actualIndex >= this.filteredSounds.size()) return null;
             return this.filteredSounds.get(actualIndex).left();
@@ -184,13 +184,13 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         super.init();
         this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
-        int buttonTop = topPos + 35;
+        int buttonTop = this.topPos + 35;
         for (int l = 0; l < 8; ++l) {
             this.addRenderableWidget(new SilencerButton(
-                leftPos + START_LEFT_X,
+                this.leftPos + ActiveSilencerScreen.START_LEFT_X,
                 buttonTop,
                 l,
-                SOUND_FILTERED,
+                ActiveSilencerScreen.SOUND_FILTERED,
                 b -> {
                     if (b instanceof SilencerButton silencerButton) {
                         this.onAllSoundButtonClick(silencerButton.getIndex());
@@ -202,13 +202,13 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             buttonTop += 15;
         }
 
-        buttonTop = topPos + 35;
+        buttonTop = this.topPos + 35;
         for (int l = 0; l < 8; ++l) {
             this.addRenderableWidget(new SilencerButton(
-                leftPos + START_RIGHT_X,
+                this.leftPos + ActiveSilencerScreen.START_RIGHT_X,
                 buttonTop,
                 l,
-                SOUND_MUTED,
+                ActiveSilencerScreen.SOUND_MUTED,
                 b -> {
                     if (b instanceof SilencerButton silencerButton) {
                         this.onMutedSoundButtonClick(silencerButton.getIndex());
@@ -222,8 +222,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
 
         this.addRenderableWidget(new EditBox(
             Objects.requireNonNull(this.minecraft).font,
-            leftPos + 78,
-            topPos + 19,
+            this.leftPos + 78,
+            this.topPos + 19,
             100,
             12,
             Component.translatable("screen.anvilcraft.active_silencer.search")
@@ -243,10 +243,10 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         return MathUtil.isInRange(
             mouseX,
             mouseY,
-            leftPos + START_LEFT_X,
-            topPos + SCROLL_BAR_TOP_POS_Y,
-            leftPos + SCROLL_BAR_START_LEFT_X + SCROLL_BAR_WIDTH,
-            topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT
+            leftPos + ActiveSilencerScreen.START_LEFT_X,
+            topPos + ActiveSilencerScreen.SCROLL_BAR_TOP_POS_Y,
+            leftPos + ActiveSilencerScreen.SCROLL_BAR_START_LEFT_X + ActiveSilencerScreen.SCROLL_BAR_WIDTH,
+            topPos + ActiveSilencerScreen.SCROLL_BAR_TOP_POS_Y + ActiveSilencerScreen.SCROLL_BAR_HEIGHT
         );
     }
 
@@ -254,10 +254,10 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         return MathUtil.isInRange(
             mouseX,
             mouseY,
-            leftPos + START_RIGHT_X,
-            topPos + SCROLL_BAR_TOP_POS_Y,
-            leftPos + SCROLL_BAR_START_RIGHT_X + SCROLL_BAR_WIDTH,
-            topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT
+            leftPos + ActiveSilencerScreen.START_RIGHT_X,
+            topPos + ActiveSilencerScreen.SCROLL_BAR_TOP_POS_Y,
+            leftPos + ActiveSilencerScreen.SCROLL_BAR_START_RIGHT_X + ActiveSilencerScreen.SCROLL_BAR_WIDTH,
+            topPos + ActiveSilencerScreen.SCROLL_BAR_TOP_POS_Y + ActiveSilencerScreen.SCROLL_BAR_HEIGHT
         );
     }
 
@@ -265,10 +265,10 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         return MathUtil.isInRange(
             mouseX,
             mouseY,
-            leftPos + SCROLL_BAR_START_LEFT_X,
-            topPos + SCROLL_BAR_TOP_POS_Y,
-            leftPos + SCROLL_BAR_START_LEFT_X + SCROLL_BAR_WIDTH,
-            topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT
+            leftPos + ActiveSilencerScreen.SCROLL_BAR_START_LEFT_X,
+            topPos + ActiveSilencerScreen.SCROLL_BAR_TOP_POS_Y,
+            leftPos + ActiveSilencerScreen.SCROLL_BAR_START_LEFT_X + ActiveSilencerScreen.SCROLL_BAR_WIDTH,
+            topPos + ActiveSilencerScreen.SCROLL_BAR_TOP_POS_Y + ActiveSilencerScreen.SCROLL_BAR_HEIGHT
         );
     }
 
@@ -276,10 +276,10 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
         return MathUtil.isInRange(
             mouseX,
             mouseY,
-            leftPos + SCROLL_BAR_START_RIGHT_X,
-            topPos + SCROLL_BAR_TOP_POS_Y,
-            leftPos + SCROLL_BAR_START_RIGHT_X + SCROLL_BAR_WIDTH,
-            topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT
+            leftPos + ActiveSilencerScreen.SCROLL_BAR_START_RIGHT_X,
+            topPos + ActiveSilencerScreen.SCROLL_BAR_TOP_POS_Y,
+            leftPos + ActiveSilencerScreen.SCROLL_BAR_START_RIGHT_X + ActiveSilencerScreen.SCROLL_BAR_WIDTH,
+            topPos + ActiveSilencerScreen.SCROLL_BAR_TOP_POS_Y + ActiveSilencerScreen.SCROLL_BAR_HEIGHT
         );
     }
 
@@ -316,8 +316,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         if (this.isDraggingLeft) {
             int i = this.filteredSounds.size();
-            int j = this.topPos + SCROLL_BAR_TOP_POS_Y;
-            int k = j + SCROLL_BAR_HEIGHT;
+            int j = this.topPos + ActiveSilencerScreen.SCROLL_BAR_TOP_POS_Y;
+            int k = j + ActiveSilencerScreen.SCROLL_BAR_HEIGHT;
             int dragMax = i - 7;
             float scroll = (float) ((event.y() - j - 13.5F) / ((k - j) - 27.0F));
             scroll = scroll * dragMax + 0.5F;
@@ -325,8 +325,8 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
             return true;
         } else if (this.isDraggingRight) {
             int i = this.mutedSounds.size();
-            int j = this.topPos + SCROLL_BAR_TOP_POS_Y;
-            int k = j + SCROLL_BAR_HEIGHT;
+            int j = this.topPos + ActiveSilencerScreen.SCROLL_BAR_TOP_POS_Y;
+            int k = j + ActiveSilencerScreen.SCROLL_BAR_HEIGHT;
             int dragMax = i - 7;
             float scroll = (float) ((event.y() - j - 13.5F) / ((k - j) - 27.0F));
             scroll = scroll * dragMax + 0.5F;
@@ -358,13 +358,13 @@ public class ActiveSilencerScreen extends AbstractContainerScreen<ActiveSilencer
     private void extractScroller(GuiGraphicsExtractor graphics, int posX, int posY, int totalCount, int scrollOff) {
         int i = totalCount + 1 - 8;
         if (i > 1) {
-            int maxY = posY + SCROLL_BAR_HEIGHT - SCROLLER_HEIGHT;
-            int scrollY = (int) (posY + (scrollOff / (totalCount - 7F)) * (SCROLL_BAR_HEIGHT - SCROLLER_HEIGHT));
+            int maxY = posY + ActiveSilencerScreen.SCROLL_BAR_HEIGHT - ActiveSilencerScreen.SCROLLER_HEIGHT;
+            int scrollY = (int) (posY + (scrollOff / (totalCount - 7F)) * (ActiveSilencerScreen.SCROLL_BAR_HEIGHT - ActiveSilencerScreen.SCROLLER_HEIGHT));
             scrollY = Mth.clamp(scrollY, posY, maxY);
 
-            graphics.blit(RenderPipelines.GUI_TEXTURED, SLIDER, posX, scrollY, 0, 0, 5, 9, 10, 9);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, ActiveSilencerScreen.SLIDER, posX, scrollY, 0, 0, 5, 9, 10, 9);
         } else {
-            graphics.blit(RenderPipelines.GUI_TEXTURED, SLIDER, posX, posY, 0, 0, 5, 9, 10, 9);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, ActiveSilencerScreen.SLIDER, posX, posY, 0, 0, 5, 9, 10, 9);
         }
     }
 

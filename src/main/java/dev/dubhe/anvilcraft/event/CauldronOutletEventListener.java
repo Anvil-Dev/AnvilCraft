@@ -43,7 +43,7 @@ public class CauldronOutletEventListener {
         }
 
         // 获取应该在哪个方向创建口
-        Direction direction = getDirectionFromPlayerFacing(event.getFace(), player);
+        Direction direction = CauldronOutletEventListener.getDirectionFromPlayerFacing(event.getFace(), player);
 
         // 检查方向，不能在顶部生成
         if (direction == Direction.UP) {
@@ -53,29 +53,29 @@ public class CauldronOutletEventListener {
         // 计算新口的位置，下方用专门的方法
         Vec3 newPosition;
         if (direction == Direction.DOWN) {
-            newPosition = calculateMouthPositionForBottom(blockPos);
+            newPosition = CauldronOutletEventListener.calculateMouthPositionForBottom(blockPos);
         } else {
-            newPosition = calculateMouthPosition(blockPos, direction);
+            newPosition = CauldronOutletEventListener.calculateMouthPosition(blockPos, direction);
         }
         if (level.isClientSide()) return;
 
         // 检查该位置是否已有口，有就移除并播放音效
-        CauldronOutletEntity existingMouth = findExistingCauldronMouthAtPosition(level, blockPos, newPosition);
+        CauldronOutletEntity existingMouth = CauldronOutletEventListener.findExistingCauldronMouthAtPosition(level, blockPos, newPosition);
 
         if (existingMouth != null) {
             existingMouth.discard();
-            playOutletSound(level, blockPos);
+            CauldronOutletEventListener.playOutletSound(level, blockPos);
             return;
         }
 
         // 检查该炼药锅是否已有其他口并移除
-        removeExistingCauldronMouth(level, blockPos);
-        removeOpposingOutlet(level, blockPos, direction);
+        CauldronOutletEventListener.removeExistingCauldronMouth(level, blockPos);
+        CauldronOutletEventListener.removeOpposingOutlet(level, blockPos, direction);
 
         // 创建炼药锅口实体，播放音效
         CauldronOutletEntity cauldronMouthEntity = new CauldronOutletEntity(level, newPosition, blockPos, direction);
         level.addFreshEntity(cauldronMouthEntity);
-        playOutletSound(level, blockPos);
+        CauldronOutletEventListener.playOutletSound(level, blockPos);
     }
 
     private static void playOutletSound(Level level, BlockPos pos) {
@@ -107,7 +107,7 @@ public class CauldronOutletEventListener {
     }
 
     private static @Nullable CauldronOutletEntity findExistingCauldronMouthAtPosition(Level level, BlockPos cauldronPos, Vec3 position) {
-        List<CauldronOutletEntity> existingMouths = getCauldronMouths(level, cauldronPos);
+        List<CauldronOutletEntity> existingMouths = CauldronOutletEventListener.getCauldronMouths(level, cauldronPos);
         for (CauldronOutletEntity mouth : existingMouths) {
             if (mouth.position().distanceTo(position) < 0.1) {
                 return mouth;
@@ -117,7 +117,7 @@ public class CauldronOutletEventListener {
     }
 
     private static void removeExistingCauldronMouth(Level level, BlockPos cauldronPos) {
-        List<CauldronOutletEntity> existingMouths = getCauldronMouths(level, cauldronPos);
+        List<CauldronOutletEntity> existingMouths = CauldronOutletEventListener.getCauldronMouths(level, cauldronPos);
         for (CauldronOutletEntity mouth : existingMouths) {
             mouth.discard();
         }
@@ -125,7 +125,7 @@ public class CauldronOutletEventListener {
 
     private static void removeOpposingOutlet(Level level, BlockPos cauldronPos, Direction direction) {
         BlockPos targetPos = cauldronPos.relative(direction);
-        for (CauldronOutletEntity outlet : getCauldronMouths(level, targetPos)) {
+        for (CauldronOutletEntity outlet : CauldronOutletEventListener.getCauldronMouths(level, targetPos)) {
             if (outlet.getAttachedDirection() == direction.getOpposite()) outlet.discard();
         }
     }

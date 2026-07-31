@@ -53,7 +53,7 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
             this.topPos + 26,
             16,
             16,
-            List.of(INCLUDE_COMPONENTS_ENABLE, INCLUDE_COMPONENTS_DISABLE),
+            List.of(FilterScreen.INCLUDE_COMPONENTS_ENABLE, FilterScreen.INCLUDE_COMPONENTS_DISABLE),
             16,
             16,
             32,
@@ -71,7 +71,7 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
             this.topPos + 44,
             16,
             16,
-            List.of(BLACK_LIST_ENABLE, BLACK_LIST_DISABLE),
+            List.of(FilterScreen.BLACK_LIST_ENABLE, FilterScreen.BLACK_LIST_DISABLE),
             16,
             16,
             32,
@@ -91,7 +91,7 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            FilterScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,

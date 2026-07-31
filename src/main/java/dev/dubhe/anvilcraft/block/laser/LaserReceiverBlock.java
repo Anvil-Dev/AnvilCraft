@@ -12,6 +12,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -82,32 +84,32 @@ public class LaserReceiverBlock extends BaseLaserBlock implements IHammerRemovab
 
     @Override
     protected MapCodec<? extends BaseLaserBlock> codec() {
-        return simpleCodec(LaserReceiverBlock::new);
+        return BlockBehaviour.simpleCodec(LaserReceiverBlock::new);
     }
 
     public LaserReceiverBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.getStateDefinition().any()
-            .setValue(FACING, Direction.UP)
-            .setValue(ACTIVE, false));
+            .setValue(LaserReceiverBlock.FACING, Direction.UP)
+            .setValue(LaserReceiverBlock.ACTIVE, false));
     }
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return switch (state.getValue(FACING)) {
-            case UP -> UP_SHAPE;
-            case DOWN -> DOWN_SHAPE;
-            case NORTH -> NORTH_SHAPE;
-            case SOUTH -> SOUTH_SHAPE;
-            case EAST -> EAST_SHAPE;
-            case WEST -> WEST_SHAPE;
+        return switch (state.getValue(LaserReceiverBlock.FACING)) {
+            case UP -> LaserReceiverBlock.UP_SHAPE;
+            case DOWN -> LaserReceiverBlock.DOWN_SHAPE;
+            case NORTH -> LaserReceiverBlock.NORTH_SHAPE;
+            case SOUTH -> LaserReceiverBlock.SOUTH_SHAPE;
+            case EAST -> LaserReceiverBlock.EAST_SHAPE;
+            case WEST -> LaserReceiverBlock.WEST_SHAPE;
         };
     }
 
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction clickedFace = context.getClickedFace();
-        return this.defaultBlockState().setValue(FACING, clickedFace);
+        return this.defaultBlockState().setValue(LaserReceiverBlock.FACING, clickedFace);
     }
 
     @Override
@@ -117,7 +119,7 @@ public class LaserReceiverBlock extends BaseLaserBlock implements IHammerRemovab
 
     @Override
     protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        if (state.getValue(FACING).getOpposite() != direction) {
+        if (state.getValue(LaserReceiverBlock.FACING).getOpposite() != direction) {
             if (level.getBlockEntity(pos) instanceof LaserReceiverBlockEntity laserReceiverBlockEntity) {
                 int laserLevel = laserReceiverBlockEntity.getLaserLevel();
                 return Math.min(laserLevel, 15);
@@ -128,7 +130,7 @@ public class LaserReceiverBlock extends BaseLaserBlock implements IHammerRemovab
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, ACTIVE);
+        builder.add(LaserReceiverBlock.FACING, LaserReceiverBlock.ACTIVE);
     }
 
     @Override
@@ -144,28 +146,28 @@ public class LaserReceiverBlock extends BaseLaserBlock implements IHammerRemovab
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide()) return null;
-        return createTickerHelper(type, ModBlockEntities.LASER_RECEIVER.get(), (level1, pos, state1, entity) -> entity.tick(level));
+        return BaseEntityBlock.createTickerHelper(type, ModBlockEntities.LASER_RECEIVER.get(), (level1, pos, state1, entity) -> entity.tick(level));
     }
 
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         BlockState state = level.getBlockState(blockPos);
-        level.setBlockAndUpdate(blockPos, state.cycle(FACING));
+        level.setBlockAndUpdate(blockPos, state.cycle(LaserReceiverBlock.FACING));
         return true;
     }
 
     @Override
     public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
+        return LaserReceiverBlock.FACING;
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(LaserReceiverBlock.FACING, rotation.rotate(state.getValue(LaserReceiverBlock.FACING)));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
+        return state.setValue(LaserReceiverBlock.FACING, mirror.mirror(state.getValue(LaserReceiverBlock.FACING)));
     }
 }

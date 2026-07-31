@@ -40,7 +40,7 @@ public class BlockEventListener {
     private static final Map<UUID, BlockPos> CREATIVE_CRATE_ATTACKS = new HashMap<>();
 
     public static void clearCreativeCrateAttack(Player player, BlockPos pos) {
-        CREATIVE_CRATE_ATTACKS.remove(player.getUUID(), pos);
+        BlockEventListener.CREATIVE_CRATE_ATTACKS.remove(player.getUUID(), pos);
     }
 
     /// 侦听左键方块事件
@@ -65,7 +65,7 @@ public class BlockEventListener {
             if (event.getLevel().isClientSide()) {
                 return;
             }
-            clearCreativeCrateAttack(player, event.getPos());
+            BlockEventListener.clearCreativeCrateAttack(player, event.getPos());
             return;
         }
         if (!player.isCreative() && !crate.getDisplayStack().isEmpty()) {
@@ -74,7 +74,7 @@ public class BlockEventListener {
         }
         if (event.getAction() != PlayerInteractEvent.LeftClickBlock.Action.START) return;
         if (!player.isCreative()) {
-            BlockPos activePos = CREATIVE_CRATE_ATTACKS.get(player.getUUID());
+            BlockPos activePos = BlockEventListener.CREATIVE_CRATE_ATTACKS.get(player.getUUID());
             if (event.getPos().equals(activePos)) {
                 event.setUseBlock(TriState.FALSE);
                 event.setUseItem(TriState.FALSE);
@@ -86,7 +86,7 @@ public class BlockEventListener {
                 event.setCanceled(true);
             } else {
                 if (!event.getLevel().isClientSide()) {
-                    CREATIVE_CRATE_ATTACKS.put(player.getUUID(), event.getPos().immutable());
+                    BlockEventListener.CREATIVE_CRATE_ATTACKS.put(player.getUUID(), event.getPos().immutable());
                 }
                 event.setUseBlock(TriState.FALSE);
                 event.setUseItem(TriState.FALSE);
@@ -119,7 +119,7 @@ public class BlockEventListener {
             && targetState.is(BlockTags.ANVIL)
             && player.isShiftKeyDown()
         ) {
-            onAnvilFixed(level, stack, pos, targetState);
+            BlockEventListener.onAnvilFixed(level, stack, pos, targetState);
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
         } else if (targetState.getBlock() instanceof BaseBatchCraftingBlock target && player.isShiftKeyDown()) {

@@ -50,8 +50,8 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
     public @Nullable RepairCostRecipeEntry currentRecipe = null;
 
     static {
-        REPAIR_COST_RECIPES.put(Items.GOLD_INGOT, new RepairCostRecipeEntry(1, ModItems.CURSED_GOLD_INGOT.get()));
-        REPAIR_COST_RECIPES.put(Items.GOLD_BLOCK, new RepairCostRecipeEntry(9, ModBlocks.CURSED_GOLD_BLOCK.asItem()));
+        RoyalGrindstoneMenu.REPAIR_COST_RECIPES.put(Items.GOLD_INGOT, new RepairCostRecipeEntry(1, ModItems.CURSED_GOLD_INGOT.get()));
+        RoyalGrindstoneMenu.REPAIR_COST_RECIPES.put(Items.GOLD_BLOCK, new RepairCostRecipeEntry(9, ModBlocks.CURSED_GOLD_BLOCK.asItem()));
     }
 
     public RoyalGrindstoneMenu(MenuType<RoyalGrindstoneMenu> type, int containerId, Inventory playerInventory) {
@@ -116,18 +116,20 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
 
             public void onTake(Player player, ItemStack stack) {
                 player.playSound(SoundEvents.GRINDSTONE_USE);
-                if (RoyalGrindstoneMenu.this.currentRecipe != null) {
+                RepairCostRecipeEntry currentRecipe = RoyalGrindstoneMenu.this.currentRecipe;
+                Item repairMaterial = RoyalGrindstoneMenu.this.repairMaterial;
+                if (currentRecipe != null && repairMaterial != null) {
                     RoyalGrindstoneMenu.this.resultMaterialSlots.setItem(
                         2,
                         new ItemStack(
-                            RoyalGrindstoneMenu.this.currentRecipe.item,
+                            currentRecipe.item,
                             RoyalGrindstoneMenu.this.usedGold + RoyalGrindstoneMenu.this.resultMaterialSlots.getItem(2).getCount()
                         )
                     );
                     RoyalGrindstoneMenu.this.repairMaterialSlots.setItem(
                         0,
                         new ItemStack(
-                            RoyalGrindstoneMenu.this.repairMaterial,
+                            repairMaterial,
                             RoyalGrindstoneMenu.this.repairMaterialSlots.getItem(0).getCount() - RoyalGrindstoneMenu.this.usedGold
                         )
                     );
@@ -161,7 +163,7 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
         final ItemStack repairMaterialSlotItem = this.repairMaterialSlots.getItem(0);
         final ItemStack resultMaterialSlotItem = this.resultMaterialSlots.getItem(0);
         this.repairMaterial = repairMaterialSlotItem.getItem();
-        this.currentRecipe = REPAIR_COST_RECIPES.getOrDefault(repairMaterialSlotItem.getItem(), null);
+        this.currentRecipe = RoyalGrindstoneMenu.REPAIR_COST_RECIPES.get(repairMaterialSlotItem.getItem());
         if (!resultMaterialSlotItem.isEmpty()
             && this.currentRecipe != null
             && resultMaterialSlotItem.getItem() != this.currentRecipe.item
@@ -202,16 +204,16 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
         this.removedRepairCost = Math.min(repairCost, maxRemovable);
         int remainRepairCost = repairCost - this.removedRepairCost;
         result.set(DataComponents.REPAIR_COST, remainRepairCost);
-        if (repairMaterialSlotItem.is(DEFAULT_REPAIR_MATERIAL)
-            && repairMaterialSlotItem.getCount() - this.usedGold >= GOLD_PER_CURSE
+        if (repairMaterialSlotItem.is(RoyalGrindstoneMenu.DEFAULT_REPAIR_MATERIAL)
+            && repairMaterialSlotItem.getCount() - this.usedGold >= RoyalGrindstoneMenu.GOLD_PER_CURSE
             && mutEnch != null) {
             Iterator<Holder<Enchantment>> iterator = mutEnch.keySet().iterator();
-            while (iterator.hasNext() && repairMaterialUsable >= GOLD_PER_CURSE) {
+            while (iterator.hasNext() && repairMaterialUsable >= RoyalGrindstoneMenu.GOLD_PER_CURSE) {
                 Holder<Enchantment> curseEnchantment = iterator.next();
                 if (!curseEnchantment.is(EnchantmentTags.CURSE)) continue;
                 iterator.remove();
-                this.usedGold += GOLD_PER_CURSE;
-                repairMaterialUsable -= GOLD_PER_CURSE;
+                this.usedGold += RoyalGrindstoneMenu.GOLD_PER_CURSE;
+                repairMaterialUsable -= RoyalGrindstoneMenu.GOLD_PER_CURSE;
                 this.removedCurseCount += 1;
             }
             result.set(enchantmentComponent, mutEnch.toImmutable());
@@ -277,7 +279,7 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(this.access, player, ModBlocks.ROYAL_GRINDSTONE.get());
+        return AbstractContainerMenu.stillValid(this.access, player, ModBlocks.ROYAL_GRINDSTONE.get());
     }
 
     @Override
@@ -321,7 +323,7 @@ public class RoyalGrindstoneMenu extends AbstractContainerMenu {
     }
 
     private boolean isRepairMaterial(ItemStack stack) {
-        return REPAIR_COST_RECIPES.containsKey(stack.getItem());
+        return RoyalGrindstoneMenu.REPAIR_COST_RECIPES.containsKey(stack.getItem());
     }
 
     public record RepairCostRecipeEntry(int count, Item item) {

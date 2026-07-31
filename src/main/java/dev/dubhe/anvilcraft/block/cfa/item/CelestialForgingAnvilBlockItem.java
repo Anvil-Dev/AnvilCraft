@@ -26,8 +26,16 @@ public class CelestialForgingAnvilBlockItem extends SimpleMultiPartBlockItem<Cub
         Player player = context.getPlayer();
         BlockPos clickedPos = context.getClickedPos();
         for (BlockPos pos : BlockPos.betweenClosed(
-            clickedPos.offset(PLACEMENT_RADIUS, PLACEMENT_RADIUS, PLACEMENT_RADIUS),
-            clickedPos.offset(-PLACEMENT_RADIUS, -PLACEMENT_RADIUS, -PLACEMENT_RADIUS)
+            clickedPos.offset(
+                CelestialForgingAnvilBlockItem.PLACEMENT_RADIUS,
+                CelestialForgingAnvilBlockItem.PLACEMENT_RADIUS,
+                CelestialForgingAnvilBlockItem.PLACEMENT_RADIUS
+            ),
+            clickedPos.offset(
+                -CelestialForgingAnvilBlockItem.PLACEMENT_RADIUS,
+                -CelestialForgingAnvilBlockItem.PLACEMENT_RADIUS,
+                -CelestialForgingAnvilBlockItem.PLACEMENT_RADIUS
+            )
         )) {
             if (level.getBlockState(pos).is(this.getBlock())) {
                 if (level.isClientSide() && player != null) {

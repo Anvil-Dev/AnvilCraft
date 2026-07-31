@@ -64,7 +64,7 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
         super.extractBackground(graphics, mouseX, mouseY, partialTick);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            TradingStationScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,
@@ -92,8 +92,8 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
             16,
             16,
             List.of(
-                PLAYER_NOT_ALLOW,
-                PLAYER_ALLOW
+                TradingStationScreen.PLAYER_NOT_ALLOW,
+                TradingStationScreen.PLAYER_ALLOW
             ),
             16,
             16,
@@ -117,8 +117,8 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
             16,
             16,
             List.of(
-                VILLAGER_NOT_ALLOW,
-                VILLAGER_ALLOW
+                TradingStationScreen.VILLAGER_NOT_ALLOW,
+                TradingStationScreen.VILLAGER_ALLOW
             ),
             16,
             16,
@@ -142,8 +142,8 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
             16,
             16,
             List.of(
-                INPUT_NOT_ALLOW,
-                INPUT_ALLOW
+                TradingStationScreen.INPUT_NOT_ALLOW,
+                TradingStationScreen.INPUT_ALLOW
             ),
             16,
             16,
@@ -167,8 +167,8 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
             16,
             16,
             List.of(
-                OUTPUT_NOT_ALLOW,
-                OUTPUT_ALLOW
+                TradingStationScreen.OUTPUT_NOT_ALLOW,
+                TradingStationScreen.OUTPUT_ALLOW
             ),
             16,
             16,
@@ -290,8 +290,8 @@ public class TradingStationScreen extends AbstractContainerScreen<TradingStation
                     .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY)
             );
         } else if (this.hoveredSlot instanceof SlotItemHandlerWithFilter filterSlot && filterSlot.isFilter()) {
-            components.add(SCROLL_WHEEL_TO_CHANGE_STACK_LIMIT_TOOLTIP);
-            components.add(SHIFT_TO_SCROLL_FASTER_TOOLTIP);
+            components.add(IFilterScreen.SCROLL_WHEEL_TO_CHANGE_STACK_LIMIT_TOOLTIP);
+            components.add(IFilterScreen.SHIFT_TO_SCROLL_FASTER_TOOLTIP);
         }
         return components;
     }

@@ -36,8 +36,8 @@ public class IonoCraftBackpackHUD {
         ItemStack backpack = IonoCraftBackpackItem.getByPlayer(player);
         boolean renderBackpack = config.enabled && backpack.is(ModItems.IONOCRAFT_BACKPACK);
         Inventory inventory = player.getInventory();
-        int capacitorCount = count(inventory, ModItems.CAPACITOR.asStack());
-        int superCapacitorCount = count(inventory, ModItems.SUPER_CAPACITOR.asStack());
+        int capacitorCount = IonoCraftBackpackHUD.count(inventory, ModItems.CAPACITOR.asStack());
+        int superCapacitorCount = IonoCraftBackpackHUD.count(inventory, ModItems.SUPER_CAPACITOR.asStack());
         boolean renderCapacitors = config.capacitorCountEnabled && (capacitorCount > 0 || superCapacitorCount > 0);
         if (!renderBackpack && !renderCapacitors) return;
 
@@ -47,11 +47,11 @@ public class IonoCraftBackpackHUD {
         pose.scale(config.hudScale, config.hudScale);
         pose.translate(config.hudX, config.hudY);
         if (renderBackpack) {
-            renderBackpack(graphics, mc.font, backpack);
-            pose.translate(0, ROW_HEIGHT);
+            IonoCraftBackpackHUD.renderBackpack(graphics, mc.font, backpack);
+            pose.translate(0, IonoCraftBackpackHUD.ROW_HEIGHT);
         }
         if (renderCapacitors) {
-            renderCapacitorCounts(graphics, mc.font, capacitorCount, superCapacitorCount);
+            IonoCraftBackpackHUD.renderCapacitorCounts(graphics, mc.font, capacitorCount, superCapacitorCount);
         }
 
         pose.popMatrix();
@@ -63,7 +63,7 @@ public class IonoCraftBackpackHUD {
         int energy = IonoCraftBackpackItem.getEnergyStored(backpack);
         int percent = Math.round((float) energy / IonoCraftBackpackItem.MAX_ENERGY * 100);
         float ratio = Math.clamp((float) energy / IonoCraftBackpackItem.MAX_ENERGY, 0, 1);
-        int color = ColorUtil.lerpColor(ratio, BAR_COLOR, FULL_BAR_COLOR);
+        int color = ColorUtil.lerpColor(ratio, IonoCraftBackpackHUD.BAR_COLOR, IonoCraftBackpackHUD.FULL_BAR_COLOR);
         graphics.item(backpack, 0, 0);
 
         pose.translate(20, 4);
@@ -76,7 +76,7 @@ public class IonoCraftBackpackHUD {
         pose.translate(textWidth + 4, -4);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BATTERY_EMPTY,
+            IonoCraftBackpackHUD.BATTERY_EMPTY,
             0,
             0,
             8,
@@ -90,7 +90,7 @@ public class IonoCraftBackpackHUD {
         pose.translate(0, 0);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BATTERY_FULL,
+            IonoCraftBackpackHUD.BATTERY_FULL,
             0,
             16 - batteryHeight,
             0,
@@ -113,11 +113,11 @@ public class IonoCraftBackpackHUD {
         graphics.item(ModItems.CAPACITOR.asStack(), 0, 0);
         graphics.text(font, Component.literal("x " + capacitorCount), 20, 4, 0xFFFFFFFF, true);
 
-        graphics.item(ModItems.SUPER_CAPACITOR.asStack(), SUPER_CAPACITOR_X, 0);
+        graphics.item(ModItems.SUPER_CAPACITOR.asStack(), IonoCraftBackpackHUD.SUPER_CAPACITOR_X, 0);
         graphics.text(
             font,
             Component.literal("x " + superCapacitorCount),
-            SUPER_CAPACITOR_X + 20,
+            IonoCraftBackpackHUD.SUPER_CAPACITOR_X + 20,
             4,
             0xFFFFFFFF,
             true

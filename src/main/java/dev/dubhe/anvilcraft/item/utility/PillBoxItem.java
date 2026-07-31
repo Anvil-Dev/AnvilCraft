@@ -27,7 +27,7 @@ public class PillBoxItem extends Item {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand usedHand) {
         ItemStack itemStack = player.getItemInHand(usedHand);
-        return use(itemStack, player);
+        return PillBoxItem.use(itemStack, player);
     }
 
     public static InteractionResult use(ItemStack pillBox, Player player) {

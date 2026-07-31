@@ -29,7 +29,7 @@ public record ChargeCollectorIncomingChargePacket(BlockPos srcPos, BlockPos dstP
 
     @Override
     public Type<ChargeCollectorIncomingChargePacket> type() {
-        return TYPE;
+        return ChargeCollectorIncomingChargePacket.TYPE;
     }
 
     @Override
@@ -38,13 +38,13 @@ public record ChargeCollectorIncomingChargePacket(BlockPos srcPos, BlockPos dstP
         Vec3 srcPos = this.srcPos.getCenter();
         Vec3 dstPos = this.dstPos.getCenter();
         Vec3 offset = dstPos.subtract(srcPos);
-        RANDOM.setSeed(System.nanoTime());
-        final double dRandom = Math.clamp(RANDOM.nextGaussian() + 1, 1, 1.5);
+        ChargeCollectorIncomingChargePacket.RANDOM.setSeed(System.nanoTime());
+        final double dRandom = Math.clamp(ChargeCollectorIncomingChargePacket.RANDOM.nextGaussian() + 1, 1, 1.5);
         level.addParticle(
             ParticleTypes.END_ROD,
-            srcPos.x + Math.clamp(RANDOM.nextGaussian(), 0, 0.3),
-            srcPos.y + Math.clamp(RANDOM.nextGaussian(), 0, 0.3),
-            srcPos.z + Math.clamp(RANDOM.nextGaussian(), 0, 0.3),
+            srcPos.x + Math.clamp(ChargeCollectorIncomingChargePacket.RANDOM.nextGaussian(), 0, 0.3),
+            srcPos.y + Math.clamp(ChargeCollectorIncomingChargePacket.RANDOM.nextGaussian(), 0, 0.3),
+            srcPos.z + Math.clamp(ChargeCollectorIncomingChargePacket.RANDOM.nextGaussian(), 0, 0.3),
             (offset.x / 20d) * dRandom,
             (offset.y / 20d) * dRandom,
             (offset.z / 20d) * dRandom

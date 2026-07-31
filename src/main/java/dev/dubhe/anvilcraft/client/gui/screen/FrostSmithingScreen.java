@@ -56,11 +56,11 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
     private static final Component ERROR_TOOLTIP = Component.translatable("container.upgrade.error_tooltip");
 
     private static final List<Identifier> EMPTY_SLOT_SMITHING_TEMPLATES = List.of(
-        EMPTY_SLOT_PERMUTATION_SMITHING_TEMPLATE,
-        EMPTY_SLOT_DEFORMATION_SMITHING_TEMPLATE
+        FrostSmithingScreen.EMPTY_SLOT_PERMUTATION_SMITHING_TEMPLATE,
+        FrostSmithingScreen.EMPTY_SLOT_DEFORMATION_SMITHING_TEMPLATE
     );
     private static final List<Identifier> EMPTY_SLOT_DEFORM_MATERIAL = List.of(
-        EMPTY_SLOT_INGOT
+        FrostSmithingScreen.EMPTY_SLOT_INGOT
     );
     private static final Vector3f ARMOR_STAND_TRANSLATION = new Vector3f(0.0F, 1.0F, 0.0F);
     public static final Quaternionf ARMOR_STAND_ANGLE = new Quaternionf().rotationXYZ(0.43633232F, 0.0F, (float) Math.PI);
@@ -80,7 +80,7 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
     /// @param playerInventory 背包
     /// @param title           标题
     public FrostSmithingScreen(FrostSmithingMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title, BACKGROUND);
+        super(menu, playerInventory, title, FrostSmithingScreen.BACKGROUND);
         this.armorStandPreview.entityType = EntityType.ARMOR_STAND;
         this.armorStandPreview.showBasePlate = false;
         this.armorStandPreview.showArms = true;
@@ -103,7 +103,7 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
             this.topPos + 32,
             7,
             11,
-            LEFT,
+            FrostSmithingScreen.LEFT,
             11,
             7,
             22,
@@ -118,7 +118,7 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
             this.topPos + 32,
             7,
             11,
-            RIGHT,
+            FrostSmithingScreen.RIGHT,
             11,
             7,
             22,
@@ -140,7 +140,7 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
     public void containerTick() {
         super.containerTick();
 
-        this.templateIcon.tick(EMPTY_SLOT_SMITHING_TEMPLATES);
+        this.templateIcon.tick(FrostSmithingScreen.EMPTY_SLOT_SMITHING_TEMPLATES);
         var permut = this.getPermutTemplateItem();
         if (permut.isPresent()) {
             this.materialIcon.tick(permut.get().getEmptySlotTextures());
@@ -149,7 +149,7 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
         }
         var deform = this.getDeformTemplateItem();
         if (deform.isPresent()) {
-            this.materialIcon.tick(EMPTY_SLOT_DEFORM_MATERIAL);
+            this.materialIcon.tick(FrostSmithingScreen.EMPTY_SLOT_DEFORM_MATERIAL);
             this.inputIcon.tick(deform.get().getEmptySlotTextures());
         } else {
             this.materialIcon.tick(List.of());
@@ -201,8 +201,8 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
         graphics.entity(
             this.armorStandPreview,
             25,
-            ARMOR_STAND_TRANSLATION,
-            ARMOR_STAND_ANGLE,
+            FrostSmithingScreen.ARMOR_STAND_TRANSLATION,
+            FrostSmithingScreen.ARMOR_STAND_ANGLE,
             null,
             x0,
             y0,
@@ -273,7 +273,7 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
             && !this.menu.getSlot(this.menu.getResultSlot()).hasItem()
             && this.isHovering(83, 48, 16, 16, mouseX, mouseY)
         ) {
-            graphics.setTooltipForNextFrame(this.font, this.font.split(ERROR_TOOLTIP, 115), mouseX, mouseY);
+            graphics.setTooltipForNextFrame(this.font, this.font.split(FrostSmithingScreen.ERROR_TOOLTIP, 115), mouseX, mouseY);
             return;
         }
 
@@ -282,7 +282,7 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
         ItemStack template = this.menu.getSlot(0).getItem();
         if (template.isEmpty()) {
             if (this.hoveredSlot.index == 0) {
-                graphics.setTooltipForNextFrame(this.font, this.font.split(MISSING_TEMPLATE_TOOLTIP, 115), mouseX, mouseY);
+                graphics.setTooltipForNextFrame(this.font, this.font.split(FrostSmithingScreen.MISSING_TEMPLATE_TOOLTIP, 115), mouseX, mouseY);
             }
             return;
         }

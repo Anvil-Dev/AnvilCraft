@@ -53,7 +53,7 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
     private int selecting;
 
     public BatchCrafterBlockEntity(BlockEntityType<? extends BlockEntity> type, BlockPos pos, BlockState blockState) {
-        super(type, pos, blockState, COUNTER.incrementAndGet());
+        super(type, pos, blockState, BatchCrafterBlockEntity.COUNTER.incrementAndGet());
     }
 
     @Override
@@ -158,7 +158,9 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         super.preRemoveSideEffects(pos, state);
-        Containers.dropContents(this.level, pos, this.getFilteredItemStackHandler().getStacks());
+        if (this.level != null) {
+            Containers.dropContents(this.level, pos, this.getFilteredItemStackHandler().getStacks());
+        }
     }
 
     @Nullable
@@ -215,8 +217,7 @@ public class BatchCrafterBlockEntity extends BaseBatchCraftingBlockEntity {
         /// 合成器缓存
         ///
         /// @param container 容器
-        /// @param recipe    配方
-        /// @param remaining 返还物品
+        /// @param recipes   配方
         public BatchCrafterCache(
             Container container,
             List<RecipeHolder<CraftingRecipe>> recipes

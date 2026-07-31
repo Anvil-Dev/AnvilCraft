@@ -23,6 +23,6 @@ public class HeavyIronPlateBlock extends Block implements IHammerRemovable {
         BlockPos blockPos,
         CollisionContext collisionContext
     ) {
-        return AABB;
+        return HeavyIronPlateBlock.AABB;
     }
 }

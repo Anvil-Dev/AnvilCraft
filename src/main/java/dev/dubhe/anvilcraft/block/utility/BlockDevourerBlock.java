@@ -31,6 +31,7 @@ import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.LecternBlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -66,19 +67,19 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         super(properties);
         this.registerDefaultState(
             this.stateDefinition.any()
-                .setValue(FACING, Direction.NORTH)
-                .setValue(TRIGGERED, false)
+                .setValue(BlockDevourerBlock.FACING, Direction.NORTH)
+                .setValue(BlockDevourerBlock.TRIGGERED, false)
         );
     }
 
     @Override
     protected MapCodec<? extends DirectionalBlock> codec() {
-        return simpleCodec(BlockDevourerBlock::new);
+        return BlockBehaviour.simpleCodec(BlockDevourerBlock::new);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING).add(TRIGGERED);
+        builder.add(BlockDevourerBlock.FACING).add(BlockDevourerBlock.TRIGGERED);
     }
 
     @Override
@@ -86,13 +87,13 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         Player player = context.getPlayer();
         if (player == null) {
             return this.defaultBlockState()
-                .setValue(FACING, context.getNearestLookingDirection().getOpposite());
+                .setValue(BlockDevourerBlock.FACING, context.getNearestLookingDirection().getOpposite());
         }
         if (player.isShiftKeyDown()) {
             return this.defaultBlockState()
-                .setValue(FACING, context.getNearestLookingDirection().getOpposite());
+                .setValue(BlockDevourerBlock.FACING, context.getNearestLookingDirection().getOpposite());
         } else {
-            return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection());
+            return this.defaultBlockState().setValue(BlockDevourerBlock.FACING, context.getNearestLookingDirection());
         }
     }
 
@@ -117,9 +118,9 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         RandomSource random
     ) {
         super.tick(state, level, pos, random);
-        if (!state.getValue(TRIGGERED)) return;
-        if (!BlockPlacerBlock.hasNeighborSignal(level, pos, state.getValue(FACING))) {
-            level.setBlock(pos, state.setValue(TRIGGERED, false), 2);
+        if (!state.getValue(BlockDevourerBlock.TRIGGERED)) return;
+        if (!BlockPlacerBlock.hasNeighborSignal(level, pos, state.getValue(BlockDevourerBlock.FACING))) {
+            level.setBlock(pos, state.setValue(BlockDevourerBlock.TRIGGERED, false), 2);
         }
     }
 
@@ -138,12 +139,21 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
     }
 
     private void checkIfTriggered(Level level, BlockState blockState, BlockPos blockPos) {
-        boolean bl = blockState.getValue(TRIGGERED);
-        if (bl != BlockPlacerBlock.hasNeighborSignal(level, blockPos, blockState.getValue(FACING))) {
-            BlockState changedState = blockState.setValue(TRIGGERED, !bl);
+        boolean bl = blockState.getValue(BlockDevourerBlock.TRIGGERED);
+        if (bl != BlockPlacerBlock.hasNeighborSignal(
+            level,
+            blockPos,
+            blockState.getValue(BlockDevourerBlock.FACING)
+        )) {
+            BlockState changedState = blockState.setValue(BlockDevourerBlock.TRIGGERED, !bl);
             level.setBlock(blockPos, changedState, 2);
             if (!bl) {
-                this.devourBlock((ServerLevel) level, blockPos, blockState.getValue(FACING), 1);
+                this.devourBlock(
+                    (ServerLevel) level,
+                    blockPos,
+                    blockState.getValue(BlockDevourerBlock.FACING),
+                    1
+                );
             }
         }
     }
@@ -160,13 +170,13 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         BlockPos pos,
         CollisionContext context
     ) {
-        return switch (state.getValue(FACING)) {
-            case DOWN -> DOWN_SHAPE;
-            case UP -> UP_SHAPE;
-            case NORTH -> NORTH_SHAPE;
-            case SOUTH -> SOUTH_SHAPE;
-            case WEST -> WEST_SHAPE;
-            case EAST -> EAST_SHAPE;
+        return switch (state.getValue(BlockDevourerBlock.FACING)) {
+            case DOWN -> BlockDevourerBlock.DOWN_SHAPE;
+            case UP -> BlockDevourerBlock.UP_SHAPE;
+            case NORTH -> BlockDevourerBlock.NORTH_SHAPE;
+            case SOUTH -> BlockDevourerBlock.SOUTH_SHAPE;
+            case WEST -> BlockDevourerBlock.WEST_SHAPE;
+            case EAST -> BlockDevourerBlock.EAST_SHAPE;
         };
     }
 
@@ -247,10 +257,14 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
                 }
             }
 
-            devourSingleBlockInternalLogic(level, anvil, devourBlockPos, filteredBlockPosList, itemHandlerList, center);
+            BlockDevourerBlock.devourSingleBlockInternalLogic(
+                level, anvil, devourBlockPos, filteredBlockPosList, itemHandlerList, center
+            );
         }
         for (BlockPos devourBlockPos : chainDevourBlockPosList) {
-            devourSingleBlockInternalLogic(level, anvil, devourBlockPos, filteredBlockPosList, itemHandlerList, center);
+            BlockDevourerBlock.devourSingleBlockInternalLogic(
+                level, anvil, devourBlockPos, filteredBlockPosList, itemHandlerList, center
+            );
         }
     }
 
@@ -317,7 +331,9 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
             }
         }
         if (level.getBlockEntity(devourBlockPos) instanceof LecternBlockEntity lectern) {
-            transferLecternContents(level, itemHandlerList, center, lectern, insertEnabled, dropOriginalPlace);
+            BlockDevourerBlock.transferLecternContents(
+                level, itemHandlerList, center, lectern, insertEnabled, dropOriginalPlace
+            );
         }
         if (!(devourBlockState.getBlock() instanceof DoublePlantBlock)) {
             ServerPlayer player = AnvilCraftFakePlayers.getBlockPlacer().offerPlayer(level);
@@ -360,11 +376,17 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rot) {
-        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
+        return state.setValue(
+            BlockDevourerBlock.FACING,
+            rot.rotate(state.getValue(BlockDevourerBlock.FACING))
+        );
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
+        return state.setValue(
+            BlockDevourerBlock.FACING,
+            mirror.mirror(state.getValue(BlockDevourerBlock.FACING))
+        );
     }
 }

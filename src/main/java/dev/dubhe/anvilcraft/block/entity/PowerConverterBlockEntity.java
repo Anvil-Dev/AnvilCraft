@@ -32,7 +32,6 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     @Getter
     @Setter
     private @Nullable PowerGrid grid = null;
-    @Getter
     private int inputPower;
     private int cooldown = 0;
     int energy = 0;
@@ -63,7 +62,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     @Override
     public @Nullable EnergyHandler getEnergyHandler(@Nullable Direction side) {
         if (side == null) return new PowerConverterEnergyStore();
-        if (side == getBlockState().getValue(BasePowerConverterBlock.FACING)) return new PowerConverterEnergyStore();
+        if (side == this.getBlockState().getValue(BasePowerConverterBlock.FACING)) return new PowerConverterEnergyStore();
         return null;
     }
 
@@ -112,12 +111,12 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     /// tick
     public void tick() {
         if (this.level != null) {
-            flushState(this.level, getBlockPos());
+            this.flushState(this.level, this.getBlockPos());
             if (this.getBlockState().getValue(BasePowerConverterBlock.POWERED)) return;
         }
         if (this.cooldown == 0) {
             this.cooldown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
-            if (getBlockState().getValue(BasePowerConverterBlock.OVERLOAD)) return;
+            if (this.getBlockState().getValue(BasePowerConverterBlock.OVERLOAD)) return;
             int amountTick = (int) (
                 this.inputPower
                 * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency
@@ -125,22 +124,22 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
             );
             int amount = amountTick * AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
             this.energy = Math.min(this.energy + amount, this.getMaxEnergy());
-            setChanged();
+            this.setChanged();
         } else {
             this.cooldown--;
         }
         this.pushEnergy();
-        if (this.level != null && level.getGameTime() % 20 == 0) {
-            level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_ALL);
+        if (this.level != null && this.level.getGameTime() % 20 == 0) {
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_ALL);
         }
     }
 
     private void pushEnergy() {
         if (this.level == null || this.energy <= 0) return;
-        Direction face = getBlockState().getValue(BasePowerConverterBlock.FACING);
-        EnergyHandler target = level.getCapability(
+        Direction face = this.getBlockState().getValue(BasePowerConverterBlock.FACING);
+        EnergyHandler target = this.level.getCapability(
             Capabilities.Energy.BLOCK,
-            getBlockPos().relative(face),
+            this.getBlockPos().relative(face),
             face.getOpposite()
         );
         if (target != null) {
@@ -149,20 +148,20 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
                 transaction.commit();
                 if (accepted > 0) {
                     this.energy -= accepted;
-                    setChanged();
+                    this.setChanged();
                 }
             }
         }
     }
 
     @Override
-    public Level getCurrentLevel() {
-        return getLevel();
+    public @Nullable Level getCurrentLevel() {
+        return this.getLevel();
     }
 
     @Override
     public BlockPos getPos() {
-        return getBlockPos();
+        return this.getBlockPos();
     }
 
     class PowerConverterEnergyStore implements EnergyHandler {
@@ -188,7 +187,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
             int r = Math.min(PowerConverterBlockEntity.this.energy, maxExtract);
             if (r > 0) {
                 PowerConverterBlockEntity.this.energy -= r;
-                setChanged();
+                PowerConverterBlockEntity.this.setChanged();
             }
             return r;
         }

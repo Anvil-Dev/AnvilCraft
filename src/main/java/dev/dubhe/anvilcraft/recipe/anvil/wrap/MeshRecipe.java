@@ -50,7 +50,7 @@ public class MeshRecipe extends AbstractProcessRecipe<MeshRecipe> {
 
     @Override
     public RecipeSerializer<MeshRecipe> getSerializer() {
-        return SERIALIZER;
+        return MeshRecipe.SERIALIZER;
     }
 
     /// 创建一个构建器实例

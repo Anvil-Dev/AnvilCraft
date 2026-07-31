@@ -6,6 +6,7 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import org.joml.Vector3f;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,10 +30,10 @@ public class ChargeCollectorManager {
 
     /// 获取当前维度的ChargeCollectorManager
     public static ChargeCollectorManager getInstance(Level level) {
-        if (!INSTANCES.containsKey(level)) {
-            INSTANCES.put(level, new ChargeCollectorManager(level));
+        if (!ChargeCollectorManager.INSTANCES.containsKey(level)) {
+            ChargeCollectorManager.INSTANCES.put(level, new ChargeCollectorManager(level));
         }
-        return INSTANCES.get(level);
+        return ChargeCollectorManager.INSTANCES.get(level);
     }
 
     /// 充电
@@ -54,12 +55,12 @@ public class ChargeCollectorManager {
         double surplus = chargeNum;
         for (Entry entry : chargeCollectorCollection) {
             if (entry.isInfinite()) {
-                InfiniteCollectorBlockEntity ic = entry.getInfiniteCollector();
-                if (!this.canCollect(ic, blockPos)) continue;
+                InfiniteCollectorBlockEntity ic = entry.infiniteCollector();
+                if (ic == null || !this.canCollect(ic, blockPos)) continue;
                 surplus = ic.incomingCharge(surplus, blockPos);
             } else {
-                ChargeCollectorBlockEntity cc = entry.getChargeCollector();
-                if (!this.canCollect(cc, blockPos)) continue;
+                ChargeCollectorBlockEntity cc = entry.chargeCollector();
+                if (cc == null || !this.canCollect(cc, blockPos)) continue;
                 surplus = cc.incomingCharge(surplus, blockPos);
             }
             if (surplus == 0) return;
@@ -112,7 +113,7 @@ public class ChargeCollectorManager {
             distanceList.add(new Entry(distance, null, entry.getValue()));
         }
         return distanceList.stream()
-            .sorted(Comparator.comparing(Entry::getDistance))
+            .sorted(Comparator.comparing(Entry::distance))
             .collect(Collectors.toList());
     }
 
@@ -145,17 +146,11 @@ public class ChargeCollectorManager {
             && blockEntity.getPos().getZ() + range >= blockPos.getZ();
     }
 
-    @Getter
-    public static class Entry {
-        public final double distance;
-        public final ChargeCollectorBlockEntity chargeCollector;
-        public final InfiniteCollectorBlockEntity infiniteCollector;
-
-        public Entry(double distance, ChargeCollectorBlockEntity chargeCollector, InfiniteCollectorBlockEntity infiniteCollector) {
-            this.distance = distance;
-            this.chargeCollector = chargeCollector;
-            this.infiniteCollector = infiniteCollector;
-        }
+    public record Entry(
+        double distance,
+        @Nullable ChargeCollectorBlockEntity chargeCollector,
+        @Nullable InfiniteCollectorBlockEntity infiniteCollector
+    ) {
 
         public boolean isInfinite() {
             return this.infiniteCollector != null;

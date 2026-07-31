@@ -25,13 +25,13 @@ public interface IPowerProducer extends IPowerComponent {
     @Override
     default PowerComponentInfo toPowerComponentInfo() {
         return new PowerComponentInfo(
-            getPos(),
+            this.getPos(),
             0,
             this.getOutputPower(),
             0,
             0,
-            getRange(),
-            getShape(),
+            this.getRange(),
+            this.getShape(),
             PowerComponentType.PRODUCER
         );
     }
@@ -39,12 +39,12 @@ public interface IPowerProducer extends IPowerComponent {
     /// 实际电量
     // @OnlyIn(Dist.CLIENT)
     default int getServerPower() {
-        Optional<SimplePowerGrid> s = SimplePowerGrid.findPowerGrid(getPos());
+        Optional<SimplePowerGrid> s = SimplePowerGrid.findPowerGrid(this.getPos());
         if (s.isPresent()) {
             if (s.get().getConsume() > s.get().getGenerate()) {
                 return 0;
             }
-            Optional<PowerComponentInfo> info = s.get().getInfoForPos(getPos());
+            Optional<PowerComponentInfo> info = s.get().getInfoForPos(this.getPos());
             return info.map(powerComponentInfo -> powerComponentInfo.type() == PowerComponentType.PRODUCER
                     ? powerComponentInfo.produces()
                     : powerComponentInfo.consumes())

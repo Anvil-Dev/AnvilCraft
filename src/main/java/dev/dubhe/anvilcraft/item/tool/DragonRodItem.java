@@ -101,7 +101,7 @@ public class DragonRodItem extends Item {
         if (centerState.is(ModBlockTags.DEVOUR_BLACKLIST)) return;
         if (centerState.getDestroySpeed(level, centerPos) < 0.0F) return;
         ItemStack dragonRod = player.getItemInHand(hand);
-        if (!canDevour(player, dragonRod)) return;
+        if (!DragonRodItem.canDevour(player, dragonRod)) return;
 
         int range = dragonRod.getOrDefault(ModComponents.DEVOUR_RANGE, DevourRange.THREE).getRange();
         range = (range - 1) / 2;
@@ -204,18 +204,18 @@ public class DragonRodItem extends Item {
 
         if (dragonRod.is(ModItems.TRANSCENDENCE_DRAGON_ROD)) {
             long currentTick = level.getGameTime();
-            Long lastTick = LAST_TRANSCENDENCE_DEVOUR_TICK.put(player.getUUID(), currentTick);
+            Long lastTick = DragonRodItem.LAST_TRANSCENDENCE_DEVOUR_TICK.put(player.getUUID(), currentTick);
             boolean warmedUp = lastTick != null && currentTick - lastTick < 15;
             player.getCooldowns().addCooldown(DragonRodItem.COOLDOWN_GROUP, warmedUp ? 0 : 10);
             if (warmedUp) {
-                CONTINUOUS_DEVOUR_PLAYERS.add(player.getUUID());
+                DragonRodItem.CONTINUOUS_DEVOUR_PLAYERS.add(player.getUUID());
             }
         } else {
-            player.getCooldowns().addCooldown(DragonRodItem.COOLDOWN_GROUP, calculateCooldown(player, dragonRod));
+            player.getCooldowns().addCooldown(DragonRodItem.COOLDOWN_GROUP, DragonRodItem.calculateCooldown(player, dragonRod));
         }
 
         dragonRod.hurtAndBreak(
-            calculateDamage(dragonRod), level, player, item -> {
+            DragonRodItem.calculateDamage(dragonRod), level, player, item -> {
                 player.onEquippedItemBroken(item, hand.asEquipmentSlot());
                 EventHooks.onPlayerDestroyItem(player, dragonRod, hand);
             }
@@ -251,12 +251,12 @@ public class DragonRodItem extends Item {
     }
 
     public static void stopContinuousMode(Player player) {
-        CONTINUOUS_DEVOUR_PLAYERS.remove(player.getUUID());
+        DragonRodItem.CONTINUOUS_DEVOUR_PLAYERS.remove(player.getUUID());
     }
 
     public static void tickContinuousDevour(ServerPlayer player) {
         UUID playerId = player.getUUID();
-        if (!CONTINUOUS_DEVOUR_PLAYERS.contains(playerId)) return;
+        if (!DragonRodItem.CONTINUOUS_DEVOUR_PLAYERS.contains(playerId)) return;
 
         ItemStack rod = player.getMainHandItem();
         InteractionHand hand = InteractionHand.MAIN_HAND;
@@ -264,12 +264,12 @@ public class DragonRodItem extends Item {
             rod = player.getOffhandItem();
             hand = InteractionHand.OFF_HAND;
             if (!rod.is(ModItems.TRANSCENDENCE_DRAGON_ROD)) {
-                CONTINUOUS_DEVOUR_PLAYERS.remove(playerId);
+                DragonRodItem.CONTINUOUS_DEVOUR_PLAYERS.remove(playerId);
                 return;
             }
         }
-        if (!canDevour(player, rod)) {
-            CONTINUOUS_DEVOUR_PLAYERS.remove(playerId);
+        if (!DragonRodItem.canDevour(player, rod)) {
+            DragonRodItem.CONTINUOUS_DEVOUR_PLAYERS.remove(playerId);
             return;
         }
         HitResult hit = player.pick(player.blockInteractionRange(), 0.0F, false);
@@ -278,6 +278,6 @@ public class DragonRodItem extends Item {
         ServerLevel level = player.level();
         BlockState targetState = level.getBlockState(targetPos);
         if (targetState.isAir() || !BlockDevourerBlock.canDevour(targetState)) return;
-        devourBlock(level, player, hand, targetPos, targetState, blockHit.getDirection());
+        DragonRodItem.devourBlock(level, player, hand, targetPos, targetState, blockHit.getDirection());
     }
 }

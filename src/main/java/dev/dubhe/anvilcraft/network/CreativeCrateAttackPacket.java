@@ -21,7 +21,7 @@ public record CreativeCrateAttackPacket(BlockPos pos) implements IServerboundPac
 
     @Override
     public Type<CreativeCrateAttackPacket> type() {
-        return TYPE;
+        return CreativeCrateAttackPacket.TYPE;
     }
 
     @Override

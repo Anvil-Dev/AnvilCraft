@@ -29,7 +29,7 @@ public class DevourerDevourTrigger extends SimpleCriterionTrigger<DevourerDevour
         ).apply(instance, TriggerInstance::new));
 
         public static Criterion<TriggerInstance> devourBlock(Block block) {
-            return devourBlock(BlockPredicate.Builder.block().of(block));
+            return TriggerInstance.devourBlock(BlockPredicate.Builder.block().of(block));
         }
 
         public static Criterion<TriggerInstance> devourBlock(BlockPredicate.Builder block) {

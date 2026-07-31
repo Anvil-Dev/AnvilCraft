@@ -86,17 +86,19 @@ public class ItemCollectorMenu extends AbstractContainerMenu
     private static final int HOTBAR_SLOT_COUNT = 9;
     private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
     private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
-    private static final int PLAYER_INVENTORY_SLOT_COUNT = PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
-    private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
+    private static final int PLAYER_INVENTORY_SLOT_COUNT =
+        ItemCollectorMenu.PLAYER_INVENTORY_COLUMN_COUNT * ItemCollectorMenu.PLAYER_INVENTORY_ROW_COUNT;
+    private static final int VANILLA_SLOT_COUNT = ItemCollectorMenu.HOTBAR_SLOT_COUNT + ItemCollectorMenu.PLAYER_INVENTORY_SLOT_COUNT;
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
-    private static final int TE_INVENTORY_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
+    private static final int TE_INVENTORY_FIRST_SLOT_INDEX =
+        ItemCollectorMenu.VANILLA_FIRST_SLOT_INDEX + ItemCollectorMenu.VANILLA_SLOT_COUNT;
 
     // THIS YOU HAVE TO DEFINE!
     private static final int TE_INVENTORY_SLOT_COUNT = 9; // must be the number of slots you have!
 
     @Override
     public ItemStack quickMoveStack(Player playerIn, int index) {
-        Slot sourceSlot = slots.get(index);
+        Slot sourceSlot = this.slots.get(index);
         // noinspection ConstantValue
         if (sourceSlot == null || !sourceSlot.hasItem()) {
             return ItemStack.EMPTY;
@@ -105,14 +107,19 @@ public class ItemCollectorMenu extends AbstractContainerMenu
         final ItemStack copyOfSourceStack = sourceStack.copy();
 
         // Check if the slot clicked is one of the vanilla container slots
-        if (index < VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
+        if (index < ItemCollectorMenu.VANILLA_FIRST_SLOT_INDEX + ItemCollectorMenu.VANILLA_SLOT_COUNT) {
             // This is a vanilla container slot so merge the stack into the tile inventory
             if (this.moveItemToActiveSlot(sourceStack)) {
                 return ItemStack.EMPTY; // EMPTY_ITEM
             }
-        } else if (index < TE_INVENTORY_FIRST_SLOT_INDEX + TE_INVENTORY_SLOT_COUNT) {
+        } else if (index < ItemCollectorMenu.TE_INVENTORY_FIRST_SLOT_INDEX + ItemCollectorMenu.TE_INVENTORY_SLOT_COUNT) {
             // This is a TE slot so merge the stack into the players inventory
-            if (!this.moveItemStackTo(sourceStack, VANILLA_FIRST_SLOT_INDEX, VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT, false)) {
+            if (!this.moveItemStackTo(
+                sourceStack,
+                ItemCollectorMenu.VANILLA_FIRST_SLOT_INDEX,
+                ItemCollectorMenu.VANILLA_FIRST_SLOT_INDEX + ItemCollectorMenu.VANILLA_SLOT_COUNT,
+                false
+            )) {
                 return ItemStack.EMPTY;
             }
         } else {
@@ -132,7 +139,7 @@ public class ItemCollectorMenu extends AbstractContainerMenu
     // 移动物品到可用槽位
     private boolean moveItemToActiveSlot(ItemStack stack) {
         int count = stack.getCount();
-        for (int index = TE_INVENTORY_FIRST_SLOT_INDEX; index < 45; index++) {
+        for (int index = ItemCollectorMenu.TE_INVENTORY_FIRST_SLOT_INDEX; index < 45; index++) {
             // 只有对应槽位可以放入物品时才向槽位里快速移动物品
             if (this.canPlace(stack, index)) {
                 this.moveItemStackTo(stack, index, index + 1, false);
@@ -158,7 +165,11 @@ public class ItemCollectorMenu extends AbstractContainerMenu
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()), player, ModBlocks.ITEM_COLLECTOR.get());
+        return AbstractContainerMenu.stillValid(
+            ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()),
+            player,
+            ModBlocks.ITEM_COLLECTOR.get()
+        );
     }
 
     @Override

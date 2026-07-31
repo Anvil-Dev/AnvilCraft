@@ -35,7 +35,7 @@ public class MengerSpongeBlock extends SpongeBlock implements IHammerRemovable {
         .reduce((v1, v2) -> Shapes.join(v1, v2, BooleanOp.OR))
         .get();
 
-    private static final VoxelShape AABB = Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape AABB = Shapes.join(Shapes.block(), MengerSpongeBlock.REDUCE_AABB, BooleanOp.ONLY_FIRST);
 
     private static final Direction[] ALL_DIRECTIONS = Direction.values();
 
@@ -68,7 +68,7 @@ public class MengerSpongeBlock extends SpongeBlock implements IHammerRemovable {
             6,
             65,
             (posx, consumer) -> {
-                for (Direction direction : ALL_DIRECTIONS) {
+                for (Direction direction : MengerSpongeBlock.ALL_DIRECTIONS) {
                     consumer.accept(posx.relative(direction));
                 }
             },
@@ -102,7 +102,7 @@ public class MengerSpongeBlock extends SpongeBlock implements IHammerRemovable {
 
                     BlockEntity blockEntity =
                         blockState.hasBlockEntity() ? level.getBlockEntity(checkedPos) : null;
-                    dropResources(blockState, level, checkedPos, blockEntity);
+                    Block.dropResources(blockState, level, checkedPos, blockEntity);
                     level.setBlock(checkedPos, Blocks.AIR.defaultBlockState(), 3);
                 }
                 return BlockPos.TraversalNodeStatus.ACCEPT;
@@ -127,7 +127,7 @@ public class MengerSpongeBlock extends SpongeBlock implements IHammerRemovable {
 
     @Override
     public VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return REDUCE_AABB;
+        return MengerSpongeBlock.REDUCE_AABB;
     }
 
     @Override
@@ -137,6 +137,6 @@ public class MengerSpongeBlock extends SpongeBlock implements IHammerRemovable {
         BlockPos pos,
         CollisionContext context
     ) {
-        return AABB;
+        return MengerSpongeBlock.AABB;
     }
 }

@@ -21,6 +21,7 @@ import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -92,11 +93,11 @@ public class StructureDiskPreviewSupport {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) return;
 
-        PreviewCache cache = getOrCreateCache(diskStack, minecraft.level);
+        PreviewCache cache = StructureDiskPreviewSupport.getOrCreateCache(diskStack, minecraft.level);
         if (cache == null || cache.structureData.isEmpty()) return;
 
-        int previewX = mouseX - PREVIEW_SIZE / 2;
-        int previewY = mouseY - PREVIEW_SIZE - 16;
+        int previewX = mouseX - StructureDiskPreviewSupport.PREVIEW_SIZE / 2;
+        int previewY = mouseY - StructureDiskPreviewSupport.PREVIEW_SIZE - 16;
 
         int screenWidth = minecraft.getWindow().getGuiScaledWidth();
 
@@ -104,19 +105,21 @@ public class StructureDiskPreviewSupport {
             previewY = mouseY + 30;
         }
 
-        if (previewX + PREVIEW_SIZE > screenWidth) {
-            previewX = screenWidth - PREVIEW_SIZE - 5;
+        if (previewX + StructureDiskPreviewSupport.PREVIEW_SIZE > screenWidth) {
+            previewX = screenWidth - StructureDiskPreviewSupport.PREVIEW_SIZE - 5;
         }
         if (previewX < 0) {
             previewX = 5;
         }
 
-        graphics.fill(previewX - 2, previewY - 2, previewX + PREVIEW_SIZE + 2, previewY + PREVIEW_SIZE + 2, 0xF0100010);
+        graphics.fill(previewX - 2, previewY - 2, previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, previewY + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, 0xF0100010);
 
-        graphics.fill(previewX - 2, previewY - 2, previewX + PREVIEW_SIZE + 2, previewY - 1, 0x505000ff);
-        graphics.fill(previewX - 2, previewY + PREVIEW_SIZE + 2, previewX + PREVIEW_SIZE + 2, previewY + PREVIEW_SIZE + 3, 0x505000ff);
-        graphics.fill(previewX - 2, previewY - 1, previewX - 1, previewY + PREVIEW_SIZE + 3, 0x505000ff);
-        graphics.fill(previewX + PREVIEW_SIZE + 1, previewY - 1, previewX + PREVIEW_SIZE + 2, previewY + PREVIEW_SIZE + 3, 0x505000ff);
+        graphics.fill(previewX - 2, previewY - 2, previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, previewY - 1, 0x505000ff);
+        graphics.fill(previewX - 2, previewY + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, previewY + StructureDiskPreviewSupport.PREVIEW_SIZE
+                                                                                                                                                      + 3, 0x505000ff);
+        graphics.fill(previewX - 2, previewY - 1, previewX - 1, previewY + StructureDiskPreviewSupport.PREVIEW_SIZE + 3, 0x505000ff);
+        graphics.fill(previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 1, previewY - 1, previewX + StructureDiskPreviewSupport.PREVIEW_SIZE + 2, previewY + StructureDiskPreviewSupport.PREVIEW_SIZE
+                                                                                                                                                      + 3, 0x505000ff);
 
         int maxDim = Math.max(cache.structureData.diskData.sizeX(),
             Math.max(cache.structureData.diskData.sizeY(),
@@ -125,7 +128,7 @@ public class StructureDiskPreviewSupport {
 
         RenderSupport.renderLevelLike(
             cache.levelLike, graphics, previewX, previewY,
-            PREVIEW_SIZE, scale, 2.0f, false
+            StructureDiskPreviewSupport.PREVIEW_SIZE, scale, 2.0f, false
         );
     }
 
@@ -134,9 +137,9 @@ public class StructureDiskPreviewSupport {
      * 存储原始数据，待 tooltip 渲染时再解析为 LevelLike。
      */
     public static void receiveStructureData(UUID structureUuid, CompoundTag structureData) {
-        PENDING_PREVIEW_DATA.put(structureUuid, structureData);
-        PENDING_REQUESTS.remove(structureUuid);
-        REQUEST_TIMESTAMPS.remove(structureUuid);
+        StructureDiskPreviewSupport.PENDING_PREVIEW_DATA.put(structureUuid, structureData);
+        StructureDiskPreviewSupport.PENDING_REQUESTS.remove(structureUuid);
+        StructureDiskPreviewSupport.REQUEST_TIMESTAMPS.remove(structureUuid);
     }
 
     /**
@@ -150,46 +153,46 @@ public class StructureDiskPreviewSupport {
         UUID uuid = diskData.uuid();
 
         // 1. 命中完整缓存 — 直接返回，永不过期
-        PreviewCache cache = PREVIEW_CACHE.get(uuid);
+        PreviewCache cache = StructureDiskPreviewSupport.PREVIEW_CACHE.get(uuid);
         if (cache != null) {
             return cache;
         }
 
         // 2. 检查是否有服务端返回的 NBT 待处理数据
-        CompoundTag pendingData = PENDING_PREVIEW_DATA.get(uuid);
+        CompoundTag pendingData = StructureDiskPreviewSupport.PENDING_PREVIEW_DATA.get(uuid);
         if (pendingData != null) {
-            StructureLoadUtil.StructureData data = parsePreviewNbt(pendingData, diskData, level.registryAccess());
+            StructureLoadUtil.StructureData data = StructureDiskPreviewSupport.parsePreviewNbt(pendingData, diskData, level.registryAccess());
             if (data != null && !data.isEmpty()) {
-                LevelLike levelLike = buildLevelLike(data);
+                LevelLike levelLike = StructureDiskPreviewSupport.buildLevelLike(data);
                 if (levelLike != null) {
                     cache = new PreviewCache(data, levelLike);
-                    PREVIEW_CACHE.put(uuid, cache);
-                    PENDING_PREVIEW_DATA.remove(uuid);
-                    evictIfNeeded();
+                    StructureDiskPreviewSupport.PREVIEW_CACHE.put(uuid, cache);
+                    StructureDiskPreviewSupport.PENDING_PREVIEW_DATA.remove(uuid);
+                    StructureDiskPreviewSupport.evictIfNeeded();
                     return cache;
                 }
             }
             // 解析失败，清理待处理数据，后续会重新请求
-            PENDING_PREVIEW_DATA.remove(uuid);
+            StructureDiskPreviewSupport.PENDING_PREVIEW_DATA.remove(uuid);
             return null;
         }
 
         // 3. 回退：尝试从本地文件加载（单人模式有效）
         StructureLoadUtil.StructureData localData = StructureLoadUtil.loadStructureFromDiskForPreview(level, diskStack);
         if (localData != null && !localData.isEmpty()) {
-            LevelLike levelLike = buildLevelLike(localData);
+            LevelLike levelLike = StructureDiskPreviewSupport.buildLevelLike(localData);
             if (levelLike != null) {
                 cache = new PreviewCache(localData, levelLike);
-                PREVIEW_CACHE.put(uuid, cache);
-                evictIfNeeded();
+                StructureDiskPreviewSupport.PREVIEW_CACHE.put(uuid, cache);
+                StructureDiskPreviewSupport.evictIfNeeded();
                 return cache;
             }
         }
 
         // 4. 未缓存且未请求 → 向服务端发送请求
-        if (shouldSendRequest(uuid)) {
-            PENDING_REQUESTS.add(uuid);
-            REQUEST_TIMESTAMPS.put(uuid, System.currentTimeMillis());
+        if (StructureDiskPreviewSupport.shouldSendRequest(uuid)) {
+            StructureDiskPreviewSupport.PENDING_REQUESTS.add(uuid);
+            StructureDiskPreviewSupport.REQUEST_TIMESTAMPS.put(uuid, System.currentTimeMillis());
             ClientPacketDistributor.sendToServer(new StructurePreviewRequestPacket(uuid, diskData.file()));
         }
 
@@ -200,10 +203,10 @@ public class StructureDiskPreviewSupport {
      * 检查是否应该发送请求（未被请求或已超时）
      */
     private static boolean shouldSendRequest(UUID uuid) {
-        if (!PENDING_REQUESTS.contains(uuid)) return true;
-        Long timestamp = REQUEST_TIMESTAMPS.get(uuid);
+        if (!StructureDiskPreviewSupport.PENDING_REQUESTS.contains(uuid)) return true;
+        Long timestamp = StructureDiskPreviewSupport.REQUEST_TIMESTAMPS.get(uuid);
         if (timestamp == null) return true;
-        return System.currentTimeMillis() - timestamp > REQUEST_TIMEOUT_MS;
+        return System.currentTimeMillis() - timestamp > StructureDiskPreviewSupport.REQUEST_TIMEOUT_MS;
     }
 
     /**
@@ -285,12 +288,12 @@ public class StructureDiskPreviewSupport {
      * 缓存超过上限时淘汰最旧条目
      */
     private static void evictIfNeeded() {
-        if (PREVIEW_CACHE.size() <= MAX_CACHE_SIZE) return;
+        if (StructureDiskPreviewSupport.PREVIEW_CACHE.size() <= StructureDiskPreviewSupport.MAX_CACHE_SIZE) return;
 
-        PREVIEW_CACHE.entrySet()
+        StructureDiskPreviewSupport.PREVIEW_CACHE.entrySet()
             .stream()
-            .sorted(java.util.Comparator.comparingLong(e -> e.getValue().creationTime))
-            .limit(PREVIEW_CACHE.size() - MAX_CACHE_SIZE)
-            .forEach(e -> PREVIEW_CACHE.remove(e.getKey()));
+            .sorted(Comparator.comparingLong(e -> e.getValue().creationTime))
+            .limit(StructureDiskPreviewSupport.PREVIEW_CACHE.size() - StructureDiskPreviewSupport.MAX_CACHE_SIZE)
+            .forEach(e -> StructureDiskPreviewSupport.PREVIEW_CACHE.remove(e.getKey()));
     }
 }

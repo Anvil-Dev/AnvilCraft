@@ -72,17 +72,18 @@ public class ItemDetectorMenu extends AbstractContainerMenu implements IFilterMe
     private static final int HOTBAR_SLOT_COUNT = 9;
     private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
     private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
-    private static final int PLAYER_INVENTORY_SLOT_COUNT = PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
-    private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
+    private static final int PLAYER_INVENTORY_SLOT_COUNT =
+        ItemDetectorMenu.PLAYER_INVENTORY_COLUMN_COUNT * ItemDetectorMenu.PLAYER_INVENTORY_ROW_COUNT;
+    private static final int VANILLA_SLOT_COUNT = ItemDetectorMenu.HOTBAR_SLOT_COUNT + ItemDetectorMenu.PLAYER_INVENTORY_SLOT_COUNT;
     private static final int VANILLA_FIRST_SLOT_INDEX = 0;
-    private static final int FILTER_FIRST_SLOT_INDEX = VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT;
+    private static final int FILTER_FIRST_SLOT_INDEX = ItemDetectorMenu.VANILLA_FIRST_SLOT_INDEX + ItemDetectorMenu.VANILLA_SLOT_COUNT;
     // THIS YOU HAVE TO DEFINE!
     private static final int FILTER_SLOT_COUNT = 9; // must be the number of slots you have!
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
         // Check if the slot clicked is one of the vanilla container slots
-        if (index >= VANILLA_FIRST_SLOT_INDEX + VANILLA_SLOT_COUNT) {
+        if (index >= ItemDetectorMenu.VANILLA_FIRST_SLOT_INDEX + ItemDetectorMenu.VANILLA_SLOT_COUNT) {
             return ItemStack.EMPTY;
         }
         Slot sourceSlot = this.getSlot(index);
@@ -92,15 +93,15 @@ public class ItemDetectorMenu extends AbstractContainerMenu implements IFilterMe
         } // EMPTY_ITEM
         ItemStack sourceStack = sourceSlot.getItem();
         // This is a vanilla container slot so try to set filter
-        for (int j = 0; j < FILTER_SLOT_COUNT; j++) {
-            Slot slot = this.getSlot(FILTER_FIRST_SLOT_INDEX + j);
+        for (int j = 0; j < ItemDetectorMenu.FILTER_SLOT_COUNT; j++) {
+            Slot slot = this.getSlot(ItemDetectorMenu.FILTER_FIRST_SLOT_INDEX + j);
             if (!(slot instanceof FilterOnlySlot filterSlot)) continue;
             if (!filterSlot.getItem().is(sourceStack.getItem())) continue;
             filterSlot.set(sourceStack.copy());
             return ItemStack.EMPTY;
         }
-        for (int j = 0; j < FILTER_SLOT_COUNT; j++) {
-            Slot slot = this.getSlot(FILTER_FIRST_SLOT_INDEX + j);
+        for (int j = 0; j < ItemDetectorMenu.FILTER_SLOT_COUNT; j++) {
+            Slot slot = this.getSlot(ItemDetectorMenu.FILTER_FIRST_SLOT_INDEX + j);
             if (!(slot instanceof FilterOnlySlot filterSlot)) continue;
             if (!filterSlot.getItem().isEmpty()) continue;
             filterSlot.set(sourceStack.copy());
@@ -113,10 +114,10 @@ public class ItemDetectorMenu extends AbstractContainerMenu implements IFilterMe
     public void clicked(int slotId, int button, ContainerInput input, Player player) {
         if (
             input == ContainerInput.SWAP
-            && slotId >= FILTER_FIRST_SLOT_INDEX
-            && slotId < FILTER_FIRST_SLOT_INDEX + FILTER_SLOT_COUNT
+            && slotId >= ItemDetectorMenu.FILTER_FIRST_SLOT_INDEX
+            && slotId < ItemDetectorMenu.FILTER_FIRST_SLOT_INDEX + ItemDetectorMenu.FILTER_SLOT_COUNT
             && this.getSlot(slotId) instanceof FilterOnlySlot filterSlot
-            && (button >= 0 && button < HOTBAR_SLOT_COUNT || button == Inventory.SLOT_OFFHAND)
+            && (button >= 0 && button < ItemDetectorMenu.HOTBAR_SLOT_COUNT || button == Inventory.SLOT_OFFHAND)
         ) {
             filterSlot.set(player.getInventory().getItem(button).copy());
             return;

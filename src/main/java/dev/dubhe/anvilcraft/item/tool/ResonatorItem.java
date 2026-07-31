@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item.tool;
 
+import dev.dubhe.anvilcraft.api.tooltip.providers.IItemTooltipProvider;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
@@ -66,7 +67,7 @@ import java.util.Optional;
 import java.util.function.Consumer;
 
 @Getter
-public abstract class ResonatorItem extends Item {
+public abstract class ResonatorItem extends Item implements IItemTooltipProvider {
     private final ToolMaterial material;
     private final float attackDamage;
 
@@ -86,15 +87,13 @@ public abstract class ResonatorItem extends Item {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public void appendHoverText(
+    public void appendItemTooltip(
         ItemStack stack,
         TooltipContext context,
         TooltipDisplay display,
         Consumer<Component> builder,
         TooltipFlag tooltipFlag
     ) {
-        super.appendHoverText(stack, context, display, builder, tooltipFlag);
         if (this.isTranscendence(stack)) {
             builder.accept(
                 Component.translatable(
@@ -119,12 +118,12 @@ public abstract class ResonatorItem extends Item {
             .add(
                 Attributes.ATTACK_DAMAGE,
                 new AttributeModifier(
-                    BASE_ATTACK_DAMAGE_ID, attackDamage + material.attackDamageBonus(), AttributeModifier.Operation.ADD_VALUE),
+                    Item.BASE_ATTACK_DAMAGE_ID, attackDamage + material.attackDamageBonus(), AttributeModifier.Operation.ADD_VALUE),
                 EquipmentSlotGroup.MAINHAND
             )
             .add(
                 Attributes.ATTACK_SPEED,
-                new AttributeModifier(BASE_ATTACK_SPEED_ID, attackSpeed, AttributeModifier.Operation.ADD_VALUE),
+                new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, attackSpeed, AttributeModifier.Operation.ADD_VALUE),
                 EquipmentSlotGroup.MAINHAND
             )
             .build();
@@ -152,7 +151,7 @@ public abstract class ResonatorItem extends Item {
 
     public static Tool createToolProperties(ResonateMode mode, ToolMaterial material, HolderGetter<Block> lookup) {
         return switch (mode) {
-            case AUTO -> createToolProperties(material);
+            case AUTO -> ResonatorItem.createToolProperties(material);
             case AXE -> new Tool(
                 List.of(Tool.Rule.minesAndDrops(lookup.getOrThrow(BlockTags.MINEABLE_WITH_AXE), material.speed())),
                 1.0F,
@@ -214,7 +213,7 @@ public abstract class ResonatorItem extends Item {
             if (stack.has(DataComponents.ATTRIBUTE_MODIFIERS)) {
                 ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
                 for (ItemAttributeModifiers.Entry entry : stack.getAttributeModifiers().modifiers()) {
-                    if (!entry.modifier().is(BASE_ATTACK_DAMAGE_ID)) {
+                    if (!entry.modifier().is(Item.BASE_ATTACK_DAMAGE_ID)) {
                         builder.add(entry.attribute(), entry.modifier(), entry.slot());
                     }
                 }
@@ -239,7 +238,7 @@ public abstract class ResonatorItem extends Item {
                     .withModifierAdded(
                         Attributes.ATTACK_DAMAGE,
                         new AttributeModifier(
-                            BASE_ATTACK_DAMAGE_ID,
+                            Item.BASE_ATTACK_DAMAGE_ID,
                             resonator.attackDamage + material.attackDamageBonus(),
                             AttributeModifier.Operation.ADD_VALUE
                         ),
@@ -281,7 +280,7 @@ public abstract class ResonatorItem extends Item {
         ResonateMode mode = ResonatorItem.getMode(stack);
         return switch (mode) {
             case AUTO -> {
-                if (this.isTranscendence(stack) && !isTooDamagedToUse(stack)) {
+                if (this.isTranscendence(stack) && !ResonatorItem.isTooDamagedToUse(stack)) {
                     Player player = context.getPlayer();
                     if (player != null) {
                         player.startUsingItem(context.getHand());
@@ -446,7 +445,7 @@ public abstract class ResonatorItem extends Item {
         resonator.set(ModComponents.RESONATE_MODE, mode);
         resonator.set(
             DataComponents.TOOL,
-            createToolProperties(mode, resonatorItem.getMaterial(), player.registryAccess().lookupOrThrow(Registries.BLOCK))
+            ResonatorItem.createToolProperties(mode, resonatorItem.getMaterial(), player.registryAccess().lookupOrThrow(Registries.BLOCK))
         );
     }
 

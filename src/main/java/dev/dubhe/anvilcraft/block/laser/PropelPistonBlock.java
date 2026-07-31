@@ -35,6 +35,7 @@ import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.piston.MovingPistonBlock;
 import net.minecraft.world.level.block.piston.PistonStructureResolver;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -55,20 +56,20 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
 
     @Override
     protected MapCodec<? extends DirectionalBlock> codec() {
-        return simpleCodec(PropelPistonBlock::new);
+        return BlockBehaviour.simpleCodec(PropelPistonBlock::new);
     }
 
     public PropelPistonBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
-            .setValue(EXHAUSTED, true)
-            .setValue(FACING, Direction.NORTH)
-            .setValue(MOVING, false));
+            .setValue(PropelPistonBlock.EXHAUSTED, true)
+            .setValue(DirectionalBlock.FACING, Direction.NORTH)
+            .setValue(PropelPistonBlock.MOVING, false));
     }
 
     @Override
     public @Nullable PushReaction getPistonPushReaction(BlockState state) {
-        if (state.getValue(MOVING)) {
+        if (state.getValue(PropelPistonBlock.MOVING)) {
             return PushReaction.BLOCK;
         }
         return PushReaction.NORMAL;
@@ -79,9 +80,9 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
         Direction clickedFace = context.getNearestLookingDirection().getOpposite();
         Player player = context.getPlayer();
         if (player != null && player.isShiftKeyDown()) {
-            return this.defaultBlockState().setValue(FACING, clickedFace.getOpposite());
+            return this.defaultBlockState().setValue(DirectionalBlock.FACING, clickedFace.getOpposite());
         }
-        return this.defaultBlockState().setValue(FACING, clickedFace);
+        return this.defaultBlockState().setValue(DirectionalBlock.FACING, clickedFace);
     }
 
     @Override
@@ -92,7 +93,7 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
         Player player,
         BlockHitResult hitResult
     ) {
-        level.setBlockAndUpdate(pos, state.cycle(MOVING));
+        level.setBlockAndUpdate(pos, state.cycle(PropelPistonBlock.MOVING));
         return InteractionResult.SUCCESS;
     }
 
@@ -124,7 +125,7 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
                 }
             }
         }
-        level.setBlockAndUpdate(pos, state.cycle(MOVING));
+        level.setBlockAndUpdate(pos, state.cycle(PropelPistonBlock.MOVING));
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
     }
 
@@ -138,26 +139,26 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
         boolean movedByPiston
     ) {
         if (level.hasNeighborSignal(pos)) {
-            if (!state.getValue(MOVING)) {
-                level.setBlockAndUpdate(pos, state.setValue(MOVING, true));
+            if (!state.getValue(PropelPistonBlock.MOVING)) {
+                level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.MOVING, true));
             }
         }
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(EXHAUSTED, FACING, MOVING);
+        builder.add(PropelPistonBlock.EXHAUSTED, DirectionalBlock.FACING, PropelPistonBlock.MOVING);
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(DirectionalBlock.FACING, rotation.rotate(state.getValue(DirectionalBlock.FACING)));
     }
 
     @SuppressWarnings("deprecation")
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+        return state.rotate(mirror.getRotation(state.getValue(DirectionalBlock.FACING)));
     }
 
     @Override
@@ -174,7 +175,7 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
         if (level.isClientSide()) {
             return null;
         }
-        return createTickerHelper(
+        return PropelPistonBlock.createTickerHelper(
             type,
             ModBlockEntities.PROPEL_PISTON.get(),
             (level1, blockPos, blockState, blockEntity) ->
@@ -209,11 +210,11 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
         Direction direction = state.getValue(PropelPistonBlock.FACING);
         if (id == 0) {
             if (EventHooks.onPistonMovePre(level, pos, direction, true)) {
-                level.setBlockAndUpdate(pos, state.setValue(MOVING, false));
+                level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.MOVING, false));
                 return false;
             }
             if (!this.moveBlocks(level, pos, direction)) {
-                level.setBlockAndUpdate(pos, state.setValue(MOVING, false));
+                level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.MOVING, false));
                 return false;
             }
             level.playSound(
@@ -233,13 +234,13 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         BlockState state = level.getBlockState(blockPos);
-        level.setBlockAndUpdate(blockPos, state.cycle(FACING));
+        level.setBlockAndUpdate(blockPos, state.cycle(DirectionalBlock.FACING));
         return true;
     }
 
     @Override
     public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
+        return DirectionalBlock.FACING;
     }
 
     private boolean moveBlocks(Level level, BlockPos pos, Direction facing) {
@@ -270,7 +271,7 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
                 BlockPos blockPos2 = list2.get(j);
                 BlockState blockState1 = level.getBlockState(blockPos2);
                 BlockEntity blockentity = blockState1.hasBlockEntity() ? level.getBlockEntity(blockPos2) : null;
-                dropResources(blockState1, level, blockPos2, blockentity);
+                Block.dropResources(blockState1, level, blockPos2, blockentity);
                 blockState1.onDestroyedByPushReaction(level, blockPos2, facing, level.getFluidState(blockPos2));
                 if (!blockState1.is(BlockTags.FIRE)) {
                     level.addDestroyBlockEffect(blockPos2, blockState1);
@@ -284,7 +285,7 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
                 final BlockState blockState5 = level.getBlockState(blockPos3);
                 blockPos3 = blockPos3.relative(facing);
                 map.remove(blockPos3);
-                BlockState blockState8 = Blocks.MOVING_PISTON.defaultBlockState().setValue(FACING, facing);
+                BlockState blockState8 = Blocks.MOVING_PISTON.defaultBlockState().setValue(DirectionalBlock.FACING, facing);
                 BlockEntity blockEntity = null;
                 if (!level.isClientSide()) {
                     BlockPos relative = blockPos3.relative(facing.getOpposite());

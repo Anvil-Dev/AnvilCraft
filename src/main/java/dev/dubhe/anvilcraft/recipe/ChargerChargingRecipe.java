@@ -91,7 +91,7 @@ public record ChargerChargingRecipe(Ingredient ingredient, ItemStackTemplate res
 
     @Override
     public RecipeSerializer<ChargerChargingRecipe> getSerializer() {
-        return SERIALIZER;
+        return ChargerChargingRecipe.SERIALIZER;
     }
 
     @Override
@@ -194,7 +194,7 @@ public record ChargerChargingRecipe(Ingredient ingredient, ItemStackTemplate res
 
         @Override
         public void save(RecipeOutput recipeOutput) {
-            save(
+            this.save(
                 recipeOutput,
                 AnvilCraft.of(BuiltInRegistries.ITEM.getKey(this.result.item().value()).getPath())
                     .withPrefix(this.getType() + "/")

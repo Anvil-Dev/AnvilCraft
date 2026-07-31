@@ -15,7 +15,7 @@ public class ThreadFactoryImpl implements ThreadFactory {
         this.group = (s != null)
             ? s.getThreadGroup()
             : Thread.currentThread().getThreadGroup();
-        this.namePrefix = "AnvilCraftWorker-" + poolNumber.getAndIncrement() + "-thread-";
+        this.namePrefix = "AnvilCraftWorker-" + ThreadFactoryImpl.poolNumber.getAndIncrement() + "-thread-";
     }
 
     @Override

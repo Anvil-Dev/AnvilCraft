@@ -21,7 +21,7 @@ public class InfiniteCollectorRenderer extends PowerProducerRenderer<InfiniteCol
 
     @Override
     protected StandaloneModelKey<BlockStateModel> getModel() {
-        return HEAD;
+        return InfiniteCollectorRenderer.HEAD;
     }
 
     @Override

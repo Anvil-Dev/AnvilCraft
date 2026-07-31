@@ -17,7 +17,7 @@ public class MDJewelCraftingRecipeComponent extends MDRecipeComponent {
     private final List<ItemIngredientPredicate> ingredients;
 
     public MDJewelCraftingRecipeComponent(JewelCraftingRecipe recipe, boolean enableAlignCenter) {
-        super(TEXTURE, 142, 62, enableAlignCenter);
+        super(MDJewelCraftingRecipeComponent.TEXTURE, 142, 62, enableAlignCenter);
         this.result = recipe.source();
         this.ingredients = recipe.ingredients();
     }

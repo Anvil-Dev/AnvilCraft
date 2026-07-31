@@ -40,7 +40,7 @@ public record SmartBlockPlacerActionPacket(String action, int value, String name
 
     @Override
     public Type<SmartBlockPlacerActionPacket> type() {
-        return TYPE;
+        return SmartBlockPlacerActionPacket.TYPE;
     }
 
     @Override

@@ -36,18 +36,18 @@ public class StructureToolMenu extends AbstractContainerMenu {
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        Slot sourceSlot = slots.get(index);
+        Slot sourceSlot = this.slots.get(index);
         if (!sourceSlot.hasItem()) return ItemStack.EMPTY;
 
         ItemStack sourceStack = sourceSlot.getItem();
         final ItemStack copyOfSourceStack = sourceStack.copy();
 
         if (index < 4 * 9) {
-            if (!moveItemStackTo(sourceStack, 4 * 9, 4 * 9 + 1, false)) {
+            if (!this.moveItemStackTo(sourceStack, 4 * 9, 4 * 9 + 1, false)) {
                 return ItemStack.EMPTY;
             }
         } else if (index == 4 * 9) {
-            if (!moveItemStackTo(sourceStack, 0, 4 * 9, false)) {
+            if (!this.moveItemStackTo(sourceStack, 0, 4 * 9, false)) {
                 return ItemStack.EMPTY;
             }
         } else {
@@ -65,7 +65,7 @@ public class StructureToolMenu extends AbstractContainerMenu {
     public void removed(Player player) {
         super.removed(player);
         if (player instanceof ServerPlayer serverPlayer) {
-            ItemStack slotStack = slots.get(4 * 9).getItem();
+            ItemStack slotStack = this.slots.get(4 * 9).getItem();
             if (!slotStack.isEmpty()) {
                 if (serverPlayer.isAlive() && !serverPlayer.hasDisconnected()) {
                     player.getInventory().placeItemBackInInventory(slotStack);

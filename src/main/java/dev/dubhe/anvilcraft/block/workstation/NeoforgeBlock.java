@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.workstation;
 
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.block.better.BetterAnvilBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -41,13 +42,13 @@ public class NeoforgeBlock extends BetterAnvilBlock {
     private static final VoxelShape X_TOP = Block.box(0.0, 10.0, 3.0, 16.0, 16.0, 13.0);
     private static final VoxelShape Z_LEG1 = Block.box(5.0, 4.0, 4.0, 11.0, 10.0, 12.0);
     private static final VoxelShape Z_TOP = Block.box(3.0, 10.0, 0.0, 13.0, 16.0, 16.0);
-    private static final VoxelShape X_AXIS_AABB = Shapes.or(BASE, X_LEG1, X_TOP);
-    private static final VoxelShape Z_AXIS_AABB = Shapes.or(BASE, Z_LEG1, Z_TOP);
+    private static final VoxelShape X_AXIS_AABB = Shapes.or(NeoforgeBlock.BASE, NeoforgeBlock.X_LEG1, NeoforgeBlock.X_TOP);
+    private static final VoxelShape Z_AXIS_AABB = Shapes.or(NeoforgeBlock.BASE, NeoforgeBlock.Z_LEG1, NeoforgeBlock.Z_TOP);
     public static final Component CONTAINER_TITLE = Component.translatable("container.repair");
 
     @Override
     public MapCodec<AnvilBlock> codec() {
-        return simpleCodec(NeoforgeBlock::new);
+        return BlockBehaviour.simpleCodec(NeoforgeBlock::new);
     }
 
     public NeoforgeBlock(Properties properties) {
@@ -76,14 +77,14 @@ public class NeoforgeBlock extends BetterAnvilBlock {
         return new SimpleMenuProvider(
             (syncId, inventory, player) ->
                 new NeoforgeMenu(syncId, inventory, ContainerLevelAccess.create(level, pos)),
-            CONTAINER_TITLE
+            NeoforgeBlock.CONTAINER_TITLE
         );
     }
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        Direction direction = state.getValue(FACING);
-        return direction.getAxis() == Direction.Axis.X ? X_AXIS_AABB : Z_AXIS_AABB;
+        Direction direction = state.getValue(AnvilBlock.FACING);
+        return direction.getAxis() == Direction.Axis.X ? NeoforgeBlock.X_AXIS_AABB : NeoforgeBlock.Z_AXIS_AABB;
     }
 
     @Override

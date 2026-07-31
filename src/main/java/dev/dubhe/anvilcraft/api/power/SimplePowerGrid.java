@@ -53,7 +53,7 @@ public class SimplePowerGrid {
     );
 
     static {
-        recreateExecutorLimitedParallelism();
+        SimplePowerGrid.recreateExecutorLimitedParallelism();
     }
 
     private final Random random = new Random();
@@ -125,10 +125,10 @@ public class SimplePowerGrid {
     }
 
     public static void recreateExecutorLimitedParallelism() {
-        if (EXECUTOR != null) {
-            EXECUTOR.shutdownNow();
+        if (SimplePowerGrid.EXECUTOR != null) {
+            SimplePowerGrid.EXECUTOR.shutdownNow();
         }
-        EXECUTOR = Executors.newFixedThreadPool(
+        SimplePowerGrid.EXECUTOR = Executors.newFixedThreadPool(
             Math.max(
                 Runtime.getRuntime().availableProcessors() / 4,
                 4
@@ -137,11 +137,14 @@ public class SimplePowerGrid {
     }
 
     public static SimplePowerGrid decode(FriendlyByteBuf buf) {
-        return CODEC.decode(NbtOps.INSTANCE, buf.readNbt().get("data")).getOrThrow().getFirst();
+        CompoundTag tag = Objects.requireNonNull(buf.readNbt());
+        return SimplePowerGrid.CODEC.decode(NbtOps.INSTANCE, Objects.requireNonNull(tag.get("data")))
+            .getOrThrow()
+            .getFirst();
     }
 
     public static void encode(FriendlyByteBuf buf, SimplePowerGrid grid) {
-        Tag tag = CODEC.encodeStart(NbtOps.INSTANCE, grid).getOrThrow();
+        Tag tag = SimplePowerGrid.CODEC.encodeStart(NbtOps.INSTANCE, grid).getOrThrow();
         CompoundTag data = new CompoundTag();
         data.put("data", tag);
         buf.writeNbt(data);

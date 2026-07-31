@@ -29,7 +29,8 @@ public abstract class RedstoneWireBlockMixin implements ITooltipProviderExtensio
     public List<Component> anvilcraft$getTooltip(BlockState state) {
         final ArrayList<Component> lines = new ArrayList<>();
         lines.add(Component.translatable("tooltip.anvilcraft.redstone.title").withStyle(ChatFormatting.BLUE));
-        lines.add(Component.translatable("tooltip.anvilcraft.redstone.power", state.getValue(POWER)).withStyle(ChatFormatting.GRAY));
+        lines.add(Component.translatable("tooltip.anvilcraft.redstone.power", state.getValue(
+            RedstoneWireBlockMixin.POWER)).withStyle(ChatFormatting.GRAY));
         return lines;
     }
 

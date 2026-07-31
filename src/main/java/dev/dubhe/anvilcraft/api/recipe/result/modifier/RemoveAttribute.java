@@ -55,12 +55,12 @@ public record RemoveAttribute(List<Identifier> attrs) implements IResultModifier
     public static class Type implements IResultModifier.Type<RemoveAttribute> {
         @Override
         public MapCodec<RemoveAttribute> codec() {
-            return CODEC;
+            return RemoveAttribute.CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, RemoveAttribute> streamCodec() {
-            return STREAM_CODEC;
+            return RemoveAttribute.STREAM_CODEC;
         }
     }
 

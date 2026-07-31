@@ -51,6 +51,6 @@ public class DisintegrationLootModifier extends LootModifier {
 
     @Override
     public MapCodec<? extends IGlobalLootModifier> codec() {
-        return CODEC;
+        return DisintegrationLootModifier.CODEC;
     }
 }

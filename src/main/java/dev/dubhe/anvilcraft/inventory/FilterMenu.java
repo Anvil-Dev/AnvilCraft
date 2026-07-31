@@ -27,10 +27,10 @@ public class FilterMenu extends AbstractContainerMenu {
     private static final int HOTBAR_SLOT_COUNT = 9;
     private static final int PLAYER_INVENTORY_ROW_COUNT = 3;
     private static final int PLAYER_INVENTORY_COLUMN_COUNT = 9;
-    private static final int PLAYER_INVENTORY_SLOT_COUNT = PLAYER_INVENTORY_COLUMN_COUNT * PLAYER_INVENTORY_ROW_COUNT;
-    private static final int VANILLA_SLOT_COUNT = HOTBAR_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
+    private static final int PLAYER_INVENTORY_SLOT_COUNT = FilterMenu.PLAYER_INVENTORY_COLUMN_COUNT * FilterMenu.PLAYER_INVENTORY_ROW_COUNT;
+    private static final int VANILLA_SLOT_COUNT = FilterMenu.HOTBAR_SLOT_COUNT + FilterMenu.PLAYER_INVENTORY_SLOT_COUNT;
     private static final int VANILLA_SLOT_INDEX = 0;
-    private static final int FILTER_FIRST_SLOT_INDEX = VANILLA_SLOT_INDEX + VANILLA_SLOT_COUNT;
+    private static final int FILTER_FIRST_SLOT_INDEX = FilterMenu.VANILLA_SLOT_INDEX + FilterMenu.VANILLA_SLOT_COUNT;
     // THIS YOU HAVE TO DEFINE!
     private static final int FILTER_SLOT_COUNT = 18; // must be the number of slots you have!
     private final FilterContainer container;
@@ -71,10 +71,10 @@ public class FilterMenu extends AbstractContainerMenu {
     public void clicked(int slotIndex, int buttonNum, ContainerInput containerInput, Player player) {
         if (
             containerInput == ContainerInput.SWAP
-            && slotIndex >= FILTER_FIRST_SLOT_INDEX
-            && slotIndex < FILTER_FIRST_SLOT_INDEX + FILTER_SLOT_COUNT
+            && slotIndex >= FilterMenu.FILTER_FIRST_SLOT_INDEX
+            && slotIndex < FilterMenu.FILTER_FIRST_SLOT_INDEX + FilterMenu.FILTER_SLOT_COUNT
             && this.getSlot(slotIndex) instanceof FilterOnlySlot filterSlot
-            && (buttonNum >= 0 && buttonNum < HOTBAR_SLOT_COUNT || buttonNum == Inventory.SLOT_OFFHAND)
+            && (buttonNum >= 0 && buttonNum < FilterMenu.HOTBAR_SLOT_COUNT || buttonNum == Inventory.SLOT_OFFHAND)
         ) {
             filterSlot.set(player.getInventory().getItem(buttonNum).copy());
             return;

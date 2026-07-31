@@ -56,44 +56,44 @@ public enum Color implements StringRepresentable {
     @Nullable
     public static Color getColorByDyeItem(Item dyeItem) {
         if (dyeItem == Items.BLACK_DYE) {
-            return BLACK;
+            return Color.BLACK;
         } else if (dyeItem == Items.BLUE_DYE) {
-            return BLUE;
+            return Color.BLUE;
         } else if (dyeItem == Items.BROWN_DYE) {
-            return BROWN;
+            return Color.BROWN;
         } else if (dyeItem == Items.CYAN_DYE) {
-            return CYAN;
+            return Color.CYAN;
         } else if (dyeItem == Items.GRAY_DYE) {
-            return GRAY;
+            return Color.GRAY;
         } else if (dyeItem == Items.GREEN_DYE) {
-            return GREEN;
+            return Color.GREEN;
         } else if (dyeItem == Items.LIGHT_BLUE_DYE) {
-            return LIGHT_BLUE;
+            return Color.LIGHT_BLUE;
         } else if (dyeItem == Items.LIGHT_GRAY_DYE) {
-            return LIGHT_GRAY;
+            return Color.LIGHT_GRAY;
         } else if (dyeItem == Items.LIME_DYE) {
-            return LIME;
+            return Color.LIME;
         } else if (dyeItem == Items.MAGENTA_DYE) {
-            return MAGENTA;
+            return Color.MAGENTA;
         } else if (dyeItem == Items.ORANGE_DYE) {
-            return ORANGE;
+            return Color.ORANGE;
         } else if (dyeItem == Items.PINK_DYE) {
-            return PINK;
+            return Color.PINK;
         } else if (dyeItem == Items.PURPLE_DYE) {
-            return PURPLE;
+            return Color.PURPLE;
         } else if (dyeItem == Items.RED_DYE) {
-            return RED;
+            return Color.RED;
         } else if (dyeItem == Items.WHITE_DYE) {
-            return WHITE;
+            return Color.WHITE;
         } else if (dyeItem == Items.YELLOW_DYE) {
-            return YELLOW;
+            return Color.YELLOW;
         } else {
             return null;
         }
     }
 
     public static Color getColorByIndex(int index) {
-        Color[] values = values();
+        Color[] values = Color.values();
         if (index >= 0 && index < values.length) {
             return values[index];
         }

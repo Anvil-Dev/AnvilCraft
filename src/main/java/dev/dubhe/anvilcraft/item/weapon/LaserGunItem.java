@@ -49,7 +49,7 @@ public class LaserGunItem extends EnergyWeaponItem {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!this.canStartUsing(player, stack, ENERGY[0])) return InteractionResult.FAIL;
+        if (!this.canStartUsing(player, stack, LaserGunItem.ENERGY[0])) return InteractionResult.FAIL;
         player.startUsingItem(hand);
         return InteractionResult.CONSUME;
     }
@@ -57,7 +57,7 @@ public class LaserGunItem extends EnergyWeaponItem {
     @Override
     public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remaining) {
         if (!(user instanceof ServerPlayer player) || !(level instanceof ServerLevel serverLevel)) return;
-        LaserState state = STATES.computeIfAbsent(player.getUUID(), ignored -> new LaserState());
+        LaserState state = LaserGunItem.STATES.computeIfAbsent(player.getUUID(), ignored -> new LaserState());
         WeaponRaycastUtil.Ray fullRay = WeaponRaycastUtil.ray(player, 48.0);
         BlockHitResult blockHit = WeaponRaycastUtil.laserBlockHit(level, player, fullRay);
         WeaponRaycastUtil.Ray ray = new WeaponRaycastUtil.Ray(fullRay.start(), blockHit.getLocation());
@@ -69,15 +69,15 @@ public class LaserGunItem extends EnergyWeaponItem {
         int visualStage = targets.isEmpty() ? 0 : Math.min(4, state.targetTicks / 100);
         Vec3 visualStart = WeaponRaycastUtil.visualStart(player, WeaponRaycastUtil.MUZZLE_RIGHT_OFFSET);
         WeaponBeamEntity.showContinuous(
-            level, visualStart, end, WeaponBeamEntity.LASER, VISUAL_LEVEL[visualStage], player);
+            level, visualStart, end, WeaponBeamEntity.LASER, LaserGunItem.VISUAL_LEVEL[visualStage], player);
 
         if (!targets.isEmpty()) {
             state.resetMining();
-            hurtTargets(serverLevel, player, stack, targets, state);
+            LaserGunItem.hurtTargets(serverLevel, player, stack, targets, state);
             return;
         }
         state.resetTarget();
-        mine(serverLevel, player, stack, blockHit, state);
+        LaserGunItem.mine(serverLevel, player, stack, blockHit, state);
     }
 
     private static void hurtTargets(
@@ -99,7 +99,7 @@ public class LaserGunItem extends EnergyWeaponItem {
         if (state.targetTicks % period != 0) return;
         int stage = Math.min(4, state.targetTicks / 100);
         EnergyWeaponItem weapon = (EnergyWeaponItem) stack.getItem();
-        if (!weapon.consumeEnergy(player, stack, ENERGY[stage], 80_000_000)) return;
+        if (!weapon.consumeEnergy(player, stack, LaserGunItem.ENERGY[stage], 80_000_000)) return;
 
         if (stage >= 3) {
             player.igniteForSeconds(5.0F);
@@ -111,7 +111,7 @@ public class LaserGunItem extends EnergyWeaponItem {
         }
         for (LivingEntity target : targets) {
             DamageSource source = ModDamageTypes.laser(level, player);
-            if (target.hurtServer(level, source, DAMAGE[stage])) {
+            if (target.hurtServer(level, source, LaserGunItem.DAMAGE[stage])) {
                 EnchantmentHelper.doPostAttackEffectsWithItemSource(level, target, source, stack);
             }
         }
@@ -139,11 +139,11 @@ public class LaserGunItem extends EnergyWeaponItem {
             }
             state.idleTicks = 0;
             state.miningAnchor = origin.immutable();
-            state.vein.addAll(findVein(
+            state.vein.addAll(LaserGunItem.findVein(
                 level, origin, ore, AnvilCraft.CONFIG.laserOreClusterMaxSize, player.position()));
         }
         state.miningTicks++;
-        if (state.miningTicks % miningPeriod(level, stack) != 0 || state.vein.isEmpty()) return;
+        if (state.miningTicks % LaserGunItem.miningPeriod(level, stack) != 0 || state.vein.isEmpty()) return;
         if (!((EnergyWeaponItem) stack.getItem()).consumeEnergy(
             player, stack, 400_000, 80_000_000)) {
             return;
@@ -200,22 +200,22 @@ public class LaserGunItem extends EnergyWeaponItem {
 
     @Override
     public boolean releaseUsing(ItemStack stack, Level level, LivingEntity entity, int timeLeft) {
-        STATES.remove(entity.getUUID());
+        LaserGunItem.STATES.remove(entity.getUUID());
         return false;
     }
 
     @Override
     protected void stopForInsufficientPower(Player player) {
-        STATES.remove(player.getUUID());
+        LaserGunItem.STATES.remove(player.getUUID());
         super.stopForInsufficientPower(player);
     }
 
     public static void clearState(UUID playerId) {
-        STATES.remove(playerId);
+        LaserGunItem.STATES.remove(playerId);
     }
 
     public static void clearStates() {
-        STATES.clear();
+        LaserGunItem.STATES.clear();
     }
 
     @Override

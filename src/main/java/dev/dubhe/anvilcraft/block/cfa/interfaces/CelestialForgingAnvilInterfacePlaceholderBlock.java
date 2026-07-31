@@ -70,7 +70,7 @@ public class CelestialForgingAnvilInterfacePlaceholderBlock
                     .setValue(CelestialForgingAnvilInterfaceBlock.FACING, facing)
                     .setValue(CelestialForgingAnvilInterfaceBlock.ACTIVE, false);
                 level.setBlockAndUpdate(pos, placementState);
-                SoundType soundType = placementState.getSoundType();
+                SoundType soundType = placementState.getSoundType(level, pos, player);
                 level.playSound(null, pos, soundType.getPlaceSound(), SoundSource.BLOCKS,
                     (soundType.getVolume() + 1.0f) / 2.0f, soundType.getPitch() * 0.8f);
                 if (!player.getAbilities().instabuild) {

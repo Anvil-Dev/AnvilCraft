@@ -18,7 +18,7 @@ public record JewelCraftingAutoFillPacket() implements IServerboundPacket {
 
     @Override
     public Type<JewelCraftingAutoFillPacket> type() {
-        return TYPE;
+        return JewelCraftingAutoFillPacket.TYPE;
     }
 
     @Override

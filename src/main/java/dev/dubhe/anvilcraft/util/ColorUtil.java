@@ -2,8 +2,6 @@ package dev.dubhe.anvilcraft.util;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
-import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TextColor;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 

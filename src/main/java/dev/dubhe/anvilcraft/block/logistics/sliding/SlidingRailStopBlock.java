@@ -49,7 +49,7 @@ public class SlidingRailStopBlock extends BaseSlidingRailBlock {
         BlockPos pos,
         CollisionContext context
     ) {
-        return SHAPE;
+        return SlidingRailStopBlock.SHAPE;
     }
 
     @Override

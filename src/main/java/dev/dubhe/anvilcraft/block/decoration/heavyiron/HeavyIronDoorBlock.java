@@ -35,11 +35,11 @@ public class HeavyIronDoorBlock extends DoorBlock implements IHammerChangeable {
             boolean flag = level.getBestNeighborSignal(blockpos) >= 15
                 || level.getBestNeighborSignal(blockpos.above()) >= 15;
             return this.defaultBlockState()
-                .setValue(FACING, context.getHorizontalDirection())
-                .setValue(HINGE, this.getHinge(context))
-                .setValue(POWERED, flag)
-                .setValue(OPEN, flag)
-                .setValue(HALF, DoubleBlockHalf.LOWER);
+                .setValue(DoorBlock.FACING, context.getHorizontalDirection())
+                .setValue(DoorBlock.HINGE, this.getHinge(context))
+                .setValue(DoorBlock.POWERED, flag)
+                .setValue(DoorBlock.OPEN, flag)
+                .setValue(DoorBlock.HALF, DoubleBlockHalf.LOWER);
         } else {
             return null;
         }
@@ -56,12 +56,12 @@ public class HeavyIronDoorBlock extends DoorBlock implements IHammerChangeable {
         BlockHitResult hitResult
     ) {
         if (stack.getItem() instanceof AnvilHammerItem) {
-            state = state.cycle(OPEN);
+            state = state.cycle(DoorBlock.OPEN);
             level.setBlock(pos, state, 10);
             level.playSound(
                 null,
                 pos,
-                state.getValue(OPEN) ? this.type().doorOpen() : this.type().doorClose(),
+                state.getValue(DoorBlock.OPEN) ? this.type().doorOpen() : this.type().doorClose(),
                 SoundSource.BLOCKS,
                 1.0F,
                 level.getRandom().nextFloat() * 0.1F + 0.9F
@@ -87,13 +87,13 @@ public class HeavyIronDoorBlock extends DoorBlock implements IHammerChangeable {
         boolean movedByPiston
     ) {
         boolean flag = level.getBestNeighborSignal(pos) >= 15
-            || level.getBestNeighborSignal(pos.relative(state.getValue(HALF) == DoubleBlockHalf.LOWER
+            || level.getBestNeighborSignal(pos.relative(state.getValue(DoorBlock.HALF) == DoubleBlockHalf.LOWER
                 ? Direction.UP
                 : Direction.DOWN
             )
         ) >= 15;
-        if (!this.defaultBlockState().is(block) && flag != state.getValue(POWERED)) {
-            if (flag != state.getValue(OPEN)) {
+        if (!this.defaultBlockState().is(block) && flag != state.getValue(DoorBlock.POWERED)) {
+            if (flag != state.getValue(DoorBlock.OPEN)) {
                 level.playSound(
                     null,
                     pos,
@@ -107,8 +107,8 @@ public class HeavyIronDoorBlock extends DoorBlock implements IHammerChangeable {
 
             level.setBlock(
                 pos,
-                state.setValue(POWERED, flag)
-                    .setValue(OPEN, flag),
+                state.setValue(DoorBlock.POWERED, flag)
+                    .setValue(DoorBlock.OPEN, flag),
                 2
             );
         }
@@ -116,12 +116,12 @@ public class HeavyIronDoorBlock extends DoorBlock implements IHammerChangeable {
 
     @Override
     public boolean change(Player player, BlockPos pos, Level level, ItemStack anvilHammer) {
-        BlockState state = level.getBlockState(pos).cycle(OPEN);
+        BlockState state = level.getBlockState(pos).cycle(DoorBlock.OPEN);
         level.setBlock(pos, state, 10);
         level.playSound(
             null,
             pos,
-            state.getValue(OPEN) ? this.type().doorOpen() : this.type().doorClose(),
+            state.getValue(DoorBlock.OPEN) ? this.type().doorOpen() : this.type().doorClose(),
             SoundSource.BLOCKS,
             1.0F,
             level.getRandom().nextFloat() * 0.1F + 0.9F
@@ -132,6 +132,6 @@ public class HeavyIronDoorBlock extends DoorBlock implements IHammerChangeable {
 
     @Override
     public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
+        return DoorBlock.FACING;
     }
 }

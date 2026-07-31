@@ -38,10 +38,10 @@ public record Multiphase(List<Phase> phases, int activePhase) implements Tooltip
         Codec.BOOL.optionalFieldOf("merciless", false).forGetter(ignored -> false)
     ).apply(instance, (phases, activePhase, ignored) -> new Multiphase(phases, activePhase)));
     private static final MapCodec<Multiphase> LEGACY_CODEC = Codec.PASSTHROUGH.fieldOf("id").xmap(
-        ignored -> create(),
+        ignored -> Multiphase.create(),
         ignored -> new Dynamic<>(JsonOps.INSTANCE, JsonOps.INSTANCE.emptyMap())
     );
-    public static final MapCodec<Multiphase> CODEC = Codec.mapEither(DATA_CODEC, LEGACY_CODEC).xmap(
+    public static final MapCodec<Multiphase> CODEC = Codec.mapEither(Multiphase.DATA_CODEC, Multiphase.LEGACY_CODEC).xmap(
         either -> either.map(multiphase -> multiphase, multiphase -> multiphase),
         Either::left
     );
@@ -55,7 +55,7 @@ public record Multiphase(List<Phase> phases, int activePhase) implements Tooltip
 
     public Multiphase {
         phases = List.copyOf(phases);
-        if (phases.size() < MIN_PHASE_COUNT || phases.size() > MAX_PHASE_COUNT) {
+        if (phases.size() < Multiphase.MIN_PHASE_COUNT || phases.size() > Multiphase.MAX_PHASE_COUNT) {
             throw new IllegalArgumentException("Multiphase phase count must be between 2 and 4");
         }
         if (activePhase < 0 || activePhase >= phases.size()) {
@@ -70,25 +70,25 @@ public record Multiphase(List<Phase> phases, int activePhase) implements Tooltip
     public static Component makeName(int index) {
         return Component.translatableWithFallback(
             "tooltip.anvilcraft.property.multiphase.name." + index,
-            DEFAULT_NAMES.get(index)
+            Multiphase.DEFAULT_NAMES.get(index)
         );
     }
 
     public static Component makeSuffix(int index) {
         return Component.translatableWithFallback(
             "tooltip.anvilcraft.property.multiphase.suffix." + index,
-            "-" + DEFAULT_NAMES.get(index)
+            "-" + Multiphase.DEFAULT_NAMES.get(index)
         );
     }
 
     public static Component firstPhaseName(Component name) {
-        return name.copy().append(makeSuffix(0));
+        return name.copy().append(Multiphase.makeSuffix(0));
     }
 
     public Component phaseDisplayName(int index) {
         return this.phases.get(index).customName().isPresent()
             ? this.phases.get(index).customName().get().copy()
-            : makeName(index);
+            : Multiphase.makeName(index);
     }
 
     public Multiphase capture(ItemStack stack) {
@@ -128,7 +128,7 @@ public record Multiphase(List<Phase> phases, int activePhase) implements Tooltip
 
     public boolean addPhase(ItemStack stack) {
         Multiphase captured = this.capture(stack);
-        if (captured.phases.size() >= MAX_PHASE_COUNT) return false;
+        if (captured.phases.size() >= Multiphase.MAX_PHASE_COUNT) return false;
         List<Phase> expanded = new ArrayList<>(captured.phases);
         expanded.add(Phase.EMPTY);
         stack.set(ModComponents.MULTIPHASE, new Multiphase(expanded, captured.activePhase));
@@ -149,7 +149,7 @@ public record Multiphase(List<Phase> phases, int activePhase) implements Tooltip
         this.phases.get(this.activePhase).applyToStack(stack);
         stack.set(
             DataComponents.ITEM_NAME,
-            stack.getItem().getName(stack.getItem().getDefaultInstance()).copy().append(makeSuffix(this.activePhase))
+            stack.getItem().getName(stack.getItem().getDefaultInstance()).copy().append(Multiphase.makeSuffix(this.activePhase))
         );
     }
 
@@ -188,7 +188,7 @@ public record Multiphase(List<Phase> phases, int activePhase) implements Tooltip
         }
 
         public static Phase fromInput(ItemStack stack) {
-            return capture(
+            return Phase.capture(
                 stack,
                 EnchantmentUtil.merge(
                     stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY),

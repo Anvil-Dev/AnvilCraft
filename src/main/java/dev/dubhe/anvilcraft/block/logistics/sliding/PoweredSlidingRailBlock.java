@@ -58,7 +58,8 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
 
     public PoweredSlidingRailBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.getStateDefinition().any().setValue(FACING, Direction.NORTH).setValue(POWERED, false));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(PoweredSlidingRailBlock.FACING, Direction.NORTH).setValue(
+            PoweredSlidingRailBlock.POWERED, false));
     }
 
     @Nullable
@@ -69,13 +70,13 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
             facing = facing.getOpposite();
         }
         return this.defaultBlockState()
-            .setValue(FACING, facing)
-            .setValue(POWERED, this.isPowered(context.getLevel(), context.getClickedPos(), facing));
+            .setValue(PoweredSlidingRailBlock.FACING, facing)
+            .setValue(PoweredSlidingRailBlock.POWERED, this.isPowered(context.getLevel(), context.getClickedPos(), facing));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, POWERED);
+        builder.add(PoweredSlidingRailBlock.FACING, PoweredSlidingRailBlock.POWERED);
     }
 
     protected boolean findPoweredSlidingRailSignal(Level level, BlockPos pos, Direction facing, boolean searchForward) {
@@ -99,8 +100,8 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
         int x = pos.getX();
         int y = pos.getY();
         int z = pos.getZ();
-        if (!state.hasProperty(FACING)) return false;
-        Direction facing = state.getValue(FACING);
+        if (!state.hasProperty(PoweredSlidingRailBlock.FACING)) return false;
+        Direction facing = state.getValue(PoweredSlidingRailBlock.FACING);
         switch (facing) {
             case NORTH -> z -= searchForward ? 1 : -1;
             case SOUTH -> z += searchForward ? 1 : -1;
@@ -116,10 +117,10 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
     protected boolean isSameRailWithPower(Level level, BlockPos pos, boolean searchForward, int recursionCount, Direction facing) {
         BlockState state = level.getBlockState(pos);
         if (!(state.getBlock() instanceof PoweredSlidingRailBlock other)) return false;
-        Direction otherFacing = state.getValue(FACING);
+        Direction otherFacing = state.getValue(PoweredSlidingRailBlock.FACING);
         if (facing != otherFacing) return false;
         boolean hasSideSignal = false;
-        for (Direction d : SIGNAL_SOURCE_SIDES) {
+        for (Direction d : PoweredSlidingRailBlock.SIGNAL_SOURCE_SIDES) {
             if (level.hasSignal(pos.relative(d), d)) {
                 hasSideSignal = true;
                 break;
@@ -136,25 +137,25 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-        return switch (state.getValue(FACING).getAxis()) {
-            case X -> AABB_X;
-            case Z -> AABB_Z;
+        return switch (state.getValue(PoweredSlidingRailBlock.FACING).getAxis()) {
+            case X -> PoweredSlidingRailBlock.AABB_X;
+            case Z -> PoweredSlidingRailBlock.AABB_Z;
             default -> super.getShape(state, level, pos, ctx);
         };
     }
 
     @Override
     public void onNeighborChange(BlockState state, LevelReader level, BlockPos pos, BlockPos neighbor) {
-        if (!state.getValue(POWERED)) return;
+        if (!state.getValue(PoweredSlidingRailBlock.POWERED)) return;
         super.onNeighborChange(state, level, pos, neighbor);
     }
 
     protected boolean updatePower(Level level, BlockPos pos, BlockState state) {
-        boolean powered = state.getValue(POWERED);
+        boolean powered = state.getValue(PoweredSlidingRailBlock.POWERED);
         boolean shouldPower = this.isPowered(level, pos);
         if (powered != shouldPower) {
             powered = shouldPower;
-            level.setBlockAndUpdate(pos, state.setValue(POWERED, shouldPower));
+            level.setBlockAndUpdate(pos, state.setValue(PoweredSlidingRailBlock.POWERED, shouldPower));
         }
         return powered;
     }
@@ -174,11 +175,11 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
         boolean movedByPiston
     ) {
         super.neighborChanged(state, level, pos, block, orientation, movedByPiston);
-        boolean wasPowered = state.getValue(POWERED);
+        boolean wasPowered = state.getValue(PoweredSlidingRailBlock.POWERED);
         boolean powered = this.updatePower(level, pos, state);
 
         if (!wasPowered && powered) {
-            Direction facing = state.getValue(FACING);
+            Direction facing = state.getValue(PoweredSlidingRailBlock.FACING);
             BlockPos behindPos = pos.relative(facing.getOpposite());
             BlockState behindState = level.getBlockState(behindPos);
             if (behindState.is(ModBlockTags.SLIDING_RAIL_STOP_LIKE)) {
@@ -194,27 +195,27 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
 
         BlockPos above = pos.above();
         if (powered && !level.isEmptyBlock(above)) {
-            PistonPushInfo ppi = new PistonPushInfo(above, state.getValue(FACING));
+            PistonPushInfo ppi = new PistonPushInfo(above, state.getValue(PoweredSlidingRailBlock.FACING));
             ppi.extending = true;
-            if (MOVING_PISTON_MAP.containsKey(pos)) {
-                PistonPushInfo info = MOVING_PISTON_MAP.get(pos);
+            if (ISlidingRail.MOVING_PISTON_MAP.containsKey(pos)) {
+                PistonPushInfo info = ISlidingRail.MOVING_PISTON_MAP.get(pos);
                 info.fromPos = above;
-                info.direction = state.getValue(FACING);
+                info.direction = state.getValue(PoweredSlidingRailBlock.FACING);
                 info.extending = true;
                 info.isSourcePiston = false;
-            } else MOVING_PISTON_MAP.put(pos, ppi);
+            } else ISlidingRail.MOVING_PISTON_MAP.put(pos, ppi);
         }
         if (level.isClientSide()) return;
         if (!powered) return;
-        if (!MOVING_PISTON_MAP.containsKey(pos)) return;
-        BlockPos checkPos = MOVING_PISTON_MAP.get(pos) instanceof PistonPushInfo info ? info.fromPos : above;
+        if (!ISlidingRail.MOVING_PISTON_MAP.containsKey(pos)) return;
+        BlockPos checkPos = ISlidingRail.MOVING_PISTON_MAP.get(pos) instanceof PistonPushInfo info ? info.fromPos : above;
         BlockState blockState = level.getBlockState(checkPos);
         if (blockState.is(Blocks.MOVING_PISTON) || blockState.isAir()) return;
         level.scheduleTick(pos, this, 2);
     }
 
     private boolean isPowered(Level level, BlockPos pos, Direction facing) {
-        for (Direction side : SIGNAL_SOURCE_SIDES) {
+        for (Direction side : PoweredSlidingRailBlock.SIGNAL_SOURCE_SIDES) {
             if (level.getSignal(pos.relative(side), side) > 0) return true;
         }
         return this.findPoweredSlidingRailSignal(level, pos, facing, true)
@@ -222,7 +223,7 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
     }
 
     private boolean isPowered(Level level, BlockPos pos) {
-        for (Direction side : SIGNAL_SOURCE_SIDES) {
+        for (Direction side : PoweredSlidingRailBlock.SIGNAL_SOURCE_SIDES) {
             if (level.getSignal(pos.relative(side), side) > 0) return true;
         }
         BlockState state = level.getBlockState(pos);
@@ -236,7 +237,7 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
         if (entity.getType() == EntityType.ITEM && magnetizedNodeExist) return;
         if (entity.getType() != EntityType.ITEM && !(entity instanceof LivingEntity)) return;
         boolean isSneakPlayer = entity instanceof Player player && player.isShiftKeyDown();
-        if (!state.getValue(POWERED)) {
+        if (!state.getValue(PoweredSlidingRailBlock.POWERED)) {
             if (!isSneakPlayer) {
                 Vec3 blockPos = pos.getCenter();
                 Vec3 entityPos = entity.position();
@@ -249,7 +250,7 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
             }
         } else {
             if (!isSneakPlayer) {
-                entity.setDeltaMovement(Vec3.ZERO.relative(state.getValue(FACING), 0.35));
+                entity.setDeltaMovement(Vec3.ZERO.relative(state.getValue(PoweredSlidingRailBlock.FACING), 0.35));
             }
         }
     }
@@ -257,23 +258,23 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         BlockState bs = level.getBlockState(blockPos);
-        level.setBlockAndUpdate(blockPos, bs.cycle(FACING));
+        level.setBlockAndUpdate(blockPos, bs.cycle(PoweredSlidingRailBlock.FACING));
         return true;
     }
 
     @Override
     public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
+        return PoweredSlidingRailBlock.FACING;
     }
 
     @Override
     public void onSlidingAbove(Level level, BlockPos pos, BlockState state, SlidingBlockEntity entity) {
-        if (!state.getValue(POWERED)) {
+        if (!state.getValue(PoweredSlidingRailBlock.POWERED)) {
             ISlidingRail.stopSlidingBlock(entity);
             return;
         }
         Vec3 entityPos = entity.position();
-        Direction facing = state.getValue(FACING);
+        Direction facing = state.getValue(PoweredSlidingRailBlock.FACING);
         Direction.Axis horizontalAnother = facing.getClockWise().getAxis();
         double single = entityPos.get(horizontalAnother);
         double should = Math.ceil(single) - 0.5;
@@ -283,21 +284,21 @@ public class PoweredSlidingRailBlock extends BaseSlidingRailBlock implements IHa
 
     @Override
     public boolean canMoveBlockToTop(LevelReader level, BlockPos pos, BlockState state, BlockState top, Direction side) {
-        return state.getValue(POWERED) && state.getValue(FACING) == side.getOpposite();
+        return state.getValue(PoweredSlidingRailBlock.POWERED) && state.getValue(PoweredSlidingRailBlock.FACING) == side.getOpposite();
     }
 
     @Override
     public boolean canMoveSlidingToTop(LevelReader level, BlockPos pos, BlockState state, Direction side) {
-        return state.getValue(POWERED) && state.getValue(FACING) == side.getOpposite();
+        return state.getValue(PoweredSlidingRailBlock.POWERED) && state.getValue(PoweredSlidingRailBlock.FACING) == side.getOpposite();
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(PoweredSlidingRailBlock.FACING, rotation.rotate(state.getValue(PoweredSlidingRailBlock.FACING)));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
+        return state.setValue(PoweredSlidingRailBlock.FACING, mirror.mirror(state.getValue(PoweredSlidingRailBlock.FACING)));
     }
 }

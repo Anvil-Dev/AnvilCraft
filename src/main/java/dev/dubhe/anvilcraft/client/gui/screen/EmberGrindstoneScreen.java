@@ -163,7 +163,7 @@ public class EmberGrindstoneScreen extends AbstractContainerScreen<EmberGrindsto
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            EmberGrindstoneScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,

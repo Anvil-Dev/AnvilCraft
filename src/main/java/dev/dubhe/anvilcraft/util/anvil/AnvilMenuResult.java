@@ -209,7 +209,7 @@ public class AnvilMenuResult {
         boolean hasOperation = false;
 
         for (int leftIndex = 0; leftIndex < left.phases().size(); leftIndex++) {
-            int rightIndex = findMatchingPhase(left, leftIndex, right, matchedRight);
+            int rightIndex = AnvilMenuResult.findMatchingPhase(left, leftIndex, right, matchedRight);
             if (rightIndex < 0) {
                 if (left.phases().size() <= right.phases().size()) return;
                 continue;

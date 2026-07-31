@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.util;
 
+import org.jspecify.annotations.Nullable;
+
 public class WatchablePropertyDelegate<T> {
 
-    protected T value = null;
+    protected @Nullable T value;
 
     public WatchablePropertyDelegate(T value) {
         this.value = value;
@@ -11,10 +13,10 @@ public class WatchablePropertyDelegate<T> {
     public WatchablePropertyDelegate() {
     }
 
-    protected void onChanged(T oldValue, T newValue) {
+    protected void onChanged(@Nullable T oldValue, T newValue) {
     }
 
-    public T get() {
+    public @Nullable T get() {
         return this.value;
     }
 

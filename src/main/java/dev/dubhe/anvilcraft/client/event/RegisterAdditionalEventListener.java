@@ -267,7 +267,7 @@ public class RegisterAdditionalEventListener {
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_hollow")));
         event.register(CFARenderer.BODY_PLANET_ERROR,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_error")));
-        registerCelestialBodyModels(event);
+        RegisterAdditionalEventListener.registerCelestialBodyModels(event);
         event.register(
             FishTankRenderer.FIRE,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/oil_cauldron_fire4"))

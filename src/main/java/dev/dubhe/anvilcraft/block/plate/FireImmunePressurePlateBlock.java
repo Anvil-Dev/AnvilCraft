@@ -24,7 +24,7 @@ public class FireImmunePressurePlateBlock extends PowerLevelPressurePlateBlock {
 
     @Override
     protected int getSignalStrength(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {
-        return Math.clamp(getFireImmuneEntityCount(level, box, entityClasses), 0, 15);
+        return Math.clamp(FireImmunePressurePlateBlock.getFireImmuneEntityCount(level, box, entityClasses), 0, 15);
     }
 
     protected static int getFireImmuneEntityCount(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {

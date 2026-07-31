@@ -127,7 +127,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
             super.clear();
         }
     };
-    private AABB fluidContentArea = new AABB(FLUID_CONTENT_AREA_MIN, FLUID_CONTENT_AREA_MAX);
+    private AABB fluidContentArea = new AABB(FishTankBlockEntity.FLUID_CONTENT_AREA_MIN, FishTankBlockEntity.FLUID_CONTENT_AREA_MAX);
     private final FluidStackResourceHandler fluidHandler = new FluidStackResourceHandler() {
         @Override
         protected void onContentChanged(FluidStack original) {
@@ -145,7 +145,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
         private void updateContentArea() {
             double diffY = FishTankBlockEntity.FLUID_CONTENT_AREA_HEIGHT * (1.0 - (double) this.getFill());
-            Vec3 pos = getBlockPos().getBottomCenter().subtract(0.5, 0, 0.5);
+            Vec3 pos = FishTankBlockEntity.this.getBlockPos().getBottomCenter().subtract(0.5, 0, 0.5);
             FishTankBlockEntity.this.fluidContentArea = new AABB(
                 FishTankBlockEntity.FLUID_CONTENT_AREA_MIN.add(pos),
                 FishTankBlockEntity.FLUID_CONTENT_AREA_MAX.subtract(0, diffY, 0).add(pos)
@@ -223,7 +223,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
         @Override
         public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
-            Objects.checkIndex(index, size());
+            Objects.checkIndex(index, this.size());
             TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
 
             if (resource.equals(this.getResource(index))) {
@@ -450,7 +450,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     @Override
     public ResourceHandler<ItemResource> getOutput() {
         // 复用输出槽做原料时，配方缓存不能同时把同一个容器当成输出，否则快照会互相覆盖
-        return this.processingOutput ? EMPTY_RECIPE_OUTPUT : this.output;
+        return this.processingOutput ? FishTankBlockEntity.EMPTY_RECIPE_OUTPUT : this.output;
     }
 
     public PollableItemHandler getInputHandler() {
@@ -463,10 +463,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
     /// 输入槽为空时，允许本 tick 把输出槽中的产物当作原料再加工一次
     public void beginRecipeProcessing() {
-        boolean hasInput = !isEmpty(this.input);
+        boolean hasInput = !FishTankBlockEntity.isEmpty(this.input);
         long gameTime = this.level == null ? Long.MIN_VALUE + 1 : this.level.getGameTime();
         this.processingOutput = !hasInput
-            && !isEmpty(this.output)
+            && !FishTankBlockEntity.isEmpty(this.output)
             && gameTime != this.lastRecipeProcessingGameTime;
         if (hasInput || this.processingOutput) this.lastRecipeProcessingGameTime = gameTime;
     }
@@ -495,7 +495,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         this.output.serialize(output.child("Outputs"));
         output.putBoolean("ignited", this.ignited);
 
-        ValueOutput.TypedOutputList<TropicalFishData> list = output.list(TAG_TROPICAL_FISH_DATA, TropicalFishData.CODEC.codec());
+        ValueOutput.TypedOutputList<TropicalFishData> list = output.list(
+            FishTankBlockEntity.TAG_TROPICAL_FISH_DATA,
+            TropicalFishData.CODEC.codec()
+        );
         for (TropicalFishData fishTag : this.fishes) {
             list.add(fishTag);
         }
@@ -510,7 +513,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         this.ignited = input.getBooleanOr("ignited", false);
 
         this.fishes.clear();
-        for (TropicalFishData fishTag : input.listOrEmpty(TAG_TROPICAL_FISH_DATA, TropicalFishData.CODEC.codec())) {
+        for (TropicalFishData fishTag : input.listOrEmpty(FishTankBlockEntity.TAG_TROPICAL_FISH_DATA, TropicalFishData.CODEC.codec())) {
             this.fishes.add(fishTag);
         }
     }
@@ -525,7 +528,10 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         this.output.serialize(output.child("Outputs"));
         output.putBoolean("ignited", this.ignited);
 
-        ValueOutput.TypedOutputList<TropicalFishData> list = output.list(TAG_TROPICAL_FISH_DATA, TropicalFishData.CODEC.codec());
+        ValueOutput.TypedOutputList<TropicalFishData> list = output.list(
+            FishTankBlockEntity.TAG_TROPICAL_FISH_DATA,
+            TropicalFishData.CODEC.codec()
+        );
         for (TropicalFishData fishTag : this.fishes) {
             list.add(fishTag);
         }
@@ -684,7 +690,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
         );
         if (targets == null || targets.isEmpty()) {
             // 开口被有碰撞的方块堵住时不输出，物品留在输出槽等待下次重试
-            if (isOutletBlocked(level, pos, outletDir)) return;
+            if (FishTankBlockEntity.isOutletBlocked(level, pos, outletDir)) return;
             for (int i = 0; i < 8; i++) {
                 try (Transaction transaction = Transaction.openRoot()) {
                     ItemResource resource = this.output.getResource(i);
@@ -1055,7 +1061,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
 
         if (this.isEmptyOfFish() && this.getBlockState().getValue(FishTankBlock.TROPICAL)) {
             this.level.setBlock(this.getBlockPos(), this.getBlockState().setValue(FishTankBlock.TROPICAL, false), 18);
-        } else if (!this.isEmptyOfFish() && !getBlockState().getValue(FishTankBlock.TROPICAL)) {
+        } else if (!this.isEmptyOfFish() && !this.getBlockState().getValue(FishTankBlock.TROPICAL)) {
             this.level.setBlock(this.getBlockPos(), this.getBlockState().setValue(FishTankBlock.TROPICAL, true), 18);
         }
     }
@@ -1072,7 +1078,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemResourceHan
     }
 
     public boolean isFullOfFish() {
-        return this.fishes.size() >= MAX_TROPICAL_FISH;
+        return this.fishes.size() >= FishTankBlockEntity.MAX_TROPICAL_FISH;
     }
 
     public boolean isEmptyOfFish() {

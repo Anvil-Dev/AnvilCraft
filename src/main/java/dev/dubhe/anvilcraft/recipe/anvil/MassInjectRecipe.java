@@ -82,7 +82,7 @@ public class MassInjectRecipe extends SingleItemRecipe {
     ///
     /// @return 显示质量值的组件
     public Component displayMassValue() {
-        return displayMassValue(this.mass);
+        return MassInjectRecipe.displayMassValue(this.mass);
     }
 
     /// 显示指定质量值的组件
@@ -128,7 +128,7 @@ public class MassInjectRecipe extends SingleItemRecipe {
     /// @return 配方序列化器
     @Override
     public RecipeSerializer<MassInjectRecipe> getSerializer() {
-        return SERIALIZER;
+        return MassInjectRecipe.SERIALIZER;
     }
 
     /// 判断配方是否匹配给定的输入和世界

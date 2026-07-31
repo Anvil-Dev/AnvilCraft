@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.block.utility.redstone;
 
+
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -46,7 +48,7 @@ import java.util.EnumSet;
 public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBlock, HammerRotateBehavior, IHammerRemovable {
     public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
-    public static final MapCodec<ItemDetectorBlock> CODEC = simpleCodec(ItemDetectorBlock::new);
+    public static final MapCodec<ItemDetectorBlock> CODEC = BlockBehaviour.simpleCodec(ItemDetectorBlock::new);
     public static final VoxelShape SHAPE = Block.box(0, 0, 0, 16, 4, 16);
 
     public ItemDetectorBlock(Properties properties) {
@@ -54,19 +56,19 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
         this.registerDefaultState(
             this.stateDefinition
                 .any()
-                .setValue(FACING, Direction.NORTH)
-                .setValue(POWERED, false)
+                .setValue(ItemDetectorBlock.FACING, Direction.NORTH)
+                .setValue(ItemDetectorBlock.POWERED, false)
         );
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING).add(POWERED);
+        builder.add(ItemDetectorBlock.FACING).add(ItemDetectorBlock.POWERED);
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
+        return ItemDetectorBlock.CODEC;
     }
 
     @Override
@@ -76,7 +78,7 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
         BlockPos pos,
         CollisionContext context
     ) {
-        return SHAPE;
+        return ItemDetectorBlock.SHAPE;
     }
 
     @Override
@@ -87,22 +89,22 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Direction direction = context.getHorizontalDirection();
-        return this.defaultBlockState().setValue(FACING, direction.getOpposite());
+        return this.defaultBlockState().setValue(ItemDetectorBlock.FACING, direction.getOpposite());
     }
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
-        if (level.isClientSide() || (oldState.is(this) && state.getValue(FACING) == oldState.getValue(FACING))) return;
+        if (level.isClientSide() || (oldState.is(this) && state.getValue(ItemDetectorBlock.FACING) == oldState.getValue(ItemDetectorBlock.FACING))) return;
         if (level.getBlockEntity(pos) instanceof ItemDetectorBlockEntity blockEntity) {
             blockEntity.recalcDetectionRange();
         }
-        if (state.getValue(POWERED)) this.updateNeighborsInFront(level, pos, state);
+        if (state.getValue(ItemDetectorBlock.POWERED)) this.updateNeighborsInFront(level, pos, state);
     }
 
     @Override
     protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-        if (!state.getValue(POWERED)) {
+        if (!state.getValue(ItemDetectorBlock.POWERED)) {
             return;
         }
         this.updateNeighborsInFront(level, pos, state);
@@ -132,7 +134,7 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
     }
 
     public void updateNeighborsInFront(Level level, BlockPos pos, BlockState state) {
-        Direction direction = state.getValue(FACING);
+        Direction direction = state.getValue(ItemDetectorBlock.FACING);
         BlockPos blockpos = pos.relative(direction.getOpposite());
         if (EventHooks.onNeighborNotify(level, pos, level.getBlockState(pos), EnumSet.of(direction.getOpposite()), false).isCanceled()) {
             return;
@@ -148,7 +150,7 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
 
     @Override
     public boolean canConnectRedstone(BlockState state, BlockGetter level, BlockPos pos, @Nullable Direction direction) {
-        return direction == state.getValue(FACING);
+        return direction == state.getValue(ItemDetectorBlock.FACING);
     }
 
     @Override
@@ -165,7 +167,7 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
     protected int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
         BlockEntity blockEntity = blockAccess.getBlockEntity(pos);
         if (!(blockEntity instanceof ItemDetectorBlockEntity idbe)) return 0;
-        return blockState.getValue(FACING) == side ? idbe.getOutputSignal() : 0;
+        return blockState.getValue(ItemDetectorBlock.FACING) == side ? idbe.getOutputSignal() : 0;
     }
 
     @Override
@@ -182,19 +184,19 @@ public class ItemDetectorBlock extends BetterBaseEntityBlock implements EntityBl
         if (level.isClientSide()) {
             return null;
         }
-        return createTickerHelper(type, ModBlockEntities.ITEM_DETECTOR.get(),
-            (level1, blockPos, blockState, blockEntity) ->
+        return BaseEntityBlock.createTickerHelper(type, ModBlockEntities.ITEM_DETECTOR.get(),
+                                                  (level1, blockPos, blockState, blockEntity) ->
                 blockEntity.tick());
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rot) {
-        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
+        return state.setValue(ItemDetectorBlock.FACING, rot.rotate(state.getValue(ItemDetectorBlock.FACING)));
     }
 
     @SuppressWarnings("deprecation")
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+        return state.rotate(mirror.getRotation(state.getValue(ItemDetectorBlock.FACING)));
     }
 }

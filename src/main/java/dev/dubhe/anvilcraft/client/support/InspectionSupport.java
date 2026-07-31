@@ -34,9 +34,11 @@ public class InspectionSupport {
     private final Object2BooleanMap<Identifier> inspectionState = new Object2BooleanAVLTreeMap<>();
 
     public static void initializeClient() {
-        INSTANCE.registerActionClient(AnvilCraft.of("silencer"), (p, r, c, d) -> {
+        InspectionSupport.INSTANCE.registerActionClient(AnvilCraft.of("silencer"), (p, r, c, d) -> {
             Map<ResourceKey<Level>, List<ISoundEventListener>> map = SoundHelper.INSTANCE.getEventListeners();
-            List<ISoundEventListener> listeners = map.get(Minecraft.getInstance().level.dimension());
+            var level = Minecraft.getInstance().level;
+            if (level == null) return;
+            List<ISoundEventListener> listeners = map.get(level.dimension());
             List<AABB> snapshottedBoxes = listeners.stream().filter(it -> it instanceof IHasAffectRange)
                 .map(it -> ((IHasAffectRange) it).shape()).filter(Objects::nonNull)
                 .toList();
@@ -76,7 +78,7 @@ public class InspectionSupport {
     }
 
     public void changeStateClient(Identifier id, boolean state) {
-        log.info("{} inspection {}.", state ? "Disabling" : "Enabling", id);
+        InspectionSupport.log.info("{} inspection {}.", state ? "Disabling" : "Enabling", id);
         this.inspectionState.put(id, state);
     }
 

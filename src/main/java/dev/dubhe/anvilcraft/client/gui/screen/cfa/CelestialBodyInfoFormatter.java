@@ -38,44 +38,44 @@ public final class CelestialBodyInfoFormatter {
         List<Component> lines = new ArrayList<>();
         boolean isError = body instanceof SpecialCelestialBodyData special && special.isErrorPlanet();
 
-        lines.add(Component.translatable(PREFIX + "type", Component.translatable(typeKey(body))));
-        lines.add(measurement(
+        lines.add(Component.translatable(CelestialBodyInfoFormatter.PREFIX + "type", Component.translatable(CelestialBodyInfoFormatter.typeKey(body))));
+        lines.add(CelestialBodyInfoFormatter.measurement(
             "age", isError ? "???" : CelestialForgingAnvilMenu.formatAgeOffset(ageAnvilCount, offsetAge)
         ));
-        lines.add(measurement(
+        lines.add(CelestialBodyInfoFormatter.measurement(
             "radius", isError ? "???" : CelestialForgingAnvilMenu.formatRadiusOffset(body.size(), offsetRadius)
         ));
-        lines.add(measurement(
+        lines.add(CelestialBodyInfoFormatter.measurement(
             "mass", isError ? "???" : CelestialForgingAnvilMenu.formatMassOffset(massAnvilCount, offsetMass)
         ));
 
         switch (body) {
-            case SpecialCelestialBodyData special -> addSpecialBodyLines(lines, special);
-            case StarData star -> addStarLines(lines, star);
-            case RockyPlanetData rocky -> addRockyPlanetLines(lines, rocky);
-            case GiantPlanetData giant -> addGiantPlanetLines(lines, giant);
+            case SpecialCelestialBodyData special -> CelestialBodyInfoFormatter.addSpecialBodyLines(lines, special);
+            case StarData star -> CelestialBodyInfoFormatter.addStarLines(lines, star);
+            case RockyPlanetData rocky -> CelestialBodyInfoFormatter.addRockyPlanetLines(lines, rocky);
+            case GiantPlanetData giant -> CelestialBodyInfoFormatter.addGiantPlanetLines(lines, giant);
         }
         return lines;
     }
 
     private static Component measurement(String name, String value) {
-        return Component.translatable(PREFIX + name, Component.literal(value));
+        return Component.translatable(CelestialBodyInfoFormatter.PREFIX + name, Component.literal(value));
     }
 
     private static String typeKey(CelestialBodyData body) {
-        if (body instanceof RockyPlanetData rocky) return rockyTypeKey(rocky);
-        if (body instanceof SpecialCelestialBodyData special) return PREFIX + "class.special." + special.name();
-        return PREFIX + "class." + body.bodyClass().name().toLowerCase(Locale.ROOT);
+        if (body instanceof RockyPlanetData rocky) return CelestialBodyInfoFormatter.rockyTypeKey(rocky);
+        if (body instanceof SpecialCelestialBodyData special) return CelestialBodyInfoFormatter.PREFIX + "class.special." + special.name();
+        return CelestialBodyInfoFormatter.PREFIX + "class." + body.bodyClass().name().toLowerCase(Locale.ROOT);
     }
 
     private static void addSpecialBodyLines(List<Component> lines, SpecialCelestialBodyData body) {
         if (body.isErrorPlanet()) {
             for (String name : List.of("temp", "atmos", "liquid", "mag", "spin", "tilt")) {
-                lines.add(measurement(name, "???"));
+                lines.add(CelestialBodyInfoFormatter.measurement(name, "???"));
             }
             return;
         }
-        addPlanetLines(
+        CelestialBodyInfoFormatter.addPlanetLines(
             lines,
             body.temperature(),
             body.hasAtmosphere(),
@@ -87,15 +87,15 @@ public final class CelestialBodyInfoFormatter {
     }
 
     private static void addStarLines(List<Component> lines, StarData body) {
-        lines.add(magneticFieldText(body.magneticFieldStrength()));
-        lines.add(rotationText(body.rotationSpeed()));
+        lines.add(CelestialBodyInfoFormatter.magneticFieldText(body.magneticFieldStrength()));
+        lines.add(CelestialBodyInfoFormatter.rotationText(body.rotationSpeed()));
         if (body.axialTilt() > 0.1f) {
-            lines.add(axialTiltText(body.axialTilt()));
+            lines.add(CelestialBodyInfoFormatter.axialTiltText(body.axialTilt()));
         }
     }
 
     private static void addRockyPlanetLines(List<Component> lines, RockyPlanetData body) {
-        addPlanetLines(
+        CelestialBodyInfoFormatter.addPlanetLines(
             lines,
             body.temperature(),
             body.hasAtmosphere(),
@@ -115,73 +115,73 @@ public final class CelestialBodyInfoFormatter {
         int rotationSpeed,
         float axialTilt
     ) {
-        lines.add(temperatureText(temperature));
-        lines.add(atmosphereText(hasAtmosphere));
-        lines.add(liquidText(liquidCoverage));
-        lines.add(magneticFieldText(magneticFieldStrength));
-        lines.add(rotationText(rotationSpeed));
-        lines.add(axialTiltText(axialTilt));
+        lines.add(CelestialBodyInfoFormatter.temperatureText(temperature));
+        lines.add(CelestialBodyInfoFormatter.atmosphereText(hasAtmosphere));
+        lines.add(CelestialBodyInfoFormatter.liquidText(liquidCoverage));
+        lines.add(CelestialBodyInfoFormatter.magneticFieldText(magneticFieldStrength));
+        lines.add(CelestialBodyInfoFormatter.rotationText(rotationSpeed));
+        lines.add(CelestialBodyInfoFormatter.axialTiltText(axialTilt));
     }
 
     private static void addGiantPlanetLines(List<Component> lines, GiantPlanetData body) {
         if (!body.brownDwarf()) {
             lines.add(Component.translatable(
-                PREFIX + "pressure",
-                Component.translatable(PREFIX + "pressure." + body.pressureType().getSerializedName())
+                CelestialBodyInfoFormatter.PREFIX + "pressure",
+                Component.translatable(CelestialBodyInfoFormatter.PREFIX + "pressure." + body.pressureType().getSerializedName())
             ));
         }
         lines.add(Component.translatable(
-            PREFIX + "wind",
-            Component.translatable(PREFIX + "wind." + body.windSpeed().getSerializedName())
+            CelestialBodyInfoFormatter.PREFIX + "wind",
+            Component.translatable(CelestialBodyInfoFormatter.PREFIX + "wind." + body.windSpeed().getSerializedName())
         ));
-        lines.add(magneticFieldText(body.magneticFieldStrength()));
-        lines.add(rotationText(body.rotationSpeed()));
-        lines.add(axialTiltText(body.axialTilt()));
+        lines.add(CelestialBodyInfoFormatter.magneticFieldText(body.magneticFieldStrength()));
+        lines.add(CelestialBodyInfoFormatter.rotationText(body.rotationSpeed()));
+        lines.add(CelestialBodyInfoFormatter.axialTiltText(body.axialTilt()));
     }
 
     private static Component temperatureText(@Nullable Temperature temperature) {
-        String key = temperature == null ? PREFIX + "none" : PREFIX + "temp." + temperature.getSerializedName();
-        return Component.translatable(PREFIX + "temp", Component.translatable(key));
+        String key = temperature == null ? CelestialBodyInfoFormatter.PREFIX + "none" : CelestialBodyInfoFormatter.PREFIX + "temp." + temperature.getSerializedName();
+        return Component.translatable(CelestialBodyInfoFormatter.PREFIX + "temp", Component.translatable(key));
     }
 
     private static Component atmosphereText(boolean hasAtmosphere) {
         return Component.translatable(
-            PREFIX + "atmos", Component.translatable(hasAtmosphere ? PREFIX + "atmos.yes" : PREFIX + "none")
+            CelestialBodyInfoFormatter.PREFIX + "atmos", Component.translatable(hasAtmosphere ? CelestialBodyInfoFormatter.PREFIX + "atmos.yes" : CelestialBodyInfoFormatter.PREFIX + "none")
         );
     }
 
     private static Component liquidText(@Nullable LiquidCoverage coverage) {
-        String key = coverage == null ? PREFIX + "none" : PREFIX + "liquid." + coverage.getSerializedName();
-        return Component.translatable(PREFIX + "liquid", Component.translatable(key));
+        String key = coverage == null ? CelestialBodyInfoFormatter.PREFIX + "none" : CelestialBodyInfoFormatter.PREFIX + "liquid." + coverage.getSerializedName();
+        return Component.translatable(CelestialBodyInfoFormatter.PREFIX + "liquid", Component.translatable(key));
     }
 
     private static Component magneticFieldText(int level) {
         String key = switch (level) {
-            case 0 -> PREFIX + "none";
-            case 1 -> PREFIX + "mag.very_weak";
-            case 2 -> PREFIX + "mag.weak";
-            case 3 -> PREFIX + "mag.medium";
-            case 4 -> PREFIX + "mag.strong";
-            case 5 -> PREFIX + "mag.very_strong";
-            default -> PREFIX + "mag.extreme";
+            case 0 -> CelestialBodyInfoFormatter.PREFIX + "none";
+            case 1 -> CelestialBodyInfoFormatter.PREFIX + "mag.very_weak";
+            case 2 -> CelestialBodyInfoFormatter.PREFIX + "mag.weak";
+            case 3 -> CelestialBodyInfoFormatter.PREFIX + "mag.medium";
+            case 4 -> CelestialBodyInfoFormatter.PREFIX + "mag.strong";
+            case 5 -> CelestialBodyInfoFormatter.PREFIX + "mag.very_strong";
+            default -> CelestialBodyInfoFormatter.PREFIX + "mag.extreme";
         };
-        return Component.translatable(PREFIX + "mag", Component.translatable(key));
+        return Component.translatable(CelestialBodyInfoFormatter.PREFIX + "mag", Component.translatable(key));
     }
 
     private static Component rotationText(int level) {
         String key = switch (level) {
-            case 0 -> PREFIX + "spin.very_slow";
-            case 1 -> PREFIX + "spin.slow";
-            case 2 -> PREFIX + "spin.medium";
-            case 3 -> PREFIX + "spin.fast";
-            case 4 -> PREFIX + "spin.very_fast";
-            default -> PREFIX + "spin.super_fast";
+            case 0 -> CelestialBodyInfoFormatter.PREFIX + "spin.very_slow";
+            case 1 -> CelestialBodyInfoFormatter.PREFIX + "spin.slow";
+            case 2 -> CelestialBodyInfoFormatter.PREFIX + "spin.medium";
+            case 3 -> CelestialBodyInfoFormatter.PREFIX + "spin.fast";
+            case 4 -> CelestialBodyInfoFormatter.PREFIX + "spin.very_fast";
+            default -> CelestialBodyInfoFormatter.PREFIX + "spin.super_fast";
         };
-        return Component.translatable(PREFIX + "spin", Component.translatable(key));
+        return Component.translatable(CelestialBodyInfoFormatter.PREFIX + "spin", Component.translatable(key));
     }
 
     private static Component axialTiltText(float tilt) {
-        return Component.translatable(PREFIX + "tilt", formatThreeSignificantFigures(tilt) + "°");
+        return Component.translatable(CelestialBodyInfoFormatter.PREFIX + "tilt", CelestialBodyInfoFormatter.formatThreeSignificantFigures(tilt) + "°");
     }
 
     private static String rockyTypeKey(RockyPlanetData body) {
@@ -191,22 +191,22 @@ public final class CelestialBodyInfoFormatter {
         boolean hasLiquid = liquid != LiquidCoverage.NONE;
 
         if (temperature == Temperature.FREEZING) {
-            if (!hasLiquid && !hasAtmosphere) return PREFIX + "class.freezing_no_liquid_no_atmos";
-            if (!hasLiquid) return PREFIX + "class.freezing_no_liquid_atmos";
-            return PREFIX + "class.freezing_liquid";
+            if (!hasLiquid && !hasAtmosphere) return CelestialBodyInfoFormatter.PREFIX + "class.freezing_no_liquid_no_atmos";
+            if (!hasLiquid) return CelestialBodyInfoFormatter.PREFIX + "class.freezing_no_liquid_atmos";
+            return CelestialBodyInfoFormatter.PREFIX + "class.freezing_liquid";
         }
         if (temperature == Temperature.SCORCHED) {
-            if (!hasLiquid && !hasAtmosphere) return PREFIX + "class.scorched_no_liquid_no_atmos";
-            if (!hasLiquid) return PREFIX + "class.scorched_no_liquid_atmos";
-            return PREFIX + "class.scorched_liquid";
+            if (!hasLiquid && !hasAtmosphere) return CelestialBodyInfoFormatter.PREFIX + "class.scorched_no_liquid_no_atmos";
+            if (!hasLiquid) return CelestialBodyInfoFormatter.PREFIX + "class.scorched_no_liquid_atmos";
+            return CelestialBodyInfoFormatter.PREFIX + "class.scorched_liquid";
         }
-        if (!hasAtmosphere) return PREFIX + "class.deathly_planet";
-        if (!hasLiquid) return PREFIX + "class.desert_planet";
+        if (!hasAtmosphere) return CelestialBodyInfoFormatter.PREFIX + "class.deathly_planet";
+        if (!hasLiquid) return CelestialBodyInfoFormatter.PREFIX + "class.desert_planet";
         return switch (liquid) {
-            case LOW -> temperatureTypeKey(temperature, "riverbank");
-            case MEDIUM -> temperatureTypeKey(temperature, "land_ocean");
-            case HIGH -> temperatureTypeKey(temperature, "ocean");
-            default -> PREFIX + "class.deathly_planet";
+            case LOW -> CelestialBodyInfoFormatter.temperatureTypeKey(temperature, "riverbank");
+            case MEDIUM -> CelestialBodyInfoFormatter.temperatureTypeKey(temperature, "land_ocean");
+            case HIGH -> CelestialBodyInfoFormatter.temperatureTypeKey(temperature, "ocean");
+            default -> CelestialBodyInfoFormatter.PREFIX + "class.deathly_planet";
         };
     }
 
@@ -216,7 +216,7 @@ public final class CelestialBodyInfoFormatter {
             case HOT -> "hot";
             default -> "mild";
         };
-        return PREFIX + "class." + prefix + "_" + suffix;
+        return CelestialBodyInfoFormatter.PREFIX + "class." + prefix + "_" + suffix;
     }
 
     @SuppressWarnings("MalformedFormatString")

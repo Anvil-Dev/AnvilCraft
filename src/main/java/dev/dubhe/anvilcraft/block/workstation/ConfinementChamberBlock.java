@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.block.workstation;
 
+
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.ConfinementChamberBlockEntity;
@@ -34,7 +36,7 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(ConfinementChamberBlock::new);
+        return BlockBehaviour.simpleCodec(ConfinementChamberBlock::new);
     }
 
     @Override
@@ -90,7 +92,8 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
     protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
         BlockEntity blockentity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (blockentity instanceof ShulkerBoxBlockEntity shulkerboxblockentity) {
-            params = params.withDynamicDrop(CONTENTS, it -> {
+            params = params.withDynamicDrop(
+                ConfinementChamberBlock.CONTENTS, it -> {
                 for (int i = 0; i < shulkerboxblockentity.getContainerSize(); i++) {
                     it.accept(shulkerboxblockentity.getItem(i));
                 }

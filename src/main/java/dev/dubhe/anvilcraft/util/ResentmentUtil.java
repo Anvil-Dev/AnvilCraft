@@ -19,30 +19,30 @@ public final class ResentmentUtil {
 
     public static void initializeBaseResentment(Mob mob) {
         CompoundTag data = mob.getPersistentData();
-        if (data.contains(BASE_RESENTMENT_TAG)) return;
+        if (data.contains(ResentmentUtil.BASE_RESENTMENT_TAG)) return;
         long seed = mob.getUUID().getMostSignificantBits() ^ mob.getUUID().getLeastSignificantBits();
-        data.putInt(BASE_RESENTMENT_TAG, RandomSource.create(seed).nextInt(11));
+        data.putInt(ResentmentUtil.BASE_RESENTMENT_TAG, RandomSource.create(seed).nextInt(11));
     }
 
     public static void setForcedResentment(Mob mob, int resentment) {
-        initializeBaseResentment(mob);
-        mob.getPersistentData().putInt(FORCED_RESENTMENT_TAG, Mth.clamp(resentment, 0, 100));
+        ResentmentUtil.initializeBaseResentment(mob);
+        mob.getPersistentData().putInt(ResentmentUtil.FORCED_RESENTMENT_TAG, Mth.clamp(resentment, 0, 100));
     }
 
     public static int getResentment(SavedEntity savedEntity, Level level) {
         if (!savedEntity.isMonster()) return 0;
         Entity entity = savedEntity.toEntity(level);
         if (!(entity instanceof LivingEntity livingEntity)) return 0;
-        return getResentment(livingEntity);
+        return ResentmentUtil.getResentment(livingEntity);
     }
 
     public static int getResentment(LivingEntity entity) {
         CompoundTag data = entity.getPersistentData();
-        if (data.contains(FORCED_RESENTMENT_TAG)) {
-            return Mth.clamp(data.getIntOr(FORCED_RESENTMENT_TAG, 0), 0, 100);
+        if (data.contains(ResentmentUtil.FORCED_RESENTMENT_TAG)) {
+            return Mth.clamp(data.getIntOr(ResentmentUtil.FORCED_RESENTMENT_TAG, 0), 0, 100);
         }
 
-        int base = Mth.clamp(data.getIntOr(BASE_RESENTMENT_TAG, 0), 0, 10);
+        int base = Mth.clamp(data.getIntOr(ResentmentUtil.BASE_RESENTMENT_TAG, 0), 0, 10);
         long harmfulEffectCount = entity.getActiveEffects().stream()
             .filter(effect -> effect.getEffect().value().getCategory() == MobEffectCategory.HARMFUL)
             .count();

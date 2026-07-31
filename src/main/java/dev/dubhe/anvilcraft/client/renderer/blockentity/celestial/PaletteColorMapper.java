@@ -57,17 +57,17 @@ public class PaletteColorMapper {
 
     private static int findSplitRow(NativeImage palette) {
         for (int row = 1; row < palette.getHeight() - 1; row++) {
-            if (isBlackRow(palette, row)) continue;
+            if (PaletteColorMapper.isBlackRow(palette, row)) continue;
             boolean hasAbove = false, hasBelow = false;
-            for (int r = 0; r < row; r++) { if (isBlackRow(palette, r)) { hasAbove = true; break; } }
-            for (int r = row + 1; r < palette.getHeight(); r++) { if (isBlackRow(palette, r)) { hasBelow = true; break; } }
+            for (int r = 0; r < row; r++) { if (PaletteColorMapper.isBlackRow(palette, r)) {hasAbove = true; break; } }
+            for (int r = row + 1; r < palette.getHeight(); r++) { if (PaletteColorMapper.isBlackRow(palette, r)) {hasBelow = true; break; } }
             if (hasAbove && hasBelow) return row;
         }
         return -1;
     }
 
     public static int[] getPaletteColors(NativeImage palette, int rowIndex, boolean isBase) {
-        int splitRow = findSplitRow(palette);
+        int splitRow = PaletteColorMapper.findSplitRow(palette);
         int start, end;
         // NativeImage 与色板 PNG 均以顶部为第 0 行；保持与 1.21 相同的自上而下行号，不进行 Y 翻转。
         if (splitRow > 0) {
@@ -78,13 +78,13 @@ public class PaletteColorMapper {
             end = palette.getHeight();
         }
         int validCount = 0;
-        for (int r = start; r < end; r++) { if (isBlackRow(palette, r)) validCount++; }
+        for (int r = start; r < end; r++) { if (PaletteColorMapper.isBlackRow(palette, r)) validCount++; }
         if (validCount == 0) return new int[0];
         int targetRow = rowIndex % validCount;
         int found = 0;
         for (int r = start; r < end; r++) {
-            if (isBlackRow(palette, r)) {
-                if (found == targetRow) return extractRowColors(palette, r);
+            if (PaletteColorMapper.isBlackRow(palette, r)) {
+                if (found == targetRow) return PaletteColorMapper.extractRowColors(palette, r);
                 found++;
             }
         }
@@ -95,11 +95,11 @@ public class PaletteColorMapper {
      * 使用色板为灰度源贴图着色，读取和写入均采用 ARGB 像素格式。
      */
     public static NativeImage colorTexture(NativeImage source, NativeImage palette, int paletteRow, boolean isBase) {
-        int[] paletteColors = getPaletteColors(palette, paletteRow, isBase);
-        if (paletteColors.length == 0) return copyGrayscale(source);
+        int[] paletteColors = PaletteColorMapper.getPaletteColors(palette, paletteRow, isBase);
+        if (paletteColors.length == 0) return PaletteColorMapper.copyGrayscale(source);
 
-        int[] refGrays = extractReferenceGrays(source);
-        if (refGrays.length == 0) return copyGrayscale(source);
+        int[] refGrays = PaletteColorMapper.extractReferenceGrays(source);
+        if (refGrays.length == 0) return PaletteColorMapper.copyGrayscale(source);
 
         Map<Integer, Integer> grayToIndex = new HashMap<>();
         int mapCount = Math.min(refGrays.length, paletteColors.length);
@@ -122,7 +122,7 @@ public class PaletteColorMapper {
                 // 使用红色通道作为灰度参考值。
                 int gray = red;
                 Integer idx = grayToIndex.get(gray);
-                if (idx == null) idx = findClosestGrayIndex(gray, refGrays);
+                if (idx == null) idx = PaletteColorMapper.findClosestGrayIndex(gray, refGrays);
                 idx = Math.clamp(idx, 0, paletteColors.length - 1);
 
                 int pc = paletteColors[idx]; // 色板像素同样采用 ARGB 格式。

@@ -28,7 +28,7 @@ import java.util.Objects;
 
 @Getter
 public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerProducer, IPowerConsumer, MenuProvider {
-    private PowerGrid grid = null;
+    private @Nullable PowerGrid grid;
 
     private int power = 16;
 
@@ -108,7 +108,7 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
 
     public void setPower(int power) {
         this.power = power;
-        if (level instanceof ServerLevel) {
+        if (this.level instanceof ServerLevel) {
             if (this.grid != null) {
                 this.grid.markChanged();
                 return;
@@ -118,7 +118,7 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     }
 
     public void tick() {
-        if (level instanceof ServerLevel) {
+        if (this.level instanceof ServerLevel) {
             if (this.previousSyncFailed && this.grid != null) {
                 this.previousSyncFailed = false;
                 this.grid.markChanged();

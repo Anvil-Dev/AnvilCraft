@@ -62,12 +62,12 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return PortalConversionCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return PortalConversionCategory.HEIGHT;
     }
 
     @Override
@@ -78,11 +78,11 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<PortalConversionRecipe> holder, IFocusGroup focuses) {
         PortalConversionRecipe recipe = holder.value();
-        JeiBlockIngredientUtil.addInputSlot(builder, INPUT_BLOCK, 4, 4, 18, 18, recipe.getInput());
+        JeiBlockIngredientUtil.addInputSlot(builder, PortalConversionCategory.INPUT_BLOCK, 4, 4, 18, 18, recipe.getInput());
         JeiBlockIngredientUtil.addSlot(
             builder,
             RecipeIngredientRole.OUTPUT,
-            OUTPUT_BLOCK,
+            PortalConversionCategory.OUTPUT_BLOCK,
             142,
             4,
             18,
@@ -112,7 +112,7 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
         RENDER_INPUT: {
             List<BlockState> input = recipe.getInput().constructStatesForRender();
             if (input.isEmpty()) break RENDER_INPUT;
-            BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(view, INPUT_BLOCK, input)
+            BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(view, PortalConversionCategory.INPUT_BLOCK, input)
                 .orElse(input.getFirst());
             JeiRenderHelper.renderBlockWithSlot(
                 graphics,
@@ -128,7 +128,7 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
         List<WeightedChanceBlockStates.Entry> results = recipe.getResults().states();
         if (!results.isEmpty()) {
             List<BlockState> resultStates = results.stream().map(result -> result.state().state()).toList();
-            BlockState displayedState = JeiBlockIngredientUtil.getDisplayedState(view, OUTPUT_BLOCK, resultStates)
+            BlockState displayedState = JeiBlockIngredientUtil.getDisplayedState(view, PortalConversionCategory.OUTPUT_BLOCK, resultStates)
                 .orElse(resultStates.getFirst());
             WeightedChanceBlockStates.Entry result = results.stream()
                 .filter(entry -> entry.state().state().is(displayedState.getBlock()))

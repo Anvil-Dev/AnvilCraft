@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -71,15 +72,15 @@ public class SimpleChuteBlock
         super(properties);
         this.registerDefaultState(this.stateDefinition
             .any()
-            .setValue(FACING, Direction.DOWN)
-            .setValue(WATERLOGGED, false)
-            .setValue(ENABLED, true)
-            .setValue(TALL, false));
+            .setValue(SimpleChuteBlock.FACING, Direction.DOWN)
+            .setValue(SimpleChuteBlock.WATERLOGGED, false)
+            .setValue(SimpleChuteBlock.ENABLED, true)
+            .setValue(SimpleChuteBlock.TALL, false));
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(SimpleChuteBlock::new);
+        return BlockBehaviour.simpleCodec(SimpleChuteBlock::new);
     }
 
     @Override
@@ -89,7 +90,7 @@ public class SimpleChuteBlock
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, WATERLOGGED, ENABLED, TALL);
+        builder.add(SimpleChuteBlock.FACING, SimpleChuteBlock.WATERLOGGED, SimpleChuteBlock.ENABLED, SimpleChuteBlock.TALL);
     }
 
     @Override
@@ -103,9 +104,9 @@ public class SimpleChuteBlock
         BlockState neighbourState,
         RandomSource random
     ) {
-        if (state.getValue(WATERLOGGED)) ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        if (state.getValue(SimpleChuteBlock.WATERLOGGED)) ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         if (level.isClientSide()) return state;
-        BlockState newState = this.getState(level, pos, state.getValue(FACING));
+        BlockState newState = this.getState(level, pos, state.getValue(SimpleChuteBlock.FACING));
         if (newState != null && newState != state) state = newState;
 
         state = this.checkPoweredState(level, pos, state);
@@ -114,8 +115,8 @@ public class SimpleChuteBlock
 
     private BlockState checkPoweredState(LevelReader level, BlockPos pos, BlockState state) {
         boolean flag = !level.hasNeighborSignal(pos);
-        if (flag == state.getValue(ENABLED)) return state;
-        return state.setValue(ENABLED, flag);
+        if (flag == state.getValue(SimpleChuteBlock.ENABLED)) return state;
+        return state.setValue(SimpleChuteBlock.ENABLED, flag);
     }
 
     @Override
@@ -136,8 +137,8 @@ public class SimpleChuteBlock
         BlockPos pos,
         RandomSource random
     ) {
-        if (!state.getValue(ENABLED) && !level.hasNeighborSignal(pos)) {
-            level.setBlock(pos, state.cycle(ENABLED), 2);
+        if (!state.getValue(SimpleChuteBlock.ENABLED) && !level.hasNeighborSignal(pos)) {
+            level.setBlock(pos, state.cycle(SimpleChuteBlock.ENABLED), 2);
         }
     }
 
@@ -160,7 +161,7 @@ public class SimpleChuteBlock
     public <T extends BlockEntity> @Nullable BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> blockEntityType) {
         if (level.isClientSide()) return null;
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             blockEntityType,
             ModBlockEntities.SIMPLE_CHUTE.get(),
             ((_, _, _, be) -> be.tick())
@@ -169,22 +170,22 @@ public class SimpleChuteBlock
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        Direction facing = state.getValue(FACING);
-        if (!state.getValue(TALL)) {
+        Direction facing = state.getValue(SimpleChuteBlock.FACING);
+        if (!state.getValue(SimpleChuteBlock.TALL)) {
             return switch (facing) {
-                case NORTH -> AABB_N;
-                case EAST -> AABB_E;
-                case SOUTH -> AABB_S;
-                case WEST -> AABB_W;
-                default -> AABB;
+                case NORTH -> SimpleChuteBlock.AABB_N;
+                case EAST -> SimpleChuteBlock.AABB_E;
+                case SOUTH -> SimpleChuteBlock.AABB_S;
+                case WEST -> SimpleChuteBlock.AABB_W;
+                default -> SimpleChuteBlock.AABB;
             };
         } else {
             return switch (facing) {
-                case NORTH -> AABB_TALL_N;
-                case EAST -> AABB_TALL_E;
-                case SOUTH -> AABB_TALL_S;
-                case WEST -> AABB_TALL_W;
-                default -> AABB_TALL;
+                case NORTH -> SimpleChuteBlock.AABB_TALL_N;
+                case EAST -> SimpleChuteBlock.AABB_TALL_E;
+                case SOUTH -> SimpleChuteBlock.AABB_TALL_S;
+                case WEST -> SimpleChuteBlock.AABB_TALL_W;
+                default -> SimpleChuteBlock.AABB_TALL;
             };
         }
     }
@@ -210,13 +211,13 @@ public class SimpleChuteBlock
 
     @Override
     public FluidState getFluidState(BlockState state) {
-        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+        return state.getValue(SimpleChuteBlock.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
     public boolean change(Player player, BlockPos pos, Level level, ItemStack anvilHammer) {
         BlockState oldState = level.getBlockState(pos);
-        Direction oldFacing = oldState.getValue(FACING);
+        Direction oldFacing = oldState.getValue(SimpleChuteBlock.FACING);
         Direction newFacing = switch (oldFacing) {
             case WEST -> Direction.DOWN;
             case DOWN -> Direction.NORTH;
@@ -224,7 +225,7 @@ public class SimpleChuteBlock
         };
         BlockState facingState = level.getBlockState(pos.relative(newFacing));
         if (facingState.is(ModBlocks.CHUTE.get()) || facingState.is(ModBlocks.SIMPLE_CHUTE.get())) {
-            if (facingState.getValue(FACING).getOpposite() == newFacing) {
+            if (facingState.getValue(SimpleChuteBlock.FACING).getOpposite() == newFacing) {
                 level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
                 level.levelEvent(2001, pos, Block.getId(oldState));
                 Block.dropResources(oldState, level, pos);
@@ -237,18 +238,18 @@ public class SimpleChuteBlock
 
     @Override
 public Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
+        return SimpleChuteBlock.FACING;
     }
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(SimpleChuteBlock.FACING, rotation.rotate(state.getValue(SimpleChuteBlock.FACING)));
     }
 
     @SuppressWarnings("deprecation")
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
-        return state.rotate(mirror.getRotation(state.getValue(FACING)));
+        return state.rotate(mirror.getRotation(state.getValue(SimpleChuteBlock.FACING)));
     }
 
     @Nullable
@@ -272,10 +273,10 @@ public Property<?> getChangeableProperty(BlockState blockState) {
         }
         if (!success) {
             result = ModBlocks.CHUTE.getDefaultState()
-                .setValue(FACING, facing)
-                .setValue(ENABLED, !level.hasNeighborSignal(pos));
+                .setValue(SimpleChuteBlock.FACING, facing)
+                .setValue(SimpleChuteBlock.ENABLED, !level.hasNeighborSignal(pos));
         } else {
-            result = result.setValue(TALL, tall);
+            result = result.setValue(SimpleChuteBlock.TALL, tall);
         }
         return result;
     }

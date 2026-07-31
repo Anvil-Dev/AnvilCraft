@@ -11,10 +11,12 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedDataType;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -114,7 +116,7 @@ public class WormholeNetwork extends BetterSavedData {
     // ==================== 静态访问 ====================
 
     public static WormholeNetwork get() {
-        return BetterSavedData.get(TYPE, CLIENT_COPY);
+        return BetterSavedData.get(WormholeNetwork.TYPE, WormholeNetwork.CLIENT_COPY);
     }
 
     // ==================== 注册与注销 ====================
@@ -127,7 +129,7 @@ public class WormholeNetwork extends BetterSavedData {
         entries.add(new Entry(dim, pos));
 
         this.reverseIndex.computeIfAbsent(dim, k -> new HashMap<>()).put(pos, bodyUuid);
-        setDirty();
+        this.setDirty();
     }
 
     /** 从虫洞网络注销锻星砧。 */
@@ -144,7 +146,7 @@ public class WormholeNetwork extends BetterSavedData {
                     this.network.remove(uuid);
                 }
             }
-            setDirty();
+            this.setDirty();
         }
     }
 
@@ -159,7 +161,7 @@ public class WormholeNetwork extends BetterSavedData {
                     Entry e = entries.get(i);
                     if (e.dimension.equals(dim) && e.pos.equals(pos)) {
                         entries.set(i, new Entry(e.dimension, e.pos, Set.copyOf(sides)));
-                        setDirty();
+                        this.setDirty();
                         return;
                     }
                 }
@@ -233,7 +235,7 @@ public class WormholeNetwork extends BetterSavedData {
     }
 
     @Override
-    protected Packet<? extends net.minecraft.network.protocol.common.custom.CustomPacketPayload> createPacket(
+    protected @Nullable Packet<? extends CustomPacketPayload> createPacket(
         RegistryAccess registryAccess
     ) {
         // WormholeNetwork is server-side-only saved data. Client sync is not required

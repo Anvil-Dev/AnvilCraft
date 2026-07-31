@@ -63,12 +63,12 @@ public record MergeData(List<ICustomDataComponent<?>> types) implements IResultM
     public static class Type implements IResultModifier.Type<MergeData> {
         @Override
         public MapCodec<MergeData> codec() {
-            return CODEC;
+            return MergeData.CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, MergeData> streamCodec() {
-            return STREAM_CODEC;
+            return MergeData.STREAM_CODEC;
         }
     }
 

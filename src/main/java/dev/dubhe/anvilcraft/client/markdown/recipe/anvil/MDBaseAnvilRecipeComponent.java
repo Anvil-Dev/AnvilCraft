@@ -21,7 +21,7 @@ public abstract class MDBaseAnvilRecipeComponent extends MDRecipeComponent {
     public static final int OUTPUT_BLOCK_X = 210;
 
     public MDBaseAnvilRecipeComponent(boolean enableAlignCenter) {
-        super(TEXTURE, 256, 128, enableAlignCenter);
+        super(MDBaseAnvilRecipeComponent.TEXTURE, 256, 128, enableAlignCenter);
     }
 
     protected List<ItemIngredientPredicate> getIngredients() {
@@ -53,14 +53,14 @@ public abstract class MDBaseAnvilRecipeComponent extends MDRecipeComponent {
         }
 
         // 渲染加工环境方块
-        int anvilY = BLOCK_Y - 2 * AgeratumUtil.BLOCK_SIZE;
-        AgeratumUtil.renderBlock(context, Blocks.ANVIL.defaultBlockState(), mouseX, mouseY, INPUT_BLOCK_X, anvilY);
+        int anvilY = MDBaseAnvilRecipeComponent.BLOCK_Y - 2 * AgeratumUtil.BLOCK_SIZE;
+        AgeratumUtil.renderBlock(context, Blocks.ANVIL.defaultBlockState(), mouseX, mouseY, MDBaseAnvilRecipeComponent.INPUT_BLOCK_X, anvilY);
 
         for (int i = 0; i < this.getInputBlockStates().size(); i++) {
             BlockState inputBlock = this.getInputBlockStates().get(i);
             if (inputBlock.isAir()) continue;
-            int y = AgeratumUtil.getRenderY(BLOCK_Y, i);
-            AgeratumUtil.renderBlock(context, inputBlock, mouseX, mouseY, INPUT_BLOCK_X, y);
+            int y = AgeratumUtil.getRenderY(MDBaseAnvilRecipeComponent.BLOCK_Y, i);
+            AgeratumUtil.renderBlock(context, inputBlock, mouseX, mouseY, MDBaseAnvilRecipeComponent.INPUT_BLOCK_X, y);
         }
 
         // 渲染输出箭头
@@ -71,7 +71,9 @@ public abstract class MDBaseAnvilRecipeComponent extends MDRecipeComponent {
 
         // 渲染输出方块（如果有）
         if (!this.getOutputBlockState().isEmpty() && !this.getOutputBlockState().isAir()) {
-            AgeratumUtil.renderBlock(context, this.getOutputBlockState(), mouseX, mouseY, OUTPUT_BLOCK_X, BLOCK_Y);
+            AgeratumUtil.renderBlock(context, this.getOutputBlockState(), mouseX, mouseY, MDBaseAnvilRecipeComponent.OUTPUT_BLOCK_X,
+                                     MDBaseAnvilRecipeComponent.BLOCK_Y
+            );
         }
     }
 }

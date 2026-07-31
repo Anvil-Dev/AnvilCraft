@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.event;
 import dev.dubhe.anvilcraft.util.ModEnchantmentHelper;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.UseOnContext;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -16,10 +17,12 @@ public class UseOnBlockEventListener {
         UseOnContext context = e.getUseOnContext();
         if (!context.getItemInHand().is(ItemTags.HOES)) return;
         if (context.getLevel().isClientSide()) return;
+        Player player = context.getPlayer();
+        if (player == null) return;
         ModEnchantmentHelper.onUseOnBlock(
             (ServerLevel) context.getLevel(),
             context.getItemInHand(),
-            context.getPlayer(),
+            player,
             context.getHand().asEquipmentSlot(),
             context.getClickedPos().getCenter(),
             context.getLevel().getBlockState(context.getClickedPos())

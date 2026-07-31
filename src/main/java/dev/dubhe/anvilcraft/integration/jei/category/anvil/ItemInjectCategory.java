@@ -88,12 +88,12 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return ItemInjectCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return ItemInjectCategory.HEIGHT;
     }
 
     @Override
@@ -104,7 +104,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<ItemInjectRecipe> recipeHolder, IFocusGroup focuses) {
         ItemInjectRecipe recipe = recipeHolder.value();
-        int transcendiumTier = getTranscendiumTier(recipeHolder);
+        int transcendiumTier = ItemInjectCategory.getTranscendiumTier(recipeHolder);
         if (transcendiumTier >= 0) {
             IRecipeSlotBuilder inputSlot = builder.addSlot(
                 RecipeIngredientRole.INPUT,
@@ -126,11 +126,11 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         } else {
             JeiItemUtil.addDefaultInputSlots(builder, recipe.getInputItems());
         }
-        JeiBlockIngredientUtil.addInputSlot(builder, INPUT_BLOCK, 72, 34, 18, 19, recipe.getFirstInputBlock());
+        JeiBlockIngredientUtil.addInputSlot(builder, ItemInjectCategory.INPUT_BLOCK, 72, 34, 18, 19, recipe.getFirstInputBlock());
         if (transcendiumTier >= 0) {
-            addTranscendiumOutputSlots(builder, recipe, transcendiumTier);
+            ItemInjectCategory.addTranscendiumOutputSlots(builder, recipe, transcendiumTier);
         } else {
-            addOutputSlots(builder, recipe);
+            ItemInjectCategory.addOutputSlots(builder, recipe);
         }
         if (!recipe.getResultBlocks().isEmpty()) {
             JeiBlockIngredientUtil.addSlot(
@@ -138,7 +138,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
                 RecipeIngredientRole.OUTPUT,
                 "output_block",
                 124,
-                getOutputBlockSlotY(recipe, transcendiumTier),
+                ItemInjectCategory.getOutputBlockSlotY(recipe, transcendiumTier),
                 16,
                 18,
                 recipe.getFirstResultBlock().state().getBlock()
@@ -167,7 +167,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
 
         List<BlockState> input = recipe.getFirstInputBlock().constructStatesForRender();
         if (input.isEmpty()) return;
-        BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(view, INPUT_BLOCK, input)
+        BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(view, ItemInjectCategory.INPUT_BLOCK, input)
             .orElse(input.getFirst());
         boolean giantAnvil = renderedState.getBlock() instanceof GiantAnvilBlock;
         int inputScale = giantAnvil ? 13 : JeiBlockIngredientUtil.getRenderablePreviewScale(renderedState, 20);
@@ -177,7 +177,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
         this.arrowOut.draw(graphics, 92, 29);
 
         JeiSlotUtil.drawDefaultInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
-        int transcendiumTier = getTranscendiumTier(recipeHolder);
+        int transcendiumTier = ItemInjectCategory.getTranscendiumTier(recipeHolder);
         if (transcendiumTier >= 0) {
             this.drawTranscendiumOutputSlots(graphics, transcendiumTier);
         } else if (!recipe.getResultItems().isEmpty()) {
@@ -219,7 +219,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
                 tooltip.addAll(TooltipUtil.tooltip(states.getFirst().getBlock()));
             }
         }
-        int outputY = getOutputBlockSlotY(recipe, getTranscendiumTier(recipeHolder));
+        int outputY = ItemInjectCategory.getOutputBlockSlotY(recipe, ItemInjectCategory.getTranscendiumTier(recipeHolder));
         if (!recipe.getResultBlocks().isEmpty()
             && MathUtil.isInRange(mouseX, mouseY, 124, outputY, 140, outputY + 18)) {
             Block block = recipe.getFirstResultBlock().state().getBlock();
@@ -238,7 +238,7 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
             return;
         }
         for (int index = 0; index < recipe.getResultItems().size(); index++) {
-            addOutputSlot(builder, 107 + index * 19, 15, recipe.getResultItems().get(index));
+            ItemInjectCategory.addOutputSlot(builder, 107 + index * 19, 15, recipe.getResultItems().get(index));
         }
     }
 
@@ -249,30 +249,30 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
     ) {
         List<ChanceItemStack> results = recipe.getResultItems();
         switch (tier) {
-            case 0 -> addOutputSlot(builder, 125, 24, results.getFirst());
+            case 0 -> ItemInjectCategory.addOutputSlot(builder, 125, 24, results.getFirst());
             case 1 -> {
-                addOutputSlot(builder, 116, 15, results.get(0))
+                ItemInjectCategory.addOutputSlot(builder, 116, 15, results.get(0))
                     .addRichTooltipCallback((slotView, tooltip) -> tooltip.add(Component.translatable(
                         "gui.anvilcraft.category.item_inject.transcendium.chance"
                     ).withStyle(ChatFormatting.GRAY)));
-                addOutputSlot(builder, 134, 15, results.get(1));
-                addOutputSlot(builder, 116, 33, results.get(2))
+                ItemInjectCategory.addOutputSlot(builder, 134, 15, results.get(1));
+                ItemInjectCategory.addOutputSlot(builder, 116, 33, results.get(2))
                     .addRichTooltipCallback((slotView, tooltip) -> tooltip.add(Component.translatable(
                         "gui.anvilcraft.category.item_inject.transcendium.amount_x3"
                     ).withStyle(ChatFormatting.GOLD)));
             }
             case 2 -> {
-                addOutputSlot(builder, 116, 15, results.get(0));
-                addOutputSlot(builder, 134, 15, results.get(1));
-                addOutputSlot(builder, 116, 33, results.get(2))
+                ItemInjectCategory.addOutputSlot(builder, 116, 15, results.get(0));
+                ItemInjectCategory.addOutputSlot(builder, 134, 15, results.get(1));
+                ItemInjectCategory.addOutputSlot(builder, 116, 33, results.get(2))
                     .addRichTooltipCallback((slotView, tooltip) -> tooltip.add(Component.translatable(
                         "gui.anvilcraft.category.item_inject.transcendium.amount_x3"
                     ).withStyle(ChatFormatting.GOLD)));
             }
-            case 3 -> addOutputSlot(builder, 125, 15, results.getFirst());
+            case 3 -> ItemInjectCategory.addOutputSlot(builder, 125, 15, results.getFirst());
             case 4 -> {
-                addOutputSlot(builder, 116, 15, results.get(0));
-                addOutputSlot(builder, 134, 15, results.get(1))
+                ItemInjectCategory.addOutputSlot(builder, 116, 15, results.get(0));
+                ItemInjectCategory.addOutputSlot(builder, 134, 15, results.get(1))
                     .addRichTooltipCallback((slotView, tooltip) -> tooltip.add(Component.translatable(
                         "gui.anvilcraft.category.item_inject.transcendium.amount_x1"
                     ).withStyle(ChatFormatting.GOLD)));
@@ -322,15 +322,15 @@ public class ItemInjectCategory implements IRecipeCategory<RecipeHolder<ItemInje
 
     private static int getTranscendiumTier(RecipeHolder<ItemInjectRecipe> recipeHolder) {
         String path = recipeHolder.id().identifier().getPath();
-        if (!path.startsWith(TRANSCENDIUM_PREFIX)) return -1;
-        return Integer.parseInt(path.substring(TRANSCENDIUM_PREFIX.length()));
+        if (!path.startsWith(ItemInjectCategory.TRANSCENDIUM_PREFIX)) return -1;
+        return Integer.parseInt(path.substring(ItemInjectCategory.TRANSCENDIUM_PREFIX.length()));
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
         List<RecipeHolder<ItemInjectRecipe>> recipes = new ArrayList<>(
             JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_INJECT.get())
         );
-        recipes.addAll(getTranscendiumRecipes());
+        recipes.addAll(ItemInjectCategory.getTranscendiumRecipes());
         registration.addRecipes(
             AnvilCraftJeiPlugin.ITEM_INJECT,
             recipes

@@ -381,10 +381,10 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
 
         @Override
         public void validate(Identifier id) {
-            if (itemIngredients.isEmpty()) {
+            if (this.itemIngredients.isEmpty()) {
                 throw new IllegalArgumentException("Recipe ingredients must not be empty, RecipeId: " + id);
             }
-            if (results.isEmpty()) {
+            if (this.results.isEmpty()) {
                 throw new IllegalArgumentException("Recipe result must not be empty, RecipeId: " + id);
             }
         }

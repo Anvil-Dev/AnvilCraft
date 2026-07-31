@@ -37,6 +37,7 @@ public class DischargerRenderer extends BaseShowItemRenderer<DischargerBlockEnti
         CameraRenderState camera
     ) {
         ItemClusterRenderState cluster = state.getDisplayState();
+        if (cluster == null) return;
         ItemStackRenderState item = cluster.item;
         AABB aabb = item.getModelBoundingBox();
 

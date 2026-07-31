@@ -17,26 +17,26 @@ public class ModRecipeOutcomeTypes {
         AnvilCraft.MOD_ID
     );
 
-    public static final DeferredHolder<IRecipeOutcome.Type<?>, DamageAnvil.Type> DAMAGE_ANVIL = OUTCOME_TYPE.register(
+    public static final DeferredHolder<IRecipeOutcome.Type<?>, DamageAnvil.Type> DAMAGE_ANVIL = ModRecipeOutcomeTypes.OUTCOME_TYPE.register(
         "damage_anvil",
         DamageAnvil.Type::new
     );
 
-    public static final DeferredHolder<IRecipeOutcome.Type<?>, ProduceHeat.Type> PRODUCE_HEAT = OUTCOME_TYPE.register(
+    public static final DeferredHolder<IRecipeOutcome.Type<?>, ProduceHeat.Type> PRODUCE_HEAT = ModRecipeOutcomeTypes.OUTCOME_TYPE.register(
         "produce_heat",
         ProduceHeat.Type::new
     );
 
-    public static final DeferredHolder<IRecipeOutcome.Type<?>, RoyalPreferenceOutcome.Type> ROYAL_PREFERENCE = OUTCOME_TYPE.register(
+    public static final DeferredHolder<IRecipeOutcome.Type<?>, RoyalPreferenceOutcome.Type> ROYAL_PREFERENCE = ModRecipeOutcomeTypes.OUTCOME_TYPE.register(
         "royal_preference",
         RoyalPreferenceOutcome.Type::new
     );
 
     public static final DeferredHolder<IRecipeOutcome.Type<?>, ResentmentAmberOutcome.Type> RESENTMENT_AMBER =
-        OUTCOME_TYPE.register("resentment_amber", ResentmentAmberOutcome.Type::new);
+        ModRecipeOutcomeTypes.OUTCOME_TYPE.register("resentment_amber", ResentmentAmberOutcome.Type::new);
 
     public static final DeferredHolder<IRecipeOutcome.Type<?>, ConsumeBurningHeaterFuel.Type>
-        CONSUME_BURNING_HEATER_FUEL = OUTCOME_TYPE.register(
+        CONSUME_BURNING_HEATER_FUEL = ModRecipeOutcomeTypes.OUTCOME_TYPE.register(
         "consume_burning_heater_fuel",
         ConsumeBurningHeaterFuel.Type::new
     );

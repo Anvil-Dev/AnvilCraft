@@ -62,12 +62,12 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return AbstractLiquidCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return AbstractLiquidCategory.HEIGHT;
     }
 
     @Override
@@ -98,9 +98,9 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         }
         if (hasInputFluid) {
             if (inputMixed) {
-                JeiFluidUtil.addFluidInputSlot(builder, INPUT_FLUID, 16, 16, cauldron);
+                JeiFluidUtil.addFluidInputSlot(builder, AbstractLiquidCategory.INPUT_FLUID, 16, 16, cauldron);
             } else {
-                JeiFluidUtil.addDefaultInputSlot(builder, INPUT_FLUID, 16, 16, cauldron);
+                JeiFluidUtil.addDefaultInputSlot(builder, AbstractLiquidCategory.INPUT_FLUID, 16, 16, cauldron);
             }
         }
 
@@ -114,9 +114,9 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         }
         if (hasOutputFluid) {
             if (outputMixed) {
-                JeiFluidUtil.addFluidOutputSlot(builder, OUTPUT_FLUID, 16, 16, cauldron);
+                JeiFluidUtil.addFluidOutputSlot(builder, AbstractLiquidCategory.OUTPUT_FLUID, 16, 16, cauldron);
             } else {
-                JeiFluidUtil.addDefaultOutputSlot(builder, OUTPUT_FLUID, 16, 16, cauldron);
+                JeiFluidUtil.addDefaultOutputSlot(builder, AbstractLiquidCategory.OUTPUT_FLUID, 16, 16, cauldron);
             }
         }
     }
@@ -199,7 +199,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
     }
 
     public void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        AnvilCraftJeiPlugin.addAnvilCauldronCatalysts(registration, getRecipeType());
+        AnvilCraftJeiPlugin.addAnvilCauldronCatalysts(registration, this.getRecipeType());
     }
 
     /**

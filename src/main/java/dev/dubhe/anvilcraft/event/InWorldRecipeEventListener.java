@@ -28,10 +28,10 @@ import java.util.List;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class InWorldRecipeEventListener {
     @SubscribeEvent
+    @SuppressWarnings("deprecation")
     public static void inWorldRecipe(InWorldRecipeManagerEvent.Init event) {
         RecipeManager manager = event.getRecipeManager();
         List<RecipeHolder<InWorldRecipe>> init = VanillaRecipesWrap.init(manager.getRecipes());
-        // noinspection deprecation
         new MeshRecipeGeneratingCache(manager.anvillib$getRegistries())
             .buildRecipes()
             .ifPresent(recipeHolders -> {

@@ -45,7 +45,7 @@ public class TeslaGunItem extends EnergyWeaponItem {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!this.canStartUsing(player, stack, SHOT_ENERGY)) return InteractionResult.FAIL;
+        if (!this.canStartUsing(player, stack, TeslaGunItem.SHOT_ENERGY)) return InteractionResult.FAIL;
         player.startUsingItem(hand);
         return InteractionResult.CONSUME;
     }
@@ -54,19 +54,19 @@ public class TeslaGunItem extends EnergyWeaponItem {
     public void onUseTick(Level level, LivingEntity user, ItemStack stack, int remaining) {
         if (!(user instanceof ServerPlayer player) || !(level instanceof ServerLevel serverLevel)) return;
         if (player.getCooldowns().isOnCooldown(stack)) return;
-        Target target = findTarget(level, player);
+        Target target = TeslaGunItem.findTarget(level, player);
         if (target == null) return;
         BlockPos rod = target.rod();
         if (rod != null && !(level.getBlockState(rod).getBlock() instanceof LightningRodBlock)) return;
-        if (!this.consumeEnergy(player, stack, SHOT_ENERGY, 160_000_000)) return;
+        if (!this.consumeEnergy(player, stack, TeslaGunItem.SHOT_ENERGY, 160_000_000)) return;
         int quickCharge = stack.getEnchantmentLevel(
             level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.QUICK_CHARGE));
         player.getCooldowns().addCooldown(stack, 80 - Math.min(60, quickCharge * 5));
         Vec3 start = player.getEyePosition().add(player.getViewVector(1.0F).scale(0.5));
         if (target.entity() != null) {
-            strikeChain(serverLevel, player, stack, start, target.entity());
+            TeslaGunItem.strikeChain(serverLevel, player, stack, start, target.entity());
         } else if (rod != null) {
-            strikeRod(serverLevel, start, rod);
+            TeslaGunItem.strikeRod(serverLevel, start, rod);
         }
         level.playSound(
             null,
@@ -85,12 +85,12 @@ public class TeslaGunItem extends EnergyWeaponItem {
         LivingEntity living = level.getEntitiesOfClass(LivingEntity.class, area, entity -> {
             if (entity == player || !entity.isAlive()) return false;
             Vec3 to = entity.getBoundingBox().getCenter().subtract(eye);
-            return to.lengthSqr() <= 256.0 && to.normalize().dot(look) >= COS_15_DEGREES;
+            return to.lengthSqr() <= 256.0 && to.normalize().dot(look) >= TeslaGunItem.COS_15_DEGREES;
         }).stream().min(Comparator.comparingDouble(entity -> entity.distanceToSqr(player))).orElse(null);
 
         BlockPos rod = BlockPos.betweenClosedStream(area)
             .filter(pos -> level.getBlockState(pos).is(Blocks.LIGHTNING_ROD))
-            .filter(pos -> pos.getCenter().subtract(eye).normalize().dot(look) >= COS_15_DEGREES)
+            .filter(pos -> pos.getCenter().subtract(eye).normalize().dot(look) >= TeslaGunItem.COS_15_DEGREES)
             .map(BlockPos::immutable)
             .min(Comparator.comparingDouble(pos -> pos.distToCenterSqr(eye)))
             .orElse(null);
@@ -121,7 +121,7 @@ public class TeslaGunItem extends EnergyWeaponItem {
             struck.add(target.getId());
             Vec3 hitPos = target.getBoundingBox().getCenter();
             level.addFreshEntity(WeaponBeamEntity.create(level, start, hitPos, WeaponBeamEntity.TESLA));
-            LivingEntity origin = thunderHit(level, player, weapon, target, 40.0F - jump * 10.0F);
+            LivingEntity origin = TeslaGunItem.thunderHit(level, player, weapon, target, 40.0F - jump * 10.0F);
             start = origin.getBoundingBox().getCenter();
             target = level.getEntitiesOfClass(
                 LivingEntity.class,

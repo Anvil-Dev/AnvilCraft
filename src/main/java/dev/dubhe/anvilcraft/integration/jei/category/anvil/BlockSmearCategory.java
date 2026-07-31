@@ -66,12 +66,12 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return BlockSmearCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return BlockSmearCategory.HEIGHT;
     }
 
     @Override
@@ -86,11 +86,11 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
             int y = i == 0 ? 24 : 42 + 10 * (i - 1);
             int height = i == 0 ? 18 : 10;
             JeiBlockIngredientUtil.addInputSlot(
-                builder, INPUT_BLOCK_PREFIX + i, 40, y, 18, height, recipe.getInputBlocks().get(i)
+                builder, BlockSmearCategory.INPUT_BLOCK_PREFIX + i, 40, y, 18, height, recipe.getInputBlocks().get(i)
             );
         }
         JeiBlockIngredientUtil.addInputSlot(
-            builder, RESULT_INPUT_BLOCK, 100, 24, 18, 18, recipe.getFirstInputBlock()
+            builder, BlockSmearCategory.RESULT_INPUT_BLOCK, 100, 24, 18, 18, recipe.getFirstInputBlock()
         );
         JeiBlockIngredientUtil.addSlot(
             builder,
@@ -127,7 +127,7 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
             List<BlockState> input = recipe.getInputBlocks().get(i).constructStatesForRender();
             if (input.isEmpty()) continue;
             BlockState renderedState = JeiBlockIngredientUtil
-                .getDisplayedState(view, INPUT_BLOCK_PREFIX + i, input)
+                .getDisplayedState(view, BlockSmearCategory.INPUT_BLOCK_PREFIX + i, input)
                 .orElse(input.getFirst());
             RenderSupport.renderBlock(graphics, renderedState, 40, 30 + 10 * i, 20);
         }
@@ -136,7 +136,7 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
 
         RenderSupport.renderBlock(graphics, recipe.getFirstResultBlock().state(), 100, 40, 20);
         List<BlockState> input = recipe.getFirstInputBlock().constructStatesForRender();
-        BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(view, RESULT_INPUT_BLOCK, input)
+        BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(view, BlockSmearCategory.RESULT_INPUT_BLOCK, input)
             .orElse(input.getFirst());
         RenderSupport.renderBlock(graphics, renderedState, 100, 30, 20);
         RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 100, 20, 20);

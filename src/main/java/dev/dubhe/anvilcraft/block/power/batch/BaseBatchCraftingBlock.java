@@ -52,9 +52,9 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
         this.registerDefaultState(
             this.stateDefinition
                 .any()
-                .setValue(POWERED, false)
-                .setValue(OVERLOAD, true)
-                .setValue(FACING, Direction.NORTH)
+                .setValue(BaseBatchCraftingBlock.POWERED, false)
+                .setValue(BaseBatchCraftingBlock.OVERLOAD, true)
+                .setValue(BaseBatchCraftingBlock.FACING, Direction.NORTH)
         );
     }
 
@@ -158,14 +158,14 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
         Direction dir = context.getNearestLookingDirection().getOpposite();
         if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) dir = dir.getOpposite();
         return this.defaultBlockState()
-            .setValue(FACING, dir)
-            .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()))
-            .setValue(OVERLOAD, true);
+            .setValue(BaseBatchCraftingBlock.FACING, dir)
+            .setValue(BaseBatchCraftingBlock.POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()))
+            .setValue(BaseBatchCraftingBlock.OVERLOAD, true);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(POWERED).add(OVERLOAD).add(FACING);
+        builder.add(BaseBatchCraftingBlock.POWERED).add(BaseBatchCraftingBlock.OVERLOAD).add(BaseBatchCraftingBlock.FACING);
     }
 
     @Override
@@ -178,7 +178,7 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
         boolean movedByPiston
     ) {
         if (level.isClientSide()) return;
-        level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
+        level.setBlock(pos, state.setValue(BaseBatchCraftingBlock.POWERED, level.hasNeighborSignal(pos)), 2);
     }
 
     @Override
@@ -188,19 +188,19 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
         BlockPos pos,
         RandomSource random
     ) {
-        if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
-            level.setBlock(pos, state.cycle(POWERED), 2);
+        if (state.getValue(BaseBatchCraftingBlock.POWERED) && !level.hasNeighborSignal(pos)) {
+            level.setBlock(pos, state.cycle(BaseBatchCraftingBlock.POWERED), 2);
         }
     }
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(BaseBatchCraftingBlock.FACING, rotation.rotate(state.getValue(BaseBatchCraftingBlock.FACING)));
     }
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
-        return this.rotate(state, mirror.getRotation(state.getValue(FACING)));
+        return this.rotate(state, mirror.getRotation(state.getValue(BaseBatchCraftingBlock.FACING)));
     }
 
     public static BlockState copy(BlockState from, BlockState to) {
@@ -211,9 +211,9 @@ public abstract class BaseBatchCraftingBlock extends BetterBaseEntityBlock imple
             return to;
         }
         return to
-            .setValue(POWERED, from.getValue(POWERED))
-            .setValue(OVERLOAD, from.getValue(OVERLOAD))
-            .setValue(FACING, from.getValue(FACING));
+            .setValue(BaseBatchCraftingBlock.POWERED, from.getValue(BaseBatchCraftingBlock.POWERED))
+            .setValue(BaseBatchCraftingBlock.OVERLOAD, from.getValue(BaseBatchCraftingBlock.OVERLOAD))
+            .setValue(BaseBatchCraftingBlock.FACING, from.getValue(BaseBatchCraftingBlock.FACING));
     }
 
     private static final List<Supplier<BaseBatchCraftingBlock>> BATCH_CRAFTING_BLOCK_GETTERS = new ArrayList<>();

@@ -43,8 +43,8 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceH
     private static final int CHECK_INTERVAL = 100;
 
     private final SingleFluidTankHandler tank = new SingleFluidTankHandler(
-        BASE_CAPACITY,
-        INFINITY_THRESHOLD,
+        FluidTankBlockEntity.BASE_CAPACITY,
+        FluidTankBlockEntity.INFINITY_THRESHOLD,
         this::onTankChanged
     );
     private int tickCounter;
@@ -78,7 +78,7 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceH
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, FluidTankBlockEntity entity) {
-        if (level.isClientSide() || ++entity.tickCounter % CHECK_INTERVAL != 0) return;
+        if (level.isClientSide() || ++entity.tickCounter % FluidTankBlockEntity.CHECK_INTERVAL != 0) return;
         boolean valid = TankUtil.isMengerStructure(level, pos, 3);
         if (entity.tank.isEnhanced() && !valid) {
             entity.onUnformed();
@@ -131,6 +131,7 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceH
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void removeComponentsFromTag(ValueOutput output) {
         super.removeComponentsFromTag(output);
         output.discard("Tank");
@@ -149,15 +150,15 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceH
 
     public static boolean isEmptyItem(ItemStack stack, HolderLookup.Provider registries) {
         if (!stack.is(ModBlocks.FLUID_TANK.asItem())) return false;
-        return readItemTank(stack, registries).getFluid().isEmpty();
+        return FluidTankBlockEntity.readItemTank(stack, registries).getFluid().isEmpty();
     }
 
     public static ItemStack fillItem(ItemStack stack, FluidStack fluid, HolderLookup.Provider registries) {
-        if (fluid.isEmpty() || !isEmptyItem(stack, registries)) return ItemStack.EMPTY;
+        if (fluid.isEmpty() || !FluidTankBlockEntity.isEmptyItem(stack, registries)) return ItemStack.EMPTY;
 
         SingleFluidTankHandler itemTank = new SingleFluidTankHandler(
-            BASE_CAPACITY,
-            INFINITY_THRESHOLD,
+            FluidTankBlockEntity.BASE_CAPACITY,
+            FluidTankBlockEntity.INFINITY_THRESHOLD,
             () -> {}
         );
         try (Transaction transaction = Transaction.openRoot()) {
@@ -175,11 +176,11 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceH
 
     private static SingleFluidTankHandler readItemTank(ItemStack stack, HolderLookup.Provider registries) {
         SingleFluidTankHandler itemTank = new SingleFluidTankHandler(
-            BASE_CAPACITY,
-            INFINITY_THRESHOLD,
+            FluidTankBlockEntity.BASE_CAPACITY,
+            FluidTankBlockEntity.INFINITY_THRESHOLD,
             () -> {}
         );
-        itemTank.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, getTankData(stack)));
+        itemTank.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, FluidTankBlockEntity.getTankData(stack)));
         return itemTank;
     }
 
@@ -213,6 +214,6 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidResourceH
     }
 
     public boolean containsInfiniteFluid() {
-        return this.tank.getFluidAmount() >= INFINITY_THRESHOLD;
+        return this.tank.getFluidAmount() >= FluidTankBlockEntity.INFINITY_THRESHOLD;
     }
 }

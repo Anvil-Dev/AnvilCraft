@@ -15,25 +15,25 @@ final class AabbSphereCollision {
 
     /** 查找移动中的 AABB 首次进入球体的时刻。 */
     static @Nullable Hit findFirst(AABB box, Vec3 movement, Vec3 sphereCenter, double sphereRadius) {
-        if (sphereRadius <= 0 || movement.lengthSqr() <= EPSILON) return null;
+        if (sphereRadius <= 0 || movement.lengthSqr() <= AabbSphereCollision.EPSILON) return null;
 
         double[] breakpoints = new double[8];
         int count = 0;
         breakpoints[count++] = 0;
         breakpoints[count++] = 1;
-        count = addAxisBreakpoints(breakpoints, count, box.minX, box.maxX, sphereCenter.x, movement.x);
-        count = addAxisBreakpoints(breakpoints, count, box.minY, box.maxY, sphereCenter.y, movement.y);
-        count = addAxisBreakpoints(breakpoints, count, box.minZ, box.maxZ, sphereCenter.z, movement.z);
+        count = AabbSphereCollision.addAxisBreakpoints(breakpoints, count, box.minX, box.maxX, sphereCenter.x, movement.x);
+        count = AabbSphereCollision.addAxisBreakpoints(breakpoints, count, box.minY, box.maxY, sphereCenter.y, movement.y);
+        count = AabbSphereCollision.addAxisBreakpoints(breakpoints, count, box.minZ, box.maxZ, sphereCenter.z, movement.z);
         Arrays.sort(breakpoints, 0, count);
 
         double radiusSqr = sphereRadius * sphereRadius;
-        double tolerance = EPSILON * Math.max(1.0, radiusSqr);
+        double tolerance = AabbSphereCollision.EPSILON * Math.max(1.0, radiusSqr);
         double intervalStart = breakpoints[0];
         for (int i = 1; i < count; i++) {
             double intervalEnd = breakpoints[i];
-            if (intervalEnd - intervalStart <= EPSILON) continue;
+            if (intervalEnd - intervalStart <= AabbSphereCollision.EPSILON) continue;
 
-            Hit hit = findInInterval(
+            Hit hit = AabbSphereCollision.findInInterval(
                 box,
                 movement,
                 sphereCenter,
@@ -45,7 +45,7 @@ final class AabbSphereCollision {
             if (hit != null) return hit;
             intervalStart = intervalEnd;
         }
-        return createApproachingHit(box, movement, sphereCenter, 1, radiusSqr, tolerance);
+        return AabbSphereCollision.createApproachingHit(box, movement, sphereCenter, 1, radiusSqr, tolerance);
     }
 
     static Vec3 removeInwardComponent(Vec3 vector, Vec3 outwardNormal) {
@@ -55,7 +55,7 @@ final class AabbSphereCollision {
 
     static boolean intersects(AABB box, Vec3 sphereCenter, double sphereRadius, double tolerance) {
         if (sphereRadius <= 0) return false;
-        Vec3 closest = closestPoint(box, sphereCenter);
+        Vec3 closest = AabbSphereCollision.closestPoint(box, sphereCenter);
         double contactRadius = sphereRadius + Math.max(0, tolerance);
         return closest.distanceToSqr(sphereCenter) <= contactRadius * contactRadius;
     }
@@ -69,7 +69,7 @@ final class AabbSphereCollision {
         double intervalStart,
         double intervalEnd
     ) {
-        Hit startHit = createApproachingHit(
+        Hit startHit = AabbSphereCollision.createApproachingHit(
             box,
             movement,
             sphereCenter,
@@ -80,18 +80,18 @@ final class AabbSphereCollision {
         if (startHit != null) return startHit;
 
         double midpoint = (intervalStart + intervalEnd) * 0.5;
-        Quadratic distance = distanceQuadratic(box, movement, sphereCenter, midpoint);
-        if (distance.a <= EPSILON) return null;
+        Quadratic distance = AabbSphereCollision.distanceQuadratic(box, movement, sphereCenter, midpoint);
+        if (distance.a <= AabbSphereCollision.EPSILON) return null;
 
         double minimumTime = Math.clamp(-distance.b / (2 * distance.a), intervalStart, intervalEnd);
-        if (minimumTime <= intervalStart + EPSILON
+        if (minimumTime <= intervalStart + AabbSphereCollision.EPSILON
             || distance.valueAt(minimumTime) > radiusSqr + tolerance) {
             return null;
         }
 
         double outside = intervalStart;
         double inside = minimumTime;
-        for (int i = 0; i < BINARY_SEARCH_STEPS; i++) {
+        for (int i = 0; i < AabbSphereCollision.BINARY_SEARCH_STEPS; i++) {
             double time = (outside + inside) * 0.5;
             if (distance.valueAt(time) <= radiusSqr) {
                 inside = time;
@@ -99,7 +99,7 @@ final class AabbSphereCollision {
                 outside = time;
             }
         }
-        return createApproachingHit(box, movement, sphereCenter, inside, radiusSqr, tolerance);
+        return AabbSphereCollision.createApproachingHit(box, movement, sphereCenter, inside, radiusSqr, tolerance);
     }
 
     private static @Nullable Hit createApproachingHit(
@@ -111,13 +111,13 @@ final class AabbSphereCollision {
         double tolerance
     ) {
         AABB movedBox = box.move(movement.scale(time));
-        Vec3 closest = closestPoint(movedBox, sphereCenter);
+        Vec3 closest = AabbSphereCollision.closestPoint(movedBox, sphereCenter);
         Vec3 normal = closest.subtract(sphereCenter);
         double distanceSqr = normal.lengthSqr();
-        if (distanceSqr > radiusSqr + tolerance || distanceSqr <= EPSILON) return null;
+        if (distanceSqr > radiusSqr + tolerance || distanceSqr <= AabbSphereCollision.EPSILON) return null;
 
         normal = normal.scale(1 / Math.sqrt(distanceSqr));
-        return movement.dot(normal) < -EPSILON ? new Hit(time, normal) : null;
+        return movement.dot(normal) < -AabbSphereCollision.EPSILON ? new Hit(time, normal) : null;
     }
 
     private static int addAxisBreakpoints(
@@ -128,9 +128,9 @@ final class AabbSphereCollision {
         double center,
         double movement
     ) {
-        if (Math.abs(movement) <= EPSILON) return count;
-        count = addBreakpoint(breakpoints, count, (center - min) / movement);
-        return addBreakpoint(breakpoints, count, (center - max) / movement);
+        if (Math.abs(movement) <= AabbSphereCollision.EPSILON) return count;
+        count = AabbSphereCollision.addBreakpoint(breakpoints, count, (center - min) / movement);
+        return AabbSphereCollision.addBreakpoint(breakpoints, count, (center - max) / movement);
     }
 
     private static int addBreakpoint(double[] breakpoints, int count, double time) {
@@ -140,7 +140,7 @@ final class AabbSphereCollision {
 
     private static Quadratic distanceQuadratic(AABB box, Vec3 movement, Vec3 center, double sampleTime) {
         double[] coefficients = new double[3];
-        addAxisDistance(
+        AabbSphereCollision.addAxisDistance(
             coefficients,
             box.minX,
             box.maxX,
@@ -148,7 +148,7 @@ final class AabbSphereCollision {
             movement.x,
             sampleTime
         );
-        addAxisDistance(
+        AabbSphereCollision.addAxisDistance(
             coefficients,
             box.minY,
             box.maxY,
@@ -156,7 +156,7 @@ final class AabbSphereCollision {
             movement.y,
             sampleTime
         );
-        addAxisDistance(
+        AabbSphereCollision.addAxisDistance(
             coefficients,
             box.minZ,
             box.maxZ,

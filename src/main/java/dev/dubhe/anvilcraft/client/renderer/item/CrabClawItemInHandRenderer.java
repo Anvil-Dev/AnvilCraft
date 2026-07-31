@@ -130,7 +130,7 @@ public class CrabClawItemInHandRenderer extends AbstractItemInHandRenderer {
         }
         Minecraft mc = Minecraft.getInstance();
         List<BakedQuad> all = mc.getModelManager()
-            .getStandaloneModel(isBlockItem ? HOLDING_BLOCK : HOLDING_ITEM)
+            .getStandaloneModel(isBlockItem ? CrabClawItemInHandRenderer.HOLDING_BLOCK : CrabClawItemInHandRenderer.HOLDING_ITEM)
             .getAll();
         collector.submitItem(
             poseStack,

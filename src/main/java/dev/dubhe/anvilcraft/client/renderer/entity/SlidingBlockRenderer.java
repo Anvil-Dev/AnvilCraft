@@ -54,7 +54,13 @@ public class SlidingBlockRenderer extends EntityRenderer<SlidingBlockEntity, Sli
                     .getRenderer(be);
                 if (renderer == null) return;
                 beState = renderer.createRenderState();
-                renderer.extractRenderState(be, beState, partialTicks, minecraft.getCameraEntity().position(), null);
+                renderer.extractRenderState(
+                    be,
+                    beState,
+                    partialTicks,
+                    minecraft.gameRenderer.getMainCamera().position(),
+                    null
+                );
             }
 
             state.getPairs().put(info.offset(), new SlidingBlockRenderState.RenderPair(moving, beState));

@@ -92,12 +92,12 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return FluidMixingCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return FluidMixingCategory.HEIGHT;
     }
 
     @Override
@@ -113,9 +113,9 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
     ) {
         FluidMixingRecipe recipe = recipeHolder.value();
         if (recipe instanceof ComplexFluidJeiRecipe complexRecipe) {
-            setComplexRecipe(builder, complexRecipe);
+            FluidMixingCategory.setComplexRecipe(builder, complexRecipe);
         } else {
-            setFluidMixingRecipe(builder, recipe);
+            FluidMixingCategory.setFluidMixingRecipe(builder, recipe);
         }
     }
 
@@ -124,7 +124,7 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
         IIngredientAcceptor<?> bucketIngredients = builder.addInvisibleIngredients(RecipeIngredientRole.INPUT);
         for (int index = 0; index < ingredients.size(); index++) {
             SizedFluidIngredient ingredient = ingredients.get(index);
-            SlotPosition position = inputPosition(ingredients.size(), index);
+            SlotPosition position = FluidMixingCategory.inputPosition(ingredients.size(), index);
             IRecipeSlotBuilder recipeSlot = builder.addSlot(
                 RecipeIngredientRole.INPUT,
                 position.x() + 1,
@@ -141,14 +141,14 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
         List<FluidStack> fluidResults = recipe.getFluidResults();
         boolean splitOutputColumns = !itemResults.isEmpty() && !fluidResults.isEmpty();
         for (int index = 0; index < itemResults.size(); index++) {
-            SlotPosition position = itemOutputPosition(itemResults.size(), index, splitOutputColumns);
+            SlotPosition position = FluidMixingCategory.itemOutputPosition(itemResults.size(), index, splitOutputColumns);
             builder.addSlot(RecipeIngredientRole.OUTPUT, position.x() + 1, position.y() + 1)
                 .add(itemResults.get(index).copy());
         }
         IIngredientAcceptor<?> outputBuckets = builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT);
         for (int index = 0; index < fluidResults.size(); index++) {
             FluidStack fluid = fluidResults.get(index);
-            SlotPosition position = fluidOutputPosition(fluidResults.size(), index, splitOutputColumns);
+            SlotPosition position = FluidMixingCategory.fluidOutputPosition(fluidResults.size(), index, splitOutputColumns);
             builder.addSlot(RecipeIngredientRole.OUTPUT, position.x() + 1, position.y() + 1)
                 .setFluidRenderer(fluid.getAmount(), true, 16, 16)
                 .add(fluid.getFluid(), fluid.getAmount(), fluid.getComponentsPatch());
@@ -161,11 +161,11 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
         List<List<FluidStack>> fluidInputs = recipe.getDisplayFluidInputs();
         List<ItemIngredientPredicate> itemInputs = recipe.getInputItems();
         int inputCount = fluidInputs.size() + itemInputs.size();
-        int inputGridSize = recipe.isHeaterRequired() ? HEATER_INPUT_GRID_SIZE : inputCount;
+        int inputGridSize = recipe.isHeaterRequired() ? FluidMixingCategory.HEATER_INPUT_GRID_SIZE : inputCount;
         List<IRecipeSlotBuilder> fluidInputSlots = new ArrayList<>(fluidInputs.size());
         for (int index = 0; index < fluidInputs.size(); index++) {
-            SlotPosition position = inputPosition(inputGridSize, index);
-            fluidInputSlots.add(addFluidSlot(
+            SlotPosition position = FluidMixingCategory.inputPosition(inputGridSize, index);
+            fluidInputSlots.add(FluidMixingCategory.addFluidSlot(
                 builder,
                 RecipeIngredientRole.INPUT,
                 position,
@@ -174,7 +174,7 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
             ));
         }
         for (int index = 0; index < itemInputs.size(); index++) {
-            SlotPosition position = inputPosition(inputGridSize, fluidInputs.size() + index);
+            SlotPosition position = FluidMixingCategory.inputPosition(inputGridSize, fluidInputs.size() + index);
             JeiItemUtil.addSlotWithCount(
                 builder,
                 position.x() + 1,
@@ -184,18 +184,18 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
         }
         if (recipe.isHeaterRequired()) {
             builder.addSlot(
-                RecipeIngredientRole.RENDER_ONLY,
-                HEATER_POSITION.x() + 1,
-                HEATER_POSITION.y() + 1
+                    RecipeIngredientRole.RENDER_ONLY,
+                    FluidMixingCategory.HEATER_POSITION.x() + 1,
+                    FluidMixingCategory.HEATER_POSITION.y() + 1
             ).addItemStacks(List.of(ModBlocks.HEATER.asStack(), ModBlocks.BURNING_HEATER.asStack()))
-                .addRichTooltipCallback((slotView, tooltip) -> tooltip.add(HEATER_ACTIVE));
+                .addRichTooltipCallback((slotView, tooltip) -> tooltip.add(FluidMixingCategory.HEATER_ACTIVE));
         }
 
         List<ChanceItemStack> itemResults = recipe.getDisplayItemResults();
         List<List<FluidStack>> fluidResults = recipe.getDisplayFluidResults();
         boolean splitOutputColumns = !itemResults.isEmpty() && !fluidResults.isEmpty();
         for (int index = 0; index < itemResults.size(); index++) {
-            SlotPosition position = itemOutputPosition(itemResults.size(), index, splitOutputColumns);
+            SlotPosition position = FluidMixingCategory.itemOutputPosition(itemResults.size(), index, splitOutputColumns);
             JeiItemUtil.addOutputSlot(
                 builder,
                 position.x() + 1,
@@ -205,8 +205,8 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
         }
         List<IRecipeSlotBuilder> fluidOutputSlots = new ArrayList<>(fluidResults.size());
         for (int index = 0; index < fluidResults.size(); index++) {
-            SlotPosition position = fluidOutputPosition(fluidResults.size(), index, splitOutputColumns);
-            fluidOutputSlots.add(addFluidSlot(
+            SlotPosition position = FluidMixingCategory.fluidOutputPosition(fluidResults.size(), index, splitOutputColumns);
+            fluidOutputSlots.add(FluidMixingCategory.addFluidSlot(
                 builder,
                 RecipeIngredientRole.OUTPUT,
                 position,
@@ -258,20 +258,20 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
         int fluidOutputCount;
         if (recipe instanceof ComplexFluidJeiRecipe complexRecipe) {
             int inputCount = complexRecipe.getDisplayFluidInputCount() + complexRecipe.getInputItems().size();
-            int inputGridSize = complexRecipe.isHeaterRequired() ? HEATER_INPUT_GRID_SIZE : inputCount;
+            int inputGridSize = complexRecipe.isHeaterRequired() ? FluidMixingCategory.HEATER_INPUT_GRID_SIZE : inputCount;
             for (int index = 0; index < inputCount; index++) {
-                SlotPosition position = inputPosition(inputGridSize, index);
+                SlotPosition position = FluidMixingCategory.inputPosition(inputGridSize, index);
                 this.slot.draw(guiGraphics, position.x(), position.y());
             }
             if (complexRecipe.isHeaterRequired()) {
-                this.slot.draw(guiGraphics, HEATER_POSITION.x(), HEATER_POSITION.y());
+                this.slot.draw(guiGraphics, FluidMixingCategory.HEATER_POSITION.x(), FluidMixingCategory.HEATER_POSITION.y());
             }
             itemOutputCount = complexRecipe.getDisplayItemResults().size();
             fluidOutputCount = complexRecipe.getDisplayFluidResultCount();
         } else {
             int inputCount = recipe.getFluidIngredients().size();
             for (int index = 0; index < inputCount; index++) {
-                SlotPosition position = inputPosition(inputCount, index);
+                SlotPosition position = FluidMixingCategory.inputPosition(inputCount, index);
                 this.slot.draw(guiGraphics, position.x(), position.y());
             }
             itemOutputCount = recipe.getItemResults().size();
@@ -280,11 +280,11 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
 
         boolean splitOutputColumns = itemOutputCount > 0 && fluidOutputCount > 0;
         for (int index = 0; index < itemOutputCount; index++) {
-            SlotPosition position = itemOutputPosition(itemOutputCount, index, splitOutputColumns);
+            SlotPosition position = FluidMixingCategory.itemOutputPosition(itemOutputCount, index, splitOutputColumns);
             this.slot.draw(guiGraphics, position.x(), position.y());
         }
         for (int index = 0; index < fluidOutputCount; index++) {
-            SlotPosition position = fluidOutputPosition(fluidOutputCount, index, splitOutputColumns);
+            SlotPosition position = FluidMixingCategory.fluidOutputPosition(fluidOutputCount, index, splitOutputColumns);
             this.slot.draw(guiGraphics, position.x(), position.y());
         }
 
@@ -292,8 +292,8 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
         this.arrowOut.draw(guiGraphics, 99, 29);
 
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / 3.0F;
-        RenderSupport.renderBlock(guiGraphics, this.giantAnvil, 71, 13 + anvilYOffset, MODEL_SCALE * 2);
-        RenderSupport.renderBlock(guiGraphics, this.largeCauldron, 71, 35, MODEL_SCALE * 2);
+        RenderSupport.renderBlock(guiGraphics, this.giantAnvil, 71, 13 + anvilYOffset, FluidMixingCategory.MODEL_SCALE * 2);
+        RenderSupport.renderBlock(guiGraphics, this.largeCauldron, 71, 35, FluidMixingCategory.MODEL_SCALE * 2);
     }
 
     private static SlotPosition inputPosition(int count, int index) {
@@ -308,11 +308,11 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
     }
 
     private static SlotPosition itemOutputPosition(int count, int index, boolean splitColumns) {
-        return new SlotPosition(splitColumns ? 119 : 129, outputRow(count, index));
+        return new SlotPosition(splitColumns ? 119 : 129, FluidMixingCategory.outputRow(count, index));
     }
 
     private static SlotPosition fluidOutputPosition(int count, int index, boolean splitColumns) {
-        return new SlotPosition(splitColumns ? 138 : 129, outputRow(count, index));
+        return new SlotPosition(splitColumns ? 138 : 129, FluidMixingCategory.outputRow(count, index));
     }
 
     private static int outputRow(int count, int index) {

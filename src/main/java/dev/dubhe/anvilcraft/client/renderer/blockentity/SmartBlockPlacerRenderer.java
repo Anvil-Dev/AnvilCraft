@@ -163,14 +163,14 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             final float baseAngle = (float) Math.toDegrees(Math.atan2(rightDist, forwardDist));
             final float horizontalDist = (float) Math.sqrt(forwardDist * forwardDist + rightDist * rightDist);
 
-            float targetHeight = (float) dy - BASE_HEIGHT;
+            float targetHeight = (float) dy - WorkingAnimationScheme.BASE_HEIGHT;
             if (upsideDown) {
-                targetHeight = -(float) dy - BASE_HEIGHT;
+                targetHeight = -(float) dy - WorkingAnimationScheme.BASE_HEIGHT;
             }
 
             final float elevationAngle = (float) Math.toDegrees(Math.atan2(targetHeight, horizontalDist));
             final float distToTarget = (float) Math.sqrt(horizontalDist * horizontalDist + targetHeight * targetHeight);
-            final boolean isOverRange = distToTarget >= UPPER_ARM_LENGTH + FOREARM_LENGTH;
+            final boolean isOverRange = distToTarget >= WorkingAnimationScheme.UPPER_ARM_LENGTH + WorkingAnimationScheme.FOREARM_LENGTH;
 
             float upperArmAngle;
             float forearmAngle;
@@ -180,13 +180,17 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             } else {
                 float clampedDist = Math.max(0.01f, distToTarget);
 
-                float cosForearm = (UPPER_ARM_LENGTH * UPPER_ARM_LENGTH + FOREARM_LENGTH * FOREARM_LENGTH - clampedDist * clampedDist)
-                    / (2 * UPPER_ARM_LENGTH * FOREARM_LENGTH);
+                float cosForearm = (WorkingAnimationScheme.UPPER_ARM_LENGTH * WorkingAnimationScheme.UPPER_ARM_LENGTH
+                                    + WorkingAnimationScheme.FOREARM_LENGTH * WorkingAnimationScheme.FOREARM_LENGTH
+                                    - clampedDist * clampedDist)
+                    / (2 * WorkingAnimationScheme.UPPER_ARM_LENGTH * WorkingAnimationScheme.FOREARM_LENGTH);
                 cosForearm = Math.clamp(cosForearm, -1.0f, 1.0f);
                 float forearmAngleFromUpper = (float) Math.toDegrees(Math.acos(cosForearm));
 
-                float cosUpperArm = (clampedDist * clampedDist + UPPER_ARM_LENGTH * UPPER_ARM_LENGTH - FOREARM_LENGTH * FOREARM_LENGTH)
-                    / (2 * clampedDist * UPPER_ARM_LENGTH);
+                float cosUpperArm = (clampedDist * clampedDist + WorkingAnimationScheme.UPPER_ARM_LENGTH * WorkingAnimationScheme.UPPER_ARM_LENGTH
+                                     - WorkingAnimationScheme.FOREARM_LENGTH
+                                       * WorkingAnimationScheme.FOREARM_LENGTH)
+                    / (2 * clampedDist * WorkingAnimationScheme.UPPER_ARM_LENGTH);
                 cosUpperArm = Math.clamp(cosUpperArm, -1.0f, 1.0f);
                 float upperArmAngleFromTarget = (float) Math.toDegrees(Math.acos(cosUpperArm));
                 upperArmAngle = -(180f - upperArmAngleFromTarget - elevationAngle) * 0.6f + 20f;
@@ -236,11 +240,11 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         state.setAnimationDurationTicks(SmartBlockPlacerBlockEntity.getPlacementInterval());
 
         // Initialize models
-        state.setBaseModel(FeatureRendererSupport.initialize(BASE_MODEL, entity));
-        state.setUpperArmModel(FeatureRendererSupport.initialize(UPPERARM_MODEL, entity));
-        state.setForearmModel(FeatureRendererSupport.initialize(FOREARM_MODEL, entity));
-        state.setClawModel(FeatureRendererSupport.initialize(CLAW_MODEL, entity));
-        state.setClawOpenModel(FeatureRendererSupport.initialize(CLAW_OPEN_MODEL, entity));
+        state.setBaseModel(FeatureRendererSupport.initialize(SmartBlockPlacerRenderer.BASE_MODEL, entity));
+        state.setUpperArmModel(FeatureRendererSupport.initialize(SmartBlockPlacerRenderer.UPPERARM_MODEL, entity));
+        state.setForearmModel(FeatureRendererSupport.initialize(SmartBlockPlacerRenderer.FOREARM_MODEL, entity));
+        state.setClawModel(FeatureRendererSupport.initialize(SmartBlockPlacerRenderer.CLAW_MODEL, entity));
+        state.setClawOpenModel(FeatureRendererSupport.initialize(SmartBlockPlacerRenderer.CLAW_OPEN_MODEL, entity));
 
         BlockState blockState = entity.getBlockState();
         if (!(blockState.getBlock() instanceof SmartBlockPlacerBlock)) return;
@@ -290,7 +294,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                 long elapsedTicks = retractLevel.getGameTime() - animStartTime;
                 float interruptProgress = Math.min(1.0f, (elapsedTicks + partialTick) / (float) state
                     .getAnimationDurationTicks());
-                float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
+                float[] angles = SmartBlockPlacerRenderer.WORKING_ANIMATION_SCHEME.calculateArmAngles(
                     animTargetPos, entity.getBlockPos(), facing, upsideDown, interruptProgress
                 );
                 entity.setClientRetractStartAngles(angles);
@@ -363,7 +367,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                             entity.setClientIsRetracting(true);
                             entity.setClientRetractStartTime(currentTime);
 
-                            float[] endAngles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
+                            float[] endAngles = SmartBlockPlacerRenderer.WORKING_ANIMATION_SCHEME.calculateArmAngles(
                                 animTargetPos, entity.getBlockPos(), facing, upsideDown, 1.0f
                             );
                             entity.setClientRetractStartAngles(endAngles);
@@ -458,7 +462,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                     entity.setRetractSoundPlayed(true);
                 }
 
-                float[] angles = WORKING_ANIMATION_SCHEME.calculateArmAngles(
+                float[] angles = SmartBlockPlacerRenderer.WORKING_ANIMATION_SCHEME.calculateArmAngles(
                     animTargetPos, entity.getBlockPos(), facing, upsideDown, animationProgress
                 );
                 baseSwingAngle = angles[0];

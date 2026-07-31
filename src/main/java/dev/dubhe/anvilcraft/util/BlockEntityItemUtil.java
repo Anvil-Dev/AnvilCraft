@@ -12,6 +12,7 @@ public final class BlockEntityItemUtil {
     private BlockEntityItemUtil() {
     }
 
+    @SuppressWarnings("deprecation")
     public static void saveToItem(BlockEntity blockEntity, ItemStack stack, HolderLookup.Provider registries) {
         TagValueOutput output = TagValueOutput.createWithContext(ProblemReporter.DISCARDING, registries);
         blockEntity.saveCustomOnly(output);

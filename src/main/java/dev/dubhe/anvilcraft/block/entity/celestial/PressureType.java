@@ -18,11 +18,11 @@ public enum PressureType implements StringRepresentable {
     }
 
     public static PressureType fromName(String name) {
-        for (PressureType value : values()) {
+        for (PressureType value : PressureType.values()) {
             if (value.name.equals(name)) {
                 return value;
             }
         }
-        return GAS;
+        return PressureType.GAS;
     }
 }
