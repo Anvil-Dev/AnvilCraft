@@ -22,6 +22,8 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBl
 
     private static final float FLUID_MIN = 4.01f / 16.0f;
     private static final float FLUID_MAX = 11.99f / 16.0f;
+    private static final float FLUID_NODE_MIN = 3.01f / 16.0f;
+    private static final float FLUID_NODE_MAX = 12.99f / 16.0f;
     private static final float FLUID_STRAIGHT_ARM_MIN = 0.0f;
     private static final float FLUID_STRAIGHT_ARM_MAX = 1.0f;
 
@@ -107,7 +109,9 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBl
                     renderedDirections.add(direction);
                 }
             }
-            renderFluidBox(fluid, min, max, poseStack, buffer, packedLight);
+            float[] nodeMin = {FLUID_NODE_MIN, FLUID_NODE_MIN, FLUID_NODE_MIN};
+            float[] nodeMax = {FLUID_NODE_MAX, FLUID_NODE_MAX, FLUID_NODE_MAX};
+            renderFluidBox(fluid, nodeMin, nodeMax, poseStack, buffer, packedLight);
             for (Direction direction : renderedDirections) {
                 renderFluidArm(
                     fluid,
