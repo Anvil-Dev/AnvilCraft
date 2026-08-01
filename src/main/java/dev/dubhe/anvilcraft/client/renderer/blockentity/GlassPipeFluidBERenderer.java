@@ -20,8 +20,8 @@ import java.util.Set;
 
 public class GlassPipeFluidBERenderer implements BlockEntityRenderer<PipeCheckValveBlockEntity> {
 
-    private static final float FLUID_MIN = 5.0f / 16.0f;
-    private static final float FLUID_MAX = 11.0f / 16.0f;
+    private static final float FLUID_MIN = 4.01f / 16.0f;
+    private static final float FLUID_MAX = 11.99f / 16.0f;
     private static final float FLUID_STRAIGHT_ARM_MIN = 0.0f;
     private static final float FLUID_STRAIGHT_ARM_MAX = 1.0f;
 
