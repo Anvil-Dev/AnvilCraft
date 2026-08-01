@@ -104,6 +104,7 @@ public final class FluidNetworkScanner {
         Map<BlockPos, ValveState> valves = new HashMap<>();
         Map<BlockPos, Direction> diodes = new HashMap<>();
         Map<BlockPos, Map<Direction, Direction>> faceFlow = new HashMap<>();
+        Set<BlockPos> glassPipePositions = new HashSet<>();
         Map<BlockPos, FluidEndpoint> endpoints = new LinkedHashMap<>();
         Set<IFluidHandler> seenHandlers = new HashSet<>();
         Deque<BlockPos> queue = new ArrayDeque<>();
@@ -125,7 +126,10 @@ public final class FluidNetworkScanner {
                 // 记录泵的进液侧（二极管：仅允许 进液侧→另一侧 通过流体）
                 diodes.put(pos.immutable(), state.getValue(PumpBlock.ORIENTATION).getDirection());
                 expandPump(level, pos, state, phi, potential, adjacency, queue, endpoints, seenHandlers);
-            } else if (state.getBlock() instanceof PipeBlock) {
+            } else if (state.getBlock() instanceof PipeBlock pipe) {
+                if (pipe.isGlassPipe()) {
+                    glassPipePositions.add(pos.immutable());
+                }
                 // 记录管道面止逆阀约束（若有）
                 if (state.getValue(PipeBlock.HAS_CHECK_VALVE)
                     && level.getBlockEntity(pos) instanceof AbstractPipeCheckValveBlockEntity cv
@@ -137,7 +141,8 @@ public final class FluidNetworkScanner {
         }
 
         return new FluidPipeNetwork(
-            level, potential.keySet(), adjacency, valves, diodes, faceFlow, new ArrayList<>(endpoints.values()));
+            level, potential.keySet(), adjacency, valves, diodes, faceFlow,
+            glassPipePositions, new ArrayList<>(endpoints.values()));
     }
 
     /** 记录一条 part↔part 无向邻接边。 */

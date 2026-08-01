@@ -74,6 +74,7 @@ public class FluidPipeNetwork {
      * 反向被阻断（无关高度差）。逐面约束天然覆盖直管/弯管/节点及朝容器的端点面。
      */
     private final Map<BlockPos, Map<Direction, Direction>> faceFlow;
+    private final Set<BlockPos> glassPipePositions;
     private final List<FluidEndpoint> endpoints;
     private final List<FluidEndpoint> cauldronEndpoints;
     private final List<FluidEndpoint> entityEndpoints;
@@ -106,6 +107,7 @@ public class FluidPipeNetwork {
         Map<BlockPos, ValveState> valves,
         Map<BlockPos, Direction> diodes,
         Map<BlockPos, Map<Direction, Direction>> faceFlow,
+        Set<BlockPos> glassPipePositions,
         List<FluidEndpoint> endpoints
     ) {
         this.level = level;
@@ -114,6 +116,7 @@ public class FluidPipeNetwork {
         this.valves = valves;
         this.diodes = diodes;
         this.faceFlow = faceFlow;
+        this.glassPipePositions = glassPipePositions;
         this.endpoints = endpoints;
         this.directionalConstraints = !valves.isEmpty() || !diodes.isEmpty() || !faceFlow.isEmpty();
         this.cauldronEndpoints = new ArrayList<>();
@@ -595,17 +598,25 @@ public class FluidPipeNetwork {
     private void showFluidAlongPipePath(
         FluidStack fluid, FluidEndpoint source, FluidEndpoint target, @Nullable Reachability reach
     ) {
-        if (level.isClientSide()) {
+        if (level.isClientSide() || glassPipePositions.isEmpty()) {
             return;
         }
         List<BlockPos> path = reach == null
             ? undirectedPipePath(source.fromPipePos(), target.fromPipePos())
             : directionalPipePath(source.fromPipePos(), target.fromPipePos(), reach);
-        Map<BlockPos, EnumSet<Direction>> displayDirections = displayDirectionsByPipe(path, source, target);
+        List<BlockPos> glassPath = new ArrayList<>();
         for (BlockPos pos : path) {
+            if (glassPipePositions.contains(pos)) {
+                glassPath.add(pos);
+            }
+        }
+        if (glassPath.isEmpty()) {
+            return;
+        }
+        Map<BlockPos, EnumSet<Direction>> displayDirections = displayDirectionsByPipe(path, source, target);
+        for (BlockPos pos : glassPath) {
             if (level.getBlockEntity(pos) instanceof GlassPipeBlockEntity pipe) {
-                Set<Direction> directions = displayDirections.get(pos);
-                pipe.showFluid(fluid, directions == null ? Set.of() : directions);
+                pipe.showFluid(fluid, displayDirections.getOrDefault(pos, EnumSet.noneOf(Direction.class)));
             }
         }
     }

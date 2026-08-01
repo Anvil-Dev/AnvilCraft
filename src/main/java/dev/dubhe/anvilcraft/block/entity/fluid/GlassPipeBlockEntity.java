@@ -62,7 +62,9 @@ public class GlassPipeBlockEntity extends AbstractPipeCheckValveBlockEntity {
         final boolean changed = expired || !sameFluid || directionsChanged;
         this.displayFluid = fluid.copyWithAmount(1);
         this.displayUntil = displayEndGameTime;
-        this.setChanged();
+        if (changed) {
+            this.setChanged();
+        }
         if (changed || gameTime - this.lastDisplaySync >= DISPLAY_SYNC_INTERVAL) {
             this.lastDisplaySync = gameTime;
             this.sendUpdate();
