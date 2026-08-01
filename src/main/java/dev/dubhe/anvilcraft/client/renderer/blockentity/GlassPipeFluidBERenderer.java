@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.block.entity.fluid.PipeCheckValveBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.GlassPipeBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeNodeBlock;
@@ -18,7 +18,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import java.util.EnumSet;
 import java.util.Set;
 
-public class GlassPipeFluidBERenderer implements BlockEntityRenderer<PipeCheckValveBlockEntity> {
+public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBlockEntity> {
 
     private static final float FLUID_MIN = 4.01f / 16.0f;
     private static final float FLUID_MAX = 11.99f / 16.0f;
@@ -31,7 +31,7 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<PipeCheckVa
 
     @Override
     public void render(
-        PipeCheckValveBlockEntity be,
+        GlassPipeBlockEntity be,
         float partialTick,
         PoseStack poseStack,
         MultiBufferSource buffer,
@@ -50,12 +50,13 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<PipeCheckVa
         if (fluid.isEmpty()) {
             return;
         }
-        renderDisplayFluid(fluid, state, poseStack, buffer, packedLight);
+        renderDisplayFluid(fluid, state, be.getDisplayDirections(), poseStack, buffer, packedLight);
     }
 
     private static void renderDisplayFluid(
         FluidStack fluid,
         BlockState state,
+        Set<Direction> displayDirections,
         PoseStack poseStack,
         MultiBufferSource buffer,
         int packedLight
@@ -99,15 +100,15 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<PipeCheckVa
             renderFluidArm(fluid, secondDirection, poseStack, buffer, packedLight, secondSkippedSides);
             return;
         } else if (state.getBlock() instanceof PipeNodeBlock) {
-            EnumSet<Direction> skippedSides = EnumSet.noneOf(Direction.class);
+            EnumSet<Direction> renderedDirections = EnumSet.noneOf(Direction.class);
             for (Direction direction : Direction.values()) {
                 PipeBlock.NodePipe nodePipe = state.getValue(PipeBlock.getPropertyForDirection(direction));
-                if (nodePipe != PipeBlock.NodePipe.NONE) {
-                    skippedSides.add(direction);
+                if (nodePipe != PipeBlock.NodePipe.NONE && displayDirections.contains(direction)) {
+                    renderedDirections.add(direction);
                 }
             }
-            renderFluidBox(fluid, min, max, poseStack, buffer, packedLight, skippedSides);
-            for (Direction direction : skippedSides) {
+            renderFluidBox(fluid, min, max, poseStack, buffer, packedLight);
+            for (Direction direction : renderedDirections) {
                 renderFluidArm(
                     fluid,
                     direction,

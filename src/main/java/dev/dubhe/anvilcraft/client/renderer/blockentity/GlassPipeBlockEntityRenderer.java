@@ -1,24 +1,23 @@
 package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
-import dev.dubhe.anvilcraft.block.entity.fluid.PipeCheckValveBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.GlassPipeBlockEntity;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 
-public class PipeBlockEntityRenderer implements BlockEntityRenderer<PipeCheckValveBlockEntity> {
-
+public class GlassPipeBlockEntityRenderer implements BlockEntityRenderer<GlassPipeBlockEntity> {
     private final GlassPipeFluidBERenderer glassPipeFluidRenderer;
-    private final PipeCheckValveBERenderer pipeCheckValveRenderer;
+    private final PipeCheckValveBERenderer<GlassPipeBlockEntity> pipeCheckValveRenderer;
 
-    public PipeBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
+    public GlassPipeBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
         this.glassPipeFluidRenderer = new GlassPipeFluidBERenderer(context);
-        this.pipeCheckValveRenderer = new PipeCheckValveBERenderer(context);
+        this.pipeCheckValveRenderer = new PipeCheckValveBERenderer<>(context);
     }
 
     @Override
     public void render(
-        PipeCheckValveBlockEntity be,
+        GlassPipeBlockEntity be,
         float partialTick,
         PoseStack poseStack,
         MultiBufferSource buffer,

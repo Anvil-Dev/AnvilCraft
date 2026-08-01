@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
+import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeCheckValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.fluid.PipeCheckValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
@@ -128,7 +128,7 @@ public final class FluidNetworkScanner {
             } else if (state.getBlock() instanceof PipeBlock) {
                 // 记录管道面止逆阀约束（若有）
                 if (state.getValue(PipeBlock.HAS_CHECK_VALVE)
-                    && level.getBlockEntity(pos) instanceof PipeCheckValveBlockEntity cv
+                    && level.getBlockEntity(pos) instanceof AbstractPipeCheckValveBlockEntity cv
                     && !cv.isEmpty()) {
                     faceFlow.put(pos.immutable(), new EnumMap<>(cv.effectiveFlows()));
                 }

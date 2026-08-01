@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.entity.fluid.PipeCheckValveBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeCheckValveBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -33,7 +33,7 @@ import java.util.Map;
  * <p><b>光照</b>：不能用无着色的 {@code renderModel} 重载（六面等亮 → 又平又白），
  * 而是逐面按其<b>世界方向</b>取 {@link Level#getShade} 做方向漫反射（上亮下暗），与管道本体一致。
  */
-public class PipeCheckValveBERenderer implements BlockEntityRenderer<PipeCheckValveBlockEntity> {
+public class PipeCheckValveBERenderer<T extends AbstractPipeCheckValveBlockEntity> implements BlockEntityRenderer<T> {
 
     private static final ModelResourceLocation ARM =
         ModelResourceLocation.standalone(AnvilCraft.of("block/check_valve_arm"));
@@ -46,7 +46,7 @@ public class PipeCheckValveBERenderer implements BlockEntityRenderer<PipeCheckVa
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Override
     public void render(
-        PipeCheckValveBlockEntity be,
+        T be,
         float partialTick,
         PoseStack poseStack,
         MultiBufferSource buffer,

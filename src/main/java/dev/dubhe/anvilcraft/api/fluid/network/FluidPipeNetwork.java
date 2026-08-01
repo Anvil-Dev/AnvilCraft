@@ -1,6 +1,6 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
-import dev.dubhe.anvilcraft.block.entity.fluid.PipeCheckValveBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.fluid.GlassPipeBlockEntity;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -8,11 +8,13 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Deque;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -211,7 +213,7 @@ public class FluidPipeNetwork {
                 List<FluidEndpoint> group = entry.getValue();
                 int heightDiff = source.effectiveHeight() - groupHeight;
                 int groupSpeed = speedForHeightDiff(heightDiff);
-                boolean groupFull = fillGroup(source, tankIdx, group, groupSpeed, pathValves);
+                boolean groupFull = fillGroup(source, tankIdx, group, groupSpeed, pathValves, reach);
                 // 源已流尽 → 停止
                 if (srcHandler.getFluidInTank(tankIdx).isEmpty()) {
                     break;
@@ -241,7 +243,7 @@ public class FluidPipeNetwork {
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     private boolean fillGroup(
         FluidEndpoint source, int tankIdx, List<FluidEndpoint> group, int groupSpeed,
-        Map<BlockPos, List<ValveState>> pathValves
+        Map<BlockPos, List<ValveState>> pathValves, @Nullable Reachability reach
     ) {
         // 组内按到源的"就近"排序：|Σxz差| 升序，再比 |x差|、|z差|
         BlockPos src = source.containerPos();
@@ -253,10 +255,10 @@ public class FluidPipeNetwork {
         List<FluidEndpoint> allTargets = group;
         IFluidHandler srcHandler = source.handler();
         if (isCauldron(source)) {
-            fillFromFullCauldron(source, tankIdx, group, pathValves);
+            fillFromFullCauldron(source, tankIdx, group, pathValves, reach);
             return isGroupCapacityFull(group);
         }
-        if (fillFirstWholeCauldronTarget(source, tankIdx, group, pathValves)) {
+        if (fillFirstWholeCauldronTarget(source, tankIdx, group, pathValves, reach)) {
             return isGroupCapacityFull(group);
         }
         List<FluidEndpoint> regularTargets = group.stream().filter(target -> !isCauldron(target)).toList();
@@ -327,7 +329,7 @@ public class FluidPipeNetwork {
                 budget -= actuallyFilled;
                 deductValves(valvePath, actuallyFilled);
                 if (actuallyFilled > 0) {
-                    showFluidInGlassPipes(drained);
+                    showFluidAlongPipePath(drained, source, target, reach);
                     progressed = true;
                     onTransferred(source);
                 }
@@ -435,7 +437,7 @@ public class FluidPipeNetwork {
 
     private void fillFromFullCauldron(
         FluidEndpoint source, int tankIdx, List<FluidEndpoint> group,
-        Map<BlockPos, List<ValveState>> pathValves
+        Map<BlockPos, List<ValveState>> pathValves, @Nullable Reachability reach
     ) {
         FluidStack stored = source.handler().getFluidInTank(tankIdx);
         for (FluidEndpoint target : group) {
@@ -444,8 +446,10 @@ public class FluidPipeNetwork {
             if (amount <= 0 || minValveRemaining(valvePath) < amount) {
                 continue;
             }
+            FluidStack moved = stored.copyWithAmount(amount);
             if (moveWholeCauldron(source, tankIdx, target, amount) == amount) {
                 deductValves(valvePath, amount);
+                showFluidAlongPipePath(moved, source, target, reach);
                 onTransferred(source);
                 return;
             }
@@ -490,7 +494,7 @@ public class FluidPipeNetwork {
 
     private boolean fillFirstWholeCauldronTarget(
         FluidEndpoint source, int tankIdx, List<FluidEndpoint> group,
-        Map<BlockPos, List<ValveState>> pathValves
+        Map<BlockPos, List<ValveState>> pathValves, @Nullable Reachability reach
     ) {
         for (FluidEndpoint target : group) {
             if (!isCauldron(target)) {
@@ -505,10 +509,12 @@ public class FluidPipeNetwork {
             if (minValveRemaining(valvePath) < amount) {
                 continue;
             }
+            FluidStack moved = stored.copyWithAmount(amount);
             if (moveWholeCauldron(source, tankIdx, target, amount) != amount) {
                 continue;
             }
             deductValves(valvePath, amount);
+            showFluidAlongPipePath(moved, source, target, reach);
             onTransferred(source);
             return true;
         }
@@ -586,15 +592,105 @@ public class FluidPipeNetwork {
         }
     }
 
-    private void showFluidInGlassPipes(FluidStack fluid) {
+    private void showFluidAlongPipePath(
+        FluidStack fluid, FluidEndpoint source, FluidEndpoint target, @Nullable Reachability reach
+    ) {
         if (level.isClientSide()) {
             return;
         }
-        for (BlockPos part : parts) {
-            if (level.getBlockEntity(part) instanceof PipeCheckValveBlockEntity pipe) {
-                pipe.showFluid(fluid);
+        List<BlockPos> path = reach == null
+            ? undirectedPipePath(source.fromPipePos(), target.fromPipePos())
+            : directionalPipePath(source.fromPipePos(), target.fromPipePos(), reach);
+        Map<BlockPos, EnumSet<Direction>> displayDirections = displayDirectionsByPipe(path, source, target);
+        for (BlockPos pos : path) {
+            if (level.getBlockEntity(pos) instanceof GlassPipeBlockEntity pipe) {
+                Set<Direction> directions = displayDirections.get(pos);
+                pipe.showFluid(fluid, directions == null ? Set.of() : directions);
             }
         }
+    }
+
+    private Map<BlockPos, EnumSet<Direction>> displayDirectionsByPipe(
+        List<BlockPos> path, FluidEndpoint source, FluidEndpoint target
+    ) {
+        Map<BlockPos, EnumSet<Direction>> directions = new HashMap<>();
+        for (BlockPos pos : path) {
+            directions.put(pos, EnumSet.noneOf(Direction.class));
+        }
+        for (int i = 1; i < path.size(); i++) {
+            addPipePathDirections(directions, path.get(i - 1), path.get(i));
+        }
+        addEndpointDirection(directions, source);
+        addEndpointDirection(directions, target);
+        return directions;
+    }
+
+    private static void addPipePathDirections(
+        Map<BlockPos, EnumSet<Direction>> directions, BlockPos first, BlockPos second
+    ) {
+        Direction direction = directionBetween(first, second);
+        if (direction == null) {
+            return;
+        }
+        directions.computeIfAbsent(first, key -> EnumSet.noneOf(Direction.class)).add(direction);
+        directions.computeIfAbsent(second, key -> EnumSet.noneOf(Direction.class)).add(direction.getOpposite());
+    }
+
+    private static void addEndpointDirection(
+        Map<BlockPos, EnumSet<Direction>> directions, FluidEndpoint endpoint
+    ) {
+        if (endpoint.sideToPipe() == null) {
+            return;
+        }
+        EnumSet<Direction> pipeDirections = directions.get(endpoint.fromPipePos());
+        if (pipeDirections != null) {
+            pipeDirections.add(endpoint.sideToPipe().getOpposite());
+        }
+    }
+
+    @Nullable
+    private static Direction directionBetween(BlockPos from, BlockPos to) {
+        return Direction.fromDelta(to.getX() - from.getX(), to.getY() - from.getY(), to.getZ() - from.getZ());
+    }
+
+    private List<BlockPos> directionalPipePath(BlockPos sourcePipe, BlockPos targetPipe, Reachability reach) {
+        if (!reach.pathValves().containsKey(targetPipe)) {
+            return List.of();
+        }
+        Set<BlockPos> seen = new HashSet<>();
+        Deque<BlockPos> path = new ArrayDeque<>();
+        BlockPos current = targetPipe;
+        while (current != null && seen.add(current)) {
+            path.addFirst(current);
+            if (current.equals(sourcePipe)) {
+                return new ArrayList<>(path);
+            }
+            current = reach.cameFrom().get(current);
+        }
+        return List.of();
+    }
+
+    private List<BlockPos> undirectedPipePath(BlockPos start, BlockPos target) {
+        final Set<BlockPos> visited = new HashSet<>();
+        final Deque<List<BlockPos>> queue = new ArrayDeque<>();
+        visited.add(start);
+        queue.add(List.of(start));
+        while (!queue.isEmpty()) {
+            List<BlockPos> path = queue.poll();
+            BlockPos current = path.get(path.size() - 1);
+            if (current.equals(target)) {
+                return path;
+            }
+            for (BlockPos next : adjacency.getOrDefault(current, List.of())) {
+                if (!visited.add(next)) {
+                    continue;
+                }
+                List<BlockPos> nextPath = new ArrayList<>(path);
+                nextPath.add(next);
+                queue.add(nextPath);
+            }
+        }
+        return start.equals(target) ? List.of(start) : List.of(start, target);
     }
 
     private static int totalCapacity(IFluidHandler handler) {
