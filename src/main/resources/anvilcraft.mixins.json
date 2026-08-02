@@ -10,7 +10,6 @@
       "BeaconMenuMixin",
       "BlockBehaviourMixin",
       "BlockMixin",
-      "BlockStateBaseMixin",
       "BlockStateMixin",
       "BuddingAmethystBlockMixin",
       "CandleCakeBlockMixin",
@@ -91,6 +90,7 @@
   ],
   "client": [
     "AbstractContainerScreenMixin",
+    "BlockStateBaseMixin",
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
     "GameRendererMixin",

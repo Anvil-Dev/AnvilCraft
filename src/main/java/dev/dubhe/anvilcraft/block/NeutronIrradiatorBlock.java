@@ -6,8 +6,6 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.NeutronIrradiatorBlockEntity;
 import dev.dubhe.anvilcraft.block.state.IrradiatorType;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import lombok.Getter;
-import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.RandomSource;
@@ -40,9 +38,6 @@ public class NeutronIrradiatorBlock extends Block implements IHammerRemovable, E
         new AABB(13, 10, 13, 16, 12, 16),
         new AABB(4, 10, 4, 12, 16, 12)
     );
-    @Getter
-    @Setter
-    private BlockState checkBlockState;
 
     @Override
     public VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
