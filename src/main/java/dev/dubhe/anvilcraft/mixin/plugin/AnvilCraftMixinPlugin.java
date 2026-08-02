@@ -33,12 +33,8 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         hasCerbonBetterBeacons = this.isLoaded("com/cerbon/better_beacons/BetterBeacons.class");
         hasJei = LoadingModList.get().getMods().stream().anyMatch(it -> it.getModId().equals("jei"));
         hasArchitectury = this.isLoaded("dev/architectury/neoforge/ArchitecturyNeoForge");
-        hasSodium = this.isLoaded(
-            "net/caffeinemc/mods/sodium/client/render/chunk/compile/pipeline/BlockOcclusionCache.class"
-        );
-        hasEmbeddium = this.isLoaded(
-            "org/embeddedt/embeddium/impl/render/chunk/compile/pipeline/BlockOcclusionCache.class"
-        );
+        hasSodium = LoadingModList.get().getMods().stream().anyMatch(it -> it.getModId().equals("sodium"));
+        hasEmbeddium = LoadingModList.get().getMods().stream().anyMatch(it -> it.getModId().equals("embeddium"));
     }
 
     @Override

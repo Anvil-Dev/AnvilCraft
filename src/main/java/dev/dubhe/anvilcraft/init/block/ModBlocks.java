@@ -161,6 +161,9 @@ import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockIt
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilPortalBlockItem;
+import dev.dubhe.anvilcraft.block.deco.EmberDecoOutlineBlock;
+import dev.dubhe.anvilcraft.block.deco.FrostDecoOutlineBlock;
+import dev.dubhe.anvilcraft.block.deco.TranscendenceDecoOutlineBlock;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.block.fluid.DrainBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
@@ -264,7 +267,6 @@ import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.RotatedPillarBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.StainedGlassBlock;
 import net.minecraft.world.level.block.StairBlock;
 import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.WallBlock;
@@ -2061,8 +2063,8 @@ public class ModBlocks {
         .simpleItem()
         .register();
 
-    public static final BlockEntry<StainedGlassBlock> FROST_DECO_OUTLINE = REGISTRUM
-        .block("frost_deco_outline", properties -> new StainedGlassBlock(DyeColor.WHITE, properties))
+    public static final BlockEntry<FrostDecoOutlineBlock> FROST_DECO_OUTLINE = REGISTRUM
+        .block("frost_deco_outline", FrostDecoOutlineBlock::new)
         .properties(properties -> properties.noOcclusion().lightLevel((state) -> 10).emissiveRendering(ModBlocks::always))
         .initialProperties(() -> Blocks.STONE)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -2181,8 +2183,8 @@ public class ModBlocks {
         .simpleItem()
         .register();
 
-    public static final BlockEntry<StainedGlassBlock> EMBER_DECO_OUTLINE = REGISTRUM
-        .block("ember_deco_outline", properties -> new StainedGlassBlock(DyeColor.YELLOW, properties))
+    public static final BlockEntry<EmberDecoOutlineBlock> EMBER_DECO_OUTLINE = REGISTRUM
+        .block("ember_deco_outline", EmberDecoOutlineBlock::new)
         .properties(properties -> properties.noOcclusion().lightLevel((state) -> 10).emissiveRendering(ModBlocks::always))
         .initialProperties(() -> Blocks.STONE)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
@@ -2222,8 +2224,8 @@ public class ModBlocks {
         .simpleItem()
         .register();
 
-    public static final BlockEntry<StainedGlassBlock> TRANSCENDENCE_DECO_OUTLINE = REGISTRUM
-        .block("transcendence_deco_outline", properties -> new StainedGlassBlock(DyeColor.PURPLE, properties))
+    public static final BlockEntry<TranscendenceDecoOutlineBlock> TRANSCENDENCE_DECO_OUTLINE = REGISTRUM
+        .block("transcendence_deco_outline", TranscendenceDecoOutlineBlock::new)
         .properties(properties -> properties.noOcclusion().lightLevel((state) -> 10).emissiveRendering(ModBlocks::always))
         .initialProperties(() -> Blocks.STONE)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)

@@ -107,7 +107,11 @@
     "SectionCompilerMixin",
     "SoundEngineMixin",
     "accessor.MultiPlayerGameModeAccessor",
-    "accessor.ScreenAccessor"
+    "accessor.ScreenAccessor",
+    "compat.EmbBlockOcclusionCacheMixin",
+    "compat.EmbChunkBuilderMeshingTaskMixin",
+    "compat.SodiumBlockOcclusionCacheMixin",
+    "compat.SodiumChunkBuilderMeshingTaskMixin"
   ],
   "plugin": "dev.dubhe.anvilcraft.mixin.plugin.AnvilCraftMixinPlugin",
   "injectors": {
