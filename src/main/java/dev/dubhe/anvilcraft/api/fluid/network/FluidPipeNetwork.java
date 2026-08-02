@@ -188,6 +188,7 @@ public class FluidPipeNetwork {
     private void distributeFromSource(FluidEndpoint source) {
         // 源接管口朝本源容器那一面若装止逆阀，其允许方向必须朝网络（背离容器），否则本源无法向网络排液
         if (!canDrainFromEndpoint(source)) {
+            showFluidBlockedAtSource(source);
             return;
         }
         IFluidHandler srcHandler = source.handler();
@@ -205,6 +206,7 @@ public class FluidPipeNetwork {
             // 按等效高度升序分组，仅收集严格更低、接受该流体、且可达的目标
             TreeMap<Integer, List<FluidEndpoint>> byHeight = collectTargetsByHeight(source, tankIdx, stored, reach);
             if (byHeight.isEmpty()) {
+                showFluidToBlockedPart(stored, source, tankIdx);
                 continue;
             }
             if (hasHigherPrioritySource(source, stored, byHeight)) {
@@ -287,6 +289,7 @@ public class FluidPipeNetwork {
                 }
             }
             if (active.isEmpty()) {
+                showFluidToBlockedPart(stored, source, tankIdx);
                 break;
             }
             int n = active.size();
@@ -621,8 +624,209 @@ public class FluidPipeNetwork {
         }
     }
 
+    private void showFluidBlockedAtSource(FluidEndpoint source) {
+        if (level.isClientSide() || glassPipePositions.isEmpty() || source.sideToPipe() == null) {
+            return;
+        }
+        IFluidHandler handler = source.handler();
+        for (int tankIdx = 0; tankIdx < handler.getTanks(); tankIdx++) {
+            FluidStack stored = handler.getFluidInTank(tankIdx);
+            if (stored.isEmpty()) {
+                continue;
+            }
+            BlockPos pipe = source.fromPipePos();
+            Direction toContainer = source.sideToPipe().getOpposite();
+            Map<Direction, Direction> faces = faceFlow.get(pipe);
+            Direction allowed = faces == null ? null : faces.get(toContainer);
+            if (allowed != null && allowed == toContainer && glassPipePositions.contains(pipe)
+                && level.getBlockEntity(pipe) instanceof GlassPipeBlockEntity glassPipe) {
+                glassPipe.showFluid(stored, Set.of(toContainer));
+            }
+            return;
+        }
+    }
+
+    private void showFluidToBlockedPart(FluidStack fluid, FluidEndpoint source, int tankIdx) {
+        if (level.isClientSide() || glassPipePositions.isEmpty() || (faceFlow.isEmpty() && valves.isEmpty())) {
+            return;
+        }
+        BlockedPath blockedPath = findBlockedPartPath(source, tankIdx, fluid);
+        if (blockedPath == null) {
+            return;
+        }
+        showFluidAlongBlockedPath(fluid, source, blockedPath);
+    }
+
+    @Nullable
+    private BlockedPath findBlockedPartPath(FluidEndpoint source, int tankIdx, FluidStack fluid) {
+        if (valvesAt(source.fromPipePos(), fluid, List.of()) == null) {
+            return null;
+        }
+        List<FluidEndpoint> targets = lowerFillableTargetsIgnoringReachability(source, tankIdx, fluid);
+        if (targets.isEmpty()) {
+            return null;
+        }
+        Set<BlockPos> targetPipes = new HashSet<>();
+        for (FluidEndpoint target : targets) {
+            targetPipes.add(target.fromPipePos());
+        }
+        Set<BlockPos> visitedOpen = new HashSet<>();
+        Set<BlockPos> visitedBlocked = new HashSet<>();
+        Deque<BlockedSearchState> queue = new ArrayDeque<>();
+        BlockPos start = source.fromPipePos();
+        visitedOpen.add(start);
+        queue.add(new BlockedSearchState(List.of(start), null, null));
+        while (!queue.isEmpty()) {
+            BlockedSearchState state = queue.poll();
+            List<BlockPos> path = state.path();
+            BlockPos current = path.get(path.size() - 1);
+            BlockPos previous = path.size() < 2 ? null : path.get(path.size() - 2);
+            BlockedPath blockedEndpoint = blockedEndpointPath(path, targets, current);
+            if (blockedEndpoint != null) {
+                return blockedEndpoint;
+            }
+            for (BlockPos next : adjacency.getOrDefault(current, List.of())) {
+                BlockedFaceValve blocked = !canPassFaceValve(current, next)
+                    ? blockedFaceValve(current, next)
+                    : null;
+                if (blocked == null) {
+                    blocked = blockedControlValve(current, next, fluid);
+                }
+                if (!canLeaveDiode(current, previous, next)) {
+                    continue;
+                }
+                if (blocked == null && valvesAt(next, fluid, List.of()) == null) {
+                    continue;
+                }
+                BlockPos blockedPos = state.blockedPos();
+                Direction blockedFace = state.blockedFace();
+                if (blocked != null && blockedPos == null) {
+                    blockedPos = blocked.pos();
+                    blockedFace = blocked.face();
+                }
+                boolean hasBlocked = blockedPos != null;
+                Set<BlockPos> visited = hasBlocked ? visitedBlocked : visitedOpen;
+                if (!visited.add(next)) {
+                    continue;
+                }
+                List<BlockPos> nextPath = new ArrayList<>(path);
+                nextPath.add(next);
+                if (hasBlocked && targetPipes.contains(next)) {
+                    return new BlockedPath(trimPathToBlockedPos(nextPath, blockedPos), blockedPos, blockedFace);
+                }
+                queue.add(new BlockedSearchState(nextPath, blockedPos, blockedFace));
+            }
+        }
+        return null;
+    }
+
+    private List<FluidEndpoint> lowerFillableTargetsIgnoringReachability(
+        FluidEndpoint source, int tankIdx, FluidStack stored
+    ) {
+        List<FluidEndpoint> targets = new ArrayList<>();
+        for (FluidEndpoint endpoint : endpoints) {
+            if (canTargetIgnoringReachability(source, tankIdx, endpoint, stored)) {
+                targets.add(endpoint);
+            }
+        }
+        return targets;
+    }
+
+    private boolean canTargetIgnoringReachability(
+        FluidEndpoint source, int tankIdx, FluidEndpoint target, FluidStack stored
+    ) {
+        if (!isEndpointConnected(source)
+            || !isEndpointConnected(target)
+            || target == source
+            || target.effectiveHeight() >= source.effectiveHeight()) {
+            return false;
+        }
+        if (target.handler().equals(source.handler())) {
+            return false;
+        }
+        if (isCauldron(source) || isCauldron(target)) {
+            return wholeCauldronTransferAmount(source, tankIdx, target, stored) > 0;
+        }
+        return target.handler().fill(stored.copyWithAmount(1), IFluidHandler.FluidAction.SIMULATE) > 0;
+    }
+
+    @Nullable
+    private BlockedPath blockedEndpointPath(List<BlockPos> path, List<FluidEndpoint> targets, BlockPos pipe) {
+        Map<Direction, Direction> faces = faceFlow.get(pipe);
+        if (faces == null) {
+            return null;
+        }
+        for (FluidEndpoint target : targets) {
+            if (!target.fromPipePos().equals(pipe) || target.sideToPipe() == null) {
+                continue;
+            }
+            Direction toContainer = target.sideToPipe().getOpposite();
+            Direction allowed = faces.get(toContainer);
+            if (allowed != null && allowed != toContainer) {
+                return new BlockedPath(path, pipe, toContainer);
+            }
+        }
+        return null;
+    }
+
+    private static List<BlockPos> trimPathToBlockedPos(List<BlockPos> path, BlockPos blockedPos) {
+        int blockedIndex = path.indexOf(blockedPos);
+        if (blockedIndex < 0) {
+            return path;
+        }
+        return new ArrayList<>(path.subList(0, blockedIndex + 1));
+    }
+
+    @Nullable
+    private BlockedFaceValve blockedControlValve(BlockPos cur, BlockPos next, FluidStack fluid) {
+        ValveState valve = valves.get(next);
+        if (valve == null || (valve.allows(fluid) && valve.remaining() > 0)) {
+            return null;
+        }
+        Direction direction = directionBetween(cur, next);
+        return direction == null ? null : new BlockedFaceValve(cur, direction);
+    }
+
+    @Nullable
+    private BlockedFaceValve blockedFaceValve(BlockPos cur, BlockPos next) {
+        Direction direction = directionBetween(cur, next);
+        if (direction == null) {
+            return null;
+        }
+        Map<Direction, Direction> curFaces = faceFlow.get(cur);
+        if (curFaces != null) {
+            Direction allowed = curFaces.get(direction);
+            if (allowed != null && allowed != direction) {
+                return new BlockedFaceValve(cur, direction);
+            }
+        }
+        Map<Direction, Direction> nextFaces = faceFlow.get(next);
+        if (nextFaces != null) {
+            Direction allowed = nextFaces.get(direction.getOpposite());
+            if (allowed != null && allowed != direction) {
+                return new BlockedFaceValve(cur, direction);
+            }
+        }
+        return null;
+    }
+
+    private void showFluidAlongBlockedPath(FluidStack fluid, FluidEndpoint source, BlockedPath blockedPath) {
+        List<BlockPos> path = blockedPath.path();
+        Map<BlockPos, EnumSet<Direction>> displayDirections = displayDirectionsByPipe(path, source, null);
+        displayDirections.computeIfAbsent(blockedPath.blockedPos(), key -> EnumSet.noneOf(Direction.class))
+            .add(blockedPath.blockedFace());
+        for (BlockPos pos : path) {
+            if (!glassPipePositions.contains(pos)) {
+                continue;
+            }
+            if (level.getBlockEntity(pos) instanceof GlassPipeBlockEntity pipe) {
+                pipe.showFluid(fluid, displayDirections.getOrDefault(pos, EnumSet.noneOf(Direction.class)));
+            }
+        }
+    }
+
     private Map<BlockPos, EnumSet<Direction>> displayDirectionsByPipe(
-        List<BlockPos> path, FluidEndpoint source, FluidEndpoint target
+        List<BlockPos> path, FluidEndpoint source, @Nullable FluidEndpoint target
     ) {
         Map<BlockPos, EnumSet<Direction>> directions = new HashMap<>();
         for (BlockPos pos : path) {
@@ -632,7 +836,9 @@ public class FluidPipeNetwork {
             addPipePathDirections(directions, path.get(i - 1), path.get(i));
         }
         addEndpointDirection(directions, source);
-        addEndpointDirection(directions, target);
+        if (target != null) {
+            addEndpointDirection(directions, target);
+        }
         return directions;
     }
 
@@ -750,6 +956,17 @@ public class FluidPipeNetwork {
     }
 
     private record CachedReachability(FluidStack fluid, Reachability reachability) {
+    }
+
+    private record BlockedPath(List<BlockPos> path, BlockPos blockedPos, Direction blockedFace) {
+    }
+
+    private record BlockedFaceValve(BlockPos pos, Direction face) {
+    }
+
+    private record BlockedSearchState(
+        List<BlockPos> path, @Nullable BlockPos blockedPos, @Nullable Direction blockedFace
+    ) {
     }
 
     /**
