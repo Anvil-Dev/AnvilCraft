@@ -63,12 +63,34 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBl
         MultiBufferSource buffer,
         int packedLight
     ) {
+        if (displayDirections.isEmpty()) {
+            return;
+        }
         float[] min = {FLUID_MIN, FLUID_MIN, FLUID_MIN};
         float[] max = {FLUID_MAX, FLUID_MAX, FLUID_MAX};
         if (state.getBlock() instanceof PipeStraightBlock) {
             Direction.Axis axis = state.getValue(PipeBlock.AXIS);
             Direction startDirection = Direction.get(Direction.AxisDirection.NEGATIVE, axis);
             Direction endDirection = Direction.get(Direction.AxisDirection.POSITIVE, axis);
+            EnumSet<Direction> renderedDirections = visibleDirections(
+                displayDirections, startDirection, endDirection);
+            if (renderedDirections.isEmpty()) {
+                return;
+            }
+            if (renderedDirections.size() < 2) {
+                renderFluidBox(fluid, min, max, poseStack, buffer, packedLight, renderedDirections);
+                for (Direction direction : renderedDirections) {
+                    renderFluidArm(
+                        fluid,
+                        direction,
+                        poseStack,
+                        buffer,
+                        packedLight,
+                        EnumSet.of(direction.getOpposite(), direction)
+                    );
+                }
+                return;
+            }
             extendFluidBounds(startDirection, min, max);
             extendFluidBounds(endDirection, min, max);
             renderFluidBox(
@@ -85,6 +107,11 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBl
             PipeBlock.CornerEnded corner = state.getValue(PipeBlock.CORNER_ENDED);
             Direction firstDirection = corner.getFirstDirection();
             Direction secondDirection = corner.getSecondDirection();
+            EnumSet<Direction> renderedDirections = visibleDirections(
+                displayDirections, firstDirection, secondDirection);
+            if (renderedDirections.isEmpty()) {
+                return;
+            }
             renderFluidBox(
                 fluid,
                 min,
@@ -92,14 +119,19 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBl
                 poseStack,
                 buffer,
                 packedLight,
-                EnumSet.of(firstDirection, secondDirection)
+                renderedDirections
             );
 
-            EnumSet<Direction> firstSkippedSides = EnumSet.of(firstDirection.getOpposite(), firstDirection);
-            renderFluidArm(fluid, firstDirection, poseStack, buffer, packedLight, firstSkippedSides);
-
-            EnumSet<Direction> secondSkippedSides = EnumSet.of(secondDirection.getOpposite(), secondDirection);
-            renderFluidArm(fluid, secondDirection, poseStack, buffer, packedLight, secondSkippedSides);
+            for (Direction direction : renderedDirections) {
+                renderFluidArm(
+                    fluid,
+                    direction,
+                    poseStack,
+                    buffer,
+                    packedLight,
+                    EnumSet.of(direction.getOpposite(), direction)
+                );
+            }
             return;
         } else if (state.getBlock() instanceof PipeNodeBlock) {
             EnumSet<Direction> renderedDirections = EnumSet.noneOf(Direction.class);
@@ -125,6 +157,19 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBl
             return;
         }
         renderFluidBox(fluid, min, max, poseStack, buffer, packedLight);
+    }
+
+    private static EnumSet<Direction> visibleDirections(
+        Set<Direction> displayDirections, Direction firstDirection, Direction secondDirection
+    ) {
+        EnumSet<Direction> renderedDirections = EnumSet.noneOf(Direction.class);
+        if (displayDirections.contains(firstDirection)) {
+            renderedDirections.add(firstDirection);
+        }
+        if (displayDirections.contains(secondDirection)) {
+            renderedDirections.add(secondDirection);
+        }
+        return renderedDirections;
     }
 
     private static void renderFluidArm(

@@ -43,6 +43,9 @@ public class GlassPipeBlockEntity extends AbstractPipeCheckValveBlockEntity {
         if (this.level == null || this.displayFluid.isEmpty() || this.level.getGameTime() > this.displayUntil) {
             return Set.of();
         }
+        if (this.displayDirections.isEmpty()) {
+            return Set.of();
+        }
         return EnumSet.copyOf(this.displayDirections);
     }
 
@@ -54,10 +57,10 @@ public class GlassPipeBlockEntity extends AbstractPipeCheckValveBlockEntity {
             return;
         }
         long gameTime = this.level.getGameTime();
+        final long displayEndGameTime = alignedDisplayEndGameTime(gameTime);
         final boolean expired = gameTime > this.displayUntil;
         final boolean sameFluid = !this.displayFluid.isEmpty()
             && FluidStack.isSameFluidSameComponents(this.displayFluid, fluid);
-        final long displayEndGameTime = gameTime + DISPLAY_DURATION;
         boolean directionsChanged = this.updateDisplayDirections(directions, gameTime, displayEndGameTime, expired || !sameFluid);
         final boolean changed = expired || !sameFluid || directionsChanged;
         this.displayFluid = fluid.copyWithAmount(1);
@@ -65,10 +68,18 @@ public class GlassPipeBlockEntity extends AbstractPipeCheckValveBlockEntity {
         if (changed) {
             this.setChanged();
         }
-        if (changed || gameTime - this.lastDisplaySync >= DISPLAY_SYNC_INTERVAL) {
+        if (changed || this.shouldSyncDisplay(gameTime)) {
             this.lastDisplaySync = gameTime;
             this.sendUpdate();
         }
+    }
+
+    private static long alignedDisplayEndGameTime(long gameTime) {
+        return ((gameTime / DISPLAY_SYNC_INTERVAL) + 1) * DISPLAY_SYNC_INTERVAL + DISPLAY_DURATION;
+    }
+
+    private boolean shouldSyncDisplay(long gameTime) {
+        return gameTime != this.lastDisplaySync && gameTime % DISPLAY_SYNC_INTERVAL == 0;
     }
 
     private boolean updateDisplayDirections(
