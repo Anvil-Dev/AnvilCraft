@@ -17,6 +17,8 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     private static boolean hasCerbonBetterBeacons = false;
     private static boolean hasJei = false;
     private static boolean hasArchitectury = false;
+    private static boolean hasSodium = false;
+    private static boolean hasEmbeddium = false;
 
     private boolean isLoaded(String clazz) {
         return AnvilCraftMixinPlugin.class.getClassLoader().getResource(clazz) != null;
@@ -31,6 +33,12 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         hasCerbonBetterBeacons = this.isLoaded("com/cerbon/better_beacons/BetterBeacons.class");
         hasJei = LoadingModList.get().getMods().stream().anyMatch(it -> it.getModId().equals("jei"));
         hasArchitectury = this.isLoaded("dev/architectury/neoforge/ArchitecturyNeoForge");
+        hasSodium = this.isLoaded(
+            "net/caffeinemc/mods/sodium/client/render/chunk/compile/pipeline/BlockOcclusionCache.class"
+        );
+        hasEmbeddium = this.isLoaded(
+            "org/embeddedt/embeddium/impl/render/chunk/compile/pipeline/BlockOcclusionCache.class"
+        );
     }
 
     @Override
@@ -47,6 +55,8 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         if (mixinClassName.contains("Cerbon")) return hasCerbonBetterBeacons;
         if (mixinClassName.contains("Jei")) return hasJei;
         if (mixinClassName.contains("Architectury")) return hasArchitectury;
+        if (mixinClassName.contains(".compat.Sodium")) return hasSodium;
+        if (mixinClassName.contains(".compat.Emb")) return hasEmbeddium;
         return true;
     }
 
