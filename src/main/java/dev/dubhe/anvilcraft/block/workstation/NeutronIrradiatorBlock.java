@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.workstation;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.api.block.INegativeMatterBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.NeutronIrradiatorBlockEntity;
 import dev.dubhe.anvilcraft.block.state.IrradiatorType;
@@ -26,7 +27,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-public class NeutronIrradiatorBlock extends BaseEntityBlock implements IHammerRemovable {
+public class NeutronIrradiatorBlock extends BaseEntityBlock implements IHammerRemovable, INegativeMatterBlock {
     public static VoxelShape MODEL = Shapes.or(
         Block.box(0, 0, 0, 16, 10, 16),
         Block.box(13, 10, 0, 16, 12, 3),
