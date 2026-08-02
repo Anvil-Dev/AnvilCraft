@@ -119,6 +119,7 @@
 			"from": [3.975, 3.975, 3.975],
 			"to": [0.025, 0.025, 0.025],
 			"shade": false,
+			"light_emission": 15,
 			"faces": {
 				"north": {"uv": [0, 4, 4, 0], "texture": "#1"},
 				"east": {"uv": [0, 4, 4, 0], "texture": "#1"},
@@ -133,6 +134,7 @@
 			"from": [15.975, 3.975, 3.975],
 			"to": [12.025, 0.025, 0.025],
 			"shade": false,
+			"light_emission": 15,
 			"faces": {
 				"north": {"uv": [0, 4, 4, 0], "texture": "#1"},
 				"east": {"uv": [0, 4, 4, 0], "texture": "#1"},
@@ -147,6 +149,7 @@
 			"from": [3.975, 3.975, 15.975],
 			"to": [0.025, 0.025, 12.025],
 			"shade": false,
+			"light_emission": 15,
 			"faces": {
 				"north": {"uv": [0, 4, 4, 0], "texture": "#1"},
 				"east": {"uv": [0, 4, 4, 0], "texture": "#1"},
@@ -161,6 +164,7 @@
 			"from": [15.975, 3.975, 15.975],
 			"to": [12.025, 0.025, 12.025],
 			"shade": false,
+			"light_emission": 15,
 			"faces": {
 				"north": {"uv": [0, 4, 4, 0], "texture": "#1"},
 				"east": {"uv": [0, 4, 4, 0], "texture": "#1"},
@@ -175,6 +179,7 @@
 			"from": [3.975, 15.975, 3.975],
 			"to": [0.025, 12.025, 0.025],
 			"shade": false,
+			"light_emission": 15,
 			"faces": {
 				"north": {"uv": [0, 4, 4, 0], "texture": "#1"},
 				"east": {"uv": [0, 4, 4, 0], "texture": "#1"},
@@ -189,6 +194,7 @@
 			"from": [15.975, 15.975, 3.975],
 			"to": [12.025, 12.025, 0.025],
 			"shade": false,
+			"light_emission": 15,
 			"faces": {
 				"north": {"uv": [0, 4, 4, 0], "texture": "#1"},
 				"east": {"uv": [0, 4, 4, 0], "texture": "#1"},
@@ -203,6 +209,7 @@
 			"from": [3.975, 15.975, 15.975],
 			"to": [0.025, 12.025, 12.025],
 			"shade": false,
+			"light_emission": 15,
 			"faces": {
 				"north": {"uv": [0, 4, 4, 0], "texture": "#1"},
 				"east": {"uv": [0, 4, 4, 0], "texture": "#1"},
@@ -217,6 +224,7 @@
 			"from": [15.975, 15.975, 15.975],
 			"to": [12.025, 12.025, 12.025],
 			"shade": false,
+			"light_emission": 15,
 			"faces": {
 				"north": {"uv": [0, 4, 4, 0], "texture": "#1"},
 				"east": {"uv": [0, 4, 4, 0], "texture": "#1"},
