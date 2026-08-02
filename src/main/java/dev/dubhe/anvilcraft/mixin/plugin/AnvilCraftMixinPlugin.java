@@ -55,8 +55,8 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         if (mixinClassName.contains("Cerbon")) return hasCerbonBetterBeacons;
         if (mixinClassName.contains("Jei")) return hasJei;
         if (mixinClassName.contains("Architectury")) return hasArchitectury;
-        if (mixinClassName.contains(".compat.Sodium")) return hasSodium;
-        if (mixinClassName.contains(".compat.Emb")) return hasEmbeddium;
+        if (mixinClassName.contains("Sodium")) return hasSodium;
+        if (mixinClassName.contains("Emb")) return hasEmbeddium;
         return true;
     }
 
