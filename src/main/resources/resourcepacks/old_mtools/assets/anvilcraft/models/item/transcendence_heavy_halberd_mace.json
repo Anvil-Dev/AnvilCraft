@@ -1,0 +1,6 @@
+{
+	"parent": "anvilcraft:item/ember_metal_heavy_halberd_mace",
+	"textures": {
+		"1": "anvilcraft:item/transcendence_heavy_halberd"
+	}
+}

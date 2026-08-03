@@ -1,4 +1,5 @@
 {
+	"format_version": "1.9.0",
 	"credit": "Made by XeKr with Blockbench",
 	"textures": {
 		"0": "anvilcraft:item/ember_metal_heavy_halberd",
@@ -339,12 +340,14 @@
 		{
 			"name": "group",
 			"origin": [8, 8, 8],
+			"scope": 0,
 			"color": 0,
 			"children": [0, 1, 2, 3, 4]
 		},
 		{
 			"name": "group",
 			"origin": [11, 11, 8],
+			"scope": 0,
 			"color": 0,
 			"children": [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
 		},
