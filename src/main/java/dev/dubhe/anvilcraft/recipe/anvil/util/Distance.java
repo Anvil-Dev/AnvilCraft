@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.recipe.anvil.util;
 
 import com.google.common.collect.AbstractIterator;
+import com.google.common.collect.Iterables;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
@@ -72,7 +73,7 @@ public record Distance(Type type, int distance, boolean isHorizontal) {
      */
     public Iterable<BlockPos> getAllPosesInRange(Vec3 centerPos) {
         final BlockPos center = BlockPos.containing(centerPos.x, centerPos.y, centerPos.z);
-        return switch (this.type) {
+        Iterable<BlockPos> result = switch (this.type) {
             case EUCLIDEAN -> () -> new AbstractIterator<>() {
                 private final int radiusSq = distance * distance;
 
@@ -104,6 +105,11 @@ public record Distance(Type type, int distance, boolean isHorizontal) {
                 center.offset(this.distance, this.distance, this.distance)
             );
         };
+        if (this.isHorizontal) {
+            int y = center.getY();
+            result = Iterables.filter(result, pos -> pos.getY() == y);
+        }
+        return result;
     }
 
     /**
