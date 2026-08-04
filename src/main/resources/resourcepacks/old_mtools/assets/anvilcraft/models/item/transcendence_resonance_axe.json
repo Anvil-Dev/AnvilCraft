@@ -1,0 +1,6 @@
+{
+	"parent": "anvilcraft:item/ember_metal_resonance_axe",
+	"textures": {
+		"1": "anvilcraft:item/transcendence_resonator"
+	}
+}

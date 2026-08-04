@@ -1,0 +1,6 @@
+{
+	"parent": "anvilcraft:item/ember_metal_resonance_hoe",
+	"textures": {
+		"1": "anvilcraft:item/transcendence_resonator"
+	}
+}
