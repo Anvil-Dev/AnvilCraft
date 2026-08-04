@@ -55,14 +55,6 @@ public record ProduceHeat(List<HeatData> heatData, Distance distance) implements
         return ModRecipeOutcomeTypes.PRODUCE_HEAT.get();
     }
 
-    /** 炼药锅周围4个方块的相对位置（东、西、南、北），锅在铁砧正下方1格 */
-    private static final BlockPos[] CAULDRON_NEIGHBORS = {
-        new BlockPos(1, -1, 0),
-        new BlockPos(-1, -1, 0),
-        new BlockPos(0, -1, 1),
-        new BlockPos(0, -1, -1)
-    };
-
     /**
      * 接受配方上下文并处理产生热量的结果
      *
@@ -72,8 +64,7 @@ public record ProduceHeat(List<HeatData> heatData, Distance distance) implements
     public void accept(InWorldRecipeContext context) {
         ServerLevel level = context.getLevel();
         BlockPos center = BlockPos.containing(context.getPos());
-        for (BlockPos offset : CAULDRON_NEIGHBORS) {
-            BlockPos pos = center.offset(offset);
+        for (BlockPos pos : this.distance.getAllPosesInRange(center.below().getCenter())) {
             BlockState state = level.getBlockState(pos);
             if (!state.is(ModBlockTags.HEATABLE_BLOCKS)) continue;
 

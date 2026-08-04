@@ -59,11 +59,11 @@ public class ItemTooltipManager {
             ModBlocks.ROYAL_ANVIL.asItem(), """
                 Never triggers Too Expensive
                 Explosion proof, does not degrade from falling""");
-        NORMAL.put(ModBlocks.ROYAL_GRINDSTONE.asItem(), "Removes curses and enchantment penalties, Explosion proof");
+        NORMAL.put(ModBlocks.ROYAL_GRINDSTONE.asItem(), "Removes curses and repair costs, Explosion proof");
         NORMAL.put(ModBlocks.ROYAL_SMITHING_TABLE.asItem(), "Does not consume Smithing Templates, Explosion proof");
         NORMAL.put(
             ModBlocks.TRANSCENDENCE_SMITHING_TABLE.asItem(),
-            "Performs all smithing operations without physical templates\nExplosion, Wither and Ender Dragon proof"
+            "Performs all smithing operations with no templates required\nExplosion, Wither and Ender Dragon proof"
         );
         NORMAL.put(ModBlocks.HEATER.asItem(), "Heating the block above, consumes 16 kW");
         NORMAL.put(
@@ -307,7 +307,7 @@ public class ItemTooltipManager {
         NORMAL.put(
             ModBlocks.TRANSCENDENCE_GRINDSTONE.asItem(),
             """
-            Removes curses and enchantment penalties, selectively removes or transfers multiple enchantments
+            Removes curses and repair costs, selectively removes or transfers multiple enchantments
             Immune to most destruction methods"""
         );
         NORMAL.put(ModBlocks.TRANSCENDENCE_DECO_BLOCK.asItem(), "Transcendium decorative block – low content, not indestructible.");
