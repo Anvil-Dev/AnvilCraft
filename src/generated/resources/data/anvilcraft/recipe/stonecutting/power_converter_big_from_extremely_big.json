@@ -1,0 +1,10 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": {
+    "item": "anvilcraft:power_converter_extremely_big"
+  },
+  "result": {
+    "count": 64,
+    "id": "anvilcraft:power_converter_big"
+  }
+}

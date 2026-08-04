@@ -1,0 +1,34 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "anvilcraft:power_converter_super_big"
+    },
+    {
+      "item": "anvilcraft:power_converter_super_big"
+    },
+    {
+      "item": "anvilcraft:power_converter_super_big"
+    },
+    {
+      "item": "anvilcraft:power_converter_super_big"
+    },
+    {
+      "item": "anvilcraft:power_converter_super_big"
+    },
+    {
+      "item": "anvilcraft:power_converter_super_big"
+    },
+    {
+      "item": "anvilcraft:power_converter_super_big"
+    },
+    {
+      "item": "anvilcraft:power_converter_super_big"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:power_converter_extremely_big"
+  }
+}
