@@ -576,13 +576,6 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_MIDDLE)
             )
             .save(provider, ctx.getId() + "_from_middle");
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-            .requires(ModBlocks.POWER_CONVERTER_SMALL, 64)
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_SMALL),
-                AnvilCraftDatagen.has(ModBlocks.POWER_CONVERTER_SMALL)
-            )
-            .save(provider, ctx.getId() + "_from_small");
         SingleItemRecipeBuilder.stonecutting(
                 Ingredient.of(ModBlocks.POWER_CONVERTER_SUPER_BIG),
                 RecipeCategory.MISC,
