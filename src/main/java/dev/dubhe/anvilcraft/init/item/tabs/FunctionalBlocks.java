@@ -73,6 +73,8 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.POWER_CONVERTER_SMALL); // 能量转换器（小）
         this.plain(ModBlocks.POWER_CONVERTER_MIDDLE); // 能量转换器（中）
         this.plain(ModBlocks.POWER_CONVERTER_BIG); // 能量转换器（大）
+        this.plain(ModBlocks.POWER_CONVERTER_SUPER_BIG); // 能量转换器（超大）
+        this.plain(ModBlocks.POWER_CONVERTER_EXTREMELY_BIG); // 能量转换器（极大）
 
         this.plain(ModBlocks.CHARGER); // 充电器
         this.plain(ModBlocks.DISCHARGER); // 放电器

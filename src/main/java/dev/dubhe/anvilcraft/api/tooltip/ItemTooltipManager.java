@@ -4,8 +4,10 @@ import com.google.common.collect.Maps;
 import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.block.PowerConverterBigBlock;
+import dev.dubhe.anvilcraft.block.PowerConverterExtremelyBigBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
+import dev.dubhe.anvilcraft.block.PowerConverterSuperBigBlock;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -796,6 +798,20 @@ public class ItemTooltipManager {
             tooltip.add(
                 1,
                 Component.translatable("tooltip.anvilcraft.item.power_converter", PowerConverterBigBlock.INPUT_TIME)
+                    .withStyle(ChatFormatting.GRAY)
+            );
+        }
+        if (stack.is(ModBlocks.POWER_CONVERTER_SUPER_BIG.asItem())) {
+            tooltip.add(
+                1,
+                Component.translatable("tooltip.anvilcraft.item.power_converter", PowerConverterSuperBigBlock.INPUT_TIME)
+                    .withStyle(ChatFormatting.GRAY)
+            );
+        }
+        if (stack.is(ModBlocks.POWER_CONVERTER_EXTREMELY_BIG.asItem())) {
+            tooltip.add(
+                1,
+                Component.translatable("tooltip.anvilcraft.item.power_converter", PowerConverterExtremelyBigBlock.INPUT_TIME)
                     .withStyle(ChatFormatting.GRAY)
             );
         }

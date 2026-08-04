@@ -6,6 +6,8 @@ items:
   - anvilcraft:power_converter_small
   - anvilcraft:power_converter_middle
   - anvilcraft:power_converter_big
+  - anvilcraft:power_converter_super_big
+  - anvilcraft:power_converter_extremely_big
   - anvilcraft:fe_collector
 ---
 
@@ -17,24 +19,36 @@ items:
 
 <row halign="center">
 <recipe id="anvilcraft:power_converter_big"/>
-<recipe id="anvilcraft:stonecutting/power_converter_middle"/>
-<recipe id="anvilcraft:stonecutting/power_converter_small_from_big"/>
 </row>
 <row halign="center">
 <recipe id="anvilcraft:power_converter_middle_from_small"/>
 <recipe id="anvilcraft:power_converter_big_from_middle"/>
-<recipe id="anvilcraft:power_converter_big_from_small"/>
+<recipe id="anvilcraft:power_converter_super_big_from_big"/>
+<recipe id="anvilcraft:power_converter_extremely_big_from_super_big"/>
+</row>
+<row halign="center">
+<recipe id="anvilcraft:stonecutting/power_converter_super_big_from_extremely_big"/>
+<recipe id="anvilcraft:stonecutting/power_converter_big_from_extremely_big"/>
+<recipe id="anvilcraft:stonecutting/power_converter_big_from_super_big"/>
+<recipe id="anvilcraft:stonecutting/power_converter_middle_from_super_big"/>
+</row>
+<row halign="center">
+<recipe id="anvilcraft:stonecutting/power_converter_middle"/>
+<recipe id="anvilcraft:stonecutting/power_converter_small_from_big"/>
+<recipe id="anvilcraft:stonecutting/power_converter_small_from_middle"/>
 </row>
 
 - 将铁砧工艺的电力，单向转换为FE/RF/AE能量
 - 转换带有损耗
 - 大小不同，转换能量不同，详情见下表
 
-|                      能量转换器                      | 消耗(kW) | 等价能量(FE/t) | 损耗后转换出的能量(FE/t) |
-|:-----------------------------------------------:|:------:|:----------:|:---------------:|
-| <ref item="anvilcraft:power_converter_small"/>  |   1    |    100     |       90        |
-| <ref item="anvilcraft:power_converter_middle"/> |   16   |    1600    |      1440       |
-|  <ref item="anvilcraft:power_converter_big"/>   |  256   |   25600    |      23040      |
+|                         能量转换器                          | 消耗(kW) | 等价能量(FE/t) | 损耗后转换出的能量(FE/t) |
+|:------------------------------------------------------:|:------:|:----------:|:---------------:|
+|     <ref item="anvilcraft:power_converter_small"/>     |   1    |    100     |       90        |
+|    <ref item="anvilcraft:power_converter_middle"/>     |   16   |    1600    |      1440       |
+|      <ref item="anvilcraft:power_converter_big"/>      |  256   |   25600    |      23040      |
+| <ref item="anvilcraft:power_converter_super_big"/>     |  4096  |   409600   |     368640      |
+| <ref item="anvilcraft:power_converter_extremely_big"/> | 65536  |  6553600   |     5898240     |
 
 <info>
 默认配置下：1kW = 100FE/t，转换损耗率10%；可以通过config配置
