@@ -105,8 +105,10 @@ import dev.dubhe.anvilcraft.block.OverseerBlock;
 import dev.dubhe.anvilcraft.block.PiezoelectricCrystalBlock;
 import dev.dubhe.anvilcraft.block.PlasmaJetsBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterBigBlock;
+import dev.dubhe.anvilcraft.block.PowerConverterExtremelyBigBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
+import dev.dubhe.anvilcraft.block.PowerConverterSuperBigBlock;
 import dev.dubhe.anvilcraft.block.PropelPiston;
 import dev.dubhe.anvilcraft.block.PulseGeneratorBlock;
 import dev.dubhe.anvilcraft.block.RadioactiveBlock;
@@ -1041,6 +1043,50 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(ModBlockTags.POWER_CONVERTER)
         .recipe(RegistrumBlockRecipeLoader::powerConverterBig)
+        .item()
+        .model((ctx, provider) -> provider.blockItem(ctx))
+        .tag(ModItemTags.POWER_CONVERTER)
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PowerConverterSuperBigBlock> POWER_CONVERTER_SUPER_BIG = REGISTRUM.block(
+            "power_converter_super_big",
+            PowerConverterSuperBigBlock::new
+        )
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties.isValidSpawn(Blocks::never).lightLevel(state -> {
+            if (state.getValue(OVERLOAD) || state.getValue(BlockStateProperties.POWERED)) {
+                return 6;
+            } else {
+                return 15;
+            }
+        }))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(ModBlockTags.POWER_CONVERTER)
+        .recipe(RegistrumBlockRecipeLoader::powerConverterSuperBig)
+        .item()
+        .model((ctx, provider) -> provider.blockItem(ctx))
+        .tag(ModItemTags.POWER_CONVERTER)
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<PowerConverterExtremelyBigBlock> POWER_CONVERTER_EXTREMELY_BIG = REGISTRUM.block(
+            "power_converter_extremely_big",
+            PowerConverterExtremelyBigBlock::new
+        )
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties.isValidSpawn(Blocks::never).lightLevel(state -> {
+            if (state.getValue(OVERLOAD) || state.getValue(BlockStateProperties.POWERED)) {
+                return 6;
+            } else {
+                return 15;
+            }
+        }))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(ModBlockTags.POWER_CONVERTER)
+        .recipe(RegistrumBlockRecipeLoader::powerConverterExtremelyBig)
         .item()
         .model((ctx, provider) -> provider.blockItem(ctx))
         .tag(ModItemTags.POWER_CONVERTER)

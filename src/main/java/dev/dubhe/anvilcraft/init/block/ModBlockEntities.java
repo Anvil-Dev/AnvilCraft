@@ -203,7 +203,13 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<PowerConverterBlockEntity> POWER_CONVERTER = REGISTRUM.blockEntity(
         "power_converter",
         PowerConverterBlockEntity::createBlockEntity
-    ).validBlocks(ModBlocks.POWER_CONVERTER_SMALL, ModBlocks.POWER_CONVERTER_MIDDLE, ModBlocks.POWER_CONVERTER_BIG).register();
+    ).validBlocks(
+        ModBlocks.POWER_CONVERTER_SMALL,
+        ModBlocks.POWER_CONVERTER_MIDDLE,
+        ModBlocks.POWER_CONVERTER_BIG,
+        ModBlocks.POWER_CONVERTER_SUPER_BIG,
+        ModBlocks.POWER_CONVERTER_EXTREMELY_BIG
+    ).register();
 
     public static final BlockEntityEntry<RemoteTransmissionPoleBlockEntity> REMOTE_TRANSMISSION_POLE = REGISTRUM.blockEntity(
         "remote_transmission_pole",

@@ -41,7 +41,11 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
     }
 
     int getMaxEnergy() {
-        return inputPower * 10000;
+        long maxEnergy = (long) inputPower
+            * AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency
+            * 20
+            * 5;
+        return (int) Math.min(maxEnergy, Integer.MAX_VALUE);
     }
 
     public @Nullable IEnergyStorage getEnergyStorage(@Nullable Direction side) {
@@ -111,7 +115,7 @@ public class PowerConverterBlockEntity extends BlockEntity implements IPowerCons
                 * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
         );
         int amount = amountTick * PowerGrid.GRID_TICK;
-        this.energy = Math.min(this.energy + amount, getMaxEnergy());
+        this.energy = (int) Math.min((long) this.energy + amount, getMaxEnergy());
         setChanged();
     }
 
