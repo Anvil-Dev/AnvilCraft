@@ -323,6 +323,46 @@ public class BlockTagLoader {
         provider.rawBuilder(ModBlockTags.ANVIL_TIER_3)
             .addElement(ModBlocks.TRANSCENDENCE_ANVIL.getId());
 
+        provider.rawBuilder(ModBlockTags.ROYAL_SERIES)
+            .addElement(ModBlocks.ROYAL_STEEL_BLOCK.getId())
+            .addElement(ModBlocks.SMOOTH_ROYAL_STEEL_BLOCK.getId())
+            .addElement(ModBlocks.CUT_ROYAL_STEEL_BLOCK.getId())
+            .addElement(ModBlocks.CUT_ROYAL_STEEL_PILLAR.getId())
+            .addElement(ModBlocks.CUT_ROYAL_STEEL_SLAB.getId())
+            .addElement(ModBlocks.CUT_ROYAL_STEEL_STAIRS.getId());
+
+        provider.rawBuilder(ModBlockTags.FROST_SERIES)
+            .addElement(ModBlocks.FROST_METAL_BLOCK.getId())
+            .addElement(ModBlocks.CUT_FROST_METAL_BLOCK.getId())
+            .addElement(ModBlocks.CUT_FROST_METAL_PILLAR.getId())
+            .addElement(ModBlocks.CUT_FROST_METAL_SLAB.getId())
+            .addElement(ModBlocks.CUT_FROST_METAL_STAIRS.getId());
+
+        provider.rawBuilder(ModBlockTags.EMBER_SERIES)
+            .addElement(ModBlocks.EMBER_METAL_BLOCK.getId())
+            .addElement(ModBlocks.CUT_EMBER_METAL_BLOCK.getId())
+            .addElement(ModBlocks.CUT_EMBER_METAL_PILLAR.getId())
+            .addElement(ModBlocks.CUT_EMBER_METAL_SLAB.getId())
+            .addElement(ModBlocks.CUT_EMBER_METAL_STAIRS.getId());
+
+        provider.rawBuilder(ModBlockTags.OVERSEER_BASE_TIER_0)
+            .addElement(findId(Blocks.IRON_BLOCK))
+            .addElement(findId(Blocks.GOLD_BLOCK))
+            .addElement(findId(Blocks.DIAMOND_BLOCK))
+            .addElement(findId(Blocks.EMERALD_BLOCK));
+
+        provider.rawBuilder(ModBlockTags.OVERSEER_BASE_TIER_1)
+            .addTag(ModBlockTags.ROYAL_SERIES.location())
+            .addTag(ModBlockTags.FROST_SERIES.location());
+
+        provider.rawBuilder(ModBlockTags.OVERSEER_BASE_TIER_2)
+            .addElement(findId(Blocks.NETHERITE_BLOCK))
+            .addTag(ModBlockTags.EMBER_SERIES.location())
+            .addElement(ModBlocks.MULTIPHASE_MATTER_BLOCK.getId());
+
+        provider.rawBuilder(ModBlockTags.OVERSEER_BASE_TIER_3)
+            .addElement(ModBlocks.TRANSCENDIUM_BLOCK.getId());
+
         provider.rawBuilder(ModBlockTags.SLIDING_RAIL_STOP_LIKE)
             .addTag(ModBlockTags.HEATABLE_BLOCKS.location())
             .addElement(findId(Blocks.CAMPFIRE))

@@ -368,7 +368,7 @@ public class ItemTooltipManager {
             ModItems.MULTIPHASE_MATTER.get(),
             "Matter that exists in multiple stable phases simultaneously, switchable under special conditions"
         );
-        NORMAL.put(ModBlocks.OVERSEER.asItem(), "Chunk loader that works on Royal Steel base");
+        NORMAL.put(ModBlocks.OVERSEER.asItem(), "Chunk loader that works on suitable base");
         NORMAL.put(ModBlocks.PUMP.asItem(), "Pumps fluids, consumes 32 kW");
         NORMAL.put(ModBlocks.CREATIVE_CRATE.asItem(), "Infinite item storage and supply");
         NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
@@ -594,7 +594,7 @@ public class ItemTooltipManager {
         );
         SHIFT.put(
             ModBlocks.OVERSEER.asItem(),
-            "Chunk loader on 3x3 Royal Steel base, higher base layers increase chunk load range (max 3 layers, 5x5 range)"
+            "Chunk loader that works on suitable pyramid-shaped base, higher base layers provide a larger maximum load range (max 4 layers, 9x9 range)， different base blocks provide different effects"
         );
         SHIFT.put(ModBlocks.PUMP.asItem(), """
             Provides 10 blocks of headlift on both input and output sides (including the pump itself)

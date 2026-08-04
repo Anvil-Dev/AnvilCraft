@@ -23,6 +23,13 @@ public class ModBlockTags {
     public static final TagKey<Block> HAMMER_REMOVABLE = bind("hammer_removable");
     public static final TagKey<Block> HAMMER_CHANGEABLE = bind("hammer_changeable");
     public static final TagKey<Block> OVERSEER_BASE = bind("overseer_base");
+    public static final TagKey<Block> OVERSEER_BASE_TIER_0 = bind("overseer_base_tier_0");
+    public static final TagKey<Block> OVERSEER_BASE_TIER_1 = bind("overseer_base_tier_1");
+    public static final TagKey<Block> OVERSEER_BASE_TIER_2 = bind("overseer_base_tier_2");
+    public static final TagKey<Block> OVERSEER_BASE_TIER_3 = bind("overseer_base_tier_3");
+    public static final TagKey<Block> ROYAL_SERIES = bind("royal_series");
+    public static final TagKey<Block> EMBER_SERIES = bind("ember_series");
+    public static final TagKey<Block> FROST_SERIES = bind("frost_series");
     public static final TagKey<Block> BLOCK_DEVOURER_CHAIN_DEVOURING = bind("block_devourer_chain_devouring");
     public static final TagKey<Block> BLOCK_DEVOURER_PROBABILITY_DROPPING = bind("block_devourer_probability_dropping");
     public static final TagKey<Block> LASER_CAN_PASS_THROUGH = bind("laser_can_pass_though");
