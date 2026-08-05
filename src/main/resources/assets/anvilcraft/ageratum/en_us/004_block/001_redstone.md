@@ -60,16 +60,19 @@ In the GUI you can set range and filters
 
 <recipe id="anvilcraft:advanced_comparator"/>
 
-- Based on the signal detected from a container placed behind or the input signal, determines whether to output full signal
-- By default, no signal when below the lower threshold; starts outputting when above the upper threshold
+## Operating Modes
 
-## GUI
+Based on the signal detected from a container placed behind it or the input signal, determines whether to output a full signal
 
-In the GUI you can set thresholds and other modes
+Supports two modes, switchable via the <color=#999922>first button</color> from top to bottom in the GUI:
 
-- The <color=#999922>first button</color> from top to bottom enables window mode: outputs signal when the signal is within a certain range
+1. **Normal Threshold Mode** (default): outputs when the signal strength is above the **upper threshold**, and stops outputting when below the **lower threshold**
+2. **Window Mode**: outputs when the signal strength is between the set **upper and lower thresholds** (inclusive), and stops outputting outside that range
+
+## Other Adjustments
+
 - The <color=#999922>second button</color> from top to bottom enables inverted mode: outputs signal when it normally wouldn't, and vice versa
-- When the <color=#999922>third button</color> from top to bottom is enabled, uses the redstone signals received on both sides as thresholds (regardless of left/right, the higher one is the upper threshold)
+- The <color=#999922>third button</color> from top to bottom enables dynamic thresholds, using the redstone signals received on both sides as thresholds (regardless of left/right, the higher one is the upper threshold)
 
 # <ref item="anvilcraft:redstone_wire"/>
 
