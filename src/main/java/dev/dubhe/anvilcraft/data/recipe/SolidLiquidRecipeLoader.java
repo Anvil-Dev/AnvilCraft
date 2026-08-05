@@ -10,9 +10,11 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import dev.dubhe.anvilcraft.util.VanillaConstants;
+import net.minecraft.core.Holder;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -45,8 +47,7 @@ public class SolidLiquidRecipeLoader {
         SolidLiquidRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
             .consume(1000)
-            .transform(ModBlocks.CEMENT_CAULDRONS.get(Color.GRAY).get())
-            .produce(1000)
+            .transform(ModBlocks.CEMENT_CAULDRONS.get(Color.GRAY).get(), 1000)
             .requires(ModItems.LIME_POWDER, 4)
             .requires(ModBlocks.CINERITE)
             .save(provider, AnvilCraft.of("solid_liquid/cement_cauldron"));
@@ -65,34 +66,34 @@ public class SolidLiquidRecipeLoader {
             .save(provider);
 
         SolidLiquidRecipe.builder()
-            .cauldron(ModFluids.EXP_FLUID.getId())
+            .cauldron(ModFluids.EXP_FLUID.get())
             .consume(1000)
             .result(ModItems.EXP_GEM)
             .save(provider);
 
         SolidLiquidRecipe.builder()
-            .cauldron(ModFluids.EXP_FLUID.getId())
+            .cauldron(ModFluids.EXP_FLUID.get())
             .consume(2000)
-            .transform(ModFluids.LIQUID_ENCHANTMENT.getId())
-            .produce(1)
+            .transform(ModFluids.LIQUID_ENCHANTMENT.get(), 1)
             .requires(Items.LAPIS_LAZULI, 3)
             .save(provider, AnvilCraft.of("solid_liquid/liquid_enchantment"));
 
         SolidLiquidRecipe.builder()
-            .cauldron(NeoForgeMod.MILK.getId())
+            .cauldron(NeoForgeMod.MILK.get())
             .consume(1000)
             .result(ModFoodItems.CREAM, 4)
             .save(provider, AnvilCraft.of("solid_liquid/cream_from_milk"));
 
         SolidLiquidRecipe.builder()
-            .cauldron(ModFluids.HONEY.getId())
+            .cauldron(ModFluids.HONEY.get())
             .consume(1000)
             .result(Items.HONEY_BLOCK)
             .save(provider, AnvilCraft.of("solid_liquid/honey_block"));
 
         SolidLiquidRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
-            .transform(ModBlocks.EXP_FLUID_CAULDRON.get())
+            .consume(1000)
+            .transform(ModBlocks.EXP_FLUID_CAULDRON.get(), 1000)
             .requires(ModItems.EXP_GEM)
             .save(provider, AnvilCraft.of("solid_liquid/exp_fluid_cauldron"));
     }
@@ -125,4 +126,21 @@ public class SolidLiquidRecipeLoader {
         SolidLiquidRecipeLoader.solidLiquid(provider, input, result, 0);
     }
 
+    @SafeVarargs
+    @SuppressWarnings("SameParameterValue")
+    private static void liquidEnchantment(
+        RegistrumRecipeProvider provider,
+        TagKey<Item> input,
+        int amount,
+        Holder<Enchantment>... enchantment
+    ) {
+//        FluidStack stack = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), amount);
+//        stack.set(ModComponents.LIQUID_ENCHANTMENT, enchantment);
+//        SolidLiquidRecipe.builder()
+//            .cauldron(ModFluids.LIQUID_ENCHANTMENT)
+//            .consume(amount)
+//            .requires(input)
+//            .transform(stack)
+//            .save(provider);
+    }
 }

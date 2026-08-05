@@ -7,23 +7,17 @@ import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
+import dev.dubhe.anvilcraft.util.FluidStackPredicate;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,14 +63,11 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         HasCauldronSimple cauldron = recipe.getHasCauldron();
         List<FluidStack> inputs = createFluidStacks(
             cauldron.fluid(),
-            cauldron.fluidTag(),
             displayAmount(cauldron.consume())
         );
-        List<FluidStack> results = createFluidStacks(
-            cauldron.transform(),
-            null,
-            displayAmount(cauldron.produce())
-        );
+        List<FluidStack> results = cauldron.transform()
+            .map(fluid -> createFluidStacks(fluid, displayAmount(cauldron.produce())))
+            .orElseGet(List::of);
         return new ComplexFluidJeiRecipe(
             recipe.getInputItems(),
             recipe.getResultItems(),
@@ -203,28 +194,18 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         return amount > 0 ? amount : FluidType.BUCKET_VOLUME;
     }
 
-    private static List<FluidStack> createFluidStacks(
-        ResourceLocation fluidId,
-        @Nullable ResourceLocation fluidTag,
-        int amount
-    ) {
-        if (fluidTag != null) {
-            TagKey<Fluid> tag = TagKey.create(Registries.FLUID, fluidTag);
-            return BuiltInRegistries.FLUID.getTag(tag)
-                .stream()
-                .flatMap(HolderSet.ListBacked::stream)
-                .map(Holder::value)
-                .filter(fluid -> fluid.defaultFluidState().isSource())
-                .distinct()
-                .map(fluid -> new FluidStack(fluid, amount))
-                .toList();
-        }
-        if (!HasCauldron.isNotEmpty(fluidId)) return List.of();
-        return BuiltInRegistries.FLUID.getHolder(fluidId)
-            .stream()
+    private static List<FluidStack> createFluidStacks(FluidStackPredicate predicate, int amount) {
+        return predicate.fluids().stream()
+            .flatMap(HolderSet::stream)
             .map(Holder::value)
-            .filter(fluid -> fluid.defaultFluidState().isSource())
-            .map(fluid -> new FluidStack(fluid, amount))
+            .filter(value -> value.defaultFluidState().isSource())
+            .distinct()
+            .map(value -> new FluidStack(value, amount))
             .toList();
+    }
+
+    private static List<FluidStack> createFluidStacks(FluidStack fluid, int amount) {
+        if (!fluid.getFluid().defaultFluidState().isSource()) return List.of();
+        return List.of(fluid.copyWithAmount(amount));
     }
 }

@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import dev.dubhe.anvilcraft.util.TooltipUtil;
@@ -184,7 +183,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         arrowDefault.draw(guiGraphics, 73, 28);
 
         HasCauldronSimple cauldronFluid = recipe.getHasCauldron();
-        if (HasCauldron.isNotEmpty(cauldronFluid.transform())) {
+        if (cauldronFluid.transform().isPresent()) {
             IDrawable fluidSlot = cauldronFluid.chance() < 1.0f ? slotProbability : slotDefault;
             fluidSlot.draw(guiGraphics, FLUID_X - 1, FLUID_Y - 1);
         }

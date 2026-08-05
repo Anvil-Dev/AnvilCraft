@@ -1,12 +1,14 @@
 {
   "type": "anvilcraft:time_warp",
-  "fluid": "minecraft:null",
+  "fluid": [],
   "ingredients": [
     {
       "count": 64,
       "items": "#c:foods/raw_fish"
     }
   ],
-  "produce": 250,
-  "transform": "anvilcraft:oil"
+  "transform": {
+    "amount": 250,
+    "id": "anvilcraft:oil"
+  }
 }

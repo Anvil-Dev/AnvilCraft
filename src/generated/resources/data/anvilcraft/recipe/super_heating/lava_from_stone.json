@@ -1,6 +1,6 @@
 {
   "type": "anvilcraft:super_heating",
-  "fluid": "minecraft:null",
+  "fluid": [],
   "ingredients": [
     {
       "count": 4,
@@ -10,6 +10,8 @@
       "items": "anvilcraft:lime_powder"
     }
   ],
-  "produce": 1000,
-  "transform": "minecraft:lava"
+  "transform": {
+    "amount": 1000,
+    "id": "minecraft:lava"
+  }
 }

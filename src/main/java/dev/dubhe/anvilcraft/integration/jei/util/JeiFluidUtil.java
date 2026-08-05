@@ -1,23 +1,19 @@
 package dev.dubhe.anvilcraft.integration.jei.util;
 
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
+import dev.dubhe.anvilcraft.util.FluidStackPredicate;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
@@ -55,7 +51,7 @@ public final class JeiFluidUtil {
     ) {
         addSlot(
             builder, RecipeIngredientRole.INPUT, name, x, y, width, height,
-            getFluids(cauldron.fluid(), cauldron.fluidTag()), cauldron.consume(), 1.0f
+            getFluids(cauldron.fluid()), cauldron.consume(), 1.0f
         );
     }
 
@@ -84,7 +80,9 @@ public final class JeiFluidUtil {
     ) {
         addSlot(
             builder, RecipeIngredientRole.OUTPUT, name, x, y, width, height,
-            getFluids(cauldron.transform(), null), cauldron.produce(), cauldron.chance()
+            cauldron.transform().map(JeiFluidUtil::getFluids).orElseGet(List::of),
+            cauldron.produce(),
+            cauldron.chance()
         );
     }
 
@@ -129,23 +127,18 @@ public final class JeiFluidUtil {
         }
     }
 
-    private static List<Fluid> getFluids(ResourceLocation fluidId, @Nullable ResourceLocation fluidTag) {
-        if (fluidTag != null) {
-            TagKey<Fluid> tag = TagKey.create(Registries.FLUID, fluidTag);
-            return BuiltInRegistries.FLUID.getTag(tag)
-                .stream()
-                .flatMap(HolderSet.ListBacked::stream)
-                .map(Holder::value)
-                .filter(fluid -> fluid.defaultFluidState().isSource())
-                .distinct()
-                .toList();
-        }
-        if (!HasCauldron.isNotEmpty(fluidId)) return List.of();
-        return BuiltInRegistries.FLUID.getHolder(fluidId)
-            .stream()
+    private static List<Fluid> getFluids(FluidStackPredicate predicate) {
+        return predicate.fluids().stream()
+            .flatMap(HolderSet::stream)
             .map(Holder::value)
-            .filter(fluid -> fluid.defaultFluidState().isSource())
+            .filter(value -> value.defaultFluidState().isSource())
+            .distinct()
             .toList();
+    }
+
+    private static List<Fluid> getFluids(FluidStack fluid) {
+        if (!fluid.getFluid().defaultFluidState().isSource()) return List.of();
+        return List.of(fluid.getFluid());
     }
 
     public static void suppressHoverOverlays(IRecipeExtrasBuilder builder) {

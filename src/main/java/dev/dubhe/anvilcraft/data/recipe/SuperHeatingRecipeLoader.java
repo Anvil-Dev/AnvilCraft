@@ -18,14 +18,12 @@ import static dev.dubhe.anvilcraft.data.recipe.util.RecipeLoaderUtil.getName;
 public class SuperHeatingRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
         SuperHeatingRecipe.builder()
-            .transform(Blocks.LAVA_CAULDRON)
-            .produce(1000)
+            .transform(Blocks.LAVA_CAULDRON, 1000)
             .requires(Items.COBBLESTONE, 4)
             .requires(ModItems.LIME_POWDER)
             .save(provider, AnvilCraft.of("super_heating/lava_from_cobblestone"));
         SuperHeatingRecipe.builder()
-            .transform(Blocks.LAVA_CAULDRON)
-            .produce(1000)
+            .transform(Blocks.LAVA_CAULDRON, 1000)
             .requires(Tags.Items.STONES, 4)
             .requires(ModItems.LIME_POWDER)
             .save(provider, AnvilCraft.of("super_heating/lava_from_stone"));
@@ -120,20 +118,17 @@ public class SuperHeatingRecipeLoader {
             .save(provider);
 
         SuperHeatingRecipe.builder()
-            .transform(ModBlocks.MELT_GEM_CAULDRON.get())
-            .produce(1000)
+            .transform(ModBlocks.MELT_GEM_CAULDRON.get(), 1000)
             .requires(ModItemTags.GEM_BLOCKS)
             .save(provider, AnvilCraft.of("super_heating/melt_gem_cauldron_from_gem_block"));
         SuperHeatingRecipe.builder()
-            .transform(ModBlocks.MELT_GEM_CAULDRON.get())
-            .produce(1000)
+            .transform(ModBlocks.MELT_GEM_CAULDRON.get(), 1000)
             .requires(ModBlocks.CHROMATIC_STONE)
             .save(provider, AnvilCraft.of("super_heating/melt_gem_cauldron_from_chromatic_stone"));
 
         // Honey Block to Honey Cauldron
         SuperHeatingRecipe.builder()
-            .transform(ModBlocks.HONEY_CAULDRON.get())
-            .produce(1000)
+            .transform(ModBlocks.HONEY_CAULDRON.get(), 1000)
             .requires(Items.HONEY_BLOCK)
             .save(provider, AnvilCraft.of("super_heating/honey_cauldron_from_honey_block"));
 

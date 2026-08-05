@@ -299,8 +299,7 @@ public class TimeWarpRecipeLoader {
     private static void timeWarpToOilCauldron(RegistrumRecipeProvider provider, ItemLike input, int inputCount) {
         TimeWarpRecipe.builder()
             .requires(input, inputCount)
-            .transform(ModBlocks.OIL_CAULDRON.get())
-            .produce(250)
+            .transform(ModBlocks.OIL_CAULDRON.get(), 250)
             .save(
                 provider,
                 AnvilCraft.of("time_warp/oil_from_" + BuiltInRegistries.ITEM.getKey(input.asItem()).getPath())
@@ -311,8 +310,7 @@ public class TimeWarpRecipeLoader {
     private static void timeWarpToOilCauldron(RegistrumRecipeProvider provider, TagKey<Item> input, int inputCount) {
         TimeWarpRecipe.builder()
             .requires(input, inputCount)
-            .transform(ModBlocks.OIL_CAULDRON.get())
-            .produce(250)
+            .transform(ModBlocks.OIL_CAULDRON.get(), 250)
             .save(
                 provider,
                 AnvilCraft.of("time_warp/oil_from_" + input.location().getPath())

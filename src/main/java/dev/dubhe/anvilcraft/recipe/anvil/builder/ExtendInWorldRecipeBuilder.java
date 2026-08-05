@@ -9,7 +9,6 @@ import dev.dubhe.anvilcraft.recipe.anvil.outcome.ProduceHeat;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import lombok.EqualsAndHashCode;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.Vec3;
@@ -117,77 +116,6 @@ public class ExtendInWorldRecipeBuilder extends InWorldRecipeBuilder<ExtendInWor
      */
     public ExtendInWorldRecipeBuilder hasCauldron(double x, double y, double z) {
         return this.with(HasCauldron.builder().empty().offset(new Vec3(x, y, z)).build());
-    }
-
-    /**
-     * 添加炼药锅谓词
-     *
-     * @param fluid 液体ID
-     * @return 当前构建器实例
-     */
-    public ExtendInWorldRecipeBuilder hasCauldron(ResourceLocation fluid) {
-        return this.with(HasCauldron.builder().fluid(fluid).offset(this.offset).build());
-    }
-
-    /**
-     * 添加炼药锅谓词
-     *
-     * @param offset 偏移向量
-     * @param fluid  液体ID
-     * @return 当前构建器实例
-     */
-    public ExtendInWorldRecipeBuilder hasCauldron(Vec3 offset, ResourceLocation fluid) {
-        return this.with(HasCauldron.builder().fluid(fluid).offset(offset).build());
-    }
-
-    /**
-     * 添加炼药锅谓词
-     *
-     * @param x     X轴偏移量
-     * @param y     Y轴偏移量
-     * @param z     Z轴偏移量
-     * @param fluid 液体ID
-     * @return 当前构建器实例
-     */
-    public ExtendInWorldRecipeBuilder hasCauldron(double x, double y, double z, ResourceLocation fluid) {
-        return this.with(HasCauldron.builder().fluid(fluid).offset(new Vec3(x, y, z)).build());
-    }
-
-    /**
-     * 添加炼药锅谓词
-     *
-     * @param fluid   液体ID
-     * @param consume 消耗量
-     * @return 当前构建器实例
-     */
-    public ExtendInWorldRecipeBuilder hasCauldron(ResourceLocation fluid, int consume) {
-        return this.with(HasCauldron.builder().fluid(fluid).offset(this.offset).consume(consume).build());
-    }
-
-    /**
-     * 添加炼药锅谓词
-     *
-     * @param offset  偏移向量
-     * @param fluid   液体ID
-     * @param consume 消耗量
-     * @return 当前构建器实例
-     */
-    public ExtendInWorldRecipeBuilder hasCauldron(Vec3 offset, ResourceLocation fluid, int consume) {
-        return this.with(HasCauldron.builder().fluid(fluid).offset(offset).consume(consume).build());
-    }
-
-    /**
-     * 添加炼药锅谓词
-     *
-     * @param x       X轴偏移量
-     * @param y       Y轴偏移量
-     * @param z       Z轴偏移量
-     * @param fluid   液体ID
-     * @param consume 消耗量
-     * @return 当前构建器实例
-     */
-    public ExtendInWorldRecipeBuilder hasCauldron(double x, double y, double z, ResourceLocation fluid, int consume) {
-        return this.with(HasCauldron.builder().fluid(fluid).offset(new Vec3(x, y, z)).consume(consume).build());
     }
 
     /**

@@ -1,13 +1,11 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid;
 
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
-import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiItemUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.AbstractProcessRecipe;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import mezz.jei.api.gui.ITickTimer;
@@ -17,9 +15,7 @@ import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.gui.widgets.IRecipeExtrasBuilder;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
-import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
@@ -83,8 +79,8 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         HasCauldronSimple cauldron = recipe.getHasCauldron();
         final boolean hasInputItems = !recipe.getInputItems().isEmpty();
         final boolean hasOutputItems = !recipe.getResultItems().isEmpty();
-        final boolean hasInputFluid = cauldron.fluidTag() != null || HasCauldron.isNotEmpty(cauldron.fluid());
-        final boolean hasOutputFluid = HasCauldron.isNotEmpty(cauldron.transform());
+        final boolean hasInputFluid = cauldron.hasFluid();
+        final boolean hasOutputFluid = cauldron.transform().isPresent();
 
         final boolean inputMixed = hasInputItems && hasInputFluid;
         final boolean outputMixed = hasOutputItems && hasOutputFluid;
@@ -150,8 +146,8 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
 
         final boolean hasInputItems = !recipe.getInputItems().isEmpty();
         final boolean hasOutputItems = !recipe.getResultItems().isEmpty();
-        final boolean hasInputFluid = cauldron.fluidTag() != null || HasCauldron.isNotEmpty(cauldron.fluid());
-        final boolean hasOutputFluid = HasCauldron.isNotEmpty(cauldron.transform());
+        final boolean hasInputFluid = cauldron.hasFluid();
+        final boolean hasOutputFluid = cauldron.transform().isPresent();
 
         final boolean inputMixed = hasInputItems && hasInputFluid;
         final boolean outputMixed = hasOutputItems && hasOutputFluid;
