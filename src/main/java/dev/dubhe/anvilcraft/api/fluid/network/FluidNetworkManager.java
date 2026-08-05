@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
+import dev.dubhe.anvilcraft.block.entity.fluid.GlassPipeBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
@@ -146,6 +147,11 @@ public final class FluidNetworkManager {
      * 顺带剔除已失效（方块不在或不再是容器）的登记项。
      */
     private void rebuild(Level level, LevelData d) {
+        // 重建前收集旧网络仍显示中的玻璃管道，供重建后迁移活跃状态或清除掉出网络者
+        Set<BlockPos> oldActiveDisplays = new HashSet<>();
+        for (FluidPipeNetwork network : d.networks) {
+            oldActiveDisplays.addAll(network.activeDisplayPositions());
+        }
         d.networks = new ArrayList<>();
         d.partIndex.clear();
 
@@ -169,6 +175,18 @@ public final class FluidNetworkManager {
             d.networks.add(network);
             for (BlockPos part : network.getParts()) {
                 d.partIndex.put(part, network);
+            }
+        }
+
+        // 活跃显示管道归属变化处理：
+        // 仍属于某新网络 → 重新登记到该网络（继续由其每 tick 过期检测负责清除）；
+        // 已不在任何网络 → 立即清除显示并同步客户端，避免流体残留在玻璃管道内。
+        for (BlockPos pos : oldActiveDisplays) {
+            FluidPipeNetwork network = d.partIndex.get(pos);
+            if (network != null) {
+                network.reacquireActiveDisplay(pos);
+            } else if (level.getBlockEntity(pos) instanceof GlassPipeBlockEntity pipe) {
+                pipe.clearDisplay();
             }
         }
     }

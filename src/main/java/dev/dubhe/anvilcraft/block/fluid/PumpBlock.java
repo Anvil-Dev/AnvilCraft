@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Orientation;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.LivingEntity;
@@ -200,8 +199,7 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
      * 将直管或弯管转为三通节点，扫描全部六个方向重新计算连接状态。
      */
     private void convertPipeToNode(Level level, BlockPos pos, BlockState state) {
-        BlockState nodeState = ModBlocks.PIPE_NODE.get()
-            .defaultBlockState()
+        BlockState nodeState = PipeBlock.nodeVariant(state)
             .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED));
         for (Direction dir : Direction.values()) {
             nodeState = nodeState.setValue(

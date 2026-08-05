@@ -6,6 +6,7 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.jetbrains.annotations.Nullable;
@@ -17,6 +18,7 @@ import java.util.Deque;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -75,6 +77,8 @@ public class FluidPipeNetwork {
      */
     private final Map<BlockPos, Map<Direction, Direction>> faceFlow;
     private final Set<BlockPos> glassPipePositions;
+    /** 当前正在玻璃管道中显示流体的位置（用于每 tick 过期检测，仅遍历显示中的管道）。 */
+    private final Set<BlockPos> activeGlassPipes = new HashSet<>();
     private final List<FluidEndpoint> endpoints;
     private final List<FluidEndpoint> cauldronEndpoints;
     private final List<FluidEndpoint> entityEndpoints;
@@ -142,6 +146,7 @@ public class FluidPipeNetwork {
      */
     public void tick() {
         this.transferredThisTick = false;
+        this.expireGlassDisplays();
         if (endpoints.size() < 2) {
             return;
         }
@@ -598,6 +603,42 @@ public class FluidPipeNetwork {
         }
     }
 
+    /**
+     * 在指定玻璃管道上显示流体并登记为"活跃显示"。
+     * 活跃集合供 {@link #expireGlassDisplays} 每 tick 过期检测，避免遍历整网络全部玻璃管道。
+     */
+    private void showFluidOnPipe(
+        GlassPipeBlockEntity pipe, BlockPos pos, FluidStack fluid, Set<Direction> directions
+    ) {
+        pipe.showFluid(fluid, directions);
+        this.activeGlassPipes.add(pos);
+    }
+
+    /** 清除已过期（流动停止超时）的玻璃管道显示；管道已被破坏的同步从活跃集合移除。 */
+    private void expireGlassDisplays() {
+        if (this.activeGlassPipes.isEmpty()) {
+            return;
+        }
+        Iterator<BlockPos> iterator = this.activeGlassPipes.iterator();
+        while (iterator.hasNext()) {
+            BlockPos pos = iterator.next();
+            BlockEntity blockEntity = this.level.getBlockEntity(pos);
+            if (!(blockEntity instanceof GlassPipeBlockEntity pipe) || pipe.checkDisplayExpiry()) {
+                iterator.remove();
+            }
+        }
+    }
+
+    /** 当前显示中的玻璃管道位置快照（供管理器网络重建时迁移活跃状态）。 */
+    public Set<BlockPos> activeDisplayPositions() {
+        return new HashSet<>(this.activeGlassPipes);
+    }
+
+    /** 网络重建后，重新登记仍属于本网络的活跃显示管道，以继续由其过期检测负责清理。 */
+    public void reacquireActiveDisplay(BlockPos pos) {
+        this.activeGlassPipes.add(pos);
+    }
+
     private void showFluidAlongPipePath(
         FluidStack fluid, FluidEndpoint source, FluidEndpoint target, @Nullable Reachability reach
     ) {
@@ -619,7 +660,7 @@ public class FluidPipeNetwork {
         Map<BlockPos, EnumSet<Direction>> displayDirections = displayDirectionsByPipe(path, source, target);
         for (BlockPos pos : glassPath) {
             if (level.getBlockEntity(pos) instanceof GlassPipeBlockEntity pipe) {
-                pipe.showFluid(fluid, displayDirections.getOrDefault(pos, EnumSet.noneOf(Direction.class)));
+                showFluidOnPipe(pipe, pos, fluid, displayDirections.getOrDefault(pos, EnumSet.noneOf(Direction.class)));
             }
         }
     }
@@ -640,7 +681,7 @@ public class FluidPipeNetwork {
             Direction allowed = faces == null ? null : faces.get(toContainer);
             if (allowed != null && allowed == toContainer && glassPipePositions.contains(pipe)
                 && level.getBlockEntity(pipe) instanceof GlassPipeBlockEntity glassPipe) {
-                glassPipe.showFluid(stored, Set.of(toContainer));
+                showFluidOnPipe(glassPipe, pipe, stored, Set.of(toContainer));
             }
             return;
         }
@@ -810,6 +851,11 @@ public class FluidPipeNetwork {
         return null;
     }
 
+    /**
+     * 流动被阀门/控制阀阻断时，流体停留在源容器中，但玻璃管道内应显示流体
+     * 淤积到阻断位置（阀体所在的那段臂）：把阻断位置的方向加入该管道的显示方向，
+     * 使流体"渲染到止逆阀位置"。
+     */
     private void showFluidAlongBlockedPath(FluidStack fluid, FluidEndpoint source, BlockedPath blockedPath) {
         List<BlockPos> path = blockedPath.path();
         Map<BlockPos, EnumSet<Direction>> displayDirections = displayDirectionsByPipe(path, source, null);
@@ -820,7 +866,7 @@ public class FluidPipeNetwork {
                 continue;
             }
             if (level.getBlockEntity(pos) instanceof GlassPipeBlockEntity pipe) {
-                pipe.showFluid(fluid, displayDirections.getOrDefault(pos, EnumSet.noneOf(Direction.class)));
+                showFluidOnPipe(pipe, pos, fluid, displayDirections.getOrDefault(pos, EnumSet.noneOf(Direction.class)));
             }
         }
     }
