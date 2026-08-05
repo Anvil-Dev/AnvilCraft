@@ -819,12 +819,35 @@ public class FluidPipeNetwork {
         return new ArrayList<>(path.subList(0, blockedIndex + 1));
     }
 
+    /**
+     * 控制阀阻断判定：沿 {@code cur → next} 移动时，只要<b>任一端的控制阀</b>不放行
+     * （白名单拒绝 / 红石锁定或本 tick 预算耗尽 → {@code remaining() == 0}），流体就无法
+     * 穿过这段边，阻断位置记为 {@code cur}。
+     *
+     * <p>必须同时检查 {@code cur} 端：当源接管口本身就是控制阀（控制阀紧贴容器）时，
+     * 搜索从阀上出发，若只检查 {@code next} 端，会先穿进输出侧管道、之后折返才发现阻断，
+     * 导致阻断路径错误地包含输出侧管道（流体渲染到阀门另一侧）。
+     */
     @Nullable
     private BlockedFaceValve blockedControlValve(BlockPos cur, BlockPos next, FluidStack fluid) {
-        ValveState valve = valves.get(next);
-        if (valve == null || (valve.allows(fluid) && valve.remaining() > 0)) {
-            return null;
+        ValveState nextValve = valves.get(next);
+        if (nextValve != null && !passesValve(nextValve, fluid)) {
+            return valveBlockedAt(cur, next);
         }
+        ValveState curValve = valves.get(cur);
+        if (curValve != null && !passesValve(curValve, fluid)) {
+            return valveBlockedAt(cur, next);
+        }
+        return null;
+    }
+
+    /** 阀门是否放行 {@code fluid}：白名单允许且本 tick 剩余预算 > 0。 */
+    private static boolean passesValve(ValveState valve, FluidStack fluid) {
+        return valve.allows(fluid) && valve.remaining() > 0;
+    }
+
+    @Nullable
+    private static BlockedFaceValve valveBlockedAt(BlockPos cur, BlockPos next) {
         Direction direction = directionBetween(cur, next);
         return direction == null ? null : new BlockedFaceValve(cur, direction);
     }
