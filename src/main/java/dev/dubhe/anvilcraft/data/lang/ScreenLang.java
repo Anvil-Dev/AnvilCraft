@@ -164,7 +164,7 @@ public class ScreenLang {
 
         provider.add("screen.anvilcraft.ember_metal_upgrade_smithing_template", "Ember Metal Upgrade");
         provider.add("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.additions_slot_description", "Put the Ember Metal Ingot or Ember Metal Block");
-        provider.add("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.applies_to", "Royal Steel Anvil Hammer, Netherite Tools, Royal Steel Tools, Royal Steel WorkStations");
+        provider.add("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.applies_to", "Royal Anvil Hammer, Netherite Tools, Royal Steel Tools, Royal WorkStations");
         provider.add("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.base_slot_description", "Put upgradable item");
         provider.add("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.upgrade_ingredients", "Ember Metal Ingot or Ember Metal Block");
 
@@ -202,7 +202,7 @@ public class ScreenLang {
         );
         provider.add(
             "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.applies_to",
-            "Royal Steel Anvil Hammer, Royal Steel Tools"
+            "Royal Anvil Hammer, Royal Steel Tools"
         );
         provider.add(
             "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.base_slot_description",
@@ -336,7 +336,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.none", "None"); // 无
 
         provider.add("screen.anvilcraft.cfa.mag", "Magnetic Field: %s"); // 磁场: %s
-        provider.add("screen.anvilcraft.cfa.mag.very_weak", "Very Weak"); // 几乎没有
+        provider.add("screen.anvilcraft.cfa.mag.very_weak", "Negligible"); // 几乎没有
         provider.add("screen.anvilcraft.cfa.mag.weak", "Weak"); // 弱
         provider.add("screen.anvilcraft.cfa.mag.medium", "Medium"); // 中等
         provider.add("screen.anvilcraft.cfa.mag.strong", "Strong"); // 强

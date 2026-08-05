@@ -19,6 +19,7 @@ public class JadeLang {
         provider.add("config.jade.plugin_anvilcraft.large_laser", "Large Laser");
         provider.add("config.jade.plugin_anvilcraft.menger_sponge", "Menger Sponge");
         provider.add("config.jade.plugin_anvilcraft.crab_trap", "Crab Trap");
+        provider.add("config.jade.plugin_anvilcraft.fluid_tank", "Fluid Tank");
 
         provider.add("tooltip.anvilcraft.jade.power_information", "Power Grid: %s");
         provider.add("tooltip.anvilcraft.jade.ruby_prism.power", "Laser level: %d");

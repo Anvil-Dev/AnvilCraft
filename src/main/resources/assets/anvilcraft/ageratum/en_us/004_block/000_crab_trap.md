@@ -12,7 +12,7 @@ items:
 
 # Function
 
-- Place <ref item="anvilcraft:crab_trap"/> on the water surface, ensuring that at least three of the four adjacent blocks are water sources or waterlogged blocks
+- Place the <ref item="anvilcraft:crab_trap"/> on the water surface, ensuring that it is waterlogged and that three of its six faces are water source blocks or waterlogged blocks
 - Automatically produces fish catches
 - Outputs vary slightly by biome, but all produce <ref item="anvilcraft:crab_claw"/>
 

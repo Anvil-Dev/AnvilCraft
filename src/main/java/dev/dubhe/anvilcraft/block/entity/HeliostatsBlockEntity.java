@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
@@ -117,6 +118,10 @@ public class HeliostatsBlockEntity extends BlockEntity {
                     }
                 }
             }
+        }
+        BlockPos heightmapPos = this.level.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, this.getBlockPos()).below();
+        if (!heightmapPos.equals(this.getBlockPos()) && this.level.getBlockState(heightmapPos).is(ModBlocks.HELIOSTATS)) {
+            return WorkResult.OBSCURED;
         }
         if (this.level.isRainingAt(getBlockPos().above())
             || this.level.getBrightness(LightLayer.SKY, getBlockPos().above()) != 15
