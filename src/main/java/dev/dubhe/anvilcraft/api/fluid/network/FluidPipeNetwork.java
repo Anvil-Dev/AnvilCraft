@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
+import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeCheckValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.GlassPipeBlockEntity;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
@@ -852,21 +853,35 @@ public class FluidPipeNetwork {
     }
 
     /**
-     * 流动被阀门/控制阀阻断时，流体停留在源容器中，但玻璃管道内应显示流体
-     * 淤积到阻断位置（阀体所在的那段臂）：把阻断位置的方向加入该管道的显示方向，
-     * 使流体"渲染到止逆阀位置"。
+     * 流动被阀门/控制阀阻断时，流体停留在源容器中，玻璃管道内显示流体淤积到阻断位置
+     * （阀体所在的那段臂）：把阻断位置的方向加入该管道的显示方向，使流体"渲染到止逆阀位置"。
+     *
+     * <p>若阻断位置的止逆阀已被红石反转（{@code powered}），流体应截止到翻转后的阀体位置——
+     * 即清除该阀所在管道的流体渲染；其余管道仍渲染流体直到阀前。
      */
     private void showFluidAlongBlockedPath(FluidStack fluid, FluidEndpoint source, BlockedPath blockedPath) {
         List<BlockPos> path = blockedPath.path();
+        BlockPos blockedPos = blockedPath.blockedPos();
+        boolean clearBlockedPipe = blockedPos != null
+            && level.getBlockEntity(blockedPos) instanceof AbstractPipeCheckValveBlockEntity valveBe
+            && valveBe.isPowered();
         Map<BlockPos, EnumSet<Direction>> displayDirections = displayDirectionsByPipe(path, source, null);
-        displayDirections.computeIfAbsent(blockedPath.blockedPos(), key -> EnumSet.noneOf(Direction.class))
-            .add(blockedPath.blockedFace());
+        if (!clearBlockedPipe) {
+            displayDirections.computeIfAbsent(blockedPos, key -> EnumSet.noneOf(Direction.class))
+                .add(blockedPath.blockedFace());
+        }
         for (BlockPos pos : path) {
             if (!glassPipePositions.contains(pos)) {
                 continue;
             }
             if (level.getBlockEntity(pos) instanceof GlassPipeBlockEntity pipe) {
-                showFluidOnPipe(pipe, pos, fluid, displayDirections.getOrDefault(pos, EnumSet.noneOf(Direction.class)));
+                if (clearBlockedPipe && pos.equals(blockedPos)) {
+                    pipe.clearDisplay();
+                    this.activeGlassPipes.remove(pos);
+                } else {
+                    showFluidOnPipe(pipe, pos, fluid,
+                        displayDirections.getOrDefault(pos, EnumSet.noneOf(Direction.class)));
+                }
             }
         }
     }
