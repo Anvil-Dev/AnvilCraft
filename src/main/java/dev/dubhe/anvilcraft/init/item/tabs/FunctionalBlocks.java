@@ -44,6 +44,7 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.LARGE_FLUID_TANK); // 大型流体储罐
         this.plain(ModBlocks.DRAIN); // 排水口
         this.plain(ModItems.PIPE); // 管道
+        this.plain(ModItems.GLASS_PIPE); // 玻璃管道
         this.plain(ModBlocks.PUMP); // 泵
         this.plain(ModBlocks.CONTROL_VALVE); // 控制阀
         this.plain(ModItems.CHECK_VALVE); // 止逆阀

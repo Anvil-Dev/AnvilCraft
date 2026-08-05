@@ -153,12 +153,8 @@ public class AnvilHammerItem extends Item implements Equipable {
 
     @Nullable
     public static Property<?> findModifyableProperty(BlockState state) {
-        Property<?> result = null;
         if (state.getBlock() instanceof IHammerChangeable changeable) {
-            result = changeable.getChangeableProperty(state);
-        }
-        if (result != null) {
-            return result;
+            return changeable.getChangeableProperty(state);
         }
         for (Property<?> supportedProperty : SUPPORTED_PROPERTIES) {
             if (state.hasProperty(supportedProperty)) {

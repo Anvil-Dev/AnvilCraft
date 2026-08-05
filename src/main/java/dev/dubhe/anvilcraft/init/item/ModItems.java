@@ -1127,6 +1127,15 @@ public class ModItems {
         .tag(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)
         .register();
 
+    public static final ItemEntry<PipeBlockItem> GLASS_PIPE = REGISTRUM
+        .item("glass_pipe", properties -> new PipeBlockItem(properties, ModBlocks.GLASS_PIPE_STRAIGHT))
+        .lang("Glass Pipe")
+        .model((ctx, provider) -> provider
+            .withExistingParent(ctx.getId().toString(), AnvilCraft.of("block/glass_pipe"))
+        )
+        .tag(ModItemTags.DISALLOW_HAND_INSERT_INTO_TANK)
+        .register();
+
     public static final ItemEntry<CheckValveItem> CHECK_VALVE = REGISTRUM.item("check_valve", CheckValveItem::new)
         .lang("Check Valve")
         .model((ctx, provider) -> provider

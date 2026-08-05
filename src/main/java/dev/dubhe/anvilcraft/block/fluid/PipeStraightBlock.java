@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -36,6 +35,15 @@ public class PipeStraightBlock extends PipeBlock {
      */
     public PipeStraightBlock(Properties properties) {
         super(properties);
+        registerDefaultState();
+    }
+
+    public PipeStraightBlock(Properties properties, boolean glassPipe) {
+        super(properties, glassPipe);
+        registerDefaultState();
+    }
+
+    private void registerDefaultState() {
         this.registerDefaultState(this.getStateDefinition()
             .any()
             .setValue(AXIS, Direction.Axis.X)
@@ -125,7 +133,7 @@ public class PipeStraightBlock extends PipeBlock {
             }
 
             // 转为节点 → 扫描全方向 → 自动退化（保留止逆阀）
-            BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState().setValue(WATERLOGGED, state.getValue(WATERLOGGED));
+            BlockState nodeState = PipeBlock.nodeVariant(state).setValue(WATERLOGGED, state.getValue(WATERLOGGED));
             for (Direction dir : Direction.values()) {
                 nodeState = nodeState.setValue(getPropertyForDirection(dir), PipeNodeBlock.evaluateNeighbor(level, pos, dir));
             }
@@ -135,9 +143,8 @@ public class PipeStraightBlock extends PipeBlock {
 
         // 轴端更新：开/关端头
         Direction startDir = getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
-        Direction ignore = getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
-        boolean neighborIsPipe = level.getBlockState(neighborPos).getBlock() instanceof PipeBlock;
-        this.changePipeState(level, pos, state, startDir, neighborDir, neighborIsPipe);
+        boolean neighborIsSameKindPipe = isNeighborSameKindPipeToward(state, level, pos, neighborDir);
+        this.changePipeState(level, pos, state, startDir, neighborDir, neighborIsSameKindPipe);
     }
 
     /**
@@ -154,8 +161,8 @@ public class PipeStraightBlock extends PipeBlock {
         Direction negDir = getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
         Direction posDir = getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
         BlockState newState = state
-            .setValue(HAS_END_START, !isNeighborPipeToward(level, pos, negDir))
-            .setValue(HAS_END_END, !isNeighborPipeToward(level, pos, posDir));
+            .setValue(HAS_END_START, !isNeighborSameKindPipeToward(state, level, pos, negDir))
+            .setValue(HAS_END_END, !isNeighborSameKindPipeToward(state, level, pos, posDir));
         if (newState != state) {
             setBlockPreservingValve(level, pos, state, newState);
         }

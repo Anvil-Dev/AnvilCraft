@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block.fluid;
 
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -29,8 +29,8 @@ import java.util.concurrent.atomic.AtomicReferenceArray;
  *
  * <p>每个方向独立记录连接状态（{@link PipeBlock.NodePipe}）：
  * <ul>
- *   <li>{@link PipeBlock.NodePipe#PIPE PIPE} — 无端头，连接至另一管道</li>
- *   <li>{@link PipeBlock.NodePipe#END END}   — 有端头，连接至 IFluidHandler</li>
+ *   <li>{@link PipeBlock.NodePipe#PIPE PIPE} — 无端头，连接至同类管道</li>
+ *   <li>{@link PipeBlock.NodePipe#END END}   — 有端头，连接至异类管道或 IFluidHandler</li>
  *   <li>{@link PipeBlock.NodePipe#NONE NONE} — 无臂，该方向无连接</li>
  * </ul>
  *
@@ -52,6 +52,15 @@ public class PipeNodeBlock extends PipeBlock {
      */
     public PipeNodeBlock(Properties properties) {
         super(properties);
+        registerDefaultState();
+    }
+
+    public PipeNodeBlock(Properties properties, boolean glassPipe) {
+        super(properties, glassPipe);
+        registerDefaultState();
+    }
+
+    private void registerDefaultState() {
         this.registerDefaultState(this.getStateDefinition()
             .any()
             .setValue(DOWN, NodePipe.NONE)
@@ -169,8 +178,8 @@ public class PipeNodeBlock extends PipeBlock {
     /**
      * 评估指定方向邻居的连接状态。
      * <ul>
-     *   <li>邻居是管道且对准本节点 → {@link NodePipe#PIPE}</li>
-     *   <li>邻居是 IFluidHandler 或 PumpBlock → {@link NodePipe#END}</li>
+     *   <li>邻居是同类管道且对准本节点 → {@link NodePipe#PIPE}</li>
+     *   <li>邻居是异类管道、IFluidHandler 或 PumpBlock → {@link NodePipe#END}</li>
      *   <li>其他 → {@link NodePipe#NONE}</li>
      * </ul>
      *
@@ -180,10 +189,18 @@ public class PipeNodeBlock extends PipeBlock {
      * @return 该方向应设置的连接状态
      */
     public static NodePipe evaluateNeighbor(Level level, BlockPos pos, Direction dir) {
+        return evaluateNeighbor(level, pos, level.getBlockState(pos), dir);
+    }
+
+    public static NodePipe evaluateNeighbor(Level level, BlockPos pos, BlockState state, Direction dir) {
         BlockPos neighborPos = pos.relative(dir);
         BlockState neighborState = level.getBlockState(neighborPos);
-        if (neighborState.getBlock() instanceof PipeBlock && hasConnectionToward(neighborState, dir.getOpposite())) {
-            return NodePipe.PIPE;
+        if (neighborState.getBlock() instanceof PipeBlock neighborPipe
+            && hasConnectionToward(neighborState, dir.getOpposite())) {
+            if (state.getBlock() instanceof PipeBlock pipe && pipe.isGlassPipe() == neighborPipe.isGlassPipe()) {
+                return NodePipe.PIPE;
+            }
+            return NodePipe.END;
         }
         if (neighborState.getBlock() instanceof PumpBlock) {
             // 泵仅在其连接面（朝向轴两端）正对节点时才形成端头连接
@@ -246,8 +263,7 @@ public class PipeNodeBlock extends PipeBlock {
                 // 同轴 → 直管
                 Direction.Axis ax = pipe1.getAxis();
                 Direction neg = getDirectionFromAxis(ax, Direction.AxisDirection.NEGATIVE);
-                return ModBlocks.PIPE_STRAIGHT.get()
-                    .defaultBlockState()
+                return PipeBlock.straightVariant(state)
                     .setValue(AXIS, ax)
                     .setValue(HAS_END_START, neg == pipe1 ? !pipe1IsPipe : !pipe2IsPipe)
                     .setValue(HAS_END_END, neg == pipe1 ? !pipe2IsPipe : !pipe1IsPipe)
@@ -256,8 +272,7 @@ public class PipeNodeBlock extends PipeBlock {
                 // 异轴 → 弯管
                 CornerEnded corner = CornerEnded.fromDirections(pipe1, pipe2);
                 boolean firstIsA = corner.getFirstDirection() == pipe1;
-                return ModBlocks.PIPE_CORNER.get()
-                    .defaultBlockState()
+                return PipeBlock.cornerVariant(state)
                     .setValue(CORNER_ENDED, corner)
                     .setValue(HAS_END_START, firstIsA ? !pipe1IsPipe : !pipe2IsPipe)
                     .setValue(HAS_END_END, firstIsA ? !pipe2IsPipe : !pipe1IsPipe)
@@ -270,8 +285,7 @@ public class PipeNodeBlock extends PipeBlock {
         boolean onlyIsPipe = !pipeDirs.isEmpty();
         Direction.Axis ax = only.getAxis();
         Direction neg = getDirectionFromAxis(ax, Direction.AxisDirection.NEGATIVE);
-        return ModBlocks.PIPE_STRAIGHT.get()
-            .defaultBlockState()
+        return PipeBlock.straightVariant(state)
             .setValue(AXIS, ax)
             .setValue(HAS_END_START, neg != only || !onlyIsPipe)
             .setValue(HAS_END_END, neg == only || !onlyIsPipe)
@@ -314,7 +328,11 @@ public class PipeNodeBlock extends PipeBlock {
             return valveResult;
         }
         // 非扳手 → 放行默认交互
-        if (!stack.is(Tags.Items.TOOLS_WRENCH)) {
+        boolean isWrench = stack.is(Tags.Items.TOOLS_WRENCH);
+        boolean isAnvilHammerOnGlassPipe = stack.is(ModItemTags.ANVIL_HAMMER)
+            && state.getBlock() instanceof PipeBlock pipe
+            && pipe.isGlassPipe();
+        if (!isWrench && !isAnvilHammerOnGlassPipe) {
             return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
         }
         // 客户端直接返回成功，服务端处理实际逻辑
@@ -338,7 +356,7 @@ public class PipeNodeBlock extends PipeBlock {
         if (current == NodePipe.PIPE) {
             BlockPos neighborPos = pos.relative(armDir);
             BlockState neighborState = level.getBlockState(neighborPos);
-            if (!(neighborState.getBlock() instanceof PipeNodeBlock)) {
+            if (!(neighborState.getBlock() instanceof PipeNodeBlock) && !isAnvilHammerOnGlassPipe) {
                 return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
             }
         }

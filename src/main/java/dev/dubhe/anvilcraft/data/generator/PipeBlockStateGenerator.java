@@ -25,9 +25,19 @@ import static dev.dubhe.anvilcraft.block.fluid.PipeBlock.CornerEnded.UP_WEST;
 
 public class PipeBlockStateGenerator {
     public static <T extends Block> void pipeStraightBlock(DataGenContext<Block, T> ctx, RegistrumBlockstateProvider provider) {
-        ModelFile straight = DangerUtil.genModModelFile("block/pipe_straight").get();
-        ModelFile noEnd = DangerUtil.genModModelFile("block/pipe_no_end").get();
-        ModelFile end = DangerUtil.genModModelFile("block/pipe_end").get();
+        pipeStraightBlock(ctx, provider, "pipe_straight", "pipe_no_end", "pipe_end");
+    }
+
+    private static <T extends Block> void pipeStraightBlock(
+        DataGenContext<Block, T> ctx,
+        RegistrumBlockstateProvider provider,
+        String straightModel,
+        String noEndModel,
+        String endModel
+    ) {
+        ModelFile straight = DangerUtil.genModModelFile("block/" + straightModel).get();
+        ModelFile noEnd = DangerUtil.genModModelFile("block/" + noEndModel).get();
+        ModelFile end = DangerUtil.genModModelFile("block/" + endModel).get();
         provider.getMultipartBuilder(ctx.get())
             .part()
             .modelFile(straight)
@@ -144,10 +154,24 @@ public class PipeBlockStateGenerator {
             .end();
     }
 
+    public static <T extends Block> void glassPipeStraightBlock(DataGenContext<Block, T> ctx, RegistrumBlockstateProvider provider) {
+        pipeStraightBlock(ctx, provider, "glass_pipe_straight", "glass_pipe_no_end", "glass_pipe_end");
+    }
+
     public static <T extends Block> void pipeCornerBlock(DataGenContext<Block, T> ctx, RegistrumBlockstateProvider provider) {
-        ModelFile sideCorner = DangerUtil.genModModelFile("block/pipe_side_corner").get();
-        ModelFile noEnd = DangerUtil.genModModelFile("block/pipe_no_end").get();
-        ModelFile end = DangerUtil.genModModelFile("block/pipe_end").get();
+        pipeCornerBlock(ctx, provider, "pipe_side_corner", "pipe_no_end", "pipe_end");
+    }
+
+    private static <T extends Block> void pipeCornerBlock(
+        DataGenContext<Block, T> ctx,
+        RegistrumBlockstateProvider provider,
+        String sideCornerModel,
+        String noEndModel,
+        String endModel
+    ) {
+        ModelFile sideCorner = DangerUtil.genModModelFile("block/" + sideCornerModel).get();
+        ModelFile noEnd = DangerUtil.genModModelFile("block/" + noEndModel).get();
+        ModelFile end = DangerUtil.genModModelFile("block/" + endModel).get();
         provider.getMultipartBuilder(ctx.get())
             .part()
             .modelFile(sideCorner)
@@ -363,10 +387,24 @@ public class PipeBlockStateGenerator {
             .end();
     }
 
+    public static <T extends Block> void glassPipeCornerBlock(DataGenContext<Block, T> ctx, RegistrumBlockstateProvider provider) {
+        pipeCornerBlock(ctx, provider, "glass_pipe_side_corner", "glass_pipe_no_end", "glass_pipe_end");
+    }
+
     public static <T extends Block> void pipeNodeBlock(DataGenContext<Block, T> ctx, RegistrumBlockstateProvider provider) {
-        ModelFile node = DangerUtil.genModModelFile("block/pipe_node").get();
-        ModelFile noEnd = DangerUtil.genModModelFile("block/pipe_no_end").get();
-        ModelFile end = DangerUtil.genModModelFile("block/pipe_end").get();
+        pipeNodeBlock(ctx, provider, "pipe_node", "pipe_no_end", "pipe_end");
+    }
+
+    private static <T extends Block> void pipeNodeBlock(
+        DataGenContext<Block, T> ctx,
+        RegistrumBlockstateProvider provider,
+        String nodeModel,
+        String noEndModel,
+        String endModel
+    ) {
+        ModelFile node = DangerUtil.genModModelFile("block/" + nodeModel).get();
+        ModelFile noEnd = DangerUtil.genModModelFile("block/" + noEndModel).get();
+        ModelFile end = DangerUtil.genModModelFile("block/" + endModel).get();
         provider.getMultipartBuilder(ctx.get())
             .part()
             .modelFile(node)
@@ -454,5 +492,9 @@ public class PipeBlockStateGenerator {
             .addModel()
             .condition(PipeNodeBlock.UP, PipeBlock.NodePipe.PIPE)
             .end();
+    }
+
+    public static <T extends Block> void glassPipeNodeBlock(DataGenContext<Block, T> ctx, RegistrumBlockstateProvider provider) {
+        pipeNodeBlock(ctx, provider, "glass_pipe_node", "glass_pipe_no_end", "glass_pipe_end");
     }
 }
