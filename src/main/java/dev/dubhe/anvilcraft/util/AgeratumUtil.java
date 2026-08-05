@@ -215,7 +215,7 @@ public class AgeratumUtil {
 
     public static void renderTooltip(MDRenderContext context, BlockState state, float mouseX, float mouseY, int startX, int startY) {
         if (isHoverBlock(startX, startY, mouseX, mouseY)) {
-            context.tooltips().add(new MDRenderContext.Tooltip(TooltipUtil.tooltip(state.getBlock()), Optional.empty()));
+            context.addTooltip(TooltipUtil.tooltip(state.getBlock()));
         }
     }
 
