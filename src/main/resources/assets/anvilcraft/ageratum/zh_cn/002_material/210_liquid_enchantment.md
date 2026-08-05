@@ -28,6 +28,6 @@ items:
 
 # 魔咒清洗
 
-- 8mB 液态魔咒 + 银粒 → 8mB 空白液态魔咒
+- 8mB 液态魔咒 + <ref item="anvilcraft:silver_nugget"/> → 8mB 空白液态魔咒
 - 1mB 诅咒液态魔咒 + 16 <ref item="minecraft:gold_ingot"/> → 16 <ref item="anvilcraft:cursed_gold_ingot"/>
 - 9mB 诅咒液态魔咒 + 16 <ref item="minecraft:gold_ingot"/> → 16 <ref item="anvilcraft:cursed_gold_block"/>
