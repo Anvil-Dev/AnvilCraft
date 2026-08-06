@@ -19,28 +19,27 @@ public class GlassPipeBlockEntity extends AbstractPipeCheckValveBlockEntity {
     private static final String TAG_DISPLAY_FLUID = "DisplayFluid";
     private static final String TAG_DISPLAY_DIRECTIONS = "DisplayDirections";
     private static final String TAG_DISPLAY_UNTIL = "DisplayUntil";
-    private static final int DISPLAY_DURATION = 40;
-    private static final int DISPLAY_SYNC_INTERVAL = 20;
+    /** 最后一次流动事件后，流体显示保持可见的 tick 数（流动停止后的清理依据）。 */
+    private static final int DISPLAY_DURATION = 1;
 
     private FluidStack displayFluid = FluidStack.EMPTY;
     private final EnumSet<Direction> displayDirections = EnumSet.noneOf(Direction.class);
     private final Map<Direction, Long> displayDirectionUntil = new EnumMap<>(Direction.class);
     private long displayUntil = Long.MIN_VALUE;
-    private long lastDisplaySync = Long.MIN_VALUE;
 
     public GlassPipeBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
     }
 
     public FluidStack getDisplayFluid() {
-        if (this.level == null || this.displayFluid.isEmpty() || this.level.getGameTime() > this.displayUntil) {
+        if (this.level == null || this.displayFluid.isEmpty()) {
             return FluidStack.EMPTY;
         }
         return this.displayFluid;
     }
 
     public Set<Direction> getDisplayDirections() {
-        if (this.level == null || this.displayFluid.isEmpty() || this.level.getGameTime() > this.displayUntil) {
+        if (this.level == null || this.displayFluid.isEmpty()) {
             return Set.of();
         }
         if (this.displayDirections.isEmpty()) {
@@ -57,7 +56,7 @@ public class GlassPipeBlockEntity extends AbstractPipeCheckValveBlockEntity {
             return;
         }
         long gameTime = this.level.getGameTime();
-        final long displayEndGameTime = alignedDisplayEndGameTime(gameTime);
+        final long displayEndGameTime = gameTime + DISPLAY_DURATION;
         final boolean expired = gameTime > this.displayUntil;
         final boolean sameFluid = !this.displayFluid.isEmpty()
             && FluidStack.isSameFluidSameComponents(this.displayFluid, fluid);
@@ -65,21 +64,40 @@ public class GlassPipeBlockEntity extends AbstractPipeCheckValveBlockEntity {
         final boolean changed = expired || !sameFluid || directionsChanged;
         this.displayFluid = fluid.copyWithAmount(1);
         this.displayUntil = displayEndGameTime;
+        // 仅在显示状态实际变化（开始/停止/换流体/换方向）时向客户端发包；
+        // 持续流动相同流体期间不再周期性刷新，显示结束由所属网络的过期检测负责。
         if (changed) {
             this.setChanged();
-        }
-        if (changed || this.shouldSyncDisplay(gameTime)) {
-            this.lastDisplaySync = gameTime;
             this.sendUpdate();
         }
     }
 
-    private static long alignedDisplayEndGameTime(long gameTime) {
-        return ((gameTime / DISPLAY_SYNC_INTERVAL) + 1) * DISPLAY_SYNC_INTERVAL + DISPLAY_DURATION;
+    /**
+     * 显示有效期已过则清除并同步客户端；返回本次是否发生了清除。
+     * 由所属管道网络每 tick 调用，使流动停止后的显示按时消失。
+     */
+    public boolean checkDisplayExpiry() {
+        if (this.level == null || this.level.isClientSide() || this.displayFluid.isEmpty()) {
+            return false;
+        }
+        if (this.level.getGameTime() <= this.displayUntil) {
+            return false;
+        }
+        this.clearDisplay();
+        return true;
     }
 
-    private boolean shouldSyncDisplay(long gameTime) {
-        return gameTime != this.lastDisplaySync && gameTime % DISPLAY_SYNC_INTERVAL == 0;
+    /** 立即清除显示并同步客户端（显示状态变化 → 发包）。 */
+    public void clearDisplay() {
+        if (this.level == null || this.level.isClientSide() || this.displayFluid.isEmpty()) {
+            return;
+        }
+        this.displayFluid = FluidStack.EMPTY;
+        this.displayDirections.clear();
+        this.displayDirectionUntil.clear();
+        this.displayUntil = Long.MIN_VALUE;
+        this.setChanged();
+        this.sendUpdate();
     }
 
     private boolean updateDisplayDirections(
