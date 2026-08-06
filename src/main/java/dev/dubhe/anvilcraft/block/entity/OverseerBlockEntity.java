@@ -58,7 +58,7 @@ public class OverseerBlockEntity extends BlockEntity {
 
         BaseScanResult result = this.scanPyramidBase(level, pos);
         int newLevel = result.completeTiers;
-        int newTierHash = hashTierMappings(result.offsetMappings);
+        int newTierHash = this.hashTierMappings(result.offsetMappings);
         boolean levelChanged = newLevel != this.oldLevel;
         boolean tiersChanged = newTierHash != this.oldTierHash;
 
@@ -91,7 +91,7 @@ public class OverseerBlockEntity extends BlockEntity {
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
                 BlockPos current = center.mutable().move(dx, 0, dz);
-                if (!isValidBaseBlock(level.getBlockState(current))) {
+                if (!this.isValidBaseBlock(level.getBlockState(current))) {
                     return false;
                 }
             }
@@ -106,7 +106,7 @@ public class OverseerBlockEntity extends BlockEntity {
 
         for (int tier = 0; tier < TIER_RADIUS.length; tier++) {
             int radius = TIER_RADIUS[tier];
-            if (!isTierComplete(level, tierCenter, radius)) break;
+            if (!this.isTierComplete(level, tierCenter, radius)) break;
 
             completeTiers++;
 
@@ -114,9 +114,9 @@ public class OverseerBlockEntity extends BlockEntity {
                 for (int dz = -radius; dz <= radius; dz++) {
                     BlockPos blockPos = tierCenter.mutable().move(dx, 0, dz);
                     BlockState state = level.getBlockState(blockPos);
-                    int blockTier = getBlockTier(state);
+                    int blockTier = this.getBlockTier(state);
 
-                    int sourceFlags = getBlockSourceFlags(state);
+                    int sourceFlags = this.getBlockSourceFlags(state);
 
                     if (blockTier >= 1) {
                         offsetMappings.add(new LoadChunkData.BlockOffsetMapping(dx, dz, blockTier, sourceFlags));

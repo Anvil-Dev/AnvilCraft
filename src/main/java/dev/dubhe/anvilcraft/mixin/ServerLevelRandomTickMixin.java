@@ -22,7 +22,7 @@ public class ServerLevelRandomTickMixin {
         cancellable = true
     )
     private void anvilcraft$onTickChunk(LevelChunk chunk, int tickSpeed, CallbackInfo ci) {
-        if (anvilcraft$isReentering || tickSpeed <= 0) {
+        if (this.anvilcraft$isReentering || tickSpeed <= 0) {
             return;
         }
 
