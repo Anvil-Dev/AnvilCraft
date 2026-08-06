@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.util;
 
 import com.mojang.logging.LogUtils;
-import dev.dubhe.anvilcraft.block.utility.OverseerBlock;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
+import dev.dubhe.anvilcraft.block.utility.OverseerBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.Level;

@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.util.OverseerUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.Commands;  // ← 新增：普通导入
 import net.minecraft.commands.arguments.DimensionArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.ClickEvent;
@@ -26,22 +27,19 @@ import org.slf4j.Logger;
 import java.util.Optional;
 import java.util.Set;
 
-import static net.minecraft.commands.Commands.argument;
-import static net.minecraft.commands.Commands.literal;
-
 public class OverseerCommand {
     private static final Logger logger = LogUtils.getLogger();
 
     public static void registerCommand(LiteralArgumentBuilder<CommandSourceStack> builder) {
-        LiteralArgumentBuilder<CommandSourceStack> root = literal("overseer")
+        LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("overseer")
             .requires(source -> source.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER));
         root.then(
-            literal("list")
+            Commands.literal("list")
                 .then(
-                    argument("dimension", DimensionArgument.dimension())
+                    Commands.argument("dimension", DimensionArgument.dimension())
                         .executes(OverseerCommand::listOverseers)
                         .then(
-                            argument("includeInactive", BoolArgumentType.bool())
+                            Commands.argument("includeInactive", BoolArgumentType.bool())
                                 .executes(OverseerCommand::listOverseersWithFlag)
                         )
                 )

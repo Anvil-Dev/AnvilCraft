@@ -15,7 +15,7 @@ public class ChunkFeatureManager {
     private static final Map<ResourceKey<Level>, Map<ChunkPos, Map<BlockPos, LoadChunkData>>> CHUNK_SOURCES = new HashMap<>();
     public static final ThreadLocal<ChunkPos> CURRENT_SPAWNING_CHUNK = new ThreadLocal<>();
     public static final ThreadLocal<ResourceKey<Level>> CURRENT_SPAWNING_DIMENSION = new ThreadLocal<>();
-    public static final int TRANSCENDIUM_DESPAWN_DISTANCE = 32768; //2048 chunks
+    public static final int TRANSCENDIUM_DESPAWN_DISTANCE = 32768; // 2048 chunks
 
     public static void registerChunkFeatures(ResourceKey<Level> dimension, ChunkPos pos, BlockPos sourcePos, LoadChunkData data) {
         CHUNK_SOURCES

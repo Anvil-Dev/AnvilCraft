@@ -25,8 +25,8 @@ public class ServerLevelFireSpreadMixin {
         ChunkPos chunkPos = new ChunkPos(pos.getX() >> 4, pos.getZ() >> 4);
         // noinspection ConstantConditions
         ServerLevel self = (ServerLevel) (Object) this;
-        if (ChunkFeatureManager.isChunkManaged(self.dimension(), chunkPos) &&
-            ChunkFeatureManager.shouldAllowFireSpread(self.dimension(), chunkPos)) {
+        if (ChunkFeatureManager.isChunkManaged(self.dimension(), chunkPos)
+            && ChunkFeatureManager.shouldAllowFireSpread(self.dimension(), chunkPos)) {
             cir.setReturnValue(true);
         }
     }

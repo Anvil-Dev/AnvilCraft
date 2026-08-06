@@ -27,10 +27,10 @@ public abstract class ChunkMapMixin {
             double maxDistanceSqr = (double) ChunkFeatureManager.TRANSCENDIUM_DESPAWN_DISTANCE
                                     * ChunkFeatureManager.TRANSCENDIUM_DESPAWN_DISTANCE;
 
-            double xPos = net.minecraft.core.SectionPos.sectionToBlockCoord(pos.x(), 8);
-            double zPos = net.minecraft.core.SectionPos.sectionToBlockCoord(pos.z(), 8);
-            double xd = xPos - player.getX();
-            double zd = zPos - player.getZ();
+            double xpos = net.minecraft.core.SectionPos.sectionToBlockCoord(pos.x(), 8);
+            double zpos = net.minecraft.core.SectionPos.sectionToBlockCoord(pos.z(), 8);
+            double xd = xpos - player.getX();
+            double zd = zpos - player.getZ();
 
             cir.setReturnValue(xd * xd + zd * zd < maxDistanceSqr);
         }

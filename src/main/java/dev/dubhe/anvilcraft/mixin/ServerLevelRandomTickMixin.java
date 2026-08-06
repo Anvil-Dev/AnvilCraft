@@ -34,12 +34,12 @@ public class ServerLevelRandomTickMixin {
 
             ci.cancel();
 
-            anvilcraft$isReentering = true;
+            this.anvilcraft$isReentering = true;
             try {
                 // noinspection ConstantConditions
                 ((ServerLevel) (Object) this).tickChunk(chunk, 0);
             } finally {
-                anvilcraft$isReentering = false;
+                this.anvilcraft$isReentering = false;
             }
         }
     }
