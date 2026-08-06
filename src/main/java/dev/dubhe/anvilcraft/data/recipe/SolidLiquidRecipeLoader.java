@@ -13,8 +13,6 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import dev.dubhe.anvilcraft.util.FluidStackPredicate;
 import dev.dubhe.anvilcraft.util.VanillaConstants;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -158,7 +156,6 @@ public class SolidLiquidRecipeLoader {
         int amount,
         ResourceKey<Enchantment>... enchantments
     ) {
-        HolderLookup.RegistryLookup<Enchantment> lookup = provider.getProvider().lookupOrThrow(Registries.ENCHANTMENT);
         SolidLiquidRecipe.Builder builder = SolidLiquidRecipe.builder()
             .cauldron(
                 FluidStackPredicate.builder()
@@ -172,7 +169,7 @@ public class SolidLiquidRecipeLoader {
         StringBuilder idBuilder = new StringBuilder();
         for (ResourceKey<Enchantment> enchantment : enchantments) {
             FluidStack stack = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), each);
-            stack.set(ModComponents.LIQUID_ENCHANTMENT, lookup.getOrThrow(enchantment));
+            stack.set(ModComponents.LIQUID_ENCHANTMENT, enchantment);
             builder.transform(stack);
             idBuilder.append(enchantment.location().getPath());
             idBuilder.append("_and_");
@@ -180,5 +177,4 @@ public class SolidLiquidRecipeLoader {
         String id = idBuilder.substring(0, idBuilder.length() - 5);
         builder.save(provider, AnvilCraft.of("solid_liquid/" + id));
     }
-
 }

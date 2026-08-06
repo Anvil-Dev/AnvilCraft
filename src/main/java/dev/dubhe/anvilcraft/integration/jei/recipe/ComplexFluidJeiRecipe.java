@@ -11,7 +11,7 @@ import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import lombok.Getter;
-import net.minecraft.core.Holder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -85,7 +85,7 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         );
     }
 
-    public static ComplexFluidJeiRecipe assimilation(List<? extends Holder<Enchantment>> enchantments) {
+    public static ComplexFluidJeiRecipe assimilation(List<ResourceKey<Enchantment>> enchantments) {
         List<FluidStack> enchantedInputs = LiquidEnchantmentJeiRecipeUtil.createFluidStacks(enchantments, 8);
         List<FluidStack> enchantedResults = LiquidEnchantmentJeiRecipeUtil.createFluidStacks(enchantments, 9);
         return new ComplexFluidJeiRecipe(
@@ -101,7 +101,7 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         );
     }
 
-    public static ComplexFluidJeiRecipe cleanse(List<? extends Holder<Enchantment>> enchantments) {
+    public static ComplexFluidJeiRecipe cleanse(List<ResourceKey<Enchantment>> enchantments) {
         return new ComplexFluidJeiRecipe(
             List.of(ItemIngredientPredicate.of(ModItemTags.SILVER_NUGGETS).build()),
             List.of(),
@@ -112,7 +112,7 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         );
     }
 
-    public static ComplexFluidJeiRecipe curseGoldIngot(List<? extends Holder<Enchantment>> curses) {
+    public static ComplexFluidJeiRecipe curseGoldIngot(List<ResourceKey<Enchantment>> curses) {
         return new ComplexFluidJeiRecipe(
             List.of(ItemIngredientPredicate.of(Items.GOLD_INGOT).withCount(16).build()),
             List.of(ChanceItemStack.of(ModItems.CURSED_GOLD_INGOT, 16)),
@@ -123,7 +123,7 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         );
     }
 
-    public static ComplexFluidJeiRecipe curseGoldBlock(List<? extends Holder<Enchantment>> curses) {
+    public static ComplexFluidJeiRecipe curseGoldBlock(List<ResourceKey<Enchantment>> curses) {
         return new ComplexFluidJeiRecipe(
             List.of(ItemIngredientPredicate.of(Items.GOLD_BLOCK).withCount(16).build()),
             List.of(ChanceItemStack.of(ModBlocks.CURSED_GOLD_BLOCK, 16)),

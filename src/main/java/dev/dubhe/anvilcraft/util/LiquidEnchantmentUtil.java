@@ -3,12 +3,15 @@ package dev.dubhe.anvilcraft.util;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import net.minecraft.core.Holder;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import java.util.Optional;
 
 public final class LiquidEnchantmentUtil {
@@ -20,7 +23,8 @@ public final class LiquidEnchantmentUtil {
 
     public static Optional<Holder<Enchantment>> getEnchantment(FluidStack stack) {
         if (!stack.is(ModFluids.LIQUID_ENCHANTMENT.get())) return Optional.empty();
-        return Optional.ofNullable(stack.get(ModComponents.LIQUID_ENCHANTMENT));
+        return Optional.ofNullable(stack.get(ModComponents.LIQUID_ENCHANTMENT))
+            .flatMap(key -> Objects.requireNonNull(CommonHooks.resolveLookup(Registries.ENCHANTMENT)).get(key));
     }
 
     public static boolean isBlank(FluidStack stack) {
