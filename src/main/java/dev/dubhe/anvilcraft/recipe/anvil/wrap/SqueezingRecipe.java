@@ -25,6 +25,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.function.Consumer;
+import javax.annotation.Nullable;
 
 /**
  * 压榨配方类
@@ -83,9 +84,10 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
      *
      * @return 如果产生流体返回true，否则返回false
      */
+    @SuppressWarnings("unused")
     public boolean isProduceFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
-        return hasCauldron.transform().isPresent();
+        return !hasCauldron.transforms().isEmpty();
     }
 
     /**
@@ -143,12 +145,12 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
         /**
          * 原料列表
          */
-        private BlockStatePredicate ingredient = null;
+        private @Nullable BlockStatePredicate ingredient;
 
         /**
          * 结果列表
          */
-        private ChanceBlockState result = null;
+        private @Nullable ChanceBlockState result;
 
         /**
          * 炼药锅条件构建器
@@ -309,6 +311,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
          *
          * @return 构建器实例
          */
+        @SuppressWarnings("unused")
         public Builder ignite() {
             this.hasCauldron.ignite();
             return this;
@@ -371,7 +374,10 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
 
         @Override
         public SqueezingRecipe buildRecipe() {
-            return new SqueezingRecipe(this.ingredient, this.result, hasCauldron.build(), this.hasAnvil);
+            if (this.ingredient == null || this.result == null) {
+                throw new IllegalStateException("Squeezing recipe requires an ingredient and a result");
+            }
+            return new SqueezingRecipe(this.ingredient, this.result, this.hasCauldron.build(), this.hasAnvil);
         }
 
         @Override

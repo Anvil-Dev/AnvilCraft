@@ -63,14 +63,11 @@ public class MDTimeWarpRecipeComponent extends MDBaseAnvilRecipeComponent {
             );
             AgeratumUtil.renderText(graphics, text, INFO_X, INFO_Y);
         } else if (recipe.isProduceFluid()) {
+            FluidStack transform = getDisplayedElement(recipe.getHasCauldron().transforms());
             Component text = Component.translatable(
                 "gui.anvilcraft.category.time_warp.produce_fluid",
-                recipe.getHasCauldron().produce(),
-                recipe.getHasCauldron().transform()
-                    .map(FluidStack::getFluid)
-                    .map(HasCauldron::getDefaultCauldron)
-                    .orElseGet(() -> HasCauldron.getDefaultCauldron(recipe.getHasCauldron().fluid()))
-                    .getName()
+                transform.getAmount(),
+                HasCauldron.getDefaultCauldron(transform.getFluid()).getName()
             );
             AgeratumUtil.renderText(graphics, text, INFO_X, INFO_Y);
         }
@@ -82,10 +79,10 @@ public class MDTimeWarpRecipeComponent extends MDBaseAnvilRecipeComponent {
     }
 
     public static BlockState getResultCauldron(TimeWarpRecipe recipe) {
-        Block result = recipe.getHasCauldron().transform()
-            .map(FluidStack::getFluid)
-            .map(HasCauldron::getDefaultCauldron)
-            .orElseGet(() -> HasCauldron.getDefaultCauldron(recipe.getHasCauldron().fluid()));
+        List<FluidStack> transforms = recipe.getHasCauldron().transforms();
+        Block result = transforms.isEmpty()
+                       ? HasCauldron.getDefaultCauldron(recipe.getHasCauldron().fluid())
+                       : HasCauldron.getDefaultCauldron(getDisplayedElement(transforms).getFluid());
         if (recipe.isConsumeFluid()) {
             return CauldronUtil.getStateFromContentAndLevel(result, CauldronUtil.maxLevel(result) - 1);
         } else if (recipe.isProduceFluid()) {

@@ -67,14 +67,16 @@ public class FastCookingRecipe extends AbstractProcessRecipe<FastCookingRecipe> 
         return new Builder();
     }
 
+    @SuppressWarnings("unused")
     public boolean isConsumeFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
         return hasCauldron.hasFluid() && hasCauldron.consume() > 0;
     }
 
+    @SuppressWarnings("unused")
     public boolean isProduceFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
-        return hasCauldron.transform().isPresent();
+        return !hasCauldron.transforms().isEmpty();
     }
 
     public static class Serializer implements RecipeSerializer<FastCookingRecipe> {

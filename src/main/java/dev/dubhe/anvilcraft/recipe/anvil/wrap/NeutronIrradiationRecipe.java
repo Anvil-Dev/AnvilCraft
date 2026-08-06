@@ -129,17 +129,17 @@ public class NeutronIrradiationRecipe extends AbstractProcessRecipe<NeutronIrrad
             return this;
         }
 
-        public Builder consume(int consume) {
-            this.hasCauldron.consume(consume);
-            return this;
-        }
-
         public Builder transform(Block cauldron, int produce) {
             return this.transform(BuiltInRegistries.FLUID.get(WrapUtils.cauldron2Fluid(cauldron)), produce);
         }
 
         public Builder transform(FluidStack transform) {
             this.hasCauldron.transform(transform);
+            return this;
+        }
+
+        public Builder consume(int consume) {
+            this.hasCauldron.consume(consume);
             return this;
         }
 

@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.anvil.predicate.block;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -8,6 +9,7 @@ import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import dev.anvilcraft.lib.v2.recipe.predicate.IRecipePredicate;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.util.MathUtil;
+import dev.dubhe.anvilcraft.api.block.ICauldron;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.api.entity.IEntityCauldron;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
@@ -40,7 +42,10 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 
 /**
@@ -51,7 +56,7 @@ import javax.annotation.Nullable;
  * @param offset    偏移量
  * @param fluid     流体谓词
  * @param consume   消耗量
- * @param transform 转换后的流体栈，其数量为产生量
+ * @param transforms 转换后的流体栈列表，每个栈的数量为产生量
  * @param chance    转换成功的概率
  * @param ignited   是否需要点燃
  */
@@ -59,10 +64,16 @@ public record HasCauldron(
     Vec3 offset,
     FluidStackPredicate fluid,
     int consume,
-    Optional<FluidStack> transform,
+    List<FluidStack> transforms,
     float chance,
     boolean ignited
 ) implements IRecipePredicate<HasCauldron> {
+    private static final Codec<List<FluidStack>> TRANSFORMS_CODEC = Codec
+        .either(FluidStack.CODEC, FluidStack.CODEC.listOf())
+        .xmap(
+            either -> either.map(List::of, Function.identity()),
+            transforms -> transforms.size() == 1 ? Either.left(transforms.getFirst()) : Either.right(transforms)
+        );
     private static final FluidStackPredicate EMPTY_PREDICATE = FluidStackPredicate.builder().amount(0).build();
 
     /**
@@ -71,12 +82,12 @@ public record HasCauldron(
      * @param offset    偏移量
      * @param fluid     流体谓词
      * @param consume   消耗量
-     * @param transform 转换后的流体栈
+     * @param transforms 转换后的流体栈列表
      * @param chance    转换成功的概率
      * @param ignited   是否需要点燃
      */
     public HasCauldron {
-        transform = transform.filter(fluidStack -> !fluidStack.isEmpty());
+        transforms = transforms.stream().filter(fluidStack -> !fluidStack.isEmpty()).toList();
     }
 
     /**
@@ -86,7 +97,7 @@ public record HasCauldron(
      * @return HasCauldron实例
      */
     public static HasCauldron empty(Vec3 offset) {
-        return new HasCauldron(offset, EMPTY_PREDICATE, 0, Optional.empty(), 1.0f, false);
+        return new HasCauldron(offset, EMPTY_PREDICATE, 0, List.of(), 1.0f, false);
     }
 
     @Override
@@ -115,12 +126,15 @@ public record HasCauldron(
         BlockPos pos = BlockPos.containing(context.getPos().add(this.offset()));
         BlockCache cache = context.computeIfAbsent(BlockCache.BLOCK_CACHE);
         IEntityCauldron entityCauldron = findEntityCauldron(context, pos);
-        if (!cache.getBlockState(pos).is(BlockTags.CAULDRONS) && entityCauldron == null) return false;
+        BlockState state = cache.getBlockState(pos);
+        if (!state.is(BlockTags.CAULDRONS) && entityCauldron == null) return false;
+        if (this.hasMultipleFluidOutputs() && !HasCauldron.supportsMultipleFluidOutputs(cache, pos)) return false;
 
         if (cache.getBlockEntity(pos) instanceof LargeCauldronBlockEntity cauldron) {
             if (
                 this.consume() > LargeCauldronFluidHandler.TANK_CAPACITY
-                || this.produce() > LargeCauldronFluidHandler.TANK_CAPACITY
+                || this.transforms().stream()
+                    .anyMatch(transform -> transform.getAmount() > LargeCauldronFluidHandler.TANK_CAPACITY)
             ) {
                 return false;
             }
@@ -159,8 +173,8 @@ public record HasCauldron(
         // 锅中有流体 且 转换有效 且 前后流体类型不同 且 锅中流体没有消耗完 否决
         if (
             cur > 0
-            && this.transform().isPresent()
-            && !FluidStack.isSameFluidSameComponents(curFluid, this.transform().get())
+            && !this.transforms().isEmpty()
+            && !FluidStack.isSameFluidSameComponents(curFluid, this.transforms().getFirst())
             && afterConsume != 0
         ) {
             return false;
@@ -179,7 +193,7 @@ public record HasCauldron(
             return;
         }
         if (context.getLevel().getRandom().nextFloat() > this.chance()) return;
-        if (this.consume() == 0 && this.transform().isEmpty()) return;
+        if (this.consume() == 0 && this.transforms().isEmpty()) return;
 
         IEntityCauldron entityCauldron = findEntityCauldron(context, pos);
         FluidStack curFluid = HasCauldron.getCurFluidStack(cache, pos, entityCauldron);
@@ -187,7 +201,7 @@ public record HasCauldron(
         double afterConsume = cur - this.consume();
         double amount = afterConsume + this.produce();
 
-        FluidStack newFluid = this.transform().orElse(curFluid);
+        FluidStack newFluid = this.transforms().isEmpty() ? curFluid : this.transforms().getFirst();
         if (amount > 0 && !newFluid.isEmpty()) {
             HasCauldron.applyFluid(cache, pos, newFluid, amount, this.ignited, entityCauldron);
         } else {
@@ -231,12 +245,16 @@ public record HasCauldron(
     }
 
     public int produce() {
-        return this.transform().map(FluidStack::getAmount).orElse(0);
+        return this.transforms.stream().mapToInt(FluidStack::getAmount).sum();
+    }
+
+    public boolean hasMultipleFluidOutputs() {
+        return this.transforms.size() > 1;
     }
 
     public boolean hasCheck() {
         return this.fluid().fluids().isPresent()
-               || this.fluid().component().map(predicate -> !predicate.alwaysMatches()).orElse(false)
+               || this.fluid().component().map(predicate -> !predicate.patch().isEmpty() || predicate.isNegate()).orElse(false)
                || this.fluid().amount().isPresent()
                || this.fluid().isNegate();
     }
@@ -253,6 +271,14 @@ public record HasCauldron(
      */
     public boolean matchesFluid(FluidStack curFluid) {
         return this.fluid().test(curFluid);
+    }
+
+    private static boolean supportsMultipleFluidOutputs(BlockCache cache, BlockPos pos) {
+        if (cache.getBlockEntity(pos) instanceof ICauldron cauldron) {
+            return cauldron.supportsMultipleFluidOutputs();
+        }
+        return cache.getBlockState(pos).getBlock() instanceof ICauldron cauldron
+               && cauldron.supportsMultipleFluidOutputs();
     }
 
     public static double getCapacity(BlockCache cache, BlockPos pos) {
@@ -274,7 +300,7 @@ public record HasCauldron(
         Fluid fluid = cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron
                       ? cauldron.getFluid(cache, pos)
                       : BuiltInRegistries.FLUID.get(WrapUtils.cauldron2Fluid(cache.getBlockState(pos).getBlock()));
-        return new FluidStack(fluid, (int) Math.round(getCur(cache, pos, entityCauldron)));
+        return new FluidStack(fluid, (int) Math.round(getCur(cache, pos)));
     }
 
     private static double getCur(BlockCache cache, BlockPos pos, @Nullable IEntityCauldron entityCauldron) {
@@ -290,6 +316,10 @@ public record HasCauldron(
         }
         IntegerProperty finalProperty = property;
         return value.map(layer -> (double) layer / finalProperty.max * 1000.0).orElse(1000.0);
+    }
+
+    private static double getCur(BlockCache cache, BlockPos pos) {
+        return getCur(cache, pos, null);
     }
 
     private static void applyEmpty(BlockCache cache, BlockPos pos, @Nullable IEntityCauldron entityCauldron) {
@@ -421,8 +451,8 @@ public record HasCauldron(
                 FluidStackPredicate.CODEC.optionalFieldOf("fluid", FluidStackPredicate.ANY)
                     .forGetter(HasCauldron::fluid),
                 Codec.INT.optionalFieldOf("consume", 0).forGetter(HasCauldron::consume),
-                FluidStack.CODEC.optionalFieldOf("transform")
-                    .forGetter(HasCauldron::transform),
+                TRANSFORMS_CODEC.optionalFieldOf("transform", List.of())
+                    .forGetter(HasCauldron::transforms),
                 Codec.FLOAT.optionalFieldOf("chance", 1.0f).forGetter(HasCauldron::chance),
                 Codec.BOOL.optionalFieldOf("ignited", false).forGetter(HasCauldron::ignited)
             ).apply(instance, HasCauldron::new)
@@ -438,8 +468,8 @@ public record HasCauldron(
             HasCauldron::fluid,
             ByteBufCodecs.INT,
             HasCauldron::consume,
-            ByteBufCodecs.optional(FluidStack.STREAM_CODEC),
-            HasCauldron::transform,
+            FluidStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            HasCauldron::transforms,
             ByteBufCodecs.FLOAT,
             HasCauldron::chance,
             ByteBufCodecs.BOOL,
@@ -465,7 +495,7 @@ public record HasCauldron(
         private Vec3 offset = Vec3.ZERO;
         private FluidStackPredicate fluid = FluidStackPredicate.ANY;
         private int consume = 0;
-        private @Nullable FluidStack transform;
+        private final List<FluidStack> transforms = new ArrayList<>();
         private float chance = 1.00F;
         private boolean ignited = false;
 
@@ -578,17 +608,20 @@ public record HasCauldron(
         }
 
         public Builder transform(Fluid transform, int produce) {
-            this.transform = new FluidStack(transform, produce);
-            return this;
+            return this.transform(new FluidStack(transform, produce));
         }
 
         public Builder transform(Holder<Fluid> transform, int produce) {
-            this.transform = new FluidStack(transform, produce);
-            return this;
+            return this.transform(new FluidStack(transform, produce));
         }
 
         public Builder transform(FluidStack transform) {
-            this.transform = transform;
+            this.transforms.add(transform);
+            return this;
+        }
+
+        public Builder transforms(List<FluidStack> transforms) {
+            this.transforms.addAll(transforms);
             return this;
         }
 
@@ -619,6 +652,7 @@ public record HasCauldron(
          *
          * @return 构建器实例
          */
+        @SuppressWarnings("unused")
         public Builder ignite() {
             this.ignited = true;
             return this;
@@ -634,7 +668,7 @@ public record HasCauldron(
                 this.offset,
                 this.fluid,
                 this.consume,
-                Optional.ofNullable(this.transform),
+                this.transforms,
                 this.chance,
                 this.ignited
             );

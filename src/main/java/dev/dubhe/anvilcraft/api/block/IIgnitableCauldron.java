@@ -4,7 +4,7 @@ import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.material.Fluid;
 
-public interface IIgnitableCauldron {
+public interface IIgnitableCauldron extends ICauldron {
     default boolean isEmpty(BlockCache cache, BlockPos pos) {
         return false;
     }

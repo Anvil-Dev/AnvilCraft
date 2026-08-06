@@ -9,7 +9,6 @@ import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.core.RegistryCodecs;
-import net.minecraft.core.component.DataComponentPredicate;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -76,7 +75,7 @@ public record FluidStackPredicate(
         if (this.fluids.isPresent() && !stack.is(this.fluids.get())) {
             return falseValue;
         }
-        if (this.component.isPresent() && !this.component.get().test(stack)) {
+        if (this.component.isPresent() && !this.component.get().test(stack.getComponents())) {
             return falseValue;
         }
         if (this.amount.isPresent() && !this.amount.get().matches(stack.getAmount())) {
@@ -150,6 +149,7 @@ public record FluidStackPredicate(
             return this;
         }
 
+        @SuppressWarnings("unused")
         public Builder negate() {
             this.isNegate = true;
             return this;

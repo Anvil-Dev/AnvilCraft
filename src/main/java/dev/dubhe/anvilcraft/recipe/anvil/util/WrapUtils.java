@@ -20,12 +20,14 @@ import org.jetbrains.annotations.Unmodifiable;
 
 import java.util.ArrayList;
 import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * 包装工具类
  *
  * <p>提供各种配方相关对象的创建和转换工具方法</p>
  */
+@SuppressWarnings("unused")
 public class WrapUtils {
     /**
      * 根据方块状态谓词列表创建HasBlock谓词列表
@@ -131,7 +133,8 @@ public class WrapUtils {
      * @param result ChanceBlockState
      * @return 物品
      */
-    public static Item getItem(ChanceBlockState result) {
+    public static Item getItem(@Nullable ChanceBlockState result) {
+        if (result == null) return Items.ANVIL;
         BlockState state = result.state();
         if (state.isEmpty() || state.isAir()) return Items.ANVIL;
         Item item = state.getBlock().asItem();

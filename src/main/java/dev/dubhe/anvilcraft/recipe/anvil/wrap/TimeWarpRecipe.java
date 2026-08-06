@@ -107,7 +107,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
      */
     public boolean isProduceFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
-        return hasCauldron.transform().isPresent();
+        return !hasCauldron.transforms().isEmpty();
     }
 
     /**
@@ -159,6 +159,7 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
     /**
      * 时移配方构建器
      */
+    @SuppressWarnings("unused")
     public static class Builder extends SimpleAbstractBuilder<TimeWarpRecipe, Builder> {
         /**
          * 炼药锅条件构建器
@@ -386,6 +387,15 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
             return this;
         }
 
+        public Builder transform(Block cauldron, int produce) {
+            return this.transform(BuiltInRegistries.FLUID.get(WrapUtils.cauldron2Fluid(cauldron)), produce);
+        }
+
+        public Builder transform(FluidStack transform) {
+            this.hasCauldron.transform(transform);
+            return this;
+        }
+
         /**
          * 设置消耗量
          *
@@ -394,15 +404,6 @@ public class TimeWarpRecipe extends AbstractProcessRecipe<TimeWarpRecipe> {
          */
         public Builder consume(int consume) {
             this.hasCauldron.consume(consume);
-            return this;
-        }
-
-        public Builder transform(Block cauldron, int produce) {
-            return this.transform(BuiltInRegistries.FLUID.get(WrapUtils.cauldron2Fluid(cauldron)), produce);
-        }
-
-        public Builder transform(FluidStack transform) {
-            this.hasCauldron.transform(transform);
             return this;
         }
 

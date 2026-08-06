@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.component;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -15,8 +16,9 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-import java.util.Optional;
-import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
 
 /**
  * 简单的炼药锅条件
@@ -25,21 +27,27 @@ import javax.annotation.Nullable;
  *
  * @param fluid     流体谓词
  * @param consume   消耗量
- * @param transform 转换后的流体栈，其数量为产生量
+ * @param transforms 转换后的流体栈列表，每个栈的数量为产生量
  * @param chance    转换成功的概率
  * @param ignited   是否需要点燃
  */
 public record HasCauldronSimple(
     FluidStackPredicate fluid,
     int consume,
-    Optional<FluidStack> transform,
+    List<FluidStack> transforms,
     float chance,
     boolean ignited
 ) {
+    private static final Codec<List<FluidStack>> TRANSFORMS_CODEC = Codec
+        .either(FluidStack.CODEC, FluidStack.CODEC.listOf())
+        .xmap(
+            either -> either.map(List::of, Function.identity()),
+            transforms -> transforms.size() == 1 ? Either.left(transforms.getFirst()) : Either.right(transforms)
+        );
     private static final FluidStackPredicate EMPTY_PREDICATE = FluidStackPredicate.builder().amount(0).build();
 
     public HasCauldronSimple {
-        transform = transform.filter(fluidStack -> !fluidStack.isEmpty());
+        transforms = transforms.stream().filter(fluidStack -> !fluidStack.isEmpty()).toList();
     }
 
     /**
@@ -48,7 +56,7 @@ public record HasCauldronSimple(
     public static final MapCodec<HasCauldronSimple> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         FluidStackPredicate.CODEC.optionalFieldOf("fluid", EMPTY_PREDICATE).forGetter(HasCauldronSimple::fluid),
         Codec.INT.optionalFieldOf("consume", 0).forGetter(HasCauldronSimple::consume),
-        FluidStack.CODEC.optionalFieldOf("transform").forGetter(HasCauldronSimple::transform),
+        TRANSFORMS_CODEC.optionalFieldOf("transform", List.of()).forGetter(HasCauldronSimple::transforms),
         Codec.FLOAT.optionalFieldOf("chance", 1.0f).forGetter(HasCauldronSimple::chance),
         Codec.BOOL.optionalFieldOf("ignited", false).forGetter(HasCauldronSimple::ignited)
     ).apply(instance, HasCauldronSimple::new));
@@ -61,8 +69,8 @@ public record HasCauldronSimple(
         HasCauldronSimple::fluid,
         ByteBufCodecs.INT,
         HasCauldronSimple::consume,
-        ByteBufCodecs.optional(FluidStack.STREAM_CODEC),
-        HasCauldronSimple::transform,
+        FluidStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
+        HasCauldronSimple::transforms,
         ByteBufCodecs.FLOAT,
         HasCauldronSimple::chance,
         ByteBufCodecs.BOOL,
@@ -77,19 +85,20 @@ public record HasCauldronSimple(
      * @return HasCauldron谓词
      */
     public HasCauldron toHasCauldron(Vec3 offset) {
-        return new HasCauldron(offset, this.fluid, this.consume, this.transform, this.chance, this.ignited);
+        return new HasCauldron(offset, this.fluid, this.consume, this.transforms, this.chance, this.ignited);
     }
 
     public boolean hasFluid() {
         return this.fluid.fluids().isPresent();
     }
 
+    @SuppressWarnings("unused")
     public boolean requiresEmptyCauldron() {
         return this.fluid.equals(EMPTY_PREDICATE);
     }
 
     public int produce() {
-        return this.transform.map(FluidStack::getAmount).orElse(0);
+        return this.transforms.stream().mapToInt(FluidStack::getAmount).sum();
     }
 
     /**
@@ -123,7 +132,7 @@ public record HasCauldronSimple(
     public static class Builder {
         private FluidStackPredicate fluid = EMPTY_PREDICATE;
         private int consume = 0;
-        private @Nullable FluidStack transform;
+        private final List<FluidStack> transforms = new ArrayList<>();
         private float chance = 1.0f;
         private boolean ignited = false;
 
@@ -178,8 +187,13 @@ public record HasCauldronSimple(
         }
 
         public Builder transform(FluidStack transform) {
-            this.transform = transform;
+            this.transforms.add(transform);
             if (this.requiresEmptyCauldron()) this.fluid = FluidStackPredicate.ANY;
+            return this;
+        }
+
+        public Builder transforms(List<FluidStack> transforms) {
+            transforms.forEach(this::transform);
             return this;
         }
 
@@ -224,7 +238,7 @@ public record HasCauldronSimple(
             return new HasCauldronSimple(
                 this.fluid,
                 this.consume,
-                Optional.ofNullable(this.transform),
+                this.transforms,
                 this.chance,
                 this.ignited
             );

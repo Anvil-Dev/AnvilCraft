@@ -141,7 +141,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
      */
     public boolean isProduceFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
-        return hasCauldron.transform().isPresent();
+        return !hasCauldron.transforms().isEmpty();
     }
 
     /**

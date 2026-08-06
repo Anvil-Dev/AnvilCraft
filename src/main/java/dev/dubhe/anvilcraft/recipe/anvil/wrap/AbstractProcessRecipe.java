@@ -46,6 +46,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import javax.annotation.Nullable;
 
 /**
  * 抽象处理配方类
@@ -154,7 +155,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
      * @return 炼药锅条件
      */
     public HasCauldronSimple getHasCauldron() {
-        return this.property.getHasCauldron();
+        return Objects.requireNonNull(this.property.getHasCauldron());
     }
 
     /**
@@ -171,7 +172,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
      *
      * @return 产热信息
      */
-    public ProduceHeat getProduceHeat() {
+    public @Nullable ProduceHeat getProduceHeat() {
         return this.property.getProduceHeat();
     }
 
@@ -467,7 +468,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         /**
          * 输入物品列表
          */
-        private List<ItemIngredientPredicate> inputItems = null;
+        private @Nullable List<ItemIngredientPredicate> inputItems = null;
 
         /** Optional functions applied to each matched input item. */
         private final Map<Integer, List<IPredicateFunction<?>>> inputItemFunctions = new HashMap<>();
@@ -480,7 +481,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         /**
          * 结果物品列表
          */
-        private List<ChanceItemStack> resultItems = null;
+        private @Nullable List<ChanceItemStack> resultItems = null;
 
         /** Optional functions applied to each spawned item result. */
         private final Map<Integer, List<IOutcomeFunction<?>>> resultItemFunctions = new HashMap<>();
@@ -495,7 +496,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         /**
          * 输入方块列表
          */
-        private List<BlockStatePredicate> inputBlocks = null;
+        private @Nullable List<BlockStatePredicate> inputBlocks = null;
 
         /**
          * 方块输出偏移量
@@ -505,7 +506,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         /**
          * 结果方块列表
          */
-        private List<ChanceBlockState> resultBlocks = null;
+        private @Nullable List<ChanceBlockState> resultBlocks = null;
 
         /**
          * 炼药锅偏移量
@@ -515,7 +516,7 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         /**
          * 炼药锅条件
          */
-        private HasCauldronSimple hasCauldron = null;
+        private @Nullable HasCauldronSimple hasCauldron = null;
 
         /**
          * 铁砧条件
@@ -525,12 +526,12 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
         /**
          * 产热信息
          */
-        private ProduceHeat produceHeat = null;
+        private @Nullable ProduceHeat produceHeat = null;
 
         /**
          * 优先级
          */
-        private Integer priority = null;
+        private @Nullable Integer priority = null;
 
         /**
          * 额外结果列表
@@ -543,16 +544,19 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          * @param outcome 额外结果
          * @return 属性实例
          */
+        @SuppressWarnings("UnusedReturnValue")
         public Property addOutcome(IRecipeOutcome<?> outcome) {
             this.extraOutcomes.add(outcome);
             return this;
         }
 
+        @SuppressWarnings("UnusedReturnValue")
         public Property addInputItemFunction(int index, IPredicateFunction<?> function) {
             this.inputItemFunctions.computeIfAbsent(index, ignored -> new ArrayList<>()).add(function);
             return this;
         }
 
+        @SuppressWarnings("UnusedReturnValue")
         public Property addResultItemFunction(
             int index,
             IOutcomeFunction<?> function
@@ -796,14 +800,14 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
                    + (this.inputBlocks == null ? 0 : this.inputBlocks.size() * 100)
                    + (this.resultBlocks == null ? 0 : this.resultBlocks.size())
                    + this.getHasCauldronPriority()
-                   + (this.hasAnvil != null ? 1 : 0);
+                   + (this.hasAnvil != HasAnvil.DEFAULT ? 1 : 0);
         }
 
         private int getHasCauldronPriority() {
             if (this.hasCauldron == null) return 0;
             int priority = 1;
             if (this.hasCauldron.hasFluid()) priority++;
-            if (this.hasCauldron.transform().isPresent()) priority++;
+            if (!this.hasCauldron.transforms().isEmpty()) priority++;
             return priority;
         }
 

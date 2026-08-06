@@ -1,0 +1,41 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "consume": 12,
+  "fluid": {
+    "components": {
+      "patch": {
+        "!anvilcraft:liquid_enchantment": {}
+      }
+    },
+    "fluids": "anvilcraft:liquid_enchantment"
+  },
+  "ingredients": [
+    {
+      "items": "minecraft:amethyst_block"
+    }
+  ],
+  "results": [],
+  "transform": [
+    {
+      "amount": 4,
+      "components": {
+        "anvilcraft:liquid_enchantment": "anvilcraft:felling"
+      },
+      "id": "anvilcraft:liquid_enchantment"
+    },
+    {
+      "amount": 4,
+      "components": {
+        "anvilcraft:liquid_enchantment": "anvilcraft:harvest"
+      },
+      "id": "anvilcraft:liquid_enchantment"
+    },
+    {
+      "amount": 4,
+      "components": {
+        "anvilcraft:liquid_enchantment": "anvilcraft:beheading"
+      },
+      "id": "anvilcraft:liquid_enchantment"
+    }
+  ]
+}

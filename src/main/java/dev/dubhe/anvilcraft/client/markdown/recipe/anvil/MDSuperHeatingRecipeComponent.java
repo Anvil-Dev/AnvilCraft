@@ -50,10 +50,10 @@ public class MDSuperHeatingRecipeComponent extends MDBaseAnvilRecipeComponent {
     }
 
     public static BlockState getResultCauldron(SuperHeatingRecipe recipe) {
-        Block result = recipe.getHasCauldron().transform()
-            .map(FluidStack::getFluid)
-            .map(HasCauldron::getDefaultCauldron)
-            .orElseGet(() -> HasCauldron.getDefaultCauldron(recipe.getHasCauldron().fluid()));
+        List<FluidStack> transforms = recipe.getHasCauldron().transforms();
+        Block result = transforms.isEmpty()
+                       ? HasCauldron.getDefaultCauldron(recipe.getHasCauldron().fluid())
+                       : HasCauldron.getDefaultCauldron(getDisplayedElement(transforms).getFluid());
         if (recipe.isConsumeFluid()) {
             return CauldronUtil.getStateFromContentAndLevel(result, CauldronUtil.maxLevel(result) - 1);
         } else if (recipe.isProduceFluid()) {

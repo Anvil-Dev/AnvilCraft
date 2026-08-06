@@ -6,12 +6,12 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidUtil;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
-import dev.dubhe.anvilcraft.util.FluidStackPredicate;
+import lombok.Getter;
 import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -22,12 +22,16 @@ import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import java.util.ArrayList;
 import java.util.List;
 
-/** JEI 专用的复杂流体反应配方，用于展示同时包含物品和流体的大锅反应。 */
+/**
+ * JEI 专用的复杂流体反应配方，用于展示同时包含物品和流体的大锅反应。
+ */
 public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
+    @Getter
     private final List<ItemIngredientPredicate> inputItems;
     private final List<ChanceItemStack> resultItems;
     private final List<List<FluidStack>> displayFluidInputs;
     private final List<List<FluidStack>> displayFluidResults;
+    @Getter
     private final boolean heaterRequired;
     private final boolean linkFluidVariants;
 
@@ -53,26 +57,29 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         this.linkFluidVariants = linkFluidVariants;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean isComplex(SolidLiquidRecipe recipe) {
         HasCauldronSimple cauldron = recipe.getHasCauldron();
-        return cauldron.consume() > FluidType.BUCKET_VOLUME
+        return cauldron.transforms().size() > 1
+               || cauldron.consume() > FluidType.BUCKET_VOLUME
                || cauldron.produce() > FluidType.BUCKET_VOLUME;
     }
 
     public static ComplexFluidJeiRecipe fromSolidLiquid(SolidLiquidRecipe recipe) {
         HasCauldronSimple cauldron = recipe.getHasCauldron();
-        List<FluidStack> inputs = createFluidStacks(
+        List<FluidStack> inputs = JeiFluidUtil.getDisplayFluids(
             cauldron.fluid(),
             displayAmount(cauldron.consume())
         );
-        List<FluidStack> results = cauldron.transform()
-            .map(fluid -> createFluidStacks(fluid, displayAmount(cauldron.produce())))
-            .orElseGet(List::of);
+        List<List<FluidStack>> results = cauldron.transforms().stream()
+            .map(fluid -> JeiFluidUtil.getDisplayFluids(fluid, displayAmount(fluid.getAmount())))
+            .filter(group -> !group.isEmpty())
+            .toList();
         return new ComplexFluidJeiRecipe(
             recipe.getInputItems(),
             recipe.getResultItems(),
             asGroup(inputs),
-            asGroup(results),
+            results,
             false,
             false
         );
@@ -127,10 +134,6 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         );
     }
 
-    public List<ItemIngredientPredicate> getInputItems() {
-        return this.inputItems;
-    }
-
     public List<ChanceItemStack> getDisplayItemResults() {
         return this.resultItems;
     }
@@ -149,10 +152,6 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
 
     public int getDisplayFluidResultCount() {
         return this.displayFluidResults.size();
-    }
-
-    public boolean isHeaterRequired() {
-        return this.heaterRequired;
     }
 
     public boolean shouldLinkFluidVariants() {
@@ -194,18 +193,4 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         return amount > 0 ? amount : FluidType.BUCKET_VOLUME;
     }
 
-    private static List<FluidStack> createFluidStacks(FluidStackPredicate predicate, int amount) {
-        return predicate.fluids().stream()
-            .flatMap(HolderSet::stream)
-            .map(Holder::value)
-            .filter(value -> value.defaultFluidState().isSource())
-            .distinct()
-            .map(value -> new FluidStack(value, amount))
-            .toList();
-    }
-
-    private static List<FluidStack> createFluidStacks(FluidStack fluid, int amount) {
-        if (!fluid.getFluid().defaultFluidState().isSource()) return List.of();
-        return List.of(fluid.copyWithAmount(amount));
-    }
 }

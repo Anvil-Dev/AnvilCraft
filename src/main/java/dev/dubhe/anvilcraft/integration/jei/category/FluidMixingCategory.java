@@ -13,13 +13,13 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.recipe.ComplexFluidJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.LiquidEnchantmentJeiRecipeUtil;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiItemUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import mezz.jei.api.gui.ITickTimer;
-import mezz.jei.api.gui.builder.IIngredientAcceptor;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -34,12 +34,9 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
 import org.jetbrains.annotations.Nullable;
@@ -119,24 +116,20 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
 
     private static void setFluidMixingRecipe(IRecipeLayoutBuilder builder, FluidMixingRecipe recipe) {
         List<SizedFluidIngredient> ingredients = recipe.getFluidIngredients();
-        IIngredientAcceptor<?> bucketIngredients = builder.addInvisibleIngredients(RecipeIngredientRole.INPUT);
         for (int index = 0; index < ingredients.size(); index++) {
             SizedFluidIngredient ingredient = ingredients.get(index);
             SlotPosition position = inputPosition(ingredients.size(), index);
-            IRecipeSlotBuilder recipeSlot = builder.addSlot(
+            JeiFluidUtil.addFluidSlot(
+                builder,
                 RecipeIngredientRole.INPUT,
                 position.x() + 1,
-                position.y() + 1
-            ).setFluidRenderer(ingredient.amount(), false, 16, 16);
-            for (FluidStack fluid : ingredient.getFluids()) {
-                recipeSlot.addFluidStack(
-                    fluid.getFluid(),
-                    ingredient.amount(),
-                    fluid.getComponentsPatch()
-                );
-                Item bucket = fluid.getFluid().getBucket();
-                if (bucket != Items.AIR) bucketIngredients.addItemStack(new ItemStack(bucket));
-            }
+                position.y() + 1,
+                16,
+                16,
+                ingredient.amount(),
+                false,
+                List.of(ingredient.getFluids())
+            );
         }
 
         List<ItemStack> itemResults = recipe.getItemResults();
@@ -147,15 +140,20 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
             builder.addSlot(RecipeIngredientRole.OUTPUT, position.x() + 1, position.y() + 1)
                 .addItemStack(itemResults.get(index).copy());
         }
-        IIngredientAcceptor<?> outputBuckets = builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT);
         for (int index = 0; index < fluidResults.size(); index++) {
             FluidStack fluid = fluidResults.get(index);
             SlotPosition position = fluidOutputPosition(fluidResults.size(), index, splitOutputColumns);
-            builder.addSlot(RecipeIngredientRole.OUTPUT, position.x() + 1, position.y() + 1)
-                .setFluidRenderer(fluid.getAmount(), true, 16, 16)
-                .addFluidStack(fluid.getFluid(), fluid.getAmount(), fluid.getComponentsPatch());
-            Item bucket = fluid.getFluid().getBucket();
-            if (bucket != Items.AIR) outputBuckets.addItemStack(new ItemStack(bucket));
+            JeiFluidUtil.addFluidSlot(
+                builder,
+                RecipeIngredientRole.OUTPUT,
+                position.x() + 1,
+                position.y() + 1,
+                16,
+                16,
+                fluid.getAmount(),
+                true,
+                List.of(fluid)
+            );
         }
     }
 
@@ -186,10 +184,10 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
         }
         if (recipe.isHeaterRequired()) {
             builder.addSlot(
-                RecipeIngredientRole.CATALYST,
-                HEATER_POSITION.x() + 1,
-                HEATER_POSITION.y() + 1
-            ).addItemStacks(List.of(ModBlocks.HEATER.asStack(), ModBlocks.BURNING_HEATER.asStack()))
+                    RecipeIngredientRole.CATALYST,
+                    HEATER_POSITION.x() + 1,
+                    HEATER_POSITION.y() + 1
+                ).addItemStacks(List.of(ModBlocks.HEATER.asStack(), ModBlocks.BURNING_HEATER.asStack()))
                 .addRichTooltipCallback((slotView, tooltip) -> tooltip.add(HEATER_ACTIVE));
         }
 
@@ -231,20 +229,17 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
         boolean showCapacity
     ) {
         int amount = fluids.getFirst().getAmount();
-        IRecipeSlotBuilder slot = builder.addSlot(role, position.x() + 1, position.y() + 1)
-            .setFluidRenderer(amount, showCapacity, 16, 16);
-        for (FluidStack fluid : fluids) {
-            slot.addFluidStack(fluid.getFluid(), fluid.getAmount(), fluid.getComponentsPatch());
-        }
-        List<ItemStack> buckets = fluids.stream()
-            .map(FluidStack::getFluid)
-            .map(Fluid::getBucket)
-            .filter(bucket -> bucket != Items.AIR)
-            .distinct()
-            .map(ItemStack::new)
-            .toList();
-        if (!buckets.isEmpty()) builder.addInvisibleIngredients(role).addItemStacks(buckets);
-        return slot;
+        return JeiFluidUtil.addFluidSlot(
+            builder,
+            role,
+            position.x() + 1,
+            position.y() + 1,
+            16,
+            16,
+            amount,
+            showCapacity,
+            fluids
+        );
     }
 
     @Override
@@ -319,8 +314,8 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
         if (count == 2) return new SlotPosition(6 + index * 19, 23);
         if (count == 3) {
             return index == 0
-                ? new SlotPosition(15, 14)
-                : new SlotPosition(6 + (index - 1) * 19, 33);
+                   ? new SlotPosition(15, 14)
+                   : new SlotPosition(6 + (index - 1) * 19, 33);
         }
         return new SlotPosition(6 + index % 2 * 19, 14 + index / 2 * 19);
     }

@@ -80,7 +80,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         final boolean hasInputItems = !recipe.getInputItems().isEmpty();
         final boolean hasOutputItems = !recipe.getResultItems().isEmpty();
         final boolean hasInputFluid = cauldron.hasFluid();
-        final boolean hasOutputFluid = cauldron.transform().isPresent();
+        final boolean hasOutputFluid = !cauldron.transforms().isEmpty();
 
         final boolean inputMixed = hasInputItems && hasInputFluid;
         final boolean outputMixed = hasOutputItems && hasOutputFluid;
@@ -111,9 +111,9 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         }
         if (hasOutputFluid) {
             if (outputMixed) {
-                JeiFluidUtil.addFluidOutputSlot(builder, OUTPUT_FLUID, 16, 16, cauldron);
+                JeiFluidUtil.addFluidOutputSlots(builder, OUTPUT_FLUID, 16, 16, cauldron);
             } else {
-                JeiFluidUtil.addDefaultOutputSlot(builder, OUTPUT_FLUID, 16, 16, cauldron);
+                JeiFluidUtil.addDefaultOutputSlots(builder, OUTPUT_FLUID, 16, 16, cauldron);
             }
         }
     }
@@ -147,7 +147,7 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         final boolean hasInputItems = !recipe.getInputItems().isEmpty();
         final boolean hasOutputItems = !recipe.getResultItems().isEmpty();
         final boolean hasInputFluid = cauldron.hasFluid();
-        final boolean hasOutputFluid = cauldron.transform().isPresent();
+        final boolean hasOutputFluid = !cauldron.transforms().isEmpty();
 
         final boolean inputMixed = hasInputItems && hasInputFluid;
         final boolean outputMixed = hasOutputItems && hasOutputFluid;
@@ -180,10 +180,11 @@ public abstract class AbstractLiquidCategory<T extends AbstractProcessRecipe<?>>
         }
         // 输出流体
         if (hasOutputFluid) {
+            IDrawable fluidSlot = cauldron.chance() < 1.0f ? slotProbability : slotDefault;
             if (outputMixed) {
-                JeiSlotUtil.drawFluidOutputSlots(guiGraphics, slotDefault, 1);
+                JeiSlotUtil.drawFluidOutputSlots(guiGraphics, fluidSlot, cauldron.transforms().size());
             } else {
-                JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, slotDefault, 1);
+                JeiSlotUtil.drawDefaultOutputSlots(guiGraphics, fluidSlot, cauldron.transforms().size());
             }
         }
 

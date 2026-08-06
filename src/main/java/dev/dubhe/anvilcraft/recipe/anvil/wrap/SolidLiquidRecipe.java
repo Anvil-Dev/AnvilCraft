@@ -31,6 +31,7 @@ import java.util.List;
 /** An anvil-processing recipe between item ingredients and cauldron fluid. */
 @Getter
 public class SolidLiquidRecipe extends AbstractProcessRecipe<SolidLiquidRecipe> {
+    @SuppressWarnings("unused")
     public SolidLiquidRecipe(
         List<ItemIngredientPredicate> itemIngredients,
         List<ChanceItemStack> results,
@@ -79,9 +80,10 @@ public class SolidLiquidRecipe extends AbstractProcessRecipe<SolidLiquidRecipe> 
 
     public boolean isProduceFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
-        return hasCauldron.transform().isPresent();
+        return !hasCauldron.transforms().isEmpty();
     }
 
+    @SuppressWarnings("unused")
     public boolean isFromWater() {
         return this.getHasCauldron().fluid().fluids()
             .map(fluids -> fluids.stream().anyMatch(holder -> holder.value() == Fluids.WATER))
@@ -195,7 +197,7 @@ public class SolidLiquidRecipe extends AbstractProcessRecipe<SolidLiquidRecipe> 
             if (!cauldron.hasFluid()) {
                 throw new IllegalArgumentException("Recipe fluid must not be empty, RecipeId: " + id);
             }
-            if (this.results.isEmpty() && cauldron.transform().isEmpty()) {
+            if (this.results.isEmpty() && cauldron.transforms().isEmpty()) {
                 throw new IllegalArgumentException("Recipe must have an item or fluid result, RecipeId: " + id);
             }
         }
