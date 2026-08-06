@@ -24,7 +24,7 @@ public abstract class MobMixin {
         Mob self = (Mob) (Object) this;
         ChunkPos currentChunk = new ChunkPos(self.blockPosition().getX() >> 4, self.blockPosition().getZ() >> 4);
 
-        if (ChunkFeatureManager.shouldAllowNaturalSpawn(currentChunk)) {
+        if (ChunkFeatureManager.shouldAllowNaturalSpawn(self.level().dimension(), currentChunk)) {
             return ChunkFeatureManager.TRANSCENDIUM_DESPAWN_DISTANCE;
         }
         return original.call(category);

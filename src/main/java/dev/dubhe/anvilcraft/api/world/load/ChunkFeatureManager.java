@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.api.world.load;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,30 +11,45 @@ import java.util.Map;
 import java.util.Set;
 
 public class ChunkFeatureManager {
-    private static final Map<ChunkPos, Map<BlockPos, LoadChunkData>> CHUNK_SOURCES = new HashMap<>();
+    /// 按维度分组的区块源数据，避免不同维度同坐标区块互相影响
+    private static final Map<ResourceKey<Level>, Map<ChunkPos, Map<BlockPos, LoadChunkData>>> CHUNK_SOURCES = new HashMap<>();
     public static final ThreadLocal<ChunkPos> CURRENT_SPAWNING_CHUNK = new ThreadLocal<>();
+    public static final ThreadLocal<ResourceKey<Level>> CURRENT_SPAWNING_DIMENSION = new ThreadLocal<>();
     public static final int TRANSCENDIUM_DESPAWN_DISTANCE = 32768; //2048 chunks
 
-    public static void registerChunkFeatures(ChunkPos pos, BlockPos sourcePos, LoadChunkData data) {
-        CHUNK_SOURCES.computeIfAbsent(pos, k -> new HashMap<>()).put(sourcePos, data);
+    public static void registerChunkFeatures(ResourceKey<Level> dimension, ChunkPos pos, BlockPos sourcePos, LoadChunkData data) {
+        CHUNK_SOURCES
+            .computeIfAbsent(dimension, k -> new HashMap<>())
+            .computeIfAbsent(pos, k -> new HashMap<>())
+            .put(sourcePos, data);
     }
 
-    public static void unregisterChunkFeatures(ChunkPos pos, BlockPos sourcePos) {
-        Map<BlockPos, LoadChunkData> sources = CHUNK_SOURCES.get(pos);
+    public static void unregisterChunkFeatures(ResourceKey<Level> dimension, ChunkPos pos, BlockPos sourcePos) {
+        Map<ChunkPos, Map<BlockPos, LoadChunkData>> dimSources = CHUNK_SOURCES.get(dimension);
+        if (dimSources == null) return;
+
+        Map<BlockPos, LoadChunkData> sources = dimSources.get(pos);
         if (sources != null) {
             sources.remove(sourcePos);
             if (sources.isEmpty()) {
-                CHUNK_SOURCES.remove(pos);
+                dimSources.remove(pos);
+                if (dimSources.isEmpty()) {
+                    CHUNK_SOURCES.remove(dimension);
+                }
             }
         }
     }
 
-    public static boolean isChunkManaged(ChunkPos pos) {
-        return CHUNK_SOURCES.containsKey(pos);
+    public static boolean isChunkManaged(ResourceKey<Level> dimension, ChunkPos pos) {
+        Map<ChunkPos, Map<BlockPos, LoadChunkData>> dimSources = CHUNK_SOURCES.get(dimension);
+        return dimSources != null && dimSources.containsKey(pos);
     }
 
-    public static boolean shouldSkipRandomTick(ChunkPos pos) {
-        Map<BlockPos, LoadChunkData> sources = CHUNK_SOURCES.get(pos);
+    public static boolean shouldSkipRandomTick(ResourceKey<Level> dimension, ChunkPos pos) {
+        Map<ChunkPos, Map<BlockPos, LoadChunkData>> dimSources = CHUNK_SOURCES.get(dimension);
+        if (dimSources == null) return false;
+
+        Map<BlockPos, LoadChunkData> sources = dimSources.get(pos);
         if (sources == null || sources.isEmpty()) return false; // 默认运算
 
         for (LoadChunkData data : sources.values()) {
@@ -41,8 +58,11 @@ public class ChunkFeatureManager {
         return false;
     }
 
-    public static boolean shouldAllowFireSpread(ChunkPos pos) {
-        Map<BlockPos, LoadChunkData> sources = CHUNK_SOURCES.get(pos);
+    public static boolean shouldAllowFireSpread(ResourceKey<Level> dimension, ChunkPos pos) {
+        Map<ChunkPos, Map<BlockPos, LoadChunkData>> dimSources = CHUNK_SOURCES.get(dimension);
+        if (dimSources == null) return false;
+
+        Map<BlockPos, LoadChunkData> sources = dimSources.get(pos);
         if (sources == null || sources.isEmpty()) return false;
 
         for (LoadChunkData data : sources.values()) {
@@ -51,8 +71,11 @@ public class ChunkFeatureManager {
         return false;
     }
 
-    public static boolean shouldAllowNaturalSpawn(ChunkPos pos) {
-        Map<BlockPos, LoadChunkData> sources = CHUNK_SOURCES.get(pos);
+    public static boolean shouldAllowNaturalSpawn(ResourceKey<Level> dimension, ChunkPos pos) {
+        Map<ChunkPos, Map<BlockPos, LoadChunkData>> dimSources = CHUNK_SOURCES.get(dimension);
+        if (dimSources == null) return false;
+
+        Map<BlockPos, LoadChunkData> sources = dimSources.get(pos);
         if (sources == null || sources.isEmpty()) return false;
 
         for (LoadChunkData data : sources.values()) {
@@ -61,8 +84,11 @@ public class ChunkFeatureManager {
         return false;
     }
 
-    public static boolean shouldAllowSpawnerSpawn(ChunkPos pos) {
-        Map<BlockPos, LoadChunkData> sources = CHUNK_SOURCES.get(pos);
+    public static boolean shouldAllowSpawnerSpawn(ResourceKey<Level> dimension, ChunkPos pos) {
+        Map<ChunkPos, Map<BlockPos, LoadChunkData>> dimSources = CHUNK_SOURCES.get(dimension);
+        if (dimSources == null) return false;
+
+        Map<BlockPos, LoadChunkData> sources = dimSources.get(pos);
         if (sources == null || sources.isEmpty()) return false;
 
         for (LoadChunkData data : sources.values()) {
@@ -71,9 +97,12 @@ public class ChunkFeatureManager {
         return false;
     }
 
-    public static Set<ChunkPos> getAllNaturalSpawnChunks() {
+    public static Set<ChunkPos> getAllNaturalSpawnChunks(ResourceKey<Level> dimension) {
         Set<ChunkPos> result = new HashSet<>();
-        for (Map.Entry<ChunkPos, Map<BlockPos, LoadChunkData>> entry : CHUNK_SOURCES.entrySet()) {
+        Map<ChunkPos, Map<BlockPos, LoadChunkData>> dimSources = CHUNK_SOURCES.get(dimension);
+        if (dimSources == null) return result;
+
+        for (Map.Entry<ChunkPos, Map<BlockPos, LoadChunkData>> entry : dimSources.entrySet()) {
             ChunkPos chunkPos = entry.getKey();
             for (LoadChunkData data : entry.getValue().values()) {
                 if (data.shouldAllowNaturalSpawn(chunkPos)) {

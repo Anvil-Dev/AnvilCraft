@@ -21,9 +21,9 @@ public class BaseSpawnerMixin {
     private void onIsNearPlayer(Level level, BlockPos pos, CallbackInfoReturnable<Boolean> cir) {
         ChunkPos chunkPos = new ChunkPos(pos.getX() >> 4, pos.getZ() >> 4);
 
-        if (!ChunkFeatureManager.isChunkManaged(chunkPos)) return;
+        if (!ChunkFeatureManager.isChunkManaged(level.dimension(), chunkPos)) return;
 
-        if (ChunkFeatureManager.shouldAllowSpawnerSpawn(chunkPos)) {
+        if (ChunkFeatureManager.shouldAllowSpawnerSpawn(level.dimension(), chunkPos)) {
             cir.setReturnValue(true);
         }
     }

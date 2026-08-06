@@ -27,8 +27,10 @@ public class ServerLevelRandomTickMixin {
         }
 
         ChunkPos pos = chunk.getPos();
-        if (ChunkFeatureManager.isChunkManaged(pos)
-            && ChunkFeatureManager.shouldSkipRandomTick(pos)) {
+        // noinspection ConstantConditions
+        ServerLevel self = (ServerLevel) (Object) this;
+        if (ChunkFeatureManager.isChunkManaged(self.dimension(), pos)
+            && ChunkFeatureManager.shouldSkipRandomTick(self.dimension(), pos)) {
 
             ci.cancel();
 

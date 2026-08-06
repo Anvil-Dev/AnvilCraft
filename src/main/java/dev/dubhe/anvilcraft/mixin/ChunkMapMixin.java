@@ -23,7 +23,7 @@ public abstract class ChunkMapMixin {
     ) {
         if (player.isSpectator()) return;
 
-        if (ChunkFeatureManager.shouldAllowNaturalSpawn(pos)) {
+        if (ChunkFeatureManager.shouldAllowNaturalSpawn(player.level().dimension(), pos)) {
             double maxDistanceSqr = (double) ChunkFeatureManager.TRANSCENDIUM_DESPAWN_DISTANCE
                                     * ChunkFeatureManager.TRANSCENDIUM_DESPAWN_DISTANCE;
 

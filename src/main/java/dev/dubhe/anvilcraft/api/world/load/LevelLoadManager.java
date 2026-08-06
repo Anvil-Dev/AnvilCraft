@@ -103,6 +103,7 @@ public class LevelLoadManager {
         return LOAD_DATA_MAP.values().stream()
             .filter(data -> !data.isRemoved())
             .filter(data -> data.getSource() == LoadChunkData.Source.OVERSEER)
+            .filter(data -> data.getServerLevel().dimension().equals(level.dimension()))
             .flatMap(data -> data.getChunkPosList().stream())
             .distinct()
             .mapToInt(cp -> 1)

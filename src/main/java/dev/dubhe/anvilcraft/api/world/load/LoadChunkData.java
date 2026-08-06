@@ -180,9 +180,10 @@ public class LoadChunkData {
         if (this.applied) return;
         this.applied = true;
         LevelLoadManager.lazy(() -> {
+            var dimension = level.dimension();
             for (ChunkPos cp : this.chunkPosList) {
                 LevelLoadManager.forceChunk(cp.x(), cp.z(), true, level);
-                ChunkFeatureManager.registerChunkFeatures(cp, this.centerPos, this);
+                ChunkFeatureManager.registerChunkFeatures(dimension, cp, this.centerPos, this);
             }
         });
     }
@@ -191,9 +192,10 @@ public class LoadChunkData {
         if (!this.applied) return;
         this.applied = false;
         LevelLoadManager.lazy(() -> {
+            var dimension = level.dimension();
             for (ChunkPos cp : this.chunkPosList) {
                 LevelLoadManager.forceChunk(cp.x(), cp.z(), false, level);
-                ChunkFeatureManager.unregisterChunkFeatures(cp, this.centerPos);
+                ChunkFeatureManager.unregisterChunkFeatures(dimension, cp, this.centerPos);
             }
         });
     }
