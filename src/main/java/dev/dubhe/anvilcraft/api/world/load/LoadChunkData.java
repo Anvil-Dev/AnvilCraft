@@ -164,7 +164,8 @@ public class LoadChunkData {
             }
         }
 
-        return new LoadChunkData(centerPos, chunks, radius, serverLevel,Source.SIMPLE, noRandomTick, allowFireSpread, allowNaturalSpawn, allowSpawnerSpawn);
+        return new LoadChunkData(centerPos, chunks, radius, serverLevel, Source.SIMPLE,
+            noRandomTick, allowFireSpread, allowNaturalSpawn, allowSpawnerSpawn);
     }
 
     public void markRemoved() {
