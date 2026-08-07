@@ -594,7 +594,7 @@ public class ItemTooltipManager {
         );
         SHIFT.put(
             ModBlocks.OVERSEER.asItem(),
-            "Chunk loader that works on suitable pyramid-shaped base, higher base layers provide a larger maximum load range (max 4 layers, 9x9 range)， different base blocks provide different effects"
+            "Chunk loader that works on suitable pyramid-shaped base, higher base layers provide a larger maximum load range (max 4 layers, 9x9 range), different base blocks provide different effects"
         );
         SHIFT.put(ModBlocks.PUMP.asItem(), """
             Provides 10 blocks of headlift on both input and output sides (including the pump itself)
