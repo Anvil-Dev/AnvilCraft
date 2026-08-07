@@ -22,6 +22,7 @@ public class NaturalSpawnerMixin {
     private static void anvilcraft$onSpawnForChunkStart(ServerLevel level, LevelChunk chunk,
         NaturalSpawner.SpawnState state, List<MobCategory> spawningCategories, CallbackInfo ci) {
         ChunkFeatureManager.CURRENT_SPAWNING_CHUNK.set(chunk.getPos());
+        ChunkFeatureManager.CURRENT_SPAWNING_DIMENSION.set(level.dimension());
     }
 
     @Inject(
@@ -30,5 +31,6 @@ public class NaturalSpawnerMixin {
     )
     private static void anvilcraft$onSpawnForChunkEnd(CallbackInfo ci) {
         ChunkFeatureManager.CURRENT_SPAWNING_CHUNK.remove();
+        ChunkFeatureManager.CURRENT_SPAWNING_DIMENSION.remove();
     }
 }

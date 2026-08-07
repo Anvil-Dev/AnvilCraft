@@ -24,10 +24,8 @@ public abstract class DistanceManagerMixin {
     private void anvilcraft$onHasPlayersNearby(long pos, CallbackInfoReturnable<TriState> cir) {
 
         if (cir.getReturnValue() == TriState.FALSE) {
-            ResourceKey<Level> dimension = ChunkFeatureManager.CURRENT_SPAWNING_DIMENSION.get();
-
             ChunkPos chunkPos = ChunkPos.unpack(pos);
-            if (ChunkFeatureManager.shouldAllowNaturalSpawn(dimension, chunkPos)) {
+            if (ChunkFeatureManager.shouldAllowNaturalSpawnAnyDimension(chunkPos)) {
                 cir.setReturnValue(TriState.DEFAULT);
             }
         }
@@ -39,14 +37,13 @@ public abstract class DistanceManagerMixin {
         cancellable = true
     )
     private void anvilcraft$onGetSpawnCandidateChunks(CallbackInfoReturnable<LongIterator> cir) {
-        ResourceKey<Level> dimension = ChunkFeatureManager.CURRENT_SPAWNING_DIMENSION.get();
 
         LongOpenHashSet extended = new LongOpenHashSet();
         LongIterator original = cir.getReturnValue();
         while (original.hasNext()) {
             extended.add(original.nextLong());
         }
-        for (ChunkPos cp : ChunkFeatureManager.getAllNaturalSpawnChunks(dimension)) {
+        for (ChunkPos cp : ChunkFeatureManager.getAllNaturalSpawnChunks()) {
             extended.add(cp.pack());
         }
         cir.setReturnValue(extended.iterator());

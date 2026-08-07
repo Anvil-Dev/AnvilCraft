@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Set;
 
 public class ChunkFeatureManager {
-    /// 按维度分组的区块源数据，避免不同维度同坐标区块互相影响
     private static final Map<ResourceKey<Level>, Map<ChunkPos, Map<BlockPos, LoadChunkData>>> CHUNK_SOURCES = new HashMap<>();
     public static final ThreadLocal<ChunkPos> CURRENT_SPAWNING_CHUNK = new ThreadLocal<>();
     public static final ThreadLocal<ResourceKey<Level>> CURRENT_SPAWNING_DIMENSION = new ThreadLocal<>();
@@ -84,6 +83,17 @@ public class ChunkFeatureManager {
         return false;
     }
 
+    public static boolean shouldAllowNaturalSpawnAnyDimension(ChunkPos pos) {
+        for (Map<ChunkPos, Map<BlockPos, LoadChunkData>> dimSources : CHUNK_SOURCES.values()) {
+            Map<BlockPos, LoadChunkData> sources = dimSources.get(pos);
+            if (sources == null) continue;
+            for (LoadChunkData data : sources.values()) {
+                if (data.shouldAllowNaturalSpawn(pos)) return true;
+            }
+        }
+        return false;
+    }
+
     public static boolean shouldAllowSpawnerSpawn(ResourceKey<Level> dimension, ChunkPos pos) {
         Map<ChunkPos, Map<BlockPos, LoadChunkData>> dimSources = CHUNK_SOURCES.get(dimension);
         if (dimSources == null) return false;
@@ -97,17 +107,16 @@ public class ChunkFeatureManager {
         return false;
     }
 
-    public static Set<ChunkPos> getAllNaturalSpawnChunks(ResourceKey<Level> dimension) {
+    public static Set<ChunkPos> getAllNaturalSpawnChunks() {
         Set<ChunkPos> result = new HashSet<>();
-        Map<ChunkPos, Map<BlockPos, LoadChunkData>> dimSources = CHUNK_SOURCES.get(dimension);
-        if (dimSources == null) return result;
-
-        for (Map.Entry<ChunkPos, Map<BlockPos, LoadChunkData>> entry : dimSources.entrySet()) {
-            ChunkPos chunkPos = entry.getKey();
-            for (LoadChunkData data : entry.getValue().values()) {
-                if (data.shouldAllowNaturalSpawn(chunkPos)) {
-                    result.add(chunkPos);
-                    break;
+        for (Map<ChunkPos, Map<BlockPos, LoadChunkData>> dimSources : CHUNK_SOURCES.values()) {
+            for (Map.Entry<ChunkPos, Map<BlockPos, LoadChunkData>> entry : dimSources.entrySet()) {
+                ChunkPos chunkPos = entry.getKey();
+                for (LoadChunkData data : entry.getValue().values()) {
+                    if (data.shouldAllowNaturalSpawn(chunkPos)) {
+                        result.add(chunkPos);
+                        break;
+                    }
                 }
             }
         }
