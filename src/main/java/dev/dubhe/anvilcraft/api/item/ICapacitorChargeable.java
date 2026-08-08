@@ -114,7 +114,6 @@ public interface ICapacitorChargeable {
      * @param capacitor 电容器
      * @param capacitorStack 电容器物品栈
      * @return 是否充能成功，也即是否消耗电容器
-     * @implNote 即便充能前电量未满，也应充能
      */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     default boolean canBeCharged(ItemStack stack, IEnergyStorage storage, IFullCapacitor capacitor, ItemStack capacitorStack) {

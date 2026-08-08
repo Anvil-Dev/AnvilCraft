@@ -64,7 +64,7 @@ public interface IFullCapacitor extends IChargerDischargeable {
             }
 
             ItemStack empty = this.getEmpty(stack);
-            chargeable.onCharged(stack, this, stack.copy());
+            chargeable.onCharged(chargeableStack, this, stack.copy());
             stack.shrink(1);
             inv.placeItemBackInInventory(empty.copy());
             break;

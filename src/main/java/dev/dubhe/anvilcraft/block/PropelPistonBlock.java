@@ -100,7 +100,7 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
             int storedEnergy = be.getStoredEnergy();
             if (
                 stack.getItem() instanceof IFullCapacitor capacitor
-                && storedEnergy + capacitor.getEnergyStored(stack) <= PropelPistonBlockEntity.MAX_ENERGY
+                && storedEnergy + capacitor.getEnergyStored(stack) * 0.75 <= PropelPistonBlockEntity.MAX_ENERGY // 允许浪费四分之一电量
             ) {
                 be.addEnergy(capacitor.getEnergyStored(stack));
                 ItemStack empty = capacitor.getEmpty(stack);
