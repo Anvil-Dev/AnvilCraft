@@ -24,7 +24,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Supplier;
 
-import static dev.dubhe.anvilcraft.block.PropelPiston.createTickerHelper;
+import static dev.dubhe.anvilcraft.block.PropelPistonBlock.createTickerHelper;
 
 public class NeutronIrradiatorBlock extends Block implements IHammerRemovable, EntityBlock {
     public static VoxelShape MODEL = Shapes.or(

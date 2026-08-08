@@ -19,10 +19,10 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 import java.util.function.Predicate;
 
-public class IonoCraftItem extends Item {
+public class IonocraftItem extends Item {
     private static final Predicate<Entity> ENTITY_PREDICATE = EntitySelector.NO_SPECTATORS.and(Entity::isPickable);
 
-    public IonoCraftItem(Properties properties) {
+    public IonocraftItem(Properties properties) {
         super(properties);
     }
 

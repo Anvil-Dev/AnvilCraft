@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.init.item.tabs;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.CreativeModeTab;
@@ -39,7 +39,7 @@ public abstract class DisplayItemsGenerator implements CreativeModeTab.DisplayIt
             return;
         }
         ItemStack full = item.asItem().getDefaultInstance();
-        full.set(ModComponents.STORED_ENERGY, IonoCraftBackpackItem.MAX_ENERGY);
+        full.set(ModComponents.STORED_ENERGY, IonocraftBackpackItem.MAX_ENERGY);
         this.output.accept(full);
     }
 

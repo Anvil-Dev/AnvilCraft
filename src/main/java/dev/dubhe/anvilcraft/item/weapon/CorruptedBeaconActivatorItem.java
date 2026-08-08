@@ -42,7 +42,7 @@ public class CorruptedBeaconActivatorItem extends EnergyWeaponItem {
             level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.QUICK_CHARGE));
         int period = 20 - Math.min(quickCharge, 10);
         boolean pulse = elapsed > 0 && elapsed % period == 0;
-        if (pulse && !consumeEnergy(player, stack, ENERGY_PER_PULSE, 160_000_000)) return;
+        if (pulse && !consumeEnergy(player, stack, ENERGY_PER_PULSE)) return;
 
         WeaponRaycastUtil.Ray fullRay = WeaponRaycastUtil.ray(player, 64.0);
         Vec3 end = WeaponRaycastUtil.laserBlockHit(level, player, fullRay).getLocation();

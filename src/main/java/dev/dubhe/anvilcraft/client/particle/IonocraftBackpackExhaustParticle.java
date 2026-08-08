@@ -13,10 +13,10 @@ import net.neoforged.api.distmarker.OnlyIn;
 /**
  * 飘升机背包引擎白烟粒子 — 模拟喷气背包排气烟雾效果。
  */
-public class IonoCraftBackpackExhaustParticle extends TextureSheetParticle {
+public class IonocraftBackpackExhaustParticle extends TextureSheetParticle {
     private final SpriteSet sprites;
 
-    protected IonoCraftBackpackExhaustParticle(
+    protected IonocraftBackpackExhaustParticle(
         ClientLevel level, double x, double y, double z,
         double speedX, double speedY, double speedZ, SpriteSet sprites
     ) {
@@ -66,7 +66,7 @@ public class IonoCraftBackpackExhaustParticle extends TextureSheetParticle {
             double x, double y, double z,
             double speedX, double speedY, double speedZ
         ) {
-            return new IonoCraftBackpackExhaustParticle(
+            return new IonocraftBackpackExhaustParticle(
                 level, x, y, z, speedX, speedY, speedZ, this.sprites
             );
         }

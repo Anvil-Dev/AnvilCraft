@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.client.event;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.init.ModParticles;
-import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
 import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -25,7 +25,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * 粒子位置跟随玩家身体模型（yBodyRot）旋转，与背包引擎模型实际位置一致。
  */
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
-public class IonoCraftBackpackClientHandler {
+public class IonocraftBackpackClientHandler {
     private static final double SIDE_OFFSET = 0.3;
     private static final double BACK_OFFSET = 0.45;
     private static final double Y_OFFSET = 1.1;
@@ -34,7 +34,7 @@ public class IonoCraftBackpackClientHandler {
     private static final Set<Integer> SYNCED_FLYING_PLAYERS = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     /**
-     * 由 {@code IonoCraftBackpackFlyingPacket} 在客户端调用，记录服务器同步的飞行状态。
+     * 由 {@code IonocraftBackpackFlyingPacket} 在客户端调用，记录服务器同步的飞行状态。
      */
     public static void onFlyingSync(int playerId, boolean flying) {
         if (flying) {
@@ -61,7 +61,7 @@ public class IonoCraftBackpackClientHandler {
 
             if (player.isCreative() || player.isSpectator()) continue;
 
-            ItemStack backpack = IonoCraftBackpackItem.getByPlayer(player);
+            ItemStack backpack = IonocraftBackpackItem.getByPlayer(player);
             if (backpack.isEmpty()) continue;
 
             // 本地玩家用精确 abilities；远程玩家用服务器同步的精确状态

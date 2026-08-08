@@ -10,7 +10,7 @@ import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
-import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ClientInformation;
@@ -37,6 +37,7 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
     @Shadow
     @Final
     public MinecraftServer server;
+    @SuppressWarnings("NotNullFieldNotInitialized") // Mixin
     @Unique
     private DynamicPowerComponent anvilcraft$component;
 
@@ -65,11 +66,11 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
 
     @Override
     public void anvilcraft$gridTick() {
-        ItemStack stack = IonoCraftBackpackItem.getByPlayer(this);
-        if (IonoCraftBackpackItem.canModify(
+        ItemStack stack = IonocraftBackpackItem.getByPlayer(this);
+        if (IonocraftBackpackItem.canModify(
             stack,
             this.anvilcraft$component
-        ) && IonoCraftBackpackItem.getEnergyStored(stack) < IonoCraftBackpackItem.MAX_ENERGY) {
+        ) && IonocraftBackpackItem.getEnergyStored(stack) < IonocraftBackpackItem.MAX_ENERGY) {
             PowerGrid powerGrid = this.anvilcraft$component.getPowerGrid();
             if (powerGrid != null && powerGrid.isWorking()) {
                 int chargeAmount = 0;
@@ -85,7 +86,7 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
                     chargeAmount = 24;
                 }
                 
-                IonoCraftBackpackItem.addEnergy(stack, chargeAmount * IonoCraftBackpackItem.FLIGHT_CONSUMPTION);
+                IonocraftBackpackItem.addEnergy(stack, chargeAmount * IonocraftBackpackItem.FLIGHT_CONSUMPTION);
             }
         }
     }

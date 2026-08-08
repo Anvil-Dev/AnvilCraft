@@ -51,8 +51,8 @@ import dev.dubhe.anvilcraft.item.FrostMetalSwordItem;
 import dev.dubhe.anvilcraft.item.GeodeItem;
 import dev.dubhe.anvilcraft.item.GuideBookItem;
 import dev.dubhe.anvilcraft.item.HeavyHalberdCoreItem;
-import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
-import dev.dubhe.anvilcraft.item.IonoCraftItem;
+import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
+import dev.dubhe.anvilcraft.item.IonocraftItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
 import dev.dubhe.anvilcraft.item.MultiphaseMatterItem;
 import dev.dubhe.anvilcraft.item.MultiphaseTranscendiumItem;
@@ -500,13 +500,13 @@ public class ModItems {
         .model(DataGenUtil::noExtraModelOrState)
         .register();
 
-    public static final ItemEntry<? extends IonoCraftItem> IONOCRAFT = REGISTRUM.item("ionocraft", IonoCraftItem::new)
+    public static final ItemEntry<? extends IonocraftItem> IONOCRAFT = REGISTRUM.item("ionocraft", IonocraftItem::new)
         .initialProperties(Item.Properties::new)
         .recipe(RegistrumItemRecipeLoader::ionocraft)
         .register();
 
-    public static final ItemEntry<? extends IonoCraftBackpackItem> IONOCRAFT_BACKPACK = REGISTRUM
-        .item("ionocraft_backpack", IonoCraftBackpackItem::new)
+    public static final ItemEntry<? extends IonocraftBackpackItem> IONOCRAFT_BACKPACK = REGISTRUM
+        .item("ionocraft_backpack", IonocraftBackpackItem::new)
         .properties(properties -> properties.durability(ArmorItem.Type.CHESTPLATE.getDurability(15)))
         .model((ctx, prov) -> {
             ItemModelBuilder offModel = prov.getBuilder(prov.name(ctx.lazy()))

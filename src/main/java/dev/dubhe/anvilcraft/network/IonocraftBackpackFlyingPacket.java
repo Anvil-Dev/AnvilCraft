@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.network;
 import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.client.event.IonoCraftBackpackClientHandler;
+import dev.dubhe.anvilcraft.client.event.IonocraftBackpackClientHandler;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -14,17 +14,17 @@ import net.minecraft.world.entity.player.Player;
  * 飘升机背包飞行状态同步包（Server → Client）。
  * 当玩家开始/停止用背包飞行时通知周边客户端，供粒子渲染精确判断。
  */
-public record IonoCraftBackpackFlyingPacket(int playerId, boolean flying) implements IClientboundPacket {
+public record IonocraftBackpackFlyingPacket(int playerId, boolean flying) implements IClientboundPacket {
 
-    public static final Type<IonoCraftBackpackFlyingPacket> TYPE =
+    public static final Type<IonocraftBackpackFlyingPacket> TYPE =
         IPacket.type(AnvilCraft.of("ionocraft_backpack_flying"));
 
-    public static final StreamCodec<ByteBuf, IonoCraftBackpackFlyingPacket> STREAM_CODEC = StreamCodec.composite(
+    public static final StreamCodec<ByteBuf, IonocraftBackpackFlyingPacket> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.VAR_INT,
-        IonoCraftBackpackFlyingPacket::playerId,
+        IonocraftBackpackFlyingPacket::playerId,
         ByteBufCodecs.BOOL,
-        IonoCraftBackpackFlyingPacket::flying,
-        IonoCraftBackpackFlyingPacket::new
+        IonocraftBackpackFlyingPacket::flying,
+        IonocraftBackpackFlyingPacket::new
     );
 
     @Override
@@ -34,6 +34,6 @@ public record IonoCraftBackpackFlyingPacket(int playerId, boolean flying) implem
 
     @Override
     public void handleOnClient(Player player) {
-        IonoCraftBackpackClientHandler.onFlyingSync(this.playerId, this.flying);
+        IonocraftBackpackClientHandler.onFlyingSync(this.playerId, this.flying);
     }
 }

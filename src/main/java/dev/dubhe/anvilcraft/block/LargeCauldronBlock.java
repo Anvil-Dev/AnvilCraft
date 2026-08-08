@@ -49,7 +49,7 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
-import static dev.dubhe.anvilcraft.block.PropelPiston.createTickerHelper;
+import static dev.dubhe.anvilcraft.block.PropelPistonBlock.createTickerHelper;
 
 public class LargeCauldronBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>

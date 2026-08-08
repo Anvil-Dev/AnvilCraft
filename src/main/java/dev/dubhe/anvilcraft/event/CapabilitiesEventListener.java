@@ -13,7 +13,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import dev.dubhe.anvilcraft.item.weapon.CorruptedBeaconActivatorItem;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
@@ -171,7 +171,7 @@ public class CapabilitiesEventListener {
         // 飘升机背包 FE capability
         event.registerItem(
             Capabilities.EnergyStorage.ITEM,
-            (stack, ctx) -> new ItemFEStorage(stack, IonoCraftBackpackItem.MAX_ENERGY),
+            (stack, ctx) -> new ItemFEStorage(stack, IonocraftBackpackItem.MAX_ENERGY),
             ModItems.IONOCRAFT_BACKPACK.get()
         );
     }

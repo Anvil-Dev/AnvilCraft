@@ -7,10 +7,10 @@ import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
 import dev.dubhe.anvilcraft.client.init.ModTooltipComponents;
-import dev.dubhe.anvilcraft.client.particle.IonoCraftBackpackExhaustParticle;
+import dev.dubhe.anvilcraft.client.particle.IonocraftBackpackExhaustParticle;
 import dev.dubhe.anvilcraft.client.particle.OverseerTrailParticle;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
-import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonoCraftBackpackDecoration;
+import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonocraftBackpackDecoration;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
@@ -35,12 +35,14 @@ import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
-import org.jetbrains.annotations.Nullable;
+
+import java.util.Objects;
+import javax.annotation.Nullable;
 
 @Mod(value = AnvilCraft.MOD_ID, dist = Dist.CLIENT)
 public class AnvilCraftClient {
-    public static IEventBus modEventBus = null;
-    public static ModContainer modContainer = null;
+    public static @Nullable IEventBus modEventBus = null;
+    public static @Nullable ModContainer modContainer = null;
     public static final AnvilCraftClientConfig CONFIG = AnvilCraft.CLIENT_CONFIG;
     public static PillSelectorSupport pillSelectorSupport = PillSelectorSupport.INSTANCE;
 
@@ -62,8 +64,8 @@ public class AnvilCraftClient {
     }
 
     public static void clientSetup(FMLClientSetupEvent event) {
-        IntegrationHook.setModEventBus(modEventBus);
-        IntegrationHook.setModContainer(modContainer);
+        IntegrationHook.setModEventBus(Objects.requireNonNull(modEventBus));
+        IntegrationHook.setModContainer(Objects.requireNonNull(modContainer));
         AnvilCraft.getINTEGRATION_MANAGER().loadAllClientIntegrations();
     }
 
@@ -81,7 +83,7 @@ public class AnvilCraftClient {
     }
 
     public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
-        e.register(ModItems.IONOCRAFT_BACKPACK, new IonoCraftBackpackDecoration());
+        e.register(ModItems.IONOCRAFT_BACKPACK, new IonocraftBackpackDecoration());
     }
 
     public static void registerParticleProviders(RegisterParticleProvidersEvent e) {
@@ -90,7 +92,7 @@ public class AnvilCraftClient {
         e.registerSpriteSet(ModParticles.ANVILON_MASS.get(), FlyTowardsPositionParticle.EnchantProvider::new);
         e.registerSpriteSet(ModParticles.ANVILON_SPACE.get(), FlyTowardsPositionParticle.EnchantProvider::new);
         e.registerSpriteSet(ModParticles.ANVILON_TIME.get(), FlyTowardsPositionParticle.EnchantProvider::new);
-        e.registerSpriteSet(ModParticles.IONOCRAFT_BACKPACK_EXHAUST.get(), IonoCraftBackpackExhaustParticle.Provider::new);
+        e.registerSpriteSet(ModParticles.IONOCRAFT_BACKPACK_EXHAUST.get(), IonocraftBackpackExhaustParticle.Provider::new);
         e.registerSpriteSet(ModParticles.OVERSEER_TRAIL.get(), OverseerTrailParticle.Provider::new);
     }
 

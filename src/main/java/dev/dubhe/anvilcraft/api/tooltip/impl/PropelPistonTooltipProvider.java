@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.api.tooltip.impl;
 
 import dev.dubhe.anvilcraft.api.tooltip.providers.ITooltipProvider;
-import dev.dubhe.anvilcraft.block.PropelPiston;
+import dev.dubhe.anvilcraft.block.PropelPistonBlock;
 import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
@@ -28,7 +28,7 @@ public class PropelPistonTooltipProvider extends ITooltipProvider.BlockEntityToo
         BlockPos pos = blockEntity.getBlockPos();
         if (level != null) {
             BlockState state = level.getBlockState(pos);
-            if (state.getValue(PropelPiston.MOVING)) {
+            if (state.getValue(PropelPistonBlock.MOVING)) {
                 return List.of();
             }
         }
