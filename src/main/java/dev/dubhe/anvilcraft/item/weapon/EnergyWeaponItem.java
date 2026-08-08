@@ -101,6 +101,6 @@ public abstract class EnergyWeaponItem extends Item implements ICapacitorChargea
 
     @Override
     public boolean canAccept(ItemStack stack, IFullCapacitor capacitor, ItemStack capacitorStack, boolean force) {
-        return force || capacitor.getEnergyStored(stack) >= EnergyWeaponItem.MAX_ENERGY / 8;
+        return force || capacitor.getEnergyStored(capacitorStack) >= EnergyWeaponItem.MAX_ENERGY / 8;
     }
 }

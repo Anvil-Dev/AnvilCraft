@@ -27,9 +27,9 @@ public interface IFullCapacitor extends IChargerDischargeable {
         if (!chargeable.chargeForce(target, capacitor, capacitorStack.copy())) return false;
 
         ItemStack empty = capacitor.getEmpty(capacitorStack);
+        chargeable.onCharged(target, capacitor, capacitorStack.copy());
         capacitorStack.shrink(1);
         player.getInventory().placeItemBackInInventory(empty);
-        chargeable.onCharged(target, capacitor, capacitorStack.copy());
         slot.setChanged();
         return true;
     }
@@ -44,6 +44,9 @@ public interface IFullCapacitor extends IChargerDischargeable {
     }
 
     default void inventoryTick(ItemStack stack, Player player) {
+        if (player.level().isClientSide()) {
+            return;
+        }
         Inventory inv = player.getInventory();
         List<ItemStack> chargeables = InventoryUtil.getItems(inv);
         chargeables.addAll(InventoryUtil.getCompatItems(player));
@@ -56,11 +59,12 @@ public interface IFullCapacitor extends IChargerDischargeable {
                 continue;
             }
 
-            if (!chargeable.charge(chargeableStack, this, stack)) {
+            if (!chargeable.charge(chargeableStack, this, stack.copy())) {
                 continue;
             }
 
             ItemStack empty = this.getEmpty(stack);
+            chargeable.onCharged(stack, this, stack.copy());
             stack.shrink(1);
             inv.placeItemBackInInventory(empty.copy());
             break;

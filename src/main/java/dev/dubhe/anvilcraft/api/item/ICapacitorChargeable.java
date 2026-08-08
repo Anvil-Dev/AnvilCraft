@@ -46,7 +46,7 @@ public interface ICapacitorChargeable {
         }
 
         int newStored = capacitor.getEnergyStored(capacitorStack);
-        if (storage.getEnergyStored() + newStored > storage.getMaxEnergyStored()) {
+        if (newStored <= 0 || storage.getEnergyStored() + newStored > storage.getMaxEnergyStored()) {
             return false;
         }
 
@@ -75,7 +75,7 @@ public interface ICapacitorChargeable {
             return false;
         }
         int newStored = Math.min(capacitor.getEnergyStored(capacitorStack), storage.getMaxEnergyStored() - storage.getEnergyStored());
-        if (storage.receiveEnergy(newStored, true) != newStored) {
+        if (newStored <= 0 || storage.receiveEnergy(newStored, true) != newStored) {
             return false;
         }
         storage.receiveEnergy(newStored, false);

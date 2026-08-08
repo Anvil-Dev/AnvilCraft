@@ -139,6 +139,6 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem implements
 
     @Override
     public boolean canAccept(ItemStack stack, IFullCapacitor capacitor, ItemStack capacitorStack, boolean force) {
-        return force || capacitor.getEnergyStored(stack) >= SpectralWeaponLauncherItem.MAX_ENERGY / 8;
+        return force || capacitor.getEnergyStored(capacitorStack) >= SpectralWeaponLauncherItem.MAX_ENERGY / 8;
     }
 }
