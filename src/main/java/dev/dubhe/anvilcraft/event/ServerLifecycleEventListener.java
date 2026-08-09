@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.api.heat.collector.HeatCollectorManager;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
-import dev.dubhe.anvilcraft.api.world.load.RandomChuckTickLoadManager;
 import dev.dubhe.anvilcraft.block.RedstoneWireNetworkManager;
 import dev.dubhe.anvilcraft.block.entity.ExpCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
@@ -38,7 +37,6 @@ public class ServerLifecycleEventListener {
         PowerGrid.tickGrid();
         HeaterManager.tickAll();
         HeatCollectorManager.tickAll();
-        RandomChuckTickLoadManager.tick();
         FluidNetworkManager.INSTANCE.tick();
     }
 
