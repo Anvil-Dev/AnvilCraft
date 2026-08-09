@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.workstation;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.api.block.ITranscendiumBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.ConfinementChamberBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -26,7 +27,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
-public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerRemovable {
+public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerRemovable, ITranscendiumBlock {
     public ConfinementChamberBlock(Properties properties) {
         super(properties);
     }

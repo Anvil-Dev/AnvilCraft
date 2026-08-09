@@ -19,11 +19,18 @@ repositories {
             includeGroup "dev.dubhe"
         }
     }
-    maven { // Sodium, Embeddium, Iris, Jade
+    maven { // Iris, Jade
         name = "Modrinth Maven"
         url = "https://api.modrinth.com/maven"
         content {
             includeGroup "maven.modrinth"
+        }
+    }
+    maven { // Sodium
+        name = "CaffeineMC"
+        url = "https://maven.caffeinemc.net/releases"
+        content {
+            includeGroup "net.caffeinemc"
         }
     }
     maven { // JEI

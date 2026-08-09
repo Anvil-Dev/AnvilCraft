@@ -8,14 +8,15 @@ lombok = "8.7.1"
 machete = "1.2.0"
 anvillib = "2.0.0+snapshot.494"
 ageratum = "0.0.1+build.109"
-sodium = "mc26.1.2-0.8.10-neoforge"
+sodium = "0.9.1+mc26.1.2"
 iris = "1.10.9+26.1-neoforge"
 
 [libraries]
 jei-common-api = { group = "mezz.jei", name = "jei-26.1.2-common-api", version.ref = "jei" }
-jei-forge-api = { group = "mezz.jei", name = "jei-26.1.2-neoforge-api", version.ref = "jei" }
-jei-forge = { group = "mezz.jei", name = "jei-26.1.2-neoforge", version.ref = "jei" }
-sodium = {  group = "maven.modrinth", name = "sodium", version.ref = "sodium"}
+jei-neoforge-api = { group = "mezz.jei", name = "jei-26.1.2-neoforge-api", version.ref = "jei" }
+jei-neoforge = { group = "mezz.jei", name = "jei-26.1.2-neoforge", version.ref = "jei" }
+sodium-api = {  group = "net.caffeinemc", name = "sodium-neoforge-api", version.ref = "sodium"}
+sodium-mod = {  group = "net.caffeinemc", name = "sodium-neoforge-mod", version.ref = "sodium"}
 iris = {  group = "maven.modrinth", name = "iris", version.ref = "iris"}
 jade = { group = "maven.modrinth", name = "jade", version.ref = "jade" }
 anvillib-recipe = { group = "dev.anvilcraft.lib", name = "anvillib-recipe-neoforge-26.1", version.ref = "anvillib" }
