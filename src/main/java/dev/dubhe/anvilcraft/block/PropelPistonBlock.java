@@ -7,10 +7,10 @@ import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.piston.injection.IPistonMovingBlockEntityExtension;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.api.item.IFullCapacitor;
 import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
@@ -45,16 +45,16 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.Map;
 
-public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlock, IHammerRemovable, IHammerChangeable {
+public class PropelPistonBlock extends DirectionalBlock implements IMoveableEntityBlock, IHammerRemovable, IHammerChangeable {
     public static final BooleanProperty EXHAUSTED = BooleanProperty.create("exhausted");
     public static final BooleanProperty MOVING = BooleanProperty.create("moving");
 
     @Override
     protected MapCodec<? extends DirectionalBlock> codec() {
-        return simpleCodec(PropelPiston::new);
+        return simpleCodec(PropelPistonBlock::new);
     }
 
-    public PropelPiston(Properties properties) {
+    public PropelPistonBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
             .setValue(EXHAUSTED, true)
@@ -96,22 +96,17 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        if (level.getBlockEntity(pos) instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
-            int storedEnergy = propelPistonBlockEntity.getStoredEnergy();
-            if (stack.is(ModItems.CAPACITOR)) {
-                if (storedEnergy < 152000000) {
-                    propelPistonBlockEntity.addEnergy(8000000);
-                    stack.consume(1, player);
-                    player.addItem(ModItems.CAPACITOR_EMPTY.asStack());
-                    return ItemInteractionResult.SUCCESS;
-                }
-            } else if (stack.is(ModItems.SUPER_CAPACITOR)) {
-                if (storedEnergy < 40000000) {
-                    propelPistonBlockEntity.updateStoredEnergy(160000000);
-                    stack.consume(1, player);
-                    player.addItem(ModItems.SUPER_CAPACITOR_EMPTY.asStack());
-                    return ItemInteractionResult.SUCCESS;
-                }
+        if (level.getBlockEntity(pos) instanceof PropelPistonBlockEntity be) {
+            int storedEnergy = be.getStoredEnergy();
+            if (
+                stack.getItem() instanceof IFullCapacitor capacitor
+                && storedEnergy + capacitor.getEnergyStored(stack) * 0.75 <= PropelPistonBlockEntity.MAX_ENERGY // 允许浪费四分之一电量
+            ) {
+                be.addEnergy(capacitor.getEnergyStored(stack));
+                ItemStack empty = capacitor.getEmpty(stack);
+                stack.consume(1, player);
+                player.addItem(empty);
+                return ItemInteractionResult.SUCCESS;
             }
         }
         level.setBlockAndUpdate(pos, state.cycle(MOVING));
@@ -184,7 +179,7 @@ public class PropelPiston extends DirectionalBlock implements IMoveableEntityBlo
 
     @Override
     protected boolean triggerEvent(BlockState state, Level level, BlockPos pos, int id, int param) {
-        Direction direction = state.getValue(PropelPiston.FACING);
+        Direction direction = state.getValue(PropelPistonBlock.FACING);
         if (id == 0) {
             if (net.neoforged.neoforge.event.EventHooks.onPistonMovePre(level, pos, direction, true)) {
                 level.setBlockAndUpdate(pos, state.setValue(MOVING, false));

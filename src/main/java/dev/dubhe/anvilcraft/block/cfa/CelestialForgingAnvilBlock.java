@@ -4,7 +4,7 @@ import dev.anvilcraft.lib.v2.multiblock.dynamic.MultiblockState;
 import dev.anvilcraft.lib.v2.multiblock.dynamic.controller.IController;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.block.PropelPiston;
+import dev.dubhe.anvilcraft.block.PropelPistonBlock;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
@@ -189,7 +189,7 @@ public class CelestialForgingAnvilBlock
 
     @Override
     public @Nullable <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        return PropelPiston.createTickerHelper(
+        return PropelPistonBlock.createTickerHelper(
             type,
             ModBlockEntities.CELESTIAL_FORGING_ANVIL.get(),
             (level1, blockPos, blockState, blockEntity) -> {

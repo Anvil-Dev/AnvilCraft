@@ -4,7 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -15,7 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 
-public class IonoCraftBackpackHUD {
+public class IonocraftBackpackHUD {
     private static final int ROW_HEIGHT = 20;
     private static final int SUPER_CAPACITOR_X = 64;
     private static final ResourceLocation BATTERY_EMPTY = SharedTextures.textureGui("misc/battery_display/battery_empty");
@@ -32,7 +32,7 @@ public class IonoCraftBackpackHUD {
         if (player == null) {
             return;
         }
-        ItemStack backpack = IonoCraftBackpackItem.getByPlayer(player);
+        ItemStack backpack = IonocraftBackpackItem.getByPlayer(player);
         boolean renderBackpack = config.enabled && backpack.is(ModItems.IONOCRAFT_BACKPACK);
         Inventory inventory = player.getInventory();
         int capacitorCount = count(inventory, ModItems.CAPACITOR.asStack());
@@ -61,8 +61,8 @@ public class IonoCraftBackpackHUD {
     private static void renderBackpack(GuiGraphics guiGraphics, Font font, ItemStack backpack) {
         PoseStack poseStack = guiGraphics.pose();
         poseStack.pushPose();
-        int energy = IonoCraftBackpackItem.getEnergyStored(backpack);
-        int percent = Math.round((float) energy / IonoCraftBackpackItem.MAX_ENERGY * 100);
+        int energy = IonocraftBackpackItem.getEnergyStored(backpack);
+        int percent = Math.round((float) energy / IonocraftBackpackItem.MAX_ENERGY * 100);
         guiGraphics.renderItem(backpack, 0, 0);
 
         poseStack.translate(20, 4, 0);

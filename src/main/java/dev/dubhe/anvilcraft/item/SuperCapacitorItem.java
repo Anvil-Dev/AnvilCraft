@@ -1,14 +1,16 @@
 package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.api.item.IChargerDischargeable;
+import dev.dubhe.anvilcraft.api.item.IFullCapacitor;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
-public class SuperCapacitorItem extends Item implements IChargerDischargeable {
+public class SuperCapacitorItem extends Item implements IFullCapacitor {
     public static final int ENERGY = 160_000_000;
 
     public SuperCapacitorItem(Properties properties) {
@@ -17,18 +19,25 @@ public class SuperCapacitorItem extends Item implements IChargerDischargeable {
 
     @Override
     public boolean overrideStackedOnOther(ItemStack stack, Slot slot, ClickAction clickAction, Player player) {
-        return CapacitorInventoryCharge.tryChargeTarget(
-            stack,
-            slot,
-            clickAction,
-            player,
-            ENERGY,
-            ModItems.SUPER_CAPACITOR_EMPTY.asStack(1)
-        );
+        return IFullCapacitor.tryForceChargeTarget(this, stack, slot, clickAction, player);
     }
 
     @Override
-    public ItemStack discharge(ItemStack input) {
-        return ModItems.SUPER_CAPACITOR_EMPTY.asStack(1);
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+        super.inventoryTick(stack, level, entity, slotId, isSelected);
+        if (!(entity instanceof Player player)) {
+            return;
+        }
+        IFullCapacitor.super.inventoryTick(stack, player);
+    }
+
+    @Override
+    public int getEnergyStored(ItemStack stack) {
+        return SuperCapacitorItem.ENERGY;
+    }
+
+    @Override
+    public ItemStack getEmpty(ItemStack full) {
+        return full.transmuteCopy(ModItems.SUPER_CAPACITOR_EMPTY, 1);
     }
 }

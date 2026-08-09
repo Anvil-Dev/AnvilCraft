@@ -56,7 +56,7 @@ public class TeslaGunItem extends EnergyWeaponItem {
         if (target == null) return;
         BlockPos rod = target.rod();
         if (rod != null && !(level.getBlockState(rod).getBlock() instanceof LightningRodBlock)) return;
-        if (!consumeEnergy(player, stack, SHOT_ENERGY, 160_000_000)) return;
+        if (!consumeEnergy(player, stack, SHOT_ENERGY)) return;
         int quickCharge = stack.getEnchantmentLevel(
             level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.QUICK_CHARGE));
         player.getCooldowns().addCooldown(this, 80 - Math.min(60, quickCharge * 5));

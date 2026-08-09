@@ -111,7 +111,7 @@ public class AnvilRailgunItem extends EnergyWeaponItem {
         List<ItemStack> loaded = new ArrayList<>(ammo(weapon));
         if (loaded.isEmpty()) return;
         int energy = Math.round(progress * 20_000_000.0F);
-        if (!consumeEnergy(player, weapon, energy, 160_000_000)) return;
+        if (!consumeEnergy(player, weapon, energy)) return;
 
         ItemStack projectileStack = loaded.getFirst();
         boolean infinity = enchantmentLevel(level, weapon, Enchantments.INFINITY) > 0 && projectileStack.is(Items.ANVIL);

@@ -1,13 +1,14 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.item.ICapacitorChargeable;
 import dev.dubhe.anvilcraft.api.power.DynamicPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemProperties;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.network.IonoCraftBackpackFlyingPacket;
+import dev.dubhe.anvilcraft.network.IonocraftBackpackFlyingPacket;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.core.Holder;
@@ -43,8 +44,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarriedAware {
-    public static final int MAX_ENERGY = 120000000;
+public class IonocraftBackpackItem extends ArmorItem implements ICapacitorChargeable, IInventoryCarriedAware {
+    public static final int MAX_ENERGY = 120_000_000;
     public static final int FLIGHT_CONSUMPTION = 5000;
 
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_64 = new DynamicPowerComponent.PowerConsumption(64);
@@ -66,7 +67,7 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
     /** 追踪玩家背包飞行状态，用于在状态变化时同步到其他客户端 */
     private static final Map<UUID, Boolean> FLYING_TRACKER = new HashMap<>();
 
-    public IonoCraftBackpackItem(Properties properties) {
+    public IonocraftBackpackItem(Properties properties) {
         super(
             ArmorMaterials.IRON,
             Type.CHESTPLATE,
@@ -263,7 +264,7 @@ public class IonoCraftBackpackItem extends ArmorItem implements IInventoryCarrie
         if (prevFlying == null || prevFlying != nowFlying) {
             PacketDistributor.sendToPlayersTrackingEntity(
                 player,
-                new IonoCraftBackpackFlyingPacket(player.getId(), nowFlying)
+                new IonocraftBackpackFlyingPacket(player.getId(), nowFlying)
             );
         }
 

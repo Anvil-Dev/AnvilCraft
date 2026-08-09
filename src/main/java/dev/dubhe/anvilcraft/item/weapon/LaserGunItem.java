@@ -94,7 +94,7 @@ public class LaserGunItem extends EnergyWeaponItem {
         int period = 20 - Math.min(quickCharge, 10);
         if (state.targetTicks % period != 0) return;
         int stage = Math.min(4, state.targetTicks / 100);
-        if (!((EnergyWeaponItem) stack.getItem()).consumeEnergy(player, stack, ENERGY[stage], 80_000_000)) return;
+        if (!((EnergyWeaponItem) stack.getItem()).consumeEnergy(player, stack, ENERGY[stage])) return;
 
         if (stage >= 3) {
             player.igniteForSeconds(5.0F);
@@ -121,7 +121,7 @@ public class LaserGunItem extends EnergyWeaponItem {
                 state.miningAnchor = null;
                 state.idleTicks++;
                 if (state.idleTicks % 20 == 0) {
-                    ((EnergyWeaponItem) stack.getItem()).consumeEnergy(player, stack, 400_000, 80_000_000);
+                    ((EnergyWeaponItem) stack.getItem()).consumeEnergy(player, stack, 400_000);
                 }
                 return;
             }
@@ -131,7 +131,7 @@ public class LaserGunItem extends EnergyWeaponItem {
         }
         state.miningTicks++;
         if (state.miningTicks % miningPeriod(level, stack) != 0 || state.vein.isEmpty()) return;
-        if (!((EnergyWeaponItem) stack.getItem()).consumeEnergy(player, stack, 400_000, 80_000_000)) return;
+        if (!((EnergyWeaponItem) stack.getItem()).consumeEnergy(player, stack, 400_000)) return;
         BlockPos pos = state.vein.removeFirst();
         BlockState ore = level.getBlockState(pos);
         if (!ore.is(Tags.Blocks.ORES)) return;

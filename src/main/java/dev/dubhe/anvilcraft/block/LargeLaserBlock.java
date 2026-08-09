@@ -40,7 +40,7 @@ import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.Map;
 
-import static dev.dubhe.anvilcraft.block.PropelPiston.createTickerHelper;
+import static dev.dubhe.anvilcraft.block.PropelPistonBlock.createTickerHelper;
 
 public class LargeLaserBlock extends FlexibleMultiPartBlock<DirectionCube3x3PartHalf, DirectionProperty, Direction>
     implements IHammerRemovable, IHammerChangeable, MultiPartBlockEntity<DirectionCube3x3PartHalf, LargeLaserBlock> {

@@ -109,7 +109,7 @@ import dev.dubhe.anvilcraft.block.PowerConverterExtremelyBigBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSuperBigBlock;
-import dev.dubhe.anvilcraft.block.PropelPiston;
+import dev.dubhe.anvilcraft.block.PropelPistonBlock;
 import dev.dubhe.anvilcraft.block.PulseGeneratorBlock;
 import dev.dubhe.anvilcraft.block.RadioactiveBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
@@ -1456,7 +1456,7 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::advancedComparator)
         .register();
 
-    public static final BlockEntry<PropelPiston> PROPEL_PISTON = REGISTRUM.block("propel_piston", PropelPiston::new)
+    public static final BlockEntry<PropelPistonBlock> PROPEL_PISTON = REGISTRUM.block("propel_piston", PropelPistonBlock::new)
         .properties(properties -> {
             return properties.mapColor(MapColor.TERRACOTTA_WHITE).requiresCorrectToolForDrops().strength(1.5f).noOcclusion();
         })

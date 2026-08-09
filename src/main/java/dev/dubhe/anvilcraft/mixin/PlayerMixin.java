@@ -9,7 +9,7 @@ import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.IonoCraftBackpackItem;
+import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -42,7 +42,7 @@ abstract class PlayerMixin extends LivingEntity {
     )
     private boolean modifyOnGround(boolean original) {
         Player player = Util.cast(this);
-        boolean noDiggingPenalty = !IonoCraftBackpackItem.getByPlayer(player).isEmpty() && player.getAbilities().flying;
+        boolean noDiggingPenalty = !IonocraftBackpackItem.getByPlayer(player).isEmpty() && player.getAbilities().flying;
         return noDiggingPenalty || original;
     }
 

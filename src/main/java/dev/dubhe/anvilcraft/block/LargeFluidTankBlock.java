@@ -42,7 +42,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
-import static dev.dubhe.anvilcraft.block.PropelPiston.createTickerHelper;
+import static dev.dubhe.anvilcraft.block.PropelPistonBlock.createTickerHelper;
 
 public class LargeFluidTankBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>

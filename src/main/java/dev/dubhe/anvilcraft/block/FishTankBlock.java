@@ -56,7 +56,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.Optional;
 
-import static dev.dubhe.anvilcraft.block.PropelPiston.createTickerHelper;
+import static dev.dubhe.anvilcraft.block.PropelPistonBlock.createTickerHelper;
 
 public class FishTankBlock extends Block implements IMoveableEntityBlock, HammerRotateBehavior, IHammerRemovable, IIgnitableCauldron {
     public static final BooleanProperty TROPICAL = BooleanProperty.create("tropical");
