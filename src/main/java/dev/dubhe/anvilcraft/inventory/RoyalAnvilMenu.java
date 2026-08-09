@@ -64,6 +64,10 @@ public class RoyalAnvilMenu extends AnvilMenu implements HammerOpenedAnvilMenu {
     public void createResult() {
         ItemStack inputLeft = this.getSlot(0).getItem();
         ItemStack inputRight = this.getSlot(1).getItem();
+        if (inputLeft.isEmpty()) {
+            super.createResult();
+            return;
+        }
         this.result.createResult(
             this.player,
             inputLeft,
