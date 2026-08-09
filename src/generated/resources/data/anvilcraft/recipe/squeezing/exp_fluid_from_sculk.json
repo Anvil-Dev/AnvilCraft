@@ -7,13 +7,15 @@
     "inverted": true
   },
   "chance": 0.1,
-  "fluid": "minecraft:null",
+  "fluid": [],
   "ingredient": {
     "blocks": "minecraft:sculk"
   },
-  "produce": 250,
   "result": {
     "block": "minecraft:air"
   },
-  "transform": "anvilcraft:exp_fluid"
+  "transform": {
+    "amount": 250,
+    "id": "anvilcraft:exp_fluid"
+  }
 }

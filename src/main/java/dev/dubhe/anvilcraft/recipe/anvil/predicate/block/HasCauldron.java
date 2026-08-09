@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.anvil.predicate.block;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -8,6 +9,7 @@ import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import dev.anvilcraft.lib.v2.recipe.predicate.IRecipePredicate;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.util.MathUtil;
+import dev.dubhe.anvilcraft.api.block.ICauldron;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.api.entity.IEntityCauldron;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
@@ -17,10 +19,12 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipePredicateTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import dev.dubhe.anvilcraft.util.CompatUtil;
+import dev.dubhe.anvilcraft.util.FluidStackPredicate;
+import net.minecraft.advancements.critereon.MinMaxBounds;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -38,7 +42,10 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import javax.annotation.Nullable;
 
 /**
@@ -46,46 +53,41 @@ import javax.annotation.Nullable;
  *
  * <p>用于检查指定位置是否存在特定炼药锅的谓词条件，并在配方完成后处理炼药锅中的流体</p>
  *
- * @param fluid     流体ID
+ * @param offset    偏移量
+ * @param fluid     流体谓词
  * @param consume   消耗量
- * @param transform 转换后的流体ID
- * @param produce   产生量
+ * @param transforms 转换后的流体栈列表，每个栈的数量为产生量
  * @param chance    转换成功的概率
  * @param ignited   是否需要点燃
- * @param fluidTag  流体标签ID，当非null时使用标签匹配而非精确匹配
  */
 public record HasCauldron(
     Vec3 offset,
-    ResourceLocation fluid,
+    FluidStackPredicate fluid,
     int consume,
-    ResourceLocation transform,
-    int produce,
+    List<FluidStack> transforms,
     float chance,
-    boolean ignited,
-    @Nullable ResourceLocation fluidTag
+    boolean ignited
 ) implements IRecipePredicate<HasCauldron> {
-    /**
-     * 空炼药锅标识
-     */
-    public static final ResourceLocation EMPTY = ResourceLocation.withDefaultNamespace("empty");
-
-    /**
-     * 空转换标识
-     */
-    public static final ResourceLocation NULL = ResourceLocation.withDefaultNamespace("null");
+    private static final Codec<List<FluidStack>> TRANSFORMS_CODEC = Codec
+        .either(FluidStack.CODEC, FluidStack.CODEC.listOf())
+        .xmap(
+            either -> either.map(List::of, Function.identity()),
+            transforms -> transforms.size() == 1 ? Either.left(transforms.getFirst()) : Either.right(transforms)
+        );
+    private static final FluidStackPredicate EMPTY_PREDICATE = FluidStackPredicate.builder().amount(0).build();
 
     /**
      * 构造一个炼药锅条件谓词
      *
      * @param offset    偏移量
-     * @param fluid     流体ID
+     * @param fluid     流体谓词
      * @param consume   消耗量
-     * @param transform 转换后的流体ID
-     * @param produce   产生量
+     * @param transforms 转换后的流体栈列表
      * @param chance    转换成功的概率
      * @param ignited   是否需要点燃
      */
     public HasCauldron {
+        transforms = transforms.stream().filter(fluidStack -> !fluidStack.isEmpty()).toList();
     }
 
     /**
@@ -95,7 +97,7 @@ public record HasCauldron(
      * @return HasCauldron实例
      */
     public static HasCauldron empty(Vec3 offset) {
-        return new HasCauldron(offset, EMPTY, 0, NULL, 0, 1.0f, false, null);
+        return new HasCauldron(offset, EMPTY_PREDICATE, 0, List.of(), 1.0f, false);
     }
 
     @Override
@@ -113,22 +115,29 @@ public record HasCauldron(
          * 7. 流体可以相互替代使用
          */
 
-        // 消耗/产生为负 否决
-        if (this.consume() < 0 || this.produce() < 0) return false;
+        // 消耗为负 否决
+        if (this.consume() < 0) return false;
         // 概率不在0-1之间 否决
         if (this.chance() < 0 || this.chance() > 1) return false;
-        // 转换为空且产生流体 否决
-        if (!HasCauldron.isNotEmpty(this.transform()) && this.produce() > 0) return false;
+        // 消耗量比允许的现有量大 否决
+        if (this.fluid().amount().flatMap(MinMaxBounds.Ints::max).map(max -> this.consume() > max).orElse(false)) return false;
 
         // 不是锅 否决
         BlockPos pos = BlockPos.containing(context.getPos().add(this.offset()));
         BlockCache cache = context.computeIfAbsent(BlockCache.BLOCK_CACHE);
         IEntityCauldron entityCauldron = findEntityCauldron(context, pos);
-        if (!cache.getBlockState(pos).is(BlockTags.CAULDRONS) && entityCauldron == null) return false;
+        BlockState state = cache.getBlockState(pos);
+        if (!state.is(BlockTags.CAULDRONS) && entityCauldron == null) return false;
+        if (this.hasMultipleFluidOutputs() && !HasCauldron.supportsMultipleFluidOutputs(cache, pos)) return false;
 
         if (cache.getBlockEntity(pos) instanceof LargeCauldronBlockEntity cauldron) {
-            if (this.consume() > LargeCauldronFluidHandler.TANK_CAPACITY
-                || this.produce() > LargeCauldronFluidHandler.TANK_CAPACITY) return false;
+            if (
+                this.consume() > LargeCauldronFluidHandler.TANK_CAPACITY
+                || this.transforms().stream()
+                    .anyMatch(transform -> transform.getAmount() > LargeCauldronFluidHandler.TANK_CAPACITY)
+            ) {
+                return false;
+            }
             return cauldron.testFluidRecipe(context, this);
         }
 
@@ -137,7 +146,7 @@ public record HasCauldron(
         if (this.consume() > capacity || this.produce() > capacity) return false;
 
         // 锅中流体检查不通过 否决
-        ResourceLocation curFluid = HasCauldron.getCurFluid(cache, pos, entityCauldron);
+        FluidStack curFluid = HasCauldron.getCurFluidStack(cache, pos, entityCauldron);
         if (this.hasCheck() && !this.matchesFluid(curFluid)) return false;
 
         // 如果锅必须为可点燃锅
@@ -162,8 +171,12 @@ public record HasCauldron(
         if (afterConsume + this.produce() > capacity) return false;
 
         // 锅中有流体 且 转换有效 且 前后流体类型不同 且 锅中流体没有消耗完 否决
-        // 例外：consume==0 && produce==0 表示仅交换流体类型（如水泥染色），允许通过
-        if (cur > 0 && HasCauldron.isNotEmpty(this.transform()) && !curFluid.equals(this.transform()) && afterConsume != 0) {
+        if (
+            cur > 0
+            && !this.transforms().isEmpty()
+            && !FluidStack.isSameFluidSameComponents(curFluid, this.transforms().getFirst())
+            && afterConsume != 0
+        ) {
             return false;
         }
 
@@ -180,17 +193,16 @@ public record HasCauldron(
             return;
         }
         if (context.getLevel().getRandom().nextFloat() > this.chance()) return;
-        if (this.fluid().equals(EMPTY) && !HasCauldron.isNotEmpty(this.transform())) return;
+        if (this.consume() == 0 && this.transforms().isEmpty()) return;
 
         IEntityCauldron entityCauldron = findEntityCauldron(context, pos);
+        FluidStack curFluid = HasCauldron.getCurFluidStack(cache, pos, entityCauldron);
         double cur = HasCauldron.getCur(cache, pos, entityCauldron);
         double afterConsume = cur - this.consume();
         double amount = afterConsume + this.produce();
 
-        ResourceLocation newFluid = this.transform();
-        if (!HasCauldron.isNotEmpty(newFluid)) newFluid = this.fluid();
-        if (!HasCauldron.isNotEmpty(newFluid)) return;
-        if (amount > 0 && HasCauldron.isNotEmpty(newFluid)) {
+        FluidStack newFluid = this.transforms().isEmpty() ? curFluid : this.transforms().getFirst();
+        if (amount > 0 && !newFluid.isEmpty()) {
             HasCauldron.applyFluid(cache, pos, newFluid, amount, this.ignited, entityCauldron);
         } else {
             HasCauldron.applyEmpty(cache, pos, entityCauldron);
@@ -232,28 +244,41 @@ public record HasCauldron(
         return new Builder();
     }
 
-    public static boolean isNotEmpty(ResourceLocation fluid) {
-        return !fluid.equals(HasCauldron.NULL) && !fluid.equals(HasCauldron.EMPTY);
+    public int produce() {
+        return this.transforms.stream().mapToInt(FluidStack::getAmount).sum();
+    }
+
+    public boolean hasMultipleFluidOutputs() {
+        return this.transforms.size() > 1;
     }
 
     public boolean hasCheck() {
-        return !this.fluid().equals(HasCauldron.NULL) || this.fluidTag() != null;
+        return this.fluid().fluids().isPresent()
+               || this.fluid().component().map(predicate -> !predicate.patch().isEmpty() || predicate.isNegate()).orElse(false)
+               || this.fluid().amount().isPresent()
+               || this.fluid().isNegate();
+    }
+
+    public boolean requiresEmptyCauldron() {
+        return this.fluid().equals(EMPTY_PREDICATE);
     }
 
     /**
      * 检查当前流体是否匹配条件
      *
-     * @param curFluid 当前流体ID
+     * @param curFluid 当前流体栈
      * @return 是否匹配
      */
-    public boolean matchesFluid(ResourceLocation curFluid) {
-        if (this.fluidTag() != null) {
-            TagKey<Fluid> tagKey = TagKey.create(Registries.FLUID, this.fluidTag());
-            return BuiltInRegistries.FLUID.getHolder(curFluid)
-                .map(holder -> holder.is(tagKey))
-                .orElse(false);
+    public boolean matchesFluid(FluidStack curFluid) {
+        return this.fluid().test(curFluid);
+    }
+
+    private static boolean supportsMultipleFluidOutputs(BlockCache cache, BlockPos pos) {
+        if (cache.getBlockEntity(pos) instanceof ICauldron cauldron) {
+            return cauldron.supportsMultipleFluidOutputs();
         }
-        return this.fluid().equals(curFluid);
+        return cache.getBlockState(pos).getBlock() instanceof ICauldron cauldron
+               && cauldron.supportsMultipleFluidOutputs();
     }
 
     public static double getCapacity(BlockCache cache, BlockPos pos) {
@@ -265,38 +290,17 @@ public record HasCauldron(
         return handler == null ? 1000 : handler.getTankCapacity(0);
     }
 
-    /**
-     * 获取流体对应的炼药锅方块
-     *
-     * @return 炼药锅方块
-     */
-    public static ResourceLocation getCurFluid(BlockCache cache, BlockPos pos) {
-        return getCurFluid(cache, pos, null);
-    }
-
-    @SuppressWarnings("deprecation")
-    private static ResourceLocation getCurFluid(
+    private static FluidStack getCurFluidStack(
         BlockCache cache,
         BlockPos pos,
         @Nullable IEntityCauldron entityCauldron
     ) {
         IFluidHandler handler = getFluidHandler(cache, pos, entityCauldron);
-        if (handler != null) {
-            FluidStack stack = handler.getFluidInTank(0);
-            return stack.isEmpty() ? EMPTY : BuiltInRegistries.FLUID.getKey(stack.getFluid());
-        }
-        return cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron
-               ? cauldron.getFluid(cache, pos).builtInRegistryHolder().key().location()
-               : WrapUtils.cauldron2Fluid(cache.getBlockState(pos).getBlock());
-    }
-
-    /**
-     * 获取流体对应的炼药锅方块
-     *
-     * @return 炼药锅方块
-     */
-    public static double getCur(BlockCache cache, BlockPos pos) {
-        return getCur(cache, pos, null);
+        if (handler != null) return handler.getFluidInTank(0);
+        Fluid fluid = cache.getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron
+                      ? cauldron.getFluid(cache, pos)
+                      : BuiltInRegistries.FLUID.get(WrapUtils.cauldron2Fluid(cache.getBlockState(pos).getBlock()));
+        return new FluidStack(fluid, (int) Math.round(getCur(cache, pos)));
     }
 
     private static double getCur(BlockCache cache, BlockPos pos, @Nullable IEntityCauldron entityCauldron) {
@@ -314,8 +318,8 @@ public record HasCauldron(
         return value.map(layer -> (double) layer / finalProperty.max * 1000.0).orElse(1000.0);
     }
 
-    public static void applyEmpty(BlockCache cache, BlockPos pos) {
-        applyEmpty(cache, pos, null);
+    private static double getCur(BlockCache cache, BlockPos pos) {
+        return getCur(cache, pos, null);
     }
 
     private static void applyEmpty(BlockCache cache, BlockPos pos, @Nullable IEntityCauldron entityCauldron) {
@@ -327,14 +331,10 @@ public record HasCauldron(
         }
     }
 
-    public static void applyFluid(BlockCache cache, BlockPos pos, ResourceLocation fluid, double mb, boolean ignited) {
-        applyFluid(cache, pos, fluid, mb, ignited, null);
-    }
-
     private static void applyFluid(
         BlockCache cache,
         BlockPos pos,
-        ResourceLocation fluid,
+        FluidStack fluid,
         double mb,
         boolean ignited,
         @Nullable IEntityCauldron entityCauldron
@@ -346,20 +346,20 @@ public record HasCauldron(
         IFluidHandler handler = getFluidHandler(cache, pos, entityCauldron);
         if (handler != null) {
             FluidStack fluidInTank = handler.getFluidInTank(0);
-            Fluid target = BuiltInRegistries.FLUID.get(fluid);
-            if (fluidInTank.is(target)) {
+            if (FluidStack.isSameFluidSameComponents(fluidInTank, fluid)) {
                 int diff = (int) Math.round(mb) - fluidInTank.getAmount();
                 if (diff < 0) {
                     handler.drain(-diff, IFluidHandler.FluidAction.EXECUTE);
                 } else {
-                    handler.fill(fluidInTank.copyWithAmount(diff), IFluidHandler.FluidAction.EXECUTE);
+                    handler.fill(fluid.copyWithAmount(diff), IFluidHandler.FluidAction.EXECUTE);
                 }
             } else {
                 handler.drain(Integer.MAX_VALUE, IFluidHandler.FluidAction.EXECUTE);
-                handler.fill(new FluidStack(target, (int) Math.round(mb)), IFluidHandler.FluidAction.EXECUTE);
+                handler.fill(fluid.copyWithAmount((int) Math.round(mb)), IFluidHandler.FluidAction.EXECUTE);
             }
         } else {
-            BlockState cauldron = HasCauldron.getDefaultCauldron(fluid).defaultBlockState();
+            BlockState cauldron = HasCauldron.getDefaultCauldron(fluid.getFluid())
+                .defaultBlockState();
             IntegerProperty property = CauldronUtil.LEVEL_4;
             if (cauldron.getOptionalValue(property).isEmpty()) property = CauldronUtil.LEVEL_3;
             if (cauldron.getOptionalValue(property).isEmpty()) property = null;
@@ -410,19 +410,28 @@ public record HasCauldron(
     /**
      * 根据流体ID获取默认的炼药锅方块
      *
-     * @param fluid 流体ID
+     * @param fluid 流体
      * @return 炼药锅方块
      */
-    public static Block getDefaultCauldron(ResourceLocation fluid) {
-        if (fluid.equals(HasCauldron.EMPTY) || fluid.equals(HasCauldron.NULL)) return Blocks.CAULDRON;
-        if (CompatUtil.F2C_TRANSFORM.containsKey(fluid)) return CompatUtil.F2C_TRANSFORM.get(fluid).get();
-        String namespace = fluid.getNamespace();
-        String path = fluid.getPath();
+    public static Block getDefaultCauldron(Fluid fluid) {
+        ResourceLocation fluidId = BuiltInRegistries.FLUID.getKey(fluid);
+        if (CompatUtil.F2C_TRANSFORM.containsKey(fluidId)) return CompatUtil.F2C_TRANSFORM.get(fluidId).get();
+        String namespace = fluidId.getNamespace();
+        String path = fluidId.getPath();
         ResourceLocation cauldron = ResourceLocation.fromNamespaceAndPath(namespace, "%s_cauldron".formatted(path));
         Holder.Reference<Block> reference = BuiltInRegistries.BLOCK.getHolder(cauldron).orElse(null);
         Block block = Blocks.WATER_CAULDRON;
         if (reference != null) block = reference.value();
         return block;
+    }
+
+    public static Block getDefaultCauldron(FluidStackPredicate fluid) {
+        return fluid.fluids().stream()
+            .flatMap(HolderSet::stream)
+            .map(Holder::value)
+            .findFirst()
+            .map(HasCauldron::getDefaultCauldron)
+            .orElse(Blocks.CAULDRON);
     }
 
     @Override
@@ -438,63 +447,35 @@ public record HasCauldron(
          * 编解码器
          */
         public final MapCodec<HasCauldron> codec = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                Vec3.CODEC
-                    .fieldOf("offset")
-                    .forGetter(HasCauldron::offset),
-                ResourceLocation.CODEC
-                    .optionalFieldOf("fluid", EMPTY)
+                Vec3.CODEC.fieldOf("offset").forGetter(HasCauldron::offset),
+                FluidStackPredicate.CODEC.optionalFieldOf("fluid", FluidStackPredicate.ANY)
                     .forGetter(HasCauldron::fluid),
-                Codec.INT
-                    .optionalFieldOf("consume", 0)
-                    .forGetter(HasCauldron::consume),
-                ResourceLocation.CODEC
-                    .optionalFieldOf("transform", NULL)
-                    .forGetter(HasCauldron::transform),
-                Codec.INT
-                    .optionalFieldOf("produce", 0)
-                    .forGetter(HasCauldron::produce),
-                Codec.FLOAT
-                    .optionalFieldOf("chance", 1.0f)
-                    .forGetter(HasCauldron::chance),
-                Codec.BOOL
-                    .optionalFieldOf("ignited", false)
-                    .forGetter(HasCauldron::ignited),
-                ResourceLocation.CODEC
-                    .optionalFieldOf("fluidTag")
-                    .forGetter(h -> Optional.ofNullable(h.fluidTag()))
-            ).apply(instance, (offset, fluid, consume, transform, produce, chance, ignited, fluidTag) ->
-                new HasCauldron(offset, fluid, consume, transform, produce, chance, ignited, fluidTag.orElse(null)))
+                Codec.INT.optionalFieldOf("consume", 0).forGetter(HasCauldron::consume),
+                TRANSFORMS_CODEC.optionalFieldOf("transform", List.of())
+                    .forGetter(HasCauldron::transforms),
+                Codec.FLOAT.optionalFieldOf("chance", 1.0f).forGetter(HasCauldron::chance),
+                Codec.BOOL.optionalFieldOf("ignited", false).forGetter(HasCauldron::ignited)
+            ).apply(instance, HasCauldron::new)
         );
 
         /**
          * 流编解码器
          */
-        public final StreamCodec<RegistryFriendlyByteBuf, HasCauldron> mapCodec = new StreamCodec<>() {
-            @Override
-            public HasCauldron decode(RegistryFriendlyByteBuf buf) {
-                Vec3 offset = StreamCodecUtil.VEC3.decode(buf);
-                ResourceLocation fluid = ResourceLocation.STREAM_CODEC.decode(buf);
-                int consume = ByteBufCodecs.INT.decode(buf);
-                ResourceLocation transform = ResourceLocation.STREAM_CODEC.decode(buf);
-                int produce = ByteBufCodecs.INT.decode(buf);
-                float chance = ByteBufCodecs.FLOAT.decode(buf);
-                boolean ignited = ByteBufCodecs.BOOL.decode(buf);
-                ResourceLocation fluidTag = ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).decode(buf).orElse(null);
-                return new HasCauldron(offset, fluid, consume, transform, produce, chance, ignited, fluidTag);
-            }
-
-            @Override
-            public void encode(RegistryFriendlyByteBuf buf, HasCauldron h) {
-                StreamCodecUtil.VEC3.encode(buf, h.offset());
-                ResourceLocation.STREAM_CODEC.encode(buf, h.fluid());
-                ByteBufCodecs.INT.encode(buf, h.consume());
-                ResourceLocation.STREAM_CODEC.encode(buf, h.transform());
-                ByteBufCodecs.INT.encode(buf, h.produce());
-                ByteBufCodecs.FLOAT.encode(buf, h.chance());
-                ByteBufCodecs.BOOL.encode(buf, h.ignited());
-                ByteBufCodecs.optional(ResourceLocation.STREAM_CODEC).encode(buf, Optional.ofNullable(h.fluidTag()));
-            }
-        };
+        public final StreamCodec<RegistryFriendlyByteBuf, HasCauldron> mapCodec = StreamCodec.composite(
+            StreamCodecUtil.VEC3,
+            HasCauldron::offset,
+            FluidStackPredicate.STREAM_CODEC,
+            HasCauldron::fluid,
+            ByteBufCodecs.INT,
+            HasCauldron::consume,
+            FluidStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            HasCauldron::transforms,
+            ByteBufCodecs.FLOAT,
+            HasCauldron::chance,
+            ByteBufCodecs.BOOL,
+            HasCauldron::ignited,
+            HasCauldron::new
+        );
 
         @Override
         public MapCodec<HasCauldron> codec() {
@@ -512,13 +493,11 @@ public record HasCauldron(
      */
     public static class Builder {
         private Vec3 offset = Vec3.ZERO;
-        private ResourceLocation fluid = HasCauldron.EMPTY;
+        private FluidStackPredicate fluid = FluidStackPredicate.ANY;
         private int consume = 0;
-        private ResourceLocation transform = HasCauldron.NULL;
-        private int produce = 0;
-        private float chance = 1;
+        private final List<FluidStack> transforms = new ArrayList<>();
+        private float chance = 1.00F;
         private boolean ignited = false;
-        private @Nullable ResourceLocation fluidTag = null;
 
         /**
          * 设置偏移量
@@ -587,7 +566,7 @@ public record HasCauldron(
          * @return 构建器实例
          */
         public Builder empty() {
-            this.fluid = HasCauldron.EMPTY;
+            this.fluid = EMPTY_PREDICATE;
             return this;
         }
 
@@ -597,8 +576,23 @@ public record HasCauldron(
          * @param fluid 流体ID
          * @return 构建器实例
          */
-        public Builder fluid(ResourceLocation fluid) {
+        public Builder fluid(FluidStackPredicate fluid) {
             this.fluid = fluid;
+            return this;
+        }
+
+        public Builder fluid(Fluid fluid) {
+            this.fluid = FluidStackPredicate.builder().fluid(fluid).build();
+            return this;
+        }
+
+        public Builder fluid(Holder<Fluid> fluid) {
+            this.fluid = FluidStackPredicate.builder().fluid(fluid).build();
+            return this;
+        }
+
+        public Builder fluid(TagKey<Fluid> fluid) {
+            this.fluid = FluidStackPredicate.builder().fluid(fluid).build();
             return this;
         }
 
@@ -609,19 +603,25 @@ public record HasCauldron(
          * @return 构建器实例
          */
         public Builder cauldron(Block cauldron) {
-            this.fluid = WrapUtils.cauldron2Fluid(cauldron);
+            if (cauldron == Blocks.CAULDRON) return this.empty();
+            return this.fluid(BuiltInRegistries.FLUID.get(WrapUtils.cauldron2Fluid(cauldron)));
+        }
+
+        public Builder transform(Fluid transform, int produce) {
+            return this.transform(new FluidStack(transform, produce));
+        }
+
+        public Builder transform(Holder<Fluid> transform, int produce) {
+            return this.transform(new FluidStack(transform, produce));
+        }
+
+        public Builder transform(FluidStack transform) {
+            this.transforms.add(transform);
             return this;
         }
 
-        /**
-         * 设置转换后的流体ID
-         *
-         * @param transform 转换后的流体ID
-         * @return 构建器实例
-         */
-        public Builder transform(ResourceLocation transform) {
-            this.transform = transform;
-            if (!HasCauldron.isNotEmpty(this.fluid)) this.fluid = HasCauldron.NULL;
+        public Builder transforms(List<FluidStack> transforms) {
+            this.transforms.addAll(transforms);
             return this;
         }
 
@@ -633,17 +633,6 @@ public record HasCauldron(
          */
         public Builder consume(int consume) {
             this.consume = consume;
-            return this;
-        }
-
-        /**
-         * 设置产生指定单位流体
-         *
-         * @param produce 产生量
-         * @return 构建器实例
-         */
-        public Builder produce(int produce) {
-            this.produce = produce;
             return this;
         }
 
@@ -663,20 +652,9 @@ public record HasCauldron(
          *
          * @return 构建器实例
          */
+        @SuppressWarnings("unused")
         public Builder ignite() {
             this.ignited = true;
-            return this;
-        }
-
-        /**
-         * 设置流体标签ID，用于标签匹配
-         *
-         * @param fluidTag 流体标签ID
-         * @return 构建器实例
-         */
-        public Builder fluidTag(ResourceLocation fluidTag) {
-            this.fluidTag = fluidTag;
-            if (!HasCauldron.isNotEmpty(this.fluid)) this.fluid = HasCauldron.NULL;
             return this;
         }
 
@@ -690,11 +668,9 @@ public record HasCauldron(
                 this.offset,
                 this.fluid,
                 this.consume,
-                this.transform,
-                this.produce,
+                this.transforms,
                 this.chance,
-                this.ignited,
-                this.fluidTag
+                this.ignited
             );
         }
     }

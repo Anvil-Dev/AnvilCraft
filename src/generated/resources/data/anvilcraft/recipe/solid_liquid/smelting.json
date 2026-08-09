@@ -1,0 +1,25 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "consume": 16,
+  "fluid": {
+    "components": {
+      "patch": {
+        "!anvilcraft:liquid_enchantment": {}
+      }
+    },
+    "fluids": "anvilcraft:liquid_enchantment"
+  },
+  "ingredients": [
+    {
+      "items": "anvilcraft:ember_metal_ingot"
+    }
+  ],
+  "results": [],
+  "transform": {
+    "amount": 16,
+    "components": {
+      "anvilcraft:liquid_enchantment": "anvilcraft:smelting"
+    },
+    "id": "anvilcraft:liquid_enchantment"
+  }
+}

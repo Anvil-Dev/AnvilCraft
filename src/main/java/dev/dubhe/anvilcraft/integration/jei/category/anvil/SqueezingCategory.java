@@ -10,7 +10,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SqueezingRecipe;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import dev.dubhe.anvilcraft.util.TooltipUtil;
@@ -116,7 +116,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
             builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
                 .addItemStack(output.stack().copyWithCount(output.getMaxCount()));
         }
-        JeiFluidUtil.addOutputSlot(builder, OUTPUT_FLUID, FLUID_X, FLUID_Y, 16, 16, recipe.getHasCauldron()
+        JeiFluidUtil.addOutputSlots(builder, OUTPUT_FLUID, FLUID_X, FLUID_Y, 16, 16, recipe.getHasCauldron()
         );
     }
 
@@ -184,9 +184,15 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         arrowDefault.draw(guiGraphics, 73, 28);
 
         HasCauldronSimple cauldronFluid = recipe.getHasCauldron();
-        if (HasCauldron.isNotEmpty(cauldronFluid.transform())) {
+        if (!cauldronFluid.transforms().isEmpty()) {
             IDrawable fluidSlot = cauldronFluid.chance() < 1.0f ? slotProbability : slotDefault;
-            fluidSlot.draw(guiGraphics, FLUID_X - 1, FLUID_Y - 1);
+            JeiSlotUtil.drawSlots(
+                guiGraphics,
+                fluidSlot,
+                cauldronFluid.transforms().size(),
+                FLUID_X - 1,
+                FLUID_Y - 1
+            );
         }
 
         List<ChanceBlockState> result = recipe.getResultBlocks();

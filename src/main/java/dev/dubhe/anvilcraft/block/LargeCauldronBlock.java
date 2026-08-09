@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.api.block.ICauldron;
 import dev.dubhe.anvilcraft.api.block.ICauldronGeometry;
 import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -29,7 +30,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -53,7 +53,7 @@ import static dev.dubhe.anvilcraft.block.PropelPiston.createTickerHelper;
 
 public class LargeCauldronBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>
-    implements MultiPartBlockEntity<Cube3x3PartHalf, LargeCauldronBlock>, IHammerRemovable, ICauldronGeometry {
+    implements MultiPartBlockEntity<Cube3x3PartHalf, LargeCauldronBlock>, IHammerRemovable, ICauldron, ICauldronGeometry {
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
     private static final double WALL_THICKNESS = 0.25;
     private static final double BOTTOM_WALL_MIN_Y = 0.5;
@@ -98,6 +98,11 @@ public class LargeCauldronBlock
     @Override
     public LargeCauldronBlock getMultiBlock() {
         return this;
+    }
+
+    @Override
+    public boolean supportsMultipleFluidOutputs() {
+        return true;
     }
 
     @Override
@@ -153,7 +158,7 @@ public class LargeCauldronBlock
 
     @Override
     public boolean isLadder(BlockState state, LevelReader level, BlockPos pos, LivingEntity entity) {
-        return entity != null && touchesWall(state, pos, entity.getBoundingBox());
+        return touchesWall(state, pos, entity.getBoundingBox());
     }
 
     public static @Nullable BlockPos findClimbableWall(LevelReader level, LivingEntity entity) {
@@ -207,11 +212,6 @@ public class LargeCauldronBlock
     @Override
     protected VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
         return Shapes.block();
-    }
-
-    @Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
     }
 
     @Override

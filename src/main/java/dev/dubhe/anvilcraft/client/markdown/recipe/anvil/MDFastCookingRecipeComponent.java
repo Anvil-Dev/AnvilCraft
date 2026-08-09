@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.markdown.recipe.anvil;
 
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.FastCookingRecipe;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import lombok.Getter;
@@ -26,7 +27,7 @@ public class MDFastCookingRecipeComponent extends MDBaseAnvilRecipeComponent {
         ingredients = recipe.getInputItems();
         resultItems = recipe.getResultItems();
         inputBlockStates = List.of(
-            CauldronUtil.fullState(recipe.getHasCauldron().getFluidCauldron()),
+            CauldronUtil.fullState(HasCauldron.getDefaultCauldron(recipe.getHasCauldron().fluid())),
             Blocks.CAMPFIRE.defaultBlockState()
         );
     }

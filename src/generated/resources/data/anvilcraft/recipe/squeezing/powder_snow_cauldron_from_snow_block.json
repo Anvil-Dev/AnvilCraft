@@ -1,12 +1,14 @@
 {
   "type": "anvilcraft:squeezing",
-  "fluid": "minecraft:null",
+  "fluid": [],
   "ingredient": {
     "blocks": "minecraft:snow_block"
   },
-  "produce": 250,
   "result": {
     "block": "minecraft:ice"
   },
-  "transform": "minecraft:powder_snow"
+  "transform": {
+    "amount": 250,
+    "id": "minecraft:powder_snow"
+  }
 }

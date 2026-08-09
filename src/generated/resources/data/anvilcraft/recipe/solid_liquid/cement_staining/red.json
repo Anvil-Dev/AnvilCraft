@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:solid_liquid",
-  "fluid": "minecraft:null",
-  "fluidTag": "c:cement",
+  "consume": 1000,
+  "fluid": "#c:cement",
   "ingredients": [
     {
       "items": "minecraft:red_dye"
@@ -9,5 +9,8 @@
   ],
   "max_efficiency": 1,
   "results": [],
-  "transform": "anvilcraft:red_cement"
+  "transform": {
+    "amount": 1000,
+    "id": "anvilcraft:red_cement"
+  }
 }

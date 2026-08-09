@@ -1,0 +1,25 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "consume": 8,
+  "fluid": {
+    "components": {
+      "patch": {
+        "!anvilcraft:liquid_enchantment": {}
+      }
+    },
+    "fluids": "anvilcraft:liquid_enchantment"
+  },
+  "ingredients": [
+    {
+      "items": "anvilcraft:ruby"
+    }
+  ],
+  "results": [],
+  "transform": {
+    "amount": 8,
+    "components": {
+      "anvilcraft:liquid_enchantment": "minecraft:fire_protection"
+    },
+    "id": "anvilcraft:liquid_enchantment"
+  }
+}

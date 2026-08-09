@@ -19,8 +19,7 @@ public class SqueezingRecipeLoader {
         SqueezingRecipe.builder()
             .requires(Blocks.SCULK)
             .result(Blocks.AIR)
-            .transform(ModBlocks.EXP_FLUID_CAULDRON.get())
-            .produce(250)
+            .transform(ModBlocks.EXP_FLUID_CAULDRON.get(), 250)
             .chance(0.1f)
             .noFrostAnvil()
             .save(provider, AnvilCraft.of("squeezing/exp_fluid_from_sculk"));
@@ -28,8 +27,7 @@ public class SqueezingRecipeLoader {
         SqueezingRecipe.builder()
             .requires(Blocks.SCULK)
             .result(Blocks.AIR)
-            .transform(ModBlocks.EXP_FLUID_CAULDRON.get())
-            .produce(250)
+            .transform(ModBlocks.EXP_FLUID_CAULDRON.get(), 250)
             .chance(0.4f)
             .frostAnvil()
             .save(provider, AnvilCraft.of("squeezing/exp_fluid_from_sculk_use_frost_anvil"));
@@ -39,8 +37,7 @@ public class SqueezingRecipeLoader {
         SqueezingRecipe.builder()
             .requires(requires)
             .result(result)
-            .transform(cauldron)
-            .produce(produce)
+            .transform(cauldron, produce)
             .save(provider, AnvilCraft.of("squeezing/%s_from_%s".formatted(getName(cauldron), getName(requires))));
     }
 }

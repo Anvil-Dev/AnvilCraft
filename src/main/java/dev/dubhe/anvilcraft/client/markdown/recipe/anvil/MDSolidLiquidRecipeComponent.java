@@ -2,11 +2,13 @@ package dev.dubhe.anvilcraft.client.markdown.recipe.anvil;
 
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import dev.dubhe.anvilcraft.util.CauldronUtil;
 import lombok.Getter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
 
@@ -41,12 +43,15 @@ public class MDSolidLiquidRecipeComponent extends MDBaseAnvilRecipeComponent {
     }
 
     public static BlockState getInputCauldron(SolidLiquidRecipe recipe) {
-        Block material = recipe.getHasCauldron().getFluidCauldron();
+        Block material = HasCauldron.getDefaultCauldron(recipe.getHasCauldron().fluid());
         return CauldronUtil.fullState(material);
     }
 
     static BlockState getResultCauldron(SolidLiquidRecipe recipe) {
-        Block result = recipe.getHasCauldron().getTransformCauldron();
+        List<FluidStack> transforms = recipe.getHasCauldron().transforms();
+        Block result = transforms.isEmpty()
+                       ? HasCauldron.getDefaultCauldron(recipe.getHasCauldron().fluid())
+                       : HasCauldron.getDefaultCauldron(getDisplayedElement(transforms).getFluid());
         if (recipe.isConsumeFluid()) {
             return CauldronUtil.getStateFromContentAndLevel(result, CauldronUtil.maxLevel(result) - 1);
         } else if (recipe.isProduceFluid()) {

@@ -236,6 +236,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         return this.getMode() == Mode.GOLD;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isTransferMode() {
         Mode mode = this.getMode();
         return mode == Mode.BOOK || mode == Mode.ITEM;
@@ -362,7 +363,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
             if (amount <= 0 || amount > capacity - totalAmount) return ItemStack.EMPTY;
 
             FluidStack fluid = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), (int) amount);
-            fluid.set(ModComponents.LIQUID_ENCHANTMENT, data.enchantment());
+            fluid.set(ModComponents.LIQUID_ENCHANTMENT, data.enchantment().getKey());
             fluids.add(fluid);
             totalAmount += amount;
         }

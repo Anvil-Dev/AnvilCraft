@@ -8,11 +8,13 @@ import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.common.Tags;
 
 import java.util.List;
@@ -69,12 +71,16 @@ public class ConcreteRecipeLoader {
      * 生成水泥染色配方（铁砧加工），每种染料对应将任意颜色水泥炼药锅/鱼缸中的水泥染成对应颜色
      */
     private static void initCementStaining(RegistrumRecipeProvider provider) {
-        ResourceLocation cementTag = ResourceLocation.fromNamespaceAndPath("c", "cement");
+        TagKey<Fluid> cementTag = TagKey.create(
+            Registries.FLUID,
+            ResourceLocation.fromNamespaceAndPath("c", "cement")
+        );
         for (Color color : Color.values()) {
             ResourceLocation targetCement = AnvilCraft.of("%s_cement".formatted(color.getSerializedName()));
             SolidLiquidRecipe.builder()
-                .fluidTag(cementTag)
-                .transform(targetCement)
+                .cauldron(cementTag)
+                .consume(1000)
+                .transform(BuiltInRegistries.FLUID.get(targetCement), 1000)
                 .requires(color.dyeItem())
                 .maxEfficiency(1)
                 .save(provider, AnvilCraft.of("solid_liquid/cement_staining/%s".formatted(color.getSerializedName())));

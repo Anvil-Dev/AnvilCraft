@@ -12,6 +12,7 @@ import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeManager;
 import dev.anvilcraft.lib.v2.yukkuri.api.vapor.VaporizationCauldron;
 import dev.anvilcraft.lib.v2.yukkuri.api.vapor.VaporizationManager;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.block.ICauldron;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
@@ -96,7 +97,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class LargeCauldronBlockEntity extends BlockEntity
-    implements IItemHandlerHolder, IItemHandlerCache, IFluidHandlerHolder, VaporizationCauldron {
+    implements ICauldron, IItemHandlerHolder, IItemHandlerCache, IFluidHandlerHolder, VaporizationCauldron {
     public static final int OUTPUT_SLOTS = 32;
     public static final int MAX_PROCESS_EFFICIENCY = 9;
     private static final int[][] INPUT_SLOT_OFFSETS = {
@@ -182,8 +183,8 @@ public class LargeCauldronBlockEntity extends BlockEntity
 
     public static void serverTick(
         Level level,
-        BlockPos pos,
-        BlockState state,
+        @SuppressWarnings("unused") BlockPos pos,
+        @SuppressWarnings("unused") BlockState state,
         LargeCauldronBlockEntity entity
     ) {
         if (!entity.isMainPart()) return;
@@ -203,7 +204,9 @@ public class LargeCauldronBlockEntity extends BlockEntity
             if (fluidState.isEmpty() || !fluidState.isSource()) continue;
             BlockState sourceState = level.getBlockState(sourcePos);
             if (!(sourceState.getBlock() instanceof BucketPickup bucketPickup)) continue;
-            IFluidHandler source = new BucketPickupHandlerWrapper(null, bucketPickup, level, sourcePos);
+            // BucketPickup accepts a nullable player, but NeoForge's wrapper does not declare it.
+            @SuppressWarnings("DataFlowIssue") IFluidHandler source =
+                new BucketPickupHandlerWrapper(null, bucketPickup, level, sourcePos);
             FluidUtil.tryFluidTransfer(
                 this.fluids,
                 source,
@@ -234,6 +237,11 @@ public class LargeCauldronBlockEntity extends BlockEntity
     @Override
     public IFluidHandler getFluidHandler() {
         return this.getMainPart().fluids;
+    }
+
+    @Override
+    public boolean supportsMultipleFluidOutputs() {
+        return true;
     }
 
     public LargeCauldronInputHandler getInputHandler() {
@@ -307,7 +315,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         if (this.level == null) return false;
         LargeCauldronBlockEntity main = this.getMainPart();
         double minY = main.worldPosition.getY() - 0.5;
-        double fraction = Math.max(0.0, Math.min(1.0, (hit.getLocation().y - minY) / 2.25));
+        double fraction = Math.clamp((hit.getLocation().y - minY) / CONTENT_HEIGHT, 0.0, 1.0);
         int accessible = Math.max(1, (int) Math.ceil(fraction * LargeCauldronFluidHandler.TOTAL_CAPACITY));
         IFluidHandler handler = main.fluids.sideAccess(accessible);
         if (FluidHandlerWrapper.tryInteractWithBottle(player, hand, handler, this.level, this.worldPosition)) return true;
@@ -397,6 +405,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         return remainder;
     }
 
+    @SuppressWarnings("unused")
     public boolean hasInputMatching(java.util.function.Predicate<ItemStack> predicate) {
         LargeCauldronInputHandler handler = this.getMainPart().input;
         for (int slot = 0; slot < handler.getSlots(); slot++) {
@@ -482,7 +491,6 @@ public class LargeCauldronBlockEntity extends BlockEntity
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public boolean handleGiantAnvilImpact(AnvilEvent.OnLand event) {
         LargeCauldronBlockEntity main = this.getMainPart();
         Level level = main.level;
@@ -499,11 +507,11 @@ public class LargeCauldronBlockEntity extends BlockEntity
         main.lastImpactGameTime = gameTime;
 
         BlockPos base = main.worldPosition.below();
-        List<BlockPos> helpers = main.findActiveHelpers(base);
+        List<BlockPos> helpers = findActiveHelpers(serverLevel, base);
         List<RecipePass> itemRecipePasses = helpers.isEmpty()
             ? List.of(RecipePass.ALL)
             : List.of(RecipePass.NON_COMPRESSION, RecipePass.COMPRESSION_ONLY);
-        List<FluidStack> initialFluids = main.fluids.copyFluids();
+        final List<FluidStack> initialFluids = main.fluids.copyFluids();
         List<Integer> initialOutputSlots = new ArrayList<>();
         for (int slot = 0; slot < main.output.getSlots(); slot++) {
             if (!main.output.getStackInSlot(slot).isEmpty()) initialOutputSlots.add(slot);
@@ -578,8 +586,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
                     serverLevel,
                     base,
                     centerCandidates,
-                    event.getEntity(),
-                    RecipePass.NON_COMPRESSION
+                    event.getEntity()
                 );
                 if (!execution.executed()) break;
                 if (execution.damageAnvil()) event.setAnvilDamage(true);
@@ -598,7 +605,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         while (consumed < itemBudget) {
             ItemStack item = this.input.getStackInSlot(slot);
             if (item.isEmpty()) break;
-            var heatingHelper = this.findActiveHeatingHelper(base, slot);
+            var heatingHelper = this.findActiveHeatingHelper(level, base, slot);
             var matched = LiquidEnchantmentCauldronRecipe.match(
                 this.fluids.copyFluids(),
                 item,
@@ -625,11 +632,11 @@ public class LargeCauldronBlockEntity extends BlockEntity
         return processed;
     }
 
-    private Optional<BlockPos> findActiveHeatingHelper(BlockPos base, int inputSlot) {
+    private Optional<BlockPos> findActiveHeatingHelper(ServerLevel level, BlockPos base, int inputSlot) {
         List<BlockPos> heaters = new ArrayList<>();
         for (int slot = 0; slot < FOOTPRINT_OFFSETS.length; slot++) {
             BlockPos helper = positionForFootprint(base, slot).below();
-            if (isActiveHeatingHelper(this.level.getBlockState(helper))) heaters.add(helper);
+            if (isActiveHeatingHelper(level.getBlockState(helper))) heaters.add(helper);
         }
         BlockPos inputPos = positionForInputSlot(base, inputSlot);
         return orderedHelpers(inputPos, heaters, base).stream().findFirst();
@@ -729,7 +736,6 @@ public class LargeCauldronBlockEntity extends BlockEntity
         RecipePass recipePass
     ) {
         for (BlockPos helper : candidates) {
-            Vec3 contextPos = new Vec3(helper.getX() + 0.5, base.getY() + 1.0, helper.getZ() + 0.5);
             this.processingSlot = slot;
             this.processingOutput = outputSource;
             this.processingOutputInputs.clear();
@@ -742,6 +748,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
             }
             RecipeExecution execution;
             try {
+                Vec3 contextPos = new Vec3(helper.getX() + 0.5, base.getY() + 1.0, helper.getZ() + 0.5);
                 execution = this.triggerRecipeGroup(
                     level,
                     contextPos,
@@ -764,13 +771,12 @@ public class LargeCauldronBlockEntity extends BlockEntity
         ServerLevel level,
         BlockPos base,
         List<BlockPos> candidates,
-        Entity anvil,
-        RecipePass recipePass
+        Entity anvil
     ) {
         for (BlockPos helper : candidates) {
             Vec3 contextPos = new Vec3(helper.getX() + 0.5, base.getY() + 1.0, helper.getZ() + 0.5);
             InWorldRecipeContext context = new InWorldRecipeContext(level, contextPos, anvil);
-            RecipeExecution execution = triggerOneRecipe(level, context, ItemStack.EMPTY, recipePass);
+            RecipeExecution execution = triggerOneRecipe(level, context, ItemStack.EMPTY, RecipePass.NON_COMPRESSION);
             if (execution.executed()) return execution;
         }
         return RecipeExecution.EMPTY;
@@ -820,9 +826,9 @@ public class LargeCauldronBlockEntity extends BlockEntity
         InWorldRecipeManager manager = level.getRecipeManager().anvillib$getInWorldRecipeManager();
         for (RecipeHolder<InWorldRecipe> holder : manager.recipeHolders.get(ModRecipeTriggers.ON_ANVIL_FALL_ON.get())) {
             InWorldRecipe recipe = holder.value();
-            if (!recipePass.accepts(recipe)) continue;
+            if (recipePass.rejects(recipe)) continue;
             if (processingInput.isEmpty()) {
-                if (!isFluidOnlyRecipe(recipe)) continue;
+                if (isNotFluidOnlyRecipe(recipe)) continue;
             } else if (!recipeAnchoredByInput(recipe, processingInput)) {
                 continue;
             }
@@ -870,23 +876,23 @@ public class LargeCauldronBlockEntity extends BlockEntity
         for (RecipeHolder<InWorldRecipe> holder
             : manager.recipeHolders.get(ModRecipeTriggers.ON_ANVIL_FALL_ON.get())) {
             InWorldRecipe recipe = holder.value();
-            if (!recipePass.accepts(recipe)) continue;
+            if (recipePass.rejects(recipe)) continue;
             if (recipeAnchoredByInput(recipe, stack)) priority = Math.max(priority, recipe.priority());
         }
         return priority;
     }
 
-    private static boolean isFluidOnlyRecipe(InWorldRecipe recipe) {
+    private static boolean isNotFluidOnlyRecipe(InWorldRecipe recipe) {
         boolean hasFluid = false;
         for (IRecipePredicate<?> predicate : recipe.nonConflicting()) {
-            if (predicate instanceof HasItemIngredient) return false;
+            if (predicate instanceof HasItemIngredient) return true;
             hasFluid |= predicate instanceof HasCauldron;
         }
         for (IRecipePredicate<?> predicate : recipe.conflicting()) {
-            if (predicate instanceof HasItemIngredient) return false;
+            if (predicate instanceof HasItemIngredient) return true;
             hasFluid |= predicate instanceof HasCauldron;
         }
-        return hasFluid;
+        return !hasFluid;
     }
 
     private static boolean sameFluids(List<FluidStack> first, List<FluidStack> second) {
@@ -925,7 +931,8 @@ public class LargeCauldronBlockEntity extends BlockEntity
         LargeCauldronBlockEntity main = this.getMainPart();
         if (main != this) return main.getRecipePreviews();
         if (this.level == null) return List.of();
-        long gameTime = this.level.getGameTime();
+        Level level = this.level;
+        long gameTime = level.getGameTime();
         if (this.recipePreviewGameTime != Long.MIN_VALUE
             && gameTime >= this.recipePreviewGameTime
             && gameTime - this.recipePreviewGameTime < 10) {
@@ -933,9 +940,9 @@ public class LargeCauldronBlockEntity extends BlockEntity
         }
 
         BlockPos base = this.worldPosition.below();
-        List<BlockPos> helpers = this.findActiveHelpers(base);
+        List<BlockPos> helpers = findActiveHelpers(level, base);
         boolean itemCompressionLast = !helpers.isEmpty();
-        List<RecipeHolder<InWorldRecipe>> recipes = this.getPreviewRecipes(itemCompressionLast);
+        List<RecipeHolder<InWorldRecipe>> recipes = getPreviewRecipes(level, itemCompressionLast);
         if (recipes.isEmpty()) {
             this.recipePreviewGameTime = gameTime;
             this.recipePreviewCache = List.of();
@@ -999,12 +1006,12 @@ public class LargeCauldronBlockEntity extends BlockEntity
     }
 
     @SuppressWarnings("unchecked")
-    private List<RecipeHolder<InWorldRecipe>> getPreviewRecipes(boolean itemCompressionLast) {
+    private static List<RecipeHolder<InWorldRecipe>> getPreviewRecipes(Level level, boolean itemCompressionLast) {
         List<RecipeHolder<InWorldRecipe>> recipes = new ArrayList<>();
-        for (RecipeHolder<?> holder : this.level.getRecipeManager().getRecipes()) {
+        for (RecipeHolder<?> holder : level.getRecipeManager().getRecipes()) {
             if (!(holder.value() instanceof InWorldRecipe recipe)) continue;
             if (!recipe.trigger().equals(ModRecipeTriggers.ON_ANVIL_FALL_ON.get())) continue;
-            recipes.add((RecipeHolder<InWorldRecipe>) (RecipeHolder<?>) holder);
+            recipes.add((RecipeHolder<InWorldRecipe>) holder);
         }
         recipes.sort(
             Comparator.<RecipeHolder<InWorldRecipe>>comparingInt(
@@ -1061,7 +1068,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         Vec3 contextPos = new Vec3(helper.getX() + 0.5, base.getY() + 1.0, helper.getZ() + 0.5);
         for (RecipeHolder<InWorldRecipe> holder : recipes) {
             InWorldRecipe recipe = holder.value();
-            if (!isFluidOnlyRecipe(recipe)) continue;
+            if (isNotFluidOnlyRecipe(recipe)) continue;
             PreviewState state = new PreviewState(
                 copyItemStacks(this.input),
                 -1,
@@ -1099,7 +1106,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         Vec3 contextPos
     ) {
         for (IRecipePredicate<?> predicate : predicates) {
-            if (!this.applyPreviewPredicate(predicate, state, contextPos)) return false;
+            if (this.rejectsPreviewPredicate(predicate, state, contextPos)) return false;
         }
         return true;
     }
@@ -1129,7 +1136,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         for (int i = 0; i < predicates.size(); i++) {
             if (used[i]) continue;
             PreviewState branch = state.copy();
-            if (!this.applyPreviewPredicate(predicates.get(i), branch, contextPos)) continue;
+            if (this.rejectsPreviewPredicate(predicates.get(i), branch, contextPos)) continue;
             used[i] = true;
             if (this.previewIncompatible(predicates, used, remaining - 1, branch, contextPos)) {
                 state.copyFrom(branch);
@@ -1140,7 +1147,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         return false;
     }
 
-    private boolean applyPreviewPredicate(
+    private boolean rejectsPreviewPredicate(
         IRecipePredicate<?> predicate,
         PreviewState state,
         Vec3 contextPos
@@ -1148,34 +1155,36 @@ public class LargeCauldronBlockEntity extends BlockEntity
         switch (predicate) {
             case HasItemIngredient itemIngredient -> {
                 int slot = state.findItem(itemIngredient);
-                if (slot < 0) return false;
+                if (slot < 0) return true;
                 state.items.get(slot).shrink(itemIngredient.getItem().count());
                 state.usedItemSlots.add(slot);
-                return true;
+                return false;
             }
             case HasCauldron cauldron -> {
                 if ((cauldron.ignited() && !this.ignited) || !this.targetsThisCauldron(cauldron, contextPos)) {
-                    return false;
+                    return true;
                 }
-                if (!applyFluidPredicate(state.fluids, cauldron)) return false;
+                if (!applyFluidPredicate(state.fluids, cauldron)) return true;
                 state.fluidPredicates.add(cauldron);
-                return true;
+                return false;
             }
             case HasBlockBase<?> block -> {
+                if (this.level == null) return true;
                 BlockPos pos = BlockPos.containing(contextPos.add(block.getOffset()));
-                return block.getPredicate().test(this.level, this.level.getBlockState(pos), this.level.getBlockEntity(pos));
+                return !block.getPredicate().test(this.level, this.level.getBlockState(pos), this.level.getBlockEntity(pos));
             }
             case HasAnvil anvil -> {
                 boolean matches = anvil.anvil().testWithoutEntity(ModBlocks.GIANT_ANVIL.getDefaultState());
-                return matches != anvil.inverted();
+                return matches == anvil.inverted();
             }
             default -> {
             }
         }
-        return false;
+        return true;
     }
 
     private boolean targetsThisCauldron(HasCauldron predicate, Vec3 contextPos) {
+        if (this.level == null) return false;
         BlockPos pos = BlockPos.containing(contextPos.add(predicate.offset()));
         BlockState state = this.level.getBlockState(pos);
         return state.getBlock() instanceof LargeCauldronBlock block
@@ -1190,11 +1199,11 @@ public class LargeCauldronBlockEntity extends BlockEntity
         return separator < 0 ? path : path.substring(0, separator);
     }
 
-    private List<BlockPos> findActiveHelpers(BlockPos base) {
+    private static List<BlockPos> findActiveHelpers(Level level, BlockPos base) {
         List<BlockPos> result = new ArrayList<>();
         for (int slot = 0; slot < FOOTPRINT_OFFSETS.length; slot++) {
             BlockPos helper = positionForFootprint(base, slot).below();
-            if (isActiveRecipeHelper(this.level.getBlockState(helper))) result.add(helper);
+            if (isActiveRecipeHelper(level.getBlockState(helper))) result.add(helper);
         }
         return result;
     }
@@ -1428,54 +1437,28 @@ public class LargeCauldronBlockEntity extends BlockEntity
 
     private static boolean applyFluidPredicate(List<FluidStack> fluids, HasCauldron predicate) {
         int source = findSourceTank(fluids, predicate);
-        if (predicate.fluid().equals(HasCauldron.EMPTY) && source < 0) return false;
-        if (predicate.hasCheck() && !predicate.fluid().equals(HasCauldron.EMPTY) && source < 0) return false;
+        if (predicate.hasCheck() && source < 0) return false;
         int sourceAmount = source < 0 ? 0 : fluids.get(source).getAmount();
         if (predicate.consume() > sourceAmount) return false;
-
-        ResourceLocation sourceId = source < 0
-            ? null
-            : BuiltInRegistries.FLUID.getKey(fluids.get(source).getFluid());
-        ResourceLocation targetId = HasCauldron.isNotEmpty(predicate.transform())
-            ? predicate.transform()
-            : sourceId != null ? sourceId : HasCauldron.isNotEmpty(predicate.fluid()) ? predicate.fluid() : null;
-
-        if (predicate.consume() == 0 && predicate.produce() == 0) {
-            if (source < 0 || targetId == null || targetId.equals(sourceId)) return true;
-            int target = findTank(fluids, targetId);
-            int targetAmount = target < 0 ? 0 : fluids.get(target).getAmount();
-            if (targetAmount + sourceAmount > LargeCauldronFluidHandler.TANK_CAPACITY) return false;
-            if (target < 0) target = findEmptyTankAfterRemoving(fluids, source);
-            if (target < 0) return false;
-            FluidStack transformed = fluids.get(target).isEmpty()
-                ? new FluidStack(BuiltInRegistries.FLUID.get(targetId), targetAmount + sourceAmount)
-                : fluids.get(target).copyWithAmount(targetAmount + sourceAmount);
-            fluids.set(source, FluidStack.EMPTY);
-            fluids.set(target, transformed);
-            return true;
-        }
 
         if (source >= 0 && predicate.consume() > 0) {
             int remaining = sourceAmount - predicate.consume();
             fluids.set(source, remaining == 0 ? FluidStack.EMPTY : fluids.get(source).copyWithAmount(remaining));
         }
-        if (predicate.produce() == 0) return true;
-        if (targetId == null) return false;
-
-        int target = findTank(fluids, targetId);
-        int targetAmount = target < 0 ? 0 : fluids.get(target).getAmount();
-        if (targetAmount + predicate.produce() > LargeCauldronFluidHandler.TANK_CAPACITY) return false;
-        if (target < 0) target = findEmptyTank(fluids);
-        if (target < 0) return false;
-        FluidStack produced = fluids.get(target).isEmpty()
-            ? new FluidStack(BuiltInRegistries.FLUID.get(targetId), targetAmount + predicate.produce())
-            : fluids.get(target).copyWithAmount(targetAmount + predicate.produce());
-        fluids.set(target, produced);
+        for (FluidStack transform : predicate.transforms()) {
+            int target = findTank(fluids, transform);
+            int targetAmount = target < 0 ? 0 : fluids.get(target).getAmount();
+            if (targetAmount + transform.getAmount() > LargeCauldronFluidHandler.TANK_CAPACITY) return false;
+            if (target < 0) target = findEmptyTank(fluids);
+            if (target < 0) return false;
+            FluidStack produced = transform.copyWithAmount(targetAmount + transform.getAmount());
+            fluids.set(target, produced);
+        }
         return true;
     }
 
     private static int findSourceTank(List<FluidStack> fluids, HasCauldron predicate) {
-        if (predicate.fluid().equals(HasCauldron.EMPTY)) {
+        if (predicate.requiresEmptyCauldron()) {
             for (FluidStack fluid : fluids) {
                 if (!fluid.isEmpty()) return -1;
             }
@@ -1484,15 +1467,12 @@ public class LargeCauldronBlockEntity extends BlockEntity
         if (!predicate.hasCheck()) return -1;
         for (int i = 0; i < fluids.size(); i++) {
             FluidStack fluid = fluids.get(i);
-            if (fluid.isEmpty()) continue;
-            ResourceLocation id = BuiltInRegistries.FLUID.getKey(fluid.getFluid());
-            if (predicate.matchesFluid(id)) return i;
+            if (predicate.matchesFluid(fluid)) return i;
         }
         return -1;
     }
 
-    private static int findTank(List<FluidStack> fluids, ResourceLocation id) {
-        FluidStack target = new FluidStack(BuiltInRegistries.FLUID.get(id), 1);
+    private static int findTank(List<FluidStack> fluids, FluidStack target) {
         for (int i = 0; i < fluids.size(); i++) {
             FluidStack fluid = fluids.get(i);
             if (FluidStack.isSameFluidSameComponents(fluid, target)) return i;
@@ -1507,11 +1487,6 @@ public class LargeCauldronBlockEntity extends BlockEntity
         return -1;
     }
 
-    private static int findEmptyTankAfterRemoving(List<FluidStack> fluids, int source) {
-        int empty = findEmptyTank(fluids);
-        return empty >= 0 ? empty : source;
-    }
-
     private static List<FluidStack> copyFluids(List<FluidStack> fluids) {
         List<FluidStack> result = new ArrayList<>(fluids.size());
         for (FluidStack fluid : fluids) result.add(fluid.copy());
@@ -1523,12 +1498,12 @@ public class LargeCauldronBlockEntity extends BlockEntity
         NON_COMPRESSION,
         COMPRESSION_ONLY;
 
-        private boolean accepts(InWorldRecipe recipe) {
+        private boolean rejects(InWorldRecipe recipe) {
             boolean compression = recipe instanceof ItemCompressRecipe;
             return switch (this) {
-                case ALL -> true;
-                case NON_COMPRESSION -> !compression;
-                case COMPRESSION_ONLY -> compression;
+                case ALL -> false;
+                case NON_COMPRESSION -> compression;
+                case COMPRESSION_ONLY -> !compression;
             };
         }
     }

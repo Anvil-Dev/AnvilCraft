@@ -6,27 +6,32 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
+import dev.dubhe.anvilcraft.util.FluidStackPredicate;
 import lombok.Getter;
+import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.List;
 
 /** An anvil-processing recipe between item ingredients and cauldron fluid. */
 @Getter
 public class SolidLiquidRecipe extends AbstractProcessRecipe<SolidLiquidRecipe> {
+    @SuppressWarnings("unused")
     public SolidLiquidRecipe(
         List<ItemIngredientPredicate> itemIngredients,
         List<ChanceItemStack> results,
@@ -70,16 +75,19 @@ public class SolidLiquidRecipe extends AbstractProcessRecipe<SolidLiquidRecipe> 
 
     public boolean isConsumeFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
-        return HasCauldron.isNotEmpty(hasCauldron.fluid()) && this.getHasCauldron().consume() > 0;
+        return hasCauldron.hasFluid() && hasCauldron.consume() > 0;
     }
 
     public boolean isProduceFluid() {
         HasCauldronSimple hasCauldron = this.getHasCauldron();
-        return HasCauldron.isNotEmpty(hasCauldron.transform()) && this.getHasCauldron().produce() > 0;
+        return !hasCauldron.transforms().isEmpty();
     }
 
+    @SuppressWarnings("unused")
     public boolean isFromWater() {
-        return this.getHasCauldron().fluid().equals(BuiltInRegistries.FLUID.getKey(Fluids.WATER));
+        return this.getHasCauldron().fluid().fluids()
+            .map(fluids -> fluids.stream().anyMatch(holder -> holder.value() == Fluids.WATER))
+            .orElse(false);
     }
 
     public static class Serializer implements RecipeSerializer<SolidLiquidRecipe> {
@@ -124,40 +132,52 @@ public class SolidLiquidRecipe extends AbstractProcessRecipe<SolidLiquidRecipe> 
         private final HasCauldronSimple.Builder hasCauldron = HasCauldronSimple.empty();
         private int maxEfficiency = Integer.MAX_VALUE;
 
-        public Builder cauldron(ResourceLocation fluid) {
+        public Builder cauldron(Fluid fluid) {
+            this.hasCauldron.fluid(fluid);
+            return this;
+        }
+
+        public Builder cauldron(Holder<Fluid> fluid) {
+            this.hasCauldron.fluid(fluid);
+            return this;
+        }
+
+        public Builder cauldron(FluidStackPredicate fluid) {
+            this.hasCauldron.fluid(fluid);
+            return this;
+        }
+
+        public Builder cauldron(TagKey<Fluid> fluid) {
             this.hasCauldron.fluid(fluid);
             return this;
         }
 
         public Builder cauldron(Block cauldron) {
-            this.cauldron(WrapUtils.cauldron2Fluid(cauldron));
+            return this.cauldron(BuiltInRegistries.FLUID.get(WrapUtils.cauldron2Fluid(cauldron)));
+        }
+
+        public Builder transform(Fluid transform, int produce) {
+            this.hasCauldron.transform(transform, produce);
             return this;
         }
 
-        public Builder transform(ResourceLocation transform) {
+        public Builder transform(Holder<Fluid> transform, int produce) {
+            this.hasCauldron.transform(transform, produce);
+            return this;
+        }
+
+        public Builder transform(Block transform, int produce) {
+            return this.transform(BuiltInRegistries.FLUID.get(WrapUtils.cauldron2Fluid(transform)), produce);
+        }
+
+        public Builder transform(FluidStack transform) {
             this.hasCauldron.transform(transform);
-            return this;
-        }
-
-        public Builder transform(Block transform) {
-            this.hasCauldron.transform(WrapUtils.cauldron2Fluid(transform));
-            return this;
-        }
-
-        public Builder produce(int produce) {
-            if (produce <= 0) return this;
-            this.hasCauldron.produce(produce);
             return this;
         }
 
         public Builder consume(int consume) {
             if (consume <= 0) return this;
             this.hasCauldron.consume(consume);
-            return this;
-        }
-
-        public Builder fluidTag(ResourceLocation fluidTag) {
-            this.hasCauldron.fluidTag(fluidTag);
             return this;
         }
 
@@ -174,10 +194,10 @@ public class SolidLiquidRecipe extends AbstractProcessRecipe<SolidLiquidRecipe> 
         @Override
         public void validate(ResourceLocation id) {
             HasCauldronSimple cauldron = this.hasCauldron.build();
-            if (!HasCauldron.isNotEmpty(cauldron.fluid()) && cauldron.fluidTag() == null) {
+            if (!cauldron.hasFluid()) {
                 throw new IllegalArgumentException("Recipe fluid must not be empty, RecipeId: " + id);
             }
-            if (this.results.isEmpty() && !HasCauldron.isNotEmpty(cauldron.transform())) {
+            if (this.results.isEmpty() && cauldron.transforms().isEmpty()) {
                 throw new IllegalArgumentException("Recipe must have an item or fluid result, RecipeId: " + id);
             }
         }
