@@ -20,6 +20,8 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.IronGolem;
 import net.minecraft.world.entity.animal.MushroomCow;
@@ -108,6 +110,7 @@ public class ModDispenserBehavior {
         DispenserBlock.registerBehavior(Items.IRON_INGOT, ModDispenserBehavior::ironIngot);
         DispenserBlock.registerBehavior(Items.BOWL, ModDispenserBehavior::bowl);
         DispenserBlock.registerBehavior(Items.GOLDEN_APPLE, ModDispenserBehavior::goldenApple);
+        DispenserBlock.registerBehavior(ModItems.TOPAZ, ModDispenserBehavior::topaz);
         DispenserBlock.registerBehavior(ModBlocks.RESIN_BLOCK, ModDispenserBehavior::resinBlock);
         DispenserBlock.registerBehavior(ModBlocks.MENGER_SPONGE, ModDispenserBehavior::mengerSponge);
 
@@ -152,6 +155,24 @@ public class ModDispenserBehavior {
             ? SoundEvents.BOTTLE_FILL
             : SoundEvents.BUCKET_FILL;
         level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
+    }
+
+    /**
+     * 发射黄玉：发射方向前方是避雷针时，在避雷针处召唤闪电（与 {@code TopazItem} 右键一致），
+     * 消耗一个黄玉；否则按原版行为抛掷物品。
+     */
+    private static ItemStack topaz(BlockSource source, ItemStack stack) {
+        ServerLevel level = source.level();
+        BlockPos pos = source.pos().relative(source.state().getValue(DispenserBlock.FACING));
+        if (!level.getBlockState(pos).is(Blocks.LIGHTNING_ROD)) {
+            return ModDispenserBehavior.DEFAULT_BEHAVIOUR.dispense(source, stack);
+        }
+        LightningBolt lightningBolt = new LightningBolt(EntityType.LIGHTNING_BOLT, level);
+        lightningBolt.setPos(pos.getCenter());
+        level.addFreshEntity(lightningBolt);
+        ItemStack stack1 = stack.copy();
+        stack1.shrink(1);
+        return stack1;
     }
 
     private static ItemStack mengerSponge(BlockSource source, ItemStack stack) {
