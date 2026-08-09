@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.anvilcraft.lib.v2.util.ShapeUtil;
+import dev.dubhe.anvilcraft.api.block.INegativeMatterBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.NeutronIrradiatorBlockEntity;
 import dev.dubhe.anvilcraft.block.state.IrradiatorType;
@@ -17,8 +19,8 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.CollisionContext;
-import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
@@ -26,17 +28,16 @@ import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.block.PropelPiston.createTickerHelper;
 
-public class NeutronIrradiatorBlock extends Block implements IHammerRemovable, EntityBlock {
-    public static VoxelShape MODEL = Shapes.or(
-        Block.box(0, 0, 0, 16, 10, 16),
-        Block.box(13, 10, 0, 16, 12, 3),
-        Block.box(0, 10, 0, 3, 12, 3),
-        Block.box(0, 10, 13, 3, 12, 16),
-        Block.box(13, 10, 13, 16, 12, 16),
-        Block.box(4, 10, 4, 12, 16, 12)
-    );
-
+public class NeutronIrradiatorBlock extends Block implements IHammerRemovable, EntityBlock, INegativeMatterBlock {
     public static final EnumProperty<IrradiatorType> TYPE = EnumProperty.create("type", IrradiatorType.class);
+    public static final VoxelShape MODEL = ShapeUtil.merge(
+        new AABB(0, 0, 0, 16, 10, 16),
+        new AABB(13, 10, 0, 16, 12, 3),
+        new AABB(0, 10, 0, 3, 12, 3),
+        new AABB(0, 10, 13, 3, 12, 16),
+        new AABB(13, 10, 13, 16, 12, 16),
+        new AABB(4, 10, 4, 12, 16, 12)
+    );
 
     @Override
     public VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
