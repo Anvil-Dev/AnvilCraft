@@ -52,7 +52,7 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
             this.topPos + 26,
             16,
             16,
-            List.of(INCLUDE_COMPONENTS_ENABLE, INCLUDE_COMPONENTS_DISABLE),
+            List.of(INCLUDE_COMPONENTS_DISABLE, INCLUDE_COMPONENTS_ENABLE),
             16,
             16,
             32,

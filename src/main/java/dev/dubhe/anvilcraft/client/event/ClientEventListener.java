@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.api.thought.ThoughtManager;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
+import dev.dubhe.anvilcraft.client.gui.tooltip.FilterContentHoverWindow;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
 import dev.dubhe.anvilcraft.client.support.StructureDiskPreviewSupport;
@@ -202,6 +203,10 @@ public class ClientEventListener {
         } else if (itemStack.is(ModItems.PILL_BOX)) {
             event.setY(y + 13);
             AnvilCraftClient.pillSelectorSupport.render(guiGraphics, x, y);
+        } else if (itemStack.is(ModItems.FILTER)) {
+            // 过滤内容以"外挂窗口"（裁剪过滤器 GUI 贴图）显示在 tooltip 上方
+            event.setY(y + 13);
+            FilterContentHoverWindow.render(guiGraphics, itemStack, x, y, event.getFont());
         } else {
             AmuletSelectorSupport.setCurrentHoveringItemStack(ItemStack.EMPTY);
         }
