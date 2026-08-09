@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.recipe.anvil.util;
 
 import com.google.common.collect.AbstractIterator;
-import com.google.common.collect.Iterables;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
@@ -12,6 +11,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.List;
 
 /**
  * 距离定义类
@@ -51,17 +52,19 @@ public record Distance(Type type, int distance, boolean isHorizontal) {
      * @return 是否在范围内
      */
     public boolean isInRange(Vec3 original, Vec3 other) {
+        if (this.distance < 0) return false;
         Vec3 deltaV = original.subtract(other);
         return switch (this.type) {
             case EUCLIDEAN -> deltaV.x * deltaV.x
                               + deltaV.z * deltaV.z
                               + (this.isHorizontal ? 0 : deltaV.y * deltaV.y)
-                              < this.distance * this.distance;
-            case MANHATTAN -> Math.abs(deltaV.x) + Math.abs(deltaV.z) + (this.isHorizontal ? 0 : Math.abs(deltaV.y)) < this.distance;
+                              <= (double) this.distance * this.distance;
+            case MANHATTAN -> Math.abs(deltaV.x) + Math.abs(deltaV.z)
+                              + (this.isHorizontal ? 0 : Math.abs(deltaV.y)) <= this.distance;
             case CHEBYSHEV -> (this.isHorizontal
-                               ? Math.max(deltaV.x, deltaV.z)
-                               : Math.max(Math.max(deltaV.x, deltaV.z), deltaV.y)
-                              ) < this.distance;
+                               ? Math.max(Math.abs(deltaV.x), Math.abs(deltaV.z))
+                               : Math.max(Math.max(Math.abs(deltaV.x), Math.abs(deltaV.z)), Math.abs(deltaV.y))
+                              ) <= this.distance;
         };
     }
 
@@ -72,44 +75,53 @@ public record Distance(Type type, int distance, boolean isHorizontal) {
      * @return 位置迭代器
      */
     public Iterable<BlockPos> getAllPosesInRange(Vec3 centerPos) {
+        if (this.distance < 0) return List.of();
         final BlockPos center = BlockPos.containing(centerPos.x, centerPos.y, centerPos.z);
-        Iterable<BlockPos> result = switch (this.type) {
-            case EUCLIDEAN -> () -> new AbstractIterator<>() {
-                private final int radiusSq = distance * distance;
+        final int distance = this.distance;
+        final int verticalDistance = this.isHorizontal ? 0 : distance;
+        return () -> new AbstractIterator<>() {
+            private long offsetX = -((long) distance);
+            private long offsetY = -((long) verticalDistance);
+            private long offsetZ = -((long) distance);
 
-                private int offsetX = -distance;
-                private int offsetY = -distance;
-                private int offsetZ = -distance - 1;
-
-                @Override
-                protected @Nullable BlockPos computeNext() {
-                    while (offsetX <= distance) {
-                        while (offsetY <= distance) {
-                            while (++offsetZ <= distance) {
-                                if (offsetX * offsetX + offsetY * offsetY + offsetZ * offsetZ <= radiusSq) {
-                                    return center.offset(offsetX, offsetY, offsetZ);
-                                }
+            @Override
+            protected @Nullable BlockPos computeNext() {
+                while (this.offsetX <= distance) {
+                    while (this.offsetY <= verticalDistance) {
+                        while (this.offsetZ <= distance) {
+                            int offsetX = (int) this.offsetX;
+                            int offsetY = (int) this.offsetY;
+                            int offsetZ = (int) this.offsetZ++;
+                            if (Distance.this.isOffsetInRange(offsetX, offsetY, offsetZ)) {
+                                return center.offset(offsetX, offsetY, offsetZ);
                             }
-                            offsetZ = -distance - 1;
-                            offsetY++;
                         }
-                        offsetY = -distance;
-                        offsetX++;
+                        this.offsetZ = -((long) distance);
+                        this.offsetY++;
                     }
-                    return endOfData();
+                    this.offsetY = -((long) verticalDistance);
+                    this.offsetX++;
                 }
-            };
-            case MANHATTAN -> BlockPos.withinManhattan(center, this.distance, this.distance, this.distance);
-            case CHEBYSHEV -> BlockPos.betweenClosed(
-                center.offset(-this.distance, -this.distance, -this.distance),
-                center.offset(this.distance, this.distance, this.distance)
-            );
+                return endOfData();
+            }
         };
-        if (this.isHorizontal) {
-            int y = center.getY();
-            result = Iterables.filter(result, pos -> pos.getY() == y);
-        }
-        return result;
+    }
+
+    private boolean isOffsetInRange(int offsetX, int offsetY, int offsetZ) {
+        long absoluteX = Math.abs((long) offsetX);
+        long absoluteY = Math.abs((long) offsetY);
+        long absoluteZ = Math.abs((long) offsetZ);
+        return switch (this.type) {
+            case EUCLIDEAN -> (double) offsetX * offsetX
+                              + (double) offsetZ * offsetZ
+                              + (this.isHorizontal ? 0 : (double) offsetY * offsetY)
+                              <= (double) this.distance * this.distance;
+            case MANHATTAN -> absoluteX + absoluteZ + (this.isHorizontal ? 0 : absoluteY) <= this.distance;
+            case CHEBYSHEV -> (this.isHorizontal
+                               ? Math.max(absoluteX, absoluteZ)
+                               : Math.max(Math.max(absoluteX, absoluteZ), absoluteY)
+                              ) <= this.distance;
+        };
     }
 
     /**

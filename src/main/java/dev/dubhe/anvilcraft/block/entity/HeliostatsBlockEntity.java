@@ -119,9 +119,14 @@ public class HeliostatsBlockEntity extends BlockEntity {
                 }
             }
         }
-        BlockPos heightmapPos = this.level.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, this.getBlockPos()).below();
-        if (!heightmapPos.equals(this.getBlockPos()) && this.level.getBlockState(heightmapPos).is(ModBlocks.HELIOSTATS)) {
-            return WorkResult.OBSCURED;
+        BlockPos heliostatsPos = this.getBlockPos();
+        BlockPos heightmapPos = this.level.getHeightmapPos(Heightmap.Types.WORLD_SURFACE, heliostatsPos);
+        BlockPos.MutableBlockPos checkPos = heliostatsPos.mutable();
+        for (int y = heliostatsPos.getY() + 1; y < heightmapPos.getY(); y++) {
+            checkPos.setY(y);
+            if (this.level.getBlockState(checkPos).is(ModBlocks.HELIOSTATS)) {
+                return WorkResult.OBSCURED;
+            }
         }
         if (this.level.isRainingAt(getBlockPos().above())
             || this.level.getBrightness(LightLayer.SKY, getBlockPos().above()) != 15
