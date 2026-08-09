@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.client.renderer.item.HasMobBlockItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.IExtraItemDisplayRenderer;
+import dev.dubhe.anvilcraft.client.renderer.item.ItemSlotClipping;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemStack;
@@ -39,6 +40,34 @@ public abstract class GuiGraphicsMixin {
         int guiOffset
     );
 
+    /**
+     * 对注册了物品栏裁剪的物品，在渲染开始前开启裁剪到物品格（16×16）。
+     * 结束裁剪在 {@link #renderExtra} 末尾，保证物品本体与附加渲染都落在格子内。
+     */
+    @Inject(
+        method = "renderItem("
+                 + "Lnet/minecraft/world/entity/LivingEntity;"
+                 + "Lnet/minecraft/world/level/Level;"
+                 + "Lnet/minecraft/world/item/ItemStack;IIII"
+                 + ")V",
+        at = @At(
+            value = "HEAD"
+        )
+    )
+    private void clipItem(
+        @Nullable LivingEntity entity,
+        @Nullable Level level,
+        ItemStack stack,
+        int x,
+        int y,
+        int seed,
+        int guiOffset,
+        CallbackInfo ci
+    ) {
+        GuiGraphics guiGraphics = (GuiGraphics) (Object) this;
+        ItemSlotClipping.enableClip(guiGraphics, stack, x, y);
+    }
+
     @Inject(
         method = "renderItem("
                  + "Lnet/minecraft/world/entity/LivingEntity;"
@@ -65,5 +94,9 @@ public abstract class GuiGraphicsMixin {
             i -> ANVILCRAFT$RECURSION = i
         );
         HasMobBlockItemRenderer.renderGuiItem(this.pose, stack, x, y);
+        // 与 clipItem 配对的结束裁剪：裁剪到物品格内的物品在此关闭 scissor。
+        if (ItemSlotClipping.shouldClip(stack)) {
+            ItemSlotClipping.disableClip((GuiGraphics) (Object) this);
+        }
     }
 }

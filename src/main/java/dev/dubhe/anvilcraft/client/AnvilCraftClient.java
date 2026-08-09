@@ -10,11 +10,13 @@ import dev.dubhe.anvilcraft.client.init.ModTooltipComponents;
 import dev.dubhe.anvilcraft.client.particle.IonocraftBackpackExhaustParticle;
 import dev.dubhe.anvilcraft.client.particle.OverseerTrailParticle;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
+import dev.dubhe.anvilcraft.client.renderer.item.ItemSlotClipping;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonocraftBackpackDecoration;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.ModParticles;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
@@ -67,6 +69,12 @@ public class AnvilCraftClient {
         IntegrationHook.setModEventBus(Objects.requireNonNull(modEventBus));
         IntegrationHook.setModContainer(Objects.requireNonNull(modContainer));
         AnvilCraft.getINTEGRATION_MANAGER().loadAllClientIntegrations();
+        ItemSlotClipping.register(ModItems.FROST_METAL_RESONATOR.get());
+        ItemSlotClipping.register(ModItems.EMBER_METAL_RESONATOR.get());
+        ItemSlotClipping.register(ModItems.TRANSCENDENCE_RESONATOR.get());
+        ItemSlotClipping.register(ModItems.FROST_METAL_HEAVY_HALBERD.get());
+        ItemSlotClipping.register(ModItems.EMBER_METAL_HEAVY_HALBERD.get());
+        ItemSlotClipping.register(ModItems.TRANSCENDENCE_HEAVY_HALBERD.get());
     }
 
     public static void registerClientExtensions(RegisterClientExtensionsEvent e) {
