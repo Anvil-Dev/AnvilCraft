@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.entity;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.mixin.accessor.AbstractArrowAccessor;
+import dev.dubhe.anvilcraft.util.EntityUtil;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.registries.Registries;
@@ -41,12 +42,12 @@ public class SpectralProjectileEntity extends AbstractArrow {
 
     public SpectralProjectileEntity(EntityType<? extends AbstractArrow> entityType, Level level) {
         super(entityType, level);
-        this.entityData.set(AS_ITEM_STACK, ItemStack.EMPTY);
+        this.entityData.set(SpectralProjectileEntity.AS_ITEM_STACK, ItemStack.EMPTY);
     }
 
     public SpectralProjectileEntity(Level level, LivingEntity owner, ItemStack pickupItemStack, @Nullable ItemStack firedFromWeapon) {
         super(ModEntities.SPECTRAL_PROJECTILE.get(), owner, level, pickupItemStack, firedFromWeapon);
-        this.entityData.set(AS_ITEM_STACK, ItemStack.EMPTY);
+        this.entityData.set(SpectralProjectileEntity.AS_ITEM_STACK, ItemStack.EMPTY);
     }
 
     public static SpectralProjectileEntity of(
@@ -63,7 +64,7 @@ public class SpectralProjectileEntity extends AbstractArrow {
             firedFromWeapon
         );
         // pickup item不让为空，这里给光灵箭是在玩双关梗（）实际上它总是不让捡起来
-        sp.entityData.set(AS_ITEM_STACK, asStack);
+        sp.entityData.set(SpectralProjectileEntity.AS_ITEM_STACK, asStack);
         sp.pickup = Pickup.DISALLOWED;
         if (asStack.is(ItemTags.ARROWS)) sp.setBaseDamage(5.0);
         else {
@@ -82,7 +83,7 @@ public class SpectralProjectileEntity extends AbstractArrow {
     }
 
     public ItemStack getAsItemStack() {
-        return this.entityData.get(AS_ITEM_STACK);
+        return this.entityData.get(SpectralProjectileEntity.AS_ITEM_STACK);
     }
 
     @Override
@@ -93,7 +94,7 @@ public class SpectralProjectileEntity extends AbstractArrow {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(AS_ITEM_STACK, Items.ARROW.getDefaultInstance());
+        builder.define(SpectralProjectileEntity.AS_ITEM_STACK, Items.ARROW.getDefaultInstance());
     }
 
     @Override
@@ -170,8 +171,7 @@ public class SpectralProjectileEntity extends AbstractArrow {
             entity.igniteForSeconds(5.0F);
         }
 
-        // noinspection deprecation
-        if (entity.hurtOrSimulate(damagesource, j)) {
+        if (EntityUtil.hurtOrSimulate(entity, damagesource, j)) {
             if (flag) {
                 return;
             }

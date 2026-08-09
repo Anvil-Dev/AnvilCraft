@@ -50,12 +50,12 @@ public record ConstantValue(float value) implements INumberProvider {
     public static class Type implements INumberProvider.Type<ConstantValue> {
         @Override
         public MapCodec<ConstantValue> codec() {
-            return CODEC;
+            return ConstantValue.CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, ConstantValue> streamCodec() {
-            return STREAM_CODEC.cast();
+            return ConstantValue.STREAM_CODEC.cast();
         }
     }
 }

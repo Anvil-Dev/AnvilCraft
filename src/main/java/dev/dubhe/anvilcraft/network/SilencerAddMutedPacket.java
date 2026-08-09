@@ -19,7 +19,7 @@ public record SilencerAddMutedPacket(Identifier soundId) implements IServerbound
 
     @Override
     public Type<SilencerAddMutedPacket> type() {
-        return TYPE;
+        return SilencerAddMutedPacket.TYPE;
     }
 
     @Override

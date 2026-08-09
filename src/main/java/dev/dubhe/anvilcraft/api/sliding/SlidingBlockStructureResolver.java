@@ -81,7 +81,7 @@ public class SlidingBlockStructureResolver {
         }
 
         int toPushSize = 1;
-        if (toPushSize + this.toPush.size() > MAX_PUSH_DEPTH) return false;
+        if (toPushSize + this.toPush.size() > SlidingBlockStructureResolver.MAX_PUSH_DEPTH) return false;
 
         BlockState oldState;
         while (nowState.isStickyBlock()) {
@@ -99,7 +99,7 @@ public class SlidingBlockStructureResolver {
                 break;
             }
 
-            if (++toPushSize + this.toPush.size() > MAX_PUSH_DEPTH) return false;
+            if (++toPushSize + this.toPush.size() > SlidingBlockStructureResolver.MAX_PUSH_DEPTH) return false;
         }
 
         int addedCount = 0;
@@ -143,7 +143,7 @@ public class SlidingBlockStructureResolver {
                 return true;
             }
 
-            if (this.toPush.size() >= MAX_PUSH_DEPTH) return false;
+            if (this.toPush.size() >= SlidingBlockStructureResolver.MAX_PUSH_DEPTH) return false;
 
             this.toPush.add(addingPos);
             addedCount++;

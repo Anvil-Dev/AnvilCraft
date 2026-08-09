@@ -21,7 +21,7 @@ public record ControlValveInitPacket(int maxRate, FluidStack filter) implements 
 
     @Override
     public Type<ControlValveInitPacket> type() {
-        return TYPE;
+        return ControlValveInitPacket.TYPE;
     }
 
     @Override

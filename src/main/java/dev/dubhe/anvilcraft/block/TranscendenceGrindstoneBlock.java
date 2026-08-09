@@ -50,7 +50,7 @@ public class TranscendenceGrindstoneBlock extends BetterGrindstoneBlock
                 inventory,
                 ContainerLevelAccess.create(level, pos)
             ),
-            CONTAINER_TITLE
+            TranscendenceGrindstoneBlock.CONTAINER_TITLE
         );
     }
 }

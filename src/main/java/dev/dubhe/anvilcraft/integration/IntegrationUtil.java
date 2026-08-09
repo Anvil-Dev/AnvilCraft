@@ -24,15 +24,15 @@ public class IntegrationUtil {
     public static Root root = Root.EMPTY;
 
     public static Root load() {
-        if (root != Root.EMPTY) return root;
+        if (IntegrationUtil.root != Root.EMPTY) return IntegrationUtil.root;
         try (InputStream stream = AnvilCraft.class.getClassLoader().getResourceAsStream("integrations.json")) {
             if (stream == null) return Root.EMPTY;
             InputStreamReader reader = new InputStreamReader(stream);
             JsonObject object = AnvilCraft.GSON.fromJson(reader, JsonObject.class);
             DataResult<Pair<Root, JsonElement>> result = Root.CODEC.decode(JsonOps.INSTANCE, object);
             Pair<Root, JsonElement> pair = result.getOrThrow();
-            root = pair.getFirst();
-            return root;
+            IntegrationUtil.root = pair.getFirst();
+            return IntegrationUtil.root;
         } catch (Exception e) {
             AnvilCraft.LOGGER.error(e.getMessage(), e);
         }
@@ -45,7 +45,7 @@ public class IntegrationUtil {
             Integrations.MAP_CODEC.fieldOf("integration").forGetter(Root::integration),
             Additional.MAP_CODEC.codec().listOf().optionalFieldOf("additional", List.of()).forGetter(Root::additional)
         ).apply(instance, Root::new));
-        public static final Codec<Root> CODEC = MAP_CODEC.codec();
+        public static final Codec<Root> CODEC = Root.MAP_CODEC.codec();
     }
 
     public record Integrations(

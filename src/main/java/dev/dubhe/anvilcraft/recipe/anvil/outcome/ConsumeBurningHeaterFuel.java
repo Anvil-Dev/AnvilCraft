@@ -33,8 +33,8 @@ public record ConsumeBurningHeaterFuel(int fuelCostTicks) implements IRecipeOutc
 
     @Override
     public void accept(InWorldRecipeContext context) {
-        if (context.get(FUEL_CONSUMED)) return;
-        context.put(FUEL_CONSUMED, true);
+        if (context.get(ConsumeBurningHeaterFuel.FUEL_CONSUMED)) return;
+        context.put(ConsumeBurningHeaterFuel.FUEL_CONSUMED, true);
 
         ServerLevel level = context.getLevel();
         Vec3 pos = context.getPos();

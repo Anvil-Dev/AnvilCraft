@@ -65,12 +65,12 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return BlockCompressCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return BlockCompressCategory.HEIGHT;
     }
 
     @Override
@@ -85,7 +85,7 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
             int y = i == 0 ? 24 : 42 + 10 * (i - 1);
             int height = i == 0 ? 18 : 10;
             JeiBlockIngredientUtil.addInputSlot(
-                builder, INPUT_BLOCK_PREFIX + i, 40, y, 18, height, recipe.getInputBlocks().get(i)
+                builder, BlockCompressCategory.INPUT_BLOCK_PREFIX + i, 40, y, 18, height, recipe.getInputBlocks().get(i)
             );
         }
         JeiBlockIngredientUtil.addSlot(
@@ -123,7 +123,7 @@ public class BlockCompressCategory implements IRecipeCategory<RecipeHolder<Block
             List<BlockState> input = recipe.getInputBlocks().get(i).constructStatesForRender();
             if (input.isEmpty()) continue;
             BlockState renderedState = JeiBlockIngredientUtil
-                .getDisplayedState(view, INPUT_BLOCK_PREFIX + i, input)
+                .getDisplayedState(view, BlockCompressCategory.INPUT_BLOCK_PREFIX + i, input)
                 .orElse(input.getFirst());
             RenderSupport.renderBlock(graphics, renderedState, 40, 30 + 10 * i, 20);
         }

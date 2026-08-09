@@ -6,7 +6,6 @@ import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 
-import java.util.Collections;
 import java.util.List;
 
 public class TriStateButton extends Button {
@@ -28,7 +27,7 @@ public class TriStateButton extends Button {
         OnPress onPress,
         List<Component> tooltips
     ) {
-        super(x, y, width, height, Component.empty(), onPress, DEFAULT_NARRATION);
+        super(x, y, width, height, Component.empty(), onPress, Button.DEFAULT_NARRATION);
         this.texture = texture;
         this.textureWidth = textureWidth;
         this.textureHeight = textureHeight;

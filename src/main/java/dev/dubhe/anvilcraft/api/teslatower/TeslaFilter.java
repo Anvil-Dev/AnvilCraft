@@ -33,15 +33,15 @@ public abstract class TeslaFilter {
     private static final HashMap<String, TeslaFilter> FILTER_MAP = new HashMap<>();
 
     public static void register(TeslaFilter filter) {
-        FILTER_MAP.put(filter.getId(), filter);
+        TeslaFilter.FILTER_MAP.put(filter.getId(), filter);
     }
 
     public static TeslaFilter getFilter(String id) {
-        return FILTER_MAP.getOrDefault(id, emptyFilter);
+        return TeslaFilter.FILTER_MAP.getOrDefault(id, TeslaFilter.emptyFilter);
     }
 
     public static Collection<TeslaFilter> all() {
-        return FILTER_MAP.values();
+        return TeslaFilter.FILTER_MAP.values();
     }
 
     public abstract String getId();
@@ -63,16 +63,16 @@ public abstract class TeslaFilter {
     }
 
     public static void init() {
-        FILTER_MAP.clear();
-        register(new IsPlayerFilter());
-        register(new IsPlayerIdFilter());
-        register(new IsPetFilter());
-        register(new IsOnVehicleFilter());
-        register(new IsFriendlyFilter());
-        register(new IsHostileFilter());
-        register(new IsNeutralFilter());
-        register(new IsEntityIdFilter());
-        register(new IsBabyFriendlyFilter());
-        register(new HasCustomNameFilter());
+        TeslaFilter.FILTER_MAP.clear();
+        TeslaFilter.register(new IsPlayerFilter());
+        TeslaFilter.register(new IsPlayerIdFilter());
+        TeslaFilter.register(new IsPetFilter());
+        TeslaFilter.register(new IsOnVehicleFilter());
+        TeslaFilter.register(new IsFriendlyFilter());
+        TeslaFilter.register(new IsHostileFilter());
+        TeslaFilter.register(new IsNeutralFilter());
+        TeslaFilter.register(new IsEntityIdFilter());
+        TeslaFilter.register(new IsBabyFriendlyFilter());
+        TeslaFilter.register(new HasCustomNameFilter());
     }
 }

@@ -46,7 +46,7 @@ public record FellingEffect(int range) implements EnchantmentEntityEffect {
 
     @Override
     public MapCodec<? extends EnchantmentEntityEffect> codec() {
-        return CODEC;
+        return FellingEffect.CODEC;
     }
 
     /// 连锁破坏

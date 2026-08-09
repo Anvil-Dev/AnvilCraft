@@ -30,6 +30,7 @@ import net.minecraft.world.level.SignalGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -50,7 +51,7 @@ import java.util.List;
 import java.util.Optional;
 
 public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implements IMoveableEntityBlock, IHammerRemovable {
-    public static final MapCodec<AdvancedComparatorBlock> CODEC = simpleCodec(AdvancedComparatorBlock::new);
+    public static final MapCodec<AdvancedComparatorBlock> CODEC = BlockBehaviour.simpleCodec(AdvancedComparatorBlock::new);
 
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty INPUT = BooleanProperty.create("input");
@@ -66,27 +67,30 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         super(properties);
         this.registerDefaultState(
             this.stateDefinition.any()
-                .setValue(FACING, Direction.NORTH)
-                .setValue(INPUT, false)
-                .setValue(POWER, 0)
-                .setValue(MODE, Mode.HYSTERESIS)
-                .setValue(POWERED, false)
+                .setValue(HorizontalDirectionalBlock.FACING, Direction.NORTH)
+                .setValue(AdvancedComparatorBlock.INPUT, false)
+                .setValue(AdvancedComparatorBlock.POWER, 0)
+                .setValue(AdvancedComparatorBlock.MODE, Mode.HYSTERESIS)
+                .setValue(AdvancedComparatorBlock.POWERED, false)
         );
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, INPUT, POWER, MODE, POWERED);
+        builder.add(
+            HorizontalDirectionalBlock.FACING, AdvancedComparatorBlock.INPUT, AdvancedComparatorBlock.POWER, AdvancedComparatorBlock.MODE,
+            AdvancedComparatorBlock.POWERED
+        );
     }
 
     @Override
     protected MapCodec<? extends AdvancedComparatorBlock> codec() {
-        return CODEC;
+        return AdvancedComparatorBlock.CODEC;
     }
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
+        return AdvancedComparatorBlock.SHAPE;
     }
 
     @Override
@@ -106,7 +110,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
 
     @Override
     protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        return state.getValue(FACING) == direction && state.getValue(POWERED) ? 15 : 0;
+        return state.getValue(HorizontalDirectionalBlock.FACING) == direction && state.getValue(AdvancedComparatorBlock.POWERED) ? 15 : 0;
     }
 
     @Override
@@ -118,7 +122,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
-        level.scheduleTick(pos, this, getDelay());
+        level.scheduleTick(pos, this, AdvancedComparatorBlock.getDelay());
     }
 
     @Override
@@ -128,18 +132,18 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getHorizontalDirection().getOpposite());
+        return this.defaultBlockState().setValue(HorizontalDirectionalBlock.FACING, context.getHorizontalDirection().getOpposite());
     }
 
     @Override
     public void setPlacedBy(Level level, BlockPos pos, BlockState state, @Nullable LivingEntity placer, ItemStack stack) {
-        level.scheduleTick(pos, this, getDelay());
+        level.scheduleTick(pos, this, AdvancedComparatorBlock.getDelay());
     }
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean isMoving) {
         super.onPlace(state, level, pos, oldState, isMoving);
-        level.scheduleTick(pos, this, getDelay());
+        level.scheduleTick(pos, this, AdvancedComparatorBlock.getDelay());
     }
 
     @Override
@@ -147,7 +151,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         if (!state.is(level.getBlockState(pos).getBlock())) {
             super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
         }
-        Direction facing = state.getValue(FACING);
+        Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
         BlockPos front = pos.relative(facing.getOpposite());
         if (EventHooks.onNeighborNotify(level, pos, level.getBlockState(pos), EnumSet.of(facing.getOpposite()), false).isCanceled()) return;
         Orientation orientation = ExperimentalRedstoneUtils.initialOrientation(level, facing.getOpposite(), null);
@@ -186,7 +190,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
     }
 
     public static int getInputSignal(Level level, BlockPos pos, BlockState state) {
-        Direction direction = state.getValue(FACING);
+        Direction direction = state.getValue(HorizontalDirectionalBlock.FACING);
         BlockPos blockpos = pos.relative(direction);
         BlockState blockstate = level.getBlockState(blockpos);
         int i = level.getSignal(blockpos, direction);
@@ -195,7 +199,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         } else if (i < 15 && blockstate.isRedstoneConductor(level, blockpos)) {
             blockpos = blockpos.relative(direction);
             blockstate = level.getBlockState(blockpos);
-            ItemFrame itemframe = getItemFrame(level, direction, blockpos);
+            ItemFrame itemframe = AdvancedComparatorBlock.getItemFrame(level, direction, blockpos);
             int j = Integer.MIN_VALUE;
             if (blockstate.hasAnalogOutputSignal()) j = Math.max(j, blockstate.getAnalogOutputSignal(level, blockpos, direction));
             if (itemframe != null) j = Math.max(j, itemframe.getAnalogOutput());
@@ -225,7 +229,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
     }
 
     public static int getAlternateSignal(SignalGetter level, BlockPos pos, BlockState state, boolean isHigh) {
-        Direction direction = state.getValue(FACING);
+        Direction direction = state.getValue(HorizontalDirectionalBlock.FACING);
         Direction right = direction.getClockWise();
         Direction left = direction.getCounterClockWise();
         return isHigh ? Math.max(level.getSignal(pos.relative(right), right), level.getSignal(pos.relative(left), left))
@@ -240,7 +244,7 @@ public class AdvancedComparatorBlock extends HorizontalDirectionalBlock implemen
         blockEntity.updateInputtingSignal(level, pos, state);
         this.updateBlockAndNeighbours(level, pos, state, blockEntity);
         this.update(level, pos, state);
-        level.scheduleTick(pos, this, getDelay());
+        level.scheduleTick(pos, this, AdvancedComparatorBlock.getDelay());
     }
 
     protected void updateBlockAndNeighbours(Level level, BlockPos pos, BlockState state, AdvancedComparatorBlockEntity blockEntity) {

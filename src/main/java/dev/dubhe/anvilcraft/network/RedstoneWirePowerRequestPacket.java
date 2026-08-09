@@ -35,7 +35,7 @@ public record RedstoneWirePowerRequestPacket(BlockPos pos) implements IServerbou
 
     @Override
     public Type<RedstoneWirePowerRequestPacket> type() {
-        return TYPE;
+        return RedstoneWirePowerRequestPacket.TYPE;
     }
 
     @Override
@@ -48,7 +48,7 @@ public record RedstoneWirePowerRequestPacket(BlockPos pos) implements IServerbou
             return;
         }
         long gameTime = serverPlayer.level().getGameTime();
-        Long lastRequest = LAST_REQUEST.put(serverPlayer, gameTime);
+        Long lastRequest = RedstoneWirePowerRequestPacket.LAST_REQUEST.put(serverPlayer, gameTime);
         if (lastRequest != null && lastRequest == gameTime) {
             // 客户端本地按位置限频，服务端再按玩家限频，防止修改客户端在同一 tick 批量探测网络。
             return;

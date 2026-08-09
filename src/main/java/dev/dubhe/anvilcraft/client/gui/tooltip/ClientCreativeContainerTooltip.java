@@ -25,14 +25,14 @@ public class ClientCreativeContainerTooltip implements ClientTooltipComponent {
 
     @Override
     public int getHeight(Font font) {
-        return this.tooltip.entries().size() * ROW_HEIGHT;
+        return this.tooltip.entries().size() * ClientCreativeContainerTooltip.ROW_HEIGHT;
     }
 
     @Override
     public int getWidth(Font font) {
         int width = 0;
         for (CreativeContainerTooltip.Entry entry : this.tooltip.entries()) {
-            width = Math.max(width, TEXT_X_OFFSET + font.width(entry.text()));
+            width = Math.max(width, ClientCreativeContainerTooltip.TEXT_X_OFFSET + font.width(entry.text()));
         }
         return width;
     }
@@ -41,13 +41,16 @@ public class ClientCreativeContainerTooltip implements ClientTooltipComponent {
     public void extractImage(Font font, int x, int y, int w, int h, GuiGraphicsExtractor graphics) {
         int row = 0;
         for (CreativeContainerTooltip.Entry entry : this.tooltip.entries()) {
-            int rowY = y + row * ROW_HEIGHT;
+            int rowY = y + row * ClientCreativeContainerTooltip.ROW_HEIGHT;
             if (entry.isFluid()) {
-                renderFluidIcon(graphics, entry.fluid(), x, rowY);
+                ClientCreativeContainerTooltip.renderFluidIcon(graphics, entry.fluid(), x, rowY);
             } else {
                 graphics.item(entry.item(), x, rowY);
             }
-            graphics.text(font, entry.text(), x + TEXT_X_OFFSET, rowY + TEXT_Y_OFFSET, 0xFFFFFFFF, false);
+            graphics.text(
+                font, entry.text(), x + ClientCreativeContainerTooltip.TEXT_X_OFFSET, rowY + ClientCreativeContainerTooltip.TEXT_Y_OFFSET,
+                0xFFFFFFFF, false
+            );
             row++;
         }
     }
@@ -62,6 +65,9 @@ public class ClientCreativeContainerTooltip implements ClientTooltipComponent {
         if (tintSource == null) return;
         TextureAtlasSprite sprite = model.stillMaterial().sprite();
         int tint = tintSource.colorAsStack(resource.toStack(1));
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x, y, ICON_SIZE, ICON_SIZE, tint);
+        graphics.blitSprite(
+            RenderPipelines.GUI_TEXTURED, sprite, x, y, ClientCreativeContainerTooltip.ICON_SIZE, ClientCreativeContainerTooltip.ICON_SIZE,
+            tint
+        );
     }
 }

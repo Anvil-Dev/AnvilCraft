@@ -32,7 +32,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -59,11 +58,11 @@ public class LargeCauldronBlock
     private static final double WALL_THICKNESS = 0.25;
     private static final double BOTTOM_WALL_MIN_Y = 0.5;
     private static final double CLIMBING_EPSILON = 1.0E-5;
-    private static final Map<Cube3x3PartHalf, VoxelShape> SHAPES = createShapes();
+    private static final Map<Cube3x3PartHalf, VoxelShape> SHAPES = LargeCauldronBlock.createShapes();
 
     public LargeCauldronBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(HALF, Cube3x3PartHalf.BOTTOM_CENTER));
+        this.registerDefaultState(this.stateDefinition.any().setValue(LargeCauldronBlock.HALF, Cube3x3PartHalf.BOTTOM_CENTER));
     }
 
     @Override
@@ -73,22 +72,22 @@ public class LargeCauldronBlock
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(HALF);
+        builder.add(LargeCauldronBlock.HALF);
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(HALF, state.getValue(HALF).rotate(rotation));
+        return state.setValue(LargeCauldronBlock.HALF, state.getValue(LargeCauldronBlock.HALF).rotate(rotation));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(HALF, state.getValue(HALF).mirror(mirror));
+        return state.setValue(LargeCauldronBlock.HALF, state.getValue(LargeCauldronBlock.HALF).mirror(mirror));
     }
 
     @Override
     public Property<Cube3x3PartHalf> getPart() {
-        return HALF;
+        return LargeCauldronBlock.HALF;
     }
 
     @Override
@@ -149,33 +148,33 @@ public class LargeCauldronBlock
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        Cube3x3PartHalf part = state.getValue(HALF);
+        Cube3x3PartHalf part = state.getValue(LargeCauldronBlock.HALF);
         if (part.getOffsetY() == 2 && context.isHoldingItem(ModBlocks.GIANT_ANVIL.asItem())) {
             return Shapes.block();
         }
-        return SHAPES.get(part);
+        return LargeCauldronBlock.SHAPES.get(part);
     }
 
     @Override
     public boolean isLadder(BlockState state, LevelReader level, BlockPos pos, LivingEntity entity) {
-        return entity != null && touchesWall(state, pos, entity.getBoundingBox());
+        return LargeCauldronBlock.touchesWall(state, pos, entity.getBoundingBox());
     }
 
     public static @Nullable BlockPos findClimbableWall(LevelReader level, LivingEntity entity) {
         AABB box = entity.getBoundingBox();
         BlockPos min = BlockPos.containing(
-            box.minX - CLIMBING_EPSILON,
-            box.minY - CLIMBING_EPSILON,
-            box.minZ - CLIMBING_EPSILON
+            box.minX - LargeCauldronBlock.CLIMBING_EPSILON,
+            box.minY - LargeCauldronBlock.CLIMBING_EPSILON,
+            box.minZ - LargeCauldronBlock.CLIMBING_EPSILON
         );
         BlockPos max = BlockPos.containing(
-            box.maxX + CLIMBING_EPSILON,
-            box.maxY + CLIMBING_EPSILON,
-            box.maxZ + CLIMBING_EPSILON
+            box.maxX + LargeCauldronBlock.CLIMBING_EPSILON,
+            box.maxY + LargeCauldronBlock.CLIMBING_EPSILON,
+            box.maxZ + LargeCauldronBlock.CLIMBING_EPSILON
         );
         for (BlockPos pos : BlockPos.betweenClosed(min, max)) {
             BlockState state = level.getBlockState(pos);
-            if (state.getBlock() instanceof LargeCauldronBlock && touchesWall(state, pos, box)) {
+            if (state.getBlock() instanceof LargeCauldronBlock && LargeCauldronBlock.touchesWall(state, pos, box)) {
                 return pos.immutable();
             }
         }
@@ -183,40 +182,36 @@ public class LargeCauldronBlock
     }
 
     private static boolean touchesWall(BlockState state, BlockPos pos, AABB box) {
-        Cube3x3PartHalf part = state.getValue(HALF);
-        double wallMinY = pos.getY() + (part.getOffsetY() == 0 ? BOTTOM_WALL_MIN_Y : 0.0);
+        Cube3x3PartHalf part = state.getValue(LargeCauldronBlock.HALF);
+        double wallMinY = pos.getY() + (part.getOffsetY() == 0 ? LargeCauldronBlock.BOTTOM_WALL_MIN_Y : 0.0);
         double wallMaxY = pos.getY() + 1.0;
-        if (!overlaps(box.minY, box.maxY, wallMinY, wallMaxY)) return false;
+        if (!LargeCauldronBlock.overlaps(box.minY, box.maxY, wallMinY, wallMaxY)) return false;
 
-        if (part.getOffsetX() != 0 && overlaps(box.minZ, box.maxZ, pos.getZ(), pos.getZ() + 1.0)) {
-            double wallMinX = pos.getX() + (part.getOffsetX() < 0 ? 0.0 : 1.0 - WALL_THICKNESS);
-            double wallMaxX = wallMinX + WALL_THICKNESS;
-            if (touches(box.minX, box.maxX, wallMinX, wallMaxX)) return true;
+        if (part.getOffsetX() != 0 && LargeCauldronBlock.overlaps(box.minZ, box.maxZ, pos.getZ(), pos.getZ() + 1.0)) {
+            double wallMinX = pos.getX() + (part.getOffsetX() < 0 ? 0.0 : 1.0 - LargeCauldronBlock.WALL_THICKNESS);
+            double wallMaxX = wallMinX + LargeCauldronBlock.WALL_THICKNESS;
+            if (LargeCauldronBlock.touches(box.minX, box.maxX, wallMinX, wallMaxX)) return true;
         }
-        if (part.getOffsetZ() != 0 && overlaps(box.minX, box.maxX, pos.getX(), pos.getX() + 1.0)) {
-            double wallMinZ = pos.getZ() + (part.getOffsetZ() < 0 ? 0.0 : 1.0 - WALL_THICKNESS);
-            double wallMaxZ = wallMinZ + WALL_THICKNESS;
-            return touches(box.minZ, box.maxZ, wallMinZ, wallMaxZ);
+        if (part.getOffsetZ() != 0 && LargeCauldronBlock.overlaps(box.minX, box.maxX, pos.getX(), pos.getX() + 1.0)) {
+            double wallMinZ = pos.getZ() + (part.getOffsetZ() < 0 ? 0.0 : 1.0 - LargeCauldronBlock.WALL_THICKNESS);
+            double wallMaxZ = wallMinZ + LargeCauldronBlock.WALL_THICKNESS;
+            return LargeCauldronBlock.touches(box.minZ, box.maxZ, wallMinZ, wallMaxZ);
         }
         return false;
     }
 
     private static boolean touches(double min, double max, double wallMin, double wallMax) {
-        return Math.abs(max - wallMin) <= CLIMBING_EPSILON || Math.abs(min - wallMax) <= CLIMBING_EPSILON;
+        return Math.abs(max - wallMin) <= LargeCauldronBlock.CLIMBING_EPSILON || Math.abs(min - wallMax)
+                                                                                 <= LargeCauldronBlock.CLIMBING_EPSILON;
     }
 
     private static boolean overlaps(double min, double max, double otherMin, double otherMax) {
-        return max > otherMin + CLIMBING_EPSILON && min < otherMax - CLIMBING_EPSILON;
+        return max > otherMin + LargeCauldronBlock.CLIMBING_EPSILON && min < otherMax - LargeCauldronBlock.CLIMBING_EPSILON;
     }
 
     @Override
     protected VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
         return Shapes.block();
-    }
-
-    @Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
     }
 
     @Override
@@ -262,8 +257,8 @@ public class LargeCauldronBlock
         if (FluidInteractionItems.isFluidInteractionItem(stack)) {
             return Util.sidedSuccess(level);
         }
-        if (isExtractionSurface(state, hit) && hand == InteractionHand.MAIN_HAND) {
-            int slot = LargeCauldronBlockEntity.inputSlotForPart(state.getValue(HALF));
+        if (LargeCauldronBlock.isExtractionSurface(state, hit) && hand == InteractionHand.MAIN_HAND) {
+            int slot = LargeCauldronBlockEntity.inputSlotForPart(state.getValue(LargeCauldronBlock.HALF));
             if (stack.isEmpty()) {
                 return cauldron.extractItemsToHand(player, hand, slot)
                     ? Util.sidedSuccess(level)
@@ -285,10 +280,10 @@ public class LargeCauldronBlock
             }
             return Util.sidedSuccess(level);
         }
-        if (hand != InteractionHand.MAIN_HAND || stack.isEmpty() || !canInsertAt(state, hit)) {
+        if (hand != InteractionHand.MAIN_HAND || stack.isEmpty() || !LargeCauldronBlock.canInsertAt(state, hit)) {
             return InteractionResult.PASS;
         }
-        int preferredSlot = LargeCauldronBlockEntity.inputSlotForPart(state.getValue(HALF));
+        int preferredSlot = LargeCauldronBlockEntity.inputSlotForPart(state.getValue(LargeCauldronBlock.HALF));
         if (level.isClientSide()) return InteractionResult.SUCCESS;
         return cauldron.insertFromHand(stack, preferredSlot)
             ? InteractionResult.SUCCESS
@@ -296,13 +291,13 @@ public class LargeCauldronBlock
     }
 
     private static boolean canInsertAt(BlockState state, BlockHitResult hit) {
-        Cube3x3PartHalf part = state.getValue(HALF);
+        Cube3x3PartHalf part = state.getValue(LargeCauldronBlock.HALF);
         if (part.getOffsetY() != 2) return false;
         return hit.getDirection() == Direction.UP || hit.getDirection().getAxis().isHorizontal();
     }
 
     private static boolean isExtractionSurface(BlockState state, BlockHitResult hit) {
-        return state.getValue(HALF).getOffsetY() == 0 && hit.getDirection() == Direction.UP;
+        return state.getValue(LargeCauldronBlock.HALF).getOffsetY() == 0 && hit.getDirection() == Direction.UP;
     }
 
     @Override
@@ -314,8 +309,8 @@ public class LargeCauldronBlock
         BlockHitResult hit
     ) {
         if (!player.getMainHandItem().isEmpty()) return InteractionResult.PASS;
-        Cube3x3PartHalf part = state.getValue(HALF);
-        if (!isExtractionSurface(state, hit)) return InteractionResult.PASS;
+        Cube3x3PartHalf part = state.getValue(LargeCauldronBlock.HALF);
+        if (!LargeCauldronBlock.isExtractionSurface(state, hit)) return InteractionResult.PASS;
         LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
         if (cauldron == null) return InteractionResult.PASS;
         int slot = LargeCauldronBlockEntity.inputSlotForPart(part);
@@ -329,7 +324,7 @@ public class LargeCauldronBlock
         if (!level.isClientSide() && entity instanceof ItemEntity item) {
             LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
             if (cauldron != null) {
-                cauldron.absorbItem(item, LargeCauldronBlockEntity.inputSlotForPart(state.getValue(HALF)));
+                cauldron.absorbItem(item, LargeCauldronBlockEntity.inputSlotForPart(state.getValue(LargeCauldronBlock.HALF)));
             }
         }
         super.stepOn(level, pos, state, entity);
@@ -347,7 +342,7 @@ public class LargeCauldronBlock
         if (level.isClientSide() || !(entity instanceof ItemEntity item)) return;
         LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, pos, state);
         if (cauldron != null) {
-            cauldron.absorbItem(item, LargeCauldronBlockEntity.inputSlotForPart(state.getValue(HALF)));
+            cauldron.absorbItem(item, LargeCauldronBlockEntity.inputSlotForPart(state.getValue(LargeCauldronBlock.HALF)));
         }
     }
 

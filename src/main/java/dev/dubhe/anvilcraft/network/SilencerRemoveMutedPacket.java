@@ -19,7 +19,7 @@ public record SilencerRemoveMutedPacket(Identifier soundId) implements IServerbo
 
     @Override
     public Type<SilencerRemoveMutedPacket> type() {
-        return TYPE;
+        return SilencerRemoveMutedPacket.TYPE;
     }
 
     @Override

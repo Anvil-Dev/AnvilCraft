@@ -24,46 +24,49 @@ public class LargeCauldronInputHandler implements ResourceHandler<ItemResource>,
     private static final Codec<List<UnlimitedItemStack>> STACKS_CODEC = UnlimitedItemStack.OPTIONAL_CODEC.listOf();
 
     private final Runnable changeListener;
-    private final NonNullList<UnlimitedItemStack> stacks = NonNullList.withSize(SLOT_COUNT, UnlimitedItemStack.EMPTY);
-    private final List<StackJournal> snapshotJournals = new ArrayList<>(SLOT_COUNT);
+    private final NonNullList<UnlimitedItemStack> stacks = NonNullList.withSize(
+        LargeCauldronInputHandler.SLOT_COUNT,
+        UnlimitedItemStack.EMPTY
+    );
+    private final List<StackJournal> snapshotJournals = new ArrayList<>(LargeCauldronInputHandler.SLOT_COUNT);
 
     public LargeCauldronInputHandler(Runnable changeListener) {
         this.changeListener = changeListener;
-        for (int slot = 0; slot < SLOT_COUNT; slot++) {
+        for (int slot = 0; slot < LargeCauldronInputHandler.SLOT_COUNT; slot++) {
             this.snapshotJournals.add(new StackJournal(slot));
         }
     }
 
     @Override
     public int size() {
-        return SLOT_COUNT;
+        return LargeCauldronInputHandler.SLOT_COUNT;
     }
 
     @Override
     public ItemResource getResource(int index) {
-        Objects.checkIndex(index, SLOT_COUNT);
+        Objects.checkIndex(index, LargeCauldronInputHandler.SLOT_COUNT);
         return ItemResource.of(this.stacks.get(index).getStack());
     }
 
     @Override
     public long getAmountAsLong(int index) {
-        Objects.checkIndex(index, SLOT_COUNT);
+        Objects.checkIndex(index, LargeCauldronInputHandler.SLOT_COUNT);
         return this.stacks.get(index).count();
     }
 
     @Override
     public long getCapacityAsLong(int index, ItemResource resource) {
-        Objects.checkIndex(index, SLOT_COUNT);
-        return resource.isEmpty() ? 0 : resource.getMaxStackSize() * STACK_MULTIPLIER;
+        Objects.checkIndex(index, LargeCauldronInputHandler.SLOT_COUNT);
+        return resource.isEmpty() ? 0 : (long) resource.getMaxStackSize() * LargeCauldronInputHandler.STACK_MULTIPLIER;
     }
 
     @Override
     public boolean isValid(int index, ItemResource resource) {
-        Objects.checkIndex(index, SLOT_COUNT);
+        Objects.checkIndex(index, LargeCauldronInputHandler.SLOT_COUNT);
         if (resource.isEmpty()) return false;
         ItemResource own = this.getResource(index);
         if (!own.isEmpty() && !own.equals(resource)) return false;
-        for (int slot = 0; slot < SLOT_COUNT; slot++) {
+        for (int slot = 0; slot < LargeCauldronInputHandler.SLOT_COUNT; slot++) {
             if (slot != index && this.getResource(slot).equals(resource)) return false;
         }
         return true;
@@ -71,7 +74,7 @@ public class LargeCauldronInputHandler implements ResourceHandler<ItemResource>,
 
     @Override
     public int insert(int index, ItemResource resource, int amount, TransactionContext transaction) {
-        Objects.checkIndex(index, SLOT_COUNT);
+        Objects.checkIndex(index, LargeCauldronInputHandler.SLOT_COUNT);
         TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
         if (!this.isValid(index, resource)) return 0;
 
@@ -85,7 +88,7 @@ public class LargeCauldronInputHandler implements ResourceHandler<ItemResource>,
 
     @Override
     public int extract(int index, ItemResource resource, int amount, TransactionContext transaction) {
-        Objects.checkIndex(index, SLOT_COUNT);
+        Objects.checkIndex(index, LargeCauldronInputHandler.SLOT_COUNT);
         TransferPreconditions.checkNonEmptyNonNegative(resource, amount);
         if (!this.getResource(index).equals(resource)) return 0;
 
@@ -104,7 +107,7 @@ public class LargeCauldronInputHandler implements ResourceHandler<ItemResource>,
     }
 
     public void setStackInSlot(int slot, ItemStack stack) {
-        Objects.checkIndex(slot, SLOT_COUNT);
+        Objects.checkIndex(slot, LargeCauldronInputHandler.SLOT_COUNT);
         ItemResource resource = ItemResource.of(stack);
         if (!resource.isEmpty() && !this.isValid(slot, resource)) {
             throw new IllegalArgumentException("Duplicate item in large cauldron input slots");
@@ -132,13 +135,13 @@ public class LargeCauldronInputHandler implements ResourceHandler<ItemResource>,
 
     @Override
     public void serialize(ValueOutput output) {
-        output.store("Items", STACKS_CODEC, this.stacks);
+        output.store("Items", LargeCauldronInputHandler.STACKS_CODEC, this.stacks);
     }
 
     @Override
     public void deserialize(ValueInput input) {
-        List<UnlimitedItemStack> loaded = input.read("Items", STACKS_CODEC).orElse(List.of());
-        for (int slot = 0; slot < SLOT_COUNT; slot++) {
+        List<UnlimitedItemStack> loaded = input.read("Items", LargeCauldronInputHandler.STACKS_CODEC).orElse(List.of());
+        for (int slot = 0; slot < LargeCauldronInputHandler.SLOT_COUNT; slot++) {
             UnlimitedItemStack stack = slot < loaded.size() ? loaded.get(slot) : UnlimitedItemStack.EMPTY;
             this.stacks.set(slot, stack.copy());
         }

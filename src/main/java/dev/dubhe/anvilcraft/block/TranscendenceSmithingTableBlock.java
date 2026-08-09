@@ -30,7 +30,7 @@ public class TranscendenceSmithingTableBlock extends SmithingTableBlock
                 inventory,
                 ContainerLevelAccess.create(level, pos)
             ),
-            CONTAINER_TITLE
+            TranscendenceSmithingTableBlock.CONTAINER_TITLE
         );
     }
 }

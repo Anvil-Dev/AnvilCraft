@@ -50,7 +50,7 @@ public enum DirectionGate331PartHalf
 
     @Override
     public boolean isMain() {
-        return this == BOTTOM_CENTER;
+        return this == DirectionGate331PartHalf.BOTTOM_CENTER;
     }
 
     public boolean isCenterColumn() {

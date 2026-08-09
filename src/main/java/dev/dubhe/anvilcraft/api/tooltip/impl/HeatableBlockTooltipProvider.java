@@ -74,7 +74,7 @@ public class HeatableBlockTooltipProvider extends ITooltipProvider.BlockEntityTo
         if (this.pendingDuration != null || level.getGameTime() < this.nextDurationRefresh) {
             return;
         }
-        this.nextDurationRefresh = level.getGameTime() + DURATION_REFRESH_INTERVAL;
+        this.nextDurationRefresh = level.getGameTime() + HeatableBlockTooltipProvider.DURATION_REFRESH_INTERVAL;
         this.pendingDuration = RPC.invoke(RpcTarget.server(), HeatableBlockEntity::getDuration, entity.getBlockPos())
             .thenApply(OptionalInt::of)
             .exceptionally(_ -> OptionalInt.empty());

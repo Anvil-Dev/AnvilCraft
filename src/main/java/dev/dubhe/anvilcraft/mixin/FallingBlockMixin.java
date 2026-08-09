@@ -61,7 +61,7 @@ public abstract class FallingBlockMixin extends Block {
                 || state.getValue(GiantAnvilBlock.HALF) != Cube3x3PartHalf.BOTTOM_CENTER) {
                 return;
             }
-            if (anvilcraft$isHeldByRing(level, pos, state)) {
+            if (FallingBlockMixin.anvilcraft$isHeldByRing(level, pos, state)) {
                 ci.cancel();
                 return;
             }
@@ -159,7 +159,7 @@ public abstract class FallingBlockMixin extends Block {
             return FallingBlock.isFree(level.getBlockState(targetPos)) ? null : targetPos;
         }
         for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
-            if (!anvilcraft$isOnFace(part, direction)) continue;
+            if (!FallingBlockMixin.anvilcraft$isOnFace(part, direction)) continue;
             BlockPos targetPos = pos.offset(part.getOffset()).relative(direction);
             if (!FallingBlock.isFree(level.getBlockState(targetPos))) return targetPos;
         }

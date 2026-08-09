@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import org.jspecify.annotations.Nullable;
 
 /// 可被锤子改变的方块
 @SuppressWarnings("unused")
@@ -25,41 +26,41 @@ public interface HammerRotateBehavior extends IHammerChangeable {
     };
 
     private static BlockState rotate(BlockState state) {
-        Direction direction = state.getValue(FACING);
+        Direction direction = state.getValue(HammerRotateBehavior.FACING);
         return switch (direction) {
-            case WEST -> state.setValue(FACING, Direction.UP);
-            case UP -> state.setValue(FACING, Direction.DOWN);
-            case DOWN -> state.setValue(FACING, Direction.NORTH);
-            default -> state.setValue(FACING, direction.getClockWise());
+            case WEST -> state.setValue(HammerRotateBehavior.FACING, Direction.UP);
+            case UP -> state.setValue(HammerRotateBehavior.FACING, Direction.DOWN);
+            case DOWN -> state.setValue(HammerRotateBehavior.FACING, Direction.NORTH);
+            default -> state.setValue(HammerRotateBehavior.FACING, direction.getClockWise());
         };
     }
 
     private static BlockState hopperRotate(BlockState state) {
-        Direction direction = state.getValue(FACING_HOPPER);
+        Direction direction = state.getValue(HammerRotateBehavior.FACING_HOPPER);
         return switch (direction) {
-            case WEST -> state.setValue(FACING_HOPPER, Direction.DOWN);
-            case DOWN -> state.setValue(FACING_HOPPER, Direction.NORTH);
-            default -> state.setValue(FACING_HOPPER, direction.getClockWise());
+            case WEST -> state.setValue(HammerRotateBehavior.FACING_HOPPER, Direction.DOWN);
+            case DOWN -> state.setValue(HammerRotateBehavior.FACING_HOPPER, Direction.NORTH);
+            default -> state.setValue(HammerRotateBehavior.FACING_HOPPER, direction.getClockWise());
         };
     }
 
     private static BlockState horizontalRotate(BlockState state) {
         return state.setValue(
-            HORIZONTAL_FACING,
-            state.getValue(HORIZONTAL_FACING).getClockWise()
+            HammerRotateBehavior.HORIZONTAL_FACING,
+            state.getValue(HammerRotateBehavior.HORIZONTAL_FACING).getClockWise()
         );
     }
 
     @Override
     default boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         BlockState state = level.getBlockState(blockPos);
-        if (state.hasProperty(FACING)) {
+        if (state.hasProperty(HammerRotateBehavior.FACING)) {
             state = HammerRotateBehavior.rotate(state);
         } else {
-            if (state.hasProperty(FACING_HOPPER)) {
+            if (state.hasProperty(HammerRotateBehavior.FACING_HOPPER)) {
                 state = HammerRotateBehavior.hopperRotate(state);
             } else {
-                if (state.hasProperty(HORIZONTAL_FACING)) {
+                if (state.hasProperty(HammerRotateBehavior.HORIZONTAL_FACING)) {
                     state = HammerRotateBehavior.horizontalRotate(state);
                 }
             }
@@ -69,13 +70,13 @@ public interface HammerRotateBehavior extends IHammerChangeable {
     }
 
     @Override
-    default Property<?> getChangeableProperty(BlockState state) {
-        if (state.hasProperty(FACING)) {
-            return FACING;
-        } else if (state.hasProperty(FACING_HOPPER)) {
-            return FACING_HOPPER;
-        } else if (state.hasProperty(HORIZONTAL_FACING)) {
-            return HORIZONTAL_FACING;
+    default @Nullable Property<?> getChangeableProperty(BlockState state) {
+        if (state.hasProperty(HammerRotateBehavior.FACING)) {
+            return HammerRotateBehavior.FACING;
+        } else if (state.hasProperty(HammerRotateBehavior.FACING_HOPPER)) {
+            return HammerRotateBehavior.FACING_HOPPER;
+        } else if (state.hasProperty(HammerRotateBehavior.HORIZONTAL_FACING)) {
+            return HammerRotateBehavior.HORIZONTAL_FACING;
         }
         return null;
     }

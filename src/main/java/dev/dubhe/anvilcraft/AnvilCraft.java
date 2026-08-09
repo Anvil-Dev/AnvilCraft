@@ -49,6 +49,7 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeSerializers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.recipe.ModResultModifierTypes;
 import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
+import dev.dubhe.anvilcraft.item.utility.DiskItem;
 import dev.dubhe.anvilcraft.mixin.invoker.BaseMappedRegistryInvoker;
 import lombok.Getter;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -65,6 +66,7 @@ import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
+import org.jspecify.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -72,19 +74,19 @@ import org.slf4j.LoggerFactory;
 public class AnvilCraft {
     public static final String MOD_ID = "anvilcraft";
     public static final String MOD_NAME = "AnvilCraft";
-    public static final Logger LOGGER = LoggerFactory.getLogger(MOD_NAME);
+    public static final Logger LOGGER = LoggerFactory.getLogger(AnvilCraft.MOD_NAME);
     public static final Gson GSON = new GsonBuilder().disableHtmlEscaping().setPrettyPrinting().create();
-    public static IEventBus MOD_BUS = null;
+    public static @Nullable IEventBus MOD_BUS = null;
     public static final AnvilCraftServerConfig CONFIG = ConfigManager.register(AnvilCraft.MOD_ID, AnvilCraftServerConfig::new);
     public static final AnvilCraftClientConfig CLIENT_CONFIG = ConfigManager.register(AnvilCraft.MOD_ID, AnvilCraftClientConfig::new);
 
     @Getter
     private static final IntegrationManager INTEGRATION_MANAGER = new IntegrationManager(AnvilCraft.MOD_ID);
 
-    public static final Registrum REGISTRUM = Registrum.create(MOD_ID).defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
+    public static final Registrum REGISTRUM = Registrum.create(AnvilCraft.MOD_ID).defaultCreativeTab((ResourceKey<CreativeModeTab>) null);
 
     public AnvilCraft(IEventBus modEventBus, ModContainer modContainer) {
-        MOD_BUS = modEventBus;
+        AnvilCraft.MOD_BUS = modEventBus;
         NeoForgeMod.enableMilkFluid();
         ModAttachments.register(modEventBus);
         ModItemGroups.register(modEventBus);
@@ -123,16 +125,16 @@ public class AnvilCraft {
         // datagen
         AnvilCraftDatagen.init();
 
-        registerEvents(modEventBus);
+        AnvilCraft.registerEvents(modEventBus);
         StartupNotificationManager.addModMessage("[AnvilCraft] Loading Integrations");
         IntegrationHook.setModEventBus(modEventBus);
         IntegrationHook.setModContainer(modContainer);
-        INTEGRATION_MANAGER.compileContent();
-        INTEGRATION_MANAGER.loadAllIntegrations();
+        AnvilCraft.INTEGRATION_MANAGER.compileContent();
+        AnvilCraft.INTEGRATION_MANAGER.loadAllIntegrations();
         StartupNotificationManager.addModMessage("[AnvilCraft] Ciallo~");
         AnvilCraftDfu.constructAndOptimize();
-        LOGGER.info("Ciallo～(∠・ω< )⌒★");
-        LOGGER.info("let's 0721");
+        AnvilCraft.LOGGER.info("Ciallo～(∠・ω< )⌒★");
+        AnvilCraft.LOGGER.info("let's 0721");
 
         ModRecipeInits.init(modEventBus);
 
@@ -142,7 +144,7 @@ public class AnvilCraft {
 
     private static void registerEvents(IEventBus eventBus) {
         NeoForge.EVENT_BUS.addListener(AnvilCraft::registerCommand);
-        NeoForge.EVENT_BUS.addListener(dev.dubhe.anvilcraft.item.utility.DiskItem::onBlockPlaced);
+        NeoForge.EVENT_BUS.addListener(DiskItem::onBlockPlaced);
 
         eventBus.addListener(AnvilCraft::registerPayload);
         eventBus.addListener(AnvilCraft::loadComplete);
@@ -151,15 +153,15 @@ public class AnvilCraft {
     }
 
     public static Identifier of(String path) {
-        return Identifier.fromNamespaceAndPath(MOD_ID, path);
+        return Identifier.fromNamespaceAndPath(AnvilCraft.MOD_ID, path);
     }
 
     public static Identifier advancement(String path) {
-        return of("anvilcraft/" + path);
+        return AnvilCraft.of("anvilcraft/" + path);
     }
 
     public static String recipe(String path) {
-        return MOD_ID + ':' + path;
+        return AnvilCraft.MOD_ID + ':' + path;
     }
 
     public static void registerCommand(RegisterCommandsEvent event) {
@@ -175,13 +177,13 @@ public class AnvilCraft {
         event.enqueueWork(() -> {
             ModDispenserBehavior.register();
             if (Util.isLoaded("apothic_enchanting")) {
-                LOGGER.info(
+                AnvilCraft.LOGGER.info(
                     "Apothic Enchanting found. Set royalAnvilBeyondMaxLevel, "
                     + "emberAnvilBeyondMaxLevel and transcendenceAnvilBeyondMaxLevel to true."
                 );
-                CONFIG.royalAnvilBeyondMaxLevel = true;
-                CONFIG.emberAnvilBeyondMaxLevel = true;
-                CONFIG.transcendenceAnvilBeyondMaxLevel = true;
+                AnvilCraft.CONFIG.royalAnvilBeyondMaxLevel = true;
+                AnvilCraft.CONFIG.emberAnvilBeyondMaxLevel = true;
+                AnvilCraft.CONFIG.transcendenceAnvilBeyondMaxLevel = true;
             }
             Util.<BaseMappedRegistryInvoker>cast(BuiltInRegistries.DATA_COMPONENT_PREDICATE_TYPE).invokeSetSync(true);
         });

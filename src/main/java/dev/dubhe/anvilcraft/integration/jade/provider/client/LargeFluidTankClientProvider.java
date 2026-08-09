@@ -19,6 +19,7 @@ import snownee.jade.util.FluidTextHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public enum LargeFluidTankClientProvider implements IClientExtensionProvider<FluidView.Data, FluidView> {
     INSTANCE;
@@ -29,7 +30,7 @@ public enum LargeFluidTankClientProvider implements IClientExtensionProvider<Flu
         for (ViewGroup<FluidView.Data> group : groups) {
             List<FluidView> views = group.views.stream()
                 .map(LargeFluidTankClientProvider::createView)
-                .filter(java.util.Objects::nonNull)
+                .filter(Objects::nonNull)
                 .toList();
             if (!views.isEmpty()) result.add(new ClientViewGroup<>(views));
         }

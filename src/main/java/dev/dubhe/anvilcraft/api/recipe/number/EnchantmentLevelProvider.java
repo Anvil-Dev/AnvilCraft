@@ -55,12 +55,12 @@ public record EnchantmentLevelProvider(
     public static class Type implements INumberProvider.Type<EnchantmentLevelProvider> {
         @Override
         public MapCodec<EnchantmentLevelProvider> codec() {
-            return CODEC;
+            return EnchantmentLevelProvider.CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, EnchantmentLevelProvider> streamCodec() {
-            return STREAM_CODEC;
+            return EnchantmentLevelProvider.STREAM_CODEC;
         }
     }
 }

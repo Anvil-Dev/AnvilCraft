@@ -43,7 +43,7 @@ public class SlidingBlockEntity extends Entity {
     @Setter
     private SlidingBlockSection section;
     @Getter
-    private Direction moveDirection;
+    private Direction moveDirection = Direction.NORTH;
     private int time = 0;
 
     public SlidingBlockEntity(EntityType<? extends SlidingBlockEntity> entityType, Level level) {
@@ -115,7 +115,7 @@ public class SlidingBlockEntity extends Entity {
         if (this.level().isOutsideBuildHeight(pos)) {
             this.stop();
         } else if (this.checkCanMove()) {
-            this.setDeltaMovement(Vec3.ZERO.relative(this.moveDirection, DEFAULT_MOVEMENT));
+            this.setDeltaMovement(Vec3.ZERO.relative(this.moveDirection, SlidingBlockEntity.DEFAULT_MOVEMENT));
         } else if (!this.level().isClientSide() && !this.isRemoved()) {
             this.setDeltaMovement(Vec3.ZERO);
             this.stop();
@@ -168,11 +168,11 @@ public class SlidingBlockEntity extends Entity {
     }
 
     public void setStartPos(BlockPos startPos) {
-        this.entityData.set(DATA_START_POS, startPos);
+        this.entityData.set(SlidingBlockEntity.DATA_START_POS, startPos);
     }
 
     public BlockPos getStartPos() {
-        return this.entityData.get(DATA_START_POS);
+        return this.entityData.get(SlidingBlockEntity.DATA_START_POS);
     }
 
     @Override
@@ -187,7 +187,7 @@ public class SlidingBlockEntity extends Entity {
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(DATA_START_POS, BlockPos.ZERO);
+        builder.define(SlidingBlockEntity.DATA_START_POS, BlockPos.ZERO);
     }
 
     @Override

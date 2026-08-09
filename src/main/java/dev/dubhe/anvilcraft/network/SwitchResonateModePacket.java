@@ -23,7 +23,7 @@ public record SwitchResonateModePacket(InteractionHand hand, int mode) implement
 
     @Override
     public Type<SwitchResonateModePacket> type() {
-        return TYPE;
+        return SwitchResonateModePacket.TYPE;
     }
 
     @Override

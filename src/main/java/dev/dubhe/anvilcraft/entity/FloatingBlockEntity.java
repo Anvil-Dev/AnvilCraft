@@ -110,13 +110,13 @@ public class FloatingBlockEntity extends FallingBlockEntity {
                                 ) {
                                     this.discard();
                                     this.callOnBrokenAfterFall(block, blockPos);
-                                    this.spawnAtLocation((ServerLevel) level(), block);
+                                    this.spawnAtLocation((ServerLevel) this.level(), block);
                                 }
                             } else {
                                 this.discard();
                                 if (this.dropItem && this.level().getServer().getGameRules().get(GameRules.ENTITY_DROPS)) {
                                     this.callOnBrokenAfterFall(block, blockPos);
-                                    this.spawnAtLocation((ServerLevel) level(), block);
+                                    this.spawnAtLocation((ServerLevel) this.level(), block);
                                 }
                             }
                         } else {

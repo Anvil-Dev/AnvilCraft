@@ -18,6 +18,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
@@ -37,12 +38,12 @@ public class BurningHeaterBlock extends BaseEntityBlock implements IHammerRemova
 
     public BurningHeaterBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(LEVEL, 0));
+        this.registerDefaultState(this.stateDefinition.any().setValue(BurningHeaterBlock.LEVEL, 0));
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(BurningHeaterBlock::new);
+        return BlockBehaviour.simpleCodec(BurningHeaterBlock::new);
     }
 
     @Nullable
@@ -59,7 +60,7 @@ public class BurningHeaterBlock extends BaseEntityBlock implements IHammerRemova
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(LEVEL);
+        builder.add(BurningHeaterBlock.LEVEL);
     }
 
     @Nullable
@@ -67,8 +68,8 @@ public class BurningHeaterBlock extends BaseEntityBlock implements IHammerRemova
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> type
     ) {
-        return createTickerHelper(type, ModBlockEntities.BURNING_HEATER.get(),
-            (lvl, pos, st, entity) -> entity.tick(lvl, pos, st));
+        return BaseEntityBlock.createTickerHelper(type, ModBlockEntities.BURNING_HEATER.get(),
+                                                  (lvl, pos, st, entity) -> entity.tick(lvl, pos, st));
     }
 
     @Override
@@ -112,6 +113,6 @@ public class BurningHeaterBlock extends BaseEntityBlock implements IHammerRemova
 
     @Override
     public boolean isActive(BlockState state) {
-        return state.getValue(LEVEL) > 0;
+        return state.getValue(BurningHeaterBlock.LEVEL) > 0;
     }
 }

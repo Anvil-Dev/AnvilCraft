@@ -23,7 +23,7 @@ public record MachineOutputDirectionPacket(Direction direction) implements ISens
 
     @Override
     public Type<MachineOutputDirectionPacket> type() {
-        return TYPE;
+        return MachineOutputDirectionPacket.TYPE;
     }
 
     @Override

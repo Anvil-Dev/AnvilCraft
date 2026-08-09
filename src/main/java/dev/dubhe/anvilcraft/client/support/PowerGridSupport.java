@@ -102,9 +102,9 @@ public class PowerGridSupport {
 
     public static void clearAllGrid() {
         SimplePowerGrid.recreateExecutorLimitedParallelism();
-        for (SimplePowerGrid value : GRID_MAP.values()) {
+        for (SimplePowerGrid value : PowerGridSupport.GRID_MAP.values()) {
             value.destroy();
         }
-        GRID_MAP.clear();
+        PowerGridSupport.GRID_MAP.clear();
     }
 }

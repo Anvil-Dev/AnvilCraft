@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item.block;
 
+import dev.dubhe.anvilcraft.api.tooltip.providers.IItemTooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.block.heatable.HeatableBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -30,7 +31,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.function.Consumer;
 
-public class HeliostatsItem extends BlockItem {
+public class HeliostatsItem extends BlockItem implements IItemTooltipProvider {
     public HeliostatsItem(Block block, Properties properties) {
         super(block, properties);
     }
@@ -58,7 +59,7 @@ public class HeliostatsItem extends BlockItem {
 
     @Override
     public boolean isFoil(ItemStack stack) {
-        return hasDataStored(stack);
+        return HeliostatsItem.hasDataStored(stack);
     }
 
     @Override
@@ -69,7 +70,7 @@ public class HeliostatsItem extends BlockItem {
         ItemStack stack,
         BlockState state) {
         if (level.isClientSide()) return false;
-        if (!hasDataStored(stack)) {
+        if (!HeliostatsItem.hasDataStored(stack)) {
             if (player != null) {
                 player.sendOverlayMessage(
                     Component.translatable("block.anvilcraft.heliostats.placement_no_pos")
@@ -79,7 +80,7 @@ public class HeliostatsItem extends BlockItem {
             return false;
         }
 
-        BlockPos irritatePos = getData(stack);
+        BlockPos irritatePos = HeliostatsItem.getData(stack);
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity instanceof HeliostatsBlockEntity e) {
             if (!e.setIrritatePos(irritatePos) && player != null) {
@@ -94,16 +95,15 @@ public class HeliostatsItem extends BlockItem {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public void appendHoverText(
+    public void appendItemTooltip(
         ItemStack stack,
         TooltipContext context,
         TooltipDisplay display,
         Consumer<Component> builder,
         TooltipFlag tooltipFlag
     ) {
-        if (hasDataStored(stack)) {
-            BlockPos pos = getData(stack);
+        if (HeliostatsItem.hasDataStored(stack)) {
+            BlockPos pos = HeliostatsItem.getData(stack);
             builder.accept(
                 Component.translatable("item.anvilcraft.heliostats.pos_set", pos.toShortString())
                     .withStyle(Style.EMPTY.applyFormat(ChatFormatting.GRAY))
@@ -121,8 +121,8 @@ public class HeliostatsItem extends BlockItem {
     public InteractionResult useOn(UseOnContext context) {
         Level level = context.getLevel();
         if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()
-            && hasDataStored(context.getItemInHand())) {
-            deleteData(context.getItemInHand());
+            && HeliostatsItem.hasDataStored(context.getItemInHand())) {
+            HeliostatsItem.deleteData(context.getItemInHand());
             return InteractionResult.SUCCESS;
         }
         BlockState blockState = level.getBlockState(context.getClickedPos());
@@ -130,7 +130,7 @@ public class HeliostatsItem extends BlockItem {
             || blockState.getBlock() instanceof HeatableBlock
         ) {
             ItemStack stack = context.getItemInHand();
-            if (hasDataStored(stack)) {
+            if (HeliostatsItem.hasDataStored(stack)) {
                 InteractionResult result = super.useOn(context);
                 if (result != InteractionResult.FAIL) {
                     level.playSound(
@@ -156,8 +156,8 @@ public class HeliostatsItem extends BlockItem {
         Level level, Player player, InteractionHand usedHand) {
         if (!level.isClientSide() && player.isShiftKeyDown()) {
             ItemStack itemStack = player.getItemInHand(usedHand);
-            if (hasDataStored(itemStack)) {
-                deleteData(itemStack);
+            if (HeliostatsItem.hasDataStored(itemStack)) {
+                HeliostatsItem.deleteData(itemStack);
             }
             return InteractionResult.SUCCESS;
         }

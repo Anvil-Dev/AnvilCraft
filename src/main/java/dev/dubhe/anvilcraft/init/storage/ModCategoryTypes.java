@@ -22,24 +22,26 @@ public class ModCategoryTypes {
         AnvilCraft.MOD_ID
     );
 
-    public static final DeferredHolder<ICategory.Type<?>, BlockCategory.Type> BLOCK = REGISTER
+    public static final DeferredHolder<ICategory.Type<?>, BlockCategory.Type> BLOCK = ModCategoryTypes.REGISTER
         .register("block", BlockCategory.Type::new);
-    public static final DeferredHolder<ICategory.Type<?>, UnstackableCategory.Type> UNSTACKABLE = REGISTER
+    public static final DeferredHolder<ICategory.Type<?>, UnstackableCategory.Type> UNSTACKABLE = ModCategoryTypes.REGISTER
         .register("unstackable", UnstackableCategory.Type::new);
-    public static final DeferredHolder<ICategory.Type<?>, AndCategory.Type> AND = REGISTER.register("and", AndCategory.Type::new);
-    public static final DeferredHolder<ICategory.Type<?>, OrCategory.Type> OR = REGISTER.register("or", OrCategory.Type::new);
-    public static final DeferredHolder<ICategory.Type<?>, HasComponentCategory.Type> HAS_COMPONENT = REGISTER
+    public static final DeferredHolder<ICategory.Type<?>, AndCategory.Type> AND = ModCategoryTypes.REGISTER.register(
+        "and", AndCategory.Type::new);
+    public static final DeferredHolder<ICategory.Type<?>, OrCategory.Type> OR = ModCategoryTypes.REGISTER.register(
+        "or", OrCategory.Type::new);
+    public static final DeferredHolder<ICategory.Type<?>, HasComponentCategory.Type> HAS_COMPONENT = ModCategoryTypes.REGISTER
         .register("has_component", HasComponentCategory.Type::new);
-    public static final DeferredHolder<ICategory.Type<?>, NamespaceCategory.Type> NAMESPACE = REGISTER
+    public static final DeferredHolder<ICategory.Type<?>, NamespaceCategory.Type> NAMESPACE = ModCategoryTypes.REGISTER
         .register("namespace", NamespaceCategory.Type::new);
-    public static final DeferredHolder<ICategory.Type<?>, CreativeModeTabCategory.Type> CREATIVE_MODE_TAB = REGISTER
+    public static final DeferredHolder<ICategory.Type<?>, CreativeModeTabCategory.Type> CREATIVE_MODE_TAB = ModCategoryTypes.REGISTER
         .register("creative_mode_tab", CreativeModeTabCategory.Type::new);
-    public static final DeferredHolder<ICategory.Type<?>, RecipeBookCategoryCategory.Type> RECIPE_BOOK_CATEGORY = REGISTER
+    public static final DeferredHolder<ICategory.Type<?>, RecipeBookCategoryCategory.Type> RECIPE_BOOK_CATEGORY = ModCategoryTypes.REGISTER
         .register("recipe_book_category", RecipeBookCategoryCategory.Type::new);
-    public static final DeferredHolder<ICategory.Type<?>, FilterCategory.Type> FILTER = REGISTER
+    public static final DeferredHolder<ICategory.Type<?>, FilterCategory.Type> FILTER = ModCategoryTypes.REGISTER
         .register("filter", FilterCategory.Type::new);
 
     public static void register(IEventBus modEventBus) {
-        REGISTER.register(modEventBus);
+        ModCategoryTypes.REGISTER.register(modEventBus);
     }
 }

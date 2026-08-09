@@ -156,25 +156,25 @@ public class TradingStationBlockEntity extends BlockEntity
     @Override
     protected void saveAdditional(ValueOutput output) {
         super.saveAdditional(output);
-        if (this.owner != null) output.store(OWNER_NBT_ID, UUIDUtil.CODEC, this.owner);
-        this.handler.serialize(output.child(STORAGE_NBT_ID));
-        this.filters.serialize(output.child(FILTERS_NBT_ID));
-        output.putBoolean(ALLOW_PLAYER_NBT_ID, this.playerAllowed);
-        output.putBoolean(ALLOW_VILLAGER_NBT_ID, this.villagerAllowed);
-        output.putBoolean(ALLOW_INPUT_NBT_ID, this.inputAllowed);
-        output.putBoolean(ALLOW_OUTPUT_NBT_ID, this.outputAllowed);
+        if (this.owner != null) output.store(TradingStationBlockEntity.OWNER_NBT_ID, UUIDUtil.CODEC, this.owner);
+        this.handler.serialize(output.child(TradingStationBlockEntity.STORAGE_NBT_ID));
+        this.filters.serialize(output.child(TradingStationBlockEntity.FILTERS_NBT_ID));
+        output.putBoolean(TradingStationBlockEntity.ALLOW_PLAYER_NBT_ID, this.playerAllowed);
+        output.putBoolean(TradingStationBlockEntity.ALLOW_VILLAGER_NBT_ID, this.villagerAllowed);
+        output.putBoolean(TradingStationBlockEntity.ALLOW_INPUT_NBT_ID, this.inputAllowed);
+        output.putBoolean(TradingStationBlockEntity.ALLOW_OUTPUT_NBT_ID, this.outputAllowed);
     }
 
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
-        this.owner = input.read(OWNER_NBT_ID, UUIDUtil.CODEC).orElse(null);
-        input.child(STORAGE_NBT_ID).ifPresent(this.handler::deserialize);
-        input.child(FILTERS_NBT_ID).ifPresent(this.filters::deserialize);
-        this.playerAllowed = input.getBooleanOr(ALLOW_PLAYER_NBT_ID, false);
-        this.villagerAllowed = input.getBooleanOr(ALLOW_VILLAGER_NBT_ID, false);
-        this.inputAllowed = input.getBooleanOr(ALLOW_INPUT_NBT_ID, false);
-        this.outputAllowed = input.getBooleanOr(ALLOW_OUTPUT_NBT_ID, false);
+        this.owner = input.read(TradingStationBlockEntity.OWNER_NBT_ID, UUIDUtil.CODEC).orElse(null);
+        input.child(TradingStationBlockEntity.STORAGE_NBT_ID).ifPresent(this.handler::deserialize);
+        input.child(TradingStationBlockEntity.FILTERS_NBT_ID).ifPresent(this.filters::deserialize);
+        this.playerAllowed = input.getBooleanOr(TradingStationBlockEntity.ALLOW_PLAYER_NBT_ID, false);
+        this.villagerAllowed = input.getBooleanOr(TradingStationBlockEntity.ALLOW_VILLAGER_NBT_ID, false);
+        this.inputAllowed = input.getBooleanOr(TradingStationBlockEntity.ALLOW_INPUT_NBT_ID, false);
+        this.outputAllowed = input.getBooleanOr(TradingStationBlockEntity.ALLOW_OUTPUT_NBT_ID, false);
         TradingStationBlockEntity.popoutInvalidItems(this.getLevel(), this.getBlockPos(), this.handler);
     }
 
@@ -211,18 +211,18 @@ public class TradingStationBlockEntity extends BlockEntity
 
     @Override
     public void storeDiskData(ValueOutput output) {
-        if (this.owner != null) output.store(OWNER_NBT_ID, UUIDUtil.CODEC, this.owner);
-        this.filters.serialize(output.child(FILTERS_NBT_ID));
-        this.handler.serializeFiltering(output.child(STORAGE_FILTERING_NBT_ID));
-        output.putBoolean(ALLOW_PLAYER_NBT_ID, this.playerAllowed);
-        output.putBoolean(ALLOW_VILLAGER_NBT_ID, this.villagerAllowed);
-        output.putBoolean(ALLOW_INPUT_NBT_ID, this.inputAllowed);
-        output.putBoolean(ALLOW_OUTPUT_NBT_ID, this.outputAllowed);
+        if (this.owner != null) output.store(TradingStationBlockEntity.OWNER_NBT_ID, UUIDUtil.CODEC, this.owner);
+        this.filters.serialize(output.child(TradingStationBlockEntity.FILTERS_NBT_ID));
+        this.handler.serializeFiltering(output.child(TradingStationBlockEntity.STORAGE_FILTERING_NBT_ID));
+        output.putBoolean(TradingStationBlockEntity.ALLOW_PLAYER_NBT_ID, this.playerAllowed);
+        output.putBoolean(TradingStationBlockEntity.ALLOW_VILLAGER_NBT_ID, this.villagerAllowed);
+        output.putBoolean(TradingStationBlockEntity.ALLOW_INPUT_NBT_ID, this.inputAllowed);
+        output.putBoolean(TradingStationBlockEntity.ALLOW_OUTPUT_NBT_ID, this.outputAllowed);
     }
 
     @Override
     public void applyDiskData(ValueInput input) {
-        Optional<UUID> ownerValue = input.read(OWNER_NBT_ID, UUIDUtil.CODEC);
+        Optional<UUID> ownerValue = input.read(TradingStationBlockEntity.OWNER_NBT_ID, UUIDUtil.CODEC);
         if (ownerValue.isEmpty()) return;
         UUID owner = ownerValue.get();
         if (this.owner != null) {
@@ -231,12 +231,12 @@ public class TradingStationBlockEntity extends BlockEntity
             this.owner = owner;
         }
 
-        input.child(FILTERS_NBT_ID).ifPresent(this.filters::deserialize);
-        input.child(STORAGE_FILTERING_NBT_ID).ifPresent(this.handler::deserializeFiltering);
-        this.playerAllowed = input.getBooleanOr(ALLOW_PLAYER_NBT_ID, false);
-        this.villagerAllowed = input.getBooleanOr(ALLOW_VILLAGER_NBT_ID, false);
-        this.inputAllowed = input.getBooleanOr(ALLOW_INPUT_NBT_ID, false);
-        this.outputAllowed = input.getBooleanOr(ALLOW_OUTPUT_NBT_ID, false);
+        input.child(TradingStationBlockEntity.FILTERS_NBT_ID).ifPresent(this.filters::deserialize);
+        input.child(TradingStationBlockEntity.STORAGE_FILTERING_NBT_ID).ifPresent(this.handler::deserializeFiltering);
+        this.playerAllowed = input.getBooleanOr(TradingStationBlockEntity.ALLOW_PLAYER_NBT_ID, false);
+        this.villagerAllowed = input.getBooleanOr(TradingStationBlockEntity.ALLOW_VILLAGER_NBT_ID, false);
+        this.inputAllowed = input.getBooleanOr(TradingStationBlockEntity.ALLOW_INPUT_NBT_ID, false);
+        this.outputAllowed = input.getBooleanOr(TradingStationBlockEntity.ALLOW_OUTPUT_NBT_ID, false);
         TradingStationBlockEntity.popoutInvalidItems(this.getLevel(), this.getBlockPos(), this.handler);
         TradingStationBlockEntity.updateAndSend(this);
     }
@@ -420,15 +420,16 @@ public class TradingStationBlockEntity extends BlockEntity
         if (req.isEmpty()) return false;
         if (!FilterContent.filter(req, result, !req.getComponentsPatch().isEmpty())) return false;
         if (req.getCount() > result.getCount()) return false;
-        return assignProvideFilters(this.filters.getItem(0), this.filters.getItem(1), offer.getCostA(), offer.getCostB());
+        return TradingStationBlockEntity.assignProvideFilters(
+            this.filters.getItem(0), this.filters.getItem(1), offer.getCostA(), offer.getCostB());
     }
 
     private static boolean assignProvideFilters(ItemStack p0, ItemStack p1, ItemStack costA, ItemStack costB) {
         if (costB.isEmpty()) {
-            return provideMatches(p0, costA) || provideMatches(p1, costA);
+            return TradingStationBlockEntity.provideMatches(p0, costA) || TradingStationBlockEntity.provideMatches(p1, costA);
         }
-        if (provideMatches(p0, costA) && provideMatches(p1, costB)) return true;
-        return provideMatches(p0, costB) && provideMatches(p1, costA);
+        if (TradingStationBlockEntity.provideMatches(p0, costA) && TradingStationBlockEntity.provideMatches(p1, costB)) return true;
+        return TradingStationBlockEntity.provideMatches(p0, costB) && TradingStationBlockEntity.provideMatches(p1, costA);
     }
 
     private static boolean provideMatches(ItemStack filter, ItemStack cost) {
@@ -450,8 +451,8 @@ public class TradingStationBlockEntity extends BlockEntity
         for (int i = 0; i < snapshot.length; i++) {
             snapshot[i] = this.getStack(i).copy();
         }
-        if (!removeMatching(offer.getCostA(), snapshot)) return false;
-        if (!offer.getCostB().isEmpty() && !removeMatching(offer.getCostB(), snapshot)) return false;
+        if (!TradingStationBlockEntity.removeMatching(offer.getCostA(), snapshot)) return false;
+        if (!offer.getCostB().isEmpty() && !TradingStationBlockEntity.removeMatching(offer.getCostB(), snapshot)) return false;
         ItemStack result = offer.getResult();
         if (!this.insertMatching(result, snapshot)) return false;
         if (!commit) return true;
@@ -463,6 +464,7 @@ public class TradingStationBlockEntity extends BlockEntity
         return true;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean removeMatching(ItemStack cost, ItemStack[] snapshot) {
         int remaining = cost.getCount();
         for (int i = 0; i < snapshot.length && remaining > 0; i++) {

@@ -31,17 +31,17 @@ public class OverLimitItemContainerContents implements TooltipProvider {
     private static final int MAX_SIZE = 256;
     public static final OverLimitItemContainerContents EMPTY = new OverLimitItemContainerContents(NonNullList.create());
     public static final Codec<OverLimitItemContainerContents> CODEC = Slot.CODEC
-        .sizeLimitedListOf(MAX_SIZE)
+        .sizeLimitedListOf(OverLimitItemContainerContents.MAX_SIZE)
         .xmap(OverLimitItemContainerContents::fromSlots, OverLimitItemContainerContents::asSlots);
     public static final StreamCodec<RegistryFriendlyByteBuf, OverLimitItemContainerContents> STREAM_CODEC = UnlimitedItemStack
         .OPTIONAL_STREAM_CODEC
-        .apply(ByteBufCodecs.list(MAX_SIZE))
+        .apply(ByteBufCodecs.list(OverLimitItemContainerContents.MAX_SIZE))
         .map(OverLimitItemContainerContents::new, OverLimitItemContainerContents::getItems);
     private final NonNullList<UnlimitedItemStack> items;
 
     private OverLimitItemContainerContents(NonNullList<UnlimitedItemStack> items) {
-        if (items.size() > MAX_SIZE) {
-            throw new IllegalArgumentException("Got " + items.size() + " items, but maximum is " + MAX_SIZE);
+        if (items.size() > OverLimitItemContainerContents.MAX_SIZE) {
+            throw new IllegalArgumentException("Got " + items.size() + " items, but maximum is " + OverLimitItemContainerContents.MAX_SIZE);
         } else {
             this.items = items;
         }
@@ -61,7 +61,7 @@ public class OverLimitItemContainerContents implements TooltipProvider {
 
     private static OverLimitItemContainerContents fromSlots(List<Slot> slots) {
         OptionalInt maxSlot = slots.stream().mapToInt(Slot::index).max();
-        if (maxSlot.isEmpty()) return EMPTY;
+        if (maxSlot.isEmpty()) return OverLimitItemContainerContents.EMPTY;
         OverLimitItemContainerContents contents = new OverLimitItemContainerContents(maxSlot.getAsInt() + 1);
 
         for (Slot slot : slots) {
@@ -72,8 +72,8 @@ public class OverLimitItemContainerContents implements TooltipProvider {
     }
 
     public static OverLimitItemContainerContents fromItems(List<UnlimitedItemStack> items) {
-        int i = findLastNonEmptySlot(items);
-        if (i == NO_SLOT) return EMPTY;
+        int i = OverLimitItemContainerContents.findLastNonEmptySlot(items);
+        if (i == OverLimitItemContainerContents.NO_SLOT) return OverLimitItemContainerContents.EMPTY;
         OverLimitItemContainerContents contents = new OverLimitItemContainerContents(i + 1);
 
         for (int j = 0; j <= i; j++) {
@@ -84,8 +84,8 @@ public class OverLimitItemContainerContents implements TooltipProvider {
     }
 
     public static OverLimitItemContainerContents fromItems(OverLimitItemHandler items) {
-        int i = findLastNonEmptySlot(items);
-        if (i == NO_SLOT) return EMPTY;
+        int i = OverLimitItemContainerContents.findLastNonEmptySlot(items);
+        if (i == OverLimitItemContainerContents.NO_SLOT) return OverLimitItemContainerContents.EMPTY;
         OverLimitItemContainerContents contents = new OverLimitItemContainerContents(i + 1);
 
         for (int j = 0; j <= i; j++) {
@@ -100,7 +100,7 @@ public class OverLimitItemContainerContents implements TooltipProvider {
             if (!items.get(i).isEmpty()) return i;
         }
 
-        return NO_SLOT;
+        return OverLimitItemContainerContents.NO_SLOT;
     }
 
     private static int findLastNonEmptySlot(OverLimitItemHandler items) {
@@ -108,7 +108,7 @@ public class OverLimitItemContainerContents implements TooltipProvider {
             if (!items.peek(i).isEmpty()) return i;
         }
 
-        return NO_SLOT;
+        return OverLimitItemContainerContents.NO_SLOT;
     }
 
     private List<Slot> asSlots() {

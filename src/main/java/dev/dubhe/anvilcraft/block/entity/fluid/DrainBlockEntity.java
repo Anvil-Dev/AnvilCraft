@@ -51,7 +51,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
     private static final int FILL_SOURCE = 2;
     private static final int FILL_SEARCH_REBUILD_INTERVAL = 256;
     private static final long EXHAUSTED_SEARCH_TTL = 100;
-    private final FluidStackResourceHandler tank = new FluidStackResourceHandler(CAPACITY) {
+    private final FluidStackResourceHandler tank = new FluidStackResourceHandler(DrainBlockEntity.CAPACITY) {
         @Override
         protected void onContentChanged(FluidStack original) {
             DrainBlockEntity.this.setChanged();
@@ -98,13 +98,13 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
 
     public void sendUpdate() {
         if (this.level != null && !this.level.isClientSide()) {
-            this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), Block.UPDATE_CLIENTS);
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
         }
     }
 
     public static void tick(Level level, BlockPos pos, BlockState state, DrainBlockEntity be) {
         if (level.isClientSide()) return;
-        if (level.getGameTime() % INTERVAL != 0) return;
+        if (level.getGameTime() % DrainBlockEntity.INTERVAL != 0) return;
         FillResult fillResult = be.tryFillDown(level, pos);
         if (fillResult == FillResult.NONE) be.clearColumn();
         be.tryDrainUp(level, pos);
@@ -120,7 +120,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
 
     private FillResult tryFillDown(Level level, BlockPos pos) {
         FluidStack stored = this.tank.getStack();
-        if (stored.getAmount() <= FILL_THRESHOLD) {
+        if (stored.getAmount() <= DrainBlockEntity.FILL_THRESHOLD) {
             this.fillSearch = null;
             return FillResult.NONE;
         }
@@ -147,7 +147,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
         }
         level.setBlock(target, source, Block.UPDATE_ALL);
         try (Transaction tx = Transaction.openRoot()) {
-            this.tank.extract(0, FluidResource.of(stored), UNIT, tx);
+            this.tank.extract(0, FluidResource.of(stored), DrainBlockEntity.UNIT, tx);
             tx.commit();
         }
         if (this.fillSearch != null && this.fillSearch.acceptFilled(target.asLong())) {
@@ -162,14 +162,14 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
 
     private SearchResult findFillTarget(Level level, BlockPos drainPos, Fluid fluid) {
         BlockPos start = drainPos.below();
-        if (!isPassableForFill(level, start, fluid)) {
+        if (!DrainBlockEntity.isPassableForFill(level, start, fluid)) {
             this.fillSearch = null;
             return SearchResult.EXHAUSTED;
         }
         int minY = level.getMinY();
         int bottomY = start.getY();
         while (bottomY > minY
-               && isPassableForFill(level, new BlockPos(drainPos.getX(), bottomY - 1, drainPos.getZ()), fluid)) {
+               && DrainBlockEntity.isPassableForFill(level, new BlockPos(drainPos.getX(), bottomY - 1, drainPos.getZ()), fluid)) {
             bottomY--;
         }
         if (this.fillSearch == null
@@ -180,7 +180,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
     }
 
     private static boolean isPassableForFill(Level level, BlockPos pos, Fluid fluid) {
-        return classifyForFill(level, pos, fluid) != FILL_BLOCKED;
+        return DrainBlockEntity.classifyForFill(level, pos, fluid) != DrainBlockEntity.FILL_BLOCKED;
     }
 
     private static long offset(BlockPos pos, Direction direction) {
@@ -195,10 +195,10 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
         BlockState state = level.getBlockState(pos);
         FluidState fs = state.getFluidState();
         if (!fs.isEmpty()) {
-            if (!fs.getType().isSame(fluid)) return FILL_BLOCKED;
-            return fs.isSource() ? FILL_SOURCE : FILL_TARGET;
+            if (!fs.getType().isSame(fluid)) return DrainBlockEntity.FILL_BLOCKED;
+            return fs.isSource() ? DrainBlockEntity.FILL_SOURCE : DrainBlockEntity.FILL_TARGET;
         }
-        return state.isAir() || state.canBeReplaced() ? FILL_TARGET : FILL_BLOCKED;
+        return state.isAir() || state.canBeReplaced() ? DrainBlockEntity.FILL_TARGET : DrainBlockEntity.FILL_BLOCKED;
     }
 
     private static boolean isSameFluidSource(Level level, BlockPos pos, Fluid fluid) {
@@ -212,7 +212,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
         int count = 0;
         for (Direction d : Direction.Plane.HORIZONTAL) {
             neighborCursor.set(pos.getX() + d.getStepX(), pos.getY(), pos.getZ() + d.getStepZ());
-            if (isSameFluidSource(level, neighborCursor, fluid)) count++;
+            if (DrainBlockEntity.isSameFluidSource(level, neighborCursor, fluid)) count++;
         }
         return count;
     }
@@ -220,7 +220,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
     private void tryDrainUp(Level level, BlockPos pos) {
         if (!this.processFlowCleanup(level)) return;
         FluidStack stored = this.tank.getStack();
-        if (!stored.isEmpty() && stored.getAmount() >= DRAIN_THRESHOLD) {
+        if (!stored.isEmpty() && stored.getAmount() >= DrainBlockEntity.DRAIN_THRESHOLD) {
             this.drainSearch = null;
             return;
         }
@@ -240,25 +240,25 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
             this.drainSearch = null;
             return;
         }
-        if (!this.canInsert(fluid, UNIT)) return;
+        if (!this.canInsert(fluid, DrainBlockEntity.UNIT)) return;
         this.removeSourceAndQueueFlowCleanup(level, target, fluid);
         this.processFlowCleanup(level);
-        this.insert(fluid, UNIT);
+        this.insert(fluid, DrainBlockEntity.UNIT);
         this.drainSearch = null;
     }
 
     private void tryGenerateFromInfinite(Level level, BlockPos pos) {
         if (!(level instanceof ServerLevel serverLevel)) return;
         FluidStack stored = this.tank.getStack();
-        if (!stored.isEmpty() && stored.getAmount() >= CAPACITY) return;
+        if (!stored.isEmpty() && stored.getAmount() >= DrainBlockEntity.CAPACITY) return;
         for (Direction d : Direction.Plane.HORIZONTAL) {
             BlockPos n = pos.relative(d);
             FluidState fs = level.getFluidState(n);
             if (fs.isEmpty() || !fs.isSource() || !(fs.getType() instanceof FlowingFluid flowing)) continue;
-            if (!canFormInfiniteSource(serverLevel, n, flowing)) continue;
+            if (!DrainBlockEntity.canFormInfiniteSource(serverLevel, n, flowing)) continue;
             Fluid source = flowing.getSource();
-            if (!this.canInsert(source, UNIT)) continue;
-            this.insert(source, UNIT);
+            if (!this.canInsert(source, DrainBlockEntity.UNIT)) continue;
+            this.insert(source, DrainBlockEntity.UNIT);
             return;
         }
     }
@@ -277,9 +277,10 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
     }
 
     private static boolean canFormInfiniteSource(ServerLevel level, BlockPos pos, FlowingFluid fluid) {
-        return canRegenerateSourceAt(level, pos, fluid);
+        return DrainBlockEntity.canRegenerateSourceAt(level, pos, fluid);
     }
 
+    @SuppressWarnings("deprecation")
     private static boolean canRegenerateSourceAt(ServerLevel level, BlockPos pos, FlowingFluid fluid) {
         int neighbourSources = 0;
         for (Direction d : Direction.Plane.HORIZONTAL) {
@@ -319,14 +320,14 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
                 fluid,
                 start.getY(),
                 topY,
-                level.getGameTime() / INTERVAL
+                level.getGameTime() / DrainBlockEntity.INTERVAL
             );
         }
         return this.drainSearch.advance(level);
     }
 
     private void removeSourceAndQueueFlowCleanup(Level level, BlockPos target, Fluid fluid) {
-        removeFluidSilently(level, target);
+        DrainBlockEntity.removeFluidSilently(level, target);
         this.prepareFlowCleanup(fluid);
         for (Direction direction : Direction.values()) {
             this.enqueueFlowing(level, target.relative(direction), fluid);
@@ -367,13 +368,13 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
         Fluid fluid = this.flowCleanupFluid;
         BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
         int processed = 0;
-        while (!this.flowCleanupQueue.isEmpty() && processed < MAX_NODES) {
+        while (!this.flowCleanupQueue.isEmpty() && processed < DrainBlockEntity.MAX_NODES) {
             long current = this.flowCleanupQueue.dequeueLong();
             processed++;
             cursor.set(BlockPos.getX(current), BlockPos.getY(current), BlockPos.getZ(current));
             FluidState fluidState = level.getFluidState(cursor);
             if (fluidState.isEmpty() || fluidState.isSource() || !fluidState.getType().isSame(fluid)) continue;
-            removeFluidSilently(level, cursor);
+            DrainBlockEntity.removeFluidSilently(level, cursor);
             for (Direction direction : Direction.values()) {
                 cursor.move(direction);
                 this.enqueueFlowing(level, cursor, fluid);
@@ -400,7 +401,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
         long candidateSecondary;
         long bestPrimary;
         long bestSecondary;
-        switch ((int) Math.floorMod(selectionPhase, 4)) {
+        switch (Math.floorMod(selectionPhase, 4)) {
             case 0 -> {
                 candidatePrimary = candidateDx;
                 candidateSecondary = candidateDz;
@@ -468,7 +469,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
                 && this.fluid.isSame(fluid)
                 && this.bottomY == bottomY
                 && this.topY == topY
-                && (this.exhaustedAt == Long.MIN_VALUE || gameTime - this.exhaustedAt < EXHAUSTED_SEARCH_TTL);
+                && (this.exhaustedAt == Long.MIN_VALUE || gameTime - this.exhaustedAt < DrainBlockEntity.EXHAUSTED_SEARCH_TTL);
         }
 
         private SearchResult advance(Level level) {
@@ -481,7 +482,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
                     );
                     this.layerSearch = new FillLayerSearch(this.drainPos, entry, this.fluid);
                 }
-                SearchResult result = this.layerSearch.advance(level, level.getGameTime() / INTERVAL);
+                SearchResult result = this.layerSearch.advance(level, level.getGameTime() / DrainBlockEntity.INTERVAL);
                 if (result.pending() || result.target() != null) {
                     this.exhaustedAt = Long.MIN_VALUE;
                     return result;
@@ -503,7 +504,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
             if (this.layerSearch == null) return true;
             this.layerSearch.acceptFilled(target);
             this.exhaustedAt = Long.MIN_VALUE;
-            return ++this.filledTargets >= FILL_SEARCH_REBUILD_INTERVAL;
+            return ++this.filledTargets >= DrainBlockEntity.FILL_SEARCH_REBUILD_INTERVAL;
         }
     }
 
@@ -511,10 +512,10 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
         private final long drainPos;
         private final long entry;
         private final Fluid fluid;
-        private final LongOpenHashSet discovered = new LongOpenHashSet(MAX_NODES);
-        private final Long2LongOpenHashMap predecessors = new Long2LongOpenHashMap(MAX_NODES);
+        private final LongOpenHashSet discovered = new LongOpenHashSet(DrainBlockEntity.MAX_NODES);
+        private final Long2LongOpenHashMap predecessors = new Long2LongOpenHashMap(DrainBlockEntity.MAX_NODES);
         private final LongOpenHashSet candidates = new LongOpenHashSet();
-        private final LongArrayFIFOQueue queue = new LongArrayFIFOQueue(MAX_NODES);
+        private final LongArrayFIFOQueue queue = new LongArrayFIFOQueue(DrainBlockEntity.MAX_NODES);
 
         private FillLayerSearch(long drainPos, long entry, Fluid fluid) {
             this.drainPos = drainPos;
@@ -528,16 +529,16 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
             BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
             int processed = 0;
             while (true) {
-                while (!this.queue.isEmpty() && processed < MAX_NODES) {
+                while (!this.queue.isEmpty() && processed < DrainBlockEntity.MAX_NODES) {
                     long current = this.queue.dequeueLong();
                     processed++;
                     cursor.set(BlockPos.getX(current), BlockPos.getY(current), BlockPos.getZ(current));
-                    int fillType = classifyForFill(level, cursor, this.fluid);
-                    if (fillType == FILL_TARGET) {
+                    int fillType = DrainBlockEntity.classifyForFill(level, cursor, this.fluid);
+                    if (fillType == DrainBlockEntity.FILL_TARGET) {
                         this.candidates.add(current);
-                    } else if (fillType == FILL_SOURCE) {
+                    } else if (fillType == DrainBlockEntity.FILL_SOURCE) {
                         for (Direction direction : Direction.Plane.HORIZONTAL) {
-                            this.discover(level, offset(cursor, direction), current, cursor);
+                            this.discover(level, DrainBlockEntity.offset(cursor, direction), current, cursor);
                             cursor.set(BlockPos.getX(current), BlockPos.getY(current), BlockPos.getZ(current));
                         }
                         this.discover(
@@ -561,12 +562,12 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
                 while (iterator.hasNext()) {
                     long candidate = iterator.nextLong();
                     cursor.set(BlockPos.getX(candidate), BlockPos.getY(candidate), BlockPos.getZ(candidate));
-                    int fillType = classifyForFill(level, cursor, this.fluid);
-                    if (fillType == FILL_BLOCKED) {
+                    int fillType = DrainBlockEntity.classifyForFill(level, cursor, this.fluid);
+                    if (fillType == DrainBlockEntity.FILL_BLOCKED) {
                         iterator.remove();
                         continue;
                     }
-                    if (fillType == FILL_SOURCE) {
+                    if (fillType == DrainBlockEntity.FILL_SOURCE) {
                         iterator.remove();
                         this.queue.enqueue(candidate);
                         discoveredSource = true;
@@ -581,7 +582,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
                         || y == bestY
                         && (dist < bestDist
                             || dist == bestDist
-                            && isPreferredHorizontalTie(dx, dz, bestDx, bestDz, selectionPhase))) {
+                               && DrainBlockEntity.isPreferredHorizontalTie(dx, dz, bestDx, bestDz, selectionPhase))) {
                         best = candidate;
                         bestY = y;
                         bestDist = dist;
@@ -591,7 +592,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
                     }
                 }
                 if (discoveredSource) {
-                    if (processed >= MAX_NODES) return SearchResult.PENDING;
+                    if (processed >= DrainBlockEntity.MAX_NODES) return SearchResult.PENDING;
                     continue;
                 }
                 return found ? SearchResult.found(best) : SearchResult.EXHAUSTED;
@@ -602,10 +603,10 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
             if (!this.discovered.add(pos)) return;
             this.predecessors.put(pos, predecessor);
             cursor.set(BlockPos.getX(pos), BlockPos.getY(pos), BlockPos.getZ(pos));
-            int fillType = classifyForFill(level, cursor, this.fluid);
-            if (fillType == FILL_SOURCE) {
+            int fillType = DrainBlockEntity.classifyForFill(level, cursor, this.fluid);
+            if (fillType == DrainBlockEntity.FILL_SOURCE) {
                 this.queue.enqueue(pos);
-            } else if (fillType == FILL_TARGET) {
+            } else if (fillType == DrainBlockEntity.FILL_TARGET) {
                 this.candidates.add(pos);
             }
         }
@@ -618,7 +619,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
             BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
             cursor.set(BlockPos.getX(target), BlockPos.getY(target), BlockPos.getZ(target));
             if (!this.discovered.contains(target)
-                || classifyForFill(level, cursor, this.fluid) != FILL_TARGET) {
+                || DrainBlockEntity.classifyForFill(level, cursor, this.fluid) != DrainBlockEntity.FILL_TARGET) {
                 return false;
             }
 
@@ -628,7 +629,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
                 if (!this.predecessors.containsKey(current)) return false;
                 current = this.predecessors.get(current);
                 cursor.set(BlockPos.getX(current), BlockPos.getY(current), BlockPos.getZ(current));
-                if (classifyForFill(level, cursor, this.fluid) != FILL_SOURCE) return false;
+                if (DrainBlockEntity.classifyForFill(level, cursor, this.fluid) != DrainBlockEntity.FILL_SOURCE) return false;
             }
             return current == this.entry;
         }
@@ -670,7 +671,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
                 && this.fluid.isSame(fluid)
                 && this.bottomY == bottomY
                 && this.topY == topY
-                && (this.exhaustedAt == Long.MIN_VALUE || gameTime - this.exhaustedAt < EXHAUSTED_SEARCH_TTL);
+                && (this.exhaustedAt == Long.MIN_VALUE || gameTime - this.exhaustedAt < DrainBlockEntity.EXHAUSTED_SEARCH_TTL);
         }
 
         private SearchResult advance(Level level) {
@@ -707,8 +708,8 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
         private final long drainPos;
         private final Fluid fluid;
         private final long selectionPhase;
-        private final LongOpenHashSet discovered = new LongOpenHashSet(MAX_NODES);
-        private final LongArrayFIFOQueue queue = new LongArrayFIFOQueue(MAX_NODES);
+        private final LongOpenHashSet discovered = new LongOpenHashSet(DrainBlockEntity.MAX_NODES);
+        private final LongArrayFIFOQueue queue = new LongArrayFIFOQueue(DrainBlockEntity.MAX_NODES);
         private long best;
         private int bestY = Integer.MIN_VALUE;
         private long bestDist = Long.MIN_VALUE;
@@ -735,7 +736,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
             BlockPos.MutableBlockPos cursor = new BlockPos.MutableBlockPos();
             BlockPos.MutableBlockPos neighborCursor = new BlockPos.MutableBlockPos();
             int processed = 0;
-            while (!this.queue.isEmpty() && processed < MAX_NODES) {
+            while (!this.queue.isEmpty() && processed < DrainBlockEntity.MAX_NODES) {
                 long current = this.queue.dequeueLong();
                 processed++;
                 cursor.set(BlockPos.getX(current), BlockPos.getY(current), BlockPos.getZ(current));
@@ -747,7 +748,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
                     this.considerFlowing(current, cursor);
                 }
                 for (Direction direction : Direction.Plane.HORIZONTAL) {
-                    this.discoverFluid(level, offset(cursor, direction), neighborCursor);
+                    this.discoverFluid(level, DrainBlockEntity.offset(cursor, direction), neighborCursor);
                 }
                 this.discoverFluid(
                     level,
@@ -775,7 +776,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
             BlockPos sourcePos,
             BlockPos.MutableBlockPos neighborCursor
         ) {
-            int neighbors = countSourceNeighbors(level, sourcePos, this.fluid, neighborCursor);
+            int neighbors = DrainBlockEntity.countSourceNeighbors(level, sourcePos, this.fluid, neighborCursor);
             long dx = (long) sourcePos.getX() - BlockPos.getX(this.drainPos);
             long dz = (long) sourcePos.getZ() - BlockPos.getZ(this.drainPos);
             long dist = dx * dx + dz * dz;
@@ -785,7 +786,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
                 || neighbors == this.bestNeighbors
                 && (dist > this.bestDist
                     || dist == this.bestDist
-                    && (isPreferredHorizontalTie(
+                    && (DrainBlockEntity.isPreferredHorizontalTie(
                             dx,
                             dz,
                             this.bestDx,
@@ -811,7 +812,7 @@ public class DrainBlockEntity extends BlockEntity implements IFluidResourceHandl
             if (!this.foundFlowing
                 || dist > this.bestFlowingDist
                 || dist == this.bestFlowingDist
-                && (isPreferredHorizontalTie(
+                && (DrainBlockEntity.isPreferredHorizontalTie(
                         dx,
                         dz,
                         this.bestFlowingDx,

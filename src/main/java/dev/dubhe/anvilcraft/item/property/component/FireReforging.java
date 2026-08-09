@@ -14,7 +14,7 @@ import java.util.function.Consumer;
 
 public record FireReforging() implements TooltipProvider {
     public static final FireReforging DEFAULT = new FireReforging();
-    public static final MapCodec<FireReforging> CODEC = MapCodec.unit(DEFAULT);
+    public static final MapCodec<FireReforging> CODEC = MapCodec.unit(FireReforging.DEFAULT);
     public static final StreamCodec<ByteBuf, FireReforging> STREAM_CODEC = StreamCodec.unit(new FireReforging());
 
     @Override

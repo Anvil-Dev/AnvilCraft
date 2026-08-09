@@ -41,12 +41,12 @@ public record Merciless() implements TooltipProvider {
     }
 
     private static void tick(ItemStack stack) {
-        absorbEnchantments(stack);
+        Merciless.absorbEnchantments(stack);
     }
 
     public static void enable(ItemStack stack) {
-        stack.set(ModComponents.MERCILESS, DEFAULT);
-        absorbEnchantments(stack);
+        stack.set(ModComponents.MERCILESS, Merciless.DEFAULT);
+        Merciless.absorbEnchantments(stack);
     }
 
     public static void disable(ItemStack stack) {
@@ -59,7 +59,7 @@ public record Merciless() implements TooltipProvider {
             stack.set(DataComponents.ENCHANTMENTS, enchantments);
         }
         stack.remove(ModComponents.MERCILESS_ENCHANTMENTS);
-        removeAttributeModifiers(stack);
+        Merciless.removeAttributeModifiers(stack);
     }
 
     public static void absorbEnchantments(ItemStack stack) {
@@ -69,7 +69,7 @@ public record Merciless() implements TooltipProvider {
             ItemEnchantments.EMPTY
         );
         if (enchantments.isEmpty()) {
-            if (mercilessEnchs.isEmpty()) removeAttributeModifiers(stack);
+            if (mercilessEnchs.isEmpty()) Merciless.removeAttributeModifiers(stack);
             return;
         }
 
@@ -112,19 +112,19 @@ public record Merciless() implements TooltipProvider {
         if (attackDamage != 0) {
             builder.add(
                 Attributes.ATTACK_DAMAGE,
-                new AttributeModifier(MERCILESS_ID, attackDamage, AttributeModifier.Operation.ADD_VALUE),
+                new AttributeModifier(Merciless.MERCILESS_ID, attackDamage, AttributeModifier.Operation.ADD_VALUE),
                 EquipmentSlotGroup.MAINHAND
             );
         }
         if (miningEfficiency != 0) {
             builder.add(
                 Attributes.MINING_EFFICIENCY,
-                new AttributeModifier(MERCILESS_ID, miningEfficiency, AttributeModifier.Operation.ADD_VALUE),
+                new AttributeModifier(Merciless.MERCILESS_ID, miningEfficiency, AttributeModifier.Operation.ADD_VALUE),
                 EquipmentSlotGroup.MAINHAND
             );
         }
         for (ItemAttributeModifiers.Entry entry : stack.getAttributeModifiers().modifiers()) {
-            if (!entry.modifier().is(MERCILESS_ID)) {
+            if (!entry.modifier().is(Merciless.MERCILESS_ID)) {
                 builder.add(entry.attribute(), entry.modifier(), entry.slot());
             }
         }
@@ -135,7 +135,7 @@ public record Merciless() implements TooltipProvider {
         ItemAttributeModifiers.Builder builder = ItemAttributeModifiers.builder();
         boolean found = false;
         for (ItemAttributeModifiers.Entry entry : stack.getAttributeModifiers().modifiers()) {
-            if (entry.modifier().is(MERCILESS_ID)) {
+            if (entry.modifier().is(Merciless.MERCILESS_ID)) {
                 found = true;
             } else {
                 builder.add(entry.attribute(), entry.modifier(), entry.slot());

@@ -57,9 +57,9 @@ public class PlayerTickEventHandler {
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
         if (event.getEntity() instanceof ServerPlayer serverPlayer) {
-            applyPowerGrid(serverPlayer);
+            PlayerTickEventHandler.applyPowerGrid(serverPlayer);
             IonoCraftBackpackItem.playerTick(serverPlayer);
-            handleCapacitorCharging(serverPlayer);
+            PlayerTickEventHandler.handleCapacitorCharging(serverPlayer);
             SpectralWeaponLauncherItem.playerTick(serverPlayer);
             Merciless.tick(serverPlayer);
             Ferocious.tick(serverPlayer);

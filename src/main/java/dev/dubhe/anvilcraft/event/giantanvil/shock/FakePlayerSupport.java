@@ -22,13 +22,13 @@ public class FakePlayerSupport {
     private static final Map<ServerLevel, FakePlayer> FAKE_PLAYERS = new HashMap<>();
 
     public static FakePlayer get(ServerLevel level) {
-        return FAKE_PLAYERS.computeIfAbsent(level, key -> FakePlayerFactory.get(key, GAME_PROFILE));
+        return FakePlayerSupport.FAKE_PLAYERS.computeIfAbsent(level, key -> FakePlayerFactory.get(key, FakePlayerSupport.GAME_PROFILE));
     }
 
     @SubscribeEvent
     public static void onLevelUnload(LevelEvent.Unload event) {
         if (event.getLevel() instanceof ServerLevel level) {
-            FAKE_PLAYERS.remove(level);
+            FakePlayerSupport.FAKE_PLAYERS.remove(level);
         }
     }
 }

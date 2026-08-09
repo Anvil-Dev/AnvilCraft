@@ -32,7 +32,7 @@ public record HammerChangeFlexibleMultiPartBlockPacket(BlockPos pos, BlockState 
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+        return HammerChangeFlexibleMultiPartBlockPacket.TYPE;
     }
 
     @Override

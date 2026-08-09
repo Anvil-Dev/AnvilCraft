@@ -100,7 +100,7 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
         float rotation = content.animationTick()
             * CelestialBodyData.getVisualRotationSpeed(body.rotationSpeed());
         poseStack.pushPose();
-        poseStack.mulPose(Axis.XP.rotationDegrees(UI_AXIAL_TILT));
+        poseStack.mulPose(Axis.XP.rotationDegrees(CfaPreviewPipRenderer.UI_AXIAL_TILT));
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
         poseStack.translate(-0.5f, -0.5f, -0.5f);
 
@@ -266,7 +266,7 @@ public final class CfaPreviewPipRenderer extends PictureInPictureRenderer<CfaPre
         };
         poseStack.pushPose();
         poseStack.scale(ringScale, ringScale, ringScale);
-        poseStack.mulPose(Axis.XP.rotationDegrees(UI_AXIAL_TILT));
+        poseStack.mulPose(Axis.XP.rotationDegrees(CfaPreviewPipRenderer.UI_AXIAL_TILT));
         poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
         poseStack.translate(-0.5f, -0.5f, -0.5f);
         collector.submitCustomGeometry(

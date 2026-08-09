@@ -30,7 +30,7 @@ public class TranscendenceAnvilScreen extends ItemCombinerScreen<TranscendenceAn
     /// @param playerInventory 背包
     /// @param title           标题
     public TranscendenceAnvilScreen(TranscendenceAnvilMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title, BACKGROUND);
+        super(menu, playerInventory, title, TranscendenceAnvilScreen.BACKGROUND);
         this.player = playerInventory.player;
     }
 

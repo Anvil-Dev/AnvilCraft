@@ -59,23 +59,33 @@ public class DeflectionRingBlock
         new AABB(-3, 16, -16, 19, 32, 32)
     );
     private static final Map<Direction.Axis, Map<DirectionCube3x3PartHalf, VoxelShape>> COLLISION_SHAPES =
-        makeCollisionShapes();
+        DeflectionRingBlock.makeCollisionShapes();
 
     public DeflectionRingBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
             .any()
-            .setValue(HALF, DirectionCube3x3PartHalf.BOTTOM_CENTER)
-            .setValue(FACING, Direction.NORTH)
-            .setValue(OVERLOAD, true)
-            .setValue(SWITCH, IPowerComponent.Switch.ON));
+            .setValue(DeflectionRingBlock.HALF, DirectionCube3x3PartHalf.BOTTOM_CENTER)
+            .setValue(DeflectionRingBlock.FACING, Direction.NORTH)
+            .setValue(DeflectionRingBlock.OVERLOAD, true)
+            .setValue(DeflectionRingBlock.SWITCH, IPowerComponent.Switch.ON));
     }
 
     private static Map<Direction.Axis, Map<DirectionCube3x3PartHalf, VoxelShape>> makeCollisionShapes() {
         Map<Direction.Axis, Map<DirectionCube3x3PartHalf, VoxelShape>> shapes = new EnumMap<>(Direction.Axis.class);
-        shapes.put(Direction.Axis.Y, makePartShapes(Y_AXIS_COLLISION_SHAPE));
-        shapes.put(Direction.Axis.Z, makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 90, Y_AXIS_COLLISION_SHAPE)));
-        shapes.put(Direction.Axis.X, makePartShapes(ShapeUtil.rotate(Direction.Axis.Z, 90, Y_AXIS_COLLISION_SHAPE)));
+        shapes.put(Direction.Axis.Y, DeflectionRingBlock.makePartShapes(DeflectionRingBlock.Y_AXIS_COLLISION_SHAPE));
+        shapes.put(
+            Direction.Axis.Z,
+            DeflectionRingBlock.makePartShapes(
+                ShapeUtil.rotate(Direction.Axis.X, 90, DeflectionRingBlock.Y_AXIS_COLLISION_SHAPE)
+            )
+        );
+        shapes.put(
+            Direction.Axis.X,
+            DeflectionRingBlock.makePartShapes(
+                ShapeUtil.rotate(Direction.Axis.Z, 90, DeflectionRingBlock.Y_AXIS_COLLISION_SHAPE)
+            )
+        );
         return shapes;
     }
 
@@ -84,7 +94,7 @@ public class DeflectionRingBlock
         for (DirectionCube3x3PartHalf part : DirectionCube3x3PartHalf.values()) {
             ArrayList<AABB> partBoxes = new ArrayList<>();
             for (AABB box : shape.toAabbs()) {
-                AABB clipped = clipToPart(scale16(box), part);
+                AABB clipped = DeflectionRingBlock.clipToPart(DeflectionRingBlock.scale16(box), part);
                 if (clipped != null) partBoxes.add(clipped);
             }
             shapes.put(
@@ -125,7 +135,7 @@ public class DeflectionRingBlock
 
     @Override
     public Property<DirectionCube3x3PartHalf> getPart() {
-        return HALF;
+        return DeflectionRingBlock.HALF;
     }
 
     @Override
@@ -135,12 +145,12 @@ public class DeflectionRingBlock
 
     @Override
     public EnumProperty<Direction> getAdditionalProperty() {
-        return FACING;
+        return DeflectionRingBlock.FACING;
     }
 
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(OVERLOAD, SWITCH);
+        builder.add(DeflectionRingBlock.OVERLOAD, DeflectionRingBlock.SWITCH);
     }
 
     @Override
@@ -152,7 +162,7 @@ public class DeflectionRingBlock
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockState state = this.defaultBlockState().setValue(
-            FACING,
+            DeflectionRingBlock.FACING,
             context.getPlayer() != null && context.getPlayer().isShiftKeyDown()
             ? context.getNearestLookingDirection().getOpposite()
             : context.getNearestLookingDirection()
@@ -161,11 +171,11 @@ public class DeflectionRingBlock
     }
 
     public boolean isChannelWaterlogged(Level level, BlockPos mainPos, BlockState mainState) {
-        Direction.Axis axis = mainState.getValue(FACING).getAxis();
+        Direction.Axis axis = mainState.getValue(DeflectionRingBlock.FACING).getAxis();
         for (DirectionCube3x3PartHalf part : this.getParts()) {
-            if (!isChannelPart(part, axis)) continue;
+            if (!DeflectionRingBlock.isChannelPart(part, axis)) continue;
             BlockState partState = level.getBlockState(mainPos.offset(this.offsetFrom(mainState, part)));
-            if (partState.is(this) && partState.getValue(WATERLOGGED)) return true;
+            if (partState.is(this) && partState.getValue(WaterloggedFlexibleMultiPartBlock.WATERLOGGED)) return true;
         }
         return false;
     }
@@ -191,11 +201,11 @@ public class DeflectionRingBlock
             .anyMatch(it -> level.hasNeighborSignal(
                 pos.subtract(state.getValue(this.getPart()).getOffset()).offset(it.getOffset())
             ));
-        if (isSignal && state.getValue(SWITCH) == IPowerComponent.Switch.ON) {
-            updateState(level, pos, SWITCH, IPowerComponent.Switch.OFF, 3);
-        } else if (!isSignal && state.getValue(SWITCH) == IPowerComponent.Switch.OFF) {
-            updateState(level, pos, SWITCH, IPowerComponent.Switch.ON, 3);
-            BlockPos centerPos = pos.subtract(state.getValue(HALF).getOffset()).offset(0, 1, 0);
+        if (isSignal && state.getValue(DeflectionRingBlock.SWITCH) == IPowerComponent.Switch.ON) {
+            this.updateState(level, pos, DeflectionRingBlock.SWITCH, IPowerComponent.Switch.OFF, 3);
+        } else if (!isSignal && state.getValue(DeflectionRingBlock.SWITCH) == IPowerComponent.Switch.OFF) {
+            this.updateState(level, pos, DeflectionRingBlock.SWITCH, IPowerComponent.Switch.ON, 3);
+            BlockPos centerPos = pos.subtract(state.getValue(DeflectionRingBlock.HALF).getOffset()).offset(0, 1, 0);
             if (level.getBlockEntity(centerPos) instanceof IPowerConsumer powerConsumer) {
                 if (powerConsumer.getGrid() == null) return;
                 powerConsumer.getGrid().flush();
@@ -213,16 +223,18 @@ public class DeflectionRingBlock
         if (context.isHoldingItem(state.getBlock().asItem())) {
             return Shapes.block();
         }
-        return getPreciseShape(state);
+        return DeflectionRingBlock.getPreciseShape(state);
     }
 
     @Override
     protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return getPreciseShape(state);
+        return DeflectionRingBlock.getPreciseShape(state);
     }
 
     private static VoxelShape getPreciseShape(BlockState state) {
-        return COLLISION_SHAPES.get(state.getValue(FACING).getAxis()).get(state.getValue(HALF));
+        return DeflectionRingBlock.COLLISION_SHAPES
+            .get(state.getValue(DeflectionRingBlock.FACING).getAxis())
+            .get(state.getValue(DeflectionRingBlock.HALF));
     }
 
     @Override
@@ -272,24 +284,24 @@ public class DeflectionRingBlock
 
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
-        this.change(blockPos, level, state -> state.cycle(FACING));
+        this.change(blockPos, level, state -> state.cycle(DeflectionRingBlock.FACING));
         return true;
     }
 
     @Override
     public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
+        return DeflectionRingBlock.FACING;
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(HALF, state.getValue(HALF).rotate(rotation))
-            .setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(DeflectionRingBlock.HALF, state.getValue(DeflectionRingBlock.HALF).rotate(rotation))
+            .setValue(DeflectionRingBlock.FACING, rotation.rotate(state.getValue(DeflectionRingBlock.FACING)));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(HALF, state.getValue(HALF).mirror(mirror))
-            .setValue(FACING, mirror.mirror(state.getValue(FACING)));
+        return state.setValue(DeflectionRingBlock.HALF, state.getValue(DeflectionRingBlock.HALF).mirror(mirror))
+            .setValue(DeflectionRingBlock.FACING, mirror.mirror(state.getValue(DeflectionRingBlock.FACING)));
     }
 }

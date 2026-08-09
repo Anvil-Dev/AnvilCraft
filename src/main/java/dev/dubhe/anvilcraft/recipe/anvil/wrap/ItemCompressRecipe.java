@@ -46,7 +46,7 @@ public class ItemCompressRecipe extends AbstractProcessRecipe<ItemCompressRecipe
 
     @Override
     public RecipeSerializer<ItemCompressRecipe> getSerializer() {
-        return SERIALIZER;
+        return ItemCompressRecipe.SERIALIZER;
     }
 
     /// 创建一个构建器实例

@@ -19,6 +19,6 @@ public class ModStats {
     }
 
     private static Identifier register(String id) {
-        return REGISTER.register(id, Function.identity()).getId();
+        return ModStats.REGISTER.register(id, Function.identity()).getId();
     }
 }

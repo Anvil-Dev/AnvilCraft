@@ -18,7 +18,7 @@ public class HeaterUtil {
             || !(entity instanceof LivingEntity)) {
             return false;
         }
-        entity.hurt(ModDamageTypes.heaterBurn(level), 4.0F);
+        EntityUtil.hurt(entity, ModDamageTypes.heaterBurn(level), 4.0F);
         return true;
     }
 }

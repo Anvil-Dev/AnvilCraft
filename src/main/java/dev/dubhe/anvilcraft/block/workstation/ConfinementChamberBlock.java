@@ -18,6 +18,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -35,7 +36,7 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(ConfinementChamberBlock::new);
+        return BlockBehaviour.simpleCodec(ConfinementChamberBlock::new);
     }
 
     @Override
@@ -91,7 +92,8 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
     protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
         BlockEntity blockentity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
         if (blockentity instanceof ShulkerBoxBlockEntity shulkerboxblockentity) {
-            params = params.withDynamicDrop(CONTENTS, it -> {
+            params = params.withDynamicDrop(
+                ConfinementChamberBlock.CONTENTS, it -> {
                 for (int i = 0; i < shulkerboxblockentity.getContainerSize(); i++) {
                     it.accept(shulkerboxblockentity.getItem(i));
                 }

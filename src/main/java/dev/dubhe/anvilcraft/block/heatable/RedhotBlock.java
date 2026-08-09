@@ -14,6 +14,7 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -113,7 +114,7 @@ public class RedhotBlock extends HeatableBlock implements IMoveableEntityBlock {
                 }
 
                 BlockEntity blockentity = state.hasBlockEntity() ? level.getBlockEntity(posx) : null;
-                dropResources(state, level, posx, blockentity);
+                Block.dropResources(state, level, posx, blockentity);
                 level.setBlock(posx, Blocks.AIR.defaultBlockState(), 3);
 
                 return BlockPos.TraversalNodeStatus.ACCEPT;

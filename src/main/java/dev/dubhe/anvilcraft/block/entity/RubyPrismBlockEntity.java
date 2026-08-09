@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.Nullable;
 
 public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
     private boolean enabled = false;
@@ -24,13 +25,13 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
 
     public void tick(Level level) {
         if (this.enabled) {
-            emitLaser(this.getFacing());
+            this.emitLaser(this.getFacing());
         }
-        if (laserLevel == 0) {
+        if (this.laserLevel == 0) {
             this.enabled = false;
         }
         super.tick(level);
-        resetState();
+        this.resetState();
     }
 
     @Override
@@ -40,7 +41,7 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
 
     @Override
     public void onCancelingIrradiation(BaseLaserBlockEntity baseLaserBlockEntity) {
-        if (!irradiateSelfLaserBlockSet.contains(baseLaserBlockEntity)) return;
+        if (!this.irradiateSelfLaserBlockSet.contains(baseLaserBlockEntity)) return;
         super.onCancelingIrradiation(baseLaserBlockEntity);
         this.enabled = !this.irradiateSelfLaserBlockSet.isEmpty();
     }
@@ -66,13 +67,13 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
     }
 
     @Override
-    public void clientUpdate(BlockPos irradiateBlockPos, int laserLevel) {
+    public void clientUpdate(@Nullable BlockPos irradiateBlockPos, int laserLevel) {
         this.enabled = laserLevel > 0;
         super.clientUpdate(irradiateBlockPos, laserLevel);
     }
 
     @Override
     public Direction getFacing() {
-        return getBlockState().getValue(RubyPrismBlock.FACING);
+        return this.getBlockState().getValue(RubyPrismBlock.FACING);
     }
 }

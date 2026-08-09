@@ -79,7 +79,8 @@ public class EmberSmithingTableBlock extends SmithingTableBlock implements IHamm
     public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return new SimpleMenuProvider(
             (i, inventory, player) -> new EmberSmithingMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
-            CONTAINER_TITLE);
+            EmberSmithingTableBlock.CONTAINER_TITLE
+        );
     }
 
     @Override
@@ -94,7 +95,7 @@ public class EmberSmithingTableBlock extends SmithingTableBlock implements IHamm
         BlockPos pos,
         RandomSource random) {
         if (random.nextDouble() <= 0.5) {
-            tryAbsorbWater(level, pos);
+            this.tryAbsorbWater(level, pos);
         }
     }
 }

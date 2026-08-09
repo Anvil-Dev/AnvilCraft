@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -38,7 +39,7 @@ public class FeCollectorBlock extends BetterBaseEntityBlock implements HammerRot
         Block.box(0, 4, 4, 2, 12, 12),
         Block.box(14, 4, 4, 16, 12, 12)
     );
-    private static final VoxelShape SHAPE_Z = ShapeUtil.rotate(Direction.Axis.Y, 90, SHAPE_X);
+    private static final VoxelShape SHAPE_Z = ShapeUtil.rotate(Direction.Axis.Y, 90, FeCollectorBlock.SHAPE_X);
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
     public static BooleanProperty POWERED = BlockStateProperties.POWERED;
 
@@ -47,19 +48,19 @@ public class FeCollectorBlock extends BetterBaseEntityBlock implements HammerRot
         this.registerDefaultState(
             this.getStateDefinition()
                 .any()
-                .setValue(AXIS, Direction.Axis.X)
-                .setValue(POWERED, false)
+                .setValue(FeCollectorBlock.AXIS, Direction.Axis.X)
+                .setValue(FeCollectorBlock.POWERED, false)
         );
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(FeCollectorBlock::new);
+        return BlockBehaviour.simpleCodec(FeCollectorBlock::new);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(AXIS).add(POWERED);
+        builder.add(FeCollectorBlock.AXIS).add(FeCollectorBlock.POWERED);
     }
 
     @Override
@@ -70,15 +71,15 @@ public class FeCollectorBlock extends BetterBaseEntityBlock implements HammerRot
             case WEST, EAST -> Direction.Axis.Z;
             default -> Direction.Axis.X;
         };
-        return this.defaultBlockState().setValue(AXIS, axis);
+        return this.defaultBlockState().setValue(FeCollectorBlock.AXIS, axis);
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
         return switch (rotation) {
-            case COUNTERCLOCKWISE_90, CLOCKWISE_90 -> switch (state.getValue(AXIS)) {
-                case Z -> state.setValue(AXIS, Direction.Axis.X);
-                case X -> state.setValue(AXIS, Direction.Axis.Z);
+            case COUNTERCLOCKWISE_90, CLOCKWISE_90 -> switch (state.getValue(FeCollectorBlock.AXIS)) {
+                case Z -> state.setValue(FeCollectorBlock.AXIS, Direction.Axis.X);
+                case X -> state.setValue(FeCollectorBlock.AXIS, Direction.Axis.Z);
                 default -> state;
             };
             default -> state;
@@ -97,7 +98,7 @@ public class FeCollectorBlock extends BetterBaseEntityBlock implements HammerRot
         BlockPos pos,
         CollisionContext context
     ) {
-        return state.getValue(AXIS) == Direction.Axis.X ? SHAPE_X : SHAPE_Z;
+        return state.getValue(FeCollectorBlock.AXIS) == Direction.Axis.X ? FeCollectorBlock.SHAPE_X : FeCollectorBlock.SHAPE_Z;
     }
 
     @Nullable
@@ -107,23 +108,23 @@ public class FeCollectorBlock extends BetterBaseEntityBlock implements HammerRot
     }
 
     public void activate(Level level, BlockPos pos, BlockState state) {
-        level.setBlockAndUpdate(pos, state.setValue(POWERED, true));
+        level.setBlockAndUpdate(pos, state.setValue(FeCollectorBlock.POWERED, true));
         this.updateNeighbours(level, pos);
         level.scheduleTick(pos, this, 2);
     }
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (!state.getValue(POWERED)) return;
-        level.setBlockAndUpdate(pos, state.setValue(POWERED, false));
+        if (!state.getValue(FeCollectorBlock.POWERED)) return;
+        level.setBlockAndUpdate(pos, state.setValue(FeCollectorBlock.POWERED, false));
         this.updateNeighbours(level, pos);
     }
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         if (level.isClientSide() || state.is(oldState.getBlock())) return;
-        if (state.getValue(POWERED) && !level.getBlockTicks().hasScheduledTick(pos, this)) {
-            level.setBlock(pos, state.setValue(POWERED, false), 18);
+        if (state.getValue(FeCollectorBlock.POWERED) && !level.getBlockTicks().hasScheduledTick(pos, this)) {
+            level.setBlock(pos, state.setValue(FeCollectorBlock.POWERED, false), 18);
         }
     }
 
@@ -136,7 +137,7 @@ public class FeCollectorBlock extends BetterBaseEntityBlock implements HammerRot
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> type) {
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             type,
             ModBlockEntities.FE_COLLECTOR.get(),
             FeCollectorBlockEntity::tick

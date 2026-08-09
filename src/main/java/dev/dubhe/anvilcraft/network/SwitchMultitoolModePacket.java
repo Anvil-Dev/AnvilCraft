@@ -23,7 +23,7 @@ public record SwitchMultitoolModePacket(InteractionHand hand, MultitoolMode mode
 
     @Override
     public Type<SwitchMultitoolModePacket> type() {
-        return TYPE;
+        return SwitchMultitoolModePacket.TYPE;
     }
 
     @Override

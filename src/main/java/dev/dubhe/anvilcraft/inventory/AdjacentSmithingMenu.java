@@ -117,14 +117,14 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
         if (!(this.menuPlayer instanceof ServerPlayer serverPlayer) || this.tablePos == null) return;
         long gameTime = this.templateLevel.getGameTime();
         if (gameTime < this.nextRefreshTime) return;
-        this.nextRefreshTime = gameTime + REFRESH_INTERVAL;
+        this.nextRefreshTime = gameTime + AdjacentSmithingMenu.REFRESH_INTERVAL;
         this.refreshTemplateCatalog();
         this.syncTemplateData(serverPlayer);
     }
 
     @Override
     public void clicked(int slotId, int button, ContainerInput containerInput, Player player) {
-        if (!this.borrowedTemplateStack.isEmpty() && slotId == TEMPLATE_SLOT) return;
+        if (!this.borrowedTemplateStack.isEmpty() && slotId == AdjacentSmithingMenu.TEMPLATE_SLOT) return;
         super.clicked(slotId, button, containerInput, player);
     }
 
@@ -140,7 +140,7 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
 
     @Override
     public boolean canTakeItemForPickAll(ItemStack stack, Slot slot) {
-        if (!this.borrowedTemplateStack.isEmpty() && slot == this.getSlot(TEMPLATE_SLOT)) return false;
+        if (!this.borrowedTemplateStack.isEmpty() && slot == this.getSlot(AdjacentSmithingMenu.TEMPLATE_SLOT)) return false;
         return super.canTakeItemForPickAll(stack, slot);
     }
 
@@ -163,12 +163,12 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
             this.collectTemplates(handler, templates);
         }
         if (!this.borrowedTemplateStack.isEmpty()) {
-            addUniqueTemplate(templates, this.borrowedTemplateStack);
+            AdjacentSmithingMenu.addUniqueTemplate(templates, this.borrowedTemplateStack);
         }
         templates.sort(Comparator
-            .comparingInt((ItemStack stack) -> favoriteIndex(favorites, itemId(stack)))
-            .thenComparingInt(stack -> templateIndex(this.adjacentTemplates, itemId(stack))));
-        if (!sameTemplates(this.adjacentTemplates, templates) || !this.favoriteTemplates.equals(favorites)) {
+            .comparingInt((ItemStack stack) -> AdjacentSmithingMenu.favoriteIndex(favorites, AdjacentSmithingMenu.itemId(stack)))
+            .thenComparingInt(stack -> AdjacentSmithingMenu.templateIndex(this.adjacentTemplates, AdjacentSmithingMenu.itemId(stack))));
+        if (!AdjacentSmithingMenu.sameTemplates(this.adjacentTemplates, templates) || !this.favoriteTemplates.equals(favorites)) {
             this.adjacentTemplates = templates;
             this.favoriteTemplates = List.copyOf(favorites);
             this.templateDataDirty = true;
@@ -178,21 +178,21 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
     private void collectTemplates(@Nullable ResourceHandler<ItemResource> handler, List<ItemStack> templates) {
         if (handler == null) return;
         for (int slot = 0; slot < handler.size(); slot++) {
-            ItemStack stack = getStack(handler, slot);
+            ItemStack stack = AdjacentSmithingMenu.getStack(handler, slot);
             if (stack.isEmpty() || !this.isUsableTemplate(stack)) continue;
-            ItemStack simulated = simulateExtract(handler, slot);
+            ItemStack simulated = AdjacentSmithingMenu.simulateExtract(handler, slot);
             if (!ItemStack.isSameItemSameComponents(stack.copyWithCount(1), simulated)) continue;
-            addUniqueTemplate(templates, stack);
+            AdjacentSmithingMenu.addUniqueTemplate(templates, stack);
         }
     }
 
     private void borrowTemplate(ServerPlayer player, Identifier template) {
         if (this.tablePos == null) return;
         if (this.isBorrowedTemplateId(template)) return;
-        ItemStack currentTemplate = this.inputSlots.getItem(TEMPLATE_SLOT);
+        ItemStack currentTemplate = this.inputSlots.getItem(AdjacentSmithingMenu.TEMPLATE_SLOT);
         if (this.borrowedTemplate == null && !currentTemplate.isEmpty()) return;
         if (this.borrowedTemplate != null
-            && !matchesTemplate(currentTemplate, this.borrowedTemplate.template())) {
+            && !AdjacentSmithingMenu.matchesTemplate(currentTemplate, this.borrowedTemplate.template())) {
             this.borrowedTemplate = null;
             this.borrowedTemplateStack = ItemStack.EMPTY;
             this.templateDataDirty = true;
@@ -217,7 +217,7 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
             extracted.sourceBlockEntity()
         );
         this.borrowedTemplateStack = extracted.stack().copy();
-        this.inputSlots.setItem(TEMPLATE_SLOT, extracted.stack());
+        this.inputSlots.setItem(AdjacentSmithingMenu.TEMPLATE_SLOT, extracted.stack());
         this.templateDataDirty = true;
         this.refreshTemplateCatalog();
         this.syncTemplateData(player);
@@ -231,12 +231,12 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
             ResourceHandler<ItemResource> handler = this.getItemHandler(sourcePos);
             if (handler == null) continue;
             for (int slot = 0; slot < handler.size(); slot++) {
-                ItemStack stack = getStack(handler, slot);
-                if (!matchesTemplate(stack, template) || !this.isUsableTemplate(stack)) continue;
-                ItemStack simulated = simulateExtract(handler, slot);
-                if (!matchesTemplate(simulated, template) || !this.isUsableTemplate(simulated)) continue;
-                ItemStack extracted = extract(handler, slot);
-                if (matchesTemplate(extracted, template) && this.isUsableTemplate(extracted)) {
+                ItemStack stack = AdjacentSmithingMenu.getStack(handler, slot);
+                if (!AdjacentSmithingMenu.matchesTemplate(stack, template) || !this.isUsableTemplate(stack)) continue;
+                ItemStack simulated = AdjacentSmithingMenu.simulateExtract(handler, slot);
+                if (!AdjacentSmithingMenu.matchesTemplate(simulated, template) || !this.isUsableTemplate(simulated)) continue;
+                ItemStack extracted = AdjacentSmithingMenu.extract(handler, slot);
+                if (AdjacentSmithingMenu.matchesTemplate(extracted, template) && this.isUsableTemplate(extracted)) {
                     return new ExtractedTemplate(
                         sourcePos.immutable(),
                         slot,
@@ -253,15 +253,15 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
     private void returnBorrowedTemplate(boolean notifyMenu) {
         BorrowedTemplate origin = this.borrowedTemplate;
         if (origin == null) return;
-        final ItemStack stack = this.inputSlots.getItem(TEMPLATE_SLOT);
+        final ItemStack stack = this.inputSlots.getItem(AdjacentSmithingMenu.TEMPLATE_SLOT);
         this.borrowedTemplate = null;
         this.borrowedTemplateStack = ItemStack.EMPTY;
         this.templateDataDirty = true;
-        if (stack.isEmpty() || !matchesTemplate(stack, origin.template())) return;
+        if (stack.isEmpty() || !AdjacentSmithingMenu.matchesTemplate(stack, origin.template())) return;
         if (notifyMenu) {
-            this.inputSlots.setItem(TEMPLATE_SLOT, ItemStack.EMPTY);
+            this.inputSlots.setItem(AdjacentSmithingMenu.TEMPLATE_SLOT, ItemStack.EMPTY);
         } else {
-            this.inputSlots.removeItemNoUpdate(TEMPLATE_SLOT);
+            this.inputSlots.removeItemNoUpdate(AdjacentSmithingMenu.TEMPLATE_SLOT);
         }
         ResourceHandler<ItemResource> handler =
             this.templateLevel.getBlockEntity(origin.sourcePos()) == origin.sourceBlockEntity()
@@ -282,12 +282,12 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
     ) {
         ItemStack remainder = stack;
         if (handler != null && preferredSlot >= 0 && preferredSlot < handler.size()) {
-            remainder = insert(handler, preferredSlot, remainder);
+            remainder = AdjacentSmithingMenu.insert(handler, preferredSlot, remainder);
         }
         if (handler != null && !remainder.isEmpty()) {
             for (int slot = 0; slot < handler.size() && !remainder.isEmpty(); slot++) {
                 if (slot == preferredSlot) continue;
-                remainder = insert(handler, slot, remainder);
+                remainder = AdjacentSmithingMenu.insert(handler, slot, remainder);
             }
         }
         if (remainder.isEmpty()) return;
@@ -349,11 +349,11 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
     }
 
     private boolean containsTemplate(Identifier template) {
-        return this.adjacentTemplates.stream().anyMatch(stack -> matchesTemplate(stack, template));
+        return this.adjacentTemplates.stream().anyMatch(stack -> AdjacentSmithingMenu.matchesTemplate(stack, template));
     }
 
     private boolean isBorrowedTemplateId(Identifier template) {
-        return !this.borrowedTemplateStack.isEmpty() && itemId(this.borrowedTemplateStack).equals(template);
+        return !this.borrowedTemplateStack.isEmpty() && AdjacentSmithingMenu.itemId(this.borrowedTemplateStack).equals(template);
     }
 
     private static void addUniqueTemplate(List<ItemStack> templates, ItemStack stack) {
@@ -376,13 +376,13 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
 
     private static int templateIndex(List<ItemStack> templates, Identifier template) {
         for (int index = 0; index < templates.size(); index++) {
-            if (itemId(templates.get(index)).equals(template)) return index;
+            if (AdjacentSmithingMenu.itemId(templates.get(index)).equals(template)) return index;
         }
         return Integer.MAX_VALUE;
     }
 
     private static boolean matchesTemplate(ItemStack stack, Identifier template) {
-        return !stack.isEmpty() && itemId(stack).equals(template);
+        return !stack.isEmpty() && AdjacentSmithingMenu.itemId(stack).equals(template);
     }
 
     private static Identifier itemId(ItemStack stack) {

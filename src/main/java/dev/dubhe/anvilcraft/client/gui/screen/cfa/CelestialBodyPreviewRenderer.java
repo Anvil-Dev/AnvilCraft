@@ -65,13 +65,13 @@ public final class CelestialBodyPreviewRenderer {
         int width,
         int height
     ) {
-        StandaloneModelKey<BlockStateModel> model = resolveMegastructureModel(option);
+        StandaloneModelKey<BlockStateModel> model = CelestialBodyPreviewRenderer.resolveMegastructureModel(option);
         float divisor = switch (option.ring()) {
-            case 1 -> RING1_SCALE_DIVISOR;
-            case 2 -> RING2_SCALE_DIVISOR;
-            case 4 -> RING4_SCALE_DIVISOR;
-            case 5 -> RING5_SCALE_DIVISOR;
-            case 6 -> RING6_SCALE_DIVISOR;
+            case 1 -> CelestialBodyPreviewRenderer.RING1_SCALE_DIVISOR;
+            case 2 -> CelestialBodyPreviewRenderer.RING2_SCALE_DIVISOR;
+            case 4 -> CelestialBodyPreviewRenderer.RING4_SCALE_DIVISOR;
+            case 5 -> CelestialBodyPreviewRenderer.RING5_SCALE_DIVISOR;
+            case 6 -> CelestialBodyPreviewRenderer.RING6_SCALE_DIVISOR;
             default -> 1.0f;
         };
         float scale = Math.min(width, height) * 1.15f / divisor;

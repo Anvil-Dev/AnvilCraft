@@ -27,7 +27,7 @@ public interface ICategory extends Predicate<UnlimitedItemStack> {
     Codec<ICategory> DIRECT_CODEC = Codec.lazyInitialized(
         () -> ModRegistries.CATEGORY_TYPE.byNameCodec().dispatch(ICategory::getType, Type::codec)
     );
-    Codec<Holder<ICategory>> HOLDER_CODEC = RegistryFileCodec.create(ModRegistryKeys.CATEGORY, DIRECT_CODEC);
+    Codec<Holder<ICategory>> HOLDER_CODEC = RegistryFileCodec.create(ModRegistryKeys.CATEGORY, ICategory.DIRECT_CODEC);
     Codec<ICategory> CODEC = Codec.of(
         new Encoder<>() {
             @Override
@@ -42,14 +42,14 @@ public interface ICategory extends Predicate<UnlimitedItemStack> {
                         .filter(innerRef -> input.equals(innerRef.value()))
                         .findFirst();
                     if (ref.isPresent()) {
-                        return HOLDER_CODEC.encode(ref.get(), ops, prefix);
+                        return ICategory.HOLDER_CODEC.encode(ref.get(), ops, prefix);
                     }
                 }
 
-                return HOLDER_CODEC.encode(Holder.direct(input), ops, prefix);
+                return ICategory.HOLDER_CODEC.encode(Holder.direct(input), ops, prefix);
             }
         },
-        HOLDER_CODEC.map(Holder::value)
+        ICategory.HOLDER_CODEC.map(Holder::value)
     );
     StreamCodec<RegistryFriendlyByteBuf, ICategory> STREAM_CODEC = ByteBufCodecs.registry(ModRegistryKeys.CATEGORY_TYPE)
         .dispatch(ICategory::getType, Type::streamCodec);

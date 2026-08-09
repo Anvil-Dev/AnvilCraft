@@ -63,7 +63,7 @@ public class MassInjectRecipeLoader {
             .put(ModItemTags.FROST_METAL_INGOTS, 300)
             .put(ModItemTags.STORAGE_BLOCKS_FROST_METAL, 3000)
             .build();
-        tagRecipes.forEach((tag, mass) -> addTag(provider, tag, mass));
+        tagRecipes.forEach((tag, mass) -> MassInjectRecipeLoader.addTag(provider, tag, mass));
 
         ImmutableMap<ItemLike, Integer> itemRecipes = ImmutableMap.<ItemLike, Integer>builder()
             .put(ModItems.CURSED_GOLD_NUGGET, 25)
@@ -77,7 +77,7 @@ public class MassInjectRecipeLoader {
             .put(ModBlocks.HEAVY_IRON_BLOCK, 8000)
             .put(ModBlocks.EMBER_METAL_BLOCK, 20000)
             .build();
-        itemRecipes.forEach((item, mass) -> addItem(provider, item, mass));
+        itemRecipes.forEach((item, mass) -> MassInjectRecipeLoader.addItem(provider, item, mass));
     }
 
     private static void addTag(RegistrumRecipeProvider provider, TagKey<Item> tag, int mass) {

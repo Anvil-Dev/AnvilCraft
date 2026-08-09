@@ -10,7 +10,7 @@ public class ModRecipeTriggers {
     public static final DeferredRegister<IRecipeTrigger> TRIGGER = DeferredRegister
         .create(LibRegistries.TRIGGER_REGISTRY, AnvilCraft.MOD_ID);
 
-    public static final DeferredHolder<IRecipeTrigger, IRecipeTrigger> ON_ANVIL_FALL_ON = TRIGGER.register(
+    public static final DeferredHolder<IRecipeTrigger, IRecipeTrigger> ON_ANVIL_FALL_ON = ModRecipeTriggers.TRIGGER.register(
         "on_anvil_fall_on",
         IRecipeTrigger.Impl::new
     );

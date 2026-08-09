@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
+import dev.dubhe.anvilcraft.util.EntityUtil;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -58,13 +59,12 @@ public abstract class FlyingHitEntityMixin extends Entity {
         }
         AABB headBlockBoundBox = AABB.ofSize(this.getEyePosition(), 1, 1, 1);
         List<LivingEntity> entities =
-            level().getEntitiesOfClass(LivingEntity.class, headBlockBoundBox, it -> it != (Object) this);
-        Vec3 movement = getDeltaMovement();
-        float amount = (float) (movement.length() * DAMAGE_FACTOR);
+            this.level().getEntitiesOfClass(LivingEntity.class, headBlockBoundBox, it -> it != (Object) this);
+        Vec3 movement = this.getDeltaMovement();
+        float amount = (float) (movement.length() * FlyingHitEntityMixin.DAMAGE_FACTOR);
         for (LivingEntity entity : entities) {
-            // noinspection deprecation
-            entity.hurtOrSimulate(damageSources().playerAttack(thiS), amount);
-            anvilcraft$damageItem(thiS, this.getItemBySlot(EquipmentSlot.HEAD));
+            EntityUtil.hurtOrSimulate(entity, this.damageSources().playerAttack(thiS), amount);
+            FlyingHitEntityMixin.anvilcraft$damageItem(thiS, this.getItemBySlot(EquipmentSlot.HEAD));
         }
     }
 

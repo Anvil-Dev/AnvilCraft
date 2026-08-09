@@ -20,7 +20,7 @@ public record SliderInitPacket(int value) implements IClientboundPacket {
 
     @Override
     public Type<SliderInitPacket> type() {
-        return TYPE;
+        return SliderInitPacket.TYPE;
     }
 
     @Override

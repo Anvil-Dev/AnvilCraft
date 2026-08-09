@@ -200,14 +200,14 @@ public class PlayerEventListener {
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onPlayerBlockWithHeavyHalberd(LivingIncomingDamageEvent event) {
         if (!(event.getEntity() instanceof Player player)) return;
-        if (isBlockingWithHeavyHalberd(player) && event.getSource().is(Tags.DamageTypes.IS_PHYSICAL)) {
+        if (PlayerEventListener.isBlockingWithHeavyHalberd(player) && event.getSource().is(Tags.DamageTypes.IS_PHYSICAL)) {
             event.setAmount(event.getAmount() * 0.5F);
         }
     }
 
     @SubscribeEvent(priority = EventPriority.LOWEST)
     public static void onPlayerShieldBlock(LivingShieldBlockEvent event) {
-        if (!(event.getEntity() instanceof Player player) || !isBlockingWithHeavyHalberd(player)) return;
+        if (!(event.getEntity() instanceof Player player) || !PlayerEventListener.isBlockingWithHeavyHalberd(player)) return;
         // 剑模式沿用旧版剑格挡，不触发盾牌的全额减伤、耐久消耗和禁用逻辑。
         event.setBlocked(false);
     }

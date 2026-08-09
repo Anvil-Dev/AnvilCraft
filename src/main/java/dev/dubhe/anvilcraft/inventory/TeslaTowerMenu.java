@@ -45,7 +45,7 @@ public class TeslaTowerMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(
+        return AbstractContainerMenu.stillValid(
             ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()),
             player,
             ModBlocks.TESLA_TOWER.get()

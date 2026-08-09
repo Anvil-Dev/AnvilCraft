@@ -20,11 +20,11 @@ public class FourToOneTemplateItem extends BaseMultipleToOneTemplateItem {
 
     @Override
     public Component getMaterialTooltip() {
-        return MISSING_TOOLTIP;
+        return FourToOneTemplateItem.MISSING_TOOLTIP;
     }
 
     @Override
     public List<Identifier> getEmptySlotTextures() {
-        return EMPTY_SLOT_TEXTURES;
+        return FourToOneTemplateItem.EMPTY_SLOT_TEXTURES;
     }
 }

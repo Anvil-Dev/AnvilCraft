@@ -101,9 +101,9 @@ public class ItemCollectorBlockEntity extends BlockEntity
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(9) {
         @Override
         protected void onContentsChanged(int index, ItemStack previousContents) {
-            if (level == null || level.isClientSide()) return;
-            flushState(level, getBlockPos());
-            level.blockEntityChanged(worldPosition);
+            if (ItemCollectorBlockEntity.this.level == null || ItemCollectorBlockEntity.this.level.isClientSide()) return;
+            ItemCollectorBlockEntity.this.flushState(ItemCollectorBlockEntity.this.level, ItemCollectorBlockEntity.this.getBlockPos());
+            ItemCollectorBlockEntity.this.level.blockEntityChanged(ItemCollectorBlockEntity.this.worldPosition);
             ItemCollectorBlockEntity.this.needFlush = true;
         }
     };
@@ -127,7 +127,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public void setGrid(@Nullable PowerGrid grid) {
         if (grid == null && this.grid != null && this.grid.isWorking() && this.level != null) {
-            this.poachingPowerGraceEndTick = this.level.getGameTime() + POACHING_POWER_GRACE_TICKS;
+            this.poachingPowerGraceEndTick = this.level.getGameTime() + ItemCollectorBlockEntity.POACHING_POWER_GRACE_TICKS;
         }
         this.grid = grid;
     }
@@ -138,14 +138,14 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     public int getPowerConsumption() {
-        return POWER_CONSUMPTION[this.cooldown.index()][this.rangeRadius.index()];
+        return ItemCollectorBlockEntity.POWER_CONSUMPTION[this.cooldown.index()][this.rangeRadius.index()];
     }
 
     @Override
     public int getInputPower() {
         int power = this.getPowerConsumption();
-        if (level == null) return power;
-        return getBlockState().getValue(ItemCollectorBlock.POWERED) ? 0 : power;
+        if (this.level == null) return power;
+        return this.getBlockState().getValue(ItemCollectorBlock.POWERED) ? 0 : power;
     }
 
     @Override
@@ -156,7 +156,10 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         super.preRemoveSideEffects(pos, state);
-        Containers.dropContents(this.level, pos, this.itemHandler.getStacks());
+        Level level = this.level;
+        if (level != null) {
+            Containers.dropContents(level, pos, this.itemHandler.getStacks());
+        }
     }
 
     @Override
@@ -208,14 +211,14 @@ public class ItemCollectorBlockEntity extends BlockEntity
     @Override
     public void setRemoved() {
         super.setRemoved();
-        removePoachingCollector(this);
+        ItemCollectorBlockEntity.removePoachingCollector(this);
     }
 
     @Override
     public void gridTick() {
-        if (level == null || level.isClientSide()) return;
+        if (this.level == null || this.level.isClientSide()) return;
 
-        BlockState state = level.getBlockState(getBlockPos());
+        BlockState state = this.level.getBlockState(this.getBlockPos());
         if (!this.isGridWorking()
             || state.hasProperty(ItemCollectorBlock.POWERED) && state.getValue(ItemCollectorBlock.POWERED)) {
             this.resetCooldown();
@@ -226,7 +229,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
             return;
         }
         if (this.boundingBox == null) return;
-        List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class, this.boundingBox);
+        List<ItemEntity> itemEntities = this.level.getEntitiesOfClass(ItemEntity.class, this.boundingBox);
         for (ItemEntity itemEntity : itemEntities) {
             this.acceptItemEntity(itemEntity);
         }
@@ -242,7 +245,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     public TriState acceptItemEntity(ItemEntity itemEntity) {
-        if (!this.canPoach() || getBlockState().getValue(ItemCollectorBlock.POWERED)) {
+        if (!this.canPoach() || this.getBlockState().getValue(ItemCollectorBlock.POWERED)) {
             return TriState.FALSE;
         }
         ItemStack itemStack = itemEntity.getItem();
@@ -277,14 +280,14 @@ public class ItemCollectorBlockEntity extends BlockEntity
         if (this.cooldown.get() != this.oldCooldown) {
             this.oldCooldown = this.cooldown.get();
             if (this.oldCooldown == 0) {
-                addPoachingCollector(this);
+                ItemCollectorBlockEntity.addPoachingCollector(this);
             } else {
-                removePoachingCollector(this);
+                ItemCollectorBlockEntity.removePoachingCollector(this);
             }
         }
         if (this.rangeRadius.get() != this.oldRange || this.boundingBox == null) {
             this.boundingBox = AABB.ofSize(
-                Vec3.atCenterOf(getBlockPos()),
+                Vec3.atCenterOf(this.getBlockPos()),
                 this.rangeRadius.get() * 2.0 + 1,
                 this.rangeRadius.get() * 2.0 + 1,
                 this.rangeRadius.get() * 2.0 + 1
@@ -321,7 +324,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
         input.getInt("cd").ifPresent(cd -> this.cd = cd);
         this.setChanged();
         Vec3 center = this.getPos().getCenter();
-        MinecraftServer server = level.getServer();
+        MinecraftServer server = this.level.getServer();
         if (server == null) return;
         Packet<ClientGamePacketListener> packet = this.getUpdatePacket();
         if (packet == null) return;
@@ -337,7 +340,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
     public AABB shape() {
         if (this.boundingBox == null) {
             this.boundingBox = AABB.ofSize(
-                Vec3.atCenterOf(getBlockPos()),
+                Vec3.atCenterOf(this.getBlockPos()),
                 this.rangeRadius.get() * 2.0 + 1,
                 this.rangeRadius.get() * 2.0 + 1,
                 this.rangeRadius.get() * 2.0 + 1
@@ -347,24 +350,24 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     public static void clearPoachingCollectors() {
-        POACHING_COLLECTORS.clear();
+        ItemCollectorBlockEntity.POACHING_COLLECTORS.clear();
     }
 
     @SuppressWarnings("DataFlowIssue")
     public static Set<ItemCollectorBlockEntity> getOrCreateCollectorList(ItemCollectorBlockEntity blockEntity) {
         ChunkPos chunkPos = ChunkPos.containing(blockEntity.worldPosition);
         Level level = blockEntity.level;
-        return getOrCreateCollectorList(level, chunkPos);
+        return ItemCollectorBlockEntity.getOrCreateCollectorList(level, chunkPos);
     }
 
     public static Set<ItemCollectorBlockEntity> getOrCreateCollectorList(Level level, ChunkPos chunkPos) {
-        Set<ItemCollectorBlockEntity> collectors = POACHING_COLLECTORS.get(
+        Set<ItemCollectorBlockEntity> collectors = ItemCollectorBlockEntity.POACHING_COLLECTORS.get(
             level,
             chunkPos
         );
         if (collectors == null) {
             collectors = new HashSet<>();
-            POACHING_COLLECTORS.put(
+            ItemCollectorBlockEntity.POACHING_COLLECTORS.put(
                 level,
                 chunkPos,
                 collectors
@@ -374,11 +377,11 @@ public class ItemCollectorBlockEntity extends BlockEntity
     }
 
     public static void addPoachingCollector(ItemCollectorBlockEntity blockEntity) {
-        getOrCreateCollectorList(blockEntity).add(blockEntity);
+        ItemCollectorBlockEntity.getOrCreateCollectorList(blockEntity).add(blockEntity);
     }
 
     public static void removePoachingCollector(ItemCollectorBlockEntity blockEntity) {
-        getOrCreateCollectorList(blockEntity).remove(blockEntity);
+        ItemCollectorBlockEntity.getOrCreateCollectorList(blockEntity).remove(blockEntity);
     }
 
     public static void poachItemEntity(ItemEntity itemEntity) {
@@ -386,7 +389,7 @@ public class ItemCollectorBlockEntity extends BlockEntity
         for (int x = -1; x <= 1; x++) {
             for (int z = -1; z <= 1; z++) {
                 ChunkPos chunkPos = new ChunkPos(currentPos.x() + x, currentPos.z() + z);
-                Set<ItemCollectorBlockEntity> collectors = POACHING_COLLECTORS.get(
+                Set<ItemCollectorBlockEntity> collectors = ItemCollectorBlockEntity.POACHING_COLLECTORS.get(
                     itemEntity.level(),
                     chunkPos
                 );

@@ -28,6 +28,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -45,18 +46,22 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
 
     public ChargerBlock(Properties properties) {
         super(properties);
-        registerDefaultState(getStateDefinition().any().setValue(POWERED, false).setValue(OVERLOAD, true));
+        this.registerDefaultState(
+            this.getStateDefinition().any()
+                .setValue(ChargerBlock.POWERED, false)
+                .setValue(ChargerBlock.OVERLOAD, true)
+        );
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(ChargerBlock::new);
+        return BlockBehaviour.simpleCodec(ChargerBlock::new);
     }
 
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return defaultBlockState().setValue(POWERED, false).setValue(OVERLOAD, true);
+        return this.defaultBlockState().setValue(ChargerBlock.POWERED, false).setValue(ChargerBlock.OVERLOAD, true);
     }
 
     @Nullable
@@ -69,7 +74,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
         if (level.isClientSide()) {
             return null;
         }
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             type,
             ModBlockEntities.CHARGER.get(),
             (level1, blockPos, _, be) -> be.tick(level1, blockPos)
@@ -86,7 +91,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
         boolean movedByPiston
     ) {
         if (level.isClientSide()) return;
-        level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
+        level.setBlock(pos, state.setValue(ChargerBlock.POWERED, level.hasNeighborSignal(pos)), 2);
     }
 
     @Nullable
@@ -97,7 +102,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(POWERED).add(OVERLOAD);
+        builder.add(ChargerBlock.POWERED).add(ChargerBlock.OVERLOAD);
     }
 
     @Override
@@ -112,8 +117,8 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
 
     @Override
     public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
-            level.setBlock(pos, state.cycle(POWERED), 2);
+        if (state.getValue(ChargerBlock.POWERED) && !level.hasNeighborSignal(pos)) {
+            level.setBlock(pos, state.cycle(ChargerBlock.POWERED), 2);
         }
     }
 
@@ -167,7 +172,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
             : ((DischargerBlockEntity) be).getFilteredItemStackHandler();
 
         if (stack.isEmpty()) {
-            return tryExtract(player, level, pos, handler, be);
+            return ChargerBlock.tryExtract(player, level, pos, handler, be);
         }
 
         if (!handler.getStacks().get(0).isEmpty()) return InteractionResult.PASS;
@@ -197,7 +202,7 @@ public class ChargerBlock extends BaseEntityBlock implements IHammerRemovable, I
             ? charger.getFilteredItemStackHandler()
             : ((DischargerBlockEntity) be).getFilteredItemStackHandler();
 
-        return tryExtract(player, level, pos, handler, be);
+        return ChargerBlock.tryExtract(player, level, pos, handler, be);
     }
 
     private static InteractionResult tryExtract(

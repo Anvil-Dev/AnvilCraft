@@ -51,12 +51,12 @@ public record BinomialDistributionGenerator(INumberProvider n, INumberProvider p
     public static class Type implements INumberProvider.Type<BinomialDistributionGenerator> {
         @Override
         public MapCodec<BinomialDistributionGenerator> codec() {
-            return CODEC;
+            return BinomialDistributionGenerator.CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, BinomialDistributionGenerator> streamCodec() {
-            return STREAM_CODEC.cast();
+            return BinomialDistributionGenerator.STREAM_CODEC.cast();
         }
     }
 }

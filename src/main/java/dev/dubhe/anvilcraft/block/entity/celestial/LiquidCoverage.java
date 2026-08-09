@@ -20,11 +20,11 @@ public enum LiquidCoverage implements StringRepresentable {
     }
 
     public static LiquidCoverage fromName(String name) {
-        for (LiquidCoverage value : values()) {
+        for (LiquidCoverage value : LiquidCoverage.values()) {
             if (value.name.equals(name)) {
                 return value;
             }
         }
-        return NONE;
+        return LiquidCoverage.NONE;
     }
 }

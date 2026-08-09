@@ -31,13 +31,13 @@ public class AccelerateManager {
     private static final double WATERLOGGED_RING_SPEED = 1.0;
 
     public static void handleAcceleration(Entity entity) {
-        if (!canBeAccelerated(entity)) return;
+        if (!AccelerateManager.canBeAccelerated(entity)) return;
         Vec3 currentMovement = entity.getDeltaMovement();
-        Vec3 clampedMovement = clampMovement(entity, currentMovement);
+        Vec3 clampedMovement = AccelerateManager.clampMovement(entity, currentMovement);
         if (clampedMovement != currentMovement) entity.setDeltaMovement(clampedMovement);
         Level level = entity.level();
-        Vec3 center = getMovementCenter(entity);
-        boolean passesWaterloggedRing = passesWaterloggedAccelerationRing(entity, center, clampedMovement);
+        Vec3 center = AccelerateManager.getMovementCenter(entity);
+        boolean passesWaterloggedRing = AccelerateManager.passesWaterloggedAccelerationRing(entity, center, clampedMovement);
         BlockPos selectedRing = null;
         Direction selectedDirection = null;
         double bestAlignment = Double.NEGATIVE_INFINITY;
@@ -46,7 +46,7 @@ public class AccelerateManager {
             if (aabb == null) continue;
             if (!aabb.contains(center)) continue;
             BlockState state = level.getBlockState(pos);
-            if (!isActiveAccelerationRing(state)) continue;
+            if (!AccelerateManager.isActiveAccelerationRing(state)) continue;
             Direction direction = state.getValue(AccelerationRingBlock.FACING);
             double alignment = entity.getDeltaMovement().dot(Vec3.atLowerCornerOf(direction.getUnitVec3i()));
             if (alignment <= bestAlignment) continue;
@@ -54,9 +54,9 @@ public class AccelerateManager {
             selectedDirection = direction;
             bestAlignment = alignment;
         }
-        if (selectedRing != null) applyAcceleration(entity, selectedRing, selectedDirection);
+        if (selectedRing != null) AccelerateManager.applyAcceleration(entity, selectedRing, selectedDirection);
         if (passesWaterloggedRing) {
-            entity.setDeltaMovement(limitAnvilSpeed(entity, entity.getDeltaMovement()));
+            entity.setDeltaMovement(AccelerateManager.limitAnvilSpeed(entity, entity.getDeltaMovement()));
         }
     }
 
@@ -76,16 +76,16 @@ public class AccelerateManager {
                    ? !fallingBlockEntity.getBlockState().is(ModBlockTags.NON_MAGNETIC)
                    : extension.anvilcraft$isMagnetized())
                || entity instanceof Projectile
-               || (entity instanceof Player player && isPlayerCanBeAccelerated(player));
+               || (entity instanceof Player player && AccelerateManager.isPlayerCanBeAccelerated(player));
     }
 
     public static boolean isInsideAccelerationArea(Entity entity) {
-        if (!canBeAccelerated(entity)) return false;
+        if (!AccelerateManager.canBeAccelerated(entity)) return false;
         Level level = entity.level();
-        Vec3 center = getMovementCenter(entity);
+        Vec3 center = AccelerateManager.getMovementCenter(entity);
         for (BlockPos pos : AccelerationRingBlockEntity.getBlocksAt(level, center)) {
             AABB aabb = AccelerationRingBlockEntity.getAABB(level, pos);
-            if (aabb != null && aabb.contains(center) && isActiveAccelerationRing(level.getBlockState(pos))) {
+            if (aabb != null && aabb.contains(center) && AccelerateManager.isActiveAccelerationRing(level.getBlockState(pos))) {
                 return true;
             }
         }
@@ -94,11 +94,11 @@ public class AccelerateManager {
 
     @Nullable
     public static AccelerationEntry findFirstAccelerationEntry(Entity entity, Vec3 movement) {
-        if (!canBeAccelerated(entity)) return null;
+        if (!AccelerateManager.canBeAccelerated(entity)) return null;
         double movementSqr = movement.lengthSqr();
         if (!Double.isFinite(movementSqr)) return null;
         Level level = entity.level();
-        Vec3 start = getMovementCenter(entity);
+        Vec3 start = AccelerateManager.getMovementCenter(entity);
         Vec3 end = start.add(movement);
         AccelerationEntry nearestEntry = null;
         double nearestProgress = Double.POSITIVE_INFINITY;
@@ -107,7 +107,7 @@ public class AccelerateManager {
             AABB aabb = AccelerationRingBlockEntity.getAABB(level, pos);
             if (aabb == null) continue;
             BlockState state = level.getBlockState(pos);
-            if (!isActiveAccelerationRing(state)) continue;
+            if (!AccelerateManager.isActiveAccelerationRing(state)) continue;
 
             double progress;
             if (aabb.contains(start)) {
@@ -133,11 +133,11 @@ public class AccelerateManager {
     }
 
     public static boolean isControlledByRing(Entity entity) {
-        if (!canBeAccelerated(entity)) return false;
-        if (isInsideAccelerationArea(entity) || DeflectionRingBlockEntity.isInsideWorkingRing(entity)) return true;
+        if (!AccelerateManager.canBeAccelerated(entity)) return false;
+        if (AccelerateManager.isInsideAccelerationArea(entity) || DeflectionRingBlockEntity.isInsideWorkingRing(entity)) return true;
         return DeflectionRingBlockEntity.findFirstRing(
             entity,
-            getMovementCenter(entity),
+            AccelerateManager.getMovementCenter(entity),
             entity.getDeltaMovement()
         ) != null;
     }
@@ -151,11 +151,11 @@ public class AccelerateManager {
     }
 
     public static Vec3 getMovementOffset(Entity entity) {
-        return getMovementCenter(entity).subtract(entity.position());
+        return AccelerateManager.getMovementCenter(entity).subtract(entity.position());
     }
 
     public static Vec3 clampMovement(Entity entity, Vec3 movement) {
-        double limit = entity instanceof Player ? MAX_PLAYER_SPEED : MAX_ACCELERATED_SPEED;
+        double limit = entity instanceof Player ? AccelerateManager.MAX_PLAYER_SPEED : AccelerateManager.MAX_ACCELERATED_SPEED;
         double maxComponent = Math.max(Math.abs(movement.x), Math.max(Math.abs(movement.y), Math.abs(movement.z)));
         if (!Double.isFinite(maxComponent)) return Vec3.ZERO;
         if (maxComponent <= limit && movement.lengthSqr() <= limit * limit) return movement;
@@ -167,12 +167,12 @@ public class AccelerateManager {
     }
 
     public static Vec3 limitAnvilSpeed(Entity entity, Vec3 movement) {
-        if (!isAnvil(entity)) return movement;
+        if (!AccelerateManager.isAnvil(entity)) return movement;
         double speedSqr = movement.lengthSqr();
         if (!Double.isFinite(speedSqr)) return Vec3.ZERO;
-        double limitSqr = WATERLOGGED_RING_SPEED * WATERLOGGED_RING_SPEED;
+        double limitSqr = AccelerateManager.WATERLOGGED_RING_SPEED * AccelerateManager.WATERLOGGED_RING_SPEED;
         if (speedSqr <= limitSqr) return movement;
-        return movement.scale(WATERLOGGED_RING_SPEED / Math.sqrt(speedSqr));
+        return movement.scale(AccelerateManager.WATERLOGGED_RING_SPEED / Math.sqrt(speedSqr));
     }
 
     private static boolean isAnvil(Entity entity) {
@@ -184,10 +184,10 @@ public class AccelerateManager {
     }
 
     private static boolean passesWaterloggedAccelerationRing(Entity entity, Vec3 start, Vec3 movement) {
-        if (!isAnvil(entity)) return false;
+        if (!AccelerateManager.isAnvil(entity)) return false;
         double movementSqr = movement.lengthSqr();
         if (!Double.isFinite(movementSqr) || movementSqr < 1.0E-12) return false;
-        double waterloggedProgress = firstWaterloggedAccelerationRingProgress(
+        double waterloggedProgress = AccelerateManager.firstWaterloggedAccelerationRingProgress(
             entity.level(),
             start,
             movement,
@@ -211,7 +211,7 @@ public class AccelerateManager {
         for (BlockPos ringPos : AccelerationRingBlockEntity.getRingsAlongMovement(level, start, movement)) {
             BlockState state = level.getBlockState(ringPos);
             if (!(state.getBlock() instanceof AccelerationRingBlock block)
-                || !isActiveAccelerationRing(state)
+                || !AccelerateManager.isActiveAccelerationRing(state)
                 || !block.isChannelWaterlogged(level, ringPos, state)) {
                 continue;
             }
@@ -248,7 +248,8 @@ public class AccelerateManager {
             if (stack.getItem() instanceof AnvilHammerItem) {
                 hasHammer = true;
             }
-            if (stack.has(DataComponents.EQUIPPABLE) && stack.get(DataComponents.EQUIPPABLE).slot() == slot) {
+            var equippable = stack.get(DataComponents.EQUIPPABLE);
+            if (equippable != null && equippable.slot() == slot) {
                 count++;
             }
         }
@@ -256,18 +257,18 @@ public class AccelerateManager {
     }
 
     public static void applyAcceleration(Entity entity, AccelerationEntry entry) {
-        applyAcceleration(entity, entry.ringPos(), entry.direction());
+        AccelerateManager.applyAcceleration(entity, entry.ringPos(), entry.direction());
         BlockState state = entity.level().getBlockState(entry.ringPos());
         if (state.getBlock() instanceof AccelerationRingBlock block
             && block.isChannelWaterlogged(entity.level(), entry.ringPos(), state)) {
-            entity.setDeltaMovement(limitAnvilSpeed(entity, entity.getDeltaMovement()));
+            entity.setDeltaMovement(AccelerateManager.limitAnvilSpeed(entity, entity.getDeltaMovement()));
         }
     }
 
     private static void applyAcceleration(Entity entity, BlockPos ringPos, Direction direction) {
         Vec3 fixMovement = ringPos
             .getCenter()
-            .subtract(getMovementCenter(entity));
+            .subtract(AccelerateManager.getMovementCenter(entity));
         Vec3 deltaMovement = entity.getDeltaMovement();
         fixMovement = switch (direction.getAxis()) {
             case X -> fixMovement.multiply(0, 1, 1);
@@ -287,7 +288,7 @@ public class AccelerateManager {
         }
         deltaMovement = deltaMovement.scale(1.0204081632653061)
             .add(new Vec3(0.1f, 0.1f, 0.1f).multiply(Vec3.atLowerCornerOf(direction.getUnitVec3i())));
-        entity.setDeltaMovement(clampMovement(entity, deltaMovement));
+        entity.setDeltaMovement(AccelerateManager.clampMovement(entity, deltaMovement));
     }
 
     public record AccelerationEntry(BlockPos ringPos, Direction direction, double progress) {

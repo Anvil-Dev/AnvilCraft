@@ -31,7 +31,7 @@ public class HammerManager {
 
     /// 注册铁砧锤处理器
     public static void register() {
-        for (Map.Entry<Supplier<Block>, IHammerChangeable> entry : INIT_CHANGE.entrySet()) {
+        for (Map.Entry<Supplier<Block>, IHammerChangeable> entry : HammerManager.INIT_CHANGE.entrySet()) {
             HammerManager.CHANGE.put(entry.getKey().get(), entry.getValue());
         }
     }

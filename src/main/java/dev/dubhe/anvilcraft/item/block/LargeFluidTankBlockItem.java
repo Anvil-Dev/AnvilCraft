@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item.block;
 
 import dev.dubhe.anvilcraft.api.tooltip.FluidTankItemTooltip;
+import dev.dubhe.anvilcraft.api.tooltip.providers.IItemTooltipProvider;
 import dev.dubhe.anvilcraft.block.container.LargeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.entity.LargeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
@@ -18,20 +19,19 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Consumer;
 
 /// 大型流体储罐的物品形态，额外显示罐内流体
-public class LargeFluidTankBlockItem extends SimpleMultiPartBlockItem<Cube3x3PartHalf> {
+public class LargeFluidTankBlockItem extends SimpleMultiPartBlockItem<Cube3x3PartHalf> implements IItemTooltipProvider {
     public LargeFluidTankBlockItem(LargeFluidTankBlock block, Properties properties) {
         super(block, properties);
     }
 
     @Override
-    public void appendHoverText(
+    public void appendItemTooltip(
         ItemStack stack,
         Item.TooltipContext context,
         TooltipDisplay display,
         Consumer<Component> builder,
         TooltipFlag tooltipFlag
     ) {
-        super.appendHoverText(stack, context, display, builder, tooltipFlag);
         FluidTankItemTooltip.appendMultiTank(
             stack,
             context,

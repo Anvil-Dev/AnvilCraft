@@ -14,11 +14,11 @@ public class FrostMetalUpgradeTemplateItem extends SmithingTemplateItem {
     private static final ChatFormatting DESCRIPTION_FORMAT = ChatFormatting.BLUE;
     private static final Component APPLIES_TO = Component.translatable(
             "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.applies_to")
-        .withStyle(DESCRIPTION_FORMAT);
+        .withStyle(FrostMetalUpgradeTemplateItem.DESCRIPTION_FORMAT);
     private static final Component UPGRADE_INGREDIENTS =
         Component.translatable("screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template"
                 + ".upgrade_ingredients")
-            .withStyle(DESCRIPTION_FORMAT);
+            .withStyle(FrostMetalUpgradeTemplateItem.DESCRIPTION_FORMAT);
     private static final Component UPGRADE_BASE_SLOT_DESCRIPTION = Component.translatable(
         "screen.anvilcraft.smithing_template.frost_metal_upgrade_smithing_template.base_slot_description");
     private static final Component UPGRADE_ADDITIONS_SLOT_DESCRIPTION = Component.translatable(
@@ -32,12 +32,12 @@ public class FrostMetalUpgradeTemplateItem extends SmithingTemplateItem {
 
     public FrostMetalUpgradeTemplateItem(Properties properties) {
         super(
-            APPLIES_TO,
-            UPGRADE_INGREDIENTS,
-            UPGRADE_BASE_SLOT_DESCRIPTION,
-            UPGRADE_ADDITIONS_SLOT_DESCRIPTION,
-            List.of(EMPTY_SLOT_PICKAXE, EMPTY_SLOT_HAMMER),
-            List.of(EMPTY_SLOT_INGOT, EMPTY_SLOT_BLOCK),
+            FrostMetalUpgradeTemplateItem.APPLIES_TO,
+            FrostMetalUpgradeTemplateItem.UPGRADE_INGREDIENTS,
+            FrostMetalUpgradeTemplateItem.UPGRADE_BASE_SLOT_DESCRIPTION,
+            FrostMetalUpgradeTemplateItem.UPGRADE_ADDITIONS_SLOT_DESCRIPTION,
+            List.of(FrostMetalUpgradeTemplateItem.EMPTY_SLOT_PICKAXE, FrostMetalUpgradeTemplateItem.EMPTY_SLOT_HAMMER),
+            List.of(FrostMetalUpgradeTemplateItem.EMPTY_SLOT_INGOT, FrostMetalUpgradeTemplateItem.EMPTY_SLOT_BLOCK),
             properties);
     }
 }

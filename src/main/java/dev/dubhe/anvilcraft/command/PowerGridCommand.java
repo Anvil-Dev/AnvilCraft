@@ -53,12 +53,12 @@ public class PowerGridCommand {
                         .append(Component.translatable("command.anvilcraft.powergrid.info.components").withStyle(ChatFormatting.WHITE))
                         .append(Component.literal("\n"));
                     p.getGrid().getComponents().stream()
-                        .limit(SHOW_INFO_LIMIT)
+                        .limit(PowerGridCommand.SHOW_INFO_LIMIT)
                         .map(IPowerComponent::getCommandDiscription)
                         .map(component -> component.append("\n"))
                         .forEach(message::append);
                     p.getGrid().getDynamicComponents().stream()
-                        .limit(SHOW_INFO_LIMIT)
+                        .limit(PowerGridCommand.SHOW_INFO_LIMIT)
                         .map(DynamicPowerComponent::getCommandDescription)
                         .map(component -> component.append("\n"))
                         .forEach(message::append);

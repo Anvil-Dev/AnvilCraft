@@ -16,7 +16,7 @@ public interface IAmuletDefinition {
         .byNameCodec()
         .dispatch(IAmuletDefinition::getType, Type::codec);
     Codec<Holder<IAmuletDefinition>> CODEC = RegistryFileCodec.create(ModRegistryKeys.AMULET_DEF, IAmuletDefinition.DIRECT_CODEC);
-    Codec<IAmuletDefinition> HOLDER_HELPER_CODEC = CODEC.xmap(
+    Codec<IAmuletDefinition> HOLDER_HELPER_CODEC = IAmuletDefinition.CODEC.xmap(
         HolderHolder::new,
         value -> value instanceof HolderHolder(Holder<IAmuletDefinition> def) ? def : Holder.direct(value)
     );

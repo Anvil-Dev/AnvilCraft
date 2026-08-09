@@ -36,7 +36,7 @@ public record RedstoneWirePowerResponsePacket(BlockPos pos, int power, int nonDu
 
     @Override
     public Type<RedstoneWirePowerResponsePacket> type() {
-        return TYPE;
+        return RedstoneWirePowerResponsePacket.TYPE;
     }
 
     @Override

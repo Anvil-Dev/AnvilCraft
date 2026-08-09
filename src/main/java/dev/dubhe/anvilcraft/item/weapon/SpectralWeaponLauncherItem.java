@@ -117,6 +117,9 @@ public class SpectralWeaponLauncherItem extends SpectralSlingshotItem {
     @Override
     public int getBarColor(ItemStack stack) {
         float energy = stack.getOrDefault(ModComponents.STORED_ENERGY, StoredEnergy.EMPTY).value();
-        return ColorUtil.lerpColor(energy / SpectralWeaponLauncherItem.MAX_ENERGY, BAR_COLOR, FULL_BAR_COLOR);
+        return ColorUtil.lerpColor(
+            energy / SpectralWeaponLauncherItem.MAX_ENERGY, SpectralWeaponLauncherItem.BAR_COLOR,
+            SpectralWeaponLauncherItem.FULL_BAR_COLOR
+        );
     }
 }

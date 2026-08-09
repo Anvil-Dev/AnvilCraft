@@ -29,7 +29,7 @@ public class TooltipRenderHelper {
         VoxelShape shape,
         int color
     ) {
-        renderOutline(
+        TooltipRenderHelper.renderOutline(
             poseStack.last(),
             consumer,
             camX,
@@ -51,7 +51,7 @@ public class TooltipRenderHelper {
         VoxelShape shape,
         int color
     ) {
-        renderShape(
+        TooltipRenderHelper.renderShape(
             poseStack,
             consumer,
             shape,
@@ -128,7 +128,16 @@ public class TooltipRenderHelper {
         int finalVy = vy;
         int finalWidth = width;
         int finalHeight = height + 16;
-        renderTooltipBackground(graphics, vx, finalVy, finalWidth, finalHeight, backgroundColor, borderTopColor, borderBottomColor);
+        TooltipRenderHelper.renderTooltipBackground(
+            graphics,
+            vx,
+            finalVy,
+            finalWidth,
+            finalHeight,
+            backgroundColor,
+            borderTopColor,
+            borderBottomColor
+        );
 
         graphics.item(itemStack, vx, vy);
 
@@ -164,12 +173,12 @@ public class TooltipRenderHelper {
         int j = y - 3;
         int k = width + 3 + 3;
         int l = height + 3 + 3;
-        renderHorizontalLine(graphics, i, j - 1, k, backgroundColor);
-        renderHorizontalLine(graphics, i, j + l, k, backgroundColor);
-        renderRectangle(graphics, i, j, k, l, backgroundColor);
-        renderVerticalLine(graphics, i - 1, j, l, backgroundColor);
-        renderVerticalLine(graphics, i + k, j, l, backgroundColor);
-        renderFrameGradient(graphics, i, j + 1, k, l, borderTopColor, borderBottomColor);
+        TooltipRenderHelper.renderHorizontalLine(graphics, i, j - 1, k, backgroundColor);
+        TooltipRenderHelper.renderHorizontalLine(graphics, i, j + l, k, backgroundColor);
+        TooltipRenderHelper.renderRectangle(graphics, i, j, k, l, backgroundColor);
+        TooltipRenderHelper.renderVerticalLine(graphics, i - 1, j, l, backgroundColor);
+        TooltipRenderHelper.renderVerticalLine(graphics, i + k, j, l, backgroundColor);
+        TooltipRenderHelper.renderFrameGradient(graphics, i, j + 1, k, l, borderTopColor, borderBottomColor);
     }
 
     private static void renderFrameGradient(
@@ -181,10 +190,10 @@ public class TooltipRenderHelper {
         int topColor,
         int bottomColor
     ) {
-        renderVerticalLineGradient(graphics, x, y, height - 2, topColor, bottomColor);
-        renderVerticalLineGradient(graphics, x + width - 1, y, height - 2, topColor, bottomColor);
-        renderHorizontalLine(graphics, x, y - 1, width, topColor);
-        renderHorizontalLine(graphics, x, y - 1 + height - 1, width, bottomColor);
+        TooltipRenderHelper.renderVerticalLineGradient(graphics, x, y, height - 2, topColor, bottomColor);
+        TooltipRenderHelper.renderVerticalLineGradient(graphics, x + width - 1, y, height - 2, topColor, bottomColor);
+        TooltipRenderHelper.renderHorizontalLine(graphics, x, y - 1, width, topColor);
+        TooltipRenderHelper.renderHorizontalLine(graphics, x, y - 1 + height - 1, width, bottomColor);
     }
 
     private static void renderVerticalLine(GuiGraphicsExtractor graphics, int x, int y, int length, int color) {

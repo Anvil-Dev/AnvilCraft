@@ -25,7 +25,7 @@ public class FeatureRendererSupport {
         StandaloneModelKey<BlockStateModel> key,
         boolean lighting
     ) {
-        return createTessellation(
+        return FeatureRendererSupport.createTessellation(
             key,
             false,
             lighting
@@ -41,14 +41,16 @@ public class FeatureRendererSupport {
     }
 
     public static BlockModelRenderState initialize(StandaloneModelKey<BlockStateModel> standalone, BlockEntity be) {
-        return initialize(standalone, be, false);
+        return FeatureRendererSupport.initialize(standalone, be, false);
     }
 
     public static BlockModelRenderState initialize(BlockState blockState, BlockEntity be) {
         BlockModelRenderState state = new BlockModelRenderState();
         Minecraft mc = Minecraft.getInstance();
+        var level = mc.level;
+        if (level == null) return state;
         mc.getModelManager().getBlockStateModelSet().get(blockState).collectParts(
-            mc.level,
+            level,
             be.getBlockPos(),
             blockState,
             RandomSource.create(),
@@ -67,13 +69,15 @@ public class FeatureRendererSupport {
     ) {
         BlockModelRenderState state = new BlockModelRenderState();
         Minecraft mc = Minecraft.getInstance();
+        var level = mc.level;
+        if (level == null) return state;
         BlockStateModel model = mc.getModelManager().getStandaloneModel(standalone);
         if (model == null) {
-            LOGGER.warn("Standalone model '{}' is null, returning empty render state", standalone);
+            FeatureRendererSupport.LOGGER.warn("Standalone model '{}' is null, returning empty render state", standalone);
             return state;
         }
         model.collectParts(
-            mc.level,
+            level,
             be.getBlockPos(),
             be.getBlockState(),
             RandomSource.create(),

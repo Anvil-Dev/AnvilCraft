@@ -35,8 +35,8 @@ final class RedstoneWireConnectionOverrides extends SavedData {
     private static final int HIDDEN_SHIFT = 4;
 
     private static final Codec<RedstoneWireConnectionOverrides> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-        Entry.CODEC.listOf().fieldOf(WIRES_KEY).forGetter(RedstoneWireConnectionOverrides::toEntries),
-        Codec.BOOL.optionalFieldOf(LEGACY_MIGRATION_KEY, false)
+        Entry.CODEC.listOf().fieldOf(RedstoneWireConnectionOverrides.WIRES_KEY).forGetter(RedstoneWireConnectionOverrides::toEntries),
+        Codec.BOOL.optionalFieldOf(RedstoneWireConnectionOverrides.LEGACY_MIGRATION_KEY, false)
             .forGetter(overrides -> overrides.legacyMigrationComplete)
     ).apply(instance, RedstoneWireConnectionOverrides::new));
 
@@ -68,7 +68,7 @@ final class RedstoneWireConnectionOverrides extends SavedData {
             result = new RedstoneWireConnectionOverrides();
         }
         if (!result.legacyMigrationComplete) {
-            RedstoneWireConnectionOverrides legacy = loadLegacy(level, storage);
+            RedstoneWireConnectionOverrides legacy = RedstoneWireConnectionOverrides.loadLegacy(level, storage);
             if (legacy != null) {
                 result.mergeMissing(legacy);
             }
@@ -85,17 +85,18 @@ final class RedstoneWireConnectionOverrides extends SavedData {
         ServerLevel level,
         SavedDataStorage storage
     ) {
-        for (Path dataFile : legacyDataFiles(level)) {
+        for (Path dataFile : RedstoneWireConnectionOverrides.legacyDataFiles(level)) {
             if (!Files.isRegularFile(dataFile)) {
                 continue;
             }
             try {
                 CompoundTag root = storage.readTagFromDisk(dataFile, null, 0);
                 CompoundTag data = root.getCompound("data").orElse(root);
-                if (!data.contains(WIRES_KEY) && !data.contains(LEGACY_WIRES_KEY)) {
+                if (!data.contains(RedstoneWireConnectionOverrides.WIRES_KEY) && !data.contains(
+                    RedstoneWireConnectionOverrides.LEGACY_WIRES_KEY)) {
                     continue;
                 }
-                RedstoneWireConnectionOverrides result = loadEntries(data);
+                RedstoneWireConnectionOverrides result = RedstoneWireConnectionOverrides.loadEntries(data);
                 AnvilCraft.LOGGER.info("Migrated redstone wire connection overrides from {}", dataFile);
                 return result;
             } catch (Exception exception) {
@@ -110,7 +111,7 @@ final class RedstoneWireConnectionOverrides extends SavedData {
         Path currentDimensionFolder = DimensionType.getStorageFolder(level.dimension(), worldFolder);
         Path currentDataFolder = currentDimensionFolder.resolve("data");
         List<Path> result = new ArrayList<>();
-        Path currentLegacyFile = currentDataFolder.resolve(LEGACY_FILE_NAME);
+        Path currentLegacyFile = currentDataFolder.resolve(RedstoneWireConnectionOverrides.LEGACY_FILE_NAME);
         result.add(currentLegacyFile);
 
         Path legacyDimensionFolder;
@@ -123,7 +124,7 @@ final class RedstoneWireConnectionOverrides extends SavedData {
         } else {
             legacyDimensionFolder = currentDimensionFolder;
         }
-        Path legacyFile = legacyDimensionFolder.resolve("data").resolve(LEGACY_FILE_NAME);
+        Path legacyFile = legacyDimensionFolder.resolve("data").resolve(RedstoneWireConnectionOverrides.LEGACY_FILE_NAME);
         if (!legacyFile.equals(currentLegacyFile)) {
             result.add(legacyFile);
         }
@@ -140,13 +141,15 @@ final class RedstoneWireConnectionOverrides extends SavedData {
 
     private static RedstoneWireConnectionOverrides loadEntries(CompoundTag data) {
         RedstoneWireConnectionOverrides result = new RedstoneWireConnectionOverrides();
-        ListTag wires = data.contains(WIRES_KEY)
-            ? data.getListOrEmpty(WIRES_KEY)
-            : data.getListOrEmpty(LEGACY_WIRES_KEY);
+        ListTag wires = data.contains(RedstoneWireConnectionOverrides.WIRES_KEY)
+                        ? data.getListOrEmpty(RedstoneWireConnectionOverrides.WIRES_KEY)
+                        : data.getListOrEmpty(RedstoneWireConnectionOverrides.LEGACY_WIRES_KEY);
         for (int index = 0; index < wires.size(); index++) {
             CompoundTag wire = wires.getCompoundOrEmpty(index);
-            String posKey = wire.contains(POS_KEY) ? POS_KEY : LEGACY_POS_KEY;
-            String flagsKey = wire.contains(FLAGS_KEY) ? FLAGS_KEY : LEGACY_FLAGS_KEY;
+            String posKey = wire.contains(RedstoneWireConnectionOverrides.POS_KEY) ? RedstoneWireConnectionOverrides.POS_KEY
+                                                                                   : RedstoneWireConnectionOverrides.LEGACY_POS_KEY;
+            String flagsKey = wire.contains(RedstoneWireConnectionOverrides.FLAGS_KEY) ? RedstoneWireConnectionOverrides.FLAGS_KEY
+                                                                                       : RedstoneWireConnectionOverrides.LEGACY_FLAGS_KEY;
             if (!wire.contains(posKey) || !wire.contains(flagsKey)) {
                 continue;
             }
@@ -167,21 +170,22 @@ final class RedstoneWireConnectionOverrides extends SavedData {
     }
 
     int forcedMask(long pos) {
-        return Byte.toUnsignedInt(this.entries.get(pos)) & DIRECTION_MASK;
+        return Byte.toUnsignedInt(this.entries.get(pos)) & RedstoneWireConnectionOverrides.DIRECTION_MASK;
     }
 
     int hiddenMask(long pos) {
-        return Byte.toUnsignedInt(this.entries.get(pos)) >>> HIDDEN_SHIFT;
+        return Byte.toUnsignedInt(this.entries.get(pos)) >>> RedstoneWireConnectionOverrides.HIDDEN_SHIFT;
     }
 
     boolean setForcedMask(long pos, int mask) {
         int flags = Byte.toUnsignedInt(this.entries.get(pos));
-        return this.setFlags(pos, flags & ~DIRECTION_MASK | mask & DIRECTION_MASK);
+        return this.setFlags(
+            pos, flags & ~RedstoneWireConnectionOverrides.DIRECTION_MASK | mask & RedstoneWireConnectionOverrides.DIRECTION_MASK);
     }
 
     boolean setHidden(long pos, int index, boolean hidden) {
         int flags = Byte.toUnsignedInt(this.entries.get(pos));
-        int bit = 1 << index + HIDDEN_SHIFT;
+        int bit = 1 << index + RedstoneWireConnectionOverrides.HIDDEN_SHIFT;
         return this.setFlags(pos, hidden ? flags | bit : flags & ~bit);
     }
 
@@ -209,8 +213,8 @@ final class RedstoneWireConnectionOverrides extends SavedData {
     /// 单个导线位置的端口覆写记录
     private record Entry(long pos, int flags) {
         private static final Codec<Entry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-            Codec.LONG.fieldOf(POS_KEY).forGetter(Entry::pos),
-            Codec.INT.fieldOf(FLAGS_KEY).forGetter(Entry::flags)
+            Codec.LONG.fieldOf(RedstoneWireConnectionOverrides.POS_KEY).forGetter(Entry::pos),
+            Codec.INT.fieldOf(RedstoneWireConnectionOverrides.FLAGS_KEY).forGetter(Entry::flags)
         ).apply(instance, Entry::new));
     }
 }

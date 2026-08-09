@@ -56,7 +56,7 @@ public class SlidingRailBlock extends BaseSlidingRailBlock implements IHammerCha
 
     public SlidingRailBlock(Properties properties) {
         super(properties);
-        registerDefaultState(getStateDefinition().any().setValue(AXIS, Axis.X));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(SlidingRailBlock.AXIS, Axis.X));
     }
 
     @Nullable
@@ -73,12 +73,12 @@ public class SlidingRailBlock extends BaseSlidingRailBlock implements IHammerCha
         ) {
             axis = Axis.Y;
         }
-        return this.defaultBlockState().setValue(AXIS, axis);
+        return this.defaultBlockState().setValue(SlidingRailBlock.AXIS, axis);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(AXIS);
+        builder.add(SlidingRailBlock.AXIS);
     }
 
     @Override
@@ -93,10 +93,10 @@ public class SlidingRailBlock extends BaseSlidingRailBlock implements IHammerCha
         BlockPos blockPos,
         CollisionContext collisionContext
     ) {
-        return switch (blockState.getValue(AXIS)) {
-            case X -> AABB_X;
-            case Y -> AABB_Y;
-            case Z -> AABB_Z;
+        return switch (blockState.getValue(SlidingRailBlock.AXIS)) {
+            case X -> SlidingRailBlock.AABB_X;
+            case Y -> SlidingRailBlock.AABB_Y;
+            case Z -> SlidingRailBlock.AABB_Z;
         };
     }
 
@@ -115,27 +115,27 @@ public class SlidingRailBlock extends BaseSlidingRailBlock implements IHammerCha
         if (this.isOtherRailInAxis(level, pos, Axis.X, -1) == TriState.TRUE
             || this.isOtherRailInAxis(level, pos, Axis.X, 1) == TriState.TRUE
         ) {
-            if (state.getValue(AXIS) != Axis.Y
+            if (state.getValue(SlidingRailBlock.AXIS) != Axis.Y
                 && (this.isOtherRailInAxis(level, pos, Axis.Z, -1) == TriState.TRUE
                 || this.isOtherRailInAxis(level, pos, Axis.Z, 1) == TriState.TRUE)
             ) {
-                state = state.setValue(AXIS, Axis.Y);
+                state = state.setValue(SlidingRailBlock.AXIS, Axis.Y);
             }
-            if (state.getValue(AXIS) == Axis.Y
+            if (state.getValue(SlidingRailBlock.AXIS) == Axis.Y
                 && this.isOtherRailInAxis(level, pos, Axis.Z, -1) != TriState.TRUE
                 && this.isOtherRailInAxis(level, pos, Axis.Z, 1) != TriState.TRUE
             ) {
-                state = state.setValue(AXIS, Axis.X);
+                state = state.setValue(SlidingRailBlock.AXIS, Axis.X);
             }
         } else if (
             this.isOtherRailInAxis(level, pos, Axis.Z, -1) == TriState.TRUE
                 || this.isOtherRailInAxis(level, pos, Axis.Z, 1) == TriState.TRUE
         ) {
-            if (state.getValue(AXIS) == Axis.Y
+            if (state.getValue(SlidingRailBlock.AXIS) == Axis.Y
                 && this.isOtherRailInAxis(level, pos, Axis.X, -1) != TriState.TRUE
                 && this.isOtherRailInAxis(level, pos, Axis.X, 1) != TriState.TRUE
             ) {
-                state = state.setValue(AXIS, Axis.Z);
+                state = state.setValue(SlidingRailBlock.AXIS, Axis.Z);
             }
         }
         super.onNeighborChange(state, level, pos, neighbourPos);
@@ -146,7 +146,7 @@ public class SlidingRailBlock extends BaseSlidingRailBlock implements IHammerCha
         BlockState other = level.getBlockState(pos.relative(axis, relative));
         Axis otherAxis;
         if (other.getBlock() instanceof SlidingRailBlock) {
-            otherAxis = other.getValue(AXIS);
+            otherAxis = other.getValue(SlidingRailBlock.AXIS);
         } else if (other.getBlock() instanceof PoweredSlidingRailBlock) {
             otherAxis = other.getValue(PoweredSlidingRailBlock.FACING).getAxis();
         } else if (other.getBlock() instanceof ActivatorSlidingRailBlock) {
@@ -162,13 +162,13 @@ public class SlidingRailBlock extends BaseSlidingRailBlock implements IHammerCha
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         BlockState bs = level.getBlockState(blockPos);
-        level.setBlockAndUpdate(blockPos, bs.cycle(AXIS));
+        level.setBlockAndUpdate(blockPos, bs.cycle(SlidingRailBlock.AXIS));
         return true;
     }
 
     @Override
     public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return AXIS;
+        return SlidingRailBlock.AXIS;
     }
 
     @Override

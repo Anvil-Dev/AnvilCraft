@@ -16,21 +16,21 @@ import net.minecraft.world.level.ItemLike;
 public class StampingRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
         final HolderGetter<Item> items = provider.getItems();
-        stamping(provider, Items.IRON_INGOT, Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
-        stamping(provider, Items.GOLD_INGOT, Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
-        stamping(provider, Items.COPPER_INGOT, ModBlocks.COPPER_PRESSURE_PLATE);
-        stamping(provider, ModItemTags.TUNGSTEN_INGOTS, ModBlocks.TUNGSTEN_PRESSURE_PLATE);
-        stamping(provider, ModItemTags.TITANIUM_INGOTS, ModBlocks.TITANIUM_PRESSURE_PLATE);
-        stamping(provider, ModItemTags.ZINC_INGOTS, ModBlocks.ZINC_PRESSURE_PLATE);
-        stamping(provider, ModItemTags.TIN_INGOTS, ModBlocks.TIN_PRESSURE_PLATE);
-        stamping(provider, ModItemTags.LEAD_INGOTS, ModBlocks.LEAD_PRESSURE_PLATE);
-        stamping(provider, ModItemTags.SILVER_INGOTS, ModBlocks.SILVER_PRESSURE_PLATE);
-        stamping(provider, ModItemTags.URANIUM_INGOTS, ModBlocks.URANIUM_PRESSURE_PLATE);
-        stamping(provider, ModItemTags.PLUTONIUM_INGOTS, ModBlocks.PLUTONIUM_PRESSURE_PLATE);
-        stamping(provider, ModItemTags.BRONZE_INGOTS, ModBlocks.BRONZE_PRESSURE_PLATE);
-        stamping(provider, ModItemTags.BRASS_INGOTS, ModBlocks.BRASS_PRESSURE_PLATE);
-        stamping(provider, Items.SNOWBALL, Items.SNOW);
-        stamping(provider, Items.CHERRY_LEAVES, Items.PINK_PETALS);
+        StampingRecipeLoader.stamping(provider, Items.IRON_INGOT, Items.HEAVY_WEIGHTED_PRESSURE_PLATE);
+        StampingRecipeLoader.stamping(provider, Items.GOLD_INGOT, Items.LIGHT_WEIGHTED_PRESSURE_PLATE);
+        StampingRecipeLoader.stamping(provider, Items.COPPER_INGOT, ModBlocks.COPPER_PRESSURE_PLATE);
+        StampingRecipeLoader.stamping(provider, ModItemTags.TUNGSTEN_INGOTS, ModBlocks.TUNGSTEN_PRESSURE_PLATE);
+        StampingRecipeLoader.stamping(provider, ModItemTags.TITANIUM_INGOTS, ModBlocks.TITANIUM_PRESSURE_PLATE);
+        StampingRecipeLoader.stamping(provider, ModItemTags.ZINC_INGOTS, ModBlocks.ZINC_PRESSURE_PLATE);
+        StampingRecipeLoader.stamping(provider, ModItemTags.TIN_INGOTS, ModBlocks.TIN_PRESSURE_PLATE);
+        StampingRecipeLoader.stamping(provider, ModItemTags.LEAD_INGOTS, ModBlocks.LEAD_PRESSURE_PLATE);
+        StampingRecipeLoader.stamping(provider, ModItemTags.SILVER_INGOTS, ModBlocks.SILVER_PRESSURE_PLATE);
+        StampingRecipeLoader.stamping(provider, ModItemTags.URANIUM_INGOTS, ModBlocks.URANIUM_PRESSURE_PLATE);
+        StampingRecipeLoader.stamping(provider, ModItemTags.PLUTONIUM_INGOTS, ModBlocks.PLUTONIUM_PRESSURE_PLATE);
+        StampingRecipeLoader.stamping(provider, ModItemTags.BRONZE_INGOTS, ModBlocks.BRONZE_PRESSURE_PLATE);
+        StampingRecipeLoader.stamping(provider, ModItemTags.BRASS_INGOTS, ModBlocks.BRASS_PRESSURE_PLATE);
+        StampingRecipeLoader.stamping(provider, Items.SNOWBALL, Items.SNOW);
+        StampingRecipeLoader.stamping(provider, Items.CHERRY_LEAVES, Items.PINK_PETALS);
         StampingRecipe.builder()
             .requires(ModItems.WOOD_FIBER)
             .result(Items.PAPER, 4)
@@ -107,7 +107,7 @@ public class StampingRecipeLoader {
     }
 
     private static void stamping(RegistrumRecipeProvider provider, ItemLike input, ItemLike result) {
-        stamping(provider, input, result, 1);
+        StampingRecipeLoader.stamping(provider, input, result, 1);
     }
 
     private static void stamping(RegistrumRecipeProvider provider, TagKey<Item> input, ItemLike result) {

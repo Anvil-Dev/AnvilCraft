@@ -26,7 +26,7 @@ public class GuideEventListener {
 
     @SubscribeEvent(priority = EventPriority.HIGHEST)
     public static void onOpenGuide(GuideBookEvent.OpenGuideBookEvent event) {
-        Ageratum.openGuide(event.getPlayer(), AnvilCraft.of(INDEX_FILE));
+        Ageratum.openGuide(event.getPlayer(), AnvilCraft.of(GuideEventListener.INDEX_FILE));
         event.setCanceled(true);
     }
 }

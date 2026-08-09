@@ -30,7 +30,7 @@ public class HoneyBottleResourceHandler extends ItemAccessResourceHandler<FluidR
 
     @Override
     protected int getAmountFrom(ItemResource accessResource, int index) {
-        return accessResource.is(Items.HONEY_BOTTLE) ? HONEY_PER_BOTTLE : 0;
+        return accessResource.is(Items.HONEY_BOTTLE) ? HoneyBottleResourceHandler.HONEY_PER_BOTTLE : 0;
     }
 
     @Override
@@ -38,7 +38,7 @@ public class HoneyBottleResourceHandler extends ItemAccessResourceHandler<FluidR
         if (newAmount == 0) {
             // 排空：蜂蜜瓶 -> 空玻璃瓶
             return ItemResource.of(Items.GLASS_BOTTLE);
-        } else if (newAmount == HONEY_PER_BOTTLE && newResource.getFluid() instanceof HoneyFluid) {
+        } else if (newAmount == HoneyBottleResourceHandler.HONEY_PER_BOTTLE && newResource.getFluid() instanceof HoneyFluid) {
             // 填满：空玻璃瓶 -> 蜂蜜瓶
             return ItemResource.of(Items.HONEY_BOTTLE);
         }
@@ -53,6 +53,6 @@ public class HoneyBottleResourceHandler extends ItemAccessResourceHandler<FluidR
 
     @Override
     protected int getCapacity(int index, FluidResource resource) {
-        return HONEY_PER_BOTTLE;
+        return HoneyBottleResourceHandler.HONEY_PER_BOTTLE;
     }
 }

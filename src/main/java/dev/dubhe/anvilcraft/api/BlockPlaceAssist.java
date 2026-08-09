@@ -53,7 +53,7 @@ public class BlockPlaceAssist {
         if (player.isShiftKeyDown() || !player.mayBuild()) return InteractionResult.PASS;
         ItemStack itemInHand = player.getItemInHand(hand);
         if (itemInHand.is(blockItem)) {
-            for (Direction direction : orderDirectionByDistance(
+            for (Direction direction : BlockPlaceAssist.orderDirectionByDistance(
                 pos,
                 hit.getLocation(),
                 dir -> dir.getAxis() == state.getValue(propertyDef)

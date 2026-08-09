@@ -6,12 +6,10 @@ import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.PowerGeneratorRenderState;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.block.dispatch.BlockStateModel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
-import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -65,7 +63,7 @@ public abstract class PowerProducerRenderer<T extends BlockEntity & IPowerProduc
     }
 
     protected float magic() {
-        return ROTATION_MAGIC;
+        return PowerProducerRenderer.ROTATION_MAGIC;
     }
 
     protected abstract StandaloneModelKey<BlockStateModel> getModel();

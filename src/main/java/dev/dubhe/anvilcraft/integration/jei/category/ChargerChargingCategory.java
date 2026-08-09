@@ -40,9 +40,9 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
     private final IDrawable arrowOut;
 
     private static final String KEY_CATEGORY = "gui.anvilcraft.category.charger_charging";
-    private static final String KEY_POWER_CONSUME = KEY_CATEGORY + ".power_consume";
-    private static final String KEY_POWER_PRODUCE = KEY_CATEGORY + ".power_produce";
-    private static final String KEY_TIME = KEY_CATEGORY + ".time";
+    private static final String KEY_POWER_CONSUME = ChargerChargingCategory.KEY_CATEGORY + ".power_consume";
+    private static final String KEY_POWER_PRODUCE = ChargerChargingCategory.KEY_CATEGORY + ".power_produce";
+    private static final String KEY_TIME = ChargerChargingCategory.KEY_CATEGORY + ".time";
 
     public ChargerChargingCategory(IGuiHelper helper) {
         this.icon = helper.createDrawableItemStack(ModBlocks.CHARGER.asStack());
@@ -65,12 +65,12 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return ChargerChargingCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return ChargerChargingCategory.HEIGHT;
     }
 
     @Override
@@ -118,7 +118,10 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
         pose.scale(0.8F, 0.8F);
         graphics.text(
             Minecraft.getInstance().font,
-            Component.translatable(recipe.power() < 0 ? KEY_POWER_CONSUME : KEY_POWER_PRODUCE, Math.abs(recipe.power())),
+            Component.translatable(
+                recipe.power() < 0 ? ChargerChargingCategory.KEY_POWER_CONSUME : ChargerChargingCategory.KEY_POWER_PRODUCE,
+                Math.abs(recipe.power())
+            ),
             0,
             10,
             0xFF000000,
@@ -126,7 +129,7 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
         );
         graphics.text(
             Minecraft.getInstance().font,
-            Component.translatable(KEY_TIME, 0.05 * recipe.time()),
+            Component.translatable(ChargerChargingCategory.KEY_TIME, 0.05 * recipe.time()),
             0,
             70,
             0xFF000000,

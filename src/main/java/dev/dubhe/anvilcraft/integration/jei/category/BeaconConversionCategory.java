@@ -78,12 +78,12 @@ public class BeaconConversionCategory implements IRecipeCategory<BeaconConversio
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return BeaconConversionCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return BeaconConversionCategory.HEIGHT;
     }
 
     @Override

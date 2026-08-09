@@ -25,20 +25,20 @@ public abstract class BaseGeneratingCache<T extends Recipe<?>> {
         this.registries = registries;
         this.recipeId = recipeId;
         this.recipeName = recipeName;
-        logger().debug("Initializing {} building cache", recipeName);
+        BaseGeneratingCache.logger().debug("Initializing {} building cache", recipeName);
     }
 
     protected static Logger logger() {
-        return LoggerFactory.getLogger(STACK_WALKER.getCallerClass());
+        return LoggerFactory.getLogger(BaseGeneratingCache.STACK_WALKER.getCallerClass());
     }
 
     protected ResourceKey<Recipe<?>> generateRecipeId(String type, Item recipeInput, Item recipeResult) {
         Identifier inputId = BuiltInRegistries.ITEM.getKey(recipeInput);
         Identifier resultId = BuiltInRegistries.ITEM.getKey(recipeResult);
-        logger().debug("Generating {} for {}", this.recipeName, resultId);
+        BaseGeneratingCache.logger().debug("Generating {} for {}", this.recipeName, resultId);
         Identifier newId = AnvilCraft.of("%s/generated/%s_from_%s_for_%s".formatted(
             this.recipeId, resultId.toString().replace(':', '_'), inputId.toString().replace(':', '_'), type));
-        logger().debug("The generated recipe id is {}", newId);
+        BaseGeneratingCache.logger().debug("The generated recipe id is {}", newId);
         return ResourceKey.create(Registries.RECIPE, newId);
     }
 

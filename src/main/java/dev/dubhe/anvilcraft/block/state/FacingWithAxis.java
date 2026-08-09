@@ -38,12 +38,12 @@ public enum FacingWithAxis implements StringRepresentable {
     }
 
     public static FacingWithAxis of(Direction facing, Direction.Axis axis) {
-        for (FacingWithAxis fwa : values()) {
+        for (FacingWithAxis fwa : FacingWithAxis.values()) {
             if (fwa.facing == facing && fwa.axis == axis) {
                 return fwa;
             }
         }
-        return NORTH_X;
+        return FacingWithAxis.NORTH_X;
     }
 
     public FacingWithAxis rotate(Rotation rotation) {
@@ -53,27 +53,27 @@ public enum FacingWithAxis implements StringRepresentable {
             Direction axisDir = Direction.fromAxisAndDirection(this.axis, Direction.AxisDirection.POSITIVE);
             newAxis = rotation.rotate(axisDir).getAxis();
         }
-        return of(newFacing, newAxis);
+        return FacingWithAxis.of(newFacing, newAxis);
     }
 
     public FacingWithAxis mirror(Mirror mirror) {
-        return of(mirror.mirror(this.facing), this.axis);
+        return FacingWithAxis.of(mirror.mirror(this.facing), this.axis);
     }
 
     public FacingWithAxis toggleAxis() {
         return switch (this) {
-            case NORTH_X -> NORTH_Y;
-            case NORTH_Y -> NORTH_X;
-            case SOUTH_X -> SOUTH_Y;
-            case SOUTH_Y -> SOUTH_X;
-            case EAST_Z -> EAST_Y;
-            case EAST_Y -> EAST_Z;
-            case WEST_Z -> WEST_Y;
-            case WEST_Y -> WEST_Z;
-            case UP_X -> UP_Z;
-            case UP_Z -> UP_X;
-            case DOWN_X -> DOWN_Z;
-            case DOWN_Z -> DOWN_X;
+            case NORTH_X -> FacingWithAxis.NORTH_Y;
+            case NORTH_Y -> FacingWithAxis.NORTH_X;
+            case SOUTH_X -> FacingWithAxis.SOUTH_Y;
+            case SOUTH_Y -> FacingWithAxis.SOUTH_X;
+            case EAST_Z -> FacingWithAxis.EAST_Y;
+            case EAST_Y -> FacingWithAxis.EAST_Z;
+            case WEST_Z -> FacingWithAxis.WEST_Y;
+            case WEST_Y -> FacingWithAxis.WEST_Z;
+            case UP_X -> FacingWithAxis.UP_Z;
+            case UP_Z -> FacingWithAxis.UP_X;
+            case DOWN_X -> FacingWithAxis.DOWN_Z;
+            case DOWN_Z -> FacingWithAxis.DOWN_X;
         };
     }
 }

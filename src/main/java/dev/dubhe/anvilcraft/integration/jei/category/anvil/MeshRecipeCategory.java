@@ -61,12 +61,12 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return MeshRecipeCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return ROW_START + MeshRecipeGroup.maxRows * 18;
+        return MeshRecipeCategory.ROW_START + MeshRecipeGroup.maxRows * 18;
     }
 
     @Override
@@ -82,7 +82,8 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
 
         for (int i = 0; i < recipe.results().size(); i++) {
             MeshRecipeGroup.Result result = recipe.results().get(i);
-            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 1 + (i % 9) * 18, 1 + ROW_START + 18 * (i / 9)).add(
+            IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.OUTPUT, 1 + (i % 9) * 18, 1 + MeshRecipeCategory.ROW_START
+                                                                                                     + 18 * (i / 9)).add(
                 result.item());
             JeiRecipeUtil.addTooltips(slot, result.item().count(), result.provider());
         }
@@ -105,7 +106,7 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
 
         for (int row = 0; row < MeshRecipeGroup.maxRows; row++) {
             for (int column = 0; column < 9; column++) {
-                this.slotProbability.draw(graphics, column * 18, ROW_START + row * 18);
+                this.slotProbability.draw(graphics, column * 18, MeshRecipeCategory.ROW_START + row * 18);
             }
         }
     }

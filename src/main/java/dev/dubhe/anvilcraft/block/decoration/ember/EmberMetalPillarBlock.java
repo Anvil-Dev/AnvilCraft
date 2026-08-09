@@ -31,7 +31,7 @@ public class EmberMetalPillarBlock extends RotatedPillarBlock implements IEmberB
         RandomSource random
     ) {
         if (random.nextDouble() <= 0.1) {
-            tryAbsorbWater(level, pos);
+            this.tryAbsorbWater(level, pos);
         }
     }
 }

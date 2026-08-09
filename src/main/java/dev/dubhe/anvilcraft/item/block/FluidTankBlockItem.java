@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item.block;
 
 import dev.dubhe.anvilcraft.api.tooltip.FluidTankItemTooltip;
+import dev.dubhe.anvilcraft.api.tooltip.providers.IItemTooltipProvider;
 import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.BlockItem;
@@ -13,20 +14,19 @@ import net.minecraft.world.level.block.Block;
 import java.util.function.Consumer;
 
 /// 流体储罐的物品形态，额外显示罐内流体
-public class FluidTankBlockItem extends BlockItem {
+public class FluidTankBlockItem extends BlockItem implements IItemTooltipProvider {
     public FluidTankBlockItem(Block block, Properties properties) {
         super(block, properties);
     }
 
     @Override
-    public void appendHoverText(
+    public void appendItemTooltip(
         ItemStack stack,
         Item.TooltipContext context,
         TooltipDisplay display,
         Consumer<Component> builder,
         TooltipFlag tooltipFlag
     ) {
-        super.appendHoverText(stack, context, display, builder, tooltipFlag);
         FluidTankItemTooltip.appendExpandableTank(
             stack,
             context,

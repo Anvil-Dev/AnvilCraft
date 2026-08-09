@@ -22,7 +22,7 @@ public record SwitchHeavyHalberdModePacket(InteractionHand hand, HeavyHalberdMod
 
     @Override
     public Type<SwitchHeavyHalberdModePacket> type() {
-        return TYPE;
+        return SwitchHeavyHalberdModePacket.TYPE;
     }
 
     @Override

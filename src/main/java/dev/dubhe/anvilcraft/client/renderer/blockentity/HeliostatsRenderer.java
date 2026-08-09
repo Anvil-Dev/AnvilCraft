@@ -75,7 +75,7 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
                    .filter(be -> be.getLevel() != null)
                    .map(be -> be.getLevel().getBiome(be.getBlockPos()))
                    .map(biome -> biome.is(Biomes.SUNFLOWER_PLAINS))
-                   .orElse(false) ? HEAD_SUNFLOWER : HEAD;
+                   .orElse(false) ? HeliostatsRenderer.HEAD_SUNFLOWER : HeliostatsRenderer.HEAD;
     }
 
     @Override

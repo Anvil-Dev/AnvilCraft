@@ -41,7 +41,7 @@ public class CategoryButton extends Button {
                 category.mode = category.entry().changeMode();
                 onPress.onPress(button);
             },
-            DEFAULT_NARRATION
+            Button.DEFAULT_NARRATION
         );
         this.setting = setting;
         this.index = index;

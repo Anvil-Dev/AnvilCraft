@@ -16,6 +16,8 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.permissions.Permissions;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.Objects;
+
 public class MultiphaseCommand {
     private static final SimpleCommandExceptionType ERROR_NO_MULTIPHASE = new SimpleCommandExceptionType(
         Component.translatable("command.anvilcraft.multiphase.no_item")
@@ -32,10 +34,10 @@ public class MultiphaseCommand {
                 .then(Commands.literal("info").executes(MultiphaseCommand::showInfo))
                 .then(
                     Commands.literal("add")
-                        .executes(context -> addPhases(context, 1))
+                        .executes(context -> MultiphaseCommand.addPhases(context, 1))
                         .then(
                             Commands.argument("count", IntegerArgumentType.integer(1, Multiphase.MAX_PHASE_COUNT))
-                                .executes(context -> addPhases(
+                                .executes(context -> MultiphaseCommand.addPhases(
                                     context,
                                     IntegerArgumentType.getInteger(context, "count")
                                 ))
@@ -45,8 +47,8 @@ public class MultiphaseCommand {
     }
 
     private static int showInfo(CommandContext<CommandSourceStack> context) throws CommandSyntaxException {
-        ItemStack stack = getMultiphaseStack(context.getSource());
-        Multiphase multiphase = stack.get(ModComponents.MULTIPHASE).capture(stack);
+        ItemStack stack = MultiphaseCommand.getMultiphaseStack(context.getSource());
+        Multiphase multiphase = Objects.requireNonNull(stack.get(ModComponents.MULTIPHASE)).capture(stack);
         stack.set(ModComponents.MULTIPHASE, multiphase);
 
         MutableComponent message = Component.translatable(
@@ -68,15 +70,15 @@ public class MultiphaseCommand {
     }
 
     private static int addPhases(CommandContext<CommandSourceStack> context, int requested) throws CommandSyntaxException {
-        ItemStack stack = getMultiphaseStack(context.getSource());
+        ItemStack stack = MultiphaseCommand.getMultiphaseStack(context.getSource());
         int added = 0;
         for (int i = 0; i < requested; i++) {
             Multiphase multiphase = stack.get(ModComponents.MULTIPHASE);
             if (multiphase == null || !multiphase.addPhase(stack)) break;
             added++;
         }
-        if (added == 0) throw ERROR_MAX_PHASES.create();
-        int phaseCount = stack.get(ModComponents.MULTIPHASE).phases().size();
+        if (added == 0) throw MultiphaseCommand.ERROR_MAX_PHASES.create();
+        int phaseCount = Objects.requireNonNull(stack.get(ModComponents.MULTIPHASE)).phases().size();
         return CommandUtil.sendSuccess(
             context.getSource(),
             "command.anvilcraft.multiphase.add.success",
@@ -87,7 +89,7 @@ public class MultiphaseCommand {
 
     private static ItemStack getMultiphaseStack(CommandSourceStack source) throws CommandSyntaxException {
         ItemStack stack = source.getPlayerOrException().getMainHandItem();
-        if (!stack.has(ModComponents.MULTIPHASE)) throw ERROR_NO_MULTIPHASE.create();
+        if (!stack.has(ModComponents.MULTIPHASE)) throw MultiphaseCommand.ERROR_NO_MULTIPHASE.create();
         return stack;
     }
 }

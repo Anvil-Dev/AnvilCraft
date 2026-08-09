@@ -47,12 +47,12 @@ public record UniformGenerator(INumberProvider min, INumberProvider max) impleme
     public static class Type implements INumberProvider.Type<UniformGenerator> {
         @Override
         public MapCodec<UniformGenerator> codec() {
-            return CODEC;
+            return UniformGenerator.CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, UniformGenerator> streamCodec() {
-            return STREAM_CODEC.cast();
+            return UniformGenerator.STREAM_CODEC.cast();
         }
     }
 }

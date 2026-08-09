@@ -34,9 +34,9 @@ public class ConcreteRecipeLoader {
     );
 
     public static void init(RegistrumRecipeProvider provider) {
-        initConcrete(provider);
-        initCementStaining(provider);
-        initCementDyeing(provider);
+        ConcreteRecipeLoader.initConcrete(provider);
+        ConcreteRecipeLoader.initCementStaining(provider);
+        ConcreteRecipeLoader.initCementDyeing(provider);
     }
 
     private static void initConcrete(RegistrumRecipeProvider provider) {
@@ -83,7 +83,7 @@ public class ConcreteRecipeLoader {
         for (Color color : Color.values()) {
             String colorName = color.getSerializedName();
             CementCauldronBlock cauldron = ModBlocks.CEMENT_CAULDRONS.get(color).get();
-            for (DyeableFamily family : DYEABLE_FAMILIES) {
+            for (DyeableFamily family : ConcreteRecipeLoader.DYEABLE_FAMILIES) {
                 Item result = BuiltInRegistries.ITEM.getValue(
                     Identifier.withDefaultNamespace("%s_%s".formatted(colorName, family.resultSuffix()))
                 );

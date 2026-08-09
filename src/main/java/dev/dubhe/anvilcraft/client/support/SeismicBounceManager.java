@@ -63,7 +63,7 @@ public class SeismicBounceManager {
     }
 
     public static SeismicBounceManager getInstance() {
-        return INSTANCE;
+        return SeismicBounceManager.INSTANCE;
     }
 
     public void triggerShock(BlockPos center, int radius) {
@@ -72,7 +72,10 @@ public class SeismicBounceManager {
 
         for (int dx = -radius; dx <= radius; dx++) {
             for (int dz = -radius; dz <= radius; dz++) {
-                if (Math.abs(dx) <= CENTER_EXCLUSION_RADIUS && Math.abs(dz) <= CENTER_EXCLUSION_RADIUS) continue;
+                if (Math.abs(dx) <= SeismicBounceManager.CENTER_EXCLUSION_RADIUS
+                    && Math.abs(dz) <= SeismicBounceManager.CENTER_EXCLUSION_RADIUS) {
+                    continue;
+                }
 
                 int dist = Math.max(Math.abs(dx), Math.abs(dz));
                 BlockPos pos = center.offset(dx, 0, dz);
@@ -82,9 +85,9 @@ public class SeismicBounceManager {
                     && state.getRenderShape() == RenderShape.MODEL
                     && level.isEmptyBlock(pos.above())
                     && level.getBlockEntity(pos) == null
-                    && !isAttachmentBlock(state)) {
-                    float amplitude = MAX_AMPLITUDE * (1.0f - (float) dist / radius)
-                        * (0.8f + this.tesselateRandom.nextFloat() * 0.4f);
+                    && !SeismicBounceManager.isAttachmentBlock(state)) {
+                    float amplitude = SeismicBounceManager.MAX_AMPLITUDE * (1.0f - (float) dist / radius)
+                                      * (0.8f + this.tesselateRandom.nextFloat() * 0.4f);
                     amplitude = Math.max(amplitude, 0.15f);
                     int delay = (dist - 2) + this.tesselateRandom.nextInt(3) - 1;
                     this.startBounce(pos, amplitude, Math.max(delay, 0));
@@ -144,9 +147,9 @@ public class SeismicBounceManager {
         }
 
         void reset(float newAmplitude, int newStartDelay) {
-            this.totalTicks = BOUNCE_DURATION_TICKS;
+            this.totalTicks = SeismicBounceManager.BOUNCE_DURATION_TICKS;
             this.startDelay = newStartDelay;
-            this.remainingTicks = BOUNCE_DURATION_TICKS + newStartDelay;
+            this.remainingTicks = SeismicBounceManager.BOUNCE_DURATION_TICKS + newStartDelay;
             this.amplitude = newAmplitude;
         }
 

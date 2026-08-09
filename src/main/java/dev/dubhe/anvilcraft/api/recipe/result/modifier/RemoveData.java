@@ -51,12 +51,12 @@ public record RemoveData(List<DataComponentType<?>> types) implements IResultMod
     public static class Type implements IResultModifier.Type<RemoveData> {
         @Override
         public MapCodec<RemoveData> codec() {
-            return CODEC;
+            return RemoveData.CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, RemoveData> streamCodec() {
-            return STREAM_CODEC;
+            return RemoveData.STREAM_CODEC;
         }
     }
 

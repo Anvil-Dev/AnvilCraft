@@ -23,8 +23,8 @@ public class TickSprintVoteCommand {
             .then(Commands.argument("dimension", DimensionArgument.dimension())
                 .then(Commands.argument("pos", BlockPosArgument.blockPos())
                     .then(Commands.argument("voteId", UuidArgument.uuid())
-                        .then(Commands.literal("accept").executes(context -> submitVote(context, true)))
-                        .then(Commands.literal("reject").executes(context -> submitVote(context, false)))))));
+                        .then(Commands.literal("accept").executes(context -> TickSprintVoteCommand.submitVote(context, true)))
+                        .then(Commands.literal("reject").executes(context -> TickSprintVoteCommand.submitVote(context, false)))))));
     }
 
     private static int submitVote(CommandContext<CommandSourceStack> context, boolean accepted)

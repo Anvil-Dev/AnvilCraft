@@ -4,7 +4,9 @@ import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
+import dev.dubhe.anvilcraft.client.gui.screen.SpacetimeSupercomputerScreen;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -23,7 +25,7 @@ public record SpacetimeSupercomputerBlockEntitySyncPacket(BlockPos pos) implemen
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+        return SpacetimeSupercomputerBlockEntitySyncPacket.TYPE;
     }
 
     @Override
@@ -36,8 +38,8 @@ public record SpacetimeSupercomputerBlockEntitySyncPacket(BlockPos pos) implemen
     }
 
     private void updateScreenIfOpen() {
-        var mc = net.minecraft.client.Minecraft.getInstance();
-        if (mc.screen instanceof dev.dubhe.anvilcraft.client.gui.screen.SpacetimeSupercomputerScreen screen) {
+        var mc = Minecraft.getInstance();
+        if (mc.screen instanceof SpacetimeSupercomputerScreen screen) {
             screen.updateGui();
         }
     }

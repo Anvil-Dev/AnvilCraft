@@ -19,7 +19,7 @@ final class CfaInventoryCodec {
         for (int slot = 0; slot < container.getContainerSize(); slot++) {
             ItemStack stack = container.getItem(slot);
             if (!stack.isEmpty()) {
-                tag.put(key(slot), ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, stack).getOrThrow());
+                tag.put(CfaInventoryCodec.key(slot), ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, stack).getOrThrow());
             }
         }
         return tag;
@@ -27,8 +27,9 @@ final class CfaInventoryCodec {
 
     static void load(CompoundTag tag, SimpleContainer container) {
         for (int slot = 0; slot < container.getContainerSize(); slot++) {
-            ItemStack stack = tag.contains(key(slot))
-                ? ItemStack.CODEC.parse(NbtOps.INSTANCE, Objects.requireNonNull(tag.get(key(slot)))).result().orElse(ItemStack.EMPTY)
+            ItemStack stack = tag.contains(CfaInventoryCodec.key(slot))
+                ? ItemStack.CODEC.parse(NbtOps.INSTANCE, Objects.requireNonNull(tag.get(
+                CfaInventoryCodec.key(slot)))).result().orElse(ItemStack.EMPTY)
                 : ItemStack.EMPTY;
             container.setItem(slot, stack);
         }

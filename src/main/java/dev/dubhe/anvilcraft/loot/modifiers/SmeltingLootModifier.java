@@ -105,6 +105,6 @@ public class SmeltingLootModifier extends LootModifier {
 
     @Override
     public MapCodec<? extends IGlobalLootModifier> codec() {
-        return CODEC;
+        return SmeltingLootModifier.CODEC;
     }
 }

@@ -20,7 +20,7 @@ public record StructureDataSyncPacket(StructureData structureData) implements IC
 
     @Override
     public Type<StructureDataSyncPacket> type() {
-        return TYPE;
+        return StructureDataSyncPacket.TYPE;
     }
 
     @Override

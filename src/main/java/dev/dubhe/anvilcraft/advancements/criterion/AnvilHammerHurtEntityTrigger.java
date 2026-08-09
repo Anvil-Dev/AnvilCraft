@@ -40,7 +40,7 @@ public class AnvilHammerHurtEntityTrigger extends SimpleCriterionTrigger<AnvilHa
         }
 
         public boolean matches(Float damage) {
-            if (damage().isPresent()) {
+            if (this.damage().isPresent()) {
                 return damage >= this.damage.get();
             } else {
                 return true;

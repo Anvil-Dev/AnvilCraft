@@ -31,17 +31,18 @@ public abstract class WaterloggedFlexibleMultiPartBlock<
 
     protected WaterloggedFlexibleMultiPartBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.defaultBlockState().setValue(WATERLOGGED, false));
+        this.registerDefaultState(this.defaultBlockState().setValue(WaterloggedFlexibleMultiPartBlock.WATERLOGGED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(WATERLOGGED);
+        builder.add(WaterloggedFlexibleMultiPartBlock.WATERLOGGED);
     }
 
     protected final BlockState waterloggedStateForPlacement(BlockPlaceContext context, BlockState state) {
-        return state.setValue(WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).is(Fluids.WATER));
+        return state.setValue(
+            WaterloggedFlexibleMultiPartBlock.WATERLOGGED, context.getLevel().getFluidState(context.getClickedPos()).is(Fluids.WATER));
     }
 
     @Override
@@ -56,14 +57,14 @@ public abstract class WaterloggedFlexibleMultiPartBlock<
             if (part == state.getValue(this.getPart())) continue;
             BlockPos partPos = pos.offset(this.offsetFrom(state, part));
             BlockState partState = this.placedState(part, state)
-                .setValue(WATERLOGGED, level.getFluidState(partPos).is(Fluids.WATER));
+                .setValue(WaterloggedFlexibleMultiPartBlock.WATERLOGGED, level.getFluidState(partPos).is(Fluids.WATER));
             level.setBlockAndUpdate(partPos, partState);
         }
     }
 
     @Override
     public FluidState getFluidState(BlockState state) {
-        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+        return state.getValue(WaterloggedFlexibleMultiPartBlock.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
@@ -77,7 +78,7 @@ public abstract class WaterloggedFlexibleMultiPartBlock<
         BlockState neighborState,
         RandomSource random
     ) {
-        if (state.getValue(WATERLOGGED)) {
+        if (state.getValue(WaterloggedFlexibleMultiPartBlock.WATERLOGGED)) {
             ticks.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
         return super.updateShape(state, level, ticks, pos, direction, neighborPos, neighborState, random);
@@ -110,7 +111,7 @@ public abstract class WaterloggedFlexibleMultiPartBlock<
             BlockState partState = level.getBlockState(partPos);
             if (!partState.is(this)) continue;
             BlockState changedPartState = this.placedState(part, changedState)
-                .setValue(WATERLOGGED, partState.getValue(WATERLOGGED));
+                .setValue(WaterloggedFlexibleMultiPartBlock.WATERLOGGED, partState.getValue(WaterloggedFlexibleMultiPartBlock.WATERLOGGED));
             level.setBlockAndUpdate(partPos, changedPartState);
         }
     }

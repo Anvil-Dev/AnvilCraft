@@ -12,35 +12,35 @@ import java.util.function.Supplier;
 public class ModParticles {
     private static final DeferredRegister<ParticleType<?>> REGISTER = DeferredRegister.create(Registries.PARTICLE_TYPE, AnvilCraft.MOD_ID);
 
-    public static final Supplier<SimpleParticleType> PLASMA_JETS = REGISTER.register(
+    public static final Supplier<SimpleParticleType> PLASMA_JETS = ModParticles.REGISTER.register(
         "plasma_jets", () -> new SimpleParticleType(false)
     );
 
-    public static final Supplier<SimpleParticleType> ANVILON_ENERGY = REGISTER.register(
+    public static final Supplier<SimpleParticleType> ANVILON_ENERGY = ModParticles.REGISTER.register(
         "anvilon_energy", () -> new SimpleParticleType(false)
     );
 
-    public static final Supplier<SimpleParticleType> ANVILON_MASS = REGISTER.register(
+    public static final Supplier<SimpleParticleType> ANVILON_MASS = ModParticles.REGISTER.register(
         "anvilon_mass", () -> new SimpleParticleType(false)
     );
 
-    public static final Supplier<SimpleParticleType> ANVILON_SPACE = REGISTER.register(
+    public static final Supplier<SimpleParticleType> ANVILON_SPACE = ModParticles.REGISTER.register(
         "anvilon_space", () -> new SimpleParticleType(false)
     );
 
-    public static final Supplier<SimpleParticleType> ANVILON_TIME = REGISTER.register(
+    public static final Supplier<SimpleParticleType> ANVILON_TIME = ModParticles.REGISTER.register(
         "anvilon_time", () -> new SimpleParticleType(false)
     );
 
-    public static final Supplier<SimpleParticleType> IONOCRAFT_BACKPACK_EXHAUST = REGISTER.register(
+    public static final Supplier<SimpleParticleType> IONOCRAFT_BACKPACK_EXHAUST = ModParticles.REGISTER.register(
         "ionocraft_backpack_exhaust", () -> new SimpleParticleType(false)
     );
 
-    public static final Supplier<SimpleParticleType> OVERSEER_TRAIL = REGISTER.register(
+    public static final Supplier<SimpleParticleType> OVERSEER_TRAIL = ModParticles.REGISTER.register(
         "overseer_trail", () -> new SimpleParticleType(false)
     );
 
     public static void register(IEventBus modBus) {
-        REGISTER.register(modBus);
+        ModParticles.REGISTER.register(modBus);
     }
 }

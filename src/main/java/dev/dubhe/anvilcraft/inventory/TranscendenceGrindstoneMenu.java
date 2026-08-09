@@ -173,15 +173,15 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
     private static boolean isValidSource(ItemStack stack) {
         return stack.isDamageableItem()
                || stack.getOrDefault(DataComponents.REPAIR_COST, 0) > 0
-               || hasAnyEnchantments(stack);
+               || TranscendenceGrindstoneMenu.hasAnyEnchantments(stack);
     }
 
     private boolean isValidModifier(ItemStack stack) {
-        return isGold(stack)
+        return TranscendenceGrindstoneMenu.isGold(stack)
                || stack.is(Items.BOOK)
                || this.isSmallTank(stack)
                || this.isLargeTank(stack)
-               || isTransferTarget(stack);
+               || TranscendenceGrindstoneMenu.isTransferTarget(stack);
     }
 
     private static boolean isTransferTarget(ItemStack stack) {
@@ -190,7 +190,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
                || stack.is(ItemTags.DURABILITY_ENCHANTABLE)
                || stack.is(ItemTags.MINING_ENCHANTABLE)
                || stack.is(ItemTags.WEAPON_ENCHANTABLE)
-               || hasAnyEnchantments(stack);
+               || TranscendenceGrindstoneMenu.hasAnyEnchantments(stack);
     }
 
     private static boolean isGold(ItemStack stack) {
@@ -206,7 +206,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
     }
 
     private static boolean hasAnyEnchantments(ItemStack stack) {
-        for (DataComponentType<ItemEnchantments> type : getEnchantmentTypes()) {
+        for (DataComponentType<ItemEnchantments> type : TranscendenceGrindstoneMenu.getEnchantmentTypes()) {
             if (!stack.getOrDefault(type, ItemEnchantments.EMPTY).isEmpty()) return true;
         }
         return false;
@@ -224,11 +224,11 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
     private Mode getMode() {
         ItemStack stack = this.modifier.getItem(0);
         if (stack.isEmpty()) return Mode.DISENCHANT;
-        if (isGold(stack)) return Mode.GOLD;
+        if (TranscendenceGrindstoneMenu.isGold(stack)) return Mode.GOLD;
         if (stack.is(Items.BOOK)) return Mode.BOOK;
         if (this.isSmallTank(stack)) return Mode.SMALL_TANK;
         if (this.isLargeTank(stack)) return Mode.LARGE_TANK;
-        if (isTransferTarget(stack)) return Mode.ITEM;
+        if (TranscendenceGrindstoneMenu.isTransferTarget(stack)) return Mode.ITEM;
         return Mode.UNSUPPORTED;
     }
 
@@ -236,6 +236,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         return this.getMode() == Mode.GOLD;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isTransferMode() {
         Mode mode = this.getMode();
         return mode == Mode.BOOK || mode == Mode.ITEM;
@@ -283,12 +284,12 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         this.removedCurseCount = 0;
         if (goldStack.is(Items.GOLD_INGOT)) {
             int remainingGold = goldStack.getCount() - this.usedGold;
-            int removableCurses = Math.min(this.totalCurseCount, remainingGold / GOLD_PER_CURSE);
+            int removableCurses = Math.min(this.totalCurseCount, remainingGold / TranscendenceGrindstoneMenu.GOLD_PER_CURSE);
             this.removedCurseCount = this.removeCurses(output, removableCurses);
-            this.usedGold += this.removedCurseCount * GOLD_PER_CURSE;
+            this.usedGold += this.removedCurseCount * TranscendenceGrindstoneMenu.GOLD_PER_CURSE;
         }
 
-        if (output.is(Items.ENCHANTED_BOOK) && !hasAnyEnchantments(output)) {
+        if (output.is(Items.ENCHANTED_BOOK) && !TranscendenceGrindstoneMenu.hasAnyEnchantments(output)) {
             return output.transmuteCopy(Items.BOOK);
         }
         return output;
@@ -296,7 +297,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
 
     private int countCurses(ItemStack stack) {
         int count = 0;
-        for (DataComponentType<ItemEnchantments> type : getEnchantmentTypes()) {
+        for (DataComponentType<ItemEnchantments> type : TranscendenceGrindstoneMenu.getEnchantmentTypes()) {
             for (Holder<Enchantment> enchantment : stack.getOrDefault(type, ItemEnchantments.EMPTY).keySet()) {
                 if (enchantment.is(EnchantmentTags.CURSE)) count++;
             }
@@ -306,7 +307,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
 
     private int removeCurses(ItemStack stack, int amount) {
         int removed = 0;
-        for (DataComponentType<ItemEnchantments> type : getEnchantmentTypes()) {
+        for (DataComponentType<ItemEnchantments> type : TranscendenceGrindstoneMenu.getEnchantmentTypes()) {
             if (removed >= amount) break;
             ItemEnchantments current = stack.getOrDefault(type, ItemEnchantments.EMPTY);
             ItemEnchantments.Mutable mutable = new ItemEnchantments.Mutable(current);
@@ -358,7 +359,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         long totalAmount = 0;
         List<FluidStack> fluids = new ArrayList<>();
         for (EnchantmentData data : selected) {
-            long amount = getLiquidAmount(data.level());
+            long amount = TranscendenceGrindstoneMenu.getLiquidAmount(data.level());
             if (amount <= 0 || amount > capacity - totalAmount) return ItemStack.EMPTY;
 
             FluidStack fluid = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), (int) amount);
@@ -392,7 +393,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         for (Map.Entry<DataComponentType<ItemEnchantments>, ItemEnchantments.Mutable> entry : mutableByType.entrySet()) {
             output.set(entry.getKey(), entry.getValue().toImmutable());
         }
-        if (output.is(Items.ENCHANTED_BOOK) && !hasAnyEnchantments(output)) {
+        if (output.is(Items.ENCHANTED_BOOK) && !TranscendenceGrindstoneMenu.hasAnyEnchantments(output)) {
             return output.transmuteCopy(Items.BOOK);
         }
         return output;
@@ -409,7 +410,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
     private void refreshEnchantments() {
         ItemStack input = this.source.getItem(0);
         this.enchantments.clear();
-        for (DataComponentType<ItemEnchantments> type : getEnchantmentTypes()) {
+        for (DataComponentType<ItemEnchantments> type : TranscendenceGrindstoneMenu.getEnchantmentTypes()) {
             for (var entry : input.getOrDefault(type, ItemEnchantments.EMPTY).entrySet()) {
                 Holder<Enchantment> enchantment = entry.getKey();
                 if (enchantment.is(EnchantmentTags.CURSE)) continue;
@@ -547,17 +548,23 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
         ItemStack original = clicked.copy();
         if (index == 2) {
             ItemStack moving = clicked.copy();
-            if (!this.moveItemStackTo(moving, PLAYER_INVENTORY_SLOT_START, PLAYER_INVENTORY_SLOT_END, true)) {
+            if (!this.moveItemStackTo(
+                moving, TranscendenceGrindstoneMenu.PLAYER_INVENTORY_SLOT_START, TranscendenceGrindstoneMenu.PLAYER_INVENTORY_SLOT_END,
+                true
+            )) {
                 return ItemStack.EMPTY;
             }
             slot.onTake(player, clicked);
             return original;
         }
-        if (index < PLAYER_INVENTORY_SLOT_START) {
-            if (!this.moveItemStackTo(clicked, PLAYER_INVENTORY_SLOT_START, PLAYER_INVENTORY_SLOT_END, false)) {
+        if (index < TranscendenceGrindstoneMenu.PLAYER_INVENTORY_SLOT_START) {
+            if (!this.moveItemStackTo(
+                clicked, TranscendenceGrindstoneMenu.PLAYER_INVENTORY_SLOT_START, TranscendenceGrindstoneMenu.PLAYER_INVENTORY_SLOT_END,
+                false
+            )) {
                 return ItemStack.EMPTY;
             }
-        } else if (isValidSource(clicked) && !this.getSlot(0).hasItem()) {
+        } else if (TranscendenceGrindstoneMenu.isValidSource(clicked) && !this.getSlot(0).hasItem()) {
             if (!this.moveItemStackTo(clicked, 0, 1, false)) return ItemStack.EMPTY;
         } else if (this.isValidModifier(clicked) && !this.getSlot(1).hasItem()) {
             if (!this.moveItemStackTo(clicked, 1, 2, false)) return ItemStack.EMPTY;
@@ -575,7 +582,7 @@ public class TranscendenceGrindstoneMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(this.access, player, ModBlocks.TRANSCENDENCE_GRINDSTONE.get());
+        return AbstractContainerMenu.stillValid(this.access, player, ModBlocks.TRANSCENDENCE_GRINDSTONE.get());
     }
 
     @Override

@@ -14,6 +14,7 @@ import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.List;
+import java.util.Objects;
 
 /// 可用磁盘复制的方块
 public interface IDiskCloneable {
@@ -23,7 +24,10 @@ public interface IDiskCloneable {
     void applyDiskData(ValueInput input);
 
     default List<String> getDiskCompatibleGroups() {
-        return List.of(BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(((BlockEntity) this).getType()).toString());
+        return List.of(Objects.requireNonNull(
+            BuiltInRegistries.BLOCK_ENTITY_TYPE.getKey(((BlockEntity) this).getType()),
+            "Unregistered block entity type"
+        ).toString());
     }
 
     /// 使用磁盘物品与方块进行交互

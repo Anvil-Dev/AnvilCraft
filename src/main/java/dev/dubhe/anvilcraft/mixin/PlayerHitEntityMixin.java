@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
+import dev.dubhe.anvilcraft.util.EntityUtil;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.damagesource.DamageSource;
@@ -45,22 +46,22 @@ public abstract class PlayerHitEntityMixin extends LivingEntity {
         }
         AABB headBlockBoundBox = AABB.ofSize(this.getEyePosition(), 1, 1, 1);
         List<LivingEntity> entities =
-            level().getEntitiesOfClass(LivingEntity.class, headBlockBoundBox, it -> it != this);
+            this.level().getEntitiesOfClass(LivingEntity.class, headBlockBoundBox, it -> it != this);
         if (entities.isEmpty()) return;
-        Vec3 movement = getDeltaMovement();
-        float hurtAmount = (float) (movement.length() * DAMAGE_FACTOR);
-        if (source.type().equals(level().damageSources().flyIntoWall().type())) {
+        Vec3 movement = this.getDeltaMovement();
+        float hurtAmount = (float) (movement.length() * PlayerHitEntityMixin.DAMAGE_FACTOR);
+        if (source.type().equals(this.level().damageSources().flyIntoWall().type())) {
             for (LivingEntity entity : entities) {
-                entity.hurt(damageSources().playerAttack(thiS), hurtAmount);
-                anvilcraft$damageItem(thiS, this.getItemBySlot(EquipmentSlot.HEAD));
+                EntityUtil.hurt(entity, this.damageSources().playerAttack(thiS), hurtAmount);
+                PlayerHitEntityMixin.anvilcraft$damageItem(thiS, this.getItemBySlot(EquipmentSlot.HEAD));
             }
             cir.setReturnValue(false);
             cir.cancel();
         } else {
-            if (source.type().equals(level().damageSources().fall().type())) {
+            if (source.type().equals(this.level().damageSources().fall().type())) {
                 for (LivingEntity entity : entities) {
-                    entity.hurt(damageSources().playerAttack(thiS), hurtAmount);
-                    anvilcraft$damageItem(thiS, this.getItemBySlot(EquipmentSlot.HEAD));
+                    EntityUtil.hurt(entity, this.damageSources().playerAttack(thiS), hurtAmount);
+                    PlayerHitEntityMixin.anvilcraft$damageItem(thiS, this.getItemBySlot(EquipmentSlot.HEAD));
                 }
                 cir.setReturnValue(false);
                 cir.cancel();

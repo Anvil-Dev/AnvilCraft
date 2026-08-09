@@ -23,7 +23,7 @@ public class EntityTypePressurePlateBlock extends PowerLevelPressurePlateBlock {
 
     @Override
     protected int getSignalStrength(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {
-        return Math.clamp(getEntityTypes(level, box, entityClasses), 0, 15);
+        return Math.clamp(EntityTypePressurePlateBlock.getEntityTypes(level, box, entityClasses), 0, 15);
     }
 
     protected static int getEntityTypes(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {

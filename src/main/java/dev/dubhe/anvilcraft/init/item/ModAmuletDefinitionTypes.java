@@ -16,15 +16,18 @@ public class ModAmuletDefinitionTypes {
         AnvilCraft.MOD_ID
     );
 
-    public static final DeferredHolder<IAmuletDefinition.Type<?>, AmuletDefinition.Type> NORMAL = REGISTER.register(
+    public static final DeferredHolder<IAmuletDefinition.Type<?>, AmuletDefinition.Type> NORMAL =
+        ModAmuletDefinitionTypes.REGISTER.register(
         "normal",
         AmuletDefinition.Type::new
     );
-    public static final DeferredHolder<IAmuletDefinition.Type<?>, ComradeAmuletDefinition.Type> COMRADE = REGISTER.register(
+    public static final DeferredHolder<IAmuletDefinition.Type<?>, ComradeAmuletDefinition.Type> COMRADE =
+        ModAmuletDefinitionTypes.REGISTER.register(
         "comrade",
         ComradeAmuletDefinition.Type::new
     );
-    public static final DeferredHolder<IAmuletDefinition.Type<?>, AbnormalAmuletDefinition.Type> ABNORMAL = REGISTER.register(
+    public static final DeferredHolder<IAmuletDefinition.Type<?>, AbnormalAmuletDefinition.Type> ABNORMAL =
+        ModAmuletDefinitionTypes.REGISTER.register(
         "abnormal",
         AbnormalAmuletDefinition.Type::new
     );

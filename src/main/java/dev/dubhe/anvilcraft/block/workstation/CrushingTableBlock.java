@@ -28,23 +28,26 @@ public class CrushingTableBlock extends Block implements SimpleWaterloggedBlock,
         Block.box(2.0, 12.0, 2.0, 14.0, 16.0, 14.0),
         Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
         Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
-        Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0));
+        Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0)
+    );
     private static final VoxelShape REDUCE_AABB_INTERACTION = Shapes.or(
         Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
         Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
-        Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0));
-    private static final VoxelShape AABB = Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.ONLY_FIRST);
-    private static final VoxelShape INTERACTION_BOX = Shapes.join(Shapes.block(), REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
+        Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0)
+    );
+    private static final VoxelShape AABB = Shapes.join(Shapes.block(), CrushingTableBlock.REDUCE_AABB, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape INTERACTION_BOX = Shapes.join(
+        Shapes.block(), CrushingTableBlock.REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
 
     public CrushingTableBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
+        this.registerDefaultState(this.stateDefinition.any().setValue(CrushingTableBlock.WATERLOGGED, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(WATERLOGGED);
+        builder.add(CrushingTableBlock.WATERLOGGED);
     }
 
     @Override
@@ -54,12 +57,12 @@ public class CrushingTableBlock extends Block implements SimpleWaterloggedBlock,
         BlockPos blockPos,
         CollisionContext collisionContext
     ) {
-        return AABB;
+        return CrushingTableBlock.AABB;
     }
 
     @Override
     protected VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return INTERACTION_BOX;
+        return CrushingTableBlock.INTERACTION_BOX;
     }
 
     @Override
@@ -79,12 +82,12 @@ public class CrushingTableBlock extends Block implements SimpleWaterloggedBlock,
             fluidState = blockPlaceContext.getLevel().getFluidState(blockPos);
         BlockState state = super.getStateForPlacement(blockPlaceContext);
         state = null != state ? state : this.defaultBlockState();
-        return state.setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
+        return state.setValue(CrushingTableBlock.WATERLOGGED, fluidState.getType() == Fluids.WATER);
     }
 
     @Override
     public FluidState getFluidState(BlockState blockState) {
-        return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
+        return blockState.getValue(CrushingTableBlock.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
     }
 
     @Override
@@ -98,7 +101,7 @@ public class CrushingTableBlock extends Block implements SimpleWaterloggedBlock,
         BlockState blockState2,
         RandomSource random
     ) {
-        if (blockState.getValue(WATERLOGGED)) {
+        if (blockState.getValue(CrushingTableBlock.WATERLOGGED)) {
             ticks.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelReader));
         }
         return super.updateShape(blockState, levelReader, ticks, blockPos, direction, blockPos2, blockState2, random);

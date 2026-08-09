@@ -37,12 +37,12 @@ public record ApplyData(DataComponentPatch patch) implements IResultModifier {
     public static class Type implements IResultModifier.Type<ApplyData> {
         @Override
         public MapCodec<ApplyData> codec() {
-            return CODEC;
+            return ApplyData.CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, ApplyData> streamCodec() {
-            return STREAM_CODEC;
+            return ApplyData.STREAM_CODEC;
         }
     }
 

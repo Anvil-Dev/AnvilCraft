@@ -236,9 +236,10 @@ public class FrostSmithingMenu extends AdjacentSmithingMenu {
     }
 
     public void turn(boolean left) {
-        if (this.selected == -1 || this.results == null) return;
+        var selectedRecipe = this.selectedRecipe;
+        if (this.selected == -1 || this.results == null || selectedRecipe == null) return;
         this.selected = (this.selected + (left ? -1 : 1)) % this.results.size();
         if (this.selected < 0) this.selected += this.results.size();
-        this.resultSlots.setItem(0, this.selectedRecipe.value().assemble(this.selected, this.createRecipeInput(), this.level));
+        this.resultSlots.setItem(0, selectedRecipe.value().assemble(this.selected, this.createRecipeInput(), this.level));
     }
 }

@@ -151,7 +151,7 @@ public record MobTransformWithItemRecipe(
 
     @Override
     public RecipeSerializer<MobTransformWithItemRecipe> getSerializer() {
-        return SERIALIZER;
+        return MobTransformWithItemRecipe.SERIALIZER;
     }
 
     @Nullable

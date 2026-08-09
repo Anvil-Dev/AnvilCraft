@@ -8,6 +8,7 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Containers;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -26,7 +27,7 @@ public class ConfinementChamberBlockEntity extends BlockEntity implements IItemR
 
     public ConfinementChamberBlockEntity(BlockPos pos, BlockState blockState) {
         super(ModBlockEntities.CONFINEMENT_CHAMBER.get(), pos, blockState);
-        this.id = COUNTER.incrementAndGet();
+        this.id = ConfinementChamberBlockEntity.COUNTER.incrementAndGet();
     }
 
     private ConfinementChamberBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -71,6 +72,9 @@ public class ConfinementChamberBlockEntity extends BlockEntity implements IItemR
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         super.preRemoveSideEffects(pos, state);
-        Containers.dropContents(this.level, pos, this.itemHandler.copyToList());
+        Level level = this.level;
+        if (level != null) {
+            Containers.dropContents(level, pos, this.itemHandler.copyToList());
+        }
     }
 }

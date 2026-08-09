@@ -85,6 +85,6 @@ public enum LargeFluidTankProvider implements IServerExtensionProvider<FluidView
 
     @Override
     public Identifier getUid() {
-        return UID;
+        return LargeFluidTankProvider.UID;
     }
 }

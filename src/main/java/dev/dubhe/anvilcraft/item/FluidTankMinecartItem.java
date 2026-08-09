@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.api.tooltip.FluidTankItemTooltip;
+import dev.dubhe.anvilcraft.api.tooltip.providers.IItemTooltipProvider;
 import dev.dubhe.anvilcraft.entity.FluidTankMinecartEntity;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import net.minecraft.core.BlockPos;
@@ -31,21 +32,20 @@ import org.jspecify.annotations.Nullable;
 import java.util.function.Consumer;
 
 /// 放置与发射储罐矿车的物品
-public class FluidTankMinecartItem extends Item {
+public class FluidTankMinecartItem extends Item implements IItemTooltipProvider {
     public FluidTankMinecartItem(Properties properties) {
         super(properties.stacksTo(1));
         DispenserBlock.registerBehavior(this, new DispenseBehavior());
     }
 
     @Override
-    public void appendHoverText(
+    public void appendItemTooltip(
         ItemStack stack,
         TooltipContext context,
         TooltipDisplay display,
         Consumer<Component> builder,
         TooltipFlag tooltipFlag
     ) {
-        super.appendHoverText(stack, context, display, builder, tooltipFlag);
         FluidTankItemTooltip.appendFixedTank(
             stack,
             context,
@@ -85,8 +85,8 @@ public class FluidTankMinecartItem extends Item {
 
         ItemStack stack = context.getItemInHand();
         if (level instanceof ServerLevel serverLevel) {
-            double yoffset = railShape(state, serverLevel, pos).isSlope() ? 0.5D : 0.0D;
-            FluidTankMinecartEntity cart = createMinecart(
+            double yoffset = FluidTankMinecartItem.railShape(state, serverLevel, pos).isSlope() ? 0.5D : 0.0D;
+            FluidTankMinecartEntity cart = FluidTankMinecartItem.createMinecart(
                 serverLevel,
                 pos.getX() + 0.5D,
                 pos.getY() + 0.0625D + yoffset,
@@ -127,17 +127,17 @@ public class FluidTankMinecartItem extends Item {
             BlockState state = level.getBlockState(pos);
             double yoffset;
             if (state.is(BlockTags.RAILS)) {
-                yoffset = railShape(state, level, pos).isSlope() ? 0.6D : 0.1D;
+                yoffset = FluidTankMinecartItem.railShape(state, level, pos).isSlope() ? 0.6D : 0.1D;
             } else {
                 if (!state.isAir()) return this.fallback.dispense(source, stack);
                 BlockState below = level.getBlockState(pos.below());
                 if (!below.is(BlockTags.RAILS)) return this.fallback.dispense(source, stack);
-                yoffset = direction != Direction.DOWN && railShape(below, level, pos.below()).isSlope()
+                yoffset = direction != Direction.DOWN && FluidTankMinecartItem.railShape(below, level, pos.below()).isSlope()
                     ? -0.4D
                     : -0.9D;
             }
 
-            FluidTankMinecartEntity cart = createMinecart(level, x, y + yoffset, z, stack, null);
+            FluidTankMinecartEntity cart = FluidTankMinecartItem.createMinecart(level, x, y + yoffset, z, stack, null);
             if (cart == null) return stack;
             level.addFreshEntity(cart);
             stack.shrink(1);

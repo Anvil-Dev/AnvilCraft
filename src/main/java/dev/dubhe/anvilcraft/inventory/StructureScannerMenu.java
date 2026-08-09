@@ -80,8 +80,10 @@ public class StructureScannerMenu extends AbstractContainerMenu {
     private static final int OUTPUT_SLOT_COUNT = 1;                         // 输出槽位1个槽位
     private static final int PLAYER_INVENTORY_SLOT_COUNT = 27;  // 主物品栏3行9列
     private static final int HOTBAR_SLOT_COUNT = 9;             // 快捷栏1行9列
-    private static final int VANILLA_SLOT_COUNT = PLAYER_INVENTORY_SLOT_COUNT + HOTBAR_SLOT_COUNT;
-    private static final int TOTAL_SLOT_COUNT = STRUCTURE_DISK_SLOT_COUNT + OUTPUT_SLOT_COUNT + VANILLA_SLOT_COUNT;
+    private static final int VANILLA_SLOT_COUNT = StructureScannerMenu.PLAYER_INVENTORY_SLOT_COUNT + StructureScannerMenu.HOTBAR_SLOT_COUNT;
+    private static final int TOTAL_SLOT_COUNT = StructureScannerMenu.STRUCTURE_DISK_SLOT_COUNT
+                                                + StructureScannerMenu.OUTPUT_SLOT_COUNT
+                                                + StructureScannerMenu.VANILLA_SLOT_COUNT;
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
@@ -92,29 +94,41 @@ public class StructureScannerMenu extends AbstractContainerMenu {
             itemstack = originalStack.copy();
 
             // Structure Disk槽位（索引0）或输出槽位（索引1）的物品移动到玩家物品栏
-            if (index < STRUCTURE_DISK_SLOT_COUNT + OUTPUT_SLOT_COUNT) {
-                if (!this.moveItemStackTo(originalStack, STRUCTURE_DISK_SLOT_COUNT + OUTPUT_SLOT_COUNT, TOTAL_SLOT_COUNT, false)) {
+            if (index < StructureScannerMenu.STRUCTURE_DISK_SLOT_COUNT + StructureScannerMenu.OUTPUT_SLOT_COUNT) {
+                if (!this.moveItemStackTo(
+                    originalStack,
+                    StructureScannerMenu.STRUCTURE_DISK_SLOT_COUNT + StructureScannerMenu.OUTPUT_SLOT_COUNT,
+                    StructureScannerMenu.TOTAL_SLOT_COUNT,
+                    false
+                )) {
                     return ItemStack.EMPTY;
                 }
-            } else if (index < TOTAL_SLOT_COUNT) { // 玩家物品栏的物品移动
+            } else if (index < StructureScannerMenu.TOTAL_SLOT_COUNT) { // 玩家物品栏的物品移动
                 if (originalStack.is(ModItems.STRUCTURE_DISK.get())) {
                     // Structure Disk尝试移动到Disk槽位
-                    if (!this.moveItemStackTo(originalStack, 0, STRUCTURE_DISK_SLOT_COUNT, false)) {
+                    if (!this.moveItemStackTo(originalStack, 0, StructureScannerMenu.STRUCTURE_DISK_SLOT_COUNT, false)) {
                         return ItemStack.EMPTY;
                     }
                 } else {
                     // 其他物品在玩家物品栏内部移动（主物品栏<->快捷栏）
-                    int playerInventoryEnd = STRUCTURE_DISK_SLOT_COUNT + OUTPUT_SLOT_COUNT + PLAYER_INVENTORY_SLOT_COUNT;
+                    int playerInventoryEnd = StructureScannerMenu.STRUCTURE_DISK_SLOT_COUNT
+                                             + StructureScannerMenu.OUTPUT_SLOT_COUNT
+                                             + StructureScannerMenu.PLAYER_INVENTORY_SLOT_COUNT;
                     
                     if (index >= playerInventoryEnd) {
                         // 从快捷栏移动到主物品栏
-                        if (!this.moveItemStackTo(originalStack,
-                            STRUCTURE_DISK_SLOT_COUNT + OUTPUT_SLOT_COUNT, playerInventoryEnd, false)) {
+                        if (!this.moveItemStackTo(
+                            originalStack,
+                            StructureScannerMenu.STRUCTURE_DISK_SLOT_COUNT
+                            + StructureScannerMenu.OUTPUT_SLOT_COUNT,
+                            playerInventoryEnd,
+                            false
+                        )) {
                             return ItemStack.EMPTY;
                         }
                     } else {
                         // 从主物品栏移动到快捷栏
-                        if (!this.moveItemStackTo(originalStack, playerInventoryEnd, TOTAL_SLOT_COUNT, false)) {
+                        if (!this.moveItemStackTo(originalStack, playerInventoryEnd, StructureScannerMenu.TOTAL_SLOT_COUNT, false)) {
                             return ItemStack.EMPTY;
                         }
                     }
@@ -133,7 +147,7 @@ public class StructureScannerMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(
+        return AbstractContainerMenu.stillValid(
             ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()),
             player,
             ModBlocks.STRUCTURE_SCANNER.get()

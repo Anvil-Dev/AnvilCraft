@@ -4,6 +4,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -27,7 +28,7 @@ public class PlaceInWaterBlockItem extends BlockItem {
         Player player,
         InteractionHand usedHand
     ) {
-        BlockHitResult fluidHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
+        BlockHitResult fluidHit = Item.getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
         BlockHitResult blockHitResult2 = fluidHit.withPosition(fluidHit.getBlockPos());
         if (blockHitResult2.miss) return InteractionResult.PASS;
         InteractionResult interactionResult = super.useOn(new UseOnContext(player, usedHand, blockHitResult2));

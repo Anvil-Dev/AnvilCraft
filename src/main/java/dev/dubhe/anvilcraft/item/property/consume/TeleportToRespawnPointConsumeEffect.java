@@ -26,8 +26,9 @@ import java.util.Set;
 
 public class TeleportToRespawnPointConsumeEffect implements ConsumeEffect {
     public static final TeleportToRespawnPointConsumeEffect INSTANCE = new TeleportToRespawnPointConsumeEffect();
-    public static final MapCodec<TeleportToRespawnPointConsumeEffect> CODEC = MapCodec.unit(INSTANCE);
-    public static final StreamCodec<ByteBuf, TeleportToRespawnPointConsumeEffect> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+    public static final MapCodec<TeleportToRespawnPointConsumeEffect> CODEC = MapCodec.unit(TeleportToRespawnPointConsumeEffect.INSTANCE);
+    public static final StreamCodec<ByteBuf, TeleportToRespawnPointConsumeEffect> STREAM_CODEC = StreamCodec.unit(
+        TeleportToRespawnPointConsumeEffect.INSTANCE);
 
     @Override
     public Type<TeleportToRespawnPointConsumeEffect> getType() {

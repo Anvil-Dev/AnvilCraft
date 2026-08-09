@@ -48,7 +48,7 @@ public record TempleDemandRecipe(
         }
 
         public static Category fromName(String name) {
-            for (Category value : values()) {
+            for (Category value : Category.values()) {
                 if (value.name.equals(name)) return value;
             }
             throw new IllegalArgumentException("Unknown temple demand category: " + name);
@@ -89,7 +89,7 @@ public record TempleDemandRecipe(
         );
 
     public static final RecipeSerializer<TempleDemandRecipe> SERIALIZER = new RecipeSerializer<>(
-        CODEC, STREAM_CODEC
+        TempleDemandRecipe.CODEC, TempleDemandRecipe.STREAM_CODEC
     );
 
     @Override
@@ -120,7 +120,7 @@ public record TempleDemandRecipe(
 
     @Override
     public RecipeSerializer<TempleDemandRecipe> getSerializer() {
-        return SERIALIZER;
+        return TempleDemandRecipe.SERIALIZER;
     }
 
     @Override

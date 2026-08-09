@@ -26,7 +26,7 @@ public class BreakBlockEventListener {
     public static void preventInfiniteFluidTankBreak(BreakBlockEvent event) {
         if (!(event.getPlayer() instanceof ServerPlayer player)) return;
         BlockPos pos = event.getPos();
-        ServerLevel level = (ServerLevel) player.level();
+        ServerLevel level = player.level();
         if (!InfiniteFluidTankBreakProtection.isProtected(level, pos)) return;
         if (TranscendenceResonatorItem.isResonanceMining(level, player, pos)) {
             InfiniteFluidTankBreakProtection.clear(player);

@@ -35,10 +35,10 @@ public class PollableItemHandler extends ItemStacksResourceHandler {
     }
 
     public long getCapacityAsLongDirect(int index, ItemResource resource) {
-        return !resource.isEmpty() ? getCapacity(index, resource) : 0;
+        return !resource.isEmpty() ? this.getCapacity(index, resource) : 0;
     }
 
     protected ItemResource getResourceDirect(int index) {
-        return getResourceFrom(stacks.get(index));
+        return this.getResourceFrom(this.stacks.get(index));
     }
 }

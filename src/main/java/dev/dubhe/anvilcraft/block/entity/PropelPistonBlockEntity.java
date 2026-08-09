@@ -42,7 +42,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
 
     @Override
     public Direction getFacing() {
-        return getBlockState().getValue(PropelPistonBlock.FACING);
+        return this.getBlockState().getValue(PropelPistonBlock.FACING);
     }
 
     public void notifyMoved() {
@@ -53,18 +53,18 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
 
     public void updateStoredEnergy(Integer energy) {
         this.storedEnergy = Math.clamp(energy, 0, 160000000);
-        if (level == null || !(level instanceof ServerLevel serverLevel)) {
+        if (this.level == null || !(this.level instanceof ServerLevel serverLevel)) {
             return;
         }
         PacketDistributor.sendToPlayersTrackingChunk(
             serverLevel,
-            ChunkPos.containing(getBlockPos()),
-            new UpdatePropelPistonStoredEnergyPacket(getBlockPos(), this.storedEnergy)
+            ChunkPos.containing(this.getBlockPos()),
+            new UpdatePropelPistonStoredEnergyPacket(this.getBlockPos(), this.storedEnergy)
         );
     }
 
     public void addEnergy(int energy) {
-        this.updateStoredEnergy(getStoredEnergy() + energy);
+        this.updateStoredEnergy(this.getStoredEnergy() + energy);
     }
 
     @Override
@@ -73,12 +73,12 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
     }
 
     public void tick(Level level, BlockPos pos, BlockState state) {
-        updateLaserLevel(calculateLaserLevel());
-        if (changed) {
+        this.updateLaserLevel(this.calculateLaserLevel());
+        if (this.changed) {
             this.delay = 0;
-            this.power = laserLevel * 15;
+            this.power = this.laserLevel * 15;
         }
-        if (!changed) {
+        if (!this.changed) {
             if (this.storedEnergy < 160000000) {
                 this.delay++;
                 if (this.delay >= 20) {
@@ -87,7 +87,7 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
                 }
             }
         }
-        if (getStoredEnergy() > 0) {
+        if (this.getStoredEnergy() > 0) {
             level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.EXHAUSTED, false));
             if (!level.getBlockTicks().hasScheduledTick(pos, state.getBlock())) {
                 this.checkCanMove(level, pos, state);
@@ -96,13 +96,13 @@ public class PropelPistonBlockEntity extends BaseLaserBlockEntity {
             level.setBlockAndUpdate(pos, state.setValue(PropelPistonBlock.EXHAUSTED, true).setValue(PropelPistonBlock.MOVING, false));
         }
         super.tick(level);
-        resetState();
+        this.resetState();
     }
 
     @Override
     public Set<Direction> getIgnoreFace() {
         Set<Direction> directions = new HashSet<>(List.of(Direction.values()));
-        directions.remove(getBlockState().getValue(PropelPistonBlock.FACING).getOpposite());
+        directions.remove(this.getBlockState().getValue(PropelPistonBlock.FACING).getOpposite());
         return directions;
     }
 

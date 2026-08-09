@@ -4,14 +4,14 @@ public class ProvidenceRef {
     private static final ThreadLocal<Boolean> SHOULD_TRIGGER = ThreadLocal.withInitial(() -> false);
 
     public static void shouldTrigger() {
-        SHOULD_TRIGGER.set(true);
+        ProvidenceRef.SHOULD_TRIGGER.set(true);
     }
 
     public static boolean shouldItTrigger() {
-        return SHOULD_TRIGGER.get();
+        return ProvidenceRef.SHOULD_TRIGGER.get();
     }
 
     public static void reset() {
-        SHOULD_TRIGGER.remove();
+        ProvidenceRef.SHOULD_TRIGGER.remove();
     }
 }

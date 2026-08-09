@@ -24,13 +24,17 @@ public class TimeCountedPressurePlateBlock extends PressurePlateBlock implements
     public TimeCountedPressurePlateBlock(BlockSetType type, Properties properties, int needTick) {
         super(type, properties);
         this.needTick = needTick;
-        this.registerDefaultState(this.stateDefinition.any().setValue(POWER, 0).setValue(BlockStateProperties.POWERED, false));
+        this.registerDefaultState(
+            this.stateDefinition.any()
+                .setValue(TimeCountedPressurePlateBlock.POWER, 0)
+                .setValue(BlockStateProperties.POWERED, false)
+        );
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(POWER);
+        builder.add(TimeCountedPressurePlateBlock.POWER);
     }
 
     @Override
@@ -40,12 +44,13 @@ public class TimeCountedPressurePlateBlock extends PressurePlateBlock implements
 
     @Override
     protected int getSignalForState(BlockState state) {
-        return state.getValue(POWER);
+        return state.getValue(TimeCountedPressurePlateBlock.POWER);
     }
 
     @Override
     protected BlockState setSignalForState(BlockState state, int signal) {
-        return state.setValue(POWER, Math.clamp(signal, 0, 15)).setValue(BlockStateProperties.POWERED, signal > 0);
+        return state.setValue(TimeCountedPressurePlateBlock.POWER, Math.clamp(signal, 0, 15))
+            .setValue(BlockStateProperties.POWERED, signal > 0);
     }
 
     @Override

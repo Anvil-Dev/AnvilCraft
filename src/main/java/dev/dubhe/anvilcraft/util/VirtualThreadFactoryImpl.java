@@ -8,7 +8,7 @@ public class VirtualThreadFactoryImpl implements ThreadFactory {
     private final String namePrefix;
 
     public VirtualThreadFactoryImpl() {
-        this.namePrefix = "AnvilCraftWorker-" + poolNumber.getAndIncrement();
+        this.namePrefix = "AnvilCraftWorker-" + VirtualThreadFactoryImpl.poolNumber.getAndIncrement();
     }
 
     @Override

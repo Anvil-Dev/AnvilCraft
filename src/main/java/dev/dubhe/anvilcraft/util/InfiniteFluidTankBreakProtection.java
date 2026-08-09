@@ -29,7 +29,7 @@ public final class InfiniteFluidTankBreakProtection {
     }
 
     public static boolean isProtected(Level level, BlockPos pos) {
-        return findProtectedTarget(level, pos).isPresent();
+        return InfiniteFluidTankBreakProtection.findProtectedTarget(level, pos).isPresent();
     }
 
     /**
@@ -37,21 +37,22 @@ public final class InfiniteFluidTankBreakProtection {
      */
     public static void updateModifierAuthorization(ServerPlayer player, BlockPos pos, boolean modifiersHeld) {
         UUID playerId = player.getUUID();
-        ServerLevel level = (ServerLevel) player.level();
-        if (!modifiersHeld || !level.isLoaded(pos) || !isProtected(level, pos)) {
-            MODIFIER_AUTHORIZATIONS.remove(playerId);
+        ServerLevel level = player.level();
+        if (!modifiersHeld || !level.isLoaded(pos) || !InfiniteFluidTankBreakProtection.isProtected(level, pos)) {
+            InfiniteFluidTankBreakProtection.MODIFIER_AUTHORIZATIONS.remove(playerId);
             return;
         }
 
-        double maxDistance = player.blockInteractionRange() + INTERACTION_DISTANCE_TOLERANCE;
+        double maxDistance = player.blockInteractionRange() + InfiniteFluidTankBreakProtection.INTERACTION_DISTANCE_TOLERANCE;
         if (player.distanceToSqr(pos.getCenter()) > maxDistance * maxDistance) {
-            MODIFIER_AUTHORIZATIONS.remove(playerId);
+            InfiniteFluidTankBreakProtection.MODIFIER_AUTHORIZATIONS.remove(playerId);
             return;
         }
 
-        MODIFIER_AUTHORIZATIONS.put(
+        InfiniteFluidTankBreakProtection.MODIFIER_AUTHORIZATIONS.put(
             playerId,
-            new TimedTarget(level.dimension(), pos.immutable(), level.getGameTime() + MODIFIER_AUTHORIZATION_DURATION)
+            new TimedTarget(
+                level.dimension(), pos.immutable(), level.getGameTime() + InfiniteFluidTankBreakProtection.MODIFIER_AUTHORIZATION_DURATION)
         );
     }
 
@@ -61,28 +62,28 @@ public final class InfiniteFluidTankBreakProtection {
      * @return 是否应取消本次破坏
      */
     public static boolean shouldCancelBreak(ServerPlayer player, BlockPos pos) {
-        ServerLevel level = (ServerLevel) player.level();
-        Optional<BlockPos> protectedTarget = findProtectedTarget(level, pos);
+        ServerLevel level = player.level();
+        Optional<BlockPos> protectedTarget = InfiniteFluidTankBreakProtection.findProtectedTarget(level, pos);
         if (protectedTarget.isEmpty()) return false;
 
         UUID playerId = player.getUUID();
         long gameTime = level.getGameTime();
-        TimedTarget confirmation = CONFIRMATIONS.get(playerId);
-        TimedTarget authorization = MODIFIER_AUTHORIZATIONS.remove(playerId);
+        TimedTarget confirmation = InfiniteFluidTankBreakProtection.CONFIRMATIONS.get(playerId);
+        TimedTarget authorization = InfiniteFluidTankBreakProtection.MODIFIER_AUTHORIZATIONS.remove(playerId);
         boolean previouslyConfirmed = confirmation != null
             && confirmation.matches(level, protectedTarget.get(), gameTime);
         boolean modifiersAuthorized = authorization != null && authorization.matches(level, pos, gameTime);
         if (previouslyConfirmed && modifiersAuthorized) {
-            CONFIRMATIONS.remove(playerId);
+            InfiniteFluidTankBreakProtection.CONFIRMATIONS.remove(playerId);
             return false;
         }
 
-        CONFIRMATIONS.put(
+        InfiniteFluidTankBreakProtection.CONFIRMATIONS.put(
             playerId,
             new TimedTarget(
                 level.dimension(),
                 protectedTarget.get(),
-                gameTime + CONFIRMATION_DURATION
+                gameTime + InfiniteFluidTankBreakProtection.CONFIRMATION_DURATION
             )
         );
         String message = previouslyConfirmed
@@ -101,8 +102,8 @@ public final class InfiniteFluidTankBreakProtection {
 
     public static void clear(Player player) {
         UUID playerId = player.getUUID();
-        CONFIRMATIONS.remove(playerId);
-        MODIFIER_AUTHORIZATIONS.remove(playerId);
+        InfiniteFluidTankBreakProtection.CONFIRMATIONS.remove(playerId);
+        InfiniteFluidTankBreakProtection.MODIFIER_AUTHORIZATIONS.remove(playerId);
     }
 
     private static Optional<BlockPos> findProtectedTarget(Level level, BlockPos pos) {

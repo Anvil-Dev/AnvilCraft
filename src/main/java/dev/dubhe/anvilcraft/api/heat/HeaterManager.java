@@ -37,14 +37,17 @@ public class HeaterManager {
 
     private final Level level;
     private final Set<BlockPos> heatableBlocks = Collections.synchronizedSet(new HashSet<>());
-    private final Multimap<HeaterInfo<?>, BlockPos> producers = Multimaps.synchronizedSetMultimap(HashMultimap.create());
+    @SuppressWarnings("NullableProblems")
+    private final Multimap<HeaterInfo<?>, BlockPos> producers = Multimaps.synchronizedSetMultimap(
+        HashMultimap.create()
+    );
 
     public static HeaterManager getInstance(Level level) {
         if (level.isClientSide()) return new HeaterManager(level);
-        if (!INSTANCES.containsKey(level)) {
-            INSTANCES.put(level, new HeaterManager(level));
+        if (!HeaterManager.INSTANCES.containsKey(level)) {
+            HeaterManager.INSTANCES.put(level, new HeaterManager(level));
         }
-        return INSTANCES.get(level);
+        return HeaterManager.INSTANCES.get(level);
     }
 
     public HeaterManager(Level level) {
@@ -68,7 +71,7 @@ public class HeaterManager {
     }
 
     public static void tickAll() {
-        INSTANCES.forEach((level, manager) -> {
+        HeaterManager.INSTANCES.forEach((level, manager) -> {
             if (level.getGameTime() % PowerGrid.GRID_TICK != 0) return;
             if (level.tickRateManager().isFrozen() && !level.tickRateManager().isSteppingForward()) return;
             manager.tick();
@@ -76,10 +79,7 @@ public class HeaterManager {
     }
 
     public void tick() {
-        Multimap<HeaterInfo<?>, BlockPos> producers;
-        synchronized (this.producers) {
-            producers = MultimapBuilder.hashKeys().arrayListValues().build(this.producers);
-        }
+        Multimap<HeaterInfo<?>, BlockPos> producers = this.copyProducers();
         Map<BlockPos, HeatTierLine.Point> heatableBlocks = new HashMap<>();
         for (HeaterInfo<?> info : producers.keySet()) {
             List<BlockPos> removals = new ArrayList<>();
@@ -94,6 +94,15 @@ public class HeaterManager {
         poses.addAll(heatableBlocks.keySet());
         for (BlockPos pos : poses) {
             this.tickHeatableBlock(pos, heatableBlocks.get(pos));
+        }
+    }
+
+    @SuppressWarnings("NullableProblems")
+    private Multimap<HeaterInfo<?>, BlockPos> copyProducers() {
+        synchronized (this.producers) {
+            return MultimapBuilder.hashKeys()
+                .arrayListValues()
+                .build(this.producers);
         }
     }
 

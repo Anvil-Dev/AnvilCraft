@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.network.ControlValveInitPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -24,6 +25,7 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -31,6 +33,7 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -45,30 +48,31 @@ import org.jspecify.annotations.Nullable;
  */
 public class ControlValveBlock extends BetterBaseEntityBlock
     implements IHammerRemovable, IMoveableEntityBlock {
-    public static final MapCodec<ControlValveBlock> CODEC = simpleCodec(ControlValveBlock::new);
+    public static final MapCodec<ControlValveBlock> CODEC = BlockBehaviour.simpleCodec(ControlValveBlock::new);
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.AXIS;
     /**
      * 红石锁定：任意侧收到红石信号则锁定，流速视为 0 且 GUI 中不可调。
      */
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
 
-    private static final VoxelShape SHAPE_X = box(0, 3, 3, 16, 13, 13);
-    private static final VoxelShape SHAPE_Y = box(3, 0, 3, 13, 16, 13);
-    private static final VoxelShape SHAPE_Z = box(3, 3, 0, 13, 13, 16);
+    private static final VoxelShape SHAPE_X = Block.box(0, 3, 3, 16, 13, 13);
+    private static final VoxelShape SHAPE_Y = Block.box(3, 0, 3, 13, 16, 13);
+    private static final VoxelShape SHAPE_Z = Block.box(3, 3, 0, 13, 13, 16);
 
     public ControlValveBlock(Properties properties) {
         super(properties);
-        registerDefaultState(stateDefinition.any().setValue(AXIS, Direction.Axis.Y).setValue(POWERED, false));
+        this.registerDefaultState(
+            this.stateDefinition.any().setValue(ControlValveBlock.AXIS, Direction.Axis.Y).setValue(ControlValveBlock.POWERED, false));
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
+        return ControlValveBlock.CODEC;
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(AXIS, POWERED);
+        builder.add(ControlValveBlock.AXIS, ControlValveBlock.POWERED);
     }
 
     @Override
@@ -78,10 +82,10 @@ public class ControlValveBlock extends BetterBaseEntityBlock
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-        return switch (state.getValue(AXIS)) {
-            case X -> SHAPE_X;
-            case Y -> SHAPE_Y;
-            default -> SHAPE_Z;
+        return switch (state.getValue(ControlValveBlock.AXIS)) {
+            case X -> ControlValveBlock.SHAPE_X;
+            case Y -> ControlValveBlock.SHAPE_Y;
+            default -> ControlValveBlock.SHAPE_Z;
         };
     }
 
@@ -92,9 +96,9 @@ public class ControlValveBlock extends BetterBaseEntityBlock
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         boolean powered = context.getLevel().hasNeighborSignal(context.getClickedPos());
-        return defaultBlockState()
-            .setValue(AXIS, context.getClickedFace().getAxis())
-            .setValue(POWERED, powered);
+        return this.defaultBlockState()
+            .setValue(ControlValveBlock.AXIS, context.getClickedFace().getAxis())
+            .setValue(ControlValveBlock.POWERED, powered);
     }
 
     /**
@@ -104,7 +108,7 @@ public class ControlValveBlock extends BetterBaseEntityBlock
         if (!(state.getBlock() instanceof ControlValveBlock)) {
             return false;
         }
-        return faceToNeighbor.getAxis() == state.getValue(AXIS);
+        return faceToNeighbor.getAxis() == state.getValue(ControlValveBlock.AXIS);
     }
 
     /**
@@ -112,7 +116,7 @@ public class ControlValveBlock extends BetterBaseEntityBlock
      * （法线与玩家视线最反向者）。
      */
     private static Direction computeHandwheelFacing(Direction.Axis axis, LivingEntity placer) {
-        net.minecraft.world.phys.Vec3 look = placer.getLookAngle();
+        Vec3 look = placer.getLookAngle();
         Direction best = null;
         double bestDot = Double.NEGATIVE_INFINITY;
         for (Direction dir : Direction.values()) {
@@ -140,10 +144,10 @@ public class ControlValveBlock extends BetterBaseEntityBlock
         }
         // 记录手轮朝向：取玩家视线反方向中、垂直于阀门轴的那一面（即玩家面对的、能看到手轮的一面）
         if (placer != null && level.getBlockEntity(pos) instanceof ControlValveBlockEntity be) {
-            be.setFacing(computeHandwheelFacing(state.getValue(AXIS), placer));
+            be.setFacing(ControlValveBlock.computeHandwheelFacing(state.getValue(ControlValveBlock.AXIS), placer));
         }
         for (Direction dir : Direction.values()) {
-            if (!isConnectableFace(state, dir)) {
+            if (!ControlValveBlock.isConnectableFace(state, dir)) {
                 continue;
             }
             BlockPos neighborPos = pos.relative(dir);
@@ -207,8 +211,8 @@ public class ControlValveBlock extends BetterBaseEntityBlock
         }
         FluidNetworkManager.INSTANCE.addAdjacentContainers(level, pos);
         boolean hasSignal = level.hasNeighborSignal(pos);
-        if (hasSignal != state.getValue(POWERED)) {
-            level.setBlock(pos, state.setValue(POWERED, hasSignal), Block.UPDATE_CLIENTS);
+        if (hasSignal != state.getValue(ControlValveBlock.POWERED)) {
+            level.setBlock(pos, state.setValue(ControlValveBlock.POWERED, hasSignal), Block.UPDATE_CLIENTS);
             // 锁定状态变化会改变有效流速 → 使网络缓存失效
             FluidNetworkManager.INSTANCE.markDirty(level);
         }
@@ -232,7 +236,7 @@ public class ControlValveBlock extends BetterBaseEntityBlock
     @Override
     protected void affectNeighborsAfterRemoval(
         BlockState state,
-        net.minecraft.server.level.ServerLevel level,
+        ServerLevel level,
         BlockPos pos,
         boolean movedByPiston
     ) {

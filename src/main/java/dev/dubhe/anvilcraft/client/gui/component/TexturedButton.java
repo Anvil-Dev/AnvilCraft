@@ -23,7 +23,7 @@ public class TexturedButton extends Button {
         int textureHeight,
         OnPress onPress
     ) {
-        super(x, y, width, height, Component.empty(), onPress, DEFAULT_NARRATION);
+        super(x, y, width, height, Component.empty(), onPress, Button.DEFAULT_NARRATION);
 
         this.texYDiff = texYDiff;
         this.textureWidth = textureWidth;
@@ -43,7 +43,7 @@ public class TexturedButton extends Button {
         OnPress onPress,
         Component message
     ) {
-        super(x, y, width, height, message, onPress, DEFAULT_NARRATION);
+        super(x, y, width, height, message, onPress, Button.DEFAULT_NARRATION);
 
         this.texYDiff = texYDiff;
         this.textureWidth = textureWidth;

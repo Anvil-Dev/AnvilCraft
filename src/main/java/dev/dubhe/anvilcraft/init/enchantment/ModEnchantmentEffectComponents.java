@@ -16,7 +16,8 @@ public class ModEnchantmentEffectComponents {
     private static final DeferredRegister<DataComponentType<?>> REGISTER =
         DeferredRegister.create(Registries.ENCHANTMENT_EFFECT_COMPONENT_TYPE, AnvilCraft.MOD_ID);
 
-    public static final DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>> USE_ON_BLOCK = register(
+    public static final DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>> USE_ON_BLOCK =
+        ModEnchantmentEffectComponents.register(
         "use_on_block",
         it -> it.persistent(
             ConditionalEffect.codec(
@@ -25,7 +26,8 @@ public class ModEnchantmentEffectComponents {
         )
     );
 
-    public static final DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>> POST_BREAK_BLOCK = register(
+    public static final DataComponentType<List<ConditionalEffect<EnchantmentEntityEffect>>> POST_BREAK_BLOCK =
+        ModEnchantmentEffectComponents.register(
         "post_break_block",
         it -> it.persistent(
             ConditionalEffect.codec(
@@ -36,11 +38,11 @@ public class ModEnchantmentEffectComponents {
 
     private static <T> DataComponentType<T> register(String name, UnaryOperator<DataComponentType.Builder<T>> operator) {
         DataComponentType<T> dct = operator.apply(DataComponentType.builder()).build();
-        REGISTER.register(name, () -> dct);
+        ModEnchantmentEffectComponents.REGISTER.register(name, () -> dct);
         return dct;
     }
 
     public static void register(IEventBus bus) {
-        REGISTER.register(bus);
+        ModEnchantmentEffectComponents.REGISTER.register(bus);
     }
 }

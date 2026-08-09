@@ -75,7 +75,7 @@ public record MineralFountainRecipe(BlockStatePredicate needBlock, BlockStatePre
 
     @Override
     public RecipeSerializer<MineralFountainRecipe> getSerializer() {
-        return SERIALIZER;
+        return MineralFountainRecipe.SERIALIZER;
     }
 
     @Override

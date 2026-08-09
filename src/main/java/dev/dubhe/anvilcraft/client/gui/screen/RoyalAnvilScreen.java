@@ -30,7 +30,7 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
     /// @param playerInventory 背包
     /// @param title           标题
     public RoyalAnvilScreen(RoyalAnvilMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title, BACKGROUND);
+        super(menu, playerInventory, title, RoyalAnvilScreen.BACKGROUND);
         this.player = playerInventory.player;
     }
 

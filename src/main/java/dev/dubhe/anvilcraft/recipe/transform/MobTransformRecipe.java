@@ -106,7 +106,7 @@ public record MobTransformRecipe(
 
     @Override
     public RecipeSerializer<MobTransformRecipe> getSerializer() {
-        return SERIALIZER;
+        return MobTransformRecipe.SERIALIZER;
     }
 
     @Override

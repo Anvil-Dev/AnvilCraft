@@ -29,29 +29,29 @@ public class ModModelLayers {
     @SubscribeEvent
     public static void register(EntityRenderersEvent.RegisterLayerDefinitions event) {
         event.registerLayerDefinition(
-            IONOCRAFT,
+            ModModelLayers.IONOCRAFT,
             IonocraftModel::createBodyLayer
         );
         event.registerLayerDefinition(
-            IONOCRAFT_BACKPACK,
+            ModModelLayers.IONOCRAFT_BACKPACK,
             IonocraftBackpackModel::createBodyLayer
         );
         event.registerLayerDefinition(
-            THROWN_HEAVY_HALBERD,
+            ModModelLayers.THROWN_HEAVY_HALBERD,
             ThrownHeavyHalberdModel::createBodyLayer
         );
         event.registerLayerDefinition(
-            MAGNETIZED_NODE,
+            ModModelLayers.MAGNETIZED_NODE,
             MagnetizedNodeModel::createBodyLayer
         );
         event.registerLayerDefinition(
-            CAULDRON_OUTLET,
+            ModModelLayers.CAULDRON_OUTLET,
             CauldronOutletModel::createBodyLayer
         );
     }
 
     @SubscribeEvent
     public static void createModel(EntityRenderersEvent.AddLayers event) {
-        ionocraftBackpackModel = new IonocraftBackpackModel(event.getContext().bakeLayer(IONOCRAFT_BACKPACK));
+        ModModelLayers.ionocraftBackpackModel = new IonocraftBackpackModel(event.getContext().bakeLayer(ModModelLayers.IONOCRAFT_BACKPACK));
     }
 }

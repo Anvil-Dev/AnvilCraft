@@ -27,7 +27,7 @@ public record ChargerSyncPacket(BlockPos pos, int timeLeft, int timeTotal, boole
 
     @Override
     public Type<ChargerSyncPacket> type() {
-        return TYPE;
+        return ChargerSyncPacket.TYPE;
     }
 
     @Override

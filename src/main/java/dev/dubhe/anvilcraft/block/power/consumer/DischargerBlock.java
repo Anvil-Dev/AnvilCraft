@@ -14,6 +14,7 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
@@ -25,7 +26,7 @@ public class DischargerBlock extends ChargerBlock {
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(DischargerBlock::new);
+        return BlockBehaviour.simpleCodec(DischargerBlock::new);
     }
 
     @Nullable
@@ -42,7 +43,7 @@ public class DischargerBlock extends ChargerBlock {
         BlockEntityType<T> type
     ) {
         if (level.isClientSide()) return null;
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             type,
             ModBlockEntities.DISCHARGER.get(),
             (level1, blockPos, _, be) -> be.tick(level1, blockPos)

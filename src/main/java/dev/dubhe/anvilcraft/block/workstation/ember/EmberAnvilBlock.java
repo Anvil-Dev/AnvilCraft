@@ -23,6 +23,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -39,8 +40,8 @@ public class EmberAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
     private static final VoxelShape X_TOP = Block.box(0.0, 10.0, 3.0, 16.0, 16.0, 13.0);
     private static final VoxelShape Z_LEG1 = Block.box(5.0, 4.0, 4.0, 11.0, 10.0, 12.0);
     private static final VoxelShape Z_TOP = Block.box(3.0, 10.0, 0.0, 13.0, 16.0, 16.0);
-    private static final VoxelShape X_AXIS_AABB = Shapes.or(BASE, X_LEG1, X_TOP);
-    private static final VoxelShape Z_AXIS_AABB = Shapes.or(BASE, Z_LEG1, Z_TOP);
+    private static final VoxelShape X_AXIS_AABB = Shapes.or(EmberAnvilBlock.BASE, EmberAnvilBlock.X_LEG1, EmberAnvilBlock.X_TOP);
+    private static final VoxelShape Z_AXIS_AABB = Shapes.or(EmberAnvilBlock.BASE, EmberAnvilBlock.Z_LEG1, EmberAnvilBlock.Z_TOP);
     private static final Component CONTAINER_TITLE = Component.translatable("container.repair");
 
     private BlockState checkBlockState;
@@ -55,11 +56,11 @@ public class EmberAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
         BlockGetter level,
         BlockPos pos,
         CollisionContext context) {
-        Direction direction = state.getValue(FACING);
+        Direction direction = state.getValue(AnvilBlock.FACING);
         if (direction.getAxis() == Direction.Axis.X) {
-            return X_AXIS_AABB;
+            return EmberAnvilBlock.X_AXIS_AABB;
         }
-        return Z_AXIS_AABB;
+        return EmberAnvilBlock.Z_AXIS_AABB;
     }
 
     @Override
@@ -82,7 +83,8 @@ public class EmberAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
     public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return new SimpleMenuProvider(
             (i, inventory, player) -> new EmberAnvilMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
-            CONTAINER_TITLE);
+            EmberAnvilBlock.CONTAINER_TITLE
+        );
     }
 
     @Override
@@ -102,7 +104,7 @@ public class EmberAnvilBlock extends BetterAnvilBlock implements IHammerRemovabl
         BlockPos pos,
         RandomSource random) {
         if (random.nextDouble() <= 0.5) {
-            tryAbsorbWater(level, pos);
+            this.tryAbsorbWater(level, pos);
         }
     }
 }

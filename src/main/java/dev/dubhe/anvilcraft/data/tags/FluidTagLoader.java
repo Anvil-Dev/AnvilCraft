@@ -20,10 +20,10 @@ public class FluidTagLoader {
     /// @param provider 提供器
     public static void init(RegistrumTagsProvider<Fluid> provider) {
         provider.rawBuilder(ModFluidTags.MENGER_SPONGE_CAN_ABSORB)
-            .addElement(findId(Fluids.WATER))
-            .addElement(findId(Fluids.FLOWING_WATER))
-            .addElement(findId(Fluids.LAVA))
-            .addElement(findId(Fluids.FLOWING_LAVA))
+            .addElement(FluidTagLoader.findId(Fluids.WATER))
+            .addElement(FluidTagLoader.findId(Fluids.FLOWING_WATER))
+            .addElement(FluidTagLoader.findId(Fluids.LAVA))
+            .addElement(FluidTagLoader.findId(Fluids.FLOWING_LAVA))
             .addElement(ModFluids.OIL.getId())
             .addElement(ModFluids.FLOWING_OIL.getId())
             .addElement(ModFluids.MELT_GEM.getId())

@@ -34,7 +34,7 @@ public class CelestialBodyTextureBakery {
 
     @Nullable
     private static NativeImage loadImage(String filename) {
-        Identifier loc = AnvilCraft.of(TEX_DIR + "/" + filename);
+        Identifier loc = AnvilCraft.of(CelestialBodyTextureBakery.TEX_DIR + "/" + filename);
         try {
             Resource res = Minecraft.getInstance().getResourceManager().getResource(loc).orElse(null);
             if (res == null) return null;
@@ -58,27 +58,29 @@ public class CelestialBodyTextureBakery {
 
     @Nullable
     public static Identifier getOrBakeBody(CelestialBodyData data) {
-        return CACHE.computeIfAbsent(cacheKey(data), k -> bakeBody(data, k));
+        return CelestialBodyTextureBakery.CACHE.computeIfAbsent(
+            CelestialBodyTextureBakery.cacheKey(data), k -> CelestialBodyTextureBakery.bakeBody(data, k));
     }
 
     @Nullable
     public static Identifier getOrBakeRing(CelestialBodyData data) {
         if (data.ringType() == RingType.NONE) return null;
-        return CACHE.computeIfAbsent(ringCacheKey(data), k -> bakeRing(data, k));
+        return CelestialBodyTextureBakery.CACHE.computeIfAbsent(
+            CelestialBodyTextureBakery.ringCacheKey(data), k -> CelestialBodyTextureBakery.bakeRing(data, k));
     }
 
     private record TexSet(String base, @Nullable String overlay, String palette) {
     }
 
     private static TexSet resolve(CelestialBodyData data) {
-        if (data instanceof RockyPlanetData rp) return resolveRocky(rp);
+        if (data instanceof RockyPlanetData rp) return CelestialBodyTextureBakery.resolveRocky(rp);
         if (data instanceof GiantPlanetData gp) {
             if (gp.brownDwarf()) return new TexSet(
                 "planet_giant.png",
                 gp.windSpeed() == WindSpeed.VERY_HIGH ? "planet_giant_overlay_1.png" : "planet_giant_overlay_0.png",
                 "planet_mix_color_scorched.png"
             );
-            return resolveGiant(gp);
+            return CelestialBodyTextureBakery.resolveGiant(gp);
         }
         return null;
     }
@@ -154,15 +156,15 @@ public class CelestialBodyTextureBakery {
 
     @Nullable
     private static Identifier bakeBody(CelestialBodyData data, String key) {
-        if (data instanceof SpecialCelestialBodyData special) return bakeSpecial(key, special);
+        if (data instanceof SpecialCelestialBodyData special) return CelestialBodyTextureBakery.bakeSpecial(key, special);
 
-        TexSet tex = resolve(data);
+        TexSet tex = CelestialBodyTextureBakery.resolve(data);
         if (tex == null) return null;
 
-        NativeImage baseImg = loadImage(tex.base());
+        NativeImage baseImg = CelestialBodyTextureBakery.loadImage(tex.base());
         if (baseImg == null) return null;
 
-        NativeImage paletteImg = loadImage(tex.palette());
+        NativeImage paletteImg = CelestialBodyTextureBakery.loadImage(tex.palette());
         if (paletteImg == null) paletteImg = baseImg;
 
         int baseRow = data instanceof RockyPlanetData rp ? rp.paletteBaseRow()
@@ -170,7 +172,7 @@ public class CelestialBodyTextureBakery {
         NativeImage coloredBase = PaletteColorMapper.colorTexture(baseImg, paletteImg, baseRow, true);
 
         if (tex.overlay() != null) {
-            NativeImage overlayImg = loadImage(tex.overlay());
+            NativeImage overlayImg = CelestialBodyTextureBakery.loadImage(tex.overlay());
             if (overlayImg != null) {
                 int overlayRow = data instanceof RockyPlanetData rp ? rp.paletteOverlayRow()
                     : (data instanceof GiantPlanetData gp ? gp.paletteOverlayRow() : 0);
@@ -183,7 +185,7 @@ public class CelestialBodyTextureBakery {
 
         if (paletteImg != baseImg) paletteImg.close();
         baseImg.close();
-        return registerTexture(key, coloredBase);
+        return CelestialBodyTextureBakery.registerTexture(key, coloredBase);
     }
 
     public static float[] starColor(StarData star) {
@@ -197,9 +199,9 @@ public class CelestialBodyTextureBakery {
     @Nullable
     private static Identifier bakeSpecial(String key, SpecialCelestialBodyData special) {
         String filename = special.textureName() + ".png";
-        NativeImage img = loadImage(filename);
+        NativeImage img = CelestialBodyTextureBakery.loadImage(filename);
         if (img == null) return null;
-        return registerTexture(key, img);
+        return CelestialBodyTextureBakery.registerTexture(key, img);
     }
 
     @Nullable
@@ -211,17 +213,17 @@ public class CelestialBodyTextureBakery {
         };
         if (ringFile == null) return null;
 
-        NativeImage ringImg = loadImage(ringFile);
+        NativeImage ringImg = CelestialBodyTextureBakery.loadImage(ringFile);
         if (ringImg == null) return null;
 
-        NativeImage paletteImg = loadImage("planet_giant_ring_color.png");
+        NativeImage paletteImg = CelestialBodyTextureBakery.loadImage("planet_giant_ring_color.png");
         if (paletteImg != null) {
             int ringPaletteRow = data instanceof RockyPlanetData rp ? rp.paletteBaseRow()
                 : (data instanceof GiantPlanetData gp ? gp.paletteBaseRow() : 0);
             NativeImage colored = PaletteColorMapper.colorTexture(ringImg, paletteImg, ringPaletteRow, true);
             paletteImg.close();
             ringImg.close();
-            return registerTexture(key, colored);
+            return CelestialBodyTextureBakery.registerTexture(key, colored);
         }
 
         ringImg.close();

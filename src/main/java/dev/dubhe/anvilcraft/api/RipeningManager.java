@@ -26,7 +26,7 @@ public class RipeningManager {
 
     /// 获取或新建一个当前维度催熟实例。
     public static RipeningManager from(Level level) {
-        return INSTANCES.computeIfAbsent(level, RipeningManager::new);
+        return RipeningManager.INSTANCES.computeIfAbsent(level, RipeningManager::new);
     }
 
     public RipeningManager(Level level) {

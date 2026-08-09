@@ -64,15 +64,15 @@ public class AnvilCraftClient {
     public static PillSelectorSupport pillSelectorSupport = PillSelectorSupport.INSTANCE;
 
     public AnvilCraftClient(IEventBus modBus, ModContainer container) {
-        modEventBus = modBus;
-        modContainer = container;
+        AnvilCraftClient.modEventBus = modBus;
+        AnvilCraftClient.modContainer = container;
         InspectionSupport.initializeClient();
     }
 
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event) {
-        IntegrationHook.setModEventBus(modEventBus);
-        IntegrationHook.setModContainer(modContainer);
+        IntegrationHook.setModEventBus(AnvilCraftClient.modEventBus);
+        IntegrationHook.setModContainer(AnvilCraftClient.modContainer);
         AnvilCraft.getINTEGRATION_MANAGER().loadAllClientIntegrations();
         event.enqueueWork(() -> {
             CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(

@@ -123,7 +123,7 @@ public record AnvilCollisionCraftRecipe(
     /// @return 配方序列化器
     @Override
     public RecipeSerializer<AnvilCollisionCraftRecipe> getSerializer() {
-        return SERIALIZER;
+        return AnvilCollisionCraftRecipe.SERIALIZER;
     }
 
     /// 判断是否为特殊配方
@@ -179,8 +179,8 @@ public record AnvilCollisionCraftRecipe(
             BlockStatePredicate.STREAM_CODEC.encode(buf, recipe.anvil);
             buf.writeBoolean(recipe.consume);
             BlockStatePredicate.STREAM_CODEC.encode(buf, recipe.hitBlock);
-            writeList(buf, recipe.transformBlocks, BlockTransform.STREAM_CODEC);
-            writeList(buf, recipe.outputItems, ChanceItemStack.STREAM_CODEC);
+            Serializer.writeList(buf, recipe.transformBlocks, BlockTransform.STREAM_CODEC);
+            Serializer.writeList(buf, recipe.outputItems, ChanceItemStack.STREAM_CODEC);
             buf.writeVarInt(recipe.speed);
         }
 
@@ -194,8 +194,8 @@ public record AnvilCollisionCraftRecipe(
                 BlockStatePredicate.STREAM_CODEC.decode(buf),
                 buf.readBoolean(),
                 BlockStatePredicate.STREAM_CODEC.decode(buf),
-                readList(buf, BlockTransform.STREAM_CODEC),
-                readList(buf, ChanceItemStack.STREAM_CODEC),
+                Serializer.readList(buf, BlockTransform.STREAM_CODEC),
+                Serializer.readList(buf, ChanceItemStack.STREAM_CODEC),
                 buf.readVarInt()
             );
         }
@@ -443,7 +443,7 @@ public record AnvilCollisionCraftRecipe(
         /// @param recipeOutput 配方输出
         @Override
         public void save(RecipeOutput recipeOutput) {
-            save(
+            this.save(
                 recipeOutput,
                 AnvilCraft.of(this.anvil.getKey().getPath() + "_and_" + this.hitBlock.getKey().getPath() + "_" + this.speed)
                     .withPrefix(this.getType() + "/")

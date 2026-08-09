@@ -14,6 +14,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.network.ClientPacketDistributor;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,12 +33,12 @@ public class RedstoneWireTooltipProvider extends ITooltipProvider.BlockTooltipPr
     /** 客户端每个位置上次发包的游戏时间。 */
     private static final Long2LongOpenHashMap LAST_REQUEST = new Long2LongOpenHashMap();
     /** 上述位置缓存所属的客户端世界。 */
-    private static Level cachedLevel;
+    private static @Nullable Level cachedLevel;
 
     static {
         // 使用不会与合法红石强度重叠的哨兵值，避免额外维护 containsKey 集合。
-        NON_DUST_POWER.defaultReturnValue(-1);
-        LAST_REQUEST.defaultReturnValue(Long.MIN_VALUE);
+        RedstoneWireTooltipProvider.NON_DUST_POWER.defaultReturnValue(-1);
+        RedstoneWireTooltipProvider.LAST_REQUEST.defaultReturnValue(Long.MIN_VALUE);
     }
 
     @Override
@@ -51,13 +52,13 @@ public class RedstoneWireTooltipProvider extends ITooltipProvider.BlockTooltipPr
             // 遵守统一兼容配置，避免 Jade 与铁砧锤 HUD 在同一位置重复显示信息。
             return List.of();
         }
-        ensureLevel(level);
+        RedstoneWireTooltipProvider.ensureLevel(level);
         long packedPos = pos.asLong();
         long gameTime = level.getGameTime();
-        long lastRequest = LAST_REQUEST.get(packedPos);
-        if (lastRequest == Long.MIN_VALUE || gameTime - lastRequest >= REQUEST_INTERVAL) {
+        long lastRequest = RedstoneWireTooltipProvider.LAST_REQUEST.get(packedPos);
+        if (lastRequest == Long.MIN_VALUE || gameTime - lastRequest >= RedstoneWireTooltipProvider.REQUEST_INTERVAL) {
             // HUD 可能每帧调用 tooltip，按游戏刻限频可显著减少客户端到服务端的小包数量。
-            LAST_REQUEST.put(packedPos, gameTime);
+            RedstoneWireTooltipProvider.LAST_REQUEST.put(packedPos, gameTime);
             ClientPacketDistributor.sendToServer(new RedstoneWirePowerRequestPacket(pos));
         }
 
@@ -66,7 +67,7 @@ public class RedstoneWireTooltipProvider extends ITooltipProvider.BlockTooltipPr
         lines.add(Component.translatable(
             "tooltip.anvilcraft.redstone.power", RedstoneWireNetworkManager.getPower(level, pos)
         ).withStyle(ChatFormatting.GRAY));
-        int nonDustPower = NON_DUST_POWER.get(packedPos);
+        int nonDustPower = RedstoneWireTooltipProvider.NON_DUST_POWER.get(packedPos);
         if (nonDustPower >= 0) {
             // 收到服务端权威值之前不显示占位数字，避免把“未知”误导成真实的零输出。
             lines.add(Component.translatable(
@@ -83,17 +84,17 @@ public class RedstoneWireTooltipProvider extends ITooltipProvider.BlockTooltipPr
 
     /** 接收服务端返回的非红石粉输入强度并更新当前位置缓存。 */
     public static void receive(Level level, BlockPos pos, int nonDustPower) {
-        ensureLevel(level);
-        NON_DUST_POWER.put(pos.asLong(), nonDustPower);
+        RedstoneWireTooltipProvider.ensureLevel(level);
+        RedstoneWireTooltipProvider.NON_DUST_POWER.put(pos.asLong(), nonDustPower);
     }
 
     private static void ensureLevel(Level level) {
-        if (cachedLevel == level) {
+        if (RedstoneWireTooltipProvider.cachedLevel == level) {
             return;
         }
         // 方块坐标在不同维度会重复，切换世界后必须整体清空，不能复用上一维度的数据和限频时间。
-        cachedLevel = level;
-        NON_DUST_POWER.clear();
-        LAST_REQUEST.clear();
+        RedstoneWireTooltipProvider.cachedLevel = level;
+        RedstoneWireTooltipProvider.NON_DUST_POWER.clear();
+        RedstoneWireTooltipProvider.LAST_REQUEST.clear();
     }
 }

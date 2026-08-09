@@ -11,8 +11,8 @@ import net.minecraft.world.level.Level;
 
 public class SetRagedConsumeEffect implements ConsumeEffect {
     public static final SetRagedConsumeEffect INSTANCE = new SetRagedConsumeEffect();
-    public static final MapCodec<SetRagedConsumeEffect> CODEC = MapCodec.unit(INSTANCE);
-    public static final StreamCodec<ByteBuf, SetRagedConsumeEffect> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+    public static final MapCodec<SetRagedConsumeEffect> CODEC = MapCodec.unit(SetRagedConsumeEffect.INSTANCE);
+    public static final StreamCodec<ByteBuf, SetRagedConsumeEffect> STREAM_CODEC = StreamCodec.unit(SetRagedConsumeEffect.INSTANCE);
     
     @Override
     public Type<? extends ConsumeEffect> getType() {

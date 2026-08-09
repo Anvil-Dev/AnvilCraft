@@ -98,16 +98,16 @@ public class PipeBlockItem extends Item {
         boolean modified = false;
         Player player = context.getPlayer();
         if (targetIsPipe) {
-            BlockState newState = modifyPipeToConnect(level, targetPos, targetState, clickedFace, placeIsPipe);
+            BlockState newState = PipeBlockItem.modifyPipeToConnect(level, targetPos, targetState, clickedFace, placeIsPipe);
             if (newState != null) {
-                playPlaceSound(level, targetPos, newState, player);
+                PipeBlockItem.playPlaceSound(level, targetPos, newState, player);
                 modified = true;
             }
         }
         if (placeIsPipe) {
-            BlockState newState = modifyPipeToConnect(level, placePos, placeState, clickedFace.getOpposite(), targetIsPipe);
+            BlockState newState = PipeBlockItem.modifyPipeToConnect(level, placePos, placeState, clickedFace.getOpposite(), targetIsPipe);
             if (newState != null) {
-                playPlaceSound(level, placePos, newState, player);
+                PipeBlockItem.playPlaceSound(level, placePos, newState, player);
                 modified = true;
             }
         }
@@ -128,14 +128,14 @@ public class PipeBlockItem extends Item {
      */
     @Nullable
     private static BlockState modifyPipeToConnect(Level level, BlockPos pos, BlockState state, Direction toward, boolean towardIsPipe) {
-        if (hasOpenConnectionToward(state, toward)) {
+        if (PipeBlockItem.hasOpenConnectionToward(state, toward)) {
             return null;
         }
 
         if (state.getBlock() instanceof PipeStraightBlock) {
-            return modifyStraightToConnect(level, pos, state, toward, towardIsPipe);
+            return PipeBlockItem.modifyStraightToConnect(level, pos, state, toward, towardIsPipe);
         } else if (state.getBlock() instanceof PipeCornerBlock) {
-            return modifyCornerToConnect(level, pos, state, toward, towardIsPipe);
+            return PipeBlockItem.modifyCornerToConnect(level, pos, state, toward, towardIsPipe);
         } else if (state.getBlock() instanceof PipeNodeBlock) {
             PipeBlock.NodePipe value = towardIsPipe ? PipeBlock.NodePipe.PIPE : PipeBlock.NodePipe.END;
             BlockState newState = state.setValue(PipeBlock.getPropertyForDirection(toward), value);
@@ -164,9 +164,9 @@ public class PipeBlockItem extends Item {
         Direction endDir = Direction.get(Direction.AxisDirection.POSITIVE, axis);
 
         if (toward.getAxis() == axis) {
-            return getContainsDirectionBlockState(level, pos, state, toward, towardIsPipe, startDir);
+            return PipeBlockItem.getContainsDirectionBlockState(level, pos, state, toward, towardIsPipe, startDir);
         }
-        return getConnectedBlockState(level, pos, state, toward, towardIsPipe, startDir, endDir);
+        return PipeBlockItem.getConnectedBlockState(level, pos, state, toward, towardIsPipe, startDir, endDir);
     }
 
     /**
@@ -188,9 +188,9 @@ public class PipeBlockItem extends Item {
         Direction second = corner.getSecondDirection();
 
         if (corner.containsDirection(toward)) {
-            return getContainsDirectionBlockState(level, pos, state, toward, towardIsPipe, first);
+            return PipeBlockItem.getContainsDirectionBlockState(level, pos, state, toward, towardIsPipe, first);
         }
-        return getConnectedBlockState(level, pos, state, toward, towardIsPipe, first, second);
+        return PipeBlockItem.getConnectedBlockState(level, pos, state, toward, towardIsPipe, first, second);
     }
 
     /**
@@ -243,7 +243,7 @@ public class PipeBlockItem extends Item {
         boolean endOccupied = PipeBlock.isNeighborOccupied(level, pos, endDir);
 
         if (startOccupied && endOccupied) {
-            return convertToNode(level, pos, state, toward, towardIsPipe, startDir, endDir);
+            return PipeBlockItem.convertToNode(level, pos, state, toward, towardIsPipe, startDir, endDir);
         } else {
             Direction occupiedEnd = startOccupied ? startDir : endDir;
             boolean occupiedEndIsPipe = PipeBlock.isNeighborPipeToward(level, pos, occupiedEnd);
@@ -370,7 +370,7 @@ public class PipeBlockItem extends Item {
         boolean shiftDown = player != null && player.isShiftKeyDown() && !clickedOnEntityFluidHandler;
 
         if (shiftDown || (!clickedOnPipe && !clickedOnFluidHandler)) {
-            Direction.Axis axis = getLookAxis(player);
+            Direction.Axis axis = PipeBlockItem.getLookAxis(player);
             return this.makeStraightState(level, placePos, axis, true, true);
         }
 
@@ -458,7 +458,7 @@ public class PipeBlockItem extends Item {
                 );
                 nodeState = nodeState.setValue(PipeBlock.getPropertyForDirection(clickedFace), PipeBlock.NodePipe.PIPE);
                 PipeBlock.setBlockPreservingValve(level, cornerPos, nodeState);
-                playPlaceSound(level, cornerPos, nodeState, player);
+                PipeBlockItem.playPlaceSound(level, cornerPos, nodeState, player);
             } else if (bothFree || oppositeOccupied) {
                 Direction.Axis axis = clickedFace.getAxis();
                 Direction startDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
@@ -479,7 +479,7 @@ public class PipeBlockItem extends Item {
                     .setValue(PipeBlock.HAS_END_END, !endIsPipe)
                     .setValue(PipeBlock.WATERLOGGED, cornerState.getValue(PipeBlock.WATERLOGGED));
                 PipeBlock.setBlockPreservingValve(level, cornerPos, straightState);
-                playPlaceSound(level, cornerPos, straightState, player);
+                PipeBlockItem.playPlaceSound(level, cornerPos, straightState, player);
             } else if (!directionMatches) {
                 Direction occupiedEnd = firstOccupied ? first : second;
                 PipeBlock.CornerEnded newCorner = PipeBlock.CornerEnded.fromDirections(occupiedEnd, clickedFace);
@@ -493,7 +493,7 @@ public class PipeBlockItem extends Item {
                     .setValue(PipeBlock.HAS_END_START, firstIsOccupied && !occupiedEndIsPipe)
                     .setValue(PipeBlock.HAS_END_END, !firstIsOccupied && !occupiedEndIsPipe);
                 PipeBlock.setBlockPreservingValve(level, cornerPos, newCornerState);
-                playPlaceSound(level, cornerPos, newCornerState, player);
+                PipeBlockItem.playPlaceSound(level, cornerPos, newCornerState, player);
             }
         }
 

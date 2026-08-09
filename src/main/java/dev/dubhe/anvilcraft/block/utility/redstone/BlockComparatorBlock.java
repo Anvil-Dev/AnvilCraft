@@ -21,6 +21,7 @@ import net.minecraft.world.level.ScheduledTickAccess;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -38,7 +39,7 @@ import org.jspecify.annotations.Nullable;
 
 public class BlockComparatorBlock extends Block implements IHammerRemovable, IHammerChangeable {
 
-    public static final MapCodec<BlockComparatorBlock> CODEC = simpleCodec(BlockComparatorBlock::new);
+    public static final MapCodec<BlockComparatorBlock> CODEC = BlockBehaviour.simpleCodec(BlockComparatorBlock::new);
 
     public static final EnumProperty<FacingWithAxis> FACING_WITH_AXIS =
         EnumProperty.create("facing_with_axis", FacingWithAxis.class);
@@ -51,41 +52,41 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
         new AABB(0, 4.0, 0, 2.0, 12.0, 10.0),
         new AABB(14.0, 4.0, 0, 16, 12.0, 10.0)
     );
-    private static final VoxelShape SHAPE_SOUTH_X = ShapeUtil.rotate(Direction.Axis.Y, 180, SHAPE_NORTH_X);
+    private static final VoxelShape SHAPE_SOUTH_X = ShapeUtil.rotate(Direction.Axis.Y, 180, BlockComparatorBlock.SHAPE_NORTH_X);
 
-    private static final VoxelShape SHAPE_WEST_Z = ShapeUtil.rotate(Direction.Axis.Y, 90, SHAPE_NORTH_X);
-    private static final VoxelShape SHAPE_EAST_Z = ShapeUtil.rotate(Direction.Axis.Y, 270, SHAPE_NORTH_X);
+    private static final VoxelShape SHAPE_WEST_Z = ShapeUtil.rotate(Direction.Axis.Y, 90, BlockComparatorBlock.SHAPE_NORTH_X);
+    private static final VoxelShape SHAPE_EAST_Z = ShapeUtil.rotate(Direction.Axis.Y, 270, BlockComparatorBlock.SHAPE_NORTH_X);
 
-    private static final VoxelShape SHAPE_NORTH_Y = ShapeUtil.rotate(Direction.Axis.Z, 90, SHAPE_NORTH_X);
-    private static final VoxelShape SHAPE_SOUTH_Y = ShapeUtil.rotate(Direction.Axis.Y, 180, SHAPE_NORTH_Y);
-    private static final VoxelShape SHAPE_WEST_Y = ShapeUtil.rotate(Direction.Axis.Y, 90, SHAPE_NORTH_Y);
-    private static final VoxelShape SHAPE_EAST_Y = ShapeUtil.rotate(Direction.Axis.Y, 270, SHAPE_NORTH_Y);
+    private static final VoxelShape SHAPE_NORTH_Y = ShapeUtil.rotate(Direction.Axis.Z, 90, BlockComparatorBlock.SHAPE_NORTH_X);
+    private static final VoxelShape SHAPE_SOUTH_Y = ShapeUtil.rotate(Direction.Axis.Y, 180, BlockComparatorBlock.SHAPE_NORTH_Y);
+    private static final VoxelShape SHAPE_WEST_Y = ShapeUtil.rotate(Direction.Axis.Y, 90, BlockComparatorBlock.SHAPE_NORTH_Y);
+    private static final VoxelShape SHAPE_EAST_Y = ShapeUtil.rotate(Direction.Axis.Y, 270, BlockComparatorBlock.SHAPE_NORTH_Y);
 
-    private static final VoxelShape SHAPE_UP_X = ShapeUtil.rotate(Direction.Axis.X, 270, SHAPE_NORTH_X);
-    private static final VoxelShape SHAPE_DOWN_X = ShapeUtil.rotate(Direction.Axis.X, 90, SHAPE_NORTH_X);
+    private static final VoxelShape SHAPE_UP_X = ShapeUtil.rotate(Direction.Axis.X, 270, BlockComparatorBlock.SHAPE_NORTH_X);
+    private static final VoxelShape SHAPE_DOWN_X = ShapeUtil.rotate(Direction.Axis.X, 90, BlockComparatorBlock.SHAPE_NORTH_X);
 
-    private static final VoxelShape SHAPE_UP_Z = ShapeUtil.rotate(Direction.Axis.Y, 90, SHAPE_UP_X);
-    private static final VoxelShape SHAPE_DOWN_Z = ShapeUtil.rotate(Direction.Axis.Y, 90, SHAPE_DOWN_X);
+    private static final VoxelShape SHAPE_UP_Z = ShapeUtil.rotate(Direction.Axis.Y, 90, BlockComparatorBlock.SHAPE_UP_X);
+    private static final VoxelShape SHAPE_DOWN_Z = ShapeUtil.rotate(Direction.Axis.Y, 90, BlockComparatorBlock.SHAPE_DOWN_X);
 
     public BlockComparatorBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
             this.stateDefinition
                 .any()
-                .setValue(FACING_WITH_AXIS, FacingWithAxis.NORTH_X)
-                .setValue(PRECISE, false)
-                .setValue(POWERED, false)
+                .setValue(BlockComparatorBlock.FACING_WITH_AXIS, FacingWithAxis.NORTH_X)
+                .setValue(BlockComparatorBlock.PRECISE, false)
+                .setValue(BlockComparatorBlock.POWERED, false)
         );
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING_WITH_AXIS).add(PRECISE).add(POWERED);
+        builder.add(BlockComparatorBlock.FACING_WITH_AXIS).add(BlockComparatorBlock.PRECISE).add(BlockComparatorBlock.POWERED);
     }
 
     @Override
     protected MapCodec<? extends Block> codec() {
-        return CODEC;
+        return BlockComparatorBlock.CODEC;
     }
 
     @Override
@@ -95,23 +96,23 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
         BlockPos pos,
         CollisionContext context
     ) {
-        return getShapeFor(state.getValue(FACING_WITH_AXIS));
+        return BlockComparatorBlock.getShapeFor(state.getValue(BlockComparatorBlock.FACING_WITH_AXIS));
     }
 
     private static VoxelShape getShapeFor(FacingWithAxis fwa) {
         return switch (fwa) {
-            case NORTH_X -> SHAPE_NORTH_X;
-            case SOUTH_X -> SHAPE_SOUTH_X;
-            case WEST_Z -> SHAPE_WEST_Z;
-            case EAST_Z -> SHAPE_EAST_Z;
-            case NORTH_Y -> SHAPE_NORTH_Y;
-            case SOUTH_Y -> SHAPE_SOUTH_Y;
-            case WEST_Y -> SHAPE_WEST_Y;
-            case EAST_Y -> SHAPE_EAST_Y;
-            case UP_X -> SHAPE_UP_X;
-            case UP_Z -> SHAPE_UP_Z;
-            case DOWN_X -> SHAPE_DOWN_X;
-            case DOWN_Z -> SHAPE_DOWN_Z;
+            case NORTH_X -> BlockComparatorBlock.SHAPE_NORTH_X;
+            case SOUTH_X -> BlockComparatorBlock.SHAPE_SOUTH_X;
+            case WEST_Z -> BlockComparatorBlock.SHAPE_WEST_Z;
+            case EAST_Z -> BlockComparatorBlock.SHAPE_EAST_Z;
+            case NORTH_Y -> BlockComparatorBlock.SHAPE_NORTH_Y;
+            case SOUTH_Y -> BlockComparatorBlock.SHAPE_SOUTH_Y;
+            case WEST_Y -> BlockComparatorBlock.SHAPE_WEST_Y;
+            case EAST_Y -> BlockComparatorBlock.SHAPE_EAST_Y;
+            case UP_X -> BlockComparatorBlock.SHAPE_UP_X;
+            case UP_Z -> BlockComparatorBlock.SHAPE_UP_Z;
+            case DOWN_X -> BlockComparatorBlock.SHAPE_DOWN_X;
+            case DOWN_Z -> BlockComparatorBlock.SHAPE_DOWN_Z;
         };
     }
 
@@ -127,7 +128,7 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
         } else {
             axis = facing.getClockWise().getAxis();
         }
-        return defaultBlockState().setValue(FACING_WITH_AXIS, FacingWithAxis.of(facing, axis));
+        return this.defaultBlockState().setValue(BlockComparatorBlock.FACING_WITH_AXIS, FacingWithAxis.of(facing, axis));
     }
 
     @Override
@@ -135,12 +136,12 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
         if (
             level.isClientSide()
             || (oldState.is(this)
-                && state.getValue(FACING_WITH_AXIS) == oldState.getValue(FACING_WITH_AXIS))
+                && state.getValue(BlockComparatorBlock.FACING_WITH_AXIS) == oldState.getValue(BlockComparatorBlock.FACING_WITH_AXIS))
         ) {
             return;
         }
         boolean newPowered = this.checkBlocks(level, pos, state);
-        level.setBlock(pos, state.setValue(POWERED, newPowered), 3);
+        level.setBlock(pos, state.setValue(BlockComparatorBlock.POWERED, newPowered), 3);
         this.updateNeighborsInFront(level, pos, state);
     }
 
@@ -150,11 +151,11 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
         if (
             level.isClientSide()
             || (state.is(newState.getBlock())
-                && state.getValue(FACING_WITH_AXIS) == newState.getValue(FACING_WITH_AXIS))
+                && state.getValue(BlockComparatorBlock.FACING_WITH_AXIS) == newState.getValue(BlockComparatorBlock.FACING_WITH_AXIS))
         ) {
             return;
         }
-        if (state.getValue(POWERED)) {
+        if (state.getValue(BlockComparatorBlock.POWERED)) {
             this.updateNeighborsInFront(level, pos, state);
         }
     }
@@ -170,20 +171,20 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
         if (!player.getAbilities().mayBuild) {
             return InteractionResult.PASS;
         } else {
-            BlockState newState = state.cycle(PRECISE);
-            level.setBlock(pos, newState.setValue(POWERED, this.checkBlocks(level, pos, newState)), 2);
+            BlockState newState = state.cycle(BlockComparatorBlock.PRECISE);
+            level.setBlock(pos, newState.setValue(BlockComparatorBlock.POWERED, this.checkBlocks(level, pos, newState)), 2);
             this.updateNeighborsInFront(level, pos, state);
             return InteractionResult.SUCCESS;
         }
     }
 
     private boolean checkBlocks(LevelAccessor level, BlockPos pos, BlockState blockState) {
-        FacingWithAxis fwa = blockState.getValue(FACING_WITH_AXIS);
+        FacingWithAxis fwa = blockState.getValue(BlockComparatorBlock.FACING_WITH_AXIS);
         Direction.Axis axis = fwa.getAxis();
-        Direction[] dirs = getCompareDirections(axis);
+        Direction[] dirs = BlockComparatorBlock.getCompareDirections(axis);
         BlockState state1 = level.getBlockState(pos.relative(dirs[0]));
         BlockState state2 = level.getBlockState(pos.relative(dirs[1]));
-        return blockState.getValue(PRECISE)
+        return blockState.getValue(BlockComparatorBlock.PRECISE)
                ? state1.equals(state2)
                : state1.getBlock() == state2.getBlock();
     }
@@ -206,7 +207,7 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
         BlockState neighbourState,
         RandomSource random
     ) {
-        FacingWithAxis fwa = state.getValue(FACING_WITH_AXIS);
+        FacingWithAxis fwa = state.getValue(BlockComparatorBlock.FACING_WITH_AXIS);
         Direction facing = fwa.getFacing();
         Direction.Axis compareAxis = fwa.getAxis();
         if (directionToNeighbour.getAxis() == facing.getAxis()) return state;
@@ -220,14 +221,14 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         boolean same = this.checkBlocks(level, pos, state);
-        if (same != state.getValue(POWERED)) {
-            level.setBlock(pos, state.setValue(POWERED, same), 2);
+        if (same != state.getValue(BlockComparatorBlock.POWERED)) {
+            level.setBlock(pos, state.setValue(BlockComparatorBlock.POWERED, same), 2);
             this.updateNeighborsInFront(level, pos, state);
         }
     }
 
     protected void updateNeighborsInFront(Level level, BlockPos pos, BlockState state) {
-        Direction direction = state.getValue(FACING_WITH_AXIS).getFacing();
+        Direction direction = state.getValue(BlockComparatorBlock.FACING_WITH_AXIS).getFacing();
         BlockPos blockpos = pos.relative(direction.getOpposite());
         Orientation orientation = ExperimentalRedstoneUtils.initialOrientation(level, direction.getOpposite(), null);
         level.neighborChanged(blockpos, this, orientation);
@@ -236,7 +237,7 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
 
     @Override
     public boolean canConnectRedstone(BlockState state, BlockGetter level, BlockPos pos, @Nullable Direction direction) {
-        return direction == state.getValue(FACING_WITH_AXIS).getFacing();
+        return direction == state.getValue(BlockComparatorBlock.FACING_WITH_AXIS).getFacing();
     }
 
     @Override
@@ -256,7 +257,8 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
 
     @Override
     protected int getSignal(BlockState blockState, BlockGetter blockAccess, BlockPos pos, Direction side) {
-        return blockState.getValue(POWERED) && blockState.getValue(FACING_WITH_AXIS).getFacing() == side ? 15 : 0;
+        return blockState.getValue(BlockComparatorBlock.POWERED) && blockState.getValue(BlockComparatorBlock.FACING_WITH_AXIS).getFacing()
+                                                                    == side ? 15 : 0;
     }
 
     @Override
@@ -267,24 +269,25 @@ public class BlockComparatorBlock extends Block implements IHammerRemovable, IHa
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         BlockState state = level.getBlockState(blockPos);
-        FacingWithAxis fwa = state.getValue(FACING_WITH_AXIS);
+        FacingWithAxis fwa = state.getValue(BlockComparatorBlock.FACING_WITH_AXIS);
         FacingWithAxis newFwa = fwa.toggleAxis();
-        level.setBlockAndUpdate(blockPos, state.setValue(FACING_WITH_AXIS, newFwa));
+        level.setBlockAndUpdate(blockPos, state.setValue(BlockComparatorBlock.FACING_WITH_AXIS, newFwa));
         return true;
     }
 
     @Override
     public Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING_WITH_AXIS;
+        return BlockComparatorBlock.FACING_WITH_AXIS;
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING_WITH_AXIS, state.getValue(FACING_WITH_AXIS).rotate(rotation));
+        return state.setValue(
+            BlockComparatorBlock.FACING_WITH_AXIS, state.getValue(BlockComparatorBlock.FACING_WITH_AXIS).rotate(rotation));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(FACING_WITH_AXIS, state.getValue(FACING_WITH_AXIS).mirror(mirror));
+        return state.setValue(BlockComparatorBlock.FACING_WITH_AXIS, state.getValue(BlockComparatorBlock.FACING_WITH_AXIS).mirror(mirror));
     }
 }

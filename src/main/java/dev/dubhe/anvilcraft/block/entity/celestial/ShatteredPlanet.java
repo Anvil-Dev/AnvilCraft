@@ -30,10 +30,10 @@ public final class ShatteredPlanet {
 
     public static PlanetaryResourceSet createResources() {
         PlanetaryResourceSet resources = new PlanetaryResourceSet();
-        resources.addMineral(item(AnvilCraft.of("raw_tungsten"), 30));
-        resources.addMineral(item(Identifier.withDefaultNamespace("raw_gold"), 30));
-        resources.addMineral(item(AnvilCraft.of("raw_silver"), 30));
-        resources.addMineral(item(AnvilCraft.of("earth_core_shard"), 10));
+        resources.addMineral(ShatteredPlanet.item(AnvilCraft.of("raw_tungsten"), 30));
+        resources.addMineral(ShatteredPlanet.item(Identifier.withDefaultNamespace("raw_gold"), 30));
+        resources.addMineral(ShatteredPlanet.item(AnvilCraft.of("raw_silver"), 30));
+        resources.addMineral(ShatteredPlanet.item(AnvilCraft.of("earth_core_shard"), 10));
         resources.addFluid(new PlanetaryResourceSet.WeightedFluidStack(
             Identifier.withDefaultNamespace("lava"),
             100

@@ -49,11 +49,11 @@ public enum DirectionCube232PartHalf
             int x = half.offsetX;
             int y = half.offsetY;
             int z = half.offsetZ;
-            half.clockwise90 = findByOffset(-z, y, x);
-            half.clockwise180 = findByOffset(-x, y, -z);
-            half.clockwise270 = findByOffset(z, y, -x);
-            half.mirrorX = findByOffset(-x, y, z);
-            half.mirrorZ = findByOffset(x, y, -z);
+            half.clockwise90 = DirectionCube232PartHalf.findByOffset(-z, y, x);
+            half.clockwise180 = DirectionCube232PartHalf.findByOffset(-x, y, -z);
+            half.clockwise270 = DirectionCube232PartHalf.findByOffset(z, y, -x);
+            half.mirrorX = DirectionCube232PartHalf.findByOffset(-x, y, z);
+            half.mirrorZ = DirectionCube232PartHalf.findByOffset(x, y, -z);
         }
     }
 
@@ -90,7 +90,7 @@ public enum DirectionCube232PartHalf
 
     @Override
     public boolean isMain() {
-        return this == BOTTOM_PART;
+        return this == DirectionCube232PartHalf.BOTTOM_PART;
     }
 
     public DirectionCube232PartHalf rotate(Rotation rotation) {

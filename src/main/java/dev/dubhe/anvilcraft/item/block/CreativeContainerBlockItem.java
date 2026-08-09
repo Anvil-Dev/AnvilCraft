@@ -22,8 +22,8 @@ public class CreativeContainerBlockItem extends BlockItem {
     @Override
     public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
         List<CreativeContainerTooltip.Entry> entries = new ArrayList<>();
-        appendStoredItemTooltip(stack, entries);
-        appendStoredFluidsTooltip(stack, entries);
+        CreativeContainerBlockItem.appendStoredItemTooltip(stack, entries);
+        CreativeContainerBlockItem.appendStoredFluidsTooltip(stack, entries);
         if (entries.isEmpty()) return super.getTooltipImage(stack);
         return Optional.of(new CreativeContainerTooltip(entries));
     }
@@ -40,7 +40,7 @@ public class CreativeContainerBlockItem extends BlockItem {
         List<FluidStack> fluids = storedFluids.fluids();
         for (FluidStack fluid : fluids) {
             if (fluid.isEmpty()) continue;
-            if (containsSameFluidBefore(fluids, fluid)) continue;
+            if (CreativeContainerBlockItem.containsSameFluidBefore(fluids, fluid)) continue;
             entries.add(CreativeContainerTooltip.Entry.fluid(fluid));
         }
     }

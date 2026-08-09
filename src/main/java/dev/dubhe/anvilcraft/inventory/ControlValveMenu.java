@@ -43,7 +43,7 @@ public class ControlValveMenu extends AbstractContainerMenu {
         Inventory inventory,
         FriendlyByteBuf extraData
     ) {
-        this(menuType, containerId, inventory, getBlockEntity(inventory, extraData.readBlockPos()));
+        this(menuType, containerId, inventory, ControlValveMenu.getBlockEntity(inventory, extraData.readBlockPos()));
     }
 
     private ControlValveMenu(
@@ -90,7 +90,7 @@ public class ControlValveMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         if (this.blockEntity == null) return false;
-        return stillValid(
+        return AbstractContainerMenu.stillValid(
             ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()),
             player,
             ModBlocks.CONTROL_VALVE.get()

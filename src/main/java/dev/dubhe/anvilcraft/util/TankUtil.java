@@ -32,14 +32,14 @@ public class TankUtil {
                 for (int z = -1; z < 2; z++) {
                     BlockPos subPos = centerPos.offset(x * subSize, y * subSize, z * subSize);
 
-                    if (isMengerPos(x, y, z)) {
+                    if (TankUtil.isMengerPos(x, y, z)) {
                         // 角块和边块应该符合门格海绵结构
-                        if (!isMengerStructure(level, subPos, subSize)) {
+                        if (!TankUtil.isMengerStructure(level, subPos, subSize)) {
                             return false;
                         }
                     } else {
                         // 面块和中心块应该是空气
-                        if (!isNoMengerSponge(level, subPos, subSize)) {
+                        if (!TankUtil.isNoMengerSponge(level, subPos, subSize)) {
                             return false;
                         }
                     }

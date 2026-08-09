@@ -104,8 +104,8 @@ public class OverseerBlockEntity extends BlockEntity {
         List<LoadChunkData.BlockOffsetMapping> offsetMappings = new ArrayList<>();
         BlockPos.MutableBlockPos tierCenter = selfPos.mutable().move(Direction.DOWN);
 
-        for (int tier = 0; tier < TIER_RADIUS.length; tier++) {
-            int radius = TIER_RADIUS[tier];
+        for (int tier = 0; tier < OverseerBlockEntity.TIER_RADIUS.length; tier++) {
+            int radius = OverseerBlockEntity.TIER_RADIUS[tier];
             if (!this.isTierComplete(level, tierCenter, radius)) break;
 
             completeTiers++;
@@ -147,15 +147,15 @@ public class OverseerBlockEntity extends BlockEntity {
     }
 
     private boolean isValidBaseBlock(BlockState state) {
-        for (TagKey<Block> tag : VALID_BASE_TAGS) {
+        for (TagKey<Block> tag : OverseerBlockEntity.VALID_BASE_TAGS) {
             if (state.is(tag)) return true;
         }
         return false;
     }
 
     private int getBlockTier(BlockState state) {
-        for (int i = 0; i < VALID_BASE_TAGS.length; i++) {
-            if (state.is(VALID_BASE_TAGS[i])) return i;
+        for (int i = 0; i < OverseerBlockEntity.VALID_BASE_TAGS.length; i++) {
+            if (state.is(OverseerBlockEntity.VALID_BASE_TAGS[i])) return i;
         }
         return -1;
     }

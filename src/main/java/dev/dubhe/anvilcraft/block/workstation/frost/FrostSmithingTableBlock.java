@@ -23,7 +23,7 @@ public class FrostSmithingTableBlock extends SmithingTableBlock implements IHamm
     public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return new SimpleMenuProvider(
             (i, inventory, player) -> new FrostSmithingMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
-            CONTAINER_TITLE
+            FrostSmithingTableBlock.CONTAINER_TITLE
         );
     }
 }

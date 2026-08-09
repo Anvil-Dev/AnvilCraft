@@ -25,24 +25,24 @@ public class PipeCornerBlock extends PipeBlock {
         super(properties);
         this.registerDefaultState(this.getStateDefinition()
             .any()
-            .setValue(WATERLOGGED, false)
-            .setValue(HAS_CHECK_VALVE, false)
-            .setValue(CORNER_ENDED, CornerEnded.UP_NORTH)
-            .setValue(HAS_END_START, true)
-            .setValue(HAS_END_END, true));
+            .setValue(PipeBlock.WATERLOGGED, false)
+            .setValue(PipeBlock.HAS_CHECK_VALVE, false)
+            .setValue(PipeBlock.CORNER_ENDED, CornerEnded.UP_NORTH)
+            .setValue(PipeBlock.HAS_END_START, true)
+            .setValue(PipeBlock.HAS_END_END, true));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(CORNER_ENDED);
-        builder.add(HAS_END_START);
-        builder.add(HAS_END_END);
+        builder.add(PipeBlock.CORNER_ENDED);
+        builder.add(PipeBlock.HAS_END_START);
+        builder.add(PipeBlock.HAS_END_END);
     }
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-        CornerEnded corner = state.getValue(CORNER_ENDED);
+        CornerEnded corner = state.getValue(PipeBlock.CORNER_ENDED);
         Direction startDir = corner.getFirstDirection();
         Direction endDir = corner.getSecondDirection();
         return this.getShape(state, startDir, endDir);
@@ -70,7 +70,7 @@ public class PipeCornerBlock extends PipeBlock {
     ) {
         if (level.isClientSide()) return;
         this.updateCheckValvePower(level, pos, state);
-        CornerEnded corner = state.getValue(CORNER_ENDED);
+        CornerEnded corner = state.getValue(PipeBlock.CORNER_ENDED);
 
         // 非弯管方向（侧面）出现对准的管道或连接面正对的泵 → 升级为节点
         for (Direction dir : Direction.values()) {
@@ -80,16 +80,17 @@ public class PipeCornerBlock extends PipeBlock {
             BlockState neighborState = level.getBlockState(pos.relative(dir));
             boolean sidePump = neighborState.getBlock() instanceof PumpBlock
                 && PumpBlock.isConnectableFace(neighborState, dir.getOpposite());
-            if (isNeighborPipeToward(level, pos, dir) || sidePump) {
+            if (PipeBlock.isNeighborPipeToward(level, pos, dir) || sidePump) {
                 BlockState nodeState = ModBlocks.PIPE_NODE.get().defaultBlockState()
-                    .setValue(WATERLOGGED, state.getValue(WATERLOGGED));
+                    .setValue(PipeBlock.WATERLOGGED, state.getValue(PipeBlock.WATERLOGGED));
                 for (Direction d : Direction.values()) {
-                    nodeState = nodeState.setValue(getPropertyForDirection(d),
+                    nodeState = nodeState.setValue(
+                        PipeBlock.getPropertyForDirection(d),
                         PipeNodeBlock.evaluateNeighbor(level, pos, d));
                 }
                 BlockState simplified = PipeNodeBlock.trySimplify(nodeState);
                 if (!simplified.equals(state)) {
-                    setBlockPreservingValve(level, pos, simplified);
+                    PipeBlock.setBlockPreservingValve(level, pos, simplified);
                 }
                 return;
             }
@@ -99,10 +100,10 @@ public class PipeCornerBlock extends PipeBlock {
         Direction first = corner.getFirstDirection();
         Direction second = corner.getSecondDirection();
         BlockState newState = state
-            .setValue(HAS_END_START, !isNeighborPipeToward(level, pos, first))
-            .setValue(HAS_END_END, !isNeighborPipeToward(level, pos, second));
+            .setValue(PipeBlock.HAS_END_START, !PipeBlock.isNeighborPipeToward(level, pos, first))
+            .setValue(PipeBlock.HAS_END_END, !PipeBlock.isNeighborPipeToward(level, pos, second));
         if (!newState.equals(state)) {
-            setBlockPreservingValve(level, pos, newState);
+            PipeBlock.setBlockPreservingValve(level, pos, newState);
         }
     }
 

@@ -39,13 +39,13 @@ import net.minecraft.world.entity.MobCategory;
 
 public class ModEntities {
     public static final EntityEntry<? extends RailgunAnvilEntity> RAILGUN_ANVIL = AnvilCraft.REGISTRUM
-        .<RailgunAnvilEntity>entity("railgun_anvil", RailgunAnvilEntity::new, MobCategory.MISC)
+        .entity("railgun_anvil", RailgunAnvilEntity::new, MobCategory.MISC)
         .properties(builder -> builder.sized(0.98F, 0.98F).clientTrackingRange(80).updateInterval(1).noLootTable())
         .renderer(() -> RailgunAnvilRenderer::new)
         .register();
 
     public static final EntityEntry<? extends WeaponBeamEntity> WEAPON_BEAM = AnvilCraft.REGISTRUM
-        .<WeaponBeamEntity>entity("weapon_beam", WeaponBeamEntity::new, MobCategory.MISC)
+        .entity("weapon_beam", WeaponBeamEntity::new, MobCategory.MISC)
         .properties(builder -> builder.sized(0.01F, 0.01F).clientTrackingRange(80).updateInterval(1).noLootTable())
         .renderer(() -> WeaponBeamRenderer::new)
         .register();

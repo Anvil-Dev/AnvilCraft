@@ -45,7 +45,8 @@ public class RoyalGrindstoneBlock extends BetterGrindstoneBlock implements IHamm
                 inventory,
                 ContainerLevelAccess.create(level, pos)
             ),
-            CONTAINER_TITLE);
+            RoyalGrindstoneBlock.CONTAINER_TITLE
+        );
     }
 
 }

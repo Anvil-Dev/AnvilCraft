@@ -53,7 +53,7 @@ public final class FluidNetworkScanner {
      * 判断某位置是否为流体容器（提供 ResourceHandler<FluidResource> 且非管道部件）。供管理器剔除失效容器用。
      */
     public static boolean isContainer(Level level, BlockPos pos) {
-        return !isPipePart(level.getBlockState(pos)) && FluidContainerLookup.find(level, pos, null) != null;
+        return !FluidNetworkScanner.isPipePart(level.getBlockState(pos)) && FluidContainerLookup.find(level, pos, null) != null;
     }
 
     /**
@@ -80,11 +80,11 @@ public final class FluidNetworkScanner {
      * （此时泵仍是二极管单向连通，只是不主动提供扬程）。
      */
     private static int pumpHalfLift(Level level, BlockPos pumpPos) {
-        return level.getBlockEntity(pumpPos) instanceof PumpBlockEntity pbe && pbe.canPump() ? PUMP_HALF_LIFT : 0;
+        return level.getBlockEntity(pumpPos) instanceof PumpBlockEntity pbe && pbe.canPump() ? FluidNetworkScanner.PUMP_HALF_LIFT : 0;
     }
 
     private static FluidContainerLookup.Result container(Level level, BlockPos pos, Direction sideToPipe) {
-        if (isPipePart(level.getBlockState(pos))) {
+        if (FluidNetworkScanner.isPipePart(level.getBlockState(pos))) {
             return null;
         }
         return FluidContainerLookup.find(level, pos, sideToPipe);
@@ -96,7 +96,7 @@ public final class FluidNetworkScanner {
      * @return 网络对象；种子非管道部件时返回 {@code null}
      */
     public static FluidPipeNetwork scan(Level level, BlockPos seed) {
-        if (!isPipePart(level.getBlockState(seed))) {
+        if (!FluidNetworkScanner.isPipePart(level.getBlockState(seed))) {
             return null;
         }
 
@@ -119,7 +119,7 @@ public final class FluidNetworkScanner {
 
             if (state.getBlock() instanceof ControlValveBlock && level.getBlockEntity(pos) instanceof ControlValveBlockEntity valveBe) {
                 valves.putIfAbsent(pos, new ValveState(valveBe));
-                expandAxial(
+                FluidNetworkScanner.expandAxial(
                     level,
                     pos,
                     state.getValue(ControlValveBlock.AXIS),
@@ -134,7 +134,7 @@ public final class FluidNetworkScanner {
             } else if (state.getBlock() instanceof PumpBlock) {
                 // 记录泵的进液侧（二极管：仅允许 进液侧→另一侧 通过流体）
                 diodes.put(pos.immutable(), state.getValue(PumpBlock.ORIENTATION).getDirection());
-                expandPump(level, pos, state, phi, potential, adjacency, queue, endpoints, seenHandlers);
+                FluidNetworkScanner.expandPump(level, pos, state, phi, potential, adjacency, queue, endpoints, seenHandlers);
             } else if (state.getBlock() instanceof PipeBlock) {
                 // 管道面止逆阀（HAS_CHECK_VALVE 属性需后续添加到 PipeBlock）
                 // TODO: re-enable when PipeBlock gets HAS_CHECK_VALVE property
@@ -145,7 +145,7 @@ public final class FluidNetworkScanner {
                         faceFlow.put(pos.immutable(), new EnumMap<>(flows));
                     }
                 }
-                expandPipe(level, pos, state, phi, potential, adjacency, queue, endpoints, seenHandlers);
+                FluidNetworkScanner.expandPipe(level, pos, state, phi, potential, adjacency, queue, endpoints, seenHandlers);
             }
         }
 
@@ -179,10 +179,10 @@ public final class FluidNetworkScanner {
         Map<ResourceHandler<FluidResource>, Boolean> seenHandlers
     ) {
         for (Direction dir : Direction.values()) {
-            if (!hasAnyConnectionToward(state, dir)) {
+            if (!FluidNetworkScanner.hasAnyConnectionToward(state, dir)) {
                 continue;
             }
-            visitNeighbor(level, pos, dir, phi, potential, adjacency, queue, endpoints, seenHandlers);
+            FluidNetworkScanner.visitNeighbor(level, pos, dir, phi, potential, adjacency, queue, endpoints, seenHandlers);
         }
     }
 
@@ -201,13 +201,13 @@ public final class FluidNetworkScanner {
         Map<ResourceHandler<FluidResource>, Boolean> seenHandlers
     ) {
         Direction outputDir = state.getValue(PumpBlock.ORIENTATION).getDirection();
-        int lift = pumpHalfLift(level, pos);
+        int lift = FluidNetworkScanner.pumpHalfLift(level, pos);
         for (Direction side : new Direction[]{
             outputDir,
             outputDir.getOpposite()
         }) {
             int neighborPhi = phi + (side == outputDir ? lift : -lift);
-            visitNeighborWithPhi(level, pos, side, neighborPhi, potential, adjacency, queue, endpoints, seenHandlers);
+            FluidNetworkScanner.visitNeighborWithPhi(level, pos, side, neighborPhi, potential, adjacency, queue, endpoints, seenHandlers);
         }
     }
 
@@ -230,7 +230,7 @@ public final class FluidNetworkScanner {
             Direction.get(Direction.AxisDirection.POSITIVE, axis),
             Direction.get(Direction.AxisDirection.NEGATIVE, axis)
         }) {
-            visitNeighbor(level, pos, side, phi, potential, adjacency, queue, endpoints, seenHandlers);
+            FluidNetworkScanner.visitNeighbor(level, pos, side, phi, potential, adjacency, queue, endpoints, seenHandlers);
         }
     }
 
@@ -248,7 +248,7 @@ public final class FluidNetworkScanner {
         List<FluidEndpoint> endpoints,
         Map<ResourceHandler<FluidResource>, Boolean> seenHandlers
     ) {
-        visitNeighborWithPhi(level, pos, dir, phi, potential, adjacency, queue, endpoints, seenHandlers);
+        FluidNetworkScanner.visitNeighborWithPhi(level, pos, dir, phi, potential, adjacency, queue, endpoints, seenHandlers);
     }
 
     /**
@@ -273,26 +273,26 @@ public final class FluidNetworkScanner {
         Direction faceBack = dir.getOpposite();
 
         // 可连接泵（无论通/断电）→ 穿过（二极管；扬程由 enqueuePump 按通电状态决定）
-        if (isConnectablePump(neighborState, faceBack)) {
-            link(adjacency, pos, neighborPos);
-            enqueuePump(level, neighborPos, neighborState, pos, potential, queue);
+        if (FluidNetworkScanner.isConnectablePump(neighborState, faceBack)) {
+            FluidNetworkScanner.link(adjacency, pos, neighborPos);
+            FluidNetworkScanner.enqueuePump(level, neighborPos, neighborState, pos, potential, queue);
             return;
         }
         // 控制阀：连接面正对本部件 → 门控透传
         if (neighborState.getBlock() instanceof ControlValveBlock && ControlValveBlock.isConnectableFace(neighborState, faceBack)) {
-            link(adjacency, pos, neighborPos);
-            enqueuePart(neighborPos, neighborPhi, potential, queue);
+            FluidNetworkScanner.link(adjacency, pos, neighborPos);
+            FluidNetworkScanner.enqueuePart(neighborPos, neighborPhi, potential, queue);
             return;
         }
         // 对准本部件的另一管道 → 同势场（用 hasAnyConnectionToward：节点认 PIPE+END，
         // 否则节点朝泵/容器的 END 方向会被漏读，导致泵紧邻节点时抽不到液体）
-        if (neighborState.getBlock() instanceof PipeBlock && hasAnyConnectionToward(neighborState, faceBack)) {
-            link(adjacency, pos, neighborPos);
-            enqueuePart(neighborPos, neighborPhi, potential, queue);
+        if (neighborState.getBlock() instanceof PipeBlock && FluidNetworkScanner.hasAnyConnectionToward(neighborState, faceBack)) {
+            FluidNetworkScanner.link(adjacency, pos, neighborPos);
+            FluidNetworkScanner.enqueuePart(neighborPos, neighborPhi, potential, queue);
             return;
         }
         // 容器 → 端点
-        addEndpointIfContainer(level, neighborPos, faceBack, neighborPhi, pos, endpoints, seenHandlers);
+        FluidNetworkScanner.addEndpointIfContainer(level, neighborPos, faceBack, neighborPhi, pos, endpoints, seenHandlers);
     }
 
     private static void enqueuePart(BlockPos pos, int phi, Map<BlockPos, Integer> potential, Deque<BlockPos> queue) {
@@ -317,7 +317,7 @@ public final class FluidNetworkScanner {
     ) {
         Direction outputDir = pumpState.getValue(PumpBlock.ORIENTATION).getDirection();
         int fromPhi = potential.get(fromPos);
-        int lift = pumpHalfLift(level, pumpPos);
+        int lift = FluidNetworkScanner.pumpHalfLift(level, pumpPos);
         int pumpPhi;
         if (fromPos.equals(pumpPos.relative(outputDir))) {
             pumpPhi = fromPhi - lift;      // fromPos 在输出侧：fromPhi = pumpPhi + lift
@@ -351,7 +351,7 @@ public final class FluidNetworkScanner {
         }
         BlockPos immutablePos = containerPos.immutable();
         if (endpoints.stream().anyMatch(endpoint -> endpoint.containerPos().equals(immutablePos))) return;
-        FluidContainerLookup.Result container = container(level, containerPos, sideToPipe);
+        FluidContainerLookup.Result container = FluidNetworkScanner.container(level, containerPos, sideToPipe);
         if (container == null) {
             return;
         }

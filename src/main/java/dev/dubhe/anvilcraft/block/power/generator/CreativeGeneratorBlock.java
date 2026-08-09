@@ -20,6 +20,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -36,7 +37,7 @@ public class CreativeGeneratorBlock extends BetterBaseEntityBlock implements IHa
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(CreativeGeneratorBlock::new);
+        return BlockBehaviour.simpleCodec(CreativeGeneratorBlock::new);
     }
 
     @Override
@@ -69,7 +70,7 @@ public class CreativeGeneratorBlock extends BetterBaseEntityBlock implements IHa
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> type) {
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             type,
             ModBlockEntities.CREATIVE_GENERATOR.get(),
             (level1, blockPos, blockState, blockEntity) -> blockEntity.tick()

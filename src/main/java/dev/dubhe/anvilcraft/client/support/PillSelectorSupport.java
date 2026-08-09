@@ -53,7 +53,7 @@ public class PillSelectorSupport {
         final int top = y - 44 - 5;
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            PillSelectorSupport.BACKGROUND,
             left, top,
             0, 0,
             78, 44,

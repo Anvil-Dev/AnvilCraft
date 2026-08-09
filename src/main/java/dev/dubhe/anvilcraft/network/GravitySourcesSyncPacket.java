@@ -54,7 +54,7 @@ public record GravitySourcesSyncPacket(
 
     @Override
     public Type<GravitySourcesSyncPacket> type() {
-        return TYPE;
+        return GravitySourcesSyncPacket.TYPE;
     }
 
     @Override

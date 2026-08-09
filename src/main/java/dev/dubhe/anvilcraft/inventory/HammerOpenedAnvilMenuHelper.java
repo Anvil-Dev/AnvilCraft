@@ -27,7 +27,7 @@ public final class HammerOpenedAnvilMenuHelper {
         ContainerInput containerInput,
         int openedHammerSlot
     ) {
-        if (isValidInventorySlot(inventory, openedHammerSlot)) return false;
+        if (HammerOpenedAnvilMenuHelper.isValidInventorySlot(inventory, openedHammerSlot)) return false;
         if (slotId >= 0 && slotId < menu.slots.size()) {
             Slot slot = menu.getSlot(slotId);
             if (slot.container == inventory && slot.getContainerSlot() == openedHammerSlot) {

@@ -37,8 +37,8 @@ public class CauldronUtil {
         if (state.is(Blocks.CAULDRON)) return 0;
         Block block = state.getBlock();
         if (!(block instanceof AbstractCauldronBlock cauldron)) return 0;
-        if (state.hasProperty(LEVEL_3)) return state.getValue(LEVEL_3);
-        if (state.hasProperty(LEVEL_4)) return state.getValue(LEVEL_4);
+        if (state.hasProperty(CauldronUtil.LEVEL_3)) return state.getValue(CauldronUtil.LEVEL_3);
+        if (state.hasProperty(CauldronUtil.LEVEL_4)) return state.getValue(CauldronUtil.LEVEL_4);
         return Optional.of(cauldron)
             .map(CauldronFluidContent::getForBlock)
             .map(content -> content.currentLevel(state))
@@ -53,8 +53,8 @@ public class CauldronUtil {
         if (cauldronContent == Blocks.CAULDRON) return 0;
         if (!(cauldronContent instanceof AbstractCauldronBlock cauldron)) return 0;
         BlockState defaultState = cauldron.defaultBlockState();
-        if (defaultState.hasProperty(LEVEL_3)) return 3;
-        if (defaultState.hasProperty(LEVEL_4)) return 4;
+        if (defaultState.hasProperty(CauldronUtil.LEVEL_3)) return 3;
+        if (defaultState.hasProperty(CauldronUtil.LEVEL_4)) return 4;
         return Optional.of(cauldron)
             .map(CauldronFluidContent::getForBlock)
             .map(content -> content.maxLevel)
@@ -79,9 +79,9 @@ public class CauldronUtil {
     /// @param cauldronContent 待存入的炼药锅内容物
     /// @return 还能容纳的层数
     public static int remainSpaceFor(BlockState state, Block cauldronContent) {
-        if (!compatibleFor(state, cauldronContent)) return 0;
-        int contentMaxLevel = maxLevel(cauldronContent);
-        return Math.max(0, contentMaxLevel - currentLevel(state));
+        if (!CauldronUtil.compatibleFor(state, cauldronContent)) return 0;
+        int contentMaxLevel = CauldronUtil.maxLevel(cauldronContent);
+        return Math.max(0, contentMaxLevel - CauldronUtil.currentLevel(state));
     }
 
     /// 根据一种炼药锅内容物，获取到它在特定层数下的方块状态。若`cauldronContent` 方法参数不是一种炼药锅，
@@ -96,11 +96,11 @@ public class CauldronUtil {
         if (!(cauldronContent instanceof AbstractCauldronBlock cauldron)) return cauldronContent.defaultBlockState();
         if (cauldronLevel <= 0) return Blocks.CAULDRON.defaultBlockState();
         BlockState state = cauldronContent.defaultBlockState();
-        if (state.hasProperty(LEVEL_3)) {
-            return state.setValue(LEVEL_3, Math.min(3, cauldronLevel));
+        if (state.hasProperty(CauldronUtil.LEVEL_3)) {
+            return state.setValue(CauldronUtil.LEVEL_3, Math.min(3, cauldronLevel));
         }
-        if (state.hasProperty(LEVEL_4)) {
-            return state.setValue(LEVEL_4, Math.min(4, cauldronLevel));
+        if (state.hasProperty(CauldronUtil.LEVEL_4)) {
+            return state.setValue(CauldronUtil.LEVEL_4, Math.min(4, cauldronLevel));
         }
         return Optional.of(cauldron)
             .map(CauldronFluidContent::getForBlock)
@@ -119,11 +119,11 @@ public class CauldronUtil {
         if (cauldronContent == Blocks.CAULDRON) return Blocks.CAULDRON.defaultBlockState();
         BlockState state = cauldronContent.defaultBlockState();
         if (!(cauldronContent instanceof AbstractCauldronBlock cauldron)) return state;
-        if (state.hasProperty(LEVEL_3)) {
-            return state.setValue(LEVEL_3, 3);
+        if (state.hasProperty(CauldronUtil.LEVEL_3)) {
+            return state.setValue(CauldronUtil.LEVEL_3, 3);
         }
-        if (state.hasProperty(LEVEL_4)) {
-            return state.setValue(LEVEL_4, 4);
+        if (state.hasProperty(CauldronUtil.LEVEL_4)) {
+            return state.setValue(CauldronUtil.LEVEL_4, 4);
         }
         return Optional.of(cauldron)
             .map(CauldronFluidContent::getForBlock)
@@ -140,7 +140,7 @@ public class CauldronUtil {
     /// @param cauldronLevel   需设定的层数
     /// @apiNote 本方法不会对被替换的方块状态进行任何检查。
     public static void setContentLevel(Level level, BlockPos pos, Block cauldronContent, int cauldronLevel) {
-        level.setBlockAndUpdate(pos, getStateFromContentAndLevel(cauldronContent, cauldronLevel));
+        level.setBlockAndUpdate(pos, CauldronUtil.getStateFromContentAndLevel(cauldronContent, cauldronLevel));
     }
 
     /// 此方法用于向炼药锅中添加内容物。
@@ -155,11 +155,11 @@ public class CauldronUtil {
     public static int fill(Level level, BlockPos pos, Block cauldronContent, int fillLevel, boolean simulate) {
         if (fillLevel <= 0) return 0;
         BlockState state = level.getBlockState(pos);
-        int remainSpace = remainSpaceFor(state, cauldronContent);
+        int remainSpace = CauldronUtil.remainSpaceFor(state, cauldronContent);
         if (remainSpace <= 0) return 0;
         int filled = Math.min(remainSpace, fillLevel);
         if (!simulate) {
-            setContentLevel(level, pos, cauldronContent, currentLevel(state) + filled);
+            CauldronUtil.setContentLevel(level, pos, cauldronContent, CauldronUtil.currentLevel(state) + filled);
         }
         return filled;
     }
@@ -176,12 +176,12 @@ public class CauldronUtil {
     public static int drain(Level level, BlockPos pos, Block cauldronContent, int drainLevel, boolean simulate) {
         if (drainLevel <= 0) return 0;
         BlockState state = level.getBlockState(pos);
-        if (!compatibleFor(state, cauldronContent)) return 0;
-        int currentLevel = currentLevel(state);
+        if (!CauldronUtil.compatibleFor(state, cauldronContent)) return 0;
+        int currentLevel = CauldronUtil.currentLevel(state);
         int drained = Math.min(drainLevel, currentLevel);
         if (drained <= 0) return 0;
         if (!simulate) {
-            setContentLevel(level, pos, cauldronContent, currentLevel - drained);
+            CauldronUtil.setContentLevel(level, pos, cauldronContent, currentLevel - drained);
         }
         return drained;
     }
@@ -196,7 +196,7 @@ public class CauldronUtil {
     /// @return 若能提取出指定层数的炼药锅内容物，返回 `true`
     public static boolean compatibleForDrain(BlockState state, Block cauldronContent, int drainLevel) {
         if (drainLevel <= 0) return true;
-        return compatibleFor(state, cauldronContent) && currentLevel(state) >= drainLevel;
+        return CauldronUtil.compatibleFor(state, cauldronContent) && CauldronUtil.currentLevel(state) >= drainLevel;
     }
 
     /// 检测是否能向指定的方块状态完整地、没有剩余地添加指定层数的炼药锅内容物。<br/>
@@ -209,7 +209,7 @@ public class CauldronUtil {
     /// @return 若能完整地添加指定层数的炼药锅内容物，返回 `true`
     public static boolean compatibleForFill(BlockState state, Block cauldronContent, int fillLevel) {
         if (fillLevel <= 0) return true;
-        return remainSpaceFor(state, cauldronContent) >= fillLevel;
+        return CauldronUtil.remainSpaceFor(state, cauldronContent) >= fillLevel;
     }
 
     public static AABB getInnerArea(BlockPos pos, BlockState state) {
@@ -227,15 +227,15 @@ public class CauldronUtil {
     }
 
     public static boolean isEntityInside(BlockPos pos, BlockState state, Entity entity) {
-        return getInnerArea(pos, state).contains(entity.position());
+        return CauldronUtil.getInnerArea(pos, state).contains(entity.position());
     }
 
     public static void hurtFromHeaterBelow(Entity entity) {
         if (!(entity instanceof LivingEntity) || entity.level().isClientSide()) return;
         BlockPos pos = entity.blockPosition();
         BlockState state = entity.level().getBlockState(pos);
-        if (!state.is(BlockTags.CAULDRONS) || !isEntityInside(pos, state, entity)) return;
-        for (BlockPos bottomPos : getBottomPositions(pos, state)) {
+        if (!state.is(BlockTags.CAULDRONS) || !CauldronUtil.isEntityInside(pos, state, entity)) return;
+        for (BlockPos bottomPos : CauldronUtil.getBottomPositions(pos, state)) {
             if (HeaterUtil.hurtEntity(entity.level(), entity.level().getBlockState(bottomPos), entity)) return;
         }
     }

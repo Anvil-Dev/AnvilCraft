@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.redstone.Orientation;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ public class ExcitedStateVoidMatterBlock extends Block {
         Level level,
         BlockPos pos,
         Block neighborBlock,
-        Orientation orientation,
+        @Nullable Orientation orientation,
         boolean movedByPiston
     ) {
         if (!level.isClientSide()) {
@@ -66,7 +67,7 @@ public class ExcitedStateVoidMatterBlock extends Block {
     private void decaySelf(Level level, BlockPos pos) {
         RandomSource random = level.getRandom();
 
-        List<Block> decayProducts = getDecayProducts();
+        List<Block> decayProducts = ExcitedStateVoidMatterBlock.getDecayProducts();
         BlockState decayResult = decayProducts.get(random.nextInt(decayProducts.size())).defaultBlockState();
         level.setBlockAndUpdate(pos, decayResult);
 
@@ -78,7 +79,7 @@ public class ExcitedStateVoidMatterBlock extends Block {
             }
         }
         if (!adjacentChambers.isEmpty()) {
-            List<Block> confinedAnvilons = getConfinedAnvilons();
+            List<Block> confinedAnvilons = ExcitedStateVoidMatterBlock.getConfinedAnvilons();
             BlockPos targetPos = adjacentChambers.get(random.nextInt(adjacentChambers.size()));
             Block anvilon = confinedAnvilons.get(random.nextInt(confinedAnvilons.size()));
             level.setBlockAndUpdate(targetPos, anvilon.defaultBlockState());

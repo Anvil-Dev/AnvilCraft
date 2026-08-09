@@ -88,7 +88,7 @@ public record Distance(Type type, int distance, boolean isHorizontal) {
                         this.offsetY = -Distance.this.distance;
                         this.offsetX++;
                     }
-                    return endOfData();
+                    return this.endOfData();
                 }
             };
             case MANHATTAN -> BlockPos.withinManhattan(center, this.distance, this.distance, this.distance);

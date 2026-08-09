@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.util;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.Deque;
@@ -10,16 +11,16 @@ import java.util.List;
 import java.util.Set;
 
 public final class PistonMoveGuard {
-    private static final ThreadLocal<Deque<Reservation>> ACTIVE_RESERVATIONS = new ThreadLocal<>();
+    private static final ThreadLocal<@Nullable Deque<Reservation>> ACTIVE_RESERVATIONS = new ThreadLocal<>();
 
     private PistonMoveGuard() {
     }
 
     public static Scope begin(Level level) {
-        Deque<Reservation> reservations = ACTIVE_RESERVATIONS.get();
+        Deque<Reservation> reservations = PistonMoveGuard.ACTIVE_RESERVATIONS.get();
         if (reservations == null) {
             reservations = new ArrayDeque<>();
-            ACTIVE_RESERVATIONS.set(reservations);
+            PistonMoveGuard.ACTIVE_RESERVATIONS.set(reservations);
         }
         Reservation reservation = new Reservation(level);
         reservations.push(reservation);
@@ -27,7 +28,7 @@ public final class PistonMoveGuard {
     }
 
     public static void reserve(Level level, List<BlockPos> toPush, List<BlockPos> toDestroy) {
-        Deque<Reservation> reservations = ACTIVE_RESERVATIONS.get();
+        Deque<Reservation> reservations = PistonMoveGuard.ACTIVE_RESERVATIONS.get();
         if (reservations == null || reservations.isEmpty()) return;
         Reservation reservation = reservations.peek();
         if (reservation.level != level) return;
@@ -36,7 +37,7 @@ public final class PistonMoveGuard {
     }
 
     public static boolean isReserved(Level level, BlockPos pos) {
-        Deque<Reservation> reservations = ACTIVE_RESERVATIONS.get();
+        Deque<Reservation> reservations = PistonMoveGuard.ACTIVE_RESERVATIONS.get();
         if (reservations == null) return false;
         for (Reservation reservation : reservations) {
             if (reservation.level == level && reservation.positions.contains(pos)) return true;
@@ -65,10 +66,10 @@ public final class PistonMoveGuard {
         public void close() {
             if (this.closed) return;
             this.closed = true;
-            Deque<Reservation> reservations = ACTIVE_RESERVATIONS.get();
+            Deque<Reservation> reservations = PistonMoveGuard.ACTIVE_RESERVATIONS.get();
             if (reservations == null) return;
             reservations.removeFirstOccurrence(this.reservation);
-            if (reservations.isEmpty()) ACTIVE_RESERVATIONS.remove();
+            if (reservations.isEmpty()) PistonMoveGuard.ACTIVE_RESERVATIONS.remove();
         }
     }
 }

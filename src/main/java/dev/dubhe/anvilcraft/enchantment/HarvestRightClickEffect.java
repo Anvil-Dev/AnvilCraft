@@ -147,6 +147,6 @@ public record HarvestRightClickEffect(int range) implements EnchantmentEntityEff
 
     @Override
     public MapCodec<? extends EnchantmentEntityEffect> codec() {
-        return CODEC;
+        return HarvestRightClickEffect.CODEC;
     }
 }

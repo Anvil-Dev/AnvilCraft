@@ -84,7 +84,7 @@ public abstract class BaseFluidHandlerHolderRenderer<B extends BlockEntity & IFl
         float maxY = minY + (state.getMaxY() - minY) * state.getFill();
         submitNodeCollector.submitCustomGeometry(
             poseStack,
-            FLUID_RENDER_TYPE,
+            BaseFluidHandlerHolderRenderer.FLUID_RENDER_TYPE,
             (pose, buffer) -> FluidRenderHelper.INSTANCE.renderFluidBox(
                 sprite,
                 resource,

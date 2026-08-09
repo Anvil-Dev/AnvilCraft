@@ -44,7 +44,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     public static final int HEIGHT = 90;
     private static final int MAX_VISIBLE_STEPS = 5;
     private static final int STEPS_LENGTH = 120;
-    private static final int STEP_X = (WIDTH - STEPS_LENGTH) / 2 + 10;
+    private static final int STEP_X = (ProceduralProcessCategory.WIDTH - ProceduralProcessCategory.STEPS_LENGTH) / 2 + 10;
     private static final int STEP_LENGTH = 20;
     private static final int ITEM_Y = 20;
     private static final int BLOCK_Y = 50;
@@ -77,12 +77,12 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return ProceduralProcessCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return ProceduralProcessCategory.HEIGHT;
     }
 
     @Override
@@ -98,30 +98,32 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     ) {
         ProceduralProcessRecipe recipe = holder.value();
         JeiBlockIngredientUtil.addInputSlot(
-            builder, INITIAL_BLOCK, STEP_X - 29, BLOCK_Y - 6, 18, 18, recipe.getInitialBlock()
+            builder, ProceduralProcessCategory.INITIAL_BLOCK, ProceduralProcessCategory.STEP_X - 29, ProceduralProcessCategory.BLOCK_Y - 6,
+            18, 18, recipe.initialBlock()
         );
         JeiBlockIngredientUtil.addSlot(
             builder,
             RecipeIngredientRole.OUTPUT,
-            OUTPUT_BLOCK,
-            STEP_X + STEPS_LENGTH - 9,
-            BLOCK_Y - 6,
+            ProceduralProcessCategory.OUTPUT_BLOCK,
+            ProceduralProcessCategory.STEP_X + ProceduralProcessCategory.STEPS_LENGTH - 9,
+            ProceduralProcessCategory.BLOCK_Y - 6,
             18,
             18,
-            recipe.getResultBlock().state().getBlock()
+            recipe.resultBlock().state().getBlock()
         );
 
-        int visibleSteps = Math.min(recipe.getSteps().size(), MAX_VISIBLE_STEPS);
+        int visibleSteps = Math.min(recipe.steps().size(), ProceduralProcessCategory.MAX_VISIBLE_STEPS);
         for (int index = 0; index < visibleSteps; index++) {
-            ProceduralProcessStep step = recipe.getSteps().get(index);
+            ProceduralProcessStep step = recipe.steps().get(index);
             if (!(step.getContent() instanceof AbstractProcessRecipe<?> process)) continue;
             for (int blockIndex = 0; blockIndex < process.getInputBlocks().size(); blockIndex++) {
-                int y = blockIndex == 0 ? BLOCK_Y - 6 : BLOCK_Y + 12 + 10 * (blockIndex - 1);
+                int y = blockIndex == 0 ? ProceduralProcessCategory.BLOCK_Y - 6
+                                        : ProceduralProcessCategory.BLOCK_Y + 12 + 10 * (blockIndex - 1);
                 int height = blockIndex == 0 ? 18 : 10;
                 JeiBlockIngredientUtil.addInputSlot(
                     builder,
-                    stepBlockSlotName(index, blockIndex),
-                    stepX(index, visibleSteps) - 9,
+                    ProceduralProcessCategory.stepBlockSlotName(index, blockIndex),
+                    ProceduralProcessCategory.stepX(index, visibleSteps) - 9,
                     y,
                     18,
                     height,
@@ -133,8 +135,8 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
             ItemIngredientPredicate ingredient = process.getInputItems().getFirst();
             IRecipeSlotBuilder slotBuilder = builder.addSlot(
                 RecipeIngredientRole.INPUT,
-                stepX(index, visibleSteps) - 8,
-                ITEM_Y + 1
+                ProceduralProcessCategory.stepX(index, visibleSteps) - 8,
+                ProceduralProcessCategory.ITEM_Y + 1
             );
             slotBuilder.addItemStacks(
                 Arrays.stream(ingredient.getItems()).map(ItemStackTemplate::create).toList()
@@ -158,55 +160,56 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         double mouseY
     ) {
         ProceduralProcessRecipe recipe = holder.value();
-        renderPredicate(
-            graphics, view, INITIAL_BLOCK, recipe.getInitialBlock(), 0, holder, STEP_X - 20, BLOCK_Y, 18
+        ProceduralProcessCategory.renderPredicate(
+            graphics, view, ProceduralProcessCategory.INITIAL_BLOCK, recipe.initialBlock(), 0, holder,
+            ProceduralProcessCategory.STEP_X - 20, ProceduralProcessCategory.BLOCK_Y, 18
         );
 
-        int visibleSteps = Math.min(recipe.getSteps().size(), MAX_VISIBLE_STEPS);
-        int displayedLoop = getDisplayedLoop(recipe);
+        int visibleSteps = Math.min(recipe.steps().size(), ProceduralProcessCategory.MAX_VISIBLE_STEPS);
+        int displayedLoop = ProceduralProcessCategory.getDisplayedLoop(recipe);
         for (int index = 0; index < visibleSteps; index++) {
-            ProceduralProcessStep step = getDisplayedStep(recipe, index, displayedLoop);
+            ProceduralProcessStep step = ProceduralProcessCategory.getDisplayedStep(recipe, index, displayedLoop);
             if (!(step.getContent() instanceof AbstractProcessRecipe<?> process)) continue;
-            int x = stepX(index, visibleSteps);
+            int x = ProceduralProcessCategory.stepX(index, visibleSteps);
             RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), x - 10, 3, 20);
             if (!process.getInputItems().isEmpty()) {
-                this.slot.draw(graphics, x - 9, ITEM_Y);
+                this.slot.draw(graphics, x - 9, ProceduralProcessCategory.ITEM_Y);
             }
             List<BlockStatePredicate> inputBlocks = process.getInputBlocks();
             for (int inputIndex = inputBlocks.size() - 1; inputIndex >= 0; inputIndex--) {
-                renderPredicate(
+                ProceduralProcessCategory.renderPredicate(
                     graphics,
                     view,
-                    stepBlockSlotName(index, inputIndex),
+                    ProceduralProcessCategory.stepBlockSlotName(index, inputIndex),
                     inputBlocks.get(inputIndex),
-                    displayedLoop * recipe.getSteps().size() + index,
+                    displayedLoop * recipe.steps().size() + index,
                     holder,
                     x - 9,
-                    BLOCK_Y + inputIndex * 10,
+                    ProceduralProcessCategory.BLOCK_Y + inputIndex * 10,
                     18
                 );
             }
         }
 
-        this.longArrow.draw(graphics, WIDTH / 2 - 32, FLOW_Y + 4);
-        if (recipe.getLoop() > 1) {
-            this.cycle.draw(graphics, WIDTH / 2 + 47, FLOW_Y);
+        this.longArrow.draw(graphics, ProceduralProcessCategory.WIDTH / 2 - 32, ProceduralProcessCategory.FLOW_Y + 4);
+        if (recipe.loop() > 1) {
+            this.cycle.draw(graphics, ProceduralProcessCategory.WIDTH / 2 + 47, ProceduralProcessCategory.FLOW_Y);
             AgeratumUtil.renderText(
                 graphics,
-                Component.literal(String.valueOf(recipe.getLoop())),
-                WIDTH / 2 + 68,
-                FLOW_Y + 4,
+                Component.literal(String.valueOf(recipe.loop())),
+                ProceduralProcessCategory.WIDTH / 2 + 68,
+                ProceduralProcessCategory.FLOW_Y + 4,
                 1.2F
             );
         }
-        BlockState outputState = JeiBlockIngredientUtil.getRenderablePreviewState(recipe.getResultBlock().state());
+        BlockState outputState = JeiBlockIngredientUtil.getRenderablePreviewState(recipe.resultBlock().state());
         int outputScale = JeiBlockIngredientUtil.getRenderablePreviewScale(outputState, 20);
-        RenderSupport.renderBlock(graphics, outputState, 142, BLOCK_Y, outputScale);
+        RenderSupport.renderBlock(graphics, outputState, 142, ProceduralProcessCategory.BLOCK_Y, outputScale);
     }
 
     private static int stepX(int index, int visibleSteps) {
-        int gap = STEPS_LENGTH / Math.max(visibleSteps, 1) - STEP_LENGTH;
-        return STEP_X + gap / 2 + index * (STEP_LENGTH + gap);
+        int gap = ProceduralProcessCategory.STEPS_LENGTH / Math.max(visibleSteps, 1) - ProceduralProcessCategory.STEP_LENGTH;
+        return ProceduralProcessCategory.STEP_X + gap / 2 + index * (ProceduralProcessCategory.STEP_LENGTH + gap);
     }
 
     private static void renderPredicate(
@@ -247,8 +250,8 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     }
 
     private static int getDisplayedLoop(ProceduralProcessRecipe recipe) {
-        if (recipe.getLoop() <= 1) return 0;
-        return (int) ((System.currentTimeMillis() / LOOP_CYCLE_MILLIS) % recipe.getLoop());
+        if (recipe.loop() <= 1) return 0;
+        return (int) ((System.currentTimeMillis() / ProceduralProcessCategory.LOOP_CYCLE_MILLIS) % recipe.loop());
     }
 
     private static ProceduralProcessStep getDisplayedStep(
@@ -257,8 +260,8 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         int displayedLoop
     ) {
         if (stepIndex == 0 && displayedLoop > 0) {
-            return recipe.getMultiLoopFirstStep().orElse(recipe.getSteps().getFirst());
+            return recipe.multiLoopFirstStep().orElse(recipe.steps().getFirst());
         }
-        return recipe.getSteps().get(stepIndex);
+        return recipe.steps().get(stepIndex);
     }
 }

@@ -75,7 +75,7 @@ public record BlockTransform(
         ) {
             level.setBlockAndUpdate(pos, output.getKey());
             ValueInput input = TagValueInput.create(
-                new ProblemReporter.ScopedCollector(log),
+                new ProblemReporter.ScopedCollector(BlockTransform.log),
                 level.registryAccess(),
                 output.getValue()
             );

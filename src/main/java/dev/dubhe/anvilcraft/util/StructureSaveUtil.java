@@ -46,33 +46,33 @@ public class StructureSaveUtil {
      */
     public static void saveStructureToDisk(Level level, StructureScannerBlockEntity blockEntity, String structureName) {
         if (level.isClientSide()) {
-            LOGGER.error("Failed to save structure: level is null or on client side");
+            StructureSaveUtil.LOGGER.error("Failed to save structure: level is null or on client side");
             return;
         }
 
         List<StructureScannerBlockEntity.CachedBlockData> scannedBlocks = blockEntity.getScannedBlocks();
         if (scannedBlocks.isEmpty()) {
-            LOGGER.warn("Cannot save structure: no blocks scanned");
+            StructureSaveUtil.LOGGER.warn("Cannot save structure: no blocks scanned");
             return;
         }
 
         try {
             // 构建结构NBT
-            final CompoundTag structureTag = buildStructureNBT(blockEntity, scannedBlocks);
+            final CompoundTag structureTag = StructureSaveUtil.buildStructureNBT(blockEntity, scannedBlocks);
 
             // 从输入槽取出磁盘
             ItemStack diskStack = blockEntity.getDiskStack();
             if (diskStack.isEmpty()) {
-                LOGGER.error("No structure disk in input slot");
+                StructureSaveUtil.LOGGER.error("No structure disk in input slot");
                 return;
             }
 
             // Sanitize and validate structure name to prevent path traversal
-            String sanitizedName = sanitizeStructureName(structureName);
+            String sanitizedName = StructureSaveUtil.sanitizeStructureName(structureName);
 
             // Handle null case: use a safe default name if sanitization fails
             if (sanitizedName == null || sanitizedName.trim().isEmpty()) {
-                LOGGER.warn("Invalid structure name '{}', using default name 'unnamed_structure'", structureName);
+                StructureSaveUtil.LOGGER.warn("Invalid structure name '{}', using default name 'unnamed_structure'", structureName);
                 sanitizedName = "unnamed_structure";
             }
 
@@ -81,16 +81,16 @@ public class StructureSaveUtil {
             String fileName = "%s_%s.nbt".formatted(sanitizedName, uuid);
 
             // 保存文件
-            Path baseDir = getStructureDirectory(level);
+            Path baseDir = StructureSaveUtil.getStructureDirectory(level);
             Path structureFile = baseDir.resolve(fileName);
 
             // Validate the resolved path stays within the intended directory
-            if (isPathOutsideBaseDirectory(structureFile, baseDir)) {
-                LOGGER.error("Path traversal attempt detected: {}", structureFile);
+            if (StructureSaveUtil.isPathOutsideBaseDirectory(structureFile, baseDir)) {
+                StructureSaveUtil.LOGGER.error("Path traversal attempt detected: {}", structureFile);
                 return;
             }
 
-            saveNbtFile(structureTag, structureFile);
+            StructureSaveUtil.saveNbtFile(structureTag, structureFile);
 
             // 获取扫描器的朝向
             Direction scannerFacing = blockEntity.getDirection();
@@ -114,10 +114,10 @@ public class StructureSaveUtil {
             blockEntity.getScannedBlocks().clear();
             blockEntity.setChanged();
 
-            LOGGER.info("Structure saved to disk: {} -> {} ({} blocks)", structureName, fileName, scannedBlocks.size());
+            StructureSaveUtil.LOGGER.info("Structure saved to disk: {} -> {} ({} blocks)", structureName, fileName, scannedBlocks.size());
 
         } catch (IOException e) {
-            LOGGER.error("Failed to save structure to disk: {}", e.getMessage(), e);
+            StructureSaveUtil.LOGGER.error("Failed to save structure to disk: {}", e.getMessage(), e);
         }
     }
 
@@ -213,12 +213,12 @@ public class StructureSaveUtil {
         }
 
         // Check length
-        if (name.length() > MAX_STRUCTURE_NAME_LENGTH) {
+        if (name.length() > StructureSaveUtil.MAX_STRUCTURE_NAME_LENGTH) {
             return null;
         }
 
         // Validate against whitelist pattern
-        if (!VALID_STRUCTURE_NAME.matcher(name).matches()) {
+        if (!StructureSaveUtil.VALID_STRUCTURE_NAME.matcher(name).matches()) {
             return null;
         }
 
@@ -244,7 +244,7 @@ public class StructureSaveUtil {
             // Check if the resolved path escapes the base directory
             return !normalizedResolved.startsWith(normalizedBase);
         } catch (Exception e) {
-            LOGGER.error("Error validating path: {}", e.getMessage());
+            StructureSaveUtil.LOGGER.error("Error validating path: {}", e.getMessage());
             return true;
         }
     }

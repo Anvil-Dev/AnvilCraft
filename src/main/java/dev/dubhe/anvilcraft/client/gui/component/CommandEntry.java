@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.client.gui.component;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ActiveTextCollector;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.input.InputWithModifiers;
@@ -39,11 +38,11 @@ public class CommandEntry extends TexturedButton {
         }
         this.isHovered = this.isMouseOver(mouseX, mouseY);
         if (this.isFocused()) {
-            graphics.horizontalLine(this.getX(), this.getX() + width, this.getY(), -1);
-            graphics.horizontalLine(this.getX(), this.getX() + width, this.getY() + height, -1);
-            graphics.verticalLine(this.getX(), this.getY(), this.getY() + height, -1);
-            graphics.verticalLine(this.getX() + width, this.getY(), this.getY() + height, -1);
-            graphics.fill(this.getX() + 1, this.getY() + 1, this.getX() + width - 1, this.getY() + height - 1, -16777216);
+            graphics.horizontalLine(this.getX(), this.getX() + this.width, this.getY(), -1);
+            graphics.horizontalLine(this.getX(), this.getX() + this.width, this.getY() + this.height, -1);
+            graphics.verticalLine(this.getX(), this.getY(), this.getY() + this.height, -1);
+            graphics.verticalLine(this.getX() + this.width, this.getY(), this.getY() + this.height, -1);
+            graphics.fill(this.getX() + 1, this.getY() + 1, this.getX() + this.width - 1, this.getY() + this.height - 1, -16777216);
         }
 
         Font font = Minecraft.getInstance().font;

@@ -9,12 +9,13 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.Identifier;
 import org.joml.Quaternionf;
+import org.jspecify.annotations.Nullable;
 
 public class LaserRenderState extends CachedBlockEntityRenderState {
     public static final Identifier LASER_TEXTURE = AnvilCraft.of("laser/beam");
     public static final Identifier SOLID_TEXTURE = AnvilCraft.of("laser/solid");
 
-    public BaseLaserBlockEntity blockEntity;
+    public @Nullable BaseLaserBlockEntity blockEntity;
     public float length;
     public float offset;
     public int color;
@@ -23,7 +24,15 @@ public class LaserRenderState extends CachedBlockEntityRenderState {
     public TextureAtlasSprite laserAtlasSprite;
     public TextureAtlasSprite solidAtlasSprite;
 
+    public LaserRenderState() {
+        TextureAtlas atlas = Minecraft.getInstance().getAtlasManager().getAtlasOrThrow(ModAtlasIds.LASER);
+        this.rotation = new Quaternionf();
+        this.laserAtlasSprite = atlas.getSprite(LaserRenderState.LASER_TEXTURE);
+        this.solidAtlasSprite = atlas.getSprite(LaserRenderState.SOLID_TEXTURE);
+    }
+
     public void extract(BaseLaserBlockEntity blockEntity) {
+        this.blockEntity = null;
         if (blockEntity.getIrradiateBlockPos() == null) return;
         float length = (float) (blockEntity
             .getIrradiateBlockPos()
@@ -38,7 +47,7 @@ public class LaserRenderState extends CachedBlockEntityRenderState {
         this.color = blockEntity.getLaserColor();
         this.laserLevel = blockEntity.getLaserLevel();
         this.rotation = blockEntity.getFacing().getRotation();
-        this.laserAtlasSprite = atlas.getSprite(LASER_TEXTURE);
-        this.solidAtlasSprite = atlas.getSprite(SOLID_TEXTURE);
+        this.laserAtlasSprite = atlas.getSprite(LaserRenderState.LASER_TEXTURE);
+        this.solidAtlasSprite = atlas.getSprite(LaserRenderState.SOLID_TEXTURE);
     }
 }

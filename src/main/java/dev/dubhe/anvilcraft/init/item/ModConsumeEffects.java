@@ -18,37 +18,37 @@ public class ModConsumeEffects {
         AnvilCraft.MOD_ID
     );
 
-    public static final DeferredHolder<ConsumeEffect.Type<?>, ConsumeEffect.Type<TeleportToRespawnPointConsumeEffect>> TP_TO_RESPAWN = DF
-        .register("tp_to_respawn", () -> new ConsumeEffect.Type<>(
+    public static final DeferredHolder<ConsumeEffect.Type<?>, ConsumeEffect.Type<TeleportToRespawnPointConsumeEffect>>
+        TP_TO_RESPAWN = ModConsumeEffects.DF.register("tp_to_respawn", () -> new ConsumeEffect.Type<>(
             TeleportToRespawnPointConsumeEffect.CODEC,
             TeleportToRespawnPointConsumeEffect.STREAM_CODEC.cast()
         ));
 
-    public static final DeferredHolder<ConsumeEffect.Type<?>, ConsumeEffect.Type<SetFoodLevelConsumeEffect>> SET_FOOD_LEVEL = DF
-        .register("set_food_level", () -> new ConsumeEffect.Type<>(
+    public static final DeferredHolder<ConsumeEffect.Type<?>, ConsumeEffect.Type<SetFoodLevelConsumeEffect>>
+        SET_FOOD_LEVEL = ModConsumeEffects.DF.register("set_food_level", () -> new ConsumeEffect.Type<>(
             SetFoodLevelConsumeEffect.CODEC,
             SetFoodLevelConsumeEffect.STREAM_CODEC.cast()
         ));
 
-    public static final DeferredHolder<ConsumeEffect.Type<?>, ConsumeEffect.Type<TryTotemsInBoxConsumeEffect>> TRY_TOTEMS_IN_BOX = DF
-        .register("try_totems_in_box", () -> new ConsumeEffect.Type<>(
+    public static final DeferredHolder<ConsumeEffect.Type<?>, ConsumeEffect.Type<TryTotemsInBoxConsumeEffect>>
+        TRY_TOTEMS_IN_BOX = ModConsumeEffects.DF.register("try_totems_in_box", () -> new ConsumeEffect.Type<>(
             TryTotemsInBoxConsumeEffect.CODEC,
             TryTotemsInBoxConsumeEffect.STREAM_CODEC.cast()
         ));
 
-    public static final DeferredHolder<ConsumeEffect.Type<?>, ConsumeEffect.Type<PreventShrinkingConsumeEffect>> PREVENT_SHRINKING = DF
-        .register("prevent_shrinking", () -> new ConsumeEffect.Type<>(
+    public static final DeferredHolder<ConsumeEffect.Type<?>, ConsumeEffect.Type<PreventShrinkingConsumeEffect>>
+        PREVENT_SHRINKING = ModConsumeEffects.DF.register("prevent_shrinking", () -> new ConsumeEffect.Type<>(
             PreventShrinkingConsumeEffect.CODEC,
             PreventShrinkingConsumeEffect.STREAM_CODEC.cast()
         ));
 
-    public static final DeferredHolder<ConsumeEffect.Type<?>, ConsumeEffect.Type<SetRagedConsumeEffect>> SET_RAGED = DF
+    public static final DeferredHolder<ConsumeEffect.Type<?>, ConsumeEffect.Type<SetRagedConsumeEffect>> SET_RAGED = ModConsumeEffects.DF
         .register("set_raged", () -> new ConsumeEffect.Type<>(
             SetRagedConsumeEffect.CODEC,
             SetRagedConsumeEffect.STREAM_CODEC.cast()
         ));
 
     public static void register(IEventBus bus) {
-        DF.register(bus);
+        ModConsumeEffects.DF.register(bus);
     }
 }

@@ -48,12 +48,12 @@ public abstract class AbstractProgressCategory<T extends AbstractProcessRecipe<?
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return AbstractProgressCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return AbstractProgressCategory.HEIGHT;
     }
 
     @Override

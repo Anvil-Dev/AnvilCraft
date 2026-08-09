@@ -24,7 +24,7 @@ public record PowerGridSyncPacket(SimplePowerGrid grid) implements IClientboundP
 
     @Override
     public Type<PowerGridSyncPacket> type() {
-        return TYPE;
+        return PowerGridSyncPacket.TYPE;
     }
 
     @Override

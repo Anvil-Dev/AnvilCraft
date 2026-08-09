@@ -24,7 +24,7 @@ public record ResonanceMiningEffectPacket(BlockPos pos, int durationTicks) imple
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+        return ResonanceMiningEffectPacket.TYPE;
     }
 
     @Override

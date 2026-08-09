@@ -27,7 +27,7 @@ public record SlotFilterMaxStackSizeChangePacket(int index, int maxStackSize) im
 
     @Override
     public Type<SlotFilterMaxStackSizeChangePacket> type() {
-        return TYPE;
+        return SlotFilterMaxStackSizeChangePacket.TYPE;
     }
 
     @Override
@@ -45,7 +45,10 @@ public record SlotFilterMaxStackSizeChangePacket(int index, int maxStackSize) im
         filter.setSlotLimit(this.index, this.maxStackSize);
         if (filter instanceof BlockEntity be) {
             be.setChanged();
-            be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
+            var level = be.getLevel();
+            if (level != null) {
+                level.sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
+            }
         }
         menu.flush();
         PacketDistributor.sendToPlayer(Util.cast(player), this);

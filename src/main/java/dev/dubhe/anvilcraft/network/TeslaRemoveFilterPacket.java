@@ -21,7 +21,7 @@ public record TeslaRemoveFilterPacket(String id, String arg) implements IServerb
 
     @Override
     public Type<TeslaRemoveFilterPacket> type() {
-        return TYPE;
+        return TeslaRemoveFilterPacket.TYPE;
     }
 
     @Override

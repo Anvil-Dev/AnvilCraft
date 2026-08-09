@@ -58,8 +58,8 @@ public record ShockContext(
     }
 
     public boolean testCorner(TagKey<Block> tagKey) {
-        for (Direction direction1 : HORIZONTAL_X) {
-            for (Direction direction2 : HORIZONTAL_Z) {
+        for (Direction direction1 : ShockContext.HORIZONTAL_X) {
+            for (Direction direction2 : ShockContext.HORIZONTAL_Z) {
                 if (!this.matchesShockBase(this.centerPos.relative(direction1).relative(direction2), tagKey)) {
                     return false;
                 }
@@ -73,8 +73,8 @@ public record ShockContext(
     }
 
     public boolean testCorner(Block block) {
-        for (Direction direction1 : HORIZONTAL_X) {
-            for (Direction direction2 : HORIZONTAL_Z) {
+        for (Direction direction1 : ShockContext.HORIZONTAL_X) {
+            for (Direction direction2 : ShockContext.HORIZONTAL_Z) {
                 if (!this.matchesShockBase(this.centerPos.relative(direction1).relative(direction2), block)) {
                     return false;
                 }
@@ -88,7 +88,7 @@ public record ShockContext(
     }
 
     public boolean testBorder(TagKey<Block> tagKey) {
-        for (Direction direction : HORIZONTAL) {
+        for (Direction direction : ShockContext.HORIZONTAL) {
             if (!this.matchesShockBase(this.centerPos.relative(direction), tagKey)) {
                 return false;
             }
@@ -97,7 +97,7 @@ public record ShockContext(
     }
 
     public boolean testBorder(Block block) {
-        for (Direction direction : HORIZONTAL) {
+        for (Direction direction : ShockContext.HORIZONTAL) {
             if (!this.matchesShockBase(this.centerPos.relative(direction), block)) {
                 return false;
             }
@@ -106,7 +106,7 @@ public record ShockContext(
     }
 
     public boolean testBorder(Class<? extends Block> block) {
-        for (Direction direction : HORIZONTAL) {
+        for (Direction direction : ShockContext.HORIZONTAL) {
             BlockPos pos = this.centerPos.relative(direction);
             if (block.isInstance(this.level.getBlockState(pos).getBlock())) continue;
             boolean entityMatches = this.shockEntitiesAt(pos).stream()
@@ -127,7 +127,7 @@ public record ShockContext(
     /** 返回四个边框铁砧共同提供的完整撼地行为。 */
     public Optional<ShockAnvilBehavior> getBorderAnvilBehavior() {
         ShockAnvilBehavior behavior = null;
-        for (Direction direction : HORIZONTAL) {
+        for (Direction direction : ShockContext.HORIZONTAL) {
             Optional<ShockAnvilBehavior> current = this.getAnvilBehaviorAt(this.centerPos.relative(direction));
             if (current.isEmpty()) return Optional.empty();
             if (behavior == null) {
@@ -174,7 +174,7 @@ public record ShockContext(
     /** 按目标高度倍率计算与本体方块铁砧一致重力下的弹起速度。 */
     public static double bounceVelocityForHeight(double heightMultiplier) {
         if (!Double.isFinite(heightMultiplier) || heightMultiplier <= 0.0D) return 0.0D;
-        return DEFAULT_BOUNCE_VELOCITY * Math.sqrt(heightMultiplier);
+        return ShockContext.DEFAULT_BOUNCE_VELOCITY * Math.sqrt(heightMultiplier);
     }
 
     private Optional<ShockAnvilBehavior> getAnvilBehaviorAt(BlockPos pos) {

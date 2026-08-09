@@ -157,8 +157,8 @@ final class MultiFluidTankHandler implements ResourceHandler<FluidResource>, Val
 
     @Override
     public void serialize(ValueOutput output) {
-        output.store("Fluids", FLUIDS_CODEC, this.copyFluids());
-        output.store("Infinite", FLAGS_CODEC, this.fluids.stream().map(StoredFluid::infinite).toList());
+        output.store("Fluids", MultiFluidTankHandler.FLUIDS_CODEC, this.copyFluids());
+        output.store("Infinite", MultiFluidTankHandler.FLAGS_CODEC, this.fluids.stream().map(StoredFluid::infinite).toList());
         output.putBoolean("Enhanced", this.enhanced);
     }
 
@@ -166,8 +166,8 @@ final class MultiFluidTankHandler implements ResourceHandler<FluidResource>, Val
     public void deserialize(ValueInput input) {
         this.fluids.clear();
         this.enhanced = input.getBooleanOr("Enhanced", false);
-        List<FluidStack> loaded = input.read("Fluids", FLUIDS_CODEC).orElse(List.of());
-        List<Boolean> infinite = input.read("Infinite", FLAGS_CODEC).orElse(List.of());
+        List<FluidStack> loaded = input.read("Fluids", MultiFluidTankHandler.FLUIDS_CODEC).orElse(List.of());
+        List<Boolean> infinite = input.read("Infinite", MultiFluidTankHandler.FLAGS_CODEC).orElse(List.of());
         for (int index = 0; index < loaded.size(); index++) {
             FluidStack fluid = loaded.get(index);
             if (fluid.isEmpty()) continue;
@@ -200,8 +200,8 @@ final class MultiFluidTankHandler implements ResourceHandler<FluidResource>, Val
             detachedFluids.add(stored.fluid().copyWithAmount(amount));
             remaining -= amount;
         }
-        output.store("Fluids", FLUIDS_CODEC, detachedFluids);
-        output.store("Infinite", FLAGS_CODEC, detachedFluids.stream().map(ignored -> false).toList());
+        output.store("Fluids", MultiFluidTankHandler.FLUIDS_CODEC, detachedFluids);
+        output.store("Infinite", MultiFluidTankHandler.FLAGS_CODEC, detachedFluids.stream().map(ignored -> false).toList());
         output.putBoolean("Enhanced", false);
     }
 

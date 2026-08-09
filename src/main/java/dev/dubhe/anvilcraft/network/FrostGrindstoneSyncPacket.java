@@ -21,7 +21,7 @@ public record FrostGrindstoneSyncPacket(int index, boolean select) implements IS
 
     @Override
     public Type<FrostGrindstoneSyncPacket> type() {
-        return TYPE;
+        return FrostGrindstoneSyncPacket.TYPE;
     }
 
     @Override

@@ -34,24 +34,29 @@ public class LargeCauldronTooltipProvider extends ITooltipProvider.BlockEntityTo
         List<LargeCauldronBlockEntity.RecipePreview> previews = cauldron.getRecipePreviews();
         List<Component> lines = new ArrayList<>();
 
-        lines.add(heading("tooltip.anvilcraft.large_cauldron.inputs"));
+        lines.add(LargeCauldronTooltipProvider.heading("tooltip.anvilcraft.large_cauldron.inputs"));
         for (int slot = 0; slot < cauldron.getInputHandler().size(); slot++) {
             ItemStack stack = cauldron.getInputHandler().getStackInSlot(slot);
             if (stack.isEmpty()) continue;
-            lines.add(itemLine(stack, categoriesForSlot(previews, slot)));
+            lines.add(LargeCauldronTooltipProvider.itemLine(stack, LargeCauldronTooltipProvider.categoriesForSlot(previews, slot)));
         }
 
-        lines.add(heading("tooltip.anvilcraft.large_cauldron.outputs"));
-        for (ItemStack stack : aggregateOutputs(cauldron)) {
-            lines.add(itemLine(stack, categoriesForOutput(previews, cauldron, stack)));
+        lines.add(LargeCauldronTooltipProvider.heading("tooltip.anvilcraft.large_cauldron.outputs"));
+        for (ItemStack stack : LargeCauldronTooltipProvider.aggregateOutputs(cauldron)) {
+            lines.add(
+                LargeCauldronTooltipProvider.itemLine(stack, LargeCauldronTooltipProvider.categoriesForOutput(previews, cauldron, stack)));
         }
 
-        lines.add(heading("tooltip.anvilcraft.large_cauldron.fluids"));
+        lines.add(LargeCauldronTooltipProvider.heading("tooltip.anvilcraft.large_cauldron.fluids"));
         boolean topLayer = true;
         for (int tank = cauldron.getFluids().size() - 1; tank >= 0; tank--) {
             FluidStack fluid = cauldron.getFluids().getFluidInTank(tank);
             if (fluid.isEmpty()) continue;
-            lines.add(fluidLine(fluid, categoriesForFluid(previews, fluid), topLayer && cauldron.isIgnited()));
+            lines.add(LargeCauldronTooltipProvider.fluidLine(
+                fluid,
+                LargeCauldronTooltipProvider.categoriesForFluid(previews, fluid),
+                topLayer && cauldron.isIgnited()
+            ));
             topLayer = false;
         }
         return lines;
@@ -66,7 +71,7 @@ public class LargeCauldronTooltipProvider extends ITooltipProvider.BlockEntityTo
             .append(stack.getHoverName())
             .append(Component.literal(" x" + stack.getCount()))
             .withStyle(ChatFormatting.GRAY);
-        appendRecipeSuffix(line, categories);
+        LargeCauldronTooltipProvider.appendRecipeSuffix(line, categories);
         return ITooltipProvider.withIndentAndMerge(line);
     }
 
@@ -80,7 +85,7 @@ public class LargeCauldronTooltipProvider extends ITooltipProvider.BlockEntityTo
                 "tooltip.anvilcraft.large_cauldron.burning"
             ).withStyle(ChatFormatting.RED));
         }
-        appendRecipeSuffix(line, categories);
+        LargeCauldronTooltipProvider.appendRecipeSuffix(line, categories);
         return ITooltipProvider.withIndentAndMerge(line);
     }
 
@@ -134,7 +139,7 @@ public class LargeCauldronTooltipProvider extends ITooltipProvider.BlockEntityTo
     ) {
         Set<String> result = new LinkedHashSet<>();
         for (int slot = 0; slot < cauldron.getOutputHandler().size(); slot++) {
-            ItemStack stack = stackInSlot(cauldron, slot);
+            ItemStack stack = LargeCauldronTooltipProvider.stackInSlot(cauldron, slot);
             if (!ItemStack.isSameItemSameComponents(displayed, stack)) continue;
             for (LargeCauldronBlockEntity.RecipePreview preview : previews) {
                 if (preview.outputSlot() == slot) result.add(preview.categoryPath());
@@ -146,7 +151,7 @@ public class LargeCauldronTooltipProvider extends ITooltipProvider.BlockEntityTo
     private static List<ItemStack> aggregateOutputs(LargeCauldronBlockEntity cauldron) {
         List<ItemStack> result = new ArrayList<>();
         for (int slot = 0; slot < cauldron.getOutputHandler().size(); slot++) {
-            ItemStack stack = stackInSlot(cauldron, slot);
+            ItemStack stack = LargeCauldronTooltipProvider.stackInSlot(cauldron, slot);
             if (stack.isEmpty()) continue;
             ItemStack existing = null;
             for (ItemStack candidate : result) {

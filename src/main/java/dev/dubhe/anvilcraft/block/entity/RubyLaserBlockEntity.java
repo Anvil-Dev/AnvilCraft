@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.laser.RubyLaserBlock;
@@ -41,16 +42,16 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
         if (this.getGrid() != null && this.getBlockState().getValue(RubyLaserBlock.OVERLOAD) == this.getGrid().isWorking()) {
             level.setBlock(
                 this.getPos(),
-                this.getBlockState().setValue(OVERLOAD, !this.getGrid().isWorking()),
+                this.getBlockState().setValue(IPowerComponent.OVERLOAD, !this.getGrid().isWorking()),
                 2
             );
         }
-        if (level.hasNeighborSignal(getBlockPos()) == (this.getBlockState().getValue(SWITCH) == Switch.ON)) {
+        if (level.hasNeighborSignal(this.getBlockPos()) == (this.getBlockState().getValue(IPowerComponent.SWITCH) == Switch.ON)) {
             level.setBlock(
                 this.getPos(),
                 this.getBlockState().setValue(
-                    SWITCH,
-                    level.hasNeighborSignal(getBlockPos())
+                    IPowerComponent.SWITCH,
+                    level.hasNeighborSignal(this.getBlockPos())
                         ? Switch.OFF
                         : Switch.ON
                 ),
@@ -59,8 +60,8 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
         if (this.isSwitchedOn()) {
             this.emitLaser(this.getFacing());
         } else {
-            if (irradiateBlockPos != null
-                && level.getBlockEntity(irradiateBlockPos) instanceof BaseLaserBlockEntity irradiateBlockEntity
+            if (this.irradiateBlockPos != null
+                && level.getBlockEntity(this.irradiateBlockPos) instanceof BaseLaserBlockEntity irradiateBlockEntity
             ) {
                 irradiateBlockEntity.onCancelingIrradiation(this);
             }
@@ -70,8 +71,8 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
     }
 
     public boolean isSwitchedOn() {
-        return getBlockState().getValue(RubyLaserBlock.SWITCH) == Switch.ON
-            && !getBlockState().getValue(RubyLaserBlock.OVERLOAD);
+        return this.getBlockState().getValue(RubyLaserBlock.SWITCH) == Switch.ON
+               && !this.getBlockState().getValue(RubyLaserBlock.OVERLOAD);
     }
 
     @Override
@@ -80,18 +81,18 @@ public class RubyLaserBlockEntity extends BaseLaserBlockEntity implements IPower
 
     @Override
     public @Nullable Level getCurrentLevel() {
-        return level;
+        return this.level;
     }
 
     @Override
     public BlockPos getPos() {
-        return getBlockPos();
+        return this.getBlockPos();
     }
 
     @Override
     public int getInputPower() {
-        if (level == null) return 16;
-        return getBlockState().getValue(RubyLaserBlock.SWITCH) == Switch.OFF ? 0 : 16;
+        if (this.level == null) return 16;
+        return this.getBlockState().getValue(RubyLaserBlock.SWITCH) == Switch.OFF ? 0 : 16;
     }
 
     @Override

@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -21,6 +22,7 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -33,8 +35,11 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class StructureScannerBlock extends BaseEntityBlock implements IHammerRemovable {
-    public static final MapCodec<StructureScannerBlock> CODEC = simpleCodec(StructureScannerBlock::new);
+    public static final MapCodec<StructureScannerBlock> CODEC = BlockBehaviour.simpleCodec(StructureScannerBlock::new);
     public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty UPSIDE_DOWN = BooleanProperty.create("upside_down");
@@ -49,31 +54,33 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
     );
 
     // 使用 ShapeUtil.rotate 自动生成其他水平朝向
-    private static final VoxelShape SHAPE_WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, SHAPE_NORTH);
-    private static final VoxelShape SHAPE_SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, SHAPE_NORTH);
-    private static final VoxelShape SHAPE_EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, SHAPE_NORTH);
+    private static final VoxelShape SHAPE_WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, StructureScannerBlock.SHAPE_NORTH);
+    private static final VoxelShape SHAPE_SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, StructureScannerBlock.SHAPE_NORTH);
+    private static final VoxelShape SHAPE_EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, StructureScannerBlock.SHAPE_NORTH);
 
     // 倒挂状态：使用 Axis.X 旋转 180 度实现 Y 轴翻转
-    private static final VoxelShape SHAPE_NORTH_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_SOUTH);
-    private static final VoxelShape SHAPE_WEST_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_WEST);
-    private static final VoxelShape SHAPE_SOUTH_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_NORTH);
-    private static final VoxelShape SHAPE_EAST_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, SHAPE_EAST);
+    private static final VoxelShape SHAPE_NORTH_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, StructureScannerBlock.SHAPE_SOUTH);
+    private static final VoxelShape SHAPE_WEST_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, StructureScannerBlock.SHAPE_WEST);
+    private static final VoxelShape SHAPE_SOUTH_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, StructureScannerBlock.SHAPE_NORTH);
+    private static final VoxelShape SHAPE_EAST_UPSIDE = ShapeUtil.rotate(Direction.Axis.X, 180, StructureScannerBlock.SHAPE_EAST);
 
     public StructureScannerBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-            this.stateDefinition.any().setValue(FACING, Direction.NORTH).setValue(POWERED, false).setValue(UPSIDE_DOWN, false)
+            this.stateDefinition.any().setValue(StructureScannerBlock.FACING, Direction.NORTH)
+                .setValue(StructureScannerBlock.POWERED, false).setValue(
+                    StructureScannerBlock.UPSIDE_DOWN, false)
         );
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
+        return StructureScannerBlock.CODEC;
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<net.minecraft.world.level.block.Block, BlockState> builder) {
-        builder.add(FACING, POWERED, UPSIDE_DOWN);
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(StructureScannerBlock.FACING, StructureScannerBlock.POWERED, StructureScannerBlock.UPSIDE_DOWN);
     }
 
     @Override
@@ -84,9 +91,9 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
         Direction horizontalFacing = context.getHorizontalDirection().getOpposite();
 
         return this.defaultBlockState()
-            .setValue(FACING, horizontalFacing)
-            .setValue(UPSIDE_DOWN, upsideDown)
-            .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+            .setValue(StructureScannerBlock.FACING, horizontalFacing)
+            .setValue(StructureScannerBlock.UPSIDE_DOWN, upsideDown)
+            .setValue(StructureScannerBlock.POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
@@ -96,14 +103,14 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
         BlockPos pos,
         CollisionContext context
     ) {
-        Direction facing = state.getValue(FACING);
-        boolean upsideDown = state.getValue(UPSIDE_DOWN);
+        Direction facing = state.getValue(StructureScannerBlock.FACING);
+        boolean upsideDown = state.getValue(StructureScannerBlock.UPSIDE_DOWN);
         
         return switch (facing) {
-            case SOUTH -> upsideDown ? SHAPE_SOUTH_UPSIDE : SHAPE_SOUTH;
-            case WEST -> upsideDown ? SHAPE_WEST_UPSIDE : SHAPE_WEST;
-            case EAST -> upsideDown ? SHAPE_EAST_UPSIDE : SHAPE_EAST;
-            default -> upsideDown ? SHAPE_NORTH_UPSIDE : SHAPE_NORTH;
+            case SOUTH -> upsideDown ? StructureScannerBlock.SHAPE_SOUTH_UPSIDE : StructureScannerBlock.SHAPE_SOUTH;
+            case WEST -> upsideDown ? StructureScannerBlock.SHAPE_WEST_UPSIDE : StructureScannerBlock.SHAPE_WEST;
+            case EAST -> upsideDown ? StructureScannerBlock.SHAPE_EAST_UPSIDE : StructureScannerBlock.SHAPE_EAST;
+            default -> upsideDown ? StructureScannerBlock.SHAPE_NORTH_UPSIDE : StructureScannerBlock.SHAPE_NORTH;
         };
     }
 
@@ -155,11 +162,11 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
         }
         
         boolean powered = level.hasNeighborSignal(pos);
-        boolean wasPowered = state.getValue(POWERED);
+        boolean wasPowered = state.getValue(StructureScannerBlock.POWERED);
         
         // 更新红石状态
         if (powered != wasPowered) {
-            level.setBlock(pos, state.setValue(POWERED, powered), 2);
+            level.setBlock(pos, state.setValue(StructureScannerBlock.POWERED, powered), 2);
         }
         
         // 收到红石信号时，自动执行扫描并保存
@@ -193,8 +200,8 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
         }
         
         // 生成结构名称（使用年月日时分格式：auto-202605221430）
-        java.time.LocalDateTime now = java.time.LocalDateTime.now();
-        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyyMMddHHmm");
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
         String structureName = "auto-" + now.format(formatter);
         
         // 开始扫描
@@ -215,7 +222,7 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
                 ItemStack diskStack = scannerEntity.getDiskStack();
                 if (!diskStack.isEmpty()) {
                     Vec3 vec3 = pos.getCenter();
-                    net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
+                    ItemEntity itemEntity = new ItemEntity(
                         level, vec3.x, vec3.y, vec3.z, diskStack
                     );
                     itemEntity.setDefaultPickUpDelay();
@@ -226,7 +233,7 @@ public class StructureScannerBlock extends BaseEntityBlock implements IHammerRem
                 ItemStack outputStack = scannerEntity.getOutputStack();
                 if (!outputStack.isEmpty()) {
                     Vec3 vec3 = pos.getCenter();
-                    net.minecraft.world.entity.item.ItemEntity itemEntity = new net.minecraft.world.entity.item.ItemEntity(
+                    ItemEntity itemEntity = new ItemEntity(
                         level, vec3.x, vec3.y, vec3.z, outputStack
                     );
                     itemEntity.setDefaultPickUpDelay();

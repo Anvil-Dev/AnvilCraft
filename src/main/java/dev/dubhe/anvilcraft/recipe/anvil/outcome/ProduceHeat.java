@@ -63,7 +63,7 @@ public record ProduceHeat(List<HeatData> heatData, Distance distance) implements
     public void accept(InWorldRecipeContext context) {
         ServerLevel level = context.getLevel();
         BlockPos center = BlockPos.containing(context.getPos());
-        for (BlockPos offset : CAULDRON_NEIGHBORS) {
+        for (BlockPos offset : ProduceHeat.CAULDRON_NEIGHBORS) {
             BlockPos pos = center.offset(offset);
             BlockState state = level.getBlockState(pos);
             if (!state.is(ModBlockTags.HEATABLE_BLOCKS)) continue;

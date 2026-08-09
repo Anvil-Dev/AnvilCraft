@@ -66,7 +66,7 @@ public class LargeFluidTankRenderer extends BaseFluidHandlerHolderRenderer<Large
         Vec3 cameraPosition,
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
-        state.setTankW(-1, -1, -1, 2, 2, 2, TANK_W);
+        state.setTankW(-1, -1, -1, 2, 2, 2, LargeFluidTankRenderer.TANK_W);
     }
 
     @Override

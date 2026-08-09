@@ -19,26 +19,26 @@ public class ModEnchantmentEffects {
         DeferredRegister.create(Registries.ENCHANTMENT_VALUE_EFFECT_TYPE, AnvilCraft.MOD_ID);
 
     static {
-        ENTITY_REGISTER.register(
+        ModEnchantmentEffects.ENTITY_REGISTER.register(
             "haevest_left_click",
             () -> HarvestLeftClickEffect.CODEC
         );
-        ENTITY_REGISTER.register(
+        ModEnchantmentEffects.ENTITY_REGISTER.register(
             "harvest_right_click",
             () -> HarvestRightClickEffect.CODEC
         );
-        ENTITY_REGISTER.register(
+        ModEnchantmentEffects.ENTITY_REGISTER.register(
             "felling",
             () -> FellingEffect.CODEC
         );
-        VALUE_REGISTER.register(
+        ModEnchantmentEffects.VALUE_REGISTER.register(
             "in_range_modify",
             () -> InRangeModifyEffect.CODEC
         );
     }
 
     public static void register(IEventBus eventBus) {
-        ENTITY_REGISTER.register(eventBus);
-        VALUE_REGISTER.register(eventBus);
+        ModEnchantmentEffects.ENTITY_REGISTER.register(eventBus);
+        ModEnchantmentEffects.VALUE_REGISTER.register(eventBus);
     }
 }

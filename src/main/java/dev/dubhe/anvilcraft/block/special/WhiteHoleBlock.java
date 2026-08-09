@@ -18,7 +18,7 @@ public class WhiteHoleBlock extends Block implements EntityBlock {
 
     @Override
     public VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
-        return MODEL;
+        return WhiteHoleBlock.MODEL;
     }
 
     @Override

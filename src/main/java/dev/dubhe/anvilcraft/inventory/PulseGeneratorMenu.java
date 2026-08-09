@@ -43,7 +43,7 @@ public class PulseGeneratorMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(
+        return AbstractContainerMenu.stillValid(
             ContainerLevelAccess.create(this.level, this.blockEntity.getBlockPos()),
             player,
             ModBlocks.PULSE_GENERATOR.get()

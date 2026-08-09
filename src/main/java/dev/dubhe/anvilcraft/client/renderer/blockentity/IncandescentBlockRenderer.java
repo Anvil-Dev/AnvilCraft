@@ -57,7 +57,8 @@ public class IncandescentBlockRenderer implements BlockEntityRenderer<Incandesce
                 state.blockPos.getZ() - camera.pos.z
             );
             bloomPose.translate(0.5F, 0.5F, 0.5F);
-            bloomPose.scale(BLOOM_SCALE, BLOOM_SCALE, BLOOM_SCALE);
+            bloomPose.scale(
+                IncandescentBlockRenderer.BLOOM_SCALE, IncandescentBlockRenderer.BLOOM_SCALE, IncandescentBlockRenderer.BLOOM_SCALE);
             bloomPose.translate(-0.5F, -0.5F, -0.5F);
             state.getModel().submit(
                 bloomPose,

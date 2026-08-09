@@ -45,11 +45,11 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
 
     public CrabTrapBlock(Properties properties) {
         super(properties);
-        registerDefaultState(
-            getStateDefinition().any()
-                .setValue(FACING, Direction.NORTH)
-                .setValue(WATERLOGGED, false)
-                .setValue(FISHING, 0)
+        this.registerDefaultState(
+            this.getStateDefinition().any()
+                .setValue(CrabTrapBlock.FACING, Direction.NORTH)
+                .setValue(CrabTrapBlock.WATERLOGGED, false)
+                .setValue(CrabTrapBlock.FISHING, 0)
         );
     }
 
@@ -57,9 +57,9 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-            .setValue(FACING, context.getHorizontalDirection().getOpposite())
+            .setValue(CrabTrapBlock.FACING, context.getHorizontalDirection().getOpposite())
             .setValue(
-                WATERLOGGED,
+                CrabTrapBlock.WATERLOGGED,
                 context.getLevel()
                     .getFluidState(context.getClickedPos())
                     .getType()
@@ -68,17 +68,17 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, WATERLOGGED, FISHING);
+        builder.add(CrabTrapBlock.FACING, CrabTrapBlock.WATERLOGGED, CrabTrapBlock.FISHING);
     }
 
     @Override
     public FluidState getFluidState(BlockState state) {
-        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+        return state.getValue(CrabTrapBlock.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
     public boolean isRandomlyTicking(BlockState state) {
-        return state.getValue(WATERLOGGED);
+        return state.getValue(CrabTrapBlock.WATERLOGGED);
     }
 
     @Override
@@ -94,8 +94,8 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
             }
         }
 
-        if (times >= 3 && state.getValue(FISHING) < 15) {
-            level.setBlock(pos, state.setValue(FISHING, state.getValue(FISHING) + 1), 2);
+        if (times >= 3 && state.getValue(CrabTrapBlock.FISHING) < 15) {
+            level.setBlock(pos, state.setValue(CrabTrapBlock.FISHING, state.getValue(CrabTrapBlock.FISHING) + 1), 2);
         }
     }
 
@@ -106,7 +106,7 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
 
     @Override
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
-        return state.getValue(FISHING);
+        return state.getValue(CrabTrapBlock.FISHING);
     }
 
     @Override
@@ -115,13 +115,13 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
             return InteractionResult.PASS;
         }
         List<ItemStack> items = new ObjectArrayList<>();
-        for (int i = 1; i < state.getValue(FISHING) + 1; i++) {
-            items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_COMMON));
-            items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_RIVER));
-            items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_OCEAN));
-            items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_WARM_OCEAN));
-            items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_SWAMP));
-            items.addAll(generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_JUNGLE));
+        for (int i = 1; i < state.getValue(CrabTrapBlock.FISHING) + 1; i++) {
+            items.addAll(CrabTrapBlock.generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_COMMON));
+            items.addAll(CrabTrapBlock.generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_RIVER));
+            items.addAll(CrabTrapBlock.generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_OCEAN));
+            items.addAll(CrabTrapBlock.generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_WARM_OCEAN));
+            items.addAll(CrabTrapBlock.generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_SWAMP));
+            items.addAll(CrabTrapBlock.generateLoot((ServerLevel) level, pos, ModLootTables.CRAB_TRAP_JUNGLE));
             if (i % 5 == 0) {
                 items.add(ModItems.CRAB_CLAW.asStack());
             }
@@ -132,18 +132,18 @@ public class CrabTrapBlock extends Block implements SimpleWaterloggedBlock, IHam
             itemEntity.setDefaultPickUpDelay();
             level.addFreshEntity(itemEntity);
         }
-        level.setBlockAndUpdate(pos, state.setValue(FISHING, 0));
+        level.setBlockAndUpdate(pos, state.setValue(CrabTrapBlock.FISHING, 0));
         return InteractionResult.CONSUME;
     }
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(CrabTrapBlock.FACING, rotation.rotate(state.getValue(CrabTrapBlock.FACING)));
     }
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
-        return this.rotate(state, mirror.getRotation(state.getValue(FACING)));
+        return this.rotate(state, mirror.getRotation(state.getValue(CrabTrapBlock.FACING)));
     }
 
     public static List<ItemStack> generateLoot(ServerLevel level, BlockPos pos, ResourceKey<LootTable> loot) {

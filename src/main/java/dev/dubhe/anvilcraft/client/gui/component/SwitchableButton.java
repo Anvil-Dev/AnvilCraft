@@ -52,7 +52,7 @@ public class SwitchableButton extends Button {
         OnPress onPress,
         List<Component> message
     ) {
-        super(x, y, width, height, Component.empty(), onPress, DEFAULT_NARRATION);
+        super(x, y, width, height, Component.empty(), onPress, Button.DEFAULT_NARRATION);
         this.textures = textures;
         this.message = message;
         this.texYDiff = texYDiff;

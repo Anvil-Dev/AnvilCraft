@@ -32,13 +32,13 @@ public interface IPowerStorage extends IPowerProducer, IPowerConsumer {
     @Override
     default PowerComponentInfo toPowerComponentInfo() {
         return new PowerComponentInfo(
-            getPos(),
+            this.getPos(),
             0,
             0,
             this.getPowerAmount(),
             this.getCapacity(),
-            getRange(),
-            getShape(),
+            this.getRange(),
+            this.getShape(),
             PowerComponentType.STORAGE
         );
     }

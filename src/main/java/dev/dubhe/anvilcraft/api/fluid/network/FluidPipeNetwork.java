@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
@@ -28,11 +29,11 @@ import java.util.TreeMap;
 public class FluidPipeNetwork {
     public static final int HEIGHT_RATE = 50;
     public static final int MAX_SPEED = 2000;
-    public static final int FULL_SPEED_HEIGHT = MAX_SPEED / HEIGHT_RATE;
+    public static final int FULL_SPEED_HEIGHT = FluidPipeNetwork.MAX_SPEED / FluidPipeNetwork.HEIGHT_RATE;
 
     public static int speedForHeightDiff(int heightDiff) {
         if (heightDiff <= 0) return 0;
-        return Math.min(heightDiff * HEIGHT_RATE, MAX_SPEED);
+        return Math.min(heightDiff * FluidPipeNetwork.HEIGHT_RATE, FluidPipeNetwork.MAX_SPEED);
     }
 
     private final Level level;
@@ -159,7 +160,7 @@ public class FluidPipeNetwork {
                 int groupHeight = entry.getKey();
                 List<FluidEndpoint> group = entry.getValue();
                 int heightDiff = source.effectiveHeight() - groupHeight;
-                int groupSpeed = speedForHeightDiff(heightDiff);
+                int groupSpeed = FluidPipeNetwork.speedForHeightDiff(heightDiff);
                 boolean groupFull = this.fillGroup(source, tankIdx, stored, group, groupSpeed, pathValves);
                 if (srcHandler.getAmountAsInt(tankIdx) <= 0) break;
                 if (!groupFull) break;
@@ -177,7 +178,8 @@ public class FluidPipeNetwork {
         Map<BlockPos, List<ValveState>> pathValves
     ) {
         BlockPos src = source.containerPos();
-        group.sort(Comparator.comparingInt((FluidEndpoint e) -> Math.abs(sumXZ(e.containerPos()) - sumXZ(src)))
+        group.sort(Comparator.comparingInt((FluidEndpoint e) -> Math.abs(
+                FluidPipeNetwork.sumXZ(e.containerPos()) - FluidPipeNetwork.sumXZ(src)))
             .thenComparingInt(e -> Math.abs(e.containerPos().getX() - src.getX()))
             .thenComparingInt(e -> Math.abs(e.containerPos().getZ() - src.getZ())));
 
@@ -185,10 +187,10 @@ public class FluidPipeNetwork {
         ResourceHandler<FluidResource> srcHandler = source.handler();
         if (source.cauldron()) {
             this.fillFromFullCauldron(source, tankIdx, group, pathValves);
-            return isGroupCapacityFull(group);
+            return FluidPipeNetwork.isGroupCapacityFull(group);
         }
         if (this.fillFirstWholeCauldronTarget(source, tankIdx, group, pathValves)) {
-            return isGroupCapacityFull(group);
+            return FluidPipeNetwork.isGroupCapacityFull(group);
         }
         group = group.stream().filter(target -> !target.cauldron()).toList();
         if (group.isEmpty()) return false;
@@ -200,9 +202,9 @@ public class FluidPipeNetwork {
 
             List<ActiveTarget> active = new ArrayList<>();
             for (FluidEndpoint target : group) {
-                if (minValveRemaining(pathValves.get(target.fromPipePos())) <= 0) continue;
-                if (canInsert(target.handler(), fluidType)) {
-                    active.add(new ActiveTarget(target, currentAmount(target)));
+                if (FluidPipeNetwork.minValveRemaining(pathValves.get(target.fromPipePos())) <= 0) continue;
+                if (FluidPipeNetwork.canInsert(target.handler(), fluidType)) {
+                    active.add(new ActiveTarget(target, FluidPipeNetwork.currentAmount(target)));
                 }
             }
             if (active.isEmpty()) break;
@@ -223,7 +225,7 @@ public class FluidPipeNetwork {
                 if (srcAmount <= 0) break;
 
                 List<ValveState> valvePath = pathValves.get(target.fromPipePos());
-                int valveLimit = minValveRemaining(valvePath);
+                int valveLimit = FluidPipeNetwork.minValveRemaining(valvePath);
                 want = Math.min(want, Math.min(budget, Math.min(valveLimit, srcAmount)));
                 if (want <= 0) continue;
 
@@ -239,14 +241,14 @@ public class FluidPipeNetwork {
                     }
                     tx.commit();
                     budget -= inserted;
-                    deductValves(valvePath, inserted);
+                    FluidPipeNetwork.deductValves(valvePath, inserted);
                     progressed = true;
                     this.onTransferred(source);
                 }
             }
             if (!progressed) break;
         }
-        return isGroupCapacityFull(allTargets);
+        return FluidPipeNetwork.isGroupCapacityFull(allTargets);
     }
 
     private TreeMap<Integer, List<FluidEndpoint>> collectTargetsByHeight(
@@ -275,7 +277,7 @@ public class FluidPipeNetwork {
         if (target.handler().equals(source.handler())) return false;
         if (source.cauldron() || target.cauldron()) {
             if (this.wholeCauldronTransferAmount(source, tankIdx, target, stored) <= 0) return false;
-        } else if (!canInsert(target.handler(), stored)) {
+        } else if (!FluidPipeNetwork.canInsert(target.handler(), stored)) {
             return false;
         }
         return reach == null || this.isEndpointReachable(reach, target);
@@ -317,9 +319,9 @@ public class FluidPipeNetwork {
         for (FluidEndpoint target : group) {
             int amount = this.wholeCauldronTransferAmount(source, tankIdx, target, stored);
             List<ValveState> valvePath = pathValves.get(target.fromPipePos());
-            if (amount <= 0 || minValveRemaining(valvePath) < amount) continue;
+            if (amount <= 0 || FluidPipeNetwork.minValveRemaining(valvePath) < amount) continue;
             if (this.moveWholeCauldron(source, tankIdx, target, stored, amount) == amount) {
-                deductValves(valvePath, amount);
+                FluidPipeNetwork.deductValves(valvePath, amount);
                 this.onTransferred(source);
                 return;
             }
@@ -337,9 +339,9 @@ public class FluidPipeNetwork {
             FluidResource stored = source.handler().getResource(tankIdx);
             int amount = this.wholeCauldronTransferAmount(source, tankIdx, target, stored);
             List<ValveState> valvePath = pathValves.get(target.fromPipePos());
-            if (amount <= 0 || minValveRemaining(valvePath) < amount) continue;
+            if (amount <= 0 || FluidPipeNetwork.minValveRemaining(valvePath) < amount) continue;
             if (this.moveWholeCauldron(source, tankIdx, target, stored, amount) != amount) continue;
-            deductValves(valvePath, amount);
+            FluidPipeNetwork.deductValves(valvePath, amount);
             this.onTransferred(source);
             return true;
         }
@@ -358,10 +360,10 @@ public class FluidPipeNetwork {
             amount = source.handler().getCapacityAsInt(tankIdx, stored);
             if (amount <= 0 || source.handler().getAmountAsInt(tankIdx) != amount) return 0;
         } else {
-            amount = capacityFor(target.handler(), stored);
+            amount = FluidPipeNetwork.capacityFor(target.handler(), stored);
             if (amount <= 0 || source.handler().getAmountAsInt(tankIdx) < amount) return 0;
         }
-        if (target.cauldron() && currentAmount(target) != 0) return 0;
+        if (target.cauldron() && FluidPipeNetwork.currentAmount(target) != 0) return 0;
         try (Transaction transaction = Transaction.openRoot()) {
             int extracted = source.handler().extract(tankIdx, stored, amount, transaction);
             if (extracted != amount) return 0;
@@ -390,12 +392,13 @@ public class FluidPipeNetwork {
     private boolean canTickEndpoints() {
         this.disconnectedEntityEndpoints.clear();
         for (FluidEndpoint endpoint : this.entityEndpoints) {
-            if (!FluidContainerLookup.isEntityConnectedToPipe(
-                this.level,
-                endpoint.containerPos(),
-                endpoint.sideToPipe(),
-                endpoint.entity()
-            )) {
+            Entity entity = endpoint.entity();
+            if (entity == null || !FluidContainerLookup.isEntityConnectedToPipe(
+                    this.level,
+                    endpoint.containerPos(),
+                    endpoint.sideToPipe(),
+                    entity
+                )) {
                 this.disconnectedEntityEndpoints.add(endpoint);
             }
         }
@@ -464,8 +467,8 @@ public class FluidPipeNetwork {
     }
 
     private static int minValveRemaining(List<ValveState> valvePath) {
-        if (valvePath == null || valvePath.isEmpty()) return MAX_SPEED;
-        int min = MAX_SPEED;
+        if (valvePath == null || valvePath.isEmpty()) return FluidPipeNetwork.MAX_SPEED;
+        int min = FluidPipeNetwork.MAX_SPEED;
         for (ValveState v : valvePath) {
             min = Math.min(min, v.remaining());
         }

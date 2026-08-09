@@ -20,11 +20,11 @@ public enum CelestialBodyType implements StringRepresentable {
     }
 
     public static CelestialBodyType fromName(String name) {
-        for (CelestialBodyType type : values()) {
+        for (CelestialBodyType type : CelestialBodyType.values()) {
             if (type.name.equals(name)) {
                 return type;
             }
         }
-        return ROCKY_PLANET;
+        return CelestialBodyType.ROCKY_PLANET;
     }
 }

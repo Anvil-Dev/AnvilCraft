@@ -32,7 +32,7 @@ public record StructurePreviewResponsePacket(UUID structureUuid, CompoundTag str
 
     @Override
     public Type<StructurePreviewResponsePacket> type() {
-        return TYPE;
+        return StructurePreviewResponsePacket.TYPE;
     }
 
     @Override

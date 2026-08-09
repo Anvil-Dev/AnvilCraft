@@ -14,11 +14,11 @@ public class ModAttachments {
         NeoForgeRegistries.ATTACHMENT_TYPES, AnvilCraft.MOD_ID
     );
 
-    public static final Supplier<AttachmentType<DfuMetadata>> DFU = ATTACHMENT_TYPES.register(
+    public static final Supplier<AttachmentType<DfuMetadata>> DFU = ModAttachments.ATTACHMENT_TYPES.register(
         "dfu_metadata", () -> AttachmentType.builder(() -> DfuMetadata.DEFAULT).serialize(DfuMetadata.CODEC.fieldOf("value")).build()
     );
 
     public static void register(IEventBus eventBus) {
-        ATTACHMENT_TYPES.register(eventBus);
+        ModAttachments.ATTACHMENT_TYPES.register(eventBus);
     }
 }

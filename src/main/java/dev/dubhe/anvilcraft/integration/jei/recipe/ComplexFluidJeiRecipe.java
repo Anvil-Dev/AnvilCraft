@@ -16,7 +16,6 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -47,15 +46,15 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         boolean linkFluidVariants
     ) {
         super(
-            toSizedIngredients(fluidInputs),
-            toItemStacks(resultItems),
-            firstFluids(fluidResults),
+            ComplexFluidJeiRecipe.toSizedIngredients(fluidInputs),
+            ComplexFluidJeiRecipe.toItemStacks(resultItems),
+            ComplexFluidJeiRecipe.firstFluids(fluidResults),
             false
         );
         this.inputItems = List.copyOf(inputItems);
         this.resultItems = List.copyOf(resultItems);
-        this.displayFluidInputs = copyFluidGroups(fluidInputs);
-        this.displayFluidResults = copyFluidGroups(fluidResults);
+        this.displayFluidInputs = ComplexFluidJeiRecipe.copyFluidGroups(fluidInputs);
+        this.displayFluidResults = ComplexFluidJeiRecipe.copyFluidGroups(fluidResults);
         this.heaterRequired = heaterRequired;
         this.linkFluidVariants = linkFluidVariants;
     }
@@ -68,21 +67,21 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
 
     public static ComplexFluidJeiRecipe fromSolidLiquid(SolidLiquidRecipe recipe) {
         HasCauldronSimple cauldron = recipe.getHasCauldron();
-        List<FluidStack> inputs = createFluidStacks(
+        List<FluidStack> inputs = ComplexFluidJeiRecipe.createFluidStacks(
             cauldron.fluid(),
             cauldron.fluidTag(),
-            displayAmount(cauldron.consume())
+            ComplexFluidJeiRecipe.displayAmount(cauldron.consume())
         );
-        List<FluidStack> results = createFluidStacks(
+        List<FluidStack> results = ComplexFluidJeiRecipe.createFluidStacks(
             cauldron.transform(),
             null,
-            displayAmount(cauldron.produce())
+            ComplexFluidJeiRecipe.displayAmount(cauldron.produce())
         );
         return new ComplexFluidJeiRecipe(
             recipe.getInputItems(),
             recipe.getResultItems(),
-            asGroup(inputs),
-            asGroup(results),
+            ComplexFluidJeiRecipe.asGroup(inputs),
+            ComplexFluidJeiRecipe.asGroup(results),
             false,
             false
         );
@@ -149,7 +148,7 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
     }
 
     public List<List<FluidStack>> getDisplayFluidInputs() {
-        return copyFluidGroups(this.displayFluidInputs);
+        return ComplexFluidJeiRecipe.copyFluidGroups(this.displayFluidInputs);
     }
 
     public int getDisplayFluidInputCount() {
@@ -157,7 +156,7 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
     }
 
     public List<List<FluidStack>> getDisplayFluidResults() {
-        return copyFluidGroups(this.displayFluidResults);
+        return ComplexFluidJeiRecipe.copyFluidGroups(this.displayFluidResults);
     }
 
     public int getDisplayFluidResultCount() {

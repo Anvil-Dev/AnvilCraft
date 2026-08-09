@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.RoyalPreferenceOutcome;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.util.Unit;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
@@ -23,7 +24,8 @@ public class ReloadEventListener {
                 if (server != null && server.overworld() != null) {
                     RoyalPreferenceOutcome.RoyalPreference.initRoyalPreference(server.overworld().getSeed());
                 }
-                return barrier.wait(null);
+                return barrier.wait(Unit.INSTANCE).thenAccept(ignored -> {
+                });
             }
         );
     }

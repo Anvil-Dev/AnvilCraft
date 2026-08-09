@@ -19,7 +19,7 @@ public record EmberGrindstoneSyncPacket(int index) implements IServerboundPacket
 
     @Override
     public Type<EmberGrindstoneSyncPacket> type() {
-        return TYPE;
+        return EmberGrindstoneSyncPacket.TYPE;
     }
 
     @Override

@@ -22,7 +22,7 @@ public class EnableFilterButton extends Button {
         "screen.anvilcraft.button.record", Component.translatable("screen.anvilcraft.button.off"));
 
     public EnableFilterButton(int x, int y, OnPress onPress, Supplier<Boolean> filterEnabled) {
-        super(x, y, 16, 16, defaultMessage, onPress, var -> defaultMessage);
+        super(x, y, 16, 16, EnableFilterButton.defaultMessage, onPress, var -> EnableFilterButton.defaultMessage);
         this.filterEnabled = filterEnabled;
     }
 
@@ -31,7 +31,7 @@ public class EnableFilterButton extends Button {
         if (this.isHovered()) {
             graphics.tooltip(
                 Minecraft.getInstance().font,
-                List.of(ClientTooltipComponent.create(getMessage().getVisualOrderText())),
+                List.of(ClientTooltipComponent.create(this.getMessage().getVisualOrderText())),
                 mouseX,
                 mouseY,
                 DefaultTooltipPositioner.INSTANCE,

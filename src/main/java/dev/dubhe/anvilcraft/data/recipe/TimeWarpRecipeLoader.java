@@ -36,26 +36,26 @@ import java.util.Map;
 public class TimeWarpRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
         final HolderGetter<Item> items = provider.getItems();
-        timeWarp(provider, ModItems.RESIN, 1, ModItems.AMBER, 1);
-        timeWarp(provider, Items.OBSIDIAN, 1, Items.CRYING_OBSIDIAN, 1);
-        timeWarp(provider, Items.CHARCOAL, 1, Items.COAL, 2);
-        timeWarp(provider, Items.SAND, 1, Items.DIRT, 1);
-        timeWarp(provider, Items.IRON_BLOCK, 1, Items.RAW_IRON, 3);
-        timeWarp(provider, Items.GOLD_BLOCK, 1, Items.RAW_GOLD, 3);
-        timeWarp(provider, Items.COPPER_BLOCK, 1, Items.RAW_COPPER, 3);
-        timeWarp(provider, ModItems.GEODE, 1, Items.BUDDING_AMETHYST, 1);
-        timeWarp(provider, ModBlocks.CINERITE, 1, Items.TUFF, 1);
-        timeWarp(provider, ModBlocks.NETHER_DUST, 1, Items.SOUL_SOIL, 1);
-        timeWarp(provider, ModBlocks.END_DUST, 1, Items.END_STONE, 1);
-        timeWarp(provider, ModItems.LIME_POWDER, 8, Items.CALCITE, 1);
-        timeWarp(provider, ModItems.NETHERITE_CRYSTAL_NUCLEUS, 1, Items.ANCIENT_DEBRIS, 1);
-        timeWarp(provider, ModItemTags.STORAGE_BLOCKS_ZINC, 1, ModItems.RAW_ZINC, 3);
-        timeWarp(provider, ModItemTags.STORAGE_BLOCKS_TIN, 1, ModItems.RAW_TIN, 3);
-        timeWarp(provider, ModItemTags.STORAGE_BLOCKS_TITANIUM, 1, ModItems.RAW_TITANIUM, 3);
-        timeWarp(provider, ModItemTags.STORAGE_BLOCKS_TUNGSTEN, 1, ModItems.RAW_TUNGSTEN, 3);
-        timeWarp(provider, ModItemTags.STORAGE_BLOCKS_LEAD, 1, ModItems.RAW_LEAD, 3);
-        timeWarp(provider, ModItemTags.STORAGE_BLOCKS_SILVER, 1, ModItems.RAW_SILVER, 3);
-        timeWarp(provider, ModItems.SEA_HEART_SHELL_SHARD, 1, ModItems.SEA_HEART_SHELL, 1);
+        TimeWarpRecipeLoader.timeWarp(provider, ModItems.RESIN, 1, ModItems.AMBER, 1);
+        TimeWarpRecipeLoader.timeWarp(provider, Items.OBSIDIAN, 1, Items.CRYING_OBSIDIAN, 1);
+        TimeWarpRecipeLoader.timeWarp(provider, Items.CHARCOAL, 1, Items.COAL, 2);
+        TimeWarpRecipeLoader.timeWarp(provider, Items.SAND, 1, Items.DIRT, 1);
+        TimeWarpRecipeLoader.timeWarp(provider, Items.IRON_BLOCK, 1, Items.RAW_IRON, 3);
+        TimeWarpRecipeLoader.timeWarp(provider, Items.GOLD_BLOCK, 1, Items.RAW_GOLD, 3);
+        TimeWarpRecipeLoader.timeWarp(provider, Items.COPPER_BLOCK, 1, Items.RAW_COPPER, 3);
+        TimeWarpRecipeLoader.timeWarp(provider, ModItems.GEODE, 1, Items.BUDDING_AMETHYST, 1);
+        TimeWarpRecipeLoader.timeWarp(provider, ModBlocks.CINERITE, 1, Items.TUFF, 1);
+        TimeWarpRecipeLoader.timeWarp(provider, ModBlocks.NETHER_DUST, 1, Items.SOUL_SOIL, 1);
+        TimeWarpRecipeLoader.timeWarp(provider, ModBlocks.END_DUST, 1, Items.END_STONE, 1);
+        TimeWarpRecipeLoader.timeWarp(provider, ModItems.LIME_POWDER, 8, Items.CALCITE, 1);
+        TimeWarpRecipeLoader.timeWarp(provider, ModItems.NETHERITE_CRYSTAL_NUCLEUS, 1, Items.ANCIENT_DEBRIS, 1);
+        TimeWarpRecipeLoader.timeWarp(provider, ModItemTags.STORAGE_BLOCKS_ZINC, 1, ModItems.RAW_ZINC, 3);
+        TimeWarpRecipeLoader.timeWarp(provider, ModItemTags.STORAGE_BLOCKS_TIN, 1, ModItems.RAW_TIN, 3);
+        TimeWarpRecipeLoader.timeWarp(provider, ModItemTags.STORAGE_BLOCKS_TITANIUM, 1, ModItems.RAW_TITANIUM, 3);
+        TimeWarpRecipeLoader.timeWarp(provider, ModItemTags.STORAGE_BLOCKS_TUNGSTEN, 1, ModItems.RAW_TUNGSTEN, 3);
+        TimeWarpRecipeLoader.timeWarp(provider, ModItemTags.STORAGE_BLOCKS_LEAD, 1, ModItems.RAW_LEAD, 3);
+        TimeWarpRecipeLoader.timeWarp(provider, ModItemTags.STORAGE_BLOCKS_SILVER, 1, ModItems.RAW_SILVER, 3);
+        TimeWarpRecipeLoader.timeWarp(provider, ModItems.SEA_HEART_SHELL_SHARD, 1, ModItems.SEA_HEART_SHELL, 1);
 
         TimeWarpRecipe.builder()
             .requires(Items.EMERALD)
@@ -92,17 +92,17 @@ public class TimeWarpRecipeLoader {
             .result(ModBlocks.CHROMATIC_STONE)
             .save(provider);
 
-        timeWarpToOilCauldron(provider, Items.ROTTEN_FLESH, 64);
-        timeWarpToOilCauldron(provider, Items.SPIDER_EYE, 64);
-        timeWarpToOilCauldron(provider, ModItemTags.RAW_CHICKEN, 64);
-        timeWarpToOilCauldron(provider, Tags.Items.FOODS_RAW_FISH, 64);
-        timeWarpToOilCauldron(provider, ModItemTags.RAW_BEEF, 16);
-        timeWarpToOilCauldron(provider, ModItemTags.RAW_PORKCHOP, 16);
-        timeWarpToOilCauldron(provider, ModItemTags.RAW_MUTTON, 16);
-        timeWarpToOilCauldron(provider, ModItemTags.RAW_RABBIT, 16);
+        TimeWarpRecipeLoader.timeWarpToOilCauldron(provider, Items.ROTTEN_FLESH, 64);
+        TimeWarpRecipeLoader.timeWarpToOilCauldron(provider, Items.SPIDER_EYE, 64);
+        TimeWarpRecipeLoader.timeWarpToOilCauldron(provider, ModItemTags.RAW_CHICKEN, 64);
+        TimeWarpRecipeLoader.timeWarpToOilCauldron(provider, Tags.Items.FOODS_RAW_FISH, 64);
+        TimeWarpRecipeLoader.timeWarpToOilCauldron(provider, ModItemTags.RAW_BEEF, 16);
+        TimeWarpRecipeLoader.timeWarpToOilCauldron(provider, ModItemTags.RAW_PORKCHOP, 16);
+        TimeWarpRecipeLoader.timeWarpToOilCauldron(provider, ModItemTags.RAW_MUTTON, 16);
+        TimeWarpRecipeLoader.timeWarpToOilCauldron(provider, ModItemTags.RAW_RABBIT, 16);
 
-        timeWarpToOilCauldron(provider, Items.ZOMBIE_HEAD, 1);
-        timeWarpToOilCauldron(provider, Items.PIGLIN_HEAD, 1);
+        TimeWarpRecipeLoader.timeWarpToOilCauldron(provider, Items.ZOMBIE_HEAD, 1);
+        TimeWarpRecipeLoader.timeWarpToOilCauldron(provider, Items.PIGLIN_HEAD, 1);
 
         TimeWarpRecipe.builder()
             .requires(items, ModItemTags.NETHERITE_BLOCK)

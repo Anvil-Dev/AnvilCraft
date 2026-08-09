@@ -53,12 +53,12 @@ public record CopyData(List<ICustomDataComponent<?>> types) implements IResultMo
     public static class Type implements IResultModifier.Type<CopyData> {
         @Override
         public MapCodec<CopyData> codec() {
-            return CODEC;
+            return CopyData.CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, CopyData> streamCodec() {
-            return STREAM_CODEC;
+            return CopyData.STREAM_CODEC;
         }
     }
 

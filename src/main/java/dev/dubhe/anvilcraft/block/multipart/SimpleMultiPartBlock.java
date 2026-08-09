@@ -75,7 +75,7 @@ public abstract class SimpleMultiPartBlock<P extends Enum<P> & ISimpleMultiPartB
 
     /// 是否有足够的空间放下方块
     public boolean hasEnoughSpace(BlockPos pos, LevelReader level) {
-        for (P part : getParts()) {
+        for (P part : this.getParts()) {
             BlockPos pos1 = pos.offset(part.getOffset());
             if (level.isOutsideBuildHeight(pos1)) return false;
             BlockState state = level.getBlockState(pos1);

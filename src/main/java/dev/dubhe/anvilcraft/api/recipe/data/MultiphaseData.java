@@ -29,7 +29,7 @@ public class MultiphaseData implements ICustomDataComponent<Multiphase> {
     }
 
     private static MultiphaseData fromType(String type) {
-        if (!TYPE.equals(type)) {
+        if (!MultiphaseData.TYPE.equals(type)) {
             throw new IllegalArgumentException("Invalid multiphase input type: " + type);
         }
         return new MultiphaseData();
@@ -71,7 +71,7 @@ public class MultiphaseData implements ICustomDataComponent<Multiphase> {
     }
 
     private String type() {
-        return TYPE;
+        return MultiphaseData.TYPE;
     }
 
     public static class Type implements ICustomDataComponent.Type<MultiphaseData> {
@@ -84,12 +84,12 @@ public class MultiphaseData implements ICustomDataComponent<Multiphase> {
 
         @Override
         public MapCodec<MultiphaseData> codec() {
-            return CODEC;
+            return Type.CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, MultiphaseData> streamCodec() {
-            return STREAM_CODEC;
+            return Type.STREAM_CODEC;
         }
     }
 }

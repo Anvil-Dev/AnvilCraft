@@ -46,18 +46,18 @@ public class ExpGemItem extends Item {
             if (villagerData.profession() == VillagerProfession.NONE) return InteractionResult.PASS;
             if (!VillagerData.canLevelUp(villagerLevel)) return InteractionResult.PASS;
 
-            updateVillager(villager);
+            ExpGemItem.updateVillager(villager);
             stack.consume(1, player);
             return InteractionResult.SUCCESS;
         } else {
-            villager.ageUp(AGE_ADDITION, true);
+            villager.ageUp(ExpGemItem.AGE_ADDITION, true);
             stack.consume(1, player);
             return InteractionResult.SUCCESS;
         }
     }
 
     public static void updateVillager(Villager villager) {
-        int villagerXp = villager.getVillagerXp() + VILLAGER_XP;
+        int villagerXp = villager.getVillagerXp() + ExpGemItem.VILLAGER_XP;
         villager.setVillagerXp(villagerXp);
 
         VillagerAccessor accessor = Util.cast(villager);

@@ -74,16 +74,16 @@ public class SubmitGeometryEventListener {
             nodeCollector.submitCustomGeometry(
                 poseStack, RenderTypes.lines(), ((pose, buffer) -> {
                     if (AnvilHammerItem.shouldRenderEffect(player)) {
-                        renderAffectRange(poseStack, blockHitResult, buffer, camX, camY, camZ);
+                        SubmitGeometryEventListener.renderAffectRange(poseStack, blockHitResult, buffer, camX, camY, camZ);
                     }
-                    renderDragonRodOutline(pose, blockHitResult, buffer, camX, camY, camZ, handItem);
+                    SubmitGeometryEventListener.renderDragonRodOutline(pose, blockHitResult, buffer, camX, camY, camZ, handItem);
                 })
             );
 
         }
 
 
-        submitPowerGridLines(poseStack, nodeCollector, camera);
+        SubmitGeometryEventListener.submitPowerGridLines(poseStack, nodeCollector, camera);
     }
 
     private static void submitPowerGridLines(PoseStack poseStack, SubmitNodeCollector nodeCollector, Vec3 camera) {

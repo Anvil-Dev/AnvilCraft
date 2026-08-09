@@ -30,7 +30,7 @@ public class FrostAnvilScreen extends ItemCombinerScreen<FrostAnvilMenu> {
     /// @param playerInventory 背包
     /// @param title           标题
     public FrostAnvilScreen(FrostAnvilMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title, BACKGROUND);
+        super(menu, playerInventory, title, FrostAnvilScreen.BACKGROUND);
         this.player = playerInventory.player;
     }
 

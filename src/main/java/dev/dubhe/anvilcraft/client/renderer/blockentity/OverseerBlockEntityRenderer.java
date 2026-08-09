@@ -62,7 +62,7 @@ public class OverseerBlockEntityRenderer implements BlockEntityRenderer<Overseer
 
         float time = level.getGameTime() + partialTicks;
         state.setTime(time);
-        state.setBobOffset(getHeadBobOffset(time));
+        state.setBobOffset(OverseerBlockEntityRenderer.getHeadBobOffset(time));
         state.setModel(FeatureRendererSupport.initialize(blockState, blockEntity));
         this.spawnTrailParticles(blockEntity, level);
     }
@@ -79,7 +79,7 @@ public class OverseerBlockEntityRenderer implements BlockEntityRenderer<Overseer
 
         poseStack.pushPose();
         poseStack.translate(0.5, state.getBobOffset(), 0.5);
-        poseStack.mulPose(Axis.YP.rotationDegrees(state.getTime() * HEAD_ROTATION_DEGREES_PER_TICK));
+        poseStack.mulPose(Axis.YP.rotationDegrees(state.getTime() * OverseerBlockEntityRenderer.HEAD_ROTATION_DEGREES_PER_TICK));
         poseStack.translate(-0.5, 0, -0.5);
         model.submit(
             poseStack,
@@ -92,7 +92,7 @@ public class OverseerBlockEntityRenderer implements BlockEntityRenderer<Overseer
     }
 
     private static float getHeadBobOffset(float time) {
-        return Mth.sin(time * HEAD_BOB_ANGULAR_SPEED) * HEAD_BOB_AMPLITUDE;
+        return Mth.sin(time * OverseerBlockEntityRenderer.HEAD_BOB_ANGULAR_SPEED) * OverseerBlockEntityRenderer.HEAD_BOB_AMPLITUDE;
     }
 
     private void spawnTrailParticles(OverseerBlockEntity blockEntity, Level level) {
@@ -100,13 +100,14 @@ public class OverseerBlockEntityRenderer implements BlockEntityRenderer<Overseer
         Long previousParticleTick = this.lastParticleTicks.put(blockEntity, gameTime);
         if (previousParticleTick != null && previousParticleTick == gameTime) return;
 
-        float currentBob = getHeadBobOffset(gameTime);
-        float previousBob = getHeadBobOffset(gameTime - 1.0F);
+        float currentBob = OverseerBlockEntityRenderer.getHeadBobOffset(gameTime);
+        float previousBob = OverseerBlockEntityRenderer.getHeadBobOffset(gameTime - 1.0F);
         float movement = currentBob - previousBob;
         if (Math.abs(movement) < 0.0001F) return;
 
         BlockPos pos = blockEntity.getBlockPos();
-        double trailY = pos.getY() + previousBob + (movement > 0 ? HEAD_MIN_Y : HEAD_MAX_Y);
+        double trailY =
+            pos.getY() + previousBob + (movement > 0 ? OverseerBlockEntityRenderer.HEAD_MIN_Y : OverseerBlockEntityRenderer.HEAD_MAX_Y);
         for (int i = 0; i < 2; i++) {
             double x = pos.getX() + 0.125 + level.getRandom().nextDouble() * 0.75;
             double z = pos.getZ() + 0.125 + level.getRandom().nextDouble() * 0.75;

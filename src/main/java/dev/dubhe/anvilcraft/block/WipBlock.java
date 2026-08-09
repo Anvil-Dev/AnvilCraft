@@ -9,8 +9,8 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -26,7 +26,7 @@ public class WipBlock extends BaseEntityBlock implements IMoveableEntityBlock {
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(WipBlock::new);
+        return BlockBehaviour.simpleCodec(WipBlock::new);
     }
 
     @Nullable
@@ -42,15 +42,10 @@ public class WipBlock extends BaseEntityBlock implements IMoveableEntityBlock {
             return super.getDrops(state, params);
         }
         BlockState initialBlockState = wipBe.getInitialBlock();
-        if (initialBlockState == null || initialBlockState.isAir()) {
+        if (initialBlockState.isAir()) {
             return super.getDrops(state, params);
         }
         return initialBlockState.getDrops(params);
-    }
-
-    @Override
-    protected RenderShape getRenderShape(BlockState state) {
-        return RenderShape.MODEL;
     }
 
     @Override
@@ -63,8 +58,7 @@ public class WipBlock extends BaseEntityBlock implements IMoveableEntityBlock {
         BlockEntity e = level.getBlockEntity(pos);
         if (e instanceof WipBlockEntity wipBlockEntity) {
             if (wipBlockEntity.getStepCount() >= 15) return 15;
-            if (wipBlockEntity.getStepCount() <= 0) return 0;
-            return wipBlockEntity.getStepCount();
+            return Math.max(wipBlockEntity.getStepCount(), 0);
         }
         return 0;
     }

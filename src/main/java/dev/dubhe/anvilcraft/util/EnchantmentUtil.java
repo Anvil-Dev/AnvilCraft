@@ -20,7 +20,7 @@ public class EnchantmentUtil {
     }
 
     public static ItemEnchantments builtOf(Holder<Enchantment> enchHolder, @Range(from = 1, to = 255) int level) {
-        var builder = builderOf();
+        var builder = EnchantmentUtil.builderOf();
         builder.set(enchHolder, level);
         return builder.toImmutable();
     }

@@ -19,43 +19,43 @@ public class LevelLoadManager {
     private static final Map<ResourceKey<Level>, Map<ChunkPos, Integer>> CHUNK_REF_COUNT = new HashMap<>();
 
     public static void register(BlockPos centerPos, LoadChunkData data, ServerLevel level) {
-        if (LOAD_DATA_MAP.containsKey(centerPos)) return;
-        LOAD_DATA_MAP.put(centerPos, data);
-        reload(level);
+        if (LevelLoadManager.LOAD_DATA_MAP.containsKey(centerPos)) return;
+        LevelLoadManager.LOAD_DATA_MAP.put(centerPos, data);
+        LevelLoadManager.reload(level);
     }
 
     public static boolean checkRegistered(BlockPos pos) {
-        return LOAD_DATA_MAP.containsKey(pos);
+        return LevelLoadManager.LOAD_DATA_MAP.containsKey(pos);
     }
 
     public static void unregister(BlockPos centerPos, Level level) {
-        LoadChunkData data = LOAD_DATA_MAP.get(centerPos);
+        LoadChunkData data = LevelLoadManager.LOAD_DATA_MAP.get(centerPos);
         if (data == null) return;
         data.markRemoved();
         if (level instanceof ServerLevel serverLevel) {
-            reload(serverLevel);
+            LevelLoadManager.reload(serverLevel);
         }
     }
 
     static void lazy(Runnable task) {
-        if (serverStarted) {
+        if (LevelLoadManager.serverStarted) {
             task.run();
         } else {
-            deferredTasks.add(task);
+            LevelLoadManager.deferredTasks.add(task);
         }
     }
 
     public static void notifyServerStarted() {
-        serverStarted = true;
-        while (!deferredTasks.isEmpty()) {
-            deferredTasks.poll().run();
+        LevelLoadManager.serverStarted = true;
+        while (!LevelLoadManager.deferredTasks.isEmpty()) {
+            LevelLoadManager.deferredTasks.poll().run();
         }
     }
 
     public static void forceChunk(int chunkX, int chunkZ, boolean load, ServerLevel level) {
         ChunkPos cp = new ChunkPos(chunkX, chunkZ);
         ResourceKey<Level> dim = level.dimension();
-        Map<ChunkPos, Integer> refMap = CHUNK_REF_COUNT.computeIfAbsent(dim, k -> new HashMap<>());
+        Map<ChunkPos, Integer> refMap = LevelLoadManager.CHUNK_REF_COUNT.computeIfAbsent(dim, k -> new HashMap<>());
         int count = refMap.getOrDefault(cp, 0);
 
         if (load) {
@@ -72,26 +72,26 @@ public class LevelLoadManager {
     }
 
     public static void reload(ServerLevel level) {
-        LOAD_DATA_MAP.values().stream()
+        LevelLoadManager.LOAD_DATA_MAP.values().stream()
             .filter(LoadChunkData::isRemoved)
             .forEach(d -> d.discard(level));
-        LOAD_DATA_MAP.values().stream()
+        LevelLoadManager.LOAD_DATA_MAP.values().stream()
             .filter(d -> !d.isRemoved())
             .forEach(d -> d.apply(level));
-        LOAD_DATA_MAP.values().removeIf(LoadChunkData::isRemoved);
+        LevelLoadManager.LOAD_DATA_MAP.values().removeIf(LoadChunkData::isRemoved);
     }
 
     public static void removeAll(ServerLevel level) {
-        LOAD_DATA_MAP.values().forEach(d -> {
+        LevelLoadManager.LOAD_DATA_MAP.values().forEach(d -> {
             d.markRemoved();
             d.discard(level);
         });
-        LOAD_DATA_MAP.clear();
-        CHUNK_REF_COUNT.clear();
+        LevelLoadManager.LOAD_DATA_MAP.clear();
+        LevelLoadManager.CHUNK_REF_COUNT.clear();
     }
 
     public static int getOverseerChunkCount(BlockPos centerPos) {
-        LoadChunkData data = LOAD_DATA_MAP.get(centerPos);
+        LoadChunkData data = LevelLoadManager.LOAD_DATA_MAP.get(centerPos);
         return (data != null
                 && !data.isRemoved()
                 && data.getSource() == LoadChunkData.Source.OVERSEER)
@@ -100,7 +100,7 @@ public class LevelLoadManager {
     }
 
     public static int getAllOverseerForcedChunkCount(ServerLevel level) {
-        return LOAD_DATA_MAP.values().stream()
+        return LevelLoadManager.LOAD_DATA_MAP.values().stream()
             .filter(data -> !data.isRemoved())
             .filter(data -> data.getSource() == LoadChunkData.Source.OVERSEER)
             .filter(data -> data.getServerLevel().dimension().equals(level.dimension()))

@@ -81,6 +81,7 @@ public abstract class HasMobBlockEntity extends BlockEntity {
         Entity entity;
         if (this.entity == null) {
             entity = this.createDefaultEntity(level);
+            if (entity == null) return;
             this.entity = SavedEntity.fromEntity(entity);
         } else {
             entity = this.entity.toEntity(level);

@@ -21,11 +21,11 @@ public enum Temperature implements StringRepresentable {
     }
 
     public static Temperature fromName(String name) {
-        for (Temperature value : values()) {
+        for (Temperature value : Temperature.values()) {
             if (value.name.equals(name)) {
                 return value;
             }
         }
-        return MILD;
+        return Temperature.MILD;
     }
 }

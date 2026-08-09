@@ -74,7 +74,7 @@ public record StructureScannerActionPacket(
 
     @Override
     public Type<StructureScannerActionPacket> type() {
-        return TYPE;
+        return StructureScannerActionPacket.TYPE;
     }
 
     @Override
@@ -97,9 +97,9 @@ public record StructureScannerActionPacket(
             }
             case RANGE_CHANGE -> {
                 boolean validRange = switch (this.rangeAxis) {
-                    case X -> validateAndApplyRange(blockEntity.getRangeX(), this.value);
-                    case Y -> validateAndApplyRange(blockEntity.getRangeY(), this.value);
-                    case Z -> validateAndApplyRange(blockEntity.getRangeZ(), this.value);
+                    case X -> StructureScannerActionPacket.validateAndApplyRange(blockEntity.getRangeX(), this.value);
+                    case Y -> StructureScannerActionPacket.validateAndApplyRange(blockEntity.getRangeY(), this.value);
+                    case Z -> StructureScannerActionPacket.validateAndApplyRange(blockEntity.getRangeZ(), this.value);
                     case NONE -> false;
                 };
 
@@ -109,7 +109,7 @@ public record StructureScannerActionPacket(
                         player.getName().getString(),
                         this.value,
                         this.rangeAxis,
-                        this.rangeAxis != RangeAxis.NONE ? getRangeCount(blockEntity, this.rangeAxis) - 1 : 0
+                        this.rangeAxis != RangeAxis.NONE ? StructureScannerActionPacket.getRangeCount(blockEntity, this.rangeAxis) - 1 : 0
                     );
                     return;
                 }

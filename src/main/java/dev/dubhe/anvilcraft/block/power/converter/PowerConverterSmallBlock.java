@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -21,23 +22,23 @@ public class PowerConverterSmallBlock extends BasePowerConverterBlock implements
     public static final int INPUT_TIME = 1;
 
     public PowerConverterSmallBlock(Properties properties) {
-        super(properties, INPUT_TIME);
+        super(properties, PowerConverterSmallBlock.INPUT_TIME);
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(PowerConverterSmallBlock::new);
+        return BlockBehaviour.simpleCodec(PowerConverterSmallBlock::new);
     }
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return switch (state.getValue(FACING)) {
-            case UP -> SHAPE_UP;
-            case DOWN -> SHAPE_DOWN;
-            case NORTH -> SHAPE_NORTH;
-            case EAST -> SHAPE_EASE;
-            case SOUTH -> SHAPE_SOUTH;
-            case WEST -> SHAPE_WEST;
+        return switch (state.getValue(BasePowerConverterBlock.FACING)) {
+            case UP -> PowerConverterSmallBlock.SHAPE_UP;
+            case DOWN -> PowerConverterSmallBlock.SHAPE_DOWN;
+            case NORTH -> PowerConverterSmallBlock.SHAPE_NORTH;
+            case EAST -> PowerConverterSmallBlock.SHAPE_EASE;
+            case SOUTH -> PowerConverterSmallBlock.SHAPE_SOUTH;
+            case WEST -> PowerConverterSmallBlock.SHAPE_WEST;
         };
     }
 }

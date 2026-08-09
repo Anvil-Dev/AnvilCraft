@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IFallingBlockEntityExtension;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
+import dev.dubhe.anvilcraft.util.EntityUtil;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -128,7 +129,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         if (gravityDir == Direction.DOWN && !entityCollision) return original.call(instance);
 
         if (gravityDir != Direction.DOWN && this.anvilcraft$positionBeforeTick != null) {
-            this.anvilcraft$directionalFallDistance += (float) position().distanceTo(this.anvilcraft$positionBeforeTick);
+            this.anvilcraft$directionalFallDistance += (float) this.position().distanceTo(this.anvilcraft$positionBeforeTick);
             this.anvilcraft$fallDistance = Math.max(this.anvilcraft$fallDistance, this.anvilcraft$directionalFallDistance);
         }
 
@@ -476,9 +477,8 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         );
         if (hitResult == null) return;
         if (hitResult.getType() != EntityHitResult.Type.ENTITY) return;
-        float hurtAmount = (float) (this.getDeltaMovement().length() * DAMAGE_FACTOR);
-        // noinspection deprecation
-        hitResult.getEntity().hurtOrSimulate(damageSources().anvil(this), hurtAmount);
+        float hurtAmount = (float) (this.getDeltaMovement().length() * FallingBlockEntityMixin.DAMAGE_FACTOR);
+        EntityUtil.hurtOrSimulate(hitResult.getEntity(), this.damageSources().anvil(this), hurtAmount);
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
@@ -507,7 +507,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$handleAcceleration(CallbackInfo ci) {
-        this.anvilcraft$positionBeforeTick = position();
+        this.anvilcraft$positionBeforeTick = this.position();
         if (this.anvilcraft$discardLevitationPowderAboveBuildHeight()) {
             ci.cancel();
             return;

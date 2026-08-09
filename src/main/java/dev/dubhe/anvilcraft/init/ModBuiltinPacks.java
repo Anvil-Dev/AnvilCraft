@@ -14,7 +14,7 @@ import java.util.function.UnaryOperator;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class ModBuiltinPacks {
-    public static final PackSource BUILT_IN = PackSource.create(decorateWithSource("pack.result.builtin"), false);
+    public static final PackSource BUILT_IN = PackSource.create(ModBuiltinPacks.decorateWithSource("pack.result.builtin"), false);
 
     @SubscribeEvent
     public static void packSetup(AddPackFindersEvent event) {

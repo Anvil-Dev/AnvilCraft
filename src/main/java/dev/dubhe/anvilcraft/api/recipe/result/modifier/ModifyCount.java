@@ -8,6 +8,9 @@ import dev.dubhe.anvilcraft.api.recipe.result.ResultContext;
 import dev.dubhe.anvilcraft.init.recipe.ModResultModifierTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Objects;
 
 public record ModifyCount(INumberProvider count) implements IResultModifier {
     public static final MapCodec<ModifyCount> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
@@ -38,17 +41,17 @@ public record ModifyCount(INumberProvider count) implements IResultModifier {
     public static class Type implements IResultModifier.Type<ModifyCount> {
         @Override
         public MapCodec<ModifyCount> codec() {
-            return CODEC;
+            return ModifyCount.CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, ModifyCount> streamCodec() {
-            return STREAM_CODEC;
+            return ModifyCount.STREAM_CODEC;
         }
     }
 
     public static class Builder {
-        private INumberProvider count;
+        private @Nullable INumberProvider count;
 
         public Builder() {
         }
@@ -59,8 +62,7 @@ public record ModifyCount(INumberProvider count) implements IResultModifier {
         }
 
         public ModifyCount build() {
-            if (this.count == null) throw new IllegalArgumentException("The count in ModifyCount should not be null!");
-            return new ModifyCount(this.count);
+            return new ModifyCount(Objects.requireNonNull(this.count, "The count in ModifyCount should not be null!"));
         }
     }
 }

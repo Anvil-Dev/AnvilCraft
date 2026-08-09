@@ -264,7 +264,7 @@ public class FrostGrindstoneMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(this.access, player, ModBlocks.FROST_GRINDSTONE.get());
+        return AbstractContainerMenu.stillValid(this.access, player, ModBlocks.FROST_GRINDSTONE.get());
     }
 
     /// 移除

@@ -13,6 +13,7 @@ import net.minecraft.world.level.saveddata.SavedDataType;
 import net.minecraft.world.level.storage.SavedDataStorage;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
+import org.jspecify.annotations.Nullable;
 
 import java.util.UUID;
 import java.util.function.Predicate;
@@ -38,11 +39,13 @@ public abstract class BetterSavedData extends SavedData {
 
     public void sync2C() {
         if (!Util.isServer()) return;
-        this.sync2C(ServerLifecycleHooks.getCurrentServer().registryAccess());
+        MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
+        if (server != null) this.sync2C(server.registryAccess());
     }
 
     public void sync2C(RegistryAccess registryAccess) {
-        this.sync2C(this.createPacket(registryAccess), registryAccess);
+        Packet<? extends CustomPacketPayload> packet = this.createPacket(registryAccess);
+        if (packet != null) this.sync2C(packet, registryAccess);
     }
 
     private <T extends CustomPacketPayload> void sync2C(Packet<T> packet, RegistryAccess registryAccess) {
@@ -56,7 +59,7 @@ public abstract class BetterSavedData extends SavedData {
         );
     }
 
-    protected abstract Packet<? extends CustomPacketPayload> createPacket(RegistryAccess registryAccess);
+    protected abstract @Nullable Packet<? extends CustomPacketPayload> createPacket(RegistryAccess registryAccess);
 
     @SuppressWarnings("RedundantRecordConstructor")
     protected record Packet<T extends CustomPacketPayload>(

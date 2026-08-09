@@ -51,7 +51,7 @@ public class ItemCrushRecipe extends AbstractProcessRecipe<ItemCrushRecipe> {
 
     @Override
     public RecipeSerializer<ItemCrushRecipe> getSerializer() {
-        return SERIALIZER;
+        return ItemCrushRecipe.SERIALIZER;
     }
 
     /// 创建一个构建器实例

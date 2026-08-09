@@ -66,7 +66,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
         List<ChanceItemStack> results,
         HasCauldronSimple hasCauldron
     ) {
-        super(createProperty(itemIngredients, results, hasCauldron));
+        super(SuperHeatingRecipe.createProperty(itemIngredients, results, hasCauldron));
         this.hasRoyalPreference = results.stream().anyMatch(
             result -> result.stack().is(ModItems.ROYAL_STEEL_INGOT.get())
                       || result.stack().is(ModBlocks.ROYAL_STEEL_BLOCK.get().asItem())
@@ -121,7 +121,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
 
     @Override
     public RecipeSerializer<SuperHeatingRecipe> getSerializer() {
-        return SERIALIZER;
+        return SuperHeatingRecipe.SERIALIZER;
     }
 
     /// 创建一个构建器实例
@@ -219,7 +219,7 @@ public class SuperHeatingRecipe extends AbstractProcessRecipe<SuperHeatingRecipe
 
         @Override
         public void validate(Identifier id) {
-            if (itemIngredients.isEmpty()) {
+            if (this.itemIngredients.isEmpty()) {
                 throw new IllegalArgumentException("Recipe ingredients must not be empty, RecipeId: " + id);
             }
         }

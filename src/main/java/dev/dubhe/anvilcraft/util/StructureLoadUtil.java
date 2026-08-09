@@ -59,7 +59,7 @@ public class StructureLoadUtil {
      */
     @Nullable
     public static StructureData loadStructureFromDiskForPreview(Level level, ItemStack diskStack) {
-        return loadStructureFromDisk(level, diskStack);
+        return StructureLoadUtil.loadStructureFromDisk(level, diskStack);
     }
 
     /**
@@ -76,36 +76,36 @@ public class StructureLoadUtil {
         // 从磁盘读取结构信息
         StructureDiskData structureDiskData = diskStack.get(ModComponents.STRUCTURE_DISK_DATA);
         if (structureDiskData == null) {
-            LOGGER.warn("Disk has no structure data");
+            StructureLoadUtil.LOGGER.warn("Disk has no structure data");
             return null;
         }
 
         if (structureDiskData.file().isEmpty()) {
-            LOGGER.warn("Disk has no structure file reference");
+            StructureLoadUtil.LOGGER.warn("Disk has no structure file reference");
             return null;
         }
 
         String fileName = structureDiskData.file();
 
         // Validate and sanitize structure file name to prevent path traversal
-        if (isInvalidStructureFile(fileName)) {
-            LOGGER.error("Invalid structure file name: {}", fileName);
+        if (StructureLoadUtil.isInvalidStructureFile(fileName)) {
+            StructureLoadUtil.LOGGER.error("Invalid structure file name: {}", fileName);
             return null;
         }
 
         try {
             // 获取结构文件路径
-            Path baseDir = getStructureDirectory(level);
+            Path baseDir = StructureLoadUtil.getStructureDirectory(level);
             Path structureFile = baseDir.resolve(fileName);
 
             // Validate the resolved path stays within the intended directory
-            if (isPathOutsideBaseDirectory(structureFile, baseDir)) {
-                LOGGER.error("Path traversal attempt detected: {}", fileName);
+            if (StructureLoadUtil.isPathOutsideBaseDirectory(structureFile, baseDir)) {
+                StructureLoadUtil.LOGGER.error("Path traversal attempt detected: {}", fileName);
                 return null;
             }
 
             if (!Files.exists(structureFile)) {
-                LOGGER.error("Structure file not found: {}", fileName);
+                StructureLoadUtil.LOGGER.error("Structure file not found: {}", fileName);
                 return null;
             }
 
@@ -121,7 +121,7 @@ public class StructureLoadUtil {
             return data;
 
         } catch (IOException e) {
-            LOGGER.error("Failed to load structure file: {}", e.getMessage(), e);
+            StructureLoadUtil.LOGGER.error("Failed to load structure file: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -147,7 +147,7 @@ public class StructureLoadUtil {
                 BlockState state = NbtUtils.readBlockState(registry.lookupOrThrow(Registries.BLOCK), stateTag);
                 palette.add(state);
             } catch (Exception e) {
-                LOGGER.warn("Failed to read block state at palette index {}", i, e);
+                StructureLoadUtil.LOGGER.warn("Failed to read block state at palette index {}", i, e);
             }
         }
 
@@ -215,7 +215,7 @@ public class StructureLoadUtil {
                         result.set(gameDir.resolve("anvilcraft").resolve("structures"));
                     }
                 } catch (Exception e) {
-                    LOGGER.debug("Client-side structure directory fallback failed: {}", e.getMessage());
+                    StructureLoadUtil.LOGGER.debug("Client-side structure directory fallback failed: {}", e.getMessage());
                 }
             }
         );
@@ -238,22 +238,22 @@ public class StructureLoadUtil {
      */
     @Nullable
     public static CompoundTag loadPreviewData(Level level, String fileName) {
-        if (isInvalidStructureFile(fileName)) {
-            LOGGER.warn("Invalid structure file name for preview: {}", fileName);
+        if (StructureLoadUtil.isInvalidStructureFile(fileName)) {
+            StructureLoadUtil.LOGGER.warn("Invalid structure file name for preview: {}", fileName);
             return null;
         }
 
         try {
-            Path baseDir = getStructureDirectory(level);
+            Path baseDir = StructureLoadUtil.getStructureDirectory(level);
             Path structureFile = baseDir.resolve(fileName);
 
-            if (isPathOutsideBaseDirectory(structureFile, baseDir)) {
-                LOGGER.error("Path traversal detected for preview: {}", fileName);
+            if (StructureLoadUtil.isPathOutsideBaseDirectory(structureFile, baseDir)) {
+                StructureLoadUtil.LOGGER.error("Path traversal detected for preview: {}", fileName);
                 return null;
             }
 
             if (!Files.exists(structureFile)) {
-                LOGGER.warn("Structure file not found for preview: {}", fileName);
+                StructureLoadUtil.LOGGER.warn("Structure file not found for preview: {}", fileName);
                 return null;
             }
 
@@ -269,13 +269,13 @@ public class StructureLoadUtil {
             if (fullTag.contains("blocks")) {
                 ListTag allBlocks = fullTag.getListOrEmpty("blocks");
                 int totalBlocks = allBlocks.size();
-                if (totalBlocks > MAX_PREVIEW_BLOCKS) {
-                    LOGGER.warn(
+                if (totalBlocks > StructureLoadUtil.MAX_PREVIEW_BLOCKS) {
+                    StructureLoadUtil.LOGGER.warn(
                         "Preview data truncated: {} blocks (max {}) for file: {}",
-                        totalBlocks, MAX_PREVIEW_BLOCKS, fileName
+                        totalBlocks, StructureLoadUtil.MAX_PREVIEW_BLOCKS, fileName
                     );
                     ListTag truncated = new ListTag();
-                    for (int i = 0; i < MAX_PREVIEW_BLOCKS; i++) {
+                    for (int i = 0; i < StructureLoadUtil.MAX_PREVIEW_BLOCKS; i++) {
                         truncated.add(allBlocks.get(i).copy());
                     }
                     previewTag.put("blocks", truncated);
@@ -287,7 +287,7 @@ public class StructureLoadUtil {
             return previewTag.isEmpty() ? null : previewTag;
 
         } catch (IOException e) {
-            LOGGER.error("Failed to load preview data: {}", e.getMessage());
+            StructureLoadUtil.LOGGER.error("Failed to load preview data: {}", e.getMessage());
             return null;
         }
     }
@@ -302,12 +302,12 @@ public class StructureLoadUtil {
         }
 
         // Check length
-        if (fileName.length() > MAX_STRUCTURE_FILE_LENGTH) {
+        if (fileName.length() > StructureLoadUtil.MAX_STRUCTURE_FILE_LENGTH) {
             return true;
         }
 
         // Validate against whitelist pattern
-        if (!VALID_STRUCTURE_FILE.matcher(fileName).matches()) {
+        if (!StructureLoadUtil.VALID_STRUCTURE_FILE.matcher(fileName).matches()) {
             return true;
         }
 
@@ -327,7 +327,7 @@ public class StructureLoadUtil {
             // Check if the resolved path escapes the base directory
             return !normalizedResolved.startsWith(normalizedBase);
         } catch (Exception e) {
-            LOGGER.error("Error validating path: {}", e.getMessage());
+            StructureLoadUtil.LOGGER.error("Error validating path: {}", e.getMessage());
             return true;
         }
     }
@@ -355,7 +355,7 @@ public class StructureLoadUtil {
     }
 
     public static boolean isMultiblockBlock(BlockState state) {
-        return isMultiblockBlock(state.getBlock());
+        return StructureLoadUtil.isMultiblockBlock(state.getBlock());
     }
 
     /**
@@ -426,7 +426,7 @@ public class StructureLoadUtil {
                         return !statePart.equals(defaultPart);
                     }
                 } catch (Exception e) {
-                    LOGGER.debug("Failed to determine multi-block part type for {}: {}", block, e.getMessage());
+                    StructureLoadUtil.LOGGER.debug("Failed to determine multi-block part type for {}: {}", block, e.getMessage());
                 }
             }
             default -> {

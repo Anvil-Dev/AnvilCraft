@@ -12,6 +12,8 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
+import java.util.Objects;
+
 @Getter
 @EqualsAndHashCode
 public class NormalDataComponent<T> implements ICustomDataComponent<T> {
@@ -43,7 +45,7 @@ public class NormalDataComponent<T> implements ICustomDataComponent<T> {
 
     @Override
     public T make(ResultContext ctx) {
-        return ctx.getInput(this.input).get(this.type);
+        return Objects.requireNonNull(ctx.getInput(this.input).get(this.type));
     }
 
     @Override
@@ -69,12 +71,12 @@ public class NormalDataComponent<T> implements ICustomDataComponent<T> {
 
         @Override
         public MapCodec<NormalDataComponent<?>> codec() {
-            return CODEC;
+            return Type.CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, NormalDataComponent<?>> streamCodec() {
-            return STREAM_CODEC;
+            return Type.STREAM_CODEC;
         }
     }
 

@@ -142,7 +142,7 @@ public final class FluidNetworkManager {
         long gameTime = level.getGameTime();
         for (FluidPipeNetwork network : d.networks) {
             // #4 空闲降频：连续 IDLE_THRESHOLD tick 无转移后，每 IDLE_INTERVAL tick 才分配一次
-            if (network.getIdleTicks() >= IDLE_THRESHOLD && gameTime % IDLE_INTERVAL != 0) {
+            if (network.getIdleTicks() >= FluidNetworkManager.IDLE_THRESHOLD && gameTime % FluidNetworkManager.IDLE_INTERVAL != 0) {
                 continue;
             }
             network.tick();
@@ -168,7 +168,7 @@ public final class FluidNetworkManager {
                 d.containers.remove(containerPos); // 已失效 → 注销
                 continue;
             }
-            BlockPos seed = findUnindexedAdjacentPipe(level, containerPos, d.partIndex);
+            BlockPos seed = FluidNetworkManager.findUnindexedAdjacentPipe(level, containerPos, d.partIndex);
             if (seed == null) {
                 continue; // 无相邻管道，或相邻管道所属网络已在本次重建中建好
             }

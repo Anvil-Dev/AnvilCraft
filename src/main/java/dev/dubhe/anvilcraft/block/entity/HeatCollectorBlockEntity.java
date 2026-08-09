@@ -101,7 +101,7 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
 
     public void clientTick() {
         if (!this.isWorking()) return;
-        this.rotation += (float) (Math.log(getServerPower() + 1) * 2.5);
+        this.rotation += (float) (Math.log(this.getServerPower() + 1) * 2.5);
     }
 
     public boolean isWorking() {
@@ -114,7 +114,7 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
     /// @return 溢出的热能(即未被添加至该收集器的热能)
     public int inputtingHeat(int num) {
         if (!this.isWorking()) return num;
-        int overflow = num - (MAX_OUTPUT_POWER - this.inputtingPower);
+        int overflow = num - (HeatCollectorBlockEntity.MAX_OUTPUT_POWER - this.inputtingPower);
         if (overflow < 0) {
             overflow = 0;
         }
@@ -160,7 +160,7 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
 
     @Override
     public AABB shape() {
-        return AABB.ofSize(getBlockPos().getCenter(), 5, 5, 5);
+        return AABB.ofSize(this.getBlockPos().getCenter(), 5, 5, 5);
     }
 
     public enum WorkResult {
@@ -179,7 +179,7 @@ public class HeatCollectorBlockEntity extends BlockEntity implements IPowerProdu
         }
 
         public boolean isWorking() {
-            return this == SUCCESS;
+            return this == WorkResult.SUCCESS;
         }
     }
 }

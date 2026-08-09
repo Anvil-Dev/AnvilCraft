@@ -35,9 +35,9 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 public class BreakBlockUtil {
     private static @Nullable ItemStack DUMMY_SILK_TOUCH_TOOL = null;
@@ -46,21 +46,21 @@ public class BreakBlockUtil {
     private static final ItemStack SHEARS_INSTANCE = Items.SHEARS.getDefaultInstance();
 
     public static ItemStack getDummySilkTouchTool(ServerLevel level) {
-        if (DUMMY_SILK_TOUCH_TOOL == null) {
+        if (BreakBlockUtil.DUMMY_SILK_TOUCH_TOOL == null) {
             ItemStack tool = Items.NETHERITE_PICKAXE.getDefaultInstance();
             tool.set(DataComponents.CUSTOM_NAME, Component.literal("Dummy Silk Touch Tool"));
             level.holderLookup(Registries.ENCHANTMENT)
                 .get(Enchantments.SILK_TOUCH)
                 .ifPresent(e -> tool.enchant(e, 1));
-            DUMMY_SILK_TOUCH_TOOL = tool;
+            BreakBlockUtil.DUMMY_SILK_TOUCH_TOOL = tool;
         }
-        return DUMMY_SILK_TOUCH_TOOL;
+        return BreakBlockUtil.DUMMY_SILK_TOUCH_TOOL;
     }
 
     public static List<ItemStack> dropWithTool(ServerLevel level, BlockPos pos, ItemStack tool) {
         BlockState state = level.getBlockState(pos);
         if (state.isAir()) return List.of();
-        return dropWithTool(level, pos, state, level.getBlockEntity(pos), tool);
+        return BreakBlockUtil.dropWithTool(level, pos, state, level.getBlockEntity(pos), tool);
     }
 
     private static List<ItemStack> dropWithTool(
@@ -85,13 +85,13 @@ public class BreakBlockUtil {
     }
 
     public static List<ItemStack> drop(ServerLevel level, BlockPos pos) {
-        return dropWithTool(level, pos, ItemStack.EMPTY);
+        return BreakBlockUtil.dropWithTool(level, pos, ItemStack.EMPTY);
     }
 
     public static List<ItemStack> drop(ServerLevel level, BlockPos pos, BlockMiningEffect effect) {
         BlockState state = level.getBlockState(pos);
         if (state.isAir()) return List.of();
-        return drop(level, pos, state, level.getBlockEntity(pos), effect, null);
+        return BreakBlockUtil.drop(level, pos, state, level.getBlockEntity(pos), effect, null);
     }
 
     public static List<ItemStack> drop(
@@ -101,7 +101,7 @@ public class BreakBlockUtil {
         BlockMiningEffect effect,
         @Nullable ItemStack baseTool
     ) {
-        return drop(level, pos, state, level.getBlockEntity(pos), effect, baseTool);
+        return BreakBlockUtil.drop(level, pos, state, level.getBlockEntity(pos), effect, baseTool);
     }
 
     private static List<ItemStack> drop(
@@ -112,8 +112,8 @@ public class BreakBlockUtil {
         BlockMiningEffect effect,
         @Nullable ItemStack baseTool
     ) {
-        ItemStack tool = baseTool == null ? createTool(level, state, effect) : effect.applyTo(level, baseTool);
-        return dropWithTool(level, pos, state, blockEntity, tool);
+        ItemStack tool = baseTool == null ? BreakBlockUtil.createTool(level, state, effect) : effect.applyTo(level, baseTool);
+        return BreakBlockUtil.dropWithTool(level, pos, state, blockEntity, tool);
     }
 
     public static List<ItemStack> dropVirtual(
@@ -122,17 +122,17 @@ public class BreakBlockUtil {
         BlockState state,
         BlockMiningEffect effect
     ) {
-        return drop(level, origin, state, null, effect, null);
+        return BreakBlockUtil.drop(level, origin, state, null, effect, null);
     }
 
     public static List<ItemStack> dropSilkTouch(ServerLevel level, BlockPos pos) {
-        return dropWithTool(level, pos, getDummySilkTouchTool(level));
+        return BreakBlockUtil.dropWithTool(level, pos, BreakBlockUtil.getDummySilkTouchTool(level));
     }
 
     public static List<ItemStack> dropForLaser(ServerLevel level, BlockPos pos, BlockMiningEffect effect) {
         BlockState state = level.getBlockState(pos);
         if (state.isAir()) return List.of();
-        return dropForLaser(level, pos, state, level.getBlockEntity(pos), effect);
+        return BreakBlockUtil.dropForLaser(level, pos, state, level.getBlockEntity(pos), effect);
     }
 
     private static List<ItemStack> dropForLaser(
@@ -145,7 +145,7 @@ public class BreakBlockUtil {
         if (effect.isDisintegration()) {
             return level.getRandom().nextFloat() <= 0.25f ? List.of(ModItems.EXP_GEM.asStack()) : List.of();
         }
-        return drop(level, pos, state, blockEntity, effect, null);
+        return BreakBlockUtil.drop(level, pos, state, blockEntity, effect, null);
     }
 
     public static List<ItemStack> dropVirtualForLaser(
@@ -154,7 +154,7 @@ public class BreakBlockUtil {
         BlockState state,
         BlockMiningEffect effect
     ) {
-        return dropForLaser(level, origin, state, null, effect);
+        return BreakBlockUtil.dropForLaser(level, origin, state, null, effect);
     }
 
     public static Optional<BlockState> findOreForRawMaterial(
@@ -162,7 +162,7 @@ public class BreakBlockUtil {
         BlockPos origin,
         ItemStack rawMaterial
     ) {
-        for (TagKey<Item> rawMaterialTag : rawMaterial.getItem().builtInRegistryHolder().tags().toList()) {
+        for (TagKey<Item> rawMaterialTag : BuiltInRegistries.ITEM.wrapAsHolder(rawMaterial.getItem()).tags().toList()) {
             Identifier tagId = rawMaterialTag.location();
             if (!tagId.getNamespace().equals("c") || !tagId.getPath().startsWith("raw_materials/")) continue;
             String material = tagId.getPath().substring("raw_materials/".length());
@@ -171,7 +171,7 @@ public class BreakBlockUtil {
                 Block ore = Block.byItem(oreHolder.value());
                 if (ore == Blocks.AIR) continue;
                 BlockState oreState = ore.defaultBlockState();
-                List<ItemStack> normalDrops = dropVirtual(level, origin, oreState, BlockMiningEffect.NORMAL);
+                List<ItemStack> normalDrops = BreakBlockUtil.dropVirtual(level, origin, oreState, BlockMiningEffect.NORMAL);
                 if (normalDrops.stream().anyMatch(stack -> stack.is(rawMaterial.getItem()))) {
                     return Optional.of(oreState);
                 }
@@ -181,7 +181,7 @@ public class BreakBlockUtil {
     }
 
     public static List<ItemStack> dropSmelt(ServerLevel level, BlockPos pos) {
-        List<ItemStack> drops = drop(level, pos);
+        List<ItemStack> drops = BreakBlockUtil.drop(level, pos);
         if (
             drops.size() == 1
             && drops.getFirst().is(ModItemTags.HEATABLE_BLOCKS)
@@ -193,36 +193,39 @@ public class BreakBlockUtil {
                     .orElse(ItemStack.EMPTY)
             );
         }
-        return drops.stream()
-            .map(it -> {
-                SingleRecipeInput cont = new SingleRecipeInput(it);
-                return level.recipeAccess()
-                    .getRecipeFor(RecipeType.SMELTING, cont, level)
-                    .map(smeltingRecipe -> smeltingRecipe.value().assemble(cont))
-                    .orElse(it);
-            })
-            .collect(Collectors.toList());
+        return new ArrayList<>(
+            drops.stream()
+                .map(item -> BreakBlockUtil.smeltDrop(level, item))
+                .toList()
+        );
+    }
+
+    private static ItemStack smeltDrop(ServerLevel level, ItemStack item) {
+        SingleRecipeInput input = new SingleRecipeInput(item);
+        var recipe = level.recipeAccess().getRecipeFor(RecipeType.SMELTING, input, level);
+        if (recipe.isEmpty()) return item;
+        return recipe.get().value().assemble(input);
     }
 
     public static ItemStack getDummyFortune5Tool(ServerLevel level) {
-        if (DUMMY_FORTUNE_5_TOOL == null) {
+        if (BreakBlockUtil.DUMMY_FORTUNE_5_TOOL == null) {
             ItemStack tool = Items.NETHERITE_PICKAXE.getDefaultInstance();
             tool.set(DataComponents.CUSTOM_NAME, Component.literal("Dummy Fortune 5 Tool"));
             level.holderLookup(Registries.ENCHANTMENT)
                 .get(Enchantments.FORTUNE)
                 .ifPresent(e -> tool.enchant(e, 5));
-            DUMMY_FORTUNE_5_TOOL = tool;
+            BreakBlockUtil.DUMMY_FORTUNE_5_TOOL = tool;
         }
-        return DUMMY_FORTUNE_5_TOOL;
+        return BreakBlockUtil.DUMMY_FORTUNE_5_TOOL;
     }
 
     public static List<ItemStack> dropFortune5(ServerLevel level, BlockPos pos) {
-        return dropWithTool(level, pos, getDummyFortune5Tool(level));
+        return BreakBlockUtil.dropWithTool(level, pos, BreakBlockUtil.getDummyFortune5Tool(level));
     }
 
     public static List<ItemStack> dropSilkTouchOrShears(ServerLevel level, BlockPos pos) {
-        List<ItemStack> drops = dropWithTool(level, pos, SHEARS_INSTANCE);
-        if (drops.stream().allMatch(ItemStack::isEmpty)) return dropSilkTouch(level, pos);
+        List<ItemStack> drops = BreakBlockUtil.dropWithTool(level, pos, BreakBlockUtil.SHEARS_INSTANCE);
+        if (drops.stream().allMatch(ItemStack::isEmpty)) return BreakBlockUtil.dropSilkTouch(level, pos);
         return drops;
     }
 
@@ -247,7 +250,7 @@ public class BreakBlockUtil {
         BlockState state,
         BlockMiningEffect effect
     ) {
-        ItemStack tool = createTool(level, state, effect);
+        ItemStack tool = BreakBlockUtil.createTool(level, state, effect);
         ServerPlayer fakePlayer = AnvilCraftFakePlayers.getDestroyer().offerPlayer(level);
         AnvilCraftFakePlayers.getDestroyer().enabledDestroy(fakePlayer, tool);
         try {
@@ -264,18 +267,18 @@ public class BreakBlockUtil {
         BlockState state,
         BlockMiningEffect effect
     ) {
-        ExperienceOrb.award(level, pos.getCenter(), getExperience(level, pos, state, effect));
+        ExperienceOrb.award(level, pos.getCenter(), BreakBlockUtil.getExperience(level, pos, state, effect));
     }
 
     public static ItemStack getDummyDisintegrationTool(ServerLevel level) {
-        if (DUMMY_DISINTEGRATION_TOOL == null) {
+        if (BreakBlockUtil.DUMMY_DISINTEGRATION_TOOL == null) {
             ItemStack tool = Items.NETHERITE_PICKAXE.getDefaultInstance();
             tool.set(DataComponents.CUSTOM_NAME, Component.literal("Dummy Disintegration Tool"));
             level.holderLookup(Registries.ENCHANTMENT)
                 .get(ModEnchantments.DISINTEGRATION_KEY)
                 .ifPresent(e -> tool.enchant(e, 1));
-            DUMMY_DISINTEGRATION_TOOL = tool;
+            BreakBlockUtil.DUMMY_DISINTEGRATION_TOOL = tool;
         }
-        return DUMMY_DISINTEGRATION_TOOL;
+        return BreakBlockUtil.DUMMY_DISINTEGRATION_TOOL;
     }
 }

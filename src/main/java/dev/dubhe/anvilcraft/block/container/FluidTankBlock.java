@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
@@ -41,7 +42,7 @@ public class FluidTankBlock extends BaseEntityBlock implements HammerRotateBehav
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(FluidTankBlock::new);
+        return BlockBehaviour.simpleCodec(FluidTankBlock::new);
     }
 
     @Nullable
@@ -58,7 +59,7 @@ public class FluidTankBlock extends BaseEntityBlock implements HammerRotateBehav
         BlockEntityType<T> type
     ) {
         if (level.isClientSide()) return null;
-        return createTickerHelper(type, ModBlockEntities.FLUID_TANK.get(), FluidTankBlockEntity::serverTick);
+        return BaseEntityBlock.createTickerHelper(type, ModBlockEntities.FLUID_TANK.get(), FluidTankBlockEntity::serverTick);
     }
 
     @Override

@@ -204,7 +204,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             this.topPos + 119,
             16,
             16,
-            REDO_TEXTURE,
+            StructureScannerScreen.REDO_TEXTURE,
             16,
             32,
             (_) -> this.onModeToggleClick(),
@@ -219,7 +219,7 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             this.topPos + 90,
             16,
             16,
-            CONFIRM_TEXTURE,
+            StructureScannerScreen.CONFIRM_TEXTURE,
             16,
             16,
             32,
@@ -257,8 +257,11 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     @Override
     public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractBackground(graphics, mouseX, mouseY, a);
-        graphics.blit(RenderPipelines
-            .GUI_TEXTURED, BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(), this.getImageHeight(), 256, 256);
+        graphics.blit(
+            RenderPipelines
+                .GUI_TEXTURED, StructureScannerScreen.BACKGROUND, this.leftPos, this.topPos, 0, 0, this.getImageWidth(),
+            this.getImageHeight(), 256, 256
+        );
 
         // 渲染磁盘槽位的虚影（当槽位为空时）
         var blockEntity = this.menu.getBlockEntity();
@@ -292,8 +295,11 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
         this.renderInfoPanel(graphics);
 
         // 渲染STRUCTURE_TOOL_LOCKED贴图
-        graphics.blit(RenderPipelines
-            .GUI_TEXTURED, STRUCTURE_TOOL_LOCKED_TEXTURE, this.leftPos + 6, this.topPos + 18, 0, 0, 126, 26, 126, 26);
+        graphics.blit(
+            RenderPipelines
+                .GUI_TEXTURED, StructureScannerScreen.STRUCTURE_TOOL_LOCKED_TEXTURE, this.leftPos + 6, this.topPos + 18, 0, 0, 126, 26, 126,
+            26
+        );
 
         // 收集并渲染所有tooltip
         List<TooltipRenderInfo> tooltipsToRender = new ArrayList<>();
@@ -501,13 +507,13 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             if (this.isScanMode) {
                 this.isScanMode = false;
                 this.modeToggleButton.setSelected(false);
-                this.modeToggleButton.setTexture(STOP_TEXTURE);
+                this.modeToggleButton.setTexture(StructureScannerScreen.STOP_TEXTURE);
             }
         } else if (this.cachedIsScanComplete) {
             if (!this.isScanMode) {
                 this.isScanMode = true;
                 this.modeToggleButton.setSelected(true);
-                this.modeToggleButton.setTexture(REDO_TEXTURE);
+                this.modeToggleButton.setTexture(StructureScannerScreen.REDO_TEXTURE);
             }
         }
     }
@@ -628,9 +634,11 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
         if (!scannedBlocks.isEmpty()) {
             for (StructureScannerBlockEntity.CachedBlockData data : scannedBlocks) {
-                BlockState rotatedState = this.rotateBlockStateForPreview(data.state(), facing);
                 int renderY = upsideDown ? (Math.max(1, rangeY) - 1 - data.y()) : data.y();
-                previewLevelLike.setBlockState(new BlockPos(data.x(), renderY, data.z() + 1), rotatedState);
+                BlockPos renderPos = new BlockPos(data.x(), renderY, data.z() + 1);
+                BlockPos worldPos = this.cachedBlockEntity.getBlockPos().offset(renderPos);
+                BlockState rotatedState = this.rotateBlockStateForPreview(data.state(), facing, level, worldPos);
+                previewLevelLike.setBlockState(renderPos, rotatedState);
             }
         }
 
@@ -641,14 +649,19 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
     }
 
     /// 根据 Scanner 朝向旋转方块状态
-    private BlockState rotateBlockStateForPreview(BlockState state, Direction scannerFacing) {
+    private BlockState rotateBlockStateForPreview(
+        BlockState state,
+        Direction scannerFacing,
+        ClientLevel level,
+        BlockPos pos
+    ) {
         Rotation rotation = switch (scannerFacing) {
             case SOUTH -> Rotation.CLOCKWISE_180;
             case WEST -> Rotation.CLOCKWISE_90;
             case EAST -> Rotation.COUNTERCLOCKWISE_90;
             default -> Rotation.NONE;
         };
-        return state.rotate(rotation);
+        return state.rotate(level, pos, rotation);
     }
 
     @SuppressWarnings("unused")
@@ -742,9 +755,10 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
             float deltaX = currentMouseX - this.lastMouseX;
             float deltaY = currentMouseY - this.lastMouseY;
 
-            this.previewRotationY += deltaX * ROTATION_SENSITIVITY;
-            this.previewRotationX += deltaY * ROTATION_SENSITIVITY;
-            this.previewRotationX = Math.clamp(this.previewRotationX, MIN_ROTATION_X, MAX_ROTATION_X);
+            this.previewRotationY += deltaX * StructureScannerScreen.ROTATION_SENSITIVITY;
+            this.previewRotationX += deltaY * StructureScannerScreen.ROTATION_SENSITIVITY;
+            this.previewRotationX = Math.clamp(
+                this.previewRotationX, StructureScannerScreen.MIN_ROTATION_X, StructureScannerScreen.MAX_ROTATION_X);
 
             this.lastMouseX = currentMouseX;
             this.lastMouseY = currentMouseY;
@@ -775,13 +789,13 @@ public class StructureScannerScreen extends AbstractContainerScreen<StructureSca
 
             this.isScanMode = false;
             this.modeToggleButton.setSelected(false);
-            this.modeToggleButton.setTexture(STOP_TEXTURE);
+            this.modeToggleButton.setTexture(StructureScannerScreen.STOP_TEXTURE);
         } else {
             ClientPacketDistributor.sendToServer(new StructureScannerActionPacket(Action.STOP));
 
             this.isScanMode = true;
             this.modeToggleButton.setSelected(true);
-            this.modeToggleButton.setTexture(REDO_TEXTURE);
+            this.modeToggleButton.setTexture(StructureScannerScreen.REDO_TEXTURE);
         }
     }
 

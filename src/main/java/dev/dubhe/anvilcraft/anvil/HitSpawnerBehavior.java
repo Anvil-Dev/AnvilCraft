@@ -67,7 +67,7 @@ public class HitSpawnerBehavior implements IAnvilBehavior {
         BaseSpawnerAccessor accessor
     ) {
         for (int c = 0; c < accessor.getSpawnCount(); c++) {
-            try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(this::toString, log)) {
+            try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(this::toString, HitSpawnerBehavior.log)) {
                 ValueInput input = TagValueInput.create(reporter, level.registryAccess(), spawnData.getEntityToSpawn());
                 Optional<EntityType<?>> entityType = EntityType.by(input);
                 if (entityType.isEmpty()) return;

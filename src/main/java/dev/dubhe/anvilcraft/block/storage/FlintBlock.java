@@ -79,7 +79,7 @@ public class FlintBlock extends Block {
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         if (movedByPiston) {
-            ignite(level, pos, true);
+            FlintBlock.ignite(level, pos, true);
         }
     }
 
@@ -87,7 +87,7 @@ public class FlintBlock extends Block {
     protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
         if (movedByPiston) {
-            ignite(level, pos, true);
+            FlintBlock.ignite(level, pos, true);
         }
     }
 }

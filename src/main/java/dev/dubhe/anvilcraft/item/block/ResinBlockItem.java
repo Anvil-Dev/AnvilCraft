@@ -39,7 +39,7 @@ public class ResinBlockItem extends HasMobBlockItem {
         if (!ResinBlockItem.hasMob(stack)
             && context.getLevel().getBlockEntity(context.getClickedPos()) instanceof SpawnerBlockEntity spawner
         ) {
-            return captureSpawner(context, spawner);
+            return ResinBlockItem.captureSpawner(context, spawner);
         }
         if (!ResinBlockItem.hasMob(stack)) return super.useOn(context);
         Level level = context.getLevel();

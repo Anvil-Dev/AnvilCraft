@@ -12,6 +12,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jspecify.annotations.Nullable;
 
@@ -20,7 +21,7 @@ import org.jspecify.annotations.Nullable;
  * 向下把内部流体铺放到世界、或从上方抽取流体入内部。
  */
 public class DrainBlock extends BetterBaseEntityBlock implements IHammerRemovable {
-    public static final MapCodec<DrainBlock> CODEC = simpleCodec(DrainBlock::new);
+    public static final MapCodec<DrainBlock> CODEC = BlockBehaviour.simpleCodec(DrainBlock::new);
 
     public DrainBlock(Properties properties) {
         super(properties);
@@ -28,7 +29,7 @@ public class DrainBlock extends BetterBaseEntityBlock implements IHammerRemovabl
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return CODEC;
+        return DrainBlock.CODEC;
     }
 
     @Override
@@ -46,6 +47,6 @@ public class DrainBlock extends BetterBaseEntityBlock implements IHammerRemovabl
         Level level, BlockState state, BlockEntityType<T> type
     ) {
         if (level.isClientSide()) return null;
-        return createTickerHelper(type, ModBlockEntities.DRAIN.get(), DrainBlockEntity::tick);
+        return BaseEntityBlock.createTickerHelper(type, ModBlockEntities.DRAIN.get(), DrainBlockEntity::tick);
     }
 }

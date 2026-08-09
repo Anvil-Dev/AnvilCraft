@@ -31,6 +31,6 @@ public class ChargeCollectorRenderer extends PowerProducerRenderer<ChargeCollect
 
     @Override
     protected StandaloneModelKey<BlockStateModel> getModel() {
-        return HEAD;
+        return ChargeCollectorRenderer.HEAD;
     }
 }

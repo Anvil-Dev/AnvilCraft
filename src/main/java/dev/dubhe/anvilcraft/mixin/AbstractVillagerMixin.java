@@ -41,7 +41,7 @@ public class AbstractVillagerMixin {
         CallbackInfo ci,
         @Local LootContext lootContext
     ) {
-        if (resourceKey.identifier().equals(JEWELER_TRADE_SET)) {
+        if (resourceKey.identifier().equals(AbstractVillagerMixin.JEWELER_TRADE_SET)) {
             Optional<VillagerTrade> tradeSet = level.registryAccess().lookupOrThrow(Registries.VILLAGER_TRADE)
                 .getOptional(ModVillagerTrades.EMERALD_FOR_ROYAL_STEEL_TEMPLATE.identifier());
             if (tradeSet.isEmpty()) return;

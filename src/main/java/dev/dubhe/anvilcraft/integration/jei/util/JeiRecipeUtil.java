@@ -69,18 +69,18 @@ public class JeiRecipeUtil {
 
         if (provider instanceof BinomialDistributionGenerator(NumberProvider n, NumberProvider p)) {
             if (n instanceof ConstantValue(float value) && value == 1) {
-                String chance = FORMATTER.format(NumberProviderUtil.expected(p) * 100);
+                String chance = JeiRecipeUtil.FORMATTER.format(NumberProviderUtil.expected(p) * 100);
                 tooltipLines.add(Component.translatable("gui.anvilcraft.category.chance", chance).withStyle(ChatFormatting.GRAY));
             } else {
-                addAvgOutput(tooltipLines, NumberProviderUtil.expected(provider));
+                JeiRecipeUtil.addAvgOutput(tooltipLines, NumberProviderUtil.expected(provider));
             }
-            addMinMax(tooltipLines, 0, getMax(n));
+            JeiRecipeUtil.addMinMax(tooltipLines, 0, JeiRecipeUtil.getMax(n));
         } else if (provider.getClass() != ConstantValue.class) {
             double val = NumberProviderUtil.expected(provider);
             if (val != -1) {
-                addAvgOutput(tooltipLines, val);
+                JeiRecipeUtil.addAvgOutput(tooltipLines, val);
                 if (provider instanceof UniformGenerator) {
-                    addMinMax(tooltipLines, getMin(provider), getMax(provider));
+                    JeiRecipeUtil.addMinMax(tooltipLines, JeiRecipeUtil.getMin(provider), JeiRecipeUtil.getMax(provider));
                 }
             }
         } else {
@@ -89,7 +89,7 @@ public class JeiRecipeUtil {
             if (value != 1) {
                 tooltipLines.add(Component.translatable(
                     "gui.anvilcraft.category.chance",
-                    FORMATTER.format(value * 100)
+                    JeiRecipeUtil.FORMATTER.format(value * 100)
                 ).withStyle(ChatFormatting.GRAY));
             }
         }
@@ -102,19 +102,19 @@ public class JeiRecipeUtil {
 
         if (provider instanceof BinomialDistributionGenerator(NumberProvider n, NumberProvider p)) {
             if (n instanceof ConstantValue(float value) && value == 1) {
-                String chance = FORMATTER.format(NumberProviderUtil.expected(p) * 100);
+                String chance = JeiRecipeUtil.FORMATTER.format(NumberProviderUtil.expected(p) * 100);
                 tooltipLines.add(Component.translatable("gui.anvilcraft.category.chance", chance)
                     .withStyle(ChatFormatting.GRAY));
             } else {
-                addAvgOutput(tooltipLines, count * NumberProviderUtil.expected(provider));
+                JeiRecipeUtil.addAvgOutput(tooltipLines, count * NumberProviderUtil.expected(provider));
             }
-            addMinMax(tooltipLines, 0, getMax(n));
+            JeiRecipeUtil.addMinMax(tooltipLines, 0, JeiRecipeUtil.getMax(n));
         } else if (provider.getClass() != ConstantValue.class) {
             double val = count * NumberProviderUtil.expected(provider);
             if (val != -1) {
-                addAvgOutput(tooltipLines, val);
+                JeiRecipeUtil.addAvgOutput(tooltipLines, val);
                 if (provider instanceof UniformGenerator) {
-                    addMinMax(tooltipLines, getMin(provider), getMax(provider));
+                    JeiRecipeUtil.addMinMax(tooltipLines, JeiRecipeUtil.getMin(provider), JeiRecipeUtil.getMax(provider));
                 }
             }
         }
@@ -137,7 +137,7 @@ public class JeiRecipeUtil {
     private static double getMin(NumberProvider provider) {
         return switch (provider) {
             case ConstantValue value -> value.value();
-            case UniformGenerator uniform -> getMin(uniform.min());
+            case UniformGenerator uniform -> JeiRecipeUtil.getMin(uniform.min());
             default -> 0;
         };
     }
@@ -145,21 +145,21 @@ public class JeiRecipeUtil {
     private static double getMax(NumberProvider provider) {
         return switch (provider) {
             case ConstantValue value -> value.value();
-            case UniformGenerator uniform -> getMax(uniform.max());
-            case BinomialDistributionGenerator binomial -> getMax(binomial.n());
+            case UniformGenerator uniform -> JeiRecipeUtil.getMax(uniform.max());
+            case BinomialDistributionGenerator binomial -> JeiRecipeUtil.getMax(binomial.n());
             default -> 0;
         };
     }
 
     private static void addAvgOutput(ImmutableList.Builder<Component> tooltipLines, double avgValue) {
-        String avgOutput = FORMATTER.format(avgValue);
+        String avgOutput = JeiRecipeUtil.FORMATTER.format(avgValue);
         tooltipLines.add(Component.translatable("gui.anvilcraft.category.average_output", avgOutput)
             .withStyle(ChatFormatting.GRAY));
     }
 
     private static void addMinMax(ImmutableList.Builder<Component> tooltipLines, double min, double max) {
-        String minOutput = FORMATTER.format(min);
-        String maxOutput = FORMATTER.format(max);
+        String minOutput = JeiRecipeUtil.FORMATTER.format(min);
+        String maxOutput = JeiRecipeUtil.FORMATTER.format(max);
 
         tooltipLines.add(Component.translatable("gui.anvilcraft.category.min_output", minOutput)
             .withStyle(ChatFormatting.GRAY));

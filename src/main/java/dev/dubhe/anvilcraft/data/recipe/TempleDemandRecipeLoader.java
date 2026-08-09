@@ -21,8 +21,8 @@ import java.util.List;
 public class TempleDemandRecipeLoader {
 
     public static void init(RegistrumRecipeProvider provider) {
-        createBlessingRecipe(provider);
-        createPunishmentRecipe(provider);
+        TempleDemandRecipeLoader.createBlessingRecipe(provider);
+        TempleDemandRecipeLoader.createPunishmentRecipe(provider);
     }
 
     private static void saveRecipe(RecipeOutput output, String name, TempleDemandRecipe recipe) {
@@ -46,7 +46,7 @@ public class TempleDemandRecipeLoader {
                 new TempleDemandRecipe.Entry("minecraft:cookie", 64)
             )
         );
-        saveRecipe(provider, "blessing", recipe);
+        TempleDemandRecipeLoader.saveRecipe(provider, "blessing", recipe);
     }
 
     private static void createPunishmentRecipe(RegistrumRecipeProvider provider) {
@@ -58,6 +58,6 @@ public class TempleDemandRecipeLoader {
                 new TempleDemandRecipe.Entry("minecraft:tnt", 1024)
             )
         );
-        saveRecipe(provider, "punishment", recipe);
+        TempleDemandRecipeLoader.saveRecipe(provider, "punishment", recipe);
     }
 }

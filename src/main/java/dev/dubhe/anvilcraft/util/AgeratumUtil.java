@@ -33,7 +33,7 @@ public class AgeratumUtil {
     public static final Identifier ARROW = Ageratum.location("textures/gui/component/arrow.png");
 
     public static void renderText(GuiGraphicsExtractor g, Component text, int x, int y) {
-        renderText(g, text, x, y, 0.8f);
+        AgeratumUtil.renderText(g, text, x, y, 0.8f);
     }
 
     public static void renderText(GuiGraphicsExtractor g, Component text, int x, int y, float scale) {
@@ -51,7 +51,7 @@ public class AgeratumUtil {
     }
 
     public static void renderArrow(GuiGraphicsExtractor g, int x, int y) {
-        renderArrow(g, x, y, 0);
+        AgeratumUtil.renderArrow(g, x, y, 0);
     }
 
     public static void renderArrow(GuiGraphicsExtractor g, int x, int y, float rotation) {
@@ -59,7 +59,7 @@ public class AgeratumUtil {
         pose.pushMatrix();
         pose.translate(x + 16, y + 16);
         pose.rotate(rotation);
-        g.blit(ARROW, -16, -16, 0, 0, 32, 32, 32, 32);
+        g.blit(AgeratumUtil.ARROW, -16, -16, 0, 0, 32, 32, 32, 32);
         pose.popMatrix();
     }
 
@@ -75,7 +75,7 @@ public class AgeratumUtil {
         BlockState inputBlockRenderedState = inputBlockState.get(
             RecipeUtil.getDisplayIndex(inputBlockState.size())
         );
-        renderBlock(context, inputBlockRenderedState, mouseX, mouseY, x, y);
+        AgeratumUtil.renderBlock(context, inputBlockRenderedState, mouseX, mouseY, x, y);
     }
 
     public static void renderBlock(
@@ -88,7 +88,7 @@ public class AgeratumUtil {
     ) {
         List<WeightedChanceBlockStates.Entry> results = chanceBlockState.states();
         WeightedChanceBlockStates.Entry result = results.get(RecipeUtil.getDisplayIndex(results.size()));
-        renderBlock(context, result.state().state(), mouseX, mouseY, x, y);
+        AgeratumUtil.renderBlock(context, result.state().state(), mouseX, mouseY, x, y);
     }
 
     public static void renderBlock(
@@ -99,11 +99,11 @@ public class AgeratumUtil {
         int x,
         int y
     ) {
-        renderBlock(context, chanceBlockState.state(), mouseX, mouseY, x, y);
+        AgeratumUtil.renderBlock(context, chanceBlockState.state(), mouseX, mouseY, x, y);
     }
 
     public static void renderBlock(MDRenderContext context, BlockState blockState, float mouseX, float mouseY, int x, int y) {
-        RenderSupport.renderBlock(context.graphics(), blockState, x, y, BLOCK_SIZE);
+        RenderSupport.renderBlock(context.graphics(), blockState, x, y, AgeratumUtil.BLOCK_SIZE);
         AgeratumUtil.renderTooltip(context, blockState, mouseX, mouseY, x, y);
     }
 
@@ -119,19 +119,19 @@ public class AgeratumUtil {
 
         int len = Math.max(1, (int) Math.ceil(Math.sqrt(displaying.size())));
 
-        int offsetX = startX - (Math.min(len, displaying.size()) - 1) * SLOT_SIZE / 2;
-        int offsetY = startY - (displaying.size() - 1) / len * SLOT_SIZE / 2;
+        int offsetX = startX - (Math.min(len, displaying.size()) - 1) * AgeratumUtil.SLOT_SIZE / 2;
+        int offsetY = startY - (displaying.size() - 1) / len * AgeratumUtil.SLOT_SIZE / 2;
 
         for (int i = 0; i < displaying.size(); i++) {
             T stack = displaying.get(i);
-            int x = offsetX + (i % len) * SLOT_SIZE;
-            int y = offsetY + (i / len) * SLOT_SIZE;
+            int x = offsetX + (i % len) * AgeratumUtil.SLOT_SIZE;
+            int y = offsetY + (i / len) * AgeratumUtil.SLOT_SIZE;
             switch (stack) {
-                case ItemStack stack1 -> renderItem(context, stack1, mouseX, mouseY, x, y);
-                case Ingredient stack1 -> renderItem(context, stack1, mouseX, mouseY, x, y);
-                case ItemIngredientPredicate stack1 -> renderItem(context, stack1, mouseX, mouseY, x, y);
-                case ChanceItemStack stack1 -> renderItem(context, stack1, mouseX, mouseY, x, y);
-                case ItemStackTemplate stack1 -> renderItem(context, stack1, mouseX, mouseY, x, y);
+                case ItemStack stack1 -> AgeratumUtil.renderItem(context, stack1, mouseX, mouseY, x, y);
+                case Ingredient stack1 -> AgeratumUtil.renderItem(context, stack1, mouseX, mouseY, x, y);
+                case ItemIngredientPredicate stack1 -> AgeratumUtil.renderItem(context, stack1, mouseX, mouseY, x, y);
+                case ChanceItemStack stack1 -> AgeratumUtil.renderItem(context, stack1, mouseX, mouseY, x, y);
+                case ItemStackTemplate stack1 -> AgeratumUtil.renderItem(context, stack1, mouseX, mouseY, x, y);
                 default -> {
                 }
             }
@@ -140,30 +140,30 @@ public class AgeratumUtil {
 
     public static void renderItem(MDRenderContext context, ItemStackTemplate displaying, float mouseX, float mouseY, int x, int y) {
         ItemStack stack = displaying.create();
-        renderItem(context, stack, mouseX, mouseY, x, y);
+        AgeratumUtil.renderItem(context, stack, mouseX, mouseY, x, y);
     }
 
     public static void renderItem(MDRenderContext context, ChanceItemStack displaying, float mouseX, float mouseY, int x, int y) {
-        ItemStack stack = getStack(displaying);
-        renderItem(context, stack, mouseX, mouseY, x, y);
+        ItemStack stack = AgeratumUtil.getStack(displaying);
+        AgeratumUtil.renderItem(context, stack, mouseX, mouseY, x, y);
     }
 
     public static void renderItem(MDRenderContext context, ItemIngredientPredicate displaying, float mouseX, float mouseY, int x, int y) {
-        renderSlot(context, x, y);
-        renderItemWithoutSlot(context, displaying, mouseX, mouseY, x, y);
+        AgeratumUtil.renderSlot(context, x, y);
+        AgeratumUtil.renderItemWithoutSlot(context, displaying, mouseX, mouseY, x, y);
     }
 
     public static void renderItem(MDRenderContext context, Ingredient displaying, float mouseX, float mouseY, int x, int y) {
-        renderItem(context, RecipeUtil.getDisplayItem(displaying), mouseX, mouseY, x, y);
+        AgeratumUtil.renderItem(context, RecipeUtil.getDisplayItem(displaying), mouseX, mouseY, x, y);
     }
 
     public static void renderItem(MDRenderContext context, ItemStack displaying, float mouseX, float mouseY, int x, int y) {
-        renderSlot(context, x, y);
-        renderItemWithoutSlot(context, displaying, mouseX, mouseY, x, y);
+        AgeratumUtil.renderSlot(context, x, y);
+        AgeratumUtil.renderItemWithoutSlot(context, displaying, mouseX, mouseY, x, y);
     }
 
     private static void renderSlot(MDRenderContext context, int x, int y) {
-        context.graphics().blit(SLOT, x - 8, y - 8, 0, 0, 32, 32, 32, 32);
+        context.graphics().blit(AgeratumUtil.SLOT, x - 8, y - 8, 0, 0, 32, 32, 32, 32);
     }
 
     public static void renderItemWithoutSlot(
@@ -174,11 +174,11 @@ public class AgeratumUtil {
         int x,
         int y
     ) {
-        renderItemWithoutSlot(context, displaying.create(), mouseX, mouseY, x, y);
+        AgeratumUtil.renderItemWithoutSlot(context, displaying.create(), mouseX, mouseY, x, y);
     }
 
     public static void renderItemWithoutSlot(MDRenderContext context, Ingredient displaying, float mouseX, float mouseY, int x, int y) {
-        renderItemWithoutSlot(context, RecipeUtil.getDisplayItem(displaying), mouseX, mouseY, x, y);
+        AgeratumUtil.renderItemWithoutSlot(context, RecipeUtil.getDisplayItem(displaying), mouseX, mouseY, x, y);
     }
 
     public static void renderItemWithoutSlot(
@@ -190,7 +190,7 @@ public class AgeratumUtil {
         int y
     ) {
         ItemStack stack = displaying.getItems()[RecipeUtil.getDisplayIndex(displaying.getItems().length)].create();
-        renderItemWithoutSlot(context, stack, mouseX, mouseY, x, y);
+        AgeratumUtil.renderItemWithoutSlot(context, stack, mouseX, mouseY, x, y);
     }
 
     public static void renderItemWithoutSlot(MDRenderContext context, ItemStack displaying, float mouseX, float mouseY, int x, int y) {
@@ -201,30 +201,30 @@ public class AgeratumUtil {
     }
 
     public static void renderTooltip(MDRenderContext context, BlockState state, float mouseX, float mouseY, int startX, int startY) {
-        if (isHoverBlock(startX, startY, mouseX, mouseY)) {
+        if (AgeratumUtil.isHoverBlock(startX, startY, mouseX, mouseY)) {
             context.tooltips().add(new MDRenderContext.Tooltip(TooltipUtil.tooltip(state.getBlock()), Optional.empty()));
         }
     }
 
     public static void renderTooltip(MDRenderContext context, ItemStack stack, int startX, int startY, float mouseX, float mouseY) {
-        if (isHoverItem(startX, startY, mouseX, mouseY)) {
+        if (AgeratumUtil.isHoverItem(startX, startY, mouseX, mouseY)) {
             context.addTooltip(stack);
         }
     }
 
     public static boolean isHoverBlock(int startX, int startY, float mouseX, float mouseY) {
-        return isHover(
-            startX - BLOCK_TOOLTIP_SIZE / 2,
-            startY - BLOCK_TOOLTIP_SIZE / 3,
-            BLOCK_TOOLTIP_SIZE,
-            BLOCK_TOOLTIP_SIZE,
+        return AgeratumUtil.isHover(
+            startX - AgeratumUtil.BLOCK_TOOLTIP_SIZE / 2,
+            startY - AgeratumUtil.BLOCK_TOOLTIP_SIZE / 3,
+            AgeratumUtil.BLOCK_TOOLTIP_SIZE,
+            AgeratumUtil.BLOCK_TOOLTIP_SIZE,
             mouseX,
             mouseY
         );
     }
 
     public static boolean isHoverItem(int startX, int startY, float mouseX, float mouseY) {
-        return isHover(startX, startY, 16, 16, mouseX, mouseY);
+        return AgeratumUtil.isHover(startX, startY, 16, 16, mouseX, mouseY);
     }
 
     public static boolean isHover(int startX, int startY, int width, int height, float mouseX, float mouseY) {
@@ -245,6 +245,6 @@ public class AgeratumUtil {
      * 在计算方块在垂直方向上的位置时使用
      */
     public static int getRenderY(int starY, int idx) {
-        return starY + idx * BLOCK_HEIGHT;
+        return starY + idx * AgeratumUtil.BLOCK_HEIGHT;
     }
 }

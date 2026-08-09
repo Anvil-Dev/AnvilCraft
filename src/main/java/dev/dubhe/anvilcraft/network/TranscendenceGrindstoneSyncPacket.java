@@ -23,7 +23,7 @@ public record TranscendenceGrindstoneSyncPacket(int index, boolean select) imple
 
     @Override
     public Type<TranscendenceGrindstoneSyncPacket> type() {
-        return TYPE;
+        return TranscendenceGrindstoneSyncPacket.TYPE;
     }
 
     @Override

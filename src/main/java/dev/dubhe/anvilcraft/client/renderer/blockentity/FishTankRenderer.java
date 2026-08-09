@@ -68,7 +68,7 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
         Vec3 cameraPosition,
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
-        state.setTankW(TANK_W);
+        state.setTankW(FishTankRenderer.TANK_W);
     }
 
     @Override
@@ -93,7 +93,7 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
         if (be.isEmptyOfFish()) return;
 
         List<FishTankBlockEntity.TropicalFishData> fishData = be.getFishes();
-        int newDataHash = computeFishDataHash(fishData);
+        int newDataHash = FishTankRenderer.computeFishDataHash(fishData);
         long cacheKey = be.getBlockPos().asLong();
 
         // Get or create cache entry
@@ -102,7 +102,7 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
 
         // Rebuild cache if it doesn't exist or data has changed
         if (cacheEntry == null || cacheEntry.dataHash != newDataHash) {
-            cachedFishes = createTropicalFishEntities(level, fishData);
+            cachedFishes = FishTankRenderer.createTropicalFishEntities(level, fishData);
             this.fishCache.put(cacheKey, new FishCacheEntry(cachedFishes, newDataHash));
         } else {
             cachedFishes = cacheEntry.cachedFishes;
@@ -126,7 +126,7 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
             if (state.getFill() != 0) {
                 pose.translate(0, (state.getMaxY() - state.getMinY()) * (state.getFill() - 1), 0);
             } else {
-                pose.translate(0, TANK_W - 1, 0);
+                pose.translate(0, FishTankRenderer.TANK_W - 1, 0);
             }
             state.getFire().submit(
                 pose,
@@ -165,11 +165,11 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
         final float randomOffsetDeg = random.nextIntBetweenInclusive(0, 50) - 25;
 
         pose.pushPose();
-        pose.translate(0.5F, TANK_W, 0.5F);
+        pose.translate(0.5F, FishTankRenderer.TANK_W, 0.5F);
         pose.mulPose(Axis.YP.rotationDegrees(randomOffsetDeg));
 
         int itemCount = items.size();
-        float y = Mth.clamp(fill - TANK_W - 1 / 8F, TANK_W, 1 - TANK_W - 1 / 8F);
+        float y = Mth.clamp(fill - FishTankRenderer.TANK_W - 1 / 8F, FishTankRenderer.TANK_W, 1 - FishTankRenderer.TANK_W - 1 / 8F);
         float partAngleDeg = 360F / itemCount;
         Vec3 vec = itemCount == 1 ? new Vec3(0, y, 0) : new Vec3(0.125, y, 0);
         for (Pair<ItemStack, ItemClusterRenderState> entry : items) {
@@ -227,7 +227,7 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
         CameraRenderState camera
     ) {
         List<EntityRenderState> fishes = state.getFishes();
-        float height = 1 - 2 * TANK_W;
+        float height = 1 - 2 * FishTankRenderer.TANK_W;
         int count = fishes.size();
 
         for (int i = 0; i < count; i++) {
@@ -239,7 +239,7 @@ public class FishTankRenderer extends BaseFluidHandlerHolderRenderer<FishTankBlo
             float x = 0.5F + Mth.cos(angle) * radius;
             float z = 0.5F + Mth.sin(angle) * radius;
 
-            float y = TANK_W + height * (0.5F + Mth.sin(ticks * 0.07F + i) * 0.07F + Mth.sin(ticks * 0.19F + i) * 0.19F);
+            float y = FishTankRenderer.TANK_W + height * (0.5F + Mth.sin(ticks * 0.07F + i) * 0.07F + Mth.sin(ticks * 0.19F + i) * 0.19F);
 
             float yawDeg = -(angle * Mth.RAD_TO_DEG);
 

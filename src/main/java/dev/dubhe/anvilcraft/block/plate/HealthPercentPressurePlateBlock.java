@@ -34,7 +34,7 @@ public class HealthPercentPressurePlateBlock extends PowerLevelPressurePlateBloc
     protected int getSignalStrength(
         Level level, AABB box, Set<Class<? extends Entity>> entityClasses
     ) {
-        Pair<Float, Float> minAndMax = getEntitiesHealthPercentMinAndMax(level, box, entityClasses);
+        Pair<Float, Float> minAndMax = HealthPercentPressurePlateBlock.getEntitiesHealthPercentMinAndMax(level, box, entityClasses);
         float value = this.useMin ? minAndMax.getFirst() : minAndMax.getSecond();
         return (int) (value * 15);
     }

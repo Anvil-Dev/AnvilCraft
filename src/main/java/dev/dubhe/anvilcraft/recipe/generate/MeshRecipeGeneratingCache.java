@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class MeshRecipeGeneratingCache extends BaseGeneratingCache<MeshRecipe> {
-    private static final Logger logger = logger();
+    private static final Logger logger = BaseGeneratingCache.logger();
 
     private final SetMultimap<Item, Item> leavesAndSaplings = MultimapBuilder.hashKeys().hashSetValues().build();
 
@@ -38,9 +38,9 @@ public class MeshRecipeGeneratingCache extends BaseGeneratingCache<MeshRecipe> {
         for (Holder<Item> holder : registries.lookupOrThrow(Registries.ITEM).listElements().toList()) {
             if (holder.value() instanceof BlockItem blockItem && blockItem.getBlock() instanceof LeavesBlock block) {
                 Identifier leavesId = BuiltInRegistries.ITEM.getKey(blockItem);
-                logger.debug(
+                MeshRecipeGeneratingCache.logger.debug(
                     "Add a leaves block {} for generating mesh recipes", leavesId);
-                treeIdAndLeavesAndSaplings.put(getTreeId(block, leavesId), blockItem, new ArrayList<>());
+                treeIdAndLeavesAndSaplings.put(MeshRecipeGeneratingCache.getTreeId(block, leavesId), blockItem, new ArrayList<>());
             }
         }
         for (Holder<Item> holder : registries.lookupOrThrow(Registries.ITEM).listElements().toList()) {
@@ -49,9 +49,9 @@ public class MeshRecipeGeneratingCache extends BaseGeneratingCache<MeshRecipe> {
                 && (blockItem.getBlock() instanceof SaplingBlock || blockItem.getBlock() instanceof AzaleaBlock)
             ) {
                 Identifier saplingId = BuiltInRegistries.ITEM.getKey(blockItem);
-                logger.debug(
+                MeshRecipeGeneratingCache.logger.debug(
                     "Add a sapling {} for generating mesh recipes", saplingId);
-                String treeId = getTreeId(blockItem.getBlock(), saplingId);
+                String treeId = MeshRecipeGeneratingCache.getTreeId(blockItem.getBlock(), saplingId);
                 if (treeIdAndLeavesAndSaplings.containsRow(treeId)) {
                     treeIdAndLeavesAndSaplings.row(treeId).values().forEach(list -> list.add(blockItem));
                 }

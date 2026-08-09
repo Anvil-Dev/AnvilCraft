@@ -45,7 +45,7 @@ public class NeutronIrradiatorBlockEntity extends BlockEntity {
     public void tick(Level level, BlockPos pos, BlockState state) {
         if (this.level == null) return;
         boolean baseType = true;
-        for (var entry : IRRADIATOR_TYPE_MAP.entrySet()) {
+        for (var entry : NeutronIrradiatorBlockEntity.IRRADIATOR_TYPE_MAP.entrySet()) {
             Block block = entry.getKey();
             IrradiatorType type = entry.getValue();
             int count = 0;
@@ -56,7 +56,7 @@ public class NeutronIrradiatorBlockEntity extends BlockEntity {
                     }
                 }
             }
-            if (count >= TYPE_CHECK_THRESHOLD) {
+            if (count >= NeutronIrradiatorBlockEntity.TYPE_CHECK_THRESHOLD) {
                 baseType = false;
                 if (state.getValue(NeutronIrradiatorBlock.TYPE) != type) {
                     this.level.setBlockAndUpdate(pos, state.setValue(NeutronIrradiatorBlock.TYPE, type));

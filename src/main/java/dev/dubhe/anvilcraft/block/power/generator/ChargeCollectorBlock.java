@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -33,17 +34,17 @@ public class ChargeCollectorBlock extends BetterBaseEntityBlock implements IHamm
 
     public ChargeCollectorBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.getStateDefinition().any().setValue(POWERED, false));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(ChargeCollectorBlock.POWERED, false));
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(ChargeCollectorBlock::new);
+        return BlockBehaviour.simpleCodec(ChargeCollectorBlock::new);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(POWERED);
+        builder.add(ChargeCollectorBlock.POWERED);
     }
 
     @Override
@@ -57,7 +58,7 @@ public class ChargeCollectorBlock extends BetterBaseEntityBlock implements IHamm
         BlockPos pos,
         CollisionContext context
     ) {
-        return SHAPE;
+        return ChargeCollectorBlock.SHAPE;
     }
 
     @Nullable
@@ -67,30 +68,30 @@ public class ChargeCollectorBlock extends BetterBaseEntityBlock implements IHamm
     }
 
     public void activate(Level level, BlockPos pos, BlockState state) {
-        level.setBlockAndUpdate(pos, state.setValue(POWERED, true));
+        level.setBlockAndUpdate(pos, state.setValue(ChargeCollectorBlock.POWERED, true));
         this.updateNeighbours(level, pos);
         level.scheduleTick(pos, this, 2);
     }
 
     @Override
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (!state.getValue(POWERED)) return;
-        level.setBlockAndUpdate(pos, state.setValue(POWERED, false));
+        if (!state.getValue(ChargeCollectorBlock.POWERED)) return;
+        level.setBlockAndUpdate(pos, state.setValue(ChargeCollectorBlock.POWERED, false));
         this.updateNeighbours(level, pos);
     }
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         if (level.isClientSide() || state.is(oldState.getBlock())) return;
-        if (state.getValue(POWERED) && !level.getBlockTicks().hasScheduledTick(pos, this)) {
-            level.setBlock(pos, state.setValue(POWERED, false), 18);
+        if (state.getValue(ChargeCollectorBlock.POWERED) && !level.getBlockTicks().hasScheduledTick(pos, this)) {
+            level.setBlock(pos, state.setValue(ChargeCollectorBlock.POWERED, false), 18);
         }
     }
 
     @Override
     protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-        if (state.getValue(POWERED)) {
+        if (state.getValue(ChargeCollectorBlock.POWERED)) {
             this.updateNeighbours(level, pos);
         }
     }
@@ -105,7 +106,7 @@ public class ChargeCollectorBlock extends BetterBaseEntityBlock implements IHamm
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide()) {
-            return createTickerHelper(
+            return BaseEntityBlock.createTickerHelper(
                 type,
                 ModBlockEntities.CHARGE_COLLECTOR.get(),
                 (level1, blockPos, blockState, blockEntity) -> blockEntity.clientTick()

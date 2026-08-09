@@ -15,19 +15,19 @@ public class ModNumberProviderTypes {
     private static final DeferredRegister<INumberProvider.Type<?>> DF = DeferredRegister
         .create(ModRegistries.NUMBER_PROVIDER_TYPE, AnvilCraft.MOD_ID);
 
-    public static final DeferredHolder<INumberProvider.Type<?>, ConstantValue.Type> CONSTANT = DF
+    public static final DeferredHolder<INumberProvider.Type<?>, ConstantValue.Type> CONSTANT = ModNumberProviderTypes.DF
         .register("constant", ConstantValue.Type::new);
 
-    public static final DeferredHolder<INumberProvider.Type<?>, BinomialDistributionGenerator.Type> BINOMIAL = DF
+    public static final DeferredHolder<INumberProvider.Type<?>, BinomialDistributionGenerator.Type> BINOMIAL = ModNumberProviderTypes.DF
         .register("binomial", BinomialDistributionGenerator.Type::new);
 
-    public static final DeferredHolder<INumberProvider.Type<?>, UniformGenerator.Type> UNIFORM = DF
+    public static final DeferredHolder<INumberProvider.Type<?>, UniformGenerator.Type> UNIFORM = ModNumberProviderTypes.DF
         .register("uniform", UniformGenerator.Type::new);
 
-    public static final DeferredHolder<INumberProvider.Type<?>, EnchantmentLevelProvider.Type> ENCHANTMENT_LEVEL = DF
+    public static final DeferredHolder<INumberProvider.Type<?>, EnchantmentLevelProvider.Type> ENCHANTMENT_LEVEL = ModNumberProviderTypes.DF
         .register("enchantment_level", EnchantmentLevelProvider.Type::new);
 
     public static void register(IEventBus bus) {
-        DF.register(bus);
+        ModNumberProviderTypes.DF.register(bus);
     }
 }

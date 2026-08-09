@@ -22,7 +22,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
@@ -31,6 +30,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -43,8 +43,6 @@ import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import org.jspecify.annotations.Nullable;
 
-import java.util.List;
-
 public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammerRemovable {
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
@@ -54,14 +52,14 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
         super(properties);
         this.registerDefaultState(
             this.stateDefinition.any()
-                .setValue(POWERED, false)
-                .setValue(OVERLOAD, true)
+                .setValue(ItemCollectorBlock.POWERED, false)
+                .setValue(ItemCollectorBlock.OVERLOAD, true)
         );
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(ItemCollectorBlock::new);
+        return BlockBehaviour.simpleCodec(ItemCollectorBlock::new);
     }
 
     @Override
@@ -103,7 +101,7 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
         if (level.isClientSide()) {
             return null;
         }
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             type,
             ModBlockEntities.ITEM_COLLECTOR.get(),
             (level1, blockPos, _, blockEntity) -> blockEntity.tick(level1, blockPos)
@@ -115,13 +113,13 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         Level level = context.getLevel();
         return this.defaultBlockState()
-            .setValue(POWERED, level.hasNeighborSignal(context.getClickedPos()))
-            .setValue(OVERLOAD, true);
+            .setValue(ItemCollectorBlock.POWERED, level.hasNeighborSignal(context.getClickedPos()))
+            .setValue(ItemCollectorBlock.OVERLOAD, true);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(POWERED).add(OVERLOAD);
+        builder.add(ItemCollectorBlock.POWERED).add(ItemCollectorBlock.OVERLOAD);
     }
 
     @Override
@@ -167,13 +165,13 @@ public class ItemCollectorBlock extends BetterBaseEntityBlock implements IHammer
         if (level.isClientSide()) {
             return;
         }
-        level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
+        level.setBlock(pos, state.setValue(ItemCollectorBlock.POWERED, level.hasNeighborSignal(pos)), 2);
     }
 
     @Override
     public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
-            level.setBlock(pos, state.cycle(POWERED), 2);
+        if (state.getValue(ItemCollectorBlock.POWERED) && !level.hasNeighborSignal(pos)) {
+            level.setBlock(pos, state.cycle(ItemCollectorBlock.POWERED), 2);
         }
     }
 

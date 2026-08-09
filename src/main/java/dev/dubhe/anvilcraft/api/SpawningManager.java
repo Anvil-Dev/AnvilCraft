@@ -63,7 +63,7 @@ public class SpawningManager {
     /// @return 与指定世界关联的 SpawningManager 实例
     /// @see Map#computeIfAbsent(Object, java.util.function.Function)
     public static SpawningManager getInstance(Level level) {
-        return INSTANCES.computeIfAbsent(level, SpawningManager::new);
+        return SpawningManager.INSTANCES.computeIfAbsent(level, SpawningManager::new);
     }
 
     private SpawningManager(Level level) {
@@ -169,10 +169,10 @@ public class SpawningManager {
         }
         Entity entity = event.getEntity();
         Level level = entity.level();
-        SpawningManager spawningManager = getInstance(level);
+        SpawningManager spawningManager = SpawningManager.getInstance(level);
 
-        if (!ignoreSummonMob(level, event, spawningManager.animalLightBlockSet, true)) {
-            ignoreSummonMob(level, event, spawningManager.nonAnimalLightBlockSet, false);
+        if (!SpawningManager.ignoreSummonMob(level, event, spawningManager.animalLightBlockSet, true)) {
+            SpawningManager.ignoreSummonMob(level, event, spawningManager.nonAnimalLightBlockSet, false);
         }
     }
 }

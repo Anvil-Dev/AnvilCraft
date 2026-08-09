@@ -30,7 +30,7 @@ public record HammerUsePacket(BlockPos pos, InteractionHand hand, BlockHitResult
 
     @Override
     public Type<HammerUsePacket> type() {
-        return TYPE;
+        return HammerUsePacket.TYPE;
     }
 
     @Override

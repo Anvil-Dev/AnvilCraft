@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.network;
 
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.anvilcraft.lib.v2.network.packet.ISensitiveBiPacket;
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.ControlValveScreen;
 import dev.dubhe.anvilcraft.inventory.ControlValveMenu;
@@ -27,7 +26,7 @@ public record ControlValveFilterPacket(int index, FluidStack fluid) implements I
 
     @Override
     public Type<ControlValveFilterPacket> type() {
-        return TYPE;
+        return ControlValveFilterPacket.TYPE;
     }
 
     @Override

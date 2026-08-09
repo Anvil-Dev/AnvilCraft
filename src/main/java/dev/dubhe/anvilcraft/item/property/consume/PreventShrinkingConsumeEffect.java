@@ -14,8 +14,9 @@ import org.jspecify.annotations.Nullable;
 public class PreventShrinkingConsumeEffect implements ConsumeEffect {
     public static final ThreadLocal<@Nullable InteractionHand> USED_HAND = new ThreadLocal<>();
     public static final PreventShrinkingConsumeEffect INSTANCE = new PreventShrinkingConsumeEffect();
-    public static final MapCodec<PreventShrinkingConsumeEffect> CODEC = MapCodec.unit(INSTANCE);
-    public static final StreamCodec<ByteBuf, PreventShrinkingConsumeEffect> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+    public static final MapCodec<PreventShrinkingConsumeEffect> CODEC = MapCodec.unit(PreventShrinkingConsumeEffect.INSTANCE);
+    public static final StreamCodec<ByteBuf, PreventShrinkingConsumeEffect> STREAM_CODEC = StreamCodec.unit(
+        PreventShrinkingConsumeEffect.INSTANCE);
 
     @Override
     public Type<? extends ConsumeEffect> getType() {

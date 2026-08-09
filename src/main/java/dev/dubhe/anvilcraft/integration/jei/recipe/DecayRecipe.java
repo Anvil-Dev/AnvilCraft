@@ -60,7 +60,7 @@ public record DecayRecipe(
                 List.of(ModBlocks.VOID_MATTER_BLOCK.get()),
                 List.of(),
                 ModBlockTags.VOID_DECAY_PRODUCTS,
-                List.of(DOWN, BACK, FRONT, UP, LEFT),
+                List.of(DecayRecipe.DOWN, DecayRecipe.BACK, DecayRecipe.FRONT, DecayRecipe.UP, DecayRecipe.LEFT),
                 Map.of()
             ),
             new DecayRecipe(
@@ -68,7 +68,7 @@ public record DecayRecipe(
                 radioactiveBlocks,
                 decayProducts,
                 null,
-                List.of(UP, DOWN, LEFT),
+                List.of(DecayRecipe.UP, DecayRecipe.DOWN, DecayRecipe.LEFT),
                 Map.of()
             ),
             new DecayRecipe(
@@ -76,15 +76,15 @@ public record DecayRecipe(
                 radioactiveBlocks,
                 decayProducts,
                 null,
-                List.of(UP, DOWN, LEFT, RIGHT),
-                Map.of(FRONT, ModBlocks.LEAD_BLOCK.get())
+                List.of(DecayRecipe.UP, DecayRecipe.DOWN, DecayRecipe.LEFT, DecayRecipe.RIGHT),
+                Map.of(DecayRecipe.FRONT, ModBlocks.LEAD_BLOCK.get())
             ),
             new DecayRecipe(
                 AnvilCraft.of("decay/radioactive_six_sides"),
                 radioactiveBlocks,
                 List.of(Blocks.LAVA, Blocks.LAVA),
                 null,
-                List.of(UP, DOWN, LEFT, RIGHT, FRONT, BACK),
+                List.of(DecayRecipe.UP, DecayRecipe.DOWN, DecayRecipe.LEFT, DecayRecipe.RIGHT, DecayRecipe.FRONT, DecayRecipe.BACK),
                 Map.of()
             ),
             new DecayRecipe(
@@ -92,7 +92,7 @@ public record DecayRecipe(
                 List.of(ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK.get()),
                 ExcitedStateVoidMatterBlock.getDecayProducts(),
                 null,
-                List.of(RIGHT),
+                List.of(DecayRecipe.RIGHT),
                 Map.of()
             ),
             new DecayRecipe(
@@ -100,8 +100,8 @@ public record DecayRecipe(
                 List.of(ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK.get()),
                 ExcitedStateVoidMatterBlock.getConfinedAnvilons(),
                 null,
-                List.of(RIGHT),
-                Map.of(LEFT, ModBlocks.CONFINEMENT_CHAMBER.get())
+                List.of(DecayRecipe.RIGHT),
+                Map.of(DecayRecipe.LEFT, ModBlocks.CONFINEMENT_CHAMBER.get())
             ),
             new DecayRecipe(
                 AnvilCraft.of("decay/void_matter_near_excited_state"),
@@ -109,7 +109,7 @@ public record DecayRecipe(
                 List.of(),
                 ModBlockTags.VOID_DECAY_PRODUCTS,
                 List.of(),
-                Map.of(RIGHT, ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK.get())
+                Map.of(DecayRecipe.RIGHT, ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK.get())
             )
         );
     }

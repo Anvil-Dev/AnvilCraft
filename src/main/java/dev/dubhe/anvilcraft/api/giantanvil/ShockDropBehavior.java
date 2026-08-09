@@ -18,7 +18,7 @@ public interface ShockDropBehavior {
      * 返回行为标识。四个边框位置只有标识一致时才会组成同一种撼地配方；自定义处理器应覆盖此方法。
      */
     default Identifier id() {
-        return DEFAULT_ID;
+        return ShockDropBehavior.DEFAULT_ID;
     }
 
     void drop(ShockContext context, BlockPos pos, ItemStack stack);

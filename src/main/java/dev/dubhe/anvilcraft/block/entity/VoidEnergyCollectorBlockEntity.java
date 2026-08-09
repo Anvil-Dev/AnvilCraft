@@ -111,10 +111,10 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     public void gridTick() {
         if (this.level == null || this.level.isClientSide()) return;
         if (this.cooldownCount-- > 1) return;
-        this.cooldownCount = COOLDOWN;
+        this.cooldownCount = VoidEnergyCollectorBlockEntity.COOLDOWN;
         final int oldPower = this.power;
         this.blockCount = this.countBlocksInRange();
-        this.power = getPowerFromBlockCount(this.blockCount);
+        this.power = VoidEnergyCollectorBlockEntity.getPowerFromBlockCount(this.blockCount);
         if (this.power > 0 && this.getBlockState().getBlock() instanceof VoidEnergyCollectorBlock voidEnergyCollector) {
             voidEnergyCollector.activate(this.level, this.getBlockPos(), this.getBlockState());
             if (this.decayCooldownCount-- <= 1) {
@@ -157,17 +157,17 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     ///
     /// @return count(normal) - count(negative) IF active ELSE 125
     private int countBlocksInRange() {
-        if (level == null || level.isClientSide()) return 125;
+        if (this.level == null || this.level.isClientSide()) return 125;
         int count = 0;
-        if (isAnotherCollectorNearby(this.level, this.getBlockPos())) return 125;
+        if (VoidEnergyCollectorBlockEntity.isAnotherCollectorNearby(this.level, this.getBlockPos())) return 125;
         BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos();
         for (int i = -2; i <= 2; i++) {
             for (int j = -2; j <= 2; j++) {
                 for (int k = -2; k <= 2; k++) {
                     // the 5x5x5 detection that counts how many blocks are there
                     mpos.set(this.getBlockPos()).move(i, j, k);
-                    if (level.isOutsideBuildHeight(mpos)) continue;
-                    BlockState blockState = level.getBlockState(mpos);
+                    if (this.level.isOutsideBuildHeight(mpos)) continue;
+                    BlockState blockState = this.level.getBlockState(mpos);
                     if (blockState.getBlock() instanceof NegativeMatterBlock) count -= 1;
                     else if (
                         !blockState.isAir()
@@ -183,8 +183,8 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
     }
 
     private void makeBlocksDecay() {
-        if (level == null || level.isClientSide()) return;
-        RandomSource random = level.getRandom();
+        if (this.level == null || this.level.isClientSide()) return;
+        RandomSource random = this.level.getRandom();
         ArrayList<BlockPos> list = new ArrayList<>();
         for (int i = -2; i <= 2; i++) {
             for (int j = -2; j <= 2; j++) {
@@ -194,8 +194,8 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
                         thisPos.getX() + i,
                         thisPos.getY() + j,
                         thisPos.getZ() + k);
-                    if (isOutOfBuildLimits(level, bp)) continue;
-                    BlockState b = level.getBlockState(bp);
+                    if (VoidEnergyCollectorBlockEntity.isOutOfBuildLimits(this.level, bp)) continue;
+                    BlockState b = this.level.getBlockState(bp);
                     if (b.isAir()) {
                         list.add(bp);
                     }
@@ -205,7 +205,7 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
         if (list.isEmpty()) return;
         int i = random.nextInt(list.size());
         BlockPos bp = list.get(i);
-        level.setBlockAndUpdate(bp, VoidMatterBlock.voidDecay(level, random));
+        this.level.setBlockAndUpdate(bp, VoidMatterBlock.voidDecay(this.level, random));
     }
 
     @Override
@@ -215,10 +215,10 @@ public class VoidEnergyCollectorBlockEntity extends BlockEntity implements IPowe
 
     @Override
     public AABB shape() {
-        return AABB.ofSize(getBlockPos().getCenter(), 5, 5, 5);
+        return AABB.ofSize(this.getBlockPos().getCenter(), 5, 5, 5);
     }
 
     public void clientTick() {
-        this.rotation += (float) (Math.log(getServerPower() + 1) * 2.5);
+        this.rotation += (float) (Math.log(this.getServerPower() + 1) * 2.5);
     }
 }

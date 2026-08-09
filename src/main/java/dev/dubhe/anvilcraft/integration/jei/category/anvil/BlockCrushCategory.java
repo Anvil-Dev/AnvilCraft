@@ -64,12 +64,12 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return BlockCrushCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return BlockCrushCategory.HEIGHT;
     }
 
     @Override
@@ -80,7 +80,7 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<BlockCrushRecipe> recipeHolder, IFocusGroup focuses) {
         BlockCrushRecipe recipe = recipeHolder.value();
-        JeiBlockIngredientUtil.addInputSlot(builder, INPUT_BLOCK, 40, 42, 18, 10, recipe.getFirstInputBlock());
+        JeiBlockIngredientUtil.addInputSlot(builder, BlockCrushCategory.INPUT_BLOCK, 40, 42, 18, 10, recipe.getFirstInputBlock());
         JeiBlockIngredientUtil.addSlot(
             builder,
             RecipeIngredientRole.OUTPUT,
@@ -115,7 +115,7 @@ public class BlockCrushCategory implements IRecipeCategory<RecipeHolder<BlockCru
         renderInput: {
             List<BlockState> input = recipe.getFirstInputBlock().constructStatesForRender();
             if (input.isEmpty()) break renderInput;
-            BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(view, INPUT_BLOCK, input)
+            BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(view, BlockCrushCategory.INPUT_BLOCK, input)
                 .orElse(input.getFirst());
             RenderSupport.renderBlock(graphics, renderedState, 40, 40, 20);
         }

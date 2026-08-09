@@ -39,6 +39,7 @@ public class CreativeCrateRenderer implements BlockEntityRenderer<CreativeCrateB
     ) {
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
         ItemStack stack = be.getDisplayStack();
+        state.setItem(null);
         if (!stack.isEmpty()) {
             ItemClusterRenderState cluster = new ItemClusterRenderState();
             cluster.seed = ItemClusterRenderState.getSeedForItemStack(stack);

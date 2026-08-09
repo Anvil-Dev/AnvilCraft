@@ -97,17 +97,17 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     private static final Map<Block, Integer> REPAIR_EFFICIENCY = new HashMap<>();
 
     static {
-        REPAIR_EFFICIENCY.put(Blocks.FIRE, 2);
-        REPAIR_EFFICIENCY.put(Blocks.SOUL_FIRE, 5);
-        REPAIR_EFFICIENCY.put(Blocks.LAVA, 10);
-        REPAIR_EFFICIENCY.put(Blocks.LAVA_CAULDRON, 10);
+        ItemEntityMixin.REPAIR_EFFICIENCY.put(Blocks.FIRE, 2);
+        ItemEntityMixin.REPAIR_EFFICIENCY.put(Blocks.SOUL_FIRE, 5);
+        ItemEntityMixin.REPAIR_EFFICIENCY.put(Blocks.LAVA, 10);
+        ItemEntityMixin.REPAIR_EFFICIENCY.put(Blocks.LAVA_CAULDRON, 10);
     }
 
     @Inject(method = "tick", at = @At("HEAD"))
     private void fireReforging(CallbackInfo ci) {
         ItemStack item = this.getItem();
         Block block = this.level().getBlockState(this.blockPosition()).getBlock();
-        Integer repairAmount = REPAIR_EFFICIENCY.get(block);
+        Integer repairAmount = ItemEntityMixin.REPAIR_EFFICIENCY.get(block);
         if (repairAmount == null) return;
         FireReforgingUtil.repair(item, repairAmount, this.level(), this.anvilcraft$blockPos);
     }
@@ -276,51 +276,51 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
 
     static {
         // 1. 定义材质关键词及其减速 (数值越小越慢)
-        MATERIAL_MAP.put("iron", 0.50);
-        MATERIAL_MAP.put("magnet", 0.50);
-        MATERIAL_MAP.put("steel", 0.75);
+        ItemEntityMixin.MATERIAL_MAP.put("iron", 0.50);
+        ItemEntityMixin.MATERIAL_MAP.put("magnet", 0.50);
+        ItemEntityMixin.MATERIAL_MAP.put("steel", 0.75);
 
-        MATERIAL_MAP.put("silver", 0.25);
-        MATERIAL_MAP.put("copper", 0.27);
-        MATERIAL_MAP.put("gold", 0.28);
-        MATERIAL_MAP.put("netherite", 0.30);
-        MATERIAL_MAP.put("ember", 0.30);
-        MATERIAL_MAP.put("aluminum", 0.30);
-        MATERIAL_MAP.put("tungsten", 0.38);
-        MATERIAL_MAP.put("zinc", 0.40);
-        MATERIAL_MAP.put("brass", 0.42);
-        MATERIAL_MAP.put("bronze", 0.45);
-        MATERIAL_MAP.put("royal", 0.50);
-        MATERIAL_MAP.put("tin", 0.55);
-        MATERIAL_MAP.put("lead", 0.65);
-        MATERIAL_MAP.put("uranium", 0.80);
-        MATERIAL_MAP.put("titanium", 0.88);
-        MATERIAL_MAP.put("frost_metal", 0.90);
-        MATERIAL_MAP.put("plutonium", 0.99);
+        ItemEntityMixin.MATERIAL_MAP.put("silver", 0.25);
+        ItemEntityMixin.MATERIAL_MAP.put("copper", 0.27);
+        ItemEntityMixin.MATERIAL_MAP.put("gold", 0.28);
+        ItemEntityMixin.MATERIAL_MAP.put("netherite", 0.30);
+        ItemEntityMixin.MATERIAL_MAP.put("ember", 0.30);
+        ItemEntityMixin.MATERIAL_MAP.put("aluminum", 0.30);
+        ItemEntityMixin.MATERIAL_MAP.put("tungsten", 0.38);
+        ItemEntityMixin.MATERIAL_MAP.put("zinc", 0.40);
+        ItemEntityMixin.MATERIAL_MAP.put("brass", 0.42);
+        ItemEntityMixin.MATERIAL_MAP.put("bronze", 0.45);
+        ItemEntityMixin.MATERIAL_MAP.put("royal", 0.50);
+        ItemEntityMixin.MATERIAL_MAP.put("tin", 0.55);
+        ItemEntityMixin.MATERIAL_MAP.put("lead", 0.65);
+        ItemEntityMixin.MATERIAL_MAP.put("uranium", 0.80);
+        ItemEntityMixin.MATERIAL_MAP.put("titanium", 0.88);
+        ItemEntityMixin.MATERIAL_MAP.put("frost_metal", 0.90);
+        ItemEntityMixin.MATERIAL_MAP.put("plutonium", 0.99);
         // 在这里继续添加材料...
 
         // 2. 将不含关键词的物品映射到上述材质
-        SPECIAL_MAP.put("lightning_rod", "copper");
-        SPECIAL_MAP.put("bucket", "iron");
-        SPECIAL_MAP.put("hopper", "iron");
-        SPECIAL_MAP.put("shears", "iron");
-        SPECIAL_MAP.put("anvil", "iron");
-        SPECIAL_MAP.put("minecart", "iron");
-        SPECIAL_MAP.put("tripwire_hook", "iron");
-        SPECIAL_MAP.put("chain", "iron");
-        SPECIAL_MAP.put("chute", "iron");
-        SPECIAL_MAP.put("compass", "iron");
+        ItemEntityMixin.SPECIAL_MAP.put("lightning_rod", "copper");
+        ItemEntityMixin.SPECIAL_MAP.put("bucket", "iron");
+        ItemEntityMixin.SPECIAL_MAP.put("hopper", "iron");
+        ItemEntityMixin.SPECIAL_MAP.put("shears", "iron");
+        ItemEntityMixin.SPECIAL_MAP.put("anvil", "iron");
+        ItemEntityMixin.SPECIAL_MAP.put("minecart", "iron");
+        ItemEntityMixin.SPECIAL_MAP.put("tripwire_hook", "iron");
+        ItemEntityMixin.SPECIAL_MAP.put("chain", "iron");
+        ItemEntityMixin.SPECIAL_MAP.put("chute", "iron");
+        ItemEntityMixin.SPECIAL_MAP.put("compass", "iron");
         // 在这里继续添加特判...
     }
 
     @Unique
     private @Nullable String anvilcraft$getMaterialKey(ItemStack stack) {
         String id = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
-        for (String black : SPECIAL_BLACKLIST) {
+        for (String black : ItemEntityMixin.SPECIAL_BLACKLIST) {
             if (id.contains(black)) return null; // 黑名单检查
         }
-        if (SPECIAL_MAP.containsKey(id)) return SPECIAL_MAP.get(id); // 别名/特判检查
-        for (String key : MATERIAL_MAP.keySet()) { // 关键词匹配
+        if (ItemEntityMixin.SPECIAL_MAP.containsKey(id)) return ItemEntityMixin.SPECIAL_MAP.get(id); // 别名/特判检查
+        for (String key : ItemEntityMixin.MATERIAL_MAP.keySet()) { // 关键词匹配
             if (id.contains(key)) return key;
         }
         return null;
@@ -410,7 +410,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         }
         // 3. 涡流减速
         if (state.is(ModBlocks.HOLLOW_MAGNET_BLOCK.get()) && !state.getValue(MagnetBlock.LIT)) {
-            Double speedFactor = MATERIAL_MAP.get(matKey);
+            Double speedFactor = ItemEntityMixin.MATERIAL_MAP.get(matKey);
             if (speedFactor != null) this.setDeltaMovement(this.getDeltaMovement().scale(speedFactor));
         }
     }
