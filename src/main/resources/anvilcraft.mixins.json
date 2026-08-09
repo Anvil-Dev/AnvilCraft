@@ -75,9 +75,6 @@
     "VillagerBrainMixin",
     "VillagerMixin",
     "ZombieVillagerMixin",
-    "projectile.AbstractArrowMixin",
-    "projectile.ProjectileMixin",
-    "projectile.ThrownEnderpearlMixin",
     "accessor.AbstractArrowAccessor",
     "accessor.BaseSpawnerAccessor",
     "accessor.CropBlockAccessor",
@@ -100,12 +97,16 @@
     "portal.EndGatewayBlockMixin",
     "portal.EndPortalBlockMixin",
     "portal.NetherPortalBlockMixin",
+    "projectile.AbstractArrowMixin",
+    "projectile.ProjectileMixin",
+    "projectile.ThrownEnderpearlMixin",
     "providence.ApplyBonusCountMixin",
     "providence.DamageEntityMixin",
     "providence.EnchantedCountIncreaseFunctionMixin"
   ],
   "client": [
     "AbstractContainerScreenMixin",
+    "BlockStateBaseMixin",
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
     "GuiGraphicsExtractorMixin",
@@ -122,7 +123,8 @@
     "accessor.FluidStateModelSetAccessor",
     "accessor.LevelRendererAccessor",
     "accessor.MultiPlayerGameModeAccessor",
-    "accessor.ScreenAccessor"
+    "accessor.ScreenAccessor",
+    "compat.SodiumBlockOcclusionCacheMixin"
   ],
   "plugin": "dev.dubhe.anvilcraft.mixin.plugin.AnvilCraftMixinPlugin",
   "mixinextras": {

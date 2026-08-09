@@ -1,6 +1,8 @@
 {
 	"parent": "anvilcraft:block/neutron_irradiator",
 	"textures": {
+		"2": "anvilcraft:block/anvilon_irradiator_energy_side",
+		"3": "anvilcraft:block/anvilon_irradiator_energy_top",
 		"5": "anvilcraft:block/confined_energy_anvilon"
 	}
 }
