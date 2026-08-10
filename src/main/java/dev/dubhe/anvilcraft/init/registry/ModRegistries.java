@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
 import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.number.INumberProvider;
 import dev.dubhe.anvilcraft.api.recipe.result.modifier.IResultModifier;
+import dev.dubhe.anvilcraft.block.entity.celestial.Megastructure;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import net.minecraft.core.Registry;
@@ -34,6 +35,9 @@ public class ModRegistries {
     public static final Registry<ICategory.Type<?>> CATEGORY_TYPE = ModRegistries.simple(
         ModRegistryKeys.CATEGORY_TYPE
     );
+    public static final Registry<Megastructure> MEGASTRUCTURE = ModRegistries.simple(
+        ModRegistryKeys.MEGASTRUCTURE
+    );
 
     @SubscribeEvent
     public static void registerRegistries(NewRegistryEvent event) {
@@ -43,6 +47,7 @@ public class ModRegistries {
         event.register(ModRegistries.CUSTOM_DATA_TYPE);
         event.register(ModRegistries.NUMBER_PROVIDER_TYPE);
         event.register(ModRegistries.CATEGORY_TYPE);
+        event.register(ModRegistries.MEGASTRUCTURE);
     }
 
     private static <T> Registry<T> simple(ResourceKey<Registry<T>> key) {

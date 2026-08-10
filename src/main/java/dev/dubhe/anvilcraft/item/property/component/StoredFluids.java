@@ -32,8 +32,7 @@ public record StoredFluids(List<FluidStack> fluids) {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof StoredFluids other)) return false;
-        List<FluidStack> otherFluids = other.fluids;
+        if (!(obj instanceof StoredFluids(List<FluidStack> otherFluids))) return false;
         if (this.fluids.size() != otherFluids.size()) return false;
         for (int i = 0; i < this.fluids.size(); i++) {
             if (!FluidStack.matches(this.fluids.get(i), otherFluids.get(i))) return false;

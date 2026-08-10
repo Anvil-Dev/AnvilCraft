@@ -1,9 +1,18 @@
 {
   "model": {
-    "type": "minecraft:special",
-    "base": "anvilcraft:item/spectral_slingshot",
-    "model": {
-      "type": "anvilcraft:spectral_slingshot"
-    }
+    "type": "minecraft:composite",
+    "models": [
+      {
+        "type": "minecraft:model",
+        "model": "anvilcraft:item/spectral_slingshot"
+      },
+      {
+        "type": "minecraft:special",
+        "base": "anvilcraft:item/spectral_slingshot",
+        "model": {
+          "type": "anvilcraft:spectral_slingshot"
+        }
+      }
+    ]
   }
 }

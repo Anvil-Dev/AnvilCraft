@@ -53,7 +53,7 @@ public abstract class AbstractArrowMixin extends Projectile {
     ), index = 1
     )
     private Vec3 anvilcraft$clipEntityTraceAtDeflectionRing(Vec3 end) {
-        return this.anvilcraft$clipEndAtDeflectionRing(position(), end);
+        return this.anvilcraft$clipEndAtDeflectionRing(this.position(), end);
     }
 
     @WrapOperation(
@@ -63,8 +63,8 @@ public abstract class AbstractArrowMixin extends Projectile {
     )
     )
     private AABB anvilcraft$clipEntityQueryAtDeflectionRing(AABB box, Vec3 movement, Operation<AABB> original) {
-        Vec3 end = this.anvilcraft$clipEndAtDeflectionRing(position(), position().add(movement));
-        return original.call(box, end.subtract(position()));
+        Vec3 end = this.anvilcraft$clipEndAtDeflectionRing(this.position(), this.position().add(movement));
+        return original.call(box, end.subtract(this.position()));
     }
 
     @Unique

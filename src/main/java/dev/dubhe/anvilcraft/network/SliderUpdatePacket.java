@@ -20,7 +20,7 @@ public record SliderUpdatePacket(int value) implements IServerboundPacket {
 
     @Override
     public Type<SliderUpdatePacket> type() {
-        return TYPE;
+        return SliderUpdatePacket.TYPE;
     }
 
     @Override

@@ -65,8 +65,8 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
         IFocusGroup focuses
     ) {
         ItemCompressRecipe recipe = recipeHolder.value();
-        boolean powered = recipeHolder.id().identifier().getPath().equals(SUPERCAPACITOR);
-        boolean normal = recipeHolder.id().identifier().getPath().equals(EMPTY_SUPERCAPACITOR);
+        boolean powered = recipeHolder.id().identifier().getPath().equals(ItemCompressCategory.SUPERCAPACITOR);
+        boolean normal = recipeHolder.id().identifier().getPath().equals(ItemCompressCategory.EMPTY_SUPERCAPACITOR);
         if (!powered && !normal) {
             super.setRecipe(builder, recipeHolder, focuses);
             return;
@@ -74,7 +74,7 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
         List<ItemIngredientPredicate> inputs = recipe.getInputItems();
         JeiSlotUtil.addSlotWithCount(builder, 11, JeiSlotUtil.DEFAULT_Y, inputs.getFirst());
         builder.addSlot(RecipeIngredientRole.INPUT, 30, JeiSlotUtil.ITEM_Y)
-            .add(resinWithCreeper(powered))
+            .add(ItemCompressCategory.resinWithCreeper(powered))
             .addRichTooltipCallback((slotView, tooltip) ->
                 tooltip.add(Component.translatable(powered
                                                    ? "gui.anvilcraft.category.item_compress.supercapacitor.resin"
@@ -106,7 +106,7 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
         this.arrowOutFromBelow.draw(graphics, 92, 29);
 
         JeiSlotUtil.drawDefaultInputSlots(graphics, this.slotDefault, recipe.getInputItems().size());
-        if (recipeHolder.id().identifier().getPath().equals(SUPERCAPACITOR)
+        if (recipeHolder.id().identifier().getPath().equals(ItemCompressCategory.SUPERCAPACITOR)
             || JeiRecipeUtil.isChance(recipe.getResultItems())) {
             JeiSlotUtil.drawDefaultOutputSlots(graphics, this.slotProbability, recipe.getResultItems().size());
         } else {
@@ -119,8 +119,8 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
             JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.ITEM_COMPRESS.get())
         );
         recipes.add(new RecipeHolder<>(
-            ResourceKey.create(Registries.RECIPE, AnvilCraft.of(SUPERCAPACITOR)),
-            specialSupercapacitorRecipe()
+            ResourceKey.create(Registries.RECIPE, AnvilCraft.of(ItemCompressCategory.SUPERCAPACITOR)),
+            ItemCompressCategory.specialSupercapacitorRecipe()
         ));
         registration.addRecipes(
             AnvilCraftJeiPlugin.ITEM_COMPRESS,
@@ -132,7 +132,7 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
         HolderGetter<Item> items = RegistryUtil.getRegistryAccess().lookupOrThrow(Registries.ITEM);
         return ItemCompressRecipe.builder()
             .requires(items, ModItemTags.IRON_PLATES, 2)
-            .requires(ItemStackTemplate.fromNonEmptyStack(resinWithCreeper(true)))
+            .requires(ItemStackTemplate.fromNonEmptyStack(ItemCompressCategory.resinWithCreeper(true)))
             .result(ModItems.SUPER_CAPACITOR)
             .buildRecipe();
     }

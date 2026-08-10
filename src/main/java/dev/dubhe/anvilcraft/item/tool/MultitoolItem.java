@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.item.tool;
 
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.util.EntityUtil;
 import dev.dubhe.anvilcraft.util.MagnetUtil;
 import dev.dubhe.anvilcraft.util.Util;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -114,8 +115,7 @@ public class MultitoolItem extends Item {
             case CARROT_ON_A_STICK -> this.useAsCarrotOnAStick(level, player, usedHand);
             case WARPED_FUNGUS_ON_A_STICK -> this.useAsWarpedFungusOnAStick(level, player, usedHand);
             case ALL -> {
-                // noinspection deprecation
-                player.hurtOrSimulate(level.damageSources().playerAttack(player), 1);
+                EntityUtil.hurtOrSimulate(player, level.damageSources().playerAttack(player), 1);
                 yield InteractionResult.PASS;
             }
             default -> super.use(level, player, usedHand);

@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.block.entity;
 
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.commands.arguments.EntityAnchorArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -33,7 +32,7 @@ public class ResentfulAmberBlockEntity extends MobAmberBlockEntity {
 
     // @OnlyIn(Dist.CLIENT)
     public void clientTick(Level level, BlockPos blockPos) {
-        Entity displayEntity = getOrCreateDisplayEntity(level);
+        Entity displayEntity = this.getOrCreateDisplayEntity(level);
         if (displayEntity == null) return;
         Vec3 center = blockPos.getCenter();
         Player nearest = level.getNearestPlayer(

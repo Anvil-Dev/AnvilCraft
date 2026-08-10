@@ -31,6 +31,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +45,7 @@ public final class JeiBlockIngredientUtil {
     private JeiBlockIngredientUtil() {
     }
 
-    public static IRecipeSlotBuilder addInputSlot(
+    public static void addInputSlot(
         IRecipeLayoutBuilder builder,
         String name,
         int x,
@@ -56,7 +57,7 @@ public final class JeiBlockIngredientUtil {
         List<ItemStack> stacks = input.getBlocks().stream()
             .map(holder -> new ItemStack(holder.value()))
             .toList();
-        return addSlot(builder, RecipeIngredientRole.INPUT, name, x, y, width, height, stacks);
+        JeiBlockIngredientUtil.addSlot(builder, RecipeIngredientRole.INPUT, name, x, y, width, height, stacks);
     }
 
     public static IRecipeSlotBuilder addSlot(
@@ -69,7 +70,7 @@ public final class JeiBlockIngredientUtil {
         int height,
         Block block
     ) {
-        return addSlot(builder, role, name, x, y, width, height, List.of(new ItemStack(block)));
+        return JeiBlockIngredientUtil.addSlot(builder, role, name, x, y, width, height, List.of(new ItemStack(block)));
     }
 
     public static IRecipeSlotBuilder addSlot(
@@ -83,7 +84,7 @@ public final class JeiBlockIngredientUtil {
         List<ItemStack> stacks
     ) {
         return builder.addSlot(role, x, y)
-            .setSlotName(SLOT_PREFIX + name)
+            .setSlotName(JeiBlockIngredientUtil.SLOT_PREFIX + name)
             .setCustomRenderer(VanillaTypes.ITEM_STACK, new TransparentItemRenderer(width, height))
             .addItemStacks(stacks);
     }
@@ -91,7 +92,8 @@ public final class JeiBlockIngredientUtil {
     public static void suppressHoverOverlays(IRecipeExtrasBuilder builder) {
         List<IRecipeSlotDrawable> slots = builder.getRecipeSlots().getSlots().stream()
             .filter(slot -> slot.getSlotName()
-                .filter(name -> name.startsWith(SLOT_PREFIX) || name.startsWith(PREVIEW_SLOT_PREFIX))
+                .filter(name -> name.startsWith(JeiBlockIngredientUtil.SLOT_PREFIX) || name.startsWith(
+                    JeiBlockIngredientUtil.PREVIEW_SLOT_PREFIX))
                 .isPresent())
             .toList();
         if (!slots.isEmpty()) {
@@ -105,7 +107,7 @@ public final class JeiBlockIngredientUtil {
         List<BlockState> states
     ) {
         if (states.isEmpty()) return Optional.empty();
-        Optional<Block> displayedBlock = recipeSlotsView.findSlotByName(SLOT_PREFIX + slotName)
+        Optional<Block> displayedBlock = recipeSlotsView.findSlotByName(JeiBlockIngredientUtil.SLOT_PREFIX + slotName)
             .flatMap(IRecipeSlotView::getDisplayedItemStack)
             .map(ItemStack::getItem)
             .filter(BlockItem.class::isInstance)
@@ -183,7 +185,7 @@ public final class JeiBlockIngredientUtil {
         }
     }
 
-    @SuppressWarnings("removal")
+    @SuppressWarnings({"removal", "NonExtendableApiUsage"})
     private record NoHoverRecipeSlot(IRecipeSlotDrawable delegate) implements IRecipeSlotDrawable {
         @Override
         public Stream<ITypedIngredient<?>> getAllIngredients() {
@@ -191,7 +193,7 @@ public final class JeiBlockIngredientUtil {
         }
 
         @Override
-        public List<ITypedIngredient<?>> getAllIngredientsList() {
+        public List<@Nullable ITypedIngredient<?>> getAllIngredientsList() {
             return this.delegate.getAllIngredientsList();
         }
 

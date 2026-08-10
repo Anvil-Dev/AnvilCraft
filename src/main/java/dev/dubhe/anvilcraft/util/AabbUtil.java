@@ -14,7 +14,7 @@ public class AabbUtil {
     }
 
     public static AABB centerSectionTo3x3x3(BlockPos pos) {
-        return centerSectionTo3x3x3(SectionPos.of(pos));
+        return AabbUtil.centerSectionTo3x3x3(SectionPos.of(pos));
     }
 
     public static AABB centerSectionTo3x3x3(SectionPos center) {
@@ -29,7 +29,7 @@ public class AabbUtil {
     }
 
     public static AABB minmax(AABB a, Vec3i other) {
-        return minmax(a, other.getX(), other.getY(), other.getZ());
+        return AabbUtil.minmax(a, other.getX(), other.getY(), other.getZ());
     }
 
     public static AABB minmax(AABB a, double x, double y, double z) {

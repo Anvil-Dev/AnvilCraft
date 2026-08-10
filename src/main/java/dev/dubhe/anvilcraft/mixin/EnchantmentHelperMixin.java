@@ -116,20 +116,20 @@ abstract class EnchantmentHelperMixin {
         }
 
         if (isRoyal) {
-            anvilcraft$boostEnchantment(modified, Enchantments.SILK_TOUCH);
-            anvilcraft$boostEnchantment(modified, Enchantments.UNBREAKING);
+            EnchantmentHelperMixin.anvilcraft$boostEnchantment(modified, Enchantments.SILK_TOUCH);
+            EnchantmentHelperMixin.anvilcraft$boostEnchantment(modified, Enchantments.UNBREAKING);
         } else if (isFrost) {
-            anvilcraft$boostEnchantment(modified, ModEnchantments.DISINTEGRATION_KEY);
+            EnchantmentHelperMixin.anvilcraft$boostEnchantment(modified, ModEnchantments.DISINTEGRATION_KEY);
         } else if (isEmber) {
-            anvilcraft$boostEnchantment(modified, ModEnchantments.SMELTING_KEY);
-            anvilcraft$boostEnchantment(modified, Enchantments.FIRE_ASPECT);
+            EnchantmentHelperMixin.anvilcraft$boostEnchantment(modified, ModEnchantments.SMELTING_KEY);
+            EnchantmentHelperMixin.anvilcraft$boostEnchantment(modified, Enchantments.FIRE_ASPECT);
         }
 
         if (path.contains("transcendence")) {
-            anvilcraft$boostEnchantment(modified, Enchantments.FORTUNE);
-            anvilcraft$boostEnchantment(modified, Enchantments.LOOTING);
-            anvilcraft$addHigherLevel(modified, Enchantments.FORTUNE);
-            anvilcraft$addHigherLevel(modified, Enchantments.LOOTING);
+            EnchantmentHelperMixin.anvilcraft$boostEnchantment(modified, Enchantments.FORTUNE);
+            EnchantmentHelperMixin.anvilcraft$boostEnchantment(modified, Enchantments.LOOTING);
+            EnchantmentHelperMixin.anvilcraft$addHigherLevel(modified, Enchantments.FORTUNE);
+            EnchantmentHelperMixin.anvilcraft$addHigherLevel(modified, Enchantments.LOOTING);
         }
 
         return modified;

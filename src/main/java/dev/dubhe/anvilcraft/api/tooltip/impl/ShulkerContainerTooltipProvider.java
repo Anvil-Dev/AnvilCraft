@@ -77,15 +77,15 @@ public class ShulkerContainerTooltipProvider extends ITooltipProvider.BlockEntit
         if (this.pendingUpgradeCount != null || level.getGameTime() < this.nextMetadataRefresh) {
             return;
         }
-        this.nextMetadataRefresh = level.getGameTime() + METADATA_REFRESH_INTERVAL;
+        this.nextMetadataRefresh = level.getGameTime() + ShulkerContainerTooltipProvider.METADATA_REFRESH_INTERVAL;
         this.pendingUpgradeCount = StorageClientStub.loadMetadata(value.getBlockPos())
-            .thenApply(metadata -> OptionalInt.of(calculateUpgradeCount(metadata.capacity().spaceSize())))
+            .thenApply(metadata -> OptionalInt.of(ShulkerContainerTooltipProvider.calculateUpgradeCount(metadata.capacity().spaceSize())))
             .exceptionally(_ -> OptionalInt.empty());
     }
 
     private static int calculateUpgradeCount(int spaceSize) {
         int upgradeCount = 0;
-        while (spaceSize > INITIAL_SPACE_SIZE) {
+        while (spaceSize > ShulkerContainerTooltipProvider.INITIAL_SPACE_SIZE) {
             spaceSize /= 2;
             upgradeCount++;
         }

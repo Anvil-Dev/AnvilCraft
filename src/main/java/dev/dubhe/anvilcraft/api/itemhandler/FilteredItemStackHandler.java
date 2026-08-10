@@ -49,7 +49,7 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
     private NonNullList<Integer> slotLimits;
 
     public NonNullList<ItemStack> getStacks() {
-        return stacks;
+        return this.stacks;
     }
 
     public FilteredItemStackHandler(
@@ -57,9 +57,9 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
         super(filteredItems.size());
         this.filterEnabled = filterEnabled;
         this.filteredItems = NonNullList.create();
-        this.filteredItems.addAll(filteredItems.stream()
-                                      .map(it -> it.orElse(ItemStack.EMPTY)).toList()
-        );
+        for (Optional<ItemStack> filteredItem : filteredItems) {
+            this.filteredItems.add(filteredItem.orElse(ItemStack.EMPTY));
+        }
         this.disabled = NonNullList.create();
         this.disabled.addAll(disabled);
         this.slotLimits = NonNullList.create();
@@ -178,7 +178,7 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
     }
 
     public boolean isEmpty() {
-        for (ItemStack stack : stacks) {
+        for (ItemStack stack : this.stacks) {
             if (!stack.isEmpty()) {
                 return false;
             }
@@ -267,12 +267,12 @@ public class FilteredItemStackHandler extends ItemStacksResourceHandler {
     }
 
     public void serializeFiltering(ValueOutput output) {
-        output.store((CompoundTag) CODEC.codec().encodeStart(NbtOps.INSTANCE, this).getOrThrow());
+        output.store((CompoundTag) FilteredItemStackHandler.CODEC.codec().encodeStart(NbtOps.INSTANCE, this).getOrThrow());
     }
 
     public void deserializeFiltering(ValueInput input) {
         @SuppressWarnings("deprecation")
-        Optional<FilteredItemStackHandler> handlerOp = input.read(CODEC);
+        Optional<FilteredItemStackHandler> handlerOp = input.read(FilteredItemStackHandler.CODEC);
         if (handlerOp.isEmpty()) return;
         FilteredItemStackHandler handler = handlerOp.get();
         if (this.size() != handler.size()) throw new IllegalArgumentException("Depository size mismatch");

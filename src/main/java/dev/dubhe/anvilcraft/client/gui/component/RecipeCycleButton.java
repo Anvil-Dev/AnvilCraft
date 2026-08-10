@@ -20,7 +20,7 @@ public class RecipeCycleButton extends Button {
             18,
             Component.translatable("screen.anvilcraft.batch_crafter.switch_recipe"),
             onPress,
-            DEFAULT_NARRATION
+            Button.DEFAULT_NARRATION
         );
     }
 

@@ -24,9 +24,10 @@ import java.util.Optional;
 
 public class CanningFoodRecipe extends CustomRecipe {
     private static final CanningFoodRecipe INSTANCE = new CanningFoodRecipe();
-    public static final MapCodec<CanningFoodRecipe> CODEC = MapCodec.unit(INSTANCE);
-    public static final StreamCodec<RegistryFriendlyByteBuf, CanningFoodRecipe> STREAM_CODEC = StreamCodec.unit(INSTANCE);
-    public static final RecipeSerializer<CanningFoodRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+    public static final MapCodec<CanningFoodRecipe> CODEC = MapCodec.unit(CanningFoodRecipe.INSTANCE);
+    public static final StreamCodec<RegistryFriendlyByteBuf, CanningFoodRecipe> STREAM_CODEC = StreamCodec.unit(CanningFoodRecipe.INSTANCE);
+    public static final RecipeSerializer<CanningFoodRecipe> SERIALIZER = new RecipeSerializer<>(
+        CanningFoodRecipe.CODEC, CanningFoodRecipe.STREAM_CODEC);
 
     public boolean isFood(ItemStack foodStack) {
         if (foodStack.is(ModFoodItems.CANNED_FOOD)) return false;
@@ -101,7 +102,7 @@ public class CanningFoodRecipe extends CustomRecipe {
 
     @Override
     public RecipeSerializer<CanningFoodRecipe> getSerializer() {
-        return SERIALIZER;
+        return CanningFoodRecipe.SERIALIZER;
     }
 
     @Override

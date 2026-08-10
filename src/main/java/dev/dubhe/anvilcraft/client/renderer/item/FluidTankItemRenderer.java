@@ -61,19 +61,19 @@ public class FluidTankItemRenderer extends BaseFluidTankItemRenderer {
         var tintSource = model.fluidTintSource();
         int tintColor = tintSource != null ? tintSource.colorAsStack(resource.toStack(1)) : -1;
         TextureAtlasSprite sprite = model.stillMaterial().sprite();
-        float maxY = TANK_W + (1 - 2 * TANK_W) * argument.getFill();
+        float maxY = FluidTankItemRenderer.TANK_W + (1 - 2 * FluidTankItemRenderer.TANK_W) * argument.getFill();
         collector.submitCustomGeometry(
             poseStack,
             FluidTankItemRenderState.FLUID_RENDER_TYPE,
             (pose, buffer) -> FluidRenderHelper.INSTANCE.renderFluidBox(
                 sprite,
                 resource,
-                TANK_W,
-                TANK_W,
-                TANK_W,
-                1 - TANK_W,
+                FluidTankItemRenderer.TANK_W,
+                FluidTankItemRenderer.TANK_W,
+                FluidTankItemRenderer.TANK_W,
+                1 - FluidTankItemRenderer.TANK_W,
                 maxY,
-                1 - TANK_W,
+                1 - FluidTankItemRenderer.TANK_W,
                 tintColor,
                 buffer,
                 pose,

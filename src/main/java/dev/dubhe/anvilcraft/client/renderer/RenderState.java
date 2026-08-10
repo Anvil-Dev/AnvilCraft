@@ -16,15 +16,15 @@ public class RenderState {
     }
 
     public static boolean isIrisPresent() {
-        return IRIS_PRESENT;
+        return RenderState.IRIS_PRESENT;
     }
 
     public static void bloomStage() {
-        bloomRenderStage = true;
+        RenderState.bloomRenderStage = true;
     }
 
     public static void levelStage() {
-        bloomRenderStage = false;
+        RenderState.bloomRenderStage = false;
     }
 
     public static boolean isEnhancedRenderingAvailable() {
@@ -36,6 +36,6 @@ public class RenderState {
     }
 
     public static boolean isLensEffectEnabled() {
-        return isEnhancedRenderingAvailable() && AnvilCraftClient.CONFIG.gravitationalLens.renderBlackHoleLensing;
+        return RenderState.isEnhancedRenderingAvailable() && AnvilCraftClient.CONFIG.gravitationalLens.renderBlackHoleLensing;
     }
 }

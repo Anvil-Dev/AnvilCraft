@@ -14,16 +14,16 @@ public class ModCustomDataComponents {
     private static final DeferredRegister<ICustomDataComponent.Type<?>> DF = DeferredRegister
         .create(ModRegistries.CUSTOM_DATA_TYPE, AnvilCraft.MOD_ID);
 
-    public static final DeferredHolder<ICustomDataComponent.Type<?>, NormalDataComponent.Type> NORMAL = DF
+    public static final DeferredHolder<ICustomDataComponent.Type<?>, NormalDataComponent.Type> NORMAL = ModCustomDataComponents.DF
         .register("normal_data_component", NormalDataComponent.Type::new);
 
-    public static final DeferredHolder<ICustomDataComponent.Type<?>, ItemEnchantmentsData.Type> ITEM_ENCHANTMENTS = DF
-        .register("item_enchantments", ItemEnchantmentsData.Type::new);
+    public static final DeferredHolder<ICustomDataComponent.Type<?>, ItemEnchantmentsData.Type> ITEM_ENCHANTMENTS =
+        ModCustomDataComponents.DF.register("item_enchantments", ItemEnchantmentsData.Type::new);
 
-    public static final DeferredHolder<ICustomDataComponent.Type<?>, MultiphaseData.Type> MULTIPHASE = DF
+    public static final DeferredHolder<ICustomDataComponent.Type<?>, MultiphaseData.Type> MULTIPHASE = ModCustomDataComponents.DF
         .register("multiphase", MultiphaseData.Type::new);
 
     public static void register(IEventBus bus) {
-        DF.register(bus);
+        ModCustomDataComponents.DF.register(bus);
     }
 }

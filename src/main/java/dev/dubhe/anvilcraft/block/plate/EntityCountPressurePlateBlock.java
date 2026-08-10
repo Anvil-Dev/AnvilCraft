@@ -19,7 +19,7 @@ public class EntityCountPressurePlateBlock extends PowerLevelPressurePlateBlock 
 
     @Override
     protected int getSignalStrength(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {
-        return Math.clamp(getEntityCountWithFilter(level, box, this.filter), 0, 15);
+        return Math.clamp(EntityCountPressurePlateBlock.getEntityCountWithFilter(level, box, this.filter), 0, 15);
     }
 
     protected static int getEntityCountWithFilter(Level level, AABB box, Predicate<Entity> filter) {

@@ -26,8 +26,8 @@ public class MultiphaseTranscendiumItem extends Item implements IMultipleMateria
     private static final Component HEAVY_HALBERD_MISSING_TOOLS_TOOLTIP = Component.translatable(
         "screen.anvilcraft.ember_smithing.multiphase_transcendium.heavy_halberd_missing_tools");
     private static final List<Identifier> EMPTY_SLOT_TEXTURES = List.of(
-        EMPTY_SLOT_RESONATOR,
-        EMPTY_SLOT_HEAVY_HALBERD
+        MultiphaseTranscendiumItem.EMPTY_SLOT_RESONATOR,
+        MultiphaseTranscendiumItem.EMPTY_SLOT_HEAVY_HALBERD
     );
 
     public MultiphaseTranscendiumItem(Properties properties) {
@@ -48,18 +48,18 @@ public class MultiphaseTranscendiumItem extends Item implements IMultipleMateria
             }
         }
         return switch (tool) {
-            case DEFAULT -> MISSING_TOOLS_TOOLTIP;
-            case TRUE -> RESONATOR_MISSING_TOOLS_TOOLTIP;
-            case FALSE -> HEAVY_HALBERD_MISSING_TOOLS_TOOLTIP;
+            case DEFAULT -> MultiphaseTranscendiumItem.MISSING_TOOLS_TOOLTIP;
+            case TRUE -> MultiphaseTranscendiumItem.RESONATOR_MISSING_TOOLS_TOOLTIP;
+            case FALSE -> MultiphaseTranscendiumItem.HEAVY_HALBERD_MISSING_TOOLS_TOOLTIP;
         };
     }
 
     @Override
     public List<Identifier> getEmptySlotTextures(ItemStack template, int id, List<ItemStack> inputs) {
         for (ItemStack input : inputs) {
-            if (input.is(ModItemTags.RESONATOR)) return List.of(EMPTY_SLOT_RESONATOR);
-            if (input.is(ModItemTags.HEAVY_HALBERD)) return List.of(EMPTY_SLOT_HEAVY_HALBERD);
+            if (input.is(ModItemTags.RESONATOR)) return List.of(MultiphaseTranscendiumItem.EMPTY_SLOT_RESONATOR);
+            if (input.is(ModItemTags.HEAVY_HALBERD)) return List.of(MultiphaseTranscendiumItem.EMPTY_SLOT_HEAVY_HALBERD);
         }
-        return ListUtil.cycle(EMPTY_SLOT_TEXTURES, id);
+        return ListUtil.cycle(MultiphaseTranscendiumItem.EMPTY_SLOT_TEXTURES, id);
     }
 }

@@ -75,12 +75,12 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return MassInjectCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return MassInjectCategory.HEIGHT;
     }
 
     @Override
@@ -96,12 +96,13 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
         builder.addSlot(RecipeIngredientRole.OUTPUT, JeiSlotUtil.OUTPUT_X, JeiSlotUtil.DEFAULT_Y)
             .add(ModItems.NEUTRONIUM_INGOT.asStack())
             .addRichTooltipCallback((_, tooltip) -> tooltip.add(
-                Component.translatable(KEY_MASS_NEEDED, SpaceOvercompressorBlockEntity.DISPLAYED_MASS).withStyle(ChatFormatting.GOLD)
+                Component.translatable(MassInjectCategory.KEY_MASS_NEEDED, SpaceOvercompressorBlockEntity.DISPLAYED_MASS)
+                    .withStyle(ChatFormatting.GOLD)
             ));
         JeiBlockIngredientUtil.addSlot(
             builder,
             RecipeIngredientRole.CRAFTING_STATION,
-            SPACE_OVERCOMPRESSOR,
+            MassInjectCategory.SPACE_OVERCOMPRESSOR,
             72,
             34,
             18,
@@ -141,7 +142,7 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
         pose.scale(0.8F, 0.8F);
         graphics.text(
             Minecraft.getInstance().font,
-            Component.translatable(KEY_MASS_VALUE, recipe.displayMassValue()),
+            Component.translatable(MassInjectCategory.KEY_MASS_VALUE, recipe.displayMassValue()),
             0,
             10,
             0xFF000000,
@@ -149,7 +150,8 @@ public class MassInjectCategory implements IRecipeCategory<RecipeHolder<MassInje
         );
         graphics.text(
             Minecraft.getInstance().font,
-            Component.translatable(KEY_ITEMS_NEEDED, Math.ceilDiv(SpaceOvercompressorBlockEntity.NEUTRONIUM_INGOT_MASS, recipe.getMass())),
+            Component.translatable(
+                MassInjectCategory.KEY_ITEMS_NEEDED, Math.ceilDiv(SpaceOvercompressorBlockEntity.NEUTRONIUM_INGOT_MASS, recipe.getMass())),
             0,
             70,
             0xFF000000,

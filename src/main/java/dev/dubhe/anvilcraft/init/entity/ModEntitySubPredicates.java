@@ -15,7 +15,9 @@ public class ModEntitySubPredicates {
         AnvilCraft.MOD_ID
     );
 
-    public static final DeferredHolder<MapCodec<? extends EntitySubPredicate>, MapCodec<FallingBlockPredicate>> FALLING_BLOCK = REGISTER
+    public static final DeferredHolder<
+        MapCodec<? extends EntitySubPredicate>, MapCodec<FallingBlockPredicate>
+    > FALLING_BLOCK = ModEntitySubPredicates.REGISTER
         .register("falling_block", () -> FallingBlockPredicate.CODEC);
 
     public static void register(IEventBus modEventBus) {

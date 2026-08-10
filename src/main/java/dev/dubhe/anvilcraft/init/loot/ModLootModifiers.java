@@ -16,12 +16,12 @@ public class ModLootModifiers {
         DeferredRegister.create(NeoForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS, AnvilCraft.MOD_ID);
 
     public static final Supplier<MapCodec<SmeltingLootModifier>> SMELTING_LOOT_MODIFIER =
-        GLOBAL_LOOT_MODIFIER_SERIALIZERS.register("smelting_loot_modifier", () -> SmeltingLootModifier.CODEC);
+        ModLootModifiers.GLOBAL_LOOT_MODIFIER_SERIALIZERS.register("smelting_loot_modifier", () -> SmeltingLootModifier.CODEC);
 
     public static final Supplier<MapCodec<DisintegrationLootModifier>> DISINTEGRATION_LOOT_MODIFIER =
-        GLOBAL_LOOT_MODIFIER_SERIALIZERS.register("disintegration_loot_modifier", () -> DisintegrationLootModifier.CODEC);
+        ModLootModifiers.GLOBAL_LOOT_MODIFIER_SERIALIZERS.register("disintegration_loot_modifier", () -> DisintegrationLootModifier.CODEC);
 
     public static void register(IEventBus eventBus) {
-        GLOBAL_LOOT_MODIFIER_SERIALIZERS.register(eventBus);
+        ModLootModifiers.GLOBAL_LOOT_MODIFIER_SERIALIZERS.register(eventBus);
     }
 }

@@ -17,7 +17,7 @@ public interface IMultiPartBlockModelHolder {
         BlockState stateAtModelPos = level.getBlockState(modelPos);
         if (stateAtModelPos.is(modelState.getBlock())) {
             for (Property<?> property : modelState.getProperties()) {
-                stateAtModelPos = copyChangedProperty(stateAtModelPos, original, modelState, property);
+                stateAtModelPos = IMultiPartBlockModelHolder.copyChangedProperty(stateAtModelPos, original, modelState, property);
             }
             modelState = stateAtModelPos;
         }

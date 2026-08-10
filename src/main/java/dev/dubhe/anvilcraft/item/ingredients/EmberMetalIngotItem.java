@@ -26,11 +26,11 @@ public class EmberMetalIngotItem extends Item implements IPermutationMaterial {
 
     @Override
     public Component getInputTooltip(ItemStack material) {
-        return MISSING_TOOLTIP;
+        return EmberMetalIngotItem.MISSING_TOOLTIP;
     }
 
     @Override
     public List<Identifier> getEmptySlotTextures() {
-        return EMPTY_SLOT_TEXTURES;
+        return EmberMetalIngotItem.EMPTY_SLOT_TEXTURES;
     }
 }

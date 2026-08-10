@@ -30,14 +30,14 @@ public class IonoCraftItem extends Item {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack itemstack = player.getItemInHand(hand);
-        HitResult hitresult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY);
+        HitResult hitresult = Item.getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY);
         if (hitresult.getType() == HitResult.Type.MISS) {
             return InteractionResult.PASS;
         } else {
             Vec3 vec3 = player.getViewVector(1.0F);
             List<Entity> list = level.getEntities(
                 player,
-                player.getBoundingBox().expandTowards(vec3.scale(5.0)).inflate(1.0), ENTITY_PREDICATE
+                player.getBoundingBox().expandTowards(vec3.scale(5.0)).inflate(1.0), IonoCraftItem.ENTITY_PREDICATE
             );
             if (!list.isEmpty()) {
                 Vec3 vec31 = player.getEyePosition();

@@ -15,6 +15,8 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.Identifier;
 
+import java.util.Objects;
+
 /// 复制指定输入物品的数据，并将其粘贴到另一个数据组件类型下。
 public record ChangeDataType<T>(RecipeInputSlot input, DataComponentType<T> orig, ICustomDataComponent<T> dest) implements IResultModifier {
     public static final MapCodec<ChangeDataType<?>> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
@@ -40,7 +42,10 @@ public record ChangeDataType<T>(RecipeInputSlot input, DataComponentType<T> orig
     public ChangeDataType(Identifier origId, ICustomDataComponent<T> dest, RecipeInputSlot slot) {
         this(
             slot,
-            Util.cast(BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(origId)),
+            Util.cast(Objects.requireNonNull(
+                BuiltInRegistries.DATA_COMPONENT_TYPE.getValue(origId),
+                "Unknown data component: " + origId
+            )),
             dest
         );
     }
@@ -58,9 +63,10 @@ public record ChangeDataType<T>(RecipeInputSlot input, DataComponentType<T> orig
         T value = ctx.getInput(this.input).get(this.orig);
         if (value == null) return;
         ctx.getResult().set(this.orig, null);
+        T oldValue = ctx.getResult().get(this.dest.getDataComponentType());
         ctx.getResult().set(
             this.dest.getDataComponentType(),
-            this.dest.merge(ctx.getResult().get(this.dest.getDataComponentType()), value)
+            oldValue == null ? value : this.dest.merge(oldValue, value)
         );
     }
 
@@ -70,18 +76,21 @@ public record ChangeDataType<T>(RecipeInputSlot input, DataComponentType<T> orig
     }
 
     private Identifier origId() {
-        return BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(this.orig);
+        return Objects.requireNonNull(
+            BuiltInRegistries.DATA_COMPONENT_TYPE.getKey(this.orig),
+            "Unregistered data component: " + this.orig
+        );
     }
 
     public static class Type implements IResultModifier.Type<ChangeDataType<?>> {
         @Override
         public MapCodec<ChangeDataType<?>> codec() {
-            return CODEC;
+            return ChangeDataType.CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, ChangeDataType<?>> streamCodec() {
-            return STREAM_CODEC;
+            return ChangeDataType.STREAM_CODEC;
         }
     }
 

@@ -23,60 +23,63 @@ public final class LiquidEnchantmentCauldronRecipe {
     /** 匹配并模拟一次液态魔咒特殊反应，调用方确认输出空间后再提交结果。 */
     public static Optional<Result> match(List<FluidStack> fluids, ItemStack item, boolean heated) {
         if (item.is(Items.LAPIS_LAZULI)) {
-            Optional<Result> assimilation = heated ? assimilate(fluids) : Optional.empty();
-            return assimilation.isPresent() ? assimilation : createBlank(fluids, item);
+            Optional<Result> assimilation = heated ? LiquidEnchantmentCauldronRecipe.assimilate(fluids) : Optional.empty();
+            return assimilation.isPresent() ? assimilation : LiquidEnchantmentCauldronRecipe.createBlank(fluids, item);
         }
-        if (item.is(ModItemTags.SILVER_NUGGETS)) return cleanse(fluids);
+        if (item.is(ModItemTags.SILVER_NUGGETS)) return LiquidEnchantmentCauldronRecipe.cleanse(fluids);
         if (item.is(Items.GOLD_INGOT) && item.getCount() >= 16) {
-            return curseGold(fluids, 1, new ItemStack(ModItems.CURSED_GOLD_INGOT.get(), 16));
+            return LiquidEnchantmentCauldronRecipe.curseGold(fluids, 1, new ItemStack(ModItems.CURSED_GOLD_INGOT.get(), 16));
         }
         if (item.is(Items.GOLD_BLOCK) && item.getCount() >= 16) {
-            return curseGold(fluids, 9, new ItemStack(ModBlocks.CURSED_GOLD_BLOCK, 16));
+            return LiquidEnchantmentCauldronRecipe.curseGold(fluids, 9, new ItemStack(ModBlocks.CURSED_GOLD_BLOCK, 16));
         }
         return Optional.empty();
     }
 
     private static Optional<Result> createBlank(List<FluidStack> fluids, ItemStack item) {
         if (item.getCount() < 3) return Optional.empty();
-        FluidStack experience = find(fluids, fluid -> fluid.is(ModFluids.EXP_FLUID.get()), 2000);
+        FluidStack experience = LiquidEnchantmentCauldronRecipe.find(fluids, fluid -> fluid.is(ModFluids.EXP_FLUID.get()), 2000);
         if (experience.isEmpty()) return Optional.empty();
 
-        LargeCauldronFluidHandler simulated = copyHandler(fluids);
-        if (!drain(simulated, experience, 2000)) return Optional.empty();
+        LargeCauldronFluidHandler simulated = LiquidEnchantmentCauldronRecipe.copyHandler(fluids);
+        if (!LiquidEnchantmentCauldronRecipe.drain(simulated, experience, 2000)) return Optional.empty();
         FluidStack blank = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), 1);
-        if (!fill(simulated, blank)) return Optional.empty();
+        if (!LiquidEnchantmentCauldronRecipe.fill(simulated, blank)) return Optional.empty();
         return Optional.of(new Result(simulated.copyFluids(), 3, ItemStack.EMPTY, false));
     }
 
     private static Optional<Result> assimilate(List<FluidStack> fluids) {
-        FluidStack blank = find(fluids, LiquidEnchantmentUtil::isBlank, 1);
-        FluidStack enchanted = find(fluids, LiquidEnchantmentUtil::isEnchanted, 8);
+        FluidStack blank = LiquidEnchantmentCauldronRecipe.find(fluids, LiquidEnchantmentUtil::isBlank, 1);
+        FluidStack enchanted = LiquidEnchantmentCauldronRecipe.find(fluids, LiquidEnchantmentUtil::isEnchanted, 8);
         if (blank.isEmpty() || enchanted.isEmpty()) return Optional.empty();
 
-        LargeCauldronFluidHandler simulated = copyHandler(fluids);
-        if (!drain(simulated, blank, 1) || !drain(simulated, enchanted, 8)) return Optional.empty();
+        LargeCauldronFluidHandler simulated = LiquidEnchantmentCauldronRecipe.copyHandler(fluids);
+        if (!LiquidEnchantmentCauldronRecipe.drain(simulated, blank, 1)
+            || !LiquidEnchantmentCauldronRecipe.drain(simulated, enchanted, 8)) {
+            return Optional.empty();
+        }
         FluidStack result = enchanted.copyWithAmount(9);
-        if (!fill(simulated, result)) return Optional.empty();
+        if (!LiquidEnchantmentCauldronRecipe.fill(simulated, result)) return Optional.empty();
         return Optional.of(new Result(simulated.copyFluids(), 1, ItemStack.EMPTY, true));
     }
 
     private static Optional<Result> cleanse(List<FluidStack> fluids) {
-        FluidStack enchanted = find(fluids, LiquidEnchantmentUtil::isEnchanted, 8);
+        FluidStack enchanted = LiquidEnchantmentCauldronRecipe.find(fluids, LiquidEnchantmentUtil::isEnchanted, 8);
         if (enchanted.isEmpty()) return Optional.empty();
 
-        LargeCauldronFluidHandler simulated = copyHandler(fluids);
-        if (!drain(simulated, enchanted, 8)) return Optional.empty();
+        LargeCauldronFluidHandler simulated = LiquidEnchantmentCauldronRecipe.copyHandler(fluids);
+        if (!LiquidEnchantmentCauldronRecipe.drain(simulated, enchanted, 8)) return Optional.empty();
         FluidStack blank = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), 8);
-        if (!fill(simulated, blank)) return Optional.empty();
+        if (!LiquidEnchantmentCauldronRecipe.fill(simulated, blank)) return Optional.empty();
         return Optional.of(new Result(simulated.copyFluids(), 1, ItemStack.EMPTY, false));
     }
 
     private static Optional<Result> curseGold(List<FluidStack> fluids, int amount, ItemStack result) {
-        FluidStack cursed = find(fluids, LiquidEnchantmentUtil::isCursed, amount);
+        FluidStack cursed = LiquidEnchantmentCauldronRecipe.find(fluids, LiquidEnchantmentUtil::isCursed, amount);
         if (cursed.isEmpty()) return Optional.empty();
 
-        LargeCauldronFluidHandler simulated = copyHandler(fluids);
-        if (!drain(simulated, cursed, amount)) return Optional.empty();
+        LargeCauldronFluidHandler simulated = LiquidEnchantmentCauldronRecipe.copyHandler(fluids);
+        if (!LiquidEnchantmentCauldronRecipe.drain(simulated, cursed, amount)) return Optional.empty();
         return Optional.of(new Result(simulated.copyFluids(), 16, result, false));
     }
 
@@ -93,6 +96,7 @@ public final class LiquidEnchantmentCauldronRecipe {
         return handler;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean drain(LargeCauldronFluidHandler handler, FluidStack fluid, int amount) {
         try (Transaction transaction = Transaction.openRoot()) {
             int extracted = handler.extract(FluidResource.of(fluid), amount, transaction);
@@ -102,6 +106,7 @@ public final class LiquidEnchantmentCauldronRecipe {
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean fill(LargeCauldronFluidHandler handler, FluidStack fluid) {
         try (Transaction transaction = Transaction.openRoot()) {
             int inserted = handler.insert(FluidResource.of(fluid), fluid.getAmount(), transaction);

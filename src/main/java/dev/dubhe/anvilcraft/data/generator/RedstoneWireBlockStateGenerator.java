@@ -33,8 +33,8 @@ public class RedstoneWireBlockStateGenerator {
     ) {
         MultiPartGenerator multipart = MultiPartGenerator.multiPart(context.get());
         for (Direction attachment : Direction.values()) {
-            Identifier dot = dotModel(provider, attachment)
-                .build(modelLocation(provider, attachment, "dot"));
+            Identifier dot = RedstoneWireBlockStateGenerator.dotModel(provider, attachment)
+                .build(RedstoneWireBlockStateGenerator.modelLocation(provider, attachment, "dot"));
             multipart.with(
                 BlockModelGenerators.condition()
                     .term(RedstoneWireBlock.ATTACHMENT, attachment)
@@ -43,10 +43,10 @@ public class RedstoneWireBlockStateGenerator {
             );
 
             for (int index = 0; index < 4; index++) {
-                Identifier side = sideModel(provider, attachment, index)
-                    .build(modelLocation(provider, attachment, "side_" + index));
-                Identifier up = upModel(provider, attachment, index)
-                    .build(modelLocation(provider, attachment, "up_" + index));
+                Identifier side = RedstoneWireBlockStateGenerator.sideModel(provider, attachment, index)
+                    .build(RedstoneWireBlockStateGenerator.modelLocation(provider, attachment, "side_" + index));
+                Identifier up = RedstoneWireBlockStateGenerator.upModel(provider, attachment, index)
+                    .build(RedstoneWireBlockStateGenerator.modelLocation(provider, attachment, "up_" + index));
                 var property = RedstoneWireBlock.CONNECTION_PROPERTIES.get(index);
                 multipart.with(
                     BlockModelGenerators.condition()
@@ -56,8 +56,8 @@ public class RedstoneWireBlockStateGenerator {
                 );
                 if (attachment.getAxis().isHorizontal()) {
                     // 只有墙面导线绕支撑块边缘时需要向模型边界外延伸；地面和天花板没有这种显示形态。
-                    Identifier sideCorner = sideCornerModel(provider, attachment, index)
-                        .build(modelLocation(provider, attachment, "side_corner_" + index));
+                    Identifier sideCorner = RedstoneWireBlockStateGenerator.sideCornerModel(provider, attachment, index)
+                        .build(RedstoneWireBlockStateGenerator.modelLocation(provider, attachment, "side_corner_" + index));
                     multipart.with(
                         BlockModelGenerators.condition()
                             .term(RedstoneWireBlock.ATTACHMENT, attachment)
@@ -65,8 +65,8 @@ public class RedstoneWireBlockStateGenerator {
                         BlockModelGenerators.plainVariant(sideCorner)
                     );
                     if (RedstoneWireBlock.getLocalDirection(attachment, index) == Direction.UP) {
-                        Identifier sideCornerSp = sideCornerSpModel(provider, attachment, index)
-                            .build(modelLocation(provider, attachment, "side_corner_sp_" + index));
+                        Identifier sideCornerSp = RedstoneWireBlockStateGenerator.sideCornerSpModel(provider, attachment, index)
+                            .build(RedstoneWireBlockStateGenerator.modelLocation(provider, attachment, "side_corner_sp_" + index));
                         multipart.with(
                             BlockModelGenerators.condition()
                                 .term(RedstoneWireBlock.ATTACHMENT, attachment)
@@ -89,29 +89,29 @@ public class RedstoneWireBlockStateGenerator {
     /** 生成分叉或转角处用于覆盖线段接缝的中心点模型。 */
     private static RegistrumLegacyBlockModelBuilder dotModel(RegistrumBlockModelGenerator provider, Direction attachment) {
         Direction tangent = RedstoneWireBlock.getLocalDirection(attachment, 0);
-        RegistrumLegacyBlockModelBuilder model = model(provider, attachment, "dot")
-            .texture(BASE, AnvilCraft.of("block/redstone_wire_dot"))
-            .texture(OVERLAY, AnvilCraft.of("block/redstone_wire_dot_overlay"))
+        RegistrumLegacyBlockModelBuilder model = RedstoneWireBlockStateGenerator.model(provider, attachment, "dot")
+            .texture(RedstoneWireBlockStateGenerator.BASE, AnvilCraft.of("block/redstone_wire_dot"))
+            .texture(RedstoneWireBlockStateGenerator.OVERLAY, AnvilCraft.of("block/redstone_wire_dot_overlay"))
             .texture(TextureSlot.PARTICLE, AnvilCraft.of("block/redstone_wire_dot"));
         // 底层提供固定材质边缘，上层使用 tintindex 0 随 POWER 改变颜色，与原版红石粉视觉一致。
-        addBox(model, attachment, tangent, 4.0, -0.5, 4.0, 12.0, 1.5, 12.0, List.of(
-            face(Direction.NORTH, "#0", 4, 4, 12, 6),
-            transformedUvFace(attachment.getAxis().isHorizontal(), Direction.EAST, "#0", 4, 4, 12, 6),
-            face(Direction.SOUTH, "#0", 4, 4, 12, 6),
-            transformedUvFace(attachment.getAxis().isHorizontal(), Direction.WEST, "#0", 4, 4, 12, 6),
-            face(Direction.UP, "#0", 4, 4, 12, 12),
-            face(Direction.DOWN, "#0", 4, 4, 12, 12, 0, false, Direction.DOWN)
+        RedstoneWireBlockStateGenerator.addBox(model, attachment, tangent, 4.0, -0.5, 4.0, 12.0, 1.5, 12.0, List.of(
+            RedstoneWireBlockStateGenerator.face(Direction.NORTH, "#0", 4, 4, 12, 6),
+            RedstoneWireBlockStateGenerator.transformedUvFace(attachment.getAxis().isHorizontal(), Direction.EAST, "#0", 4, 4, 12, 6),
+            RedstoneWireBlockStateGenerator.face(Direction.SOUTH, "#0", 4, 4, 12, 6),
+            RedstoneWireBlockStateGenerator.transformedUvFace(attachment.getAxis().isHorizontal(), Direction.WEST, "#0", 4, 4, 12, 6),
+            RedstoneWireBlockStateGenerator.face(Direction.UP, "#0", 4, 4, 12, 12),
+            RedstoneWireBlockStateGenerator.face(Direction.DOWN, "#0", 4, 4, 12, 12, 0, false, Direction.DOWN)
         ));
-        addBox(model, attachment, tangent, 5.0, 1.5, 5.0, 11.0, 2.5, 11.0, List.of(
-            face(Direction.NORTH, "#1", 5, 5, 11, 6, 0, true, null),
-            transformedUvFace(
+        RedstoneWireBlockStateGenerator.addBox(model, attachment, tangent, 5.0, 1.5, 5.0, 11.0, 2.5, 11.0, List.of(
+            RedstoneWireBlockStateGenerator.face(Direction.NORTH, "#1", 5, 5, 11, 6, 0, true, null),
+            RedstoneWireBlockStateGenerator.transformedUvFace(
                 attachment.getAxis().isHorizontal(), Direction.EAST, "#1", 5, 5, 11, 6, 0, true, null
             ),
-            face(Direction.SOUTH, "#1", 5, 5, 11, 6, 0, true, null),
-            transformedUvFace(
+            RedstoneWireBlockStateGenerator.face(Direction.SOUTH, "#1", 5, 5, 11, 6, 0, true, null),
+            RedstoneWireBlockStateGenerator.transformedUvFace(
                 attachment.getAxis().isHorizontal(), Direction.WEST, "#1", 5, 5, 11, 6, 0, true, null
             ),
-            face(Direction.UP, "#1", 5, 5, 11, 11, 0, true, null)
+            RedstoneWireBlockStateGenerator.face(Direction.UP, "#1", 5, 5, 11, 11, 0, true, null)
         ));
         return model;
     }
@@ -121,23 +121,23 @@ public class RedstoneWireBlockStateGenerator {
         RegistrumBlockModelGenerator provider, Direction attachment, int index
     ) {
         Direction tangent = RedstoneWireBlock.getLocalDirection(attachment, index);
-        RegistrumLegacyBlockModelBuilder model = model(provider, attachment, "side_" + index)
-            .texture(BASE, AnvilCraft.of("block/redstone_wire_line"))
-            .texture(OVERLAY, AnvilCraft.of("block/redstone_wire_line_overlay"))
+        RegistrumLegacyBlockModelBuilder model = RedstoneWireBlockStateGenerator.model(provider, attachment, "side_" + index)
+            .texture(RedstoneWireBlockStateGenerator.BASE, AnvilCraft.of("block/redstone_wire_line"))
+            .texture(RedstoneWireBlockStateGenerator.OVERLAY, AnvilCraft.of("block/redstone_wire_line_overlay"))
             .texture(TextureSlot.PARTICLE, AnvilCraft.of("block/redstone_wire_line"));
         // 线段会旋转到不同表面，侧面 UV 也要随局部基旋转，否则同一纹理会在部分朝向上镜像或倒置。
-        addBoxWithRotatedUvs(model, attachment, tangent, 5.0, 0.0, 0.0, 11.0, 1.0, 8.0, List.of(
-            face(Direction.NORTH, "#0", 5, 0, 11, 1, 0, false, Direction.NORTH),
-            face(Direction.EAST, "#0", 10, 0, 11, 8, 90, false, null),
-            face(Direction.WEST, "#0", 5, 8, 6, 0, 90, false, null),
-            face(Direction.UP, "#0", 5, 0, 11, 8),
-            face(Direction.DOWN, "#0", 11, 0, 5, 8, 0, false, Direction.DOWN)
+        RedstoneWireBlockStateGenerator.addBoxWithRotatedUvs(model, attachment, tangent, 5.0, 0.0, 0.0, 11.0, 1.0, 8.0, List.of(
+            RedstoneWireBlockStateGenerator.face(Direction.NORTH, "#0", 5, 0, 11, 1, 0, false, Direction.NORTH),
+            RedstoneWireBlockStateGenerator.face(Direction.EAST, "#0", 10, 0, 11, 8, 90, false, null),
+            RedstoneWireBlockStateGenerator.face(Direction.WEST, "#0", 5, 8, 6, 0, 90, false, null),
+            RedstoneWireBlockStateGenerator.face(Direction.UP, "#0", 5, 0, 11, 8),
+            RedstoneWireBlockStateGenerator.face(Direction.DOWN, "#0", 11, 0, 5, 8, 0, false, Direction.DOWN)
         ));
-        addBoxWithRotatedUvs(model, attachment, tangent, 6.0, 1.0, 0.0, 10.0, 2.0, 8.0, List.of(
-            face(Direction.NORTH, "#1", 6, 0, 10, 1, 0, true, Direction.NORTH),
-            face(Direction.EAST, "#1", 6, 0, 7, 8, 90, true, null),
-            face(Direction.WEST, "#1", 6, 0, 7, 8, 90, true, null),
-            face(Direction.UP, "#1", 6, 0, 10, 8, 0, true, null)
+        RedstoneWireBlockStateGenerator.addBoxWithRotatedUvs(model, attachment, tangent, 6.0, 1.0, 0.0, 10.0, 2.0, 8.0, List.of(
+            RedstoneWireBlockStateGenerator.face(Direction.NORTH, "#1", 6, 0, 10, 1, 0, true, Direction.NORTH),
+            RedstoneWireBlockStateGenerator.face(Direction.EAST, "#1", 6, 0, 7, 8, 90, true, null),
+            RedstoneWireBlockStateGenerator.face(Direction.WEST, "#1", 6, 0, 7, 8, 90, true, null),
+            RedstoneWireBlockStateGenerator.face(Direction.UP, "#1", 6, 0, 10, 8, 0, true, null)
         ));
         return model;
     }
@@ -147,23 +147,23 @@ public class RedstoneWireBlockStateGenerator {
         RegistrumBlockModelGenerator provider, Direction attachment, int index
     ) {
         Direction tangent = RedstoneWireBlock.getLocalDirection(attachment, index);
-        RegistrumLegacyBlockModelBuilder model = model(provider, attachment, "side_corner_" + index)
-            .texture(BASE, AnvilCraft.of("block/redstone_wire_line"))
-            .texture(OVERLAY, AnvilCraft.of("block/redstone_wire_line_overlay"))
+        RegistrumLegacyBlockModelBuilder model = RedstoneWireBlockStateGenerator.model(provider, attachment, "side_corner_" + index)
+            .texture(RedstoneWireBlockStateGenerator.BASE, AnvilCraft.of("block/redstone_wire_line"))
+            .texture(RedstoneWireBlockStateGenerator.OVERLAY, AnvilCraft.of("block/redstone_wire_line_overlay"))
             .texture(TextureSlot.PARTICLE, AnvilCraft.of("block/redstone_wire_line"));
         // 负局部 Z 部分越过当前方块边界，用来遮住两个不同附着面模型在实体边缘留下的缝隙。
-        addBoxWithRotatedUvs(model, attachment, tangent, 5.0, 0.0, -1.0, 11.0, 1.0, 8.0, List.of(
-            face(Direction.NORTH, "#0", 5, 0, 11, 1, 0, false, Direction.NORTH),
-            face(Direction.EAST, "#0", 10, 0, 11, 9, 90, false, null),
-            face(Direction.WEST, "#0", 5, 9, 6, 0, 90, false, null),
-            face(Direction.UP, "#0", 5, 0, 11, 9),
-            face(Direction.DOWN, "#0", 11, 0, 5, 9, 0, false, Direction.DOWN)
+        RedstoneWireBlockStateGenerator.addBoxWithRotatedUvs(model, attachment, tangent, 5.0, 0.0, -1.0, 11.0, 1.0, 8.0, List.of(
+            RedstoneWireBlockStateGenerator.face(Direction.NORTH, "#0", 5, 0, 11, 1, 0, false, Direction.NORTH),
+            RedstoneWireBlockStateGenerator.face(Direction.EAST, "#0", 10, 0, 11, 9, 90, false, null),
+            RedstoneWireBlockStateGenerator.face(Direction.WEST, "#0", 5, 9, 6, 0, 90, false, null),
+            RedstoneWireBlockStateGenerator.face(Direction.UP, "#0", 5, 0, 11, 9),
+            RedstoneWireBlockStateGenerator.face(Direction.DOWN, "#0", 11, 0, 5, 9, 0, false, Direction.DOWN)
         ));
-        addBoxWithRotatedUvs(model, attachment, tangent, 6.0, 0.0, -2.0, 10.0, 2.0, 8.0, List.of(
-            face(Direction.NORTH, "#1", 6, 0, 10, 1, 0, true, Direction.NORTH),
-            face(Direction.EAST, "#1", 6, 0, 7, 10, 90, true, null),
-            face(Direction.WEST, "#1", 6, 0, 7, 10, 90, true, null),
-            face(Direction.UP, "#1", 6, 0, 10, 10, 0, true, null)
+        RedstoneWireBlockStateGenerator.addBoxWithRotatedUvs(model, attachment, tangent, 6.0, 0.0, -2.0, 10.0, 2.0, 8.0, List.of(
+            RedstoneWireBlockStateGenerator.face(Direction.NORTH, "#1", 6, 0, 10, 1, 0, true, Direction.NORTH),
+            RedstoneWireBlockStateGenerator.face(Direction.EAST, "#1", 6, 0, 7, 10, 90, true, null),
+            RedstoneWireBlockStateGenerator.face(Direction.WEST, "#1", 6, 0, 7, 10, 90, true, null),
+            RedstoneWireBlockStateGenerator.face(Direction.UP, "#1", 6, 0, 10, 10, 0, true, null)
         ));
         return model;
     }
@@ -173,23 +173,23 @@ public class RedstoneWireBlockStateGenerator {
         RegistrumBlockModelGenerator provider, Direction attachment, int index
     ) {
         Direction tangent = RedstoneWireBlock.getLocalDirection(attachment, index);
-        RegistrumLegacyBlockModelBuilder model = model(provider, attachment, "side_corner_sp_" + index)
-            .texture(BASE, AnvilCraft.of("block/redstone_wire_line"))
-            .texture(OVERLAY, AnvilCraft.of("block/redstone_wire_line_overlay"))
+        RegistrumLegacyBlockModelBuilder model = RedstoneWireBlockStateGenerator.model(provider, attachment, "side_corner_sp_" + index)
+            .texture(RedstoneWireBlockStateGenerator.BASE, AnvilCraft.of("block/redstone_wire_line"))
+            .texture(RedstoneWireBlockStateGenerator.OVERLAY, AnvilCraft.of("block/redstone_wire_line_overlay"))
             .texture(TextureSlot.PARTICLE, AnvilCraft.of("block/redstone_wire_line"));
-        addBoxWithRotatedUvs(model, attachment, tangent, 5.0, 0.0, 0.0, 11.0, 1.0, 8.0, List.of(
-            face(Direction.NORTH, "#0", 5, 0, 11, 1, 0, false, Direction.NORTH),
-            face(Direction.EAST, "#0", 10, 0, 11, 8, 90, false, null),
-            face(Direction.WEST, "#0", 5, 8, 6, 0, 90, false, null),
-            face(Direction.UP, "#0", 5, 0, 11, 8),
-            face(Direction.DOWN, "#0", 11, 0, 5, 8, 0, false, Direction.DOWN)
+        RedstoneWireBlockStateGenerator.addBoxWithRotatedUvs(model, attachment, tangent, 5.0, 0.0, 0.0, 11.0, 1.0, 8.0, List.of(
+            RedstoneWireBlockStateGenerator.face(Direction.NORTH, "#0", 5, 0, 11, 1, 0, false, Direction.NORTH),
+            RedstoneWireBlockStateGenerator.face(Direction.EAST, "#0", 10, 0, 11, 8, 90, false, null),
+            RedstoneWireBlockStateGenerator.face(Direction.WEST, "#0", 5, 8, 6, 0, 90, false, null),
+            RedstoneWireBlockStateGenerator.face(Direction.UP, "#0", 5, 0, 11, 8),
+            RedstoneWireBlockStateGenerator.face(Direction.DOWN, "#0", 11, 0, 5, 8, 0, false, Direction.DOWN)
         ));
-        addBoxWithRotatedUvs(model, attachment, tangent, 6.0, 0.01, -1.0, 10.0, 2.0, 8.0, List.of(
-            face(Direction.NORTH, "#1", 6, 0, 10, 1, 0, true, Direction.NORTH),
-            face(Direction.EAST, "#1", 6, 0, 7, 9, 90, true, null),
-            face(Direction.WEST, "#1", 6, 0, 7, 9, 90, true, null),
-            face(Direction.UP, "#1", 6, 0, 10, 9, 0, true, null),
-            face(Direction.DOWN, "#1", 6, 0, 10, 9, 0, true, null)
+        RedstoneWireBlockStateGenerator.addBoxWithRotatedUvs(model, attachment, tangent, 6.0, 0.01, -1.0, 10.0, 2.0, 8.0, List.of(
+            RedstoneWireBlockStateGenerator.face(Direction.NORTH, "#1", 6, 0, 10, 1, 0, true, Direction.NORTH),
+            RedstoneWireBlockStateGenerator.face(Direction.EAST, "#1", 6, 0, 7, 9, 90, true, null),
+            RedstoneWireBlockStateGenerator.face(Direction.WEST, "#1", 6, 0, 7, 9, 90, true, null),
+            RedstoneWireBlockStateGenerator.face(Direction.UP, "#1", 6, 0, 10, 9, 0, true, null),
+            RedstoneWireBlockStateGenerator.face(Direction.DOWN, "#1", 6, 0, 10, 9, 0, true, null)
         ));
         return model;
     }
@@ -199,25 +199,25 @@ public class RedstoneWireBlockStateGenerator {
         RegistrumBlockModelGenerator provider, Direction attachment, int index
     ) {
         Direction tangent = RedstoneWireBlock.getLocalDirection(attachment, index);
-        RegistrumLegacyBlockModelBuilder model = model(provider, attachment, "up_" + index)
-            .texture(BASE, AnvilCraft.of("block/redstone_wire_line"))
-            .texture(OVERLAY, AnvilCraft.of("block/redstone_wire_line_overlay"))
+        RegistrumLegacyBlockModelBuilder model = RedstoneWireBlockStateGenerator.model(provider, attachment, "up_" + index)
+            .texture(RedstoneWireBlockStateGenerator.BASE, AnvilCraft.of("block/redstone_wire_line"))
+            .texture(RedstoneWireBlockStateGenerator.OVERLAY, AnvilCraft.of("block/redstone_wire_line_overlay"))
             .texture(TextureSlot.PARTICLE, AnvilCraft.of("block/redstone_wire_line"));
         // 爬升段跨满 16 像素高度，并与基础 side 模型叠加，形成从当前表面到高一格表面的连续导线。
-        addBox(model, attachment, tangent, 5.0, 1.0, -0.1, 11.0, 17.0, 1.0, List.of(
-            face(Direction.NORTH, "#0", 11, 0, 5, 16, 180, false, Direction.NORTH),
-            face(Direction.EAST, "#0", 10, 0, 11, 16),
-            face(Direction.SOUTH, "#0", 5, 0, 11, 16),
-            face(Direction.WEST, "#0", 5, 16, 6, 0, 180, false, null),
-            face(Direction.UP, "#0", 5, 0, 11, 1, 180, false, Direction.UP),
-            face(Direction.DOWN, "#0", 5, 15, 11, 16)
+        RedstoneWireBlockStateGenerator.addBox(model, attachment, tangent, 5.0, 1.0, -0.1, 11.0, 17.0, 1.0, List.of(
+            RedstoneWireBlockStateGenerator.face(Direction.NORTH, "#0", 11, 0, 5, 16, 180, false, Direction.NORTH),
+            RedstoneWireBlockStateGenerator.face(Direction.EAST, "#0", 10, 0, 11, 16),
+            RedstoneWireBlockStateGenerator.face(Direction.SOUTH, "#0", 5, 0, 11, 16),
+            RedstoneWireBlockStateGenerator.face(Direction.WEST, "#0", 5, 16, 6, 0, 180, false, null),
+            RedstoneWireBlockStateGenerator.face(Direction.UP, "#0", 5, 0, 11, 1, 180, false, Direction.UP),
+            RedstoneWireBlockStateGenerator.face(Direction.DOWN, "#0", 5, 15, 11, 16)
         ), attachment.getAxis().isHorizontal());
-        addBox(model, attachment, tangent, 6.0, 2.0, 0.0, 10.0, 18.0, 2.0, List.of(
-            face(Direction.EAST, "#1", 6, 0, 8, 16, 0, true, null),
-            face(Direction.SOUTH, "#1", 6, 0, 10, 16, 0, true, null),
-            face(Direction.WEST, "#1", 6, 0, 8, 16, 180, true, null),
-            face(Direction.UP, "#1", 6, 0, 10, 1, 180, true, Direction.UP),
-            face(Direction.DOWN, "#1", 6, 15, 10, 16)
+        RedstoneWireBlockStateGenerator.addBox(model, attachment, tangent, 6.0, 2.0, 0.0, 10.0, 18.0, 2.0, List.of(
+            RedstoneWireBlockStateGenerator.face(Direction.EAST, "#1", 6, 0, 8, 16, 0, true, null),
+            RedstoneWireBlockStateGenerator.face(Direction.SOUTH, "#1", 6, 0, 10, 16, 0, true, null),
+            RedstoneWireBlockStateGenerator.face(Direction.WEST, "#1", 6, 0, 8, 16, 180, true, null),
+            RedstoneWireBlockStateGenerator.face(Direction.UP, "#1", 6, 0, 10, 1, 180, true, Direction.UP),
+            RedstoneWireBlockStateGenerator.face(Direction.DOWN, "#1", 6, 15, 10, 16)
         ), attachment.getAxis().isHorizontal());
         return model;
     }
@@ -250,7 +250,7 @@ public class RedstoneWireBlockStateGenerator {
         double maxZ,
         List<FaceSpec> faces
     ) {
-        addBox(model, attachment, tangent, minX, minY, minZ, maxX, maxY, maxZ, faces, false);
+        RedstoneWireBlockStateGenerator.addBox(model, attachment, tangent, minX, minY, minZ, maxX, maxY, maxZ, faces, false);
     }
 
     /** 将局部坐标盒及其各面规格转换为实际世界朝向后写入模型。 */
@@ -277,10 +277,10 @@ public class RedstoneWireBlockStateGenerator {
                     attachment, tangent, spec.direction()
                 );
                 element.face(worldFace, face -> {
-                    face.texture(textureSlot(spec.texture()))
+                    face.texture(RedstoneWireBlockStateGenerator.textureSlot(spec.texture()))
                         .uvs(spec.u1(), spec.v1(), spec.u2(), spec.v2())
-                        .rotation(rotation(rotateUvs || spec.transformUv()
-                            ? transformedFaceRotation(
+                        .rotation(RedstoneWireBlockStateGenerator.rotation(rotateUvs || spec.transformUv()
+                            ? RedstoneWireBlockStateGenerator.transformedFaceRotation(
                                 attachment, tangent, spec.direction(), spec.rotation()
                             )
                             : spec.rotation()));
@@ -310,7 +310,7 @@ public class RedstoneWireBlockStateGenerator {
         double maxZ,
         List<FaceSpec> faces
     ) {
-        addBox(model, attachment, tangent, minX, minY, minZ, maxX, maxY, maxZ, faces, true);
+        RedstoneWireBlockStateGenerator.addBox(model, attachment, tangent, minX, minY, minZ, maxX, maxY, maxZ, faces, true);
     }
 
     /** 计算一个局部模型面变换到世界方向后，为保持纹理顶点朝向所需的 UV 旋转。 */
@@ -319,8 +319,8 @@ public class RedstoneWireBlockStateGenerator {
     ) {
         Direction worldFace = RedstoneWireBlock.transformDirection(attachment, tangent, localFace);
         // 用目标面的第一个标准顶点作为锚点，查找局部面哪个顶点在基变换后落到该位置。
-        int[] targetVertex = faceVertices(worldFace)[0];
-        int[][] localVertices = faceVertices(localFace);
+        int[] targetVertex = RedstoneWireBlockStateGenerator.faceVertices(worldFace)[0];
+        int[][] localVertices = RedstoneWireBlockStateGenerator.faceVertices(localFace);
         Direction worldX = RedstoneWireBlock.transformDirection(attachment, tangent, Direction.EAST);
         Direction worldY = RedstoneWireBlock.transformDirection(attachment, tangent, Direction.UP);
         Direction worldZ = RedstoneWireBlock.transformDirection(attachment, tangent, Direction.SOUTH);
@@ -361,7 +361,7 @@ public class RedstoneWireBlockStateGenerator {
     private static FaceSpec face(
         Direction direction, String texture, float u1, float v1, float u2, float v2
     ) {
-        return face(direction, texture, u1, v1, u2, v2, 0, false, null);
+        return RedstoneWireBlockStateGenerator.face(direction, texture, u1, v1, u2, v2, 0, false, null);
     }
 
     /** 创建具有完整渲染参数的模型面规格。 */
@@ -383,7 +383,7 @@ public class RedstoneWireBlockStateGenerator {
     private static FaceSpec transformedUvFace(
         boolean transformUv, Direction direction, String texture, float u1, float v1, float u2, float v2
     ) {
-        return transformedUvFace(transformUv, direction, texture, u1, v1, u2, v2, 0, false, null);
+        return RedstoneWireBlockStateGenerator.transformedUvFace(transformUv, direction, texture, u1, v1, u2, v2, 0, false, null);
     }
 
     /** 创建一个可按条件启用坐标变换后 UV 修正的完整模型面规格。 */
@@ -413,8 +413,8 @@ public class RedstoneWireBlockStateGenerator {
 
     private static TextureSlot textureSlot(String texture) {
         return switch (texture) {
-            case "#0" -> BASE;
-            case "#1" -> OVERLAY;
+            case "#0" -> RedstoneWireBlockStateGenerator.BASE;
+            case "#1" -> RedstoneWireBlockStateGenerator.OVERLAY;
             default -> throw new IllegalArgumentException("Unknown texture slot: " + texture);
         };
     }

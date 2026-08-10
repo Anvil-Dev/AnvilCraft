@@ -13,12 +13,12 @@ public class ModParticleDescriptionProvider extends ParticleDescriptionProvider 
 
     @Override
     protected void addDescriptions() {
-        spriteSet(ModParticles.PLASMA_JETS.get(), Identifier.withDefaultNamespace("generic"), 8, true);
-        spriteSet(ModParticles.ANVILON_ENERGY.get(), AnvilCraft.of("anvilon_energy"));
-        spriteSet(ModParticles.ANVILON_MASS.get(), AnvilCraft.of("anvilon_mass"));
-        spriteSet(ModParticles.ANVILON_SPACE.get(), AnvilCraft.of("anvilon_space"));
-        spriteSet(ModParticles.ANVILON_TIME.get(), AnvilCraft.of("anvilon_time"));
-        spriteSet(ModParticles.IONOCRAFT_BACKPACK_EXHAUST.get(), Identifier.withDefaultNamespace("generic"), 8, true);
-        spriteSet(ModParticles.OVERSEER_TRAIL.get(), Identifier.withDefaultNamespace("generic"), 8, true);
+        this.spriteSet(ModParticles.PLASMA_JETS.get(), Identifier.withDefaultNamespace("generic"), 8, true);
+        this.spriteSet(ModParticles.ANVILON_ENERGY.get(), AnvilCraft.of("anvilon_energy"));
+        this.spriteSet(ModParticles.ANVILON_MASS.get(), AnvilCraft.of("anvilon_mass"));
+        this.spriteSet(ModParticles.ANVILON_SPACE.get(), AnvilCraft.of("anvilon_space"));
+        this.spriteSet(ModParticles.ANVILON_TIME.get(), AnvilCraft.of("anvilon_time"));
+        this.spriteSet(ModParticles.IONOCRAFT_BACKPACK_EXHAUST.get(), Identifier.withDefaultNamespace("generic"), 8, true);
+        this.spriteSet(ModParticles.OVERSEER_TRAIL.get(), Identifier.withDefaultNamespace("generic"), 8, true);
     }
 }

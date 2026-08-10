@@ -29,7 +29,7 @@ public class MDSuperHeatingRecipeComponent extends MDBaseAnvilRecipeComponent {
         this.ingredients = recipe.getInputItems();
         this.resultItems = recipe.getResultItems();
         this.inputBlockStates = List.of(
-            getInputCauldron(recipe),
+            MDSuperHeatingRecipeComponent.getInputCauldron(recipe),
             ModBlocks.HEATER.getDefaultState().setValue(HeaterBlock.OVERLOAD, false)
         );
         this.recipe = recipe;
@@ -38,7 +38,7 @@ public class MDSuperHeatingRecipeComponent extends MDBaseAnvilRecipeComponent {
     @Override
     protected BlockState getOutputBlockState() {
         if (this.resultItems.isEmpty()) {
-            return getResultCauldron(this.recipe);
+            return MDSuperHeatingRecipeComponent.getResultCauldron(this.recipe);
         }
         return super.getOutputBlockState();
     }

@@ -22,6 +22,6 @@ public enum ItemDetectorProvider implements IServerDataProvider<BlockAccessor> {
 
     @Override
     public Identifier getUid() {
-        return UID;
+        return ItemDetectorProvider.UID;
     }
 }

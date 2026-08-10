@@ -39,9 +39,9 @@ public class EmberSmithingScreen extends AdjacentSmithingScreen<EmberSmithingMen
     private static final Component ERROR_TOOLTIP = Component.translatable("container.upgrade.error_tooltip");
 
     public static final List<Identifier> EMPTY_SLOT_SMITHING_TEMPLATES = List.of(
-        EMPTY_SLOT_TWO_TO_ONE_SMITHING_TEMPLATE,
-        EMPTY_SLOT_FOUR_TO_ONE_SMITHING_TEMPLATE,
-        EMPTY_SLOT_EIGHT_TO_ONE_SMITHING_TEMPLATE
+        EmberSmithingScreen.EMPTY_SLOT_TWO_TO_ONE_SMITHING_TEMPLATE,
+        EmberSmithingScreen.EMPTY_SLOT_FOUR_TO_ONE_SMITHING_TEMPLATE,
+        EmberSmithingScreen.EMPTY_SLOT_EIGHT_TO_ONE_SMITHING_TEMPLATE
     );
 
     private final CyclingSlotBackground templateIcon = new CyclingSlotBackground(0);
@@ -63,7 +63,7 @@ public class EmberSmithingScreen extends AdjacentSmithingScreen<EmberSmithingMen
     /// @param inventory 背包
     /// @param title     标题
     public EmberSmithingScreen(EmberSmithingMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title, BACKGROUND);
+        super(menu, inventory, title, EmberSmithingScreen.BACKGROUND);
     }
 
     @Override
@@ -93,7 +93,7 @@ public class EmberSmithingScreen extends AdjacentSmithingScreen<EmberSmithingMen
                 this.inputIcons.forEach(icon -> icon.tick(List.of()));
             }
         } else {
-            this.templateIcon.tick(EMPTY_SLOT_SMITHING_TEMPLATES);
+            this.templateIcon.tick(EmberSmithingScreen.EMPTY_SLOT_SMITHING_TEMPLATES);
             this.materialIcon.tick(List.of());
             this.inputIcons.forEach(icon -> icon.tick(List.of()));
         }
@@ -159,7 +159,7 @@ public class EmberSmithingScreen extends AdjacentSmithingScreen<EmberSmithingMen
     private void extractOnboardingTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         Optional<Component> optional = Optional.empty();
         if (!this.menu.canCreateResult() && this.isHovering(123, 48, 16, 16, mouseX, mouseY)) {
-            optional = Optional.of(ERROR_TOOLTIP);
+            optional = Optional.of(EmberSmithingScreen.ERROR_TOOLTIP);
         }
         if (this.hoveredSlot != null) {
             ItemStack template = this.menu.getSlot(0).getItem();
@@ -167,7 +167,7 @@ public class EmberSmithingScreen extends AdjacentSmithingScreen<EmberSmithingMen
             ItemStack hovered = this.hoveredSlot.getItem();
             if (template.isEmpty()) {
                 if (this.hoveredSlot.index == 0) {
-                    optional = Optional.of(MISSING_TEMPLATE_TOOLTIP);
+                    optional = Optional.of(EmberSmithingScreen.MISSING_TEMPLATE_TOOLTIP);
                 }
             } else {
                 if (template.getItem() instanceof BaseMultipleToOneTemplateItem templateItem && hovered.isEmpty()) {

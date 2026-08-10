@@ -16,6 +16,7 @@ import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiType;
 import net.minecraft.world.entity.npc.villager.Villager;
 
+import java.util.Comparator;
 import java.util.Optional;
 
 public class TradeAtStationBehavior extends Behavior<Villager> {
@@ -35,14 +36,15 @@ public class TradeAtStationBehavior extends Behavior<Villager> {
             MemoryModuleType.LAST_WORKED_AT_POI, MemoryStatus.VALUE_PRESENT,
             MemoryModuleType.WALK_TARGET, MemoryStatus.REGISTERED,
             MemoryModuleType.LOOK_TARGET, MemoryStatus.REGISTERED
-        ), MAX_TICKS);
+        ), TradeAtStationBehavior.MAX_TICKS
+        );
     }
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, Villager villager) {
         if (villager.getOffers().isEmpty()) return false;
         if (villager.isSleeping() || villager.isBaby()) return false;
-        BlockPos found = findMatchingStation(level, villager);
+        BlockPos found = TradeAtStationBehavior.findMatchingStation(level, villager);
         if (found == null) return false;
         this.stationPos = found;
         return true;
@@ -54,14 +56,14 @@ public class TradeAtStationBehavior extends Behavior<Villager> {
         this.failedAttempts = 0;
         Brain<Villager> brain = villager.getBrain();
         brain.setMemory(MemoryModuleType.LOOK_TARGET, new BlockPosTracker(this.stationPos));
-        brain.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(this.stationPos, SPEED_MODIFIER, 1));
+        brain.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(this.stationPos, TradeAtStationBehavior.SPEED_MODIFIER, 1));
     }
 
     @Override
     protected boolean canStillUse(ServerLevel level, Villager villager, long gameTime) {
         if (this.stationPos == null) return false;
         if (this.failedAttempts >= 3) return false;
-        TradingStationBlockEntity be = getStation(level, this.stationPos);
+        TradingStationBlockEntity be = TradeAtStationBehavior.getStation(level, this.stationPos);
         if (be == null) return false;
         return be.canTradeWithVillager(villager);
     }
@@ -70,10 +72,10 @@ public class TradeAtStationBehavior extends Behavior<Villager> {
     protected void tick(ServerLevel level, Villager villager, long gameTime) {
         if (this.stationPos == null) return;
         double distSqr = villager.blockPosition().distSqr(this.stationPos);
-        if (distSqr > INTERACT_DISTANCE_SQR) {
+        if (distSqr > TradeAtStationBehavior.INTERACT_DISTANCE_SQR) {
             Brain<Villager> brain = villager.getBrain();
             if (brain.getMemory(MemoryModuleType.WALK_TARGET).isEmpty()) {
-                brain.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(this.stationPos, SPEED_MODIFIER, 1));
+                brain.setMemory(MemoryModuleType.WALK_TARGET, new WalkTarget(this.stationPos, TradeAtStationBehavior.SPEED_MODIFIER, 1));
             }
             return;
         }
@@ -83,18 +85,18 @@ public class TradeAtStationBehavior extends Behavior<Villager> {
             this.tradeCooldown--;
             return;
         }
-        TradingStationBlockEntity be = getStation(level, this.stationPos);
+        TradingStationBlockEntity be = TradeAtStationBehavior.getStation(level, this.stationPos);
         if (be == null) {
             this.failedAttempts = Integer.MAX_VALUE;
             return;
         }
         if (be.tryTradingWithVillager(villager)) {
             villager.playCelebrateSound();
-            this.tradeCooldown = TRADE_INTERVAL_TICKS;
+            this.tradeCooldown = TradeAtStationBehavior.TRADE_INTERVAL_TICKS;
             this.failedAttempts = 0;
         } else {
             this.failedAttempts++;
-            this.tradeCooldown = TRADE_INTERVAL_TICKS;
+            this.tradeCooldown = TradeAtStationBehavior.TRADE_INTERVAL_TICKS;
         }
     }
 
@@ -114,14 +116,14 @@ public class TradeAtStationBehavior extends Behavior<Villager> {
         Optional<BlockPos> match = poi.findAll(
                 h -> h.value() == target,
                 pos -> {
-                    TradingStationBlockEntity be = getStation(level, pos);
+                    TradingStationBlockEntity be = TradeAtStationBehavior.getStation(level, pos);
                     return be != null && be.canTradeWithVillager(villager);
                 },
                 villager.blockPosition(),
-                SEARCH_RADIUS,
+                TradeAtStationBehavior.SEARCH_RADIUS,
                 PoiManager.Occupancy.ANY
             )
-            .min(java.util.Comparator.comparingDouble(p -> p.distSqr(villager.blockPosition())));
+            .min(Comparator.comparingDouble(p -> p.distSqr(villager.blockPosition())));
         return match.orElse(null);
     }
 }

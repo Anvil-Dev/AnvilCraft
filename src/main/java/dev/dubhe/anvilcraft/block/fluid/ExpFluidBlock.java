@@ -29,7 +29,7 @@ public class ExpFluidBlock extends LiquidBlock {
         if (level.isClientSide()) return;
         if (!level.getFluidState(pos).isSource()) return;
         if (entity instanceof Player player) {
-            player.giveExperiencePoints(XP_POINTS);
+            player.giveExperiencePoints(ExpFluidBlock.XP_POINTS);
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
         }
     }

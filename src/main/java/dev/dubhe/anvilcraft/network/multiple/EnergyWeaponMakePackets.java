@@ -21,7 +21,7 @@ public class EnergyWeaponMakePackets {
 
         @Override
         public Type<Make> type() {
-            return TYPE;
+            return Make.TYPE;
         }
 
         @Override
@@ -42,7 +42,7 @@ public class EnergyWeaponMakePackets {
 
         @Override
         public Type<Select> type() {
-            return TYPE;
+            return Select.TYPE;
         }
 
         @Override

@@ -27,7 +27,7 @@ public record StructureScannerRangeSyncPacket(int rangeX, int rangeY, int rangeZ
 
     @Override
     public Type<StructureScannerRangeSyncPacket> type() {
-        return TYPE;
+        return StructureScannerRangeSyncPacket.TYPE;
     }
 
     @Override
@@ -35,13 +35,10 @@ public record StructureScannerRangeSyncPacket(int rangeX, int rangeY, int rangeZ
         if (Minecraft.getInstance().screen == null) {
             return;
         }
-        
+
         if (player.containerMenu instanceof StructureScannerMenu menu) {
             StructureScannerBlockEntity blockEntity = menu.getBlockEntity();
-            if (blockEntity == null) {
-                return;
-            }
-            
+
             // 更新客户端的范围值
             blockEntity.getRangeX().fromIndex(this.rangeX);
             blockEntity.getRangeY().fromIndex(this.rangeY);

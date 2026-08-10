@@ -152,7 +152,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
 
     public Component getFilterTitle(int index, int variant) {
         int actualIndex = index;
-        if (variant == FILTER_FILTERED) {
+        if (variant == TeslaTowerScreen.FILTER_FILTERED) {
             actualIndex += this.leftScrollOff;
             if (this.filteredFilters.isEmpty() || actualIndex >= this.filteredFilters.size()) return Component.empty();
             Pair<TeslaFilter, String> filter = this.filteredFilters.get(actualIndex);
@@ -167,7 +167,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
 
     public @Nullable String getFilterToolTipAt(int index, int variant) {
         int actualIndex = index;
-        if (variant == FILTER_FILTERED) {
+        if (variant == TeslaTowerScreen.FILTER_FILTERED) {
             actualIndex += this.leftScrollOff;
             if (this.filteredFilters.isEmpty() || actualIndex >= this.filteredFilters.size()) return null;
             Pair<TeslaFilter, String> filter = this.filteredFilters.get(actualIndex);
@@ -191,13 +191,13 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         super.init();
         this.titleLabelX = (this.getImageWidth() - this.font.width(this.title)) / 2;
         this.titleLabelY = Constant.SCREEN_TITLE_Y;
-        int buttonTop = topPos + 35;
+        int buttonTop = this.topPos + 35;
         for (int l = 0; l < 8; ++l) {
             TeslaTowerButton button = new TeslaTowerButton(
-                leftPos + START_LEFT_X,
+                this.leftPos + TeslaTowerScreen.START_LEFT_X,
                 buttonTop,
                 l,
-                FILTER_FILTERED,
+                TeslaTowerScreen.FILTER_FILTERED,
                 b -> {
                     if (b instanceof TeslaTowerButton silencerButton) {
                         this.onAllFilterButtonClick(silencerButton.getIndex());
@@ -210,13 +210,13 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
             buttonTop += 15;
         }
 
-        buttonTop = topPos + 35;
+        buttonTop = this.topPos + 35;
         for (int l = 0; l < 8; ++l) {
             TeslaTowerButton button = new TeslaTowerButton(
-                leftPos + START_RIGHT_X,
+                this.leftPos + TeslaTowerScreen.START_RIGHT_X,
                 buttonTop,
                 l,
-                SOUND_MUTED,
+                TeslaTowerScreen.SOUND_MUTED,
                 b -> {
                     if (b instanceof TeslaTowerButton silencerButton) {
                         this.onWhiteListFilterButtonClick(silencerButton.getIndex());
@@ -230,8 +230,8 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
 
         this.editBox = new EditBox(
             this.minecraft.font,
-            leftPos + 78,
-            topPos + 19,
+            this.leftPos + 78,
+            this.topPos + 19,
             100,
             12,
             Component.translatable("screen.anvilcraft.active_silencer.search"));
@@ -257,31 +257,31 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     }
 
     private boolean mouseInLeft(double mouseX, double mouseY, int leftPos, int topPos) {
-        return mouseX >= leftPos + START_LEFT_X
-            && mouseX <= leftPos + SCROLL_BAR_START_LEFT_X + SCROLL_BAR_WIDTH
-            && mouseY >= topPos + SCROLL_BAR_TOP_POS_Y
-            && mouseY <= topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT;
+        return mouseX >= leftPos + TeslaTowerScreen.START_LEFT_X
+            && mouseX <= leftPos + TeslaTowerScreen.SCROLL_BAR_START_LEFT_X + TeslaTowerScreen.SCROLL_BAR_WIDTH
+            && mouseY >= topPos + TeslaTowerScreen.SCROLL_BAR_TOP_POS_Y
+            && mouseY <= topPos + TeslaTowerScreen.SCROLL_BAR_TOP_POS_Y + TeslaTowerScreen.SCROLL_BAR_HEIGHT;
     }
 
     private boolean mouseInRight(double mouseX, double mouseY, int leftPos, int topPos) {
-        return mouseX >= leftPos + START_RIGHT_X
-            && mouseX <= leftPos + SCROLL_BAR_START_RIGHT_X + SCROLL_BAR_WIDTH
-            && mouseY >= topPos + SCROLL_BAR_TOP_POS_Y
-            && mouseY <= topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT;
+        return mouseX >= leftPos + TeslaTowerScreen.START_RIGHT_X
+            && mouseX <= leftPos + TeslaTowerScreen.SCROLL_BAR_START_RIGHT_X + TeslaTowerScreen.SCROLL_BAR_WIDTH
+            && mouseY >= topPos + TeslaTowerScreen.SCROLL_BAR_TOP_POS_Y
+            && mouseY <= topPos + TeslaTowerScreen.SCROLL_BAR_TOP_POS_Y + TeslaTowerScreen.SCROLL_BAR_HEIGHT;
     }
 
     private boolean mouseInLeftSlider(double mouseX, double mouseY, int leftPos, int topPos) {
-        return mouseX >= leftPos + SCROLL_BAR_START_LEFT_X
-            && mouseX <= leftPos + SCROLL_BAR_START_LEFT_X + SCROLL_BAR_WIDTH
-            && mouseY >= topPos + SCROLL_BAR_TOP_POS_Y
-            && mouseY <= topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT;
+        return mouseX >= leftPos + TeslaTowerScreen.SCROLL_BAR_START_LEFT_X
+            && mouseX <= leftPos + TeslaTowerScreen.SCROLL_BAR_START_LEFT_X + TeslaTowerScreen.SCROLL_BAR_WIDTH
+            && mouseY >= topPos + TeslaTowerScreen.SCROLL_BAR_TOP_POS_Y
+            && mouseY <= topPos + TeslaTowerScreen.SCROLL_BAR_TOP_POS_Y + TeslaTowerScreen.SCROLL_BAR_HEIGHT;
     }
 
     private boolean mouseInRightSlider(double mouseX, double mouseY, int leftPos, int topPos) {
-        return mouseX >= leftPos + SCROLL_BAR_START_RIGHT_X
-            && mouseX <= leftPos + SCROLL_BAR_START_RIGHT_X + SCROLL_BAR_WIDTH
-            && mouseY >= topPos + SCROLL_BAR_TOP_POS_Y
-            && mouseY <= topPos + SCROLL_BAR_TOP_POS_Y + SCROLL_BAR_HEIGHT;
+        return mouseX >= leftPos + TeslaTowerScreen.SCROLL_BAR_START_RIGHT_X
+            && mouseX <= leftPos + TeslaTowerScreen.SCROLL_BAR_START_RIGHT_X + TeslaTowerScreen.SCROLL_BAR_WIDTH
+            && mouseY >= topPos + TeslaTowerScreen.SCROLL_BAR_TOP_POS_Y
+            && mouseY <= topPos + TeslaTowerScreen.SCROLL_BAR_TOP_POS_Y + TeslaTowerScreen.SCROLL_BAR_HEIGHT;
     }
 
     @Override
@@ -311,8 +311,8 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         if (this.mouseInLeftSlider(event.x(), event.y(), leftPos, topPos)) {
             int i = this.filteredFilters.size();
             if (this.isDraggingLeft) {
-                int j = this.topPos + SCROLL_BAR_TOP_POS_Y;
-                int k = j + SCROLL_BAR_HEIGHT;
+                int j = this.topPos + TeslaTowerScreen.SCROLL_BAR_TOP_POS_Y;
+                int k = j + TeslaTowerScreen.SCROLL_BAR_HEIGHT;
                 int dragMax = i - 7;
                 float scroll = (float) ((event.y() - j - 13.5F) / ((k - j) - 27.0F));
                 scroll = scroll * dragMax + 0.5F;
@@ -325,8 +325,8 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
             if (this.mouseInRightSlider(event.x(), event.y(), leftPos, topPos)) {
                 int i = this.whiteFilters.size();
                 if (this.isDraggingRight) {
-                    int j = this.topPos + SCROLL_BAR_TOP_POS_Y;
-                    int k = j + SCROLL_BAR_HEIGHT;
+                    int j = this.topPos + TeslaTowerScreen.SCROLL_BAR_TOP_POS_Y;
+                    int k = j + TeslaTowerScreen.SCROLL_BAR_HEIGHT;
                     int dragMax = i - 7;
                     float scroll = (float) ((event.y() - j - 13.5F) / ((k - j) - 27.0F));
                     scroll = scroll * dragMax + 0.5F;
@@ -365,8 +365,8 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
     private void extractScroller(GuiGraphicsExtractor graphics, int posX, int posY, int totalCount, int scrollOff) {
         int i = totalCount + 1 - 8;
         if (i > 1) {
-            int maxY = posY + SCROLL_BAR_HEIGHT - SCROLLER_HEIGHT;
-            int scrollY = (int) (posY + (scrollOff / (float) totalCount) * SCROLL_BAR_HEIGHT);
+            int maxY = posY + TeslaTowerScreen.SCROLL_BAR_HEIGHT - TeslaTowerScreen.SCROLLER_HEIGHT;
+            int scrollY = (int) (posY + (scrollOff / (float) totalCount) * TeslaTowerScreen.SCROLL_BAR_HEIGHT);
             scrollY = Mth.clamp(scrollY, posY, maxY);
 
             graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SMALL_MACHINE_SLIDER, posX, scrollY, 0, 0, 5, 9, 10, 9);
@@ -401,7 +401,7 @@ public class TeslaTowerScreen extends AbstractContainerScreen<TeslaTowerMenu> {
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            TeslaTowerScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,

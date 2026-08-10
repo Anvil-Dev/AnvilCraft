@@ -24,7 +24,7 @@ public record MachineEnableFilterPacket(boolean filterEnabled) implements ISensi
 
     @Override
     public Type<MachineEnableFilterPacket> type() {
-        return TYPE;
+        return MachineEnableFilterPacket.TYPE;
     }
 
     @Override

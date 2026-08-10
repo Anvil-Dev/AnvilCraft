@@ -24,7 +24,7 @@ public record UpdateDisplayItemPacket(ItemStack displayItem, BlockPos pos) imple
 
     @Override
     public Type<UpdateDisplayItemPacket> type() {
-        return TYPE;
+        return UpdateDisplayItemPacket.TYPE;
     }
 
     @Override

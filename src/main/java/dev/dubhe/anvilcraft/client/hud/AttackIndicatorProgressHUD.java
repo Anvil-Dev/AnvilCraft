@@ -21,20 +21,23 @@ public final class AttackIndicatorProgressHUD {
         float clamped = Math.clamp(progress, 0.0F, 1.0F);
         int x = graphics.guiWidth() / 2 - 8;
         int y = graphics.guiHeight() / 2 + 9;
-        int progressWidth = Math.min(WIDTH, (int) (clamped * 17.0F));
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, BACKGROUND, x, y, WIDTH, HEIGHT);
+        int progressWidth = Math.min(AttackIndicatorProgressHUD.WIDTH, (int) (clamped * 17.0F));
+        graphics.blitSprite(
+            RenderPipelines.GUI_TEXTURED, AttackIndicatorProgressHUD.BACKGROUND, x, y, AttackIndicatorProgressHUD.WIDTH,
+            AttackIndicatorProgressHUD.HEIGHT
+        );
         if (progressWidth > 0) {
             graphics.blitSprite(
                 RenderPipelines.GUI_TEXTURED,
-                PROGRESS,
-                WIDTH,
-                HEIGHT,
+                AttackIndicatorProgressHUD.PROGRESS,
+                AttackIndicatorProgressHUD.WIDTH,
+                AttackIndicatorProgressHUD.HEIGHT,
                 0,
                 0,
                 x,
                 y,
                 progressWidth,
-                HEIGHT
+                AttackIndicatorProgressHUD.HEIGHT
             );
         }
     }

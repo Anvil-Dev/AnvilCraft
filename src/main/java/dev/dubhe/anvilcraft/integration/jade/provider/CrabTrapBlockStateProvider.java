@@ -25,6 +25,6 @@ public enum CrabTrapBlockStateProvider implements IServerDataProvider<BlockAcces
 
     @Override
     public Identifier getUid() {
-        return UID;
+        return CrabTrapBlockStateProvider.UID;
     }
 }

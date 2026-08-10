@@ -33,12 +33,12 @@ public class SolidLiquidRecipeLoader {
         SolidLiquidRecipeLoader.solidLiquid(provider, ModItemTags.FLOUR, ModItems.DOUGH);
         SolidLiquidRecipeLoader.solidLiquid(provider, Items.DRIED_KELP, Items.KELP);
 
-        VanillaConstants.CONCRETE_POWDERS.forEach(block -> solidLiquid(provider, block, block.concrete));
+        VanillaConstants.CONCRETE_POWDERS.forEach(block -> SolidLiquidRecipeLoader.solidLiquid(provider, block, block.concrete));
 
         VanillaConstants.WEATHERING_COPPERS.forEach(weatheringCopper -> {
             if (!(weatheringCopper instanceof Block block)) return;
             weatheringCopper.getNext(block.defaultBlockState()).ifPresent(
-                state -> solidLiquid(provider, block, state.getBlock())
+                state -> SolidLiquidRecipeLoader.solidLiquid(provider, block, state.getBlock())
             );
         });
 

@@ -21,6 +21,6 @@ public enum HeatableBlockProvider implements IServerDataProvider<BlockAccessor> 
 
     @Override
     public Identifier getUid() {
-        return UID;
+        return HeatableBlockProvider.UID;
     }
 }

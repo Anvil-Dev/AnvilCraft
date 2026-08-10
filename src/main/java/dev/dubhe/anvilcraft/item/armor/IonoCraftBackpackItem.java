@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.DynamicPowerComponent;
 import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
+import dev.dubhe.anvilcraft.api.tooltip.providers.IItemTooltipProvider;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -38,7 +39,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAware {
+public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAware, IItemTooltipProvider {
     public static final int MAX_ENERGY = 120000000;
     public static final int FLIGHT_CONSUMPTION = 5000;
 
@@ -52,7 +53,7 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
 
     public static final Identifier CREATIVE_FLIGHT_ID = AnvilCraft.of("creative_flight");
     public static final AttributeModifier CREATIVE_FLIGHT = new AttributeModifier(
-        CREATIVE_FLIGHT_ID,
+        IonoCraftBackpackItem.CREATIVE_FLIGHT_ID,
         1,
         AttributeModifier.Operation.ADD_VALUE
     );
@@ -63,16 +64,16 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
 
     /** 玩家退出时清理飞行追踪器，防止内存泄漏 */
     public static void onPlayerLoggedOut(UUID uuid) {
-        FLYING_TRACKER.remove(uuid);
+        IonoCraftBackpackItem.FLYING_TRACKER.remove(uuid);
     }
 
     public IonoCraftBackpackItem(Properties properties) {
         super(
             properties
                 .repairable(ModItemTags.TIN_INGOTS)
-                .component(ModComponents.STORED_ENERGY, new StoredEnergy(MAX_ENERGY))
+                .component(ModComponents.STORED_ENERGY, new StoredEnergy(IonoCraftBackpackItem.MAX_ENERGY))
         );
-        addStackProvider(player -> player.getItemBySlot(EquipmentSlot.CHEST));
+        IonoCraftBackpackItem.addStackProvider(player -> player.getItemBySlot(EquipmentSlot.CHEST));
     }
 
     @Override
@@ -85,12 +86,15 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
     }
 
     public static void setEnergyStored(ItemStack stack, int energy) {
-        stack.set(ModComponents.STORED_ENERGY, new StoredEnergy(Math.clamp(energy, 0, MAX_ENERGY)));
+        stack.set(
+            ModComponents.STORED_ENERGY,
+            new StoredEnergy(Math.clamp(energy, 0, IonoCraftBackpackItem.MAX_ENERGY))
+        );
     }
 
     public static void addEnergy(ItemStack stack, int amount) {
-        int current = getEnergyStored(stack);
-        setEnergyStored(stack, current + amount);
+        int current = IonoCraftBackpackItem.getEnergyStored(stack);
+        IonoCraftBackpackItem.setEnergyStored(stack, current + amount);
     }
 
     public static boolean canModify(ItemStack stack, DynamicPowerComponent component) {
@@ -100,11 +104,11 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
     }
 
     public static void addStackProvider(Function<Player, ItemStack> provider) {
-        STACK_PROVIDERS.add(provider);
+        IonoCraftBackpackItem.STACK_PROVIDERS.add(provider);
     }
 
     public static ItemStack getByPlayer(Player player) {
-        for (Function<Player, ItemStack> provider : STACK_PROVIDERS) {
+        for (Function<Player, ItemStack> provider : IonoCraftBackpackItem.STACK_PROVIDERS) {
             ItemStack stack = provider.apply(player);
             if (stack.is(ModItems.IONOCRAFT_BACKPACK)) {
                 return stack;
@@ -120,21 +124,22 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
         if (instance == null) return;
 
         DynamicPowerComponent powerComponent = holder.anvilcraft$getPowerComponent();
-        ItemStack equipped = getByPlayer(player);
+        ItemStack equipped = IonoCraftBackpackItem.getByPlayer(player);
         if (equipped.isEmpty()) {
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_64);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_128);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_256);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_512);
-            if (instance.hasModifier(CREATIVE_FLIGHT_ID)) {
-                instance.removeModifier(CREATIVE_FLIGHT);
+            powerComponent.getPowerConsumptions().remove(IonoCraftBackpackItem.CONSUMPTION_64);
+            powerComponent.getPowerConsumptions().remove(IonoCraftBackpackItem.CONSUMPTION_128);
+            powerComponent.getPowerConsumptions().remove(IonoCraftBackpackItem.CONSUMPTION_256);
+            powerComponent.getPowerConsumptions().remove(IonoCraftBackpackItem.CONSUMPTION_512);
+            if (instance.hasModifier(IonoCraftBackpackItem.CREATIVE_FLIGHT_ID)) {
+                instance.removeModifier(IonoCraftBackpackItem.CREATIVE_FLIGHT);
             }
             return;
-        } else if (getEnergyStored(equipped) >= MAX_ENERGY && !player.getAbilities().flying) {
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_64);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_128);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_256);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_512);
+        } else if (IonoCraftBackpackItem.getEnergyStored(equipped) >= IonoCraftBackpackItem.MAX_ENERGY
+                   && !player.getAbilities().flying) {
+            powerComponent.getPowerConsumptions().remove(IonoCraftBackpackItem.CONSUMPTION_64);
+            powerComponent.getPowerConsumptions().remove(IonoCraftBackpackItem.CONSUMPTION_128);
+            powerComponent.getPowerConsumptions().remove(IonoCraftBackpackItem.CONSUMPTION_256);
+            powerComponent.getPowerConsumptions().remove(IonoCraftBackpackItem.CONSUMPTION_512);
             return;
         }
 
@@ -142,10 +147,14 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
 
         PowerGrid powerGrid = powerComponent.getPowerGrid();
         if (powerGrid.isWorking()) {
-            boolean hasConsumption = powerComponent.getPowerConsumptions().contains(CONSUMPTION_64)
-                                  || powerComponent.getPowerConsumptions().contains(CONSUMPTION_128)
-                                  || powerComponent.getPowerConsumptions().contains(CONSUMPTION_256)
-                                  || powerComponent.getPowerConsumptions().contains(CONSUMPTION_512);
+            boolean hasConsumption = powerComponent.getPowerConsumptions()
+                .contains(IonoCraftBackpackItem.CONSUMPTION_64)
+                                     || powerComponent.getPowerConsumptions()
+                                         .contains(IonoCraftBackpackItem.CONSUMPTION_128)
+                                     || powerComponent.getPowerConsumptions()
+                                         .contains(IonoCraftBackpackItem.CONSUMPTION_256)
+                                     || powerComponent.getPowerConsumptions()
+                                         .contains(IonoCraftBackpackItem.CONSUMPTION_512);
 
             if (!hasConsumption) {
                 AtomicInteger playerCount = new AtomicInteger(0);
@@ -156,35 +165,35 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
                 });
                 int remaining = powerGrid.getRemaining() / playerCount.get();
                 if (remaining >= 512) {
-                    powerComponent.getPowerConsumptions().add(CONSUMPTION_512);
+                    powerComponent.getPowerConsumptions().add(IonoCraftBackpackItem.CONSUMPTION_512);
                 } else if (remaining >= 256) {
-                    powerComponent.getPowerConsumptions().add(CONSUMPTION_256);
+                    powerComponent.getPowerConsumptions().add(IonoCraftBackpackItem.CONSUMPTION_256);
                 } else if (remaining >= 128) {
-                    powerComponent.getPowerConsumptions().add(CONSUMPTION_128);
+                    powerComponent.getPowerConsumptions().add(IonoCraftBackpackItem.CONSUMPTION_128);
                 } else if (remaining >= 64) {
-                    powerComponent.getPowerConsumptions().add(CONSUMPTION_64);
+                    powerComponent.getPowerConsumptions().add(IonoCraftBackpackItem.CONSUMPTION_64);
                 }
             }
         } else {
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_64);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_128);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_256);
-            powerComponent.getPowerConsumptions().remove(CONSUMPTION_512);
+            powerComponent.getPowerConsumptions().remove(IonoCraftBackpackItem.CONSUMPTION_64);
+            powerComponent.getPowerConsumptions().remove(IonoCraftBackpackItem.CONSUMPTION_128);
+            powerComponent.getPowerConsumptions().remove(IonoCraftBackpackItem.CONSUMPTION_256);
+            powerComponent.getPowerConsumptions().remove(IonoCraftBackpackItem.CONSUMPTION_512);
         }
     }
 
     public static void refreshFlight(ServerPlayer player) {
-        ItemStack equipped = getByPlayer(player);
+        ItemStack equipped = IonoCraftBackpackItem.getByPlayer(player);
         AttributeInstance instance = player.getAttributes().getInstance(NeoForgeMod.CREATIVE_FLIGHT);
         if (instance == null) return;
-        int energy = getEnergyStored(equipped);
+        int energy = IonoCraftBackpackItem.getEnergyStored(equipped);
         if (energy > 0) {
-            if (!instance.hasModifier(CREATIVE_FLIGHT_ID)) {
-                instance.addTransientModifier(CREATIVE_FLIGHT);
+            if (!instance.hasModifier(IonoCraftBackpackItem.CREATIVE_FLIGHT_ID)) {
+                instance.addTransientModifier(IonoCraftBackpackItem.CREATIVE_FLIGHT);
             }
         } else {
-            if (instance.hasModifier(CREATIVE_FLIGHT_ID)) {
-                instance.removeModifier(CREATIVE_FLIGHT);
+            if (instance.hasModifier(IonoCraftBackpackItem.CREATIVE_FLIGHT_ID)) {
+                instance.removeModifier(IonoCraftBackpackItem.CREATIVE_FLIGHT);
             }
         }
     }
@@ -192,17 +201,17 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
     public static void playerTick(ServerPlayer player) {
         final IDynamicPowerComponentHolder holder = IDynamicPowerComponentHolder.of(player);
 
-        refreshPower(player);
-        refreshFlight(player);
+        IonoCraftBackpackItem.refreshPower(player);
+        IonoCraftBackpackItem.refreshFlight(player);
 
-        ItemStack backpack = getByPlayer(player);
+        ItemStack backpack = IonoCraftBackpackItem.getByPlayer(player);
         boolean nowFlying = !backpack.isEmpty()
             && player.getAbilities().flying
             && !player.isCreative()
             && !player.isSpectator();
 
         // 飞行状态变化时同步到周边客户端
-        Boolean prevFlying = FLYING_TRACKER.put(player.getUUID(), nowFlying);
+        Boolean prevFlying = IonoCraftBackpackItem.FLYING_TRACKER.put(player.getUUID(), nowFlying);
         if (prevFlying == null || prevFlying != nowFlying) {
             PacketDistributor.sendToPlayersTrackingEntity(
                 player,
@@ -213,28 +222,31 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
         if (backpack.isEmpty()) return;
 
         if (player.getAbilities().flying && !player.isCreative() && !player.isSpectator()) {
-            int energy = getEnergyStored(backpack);
+            int energy = IonoCraftBackpackItem.getEnergyStored(backpack);
             if (energy > 0) {
-                setEnergyStored(backpack, energy - FLIGHT_CONSUMPTION);
+                IonoCraftBackpackItem.setEnergyStored(
+                    backpack,
+                    energy - IonoCraftBackpackItem.FLIGHT_CONSUMPTION
+                );
             } else {
                 player.getAbilities().flying = false;
                 player.onUpdateAbilities();
             }
         }
-        capacitorTick(holder, backpack);
+        IonoCraftBackpackItem.capacitorTick(holder, backpack);
     }
 
     private static void capacitorTick(IDynamicPowerComponentHolder holder, ItemStack backpack) {
         if (!(holder instanceof ServerPlayer player)) return;
-        int energy = getEnergyStored(backpack);
-        if (energy >= MAX_ENERGY) return; // 能量已满，不消耗电容器
+        int energy = IonoCraftBackpackItem.getEnergyStored(backpack);
+        if (energy >= IonoCraftBackpackItem.MAX_ENERGY) return; // 能量已满，不消耗电容器
         Inventory inventory = player.getInventory();
 
         int capacitorSlot = inventory.findSlotMatchingItem(ModItems.CAPACITOR.asStack());
         if (capacitorSlot >= 0) {
             inventory.removeItem(capacitorSlot, 1);
             inventory.placeItemBackInInventory(ModItems.CAPACITOR_EMPTY.asStack());
-            addEnergy(backpack, 8_000_000);
+            IonoCraftBackpackItem.addEnergy(backpack, 8_000_000);
             return;
         }
 
@@ -242,15 +254,15 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
         if (superSlot >= 0) {
             inventory.removeItem(superSlot, 1);
             inventory.placeItemBackInInventory(ModItems.SUPER_CAPACITOR_EMPTY.asStack());
-            addEnergy(backpack, 160_000_000);
+            IonoCraftBackpackItem.addEnergy(backpack, 160_000_000);
         }
     }
 
     @Override
     public void onCarriedUpdate(HashedStack stack, ServerPlayer serverPlayer) {
         AttributeInstance instance = serverPlayer.getAttributes().getInstance(NeoForgeMod.CREATIVE_FLIGHT);
-        if (instance != null && instance.hasModifier(CREATIVE_FLIGHT_ID)) {
-            instance.removeModifier(CREATIVE_FLIGHT);
+        if (instance != null && instance.hasModifier(IonoCraftBackpackItem.CREATIVE_FLIGHT_ID)) {
+            instance.removeModifier(IonoCraftBackpackItem.CREATIVE_FLIGHT);
         }
     }
 
@@ -261,22 +273,21 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        int energy = getEnergyStored(stack);
-        return Math.round(energy * 13.0f / MAX_ENERGY);
+        int energy = IonoCraftBackpackItem.getEnergyStored(stack);
+        return Math.round(energy * 13.0f / IonoCraftBackpackItem.MAX_ENERGY);
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        float ratio = (float) getEnergyStored(stack) / MAX_ENERGY;
+        float ratio = (float) IonoCraftBackpackItem.getEnergyStored(stack) / IonoCraftBackpackItem.MAX_ENERGY;
         return ColorUtil.lerpColor(ratio, 0x7087FFFF, 0xFF5454FF);
     }
 
     @Override
-    public void appendHoverText(
+    public void appendItemTooltip(
         ItemStack stack, TooltipContext context, TooltipDisplay display, Consumer<Component> builder, TooltipFlag tooltipFlag) {
-        super.appendHoverText(stack, context, display, builder, tooltipFlag);
-        int energy = getEnergyStored(stack);
-        int totalSeconds = energy / FLIGHT_CONSUMPTION / 20;
+        int energy = IonoCraftBackpackItem.getEnergyStored(stack);
+        int totalSeconds = energy / IonoCraftBackpackItem.FLIGHT_CONSUMPTION / 20;
         int minutes = totalSeconds / 60;
         int seconds = totalSeconds % 60;
         builder.accept(Component.translatable(

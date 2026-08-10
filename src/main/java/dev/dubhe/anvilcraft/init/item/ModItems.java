@@ -170,7 +170,7 @@ public class ModItems {
         .properties(properties -> properties)
         .recipe(RegistrumItemRecipeLoader.pickaxe(
             Items.AMETHYST_SHARD,
-            (ctx, provider) -> enchanted(ctx.get(), Enchantments.FORTUNE, 3, provider.getRegistries())
+            (ctx, provider) -> ModItems.enchanted(ctx.get(), Enchantments.FORTUNE, 3, provider.getRegistries())
         ))
         .model(DataGenUtil::flatHandheldItem)
         .tag(ItemTags.PICKAXES, ItemTags.CLUSTER_MAX_HARVESTABLES, Tags.Items.MINING_TOOL_TOOLS)
@@ -178,7 +178,7 @@ public class ModItems {
     public static final ItemEntry<AmethystAxeItem> AMETHYST_AXE = REGISTRUM.item("amethyst_axe", AmethystAxeItem::new)
         .recipe(RegistrumItemRecipeLoader.axe(
             Items.AMETHYST_SHARD,
-            (ctx, provider) -> enchanted(ctx.get(), ModEnchantments.FELLING_KEY, 1, provider.getRegistries())
+            (ctx, provider) -> ModItems.enchanted(ctx.get(), ModEnchantments.FELLING_KEY, 1, provider.getRegistries())
         ))
         .model(DataGenUtil::flatHandheldItem)
         .tag(ItemTags.AXES, Tags.Items.MELEE_WEAPON_TOOLS)
@@ -186,7 +186,7 @@ public class ModItems {
     public static final ItemEntry<AmethystHoeItem> AMETHYST_HOE = REGISTRUM.item("amethyst_hoe", AmethystHoeItem::new)
         .recipe(RegistrumItemRecipeLoader.hoe(
             Items.AMETHYST_SHARD,
-            (ctx, generator) -> enchanted(ctx.get(), ModEnchantments.HARVEST_KEY, 1, generator.getRegistries())
+            (ctx, generator) -> ModItems.enchanted(ctx.get(), ModEnchantments.HARVEST_KEY, 1, generator.getRegistries())
         ))
         .model(DataGenUtil::flatHandheldItem)
         .tag(ItemTags.HOES)
@@ -194,7 +194,7 @@ public class ModItems {
     public static final ItemEntry<AmethystSwordItem> AMETHYST_SWORD = REGISTRUM.item("amethyst_sword", AmethystSwordItem::new)
         .recipe(RegistrumItemRecipeLoader.sword(
             Items.AMETHYST_SHARD,
-            (ctx, provider) -> enchanted(ctx.get(), ModEnchantments.BEHEADING_KEY, 1, provider.getRegistries())
+            (ctx, provider) -> ModItems.enchanted(ctx.get(), ModEnchantments.BEHEADING_KEY, 1, provider.getRegistries())
         ))
         .model(DataGenUtil::flatHandheldItem)
         .tag(ItemTags.SWORDS, Tags.Items.MELEE_WEAPON_TOOLS)
@@ -202,7 +202,7 @@ public class ModItems {
     public static final ItemEntry<AmethystShovelItem> AMETHYST_SHOVEL = REGISTRUM.item("amethyst_shovel", AmethystShovelItem::new)
         .recipe(RegistrumItemRecipeLoader.shovel(
             Items.AMETHYST_SHARD,
-            (ctx, provider) -> enchanted(ctx.get(), Enchantments.EFFICIENCY, 3, provider.getRegistries())
+            (ctx, provider) -> ModItems.enchanted(ctx.get(), Enchantments.EFFICIENCY, 3, provider.getRegistries())
         ))
         .model(DataGenUtil::flatHandheldItem)
         .tag(ItemTags.SHOVELS)
@@ -571,7 +571,13 @@ public class ModItems {
             ) {
                 generator.itemModelOutput.accept(
                     ctx.get(),
-                    ItemModelUtils.specialModel(ModelLocationUtils.getModelLocation(ctx.get()), SpectralSlingshotRenderer.Unbaked.INSTANCE)
+                    ItemModelUtils.composite(
+                        ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get())),
+                        ItemModelUtils.specialModel(
+                            ModelLocationUtils.getModelLocation(ctx.get()),
+                            SpectralSlingshotRenderer.Unbaked.INSTANCE
+                        )
+                    )
                 );
             }
         })
@@ -600,13 +606,19 @@ public class ModItems {
                             ModDataComponentPredicates.INT_COMP.get(),
                             new IntegerComponentPredicate(ModComponents.STORED_ENERGY, 0)
                         )),
-                        ItemModelUtils.specialModel(
-                            ModelLocationUtils.getModelLocation(item, "_exhausted"),
-                            SpectralWeaponLauncherRenderer.Unbaked.INSTANCE
+                        ItemModelUtils.composite(
+                            ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item, "_exhausted")),
+                            ItemModelUtils.specialModel(
+                                ModelLocationUtils.getModelLocation(item, "_exhausted"),
+                                SpectralWeaponLauncherRenderer.Unbaked.INSTANCE
+                            )
                         ),
-                        ItemModelUtils.specialModel(
-                            ModelLocationUtils.getModelLocation(item),
-                            SpectralWeaponLauncherRenderer.Unbaked.INSTANCE
+                        ItemModelUtils.composite(
+                            ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item)),
+                            ItemModelUtils.specialModel(
+                                ModelLocationUtils.getModelLocation(item),
+                                SpectralWeaponLauncherRenderer.Unbaked.INSTANCE
+                            )
                         )
                     )
                 );
@@ -818,66 +830,66 @@ public class ModItems {
             .register();
     }
 
-    public static final ItemEntry<? extends Item> EMERALD_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> EMERALD_AMULET = ModItems.createAmuletItem(
         "emerald",
         () -> ModAmulets.EMERALD,
         builder -> builder.requires(Items.EMERALD_BLOCK)
     );
-    public static final ItemEntry<? extends Item> TOPAZ_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> TOPAZ_AMULET = ModItems.createAmuletItem(
         "topaz",
         () -> ModAmulets.TOPAZ,
         builder -> builder.requires(ModBlocks.TOPAZ_BLOCK)
     );
-    public static final ItemEntry<? extends Item> RUBY_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> RUBY_AMULET = ModItems.createAmuletItem(
         "ruby",
         () -> ModAmulets.RUBY,
         builder -> builder.requires(ModBlocks.RUBY_BLOCK)
     );
-    public static final ItemEntry<? extends Item> SAPPHIRE_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> SAPPHIRE_AMULET = ModItems.createAmuletItem(
         "sapphire",
         () -> ModAmulets.SAPPHIRE,
         builder -> builder.requires(ModBlocks.SAPPHIRE_BLOCK)
     );
-    public static final ItemEntry<? extends Item> ANVIL_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> ANVIL_AMULET = ModItems.createAmuletItem(
         "anvil",
         () -> ModAmulets.ANVIL,
         builder -> builder.requires(Items.ANVIL)
     );
-    public static final ItemEntry<? extends Item> COMRADE_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> COMRADE_AMULET = ModItems.createAmuletItem(
         "comrade",
         () -> ModAmulets.COMRADE,
         builder -> builder.requires(Items.NAME_TAG, 4)
     );
-    public static final ItemEntry<? extends Item> FEATHER_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> FEATHER_AMULET = ModItems.createAmuletItem(
         "feather",
         () -> ModAmulets.FEATHER,
         builder -> builder.requires(Items.FEATHER, 16).requires(Items.PHANTOM_MEMBRANE, 4)
     );
-    public static final ItemEntry<? extends Item> CAT_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> CAT_AMULET = ModItems.createAmuletItem(
         "cat",
         () -> ModAmulets.CAT,
         builder -> builder.requires(Items.SALMON, 16).requires(Items.COD, 16)
     );
-    public static final ItemEntry<? extends Item> DOG_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> DOG_AMULET = ModItems.createAmuletItem(
         "dog",
         () -> ModAmulets.DOG,
         builder -> builder.requires(Items.BONE, 16).requires(ItemTags.MEAT, 16)
     );
-    public static final ItemEntry<? extends Item> SILENCE_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> SILENCE_AMULET = ModItems.createAmuletItem(
         "silence",
         () -> ModAmulets.SILENCE,
         builder -> builder.requires(Items.ECHO_SHARD, 16)
     );
-    public static final ItemEntry<? extends Item> ABNORMAL_AMULET = createAmuletItem(
+    public static final ItemEntry<? extends Item> ABNORMAL_AMULET = ModItems.createAmuletItem(
         "abnormal",
         () -> ModAmulets.ABNORMAL, // TODO: 修改配方
         builder -> builder.requires(ModItems.CURSED_GOLD_INGOT, 1).requires(ModItems.LEVITATION_POWDER, 16)
     );
-    public static final ItemEntry<? extends Item> GEM_AMULET = createBigAmuletItem(
+    public static final ItemEntry<? extends Item> GEM_AMULET = ModItems.createBigAmuletItem(
         "gem",
         () -> ModAmulets.GEM
     );
-    public static final ItemEntry<? extends Item> NATURE_AMULET = createBigAmuletItem(
+    public static final ItemEntry<? extends Item> NATURE_AMULET = ModItems.createBigAmuletItem(
         "nature",
         () -> ModAmulets.NATURE
     );
@@ -1334,12 +1346,12 @@ public class ModItems {
         .model(ModelProviderUtil::bucket)
         .register();
 
-    public static final Object2ObjectMap<Color, ItemEntry<BucketItem>> CEMENT_BUCKETS = registerAllCementBuckets();
+    public static final Object2ObjectMap<Color, ItemEntry<BucketItem>> CEMENT_BUCKETS = ModItems.registerAllCementBuckets();
 
     private static Object2ObjectMap<Color, ItemEntry<BucketItem>> registerAllCementBuckets() {
         Object2ObjectMap<Color, ItemEntry<BucketItem>> map = new Object2ObjectOpenHashMap<>();
         for (Color color : Color.values()) {
-            var entry = registerCementBucket(color);
+            var entry = ModItems.registerCementBucket(color);
             map.put(color, entry);
         }
         return map;
@@ -1400,7 +1412,7 @@ public class ModItems {
         int level
     ) {
         return (ctx, modifier) -> {
-            modifier.accept(enchanted(ctx.get(), enchKey, level, modifier.getParameters().holders()).create());
+            modifier.accept(ModItems.enchanted(ctx.get(), enchKey, level, modifier.getParameters().holders()).create());
         };
     }
 }

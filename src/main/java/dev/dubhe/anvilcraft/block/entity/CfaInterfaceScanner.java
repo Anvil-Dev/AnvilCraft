@@ -32,7 +32,7 @@ public final class CfaInterfaceScanner {
     private CfaInterfaceScanner() {
     }
 
-    public static void scanAdjacentBlocks(BlockPos controllerPos, Level level, Consumer<BlockPos> consumer) {
+    public static void scanAdjacentBlocks(BlockPos controllerPos, @Nullable Level level, Consumer<BlockPos> consumer) {
         if (level == null) return;
         int y = controllerPos.getY();
         int cx = controllerPos.getX();
@@ -52,12 +52,12 @@ public final class CfaInterfaceScanner {
     }
 
     public static List<CelestialForgingAnvilLaserInterfaceBlockEntity> findLaserInterfaces(
-        Level level, BlockPos controllerPos
+        @Nullable Level level, BlockPos controllerPos
     ) {
         List<CelestialForgingAnvilLaserInterfaceBlockEntity> result = new ArrayList<>();
         if (level == null) return result;
-        scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
-            BlockEntity be = getLoadedBlockEntity(level, checkPos);
+        CfaInterfaceScanner.scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
+            BlockEntity be = CfaInterfaceScanner.getLoadedBlockEntity(level, checkPos);
             if (be instanceof CelestialForgingAnvilLaserInterfaceBlockEntity laserBe) {
                 result.add(laserBe);
             }
@@ -65,11 +65,14 @@ public final class CfaInterfaceScanner {
         return result;
     }
 
-    public static List<ResourceHandler<ItemResource>> findLogisticsInterfaces(Level level, BlockPos controllerPos) {
+    public static List<ResourceHandler<ItemResource>> findLogisticsInterfaces(
+        @Nullable Level level,
+        BlockPos controllerPos
+    ) {
         List<ResourceHandler<ItemResource>> result = new ArrayList<>();
         if (level == null) return result;
-        scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
-            BlockEntity be = getLoadedBlockEntity(level, checkPos);
+        CfaInterfaceScanner.scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
+            BlockEntity be = CfaInterfaceScanner.getLoadedBlockEntity(level, checkPos);
             if (be instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logisticsBe) {
                 result.add(logisticsBe.getItemHandler());
             }
@@ -78,27 +81,27 @@ public final class CfaInterfaceScanner {
     }
 
     public static PrioritizedInterfaces<ResourceHandler<ItemResource>> findPrioritizedLogisticsInterfaces(
-        Level level, BlockPos controllerPos
+        @Nullable Level level, BlockPos controllerPos
     ) {
         List<ResourceHandler<ItemResource>> active = new ArrayList<>();
         List<ResourceHandler<ItemResource>> passive = new ArrayList<>();
         if (level == null) return new PrioritizedInterfaces<>(active, passive);
-        scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
-            BlockEntity be = getLoadedBlockEntity(level, checkPos);
+        CfaInterfaceScanner.scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
+            BlockEntity be = CfaInterfaceScanner.getLoadedBlockEntity(level, checkPos);
             if (be instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logisticsBe) {
-                (isActive(logisticsBe) ? active : passive).add(logisticsBe.getItemHandler());
+                (CfaInterfaceScanner.isActive(logisticsBe) ? active : passive).add(logisticsBe.getItemHandler());
             }
         });
         return new PrioritizedInterfaces<>(active, passive);
     }
 
     public static List<CelestialForgingAnvilFluidInterfaceBlockEntity> findFluidInterfaces(
-        Level level, BlockPos controllerPos
+        @Nullable Level level, BlockPos controllerPos
     ) {
         List<CelestialForgingAnvilFluidInterfaceBlockEntity> result = new ArrayList<>();
         if (level == null) return result;
-        scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
-            BlockEntity be = getLoadedBlockEntity(level, checkPos);
+        CfaInterfaceScanner.scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
+            BlockEntity be = CfaInterfaceScanner.getLoadedBlockEntity(level, checkPos);
             if (be instanceof CelestialForgingAnvilFluidInterfaceBlockEntity fluidBe) {
                 result.add(fluidBe);
             }
@@ -107,14 +110,14 @@ public final class CfaInterfaceScanner {
     }
 
     public static PrioritizedInterfaces<CelestialForgingAnvilFluidInterfaceBlockEntity>
-        findPrioritizedFluidInterfaces(Level level, BlockPos controllerPos) {
+        findPrioritizedFluidInterfaces(@Nullable Level level, BlockPos controllerPos) {
         List<CelestialForgingAnvilFluidInterfaceBlockEntity> active = new ArrayList<>();
         List<CelestialForgingAnvilFluidInterfaceBlockEntity> passive = new ArrayList<>();
         if (level == null) return new PrioritizedInterfaces<>(active, passive);
-        scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
-            BlockEntity be = getLoadedBlockEntity(level, checkPos);
+        CfaInterfaceScanner.scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
+            BlockEntity be = CfaInterfaceScanner.getLoadedBlockEntity(level, checkPos);
             if (be instanceof CelestialForgingAnvilFluidInterfaceBlockEntity fluidBe) {
-                (isActive(fluidBe) ? active : passive).add(fluidBe);
+                (CfaInterfaceScanner.isActive(fluidBe) ? active : passive).add(fluidBe);
             }
         });
         return new PrioritizedInterfaces<>(active, passive);
@@ -127,12 +130,12 @@ public final class CfaInterfaceScanner {
     }
 
     public static <T extends BlockEntity> Map<BlockPos, T> getInterfacesMap(
-        Class<T> type, Level level, BlockPos controllerPos
+        Class<T> type, @Nullable Level level, BlockPos controllerPos
     ) {
         Map<BlockPos, T> result = new HashMap<>();
         if (level == null) return result;
-        scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
-            BlockEntity be = getLoadedBlockEntity(level, checkPos);
+        CfaInterfaceScanner.scanAdjacentBlocks(controllerPos, level, (checkPos) -> {
+            BlockEntity be = CfaInterfaceScanner.getLoadedBlockEntity(level, checkPos);
             if (type.isInstance(be)) {
                 BlockPos relOffset = new BlockPos(
                     checkPos.getX() - controllerPos.getX(), 0,

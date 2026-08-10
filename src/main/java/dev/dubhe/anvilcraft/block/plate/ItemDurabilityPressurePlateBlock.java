@@ -29,7 +29,7 @@ public class ItemDurabilityPressurePlateBlock extends PowerLevelPressurePlateBlo
 
     @Override
     protected int getSignalStrength(Level level, AABB box, Set<Class<? extends Entity>> entityClasses) {
-        Pair<Float, Float> minAndMax = getItemDurabilityPercentMinAndMax(level, box);
+        Pair<Float, Float> minAndMax = ItemDurabilityPressurePlateBlock.getItemDurabilityPercentMinAndMax(level, box);
         float value = this.useMin ? minAndMax.getFirst() : minAndMax.getSecond();
         return (int) (value * 15);
     }

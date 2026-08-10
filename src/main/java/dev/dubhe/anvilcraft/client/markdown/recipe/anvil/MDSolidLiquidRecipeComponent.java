@@ -31,14 +31,14 @@ public class MDSolidLiquidRecipeComponent extends MDBaseAnvilRecipeComponent {
         this.ingredients = recipe.getInputItems();
         this.resultItems = recipe.getResultItems();
         this.inputBlockStates = List.of(
-            getInputCauldron(recipe)
+            MDSolidLiquidRecipeComponent.getInputCauldron(recipe)
         );
         this.recipe = recipe;
     }
 
     protected BlockState getOutputBlockState() {
         if (this.resultItems == null || this.resultItems.isEmpty()) {
-            return getResultCauldron(this.recipe);
+            return MDSolidLiquidRecipeComponent.getResultCauldron(this.recipe);
         }
         return super.getOutputBlockState();
     }

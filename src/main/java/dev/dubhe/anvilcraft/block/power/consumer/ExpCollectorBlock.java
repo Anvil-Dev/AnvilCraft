@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -41,13 +42,13 @@ public class ExpCollectorBlock extends BetterBaseEntityBlock implements IHammerR
     public ExpCollectorBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
-            .setValue(POWERED, false)
-            .setValue(OVERLOAD, true));
+            .setValue(ExpCollectorBlock.POWERED, false)
+            .setValue(ExpCollectorBlock.OVERLOAD, true));
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(ExpCollectorBlock::new);
+        return BlockBehaviour.simpleCodec(ExpCollectorBlock::new);
     }
 
     @Override
@@ -67,7 +68,7 @@ public class ExpCollectorBlock extends BetterBaseEntityBlock implements IHammerR
         BlockEntityType<T> type
     ) {
         if (level.isClientSide()) return null;
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             type,
             ModBlockEntities.EXP_COLLECTOR.get(),
             (currentLevel, pos, currentState, blockEntity) -> blockEntity.tick(currentLevel, pos)
@@ -78,13 +79,13 @@ public class ExpCollectorBlock extends BetterBaseEntityBlock implements IHammerR
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         Level level = context.getLevel();
         return this.defaultBlockState()
-            .setValue(POWERED, level.hasNeighborSignal(context.getClickedPos()))
-            .setValue(OVERLOAD, true);
+            .setValue(ExpCollectorBlock.POWERED, level.hasNeighborSignal(context.getClickedPos()))
+            .setValue(ExpCollectorBlock.OVERLOAD, true);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(POWERED, OVERLOAD);
+        builder.add(ExpCollectorBlock.POWERED, ExpCollectorBlock.OVERLOAD);
     }
 
     @Override
@@ -139,13 +140,13 @@ public class ExpCollectorBlock extends BetterBaseEntityBlock implements IHammerR
         boolean movedByPiston
     ) {
         if (level.isClientSide()) return;
-        level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), Block.UPDATE_CLIENTS);
+        level.setBlock(pos, state.setValue(ExpCollectorBlock.POWERED, level.hasNeighborSignal(pos)), Block.UPDATE_CLIENTS);
     }
 
     @Override
     public void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
-        if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
-            level.setBlock(pos, state.cycle(POWERED), Block.UPDATE_CLIENTS);
+        if (state.getValue(ExpCollectorBlock.POWERED) && !level.hasNeighborSignal(pos)) {
+            level.setBlock(pos, state.cycle(ExpCollectorBlock.POWERED), Block.UPDATE_CLIENTS);
         }
     }
 

@@ -130,7 +130,7 @@ public class DischargerBlockEntity extends BlockEntity
         // 检查FE放电能力
         ItemStack stack = resource.toStack();
         if (stack.isEmpty()) return false;
-        EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, ItemAccess.forStack(stack));
+        EnergyHandler energyHandler = stack.getCapability(Capabilities.Energy.ITEM, ItemAccess.forStack(stack));
         if (energyHandler == null) return false;
         return energyHandler.getAmountAsInt() > 0;
     }
@@ -173,7 +173,7 @@ public class DischargerBlockEntity extends BlockEntity
 
         // FE放电：物品有可抽取的FE时开始放电
         ItemStack stack = this.itemHandler.getStacks().get(0).copy();
-        EnergyHandler energyHandler = Capabilities.Energy.ITEM.getCapability(stack, ItemAccess.forStack(stack));
+        EnergyHandler energyHandler = stack.getCapability(Capabilities.Energy.ITEM, ItemAccess.forStack(stack));
         if (energyHandler != null && energyHandler.getAmountAsInt() > 0) {
             this.isFeDischarging = true;
             this.itemHandler.set(0, ItemResource.EMPTY, 0);
@@ -387,8 +387,8 @@ public class DischargerBlockEntity extends BlockEntity
             if (this.isFeDischarging) {
                 ItemStack processingStack = this.itemHandler.getStacks().get(1);
                 if (!processingStack.isEmpty()) {
-                    EnergyHandler storage = Capabilities.Energy.ITEM.getCapability(
-                        processingStack, ItemAccess.forStack(processingStack));
+                    EnergyHandler storage = processingStack.getCapability(
+                        Capabilities.Energy.ITEM, ItemAccess.forStack(processingStack));
                     if (storage != null) {
                         int currentEnergy = storage.getAmountAsInt();
                         if (currentEnergy <= 0) {
@@ -399,7 +399,7 @@ public class DischargerBlockEntity extends BlockEntity
                         } else {
                             try (var transaction = Transaction.openRoot()) {
                                 int extracted = storage.extract(
-                                    Math.min(FE_EXTRACT_PER_TICK, currentEnergy), transaction);
+                                    Math.min(DischargerBlockEntity.FE_EXTRACT_PER_TICK, currentEnergy), transaction);
                                 transaction.commit();
                                 this.powerValue = (int) (extracted
                                     * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
@@ -442,6 +442,9 @@ public class DischargerBlockEntity extends BlockEntity
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         super.preRemoveSideEffects(pos, state);
-        Containers.dropContents(this.level, pos, this.getFilteredItemStackHandler().getStacks());
+        Level level = this.level;
+        if (level != null) {
+            Containers.dropContents(level, pos, this.getFilteredItemStackHandler().getStacks());
+        }
     }
 }

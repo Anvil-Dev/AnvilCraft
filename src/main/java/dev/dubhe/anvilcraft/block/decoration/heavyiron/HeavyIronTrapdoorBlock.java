@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.TrapDoorBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockSetType;
@@ -34,7 +35,7 @@ public class HeavyIronTrapdoorBlock extends TrapDoorBlock implements IHammerChan
         BlockState bs = super.getStateForPlacement(context);
         if (bs.isEmpty()) return bs;
         boolean hasSignal = context.getLevel().getBestNeighborSignal(context.getClickedPos()) >= 15;
-        return bs.setValue(POWERED, hasSignal).setValue(OPEN, hasSignal);
+        return bs.setValue(TrapDoorBlock.POWERED, hasSignal).setValue(TrapDoorBlock.OPEN, hasSignal);
     }
 
     @Override
@@ -49,7 +50,7 @@ public class HeavyIronTrapdoorBlock extends TrapDoorBlock implements IHammerChan
     ) {
         if (stack.getItem() instanceof AnvilHammerItem) {
             this.toggle(state, level, pos, player);
-            this.playSound(null, level, pos, state.getValue(OPEN));
+            this.playSound(null, level, pos, state.getValue(TrapDoorBlock.OPEN));
             return InteractionResult.SUCCESS;
         }
         return InteractionResult.FAIL;
@@ -65,14 +66,14 @@ public class HeavyIronTrapdoorBlock extends TrapDoorBlock implements IHammerChan
         boolean movedByPiston
     ) {
         boolean flag = level.getBestNeighborSignal(pos) >= 15;
-        if (flag != state.getValue(POWERED)) {
-            if (state.getValue(OPEN) != flag) {
-                state = state.setValue(OPEN, flag);
+        if (flag != state.getValue(TrapDoorBlock.POWERED)) {
+            if (state.getValue(TrapDoorBlock.OPEN) != flag) {
+                state = state.setValue(TrapDoorBlock.OPEN, flag);
                 this.playSound(null, level, pos, flag);
             }
 
-            level.setBlock(pos, state.setValue(POWERED, flag), 2);
-            if (state.getValue(WATERLOGGED)) {
+            level.setBlock(pos, state.setValue(TrapDoorBlock.POWERED, flag), 2);
+            if (state.getValue(TrapDoorBlock.WATERLOGGED)) {
                 level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
             }
         }
@@ -82,12 +83,12 @@ public class HeavyIronTrapdoorBlock extends TrapDoorBlock implements IHammerChan
     public boolean change(Player player, BlockPos pos, Level level, ItemStack anvilHammer) {
         BlockState state = level.getBlockState(pos);
         this.toggle(state, level, pos, player);
-        this.playSound(null, level, pos, !state.getValue(OPEN));
+        this.playSound(null, level, pos, !state.getValue(TrapDoorBlock.OPEN));
         return true;
     }
 
     @Override
     public @Nullable Property<?> getChangeableProperty(BlockState state) {
-        return FACING;
+        return HorizontalDirectionalBlock.FACING;
     }
 }

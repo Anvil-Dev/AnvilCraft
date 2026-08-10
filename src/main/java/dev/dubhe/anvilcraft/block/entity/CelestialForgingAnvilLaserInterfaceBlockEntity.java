@@ -99,7 +99,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
 
     @Override
     public Direction getFacing() {
-        BlockState state = getBlockState();
+        BlockState state = this.getBlockState();
         if (state.hasProperty(CelestialForgingAnvilInterfaceBlock.FACING)) {
             return state.getValue(CelestialForgingAnvilInterfaceBlock.FACING);
         }
@@ -108,7 +108,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
 
     @Override
     protected int getBaseLaserLevel() {
-        BlockState state = getBlockState();
+        BlockState state = this.getBlockState();
         if (state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)
             && state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE)) {
             return this.wormholeOutputLevel;
@@ -120,13 +120,13 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     public void syncTo(ServerPlayer player) {
         PacketDistributor.sendToPlayer(
             player,
-            new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, this.emittingGamma)
+            new LaserEmitPacket(this.getLaserLevel(), this.getBlockPos(), this.irradiateBlockPos, this.emittingGamma)
         );
     }
 
     /// 此激光接口是否处于主动模式（由铁砧锤切换的 ACTIVE 属性，而非红石信号）。
     public boolean isActive() {
-        BlockState state = getBlockState();
+        BlockState state = this.getBlockState();
         return state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)
             && state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE);
     }
@@ -239,8 +239,8 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
      * 方块 ticker 调用的服务端逻辑。
      */
     public void serverTick() {
-        if (level == null || level.isClientSide()) return;
-        BlockState state = getBlockState();
+        if (this.level == null || this.level.isClientSide()) return;
+        BlockState state = this.getBlockState();
         if (!state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)) return;
 
         boolean active = state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE);
@@ -248,15 +248,15 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         // 只要正在接收外部激光，就始终以接收为优先，不再发射任何激光。
         if (this.receivedLaserLevel > 0) {
             // 清除已有输出，避免同一接口同时收发。
-            if (irradiateBlockPos != null) {
-                BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
+            if (this.irradiateBlockPos != null) {
+                BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
                 if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
                     lastIrradiated.onCancelingIrradiation(this);
                 }
-                updateIrradiateBlockPos(null);
+                this.updateIrradiateBlockPos(null);
             }
-            irradiateSelfLaserBlockSet.clear();
-            updateLaserLevel(0); // clear stale emission level for HUD
+            this.irradiateSelfLaserBlockSet.clear();
+            this.updateLaserLevel(0); // clear stale emission level for HUD
         } else if (this.emittingGamma && this.gammaLevel > 0) {
             // 输出彭罗斯球产生的伽马激光。
             Direction facing = this.getFacing();
@@ -275,24 +275,24 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
             // 主动模式仅在存在虫洞普通激光输出时发射，不再自发产生 1 级激光。
             Direction facing = this.getFacing();
             // 尚未加入其他激光链时才创建输出链。
-            if (irradiateSelfLaserBlockSet.isEmpty()) {
-                emitLaser(facing);
+            if (this.irradiateSelfLaserBlockSet.isEmpty()) {
+                this.emitLaser(facing);
             }
         } else {
             // 被动模式或主动但无虫洞输出时，清理残留激光。
-            if (irradiateBlockPos != null) {
-                BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
+            if (this.irradiateBlockPos != null) {
+                BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
                 if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
                     lastIrradiated.onCancelingIrradiation(this);
                 }
-                updateIrradiateBlockPos(null);
+                this.updateIrradiateBlockPos(null);
             }
-            irradiateSelfLaserBlockSet.clear();
-            updateLaserLevel(0); // clear stale emission level for HUD
+            this.irradiateSelfLaserBlockSet.clear();
+            this.updateLaserLevel(0); // clear stale emission level for HUD
         }
 
         // 发送包含伽马标记的激光同步包。
-        this.tickWithGamma(level);
+        this.tickWithGamma(this.level);
 
         // 同步完成后清除本刻的伽马输出标记。
         if (this.emittingGamma) {
@@ -300,10 +300,10 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         }
 
         // 命中可加热方块时注册热源。服务端未调用父类 tick，因此需要在此手动处理。
-        if (level instanceof ServerLevel serverLevel
-            && irradiateBlockPos != null
-            && serverLevel.getBlockState(irradiateBlockPos).is(ModBlockTags.HEATABLE_BLOCKS)) {
-            HeaterManager.addProducer(getBlockPos(), serverLevel, ModHeaterInfos.LASER_EMITTER);
+        if (this.level instanceof ServerLevel serverLevel
+            && this.irradiateBlockPos != null
+            && serverLevel.getBlockState(this.irradiateBlockPos).is(ModBlockTags.HEATABLE_BLOCKS)) {
+            HeaterManager.addProducer(this.getBlockPos(), serverLevel, ModHeaterInfos.LASER_EMITTER);
         }
     }
 
@@ -322,12 +322,12 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
      * 发送带伽马类型标记的激光网络包。
      */
     private void tickWithGamma(Level level) {
-        if (changed) {
+        if (this.changed) {
             if (level instanceof ServerLevel serverLevel) {
                 PacketDistributor.sendToPlayersTrackingChunk(
                     serverLevel,
-                    level.getChunkAt(getBlockPos()).getPos(),
-                    new LaserEmitPacket(getLaserLevel(), getBlockPos(), this.irradiateBlockPos, this.emittingGamma)
+                    level.getChunkAt(this.getBlockPos()).getPos(),
+                    new LaserEmitPacket(this.getLaserLevel(), this.getBlockPos(), this.irradiateBlockPos, this.emittingGamma)
                 );
             }
         }
@@ -393,12 +393,12 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
             && !this.isInIrradiateSelfLaserBlockSet(irradiatedLaserBlockEntity)
         ) {
             if (irradiatedLaserBlockEntity.getIgnoreFace().isEmpty()) {
-                this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
+                this.level.updateNeighborsAt(tempIrradiateBlockPos, this.getBlockState().getBlock());
                 irradiatedLaserBlockEntity.onIrradiated(this);
             } else {
                 for (Direction dir : irradiatedLaserBlockEntity.getIgnoreFace()) {
                     if (direction != dir) {
-                        this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
+                        this.level.updateNeighborsAt(tempIrradiateBlockPos, this.getBlockState().getBlock());
                         irradiatedLaserBlockEntity.onIrradiated(this);
                     }
                 }
@@ -418,7 +418,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
 
         // 按方块位置累计连续照射时间，达到阈值后破坏。
         BlockState irradiateBlock = this.level.getBlockState(this.irradiateBlockPos);
-        int requiredExposure = GAMMA_EXPOSURE_TICKS[Math.clamp(this.gammaLevel / 4, 0, 4)];
+        int requiredExposure = CelestialForgingAnvilLaserInterfaceBlockEntity.GAMMA_EXPOSURE_TICKS[Math.clamp(this.gammaLevel / 4, 0, 4)];
 
         // 照射目标变化时重新计时。
         BlockPos currentTarget = this.irradiateBlockPos.immutable();
@@ -479,7 +479,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         super.loadAdditional(input);
         this.receivedLaserLevel = input.getIntOr("receivedLaserLevel", 0);
         this.receivedGamma = input.getBooleanOr("receivedGamma", false);
-        this.receivedMiningEffect = readMiningEffect(input);
+        this.receivedMiningEffect = CelestialForgingAnvilLaserInterfaceBlockEntity.readMiningEffect(input);
         this.requiredLaserLevel = input.getIntOr("requiredLaserLevel", 0);
         this.requiredGamma = input.getBooleanOr("requiredGamma", false);
         this.laserValid = input.getBooleanOr("laserValid", false);
@@ -538,7 +538,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     @Override
     public void setChanged() {
         super.setChanged();
-        if (level != null && !level.isClientSide()) {
+        if (this.level != null && !this.level.isClientSide()) {
             this.syncToClients();
         }
     }
@@ -551,7 +551,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     @Override
     public void onLoad() {
         super.onLoad();
-        if (level != null && level.isClientSide()) {
+        if (this.level != null && this.level.isClientSide()) {
             CachedBlockEntityRenderingPipeline.getInstance().update(this, true);
         }
     }
@@ -559,7 +559,7 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     @Override
     public void setRemoved() {
         super.setRemoved();
-        if (this.level != null && level.isClientSide()) {
+        if (this.level != null && this.level.isClientSide()) {
             CachedBlockEntityRenderingPipeline.getInstance().update(this, true);
         }
     }

@@ -172,7 +172,7 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
         }
 
         public static Mode fromIndex(int index) {
-            return values()[index];
+            return Mode.values()[index];
         }
 
         @Override

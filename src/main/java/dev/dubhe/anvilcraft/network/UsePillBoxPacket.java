@@ -19,7 +19,7 @@ public record UsePillBoxPacket() implements IServerboundPacket {
 
     @Override
     public Type<UsePillBoxPacket> type() {
-        return TYPE;
+        return UsePillBoxPacket.TYPE;
     }
 
     @Override

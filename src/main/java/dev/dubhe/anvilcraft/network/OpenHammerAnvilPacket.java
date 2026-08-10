@@ -19,7 +19,7 @@ public record OpenHammerAnvilPacket(int menuSlotId) implements IServerboundPacke
 
     @Override
     public Type<OpenHammerAnvilPacket> type() {
-        return TYPE;
+        return OpenHammerAnvilPacket.TYPE;
     }
 
     @Override

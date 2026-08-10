@@ -48,10 +48,19 @@ public class HasMobBlockRenderer implements BlockEntityRenderer<HasMobBlockEntit
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
-        Entity entity = be.getOrCreateDisplayEntity(be.getLevel());
-        if (entity == null) return;
-        state.setMob(new EntityRenderState());
-        this.extractEntityState(entity, state.getMob(), partialTicks);
+        Level level = be.getLevel();
+        if (level == null) {
+            state.setMob(null);
+            return;
+        }
+        Entity entity = be.getOrCreateDisplayEntity(level);
+        if (entity == null) {
+            state.setMob(null);
+            return;
+        }
+        EntityRenderState mob = new EntityRenderState();
+        state.setMob(mob);
+        this.extractEntityState(entity, mob, partialTicks);
     }
 
     @Override

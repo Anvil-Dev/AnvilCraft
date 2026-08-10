@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.item.tool;
 
+import dev.dubhe.anvilcraft.api.tooltip.providers.IItemTooltipProvider;
 import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantmentTags;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -70,7 +71,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.function.Consumer;
 
-public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
+public abstract class HeavyHalberdItem extends Item implements ProjectileItem, IItemTooltipProvider {
     private final ToolMaterial material;
     private final float attackDamage;
 
@@ -261,14 +262,13 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem {
     }
 
     @Override
-    public void appendHoverText(
+    public void appendItemTooltip(
         ItemStack stack,
         TooltipContext context,
         TooltipDisplay display,
         Consumer<Component> builder,
         TooltipFlag tooltipFlag
     ) {
-        super.appendHoverText(stack, context, display, builder, tooltipFlag);
         builder.accept(Component.translatable(
             "tooltip.anvilcraft.heavy_halberd.desc",
             Component.keybind("key.anvilcraft.switch_tool_mode")

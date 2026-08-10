@@ -44,7 +44,7 @@ public class ModEnchantmentHelper {
         Vec3 pos,
         BlockState state
     ) {
-        applyEntityEffects(
+        ModEnchantmentHelper.applyEntityEffects(
             level,
             stack,
             entity,
@@ -101,7 +101,7 @@ public class ModEnchantmentHelper {
         Vec3 pos,
         BlockState state
     ) {
-        applyEntityEffects(
+        ModEnchantmentHelper.applyEntityEffects(
             level,
             stack,
             entity,

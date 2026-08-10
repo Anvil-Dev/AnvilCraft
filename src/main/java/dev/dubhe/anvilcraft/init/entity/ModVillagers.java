@@ -22,7 +22,7 @@ public class ModVillagers {
     public static final DeferredRegister<VillagerProfession> VILLAGER_PROFESSIONS =
         DeferredRegister.create(Registries.VILLAGER_PROFESSION, AnvilCraft.MOD_ID);
 
-    public static final DeferredHolder<PoiType, PoiType> JEWELER_POI = POI_TYPES.register(
+    public static final DeferredHolder<PoiType, PoiType> JEWELER_POI = ModVillagers.POI_TYPES.register(
         "jeweler_poi",
         () -> new PoiType(
             ImmutableSet.copyOf(ModBlocks.JEWEL_CRAFTING_TABLE
@@ -32,7 +32,7 @@ public class ModVillagers {
             1,
             1));
 
-    public static final DeferredHolder<PoiType, PoiType> TRADING_STATION_POI = POI_TYPES.register(
+    public static final DeferredHolder<PoiType, PoiType> TRADING_STATION_POI = ModVillagers.POI_TYPES.register(
         "trading_station_poi",
         () -> new PoiType(ImmutableSet.copyOf(ModBlocks.TRADING_STATION.get().getBottomStates()), 1, 1)
     );
@@ -42,12 +42,12 @@ public class ModVillagers {
         AnvilCraft.of("jeweler")
     );
 
-    public static final DeferredHolder<VillagerProfession, VillagerProfession> JEWELER = VILLAGER_PROFESSIONS.register(
+    public static final DeferredHolder<VillagerProfession, VillagerProfession> JEWELER = ModVillagers.VILLAGER_PROFESSIONS.register(
         "jeweler",
         () -> new VillagerProfession(
             Component.translatable("entity.anvilcraft.villager.jeweler"),
-            entry -> entry.is(JEWELER_POI.getKey()),
-            entry -> entry.is(JEWELER_POI.getKey()),
+            entry -> entry.is(ModVillagers.JEWELER_POI.getKey()),
+            entry -> entry.is(ModVillagers.JEWELER_POI.getKey()),
             ImmutableSet.of(),
             ImmutableSet.of(),
             SoundEvents.VILLAGER_WORK_TOOLSMITH,
@@ -61,7 +61,7 @@ public class ModVillagers {
         ));
 
     public static void register(IEventBus eventBus) {
-        POI_TYPES.register(eventBus);
-        VILLAGER_PROFESSIONS.register(eventBus);
+        ModVillagers.POI_TYPES.register(eventBus);
+        ModVillagers.VILLAGER_PROFESSIONS.register(eventBus);
     }
 }

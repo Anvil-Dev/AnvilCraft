@@ -29,6 +29,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -90,27 +92,27 @@ public final class PlanetResourceGenerator {
         }
 
         if (body instanceof RockyPlanetData rocky) {
-            generateMinerals(set, mineralRecipe, level.registryAccess(), random, seedItemId);
-            generateFluids(set, fluidRecipes, rocky);
+            PlanetResourceGenerator.generateMinerals(set, mineralRecipe, level.registryAccess(), random, seedItemId);
+            PlanetResourceGenerator.generateFluids(set, fluidRecipes, rocky);
 
-            if (isLifeEligible(rocky)) {
-                int lifeChance = getLifeChance(rocky, biologicalRecipe);
+            if (PlanetResourceGenerator.isLifeEligible(rocky)) {
+                int lifeChance = PlanetResourceGenerator.getLifeChance(rocky, biologicalRecipe);
                 boolean lifeExists = lifeChance > 0 && random.nextInt(100) < lifeChance;
 
                 if (lifeExists) {
-                    boolean hasCivilization = tryCivilization(set, offeringRecipe, rocky, ageAnvilCount, random);
+                    boolean hasCivilization = PlanetResourceGenerator.tryCivilization(set, offeringRecipe, rocky, ageAnvilCount, random);
                     if (hasCivilization) {
                         set.setHasCivilization();
                     } else {
-                        tryBiologicalLifeConfirmed(set, biologicalRecipe, rocky, level, random);
+                        PlanetResourceGenerator.tryBiologicalLifeConfirmed(set, biologicalRecipe, rocky, level, random);
                     }
                 } else {
-                    tryWasteland(set, wastelandRecipe, rocky, ageAnvilCount, random);
+                    PlanetResourceGenerator.tryWasteland(set, wastelandRecipe, rocky, ageAnvilCount, random);
                 }
             }
         } else if (body instanceof GiantPlanetData) {
-            generateGiantItems(set, giantItemRecipes, random);
-            generateGiantFluids(set, giantFluidRecipes, random);
+            PlanetResourceGenerator.generateGiantItems(set, giantItemRecipes, random);
+            PlanetResourceGenerator.generateGiantFluids(set, giantFluidRecipes, random);
         }
 
         return set;
@@ -144,7 +146,7 @@ public final class PlanetResourceGenerator {
         }));
 
         if (candidates.isEmpty()) return;
-        Collections.shuffle(candidates, new java.util.Random(random.nextLong()));
+        Collections.shuffle(candidates, new Random(random.nextLong()));
 
         int step = md.step();
         int sum = 0;
@@ -157,7 +159,7 @@ public final class PlanetResourceGenerator {
             float exponent = 1.0f + 1.0f / (candidateIndex + 1);
             float skewed = (float) Math.pow(random.nextFloat(), exponent);
             int steps = 1 + (int) (skewed * maxSteps);
-            if (candidate.equals(seedItemId)) {
+            if (Objects.equals(candidate, seedItemId)) {
                 steps++;
             }
             int weight = steps * step;
@@ -186,7 +188,7 @@ public final class PlanetResourceGenerator {
             PlanetResourceRecipe.GiantData gd = recipe.giantData();
             if (gd != null) {
                 for (PlanetResourceRecipe.WeightedEntry entry : gd.entries()) {
-                    set.addGiantItem(new PlanetaryResourceSet.WeightedItemStack(entry.resourceId(), entry.weight()));
+                    set.addGiantItem(new PlanetaryResourceSet.WeightedItemStack(entry.select(random), entry.weight()));
                 }
             }
         }
@@ -197,7 +199,7 @@ public final class PlanetResourceGenerator {
             PlanetResourceRecipe.GiantData gd = recipe.giantData();
             if (gd != null) {
                 for (PlanetResourceRecipe.WeightedEntry entry : gd.entries()) {
-                    set.addGiantFluid(new PlanetaryResourceSet.WeightedFluidStack(entry.resourceId(), entry.weight()));
+                    set.addGiantFluid(new PlanetaryResourceSet.WeightedFluidStack(entry.select(random), entry.weight()));
                 }
             }
         }
@@ -240,20 +242,7 @@ public final class PlanetResourceGenerator {
         if (random.nextInt(100) >= od.civilizationChance()) return false;
 
         for (PlanetResourceRecipe.WeightedEntry entry : od.entries()) {
-            Identifier id = entry.resourceId();
-            if ("anvilcraft:gem_amulet_random".equals(id.toString())) {
-                Identifier randomAmulet = pickRandomGemAmulet(random);
-                if (randomAmulet != null) {
-                    set.addOffering(new PlanetaryResourceSet.WeightedItemStack(randomAmulet, entry.weight()));
-                }
-            } else if ("anvilcraft:gem_block_random".equals(id.toString())) {
-                Identifier randomBlock = pickRandomGemBlock(random);
-                if (randomBlock != null) {
-                    set.addOffering(new PlanetaryResourceSet.WeightedItemStack(randomBlock, entry.weight()));
-                }
-            } else {
-                set.addOffering(new PlanetaryResourceSet.WeightedItemStack(id, entry.weight()));
-            }
+            set.addOffering(new PlanetaryResourceSet.WeightedItemStack(entry.select(random), entry.weight()));
         }
         return true;
     }
@@ -272,7 +261,7 @@ public final class PlanetResourceGenerator {
         boolean isHighCoverage = rocky.liquidCoverage() == LiquidCoverage.HIGH;
 
         TagKey<Item> blacklistTag = TagKey.create(Registries.ITEM, Identifier.parse(bd.dropBlacklistTag()));
-        Set<Identifier> blacklist = buildItemBlacklist(level.registryAccess(), blacklistTag);
+        Set<Identifier> blacklist = PlanetResourceGenerator.buildItemBlacklist(level.registryAccess(), blacklistTag);
 
         Map<Identifier, Integer> dropFrequencies = new HashMap<>();
         level.registryAccess().lookupOrThrow(Registries.ENTITY_TYPE).listElements().forEach(holder -> {
@@ -284,14 +273,14 @@ public final class PlanetResourceGenerator {
                                 || cat == MobCategory.UNDERGROUND_WATER_CREATURE
                               : cat == MobCategory.CREATURE;
             if (matches) {
-                collectEntityDropFrequencies(entityType, level, random, dropFrequencies, blacklist);
+                PlanetResourceGenerator.collectEntityDropFrequencies(entityType, level, random, dropFrequencies, blacklist);
             }
         });
 
         if (!dropFrequencies.isEmpty()) {
             List<Map.Entry<Identifier, Integer>> candidates = new ArrayList<>(dropFrequencies.entrySet());
             candidates.removeIf(e -> e.getValue() <= 0);
-            Collections.shuffle(candidates, new java.util.Random(random.nextLong()));
+            Collections.shuffle(candidates, new Random(random.nextLong()));
 
             final int step = 10;
             int sum = 0;
@@ -316,7 +305,7 @@ public final class PlanetResourceGenerator {
         if (rocky.temperature() == Temperature.MILD && !isHighCoverage) {
             for (PlanetResourceRecipe.WeightedEntry entry : bd.mildExtraFluids()) {
                 if (random.nextInt(100) < entry.weight()) {
-                    set.addBiologicalFluid(new PlanetaryResourceSet.WeightedFluidStack(entry.resourceId(), 100));
+                    set.addBiologicalFluid(new PlanetaryResourceSet.WeightedFluidStack(entry.select(random), 100));
                 }
             }
         }
@@ -338,7 +327,7 @@ public final class PlanetResourceGenerator {
 
         set.setWasteland();
         for (PlanetResourceRecipe.WeightedEntry entry : wd.entries()) {
-            set.addWastelandItem(new PlanetaryResourceSet.WeightedItemStack(entry.resourceId(), entry.weight()));
+            set.addWastelandItem(new PlanetaryResourceSet.WeightedItemStack(entry.select(random), entry.weight()));
         }
     }
 
@@ -403,28 +392,6 @@ public final class PlanetResourceGenerator {
                 dropFrequencies.merge(entry.getKey(), weight, Integer::sum);
             }
         }
-    }
-
-    @Nullable
-    private static Identifier pickRandomGemAmulet(RandomSource random) {
-        List<Identifier> knownAmulets = List.of(
-            Identifier.parse("anvilcraft:emerald_amulet"),
-            Identifier.parse("anvilcraft:topaz_amulet"),
-            Identifier.parse("anvilcraft:ruby_amulet"),
-            Identifier.parse("anvilcraft:sapphire_amulet")
-        );
-        return knownAmulets.get(random.nextInt(knownAmulets.size()));
-    }
-
-    @Nullable
-    private static Identifier pickRandomGemBlock(RandomSource random) {
-        List<Identifier> knownBlocks = List.of(
-            Identifier.parse("minecraft:emerald_block"),
-            Identifier.parse("anvilcraft:topaz_block"),
-            Identifier.parse("anvilcraft:ruby_block"),
-            Identifier.parse("anvilcraft:sapphire_block")
-        );
-        return knownBlocks.get(random.nextInt(knownBlocks.size()));
     }
 
     private static Set<Identifier> buildItemBlacklist(HolderLookup.Provider registries, TagKey<Item> blacklistTag) {

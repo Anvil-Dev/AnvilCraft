@@ -30,19 +30,19 @@ public class HeavyIronBeamBlock extends Block implements IHammerRemovable, Hamme
 
     public HeavyIronBeamBlock(Properties properties) {
         super(properties);
-        registerDefaultState(getStateDefinition().any().setValue(AXIS, Direction.Axis.X));
+        this.registerDefaultState(this.getStateDefinition().any().setValue(HeavyIronBeamBlock.AXIS, Direction.Axis.X));
     }
 
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-            .setValue(AXIS, context.getHorizontalDirection().getOpposite().getAxis());
+            .setValue(HeavyIronBeamBlock.AXIS, context.getHorizontalDirection().getOpposite().getAxis());
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(AXIS);
+        builder.add(HeavyIronBeamBlock.AXIS);
     }
 
     @Override
@@ -52,10 +52,10 @@ public class HeavyIronBeamBlock extends Block implements IHammerRemovable, Hamme
         BlockPos blockPos,
         CollisionContext collisionContext
     ) {
-        if (blockState.getValue(AXIS) == Direction.Axis.X) {
-            return AABB_X;
+        if (blockState.getValue(HeavyIronBeamBlock.AXIS) == Direction.Axis.X) {
+            return HeavyIronBeamBlock.AABB_X;
         } else {
-            return AABB_Z;
+            return HeavyIronBeamBlock.AABB_Z;
         }
     }
 
@@ -67,9 +67,9 @@ public class HeavyIronBeamBlock extends Block implements IHammerRemovable, Hamme
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
         return switch (rotation) {
-            case COUNTERCLOCKWISE_90, CLOCKWISE_90 -> switch (state.getValue(AXIS)) {
-                case Z -> state.setValue(AXIS, Direction.Axis.X);
-                case X -> state.setValue(AXIS, Direction.Axis.Z);
+            case COUNTERCLOCKWISE_90, CLOCKWISE_90 -> switch (state.getValue(HeavyIronBeamBlock.AXIS)) {
+                case Z -> state.setValue(HeavyIronBeamBlock.AXIS, Direction.Axis.X);
+                case X -> state.setValue(HeavyIronBeamBlock.AXIS, Direction.Axis.Z);
                 default -> state;
             };
             default -> state;

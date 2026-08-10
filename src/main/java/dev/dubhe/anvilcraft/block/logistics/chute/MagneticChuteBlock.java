@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.SimpleMagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -37,6 +36,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -89,23 +89,24 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
     public MagneticChuteBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
-            this.stateDefinition.any().setValue(FACING, Direction.DOWN).setValue(ENABLED, true).setValue(HEAD, false));
+            this.stateDefinition.any().setValue(MagneticChuteBlock.FACING, Direction.DOWN).setValue(MagneticChuteBlock.ENABLED, true)
+                .setValue(MagneticChuteBlock.HEAD, false));
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(MagneticChuteBlock::new);
+        return BlockBehaviour.simpleCodec(MagneticChuteBlock::new);
     }
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext collisionContext) {
-        return switch (state.getValue(FACING)) {
-            case NORTH -> SHAPE_N;
-            case SOUTH -> SHAPE_S;
-            case WEST -> SHAPE_W;
-            case EAST -> SHAPE_E;
-            case DOWN -> SHAPE_DOWN;
-            case UP -> SHAPE_UP;
+        return switch (state.getValue(MagneticChuteBlock.FACING)) {
+            case NORTH -> MagneticChuteBlock.SHAPE_N;
+            case SOUTH -> MagneticChuteBlock.SHAPE_S;
+            case WEST -> MagneticChuteBlock.SHAPE_W;
+            case EAST -> MagneticChuteBlock.SHAPE_E;
+            case DOWN -> MagneticChuteBlock.SHAPE_DOWN;
+            case UP -> MagneticChuteBlock.SHAPE_UP;
         };
     }
 
@@ -173,14 +174,14 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
                 .setValue(SimpleMagneticChuteBlock.WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER);
         }
         return this.defaultBlockState()
-            .setValue(FACING, facing)
-            .setValue(ENABLED, !context.getLevel().hasNeighborSignal(context.getClickedPos()));
+            .setValue(MagneticChuteBlock.FACING, facing)
+            .setValue(MagneticChuteBlock.ENABLED, !context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
     public boolean change(Player player, BlockPos pos, Level level, ItemStack anvilHammer) {
         BlockState oldState = level.getBlockState(pos);
-        Direction oldFacing = oldState.getValue(FACING);
+        Direction oldFacing = oldState.getValue(MagneticChuteBlock.FACING);
         Direction newFacing = switch (oldFacing) {
             case WEST -> Direction.UP;
             case UP -> Direction.DOWN;
@@ -200,22 +201,22 @@ public class MagneticChuteBlock extends BetterBaseEntityBlock implements HammerR
 
     @Override
 public Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
+        return MagneticChuteBlock.FACING;
     }
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(MagneticChuteBlock.FACING, rotation.rotate(state.getValue(MagneticChuteBlock.FACING)));
     }
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
-        return this.rotate(state, mirror.getRotation(state.getValue(FACING)));
+        return this.rotate(state, mirror.getRotation(state.getValue(MagneticChuteBlock.FACING)));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, ENABLED, HEAD);
+        builder.add(MagneticChuteBlock.FACING, MagneticChuteBlock.ENABLED, MagneticChuteBlock.HEAD);
     }
 
     @Override
@@ -231,7 +232,7 @@ public Property<?> getChangeableProperty(BlockState blockState) {
             // 被任意溜槽指向时，降级为简易磁性溜槽
             if (SimpleMagneticChuteBlock.isPointedByChute(level, pos)) {
                 level.setBlockAndUpdate(pos, ModBlocks.SIMPLE_MAGNETIC_CHUTE.getDefaultState()
-                    .setValue(SimpleMagneticChuteBlock.FACING, state.getValue(FACING))
+                    .setValue(SimpleMagneticChuteBlock.FACING, state.getValue(MagneticChuteBlock.FACING))
                     .setValue(SimpleMagneticChuteBlock.ENABLED, !level.hasNeighborSignal(pos))
                     .setValue(SimpleMagneticChuteBlock.WATERLOGGED, level.getFluidState(pos).getType() == Fluids.WATER)
                     .setValue(SimpleMagneticChuteBlock.HEAD, false));
@@ -241,8 +242,8 @@ public Property<?> getChangeableProperty(BlockState blockState) {
             BlockState aboveState = level.getBlockState(pos.above());
             boolean hasHead = (aboveState.is(ModBlocks.CHUTE.get()) || aboveState.is(ModBlocks.SIMPLE_CHUTE.get()))
                 && aboveState.getValue(ChuteBlock.FACING) == Direction.DOWN;
-            if (state.getValue(HEAD) != hasHead) {
-                level.setBlockAndUpdate(pos, state.setValue(HEAD, hasHead));
+            if (state.getValue(MagneticChuteBlock.HEAD) != hasHead) {
+                level.setBlockAndUpdate(pos, state.setValue(MagneticChuteBlock.HEAD, hasHead));
                 return;
             }
         }
@@ -251,8 +252,8 @@ public Property<?> getChangeableProperty(BlockState blockState) {
 
     private void checkPoweredState(Level level, BlockPos pos, BlockState state) {
         boolean flag = !level.hasNeighborSignal(pos);
-        if (flag != state.getValue(ENABLED)) {
-            level.setBlock(pos, state.setValue(ENABLED, flag), 2);
+        if (flag != state.getValue(MagneticChuteBlock.ENABLED)) {
+            level.setBlock(pos, state.setValue(MagneticChuteBlock.ENABLED, flag), 2);
         }
     }
 
@@ -262,7 +263,7 @@ public Property<?> getChangeableProperty(BlockState blockState) {
         if (level.isClientSide()) {
             return null;
         }
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             blockEntityType,
             ModBlockEntities.MAGNETIC_CHUTE.get(),
             ((_, _, _, be) -> be.tick()));

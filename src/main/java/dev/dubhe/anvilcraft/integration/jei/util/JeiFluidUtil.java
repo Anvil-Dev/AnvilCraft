@@ -39,7 +39,7 @@ public final class JeiFluidUtil {
         int height,
         HasCauldronSimple cauldron
     ) {
-        addInputSlot(builder, name, JeiSlotUtil.INPUT_X, JeiSlotUtil.FLUID_Y, width, height, cauldron);
+        JeiFluidUtil.addInputSlot(builder, name, JeiSlotUtil.INPUT_X, JeiSlotUtil.FLUID_Y, width, height, cauldron);
     }
 
     /**
@@ -52,7 +52,7 @@ public final class JeiFluidUtil {
         int height,
         HasCauldronSimple cauldron
     ) {
-        addInputSlot(builder, name, JeiSlotUtil.INPUT_X, JeiSlotUtil.DEFAULT_Y, width, height, cauldron);
+        JeiFluidUtil.addInputSlot(builder, name, JeiSlotUtil.INPUT_X, JeiSlotUtil.DEFAULT_Y, width, height, cauldron);
     }
 
     public static void addInputSlot(
@@ -64,7 +64,7 @@ public final class JeiFluidUtil {
         int height,
         HasCauldronSimple cauldron
     ) {
-        addSlot(
+        JeiFluidUtil.addSlot(
             builder,
             RecipeIngredientRole.INPUT,
             name,
@@ -72,7 +72,7 @@ public final class JeiFluidUtil {
             y,
             width,
             height,
-            getFluids(cauldron.fluid(), cauldron.fluidTag()),
+            JeiFluidUtil.getFluids(cauldron.fluid(), cauldron.fluidTag()),
             cauldron.consume()
         );
     }
@@ -87,7 +87,7 @@ public final class JeiFluidUtil {
         int height,
         HasCauldronSimple cauldron
     ) {
-        addOutputSlot(builder, name, JeiSlotUtil.OUTPUT_X, JeiSlotUtil.FLUID_Y, width, height, cauldron);
+        JeiFluidUtil.addOutputSlot(builder, name, JeiSlotUtil.OUTPUT_X, JeiSlotUtil.FLUID_Y, width, height, cauldron);
     }
 
     /**
@@ -100,7 +100,7 @@ public final class JeiFluidUtil {
         int height,
         HasCauldronSimple cauldron
     ) {
-        addOutputSlot(builder, name, JeiSlotUtil.OUTPUT_X, JeiSlotUtil.DEFAULT_Y, width, height, cauldron);
+        JeiFluidUtil.addOutputSlot(builder, name, JeiSlotUtil.OUTPUT_X, JeiSlotUtil.DEFAULT_Y, width, height, cauldron);
     }
 
     public static void addOutputSlot(
@@ -112,7 +112,7 @@ public final class JeiFluidUtil {
         int height,
         HasCauldronSimple cauldron
     ) {
-        addSlot(
+        JeiFluidUtil.addSlot(
             builder,
             RecipeIngredientRole.OUTPUT,
             name,
@@ -120,7 +120,7 @@ public final class JeiFluidUtil {
             y,
             width,
             height,
-            getFluids(cauldron.transform(), null),
+            JeiFluidUtil.getFluids(cauldron.transform(), null),
             cauldron.produce()
         );
     }
@@ -139,10 +139,10 @@ public final class JeiFluidUtil {
         if (fluids.isEmpty()) return;
         long displayAmount = amount > 0 ? amount : FluidType.BUCKET_VOLUME;
         IRecipeSlotBuilder slot = builder.addSlot(role, x, y)
-            .setSlotName(SLOT_PREFIX + name)
+            .setSlotName(JeiFluidUtil.SLOT_PREFIX + name)
             .setFluidRenderer(displayAmount, false, width, height);
         fluids.forEach(fluid -> slot.add(fluid, displayAmount));
-        addBucketIngredients(builder, role, fluids);
+        JeiFluidUtil.addBucketIngredients(builder, role, fluids);
     }
 
     private static void addBucketIngredients(

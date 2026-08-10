@@ -213,7 +213,7 @@ public class HeliostatsBlockEntity extends BlockEntity {
         }
 
         public boolean isWorking() {
-            return this == SUCCESS;
+            return this == WorkResult.SUCCESS;
         }
     }
 }

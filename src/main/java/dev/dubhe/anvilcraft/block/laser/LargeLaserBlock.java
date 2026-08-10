@@ -55,35 +55,42 @@ public class LargeLaserBlock extends FlexibleMultiPartBlock<DirectionCube3x3Part
         new AABB(3, -16, 3, 13, -10, 13),
         new AABB(-5, -10, -5, 21, -7, 21)
     );
-    private static final Map<Direction, Map<DirectionCube3x3PartHalf, VoxelShape>> COLLISION_SHAPES = makeCollisionShapes();
+    private static final Map<Direction, Map<DirectionCube3x3PartHalf, VoxelShape>> COLLISION_SHAPES = LargeLaserBlock.makeCollisionShapes();
 
     public LargeLaserBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
-            .any()
-            .setValue(HALF, DirectionCube3x3PartHalf.BOTTOM_CENTER)
-            .setValue(FACING, Direction.DOWN)
-            .setValue(OVERLOAD, true)
-            .setValue(SWITCH, IPowerComponent.Switch.ON)
+                                      .any()
+                                      .setValue(LargeLaserBlock.HALF, DirectionCube3x3PartHalf.BOTTOM_CENTER)
+                                      .setValue(LargeLaserBlock.FACING, Direction.DOWN)
+                                      .setValue(LargeLaserBlock.OVERLOAD, true)
+                                      .setValue(LargeLaserBlock.SWITCH, IPowerComponent.Switch.ON)
         );
     }
 
     private static Map<Direction, Map<DirectionCube3x3PartHalf, VoxelShape>> makeCollisionShapes() {
         Map<Direction, Map<DirectionCube3x3PartHalf, VoxelShape>> shapes = new EnumMap<>(Direction.class);
-        shapes.put(Direction.DOWN, makePartShapes(DOWN_COLLISION_SHAPE));
-        shapes.put(Direction.UP, makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 180, DOWN_COLLISION_SHAPE)));
-        shapes.put(Direction.SOUTH, makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 90, DOWN_COLLISION_SHAPE)));
-        shapes.put(Direction.NORTH, makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 270, DOWN_COLLISION_SHAPE)));
-        shapes.put(Direction.WEST, makePartShapes(ShapeUtil.rotate(
-            Direction.Axis.Y,
-            270,
-            ShapeUtil.rotate(Direction.Axis.X, 90, DOWN_COLLISION_SHAPE)
-        )));
-        shapes.put(Direction.EAST, makePartShapes(ShapeUtil.rotate(
-            Direction.Axis.Y,
-            270,
-            ShapeUtil.rotate(Direction.Axis.X, 270, DOWN_COLLISION_SHAPE)
-        )));
+        shapes.put(Direction.DOWN, LargeLaserBlock.makePartShapes(LargeLaserBlock.DOWN_COLLISION_SHAPE));
+        shapes.put(
+            Direction.UP, LargeLaserBlock.makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 180, LargeLaserBlock.DOWN_COLLISION_SHAPE)));
+        shapes.put(
+            Direction.SOUTH, LargeLaserBlock.makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 90, LargeLaserBlock.DOWN_COLLISION_SHAPE)));
+        shapes.put(
+            Direction.NORTH, LargeLaserBlock.makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 270, LargeLaserBlock.DOWN_COLLISION_SHAPE)));
+        shapes.put(
+            Direction.WEST, LargeLaserBlock.makePartShapes(ShapeUtil.rotate(
+                Direction.Axis.Y,
+                270,
+                ShapeUtil.rotate(Direction.Axis.X, 90, LargeLaserBlock.DOWN_COLLISION_SHAPE)
+            ))
+        );
+        shapes.put(
+            Direction.EAST, LargeLaserBlock.makePartShapes(ShapeUtil.rotate(
+                Direction.Axis.Y,
+                270,
+                ShapeUtil.rotate(Direction.Axis.X, 270, LargeLaserBlock.DOWN_COLLISION_SHAPE)
+            ))
+        );
         return shapes;
     }
 
@@ -92,7 +99,7 @@ public class LargeLaserBlock extends FlexibleMultiPartBlock<DirectionCube3x3Part
         for (DirectionCube3x3PartHalf part : DirectionCube3x3PartHalf.values()) {
             ArrayList<AABB> partBoxes = new ArrayList<>();
             for (AABB box : shape.toAabbs()) {
-                AABB clipped = clipToPart(scale16(box), part);
+                AABB clipped = LargeLaserBlock.clipToPart(LargeLaserBlock.scale16(box), part);
                 if (clipped != null) partBoxes.add(clipped);
             }
             shapes.put(
@@ -133,7 +140,7 @@ public class LargeLaserBlock extends FlexibleMultiPartBlock<DirectionCube3x3Part
 
     @Override
     public Property<DirectionCube3x3PartHalf> getPart() {
-        return HALF;
+        return LargeLaserBlock.HALF;
     }
 
     @Override
@@ -143,7 +150,7 @@ public class LargeLaserBlock extends FlexibleMultiPartBlock<DirectionCube3x3Part
 
     @Override
     public EnumProperty<Direction> getAdditionalProperty() {
-        return FACING;
+        return LargeLaserBlock.FACING;
     }
 
     @Override
@@ -161,7 +168,7 @@ public class LargeLaserBlock extends FlexibleMultiPartBlock<DirectionCube3x3Part
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
             .setValue(
-                FACING,
+                LargeLaserBlock.FACING,
                 context.getPlayer() != null && context.getPlayer().isShiftKeyDown()
                     ? context.getNearestLookingDirection().getOpposite()
                     : context.getNearestLookingDirection()
@@ -180,11 +187,11 @@ public class LargeLaserBlock extends FlexibleMultiPartBlock<DirectionCube3x3Part
         boolean isSignal = Arrays.stream(this.getParts()).anyMatch((half) -> level.hasNeighborSignal(
             pos.subtract(state.getValue(this.getPart()).getOffset()).offset(half.getOffset())
         ));
-        if (isSignal && state.getValue(SWITCH) == IPowerComponent.Switch.ON) {
-            this.updateState(level, pos, SWITCH, IPowerComponent.Switch.OFF, 3);
-        } else if (!isSignal && state.getValue(SWITCH) == IPowerComponent.Switch.OFF) {
-            this.updateState(level, pos, SWITCH, IPowerComponent.Switch.ON, 3);
-            if (level.getBlockEntity(getMainPartPos(pos, state)) instanceof IPowerConsumer powerConsumer) {
+        if (isSignal && state.getValue(LargeLaserBlock.SWITCH) == IPowerComponent.Switch.ON) {
+            this.updateState(level, pos, LargeLaserBlock.SWITCH, IPowerComponent.Switch.OFF, 3);
+        } else if (!isSignal && state.getValue(LargeLaserBlock.SWITCH) == IPowerComponent.Switch.OFF) {
+            this.updateState(level, pos, LargeLaserBlock.SWITCH, IPowerComponent.Switch.ON, 3);
+            if (level.getBlockEntity(this.getMainPartPos(pos, state)) instanceof IPowerConsumer powerConsumer) {
                 if (powerConsumer.getGrid() == null) {
                     return;
                 }
@@ -195,19 +202,19 @@ public class LargeLaserBlock extends FlexibleMultiPartBlock<DirectionCube3x3Part
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(HALF, FACING, OVERLOAD, SWITCH);
+        builder.add(LargeLaserBlock.HALF, LargeLaserBlock.FACING, LargeLaserBlock.OVERLOAD, LargeLaserBlock.SWITCH);
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(HALF, state.getValue(HALF).rotate(rotation))
-            .setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(LargeLaserBlock.HALF, state.getValue(LargeLaserBlock.HALF).rotate(rotation))
+            .setValue(LargeLaserBlock.FACING, rotation.rotate(state.getValue(LargeLaserBlock.FACING)));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(HALF, state.getValue(HALF).mirror(mirror))
-            .setValue(FACING, mirror.mirror(state.getValue(FACING)));
+        return state.setValue(LargeLaserBlock.HALF, state.getValue(LargeLaserBlock.HALF).mirror(mirror))
+            .setValue(LargeLaserBlock.FACING, mirror.mirror(state.getValue(LargeLaserBlock.FACING)));
     }
 
     @Override
@@ -222,7 +229,7 @@ public class LargeLaserBlock extends FlexibleMultiPartBlock<DirectionCube3x3Part
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return COLLISION_SHAPES.get(state.getValue(FACING)).get(state.getValue(HALF));
+        return LargeLaserBlock.COLLISION_SHAPES.get(state.getValue(LargeLaserBlock.FACING)).get(state.getValue(LargeLaserBlock.HALF));
     }
 
     @Override
@@ -232,13 +239,13 @@ public class LargeLaserBlock extends FlexibleMultiPartBlock<DirectionCube3x3Part
 
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
-        this.change(blockPos, level, (state) -> state.cycle(FACING));
+        this.change(blockPos, level, (state) -> state.cycle(LargeLaserBlock.FACING));
         return true;
     }
 
     @Override
     public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
+        return LargeLaserBlock.FACING;
     }
 
     @Override

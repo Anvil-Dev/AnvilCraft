@@ -29,7 +29,7 @@ public record InfiniteFluidTankBreakModifierPacket(
 
     @Override
     public Type<InfiniteFluidTankBreakModifierPacket> type() {
-        return TYPE;
+        return InfiniteFluidTankBreakModifierPacket.TYPE;
     }
 
     @Override

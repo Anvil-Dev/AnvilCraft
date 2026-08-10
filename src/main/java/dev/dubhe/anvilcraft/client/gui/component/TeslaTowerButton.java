@@ -67,7 +67,7 @@ public class TeslaTowerButton extends Button {
         if (searchText.startsWith("#") || searchText.startsWith("~")) {
             message = this.parent.getFilterTitle(this.index, this.variant);
         } else {
-            message = highlighted(
+            message = TeslaTowerButton.highlighted(
                 this.parent.getFilterTitle(this.index, this.variant).getString(),
                 searchText,
                 ChatFormatting.WHITE
@@ -91,7 +91,7 @@ public class TeslaTowerButton extends Button {
         }
 
         if (this.isHovered()) {
-            Component filterText = highlighted(
+            Component filterText = TeslaTowerButton.highlighted(
                 id, searchText.replaceFirst("#", ""), ChatFormatting.GRAY);
             List<FormattedCharSequence> tooltipComponents = filterText.getString().isEmpty()
                 ? List.of(message.getVisualOrderText())

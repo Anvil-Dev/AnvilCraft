@@ -51,7 +51,7 @@ public class StampingRecipe extends BaseStampingRecipe<StampingRecipe> {
 
     @Override
     public RecipeSerializer<StampingRecipe> getSerializer() {
-        return SERIALIZER;
+        return StampingRecipe.SERIALIZER;
     }
 
     /// 创建一个构建器实例

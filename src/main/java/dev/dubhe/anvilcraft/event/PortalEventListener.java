@@ -42,7 +42,6 @@ public class PortalEventListener {
         if (recipeOp.isPresent()) result = recipeOp.get().value().getResults().getResult(level);
         if (result == null) return;
         entity.blockState = result.getKey();
-        CompoundTag nbt = result.getValue();
-        entity.blockData = nbt == null ? null : nbt.copy();
+        entity.blockData = result.getValue().copy();
     }
 }

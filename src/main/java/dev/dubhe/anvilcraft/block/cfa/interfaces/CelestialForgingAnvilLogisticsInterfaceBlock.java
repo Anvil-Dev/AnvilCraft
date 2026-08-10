@@ -16,6 +16,7 @@ import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.shapes.CollisionContext;
@@ -32,13 +33,13 @@ public class CelestialForgingAnvilLogisticsInterfaceBlock extends CelestialForgi
         Block.box(4, 8, 6, 12, 16, 14),
         Block.box(5, 12, 1, 11, 18, 7)
     );
-    public static final VoxelShape WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, NORTH);
-    public static final VoxelShape SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, NORTH);
-    public static final VoxelShape EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, NORTH);
+    public static final VoxelShape WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, CelestialForgingAnvilLogisticsInterfaceBlock.NORTH);
+    public static final VoxelShape SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, CelestialForgingAnvilLogisticsInterfaceBlock.NORTH);
+    public static final VoxelShape EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, CelestialForgingAnvilLogisticsInterfaceBlock.NORTH);
 
     @Override
     protected MapCodec<? extends HorizontalDirectionalBlock> codec() {
-        return simpleCodec(CelestialForgingAnvilLogisticsInterfaceBlock::new);
+        return BlockBehaviour.simpleCodec(CelestialForgingAnvilLogisticsInterfaceBlock::new);
     }
 
     public CelestialForgingAnvilLogisticsInterfaceBlock(Properties properties) {
@@ -47,18 +48,18 @@ public class CelestialForgingAnvilLogisticsInterfaceBlock extends CelestialForgi
 
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return switch (state.getValue(FACING)) {
-            case NORTH -> NORTH;
-            case SOUTH -> SOUTH;
-            case WEST -> WEST;
-            case EAST -> EAST;
+        return switch (state.getValue(HorizontalDirectionalBlock.FACING)) {
+            case NORTH -> CelestialForgingAnvilLogisticsInterfaceBlock.NORTH;
+            case SOUTH -> CelestialForgingAnvilLogisticsInterfaceBlock.SOUTH;
+            case WEST -> CelestialForgingAnvilLogisticsInterfaceBlock.WEST;
+            case EAST -> CelestialForgingAnvilLogisticsInterfaceBlock.EAST;
             default -> throw new IllegalArgumentException("Unsupported direction for horizontal facing");
         };
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, ACTIVE);
+        builder.add(HorizontalDirectionalBlock.FACING, CelestialForgingAnvilInterfaceBlock.ACTIVE);
     }
 
     @Override
@@ -73,7 +74,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlock extends CelestialForgi
     ) {
         if (level.isClientSide()) return null;
         if (type == ModBlockEntities.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.get()) {
-            return (BlockEntityTicker<T>) (lvl, pos, st, be) ->
+            return (lvl, pos, st, be) ->
                 ((CelestialForgingAnvilLogisticsInterfaceBlockEntity) be).serverTick();
         }
         return null;

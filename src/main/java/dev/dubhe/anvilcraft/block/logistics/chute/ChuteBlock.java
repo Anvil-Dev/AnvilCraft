@@ -39,6 +39,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -98,8 +99,8 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         super(properties);
         this.registerDefaultState(
             this.stateDefinition.any()
-                .setValue(FACING, Direction.DOWN)
-                .setValue(ENABLED, Boolean.TRUE)
+                .setValue(ChuteBlock.FACING, Direction.DOWN)
+                .setValue(ChuteBlock.ENABLED, Boolean.TRUE)
         );
     }
 
@@ -121,8 +122,8 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
 
     @Nullable
     public static Direction getFacing(BlockState state) {
-        if (state.hasProperty(FACING)) {
-            return state.getValue(FACING);
+        if (state.hasProperty(ChuteBlock.FACING)) {
+            return state.getValue(ChuteBlock.FACING);
         }
         if (state.hasProperty(MagneticChuteBlock.FACING)) {
             return state.getValue(MagneticChuteBlock.FACING);
@@ -132,7 +133,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(ChuteBlock::new);
+        return BlockBehaviour.simpleCodec(ChuteBlock::new);
     }
 
     @Override
@@ -157,14 +158,14 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
     @Override
     public boolean change(Player player, BlockPos pos, Level level, ItemStack anvilHammer) {
         BlockState oldState = level.getBlockState(pos);
-        Direction oldFacing = oldState.getValue(FACING);
+        Direction oldFacing = oldState.getValue(ChuteBlock.FACING);
         Direction newFacing = switch (oldFacing) {
             case WEST -> Direction.DOWN;
             case DOWN -> Direction.NORTH;
             default -> oldFacing.getClockWise();
         };
         BlockState facingState = level.getBlockState(pos.relative(newFacing));
-        if (isChuteBlock(facingState) && getFacing(facingState) == newFacing.getOpposite()) {
+        if (ChuteBlock.isChuteBlock(facingState) && ChuteBlock.getFacing(facingState) == newFacing.getOpposite()) {
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
             level.levelEvent(2001, pos, Block.getId(oldState));
             Block.dropResources(oldState, level, pos);
@@ -176,22 +177,22 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
 
     @Override
     public Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
+        return ChuteBlock.FACING;
     }
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(ChuteBlock.FACING, rotation.rotate(state.getValue(ChuteBlock.FACING)));
     }
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
-        return this.rotate(state, mirror.getRotation(state.getValue(FACING)));
+        return this.rotate(state, mirror.getRotation(state.getValue(ChuteBlock.FACING)));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, ENABLED);
+        builder.add(ChuteBlock.FACING, ChuteBlock.ENABLED);
     }
 
     @Override
@@ -207,8 +208,8 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
     ) {
         if (level.isClientSide()) return state;
         Block neighborBlock = neighbourState.getBlock();
-        if (isChuteBlock(neighborBlock)) {
-            BlockState newState = this.getState(level, pos, state.getValue(FACING));
+        if (ChuteBlock.isChuteBlock(neighborBlock)) {
+            BlockState newState = this.getState(level, pos, state.getValue(ChuteBlock.FACING));
             if (newState != null && newState != state) state = newState;
         }
         state = this.checkPoweredState(level, pos, state);
@@ -217,8 +218,8 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
 
     private BlockState checkPoweredState(LevelReader level, BlockPos pos, BlockState state) {
         boolean flag = !level.hasNeighborSignal(pos);
-        if (flag == state.getValue(ENABLED)) return state;
-        return state.setValue(ENABLED, flag);
+        if (flag == state.getValue(ChuteBlock.ENABLED)) return state;
+        return state.setValue(ChuteBlock.ENABLED, flag);
     }
 
     @Override
@@ -227,8 +228,8 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         ServerLevel level,
         BlockPos pos,
         RandomSource random) {
-        if (!state.getValue(ENABLED) && !level.hasNeighborSignal(pos)) {
-            level.setBlock(pos, state.cycle(ENABLED), 2);
+        if (!state.getValue(ChuteBlock.ENABLED) && !level.hasNeighborSignal(pos)) {
+            level.setBlock(pos, state.cycle(ChuteBlock.ENABLED), 2);
         }
     }
 
@@ -244,7 +245,7 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         if (level.isClientSide()) {
             return null;
         }
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             type,
             ModBlockEntities.CHUTE.get(),
             (_, _, _, be) -> be.tick()
@@ -253,12 +254,12 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext collisionContext) {
-        return switch (state.getValue(FACING)) {
-            case NORTH -> AABB_N;
-            case SOUTH -> AABB_S;
-            case WEST -> AABB_W;
-            case EAST -> AABB_E;
-            default -> AABB;
+        return switch (state.getValue(ChuteBlock.FACING)) {
+            case NORTH -> ChuteBlock.AABB_N;
+            case SOUTH -> ChuteBlock.AABB_S;
+            case WEST -> ChuteBlock.AABB_W;
+            case EAST -> ChuteBlock.AABB_E;
+            default -> ChuteBlock.AABB;
         };
     }
 
@@ -338,14 +339,14 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
         boolean success = false;
         boolean tall = false;
         BlockState result = this.defaultBlockState()
-            .setValue(FACING, facing)
-            .setValue(ENABLED, !level.hasNeighborSignal(pos));
+            .setValue(ChuteBlock.FACING, facing)
+            .setValue(ChuteBlock.ENABLED, !level.hasNeighborSignal(pos));
         // 遍历六个方向 获取指向自己的溜槽
         for (Direction dir : Direction.values()) {
             BlockPos neighborPos = pos.relative(dir);
             BlockState neighborState = level.getBlockState(neighborPos);
-            if (isChuteBlock(neighborState)) {
-                if (getFacing(neighborState) == dir.getOpposite()) {
+            if (ChuteBlock.isChuteBlock(neighborState)) {
+                if (ChuteBlock.getFacing(neighborState) == dir.getOpposite()) {
                     success = true;
                     if (dir == Direction.UP) {
                         tall = !neighborState.is(ModBlocks.MAGNETIC_CHUTE.get());
@@ -354,11 +355,11 @@ public class ChuteBlock extends BetterBaseEntityBlock implements HammerRotateBeh
                             return null;
                         }
                     } else {
-                        if (facing.getOpposite() == getFacing(neighborState)) {
+                        if (facing.getOpposite() == ChuteBlock.getFacing(neighborState)) {
                             facing = facing.getOpposite();
                         }
                         BlockState backState = level.getBlockState(pos.relative(facing));
-                        if (isChuteBlock(backState) && getFacing(backState) == facing.getOpposite()) {
+                        if (ChuteBlock.isChuteBlock(backState) && ChuteBlock.getFacing(backState) == facing.getOpposite()) {
                             return null;
                         }
 

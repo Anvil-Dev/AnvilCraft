@@ -45,7 +45,7 @@ public class LavaCauldronBlock extends Layered4LevelCauldronBlock implements IHa
 
     @Override
     protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
-        int layer = state.getValue(LEVEL);
+        int layer = state.getValue(Layered4LevelCauldronBlock.LEVEL);
         return layer <= 2 ? layer : layer - 1;
     }
 }

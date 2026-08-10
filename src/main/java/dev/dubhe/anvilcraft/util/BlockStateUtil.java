@@ -112,7 +112,7 @@ public class BlockStateUtil {
             case GrowingPlantBodyBlock plantHead -> ((GrowingPlantAccessor) plantHead).invokeGetHeadBlock()
                 .asItem().getDefaultInstance();
             case CandleCakeBlock ignored -> Items.CAKE.getDefaultInstance();
-            default -> HARDCODED_SPECIAL_AS_ITEM.getOrDefault(block, block.asItem().getDefaultInstance());
+            default -> BlockStateUtil.HARDCODED_SPECIAL_AS_ITEM.getOrDefault(block, block.asItem().getDefaultInstance());
         };
         if (
             state.hasProperty(BlockStateProperties.DOUBLE_BLOCK_HALF)
@@ -123,7 +123,7 @@ public class BlockStateUtil {
             baseItem = ItemStack.EMPTY;
         } else if (block instanceof AbstractMultiPartBlock<?> multiplePartBlock && !multiplePartBlock.isMainPart(state)) {
             baseItem = ItemStack.EMPTY;
-        } else if (isMultifaceLike(block)) {
+        } else if (BlockStateUtil.isMultifaceLike(block)) {
             long faceCount = PipeBlock.PROPERTY_BY_DIRECTION.values().stream()
                 .filter(state::hasProperty)
                 .filter(state::getValue)
@@ -136,14 +136,14 @@ public class BlockStateUtil {
             state.getProperties().stream()
                 .filter(IntegerProperty.class::isInstance)
                 .map(IntegerProperty.class::cast)
-                .filter(COUNT_PROPERTIES::contains)
+                .filter(BlockStateUtil.COUNT_PROPERTIES::contains)
                 .findFirst()
                 .ifPresent(p -> finalBaseItem.setCount(state.getValue(p)));
         }
         ItemStack additionalItem = switch (block) {
             case CandleCakeBlock cake -> cake.candleBlock.asItem().getDefaultInstance();
             case FlowerPotBlock pot -> pot.getPotted().asItem().getDefaultInstance();
-            case AbstractCauldronBlock cauldron -> getBucketFromCauldron(cauldron, state);
+            case AbstractCauldronBlock cauldron -> BlockStateUtil.getBucketFromCauldron(cauldron, state);
             default -> {
                 FluidState fluidState = state.getFluidState();
                 if (fluidState.isSource()) {

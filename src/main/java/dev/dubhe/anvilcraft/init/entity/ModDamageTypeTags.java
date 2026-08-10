@@ -7,15 +7,15 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.damagesource.DamageType;
 
 public class ModDamageTypeTags {
-    public static final TagKey<DamageType> AMULET_VALID = bind("amulet_valid");
-    public static final TagKey<DamageType> TOPAZ_AMULET_VALID = bind("amulet_valid/topaz");
-    public static final TagKey<DamageType> RUBY_AMULET_VALID = bind("amulet_valid/ruby");
-    public static final TagKey<DamageType> SAPPHIRE_AMULET_VALID = bind("amulet_valid/sapphire");
-    public static final TagKey<DamageType> ANVIL_AMULET_VALID = bind("amulet_valid/anvil");
-    public static final TagKey<DamageType> FEATHER_AMULET_VALID = bind("amulet_valid/feather");
-    public static final TagKey<DamageType> ABNORMAL_AMULET_VALID = bind("amulet_valid/abnormal");
+    public static final TagKey<DamageType> AMULET_VALID = ModDamageTypeTags.bind("amulet_valid");
+    public static final TagKey<DamageType> TOPAZ_AMULET_VALID = ModDamageTypeTags.bind("amulet_valid/topaz");
+    public static final TagKey<DamageType> RUBY_AMULET_VALID = ModDamageTypeTags.bind("amulet_valid/ruby");
+    public static final TagKey<DamageType> SAPPHIRE_AMULET_VALID = ModDamageTypeTags.bind("amulet_valid/sapphire");
+    public static final TagKey<DamageType> ANVIL_AMULET_VALID = ModDamageTypeTags.bind("amulet_valid/anvil");
+    public static final TagKey<DamageType> FEATHER_AMULET_VALID = ModDamageTypeTags.bind("amulet_valid/feather");
+    public static final TagKey<DamageType> ABNORMAL_AMULET_VALID = ModDamageTypeTags.bind("amulet_valid/abnormal");
 
-    public static final TagKey<DamageType> IS_FALLING_GIANT_ANVIL = bind("is_falling_giant_anvil");
+    public static final TagKey<DamageType> IS_FALLING_GIANT_ANVIL = ModDamageTypeTags.bind("is_falling_giant_anvil");
 
     @SuppressWarnings("unused")
     private static TagKey<DamageType> bindC(String id) {

@@ -31,24 +31,24 @@ import java.util.stream.Stream;
 
 public record SlidingBlockInfo(Vec3i offset, BlockState state, @Nullable BlockEntity blockEntity) {
     public static final MapCodec<SlidingBlockInfo> CODEC = new MapCodec<>() {
-        private static final MapCodec<Vec3i> OFFSET = Vec3i.CODEC.fieldOf("offset");
-        private static final MapCodec<BlockState> STATE = BlockState.CODEC.fieldOf("state");
-        private static final MapCodec<CompoundTag> ENTITY_DATA = CompoundTag.CODEC.fieldOf("entity_data");
+        private final MapCodec<Vec3i> offsetCodec = Vec3i.CODEC.fieldOf("offset");
+        private final MapCodec<BlockState> stateCodec = BlockState.CODEC.fieldOf("state");
+        private final MapCodec<CompoundTag> entityDataCodec = CompoundTag.CODEC.fieldOf("entity_data");
 
         @Override
         public <T> RecordBuilder<T> encode(SlidingBlockInfo input, DynamicOps<T> ops, RecordBuilder<T> prefix) {
-            OFFSET.encode(input.offset, ops, prefix);
-            STATE.encode(input.state, ops, prefix);
-            ENTITY_DATA.encode(input.beTag(), ops, prefix);
+            this.offsetCodec.encode(input.offset, ops, prefix);
+            this.stateCodec.encode(input.state, ops, prefix);
+            this.entityDataCodec.encode(input.beTag(), ops, prefix);
             return prefix;
         }
 
         @Override
         public <T> DataResult<SlidingBlockInfo> decode(DynamicOps<T> ops, MapLike<T> input) {
-            Vec3i offset = OFFSET.decode(ops, input).getOrThrow();
-            BlockState state = STATE.decode(ops, input).getOrThrow();
+            Vec3i offset = this.offsetCodec.decode(ops, input).getOrThrow();
+            BlockState state = this.stateCodec.decode(ops, input).getOrThrow();
 
-            DataResult<CompoundTag> entityData = ENTITY_DATA.decode(ops, input);
+            DataResult<CompoundTag> entityData = this.entityDataCodec.decode(ops, input);
             if (entityData.isError()) {
                 return DataResult.error(() -> "No valid entity data", new SlidingBlockInfo(offset, state));
             }
@@ -64,7 +64,9 @@ public record SlidingBlockInfo(Vec3i offset, BlockState state, @Nullable BlockEn
 
         @Override
         public <T> Stream<T> keys(DynamicOps<T> ops) {
-            return Streams.concat(OFFSET.keys(ops), STATE.keys(ops), ENTITY_DATA.keys(ops));
+            return Streams.concat(
+                this.offsetCodec.keys(ops), this.stateCodec.keys(ops), this.entityDataCodec.keys(ops)
+            );
         }
     };
     public static final StreamCodec<RegistryFriendlyByteBuf, SlidingBlockInfo> STREAM_CODEC = StreamCodec.of(

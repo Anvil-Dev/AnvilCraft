@@ -25,7 +25,9 @@ public class HeavyHalberdCoreItem extends Item implements IMultipleMaterial {
     private static final Component MISSING_TOOLS_TOOLTIP = Component.translatable(
         "screen.anvilcraft.ember_smithing.heavy_halberd_core.missing_tools");
     private static final List<Identifier> EMPTY_SLOT_TEXTURES = List.of(
-        EMPTY_SLOT_SWORD, EMPTY_SLOT_SPEAR, EMPTY_SLOT_TRIDENT, EMPTY_SLOT_MACE);
+        HeavyHalberdCoreItem.EMPTY_SLOT_SWORD, HeavyHalberdCoreItem.EMPTY_SLOT_SPEAR, HeavyHalberdCoreItem.EMPTY_SLOT_TRIDENT,
+        HeavyHalberdCoreItem.EMPTY_SLOT_MACE
+    );
 
     public HeavyHalberdCoreItem(Properties properties) {
         super(properties);
@@ -33,21 +35,21 @@ public class HeavyHalberdCoreItem extends Item implements IMultipleMaterial {
 
     @Override
     public Component getInputTooltip(ItemStack template, List<ItemStack> inputs) {
-        return MISSING_TOOLS_TOOLTIP;
+        return HeavyHalberdCoreItem.MISSING_TOOLS_TOOLTIP;
     }
 
     @Override
     public List<Identifier> getEmptySlotTextures(ItemStack template, int id, List<ItemStack> inputs) {
-        List<Identifier> textures = ListUtil.cycle(EMPTY_SLOT_TEXTURES, id);
+        List<Identifier> textures = ListUtil.cycle(HeavyHalberdCoreItem.EMPTY_SLOT_TEXTURES, id);
         for (ItemStack input : inputs) {
             if (input.is(ItemTags.SWORDS)) {
-                textures.remove(EMPTY_SLOT_SWORD);
+                textures.remove(HeavyHalberdCoreItem.EMPTY_SLOT_SWORD);
             } else if (input.is(ItemTags.SPEARS)) {
-                textures.remove(EMPTY_SLOT_SPEAR);
+                textures.remove(HeavyHalberdCoreItem.EMPTY_SLOT_SPEAR);
             } else if (input.is(Items.TRIDENT)) {
-                textures.remove(EMPTY_SLOT_TRIDENT);
+                textures.remove(HeavyHalberdCoreItem.EMPTY_SLOT_TRIDENT);
             } else if (input.is(Tags.Items.TOOLS_MACE)) {
-                textures.remove(EMPTY_SLOT_MACE);
+                textures.remove(HeavyHalberdCoreItem.EMPTY_SLOT_MACE);
             }
         }
         return textures;

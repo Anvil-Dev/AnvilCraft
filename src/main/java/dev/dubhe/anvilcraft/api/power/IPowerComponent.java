@@ -71,17 +71,17 @@ public interface IPowerComponent extends Comparable<IPowerComponent> {
 
     default void flushState(Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
-        if (!state.hasProperty(OVERLOAD)) return;
+        if (!state.hasProperty(IPowerComponent.OVERLOAD)) return;
         if (this.getGrid() == null) {
-            if (!state.getValue(OVERLOAD)) {
-                level.setBlockAndUpdate(pos, state.setValue(OVERLOAD, true));
+            if (!state.getValue(IPowerComponent.OVERLOAD)) {
+                level.setBlockAndUpdate(pos, state.setValue(IPowerComponent.OVERLOAD, true));
             }
             return;
         }
-        if (this.getGrid().isWorking() && state.getValue(OVERLOAD)) {
-            level.setBlockAndUpdate(pos, state.setValue(OVERLOAD, false));
-        } else if (!this.getGrid().isWorking() && !state.getValue(OVERLOAD)) {
-            level.setBlockAndUpdate(pos, state.setValue(OVERLOAD, true));
+        if (this.getGrid().isWorking() && state.getValue(IPowerComponent.OVERLOAD)) {
+            level.setBlockAndUpdate(pos, state.setValue(IPowerComponent.OVERLOAD, false));
+        } else if (!this.getGrid().isWorking() && !state.getValue(IPowerComponent.OVERLOAD)) {
+            level.setBlockAndUpdate(pos, state.setValue(IPowerComponent.OVERLOAD, true));
         }
     }
 

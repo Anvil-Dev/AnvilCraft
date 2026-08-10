@@ -45,8 +45,7 @@ public class FallingBlockCollisionEventListener {
     @SubscribeEvent
     public static void anvilCollisionCraft(AnvilEvent.CollisionBlock event) {
         if (event.isCanceled()) return;
-        Level level = event.getLevel();
-        if (level.isClientSide()) return;
+        if (!(event.getLevel() instanceof ServerLevel level)) return;
         Vec3 entityPos = event.getEntity().position();
         BlockPos pos = event.getPos();
         if (AnvilCraft.CONFIG.anvilCollisionCraftSpeed > event.getSpeed()) return;
@@ -65,12 +64,12 @@ public class FallingBlockCollisionEventListener {
             resultRecipe = recipe;
         }
         if (resultRecipe != null) {
-            executeRecipe(event, resultRecipe, level, pos, entityPos);
+            FallingBlockCollisionEventListener.executeRecipe(event, resultRecipe, level, pos, entityPos);
             return;
         }
         if (event.getEntity().getBlockState().is(BlockTags.ANVIL)) {
             if (state.getDestroySpeed(level, pos) > 0) {
-                removeBlock(level, pos);
+                FallingBlockCollisionEventListener.removeBlock(level, pos);
             }
             level.explode(
                 null,
@@ -89,12 +88,11 @@ public class FallingBlockCollisionEventListener {
     private static void executeRecipe(
         AnvilEvent.CollisionBlock event,
         RecipeHolder<AnvilCollisionCraftRecipe> recipeHolder,
-        Level level,
+        ServerLevel level,
         BlockPos pos,
         Vec3 entityPos
     ) {
-        if (!(level instanceof ServerLevel serverLevel)) return;
-        removeBlock(level, pos);
+        FallingBlockCollisionEventListener.removeBlock(level, pos);
         AnvilCollisionCraftRecipe recipe = recipeHolder.value();
         if (recipe.consume()) {
             event.getEntity().discard();
@@ -116,7 +114,7 @@ public class FallingBlockCollisionEventListener {
                 ? Explosion.BlockInteraction.DESTROY_WITH_DECAY
                 : Explosion.BlockInteraction.DESTROY;
         ServerExplosion explosion = new ServerExplosion(
-            serverLevel,
+            level,
             null,
             damageSource,
             damageCalculator,
@@ -128,7 +126,7 @@ public class FallingBlockCollisionEventListener {
         explosion.anvilcraft$setBlockTransformExplosion(recipe.transformBlocks());
         int blockCount = explosion.explode();
         ParticleOptions explosionParticle = explosion.isSmall() ? smallExplosionParticles : largeExplosionParticles;
-        for (ServerPlayer serverplayer : serverLevel.players()) {
+        for (ServerPlayer serverplayer : level.players()) {
             if (serverplayer.distanceToSqr(x, y, z) < 4096.0) {
                 Optional<Vec3> playerKnockback = Optional.ofNullable(explosion.getHitPlayers().get(serverplayer));
                 serverplayer.connection.send(
@@ -147,7 +145,7 @@ public class FallingBlockCollisionEventListener {
 
         ArrayList<ItemStack> itemEntities = new ArrayList<>();
         for (ChanceItemStack outputItem : recipe.outputItems()) {
-            ItemStack itemStack = outputItem.getResult(serverLevel).create();
+            ItemStack itemStack = outputItem.getResult(level).create();
             if (itemStack.isEmpty()) continue;
             itemEntities.add(itemStack);
         }

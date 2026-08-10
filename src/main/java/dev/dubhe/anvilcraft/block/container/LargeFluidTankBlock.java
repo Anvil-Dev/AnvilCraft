@@ -39,7 +39,6 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import org.jspecify.annotations.Nullable;
 
@@ -54,7 +53,7 @@ public class LargeFluidTankBlock
         super(properties);
         this.registerDefaultState(this.stateDefinition
             .any()
-            .setValue(HALF, Cube3x3PartHalf.BOTTOM_CENTER));
+            .setValue(LargeFluidTankBlock.HALF, Cube3x3PartHalf.BOTTOM_CENTER));
     }
 
     @Override
@@ -64,22 +63,22 @@ public class LargeFluidTankBlock
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(HALF);
+        builder.add(LargeFluidTankBlock.HALF);
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(HALF, state.getValue(HALF).rotate(rotation));
+        return state.setValue(LargeFluidTankBlock.HALF, state.getValue(LargeFluidTankBlock.HALF).rotate(rotation));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(HALF, state.getValue(HALF).mirror(mirror));
+        return state.setValue(LargeFluidTankBlock.HALF, state.getValue(LargeFluidTankBlock.HALF).mirror(mirror));
     }
 
     @Override
     public Property<Cube3x3PartHalf> getPart() {
-        return HALF;
+        return LargeFluidTankBlock.HALF;
     }
 
     @Override
@@ -137,7 +136,7 @@ public class LargeFluidTankBlock
     ) {
         InteractionResult result = super.useItemOn(stack, state, level, pos, player, hand, hitResult);
         if (result == InteractionResult.PASS) {
-            BlockPos mainPartPos = getMainPartPos(pos, state);
+            BlockPos mainPartPos = this.getMainPartPos(pos, state);
             BlockEntity blockEntity = level.getBlockEntity(mainPartPos);
             if (blockEntity instanceof LargeFluidTankBlockEntity tank) {
                 if (tank.onPlayerUse(player, hand)) {

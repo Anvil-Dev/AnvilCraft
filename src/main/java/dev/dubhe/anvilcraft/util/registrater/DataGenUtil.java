@@ -378,7 +378,7 @@ public class DataGenUtil {
         NonNullFunction<DataGenContext<Block, ?>, Material> bottom,
         NonNullFunction<DataGenContext<Block, ?>, Material> side
     ) {
-        return slabBlock(
+        return DataGenUtil.slabBlock(
             top,
             bottom,
             side,

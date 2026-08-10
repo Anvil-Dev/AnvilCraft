@@ -40,11 +40,11 @@ public class LargeCauldronBlockEntityRenderer
         () -> "AnvilCraft: Large Cauldron Fire Model"
     );
     private static final float WALL = 0.25F + 0.001F;
-    private static final float MIN_XZ = -1.0F + WALL;
-    private static final float MAX_XZ = 2.0F - WALL;
+    private static final float MIN_XZ = -1.0F + LargeCauldronBlockEntityRenderer.WALL;
+    private static final float MAX_XZ = 2.0F - LargeCauldronBlockEntityRenderer.WALL;
     private static final float MIN_Y = -0.5F + 0.001F;
     private static final float MAX_Y = 1.75F - 0.001F;
-    private static final float CONTENT_HEIGHT = MAX_Y - MIN_Y;
+    private static final float CONTENT_HEIGHT = LargeCauldronBlockEntityRenderer.MAX_Y - LargeCauldronBlockEntityRenderer.MIN_Y;
     private static final float INPUT_CELL_SPACING = 0.68F;
     private static final float FIRE_MODEL_SURFACE_Y = 1.0F - (1.0F / 16.0F + 0.001F);
     private static final int[][] SLOT_OFFSETS = {
@@ -84,7 +84,10 @@ public class LargeCauldronBlockEntityRenderer
             1.0F
         );
         state.setFill(fill);
-        float itemY = Mth.clamp(MIN_Y + CONTENT_HEIGHT * fill - 0.08F, MIN_Y + 0.06F, MAX_Y - 0.12F);
+        float itemY = Mth.clamp(
+            LargeCauldronBlockEntityRenderer.MIN_Y + LargeCauldronBlockEntityRenderer.CONTENT_HEIGHT * fill - 0.08F,
+            LargeCauldronBlockEntityRenderer.MIN_Y + 0.06F, LargeCauldronBlockEntityRenderer.MAX_Y - 0.12F
+        );
         float bob = fill > 0 ? Mth.sin(ClientTickRecorder.getTicks() / 12.0F) * 0.025F : 0.0F;
         this.extractItems(cauldron, state, itemY + bob);
         for (int layer = 0; layer < fluids.size(); layer++) {
@@ -95,23 +98,23 @@ public class LargeCauldronBlockEntityRenderer
             }
         }
         if (cauldron.isIgnited()) {
-            state.setFire(FeatureRendererSupport.initialize(FIRE, cauldron));
+            state.setFire(FeatureRendererSupport.initialize(LargeCauldronBlockEntityRenderer.FIRE, cauldron));
         }
     }
 
     private void extractItems(LargeCauldronBlockEntity cauldron, LargeCauldronRenderState state, float itemY) {
         ResourceHandler<ItemResource> inputs = cauldron.getInputHandler();
         for (int slot = 0; slot < inputs.size(); slot++) {
-            ItemStack stack = toStack(inputs, slot);
+            ItemStack stack = LargeCauldronBlockEntityRenderer.toStack(inputs, slot);
             if (stack.isEmpty()) continue;
-            float x = SLOT_OFFSETS[slot][0] * INPUT_CELL_SPACING + 0.5F;
-            float z = SLOT_OFFSETS[slot][1] * INPUT_CELL_SPACING + 0.5F;
+            float x = LargeCauldronBlockEntityRenderer.SLOT_OFFSETS[slot][0] * LargeCauldronBlockEntityRenderer.INPUT_CELL_SPACING + 0.5F;
+            float z = LargeCauldronBlockEntityRenderer.SLOT_OFFSETS[slot][1] * LargeCauldronBlockEntityRenderer.INPUT_CELL_SPACING + 0.5F;
             state.getItems().add(this.createItemState(stack, x, itemY, z, slot * 37.0F));
         }
 
         ResourceHandler<ItemResource> outputs = cauldron.getOutputHandler();
         for (int slot = 0; slot < outputs.size(); slot++) {
-            ItemStack stack = toStack(outputs, slot);
+            ItemStack stack = LargeCauldronBlockEntityRenderer.toStack(outputs, slot);
             if (stack.isEmpty()) continue;
             float angle = slot * 2.3999631F;
             float radius = 0.08F + slot % 3 * 0.07F;
@@ -157,8 +160,8 @@ public class LargeCauldronBlockEntityRenderer
         BlockModelRenderState fire = state.getFire();
         if (fire == null) return;
         poseStack.pushPose();
-        float surfaceY = MIN_Y + CONTENT_HEIGHT * state.getFill();
-        poseStack.translate(-1.0F, surfaceY - FIRE_MODEL_SURFACE_Y * 3.0F, -1.0F);
+        float surfaceY = LargeCauldronBlockEntityRenderer.MIN_Y + LargeCauldronBlockEntityRenderer.CONTENT_HEIGHT * state.getFill();
+        poseStack.translate(-1.0F, surfaceY - LargeCauldronBlockEntityRenderer.FIRE_MODEL_SURFACE_Y * 3.0F, -1.0F);
         poseStack.scale(3.0F, 3.0F, 3.0F);
         fire.submit(
             poseStack,
@@ -175,9 +178,9 @@ public class LargeCauldronBlockEntityRenderer
         PoseStack poseStack,
         SubmitNodeCollector submitNodeCollector
     ) {
-        float minY = MIN_Y;
+        float minY = LargeCauldronBlockEntityRenderer.MIN_Y;
         for (FluidLayerRenderState layer : state.getFluids()) {
-            float maxY = minY + CONTENT_HEIGHT * layer.amount() / LargeCauldronFluidHandler.TOTAL_CAPACITY;
+            float maxY = minY + LargeCauldronBlockEntityRenderer.CONTENT_HEIGHT * layer.amount() / LargeCauldronFluidHandler.TOTAL_CAPACITY;
             FluidResource resource = layer.resource();
             FluidModel model = FluidRenderHelper.getModel(
                 Minecraft.getInstance().getModelManager().getFluidStateModelSet(),
@@ -193,12 +196,12 @@ public class LargeCauldronBlockEntityRenderer
                 (pose, buffer) -> FluidRenderHelper.INSTANCE.renderFluidBox(
                     sprite,
                     resource,
-                    MIN_XZ,
+                    LargeCauldronBlockEntityRenderer.MIN_XZ,
                     layerMinY,
-                    MIN_XZ,
-                    MAX_XZ,
+                    LargeCauldronBlockEntityRenderer.MIN_XZ,
+                    LargeCauldronBlockEntityRenderer.MAX_XZ,
                     maxY,
-                    MAX_XZ,
+                    LargeCauldronBlockEntityRenderer.MAX_XZ,
                     tintColor,
                     buffer,
                     pose,

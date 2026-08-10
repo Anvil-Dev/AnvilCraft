@@ -21,7 +21,7 @@ public class BlackHoleBlock extends Block implements EntityBlock {
 
     @Override
     public VoxelShape getShape(BlockState blockState, BlockGetter blockGetter, BlockPos blockPos, CollisionContext collisionContext) {
-        return MODEL;
+        return BlackHoleBlock.MODEL;
     }
 
     @Override

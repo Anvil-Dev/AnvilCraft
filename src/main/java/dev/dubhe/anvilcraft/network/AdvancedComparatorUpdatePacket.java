@@ -37,7 +37,7 @@ public record AdvancedComparatorUpdatePacket(
 
     @Override
     public Type<AdvancedComparatorUpdatePacket> type() {
-        return TYPE;
+        return AdvancedComparatorUpdatePacket.TYPE;
     }
 
     @Override

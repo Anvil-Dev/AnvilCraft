@@ -77,18 +77,18 @@ public final class FluidRenderHelper {
                 boolean positive = side.getAxisDirection() == Direction.AxisDirection.POSITIVE;
                 if (side.getAxis().isHorizontal()) {
                     if (side.getAxis() == Direction.Axis.X) {
-                        renderStillTiledFace(
+                        FluidRenderHelper.renderStillTiledFace(
                             side, minZ, minY, maxZ, maxY, positive ? maxX : minX,
                             builder, pose, light, layerColor, sprite
                         );
                     } else {
-                        renderStillTiledFace(
+                        FluidRenderHelper.renderStillTiledFace(
                             side, minX, minY, maxX, maxY, positive ? maxZ : minZ,
                             builder, pose, light, layerColor, sprite
                         );
                     }
                 } else {
-                    renderStillTiledFace(
+                    FluidRenderHelper.renderStillTiledFace(
                         side, minX, minZ, maxX, maxZ, positive ? maxY : minY,
                         builder, pose, light, layerColor, sprite
                     );
@@ -101,7 +101,7 @@ public final class FluidRenderHelper {
         Direction dir, float left, float down, float right, float up,
         float depth, VertexConsumer builder, PoseStack.Pose pose, int light, int color, TextureAtlasSprite texture
     ) {
-        renderTiledFace(dir, left, down, right, up, depth, builder, pose, light, color, texture, 1);
+        FluidRenderHelper.renderTiledFace(dir, left, down, right, up, depth, builder, pose, light, color, texture, 1);
     }
 
     public static void renderTiledFace(
@@ -164,21 +164,21 @@ public final class FluidRenderHelper {
 
                 if (horizontal) {
                     if (x) {
-                        putVertex(builder, pose, depth, y2, positive ? x2 : x1, color, u1, v1, dir, light);
-                        putVertex(builder, pose, depth, y1, positive ? x2 : x1, color, u1, v2, dir, light);
-                        putVertex(builder, pose, depth, y1, positive ? x1 : x2, color, u2, v2, dir, light);
-                        putVertex(builder, pose, depth, y2, positive ? x1 : x2, color, u2, v1, dir, light);
+                        FluidRenderHelper.putVertex(builder, pose, depth, y2, positive ? x2 : x1, color, u1, v1, dir, light);
+                        FluidRenderHelper.putVertex(builder, pose, depth, y1, positive ? x2 : x1, color, u1, v2, dir, light);
+                        FluidRenderHelper.putVertex(builder, pose, depth, y1, positive ? x1 : x2, color, u2, v2, dir, light);
+                        FluidRenderHelper.putVertex(builder, pose, depth, y2, positive ? x1 : x2, color, u2, v1, dir, light);
                     } else {
-                        putVertex(builder, pose, positive ? x1 : x2, y2, depth, color, u1, v1, dir, light);
-                        putVertex(builder, pose, positive ? x1 : x2, y1, depth, color, u1, v2, dir, light);
-                        putVertex(builder, pose, positive ? x2 : x1, y1, depth, color, u2, v2, dir, light);
-                        putVertex(builder, pose, positive ? x2 : x1, y2, depth, color, u2, v1, dir, light);
+                        FluidRenderHelper.putVertex(builder, pose, positive ? x1 : x2, y2, depth, color, u1, v1, dir, light);
+                        FluidRenderHelper.putVertex(builder, pose, positive ? x1 : x2, y1, depth, color, u1, v2, dir, light);
+                        FluidRenderHelper.putVertex(builder, pose, positive ? x2 : x1, y1, depth, color, u2, v2, dir, light);
+                        FluidRenderHelper.putVertex(builder, pose, positive ? x2 : x1, y2, depth, color, u2, v1, dir, light);
                     }
                 } else {
-                    putVertex(builder, pose, x1, depth, positive ? y1 : y2, color, u1, v1, dir, light);
-                    putVertex(builder, pose, x1, depth, positive ? y2 : y1, color, u1, v2, dir, light);
-                    putVertex(builder, pose, x2, depth, positive ? y2 : y1, color, u2, v2, dir, light);
-                    putVertex(builder, pose, x2, depth, positive ? y1 : y2, color, u2, v1, dir, light);
+                    FluidRenderHelper.putVertex(builder, pose, x1, depth, positive ? y1 : y2, color, u1, v1, dir, light);
+                    FluidRenderHelper.putVertex(builder, pose, x1, depth, positive ? y2 : y1, color, u1, v2, dir, light);
+                    FluidRenderHelper.putVertex(builder, pose, x2, depth, positive ? y2 : y1, color, u2, v2, dir, light);
+                    FluidRenderHelper.putVertex(builder, pose, x2, depth, positive ? y1 : y2, color, u2, v1, dir, light);
                 }
             }
         }

@@ -28,7 +28,7 @@ public record ExpCollectorSyncPacket(BlockPos pos) implements IServerboundPacket
 
     @Override
     public Type<ExpCollectorSyncPacket> type() {
-        return TYPE;
+        return ExpCollectorSyncPacket.TYPE;
     }
 
     @Override

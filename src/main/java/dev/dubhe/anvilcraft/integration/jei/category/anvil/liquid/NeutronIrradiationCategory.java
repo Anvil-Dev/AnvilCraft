@@ -51,7 +51,7 @@ public class NeutronIrradiationCategory extends AbstractLiquidCategory<NeutronIr
         double mouseX,
         double mouseY
     ) {
-        if (isExplosionRecipe(recipeHolder)) {
+        if (NeutronIrradiationCategory.isExplosionRecipe(recipeHolder)) {
             this.explosion.draw(graphics, 124, 16);
         }
         super.draw(recipeHolder, recipeSlotsView, graphics, mouseX, mouseY);
@@ -77,7 +77,7 @@ public class NeutronIrradiationCategory extends AbstractLiquidCategory<NeutronIr
         double mouseX,
         double mouseY
     ) {
-        if (isExplosionRecipe(recipeHolder)
+        if (NeutronIrradiationCategory.isExplosionRecipe(recipeHolder)
             && mouseX >= 120 && mouseX <= 156
             && mouseY >= 12 && mouseY <= 48) {
             tooltip.add(Component.translatable("gui.anvilcraft.category.neutron_irradiation.explosion"));

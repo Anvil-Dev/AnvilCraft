@@ -48,7 +48,9 @@ public class SpacetimeSupercomputerScreen extends Screen {
         SharedTextures.textureGui("machine/spacetime_supercomputer/charging_progress");
 
     private final SpacetimeSupercomputerBlockEntity spacetimeSupercomputerBlockEntity;
+    @SuppressWarnings("NotNullFieldNotInitialized")
     private EditBox commandEditBox;
+    @SuppressWarnings("NotNullFieldNotInitialized")
     private SapcetimeSupercomputerCommandSuggestions commandSuggestions;
 
     private int currentAvailableCommandButtonIndex = 0;
@@ -236,7 +238,7 @@ public class SpacetimeSupercomputerScreen extends Screen {
             new TexturedButton(
                 x + 132, y + 144,
                 16, 16,
-                BUTTON_CONFIRM_RUN,
+                SpacetimeSupercomputerScreen.BUTTON_CONFIRM_RUN,
                 16, 16, 32,
                 (btn) -> this.onDone(true)
             )
@@ -245,7 +247,7 @@ public class SpacetimeSupercomputerScreen extends Screen {
             new TexturedButton(
                 x + 150, y + 144,
                 16, 16,
-                BUTTON_CONFIRM_RETAIN,
+                SpacetimeSupercomputerScreen.BUTTON_CONFIRM_RETAIN,
                 16, 16, 32,
                 (btn) -> this.onDone(false)
             )
@@ -254,7 +256,7 @@ public class SpacetimeSupercomputerScreen extends Screen {
             new TexturedButton(
                 x + 168, y + 144,
                 16, 16,
-                BUTTON_CANCEL,
+                SpacetimeSupercomputerScreen.BUTTON_CANCEL,
                 16, 16, 32,
                 (btn) -> this.onClose()
             )
@@ -461,7 +463,8 @@ public class SpacetimeSupercomputerScreen extends Screen {
             int scrollY = posY + scrollOff * trackHeight / maxIndex;
             scrollY = Mth.clamp(scrollY, posY, maxY);
 
-            guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, SCROLLER_SPRITE, 6, 32, 0, 0, posX, scrollY, 6, 32);
+            guiGraphics.blitSprite(
+                RenderPipelines.GUI_TEXTURED, SpacetimeSupercomputerScreen.SCROLLER_SPRITE, 6, 32, 0, 0, posX, scrollY, 6, 32);
         }
     }
 
@@ -476,39 +479,42 @@ public class SpacetimeSupercomputerScreen extends Screen {
 
         // 渲染命令列表标题
         graphics.drawScrollingString(
-                graphics.textRenderer(),
-                this.font,
-                Component.literal("Available Commands"),
-                x + 6, x + 68,
-                y + 15
+            graphics.textRenderer(),
+            this.font,
+            Component.literal("Available Commands"),
+            x + 6, x + 68,
+            y + 15
         );
 
         graphics.drawScrollingString(
-                graphics.textRenderer(),
-                this.font,
-                Component.literal("History Commands"),
-                x + 188, x + 250,
-                y + 15
+            graphics.textRenderer(),
+            this.font,
+            Component.literal("History Commands"),
+            x + 188, x + 250,
+            y + 15
         );
 
         // 渲染充能进度条
-        graphics.blit(RenderPipelines.GUI_TEXTURED, BUTTON_CHARGING_PROGRESS, x + 72, y + 154, 0, 0, this.getChangingProgress(), 6, 56, 6);
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED, SpacetimeSupercomputerScreen.BUTTON_CHARGING_PROGRESS, x + 72, y + 154, 0, 0,
+            this.getChangingProgress(), 6, 56, 6
+        );
 
         // 渲染命令建议
         this.commandSuggestions.extractRenderState(graphics, mouseX, mouseY);
 
         // 渲染滚动条
         this.renderScroller(
-                graphics,
-                x + 62, y + 25,
-                this.spacetimeSupercomputerBlockEntity.getAvailableCommands().size(),
-                this.availableCommandScrollOffset
+            graphics,
+            x + 62, y + 25,
+            this.spacetimeSupercomputerBlockEntity.getAvailableCommands().size(),
+            this.availableCommandScrollOffset
         );
         this.renderScroller(
-                graphics,
-                x + 244, y + 25,
-                this.spacetimeSupercomputerBlockEntity.getHistoryCommands().size(),
-                this.historyCommandScrollOffset
+            graphics,
+            x + 244, y + 25,
+            this.spacetimeSupercomputerBlockEntity.getHistoryCommands().size(),
+            this.historyCommandScrollOffset
         );
 
         // 渲染列表上下边界
@@ -536,7 +542,7 @@ public class SpacetimeSupercomputerScreen extends Screen {
         int x = (this.width - 256) / 2;
         int y = (this.height - 166) / 2;
         this.extractTransparentBackground(graphics);
-        graphics.blit(RenderPipelines.GUI_TEXTURED, BACKGROUND, x, y, 0, 0, 256, 166, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, SpacetimeSupercomputerScreen.BACKGROUND, x, y, 0, 0, 256, 166, 256, 256);
     }
 
     public void updateGui() {

@@ -26,7 +26,7 @@ public class SliderMenu extends AbstractContainerMenu {
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        Slot sourceSlot = slots.get(index);
+        Slot sourceSlot = this.slots.get(index);
         // noinspection ConstantValue
         if (sourceSlot == null || !sourceSlot.hasItem()) return ItemStack.EMPTY;
         return sourceSlot.getItem();

@@ -62,7 +62,7 @@ public class BlockProcessingRecipe extends AbstractProcessRecipe<BlockProcessing
 
     @Override
     public RecipeSerializer<BlockProcessingRecipe> getSerializer() {
-        return SERIALIZER;
+        return BlockProcessingRecipe.SERIALIZER;
     }
 
     @Override

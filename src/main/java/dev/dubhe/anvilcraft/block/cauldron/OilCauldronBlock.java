@@ -32,7 +32,11 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
 
     public OilCauldronBlock(Properties properties) {
         super(properties, ModInteractionMap.OIL);
-        this.registerDefaultState(this.stateDefinition.any().setValue(LEVEL, 1).setValue(OilCauldronBlock.IGNITED, false));
+        this.registerDefaultState(
+            this.stateDefinition.any()
+                .setValue(Layered4LevelCauldronBlock.LEVEL, 1)
+                .setValue(OilCauldronBlock.IGNITED, false)
+        );
     }
 
     public static void ignite(LevelAccessor level, BlockPos pos) {
@@ -50,17 +54,17 @@ public class OilCauldronBlock extends Layered4LevelCauldronBlock implements IHam
     ) {
         if (level.isClientSide()) return;
         if (entity.getType().equals(EntityType.ARROW) && entity.isOnFire()) {
-            ignite(level, pos);
+            OilCauldronBlock.ignite(level, pos);
             return;
         }
         if (!(entity instanceof ItemEntity itemEntity)) return;
         if (itemEntity.getItem().is(ModItemTags.FIRE_STARTER)) {
-            ignite(level, pos);
+            OilCauldronBlock.ignite(level, pos);
             itemEntity.getItem().setCount(itemEntity.getItem().getCount() - 1);
             return;
         }
         if (itemEntity.getItem().is(ModItemTags.UNBROKEN_FIRE_STARTER)) {
-            ignite(level, pos);
+            OilCauldronBlock.ignite(level, pos);
         }
     }
 

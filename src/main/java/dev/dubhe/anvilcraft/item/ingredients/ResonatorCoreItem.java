@@ -22,10 +22,10 @@ public class ResonatorCoreItem extends Item implements IMultipleMaterial {
     private static final Component MISSING_TOOLS_TOOLTIP = Component.translatable(
         "screen.anvilcraft.ember_smithing.resonator_core.missing_tools");
     private static final List<Identifier> EMPTY_SLOT_TEXTURES = List.of(
-        EMPTY_SLOT_AXE,
-        EMPTY_SLOT_SHOVEL,
-        EMPTY_SLOT_HOE,
-        EMPTY_SLOT_PICKAXE
+        ResonatorCoreItem.EMPTY_SLOT_AXE,
+        ResonatorCoreItem.EMPTY_SLOT_SHOVEL,
+        ResonatorCoreItem.EMPTY_SLOT_HOE,
+        ResonatorCoreItem.EMPTY_SLOT_PICKAXE
     );
 
     public ResonatorCoreItem(Properties properties) {
@@ -34,21 +34,21 @@ public class ResonatorCoreItem extends Item implements IMultipleMaterial {
 
     @Override
     public Component getInputTooltip(ItemStack template, List<ItemStack> inputs) {
-        return MISSING_TOOLS_TOOLTIP;
+        return ResonatorCoreItem.MISSING_TOOLS_TOOLTIP;
     }
 
     @Override
     public List<Identifier> getEmptySlotTextures(ItemStack template, int id, List<ItemStack> inputs) {
-        List<Identifier> textures = ListUtil.cycle(EMPTY_SLOT_TEXTURES, id);
+        List<Identifier> textures = ListUtil.cycle(ResonatorCoreItem.EMPTY_SLOT_TEXTURES, id);
         for (ItemStack input : inputs) {
             if (input.is(ItemTags.AXES)) {
-                textures.remove(EMPTY_SLOT_AXE);
+                textures.remove(ResonatorCoreItem.EMPTY_SLOT_AXE);
             } else if (input.is(ItemTags.SHOVELS)) {
-                textures.remove(EMPTY_SLOT_SHOVEL);
+                textures.remove(ResonatorCoreItem.EMPTY_SLOT_SHOVEL);
             } else if (input.is(ItemTags.HOES)) {
-                textures.remove(EMPTY_SLOT_HOE);
+                textures.remove(ResonatorCoreItem.EMPTY_SLOT_HOE);
             } else if (input.is(ItemTags.PICKAXES)) {
-                textures.remove(EMPTY_SLOT_PICKAXE);
+                textures.remove(ResonatorCoreItem.EMPTY_SLOT_PICKAXE);
             }
         }
         return textures;

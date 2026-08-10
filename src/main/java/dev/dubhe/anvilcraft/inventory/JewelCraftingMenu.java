@@ -97,7 +97,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        Slot sourceSlot = slots.get(index);
+        Slot sourceSlot = this.slots.get(index);
         if (!sourceSlot.hasItem()) {
             return ItemStack.EMPTY; // EMPTY_ITEM
         }
@@ -107,14 +107,14 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
         // noinspection ConstantValue
         if (sourceSlot == null || !sourceSlot.hasItem()) return sourceStack;
 
-        if (index == RESULT_SLOT) {
+        if (index == JewelCraftingMenu.RESULT_SLOT) {
             int totalCrafted = 0;
             while (true) {
                 ItemStack currentResult = sourceSlot.getItem();
                 if (currentResult.isEmpty()) break;
 
                 ItemStack moveStack = currentResult.copy();
-                if (!moveItemStackTo(moveStack, INV_SLOT_START, USE_ROW_SLOT_END, true)) {
+                if (!this.moveItemStackTo(moveStack, JewelCraftingMenu.INV_SLOT_START, JewelCraftingMenu.USE_ROW_SLOT_END, true)) {
                     break;
                 }
 
@@ -134,11 +134,11 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
             }
 
             return totalCrafted > 0 ? sourceStack.copyWithCount(totalCrafted) : ItemStack.EMPTY;
-        } else if (index >= SOURCE_SLOT && index < CRAFT_SLOT_END) {
-            if (!moveItemStackTo(copyOfSourceStack, INV_SLOT_START, USE_ROW_SLOT_END, true)) {
+        } else if (index >= JewelCraftingMenu.SOURCE_SLOT && index < JewelCraftingMenu.CRAFT_SLOT_END) {
+            if (!this.moveItemStackTo(copyOfSourceStack, JewelCraftingMenu.INV_SLOT_START, JewelCraftingMenu.USE_ROW_SLOT_END, true)) {
                 return ItemStack.EMPTY;
             }
-        } else if (index >= INV_SLOT_START && index < USE_ROW_SLOT_END) {
+        } else if (index >= JewelCraftingMenu.INV_SLOT_START && index < JewelCraftingMenu.USE_ROW_SLOT_END) {
             ItemStack empty = this.quickMoveInvStack(index, copyOfSourceStack);
             if (empty != null) return empty;
         }
@@ -154,7 +154,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
 
         sourceStack.setCount(copyOfSourceStack.getCount());
         sourceSlot.onTake(player, copyOfSourceStack);
-        if (index == RESULT_SLOT) {
+        if (index == JewelCraftingMenu.RESULT_SLOT) {
             player.drop(copyOfSourceStack, false);
         }
         return sourceStack;
@@ -162,14 +162,24 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
 
     protected @Nullable ItemStack quickMoveInvStack(int index, ItemStack copyOfSourceStack) {
         // 从背包里转移物品
-        if (this.moveItemStackTo(copyOfSourceStack, SOURCE_SLOT, SOURCE_SLOT + 1, false)) {
+        if (this.moveItemStackTo(copyOfSourceStack, JewelCraftingMenu.SOURCE_SLOT, JewelCraftingMenu.SOURCE_SLOT + 1, false)) {
             this.slotsChanged(this.sourceContainer);
-        } else if (this.moveItemStackTo(copyOfSourceStack, CRAFT_SLOT_START, CRAFT_SLOT_END, false)) {
+        } else if (this.moveItemStackTo(copyOfSourceStack, JewelCraftingMenu.CRAFT_SLOT_START, JewelCraftingMenu.CRAFT_SLOT_END, false)) {
             this.slotsChanged(this.craftingContainer);
-        } else if (index < INV_SLOT_END && !this.moveItemStackTo(copyOfSourceStack, USE_ROW_SLOT_START, USE_ROW_SLOT_END, false)) {
+        } else if (index < JewelCraftingMenu.INV_SLOT_END && !this.moveItemStackTo(
+            copyOfSourceStack,
+            JewelCraftingMenu.USE_ROW_SLOT_START,
+            JewelCraftingMenu.USE_ROW_SLOT_END,
+            false
+        )) {
             // 移到快捷栏
             return ItemStack.EMPTY;
-        } else if (index >= INV_SLOT_END && !this.moveItemStackTo(copyOfSourceStack, INV_SLOT_START, INV_SLOT_END, false)) {
+        } else if (index >= JewelCraftingMenu.INV_SLOT_END && !this.moveItemStackTo(
+            copyOfSourceStack,
+            JewelCraftingMenu.INV_SLOT_START,
+            JewelCraftingMenu.INV_SLOT_END,
+            false
+        )) {
             // 移动到背包
             return ItemStack.EMPTY;
         }
@@ -178,7 +188,7 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return stillValid(this.access, player, ModBlocks.JEWEL_CRAFTING_TABLE.get());
+        return AbstractContainerMenu.stillValid(this.access, player, ModBlocks.JEWEL_CRAFTING_TABLE.get());
     }
 
     public @Nullable RecipeHolder<JewelCraftingRecipe> findRecipeBySource(ItemStack source) {
@@ -191,13 +201,13 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
 
     @Override
     public void slotsChanged(Container container) {
-        for (int i = CRAFT_SLOT_START; i < CRAFT_SLOT_END; i++) {
-            Slot slot = slots.get(i);
+        for (int i = JewelCraftingMenu.CRAFT_SLOT_START; i < JewelCraftingMenu.CRAFT_SLOT_END; i++) {
+            Slot slot = this.slots.get(i);
             if (slot instanceof JewelInputSlot inputSlot) {
                 inputSlot.updateIngredient();
             }
         }
-        this.access.execute((level, _) -> changedCraftingSlots(
+        this.access.execute((level, _) -> JewelCraftingMenu.changedCraftingSlots(
             this,
             level,
             this.player,
@@ -240,11 +250,11 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
             }
         }
         resultContainer.setItem(0, itemStack);
-        menu.setRemoteSlot(RESULT_SLOT, itemStack);
+        menu.setRemoteSlot(JewelCraftingMenu.RESULT_SLOT, itemStack);
         serverPlayer.connection.send(new ClientboundContainerSetSlotPacket(
             menu.containerId,
             menu.incrementStateId(),
-            RESULT_SLOT,
+            JewelCraftingMenu.RESULT_SLOT,
             itemStack
         ));
     }
@@ -264,14 +274,14 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
 
         List<ItemIngredientPredicate> ingredients = recipe.ingredients();
         for (int i = 0; i < Math.min(ingredients.size(), 4); i++) {
-            this.quickMoveStack(this.player, CRAFT_SLOT_START + i);
-            this.moveInvItemTo(ingredients.get(i), CRAFT_SLOT_START + i);
+            this.quickMoveStack(this.player, JewelCraftingMenu.CRAFT_SLOT_START + i);
+            this.moveInvItemTo(ingredients.get(i), JewelCraftingMenu.CRAFT_SLOT_START + i);
         }
     }
 
     protected void moveInvItemTo(ItemIngredientPredicate needItem, int targetIndex) {
-        for (int i = INV_SLOT_START; i < USE_ROW_SLOT_END; i++) {
-            Slot slot = slots.get(i);
+        for (int i = JewelCraftingMenu.INV_SLOT_START; i < JewelCraftingMenu.USE_ROW_SLOT_END; i++) {
+            Slot slot = this.slots.get(i);
             if (!needItem.test(slot.getItem())) continue;
             if (!this.moveItemStackTo(slot.getItem(), targetIndex, targetIndex + 1, false)) {
                 return;

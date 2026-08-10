@@ -62,23 +62,32 @@ public class AccelerationRingBlock
         new AABB(-10, 0, 0, 26, 16, 16)
     );
     private static final Map<Direction.Axis, Map<DirectionCube3x3PartHalf, VoxelShape>> COLLISION_SHAPES =
-        makeCollisionShapes();
+        AccelerationRingBlock.makeCollisionShapes();
 
     public AccelerationRingBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition
-            .any()
-            .setValue(HALF, DirectionCube3x3PartHalf.BOTTOM_CENTER)
-            .setValue(FACING, Direction.NORTH)
-            .setValue(OVERLOAD, true)
-            .setValue(SWITCH, IPowerComponent.Switch.ON));
+        this.registerDefaultState(this.defaultBlockState()
+            .setValue(AccelerationRingBlock.HALF, DirectionCube3x3PartHalf.BOTTOM_CENTER)
+            .setValue(AccelerationRingBlock.FACING, Direction.NORTH)
+            .setValue(AccelerationRingBlock.OVERLOAD, true)
+            .setValue(AccelerationRingBlock.SWITCH, IPowerComponent.Switch.ON));
     }
 
     private static Map<Direction.Axis, Map<DirectionCube3x3PartHalf, VoxelShape>> makeCollisionShapes() {
         Map<Direction.Axis, Map<DirectionCube3x3PartHalf, VoxelShape>> shapes = new EnumMap<>(Direction.Axis.class);
-        shapes.put(Direction.Axis.Y, makePartShapes(Y_AXIS_COLLISION_SHAPE));
-        shapes.put(Direction.Axis.Z, makePartShapes(ShapeUtil.rotate(Direction.Axis.X, 90, Y_AXIS_COLLISION_SHAPE)));
-        shapes.put(Direction.Axis.X, makePartShapes(ShapeUtil.rotate(Direction.Axis.Z, 90, Y_AXIS_COLLISION_SHAPE)));
+        shapes.put(Direction.Axis.Y, AccelerationRingBlock.makePartShapes(AccelerationRingBlock.Y_AXIS_COLLISION_SHAPE));
+        shapes.put(
+            Direction.Axis.Z,
+            AccelerationRingBlock.makePartShapes(
+                ShapeUtil.rotate(Direction.Axis.X, 90, AccelerationRingBlock.Y_AXIS_COLLISION_SHAPE)
+            )
+        );
+        shapes.put(
+            Direction.Axis.X,
+            AccelerationRingBlock.makePartShapes(
+                ShapeUtil.rotate(Direction.Axis.Z, 90, AccelerationRingBlock.Y_AXIS_COLLISION_SHAPE)
+            )
+        );
         return shapes;
     }
 
@@ -87,7 +96,7 @@ public class AccelerationRingBlock
         for (DirectionCube3x3PartHalf part : DirectionCube3x3PartHalf.values()) {
             ArrayList<AABB> partBoxes = new ArrayList<>();
             for (AABB box : shape.toAabbs()) {
-                AABB clipped = clipToPart(scale16(box), part);
+                AABB clipped = AccelerationRingBlock.clipToPart(AccelerationRingBlock.scale16(box), part);
                 if (clipped != null) partBoxes.add(clipped);
             }
             shapes.put(
@@ -128,7 +137,7 @@ public class AccelerationRingBlock
 
     @Override
     public Property<DirectionCube3x3PartHalf> getPart() {
-        return HALF;
+        return AccelerationRingBlock.HALF;
     }
 
     @Override
@@ -138,12 +147,12 @@ public class AccelerationRingBlock
 
     @Override
     public EnumProperty<Direction> getAdditionalProperty() {
-        return FACING;
+        return AccelerationRingBlock.FACING;
     }
 
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(OVERLOAD, SWITCH);
+        builder.add(AccelerationRingBlock.OVERLOAD, AccelerationRingBlock.SWITCH);
     }
 
     @Override
@@ -156,7 +165,7 @@ public class AccelerationRingBlock
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         BlockState state = this.defaultBlockState()
             .setValue(
-                FACING,
+                AccelerationRingBlock.FACING,
                 context.getPlayer() != null && context.getPlayer().isShiftKeyDown()
                 ? context.getNearestLookingDirection().getOpposite()
                 : context.getNearestLookingDirection()
@@ -165,11 +174,11 @@ public class AccelerationRingBlock
     }
 
     public boolean isChannelWaterlogged(Level level, BlockPos mainPos, BlockState mainState) {
-        Direction.Axis axis = mainState.getValue(FACING).getAxis();
+        Direction.Axis axis = mainState.getValue(AccelerationRingBlock.FACING).getAxis();
         for (DirectionCube3x3PartHalf part : this.getParts()) {
-            if (!isChannelPart(part, axis)) continue;
+            if (!AccelerationRingBlock.isChannelPart(part, axis)) continue;
             BlockState partState = level.getBlockState(mainPos.offset(this.offsetFrom(mainState, part)));
-            if (partState.is(this) && partState.getValue(WATERLOGGED)) return true;
+            if (partState.is(this) && partState.getValue(WaterloggedFlexibleMultiPartBlock.WATERLOGGED)) return true;
         }
         return false;
     }
@@ -196,11 +205,11 @@ public class AccelerationRingBlock
                 pos.subtract(state.getValue(this.getPart()).getOffset())
                     .offset(it.getOffset())
             ));
-        if (isSignal && state.getValue(SWITCH) == IPowerComponent.Switch.ON) {
-            updateState(level, pos, SWITCH, IPowerComponent.Switch.OFF, 3);
-        } else if (!isSignal && state.getValue(SWITCH) == IPowerComponent.Switch.OFF) {
-            updateState(level, pos, SWITCH, IPowerComponent.Switch.ON, 3);
-            BlockPos centerPos = pos.subtract(state.getValue(HALF).getOffset()).offset(0, 1, 0);
+        if (isSignal && state.getValue(AccelerationRingBlock.SWITCH) == IPowerComponent.Switch.ON) {
+            this.updateState(level, pos, AccelerationRingBlock.SWITCH, IPowerComponent.Switch.OFF, 3);
+        } else if (!isSignal && state.getValue(AccelerationRingBlock.SWITCH) == IPowerComponent.Switch.OFF) {
+            this.updateState(level, pos, AccelerationRingBlock.SWITCH, IPowerComponent.Switch.ON, 3);
+            BlockPos centerPos = pos.subtract(state.getValue(AccelerationRingBlock.HALF).getOffset()).offset(0, 1, 0);
             if (level.getBlockEntity(centerPos) instanceof IPowerConsumer powerConsumer) {
                 if (powerConsumer.getGrid() == null) return;
                 powerConsumer.getGrid().flush();
@@ -213,18 +222,18 @@ public class AccelerationRingBlock
         if (context.isHoldingItem(state.getBlock().asItem())) {
             return Shapes.block();
         }
-        return getPreciseShape(state);
+        return AccelerationRingBlock.getPreciseShape(state);
     }
 
     @Override
     protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return getPreciseShape(state);
+        return AccelerationRingBlock.getPreciseShape(state);
     }
 
     private static VoxelShape getPreciseShape(BlockState state) {
-        Direction.Axis axis = state.getValue(FACING).getAxis();
-        if (isChannelPart(state.getValue(HALF), axis)) return Shapes.empty();
-        return COLLISION_SHAPES.get(axis).get(state.getValue(HALF));
+        Direction.Axis axis = state.getValue(AccelerationRingBlock.FACING).getAxis();
+        if (AccelerationRingBlock.isChannelPart(state.getValue(AccelerationRingBlock.HALF), axis)) return Shapes.empty();
+        return AccelerationRingBlock.COLLISION_SHAPES.get(axis).get(state.getValue(AccelerationRingBlock.HALF));
     }
 
     @Override
@@ -266,24 +275,24 @@ public class AccelerationRingBlock
 
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
-        this.change(blockPos, level, state -> state.cycle(FACING));
+        this.change(blockPos, level, state -> state.cycle(AccelerationRingBlock.FACING));
         return true;
     }
 
     @Override
     public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
+        return AccelerationRingBlock.FACING;
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(HALF, state.getValue(HALF).rotate(rotation))
-            .setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(AccelerationRingBlock.HALF, state.getValue(AccelerationRingBlock.HALF).rotate(rotation))
+            .setValue(AccelerationRingBlock.FACING, rotation.rotate(state.getValue(AccelerationRingBlock.FACING)));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(HALF, state.getValue(HALF).mirror(mirror))
-            .setValue(FACING, mirror.mirror(state.getValue(FACING)));
+        return state.setValue(AccelerationRingBlock.HALF, state.getValue(AccelerationRingBlock.HALF).mirror(mirror))
+            .setValue(AccelerationRingBlock.FACING, mirror.mirror(state.getValue(AccelerationRingBlock.FACING)));
     }
 }

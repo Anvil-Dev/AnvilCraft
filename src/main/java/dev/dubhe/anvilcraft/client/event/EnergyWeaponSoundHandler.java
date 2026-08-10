@@ -34,27 +34,27 @@ public final class EnergyWeaponSoundHandler {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null || minecraft.isPaused()) return;
 
-        ACTIVE_SOUNDS.entrySet().removeIf(entry -> entry.getValue().isStopped());
+        EnergyWeaponSoundHandler.ACTIVE_SOUNDS.entrySet().removeIf(entry -> entry.getValue().isStopped());
         for (Player player : minecraft.level.players()) {
-            WeaponSound required = getRequiredSound(player);
-            FollowingWeaponSound active = ACTIVE_SOUNDS.get(player.getUUID());
+            WeaponSound required = EnergyWeaponSoundHandler.getRequiredSound(player);
+            FollowingWeaponSound active = EnergyWeaponSoundHandler.ACTIVE_SOUNDS.get(player.getUUID());
             if (active != null && active.type != required) {
                 active.finish();
-                ACTIVE_SOUNDS.remove(player.getUUID());
+                EnergyWeaponSoundHandler.ACTIVE_SOUNDS.remove(player.getUUID());
                 active = null;
             }
             if (required == null || active != null) continue;
 
             FollowingWeaponSound sound = new FollowingWeaponSound(player, required);
-            ACTIVE_SOUNDS.put(player.getUUID(), sound);
+            EnergyWeaponSoundHandler.ACTIVE_SOUNDS.put(player.getUUID(), sound);
             minecraft.getSoundManager().play(sound);
         }
     }
 
     @SubscribeEvent
     public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
-        ACTIVE_SOUNDS.values().forEach(FollowingWeaponSound::finish);
-        ACTIVE_SOUNDS.clear();
+        EnergyWeaponSoundHandler.ACTIVE_SOUNDS.values().forEach(FollowingWeaponSound::finish);
+        EnergyWeaponSoundHandler.ACTIVE_SOUNDS.clear();
     }
 
     private static @Nullable WeaponSound getRequiredSound(Player player) {
@@ -105,7 +105,7 @@ public final class EnergyWeaponSoundHandler {
 
         @Override
         public void tick() {
-            if (this.player.isRemoved() || getRequiredSound(this.player) != this.type) {
+            if (this.player.isRemoved() || EnergyWeaponSoundHandler.getRequiredSound(this.player) != this.type) {
                 this.stop();
                 return;
             }

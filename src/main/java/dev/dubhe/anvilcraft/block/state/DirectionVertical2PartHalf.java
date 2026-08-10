@@ -37,7 +37,7 @@ public enum DirectionVertical2PartHalf implements IFlexibleMultiPartBlockState<D
 
     @Override
     public boolean isMain() {
-        return this == BOTTOM;
+        return this == DirectionVertical2PartHalf.BOTTOM;
     }
 
     @Override

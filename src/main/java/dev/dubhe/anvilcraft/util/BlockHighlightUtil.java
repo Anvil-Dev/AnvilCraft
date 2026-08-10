@@ -21,6 +21,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 /// 方块高亮
@@ -37,9 +38,9 @@ public class BlockHighlightUtil {
     public static void highlightBlock(Level level, BlockPos pos) {
         if (BlockHighlightUtil.getLevel() != level) {
             BlockHighlightUtil.setLevel(level);
-            SUBCHUNKS.clear();
+            BlockHighlightUtil.SUBCHUNKS.clear();
         }
-        SUBCHUNKS.put(
+        BlockHighlightUtil.SUBCHUNKS.put(
             new Vector3i(
                 Math.floorDiv(pos.getX(), 16),
                 Math.floorDiv(pos.getY(), 16),
@@ -92,10 +93,10 @@ public class BlockHighlightUtil {
     }
 
     static void setLevel(Level level) {
-        LEVEL_REF.set(level);
+        BlockHighlightUtil.LEVEL_REF.set(level);
     }
 
     static Level getLevel() {
-        return LEVEL_REF.get();
+        return Objects.requireNonNull(BlockHighlightUtil.LEVEL_REF.get());
     }
 }

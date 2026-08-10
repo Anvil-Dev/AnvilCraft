@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -57,34 +58,34 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(InductionLightBlock::new);
+        return BlockBehaviour.simpleCodec(InductionLightBlock::new);
     }
 
     public InductionLightBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition
             .any()
-            .setValue(POWERED, false)
-            .setValue(OVERLOAD, true)
-            .setValue(AXIS, Direction.Axis.Y)
-            .setValue(WATERLOGGED, false)
-            .setValue(COLOR, LightColor.PRIMARY));
+            .setValue(InductionLightBlock.POWERED, false)
+            .setValue(InductionLightBlock.OVERLOAD, true)
+            .setValue(InductionLightBlock.AXIS, Direction.Axis.Y)
+            .setValue(InductionLightBlock.WATERLOGGED, false)
+            .setValue(InductionLightBlock.COLOR, LightColor.PRIMARY));
     }
 
     public static boolean isLit(BlockState state) {
-        return !(state.getValue(POWERED) || state.getValue(OVERLOAD));
+        return !(state.getValue(InductionLightBlock.POWERED) || state.getValue(InductionLightBlock.OVERLOAD));
     }
 
     public static boolean canCropGrow(BlockState state) {
-        return state.getValue(COLOR).equals(LightColor.PINK);
+        return state.getValue(InductionLightBlock.COLOR).equals(LightColor.PINK);
     }
 
     public static boolean canBlockMobSummoning(BlockState state) {
-        return state.getValue(COLOR).equals(LightColor.YELLOW);
+        return state.getValue(InductionLightBlock.COLOR).equals(LightColor.YELLOW);
     }
 
     public static boolean canBlockAnimalSummoning(BlockState state) {
-        return state.getValue(COLOR).equals(LightColor.DARK);
+        return state.getValue(InductionLightBlock.COLOR).equals(LightColor.DARK);
     }
 
     @Override
@@ -94,10 +95,10 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return switch (state.getValue(AXIS)) {
-            case Y -> SHAPE_Y;
-            case Z -> SHAPE_Z;
-            case X -> SHAPE_X;
+        return switch (state.getValue(InductionLightBlock.AXIS)) {
+            case Y -> InductionLightBlock.SHAPE_Y;
+            case Z -> InductionLightBlock.SHAPE_Z;
+            case X -> InductionLightBlock.SHAPE_X;
         };
     }
 
@@ -115,15 +116,15 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext context) {
         return this.defaultBlockState()
-            .setValue(POWERED, false)
-            .setValue(OVERLOAD, true)
-            .setValue(AXIS, context.getClickedFace().getAxis())
+            .setValue(InductionLightBlock.POWERED, false)
+            .setValue(InductionLightBlock.OVERLOAD, true)
+            .setValue(InductionLightBlock.AXIS, context.getClickedFace().getAxis())
             .setValue(
-                WATERLOGGED,
+                InductionLightBlock.WATERLOGGED,
                 context.getLevel().getFluidState(context.getClickedPos())
                     .getType() == Fluids.WATER
             )
-            .setValue(COLOR, LightColor.PRIMARY);
+            .setValue(InductionLightBlock.COLOR, LightColor.PRIMARY);
     }
 
     @Nullable
@@ -134,12 +135,13 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
 
     @Override
     public FluidState getFluidState(BlockState state) {
-        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
+        return state.getValue(InductionLightBlock.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(POWERED).add(OVERLOAD).add(AXIS).add(WATERLOGGED).add(COLOR);
+        builder.add(InductionLightBlock.POWERED).add(
+            InductionLightBlock.OVERLOAD).add(InductionLightBlock.AXIS).add(InductionLightBlock.WATERLOGGED).add(InductionLightBlock.COLOR);
     }
 
     @Override
@@ -157,21 +159,21 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
             return BlockPlaceAssist.tryPlace(
                 state, level, pos, player, hand, hit,
                 ModBlocks.INDUCTION_LIGHT.asItem(),
-                AXIS,
+                InductionLightBlock.AXIS,
                 ModBlocks.INDUCTION_LIGHT.getDefaultState()
             );
         } else if (itemInHand.is(Items.REDSTONE)) {
-            level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.PINK));
+            level.setBlockAndUpdate(pos, state.setValue(InductionLightBlock.COLOR, LightColor.PINK));
             return InteractionResult.SUCCESS;
         } else if (itemInHand.is(Items.GLOWSTONE_DUST)) {
-            level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.YELLOW));
+            level.setBlockAndUpdate(pos, state.setValue(InductionLightBlock.COLOR, LightColor.YELLOW));
             return InteractionResult.SUCCESS;
         } else if (itemInHand.is(ItemTags.AXES)) {
-            level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.PRIMARY));
+            level.setBlockAndUpdate(pos, state.setValue(InductionLightBlock.COLOR, LightColor.PRIMARY));
             itemInHand.hurtAndBreak(1, player, hand);
             return InteractionResult.SUCCESS;
         } else if (itemInHand.is(ModItems.VOID_MATTER.asItem())) {
-            level.setBlockAndUpdate(pos, state.setValue(COLOR, LightColor.DARK));
+            level.setBlockAndUpdate(pos, state.setValue(InductionLightBlock.COLOR, LightColor.DARK));
             return InteractionResult.SUCCESS;
         }
         return super.use(state, level, pos, player, hand, hit);
@@ -183,7 +185,7 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
         if (level.isClientSide()) {
             return null;
         }
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             type,
             ModBlockEntities.INDUCTION_LIGHT.get(),
             (level1, blockPos, blockState, blockEntity) -> blockEntity.tick(level1)
@@ -200,9 +202,9 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
         boolean movedByPiston
     ) {
         if (level.isClientSide()) return;
-        if (state.getValue(WATERLOGGED)) level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
-        if (state.getValue(OVERLOAD)) return;
-        level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
+        if (state.getValue(InductionLightBlock.WATERLOGGED)) level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
+        if (state.getValue(InductionLightBlock.OVERLOAD)) return;
+        level.setBlock(pos, state.setValue(InductionLightBlock.POWERED, level.hasNeighborSignal(pos)), 2);
     }
 
     @Override
@@ -212,8 +214,8 @@ public class InductionLightBlock extends BetterBaseEntityBlock implements IHamme
         BlockPos pos,
         RandomSource random
     ) {
-        if (state.getValue(POWERED) && !level.hasNeighborSignal(pos)) {
-            level.setBlock(pos, state.cycle(POWERED), 2);
+        if (state.getValue(InductionLightBlock.POWERED) && !level.hasNeighborSignal(pos)) {
+            level.setBlock(pos, state.cycle(InductionLightBlock.POWERED), 2);
         }
     }
 }

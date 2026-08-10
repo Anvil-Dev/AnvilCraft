@@ -43,7 +43,7 @@ public abstract class HeatableBlockEntity extends BlockEntity {
     }
 
     public void addDurationInTick(int tick) {
-        this.setDuration(Math.clamp(this.duration + tick, -1, MAX_DURATION));
+        this.setDuration(Math.clamp(this.duration + tick, -1, HeatableBlockEntity.MAX_DURATION));
     }
 
     public void setDuration(int duration) {
@@ -62,9 +62,9 @@ public abstract class HeatableBlockEntity extends BlockEntity {
     }
 
     public int getSignal() {
-        if (this.duration == MAX_DURATION) return 15;
+        if (this.duration == HeatableBlockEntity.MAX_DURATION) return 15;
         if (this.duration == 0) return 0;
-        return (int) Math.ceil((double) this.duration / MAX_DURATION * 14);
+        return (int) Math.ceil((double) this.duration / HeatableBlockEntity.MAX_DURATION * 14);
     }
 
     @Override

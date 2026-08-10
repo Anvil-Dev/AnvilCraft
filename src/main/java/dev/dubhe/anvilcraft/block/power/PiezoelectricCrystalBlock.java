@@ -26,14 +26,14 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
     public static final Map<Block, List<Integer>> ANVIL_TYPES = new HashMap<>();
 
     static {
-        ANVIL_TYPES.put(ModBlocks.SPECTRAL_ANVIL.get(), List.of(1, 2, 3, 4));
-        ANVIL_TYPES.put(ModBlocks.ROYAL_ANVIL.get(), List.of(1, 2, 4, 8));
-        ANVIL_TYPES.put(Blocks.ANVIL, List.of(1, 2, 4, 8));
-        ANVIL_TYPES.put(Blocks.CHIPPED_ANVIL, List.of(1, 2, 4, 8));
-        ANVIL_TYPES.put(Blocks.DAMAGED_ANVIL, List.of(1, 2, 4, 8));
-        ANVIL_TYPES.put(ModBlocks.EMBER_ANVIL.get(), List.of(1, 2, 5, 12));
-        ANVIL_TYPES.put(ModBlocks.TRANSCENDENCE_ANVIL.get(), List.of(2, 5, 15, 60));
-        ANVIL_TYPES.put(ModBlocks.GIANT_ANVIL.get(), List.of(1, 2, 3, 4, 5, 6, 7, 8));
+        PiezoelectricCrystalBlock.ANVIL_TYPES.put(ModBlocks.SPECTRAL_ANVIL.get(), List.of(1, 2, 3, 4));
+        PiezoelectricCrystalBlock.ANVIL_TYPES.put(ModBlocks.ROYAL_ANVIL.get(), List.of(1, 2, 4, 8));
+        PiezoelectricCrystalBlock.ANVIL_TYPES.put(Blocks.ANVIL, List.of(1, 2, 4, 8));
+        PiezoelectricCrystalBlock.ANVIL_TYPES.put(Blocks.CHIPPED_ANVIL, List.of(1, 2, 4, 8));
+        PiezoelectricCrystalBlock.ANVIL_TYPES.put(Blocks.DAMAGED_ANVIL, List.of(1, 2, 4, 8));
+        PiezoelectricCrystalBlock.ANVIL_TYPES.put(ModBlocks.EMBER_ANVIL.get(), List.of(1, 2, 5, 12));
+        PiezoelectricCrystalBlock.ANVIL_TYPES.put(ModBlocks.TRANSCENDENCE_ANVIL.get(), List.of(2, 5, 15, 60));
+        PiezoelectricCrystalBlock.ANVIL_TYPES.put(ModBlocks.GIANT_ANVIL.get(), List.of(1, 2, 3, 4, 5, 6, 7, 8));
     }
 
     public static VoxelShape SHAPE =
@@ -54,7 +54,7 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
         BlockGetter level,
         BlockPos pos,
         CollisionContext context) {
-        return SHAPE;
+        return PiezoelectricCrystalBlock.SHAPE;
     }
 
     @Override
@@ -65,7 +65,7 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
     /// 被铁砧砸事件
     public void onHitByAnvil(FallingBlockEntity entity, float fallDistance, Level level, BlockPos blockPos) {
         if (level.getBlockTicks().hasScheduledTick(blockPos, this)) return;
-        List<Integer> chargeNums = ANVIL_TYPES.get(entity.blockState.getBlock());
+        List<Integer> chargeNums = PiezoelectricCrystalBlock.ANVIL_TYPES.get(entity.blockState.getBlock());
         if (chargeNums == null) return;
         int distance = (int) Math.min(chargeNums.size() - 1, fallDistance);
         int chargeNum = chargeNums.get(distance);

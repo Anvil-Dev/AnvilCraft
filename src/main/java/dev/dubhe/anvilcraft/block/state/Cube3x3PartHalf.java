@@ -62,11 +62,11 @@ public enum Cube3x3PartHalf implements ISimpleMultiPartBlockState<Cube3x3PartHal
             int x = half.offsetX;
             int y = half.offsetY;
             int z = half.offsetZ;
-            half.clockwise90 = findByOffset(-z, y, x);
-            half.clockwise180 = findByOffset(-x, y, -z);
-            half.clockwise270 = findByOffset(z, y, -x);
-            half.mirrorX = findByOffset(-x, y, z);
-            half.mirrorZ = findByOffset(x, y, -z);
+            half.clockwise90 = Cube3x3PartHalf.findByOffset(-z, y, x);
+            half.clockwise180 = Cube3x3PartHalf.findByOffset(-x, y, -z);
+            half.clockwise270 = Cube3x3PartHalf.findByOffset(z, y, -x);
+            half.mirrorX = Cube3x3PartHalf.findByOffset(-x, y, z);
+            half.mirrorZ = Cube3x3PartHalf.findByOffset(x, y, -z);
         }
     }
 

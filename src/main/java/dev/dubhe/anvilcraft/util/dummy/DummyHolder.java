@@ -12,13 +12,14 @@ import java.util.Set;
 public class DummyHolder<T> extends Holder.Reference<T> {
     private final HolderLookup.@Nullable RegistryLookup<T> owner;
 
-    public DummyHolder(HolderLookup.@Nullable RegistryLookup<T> owner, ResourceKey<T> key) {
+    public DummyHolder(HolderLookup.RegistryLookup<T> owner, ResourceKey<T> key) {
         super(Type.STAND_ALONE, owner, key, null);
         this.owner = owner;
     }
 
     public DummyHolder(ResourceKey<T> key) {
-        this(null, key);
+        super(Type.STAND_ALONE, new HolderOwner<>() {}, key, null);
+        this.owner = null;
     }
 
     @Override
@@ -43,7 +44,7 @@ public class DummyHolder<T> extends Holder.Reference<T> {
 
     protected void bound() {
         if (this.owner == null) return;
-        Reference<T> exist = this.owner.get(this.getKey()).orElseThrow();
+        Reference<T> exist = this.owner.get(this.key()).orElseThrow();
         this.tags = exist.tags;
         this.bindComponents(exist.components());
         this.bindValue(exist.value());

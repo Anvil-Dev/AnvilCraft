@@ -32,7 +32,7 @@ public class ImpactPileBlock extends Block implements IHammerRemovable {
         BlockGetter level,
         BlockPos pos,
         CollisionContext context) {
-        return SHAPE;
+        return ImpactPileBlock.SHAPE;
     }
 
     @Override
@@ -58,7 +58,7 @@ public class ImpactPileBlock extends Block implements IHammerRemovable {
             for (int z = blockPos.getZ() - 1; z <= blockPos.getZ() + 1; z++) {
                 for (int y = minY; y <= minY + 5; y++) {
                     BlockPos pos = new BlockPos(x, y, z);
-                    if (y <= minY + 2) setSturdyDeepslate(level, pos);
+                    if (y <= minY + 2) ImpactPileBlock.setSturdyDeepslate(level, pos);
                 }
             }
         }
@@ -70,11 +70,11 @@ public class ImpactPileBlock extends Block implements IHammerRemovable {
                 level.setBlockAndUpdate(pos.south().west(), Blocks.LAVA.defaultBlockState());
                 level.setBlockAndUpdate(pos.south().east(), Blocks.LAVA.defaultBlockState());
             }
-            setSturdyDeepslate(level, pos);
-            setSturdyDeepslate(level, pos.north());
-            setSturdyDeepslate(level, pos.south());
-            setSturdyDeepslate(level, pos.west());
-            setSturdyDeepslate(level, pos.east());
+            ImpactPileBlock.setSturdyDeepslate(level, pos);
+            ImpactPileBlock.setSturdyDeepslate(level, pos.north());
+            ImpactPileBlock.setSturdyDeepslate(level, pos.south());
+            ImpactPileBlock.setSturdyDeepslate(level, pos.west());
+            ImpactPileBlock.setSturdyDeepslate(level, pos.east());
         }
         level.setBlockAndUpdate(
             new BlockPos(blockPos.getX(), minY + 5, blockPos.getZ()),

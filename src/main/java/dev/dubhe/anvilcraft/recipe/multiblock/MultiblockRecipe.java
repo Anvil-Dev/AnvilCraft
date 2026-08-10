@@ -63,7 +63,7 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
     }
 
     public static MultiblockBuilder builder(ItemLike item) {
-        return builder(item, 1);
+        return MultiblockRecipe.builder(item, 1);
     }
 
     @Override
@@ -86,7 +86,7 @@ public class MultiblockRecipe implements Recipe<MultiblockInput>, IDatagen {
 
     @Override
     public RecipeSerializer<MultiblockRecipe> getSerializer() {
-        return SERIALIZER;
+        return MultiblockRecipe.SERIALIZER;
     }
 
     @SuppressWarnings("deprecation")

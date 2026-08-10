@@ -54,7 +54,7 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
         private TrackedEjectedItem(ItemEntity item) {
             this.item = item;
             this.wasOnGround = item.onGround();
-            this.ticksLeft = EJECTED_ITEM_TRACK_TICKS;
+            this.ticksLeft = SimpleMagneticChuteBlockEntity.EJECTED_ITEM_TRACK_TICKS;
         }
     }
 
@@ -232,6 +232,9 @@ public class SimpleMagneticChuteBlockEntity extends BlockEntity implements IItem
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         super.preRemoveSideEffects(pos, state);
         Vec3 center = pos.getCenter();
-        Containers.dropItemStack(this.level, center.x, center.y, center.z, this.itemHandler.getStack());
+        var level = this.level;
+        if (level != null) {
+            Containers.dropItemStack(level, center.x, center.y, center.z, this.itemHandler.getStack());
+        }
     }
 }

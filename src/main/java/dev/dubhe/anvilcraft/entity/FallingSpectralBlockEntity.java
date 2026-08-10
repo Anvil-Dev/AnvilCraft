@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.block.workstation.SpectralAnvilBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
+import dev.dubhe.anvilcraft.util.EntityUtil;
 import it.unimi.dsi.fastutil.floats.FloatArraySet;
 import it.unimi.dsi.fastutil.floats.FloatArrays;
 import it.unimi.dsi.fastutil.floats.FloatSet;
@@ -144,7 +145,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
     public Vec3 collide(Vec3 vec) {
         AABB aabb = this.getBoundingBox();
         List<VoxelShape> list = this.level().getEntityCollisions(this, aabb.expandTowards(vec));
-        Vec3 vec3 = vec.lengthSqr() == 0.0 ? vec : collideBoundingBox(this, vec, aabb, this.level(), list);
+        Vec3 vec3 = vec.lengthSqr() == 0.0 ? vec : FallingSpectralBlockEntity.collideBoundingBox(this, vec, aabb, this.level(), list);
         boolean flag = vec.x != vec3.x;
         boolean flag1 = vec.y != vec3.y;
         boolean flag2 = vec.z != vec3.z;
@@ -156,12 +157,12 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
                 aabb2 = aabb2.expandTowards(0.0, -1.0E-5F, 0.0);
             }
 
-            List<VoxelShape> list1 = collectColliders(this, this.level(), list, aabb2);
+            List<VoxelShape> list1 = FallingSpectralBlockEntity.collectColliders(this, this.level(), list, aabb2);
             float f = (float) vec3.y;
-            float[] afloat = collectCandidateStepUpHeights(aabb1, list1, this.maxUpStep(), f);
+            float[] afloat = FallingSpectralBlockEntity.collectCandidateStepUpHeights(aabb1, list1, this.maxUpStep(), f);
 
             for (float f1 : afloat) {
-                Vec3 vec31 = collideWithShapes(new Vec3(vec.x, f1, vec.z), aabb1, list1);
+                Vec3 vec31 = Entity.collideWithShapes(new Vec3(vec.x, f1, vec.z), aabb1, list1);
                 if (vec31.horizontalDistanceSqr() > vec3.horizontalDistanceSqr()) {
                     double d0 = aabb.minY - aabb1.minY;
                     return vec31.add(0.0, -d0, 0.0);
@@ -178,8 +179,8 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
         Level level,
         List<VoxelShape> potentialHits
     ) {
-        List<VoxelShape> list = collectColliders(entity, level, potentialHits, collisionBox.expandTowards(vec));
-        return collideWithShapes(vec, collisionBox, list);
+        List<VoxelShape> list = FallingSpectralBlockEntity.collectColliders(entity, level, potentialHits, collisionBox.expandTowards(vec));
+        return Entity.collideWithShapes(vec, collisionBox, list);
     }
 
     private static @Unmodifiable List<VoxelShape> collectColliders(
@@ -199,7 +200,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
             builder.add(worldborder.getCollisionShape());
         }
 
-        builder.addAll(getBlockCollisions(level, entity, boundingBox));
+        builder.addAll(FallingSpectralBlockEntity.getBlockCollisions(level, entity, boundingBox));
         return builder.build();
     }
 
@@ -232,7 +233,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
             false,
             (pos, shape) -> {
                 BlockState state = level.getBlockState(pos);
-                if (shouldIgnoreBlockInMovement(state)) {
+                if (FallingSpectralBlockEntity.shouldIgnoreBlockInMovement(state)) {
                     return Shapes.empty();
                 }
                 return shape;
@@ -264,8 +265,7 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
                                     ? fallable.getFallDamageSource(this)
                                     : this.damageSources().fallingBlock(this);
         this.level().getEntities(this, this.getBoundingBox(), predicate).forEach(entity -> {
-            // noinspection deprecation
-            entity.hurtOrSimulate(damageSource, f);
+            EntityUtil.hurtOrSimulate(entity, damageSource, f);
             if (this.level() instanceof ServerLevel serverLevel) {
                 NeoForge.EVENT_BUS.post(new AnvilEvent.HurtEntity(this, this.getOnPos(), serverLevel, entity, f));
             }
@@ -283,10 +283,9 @@ public class FallingSpectralBlockEntity extends FallingBlockEntity {
     }
 
     protected static boolean shouldIgnoreBlockInMovement(BlockState state) {
-        // noinspection deprecation
         return state.isAir()
                || state.is(BlockTags.FIRE)
-               || state.liquid()
+               || !state.getFluidState().isEmpty()
                || state.is(ModBlockTags.SPECTRAL_CAN_THROUGH)
                || state.getBlock() instanceof TransparentBlock
                || state.canBeReplaced()

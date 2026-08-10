@@ -73,9 +73,9 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
     private static final Component CONVERSION_OUTPUT_TOOLTIP =
         Component.translatable("screen.anvilcraft.structure_tool.conversion_output");
     private static final List<Component> RESULT_SLOT_TOOLTIPS = ImmutableList.of(
-        REGULAR_RECIPE_TOOLTIP,
-        CONVERSION_RECIPE_TOOLTIP,
-        CONVERSION_OUTPUT_TOOLTIP
+        StructureToolScreen.REGULAR_RECIPE_TOOLTIP,
+        StructureToolScreen.CONVERSION_RECIPE_TOOLTIP,
+        StructureToolScreen.CONVERSION_OUTPUT_TOOLTIP
     );
 
     private static char currentSymbol;
@@ -101,7 +101,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             offsetY + 21,
             46,
             16,
-            BUTTON,
+            StructureToolScreen.BUTTON,
             16,
             46,
             32,
@@ -129,7 +129,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             offsetY + 37,
             46,
             16,
-            BUTTON,
+            StructureToolScreen.BUTTON,
             16,
             46,
             32,
@@ -140,7 +140,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             offsetY + 53,
             46,
             16,
-            BUTTON,
+            StructureToolScreen.BUTTON,
             16,
             46,
             32,
@@ -161,7 +161,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
                     case IDatagen datagenRecipe -> datagenRecipe.getSuggestedName();
                     default -> Integer.toHexString(recipe.hashCode());
                 };
-                String pathString = getFilePath(defaultName, "*.json");
+                String pathString = StructureToolScreen.getFilePath(defaultName, "*.json");
                 if (pathString == null) {
                     this.minecraft.player.sendSystemMessage(
                         Component.translatable("message.anvilcraft.no_file_selected")
@@ -224,7 +224,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             }
 
             graphics.text(
-                font,
+                this.font,
                 Component.translatable("screen.anvilcraft.structure_tool.count", blockCount),
                 18,
                 72,
@@ -269,8 +269,8 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
 
     @Override
     protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        if (this.hoveredSlot != null && this.hoveredSlot.index == SLOT_ID_RESULT && !this.hoveredSlot.hasItem()) {
-            graphics.setComponentTooltipForNextFrame(this.font, RESULT_SLOT_TOOLTIPS, mouseX, mouseY);
+        if (this.hoveredSlot != null && this.hoveredSlot.index == StructureToolScreen.SLOT_ID_RESULT && !this.hoveredSlot.hasItem()) {
+            graphics.setComponentTooltipForNextFrame(this.font, StructureToolScreen.RESULT_SLOT_TOOLTIPS, mouseX, mouseY);
         }
         super.extractTooltip(graphics, mouseX, mouseY);
     }
@@ -280,7 +280,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            StructureToolScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,
@@ -308,26 +308,26 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
     private Recipe<?> toRecipe() {
         BlockPattern inputPattern = this.toBlockPattern(this.structureData);
         if (inputPattern == null) return null;
-        ItemStack result = menu.slots.get(SLOT_ID_RESULT).getItem().copy();
+        ItemStack result = this.menu.slots.get(StructureToolScreen.SLOT_ID_RESULT).getItem().copy();
         if (result.is(ModItems.STRUCTURE_TOOL)) {
             StructureData outputData = result.get(ModComponents.STRUCTURE_DATA);
             if (outputData == null) return null;
             if (!outputData.isCube()) {
-                minecraft.player.sendSystemMessage(
+                this.minecraft.player.sendSystemMessage(
                     Component.translatable("tooltip.anvilcraft.item.structure_tool.must_cube")
                         .withStyle(ChatFormatting.RED)
                 );
                 return null;
             }
             if (!outputData.isOddCubeWithinSize(15)) {
-                minecraft.player.sendSystemMessage(
+                this.minecraft.player.sendSystemMessage(
                     Component.translatable("tooltip.anvilcraft.item.structure_tool.must_odd")
                         .withStyle(ChatFormatting.RED)
                 );
                 return null;
             }
             if (this.structureData.getSizeX() != outputData.getSizeX()) {
-                minecraft.player.sendSystemMessage(
+                this.minecraft.player.sendSystemMessage(
                     Component.translatable("tooltip.anvilcraft.item.structure_tool.inconsistent_size")
                         .withStyle(ChatFormatting.RED)
                 );
@@ -393,8 +393,8 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         BlockPredicateWithState predicate = BlockPredicateWithState.of(block);
         state.getProperties().stream()
             .filter(p -> recordAllStates
-                || DEFAULT_RECORDED_PROPERTIES.contains(p)
-                || (BlockStateUtil.isMultifaceLike(block)
+                         || StructureToolScreen.DEFAULT_RECORDED_PROPERTIES.contains(p)
+                         || (BlockStateUtil.isMultifaceLike(block)
                 && p instanceof BooleanProperty
                 && PipeBlock.PROPERTY_BY_DIRECTION.containsValue(p)))
             .forEach(p -> predicate.copyPropertyFrom(state, p));
@@ -408,10 +408,10 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
 
     @Nullable
     private BlockPattern toBlockPattern(@Nullable StructureData data, boolean recordAllStates) {
-        ClientLevel level = minecraft.level;
+        ClientLevel level = this.minecraft.level;
         if (data != null && level != null) {
             BlockPattern pattern = BlockPattern.create();
-            currentSymbol = '@';
+            StructureToolScreen.currentSymbol = '@';
             BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos();
             for (int y = data.minY(); y <= data.maxY(); y++) {
                 List<String> layer = new ArrayList<>();
@@ -439,8 +439,8 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
 
     private char getAndPutSymbol(Map<Character, BlockPredicateWithState> symbols, BlockPredicateWithState predicate) {
         if (symbols.entrySet().stream().noneMatch(e -> e.getValue().equals(predicate))) {
-            currentSymbol++;
-            symbols.put(currentSymbol, predicate);
+            StructureToolScreen.currentSymbol++;
+            symbols.put(StructureToolScreen.currentSymbol, predicate);
         } else {
             for (Map.Entry<Character, BlockPredicateWithState> entry : symbols.entrySet()) {
                 if (entry.getValue().equals(predicate)) {
@@ -448,6 +448,6 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
                 }
             }
         }
-        return currentSymbol;
+        return StructureToolScreen.currentSymbol;
     }
 }

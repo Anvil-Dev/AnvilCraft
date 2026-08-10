@@ -71,10 +71,10 @@ public class MagnetizedNodeEntity extends Entity {
                              this.blockPos.getY() + 1.01,
                              this.blockPos.getZ() + 1.01
         );
-        level()
+        this.level()
             .getEntities(EntityType.ITEM, aabb, IItemEntityExtension::anvilcraft$isAdsorbable)
             .forEach(entity -> {
-                entity.teleportTo(position().x, position().y, position().z);
+                entity.teleportTo(this.position().x, this.position().y, this.position().z);
                 entity.setDeltaMovement(Vec3.ZERO);
             });
     }
@@ -96,7 +96,9 @@ public class MagnetizedNodeEntity extends Entity {
 
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
-        builder.define(DATA_BLOCK_POS, BlockPos.ZERO).define(DATA_BLOCK_STATE, Blocks.AIR.defaultBlockState());
+        builder
+            .define(MagnetizedNodeEntity.DATA_BLOCK_POS, BlockPos.ZERO)
+            .define(MagnetizedNodeEntity.DATA_BLOCK_STATE, Blocks.AIR.defaultBlockState());
     }
 
     @Override

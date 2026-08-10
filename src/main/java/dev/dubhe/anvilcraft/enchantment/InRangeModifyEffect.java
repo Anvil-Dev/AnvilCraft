@@ -15,10 +15,10 @@ public record InRangeModifyEffect(
     private static final LevelBasedValue MAX = new LevelBasedValue.Constant(Float.MAX_VALUE);
     public static final MapCodec<InRangeModifyEffect> CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
         LevelBasedValue.CODEC
-            .optionalFieldOf("min", MIN)
+            .optionalFieldOf("min", InRangeModifyEffect.MIN)
             .forGetter(InRangeModifyEffect::min),
         LevelBasedValue.CODEC
-            .optionalFieldOf("max", MAX)
+            .optionalFieldOf("max", InRangeModifyEffect.MAX)
             .forGetter(InRangeModifyEffect::max),
         EnchantmentValueEffect.CODEC
             .fieldOf("modifier")
@@ -26,11 +26,11 @@ public record InRangeModifyEffect(
     ).apply(inst, InRangeModifyEffect::new));
 
     public static InRangeModifyEffect min(int min, EnchantmentValueEffect modifier) {
-        return new InRangeModifyEffect(new LevelBasedValue.Constant(min), MAX, modifier);
+        return new InRangeModifyEffect(new LevelBasedValue.Constant(min), InRangeModifyEffect.MAX, modifier);
     }
 
     public static InRangeModifyEffect max(int max, EnchantmentValueEffect modifier) {
-        return new InRangeModifyEffect(MIN, new LevelBasedValue.Constant(max), modifier);
+        return new InRangeModifyEffect(InRangeModifyEffect.MIN, new LevelBasedValue.Constant(max), modifier);
     }
 
     public static InRangeModifyEffect range(int min, int max, EnchantmentValueEffect modifier) {
@@ -47,6 +47,6 @@ public record InRangeModifyEffect(
 
     @Override
     public MapCodec<? extends EnchantmentValueEffect> codec() {
-        return CODEC;
+        return InRangeModifyEffect.CODEC;
     }
 }

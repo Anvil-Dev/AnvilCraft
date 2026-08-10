@@ -13,7 +13,7 @@ public class ModLootItemFunctions {
         DeferredRegister.create(Registries.LOOT_FUNCTION_TYPE, AnvilCraft.MOD_ID);
 
     public static void register(IEventBus modEventBus) {
-        LOOT_FUNCTION_TYPES.register("curse_loot", () -> CurseLootItemFunction.CODEC);
-        LOOT_FUNCTION_TYPES.register(modEventBus);
+        ModLootItemFunctions.LOOT_FUNCTION_TYPES.register("curse_loot", () -> CurseLootItemFunction.CODEC);
+        ModLootItemFunctions.LOOT_FUNCTION_TYPES.register(modEventBus);
     }
 }

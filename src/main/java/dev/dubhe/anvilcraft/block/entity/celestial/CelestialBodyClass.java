@@ -71,8 +71,8 @@ public enum CelestialBodyClass {
     private static final Map<Integer, CelestialBodyClass> BY_RGB = new HashMap<>();
 
     static {
-        for (CelestialBodyClass c : values()) {
-            BY_RGB.put(c.rgb, c);
+        for (CelestialBodyClass c : CelestialBodyClass.values()) {
+            CelestialBodyClass.BY_RGB.put(c.rgb, c);
         }
     }
 
@@ -94,12 +94,12 @@ public enum CelestialBodyClass {
 
     /** 是否需要第三步年龄-半径图匹配。 */
     public boolean needsStep3() {
-        return this.stellar || this == BROWN_DWARF;
+        return this.stellar || this == CelestialBodyClass.BROWN_DWARF;
     }
 
     /** 是否为只能写入奇点晶体的极端致密天体（黑洞或中子星）。 */
     public boolean isExtreme() {
-        return this == BLACK_HOLE || this == NEUTRON_STAR;
+        return this == CelestialBodyClass.BLACK_HOLE || this == CelestialBodyClass.NEUTRON_STAR;
     }
 
     /** 是否为行星类天体，包含褐矮星但不包含大型卫星。 */
@@ -109,17 +109,17 @@ public enum CelestialBodyClass {
 
     /** 是否为第二步需要特殊处理的岩石行星类别。 */
     public boolean isRockyPlanet() {
-        return this == ROCKY_NO_LIQUID || this == ROCKY_LOW_LIQUID
-               || this == ROCKY_MED_LIQUID || this == ROCKY_HIGH_LIQUID;
+        return this == CelestialBodyClass.ROCKY_NO_LIQUID || this == CelestialBodyClass.ROCKY_LOW_LIQUID
+               || this == CelestialBodyClass.ROCKY_MED_LIQUID || this == CelestialBodyClass.ROCKY_HIGH_LIQUID;
     }
 
     /** 获取该类别第二步接受的颜色；全部岩石行星统一使用 ROCKY_LOW_LIQUID 的 RGB。 */
     public int step2MatchRgb() {
-        return this.isRockyPlanet() ? ROCKY_LOW_LIQUID.rgb : this.rgb;
+        return this.isRockyPlanet() ? CelestialBodyClass.ROCKY_LOW_LIQUID.rgb : this.rgb;
     }
 
     @Nullable
     public static CelestialBodyClass fromRgb(int rgb) {
-        return BY_RGB.get(rgb);
+        return CelestialBodyClass.BY_RGB.get(rgb);
     }
 }

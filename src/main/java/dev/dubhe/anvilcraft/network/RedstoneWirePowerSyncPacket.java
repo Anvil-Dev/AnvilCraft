@@ -11,6 +11,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.ChunkPos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,7 +32,7 @@ public record RedstoneWirePowerSyncPacket(long chunkPos, boolean replace, List<P
             long chunkPos = buffer.readLong();
             boolean replace = buffer.readBoolean();
             int groupCount = buffer.readVarInt();
-            if (groupCount < 0 || groupCount > MAX_GROUPS) {
+            if (groupCount < 0 || groupCount > RedstoneWirePowerSyncPacket.MAX_GROUPS) {
                 throw new DecoderException("Invalid redstone wire power group count: " + groupCount);
             }
             List<PowerGroup> groups = new ArrayList<>(groupCount);
@@ -42,7 +43,7 @@ public record RedstoneWirePowerSyncPacket(long chunkPos, boolean replace, List<P
                     throw new DecoderException("Invalid redstone wire power: " + power);
                 }
                 int count = buffer.readVarInt();
-                if (count < 0 || count > MAX_POSITIONS - positionCount) {
+                if (count < 0 || count > RedstoneWirePowerSyncPacket.MAX_POSITIONS - positionCount) {
                     throw new DecoderException("Invalid redstone wire power position count: " + count);
                 }
                 int[] positions = new int[count];
@@ -57,7 +58,7 @@ public record RedstoneWirePowerSyncPacket(long chunkPos, boolean replace, List<P
 
         @Override
         public void encode(FriendlyByteBuf buffer, RedstoneWirePowerSyncPacket packet) {
-            if (packet.groups().size() > MAX_GROUPS) {
+            if (packet.groups().size() > RedstoneWirePowerSyncPacket.MAX_GROUPS) {
                 throw new IllegalArgumentException("Too many redstone wire power groups");
             }
             buffer.writeLong(packet.chunkPos());
@@ -68,7 +69,7 @@ public record RedstoneWirePowerSyncPacket(long chunkPos, boolean replace, List<P
                 if (group.power() < 0 || group.power() > 15) {
                     throw new IllegalArgumentException("Invalid redstone wire power: " + group.power());
                 }
-                if (group.positions().length > MAX_POSITIONS - positionCount) {
+                if (group.positions().length > RedstoneWirePowerSyncPacket.MAX_POSITIONS - positionCount) {
                     throw new IllegalArgumentException("Too many redstone wire power positions");
                 }
                 buffer.writeByte(group.power());
@@ -86,7 +87,7 @@ public record RedstoneWirePowerSyncPacket(long chunkPos, boolean replace, List<P
 
     @Override
     public Type<RedstoneWirePowerSyncPacket> type() {
-        return TYPE;
+        return RedstoneWirePowerSyncPacket.TYPE;
     }
 
     @Override
@@ -121,8 +122,8 @@ public record RedstoneWirePowerSyncPacket(long chunkPos, boolean replace, List<P
         if ((y & 0x8000) != 0) {
             y |= ~0xFFFF;
         }
-        int chunkX = net.minecraft.world.level.ChunkPos.getX(chunkPos);
-        int chunkZ = net.minecraft.world.level.ChunkPos.getZ(chunkPos);
+        int chunkX = ChunkPos.getX(chunkPos);
+        int chunkZ = ChunkPos.getZ(chunkPos);
         return new BlockPos((chunkX << 4) + (packed & 15), y, (chunkZ << 4) + ((packed >>> 4) & 15));
     }
 

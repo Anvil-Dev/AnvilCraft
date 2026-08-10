@@ -13,14 +13,14 @@ public class EmberMetalUpgradeTemplateItem extends SmithingTemplateItem {
     private static final ChatFormatting DESCRIPTION_FORMAT = ChatFormatting.BLUE;
     private static final Component APPLIES_TO = Component.translatable(
         "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.applies_to"
-    ).withStyle(DESCRIPTION_FORMAT);
+    ).withStyle(EmberMetalUpgradeTemplateItem.DESCRIPTION_FORMAT);
     private static final Component UPGRADE_INGREDIENTS =
         Component.translatable("screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template"
                 + ".upgrade_ingredients")
-            .withStyle(DESCRIPTION_FORMAT);
+            .withStyle(EmberMetalUpgradeTemplateItem.DESCRIPTION_FORMAT);
     private static final Component UPGRADE = Component.translatable(
             "screen.anvilcraft.ember_metal_upgrade_smithing_template")
-        .withStyle(TITLE_FORMAT);
+        .withStyle(EmberMetalUpgradeTemplateItem.TITLE_FORMAT);
     private static final Component UPGRADE_BASE_SLOT_DESCRIPTION = Component.translatable(
         "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.base_slot_description");
     private static final Component UPGRADE_ADDITIONS_SLOT_DESCRIPTION = Component.translatable(
@@ -34,12 +34,12 @@ public class EmberMetalUpgradeTemplateItem extends SmithingTemplateItem {
 
     public EmberMetalUpgradeTemplateItem(Properties properties) {
         super(
-            APPLIES_TO,
-            UPGRADE_INGREDIENTS,
-            UPGRADE_BASE_SLOT_DESCRIPTION,
-            UPGRADE_ADDITIONS_SLOT_DESCRIPTION,
-            List.of(EMPTY_SLOT_PICKAXE, EMPTY_SLOT_HAMMER),
-            List.of(EMPTY_SLOT_INGOT, EMPTY_SLOT_BLOCK),
+            EmberMetalUpgradeTemplateItem.APPLIES_TO,
+            EmberMetalUpgradeTemplateItem.UPGRADE_INGREDIENTS,
+            EmberMetalUpgradeTemplateItem.UPGRADE_BASE_SLOT_DESCRIPTION,
+            EmberMetalUpgradeTemplateItem.UPGRADE_ADDITIONS_SLOT_DESCRIPTION,
+            List.of(EmberMetalUpgradeTemplateItem.EMPTY_SLOT_PICKAXE, EmberMetalUpgradeTemplateItem.EMPTY_SLOT_HAMMER),
+            List.of(EmberMetalUpgradeTemplateItem.EMPTY_SLOT_INGOT, EmberMetalUpgradeTemplateItem.EMPTY_SLOT_BLOCK),
             properties);
     }
 }

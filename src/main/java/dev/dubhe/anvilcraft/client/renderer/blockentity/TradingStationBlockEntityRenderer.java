@@ -79,7 +79,7 @@ public class TradingStationBlockEntityRenderer
         List<ItemClusterRenderState> items = state.getItems();
         if (items.isEmpty()) return;
         if (items.size() == 1) {
-            renderItem(
+            TradingStationBlockEntityRenderer.renderItem(
                 pose,
                 collector,
                 items.getFirst(),
@@ -91,7 +91,7 @@ public class TradingStationBlockEntityRenderer
             Direction dir = state.getFacing();
             float firstOffset = dir.getAxisDirection() == Direction.AxisDirection.POSITIVE ? 11 / 16F : 5 / 16F;
             float secondOffset = dir.getAxisDirection() == Direction.AxisDirection.POSITIVE ? 5 / 16F : 11 / 16F;
-            renderItem(
+            TradingStationBlockEntityRenderer.renderItem(
                 pose,
                 collector,
                 items.getFirst(),
@@ -99,7 +99,7 @@ public class TradingStationBlockEntityRenderer
                 dir.getAxis() == Direction.Axis.Z ? firstOffset : 0.5F,
                 state.getRotation()
             );
-            renderItem(
+            TradingStationBlockEntityRenderer.renderItem(
                 pose,
                 collector,
                 items.get(1),
@@ -126,7 +126,7 @@ public class TradingStationBlockEntityRenderer
             pose.scale(0.85F, 0.85F, 0.85F);
         }
         pose.mulPose(Axis.YP.rotationDegrees(rotation));
-        item.submit(pose, collector, ITEM_LIGHT, OverlayTexture.NO_OVERLAY, cluster.outlineColor);
+        item.submit(pose, collector, TradingStationBlockEntityRenderer.ITEM_LIGHT, OverlayTexture.NO_OVERLAY, cluster.outlineColor);
         pose.popPose();
     }
 

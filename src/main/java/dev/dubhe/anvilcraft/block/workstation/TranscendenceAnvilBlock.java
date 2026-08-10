@@ -21,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -37,8 +38,8 @@ public class TranscendenceAnvilBlock extends BetterAnvilBlock implements IHammer
         Block.box(5.0, 4.0, 5.0, 11.0, 10.0, 11.0));
     private static final VoxelShape X_TOP = Block.box(0.0, 10.0, 3.0, 16.0, 16.0, 13.0);
     private static final VoxelShape Z_TOP = Block.box(3.0, 10.0, 0.0, 13.0, 16.0, 16.0);
-    private static final VoxelShape X_AXIS_AABB = Shapes.or(BASE, X_TOP);
-    private static final VoxelShape Z_AXIS_AABB = Shapes.or(BASE, Z_TOP);
+    private static final VoxelShape X_AXIS_AABB = Shapes.or(TranscendenceAnvilBlock.BASE, TranscendenceAnvilBlock.X_TOP);
+    private static final VoxelShape Z_AXIS_AABB = Shapes.or(TranscendenceAnvilBlock.BASE, TranscendenceAnvilBlock.Z_TOP);
     private static final Component CONTAINER_TITLE = Component.translatable("container.repair");
 
     private BlockState checkBlockState;
@@ -49,9 +50,9 @@ public class TranscendenceAnvilBlock extends BetterAnvilBlock implements IHammer
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        Direction direction = state.getValue(FACING);
-        if (direction.getAxis() == Direction.Axis.X) return X_AXIS_AABB;
-        return Z_AXIS_AABB;
+        Direction direction = state.getValue(AnvilBlock.FACING);
+        if (direction.getAxis() == Direction.Axis.X) return TranscendenceAnvilBlock.X_AXIS_AABB;
+        return TranscendenceAnvilBlock.Z_AXIS_AABB;
     }
 
     @Override
@@ -67,7 +68,8 @@ public class TranscendenceAnvilBlock extends BetterAnvilBlock implements IHammer
     public MenuProvider getMenuProvider(BlockState state, Level level, BlockPos pos) {
         return new SimpleMenuProvider(
             (i, inventory, player) -> new TranscendenceAnvilMenu(i, inventory, ContainerLevelAccess.create(level, pos)),
-            CONTAINER_TITLE);
+            TranscendenceAnvilBlock.CONTAINER_TITLE
+        );
     }
 
     @Override

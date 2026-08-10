@@ -21,7 +21,7 @@ public record CyclingValueSyncPacket(int index, String name) implements IServerb
 
     @Override
     public Type<CyclingValueSyncPacket> type() {
-        return TYPE;
+        return CyclingValueSyncPacket.TYPE;
     }
 
     @Override

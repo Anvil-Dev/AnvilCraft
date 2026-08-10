@@ -19,11 +19,11 @@ public enum RingType implements StringRepresentable {
     }
 
     public static RingType fromName(String name) {
-        for (RingType value : values()) {
+        for (RingType value : RingType.values()) {
             if (value.name.equals(name)) {
                 return value;
             }
         }
-        return NONE;
+        return RingType.NONE;
     }
 }

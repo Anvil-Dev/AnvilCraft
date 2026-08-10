@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -45,21 +46,21 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
     public static final BooleanProperty POWERED = BlockStateProperties.POWERED;
     public static final BooleanProperty OVERLOAD = IPowerComponent.OVERLOAD;
 
-    private static final VoxelShape SHAPE_Z = box(3, 3, 0, 13, 13, 16);
-    private static final VoxelShape SHAPE_X = box(0, 3, 3, 16, 13, 13);
-    private static final VoxelShape SHAPE_Y = box(3, 0, 3, 13, 16, 13);
+    private static final VoxelShape SHAPE_Z = Block.box(3, 3, 0, 13, 13, 16);
+    private static final VoxelShape SHAPE_X = Block.box(0, 3, 3, 16, 13, 13);
+    private static final VoxelShape SHAPE_Y = Block.box(3, 0, 3, 13, 16, 13);
 
     public PumpBlock(Properties properties) {
         super(properties);
-        registerDefaultState(stateDefinition.any()
-            .setValue(ORIENTATION, Orientation.NORTH_UP)
-            .setValue(POWERED, false)
-            .setValue(OVERLOAD, false));
+        this.registerDefaultState(this.stateDefinition.any()
+            .setValue(PumpBlock.ORIENTATION, Orientation.NORTH_UP)
+            .setValue(PumpBlock.POWERED, false)
+            .setValue(PumpBlock.OVERLOAD, false));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(ORIENTATION, POWERED, OVERLOAD);
+        builder.add(PumpBlock.ORIENTATION, PumpBlock.POWERED, PumpBlock.OVERLOAD);
     }
 
     @Override
@@ -69,16 +70,16 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext ctx) {
-        return switch (state.getValue(ORIENTATION).getDirection().getAxis()) {
-            case X -> SHAPE_X;
-            case Y -> SHAPE_Y;
-            default -> SHAPE_Z;
+        return switch (state.getValue(PumpBlock.ORIENTATION).getDirection().getAxis()) {
+            case X -> PumpBlock.SHAPE_X;
+            case Y -> PumpBlock.SHAPE_Y;
+            default -> PumpBlock.SHAPE_Z;
         };
     }
 
     @Override
     protected MapCodec<PumpBlock> codec() {
-        return simpleCodec(PumpBlock::new);
+        return BlockBehaviour.simpleCodec(PumpBlock::new);
     }
 
     @Override
@@ -113,9 +114,9 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
                 default -> Orientation.NORTH_UP;
             };
         };
-        return defaultBlockState()
-            .setValue(ORIENTATION, orientation)
-            .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+        return this.defaultBlockState()
+            .setValue(PumpBlock.ORIENTATION, orientation)
+            .setValue(PumpBlock.POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     /**
@@ -132,7 +133,7 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
         if (!(pumpState.getBlock() instanceof PumpBlock)) {
             return false;
         }
-        return faceToNeighbor.getAxis() == pumpState.getValue(ORIENTATION).getDirection().getAxis();
+        return faceToNeighbor.getAxis() == pumpState.getValue(PumpBlock.ORIENTATION).getDirection().getAxis();
     }
 
     @Override
@@ -141,7 +142,7 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
         if (level.isClientSide()) return;
         for (Direction dir : Direction.values()) {
             // 仅泵的连接面（输入/输出端）才可能形成连接
-            if (!isConnectableFace(state, dir)) {
+            if (!PumpBlock.isConnectableFace(state, dir)) {
                 continue;
             }
             BlockPos neighborPos = pos.relative(dir);
@@ -181,8 +182,8 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
         if (level.isClientSide()) return;
         FluidNetworkManager.INSTANCE.addAdjacentContainers(level, pos);
         boolean hasSignal = level.hasNeighborSignal(pos);
-        if (hasSignal != state.getValue(POWERED)) {
-            level.setBlock(pos, state.setValue(POWERED, hasSignal), 2);
+        if (hasSignal != state.getValue(PumpBlock.POWERED)) {
+            level.setBlock(pos, state.setValue(PumpBlock.POWERED, hasSignal), 2);
         }
     }
 
@@ -204,7 +205,7 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
     @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         BlockState state = level.getBlockState(blockPos);
-        level.setBlockAndUpdate(blockPos, state.setValue(ORIENTATION, state.getValue(ORIENTATION).opposite()));
+        level.setBlockAndUpdate(blockPos, state.setValue(PumpBlock.ORIENTATION, state.getValue(PumpBlock.ORIENTATION).opposite()));
         if (!level.isClientSide()) {
             FluidNetworkManager.INSTANCE.markDirty(level);
         }
@@ -213,12 +214,12 @@ public class PumpBlock extends BetterBaseEntityBlock implements IHammerRemovable
 
     @Override
     public @Nullable Property<?> getChangeableProperty(BlockState state) {
-        return ORIENTATION;
+        return PumpBlock.ORIENTATION;
     }
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(ORIENTATION, state.getValue(ORIENTATION).rotate(rotation));
+        return state.setValue(PumpBlock.ORIENTATION, state.getValue(PumpBlock.ORIENTATION).rotate(rotation));
     }
 
     @Override

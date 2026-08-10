@@ -28,10 +28,13 @@ public class AmuletManager {
     private static @Nullable SoftReference<AmuletManager> INSTANCE;
 
     public static AmuletManager get(HolderLookup.Provider registries) {
-        if (AmuletManager.INSTANCE == null || AmuletManager.INSTANCE.get() == null) {
-            AmuletManager.INSTANCE = new SoftReference<>(new AmuletManager(AmuletManager.extractDefinitions(registries)));
+        SoftReference<AmuletManager> reference = AmuletManager.INSTANCE;
+        AmuletManager manager = reference == null ? null : reference.get();
+        if (manager == null) {
+            manager = new AmuletManager(AmuletManager.extractDefinitions(registries));
+            AmuletManager.INSTANCE = new SoftReference<>(manager);
         }
-        return AmuletManager.INSTANCE.get();
+        return manager;
     }
 
     public static List<Holder.Reference<IAmuletDefinition>> extractDefinitions(HolderLookup.Provider registries) {
@@ -144,7 +147,10 @@ public class AmuletManager {
 
     public boolean hasAmuletInInventory(Player player, IAmulet amulet) {
         List<ItemStack> amulets = this.getAmuletsFromInventory(player);
-        return CollectionUtil.anyMatch(amulets, stack -> stack.get(ModComponents.AMULET).canActAs(amulet));
+        return CollectionUtil.anyMatch(
+            amulets,
+            stack -> stack.getOrDefault(ModComponents.AMULET, DoNothingAmulet.INSTANCE).canActAs(amulet)
+        );
     }
 
     public boolean hasAmuletInInventory(Player player, Holder<IAmuletDefinition> def) {
@@ -169,12 +175,14 @@ public class AmuletManager {
         }
         List<ItemStack> now = this.getAmuletsFromInventory(player);
         for (ItemStack stack : now) {
-            IAmulet amulet = stack.get(ModComponents.AMULET);
-            all.removeIf(other -> amulet.canActAs(other.get(ModComponents.AMULET)));
-            stack.get(ModComponents.AMULET).inventoryTick(player, stack, true);
+            IAmulet amulet = stack.getOrDefault(ModComponents.AMULET, DoNothingAmulet.INSTANCE);
+            all.removeIf(other -> amulet.canActAs(
+                other.getOrDefault(ModComponents.AMULET, DoNothingAmulet.INSTANCE)
+            ));
+            amulet.inventoryTick(player, stack, true);
         }
         for (ItemStack stack : all) {
-            IAmulet amulet = stack.get(ModComponents.AMULET);
+            IAmulet amulet = stack.getOrDefault(ModComponents.AMULET, DoNothingAmulet.INSTANCE);
             if (amulet instanceof WrappedOthersAmulet) return;
             amulet.inventoryTick(player, stack, false);
         }
@@ -183,7 +191,7 @@ public class AmuletManager {
     public boolean shouldImmune(ServerPlayer player, DamageSource source) {
         return CollectionUtil.anyMatch(
             this.getAmuletsFromInventory(player),
-            stack -> stack.get(ModComponents.AMULET).shouldImmune(player, source)
+            stack -> stack.getOrDefault(ModComponents.AMULET, DoNothingAmulet.INSTANCE).shouldImmune(player, source)
         );
     }
 }

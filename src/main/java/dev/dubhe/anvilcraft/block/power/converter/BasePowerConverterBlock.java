@@ -10,6 +10,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.RenderShape;
@@ -38,36 +39,36 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
     /// 基本电源转换器模块
     public BasePowerConverterBlock(Properties properties, int inputPower) {
         super(properties);
-        registerDefaultState(
-            stateDefinition.any()
-                .setValue(FACING, Direction.DOWN)
-                .setValue(POWERED, false)
-                .setValue(OVERLOAD, true)
+        this.registerDefaultState(
+            this.stateDefinition.any()
+                .setValue(BasePowerConverterBlock.FACING, Direction.DOWN)
+                .setValue(BasePowerConverterBlock.POWERED, false)
+                .setValue(BasePowerConverterBlock.OVERLOAD, true)
         );
         this.inputPower = inputPower;
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, POWERED, OVERLOAD);
+        builder.add(BasePowerConverterBlock.FACING, BasePowerConverterBlock.POWERED, BasePowerConverterBlock.OVERLOAD);
     }
 
     @Override
     public BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(BasePowerConverterBlock.FACING, rotation.rotate(state.getValue(BasePowerConverterBlock.FACING)));
     }
 
     @Override
     public BlockState mirror(BlockState state, Mirror mirror) {
-        return this.rotate(state, mirror.getRotation(state.getValue(FACING)));
+        return this.rotate(state, mirror.getRotation(state.getValue(BasePowerConverterBlock.FACING)));
     }
 
     @Nullable
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return defaultBlockState()
-            .setValue(FACING, context.getClickedFace().getOpposite())
-            .setValue(POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
+        return this.defaultBlockState()
+            .setValue(BasePowerConverterBlock.FACING, context.getClickedFace().getOpposite())
+            .setValue(BasePowerConverterBlock.POWERED, context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 
     @Override
@@ -81,8 +82,8 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
     ) {
         if (level.isClientSide()) return;
         boolean powered = level.hasNeighborSignal(pos);
-        if (state.getValue(POWERED) != powered) {
-            level.setBlock(pos, state.setValue(POWERED, powered), Block.UPDATE_CLIENTS);
+        if (state.getValue(BasePowerConverterBlock.POWERED) != powered) {
+            level.setBlock(pos, state.setValue(BasePowerConverterBlock.POWERED, powered), Block.UPDATE_CLIENTS);
         }
     }
 
@@ -96,7 +97,7 @@ public abstract class BasePowerConverterBlock extends BetterBaseEntityBlock impl
         if (level.isClientSide()) {
             return null;
         }
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             type,
             ModBlockEntities.POWER_CONVERTER.get(),
             (level1, blockPos, blockState, blockEntity) -> blockEntity.tick()

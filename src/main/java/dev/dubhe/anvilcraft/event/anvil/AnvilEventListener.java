@@ -59,9 +59,9 @@ public class AnvilEventListener {
     /// @param event 铁砧落地事件
     @SubscribeEvent
     public static void onLand(AnvilEvent.OnLand event) {
-        if (!behaviorRegistered) {
+        if (!AnvilEventListener.behaviorRegistered) {
             IAnvilBehavior.register();
-            behaviorRegistered = true;
+            AnvilEventListener.behaviorRegistered = true;
         }
         ServerLevel level = event.getLevel();
         BlockPos pos = event.getPos();
@@ -73,7 +73,7 @@ public class AnvilEventListener {
             && hitBlockState.is(ModBlocks.LARGE_CAULDRON)) {
             LargeCauldronBlockEntity cauldron = LargeCauldronBlockEntity.getMain(level, hitBlockPos, hitBlockState);
             if (cauldron != null && cauldron.handleGiantAnvilImpact(event)) {
-                handleBehaviors(level, hitBlockPos, hitBlockState, event);
+                AnvilEventListener.handleBehaviors(level, hitBlockPos, hitBlockState, event);
                 return;
             }
         }
@@ -83,14 +83,14 @@ public class AnvilEventListener {
             if (level.getBlockState(mainPartPos).is(multiPartBlock)) breakBlockPos = mainPartPos;
         }
         BlockState breakBlockState = level.getBlockState(breakBlockPos);
-        if (hasStonecutterBelow(level, breakBlockPos, breakBlockState)) {
-            brokeBlock(level, breakBlockPos, event);
+        if (AnvilEventListener.hasStonecutterBelow(level, breakBlockPos, breakBlockState)) {
+            AnvilEventListener.brokeBlock(level, breakBlockPos, event);
             return;
         }
         if (!ProceduralProcessStepManager.checkAnyMatches(event)) {
-            handleNeoAnvilRecipe(event);
+            AnvilEventListener.handleNeoAnvilRecipe(event);
         }
-        if (handleBehaviors(level, hitBlockPos, hitBlockState, event)) return;
+        if (AnvilEventListener.handleBehaviors(level, hitBlockPos, hitBlockState, event)) return;
         if (blockState.is(ModBlocks.NEOFORGE)) {
             if (event.getFallDistance() > 1) {
                 if (level.getRandom().nextDouble() < 0.01) {
@@ -137,7 +137,7 @@ public class AnvilEventListener {
 
     private static boolean hasStonecutterBelow(Level level, BlockPos pos, BlockState state) {
         if (state.getBlock() instanceof AbstractMultiPartBlock<?> multiPartBlock) {
-            return hasStonecutterBelowAnyPart(level, pos, state, multiPartBlock);
+            return AnvilEventListener.hasStonecutterBelowAnyPart(level, pos, state, multiPartBlock);
         }
         return level.getBlockState(pos.below()).is(Blocks.STONECUTTER);
     }
@@ -158,10 +158,10 @@ public class AnvilEventListener {
         return false;
     }
 
+    @SuppressWarnings("deprecation")
     private static void brokeBlock(Level level, BlockPos pos, AnvilEvent.OnLand event) {
         if (!(level instanceof ServerLevel serverLevel)) return;
         BlockState state = level.getBlockState(pos);
-        // noinspection deprecation
         if (state.getBlock().getExplosionResistance() >= 1200.0) event.setAnvilDamage(true);
         if (state.getDestroySpeed(level, pos) < 0) return;
 

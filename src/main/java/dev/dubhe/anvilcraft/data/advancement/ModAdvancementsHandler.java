@@ -24,11 +24,12 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.List;
+import java.util.Objects;
 
 public class ModAdvancementsHandler {
     @SuppressWarnings("unused")
     public static void init(RegistrumAdvancementProvider provider) {
-        HolderLookup.Provider registries = provider.getProvider();
+        HolderLookup.Provider registries = Objects.requireNonNull(provider.getProvider());
         HolderGetter<Item> itemLookup = registries.lookupOrThrow(Registries.ITEM);
         HolderGetter<Block> blockLookup = registries.lookupOrThrow(Registries.BLOCK);
         HolderGetter<EntityType<?>> entityTypeLookup = registries.lookupOrThrow(Registries.ENTITY_TYPE);

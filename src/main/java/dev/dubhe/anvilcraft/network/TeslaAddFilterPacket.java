@@ -21,7 +21,7 @@ public record TeslaAddFilterPacket(String id, String arg) implements IServerboun
 
     @Override
     public Type<TeslaAddFilterPacket> type() {
-        return TYPE;
+        return TeslaAddFilterPacket.TYPE;
     }
 
     @Override

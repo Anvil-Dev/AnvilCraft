@@ -23,6 +23,7 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -121,8 +122,6 @@ public class LevelLike implements BlockAndTintGetter {
             if (blockEntity == null) return;
             if (Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(blockEntity) == null) return;
             blockEntity.setLevel(this.parent);
-            // noinspection deprecation
-            blockEntity.setBlockState(state);
             this.blockEntities.put(pos, blockEntity);
         }
     }
@@ -206,7 +205,9 @@ public class LevelLike implements BlockAndTintGetter {
 
     @Override
     public int getBlockTint(BlockPos pos, ColorResolver color) {
-        Biome value = this.parent.registryAccess().lookupOrThrow(Registries.BIOME).getValue(Biomes.PLAINS);
+        Biome value = Objects.requireNonNull(
+            this.parent.registryAccess().lookupOrThrow(Registries.BIOME).getValue(Biomes.PLAINS)
+        );
         return color.getColor(value, pos.getX(), pos.getZ());
     }
 

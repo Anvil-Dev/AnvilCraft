@@ -6,6 +6,7 @@ import net.minecraft.world.level.block.Rotation;
 import org.jspecify.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 @Getter
 public enum OpenedCube3x3PartHalf implements IFlexibleMultiPartBlockState<OpenedCube3x3PartHalf, Boolean>,
@@ -63,11 +64,11 @@ public enum OpenedCube3x3PartHalf implements IFlexibleMultiPartBlockState<Opened
             int x = half.offsetX;
             int y = half.offsetY;
             int z = half.offsetZ;
-            half.clockwise90 = findByOffset(-z, y, x);
-            half.clockwise180 = findByOffset(-x, y, -z);
-            half.clockwise270 = findByOffset(z, y, -x);
-            half.mirrorX = findByOffset(-x, y, z);
-            half.mirrorZ = findByOffset(x, y, -z);
+            half.clockwise90 = Objects.requireNonNull(OpenedCube3x3PartHalf.findByOffset(-z, y, x));
+            half.clockwise180 = Objects.requireNonNull(OpenedCube3x3PartHalf.findByOffset(-x, y, -z));
+            half.clockwise270 = Objects.requireNonNull(OpenedCube3x3PartHalf.findByOffset(z, y, -x));
+            half.mirrorX = Objects.requireNonNull(OpenedCube3x3PartHalf.findByOffset(-x, y, z));
+            half.mirrorZ = Objects.requireNonNull(OpenedCube3x3PartHalf.findByOffset(x, y, -z));
         }
     }
 
@@ -76,6 +77,11 @@ public enum OpenedCube3x3PartHalf implements IFlexibleMultiPartBlockState<Opened
         this.offsetX = offsetX;
         this.offsetY = offsetY;
         this.offsetZ = offsetZ;
+        this.clockwise90 = this;
+        this.clockwise180 = this;
+        this.clockwise270 = this;
+        this.mirrorX = this;
+        this.mirrorZ = this;
     }
 
     public String toString() {

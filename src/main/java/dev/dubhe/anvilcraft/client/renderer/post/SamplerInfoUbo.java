@@ -25,7 +25,7 @@ class SamplerInfoUbo extends BufferObject<SamplerInfoUbo> {
 
     @Override
     protected BufferObjectLayoutDefinition<SamplerInfoUbo> getDefinition() {
-        return DEFINITION;
+        return SamplerInfoUbo.DEFINITION;
     }
 
 }

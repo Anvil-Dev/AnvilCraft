@@ -63,7 +63,7 @@ public class GiantAnvilLandingEventListener {
         } else if (!centerState.is(Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES)) {
             return;
         }
-        int size = findCraftingTableSize(landPos, level);
+        int size = GiantAnvilLandingEventListener.findCraftingTableSize(landPos, level);
         if (size < 3 || size > 15) return;
 
         BlockPos inputCorner = landPos.offset(-size / 2, -size, -size / 2);
@@ -112,7 +112,7 @@ public class GiantAnvilLandingEventListener {
                 BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos();
                 final Optional<EntityType<?>> entity = value.getModifySpawnerAction()
                     .map(ModifySpawnerAction::fromPos)
-                    .map(pos -> rotatePos(pos, size, rotation))
+                    .map(pos -> GiantAnvilLandingEventListener.rotatePos(pos, size, rotation))
                     .map(inputCorner::offset)
                     .map(level::getBlockEntity)
                     .filter(be -> be instanceof HasMobBlockEntity)
@@ -127,8 +127,9 @@ public class GiantAnvilLandingEventListener {
                                 case CLOCKWISE_90 -> mpos.setWithOffset(inputCorner, size - 1 - z, y, x);
                                 default -> mpos.setWithOffset(inputCorner, x, y, z);
                             }
-                            // noinspection deprecation
-                            BlockState newState = outputPattern.getPredicate(x, y, z).getDefaultState().rotate(rotation);
+                            BlockState newState = outputPattern.getPredicate(x, y, z)
+                                .getDefaultState()
+                                .rotate(level, mpos, rotation);
                             level.setBlock(mpos, newState, 18);
                         }
                     }
@@ -181,7 +182,9 @@ public class GiantAnvilLandingEventListener {
                     }
                 );
                 entity.ifPresent(entityType -> {
-                    BlockPos offset = rotatePos(value.getModifySpawnerAction().get().toPos(), size, rotation);
+                    BlockPos offset = GiantAnvilLandingEventListener.rotatePos(
+                        value.getModifySpawnerAction().get().toPos(), size, rotation
+                    );
                     Optional.ofNullable(level.getBlockEntity(inputCorner.offset(offset)))
                         .filter(be -> be instanceof Spawner)
                         .ifPresent(be -> ((Spawner) be).setEntityId(entityType, level.getRandom()));
@@ -191,7 +194,11 @@ public class GiantAnvilLandingEventListener {
 
     private static int findCraftingTableSize(BlockPos centerPos, Level level) {
         int maxSize = 0;
-        for (int size = MIN_MULTIBLOCK_SIZE; size <= MAX_MULTIBLOCK_SIZE; size += 2) {
+        for (
+            int size = GiantAnvilLandingEventListener.MIN_MULTIBLOCK_SIZE;
+            size <= GiantAnvilLandingEventListener.MAX_MULTIBLOCK_SIZE;
+            size += 2
+        ) {
             boolean flag = true;
             for (int x = -size / 2; x <= size / 2 && flag; x++) {
                 for (int z = -size / 2; z <= size / 2 && flag; z++) {

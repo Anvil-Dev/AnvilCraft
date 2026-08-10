@@ -64,11 +64,11 @@ public enum DirectionCube3x3PartHalf
             int x = half.offsetX;
             int y = half.offsetY;
             int z = half.offsetZ;
-            half.clockwise90 = findByOffset(-z, y, x);
-            half.clockwise180 = findByOffset(-x, y, -z);
-            half.clockwise270 = findByOffset(z, y, -x);
-            half.mirrorX = findByOffset(-x, y, z);
-            half.mirrorZ = findByOffset(x, y, -z);
+            half.clockwise90 = DirectionCube3x3PartHalf.findByOffset(-z, y, x);
+            half.clockwise180 = DirectionCube3x3PartHalf.findByOffset(-x, y, -z);
+            half.clockwise270 = DirectionCube3x3PartHalf.findByOffset(z, y, -x);
+            half.mirrorX = DirectionCube3x3PartHalf.findByOffset(-x, y, z);
+            half.mirrorZ = DirectionCube3x3PartHalf.findByOffset(x, y, -z);
         }
     }
 
@@ -105,7 +105,7 @@ public enum DirectionCube3x3PartHalf
 
     @Override
     public boolean isMain() {
-        return this == MID_CENTER;
+        return this == DirectionCube3x3PartHalf.MID_CENTER;
     }
 
     public DirectionCube3x3PartHalf rotate(Rotation rotation) {

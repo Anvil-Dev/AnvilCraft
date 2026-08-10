@@ -57,9 +57,9 @@ public class TeslaTowerBlock
         super(properties);
         this.registerDefaultState(this.stateDefinition
             .any()
-            .setValue(HALF, Vertical4PartHalf.BOTTOM)
-            .setValue(OVERLOAD, true)
-            .setValue(SWITCH, IPowerComponent.Switch.ON));
+            .setValue(TeslaTowerBlock.HALF, Vertical4PartHalf.BOTTOM)
+            .setValue(TeslaTowerBlock.OVERLOAD, true)
+            .setValue(TeslaTowerBlock.SWITCH, IPowerComponent.Switch.ON));
     }
 
     @Override
@@ -80,14 +80,14 @@ public class TeslaTowerBlock
         IPowerComponent.Switch sw =
             level.hasNeighborSignal(pos) ? IPowerComponent.Switch.OFF : IPowerComponent.Switch.ON;
         return this.defaultBlockState()
-            .setValue(HALF, Vertical4PartHalf.BOTTOM)
-            .setValue(OVERLOAD, true)
-            .setValue(SWITCH, sw);
+            .setValue(TeslaTowerBlock.HALF, Vertical4PartHalf.BOTTOM)
+            .setValue(TeslaTowerBlock.OVERLOAD, true)
+            .setValue(TeslaTowerBlock.SWITCH, sw);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(HALF).add(OVERLOAD).add(SWITCH);
+        builder.add(TeslaTowerBlock.HALF).add(TeslaTowerBlock.OVERLOAD).add(TeslaTowerBlock.SWITCH);
     }
 
     @Override
@@ -101,11 +101,11 @@ public class TeslaTowerBlock
         BlockGetter level,
         BlockPos pos,
         CollisionContext context) {
-        return switch (state.getValue(HALF)) {
-            case BOTTOM -> BOTTOM_SHAPE;
-            case MID_LOWER -> LOWER_SHAPE;
-            case MID_UPPER -> UPPER_SHAPE;
-            case TOP -> TOP_SHAPE;
+        return switch (state.getValue(TeslaTowerBlock.HALF)) {
+            case BOTTOM -> TeslaTowerBlock.BOTTOM_SHAPE;
+            case MID_LOWER -> TeslaTowerBlock.LOWER_SHAPE;
+            case MID_UPPER -> TeslaTowerBlock.UPPER_SHAPE;
+            case TOP -> TeslaTowerBlock.TOP_SHAPE;
         };
     }
 
@@ -116,7 +116,7 @@ public class TeslaTowerBlock
 
     @Override
     public BlockState placedState(Vertical4PartHalf part, BlockState state) {
-        return super.placedState(part, state).setValue(SWITCH, IPowerComponent.Switch.ON);
+        return super.placedState(part, state).setValue(TeslaTowerBlock.SWITCH, IPowerComponent.Switch.ON);
     }
 
     @Override
@@ -159,20 +159,20 @@ public class TeslaTowerBlock
         if (level.isClientSide()) {
             return;
         }
-        if (state.getValue(HALF) != Vertical4PartHalf.BOTTOM) return;
+        if (state.getValue(TeslaTowerBlock.HALF) != Vertical4PartHalf.BOTTOM) return;
         BlockPos topPos = pos.above(3);
         BlockState topState = level.getBlockState(topPos);
         if (!topState.is(ModBlocks.TESLA_TOWER.get())) return;
-        if (topState.getValue(HALF) != Vertical4PartHalf.TOP) return;
-        IPowerComponent.Switch sw = state.getValue(SWITCH);
+        if (topState.getValue(TeslaTowerBlock.HALF) != Vertical4PartHalf.TOP) return;
+        IPowerComponent.Switch sw = state.getValue(TeslaTowerBlock.SWITCH);
         boolean bl = sw == IPowerComponent.Switch.ON;
         if (bl == level.hasNeighborSignal(pos)) {
             if (bl) {
-                state = state.setValue(SWITCH, IPowerComponent.Switch.OFF);
-                topState = topState.setValue(SWITCH, IPowerComponent.Switch.OFF);
+                state = state.setValue(TeslaTowerBlock.SWITCH, IPowerComponent.Switch.OFF);
+                topState = topState.setValue(TeslaTowerBlock.SWITCH, IPowerComponent.Switch.OFF);
             } else {
-                state = state.setValue(SWITCH, IPowerComponent.Switch.ON);
-                topState = topState.setValue(SWITCH, IPowerComponent.Switch.ON);
+                state = state.setValue(TeslaTowerBlock.SWITCH, IPowerComponent.Switch.ON);
+                topState = topState.setValue(TeslaTowerBlock.SWITCH, IPowerComponent.Switch.ON);
             }
             level.setBlockAndUpdate(pos, state);
             level.setBlockAndUpdate(topPos, topState);
@@ -199,7 +199,7 @@ public class TeslaTowerBlock
             return InteractionResult.SUCCESS;
         }
         if (state.is(this)) {
-            BlockPos mainPartPos = getMainPartPos(pos, state);
+            BlockPos mainPartPos = this.getMainPartPos(pos, state);
             BlockEntity blockEntity = level.getBlockEntity(mainPartPos);
             if (blockEntity instanceof TeslaTowerBlockEntity teslaTowerBlockEntity && player instanceof ServerPlayer sp) {
                 if (sp.gameMode.getGameModeForPlayer() == GameType.SPECTATOR) return InteractionResult.PASS;

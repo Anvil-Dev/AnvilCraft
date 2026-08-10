@@ -54,14 +54,17 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
 
     public CelestialForgingAnvilFluidInterfaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
-        this.tank = new FluidStacksResourceHandler(TANK_COUNT, CAPACITY_PER_TANK) {
+        this.tank = new FluidStacksResourceHandler(
+            CelestialForgingAnvilFluidInterfaceBlockEntity.TANK_COUNT,
+            CelestialForgingAnvilFluidInterfaceBlockEntity.CAPACITY_PER_TANK
+        ) {
             @Override
             public boolean isValid(int index, FluidResource resource) {
                 if (resource.isEmpty()) return false;
                 FluidStack currentStack = this.getStackFrom(this.getResource(index), this.getAmountAsInt(index));
                 if (!currentStack.isEmpty() && currentStack.is(resource.getFluid())) return true;
                 if (currentStack.isEmpty()) {
-                    for (int j = 0; j < TANK_COUNT; j++) {
+                    for (int j = 0; j < CelestialForgingAnvilFluidInterfaceBlockEntity.TANK_COUNT; j++) {
                         if (j != index) {
                             FluidStack otherStack = this.getStackFrom(this.getResource(j), this.getAmountAsInt(j));
                             if (!otherStack.isEmpty() && otherStack.is(resource.getFluid())) {
@@ -175,8 +178,8 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
     @Override
     public void setChanged() {
         super.setChanged();
-        if (level != null && !level.isClientSide()) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        if (this.level != null && !this.level.isClientSide()) {
+            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
             this.syncToClients();
         }
     }
@@ -258,8 +261,8 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
     /// 前方是管道→沿管道追踪到远端再推送；前方是流体容器→直接推送；
     /// 扬程 10 米，流速随高度差放大（复用管道系统的 moveFluid）。
     public void serverTick() {
-        if (level == null || level.isClientSide()) return;
-        BlockState state = getBlockState();
+        if (this.level == null || this.level.isClientSide()) return;
+        BlockState state = this.getBlockState();
         if (!state.hasProperty(CelestialForgingAnvilInterfaceBlock.ACTIVE)) return;
 
         boolean active = state.getValue(CelestialForgingAnvilInterfaceBlock.ACTIVE);
@@ -269,14 +272,14 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
         if (this.grid == null || !this.grid.isWorking()) return;
 
         Direction facing = state.getValue(CelestialForgingAnvilInterfaceBlock.FACING);
-        BlockPos frontPos = getBlockPos().relative(facing);
-        BlockState frontState = level.getBlockState(frontPos);
-        int sourceEffectiveHeight = getBlockPos().getY() + PUMP_HEADLIFT;
+        BlockPos frontPos = this.getBlockPos().relative(facing);
+        BlockState frontState = this.level.getBlockState(frontPos);
+        int sourceEffectiveHeight = this.getBlockPos().getY() + CelestialForgingAnvilFluidInterfaceBlockEntity.PUMP_HEADLIFT;
 
         if (FluidNetworkScanner.isPipePart(frontState)) {
-            FluidPipeNetwork network = FluidNetworkScanner.scan(level, frontPos);
+            FluidPipeNetwork network = FluidNetworkScanner.scan(this.level, frontPos);
             if (network != null) {
-                network.pushFromExternalSource(this.tank, getBlockPos(), frontPos, sourceEffectiveHeight);
+                network.pushFromExternalSource(this.tank, this.getBlockPos(), frontPos, sourceEffectiveHeight);
             }
             return;
         }
@@ -290,7 +293,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
             // 从前方管道沿 facing.getOpposite() 方向追踪到管道远端。
             // getPipeEnd 的参数 direction 是"从管道哪一侧进入"，即接口连接管道的那一侧。
             AbstractPipeBlockEntity.PipeEnd pipeEnd =
-                AbstractPipeBlockEntity.getPipeEnd(level, frontPos, facing.getOpposite());
+                AbstractPipeBlockEntity.getPipeEnd(this.level, frontPos, facing.getOpposite());
             if (pipeEnd == null) return;
             // pipeEnd.direction() = 从管道末端指向接收方的方向
             targetPos = pipeEnd.pos().relative(pipeEnd.direction());
@@ -302,15 +305,15 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity 
         }
 
         // 计算有效高度差（含 10m 扬程，扣除管道累计等效高度）
-        int sourceY = getBlockPos().getY();
+        int sourceY = this.getBlockPos().getY();
         int targetY = targetPos.getY() - pipeHeight;
-        int heightDiff = PUMP_HEADLIFT + sourceY - targetY;
+        int heightDiff = CelestialForgingAnvilFluidInterfaceBlockEntity.PUMP_HEADLIFT + sourceY - targetY;
         if (heightDiff <= 0) return;
 
         // 复用管道系统的流体传输：源端为接口自身（内部储罐，通过 Fluid.BLOCK 能力查询）。
         AbstractPipeBlockEntity.moveFluid(
-            level,
-            getBlockPos(),   // sourcePos = 接口自身（内部储罐）
+            this.level,
+            this.getBlockPos(),   // sourcePos = 接口自身（内部储罐）
             facing,          // sourceQueryDir（能力忽略 side，任意方向均可）
             targetPos,       // 接收方位置
             targetQueryDir,  // 从接收方面向源

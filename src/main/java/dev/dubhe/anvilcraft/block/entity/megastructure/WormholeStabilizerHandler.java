@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.block.entity.megastructure;
 
 import dev.anvilcraft.lib.v2.util.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.world.load.LevelLoadManager;
-import dev.dubhe.anvilcraft.api.world.load.LoadChuckData;
+import dev.dubhe.anvilcraft.api.world.load.LoadChunkData;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilFluidInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
@@ -52,7 +52,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
     private boolean registered = false;
     private boolean justReconnected = false;
     private final Map<Cube323PartHalf, BlockPos> portals = new EnumMap<>(Cube323PartHalf.class);
-    private final Map<WormholeChunkLoadKey, LoadChuckData> loadedChunks = new HashMap<>();
+    private final Map<WormholeChunkLoadKey, LoadChunkData> loadedChunks = new HashMap<>();
     private final Map<String, List<FluidStack>> lastFluidSnapshot = new HashMap<>();
     private final Map<UUID, List<UnlimitedItemStack>> lastSeenItems = new HashMap<>();
 
@@ -238,7 +238,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             serverLevel.dimension().identifier(), be.getBlockPos()
         );
         if (!this.loadedChunks.containsKey(selfKey)) {
-            LoadChuckData data = LoadChuckData.createLoadChuckData(1, be.getBlockPos(), false, serverLevel);
+            LoadChunkData data = LoadChunkData.createSimpleLoadChunkData(1, be.getBlockPos(), serverLevel);
             LevelLoadManager.register(be.getBlockPos(), data, serverLevel);
             this.loadedChunks.put(selfKey, data);
         }

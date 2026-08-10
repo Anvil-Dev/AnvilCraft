@@ -42,7 +42,7 @@ public class EmberGrindstoneBlock extends BetterGrindstoneBlock implements IHamm
         BlockHitResult hit
     ) {
         if (level.isClientSide()) return InteractionResult.SUCCESS;
-        ModMenuTypes.open((ServerPlayer) player, state.getMenuProvider(level, pos));
+        ModMenuTypes.open((ServerPlayer) player, this.getMenuProvider(state, level, pos));
         player.awardStat(Stats.INTERACT_WITH_GRINDSTONE);
         return InteractionResult.CONSUME;
     }

@@ -22,6 +22,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.TagValueInput;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -34,28 +35,28 @@ public class ProceduralProcessStepManager {
     public static Map<Block, List<ProceduralProcessStep>> PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY = new HashMap<>();
     public static Set<Block> PROCEDURAL_PROCESS_EXIST_STEP_INQUIRY = new HashSet<>();
     public static final int WIP_BLOCK_DETECTION_DEPTH = 2;
-    private static RecipeMap initializedRecipes;
+    private static @Nullable RecipeMap initializedRecipes;
 
     public static void initialize(RecipeMap recipes) {
-        initialize(List.copyOf(recipes.values()));
-        initializedRecipes = recipes;
+        ProceduralProcessStepManager.initialize(List.copyOf(recipes.values()));
+        ProceduralProcessStepManager.initializedRecipes = recipes;
     }
 
     public static void initialize(List<RecipeHolder<?>> recipeHolders) {
-        PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY = new HashMap<>();
-        PROCEDURAL_PROCESS_EXIST_STEP_INQUIRY = new HashSet<>();
+        ProceduralProcessStepManager.PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY = new HashMap<>();
+        ProceduralProcessStepManager.PROCEDURAL_PROCESS_EXIST_STEP_INQUIRY = new HashSet<>();
         for (RecipeHolder<?> holder : recipeHolders) {
             if (holder.value() instanceof ProceduralProcessRecipe recipe) {
                 Identifier rl = holder.id().identifier();
-                List<ProceduralProcessStep> steps = recipe.getSteps();
+                List<ProceduralProcessStep> steps = recipe.steps();
                 for (int index = 0; index < steps.size(); index++) {
                     ProceduralProcessStep step = steps.get(index);
                     step.setStepIndex(index);
                     step.setPpRecipeId(rl);
                     ProceduralProcessStepManager.addStep(step);
                 }
-                if (recipe.getMultiLoopFirstStep().isPresent()) {
-                    ProceduralProcessStep step = recipe.getMultiLoopFirstStep().get();
+                if (recipe.multiLoopFirstStep().isPresent()) {
+                    ProceduralProcessStep step = recipe.multiLoopFirstStep().get();
                     step.setStepIndex(0);
                     step.setPpRecipeId(rl);
                     ProceduralProcessStepManager.addStep(step, false);
@@ -70,12 +71,12 @@ public class ProceduralProcessStepManager {
             if (fillsFirstStepInquiry && step.getStepIndex() == 0) {
                 for (Holder<Block> contactBlock : contactBlocks) {
                     Block b = contactBlock.value();
-                    PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY.computeIfAbsent(b, _ -> new ArrayList<>()).add(step);
+                    ProceduralProcessStepManager.PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY.computeIfAbsent(b, _ -> new ArrayList<>()).add(step);
                 }
             }
             for (Holder<Block> contactBlock : contactBlocks) {
                 Block b = contactBlock.value();
-                PROCEDURAL_PROCESS_EXIST_STEP_INQUIRY.add(b);
+                ProceduralProcessStepManager.PROCEDURAL_PROCESS_EXIST_STEP_INQUIRY.add(b);
             }
         } else {
             String recipeTypeWarning = "Each step of ProceduralProcessRecipe is expected to be an AbstractProcessRecipe. Received: ";
@@ -91,12 +92,12 @@ public class ProceduralProcessStepManager {
     public static boolean checkAnyMatches(AnvilEvent.OnLand event) {
         ServerLevel sl = event.getLevel();
         RecipeMap recipes = sl.getServer().getRecipeManager().recipeMap();
-        if (initializedRecipes != recipes) {
-            initialize(recipes);
+        if (ProceduralProcessStepManager.initializedRecipes != recipes) {
+            ProceduralProcessStepManager.initialize(recipes);
         }
         BlockPos hitPos = event.getPos().below();
         BlockState state = sl.getBlockState(hitPos);
-        if (PROCEDURAL_PROCESS_EXIST_STEP_INQUIRY.contains(state.getBlock())) {
+        if (ProceduralProcessStepManager.PROCEDURAL_PROCESS_EXIST_STEP_INQUIRY.contains(state.getBlock())) {
             InWorldRecipeContext context = new InWorldRecipeContext(
                 sl,
                 event.getPos().getCenter().subtract(0.0, 0.5, 0.0),
@@ -108,15 +109,15 @@ public class ProceduralProcessStepManager {
                 ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE, recipeId);
                 RecipeHolder<?> recipeHolder = RecipesRecord.getRecipes(sl).byKey(key);
                 if (recipeHolder != null && recipeHolder.value() instanceof ProceduralProcessRecipe ppr) {
-                    int loopMax = ppr.getLoop();
-                    int oneLoopSize = ppr.getSteps().size();
+                    int loopMax = ppr.loop();
+                    int oneLoopSize = ppr.steps().size();
                     int q = wip.getStepCount() / oneLoopSize;
                     int r = wip.getStepCount() - q * oneLoopSize;
                     ProceduralProcessStep step;
-                    if (r == 0 && ppr.getMultiLoopFirstStep().isPresent() && q >= 1) {
-                        step = ppr.getMultiLoopFirstStep().get();
+                    if (r == 0 && ppr.multiLoopFirstStep().isPresent() && q >= 1) {
+                        step = ppr.multiLoopFirstStep().get();
                     } else {
-                        step = ppr.getSteps().get(r);
+                        step = ppr.steps().get(r);
                     }
                     if (
                         q < loopMax
@@ -129,11 +130,11 @@ public class ProceduralProcessStepManager {
                         WipBlockEntity wip2 = ProceduralProcessRecipe.getWipBlockFromContext(context);
                         if (wip2 != null && q == loopMax - 1 && r == oneLoopSize - 1) {
                             BlockPos pos = wip2.getBlockPos();
-                            Map.Entry<BlockState, CompoundTag> entry = ppr.getResultBlock().getResult(sl);
+                            Map.Entry<BlockState, CompoundTag> entry = ppr.resultBlock().getResult(sl);
                             if (entry != null) {
                                 sl.setBlock(pos, entry.getKey(), Block.UPDATE_ALL);
                                 BlockEntity be = sl.getBlockEntity(pos);
-                                if (entry.getValue() != null && be != null) {
+                                if (be != null) {
                                     be.loadCustomOnly(TagValueInput.create(
                                         ProblemReporter.DISCARDING,
                                         sl.registryAccess(),
@@ -158,7 +159,8 @@ public class ProceduralProcessStepManager {
                     }
                 }
             } else {
-                List<ProceduralProcessStep> possibleSteps = PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY.get(state.getBlock());
+                List<ProceduralProcessStep> possibleSteps = ProceduralProcessStepManager.PROCEDURAL_PROCESS_FIRST_STEP_INQUIRY.get(
+                    state.getBlock());
                 if (possibleSteps == null || possibleSteps.isEmpty()) return false;
                 for (ProceduralProcessStep step : possibleSteps) {
                     InWorldRecipeContext contextOfStep = new InWorldRecipeContext(
@@ -174,10 +176,10 @@ public class ProceduralProcessStepManager {
                             if (holder != null && holder.value() instanceof ProceduralProcessRecipe ppr) {
                                 BlockPos pos = BlockPos.containing(contextOfStep.getPos());
                                 pos = pos.below();
-                                BlockState initialBlockState = ppr.getInitialBlock().getBlocks().get(0).value().defaultBlockState();
+                                BlockState initialBlockState = ppr.initialBlock().getBlocks().get(0).value().defaultBlockState();
                                 BlockPos potentialPos = pos;
-                                for (int i = 0; i < WIP_BLOCK_DETECTION_DEPTH; i++) {
-                                    if (ppr.initialBlock.test(sl, sl.getBlockState(potentialPos), sl.getBlockEntity(potentialPos))) {
+                                for (int i = 0; i < ProceduralProcessStepManager.WIP_BLOCK_DETECTION_DEPTH; i++) {
+                                    if (ppr.initialBlock().test(sl, sl.getBlockState(potentialPos), sl.getBlockEntity(potentialPos))) {
                                         initialBlockState = sl.getBlockState(potentialPos);
                                         break;
                                     }
@@ -186,13 +188,13 @@ public class ProceduralProcessStepManager {
                                 apr.assemble(contextOfStep);
                                 contextOfStep.accept();
                                 WipBlockEntity wip0 = ProceduralProcessRecipe.getWipBlockFromContext(contextOfStep);
-                                if (wip0 != null && ppr.getLoop() == 1 && ppr.getSteps().size() == 1) {
+                                if (wip0 != null && ppr.loop() == 1 && ppr.steps().size() == 1) {
                                     BlockPos pos1 = wip0.getBlockPos();
-                                    Map.Entry<BlockState, CompoundTag> entry = ppr.getResultBlock().getResult(sl);
+                                    Map.Entry<BlockState, CompoundTag> entry = ppr.resultBlock().getResult(sl);
                                     if (entry != null) {
                                         sl.setBlock(pos1, entry.getKey(), Block.UPDATE_ALL);
                                         BlockEntity be = sl.getBlockEntity(pos1);
-                                        if (entry.getValue() != null && be != null) {
+                                        if (be != null) {
                                             be.loadCustomOnly(TagValueInput.create(
                                                 ProblemReporter.DISCARDING,
                                                 sl.registryAccess(),

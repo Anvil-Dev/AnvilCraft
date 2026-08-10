@@ -24,11 +24,11 @@ public class MultiphaseMatterBlockItem extends BlockItem implements IPermutation
 
     @Override
     public Component getInputTooltip(ItemStack material) {
-        return MISSING_TOOLTIP;
+        return MultiphaseMatterBlockItem.MISSING_TOOLTIP;
     }
 
     @Override
     public List<Identifier> getEmptySlotTextures() {
-        return EMPTY_SLOT_TEXTURES;
+        return MultiphaseMatterBlockItem.EMPTY_SLOT_TEXTURES;
     }
 }

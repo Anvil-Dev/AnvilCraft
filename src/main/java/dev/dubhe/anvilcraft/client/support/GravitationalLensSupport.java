@@ -27,19 +27,19 @@ public class GravitationalLensSupport {
     public static final Set<BlockPos> CLIENT_WHITE_HOLE_POSITIONS = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
     public static void register(BlockPos pos) {
-        CLIENT_BLACK_HOLE_POSITIONS.add(pos.immutable());
+        GravitationalLensSupport.CLIENT_BLACK_HOLE_POSITIONS.add(pos.immutable());
     }
 
     public static void unregister(BlockPos pos) {
-        CLIENT_BLACK_HOLE_POSITIONS.remove(pos);
+        GravitationalLensSupport.CLIENT_BLACK_HOLE_POSITIONS.remove(pos);
     }
 
     public static void registerWhiteHole(BlockPos pos) {
-        CLIENT_WHITE_HOLE_POSITIONS.add(pos.immutable());
+        GravitationalLensSupport.CLIENT_WHITE_HOLE_POSITIONS.add(pos.immutable());
     }
 
     public static void unregisterWhiteHole(BlockPos pos) {
-        CLIENT_WHITE_HOLE_POSITIONS.remove(pos);
+        GravitationalLensSupport.CLIENT_WHITE_HOLE_POSITIONS.remove(pos);
     }
 
     private static Matrix4f buildViewProj(CameraRenderState cameraState, Matrix4fc projectionMatrix) {
@@ -97,11 +97,13 @@ public class GravitationalLensSupport {
     ) {
         List<HoleProjection> result = new ArrayList<>();
 
-        Matrix4f viewProj = buildViewProj(cameraState, projectionMatrix);
+        Matrix4f viewProj = GravitationalLensSupport.buildViewProj(cameraState, projectionMatrix);
         Vector3f cameraPos = cameraState.pos.toVector3f();
 
-        collectFromSet(CLIENT_BLACK_HOLE_POSITIONS, cameraPos, viewProj, blackHoleDir, result);
-        collectFromSet(CLIENT_WHITE_HOLE_POSITIONS, cameraPos, viewProj, whiteHoleDir, result);
+        GravitationalLensSupport.collectFromSet(
+            GravitationalLensSupport.CLIENT_BLACK_HOLE_POSITIONS, cameraPos, viewProj, blackHoleDir, result);
+        GravitationalLensSupport.collectFromSet(
+            GravitationalLensSupport.CLIENT_WHITE_HOLE_POSITIONS, cameraPos, viewProj, whiteHoleDir, result);
 
         // Sort nearest first, then take the closest maxCount
         result.sort((a, b) -> Float.compare(a.cameraDistance, b.cameraDistance));
@@ -119,7 +121,7 @@ public class GravitationalLensSupport {
         float dir = (float) AnvilCraftClient.CONFIG.gravitationalLens.lensDirection;
         int maxCount = AnvilCraftClient.CONFIG.gravitationalLens.maxHoleCount;
         CameraRenderState cameraState = levelRenderState.cameraRenderState;
-        List<HoleProjection> holes = collectVisibleHoles(
+        List<HoleProjection> holes = GravitationalLensSupport.collectVisibleHoles(
             cameraState,
             cameraState.projectionMatrix,
             maxCount,
@@ -153,9 +155,9 @@ public class GravitationalLensSupport {
             double dy = pos.getY() + 0.5 - cameraPos.y;
             double dz = pos.getZ() + 0.5 - cameraPos.z;
             double distanceSqr = dx * dx + dy * dy + dz * dz;
-            if (distanceSqr > MAX_SEARCH_DISTANCE_SQR) continue;
+            if (distanceSqr > GravitationalLensSupport.MAX_SEARCH_DISTANCE_SQR) continue;
 
-            Vector2f centerUV = worldToScreenUV(
+            Vector2f centerUV = GravitationalLensSupport.worldToScreenUV(
                 pos.getX() + 0.5f,
                 pos.getY() + 0.5f,
                 pos.getZ() + 0.5f,

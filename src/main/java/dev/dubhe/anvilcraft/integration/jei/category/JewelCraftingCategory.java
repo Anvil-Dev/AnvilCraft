@@ -63,12 +63,12 @@ public class JewelCraftingCategory implements IRecipeCategory<RecipeHolder<Jewel
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return JewelCraftingCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return JewelCraftingCategory.HEIGHT;
     }
 
     @Override

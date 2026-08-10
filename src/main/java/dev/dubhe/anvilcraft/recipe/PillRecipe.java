@@ -26,9 +26,9 @@ import java.util.Optional;
 
 public class PillRecipe extends CustomRecipe {
     private static final PillRecipe INSTANCE = new PillRecipe();
-    public static final MapCodec<PillRecipe> CODEC = MapCodec.unit(INSTANCE);
-    public static final StreamCodec<RegistryFriendlyByteBuf, PillRecipe> STREAM_CODEC = StreamCodec.unit(INSTANCE);
-    public static final RecipeSerializer<PillRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
+    public static final MapCodec<PillRecipe> CODEC = MapCodec.unit(PillRecipe.INSTANCE);
+    public static final StreamCodec<RegistryFriendlyByteBuf, PillRecipe> STREAM_CODEC = StreamCodec.unit(PillRecipe.INSTANCE);
+    public static final RecipeSerializer<PillRecipe> SERIALIZER = new RecipeSerializer<>(PillRecipe.CODEC, PillRecipe.STREAM_CODEC);
 
     private boolean validatePill(ItemStack item) {
         PotionContents potionContents = item.getOrDefault(DataComponents.POTION_CONTENTS, PotionContents.EMPTY);
@@ -110,7 +110,7 @@ public class PillRecipe extends CustomRecipe {
 
     @Override
     public RecipeSerializer<PillRecipe> getSerializer() {
-        return SERIALIZER;
+        return PillRecipe.SERIALIZER;
     }
 
     @Override

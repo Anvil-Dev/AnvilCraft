@@ -18,28 +18,28 @@ public class ModResultModifierTypes {
     private static final DeferredRegister<IResultModifier.Type<?>> DF = DeferredRegister
         .create(ModRegistries.MODIFIER_TYPE, AnvilCraft.MOD_ID);
 
-    public static final DeferredHolder<IResultModifier.Type<?>, ApplyData.Type> APPLY_DATA = DF
+    public static final DeferredHolder<IResultModifier.Type<?>, ApplyData.Type> APPLY_DATA = ModResultModifierTypes.DF
         .register("apply_data", ApplyData.Type::new);
 
-    public static final DeferredHolder<IResultModifier.Type<?>, CopyData.Type> COPY_DATA = DF
+    public static final DeferredHolder<IResultModifier.Type<?>, CopyData.Type> COPY_DATA = ModResultModifierTypes.DF
         .register("copy_data", CopyData.Type::new);
 
-    public static final DeferredHolder<IResultModifier.Type<?>, MergeData.Type> MERGE_DATA = DF
+    public static final DeferredHolder<IResultModifier.Type<?>, MergeData.Type> MERGE_DATA = ModResultModifierTypes.DF
         .register("merge_data", MergeData.Type::new);
 
-    public static final DeferredHolder<IResultModifier.Type<?>, RemoveData.Type> REMOVE_DATA = DF
+    public static final DeferredHolder<IResultModifier.Type<?>, RemoveData.Type> REMOVE_DATA = ModResultModifierTypes.DF
         .register("remove_data", RemoveData.Type::new);
 
-    public static final DeferredHolder<IResultModifier.Type<?>, RemoveAttribute.Type> REMOVE_ATTRIBUTE = DF
+    public static final DeferredHolder<IResultModifier.Type<?>, RemoveAttribute.Type> REMOVE_ATTRIBUTE = ModResultModifierTypes.DF
         .register("remove_attribute", RemoveAttribute.Type::new);
 
-    public static final DeferredHolder<IResultModifier.Type<?>, ModifyCount.Type> MODIFY_COUNT = DF
+    public static final DeferredHolder<IResultModifier.Type<?>, ModifyCount.Type> MODIFY_COUNT = ModResultModifierTypes.DF
         .register("modify_count", ModifyCount.Type::new);
 
-    public static final DeferredHolder<IResultModifier.Type<?>, ChangeDataType.Type> CHANGE_DATA_TYPE = DF
+    public static final DeferredHolder<IResultModifier.Type<?>, ChangeDataType.Type> CHANGE_DATA_TYPE = ModResultModifierTypes.DF
         .register("change_data_type", ChangeDataType.Type::new);
 
     public static void register(IEventBus bus) {
-        DF.register(bus);
+        ModResultModifierTypes.DF.register(bus);
     }
 }

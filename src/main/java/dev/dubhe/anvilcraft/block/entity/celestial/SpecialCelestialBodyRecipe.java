@@ -120,7 +120,8 @@ public record SpecialCelestialBodyRecipe(
         Codec.INT.fieldOf("energy").forGetter(SpecialCelestialBodyRecipe::energy),
         Codec.STRING.fieldOf("texture").forGetter(SpecialCelestialBodyRecipe::textureName),
         Codec.BOOL.fieldOf("has_atmosphere").forGetter(SpecialCelestialBodyRecipe::hasAtmosphere),
-        LIQUID_COVERAGE_CODEC.optionalFieldOf("liquid_coverage").forGetter(SpecialCelestialBodyRecipe::liquidCoverage),
+        SpecialCelestialBodyRecipe.LIQUID_COVERAGE_CODEC.optionalFieldOf("liquid_coverage")
+            .forGetter(SpecialCelestialBodyRecipe::liquidCoverage),
         Codec.INT.fieldOf("magnetic_field").forGetter(SpecialCelestialBodyRecipe::magneticFieldStrength),
         Codec.INT.fieldOf("rotation_speed").forGetter(SpecialCelestialBodyRecipe::rotationSpeed),
         Codec.FLOAT.fieldOf("axial_tilt").forGetter(SpecialCelestialBodyRecipe::axialTilt),
@@ -161,7 +162,7 @@ public record SpecialCelestialBodyRecipe(
             int energy = buf.readInt();
             String textureName = buf.readUtf();
             boolean hasAtmosphere = buf.readBoolean();
-            Optional<LiquidCoverage> liquidCoverage = ByteBufCodecs.optional(LIQUID_COVERAGE_STREAM).decode(buf);
+            Optional<LiquidCoverage> liquidCoverage = ByteBufCodecs.optional(SpecialCelestialBodyRecipe.LIQUID_COVERAGE_STREAM).decode(buf);
             int magneticFieldStrength = buf.readInt();
             int rotationSpeed = buf.readInt();
             float axialTilt = buf.readFloat();
@@ -193,7 +194,7 @@ public record SpecialCelestialBodyRecipe(
             buf.writeInt(r.energy());
             buf.writeUtf(r.textureName());
             buf.writeBoolean(r.hasAtmosphere());
-            ByteBufCodecs.optional(LIQUID_COVERAGE_STREAM).encode(buf, r.liquidCoverage());
+            ByteBufCodecs.optional(SpecialCelestialBodyRecipe.LIQUID_COVERAGE_STREAM).encode(buf, r.liquidCoverage());
             buf.writeInt(r.magneticFieldStrength());
             buf.writeInt(r.rotationSpeed());
             buf.writeFloat(r.axialTilt());
@@ -209,11 +210,11 @@ public record SpecialCelestialBodyRecipe(
     };
 
     public static final RecipeSerializer<SpecialCelestialBodyRecipe> SERIALIZER = new RecipeSerializer<>(
-        CODEC, STREAM_CODEC
+        SpecialCelestialBodyRecipe.CODEC, SpecialCelestialBodyRecipe.STREAM_CODEC
     );
 
     public Temperature temperature() {
-        return energyToTemperature(this.energy);
+        return SpecialCelestialBodyRecipe.energyToTemperature(this.energy);
     }
 
     private static Temperature energyToTemperature(int energy) {
@@ -235,10 +236,10 @@ public record SpecialCelestialBodyRecipe(
     public Item getEffectiveSeedItem(long worldSeed) {
         if (this.seedItems.isEmpty()) return Items.AIR;
         if (this.seedItems.size() == 1) {
-            return resolveItem(this.seedItems.getFirst());
+            return SpecialCelestialBodyRecipe.resolveItem(this.seedItems.getFirst());
         }
         Random random = new Random(worldSeed * 31L + this.name.hashCode() * 7919L);
-        return resolveItem(this.seedItems.get(random.nextInt(this.seedItems.size())));
+        return SpecialCelestialBodyRecipe.resolveItem(this.seedItems.get(random.nextInt(this.seedItems.size())));
     }
 
     public boolean isEffectiveSeedItem(Item consumedItem, long worldSeed) {
@@ -299,7 +300,7 @@ public record SpecialCelestialBodyRecipe(
 
     @Override
     public RecipeSerializer<SpecialCelestialBodyRecipe> getSerializer() {
-        return SERIALIZER;
+        return SpecialCelestialBodyRecipe.SERIALIZER;
     }
 
     @Override

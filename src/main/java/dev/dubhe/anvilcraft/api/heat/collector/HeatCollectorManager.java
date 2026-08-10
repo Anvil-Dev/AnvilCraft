@@ -37,29 +37,32 @@ public class HeatCollectorManager {
     private static final List<HeatSourceEntry> SOURCE_ENTRIES = new ArrayList<>();
 
     static {
-        registerEntry(HeatSourceEntry.predicateAlways(4, state -> state.is(ModBlockTags.HEATED_BLOCKS)));
-        registerEntry(HeatSourceEntry.predicateAlways(16, state -> state.is(ModBlockTags.REDHOT_BLOCKS)));
-        registerEntry(HeatSourceEntry.predicateAlways(64, state -> state.is(ModBlockTags.GLOWING_BLOCKS)));
-        registerEntry(HeatSourceEntry.predicateAlways(256, state -> state.is(ModBlockTags.INCANDESCENT_BLOCKS)));
-        registerEntry(HeatSourceEntry.predicateAlways(2048, state -> state.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())));
-        registerEntry(HeatSourceEntry.predicateAlways(1024, state -> state.is(ModBlockTags.OVERHEATED_BLOCKS)));
+        HeatCollectorManager.registerEntry(HeatSourceEntry.predicateAlways(4, state -> state.is(ModBlockTags.HEATED_BLOCKS)));
+        HeatCollectorManager.registerEntry(HeatSourceEntry.predicateAlways(16, state -> state.is(ModBlockTags.REDHOT_BLOCKS)));
+        HeatCollectorManager.registerEntry(HeatSourceEntry.predicateAlways(64, state -> state.is(ModBlockTags.GLOWING_BLOCKS)));
+        HeatCollectorManager.registerEntry(HeatSourceEntry.predicateAlways(256, state -> state.is(ModBlockTags.INCANDESCENT_BLOCKS)));
+        HeatCollectorManager.registerEntry(HeatSourceEntry.predicateAlways(
+            2048,
+            state -> state.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())
+        ));
+        HeatCollectorManager.registerEntry(HeatSourceEntry.predicateAlways(1024, state -> state.is(ModBlockTags.OVERHEATED_BLOCKS)));
 
-        registerEntry(HeatSourceEntry.simple(2, Blocks.MAGMA_BLOCK, Blocks.NETHERRACK));
-        registerEntry(HeatSourceEntry.predicate(
+        HeatCollectorManager.registerEntry(HeatSourceEntry.simple(2, Blocks.MAGMA_BLOCK, Blocks.NETHERRACK));
+        HeatCollectorManager.registerEntry(HeatSourceEntry.predicate(
             4,
             CampfireBlock::isLitCampfire,
             it -> it.setValue(CampfireBlock.LIT, false)
         ));
-        registerEntry(HeatSourceEntry.predicate(
+        HeatCollectorManager.registerEntry(HeatSourceEntry.predicate(
             4,
             state -> state.getFluidState().isSourceOfType(Fluids.LAVA),
             _ -> Blocks.OBSIDIAN.defaultBlockState()
         ));
-        registerEntry(HeatSourceEntry.simple(4, Blocks.LAVA_CAULDRON, ModBlocks.OBSIDIAN_CAULDRON.get()));
+        HeatCollectorManager.registerEntry(HeatSourceEntry.simple(4, Blocks.LAVA_CAULDRON, ModBlocks.OBSIDIAN_CAULDRON.get()));
 
-        registerEntry(HeatSourceEntry.predicateAlways(2, state -> state.is(ModBlockTags.STORAGE_BLOCKS_URANIUM)));
-        registerEntry(HeatSourceEntry.forever(4, ModBlocks.EMBER_METAL_BLOCK.get()));
-        registerEntry(HeatSourceEntry.predicateAlways(8, state -> state.is(ModBlockTags.STORAGE_BLOCKS_PLUTONIUM)));
+        HeatCollectorManager.registerEntry(HeatSourceEntry.predicateAlways(2, state -> state.is(ModBlockTags.STORAGE_BLOCKS_URANIUM)));
+        HeatCollectorManager.registerEntry(HeatSourceEntry.forever(4, ModBlocks.EMBER_METAL_BLOCK.get()));
+        HeatCollectorManager.registerEntry(HeatSourceEntry.predicateAlways(8, state -> state.is(ModBlockTags.STORAGE_BLOCKS_PLUTONIUM)));
     }
 
     private final Level level;
@@ -67,31 +70,31 @@ public class HeatCollectorManager {
     private final Set<BlockPos> infiniteCollectors = Collections.synchronizedSet(new HashSet<>());
 
     public static void clear() {
-        synchronized (INSTANCES) {
-            INSTANCES.clear();
+        synchronized (HeatCollectorManager.INSTANCES) {
+            HeatCollectorManager.INSTANCES.clear();
         }
     }
 
     /// 获取当前维度的HeatCollectorManager
     public static HeatCollectorManager getInstance(Level level) {
         if (level.isClientSide()) return new HeatCollectorManager(level);
-        synchronized (INSTANCES) {
-            return INSTANCES.computeIfAbsent(level, HeatCollectorManager::new);
+        synchronized (HeatCollectorManager.INSTANCES) {
+            return HeatCollectorManager.INSTANCES.computeIfAbsent(level, HeatCollectorManager::new);
         }
     }
 
     private static Optional<HeatCollectorManager> getExistingInstance(Level level) {
-        synchronized (INSTANCES) {
-            return Optional.ofNullable(INSTANCES.get(level));
+        synchronized (HeatCollectorManager.INSTANCES) {
+            return Optional.ofNullable(HeatCollectorManager.INSTANCES.get(level));
         }
     }
 
     public static void remove(Level level) {
-        INSTANCES.remove(level);
+        HeatCollectorManager.INSTANCES.remove(level);
     }
 
     public static void registerEntry(HeatSourceEntry entry) {
-        SOURCE_ENTRIES.add(entry);
+        HeatCollectorManager.SOURCE_ENTRIES.add(entry);
     }
 
     public static Optional<HeatSourceEntry> getEntry(BlockState state) {
@@ -103,24 +106,24 @@ public class HeatCollectorManager {
 
     public static void addHeatCollector(BlockPos pos, Level level) {
         if (level.isClientSide()) return;
-        getInstance(level).heatCollectors.add(pos);
+        HeatCollectorManager.getInstance(level).heatCollectors.add(pos);
     }
 
     public static void removeHeatCollector(BlockPos pos, Level level) {
-        getExistingInstance(level).ifPresent(manager -> manager.heatCollectors.remove(pos));
+        HeatCollectorManager.getExistingInstance(level).ifPresent(manager -> manager.heatCollectors.remove(pos));
     }
 
     public static void addInfiniteCollector(BlockPos pos, Level level) {
         if (level.isClientSide()) return;
-        getInstance(level).infiniteCollectors.add(pos);
+        HeatCollectorManager.getInstance(level).infiniteCollectors.add(pos);
     }
 
     public static void removeInfiniteCollector(BlockPos pos, Level level) {
-        getExistingInstance(level).ifPresent(manager -> manager.infiniteCollectors.remove(pos));
+        HeatCollectorManager.getExistingInstance(level).ifPresent(manager -> manager.infiniteCollectors.remove(pos));
     }
 
     public static void checkWhenPlaceCollector(BlockPlaceContext ctx, BlockPos pos, Level level) {
-        HeatCollectorManager manager = getInstance(level);
+        HeatCollectorManager manager = HeatCollectorManager.getInstance(level);
         AABB validRange = AABB.ofSize(pos.getCenter(), 9, 9, 9);
         for (BlockPos checkedPos : manager.heatCollectors) {
             if (validRange.contains(checkedPos.getCenter())) {
@@ -146,7 +149,7 @@ public class HeatCollectorManager {
     }
 
     public static void checkWhenPlaceInfiniteCollector(BlockPlaceContext ctx, BlockPos pos, Level level) {
-        HeatCollectorManager manager = getInstance(level);
+        HeatCollectorManager manager = HeatCollectorManager.getInstance(level);
         AABB validRange = AABB.ofSize(pos.getCenter(), 9, 9, 9);
         for (BlockPos checkedPos : manager.heatCollectors) {
             if (validRange.contains(checkedPos.getCenter())) {
@@ -177,8 +180,8 @@ public class HeatCollectorManager {
 
     public static void tickAll() {
         List<HeatCollectorManager> managers;
-        synchronized (INSTANCES) {
-            managers = List.copyOf(INSTANCES.values());
+        synchronized (HeatCollectorManager.INSTANCES) {
+            managers = List.copyOf(HeatCollectorManager.INSTANCES.values());
         }
         managers.forEach(HeatCollectorManager::tick);
     }
@@ -229,7 +232,7 @@ public class HeatCollectorManager {
                 continue;
             }
             BlockPos finalPos = pos;
-            getEntry(state)
+            HeatCollectorManager.getEntry(state)
                 .ifPresent(entry -> {
                     heatSourcesCache.computeIfAbsent(new Entry(finalPos, state, entry), _ -> new Double2ObjectAVLTreeMap<>())
                         .put(
@@ -270,11 +273,11 @@ public class HeatCollectorManager {
     private List<IHeatCollector> getCollectorsFromNWToSE() {
         List<IHeatCollector> collectors = new ArrayList<>();
         // 先复制一份位置集合再遍历，避免遍历过程中移除失效收集器触发并发修改
-        for (BlockPos pos : copyPositions(this.heatCollectors)) {
+        for (BlockPos pos : HeatCollectorManager.copyPositions(this.heatCollectors)) {
             Util.castSafely(this.level.getBlockEntity(pos), HeatCollectorBlockEntity.class)
                 .ifPresentOrElse(collectors::add, () -> this.heatCollectors.remove(pos));
         }
-        for (BlockPos pos : copyPositions(this.infiniteCollectors)) {
+        for (BlockPos pos : HeatCollectorManager.copyPositions(this.infiniteCollectors)) {
             Util.castSafely(this.level.getBlockEntity(pos), InfiniteCollectorBlockEntity.class)
                 .ifPresentOrElse(collectors::add, () -> this.infiniteCollectors.remove(pos));
         }

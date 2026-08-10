@@ -37,13 +37,13 @@ public class IonocraftEntity extends VehicleEntity {
         this.yo = pos.y;
         this.zo = pos.z;
         this.component = new DynamicPowerComponent(this, this::getPowerSupplyingBoundingBox);
-        this.component.getPowerConsumptions().add(CONSUMPTION);
+        this.component.getPowerConsumptions().add(IonocraftEntity.CONSUMPTION);
     }
 
     public IonocraftEntity(EntityType<IonocraftEntity> type, Level level) {
         super(type, level);
         this.component = new DynamicPowerComponent(this, this::getPowerSupplyingBoundingBox);
-        this.component.getPowerConsumptions().add(CONSUMPTION);
+        this.component.getPowerConsumptions().add(IonocraftEntity.CONSUMPTION);
     }
 
     public AABB getPowerSupplyingBoundingBox() {
@@ -68,9 +68,9 @@ public class IonocraftEntity extends VehicleEntity {
     @Override
     public void tick() {
         this.setDeltaMovement(this.getDeltaMovement().multiply(0.8, 0.8, 0.8));
-        if (!level().isClientSide()) {
-            PowerGrid powerGrid = PowerGrid.findPowerGridContains(level(), this.getPowerSupplyingBoundingBox()).orElse(null);
-            PowerGrid findSmaller = PowerGrid.findPowerGridContains(level(), this.getBoundingBox()).orElse(null);
+        if (!this.level().isClientSide()) {
+            PowerGrid powerGrid = PowerGrid.findPowerGridContains(this.level(), this.getPowerSupplyingBoundingBox()).orElse(null);
+            PowerGrid findSmaller = PowerGrid.findPowerGridContains(this.level(), this.getBoundingBox()).orElse(null);
             this.component.switchTo(powerGrid);
             if (findSmaller == null && powerGrid != null) {
                 if (!(this.component.getPowerGrid() != null && this.component.getPowerGrid().isWorking())) {

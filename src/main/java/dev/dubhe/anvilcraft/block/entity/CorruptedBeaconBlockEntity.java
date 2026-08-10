@@ -107,24 +107,24 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         // 每 80 tick 检查一次：更新基座等级、同步 LIT 状态、应用效果
         if (level.getGameTime() % 80L == 0L) {
             int lastLevel = blockEntity.levels;
-            blockEntity.levels = updateBase(level, posX, posY, posZ);
+            blockEntity.levels = CorruptedBeaconBlockEntity.updateBase(level, posX, posY, posZ);
 
             if (!level.isClientSide()) {
                 boolean shouldLit = blockEntity.levels > 0;
                 boolean isCurrentlyLit = state.hasProperty(CorruptedBeaconBlock.LIT)
                     && state.getValue(CorruptedBeaconBlock.LIT);
                 if (shouldLit && !isCurrentlyLit) {
-                    setBeaconStatus(level, pos, state, blockEntity, true);
+                    CorruptedBeaconBlockEntity.setBeaconStatus(level, pos, state, blockEntity, true);
                 } else if (lastLevel > 0 && !shouldLit) {
                     blockEntity.levels = 0;
-                    setBeaconStatus(level, pos, state, blockEntity, false);
+                    CorruptedBeaconBlockEntity.setBeaconStatus(level, pos, state, blockEntity, false);
                 }
             }
 
             // 信标有效时播放音效并影响实体
             if (blockEntity.levels > 0) {
-                playSound(level, pos, SoundEvents.BEACON_AMBIENT);
-                affectEntities(level, pos, blockEntity.checkingBeamHeight);
+                CorruptedBeaconBlockEntity.playSound(level, pos, SoundEvents.BEACON_AMBIENT);
+                CorruptedBeaconBlockEntity.affectEntities(level, pos, blockEntity.checkingBeamHeight);
             }
         }
 
@@ -139,7 +139,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         level.setBlockAndUpdate(pos, state.setValue(CorruptedBeaconBlock.LIT, status));
 
         if (status) {
-            playSound(level, pos, SoundEvents.BEACON_ACTIVATE);
+            CorruptedBeaconBlockEntity.playSound(level, pos, SoundEvents.BEACON_ACTIVATE);
             List<ServerPlayer> players = level.getEntitiesOfClass(
                 ServerPlayer.class,
                 new AABB(pos).inflate(0.0, -4.0, 0.0).inflate(10.0, 5.0, 10.0)
@@ -149,7 +149,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
                 CriteriaTriggers.CONSTRUCT_BEACON.trigger(serverplayer, entity.levels);
             }
         } else {
-            playSound(level, pos, SoundEvents.BEACON_DEACTIVATE);
+            CorruptedBeaconBlockEntity.playSound(level, pos, SoundEvents.BEACON_DEACTIVATE);
         }
     }
 
@@ -176,7 +176,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
     @Override
     public void setRemoved() {
         if (this.level == null) return;
-        playSound(this.level, this.worldPosition, SoundEvents.BEACON_DEACTIVATE);
+        CorruptedBeaconBlockEntity.playSound(this.level, this.worldPosition, SoundEvents.BEACON_DEACTIVATE);
         super.setRemoved();
     }
 
@@ -224,7 +224,7 @@ public class CorruptedBeaconBlockEntity extends BlockEntity {
         for (LivingEntity livingEntity : list) {
             if (!livingEntity.isAlive()) return;
             livingEntity.addEffect(new MobEffectInstance(MobEffects.WITHER, 120, 0, true, true));
-            tryTransformEntity(livingEntity, (ServerLevel) level, manager);
+            CorruptedBeaconBlockEntity.tryTransformEntity(livingEntity, (ServerLevel) level, manager);
         }
     }
 

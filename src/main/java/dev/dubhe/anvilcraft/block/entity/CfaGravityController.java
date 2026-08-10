@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.util.EntityUtil;
 import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.Entity;
@@ -47,12 +48,12 @@ final class CfaGravityController {
         }
 
         int signal = Math.max(0, Math.min(15, redstoneSignal));
-        double targetBodyRadius = calculateBodyRadius(body, signal);
-        int targetRadius = calculateGravityRadius(body, amplified, signal);
-        double targetStrength = calculateStrength(body, stellarMass, targetBodyRadius);
+        double targetBodyRadius = CfaGravityController.calculateBodyRadius(body, signal);
+        int targetRadius = CfaGravityController.calculateGravityRadius(body, amplified, signal);
+        double targetStrength = CfaGravityController.calculateStrength(body, stellarMass, targetBodyRadius);
         Vec3 center = new Vec3(
             controllerPos.getX() + 0.5,
-            controllerPos.getY() + calculateVisualCenterY(body, amplified, signal),
+            controllerPos.getY() + CfaGravityController.calculateVisualCenterY(body, amplified, signal),
             controllerPos.getZ() + 0.5
         );
         GravityManager.GravitySourceType type = new GravityManager.GravitySourceType(
@@ -86,7 +87,7 @@ final class CfaGravityController {
             + (fullRingScale - CelestialBodyData.BASE_RING_SCALE) * redstoneFactor;
         return Math.max(
             1,
-            Math.round(BASE_GRAVITY_RADIUS * ringScale / CelestialBodyData.BASE_RING_SCALE)
+            Math.round(CfaGravityController.BASE_GRAVITY_RADIUS * ringScale / CelestialBodyData.BASE_RING_SCALE)
         );
     }
 
@@ -118,11 +119,11 @@ final class CfaGravityController {
             || body == null
             || entity.level() != level
             || entity.isRemoved()
-            || isEternal(entity)) {
+            || CfaGravityController.isEternal(entity)) {
             return;
         }
         if (entity instanceof LivingEntity living) {
-            applyCelestialDamage(level, body, living);
+            CfaGravityController.applyCelestialDamage(level, body, living);
         } else {
             entity.discard();
         }
@@ -140,15 +141,20 @@ final class CfaGravityController {
     private static void applyCelestialDamage(Level level, CelestialBodyData body, LivingEntity living) {
         if (body instanceof StarData star) {
             if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
-                // noinspection deprecation
-                living.hurtOrSimulate(ModDamageTypes.lostInTime(level), Float.MAX_VALUE);
+                EntityUtil.hurtOrSimulate(living, ModDamageTypes.lostInTime(level), Float.MAX_VALUE);
             } else {
-                // noinspection deprecation
-                living.hurtOrSimulate(level.damageSources().inFire(), STAR_CONTACT_DAMAGE);
+                EntityUtil.hurtOrSimulate(
+                    living,
+                    level.damageSources().inFire(),
+                    CfaGravityController.STAR_CONTACT_DAMAGE
+                );
             }
         } else {
-            // noinspection deprecation
-            living.hurtOrSimulate(level.damageSources().fall(), PLANET_CONTACT_DAMAGE);
+            EntityUtil.hurtOrSimulate(
+                living,
+                level.damageSources().fall(),
+                CfaGravityController.PLANET_CONTACT_DAMAGE
+            );
         }
     }
 }

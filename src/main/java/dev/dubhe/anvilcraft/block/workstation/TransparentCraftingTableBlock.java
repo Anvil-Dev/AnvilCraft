@@ -37,12 +37,12 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
 
     public TransparentCraftingTableBlock(Properties properties) {
         super(properties);
-        registerDefaultState(stateDefinition.any().setValue(TYPE, Type.SINGLE));
+        this.registerDefaultState(this.stateDefinition.any().setValue(TransparentCraftingTableBlock.TYPE, Type.SINGLE));
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(TYPE);
+        builder.add(TransparentCraftingTableBlock.TYPE);
     }
 
     @Override
@@ -83,12 +83,16 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
         if (this.tryFormMatrix(level, pos)) {
             return;
         }
-        if (state.getValue(TYPE) != Type.SINGLE) level.setBlockAndUpdate(pos, state.setValue(TYPE, Type.SINGLE));
+        if (state.getValue(TransparentCraftingTableBlock.TYPE) != Type.SINGLE) {
+            level.setBlockAndUpdate(pos, state.setValue(
+                TransparentCraftingTableBlock.TYPE, Type.SINGLE)
+            );
+        }
         Direction.Plane.HORIZONTAL.stream()
             .map(pos::relative)
             .filter(poz -> {
                 BlockState adjacentState = level.getBlockState(poz);
-                return adjacentState.is(this) && adjacentState.getValue(TYPE) != Type.SINGLE;
+                return adjacentState.is(this) && adjacentState.getValue(TransparentCraftingTableBlock.TYPE) != Type.SINGLE;
             })
             .forEach(poz -> this.deformMatrix(level, poz));
     }
@@ -96,7 +100,7 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
     @Override
     protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
         super.affectNeighborsAfterRemoval(state, level, pos, movedByPiston);
-        if (state.getValue(TYPE) != Type.SINGLE) {
+        if (state.getValue(TransparentCraftingTableBlock.TYPE) != Type.SINGLE) {
             this.deformMatrix(level, pos);
             return;
         }
@@ -123,7 +127,7 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
         if (this.tryFormMatrix(actualLevel, pos)) {
             return state;
         }
-        if (state.getValue(TYPE) != Type.SINGLE && !this.isValidMatrixBlock(neighborState, false)) {
+        if (state.getValue(TransparentCraftingTableBlock.TYPE) != Type.SINGLE && !this.isValidMatrixBlock(neighborState, false)) {
             this.deformMatrix(actualLevel, pos);
             return state;
         }
@@ -188,7 +192,7 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
                 int indexZ = z == maxZ ? 2 : (z > minZ ? 1 : 0);
                 BlockState state = level.getBlockState(mpos.set(x, y0, z));
                 if (!state.is(this)) continue;
-                level.setBlockAndUpdate(mpos, state.setValue(TYPE, Type.LOOKUP[indexX][indexZ]));
+                level.setBlockAndUpdate(mpos, state.setValue(TransparentCraftingTableBlock.TYPE, Type.LOOKUP[indexX][indexZ]));
             }
         }
         return true;
@@ -225,7 +229,7 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
             for (int z = minZ; z <= maxZ; z++) {
                 BlockState state = level.getBlockState(mpos.set(x, y0, z));
                 if (!state.is(this)) continue;
-                level.setBlockAndUpdate(mpos, state.setValue(TYPE, Type.SINGLE));
+                level.setBlockAndUpdate(mpos, state.setValue(TransparentCraftingTableBlock.TYPE, Type.SINGLE));
             }
         }
     }
@@ -253,19 +257,19 @@ public class TransparentCraftingTableBlock extends TransparentBlock implements I
 
         public static final Type[][] LOOKUP = {
             {
-                CORNER_NORTH_WEST,
-                SIDE_WEST,
-                CORNER_SOUTH_WEST
+                Type.CORNER_NORTH_WEST,
+                Type.SIDE_WEST,
+                Type.CORNER_SOUTH_WEST
             },
             {
-                SIDE_NORTH,
-                CENTER,
-                SIDE_SOUTH
+                Type.SIDE_NORTH,
+                Type.CENTER,
+                Type.SIDE_SOUTH
             },
             {
-                CORNER_NORTH_EAST,
-                SIDE_EAST,
-                CORNER_SOUTH_EAST
+                Type.CORNER_NORTH_EAST,
+                Type.SIDE_EAST,
+                Type.CORNER_SOUTH_EAST
             }
         };
 

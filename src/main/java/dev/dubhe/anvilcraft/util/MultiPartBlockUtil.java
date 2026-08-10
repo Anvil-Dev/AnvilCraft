@@ -40,6 +40,6 @@ public class MultiPartBlockUtil {
     public static BlockPos getChainableMainPartPos(Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
         if (state.is(ModBlocks.LARGE_CAKE)) return pos;
-        return getMainPartPos(level, pos);
+        return MultiPartBlockUtil.getMainPartPos(level, pos);
     }
 }

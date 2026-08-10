@@ -50,7 +50,7 @@ public interface IMegastructureHandler {
     }
 
     default LaserRequirement getLaserRequirement() {
-        return NO_LASER_REQUIREMENT;
+        return IMegastructureHandler.NO_LASER_REQUIREMENT;
     }
 
     /** 所有相连激光接口需要满足的激光等级和类型。 */

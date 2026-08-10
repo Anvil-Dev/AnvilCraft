@@ -25,6 +25,7 @@ import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralSlingshotRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.SpectralWeaponLauncherRenderer;
+import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
@@ -35,6 +36,9 @@ import net.neoforged.neoforge.client.event.RegisterPictureInPictureRenderersEven
 import net.neoforged.neoforge.client.event.RegisterRenderBuffersEvent;
 import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.client.model.standalone.SimpleUnbakedStandaloneModel;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class RegisterAdditionalEventListener {
@@ -128,46 +132,21 @@ public class RegisterAdditionalEventListener {
             CFARenderer.RING6,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_6"))
         );
-        // 锻星砧巨构模型。
-        event.register(
-            CFARenderer.R1_EXCAVATOR,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_1_excavator"))
-        );
+        // 注册项声明的锻星砧巨构主模型。
+        Set<Identifier> registeredMegastructureModels = new HashSet<>();
+        for (var megastructure : ModRegistries.MEGASTRUCTURE) {
+            for (Identifier modelLocation : megastructure.modelLocations().values()) {
+                if (!registeredMegastructureModels.add(modelLocation)) continue;
+                event.register(
+                    CFARenderer.getMegastructureModel(modelLocation),
+                    SimpleUnbakedStandaloneModel.blockStateModel(modelLocation)
+                );
+            }
+        }
+        // 带独立工作状态或拆分动画层的内置模型。
         event.register(
             CFARenderer.R1_EXCAVATOR_OFF,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_1_excavator_off"))
-        );
-        event.register(
-            CFARenderer.R1_EXTRACTOR,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_1_exctractor"))
-        );
-        event.register(
-            CFARenderer.R2_EXTRACTOR,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_2_exctractor"))
-        );
-        event.register(
-            CFARenderer.R1_ECO_STATION,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_1_eco_station"))
-        );
-        event.register(
-            CFARenderer.R1_TEMPLE,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_1_temple"))
-        );
-        event.register(
-            CFARenderer.R4_COLLIDER,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_4_collider"))
-        );
-        event.register(
-            CFARenderer.R4_DYSON_SPHERE,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_4_dyson_sphere"))
-        );
-        event.register(
-            CFARenderer.R5_DYSON_SPHERE,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_5_dyson_sphere"))
-        );
-        event.register(
-            CFARenderer.R4_COIL,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_4_coil"))
         );
         event.register(
             CFARenderer.R4_COIL_FIX,
@@ -176,12 +155,6 @@ public class RegisterAdditionalEventListener {
         event.register(
             CFARenderer.R4_COIL_RING,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_4_coil_ring"))
-        );
-        event.register(
-            CFARenderer.R4_PENROSE_SPHERE,
-            SimpleUnbakedStandaloneModel.blockStateModel(
-                AnvilCraft.of("block/celestial_forging_anvil_ring_4_penrose_sphere")
-            )
         );
         event.register(
             CFARenderer.R4_PENROSE_SPHERE_FIX,
@@ -196,34 +169,12 @@ public class RegisterAdditionalEventListener {
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_4_penrose_sphere_laser_off"))
         );
         event.register(
-            CFARenderer.R4_MATTER_DECOMPRESSOR,
-            SimpleUnbakedStandaloneModel.blockStateModel(
-                AnvilCraft.of("block/celestial_forging_anvil_ring_4_matter_decompressor")
-            )
-        );
-        event.register(
             CFARenderer.R4_MATTER_DECOMPRESSOR_FIX,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_4_matter_decompressor_fix"))
         );
         event.register(
             CFARenderer.R4_MATTER_DECOMPRESSOR_RING,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_4_matter_decompressor_ring"))
-        );
-        event.register(
-            CFARenderer.R4_WORMHOLE_STABILIZER,
-            SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_forging_anvil_ring_4_wormhole_stabilizer"))
-        );
-        event.register(
-            CFARenderer.R5_ACCELERATOR,
-            SimpleUnbakedStandaloneModel.blockStateModel(
-                AnvilCraft.of("block/celestial_forging_anvil_ring_5_stellar_evolution_accelerator")
-            )
-        );
-        event.register(
-            CFARenderer.R6_ACCELERATOR,
-            SimpleUnbakedStandaloneModel.blockStateModel(
-                AnvilCraft.of("block/celestial_forging_anvil_ring_6_stellar_evolution_accelerator")
-            )
         );
         // 锻星砧天体模型。
         event.register(
@@ -267,7 +218,7 @@ public class RegisterAdditionalEventListener {
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_hollow")));
         event.register(CFARenderer.BODY_PLANET_ERROR,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/celestial_body/planet_error")));
-        registerCelestialBodyModels(event);
+        RegisterAdditionalEventListener.registerCelestialBodyModels(event);
         event.register(
             FishTankRenderer.FIRE,
             SimpleUnbakedStandaloneModel.blockStateModel(AnvilCraft.of("block/oil_cauldron_fire4"))

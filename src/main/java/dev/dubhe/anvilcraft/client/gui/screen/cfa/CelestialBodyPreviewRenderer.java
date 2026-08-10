@@ -65,21 +65,21 @@ public final class CelestialBodyPreviewRenderer {
         int width,
         int height
     ) {
-        StandaloneModelKey<BlockStateModel> model = resolveMegastructureModel(option);
+        StandaloneModelKey<BlockStateModel> model = CelestialBodyPreviewRenderer.resolveMegastructureModel(option);
         float divisor = switch (option.ring()) {
-            case 1 -> RING1_SCALE_DIVISOR;
-            case 2 -> RING2_SCALE_DIVISOR;
-            case 4 -> RING4_SCALE_DIVISOR;
-            case 5 -> RING5_SCALE_DIVISOR;
-            case 6 -> RING6_SCALE_DIVISOR;
+            case 1 -> CelestialBodyPreviewRenderer.RING1_SCALE_DIVISOR;
+            case 2 -> CelestialBodyPreviewRenderer.RING2_SCALE_DIVISOR;
+            case 4 -> CelestialBodyPreviewRenderer.RING4_SCALE_DIVISOR;
+            case 5 -> CelestialBodyPreviewRenderer.RING5_SCALE_DIVISOR;
+            case 6 -> CelestialBodyPreviewRenderer.RING6_SCALE_DIVISOR;
             default -> 1.0f;
         };
         float scale = Math.min(width, height) * 1.15f / divisor;
         graphics.submitPictureInPictureRenderState(CfaPreviewPipRenderer.State.model(
             graphics,
             model,
-            animationTick * 2.0f % 360.0f,
-            option.megastructure().hashCode(),
+            option.rotation(animationTick * 2.0f % 360.0f, animationTick),
+            option.id().hashCode(),
             x,
             y,
             width,
@@ -106,23 +106,6 @@ public final class CelestialBodyPreviewRenderer {
     }
 
     private static StandaloneModelKey<BlockStateModel> resolveMegastructureModel(CelestialRefactorOption option) {
-        return switch (option.megastructure()) {
-            case "planet_excavator" -> CFARenderer.R1_EXCAVATOR;
-            case "planet_exctractor" -> CFARenderer.R1_EXTRACTOR;
-            case "eco_station" -> CFARenderer.R1_ECO_STATION;
-            case "temple" -> CFARenderer.R1_TEMPLE;
-            case "giant_planet_exctractor" -> CFARenderer.R2_EXTRACTOR;
-            case "stellar_ring_collider" -> CFARenderer.R4_COLLIDER;
-            case "dyson_sphere_small" -> CFARenderer.R4_DYSON_SPHERE;
-            case "magnetar_coil" -> CFARenderer.R4_COIL;
-            case "penrose_sphere" -> CFARenderer.R4_PENROSE_SPHERE;
-            case "matter_decompressor" -> CFARenderer.R4_MATTER_DECOMPRESSOR;
-            case "wormhole_stabilizer" -> CFARenderer.R4_WORMHOLE_STABILIZER;
-            case "dyson_sphere_large" -> CFARenderer.R5_DYSON_SPHERE;
-            case "stellar_evolution_accelerator" -> option.ring() >= 6
-                ? CFARenderer.R6_ACCELERATOR
-                : CFARenderer.R5_ACCELERATOR;
-            default -> throw new IllegalArgumentException("未知的锻星砧巨构：" + option.megastructure());
-        };
+        return CFARenderer.getMegastructureModel(option.modelLocation());
     }
 }

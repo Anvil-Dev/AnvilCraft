@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.item.utility;
 
 import dev.dubhe.anvilcraft.api.thought.Thinkable;
+import dev.dubhe.anvilcraft.api.tooltip.providers.IItemTooltipProvider;
 import dev.dubhe.anvilcraft.integration.IntegrationUtil;
 import dev.dubhe.anvilcraft.network.OpenIntegrationScreenPacket;
 import dev.dubhe.anvilcraft.util.ModEventUtil;
@@ -17,7 +18,7 @@ import net.minecraft.world.level.Level;
 
 import java.util.function.Consumer;
 
-public class GuideBookItem extends Item implements Thinkable {
+public class GuideBookItem extends Item implements Thinkable, IItemTooltipProvider {
     public GuideBookItem(Properties properties) {
         super(properties);
     }
@@ -36,15 +37,13 @@ public class GuideBookItem extends Item implements Thinkable {
     }
 
     @Override
-    @SuppressWarnings("deprecation")
-    public void appendHoverText(
+    public void appendItemTooltip(
         ItemStack stack,
         TooltipContext context,
         TooltipDisplay display,
         Consumer<Component> consumer,
         TooltipFlag flag
     ) {
-        super.appendHoverText(stack, context, display, consumer, flag);
         this.appendHoverText(consumer);
     }
 

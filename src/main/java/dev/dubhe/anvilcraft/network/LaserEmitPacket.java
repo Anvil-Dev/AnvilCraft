@@ -41,7 +41,7 @@ public record LaserEmitPacket(int level, BlockPos laserPos, @Nullable BlockPos i
 
     @Override
     public Type<LaserEmitPacket> type() {
-        return TYPE;
+        return LaserEmitPacket.TYPE;
     }
 
     @Override

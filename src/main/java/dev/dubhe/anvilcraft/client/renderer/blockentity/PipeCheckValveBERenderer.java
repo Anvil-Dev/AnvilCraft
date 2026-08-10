@@ -46,7 +46,7 @@ public class PipeCheckValveBERenderer<T extends AbstractPipeBlockEntity> impleme
         BlockEntityRenderer.super.extractRenderState(be, state, partialTicks, cameraPosition, breakProgress);
         Map<Direction, Direction> flows = be.effectiveFlows();
         state.setFlows(flows.isEmpty() ? new EnumMap<>(Direction.class) : new EnumMap<>(flows));
-        state.setArm(FeatureRendererSupport.initialize(ARM, be));
+        state.setArm(FeatureRendererSupport.initialize(PipeCheckValveBERenderer.ARM, be));
     }
 
     @Override
@@ -65,7 +65,7 @@ public class PipeCheckValveBERenderer<T extends AbstractPipeBlockEntity> impleme
 
             poseStack.pushPose();
             poseStack.translate(0.5, 0.5, 0.5);
-            applyUpToFacing(poseStack, face);
+            PipeCheckValveBERenderer.applyUpToFacing(poseStack, face);
             Direction flowOut = entry.getValue();
             if (flowOut == face.getOpposite()) {
                 poseStack.mulPose(Axis.XP.rotationDegrees(180));

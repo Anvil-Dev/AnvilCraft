@@ -20,7 +20,7 @@ public record MachineCycleFilterModePacket(Mode filterMode) implements IServerbo
 
     @Override
     public Type<MachineCycleFilterModePacket> type() {
-        return TYPE;
+        return MachineCycleFilterModePacket.TYPE;
     }
 
     @Override

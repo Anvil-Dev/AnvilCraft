@@ -20,7 +20,7 @@ public record ControlValveUpdatePacket(int maxRate) implements IServerboundPacke
 
     @Override
     public Type<ControlValveUpdatePacket> type() {
-        return TYPE;
+        return ControlValveUpdatePacket.TYPE;
     }
 
     @Override

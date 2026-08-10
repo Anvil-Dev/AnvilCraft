@@ -165,7 +165,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 buttonStartY + (4 - i) * 18,
                 16,
                 16,
-                LAYER_DEFAULT[i],
+                SmartBlockPlacerScreen.LAYER_DEFAULT[i],
                 16,
                 48,
                 _ -> this.onLayerButtonClick(index),
@@ -222,7 +222,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             buttonY,
             16,
             16,
-            this.showAllLayers ? LAYER_ALL : LAYER_SINGLE,
+            this.showAllLayers ? SmartBlockPlacerScreen.LAYER_ALL : SmartBlockPlacerScreen.LAYER_SINGLE,
             16,
             32,
             _ -> this.onLayerModeButtonClick(),
@@ -241,7 +241,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             buttonY,
             16,
             16,
-            this.isPickupMode ? PICKUP_MODE : MOVE_MODE,
+            this.isPickupMode ? SmartBlockPlacerScreen.PICKUP_MODE : SmartBlockPlacerScreen.MOVE_MODE,
             16,
             32,
             _ -> this.onOperationModeButtonClick(),
@@ -266,7 +266,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             buttonY,
             16,
             16,
-            SKIP_MISSING,
+            SmartBlockPlacerScreen.SKIP_MISSING,
             16,
             48,
             _ -> this.onSkipMissingButtonClick(),
@@ -280,7 +280,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             buttonY,
             16,
             16,
-            STOP_MISSING,
+            SmartBlockPlacerScreen.STOP_MISSING,
             16,
             48,
             _ -> this.onStopMissingButtonClick(),
@@ -397,7 +397,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
 
         TriStateButton button = new TriStateButton(
             xpos, ypos, 16, 16,
-            POSITION_SELECT, 16, 48,
+            SmartBlockPlacerScreen.POSITION_SELECT, 16, 48,
             (_) -> this.onPositionButtonClick(row, col, positionIndex, tooltipSelected, tooltipUnselected),
             selected ? tooltipSelected : tooltipUnselected
         );
@@ -425,7 +425,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         this.showAllLayers = !this.showAllLayers;
         if (this.layerModeButton != null) {
             this.layerModeButton.setSelected(this.showAllLayers);
-            this.layerModeButton.setTexture(this.showAllLayers ? LAYER_ALL : LAYER_SINGLE);
+            this.layerModeButton.setTexture(this.showAllLayers ? SmartBlockPlacerScreen.LAYER_ALL : SmartBlockPlacerScreen.LAYER_SINGLE);
             this.layerModeButton.setTooltips(List.of(this.getLayerModeTooltip()));
         }
     }
@@ -434,7 +434,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         this.isPickupMode = !this.isPickupMode;
         if (this.operationModeButton != null) {
             this.operationModeButton.setSelected(this.isPickupMode);
-            this.operationModeButton.setTexture(this.isPickupMode ? PICKUP_MODE : MOVE_MODE);
+            this.operationModeButton.setTexture(this.isPickupMode ? SmartBlockPlacerScreen.PICKUP_MODE : SmartBlockPlacerScreen.MOVE_MODE);
             this.operationModeButton.setTooltips(List.of(this.getOperationModeTooltip()));
         }
         ClientPacketDistributor.sendToServer(new SmartBlockPlacerActionPacket("mode", this.isPickupMode ? 1 : 0));
@@ -592,7 +592,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
         int j = this.topPos;
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            SmartBlockPlacerScreen.BACKGROUND,
             i,
             j,
             0,
@@ -608,7 +608,7 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
             int blueprintY = j + (this.imageHeight - 128) / 2 - 19;
             graphics.blit(
                 RenderPipelines.GUI_TEXTURED,
-                BLUEPRINT_MODE_BG,
+                SmartBlockPlacerScreen.BLUEPRINT_MODE_BG,
                 blueprintX,
                 blueprintY,
                 0,
@@ -1004,13 +1004,17 @@ public class SmartBlockPlacerScreen extends AbstractContainerScreen<SmartBlockPl
                 int renderX = sizeX - 1 - bp.x();
                 int renderZ = sizeZ - bp.z();
                 int renderY = upsideDown ? (2 - bp.y()) : (bp.y() - 2);
+                BlockPos renderPos = new BlockPos(renderX, renderY, renderZ);
                 BlockState state = bp.state();
                 if (upsideDown) {
-                    // noinspection deprecation
-                    state = state.rotate(Rotation.CLOCKWISE_180);
+                    state = state.rotate(
+                        level,
+                        placerPos.offset(renderX, renderY, renderZ),
+                        Rotation.CLOCKWISE_180
+                    );
                     state = SmartBlockPlacerBlockEntity.flipHalfPropertyStatic(state);
                 }
-                previewLevelLike.setBlockState(new BlockPos(renderX, renderY, renderZ), state);
+                previewLevelLike.setBlockState(renderPos, state);
             }
         } else {
             // 普通模式：显示 UI 中的选区模式（不读取世界方块）

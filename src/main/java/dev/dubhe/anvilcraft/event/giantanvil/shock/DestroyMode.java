@@ -13,37 +13,37 @@ import org.jspecify.annotations.Nullable;
 import java.util.List;
 
 public abstract class DestroyMode {
-    public static final DestroyMode NORMAL = createForEffect(BlockMiningEffect.NORMAL);
-    public static final DestroyMode SILK_TOUCH = createForEffect(BlockMiningEffect.SILK_TOUCH);
-    public static final DestroyMode AUTO_SMELTING = createForEffect(BlockMiningEffect.SMELTING);
-    public static final DestroyMode FORTUNE = createForEffect(BlockMiningEffect.FORTUNE_5);
-    public static final DestroyMode DISINTEGRATION = createForEffect(BlockMiningEffect.DISINTEGRATION);
+    public static final DestroyMode NORMAL = DestroyMode.createForEffect(BlockMiningEffect.NORMAL);
+    public static final DestroyMode SILK_TOUCH = DestroyMode.createForEffect(BlockMiningEffect.SILK_TOUCH);
+    public static final DestroyMode AUTO_SMELTING = DestroyMode.createForEffect(BlockMiningEffect.SMELTING);
+    public static final DestroyMode FORTUNE = DestroyMode.createForEffect(BlockMiningEffect.FORTUNE_5);
+    public static final DestroyMode DISINTEGRATION = DestroyMode.createForEffect(BlockMiningEffect.DISINTEGRATION);
 
     private static DestroyMode createForEffect(BlockMiningEffect effect) {
         return new DestroyMode() {
             @Override
             public List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx) {
-                return applyEffect(state, pos, ctx, effect, null);
+                return DestroyMode.applyEffect(state, pos, ctx, effect, null);
             }
 
             @Override
             public List<ItemStack> apply(BlockState state, BlockPos pos, ShockContext ctx, ItemStack baseTool) {
-                return applyEffect(state, pos, ctx, effect, baseTool);
+                return DestroyMode.applyEffect(state, pos, ctx, effect, baseTool);
             }
         };
     }
 
     public static DestroyMode fromEffect(BlockMiningEffect effect) {
-        if (effect.equals(BlockMiningEffect.SILK_TOUCH)) return SILK_TOUCH;
-        if (effect.equals(BlockMiningEffect.DISINTEGRATION)) return DISINTEGRATION;
-        if (effect.equals(BlockMiningEffect.SMELTING)) return AUTO_SMELTING;
-        if (effect.equals(BlockMiningEffect.FORTUNE_5)) return FORTUNE;
-        return NORMAL;
+        if (effect.equals(BlockMiningEffect.SILK_TOUCH)) return DestroyMode.SILK_TOUCH;
+        if (effect.equals(BlockMiningEffect.DISINTEGRATION)) return DestroyMode.DISINTEGRATION;
+        if (effect.equals(BlockMiningEffect.SMELTING)) return DestroyMode.AUTO_SMELTING;
+        if (effect.equals(BlockMiningEffect.FORTUNE_5)) return DestroyMode.FORTUNE;
+        return DestroyMode.NORMAL;
     }
 
     /** 根据边框铁砧行为创建破坏模式，并保留其自定义掉落处理器。 */
     public static DestroyMode fromAnvilBehavior(ShockAnvilBehavior behavior) {
-        return fromEffect(behavior.miningEffect()).withDropBehavior(behavior.dropBehavior());
+        return DestroyMode.fromEffect(behavior.miningEffect()).withDropBehavior(behavior.dropBehavior());
     }
 
     private final ShockDropBehavior dropBehavior;

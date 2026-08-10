@@ -67,8 +67,14 @@ public class DynamicPowerComponent {
         double x = this.owner.getX();
         double y = this.owner.getY();
         double z = this.owner.getZ();
-        return Component.translatable("command.anvilcraft.powergrid.info.dynamic_consumer",
-            this.owner.getName(), formatDouble(x), formatDouble(y), formatDouble(z), this.getPowerConsumption())
+        return Component.translatable(
+            "command.anvilcraft.powergrid.info.dynamic_consumer",
+            this.owner.getName(),
+            DynamicPowerComponent.formatDouble(x),
+            DynamicPowerComponent.formatDouble(y),
+            DynamicPowerComponent.formatDouble(z),
+            this.getPowerConsumption()
+        )
             .withStyle(ChatFormatting.YELLOW);
     }
 

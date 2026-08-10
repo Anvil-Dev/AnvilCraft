@@ -106,7 +106,7 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
 
     @Override
     public RecipeSerializer<MultiblockConversionRecipe> getSerializer() {
-        return SERIALIZER;
+        return MultiblockConversionRecipe.SERIALIZER;
     }
 
     @SuppressWarnings("deprecation")
@@ -252,8 +252,8 @@ public class MultiblockConversionRecipe implements Recipe<MultiblockInput>, IDat
     public String toDatagen() {
         StringBuilder codeBuilder = new StringBuilder("MultiblockConversionRecipe.builder()\n");
 
-        datagenForPattern(codeBuilder, this.inputPattern, "input");
-        datagenForPattern(codeBuilder, this.outputPattern, "output");
+        MultiblockConversionRecipe.datagenForPattern(codeBuilder, this.inputPattern, "input");
+        MultiblockConversionRecipe.datagenForPattern(codeBuilder, this.outputPattern, "output");
 
         codeBuilder.append("    .save(provider);");
         return codeBuilder.toString();

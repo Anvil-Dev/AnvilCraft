@@ -54,7 +54,7 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         state.setLit(lit);
         int beamTopY = be.getBeamHeight();
         int posY = be.getBlockPos().getY();
-        state.setBeamHeight((float) (beamTopY - posY) - BEAM_BASE_Y);
+        state.setBeamHeight((float) (beamTopY - posY) - CorruptedBeaconRenderer.BEAM_BASE_Y);
     }
 
     @Override
@@ -70,16 +70,16 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         collector.submitCustomGeometry(
             pose,
             ModRenderTypes.CORRUPTED_BEACON_BEAM,
-            (last, consumer) -> emitBeaconBeam(consumer, last.pose(), beamHeight)
+            (last, consumer) -> CorruptedBeaconRenderer.emitBeaconBeam(consumer, last.pose(), beamHeight)
         );
     }
 
     public static void renderWeaponBeam(VertexConsumer consumer, Matrix4f matrix, float length) {
-        for (int layer = BEAM_GLOW_LAYERS; layer >= 1; layer--) {
-            float half = BEAM_INNER_HALF + BEAM_GLOW_HALF_STEP * layer * 0.5F;
+        for (int layer = CorruptedBeaconRenderer.BEAM_GLOW_LAYERS; layer >= 1; layer--) {
+            float half = CorruptedBeaconRenderer.BEAM_INNER_HALF + CorruptedBeaconRenderer.BEAM_GLOW_HALF_STEP * layer * 0.5F;
             float falloff = 1.0F / (layer + 1);
             float alpha = 0.65F * falloff;
-            emitBeamPyramid(
+            CorruptedBeaconRenderer.emitBeamPyramid(
                 consumer,
                 matrix,
                 0.0F,
@@ -87,56 +87,56 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
                 0.0F,
                 half,
                 length,
-                GLOW_R,
-                GLOW_G,
-                GLOW_B,
+                CorruptedBeaconRenderer.GLOW_R,
+                CorruptedBeaconRenderer.GLOW_G,
+                CorruptedBeaconRenderer.GLOW_B,
                 alpha,
                 0.24F * falloff
             );
         }
-        emitBeamPyramid(
+        CorruptedBeaconRenderer.emitBeamPyramid(
             consumer,
             matrix,
             0.0F,
             0.0F,
             0.0F,
-            BEAM_INNER_HALF,
+            CorruptedBeaconRenderer.BEAM_INNER_HALF,
             length,
-            CORE_R,
-            CORE_G,
-            CORE_B,
+            CorruptedBeaconRenderer.CORE_R,
+            CorruptedBeaconRenderer.CORE_G,
+            CorruptedBeaconRenderer.CORE_B,
             0.94F,
             0.22F
         );
     }
 
     private static void emitBeaconBeam(VertexConsumer consumer, Matrix4f matrix, float beamHeight) {
-        float apexY = BEAM_BASE_Y + beamHeight;
-        for (int layer = BEAM_GLOW_LAYERS; layer >= 1; layer--) {
-            float half = BEAM_INNER_HALF + BEAM_GLOW_HALF_STEP * layer;
+        float apexY = CorruptedBeaconRenderer.BEAM_BASE_Y + beamHeight;
+        for (int layer = CorruptedBeaconRenderer.BEAM_GLOW_LAYERS; layer >= 1; layer--) {
+            float half = CorruptedBeaconRenderer.BEAM_INNER_HALF + CorruptedBeaconRenderer.BEAM_GLOW_HALF_STEP * layer;
             float falloff = 1.0f / (layer + 1);
             float alpha = 0.65f * falloff;
             float tipFade = 0.24f * falloff;
-            emitBeamPyramid(
+            CorruptedBeaconRenderer.emitBeamPyramid(
                 consumer,
                 matrix,
                 half,
                 apexY,
-                GLOW_R,
-                GLOW_G,
-                GLOW_B,
+                CorruptedBeaconRenderer.GLOW_R,
+                CorruptedBeaconRenderer.GLOW_G,
+                CorruptedBeaconRenderer.GLOW_B,
                 alpha,
                 tipFade
             );
         }
-        emitBeamPyramid(
+        CorruptedBeaconRenderer.emitBeamPyramid(
             consumer,
             matrix,
-            BEAM_INNER_HALF,
+            CorruptedBeaconRenderer.BEAM_INNER_HALF,
             apexY,
-            CORE_R,
-            CORE_G,
-            CORE_B,
+            CorruptedBeaconRenderer.CORE_R,
+            CorruptedBeaconRenderer.CORE_G,
+            CorruptedBeaconRenderer.CORE_B,
             0.94f,
             0.22f
         );
@@ -153,11 +153,11 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         float alpha,
         float tipFade
     ) {
-        emitBeamPyramid(
+        CorruptedBeaconRenderer.emitBeamPyramid(
             vc,
             matrix,
             0.5F,
-            BEAM_BASE_Y,
+            CorruptedBeaconRenderer.BEAM_BASE_Y,
             0.5F,
             halfWidth,
             apexY,
@@ -195,9 +195,9 @@ public class CorruptedBeaconRenderer implements BlockEntityRenderer<CorruptedBea
         for (int i = 0; i < 4; i++) {
             float[] c0 = corners[i];
             float[] c1 = corners[(i + 1) % 4];
-            beamVertex(vc, matrix, c0[0], baseY, c0[1], red, green, blue, alpha);
-            beamVertex(vc, matrix, c1[0], baseY, c1[1], red, green, blue, alpha);
-            beamVertex(vc, matrix, cx, apexY, cz, red, green, blue, tipAlpha);
+            CorruptedBeaconRenderer.beamVertex(vc, matrix, c0[0], baseY, c0[1], red, green, blue, alpha);
+            CorruptedBeaconRenderer.beamVertex(vc, matrix, c1[0], baseY, c1[1], red, green, blue, alpha);
+            CorruptedBeaconRenderer.beamVertex(vc, matrix, cx, apexY, cz, red, green, blue, tipAlpha);
         }
     }
 

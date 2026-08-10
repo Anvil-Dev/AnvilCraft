@@ -26,11 +26,11 @@ import net.minecraft.world.level.storage.loot.predicates.MatchTool;
 
 public class ModEnchantments {
 
-    public static final ResourceKey<Enchantment> FELLING_KEY = key("felling");
-    public static final ResourceKey<Enchantment> HARVEST_KEY = key("harvest");
-    public static final ResourceKey<Enchantment> BEHEADING_KEY = key("beheading");
-    public static final ResourceKey<Enchantment> SMELTING_KEY = key("smelting");
-    public static final ResourceKey<Enchantment> DISINTEGRATION_KEY = key("disintegration");
+    public static final ResourceKey<Enchantment> FELLING_KEY = ModEnchantments.key("felling");
+    public static final ResourceKey<Enchantment> HARVEST_KEY = ModEnchantments.key("harvest");
+    public static final ResourceKey<Enchantment> BEHEADING_KEY = ModEnchantments.key("beheading");
+    public static final ResourceKey<Enchantment> SMELTING_KEY = ModEnchantments.key("smelting");
+    public static final ResourceKey<Enchantment> DISINTEGRATION_KEY = ModEnchantments.key("disintegration");
 
     public static ResourceKey<Enchantment> key(String name) {
         return ResourceKey.create(Registries.ENCHANTMENT, AnvilCraft.of(name));
@@ -41,9 +41,9 @@ public class ModEnchantments {
         HolderGetter<Enchantment> enchantmentHolderGetter = context.lookup(Registries.ENCHANTMENT);
         HolderGetter<Item> itemHolderGetter = context.lookup(Registries.ITEM);
         HolderGetter<Block> blockHolderGetter = context.lookup(Registries.BLOCK);
-        register(
+        ModEnchantments.register(
             context,
-            FELLING_KEY,
+            ModEnchantments.FELLING_KEY,
             Enchantment.enchantment(
                 Enchantment.definition(
                     itemHolderGetter.getOrThrow(ItemTags.AXES),
@@ -63,9 +63,9 @@ public class ModEnchantments {
                 )
             )
         );
-        register(
+        ModEnchantments.register(
             context,
-            HARVEST_KEY,
+            ModEnchantments.HARVEST_KEY,
             Enchantment.enchantment(
                 Enchantment.definition(
                     itemHolderGetter.getOrThrow(ItemTags.HOES),
@@ -86,9 +86,9 @@ public class ModEnchantments {
                 MatchTool.toolMatches(ItemPredicate.Builder.item().of(itemHolderGetter, ItemTags.HOES))
             )
         );
-        register(
+        ModEnchantments.register(
             context,
-            BEHEADING_KEY,
+            ModEnchantments.BEHEADING_KEY,
             Enchantment.enchantment(
                 Enchantment.definition(
                     itemHolderGetter.getOrThrow(ItemTags.SWORDS),
@@ -101,9 +101,9 @@ public class ModEnchantments {
                 )
             )
         );
-        register(
+        ModEnchantments.register(
             context,
-            SMELTING_KEY,
+            ModEnchantments.SMELTING_KEY,
             Enchantment.enchantment(
                 Enchantment.definition(
                     itemHolderGetter.getOrThrow(ModItemTags.SMELTING_SUPPORTED),
@@ -116,9 +116,9 @@ public class ModEnchantments {
                 )
             )
         );
-        register(
+        ModEnchantments.register(
             context,
-            DISINTEGRATION_KEY,
+            ModEnchantments.DISINTEGRATION_KEY,
             Enchantment.enchantment(
                 Enchantment.definition(
                     itemHolderGetter.getOrThrow(ModItemTags.DISINTEGRATION_SUPPORTED),

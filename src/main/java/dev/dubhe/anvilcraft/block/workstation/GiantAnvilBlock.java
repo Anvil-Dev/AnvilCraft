@@ -64,6 +64,8 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.DeferredSoundType;
 import org.jspecify.annotations.Nullable;
 
+import java.util.List;
+
 public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> implements Fallable, IHammerRemovable {
     public static final ThreadLocal<Boolean> SUPPRESS_DROPS = ThreadLocal.withInitial(() -> false);
     public static final SoundType SOUND_TYPE = new DeferredSoundType(
@@ -82,35 +84,35 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         new AABB(12, 13, 12, 16, 16, 16),
         new AABB(4, 0, 4, 16, 8, 16)
     );
-    protected static final VoxelShape BASE_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, BASE_NW);
-    protected static final VoxelShape BASE_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, BASE_NW);
-    protected static final VoxelShape BASE_NE = ShapeUtil.rotate(Direction.Axis.Y, 270, BASE_NW);
+    protected static final VoxelShape BASE_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, GiantAnvilBlock.BASE_NW);
+    protected static final VoxelShape BASE_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, GiantAnvilBlock.BASE_NW);
+    protected static final VoxelShape BASE_NE = ShapeUtil.rotate(Direction.Axis.Y, 270, GiantAnvilBlock.BASE_NW);
 
     protected static final VoxelShape BASE_N = ShapeUtil.merge(
         Block.box(0, 13, 12, 16, 16, 16),
         Block.box(0, 8, 9, 16, 13, 16),
         Block.box(0, 0, 4, 16, 8, 16)
     );
-    protected static final VoxelShape BASE_W = ShapeUtil.rotate(Direction.Axis.Y, 90, BASE_N);
-    protected static final VoxelShape BASE_S = ShapeUtil.rotate(Direction.Axis.Y, 180, BASE_N);
-    protected static final VoxelShape BASE_E = ShapeUtil.rotate(Direction.Axis.Y, 270, BASE_N);
+    protected static final VoxelShape BASE_W = ShapeUtil.rotate(Direction.Axis.Y, 90, GiantAnvilBlock.BASE_N);
+    protected static final VoxelShape BASE_S = ShapeUtil.rotate(Direction.Axis.Y, 180, GiantAnvilBlock.BASE_N);
+    protected static final VoxelShape BASE_E = ShapeUtil.rotate(Direction.Axis.Y, 270, GiantAnvilBlock.BASE_N);
 
     protected static final VoxelShape MID_NW = ShapeUtil.merge(
         new AABB(12, 0, 12, 16, 10, 16),
         new AABB(8, 10, 8, 16, 16, 16)
     );
-    protected static final VoxelShape MID_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, MID_NW);
-    protected static final VoxelShape MID_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, MID_NW);
-    protected static final VoxelShape MID_NE = ShapeUtil.rotate(Direction.Axis.Y, 270, MID_NW);
+    protected static final VoxelShape MID_SW = ShapeUtil.rotate(Direction.Axis.Y, 90, GiantAnvilBlock.MID_NW);
+    protected static final VoxelShape MID_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, GiantAnvilBlock.MID_NW);
+    protected static final VoxelShape MID_NE = ShapeUtil.rotate(Direction.Axis.Y, 270, GiantAnvilBlock.MID_NW);
 
     protected static final VoxelShape MID_N = ShapeUtil.merge(
         Block.box(0, 0, 12, 16, 9, 16),
         Block.box(0, 9, 6, 16, 16, 16),
         Block.box(0, 12, 0, 16, 16, 6)
     );
-    protected static final VoxelShape MID_W = ShapeUtil.rotate(Direction.Axis.Y, 90, MID_N);
-    protected static final VoxelShape MID_S = ShapeUtil.rotate(Direction.Axis.Y, 180, MID_N);
-    protected static final VoxelShape MID_E = ShapeUtil.rotate(Direction.Axis.Y, 270, MID_N);
+    protected static final VoxelShape MID_W = ShapeUtil.rotate(Direction.Axis.Y, 90, GiantAnvilBlock.MID_N);
+    protected static final VoxelShape MID_S = ShapeUtil.rotate(Direction.Axis.Y, 180, GiantAnvilBlock.MID_N);
+    protected static final VoxelShape MID_E = ShapeUtil.rotate(Direction.Axis.Y, 270, GiantAnvilBlock.MID_N);
 
     private static final ImmutableMap<Direction, ImmutableList<Vec3i>> UPDATE_OFFSET = ImmutableMap.of(
         Direction.DOWN,
@@ -191,8 +193,8 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         super(properties);
         this.registerDefaultState(this.stateDefinition
             .any()
-            .setValue(HALF, Cube3x3PartHalf.BOTTOM_CENTER)
-            .setValue(CUBE, GiantAnvilCube.CORNER));
+            .setValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.BOTTOM_CENTER)
+            .setValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CORNER));
     }
 
     @Override
@@ -202,23 +204,23 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         BlockPos pos,
         CollisionContext context
     ) {
-        return switch (state.getValue(HALF)) {
-            case MID_E -> MID_E;
-            case MID_W -> MID_W;
-            case MID_N -> MID_N;
-            case MID_S -> MID_S;
-            case MID_EN -> MID_NE;
-            case MID_ES -> MID_SE;
-            case MID_WN -> MID_NW;
-            case MID_WS -> MID_SW;
-            case BOTTOM_E -> BASE_E;
-            case BOTTOM_W -> BASE_W;
-            case BOTTOM_N -> BASE_N;
-            case BOTTOM_S -> BASE_S;
-            case BOTTOM_EN -> BASE_NE;
-            case BOTTOM_ES -> BASE_SE;
-            case BOTTOM_WN -> BASE_NW;
-            case BOTTOM_WS -> BASE_SW;
+        return switch (state.getValue(GiantAnvilBlock.HALF)) {
+            case MID_E -> GiantAnvilBlock.MID_E;
+            case MID_W -> GiantAnvilBlock.MID_W;
+            case MID_N -> GiantAnvilBlock.MID_N;
+            case MID_S -> GiantAnvilBlock.MID_S;
+            case MID_EN -> GiantAnvilBlock.MID_NE;
+            case MID_ES -> GiantAnvilBlock.MID_SE;
+            case MID_WN -> GiantAnvilBlock.MID_NW;
+            case MID_WS -> GiantAnvilBlock.MID_SW;
+            case BOTTOM_E -> GiantAnvilBlock.BASE_E;
+            case BOTTOM_W -> GiantAnvilBlock.BASE_W;
+            case BOTTOM_N -> GiantAnvilBlock.BASE_N;
+            case BOTTOM_S -> GiantAnvilBlock.BASE_S;
+            case BOTTOM_EN -> GiantAnvilBlock.BASE_NE;
+            case BOTTOM_ES -> GiantAnvilBlock.BASE_SE;
+            case BOTTOM_WN -> GiantAnvilBlock.BASE_NW;
+            case BOTTOM_WS -> GiantAnvilBlock.BASE_SW;
             default -> Shapes.block();
         };
     }
@@ -226,12 +228,12 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
     @Override
     public BlockState placedState(Cube3x3PartHalf part, BlockState state) {
         return super.placedState(part, state)
-            .setValue(CUBE, part == Cube3x3PartHalf.MID_CENTER ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER);
+            .setValue(GiantAnvilBlock.CUBE, part == Cube3x3PartHalf.MID_CENTER ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(HALF, CUBE);
+        builder.add(GiantAnvilBlock.HALF, GiantAnvilBlock.CUBE);
     }
 
     public static BlockState damage(BlockState state) {
@@ -269,7 +271,7 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
     ) {
         level.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
         BlockPos belowPos = pos.below();
-        if (!canSurvive(state, level, belowPos)) {
+        if (!this.canSurvive(state, level, belowPos)) {
             ItemEntity itemEntity = new ItemEntity(
                 level, belowPos.getX(), belowPos.getY(), belowPos.getZ(), ModBlocks.GIANT_ANVIL.asStack());
             itemEntity.setDefaultPickUpDelay();
@@ -277,8 +279,8 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
             return;
         }
         for (Cube3x3PartHalf part : this.getParts()) {
-            BlockState newState = state.setValue(HALF, part)
-                .setValue(CUBE, part == Cube3x3PartHalf.MID_CENTER ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER);
+            BlockState newState = state.setValue(GiantAnvilBlock.HALF, part)
+                .setValue(GiantAnvilBlock.CUBE, part == Cube3x3PartHalf.MID_CENTER ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER);
             level.setBlockAndUpdate(belowPos.offset(part.getOffset()), newState);
         }
         if (level instanceof ServerLevel serverLevel) {
@@ -312,7 +314,7 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         BlockPos pos,
         RandomSource random
     ) {
-        BlockState ringState = level.getBlockState(pos.subtract(state.getValue(HALF).getOffset()).above(3));
+        BlockState ringState = level.getBlockState(pos.subtract(state.getValue(GiantAnvilBlock.HALF).getOffset()).above(3));
 
         boolean isHeldByAcceleration = ringState.getBlock() instanceof AccelerationRingBlock
                                        && ringState.getValue(AccelerationRingBlock.HALF) == DirectionCube3x3PartHalf.BOTTOM_CENTER
@@ -327,14 +329,15 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         if (isHeldByAcceleration || isHeldByDeflection) {
             return;
         }
-        if (state.getValue(HALF) != Cube3x3PartHalf.BOTTOM_CENTER) return;
+        if (state.getValue(GiantAnvilBlock.HALF) != Cube3x3PartHalf.BOTTOM_CENTER) return;
         for (Cube3x3PartHalf part : this.getParts()) {
             if (part.getOffsetY() != 0) continue;
             if (!FallingBlock.isFree(level.getBlockState(pos.offset(part.getOffset()).below()))) return;
         }
         BlockPos above = pos.above();
         BlockState state1 = level.getBlockState(above);
-        if (!state1.is(this) || !state1.hasProperty(HALF) || state1.getValue(HALF) != Cube3x3PartHalf.MID_CENTER) {
+        if (!state1.is(this) || !state1.hasProperty(GiantAnvilBlock.HALF) || state1.getValue(GiantAnvilBlock.HALF)
+                                                                             != Cube3x3PartHalf.MID_CENTER) {
             return;
         }
         this.removePartsAndUpdate(level, pos);
@@ -351,7 +354,7 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
             BlockPos bp = bottomCenterPos.offset(part.getOffset());
             level.setBlock(bp, level.getBlockState(bp).getFluidState().createLegacyBlock(), 3, 0);
         }
-        UPDATE_OFFSET.forEach((direction, offsetList) -> offsetList.forEach(offset -> {
+        GiantAnvilBlock.UPDATE_OFFSET.forEach((direction, offsetList) -> offsetList.forEach(offset -> {
             BlockPos updatedPos = bottomCenterPos.offset(offset);
             BlockPos fromPos = updatedPos.relative(direction);
             level.neighborShapeChanged(
@@ -377,8 +380,8 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         BlockState oldState,
         boolean movedByPiston
     ) {
-        if (state.hasProperty(HALF)) {
-            level.scheduleTick(pos.subtract(state.getValue(HALF).getOffset()), this, this.getDelayAfterPlace());
+        if (state.hasProperty(GiantAnvilBlock.HALF)) {
+            level.scheduleTick(pos.subtract(state.getValue(GiantAnvilBlock.HALF).getOffset()), this, this.getDelayAfterPlace());
         }
     }
 
@@ -393,8 +396,8 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         BlockState neighborState,
         RandomSource random
     ) {
-        if (state.hasProperty(HALF) && level instanceof Level actualLevel) {
-            actualLevel.scheduleTick(pos.subtract(state.getValue(HALF).getOffset()), this, this.getDelayAfterPlace());
+        if (state.hasProperty(GiantAnvilBlock.HALF) && level instanceof Level actualLevel) {
+            actualLevel.scheduleTick(pos.subtract(state.getValue(GiantAnvilBlock.HALF).getOffset()), this, this.getDelayAfterPlace());
         }
         return super.updateShape(state, level, ticks, pos, direction, neighborPos, neighborState, random);
     }
@@ -427,12 +430,13 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         return new SimpleMenuProvider(
             (syncId, inventory, player) ->
                 new AnvilMenu(syncId, inventory, ContainerLevelAccess.create(level, pos)),
-            CONTAINER_TITLE);
+            GiantAnvilBlock.CONTAINER_TITLE
+        );
     }
 
     @Override
-    public java.util.List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
-        if (SUPPRESS_DROPS.get()) return java.util.List.of();
+    public List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        if (GiantAnvilBlock.SUPPRESS_DROPS.get()) return List.of();
         return super.getDrops(state, params);
     }
 
@@ -443,11 +447,11 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(HALF, state.getValue(HALF).rotate(rotation));
+        return state.setValue(GiantAnvilBlock.HALF, state.getValue(GiantAnvilBlock.HALF).rotate(rotation));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(HALF, state.getValue(HALF).mirror(mirror));
+        return state.setValue(GiantAnvilBlock.HALF, state.getValue(GiantAnvilBlock.HALF).mirror(mirror));
     }
 }

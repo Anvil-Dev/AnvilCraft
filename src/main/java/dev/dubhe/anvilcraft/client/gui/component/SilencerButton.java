@@ -65,7 +65,7 @@ public class SilencerButton extends Button {
         if (searchText.startsWith("#") || searchText.startsWith("~")) {
             message = this.parent.getSoundTextAt(this.index, this.variant);
         } else {
-            message = highlighted(
+            message = SilencerButton.highlighted(
                 this.parent.getSoundTextAt(this.index, this.variant).getString(),
                 searchText,
                 ChatFormatting.WHITE,
@@ -76,7 +76,7 @@ public class SilencerButton extends Button {
         Font font = Minecraft.getInstance().font;
         graphics.centeredText(font, message, this.getX() + this.width / 2, this.getY() + 3, color);
         if (this.isHovered()) {
-            Component soundIdText = highlighted(
+            Component soundIdText = SilencerButton.highlighted(
                 soundId.toString(),
                 searchText.replaceFirst("#", ""),
                 ChatFormatting.GRAY,

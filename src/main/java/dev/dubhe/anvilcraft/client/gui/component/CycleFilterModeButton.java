@@ -23,7 +23,7 @@ public class CycleFilterModeButton extends Button {
         Component.translatable("screen.anvilcraft.button.filter_mode_any"));
 
     public CycleFilterModeButton(int x, int y, OnPress onPress, Supplier<Mode> filterMode) {
-        super(x, y, 16, 16, DEFAULT_MESSAGE, onPress, Button.DEFAULT_NARRATION);
+        super(x, y, 16, 16, CycleFilterModeButton.DEFAULT_MESSAGE, onPress, Button.DEFAULT_NARRATION);
         this.filterMode = filterMode;
     }
 

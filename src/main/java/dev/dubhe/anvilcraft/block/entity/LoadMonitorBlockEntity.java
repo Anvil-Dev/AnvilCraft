@@ -15,6 +15,8 @@ import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
+
 public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsumer {
     @Getter
     @Setter
@@ -41,39 +43,41 @@ public class LoadMonitorBlockEntity extends BlockEntity implements IPowerConsume
 
     @Override
     public Level getCurrentLevel() {
-        return getLevel();
+        return Objects.requireNonNull(this.getLevel());
     }
 
     @Override
     public BlockPos getPos() {
-        return getBlockPos();
+        return this.getBlockPos();
     }
 
     public int getRedstoneSignal() {
-        if (getGrid() == null) return 0;
+        if (this.getGrid() == null) return 0;
         // 空载
-        if (getGrid().getConsume() == 0) return 0;
+        if (this.getGrid().getConsume() == 0) return 0;
         // 满载
-        if (getGrid().getConsume() > getGrid().getGenerate()) return 0;
-        return (int) Math.ceil(((double) getGrid().getConsume() / getGrid().getGenerate()) * 15);
+        if (this.getGrid().getConsume() > this.getGrid().getGenerate()) return 0;
+        return (int) Math.ceil(((double) this.getGrid().getConsume() / this.getGrid().getGenerate()) * 15);
     }
 
     public void tick() {
         if (this.cooldown > 0) {
             this.cooldown--;
         } else {
-            if (getGrid() == null) return;
-            flushState(getLevel(), getBlockPos());
+            PowerGrid grid = this.getGrid();
+            Level level = this.getLevel();
+            if (grid == null || level == null) return;
+            this.flushState(level, this.getBlockPos());
             // 满载
-            if (getGrid().getConsume() > getGrid().getGenerate()) return;
-            int load = getGrid().getConsume() != 0
+            if (grid.getConsume() > grid.getGenerate()) return;
+            int load = grid.getConsume() != 0
                 ? (int) Math.ceil(
-                (double) getGrid().getConsume() / getGrid().getGenerate() * 10)
+                (double) grid.getConsume() / grid.getGenerate() * 10)
                 : 0;
-            BlockState state = getBlockState().setValue(LoadMonitorBlock.LOAD, load);
-            getLevel().setBlockAndUpdate(getBlockPos(), state);
+            BlockState state = this.getBlockState().setValue(LoadMonitorBlock.LOAD, load);
+            level.setBlockAndUpdate(this.getBlockPos(), state);
             this.cooldown = AnvilCraft.CONFIG.loadMonitor;
-            getLevel().updateNeighbourForOutputSignal(getBlockPos(), state.getBlock());
+            level.updateNeighbourForOutputSignal(this.getBlockPos(), state.getBlock());
         }
     }
 }

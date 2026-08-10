@@ -29,7 +29,7 @@ public record IonoCraftBackpackFlyingPacket(int playerId, boolean flying) implem
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+        return IonoCraftBackpackFlyingPacket.TYPE;
     }
 
     @Override

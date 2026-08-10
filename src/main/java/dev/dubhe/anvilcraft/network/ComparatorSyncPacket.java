@@ -23,7 +23,7 @@ public record ComparatorSyncPacket(BlockPos pos, int output) implements IClientb
 
     @Override
     public Type<ComparatorSyncPacket> type() {
-        return TYPE;
+        return ComparatorSyncPacket.TYPE;
     }
 
     @Override

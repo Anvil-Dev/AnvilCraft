@@ -105,12 +105,12 @@ public class PowerGrid {
 
     /// 总电力刻
     public static void tickGrid() {
-        MANAGER.tick();
+        PowerGrid.MANAGER.tick();
     }
 
     /// 电力刻
     protected void tick() {
-        if (this.level.getGameTime() % GRID_TICK != 0) return;
+        if (this.level.getGameTime() % PowerGrid.GRID_TICK != 0) return;
         if (this.markedRemoval) return;
         if (this.flush()) return;
         if (this.isWorking()) {
@@ -316,7 +316,7 @@ public class PowerGrid {
                 }
                 PowerGrid powerGrid = new PowerGrid(this.level);
                 powerGrid.add(group.toArray(IPowerComponent[]::new));
-                MANAGER.addGrid(powerGrid);
+                PowerGrid.MANAGER.addGrid(powerGrid);
                 affectedGrids.add(powerGrid);
             }
         }
@@ -440,7 +440,7 @@ public class PowerGrid {
     /// @param components 元件
     public static void addComponent(IPowerComponent... components) {
         for (IPowerComponent component : components) {
-            MANAGER.addComponent(component);
+            PowerGrid.MANAGER.addComponent(component);
         }
     }
 
@@ -450,7 +450,7 @@ public class PowerGrid {
 
     public static Optional<PowerGrid> findPowerGridContains(Level level, Vec3 vec3) {
         Optional<PowerGrid> powerGrid = Optional.empty();
-        for (PowerGrid it : MANAGER.getGridSet(level)) {
+        for (PowerGrid it : PowerGrid.MANAGER.getGridSet(level)) {
             if (it.inRangeFast(vec3)) {
                 return Optional.of(it);
             }
@@ -460,7 +460,7 @@ public class PowerGrid {
 
     public static Optional<PowerGrid> findPowerGridContains(Level level, AABB vec3) {
         Optional<PowerGrid> powerGrid = Optional.empty();
-        for (PowerGrid it : MANAGER.getGridSet(level)) {
+        for (PowerGrid it : PowerGrid.MANAGER.getGridSet(level)) {
             if (it.collideFast(vec3)) {
                 return Optional.of(it);
             }
@@ -470,7 +470,7 @@ public class PowerGrid {
 
     /// 清空电网
     public static void clear() {
-        MANAGER.clear();
+        PowerGrid.MANAGER.clear();
     }
 
 }

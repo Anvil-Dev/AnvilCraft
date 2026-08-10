@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.client.init;
 import dev.anvilcraft.lib.v2.rendering.event.MainTargetResizeEvent;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.post.GravitationalLensPostEffect;
-import lombok.Getter;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -15,21 +14,21 @@ public class ModPostEffects {
     private static GravitationalLensPostEffect gravitationalLensPostEffect = null;
 
     public static void createPostEffects() {
-        gravitationalLensPostEffect = new GravitationalLensPostEffect();
+        ModPostEffects.gravitationalLensPostEffect = new GravitationalLensPostEffect();
     }
 
     public static @Nullable GravitationalLensPostEffect getGravitationalLensPostEffect() {
-        if (gravitationalLensPostEffect == null) {
-            createPostEffects();
+        if (ModPostEffects.gravitationalLensPostEffect == null) {
+            ModPostEffects.createPostEffects();
         }
-        return gravitationalLensPostEffect;
+        return ModPostEffects.gravitationalLensPostEffect;
     }
 
     @SubscribeEvent
     public static void on(MainTargetResizeEvent event) {
-        if (gravitationalLensPostEffect == null) {
-            createPostEffects();
+        if (ModPostEffects.gravitationalLensPostEffect == null) {
+            ModPostEffects.createPostEffects();
         }
-        gravitationalLensPostEffect.resize(event.getNewWidth(), event.getNewHeight());
+        ModPostEffects.gravitationalLensPostEffect.resize(event.getNewWidth(), event.getNewHeight());
     }
 }

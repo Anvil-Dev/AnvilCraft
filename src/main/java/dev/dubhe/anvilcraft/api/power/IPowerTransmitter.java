@@ -17,13 +17,13 @@ public interface IPowerTransmitter extends IPowerComponent {
     @Override
     default PowerComponentInfo toPowerComponentInfo() {
         return new PowerComponentInfo(
-            getPos(),
+            this.getPos(),
             0,
             0,
             0,
             0,
             this.getRange(),
-            getShape(),
+            this.getShape(),
             PowerComponentType.TRANSMITTER
         );
     }

@@ -14,8 +14,9 @@ import net.minecraft.world.level.Level;
 
 public class TryTotemsInBoxConsumeEffect implements ConsumeEffect {
     public static final TryTotemsInBoxConsumeEffect INSTANCE = new TryTotemsInBoxConsumeEffect();
-    public static final MapCodec<TryTotemsInBoxConsumeEffect> CODEC = MapCodec.unit(INSTANCE);
-    public static final StreamCodec<ByteBuf, TryTotemsInBoxConsumeEffect> STREAM_CODEC = StreamCodec.unit(INSTANCE);
+    public static final MapCodec<TryTotemsInBoxConsumeEffect> CODEC = MapCodec.unit(TryTotemsInBoxConsumeEffect.INSTANCE);
+    public static final StreamCodec<ByteBuf, TryTotemsInBoxConsumeEffect> STREAM_CODEC = StreamCodec.unit(
+        TryTotemsInBoxConsumeEffect.INSTANCE);
 
     @Override
     public Type<? extends ConsumeEffect> getType() {

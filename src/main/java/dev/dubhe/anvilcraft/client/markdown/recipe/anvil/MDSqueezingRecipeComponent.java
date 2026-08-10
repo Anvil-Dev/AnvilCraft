@@ -29,9 +29,10 @@ public class MDSqueezingRecipeComponent extends MDBaseAnvilRecipeComponent {
         List<BlockState> states = this.inputBlocks.getFirst().constructStatesForRender();
         if (!states.isEmpty()) {
             BlockState blockState = states.get(RecipeUtil.getDisplayIndex(states.size()));
-            AgeratumUtil.renderBlock(context, blockState, mouseX, mouseY, INPUT_BLOCK_X, BLOCK_Y);
+            AgeratumUtil.renderBlock(
+                context, blockState, mouseX, mouseY, MDBaseAnvilRecipeComponent.INPUT_BLOCK_X, MDBaseAnvilRecipeComponent.BLOCK_Y);
         }
-        int y = AgeratumUtil.getRenderY(BLOCK_Y, 1);
-        AgeratumUtil.renderBlock(context, Blocks.CAULDRON.defaultBlockState(), mouseX, mouseY, INPUT_BLOCK_X, y);
+        int y = AgeratumUtil.getRenderY(MDBaseAnvilRecipeComponent.BLOCK_Y, 1);
+        AgeratumUtil.renderBlock(context, Blocks.CAULDRON.defaultBlockState(), mouseX, mouseY, MDBaseAnvilRecipeComponent.INPUT_BLOCK_X, y);
     }
 }

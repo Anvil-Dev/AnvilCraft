@@ -18,11 +18,11 @@ public enum WindSpeed implements StringRepresentable {
     }
 
     public static WindSpeed fromName(String name) {
-        for (WindSpeed value : values()) {
+        for (WindSpeed value : WindSpeed.values()) {
             if (value.name.equals(name)) {
                 return value;
             }
         }
-        return HIGH;
+        return WindSpeed.HIGH;
     }
 }

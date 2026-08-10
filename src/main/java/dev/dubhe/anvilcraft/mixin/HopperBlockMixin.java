@@ -24,12 +24,12 @@ abstract class HopperBlockMixin implements IHammerChangeable {
     @Override
     @SuppressWarnings("AddedMixinMembersNamePattern")
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
-        return level.setBlockAndUpdate(blockPos, level.getBlockState(blockPos).cycle(FACING));
+        return level.setBlockAndUpdate(blockPos, level.getBlockState(blockPos).cycle(HopperBlockMixin.FACING));
     }
 
     @Override
     @SuppressWarnings("AddedMixinMembersNamePattern")
     public @Nullable Property<?> getChangeableProperty(BlockState blockState) {
-        return FACING;
+        return HopperBlockMixin.FACING;
     }
 }

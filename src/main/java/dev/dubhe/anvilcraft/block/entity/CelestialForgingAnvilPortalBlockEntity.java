@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 import dev.dubhe.anvilcraft.saved.WormholeNetwork;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
+import dev.dubhe.anvilcraft.util.EntityUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -166,12 +167,11 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                 Objects.requireNonNull(this.irradiateBlockPos).relative(direction.getOpposite()).getCenter()
                     .add(0.0625, 0.0625, 0.0625)
             );
-            // noinspection deprecation
             serverLevel.getEntities(
                 EntityTypeTest.forClass(LivingEntity.class),
                 trackBoundingBox,
                 Entity::isAlive
-            ).forEach(le -> le.hurtOrSimulate(ModDamageTypes.laser(this.level), hurt));
+            ).forEach(le -> EntityUtil.hurtOrSimulate(le, ModDamageTypes.laser(this.level), hurt));
         }
         BlockState irradiateBlock = this.level.getBlockState(Objects.requireNonNull(this.irradiateBlockPos));
         int cooldown = COOLDOWNS[Math.clamp(this.laserLevel / 4, 0, 4)];

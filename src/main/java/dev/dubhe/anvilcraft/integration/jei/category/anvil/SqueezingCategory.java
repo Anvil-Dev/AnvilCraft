@@ -34,7 +34,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
-import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -78,16 +77,16 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return SqueezingCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return SqueezingCategory.HEIGHT;
     }
 
     @Override
-    public @Nullable IDrawable getIcon() {
+    public IDrawable getIcon() {
         return this.icon;
     }
 
@@ -104,20 +103,21 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
                 .flatMap(input -> input.getBlocks().stream())
                 .map(block -> new ItemStack(block.value()))
                 .toList();
-            JeiBlockIngredientUtil.addSlot(builder, RecipeIngredientRole.INPUT, INPUT_BLOCK, 40, 22, 18, 18, inputs);
+            JeiBlockIngredientUtil.addSlot(builder, RecipeIngredientRole.INPUT, SqueezingCategory.INPUT_BLOCK, 40, 22, 18, 18, inputs);
         }
 
         if (!recipe.getResultBlocks().isEmpty()) {
             List<ItemStack> outputs = recipe.getResultBlocks().stream()
                 .map(result -> new ItemStack(result.state().getBlock()))
                 .toList();
-            JeiBlockIngredientUtil.addSlot(builder, RecipeIngredientRole.OUTPUT, OUTPUT_BLOCK, 100, 22, 20, 18, outputs);
+            JeiBlockIngredientUtil.addSlot(builder, RecipeIngredientRole.OUTPUT, SqueezingCategory.OUTPUT_BLOCK, 100, 22, 20, 18, outputs);
         }
         for (ChanceItemStack output : recipe.getResultItems()) {
             builder.addInvisibleIngredients(RecipeIngredientRole.OUTPUT)
                 .add(output.stack().withCount(output.getMaxCount()));
         }
-        JeiFluidUtil.addOutputSlot(builder, OUTPUT_FLUID, FLUID_X, FLUID_Y, 16, 16, recipe.getHasCauldron());
+        JeiFluidUtil.addOutputSlot(
+            builder, SqueezingCategory.OUTPUT_FLUID, SqueezingCategory.FLUID_X, SqueezingCategory.FLUID_Y, 16, 16, recipe.getHasCauldron());
     }
 
     @Override
@@ -171,7 +171,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
             input.addAll(predicate.constructStatesForRender());
         }
         if (input.isEmpty()) return;
-        BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, INPUT_BLOCK, input)
+        BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, SqueezingCategory.INPUT_BLOCK, input)
             .orElse(input.getFirst());
         RenderSupport.renderBlock(graphics, renderedState, 50, 30, 20);
         RenderSupport.renderBlock(graphics, Blocks.CAULDRON.defaultBlockState(), 50, 40, 20);
@@ -180,13 +180,13 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
 
         HasCauldronSimple cauldronFluid = recipe.getHasCauldron();
         if (HasCauldron.isNotEmpty(cauldronFluid.transform())) {
-            this.slotDefault.draw(graphics, FLUID_X - 1, FLUID_Y - 1);
+            this.slotDefault.draw(graphics, SqueezingCategory.FLUID_X - 1, SqueezingCategory.FLUID_Y - 1);
         }
 
         List<ChanceBlockState> result = recipe.getResultBlocks();
         if (result.isEmpty()) return;
         List<BlockState> resultStates = result.stream().map(ChanceBlockState::state).toList();
-        renderedState = JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, OUTPUT_BLOCK, resultStates)
+        renderedState = JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, SqueezingCategory.OUTPUT_BLOCK, resultStates)
             .orElse(resultStates.getFirst());
         RenderSupport.renderBlock(graphics, renderedState, 110, 30, 20);
     }

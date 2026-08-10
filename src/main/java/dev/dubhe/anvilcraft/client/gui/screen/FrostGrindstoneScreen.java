@@ -136,7 +136,7 @@ public class FrostGrindstoneScreen extends AbstractContainerScreen<FrostGrindsto
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            FrostGrindstoneScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,

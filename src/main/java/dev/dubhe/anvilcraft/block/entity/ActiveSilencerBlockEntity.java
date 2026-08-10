@@ -96,7 +96,10 @@ public class ActiveSilencerBlockEntity
     @Override
     public void setRemoved() {
         super.setRemoved();
-        DistExecutor.run(Dist.CLIENT, () -> () -> SoundHelper.INSTANCE.unregister(this.level, this));
+        Level level = this.level;
+        if (level != null) {
+            DistExecutor.run(Dist.CLIENT, () -> () -> SoundHelper.INSTANCE.unregister(level, this));
+        }
     }
 
     @Override
@@ -130,7 +133,7 @@ public class ActiveSilencerBlockEntity
 
     @Override
     public boolean shouldMute(Identifier sound, Vec3 pos) {
-        if (getBlockState().getValue(ActiveSilencerBlock.POWERED)) return false;
+        if (this.getBlockState().getValue(ActiveSilencerBlock.POWERED)) return false;
         boolean inRange = this.range.contains(pos);
         boolean inList = this.muting.contains(sound);
         return inRange && inList;

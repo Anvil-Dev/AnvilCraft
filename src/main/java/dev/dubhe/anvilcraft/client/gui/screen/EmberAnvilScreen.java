@@ -30,7 +30,7 @@ public class EmberAnvilScreen extends ItemCombinerScreen<EmberAnvilMenu> {
     /// @param playerInventory 背包
     /// @param title           标题
     public EmberAnvilScreen(EmberAnvilMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title, BACKGROUND);
+        super(menu, playerInventory, title, EmberAnvilScreen.BACKGROUND);
         this.player = playerInventory.player;
     }
 

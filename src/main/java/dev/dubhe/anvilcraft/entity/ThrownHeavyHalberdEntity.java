@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.entity;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.item.tool.HeavyHalberdItem;
 import dev.dubhe.anvilcraft.mixin.accessor.AbstractArrowAccessor;
+import dev.dubhe.anvilcraft.util.EntityUtil;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -47,8 +48,8 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
     ) {
         super(type, shooter, level, pickupItemStack, null);
         this.setBaseDamage(HeavyHalberdItem.getThrownBaseDamage(pickupItemStack));
-        this.entityData.set(ID_LOYALTY, this.getLoyaltyFromItem(pickupItemStack));
-        this.entityData.set(ID_FOIL, pickupItemStack.hasFoil());
+        this.entityData.set(ThrownHeavyHalberdEntity.ID_LOYALTY, this.getLoyaltyFromItem(pickupItemStack));
+        this.entityData.set(ThrownHeavyHalberdEntity.ID_FOIL, pickupItemStack.hasFoil());
     }
 
     public ThrownHeavyHalberdEntity(
@@ -56,8 +57,8 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
     ) {
         super(type, x, y, z, level, pickupItemStack, pickupItemStack);
         this.setBaseDamage(HeavyHalberdItem.getThrownBaseDamage(pickupItemStack));
-        this.entityData.set(ID_LOYALTY, this.getLoyaltyFromItem(pickupItemStack));
-        this.entityData.set(ID_FOIL, pickupItemStack.hasFoil());
+        this.entityData.set(ThrownHeavyHalberdEntity.ID_LOYALTY, this.getLoyaltyFromItem(pickupItemStack));
+        this.entityData.set(ThrownHeavyHalberdEntity.ID_FOIL, pickupItemStack.hasFoil());
     }
 
     public abstract String getTextureBase();
@@ -65,8 +66,8 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);
-        builder.define(ID_LOYALTY, (byte) 0);
-        builder.define(ID_FOIL, false);
+        builder.define(ThrownHeavyHalberdEntity.ID_LOYALTY, (byte) 0);
+        builder.define(ThrownHeavyHalberdEntity.ID_FOIL, false);
     }
 
     @Override
@@ -76,7 +77,7 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
         }
 
         Entity currentOwner = this.getOwner();
-        int loyalty = this.entityData.get(ID_LOYALTY);
+        int loyalty = this.entityData.get(ThrownHeavyHalberdEntity.ID_LOYALTY);
         if (loyalty > 0 && (this.dealtDamage || this.isNoPhysics() || this.getY() <= this.level().getMinY()) && currentOwner != null) {
             if (!this.isAcceptableReturnOwner()) {
                 if (this.level() instanceof ServerLevel level && this.pickup == AbstractArrow.Pickup.ALLOWED) {
@@ -116,7 +117,7 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
     }
 
     public boolean isFoil() {
-        return this.entityData.get(ID_FOIL);
+        return this.entityData.get(ThrownHeavyHalberdEntity.ID_FOIL);
     }
 
     /// Gets the EntityHitResult representing the entity hit
@@ -142,8 +143,7 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
         float damage = Mth.ceil(Mth.clamp(speed * baseDamage, 0.0, 2.147483647E9));
 
         this.dealtDamage = true;
-        // noinspection deprecation
-        if (victim.hurtOrSimulate(source, damage)) {
+        if (EntityUtil.hurtOrSimulate(victim, source, damage)) {
             if (victim.getType() == EntityType.ENDERMAN) {
                 return;
             }
@@ -205,7 +205,7 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
     public void readAdditionalSaveData(ValueInput compound) {
         super.readAdditionalSaveData(compound);
         this.dealtDamage = compound.getBooleanOr("DealtDamage", false);
-        this.entityData.set(ID_LOYALTY, this.getLoyaltyFromItem(this.getPickupItemStackOrigin()));
+        this.entityData.set(ThrownHeavyHalberdEntity.ID_LOYALTY, this.getLoyaltyFromItem(this.getPickupItemStackOrigin()));
     }
 
     @Override
@@ -222,7 +222,7 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
 
     @Override
     public void tickDespawn() {
-        int i = this.entityData.get(ID_LOYALTY);
+        int i = this.entityData.get(ThrownHeavyHalberdEntity.ID_LOYALTY);
         if (this.pickup != AbstractArrow.Pickup.ALLOWED || i <= 0) {
             super.tickDespawn();
         }

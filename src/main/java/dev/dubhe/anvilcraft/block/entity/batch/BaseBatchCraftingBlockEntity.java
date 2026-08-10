@@ -57,7 +57,7 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
     protected final PollableFilteredItemStackHandler handler = this.constructHandler();
 
     @Getter
-    protected @Nullable ItemStack displayingStack;
+    protected ItemStack displayingStack = ItemStack.EMPTY;
 
     protected boolean poweredBefore = false;
     protected int cooldown = 0;
@@ -160,7 +160,10 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
 
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
-        ItemHandlerUtil.dropAllToPos(this.getItemHandler(), this.level, pos.getCenter());
+        Level level = this.level;
+        if (level != null) {
+            ItemHandlerUtil.dropAllToPos(this.getItemHandler(), level, pos.getCenter());
+        }
     }
 
     @Nullable
@@ -180,7 +183,7 @@ public abstract class BaseBatchCraftingBlockEntity extends BaseMachineBlockEntit
         this.handler.serialize(output.child("Inventory"));
         output.putBoolean("PoweredBefore", this.poweredBefore);
         output.putInt("Cooldown", this.cooldown);
-        boolean displaying = this.displayingStack != null && !this.displayingStack.isEmpty();
+        boolean displaying = !this.displayingStack.isEmpty();
         output.putBoolean("HasDisplayItemStack", displaying);
         if (displaying) output.store("ResultItemStack", ItemStack.OPTIONAL_CODEC, this.displayingStack);
     }

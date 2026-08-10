@@ -51,7 +51,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
 
     public InfiniteCollectorBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
-        for (int i = 0; i < CHARGE_HISTORY_SIZE; i++) {
+        for (int i = 0; i < InfiniteCollectorBlockEntity.CHARGE_HISTORY_SIZE; i++) {
             this.charges.add(0);
         }
     }
@@ -66,7 +66,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
 
     @Override
     public int getRange() {
-        return RANGE;
+        return InfiniteCollectorBlockEntity.RANGE;
     }
 
     @Override
@@ -95,8 +95,8 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
         for (int charge : input.getIntArray("Charges").orElse(new int[0])) {
             this.charges.add(charge);
         }
-        while (this.charges.size() < CHARGE_HISTORY_SIZE) this.charges.add(0);
-        while (this.charges.size() > CHARGE_HISTORY_SIZE) this.charges.removeFirst();
+        while (this.charges.size() < InfiniteCollectorBlockEntity.CHARGE_HISTORY_SIZE) this.charges.add(0);
+        while (this.charges.size() > InfiniteCollectorBlockEntity.CHARGE_HISTORY_SIZE) this.charges.removeFirst();
     }
 
     @Override
@@ -116,7 +116,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
             this.chargeCount = 0;
             this.refreshChargePower();
         }
-        this.outputPower = BASE_OUTPUT_POWER + this.inputtingHeatPower + this.chargePower;
+        this.outputPower = InfiniteCollectorBlockEntity.BASE_OUTPUT_POWER + this.inputtingHeatPower + this.chargePower;
         if (this.outputPower > 0 && this.getBlockState().getBlock() instanceof InfiniteCollectorBlock collector) {
             collector.activate(this.level, this.getBlockPos(), this.getBlockState());
         }
@@ -127,7 +127,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
 
     private void addCharge(int charge) {
         this.charges.add(charge);
-        while (this.charges.size() > CHARGE_HISTORY_SIZE) {
+        while (this.charges.size() > InfiniteCollectorBlockEntity.CHARGE_HISTORY_SIZE) {
             this.charges.removeFirst();
         }
     }
@@ -166,7 +166,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
 
     public void clientTick() {
         if (!this.isWorking()) return;
-        this.rotation += (float) (Math.log(getServerPower() + 1) * 0.5);
+        this.rotation += (float) (Math.log(this.getServerPower() + 1) * 0.5);
     }
 
     public boolean isWorking() {
@@ -217,7 +217,8 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
 
     @Override
     public AABB shape() {
-        return AABB.ofSize(getBlockPos().getCenter(), RANGE * 2 + 1, RANGE * 2 + 1, RANGE * 2 + 1);
+        int diameter = InfiniteCollectorBlockEntity.RANGE * 2 + 1;
+        return AABB.ofSize(this.getBlockPos().getCenter(), diameter, diameter, diameter);
     }
 
     @Override
@@ -261,7 +262,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
         }
 
         public boolean isWorking() {
-            return this == SUCCESS;
+            return this == WorkResult.SUCCESS;
         }
     }
 }

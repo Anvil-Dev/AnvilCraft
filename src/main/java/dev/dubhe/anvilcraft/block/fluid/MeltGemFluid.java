@@ -9,6 +9,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.neoforged.neoforge.event.EventHooks;
@@ -43,23 +44,23 @@ public abstract class MeltGemFluid extends BaseFlowingFluid {
 
     @Override
     protected boolean canBeReplacedWith(FluidState state, BlockGetter level, BlockPos pos, Fluid fluidIn, Direction direction) {
-        if (fluidIn.is(FluidTags.LAVA)) return true;
+        if (fluidIn.defaultFluidState().is(FluidTags.LAVA)) return true;
         return super.canBeReplacedWith(state, level, pos, fluidIn, direction);
     }
 
     public static class Flowing extends MeltGemFluid {
         public Flowing(Properties properties) {
             super(properties);
-            registerDefaultState(getStateDefinition().any().setValue(LEVEL, 7));
+            this.registerDefaultState(this.getStateDefinition().any().setValue(FlowingFluid.LEVEL, 7));
         }
 
         protected void createFluidStateDefinition(StateDefinition.Builder<Fluid, FluidState> builder) {
             super.createFluidStateDefinition(builder);
-            builder.add(LEVEL);
+            builder.add(FlowingFluid.LEVEL);
         }
 
         public int getAmount(FluidState state) {
-            return state.getValue(LEVEL);
+            return state.getValue(FlowingFluid.LEVEL);
         }
 
         public boolean isSource(FluidState state) {

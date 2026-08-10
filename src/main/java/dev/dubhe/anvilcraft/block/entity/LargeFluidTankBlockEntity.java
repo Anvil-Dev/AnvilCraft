@@ -47,8 +47,8 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
     private static final int CHECK_INTERVAL = 100;
 
     private final MultiFluidTankHandler tank = new MultiFluidTankHandler(
-        BASE_CAPACITY,
-        INFINITY_THRESHOLD,
+        LargeFluidTankBlockEntity.BASE_CAPACITY,
+        LargeFluidTankBlockEntity.INFINITY_THRESHOLD,
         this::onTankChanged
     );
     private int tickCounter;
@@ -95,7 +95,7 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
 
     public void tick() {
         if (!this.isMainPart()) return;
-        if (++this.tickCounter % CHECK_INTERVAL == 0 && this.level != null && !this.level.isClientSide()) {
+        if (++this.tickCounter % LargeFluidTankBlockEntity.CHECK_INTERVAL == 0 && this.level != null && !this.level.isClientSide()) {
             boolean valid = TankUtil.isMengerStructure(this.level, this.getBlockPos(), 9);
             if (this.tank.isEnhanced() && !valid) {
                 this.onUnformed();
@@ -124,7 +124,9 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
         for (FluidStack stack : this.tank.copyFluids()) {
             lightLevel = Math.max(lightLevel, stack.getFluidType().getLightLevel(stack));
         }
-        long renderCapacity = this.tank.isEnhanced() ? INFINITY_THRESHOLD : BASE_CAPACITY;
+        long renderCapacity = this.tank.isEnhanced()
+            ? LargeFluidTankBlockEntity.INFINITY_THRESHOLD
+            : LargeFluidTankBlockEntity.BASE_CAPACITY;
         double fill = Math.min(1.0, (double) this.tank.getTotalAmount() / renderCapacity);
         return (int) Math.ceil(lightLevel * fill);
     }
@@ -156,6 +158,7 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
     }
 
     @Override
+    @SuppressWarnings("deprecation")
     public void removeComponentsFromTag(ValueOutput output) {
         super.removeComponentsFromTag(output);
         output.discard("Tank");
@@ -174,7 +177,7 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
 
     public static boolean isEmptyItem(ItemStack stack, HolderLookup.Provider registries) {
         if (!stack.is(ModBlocks.LARGE_FLUID_TANK.asItem())) return false;
-        return readItemTank(stack, registries).getTotalAmount() == 0;
+        return LargeFluidTankBlockEntity.readItemTank(stack, registries).getTotalAmount() == 0;
     }
 
     public static ItemStack fillItem(
@@ -182,11 +185,11 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
         List<FluidStack> fluids,
         HolderLookup.Provider registries
     ) {
-        if (fluids.isEmpty() || !isEmptyItem(stack, registries)) return ItemStack.EMPTY;
+        if (fluids.isEmpty() || !LargeFluidTankBlockEntity.isEmptyItem(stack, registries)) return ItemStack.EMPTY;
 
         MultiFluidTankHandler itemTank = new MultiFluidTankHandler(
-            BASE_CAPACITY,
-            INFINITY_THRESHOLD,
+            LargeFluidTankBlockEntity.BASE_CAPACITY,
+            LargeFluidTankBlockEntity.INFINITY_THRESHOLD,
             () -> {}
         );
         try (Transaction transaction = Transaction.openRoot()) {
@@ -207,11 +210,11 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
 
     private static MultiFluidTankHandler readItemTank(ItemStack stack, HolderLookup.Provider registries) {
         MultiFluidTankHandler itemTank = new MultiFluidTankHandler(
-            BASE_CAPACITY,
-            INFINITY_THRESHOLD,
+            LargeFluidTankBlockEntity.BASE_CAPACITY,
+            LargeFluidTankBlockEntity.INFINITY_THRESHOLD,
             () -> {}
         );
-        itemTank.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, getTankData(stack)));
+        itemTank.deserialize(TagValueInput.create(ProblemReporter.DISCARDING, registries, LargeFluidTankBlockEntity.getTankData(stack)));
         return itemTank;
     }
 
@@ -231,7 +234,7 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
     public int getRedstoneSignal() {
         MultiFluidTankHandler mainTank = this.getMainPart().tank;
         long amount = mainTank.getTotalAmount();
-        int capacity = mainTank.isEnhanced() ? INFINITY_THRESHOLD : BASE_CAPACITY;
+        int capacity = mainTank.isEnhanced() ? LargeFluidTankBlockEntity.INFINITY_THRESHOLD : LargeFluidTankBlockEntity.BASE_CAPACITY;
         int strength = amount == 0
             ? 0
             : (int) (Math.min(amount, capacity) * (Redstone.SIGNAL_MAX - 1) / capacity) + 1;
@@ -265,7 +268,7 @@ public class LargeFluidTankBlockEntity extends BlockEntity implements IFluidReso
 
     public boolean containsInfiniteFluid() {
         return this.getMainPart().tank.copyFluids().stream()
-            .anyMatch(fluid -> fluid.getAmount() >= INFINITY_THRESHOLD);
+            .anyMatch(fluid -> fluid.getAmount() >= LargeFluidTankBlockEntity.INFINITY_THRESHOLD);
     }
 
     public List<FluidStack> getStoredFluids() {

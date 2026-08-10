@@ -26,7 +26,7 @@ public class RoyalSmithingTableBlock extends SmithingTableBlock implements IHamm
                 inventory,
                 ContainerLevelAccess.create(level, pos)
             ),
-            CONTAINER_TITLE
+            RoyalSmithingTableBlock.CONTAINER_TITLE
         );
     }
 }

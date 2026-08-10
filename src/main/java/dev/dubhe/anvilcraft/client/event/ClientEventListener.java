@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModTextureAtlases;
 import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
 import dev.dubhe.anvilcraft.client.support.FilterSelectorSupport;
+import dev.dubhe.anvilcraft.client.support.ScreenShakeManager;
 import dev.dubhe.anvilcraft.client.support.SeismicBounceManager;
 import dev.dubhe.anvilcraft.client.support.StructureDiskPreviewSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -137,9 +138,9 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
-        handleAttackKeyRelease();
+        ClientEventListener.handleAttackKeyRelease();
         SeismicBounceManager.getInstance().tick();
-        dev.dubhe.anvilcraft.client.support.ScreenShakeManager.getInstance().tick();
+        ScreenShakeManager.getInstance().tick();
         long lastThoughtTime = ThoughtManager.getLastThoughtTime();
         if (lastThoughtTime < 0) {
             return;
@@ -173,17 +174,17 @@ public class ClientEventListener {
             || minecraft.options.keyAttack.getKey().getValue() != event.getButton()) {
             return;
         }
-        sendDragonRodStopDevourPacket(minecraft);
-        wasAttackDown = false;
+        ClientEventListener.sendDragonRodStopDevourPacket(minecraft);
+        ClientEventListener.wasAttackDown = false;
     }
 
     private static void handleAttackKeyRelease() {
         Minecraft minecraft = Minecraft.getInstance();
         boolean attackDown = minecraft.options.keyAttack.isDown();
-        if (wasAttackDown && !attackDown) {
-            sendDragonRodStopDevourPacket(minecraft);
+        if (ClientEventListener.wasAttackDown && !attackDown) {
+            ClientEventListener.sendDragonRodStopDevourPacket(minecraft);
         }
-        wasAttackDown = attackDown;
+        ClientEventListener.wasAttackDown = attackDown;
     }
 
     private static void sendDragonRodStopDevourPacket(Minecraft minecraft) {

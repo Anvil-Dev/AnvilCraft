@@ -138,7 +138,7 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
 
     public LargeCakeBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(HALF, Cube3x3PartHalf.BOTTOM_CENTER));
+        this.registerDefaultState(this.stateDefinition.any().setValue(LargeCakeBlock.HALF, Cube3x3PartHalf.BOTTOM_CENTER));
     }
 
     @Override
@@ -147,33 +147,33 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
         BlockGetter level,
         BlockPos pos,
         CollisionContext context) {
-        return switch (state.getValue(HALF)) {
-            case TOP_CENTER -> TOP_CENTER;
-            case TOP_E -> TOP_E;
-            case TOP_W -> TOP_W;
-            case TOP_N -> TOP_N;
-            case TOP_S -> TOP_S;
-            case TOP_EN -> TOP_ANGLE_NE;
-            case TOP_ES -> TOP_ANGLE_SE;
-            case TOP_WN -> TOP_ANGLE_NW;
-            case TOP_WS -> TOP_ANGLE_SW;
-            case MID_CENTER -> MID_CENTER;
-            case MID_E -> MID_E;
-            case MID_W -> MID_W;
-            case MID_N -> MID_N;
-            case MID_S -> MID_S;
-            case MID_EN -> MID_ANGLE_NE;
-            case MID_ES -> MID_ANGLE_SE;
-            case MID_WN -> MID_ANGLE_NW;
-            case MID_WS -> MID_ANGLE_SW;
-            case BOTTOM_E -> BASE_E;
-            case BOTTOM_W -> BASE_W;
-            case BOTTOM_N -> BASE_N;
-            case BOTTOM_S -> BASE_S;
-            case BOTTOM_EN -> BASE_ANGLE_NE;
-            case BOTTOM_ES -> BASE_ANGLE_SE;
-            case BOTTOM_WN -> BASE_ANGLE_NW;
-            case BOTTOM_WS -> BASE_ANGLE_SW;
+        return switch (state.getValue(LargeCakeBlock.HALF)) {
+            case TOP_CENTER -> LargeCakeBlock.TOP_CENTER;
+            case TOP_E -> LargeCakeBlock.TOP_E;
+            case TOP_W -> LargeCakeBlock.TOP_W;
+            case TOP_N -> LargeCakeBlock.TOP_N;
+            case TOP_S -> LargeCakeBlock.TOP_S;
+            case TOP_EN -> LargeCakeBlock.TOP_ANGLE_NE;
+            case TOP_ES -> LargeCakeBlock.TOP_ANGLE_SE;
+            case TOP_WN -> LargeCakeBlock.TOP_ANGLE_NW;
+            case TOP_WS -> LargeCakeBlock.TOP_ANGLE_SW;
+            case MID_CENTER -> LargeCakeBlock.MID_CENTER;
+            case MID_E -> LargeCakeBlock.MID_E;
+            case MID_W -> LargeCakeBlock.MID_W;
+            case MID_N -> LargeCakeBlock.MID_N;
+            case MID_S -> LargeCakeBlock.MID_S;
+            case MID_EN -> LargeCakeBlock.MID_ANGLE_NE;
+            case MID_ES -> LargeCakeBlock.MID_ANGLE_SE;
+            case MID_WN -> LargeCakeBlock.MID_ANGLE_NW;
+            case MID_WS -> LargeCakeBlock.MID_ANGLE_SW;
+            case BOTTOM_E -> LargeCakeBlock.BASE_E;
+            case BOTTOM_W -> LargeCakeBlock.BASE_W;
+            case BOTTOM_N -> LargeCakeBlock.BASE_N;
+            case BOTTOM_S -> LargeCakeBlock.BASE_S;
+            case BOTTOM_EN -> LargeCakeBlock.BASE_ANGLE_NE;
+            case BOTTOM_ES -> LargeCakeBlock.BASE_ANGLE_SE;
+            case BOTTOM_WN -> LargeCakeBlock.BASE_ANGLE_NW;
+            case BOTTOM_WS -> LargeCakeBlock.BASE_ANGLE_SW;
             default -> Block.box(0, 1, 0, 16, 16, 16);
         };
     }
@@ -185,7 +185,7 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(HALF);
+        builder.add(LargeCakeBlock.HALF);
     }
 
     @Override
@@ -216,10 +216,10 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
         BlockState oldState,
         boolean movedByPiston
     ) {
-        if (state.getValue(HALF) != Cube3x3PartHalf.BOTTOM_CENTER) return;
+        if (state.getValue(LargeCakeBlock.HALF) != Cube3x3PartHalf.BOTTOM_CENTER) return;
         for (Cube3x3PartHalf part : this.getParts()) {
             if (part == Cube3x3PartHalf.BOTTOM_CENTER) continue;
-            BlockState newState = state.setValue(HALF, part);
+            BlockState newState = state.setValue(LargeCakeBlock.HALF, part);
             level.setBlockAndUpdate(pos.offset(part.getOffset()), newState);
         }
     }
@@ -271,7 +271,7 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
     ) {
         ItemStack itemStack = player.getItemInHand(hand);
         if (level.isClientSide()) {
-            if (eat(level, pos, player).consumesAction()) {
+            if (LargeCakeBlock.eat(level, pos, player).consumesAction()) {
                 return InteractionResult.SUCCESS;
             }
 
@@ -280,7 +280,7 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
             }
         }
 
-        return eat(level, pos, player);
+        return LargeCakeBlock.eat(level, pos, player);
     }
 
     private static InteractionResult eat(Level level, BlockPos pos, Player player) {
@@ -288,7 +288,7 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
             return InteractionResult.PASS;
         } else {
             player.getFoodData().eat(15, 0.8F);
-            removeFromTop(level, pos, player);
+            LargeCakeBlock.removeFromTop(level, pos, player);
             return InteractionResult.SUCCESS;
         }
     }
@@ -296,8 +296,8 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
     private static void removeFromTop(Level level, BlockPos pos, Player player) {
         BlockState aboveState = level.getBlockState(pos.above());
         if (aboveState.getBlock() instanceof LargeCakeBlock
-            && aboveState.getValue(HALF).getOffsetY() != 0) {
-            removeFromTop(level, pos.above(), player);
+            && aboveState.getValue(LargeCakeBlock.HALF).getOffsetY() != 0) {
+            LargeCakeBlock.removeFromTop(level, pos.above(), player);
             return;
         }
         level.removeBlock(pos, false);
@@ -306,11 +306,11 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(HALF, state.getValue(HALF).rotate(rotation));
+        return state.setValue(LargeCakeBlock.HALF, state.getValue(LargeCakeBlock.HALF).rotate(rotation));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(HALF, state.getValue(HALF).mirror(mirror));
+        return state.setValue(LargeCakeBlock.HALF, state.getValue(LargeCakeBlock.HALF).mirror(mirror));
     }
 }

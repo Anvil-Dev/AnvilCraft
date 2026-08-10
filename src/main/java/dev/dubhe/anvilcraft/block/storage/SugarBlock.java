@@ -30,7 +30,7 @@ public class SugarBlock extends Block {
 
     public SugarBlock(Properties properties) {
         super(properties);
-        this.stateDefinition.any().setValue(FRAGMENTATION_DEGREE, FragmentationDegree.ZERO);
+        this.stateDefinition.any().setValue(SugarBlock.FRAGMENTATION_DEGREE, FragmentationDegree.ZERO);
     }
 
     public static void loot(RegistrumBlockLootTables tables, Block block) {
@@ -66,9 +66,15 @@ public class SugarBlock extends Block {
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         double chance = random.nextDouble();
         if (!level.isClientSide()) {
-            if (state.getValue(FRAGMENTATION_DEGREE) != FragmentationDegree.THREE) {
+            if (state.getValue(SugarBlock.FRAGMENTATION_DEGREE) != FragmentationDegree.THREE) {
                 if (chance <= 0.05) {
-                    level.setBlockAndUpdate(pos, state.setValue(FRAGMENTATION_DEGREE, state.getValue(FRAGMENTATION_DEGREE).next()));
+                    level.setBlockAndUpdate(
+                        pos,
+                        state.setValue(
+                            SugarBlock.FRAGMENTATION_DEGREE,
+                            state.getValue(SugarBlock.FRAGMENTATION_DEGREE).next()
+                        )
+                    );
                 }
             } else {
                 if (chance <= 0.05) {
@@ -80,11 +86,11 @@ public class SugarBlock extends Block {
 
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FRAGMENTATION_DEGREE, FragmentationDegree.ZERO);
+        return this.defaultBlockState().setValue(SugarBlock.FRAGMENTATION_DEGREE, FragmentationDegree.ZERO);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FRAGMENTATION_DEGREE);
+        builder.add(SugarBlock.FRAGMENTATION_DEGREE);
     }
 }

@@ -96,6 +96,6 @@ public class LiquidEnchantmentFluid extends Fluid {
 
     @Override
     public FluidType getFluidType() {
-        return TYPE;
+        return LiquidEnchantmentFluid.TYPE;
     }
 }

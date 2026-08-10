@@ -36,7 +36,7 @@ public final class EnergyWeaponUseHUD {
         if (minecraft.options.hideGui || minecraft.screen != null) return;
         LocalPlayer player = minecraft.player;
         if (player == null || !player.isUsingItem()) {
-            LASER_PROGRESS.reset();
+            EnergyWeaponUseHUD.LASER_PROGRESS.reset();
             return;
         }
 
@@ -45,18 +45,18 @@ public final class EnergyWeaponUseHUD {
         float progress;
         switch (stack.getItem()) {
             case AnvilRailgunItem anvilRailgunItem -> {
-                LASER_PROGRESS.reset();
+                EnergyWeaponUseHUD.LASER_PROGRESS.reset();
                 if (AnvilRailgunItem.isLoading(player, stack, player.getUsedItemHand())) return;
                 int elapsed = stack.getUseDuration(player) - player.getUseItemRemainingTicks();
                 progress = AnvilRailgunItem.chargeProgress(player.level(), stack, elapsed, partialTick);
             }
-            case LaserGunItem laserGunItem -> progress = LASER_PROGRESS.get(player, stack, partialTick);
+            case LaserGunItem laserGunItem -> progress = EnergyWeaponUseHUD.LASER_PROGRESS.get(player, stack, partialTick);
             case TranscendenceResonatorItem transcendenceResonatorItem -> {
-                LASER_PROGRESS.reset();
+                EnergyWeaponUseHUD.LASER_PROGRESS.reset();
                 progress = TranscendenceResonatorItem.resonanceMiningProgress(player.level(), player, partialTick);
             }
             default -> {
-                LASER_PROGRESS.reset();
+                EnergyWeaponUseHUD.LASER_PROGRESS.reset();
                 return;
             }
         }
@@ -96,8 +96,8 @@ public final class EnergyWeaponUseHUD {
                     this.targetTicks = 0;
                 }
                 this.targetTicks += elapsedDelta;
-                if (this.targetTicks >= DAMAGE_STAGE_TICKS * MAX_DAMAGE_STAGE) return 1.0F;
-                return ((this.targetTicks % DAMAGE_STAGE_TICKS) + partialTick) / DAMAGE_STAGE_TICKS;
+                if (this.targetTicks >= EnergyWeaponUseHUD.DAMAGE_STAGE_TICKS * EnergyWeaponUseHUD.MAX_DAMAGE_STAGE) return 1.0F;
+                return ((this.targetTicks % EnergyWeaponUseHUD.DAMAGE_STAGE_TICKS) + partialTick) / EnergyWeaponUseHUD.DAMAGE_STAGE_TICKS;
             }
 
             this.target = null;

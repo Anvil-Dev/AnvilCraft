@@ -22,7 +22,7 @@ public class FeCollectorRenderer extends PowerProducerRenderer<FeCollectorBlockE
 
     @Override
     protected StandaloneModelKey<BlockStateModel> getModel() {
-        return MODEL;
+        return FeCollectorRenderer.MODEL;
     }
 
     @Override

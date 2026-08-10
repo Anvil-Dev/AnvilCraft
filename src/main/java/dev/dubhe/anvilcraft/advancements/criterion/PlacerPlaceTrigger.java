@@ -31,7 +31,7 @@ public class PlacerPlaceTrigger extends SimpleCriterionTrigger<PlacerPlaceTrigge
         ).apply(instance, TriggerInstance::new));
 
         public static Criterion<TriggerInstance> placeBlock(Block block) {
-            return placeBlock(BlockPredicate.Builder.block().of(block));
+            return TriggerInstance.placeBlock(BlockPredicate.Builder.block().of(block));
         }
 
         public static Criterion<TriggerInstance> placeBlock(BlockPredicate.Builder block) {

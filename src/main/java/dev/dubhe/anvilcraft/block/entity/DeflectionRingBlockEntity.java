@@ -53,7 +53,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
     private static final HashMap<Level, RingIndex> LEVEL_DEFLECTION_BLOCK_MAP = new HashMap<>();
     @Getter
     @Setter
-    private PowerGrid grid;
+    private @Nullable PowerGrid grid;
 
     @Setter
     @Getter
@@ -77,13 +77,13 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
     }
 
     public static Iterable<BlockPos> getAllBlocks(Level level) {
-        RingIndex index = LEVEL_DEFLECTION_BLOCK_MAP.get(level);
+        RingIndex index = DeflectionRingBlockEntity.LEVEL_DEFLECTION_BLOCK_MAP.get(level);
         return index == null ? List.of() : index.positions;
     }
 
     public static boolean isInsideWorkingRing(Entity entity) {
         Level level = entity.level();
-        RingIndex index = LEVEL_DEFLECTION_BLOCK_MAP.get(level);
+        RingIndex index = DeflectionRingBlockEntity.LEVEL_DEFLECTION_BLOCK_MAP.get(level);
         if (index == null) return false;
         AABB boundingBox = entity.getBoundingBox();
         int minChunkX = Mth.floor(boundingBox.minX) >> 4;
@@ -92,8 +92,9 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
         int maxChunkZ = Mth.floor(boundingBox.maxZ) >> 4;
         for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
             for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-                HashSet<BlockPos> positions = index.byChunk.get(ChunkPos.pack(chunkX, chunkZ));
-                if (positions == null) continue;
+                long chunkKey = ChunkPos.pack(chunkX, chunkZ);
+                if (!index.byChunk.containsKey(chunkKey)) continue;
+                HashSet<BlockPos> positions = index.byChunk.get(chunkKey);
                 for (BlockPos pos : positions) {
                     BlockState state = level.getBlockState(pos);
                     if (!(state.getBlock() instanceof DeflectionRingBlock)) continue;
@@ -112,7 +113,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
     public static BlockPos findFirstRing(Entity entity, Vec3 start, Vec3 movement) {
         double movementSqr = movement.lengthSqr();
         if (!Double.isFinite(movementSqr) || movementSqr < 1.0E-12) return null;
-        RingIndex index = LEVEL_DEFLECTION_BLOCK_MAP.get(entity.level());
+        RingIndex index = DeflectionRingBlockEntity.LEVEL_DEFLECTION_BLOCK_MAP.get(entity.level());
         if (index == null) return null;
 
         BlockPos nearestRing = null;
@@ -147,8 +148,8 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
                 for (int candidateChunkZ = chunkZ - 1; candidateChunkZ <= chunkZ + 1; candidateChunkZ++) {
                     long chunkKey = ChunkPos.pack(candidateChunkX, candidateChunkZ);
                     if (checkedChunks != null && !checkedChunks.add(chunkKey)) continue;
+                    if (!index.byChunk.containsKey(chunkKey)) continue;
                     HashSet<BlockPos> positions = index.byChunk.get(chunkKey);
-                    if (positions == null) continue;
                     for (BlockPos pos : positions) {
                         BlockState state = entity.level().getBlockState(pos);
                         if (!(state.getBlock() instanceof DeflectionRingBlock)
@@ -160,7 +161,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
                         double progress = toCenter.dot(movement) / movementSqr;
                         if (progress <= 0 || progress > 1 || progress >= nearestProgress) continue;
                         Vec3 closest = start.add(movement.scale(progress));
-                        if (closest.distanceToSqr(pos.getCenter()) <= DEFLECTION_RADIUS_SQR) {
+                        if (closest.distanceToSqr(pos.getCenter()) <= DeflectionRingBlockEntity.DEFLECTION_RADIUS_SQR) {
                             nearestProgress = progress;
                             nearestRing = pos;
                         }
@@ -185,34 +186,43 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
     }
 
     public static void clear(Level level) {
-        LEVEL_DEFLECTION_BLOCK_MAP.remove(level);
+        DeflectionRingBlockEntity.LEVEL_DEFLECTION_BLOCK_MAP.remove(level);
     }
 
     private void addSelfToMap() {
+        Level level = this.level;
         if (level == null) return;
-        LEVEL_DEFLECTION_BLOCK_MAP.computeIfAbsent(level, ignored -> new RingIndex()).add(getBlockPos());
+        DeflectionRingBlockEntity.LEVEL_DEFLECTION_BLOCK_MAP
+            .computeIfAbsent(level, ignored -> new RingIndex())
+            .add(this.getBlockPos());
     }
 
     private void removeSelfFromMap() {
+        Level level = this.level;
         if (level == null) return;
-        RingIndex index = LEVEL_DEFLECTION_BLOCK_MAP.get(level);
+        RingIndex index = DeflectionRingBlockEntity.LEVEL_DEFLECTION_BLOCK_MAP.get(level);
         if (index == null) return;
-        index.remove(getBlockPos());
-        if (index.positions.isEmpty()) LEVEL_DEFLECTION_BLOCK_MAP.remove(level);
+        index.remove(this.getBlockPos());
+        if (index.positions.isEmpty()) DeflectionRingBlockEntity.LEVEL_DEFLECTION_BLOCK_MAP.remove(level);
     }
 
     private void updateLastEntitySpeed(Double speed) {
         this.resetEntitySpeedTickCounter = 0;
         this.lastEntitySpeed = speed;
-        BlockState state = getBlockState();
+        BlockState state = this.getBlockState();
+        Level level = this.level;
         if (level == null) return;
         if (!(state.getBlock() instanceof DeflectionRingBlock block)) return;
-        block.forEachPart(level, getBlockPos(), it -> level.updateNeighbourForOutputSignal(it, level.getBlockState(it).getBlock()));
+        block.forEachPart(
+            level,
+            this.getBlockPos(),
+            it -> level.updateNeighbourForOutputSignal(it, level.getBlockState(it).getBlock())
+        );
         if (!(level instanceof ServerLevel serverLevel)) return;
         PacketDistributor.sendToPlayersTrackingChunk(
             serverLevel,
-            ChunkPos.containing(getBlockPos()),
-            new DeflectionRingUpdateLastSpeedPacket(getBlockPos(), this.lastEntitySpeed)
+            ChunkPos.containing(this.getBlockPos()),
+            new DeflectionRingUpdateLastSpeedPacket(this.getBlockPos(), this.lastEntitySpeed)
         );
     }
 
@@ -235,19 +245,19 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
 
     @Override
     public @Nullable Level getCurrentLevel() {
-        return level;
+        return this.level;
     }
 
     @Override
     public BlockPos getPos() {
-        return getBlockPos();
+        return this.getBlockPos();
     }
 
     @Override
     public PowerComponentType getComponentType() {
-        if (level == null) return PowerComponentType.INVALID;
-        if (!level.getBlockState(getBlockPos()).hasProperty(DeflectionRingBlock.HALF)) return PowerComponentType.INVALID;
-        if (level.getBlockState(getBlockPos()).getValue(DeflectionRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) {
+        if (this.level == null) return PowerComponentType.INVALID;
+        if (!this.level.getBlockState(this.getBlockPos()).hasProperty(DeflectionRingBlock.HALF)) return PowerComponentType.INVALID;
+        if (this.level.getBlockState(this.getBlockPos()).getValue(DeflectionRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) {
             return PowerComponentType.CONSUMER;
         }
         return PowerComponentType.INVALID;
@@ -259,38 +269,44 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
     }
 
     public boolean isWork() {
-        BlockState state = getBlockState();
+        BlockState state = this.getBlockState();
         return state.getValue(DeflectionRingBlock.SWITCH) == Switch.ON && !state.getValue(DeflectionRingBlock.OVERLOAD);
     }
 
     public void tick() {
-        if (level == null) return;
-        if (this.resetEntitySpeedTickCounter >= 40 && !level.isClientSide()) this.updateLastEntitySpeed(0.0);
+        if (this.level == null) return;
+        if (this.resetEntitySpeedTickCounter >= 40 && !this.level.isClientSide()) this.updateLastEntitySpeed(0.0);
         else this.resetEntitySpeedTickCounter++;
         if (this.overSpeed && this.overSpeedTick > 1) {
             this.overSpeed = false;
             this.overSpeedTick = 0;
-            BlockState state = getBlockState();
+            BlockState state = this.getBlockState();
             if (!(state.getBlock() instanceof DeflectionRingBlock block)) return;
-            block.updateState(level, getBlockPos(), DeflectionRingBlock.OVERLOAD, state.getValue(DeflectionRingBlock.OVERLOAD), 3);
+            block.updateState(
+                this.level,
+                this.getBlockPos(),
+                DeflectionRingBlock.OVERLOAD,
+                state.getValue(DeflectionRingBlock.OVERLOAD),
+                3
+            );
         } else if (this.overSpeed) {
             this.overSpeedTick++;
         }
-        if (level.isClientSide()) {
-            if (!getBlockState().getValue(DeflectionRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
+        if (this.level.isClientSide()) {
+            if (!this.getBlockState().getValue(DeflectionRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
             if (this.isWork()) {
                 this.addSelfToMap();
                 this.accelerate();
             } else this.removeSelfFromMap();
         }
         if (this.grid == null) return;
-        BlockState state = getBlockState();
+        BlockState state = this.getBlockState();
         if (!state.getValue(DeflectionRingBlock.HALF).equals(DirectionCube3x3PartHalf.MID_CENTER)) return;
         if (!(state.getBlock() instanceof DeflectionRingBlock block)) return;
         if (this.grid.isWorking() && state.getValue(DeflectionRingBlock.OVERLOAD)) {
-            block.updateState(level, getBlockPos(), DeflectionRingBlock.OVERLOAD, false, 3);
+            block.updateState(this.level, this.getBlockPos(), DeflectionRingBlock.OVERLOAD, false, 3);
         } else if (!this.grid.isWorking() && !state.getValue(DeflectionRingBlock.OVERLOAD)) {
-            block.updateState(level, getBlockPos(), DeflectionRingBlock.OVERLOAD, true, 3);
+            block.updateState(this.level, this.getBlockPos(), DeflectionRingBlock.OVERLOAD, true, 3);
         }
         if (!this.isWork()) {
             this.removeSelfFromMap();
@@ -309,19 +325,25 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
                                      && block.isChannelWaterlogged(this.level, this.getBlockPos(), ringState);
         List<Entity> entities2 = this.level.getEntitiesOfClass(
             Entity.class,
-            new AABB(getBlockPos()),
+            new AABB(this.getBlockPos()),
             AccelerateManager::canBeAccelerated
         );
         for (Entity entity : entities2) {
             entity.setDeltaMovement(AccelerateManager.clampMovement(entity, entity.getDeltaMovement()));
             if (entity.getDeltaMovement().length() > Integer.MAX_VALUE * 0.99f) {
                 this.overSpeed = true;
-                BlockState state = getBlockState();
+                BlockState state = this.getBlockState();
                 if (!(state.getBlock() instanceof DeflectionRingBlock block)) return;
-                block.updateState(this.level, getBlockPos(), DeflectionRingBlock.OVERLOAD, state.getValue(DeflectionRingBlock.OVERLOAD), 3);
+                block.updateState(
+                    this.level,
+                    this.getBlockPos(),
+                    DeflectionRingBlock.OVERLOAD,
+                    state.getValue(DeflectionRingBlock.OVERLOAD),
+                    3
+                );
             }
             Vec3 v = entity.getDeltaMovement();
-            Direction facing = getBlockState().getValue(DeflectionRingBlock.FACING);
+            Direction facing = this.getBlockState().getValue(DeflectionRingBlock.FACING);
             v = switch (facing) {
                 case UP -> new Vec3(v.z, 0, -v.x);
                 case DOWN -> new Vec3(-v.z, 0, v.x);
@@ -332,7 +354,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
             };
             if (waterloggedChannel) v = AccelerateManager.limitAnvilSpeed(entity, v);
             Vec3 fixedPos = v.normalize()
-                .scale(DEFLECTION_EXIT_OFFSET)
+                .scale(DeflectionRingBlockEntity.DEFLECTION_EXIT_OFFSET)
                 .subtract(AccelerateManager.getMovementOffset(entity));
             entity.setDeltaMovement(AccelerateManager.clampMovement(entity, v));
             if (entity instanceof Player) {
@@ -344,16 +366,16 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
                 entity.setYRot(Mth.wrapDegrees((float) (Mth.atan2(d2, d0) * 180.0F / (float) Math.PI) - 90.0F));
                 entity.setYHeadRot(entity.getYRot());
             }
-            Vec3 blockCenter = getBlockPos().getCenter();
+            Vec3 blockCenter = this.getBlockPos().getCenter();
             entity.setPos(fixedPos.add(blockCenter));
         }
-        Direction.Axis axis = getBlockState().getValue(DeflectionRingBlock.FACING).getAxis();
-        BlockPos min = getBlockPos().offset(axis == Direction.Axis.X ? 0 : -1, axis == Direction.Axis.Y ? 0 : -1,
+        Direction.Axis axis = this.getBlockState().getValue(DeflectionRingBlock.FACING).getAxis();
+        BlockPos min = this.getBlockPos().offset(axis == Direction.Axis.X ? 0 : -1, axis == Direction.Axis.Y ? 0 : -1,
             axis == Direction.Axis.Z ? 0 : -1);
-        BlockPos max = getBlockPos().offset(axis == Direction.Axis.X ? 0 : 1, axis == Direction.Axis.Y ? 0 : 1,
+        BlockPos max = this.getBlockPos().offset(axis == Direction.Axis.X ? 0 : 1, axis == Direction.Axis.Y ? 0 : 1,
             axis == Direction.Axis.Z ? 0 : 1);
         AABB accelerationArea = AABB.encapsulatingFullBlocks(min, max);
-        List<Entity> entities = level.getEntitiesOfClass(
+        List<Entity> entities = this.level.getEntitiesOfClass(
             Entity.class,
             accelerationArea,
             AccelerateManager::canBeAccelerated
@@ -368,25 +390,25 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
                 acceleratedMovement = AccelerateManager.limitAnvilSpeed(entity, acceleratedMovement);
             }
             entity.setDeltaMovement(acceleratedMovement);
-            if (level.isClientSide()) continue;
+            if (this.level.isClientSide()) continue;
             this.updateLastEntitySpeed(entity.getDeltaMovement().length());
         }
     }
 
     @SuppressWarnings("DuplicatedCode")
     public void attractGianAnvil() {
-        assert level != null;
+        assert this.level != null;
         if (
-            level.getBlockState(getBlockPos().below(2)).hasProperty(GiantAnvilBlock.HALF)
-            && level.getBlockState(getBlockPos().below(2)).getValue(GiantAnvilBlock.HALF) == Cube3x3PartHalf.TOP_CENTER
+            this.level.getBlockState(this.getBlockPos().below(2)).hasProperty(GiantAnvilBlock.HALF)
+            && this.level.getBlockState(this.getBlockPos().below(2)).getValue(GiantAnvilBlock.HALF) == Cube3x3PartHalf.TOP_CENTER
         ) {
             return;
         }
         BlockPos giantAnvilPos = null;
         BlockPos.MutableBlockPos checkPos = new BlockPos.MutableBlockPos();
-        checkPos.set(getBlockPos().below(2));
+        checkPos.set(this.getBlockPos().below(2));
         for (int y = 0; y < 11; y++) {
-            BlockState checkState = level.getBlockState(checkPos);
+            BlockState checkState = this.level.getBlockState(checkPos);
             if (!checkState.hasProperty(GiantAnvilBlock.HALF)) {
                 checkPos.move(Direction.DOWN);
                 continue;
@@ -398,23 +420,23 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
             }
             checkPos.move(Direction.DOWN);
         }
-        Vector2d vector2d = new Vector2d(getBlockPos().getCenter().x, getBlockPos().getCenter().z);
-        Optional<FallingGiantAnvilEntity> fallingGiantAnvilEntity = level.getEntitiesOfClass(FallingGiantAnvilEntity.class, new AABB(
-                        getBlockPos().getX(),
-                        getBlockPos().getY() - 2,
-                        getBlockPos().getZ(),
-                        getBlockPos().getX() + 1,
-                        getBlockPos().getY() - 12,
-                        getBlockPos().getZ() + 1
+        Vector2d vector2d = new Vector2d(this.getBlockPos().getCenter().x, this.getBlockPos().getCenter().z);
+        Optional<FallingGiantAnvilEntity> fallingGiantAnvilEntity = this.level.getEntitiesOfClass(FallingGiantAnvilEntity.class, new AABB(
+                this.getBlockPos().getX(),
+                this.getBlockPos().getY() - 2,
+                this.getBlockPos().getZ(),
+                this.getBlockPos().getX() + 1,
+                this.getBlockPos().getY() - 12,
+                this.getBlockPos().getZ() + 1
                 )).stream()
-                .sorted((e1, e2) -> new DistanceComparator(getBlockPos().getCenter()).compare(e1.position(), e2.position()))
+                .sorted((e1, e2) -> new DistanceComparator(this.getBlockPos().getCenter()).compare(e1.position(), e2.position()))
                 .filter(entity -> vector2d.distance(entity.position().x, entity.position().z) <= 0.25)
                 .findFirst();
         if (fallingGiantAnvilEntity.isPresent()) {
             if (
                 giantAnvilPos != null
-                && fallingGiantAnvilEntity.get().position().distanceTo(getBlockPos().getCenter())
-                   < giantAnvilPos.getCenter().distanceTo(getBlockPos().getCenter())
+                && fallingGiantAnvilEntity.get().position().distanceTo(this.getBlockPos().getCenter())
+                   < giantAnvilPos.getCenter().distanceTo(this.getBlockPos().getCenter())
             ) {
                 giantAnvilPos = BlockPos.containing(fallingGiantAnvilEntity.get().position());
             } else if (giantAnvilPos == null) {
@@ -424,10 +446,10 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
         if (giantAnvilPos == null) return;
         checkPos.set(giantAnvilPos);
         checkPos.move(-1, 2, -1);
-        while (checkPos.getY() < getBlockPos().getY() - 1) {
+        while (checkPos.getY() < this.getBlockPos().getY() - 1) {
             for (int x = -1; x < 2; x++) {
                 for (int z = -1; z < 2; z++) {
-                    BlockState checked = level.getBlockState(checkPos);
+                    BlockState checked = this.level.getBlockState(checkPos);
                     if (!checked.canBeReplaced()) return;
                     checkPos.move(0, 0, 1);
                 }
@@ -436,13 +458,13 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
             }
             checkPos.move(-3, 1, 0);
         }
-        Block block = level.getBlockState(giantAnvilPos.below()).getBlock();
+        Block block = this.level.getBlockState(giantAnvilPos.below()).getBlock();
         if (block instanceof GiantAnvilBlock giantAnvilBlock) {
-            giantAnvilBlock.removePartsAndUpdate(level, giantAnvilPos.below());
+            giantAnvilBlock.removePartsAndUpdate(this.level, giantAnvilPos.below());
         }
-        BlockPos newPos = getBlockPos().below(4);
+        BlockPos newPos = this.getBlockPos().below(4);
         for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
-            level.setBlockAndUpdate(newPos.offset(part.getOffset()), ModBlocks.GIANT_ANVIL.getDefaultState()
+            this.level.setBlockAndUpdate(newPos.offset(part.getOffset()), ModBlocks.GIANT_ANVIL.getDefaultState()
                     .setValue(GiantAnvilBlock.HALF, part)
                     .setValue(GiantAnvilBlock.CUBE, part.equals(Cube3x3PartHalf.MID_CENTER) ? GiantAnvilCube.CENTER : GiantAnvilCube.CORNER)
             );
@@ -452,7 +474,7 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
 
     @Override
     public int getInputPower() {
-        return getBlockState().getValue(DeflectionRingBlock.SWITCH) == Switch.ON ? 256 : 0;
+        return this.getBlockState().getValue(DeflectionRingBlock.SWITCH) == Switch.ON ? 256 : 0;
     }
 
     @Override
@@ -475,8 +497,8 @@ public class DeflectionRingBlockEntity extends BlockEntity implements IPowerCons
         private void remove(BlockPos pos) {
             if (!this.positions.remove(pos)) return;
             long chunkKey = ChunkPos.pack(pos.getX() >> 4, pos.getZ() >> 4);
+            if (!this.byChunk.containsKey(chunkKey)) return;
             HashSet<BlockPos> chunkPositions = this.byChunk.get(chunkKey);
-            if (chunkPositions == null) return;
             chunkPositions.remove(pos);
             if (chunkPositions.isEmpty()) this.byChunk.remove(chunkKey);
         }

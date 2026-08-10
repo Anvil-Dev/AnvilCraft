@@ -36,22 +36,22 @@ public class CorruptedBeaconBlock extends BeaconBlock implements IHammerRemovabl
         super(properties);
         BlockState defaultState = this.defaultBlockState();
         if (defaultState.equals(this.stateDefinition.any())) {
-            this.registerDefaultState(this.stateDefinition.any().setValue(LIT, false));
+            this.registerDefaultState(this.stateDefinition.any().setValue(CorruptedBeaconBlock.LIT, false));
         } else {
-            this.registerDefaultState(defaultState.setValue(LIT, false));
+            this.registerDefaultState(defaultState.setValue(CorruptedBeaconBlock.LIT, false));
         }
     }
 
     @Override
     @Nullable
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return Objects.requireNonNull(super.getStateForPlacement(context)).setValue(LIT, false);
+        return Objects.requireNonNull(super.getStateForPlacement(context)).setValue(CorruptedBeaconBlock.LIT, false);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(LIT);
+        builder.add(CorruptedBeaconBlock.LIT);
     }
 
     @Override

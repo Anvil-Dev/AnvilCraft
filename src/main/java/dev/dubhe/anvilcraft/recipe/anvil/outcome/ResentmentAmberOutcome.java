@@ -69,12 +69,12 @@ public record ResentmentAmberOutcome(Vec3 offset, Identifier savedEntityPath)
 
         @Override
         public MapCodec<ResentmentAmberOutcome> codec() {
-            return CODEC;
+            return Type.CODEC;
         }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, ResentmentAmberOutcome> streamCodec() {
-            return STREAM_CODEC;
+            return Type.STREAM_CODEC;
         }
     }
 }

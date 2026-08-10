@@ -39,7 +39,7 @@ public record HammerChangeBlockPacket(BlockPos pos, BlockState state) implements
 
     @Override
     public Type<HammerChangeBlockPacket> type() {
-        return TYPE;
+        return HammerChangeBlockPacket.TYPE;
     }
 
     @Override

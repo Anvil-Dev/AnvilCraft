@@ -29,7 +29,7 @@ public record TeslaFilterSyncPacket(List<FilterData> filters) implements IClient
 
     @Override
     public Type<TeslaFilterSyncPacket> type() {
-        return TYPE;
+        return TeslaFilterSyncPacket.TYPE;
     }
 
     @Override

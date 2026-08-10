@@ -78,7 +78,7 @@ public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<Cont
         state.setFacing(be.getFacing());
         state.setAxis(blockState.getValue(ControlValveBlock.AXIS));
         state.setMaxRate(be.getMaxRate());
-        state.setHandwheel(FeatureRendererSupport.initialize(HANDWHEEL, be));
+        state.setHandwheel(FeatureRendererSupport.initialize(ControlValveBlockEntityRenderer.HANDWHEEL, be));
 
         FluidStack filter = be.getFilter(0);
         state.setFilterResource(filter.isEmpty() ? null : FluidResource.of(filter));
@@ -108,7 +108,7 @@ public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<Cont
         if (handwheel == null) return;
 
         float ratio = (ControlValveBlockEntity.MAX_RATE - state.getMaxRate()) / (float) ControlValveBlockEntity.MAX_RATE;
-        float spinDeg = BASE_ANGLE_DEG - 90.0f * ratio;
+        float spinDeg = ControlValveBlockEntityRenderer.BASE_ANGLE_DEG - 90.0f * ratio;
         Direction facing = state.getFacing();
         Direction.Axis axis = state.getAxis();
         if (axis == Direction.Axis.Z || (axis == Direction.Axis.Y && facing.getAxis() == Direction.Axis.Z)) {
@@ -117,7 +117,7 @@ public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<Cont
 
         poseStack.pushPose();
         poseStack.translate(0.5, 0.5, 0.5);
-        applyUpToFacing(poseStack, facing);
+        ControlValveBlockEntityRenderer.applyUpToFacing(poseStack, facing);
         poseStack.mulPose(Axis.YP.rotationDegrees(spinDeg));
         poseStack.translate(-0.5, -0.5, -0.5);
         handwheel.submit(
@@ -147,8 +147,8 @@ public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<Cont
         TextureAtlasSprite sprite = model.stillMaterial().sprite();
         int tintColor = tintSource.colorAsStack(resource.toStack(1));
 
-        float h = INDICATOR_HALF;
-        float y = INDICATOR_DEPTH;
+        float h = ControlValveBlockEntityRenderer.INDICATOR_HALF;
+        float y = ControlValveBlockEntityRenderer.INDICATOR_DEPTH;
         for (Direction side : Direction.values()) {
             if (side.getAxis() == state.getAxis() || side == state.getFacing()) {
                 continue;
@@ -156,10 +156,10 @@ public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<Cont
 
             poseStack.pushPose();
             poseStack.translate(0.5, 0.5, 0.5);
-            applyUpToFacing(poseStack, side);
+            ControlValveBlockEntityRenderer.applyUpToFacing(poseStack, side);
             submitNodeCollector.submitCustomGeometry(
                 poseStack,
-                FLUID_RENDER_TYPE,
+                ControlValveBlockEntityRenderer.FLUID_RENDER_TYPE,
                 (pose, buffer) -> FluidRenderHelper.INSTANCE.renderFluidBox(
                     sprite,
                     resource,

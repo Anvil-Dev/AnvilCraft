@@ -11,7 +11,7 @@ import org.joml.Matrix3x2fStack;
 public class JeiRenderHelper {
     // Animation
     public static int getAnvilAnimationOffset(ITickTimer timer) {
-        return timer.getValue() < 30 ? getAnvilAnimationOffset(timer.getValue()) : 8;
+        return timer.getValue() < 30 ? JeiRenderHelper.getAnvilAnimationOffset(timer.getValue()) : 8;
     }
 
     public static int getAnvilAnimationOffset(float time) {

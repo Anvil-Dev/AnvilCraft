@@ -4,21 +4,17 @@ import dev.anvilcraft.lib.v2.integration.Integration;
 import dev.anvilcraft.lib.v2.integration.IntegrationType;
 import dev.dubhe.anvilcraft.client.init.ModRenderPipelines;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
 import net.irisshaders.iris.api.v0.IrisApi;
 import net.irisshaders.iris.pipeline.IrisPipelines;
 import net.irisshaders.iris.pipeline.programs.ShaderKey;
-import net.irisshaders.iris.pipeline.programs.ShaderOverrides;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 @Integration(value = "iris", type = IntegrationType.CLIENT)
 @Slf4j
 public class IrisState {
 
     public void applyClient() {
-        log.info("Iris integration loaded xwx");
+        IrisState.log.info("Iris integration loaded xwx");
         IrisPipelines.assignPipeline(
             ModRenderPipelines.LIGHTNING,
             ShaderKey.TEXTURED_COLOR
@@ -31,7 +27,7 @@ public class IrisState {
 
     public static boolean isShaderEnabled() {
         if (RenderState.isIrisPresent()) {
-            return isShaderEnabledInternal();
+            return IrisState.isShaderEnabledInternal();
         }
         return false;
     }

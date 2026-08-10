@@ -42,12 +42,12 @@ public class ModDamageTypes {
 
     @ApiStatus.Internal
     public static void bootstrap(BootstrapContext<DamageType> ctx) {
-        ctx.register(LASER, new DamageType("anvilcraft.laser", 0.1F, DamageEffects.BURNING));
-        ctx.register(LOST_IN_TIME, new DamageType("anvilcraft.lost_in_time", 0.1F));
-        ctx.register(FALLING_GIANT_ANVIL, new DamageType("anvilcraft.falling_giant_anvil", 0.1F));
-        ctx.register(HEATER_BURN, new DamageType("anvilcraft.heater_burn", 0.1F, DamageEffects.BURNING));
-        ctx.register(GAMMA_LASER, new DamageType("anvilcraft.gamma_laser", 0.1F, DamageEffects.BURNING));
-        ctx.register(PLASMA_JET, new DamageType("anvilcraft.plasma_jet", 0.1F, DamageEffects.BURNING));
+        ctx.register(ModDamageTypes.LASER, new DamageType("anvilcraft.laser", 0.1F, DamageEffects.BURNING));
+        ctx.register(ModDamageTypes.LOST_IN_TIME, new DamageType("anvilcraft.lost_in_time", 0.1F));
+        ctx.register(ModDamageTypes.FALLING_GIANT_ANVIL, new DamageType("anvilcraft.falling_giant_anvil", 0.1F));
+        ctx.register(ModDamageTypes.HEATER_BURN, new DamageType("anvilcraft.heater_burn", 0.1F, DamageEffects.BURNING));
+        ctx.register(ModDamageTypes.GAMMA_LASER, new DamageType("anvilcraft.gamma_laser", 0.1F, DamageEffects.BURNING));
+        ctx.register(ModDamageTypes.PLASMA_JET, new DamageType("anvilcraft.plasma_jet", 0.1F, DamageEffects.BURNING));
     }
 
     public static DamageSource laser(Level level) {

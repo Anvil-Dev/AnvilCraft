@@ -88,12 +88,12 @@ public class DecayCategory implements IRecipeCategory<DecayRecipe> {
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return DecayCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return DecayCategory.HEIGHT;
     }
 
     @Override
@@ -104,7 +104,7 @@ public class DecayCategory implements IRecipeCategory<DecayRecipe> {
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, DecayRecipe recipe, IFocusGroup focuses) {
         builder.addSlot(RecipeIngredientRole.INPUT, 8, 84)
-            .setSlotName(CENTER_SLOT)
+            .setSlotName(DecayCategory.CENTER_SLOT)
             .addItemStacks(recipe.centers().stream().map(Block::asItem).map(ItemStack::new).toList())
             .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(this.centerTooltip));
 
@@ -122,7 +122,7 @@ public class DecayCategory implements IRecipeCategory<DecayRecipe> {
                                             ? RecipeIngredientRole.INPUT
                                             : RecipeIngredientRole.CRAFTING_STATION;
                 builder.addSlot(role, 27, 102)
-                    .add(new ItemStack(block, countFixedNeighbors(recipe, block)))
+                    .add(new ItemStack(block, DecayCategory.countFixedNeighbors(recipe, block)))
                     .addRichTooltipCallback((recipeSlotView, tooltip) -> {
                         tooltip.add(this.aroundTooltip);
                         if (block != ModBlocks.CONFINEMENT_CHAMBER.get()) {
@@ -152,7 +152,7 @@ public class DecayCategory implements IRecipeCategory<DecayRecipe> {
         IRecipeSlotDrawablesView recipeSlots = builder.getRecipeSlots();
         List<IRecipeSlotDrawable> outputSlots = recipeSlots.getSlots(RecipeIngredientRole.OUTPUT);
         IScrollGridWidget scrollGridWidget =
-            builder.addScrollGridWidget(outputSlots, MAX_SHOWN_COLUMN, MAX_SHOWN_ROW);
+            builder.addScrollGridWidget(outputSlots, DecayCategory.MAX_SHOWN_COLUMN, DecayCategory.MAX_SHOWN_ROW);
         scrollGridWidget.setPosition(
             60,
             4,
@@ -171,9 +171,9 @@ public class DecayCategory implements IRecipeCategory<DecayRecipe> {
         double mouseX,
         double mouseY
     ) {
-        Block center = getDisplayedCenter(recipe, recipeSlotsView);
+        Block center = DecayCategory.getDisplayedCenter(recipe, recipeSlotsView);
         PreviewKey key = new PreviewKey(recipe, center);
-        LevelLike level = this.previewCache.computeIfAbsent(key, ignored -> createPreview(recipe, center));
+        LevelLike level = this.previewCache.computeIfAbsent(key, ignored -> DecayCategory.createPreview(recipe, center));
         RenderSupport.renderLevelLike(level, guiGraphics, 24, 36, 60, 12, 0.5f, false);
 
         this.slot.draw(guiGraphics, 7, 83);
@@ -190,7 +190,7 @@ public class DecayCategory implements IRecipeCategory<DecayRecipe> {
         double mouseX,
         double mouseY
     ) {
-        if (!isImmediateDecay(recipe)
+        if (!DecayCategory.isImmediateDecay(recipe)
             && mouseX >= 5 && mouseX <= 45
             && mouseY >= 15 && mouseY <= 65) {
             tooltip.add(this.randomTickTooltip);
@@ -206,12 +206,12 @@ public class DecayCategory implements IRecipeCategory<DecayRecipe> {
         LevelLike preview = new LevelLike(Minecraft.getInstance().level);
         recipe.matchingNeighbors().forEach(pos -> preview.setBlockState(pos, center.defaultBlockState()));
         recipe.fixedNeighbors().forEach((pos, block) -> preview.setBlockState(pos, block.defaultBlockState()));
-        preview.setBlockState(CENTER_POS, center.defaultBlockState());
+        preview.setBlockState(DecayCategory.CENTER_POS, center.defaultBlockState());
         return preview;
     }
 
     private static Block getDisplayedCenter(DecayRecipe recipe, IRecipeSlotsView recipeSlotsView) {
-        return recipeSlotsView.findSlotByName(CENTER_SLOT)
+        return recipeSlotsView.findSlotByName(DecayCategory.CENTER_SLOT)
             .flatMap(IRecipeSlotView::getDisplayedItemStack)
             .map(ItemStack::getItem)
             .filter(BlockItem.class::isInstance)

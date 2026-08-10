@@ -10,6 +10,8 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemInstance;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.transfer.TransferPreconditions;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.TransactionContext;
@@ -47,7 +49,7 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
 
     public SpaceSizeItemStacksResourceHandler(int spaceSize, NonNullList<UnlimitedItemStack> stacks) {
         super(SpaceSizeItemStacksResourceHandler.trim(spaceSize, stacks));
-        this.spaceSize = checkSpaceSize(spaceSize);
+        this.spaceSize = SpaceSizeItemStacksResourceHandler.checkSpaceSize(spaceSize);
     }
 
     public SpaceSizeItemStacksResourceHandler(NonNullList<UnlimitedItemStack> stacks, int spaceSize) {
@@ -110,7 +112,7 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
     public void addSpaceSize(IntUnaryOperator adder) {
         int newSpaceSize = adder.applyAsInt(this.spaceSize);
         if (newSpaceSize >= this.spaceSize) {
-            this.spaceSize = checkSpaceSize(newSpaceSize);
+            this.spaceSize = SpaceSizeItemStacksResourceHandler.checkSpaceSize(newSpaceSize);
         }
     }
 
@@ -141,7 +143,7 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
     }
 
     @Override
-    public void serialize(net.minecraft.world.level.storage.ValueOutput output) {
+    public void serialize(ValueOutput output) {
         output.store(
             UnlimitedItemStacksResourceHandler.STACKS_KEY,
             UnlimitedItemStacksResourceHandler.STACKS_CODEC,
@@ -151,15 +153,15 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
     }
 
     @Override
-    public void deserialize(net.minecraft.world.level.storage.ValueInput input) {
+    public void deserialize(ValueInput input) {
         super.deserialize(input);
         input.getInt(SpaceSizeItemStacksResourceHandler.SPACE_SIZE_KEY)
-            .ifPresent(size -> this.spaceSize = checkSpaceSize(size));
+            .ifPresent(size -> this.spaceSize = SpaceSizeItemStacksResourceHandler.checkSpaceSize(size));
         this.setStacks(SpaceSizeItemStacksResourceHandler.trim(this.spaceSize, this.copyToList()));
     }
 
     private static NonNullList<UnlimitedItemStack> trim(int spaceSize, List<UnlimitedItemStack> stacks) {
-        checkSpaceSize(spaceSize);
+        SpaceSizeItemStacksResourceHandler.checkSpaceSize(spaceSize);
         NonNullList<UnlimitedItemStack> result = new NonNullList<>(new ArrayList<>(), UnlimitedItemStack.EMPTY);
         int usedSpace = 0;
         for (UnlimitedItemStack input : stacks) {
@@ -195,11 +197,11 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
     }
 
     public static int computeSpace(ItemResource resource, int count) {
-        return computeSpace(resource.getMaxStackSize(), count);
+        return SpaceSizeItemStacksResourceHandler.computeSpace(resource.getMaxStackSize(), count);
     }
 
     public static int computeSpace(ItemInstance instance, int count) {
-        return computeSpace(instance.getMaxStackSize(), count);
+        return SpaceSizeItemStacksResourceHandler.computeSpace(instance.getMaxStackSize(), count);
     }
 
     private static int computeSpace(int maxStackSize, int count) {
@@ -208,11 +210,11 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
     }
 
     public static int computeCount(ItemResource resource, int space) {
-        return computeCount(resource.getMaxStackSize(), space);
+        return SpaceSizeItemStacksResourceHandler.computeCount(resource.getMaxStackSize(), space);
     }
 
     public static int computeCount(ItemInstance instance, int space) {
-        return computeCount(instance.getMaxStackSize(), space);
+        return SpaceSizeItemStacksResourceHandler.computeCount(instance.getMaxStackSize(), space);
     }
 
     private static int computeCount(int maxStackSize, int space) {

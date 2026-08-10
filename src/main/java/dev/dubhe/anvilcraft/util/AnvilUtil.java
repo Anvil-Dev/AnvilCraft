@@ -48,25 +48,25 @@ public class AnvilUtil {
         // 把方块碰撞形状移动到世界坐标
         VoxelShape worldShape = collisionShape.move(frontPos.getX(), frontPos.getY(), frontPos.getZ());
         // 1. 开口处没有碰撞 -> 不阻挡（灯笼、关闭的栅栏门、告示牌等障碍够不到开口）
-        if (!intersectsOutletProbe(worldShape, openingCenter)) return false;
+        if (!AnvilUtil.intersectsOutletProbe(worldShape, openingCenter)) return false;
         // 2. 开口处有碰撞，但越过薄壁后的内部是空腔 -> 视为薄壁（炼药锅壁/鱼缸壁），允许输出进内部
         Vec3 interiorCenter = openingCenter.add(
-            direction.getStepX() * (OUTLET_WALL_MAX + OUTLET_PROBE_HALF),
-            direction.getStepY() * (OUTLET_WALL_MAX + OUTLET_PROBE_HALF),
-            direction.getStepZ() * (OUTLET_WALL_MAX + OUTLET_PROBE_HALF)
+            direction.getStepX() * (AnvilUtil.OUTLET_WALL_MAX + AnvilUtil.OUTLET_PROBE_HALF),
+            direction.getStepY() * (AnvilUtil.OUTLET_WALL_MAX + AnvilUtil.OUTLET_PROBE_HALF),
+            direction.getStepZ() * (AnvilUtil.OUTLET_WALL_MAX + AnvilUtil.OUTLET_PROBE_HALF)
         );
         // 3. 内部仍是实心 -> 阻挡
-        return intersectsOutletProbe(worldShape, interiorCenter);
+        return AnvilUtil.intersectsOutletProbe(worldShape, interiorCenter);
     }
 
     private static boolean intersectsOutletProbe(VoxelShape worldShape, Vec3 center) {
         AABB probe = new AABB(
-            center.x - OUTLET_PROBE_HALF,
-            center.y - OUTLET_PROBE_HALF,
-            center.z - OUTLET_PROBE_HALF,
-            center.x + OUTLET_PROBE_HALF,
-            center.y + OUTLET_PROBE_HALF,
-            center.z + OUTLET_PROBE_HALF
+            center.x - AnvilUtil.OUTLET_PROBE_HALF,
+            center.y - AnvilUtil.OUTLET_PROBE_HALF,
+            center.z - AnvilUtil.OUTLET_PROBE_HALF,
+            center.x + AnvilUtil.OUTLET_PROBE_HALF,
+            center.y + AnvilUtil.OUTLET_PROBE_HALF,
+            center.z + AnvilUtil.OUTLET_PROBE_HALF
         );
         return Shapes.joinIsNotEmpty(worldShape, Shapes.create(probe), BooleanOp.AND);
     }

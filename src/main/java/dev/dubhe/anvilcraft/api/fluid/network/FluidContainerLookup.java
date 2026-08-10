@@ -75,7 +75,7 @@ public final class FluidContainerLookup {
         if (!level.isLoaded(pipePos)) {
             return false;
         }
-        Vec3 towardPipe = Vec3.atLowerCornerOf(sideToPipe.getUnitVec3i()).scale(ENTITY_PIPE_CONTACT_TOLERANCE);
+        Vec3 towardPipe = Vec3.atLowerCornerOf(sideToPipe.getUnitVec3i()).scale(FluidContainerLookup.ENTITY_PIPE_CONTACT_TOLERANCE);
         AABB contactBox = entity.getBoundingBox().expandTowards(towardPipe);
         return level.getBlockState(pipePos).getCollisionShape(level, pipePos).toAabbs().stream()
             .map(box -> box.move(pipePos.getX(), pipePos.getY(), pipePos.getZ()))

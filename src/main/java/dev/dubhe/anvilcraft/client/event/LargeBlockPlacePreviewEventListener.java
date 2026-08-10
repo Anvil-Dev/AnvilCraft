@@ -35,6 +35,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.ExtractBlockOutlineRenderStateEvent;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
 
@@ -45,30 +46,30 @@ public class LargeBlockPlacePreviewEventListener {
 
     private static int boundColor = 0xffffffff;
 
-    private static final Runnable changeBoundColorRed = () -> boundColor = 0xffff0000;
-    private static final Runnable changeBoundColorWhite = () -> boundColor = 0xffffffff;
+    private static final Runnable changeBoundColorRed = () -> LargeBlockPlacePreviewEventListener.boundColor = 0xffff0000;
+    private static final Runnable changeBoundColorWhite = () -> LargeBlockPlacePreviewEventListener.boundColor = 0xffffffff;
 
     private static ItemStack currentItem = ItemStack.EMPTY;
-    private static BlockPos currentPos = null;
+    private static @Nullable BlockPos currentPos;
 
     private static List<BlockPos> cachedErrorPosList = new ObjectArrayList<>();
 
     private static final SegmentedActuator animationActuator = new SegmentedActuator(
-        new SegmentedActuator.Task(2, changeBoundColorRed),
-        new SegmentedActuator.Task(2, changeBoundColorWhite),
-        new SegmentedActuator.Task(2, changeBoundColorRed),
-        new SegmentedActuator.Task(2, changeBoundColorWhite)
+        new SegmentedActuator.Task(2, LargeBlockPlacePreviewEventListener.changeBoundColorRed),
+        new SegmentedActuator.Task(2, LargeBlockPlacePreviewEventListener.changeBoundColorWhite),
+        new SegmentedActuator.Task(2, LargeBlockPlacePreviewEventListener.changeBoundColorRed),
+        new SegmentedActuator.Task(2, LargeBlockPlacePreviewEventListener.changeBoundColorWhite)
     );
 
     @SubscribeEvent
     public static void on(ClientTickEvent.Pre event) {
-        boundColor = 0xffffffff;
-        if (failBoundCooldown > 0) {
-            failBoundCooldown--;
-            animationActuator.execute();
+        LargeBlockPlacePreviewEventListener.boundColor = 0xffffffff;
+        if (LargeBlockPlacePreviewEventListener.failBoundCooldown > 0) {
+            LargeBlockPlacePreviewEventListener.failBoundCooldown--;
+            LargeBlockPlacePreviewEventListener.animationActuator.execute();
         }
-        if (failBoundErrorCooldown > 0) {
-            failBoundErrorCooldown--;
+        if (LargeBlockPlacePreviewEventListener.failBoundErrorCooldown > 0) {
+            LargeBlockPlacePreviewEventListener.failBoundErrorCooldown--;
         }
     }
 
@@ -93,16 +94,19 @@ public class LargeBlockPlacePreviewEventListener {
             }
             if (item.getItem() instanceof BlockItem blockItem) {
                 if (blockItem.getBlock() instanceof AbstractMultiPartBlock<?> block) {
-                    validateCanRender(item, blockItem, pos);
+                    LargeBlockPlacePreviewEventListener.validateCanRender(item, blockItem, pos);
                     // Build the actual placement state from the hit result
-                    BlockPlaceContext context = new BlockPlaceContext(player, player.getUsedItemHand(), item, new BlockHitResult(
+                    BlockPlaceContext context = new BlockPlaceContext(
+                        player, player.getUsedItemHand(), item, new BlockHitResult(
                         target.getLocation(),
                         direction,
                         target.getBlockPos(),
                         target.isInside()
-                    ));
-                    BlockState placementState = getPlacementState(block, blockItem, context);
-                    Pair<VoxelShape, List<BlockPos>> pair = getShapeAndErrorPosList(level, block, pos, placementState);
+                    )
+                    );
+                    BlockState placementState = LargeBlockPlacePreviewEventListener.getPlacementState(block, blockItem, context);
+                    Pair<VoxelShape, List<BlockPos>> pair = LargeBlockPlacePreviewEventListener.getShapeAndErrorPosList(
+                        level, block, pos, placementState);
                     if (!pair.second().isEmpty()) {
                         if (blockItem instanceof SimpleMultiPartBlockItem<?> simpleMultiPartBlockItem) {
                             int distance = simpleMultiPartBlockItem.getMaxOffsetDistance(direction);
@@ -112,7 +116,7 @@ public class LargeBlockPlacePreviewEventListener {
                             int distance = flexibleMultiPartBlockItem.getMaxOffsetDistance(placementState, direction);
                             pos = pos.relative(direction, distance - 1);
                         }
-                        pair = getShapeAndErrorPosList(level, block, pos, placementState);
+                        pair = LargeBlockPlacePreviewEventListener.getShapeAndErrorPosList(level, block, pos, placementState);
                     }
                     TooltipRenderHelper.renderOutline(
                         pose,
@@ -122,9 +126,9 @@ public class LargeBlockPlacePreviewEventListener {
                         position.z,
                         pos,
                         pair.first(),
-                        boundColor
+                        LargeBlockPlacePreviewEventListener.boundColor
                     );
-                    renderErrorBound(pose, consumer, event.getCamera());
+                    LargeBlockPlacePreviewEventListener.renderErrorBound(pose, consumer, event.getCamera());
                 }
             }
             return false;
@@ -159,26 +163,26 @@ public class LargeBlockPlacePreviewEventListener {
         ItemStack item,
         BlockItem blockItem,
         BlockPos pos) {
-        if (currentItem.isEmpty()) {
-            currentItem = item.copy();
-        } else if (!currentItem.is(blockItem)) {
-            currentItem = ItemStack.EMPTY;
-            failBoundCooldown = 0;
+        if (LargeBlockPlacePreviewEventListener.currentItem.isEmpty()) {
+            LargeBlockPlacePreviewEventListener.currentItem = item.copy();
+        } else if (!LargeBlockPlacePreviewEventListener.currentItem.is(blockItem)) {
+            LargeBlockPlacePreviewEventListener.currentItem = ItemStack.EMPTY;
+            LargeBlockPlacePreviewEventListener.failBoundCooldown = 0;
         }
-        if (currentPos == null) {
-            currentPos = pos;
-        } else if (!currentPos.equals(pos)) {
-            currentPos = null;
-            failBoundCooldown = 0;
+        if (LargeBlockPlacePreviewEventListener.currentPos == null) {
+            LargeBlockPlacePreviewEventListener.currentPos = pos;
+        } else if (!LargeBlockPlacePreviewEventListener.currentPos.equals(pos)) {
+            LargeBlockPlacePreviewEventListener.currentPos = null;
+            LargeBlockPlacePreviewEventListener.failBoundCooldown = 0;
         }
     }
 
     private static void renderErrorBound(PoseStack poseStack, VertexConsumer vertexConsumer, Camera camera) {
         Vec3 position = camera.position();
-        if (failBoundErrorCooldown <= 0) {
+        if (LargeBlockPlacePreviewEventListener.failBoundErrorCooldown <= 0) {
             return;
         }
-        for (BlockPos blockPos : cachedErrorPosList) {
+        for (BlockPos blockPos : LargeBlockPlacePreviewEventListener.cachedErrorPosList) {
             TooltipRenderHelper.renderOutline(
                 poseStack,
                 vertexConsumer,
@@ -204,12 +208,12 @@ public class LargeBlockPlacePreviewEventListener {
     }
 
     public static void startFailBoundCooldown() {
-        failBoundCooldown = 8;
-        animationActuator.reset();
+        LargeBlockPlacePreviewEventListener.failBoundCooldown = 8;
+        LargeBlockPlacePreviewEventListener.animationActuator.reset();
     }
 
     public static void startFailBoundErrorCooldown(List<BlockPos> errorPosList) {
-        failBoundErrorCooldown = 6;
-        cachedErrorPosList = new ObjectArrayList<>(errorPosList);
+        LargeBlockPlacePreviewEventListener.failBoundErrorCooldown = 6;
+        LargeBlockPlacePreviewEventListener.cachedErrorPosList = new ObjectArrayList<>(errorPosList);
     }
 }

@@ -10,12 +10,13 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AbstractCauldronBlock;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 
 @Getter
 public class CementCauldronBlock extends BaseCauldronBlock implements IHammerRemovable {
     public static final MapCodec<CementCauldronBlock> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-        propertiesCodec(), Color.CODEC.fieldOf("color").forGetter(CementCauldronBlock::getColor)
+        BlockBehaviour.propertiesCodec(), Color.CODEC.fieldOf("color").forGetter(CementCauldronBlock::getColor)
     ).apply(ins, CementCauldronBlock::new));
 
     private final Color color;
@@ -27,7 +28,7 @@ public class CementCauldronBlock extends BaseCauldronBlock implements IHammerRem
 
     @Override
     protected MapCodec<? extends AbstractCauldronBlock> codec() {
-        return CODEC;
+        return CementCauldronBlock.CODEC;
     }
 
     @Override

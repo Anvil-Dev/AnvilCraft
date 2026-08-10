@@ -57,7 +57,7 @@ public class MobTransformCategory implements IRecipeCategory<MobTransformJeiReci
         this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
         this.slotChoice = JeiRenderHelper.getSlotChoice(helper);
         this.slotProbability = JeiRenderHelper.getSlotProbability(helper);
-        this.title = Component.translatable(KEY_CATEGORY);
+        this.title = Component.translatable(MobTransformCategory.KEY_CATEGORY);
 
         this.arrowDefault = JeiRenderHelper.getArrowDefault(helper);
     }
@@ -84,12 +84,12 @@ public class MobTransformCategory implements IRecipeCategory<MobTransformJeiReci
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return MobTransformCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return MobTransformCategory.HEIGHT;
     }
 
     @Override

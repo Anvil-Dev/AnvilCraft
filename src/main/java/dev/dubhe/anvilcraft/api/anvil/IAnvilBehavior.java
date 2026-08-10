@@ -31,17 +31,17 @@ public interface IAnvilBehavior {
     }
 
     static void registerBehavior(Block matchingBlock, IAnvilBehavior behavior) {
-        BEHAVIORS.put(it -> it.is(matchingBlock), behavior);
+        IAnvilBehavior.BEHAVIORS.put(it -> it.is(matchingBlock), behavior);
     }
 
     static void registerBehavior(Predicate<BlockState> pred, IAnvilBehavior behavior) {
-        BEHAVIORS.put(pred, behavior);
+        IAnvilBehavior.BEHAVIORS.put(pred, behavior);
     }
 
     static @Unmodifiable List<IAnvilBehavior> findMatching(BlockState state) {
-        return BEHAVIORS.keySet().stream()
+        return IAnvilBehavior.BEHAVIORS.keySet().stream()
             .filter(it -> it.test(state))
-            .map(BEHAVIORS::get)
+            .map(IAnvilBehavior.BEHAVIORS::get)
             .toList();
     }
 

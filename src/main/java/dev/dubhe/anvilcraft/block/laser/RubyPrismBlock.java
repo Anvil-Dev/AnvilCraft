@@ -21,6 +21,7 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
@@ -48,17 +49,17 @@ public class RubyPrismBlock extends BaseLaserBlock implements IHammerRemovable, 
     /// 方块状态注册
     public RubyPrismBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.DOWN));
+        this.registerDefaultState(this.stateDefinition.any().setValue(RubyPrismBlock.FACING, Direction.DOWN));
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(RubyPrismBlock::new);
+        return BlockBehaviour.simpleCodec(RubyPrismBlock::new);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING);
+        builder.add(RubyPrismBlock.FACING);
     }
 
     @Nullable
@@ -73,13 +74,13 @@ public class RubyPrismBlock extends BaseLaserBlock implements IHammerRemovable, 
         BlockGetter level,
         BlockPos pos,
         CollisionContext context) {
-        return switch (state.getValue(FACING)) {
-            case UP -> UP_MODEL;
-            case DOWN -> DOWN_MODEL;
-            case NORTH -> NORTH_MODEL;
-            case SOUTH -> SOUTH_MODEL;
-            case WEST -> WEST_MODEL;
-            case EAST -> EAST_MODEL;
+        return switch (state.getValue(RubyPrismBlock.FACING)) {
+            case UP -> RubyPrismBlock.UP_MODEL;
+            case DOWN -> RubyPrismBlock.DOWN_MODEL;
+            case NORTH -> RubyPrismBlock.NORTH_MODEL;
+            case SOUTH -> RubyPrismBlock.SOUTH_MODEL;
+            case WEST -> RubyPrismBlock.WEST_MODEL;
+            case EAST -> RubyPrismBlock.EAST_MODEL;
         };
     }
 
@@ -95,7 +96,7 @@ public class RubyPrismBlock extends BaseLaserBlock implements IHammerRemovable, 
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        return this.defaultBlockState().setValue(FACING, context.getNearestLookingDirection());
+        return this.defaultBlockState().setValue(RubyPrismBlock.FACING, context.getNearestLookingDirection());
     }
 
     @Nullable
@@ -103,18 +104,18 @@ public class RubyPrismBlock extends BaseLaserBlock implements IHammerRemovable, 
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> type) {
         if (level.isClientSide()) return null;
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             type, ModBlockEntities.RUBY_PRISM.get(), (level1, pos, state1, entity) -> entity.tick(level1));
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rot) {
-        return state.setValue(FACING, rot.rotate(state.getValue(FACING)));
+        return state.setValue(RubyPrismBlock.FACING, rot.rotate(state.getValue(RubyPrismBlock.FACING)));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
+        return state.setValue(RubyPrismBlock.FACING, mirror.mirror(state.getValue(RubyPrismBlock.FACING)));
     }
 
     @Override

@@ -47,7 +47,7 @@ public final class TranscendenceSmithingPackets {
 
         @Override
         public Type<Sync> type() {
-            return TYPE;
+            return Sync.TYPE;
         }
 
         @Override
@@ -74,7 +74,7 @@ public final class TranscendenceSmithingPackets {
 
         @Override
         public Type<TemplateAction> type() {
-            return TYPE;
+            return TemplateAction.TYPE;
         }
 
         @Override
@@ -98,7 +98,7 @@ public final class TranscendenceSmithingPackets {
 
         @Override
         public Type<TurnResult> type() {
-            return TYPE;
+            return TurnResult.TYPE;
         }
 
         @Override

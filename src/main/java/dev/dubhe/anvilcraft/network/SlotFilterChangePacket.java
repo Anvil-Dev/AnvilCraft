@@ -34,7 +34,7 @@ public record SlotFilterChangePacket(int index, ItemStack filter) implements ISe
 
     @Override
     public Type<SlotFilterChangePacket> type() {
-        return TYPE;
+        return SlotFilterChangePacket.TYPE;
     }
 
     @Override

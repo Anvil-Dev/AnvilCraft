@@ -86,7 +86,7 @@ public class SqueezingRecipe extends AbstractProcessRecipe<SqueezingRecipe> {
 
     @Override
     public RecipeSerializer<SqueezingRecipe> getSerializer() {
-        return SERIALIZER;
+        return SqueezingRecipe.SERIALIZER;
     }
 
     /// 创建一个构建器实例

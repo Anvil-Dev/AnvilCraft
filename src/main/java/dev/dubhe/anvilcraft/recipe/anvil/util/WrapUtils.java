@@ -57,7 +57,7 @@ public class WrapUtils {
     public static @Unmodifiable List<IRecipePredicate<?>> getIngredientPredicates(
         BlockStatePredicate block
     ) {
-        return List.of(getIngredientPredicate(block));
+        return List.of(WrapUtils.getIngredientPredicate(block));
     }
 
     /// 根据方块状态谓词列表创建HasBlockIngredient谓词列表

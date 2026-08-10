@@ -28,7 +28,7 @@ public record SlidingEntitySyncPacket(int id, List<SlidingBlockInfo> infos, Dire
 
     @Override
     public Type<SlidingEntitySyncPacket> type() {
-        return TYPE;
+        return SlidingEntitySyncPacket.TYPE;
     }
 
     @Override

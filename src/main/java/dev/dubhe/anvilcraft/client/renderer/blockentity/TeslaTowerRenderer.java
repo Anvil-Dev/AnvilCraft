@@ -79,7 +79,7 @@ public class TeslaTowerRenderer implements BlockEntityRenderer<TeslaTowerBlockEn
                 state.getStart(),
                 state.getEnd(),
                 state.getCamera(),
-                LIGHTNING_WIDTH,
+                TeslaTowerRenderer.LIGHTNING_WIDTH,
                 0.7F
             )
         );

@@ -19,17 +19,18 @@ public class LiquidEnchantmentClientFluidTypeExtension extends ModClientFluidTyp
     /** 原贴图、魔咒色与诅咒红色按顺序作为独立渲染层。 */
     public int[] getLayerColors(FluidStack stack) {
         Optional<Holder<Enchantment>> enchantment = LiquidEnchantmentUtil.getEnchantment(stack);
-        if (enchantment.isEmpty()) return BASE_LAYER;
-        int enchantmentLayer = (ENCHANTMENT_ALPHA << 24) | LiquidEnchantmentUtil.getColor(enchantment.get());
+        if (enchantment.isEmpty()) return LiquidEnchantmentClientFluidTypeExtension.BASE_LAYER;
+        int enchantmentLayer = (LiquidEnchantmentClientFluidTypeExtension.ENCHANTMENT_ALPHA << 24) | LiquidEnchantmentUtil.getColor(
+            enchantment.get());
         return enchantment.get().is(EnchantmentTags.CURSE)
-            ? new int[]{0xFFFFFFFF, enchantmentLayer, CURSE_LAYER}
-            : new int[]{0xFFFFFFFF, enchantmentLayer};
+               ? new int[] {0xFFFFFFFF, enchantmentLayer, LiquidEnchantmentClientFluidTypeExtension.CURSE_LAYER}
+               : new int[] {0xFFFFFFFF, enchantmentLayer};
     }
 
     public int getTintColor(FluidStack stack) {
         int result = 0xFFFFFFFF;
         int[] layers = this.getLayerColors(stack);
-        for (int i = 1; i < layers.length; i++) result = blend(result, layers[i]);
+        for (int i = 1; i < layers.length; i++) result = LiquidEnchantmentClientFluidTypeExtension.blend(result, layers[i]);
         return result;
     }
 

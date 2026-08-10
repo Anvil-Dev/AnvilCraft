@@ -9,11 +9,11 @@ public abstract class ConnectivityChecker {
     private static final List<ConnectivityChecker> instances = ObjectLists.synchronize(new ObjectArrayList<>());
 
     public static void register(ConnectivityChecker instance) {
-        instances.add(instance);
+        ConnectivityChecker.instances.add(instance);
     }
 
     public static boolean check(PowerGrid powerGrid, IPowerComponent component) {
-        for (ConnectivityChecker it : instances) {
+        for (ConnectivityChecker it : ConnectivityChecker.instances) {
             if (it.checkInRange(powerGrid, component)) {
                 return true;
             }

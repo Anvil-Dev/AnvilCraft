@@ -25,7 +25,7 @@ public class ModRenderTypes {
             .createRenderSetup()
     );
 
-    public static final RenderType LASER_TRANSLUCENT_BLOOM = ALRRenderTypeExtension.copyWithBloom(LASER_TRANSLUCENT);
+    public static final RenderType LASER_TRANSLUCENT_BLOOM = ALRRenderTypeExtension.copyWithBloom(ModRenderTypes.LASER_TRANSLUCENT);
 
     public static final RenderType LASER_SOLID = RenderType.create(
         "anvilcraft:laser_solid",
@@ -72,7 +72,7 @@ public class ModRenderTypes {
             RenderSetup.builder(ModRenderPipelines.STAR_COLOR_OVERLAY)
                     .useLightmap()
                     .useOverlay()
-                    .withTexture("Sampler0", WHITE_TEXTURE)
+                    .withTexture("Sampler0", ModRenderTypes.WHITE_TEXTURE)
                     .createRenderSetup()
     );
 
@@ -82,7 +82,7 @@ public class ModRenderTypes {
                     .useLightmap()
                     .useOverlay()
                     .sortOnUpload()
-                    .withTexture("Sampler0", WHITE_TEXTURE)
+                    .withTexture("Sampler0", ModRenderTypes.WHITE_TEXTURE)
                     .createRenderSetup()
     );
 
@@ -137,6 +137,6 @@ public class ModRenderTypes {
             )
     );
 
-    public static final RenderType CUTOUT_BLOCK = CUTOUT_NO_LIGHTING.apply(Sheets.BLOCKS_MAPPER.sheet());
-    public static final RenderType TRANSLUCENT_BLOCK = TRANSLUCENT_NO_LIGHTING.apply(Sheets.BLOCKS_MAPPER.sheet());
+    public static final RenderType CUTOUT_BLOCK = ModRenderTypes.CUTOUT_NO_LIGHTING.apply(Sheets.BLOCKS_MAPPER.sheet());
+    public static final RenderType TRANSLUCENT_BLOCK = ModRenderTypes.TRANSLUCENT_NO_LIGHTING.apply(Sheets.BLOCKS_MAPPER.sheet());
 }

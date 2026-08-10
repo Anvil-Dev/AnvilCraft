@@ -14,6 +14,7 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -56,7 +57,7 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
         if (!(blockState.getBlock() instanceof PumpBlock)) return;
         if (!be.isWorking()) return;
 
-        net.minecraft.world.level.Level level = be.getLevel();
+        Level level = be.getLevel();
         if (level == null) return;
 
         Orientation orientation = blockState.getValue(PumpBlock.ORIENTATION);
@@ -67,11 +68,11 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
         float cycle = ((gameTime + partialTicks) * speed) % 20.0f / 20.0f;
 
         float angle = cycle * 2.0f * (float) Math.PI;
-        state.setPiston1Offset((float) Math.sin(angle) * MAX_PISTON_OFFSET);
-        state.setPiston2Offset((float) Math.cos(angle) * MAX_PISTON_OFFSET);
+        state.setPiston1Offset((float) Math.sin(angle) * PumpBlockEntityRenderer.MAX_PISTON_OFFSET);
+        state.setPiston2Offset((float) Math.cos(angle) * PumpBlockEntityRenderer.MAX_PISTON_OFFSET);
 
-        state.setPiston1(FeatureRendererSupport.initialize(PUMP_PISTON_1, be));
-        state.setPiston2(FeatureRendererSupport.initialize(PUMP_PISTON_2, be));
+        state.setPiston1(FeatureRendererSupport.initialize(PumpBlockEntityRenderer.PUMP_PISTON_1, be));
+        state.setPiston2(FeatureRendererSupport.initialize(PumpBlockEntityRenderer.PUMP_PISTON_2, be));
     }
 
     @Override

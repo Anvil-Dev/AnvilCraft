@@ -69,7 +69,7 @@ public abstract class BeaconMenuMixin {
     private boolean anvilcraft$toCorrupted(Level level, BlockPos pos) {
         RandomSource random = level.getRandom();
         double chance = random.nextDouble();
-        int levels = anvilcraft$updateBase(level, pos.getX(), pos.getY(), pos.getZ());
+        int levels = BeaconMenuMixin.anvilcraft$updateBase(level, pos.getX(), pos.getY(), pos.getZ());
         return switch (levels) {
             case 1 -> chance < 0.02;
             case 2 -> chance < 0.05;

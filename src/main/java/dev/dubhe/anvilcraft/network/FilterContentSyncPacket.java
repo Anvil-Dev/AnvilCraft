@@ -23,7 +23,7 @@ public record FilterContentSyncPacket(int slotIndex, FilterContent filterContent
 
     @Override
     public Type<FilterContentSyncPacket> type() {
-        return TYPE;
+        return FilterContentSyncPacket.TYPE;
     }
 
     @Override

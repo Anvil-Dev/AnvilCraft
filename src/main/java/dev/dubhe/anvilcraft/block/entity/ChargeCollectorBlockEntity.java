@@ -115,15 +115,15 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
 
     @Override
     public void gridTick() {
-        if (level == null || level.isClientSide()) return;
+        if (this.level == null || this.level.isClientSide()) return;
         if (this.inputCooldownCount-- <= 1) {
-            this.inputCooldownCount = INPUT_COOLDOWN;
+            this.inputCooldownCount = ChargeCollectorBlockEntity.INPUT_COOLDOWN;
             this.charges.add((int) Math.floor(this.chargeCount));
             this.chargeCount = 0;
             this.time++;
         }
         if (this.outputCooldownCount-- <= 1) {
-            this.outputCooldownCount = OUTPUT_COOLDOWN;
+            this.outputCooldownCount = ChargeCollectorBlockEntity.OUTPUT_COOLDOWN;
             final int oldPower = this.power;
             this.power = 0;
             for (Integer charge : this.charges) {
@@ -142,14 +142,14 @@ public class ChargeCollectorBlockEntity extends BlockEntity implements IPowerPro
     /// @param num 添加至收集器的电荷数
     /// @return 溢出的电荷数(即未被添加至收集器的电荷数)
     public double incomingCharge(double num, BlockPos srcPos) {
-        double overflow = num - (MAX_POWER_PER_INCOMING - this.chargeCount);
+        double overflow = num - (ChargeCollectorBlockEntity.MAX_POWER_PER_INCOMING - this.chargeCount);
         if (overflow < 0) {
             overflow = 0;
         }
         double acceptableChargeCount = num - overflow;
         PacketDistributor.sendToPlayersTrackingChunk(
             (ServerLevel) this.level,
-            ChunkPos.containing(worldPosition),
+            ChunkPos.containing(this.worldPosition),
             new ChargeCollectorIncomingChargePacket(
                 srcPos,
                 this.worldPosition,

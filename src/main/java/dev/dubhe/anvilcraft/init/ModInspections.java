@@ -23,7 +23,7 @@ public class ModInspections {
     private final List<Identifier> inspectionOptions = new ArrayList<>();
 
     public static void initialize() {
-        INSTANCE.registerActionServer(AnvilCraft.of("silencer"));
+        ModInspections.INSTANCE.registerActionServer(AnvilCraft.of("silencer"));
     }
 
     /// 注册检查项
@@ -34,7 +34,7 @@ public class ModInspections {
     ///
     /// @see InspectionSupport
     public void registerActionServer(Identifier id) {
-        INSTANCE.inspectionOptions.add(id);
+        ModInspections.INSTANCE.inspectionOptions.add(id);
     }
 
     private int changeStateServer(ServerPlayer player, Identifier id, boolean state) {

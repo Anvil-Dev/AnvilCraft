@@ -34,19 +34,19 @@ public class LaserReceiverBlockEntity extends BaseLaserBlockEntity implements IP
 
     @Override
     public void tick(Level level) {
-        updateLaserLevel(calculateLaserLevel());
-        if (changed) {
-            if (laserLevel > 0) {
-                level.setBlockAndUpdate(getBlockPos(), getBlockState().setValue(LaserReceiverBlock.ACTIVE, true));
+        this.updateLaserLevel(this.calculateLaserLevel());
+        if (this.changed) {
+            if (this.laserLevel > 0) {
+                level.setBlockAndUpdate(this.getBlockPos(), this.getBlockState().setValue(LaserReceiverBlock.ACTIVE, true));
             } else {
-                level.setBlockAndUpdate(getBlockPos(), getBlockState().setValue(LaserReceiverBlock.ACTIVE, false));
+                level.setBlockAndUpdate(this.getBlockPos(), this.getBlockState().setValue(LaserReceiverBlock.ACTIVE, false));
             }
             this.efficiency = 0;
             this.tempEfficiency = 0;
             this.delay = 0;
-            this.power = laserLevel * 15;
+            this.power = this.laserLevel * 15;
         }
-        if (getBlockState().getValue(LaserReceiverBlock.ACTIVE) && !changed) {
+        if (this.getBlockState().getValue(LaserReceiverBlock.ACTIVE) && !this.changed) {
             if (this.efficiency < this.power) {
                 this.delay++;
                 this.tempEfficiency += this.power * 0.005;
@@ -57,7 +57,7 @@ public class LaserReceiverBlockEntity extends BaseLaserBlockEntity implements IP
             }
         }
         super.tick(level);
-        resetState();
+        this.resetState();
     }
     
     @Override
@@ -72,7 +72,7 @@ public class LaserReceiverBlockEntity extends BaseLaserBlockEntity implements IP
 
     @Override
     public Set<Direction> getIgnoreFace() {
-        return Set.of(getBlockState().getValue(LaserReceiverBlock.FACING));
+        return Set.of(this.getBlockState().getValue(LaserReceiverBlock.FACING));
     }
 
     @Override

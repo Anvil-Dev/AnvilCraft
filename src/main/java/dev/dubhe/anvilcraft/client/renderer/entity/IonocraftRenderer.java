@@ -36,7 +36,7 @@ public class IonocraftRenderer extends EntityRenderer<IonocraftEntity, Ionocraft
             this.model,
             state,
             poseStack,
-            TEXTURE,
+            IonocraftRenderer.TEXTURE,
             state.lightCoords,
             OverlayTexture.NO_OVERLAY,
             state.outlineColor,

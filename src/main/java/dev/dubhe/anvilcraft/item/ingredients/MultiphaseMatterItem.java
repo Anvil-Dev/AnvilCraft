@@ -47,29 +47,29 @@ public class MultiphaseMatterItem extends Item implements IMultipleMaterial, IPe
 
     @Override
     public Component getInputTooltip(ItemStack template, List<ItemStack> inputs) {
-        return EMBER_MISSING_TOOLTIP;
+        return MultiphaseMatterItem.EMBER_MISSING_TOOLTIP;
     }
 
     @Override
     public Component getInputTooltip(ItemStack material) {
-        return FROST_MISSING_TOOLTIP;
+        return MultiphaseMatterItem.FROST_MISSING_TOOLTIP;
     }
 
     @Override
     public List<Identifier> getEmptySlotTextures(ItemStack template, int id, List<ItemStack> inputs) {
         List<Identifier> result = new ArrayList<>();
         EMPTY_SLOTS_TEXTURES_CHECK:
-        for (Item item : EMBER_EMPTY_SLOT_TEXTURES.keySet()) {
+        for (Item item : MultiphaseMatterItem.EMBER_EMPTY_SLOT_TEXTURES.keySet()) {
             for (ItemStack input : inputs) {
                 if (input.is(item)) continue EMPTY_SLOTS_TEXTURES_CHECK;
             }
-            result.add(EMBER_EMPTY_SLOT_TEXTURES.get(item));
+            result.add(MultiphaseMatterItem.EMBER_EMPTY_SLOT_TEXTURES.get(item));
         }
         return result;
     }
 
     @Override
     public List<Identifier> getEmptySlotTextures() {
-        return FROST_EMPTY_SLOT_TEXTURES;
+        return MultiphaseMatterItem.FROST_EMPTY_SLOT_TEXTURES;
     }
 }

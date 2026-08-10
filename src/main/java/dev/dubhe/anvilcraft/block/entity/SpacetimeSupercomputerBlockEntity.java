@@ -42,7 +42,7 @@ import java.util.function.Supplier;
 
 public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IPowerConsumer {
     private static final int TICK_SPRINT_COUNTDOWN_SECONDS = 30;
-    private static final int TICK_SPRINT_COUNTDOWN_TICKS = TICK_SPRINT_COUNTDOWN_SECONDS * 20;
+    private static final int TICK_SPRINT_COUNTDOWN_TICKS = SpacetimeSupercomputerBlockEntity.TICK_SPRINT_COUNTDOWN_SECONDS * 20;
     private static final String TICK_SPRINT_VOTE_SEPARATOR = "------------";
     private static final Set<SpacetimeSupercomputerBlockEntity> PENDING_TICK_SPRINTS = new HashSet<>();
 
@@ -94,7 +94,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
     public void onChange() {
         this.setChanged();
         if (this.level != null) {
-            this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
         }
     }
 
@@ -153,7 +153,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         if (cmd.startsWith("locate") || cmd.startsWith("time add") || cmd.startsWith("tick sprint")) {
             if (this.chargingProgress >= 20f) {
                 if (cmd.startsWith("time add")) {
-                    int timeAddConsumeProcess = getTimeAddConsumeProcess(cmd);
+                    int timeAddConsumeProcess = SpacetimeSupercomputerBlockEntity.getTimeAddConsumeProcess(cmd);
                     if (this.chargingProgress >= 20f + timeAddConsumeProcess) {
                         Objects.requireNonNull(this.level.getServer())
                             .getCommands()
@@ -167,7 +167,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
                         );
                     }
                 } else if (cmd.startsWith("tick sprint")) {
-                    int tickSprintConsumeProcess = getTickSprintConsumeProcess(cmd);
+                    int tickSprintConsumeProcess = SpacetimeSupercomputerBlockEntity.getTickSprintConsumeProcess(cmd);
                     if (this.chargingProgress >= 20f + tickSprintConsumeProcess) {
                         if (cmd.equals("tick sprint stop")) {
                             Objects.requireNonNull(this.level.getServer())
@@ -267,14 +267,14 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         this.pendingTickSprintVoteId = UUID.randomUUID();
         this.pendingTickSprintVoters.clear();
         this.confirmedTickSprintVoters.clear();
-        this.tickSprintCountdownTicks = TICK_SPRINT_COUNTDOWN_TICKS;
-        PENDING_TICK_SPRINTS.add(this);
+        this.tickSprintCountdownTicks = SpacetimeSupercomputerBlockEntity.TICK_SPRINT_COUNTDOWN_TICKS;
+        SpacetimeSupercomputerBlockEntity.PENDING_TICK_SPRINTS.add(this);
         this.initializeTickSprintVoters(server);
         this.setChanged();
     }
 
     public static void cancelPendingTickSprints(MinecraftServer server) {
-        for (SpacetimeSupercomputerBlockEntity supercomputer : List.copyOf(PENDING_TICK_SPRINTS)) {
+        for (SpacetimeSupercomputerBlockEntity supercomputer : List.copyOf(SpacetimeSupercomputerBlockEntity.PENDING_TICK_SPRINTS)) {
             if (supercomputer.pendingTickSprintCommand != null
                 && supercomputer.level != null
                 && supercomputer.level.getServer() == server) {
@@ -304,7 +304,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
 
     private void sendTickSprintVoteMessage(ServerPlayer player) {
         MutableComponent message = Component.empty()
-            .append(Component.literal(TICK_SPRINT_VOTE_SEPARATOR).withStyle(ChatFormatting.DARK_GRAY))
+            .append(Component.literal(SpacetimeSupercomputerBlockEntity.TICK_SPRINT_VOTE_SEPARATOR).withStyle(ChatFormatting.DARK_GRAY))
             .append(Component.literal("\n"))
             .append(Component.translatable("block.anvilcraft.spacetime_supercomputer.tick_sprint_confirmation"))
             .append(Component.literal("\n"))
@@ -312,7 +312,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
             .append(Component.literal("    "))
             .append(this.createTickSprintVoteOption(false))
             .append(Component.literal("\n"))
-            .append(Component.literal(TICK_SPRINT_VOTE_SEPARATOR).withStyle(ChatFormatting.DARK_GRAY));
+            .append(Component.literal(SpacetimeSupercomputerBlockEntity.TICK_SPRINT_VOTE_SEPARATOR).withStyle(ChatFormatting.DARK_GRAY));
         player.sendSystemMessage(message);
     }
 
@@ -392,7 +392,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         ServerPlayer player = this.pendingTickSprintPlayer == null
             ? null
             : server.getPlayerList().getPlayer(this.pendingTickSprintPlayer);
-        int energyCost = 20 + getTickSprintConsumeProcess(normalizedCommand);
+        int energyCost = 20 + SpacetimeSupercomputerBlockEntity.getTickSprintConsumeProcess(normalizedCommand);
         if (this.chargingProgress >= energyCost) {
             server.getCommands().performPrefixedCommand(this.createCommandSource(player), command);
             this.chargingProgress -= energyCost;
@@ -419,7 +419,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
     }
 
     private void clearTickSprintCountdown() {
-        PENDING_TICK_SPRINTS.remove(this);
+        SpacetimeSupercomputerBlockEntity.PENDING_TICK_SPRINTS.remove(this);
         this.pendingTickSprintCommand = null;
         this.pendingTickSprintPlayer = null;
         this.pendingTickSprintVoteId = null;
@@ -431,7 +431,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
 
     @Override
     public void setRemoved() {
-        PENDING_TICK_SPRINTS.remove(this);
+        SpacetimeSupercomputerBlockEntity.PENDING_TICK_SPRINTS.remove(this);
         super.setRemoved();
     }
 

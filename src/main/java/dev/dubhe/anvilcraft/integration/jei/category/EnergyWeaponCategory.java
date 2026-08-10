@@ -54,12 +54,12 @@ public class EnergyWeaponCategory implements IRecipeCategory<RecipeHolder<Energy
 
     @Override
     public int getWidth() {
-        return WIDTH;
+        return EnergyWeaponCategory.WIDTH;
     }
 
     @Override
     public int getHeight() {
-        return HEIGHT;
+        return EnergyWeaponCategory.HEIGHT;
     }
 
     @Override

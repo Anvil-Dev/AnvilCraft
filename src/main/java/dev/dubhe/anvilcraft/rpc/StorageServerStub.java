@@ -117,7 +117,7 @@ public final class StorageServerStub {
         @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC") IntList slots
     ) {
         if (slots.size() > StorageServerStub.MAX_SYNC_SLOTS) {
-            REGISTRIES.remove();
+            StorageServerStub.REGISTRIES.remove();
             throw new IllegalArgumentException("Cannot sync more than " + StorageServerStub.MAX_SYNC_SLOTS + " slots at once");
         }
 
@@ -137,7 +137,7 @@ public final class StorageServerStub {
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static InteractionResult interact(UUID playerId, long sourcePos, int slot, int button, StorageInput action) {
         if (!action.isValid(button)) {
-            REGISTRIES.remove();
+            StorageServerStub.REGISTRIES.remove();
             throw new IllegalArgumentException("Invalid storage interaction button: " + button);
         }
 
@@ -757,7 +757,7 @@ public final class StorageServerStub {
             int inserted = 0;
             for (int i = 0; i < this.storages.size() - 1; i++) {
                 UnlimitedItemStacksResourceHandler items = this.storages.get(i).getItems();
-                if (!contains(items, resource)) continue;
+                if (!StorageView.contains(items, resource)) continue;
                 inserted += items.insert(resource, amount - inserted, tx);
                 if (inserted == amount) return inserted;
             }

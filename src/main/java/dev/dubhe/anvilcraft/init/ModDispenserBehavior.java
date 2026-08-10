@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.init;
 
 import dev.anvilcraft.lib.v2.registrum.util.entry.ItemEntry;
 import dev.dubhe.anvilcraft.block.storage.MagnetBlock;
+import dev.dubhe.anvilcraft.fluid.HoneyFluid;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.block.HasMobBlockItem;
@@ -74,7 +75,7 @@ public class ModDispenserBehavior {
                             int filled = target.insert(resource, available, transaction);
                             if (filled < available) continue;
                             transaction.commit();
-                            return this.consumeWithRemainder(source, stack, emptyContainerFor(stack));
+                            return this.consumeWithRemainder(source, stack, ModDispenserBehavior.emptyContainerFor(stack));
                         }
                     }
                 }
@@ -108,7 +109,7 @@ public class ModDispenserBehavior {
                         int drained = target.extract(i, resource, amount, transaction);
                         if (drained < amount) continue;
                         ItemStack result;
-                        if (isBottle && resource.getFluid() instanceof dev.dubhe.anvilcraft.fluid.HoneyFluid) {
+                        if (isBottle && resource.getFluid() instanceof HoneyFluid) {
                             result = new ItemStack(Items.HONEY_BOTTLE);
                         } else if (!isBottle && resource.getFluid().getBucket() != Items.AIR) {
                             result = new ItemStack(resource.getFluid().getBucket());
@@ -144,13 +145,13 @@ public class ModDispenserBehavior {
         DispenserBlock.registerBehavior(Items.BOWL, ModDispenserBehavior::bowl);
         DispenserBlock.registerBehavior(Items.GOLDEN_APPLE, ModDispenserBehavior::goldenApple);
         DispenserBlock.registerBehavior(ModBlocks.RESIN_BLOCK, ModDispenserBehavior::resinBlock);
-        DispenserBlock.registerBehavior(Items.MILK_BUCKET, FLUID_BUCKET);
-        DispenserBlock.registerBehavior(Items.HONEY_BOTTLE, FLUID_BUCKET);
-        DispenserBlock.registerBehavior(ModItems.OIL_BUCKET, BUCKET);
-        DispenserBlock.registerBehavior(ModItems.MELT_GEM_BUCKET, BUCKET);
+        DispenserBlock.registerBehavior(Items.MILK_BUCKET, ModDispenserBehavior.FLUID_BUCKET);
+        DispenserBlock.registerBehavior(Items.HONEY_BOTTLE, ModDispenserBehavior.FLUID_BUCKET);
+        DispenserBlock.registerBehavior(ModItems.OIL_BUCKET, ModDispenserBehavior.BUCKET);
+        DispenserBlock.registerBehavior(ModItems.MELT_GEM_BUCKET, ModDispenserBehavior.BUCKET);
         DispenserBlock.registerBehavior(ModBlocks.MENGER_SPONGE, ModDispenserBehavior::mengerSponge);
         for (ItemEntry<BucketItem> cementBucket : ModItems.CEMENT_BUCKETS.values()) {
-            DispenserBlock.registerBehavior(cementBucket, BUCKET);
+            DispenserBlock.registerBehavior(cementBucket, ModDispenserBehavior.BUCKET);
         }
 
         // 空桶：优先尝试从目标方块的流体能力抽取液体生成对应桶物品，未命中时降级到原版行为
@@ -178,7 +179,7 @@ public class ModDispenserBehavior {
                 return originalBucket.dispense(source, stack);
             }
         });
-        DispenserBlock.registerBehavior(Items.GLASS_BOTTLE, EMPTY_FLUID_CONTAINER);
+        DispenserBlock.registerBehavior(Items.GLASS_BOTTLE, ModDispenserBehavior.EMPTY_FLUID_CONTAINER);
     }
 
     private static ItemStack mengerSponge(BlockSource source, ItemStack stack) {
@@ -229,7 +230,7 @@ public class ModDispenserBehavior {
             m -> !m.isBaby()
         );
 
-        if (mushroomCow == null) return DEFAULT_BEHAVIOUR.dispense(blockSource, bowlStack);
+        if (mushroomCow == null) return ModDispenserBehavior.DEFAULT_BEHAVIOUR.dispense(blockSource, bowlStack);
 
         ItemStack stewItem;
         SoundEvent sound;
@@ -248,7 +249,7 @@ public class ModDispenserBehavior {
 
         if (bowlStack.isEmpty()) return stewItem;
         ItemStack remainedStewItem = blockSource.blockEntity().insertItem(stewItem);
-        if (!remainedStewItem.isEmpty()) DEFAULT_BEHAVIOUR.dispense(blockSource, remainedStewItem);
+        if (!remainedStewItem.isEmpty()) ModDispenserBehavior.DEFAULT_BEHAVIOUR.dispense(blockSource, remainedStewItem);
         return bowlStack;
     }
 
@@ -258,8 +259,8 @@ public class ModDispenserBehavior {
             new AABB(blockSource.pos().relative(blockSource.state().getValue(DirectionalBlock.FACING))),
             z -> z.hasEffect(MobEffects.WEAKNESS) && !z.isConverting()
         );
-        if (zombieVillager == null) return DEFAULT_BEHAVIOUR.dispense(blockSource, stack);
-        zombieVillager.startConverting(ANVILCRAFT_DISPENSER, zombieVillager.getRandom().nextInt(2401) + 3600);
+        if (zombieVillager == null) return ModDispenserBehavior.DEFAULT_BEHAVIOUR.dispense(blockSource, stack);
+        zombieVillager.startConverting(ModDispenserBehavior.ANVILCRAFT_DISPENSER, zombieVillager.getRandom().nextInt(2401) + 3600);
         stack.shrink(1);
         return stack;
     }
@@ -281,7 +282,7 @@ public class ModDispenserBehavior {
                 new AABB(blockSource.pos().relative(blockSource.state().getValue(DirectionalBlock.FACING))),
                 HasMobBlockItem::canMobBeSaved
             );
-            if (mob == null) return DEFAULT_BEHAVIOUR.dispense(blockSource, resinBlockItem);
+            if (mob == null) return ModDispenserBehavior.DEFAULT_BEHAVIOUR.dispense(blockSource, resinBlockItem);
             ItemStack mobResin = ResinBlockItem.saveMobInItem(blockSource.level(), mob, resinBlockItem);
 
             if (resinBlockItem.isEmpty()) return mobResin;

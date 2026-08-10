@@ -34,16 +34,16 @@ public abstract class DestroyType {
             for (BlockPos destroyLayer : list) {
                 BlockState blockState = level.getBlockState(destroyLayer);
                 if (blockState.isAir()) continue;
-                if (isFellingApplicableBlock(blockState)) {
+                if (this.isFellingApplicableBlock(blockState)) {
                     BlockPos.breadthFirstTraversal(
                         destroyLayer,
-                        TRAVERSE_DEPTH,
-                        VISIT_LIMIT,
+                        DestroyType.TRAVERSE_DEPTH,
+                        DestroyType.VISIT_LIMIT,
                         Util::acceptDirections,
                         it -> {
                             if (it.getY() < destroyLayer.getY()) return BlockPos.TraversalNodeStatus.SKIP;
                             BlockState state = level.getBlockState(it);
-                            if (isFellingApplicableBlock(state)) {
+                            if (this.isFellingApplicableBlock(state)) {
                                 List<ItemStack> itemStack = mode.apply(state, it, context);
                                 level.setBlockAndUpdate(it, Blocks.AIR.defaultBlockState());
                                 mode.dropItems(itemStack, it, context);
@@ -56,7 +56,7 @@ public abstract class DestroyType {
             }
         }
 
-        private static boolean isFellingApplicableBlock(BlockState blockState) {
+        private boolean isFellingApplicableBlock(BlockState blockState) {
             return (blockState.is(BlockTags.LEAVES) && !blockState.getValue(LeavesBlock.PERSISTENT))
                 || blockState.is(ModBlockTags.FELLING_APPLICABLE);
         }
@@ -88,8 +88,8 @@ public abstract class DestroyType {
                 if (state.is(Blocks.COCOA) || state.is(BlockTags.JUNGLE_LOGS)) {
                     BlockPos.breadthFirstTraversal(
                         destroyLayer,
-                        TRAVERSE_DEPTH,
-                        VISIT_LIMIT,
+                        DestroyType.TRAVERSE_DEPTH,
+                        DestroyType.VISIT_LIMIT,
                         Util::acceptDirections,
                         it -> {
                             if (it.getY() < destroyLayer.getY()) return BlockPos.TraversalNodeStatus.SKIP;
@@ -150,8 +150,8 @@ public abstract class DestroyType {
                 if (found) {
                     BlockPos.breadthFirstTraversal(
                         destroyLayer,
-                        TRAVERSE_DEPTH,
-                        VISIT_LIMIT,
+                        DestroyType.TRAVERSE_DEPTH,
+                        DestroyType.VISIT_LIMIT,
                         (it, c) -> c.accept(it.below()),
                         it -> {
                             if (it.getY() > pos.getY()) return BlockPos.TraversalNodeStatus.SKIP;
@@ -173,7 +173,7 @@ public abstract class DestroyType {
         }
     };
     public static final DestroyType CLEANING = new DestroyType() {
-        public static final ItemStack TOOL = Items.SHEARS.getDefaultInstance();
+        public final ItemStack tool = Items.SHEARS.getDefaultInstance();
 
         @Override
         public void accept(ShockContext context, List<BlockPos> list, DestroyMode mode) {
@@ -186,7 +186,7 @@ public abstract class DestroyType {
                     if (state.is(Blocks.SNOW)) {
                         drops = mode.apply(state, pos, context);
                     } else {
-                        drops = mode.apply(state, pos, context, TOOL);
+                        drops = mode.apply(state, pos, context, this.tool);
                     }
 
                     mode.dropItems(drops, pos, context);

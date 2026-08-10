@@ -26,26 +26,26 @@ public class EntityTypeTagLoader {
             .addOptionalTag(ModEntityTypeTags.SILENCE_AMULET_VALID.location());
 
         provider.rawBuilder(ModEntityTypeTags.EMERALD_AMULET_VALID)
-            .addElement(findId(EntityType.IRON_GOLEM))
+            .addElement(EntityTypeTagLoader.findId(EntityType.IRON_GOLEM))
             .addTag(EntityTypeTags.ILLAGER.location());
 
         provider.rawBuilder(ModEntityTypeTags.SAPPHIRE_AMULET_VALID)
-            .addElement(findId(EntityType.GUARDIAN))
-            .addElement(findId(EntityType.ELDER_GUARDIAN));
+            .addElement(EntityTypeTagLoader.findId(EntityType.GUARDIAN))
+            .addElement(EntityTypeTagLoader.findId(EntityType.ELDER_GUARDIAN));
 
         provider.rawBuilder(ModEntityTypeTags.ANVIL_AMULET_VALID)
-            .addElement(findId(EntityType.FALLING_BLOCK))
+            .addElement(EntityTypeTagLoader.findId(EntityType.FALLING_BLOCK))
             .addElement(ModEntities.FALLING_GIANT_ANVIL.getId());
 
         provider.rawBuilder(ModEntityTypeTags.CAT_AMULET_VALID)
-            .addElement(findId(EntityType.CREEPER))
-            .addElement(findId(EntityType.PHANTOM));
+            .addElement(EntityTypeTagLoader.findId(EntityType.CREEPER))
+            .addElement(EntityTypeTagLoader.findId(EntityType.PHANTOM));
 
         provider.rawBuilder(ModEntityTypeTags.DOG_AMULET_VALID)
             .addTag(EntityTypeTags.SKELETONS.location());
 
         provider.rawBuilder(ModEntityTypeTags.SILENCE_AMULET_VALID)
-            .addElement(findId(EntityType.WARDEN));
+            .addElement(EntityTypeTagLoader.findId(EntityType.WARDEN));
 
         provider.rawBuilder(ModEntityTypeTags.FALLING_GIANT_ANVIL_DAMAGE_IMMUNE)
             .addTag(EntityTypeTags.FALL_DAMAGE_IMMUNE.location());

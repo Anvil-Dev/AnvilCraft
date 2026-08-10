@@ -84,7 +84,7 @@ public class LargeFluidTankItemRenderer extends BaseFluidTankItemRenderer {
     ) {
         this.submitShell(poseStack, collector, lightCoords, overlayCoords, outlineColor);
         if (argument == null) return;
-        float height = 3 - 2 * TANK_W;
+        float height = 3 - 2 * LargeFluidTankItemRenderer.TANK_W;
         for (FluidTankItemRenderState.Layer layer : argument.getLayers()) {
             FluidResource resource = layer.resource();
             FluidModel model = FluidRenderHelper.getModel(
@@ -94,20 +94,20 @@ public class LargeFluidTankItemRenderer extends BaseFluidTankItemRenderer {
             var tintSource = model.fluidTintSource();
             int tintColor = tintSource != null ? tintSource.colorAsStack(resource.toStack(1)) : -1;
             TextureAtlasSprite sprite = model.stillMaterial().sprite();
-            float minY = TANK_W - 1 + layer.bottom() * height;
-            float maxY = TANK_W - 1 + layer.top() * height;
+            float minY = LargeFluidTankItemRenderer.TANK_W - 1 + layer.bottom() * height;
+            float maxY = LargeFluidTankItemRenderer.TANK_W - 1 + layer.top() * height;
             collector.submitCustomGeometry(
                 poseStack,
                 FluidTankItemRenderState.FLUID_RENDER_TYPE,
                 (pose, buffer) -> FluidRenderHelper.INSTANCE.renderFluidBox(
                     sprite,
                     resource,
-                    TANK_W - 1,
+                    LargeFluidTankItemRenderer.TANK_W - 1,
                     minY,
-                    TANK_W - 1,
-                    2 - TANK_W,
+                    LargeFluidTankItemRenderer.TANK_W - 1,
+                    2 - LargeFluidTankItemRenderer.TANK_W,
                     maxY,
-                    2 - TANK_W,
+                    2 - LargeFluidTankItemRenderer.TANK_W,
                     tintColor,
                     buffer,
                     pose,

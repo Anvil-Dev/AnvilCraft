@@ -21,6 +21,6 @@ public enum RubyPrismProvider implements IServerDataProvider<BlockAccessor> {
 
     @Override
     public Identifier getUid() {
-        return UID;
+        return RubyPrismProvider.UID;
     }
 }

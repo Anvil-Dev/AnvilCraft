@@ -101,7 +101,7 @@ public class CelestialBodyRenderer {
      * (32,16)-(48,32)、(0,16)-(16,32) 和 (16,16)-(32,32)。
      */
     public static void renderPlanetBody(PoseStack.Pose pose, VertexConsumer vc, int light, int overlay) {
-        renderPlanetCube(pose, vc, light, overlay, LIGHT_DIR);
+        CelestialBodyRenderer.renderPlanetCube(pose, vc, light, overlay, CelestialBodyRenderer.LIGHT_DIR);
     }
 
     /**
@@ -136,23 +136,23 @@ public class CelestialBodyRenderer {
         }
 
         // 每个面根据观察角度使用独立透明度。
-        float alphaUp = computeAtmosphereAlpha(pose, 0, 1, 0, baseAlpha, vx, vy, vz);
-        tintedFaceUp(pose, vc, x1, x2, z1, z2, y2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaUp);
+        float alphaUp = CelestialBodyRenderer.computeAtmosphereAlpha(pose, 0, 1, 0, baseAlpha, vx, vy, vz);
+        CelestialBodyRenderer.tintedFaceUp(pose, vc, x1, x2, z1, z2, y2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaUp);
 
-        float alphaDown = computeAtmosphereAlpha(pose, 0, -1, 0, baseAlpha, vx, vy, vz);
-        tintedFaceDown(pose, vc, x1, x2, z1, z2, y1, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaDown);
+        float alphaDown = CelestialBodyRenderer.computeAtmosphereAlpha(pose, 0, -1, 0, baseAlpha, vx, vy, vz);
+        CelestialBodyRenderer.tintedFaceDown(pose, vc, x1, x2, z1, z2, y1, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaDown);
 
-        float alphaN = computeAtmosphereAlpha(pose, 0, 0, -1, baseAlpha, vx, vy, vz);
-        tintedFaceNorth(pose, vc, x1, x2, y1, y2, z1, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaN);
+        float alphaN = CelestialBodyRenderer.computeAtmosphereAlpha(pose, 0, 0, -1, baseAlpha, vx, vy, vz);
+        CelestialBodyRenderer.tintedFaceNorth(pose, vc, x1, x2, y1, y2, z1, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaN);
 
-        float alphaS = computeAtmosphereAlpha(pose, 0, 0, 1, baseAlpha, vx, vy, vz);
-        tintedFaceSouth(pose, vc, x1, x2, y1, y2, z2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaS);
+        float alphaS = CelestialBodyRenderer.computeAtmosphereAlpha(pose, 0, 0, 1, baseAlpha, vx, vy, vz);
+        CelestialBodyRenderer.tintedFaceSouth(pose, vc, x1, x2, y1, y2, z2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaS);
 
-        float alphaE = computeAtmosphereAlpha(pose, 1, 0, 0, baseAlpha, vx, vy, vz);
-        tintedFaceEast(pose, vc, x2, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaE);
+        float alphaE = CelestialBodyRenderer.computeAtmosphereAlpha(pose, 1, 0, 0, baseAlpha, vx, vy, vz);
+        CelestialBodyRenderer.tintedFaceEast(pose, vc, x2, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaE);
 
-        float alphaW = computeAtmosphereAlpha(pose, -1, 0, 0, baseAlpha, vx, vy, vz);
-        tintedFaceWest(pose, vc, x1, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaW);
+        float alphaW = CelestialBodyRenderer.computeAtmosphereAlpha(pose, -1, 0, 0, baseAlpha, vx, vy, vz);
+        CelestialBodyRenderer.tintedFaceWest(pose, vc, x1, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, rgb[0], rgb[1], rgb[2], alphaW);
     }
 
     /** 使用多层同心半透明立方体绘制恒星光晕。 */
@@ -169,7 +169,7 @@ public class CelestialBodyRenderer {
             ps.translate(0.5, 0.5, 0.5);
             ps.scale(scale, scale, scale);
             ps.translate(-0.5, -0.5, -0.5);
-            renderAtmosphereCube(ps.last(), vc, rgb, alpha, light, overlay);
+            CelestialBodyRenderer.renderAtmosphereCube(ps.last(), vc, rgb, alpha, light, overlay);
             ps.popPose();
         }
     }
@@ -193,12 +193,12 @@ public class CelestialBodyRenderer {
         float y2 = 1;
         float z1 = 0;
         float z2 = 1;
-        tintedFaceUp(ps, vc, x1, x2, z1, z2, y2, 0, 0, 1, 1, light, overlay, r, g, b, a);
-        tintedFaceDown(ps, vc, x1, x2, z1, z2, y1, 0, 0, 1, 1, light, overlay, r, g, b, a);
-        tintedFaceNorth(ps, vc, x1, x2, y1, y2, z1, 0, 0, 1, 1, light, overlay, r, g, b, a);
-        tintedFaceSouth(ps, vc, x1, x2, y1, y2, z2, 0, 0, 1, 1, light, overlay, r, g, b, a);
-        tintedFaceEast(ps, vc, x2, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, r, g, b, a);
-        tintedFaceWest(ps, vc, x1, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, r, g, b, a);
+        CelestialBodyRenderer.tintedFaceUp(ps, vc, x1, x2, z1, z2, y2, 0, 0, 1, 1, light, overlay, r, g, b, a);
+        CelestialBodyRenderer.tintedFaceDown(ps, vc, x1, x2, z1, z2, y1, 0, 0, 1, 1, light, overlay, r, g, b, a);
+        CelestialBodyRenderer.tintedFaceNorth(ps, vc, x1, x2, y1, y2, z1, 0, 0, 1, 1, light, overlay, r, g, b, a);
+        CelestialBodyRenderer.tintedFaceSouth(ps, vc, x1, x2, y1, y2, z2, 0, 0, 1, 1, light, overlay, r, g, b, a);
+        CelestialBodyRenderer.tintedFaceEast(ps, vc, x2, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, r, g, b, a);
+        CelestialBodyRenderer.tintedFaceWest(ps, vc, x1, y1, y2, z1, z2, 0, 0, 1, 1, light, overlay, r, g, b, a);
     }
 
     /** 在 y=0.5 平面绘制从内半径延伸到外半径的扁平天体环。 */
@@ -269,10 +269,10 @@ public class CelestialBodyRenderer {
 
         boolean lit = lightDir != null;
 
-        int upColor = lit ? computeLambertColor(pose, 0, 1, 0, lightDir) : -1;
-        faceUp(pose, vc, x1, x2, z1, z2, y2, 16f / 64, 0, 32f / 64, 16f / 64, light, overlay, upColor);
+        int upColor = lit ? CelestialBodyRenderer.computeLambertColor(pose, 0, 1, 0, lightDir) : -1;
+        CelestialBodyRenderer.faceUp(pose, vc, x1, x2, z1, z2, y2, 16f / 64, 0, 32f / 64, 16f / 64, light, overlay, upColor);
 
-        int downColor = lit ? computeLambertColor(pose, 0, -1, 0, lightDir) : -1;
+        int downColor = lit ? CelestialBodyRenderer.computeLambertColor(pose, 0, -1, 0, lightDir) : -1;
         vc.addVertex(pose, x1, y1, z1)
             .setColor(downColor)
             .setUv(16f / 64, 48f / 64)
@@ -298,14 +298,14 @@ public class CelestialBodyRenderer {
             .setLight(light)
             .setNormal(pose, 0, -1, 0);
 
-        int colorN = lit ? computeLambertColor(pose, 0, 0, -1, lightDir) : -1;
-        faceNorth(pose, vc, x1, x2, y1, y2, z1, 48f / 64, 16f / 64, 64f / 64, 32f / 64, light, overlay, colorN);
-        int colorE = lit ? computeLambertColor(pose, 1, 0, 0, lightDir) : -1;
-        faceEast(pose, vc, x2, y1, y2, z1, z2, 32f / 64, 16f / 64, 48f / 64, 32f / 64, light, overlay, colorE);
-        int colorW = lit ? computeLambertColor(pose, -1, 0, 0, lightDir) : -1;
-        faceWest(pose, vc, x1, y1, y2, z1, z2, 0, 16f / 64, 16f / 64, 32f / 64, light, overlay, colorW);
-        int colorS = lit ? computeLambertColor(pose, 0, 0, 1, lightDir) : -1;
-        faceSouth(pose, vc, x1, x2, y1, y2, z2, 16f / 64, 16f / 64, 32f / 64, 32f / 64, light, overlay, colorS);
+        int colorN = lit ? CelestialBodyRenderer.computeLambertColor(pose, 0, 0, -1, lightDir) : -1;
+        CelestialBodyRenderer.faceNorth(pose, vc, x1, x2, y1, y2, z1, 48f / 64, 16f / 64, 64f / 64, 32f / 64, light, overlay, colorN);
+        int colorE = lit ? CelestialBodyRenderer.computeLambertColor(pose, 1, 0, 0, lightDir) : -1;
+        CelestialBodyRenderer.faceEast(pose, vc, x2, y1, y2, z1, z2, 32f / 64, 16f / 64, 48f / 64, 32f / 64, light, overlay, colorE);
+        int colorW = lit ? CelestialBodyRenderer.computeLambertColor(pose, -1, 0, 0, lightDir) : -1;
+        CelestialBodyRenderer.faceWest(pose, vc, x1, y1, y2, z1, z2, 0, 16f / 64, 16f / 64, 32f / 64, light, overlay, colorW);
+        int colorS = lit ? CelestialBodyRenderer.computeLambertColor(pose, 0, 0, 1, lightDir) : -1;
+        CelestialBodyRenderer.faceSouth(pose, vc, x1, x2, y1, y2, z2, 16f / 64, 16f / 64, 32f / 64, 32f / 64, light, overlay, colorS);
     }
 
     // ==================== 带贴图面的辅助方法 ====================
@@ -551,7 +551,7 @@ public class CelestialBodyRenderer {
         float b,
         float a
     ) {
-        int argb = packColor(r, g, b, a);
+        int argb = CelestialBodyRenderer.packColor(r, g, b, a);
         vc.addVertex(pose, x1, y, z2).setColor(argb).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
@@ -599,7 +599,7 @@ public class CelestialBodyRenderer {
         float a
     ) {
 
-        int argb = packColor(r, g, b, a);
+        int argb = CelestialBodyRenderer.packColor(r, g, b, a);
         vc.addVertex(pose, x1, y, z1).setColor(argb).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
@@ -646,7 +646,7 @@ public class CelestialBodyRenderer {
         float b,
         float a
     ) {
-        int argb = packColor(r, g, b, a);
+        int argb = CelestialBodyRenderer.packColor(r, g, b, a);
         vc.addVertex(pose, x2, y1, z).setColor(argb).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
@@ -693,7 +693,7 @@ public class CelestialBodyRenderer {
         float b,
         float a
     ) {
-        int argb = packColor(r, g, b, a);
+        int argb = CelestialBodyRenderer.packColor(r, g, b, a);
         vc.addVertex(pose, x1, y1, z).setColor(argb).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             0,
@@ -740,7 +740,7 @@ public class CelestialBodyRenderer {
         float b,
         float a
     ) {
-        int argb = packColor(r, g, b, a);
+        int argb = CelestialBodyRenderer.packColor(r, g, b, a);
         vc.addVertex(pose, x, y1, z2).setColor(argb).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             1,
@@ -787,7 +787,7 @@ public class CelestialBodyRenderer {
         float b,
         float a
     ) {
-        int argb = packColor(r, g, b, a);
+        int argb = CelestialBodyRenderer.packColor(r, g, b, a);
         vc.addVertex(pose, x, y1, z1).setColor(argb).setUv(u1, v2).setOverlay(overlay).setLight(light).setNormal(
             pose,
             -1,

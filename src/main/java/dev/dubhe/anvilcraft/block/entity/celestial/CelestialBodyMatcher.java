@@ -16,7 +16,7 @@ import javax.imageio.ImageIO;
  * 每张 64×64 星图把砧子数量映射为天体类别像素颜色，并通过类加载器在服务端和客户端读取。
  *
  * <p>26.1 的 {@code NativeImage} 仅客户端可用，因此改用服务端同样可用的
- * {@link javax.imageio.ImageIO} 和 {@link BufferedImage}。后者返回 ARGB（0xAARRGGBB），
+ * {@link ImageIO} 和 {@link BufferedImage}。后者返回 ARGB（0xAARRGGBB），
  * 与旧版 ABGR 像素顺序不同，读取时需要按新顺序提取 RGB。</p>
  */
 public final class CelestialBodyMatcher {
@@ -24,10 +24,10 @@ public final class CelestialBodyMatcher {
     private static final String DIR = "assets/anvilcraft/textures/misc";
 
     // 星图资源路径
-    private static final String MASS_RADIUS = DIR + "/mass_radius_diagram_pixel.png";
-    private static final String AGE_TEMP = DIR + "/age_temp_diagram_pixel.png";
-    private static final String AGE_TEMP_SP = DIR + "/age_temp_diagram_pixel_sp.png";
-    private static final String AGE_RADIUS = DIR + "/age_radius_diagram_pixel.png";
+    private static final String MASS_RADIUS = CelestialBodyMatcher.DIR + "/mass_radius_diagram_pixel.png";
+    private static final String AGE_TEMP = CelestialBodyMatcher.DIR + "/age_temp_diagram_pixel.png";
+    private static final String AGE_TEMP_SP = CelestialBodyMatcher.DIR + "/age_temp_diagram_pixel_sp.png";
+    private static final String AGE_RADIUS = CelestialBodyMatcher.DIR + "/age_radius_diagram_pixel.png";
     private static final String STAR_COLOR_TEMP = "assets/anvilcraft/textures/block/celestial_body/star_color_temperature.png";
 
     private static @Nullable BufferedImage massRadiusImage;
@@ -56,33 +56,46 @@ public final class CelestialBodyMatcher {
     public static CelestialBodyData match(
         int time, int space, int mass, int energy, boolean isAmplified, RandomSource random
     ) {
-        ensureLoaded();
+        CelestialBodyMatcher.ensureLoaded();
 
         // 第一步：质量-半径图，质量为 X，空间为反向 Y。
-        CelestialBodyClass bodyClass = lookupClass(massRadiusImage, toX(mass), toY(space));
+        CelestialBodyClass bodyClass = CelestialBodyMatcher.lookupClass(
+            CelestialBodyMatcher.massRadiusImage,
+            CelestialBodyMatcher.toX(mass),
+            CelestialBodyMatcher.toY(space)
+        );
         if (bodyClass == null) return null;
 
         // 恒星类天体必须使用增幅器。
         if (bodyClass.isStellar() && !isAmplified) return null;
 
         // 第二步：温度-年龄图，时间为 X，能量为反向 Y。
-        if (!step2(toX(time), toY(energy), bodyClass)) return null;
+        if (!CelestialBodyMatcher.step2(CelestialBodyMatcher.toX(time), CelestialBodyMatcher.toY(energy), bodyClass)) return null;
 
         // 第三步：年龄-半径图，供恒星和褐矮星继续细分。
-        if (bodyClass.needsStep3() && !step3(toX(time), toY(space), bodyClass)) return null;
+        if (
+            bodyClass.needsStep3()
+            && !CelestialBodyMatcher.step3(
+                CelestialBodyMatcher.toX(time),
+                CelestialBodyMatcher.toY(space),
+                bodyClass
+            )
+        ) {
+            return null;
+        }
 
         // 根据匹配结果生成完整天体数据。
-        return generateBodyData(bodyClass, time, space, mass, energy, random);
+        return CelestialBodyMatcher.generateBodyData(bodyClass, time, space, mass, energy, random);
     }
 
     /** 将 1-64 的砧子数量映射到星图零基 X 坐标。 */
     public static int toX(int count) {
-        return Math.clamp(count - 1, 0, DIAG_SIZE - 1);
+        return Math.clamp(count - 1, 0, CelestialBodyMatcher.DIAG_SIZE - 1);
     }
 
     /** 将 1-64 的砧子数量映射到反向的星图零基 Y 坐标。 */
     public static int toY(int count) {
-        return Math.clamp(DIAG_SIZE - count, 0, DIAG_SIZE - 1);
+        return Math.clamp(CelestialBodyMatcher.DIAG_SIZE - count, 0, CelestialBodyMatcher.DIAG_SIZE - 1);
     }
 
     /** 将四种砧子数量编码为位集使用的单个整数索引。 */
@@ -93,39 +106,39 @@ public final class CelestialBodyMatcher {
     // === 全部合法组合预计算 ===
 
     private static void ensurePrecomputed() {
-        if (precomputed) return;
-        ensureLoaded();
-        precomputed = true;
+        if (CelestialBodyMatcher.precomputed) return;
+        CelestialBodyMatcher.ensureLoaded();
+        CelestialBodyMatcher.precomputed = true;
 
-        if (massRadiusImage == null) return;
+        if (CelestialBodyMatcher.massRadiusImage == null) return;
 
-        validAmplified = new BitSet(1 << 24);
-        validNormal = new BitSet(1 << 24);
+        CelestialBodyMatcher.validAmplified = new BitSet(1 << 24);
+        CelestialBodyMatcher.validNormal = new BitSet(1 << 24);
 
         for (int mass = 1; mass <= 64; mass++) {
-            int mx = toX(mass);
+            int mx = CelestialBodyMatcher.toX(mass);
             for (int space = 1; space <= 64; space++) {
-                int sy = toY(space);
-                CelestialBodyClass bodyClass = lookupClass(massRadiusImage, mx, sy);
+                int sy = CelestialBodyMatcher.toY(space);
+                CelestialBodyClass bodyClass = CelestialBodyMatcher.lookupClass(CelestialBodyMatcher.massRadiusImage, mx, sy);
                 if (bodyClass == null) continue;
 
                 int massSpaceBase = ((space - 1) << 12) | ((mass - 1) << 6);
 
                 for (int time = 1; time <= 64; time++) {
-                    int tx = toX(time);
+                    int tx = CelestialBodyMatcher.toX(time);
 
-                    boolean step3Ok = !bodyClass.needsStep3() || step3(tx, sy, bodyClass);
+                    boolean step3Ok = !bodyClass.needsStep3() || CelestialBodyMatcher.step3(tx, sy, bodyClass);
                     if (!step3Ok) continue;
 
                     int timeBase = ((time - 1) << 18) | massSpaceBase;
 
                     for (int energy = 1; energy <= 64; energy++) {
-                        int ey = toY(energy);
-                        if (step2(tx, ey, bodyClass)) {
+                        int ey = CelestialBodyMatcher.toY(energy);
+                        if (CelestialBodyMatcher.step2(tx, ey, bodyClass)) {
                             int index = timeBase | (energy - 1);
-                            validAmplified.set(index);
+                            CelestialBodyMatcher.validAmplified.set(index);
                             if (!bodyClass.isStellar()) {
-                                validNormal.set(index);
+                                CelestialBodyMatcher.validNormal.set(index);
                             }
                         }
                     }
@@ -136,7 +149,7 @@ public final class CelestialBodyMatcher {
 
     /** 提前触发预计算，避免界面首次查询有效范围时卡顿。 */
     public static void warmup() {
-        ensurePrecomputed();
+        CelestialBodyMatcher.ensurePrecomputed();
     }
 
     // === 界面提示范围查询 ===
@@ -145,8 +158,8 @@ public final class CelestialBodyMatcher {
      * 根据部分已知数量查询某种砧子的合法范围 [min, max]，数量 0 表示尚未放置。
      */
     public static int @Nullable [] getValidRange(int time, int space, int mass, int energy, boolean isAmplified, int targetIndex) {
-        ensurePrecomputed();
-        BitSet bitset = isAmplified ? validAmplified : validNormal;
+        CelestialBodyMatcher.ensurePrecomputed();
+        BitSet bitset = isAmplified ? CelestialBodyMatcher.validAmplified : CelestialBodyMatcher.validNormal;
         if (bitset == null) return null;
 
         int[] counts = {time, space, mass, energy};
@@ -160,7 +173,7 @@ public final class CelestialBodyMatcher {
         }
         if (allUnknown) return new int[] {1, 64};
 
-        java.util.List<Integer> unknownIndices = new ArrayList<>();
+        List<Integer> unknownIndices = new ArrayList<>();
         for (int i = 0; i < 4; i++) {
             if (i != targetIndex && counts[i] <= 0) {
                 unknownIndices.add(i);
@@ -173,7 +186,7 @@ public final class CelestialBodyMatcher {
 
         for (int candidate = 1; candidate <= 64; candidate++) {
             test[targetIndex] = candidate;
-            if (anyValid(bitset, test, unknownIndices)) {
+            if (CelestialBodyMatcher.anyValid(bitset, test, unknownIndices)) {
                 if (candidate < min) min = candidate;
                 max = candidate;
             }
@@ -185,19 +198,19 @@ public final class CelestialBodyMatcher {
 
     private static boolean anyValid(BitSet bitset, int[] counts, List<Integer> unknownIndices) {
         if (unknownIndices.isEmpty()) {
-            return bitset.get(encode(counts[0], counts[1], counts[2], counts[3]));
+            return bitset.get(CelestialBodyMatcher.encode(counts[0], counts[1], counts[2], counts[3]));
         }
-        return anyValidRecursive(bitset, counts, unknownIndices, 0);
+        return CelestialBodyMatcher.anyValidRecursive(bitset, counts, unknownIndices, 0);
     }
 
     private static boolean anyValidRecursive(BitSet bitset, int[] counts, List<Integer> unknownIndices, int depth) {
         if (depth == unknownIndices.size()) {
-            return bitset.get(encode(counts[0], counts[1], counts[2], counts[3]));
+            return bitset.get(CelestialBodyMatcher.encode(counts[0], counts[1], counts[2], counts[3]));
         }
         int idx = unknownIndices.get(depth);
         for (int val = 1; val <= 64; val++) {
             counts[idx] = val;
-            if (anyValidRecursive(bitset, counts, unknownIndices, depth + 1)) {
+            if (CelestialBodyMatcher.anyValidRecursive(bitset, counts, unknownIndices, depth + 1)) {
                 return true;
             }
         }
@@ -207,15 +220,15 @@ public final class CelestialBodyMatcher {
     // === 通过类加载器读取星图，兼容服务端 ===
 
     private static void ensureLoaded() {
-        if (loadAttempted) return;
-        loadAttempted = true;
-        massRadiusImage = loadImage(MASS_RADIUS);
-        ageTempImage = loadImage(AGE_TEMP);
-        ageTempSpImage = loadImage(AGE_TEMP_SP);
-        ageRadiusImage = loadImage(AGE_RADIUS);
+        if (CelestialBodyMatcher.loadAttempted) return;
+        CelestialBodyMatcher.loadAttempted = true;
+        CelestialBodyMatcher.massRadiusImage = CelestialBodyMatcher.loadImage(CelestialBodyMatcher.MASS_RADIUS);
+        CelestialBodyMatcher.ageTempImage = CelestialBodyMatcher.loadImage(CelestialBodyMatcher.AGE_TEMP);
+        CelestialBodyMatcher.ageTempSpImage = CelestialBodyMatcher.loadImage(CelestialBodyMatcher.AGE_TEMP_SP);
+        CelestialBodyMatcher.ageRadiusImage = CelestialBodyMatcher.loadImage(CelestialBodyMatcher.AGE_RADIUS);
     }
 
-    private static BufferedImage loadImage(String classpath) {
+    private static @Nullable BufferedImage loadImage(String classpath) {
         try (InputStream is = AnvilCraft.class.getClassLoader().getResourceAsStream(classpath)) {
             if (is == null) {
                 AnvilCraft.LOGGER.warn("CelestialBodyMatcher: missing diagram {}", classpath);
@@ -230,10 +243,10 @@ public final class CelestialBodyMatcher {
 
     @Nullable
     private static BufferedImage loadStarColorTemp() {
-        if (starColorTempImage == null) {
-            starColorTempImage = loadImage(STAR_COLOR_TEMP);
+        if (CelestialBodyMatcher.starColorTempImage == null) {
+            CelestialBodyMatcher.starColorTempImage = CelestialBodyMatcher.loadImage(CelestialBodyMatcher.STAR_COLOR_TEMP);
         }
-        return starColorTempImage;
+        return CelestialBodyMatcher.starColorTempImage;
     }
 
     // === 星图查找 ===
@@ -254,7 +267,7 @@ public final class CelestialBodyMatcher {
     @Nullable
     private static CelestialBodyClass lookupClass(@Nullable BufferedImage image, int x, int y) {
         if (image == null) return null;
-        int rgb = getRgb(image, x, y);
+        int rgb = CelestialBodyMatcher.getRgb(image, x, y);
         return CelestialBodyClass.fromRgb(rgb);
     }
 
@@ -262,18 +275,18 @@ public final class CelestialBodyMatcher {
 
     private static boolean step2(int time, int energy, CelestialBodyClass bodyClass) {
         if (bodyClass.step2UsesSp()) {
-            return getRgb(ageTempSpImage, time, energy) == bodyClass.rgb();
+            return CelestialBodyMatcher.getRgb(CelestialBodyMatcher.ageTempSpImage, time, energy) == bodyClass.rgb();
         }
         if (bodyClass.isPlanetary() && bodyClass != CelestialBodyClass.BROWN_DWARF) {
             // 行星类在第二步匹配颜色；岩石行星统一接受 0x339933。
-            return getRgb(ageTempImage, time, energy) == bodyClass.step2MatchRgb();
+            return CelestialBodyMatcher.getRgb(CelestialBodyMatcher.ageTempImage, time, energy) == bodyClass.step2MatchRgb();
         }
         // 主序星
-        return getRgb(ageTempImage, time, energy) == bodyClass.rgb();
+        return CelestialBodyMatcher.getRgb(CelestialBodyMatcher.ageTempImage, time, energy) == bodyClass.rgb();
     }
 
     private static boolean step3(int time, int space, CelestialBodyClass bodyClass) {
-        return getRgb(ageRadiusImage, time, space) == bodyClass.rgb();
+        return CelestialBodyMatcher.getRgb(CelestialBodyMatcher.ageRadiusImage, time, space) == bodyClass.rgb();
     }
 
     // === 天体数据生成 ===
@@ -282,27 +295,27 @@ public final class CelestialBodyMatcher {
         CelestialBodyClass bodyClass, int time, int space, int mass, int energy, RandomSource random
     ) {
         return switch (bodyClass) {
-            case LARGE_MOON -> generateLargeMoon(space, energy, random);
-            case ROCKY_NO_LIQUID, ROCKY_LOW_LIQUID, ROCKY_MED_LIQUID, ROCKY_HIGH_LIQUID -> generateRockyPlanet(
+            case LARGE_MOON -> CelestialBodyMatcher.generateLargeMoon(space, energy, random);
+            case ROCKY_NO_LIQUID, ROCKY_LOW_LIQUID, ROCKY_MED_LIQUID, ROCKY_HIGH_LIQUID -> CelestialBodyMatcher.generateRockyPlanet(
                 bodyClass, energy, space, random);
-            case ICE_GIANT -> generateGiantPlanet(bodyClass, PressureType.ICE, space, random);
-            case GAS_GIANT -> generateGiantPlanet(bodyClass, PressureType.GAS, space, random);
-            case BROWN_DWARF -> generateBrownDwarf(space, energy, random);
-            default -> generateStar(bodyClass, energy, space, random);
+            case ICE_GIANT -> CelestialBodyMatcher.generateGiantPlanet(bodyClass, PressureType.ICE, space, random);
+            case GAS_GIANT -> CelestialBodyMatcher.generateGiantPlanet(bodyClass, PressureType.GAS, space, random);
+            case BROWN_DWARF -> CelestialBodyMatcher.generateBrownDwarf(space, energy, random);
+            default -> CelestialBodyMatcher.generateStar(bodyClass, energy, space, random);
         };
     }
 
     // === 大型卫星 ===
     private static CelestialBodyData generateLargeMoon(int space, int energy, RandomSource random) {
-        int size = sizeForSpace(space);
+        int size = CelestialBodyMatcher.sizeForSpace(space);
         int mag = random.nextFloat() < 0.5f ? 0 : 1;
-        Temperature temperature = energyToTemperature(energy);
+        Temperature temperature = CelestialBodyMatcher.energyToTemperature(energy);
         return new RockyPlanetData(
             CelestialBodyClass.LARGE_MOON,
             false, LiquidCoverage.NONE, temperature,
             RingType.NONE, size,
             random.nextInt(16), 0,
-            randomAxialTilt(random), randomRotationSpeed(random), mag
+            CelestialBodyMatcher.randomAxialTilt(random), CelestialBodyMatcher.randomRotationSpeed(random), mag
         );
     }
 
@@ -318,35 +331,35 @@ public final class CelestialBodyMatcher {
             default -> LiquidCoverage.NONE;
         };
         boolean hasAtmosphere = random.nextFloat() < 0.2f;
-        Temperature temperature = energyToTemperature(energy);
-        RingType ring = weightedRing(random, 0.97f, 0.02f, 0.01f);
-        int size = sizeForSpace(space);
+        Temperature temperature = CelestialBodyMatcher.energyToTemperature(energy);
+        RingType ring = CelestialBodyMatcher.weightedRing(random, 0.97f, 0.02f, 0.01f);
+        int size = CelestialBodyMatcher.sizeForSpace(space);
         int baseRow = random.nextInt(8);
         int overlayRow = liquid == LiquidCoverage.NONE ? 0 : 8 + random.nextInt(8);
-        int mag = weightedMagnetic(random, 0.10f, 0.80f, 0.10f);
+        int mag = CelestialBodyMatcher.weightedMagnetic(random, 0.10f, 0.80f, 0.10f);
 
         return new RockyPlanetData(
             bodyClass,
             hasAtmosphere, liquid, temperature, ring, size,
             baseRow, overlayRow,
-            randomAxialTilt(random), randomRotationSpeed(random), mag
+            CelestialBodyMatcher.randomAxialTilt(random), CelestialBodyMatcher.randomRotationSpeed(random), mag
         );
     }
 
     // === 褐矮星 ===
     private static CelestialBodyData generateBrownDwarf(int space, int energy, RandomSource random) {
-        int size = sizeForSpace(space);
+        int size = CelestialBodyMatcher.sizeForSpace(space);
         int baseRow = random.nextInt(16);
         int overlayRow;
         do {
             overlayRow = random.nextInt(16);
         } while (overlayRow == baseRow);
-        int mag = weightedMagnetic(random, 0.01f, 0.49f, 0.50f);
+        int mag = CelestialBodyMatcher.weightedMagnetic(random, 0.01f, 0.49f, 0.50f);
         return new GiantPlanetData(
             CelestialBodyClass.BROWN_DWARF,
             PressureType.GAS, WindSpeed.HIGH, RingType.NONE, size,
             baseRow, overlayRow,
-            randomAxialTilt(random), randomRotationSpeed(random), mag, true
+            CelestialBodyMatcher.randomAxialTilt(random), CelestialBodyMatcher.randomRotationSpeed(random), mag, true
         );
     }
 
@@ -354,20 +367,20 @@ public final class CelestialBodyMatcher {
     private static CelestialBodyData generateGiantPlanet(
         CelestialBodyClass bodyClass, PressureType pressure, int space, RandomSource random
     ) {
-        RingType ring = weightedRing(random, 0.70f, 0.20f, 0.10f);
-        int size = sizeForSpace(space);
+        RingType ring = CelestialBodyMatcher.weightedRing(random, 0.70f, 0.20f, 0.10f);
+        int size = CelestialBodyMatcher.sizeForSpace(space);
         int baseRow = random.nextInt(16);
         int overlayRow;
         do {
             overlayRow = random.nextInt(16);
         } while (overlayRow == baseRow);
         WindSpeed wind = random.nextBoolean() ? WindSpeed.HIGH : WindSpeed.VERY_HIGH;
-        int mag = weightedMagnetic(random, 0.01f, 0.49f, 0.50f);
+        int mag = CelestialBodyMatcher.weightedMagnetic(random, 0.01f, 0.49f, 0.50f);
         return new GiantPlanetData(
             bodyClass,
             pressure, wind, ring, size,
             baseRow, overlayRow,
-            randomAxialTilt(random), randomRotationSpeed(random), mag, false
+            CelestialBodyMatcher.randomAxialTilt(random), CelestialBodyMatcher.randomRotationSpeed(random), mag, false
         );
     }
 
@@ -375,10 +388,10 @@ public final class CelestialBodyMatcher {
     private static CelestialBodyData generateStar(
         CelestialBodyClass bodyClass, int energy, int space, RandomSource random
     ) {
-        int size = sizeForSpace(space);
-        int[] rgb = getStarColorFromTempDiagram(energy);
+        int size = CelestialBodyMatcher.sizeForSpace(space);
+        int[] rgb = CelestialBodyMatcher.getStarColorFromTempDiagram(energy);
         int mag = random.nextFloat() < 0.10f ? 5 : 4;
-        int rotSpeed = bodyClass == CelestialBodyClass.BLACK_HOLE ? 0 : randomRotationSpeed(random);
+        int rotSpeed = bodyClass == CelestialBodyClass.BLACK_HOLE ? 0 : CelestialBodyMatcher.randomRotationSpeed(random);
         float axialTilt = 0f;
         return new StarData(
             bodyClass,
@@ -432,11 +445,11 @@ public final class CelestialBodyMatcher {
     }
 
     private static int[] getStarColorFromTempDiagram(int energy) {
-        BufferedImage img = loadStarColorTemp();
+        BufferedImage img = CelestialBodyMatcher.loadStarColorTemp();
         if (img == null) {
             return new int[]{255, 255, 255};
         }
-        int row = toY(energy);
+        int row = CelestialBodyMatcher.toY(energy);
         int argb = img.getRGB(0, row);
         // BufferedImage 的像素格式为 AARRGGBB。
         int r = (argb >> 16) & 0xFF;
@@ -448,33 +461,49 @@ public final class CelestialBodyMatcher {
     // === 供界面星图指南使用的公开像素查询 ===
 
     public static int getMassRadiusRgb(int mass, int space) {
-        ensureLoaded();
-        return getRgb(massRadiusImage, toX(mass), toY(space));
+        CelestialBodyMatcher.ensureLoaded();
+        return CelestialBodyMatcher.getRgb(
+            CelestialBodyMatcher.massRadiusImage,
+            CelestialBodyMatcher.toX(mass),
+            CelestialBodyMatcher.toY(space)
+        );
     }
 
     public static int getAgeTempRgb(int time, int energy) {
-        ensureLoaded();
-        return getRgb(ageTempImage, toX(time), toY(energy));
+        CelestialBodyMatcher.ensureLoaded();
+        return CelestialBodyMatcher.getRgb(
+            CelestialBodyMatcher.ageTempImage,
+            CelestialBodyMatcher.toX(time),
+            CelestialBodyMatcher.toY(energy)
+        );
     }
 
     public static int getAgeTempSpRgb(int time, int energy) {
-        ensureLoaded();
-        return getRgb(ageTempSpImage, toX(time), toY(energy));
+        CelestialBodyMatcher.ensureLoaded();
+        return CelestialBodyMatcher.getRgb(
+            CelestialBodyMatcher.ageTempSpImage,
+            CelestialBodyMatcher.toX(time),
+            CelestialBodyMatcher.toY(energy)
+        );
     }
 
     public static int getAgeRadiusRgb(int time, int space) {
-        ensureLoaded();
-        return getRgb(ageRadiusImage, toX(time), toY(space));
+        CelestialBodyMatcher.ensureLoaded();
+        return CelestialBodyMatcher.getRgb(
+            CelestialBodyMatcher.ageRadiusImage,
+            CelestialBodyMatcher.toX(time),
+            CelestialBodyMatcher.toY(space)
+        );
     }
 
     // === 恒星演化加速器使用的像素扫描 ===
 
     public static int countPixelsRightInAgeTemp(int x, int y) {
-        ensureLoaded();
-        if (ageTempImage == null) return 0;
+        CelestialBodyMatcher.ensureLoaded();
+        if (CelestialBodyMatcher.ageTempImage == null) return 0;
         int count = 0;
-        for (int scanX = x + 1; scanX < DIAG_SIZE; scanX++) {
-            int rgb = getRgb(ageTempImage, scanX, y);
+        for (int scanX = x + 1; scanX < CelestialBodyMatcher.DIAG_SIZE; scanX++) {
+            int rgb = CelestialBodyMatcher.getRgb(CelestialBodyMatcher.ageTempImage, scanX, y);
             if (rgb == 0x000000) break;
             count++;
         }
@@ -482,11 +511,11 @@ public final class CelestialBodyMatcher {
     }
 
     public static int countPixelsDownInAgeTempSp(int x, int y) {
-        ensureLoaded();
-        if (ageTempSpImage == null) return 0;
+        CelestialBodyMatcher.ensureLoaded();
+        if (CelestialBodyMatcher.ageTempSpImage == null) return 0;
         int count = 0;
-        for (int scanY = y + 1; scanY < DIAG_SIZE; scanY++) {
-            int rgb = getRgb(ageTempSpImage, x, scanY);
+        for (int scanY = y + 1; scanY < CelestialBodyMatcher.DIAG_SIZE; scanY++) {
+            int rgb = CelestialBodyMatcher.getRgb(CelestialBodyMatcher.ageTempSpImage, x, scanY);
             if (rgb == 0x000000) break;
             count++;
         }
@@ -494,16 +523,16 @@ public final class CelestialBodyMatcher {
     }
 
     public static int countTotalColoredPixelsInAgeTempSpColumn(int x, int startY) {
-        ensureLoaded();
-        if (ageTempSpImage == null) return 0;
+        CelestialBodyMatcher.ensureLoaded();
+        if (CelestialBodyMatcher.ageTempSpImage == null) return 0;
         int segmentTop = startY;
         for (int scanY = startY - 1; scanY >= 0; scanY--) {
-            if (getRgb(ageTempSpImage, x, scanY) == 0x000000) break;
+            if (CelestialBodyMatcher.getRgb(CelestialBodyMatcher.ageTempSpImage, x, scanY) == 0x000000) break;
             segmentTop = scanY;
         }
         int count = 0;
-        for (int scanY = segmentTop; scanY < DIAG_SIZE; scanY++) {
-            int rgb = getRgb(ageTempSpImage, x, scanY);
+        for (int scanY = segmentTop; scanY < CelestialBodyMatcher.DIAG_SIZE; scanY++) {
+            int rgb = CelestialBodyMatcher.getRgb(CelestialBodyMatcher.ageTempSpImage, x, scanY);
             if (rgb == 0x000000) break;
             count++;
         }
@@ -511,6 +540,6 @@ public final class CelestialBodyMatcher {
     }
 
     public static int[] getStarColor(int energy) {
-        return getStarColorFromTempDiagram(energy);
+        return CelestialBodyMatcher.getStarColorFromTempDiagram(energy);
     }
 }

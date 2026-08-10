@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import dev.dubhe.anvilcraft.api.block.entity.IConvertableBlockEntity;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
-import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.logistics.chute.ChuteBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -14,11 +13,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -53,7 +52,7 @@ public class ChuteBlockEntity extends BaseChuteBlockEntity implements IConvertab
 
     @Override
     protected Direction getOutputDirection() {
-        return getDirection();
+        return this.getDirection();
     }
 
     @Override
@@ -63,7 +62,7 @@ public class ChuteBlockEntity extends BaseChuteBlockEntity implements IConvertab
 
     @Override
     protected boolean isEnabled() {
-        return getBlockState().getValue(ChuteBlock.ENABLED);
+        return this.getBlockState().getValue(ChuteBlock.ENABLED);
     }
 
     public static ChuteBlockEntity createBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
@@ -110,6 +109,9 @@ public class ChuteBlockEntity extends BaseChuteBlockEntity implements IConvertab
                 transaction.commit();
             }
         }
-        AnvilUtil.dropItems(drops, this.level, newBe.getBlockPos().getCenter());
+        Level level = this.level;
+        if (level != null) {
+            AnvilUtil.dropItems(drops, level, newBe.getBlockPos().getCenter());
+        }
     }
 }

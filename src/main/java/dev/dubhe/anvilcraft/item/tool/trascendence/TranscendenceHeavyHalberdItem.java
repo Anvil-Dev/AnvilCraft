@@ -25,7 +25,7 @@ public class TranscendenceHeavyHalberdItem extends HeavyHalberdItem {
             -2.4F,
             properties.fireResistant()
                 .component(ModComponents.MULTIPHASE, Multiphase.create())
-                .component(DataComponents.ITEM_NAME, Multiphase.firstPhaseName(NAME))
+                .component(DataComponents.ITEM_NAME, Multiphase.firstPhaseName(TranscendenceHeavyHalberdItem.NAME))
                 .component(ModComponents.ETERNAL, Eternal.DEFAULT)
                 .component(DataComponents.UNBREAKABLE, Unit.INSTANCE)
                 .component(ModComponents.PROVIDENCE, Unit.INSTANCE)

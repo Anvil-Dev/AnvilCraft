@@ -20,6 +20,7 @@ import net.minecraft.util.StringRepresentable;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -171,7 +172,7 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
 
         @Override
         public String getSerializedName() {
-            return name();
+            return this.name();
         }
     }
 
@@ -205,7 +206,12 @@ public record TagModification(String path, ModifyOperation op, int index, Tag ta
         }
 
         public TagModification build() {
-            return new TagModification(this.path, this.op, this.index, this.tag);
+            return new TagModification(
+                this.path,
+                Objects.requireNonNull(this.op),
+                this.index,
+                Objects.requireNonNull(this.tag)
+            );
         }
     }
 }

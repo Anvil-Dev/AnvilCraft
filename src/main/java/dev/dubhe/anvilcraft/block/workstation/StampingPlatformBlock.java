@@ -36,28 +36,31 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
         Block.box(2.0, 12.0, 2.0, 14.0, 16.0, 14.0),
         Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
         Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
-        Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0));
+        Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0)
+    );
     private static final VoxelShape REDUCE_AABB_INTERACTION = Shapes.or(
         Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
         Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
-        Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0));
-    private static final VoxelShape AABB = Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.ONLY_FIRST);
-    private static final VoxelShape INTERACTION_BOX = Shapes.join(Shapes.block(), REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
+        Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0)
+    );
+    private static final VoxelShape AABB = Shapes.join(Shapes.block(), StampingPlatformBlock.REDUCE_AABB, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape INTERACTION_BOX = Shapes.join(
+        Shapes.block(), StampingPlatformBlock.REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
 
     public StampingPlatformBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(
             this.stateDefinition.any()
-                .setValue(WATERLOGGED, false)
-                .setValue(FACING, Direction.NORTH)
+                .setValue(StampingPlatformBlock.WATERLOGGED, false)
+                .setValue(StampingPlatformBlock.FACING, Direction.NORTH)
         );
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
         super.createBlockStateDefinition(builder);
-        builder.add(WATERLOGGED);
-        builder.add(FACING);
+        builder.add(StampingPlatformBlock.WATERLOGGED);
+        builder.add(StampingPlatformBlock.FACING);
     }
 
     @Override
@@ -67,12 +70,12 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
         BlockPos blockPos,
         CollisionContext collisionContext
     ) {
-        return AABB;
+        return StampingPlatformBlock.AABB;
     }
 
     @Override
     protected VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return INTERACTION_BOX;
+        return StampingPlatformBlock.INTERACTION_BOX;
     }
 
     @Override
@@ -88,13 +91,14 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
         BlockState state = super.getStateForPlacement(context);
         state = null != state ? state : this.defaultBlockState();
         Direction facing = context.getHorizontalDirection().getOpposite();
-        return state.setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER).setValue(FACING, facing);
+        return state.setValue(StampingPlatformBlock.WATERLOGGED, fluidState.getType() == Fluids.WATER).setValue(
+            StampingPlatformBlock.FACING, facing);
     }
 
     @Override
 
     public FluidState getFluidState(BlockState blockState) {
-        return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
+        return blockState.getValue(StampingPlatformBlock.WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
     }
 
     @Override
@@ -109,7 +113,7 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
         BlockState blockState2,
         RandomSource random
     ) {
-        if (blockState.getValue(WATERLOGGED)) {
+        if (blockState.getValue(StampingPlatformBlock.WATERLOGGED)) {
             ticks.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelReader));
         }
         return super.updateShape(blockState, levelReader, ticks, blockPos, direction, blockPos2, blockState2, random);
@@ -123,17 +127,17 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
     @Override
     public Vec3 getOffset(Level level, BlockPos pos, BlockState state) {
         if (!(state.getBlock() instanceof StampingPlatformBlock)) return Vec3.ZERO;
-        Vec3i normal = state.getValue(FACING).getUnitVec3i();
+        Vec3i normal = state.getValue(StampingPlatformBlock.FACING).getUnitVec3i();
         return new Vec3(normal.getX(), normal.getY(), normal.getZ()).scale(0.7);
     }
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
-        return state.setValue(FACING, rotation.rotate(state.getValue(FACING)));
+        return state.setValue(StampingPlatformBlock.FACING, rotation.rotate(state.getValue(StampingPlatformBlock.FACING)));
     }
 
     @Override
     protected BlockState mirror(BlockState state, Mirror mirror) {
-        return state.setValue(FACING, mirror.mirror(state.getValue(FACING)));
+        return state.setValue(StampingPlatformBlock.FACING, mirror.mirror(state.getValue(StampingPlatformBlock.FACING)));
     }
 }

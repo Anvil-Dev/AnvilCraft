@@ -190,7 +190,7 @@ public class ItemHandlerUtil {
         if (cauldron != null) {
             return List.of(cauldron.getInputHandler());
         }
-        return getTargetItemHandlerList(inputBlockPos, context, level);
+        return ItemHandlerUtil.getTargetItemHandlerList(inputBlockPos, context, level);
     }
 
     public static int countItemsInHandler(ResourceHandler<ItemResource> handler) {
@@ -219,7 +219,7 @@ public class ItemHandlerUtil {
                 i++;
                 inputPos = inputPos.relative(context.getOpposite());
             } else {
-                return getSourceItemHandler(inputPos, context, level);
+                return ItemHandlerUtil.getSourceItemHandler(inputPos, context, level);
             }
         } while (i < AnvilCraft.CONFIG.blockPlacerRecursiveRetrievalDistanceMax);
         return null;

@@ -220,7 +220,7 @@ public class EnergyWeaponMakeScreen extends AbstractContainerScreen<EnergyWeapon
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            EnergyWeaponMakeScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,

@@ -27,42 +27,42 @@ public class JeiSlotUtil {
      * 使用默认的居中位置绘制输入槽。
      */
     public static void drawDefaultInputSlots(GuiGraphicsExtractor graphics, IDrawable slot, int inputSize) {
-        drawSlots(graphics, slot, inputSize, INPUT_X - 1, DEFAULT_Y - 1);
+        JeiSlotUtil.drawSlots(graphics, slot, inputSize, JeiSlotUtil.INPUT_X - 1, JeiSlotUtil.DEFAULT_Y - 1);
     }
 
     /**
      * 存在流体时将物品输入槽向上偏移。
      */
     public static void drawItemInputSlots(GuiGraphicsExtractor graphics, IDrawable slot, int inputSize) {
-        drawSlots(graphics, slot, inputSize, INPUT_X - 1, ITEM_Y - 1);
+        JeiSlotUtil.drawSlots(graphics, slot, inputSize, JeiSlotUtil.INPUT_X - 1, JeiSlotUtil.ITEM_Y - 1);
     }
 
     /**
      * 存在物品时将流体输入槽向下偏移。
      */
     public static void drawFluidInputSlots(GuiGraphicsExtractor graphics, IDrawable slot, int inputSize) {
-        drawSlots(graphics, slot, inputSize, INPUT_X - 1, FLUID_Y - 1);
+        JeiSlotUtil.drawSlots(graphics, slot, inputSize, JeiSlotUtil.INPUT_X - 1, JeiSlotUtil.FLUID_Y - 1);
     }
 
     /**
      * 使用默认的居中位置绘制输出槽。
      */
     public static void drawDefaultOutputSlots(GuiGraphicsExtractor graphics, IDrawable slot, int outputSize) {
-        drawSlots(graphics, slot, outputSize, OUTPUT_X - 1, DEFAULT_Y - 1);
+        JeiSlotUtil.drawSlots(graphics, slot, outputSize, JeiSlotUtil.OUTPUT_X - 1, JeiSlotUtil.DEFAULT_Y - 1);
     }
 
     /**
      * 存在流体时将物品输出槽向上偏移。
      */
     public static void drawItemOutputSlots(GuiGraphicsExtractor graphics, IDrawable slot, int outputSize) {
-        drawSlots(graphics, slot, outputSize, OUTPUT_X - 1, ITEM_Y - 1);
+        JeiSlotUtil.drawSlots(graphics, slot, outputSize, JeiSlotUtil.OUTPUT_X - 1, JeiSlotUtil.ITEM_Y - 1);
     }
 
     /**
      * 存在物品时将流体输出槽向下偏移。
      */
     public static void drawFluidOutputSlots(GuiGraphicsExtractor graphics, IDrawable slot, int outputSize) {
-        drawSlots(graphics, slot, outputSize, OUTPUT_X - 1, FLUID_Y - 1);
+        JeiSlotUtil.drawSlots(graphics, slot, outputSize, JeiSlotUtil.OUTPUT_X - 1, JeiSlotUtil.FLUID_Y - 1);
     }
 
     public static void drawSlots(
@@ -75,10 +75,10 @@ public class JeiSlotUtil {
         if (size == 0) return;
         int columns = (int) Math.ceil(Math.sqrt(size));
         int rows = Math.ceilDiv(size, columns);
-        int startX = centerX - (columns - 1) * OFFSET / 2;
-        int startY = centerY - (rows - 1) * OFFSET / 2;
+        int startX = centerX - (columns - 1) * JeiSlotUtil.OFFSET / 2;
+        int startY = centerY - (rows - 1) * JeiSlotUtil.OFFSET / 2;
         for (int i = 0; i < size; i++) {
-            slot.draw(graphics, startX + (i % columns) * OFFSET, startY + (i / columns) * OFFSET);
+            slot.draw(graphics, startX + (i % columns) * JeiSlotUtil.OFFSET, startY + (i / columns) * JeiSlotUtil.OFFSET);
         }
     }
 
@@ -161,7 +161,7 @@ public class JeiSlotUtil {
             for (int index = 0; index < inputSize; index++) {
                 int row = index / 2;
                 int col = index % 2;
-                addSlotWithCount(builder, startX + 19 * col, startY + 19 * row, ingredient.withCount(1));
+                JeiSlotUtil.addSlotWithCount(builder, startX + 19 * col, startY + 19 * row, ingredient.withCount(1));
             }
         } else if (inputSize <= 6) {
             int startX = 2;
@@ -169,7 +169,7 @@ public class JeiSlotUtil {
             for (int index = 0; index < inputSize; index++) {
                 int row = index / 3;
                 int col = index % 3;
-                addSlotWithCount(builder, startX + 19 * col, startY + 19 * row, ingredient.withCount(1));
+                JeiSlotUtil.addSlotWithCount(builder, startX + 19 * col, startY + 19 * row, ingredient.withCount(1));
             }
         } else {
             int startX = 1;
@@ -178,7 +178,7 @@ public class JeiSlotUtil {
                 if (index > 9) break;
                 int row = index / 3;
                 int col = index % 3;
-                addSlotWithCount(builder, startX + 19 * col, startY + 19 * row, ingredient.withCount(1));
+                JeiSlotUtil.addSlotWithCount(builder, startX + 19 * col, startY + 19 * row, ingredient.withCount(1));
             }
         }
     }
@@ -196,7 +196,7 @@ public class JeiSlotUtil {
             for (int index = 0; index < inputSize; index++) {
                 int row = index / 2;
                 int col = index % 2;
-                addSlotWithCount(builder, startX + 19 * col, startY + 19 * row, mergedIngredients.get(index));
+                JeiSlotUtil.addSlotWithCount(builder, startX + 19 * col, startY + 19 * row, mergedIngredients.get(index));
             }
         } else if (inputSize <= 6) {
             int startX = 2;
@@ -204,7 +204,7 @@ public class JeiSlotUtil {
             for (int index = 0; index < inputSize; index++) {
                 int row = index / 3;
                 int col = index % 3;
-                addSlotWithCount(builder, startX + 19 * col, startY + 19 * row, mergedIngredients.get(index));
+                JeiSlotUtil.addSlotWithCount(builder, startX + 19 * col, startY + 19 * row, mergedIngredients.get(index));
             }
         } else {
             int startX = 1;
@@ -213,7 +213,7 @@ public class JeiSlotUtil {
                 if (index > 9) break;
                 int row = index / 3;
                 int col = index % 3;
-                addSlotWithCount(builder, startX + 19 * col, startY + 19 * row, mergedIngredients.get(index));
+                JeiSlotUtil.addSlotWithCount(builder, startX + 19 * col, startY + 19 * row, mergedIngredients.get(index));
             }
         }
     }

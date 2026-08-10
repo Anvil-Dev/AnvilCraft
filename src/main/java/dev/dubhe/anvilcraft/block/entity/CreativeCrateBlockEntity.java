@@ -111,7 +111,7 @@ public class CreativeCrateBlockEntity extends BlockEntity implements IItemResour
             if (held.isEmpty()) return false;
             if (!this.level.isClientSide()) {
                 this.itemHandler.setStack(held.copyWithCount(1));
-                setChanged();
+                this.setChanged();
                 this.sendUpdate();
             }
             return true;
@@ -121,7 +121,7 @@ public class CreativeCrateBlockEntity extends BlockEntity implements IItemResour
         if (!this.level.isClientSide()) {
             player.getInventory().placeItemBackInInventory(this.itemHandler.getStack());
             this.itemHandler.setStack(ItemStack.EMPTY);
-            setChanged();
+            this.setChanged();
             this.sendUpdate();
         }
         return true;

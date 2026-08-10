@@ -47,12 +47,12 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemResour
     private final ItemStacksResourceHandler itemHandler = new ItemStacksResourceHandler(1) {
         @Override
         public void onContentsChanged(int index, ItemStack previousContents) {
-            setChanged();
+            BurningHeaterBlockEntity.this.setChanged();
         }
 
         @Override
         public boolean isValid(int index, ItemResource resource) {
-            return getItemBurnTime(resource.toStack()) > 0 || resource.toStack().is(Items.BUCKET);
+            return BurningHeaterBlockEntity.getItemBurnTime(resource.toStack()) > 0 || resource.toStack().is(Items.BUCKET);
         }
     };
 
@@ -71,9 +71,9 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemResour
      * 客户端上根据上次同步时间进行本地倒计时估算，避免频繁网络同步。
      */
     public int getDisplayBurnTime() {
-        if (level == null || !level.isClientSide()) return this.burnTime;
+        if (this.level == null || !this.level.isClientSide()) return this.burnTime;
         if (this.lastSyncGameTime <= 0) return this.burnTime;
-        long elapsed = level.getGameTime() - this.lastSyncGameTime;
+        long elapsed = this.level.getGameTime() - this.lastSyncGameTime;
         return Math.max(0, this.burnTime - (int) elapsed);
     }
 
@@ -94,7 +94,7 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemResour
                 || oldLevel != newLevel;
 
             if (bigChange) {
-                setChanged();
+                this.setChanged();
                 level.sendBlockUpdated(pos, state, state, 3);
                 level.updateNeighbourForOutputSignal(pos, state.getBlock());
             }
@@ -139,8 +139,8 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemResour
     @Override
     public void onLoad() {
         super.onLoad();
-        if (level != null) {
-            this.lastSyncGameTime = level.getGameTime();
+        if (this.level != null) {
+            this.lastSyncGameTime = this.level.getGameTime();
         }
     }
 
@@ -168,8 +168,8 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemResour
                 this.itemHandler.set(0, resource, stack.getCount());
             }
         });
-        if (level != null) {
-            this.lastSyncGameTime = level.getGameTime();
+        if (this.level != null) {
+            this.lastSyncGameTime = this.level.getGameTime();
         }
     }
 
@@ -183,17 +183,17 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemResour
     public void consumeBurnTime(int ticks) {
         if (ticks <= 0) return;
         this.burnTime = Math.max(0, this.burnTime - ticks);
-        setChanged();
-        if (level != null && !level.isClientSide()) {
-            this.updateBurningState(level, worldPosition, getBlockState());
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-            level.updateNeighbourForOutputSignal(worldPosition, getBlockState().getBlock());
+        this.setChanged();
+        if (this.level != null && !this.level.isClientSide()) {
+            this.updateBurningState(this.level, this.worldPosition, this.getBlockState());
+            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
+            this.level.updateNeighbourForOutputSignal(this.worldPosition, this.getBlockState().getBlock());
         }
     }
 
     private void updateBurningState(Level level, BlockPos pos, BlockState state) {
         int targetLevel;
-        if (this.burnTime >= LIT_THRESHOLD) {
+        if (this.burnTime >= BurningHeaterBlockEntity.LIT_THRESHOLD) {
             targetLevel = 2;
         } else if (this.burnTime > 0) {
             targetLevel = 1;
@@ -206,15 +206,15 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemResour
     }
 
     private void tryConsumeFuel() {
-        if (this.burnTime >= MAX_BURN_TIME) return;
+        if (this.burnTime >= BurningHeaterBlockEntity.MAX_BURN_TIME) return;
 
         ItemResource fuelResource = this.itemHandler.getResource(0);
         if (fuelResource.isEmpty()) return;
         int fuelCount = this.itemHandler.getAmountAsInt(0);
-        int burnTimePerItem = getItemBurnTime(fuelResource.toStack());
+        int burnTimePerItem = BurningHeaterBlockEntity.getItemBurnTime(fuelResource.toStack());
         if (burnTimePerItem <= 0) return;
 
-        int itemsToConsume = Math.min(fuelCount, (MAX_BURN_TIME - this.burnTime) / burnTimePerItem);
+        int itemsToConsume = Math.min(fuelCount, (BurningHeaterBlockEntity.MAX_BURN_TIME - this.burnTime) / burnTimePerItem);
         if (itemsToConsume <= 0) return;
 
         this.burnTime += itemsToConsume * burnTimePerItem;

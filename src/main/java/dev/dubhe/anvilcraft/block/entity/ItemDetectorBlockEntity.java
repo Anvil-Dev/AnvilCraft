@@ -62,14 +62,14 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     @Getter
     private int range = 0;
     private boolean rangeChanged = true;
-    private AABB detectionRange;
+    private @Nullable AABB detectionRange;
     @Getter
     private final ContainerData dataAccess = new ContainerData() {
         @Override
         public int get(int index) {
             return switch (index) {
-                case DATASLOT_ID_RANGE -> ItemDetectorBlockEntity.this.range;
-                case DATASLOT_ID_FILTER_MODE -> ItemDetectorBlockEntity.this.filterMode.ordinal();
+                case ItemDetectorBlockEntity.DATASLOT_ID_RANGE -> ItemDetectorBlockEntity.this.range;
+                case ItemDetectorBlockEntity.DATASLOT_ID_FILTER_MODE -> ItemDetectorBlockEntity.this.filterMode.ordinal();
                 default -> 0;
             };
         }
@@ -77,10 +77,10 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         @Override
         public void set(int index, int value) {
             switch (index) {
-                case DATASLOT_ID_RANGE:
+                case ItemDetectorBlockEntity.DATASLOT_ID_RANGE:
                     ItemDetectorBlockEntity.this.setRange(value);
                     break;
-                case DATASLOT_ID_FILTER_MODE:
+                case ItemDetectorBlockEntity.DATASLOT_ID_FILTER_MODE:
                     if (value < 0 || value >= Mode.values().length) return;
                     ItemDetectorBlockEntity.this.setFilterMode(Mode.values()[value]);
                     break;
@@ -197,7 +197,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
                 }
             }
             for (BlockPos p : blocksInRange) matchCount += this.scanContainer(level, p, filterItem);
-            int lerpedOutput = lerpOutput(matchCount, targetCount);
+            int lerpedOutput = ItemDetectorBlockEntity.lerpOutput(matchCount, targetCount);
             if (lerpedOutput > 0) {
                 minNonZeroOutput = Math.min(minNonZeroOutput, lerpedOutput);
             } else if (this.filterMode == Mode.ALL) {
@@ -210,7 +210,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
             int totalCount = 0;
             for (ItemEntity itemEntity : itemEntities) totalCount += itemEntity.getItem().getCount();
             for (BlockPos p : blocksInRange) totalCount += this.scanContainer(level, p, null);
-            output = lerpOutput(totalCount, 1);
+            output = ItemDetectorBlockEntity.lerpOutput(totalCount, 1);
         }
         return output;
     }
@@ -234,15 +234,15 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     }
 
     public void increaseRange() {
-        this.range = Mth.clamp(this.range + 1, MIN_RANGE, MAX_RANGE);
+        this.range = Mth.clamp(this.range + 1, ItemDetectorBlockEntity.MIN_RANGE, ItemDetectorBlockEntity.MAX_RANGE);
     }
 
     public void decreaseRange() {
-        this.range = Mth.clamp(this.range - 1, MIN_RANGE, MAX_RANGE);
+        this.range = Mth.clamp(this.range - 1, ItemDetectorBlockEntity.MIN_RANGE, ItemDetectorBlockEntity.MAX_RANGE);
     }
 
     public void setRange(int range) {
-        range = Mth.clamp(range, MIN_RANGE, MAX_RANGE);
+        range = Mth.clamp(range, ItemDetectorBlockEntity.MIN_RANGE, ItemDetectorBlockEntity.MAX_RANGE);
         if (this.range == range) return;
         this.range = range;
         this.recalcDetectionRange();
@@ -267,7 +267,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
 
     @Override
     public FilteredItemStackHandler getFilteredItemStackHandler() {
-        return DUMMY_HANDLER;
+        return ItemDetectorBlockEntity.DUMMY_HANDLER;
     }
 
     @Override
@@ -370,7 +370,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         }
 
         public Mode cycle() {
-            return this == ANY ? ALL : ANY;
+            return this == Mode.ANY ? Mode.ALL : Mode.ANY;
         }
     }
 }

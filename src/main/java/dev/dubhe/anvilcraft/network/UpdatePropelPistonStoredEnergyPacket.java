@@ -24,7 +24,7 @@ public record UpdatePropelPistonStoredEnergyPacket(BlockPos pos, int energy) imp
 
     @Override
     public Type<UpdatePropelPistonStoredEnergyPacket> type() {
-        return TYPE;
+        return UpdatePropelPistonStoredEnergyPacket.TYPE;
     }
 
     @Override

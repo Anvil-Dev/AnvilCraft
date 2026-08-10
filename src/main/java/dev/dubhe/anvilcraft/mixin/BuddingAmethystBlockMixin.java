@@ -27,7 +27,7 @@ public class BuddingAmethystBlockMixin implements IBuddingAmethystBlockExtension
     @Override
     public void anvilcraft$tryGrowBuds(Level level, BlockPos pos, BlockState state) {
         List<Direction> budDirs = new ArrayList<>();
-        for (Direction dir : DIRECTIONS) {
+        for (Direction dir : BuddingAmethystBlockMixin.DIRECTIONS) {
             BlockPos neighborPos = pos.relative(dir);
             BlockState neighborState = level.getBlockState(neighborPos);
             if (
@@ -70,7 +70,7 @@ public class BuddingAmethystBlockMixin implements IBuddingAmethystBlockExtension
 
     @Override
     public void anvilcraft$tryBreakClusters(Level level, BlockPos pos, BlockState state, BiConsumer<BlockPos, BlockState> breaker) {
-        for (Direction dir : DIRECTIONS) {
+        for (Direction dir : BuddingAmethystBlockMixin.DIRECTIONS) {
             BlockPos neighborPos = pos.relative(dir);
             BlockState neighborState = level.getBlockState(neighborPos);
             if (

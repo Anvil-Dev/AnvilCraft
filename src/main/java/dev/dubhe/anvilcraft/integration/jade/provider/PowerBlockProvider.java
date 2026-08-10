@@ -38,6 +38,6 @@ public enum PowerBlockProvider implements IServerDataProvider<BlockAccessor> {
 
     @Override
     public Identifier getUid() {
-        return UID;
+        return PowerBlockProvider.UID;
     }
 }

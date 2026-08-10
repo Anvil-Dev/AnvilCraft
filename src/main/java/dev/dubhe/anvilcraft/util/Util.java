@@ -13,6 +13,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.loading.FMLLoader;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -21,16 +22,16 @@ public class Util {
     private static final StackWalker STACK_WALKER = StackWalker.getInstance(StackWalker.Option.RETAIN_CLASS_REFERENCE);
 
     public static String generateUniqueRecipeSuffix() {
-        return "_generated_" + generateRandomString(8, true, false);
+        return "_generated_" + Util.generateRandomString(8, true, false);
     }
 
     public static String generateRandomString(int len) {
-        return generateRandomString(len, true, true);
+        return Util.generateRandomString(len, true, true);
     }
 
     public static String generateRandomString(int len, boolean hasInteger, boolean hasUpperLetter) {
         String ch = "abcdefghijklmnopqrstuvwxyz" + (hasUpperLetter ? "ABCDEFGHIGKLMNOPQRSTUVWXYZ" : "")
-            + (hasInteger ? "0123456789" : "");
+                    + (hasInteger ? "0123456789" : "");
         StringBuilder stringBuffer = new StringBuilder();
         for (int i = 0; i < len; i++) {
             Random random = new Random(System.nanoTime());
@@ -45,7 +46,7 @@ public class Util {
     }
 
     public static boolean findCaller(String caller) {
-        return STACK_WALKER.walk(it -> it.anyMatch(frame -> frame.getMethodName().equals(caller)));
+        return Util.STACK_WALKER.walk(it -> it.anyMatch(frame -> frame.getMethodName().equals(caller)));
     }
 
     public static InteractionResult sidedSuccess(Level level) {
@@ -56,15 +57,17 @@ public class Util {
     public static Services getServices(Level level) {
         if (FMLLoader.getCurrent().getDist() == Dist.CLIENT) {
             AtomicReference<@Nullable Services> ref = new AtomicReference<>();
-            DistExecutor.run(Dist.CLIENT, () -> new Runnable() {
-                @Override
-                public void run() {
-                    ref.set(Minecraft.getInstance().services());
+            DistExecutor.run(
+                Dist.CLIENT, () -> new Runnable() {
+                    @Override
+                    public void run() {
+                        ref.set(Minecraft.getInstance().services());
+                    }
                 }
-            });
-            return ref.get();
+            );
+            return Objects.requireNonNull(ref.get(), "Client services were not initialized");
         } else {
-            return level.getServer().services();
+            return Objects.requireNonNull(level.getServer(), "Server services are unavailable").services();
         }
     }
 

@@ -38,7 +38,7 @@ public record WithAnyPotionsExcept(SlotDisplay display, List<Identifier> excepts
         WithAnyPotionsExcept::excepts,
         WithAnyPotionsExcept::new
     );
-    public static final Type<WithAnyPotionsExcept> TYPE = new Type<>(MAP_CODEC, STREAM_CODEC);
+    public static final Type<WithAnyPotionsExcept> TYPE = new Type<>(WithAnyPotionsExcept.MAP_CODEC, WithAnyPotionsExcept.STREAM_CODEC);
 
     @Override
     public Type<WithAnyPotionsExcept> type() {

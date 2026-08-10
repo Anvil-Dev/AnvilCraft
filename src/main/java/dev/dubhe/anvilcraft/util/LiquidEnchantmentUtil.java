@@ -24,15 +24,15 @@ public final class LiquidEnchantmentUtil {
     }
 
     public static boolean isBlank(FluidStack stack) {
-        return stack.is(ModFluids.LIQUID_ENCHANTMENT.get()) && getEnchantment(stack).isEmpty();
+        return stack.is(ModFluids.LIQUID_ENCHANTMENT.get()) && LiquidEnchantmentUtil.getEnchantment(stack).isEmpty();
     }
 
     public static boolean isEnchanted(FluidStack stack) {
-        return getEnchantment(stack).isPresent();
+        return LiquidEnchantmentUtil.getEnchantment(stack).isPresent();
     }
 
     public static boolean isCursed(FluidStack stack) {
-        return getEnchantment(stack).filter(enchantment -> enchantment.is(EnchantmentTags.CURSE)).isPresent();
+        return LiquidEnchantmentUtil.getEnchantment(stack).filter(enchantment -> enchantment.is(EnchantmentTags.CURSE)).isPresent();
     }
 
     /** 根据魔咒完整注册名计算跨存档稳定的 24 位 FNV-1a 颜色。 */
@@ -40,10 +40,10 @@ public final class LiquidEnchantmentUtil {
         Identifier id = enchantment.unwrapKey()
             .orElseThrow(() -> new IllegalArgumentException("Liquid enchantment must be registered"))
             .identifier();
-        int hash = FNV_OFFSET_BASIS;
+        int hash = LiquidEnchantmentUtil.FNV_OFFSET_BASIS;
         for (byte value : id.toString().getBytes(StandardCharsets.UTF_8)) {
             hash ^= value & 0xFF;
-            hash *= FNV_PRIME;
+            hash *= LiquidEnchantmentUtil.FNV_PRIME;
         }
         return hash & 0xFFFFFF;
     }

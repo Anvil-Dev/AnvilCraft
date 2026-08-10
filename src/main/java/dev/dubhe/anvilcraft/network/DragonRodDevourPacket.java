@@ -29,7 +29,7 @@ public record DragonRodDevourPacket(InteractionHand hand, BlockPos pos, Directio
 
     @Override
     public Type<DragonRodDevourPacket> type() {
-        return TYPE;
+        return DragonRodDevourPacket.TYPE;
     }
 
     @Override

@@ -44,6 +44,7 @@ import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceP
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLaserInterfaceBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilLogisticsInterfaceBlock;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockItem;
+import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilPortalBlockItem;
 import dev.dubhe.anvilcraft.block.container.CreativeCrateBlock;
@@ -213,6 +214,7 @@ import dev.dubhe.anvilcraft.data.recipe.RegistrumBlockRecipeLoader;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.SingularityCrystalItem;
 import dev.dubhe.anvilcraft.item.block.ChuteBlockItem;
 import dev.dubhe.anvilcraft.item.block.CreativeContainerBlockItem;
 import dev.dubhe.anvilcraft.item.block.CursedBlockItem;
@@ -1397,7 +1399,7 @@ public class ModBlocks {
 
     public static final BlockEntry<LargeLaserBlock> LARGE_LASER = REGISTRUM
         .block("large_laser", LargeLaserBlock::new)
-        .initialProperties(RUBY_LASER::get)
+        .initialProperties(ModBlocks.RUBY_LASER::get)
         .properties(properties -> properties
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
@@ -1733,7 +1735,7 @@ public class ModBlocks {
             .emissiveRendering(ModBlocks::always))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag((BlockTags.MINEABLE_WITH_PICKAXE))
-        .item(dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem::new)
+        .item(CelestialForgingAnvilBlockItem::new)
         .properties(properties -> properties.stacksTo(16))
         .model(DataGenUtil::oversizedItem)
         .build()
@@ -2600,14 +2602,14 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CUT_BRONZE_BLOCK = REGISTRUM
         .block("cut_bronze_block", Block::new)
         .lang("Cut Bronze")
-        .initialProperties(BRONZE_BLOCK::get)
+        .initialProperties(ModBlocks.BRONZE_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .register();
 
     public static final BlockEntry<? extends StairBlock> CUT_BRONZE_STAIRS = REGISTRUM
         .block("cut_bronze_stairs", (properties) -> new StairBlock(ModBlocks.CUT_BRONZE_BLOCK.getDefaultState(), properties))
-        .initialProperties(BRONZE_BLOCK::get)
+        .initialProperties(ModBlocks.BRONZE_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/cut_bronze_block")))
         .simpleItem()
@@ -2615,7 +2617,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends SlabBlock> CUT_BRONZE_SLAB = REGISTRUM
         .block("cut_bronze_slab", SlabBlock::new)
-        .initialProperties(BRONZE_BLOCK::get)
+        .initialProperties(ModBlocks.BRONZE_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/cut_bronze_block")))
         .simpleItem()
@@ -2623,7 +2625,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends RotatedPillarBlock> CUT_BRONZE_PILLAR = REGISTRUM
         .block("cut_bronze_pillar", RotatedPillarBlock::new)
-        .initialProperties(BRONZE_BLOCK::get)
+        .initialProperties(ModBlocks.BRONZE_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(() -> DataGenUtil.columnBlock(AnvilCraft.of("block/cut_bronze_pillar"), AnvilCraft.of("block/cut_bronze_pillar_top")))
         .simpleItem()
@@ -2631,7 +2633,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> CHISELED_BRONZE_BLOCK = REGISTRUM
         .block("chiseled_bronze_block", Block::new)
-        .initialProperties(BRONZE_BLOCK::get)
+        .initialProperties(ModBlocks.BRONZE_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .register();
@@ -2648,14 +2650,14 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> CUT_BRASS_BLOCK = REGISTRUM
         .block("cut_brass_block", Block::new)
         .lang("Cut Brass")
-        .initialProperties(BRASS_BLOCK::get)
+        .initialProperties(ModBlocks.BRASS_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .register();
 
     public static final BlockEntry<? extends StairBlock> CUT_BRASS_STAIRS = REGISTRUM
         .block("cut_brass_stairs", (properties) -> new StairBlock(ModBlocks.CUT_BRASS_BLOCK.getDefaultState(), properties))
-        .initialProperties(BRASS_BLOCK::get)
+        .initialProperties(ModBlocks.BRASS_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/cut_brass_block")))
         .simpleItem()
@@ -2663,7 +2665,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends SlabBlock> CUT_BRASS_SLAB = REGISTRUM
         .block("cut_brass_slab", SlabBlock::new)
-        .initialProperties(BRASS_BLOCK::get)
+        .initialProperties(ModBlocks.BRASS_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(() -> DataGenUtil.slabBlock(AnvilCraft.of("block/cut_brass_block")))
         .simpleItem()
@@ -2671,7 +2673,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends RotatedPillarBlock> CUT_BRASS_PILLAR = REGISTRUM
         .block("cut_brass_pillar", RotatedPillarBlock::new)
-        .initialProperties(BRASS_BLOCK::get)
+        .initialProperties(ModBlocks.BRASS_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(() -> DataGenUtil.columnBlock(AnvilCraft.of("block/cut_brass_pillar"), AnvilCraft.of("block/cut_brass_pillar_top")))
         .simpleItem()
@@ -2679,7 +2681,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> CHISELED_BRASS_BLOCK = REGISTRUM
         .block("chiseled_brass_block", Block::new)
-        .initialProperties(BRASS_BLOCK::get)
+        .initialProperties(ModBlocks.BRASS_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .register();
@@ -3172,10 +3174,14 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::whiteChocolateStairs)
         .register();
 
-    public static final Object2ObjectMap<Color, BlockEntry<ReinforcedConcreteBlock>> REINFORCED_CONCRETES = registerReinforcedConcretes();
-    public static final Object2ObjectMap<Color, BlockEntry<SlabBlock>> REINFORCED_CONCRETE_SLABS = registerReinforcedConcreteSlabs();
-    public static final Object2ObjectMap<Color, BlockEntry<StairBlock>> REINFORCED_CONCRETE_STAIRS = registerReinforcedConcreteStairs();
-    public static final Object2ObjectMap<Color, BlockEntry<WallBlock>> REINFORCED_CONCRETE_WALLS = registerReinforcedConcreteWalls();
+    public static final Object2ObjectMap<Color, BlockEntry<ReinforcedConcreteBlock>> REINFORCED_CONCRETES =
+        ModBlocks.registerReinforcedConcretes();
+    public static final Object2ObjectMap<Color, BlockEntry<SlabBlock>> REINFORCED_CONCRETE_SLABS =
+        ModBlocks.registerReinforcedConcreteSlabs();
+    public static final Object2ObjectMap<Color, BlockEntry<StairBlock>> REINFORCED_CONCRETE_STAIRS =
+        ModBlocks.registerReinforcedConcreteStairs();
+    public static final Object2ObjectMap<Color, BlockEntry<WallBlock>> REINFORCED_CONCRETE_WALLS =
+        ModBlocks.registerReinforcedConcreteWalls();
 
     public static final BlockEntry<HeatedBlock> HEATED_NETHERITE_BLOCK = REGISTRUM.block("heated_netherite_block", HeatedBlock::new)
         .lang("Heated Block of Netherite")
@@ -3642,12 +3648,12 @@ public class ModBlocks {
         .onRegister(block -> Item.BY_BLOCK.put(block, Items.CAULDRON))
         .register();
 
-    public static final Object2ObjectMap<Color, BlockEntry<CementCauldronBlock>> CEMENT_CAULDRONS = registerAllCementCauldrons();
+    public static final Object2ObjectMap<Color, BlockEntry<CementCauldronBlock>> CEMENT_CAULDRONS = ModBlocks.registerAllCementCauldrons();
 
     private static Object2ObjectMap<Color, BlockEntry<ReinforcedConcreteBlock>> registerReinforcedConcretes() {
         Object2ObjectMap<Color, BlockEntry<ReinforcedConcreteBlock>> map = new Object2ObjectLinkedOpenHashMap<>();
         for (Color color : Color.values()) {
-            var entry = registerReinforcedConcreteBlock(color);
+            var entry = ModBlocks.registerReinforcedConcreteBlock(color);
             map.put(color, entry);
         }
         return map;
@@ -3706,7 +3712,7 @@ public class ModBlocks {
     private static Object2ObjectMap<Color, BlockEntry<SlabBlock>> registerReinforcedConcreteSlabs() {
         Object2ObjectMap<Color, BlockEntry<SlabBlock>> map = new Object2ObjectLinkedOpenHashMap<>();
         for (Color color : Color.values()) {
-            var entry = registerReinforcedConcreteSlabBlock(color, REINFORCED_CONCRETES.get(color));
+            var entry = ModBlocks.registerReinforcedConcreteSlabBlock(color, ModBlocks.REINFORCED_CONCRETES.get(color));
             map.put(color, entry);
         }
         return map;
@@ -3729,7 +3735,7 @@ public class ModBlocks {
     private static Object2ObjectMap<Color, BlockEntry<StairBlock>> registerReinforcedConcreteStairs() {
         Object2ObjectMap<Color, BlockEntry<StairBlock>> map = new Object2ObjectLinkedOpenHashMap<>();
         for (Color color : Color.values()) {
-            var entry = registerReinforcedConcreteStairBlock(color, REINFORCED_CONCRETES.get(color));
+            var entry = ModBlocks.registerReinforcedConcreteStairBlock(color, ModBlocks.REINFORCED_CONCRETES.get(color));
             map.put(color, entry);
         }
         return map;
@@ -3754,7 +3760,7 @@ public class ModBlocks {
     private static Object2ObjectMap<Color, BlockEntry<WallBlock>> registerReinforcedConcreteWalls() {
         Object2ObjectMap<Color, BlockEntry<WallBlock>> map = new Object2ObjectLinkedOpenHashMap<>();
         for (Color color : Color.values()) {
-            var entry = registerReinforcedConcreteWallBlock(color, REINFORCED_CONCRETES.get(color));
+            var entry = ModBlocks.registerReinforcedConcreteWallBlock(color, ModBlocks.REINFORCED_CONCRETES.get(color));
             map.put(color, entry);
         }
         return map;
@@ -3776,7 +3782,7 @@ public class ModBlocks {
     private static Object2ObjectMap<Color, BlockEntry<CementCauldronBlock>> registerAllCementCauldrons() {
         Object2ObjectMap<Color, BlockEntry<CementCauldronBlock>> map = new Object2ObjectLinkedOpenHashMap<>();
         for (Color color : Color.values()) {
-            var entry = registerCementCauldron(color);
+            var entry = ModBlocks.registerCementCauldron(color);
             map.put(color, entry);
         }
         return map;
@@ -3922,12 +3928,12 @@ public class ModBlocks {
         .blockstate(ModelProviderUtil::liquid)
         .register();
 
-    public static final Object2ObjectMap<Color, BlockEntry<LiquidBlock>> CEMENTS = registerAllCementLiquidBlock();
+    public static final Object2ObjectMap<Color, BlockEntry<LiquidBlock>> CEMENTS = ModBlocks.registerAllCementLiquidBlock();
 
     private static Object2ObjectMap<Color, BlockEntry<LiquidBlock>> registerAllCementLiquidBlock() {
         Object2ObjectMap<Color, BlockEntry<LiquidBlock>> map = new Object2ObjectLinkedOpenHashMap<>();
         for (Color color : Color.values()) {
-            var entry = registerCementLiquidBlock(color);
+            var entry = ModBlocks.registerCementLiquidBlock(color);
             map.put(color, entry);
         }
         return map;
@@ -4050,7 +4056,7 @@ public class ModBlocks {
             .strength(50F, 1200.0F)
             .requiresCorrectToolForDrops())
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.NEEDS_TRANSCENDIUM_TOOL, ModBlockTags.COLLISION_IMMUNE)
-        .item(dev.dubhe.anvilcraft.item.SingularityCrystalItem::new)
+        .item(SingularityCrystalItem::new)
         .initialProperties(() -> new Item.Properties().fireResistant().stacksTo(1))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
@@ -4135,21 +4141,21 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<Block> POLISHED_FLINT_BLOCK = REGISTRUM.block("polished_flint_block", Block::new)
-        .initialProperties(FLINT_BLOCK::get)
+        .initialProperties(ModBlocks.FLINT_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::polishedFlintBlock)
         .register();
 
     public static final BlockEntry<Block> CUT_FLINT_BLOCK = REGISTRUM.block("cut_flint_block", Block::new)
-        .initialProperties(FLINT_BLOCK::get)
+        .initialProperties(ModBlocks.FLINT_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::cutFlintBlock)
         .register();
 
     public static final BlockEntry<SlabBlock> CUT_FLINT_SLAB_BLOCK = REGISTRUM.block("cut_flint_slab", SlabBlock::new)
-        .initialProperties(FLINT_BLOCK::get)
+        .initialProperties(ModBlocks.FLINT_BLOCK::get)
         .blockstate(() -> DataGenUtil.slabBlock(
             _ -> new Material(AnvilCraft.of("block/cut_flint_block")),
             _ -> new Material(AnvilCraft.of("block/cut_flint_block")),
@@ -4165,9 +4171,9 @@ public class ModBlocks {
 
     public static final BlockEntry<StairBlock> CUT_FLINT_STAIRS_BLOCK = REGISTRUM.block(
             "cut_flint_stairs",
-            properties -> new StairBlock(FLINT_BLOCK.getDefaultState(), properties)
+            properties -> new StairBlock(ModBlocks.FLINT_BLOCK.getDefaultState(), properties)
         )
-        .initialProperties(FLINT_BLOCK::get)
+        .initialProperties(ModBlocks.FLINT_BLOCK::get)
         .blockstate(() -> DataGenUtil.stairsBlock(AnvilCraft.of("block/cut_flint_block")))
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.STAIRS)
         .item()
@@ -4182,7 +4188,7 @@ public class ModBlocks {
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .simpleItem()
-        .initialProperties(FLINT_BLOCK::get)
+        .initialProperties(ModBlocks.FLINT_BLOCK::get)
         .blockstate(() -> DataGenUtil.columnBlock(AnvilCraft.of("block/cut_flint_pillar"), AnvilCraft.of("block/cut_flint_pillar_top")))
         .recipe(RegistrumBlockRecipeLoader::cutFlintPillarBlock)
         .register();
@@ -4200,7 +4206,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends StairBlock> PLYWOOD_STAIRS = REGISTRUM
         .block("plywood_stairs", (properties) -> new StairBlock(ModBlocks.PLYWOOD_BLOCK.getDefaultState(), properties))
-        .initialProperties(PLYWOOD_BLOCK::get)
+        .initialProperties(ModBlocks.PLYWOOD_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_AXE)
         .blockstate(() -> DataGenUtil
             .stairsBlock(
@@ -4214,7 +4220,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends SlabBlock> PLYWOOD_SLAB = REGISTRUM
         .block("plywood_slab", SlabBlock::new)
-        .initialProperties(PLYWOOD_BLOCK::get)
+        .initialProperties(ModBlocks.PLYWOOD_BLOCK::get)
         .tag(BlockTags.MINEABLE_WITH_AXE)
         .blockstate(() -> DataGenUtil
             .slabBlock(
@@ -4352,68 +4358,68 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<? extends TimeCountedPressurePlateBlock> EXPOSED_COPPER_PRESSURE_PLATE =
-        registerOtherCopperPressurePlate("exposed_", Blocks.EXPOSED_COPPER, 20);
+        ModBlocks.registerOtherCopperPressurePlate("exposed_", Blocks.EXPOSED_COPPER, 20);
     public static final BlockEntry<? extends TimeCountedPressurePlateBlock> WEATHERED_COPPER_PRESSURE_PLATE =
-        registerOtherCopperPressurePlate("weathered_", Blocks.WEATHERED_COPPER, 40);
+        ModBlocks.registerOtherCopperPressurePlate("weathered_", Blocks.WEATHERED_COPPER, 40);
     public static final BlockEntry<? extends TimeCountedPressurePlateBlock> OXIDIZED_COPPER_PRESSURE_PLATE =
-        registerOtherCopperPressurePlate("oxidized_", Blocks.OXIDIZED_COPPER, 80);
-    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> TUNGSTEN_PRESSURE_PLATE = registerPressurePlate(
+        ModBlocks.registerOtherCopperPressurePlate("oxidized_", Blocks.OXIDIZED_COPPER, 80);
+    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> TUNGSTEN_PRESSURE_PLATE = ModBlocks.registerPressurePlate(
         "tungsten",
-        TUNGSTEN_BLOCK,
+        ModBlocks.TUNGSTEN_BLOCK,
         FireImmunePressurePlateBlock::new,
         ModItemTags.TUNGSTEN_INGOTS
     );
-    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> TITANIUM_PRESSURE_PLATE = registerPressurePlate(
+    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> TITANIUM_PRESSURE_PLATE = ModBlocks.registerPressurePlate(
         "titanium",
-        TITANIUM_BLOCK,
+        ModBlocks.TITANIUM_BLOCK,
         properties -> new ItemDurabilityPressurePlateBlock(properties, false),
         ModItemTags.TITANIUM_INGOTS
     );
-    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> ZINC_PRESSURE_PLATE = registerPressurePlate(
+    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> ZINC_PRESSURE_PLATE = ModBlocks.registerPressurePlate(
         "zinc",
-        ZINC_BLOCK,
+        ModBlocks.ZINC_BLOCK,
         properties -> new HealthPercentPressurePlateBlock(properties, false),
         ModItemTags.ZINC_INGOTS
     );
-    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> TIN_PRESSURE_PLATE = registerPressurePlate(
+    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> TIN_PRESSURE_PLATE = ModBlocks.registerPressurePlate(
         "tin",
-        TIN_BLOCK,
+        ModBlocks.TIN_BLOCK,
         properties -> new HealthPercentPressurePlateBlock(properties, true),
         ModItemTags.TIN_INGOTS
     );
-    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> LEAD_PRESSURE_PLATE = registerPressurePlate(
+    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> LEAD_PRESSURE_PLATE = ModBlocks.registerPressurePlate(
         "lead",
-        LEAD_BLOCK,
+        ModBlocks.LEAD_BLOCK,
         EntityTypePressurePlateBlock::new,
         ModItemTags.LEAD_INGOTS
     );
-    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> SILVER_PRESSURE_PLATE = registerPressurePlate(
-        "silver", SILVER_BLOCK, properties -> new EntityCountPressurePlateBlock(
+    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> SILVER_PRESSURE_PLATE = ModBlocks.registerPressurePlate(
+        "silver", ModBlocks.SILVER_BLOCK, properties -> new EntityCountPressurePlateBlock(
             properties,
             entity -> entity.typeHolder().is(TagKey.create(Registries.ENTITY_TYPE, Identifier.withDefaultNamespace("undead")))
         ), ModItemTags.SILVER_INGOTS
     );
-    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> URANIUM_PRESSURE_PLATE = registerPressurePlate(
+    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> URANIUM_PRESSURE_PLATE = ModBlocks.registerPressurePlate(
         "uranium",
-        URANIUM_BLOCK,
+        ModBlocks.URANIUM_BLOCK,
         properties -> new ItemDurabilityPressurePlateBlock(properties, true),
         ModItemTags.URANIUM_INGOTS
     );
-    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> PLUTONIUM_PRESSURE_PLATE = registerPressurePlate(
+    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> PLUTONIUM_PRESSURE_PLATE = ModBlocks.registerPressurePlate(
         "plutonium",
-        PLUTONIUM_BLOCK,
+        ModBlocks.PLUTONIUM_BLOCK,
         PlayerInHandItemDurabilityPressurePlateBlock::new,
         ModItemTags.PLUTONIUM_INGOTS
     );
-    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> BRASS_PRESSURE_PLATE = registerPressurePlate(
+    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> BRASS_PRESSURE_PLATE = ModBlocks.registerPressurePlate(
         "brass",
-        BRASS_BLOCK,
+        ModBlocks.BRASS_BLOCK,
         PlayerInventoryPressurePlateBlock::new,
         ModItemTags.BRASS_INGOTS
     );
-    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> BRONZE_PRESSURE_PLATE = registerPressurePlate(
+    public static final BlockEntry<? extends PowerLevelPressurePlateBlock> BRONZE_PRESSURE_PLATE = ModBlocks.registerPressurePlate(
         "bronze",
-        BRONZE_BLOCK,
+        ModBlocks.BRONZE_BLOCK,
         PlayerHungerPressurePlateBlock::new,
         ModItemTags.BRONZE_INGOTS
     );

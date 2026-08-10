@@ -15,6 +15,8 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.SubmitCustomGeometryEvent;
 
+import java.util.Map;
+
 /**
  * 震波弹跳渲染 —— 直接获取原版光照管线。
  *
@@ -38,7 +40,7 @@ public class SeismicBounceRenderEventListener {
         var poseStack = event.getPoseStack();
         var nodeCollector = event.getSubmitNodeCollector();
 
-        submitEntries(
+        SeismicBounceRenderEventListener.submitEntries(
             event,
             SeismicBounceManager.getInstance().getActiveBounces(),
             camX,
@@ -46,7 +48,7 @@ public class SeismicBounceRenderEventListener {
             camZ,
             partialTick
         );
-        submitEntries(
+        SeismicBounceRenderEventListener.submitEntries(
             event,
             SeismicBounceManager.getInstance().getActiveResonances(),
             camX,
@@ -58,7 +60,7 @@ public class SeismicBounceRenderEventListener {
 
     private static void submitEntries(
         SubmitCustomGeometryEvent event,
-        java.util.Map<BlockPos, ? extends SeismicBounceManager.RenderOffset> entries,
+        Map<BlockPos, ? extends SeismicBounceManager.RenderOffset> entries,
         double camX,
         double camY,
         double camZ,

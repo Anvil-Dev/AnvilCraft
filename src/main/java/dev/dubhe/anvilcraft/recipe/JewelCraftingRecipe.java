@@ -87,7 +87,7 @@ public record JewelCraftingRecipe(
 
     @Override
     public RecipeSerializer<JewelCraftingRecipe> getSerializer() {
-        return SERIALIZER;
+        return JewelCraftingRecipe.SERIALIZER;
     }
 
     @Override

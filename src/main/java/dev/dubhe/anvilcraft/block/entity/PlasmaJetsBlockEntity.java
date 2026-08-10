@@ -81,17 +81,17 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
     private boolean tryRaise() {
         if (this.tubeWalls.size() >= 4) return false;
         if (this.level != null) {
-            HeaterManager.removeProducer(this.getBlockPos(), level, ModHeaterInfos.NO_MAGNET_PLASMA_JETS);
-            HeaterManager.removeProducer(this.getBlockPos(), level, ModHeaterInfos.MAGNET_PLASMA_JETS);
+            HeaterManager.removeProducer(this.getBlockPos(), this.level, ModHeaterInfos.NO_MAGNET_PLASMA_JETS);
+            HeaterManager.removeProducer(this.getBlockPos(), this.level, ModHeaterInfos.MAGNET_PLASMA_JETS);
         }
         BlockPos pos = this.getBlockPos();
         if (
             this.level != null
             && (
-                !this.level.getBlockState(pos.north()).isFaceSturdy(level, pos.north(), Direction.SOUTH)
-                || !this.level.getBlockState(pos.south()).isFaceSturdy(level, pos.south(), Direction.NORTH)
-                || !this.level.getBlockState(pos.east()).isFaceSturdy(level, pos.east(), Direction.WEST)
-                || !this.level.getBlockState(pos.west()).isFaceSturdy(level, pos.west(), Direction.EAST)
+                !this.level.getBlockState(pos.north()).isFaceSturdy(this.level, pos.north(), Direction.SOUTH)
+                || !this.level.getBlockState(pos.south()).isFaceSturdy(this.level, pos.south(), Direction.NORTH)
+                || !this.level.getBlockState(pos.east()).isFaceSturdy(this.level, pos.east(), Direction.WEST)
+                || !this.level.getBlockState(pos.west()).isFaceSturdy(this.level, pos.west(), Direction.EAST)
             )
         ) {
             return false;
@@ -106,8 +106,8 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
             this.continuousFuelTimer,
             this.tubeWalls
         ));
-        HeaterManager.addProducer(this.getBlockPos().above(), level, ModHeaterInfos.NO_MAGNET_PLASMA_JETS);
-        HeaterManager.addProducer(this.getBlockPos().above(), level, ModHeaterInfos.MAGNET_PLASMA_JETS);
+        HeaterManager.addProducer(this.getBlockPos().above(), this.level, ModHeaterInfos.NO_MAGNET_PLASMA_JETS);
+        HeaterManager.addProducer(this.getBlockPos().above(), this.level, ModHeaterInfos.MAGNET_PLASMA_JETS);
         return true;
     }
 
@@ -175,8 +175,7 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
         if (!(state.getBlock() instanceof IIgnitableCauldron cauldron)) return;
 
         BlockCache cache = new BlockCache(level);
-        // noinspection deprecation
-        if (!cauldron.getFluid(cache, this.cauldronPos).is(ModFluidTags.OIL)) return;
+        if (!cauldron.getFluid(cache, this.cauldronPos).defaultFluidState().is(ModFluidTags.OIL)) return;
         cauldron.setIgnited(cache, this.cauldronPos, true);
         cache.accept();
     }
@@ -215,21 +214,21 @@ public class PlasmaJetsBlockEntity extends BlockEntity {
                 if (!PlasmaJetsBlock.tryConsumeContinuousFuel(
                     level,
                     this.cauldronPos,
-                    CONTINUOUS_FUEL_AMOUNT
+                    PlasmaJetsBlockEntity.CONTINUOUS_FUEL_AMOUNT
                 )) {
                     level.removeBlock(this.getBlockPos(), false);
                     return;
                 }
-                this.continuousFuelTimer = CONTINUOUS_FUEL_INTERVAL;
+                this.continuousFuelTimer = PlasmaJetsBlockEntity.CONTINUOUS_FUEL_INTERVAL;
             }
             return;
         }
         this.duration--;
         if (
-            this.duration + MAX_DURATION / 2 < MAX_DURATION
+            this.duration + PlasmaJetsBlockEntity.MAX_DURATION / 2 < PlasmaJetsBlockEntity.MAX_DURATION
             && PlasmaJetsBlock.tryConsumeOnce(level, Objects.requireNonNull(this.cauldronPos))
         ) {
-            this.duration += MAX_DURATION / 2;
+            this.duration += PlasmaJetsBlockEntity.MAX_DURATION / 2;
         }
         if (this.duration < 0) {
             level.removeBlock(this.getBlockPos(), false);

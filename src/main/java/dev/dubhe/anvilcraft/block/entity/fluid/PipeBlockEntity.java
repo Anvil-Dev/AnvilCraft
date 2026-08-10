@@ -64,7 +64,7 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
      * Per-tick 排液逻辑。
      */
     public static void tick(Level level, BlockPos pos, BlockState state) {
-        int endCount = getEndCount(state);
+        int endCount = PipeBlockEntity.getEndCount(state);
         if (endCount <= 0) return;
         boolean isStraight = state.getBlock() instanceof PipeStraightBlock;
         if (endCount == 2) {
@@ -72,14 +72,14 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
                 Direction.Axis axis = state.getValue(PipeStraightBlock.AXIS);
                 Direction posDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.POSITIVE);
                 Direction negDir = PipeBlock.getDirectionFromAxis(axis, Direction.AxisDirection.NEGATIVE);
-                tickEndCount2(level, pos, posDir, negDir);
-                tickEndCount2(level, pos, negDir, posDir);
+                PipeBlockEntity.tickEndCount2(level, pos, posDir, negDir);
+                PipeBlockEntity.tickEndCount2(level, pos, negDir, posDir);
             } else {
                 PipeBlock.CornerEnded cornerEnded = state.getValue(PipeCornerBlock.CORNER_ENDED);
                 Direction firstDir = cornerEnded.getFirstDirection();
                 Direction secondDir = cornerEnded.getSecondDirection();
-                tickEndCount2(level, pos, firstDir, secondDir);
-                tickEndCount2(level, pos, secondDir, firstDir);
+                PipeBlockEntity.tickEndCount2(level, pos, firstDir, secondDir);
+                PipeBlockEntity.tickEndCount2(level, pos, secondDir, firstDir);
             }
             return;
         }
@@ -114,7 +114,7 @@ public class PipeBlockEntity extends AbstractPipeBlockEntity {
         if (level.getBlockState(sourceNeighbor).getBlock() instanceof PumpBlock) return;
         BlockPos targetNeighbor = pos.relative(negDir);
         if (level.getBlockState(targetNeighbor).getBlock() instanceof PumpBlock) {
-            PipeEnd pumpEnd = getPipeEnd(level, targetNeighbor, negDir.getOpposite());
+            PipeEnd pumpEnd = AbstractPipeBlockEntity.getPipeEnd(level, targetNeighbor, negDir.getOpposite());
             if (pumpEnd != null) {
                 targetCurPos = pumpEnd.pos();
                 targetCurDir = pumpEnd.direction();

@@ -71,24 +71,24 @@ public abstract class AvoidEntityGoalMixin<T extends LivingEntity> {
             this.mob.level().getEntitiesOfClass(
                 LivingEntity.class,
                 this.mob.getBoundingBox().inflate(this.maxDist, 3.0, this.maxDist),
-                entity -> Util.instanceOfAny(entity, this.avoidClass) || anvilcraft$is(this.avoidClass, entity)
+                entity -> Util.instanceOfAny(entity, this.avoidClass) || AvoidEntityGoalMixin.anvilcraft$is(this.avoidClass, entity)
             ),
             this.avoidEntityTargeting.selector(
                 Optional.ofNullable(((TargetingConditionsAccessor) this.avoidEntityTargeting).getSelector())
                     .map(p -> ModifiedSelector.toModified(
                         p,
                         old -> (entity, level) -> {
-                            if (anvilcraft$is(this.avoidClass, entity)) {
-                                entity = anvilcraft$toDummy(this.avoidClass, entity);
+                            if (AvoidEntityGoalMixin.anvilcraft$is(this.avoidClass, entity)) {
+                                entity = AvoidEntityGoalMixin.anvilcraft$toDummy(this.avoidClass, entity);
                             }
                             return old.test(Objects.requireNonNull(entity), level);
                         }
                     ))
                     .orElse((entity, _) -> {
-                        if (anvilcraft$is(this.avoidClass, entity)) {
-                            entity = anvilcraft$toDummy(this.avoidClass, entity);
+                        if (AvoidEntityGoalMixin.anvilcraft$is(this.avoidClass, entity)) {
+                            entity = AvoidEntityGoalMixin.anvilcraft$toDummy(this.avoidClass, entity);
                         }
-                        return Util.instanceOfAny(entity, this.avoidClass) || anvilcraft$is(this.avoidClass, entity);
+                        return Util.instanceOfAny(entity, this.avoidClass) || AvoidEntityGoalMixin.anvilcraft$is(this.avoidClass, entity);
                     })
             ),
             this.mob,
@@ -96,8 +96,8 @@ public abstract class AvoidEntityGoalMixin<T extends LivingEntity> {
             this.mob.getY(),
             this.mob.getZ()
         );
-        if (anvilcraft$is(this.avoidClass, toAvoid)) {
-            toAvoid = anvilcraft$toDummy(this.avoidClass, Objects.requireNonNull(toAvoid));
+        if (AvoidEntityGoalMixin.anvilcraft$is(this.avoidClass, toAvoid)) {
+            toAvoid = AvoidEntityGoalMixin.anvilcraft$toDummy(this.avoidClass, Objects.requireNonNull(toAvoid));
         }
         // noinspection DataFlowIssue
         this.toAvoid = Util.cast(toAvoid);

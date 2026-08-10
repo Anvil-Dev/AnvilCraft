@@ -50,9 +50,9 @@ public class RemoteTransmissionPoleBlock
         super(properties);
         this.registerDefaultState(this.stateDefinition
             .any()
-            .setValue(HALF, Vertical4PartHalf.BOTTOM)
-            .setValue(OVERLOAD, true)
-            .setValue(SWITCH, IPowerComponent.Switch.ON));
+            .setValue(RemoteTransmissionPoleBlock.HALF, Vertical4PartHalf.BOTTOM)
+            .setValue(RemoteTransmissionPoleBlock.OVERLOAD, true)
+            .setValue(RemoteTransmissionPoleBlock.SWITCH, IPowerComponent.Switch.ON));
     }
 
     @Override
@@ -73,14 +73,14 @@ public class RemoteTransmissionPoleBlock
         IPowerComponent.Switch sw =
             level.hasNeighborSignal(pos) ? IPowerComponent.Switch.OFF : IPowerComponent.Switch.ON;
         return this.defaultBlockState()
-            .setValue(HALF, Vertical4PartHalf.BOTTOM)
-            .setValue(OVERLOAD, true)
-            .setValue(SWITCH, sw);
+            .setValue(RemoteTransmissionPoleBlock.HALF, Vertical4PartHalf.BOTTOM)
+            .setValue(RemoteTransmissionPoleBlock.OVERLOAD, true)
+            .setValue(RemoteTransmissionPoleBlock.SWITCH, sw);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(HALF).add(OVERLOAD).add(SWITCH);
+        builder.add(RemoteTransmissionPoleBlock.HALF).add(RemoteTransmissionPoleBlock.OVERLOAD).add(RemoteTransmissionPoleBlock.SWITCH);
     }
 
     @Override
@@ -94,10 +94,10 @@ public class RemoteTransmissionPoleBlock
         BlockGetter level,
         BlockPos pos,
         CollisionContext context) {
-        return switch (state.getValue(HALF)) {
-            case BOTTOM -> TRANSMISSION_POLE_BASE;
-            case MID_UPPER, MID_LOWER -> TRANSMISSION_POLE_MID;
-            case TOP -> TRANSMISSION_POLE_TOP;
+        return switch (state.getValue(RemoteTransmissionPoleBlock.HALF)) {
+            case BOTTOM -> RemoteTransmissionPoleBlock.TRANSMISSION_POLE_BASE;
+            case MID_UPPER, MID_LOWER -> RemoteTransmissionPoleBlock.TRANSMISSION_POLE_MID;
+            case TOP -> RemoteTransmissionPoleBlock.TRANSMISSION_POLE_TOP;
         };
     }
 
@@ -108,7 +108,7 @@ public class RemoteTransmissionPoleBlock
 
     @Override
     public BlockState placedState(Vertical4PartHalf part, BlockState state) {
-        return super.placedState(part, state).setValue(SWITCH, IPowerComponent.Switch.ON);
+        return super.placedState(part, state).setValue(RemoteTransmissionPoleBlock.SWITCH, IPowerComponent.Switch.ON);
     }
 
     @Override
@@ -147,20 +147,20 @@ public class RemoteTransmissionPoleBlock
         if (level.isClientSide()) {
             return;
         }
-        if (state.getValue(HALF) != Vertical4PartHalf.BOTTOM) return;
+        if (state.getValue(RemoteTransmissionPoleBlock.HALF) != Vertical4PartHalf.BOTTOM) return;
         BlockPos topPos = pos.above(3);
         BlockState topState = level.getBlockState(topPos);
         if (!topState.is(ModBlocks.REMOTE_TRANSMISSION_POLE.get())) return;
-        if (topState.getValue(HALF) != Vertical4PartHalf.TOP) return;
-        IPowerComponent.Switch sw = state.getValue(SWITCH);
+        if (topState.getValue(RemoteTransmissionPoleBlock.HALF) != Vertical4PartHalf.TOP) return;
+        IPowerComponent.Switch sw = state.getValue(RemoteTransmissionPoleBlock.SWITCH);
         boolean bl = sw == IPowerComponent.Switch.ON;
         if (bl == level.hasNeighborSignal(pos)) {
             if (bl) {
-                state = state.setValue(SWITCH, IPowerComponent.Switch.OFF);
-                topState = topState.setValue(SWITCH, IPowerComponent.Switch.OFF);
+                state = state.setValue(RemoteTransmissionPoleBlock.SWITCH, IPowerComponent.Switch.OFF);
+                topState = topState.setValue(RemoteTransmissionPoleBlock.SWITCH, IPowerComponent.Switch.OFF);
             } else {
-                state = state.setValue(SWITCH, IPowerComponent.Switch.ON);
-                topState = topState.setValue(SWITCH, IPowerComponent.Switch.ON);
+                state = state.setValue(RemoteTransmissionPoleBlock.SWITCH, IPowerComponent.Switch.ON);
+                topState = topState.setValue(RemoteTransmissionPoleBlock.SWITCH, IPowerComponent.Switch.ON);
             }
             level.setBlockAndUpdate(pos, state);
             level.setBlockAndUpdate(topPos, topState);

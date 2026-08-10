@@ -21,11 +21,11 @@ public final class ItemUseAnimationTransform {
         float equipProgress,
         int chargeTicks
     ) {
-        if (!isUsingArm(player, arm)) return false;
+        if (!ItemUseAnimationTransform.isUsingArm(player, arm)) return false;
 
         int direction = arm == HumanoidArm.RIGHT ? 1 : -1;
         // 1.21.1 只对原版弩应用装填矩阵，此处为普通物品复用同一套变换。
-        applyItemArmTransform(poseStack, direction, equipProgress);
+        ItemUseAnimationTransform.applyItemArmTransform(poseStack, direction, equipProgress);
         poseStack.translate(direction * -0.4785682F, -0.094387F, 0.05731531F);
         poseStack.mulPose(Axis.XP.rotationDegrees(-11.935F));
         poseStack.mulPose(Axis.YP.rotationDegrees(direction * 65.3F));
@@ -51,11 +51,11 @@ public final class ItemUseAnimationTransform {
         HumanoidArm arm,
         float equipProgress
     ) {
-        if (!isUsingArm(player, arm)) return false;
+        if (!ItemUseAnimationTransform.isUsingArm(player, arm)) return false;
 
         int direction = arm == HumanoidArm.RIGHT ? 1 : -1;
         // 复用旧版举剑格挡的第一人称矩阵。
-        applyItemArmTransform(poseStack, direction, equipProgress);
+        ItemUseAnimationTransform.applyItemArmTransform(poseStack, direction, equipProgress);
         poseStack.translate(direction * -0.14142136F, 0.08F, 0.14142136F);
         poseStack.mulPose(Axis.XP.rotationDegrees(-102.25F));
         poseStack.mulPose(Axis.YP.rotationDegrees(direction * 13.365F));

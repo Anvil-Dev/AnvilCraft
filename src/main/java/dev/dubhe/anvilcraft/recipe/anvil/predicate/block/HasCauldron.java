@@ -87,7 +87,7 @@ public record HasCauldron(
     /// @param offset 偏移量
     /// @return HasCauldron实例
     public static HasCauldron empty(Vec3 offset) {
-        return new HasCauldron(offset, EMPTY, 0, NULL, 0, 1.0F, false, null);
+        return new HasCauldron(offset, HasCauldron.EMPTY, 0, HasCauldron.NULL, 0, 1.0F, false, null);
     }
 
     @Override
@@ -113,7 +113,7 @@ public record HasCauldron(
         // 不是锅 否决
         BlockPos pos = BlockPos.containing(context.getPos().add(this.offset()));
         BlockCache cache = context.computeIfAbsent(BlockCache.BLOCK_CACHE);
-        IEntityCauldron entityCauldron = findEntityCauldron(context, pos);
+        IEntityCauldron entityCauldron = HasCauldron.findEntityCauldron(context, pos);
         if (!cache.getBlockState(pos).is(BlockTags.CAULDRONS) && entityCauldron == null) return false;
 
         if (cache.getBlockEntity(pos) instanceof LargeCauldronBlockEntity cauldron) {
@@ -169,9 +169,9 @@ public record HasCauldron(
             return;
         }
         if (context.getLevel().getRandom().nextFloat() > this.chance()) return;
-        if (this.fluid().equals(EMPTY) && !HasCauldron.isNotEmpty(this.transform())) return;
+        if (this.fluid().equals(HasCauldron.EMPTY) && !HasCauldron.isNotEmpty(this.transform())) return;
 
-        IEntityCauldron entityCauldron = findEntityCauldron(context, pos);
+        IEntityCauldron entityCauldron = HasCauldron.findEntityCauldron(context, pos);
         double cur = HasCauldron.getCur(cache, pos, entityCauldron);
         double afterConsume = cur - this.consume();
         double amount = afterConsume + this.produce();
@@ -237,11 +237,11 @@ public record HasCauldron(
     }
 
     public static double getCapacity(BlockCache cache, BlockPos pos) {
-        return getCapacity(cache, pos, null);
+        return HasCauldron.getCapacity(cache, pos, null);
     }
 
     private static double getCapacity(BlockCache cache, BlockPos pos, @Nullable IEntityCauldron entityCauldron) {
-        ResourceHandler<FluidResource> handler = getFluidHandler(cache, pos, entityCauldron);
+        ResourceHandler<FluidResource> handler = HasCauldron.getFluidHandler(cache, pos, entityCauldron);
         return handler == null ? 1000 : handler.getCapacityAsInt(0, handler.getResource(0));
     }
 
@@ -249,7 +249,7 @@ public record HasCauldron(
     ///
     /// @return 炼药锅方块
     public static Identifier getCurFluid(BlockCache cache, BlockPos pos) {
-        return getCurFluid(cache, pos, null);
+        return HasCauldron.getCurFluid(cache, pos, null);
     }
 
     private static Identifier getCurFluid(
@@ -257,10 +257,10 @@ public record HasCauldron(
         BlockPos pos,
         @Nullable IEntityCauldron entityCauldron
     ) {
-        ResourceHandler<FluidResource> handler = getFluidHandler(cache, pos, entityCauldron);
+        ResourceHandler<FluidResource> handler = HasCauldron.getFluidHandler(cache, pos, entityCauldron);
         if (handler != null) {
             FluidResource resource = handler.getResource(0);
-            return resource.isEmpty() ? EMPTY : resource.typeHolder().getKey().identifier();
+            return resource.isEmpty() ? HasCauldron.EMPTY : resource.typeHolder().getKey().identifier();
         }
         return WrapUtils.cauldron2Fluid(cache.getBlockState(pos).getBlock());
     }
@@ -269,11 +269,11 @@ public record HasCauldron(
     ///
     /// @return 炼药锅方块
     public static double getCur(BlockCache cache, BlockPos pos) {
-        return getCur(cache, pos, null);
+        return HasCauldron.getCur(cache, pos, null);
     }
 
     private static double getCur(BlockCache cache, BlockPos pos, @Nullable IEntityCauldron entityCauldron) {
-        ResourceHandler<FluidResource> handler = getFluidHandler(cache, pos, entityCauldron);
+        ResourceHandler<FluidResource> handler = HasCauldron.getFluidHandler(cache, pos, entityCauldron);
         if (handler != null) return handler.getAmountAsInt(0);
         BlockState state = cache.getBlockState(pos);
         if (state.is(Blocks.CAULDRON)) return 0.0;
@@ -288,7 +288,7 @@ public record HasCauldron(
     }
 
     public static void applyEmpty(InWorldRecipeContext ctx, BlockPos pos) {
-        applyEmpty(ctx, pos, null);
+        HasCauldron.applyEmpty(ctx, pos, null);
     }
 
     private static void applyEmpty(
@@ -296,7 +296,7 @@ public record HasCauldron(
         BlockPos pos,
         @Nullable IEntityCauldron entityCauldron
     ) {
-        ResourceHandler<FluidResource> handler = getFluidHandler(ctx, pos, entityCauldron);
+        ResourceHandler<FluidResource> handler = HasCauldron.getFluidHandler(ctx, pos, entityCauldron);
         if (handler == null) return;
         try (Transaction transaction = Transaction.openRoot()) {
             handler.extract(handler.getResource(0), Integer.MAX_VALUE, transaction);
@@ -305,7 +305,7 @@ public record HasCauldron(
     }
 
     public static void applyFluid(InWorldRecipeContext ctx, BlockPos pos, Identifier fluid, double mb, boolean ignited) {
-        applyFluid(ctx, pos, fluid, mb, ignited, null);
+        HasCauldron.applyFluid(ctx, pos, fluid, mb, ignited, null);
     }
 
     private static void applyFluid(
@@ -316,7 +316,7 @@ public record HasCauldron(
         boolean ignited,
         @Nullable IEntityCauldron entityCauldron
     ) {
-        ResourceHandler<FluidResource> handler = getFluidHandler(ctx, pos, entityCauldron);
+        ResourceHandler<FluidResource> handler = HasCauldron.getFluidHandler(ctx, pos, entityCauldron);
         if (handler == null) return;
         BlockCache cache = new BlockCache(ctx.getLevel());
         if (ctx.getLevel().getBlockState(pos).getBlock() instanceof IIgnitableCauldron cauldron) {
@@ -416,13 +416,13 @@ public record HasCauldron(
                     .fieldOf("offset")
                     .forGetter(HasCauldron::offset),
                 Identifier.CODEC
-                    .optionalFieldOf("fluid", EMPTY)
+                    .optionalFieldOf("fluid", HasCauldron.EMPTY)
                     .forGetter(HasCauldron::fluid),
                 Codec.INT
                     .optionalFieldOf("consume", 0)
                     .forGetter(HasCauldron::consume),
                 Identifier.CODEC
-                    .optionalFieldOf("transform", NULL)
+                    .optionalFieldOf("transform", HasCauldron.NULL)
                     .forGetter(HasCauldron::transform),
                 Codec.INT
                     .optionalFieldOf("produce", 0)

@@ -52,7 +52,8 @@ public class ModClientFluidTypeExtensionImpl implements IClientFluidTypeExtensio
         float partialTick,
         FogData fogData
     ) {
-        if (camera.entity().isSpectator() || this.noFog) return;
+        var entity = camera.entity();
+        if (entity == null || entity.isSpectator() || this.noFog) return;
         fogData.renderDistanceStart = 0;
         fogData.renderDistanceEnd = this.fogDistance;
     }

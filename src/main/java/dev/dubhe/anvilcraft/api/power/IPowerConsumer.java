@@ -14,13 +14,13 @@ public interface IPowerConsumer extends IPowerComponent {
     @Override
     default PowerComponentInfo toPowerComponentInfo() {
         return new PowerComponentInfo(
-            getPos(),
+            this.getPos(),
             this.getInputPower(),
             0,
             0,
             0,
-            getRange(),
-            getShape(),
+            this.getRange(),
+            this.getShape(),
             PowerComponentType.CONSUMER
         );
     }

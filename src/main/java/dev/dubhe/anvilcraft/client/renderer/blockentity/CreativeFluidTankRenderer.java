@@ -26,6 +26,6 @@ public class CreativeFluidTankRenderer extends BaseFluidHandlerHolderRenderer<Cr
         Vec3 cameraPosition,
         ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress
     ) {
-        state.setTankW(TANK_W);
+        state.setTankW(CreativeFluidTankRenderer.TANK_W);
     }
 }

@@ -88,7 +88,7 @@ public class StorageScreen extends Screen {
     private static final int BG_HEIGHT = 222;
     private static final int STORAGE_COLUMNS = 9;
     private static final int STORAGE_ROWS = 6;
-    private static final int VISIBLE_STORAGE_SLOTS = STORAGE_COLUMNS * STORAGE_ROWS;
+    private static final int VISIBLE_STORAGE_SLOTS = StorageScreen.STORAGE_COLUMNS * StorageScreen.STORAGE_ROWS;
     private static final int STORAGE_X = 114;
     private static final int STORAGE_Y = 18;
     private static final int SLOT_SIZE = 18;
@@ -392,7 +392,7 @@ public class StorageScreen extends Screen {
                 + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
             boolean hovered = MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17);
             if (hovered) {
-                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_BACK_SPRITE, x - 4, y - 4, 24, 24);
+                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, StorageScreen.SLOT_HIGHLIGHT_BACK_SPRITE, x - 4, y - 4, 24, 24);
             }
 
             int slot = this.displayOrder.getInt(orderIndex);
@@ -414,7 +414,7 @@ public class StorageScreen extends Screen {
             }
 
             if (hovered) {
-                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_FRONT_SPRITE, x - 4, y - 4, 24, 24);
+                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, StorageScreen.SLOT_HIGHLIGHT_FRONT_SPRITE, x - 4, y - 4, 24, 24);
             }
         }
         this.extractStorageSlider(graphics);
@@ -464,7 +464,7 @@ public class StorageScreen extends Screen {
     private void extractInventorySlot(GuiGraphicsExtractor graphics, Inventory inv, int slot, int x, int y, int mouseX, int mouseY) {
         boolean hovered = MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17);
         if (hovered) {
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_BACK_SPRITE, x - 4, y - 4, 24, 24);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, StorageScreen.SLOT_HIGHLIGHT_BACK_SPRITE, x - 4, y - 4, 24, 24);
         }
 
         ItemStack stack = inv.getItem(slot);
@@ -482,7 +482,7 @@ public class StorageScreen extends Screen {
         }
 
         if (hovered) {
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, SLOT_HIGHLIGHT_FRONT_SPRITE, x - 4, y - 4, 24, 24);
+            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, StorageScreen.SLOT_HIGHLIGHT_FRONT_SPRITE, x - 4, y - 4, 24, 24);
         }
     }
 

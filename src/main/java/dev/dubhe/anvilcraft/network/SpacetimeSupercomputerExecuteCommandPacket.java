@@ -28,7 +28,7 @@ public record SpacetimeSupercomputerExecuteCommandPacket(BlockPos pos, String co
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+        return SpacetimeSupercomputerExecuteCommandPacket.TYPE;
     }
 
     @Override

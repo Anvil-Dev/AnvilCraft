@@ -27,7 +27,7 @@ public record BatchCrafterSelectPacket(int selecting, BlockPos pos) implements I
 
     @Override
     public Type<BatchCrafterSelectPacket> type() {
-        return TYPE;
+        return BatchCrafterSelectPacket.TYPE;
     }
 
     @Override

@@ -27,8 +27,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.Unmodifiable;
+import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Objects;
 
 public record RecipeResult(ItemStackTemplate result, @Unmodifiable List<IResultModifier> modifiers) {
     public static final MapCodec<RecipeResult> DIRECT_CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
@@ -102,7 +104,7 @@ public record RecipeResult(ItemStackTemplate result, @Unmodifiable List<IResultM
 
     public static class Builder {
         private final ImmutableList.Builder<IResultModifier> modifiers = ImmutableList.builder();
-        private Item result;
+        private @Nullable Item result;
 
         public Builder result(Item result) {
             this.result = result;
@@ -194,7 +196,10 @@ public record RecipeResult(ItemStackTemplate result, @Unmodifiable List<IResultM
         }
 
         public RecipeResult build() {
-            return new RecipeResult(this.result, this.modifiers.build());
+            return new RecipeResult(
+                Objects.requireNonNull(this.result, "Recipe result must be set"),
+                this.modifiers.build()
+            );
         }
     }
 

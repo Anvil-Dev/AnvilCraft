@@ -15,10 +15,14 @@ public class EntityReachAttribute {
     public static Supplier<Multimap<Holder<Attribute>, AttributeModifier>> getRangeModifierSupplier(
         AttributeModifier modifier
     ) {
-        return Suppliers.memoize(() -> ImmutableMultimap.of(
-            Attributes.BLOCK_INTERACTION_RANGE, modifier,
-            Attributes.ENTITY_INTERACTION_RANGE, modifier
-        ));
+        @SuppressWarnings("NullableProblems")
+        Supplier<Multimap<Holder<Attribute>, AttributeModifier>> supplier = Suppliers.memoize(
+            () -> ImmutableMultimap.of(
+                Attributes.BLOCK_INTERACTION_RANGE, modifier,
+                Attributes.ENTITY_INTERACTION_RANGE, modifier
+            )
+        );
+        return supplier;
     }
 
     public static Attribute getReachAttribute() {

@@ -387,7 +387,7 @@ public class ChargerBlockEntity extends BlockEntity
 
     /// 充电器逻辑
     public void tick(Level level, BlockPos blockPos) {
-        flushState(level, blockPos);
+        this.flushState(level, blockPos);
         BlockState state = level.getBlockState(blockPos);
         boolean powered = state.getValue(ChargerBlock.POWERED);
         if (this.grid == null) return;
@@ -468,6 +468,9 @@ public class ChargerBlockEntity extends BlockEntity
     @Override
     public void preRemoveSideEffects(BlockPos pos, BlockState state) {
         super.preRemoveSideEffects(pos, state);
-        Containers.dropContents(this.level, pos, this.getFilteredItemStackHandler().getStacks());
+        Level level = this.level;
+        if (level != null) {
+            Containers.dropContents(level, pos, this.getFilteredItemStackHandler().getStacks());
+        }
     }
 }

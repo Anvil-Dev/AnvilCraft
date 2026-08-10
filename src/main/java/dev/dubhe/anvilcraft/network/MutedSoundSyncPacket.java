@@ -23,7 +23,7 @@ public record MutedSoundSyncPacket(List<Identifier> sounds) implements IClientbo
 
     @Override
     public Type<MutedSoundSyncPacket> type() {
-        return TYPE;
+        return MutedSoundSyncPacket.TYPE;
     }
 
     @Override

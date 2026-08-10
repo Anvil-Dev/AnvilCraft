@@ -44,7 +44,7 @@ public class JewelCraftingScreen extends AbstractContainerScreen<JewelCraftingMe
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            JewelCraftingScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,

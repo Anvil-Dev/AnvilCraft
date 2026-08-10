@@ -6,21 +6,18 @@ dependencies {
     // jarJar(libs.anvillib)
 
     // Ageratum 藿香
-    implementation(libs.ageratum)
-    // jarJar(libs.ageratum)
-
-    // Ageratum 藿香
     api(libs.ageratum)
     jarJar(libs.ageratum)
 
     // JEI
     compileClasspath(libs.jei.common.api) { transitive = false }
-    compileClasspath(libs.jei.forge.api) { transitive = false }
-    compileClasspath(libs.jei.forge) { transitive = false }
-    runtimeClasspath(libs.jei.forge) { transitive = false }
+    compileClasspath(libs.jei.neoforge.api) { transitive = false }
+    compileClasspath(libs.jei.neoforge) { transitive = false }
+    runtimeClasspath(libs.jei.neoforge) { transitive = false }
 
     // Sodium, Iris
-    compileClasspath(libs.sodium)
+    compileClasspath(libs.sodium.api)
+    compileClasspath(libs.sodium.mod)
     compileClasspath(libs.iris)
 
     // Jade

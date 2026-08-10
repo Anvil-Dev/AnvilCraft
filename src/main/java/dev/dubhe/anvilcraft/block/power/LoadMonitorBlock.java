@@ -15,6 +15,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
@@ -39,17 +40,17 @@ public class LoadMonitorBlock extends BaseEntityBlock implements IHammerRemovabl
 
     public LoadMonitorBlock(Properties properties) {
         super(properties);
-        registerDefaultState(this.defaultBlockState().setValue(OVERLOAD, true).setValue(LOAD, 10));
+        this.registerDefaultState(this.defaultBlockState().setValue(LoadMonitorBlock.OVERLOAD, true).setValue(LoadMonitorBlock.LOAD, 10));
     }
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
-        return simpleCodec(LoadMonitorBlock::new);
+        return BlockBehaviour.simpleCodec(LoadMonitorBlock::new);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(OVERLOAD, LOAD);
+        builder.add(LoadMonitorBlock.OVERLOAD, LoadMonitorBlock.LOAD);
     }
 
     @Override
@@ -59,7 +60,7 @@ public class LoadMonitorBlock extends BaseEntityBlock implements IHammerRemovabl
 
     @Override
     protected int getSignal(BlockState state, BlockGetter level, BlockPos pos, Direction direction) {
-        return state.getValue(OVERLOAD) ? 15 : 0;
+        return state.getValue(LoadMonitorBlock.OVERLOAD) ? 15 : 0;
     }
 
     @Override
@@ -79,7 +80,7 @@ public class LoadMonitorBlock extends BaseEntityBlock implements IHammerRemovabl
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(
         Level level, BlockState state, BlockEntityType<T> type) {
-        return createTickerHelper(
+        return BaseEntityBlock.createTickerHelper(
             type,
             ModBlockEntities.LOAD_MONITOR.get(),
             (level1, blockPos, blockState, blockEntity) -> blockEntity.tick()
@@ -99,7 +100,7 @@ public class LoadMonitorBlock extends BaseEntityBlock implements IHammerRemovabl
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return SHAPE;
+        return LoadMonitorBlock.SHAPE;
     }
 
     @Override

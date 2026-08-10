@@ -57,7 +57,7 @@ public class TextWidget extends StringWidget {
                 int j = font.width(component);
                 int k = this.getX() + Math.round(this.alignX * (float) (i - j));
                 int l = this.getY() + (this.getHeight() - font.lineHeight) / 2;
-                graphics.text(font, component.getVisualOrderText(), k, l, DEFAULT_COLOR);
+                graphics.text(font, component.getVisualOrderText(), k, l, TextWidget.DEFAULT_COLOR);
             }
             case SCALED -> {
                 float scaleX = this.getWidth() / (float) font.width(component);
@@ -66,7 +66,7 @@ public class TextWidget extends StringWidget {
                 if (scaleX >= 1 && scaleY >= 1) {
                     int k = this.getX() + Math.round(this.alignX * (float) (this.getWidth() - font.width(component)));
                     int l = this.getY() + (this.getHeight() - font.lineHeight) / 2;
-                    graphics.text(font, component, k, l, DEFAULT_COLOR);
+                    graphics.text(font, component, k, l, TextWidget.DEFAULT_COLOR);
                     return;
                 }
 
@@ -82,7 +82,7 @@ public class TextWidget extends StringWidget {
                 poseStack.pushMatrix();
                 poseStack.translate(this.getX() + offsetX, this.getY() + offsetY);
                 poseStack.scale(scaleX, scaleY);
-                graphics.text(font, component, 0, 0, DEFAULT_COLOR);
+                graphics.text(font, component, 0, 0, TextWidget.DEFAULT_COLOR);
                 poseStack.popMatrix();
             }
             default -> {
@@ -90,7 +90,7 @@ public class TextWidget extends StringWidget {
                 int j = font.width(component);
                 int k = this.getX() + Math.round(this.alignX * (float) (i - j));
                 int l = this.getY() + (this.getHeight() - font.lineHeight) / 2;
-                graphics.text(font, component.getVisualOrderText(), k, l, DEFAULT_COLOR);
+                graphics.text(font, component.getVisualOrderText(), k, l, TextWidget.DEFAULT_COLOR);
             }
         }
     }

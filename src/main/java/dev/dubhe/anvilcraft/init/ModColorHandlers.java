@@ -36,7 +36,7 @@ public class ModColorHandlers {
 
     @SubscribeEvent
     public static void registerItemColorHandlersEvent(RegisterColorHandlersEvent.ItemTintSources event) {
-        event.register(PILL, Pill.MAP_CODEC);
+        event.register(ModColorHandlers.PILL, Pill.MAP_CODEC);
     }
 
     /// 复用原版红石粉的强度到颜色映射，功率取自 [RedstoneWireClientPowerCache]
@@ -67,7 +67,7 @@ public class ModColorHandlers {
 
         @Override
         public MapCodec<? extends ItemTintSource> type() {
-            return MAP_CODEC;
+            return Pill.MAP_CODEC;
         }
     }
 }

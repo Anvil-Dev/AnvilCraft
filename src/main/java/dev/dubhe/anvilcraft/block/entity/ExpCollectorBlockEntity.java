@@ -91,7 +91,7 @@ public class ExpCollectorBlockEntity extends BlockEntity
         10,
         60
     );
-    private final CapacityModifiableFluidHandler tank = new CapacityModifiableFluidHandler(1, CAPACITY) {
+    private final CapacityModifiableFluidHandler tank = new CapacityModifiableFluidHandler(1, ExpCollectorBlockEntity.CAPACITY) {
         @Override
         public boolean isValid(int index, FluidResource resource) {
             return resource.getFluid() == ModFluids.EXP_FLUID.get();
@@ -177,7 +177,7 @@ public class ExpCollectorBlockEntity extends BlockEntity
         if (this.level != null && !this.level.isClientSide()) {
             FluidNetworkManager.INSTANCE.removeContainer(this.level, this.getBlockPos());
         }
-        removePoachingCollector(this);
+        ExpCollectorBlockEntity.removePoachingCollector(this);
         super.setRemoved();
     }
 
@@ -305,9 +305,9 @@ public class ExpCollectorBlockEntity extends BlockEntity
         if (this.cooldown.get() != this.oldCooldown) {
             this.oldCooldown = this.cooldown.get();
             if (this.oldCooldown == 0) {
-                addPoachingCollector(this);
+                ExpCollectorBlockEntity.addPoachingCollector(this);
             } else {
-                removePoachingCollector(this);
+                ExpCollectorBlockEntity.removePoachingCollector(this);
             }
         }
         if (this.rangeRadius.get() != this.oldRange || this.boundingBox == null) {
@@ -349,7 +349,7 @@ public class ExpCollectorBlockEntity extends BlockEntity
 
     @Override
     public int getInputPower() {
-        int power = POWER_CONSUMPTION[this.cooldown.index()][this.rangeRadius.index()];
+        int power = ExpCollectorBlockEntity.POWER_CONSUMPTION[this.cooldown.index()][this.rangeRadius.index()];
         if (this.level == null) return power;
         return this.getBlockState().getValue(ExpCollectorBlock.POWERED) ? 0 : power;
     }
@@ -394,7 +394,7 @@ public class ExpCollectorBlockEntity extends BlockEntity
 
     public int getRedstoneSignal() {
         int amount = this.tank.getAmountAsInt(0);
-        int strength = amount == 0 ? 0 : amount * 14 / CAPACITY + 1;
+        int strength = amount == 0 ? 0 : amount * 14 / ExpCollectorBlockEntity.CAPACITY + 1;
         return Mth.clamp(strength, 0, 15);
     }
 
@@ -412,35 +412,43 @@ public class ExpCollectorBlockEntity extends BlockEntity
     }
 
     public static void clearPoachingCollectors() {
-        POACHING_COLLECTORS.clear();
-    }
-
-    private static Set<ExpCollectorBlockEntity> getOrCreateCollectorList(ExpCollectorBlockEntity collector) {
-        return getOrCreateCollectorList(collector.level, ChunkPos.containing(collector.worldPosition));
+        ExpCollectorBlockEntity.POACHING_COLLECTORS.clear();
     }
 
     private static Set<ExpCollectorBlockEntity> getOrCreateCollectorList(Level level, ChunkPos chunkPos) {
-        Set<ExpCollectorBlockEntity> collectors = POACHING_COLLECTORS.get(level, chunkPos);
+        Set<ExpCollectorBlockEntity> collectors = ExpCollectorBlockEntity.POACHING_COLLECTORS.get(level, chunkPos);
         if (collectors == null) {
             collectors = new HashSet<>();
-            POACHING_COLLECTORS.put(level, chunkPos, collectors);
+            ExpCollectorBlockEntity.POACHING_COLLECTORS.put(level, chunkPos, collectors);
         }
         return collectors;
     }
 
     private static void addPoachingCollector(ExpCollectorBlockEntity collector) {
-        if (collector.level != null) getOrCreateCollectorList(collector).add(collector);
+        Level level = collector.level;
+        if (level != null) {
+            ExpCollectorBlockEntity.getOrCreateCollectorList(
+                level,
+                ChunkPos.containing(collector.worldPosition)
+            ).add(collector);
+        }
     }
 
     private static void removePoachingCollector(ExpCollectorBlockEntity collector) {
-        if (collector.level != null) getOrCreateCollectorList(collector).remove(collector);
+        Level level = collector.level;
+        if (level != null) {
+            ExpCollectorBlockEntity.getOrCreateCollectorList(
+                level,
+                ChunkPos.containing(collector.worldPosition)
+            ).remove(collector);
+        }
     }
 
     public static boolean poachExperienceOrb(ExperienceOrb orb) {
         ChunkPos currentPos = ChunkPos.containing(orb.blockPosition());
         for (int x = -1; x <= 1; x++) {
             for (int z = -1; z <= 1; z++) {
-                Set<ExpCollectorBlockEntity> collectors = POACHING_COLLECTORS.get(
+                Set<ExpCollectorBlockEntity> collectors = ExpCollectorBlockEntity.POACHING_COLLECTORS.get(
                     orb.level(),
                     new ChunkPos(currentPos.x() + x, currentPos.z() + z)
                 );

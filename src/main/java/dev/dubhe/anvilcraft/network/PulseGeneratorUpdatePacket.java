@@ -32,7 +32,7 @@ public record PulseGeneratorUpdatePacket(
 
     @Override
     public Type<? extends CustomPacketPayload> type() {
-        return TYPE;
+        return PulseGeneratorUpdatePacket.TYPE;
     }
 
     @Override

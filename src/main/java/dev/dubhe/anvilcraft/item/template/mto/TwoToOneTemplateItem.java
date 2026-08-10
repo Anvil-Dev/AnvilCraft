@@ -19,11 +19,11 @@ public class TwoToOneTemplateItem extends BaseMultipleToOneTemplateItem {
 
     @Override
     public Component getMaterialTooltip() {
-        return MISSING_TOOLTIP;
+        return TwoToOneTemplateItem.MISSING_TOOLTIP;
     }
 
     @Override
     public List<Identifier> getEmptySlotTextures() {
-        return EMPTY_SLOT_TEXTURES;
+        return TwoToOneTemplateItem.EMPTY_SLOT_TEXTURES;
     }
 }

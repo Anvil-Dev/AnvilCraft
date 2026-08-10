@@ -128,7 +128,7 @@ public class PacketSplitter {
 
         @Override
         public Type<SplitPacketHeader> type() {
-            return TYPE;
+            return SplitPacketHeader.TYPE;
         }
 
         @Override
@@ -155,7 +155,7 @@ public class PacketSplitter {
 
         @Override
         public Type<SplitPacketBody> type() {
-            return TYPE;
+            return SplitPacketBody.TYPE;
         }
 
         @Override

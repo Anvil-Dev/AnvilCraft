@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.inventory.TranscendenceAnvilMenu;
 import dev.dubhe.anvilcraft.mixin.invoker.BlockBehaviourInvoker;
 import dev.dubhe.anvilcraft.network.RocketJumpPacket;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
+import dev.dubhe.anvilcraft.util.EntityUtil;
 import dev.dubhe.anvilcraft.util.InfiniteFluidTankBreakProtection;
 import dev.dubhe.anvilcraft.util.MultiPartBlockUtil;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
@@ -84,7 +85,7 @@ public class AnvilHammerItem extends Item {
     public static boolean goggleEnabled = false;
 
     static {
-        IS_WEARING_PREDICATES.add(player -> player.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof AnvilHammerItem);
+        AnvilHammerItem.IS_WEARING_PREDICATES.add(player -> player.getItemBySlot(EquipmentSlot.HEAD).getItem() instanceof AnvilHammerItem);
     }
 
     private final ItemAttributeModifiers modifiers;
@@ -102,11 +103,11 @@ public class AnvilHammerItem extends Item {
         );
         this.modifiers = ItemAttributeModifiers.builder().add(
             Attributes.ATTACK_DAMAGE, new AttributeModifier(
-                BASE_ATTACK_DAMAGE_ID, this.getAttackDamageModifierAmount(),
+                Item.BASE_ATTACK_DAMAGE_ID, this.getAttackDamageModifierAmount(),
                 AttributeModifier.Operation.ADD_VALUE
             ), EquipmentSlotGroup.MAINHAND
         ).add(
-            Attributes.ATTACK_SPEED, new AttributeModifier(BASE_ATTACK_SPEED_ID, -3F, AttributeModifier.Operation.ADD_VALUE),
+            Attributes.ATTACK_SPEED, new AttributeModifier(Item.BASE_ATTACK_SPEED_ID, -3F, AttributeModifier.Operation.ADD_VALUE),
             EquipmentSlotGroup.MAINHAND
         ).build();
     }
@@ -159,7 +160,7 @@ public class AnvilHammerItem extends Item {
         if (result != null) {
             return result;
         }
-        for (Property<?> supportedProperty : SUPPORTED_PROPERTIES) {
+        for (Property<?> supportedProperty : AnvilHammerItem.SUPPORTED_PROPERTIES) {
             if (state.hasProperty(supportedProperty)) {
                 return supportedProperty;
             }
@@ -189,7 +190,7 @@ public class AnvilHammerItem extends Item {
     public static void openPortableAnvil(Player player, int inventorySlot) {
         if (!(player instanceof ServerPlayer serverPlayer)) return;
         OpenedHammerSource source = OpenedHammerSource.fromInventory(serverPlayer.getInventory(), inventorySlot);
-        openPortableAnvil(serverPlayer, source);
+        AnvilHammerItem.openPortableAnvil(serverPlayer, source);
     }
 
     private static void openPortableAnvil(ServerPlayer serverPlayer, @Nullable OpenedHammerSource source) {
@@ -199,7 +200,7 @@ public class AnvilHammerItem extends Item {
             serverPlayer.closeContainer();
         }
         MenuProvider provider = new SimpleMenuProvider(
-            (id, playerInventory, menuPlayer) -> createPortableAnvilMenu(id, playerInventory, source),
+            (id, playerInventory, menuPlayer) -> AnvilHammerItem.createPortableAnvilMenu(id, playerInventory, source),
             Component.translatable("container.repair")
         );
         ModMenuTypes.open(serverPlayer, provider);
@@ -211,7 +212,7 @@ public class AnvilHammerItem extends Item {
         if (menuSlotId < 0 || menuSlotId >= serverPlayer.containerMenu.slots.size()) return;
         Slot slot = serverPlayer.containerMenu.getSlot(menuSlotId);
         OpenedHammerSource source = OpenedHammerSource.fromMenuSlot(slot, serverPlayer.getInventory());
-        openPortableAnvil(serverPlayer, source);
+        AnvilHammerItem.openPortableAnvil(serverPlayer, source);
     }
 
     private static AbstractContainerMenu createPortableAnvilMenu(
@@ -240,16 +241,16 @@ public class AnvilHammerItem extends Item {
         ServerPlayer player, BlockPos blockPos, ServerLevel level, ItemStack anvilHammer, InteractionHand hand,
         BlockHitResult result
     ) {
-        if (rocketJump(player, level, result)) return;
+        if (AnvilHammerItem.rocketJump(player, level, result)) return;
         if (!level.mayInteract(player, blockPos)) return;
         if (!player.getAbilities().mayBuild) return;
         if (player.isShiftKeyDown()) {
             TriggerUtil.anvilHammerClickBlock(level, blockPos, "shift_right_click");
-            breakBlock(player, blockPos, level, anvilHammer);
+            AnvilHammerItem.breakBlock(player, blockPos, level, anvilHammer);
             return;
         }
         TriggerUtil.anvilHammerClickBlock(level, blockPos, "right_click");
-        if (interactWithBlock(player, blockPos, level, anvilHammer, hand, result)) return;
+        if (AnvilHammerItem.interactWithBlock(player, blockPos, level, anvilHammer, hand, result)) return;
         HammerManager.getChange(level.getBlockState(blockPos).getBlock()).change(player, blockPos, level, anvilHammer);
     }
 
@@ -286,14 +287,14 @@ public class AnvilHammerItem extends Item {
             int slot = player.getUsedItemHand() == InteractionHand.MAIN_HAND
                        ? player.getInventory().getSelectedSlot()
                        : Inventory.SLOT_OFFHAND;
-            openPortableAnvil(player, slot);
+            AnvilHammerItem.openPortableAnvil(player, slot);
         }
         return stack;
     }
 
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity entity) {
-        return PORTABLE_ANVIL_USE_TICKS;
+        return AnvilHammerItem.PORTABLE_ANVIL_USE_TICKS;
     }
 
     @Override
@@ -338,7 +339,7 @@ public class AnvilHammerItem extends Item {
     }
 
     public static void addIsWearingPredicate(Predicate<Player> predicate) {
-        IS_WEARING_PREDICATES.add(predicate);
+        AnvilHammerItem.IS_WEARING_PREDICATES.add(predicate);
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -396,8 +397,7 @@ public class AnvilHammerItem extends Item {
         if (level instanceof ServerLevel serverLevel) {
             EnchantmentHelper.modifyFallBasedDamage(serverLevel, stack, attacker, level.damageSources().anvil(attacker), damageBonus);
         }
-        // noinspection deprecation
-        target.hurtOrSimulate(target.level().damageSources().anvil(attacker), damageBonus);
+        EntityUtil.hurtOrSimulate(target, target.level().damageSources().anvil(attacker), damageBonus);
         if (attacker.fallDistance >= 3) {
             attacker.level().playSound(
                 null,

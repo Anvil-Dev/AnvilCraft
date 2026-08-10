@@ -24,7 +24,7 @@ public abstract class AbstractTransmissionPoleBlockEntity extends BlockEntity im
     }
 
     @Override
-    public Level getCurrentLevel() {
+    public @Nullable Level getCurrentLevel() {
         return this.getLevel();
     }
 
@@ -48,7 +48,9 @@ public abstract class AbstractTransmissionPoleBlockEntity extends BlockEntity im
 
     @Override
     public void tick() {
-        BlockState state = this.getLevel().getBlockState(this.getPos());
+        Level level = this.getLevel();
+        if (level == null) return;
+        BlockState state = level.getBlockState(this.getPos());
         if (!this.getType().isValid(state)) return;
         if (!this.isHead(state)) return;
 
@@ -57,6 +59,6 @@ public abstract class AbstractTransmissionPoleBlockEntity extends BlockEntity im
         } else if (state.getValue(IPowerComponent.SWITCH) == Switch.ON && this.getGrid() == null) {
             PowerGrid.addComponent(this);
         }
-        this.flushState(this.getLevel(), this.getPos());
+        this.flushState(level, this.getPos());
     }
 }

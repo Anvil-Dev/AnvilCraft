@@ -32,7 +32,7 @@ public class FrostSmithingPackets {
 
         @Override
         public Type<OriginalSync> type() {
-            return TYPE;
+            return OriginalSync.TYPE;
         }
 
         @Override
@@ -52,7 +52,7 @@ public class FrostSmithingPackets {
 
         @Override
         public Type<ClickButton> type() {
-            return TYPE;
+            return ClickButton.TYPE;
         }
 
         @Override

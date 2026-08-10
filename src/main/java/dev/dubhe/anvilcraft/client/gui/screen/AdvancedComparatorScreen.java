@@ -134,7 +134,7 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            AdvancedComparatorScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,
@@ -146,8 +146,10 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
         );
         int slider1OffsetY = this.isInSlider(mouseX, mouseY, this.slider1X, this.sliderY) ? 11 : 0;
         int slider2OffsetY = this.isInSlider(mouseX, mouseY, this.slider2X, this.sliderY) ? 11 : 0;
-        graphics.blit(RenderPipelines.GUI_TEXTURED, SLIDER, this.slider1X, this.sliderY, 0, slider1OffsetY, 7, 11, 7, 22);
-        graphics.blit(RenderPipelines.GUI_TEXTURED, SLIDER, this.slider2X, this.sliderY, 0, slider2OffsetY, 7, 11, 7, 22);
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED, AdvancedComparatorScreen.SLIDER, this.slider1X, this.sliderY, 0, slider1OffsetY, 7, 11, 7, 22);
+        graphics.blit(
+            RenderPipelines.GUI_TEXTURED, AdvancedComparatorScreen.SLIDER, this.slider2X, this.sliderY, 0, slider2OffsetY, 7, 11, 7, 22);
         Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();
         pose.scale(0.5F, 0.5F);
@@ -212,7 +214,7 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
     @Override
     public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
         if (this.scrolling1) {
-            this.slider1Pos = Math.clamp((int) (event.x() - this.sliderMin) / GRID, 0, 15);
+            this.slider1Pos = Math.clamp((int) (event.x() - this.sliderMin) / AdvancedComparatorScreen.GRID, 0, 15);
             this.slider1X = Math.clamp(
                 (long) this.slider1Pos * AdvancedComparatorScreen.GRID + this.sliderMin,
                 this.sliderMin,
@@ -220,7 +222,7 @@ public class AdvancedComparatorScreen extends AbstractContainerScreen<AdvancedCo
             );
             return true;
         } else if (this.scrolling2) {
-            this.slider2Pos = Math.clamp((int) (event.x() - this.sliderMin) / GRID, 0, 15);
+            this.slider2Pos = Math.clamp((int) (event.x() - this.sliderMin) / AdvancedComparatorScreen.GRID, 0, 15);
             this.slider2X = Math.clamp(
                 (long) this.slider2Pos * AdvancedComparatorScreen.GRID + this.sliderMin,
                 this.sliderMin,

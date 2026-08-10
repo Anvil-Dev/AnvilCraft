@@ -240,7 +240,7 @@ public class RegistrumBlockRecipeLoader {
                 .define('A', parent)
                 .unlockedBy(AnvilCraftDatagen.hasItem(parent.asItem()), AnvilCraftDatagen.has(lookup, parent))
                 .save(provider);
-            stonecutting(Ingredient.of(parent), ctx.get(), 2)
+            RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(parent), ctx.get(), 2)
                 .unlockedBy(AnvilCraftDatagen.hasItem(parent), AnvilCraftDatagen.has(lookup, parent))
                 .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
         };
@@ -258,7 +258,7 @@ public class RegistrumBlockRecipeLoader {
                 .define('A', parent)
                 .unlockedBy(AnvilCraftDatagen.hasItem(parent.asItem()), AnvilCraftDatagen.has(lookup, parent))
                 .save(provider);
-            stonecutting(Ingredient.of(parent), ctx.get())
+            RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(parent), ctx.get())
                 .unlockedBy(AnvilCraftDatagen.hasItem(parent), AnvilCraftDatagen.has(lookup, parent))
                 .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
         };
@@ -275,7 +275,7 @@ public class RegistrumBlockRecipeLoader {
                 .define('A', parent)
                 .unlockedBy(AnvilCraftDatagen.hasItem(parent.asItem()), AnvilCraftDatagen.has(lookup, parent))
                 .save(provider);
-            stonecutting(Ingredient.of(parent), ctx.get())
+            RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(parent), ctx.get())
                 .unlockedBy(AnvilCraftDatagen.hasItem(parent), AnvilCraftDatagen.has(lookup, parent))
                 .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
         };
@@ -687,13 +687,13 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_BIG)
             )
             .save(provider, ctx.getId() + "_from_big");
-        stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 64)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 64)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_BIG),
                 AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_BIG)
             )
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_big"));
-        stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_MIDDLE), RecipeCategory.MISC, ctx.get(), 8)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_MIDDLE), RecipeCategory.MISC, ctx.get(), 8)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_MIDDLE),
                 AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_MIDDLE)
@@ -717,7 +717,7 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_BIG)
             )
             .save(provider, ctx.getId() + "_from_big");
-        stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 8)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.POWER_CONVERTER_BIG), RecipeCategory.MISC, ctx.get(), 8)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.POWER_CONVERTER_BIG),
                 AnvilCraftDatagen.has(lookup, ModBlocks.POWER_CONVERTER_BIG)
@@ -1325,44 +1325,44 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void smoothRoyalSteelBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), ctx.get(), 4)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.ROYAL_STEEL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/smooth_royal_steel_block"));
     }
 
     public static <T extends Block> void cutRoyalSteelBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), ctx.get(), 4)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.ROYAL_STEEL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_royal_steel_block"));
     }
 
     public static <T extends Block> void cutRoyalSteelPillar(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.CUT_ROYAL_STEEL_BLOCK), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_ROYAL_STEEL_BLOCK), ctx.get())
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.ROYAL_STEEL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_royal_steel_pillar_from_cut_royal_steel_block"));
-        stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), ctx.get(), 4)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.ROYAL_STEEL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_royal_steel_pillar_from_royal_steel_block"));
     }
 
     public static <T extends Block> void cutRoyalSteelSlab(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), ctx.get(), 8)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), ctx.get(), 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.ROYAL_STEEL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_royal_steel_slab_from_royal_steel_block"));
-        stonecutting(Ingredient.of(ModBlocks.CUT_ROYAL_STEEL_BLOCK), ctx.get(), 2)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_ROYAL_STEEL_BLOCK), ctx.get(), 2)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.ROYAL_STEEL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_royal_steel_slab_from_cut_royal_steel_block"));
     }
 
     public static <T extends Block> void cutRoyalSteelStairs(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), ctx.get(), 4)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.ROYAL_STEEL_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.ROYAL_STEEL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_royal_steel_stairs_from_royal_steel_block"));
-        stonecutting(Ingredient.of(ModBlocks.CUT_ROYAL_STEEL_BLOCK), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_ROYAL_STEEL_BLOCK), ctx.get())
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.ROYAL_STEEL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.ROYAL_STEEL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_royal_steel_stairs_from_cut_royal_steel_block"));
     }
@@ -1380,37 +1380,37 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void cutFrostMetalBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), ctx.get(), 4)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FROST_METAL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.FROST_METAL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_frost_metal_block"));
     }
 
     public static <T extends Block> void cutFrostMetalPillar(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), ctx.get(), 4)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FROST_METAL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.FROST_METAL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_frost_metal_pillar_from_frost_metal_block"));
-        stonecutting(Ingredient.of(ModBlocks.CUT_FROST_METAL_BLOCK), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_FROST_METAL_BLOCK), ctx.get())
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FROST_METAL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.FROST_METAL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_frost_metal_pillar_from_cut_frost_metal_block"));
     }
 
     public static <T extends Block> void cutFrostMetalSlab(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), ctx.get(), 8)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), ctx.get(), 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FROST_METAL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.FROST_METAL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_frost_metal_slab_from_frost_metal_block"));
-        stonecutting(Ingredient.of(ModBlocks.CUT_FROST_METAL_BLOCK), ctx.get(), 2)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_FROST_METAL_BLOCK), ctx.get(), 2)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FROST_METAL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.FROST_METAL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_frost_metal_slab_from_cut_frost_metal_block"));
     }
 
     public static <T extends Block> void cutFrostMetalStairs(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), ctx.get(), 4)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.FROST_METAL_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FROST_METAL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.FROST_METAL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_frost_metal_stairs_from_frost_metal_block"));
-        stonecutting(Ingredient.of(ModBlocks.CUT_FROST_METAL_BLOCK), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_FROST_METAL_BLOCK), ctx.get())
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FROST_METAL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.FROST_METAL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_frost_metal_stairs_from_cut_frost_metal_block"));
     }
@@ -1428,30 +1428,30 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void cutEmberMetalBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.EMBER_METAL_BLOCK), ctx.get(), 4)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.EMBER_METAL_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.EMBER_METAL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.EMBER_METAL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_ember_metal_block"));
     }
 
     public static <T extends Block> void cutEmberMetalPillar(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.EMBER_METAL_BLOCK), ctx.get(), 4)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.EMBER_METAL_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.EMBER_METAL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.EMBER_METAL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_ember_metal_pillar_from_ember_metal_block"));
-        stonecutting(Ingredient.of(ModBlocks.CUT_EMBER_METAL_BLOCK), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_EMBER_METAL_BLOCK), ctx.get())
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.EMBER_METAL_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.EMBER_METAL_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_ember_metal_pillar_from_cut_ember_metal_block"));
     }
 
     public static <T extends Block> void cutEmberMetalSlab(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.EMBER_METAL_BLOCK), ctx.get(), 8)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.EMBER_METAL_BLOCK), ctx.get(), 8)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.EMBER_METAL_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.EMBER_METAL_BLOCK)
             )
             .save(provider, AnvilCraft.recipe("stonecutting/cut_ember_metal_slab_from_ember_metal_block"));
-        stonecutting(Ingredient.of(ModBlocks.CUT_EMBER_METAL_BLOCK), ctx.get(), 2)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_EMBER_METAL_BLOCK), ctx.get(), 2)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.CUT_EMBER_METAL_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.CUT_EMBER_METAL_BLOCK)
@@ -1461,13 +1461,13 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void cutEmberMetalStairs(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.EMBER_METAL_BLOCK), ctx.get(), 4)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.EMBER_METAL_BLOCK), ctx.get(), 4)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.CUT_EMBER_METAL_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.CUT_EMBER_METAL_BLOCK)
             )
             .save(provider, AnvilCraft.recipe("stonecutting/cut_ember_metal_stairs_from_ember_metal_block"));
-        stonecutting(Ingredient.of(ModBlocks.CUT_EMBER_METAL_BLOCK), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_EMBER_METAL_BLOCK), ctx.get())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.CUT_EMBER_METAL_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.CUT_EMBER_METAL_BLOCK)
@@ -1502,14 +1502,14 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void polishedHeavyIronBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 2)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 2)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
     }
 
     public static <T extends Block> void polishedHeavyIronSlab(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 4)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_heavy_iron_block"));
         SingleItemRecipeBuilder.stonecutting(
@@ -1527,13 +1527,13 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void polishedHeavyIronStairs(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 2)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 2)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK)
             )
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_heavy_iron_block"));
-        stonecutting(Ingredient.of(ModBlocks.POLISHED_HEAVY_IRON_BLOCK), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.POLISHED_HEAVY_IRON_BLOCK), ctx.get())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.POLISHED_HEAVY_IRON_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.POLISHED_HEAVY_IRON_BLOCK)
@@ -1543,7 +1543,7 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void cutHeavyIronBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
         SingleItemRecipeBuilder.stonecutting(
@@ -1560,7 +1560,7 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void cutHeavyIronSlab(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 16)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 16)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_heavy_iron_block"));
         SingleItemRecipeBuilder.stonecutting(
@@ -1572,7 +1572,7 @@ public class RegistrumBlockRecipeLoader {
             AnvilCraftDatagen.hasItem(ModBlocks.POLISHED_HEAVY_IRON_BLOCK),
             AnvilCraftDatagen.has(lookup, ModBlocks.POLISHED_HEAVY_IRON_BLOCK)
         ).save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-        stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), ctx.get(), 2)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), ctx.get(), 2)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.CUT_HEAVY_IRON_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.CUT_HEAVY_IRON_BLOCK)
@@ -1582,7 +1582,7 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void cutHeavyIronStairs(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_heavy_iron_block"));
         SingleItemRecipeBuilder.stonecutting(
@@ -1594,7 +1594,7 @@ public class RegistrumBlockRecipeLoader {
             AnvilCraftDatagen.hasItem(ModBlocks.POLISHED_HEAVY_IRON_BLOCK),
             AnvilCraftDatagen.has(lookup, ModBlocks.POLISHED_HEAVY_IRON_BLOCK)
         ).save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-        stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), ctx.get())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.CUT_HEAVY_IRON_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.CUT_HEAVY_IRON_BLOCK)
@@ -1604,7 +1604,7 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void heavyIronPlate(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 16)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 16)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
         SingleItemRecipeBuilder.stonecutting(
@@ -1618,7 +1618,7 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(lookup, ModBlocks.POLISHED_HEAVY_IRON_BLOCK)
             )
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-        stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), ctx.get(), 2)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), ctx.get(), 2)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.CUT_HEAVY_IRON_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.CUT_HEAVY_IRON_BLOCK)
@@ -1635,7 +1635,7 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(lookup, ModBlocks.POLISHED_HEAVY_IRON_SLAB)
             )
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_slab"));
-        stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_SLAB), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_SLAB), ctx.get())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.CUT_HEAVY_IRON_SLAB),
                 AnvilCraftDatagen.has(lookup, ModBlocks.CUT_HEAVY_IRON_SLAB)
@@ -1645,7 +1645,7 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void heavyIronColumn(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
         SingleItemRecipeBuilder.stonecutting(
@@ -1659,7 +1659,7 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(lookup, ModBlocks.POLISHED_HEAVY_IRON_BLOCK)
             )
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-        stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), ctx.get())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.CUT_HEAVY_IRON_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.CUT_HEAVY_IRON_BLOCK)
@@ -1669,7 +1669,7 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void heavyIronBeam(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
         SingleItemRecipeBuilder.stonecutting(
@@ -1683,7 +1683,7 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(lookup, ModBlocks.POLISHED_HEAVY_IRON_BLOCK)
             )
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-        stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), ctx.get())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.CUT_HEAVY_IRON_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.CUT_HEAVY_IRON_BLOCK)
@@ -1693,7 +1693,7 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void heavyIronWall(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
         SingleItemRecipeBuilder.stonecutting(
@@ -1707,7 +1707,7 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(lookup, ModBlocks.POLISHED_HEAVY_IRON_BLOCK)
             )
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-        stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), ctx.get())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.CUT_HEAVY_IRON_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.CUT_HEAVY_IRON_BLOCK)
@@ -1717,7 +1717,7 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void heavyIronDoor(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 4)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 4)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
         SingleItemRecipeBuilder.stonecutting(
@@ -1735,7 +1735,7 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void heavyIronTrapdoor(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         HolderGetter<Item> lookup = provider.getItems();
-        stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.HEAVY_IRON_BLOCK), ctx.get(), 8)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.HEAVY_IRON_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.HEAVY_IRON_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
         SingleItemRecipeBuilder.stonecutting(
@@ -1749,7 +1749,7 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(lookup, ModBlocks.POLISHED_HEAVY_IRON_BLOCK)
             )
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName() + "_from_polished_heavy_iron_block"));
-        stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_HEAVY_IRON_BLOCK), ctx.get())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.CUT_HEAVY_IRON_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.CUT_HEAVY_IRON_BLOCK)
@@ -1992,7 +1992,7 @@ public class RegistrumBlockRecipeLoader {
             .define('A', ModBlocks.CHOCOLATE_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CHOCOLATE_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.CHOCOLATE_BLOCK))
             .save(provider);
-        stonecutting(Ingredient.of(ModBlocks.CHOCOLATE_BLOCK), ctx.get(), 2)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CHOCOLATE_BLOCK), ctx.get(), 2)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CHOCOLATE_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.CHOCOLATE_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
     }
@@ -2007,7 +2007,7 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(lookup, ModBlocks.BLACK_CHOCOLATE_BLOCK)
             )
             .save(provider);
-        stonecutting(Ingredient.of(ModBlocks.BLACK_CHOCOLATE_BLOCK), ctx.get(), 2)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.BLACK_CHOCOLATE_BLOCK), ctx.get(), 2)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.BLACK_CHOCOLATE_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.BLACK_CHOCOLATE_BLOCK)
@@ -2025,7 +2025,7 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(lookup, ModBlocks.WHITE_CHOCOLATE_BLOCK)
             )
             .save(provider);
-        stonecutting(Ingredient.of(ModBlocks.WHITE_CHOCOLATE_BLOCK), ctx.get(), 2)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.WHITE_CHOCOLATE_BLOCK), ctx.get(), 2)
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.WHITE_CHOCOLATE_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.WHITE_CHOCOLATE_BLOCK)
@@ -2042,7 +2042,7 @@ public class RegistrumBlockRecipeLoader {
             .define('A', ModBlocks.CHOCOLATE_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CHOCOLATE_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.CHOCOLATE_BLOCK))
             .save(provider);
-        stonecutting(Ingredient.of(ModBlocks.CHOCOLATE_BLOCK), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CHOCOLATE_BLOCK), ctx.get())
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CHOCOLATE_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.CHOCOLATE_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/" + ctx.getName()));
     }
@@ -2059,7 +2059,7 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(lookup, ModBlocks.BLACK_CHOCOLATE_BLOCK)
             )
             .save(provider);
-        stonecutting(Ingredient.of(ModBlocks.BLACK_CHOCOLATE_BLOCK), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.BLACK_CHOCOLATE_BLOCK), ctx.get())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.BLACK_CHOCOLATE_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.BLACK_CHOCOLATE_BLOCK)
@@ -2079,7 +2079,7 @@ public class RegistrumBlockRecipeLoader {
                 AnvilCraftDatagen.has(lookup, ModBlocks.WHITE_CHOCOLATE_BLOCK)
             )
             .save(provider);
-        stonecutting(Ingredient.of(ModBlocks.WHITE_CHOCOLATE_BLOCK), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.WHITE_CHOCOLATE_BLOCK), ctx.get())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.WHITE_CHOCOLATE_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.WHITE_CHOCOLATE_BLOCK)
@@ -2315,7 +2315,7 @@ public class RegistrumBlockRecipeLoader {
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FLINT_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.FLINT_BLOCK))
             .save(provider, AnvilCraft.recipe("shaped/polished_flint_block"));
 
-        stonecutting(Ingredient.of(ModBlocks.FLINT_BLOCK.get()), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.FLINT_BLOCK.get()), ctx.get())
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FLINT_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.FLINT_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/polished_flint_block"));
     }
@@ -2332,14 +2332,14 @@ public class RegistrumBlockRecipeLoader {
             )
             .save(provider, AnvilCraft.recipe("shaped/cut_flint_block"));
 
-        stonecutting(Ingredient.of(ModBlocks.FLINT_BLOCK.get()), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.FLINT_BLOCK.get()), ctx.get())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.FLINT_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.FLINT_BLOCK)
             )
             .save(provider, AnvilCraft.recipe("stonecutting/cut_flint_block_from_flint_block"));
 
-        stonecutting(Ingredient.of(ModBlocks.POLISHED_FLINT_BLOCK.get()), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.POLISHED_FLINT_BLOCK.get()), ctx.get())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.POLISHED_FLINT_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.POLISHED_FLINT_BLOCK)
@@ -2355,7 +2355,7 @@ public class RegistrumBlockRecipeLoader {
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_FLINT_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.CUT_FLINT_BLOCK))
             .save(provider, AnvilCraft.recipe("shaped/cut_flint_slab"));
 
-        stonecutting(Ingredient.of(ModBlocks.FLINT_BLOCK.get()), ctx.get(), 2)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.FLINT_BLOCK.get()), ctx.get(), 2)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FLINT_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.FLINT_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_flint_slab_from_flint_block"));
 
@@ -2371,7 +2371,7 @@ public class RegistrumBlockRecipeLoader {
             )
             .save(provider, AnvilCraft.recipe("stonecutting/cut_flint_slab_from_polished_flint_block"));
 
-        stonecutting(Ingredient.of(ModBlocks.CUT_FLINT_BLOCK.get()), ctx.get(), 2)
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_FLINT_BLOCK.get()), ctx.get(), 2)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_FLINT_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.CUT_FLINT_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_flint_slab_from_cut_flint_block"));
     }
@@ -2386,18 +2386,18 @@ public class RegistrumBlockRecipeLoader {
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_FLINT_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.CUT_FLINT_BLOCK))
             .save(provider, AnvilCraft.recipe("shaped/cut_flint_stairs"));
 
-        stonecutting(Ingredient.of(ModBlocks.FLINT_BLOCK.get()), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.FLINT_BLOCK.get()), ctx.get())
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FLINT_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.FLINT_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_flint_stairs_from_flint_block"));
 
-        stonecutting(Ingredient.of(ModBlocks.POLISHED_FLINT_BLOCK.get()), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.POLISHED_FLINT_BLOCK.get()), ctx.get())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.POLISHED_FLINT_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.POLISHED_FLINT_BLOCK)
             )
             .save(provider, AnvilCraft.recipe("stonecutting/cut_flint_stairs_from_polished_flint_block"));
 
-        stonecutting(Ingredient.of(ModBlocks.CUT_FLINT_BLOCK.get()), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_FLINT_BLOCK.get()), ctx.get())
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_FLINT_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.CUT_FLINT_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_flint_stairs_from_cut_flint_block"));
     }
@@ -2411,18 +2411,18 @@ public class RegistrumBlockRecipeLoader {
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_FLINT_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.CUT_FLINT_BLOCK))
             .save(provider, AnvilCraft.recipe("shaped/cut_flint_pillar"));
 
-        stonecutting(Ingredient.of(ModBlocks.FLINT_BLOCK.get()), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.FLINT_BLOCK.get()), ctx.get())
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FLINT_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.FLINT_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_flint_pillar_from_flint_block"));
 
-        stonecutting(Ingredient.of(ModBlocks.POLISHED_FLINT_BLOCK.get()), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.POLISHED_FLINT_BLOCK.get()), ctx.get())
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.POLISHED_FLINT_BLOCK),
                 AnvilCraftDatagen.has(lookup, ModBlocks.POLISHED_FLINT_BLOCK)
             )
             .save(provider, AnvilCraft.recipe("stonecutting/cut_flint_pillar_from_polished_flint_block"));
 
-        stonecutting(Ingredient.of(ModBlocks.CUT_FLINT_BLOCK.get()), ctx.get())
+        RegistrumBlockRecipeLoader.stonecutting(Ingredient.of(ModBlocks.CUT_FLINT_BLOCK.get()), ctx.get())
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CUT_FLINT_BLOCK), AnvilCraftDatagen.has(lookup, ModBlocks.CUT_FLINT_BLOCK))
             .save(provider, AnvilCraft.recipe("stonecutting/cut_flint_pillar_from_cut_flint_block"));
     }
