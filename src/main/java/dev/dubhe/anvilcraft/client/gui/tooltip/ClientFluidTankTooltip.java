@@ -18,6 +18,7 @@ import net.minecraft.util.FastColor;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Matrix4f;
 
 import java.util.ArrayList;
@@ -57,27 +58,31 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
         List<Boolean> infiniteFlags = new ArrayList<>();
         int remainingFluids = 0;
         HolderLookup.Provider registries = registries();
-        if (registries != null) {
-            if (tooltip.multi()) {
-                ListTag list = tankTag.getList(TAG_FLUIDS, Tag.TAG_COMPOUND);
-                for (int i = 0; i < list.size(); i++) {
-                    CompoundTag entry = list.getCompound(i);
-                    FluidStack fluid = FluidStack.parseOptional(registries, entry.getCompound(TAG_FLUID));
-                    if (fluid.isEmpty()) continue;
-                    if (fluids.size() < MAX_VISIBLE_FLUIDS) {
-                        fluids.add(fluid);
-                        infiniteFlags.add(enhanced && entry.getBoolean(TAG_INFINITE));
-                    } else {
-                        remainingFluids++;
-                    }
+        if (tooltip.multi()) {
+            ListTag list = tankTag.getList(TAG_FLUIDS, Tag.TAG_COMPOUND);
+            for (int i = 0; i < list.size(); i++) {
+                CompoundTag entry = list.getCompound(i);
+                FluidStack fluid = null;
+                if (registries != null) {
+                    fluid = FluidStack.parseOptional(registries, entry.getCompound(TAG_FLUID));
                 }
-            } else if (tankTag.contains(TAG_FLUID, Tag.TAG_COMPOUND)) {
-                FluidStack fluid = FluidStack.parseOptional(registries, tankTag.getCompound(TAG_FLUID));
-                if (!fluid.isEmpty()) {
+                if (fluid != null && fluid.isEmpty()) continue;
+                if (fluids.size() < MAX_VISIBLE_FLUIDS) {
                     fluids.add(fluid);
-                    // 单流体：每行流体无限状态 = 整罐无限容量（创造流体储罐恒为 true）
-                    infiniteFlags.add(tooltip.infiniteCapacity());
+                    infiniteFlags.add(enhanced && entry.getBoolean(TAG_INFINITE));
+                } else {
+                    remainingFluids++;
                 }
+            }
+        } else if (tankTag.contains(TAG_FLUID, Tag.TAG_COMPOUND)) {
+            FluidStack fluid = null;
+            if (registries != null) {
+                fluid = FluidStack.parseOptional(registries, tankTag.getCompound(TAG_FLUID));
+            }
+            if (fluid != null && !fluid.isEmpty()) {
+                fluids.add(fluid);
+                // 单流体：每行流体无限状态 = 整罐无限容量（创造流体储罐恒为 true）
+                infiniteFlags.add(tooltip.infiniteCapacity());
             }
         }
         this.fluids = fluids;
@@ -85,7 +90,7 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
         this.remainingFluids = remainingFluids;
     }
 
-    private static HolderLookup.Provider registries() {
+    private static HolderLookup.@Nullable Provider registries() {
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level != null) {
             return minecraft.level.registryAccess();
@@ -155,7 +160,7 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
         for (int i = 0; i < fluids.size(); i++) {
             font.drawInBatch(
                 fluidLine(i),
-                mouseX + ICON_SIZE + ICON_GAP, rowY + (ICON_SIZE - LINE_HEIGHT) / 2,
+                mouseX + ICON_SIZE + ICON_GAP, rowY + (float) (ICON_SIZE - LINE_HEIGHT) / 2,
                 -1, true, matrix, bufferSource, Font.DisplayMode.NORMAL, 0, 15728880
             );
             rowY += ICON_SIZE;
@@ -183,8 +188,8 @@ public class ClientFluidTankTooltip implements ClientTooltipComponent {
     @Override
     public void renderImage(Font font, int x, int y, GuiGraphics guiGraphics) {
         int rowY = y + (fluids.isEmpty() ? 0 : LINE_HEIGHT);
-        for (int i = 0; i < fluids.size(); i++) {
-            renderFluidIcon(guiGraphics, fluids.get(i), x, rowY);
+        for (FluidStack fluid : fluids) {
+            renderFluidIcon(guiGraphics, fluid, x, rowY);
             rowY += ICON_SIZE;
         }
     }

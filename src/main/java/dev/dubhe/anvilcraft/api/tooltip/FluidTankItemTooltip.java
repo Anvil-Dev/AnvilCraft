@@ -16,6 +16,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 public final class FluidTankItemTooltip {
@@ -34,8 +35,8 @@ public final class FluidTankItemTooltip {
         int capacity
     ) {
         CompoundTag tankTag = getTankTag(stack);
-        List<TooltipFluid> fluids = readSingleFluid(tankTag, context.registries(), capacity);
-        append(tooltip, fluids, totalAmount(fluids), capacity, false);
+        List<TooltipFluid> fluids = readSingleFluid(tankTag, Objects.requireNonNull(context.registries()), capacity);
+        append(tooltip, fluids, totalAmount(fluids), capacity);
     }
 
     /** 单流体储罐的 tooltip 数据（携带 Tank NBT，客户端解析渲染为 图标+文字）。 */
@@ -80,7 +81,7 @@ public final class FluidTankItemTooltip {
         HolderLookup.Provider registries,
         int maxAmount
     ) {
-        if (registries == null || !tankTag.contains(TAG_FLUID, Tag.TAG_COMPOUND)) return new ArrayList<>();
+        if (!tankTag.contains(TAG_FLUID, Tag.TAG_COMPOUND)) return new ArrayList<>();
         FluidStack fluid = FluidStack.parseOptional(registries, tankTag.getCompound(TAG_FLUID));
         if (fluid.isEmpty()) return new ArrayList<>();
         fluid.setAmount(Math.min(fluid.getAmount(), maxAmount));
@@ -99,8 +100,7 @@ public final class FluidTankItemTooltip {
         List<Component> tooltip,
         List<TooltipFluid> fluids,
         long amount,
-        int capacity,
-        boolean infiniteCapacity
+        int capacity
     ) {
         if (!fluids.isEmpty()) {
             tooltip.add(Component.translatable("tooltip.anvilcraft.fluid_tank.fluid").withStyle(ChatFormatting.BLUE));
@@ -116,16 +116,11 @@ public final class FluidTankItemTooltip {
         }
 
         tooltip.add(Component.translatable("tooltip.anvilcraft.fluid_tank.capacity").withStyle(ChatFormatting.BLUE));
-        Component capacityLine = infiniteCapacity
-            ? Component.translatable(
-                "tooltip.anvilcraft.fluid_tank.capacity.value.infinity",
-                UnitUtil.fluidUnit(amount, false)
-            )
-            : Component.translatable(
-                "tooltip.anvilcraft.fluid_tank.capacity.value",
-                UnitUtil.fluidUnit(amount, false),
-                UnitUtil.fluidUnit(capacity, false)
-            );
+        Component capacityLine = Component.translatable(
+            "tooltip.anvilcraft.fluid_tank.capacity.value",
+            UnitUtil.fluidUnit(amount, false),
+            UnitUtil.fluidUnit(capacity, false)
+        );
         tooltip.add(capacityLine.copy().withStyle(ChatFormatting.GRAY));
     }
 
