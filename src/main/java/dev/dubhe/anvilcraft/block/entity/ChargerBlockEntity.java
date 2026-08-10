@@ -259,6 +259,7 @@ public class ChargerBlockEntity extends BlockEntity
         super.saveAdditional(output);
         output.putInt("TimeLeft", this.timeLeft);
         output.putInt("TimeTotalCache", this.timeTotalCache);
+        output.putInt("PowerValue", this.powerValue);
         this.itemHandler.serialize(output.child("Depository"));
         output.putBoolean("FeCharging", this.isFeCharging);
         output.putBoolean("FeCharged", this.isFeCharged);
@@ -270,6 +271,7 @@ public class ChargerBlockEntity extends BlockEntity
         super.loadAdditional(input);
         this.timeLeft = input.getIntOr("TimeLeft", 0);
         this.timeTotalCache = input.getIntOr("TimeTotalCache", 0);
+        this.powerValue = input.getIntOr("PowerValue", 0);
         this.itemHandler.deserialize(input.childOrEmpty("Depository"));
         this.isFeCharging = input.getBooleanOr("FeCharging", false);
         this.isFeCharged = input.getBooleanOr("FeCharged", false);
@@ -392,13 +394,15 @@ public class ChargerBlockEntity extends BlockEntity
         boolean powered = state.getValue(ChargerBlock.POWERED);
         if (this.grid == null) return;
         if (powered) return;
+        if (this.isFeCharging) {
+            this.powerValue = -(this.getFeChargingPowerLevel());
+        }
         if (this.timeLeft == 0) {
             this.moveItemToTransformingSlot();
         }
         if (this.timeLeft > 0) {
-            if (this.isFeCharging) {
-                this.powerValue = -(this.getFeChargingPowerLevel());
-            }
+            if (this.grid.getConsume() >= this.grid.getGenerate()) return;
+
             if (this.isGridWorking()) {
                 if (this.isFeCharging) {
                     ItemStack processingStack = this.itemHandler.getStacks().get(1);

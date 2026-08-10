@@ -44,9 +44,11 @@ import org.jspecify.annotations.Nullable;
 import java.util.Optional;
 
 public class DischargerBlockEntity extends BlockEntity
-    implements IPowerProducer, IFilterBlockEntity, IStateListener<Boolean>, IItemResourceHandlerHolder, IHasDisplayItem {
+        implements IPowerProducer, IFilterBlockEntity, IStateListener<Boolean>, IItemResourceHandlerHolder, IHasDisplayItem {
 
-    /** 放电器每tick从物品抽取的FE量 */
+    /**
+     * 放电器每tick从物品抽取的FE量
+     */
     static final int FE_EXTRACT_PER_TICK = 10_000;
 
     @Getter
@@ -96,10 +98,10 @@ public class DischargerBlockEntity extends BlockEntity
             DischargerBlockEntity.this.setChanged();
             DischargerBlockEntity.this.updateDisplayItemStack();
             level.sendBlockUpdated(
-                DischargerBlockEntity.this.getBlockPos(),
-                DischargerBlockEntity.this.getBlockState(),
-                DischargerBlockEntity.this.getBlockState(),
-                Block.UPDATE_ALL
+                    DischargerBlockEntity.this.getBlockPos(),
+                    DischargerBlockEntity.this.getBlockState(),
+                    DischargerBlockEntity.this.getBlockState(),
+                    Block.UPDATE_ALL
             );
         }
     };
@@ -119,9 +121,9 @@ public class DischargerBlockEntity extends BlockEntity
         SingleRecipeInput input = new SingleRecipeInput(resource.toStack());
         if (!(this.getLevel() instanceof ServerLevel serverLevel)) return false;
         Optional<RecipeHolder<ChargerChargingRecipe>> recipe = serverLevel.recipeAccess().getRecipeFor(
-            ModRecipeTypes.CHARGER_CHARGING.get(),
-            input,
-            serverLevel
+                ModRecipeTypes.CHARGER_CHARGING.get(),
+                input,
+                serverLevel
         );
         if (recipe.isPresent()) {
             if (recipe.get().value().power() == 0) return false;
@@ -140,9 +142,9 @@ public class DischargerBlockEntity extends BlockEntity
         SingleRecipeInput input = new SingleRecipeInput(resource.toStack());
         if (!(this.getLevel() instanceof ServerLevel serverLevel)) return null;
         Optional<RecipeHolder<ChargerChargingRecipe>> recipe = serverLevel.recipeAccess().getRecipeFor(
-            ModRecipeTypes.CHARGER_CHARGING.get(),
-            input,
-            serverLevel
+                ModRecipeTypes.CHARGER_CHARGING.get(),
+                input,
+                serverLevel
         );
         return recipe.map(RecipeHolder::value).orElse(null);
     }
@@ -188,8 +190,8 @@ public class DischargerBlockEntity extends BlockEntity
     private void syncPacket() {
         if (this.getCurrentLevel() == null || !(this.getCurrentLevel() instanceof ServerLevel serverLevel)) return;
         PacketDistributor.sendToPlayersTrackingChunk(
-            serverLevel, serverLevel.getChunk(this.getBlockPos()).getPos(),
-            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache, this.isFeDischarging));
+                serverLevel, serverLevel.getChunk(this.getBlockPos()).getPos(),
+                new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache, this.isFeDischarging));
     }
 
     private void moveItemToTransformedOverSlot() {
@@ -211,9 +213,9 @@ public class DischargerBlockEntity extends BlockEntity
         if (ItemStack.matches(this.displayItemStack, newDisplayStack)) return;
         this.displayItemStack = newDisplayStack.copy();
         PacketDistributor.sendToPlayersTrackingChunk(
-            (ServerLevel) this.level,
-            this.level.getChunk(this.getBlockPos()).getPos(),
-            new UpdateDisplayItemPacket(this.displayItemStack, this.getPos())
+                (ServerLevel) this.level,
+                this.level.getChunk(this.getBlockPos()).getPos(),
+                new UpdateDisplayItemPacket(this.displayItemStack, this.getPos())
         );
     }
 
@@ -246,6 +248,7 @@ public class DischargerBlockEntity extends BlockEntity
         super.saveAdditional(output);
         output.putInt("TimeLeft", this.timeLeft);
         output.putInt("TimeTotalCache", this.timeTotalCache);
+        output.putInt("PowerValue", this.powerValue);
         this.itemHandler.serialize(output.child("Depository"));
         output.putBoolean("FeDischarging", this.isFeDischarging);
         output.putBoolean("FeDischarged", this.isFeDischarged);
@@ -256,6 +259,7 @@ public class DischargerBlockEntity extends BlockEntity
         super.loadAdditional(input);
         this.timeLeft = input.getIntOr("TimeLeft", 0);
         this.timeTotalCache = input.getIntOr("TimeTotalCache", 0);
+        this.powerValue = input.getIntOr("PowerValue", 0);
         this.itemHandler.deserialize(input.childOrEmpty("Depository"));
         this.isFeDischarging = input.getBooleanOr("FeDischarging", false);
         this.isFeDischarged = input.getBooleanOr("FeDischarged", false);
@@ -363,10 +367,10 @@ public class DischargerBlockEntity extends BlockEntity
     private void dropItemStack(ItemStack stack) {
         if (!stack.isEmpty() && this.level != null) {
             Containers.dropItemStack(this.level,
-                this.getBlockPos().getX() + 0.5,
-                this.getBlockPos().getY() + 1.0,
-                this.getBlockPos().getZ() + 0.5,
-                stack);
+                    this.getBlockPos().getX() + 0.5,
+                    this.getBlockPos().getY() + 1.0,
+                    this.getBlockPos().getZ() + 0.5,
+                    stack);
         }
     }
 
@@ -381,14 +385,14 @@ public class DischargerBlockEntity extends BlockEntity
             this.moveItemToTransformingSlot();
         }
         if (this.timeLeft > 0) {
-            if (this. isFeDischarging) {
+            if (this.isFeDischarging) {
                 this.powerValue = this.getFeDischargingPowerLevel();
             }
             if (this.isFeDischarging) {
                 ItemStack processingStack = this.itemHandler.getStacks().get(1);
                 if (!processingStack.isEmpty()) {
                     EnergyHandler storage = processingStack.getCapability(
-                        Capabilities.Energy.ITEM, ItemAccess.forStack(processingStack));
+                            Capabilities.Energy.ITEM, ItemAccess.forStack(processingStack));
                     if (storage != null) {
                         int currentEnergy = storage.getAmountAsInt();
                         if (currentEnergy <= 0) {
@@ -399,11 +403,11 @@ public class DischargerBlockEntity extends BlockEntity
                         } else {
                             try (var transaction = Transaction.openRoot()) {
                                 int extracted = storage.extract(
-                                    Math.min(DischargerBlockEntity.FE_EXTRACT_PER_TICK, currentEnergy), transaction);
+                                        Math.min(DischargerBlockEntity.FE_EXTRACT_PER_TICK, currentEnergy), transaction);
                                 transaction.commit();
                                 this.powerValue = (int) (extracted
-                                    * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
-                                    / AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency);
+                                        * (1 - AnvilCraft.CONFIG.powerConverter.powerConverterLoss)
+                                        / AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency);
                                 this.timeLeft = currentEnergy - extracted;
                                 this.timeTotalCache = storage.getCapacityAsInt();
                             }
@@ -430,8 +434,8 @@ public class DischargerBlockEntity extends BlockEntity
         if (!(level instanceof ServerLevel serverLevel)) return;
         if (serverLevel.getGameTime() % 10 != 0) return;
         PacketDistributor.sendToPlayersTrackingChunk(
-            serverLevel, serverLevel.getChunk(this.getBlockPos()).getPos(),
-            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache, this.isFeDischarging));
+                serverLevel, serverLevel.getChunk(this.getBlockPos()).getPos(),
+                new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache, this.isFeDischarging));
     }
 
     @Override
