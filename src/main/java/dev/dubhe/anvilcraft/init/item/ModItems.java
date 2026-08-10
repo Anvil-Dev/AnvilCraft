@@ -571,7 +571,13 @@ public class ModItems {
             ) {
                 generator.itemModelOutput.accept(
                     ctx.get(),
-                    ItemModelUtils.specialModel(ModelLocationUtils.getModelLocation(ctx.get()), SpectralSlingshotRenderer.Unbaked.INSTANCE)
+                    ItemModelUtils.composite(
+                        ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(ctx.get())),
+                        ItemModelUtils.specialModel(
+                            ModelLocationUtils.getModelLocation(ctx.get()),
+                            SpectralSlingshotRenderer.Unbaked.INSTANCE
+                        )
+                    )
                 );
             }
         })
@@ -600,13 +606,19 @@ public class ModItems {
                             ModDataComponentPredicates.INT_COMP.get(),
                             new IntegerComponentPredicate(ModComponents.STORED_ENERGY, 0)
                         )),
-                        ItemModelUtils.specialModel(
-                            ModelLocationUtils.getModelLocation(item, "_exhausted"),
-                            SpectralWeaponLauncherRenderer.Unbaked.INSTANCE
+                        ItemModelUtils.composite(
+                            ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item, "_exhausted")),
+                            ItemModelUtils.specialModel(
+                                ModelLocationUtils.getModelLocation(item, "_exhausted"),
+                                SpectralWeaponLauncherRenderer.Unbaked.INSTANCE
+                            )
                         ),
-                        ItemModelUtils.specialModel(
-                            ModelLocationUtils.getModelLocation(item),
-                            SpectralWeaponLauncherRenderer.Unbaked.INSTANCE
+                        ItemModelUtils.composite(
+                            ItemModelUtils.plainModel(ModelLocationUtils.getModelLocation(item)),
+                            ItemModelUtils.specialModel(
+                                ModelLocationUtils.getModelLocation(item),
+                                SpectralWeaponLauncherRenderer.Unbaked.INSTANCE
+                            )
                         )
                     )
                 );

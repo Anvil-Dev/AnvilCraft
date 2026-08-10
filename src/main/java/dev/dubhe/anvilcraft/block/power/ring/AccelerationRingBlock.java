@@ -66,8 +66,7 @@ public class AccelerationRingBlock
 
     public AccelerationRingBlock(Properties properties) {
         super(properties);
-        this.registerDefaultState(this.stateDefinition
-            .any()
+        this.registerDefaultState(this.defaultBlockState()
             .setValue(AccelerationRingBlock.HALF, DirectionCube3x3PartHalf.BOTTOM_CENTER)
             .setValue(AccelerationRingBlock.FACING, Direction.NORTH)
             .setValue(AccelerationRingBlock.OVERLOAD, true)

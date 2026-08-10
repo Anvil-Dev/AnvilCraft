@@ -3,11 +3,15 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.anvilcraft.lib.v2.rendering.ALRPostEffects;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.rendering.BlockStateModelTessellateState;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorRegistry;
 import dev.dubhe.anvilcraft.block.entity.celestial.GiantPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.RingType;
 import dev.dubhe.anvilcraft.block.entity.celestial.RockyPlanetData;
@@ -15,10 +19,12 @@ import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
+import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyTextureBakery;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.state.CFARenderState;
 import dev.dubhe.anvilcraft.client.support.FeatureRendererSupport;
+import dev.dubhe.anvilcraft.init.ModMegastructures;
 import net.minecraft.client.model.object.skull.SkullModelBase;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -65,28 +71,44 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     public static final StandaloneModelKey<BlockStateModel> RING5 = key("CFA Ring 5");
     public static final StandaloneModelKey<BlockStateModel> RING6 = key("CFA Ring 6");
     // ==================== 巨构模型 ====================
-    public static final StandaloneModelKey<BlockStateModel> R1_EXCAVATOR = key("CFA Ring 1 Excavator");
+    private static final Map<Identifier, StandaloneModelKey<BlockStateModel>> MEGASTRUCTURE_MODELS =
+        new ConcurrentHashMap<>();
+    public static final StandaloneModelKey<BlockStateModel> R1_EXCAVATOR = getMegastructureModel(
+        AnvilCraft.of("block/celestial_forging_anvil_ring_1_excavator"));
     public static final StandaloneModelKey<BlockStateModel> R1_EXCAVATOR_OFF = key("CFA Ring 1 Excavator Off");
-    public static final StandaloneModelKey<BlockStateModel> R1_EXTRACTOR = key("CFA Ring 1 Extractor");
-    public static final StandaloneModelKey<BlockStateModel> R2_EXTRACTOR = key("CFA Ring 2 Extractor");
-    public static final StandaloneModelKey<BlockStateModel> R1_ECO_STATION = key("CFA Ring 1 Eco Station");
-    public static final StandaloneModelKey<BlockStateModel> R1_TEMPLE = key("CFA Ring 1 Temple");
-    public static final StandaloneModelKey<BlockStateModel> R4_COLLIDER = key("CFA Ring 4 Collider");
-    public static final StandaloneModelKey<BlockStateModel> R4_DYSON_SPHERE = key("CFA Ring 4 Dyson Sphere");
-    public static final StandaloneModelKey<BlockStateModel> R5_DYSON_SPHERE = key("CFA Ring 5 Dyson Sphere");
-    public static final StandaloneModelKey<BlockStateModel> R4_COIL = key("CFA Ring 4 Coil");
+    public static final StandaloneModelKey<BlockStateModel> R1_EXTRACTOR = getMegastructureModel(
+        AnvilCraft.of("block/celestial_forging_anvil_ring_1_exctractor"));
+    public static final StandaloneModelKey<BlockStateModel> R2_EXTRACTOR = getMegastructureModel(
+        AnvilCraft.of("block/celestial_forging_anvil_ring_2_exctractor"));
+    public static final StandaloneModelKey<BlockStateModel> R1_ECO_STATION = getMegastructureModel(
+        AnvilCraft.of("block/celestial_forging_anvil_ring_1_eco_station"));
+    public static final StandaloneModelKey<BlockStateModel> R1_TEMPLE = getMegastructureModel(
+        AnvilCraft.of("block/celestial_forging_anvil_ring_1_temple"));
+    public static final StandaloneModelKey<BlockStateModel> R4_COLLIDER = getMegastructureModel(
+        AnvilCraft.of("block/celestial_forging_anvil_ring_4_collider"));
+    public static final StandaloneModelKey<BlockStateModel> R4_DYSON_SPHERE = getMegastructureModel(
+        AnvilCraft.of("block/celestial_forging_anvil_ring_4_dyson_sphere"));
+    public static final StandaloneModelKey<BlockStateModel> R5_DYSON_SPHERE = getMegastructureModel(
+        AnvilCraft.of("block/celestial_forging_anvil_ring_5_dyson_sphere"));
+    public static final StandaloneModelKey<BlockStateModel> R4_COIL = getMegastructureModel(
+        AnvilCraft.of("block/celestial_forging_anvil_ring_4_coil"));
     public static final StandaloneModelKey<BlockStateModel> R4_COIL_FIX = key("CFA Ring 4 Coil Fix");
     public static final StandaloneModelKey<BlockStateModel> R4_COIL_RING = key("CFA Ring 4 Coil Ring");
-    public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE = key("CFA Ring 4 Penrose Sphere");
+    public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE = getMegastructureModel(
+        AnvilCraft.of("block/celestial_forging_anvil_ring_4_penrose_sphere"));
     public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE_FIX = key("CFA Ring 4 Penrose Fix");
     public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE_LASER = key("CFA Ring 4 Penrose Laser");
     public static final StandaloneModelKey<BlockStateModel> R4_PENROSE_SPHERE_LASER_OFF = key("CFA Ring 4 Penrose Laser Off");
-    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR = key("CFA Ring 4 Matter Decompressor");
+    public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR = getMegastructureModel(
+        AnvilCraft.of("block/celestial_forging_anvil_ring_4_matter_decompressor"));
     public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR_FIX = key("CFA Ring 4 Decompressor Fix");
     public static final StandaloneModelKey<BlockStateModel> R4_MATTER_DECOMPRESSOR_RING = key("CFA Ring 4 Decompressor Ring");
-    public static final StandaloneModelKey<BlockStateModel> R4_WORMHOLE_STABILIZER = key("CFA Ring 4 Wormhole Stabilizer");
-    public static final StandaloneModelKey<BlockStateModel> R5_ACCELERATOR = key("CFA Ring 5 Accelerator");
-    public static final StandaloneModelKey<BlockStateModel> R6_ACCELERATOR = key("CFA Ring 6 Accelerator");
+    public static final StandaloneModelKey<BlockStateModel> R4_WORMHOLE_STABILIZER = getMegastructureModel(
+        AnvilCraft.of("block/celestial_forging_anvil_ring_4_wormhole_stabilizer"));
+    public static final StandaloneModelKey<BlockStateModel> R5_ACCELERATOR = getMegastructureModel(
+        AnvilCraft.of("block/celestial_forging_anvil_ring_5_stellar_evolution_accelerator"));
+    public static final StandaloneModelKey<BlockStateModel> R6_ACCELERATOR = getMegastructureModel(
+        AnvilCraft.of("block/celestial_forging_anvil_ring_6_stellar_evolution_accelerator"));
     // ==================== 天体模型 ====================
     public static final StandaloneModelKey<BlockStateModel> BODY_STAR = key("CFA Body Star");
     public static final StandaloneModelKey<BlockStateModel> BODY_NEUTRON_STAR = key("CFA Body Neutron Star");
@@ -112,6 +134,13 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         return new StandaloneModelKey<>(() -> "AnvilCraft: " + desc + " Model");
     }
 
+    public static StandaloneModelKey<BlockStateModel> getMegastructureModel(Identifier modelLocation) {
+        return MEGASTRUCTURE_MODELS.computeIfAbsent(
+            modelLocation,
+            location -> key("CFA Megastructure " + location)
+        );
+    }
+
     public CFARenderer(BlockEntityRendererProvider.Context context) {
         this.playerHeadModel = SkullBlockRenderer.createModel(context.entityModelSet(), SkullBlock.Types.PLAYER);
     }
@@ -126,10 +155,12 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     private static final float BEAM_INNER_HALF = 0.08f;
     private static final int BEAM_GLOW_LAYERS = 4;
     private static final float BEAM_GLOW_HALF_STEP = 0.06f;
+    private static final float STAR_BLOOM_SCALE = 1.0025f;
     private static final Map<BlockPos, TractorBeamData> DEFERRED_TRACTOR_BEAMS = new LinkedHashMap<>();
     private static final float SUPERNOVA_MAX_RADIUS = 8.0f;
     private static final int SUPERNOVA_RAY_COUNT = 24;
     private static final float SUPERNOVA_RAY_LENGTH = 12.0f;
+    private static final float PLAYER_HEAD_SCALE = 16.0f;
 
     private record TractorBeamData(BlockPos pos, float beamHeight, float animationProgress) {
     }
@@ -193,18 +224,35 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         state.setBodyRotation((be.getBodyRotation() + partialTicks) * rotationBoost);
 
         // 巨构渲染状态。
-        String megastructure = be.getActiveMegastructureOption() != null
-            ? be.getActiveMegastructureOption().megastructure() : null;
-        int activeIndex = be.getActiveMegastructureIndex();
+        CelestialRefactorOption activeOption = be.getActiveMegastructureOption();
+        Identifier megastructureId = activeOption == null ? null : activeOption.id();
+        state.setActiveMegastructureRing(activeOption == null ? -1 : activeOption.ring());
+        state.setActiveMegastructureRotation(
+            activeOption == null ? rot : activeOption.rotation(rot, state.getBodyRotation())
+        );
+        state.setAuxiliaryMegastructureRing(-1);
+        state.setAuxiliaryMegastructureRotation(rot);
         state.setAcceleratorActive(be.isAcceleratorActive());
+        if (state.isAcceleratorActive()) {
+            CelestialRefactorOption accelerator = CelestialRefactorRegistry.getOption(
+                ModMegastructures.STELLAR_EVOLUTION_ACCELERATOR.getId(),
+                bodyData,
+                isAmplify,
+                be.getPlanetaryResourceSet()
+            );
+            if (accelerator != null) {
+                state.setAuxiliaryMegastructureRing(accelerator.ring());
+                state.setAuxiliaryMegastructureRotation(accelerator.rotation(rot, state.getBodyRotation()));
+            }
+        }
         state.setPenroseLaserActive(be.isPenroseSphereLaserActive());
-        state.setDysonSphereR4("dyson_sphere_small".equals(megastructure));
-        state.setDysonSphereR5("dyson_sphere_large".equals(megastructure));
-        state.setMagnetarCoil("magnetar_coil".equals(megastructure));
-        state.setPenroseSphere("penrose_sphere".equals(megastructure));
-        state.setMatterDecompressor("matter_decompressor".equals(megastructure));
+        state.setDysonSphereR4(ModMegastructures.DYSON_SPHERE_SMALL.getId().equals(megastructureId));
+        state.setDysonSphereR5(ModMegastructures.DYSON_SPHERE_LARGE.getId().equals(megastructureId));
+        state.setMagnetarCoil(ModMegastructures.MAGNETAR_COIL.getId().equals(megastructureId));
+        state.setPenroseSphere(ModMegastructures.PENROSE_SPHERE.getId().equals(megastructureId));
+        state.setMatterDecompressor(ModMegastructures.MATTER_DECOMPRESSOR.getId().equals(megastructureId));
 
-        this.extractRings(be, state, megastructure, activeIndex, bodyData, prevBody);
+        this.extractRings(be, state, bodyData, prevBody);
         this.extractMegastructureRings(be, state, bodyData);
         this.extractBody(be, state, partialTicks);
         this.extractSupernova(be, state, partialTicks);
@@ -214,8 +262,6 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     private void extractRings(
         CelestialForgingAnvilBlockEntity be,
         CFARenderState state,
-        @Nullable String megastructure,
-        int activeIndex,
         @Nullable CelestialBodyData bodyData,
         @Nullable CelestialBodyData prevBody
     ) {
@@ -234,9 +280,12 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         state.setOuterRingModel(FeatureRendererSupport.createTessellation(outerKey, false));
         state.setMiddleRingModel(FeatureRendererSupport.createTessellation(middleKey, false));
         state.setInnerRingModel(FeatureRendererSupport.createTessellation(innerKey, false));
-        state.setHasOuterRing(true);
-        state.setHasMiddleRing(true);
-        state.setHasInnerRing(true);
+        CelestialBodyData effectiveBodyData = be.getEffectiveBodyDataForRendering();
+        boolean hasMechanicalRings = !(effectiveBodyData instanceof SpecialCelestialBodyData special
+            && special.isPlayerHead());
+        state.setHasOuterRing(hasMechanicalRings);
+        state.setHasMiddleRing(hasMechanicalRings);
+        state.setHasInnerRing(hasMechanicalRings);
 
         state.setOuterVisibleNow(isRingVisible(outerIndex, bodyData, isAmplify));
         state.setOuterWasVisible(prevBody == null || isRingVisible(outerIndex, prevBody, isAmplify));
@@ -269,6 +318,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
 
     /// 判断指定天体数据下的机械束星环是否可见。
     private static boolean isRingVisible(int ring, @Nullable CelestialBodyData bodyData, boolean isAmplify) {
+        if (bodyData instanceof SpecialCelestialBodyData special && special.isPlayerHead()) return false;
         if (isAmplify) {
             return switch (ring) {
                 case 4 -> bodyData == null || bodyData.size() < 48;
@@ -288,72 +338,59 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
     }
 
     private StandaloneModelKey<BlockStateModel> getRing1Model(CelestialForgingAnvilBlockEntity be) {
-        if (be.getActiveMegastructureIndex() >= 0 && be.getActiveMegastructureOption() != null) {
-            String m = be.getActiveMegastructureOption().megastructure();
-            switch (m) {
-                case "planet_excavator" -> {
-                    return be.isExcavatorLaserActive() ? R1_EXCAVATOR : R1_EXCAVATOR_OFF;
-                }
-                case "planet_exctractor" -> {
-                    return R1_EXTRACTOR;
-                }
-                case "eco_station" -> {
-                    return R1_ECO_STATION;
-                }
-                case "temple" -> {
-                    return R1_TEMPLE;
-                }
-                default -> {
-                }
-            }
-        }
-        return RING1;
+        StandaloneModelKey<BlockStateModel> active = this.getActiveRingModel(be, 1);
+        return active == null ? RING1 : active;
     }
 
     private StandaloneModelKey<BlockStateModel> getRing2Model(CelestialForgingAnvilBlockEntity be) {
-        if (be.getActiveMegastructureIndex() >= 0 && be.getActiveMegastructureOption() != null
-            && "giant_planet_exctractor".equals(be.getActiveMegastructureOption().megastructure())) {
-            return R2_EXTRACTOR;
-        }
-        return RING2;
+        StandaloneModelKey<BlockStateModel> active = this.getActiveRingModel(be, 2);
+        return active == null ? RING2 : active;
     }
 
     private StandaloneModelKey<BlockStateModel> getRing4Model(CelestialForgingAnvilBlockEntity be) {
-        if (be.getActiveMegastructureIndex() >= 0 && be.getActiveMegastructureOption() != null) {
-            String m = be.getActiveMegastructureOption().megastructure();
-            switch (m) {
-                case "stellar_ring_collider" -> {
-                    return R4_COLLIDER;
-                }
-                case "dyson_sphere_small" -> {
-                    return R4_DYSON_SPHERE;
-                }
-                case "wormhole_stabilizer" -> {
-                    return R4_WORMHOLE_STABILIZER;
-                }
-                default -> {
-                }
-            }
-        }
-        return RING4;
+        StandaloneModelKey<BlockStateModel> active = this.getActiveRingModel(be, 4);
+        return active == null ? RING4 : active;
     }
 
     private StandaloneModelKey<BlockStateModel> getRing5Model(CelestialForgingAnvilBlockEntity be) {
-        if (be.getActiveMegastructureIndex() >= 0 && be.getActiveMegastructureOption() != null
-            && "dyson_sphere_large".equals(be.getActiveMegastructureOption().megastructure())) {
-            return R5_DYSON_SPHERE;
-        }
-        if (be.isAcceleratorActive() && be.getCelestialBodyData() instanceof StarData star && star.size() < 48) {
-            return R5_ACCELERATOR;
-        }
-        return RING5;
+        StandaloneModelKey<BlockStateModel> active = this.getActiveRingModel(be, 5);
+        if (active != null) return active;
+        StandaloneModelKey<BlockStateModel> auxiliary = this.getAcceleratorRingModel(be, 5);
+        return auxiliary == null ? RING5 : auxiliary;
     }
 
     private StandaloneModelKey<BlockStateModel> getRing6Model(CelestialForgingAnvilBlockEntity be) {
-        if (be.isAcceleratorActive() && be.getCelestialBodyData() instanceof StarData star && star.size() >= 48) {
-            return R6_ACCELERATOR;
+        StandaloneModelKey<BlockStateModel> active = this.getActiveRingModel(be, 6);
+        if (active != null) return active;
+        StandaloneModelKey<BlockStateModel> auxiliary = this.getAcceleratorRingModel(be, 6);
+        return auxiliary == null ? RING6 : auxiliary;
+    }
+
+    private @Nullable StandaloneModelKey<BlockStateModel> getActiveRingModel(
+        CelestialForgingAnvilBlockEntity be,
+        int ring
+    ) {
+        CelestialRefactorOption option = be.getActiveMegastructureOption();
+        if (option == null || option.ring() != ring) return null;
+        if (ModMegastructures.PLANET_EXCAVATOR.getId().equals(option.id()) && !be.isExcavatorLaserActive()) {
+            return R1_EXCAVATOR_OFF;
         }
-        return RING6;
+        return getMegastructureModel(option.modelLocation());
+    }
+
+    private @Nullable StandaloneModelKey<BlockStateModel> getAcceleratorRingModel(
+        CelestialForgingAnvilBlockEntity be,
+        int ring
+    ) {
+        if (!be.isAcceleratorActive()) return null;
+        CelestialRefactorOption option = CelestialRefactorRegistry.getOption(
+            ModMegastructures.STELLAR_EVOLUTION_ACCELERATOR.getId(),
+            be.getCelestialBodyData(),
+            be.isAmplify(),
+            be.getPlanetaryResourceSet()
+        );
+        if (option == null || option.ring() != ring) return null;
+        return getMegastructureModel(option.modelLocation());
     }
 
     /// 初始化戴森球、彭罗斯球、磁星线圈和物质解压器的恒星同步附加模型。
@@ -491,51 +528,51 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         float ringScale = state.getRingScale();
         float centerY = state.getCenterY();
 
-        pose.pushPose();
-        pose.translate(0.5, centerY, 0.5);
-        pose.scale(ringScale, ringScale, ringScale);
-
-        // 骨骼层级：最外层绕 Y 轴，外层施加固定倾角，中层绕 X 轴，内层绕 Z 轴。
-        pose.mulPose(Axis.YP.rotationDegrees(-rot));
-        pose.mulPose(Axis.XP.rotationDegrees(14.5108f));
-        pose.mulPose(Axis.YP.rotationDegrees(-3.8411f));
-        pose.mulPose(Axis.ZP.rotationDegrees(14.5109f));
-
-        // 最外环是外层骨骼的子节点。
-        this.submitRingMaybe(
+        int outerRing = state.isAmplified() ? 6 : 3;
+        int middleRing = state.isAmplified() ? 5 : 2;
+        int innerRing = state.isAmplified() ? 4 : 1;
+        this.submitMechanicalRing(
             state.getOuterRingModel(),
             state.isHasOuterRing(),
             state.isOuterVisibleNow(),
             state.isOuterWasVisible(),
+            outerRing,
+            0,
             state,
             pose,
-            collector
+            collector,
+            centerY,
+            ringScale,
+            rot
         );
-
-        // 中层骨骼绕 X 轴旋转。
-        pose.mulPose(Axis.XP.rotationDegrees(90.0f + rot));
-        this.submitRingMaybe(
+        this.submitMechanicalRing(
             state.getMiddleRingModel(),
             state.isHasMiddleRing(),
             state.isMiddleVisibleNow(),
             state.isMiddleWasVisible(),
+            middleRing,
+            1,
             state,
             pose,
-            collector
+            collector,
+            centerY,
+            ringScale,
+            rot
         );
-
-        // 内层骨骼绕 Z 轴旋转。
-        pose.mulPose(Axis.ZP.rotationDegrees(rot));
-        this.submitRingMaybe(
+        this.submitMechanicalRing(
             state.getInnerRingModel(),
             state.isHasInnerRing(),
             state.isInnerVisibleNow(),
             state.isInnerWasVisible(),
+            innerRing,
+            2,
             state,
             pose,
-            collector
+            collector,
+            centerY,
+            ringScale,
+            rot
         );
-        pose.popPose();
 
         // 提交随恒星同步的巨构环渲染层。
         this.submitMegastructureRings(state, pose, collector);
@@ -544,6 +581,9 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         if (state.isCanRenderBody() && state.getEffectiveBodyData() != null) {
             this.submitCelestialBody(state, pose, collector);
             this.submitCelestialRing(state, pose, collector);
+            if (state.getEffectiveBodyData() instanceof StarData star) {
+                this.submitStarBloom(state, star, camera);
+            }
         }
 
         // 仅记录本帧托举光束，在 AFTER_WEATHER 阶段绘制，确保光束位于云层上方。
@@ -557,6 +597,51 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         // 超新星闪光独立于当前天体，即使天体已变为残骸也继续播放。
         if (state.getSupernovaFlashTicks() > 0) {
             this.submitSupernovaFlash(state, pose, collector);
+        }
+    }
+
+    private void submitMechanicalRing(
+        @Nullable BlockStateModelTessellateState model,
+        boolean present,
+        boolean visibleNow,
+        boolean wasVisible,
+        int ring,
+        int depth,
+        CFARenderState state,
+        PoseStack pose,
+        SubmitNodeCollector collector,
+        float centerY,
+        float ringScale,
+        float baseRotation
+    ) {
+        pose.pushPose();
+        pose.translate(0.5, centerY, 0.5);
+        pose.scale(ringScale, ringScale, ringScale);
+        applyMechanicalRingBone(pose, depth, this.getMegastructureRotation(state, ring, baseRotation));
+        this.submitRingMaybe(model, present, visibleNow, wasVisible, state, pose, collector);
+        pose.popPose();
+    }
+
+    private float getMegastructureRotation(CFARenderState state, int ring, float baseRotation) {
+        if (state.getActiveMegastructureRing() == ring) {
+            return state.getActiveMegastructureRotation();
+        }
+        if (state.getAuxiliaryMegastructureRing() == ring) {
+            return state.getAuxiliaryMegastructureRotation();
+        }
+        return baseRotation;
+    }
+
+    private static void applyMechanicalRingBone(PoseStack pose, int depth, float rotation) {
+        pose.mulPose(Axis.YP.rotationDegrees(-rotation));
+        pose.mulPose(Axis.XP.rotationDegrees(14.5108f));
+        pose.mulPose(Axis.YP.rotationDegrees(-3.8411f));
+        pose.mulPose(Axis.ZP.rotationDegrees(14.5109f));
+        if (depth >= 1) {
+            pose.mulPose(Axis.XP.rotationDegrees(90.0f + rotation));
+        }
+        if (depth >= 2) {
+            pose.mulPose(Axis.ZP.rotationDegrees(rotation));
         }
     }
 
@@ -712,12 +797,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
 
     /// 应用到内层骨骼为止的完整层级变换，用于机械内环旋转。
     private static void applyMechanicalInnerBone(PoseStack pose, float rot) {
-        pose.mulPose(Axis.YP.rotationDegrees(-rot));
-        pose.mulPose(Axis.XP.rotationDegrees(14.5108f));
-        pose.mulPose(Axis.YP.rotationDegrees(-3.8411f));
-        pose.mulPose(Axis.ZP.rotationDegrees(14.5109f));
-        pose.mulPose(Axis.XP.rotationDegrees(90.0f + rot));
-        pose.mulPose(Axis.ZP.rotationDegrees(rot));
+        applyMechanicalRingBone(pose, 2, rot);
     }
 
     // ==================== 天体渲染 ====================
@@ -730,8 +810,12 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         float animProgress = state.getAnimationProgress();
 
         float baseScale = state.getBodyScaleMultiplier();
-        if (bodyData instanceof SpecialCelestialBodyData s && s.isErrorPlanet()) {
-            baseScale *= 0.25f;
+        if (bodyData instanceof SpecialCelestialBodyData special) {
+            if (special.isPlayerHead()) {
+                baseScale *= PLAYER_HEAD_SCALE;
+            } else if (special.isErrorPlanet()) {
+                baseScale *= 0.25f;
+            }
         }
         float scale = baseScale * animProgress;
         if (scale < 0.001f) return;
@@ -816,21 +900,62 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
         }
 
         // 主序星使用带动画的灰度烘焙模型。
-        if (state.getBodyModel() != null) {
-            this.tessellateModel(state.getBodyModel(), pose, collector);
+        float[] rgb = CelestialBodyRenderer.getStarColor(star);
+        this.submitRegularStarCore(state.getBodyModel(), rgb, pose, collector);
+
+        // 绘制恒星光晕。
+        this.submitHalo(pose, collector, rgb[0], rgb[1], rgb[2], 10, 1.0f, 0.6f, 1.2f, 1.125f);
+    }
+
+    private void submitStarBloom(CFARenderState state, StarData star, CameraRenderState camera) {
+        if (!RenderState.isEnhancedRenderingAvailable() || !RenderState.isBloomEffectEnabled()) return;
+        BlockStateModelTessellateState bodyModel = state.getBodyModel();
+        if (star.bodyClass().isExtreme() || bodyModel == null) return;
+
+        float scale = state.getBodyScaleMultiplier() * state.getAnimationProgress();
+        if (scale < 0.001f) return;
+
+        float[] rgb = CelestialBodyRenderer.getStarColor(star);
+        double x = state.blockPos.getX() - camera.pos.x;
+        double y = state.blockPos.getY() - camera.pos.y;
+        double z = state.blockPos.getZ() - camera.pos.z;
+        float centerY = state.getCenterY();
+        float axialTilt = star.axialTilt();
+        float rotation = state.getBodyRotation() * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed());
+
+        ALRPostEffects.getBloomPostEffect().drawBloomed((bloomCollector, bloomPose) -> {
+            bloomPose.pushPose();
+            bloomPose.translate(x, y, z);
+            bloomPose.translate(0.5, centerY, 0.5);
+            bloomPose.scale(scale, scale, scale);
+            bloomPose.mulPose(Axis.XP.rotationDegrees(axialTilt));
+            bloomPose.mulPose(Axis.YP.rotationDegrees(rotation));
+            bloomPose.translate(-0.5, -0.5, -0.5);
+            bloomPose.translate(0.5, 0.5, 0.5);
+            bloomPose.scale(STAR_BLOOM_SCALE, STAR_BLOOM_SCALE, STAR_BLOOM_SCALE);
+            bloomPose.translate(-0.5, -0.5, -0.5);
+            this.submitRegularStarCore(bodyModel, rgb, bloomPose, bloomCollector);
+            bloomPose.popPose();
+        });
+    }
+
+    private void submitRegularStarCore(
+        @Nullable BlockStateModelTessellateState bodyModel,
+        float[] rgb,
+        PoseStack pose,
+        SubmitNodeCollector collector
+    ) {
+        if (bodyModel != null) {
+            this.tessellateModel(bodyModel, pose, collector);
         }
 
         // 叠加乘法恒星颜色。
-        float[] rgb = CelestialBodyRenderer.getStarColor(star);
         pose.pushPose();
         pose.translate(0.5, 0.5, 0.5);
         pose.scale(1.005f, 1.005f, 1.005f);
         pose.translate(-0.5, -0.5, -0.5);
         this.submitColorOverlay(pose, collector, rgb[0], rgb[1], rgb[2]);
         pose.popPose();
-
-        // 绘制恒星光晕。
-        this.submitHalo(pose, collector, rgb[0], rgb[1], rgb[2], 10, 1.0f, 0.6f, 1.2f, 1.125f);
     }
 
     private void submitPlanet(
@@ -1273,7 +1398,7 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
 
     @Override
     public boolean shouldRenderOffScreen() {
-        return false;
+        return true;
     }
 
     @Override
@@ -1290,6 +1415,9 @@ public class CFARenderer implements BlockEntityRenderer<CelestialForgingAnvilBlo
             centerY += 19.0f * (be.getRedstoneSignal() / 15.0f);
         }
         float bs = body != null ? body.bodyScale() * CelestialBodyData.BODY_SCALE_FACTOR : 6.0f;
+        if (body instanceof SpecialCelestialBodyData special && special.isPlayerHead()) {
+            bs *= PLAYER_HEAD_SCALE;
+        }
         // 红石信号最大 3× 缩放后的天体和星环可能远大于 1×，渲染包围盒需留足余量。
         float bsMax = bs * 3.0f;
         float ringMax = CelestialBodyData.ringSystemScale(body, be.isAmplify()) * 3.0f;

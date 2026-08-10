@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.block.entity.megastructure.ExcavatorHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.PenroseSphereHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.WormholeStabilizerHandler;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
+import dev.dubhe.anvilcraft.init.ModMegastructures;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
@@ -32,6 +33,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.Util;
 import net.minecraft.world.InteractionHand;
@@ -160,11 +162,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     @Nullable
     private PlanetaryResourceSet planetaryResourceSet = null;
 
-    /**
-     * 获取当前已建巨构在重构选项中的索引；未建造时为 -1。
-     */
-    public int getActiveMegastructureIndex() {
-        return this.megastructureManager.getActiveIndex();
+    public boolean hasActiveMegastructure() {
+        return this.megastructureManager.hasActiveMegastructure();
+    }
+
+    public @Nullable Identifier getActiveMegastructureId() {
+        return this.megastructureManager.getActiveId(this);
     }
 
     /**
@@ -586,6 +589,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     }
 
     private final CelestialSearchHistory searchHistory = new CelestialSearchHistory();
+    private @Nullable CompoundTag cachedDropData;
 
     @Getter
     private final SimpleContainer anvilInventory = new SimpleContainer(5) {
@@ -642,13 +646,27 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
 
     @Override
     public void setRemoved() {
+        boolean shouldClear = this.level != null && !this.level.isClientSide() && !PowerGrid.isServerClosing;
+        if (shouldClear && this.cachedDropData == null) {
+            this.cachedDropData = this.saveCustomOnly(this.level.registryAccess());
+        }
         super.setRemoved();
-        if (this.level != null && !this.level.isClientSide() && !PowerGrid.isServerClosing) {
+        if (shouldClear) {
             this.gravityController.remove(this.level, this.worldPosition);
             // 注销虫洞并清理巨构，使连接传送门及时关闭。
             // 服务器关闭期间跳过，避免保存过程中访问持久化数据。
             this.megastructureManager.clearAllMegastructures(this);
         }
+    }
+
+    @Override
+    public void clearRemoved() {
+        super.clearRemoved();
+        this.cachedDropData = null;
+    }
+
+    public CompoundTag saveForDrop(HolderLookup.Provider registries) {
+        return this.cachedDropData == null ? this.saveCustomOnly(registries) : this.cachedDropData.copy();
     }
 
     /**
@@ -744,8 +762,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
             PowerGrid.addComponent(this);
             // 若虫洞稳定器仍有效，其处理器会在重新建造回调中恢复网络注册。
             WormholeStabilizerHandler wh = this.megastructureManager.getWormholeHandler();
-            if (this.megastructureManager.getActiveIndex() >= 0 && this.getActiveMegastructureOption() != null
-                && "wormhole_stabilizer".equals(this.getActiveMegastructureOption().megastructure())) {
+            if (ModMegastructures.WORMHOLE_STABILIZER.getId().equals(this.getActiveMegastructureId())) {
                 wh.onBuild(this);
             }
             this.setChanged();
@@ -803,6 +820,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
         this.isAmplify = input.getBooleanOr("amplified", false);
+        input.getInt("redstoneSignal").ifPresent(signal -> {
+            int syncedSignal = Math.clamp(signal, 0, 15);
+            this.cachedRedstoneSignal = syncedSignal;
+            this.syncedRedstoneSignal = syncedSignal;
+        });
         this.stellarMass = input.getIntOr("stellarMass", 0);
         this.locked = input.getBooleanOr("locked", false);
         this.amplifierPresent = input.getBooleanOr("amplifierPresent", false);
@@ -857,6 +879,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         });
         // 最后读取巨构数据，使处理器能够覆盖控制器中的派生状态。
         this.megastructureManager.loadAdditional(input);
+        this.megastructureManager.getActiveId(this);
         if (this.level != null && !this.level.isClientSide()) {
             this.syncToClient();
         }
@@ -1055,8 +1078,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
             this.isAmplify,
             this.planetaryResourceSet
         );
-        if (this.megastructureManager.getActiveIndex() >= 0) {
-            options = options.stream().filter(opt -> "stellar_evolution_accelerator".equals(opt.megastructure())).toList();
+        if (this.megastructureManager.hasActiveMegastructure()) {
+            options = options.stream().filter(CelestialRefactorOption::auxiliary).toList();
         }
         return options;
     }
@@ -1101,7 +1124,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity
         }
 
         // 实际建造逻辑交由巨构管理器。
-        this.megastructureManager.buildMegastructure(optionIndex, this);
+        this.megastructureManager.buildMegastructure(option, this);
 
         // 重新注册电网，使巨构改变后的组件类型立即生效。
         PowerGrid.addComponent(this);

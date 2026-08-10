@@ -989,7 +989,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private void renderRefactorSection(GuiGraphicsExtractor g, int guiLeft, int guiTop, int relX, int relY) {
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
         boolean hasAcceleratorActive = getMenu().getBlockEntity().isAcceleratorActive();
-        boolean hasMegastructure = getMenu().getBlockEntity().getActiveMegastructureIndex() >= 0;
+        boolean hasMegastructure = getMenu().getBlockEntity().hasActiveMegastructure();
         CelestialRefactorOption activeOption = hasMegastructure
             ? getMenu().getBlockEntity().getActiveMegastructureOption()
             : null;
@@ -1005,7 +1005,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             );
             if (hasMegastructure) {
                 this.refactorOptions = this.refactorOptions.stream()
-                    .filter(opt -> "stellar_evolution_accelerator".equals(opt.megastructure()))
+                    .filter(CelestialRefactorOption::auxiliary)
                     .toList();
             }
         } else {
@@ -1018,9 +1018,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         int btnCount = this.refactorOptions.size();
         List<FormattedCharSequence> usageLines = List.of();
         if (hasMegastructure && activeOption != null) {
-            Component usage = Component.translatable(
-                "screen.anvilcraft.cfa.megastructure." + activeOption.megastructure() + ".usage"
-            );
+            Component usage = Component.translatable(activeOption.displayName() + ".usage");
             usageLines = this.font.split(usage, BUILT_MEGASTRUCTURE_WRAP_WIDTH);
         }
 
@@ -1373,7 +1371,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     private int getRefactorOptionAt(int rx, int ry) {
         if (this.refactorOptions.isEmpty()) return -1;
-        boolean hasMegastructure = getMenu().getBlockEntity().getActiveMegastructureIndex() >= 0;
+        boolean hasMegastructure = getMenu().getBlockEntity().hasActiveMegastructure();
         for (int visibleRow = 0; visibleRow < RF_ROWS_VISIBLE; visibleRow++) {
             for (int col = 0; col < RF_COLS; col++) {
                 int contentRow = this.rfScrollRow + visibleRow;
@@ -1412,13 +1410,13 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     }
 
     private boolean isHoveringBuiltMegastructureButton(int rx, int ry) {
-        if (this.rfScrollRow != 0 || getMenu().getBlockEntity().getActiveMegastructureIndex() < 0) return false;
+        if (this.rfScrollRow != 0 || !getMenu().getBlockEntity().hasActiveMegastructure()) return false;
         return rx >= RF_BTN_X[0] && rx < RF_BTN_X[0] + RF_BTN_W
             && ry >= RF_BTN_Y[0] && ry < RF_BTN_Y[0] + RF_BTN_H;
     }
 
     private boolean isRefactorStartVisible() {
-        return getMenu().getBlockEntity().getActiveMegastructureIndex() < 0 || !this.refactorOptions.isEmpty();
+        return !getMenu().getBlockEntity().hasActiveMegastructure() || !this.refactorOptions.isEmpty();
     }
 
     private boolean isOverRefactorStart(int rx, int ry) {

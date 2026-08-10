@@ -188,7 +188,7 @@ public final class PlanetResourceGenerator {
             PlanetResourceRecipe.GiantData gd = recipe.giantData();
             if (gd != null) {
                 for (PlanetResourceRecipe.WeightedEntry entry : gd.entries()) {
-                    set.addGiantItem(new PlanetaryResourceSet.WeightedItemStack(entry.resourceId(), entry.weight()));
+                    set.addGiantItem(new PlanetaryResourceSet.WeightedItemStack(entry.select(random), entry.weight()));
                 }
             }
         }
@@ -199,7 +199,7 @@ public final class PlanetResourceGenerator {
             PlanetResourceRecipe.GiantData gd = recipe.giantData();
             if (gd != null) {
                 for (PlanetResourceRecipe.WeightedEntry entry : gd.entries()) {
-                    set.addGiantFluid(new PlanetaryResourceSet.WeightedFluidStack(entry.resourceId(), entry.weight()));
+                    set.addGiantFluid(new PlanetaryResourceSet.WeightedFluidStack(entry.select(random), entry.weight()));
                 }
             }
         }
@@ -242,16 +242,7 @@ public final class PlanetResourceGenerator {
         if (random.nextInt(100) >= od.civilizationChance()) return false;
 
         for (PlanetResourceRecipe.WeightedEntry entry : od.entries()) {
-            Identifier id = entry.resourceId();
-            if ("anvilcraft:gem_amulet_random".equals(id.toString())) {
-                Identifier randomAmulet = PlanetResourceGenerator.pickRandomGemAmulet(random);
-                set.addOffering(new PlanetaryResourceSet.WeightedItemStack(randomAmulet, entry.weight()));
-            } else if ("anvilcraft:gem_block_random".equals(id.toString())) {
-                Identifier randomBlock = PlanetResourceGenerator.pickRandomGemBlock(random);
-                set.addOffering(new PlanetaryResourceSet.WeightedItemStack(randomBlock, entry.weight()));
-            } else {
-                set.addOffering(new PlanetaryResourceSet.WeightedItemStack(id, entry.weight()));
-            }
+            set.addOffering(new PlanetaryResourceSet.WeightedItemStack(entry.select(random), entry.weight()));
         }
         return true;
     }
@@ -314,7 +305,7 @@ public final class PlanetResourceGenerator {
         if (rocky.temperature() == Temperature.MILD && !isHighCoverage) {
             for (PlanetResourceRecipe.WeightedEntry entry : bd.mildExtraFluids()) {
                 if (random.nextInt(100) < entry.weight()) {
-                    set.addBiologicalFluid(new PlanetaryResourceSet.WeightedFluidStack(entry.resourceId(), 100));
+                    set.addBiologicalFluid(new PlanetaryResourceSet.WeightedFluidStack(entry.select(random), 100));
                 }
             }
         }
@@ -336,7 +327,7 @@ public final class PlanetResourceGenerator {
 
         set.setWasteland();
         for (PlanetResourceRecipe.WeightedEntry entry : wd.entries()) {
-            set.addWastelandItem(new PlanetaryResourceSet.WeightedItemStack(entry.resourceId(), entry.weight()));
+            set.addWastelandItem(new PlanetaryResourceSet.WeightedItemStack(entry.select(random), entry.weight()));
         }
     }
 
@@ -401,26 +392,6 @@ public final class PlanetResourceGenerator {
                 dropFrequencies.merge(entry.getKey(), weight, Integer::sum);
             }
         }
-    }
-
-    private static Identifier pickRandomGemAmulet(RandomSource random) {
-        List<Identifier> knownAmulets = List.of(
-            Identifier.parse("anvilcraft:emerald_amulet"),
-            Identifier.parse("anvilcraft:topaz_amulet"),
-            Identifier.parse("anvilcraft:ruby_amulet"),
-            Identifier.parse("anvilcraft:sapphire_amulet")
-        );
-        return knownAmulets.get(random.nextInt(knownAmulets.size()));
-    }
-
-    private static Identifier pickRandomGemBlock(RandomSource random) {
-        List<Identifier> knownBlocks = List.of(
-            Identifier.parse("minecraft:emerald_block"),
-            Identifier.parse("anvilcraft:topaz_block"),
-            Identifier.parse("anvilcraft:ruby_block"),
-            Identifier.parse("anvilcraft:sapphire_block")
-        );
-        return knownBlocks.get(random.nextInt(knownBlocks.size()));
     }
 
     private static Set<Identifier> buildItemBlacklist(HolderLookup.Provider registries, TagKey<Item> blacklistTag) {

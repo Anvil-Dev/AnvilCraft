@@ -152,6 +152,8 @@ public final class GravityManager {
     }
 
     public static Vec3 getGravityVector(Entity entity, double baseGravity) {
+        if (entity instanceof Player player && player.isShiftKeyDown()) return Vec3.ZERO;
+
         Vec3 gravity = GravitySourceManager.calculateGravityVector(
             entity.level(),
             entity.getBoundingBox().getCenter(),
@@ -210,6 +212,7 @@ public final class GravityManager {
         if (movement.lengthSqr() <= MIN_SWEPT_MOVEMENT_SQR
             || entity.isNoGravity()
             || AccelerateManager.isControlledByRing(entity)
+            || (entity instanceof Player player && player.isShiftKeyDown())
             || flyingPlayer) {
             return movement;
         }
