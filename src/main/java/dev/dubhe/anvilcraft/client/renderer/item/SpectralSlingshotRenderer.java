@@ -27,11 +27,10 @@ public class SpectralSlingshotRenderer implements SpecialModelRenderer<SpectralR
 
     @Override
     public @Nullable SpectralRenderState extractArgument(ItemStack stack) {
-        if (!stack.is(ModItems.SPECTRAL_WEAPON_LAUNCHER)) return null;
+        if (!stack.is(ModItems.SPECTRAL_SLINGSHOT)) return null;
         ChargedProjectiles chargedProjectiles = stack.get(DataComponents.CHARGED_PROJECTILES);
         if (chargedProjectiles == null || chargedProjectiles.itemCopies().isEmpty()) return null;
         SpectralRenderState state = new SpectralRenderState();
-        state.setSelf(FeatureRendererSupport.initialize(stack, this.resolver));
         state.setAmmo(FeatureRendererSupport.initialize(
             chargedProjectiles.itemCopies().getFirst(),
             this.resolver
@@ -50,13 +49,6 @@ public class SpectralSlingshotRenderer implements SpecialModelRenderer<SpectralR
         int outlineColor
     ) {
         if (argument == null) return;
-        argument.getSelf().item.submit(
-            pose,
-            collector,
-            lightCoords,
-            overlayCoords,
-            outlineColor
-        );
         pose.pushPose();
         pose.translate(0F, 0.7F, 0.50F);
         pose.mulPose(Axis.YP.rotationDegrees(90));

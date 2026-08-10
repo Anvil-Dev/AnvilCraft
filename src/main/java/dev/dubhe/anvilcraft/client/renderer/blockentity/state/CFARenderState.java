@@ -18,6 +18,10 @@ public class CFARenderState extends BlockEntityRenderState {
     // 基础束星环动画。
     private float rotation;
     private boolean amplified;
+    private int activeMegastructureRing = -1;
+    private float activeMegastructureRotation;
+    private int auxiliaryMegastructureRing = -1;
+    private float auxiliaryMegastructureRotation;
 
     // 红石驱动并经过平滑插值的缩放参数。
     private float ringScale;

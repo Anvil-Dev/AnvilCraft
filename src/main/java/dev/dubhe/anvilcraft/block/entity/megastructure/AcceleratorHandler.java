@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
+import dev.dubhe.anvilcraft.init.ModMegastructures;
 import dev.dubhe.anvilcraft.network.ScreenShakePacket;
 import lombok.Getter;
 import lombok.Setter;
@@ -114,11 +115,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     }
 
     private boolean isDysonSphereBuilt(CelestialForgingAnvilBlockEntity be) {
-        if (be.getActiveMegastructureIndex() < 0) return false;
-        var option = be.getActiveMegastructureOption();
-        if (option == null) return false;
-        String name = option.megastructure();
-        return "dyson_sphere_small".equals(name) || "dyson_sphere_large".equals(name);
+        return ModMegastructures.DYSON_SPHERE_SMALL.getId().equals(be.getActiveMegastructureId())
+            || ModMegastructures.DYSON_SPHERE_LARGE.getId().equals(be.getActiveMegastructureId());
     }
 
     private void tickStage1(CelestialForgingAnvilBlockEntity be) {

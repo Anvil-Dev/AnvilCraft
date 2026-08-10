@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.ModDispenserBehavior;
 import dev.dubhe.anvilcraft.init.ModInspections;
+import dev.dubhe.anvilcraft.init.ModMegastructures;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.ModParticles;
@@ -97,6 +98,7 @@ public class AnvilCraft {
         ModFoodItems.register();
         ModBlockEntities.register();
         ModMenuTypes.register();
+        ModMegastructures.register(modEventBus);
         ModComponents.register(modEventBus);
         ModVillagers.register(modEventBus);
         ModRecipeSerializers.register(modEventBus);

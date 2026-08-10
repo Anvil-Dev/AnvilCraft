@@ -2,18 +2,36 @@
   "model": {
     "type": "minecraft:condition",
     "on_false": {
-      "type": "minecraft:special",
-      "base": "anvilcraft:item/spectral_weapon_launcher",
-      "model": {
-        "type": "anvilcraft:spectral_weapon_launcher"
-      }
+      "type": "minecraft:composite",
+      "models": [
+        {
+          "type": "minecraft:model",
+          "model": "anvilcraft:item/spectral_weapon_launcher"
+        },
+        {
+          "type": "minecraft:special",
+          "base": "anvilcraft:item/spectral_weapon_launcher",
+          "model": {
+            "type": "anvilcraft:spectral_weapon_launcher"
+          }
+        }
+      ]
     },
     "on_true": {
-      "type": "minecraft:special",
-      "base": "anvilcraft:item/spectral_weapon_launcher_exhausted",
-      "model": {
-        "type": "anvilcraft:spectral_weapon_launcher"
-      }
+      "type": "minecraft:composite",
+      "models": [
+        {
+          "type": "minecraft:model",
+          "model": "anvilcraft:item/spectral_weapon_launcher_exhausted"
+        },
+        {
+          "type": "minecraft:special",
+          "base": "anvilcraft:item/spectral_weapon_launcher_exhausted",
+          "model": {
+            "type": "anvilcraft:spectral_weapon_launcher"
+          }
+        }
+      ]
     },
     "predicate": "anvilcraft:integer_component",
     "property": "minecraft:component",

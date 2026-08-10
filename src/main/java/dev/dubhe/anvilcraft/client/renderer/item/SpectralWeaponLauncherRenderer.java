@@ -31,7 +31,6 @@ public class SpectralWeaponLauncherRenderer implements SpecialModelRenderer<Spec
         ChargedProjectiles chargedProjectiles = stack.get(DataComponents.CHARGED_PROJECTILES);
         if (chargedProjectiles == null || chargedProjectiles.itemCopies().isEmpty()) return null;
         SpectralRenderState state = new SpectralRenderState();
-        state.setSelf(FeatureRendererSupport.initialize(stack, this.resolver));
         state.setAmmo(FeatureRendererSupport.initialize(
             chargedProjectiles.itemCopies().getFirst(),
             this.resolver
@@ -50,13 +49,6 @@ public class SpectralWeaponLauncherRenderer implements SpecialModelRenderer<Spec
         int outlineColor
     ) {
         if (argument == null) return;
-        argument.getSelf().item.submit(
-            pose,
-            collector,
-            lightCoords,
-            overlayCoords,
-            outlineColor
-        );
         pose.pushPose();
         pose.translate(0F, 7F / 16F, 7F / 8F);
         pose.mulPose(Axis.YP.rotationDegrees(90));
