@@ -49,7 +49,7 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
         if (be.getGrid() != null
             && be.isAcceleratorActive()
             && be.getAcceleratorStage() == 1
-            && be.getActiveMegastructureIndex() >= 0) {
+            && be.hasActiveMegastructure()) {
             this.cachedGridConsumption = be.getGrid().getConsume();
         }
     }

@@ -23,7 +23,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ProblemReporter;
-import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -44,12 +43,17 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.level.redstone.Orientation;
 import net.minecraft.world.level.storage.TagValueOutput;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jspecify.annotations.Nullable;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class CelestialForgingAnvilBlock
     extends SimpleMultiPartBlock<Cube323PartHalf>
@@ -225,53 +229,64 @@ public class CelestialForgingAnvilBlock
         return ModMultiblockDefinitions.CELESTIAL_FORGING_ANVIL.identifier();
     }
 
-    // === 结构拆除：26.1 使用 playerWillDestroy 和 setRemoved ===
-
     @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        BlockPos mainPos = getMainPartPos(pos, state);
-        boolean isMain = state.hasProperty(HALF) && state.getValue(HALF) == Cube323PartHalf.BOTTOM_CENTER;
-        if (isMain && level.getBlockEntity(mainPos) instanceof CelestialForgingAnvilBlockEntity be) {
-            // 将全部内部物品栏内容掉落到世界。
-            for (int i = 0; i < be.getAnvilInventory().getContainerSize(); i++) {
-                ItemStack stack = be.getAnvilInventory().getItem(i);
-                if (!stack.isEmpty()) {
-                    Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
-                }
-            }
-            ItemStack matStack = be.getMaterialContainer().getItem(0);
-            if (!matStack.isEmpty()) {
-                Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, matStack);
-            }
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        List<ItemStack> drops = super.getDrops(state, params);
+        BlockEntity blockEntity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+        if (!(blockEntity instanceof CelestialForgingAnvilBlockEntity be)) {
+            return drops;
+        }
 
-            // 掉落控制器物品并保留天体、巨构和匹配参数，使其重新放置后恢复；
-            // 同时移除与当前位置或运行时绑定的临时字段。
-            if (!level.isClientSide()) {
-                final ItemStack blockStack = new ItemStack(asItem());
-                CompoundTag beTag = be.saveCustomOnly(level.registryAccess());
+        boolean dropsController = false;
+        for (ItemStack stack : drops) {
+            if (!stack.is(this.asItem())) continue;
+            dropsController = true;
+            this.saveBlockEntityDataToDrop(stack, be, params);
+        }
+        if (!dropsController) {
+            return drops;
+        }
 
-                // 清除与原世界位置或瞬时运行状态绑定的数据。
-                beTag.remove("anvils");               // inventory — already dropped above
-                beTag.remove("materialFilter");       // UI state — resets on menu close
-                beTag.remove("materialLimit");        // UI state
-                beTag.remove("searchHistory");        // search history — not preserved
-                beTag.remove("searching");            // runtime
-                beTag.remove("searchTicks");          // runtime
-                beTag.remove("searchFailed");         // runtime
-                beTag.remove("powerInsufficient");    // runtime
-                beTag.remove("amplifierPresent");     // depends on multiblock structure
-                beTag.remove("activeMegastructure");  // depends on multiblock structure
-
-                if (!beTag.isEmpty()) {
-                    TagValueOutput output = TagValueOutput.createWithoutContext(
-                        new ProblemReporter.ScopedCollector(be.problemPath(), LogUtils.getLogger()));
-                    output.store(beTag);
-                    BlockItem.setBlockEntityData(blockStack, be.getType(), output);
-                }
-                Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, blockStack);
+        List<ItemStack> result = new ArrayList<>(drops);
+        for (int i = 0; i < be.getAnvilInventory().getContainerSize(); i++) {
+            ItemStack stack = be.getAnvilInventory().getItem(i);
+            if (!stack.isEmpty()) {
+                result.add(stack.copy());
             }
         }
-        return super.playerWillDestroy(level, pos, state, player);
+        ItemStack materialStack = be.getMaterialContainer().getItem(0);
+        if (!materialStack.isEmpty()) {
+            result.add(materialStack.copy());
+        }
+        return result;
+    }
+
+    private void saveBlockEntityDataToDrop(
+        ItemStack stack,
+        CelestialForgingAnvilBlockEntity blockEntity,
+        LootParams.Builder params
+    ) {
+        CompoundTag blockEntityTag = blockEntity.saveForDrop(params.getLevel().registryAccess());
+
+        blockEntityTag.remove("anvils");              // dropped separately
+        blockEntityTag.remove("materialFilter");      // menu state
+        blockEntityTag.remove("materialLimit");       // menu state
+        blockEntityTag.remove("searchHistory");       // search history is not preserved
+        blockEntityTag.remove("searching");           // runtime state
+        blockEntityTag.remove("searchTicks");         // runtime state
+        blockEntityTag.remove("searchFailed");        // runtime state
+        blockEntityTag.remove("powerInsufficient");   // runtime state
+        blockEntityTag.remove("amplifierPresent");       // derived from the multiblock
+        blockEntityTag.remove("activeMegastructureId");  // structure-dependent state
+        blockEntityTag.remove("activeMegastructure");    // legacy structure-dependent state
+        blockEntityTag.remove("activeMegastructureName");
+        blockEntityTag.remove("activeMegastructureRing");
+
+        if (blockEntityTag.isEmpty()) return;
+        TagValueOutput output = TagValueOutput.createWithoutContext(
+            new ProblemReporter.ScopedCollector(blockEntity.problemPath(), LogUtils.getLogger()));
+        output.store(blockEntityTag);
+        BlockItem.setBlockEntityData(stack, blockEntity.getType(), output);
     }
 
     // === 多方块结构生命周期 ===
