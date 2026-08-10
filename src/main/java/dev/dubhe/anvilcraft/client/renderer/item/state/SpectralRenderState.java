@@ -7,6 +7,5 @@ import net.minecraft.client.renderer.entity.state.ItemClusterRenderState;
 @Getter
 @Setter
 public class SpectralRenderState {
-    private ItemClusterRenderState self;
     private ItemClusterRenderState ammo;
 }

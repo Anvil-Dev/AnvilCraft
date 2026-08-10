@@ -1,5 +1,8 @@
 package dev.dubhe.anvilcraft.block.entity;
 
+import dev.anvilcraft.lib.v2.rpc.CallableParam;
+import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
+import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
 import dev.dubhe.anvilcraft.api.itemhandler.FilteredItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemResourceHandlerHolder;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
@@ -7,33 +10,34 @@ import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.util.ProblemReporter;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.transfer.ResourceHandler;
 import net.neoforged.neoforge.transfer.item.ItemResource;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
@@ -45,10 +49,13 @@ import java.util.stream.IntStream;
  */
 public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEntity implements IItemResourceHandlerHolder {
     private static final int TYPE_COUNT = 16;
+    private static final StreamCodec<ByteBuf, BlockPos> POS_STREAM_CODEC = ByteBufCodecs.VAR_LONG
+        .map(BlockPos::of, BlockPos::asLong);
     @Setter
     private boolean syncing = false; // 防止虫洞同步重入
-    // 同一游戏刻内的多次库存和提示状态变化合并为一个完整更新包。
-    private boolean clientSyncPending = false;
+    // 同一游戏刻内的多次库存和提示状态变化只增加一次 RPC 数据版本。
+    private boolean tooltipDataDirty = false;
+    private long tooltipDataVersion = 1;
 
     private final FilteredItemStackHandler itemHandler = new FilteredItemStackHandler(TYPE_COUNT) {
         @Override
@@ -91,32 +98,18 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         return new CelestialForgingAnvilLogisticsInterfaceBlockEntity(type, pos, state);
     }
 
-    // === 网络同步 ===
-
-    /**
-     * 将方块实体数据同步给所有正在追踪此区块的客户端。
-     */
-    public void syncToClients() {
-        CfaBlockEntitySync.sendToTracking(this, this.getUpdatePacket());
-    }
-
     @Override
     public void setChanged() {
         super.setChanged();
         if (level != null && !level.isClientSide()) {
-            this.clientSyncPending = true;
+            this.tooltipDataDirty = true;
         }
     }
 
-    private void flushClientSync() {
-        if (!this.clientSyncPending) return;
-        this.clientSyncPending = false;
-        this.syncToClients();
-    }
-
-    @Override
-    public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create(this);
+    private void flushTooltipDataVersion() {
+        if (!this.tooltipDataDirty) return;
+        this.tooltipDataDirty = false;
+        this.tooltipDataVersion++;
     }
 
     @SuppressWarnings("unused")
@@ -246,7 +239,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
                 this.setChanged();
             }
         } finally {
-            this.flushClientSync();
+            this.flushTooltipDataVersion();
         }
     }
 
@@ -268,7 +261,7 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     @Getter
     private boolean colliderStarMissing = false;
 
-    // 下列 setter 会触发客户端同步，以便铁砧锤提示及时刷新。
+    // 下列状态持久化在服务端，并由铁砧锤提示按需通过 RPC 读取。
 
     public void setTempleDemandItem(ItemStack templeDemandItem) {
         if (ItemStack.matches(this.templeDemandItem, templeDemandItem)) return;
@@ -321,8 +314,52 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
     public void setEjectCooldown(int ejectCooldown) {
         if (this.ejectCooldown == ejectCooldown) return;
         this.ejectCooldown = ejectCooldown;
-        // 冷却仅参与服务端逻辑和磁盘持久化，不需要触发客户端完整库存包。
+        // 冷却仅参与服务端逻辑和磁盘持久化。
         super.setChanged();
+    }
+
+    @RemoteCallable(validator = TooltipDataValidator.class)
+    public static TooltipSyncResult syncTooltipData(
+        @CallableParam(clazz = CelestialForgingAnvilLogisticsInterfaceBlockEntity.class, field = "POS_STREAM_CODEC") BlockPos pos,
+        long knownVersion
+    ) {
+        CelestialForgingAnvilLogisticsInterfaceBlockEntity logistics = TooltipDataValidator.TARGET.get();
+        TooltipDataValidator.TARGET.remove();
+        if (logistics == null || !logistics.getBlockPos().equals(pos)) return TooltipSyncResult.EMPTY;
+        logistics.flushTooltipDataVersion();
+        return new TooltipSyncResult(
+            logistics.tooltipDataVersion,
+            knownVersion == logistics.tooltipDataVersion ? null : logistics.createTooltipData()
+        );
+    }
+
+    private TooltipData createTooltipData() {
+        List<ItemStack> storedItems = new ArrayList<>(TYPE_COUNT);
+        for (int slot = 0; slot < this.itemHandler.size(); slot++) {
+            ItemResource resource = this.itemHandler.getResource(slot);
+            if (!resource.isEmpty()) {
+                storedItems.add(resource.toStack(this.itemHandler.getAmountAsInt(slot)));
+            }
+        }
+
+        boolean hasTempleDemand = !this.templeDemandSatisfied && !this.templeDemandItem.isEmpty();
+        List<ItemStack> colliderTargets = new ArrayList<>();
+        if (!this.colliderProcessing && !this.colliderStarMissing) {
+            for (ItemStack target : this.colliderTargetItems) {
+                if (!target.isEmpty()) {
+                    colliderTargets.add(target.copy());
+                }
+            }
+        }
+        return new TooltipData(
+            storedItems,
+            hasTempleDemand ? this.templeDemandItem.copy() : ItemStack.EMPTY,
+            hasTempleDemand ? this.templeDemandCount : 0,
+            hasTempleDemand ? this.templeDemandProgress : 0,
+            colliderTargets,
+            this.colliderProcessing,
+            this.colliderStarMissing
+        );
     }
 
     // === 持久化：26.1 使用 ValueOutput / ValueInput ===
@@ -369,33 +406,117 @@ public class CelestialForgingAnvilLogisticsInterfaceBlockEntity extends BlockEnt
         this.colliderStarMissing = input.getBooleanOr("colliderStarMissing", false);
     }
 
-    // === 网络同步：getUpdateTag 发送 CompoundTag，客户端经 loadAdditional 读取 ===
+    public record TooltipData(
+        List<ItemStack> storedItems,
+        ItemStack templeDemandItem,
+        int templeDemandCount,
+        int templeDemandProgress,
+        List<ItemStack> colliderTargetItems,
+        boolean colliderProcessing,
+        boolean colliderStarMissing
+    ) {
+        private static final int HAS_TEMPLE_DEMAND = 1;
+        private static final int COLLIDER_PROCESSING = 1 << 1;
+        private static final int COLLIDER_STAR_MISSING = 1 << 2;
+        private static final StreamCodec<RegistryFriendlyByteBuf, List<ItemStack>> STORED_ITEMS_STREAM_CODEC =
+            ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list(TYPE_COUNT));
+        private static final StreamCodec<RegistryFriendlyByteBuf, List<ItemStack>> COLLIDER_TARGETS_STREAM_CODEC =
+            ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list());
+        public static final StreamCodec<RegistryFriendlyByteBuf, TooltipData> STREAM_CODEC = StreamCodec.of(
+            TooltipData::encode,
+            TooltipData::decode
+        );
 
-    @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = super.getUpdateTag(registries);
-        // 同步物品栏，供客户端铁砧锤提示显示。
-        TagValueOutput invOutput = TagValueOutput.createWithContext(
-            new ProblemReporter.Collector(this.problemPath()), registries);
-        this.itemHandler.serialize(invOutput);
-        tag.put("inventory", invOutput.buildResult());
-        if (!this.templeDemandItem.isEmpty()) {
-            tag.put("templeDemandItem", ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, this.templeDemandItem).getOrThrow());
-        }
-        tag.putInt("templeDemandCount", this.templeDemandCount);
-        tag.putInt("templeDemandProgress", this.templeDemandProgress);
-        tag.putBoolean("templeDemandSatisfied", this.templeDemandSatisfied);
-        if (!this.colliderTargetItems.isEmpty()) {
-            ListTag list = new ListTag();
-            for (ItemStack stack : this.colliderTargetItems) {
-                if (!stack.isEmpty()) {
-                    list.add(ItemStack.CODEC.encodeStart(NbtOps.INSTANCE, stack).getOrThrow());
-                }
+        private static void encode(RegistryFriendlyByteBuf buf, TooltipData data) {
+            TooltipData.STORED_ITEMS_STREAM_CODEC.encode(buf, data.storedItems);
+            int flags = 0;
+            if (!data.templeDemandItem.isEmpty()) flags |= TooltipData.HAS_TEMPLE_DEMAND;
+            if (data.colliderProcessing) flags |= TooltipData.COLLIDER_PROCESSING;
+            if (data.colliderStarMissing) flags |= TooltipData.COLLIDER_STAR_MISSING;
+            buf.writeByte(flags);
+            if ((flags & TooltipData.HAS_TEMPLE_DEMAND) != 0) {
+                ItemStack.STREAM_CODEC.encode(buf, data.templeDemandItem);
+                buf.writeVarInt(data.templeDemandCount);
+                buf.writeVarInt(data.templeDemandProgress);
             }
-            tag.put("colliderTargetItems", list);
+            if ((flags & (TooltipData.COLLIDER_PROCESSING | TooltipData.COLLIDER_STAR_MISSING)) == 0) {
+                TooltipData.COLLIDER_TARGETS_STREAM_CODEC.encode(buf, data.colliderTargetItems);
+            }
         }
-        tag.putBoolean("colliderProcessing", this.colliderProcessing);
-        tag.putBoolean("colliderStarMissing", this.colliderStarMissing);
-        return tag;
+
+        private static TooltipData decode(RegistryFriendlyByteBuf buf) {
+            List<ItemStack> storedItems = TooltipData.STORED_ITEMS_STREAM_CODEC.decode(buf);
+            int flags = buf.readUnsignedByte();
+            boolean hasTempleDemand = (flags & TooltipData.HAS_TEMPLE_DEMAND) != 0;
+            ItemStack templeDemandItem = hasTempleDemand ? ItemStack.STREAM_CODEC.decode(buf) : ItemStack.EMPTY;
+            int templeDemandCount = hasTempleDemand ? buf.readVarInt() : 0;
+            int templeDemandProgress = hasTempleDemand ? buf.readVarInt() : 0;
+            boolean colliderProcessing = (flags & TooltipData.COLLIDER_PROCESSING) != 0;
+            boolean colliderStarMissing = (flags & TooltipData.COLLIDER_STAR_MISSING) != 0;
+            List<ItemStack> colliderTargetItems = colliderProcessing || colliderStarMissing
+                                                  ? List.of()
+                                                  : TooltipData.COLLIDER_TARGETS_STREAM_CODEC.decode(buf);
+            return new TooltipData(
+                storedItems,
+                templeDemandItem,
+                templeDemandCount,
+                templeDemandProgress,
+                colliderTargetItems,
+                colliderProcessing,
+                colliderStarMissing
+            );
+        }
+    }
+
+    public record TooltipSyncResult(long version, @Nullable TooltipData data) {
+        public static final TooltipSyncResult EMPTY = new TooltipSyncResult(0, null);
+        public static final StreamCodec<RegistryFriendlyByteBuf, TooltipSyncResult> STREAM_CODEC = StreamCodec.of(
+            TooltipSyncResult::encode,
+            TooltipSyncResult::decode
+        );
+
+        private static void encode(RegistryFriendlyByteBuf buf, TooltipSyncResult result) {
+            buf.writeVarLong(result.version);
+            buf.writeBoolean(result.data != null);
+            if (result.data != null) {
+                TooltipData.STREAM_CODEC.encode(buf, result.data);
+            }
+        }
+
+        private static TooltipSyncResult decode(RegistryFriendlyByteBuf buf) {
+            long version = buf.readVarLong();
+            return new TooltipSyncResult(version, buf.readBoolean() ? TooltipData.STREAM_CODEC.decode(buf) : null);
+        }
+    }
+
+    private static final class TooltipDataValidator implements IRemoteCallableValidator {
+        private static final ThreadLocal<@Nullable CelestialForgingAnvilLogisticsInterfaceBlockEntity> TARGET =
+            new ThreadLocal<>();
+
+        @Override
+        public boolean validate(IPayloadContext ctx, Method method, Object[] args) {
+            if (
+                ctx.flow() != PacketFlow.SERVERBOUND
+                || !(ctx.player() instanceof ServerPlayer player)
+                || args.length != 2
+                || !(args[0] instanceof BlockPos pos)
+                || !(args[1] instanceof Long)
+            ) {
+                return false;
+            }
+            BlockEntity blockEntity = player.level().getBlockEntity(pos);
+            if (!(blockEntity instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logistics)) {
+                return false;
+            }
+            boolean accessible = AbstractContainerMenu.stillValid(
+                ContainerLevelAccess.create(player.level(), pos),
+                player,
+                logistics.getBlockState().getBlock()
+            );
+            if (accessible) {
+                TooltipDataValidator.TARGET.set(logistics);
+            }
+            return accessible;
+        }
     }
 }
