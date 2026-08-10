@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": {
+    "item": "anvilcraft:frost_metal_block"
+  },
+  "base": {
+    "item": "anvilcraft:royal_dragon_rod"
+  },
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:frost_dragon_rod"
+  },
+  "template": {
+    "item": "anvilcraft:frost_metal_upgrade_smithing_template"
+  }
+}
