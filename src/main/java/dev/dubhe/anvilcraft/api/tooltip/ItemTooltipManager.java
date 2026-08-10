@@ -368,19 +368,8 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.PUMP.asItem(), "Pumps fluids, consumes 32 kW");
         NORMAL.put(ModBlocks.CREATIVE_CRATE.asItem(), "Infinite item storage and supply");
         NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
-        NORMAL.put(
-            ModBlocks.FLUID_TANK.asItem(), """
-                Stores 16B of fluids
-                Menger Sponges expand it to 12800B and make it infinite when full
-                Can interact with Dispensers for fluid transfer"""
-        );
-        NORMAL.put(
-            ModBlocks.LARGE_FLUID_TANK.asItem(), """
-                Stores 512B shared by any number of fluids
-                Menger Sponges unlock unlimited total storage
-                Can store multiple fluids, each type of fluid that reaches 12800B will be converted to infinite
-                Can interact with Dispensers for fluid transfer"""
-        );
+        NORMAL.put(ModBlocks.FLUID_TANK.asItem(), "Stores fluids");
+        NORMAL.put(ModBlocks.LARGE_FLUID_TANK.asItem(), "Stores multiple fluids");
         NORMAL.put(ModBlocks.DRAIN.asItem(), "Transfers fluid vertically, outputting downward and drawing from above");
         NORMAL.put(ModBlocks.CORRUPTED_BEACON.asItem(), "Releases the wither power within the beacon, its beam accelerates time flow or causes mutations");
         NORMAL.put(ModBlocks.LARGE_CAKE.asItem(), "A cake, a very big cake. 27 bites, each bite fills you up");
@@ -705,6 +694,19 @@ public class ItemTooltipManager {
                 Can perform all cauldron crafting recipes
                 Compatible with multiple processing types via different base blocks
                 Can store multiple fluids"""
+        );
+        SHIFT.put(
+            ModBlocks.FLUID_TANK.asItem(), """
+                Stores 16B of fluids
+                Menger Sponges expand it to 12800B and make it infinite when full
+                Can interact with Dispensers for fluid transfer"""
+        );
+        SHIFT.put(
+            ModBlocks.LARGE_FLUID_TANK.asItem(), """
+                Stores 512B shared by any number of fluids
+                Menger Sponges unlock unlimited total storage
+                Can store multiple fluids, each type of fluid that reaches 12800B will be converted to infinite
+                Can interact with Dispensers for fluid transfer"""
         );
 
         Map<Item, String> allTooltips = Maps.newHashMap();
