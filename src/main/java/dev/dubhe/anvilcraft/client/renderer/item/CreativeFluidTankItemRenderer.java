@@ -20,10 +20,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import javax.annotation.Nullable;
+
 public class CreativeFluidTankItemRenderer extends BlockEntityWithoutLevelRenderer {
     private static final String TAG_INFINITY_FLUID = "infinityFluid";
     private static final String TAG_FLUID = "Fluid";
 
+    @Nullable
     private static CreativeFluidTankItemRenderer instance;
 
     private CreativeFluidTankItemRenderer(
