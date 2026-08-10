@@ -708,6 +708,16 @@ public class ItemTooltipManager {
                 Can store multiple fluids, each type of fluid that reaches 12800B will be converted to infinite
                 Can interact with Dispensers for fluid transfer"""
         );
+        SHIFT.put(
+            ModItems.CAPACITOR.asItem(), """
+                Can be consumed automatically
+                or Can be taken with a left-click in the inventory and then used by right-clicking on an electrical appliance to actively charge it."""
+        );
+        SHIFT.put(
+            ModItems.SUPER_CAPACITOR.asItem(), """
+                Can be consumed automatically
+                or Can be taken with a left-click in the inventory and then used by right-clicking on an electrical appliance to actively charge it."""
+        );
 
         Map<Item, String> allTooltips = Maps.newHashMap();
         allTooltips.putAll(NORMAL);
