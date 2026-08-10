@@ -42,7 +42,9 @@ import java.util.Optional;
 public class DischargerBlockEntity extends BlockEntity
     implements IPowerProducer, IFilterBlockEntity, IStateListener<Boolean>, IItemHandlerHolder, IHasDisplayItem {
 
-    /** 放电器每tick从物品抽取的FE量（与FE收集器一致） */
+    /**
+     * 放电器每tick从物品抽取的FE量（与FE收集器一致）
+     */
     static final int FE_EXTRACT_PER_TICK = 10_000;
 
     @Getter
@@ -136,7 +138,10 @@ public class DischargerBlockEntity extends BlockEntity
         return null;
     }
 
-    private boolean checkRecipeItemNotValid(@Nullable ChargerChargingRecipe recipe, @SuppressWarnings("unused") ItemStack stack) {
+    private boolean checkRecipeItemNotValid(
+        @Nullable ChargerChargingRecipe recipe,
+        @SuppressWarnings("unused") ItemStack stack
+    ) {
         if (recipe != null) {
             if (recipe.power == 0) return true;
             return recipe.power <= 0; // 放电器只接受power > 0的配方
@@ -181,7 +186,8 @@ public class DischargerBlockEntity extends BlockEntity
         if (this.getCurrentLevel() == null || !(this.getCurrentLevel() instanceof ServerLevel serverLevel)) return;
         PacketDistributor.sendToPlayersTrackingChunk(
             serverLevel, serverLevel.getChunk(this.getBlockPos()).getPos(),
-            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache, this.isFeDischarging));
+            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache, this.isFeDischarging)
+        );
     }
 
     private void moveItemToTransformedOverSlot() {
@@ -236,6 +242,7 @@ public class DischargerBlockEntity extends BlockEntity
         super.saveAdditional(tag, provider);
         tag.putInt("TimeLeft", timeLeft);
         tag.putInt("TimeTotalCache", timeTotalCache);
+        tag.putInt("PowerValue", powerValue);
         tag.put("Depository", itemHandler.serializeNBT(provider));
         tag.putBoolean("FeDischarging", isFeDischarging);
     }
@@ -245,6 +252,7 @@ public class DischargerBlockEntity extends BlockEntity
         super.loadAdditional(tag, provider);
         timeLeft = tag.getInt("TimeLeft");
         timeTotalCache = tag.getInt("TimeTotalCache");
+        powerValue = tag.getInt("PowerValue");
         itemHandler.deserializeNBT(provider, tag.getCompound("Depository"));
         isFeDischarging = tag.getBoolean("FeDischarging");
     }
@@ -268,9 +276,11 @@ public class DischargerBlockEntity extends BlockEntity
     }
 
     @Override
-    public void onDataPacket(Connection connection,
-                             ClientboundBlockEntityDataPacket packet,
-                             HolderLookup.Provider provider) {
+    public void onDataPacket(
+        Connection connection,
+        ClientboundBlockEntityDataPacket packet,
+        HolderLookup.Provider provider
+    ) {
         super.onDataPacket(connection, packet, provider);
         if (level != null && level.isClientSide) {
             this.displayItemStack = getDisplayItemStackForRender().copy();
@@ -363,8 +373,10 @@ public class DischargerBlockEntity extends BlockEntity
         if (!stack1.isEmpty()) {
             if (level != null) {
                 Vec3 dropPos = getBlockPos().above().getBottomCenter();
-                ItemEntity itemEntity = new ItemEntity(level, dropPos.x, dropPos.y, dropPos.z,
-                    stack1, 0, 0, 0);
+                ItemEntity itemEntity = new ItemEntity(
+                    level, dropPos.x, dropPos.y, dropPos.z,
+                    stack1, 0, 0, 0
+                );
                 itemEntity.setDefaultPickUpDelay();
             }
         }
@@ -379,13 +391,13 @@ public class DischargerBlockEntity extends BlockEntity
         boolean powered = state.getValue(ChargerBlock.POWERED);
         if (grid == null) return;
         if (powered) return;
+        if (isFeDischarging) {
+            powerValue = getFeDischargingPowerLevel();
+        }
         if (timeLeft == 0) {
             moveItemToTransformingSlot();
         }
         if (timeLeft > 0) {
-            if (isFeDischarging) {
-                powerValue = getFeDischargingPowerLevel();
-            }
             if (isFeDischarging) {
                 ItemStack processingStack = itemHandler.getStackInSlot(1);
                 if (!processingStack.isEmpty()) {
@@ -428,6 +440,7 @@ public class DischargerBlockEntity extends BlockEntity
         if (level2.getGameTime() % 10 != 0) return;
         PacketDistributor.sendToPlayersTrackingChunk(
             level2, level2.getChunk(this.getBlockPos()).getPos(),
-            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache, this.isFeDischarging));
+            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache, this.isFeDischarging)
+        );
     }
 }
