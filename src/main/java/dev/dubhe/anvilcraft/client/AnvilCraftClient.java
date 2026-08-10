@@ -6,10 +6,10 @@ import dev.dubhe.anvilcraft.client.event.GuiLayerRegistrationEventListener;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
-import dev.dubhe.anvilcraft.client.init.ModTooltipComponents;
 import dev.dubhe.anvilcraft.client.particle.IonocraftBackpackExhaustParticle;
 import dev.dubhe.anvilcraft.client.particle.OverseerTrailParticle;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
+import dev.dubhe.anvilcraft.client.renderer.item.ItemSlotClipping;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonocraftBackpackDecoration;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
@@ -57,7 +57,6 @@ public class AnvilCraftClient {
         modBus.addListener(ModShaders::register);
         modBus.addListener(ModModelLayers::register);
         modBus.addListener(ModModelLayers::createModel);
-        modBus.addListener(ModTooltipComponents::register);
         modBus.addListener(AnvilCraftClient::clientSetup);
         AnvilCraftRecipeComponentFactories.RECIPE_COMPONENT_FACTORIES.register(modEventBus);
         InspectionSupport.initializeClient();
@@ -67,6 +66,12 @@ public class AnvilCraftClient {
         IntegrationHook.setModEventBus(Objects.requireNonNull(modEventBus));
         IntegrationHook.setModContainer(Objects.requireNonNull(modContainer));
         AnvilCraft.getINTEGRATION_MANAGER().loadAllClientIntegrations();
+        ItemSlotClipping.register(ModItems.FROST_METAL_RESONATOR.get());
+        ItemSlotClipping.register(ModItems.EMBER_METAL_RESONATOR.get());
+        ItemSlotClipping.register(ModItems.TRANSCENDENCE_RESONATOR.get());
+        ItemSlotClipping.register(ModItems.FROST_METAL_HEAVY_HALBERD.get());
+        ItemSlotClipping.register(ModItems.EMBER_METAL_HEAVY_HALBERD.get());
+        ItemSlotClipping.register(ModItems.TRANSCENDENCE_HEAVY_HALBERD.get());
     }
 
     public static void registerClientExtensions(RegisterClientExtensionsEvent e) {
