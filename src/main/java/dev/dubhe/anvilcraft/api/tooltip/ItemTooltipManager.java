@@ -711,12 +711,12 @@ public class ItemTooltipManager {
         SHIFT.put(
             ModItems.CAPACITOR.asItem(), """
                 Can be consumed automatically
-                or Can be taken with a left-click in the inventory and then used by right-clicking on an electrical appliance to actively charge it."""
+                or can be taken with a left-click in the inventory and then used by right-clicking on an electrical appliance to actively charge it"""
         );
         SHIFT.put(
             ModItems.SUPER_CAPACITOR.asItem(), """
                 Can be consumed automatically
-                or Can be taken with a left-click in the inventory and then used by right-clicking on an electrical appliance to actively charge it."""
+                or can be taken with a left-click in the inventory and then used by right-clicking on an electrical appliance to actively charge it"""
         );
 
         Map<Item, String> allTooltips = Maps.newHashMap();
@@ -735,6 +735,7 @@ public class ItemTooltipManager {
      */
     public static void addTooltip(ItemStack stack, List<Component> tooltip) {
         final Item item = stack.getItem();
+        final int initialTooltipSize = tooltip.size();
         if (stack.has(ModComponents.STORED_ENERGY)) {
             propertyTooltip(
                 "stored_energy",
@@ -796,7 +797,14 @@ public class ItemTooltipManager {
                 if (NORMAL.containsKey(item)) {
                     addNormalTooltip(tooltip, item);
                 }
-                tooltip.add(1, Component.translatable("tooltip.anvilcraft.press_key", Component.literal("[Shift]").withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.DARK_GRAY));
+                int anvilCraftLines = tooltip.size() - initialTooltipSize;
+                tooltip.add(
+                    1 + anvilCraftLines,
+                    Component.translatable(
+                        "tooltip.anvilcraft.press_key",
+                        Component.literal("[Shift]").withStyle(ChatFormatting.WHITE)
+                    ).withStyle(ChatFormatting.DARK_GRAY)
+                );
             }
         } else if (NORMAL.containsKey(item)) {
             addNormalTooltip(tooltip, item);
