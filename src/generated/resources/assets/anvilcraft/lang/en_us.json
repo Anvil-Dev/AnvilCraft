@@ -1518,6 +1518,7 @@
   "tooltip.anvilcraft.fluid_tank.capacity.value": "  %s / %s",
   "tooltip.anvilcraft.fluid_tank.capacity.value.infinity": "  %s / ∞",
   "tooltip.anvilcraft.fluid_tank.fluid": "Fluid:",
+  "tooltip.anvilcraft.fluid_tank.more": "and %s more...",
   "tooltip.anvilcraft.grid_information.consumer_stats": "Power Consumer Stats:",
   "tooltip.anvilcraft.grid_information.input_power": "  Power Consumption: %d",
   "tooltip.anvilcraft.grid_information.output_power": "  Power Generation: %d",

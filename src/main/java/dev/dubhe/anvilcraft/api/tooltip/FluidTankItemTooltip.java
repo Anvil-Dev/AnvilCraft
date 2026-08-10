@@ -1,13 +1,14 @@
 package dev.dubhe.anvilcraft.api.tooltip;
 
+import dev.dubhe.anvilcraft.inventory.tooltip.FluidTankTooltip;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
@@ -15,11 +16,11 @@ import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public final class FluidTankItemTooltip {
     private static final String TAG_TANK = "Tank";
     private static final String TAG_FLUID = "Fluid";
-    private static final String TAG_FLUIDS = "Fluids";
     private static final String TAG_ENHANCED = "Enhanced";
     private static final String TAG_INFINITE = "Infinite";
 
@@ -37,39 +38,41 @@ public final class FluidTankItemTooltip {
         append(tooltip, fluids, totalAmount(fluids), capacity, false);
     }
 
-    public static void appendExpandableTank(
-        ItemStack stack,
-        Item.TooltipContext context,
-        List<Component> tooltip,
-        int baseCapacity,
-        int enhancedCapacity
+    /** 单流体储罐的 tooltip 数据（携带 Tank NBT，客户端解析渲染为 图标+文字）。 */
+    public static Optional<TooltipComponent> singleFluidTooltipImage(
+        ItemStack stack, int baseCapacity, int enhancedCapacity
     ) {
         CompoundTag tankTag = getTankTag(stack);
         boolean enhanced = tankTag.getBoolean(TAG_ENHANCED);
-        boolean infinite = enhanced && tankTag.getBoolean(TAG_INFINITE);
         int capacity = enhanced ? enhancedCapacity : baseCapacity;
-        List<TooltipFluid> fluids = readSingleFluid(tankTag, context.registries(), Integer.MAX_VALUE);
-        if (infinite && !fluids.isEmpty()) {
-            fluids.set(0, new TooltipFluid(fluids.get(0).fluid(), true));
-        }
-        append(tooltip, fluids, totalAmount(fluids), capacity, infinite);
+        boolean infinite = enhanced && tankTag.getBoolean(TAG_INFINITE);
+        return Optional.of(new FluidTankTooltip(tankTag, false, capacity, infinite));
     }
 
-    public static void appendMultiTank(
-        ItemStack stack,
-        Item.TooltipContext context,
-        List<Component> tooltip,
-        int capacity
-    ) {
+    /** 多流体储罐的 tooltip 数据（携带 Tank NBT，客户端解析渲染为 图标+文字）。 */
+    public static Optional<TooltipComponent> multiFluidTooltipImage(ItemStack stack, int baseCapacity) {
         CompoundTag tankTag = getTankTag(stack);
-        List<TooltipFluid> fluids = readMultipleFluids(tankTag, context.registries());
-        append(tooltip, fluids, totalAmount(fluids), capacity, tankTag.getBoolean(TAG_ENHANCED));
+        boolean infinite = tankTag.getBoolean(TAG_ENHANCED);
+        return Optional.of(new FluidTankTooltip(tankTag, true, baseCapacity, infinite));
+    }
+
+    /** 创造流体储罐的 tooltip 数据（流体恒为无限）。 */
+    public static Optional<TooltipComponent> creativeTankTooltipImage(ItemStack stack) {
+        CompoundTag infinityFluid = getBlockEntityData(stack).getCompound("infinityFluid");
+        if (!infinityFluid.contains(TAG_FLUID, Tag.TAG_COMPOUND)) {
+            return Optional.empty();
+        }
+        return Optional.of(new FluidTankTooltip(infinityFluid, false, Integer.MAX_VALUE, true, false));
     }
 
     private static CompoundTag getTankTag(ItemStack stack) {
+        return getBlockEntityData(stack).getCompound(TAG_TANK);
+    }
+
+    private static CompoundTag getBlockEntityData(ItemStack stack) {
         CustomData data = stack.get(DataComponents.BLOCK_ENTITY_DATA);
         if (data == null || data.isEmpty()) return new CompoundTag();
-        return data.copyTag().getCompound(TAG_TANK);
+        return data.copyTag();
     }
 
     private static List<TooltipFluid> readSingleFluid(
@@ -82,24 +85,6 @@ public final class FluidTankItemTooltip {
         if (fluid.isEmpty()) return new ArrayList<>();
         fluid.setAmount(Math.min(fluid.getAmount(), maxAmount));
         return new ArrayList<>(List.of(new TooltipFluid(fluid, false)));
-    }
-
-    private static List<TooltipFluid> readMultipleFluids(
-        CompoundTag tankTag,
-        HolderLookup.Provider registries
-    ) {
-        List<TooltipFluid> fluids = new ArrayList<>();
-        if (registries == null) return fluids;
-        boolean enhanced = tankTag.getBoolean(TAG_ENHANCED);
-        ListTag fluidsTag = tankTag.getList(TAG_FLUIDS, Tag.TAG_COMPOUND);
-        for (int i = 0; i < fluidsTag.size(); i++) {
-            CompoundTag storedFluidTag = fluidsTag.getCompound(i);
-            FluidStack fluid = FluidStack.parseOptional(registries, storedFluidTag.getCompound(TAG_FLUID));
-            if (!fluid.isEmpty()) {
-                fluids.add(new TooltipFluid(fluid, enhanced && storedFluidTag.getBoolean(TAG_INFINITE)));
-            }
-        }
-        return fluids;
     }
 
     private static long totalAmount(List<TooltipFluid> fluids) {

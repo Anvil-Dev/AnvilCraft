@@ -18,6 +18,7 @@ import java.util.Map;
 public class WrappingItemCustomRenderedModels {
     public static final ResourceLocation FLUID_TANK = AnvilCraft.of("fluid_tank");
     public static final ResourceLocation LARGE_FLUID_TANK = AnvilCraft.of("large_fluid_tank");
+    public static final ResourceLocation CREATIVE_FLUID_TANK = AnvilCraft.of("creative_fluid_tank");
     public static final ResourceLocation SPECTRAL_WEAPON_LAUNCHER = AnvilCraft.of("spectral_weapon_launcher");
     public static final ResourceLocation SPECTRAL_WEAPON_LAUNCHER_EXHAUSTED = AnvilCraft.of("spectral_weapon_launcher_exhausted");
 
@@ -26,6 +27,7 @@ public class WrappingItemCustomRenderedModels {
         Map<ModelResourceLocation, BakedModel> modelRegistry = event.getModels();
         swapModels(modelRegistry, ModelResourceLocation.inventory(FLUID_TANK));
         swapModels(modelRegistry, ModelResourceLocation.inventory(LARGE_FLUID_TANK));
+        swapModels(modelRegistry, ModelResourceLocation.inventory(CREATIVE_FLUID_TANK));
         swapModels(modelRegistry, ModelResourceLocation.inventory(AnvilCraft.of("spectral_slingshot")));
         swapModels(modelRegistry, ModelResourceLocation.inventory(SPECTRAL_WEAPON_LAUNCHER));
         swapModels(modelRegistry, ModelResourceLocation.inventory(SPECTRAL_WEAPON_LAUNCHER_EXHAUSTED));
