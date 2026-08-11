@@ -4,9 +4,9 @@ import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.amulet.def.AmuletDefinition;
 import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
-import dev.dubhe.anvilcraft.init.ModRegistries;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypeTags;
 import dev.dubhe.anvilcraft.init.entity.ModEntityTypeTags;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.item.amulet.def.AbnormalAmuletDefinition;
 import dev.dubhe.anvilcraft.item.amulet.def.ComradeAmuletDefinition;
 import dev.dubhe.anvilcraft.predicate.FallingBlockPredicate;
@@ -117,6 +117,6 @@ public class ModAmuletDefinitions {
     }
 
     private static ResourceKey<IAmuletDefinition> key(String name) {
-        return ResourceKey.create(ModRegistries.AMULET_DEF_KEY, AnvilCraft.of(name));
+        return ResourceKey.create(ModRegistryKeys.AMULET_DEF, AnvilCraft.of(name));
     }
 }

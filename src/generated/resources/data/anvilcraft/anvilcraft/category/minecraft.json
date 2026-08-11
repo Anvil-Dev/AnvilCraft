@@ -1,0 +1,9 @@
+{
+  "type": "anvilcraft:namespace",
+  "icon": {
+    "count": 1,
+    "id": "minecraft:grass_block"
+  },
+  "name": "{\"translate\":\"category.anvilcraft.namespace\",\"with\":[\"minecraft\"]}",
+  "namespace": "minecraft"
+}

@@ -114,17 +114,20 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
         FilterContent content = filterStack.get(ModComponents.FILTER_CONTENT);
         if (content == null) return false;
 
-        boolean contentIsBlackList = content.blackList();
+        return content.filter(stack);
+    }
+
+    public boolean filter(ItemStack stack) {
         // 遍历过滤列表中的每个物品进行匹配检查
-        for (ItemStack itemStack : content.list()) {
+        for (ItemStack itemStack : this.list()) {
             if (itemStack.isEmpty()) continue;
-            if (FilterContent.filter(itemStack, stack, content.includeComponents())) {
+            if (FilterContent.filter(itemStack, stack, this.includeComponents())) {
                 // 如果是白名单模式，找到匹配项则返回true；如果是黑名单模式，找到匹配项则返回false
-                return !contentIsBlackList;
+                return !this.blackList();
             }
         }
 
         // 如果是黑名单模式且未找到匹配项则返回true，否则返回false
-        return contentIsBlackList;
+        return this.blackList();
     }
 }

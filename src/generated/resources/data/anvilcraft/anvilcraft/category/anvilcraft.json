@@ -1,0 +1,9 @@
+{
+  "type": "anvilcraft:namespace",
+  "icon": {
+    "count": 1,
+    "id": "anvilcraft:royal_anvil"
+  },
+  "name": "{\"translate\":\"category.anvilcraft.namespace\",\"with\":[\"anvilcraft\"]}",
+  "namespace": "anvilcraft"
+}

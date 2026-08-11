@@ -16,11 +16,12 @@ import dev.dubhe.anvilcraft.data.provider.ModPoiTagProvider;
 import dev.dubhe.anvilcraft.data.provider.ModSoundDefinitionsProvider;
 import dev.dubhe.anvilcraft.data.recipe.RecipeHandler;
 import dev.dubhe.anvilcraft.data.tags.TagsHandler;
-import dev.dubhe.anvilcraft.init.ModRegistries;
 import dev.dubhe.anvilcraft.init.block.ModMultiblockDefinitions;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.init.item.ModAmuletDefinitions;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
+import dev.dubhe.anvilcraft.init.storage.ModCategories;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.InventoryChangeTrigger;
 import net.minecraft.core.HolderLookup;
@@ -69,7 +70,8 @@ public class AnvilCraftDatagen {
         genInit.add(Registries.ENCHANTMENT, ModEnchantments::bootstrap);
         genInit.add(Registries.DAMAGE_TYPE, ModDamageTypes::bootstrap);
         genInit.add(LibRegistries.DEFINITIONS_KEY, ModMultiblockDefinitions::bootstrap);
-        genInit.add(ModRegistries.AMULET_DEF_KEY, ModAmuletDefinitions::bootstrap);
+        genInit.add(ModRegistryKeys.AMULET_DEF, ModAmuletDefinitions::bootstrap);
+        genInit.add(ModRegistryKeys.CATEGORY, ModCategories::bootstrap);
 
         genInit.addDependency(ProviderType.RECIPE, ProviderType.DYNAMIC);
 
