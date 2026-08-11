@@ -5,7 +5,6 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
-import dev.dubhe.anvilcraft.api.item.InfinityItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
@@ -19,6 +18,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -247,28 +247,6 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
             BreakBlockUtil.dropExperience(level, devourBlockPos, devourBlockState, miningEffect);
         }
         List<ItemStack> dropList = BreakBlockUtil.drop(level, devourBlockPos, miningEffect);
-        if (!miningEffect.isDisintegration()) {
-            IItemHandler source = level.getCapability(Capabilities.ItemHandler.BLOCK, devourBlockPos, null);
-            boolean skipContentTransfer = source == null || source instanceof InfinityItemStackHandler;
-            for (ItemStack itemStack : dropList) {
-                skipContentTransfer |= ItemHandlerUtil.isEmptyContainer(itemStack);
-                if (insertEnabled) {
-                    for (IItemHandler target : itemHandlerList) {
-                        itemStack = ItemHandlerHelper.insertItemStacked(target, itemStack, false);
-                    }
-                }
-                if (itemStack.isEmpty() && ItemHandlerUtil.isEmptyContainer(source)) continue;
-                if (dropOriginalPlace) {
-                    Block.popResource(level, devourBlockPos, itemStack);
-                } else {
-                    AnvilUtil.dropItems(List.of(itemStack), level, center);
-                }
-            }
-            if (!skipContentTransfer) {
-                if (insertEnabled) ItemHandlerUtil.exportContentsToItemHandlers(source, itemHandlerList);
-                if (!dropOriginalPlace) ItemHandlerUtil.dropAllToPos(source, level, center);
-            }
-        }
         if (level.getBlockEntity(devourBlockPos) instanceof LecternBlockEntity lectern) {
             transferLecternContents(level, itemHandlerList, center, lectern, insertEnabled, dropOriginalPlace);
         }
@@ -285,7 +263,26 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
                 AnvilCraftFakePlayers.getBlockPlacer().disable(player);
             }
         }
+        // Destroy the block first so the block drops and the container contents are spawned the vanilla way
         level.destroyBlock(devourBlockPos, false);
+        if (!miningEffect.isDisintegration()) {
+            List<ItemStack> drops = new ArrayList<>(dropList);
+            drops.addAll(collectItemDrops(level, devourBlockPos));
+            for (ItemStack itemStack : drops) {
+                if (insertEnabled) {
+                    assert itemHandlerList != null;
+                    for (IItemHandler target : itemHandlerList) {
+                        itemStack = ItemHandlerHelper.insertItemStacked(target, itemStack, false);
+                    }
+                }
+                if (itemStack.isEmpty()) continue;
+                if (dropOriginalPlace) {
+                    Block.popResource(level, devourBlockPos, itemStack);
+                } else {
+                    AnvilUtil.dropItems(List.of(itemStack), level, center);
+                }
+            }
+        }
         TriggerUtil.devourerDevourBlock(level, devourBlockPos, devourBlockState.getBlock());
     }
 
@@ -314,6 +311,17 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
             AnvilUtil.dropItems(List.of(bookStack), level, center);
             lectern.setBook(ItemStack.EMPTY);
         }
+    }
+
+    private static List<ItemStack> collectItemDrops(ServerLevel level, BlockPos pos) {
+        List<ItemStack> drops = new ArrayList<>();
+        for (ItemEntity itemEntity : level.getEntitiesOfClass(ItemEntity.class, new AABB(pos))) {
+            if (!itemEntity.blockPosition().equals(pos)) continue;
+            ItemStack stack = itemEntity.getItem();
+            if (!stack.isEmpty()) drops.add(stack);
+            itemEntity.discard();
+        }
+        return drops;
     }
 
     @Override
