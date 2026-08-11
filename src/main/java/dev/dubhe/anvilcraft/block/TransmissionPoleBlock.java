@@ -149,7 +149,6 @@ public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHal
         level.setBlockAndUpdate(topPos, topState);
     }
 
-
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         if (level.isClientSide) return;
