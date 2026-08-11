@@ -1,12 +1,16 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import it.unimi.dsi.fastutil.ints.IntArraySet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 import lombok.Getter;
 import net.minecraft.core.Holder;
+import net.minecraft.core.IdMap;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.FriendlyByteBuf;
@@ -25,6 +29,7 @@ import net.minecraft.world.level.Level;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.StreamSupport;
 
 @Getter
@@ -35,6 +40,8 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
     private final Level level;
     @Getter
     private List<Holder<Enchantment>> enchantmentList = new ObjectArrayList<>();
+    @Getter
+    private final IntSet selectedIndexes = new IntArraySet();
 
     final Slot prologueSlot;
 
@@ -113,6 +120,19 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
         if (!this.prologueSlot.getItem().isEmpty()) {
             this.enchantmentList = this.getEnchantmentList(this.level, this.prologueSlot.getItem());
         }
+        this.initSelectedIndexes();
+    }
+
+    private void initSelectedIndexes() {
+        IdMap<Holder<Enchantment>> idMap = this.level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).asHolderIdMap();
+        for (int id : this.blockEntity.getSelectedEnchantmentSet()) {
+            for (int i = 0; i < this.enchantmentList.size(); i++) {
+                if (idMap.getId(this.enchantmentList.get(i)) == id) {
+                    this.selectedIndexes.add(i);
+                    break;
+                }
+            }
+        }
     }
 
     private void addPlayerInventory(Inventory playerInventory) {
@@ -135,9 +155,42 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
         if (!prologueItem.is(this.blockEntity.getLastPrologueItem().getItem())) {
             this.blockEntity.setLastPrologueItem(prologueItem);
             this.enchantmentList = this.getEnchantmentList(this.level, prologueItem);
+            this.selectedIndexes.clear();
             this.blockEntity.getSelectedEnchantmentSet().clear();
             this.blockEntity.getPrologueSlotUpdateListener().run();
         }
+    }
+
+    public void select(int index) {
+        int size = this.selectedIndexes.size();
+        this.selectedIndexes.add(index);
+        if (this.selectedIndexes.size() != size) {
+            this.refreshSelectedEnchantments();
+        }
+    }
+
+    public void unselect(int index) {
+        int size = this.selectedIndexes.size();
+        this.selectedIndexes.remove(index);
+        if (this.selectedIndexes.size() != size) {
+            this.refreshSelectedEnchantments();
+        }
+    }
+
+    public boolean hasSelectedEnchantment() {
+        return !this.selectedIndexes.isEmpty();
+    }
+
+    private void refreshSelectedEnchantments() {
+        Set<Integer> selectedEnchantmentSet = this.blockEntity.getSelectedEnchantmentSet();
+        selectedEnchantmentSet.clear();
+        IdMap<Holder<Enchantment>> idMap = this.level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).asHolderIdMap();
+        for (int selectedIndex : this.selectedIndexes) {
+            ListUtil.safelyGet(this.enchantmentList, selectedIndex).ifPresent(
+                enchantment -> selectedEnchantmentSet.add(idMap.getId(enchantment))
+            );
+        }
+        this.blockEntity.onChange();
     }
 
     @Override
@@ -168,6 +221,14 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
     @Override
     public boolean stillValid(Player player) {
         return this.container.stillValid(player);
+    }
+
+    @Override
+    public void removed(Player player) {
+        super.removed(player);
+        if (!this.level.isClientSide()) {
+            this.blockEntity.setOpenMenu(false);
+        }
     }
 
     private List<Holder<Enchantment>> getEnchantmentList(Level level, ItemStack prologueItem) {

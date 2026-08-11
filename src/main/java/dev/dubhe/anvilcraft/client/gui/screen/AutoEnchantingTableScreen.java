@@ -1,15 +1,17 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
+import dev.anvilcraft.lib.v2.util.ListUtil;
+import dev.anvilcraft.lib.v2.util.MathUtil;
+import dev.anvilcraft.lib.v2.util.Scrollable;
 import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.workstation.AutoEnchantingTableBlock;
-import dev.dubhe.anvilcraft.client.gui.component.AutoEnchantingTableButton;
 import dev.dubhe.anvilcraft.client.gui.component.FluidDisplayWidget;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.AutoEnchantingTableMenu;
 import dev.dubhe.anvilcraft.network.AutoEnchantingTableSyncPacket;
 import dev.dubhe.anvilcraft.util.TickDebouncer;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.EditBox;
@@ -18,74 +20,67 @@ import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
-import net.minecraft.core.IdMap;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.EnchantingTableBlock;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import org.jspecify.annotations.Nullable;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Objects;
 
 public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEnchantingTableMenu> {
     private static final Identifier BACKGROUND = SharedTextures.bg("machine", "auto_enchanting_table");
 
+    private final IntList filteredIndexes = new IntArrayList();
+    private final Scrollable scrollable = new Scrollable() {
+        @Override
+        public int row() {
+            return 2;
+        }
+
+        @Override
+        public int column() {
+            return 5;
+        }
+
+        @Override
+        public int size() {
+            return AutoEnchantingTableScreen.this.filteredIndexes.size();
+        }
+
+        @Override
+        public void setHead(int head) {
+            AutoEnchantingTableScreen.this.head = head;
+        }
+    };
+    private int head = 0;
     @Nullable
     private EditBox editBox;
     @Nullable
     private TickDebouncer editBoxTickDebouncer;
-    @Nullable
-    private final AutoEnchantingTableButton[] buttons = new AutoEnchantingTableButton[10];
-    private List<Holder<Enchantment>> enchantmentList = new ObjectArrayList<>();
-    private int currentIndex = 0;
-    private int scrollOffset = 0;
-    private boolean draggedArea = false;
     private int errorCooldown = 0;
-    private final Set<Holder<Enchantment>> selectedEnchantments = new ObjectOpenHashSet<>();
+    private @Nullable ItemStack renderingTooltipEnchantedBook;
     private ItemStack finishItem = ItemStack.EMPTY;
 
     public AutoEnchantingTableScreen(AutoEnchantingTableMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title);
-        menu.getBlockEntity().registerUpdateListener(() -> {
-            this.addWidget(0);
-            this.selectedEnchantments.clear();
-            this.scrollOffset = 0;
-        });
-        ClientLevel level = Minecraft.getInstance().level;
-        if (level != null) {
-            IdMap<Holder<Enchantment>> idMap = level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).asHolderIdMap();
-            this.selectedEnchantments.clear();
-            for (int id : this.menu.getBlockEntity().getSelectedEnchantmentSet()) {
-                Holder<Enchantment> enchantmentHolder = idMap.byId(id);
-                if (enchantmentHolder != null) {
-                    this.selectedEnchantments.add(enchantmentHolder);
-                }
-            }
-        }
-        ItemStack itemStack = this.menu.getBlockEntity().getItems().getFirst().copyWithCount(1);
-        if (!itemStack.isEmpty()) {
-            ItemStack enchantedBook = Items.ENCHANTED_BOOK.getDefaultInstance();
-            for (Holder<Enchantment> selectedEnchantment : this.selectedEnchantments) {
-                enchantedBook.enchant(selectedEnchantment, selectedEnchantment.value().getMaxLevel());
-            }
-            AutoEnchantingTableBlockEntity.applyEnchantment(itemStack, enchantedBook);
-            this.finishItem = itemStack.copyWithCount(1);
-        }
+        menu.getBlockEntity().registerUpdateListener(this::rebuildFilter);
+        this.refreshFinishItem();
     }
 
     @Override
@@ -106,104 +101,38 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         this.editBox = this.addRenderableWidget(
             new EditBox(this.font, this.leftPos + 46, this.topPos + 17, 99, 12, Component.empty())
         );
-        this.editBoxTickDebouncer = new TickDebouncer(20, () -> this.addWidget(0));
-        this.editBox.setResponder((_) -> this.editBoxTickDebouncer.trigger());
-
-        this.addWidget(0);
+        this.editBoxTickDebouncer = new TickDebouncer(20, this::rebuildFilter);
+        this.editBox.setResponder(_ -> Objects.requireNonNull(this.editBoxTickDebouncer).trigger());
+        this.rebuildFilter();
     }
 
-    private void addWidget(int startIndex) {
-        if (startIndex < 0) {
+    private void rebuildFilter() {
+        this.filteredIndexes.clear();
+        String enchantmentName = this.editBox == null ? "" : this.editBox.getValue();
+        List<Holder<Enchantment>> enchantments = this.menu.getEnchantmentList();
+        for (int i = 0; i < enchantments.size(); i++) {
+            Holder<Enchantment> enchantment = enchantments.get(i);
+            if (enchantmentName.isBlank() || enchantment.value().description().getString().contains(enchantmentName)) {
+                this.filteredIndexes.add(i);
+            }
+        }
+        this.scrollable.reset();
+    }
+
+    private void refreshFinishItem() {
+        ItemStack itemStack = this.menu.getBlockEntity().getItems().getFirst().copyWithCount(1);
+        if (itemStack.isEmpty()) {
+            this.finishItem = ItemStack.EMPTY;
             return;
         }
-        for (int i = 0; i < this.buttons.length; i++) {
-            AutoEnchantingTableButton button = this.buttons[i];
-            if (button != null) {
-                this.removeWidget(button);
-            }
-            this.buttons[i] = null;
+        ItemStack enchantedBook = Items.ENCHANTED_BOOK.getDefaultInstance().copyWithCount(1);
+        for (int selectedIndex : this.menu.getSelectedIndexes()) {
+            ListUtil.safelyGet(this.menu.getEnchantmentList(), selectedIndex).ifPresent(
+                enchantment -> enchantedBook.enchant(enchantment, enchantment.value().getMaxLevel())
+            );
         }
-        this.currentIndex = startIndex;
-        this.enchantmentList = this.menu.getEnchantmentList().stream().filter((holder) -> {
-            if (this.editBox != null) {
-                String enchantmentName = this.editBox.getValue();
-                if (enchantmentName.isBlank()) {
-                    return true;
-                }
-                return holder.value().description().getString().contains(enchantmentName);
-            }
-            return true;
-        }).toList();
-        if (startIndex < this.enchantmentList.size()) {
-            int index = 0;
-            for (int i = startIndex; i < this.enchantmentList.size() && i < startIndex + 10; i++) {
-                Holder<Enchantment> holder = this.enchantmentList.get(i);
-                AutoEnchantingTableButton button = this.getAutoEnchantingTableButton(index, holder);
-                this.buttons[index] = button;
-                this.addRenderableWidget(button);
-                index++;
-            }
-        }
-    }
-
-    private AutoEnchantingTableButton getAutoEnchantingTableButton(int index, Holder<Enchantment> enchantment) {
-        AutoEnchantingTableButton button = new AutoEnchantingTableButton(
-            this.leftPos + 47 + 18 * (index % 5), this.topPos + 32 + 18 * (index / 5),
-            18, 18,
-            SharedTextures.SWITCH_TABLE_BUTTON,
-            enchantment,
-            18, 54,
-            new int[]{0, 18, 36},
-            (btn) -> {
-                if (btn.isSelected()) {
-                    this.selectedEnchantments.remove(btn.getHolder());
-                    ItemStack itemStack = this.menu.getBlockEntity().getItems().getFirst().copyWithCount(1);
-                    if (!itemStack.isEmpty()) {
-                        ItemStack enchantedBook = Items.ENCHANTED_BOOK.getDefaultInstance().copyWithCount(1);
-                        for (Holder<Enchantment> selectedEnchantment : this.selectedEnchantments) {
-                            enchantedBook.enchant(selectedEnchantment, selectedEnchantment.value().getMaxLevel());
-                        }
-                        AutoEnchantingTableBlockEntity.applyEnchantment(itemStack, enchantedBook);
-                        this.finishItem = itemStack.copyWithCount(1);
-                    }
-                    btn.setSelected(!btn.isSelected());
-                    return;
-                }
-                int totalLevel = this.selectedEnchantments.stream()
-                    .mapToInt((holder) -> holder.value().getMaxLevel())
-                    .reduce(Integer::sum)
-                    .orElse(0) + btn.getHolder().value().getMaxLevel();
-                ClientLevel level = Minecraft.getInstance().level;
-                if (level != null) {
-                    if (totalLevel <= this.getBookShelf(level, this.menu.getBlockEntity().getBlockPos())
-                        && totalLevel * 400 <= this.menu.getBlockEntity().getFluidHandler().getCapacityAsInt(0, FluidResource.EMPTY)) {
-                        if (!btn.isSelected()) {
-                            ItemStack itemStack = this.menu.getBlockEntity().getItems().getFirst().copyWithCount(1);
-                            if (!itemStack.isEmpty()) {
-                                ItemStack enchantedBook = Items.ENCHANTED_BOOK.getDefaultInstance().copyWithCount(1);
-                                for (Holder<Enchantment> selectedEnchantment : this.selectedEnchantments) {
-                                    enchantedBook.enchant(selectedEnchantment, selectedEnchantment.value().getMaxLevel());
-                                }
-                                enchantedBook.enchant(btn.getHolder(), btn.getHolder().value().getMaxLevel());
-                                AutoEnchantingTableBlockEntity.applyEnchantment(itemStack, enchantedBook);
-                                this.finishItem = itemStack.copyWithCount(1);
-                            }
-                            this.selectedEnchantments.add(btn.getHolder());
-                        }
-                        btn.setSelected(!btn.isSelected());
-                    } else {
-                        this.errorCooldown = 80;
-                    }
-                }
-            },
-            List.of()
-        );
-        if (Minecraft.getInstance().level != null) {
-            if (this.selectedEnchantments.contains(button.getHolder())) {
-                button.setSelected(true);
-            }
-        }
-        return button;
+        AutoEnchantingTableBlockEntity.applyEnchantment(itemStack, enchantedBook);
+        this.finishItem = itemStack.copyWithCount(1);
     }
 
     private int getBookShelf(Level level, BlockPos pos) {
@@ -216,89 +145,25 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         return (int) bookcases;
     }
 
-    private boolean mouseInListArea(double mouseX, double mouseY) {
-        return mouseX >= this.leftPos + 47
-            && mouseX <= this.leftPos + 144
-            && mouseY >= this.topPos + 32
-            && mouseY <= this.topPos + 68;
-    }
-
-    private boolean mouseInScrollBarArea(double mouseX, double mouseY) {
-        return mouseX >= this.leftPos + 140
-            && mouseX <= this.leftPos + 144
-            && mouseY >= this.topPos + 32
-            && mouseY <= this.topPos + 68;
-    }
-
-    @Override
-    protected List<Component> getTooltipFromContainerItem(ItemStack itemStack) {
-
-        return super.getTooltipFromContainerItem(itemStack);
-    }
-
-    @Override
-    public boolean mouseScrolled(double x, double y, double scrollX, double scrollY) {
-        if (this.mouseInListArea(x, y)) {
-            if (this.errorCooldown > 0) {
-                return true;
-            }
-            if (this.currentIndex + 10 >= this.enchantmentList.size() && scrollY < 0) {
-                return true;
-            }
-            if (this.enchantmentList.size() > 10) {
-                int newIndex = Mth.clamp(this.currentIndex + (int) -scrollY * 10, 0, this.enchantmentList.size() - 1);
-                this.addWidget(newIndex);
-                this.scrollOffset = newIndex;
-                return true;
+    private boolean canSelect(int index) {
+        Holder<Enchantment> enchantment = ListUtil.safelyGet(this.menu.getEnchantmentList(), index).orElse(null);
+        if (enchantment == null) return false;
+        int totalLevel = enchantment.value().getMaxLevel();
+        for (int selectedIndex : this.menu.getSelectedIndexes()) {
+            Holder<Enchantment> selected = ListUtil.safelyGet(this.menu.getEnchantmentList(), selectedIndex).orElse(null);
+            if (selected != null) {
+                totalLevel += selected.value().getMaxLevel();
             }
         }
-        return super.mouseScrolled(x, y, scrollX, scrollY);
-    }
-
-    @Override
-    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-        this.draggedArea = false;
-        if (event.button() == 0) {
-            if (this.mouseInScrollBarArea(event.x(), event.y())) {
-                if (this.errorCooldown <= 0) {
-                    this.draggedArea = true;
-                }
-            }
-        } else if (event.button() == 1) {
-            if (this.editBox != null && this.editBox.isMouseOver(event.x(), event.y())) {
-                this.editBox.setValue("");
-                this.addWidget(0);
-            }
-        }
-        return super.mouseClicked(event, doubleClick);
-    }
-
-    @Override
-    public boolean mouseDragged(MouseButtonEvent event, double dx, double dy) {
-        int trackY = this.topPos + 32;
-        int trackHeight = 36 - 12;
-        if (this.draggedArea) {
-            int size = this.enchantmentList.size();
-            int maxIndex = size > 10 ? (size - 1) / 10 * 10 : 0;
-            if (maxIndex > 0) {
-                int continuousIndex = Mth.clamp((int) ((event.y() - trackY) * (double) maxIndex / trackHeight), 0, maxIndex);
-                this.scrollOffset = continuousIndex;
-                int newIndex = Mth.clamp((int) (Math.round(continuousIndex / 10.0) * 10), 0, maxIndex);
-                this.addWidget(newIndex);
-                return true;
-            }
-        }
-        return super.mouseDragged(event, dx, dy);
-    }
-
-    @Override
-    public boolean mouseReleased(MouseButtonEvent event) {
-        this.draggedArea = false;
-        return super.mouseReleased(event);
+        ClientLevel level = Minecraft.getInstance().level;
+        if (level == null) return false;
+        return totalLevel <= this.getBookShelf(level, this.menu.getBlockEntity().getBlockPos())
+            && totalLevel * 400 <= this.menu.getBlockEntity().getFluidHandler().getCapacityAsInt(0, FluidResource.EMPTY);
     }
 
     @Override
     protected void containerTick() {
+        this.renderingTooltipEnchantedBook = null;
         if (this.editBoxTickDebouncer != null) {
             this.editBoxTickDebouncer.tick();
         }
@@ -308,66 +173,118 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
     }
 
     @Override
-    public boolean shouldCloseOnEsc() {
-        AutoEnchantingTableBlockEntity blockEntity = this.menu.getBlockEntity();
-        ClientPacketListener connection = Minecraft.getInstance().getConnection();
-        if (Minecraft.getInstance().level != null) {
-            IdMap<Holder<Enchantment>> idMap = Minecraft.getInstance().level.registryAccess()
-                .lookupOrThrow(Registries.ENCHANTMENT)
-                .asHolderIdMap();
-            if (connection != null) {
-                connection.send(new AutoEnchantingTableSyncPacket(
-                    blockEntity.getBlockPos(),
-                    this.selectedEnchantments.stream().map(idMap::getId).toList()
-                ));
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        if (event.button() == 0) {
+            if (this.insideScrollbar(event.x(), event.y())) {
+                this.scrollable.scrolling();
+                return true;
+            }
+            for (int i = this.head; i < this.head + Math.min(this.filteredIndexes.size() - this.head, 10); i++) {
+                int x = this.leftPos + 47 + 18 * (i % 5);
+                int y = this.topPos + 32 + 18 * ((i - this.head) / 5);
+
+                if (!MathUtil.isInRange(event.x(), event.y(), x, y, x + 18, y + 18)) continue;
+
+                int index = this.filteredIndexes.getInt(i);
+                if (this.menu.getSelectedIndexes().contains(index)) {
+                    this.menu.unselect(index);
+                    ClientPacketDistributor.sendToServer(new AutoEnchantingTableSyncPacket(index, false));
+                } else if (this.canSelect(index)) {
+                    this.menu.select(index);
+                    ClientPacketDistributor.sendToServer(new AutoEnchantingTableSyncPacket(index, true));
+                } else {
+                    this.errorCooldown = 80;
+                }
+                this.refreshFinishItem();
+                return true;
+            }
+        } else if (event.button() == 1) {
+            if (this.editBox != null && this.editBox.isMouseOver(event.x(), event.y())) {
+                this.editBox.setValue("");
+                this.rebuildFilter();
             }
         }
-        return true;
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public void onClose() {
-        super.onClose();
-        AutoEnchantingTableBlockEntity blockEntity = this.menu.getBlockEntity();
-        ClientPacketListener connection = Minecraft.getInstance().getConnection();
-        if (Minecraft.getInstance().level != null) {
-            IdMap<Holder<Enchantment>> idMap = Minecraft.getInstance().level.registryAccess()
-                .lookupOrThrow(Registries.ENCHANTMENT)
-                .asHolderIdMap();
-            if (connection != null) {
-                connection.send(new AutoEnchantingTableSyncPacket(
-                    blockEntity.getBlockPos(),
-                    this.selectedEnchantments.stream().map(idMap::getId).toList()
-                ));
-            }
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        if (this.scrollable.isScrolling()) {
+            int top = this.topPos + 32;
+            this.scrollable.scrollOnDrag(12, event.y(), top, top + 36);
+            return true;
         }
+        return super.mouseDragged(event, dragX, dragY);
+    }
+
+    @Override
+    public boolean mouseReleased(MouseButtonEvent event) {
+        if (event.button() == 0 && this.scrollable.isScrolling()) {
+            this.scrollable.notScrolling();
+            return true;
+        }
+        return super.mouseReleased(event);
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (!this.scrollable.canScroll()) {
+            return false;
+        } else {
+            this.scrollable.scrollOnScroll(scrollY / 1.2);
+            return true;
+        }
+    }
+
+    protected boolean insideScrollbar(double mouseX, double mouseY) {
+        int left = this.leftPos + 140;
+        int top = this.topPos + 32;
+        int right = left + 4;
+        int down = top + 36;
+        return MathUtil.isInRange(mouseX, mouseY, left, top, right, down);
     }
 
     @Override
     public void extractContents(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float a) {
         super.extractContents(graphics, mouseX, mouseY, a);
-        if (this.errorCooldown >  0) {
+        this.extractEnchantmentSelectingArea(graphics, mouseX, mouseY, a);
+        if (this.errorCooldown > 0) {
             graphics.fill(this.leftPos + 47, this.topPos + 32, this.leftPos + 137, this.topPos + 68, ARGB.color(128, 255, 0, 0));
-        }
-        int size = this.enchantmentList.size();
-        if (size > 10) {
-            int maxY = this.topPos + 32 + 36 - 12;
-            int trackHeight = 36 - 12;
-            int maxIndex = (size - 1) / 10 * 10;
-            int scrollY = Mth.clamp(this.topPos + 32 + (int) ((float) this.scrollOffset * trackHeight / maxIndex), this.topPos + 32, maxY);
-            graphics.blit(
-                RenderPipelines.GUI_TEXTURED,
-                SharedTextures.SWITCH_TABLE_SLIDER,
-                this.leftPos + 140,
-                scrollY,
-                0, 0,
-                4, 12,
-                8, 12
-            );
         }
         if (this.menu.getBlockEntity().getItems().get(1).isEmpty() && !this.finishItem.isEmpty()) {
             graphics.item(this.finishItem, this.leftPos + 7, this.topPos + 52);
             graphics.fill(this.leftPos + 7, this.topPos + 52, this.leftPos + 23, this.topPos + 68, 0x99777777);
+        }
+    }
+
+    protected void extractEnchantmentSelectingArea(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        this.renderingTooltipEnchantedBook = null;
+        if (this.filteredIndexes.isEmpty()) return;
+        for (int i = this.head; i < this.head + Math.min(this.filteredIndexes.size() - this.head, 10); i++) {
+            int x = this.leftPos + 47 + 18 * (i % 5);
+            int y = this.topPos + 32 + 18 * ((i - this.head) / 5);
+
+            Holder<Enchantment> enchantment = ListUtil
+                .safelyGet(this.menu.getEnchantmentList(), this.filteredIndexes.getInt(i))
+                .orElse(null);
+            if (enchantment == null) continue;
+
+            ItemStack willRender = EnchantmentHelper.createBook(new EnchantmentInstance(enchantment, enchantment.value().getMaxLevel()));
+
+            int offsetV = 0;
+            if (MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) {
+                offsetV = 36;
+                this.renderingTooltipEnchantedBook = willRender;
+            }
+
+            boolean selected = false;
+            if (this.menu.getSelectedIndexes().contains(this.filteredIndexes.getInt(i))) {
+                offsetV = 18;
+                selected = true;
+            }
+
+            graphics.blit(RenderPipelines.GUI_TEXTURED, SharedTextures.SWITCH_TABLE_BUTTON, x, y, 0, offsetV, 18, 18, 18, 54);
+            graphics.item(willRender, x + 1, y + (selected ? 1 : 0), (int) (partialTick * 100));
         }
     }
 
@@ -376,7 +293,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         super.extractBackground(graphics, mouseX, mouseY, a);
         graphics.blit(
             RenderPipelines.GUI_TEXTURED,
-            BACKGROUND,
+            AutoEnchantingTableScreen.BACKGROUND,
             this.leftPos,
             this.topPos,
             0,
@@ -386,6 +303,23 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             256,
             256
         );
+        if (this.scrollable.canScroll()) {
+            int left = this.leftPos + 140;
+            int top = this.topPos + 32;
+            int down = top + 36;
+            graphics.blit(
+                RenderPipelines.GUI_TEXTURED,
+                SharedTextures.SWITCH_TABLE_SLIDER,
+                left,
+                top + (int) ((down - top - 12) * this.scrollable.getScrollOffs()),
+                0,
+                0,
+                4,
+                12,
+                8,
+                12
+            );
+        }
     }
 
     @Override
@@ -422,6 +356,16 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
                     );
                 }
             }
+        } else if (this.renderingTooltipEnchantedBook != null) {
+            graphics.setTooltipForNextFrame(
+                this.font,
+                this.getTooltipFromContainerItem(this.renderingTooltipEnchantedBook),
+                this.renderingTooltipEnchantedBook.getTooltipImage(),
+                this.renderingTooltipEnchantedBook,
+                mouseX,
+                mouseY,
+                this.renderingTooltipEnchantedBook.get(DataComponents.TOOLTIP_STYLE)
+            );
         }
         if (this.isHovering(7, 52, 16, 16, mouseX, mouseY)) {
             if (this.menu.getBlockEntity().getItems().get(1).isEmpty()) {
@@ -457,5 +401,11 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
                 null
             );
         }
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        this.scrollable.calculateScroll(this.head / 5);
+        this.init(width, height);
     }
 }
