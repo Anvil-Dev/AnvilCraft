@@ -15,7 +15,11 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
+
+import java.util.List;
 
 public class CreativeCrateBlock extends BaseEntityBlock implements IHammerRemovable {
     @Override
@@ -58,6 +62,21 @@ public class CreativeCrateBlock extends BaseEntityBlock implements IHammerRemova
     @Override
     protected RenderShape getRenderShape(BlockState state) {
         return RenderShape.MODEL;
+    }
+
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        List<ItemStack> drops = super.getDrops(state, params);
+        BlockEntity blockEntity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+        if (blockEntity instanceof CreativeCrateBlockEntity crate
+            && !crate.getItemStackHandler().getStackInSlot(0).isEmpty()) {
+            for (ItemStack drop : drops) {
+                if (drop.is(this.asItem())) {
+                    crate.saveToDrop(drop, params.getLevel().registryAccess());
+                }
+            }
+        }
+        return drops;
     }
 
     @Override

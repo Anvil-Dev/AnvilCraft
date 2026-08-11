@@ -1508,6 +1508,7 @@
   "tooltip.anvilcraft.charger.jade.working_progress": "Charging Progress: %s",
   "tooltip.anvilcraft.crab_trap.jade.fishing": "Fishing Attempts: %s",
   "tooltip.anvilcraft.crab_trap.state_name": "Crab Trap State",
+  "tooltip.anvilcraft.creative_crate.item": "Item:",
   "tooltip.anvilcraft.discharger.jade.energy": "%1$s / %2$s",
   "tooltip.anvilcraft.discharger.jade.time": "%1$s / %2$s",
   "tooltip.anvilcraft.discharger.jade.working_progress": "Discharging Progress: %s",

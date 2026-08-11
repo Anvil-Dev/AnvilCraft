@@ -91,6 +91,7 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.fluid_tank.capacity.value.infinity", "  %s / ∞");
         provider.add("tooltip.anvilcraft.fluid_tank.fluid", "Fluid:");
         provider.add("tooltip.anvilcraft.fluid_tank.more", "and %s more...");
+        provider.add("tooltip.anvilcraft.creative_crate.item", "Item:");
 
         provider.add("tooltip.anvilcraft.large_cauldron.inputs", "Input Items:");
         provider.add("tooltip.anvilcraft.large_cauldron.outputs", "Output Items:");
