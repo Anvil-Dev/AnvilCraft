@@ -41,7 +41,6 @@ import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import net.neoforged.neoforge.event.entity.living.LivingIncomingDamageEvent;
@@ -153,10 +152,7 @@ public class PlayerEventListener {
         if (blockFace == null) return;
         if (state.getDestroySpeed(level, pos) < 0.0F) return;
         if (!stack.has(ModComponents.DEVOUR_RANGE)) return;
-        if (!DragonRodItem.canDevour(player, stack)
-            || !DevourUtil.canDevour(state)
-            || (DragonRodItem.protectsContainers(stack)
-                && level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null) != null)) {
+        if (!DragonRodItem.canDevour(player, stack) || !DevourUtil.canDevour(state)) {
             event.setCanceled(true);
             return;
         }

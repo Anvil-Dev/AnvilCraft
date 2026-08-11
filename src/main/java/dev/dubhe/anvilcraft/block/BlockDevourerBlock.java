@@ -246,7 +246,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         if (miningEffect.isDisintegration()) {
             BreakBlockUtil.dropExperience(level, devourBlockPos, devourBlockState, miningEffect);
         }
-        List<ItemStack> dropList = BreakBlockUtil.drop(level, devourBlockPos, miningEffect);
+        final List<ItemStack> dropList = BreakBlockUtil.drop(level, devourBlockPos, miningEffect);
         if (level.getBlockEntity(devourBlockPos) instanceof LecternBlockEntity lectern) {
             transferLecternContents(level, itemHandlerList, center, lectern, insertEnabled, dropOriginalPlace);
         }
@@ -263,14 +263,13 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
                 AnvilCraftFakePlayers.getBlockPlacer().disable(player);
             }
         }
-        // Destroy the block first so the block drops and the container contents are spawned the vanilla way
+
         level.destroyBlock(devourBlockPos, false);
         if (!miningEffect.isDisintegration()) {
             List<ItemStack> drops = new ArrayList<>(dropList);
             drops.addAll(collectItemDrops(level, devourBlockPos));
             for (ItemStack itemStack : drops) {
                 if (insertEnabled) {
-                    assert itemHandlerList != null;
                     for (IItemHandler target : itemHandlerList) {
                         itemStack = ItemHandlerHelper.insertItemStacked(target, itemStack, false);
                     }
