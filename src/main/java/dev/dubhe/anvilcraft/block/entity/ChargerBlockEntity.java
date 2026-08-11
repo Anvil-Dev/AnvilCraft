@@ -414,40 +414,40 @@ public class ChargerBlockEntity extends BlockEntity
         if (timeLeft == 0) {
             moveItemToTransformingSlot();
         }
-        if (timeLeft > 0) {
-            if (grid.getConsume() >= grid.getGenerate()) return;
-            if (isGridWorking()) {
-                if (isFeCharging) {
-                    ItemStack processingStack = itemHandler.getStackInSlot(1);
-                    if (!processingStack.isEmpty()) {
-                        IEnergyStorage storage = processingStack.getCapability(Capabilities.EnergyStorage.ITEM);
-                        if (storage != null) {
-                            int powerLevel = getFeChargingPowerLevel();
-                            if (powerLevel > 0) {
-                                int countdown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
-                                int efficiency = AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency;
-                                int remainingFE = storage.getMaxEnergyStored() - storage.getEnergyStored();
-                                if (remainingFE <= 0) {
-                                    isFeCharging = false;
-                                    timeLeft = 0;
-                                    timeTotalCache = 0;
+        if (timeLeft > 0 &&
+            isGridWorking() &&
+            grid.getConsume() < grid.getGenerate()
+        ) {
+            if (isFeCharging) {
+                ItemStack processingStack = itemHandler.getStackInSlot(1);
+                if (!processingStack.isEmpty()) {
+                    IEnergyStorage storage = processingStack.getCapability(Capabilities.EnergyStorage.ITEM);
+                    if (storage != null) {
+                        int powerLevel = getFeChargingPowerLevel();
+                        if (powerLevel > 0) {
+                            int countdown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
+                            int efficiency = AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency;
+                            int remainingFE = storage.getMaxEnergyStored() - storage.getEnergyStored();
+                            if (remainingFE <= 0) {
+                                isFeCharging = false;
+                                timeLeft = 0;
+                                timeTotalCache = 0;
+                            } else {
+                                int feChargeRate = powerLevel * efficiency;
+                                if (feCooldown <= 0) {
+                                    feCooldown = countdown;
+                                    storage.receiveEnergy(feChargeRate * countdown, false);
                                 } else {
-                                    int feChargeRate = powerLevel * efficiency;
-                                    if (feCooldown <= 0) {
-                                        feCooldown = countdown;
-                                        storage.receiveEnergy(feChargeRate * countdown, false);
-                                    } else {
-                                        feCooldown--;
-                                    }
-                                    timeLeft = remainingFE;
-                                    timeTotalCache = storage.getMaxEnergyStored();
+                                    feCooldown--;
                                 }
+                                timeLeft = remainingFE;
+                                timeTotalCache = storage.getMaxEnergyStored();
                             }
                         }
                     }
-                } else {
-                    timeLeft--;
                 }
+            } else {
+                timeLeft--;
             }
         }
         if (timeLeft == 0) {

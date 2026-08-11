@@ -131,6 +131,10 @@ public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHal
         BlockPos neighborPos,
         boolean movedByPiston
     ) {
+        update(state, level, pos);
+    }
+
+    private static void update(BlockState state, Level level, BlockPos pos) {
         if (level.isClientSide) return;
         if (state.getValue(HALF) != Vertical3PartHalf.BOTTOM) return;
         BlockPos topPos = pos.above(2);
@@ -152,20 +156,12 @@ public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHal
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
         if (level.isClientSide) return;
-        if (state.getValue(HALF) != Vertical3PartHalf.BOTTOM) return;
-        BlockPos topPos = pos.above(2);
-        BlockState topState = level.getBlockState(topPos);
-        if (!topState.is(ModBlocks.TRANSMISSION_POLE.get())) return;
-        if (topState.getValue(HALF) != Vertical3PartHalf.TOP) return;
-        if (level.hasNeighborSignal(pos)) {
+        if (!level.hasNeighborSignal(pos)) {
             state = state.setValue(SWITCH, IPowerComponent.Switch.OFF);
-            topState = topState.setValue(SWITCH, IPowerComponent.Switch.OFF);
         } else {
             state = state.setValue(SWITCH, IPowerComponent.Switch.ON);
-            topState = topState.setValue(SWITCH, IPowerComponent.Switch.ON);
         }
-        level.setBlockAndUpdate(pos, state);
-        level.setBlockAndUpdate(topPos, topState);
+        update(state, level, pos);
     }
 
     @Override
