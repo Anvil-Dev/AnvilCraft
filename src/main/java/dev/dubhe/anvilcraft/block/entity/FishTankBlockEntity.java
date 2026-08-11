@@ -245,7 +245,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             int countInSlot = Integer.MAX_VALUE;
             for (int i = 7; i >= 0; i--) {
                 ItemStack stackInSlot = this.getStackInSlot(i);
-                if (stackInSlot.isEmpty()) {
+                if (stackInSlot.isEmpty() && countInSlot == Integer.MAX_VALUE) {
                     slot = i;
                     continue;
                 }
@@ -463,6 +463,7 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
         return ItemHandlerUtil.insertItem(this.output, stack, false);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean isEmpty(IItemHandler handler) {
         for (int slot = 0; slot < handler.getSlots(); slot++) {
             if (!handler.getStackInSlot(slot).isEmpty()) return false;
