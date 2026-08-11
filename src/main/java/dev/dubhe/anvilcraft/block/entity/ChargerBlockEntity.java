@@ -414,10 +414,7 @@ public class ChargerBlockEntity extends BlockEntity
         if (timeLeft == 0) {
             moveItemToTransformingSlot();
         }
-        if (timeLeft > 0 &&
-            isGridWorking() &&
-            grid.getConsume() < grid.getGenerate()
-        ) {
+        if (timeLeft > 0 && isGridWorking() && grid.getConsume() < grid.getGenerate()) {
             if (isFeCharging) {
                 ItemStack processingStack = itemHandler.getStackInSlot(1);
                 if (!processingStack.isEmpty()) {
