@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.client.renderer.item.LargeFluidTankItemRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -20,6 +21,7 @@ import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class LargeFluidTankBlockItem extends SimpleMultiPartBlockItem<Cube3x3PartHalf> {
@@ -35,12 +37,11 @@ public class LargeFluidTankBlockItem extends SimpleMultiPartBlockItem<Cube3x3Par
         TooltipFlag tooltipFlag
     ) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        FluidTankItemTooltip.appendMultiTank(
-            stack,
-            context,
-            tooltipComponents,
-            LargeFluidTankBlockEntity.BASE_CAPACITY
-        );
+    }
+
+    @Override
+    public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
+        return FluidTankItemTooltip.multiFluidTooltipImage(stack, LargeFluidTankBlockEntity.BASE_CAPACITY);
     }
 
     @Override

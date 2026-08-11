@@ -176,6 +176,8 @@ import dev.dubhe.anvilcraft.block.heatable.NormalBlock;
 import dev.dubhe.anvilcraft.block.heatable.OverheatedEmberMetalBlock;
 import dev.dubhe.anvilcraft.block.heatable.RedhotBlock;
 import dev.dubhe.anvilcraft.block.item.ChuteBlockItem;
+import dev.dubhe.anvilcraft.block.item.CreativeCrateBlockItem;
+import dev.dubhe.anvilcraft.block.item.CreativeFluidTankBlockItem;
 import dev.dubhe.anvilcraft.block.item.CursedBlockItem;
 import dev.dubhe.anvilcraft.block.item.EndDustBlockItem;
 import dev.dubhe.anvilcraft.block.item.FishTankBlockItem;
@@ -4454,7 +4456,7 @@ public class ModBlocks {
             .noOcclusion())
         .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::simple)
-        .item()
+        .item(CreativeFluidTankBlockItem::new)
         .properties(properties -> properties.rarity(Rarity.EPIC))
         .build()
         .register();
@@ -4468,7 +4470,7 @@ public class ModBlocks {
             .noOcclusion())
         .tag(BlockTags.NEEDS_IRON_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
         .blockstate(DataGenUtil::simple)
-        .item()
+        .item(CreativeCrateBlockItem::new)
         .properties(properties -> properties.rarity(Rarity.EPIC))
         .build()
         .register();

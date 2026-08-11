@@ -368,19 +368,8 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.PUMP.asItem(), "Pumps fluids, consumes 32 kW");
         NORMAL.put(ModBlocks.CREATIVE_CRATE.asItem(), "Infinite item storage and supply");
         NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
-        NORMAL.put(
-            ModBlocks.FLUID_TANK.asItem(), """
-                Stores 16B of fluids
-                Menger Sponges expand it to 12800B and make it infinite when full
-                Can interact with Dispensers for fluid transfer"""
-        );
-        NORMAL.put(
-            ModBlocks.LARGE_FLUID_TANK.asItem(), """
-                Stores 512B shared by any number of fluids
-                Menger Sponges unlock unlimited total storage
-                Can store multiple fluids, each type of fluid that reaches 12800B will be converted to infinite
-                Can interact with Dispensers for fluid transfer"""
-        );
+        NORMAL.put(ModBlocks.FLUID_TANK.asItem(), "Stores fluids");
+        NORMAL.put(ModBlocks.LARGE_FLUID_TANK.asItem(), "Stores multiple fluids");
         NORMAL.put(ModBlocks.DRAIN.asItem(), "Transfers fluid vertically, outputting downward and drawing from above");
         NORMAL.put(ModBlocks.CORRUPTED_BEACON.asItem(), "Releases the wither power within the beacon, its beam accelerates time flow or causes mutations");
         NORMAL.put(ModBlocks.LARGE_CAKE.asItem(), "A cake, a very big cake. 27 bites, each bite fills you up");
@@ -706,6 +695,29 @@ public class ItemTooltipManager {
                 Compatible with multiple processing types via different base blocks
                 Can store multiple fluids"""
         );
+        SHIFT.put(
+            ModBlocks.FLUID_TANK.asItem(), """
+                Stores 16B of fluids
+                Menger Sponges expand it to 12800B and make it infinite when full
+                Can interact with Dispensers for fluid transfer"""
+        );
+        SHIFT.put(
+            ModBlocks.LARGE_FLUID_TANK.asItem(), """
+                Stores 512B shared by any number of fluids
+                Menger Sponges unlock unlimited total storage
+                Can store multiple fluids, each type of fluid that reaches 12800B will be converted to infinite
+                Can interact with Dispensers for fluid transfer"""
+        );
+        SHIFT.put(
+            ModItems.CAPACITOR.asItem(), """
+                Can be consumed automatically
+                or can be taken with a left-click in the inventory and then used by right-clicking on an electrical appliance to actively charge it"""
+        );
+        SHIFT.put(
+            ModItems.SUPER_CAPACITOR.asItem(), """
+                Can be consumed automatically
+                or can be taken with a left-click in the inventory and then used by right-clicking on an electrical appliance to actively charge it"""
+        );
 
         Map<Item, String> allTooltips = Maps.newHashMap();
         allTooltips.putAll(NORMAL);
@@ -723,6 +735,7 @@ public class ItemTooltipManager {
      */
     public static void addTooltip(ItemStack stack, List<Component> tooltip) {
         final Item item = stack.getItem();
+        final int initialTooltipSize = tooltip.size();
         if (stack.has(ModComponents.STORED_ENERGY)) {
             propertyTooltip(
                 "stored_energy",
@@ -784,7 +797,14 @@ public class ItemTooltipManager {
                 if (NORMAL.containsKey(item)) {
                     addNormalTooltip(tooltip, item);
                 }
-                tooltip.add(1, Component.translatable("tooltip.anvilcraft.press_key", Component.literal("[Shift]").withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.DARK_GRAY));
+                int anvilCraftLines = tooltip.size() - initialTooltipSize;
+                tooltip.add(
+                    1 + anvilCraftLines,
+                    Component.translatable(
+                        "tooltip.anvilcraft.press_key",
+                        Component.literal("[Shift]").withStyle(ChatFormatting.WHITE)
+                    ).withStyle(ChatFormatting.DARK_GRAY)
+                );
             }
         } else if (NORMAL.containsKey(item)) {
             addNormalTooltip(tooltip, item);

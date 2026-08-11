@@ -16,6 +16,8 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.SoundActions;
@@ -23,6 +25,8 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+
+import java.util.List;
 
 public class CreativeFluidTankBlock extends BaseEntityBlock implements IHammerRemovable {
     @Override
@@ -96,6 +100,21 @@ public class CreativeFluidTankBlock extends BaseEntityBlock implements IHammerRe
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
+    }
+
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        List<ItemStack> drops = super.getDrops(state, params);
+        BlockEntity blockEntity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+        if (blockEntity instanceof CreativeFluidTankBlockEntity tank
+            && !tank.getFluidHandler().getFluidInTank(0).isEmpty()) {
+            for (ItemStack drop : drops) {
+                if (drop.is(this.asItem())) {
+                    tank.saveToDrop(drop, params.getLevel().registryAccess());
+                }
+            }
+        }
+        return drops;
     }
 
     @Override

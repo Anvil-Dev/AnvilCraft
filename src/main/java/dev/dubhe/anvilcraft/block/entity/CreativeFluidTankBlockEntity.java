@@ -10,6 +10,8 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -81,6 +83,12 @@ public class CreativeFluidTankBlockEntity extends BlockEntity implements IFluidH
     @Override
     public @Nullable Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
+    }
+
+    public void saveToDrop(ItemStack stack, HolderLookup.Provider registries) {
+        CompoundTag tag = this.saveCustomOnly(registries);
+        BlockItem.setBlockEntityData(stack, this.getType(), tag);
+        stack.applyComponents(this.collectComponents());
     }
 
     @Override

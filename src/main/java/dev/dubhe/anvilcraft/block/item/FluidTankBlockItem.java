@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.item.CustomRenderItemClientExtension;
 import dev.dubhe.anvilcraft.client.renderer.item.FluidTankItemRenderer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -15,6 +16,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class FluidTankBlockItem extends BlockItem {
@@ -30,10 +32,12 @@ public class FluidTankBlockItem extends BlockItem {
         TooltipFlag tooltipFlag
     ) {
         super.appendHoverText(stack, context, tooltipComponents, tooltipFlag);
-        FluidTankItemTooltip.appendExpandableTank(
+    }
+
+    @Override
+    public Optional<TooltipComponent> getTooltipImage(ItemStack stack) {
+        return FluidTankItemTooltip.singleFluidTooltipImage(
             stack,
-            context,
-            tooltipComponents,
             FluidTankBlockEntity.BASE_CAPACITY,
             FluidTankBlockEntity.INFINITY_THRESHOLD
         );
