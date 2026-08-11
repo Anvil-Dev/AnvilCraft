@@ -29,8 +29,6 @@ items:
 <recipe id="anvilcraft:charger_charging/capacitor_empty"/>
 </row>
 
----
-
 # <ref item="anvilcraft:supercapacitor"/>
 
 树脂块内必须装有苦力怕
@@ -39,10 +37,13 @@ items:
 若为高压版本，有50%概率发生大爆炸、有50%概率获得充满的电容器
 </danger>
 
-
 <recipe id="anvilcraft:item_compress/supercapacitor_empty"/>
 
 <row halign="center">
 <recipe id="anvilcraft:charger_charging/supercapacitor"/>
 <recipe id="anvilcraft:charger_charging/supercapacitor_empty"/>
 </row>
+
+# 充能物品
+
+在背包中拿起*电容器*并右击可充能物品（例如<ref item="anvilcraft:ionocraft_backpack"/>），即可为其充电。

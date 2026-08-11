@@ -31,9 +31,6 @@ items:
 <row halign="center">
 <recipe id="anvilcraft:time_warp/frost_metal_ingot_0"/>
 <recipe id="anvilcraft:time_warp/frost_metal_ingot_1"/>
-</row>
-
-<row halign="center">
 <recipe id="anvilcraft:time_warp/frost_metal_ingot_2"/>
 <recipe id="anvilcraft:time_warp/frost_metal_ingot_3"/>
 </row>
@@ -49,6 +46,7 @@ items:
 - 耐久以及挖掘等级与*下界合金工具*相同
 - 拥有[属性：无情](../001_feature/201_properties.md)
 
+<row halign="center">
 <recipe id="anvilcraft:smithing/frost_metal_pickaxe"/>
 <recipe id="anvilcraft:smithing/frost_metal_axe"/>
 <recipe id="anvilcraft:smithing/frost_metal_shovel"/>
@@ -56,3 +54,4 @@ items:
 <recipe id="anvilcraft:smithing/frost_metal_sword"/>
 <recipe id="anvilcraft:smithing/frost_anvil_hammer"/>
 <recipe id="anvilcraft:smithing/frost_dragon_rod"/>
+</row>

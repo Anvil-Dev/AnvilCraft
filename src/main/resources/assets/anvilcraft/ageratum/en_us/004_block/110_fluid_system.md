@@ -28,6 +28,10 @@ items:
 
 <structure id="../../structures/gravity_pipe.nbt"/>
 
+## Glass Viewport
+
+- Hold a <ref item="minecraft:glass_pane"/> and right-click <ref item="anvilcraft:pipe"/> to view the fluid inside the pipe
+
 ## <ref item="minecraft:cauldron"/> Support
 
 - Pipes support <ref item="minecraft:cauldron"/>, but <ref item="minecraft:cauldron"/> is special, only allowing a full bucket (1000mB) of fluid to be inserted or extracted at once

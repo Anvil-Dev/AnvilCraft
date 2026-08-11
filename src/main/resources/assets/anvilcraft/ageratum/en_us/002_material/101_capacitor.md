@@ -29,8 +29,6 @@ items:
 <recipe id="anvilcraft:charger_charging/capacitor_empty"/>
 </row>
 
----
-
 # <ref item="anvilcraft:supercapacitor"/>
 
 The resin block must contain a Creeper
@@ -39,10 +37,13 @@ The resin block must contain a Creeper
 If it is a charged version, there is a 50% chance of a massive explosion, and a 50% chance of obtaining a fully charged capacitor
 </danger>
 
-
 <recipe id="anvilcraft:item_compress/supercapacitor_empty"/>
 
 <row halign="center">
 <recipe id="anvilcraft:charger_charging/supercapacitor"/>
 <recipe id="anvilcraft:charger_charging/supercapacitor_empty"/>
 </row>
+
+# Charging Items
+
+Pick up a *capacitor* in the inventory and right-click a chargeable item (such as <ref item="anvilcraft:ionocraft_backpack"/>) to charge it.

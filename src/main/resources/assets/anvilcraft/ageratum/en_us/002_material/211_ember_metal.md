@@ -31,9 +31,6 @@ items:
 <row halign="center">
 <recipe id="anvilcraft:time_warp/ember_metal_ingot_0"/>
 <recipe id="anvilcraft:time_warp/ember_metal_ingot_1"/>
-</row>
-
-<row halign="center">
 <recipe id="anvilcraft:time_warp/ember_metal_ingot_2"/>
 <recipe id="anvilcraft:time_warp/ember_metal_ingot_3"/>
 </row>
@@ -50,6 +47,7 @@ Upgrades [Royal Steel Tools](110_royal_steel.md) to *Ember Metal Tools*
 - Possesses [Property: Reforging](../001_feature/201_properties.md)
 - Cannot be destroyed by fire and lava
 
+<row halign="center">
 <recipe id="anvilcraft:smithing/ember_metal_pickaxe"/>
 <recipe id="anvilcraft:smithing/ember_metal_axe"/>
 <recipe id="anvilcraft:smithing/ember_metal_shovel"/>
@@ -57,3 +55,4 @@ Upgrades [Royal Steel Tools](110_royal_steel.md) to *Ember Metal Tools*
 <recipe id="anvilcraft:smithing/ember_metal_sword"/>
 <recipe id="anvilcraft:smithing/ember_anvil_hammer"/>
 <recipe id="anvilcraft:smithing/ember_dragon_rod"/>
+</row>

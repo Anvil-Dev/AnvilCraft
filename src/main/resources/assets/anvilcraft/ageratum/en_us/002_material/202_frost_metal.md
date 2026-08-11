@@ -31,9 +31,6 @@ items:
 <row halign="center">
 <recipe id="anvilcraft:time_warp/frost_metal_ingot_0"/>
 <recipe id="anvilcraft:time_warp/frost_metal_ingot_1"/>
-</row>
-
-<row halign="center">
 <recipe id="anvilcraft:time_warp/frost_metal_ingot_2"/>
 <recipe id="anvilcraft:time_warp/frost_metal_ingot_3"/>
 </row>
@@ -49,6 +46,7 @@ Upgrades [Royal Steel Tools](110_royal_steel.md) to *Frost Metal Tools*
 - Durability and mining level are the same as *Netherite tools*
 - Possesses [Property: Ruthless](../001_feature/201_properties.md)
 
+<row halign="center">
 <recipe id="anvilcraft:smithing/frost_metal_pickaxe"/>
 <recipe id="anvilcraft:smithing/frost_metal_axe"/>
 <recipe id="anvilcraft:smithing/frost_metal_shovel"/>
@@ -56,3 +54,4 @@ Upgrades [Royal Steel Tools](110_royal_steel.md) to *Frost Metal Tools*
 <recipe id="anvilcraft:smithing/frost_metal_sword"/>
 <recipe id="anvilcraft:smithing/frost_anvil_hammer"/>
 <recipe id="anvilcraft:smithing/frost_dragon_rod"/>
+</row>
