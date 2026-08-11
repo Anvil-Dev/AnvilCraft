@@ -115,6 +115,11 @@ public class ModComponents {
         b -> b.persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT)
     );
 
+    public static final DataComponentType<Boolean> DEVOUR_PROTECT_CONTAINERS = register(
+        "devour_protect_containers",
+        b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
+    );
+
     public static final DataComponentType<BoxContents> BOX_CONTENTS = register(
         "box_contents",
         b -> b.persistent(BoxContents.CODEC).networkSynchronized(BoxContents.STREAM_CODEC)

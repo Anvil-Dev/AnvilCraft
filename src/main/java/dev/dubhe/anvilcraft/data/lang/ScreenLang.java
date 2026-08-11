@@ -234,6 +234,9 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.resonator.hoe", "Hoe");
         provider.add("screen.anvilcraft.resonator.pickaxe", "Pickaxe");
 
+        provider.add("screen.anvilcraft.dragon_rod.protect_containers", "Protect Containers");
+        provider.add("screen.anvilcraft.dragon_rod.devour_containers", "Devour Containers");
+
         provider.add("screen.anvilcraft.heavy_halberd.title", "Switch heavy halberd mode");
         provider.add("screen.anvilcraft.heavy_halberd.trident", "Trident");
         provider.add("screen.anvilcraft.heavy_halberd.spear", "Spear");

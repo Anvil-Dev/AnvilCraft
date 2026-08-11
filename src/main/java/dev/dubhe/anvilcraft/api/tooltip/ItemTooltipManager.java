@@ -753,6 +753,19 @@ public class ItemTooltipManager {
                 ModKeyMappings.SWITCH_PHASE.get().getKey().getDisplayName()
             );
         }
+        if (stack.has(ModComponents.DEVOUR_PROTECT_CONTAINERS)) {
+            boolean protectContainers = stack.getOrDefault(ModComponents.DEVOUR_PROTECT_CONTAINERS, false);
+            propertyTooltip(
+                "protect_containers",
+                tooltip,
+                0xDD91FA,
+                Component.translatable(
+                    protectContainers
+                        ? "tooltip.anvilcraft.property.protect_containers.on"
+                        : "tooltip.anvilcraft.property.protect_containers.off"
+                ).withStyle(protectContainers ? ChatFormatting.GREEN : ChatFormatting.RED)
+            );
+        }
         if (stack.has(ModComponents.PROVIDENCE)) {
             if (Screen.hasShiftDown()) {
                 propertyTooltip(

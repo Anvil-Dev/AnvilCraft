@@ -6,10 +6,12 @@ import dev.anvilcraft.lib.v2.wheel.client.input.WheelScreenController;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.item.DragonRodItem;
 import dev.dubhe.anvilcraft.item.HeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
 import dev.dubhe.anvilcraft.item.ResonatorItem;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
+import dev.dubhe.anvilcraft.network.SwitchDragonRodProtectContainersPacket;
 import dev.dubhe.anvilcraft.network.SwitchHeavyHalberdModePacket;
 import dev.dubhe.anvilcraft.network.SwitchMultitoolModePacket;
 import dev.dubhe.anvilcraft.network.SwitchResonateModePacket;
@@ -22,6 +24,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomModelData;
+import net.minecraft.world.level.block.Blocks;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -54,6 +57,10 @@ public class WheelLifecycleEventListener {
     private static boolean multitoolKeyWasDown = false;
     private static Optional<WheelMenuModel> multitoolWheelCache = null;
 
+    private static long dragonRodKeyTime = -1L;
+    private static boolean dragonRodKeyWasDown = false;
+    private static Optional<WheelMenuModel> dragonRodWheelCache = null;
+
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
         Minecraft client = Minecraft.getInstance();
@@ -64,6 +71,7 @@ public class WheelLifecycleEventListener {
         WheelLifecycleEventListener.openResonatorWheel(gameTime);
         WheelLifecycleEventListener.openHeavyHalberdWheel(gameTime);
         WheelLifecycleEventListener.openMultitoolWheel(gameTime);
+        WheelLifecycleEventListener.openDragonRodWheel(gameTime);
     }
 
     private static void openMultiphaseWheel(long gameTime) {
@@ -166,6 +174,31 @@ public class WheelLifecycleEventListener {
             if (WheelLifecycleEventListener.heavyHalberdWheelCache.isEmpty()) return;
             CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.heavyHalberdWheelCache.get());
             WheelLifecycleEventListener.heavyHalberdKeyWasDown = true;
+        }
+    }
+
+    private static void openDragonRodWheel(long gameTime) {
+        if (
+            WheelLifecycleEventListener.dragonRodKeyTime > 0
+            && gameTime - WheelLifecycleEventListener.dragonRodKeyTime > 4
+        ) {
+            if (WheelLifecycleEventListener.dragonRodWheelCache == null) {
+                LocalPlayer player = Minecraft.getInstance().player;
+                if (player == null) return;
+                InteractionHand hand = InteractionHand.MAIN_HAND;
+                ItemStack stack = player.getMainHandItem();
+                if (!(stack.getItem() instanceof DragonRodItem)) {
+                    hand = InteractionHand.OFF_HAND;
+                    stack = player.getOffhandItem();
+                }
+                if (!(stack.getItem() instanceof DragonRodItem)) return;
+                WheelLifecycleEventListener.dragonRodWheelCache = Optional.ofNullable(
+                    WheelLifecycleEventListener.getDragonRodWheel(hand, stack)
+                );
+            }
+            if (WheelLifecycleEventListener.dragonRodWheelCache.isEmpty()) return;
+            CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.dragonRodWheelCache.get());
+            WheelLifecycleEventListener.dragonRodKeyWasDown = true;
         }
     }
 
@@ -433,6 +466,31 @@ public class WheelLifecycleEventListener {
             .build();
     }
 
+    private static @Nullable WheelMenuModel getDragonRodWheel(InteractionHand hand, ItemStack holding) {
+        return WheelMenuBuilder.create()
+            .slotsPerPage(2)
+            .action(
+                "protect",
+                Component.translatable("screen.anvilcraft.dragon_rod.protect_containers"),
+                (graphics, pose, width, height) -> graphics.renderItem(new ItemStack(Blocks.CHEST), 2, 2, 9910597),
+                ctx -> PacketDistributor.sendToServer(
+                    new SwitchDragonRodProtectContainersPacket(hand, true)
+                )
+            )
+            .action(
+                "devour",
+                Component.translatable("screen.anvilcraft.dragon_rod.devour_containers"),
+                (graphics, pose, width, height) -> {
+                    ItemStack copied = holding.copy();
+                    graphics.renderItem(copied, 2, 2, 9910597);
+                },
+                ctx -> PacketDistributor.sendToServer(
+                    new SwitchDragonRodProtectContainersPacket(hand, false)
+                )
+            )
+            .build();
+    }
+
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event) {
         Minecraft client = Minecraft.getInstance();
@@ -444,6 +502,7 @@ public class WheelLifecycleEventListener {
             WheelLifecycleEventListener.processResonatorPress(client, event.getAction());
             WheelLifecycleEventListener.processHeavyHalberdPress(client, event.getAction());
             WheelLifecycleEventListener.processMultitoolPress(client, event.getAction());
+            WheelLifecycleEventListener.processDragonRodPress(client, event.getAction());
         }
     }
 
@@ -458,6 +517,7 @@ public class WheelLifecycleEventListener {
             WheelLifecycleEventListener.processResonatorPress(client, event.getAction());
             WheelLifecycleEventListener.processHeavyHalberdPress(client, event.getAction());
             WheelLifecycleEventListener.processMultitoolPress(client, event.getAction());
+            WheelLifecycleEventListener.processDragonRodPress(client, event.getAction());
         }
     }
 
@@ -535,6 +595,25 @@ public class WheelLifecycleEventListener {
         if (action == GLFW.GLFW_PRESS) {
             if (!WheelLifecycleEventListener.heavyHalberdKeyWasDown) {
                 WheelLifecycleEventListener.heavyHalberdKeyTime = client.level.getGameTime();
+            }
+        }
+    }
+
+    private static void processDragonRodPress(Minecraft client, int action) {
+        if (client.level == null) return;
+        if (action == GLFW.GLFW_RELEASE) {
+            if (WheelLifecycleEventListener.dragonRodKeyWasDown) {
+                CONTROLLER.onHoldKeyReleased();
+            }
+            WheelLifecycleEventListener.dragonRodKeyWasDown = false;
+            WheelLifecycleEventListener.dragonRodKeyTime = -1L;
+            WheelLifecycleEventListener.dragonRodWheelCache = null;
+            return;
+        }
+        if (Minecraft.getInstance().screen != null) return;
+        if (action == GLFW.GLFW_PRESS) {
+            if (!WheelLifecycleEventListener.dragonRodKeyWasDown) {
+                WheelLifecycleEventListener.dragonRodKeyTime = client.level.getGameTime();
             }
         }
     }

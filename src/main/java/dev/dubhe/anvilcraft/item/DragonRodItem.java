@@ -59,9 +59,15 @@ public class DragonRodItem extends Item {
     }
 
     public DragonRodItem(Properties properties, int enchantmentValue, BlockMiningEffect miningEffect) {
-        super(properties.component(ModComponents.DEVOUR_RANGE, DEFAULT_RANGE));
+        super(properties
+            .component(ModComponents.DEVOUR_RANGE, DEFAULT_RANGE)
+            .component(ModComponents.DEVOUR_PROTECT_CONTAINERS, false));
         this.enchantmentValue = enchantmentValue;
         this.miningEffect = miningEffect;
+    }
+
+    public static boolean protectsContainers(ItemStack stack) {
+        return stack.getOrDefault(ModComponents.DEVOUR_PROTECT_CONTAINERS, false);
     }
 
     @Override
@@ -142,6 +148,10 @@ public class DragonRodItem extends Item {
             if (!DevourUtil.shouldDevour(devouringState)) continue;
             if (InfiniteFluidTankBreakProtection.isProtected(level, devouringPos)) {
                 infiniteFluidTankBlocked = true;
+                continue;
+            }
+            if (DragonRodItem.protectsContainers(dragonRod)
+                && level.getCapability(Capabilities.ItemHandler.BLOCK, devouringPos, null) != null) {
                 continue;
             }
 
