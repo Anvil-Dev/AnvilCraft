@@ -123,7 +123,6 @@ public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHal
     }
 
     @Override
-
     public void neighborChanged(
         BlockState state,
         Level level,
