@@ -314,10 +314,7 @@ public class RegistrumItemRecipeLoader {
             .requires(ModBlocks.BLOCK_DEVOURER)
             .requires(ModItems.ROYAL_ANVIL_HAMMER)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BLOCK_DEVOURER), RegistrumRecipeProvider.has(ModBlocks.BLOCK_DEVOURER))
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.ROYAL_ANVIL_HAMMER),
-                RegistrumRecipeProvider.has(ModItems.ROYAL_ANVIL_HAMMER)
-            )
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.ROYAL_ANVIL_HAMMER), RegistrumRecipeProvider.has(ModItems.ROYAL_ANVIL_HAMMER))
             .save(provider);
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE),
@@ -356,11 +353,15 @@ public class RegistrumItemRecipeLoader {
             .requires(ModBlocks.BLOCK_DEVOURER)
             .requires(ModItems.FROST_ANVIL_HAMMER)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BLOCK_DEVOURER), AnvilCraftDatagen.has(ModBlocks.BLOCK_DEVOURER))
-            .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModItems.FROST_ANVIL_HAMMER),
-                AnvilCraftDatagen.has(ModItems.FROST_ANVIL_HAMMER)
-            )
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItems.FROST_ANVIL_HAMMER), AnvilCraftDatagen.has(ModItems.FROST_ANVIL_HAMMER))
             .save(provider);
+        SmithingTransformRecipeBuilder.smithing(
+            Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),
+            Ingredient.of(ModItems.ROYAL_DRAGON_ROD),
+            Ingredient.of(ModBlocks.FROST_METAL_BLOCK),
+            RecipeCategory.TOOLS,
+            ctx.get()
+        ).unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK)).save(provider, ctx.getId().withPrefix("smithing/"));
     }
 
     public static <T extends Item> void energyWeaponPlatform(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
