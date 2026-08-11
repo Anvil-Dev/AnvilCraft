@@ -46,6 +46,7 @@ import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EnchantingTableBlock;
 import net.minecraft.world.level.block.entity.BaseContainerBlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -425,6 +426,19 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
     }
 
     @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        Level level = this.level;
+        if (level != null) {
+            for (ItemStack stack : this.items) {
+                if (stack.isEmpty()) {
+                    continue;
+                }
+                Block.popResource(level, pos, stack);
+            }
+        }
+    }
+
+    @Override
     public void setChanged() {
         super.setChanged();
         this.slotChangedListener.accept(this);
@@ -456,7 +470,7 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
         for (Integer id : input.listOrEmpty("selectedEnchantments", Codec.INT)) {
             this.selectedEnchantmentSet.add(id);
         }
-        input.getBooleanOr("openMenu", false);
+        this.isOpenMenu = input.getBooleanOr("openMenu", false);
     }
 
     @Override
