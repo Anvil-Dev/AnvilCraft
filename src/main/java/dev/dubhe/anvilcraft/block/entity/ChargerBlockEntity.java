@@ -47,6 +47,9 @@ public class ChargerBlockEntity extends BlockEntity
     private int timeLeft = 0;
     @Getter
     @Setter
+    private int startupCoolDown = 0;
+    @Getter
+    @Setter
     private int timeTotalCache = 0;
     private int powerValue = 0;
     @Getter
@@ -407,12 +410,20 @@ public class ChargerBlockEntity extends BlockEntity
         BlockState state = level1.getBlockState(blockPos);
         boolean powered = state.getValue(ChargerBlock.POWERED);
         if (grid == null) return;
-        if (isFeCharging) {
-            powerValue = -(getFeChargingPowerLevel());
-        }
-        if (powered) return;
         if (timeLeft == 0) {
             moveItemToTransformingSlot();
+        }
+        if (powered) {
+            this.setStartupCoolDown(20);
+            return;
+        }
+        if (isFeCharging) {
+            powerValue = -(getFeChargingPowerLevel());
+            this.setStartupCoolDown(20);
+        }
+        if (startupCoolDown > 0) {
+            this.startupCoolDown--;
+            return;
         }
         if (timeLeft > 0 && isGridWorking() && grid.getConsume() < grid.getGenerate()) {
             if (isFeCharging) {
@@ -449,9 +460,7 @@ public class ChargerBlockEntity extends BlockEntity
         }
         if (timeLeft == 0) {
             moveItemToTransformedOverSlot();
-            if (timeLeft == 0) {
-                this.timeTotalCache = 0;
-            }
+            this.timeTotalCache = 0;
         }
 
         int signal = this.getAnalogRedstoneSignal();
