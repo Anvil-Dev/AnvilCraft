@@ -303,7 +303,8 @@ public class ItemTooltipManager {
         NORMAL.put(
             ModBlocks.TRANSCENDENCE_ANVIL.asItem(), """
             Ignores enchantment level limits, and Anvil Looting produces additional drops
-            Immune to most destruction methods, does not degrade from falling""");
+            Immune to most destruction methods, does not degrade from falling"""
+        );
         NORMAL.put(
             ModBlocks.TRANSCENDENCE_GRINDSTONE.asItem(),
             """
@@ -334,8 +335,8 @@ public class ItemTooltipManager {
         NORMAL.put(
             ModItems.IONOCRAFT_BACKPACK.asItem(), """
             Allows creative flight while equipped
-            Requires power from the energy grid or capacitors in the inventory
-            Can not use Super Capacitor""");
+            Requires power from the energy grid or capacitors in the inventory"""
+        );
         NORMAL.put(ModBlocks.BLOCK_COMPARATOR.asItem(), "Outputs signal when side blocks are the same, right-click to switch to precise state detection mode");
         NORMAL.put(ModBlocks.ITEM_DETECTOR.asItem(), "Detects specific items behind (drops/containers) to output redstone signal");
         NORMAL.put(ModBlocks.IMPACT_PILE.asItem(), "Place on Bedrock or Deepslate and strike with falling anvil to create Moneral Fountain");
@@ -750,6 +751,19 @@ public class ItemTooltipManager {
                 tooltip,
                 0xDD91FA,
                 ModKeyMappings.SWITCH_PHASE.get().getKey().getDisplayName()
+            );
+        }
+        if (stack.has(ModComponents.DEVOUR_PROTECT_CONTAINERS)) {
+            boolean protectContainers = stack.getOrDefault(ModComponents.DEVOUR_PROTECT_CONTAINERS, false);
+            propertyTooltip(
+                "protect_containers",
+                tooltip,
+                0xDD91FA,
+                Component.translatable(
+                    protectContainers
+                        ? "tooltip.anvilcraft.property.protect_containers.on"
+                        : "tooltip.anvilcraft.property.protect_containers.off"
+                ).withStyle(protectContainers ? ChatFormatting.GREEN : ChatFormatting.RED)
             );
         }
         if (stack.has(ModComponents.PROVIDENCE)) {

@@ -111,7 +111,7 @@ public class BurningHeaterBlock extends BaseEntityBlock implements IHammerRemova
     @Override
     public int getAnalogOutputSignal(BlockState blockState, Level level, BlockPos pos) {
         if (level.getBlockEntity(pos) instanceof BurningHeaterBlockEntity be) {
-            return (be.getBurnTime() * 15) / BurningHeaterBlockEntity.MAX_BURN_TIME;
+            return Math.min(15, (be.getBurnTime() * 15) / BurningHeaterBlockEntity.REFUEL_THRESHOLD);
         }
         return 0;
     }
