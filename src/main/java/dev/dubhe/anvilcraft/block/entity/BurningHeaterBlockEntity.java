@@ -30,9 +30,9 @@ import org.jetbrains.annotations.Nullable;
 
 public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandlerHolder {
     /**
-     * 最大燃烧时间：1200秒 = 24000tick
+     * 低于该阈值时消耗一个燃料补充，500秒 = 10000tick
      */
-    public static final int MAX_BURN_TIME = 1200 * 20;
+    public static final int REFUEL_THRESHOLD = 500 * 20;
 
     /**
      * 点燃 (level=2) 的燃烧时间阈值：4分钟 = 240秒 = 4800tick
@@ -214,22 +214,18 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
     }
 
     /**
-     * 尝试消耗燃料槽中的燃料来补充燃烧时间。
-     * 仅当剩余空间足以完整消耗一个燃料时才消耗，不浪费燃料的燃烧时间。
+     * 燃烧时间低于阈值时消耗一个燃料来补充燃烧时间。
+     * 燃料能提供的燃烧时间全部累加，没有上限。
      */
     private void tryConsumeFuel() {
-        if (this.burnTime >= MAX_BURN_TIME) return;
+        if (this.burnTime >= REFUEL_THRESHOLD) return;
 
         ItemStack fuel = this.itemHandler.getStackInSlot(0);
         int burnTimePerItem = getItemBurnTime(fuel);
         if (burnTimePerItem <= 0) return;
 
-        int itemsToConsume = Math.min(fuel.getCount(), (MAX_BURN_TIME - this.burnTime) / burnTimePerItem);
-        if (itemsToConsume <= 0) return;
-
-        this.burnTime += itemsToConsume * burnTimePerItem;
-
-        this.itemHandler.extractItem(0, itemsToConsume, false);
+        this.burnTime += burnTimePerItem;
+        this.itemHandler.extractItem(0, 1, false);
         // 熔岩桶等容器物品：消耗后槽位空时留下空桶
         if (fuel.hasCraftingRemainingItem() && this.itemHandler.getStackInSlot(0).isEmpty()) {
             this.itemHandler.setStackInSlot(0, fuel.getCraftingRemainingItem());
