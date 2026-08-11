@@ -4,12 +4,12 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
-import it.unimi.dsi.fastutil.ints.IntObjectBiConsumer;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 public class LargeCrateStorage extends BaseStorage<SpaceSizeItemStacksResourceHandler> {
     public static final MapCodec<LargeCrateStorage> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
@@ -38,7 +38,7 @@ public class LargeCrateStorage extends BaseStorage<SpaceSizeItemStacksResourceHa
     }
 
     @Override
-    protected SpaceSizeItemStacksResourceHandler constructItemHandler(IntObjectBiConsumer<UnlimitedItemStack> onContentsChanged) {
+    protected SpaceSizeItemStacksResourceHandler constructItemHandler(BiConsumer<Integer, UnlimitedItemStack> onContentsChanged) {
         return new SpaceSizeItemStacksResourceHandler(65536) {
             @Override
             protected void onContentsChanged(int index, UnlimitedItemStack original) {

@@ -1,7 +1,7 @@
 @MethodsReturnNonnullByDefault
 @ParametersAreNonnullByDefault
 @FieldsAreNonnullByDefault
-package dev.dubhe.anvilcraft.saved.storage;
+package dev.dubhe.anvilcraft.block.entity.storage;
 
 import com.mojang.logging.annotations.FieldsAreNonnullByDefault;
 import com.mojang.logging.annotations.MethodsReturnNonnullByDefault;

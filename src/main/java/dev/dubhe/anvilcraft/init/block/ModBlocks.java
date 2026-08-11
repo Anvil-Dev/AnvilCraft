@@ -123,7 +123,6 @@ import dev.dubhe.anvilcraft.block.RoyalGrindstoneBlock;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.RubyLaserBlock;
 import dev.dubhe.anvilcraft.block.RubyPrismBlock;
-import dev.dubhe.anvilcraft.block.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.SimpleConfinementAnvilonBlock;
 import dev.dubhe.anvilcraft.block.SimpleMagneticChuteBlock;
@@ -163,6 +162,10 @@ import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilAmplifierBlockIt
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilPortalBlockItem;
+import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
+import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
 import dev.dubhe.anvilcraft.block.fluid.DrainBlock;
 import dev.dubhe.anvilcraft.block.fluid.PipeCornerBlock;
@@ -234,6 +237,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.SingularityCrystalItem;
 import dev.dubhe.anvilcraft.item.TeslaTowerItem;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
+import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.loot.conditions.RandomChanceWithFortuneCondition;
 import dev.dubhe.anvilcraft.util.DangerUtil;
 import dev.dubhe.anvilcraft.util.DataGenUtil;
@@ -1551,21 +1555,82 @@ public class ModBlocks {
         .build()
         .register();
 
+    public static final BlockEntry<CrateBlock> CRATE = REGISTRUM
+        .block("crate", CrateBlock::new)
+        .initialProperties(() -> Blocks.OAK_PLANKS)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+        )
+        .item()
+        .properties(properties -> properties
+            .component(ModComponents.STORAGE, StorageRef.crate())
+        )
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .register();
+
+    public static final BlockEntry<LargeCrateBlock> LARGE_CRATE = REGISTRUM
+        .block("large_crate", LargeCrateBlock::new)
+        .initialProperties(() -> Blocks.OAK_PLANKS)
+        .loot(SimpleMultiPartBlock::loot)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+        )
+        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
+        .properties(properties -> properties
+            .stacksTo(16)
+            .component(ModComponents.STORAGE, StorageRef.largeCrate())
+        )
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.MINEABLE_WITH_AXE)
+        .register();
+
     public static final BlockEntry<ShulkerContainerBlock> SHULKER_CONTAINER = REGISTRUM
         .block("shulker_container", ShulkerContainerBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .loot(FlexibleMultiPartBlock::loot)
         .properties(properties -> properties
             .noOcclusion()
+            .explosionResistance(1200)
             .isValidSpawn(ModBlocks::never)
             .requiresCorrectToolForDrops()
         )
         .item(ShulkerContainerBlockItem::new)
-        .properties(properties -> properties.stacksTo(16))
+        .properties(properties -> properties
+            .fireResistant()
+            .stacksTo(1)
+            .component(ModComponents.STORAGE, StorageRef.shulkerContainer())
+        )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .tag(BlockTags.NEEDS_DIAMOND_TOOL)
+        .tag(BlockTags.NEEDS_DIAMOND_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<HyperdimensionStorageStationBlock> HYPERDIMENSION_STORAGE_STATION = REGISTRUM
+        .block("hyperdimension_storage_station", HyperdimensionStorageStationBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .loot(SimpleMultiPartBlock::loot)
+        .properties(properties -> properties
+            .noOcclusion()
+            .explosionResistance(1200)
+            .isValidSpawn(ModBlocks::never)
+            .requiresCorrectToolForDrops()
+        )
+        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
+        .properties(properties -> properties
+            .fireResistant()
+            .stacksTo(1)
+            .component(ModComponents.STORAGE, StorageRef.hyperdimension())
+        )
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(ModBlockTags.NEEDS_EMBER_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<? extends Block> CHUTE = REGISTRUM.block("chute", ChuteBlock::new)

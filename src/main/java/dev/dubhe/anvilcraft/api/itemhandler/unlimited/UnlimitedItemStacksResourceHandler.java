@@ -11,7 +11,6 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class UnlimitedItemStacksResourceHandler implements IItemHandler {
@@ -35,11 +34,15 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler {
     protected final NonNullList<UnlimitedItemStack> stacks;
 
     public UnlimitedItemStacksResourceHandler(int size) {
-        this.stacks = NonNullList.withSize(size, UnlimitedItemStack.EMPTY);
+        this.stacks = NonNullList.create();
+        for (int index = 0; index < size; index++) {
+            this.stacks.add(UnlimitedItemStack.EMPTY);
+        }
     }
 
     public UnlimitedItemStacksResourceHandler(NonNullList<UnlimitedItemStack> stacks) {
-        this.stacks = NonNullList.copyOf(stacks);
+        this.stacks = NonNullList.create();
+        this.stacks.addAll(stacks);
     }
 
     public int size() {
@@ -107,6 +110,21 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler {
             this.onContentsChanged(slot, existing);
         }
         return result;
+    }
+
+    /**
+     * 尝试把物品堆插入到任意匹配或空槽位中，返回未能插入的剩余物品堆。
+     */
+    public ItemStack insertItem(ItemStack stack, boolean simulate) {
+        if (stack.isEmpty()) return ItemStack.EMPTY;
+        for (int slot = 0; slot < this.size(); slot++) {
+            UnlimitedItemStack existing = this.stacks.get(slot);
+            if (existing.isEmpty() || existing.isSameItemSameComponents(stack)) {
+                stack = this.insertItem(slot, stack, simulate);
+                if (stack.isEmpty()) return ItemStack.EMPTY;
+            }
+        }
+        return stack;
     }
 
     public UnlimitedItemStack extractUnlimited(int index, int amount, boolean simulate) {
@@ -197,13 +215,13 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler {
     }
 
     protected static NonNullList<UnlimitedItemStack> constructStackList(List<UnlimitedItemStack> from) {
-        NonNullList<UnlimitedItemStack> result = new NonNullList<>(new ArrayList<>(), UnlimitedItemStack.EMPTY);
+        NonNullList<UnlimitedItemStack> result = NonNullList.create();
         result.addAll(from);
         return result;
     }
 
     protected static NonNullList<UnlimitedItemStack> trim(List<UnlimitedItemStack> from) {
-        NonNullList<UnlimitedItemStack> result = new NonNullList<>(new ArrayList<>(), UnlimitedItemStack.EMPTY);
+        NonNullList<UnlimitedItemStack> result = NonNullList.create();
         for (UnlimitedItemStack stack : from) {
             if (!stack.isEmpty()) {
                 result.add(stack);

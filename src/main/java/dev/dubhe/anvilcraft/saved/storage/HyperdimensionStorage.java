@@ -4,12 +4,12 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
-import it.unimi.dsi.fastutil.ints.IntObjectBiConsumer;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 public class HyperdimensionStorage extends BaseStorage<UnlimitedItemStacksResourceHandler> {
     public static final MapCodec<HyperdimensionStorage> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
@@ -38,7 +38,7 @@ public class HyperdimensionStorage extends BaseStorage<UnlimitedItemStacksResour
     }
 
     @Override
-    protected UnlimitedItemStacksResourceHandler constructItemHandler(IntObjectBiConsumer<UnlimitedItemStack> onContentsChanged) {
+    protected UnlimitedItemStacksResourceHandler constructItemHandler(BiConsumer<Integer, UnlimitedItemStack> onContentsChanged) {
         return new UnlimitedItemStacksResourceHandler(65536) {
             @Override
             protected void onContentsChanged(int index, UnlimitedItemStack original) {

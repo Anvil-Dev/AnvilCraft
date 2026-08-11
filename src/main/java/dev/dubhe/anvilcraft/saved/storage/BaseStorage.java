@@ -5,12 +5,12 @@ import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
-import it.unimi.dsi.fastutil.ints.IntObjectBiConsumer;
 import lombok.Getter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 
 import java.util.UUID;
+import java.util.function.BiConsumer;
 
 @Getter
 public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> {
@@ -27,7 +27,7 @@ public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> 
     }
 
     protected abstract T constructItemHandler(
-        IntObjectBiConsumer<UnlimitedItemStack> onContentsChanged
+        BiConsumer<Integer, UnlimitedItemStack> onContentsChanged
     );
 
     protected void onContentsChanged(int index, UnlimitedItemStack original) {
