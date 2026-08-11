@@ -127,6 +127,9 @@ public class AnvilCraftServerConfig {
     @BoundedDiscrete(max = 15, min = 0)
     public int blockDevourerUpwardChainDevouringDistance = 8;
 
+    @Comment("Block Devourer will not devour containers (blocks that can store items) when enabled")
+    public boolean blockDevourerProtectContainers = false;
+
     @Comment("Block Placer recursive retrieval of container max distance")
     @BoundedDiscrete(max = 20, min = 0)
     public int blockPlacerRecursiveRetrievalDistanceMax = 7;

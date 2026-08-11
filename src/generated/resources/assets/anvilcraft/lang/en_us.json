@@ -137,6 +137,8 @@
   "anvilcraft.configuration.batch_crafter_cooldown.tooltip": "Maximum cooldown time of batch crafter (in ticks)",
   "anvilcraft.configuration.batch_cutter_cooldown": "Batch Cutter Cooldown",
   "anvilcraft.configuration.batch_cutter_cooldown.tooltip": "Maximum cooldown time of batch cutter (in ticks)",
+  "anvilcraft.configuration.block_devourer_protect_containers": "Block Devourer Protect Containers",
+  "anvilcraft.configuration.block_devourer_protect_containers.tooltip": "Block Devourer will not devour containers (blocks that can store items) when enabled",
   "anvilcraft.configuration.block_devourer_upward_chain_devouring": "Block Devourer Upward Chain Devouring",
   "anvilcraft.configuration.block_devourer_upward_chain_devouring.tooltip": "Block Devourer upward chain devouring blocks within tag #anvilcraft:block_devourer_chain_devouring",
   "anvilcraft.configuration.block_devourer_upward_chain_devouring_distance": "Block Devourer Upward Chain Devouring Distance",

@@ -1,8 +1,6 @@
 {
   "values": [
     "anvilcraft:mineral_fountain",
-    "anvilcraft:sturdy_deepslate",
-    "#c:chests/trapped",
-    "#c:chests/wooden"
+    "anvilcraft:sturdy_deepslate"
   ]
 }

@@ -251,9 +251,7 @@ public class BlockTagLoader {
             .addTag(Tags.Blocks.CHESTS_WOODEN);
         provider.addTag(ModBlockTags.DEVOUR_BLACKLIST)
             .add(ModBlocks.MINERAL_FOUNTAIN.getKey())
-            .add(ModBlocks.STURDY_DEEPSLATE.getKey())
-            .addTag(Tags.Blocks.CHESTS_TRAPPED)
-            .addTag(Tags.Blocks.CHESTS_WOODEN);
+            .add(ModBlocks.STURDY_DEEPSLATE.getKey());
 
         provider.addTag(ModBlockTags.FELLING_APPLICABLE)
             .addTag(BlockTags.LOGS)

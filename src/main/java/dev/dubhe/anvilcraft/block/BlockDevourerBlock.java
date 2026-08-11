@@ -229,6 +229,10 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         if (filteredBlockPosList.contains(devourBlockPos)) return;
         BlockState devourBlockState = level.getBlockState(devourBlockPos);
         if (!DevourUtil.shouldDevour(devourBlockState)) return;
+        if (AnvilCraft.CONFIG.blockDevourerProtectContainers
+            && level.getCapability(Capabilities.ItemHandler.BLOCK, devourBlockPos, null) != null) {
+            return;
+        }
         BlockMiningEffect miningEffect = BlockMiningEffect.fromAnvil(anvil).orElse(BlockMiningEffect.NORMAL);
 
         if (
@@ -261,8 +265,15 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
                 }
             }
             if (!skipContentTransfer) {
-                if (insertEnabled) ItemHandlerUtil.exportContentsToItemHandlers(source, itemHandlerList);
-                if (!dropOriginalPlace) ItemHandlerUtil.dropAllToPos(source, level, center);
+                transferContainerContents(
+                    level,
+                    devourBlockPos,
+                    center,
+                    source,
+                    insertEnabled,
+                    itemHandlerList,
+                    dropOriginalPlace
+                );
             }
         }
         if (level.getBlockEntity(devourBlockPos) instanceof LecternBlockEntity lectern) {
