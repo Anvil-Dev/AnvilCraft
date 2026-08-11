@@ -147,6 +147,7 @@ public class ModDispenserBehavior {
         DispenserBlock.registerBehavior(ModBlocks.RESIN_BLOCK, ModDispenserBehavior::resinBlock);
         DispenserBlock.registerBehavior(Items.MILK_BUCKET, ModDispenserBehavior.FLUID_BUCKET);
         DispenserBlock.registerBehavior(Items.HONEY_BOTTLE, ModDispenserBehavior.FLUID_BUCKET);
+        DispenserBlock.registerBehavior(ModItems.EXP_BUCKET, ModDispenserBehavior.FLUID_BUCKET);
         DispenserBlock.registerBehavior(ModItems.OIL_BUCKET, ModDispenserBehavior.BUCKET);
         DispenserBlock.registerBehavior(ModItems.MELT_GEM_BUCKET, ModDispenserBehavior.BUCKET);
         DispenserBlock.registerBehavior(ModBlocks.MENGER_SPONGE, ModDispenserBehavior::mengerSponge);

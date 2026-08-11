@@ -148,6 +148,12 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
     private boolean canSelect(int index) {
         Holder<Enchantment> enchantment = ListUtil.safelyGet(this.menu.getEnchantmentList(), index).orElse(null);
         if (enchantment == null) return false;
+        for (int selectedIndex : this.menu.getSelectedIndexes()) {
+            Holder<Enchantment> selected = ListUtil.safelyGet(this.menu.getEnchantmentList(), selectedIndex).orElse(null);
+            if (selected != null && !Enchantment.areCompatible(enchantment, selected)) {
+                return false;
+            }
+        }
         int totalLevel = enchantment.value().getMaxLevel();
         for (int selectedIndex : this.menu.getSelectedIndexes()) {
             Holder<Enchantment> selected = ListUtil.safelyGet(this.menu.getEnchantmentList(), selectedIndex).orElse(null);
@@ -335,7 +341,8 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
 
     @Override
     protected void extractTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
-        if (this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
+        ItemStack outputTooltipItem = this.getOutputTooltipItem();
+        if (this.hoveredSlot != null && this.hoveredSlot.hasItem() && this.hoveredSlot.index != 37) {
             ItemStack item = this.hoveredSlot.getItem();
             if (
                 this.menu.getCarried().isEmpty()
@@ -344,17 +351,15 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
                     .map(ClientTooltipComponent::showTooltipWithItemInHand)
                     .orElse(false)
             ) {
-                if (this.hoveredSlot.index != 37) {
-                    graphics.setTooltipForNextFrame(
-                        this.font,
-                        this.getTooltipFromContainerItem(item),
-                        item.getTooltipImage(),
-                        item,
-                        mouseX,
-                        mouseY,
-                        item.get(DataComponents.TOOLTIP_STYLE)
-                    );
-                }
+                graphics.setTooltipForNextFrame(
+                    this.font,
+                    this.getTooltipFromContainerItem(item),
+                    item.getTooltipImage(),
+                    item,
+                    mouseX,
+                    mouseY,
+                    item.get(DataComponents.TOOLTIP_STYLE)
+                );
             }
         } else if (this.renderingTooltipEnchantedBook != null) {
             graphics.setTooltipForNextFrame(
@@ -366,21 +371,16 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
                 mouseY,
                 this.renderingTooltipEnchantedBook.get(DataComponents.TOOLTIP_STYLE)
             );
-        }
-        if (this.isHovering(7, 52, 16, 16, mouseX, mouseY)) {
-            if (this.menu.getBlockEntity().getItems().get(1).isEmpty()) {
-                if (!this.finishItem.isEmpty()) {
-                    graphics.setTooltipForNextFrame(
-                        this.font,
-                        this.getTooltipFromContainerItem(this.finishItem),
-                        this.finishItem.getTooltipImage(),
-                        this.finishItem,
-                        mouseX,
-                        mouseY,
-                        this.finishItem.get(DataComponents.TOOLTIP_STYLE)
-                    );
-                }
-            }
+        } else if (!outputTooltipItem.isEmpty() && this.isHovering(7, 52, 16, 16, mouseX, mouseY)) {
+            graphics.setTooltipForNextFrame(
+                this.font,
+                this.getTooltipFromContainerItem(outputTooltipItem),
+                outputTooltipItem.getTooltipImage(),
+                outputTooltipItem,
+                mouseX,
+                mouseY,
+                outputTooltipItem.get(DataComponents.TOOLTIP_STYLE)
+            );
         }
         if (this.isHovering(151, 16, 18, 56, mouseX, mouseY)) {
             graphics.tooltip(
@@ -401,6 +401,23 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
                 null
             );
         }
+    }
+
+    /// 输出栏产物 tooltip：引物模式下显示附魔，无引物时不显示附魔
+    private ItemStack getOutputTooltipItem() {
+        ItemStack item = this.menu.getSlot(37).getItem();
+        if (item.isEmpty()) {
+            item = this.finishItem;
+        }
+        if (item.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        if (this.menu.getPrologueSlot().getItem().isEmpty()) {
+            item = item.copy();
+            item.remove(DataComponents.ENCHANTMENTS);
+            item.remove(DataComponents.STORED_ENCHANTMENTS);
+        }
+        return item;
     }
 
     @Override

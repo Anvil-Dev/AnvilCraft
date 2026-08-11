@@ -162,11 +162,21 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
     }
 
     public void select(int index) {
-        int size = this.selectedIndexes.size();
-        this.selectedIndexes.add(index);
-        if (this.selectedIndexes.size() != size) {
-            this.refreshSelectedEnchantments();
+        if (this.selectedIndexes.contains(index)) {
+            return;
         }
+        Holder<Enchantment> enchantment = ListUtil.safelyGet(this.enchantmentList, index).orElse(null);
+        if (enchantment == null) {
+            return;
+        }
+        for (int selectedIndex : this.selectedIndexes) {
+            Holder<Enchantment> selected = ListUtil.safelyGet(this.enchantmentList, selectedIndex).orElse(null);
+            if (selected != null && !Enchantment.areCompatible(enchantment, selected)) {
+                return;
+            }
+        }
+        this.selectedIndexes.add(index);
+        this.refreshSelectedEnchantments();
     }
 
     public void unselect(int index) {

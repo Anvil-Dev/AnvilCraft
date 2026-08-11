@@ -25,6 +25,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.EnchantmentTags;
@@ -59,6 +60,7 @@ import net.neoforged.neoforge.transfer.fluid.FluidUtil;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 import org.jspecify.annotations.Nullable;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -193,10 +195,14 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
             level.setBlockAndUpdate(this.getBlockPos(), this.getBlockState().setValue(AutoEnchantingTableBlock.OVERLOAD, true));
             return;
         }
-        if (this.grid.isWorking() && this.getBlockState().getValue(AutoEnchantingTableBlock.OVERLOAD)) {
-            level.setBlockAndUpdate(this.getBlockPos(), this.getBlockState().setValue(AutoEnchantingTableBlock.OVERLOAD, false));
-        } else if (!this.grid.isWorking() && !this.getBlockState().getValue(AutoEnchantingTableBlock.OVERLOAD)) {
-            level.setBlockAndUpdate(this.getBlockPos(), this.getBlockState().setValue(AutoEnchantingTableBlock.OVERLOAD, true));
+        if (this.grid.isWorking()) {
+            if (this.getBlockState().getValue(AutoEnchantingTableBlock.OVERLOAD)) {
+                level.setBlockAndUpdate(this.getBlockPos(), this.getBlockState().setValue(AutoEnchantingTableBlock.OVERLOAD, false));
+            }
+        } else {
+            if (!this.getBlockState().getValue(AutoEnchantingTableBlock.OVERLOAD)) {
+                level.setBlockAndUpdate(this.getBlockPos(), this.getBlockState().setValue(AutoEnchantingTableBlock.OVERLOAD, true));
+            }
             return;
         }
         if (this.cooldown > 0) {
@@ -275,15 +281,27 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
                 ItemStack enchantedBook = Items.ENCHANTED_BOOK.getDefaultInstance();
                 for (int id : this.selectedEnchantmentSet) {
                     Holder<Enchantment> enchantmentHolder = idMap.byId(id);
-                    if (enchantmentHolder != null) {
-                        enchantedBook.enchant(enchantmentHolder, enchantmentHolder.value().getMaxLevel());
+                    if (enchantmentHolder == null) {
+                        continue;
                     }
+                    boolean compatible = true;
+                    for (Object2IntMap.Entry<Holder<Enchantment>> existing
+                        : EnchantmentHelper.getEnchantmentsForCrafting(enchantedBook).entrySet()) {
+                        if (!Enchantment.areCompatible(enchantmentHolder, existing.getKey())) {
+                            compatible = false;
+                            break;
+                        }
+                    }
+                    if (!compatible) {
+                        continue;
+                    }
+                    enchantedBook.enchant(enchantmentHolder, enchantmentHolder.value().getMaxLevel());
                 }
                 if (enchantItem.is(Items.BOOK)) {
                     this.setItem(0, ItemStack.EMPTY);
                     this.setItem(1, enchantedBook);
                 } else {
-                    applyEnchantment(enchantItem, enchantedBook);
+                    AutoEnchantingTableBlockEntity.applyEnchantment(enchantItem, enchantedBook);
                     this.setItem(0, ItemStack.EMPTY);
                     this.setItem(1, enchantItem);
                 }
@@ -315,12 +333,20 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
         ItemEnchantments enchantmentsOnRight = EnchantmentHelper.getEnchantmentsForCrafting(enchantedBook);
         for (Object2IntMap.Entry<Holder<Enchantment>> entry : enchantmentsOnRight.entrySet()) {
             Holder<Enchantment> holder = entry.getKey();
-            int enchantmentsOnRightLevel = entry.getIntValue();
-            boolean compatible = item.supportsEnchantment(holder);
+            if (!item.supportsEnchantment(holder)) {
+                continue;
+            }
+            boolean compatible = true;
+            for (Object2IntMap.Entry<Holder<Enchantment>> existing : EnchantmentHelper.getEnchantmentsForCrafting(item).entrySet()) {
+                if (!Enchantment.areCompatible(holder, existing.getKey())) {
+                    compatible = false;
+                    break;
+                }
+            }
             if (!compatible) {
                 continue;
             }
-            item.enchant(holder, enchantmentsOnRightLevel);
+            item.enchant(holder, entry.getIntValue());
         }
     }
 
@@ -343,15 +369,13 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
         }
         if (this.level != null) {
             final IdMap<Holder<Enchantment>> idMap = this.level.registryAccess().lookupOrThrow(Registries.ENCHANTMENT).asHolderIdMap();
-            float bookcases = this.getBookShelf(level, getBlockPos());
+            float bookcases = this.getBookShelf(this.level, this.getBlockPos());
             if (this.enchantmentSeed == 0) {
-                this.enchantmentSeed = level.getRandom().nextInt();
+                this.enchantmentSeed = this.level.getRandom().nextInt();
             }
             this.random.setSeed(this.enchantmentSeed);
             for (int ixx = 0; ixx < 3; ixx++) {
                 costs[ixx] = EnchantmentHelper.getEnchantmentCost(this.random, ixx, (int) bookcases, itemStack);
-                enchantClue[ixx] = -1;
-                levelClue[ixx] = -1;
                 if (costs[ixx] < ixx + 1) {
                     costs[ixx] = 0;
                 }
@@ -359,7 +383,7 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
 
             for (int ix = 0; ix < 3; ix++) {
                 if (costs[ix] > 0) {
-                    List<EnchantmentInstance> list = this.getEnchantmentList(level.registryAccess(), itemStack, ix, costs[ix]);
+                    List<EnchantmentInstance> list = this.getEnchantmentList(this.level.registryAccess(), itemStack, ix, costs[ix]);
                     if (!list.isEmpty()) {
                         EnchantmentInstance enchant = list.get(this.random.nextInt(list.size()));
                         enchantClue[ix] = idMap.getId(enchant.enchantment());
@@ -423,6 +447,7 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
     @Override
     protected void loadAdditional(ValueInput input) {
         super.loadAdditional(input);
+        Collections.fill(this.items, ItemStack.EMPTY);
         ContainerHelper.loadAllItems(input, this.items);
         this.fluidHandler.deserialize(input);
         input.getInt("cooldown").ifPresent((cooldown) -> this.cooldown = cooldown);
@@ -449,6 +474,20 @@ public class AutoEnchantingTableBlockEntity extends BaseContainerBlockEntity imp
     public void onChange() {
         this.setChanged();
         if (this.level != null) {
+            if (this.level instanceof ServerLevel serverLevel) {
+                Packet<ClientGamePacketListener> packet = this.getUpdatePacket();
+                if (packet != null) {
+                    serverLevel.getServer().getPlayerList().broadcast(
+                        null,
+                        this.getBlockPos().getX() + 0.5,
+                        this.getBlockPos().getY() + 0.5,
+                        this.getBlockPos().getZ() + 0.5,
+                        64,
+                        serverLevel.dimension(),
+                        packet
+                    );
+                }
+            }
             this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 2);
         }
     }
