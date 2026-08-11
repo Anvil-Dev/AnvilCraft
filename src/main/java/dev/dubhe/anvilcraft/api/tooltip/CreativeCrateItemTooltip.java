@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.api.tooltip;
 import dev.dubhe.anvilcraft.inventory.tooltip.CreativeCrateTooltip;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;

@@ -22,7 +22,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 
 import java.util.function.Consumer;
-
 import javax.annotation.Nullable;
 
 public class CreativeCrateItemRenderer extends BlockEntityWithoutLevelRenderer {

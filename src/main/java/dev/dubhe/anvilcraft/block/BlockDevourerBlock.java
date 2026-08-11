@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakePlayers;
 import dev.dubhe.anvilcraft.api.hammer.HammerRotateBehavior;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.api.item.InfinityItemStackHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.util.AnvilUtil;
@@ -244,7 +245,7 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
         List<ItemStack> dropList = BreakBlockUtil.drop(level, devourBlockPos, miningEffect);
         if (!miningEffect.isDisintegration()) {
             IItemHandler source = level.getCapability(Capabilities.ItemHandler.BLOCK, devourBlockPos, null);
-            boolean skipContentTransfer = source == null;
+            boolean skipContentTransfer = source == null || source instanceof InfinityItemStackHandler;
             for (ItemStack itemStack : dropList) {
                 skipContentTransfer |= ItemHandlerUtil.isEmptyContainer(itemStack);
                 if (insertEnabled) {
