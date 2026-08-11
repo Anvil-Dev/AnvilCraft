@@ -151,7 +151,8 @@ public class RemoteTransmissionPoleBlock
         BlockState topState = level.getBlockState(topPos);
         if (!topState.is(ModBlocks.REMOTE_TRANSMISSION_POLE.get())) return;
         if (topState.getValue(HALF) != Vertical4PartHalf.TOP) return;
-        if ((state.getValue(SWITCH) == IPowerComponent.Switch.ON) == !level.hasNeighborSignal(pos)) return;
+        IPowerComponent.Switch bottom = state.getValue(SWITCH);
+        IPowerComponent.Switch top = topState.getValue(SWITCH);
         if (level.hasNeighborSignal(pos)) {
             state = state.setValue(SWITCH, IPowerComponent.Switch.OFF);
             topState = topState.setValue(SWITCH, IPowerComponent.Switch.OFF);
@@ -159,18 +160,13 @@ public class RemoteTransmissionPoleBlock
             state = state.setValue(SWITCH, IPowerComponent.Switch.ON);
             topState = topState.setValue(SWITCH, IPowerComponent.Switch.ON);
         }
+        if ((bottom == state.getValue(SWITCH)) && (top == topState.getValue(SWITCH))) return;
         level.setBlockAndUpdate(pos, state);
         level.setBlockAndUpdate(topPos, topState);
     }
 
     @Override
     protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
-        if (level.isClientSide) return;
-        if (!level.hasNeighborSignal(pos)) {
-            state = state.setValue(SWITCH, IPowerComponent.Switch.OFF);
-        } else {
-            state = state.setValue(SWITCH, IPowerComponent.Switch.ON);
-        }
         update(state, level, pos);
     }
 

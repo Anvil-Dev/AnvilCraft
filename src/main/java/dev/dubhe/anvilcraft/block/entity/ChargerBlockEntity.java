@@ -253,6 +253,7 @@ public class ChargerBlockEntity extends BlockEntity
         tag.putInt("TimeLeft", timeLeft);
         tag.putInt("TimeTotalCache", timeTotalCache);
         tag.putInt("PowerValue", powerValue);
+        tag.putInt("StartupCoolDown", startupCoolDown);
         tag.put("Depository", itemHandler.serializeNBT(provider));
         tag.putBoolean("FeCharging", isFeCharging);
         tag.putInt("FeCooldown", feCooldown);
@@ -264,6 +265,7 @@ public class ChargerBlockEntity extends BlockEntity
         timeLeft = tag.getInt("TimeLeft");
         timeTotalCache = tag.getInt("TimeTotalCache");
         powerValue = tag.getInt("PowerValue");
+        startupCoolDown = tag.getInt("StartupCoolDown");
         itemHandler.deserializeNBT(provider, tag.getCompound("Depository"));
         isFeCharging = tag.getBoolean("FeCharging");
         feCooldown = tag.getInt("FeCooldown");
@@ -412,6 +414,7 @@ public class ChargerBlockEntity extends BlockEntity
         if (grid == null) return;
         if (timeLeft == 0) {
             moveItemToTransformingSlot();
+            this.setStartupCoolDown(20);
         }
         if (powered) {
             this.setStartupCoolDown(20);
@@ -419,7 +422,6 @@ public class ChargerBlockEntity extends BlockEntity
         }
         if (isFeCharging) {
             powerValue = -(getFeChargingPowerLevel());
-            this.setStartupCoolDown(20);
         }
         if (startupCoolDown > 0) {
             this.startupCoolDown--;
