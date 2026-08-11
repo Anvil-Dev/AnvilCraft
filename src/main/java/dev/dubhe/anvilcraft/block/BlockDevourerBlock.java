@@ -265,15 +265,8 @@ public class BlockDevourerBlock extends DirectionalBlock implements HammerRotate
                 }
             }
             if (!skipContentTransfer) {
-                transferContainerContents(
-                    level,
-                    devourBlockPos,
-                    center,
-                    source,
-                    insertEnabled,
-                    itemHandlerList,
-                    dropOriginalPlace
-                );
+                if (insertEnabled) ItemHandlerUtil.exportContentsToItemHandlers(source, itemHandlerList);
+                if (!dropOriginalPlace) ItemHandlerUtil.dropAllToPos(source, level, center);
             }
         }
         if (level.getBlockEntity(devourBlockPos) instanceof LecternBlockEntity lectern) {
