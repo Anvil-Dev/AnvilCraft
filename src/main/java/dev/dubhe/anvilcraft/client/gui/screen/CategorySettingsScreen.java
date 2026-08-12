@@ -198,6 +198,12 @@ public class CategorySettingsScreen extends Screen {
     }
 
     @Override
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // 仅画透明渐暗背景，跳过默认的高斯模糊（renderBlurredBackground），避免仓储界面背景模糊
+        this.renderTransparentBackground(graphics);
+    }
+
+    @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
         graphics.blit(
@@ -383,22 +389,21 @@ public class CategorySettingsScreen extends Screen {
     }
 
     private void renderInventorySlotHighlightBack(GuiGraphics graphics, int slot, int x, int y, int mouseX, int mouseY) {
+        // 选中边框的底层，画在物品之下
         if (this.selected == slot) {
             graphics.blitSprite(CategorySettingsScreen.SLOT_SELECTED_BACK_SPRITE, x - 4, y - 4, 24, 24);
-        }
-
-        if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
-            AbstractContainerScreen.renderSlotHighlight(graphics, x - 2, y - 2, 0);
         }
     }
 
     private void renderInventorySlotHighlightFront(GuiGraphics graphics, int slot, int x, int y, int mouseX, int mouseY) {
-        if (this.selected == slot) {
-            graphics.blitSprite(CategorySettingsScreen.SLOT_SELECTED_FRONT_SPRITE, x - 4, y - 4, 24, 24);
+        // 悬停高亮画在物品之上
+        boolean hovered = MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17);
+        if (hovered) {
+            AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
         }
-
-        if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
-            AbstractContainerScreen.renderSlotHighlight(graphics, x - 2, y - 2, 0);
+        // 选中边框的前层，抬高 blitOffset 使其覆盖在物品之上
+        if (this.selected == slot) {
+            graphics.blitSprite(CategorySettingsScreen.SLOT_SELECTED_FRONT_SPRITE, x - 4, y - 4, 100, 24, 24);
         }
     }
 

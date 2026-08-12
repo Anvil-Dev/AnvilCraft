@@ -33,5 +33,13 @@ public class CategoryLang {
         provider.add("screen.anvilcraft.storage.category.alternate.removable", "Left click to list, right click to delete this category");
         provider.add("screen.anvilcraft.storage.category.alternate.unremovable", "Left click to list");
         provider.add("screen.anvilcraft.storage.category.setting.title", "Category Setting");
+
+        provider.add("category.anvilcraft.block", "Block Items");
+        provider.add("category.anvilcraft.unstackable", "Unstackable Items");
+        provider.add("category.anvilcraft.food_and_drink", "Foods and Drinks");
+        provider.add("category.anvilcraft.namespace", "%s Items");
+        provider.add("category.anvilcraft.redstone_tab", "Redstone Items");
+        provider.add("category.anvilcraft.enchanted", "Enchanted Items");
+        provider.add("category.anvilcraft.filter", "New Category");
     }
 }

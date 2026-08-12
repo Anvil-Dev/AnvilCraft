@@ -99,11 +99,16 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
             return ItemStack.EMPTY;
         }
         int remainingSpace = this.spaceSize - this.getSpace();
-        if (SpaceSizeItemStacksResourceHandler.computeCount(stack, remainingSpace) < 1) {
+        long fit = SpaceSizeItemStacksResourceHandler.computeCount(stack, remainingSpace);
+        if (fit < 1) {
             return stack;
         }
         if (simulate) {
-            return stack;
+            // 追加新类型时也要正确计算能放多少，否则漏斗/管道会误判「放不下」
+            int amount = (int) Math.min(stack.getCount(), fit);
+            ItemStack leftover = stack.copy();
+            leftover.shrink(amount);
+            return leftover;
         }
         this.stacks.add(UnlimitedItemStack.EMPTY);
         return this.insertItem(this.size() - 1, stack, false);

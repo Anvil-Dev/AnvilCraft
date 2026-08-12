@@ -328,6 +328,12 @@ public class StorageScreen extends Screen {
     }
 
     @Override
+    public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        // 仅画透明渐暗背景，跳过默认的高斯模糊（renderBlurredBackground），避免仓储界面背景模糊
+        this.renderTransparentBackground(graphics);
+    }
+
+    @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
         graphics.blit(
@@ -385,9 +391,6 @@ public class StorageScreen extends Screen {
             int y = this.top + StorageScreen.STORAGE_Y
                 + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
             boolean hovered = MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17);
-            if (hovered) {
-                AbstractContainerScreen.renderSlotHighlight(graphics, x - 2, y - 2, 0);
-            }
 
             int slot = this.displayOrder.getInt(orderIndex);
             UnlimitedItemStack stack = this.getDisplayedStack(slot);
@@ -407,8 +410,9 @@ public class StorageScreen extends Screen {
                 }
             }
 
+            // 悬停高亮画在物品之上
             if (hovered) {
-                AbstractContainerScreen.renderSlotHighlight(graphics, x - 2, y - 2, 0);
+                AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
             }
         }
         this.renderStorageSlider(graphics);
@@ -456,9 +460,6 @@ public class StorageScreen extends Screen {
 
     private void renderInventorySlot(GuiGraphics graphics, Inventory inv, int slot, int x, int y, int mouseX, int mouseY) {
         boolean hovered = MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17);
-        if (hovered) {
-            AbstractContainerScreen.renderSlotHighlight(graphics, x - 2, y - 2, 0);
-        }
 
         ItemStack stack = inv.getItem(slot);
         boolean quickCraftPreview = this.quickCrafting && this.quickCraftSlots.contains(this.getScreenSlot(slot));
@@ -474,8 +475,9 @@ public class StorageScreen extends Screen {
             }
         }
 
+        // 悬停高亮画在物品之上
         if (hovered) {
-            AbstractContainerScreen.renderSlotHighlight(graphics, x - 2, y - 2, 0);
+            AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
         }
     }
 
@@ -533,7 +535,9 @@ public class StorageScreen extends Screen {
         if (capacity == null) {
             return null;
         }
-        if (capacity.typeLimit() != Integer.MAX_VALUE) {
+        // 有类型上限（潜影集装箱）或无限空间（超维存储站）时显示类型数；
+        // 有限空间的板条箱按空间显示
+        if (capacity.typeLimit() != Integer.MAX_VALUE || capacity.spaceSize() == Integer.MAX_VALUE) {
             return Component.translatable("screen.anvilcraft.storage.capacity.types", capacity.typeCount(), capacity.typeLimit());
         }
         return Component.translatable("screen.anvilcraft.storage.capacity.space", capacity.space(), capacity.spaceSize());
@@ -1558,6 +1562,10 @@ public class StorageScreen extends Screen {
             return;
         }
 
+        // 抬高 z 使耐久条与数量数字绘制在物品图标之上
+        graphics.pose().pushPose();
+        graphics.pose().translate(0, 0, 300);
+
         // 耐久条
         if (stack.isBarVisible()) {
             int left = x + 2;
@@ -1571,6 +1579,8 @@ public class StorageScreen extends Screen {
             .withStyle(style -> style.withFont(StorageScreen.SMALL_FONT));
         int color = count == 0 ? 0xFFFFAA00 : -1;
         graphics.drawString(minecraft.font, amount, x + 17 - minecraft.font.width(amount), y + 9, color, true);
+
+        graphics.pose().popPose();
 
         ItemDecoratorHandler.of(stack).render(graphics, minecraft.font, stack, x, y);
     }

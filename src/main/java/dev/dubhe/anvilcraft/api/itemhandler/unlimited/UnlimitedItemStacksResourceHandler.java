@@ -193,15 +193,18 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler, INBTSer
         return Integer.MAX_VALUE;
     }
 
+    /**
+     * 无限空间存储的饱满度：按「已用类型数 / 类型上限」计算。
+     *
+     * <p>不能按 count/maxStack 累加——无限空间下空间占用率恒为 0，而低堆叠上限物品
+     * （如雪球 maxStack 16）多槽累加会超过 1，导致容量条溢出。</p>
+     */
     public double getFullness() {
-        double fullness = 0.0;
-        for (UnlimitedItemStack stack : this.stacks) {
-            if (stack.isEmpty()) {
-                continue;
-            }
-            fullness += (double) stack.getCount() / stack.getMaxStackSize();
+        int typeLimit = this.getTypeLimit();
+        if (typeLimit == Integer.MAX_VALUE) {
+            return 0.0;
         }
-        return fullness;
+        return (double) this.getTypeCount() / typeLimit;
     }
 
     public void sync(UnlimitedItemStacksResourceHandler items) {

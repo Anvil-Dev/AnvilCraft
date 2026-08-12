@@ -4,6 +4,6 @@
     "count": 1,
     "id": "minecraft:grass_block"
   },
-  "name": "{\"translate\":\"category.anvilcraft.namespace\",\"with\":[\"minecraft\"]}",
+  "name": "{\"translate\":\"category.anvilcraft.namespace\",\"with\":[\"Minecraft\"]}",
   "namespace": "minecraft"
 }

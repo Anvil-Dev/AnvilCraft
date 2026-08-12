@@ -119,12 +119,8 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
         if (newIndex < 0) {
             return stack;
         }
-        if (newIndex == this.size()) {
-            if (simulate) {
-                return stack;
-            }
-            this.stacks.add(UnlimitedItemStack.EMPTY);
-        }
+        // 追加新类型时直接委托 slot 版本（含 simulate 试探的正确计算），
+        // 否则 simulate=true 时漏斗/管道会误判「放不下」而无法插入
         return this.insertItem(newIndex, stack, simulate);
     }
 

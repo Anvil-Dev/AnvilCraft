@@ -17,9 +17,22 @@ public record NamespaceCategory(ItemStack icon, Component name, String namespace
     public NamespaceCategory(ItemLike icon, String namespace) {
         this(
             new ItemStack(icon.asItem()),
-            Component.translatable("category.anvilcraft.namespace", namespace),
+            Component.translatable("category.anvilcraft.namespace", NamespaceCategory.modDisplayName(namespace)),
             namespace
         );
+    }
+
+    /// 优先取模组显示名（大小写正确，如 Minecraft/AnvilCraft），找不到时退化用原始命名空间 id
+    private static String modDisplayName(String namespace) {
+        String key = "component_content.anvilcraft.mod_name." + namespace;
+        Component translated = Component.translatable(key);
+        if (!translated.getString().equals(key)) {
+            return translated.getString();
+        }
+        return net.neoforged.fml.ModList.get()
+            .getModContainerById(namespace)
+            .map(container -> container.getModInfo().getDisplayName())
+            .orElse(namespace);
     }
 
     @Override

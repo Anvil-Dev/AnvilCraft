@@ -385,8 +385,9 @@ public final class StorageServerStub {
             }
             BlockPos pos = BlockPos.of(sourcePos);
             BlockEntity blockEntity = player.level().getBlockEntity(pos);
+            // 不强制要求 storage.getId() 非 null：首次访问时 getView 会惰性生成 id 并持久化，
+            // 若这里拒绝会导致潜影集装箱等（放置时组件应用路径不同的多方块）永远无法存取。
             return blockEntity instanceof StorageBlockEntity storage
-                   && storage.getId() != null
                    && AbstractContainerMenu.stillValid(
                 ContainerLevelAccess.create(player.level(), pos),
                 player,
