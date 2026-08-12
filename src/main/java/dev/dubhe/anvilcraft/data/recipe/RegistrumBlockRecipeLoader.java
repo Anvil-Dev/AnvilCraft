@@ -100,6 +100,18 @@ public class RegistrumBlockRecipeLoader {
         ).unlocks("hasitem", AnvilCraftDatagen.has(ModBlocks.FROST_METAL_BLOCK)).save(provider, AnvilCraft.of("smithing/frost_grindstone"));
     }
 
+    public static <T extends Block> void autoEnchantingTable(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("III")
+            .pattern("IEI")
+            .pattern("III")
+            .define('I', Items.IRON_INGOT)
+            .define('E', Blocks.ENCHANTING_TABLE)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Blocks.ENCHANTING_TABLE), AnvilCraftDatagen.has(Blocks.ENCHANTING_TABLE))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Items.IRON_INGOT))
+            .save(provider);
+    }
+
     public static <T extends Block> void frostSmithingTable(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         SmithingTransformRecipeBuilder.smithing(
                 Ingredient.of(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE),

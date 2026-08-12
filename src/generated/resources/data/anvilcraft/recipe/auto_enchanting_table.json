@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": {
+      "item": "minecraft:enchanting_table"
+    },
+    "I": {
+      "item": "minecraft:iron_ingot"
+    }
+  },
+  "pattern": [
+    "III",
+    "IEI",
+    "III"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:auto_enchanting_table"
+  }
+}

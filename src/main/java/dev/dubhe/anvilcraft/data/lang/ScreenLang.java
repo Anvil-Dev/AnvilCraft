@@ -54,6 +54,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.ember_grindstone.title", "Extract enchantment");
         provider.add("screen.anvilcraft.ember_grindstone.cost", "Exp. Cost: %d");
         provider.add("screen.anvilcraft.frost_grindstone.title", "Disenchant");
+        provider.add("screen.anvilcraft.auto_enchanting_table.title", "Auto Enchant");
         provider.add("screen.anvilcraft.ember_grindstone.earn", "Exp. Earn: %d");
         provider.add("screen.anvilcraft.transcendence_grindstone.title", "Transcendence Grindstone");
         provider.add("screen.anvilcraft.transcendence_grindstone.penalty", "Penalty: %1$s / %2$s");

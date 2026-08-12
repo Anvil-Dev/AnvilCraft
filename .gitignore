@@ -126,4 +126,5 @@ runs/
 .claude/
 ref/
 /AGENT.md
+.port-ref/
 /.vscode

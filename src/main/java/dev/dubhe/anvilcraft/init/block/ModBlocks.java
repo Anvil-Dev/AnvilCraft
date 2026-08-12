@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.block.ActiveSilencerBlock;
 import dev.dubhe.anvilcraft.block.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.block.AmberBlock;
 import dev.dubhe.anvilcraft.block.ArrowBlock;
+import dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock;
 import dev.dubhe.anvilcraft.block.BerryCakeBlock;
 import dev.dubhe.anvilcraft.block.BerryCreamBlock;
 import dev.dubhe.anvilcraft.block.BlackHoleBlock;
@@ -662,6 +663,16 @@ public class ModBlocks {
         )
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(properties -> properties.lightLevel(state -> 9).noOcclusion().emissiveRendering(ModBlocks::always))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .simpleItem()
+        .register();
+
+    public static final BlockEntry<AutoEnchantingTableBlock> AUTO_ENCHANTING_TABLE = REGISTRUM
+        .block("auto_enchanting_table", AutoEnchantingTableBlock::new)
+        .recipe(RegistrumBlockRecipeLoader::autoEnchantingTable)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .initialProperties(() -> Blocks.ENCHANTING_TABLE)
+        .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .simpleItem()
         .register();

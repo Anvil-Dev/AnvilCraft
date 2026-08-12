@@ -62,6 +62,13 @@ public class CapabilitiesEventListener {
             (be, side) -> be.getItemHandler()
         );
 
+        // 自动附魔台：引物格不允许自动输入输出
+        event.registerBlockEntity(
+            Capabilities.ItemHandler.BLOCK,
+            ModBlockEntities.AUTO_ENCHANTING_TABLE.get(),
+            (be, side) -> be.getAutomationHandler()
+        );
+
         event.registerBlockEntity(
             Capabilities.ItemHandler.BLOCK,
             ModBlockEntities.LARGE_CAULDRON.get(),
@@ -75,6 +82,7 @@ public class CapabilitiesEventListener {
         );
 
         List.of(
+            ModBlockEntities.AUTO_ENCHANTING_TABLE.get(),
             ModBlockEntities.FISH_TANK.get(),
             ModBlockEntities.EXP_COLLECTOR.get(),
             ModBlockEntities.FLUID_TANK.get(),

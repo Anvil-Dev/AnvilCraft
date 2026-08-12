@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.entity.AccelerationRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ActivatorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ActiveSilencerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BlackHoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
@@ -137,6 +138,11 @@ public class ModBlockEntities {
         "item_detector",
         ItemDetectorBlockEntity::createBlockEntity
     ).validBlock(ModBlocks.ITEM_DETECTOR).register();
+
+    public static final BlockEntityEntry<AutoEnchantingTableBlockEntity> AUTO_ENCHANTING_TABLE = REGISTRUM.blockEntity(
+        "auto_enchanting_table",
+        AutoEnchantingTableBlockEntity::createBlockEntity
+    ).validBlock(ModBlocks.AUTO_ENCHANTING_TABLE).register();
 
     public static final BlockEntityEntry<ChuteBlockEntity> CHUTE = REGISTRUM.blockEntity("chute", ChuteBlockEntity::createBlockEntity)
         .onRegister(ChuteBlockEntity::onBlockEntityRegister)
