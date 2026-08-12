@@ -19,7 +19,7 @@ public class ModParticleDescriptionProvider extends ParticleDescriptionProvider 
         spriteSet(ModParticles.ANVILON_MASS.get(), AnvilCraft.of("anvilon_mass"));
         spriteSet(ModParticles.ANVILON_SPACE.get(), AnvilCraft.of("anvilon_space"));
         spriteSet(ModParticles.ANVILON_TIME.get(), AnvilCraft.of("anvilon_time"));
-        spriteSet(ModParticles.IONOCRAFT_BACKPACK_EXHAUST.get(), AnvilCraft.of("anvilon_space"));
+        spriteSet(ModParticles.IONOCRAFT_BACKPACK_EXHAUST.get(), AnvilCraft.of("anvilon_air"));
         spriteSet(ModParticles.OVERSEER_TRAIL.get(), ResourceLocation.withDefaultNamespace("generic"), 8, true);
     }
 }
