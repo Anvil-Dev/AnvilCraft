@@ -8,9 +8,13 @@ import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SearchMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
 import io.netty.buffer.ByteBuf;
+import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 
+@Getter
+@Setter
 public class StorageSetting {
     public static final MapCodec<StorageSetting> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         Codec.STRING
@@ -60,43 +64,4 @@ public class StorageSetting {
         this.nbtDisplay = nbtDisplay;
     }
 
-    public String getSearchContent() {
-        return this.searchContent;
-    }
-
-    public void setSearchContent(String searchContent) {
-        this.searchContent = searchContent;
-    }
-
-    public SearchMode getSearch() {
-        return this.search;
-    }
-
-    public void setSearch(SearchMode search) {
-        this.search = search;
-    }
-
-    public SortMode getSort() {
-        return this.sort;
-    }
-
-    public void setSort(SortMode sort) {
-        this.sort = sort;
-    }
-
-    public OrderMode getOrder() {
-        return this.order;
-    }
-
-    public void setOrder(OrderMode order) {
-        this.order = order;
-    }
-
-    public NbtDisplayMode getNbtDisplay() {
-        return this.nbtDisplay;
-    }
-
-    public void setNbtDisplay(NbtDisplayMode nbtDisplay) {
-        this.nbtDisplay = nbtDisplay;
-    }
 }

@@ -22,14 +22,15 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import javax.annotation.Nullable;
 
 public final class SettingClientStub {
-    private static CompletableFuture<PlayerSetting> pendingLoad;
-    private static UUID pendingPlayerId;
-    private static PlayerSetting cachedSetting;
-    private static UUID cachedPlayerId;
-    private static PlayerSetting fallbackSetting;
-    private static UUID fallbackPlayerId;
+    private static @Nullable CompletableFuture<PlayerSetting> pendingLoad;
+    private static @Nullable UUID pendingPlayerId;
+    private static @Nullable PlayerSetting cachedSetting;
+    private static @Nullable UUID cachedPlayerId;
+    private static @Nullable PlayerSetting fallbackSetting;
+    private static @Nullable UUID fallbackPlayerId;
 
     public static CompletableFuture<PlayerSetting> load() {
         UUID playerId = SettingClientStub.playerId();
@@ -164,7 +165,7 @@ public final class SettingClientStub {
         }
     }
 
-    private static synchronized PlayerSetting cachedSetting(UUID playerId) {
+    private static synchronized @Nullable PlayerSetting cachedSetting(UUID playerId) {
         if (playerId.equals(SettingClientStub.cachedPlayerId)) {
             return SettingClientStub.cachedSetting;
         }
@@ -175,7 +176,7 @@ public final class SettingClientStub {
         return setting;
     }
 
-    private static void cache(UUID playerId, PlayerSetting setting) {
+    private static void cache(UUID playerId, @Nullable PlayerSetting setting) {
         SettingClientStub.cachedPlayerId = playerId;
         SettingClientStub.cachedSetting = setting;
     }

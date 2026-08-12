@@ -19,13 +19,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 @Getter
 public class Storages extends SavedData {
     public static final ResourceLocation ID = AnvilCraft.of("storages");
     public static final SavedData.Factory<Storages> TYPE = new SavedData.Factory<>(Storages::new, Storages::load);
     public static final Storages CLIENT_COPY = new Storages();
-    private static Storages loading;
+    private static @Nullable Storages loading;
     private final Map<UUID, BaseStorage<?>> storages = new HashMap<>();
     private final RecoverStation<BaseStorage<?>> recover;
 

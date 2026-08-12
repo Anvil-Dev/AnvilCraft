@@ -67,7 +67,6 @@ public class RecoverStation<T> implements INBTSerializable<CompoundTag> {
         this.entries.clear();
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public CompoundTag serializeNBT(HolderLookup.Provider provider) {
         ListTag list = new ListTag();

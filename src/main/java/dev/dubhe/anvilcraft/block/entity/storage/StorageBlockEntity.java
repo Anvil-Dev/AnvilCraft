@@ -21,11 +21,12 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 @Getter
 public class StorageBlockEntity extends BlockEntity {
     private final StorageType storageType;
-    private UUID id;
+    private @Nullable UUID id;
 
     public StorageBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, StorageType storageType) {
         super(type, pos, state);

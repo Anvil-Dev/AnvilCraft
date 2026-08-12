@@ -5,19 +5,16 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.saved.BetterSavedData;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
-import javax.annotation.Nullable;
 
 @Getter
 public class PlayerSettings extends BetterSavedData {
@@ -66,9 +63,4 @@ public class PlayerSettings extends BetterSavedData {
         return nbt;
     }
 
-    @SuppressWarnings("DataFlowIssue")
-    @Override
-    protected @Nullable Packet<? extends CustomPacketPayload> createPacket(RegistryAccess registryAccess) {
-        return null;
-    }
 }

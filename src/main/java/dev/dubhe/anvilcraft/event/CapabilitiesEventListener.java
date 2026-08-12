@@ -74,7 +74,7 @@ public class CapabilitiesEventListener {
         event.registerBlockEntity(
             Capabilities.ItemHandler.BLOCK,
             ModBlockEntities.CRATE.get(),
-            (be, side) -> CapabilitiesEventListener.storageItemHandler(be, side)
+            CapabilitiesEventListener::storageItemHandler
         );
 
         event.registerBlock(

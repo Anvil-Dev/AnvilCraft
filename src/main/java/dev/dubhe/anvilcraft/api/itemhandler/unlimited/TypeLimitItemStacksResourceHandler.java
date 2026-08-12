@@ -62,7 +62,7 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
                 return stack;
             }
             long capacity = TypeLimitItemStacksResourceHandler.computeCount(stack, this.spaceSize);
-            int amount = (int) Math.min(stack.getCount(), Math.max(0, capacity));
+            int amount = (int) Math.clamp(capacity, 0, stack.getCount());
             if (amount <= 0) {
                 return stack;
             }
@@ -91,7 +91,7 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
                 currentForType += item.getCount();
             }
         }
-        int amount = (int) Math.min(stack.getCount(), Math.max(0, capacity - currentForType));
+        int amount = (int) Math.clamp(capacity - currentForType, 0, stack.getCount());
         if (amount <= 0) {
             return stack;
         }

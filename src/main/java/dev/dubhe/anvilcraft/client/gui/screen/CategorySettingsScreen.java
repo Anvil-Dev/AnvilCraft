@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.TreeSet;
+import javax.annotation.Nullable;
 
 public class CategorySettingsScreen extends Screen {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("misc", "storage_station_category_setting");
@@ -46,11 +47,11 @@ public class CategorySettingsScreen extends Screen {
     private static final int BG_WIDTH = 300;
     private static final int BG_HEIGHT = 222;
     private final BlockPos sourcePos;
-    private Player player;
-    private Registry<ICategory> registry;
+    private @Nullable Player player;
+    private @Nullable Registry<ICategory> registry;
     private PlayerSetting draftSetting;
     private final TreeSet<ICategory> alternates = new TreeSet<>(this::compareCategories);
-    private TexturedButton addCategory;
+    private @Nullable TexturedButton addCategory;
     private int selected = -1;
     private int left = 0;
     private int top = 0;
@@ -110,7 +111,7 @@ public class CategorySettingsScreen extends Screen {
     @Override
     protected void init() {
         // minecraft 字段在 Screen.init(Minecraft,...) 之后才可用，故在此延迟初始化
-        Minecraft minecraft = this.minecraft;
+        Minecraft minecraft = Objects.requireNonNull(this.minecraft);
         this.player = Objects.requireNonNull(minecraft.player);
         this.registry = Objects.requireNonNull(minecraft.getConnection())
             .registryAccess()
@@ -136,7 +137,7 @@ public class CategorySettingsScreen extends Screen {
             40,
             button -> {
                 if (this.selected == -1) return;
-                ItemStack filter = this.player.getInventory().getItem(this.selected);
+                ItemStack filter = Objects.requireNonNull(this.player).getInventory().getItem(this.selected);
                 if (!filter.has(ModComponents.FILTER_CONTENT)) return;
                 FilterCategory category = FilterCategory.from(filter);
                 if (this.draftSetting.custom().contains(category)) return;
@@ -171,7 +172,7 @@ public class CategorySettingsScreen extends Screen {
 
     public void rebuild() {
         this.alternates.clear();
-        for (ICategory next : this.registry) {
+        for (ICategory next : Objects.requireNonNull(this.registry)) {
             boolean contains = false;
             for (CategoryEntry entry : this.draftSetting.listed()) {
                 if (entry.getCategory().equals(next)) {
@@ -355,7 +356,7 @@ public class CategorySettingsScreen extends Screen {
     }
 
     private void renderPlayerInventory(GuiGraphics graphics, int mouseX, int mouseY) {
-        Inventory inv = this.player.getInventory();
+        Inventory inv = Objects.requireNonNull(this.player).getInventory();
 
         int y = this.top + 140 + 58;
         for (int column = 0; column < 9; column++) {
@@ -415,7 +416,7 @@ public class CategorySettingsScreen extends Screen {
                     Component.translatable("screen.anvilcraft.storage.category.add")
                         .withStyle(ChatFormatting.GRAY)
                 ),
-                Optional.<net.minecraft.world.inventory.tooltip.TooltipComponent>empty(),
+                Optional.empty(),
                 mouseX,
                 mouseY
             );
@@ -442,7 +443,7 @@ public class CategorySettingsScreen extends Screen {
                     "screen.anvilcraft.storage.category.tooltip"
                 ).withStyle(ChatFormatting.GRAY)
             ),
-            Optional.<net.minecraft.world.inventory.tooltip.TooltipComponent>empty(),
+            Optional.empty(),
             mouseX,
             mouseY
         );
@@ -467,7 +468,7 @@ public class CategorySettingsScreen extends Screen {
                     "screen.anvilcraft.storage.category.alternate." + (this.isCustom(category) ? "removable" : "unremovable")
                 ).withStyle(ChatFormatting.GRAY)
             ),
-            Optional.<net.minecraft.world.inventory.tooltip.TooltipComponent>empty(),
+            Optional.empty(),
             mouseX,
             mouseY
         );
@@ -634,7 +635,8 @@ public class CategorySettingsScreen extends Screen {
     }
 
     protected boolean insideAddCategoryButton(double mouseX, double mouseY) {
-        if (this.addCategory == null || !this.addCategory.active) return false;
+        TexturedButton addCategory = this.addCategory;
+        if (addCategory == null || !addCategory.active) return false;
         int left = this.left + 113;
         int top = this.top + 7;
         int right = left + 86;
@@ -684,8 +686,9 @@ public class CategorySettingsScreen extends Screen {
     }
 
     protected int compareCategories(ICategory a, ICategory b) {
-        ResourceLocation keyA = this.registry.getKeyOrNull(a);
-        ResourceLocation keyB = this.registry.getKeyOrNull(b);
+        Registry<ICategory> registry = Objects.requireNonNull(this.registry);
+        ResourceLocation keyA = registry.getKeyOrNull(a);
+        ResourceLocation keyB = registry.getKeyOrNull(b);
         if (keyA != null && keyB != null) {
             return keyA.compareTo(keyB);
         } else if (keyA == null && keyB != null) {
@@ -697,7 +700,7 @@ public class CategorySettingsScreen extends Screen {
     }
 
     protected boolean isCustom(ICategory category) {
-        return !this.registry.containsValue(category);
+        return !Objects.requireNonNull(this.registry).containsValue(category);
     }
 
     @Override
@@ -720,6 +723,6 @@ public class CategorySettingsScreen extends Screen {
     }
 
     private void openStorageScreen() {
-        this.minecraft.setScreen(new StorageScreen(this.sourcePos));
+        Objects.requireNonNull(this.minecraft).setScreen(new StorageScreen(this.sourcePos));
     }
 }

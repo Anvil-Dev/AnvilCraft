@@ -84,7 +84,6 @@ import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.gui.builder.IClickableIngredientFactory;
 import mezz.jei.api.gui.handlers.IGlobalGuiHandler;
 import mezz.jei.api.gui.handlers.IGuiProperties;
-import mezz.jei.api.gui.handlers.IScreenHandler;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.RecipeType;
@@ -318,8 +317,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public void registerGuiHandlers(IGuiHandlerRegistration registration) {
         registration.addGuiScreenHandler(
             StorageScreen.class,
-            (IScreenHandler<StorageScreen>) screen ->
-                screen.width > 0 && screen.height > 0 ? new IGuiProperties() {
+            screen -> screen.width > 0 && screen.height > 0 ? new IGuiProperties() {
                     @Override
                     public Class<? extends Screen> screenClass() {
                         return StorageScreen.class;

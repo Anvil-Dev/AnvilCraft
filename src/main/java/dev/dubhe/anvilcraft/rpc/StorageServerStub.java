@@ -66,7 +66,6 @@ public final class StorageServerStub {
     public static final StreamCodec<ByteBuf, IntList> ORDER_STREAM_CODEC = ByteBufCodecs.VAR_INT
         .apply(ByteBufCodecs.list())
         .map(IntArrayList::new, Function.identity());
-    @SuppressWarnings("NullableProblems") // IDEA issue, will be unnecessary in sometime
     private static final Multimap<UUID, StorageServerStub> STUBS = ArrayListMultimap.create();
 
     private final UUID storageId;
@@ -162,7 +161,7 @@ public final class StorageServerStub {
             changed = StorageServerStub.moveStorageStackToInventory(player, view, slot);
         } else if (!carried.isEmpty()) {
             int amount = button == 0 ? carried.getCount() : 1;
-            int inserted = view.insert(carried.copyWithCount(1), amount, false);
+            int inserted = view.insert(carried.copyWithCount(1), amount);
             if (inserted > 0) {
                 carried.shrink(inserted);
                 changed = true;
@@ -172,7 +171,7 @@ public final class StorageServerStub {
             int count = view.amount(slot);
             int maxPickup = Math.min(itemStack.getMaxStackSize(), count);
             int amount = button == 0 ? maxPickup : Math.ceilDiv(maxPickup, 2);
-            int extracted = view.extract(slot, amount, false);
+            int extracted = view.extract(slot, amount);
             if (extracted > 0) {
                 carried = itemStack.copyWithCount(extracted);
                 player.inventoryMenu.setCarried(carried);
@@ -196,7 +195,7 @@ public final class StorageServerStub {
             if (stack.isEmpty() || !all && !StorageServerStub.matchesStorageItem(view, stack)) {
                 continue;
             }
-            int inserted = view.insert(stack.copyWithCount(1), stack.getCount(), false);
+            int inserted = view.insert(stack.copyWithCount(1), stack.getCount());
             if (inserted > 0) {
                 stack.shrink(inserted);
                 changed = true;
@@ -231,7 +230,7 @@ public final class StorageServerStub {
                 ) {
                     continue;
                 }
-                int extracted = view.extract(index, amount, false);
+                int extracted = view.extract(index, amount);
                 if (extracted > 0) {
                     stack.grow(extracted);
                     amount -= extracted;
@@ -268,7 +267,7 @@ public final class StorageServerStub {
         if (stack.isEmpty()) {
             return false;
         }
-        int inserted = view.insert(stack.copyWithCount(1), stack.getCount(), false);
+        int inserted = view.insert(stack.copyWithCount(1), stack.getCount());
         if (inserted <= 0) {
             return false;
         }
@@ -292,7 +291,7 @@ public final class StorageServerStub {
         if (amount <= 0) {
             return false;
         }
-        int extracted = view.extract(slot, amount, false);
+        int extracted = view.extract(slot, amount);
         if (extracted <= 0) {
             return false;
         }
@@ -331,7 +330,7 @@ public final class StorageServerStub {
         int stackCount = stack.getMaxStackSize();
         long requested = button == 0 ? 1 : (long) stackCount * (button == 1 ? 1 : 9);
         int amount = Math.min(view.amount(slot), Math.toIntExact(requested));
-        int extracted = view.extract(slot, amount, false);
+        int extracted = view.extract(slot, amount);
         if (extracted <= 0) {
             return false;
         }
@@ -723,19 +722,19 @@ public final class StorageServerStub {
             return new Capacity(space, spaceSize, items.getTypeCount(), items.getTypeLimit());
         }
 
-        int insert(ItemStack resource, int amount, boolean simulate) {
+        int insert(ItemStack resource, int amount) {
             int inserted = 0;
             for (int i = 0; i < this.storages.size() - 1; i++) {
                 UnlimitedItemStacksResourceHandler items = this.storages.get(i).getItems();
                 if (!contains(items, resource)) continue;
-                inserted += insertInto(items, resource.copyWithCount(amount - inserted), simulate);
+                inserted += insertInto(items, resource.copyWithCount(amount - inserted));
                 if (inserted == amount) return inserted;
             }
             UnlimitedItemStacksResourceHandler primaryItems = this.primary().getItems();
-            inserted += insertInto(primaryItems, resource.copyWithCount(amount - inserted), simulate);
+            inserted += insertInto(primaryItems, resource.copyWithCount(amount - inserted));
             if (inserted == amount) return inserted;
             for (int i = 0; i < this.storages.size() - 1; i++) {
-                inserted += insertInto(this.storages.get(i).getItems(), resource.copyWithCount(amount - inserted), simulate);
+                inserted += insertInto(this.storages.get(i).getItems(), resource.copyWithCount(amount - inserted));
                 if (inserted == amount) return inserted;
             }
             return inserted;
@@ -748,14 +747,14 @@ public final class StorageServerStub {
             return false;
         }
 
-        int extract(int index, int amount, boolean simulate) {
+        int extract(int index, int amount) {
             Entry e = this.entries.get(index);
-            return this.storages.get(e.storageIndex).getItems().extractUnlimited(e.slot, amount, simulate).getCount();
+            return this.storages.get(e.storageIndex).getItems().extractUnlimited(e.slot, amount, false).getCount();
         }
 
-        private static int insertInto(UnlimitedItemStacksResourceHandler items, ItemStack stack, boolean simulate) {
+        private static int insertInto(UnlimitedItemStacksResourceHandler items, ItemStack stack) {
             if (stack.isEmpty()) return 0;
-            ItemStack leftover = items.insertItem(stack, simulate);
+            ItemStack leftover = items.insertItem(stack, false);
             return stack.getCount() - leftover.getCount();
         }
 

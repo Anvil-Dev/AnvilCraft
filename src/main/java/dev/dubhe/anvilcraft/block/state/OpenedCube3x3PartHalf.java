@@ -7,6 +7,7 @@ import net.minecraft.world.level.block.Rotation;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 @Getter
 public enum OpenedCube3x3PartHalf implements IFlexibleMultiPartBlockState<OpenedCube3x3PartHalf, Boolean>,
@@ -43,11 +44,11 @@ public enum OpenedCube3x3PartHalf implements IFlexibleMultiPartBlockState<Opened
     private final int offsetX;
     private final int offsetY;
     private final int offsetZ;
-    private OpenedCube3x3PartHalf clockwise90;
-    private OpenedCube3x3PartHalf clockwise180;
-    private OpenedCube3x3PartHalf clockwise270;
-    private OpenedCube3x3PartHalf mirrorX;
-    private OpenedCube3x3PartHalf mirrorZ;
+    private @Nullable OpenedCube3x3PartHalf clockwise90;
+    private @Nullable OpenedCube3x3PartHalf clockwise180;
+    private @Nullable OpenedCube3x3PartHalf clockwise270;
+    private @Nullable OpenedCube3x3PartHalf mirrorX;
+    private @Nullable OpenedCube3x3PartHalf mirrorZ;
 
     @Nullable
     public static OpenedCube3x3PartHalf findByOffset(int offsetX, int offsetY, int offsetZ) {
@@ -91,17 +92,17 @@ public enum OpenedCube3x3PartHalf implements IFlexibleMultiPartBlockState<Opened
     public OpenedCube3x3PartHalf rotate(Rotation rotation) {
         return switch (rotation) {
             case NONE -> this;
-            case CLOCKWISE_90 -> this.clockwise90;
-            case CLOCKWISE_180 -> this.clockwise180;
-            case COUNTERCLOCKWISE_90 -> this.clockwise270;
+            case CLOCKWISE_90 -> Objects.requireNonNull(this.clockwise90);
+            case CLOCKWISE_180 -> Objects.requireNonNull(this.clockwise180);
+            case COUNTERCLOCKWISE_90 -> Objects.requireNonNull(this.clockwise270);
         };
     }
 
     public OpenedCube3x3PartHalf mirror(Mirror mirror) {
         return switch (mirror) {
             case NONE -> this;
-            case LEFT_RIGHT -> this.mirrorZ;
-            case FRONT_BACK -> this.mirrorX;
+            case LEFT_RIGHT -> Objects.requireNonNull(this.mirrorZ);
+            case FRONT_BACK -> Objects.requireNonNull(this.mirrorX);
         };
     }
 
