@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.config.BoundedDiscrete;
 import dev.anvilcraft.lib.v2.config.CollapsibleObject;
 import dev.anvilcraft.lib.v2.config.Comment;
 import dev.anvilcraft.lib.v2.config.Config;
+import dev.anvilcraft.lib.v2.config.util.TranslatableEnum;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.neoforged.fml.config.ModConfig;
 
@@ -26,6 +27,10 @@ public class AnvilCraftClientConfig {
 
     @Comment("Do not render power component tooltip when jade present")
     public boolean doNotShowTooltipWhenJadePresent = false;
+
+    @SerializedName("Show Storage Stored ID")
+    @Comment("Add a tooltip line that shows storage stored ID")
+    public boolean showStorageStoredId = false;
 
     @Comment("Enable ground heave shockwave particles and sound when giant anvil triggers shock mechanism")
     public boolean groundHeaveParticlesEnabled = true;
@@ -108,7 +113,7 @@ public class AnvilCraftClientConfig {
         public int hudY = 8;
     }
 
-    public enum GoggleMode {
+    public enum GoggleMode implements TranslatableEnum {
         @SerializedName("Always Show")
         ALWAYS_SHOW,
         @SerializedName("When Wearing Hammer")
