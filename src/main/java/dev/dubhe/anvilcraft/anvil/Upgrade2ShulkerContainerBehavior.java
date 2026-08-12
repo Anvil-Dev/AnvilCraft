@@ -82,9 +82,9 @@ public class Upgrade2ShulkerContainerBehavior implements IAnvilBehavior {
 
         BlockPos mainPart = ModBlocks.LARGE_CRATE.get().getMainPartPos(hitBlockPos, hitBlockState);
         BlockEntity blockEntity = serverLevel.getBlockEntity(mainPart);
-        Optional<LargeCrateBlockEntity> beOp = blockEntity instanceof LargeCrateBlockEntity largeCrate
-            ? Optional.of(largeCrate)
-            : Optional.empty();
+        if (!(blockEntity instanceof LargeCrateBlockEntity be)) {
+            return true;
+        }
 
         for (Cube3x3PartHalf half : Cube3x3PartHalf.values()) {
             serverLevel.setBlock(mainPart.offset(half.getOffset()), Blocks.AIR.defaultBlockState(), Block.UPDATE_NONE);
@@ -97,11 +97,6 @@ public class Upgrade2ShulkerContainerBehavior implements IAnvilBehavior {
         );
         BlockState placedState = serverLevel.getBlockState(mainPart);
         placedState.getBlock().setPlacedBy(serverLevel, mainPart, placedState, null, ItemStack.EMPTY);
-
-        if (beOp.isEmpty()) {
-            return true;
-        }
-        LargeCrateBlockEntity be = beOp.get();
         if (be.getId() == null) {
             return true;
         }

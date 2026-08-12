@@ -60,6 +60,18 @@ public class Storages extends SavedData {
         return storage.computeIfAbsent(Storages.TYPE, "storages");
     }
 
+    public Optional<BaseStorage<?>> get(UUID id) {
+        return Optional.ofNullable(this.storages.get(id));
+    }
+
+    public <T extends BaseStorage<?>> Optional<T> get(UUID id, Class<T> clazz) {
+        BaseStorage<?> storage = this.storages.get(id);
+        if (clazz.isInstance(storage)) {
+            return Optional.of(clazz.cast(storage));
+        }
+        return Optional.empty();
+    }
+
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
         CompoundTag storagesTag = new CompoundTag();
@@ -96,18 +108,6 @@ public class Storages extends SavedData {
         } finally {
             Storages.loading = previous;
         }
-    }
-
-    public Optional<BaseStorage<?>> get(UUID id) {
-        return Optional.ofNullable(this.storages.get(id));
-    }
-
-    public <T extends BaseStorage<?>> Optional<T> get(UUID id, Class<T> clazz) {
-        BaseStorage<?> storage = this.storages.get(id);
-        if (clazz.isInstance(storage)) {
-            return Optional.of(clazz.cast(storage));
-        }
-        return Optional.empty();
     }
 
     public void put(BaseStorage<?> storage) {

@@ -105,6 +105,21 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler, INBTSer
         return ItemStack.EMPTY;
     }
 
+    /**
+     * 尝试把物品堆插入到任意匹配或空槽位中，返回未能插入的剩余物品堆。
+     */
+    public ItemStack insertItem(ItemStack stack, boolean simulate) {
+        if (stack.isEmpty()) return ItemStack.EMPTY;
+        for (int slot = 0; slot < this.size(); slot++) {
+            UnlimitedItemStack existing = this.stacks.get(slot);
+            if (existing.isEmpty() || existing.isSameItemSameComponents(stack)) {
+                stack = this.insertItem(slot, stack, simulate);
+                if (stack.isEmpty()) return ItemStack.EMPTY;
+            }
+        }
+        return stack;
+    }
+
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
         if (amount <= 0) return ItemStack.EMPTY;
@@ -129,21 +144,6 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler, INBTSer
             this.onContentsChanged(slot, existing);
         }
         return result;
-    }
-
-    /**
-     * 尝试把物品堆插入到任意匹配或空槽位中，返回未能插入的剩余物品堆。
-     */
-    public ItemStack insertItem(ItemStack stack, boolean simulate) {
-        if (stack.isEmpty()) return ItemStack.EMPTY;
-        for (int slot = 0; slot < this.size(); slot++) {
-            UnlimitedItemStack existing = this.stacks.get(slot);
-            if (existing.isEmpty() || existing.isSameItemSameComponents(stack)) {
-                stack = this.insertItem(slot, stack, simulate);
-                if (stack.isEmpty()) return ItemStack.EMPTY;
-            }
-        }
-        return stack;
     }
 
     public UnlimitedItemStack extractUnlimited(int index, int amount, boolean simulate) {
