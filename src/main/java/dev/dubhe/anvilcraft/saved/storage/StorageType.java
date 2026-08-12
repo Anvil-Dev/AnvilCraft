@@ -1,10 +1,8 @@
 package dev.dubhe.anvilcraft.saved.storage;
 
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.StringRepresentable;
 
@@ -38,24 +36,6 @@ public enum StorageType implements StringRepresentable {
             case ShulkerContainerStorage ignored -> StorageType.SHULKER_CONTAINER;
             case HyperdimensionStorage ignored -> StorageType.HYPERDIMENSION;
             default -> throw new IllegalStateException("Unexpected storage: " + storage);
-        };
-    }
-
-    public MapCodec<? extends BaseStorage<?>> codec() {
-        return switch (this) {
-            case CRATE -> CrateStorage.CODEC;
-            case LARGE_CRATE -> LargeCrateStorage.CODEC;
-            case SHULKER_CONTAINER -> ShulkerContainerStorage.CODEC;
-            case HYPERDIMENSION -> HyperdimensionStorage.CODEC;
-        };
-    }
-
-    public StreamCodec<RegistryFriendlyByteBuf, ? extends BaseStorage<?>> streamCodec() {
-        return switch (this) {
-            case CRATE -> CrateStorage.STREAM_CODEC;
-            case LARGE_CRATE -> LargeCrateStorage.STREAM_CODEC;
-            case SHULKER_CONTAINER -> ShulkerContainerStorage.STREAM_CODEC;
-            case HYPERDIMENSION -> HyperdimensionStorage.STREAM_CODEC;
         };
     }
 

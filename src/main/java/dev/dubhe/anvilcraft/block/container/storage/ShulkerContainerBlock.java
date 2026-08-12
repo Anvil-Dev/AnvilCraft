@@ -198,7 +198,7 @@ public class ShulkerContainerBlock
     public void removePartsAndUpdate(Level level, BlockPos pos) {
         BlockState blockState = level.getBlockState(pos);
         if (!blockState.is(this)) return;
-        BlockPos bottomCenterPos = this.getMainPartPos(pos, blockState).below();
+        BlockPos bottomCenterPos = this.getMainPartPos(pos, blockState);
         for (OpenedCube3x3PartHalf part : this.getParts()) {
             BlockPos bp = bottomCenterPos.offset(part.getOffset());
             level.setBlock(bp, level.getBlockState(bp).getFluidState().createLegacyBlock(), 3, 0);

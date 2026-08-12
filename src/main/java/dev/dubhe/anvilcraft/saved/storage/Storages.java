@@ -1,17 +1,12 @@
 package dev.dubhe.anvilcraft.saved.storage;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.util.recover.RecoverStation;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.UUIDUtil;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.RegistryOps;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -20,6 +15,7 @@ import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,11 +25,7 @@ public class Storages extends SavedData {
     public static final ResourceLocation ID = AnvilCraft.of("storages");
     public static final SavedData.Factory<Storages> TYPE = new SavedData.Factory<>(Storages::new, Storages::load);
     public static final Storages CLIENT_COPY = new Storages();
-    private static final Codec<Map<UUID, BaseStorage<?>>> STORAGES_CODEC = Codec.unboundedMap(
-        UUIDUtil.STRING_CODEC,
-        BaseStorage.CODEC.codec()
-    );
-    private static final Codec<RecoverStation<BaseStorage<?>>> RECOVER_CODEC = RecoverStation.codec(BaseStorage.CODEC).codec();
+    private static Storages loading;
     private final Map<UUID, BaseStorage<?>> storages = new HashMap<>();
     private final RecoverStation<BaseStorage<?>> recover;
 
@@ -46,17 +38,16 @@ public class Storages extends SavedData {
         this.recover = recover;
     }
 
-    private Map<UUID, BaseStorage<?>> getStoragesForCodec() {
-        return this.storages;
-    }
-
-    private RecoverStation<BaseStorage<?>> getRecoverForCodec() {
-        return this.recover;
-    }
-
     public static Storages get() {
         if (!Util.isServer()) {
             return Storages.CLIENT_COPY;
+        }
+
+        // 加载期间解码存储内容会触发 onContentsChanged → get()，此时实例尚未注册进
+        // DimensionDataStorage 缓存，直接 computeIfAbsent 会再次进入 load 造成无限递归。
+        Storages inProgress = Storages.loading;
+        if (inProgress != null) {
+            return inProgress;
         }
 
         MinecraftServer server = ServerLifecycleHooks.getCurrentServer();
@@ -71,29 +62,40 @@ public class Storages extends SavedData {
 
     @Override
     public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-        RegistryOps<Tag> ops = RegistryOps.create(NbtOps.INSTANCE, registries);
-        this.putIfSuccess(STORAGES_CODEC.encodeStart(ops, this.storages), tag, "storages");
-        this.putIfSuccess(RECOVER_CODEC.encodeStart(ops, this.recover), tag, "recover");
+        CompoundTag storagesTag = new CompoundTag();
+        for (Map.Entry<UUID, BaseStorage<?>> entry : this.storages.entrySet()) {
+            storagesTag.put(entry.getKey().toString(), entry.getValue().serializeNBT(registries));
+        }
+        tag.put("storages", storagesTag);
+        tag.put("recover", this.recover.serializeNBT(registries));
         return tag;
     }
 
-    private void putIfSuccess(DataResult<Tag> result, CompoundTag tag, String key) {
-        result.result().ifPresent(element -> tag.put(key, element));
-    }
-
     public static Storages load(CompoundTag tag, HolderLookup.Provider registries) {
-        RegistryOps<Tag> ops = RegistryOps.create(NbtOps.INSTANCE, registries);
-        Map<UUID, BaseStorage<?>> storages = new HashMap<>();
-        RecoverStation<BaseStorage<?>> recover = RecoverStation.create(AnvilCraft.CONFIG.storageRecoverMaxSize);
-        if (tag.contains("storages")) {
-            STORAGES_CODEC.parse(ops, tag.get("storages")).result().ifPresent(storages::putAll);
+        Storages previous = Storages.loading;
+        Storages.loading = new Storages();
+        try {
+            Map<UUID, BaseStorage<?>> storages = new HashMap<>();
+            if (tag.contains("storages", Tag.TAG_COMPOUND)) {
+                CompoundTag storagesTag = tag.getCompound("storages");
+                for (String key : storagesTag.getAllKeys()) {
+                    CompoundTag entryTag = storagesTag.getCompound(key);
+                    if (!entryTag.contains(BaseStorage.TYPE_KEY, Tag.TAG_STRING)) continue;
+                    UUID id = UUID.fromString(key);
+                    StorageType type = StorageType.valueOf(entryTag.getString(BaseStorage.TYPE_KEY).toUpperCase(Locale.ROOT));
+                    BaseStorage<?> storage = type.newInstance(id);
+                    storage.deserializeNBT(registries, entryTag);
+                    storages.put(id, storage);
+                }
+            }
+            RecoverStation<BaseStorage<?>> recover = RecoverStation.create(AnvilCraft.CONFIG.storageRecoverMaxSize);
+            if (tag.contains("recover", Tag.TAG_COMPOUND)) {
+                recover.deserializeNBT(registries, tag.getCompound("recover"));
+            }
+            return new Storages(storages, recover);
+        } finally {
+            Storages.loading = previous;
         }
-        if (tag.contains("recover")) {
-            RECOVER_CODEC.parse(ops, tag.get("recover")).result().ifPresent(loaded ->
-                recover.getEntries().addAll(loaded.getEntries())
-            );
-        }
-        return new Storages(storages, recover);
     }
 
     public Optional<BaseStorage<?>> get(UUID id) {

@@ -1,36 +1,20 @@
 package dev.dubhe.anvilcraft.api.itemhandler.unlimited;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.common.util.INBTSerializable;
 import net.neoforged.neoforge.items.IItemHandler;
 
 import java.util.List;
 
-public class UnlimitedItemStacksResourceHandler implements IItemHandler {
+public class UnlimitedItemStacksResourceHandler implements IItemHandler, INBTSerializable<CompoundTag> {
     public static final String STACKS_KEY = "stacks";
-    public static final Codec<NonNullList<UnlimitedItemStack>> STACKS_CODEC = UnlimitedItemStack.CODEC
-        .listOf()
-        .xmap(UnlimitedItemStacksResourceHandler::constructStackList, UnlimitedItemStacksResourceHandler::trim);
-    public static final MapCodec<UnlimitedItemStacksResourceHandler> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-        UnlimitedItemStacksResourceHandler.STACKS_CODEC
-            .fieldOf(UnlimitedItemStacksResourceHandler.STACKS_KEY)
-            .forGetter(UnlimitedItemStacksResourceHandler::copyToList)
-    ).apply(ins, UnlimitedItemStacksResourceHandler::new));
-    public static final StreamCodec<RegistryFriendlyByteBuf, NonNullList<UnlimitedItemStack>> STACKS_STREAM_CODEC =
-        UnlimitedItemStack.STREAM_CODEC
-            .apply(ByteBufCodecs.list())
-            .map(UnlimitedItemStacksResourceHandler::constructStackList, UnlimitedItemStacksResourceHandler::trim);
-    public static final StreamCodec<RegistryFriendlyByteBuf, UnlimitedItemStacksResourceHandler> STREAM_CODEC =
-        UnlimitedItemStacksResourceHandler.STACKS_STREAM_CODEC
-            .map(UnlimitedItemStacksResourceHandler::new, UnlimitedItemStacksResourceHandler::copyToList);
-
     protected final NonNullList<UnlimitedItemStack> stacks;
 
     public UnlimitedItemStacksResourceHandler(int size) {
@@ -49,9 +33,20 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler {
         return this.stacks.size();
     }
 
+    /**
+     * 暴露给外部 {@code IItemHandler} 消费者的槽位数。
+     *
+     * <p>存储处理器只保留非空类型槽位（稀疏设计），但漏斗/管道等 {@code IItemHandler}
+     * 消费者需要至少一个可插入/可追加的槽位。这里返回「现有非空类型数 + 1」的槽位，
+     * 多出的一个作为「新类型」的增长槽。</p>
+     *
+     * <p>注意：必须基于 {@link #getTypeCount()}（非空类型数）而非 {@link #size()}（列表长度），
+     * 否则在增长槽插入失败（空间/类型满）时会无限扩大槽位数，使
+     * {@code ItemHandlerHelper.insertItemStacked} 的遍历循环永不终止。</p>
+     */
     @Override
     public int getSlots() {
-        return this.size();
+        return Math.min(this.getTypeCount() + 1, this.getTypeLimit());
     }
 
     public UnlimitedItemStack getUnlimitedStackInSlot(int index) {
@@ -64,13 +59,35 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler {
 
     @Override
     public ItemStack getStackInSlot(int slot) {
+        if (slot < 0 || slot >= this.stacks.size()) {
+            return ItemStack.EMPTY;
+        }
         return this.stacks.get(slot).toStack();
+    }
+
+    /**
+     * 把存储扩展到至少包含 {@code slot} 槽位（追加空槽）。
+     */
+    protected void ensureSlot(int slot) {
+        while (this.stacks.size() <= slot) {
+            this.stacks.add(UnlimitedItemStack.EMPTY);
+        }
     }
 
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
         if (stack.isEmpty()) return ItemStack.EMPTY;
         if (!this.isItemValid(slot, stack)) return stack;
+        if (slot >= this.stacks.size()) {
+            if (slot >= this.getSlots()) {
+                return stack;
+            }
+            if (simulate) {
+                // 增长槽：无容量上限的基类接受全部
+                return ItemStack.EMPTY;
+            }
+            this.ensureSlot(slot);
+        }
         this.validateSlotIndex(slot);
 
         UnlimitedItemStack existing = this.stacks.get(slot);
@@ -91,7 +108,9 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler {
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
         if (amount <= 0) return ItemStack.EMPTY;
-        this.validateSlotIndex(slot);
+        if (slot < 0 || slot >= this.stacks.size()) {
+            return ItemStack.EMPTY;
+        }
 
         UnlimitedItemStack existing = this.stacks.get(slot);
         if (existing.isEmpty()) return ItemStack.EMPTY;
@@ -198,6 +217,47 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler {
         for (int index = 0; index < this.stacks.size(); index++) {
             this.stacks.set(index, index < stacks.size() ? stacks.get(index) : UnlimitedItemStack.EMPTY);
         }
+        this.onContentsChanged(-1, UnlimitedItemStack.EMPTY);
+    }
+
+    @Override
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
+        ListTag items = new ListTag();
+        for (int index = 0; index < this.stacks.size(); index++) {
+            UnlimitedItemStack stack = this.stacks.get(index);
+            if (stack.isEmpty()) continue;
+            CompoundTag entry = new CompoundTag();
+            entry.putInt("Slot", index);
+            entry.put("Stack", UnlimitedItemStack.CODEC
+                .encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), stack)
+                .getOrThrow());
+            items.add(entry);
+        }
+        CompoundTag tag = new CompoundTag();
+        tag.put("Items", items);
+        return tag;
+    }
+
+    @Override
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
+        NonNullList<UnlimitedItemStack> loaded = NonNullList.create();
+        ListTag items = tag.getList("Items", Tag.TAG_COMPOUND);
+        for (int i = 0; i < items.size(); i++) {
+            CompoundTag entry = items.getCompound(i);
+            int slot = entry.getInt("Slot");
+            if (entry.contains("Stack", Tag.TAG_COMPOUND)) {
+                UnlimitedItemStack stack = UnlimitedItemStack.CODEC
+                    .parse(provider.createSerializationContext(NbtOps.INSTANCE), entry.get("Stack"))
+                    .result()
+                    .orElse(UnlimitedItemStack.EMPTY);
+                while (loaded.size() <= slot) {
+                    loaded.add(UnlimitedItemStack.EMPTY);
+                }
+                loaded.set(slot, stack);
+            }
+        }
+        this.stacks.clear();
+        this.stacks.addAll(loaded);
         this.onContentsChanged(-1, UnlimitedItemStack.EMPTY);
     }
 

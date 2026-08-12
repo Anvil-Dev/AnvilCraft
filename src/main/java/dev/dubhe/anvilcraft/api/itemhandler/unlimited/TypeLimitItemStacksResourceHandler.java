@@ -1,47 +1,24 @@
 package dev.dubhe.anvilcraft.api.itemhandler.unlimited;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import lombok.Getter;
+import lombok.Setter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.function.IntUnaryOperator;
 
 public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResourceHandler {
     public static final String TYPE_LIMIT_KEY = "type_limit";
     public static final String SPACE_SIZE_KEY = SpaceSizeItemStacksResourceHandler.SPACE_SIZE_KEY;
-    public static final MapCodec<TypeLimitItemStacksResourceHandler> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-        UnlimitedItemStacksResourceHandler.STACKS_CODEC
-            .fieldOf(UnlimitedItemStacksResourceHandler.STACKS_KEY)
-            .forGetter(TypeLimitItemStacksResourceHandler::copyToList),
-        Codec.INT
-            .fieldOf(TypeLimitItemStacksResourceHandler.TYPE_LIMIT_KEY)
-            .forGetter(TypeLimitItemStacksResourceHandler::getTypeLimit),
-        Codec.INT
-            .fieldOf(TypeLimitItemStacksResourceHandler.SPACE_SIZE_KEY)
-            .forGetter(TypeLimitItemStacksResourceHandler::getSpaceSize)
-    ).apply(ins, TypeLimitItemStacksResourceHandler::new));
-    public static final StreamCodec<RegistryFriendlyByteBuf, TypeLimitItemStacksResourceHandler> STREAM_CODEC =
-        StreamCodec.composite(
-            UnlimitedItemStacksResourceHandler.STACKS_STREAM_CODEC,
-            TypeLimitItemStacksResourceHandler::copyToList,
-            ByteBufCodecs.VAR_INT,
-            TypeLimitItemStacksResourceHandler::getTypeLimit,
-            ByteBufCodecs.VAR_INT,
-            TypeLimitItemStacksResourceHandler::getSpaceSize,
-            TypeLimitItemStacksResourceHandler::new
-        );
 
     @Getter
-    private final int typeLimit;
+    @Setter
+    private int typeLimit;
     @Getter
     private int spaceSize;
 
@@ -77,8 +54,25 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
 
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-        Objects.checkIndex(slot, this.size());
         if (stack.isEmpty()) return ItemStack.EMPTY;
+        if (slot >= this.stacks.size()) {
+            // 增长槽：仅在未超类型上限且空间允许时扩展，否则原样返回，
+            // 避免 ItemHandlerHelper 遍历循环因 getSlots() 增长而无限循环
+            if (slot >= this.getSlots() || this.size() >= this.typeLimit) {
+                return stack;
+            }
+            long capacity = TypeLimitItemStacksResourceHandler.computeCount(stack, this.spaceSize);
+            int amount = (int) Math.min(stack.getCount(), Math.max(0, capacity));
+            if (amount <= 0) {
+                return stack;
+            }
+            if (simulate) {
+                ItemStack leftover = stack.copy();
+                leftover.shrink(amount);
+                return leftover;
+            }
+            this.ensureSlot(slot);
+        }
         UnlimitedItemStack existing = this.stacks.get(slot);
         int matchingIndex = this.findMatchingSlot(stack);
         if (existing.isEmpty() && matchingIndex >= 0 && matchingIndex != slot) {
@@ -139,6 +133,25 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
         if (newSpaceSize >= this.spaceSize) {
             this.spaceSize = checkSpaceSize(newSpaceSize);
         }
+    }
+
+    @Override
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
+        CompoundTag tag = super.serializeNBT(provider);
+        tag.putInt(TypeLimitItemStacksResourceHandler.TYPE_LIMIT_KEY, this.typeLimit);
+        tag.putInt(TypeLimitItemStacksResourceHandler.SPACE_SIZE_KEY, this.spaceSize);
+        return tag;
+    }
+
+    @Override
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
+        if (tag.contains(TypeLimitItemStacksResourceHandler.TYPE_LIMIT_KEY, Tag.TAG_INT)) {
+            this.typeLimit = checkTypeLimit(tag.getInt(TypeLimitItemStacksResourceHandler.TYPE_LIMIT_KEY));
+        }
+        if (tag.contains(TypeLimitItemStacksResourceHandler.SPACE_SIZE_KEY, Tag.TAG_INT)) {
+            this.spaceSize = checkSpaceSize(tag.getInt(TypeLimitItemStacksResourceHandler.SPACE_SIZE_KEY));
+        }
+        super.deserializeNBT(provider, tag);
     }
 
     public int getSpace() {

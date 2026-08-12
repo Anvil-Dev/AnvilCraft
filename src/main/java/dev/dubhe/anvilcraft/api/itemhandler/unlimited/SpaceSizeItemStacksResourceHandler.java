@@ -1,14 +1,11 @@
 package dev.dubhe.anvilcraft.api.itemhandler.unlimited;
 
-import com.mojang.serialization.Codec;
-import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import lombok.Getter;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
-import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
@@ -16,22 +13,6 @@ import java.util.function.IntUnaryOperator;
 
 public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResourceHandler {
     public static final String SPACE_SIZE_KEY = "space_size";
-    public static final MapCodec<SpaceSizeItemStacksResourceHandler> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-        UnlimitedItemStacksResourceHandler.STACKS_CODEC
-            .fieldOf(UnlimitedItemStacksResourceHandler.STACKS_KEY)
-            .forGetter(SpaceSizeItemStacksResourceHandler::copyToList),
-        Codec.INT
-            .fieldOf(SpaceSizeItemStacksResourceHandler.SPACE_SIZE_KEY)
-            .forGetter(SpaceSizeItemStacksResourceHandler::getSpaceSize)
-    ).apply(ins, SpaceSizeItemStacksResourceHandler::new));
-    public static final StreamCodec<RegistryFriendlyByteBuf, SpaceSizeItemStacksResourceHandler> STREAM_CODEC =
-        StreamCodec.composite(
-            UnlimitedItemStacksResourceHandler.STACKS_STREAM_CODEC,
-            SpaceSizeItemStacksResourceHandler::copyToList,
-            ByteBufCodecs.VAR_INT,
-            SpaceSizeItemStacksResourceHandler::getSpaceSize,
-            SpaceSizeItemStacksResourceHandler::new
-        );
 
     @Getter
     private int spaceSize;
@@ -59,6 +40,24 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
     @Override
     public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
         if (stack.isEmpty()) return ItemStack.EMPTY;
+        if (slot >= this.stacks.size()) {
+            // 增长槽：仅在空间允许时扩展，否则原样返回，避免 ItemHandlerHelper 遍历循环无限增长
+            if (slot >= this.getSlots()) {
+                return stack;
+            }
+            int remainingSpace = this.spaceSize - this.getSpace();
+            long fit = SpaceSizeItemStacksResourceHandler.computeCount(stack, remainingSpace);
+            int amount = (int) Math.min(stack.getCount(), fit);
+            if (amount <= 0) {
+                return stack;
+            }
+            if (simulate) {
+                ItemStack leftover = stack.copy();
+                leftover.shrink(amount);
+                return leftover;
+            }
+            this.ensureSlot(slot);
+        }
         this.validateSlotIndex(slot);
         UnlimitedItemStack existing = this.stacks.get(slot);
         if (!existing.isEmpty() && !existing.isSameItemSameComponents(stack)) {
@@ -120,6 +119,21 @@ public class SpaceSizeItemStacksResourceHandler extends UnlimitedItemStacksResou
         if (newSpaceSize >= this.spaceSize) {
             this.spaceSize = checkSpaceSize(newSpaceSize);
         }
+    }
+
+    @Override
+    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
+        CompoundTag tag = super.serializeNBT(provider);
+        tag.putInt(SpaceSizeItemStacksResourceHandler.SPACE_SIZE_KEY, this.spaceSize);
+        return tag;
+    }
+
+    @Override
+    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
+        if (tag.contains(SpaceSizeItemStacksResourceHandler.SPACE_SIZE_KEY, Tag.TAG_INT)) {
+            this.spaceSize = checkSpaceSize(tag.getInt(SpaceSizeItemStacksResourceHandler.SPACE_SIZE_KEY));
+        }
+        super.deserializeNBT(provider, tag);
     }
 
     public int getSpace() {

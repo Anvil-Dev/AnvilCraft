@@ -56,6 +56,8 @@ public class Upgrade2ShulkerContainerBehavior implements IAnvilBehavior {
         if (spaceOvercompressor == null || netheriteBlock.isEmpty() || count < 6) {
             return false;
         }
+        // 只消耗 6 个下界合金块，多余的保留
+        count = 6;
 
         ItemStack stack = spaceOvercompressor.getItem();
         stack.shrink(1);
