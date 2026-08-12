@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import net.minecraft.core.component.DataComponentPredicate;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -27,8 +28,14 @@ public record HasComponentCategory(
     ItemStack icon,
     Component name,
     List<DataComponentPredicate> predicates,
+    List<DataComponentType<?>> presence,
     MatchType match
 ) implements ICategory {
+    public HasComponentCategory {
+        predicates = ImmutableList.copyOf(predicates);
+        presence = ImmutableList.copyOf(presence);
+    }
+
     public static HasComponentCategory single(
         ItemLike icon,
         ResourceLocation suffix,
@@ -38,6 +45,21 @@ public record HasComponentCategory(
             new ItemStack(icon.asItem()),
             ICategory.constructName(suffix),
             ImmutableList.of(predicate),
+            List.of(),
+            MatchType.AND
+        );
+    }
+
+    public static HasComponentCategory single(
+        ItemLike icon,
+        ResourceLocation suffix,
+        DataComponentType<?> type
+    ) {
+        return new HasComponentCategory(
+            new ItemStack(icon.asItem()),
+            ICategory.constructName(suffix),
+            List.of(),
+            ImmutableList.of(type),
             MatchType.AND
         );
     }
@@ -51,6 +73,7 @@ public record HasComponentCategory(
             new ItemStack(icon.asItem()),
             ICategory.constructName(suffix),
             ImmutableList.copyOf(predicates),
+            List.of(),
             MatchType.AND
         );
     }
@@ -64,6 +87,21 @@ public record HasComponentCategory(
             new ItemStack(icon.asItem()),
             ICategory.constructName(suffix),
             ImmutableList.copyOf(predicates),
+            List.of(),
+            MatchType.OR
+        );
+    }
+
+    public static HasComponentCategory or(
+        ItemLike icon,
+        ResourceLocation suffix,
+        DataComponentType<?>... types
+    ) {
+        return new HasComponentCategory(
+            new ItemStack(icon.asItem()),
+            ICategory.constructName(suffix),
+            List.of(),
+            ImmutableList.copyOf(types),
             MatchType.OR
         );
     }
@@ -77,6 +115,7 @@ public record HasComponentCategory(
             new ItemStack(icon.asItem()),
             ICategory.constructName(suffix),
             ImmutableList.copyOf(predicates),
+            List.of(),
             MatchType.NAND
         );
     }
@@ -90,18 +129,48 @@ public record HasComponentCategory(
             new ItemStack(icon.asItem()),
             ICategory.constructName(suffix),
             ImmutableList.copyOf(predicates),
+            List.of(),
             MatchType.NOR
         );
     }
 
     @Override
     public boolean test(UnlimitedItemStack stack) {
+        boolean matches;
+        if (this.match.isAnd()) {
+            matches = this.allMatch(stack);
+        } else {
+            matches = this.anyMatch(stack);
+        }
+        return matches ^ this.match.isInverted();
+    }
+
+    private boolean allMatch(UnlimitedItemStack stack) {
         for (DataComponentPredicate predicate : this.predicates) {
-            if (predicate.test(stack) == !this.match.isAnd()) {
-                return (!this.match.isAnd()) ^ this.match.isInverted();
+            if (!predicate.test(stack)) {
+                return false;
             }
         }
-        return this.match.isAnd() ^ this.match.isInverted();
+        for (DataComponentType<?> type : this.presence) {
+            if (stack.get(type) == null) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean anyMatch(UnlimitedItemStack stack) {
+        for (DataComponentPredicate predicate : this.predicates) {
+            if (predicate.test(stack)) {
+                return true;
+            }
+        }
+        for (DataComponentType<?> type : this.presence) {
+            if (stack.get(type) != null) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -114,6 +183,7 @@ public record HasComponentCategory(
             ItemStack.CODEC.fieldOf("icon").forGetter(HasComponentCategory::icon),
             ComponentSerialization.flatCodec(Integer.MAX_VALUE).fieldOf("name").forGetter(HasComponentCategory::name),
             DataComponentPredicate.CODEC.listOf().optionalFieldOf("predicates", List.of()).forGetter(HasComponentCategory::predicates),
+            DataComponentType.CODEC.listOf().optionalFieldOf("presence", List.of()).forGetter(HasComponentCategory::presence),
             MatchType.CODEC.optionalFieldOf("match_type", MatchType.OR).forGetter(HasComponentCategory::match)
         ).apply(instance, HasComponentCategory::new));
         public static final StreamCodec<RegistryFriendlyByteBuf, HasComponentCategory> STREAM_CODEC = StreamCodec.composite(
@@ -123,6 +193,8 @@ public record HasComponentCategory(
             HasComponentCategory::name,
             DataComponentPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
             HasComponentCategory::predicates,
+            DataComponentType.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            HasComponentCategory::presence,
             MatchType.STREAM_CODEC,
             HasComponentCategory::match,
             HasComponentCategory::new

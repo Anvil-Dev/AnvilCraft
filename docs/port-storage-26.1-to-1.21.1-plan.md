@@ -70,7 +70,7 @@
 
 ## 五、分阶段实施
 
-> **阶段验证约定**：每个阶段完成后，若当前模型自带多模态能力，可尝试自动启动测试客户端并截图查看界面/渲染结果；否则在阶段完成后即停止，并向用户列出本阶段所有应测试项，由用户确认后再进入下一阶段。
+> **阶段验证约定**：每次完成需求后停止，并向用户列出本次完成的需求的所有应测试项，便于用户确认。
 
 ### P1 依赖与基础（构建 + mixin/AT）
 - 内容：第三节全部依赖变更；`anvilcraft.mixins.json` 新增 `ComponentSerializationMixin`、`EnchantmentsPredicateMixin`（评估后）、`invoker/BaseMappedRegistryInvoker`；`accesstransformer.cfg` 追加 NonNullList 构造。
@@ -104,21 +104,51 @@
   3. `REDSTONE`（creative_mode_tab）：客户端打开创造栏后过滤匹配；服务端默认不匹配（`displayItemsSearchTab` 由客户端构建）——如需服务端匹配后续评估。
   4. 旧存档加载：amulet/配方注册表迁移后无 ID/引用异常。
 
-### P3 方块、方块实体与升级行为（服务端内容）
+### P3 方块、方块实体与升级行为（服务端内容）——已完成（2026-08-12）
 - 新增 `block/container/storage/*`（`CrateBlock`、`LargeCrateBlock`、`HyperdimensionStorageStationBlock`、`ShulkerContainerBlock`——由 1.21 既有 `block/ShulkerContainerBlock` 迁移改造）。
 - 新增 `block/entity/storage/*`（`StorageBlockEntity` + 4 个具体实体；`ValueInput/ValueOutput` 序列化改为 `CompoundTag`+`HolderLookup`）。
-- 新增 `item/block/ShulkerContainerBlockItem.java`（1.21 既有 `block/item/ShulkerContainerBlockItem` 迁移改造）、`item/property/component/StorageRef.java`、`api/energy/IEnergyHandlerHolder.java`、`api/tooltip/impl/*`（LargeCrate/ShulkerContainer TooltipProvider）。
+- 新增 `item/block/ShulkerContainerBlockItem.java`（1.21 既有 `block/item/ShulkerContainerBlockItem` 迁移改造）、`item/property/component/StorageRef.java`、`api/energy/IEnergyHandlerHolder.java`、`api/tooltip/impl/*`（`LargeCrateTooltipProvider`、`ShulkerContainerTooltipProvider`——后者依赖 `client/rpc/StorageClientStub`，随 P4 RPC 一并补齐并在 `HudTooltipManager` 注册）。
 - 注册：`init/block/ModBlocks.java`、`ModBlockEntities.java`；升级行为 `anvil/UpgradeShulkerContainerBehavior`、`anvil/Upgrade2ShulkerContainerBehavior`（`ItemResource/Transaction` 改写为 1.21.1 物品实体/方块实体操作）→ `init/ModAnvilBehaviors.java`。
-- 关联小改：`block/entity/FeCollector/PowerConverter/OverseerBlockEntity`、`api/itemhandler/OverLimitItemHandler`、`api/tooltip/HudTooltipManager`、`item/property/component/FilterContent`、`OverLimitItemContainerContents`、`inventory/container/FilterContainer`、`recipe/transform/MobTransformWithItemRecipe`、`item/utility/EnergyWeaponPlatformItem`、`init/item/ModDataComponentPredicates`、`item/property/predicate/ExtraEnchantmentsPredicate`（改写）。
-- 验证：`compileJava`；进游戏放置 4 类方块、铁砧升级链路冒烟。
+- 关联小改：`api/tooltip/HudTooltipManager`（注册 ShulkerContainerTooltipProvider）、`item/property/component/FilterContent` 等已在 P3 提交中处理。
+- **1.21.1 适配决策**：
+  - `item/utility/EnergyWeaponPlatformItem`：1.21 已有等价物（`item/EnergyWeaponPlatformItem` + 能量能力已注册），**不新建**。
+  - `init/item/ModDataComponentPredicates`、`item/property/predicate/ExtraEnchantmentsPredicate`：依赖 26.1 的 `DataComponentPredicate.Type<?>` 注册表（1.21.1 不存在），**不移植**；`FOOD_AND_DRINK`/`ENCHANTED` 分类改用 `HasComponentCategory` 的 **presence（存在性）** 匹配（`List<DataComponentType<?>>` + `MatchType`），语义与原 26.1 的 `DataComponentPredicates.POTIONS`/`EnchantmentsPredicate` 存在性判定一致。`HasComponentCategory` 的 CODEC/STREAM_CODEC 新增 `presence` 字段（`DataComponentType.CODEC`/`STREAM_CODEC`）。
+- 验证结果：
+  - `./gradlew.bat compileJava --console=plain` → `BUILD SUCCESSFUL`。
+  - `./gradlew.bat runData --console=plain` → `BUILD SUCCESSFUL`；生成 `category/enchanted.json`（presence: enchantments/stored_enchantments/merciless_enchantments/disabled_enchantments）、`category/food_and_drink.json`（presence: food/potion_contents），结构合理。
+  - `git diff --check` 干净。
+- **P3 应测试项（需用户确认）**：
+  1. 进游戏放置 4 类存储方块（crate / large_crate / shulker_container / hyperdimension_storage_station），方块实体正常生成。
+  2. 手持铁砧锤看向潜影集装箱，`tooltip.anvilcraft.shulker_container.*` HUD 提示正常显示（升级数待 `StorageServerStub.load` RPC 返回）。
+  3. 铁砧升级链路（`UpgradeShulkerContainerBehavior` / `Upgrade2ShulkerContainerBehavior`）冒烟。
+  4. `/reload` 后 `category/food_and_drink.json`、`category/enchanted.json` 正常解析；仓库分类过滤食物/附魔物品按存在性匹配。
 
-### P4 存储核心（数据 + 无限处理器 + RPC）
-- 新增 `saved/storage/*`（`Storages`——`SavedData.Factory` 改造、`BaseStorage`、`StorageType`、`CrateStorage`、`LargeCrateStorage`、`ShulkerContainerStorage`、`HyperdimensionStorage`）。
+### P4 存储核心（数据 + 无限处理器 + RPC）——已完成（2026-08-12）
+- 新增 `saved/storage/*`（`Storages`——`SavedData.Factory` 改造、`BaseStorage`、`StorageType`、`CrateStorage`、`LargeCrateStorage`、`ShulkerContainerStorage`、`HyperdimensionStorage`）——P3 提交已含，功能完整。
 - 新增 `saved/setting/*`（`PlayerSetting`、`PlayerSettings`、`StorageSetting`、`mode/*` 4 个枚举）。
-- 新增 `api/itemhandler/unlimited/*`（`UnlimitedItemStacksResourceHandler`、`SpaceSizeItemStacksResourceHandler`、`TypeLimitItemStacksResourceHandler`）——基类由 `StacksResourceHandler` 改为 1.21.1 `IItemHandler` 实现，保持公开 API（CODEC/STREAM_CODEC/`typeLimit`/`spaceSize`）不变。
-- 新增 RPC：`rpc/SettingServerStub`、`rpc/StorageServerStub`、`rpc/StorageInput`、`network/PlayerSettingsSyncPacket`（`ItemResource/Transaction` 改写为 `IItemHandler` 操作）。
-- 新增 `init/ModCapabilities.java`、`data/advancement/ModAdvancementsHandler.java`、`event/TooltipEventListener.java`、`util/registrater/DataGenUtil.java`。
-- 验证：`compileJava`；专用服务器下存储交互（存取/克隆/丢弃）无 RPC 崩溃。
+  - `PlayerSettings` 改为 1.21.1 `BetterSavedData` 子类：`read(CompoundTag, HolderLookup)`/`save(...)` 用 `Codec.unboundedMap(UUID, PlayerSetting)`；`get()` 走 `BetterSavedData.get(id, ctor, clientCopy)`；`getSetting(registries, UUID)` 惰性创建。
+  - `StorageSetting` 不依赖 Lombok 构造器生成（`@Data`+手动构造器会冲突），改为显式 getter/setter + 双构造器。
+  - `PlayerSetting`/`StorageSetting` 的 CODEC 用 `RecordCodecBuilder.mapCodec`，每个字段必须 `.fieldOf(...).forGetter(...)` 形成 `RecordCodecBuilder<O,F>`（26.1 `CodecUtil.mapCodec` 的等价转换；注意构造器引用只能出现在 `.apply(instance, ...)`，不能混入 `group(...)` 参数）。
+- 新增 `api/itemhandler/unlimited/*`（`UnlimitedItemStacksResourceHandler`、`SpaceSizeItemStacksResourceHandler`、`TypeLimitItemStacksResourceHandler`）——P3 提交已含，基类为 1.21.1 `IItemHandler`。
+- 新增 RPC：`rpc/SettingServerStub`、`rpc/StorageServerStub`、`rpc/StorageInput`、`network/PlayerSettingsSyncPacket`、`client/rpc/StorageClientStub`。
+  - `StorageServerStub` 完整移植（`load/setOpen/reorder/sync/interact/deposit/take` + `Metadata/Capacity/StackUpdate/SyncResult/InteractionResult/DepositResult` + `StorageAccessValidator`/`StorageOpenStateValidator`）；`ItemResource`/`Transaction` 改写为 `ItemStack`/`IItemHandler`（`insertItem`/`extractUnlimited`）。
+  - 1.21.1 差异：`Inventory.SELECTION_SIZE`（private）→ `Inventory.getSelectionSize()`；`GameProfile.id()` → `getId()`；`player.canDropItems()`/`handleCreativeModeItemDrop()` 不存在，THROW 仅用 `player.drop()`；`org.jspecify.annotations.Nullable` 不存在 → 用 `javax.annotation.Nullable`/`ThreadLocal<HolderLookup.Provider>`。
+- 数据接入：
+  - `event/PlayerTickEventHandler`：登录时 `PlayerSettingsSyncPacket` 下发、登出时 `StorageServerStub.remove`。
+  - `event/CapabilitiesEventListener`：`CRATE` 方块实体 + `LARGE_CRATE` 多方块主部件注册 `Capabilities.ItemHandler.BLOCK`，指向 `Storages` 中对应存储的无限物品处理器。
+- **1.21.1 适配决策（不新建）**：
+  - `init/ModCapabilities.java`：1.21 已有 `event/CapabilitiesEventListener`，仓储物品能力并入其中。
+  - `event/TooltipEventListener.java`：1.21.1 组件 tooltip 由 `TooltipProvider`（如 `StorageRef`）自动展示，无需 26.1 的手动 `stack.addToTooltip` 监听。
+  - `data/advancement/ModAdvancementsHandler.java`、`util/registrater/DataGenUtil.java`：1.21.1 已有对应实现，仓储无需额外生成器改动。
+- 验证结果：
+  - `./gradlew.bat compileJava --console=plain` → `BUILD SUCCESSFUL`。
+  - `./gradlew.bat runData --console=plain` → `BUILD SUCCESSFUL`（分类 JSON 无回归）。
+  - `git diff --check` 干净。
+- **P4 应测试项（需用户确认）**：
+  1. 登录/登出：日志无 `PlayerSettingsSyncPacket` 编解码异常；玩家设置（搜索/排序/分类）在服务端持久化。
+  2. 专用服务器下打开仓储界面，`StorageServerStub.load` RPC 正常返回（版本/容量/饱满度）；`interact` 存取/克隆/丢弃、`deposit`/`take`、`reorder`/`sync` 无 RPC 崩溃。
+  3. 管道/漏斗对接 crate：物品经 `Capabilities.ItemHandler.BLOCK` 存取到全局 `Storages`。
+  4. 旧存档兼容：`Storages`（`anvilcraft_storages`）与 `PlayerSettings`（`anvilcraft_player_settings`）读写往返。
 
 ### P5 客户端界面
 - 新增 `client/gui/screen/StorageScreen.java`、`CategorySettingsScreen.java`、`client/gui/component/category/CategoryButton/CategoryList`、`client/gui/component/RenderableWidgetAdder.java`、`client/support/GuiRenderSupport.java`、`client/rpc/SettingClientStub.java`、`client/rpc/StorageClientStub.java`。

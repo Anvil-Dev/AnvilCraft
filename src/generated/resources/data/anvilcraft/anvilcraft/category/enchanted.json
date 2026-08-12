@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:has_component",
+  "icon": {
+    "count": 1,
+    "id": "minecraft:enchanted_book"
+  },
+  "name": "{\"translate\":\"category.anvilcraft.enchanted\"}",
+  "presence": [
+    "minecraft:enchantments",
+    "minecraft:stored_enchantments",
+    "anvilcraft:merciless_enchantments",
+    "anvilcraft:disabled_enchantments"
+  ]
+}
