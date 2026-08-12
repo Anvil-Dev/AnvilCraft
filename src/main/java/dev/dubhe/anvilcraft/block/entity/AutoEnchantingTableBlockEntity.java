@@ -184,7 +184,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
 
     @Override
     public Component getDisplayName() {
-        return Component.translatable("block.anvilcraft.auto_enchanting_table");
+        return Component.translatable("screen.anvilcraft.auto_enchanting_table.title");
     }
 
     @Override
