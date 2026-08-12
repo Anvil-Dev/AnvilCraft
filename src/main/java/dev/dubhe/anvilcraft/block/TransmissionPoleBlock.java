@@ -134,7 +134,7 @@ public class TransmissionPoleBlock extends SimpleMultiPartBlock<Vertical3PartHal
         update(state, level, pos);
     }
 
-    private void update(BlockState state, Level level, BlockPos pos) {
+    private static void update(BlockState state, Level level, BlockPos pos) {
         if (level.isClientSide) return;
         if (state.getValue(HALF) != Vertical3PartHalf.BOTTOM) return;
         BlockPos topPos = pos.above(2);
