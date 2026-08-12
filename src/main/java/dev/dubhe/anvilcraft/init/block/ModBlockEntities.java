@@ -81,6 +81,7 @@ import dev.dubhe.anvilcraft.block.entity.heatable.OverheatedBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.RedhotBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.plate.TimeCountedPressurePlateBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorBlockEntityRender;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.AutoEnchantingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
@@ -142,7 +143,9 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<AutoEnchantingTableBlockEntity> AUTO_ENCHANTING_TABLE = REGISTRUM.blockEntity(
         "auto_enchanting_table",
         AutoEnchantingTableBlockEntity::createBlockEntity
-    ).validBlock(ModBlocks.AUTO_ENCHANTING_TABLE).register();
+    ).validBlock(ModBlocks.AUTO_ENCHANTING_TABLE)
+        .renderer(() -> AutoEnchantingTableBlockEntityRenderer::new)
+        .register();
 
     public static final BlockEntityEntry<ChuteBlockEntity> CHUTE = REGISTRUM.blockEntity("chute", ChuteBlockEntity::createBlockEntity)
         .onRegister(ChuteBlockEntity::onBlockEntityRegister)
