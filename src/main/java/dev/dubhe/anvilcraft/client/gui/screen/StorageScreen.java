@@ -535,11 +535,15 @@ public class StorageScreen extends Screen {
         if (capacity == null) {
             return null;
         }
-        // 有类型上限（潜影集装箱）或无限空间（超维存储站）时显示类型数；
-        // 有限空间的板条箱按空间显示
-        if (capacity.typeLimit() != Integer.MAX_VALUE || capacity.spaceSize() == Integer.MAX_VALUE) {
+        // 空间与类型都无限（超维存储站）显示 Infinity Storage
+        if (capacity.spaceSize() == Integer.MAX_VALUE && capacity.typeLimit() == Integer.MAX_VALUE) {
+            return Component.translatable("screen.anvilcraft.storage.capacity.infinity");
+        }
+        // 有类型上限（潜影集装箱）按类型数显示
+        if (capacity.typeLimit() != Integer.MAX_VALUE) {
             return Component.translatable("screen.anvilcraft.storage.capacity.types", capacity.typeCount(), capacity.typeLimit());
         }
+        // 有限空间的板条箱按空间显示
         return Component.translatable("screen.anvilcraft.storage.capacity.space", capacity.space(), capacity.spaceSize());
     }
 

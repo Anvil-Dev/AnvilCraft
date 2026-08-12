@@ -23,6 +23,7 @@ public class CategoryLang {
         provider.add("screen.anvilcraft.storage.nbt.fold", "True");
         provider.add("screen.anvilcraft.storage.capacity.space", "Total Capacity: %1$s/%2$s");
         provider.add("screen.anvilcraft.storage.capacity.types", "Types: %1$s/%2$s");
+        provider.add("screen.anvilcraft.storage.capacity.infinity", "Infinity Storage");
         provider.add("screen.anvilcraft.storage.category.name", "Name: %s");
         provider.add("screen.anvilcraft.storage.category.mode", "Mode: %s");
         provider.add("screen.anvilcraft.storage.category.mode.unlimited", "Unlimited");

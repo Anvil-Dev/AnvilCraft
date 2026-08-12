@@ -1451,6 +1451,7 @@
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.applies_to": "Anvil, Smithing Table, Grindstone, Anvil Hammer, Amethyst Tools, Golden Tools, Iron Tools, Diamond Tools",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.base_slot_description": "Put upgradable item",
   "screen.anvilcraft.smithing_template.royal_steel_upgrade_smithing_template.upgrade_ingredients": "Royal Steel Ingot or Royal Steel Block",
+  "screen.anvilcraft.storage.capacity.infinity": "Infinity Storage",
   "screen.anvilcraft.storage.capacity.space": "Total Capacity: %1$s/%2$s",
   "screen.anvilcraft.storage.capacity.types": "Types: %1$s/%2$s",
   "screen.anvilcraft.storage.category.add": "Left click when selecting Filter to add custom category",
