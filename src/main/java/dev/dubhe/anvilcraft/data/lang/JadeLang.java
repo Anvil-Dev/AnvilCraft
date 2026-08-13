@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 public class JadeLang {
     public static void init(RegistrumLangProvider provider) {
         provider.add("config.jade.plugin_anvilcraft.power_provider", "Anvil Craft Power");
+        provider.add("config.jade.plugin_anvilcraft.redstone_wire", "Redstone Wire");
         provider.add("config.jade.plugin_anvilcraft.ruby_prism", "Ruby Prism");
         provider.add("config.jade.plugin_anvilcraft.item_detector", "Item Detector");
         provider.add("config.jade.plugin_anvilcraft.space_overcompressor", "Space Overcompressor");
@@ -17,8 +18,11 @@ public class JadeLang {
         provider.add("config.jade.plugin_anvilcraft.creative_crate", "Creative Crate");
         provider.add("config.jade.plugin_anvilcraft.creative_fluid_tank", "Creative Fluid Tank");
         provider.add("config.jade.plugin_anvilcraft.large_laser", "Large Laser");
+        provider.add("config.jade.plugin_anvilcraft.load_monitor", "Load Monitor");
         provider.add("config.jade.plugin_anvilcraft.menger_sponge", "Menger Sponge");
         provider.add("config.jade.plugin_anvilcraft.crab_trap", "Crab Trap");
+        provider.add("config.jade.plugin_anvilcraft.collector", "Collector");
+        provider.add("config.jade.plugin_anvilcraft.control_valve", "Control Valve");
         provider.add("config.jade.plugin_anvilcraft.fluid_tank", "Fluid Tank");
 
         provider.add("tooltip.anvilcraft.jade.power_information", "Power Grid: %s");
@@ -58,5 +62,10 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.infinity", "Infinity");
 
         provider.add("tooltip.anvilcraft.crab_trap.jade.fishing", "Fishing Attempts: %s");
+        provider.add("tooltip.anvilcraft.control_valve.jade.filter", "Filter: %s");
+        provider.add("tooltip.anvilcraft.control_valve.jade.rate", "Max Rate: %s");
+        provider.add("tooltip.anvilcraft.collector.jade.range", "Collect Range: %s");
+        provider.add("tooltip.anvilcraft.collector.jade.cooldown", "Collect Cooldown: %s");
+        provider.add("tooltip.anvilcraft.load_monitor.jade.load", "Load: %s");
     }
 }
