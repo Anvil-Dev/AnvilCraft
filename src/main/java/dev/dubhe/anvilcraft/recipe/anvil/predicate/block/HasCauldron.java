@@ -45,6 +45,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import javax.annotation.Nullable;
 
@@ -68,6 +69,21 @@ public record HasCauldron(
     float chance,
     boolean ignited
 ) implements IRecipePredicate<HasCauldron> {
+    private static final List<EntityCauldronSelector> ENTITY_CAULDRON_SELECTORS = new CopyOnWriteArrayList<>();
+
+    /**
+     * 在最近实体锅查找之后调用。查询不得改变世界状态。
+     */
+    public static void registerEntityCauldronSelector(EntityCauldronSelector selector) {
+        ENTITY_CAULDRON_SELECTORS.add(selector);
+    }
+
+    @FunctionalInterface
+    public interface EntityCauldronSelector {
+        @Nullable
+        IEntityCauldron select(InWorldRecipeContext context, BlockPos pos, @Nullable IEntityCauldron current);
+    }
+
     private static final Codec<List<FluidStack>> TRANSFORMS_CODEC = Codec
         .either(FluidStack.CODEC, FluidStack.CODEC.listOf())
         .xmap(
@@ -403,6 +419,9 @@ public record HasCauldron(
             if (distance >= closestDistance) continue;
             closest = (IEntityCauldron) entity;
             closestDistance = distance;
+        }
+        for (EntityCauldronSelector selector : ENTITY_CAULDRON_SELECTORS) {
+            closest = selector.select(context, pos, closest);
         }
         return closest;
     }

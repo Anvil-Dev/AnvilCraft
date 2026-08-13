@@ -33,10 +33,25 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class RecipeUtil {
     public static final ItemIngredientPredicate EMPTY_ITEM_INGREDIENT = ItemIngredientPredicate.Builder.item().build();
+    private static final List<LevelLikeCustomizer> LEVEL_LIKE_CUSTOMIZERS = new CopyOnWriteArrayList<>();
+
+    /**
+     * 在 JEI 假世界构建完成后调用。仅客户端。不得把预览数据写回真实世界。
+     */
+    @OnlyIn(Dist.CLIENT)
+    public static void registerLevelLikeCustomizer(LevelLikeCustomizer customizer) {
+        LEVEL_LIKE_CUSTOMIZERS.add(customizer);
+    }
+
+    @FunctionalInterface
+    public interface LevelLikeCustomizer {
+        void accept(BlockPattern pattern, LevelLike level);
+    }
 
     public static LootContext emptyLootContext(ServerLevel level) {
         return new LootContext.Builder(new LootParams(level, Map.of(), Map.of(), 0)).create(Optional.empty());
@@ -174,6 +189,9 @@ public class RecipeUtil {
             }
         }
 
+        for (LevelLikeCustomizer customizer : LEVEL_LIKE_CUSTOMIZERS) {
+            customizer.accept(pattern, levelLike);
+        }
         return levelLike;
     }
 

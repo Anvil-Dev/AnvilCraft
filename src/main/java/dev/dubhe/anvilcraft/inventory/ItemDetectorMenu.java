@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.dubhe.anvilcraft.api.menu.MenuBlockEntityLookup;
 import dev.dubhe.anvilcraft.block.entity.IFilterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemDetectorBlockEntity;
 import dev.dubhe.anvilcraft.inventory.component.FilterOnlySlot;
@@ -45,7 +46,16 @@ public class ItemDetectorMenu extends AbstractContainerMenu implements IFilterMe
     }
 
     public ItemDetectorMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
-        this(menuType, containerId, inventory, Objects.requireNonNull(inventory.player.level().getBlockEntity(extraData.readBlockPos())));
+        this(
+            menuType,
+            containerId,
+            inventory,
+            Objects.requireNonNull(MenuBlockEntityLookup.find(
+                inventory.player.level(),
+                extraData.readBlockPos(),
+                ItemDetectorBlockEntity.class
+            ))
+        );
     }
 
     private void addPlayerInventory(Inventory playerInventory) {

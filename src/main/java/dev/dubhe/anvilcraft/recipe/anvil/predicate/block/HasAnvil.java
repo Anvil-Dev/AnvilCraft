@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.recipe.predicate.IRecipePredicate;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
+import dev.dubhe.anvilcraft.api.entity.IGenericAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipePredicateTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -13,6 +14,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.item.FallingBlockEntity;
+import net.minecraft.world.level.block.Blocks;
 
 /**
  * 铁砧条件谓词
@@ -64,8 +66,28 @@ public record HasAnvil(BlockStatePredicate anvil, boolean inverted) implements I
     @Override
     public boolean test(InWorldRecipeContext ctx) {
         if (!(ctx.getEntity() instanceof FallingBlockEntity falling)) return this.inverted;
+        if (falling instanceof IGenericAnvilEntity generic
+            && generic.anvilcraft$isGenericAnvil()
+            && this.anvil.getProperties().isEmpty()
+            && this.anvil.getNbts().isEmpty()
+            && isUnrestrictedAnvil(this.anvil)
+        ) {
+            return !this.inverted;
+        }
         if (!this.anvil.test(ctx.getLevel(), falling.getBlockState(), null)) return this.inverted;
         return !this.inverted;
+    }
+
+    /**
+     * 未指定方块类型/属性/NBT 的泛铁砧谓词。动态铁砧实体可声明自己匹配此类谓词，
+     * 而不会误匹配指定了皇家/余烬等专用铁砧的配方。
+     */
+    private static boolean isUnrestrictedAnvil(BlockStatePredicate predicate) {
+        if (predicate.getBlocks().size() == 0) return true;
+        return predicate.getBlocks().unwrap().map(
+            BlockTags.ANVIL::equals,
+            holders -> holders.size() == 1 && holders.getFirst().value() == Blocks.ANVIL
+        );
     }
 
     public static class Type implements IRecipePredicate.Type<HasAnvil> {

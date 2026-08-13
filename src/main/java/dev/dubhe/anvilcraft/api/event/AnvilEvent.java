@@ -96,6 +96,33 @@ public class AnvilEvent extends EntityEvent {
         }
     }
 
+    /**
+     * 世界内配方处理开始。在服务器线程、{@code handleNeoAnvilRecipe} 进入时发布。
+     * 用于隔离同一落点上的多个实体锅批次。
+     */
+    @Getter
+    public static class BeforeInWorldRecipe extends AnvilEvent {
+        private final OnLand landing;
+
+        public BeforeInWorldRecipe(OnLand landing) {
+            super(landing.getEntity());
+            this.landing = landing;
+        }
+    }
+
+    /**
+     * 世界内配方处理结束。无论成功与否都会在 {@code finally} 中发布。
+     */
+    @Getter
+    public static class AfterInWorldRecipe extends AnvilEvent {
+        private final OnLand landing;
+
+        public AfterInWorldRecipe(OnLand landing) {
+            super(landing.getEntity());
+            this.landing = landing;
+        }
+    }
+
     @Getter
     public static class HurtEntity extends AnvilEvent {
         private final BlockPos pos;

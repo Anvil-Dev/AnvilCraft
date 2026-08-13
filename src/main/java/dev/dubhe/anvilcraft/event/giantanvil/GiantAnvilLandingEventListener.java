@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.event.giantanvil;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
+import dev.dubhe.anvilcraft.api.event.GiantAnvilEvent;
 import dev.dubhe.anvilcraft.block.entity.HasMobBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -24,6 +25,7 @@ import net.minecraft.world.phys.shapes.BitSetDiscreteVoxelShape;
 import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.Tags;
 
 import java.util.ArrayList;
@@ -54,6 +56,9 @@ public class GiantAnvilLandingEventListener {
 
     @SubscribeEvent
     public static void handleMultiblock(AnvilEvent.GiantOnLand event) {
+        if (NeoForge.EVENT_BUS.post(new GiantAnvilEvent.Multiblock(event)).isCanceled()) {
+            return;
+        }
         Level level = event.getLevel();
         BlockPos landPos = event.getPos().below(2);
 
