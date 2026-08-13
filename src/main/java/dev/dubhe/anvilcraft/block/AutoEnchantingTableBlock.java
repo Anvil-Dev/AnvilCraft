@@ -6,7 +6,9 @@ import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -15,6 +17,7 @@ import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EnchantingTableBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
@@ -122,5 +125,24 @@ public class AutoEnchantingTableBlock extends BaseEntityBlock {
             }
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    @Override
+    public void animateTick(BlockState state, Level level, BlockPos pos, RandomSource random) {
+        super.animateTick(state, level, pos, random);
+
+        for (BlockPos blockpos : EnchantingTableBlock.BOOKSHELF_OFFSETS) {
+            if (random.nextInt(16) == 0 && EnchantingTableBlock.isValidBookShelf(level, pos, blockpos)) {
+                level.addParticle(
+                    ParticleTypes.ENCHANT,
+                    pos.getX() + 0.5,
+                    pos.getY() + 2.0,
+                    pos.getZ() + 0.5,
+                    blockpos.getX() + random.nextFloat() - 0.5,
+                    blockpos.getY() - random.nextFloat() - 1.0F,
+                    blockpos.getZ() + random.nextFloat() - 0.5
+                );
+            }
+        }
     }
 }
