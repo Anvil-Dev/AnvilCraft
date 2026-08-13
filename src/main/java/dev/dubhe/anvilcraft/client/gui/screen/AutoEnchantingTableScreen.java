@@ -194,9 +194,9 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             this.topPos + 36,
             0,
             0,
-            6,
+            7,
             progressPassed,
-            6,
+            7,
             14
         );
         this.renderTooltip(guiGraphics, mouseX, mouseY);
