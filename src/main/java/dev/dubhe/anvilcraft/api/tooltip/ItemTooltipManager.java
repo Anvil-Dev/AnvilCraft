@@ -660,7 +660,8 @@ public class ItemTooltipManager {
                 It can be attached to any full face of a block,
                 only inputs and outputs redstone signals at its breaks (ends)
                 The redstone signal level does not decay within the wire,
-                and the wire will not output the signal received from redstone dust back to redstone dust""");
+                and the wire will not output the signal received from redstone dust back to redstone dust
+                Right-click an existing wire to change its direction""");
         SHIFT.put(
             ModBlocks.TRADING_STATION.asItem(), """
                 Can be set to trade with players or villagers
