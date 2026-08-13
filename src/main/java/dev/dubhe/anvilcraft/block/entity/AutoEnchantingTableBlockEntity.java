@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.entity;
 
 import com.mojang.serialization.Codec;
 import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
 import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
@@ -82,12 +83,8 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     public static final int LIQUID_POWER_CONSUMPTION = 64;
     /// 内部流体容量：32 桶
     public static final int FLUID_CAPACITY = 32 * FluidType.BUCKET_VOLUME;
-    /// 每次附魔尝试的间隔（tick），4 秒 = 80 tick
-    public static final int ENCHANT_INTERVAL_TICKS = 80;
     /// 每个书架消耗的经验流体（mB）
     public static final int EXP_COST_PER_SHELF = 400;
-    /// 液态魔咒附魔的最大可选等级
-    public static final int LIQUID_MAX_LEVEL = 15;
     /// 液态魔咒模式下物品每多一条已有附魔增加的功耗
     public static final int LIQUID_POWER_PER_ENCHANTMENT = 64;
 
@@ -136,7 +133,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
                         this.movingToOutput = false;
                     } else {
                         // 重置4秒冷却
-                        AutoEnchantingTableBlockEntity.this.cooldownTicks = AutoEnchantingTableBlockEntity.ENCHANT_INTERVAL_TICKS;
+                        AutoEnchantingTableBlockEntity.this.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
                     }
                 }
                 // 取出引物后记忆消失
@@ -268,7 +265,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         WorkMode newMode = blockEntity.refreshWorkMode();
         if (newMode != blockEntity.workMode) {
             blockEntity.workMode = newMode;
-            blockEntity.cooldownTicks = ENCHANT_INTERVAL_TICKS;
+            blockEntity.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
             blockEntity.setChanged();
         }
 
@@ -283,11 +280,12 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         // 2. 冷却逻辑
         if (blockEntity.cooldownTicks > 0) {
             blockEntity.cooldownTicks--;
+            blockEntity.syncToClient();
             return;
         }
 
         // 3. 冷却完毕，按工作模式执行操作
-        blockEntity.cooldownTicks = ENCHANT_INTERVAL_TICKS;
+        blockEntity.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
         switch (blockEntity.workMode) {
             case ENCHANTING -> blockEntity.tryEnchantRandomly(level, pos);
             case PRIMER -> blockEntity.tryEnchantWithPrimer(level, pos);
@@ -433,8 +431,8 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         }
         int vanillaMax = enchantment.value().getMaxLevel();
         return restriction == LiquidEnchantRestriction.OVERLIMIT
-            ? LIQUID_MAX_LEVEL
-            : Math.min(LIQUID_MAX_LEVEL, vanillaMax);
+            ? AnvilCraft.CONFIG.liquidEnchantmentMaxLevel
+            : Math.min(AnvilCraft.CONFIG.liquidEnchantmentMaxLevel, vanillaMax);
     }
 
     private static LiquidEnchantRestriction getRestriction(ItemStack primer) {
@@ -488,7 +486,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         // 输出槽被占用时不做
         if (!this.itemHandler.getStackInSlot(SLOT_OUTPUT).isEmpty()) return;
 
-        int shelfLevel = this.shelfLevel;
+        int shelfLevel = Math.min(this.shelfLevel, AnvilCraft.CONFIG.autoEnchantingTableMaxBookshelf);
         int cost = Math.min(shelfLevel * EXP_COST_PER_SHELF, FLUID_CAPACITY);
         if (cost <= 0) return;
 
@@ -505,7 +503,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
             level.random, input, shelfLevel, enchantmentTag.get().stream());
         if (enchants.isEmpty()) return;
 
-        ItemStack result = input.copy();
+        ItemStack result = input.is(Items.BOOK) ? Items.ENCHANTED_BOOK.getDefaultInstance() : input.copy();
         for (EnchantmentInstance instance : enchants) {
             result.enchant(instance.enchantment, instance.level);
         }
@@ -657,6 +655,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
             holder.unwrapKey().ifPresent(key -> selected.add(StringTag.valueOf(key.location().toString())));
         }
         tag.put("SelectedEnchantments", selected);
+        tag.putInt("CooldownTicks", this.cooldownTicks);
     }
 
     @Override
@@ -690,6 +689,9 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
                 }
             }
         }
+        if (tag.contains("CooldownTicks")) {
+            this.cooldownTicks = tag.getInt("CooldownTicks");
+        }
     }
 
     @Override
@@ -710,6 +712,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
             holder.unwrapKey().ifPresent(key -> selected.add(StringTag.valueOf(key.location().toString())));
         }
         tag.put("SelectedEnchantments", selected);
+        tag.putInt("CooldownTicks", this.cooldownTicks);
         return tag;
     }
 

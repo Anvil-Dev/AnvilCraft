@@ -81,6 +81,9 @@ public class AnvilCraftClientConfig {
     @Comment("Enable exhaust particles when flying with Ionocraft Backpack")
     public boolean ionocraftBackpackExhaustParticlesEnabled = true;
 
+    @Comment("Show levels above 10 as Roman numerals in auto enchanting table's liquid enchantment mode")
+    public boolean liquidEnchantmentRomanNumerals = true;
+
     @SerializedName("Ionocraft Backpack HUD")
     @CollapsibleObject
     public IonocraftBackpackHud ionocraftBackpackHud = new IonocraftBackpackHud();

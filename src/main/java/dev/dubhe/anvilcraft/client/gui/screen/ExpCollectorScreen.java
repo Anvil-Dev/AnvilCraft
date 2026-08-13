@@ -110,8 +110,8 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
         // fluid display widget
         this.addRenderableWidget(
             new FluidDisplayWidget(
-                this.leftPos + 95, this.topPos + 24,
-                38, 38,
+                this.leftPos + 94, this.topPos + 23,
+                40, 40,
                 this.menu.getBlockEntity().getFluidHandler(),
                 (mouseX, mouseY, button) ->
                     PacketDistributor.sendToServer(new ExpCollectorSyncPacket(this.menu.getBlockEntity().getBlockPos()))

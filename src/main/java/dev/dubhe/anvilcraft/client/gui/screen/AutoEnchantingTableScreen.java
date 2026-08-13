@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Scrollable;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.FluidDisplayWidget;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
@@ -45,6 +46,7 @@ import javax.annotation.Nullable;
 
 public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEnchantingTableMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "auto_enchanting_table");
+    private static final ResourceLocation PROGRESS = SharedTextures.textureGui("machine/auto_enchanting_table/progress");
 
     private final List<Integer> filteredIndexes = new ArrayList<>();
     private final Scrollable scrollable = new Scrollable() {
@@ -114,10 +116,10 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         this.refreshFilter();
 
         this.addRenderableWidget(new FluidDisplayWidget(
-            this.leftPos + 152,
-            this.topPos + 17,
-            16,
-            54,
+            this.leftPos + 151,
+            this.topPos + 16,
+            18,
+            56,
             this.menu.getBlockEntity().getFluidHandler(),
             (mouseX, mouseY, button) -> {
             }
@@ -183,6 +185,20 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             int ghostY = this.topPos + outputSlot.y;
             RenderSupport.renderItemWithTransparency(this.ghostOutput, guiGraphics.pose(), ghostX, ghostY, 0.52f);
         }
+        int progressPassed = Mth.ceil(
+            14 * (1 - ((this.menu.getBlockEntity().getCooldownTicks() + partialTick) / AnvilCraft.CONFIG.autoEnchantingTableInterval))
+        );
+        guiGraphics.blit(
+            AutoEnchantingTableScreen.PROGRESS,
+            this.leftPos + 12,
+            this.topPos + 36,
+            0,
+            0,
+            6,
+            progressPassed,
+            6,
+            14
+        );
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
@@ -340,7 +356,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         if (level > 0) {
             guiGraphics.drawString(
                 this.font,
-                Component.translatable("enchantment.level." + level),
+                AutoEnchantingTableScreen.getLiquidLevelText(level),
                 x + 20,
                 y + 5,
                 0xFFFFFF,
@@ -401,6 +417,36 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         int top = this.topPos + 32;
         // 覆盖整个自选附魔区域（5 列 × 2 行），滚轮在区域内即可调整等级
         return MathUtil.isInRange(mouseX, mouseY, left, top, left + 90, top + 36);
+    }
+
+    /**
+     * 液态魔咒模式下等级文字：≤10 级始终罗马数字；>10 级是否罗马数字由客户端配置决定。
+     */
+    private static Component getLiquidLevelText(int level) {
+        if (level <= 10) {
+            return Component.translatable("enchantment.level." + level);
+        }
+        if (AnvilCraft.CLIENT_CONFIG.liquidEnchantmentRomanNumerals) {
+            // 11-15 级已有翻译（XI-XV），更高等级回退为代码计算的罗马数字
+            if (level <= 15) {
+                return Component.translatable("enchantment.level." + level);
+            }
+            return Component.literal(AutoEnchantingTableScreen.toRomanNumeral(level));
+        }
+        return Component.literal(String.valueOf(level));
+    }
+
+    private static String toRomanNumeral(int value) {
+        int[] numbers = {100, 90, 50, 40, 10, 9, 5, 4, 1};
+        String[] symbols = {"C", "XC", "L", "XL", "X", "IX", "V", "IV", "I"};
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < numbers.length; i++) {
+            while (value >= numbers[i]) {
+                value -= numbers[i];
+                builder.append(symbols[i]);
+            }
+        }
+        return builder.toString();
     }
 
     @Override
@@ -543,8 +589,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         int newTotal = this.getSelectedTotalLevel() + data.level();
         // 附魔总等级不能超过书架数量
         if (newTotal > this.menu.getBlockEntity().getShelfLevel()) {
-            this.showWarning(index,
-                Component.translatable("screen.anvilcraft.auto_enchanting_table.warning.bookshelf"));
+            this.showWarning(index, Component.translatable("screen.anvilcraft.auto_enchanting_table.warning.bookshelf"));
             return false;
         }
         // 消耗经验流体不能超过罐内最大储量

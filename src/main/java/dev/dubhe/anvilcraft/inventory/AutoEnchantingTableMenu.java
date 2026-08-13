@@ -59,12 +59,18 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
         }
 
         // 输入/输出槽仅可查看，不允许修改；引物槽可由玩家操作
-        this.addSlot(new ReadOnlySlotItemHandler(
+        this.addSlot(new SlotItemHandler(
             this.blockEntity.getItemHandler(),
             AutoEnchantingTableBlockEntity.SLOT_INPUT,
             7,
             18
-        ));
+        ) {
+            @Override
+            public void set(ItemStack stack) {
+                super.set(stack);
+                AutoEnchantingTableMenu.this.refreshEnchantments();
+            }
+        });
         this.addSlot(new ReadOnlySlotItemHandler(
             this.blockEntity.getItemHandler(),
             AutoEnchantingTableBlockEntity.SLOT_OUTPUT,
