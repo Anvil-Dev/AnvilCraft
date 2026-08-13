@@ -71,7 +71,11 @@ public class AutoEnchantingTableBlockEntityRenderer implements BlockEntityRender
 
         ItemStack item = hasInput ? input : output;
         if (!item.isEmpty()) {
-            this.renderItem(level, item, pose, ms, packedLight, packedOverlay, bookRot);
+            float targetHeight = hasInput ? 1.0F : 1.3F;
+            float bookHeightO = be.getBookHeight();
+            be.setBookHeight(Mth.approach(bookHeightO, targetHeight, 0.06F));
+            float height = Mth.lerp(partialTick, bookHeightO, be.getBookHeight());
+            this.renderItem(level, item, pose, ms, packedLight, packedOverlay, height, bookRot);
         }
 
         // 容器内流体：从底部按比例填充，四个侧面可见
@@ -111,15 +115,24 @@ public class AutoEnchantingTableBlockEntityRenderer implements BlockEntityRender
         MultiBufferSource ms,
         int packedLight,
         int packedOverlay,
+        float height,
         float bookRot
     ) {
         pose.pushPose();
-        pose.translate(0.5, 1.0, 0.5);
+        pose.translate(0.5, height, 0.5);
         // 与书本反向同速旋转
         pose.mulPose(Axis.YP.rotation(bookRot));
         pose.scale(0.4F, 0.4F, 0.4F);
         this.itemRenderer.renderStatic(
-            stack, ItemDisplayContext.FIXED, packedLight, packedOverlay, pose, ms, level, 0);
+            stack,
+            ItemDisplayContext.FIXED,
+            packedLight,
+            packedOverlay,
+            pose,
+            ms,
+            level,
+            0
+        );
         pose.popPose();
     }
 
@@ -168,7 +181,7 @@ public class AutoEnchantingTableBlockEntityRenderer implements BlockEntityRender
             pos.getY(),
             pos.getZ(),
             pos.getX() + 1.0,
-            pos.getY() + 1.5,
+            pos.getY() + 2,
             pos.getZ() + 1.0
         );
     }

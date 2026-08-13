@@ -19,13 +19,13 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.LongPredicate;
 import java.util.function.ToIntFunction;
+import javax.annotation.Nullable;
 
 public class AnvilMenuResult {
     private final boolean ignoreEnchantmentCompatible;
@@ -64,7 +64,7 @@ public class AnvilMenuResult {
     }
 
     public void createResult(
-        Player player,
+        @Nullable Player player,
         ItemStack inputLeft,
         ItemStack inputRight,
         @Nullable String itemName,
@@ -209,7 +209,7 @@ public class AnvilMenuResult {
     }
 
     private void createMultiphaseResult(
-        Player player,
+        @Nullable Player player,
         ItemStack inputLeft,
         ItemStack inputRight,
         @Nullable String itemName
@@ -368,7 +368,7 @@ public class AnvilMenuResult {
     }
 
     private int applyEnchantment(
-        Player player,
+        @Nullable Player player,
         ItemStack inputLeft,
         ItemStack inputRight,
         ItemEnchantments.Mutable enchantments,
@@ -386,7 +386,7 @@ public class AnvilMenuResult {
     }
 
     private int applyEnchantment(
-        Player player,
+        @Nullable Player player,
         ItemStack inputLeft,
         ItemEnchantments.Mutable enchantments,
         ItemEnchantments enchantmentsOnRight,
@@ -407,7 +407,7 @@ public class AnvilMenuResult {
 
             if (!this.ignoreEnchantmentCompatible) {
                 boolean compatible = inputLeft.supportsEnchantment(holder);
-                if (player.hasInfiniteMaterials() || inputLeft.is(Items.ENCHANTED_BOOK)) {
+                if ((player != null && player.hasInfiniteMaterials()) || inputLeft.is(Items.ENCHANTED_BOOK)) {
                     compatible = true;
                 }
 

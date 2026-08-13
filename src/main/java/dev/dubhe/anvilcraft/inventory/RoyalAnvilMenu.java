@@ -20,11 +20,13 @@ import net.neoforged.neoforge.common.CommonHooks;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 
 public class RoyalAnvilMenu extends AnvilMenu implements HammerOpenedAnvilMenu {
-    public final AnvilMenuResult result = AnvilMenuResult.builder()
+    public static final Supplier<AnvilMenuResult> RESULT = () -> AnvilMenuResult.builder()
         .allowBeyondMaxLevel(AnvilCraft.CONFIG.royalAnvilBeyondMaxLevel)
         .create();
+    public final AnvilMenuResult result = RoyalAnvilMenu.RESULT.get();
     private final Inventory playerInventory;
     private final DataSlot openedHammerSlot = DataSlot.standalone();
     private final @Nullable OpenedHammerSource openedHammerSource;

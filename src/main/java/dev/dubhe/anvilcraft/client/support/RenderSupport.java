@@ -502,6 +502,9 @@ public class RenderSupport {
                     bakedmodel,
                     alpha
                 );
+                // 在恢复 3D 光照前立即刷新批处理，否则透明物品会在后续（如 tooltip 触发）flush 时
+                // 以 3D 光照着色而变暗，与原版 GuiGraphics.renderItem 的刷新时机保持一致
+                Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource().endBatch();
                 if (flag) {
                     Lighting.setupFor3DItems();
                 }

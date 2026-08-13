@@ -7,8 +7,10 @@ import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Scrollable;
 import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.FluidDisplayWidget;
+import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
+import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.inventory.AutoEnchantingTableMenu;
 import dev.dubhe.anvilcraft.network.AutoEnchantingTableFluidPacket;
 import dev.dubhe.anvilcraft.network.AutoEnchantingTableSyncPacket;
@@ -18,13 +20,17 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
@@ -61,6 +67,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
     private List<EnchantmentData> lastFilteredEnchantments = List.of();
     private @Nullable EditBox searchBox;
     private @Nullable ItemStack renderingTooltipEnchantedBook;
+    private @Nullable ItemStack ghostOutput;
     private static final int WARNING_DURATION_TICKS = 80;
     private static final int WARNING_TEXT_COLOR = 0xDFFF2222;
     private @Nullable Component warningMessage;
@@ -135,6 +142,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
     @Override
     protected void containerTick() {
         this.renderingTooltipEnchantedBook = null;
+        this.ghostOutput = this.computeGhostOutput();
         // 引物变化（或首次进入）时重新计算自选附魔过滤结果，使 filteredIndexes 与菜单附魔列表保持一致
         List<EnchantmentData> enchantments = this.menu.getEnchantments();
         if (!enchantments.equals(this.lastFilteredEnchantments)) {
@@ -160,11 +168,38 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
+        // 引物模式下悬停输出栏：显示即将输出物品的虚影（不可交互）
+        if (
+            this.ghostOutput != null
+            && !this.ghostOutput.isEmpty()
+        ) {
+            Slot outputSlot = this.menu.getSlot(AutoEnchantingTableBlockEntity.SLOT_OUTPUT);
+            int ghostX = this.leftPos + outputSlot.x;
+            int ghostY = this.topPos + outputSlot.y;
+            RenderSupport.renderItemWithTransparency(this.ghostOutput, guiGraphics.pose(), ghostX, ghostY, 0.52f);
+        }
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
     @Override
     protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
+        // 引物模式下悬停输出栏：显示即将输出物品的虚影 tooltip（含产物附魔）
+        if (
+            this.ghostOutput != null
+            && !this.ghostOutput.isEmpty()
+            && this.hoveredSlot == this.menu.getSlot(AutoEnchantingTableBlockEntity.SLOT_OUTPUT)
+            && this.menu.getSlot(AutoEnchantingTableBlockEntity.SLOT_OUTPUT).getItem().isEmpty()
+        ) {
+            guiGraphics.renderTooltip(
+                this.font,
+                this.getTooltipFromContainerItem(this.ghostOutput),
+                this.ghostOutput.getTooltipImage(),
+                this.ghostOutput,
+                x,
+                y
+            );
+            return;
+        }
         if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
             ItemStack stack = this.hoveredSlot.getItem();
             guiGraphics.renderTooltip(this.font, this.getTooltipFromContainerItem(stack), stack.getTooltipImage(), stack, x, y);
@@ -392,6 +427,39 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             if (data != null) total += data.level();
         }
         return total;
+    }
+
+    /**
+     * 计算引物模式下即将输出物品的预览（服务端条件全部满足时才返回，否则为空）。
+     */
+    private @Nullable ItemStack computeGhostOutput() {
+        AutoEnchantingTableBlockEntity blockEntity = this.menu.getBlockEntity();
+        ItemStack primer = blockEntity.getItemHandler().getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_PRIMER);
+        if (primer.isEmpty() || !blockEntity.isAllowedPrimer(primer)) return null;
+        ItemStack input = this.menu.getSlot(AutoEnchantingTableBlockEntity.SLOT_INPUT).getItem();
+        if (input.isEmpty()) return null;
+        if (!this.menu.getSlot(AutoEnchantingTableBlockEntity.SLOT_OUTPUT).getItem().isEmpty()) return null;
+        List<Holder<Enchantment>> selected = this.getSelectedEnchantments();
+        if (selected.isEmpty()) return null;
+        int totalLevel = 0;
+        for (Holder<Enchantment> holder : selected) {
+            totalLevel += holder.value().getMaxLevel();
+        }
+        if (totalLevel > blockEntity.getShelfLevel()) return null;
+        int cost = totalLevel * AutoEnchantingTableBlockEntity.EXP_COST_PER_SHELF;
+        if (cost <= 0 || cost > AutoEnchantingTableBlockEntity.FLUID_CAPACITY) return null;
+        FluidStack fluid = blockEntity.getFluidHandler().getFluidInTank(0);
+        if (!fluid.is(ModFluids.EXP_FLUID) || fluid.getAmount() < cost) return null;
+        return AutoEnchantingTableBlockEntity.computePrimerEnchantResult(input, selected);
+    }
+
+    private List<Holder<Enchantment>> getSelectedEnchantments() {
+        List<Holder<Enchantment>> selected = new ArrayList<>();
+        for (int i : this.menu.getSelectedIndexes()) {
+            EnchantmentData data = ListUtil.safelyGet(this.menu.getEnchantments(), i).orElse(null);
+            if (data != null) selected.add(data.enchantment());
+        }
+        return selected;
     }
 
     private void showWarning(int index, Component message) {

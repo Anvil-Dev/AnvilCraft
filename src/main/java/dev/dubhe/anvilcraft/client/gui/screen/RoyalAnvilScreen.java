@@ -17,9 +17,12 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.Objects;
+import javax.annotation.Nullable;
+
 public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("crafting", "royal_anvil");
-    private EditBox name;
+    private @Nullable EditBox name;
     private final Player player;
 
     /**
@@ -60,7 +63,7 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
 
     @Override
     public void resize(Minecraft minecraft, int width, int height) {
-        String string = this.name.getValue();
+        String string = Objects.requireNonNull(this.name).getValue();
         this.init(minecraft, width, height);
         this.name.setValue(string);
     }
@@ -70,7 +73,7 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
         if (keyCode == 256 && this.minecraft != null && this.minecraft.player != null) {
             this.minecraft.player.closeContainer();
         }
-        if (this.name.keyPressed(keyCode, scanCode, modifiers) || this.name.canConsumeInput()) {
+        if (Objects.requireNonNull(this.name).keyPressed(keyCode, scanCode, modifiers) || this.name.canConsumeInput()) {
             return true;
         }
         return super.keyPressed(keyCode, scanCode, modifiers);
@@ -125,7 +128,7 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
 
     @Override
     public void renderFg(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-        this.name.render(guiGraphics, mouseX, mouseY, partialTick);
+        Objects.requireNonNull(this.name).render(guiGraphics, mouseX, mouseY, partialTick);
     }
 
     @Override
@@ -142,7 +145,7 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
     public void slotChanged(
         AbstractContainerMenu containerToSend, int dataSlotIndex, ItemStack stack) {
         if (dataSlotIndex == 0) {
-            this.name.setValue(stack.isEmpty() ? "" : stack.getHoverName().getString());
+            Objects.requireNonNull(this.name).setValue(stack.isEmpty() ? "" : stack.getHoverName().getString());
             this.name.setEditable(!stack.isEmpty());
             this.setFocused(this.name);
         }

@@ -12,7 +12,9 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.inventory.AutoEnchantingTableMenu;
+import dev.dubhe.anvilcraft.inventory.RoyalAnvilMenu;
 import dev.dubhe.anvilcraft.util.LiquidEnchantmentUtil;
+import dev.dubhe.anvilcraft.util.anvil.AnvilMenuResult;
 import io.netty.buffer.ByteBuf;
 import lombok.Getter;
 import lombok.Setter;
@@ -38,6 +40,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
@@ -118,7 +121,10 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     private final List<Holder<Enchantment>> selectedEnchantments = new ArrayList<>();
     private int shelfLevel = 0;
     private int cooldownTicks = 0;
+    private int openMenuCount = 0;
     private WorkMode workMode = WorkMode.ENCHANTING;
+    @Setter
+    private float bookHeight;
     @Setter
     private float bookOpen;
 
@@ -203,6 +209,11 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
             blockEntity.setChanged();
         }
 
+        // 引物模式下打开 GUI 时暂停附魔，关闭 GUI 后继续
+        if (blockEntity.workMode == WorkMode.PRIMER && blockEntity.hasOpenMenu()) {
+            return;
+        }
+
         // 2. 冷却逻辑
         if (blockEntity.cooldownTicks > 0) {
             blockEntity.cooldownTicks--;
@@ -215,11 +226,26 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
             case ENCHANTING -> blockEntity.tryEnchantRandomly(level, pos);
             case PRIMER -> blockEntity.tryEnchantWithPrimer(level, pos);
             case LIQUID_ENCHANTMENT -> blockEntity.tryLiquidEnchantment(level, pos);
+            default -> {}
         }
     }
 
     public boolean isAllowedPrimer(ItemStack stack) {
         return stack.is(ModItemTags.AUTO_ENCHANTING_TABLE_PRIMERS);
+    }
+
+    public void onMenuOpen() {
+        this.openMenuCount++;
+    }
+
+    public void onMenuClose() {
+        if (this.openMenuCount > 0) {
+            this.openMenuCount--;
+        }
+    }
+
+    public boolean hasOpenMenu() {
+        return this.openMenuCount > 0;
     }
 
     private WorkMode refreshWorkMode() {
@@ -339,17 +365,36 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         FluidStack fluid = this.fluidTank.getFluid();
         if (!fluid.is(ModFluids.EXP_FLUID) || fluid.getAmount() < cost) return;
 
-        ItemStack result = input.copy();
-        boolean applied = false;
-        for (Holder<Enchantment> holder : this.selectedEnchantments) {
-            if (holder.value().canEnchant(result)) {
-                result.enchant(holder, holder.value().getMaxLevel());
-                applied = true;
-            }
-        }
-        if (!applied) return;
+        ItemStack result = AutoEnchantingTableBlockEntity.computePrimerEnchantResult(input, this.selectedEnchantments);
+        if (result.isEmpty()) return;
 
         this.finishEnchant(result, cost);
+    }
+
+    /**
+     * 计算引物附魔的产出物品。
+     * 书本（书/附魔书）：忽略冲突与不兼容，所有选中附魔都附上。
+     * 武器工具等：先生成包含所有选中附魔的虚拟附魔书，再模拟皇家铁砧将其打到物品上，
+     * 与已有附魔冲突或不兼容的附魔消失。
+     */
+    public static ItemStack computePrimerEnchantResult(ItemStack input, List<Holder<Enchantment>> selected) {
+        if (input.isEmpty() || selected.isEmpty()) return ItemStack.EMPTY;
+        boolean isBook = input.is(Items.BOOK);
+        boolean isEnchantedBook = input.is(Items.ENCHANTED_BOOK);
+        if (isBook || isEnchantedBook) {
+            ItemStack result = isBook ? Items.ENCHANTED_BOOK.getDefaultInstance() : input.copy();
+            for (Holder<Enchantment> holder : selected) {
+                result.enchant(holder, holder.value().getMaxLevel());
+            }
+            return result;
+        }
+        ItemStack virtualBook = Items.ENCHANTED_BOOK.getDefaultInstance();
+        for (Holder<Enchantment> holder : selected) {
+            virtualBook.enchant(holder, holder.value().getMaxLevel());
+        }
+        AnvilMenuResult anvilResult = RoyalAnvilMenu.RESULT.get();
+        anvilResult.createResult(null, input.copy(), virtualBook, input.getHoverName().getString(), ignored -> true);
+        return anvilResult.result;
     }
 
     private void tryLiquidEnchantment(Level level, BlockPos pos) {

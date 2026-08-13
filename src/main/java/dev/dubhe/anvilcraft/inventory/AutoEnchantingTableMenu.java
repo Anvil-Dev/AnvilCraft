@@ -11,6 +11,7 @@ import lombok.Getter;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -23,11 +24,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.items.SlotItemHandler;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
+import javax.annotation.Nullable;
 
 public class AutoEnchantingTableMenu extends AbstractContainerMenu {
     @Getter
@@ -51,6 +52,11 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
         this.blockEntity = (AutoEnchantingTableBlockEntity) machine;
         this.level = inventory.player.level();
         this.inventory = inventory;
+
+        // 服务端记录 GUI 打开状态：引物模式下打开 GUI 暂停附魔
+        if (!this.level.isClientSide) {
+            this.blockEntity.onMenuOpen();
+        }
 
         // 输入/输出槽仅可查看，不允许修改；引物槽可由玩家操作
         this.addSlot(new ReadOnlySlotItemHandler(
@@ -138,6 +144,11 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
     }
 
     @Override
+    public void slotsChanged(Container container) {
+        super.slotsChanged(container);
+    }
+
+    @Override
     public ItemStack quickMoveStack(Player player, int index) {
         ItemStack itemStack;
         Slot slot = this.slots.get(index);
@@ -169,5 +180,13 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
             player,
             ModBlocks.AUTO_ENCHANTING_TABLE.get()
         );
+    }
+
+    @Override
+    public void removed(Player player) {
+        if (!this.level.isClientSide) {
+            this.blockEntity.onMenuClose();
+        }
+        super.removed(player);
     }
 }
