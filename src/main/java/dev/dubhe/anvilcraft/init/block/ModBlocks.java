@@ -473,7 +473,7 @@ public class ModBlocks {
         })
         .simpleItem()
         .recipe(RegistrumBlockRecipeLoader::pump)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
         .register();
 
     public static final BlockEntry<ControlValveBlock> CONTROL_VALVE = REGISTRUM.block("control_valve", ControlValveBlock::new)
@@ -497,28 +497,28 @@ public class ModBlocks {
         .model((ctx, provider) ->
             provider.withExistingParent(provider.name(ctx), AnvilCraft.of("block/control_valve_item")))
         .build()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
         .register();
 
     public static final BlockEntry<PipeStraightBlock> PIPE_STRAIGHT = REGISTRUM.block("pipe_straight", PipeStraightBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties.noOcclusion().sound(SoundType.METAL))
         .blockstate(PipeBlockStateGenerator::pipeStraightBlock)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
         .register();
 
     public static final BlockEntry<PipeCornerBlock> PIPE_CORNER = REGISTRUM.block("pipe_corner", PipeCornerBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties.noOcclusion().sound(SoundType.METAL))
         .blockstate(PipeBlockStateGenerator::pipeCornerBlock)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
         .register();
 
     public static final BlockEntry<PipeNodeBlock> PIPE_NODE = REGISTRUM.block("pipe_node", PipeNodeBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties.noOcclusion().sound(SoundType.METAL))
         .blockstate(PipeBlockStateGenerator::pipeNodeBlock)
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
         .register();
 
     public static final BlockEntry<PipeStraightBlock> GLASS_PIPE_STRAIGHT = REGISTRUM
@@ -528,7 +528,7 @@ public class ModBlocks {
         .properties(properties -> properties.noOcclusion().sound(SoundType.METAL))
         .blockstate(PipeBlockStateGenerator::glassPipeStraightBlock)
         .loot((tables, block) -> tables.dropOther(block, ModItems.PIPE))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
         .register();
 
     public static final BlockEntry<PipeCornerBlock> GLASS_PIPE_CORNER = REGISTRUM
@@ -538,7 +538,7 @@ public class ModBlocks {
         .properties(properties -> properties.noOcclusion().sound(SoundType.METAL))
         .blockstate(PipeBlockStateGenerator::glassPipeCornerBlock)
         .loot((tables, block) -> tables.dropOther(block, ModItems.PIPE))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
         .register();
 
     public static final BlockEntry<PipeNodeBlock> GLASS_PIPE_NODE = REGISTRUM
@@ -548,7 +548,7 @@ public class ModBlocks {
         .properties(properties -> properties.noOcclusion().sound(SoundType.METAL))
         .blockstate(PipeBlockStateGenerator::glassPipeNodeBlock)
         .loot((tables, block) -> tables.dropOther(block, ModItems.PIPE))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
         .register();
 
     public static final BlockEntry<? extends Block> CORRUPTED_BEACON = REGISTRUM.block("corrupted_beacon", CorruptedBeaconBlock::new)
@@ -1586,7 +1586,7 @@ public class ModBlocks {
         .item(ChuteBlockItem::new)
         .onRegister(blockItem -> Item.BY_BLOCK.put(ModBlocks.SIMPLE_CHUTE.get(), blockItem))
         .build()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
         .recipe(RegistrumBlockRecipeLoader::chute)
         .register();
 
@@ -1596,7 +1596,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item(ChuteBlockItem::new)
         .build()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
         .recipe(RegistrumBlockRecipeLoader::magneticChute)
         .register();
 
@@ -1605,7 +1605,7 @@ public class ModBlocks {
         .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, ModBlocks.CHUTE))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
         .register();
 
     public static final BlockEntry<SimpleMagneticChuteBlock> SIMPLE_MAGNETIC_CHUTE = REGISTRUM.block(
@@ -1616,7 +1616,7 @@ public class ModBlocks {
         .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.dropOther(block, ModBlocks.MAGNETIC_CHUTE))
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.ENCHANTMENT_POWER_TRANSMITTER)
         .register();
 
     public static final BlockEntry<ImpactPileBlock> IMPACT_PILE = REGISTRUM.block("impact_pile", ImpactPileBlock::new)

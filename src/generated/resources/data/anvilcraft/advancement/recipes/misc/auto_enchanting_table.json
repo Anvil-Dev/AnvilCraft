@@ -11,11 +11,31 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_iron_ingot": {
+    "has_fluid_tank": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:iron_ingot"
+            "items": "anvilcraft:fluid_tank"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_magnetoelectric_core": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:magnetoelectric_core"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_royal_steel_ingot": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:royal_steel_ingot"
           }
         ]
       },
@@ -32,7 +52,9 @@
     [
       "has_the_recipe",
       "has_enchanting_table",
-      "has_iron_ingot"
+      "has_magnetoelectric_core",
+      "has_royal_steel_ingot",
+      "has_fluid_tank"
     ]
   ],
   "rewards": {

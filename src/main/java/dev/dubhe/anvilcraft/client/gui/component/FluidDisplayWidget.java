@@ -28,7 +28,6 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.joml.Matrix4f;
 
 import java.util.Optional;
-import java.util.function.Function;
 
 @OnlyIn(Dist.CLIENT)
 public class FluidDisplayWidget extends AbstractWidget {
@@ -43,10 +42,9 @@ public class FluidDisplayWidget extends AbstractWidget {
         int x, int y,
         int width, int height,
         IFluidHandler fluidHandler,
-        Function<IFluidHandler, Component> message,
         TriConsumer<Double, Double, Integer> onClick
     ) {
-        super(x, y, width, height, message.apply(fluidHandler));
+        super(x, y, width, height, Component.empty());
         this.fluidHandler = fluidHandler;
         this.onClick = onClick;
     }

@@ -5,14 +5,19 @@
     "E": {
       "item": "minecraft:enchanting_table"
     },
-    "I": {
-      "item": "minecraft:iron_ingot"
+    "M": {
+      "item": "anvilcraft:magnetoelectric_core"
+    },
+    "R": {
+      "item": "anvilcraft:royal_steel_ingot"
+    },
+    "T": {
+      "item": "anvilcraft:fluid_tank"
     }
   },
   "pattern": [
-    "III",
-    "IEI",
-    "III"
+    "TET",
+    "RMR"
   ],
   "result": {
     "count": 1,

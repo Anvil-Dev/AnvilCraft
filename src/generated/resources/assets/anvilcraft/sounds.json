@@ -12,7 +12,7 @@
     "sounds": [
       {
         "type": "event",
-        "name": "block.enchanting_table.use"
+        "name": "block.enchantment_table.use"
       }
     ],
     "subtitle": "subtitles.anvilcraft.auto_enchanting_table.use"

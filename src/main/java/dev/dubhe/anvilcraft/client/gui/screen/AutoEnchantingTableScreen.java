@@ -119,7 +119,6 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             16,
             54,
             this.menu.getBlockEntity().getFluidHandler(),
-            handler -> Component.literal(""),
             (mouseX, mouseY, button) -> {
             }
         ));

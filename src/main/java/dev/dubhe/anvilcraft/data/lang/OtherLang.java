@@ -67,5 +67,6 @@ public class OtherLang {
         provider.add("subtitles.anvilcraft.smart_block_placer_shulker_open", "Smart Block Placer whirs");
 
         provider.add("subtitles.anvilcraft.anvil_hammer_rotate_block", "Anvil Hammer rotates block");
+        provider.add("subtitles.anvilcraft.auto_enchanting_table.use", "Auto Enchanting Table used");
     }
 }
