@@ -1815,7 +1815,7 @@
   "tooltip.anvilcraft.item.recipe.processing.chance": "%1$s%% Chance",
   "tooltip.anvilcraft.item.recovery_pearl": "Right-click to teleport to last death point",
   "tooltip.anvilcraft.item.redstone_wire": "Transmit redstone signals more precisely",
-  "tooltip.anvilcraft.item.redstone_wire.shift": "It can be attached to any full face of a block,\nonly inputs and outputs redstone signals at its breaks (ends)\nThe redstone signal level does not decay within the wire,\nand the wire will not output the signal received from redstone dust back to redstone dust",
+  "tooltip.anvilcraft.item.redstone_wire.shift": "It can be attached to any full face of a block,\nonly inputs and outputs redstone signals at its breaks (ends)\nThe redstone signal level does not decay within the wire,\nand the wire will not output the signal received from redstone dust back to redstone dust\nRight-click an existing wire to change its direction",
   "tooltip.anvilcraft.item.reinforced_concrete": "Creeper proof",
   "tooltip.anvilcraft.item.remote_transmission_pole": "Build a power grid with a transmission length of 16",
   "tooltip.anvilcraft.item.resin_block": "Use to capture friendly or weak hostile creatures LivingEntity",
