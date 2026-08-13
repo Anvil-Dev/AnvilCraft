@@ -316,13 +316,11 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         Optional<Holder<Enchantment>> enchantment = this.getLiquidEnchantment();
         if (enchantment.isEmpty()) return;
         AutoEnchantingTableBlockEntity be = this.menu.getBlockEntity();
-        int maxLevel = this.getLiquidMaxLevel();
         int level = be.getLiquidEnchantmentLevel();
 
         int x = this.leftPos + 47;
         int y = this.topPos + 32;
-        ItemStack willRender = EnchantedBookItem.createForEnchantment(
-            new EnchantmentInstance(enchantment.get(), Math.max(1, level)));
+        ItemStack willRender = EnchantedBookItem.createForEnchantment(new EnchantmentInstance(enchantment.get(), Math.max(1, level)));
 
         int offsetV = 0;
         boolean hovered = MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18);
@@ -345,6 +343,8 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
                 false
             );
         }
+
+        int maxLevel = this.getLiquidMaxLevel();
         // 皇家模式下与物品不兼容：红色呼吸灯提示不可选择
         if (maxLevel <= 0) {
             long gameTime = this.getMinecraft().level != null ? this.getMinecraft().level.getGameTime() : 0;
@@ -494,7 +494,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             int current = be.getLiquidEnchantmentLevel();
             int maxLevel = this.getLiquidMaxLevel();
             int delta = scrollY > 0 ? 1 : -1;
-            int target = Math.max(0, Math.min(current + delta, maxLevel));
+            int target = Math.clamp(current + delta, 0, maxLevel);
             if (target != current) {
                 this.menu.setLiquidLevel(target);
                 PacketDistributor.sendToServer(new AutoEnchantingTableLevelPacket(target));
