@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Scrollable;
@@ -347,6 +348,27 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
                 false
             );
         }
+        PoseStack pose = guiGraphics.pose();
+        pose.pushPose();
+        pose.translate(x + 1, y + 20, 0);
+        pose.scale(0.59F, 0.59F, 1F);
+        guiGraphics.drawString(
+            this.font,
+            Component.translatableEscape("screen.anvilcraft.auto_enchanting_table.liquid_enchantment.0"),
+            0,
+            0,
+            0xFFFFFF,
+            false
+        );
+        guiGraphics.drawString(
+            this.font,
+            Component.translatableEscape("screen.anvilcraft.auto_enchanting_table.liquid_enchantment.1"),
+            0,
+            13,
+            0xFFFFFF,
+            false
+        );
+        pose.popPose();
 
         int maxLevel = this.getLiquidMaxLevel();
         // 皇家模式下与物品不兼容：红色呼吸灯提示不可选择

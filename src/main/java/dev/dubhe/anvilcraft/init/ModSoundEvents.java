@@ -60,6 +60,11 @@ public class ModSoundEvents {
         "anvil_hammer_rotate_block", () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("anvil_hammer_rotate_block"))
     );
 
+    public static final Supplier<SoundEvent> AUTO_ENCHANTING_TABLE_USE = REGISTER.register(
+        "block.anvilcraft.auto_enchanting_table.use",
+        () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("block.anvilcraft.auto_enchanting_table.use"))
+    );
+
     public static void register(IEventBus modBus) {
         REGISTER.register(modBus);
     }

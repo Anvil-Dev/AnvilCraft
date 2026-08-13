@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
@@ -35,6 +36,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.MenuProvider;
@@ -509,6 +511,14 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         }
 
         this.finishEnchant(result, cost);
+        level.playSound(
+            null,
+            pos,
+            ModSoundEvents.AUTO_ENCHANTING_TABLE_USE.get(),
+            SoundSource.BLOCKS,
+            1.0F,
+            level.random.nextFloat() * 0.1F + 0.9F
+        );
     }
 
     private void tryEnchantWithPrimer(Level level, BlockPos pos) {
@@ -532,6 +542,14 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         if (result.isEmpty()) return;
 
         this.finishEnchant(result, cost);
+        level.playSound(
+            null,
+            pos,
+            ModSoundEvents.AUTO_ENCHANTING_TABLE_USE.get(),
+            SoundSource.BLOCKS,
+            1.0F,
+            level.random.nextFloat() * 0.1F + 0.9F
+        );
     }
 
     /**
@@ -590,7 +608,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         // 物品已有所选附魔且不低于所选等级时视为已完成
         int existingLevel = EnchantmentHelper.getEnchantmentsForCrafting(item).getLevel(holder);
         if (existingLevel >= enchantLevel) {
-            this.finishEnchant(item, 0);
+            this.finishEnchant(item.copy(), 0);
             return;
         }
 
@@ -606,6 +624,14 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         result.enchant(holder, enchantLevel);
 
         this.finishEnchant(result, cost);
+        level.playSound(
+            null,
+            pos,
+            ModSoundEvents.AUTO_ENCHANTING_TABLE_USE.get(),
+            SoundSource.BLOCKS,
+            1.0F,
+            level.random.nextFloat() * 0.1F + 0.9F
+        );
     }
 
     private void finishEnchant(ItemStack result, int cost) {
