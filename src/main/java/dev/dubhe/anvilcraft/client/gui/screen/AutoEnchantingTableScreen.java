@@ -1,13 +1,16 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Scrollable;
+import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.FluidDisplayWidget;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.AutoEnchantingTableMenu;
+import dev.dubhe.anvilcraft.network.AutoEnchantingTableFluidPacket;
 import dev.dubhe.anvilcraft.network.AutoEnchantingTableSyncPacket;
 import dev.dubhe.anvilcraft.util.EnchantmentData;
 import net.minecraft.client.Minecraft;
@@ -16,7 +19,9 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.network.PacketDistributor;
@@ -54,6 +59,11 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
     private String filterText = "";
     private @Nullable EditBox searchBox;
     private @Nullable ItemStack renderingTooltipEnchantedBook;
+    private static final int WARNING_DURATION_TICKS = 80;
+    private static final int WARNING_TEXT_COLOR = 0xBFFF5555;
+    private @Nullable Component warningMessage;
+    private int warningTicks = 0;
+    private int warningIndex = -1;
 
     public AutoEnchantingTableScreen(
         AutoEnchantingTableMenu menu,
@@ -82,6 +92,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         this.searchBox.setMaxLength(64);
         this.searchBox.setValue(this.filterText);
         this.searchBox.setResponder(this::onSearchTextChange);
+        this.searchBox.setCanLoseFocus(true);
         this.addRenderableWidget(this.searchBox);
 
         this.addRenderableWidget(new FluidDisplayWidget(
@@ -119,6 +130,13 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
     @Override
     protected void containerTick() {
         this.renderingTooltipEnchantedBook = null;
+        if (this.warningTicks > 0) {
+            this.warningTicks--;
+            if (this.warningTicks == 0) {
+                this.warningMessage = null;
+                this.warningIndex = -1;
+            }
+        }
         super.containerTick();
     }
 
@@ -153,13 +171,20 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
 
     protected void renderEnchantmentSelectingArea(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderingTooltipEnchantedBook = null;
+        // 未放置允许的引物时，不显示自选附魔
+        ItemStack primer = this.menu.getBlockEntity().getItemHandler()
+            .getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_PRIMER);
+        if (primer.isEmpty() || !this.menu.getBlockEntity().isAllowedPrimer(primer)) {
+            return;
+        }
         if (this.filteredIndexes.isEmpty()) return;
         int visible = Math.min(this.filteredIndexes.size() - this.head, 10);
+        PoseStack pose = guiGraphics.pose();
         for (int j = 0; j < visible; j++) {
             int index = this.head + j;
             int original = this.filteredIndexes.get(index);
             int x = this.leftPos + 47 + 18 * (index % 5);
-            int y = this.topPos + 32 + 18 * (index / 5);
+            int y = this.topPos + 32 + 18 * ((index / 5) % 2);
 
             EnchantmentData data = ListUtil.safelyGet(this.menu.getEnchantments(), original).orElse(null);
             if (data == null) continue;
@@ -167,16 +192,42 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             ItemStack willRender = EnchantedBookItem.createForEnchantment(data.toEnchantmentInst());
 
             int offsetV = 0;
+
+            boolean selected = this.menu.getSelectedIndexes().contains(original);
+            if (selected) offsetV = 18;
+
             if (MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) {
                 offsetV = 36;
                 this.renderingTooltipEnchantedBook = willRender;
             }
 
-            boolean selected = this.menu.getSelectedIndexes().contains(original);
-            if (selected) offsetV = 18;
-
             guiGraphics.blit(SharedTextures.SWITCH_TABLE_BUTTON, x, y, 0, offsetV, 18, 18, 18, 54);
+            pose.pushPose();
+            pose.translate(0, 0, -150);
+            pose.scale(1, 1, -15.9F);
             guiGraphics.renderItem(willRender, x + 1, y + (selected ? 1 : 0), (int) (partialTick * 100));
+            pose.popPose();
+
+            // 条件不满足被拒的按钮：红色呼吸灯效果
+            if (this.warningTicks > 0 && index == this.warningIndex) {
+                long gameTime = this.minecraft.level != null ? this.minecraft.level.getGameTime() : 0;
+                float breathe = (Mth.sin(gameTime * 0.2f) + 1.0f) / 2.0f;
+                int alpha = 0x80 + (int) (0x40 * breathe);
+                guiGraphics.fill(x, y, x + 18, y + 18, (alpha << 24) | 0xFF5555);
+            }
+        }
+        // 条件不满足时的警告文字（自选附魔区中央，75% 不透明红色，4 秒）
+        if (this.warningTicks > 0 && this.warningMessage != null) {
+            int centerX = this.leftPos + 92;
+            int centerY = this.topPos + 50;
+            guiGraphics.drawString(
+                this.font,
+                this.warningMessage,
+                centerX - this.font.width(this.warningMessage) / 2,
+                centerY - this.font.lineHeight / 2,
+                WARNING_TEXT_COLOR,
+                false
+            );
         }
     }
 
@@ -211,29 +262,37 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
     @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (button == 0) {
-            if (this.searchBox != null) {
-                boolean focusing = this.insideSearchBox(mouseX, mouseY);
-                boolean changed = this.searchBox.isFocused() == focusing;
-                this.searchBox.setFocused(focusing);
-                if (changed) {
-                    return true;
-                }
+            if (this.searchBox != null && !this.insideSearchBox(mouseX, mouseY)) {
+                this.searchBox.setFocused(false);
             }
             if (this.insideScrollbar(mouseX, mouseY)) {
                 this.scrollable.scrolling();
+                return true;
+            }
+            // 点击流体槽且手持桶（空桶/经验流体桶）→ 服务端桶交互
+            if (
+                this.insideFluidDisplay(mouseX, mouseY)
+                && this.menu.getInventory().getSelected().getItem() instanceof BucketItem
+            ) {
+                PacketDistributor.sendToServer(new AutoEnchantingTableFluidPacket(this.menu.getBlockEntity().getBlockPos()));
                 return true;
             }
             int visible = Math.min(this.filteredIndexes.size() - this.head, 10);
             for (int j = 0; j < visible; j++) {
                 int index = this.head + j;
                 int x = this.leftPos + 47 + 18 * (index % 5);
-                int y = this.topPos + 32 + 18 * (index / 5);
+                int y = this.topPos + 32 + 18 * ((index / 5) % 2);
                 if (!MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) continue;
                 int original = this.filteredIndexes.get(index);
                 if (this.menu.getSelectedIndexes().contains(original)) {
                     this.menu.unselect(original);
                     PacketDistributor.sendToServer(new AutoEnchantingTableSyncPacket(original, false));
                 } else {
+                    EnchantmentData data = ListUtil.safelyGet(this.menu.getEnchantments(), original).orElse(null);
+                    if (data != null && !this.canSelect(index, data)) {
+                        // 条件不满足：按钮不被按下，显示警告
+                        return true;
+                    }
                     this.menu.select(original);
                     PacketDistributor.sendToServer(new AutoEnchantingTableSyncPacket(original, true));
                 }
@@ -295,11 +354,52 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         return true;
     }
 
+    private boolean canSelect(int index, EnchantmentData data) {
+        int newTotal = this.getSelectedTotalLevel() + data.level();
+        // 附魔总等级不能超过书架数量
+        if (newTotal > this.menu.getBlockEntity().getShelfLevel()) {
+            this.showWarning(index,
+                Component.translatable("screen.anvilcraft.auto_enchanting_table.warning.bookshelf"));
+            return false;
+        }
+        // 消耗经验流体不能超过罐内最大储量
+        if (newTotal * AutoEnchantingTableBlockEntity.EXP_COST_PER_SHELF
+            > AutoEnchantingTableBlockEntity.FLUID_CAPACITY) {
+            this.showWarning(index,
+                Component.translatable("screen.anvilcraft.auto_enchanting_table.warning.fluid_capacity"));
+            return false;
+        }
+        return true;
+    }
+
+    private int getSelectedTotalLevel() {
+        int total = 0;
+        for (int i : this.menu.getSelectedIndexes()) {
+            EnchantmentData data = ListUtil.safelyGet(this.menu.getEnchantments(), i).orElse(null);
+            if (data != null) total += data.level();
+        }
+        return total;
+    }
+
+    private void showWarning(int index, Component message) {
+        this.warningIndex = index;
+        this.warningMessage = message;
+        this.warningTicks = WARNING_DURATION_TICKS;
+    }
+
     protected boolean insideSearchBox(double mouseX, double mouseY) {
         int left = this.leftPos + 46;
         int top = this.topPos + 17;
         int right = left + 99;
         int down = top + 12;
+        return MathUtil.isInRange(mouseX, mouseY, left, top, right, down);
+    }
+
+    protected boolean insideFluidDisplay(double mouseX, double mouseY) {
+        int left = this.leftPos + 152;
+        int top = this.topPos + 17;
+        int right = left + 16;
+        int down = top + 54;
         return MathUtil.isInRange(mouseX, mouseY, left, top, right, down);
     }
 

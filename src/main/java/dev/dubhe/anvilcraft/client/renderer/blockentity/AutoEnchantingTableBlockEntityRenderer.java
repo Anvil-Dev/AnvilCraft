@@ -35,7 +35,6 @@ public class AutoEnchantingTableBlockEntityRenderer implements BlockEntityRender
 
     private final BookModel bookModel;
     private final ItemRenderer itemRenderer;
-    private float bookOpen;
 
     public AutoEnchantingTableBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
         this.bookModel = new BookModel(context.bakeLayer(ModelLayers.BOOK));
@@ -60,9 +59,9 @@ public class AutoEnchantingTableBlockEntityRenderer implements BlockEntityRender
 
         // 书本展开程度：输入格有物品时展开，否则闭合
         float targetOpen = hasInput ? 1.0F : 0.0F;
-        float bookOpenO = this.bookOpen;
-        this.bookOpen = Mth.approach(this.bookOpen, targetOpen, 0.06F);
-        float open = Mth.lerp(partialTick, bookOpenO, this.bookOpen);
+        float bookOpenO = be.getBookOpen();
+        be.setBookOpen(Mth.approach(bookOpenO, targetOpen, 0.06F));
+        float open = Mth.lerp(partialTick, bookOpenO, be.getBookOpen());
 
         float time = (float) level.getGameTime() + partialTick;
         // 待机缓慢旋转（与原版附魔台玩家远离时一致的速度）

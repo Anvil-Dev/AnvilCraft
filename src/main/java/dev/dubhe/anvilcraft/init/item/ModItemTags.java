@@ -191,6 +191,7 @@ public class ModItemTags {
     public static final TagKey<Item> NON_PLANETARY_MINERALS = bind("non_planetary_minerals");
     public static final TagKey<Item> NON_PLANETARY_MOB_DROPS = bind("non_planetary_mob_drops");
     public static final TagKey<Item> TIER_1_GEM_AMULETS = bind("tier_1_gem_amulets");
+    public static final TagKey<Item> AUTO_ENCHANTING_TABLE_PRIMERS = bind("auto_enchanting_table_primers");
 
     public static final Object2ObjectMap<Color, TagKey<Item>> DYED_COLORS = initDyedTags();
 

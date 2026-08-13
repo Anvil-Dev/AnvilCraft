@@ -1,19 +1,16 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.dubhe.anvilcraft.api.event.PrimerEnchantmentsEvent;
 import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.inventory.component.ReadOnlySlotItemHandler;
-import dev.dubhe.anvilcraft.util.CompatUtil;
 import dev.dubhe.anvilcraft.util.EnchantmentData;
 import it.unimi.dsi.fastutil.ints.IntArraySet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import lombok.Getter;
 import net.minecraft.core.Holder;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.tags.EnchantmentTags;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -22,9 +19,9 @@ import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
-import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.items.SlotItemHandler;
 import org.jetbrains.annotations.Nullable;
 
@@ -36,7 +33,8 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
     @Getter
     private final AutoEnchantingTableBlockEntity blockEntity;
     private final Level level;
-    private ItemStack lastInputStack = ItemStack.EMPTY;
+    @Getter
+    private final Inventory inventory;
 
     @Getter
     private final IntSet selectedIndexes = new IntArraySet();
@@ -52,14 +50,33 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
         super(menuType, containerId);
         this.blockEntity = (AutoEnchantingTableBlockEntity) machine;
         this.level = inventory.player.level();
+        this.inventory = inventory;
 
         // 输入/输出槽仅可查看，不允许修改；引物槽可由玩家操作
         this.addSlot(new ReadOnlySlotItemHandler(
-            this.blockEntity.getItemHandler(), AutoEnchantingTableBlockEntity.SLOT_INPUT, 7, 18));
+            this.blockEntity.getItemHandler(),
+            AutoEnchantingTableBlockEntity.SLOT_INPUT,
+            7,
+            18
+        ));
         this.addSlot(new ReadOnlySlotItemHandler(
-            this.blockEntity.getItemHandler(), AutoEnchantingTableBlockEntity.SLOT_OUTPUT, 7, 52));
+            this.blockEntity.getItemHandler(),
+            AutoEnchantingTableBlockEntity.SLOT_OUTPUT,
+            7,
+            52
+        ));
         this.addSlot(new SlotItemHandler(
-            this.blockEntity.getItemHandler(), AutoEnchantingTableBlockEntity.SLOT_PRIMER, 27, 18));
+            this.blockEntity.getItemHandler(),
+            AutoEnchantingTableBlockEntity.SLOT_PRIMER,
+            27,
+            18
+        ) {
+            @Override
+            public void set(ItemStack stack) {
+                super.set(stack);
+                AutoEnchantingTableMenu.this.refreshEnchantments();
+            }
+        });
 
         for (int row = 0; row < 3; row++) {
             for (int col = 0; col < 9; col++) {
@@ -69,6 +86,8 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
         for (int col = 0; col < 9; col++) {
             this.addSlot(new Slot(inventory, col, 8 + col * 18, 142));
         }
+
+        this.refreshEnchantments();
     }
 
     public AutoEnchantingTableMenu(
@@ -83,59 +102,44 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
         );
     }
 
-    @Override
-    public void broadcastChanges() {
-        ItemStack current = this.blockEntity.getItemHandler().getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_INPUT);
-        if (!ItemStack.matches(current, this.lastInputStack)) {
-            this.lastInputStack = current.copy();
-            this.refreshEnchantments();
-        }
-        super.broadcastChanges();
-    }
-
     private void refreshEnchantments() {
-        ItemStack input = this.blockEntity.getItemHandler().getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_INPUT);
         this.enchantments.clear();
-        this.addEnchantments(
-            input,
-            DataComponents.ENCHANTMENTS,
-            DataComponents.STORED_ENCHANTMENTS,
-            ModComponents.MERCILESS_ENCHANTMENTS
-        );
-        for (DataComponentType<ItemEnchantments> type : CompatUtil.ENCHANTMENTS_TYPES) {
-            this.addEnchantments(input, type);
+        ItemStack primer = this.blockEntity.getItemHandler().getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_PRIMER);
+        if (!primer.isEmpty() && this.blockEntity.isAllowedPrimer(primer)) {
+            PrimerEnchantmentsEvent event = new PrimerEnchantmentsEvent(this.level, primer);
+            NeoForge.EVENT_BUS.post(event);
+            for (Holder<Enchantment> holder : event.getEnchantments()) {
+                this.enchantments.add(new EnchantmentData(
+                    DataComponents.ENCHANTMENTS, holder, holder.value().getMaxLevel()));
+            }
+            this.enchantments.sort(EnchantmentData::compareTo);
         }
-        this.enchantments.sort(EnchantmentData::compareTo);
-        this.selectedIndexes.removeIf(index -> index < 0 || index >= this.enchantments.size());
-    }
-
-    private void addEnchantments(ItemStack input, DataComponentType<ItemEnchantments> type) {
-        for (var entry : input.getOrDefault(type, ItemEnchantments.EMPTY).entrySet()) {
-            Holder<Enchantment> enchantment = entry.getKey();
-            if (enchantment.is(EnchantmentTags.CURSE)) continue;
-            this.enchantments.add(new EnchantmentData(type, enchantment, entry.getIntValue()));
-        }
-    }
-
-    @SafeVarargs
-    private void addEnchantments(ItemStack input, DataComponentType<ItemEnchantments>... types) {
-        for (DataComponentType<ItemEnchantments> type : types) {
-            this.addEnchantments(input, type);
+        // 根据方块实体记忆的具体附魔重建选中索引
+        this.selectedIndexes.clear();
+        for (int i = 0; i < this.enchantments.size(); i++) {
+            if (this.blockEntity.isSelected(this.enchantments.get(i).enchantment())) {
+                this.selectedIndexes.add(i);
+            }
         }
     }
 
     public void select(int index) {
         if (index < 0 || index >= this.enchantments.size()) return;
+        EnchantmentData data = this.enchantments.get(index);
+        this.blockEntity.selectEnchantment(data.enchantment());
         this.selectedIndexes.add(index);
     }
 
     public void unselect(int index) {
+        if (index < 0 || index >= this.enchantments.size()) return;
+        EnchantmentData data = this.enchantments.get(index);
+        this.blockEntity.unselectEnchantment(data.enchantment());
         this.selectedIndexes.remove(index);
     }
 
     @Override
     public ItemStack quickMoveStack(Player player, int index) {
-        ItemStack itemStack = ItemStack.EMPTY;
+        ItemStack itemStack;
         Slot slot = this.slots.get(index);
         if (!slot.hasItem()) return ItemStack.EMPTY;
         ItemStack slotItem = slot.getItem();

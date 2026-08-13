@@ -115,6 +115,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.AxeItem;
 import net.minecraft.world.item.BucketItem;
@@ -599,14 +600,17 @@ public class ModItems {
         .recipe(RegistrumItemRecipeLoader::totemOfRage)
         .register();
 
+    @SafeVarargs
     private static ItemEntry<? extends Item> createAmuletItem(
         String type,
         Supplier<IAmulet> amulet,
-        NonNullConsumer<JewelCraftingRecipe.Builder> builderConsumer
+        NonNullConsumer<JewelCraftingRecipe.Builder> builderConsumer,
+        TagKey<Item>... extraTags
     ) {
         return REGISTRUM.item(type + "_amulet", Item::new)
             .properties(properties -> properties.stacksTo(1).component(ModComponents.AMULET, amulet.get()))
             .tag(ModItemTags.AMULET)
+            .tag(extraTags)
             .recipe(RegistrumItemRecipeLoader.amulet(builderConsumer))
             .register();
     }
@@ -635,7 +639,8 @@ public class ModItems {
     public static final ItemEntry<? extends Item> EMERALD_AMULET = createAmuletItem(
         "emerald",
         () -> ModAmulets.EMERALD,
-        builder -> builder.requires(Items.EMERALD_BLOCK)
+        builder -> builder.requires(Items.EMERALD_BLOCK),
+        ModItemTags.AUTO_ENCHANTING_TABLE_PRIMERS
     );
     public static final ItemEntry<? extends Item> TOPAZ_AMULET = createAmuletItem(
         "topaz",
