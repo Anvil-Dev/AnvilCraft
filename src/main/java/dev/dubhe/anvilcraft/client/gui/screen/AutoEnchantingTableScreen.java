@@ -243,11 +243,6 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
 
     protected void renderEnchantmentSelectingArea(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderingTooltipEnchantedBook = null;
-        // 罐内为液态魔咒时进入液态魔咒模式：仅显示一个附魔书，滚轮调整等级
-        if (this.isLiquidEnchantmentMode()) {
-            this.renderLiquidEnchantmentArea(guiGraphics, mouseX, mouseY);
-            return;
-        }
         // 未放置允许的引物时，不显示自选附魔
         ItemStack primer = this.menu.getBlockEntity().getItemHandler()
             .getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_PRIMER);
@@ -327,6 +322,21 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             be.getItemHandler().getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_PRIMER),
             enchantment.get()
         );
+    }
+
+    private void renderRandomEnchantingArea(GuiGraphics guiGraphics) {
+        int x = this.leftPos + 48;
+        int y = this.topPos + 46;
+        PoseStack pose = guiGraphics.pose();
+        pose.pushPose();
+        pose.translate(x, y, 0);
+        pose.scale(0.75F, 0.75F, 1F);
+        Component text = Component.translatable(
+            "screen.anvilcraft.auto_enchanting_table.bookshelf",
+            Math.min(this.getMenu().getBlockEntity().getShelfLevel(), AnvilCraft.CONFIG.autoEnchantingTableMaxBookshelf)
+        );
+        guiGraphics.drawString(this.getMinecraft().font, text, 0, 0, -1, false);
+        pose.popPose();
     }
 
     /**
@@ -452,8 +462,14 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+
         // 自选附魔区绘制在背景之上、控件之下，避免悬停时遮挡流体槽 tooltip
-        this.renderEnchantmentSelectingArea(guiGraphics, mouseX, mouseY, partialTick);
+        switch (this.getMenu().getBlockEntity().getWorkMode()) {
+            case ENCHANTING -> this.renderRandomEnchantingArea(guiGraphics);
+            case PRIMER -> this.renderEnchantmentSelectingArea(guiGraphics, mouseX, mouseY, partialTick);
+            case LIQUID_ENCHANTMENT -> this.renderLiquidEnchantmentArea(guiGraphics, mouseX, mouseY);
+            default -> {}
+        }
 
         if (this.scrollable.canScroll()) {
             int left = this.leftPos + 140;

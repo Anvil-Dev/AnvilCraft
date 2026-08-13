@@ -1121,6 +1121,7 @@
   "screen.anvilcraft.active_silencer.search": "enter keyword to search",
   "screen.anvilcraft.active_silencer.title": "Active Silencer",
   "screen.anvilcraft.anvil_hammer.title": "Modifying Block",
+  "screen.anvilcraft.auto_enchanting_table.bookshelf": "Active Bookshelves: %s",
   "screen.anvilcraft.auto_enchanting_table.liquid_enchantment.0": "Scroll on the Enchanted Book",
   "screen.anvilcraft.auto_enchanting_table.liquid_enchantment.1": "above can tweak the levels",
   "screen.anvilcraft.auto_enchanting_table.primer": "Put primers, like Emerald Amulet or specific anvils",
