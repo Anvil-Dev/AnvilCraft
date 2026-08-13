@@ -30,6 +30,7 @@ import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
@@ -433,22 +434,24 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
      * 计算引物模式下即将输出物品的预览（服务端条件全部满足时才返回，否则为空）。
      */
     private @Nullable ItemStack computeGhostOutput() {
-        AutoEnchantingTableBlockEntity blockEntity = this.menu.getBlockEntity();
-        ItemStack primer = blockEntity.getItemHandler().getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_PRIMER);
-        if (primer.isEmpty() || !blockEntity.isAllowedPrimer(primer)) return null;
+        AutoEnchantingTableBlockEntity be = this.menu.getBlockEntity();
+        ItemStack primer = be.getItemHandler().getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_PRIMER);
+        if (primer.isEmpty() || !be.isAllowedPrimer(primer)) return null;
         ItemStack input = this.menu.getSlot(AutoEnchantingTableBlockEntity.SLOT_INPUT).getItem();
         if (input.isEmpty()) return null;
         if (!this.menu.getSlot(AutoEnchantingTableBlockEntity.SLOT_OUTPUT).getItem().isEmpty()) return null;
+        // 输入已有附魔时直接透传预览（不消耗经验流体，无需选择附魔）
+        if (EnchantmentHelper.hasAnyEnchantments(input)) return input.copy();
         List<Holder<Enchantment>> selected = this.getSelectedEnchantments();
         if (selected.isEmpty()) return null;
         int totalLevel = 0;
         for (Holder<Enchantment> holder : selected) {
             totalLevel += holder.value().getMaxLevel();
         }
-        if (totalLevel > blockEntity.getShelfLevel()) return null;
+        if (totalLevel > be.getShelfLevel()) return null;
         int cost = totalLevel * AutoEnchantingTableBlockEntity.EXP_COST_PER_SHELF;
         if (cost <= 0 || cost > AutoEnchantingTableBlockEntity.FLUID_CAPACITY) return null;
-        FluidStack fluid = blockEntity.getFluidHandler().getFluidInTank(0);
+        FluidStack fluid = be.getFluidHandler().getFluidInTank(0);
         if (!fluid.is(ModFluids.EXP_FLUID) || fluid.getAmount() < cost) return null;
         return AutoEnchantingTableBlockEntity.computePrimerEnchantResult(input, selected);
     }
@@ -456,8 +459,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
     private List<Holder<Enchantment>> getSelectedEnchantments() {
         List<Holder<Enchantment>> selected = new ArrayList<>();
         for (int i : this.menu.getSelectedIndexes()) {
-            EnchantmentData data = ListUtil.safelyGet(this.menu.getEnchantments(), i).orElse(null);
-            if (data != null) selected.add(data.enchantment());
+            ListUtil.safelyGet(this.menu.getEnchantments(), i).ifPresent(data -> selected.add(data.enchantment()));
         }
         return selected;
     }

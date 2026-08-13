@@ -80,18 +80,43 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     public static final int EXP_COST_PER_SHELF = 400;
 
     private final ItemStackHandler itemHandler = new ItemStackHandler(3) {
+        private boolean movingToOutput;
+
         @Override
         public int getSlotLimit(int slot) {
             return 1;
         }
 
         @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            if (this.movingToOutput) return stack;
+            return super.insertItem(slot, stack, simulate);
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            if (this.movingToOutput) return ItemStack.EMPTY;
+            return super.extractItem(slot, amount, simulate);
+        }
+
+        @Override
         protected void onContentsChanged(int slot) {
             AutoEnchantingTableBlockEntity.this.setChanged();
+            if (
+                !this.movingToOutput
+                && slot == SLOT_INPUT
+                && !this.getStackInSlot(SLOT_INPUT).isEmpty()
+                && this.getStackInSlot(SLOT_OUTPUT).isEmpty()
+            ) {
+                this.movingToOutput = true;
+                this.setStackInSlot(SLOT_OUTPUT, this.getStackInSlot(SLOT_INPUT));
+                this.setStackInSlot(SLOT_INPUT, ItemStack.EMPTY);
+                this.movingToOutput = false;
+            }
             // 取出引物后记忆消失
             if (
                 slot == SLOT_PRIMER
-                && AutoEnchantingTableBlockEntity.this.itemHandler.getStackInSlot(SLOT_PRIMER).isEmpty()
+                && this.getStackInSlot(SLOT_PRIMER).isEmpty()
                 && !AutoEnchantingTableBlockEntity.this.selectedEnchantments.isEmpty()
             ) {
                 AutoEnchantingTableBlockEntity.this.selectedEnchantments.clear();
@@ -318,7 +343,20 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         }
     }
 
+    /**
+     * 输入物品已有附魔时直接透传到输出栏（不消耗经验流体），返回是否已透传。
+     */
+    private boolean tryPassThroughEnchantedInput() {
+        ItemStack input = this.itemHandler.getStackInSlot(SLOT_INPUT);
+        if (input.isEmpty()) return false;
+        if (!this.itemHandler.getStackInSlot(SLOT_OUTPUT).isEmpty()) return false;
+        if (!EnchantmentHelper.hasAnyEnchantments(input)) return false;
+        this.finishEnchant(input.copy(), 0);
+        return true;
+    }
+
     private void tryEnchantRandomly(Level level, BlockPos pos) {
+        if (this.tryPassThroughEnchantedInput()) return;
         ItemStack input = this.itemHandler.getStackInSlot(SLOT_INPUT);
         if (input.isEmpty()) return;
         // 输出槽被占用时不做
@@ -350,6 +388,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     }
 
     private void tryEnchantWithPrimer(Level level, BlockPos pos) {
+        if (this.tryPassThroughEnchantedInput()) return;
         ItemStack input = this.itemHandler.getStackInSlot(SLOT_INPUT);
         if (input.isEmpty()) return;
         if (!this.itemHandler.getStackInSlot(SLOT_OUTPUT).isEmpty()) return;
