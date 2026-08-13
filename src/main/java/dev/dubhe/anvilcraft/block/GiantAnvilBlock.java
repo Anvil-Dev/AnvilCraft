@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
+import dev.dubhe.anvilcraft.api.event.GiantAnvilEvent;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
@@ -313,6 +314,9 @@ public class GiantAnvilBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> imple
         BlockPos pos,
         RandomSource random
     ) {
+        if (NeoForge.EVENT_BUS.post(new GiantAnvilEvent.BlockTick(this, state, level, pos, random)).isCanceled()) {
+            return;
+        }
         BlockState ringState = level.getBlockState(pos.subtract(state.getValue(HALF).getOffset()).above(3));
 
         boolean isHeldByAcceleration = ringState.getBlock() instanceof AccelerationRingBlock

@@ -46,6 +46,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.List;
 import java.util.Optional;
@@ -120,24 +121,29 @@ public class AnvilEventListener {
     public static void handleNeoAnvilRecipe(AnvilEvent.OnLand event) {
         Level level = event.getLevel();
         if (!(level instanceof ServerLevel serverLevel)) return;
-        BlockPos pos = event.getPos();
-        FallingBlockEntity entity = event.getEntity();
-        InWorldRecipeManager manager = level.getRecipeManager().anvillib$getInWorldRecipeManager();
-        InWorldRecipeContext context = new InWorldRecipeContext(serverLevel, pos.getCenter().subtract(0.0, 0.5, 0.0), entity);
-        FishTankBlockEntity fishTank = level.getBlockEntity(pos.below(), ModBlockEntities.FISH_TANK.get()).orElse(null);
-        if (fishTank != null) fishTank.beginRecipeProcessing();
+        NeoForge.EVENT_BUS.post(new AnvilEvent.BeforeInWorldRecipe(event));
         try {
-            manager.trigger(ModRecipeTriggers.ON_ANVIL_FALL_ON, context);
-            boolean damageAnvil = context.get(DamageAnvil.DAMAGE_ANVIL);
-            if (!event.isAnvilDamage()) event.setAnvilDamage(damageAnvil);
-            GiantAnvilBlock.SUPPRESS_DROPS.set(true);
+            BlockPos pos = event.getPos();
+            FallingBlockEntity entity = event.getEntity();
+            InWorldRecipeManager manager = level.getRecipeManager().anvillib$getInWorldRecipeManager();
+            InWorldRecipeContext context = new InWorldRecipeContext(serverLevel, pos.getCenter().subtract(0.0, 0.5, 0.0), entity);
+            FishTankBlockEntity fishTank = level.getBlockEntity(pos.below(), ModBlockEntities.FISH_TANK.get()).orElse(null);
+            if (fishTank != null) fishTank.beginRecipeProcessing();
             try {
-                context.accept();
+                manager.trigger(ModRecipeTriggers.ON_ANVIL_FALL_ON, context);
+                boolean damageAnvil = context.get(DamageAnvil.DAMAGE_ANVIL);
+                if (!event.isAnvilDamage()) event.setAnvilDamage(damageAnvil);
+                GiantAnvilBlock.SUPPRESS_DROPS.set(true);
+                try {
+                    context.accept();
+                } finally {
+                    GiantAnvilBlock.SUPPRESS_DROPS.set(false);
+                }
             } finally {
-                GiantAnvilBlock.SUPPRESS_DROPS.set(false);
+                if (fishTank != null) fishTank.finishRecipeProcessing();
             }
         } finally {
-            if (fishTank != null) fishTank.finishRecipeProcessing();
+            NeoForge.EVENT_BUS.post(new AnvilEvent.AfterInWorldRecipe(event));
         }
     }
 

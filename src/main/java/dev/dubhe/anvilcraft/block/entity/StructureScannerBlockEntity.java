@@ -18,12 +18,16 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.decoration.Painting;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.IItemHandlerModifiable;
 import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
@@ -163,9 +167,20 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
     private String autoSaveStructureName = "";  // 自动保存的结构名称
     
     /**
-     * 缓存的方块数据
+     * 缓存的方块数据；nbt 为方块实体的完整原版结构语义数据（saveWithId），无方块实体时为 null
      */
-    public record CachedBlockData(int x, int y, int z, net.minecraft.world.level.block.state.BlockState state) {}
+    public record CachedBlockData(
+        int x,
+        int y,
+        int z,
+        net.minecraft.world.level.block.state.BlockState state,
+        @Nullable CompoundTag nbt
+    ) {}
+
+    /**
+     * 保存时刻捕获的实体条目（结构预览坐标系），字段语义与原版结构 entities 条目一致
+     */
+    public record CapturedEntityData(Vec3 pos, BlockPos blockPos, CompoundTag nbt) {}
     
     /**
      * 是否正在扫描或已完成扫描
@@ -335,7 +350,15 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
                 net.minecraft.world.level.block.state.BlockState blockState = this.level.getBlockState(worldPos);
                 
                 if (!blockState.isAir()) {
-                    this.scannedBlocks.add(new CachedBlockData(x, this.currentScanLayer, z, blockState));
+                    // 与原版结构 fillFromWorld 一致，方块实体使用 saveWithId 保留完整数据
+                    net.minecraft.world.level.block.entity.BlockEntity worldBlockEntity =
+                        this.level.getBlockEntity(worldPos);
+                    CompoundTag blockEntityNbt = worldBlockEntity != null
+                        ? worldBlockEntity.saveWithId(this.level.registryAccess())
+                        : null;
+                    this.scannedBlocks.add(
+                        new CachedBlockData(x, this.currentScanLayer, z, blockState, blockEntityNbt)
+                    );
                 }
             }
         }
@@ -357,6 +380,148 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
         }
     }
     
+    /**
+     * 保存时刻按原版结构 fillEntityList 语义捕获扫描区域内的实体（排除玩家），
+     * 坐标转换到与方块缓存相同的结构预览坐标系
+     */
+    public List<CapturedEntityData> captureEntities() {
+        List<CapturedEntityData> captured = new ArrayList<>();
+        if (this.level == null) {
+            return captured;
+        }
+        final int halfRangeX = this.rangeX.get() / 2;
+        BlockPos cornerA = calculateWorldPos(0, 0, 0, halfRangeX);
+        BlockPos cornerB = calculateWorldPos(
+            this.rangeX.get() - 1, this.rangeY.get() - 1, this.rangeZ.get() - 1, halfRangeX
+        );
+        BlockPos minCorner = new BlockPos(
+            Math.min(cornerA.getX(), cornerB.getX()),
+            Math.min(cornerA.getY(), cornerB.getY()),
+            Math.min(cornerA.getZ(), cornerB.getZ())
+        );
+        BlockPos maxCorner = new BlockPos(
+            Math.max(cornerA.getX(), cornerB.getX()),
+            Math.max(cornerA.getY(), cornerB.getY()),
+            Math.max(cornerA.getZ(), cornerB.getZ())
+        );
+        List<Entity> entities = this.level.getEntitiesOfClass(
+            Entity.class,
+            AABB.encapsulatingFullBlocks(minCorner, maxCorner),
+            entity -> !(entity instanceof Player)
+        );
+        for (Entity entity : entities) {
+            CompoundTag entityNbt = new CompoundTag();
+            entity.save(entityNbt);
+            Vec3 previewPos = worldToPreview(entity.position(), halfRangeX);
+            BlockPos previewBlockPos = entity instanceof Painting painting
+                ? worldBlockToPreview(painting.getPos(), halfRangeX)
+                : BlockPos.containing(previewPos);
+            captured.add(new CapturedEntityData(previewPos, previewBlockPos, entityNbt.copy()));
+        }
+        return captured;
+    }
+
+    /**
+     * 扫描器当前是否上下翻转扫描
+     */
+    public boolean isScannerUpsideDown() {
+        if (this.level == null) {
+            return false;
+        }
+        var blockState = this.level.getBlockState(this.getBlockPos());
+        return blockState.hasProperty(StructureScannerBlock.UPSIDE_DOWN)
+            && blockState.getValue(StructureScannerBlock.UPSIDE_DOWN);
+    }
+
+    /**
+     * 世界连续坐标转换到结构预览坐标系（calculateWorldPos 的逆变换）；
+     * 取反轴按格内镜像语义换算，保证实体在方块格内的相对位置一致
+     */
+    private Vec3 worldToPreview(Vec3 worldPos, int halfRangeX) {
+        BlockPos scannerPos = this.getBlockPos();
+        if (this.level == null) {
+            return Vec3.ZERO;
+        }
+        var blockState = this.level.getBlockState(scannerPos);
+        Direction scannerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        boolean upsideDown = blockState.hasProperty(StructureScannerBlock.UPSIDE_DOWN)
+            && blockState.getValue(StructureScannerBlock.UPSIDE_DOWN);
+
+        double previewY = upsideDown
+            ? (scannerPos.getY() + 1) - worldPos.y
+            : worldPos.y - scannerPos.getY();
+        double previewX;
+        double previewZ;
+        switch (scannerFacing) {
+            case SOUTH -> {
+                previewX = (scannerPos.getX() + halfRangeX + 1) - worldPos.x;
+                previewZ = (scannerPos.getZ() - 1) - worldPos.z;
+            }
+            case WEST -> {
+                previewX = (scannerPos.getZ() + halfRangeX + 1) - worldPos.z;
+                previewZ = worldPos.x - scannerPos.getX() - 2;
+            }
+            case EAST -> {
+                previewX = worldPos.z - scannerPos.getZ() + halfRangeX;
+                previewZ = (scannerPos.getX() - 1) - worldPos.x;
+            }
+            case NORTH -> {
+                previewX = worldPos.x - scannerPos.getX() + halfRangeX;
+                previewZ = worldPos.z - scannerPos.getZ() - 2;
+            }
+            // DOWN、UP 与 calculateWorldPos 的防御分支对应
+            default -> {
+                previewX = worldPos.x - scannerPos.getX() + halfRangeX;
+                previewZ = worldPos.z - scannerPos.getZ();
+            }
+        }
+        return new Vec3(previewX, previewY, previewZ);
+    }
+
+    /**
+     * 世界方块坐标转换到结构预览坐标系（用于画等以方块坐标定位的实体）
+     */
+    private BlockPos worldBlockToPreview(BlockPos worldPos, int halfRangeX) {
+        BlockPos scannerPos = this.getBlockPos();
+        if (this.level == null) {
+            return BlockPos.ZERO;
+        }
+        var blockState = this.level.getBlockState(scannerPos);
+        Direction scannerFacing = blockState.getValue(net.minecraft.world.level.block.HorizontalDirectionalBlock.FACING);
+        boolean upsideDown = blockState.hasProperty(StructureScannerBlock.UPSIDE_DOWN)
+            && blockState.getValue(StructureScannerBlock.UPSIDE_DOWN);
+
+        int previewY = upsideDown
+            ? scannerPos.getY() - worldPos.getY()
+            : worldPos.getY() - scannerPos.getY();
+        int previewX;
+        int previewZ;
+        switch (scannerFacing) {
+            case SOUTH -> {
+                previewX = scannerPos.getX() + halfRangeX - worldPos.getX();
+                previewZ = scannerPos.getZ() - 2 - worldPos.getZ();
+            }
+            case WEST -> {
+                previewX = scannerPos.getZ() + halfRangeX - worldPos.getZ();
+                previewZ = worldPos.getX() - scannerPos.getX() - 2;
+            }
+            case EAST -> {
+                previewX = worldPos.getZ() - scannerPos.getZ() + halfRangeX;
+                previewZ = scannerPos.getX() - 2 - worldPos.getX();
+            }
+            case NORTH -> {
+                previewX = worldPos.getX() - scannerPos.getX() + halfRangeX;
+                previewZ = worldPos.getZ() - scannerPos.getZ() - 2;
+            }
+            // DOWN、UP 与 calculateWorldPos 的防御分支对应
+            default -> {
+                previewX = worldPos.getX() - scannerPos.getX() + halfRangeX;
+                previewZ = worldPos.getZ() - scannerPos.getZ();
+            }
+        }
+        return new BlockPos(previewX, previewY, previewZ);
+    }
+
     /**
      * 计算世界坐标
      */
@@ -451,6 +616,9 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
                 blockTag.putInt("y", data.y());
                 blockTag.putInt("z", data.z());
                 blockTag.put("state", net.minecraft.nbt.NbtUtils.writeBlockState(data.state()));
+                if (data.nbt() != null) {
+                    blockTag.put("nbt", data.nbt());
+                }
                 blocksTag.add(blockTag);
             }
             tag.put("scannedBlocks", blocksTag);
@@ -487,7 +655,10 @@ public class StructureScannerBlockEntity extends BaseMachineBlockEntity implemen
                     this.level.registryAccess().lookupOrThrow(net.minecraft.core.registries.Registries.BLOCK),
                     blockTag.getCompound("state")
                 );
-                this.scannedBlocks.add(new CachedBlockData(x, y, z, state));
+                CompoundTag blockEntityNbt = blockTag.contains("nbt", Tag.TAG_COMPOUND)
+                    ? blockTag.getCompound("nbt")
+                    : null;
+                this.scannedBlocks.add(new CachedBlockData(x, y, z, state, blockEntityNbt));
             }
         }
         // 加载自动保存状态

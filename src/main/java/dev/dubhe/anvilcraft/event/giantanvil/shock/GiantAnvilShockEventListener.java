@@ -5,9 +5,11 @@ import dev.dubhe.anvilcraft.api.behavior.BehaviorTree;
 import dev.dubhe.anvilcraft.api.behavior.TreeNode;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.giantanvil.IShockEntity;
+import dev.dubhe.anvilcraft.api.giantanvil.IShockFixedBlock;
 import dev.dubhe.anvilcraft.api.giantanvil.ShockAnvilBehavior;
 import dev.dubhe.anvilcraft.entity.FallingSpectralBlockEntity;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.GiantAnvilShockEffectPacket;
@@ -107,11 +109,16 @@ public class GiantAnvilShockEventListener {
             )
         ).then(
             TreeNode.<ShockContext>predicatedExecutable(it ->
-                it.unwrap().testCorner(ModBlocks.RESIN_BLOCK) && it.unwrap().testBorder(ModBlocks.RESIN_BLOCK)
+                it.unwrap().testCorner(ModBlockTags.RESIN_SHOCK_COMPATIBLE)
+                    && it.unwrap().testBorder(ModBlockTags.RESIN_SHOCK_COMPATIBLE)
             ).executes(it -> {
                 Level level = it.unwrap().level();
                 for (BlockPos pos : it.unwrap().rangePosList()) {
                     BlockState state = level.getBlockState(pos);
+                    if (state.getBlock() instanceof IShockFixedBlock fixed
+                        && fixed.anvilcraft$isFixedDuringShockBounce(state)) {
+                        continue;
+                    }
                     if (state.is(ModBlocks.SPECTRAL_ANVIL.get())) {
                         FallingSpectralBlockEntity entity = FallingSpectralBlockEntity.fall(level, pos, state, false, true);
                         entity.setDeltaMovement(0, ShockContext.bounceVelocityForHeight(1.0D), 0);
@@ -249,8 +256,8 @@ public class GiantAnvilShockEventListener {
 
             // 音效与粒子
             if (AnvilCraft.CLIENT_CONFIG.groundHeaveParticlesEnabled) {
-                boolean isResin = context.testCorner(ModBlocks.RESIN_BLOCK.get())
-                    && context.testBorder(ModBlocks.RESIN_BLOCK.get());
+                boolean isResin = context.testCorner(ModBlockTags.RESIN_SHOCK_COMPATIBLE)
+                    && context.testBorder(ModBlockTags.RESIN_SHOCK_COMPATIBLE);
                 if (isResin) {
                     event.getLevel().playSound(null, event.getPos(), ModSoundEvents.GIANT_ANVIL_RESIN_SHOCK.get(),
                         SoundSource.BLOCKS, 2.0f, 0.8f + event.getLevel().random.nextFloat() * 0.4f);
