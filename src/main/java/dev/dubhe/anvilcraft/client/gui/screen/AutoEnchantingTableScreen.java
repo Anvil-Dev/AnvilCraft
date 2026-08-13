@@ -32,6 +32,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
@@ -238,6 +239,13 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
                 x,
                 y
             );
+        } else if (this.insideBookshelf(x, y)) {
+            guiGraphics.renderTooltip(
+                this.font,
+                Component.translatable("screen.anvilcraft.auto_enchanting_table.enchant_power_bonus", this.getEnchantPowerBonus()),
+                x,
+                y
+            );
         }
     }
 
@@ -322,21 +330,6 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             be.getItemHandler().getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_PRIMER),
             enchantment.get()
         );
-    }
-
-    private void renderRandomEnchantingArea(GuiGraphics guiGraphics) {
-        int x = this.leftPos + 48;
-        int y = this.topPos + 46;
-        PoseStack pose = guiGraphics.pose();
-        pose.pushPose();
-        pose.translate(x, y, 0);
-        pose.scale(0.75F, 0.75F, 1F);
-        Component text = Component.translatable(
-            "screen.anvilcraft.auto_enchanting_table.bookshelf",
-            Math.min(this.getMenu().getBlockEntity().getShelfLevel(), AnvilCraft.CONFIG.autoEnchantingTableMaxBookshelf)
-        );
-        guiGraphics.drawString(this.getMinecraft().font, text, 0, 0, -1, false);
-        pose.popPose();
     }
 
     /**
@@ -465,11 +458,14 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
 
         // 自选附魔区绘制在背景之上、控件之下，避免悬停时遮挡流体槽 tooltip
         switch (this.getMenu().getBlockEntity().getWorkMode()) {
-            case ENCHANTING -> this.renderRandomEnchantingArea(guiGraphics);
             case PRIMER -> this.renderEnchantmentSelectingArea(guiGraphics, mouseX, mouseY, partialTick);
             case LIQUID_ENCHANTMENT -> this.renderLiquidEnchantmentArea(guiGraphics, mouseX, mouseY);
             default -> {}
         }
+
+        ItemStack stack = Items.BOOKSHELF.getDefaultInstance().copyWithCount(this.getEnchantPowerBonus());
+        guiGraphics.renderFakeItem(stack, this.leftPos + 27, this.topPos + 55);
+        guiGraphics.renderItemDecorations(this.getMinecraft().font, stack, this.leftPos + 27, this.topPos + 55);
 
         if (this.scrollable.canScroll()) {
             int left = this.leftPos + 140;
@@ -487,6 +483,10 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
                 12
             );
         }
+    }
+
+    private int getEnchantPowerBonus() {
+        return Math.min(this.getMenu().getBlockEntity().getShelfLevel(), AnvilCraft.CONFIG.autoEnchantingTableMaxBookshelf);
     }
 
     @Override
@@ -674,6 +674,14 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         int top = this.topPos + 17;
         int right = left + 99;
         int down = top + 12;
+        return MathUtil.isInRange(mouseX, mouseY, left, top, right, down);
+    }
+
+    protected boolean insideBookshelf(double mouseX, double mouseY) {
+        int left = this.leftPos + 27;
+        int top = this.topPos + 55;
+        int right = left + 16;
+        int down = top + 16;
         return MathUtil.isInRange(mouseX, mouseY, left, top, right, down);
     }
 

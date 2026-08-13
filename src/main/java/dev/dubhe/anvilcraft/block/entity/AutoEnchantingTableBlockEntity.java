@@ -253,43 +253,52 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         super.setRemoved();
     }
 
-    public static void tick(Level level, BlockPos pos, BlockState state, AutoEnchantingTableBlockEntity blockEntity) {
+    public static void tick(Level level, BlockPos pos, BlockState state, AutoEnchantingTableBlockEntity be) {
         if (level.isClientSide) return;
+        if (be.itemHandler.getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_INPUT).isEmpty()) {
+            boolean isMax = be.cooldownTicks == AnvilCraft.CONFIG.autoEnchantingTableInterval;
+            be.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
+            if (!isMax) {
+                be.setChanged();
+                be.syncToClient();
+            }
+            return;
+        }
         // 刷新书架等级（供客户端自选附魔校验与同步）
-        blockEntity.refreshShelfLevel(level, pos);
-        blockEntity.flushState(level, pos);
+        be.refreshShelfLevel(level, pos);
+        be.flushState(level, pos);
         if (state.getValue(AutoEnchantingTableBlock.POWERED)) return;
-        if (!blockEntity.isGridWorking()) return;
+        if (!be.isGridWorking()) return;
 
         // 1. 先刷新工作模式：模式有变化则重设 4 秒冷却
-        WorkMode newMode = blockEntity.refreshWorkMode();
-        if (newMode != blockEntity.workMode) {
-            blockEntity.workMode = newMode;
-            blockEntity.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
-            blockEntity.setChanged();
+        WorkMode newMode = be.refreshWorkMode();
+        if (newMode != be.workMode) {
+            be.workMode = newMode;
+            be.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
+            be.setChanged();
         }
 
         // 引物/液态魔咒模式下打开 GUI 时暂停附魔，关闭 GUI 后继续
         if (
-            (blockEntity.workMode == WorkMode.PRIMER || blockEntity.workMode == WorkMode.LIQUID_ENCHANTMENT)
-            && blockEntity.hasOpenMenu()
+            (be.workMode == WorkMode.PRIMER || be.workMode == WorkMode.LIQUID_ENCHANTMENT)
+            && be.hasOpenMenu()
         ) {
             return;
         }
 
         // 2. 冷却逻辑
-        if (blockEntity.cooldownTicks > 0) {
-            blockEntity.cooldownTicks--;
-            blockEntity.syncToClient();
+        if (be.cooldownTicks > 0) {
+            be.cooldownTicks--;
+            be.syncToClient();
             return;
         }
 
         // 3. 冷却完毕，按工作模式执行操作
-        blockEntity.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
-        switch (blockEntity.workMode) {
-            case ENCHANTING -> blockEntity.tryEnchantRandomly(level, pos);
-            case PRIMER -> blockEntity.tryEnchantWithPrimer(level, pos);
-            case LIQUID_ENCHANTMENT -> blockEntity.tryLiquidEnchantment(level, pos);
+        be.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
+        switch (be.workMode) {
+            case ENCHANTING -> be.tryEnchantRandomly(level, pos);
+            case PRIMER -> be.tryEnchantWithPrimer(level, pos);
+            case LIQUID_ENCHANTMENT -> be.tryLiquidEnchantment(level, pos);
             default -> {}
         }
     }
