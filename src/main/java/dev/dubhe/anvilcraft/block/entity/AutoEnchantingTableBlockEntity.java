@@ -112,32 +112,48 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         @Override
         protected void onContentsChanged(int slot) {
             AutoEnchantingTableBlockEntity.this.setChanged();
+            // 仅服务端执行物品流转逻辑；客户端在反序列化时也会触发本回调，
+            // 若客户端也执行透传会错误地把输入物品移出，导致客户端显示与服务端不一致。
             if (
-                !this.movingToOutput
-                && slot == SLOT_INPUT
-                && !this.getStackInSlot(SLOT_INPUT).isEmpty()
+                AutoEnchantingTableBlockEntity.this.level != null
+                && !AutoEnchantingTableBlockEntity.this.level.isClientSide()
             ) {
                 if (
-                    EnchantmentHelper.hasAnyEnchantments(this.getStackInSlot(SLOT_INPUT))
-                    && this.getStackInSlot(SLOT_OUTPUT).isEmpty()
-                    && AutoEnchantingTableBlockEntity.this.workMode != WorkMode.LIQUID_ENCHANTMENT
+                    !this.movingToOutput
+                    && slot == SLOT_INPUT
+                    && !this.getStackInSlot(SLOT_INPUT).isEmpty()
                 ) {
-                    this.movingToOutput = true;
-                    this.setStackInSlot(SLOT_OUTPUT, this.getStackInSlot(SLOT_INPUT));
-                    this.setStackInSlot(SLOT_INPUT, ItemStack.EMPTY);
-                    this.movingToOutput = false;
-                } else {
-                    // 重置4秒冷却
-                    AutoEnchantingTableBlockEntity.this.cooldownTicks = AutoEnchantingTableBlockEntity.ENCHANT_INTERVAL_TICKS;
+                    if (
+                        EnchantmentHelper.hasAnyEnchantments(this.getStackInSlot(SLOT_INPUT))
+                        && this.getStackInSlot(SLOT_OUTPUT).isEmpty()
+                        && AutoEnchantingTableBlockEntity.this.workMode != WorkMode.LIQUID_ENCHANTMENT
+                    ) {
+                        this.movingToOutput = true;
+                        this.setStackInSlot(SLOT_OUTPUT, this.getStackInSlot(SLOT_INPUT));
+                        this.setStackInSlot(SLOT_INPUT, ItemStack.EMPTY);
+                        this.movingToOutput = false;
+                    } else {
+                        // 重置4秒冷却
+                        AutoEnchantingTableBlockEntity.this.cooldownTicks = AutoEnchantingTableBlockEntity.ENCHANT_INTERVAL_TICKS;
+                    }
                 }
-            }
-            // 取出引物后记忆消失
-            if (
-                slot == SLOT_PRIMER
-                && this.getStackInSlot(SLOT_PRIMER).isEmpty()
-                && !AutoEnchantingTableBlockEntity.this.selectedEnchantments.isEmpty()
-            ) {
-                AutoEnchantingTableBlockEntity.this.selectedEnchantments.clear();
+                // 取出引物后记忆消失
+                if (
+                    slot == SLOT_PRIMER
+                    && this.getStackInSlot(SLOT_PRIMER).isEmpty()
+                    && !AutoEnchantingTableBlockEntity.this.selectedEnchantments.isEmpty()
+                ) {
+                    AutoEnchantingTableBlockEntity.this.selectedEnchantments.clear();
+                }
+                // 放入引物后立即按新的限制 clamp 液态魔咒附魔等级（取出引物不 clamp，避免误操作丢失等级）
+                if (
+                    slot == SLOT_PRIMER
+                    && !this.getStackInSlot(SLOT_PRIMER).isEmpty()
+                    && AutoEnchantingTableBlockEntity.this.liquidEnchantmentLevel > 0
+                ) {
+                    AutoEnchantingTableBlockEntity.this.setLiquidLevel(
+                        AutoEnchantingTableBlockEntity.this.liquidEnchantmentLevel);
+                }
             }
             AutoEnchantingTableBlockEntity.this.syncToClient();
         }
@@ -556,7 +572,11 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         if (item.isEmpty()) return;
 
         int maxLevel = this.computeLiquidMaxLevel();
-        if (maxLevel <= 0) return;
+        if (maxLevel <= 0) {
+            // 皇家模式下与物品不兼容：无法附魔，直接将物品原样输出，避免卡在输入槽
+            this.finishEnchant(item.copy(), 0);
+            return;
+        }
         int enchantLevel = this.liquidEnchantmentLevel;
         if (enchantLevel > maxLevel) {
             // 等级超出当前引物限制时降级并同步
@@ -656,6 +676,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         CompoundTag tag = super.getUpdateTag(registries);
         tag.put("Inventory", this.itemHandler.serializeNBT(registries));
         tag.put("FluidTank", this.fluidTank.writeToNBT(registries, new CompoundTag()));
+        tag.putString("WorkMode", this.workMode.getSerializedName());
         tag.putInt("ShelfLevel", this.shelfLevel);
         tag.putInt("LiquidEnchantmentLevel", this.liquidEnchantmentLevel);
         ListTag selected = new ListTag();

@@ -711,5 +711,7 @@ public class ScreenLang {
 
         // Portal placement messages
         provider.add("message.anvilcraft.portal.invalid_placement", "Portals can only be placed on CFA side centers"); // 传送门只能放置在锻星砧侧面的中心位置
+
+        provider.add("screen.anvilcraft.auto_enchanting_table.primer", "Put primers, like Emerald Amulet or specific anvils");
     }
 }

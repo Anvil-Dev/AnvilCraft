@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.vertex.PoseStack;
 import dev.anvilcraft.lib.v2.util.ListUtil;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.Scrollable;
@@ -39,6 +38,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
@@ -205,7 +205,12 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             );
             return;
         }
-        if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
+        if (
+            this.hoveredSlot == this.menu.getSlot(AutoEnchantingTableBlockEntity.SLOT_PRIMER)
+            && Objects.requireNonNull(this.hoveredSlot).getItem().isEmpty()
+        ) {
+            guiGraphics.renderTooltip(this.font, Component.translatable("screen.anvilcraft.auto_enchanting_table.primer"), x, y);
+        } else if (this.menu.getCarried().isEmpty() && this.hoveredSlot != null && this.hoveredSlot.hasItem()) {
             ItemStack stack = this.hoveredSlot.getItem();
             guiGraphics.renderTooltip(this.font, this.getTooltipFromContainerItem(stack), stack.getTooltipImage(), stack, x, y);
         } else if (this.renderingTooltipEnchantedBook != null) {
@@ -235,7 +240,6 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         }
         if (this.filteredIndexes.isEmpty()) return;
         int visible = Math.min(this.filteredIndexes.size() - this.head, 10);
-        PoseStack pose = guiGraphics.pose();
         for (int j = 0; j < visible; j++) {
             int index = this.head + j;
             int original = this.filteredIndexes.get(index);
@@ -351,12 +355,20 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             float breathe = (Mth.sin(gameTime * 0.2f) + 1.0f) / 2.0f;
             int alpha = 0x80 + (int) (0x40 * breathe);
             int color = (alpha << 24) | 0xFF5555;
+            int centerX = this.leftPos + this.getXSize() / 2;
+            int height = this.font.lineHeight;
+            int centerY = this.topPos - Mth.ceil(height * 1.15);
+            Component warning = Component.translatable("screen.anvilcraft.auto_enchanting_table.warning.liquid_incompatible");
+            int width = this.font.width(warning);
             guiGraphics.fillGradient(RenderType.guiOverlay(), x, y, x + 18, y + 18, color, color, 0);
+            x = centerX - width / 2;
+            y = centerY - height / 2;
+            guiGraphics.fillGradient(RenderType.guiOverlay(), x - 1, y - 1, x + width, y + height, 0x88000000, 0x88000000, 0);
             guiGraphics.drawString(
                 this.font,
-                Component.translatable("screen.anvilcraft.auto_enchanting_table.warning.liquid_incompatible"),
+                warning,
                 x,
-                y + 20,
+                y,
                 WARNING_TEXT_COLOR,
                 false
             );
