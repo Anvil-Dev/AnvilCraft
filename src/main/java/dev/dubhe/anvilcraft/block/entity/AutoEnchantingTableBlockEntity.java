@@ -385,6 +385,9 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         super.loadAdditional(tag, registries);
         this.itemHandler.deserializeNBT(registries, tag.getCompound("Inventory"));
         this.fluidTank.readFromNBT(registries, tag.getCompound("FluidTank"));
+        if (tag.contains("ShelfLevel")) {
+            this.shelfLevel = tag.getInt("ShelfLevel");
+        }
         if (tag.contains("WorkMode")) {
             for (WorkMode mode : WorkMode.values()) {
                 if (mode.getSerializedName().equals(tag.getString("WorkMode"))) {

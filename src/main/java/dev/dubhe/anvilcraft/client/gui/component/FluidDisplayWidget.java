@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import dev.dubhe.anvilcraft.util.FluidUtil;
 import dev.dubhe.anvilcraft.util.TriConsumer;
 import lombok.Getter;
 import net.minecraft.client.Minecraft;
@@ -18,6 +19,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.InventoryMenu;
+import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
@@ -25,6 +27,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.joml.Matrix4f;
 
+import java.util.Optional;
 import java.util.function.Function;
 
 @OnlyIn(Dist.CLIENT)
@@ -50,16 +53,38 @@ public class FluidDisplayWidget extends AbstractWidget {
 
     @Override
     protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        final int minX = this.getX();
+        final int minY = this.getY();
+        final int maxX = minX + this.width;
+        final int maxY = this.getY() + this.height;
+
         FluidStack stack = this.fluidHandler.getFluidInTank(0);
         if (stack.isEmpty()) return;
         final int capacity = this.getCapacity();
         if (capacity <= 0) return;
 
-        final int minX = this.getX();
-        final int maxX = minX + this.width;
-        final int maxY = this.getY() + this.height;
-        final int minY = maxY - capacity;
+        this.renderFluid(guiGraphics, stack, capacity, minX, maxY);
 
+        if (this.visible && this.isHovered()) {
+            guiGraphics.fillGradient(RenderType.guiOverlay(), minX, minY, maxX, maxY, 0x80FFFFFF, 0x80FFFFFF, 0);
+            if (stack.isEmpty()) return;
+            guiGraphics.renderTooltip(
+                Minecraft.getInstance().font,
+                FluidUtil.getTooltip(
+                    stack,
+                    this.fluidHandler.getTankCapacity(0),
+                    Minecraft.getInstance().options.advancedItemTooltips
+                    ? TooltipFlag.ADVANCED.asCreative()
+                    : TooltipFlag.NORMAL.asCreative()
+                ),
+                Optional.empty(),
+                mouseX,
+                mouseY
+            );
+        }
+    }
+
+    private void renderFluid(GuiGraphics guiGraphics, FluidStack stack, int capacity, int minX, int maxY) {
         final TextureAtlasSprite texture = this.getFluidTexture(stack);
         final int color = IClientFluidTypeExtensions.of(stack.getFluid()).getTintColor(stack);
         int size = FluidDisplayWidget.TEXTURE_SIZE;
@@ -94,10 +119,6 @@ public class FluidDisplayWidget extends AbstractWidget {
 
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableBlend();
-
-        if (this.isHovered) {
-            guiGraphics.fillGradient(RenderType.guiOverlay(), minX, minY, maxX, maxY, 0x80FFFFFF, 0x80FFFFFF, 0);
-        }
     }
 
     private static void drawTextureWithMasking(

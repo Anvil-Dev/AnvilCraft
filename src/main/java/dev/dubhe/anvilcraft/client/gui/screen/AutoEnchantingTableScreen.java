@@ -17,6 +17,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
@@ -57,10 +58,11 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
     };
     private int head = 0;
     private String filterText = "";
+    private List<EnchantmentData> lastFilteredEnchantments = List.of();
     private @Nullable EditBox searchBox;
     private @Nullable ItemStack renderingTooltipEnchantedBook;
     private static final int WARNING_DURATION_TICKS = 80;
-    private static final int WARNING_TEXT_COLOR = 0xBFFF5555;
+    private static final int WARNING_TEXT_COLOR = 0xDFFF2222;
     private @Nullable Component warningMessage;
     private int warningTicks = 0;
     private int warningIndex = -1;
@@ -94,6 +96,9 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         this.searchBox.setResponder(this::onSearchTextChange);
         this.searchBox.setCanLoseFocus(true);
         this.addRenderableWidget(this.searchBox);
+
+        // 打开屏幕时立即填充自选附魔过滤结果，否则 filteredIndexes 为空导致无法显示
+        this.refreshFilter();
 
         this.addRenderableWidget(new FluidDisplayWidget(
             this.leftPos + 152,
@@ -130,6 +135,13 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
     @Override
     protected void containerTick() {
         this.renderingTooltipEnchantedBook = null;
+        // 引物变化（或首次进入）时重新计算自选附魔过滤结果，使 filteredIndexes 与菜单附魔列表保持一致
+        List<EnchantmentData> enchantments = this.menu.getEnchantments();
+        if (!enchantments.equals(this.lastFilteredEnchantments)) {
+            this.lastFilteredEnchantments = List.copyOf(enchantments);
+            this.refreshFilter();
+            this.scrollable.reset();
+        }
         if (this.warningTicks > 0) {
             this.warningTicks--;
             if (this.warningTicks == 0) {
@@ -148,7 +160,6 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
-        this.renderEnchantmentSelectingArea(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }
 
@@ -193,38 +204,40 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
 
             int offsetV = 0;
 
-            boolean selected = this.menu.getSelectedIndexes().contains(original);
-            if (selected) offsetV = 18;
-
             if (MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) {
                 offsetV = 36;
                 this.renderingTooltipEnchantedBook = willRender;
             }
 
+            boolean selected = this.menu.getSelectedIndexes().contains(original);
+            if (selected) offsetV = 18;
+
             guiGraphics.blit(SharedTextures.SWITCH_TABLE_BUTTON, x, y, 0, offsetV, 18, 18, 18, 54);
-            pose.pushPose();
-            pose.translate(0, 0, -150);
-            pose.scale(1, 1, -15.9F);
             guiGraphics.renderItem(willRender, x + 1, y + (selected ? 1 : 0), (int) (partialTick * 100));
-            pose.popPose();
 
             // 条件不满足被拒的按钮：红色呼吸灯效果
             if (this.warningTicks > 0 && index == this.warningIndex) {
-                long gameTime = this.minecraft.level != null ? this.minecraft.level.getGameTime() : 0;
+                long gameTime = this.getMinecraft().level != null ? this.getMinecraft().level.getGameTime() : 0;
                 float breathe = (Mth.sin(gameTime * 0.2f) + 1.0f) / 2.0f;
                 int alpha = 0x80 + (int) (0x40 * breathe);
-                guiGraphics.fill(x, y, x + 18, y + 18, (alpha << 24) | 0xFF5555);
+                int color = (alpha << 24) | 0xFF5555;
+                guiGraphics.fillGradient(RenderType.guiOverlay(), x, y, x + 18, y + 18, color, color, 0);
             }
         }
         // 条件不满足时的警告文字（自选附魔区中央，75% 不透明红色，4 秒）
         if (this.warningTicks > 0 && this.warningMessage != null) {
-            int centerX = this.leftPos + 92;
-            int centerY = this.topPos + 50;
+            int centerX = this.leftPos + this.getXSize() / 2;
+            int height = this.font.lineHeight;
+            int centerY = this.topPos - Mth.ceil(height * 1.15);
+            int width = this.font.width(this.warningMessage);
+            int x = centerX - width / 2;
+            int y = centerY - height / 2;
+            guiGraphics.fillGradient(RenderType.guiOverlay(), x - 1, y - 1, x + width, y + height, 0x88000000, 0x88000000, 0);
             guiGraphics.drawString(
                 this.font,
                 this.warningMessage,
-                centerX - this.font.width(this.warningMessage) / 2,
-                centerY - this.font.lineHeight / 2,
+                x,
+                y,
                 WARNING_TEXT_COLOR,
                 false
             );
@@ -234,6 +247,8 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
         guiGraphics.blit(BACKGROUND, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        // 自选附魔区绘制在背景之上、控件之下，避免悬停时遮挡流体槽 tooltip
+        this.renderEnchantmentSelectingArea(guiGraphics, mouseX, mouseY, partialTick);
 
         if (this.scrollable.canScroll()) {
             int left = this.leftPos + 140;
@@ -323,9 +338,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         if (this.searchBox.isFocused()) {
             return this.searchBox.charTyped(codePoint, modifiers);
         }
-        // 输入时搜索框完全接替：自动聚焦并输入
-        this.searchBox.setFocused(true);
-        return this.searchBox.charTyped(codePoint, modifiers);
+        return super.charTyped(codePoint, modifiers);
     }
 
     @Override

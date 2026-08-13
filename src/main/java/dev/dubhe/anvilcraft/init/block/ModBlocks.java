@@ -2289,6 +2289,7 @@ public class ModBlocks {
             Tags.Blocks.NEEDS_NETHERITE_TOOL,
             BlockTags.WITHER_IMMUNE,
             BlockTags.DRAGON_IMMUNE,
+            BlockTags.ENCHANTMENT_POWER_PROVIDER,
             Tags.Blocks.STORAGE_BLOCKS,
             ModBlockTags.STORAGE_BLOCKS_TRANSCENDIUM,
             ModBlockTags.COLLISION_IMMUNE
