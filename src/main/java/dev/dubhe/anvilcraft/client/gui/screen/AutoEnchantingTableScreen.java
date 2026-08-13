@@ -13,8 +13,10 @@ import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.inventory.AutoEnchantingTableMenu;
 import dev.dubhe.anvilcraft.network.AutoEnchantingTableFluidPacket;
+import dev.dubhe.anvilcraft.network.AutoEnchantingTableLevelPacket;
 import dev.dubhe.anvilcraft.network.AutoEnchantingTableSyncPacket;
 import dev.dubhe.anvilcraft.util.EnchantmentData;
+import dev.dubhe.anvilcraft.util.LiquidEnchantmentUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
@@ -31,11 +33,13 @@ import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.EnchantmentInstance;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.Nullable;
 
 public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEnchantingTableMenu> {
@@ -218,6 +222,11 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
 
     protected void renderEnchantmentSelectingArea(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         this.renderingTooltipEnchantedBook = null;
+        // 罐内为液态魔咒时进入液态魔咒模式：仅显示一个附魔书，滚轮调整等级
+        if (this.isLiquidEnchantmentMode()) {
+            this.renderLiquidEnchantmentArea(guiGraphics, mouseX, mouseY);
+            return;
+        }
         // 未放置允许的引物时，不显示自选附魔
         ItemStack primer = this.menu.getBlockEntity().getItemHandler()
             .getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_PRIMER);
@@ -278,6 +287,87 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
                 false
             );
         }
+    }
+
+    private boolean isLiquidEnchantmentMode() {
+        return this.getLiquidEnchantment().isPresent();
+    }
+
+    private Optional<Holder<Enchantment>> getLiquidEnchantment() {
+        FluidStack fluid = this.menu.getBlockEntity().getFluidHandler().getFluidInTank(0);
+        return LiquidEnchantmentUtil.getEnchantment(fluid);
+    }
+
+    private int getLiquidMaxLevel() {
+        Optional<Holder<Enchantment>> enchantment = this.getLiquidEnchantment();
+        if (enchantment.isEmpty()) return 0;
+        AutoEnchantingTableBlockEntity be = this.menu.getBlockEntity();
+        return AutoEnchantingTableBlockEntity.computeLiquidMaxLevel(
+            be.getItemHandler().getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_INPUT),
+            be.getItemHandler().getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_PRIMER),
+            enchantment.get()
+        );
+    }
+
+    /**
+     * 液态魔咒模式：渲染唯一的附魔书（等级随滚轮改变），并给出当前等级与限制提示。
+     */
+    private void renderLiquidEnchantmentArea(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+        Optional<Holder<Enchantment>> enchantment = this.getLiquidEnchantment();
+        if (enchantment.isEmpty()) return;
+        AutoEnchantingTableBlockEntity be = this.menu.getBlockEntity();
+        int maxLevel = this.getLiquidMaxLevel();
+        int level = be.getLiquidEnchantmentLevel();
+
+        int x = this.leftPos + 47;
+        int y = this.topPos + 32;
+        ItemStack willRender = EnchantedBookItem.createForEnchantment(
+            new EnchantmentInstance(enchantment.get(), Math.max(1, level)));
+
+        int offsetV = 0;
+        boolean hovered = MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18);
+        if (hovered) {
+            offsetV = 36;
+            this.renderingTooltipEnchantedBook = willRender;
+        }
+        if (level > 0) offsetV = 18;
+
+        guiGraphics.blit(SharedTextures.SWITCH_TABLE_BUTTON, x, y, 0, offsetV, 18, 18, 18, 54);
+        guiGraphics.renderItem(willRender, x + 1, y + (level > 0 ? 1 : 0), 0);
+
+        if (level > 0) {
+            guiGraphics.drawString(
+                this.font,
+                Component.translatable("enchantment.level." + level),
+                x + 20,
+                y + 5,
+                0xFFFFFF,
+                false
+            );
+        }
+        // 皇家模式下与物品不兼容：红色呼吸灯提示不可选择
+        if (maxLevel <= 0) {
+            long gameTime = this.getMinecraft().level != null ? this.getMinecraft().level.getGameTime() : 0;
+            float breathe = (Mth.sin(gameTime * 0.2f) + 1.0f) / 2.0f;
+            int alpha = 0x80 + (int) (0x40 * breathe);
+            int color = (alpha << 24) | 0xFF5555;
+            guiGraphics.fillGradient(RenderType.guiOverlay(), x, y, x + 18, y + 18, color, color, 0);
+            guiGraphics.drawString(
+                this.font,
+                Component.translatable("screen.anvilcraft.auto_enchanting_table.warning.liquid_incompatible"),
+                x,
+                y + 20,
+                WARNING_TEXT_COLOR,
+                false
+            );
+        }
+    }
+
+    private boolean insideLiquidBook(double mouseX, double mouseY) {
+        int left = this.leftPos + 47;
+        int top = this.topPos + 32;
+        // 覆盖整个自选附魔区域（5 列 × 2 行），滚轮在区域内即可调整等级
+        return MathUtil.isInRange(mouseX, mouseY, left, top, left + 90, top + 36);
     }
 
     @Override
@@ -398,6 +488,19 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
 
     @Override
     public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (this.isLiquidEnchantmentMode()) {
+            if (!this.insideLiquidBook(mouseX, mouseY)) return false;
+            AutoEnchantingTableBlockEntity be = this.menu.getBlockEntity();
+            int current = be.getLiquidEnchantmentLevel();
+            int maxLevel = this.getLiquidMaxLevel();
+            int delta = scrollY > 0 ? 1 : -1;
+            int target = Math.max(0, Math.min(current + delta, maxLevel));
+            if (target != current) {
+                this.menu.setLiquidLevel(target);
+                PacketDistributor.sendToServer(new AutoEnchantingTableLevelPacket(target));
+            }
+            return true;
+        }
         if (!this.scrollable.canScroll()) return false;
         this.scrollable.scrollOnScroll(scrollY / 1.2);
         return true;
@@ -434,6 +537,8 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
      * 计算引物模式下即将输出物品的预览（服务端条件全部满足时才返回，否则为空）。
      */
     private @Nullable ItemStack computeGhostOutput() {
+        // 液态魔咒模式下待附魔物品直接位于输出槽，无需虚影预览
+        if (this.isLiquidEnchantmentMode()) return null;
         AutoEnchantingTableBlockEntity be = this.menu.getBlockEntity();
         ItemStack primer = be.getItemHandler().getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_PRIMER);
         if (primer.isEmpty() || !be.isAllowedPrimer(primer)) return null;

@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.AutoEnchantingTableBlock;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.inventory.AutoEnchantingTableMenu;
@@ -21,6 +22,7 @@ import lombok.Setter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -44,6 +46,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.EnchantmentInstance;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EnchantingTableBlock;
@@ -61,6 +64,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 @Getter
 public class AutoEnchantingTableBlockEntity extends BlockEntity
@@ -68,16 +72,22 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     public static final int SLOT_INPUT = 0;
     public static final int SLOT_OUTPUT = 1;
     public static final int SLOT_PRIMER = 2;
-    /// 无引物功耗：16 kW
+    /// 随机模式功耗：16 kW
     public static final int DEFAULT_POWER_CONSUMPTION = 16;
-    /// 有引物功耗：64 kW
+    /// 引物模式功耗：64 kW
     public static final int PRIMER_POWER_CONSUMPTION = 64;
+    /// 定向模式功耗：64 kW
+    public static final int LIQUID_POWER_CONSUMPTION = 64;
     /// 内部流体容量：32 桶
     public static final int FLUID_CAPACITY = 32 * FluidType.BUCKET_VOLUME;
     /// 每次附魔尝试的间隔（tick），4 秒 = 80 tick
     public static final int ENCHANT_INTERVAL_TICKS = 80;
     /// 每个书架消耗的经验流体（mB）
     public static final int EXP_COST_PER_SHELF = 400;
+    /// 液态魔咒附魔的最大可选等级
+    public static final int LIQUID_MAX_LEVEL = 15;
+    /// 液态魔咒模式下物品每多一条已有附魔增加的功耗
+    public static final int LIQUID_POWER_PER_ENCHANTMENT = 64;
 
     private final ItemStackHandler itemHandler = new ItemStackHandler(3) {
         private boolean movingToOutput;
@@ -106,12 +116,20 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
                 !this.movingToOutput
                 && slot == SLOT_INPUT
                 && !this.getStackInSlot(SLOT_INPUT).isEmpty()
-                && this.getStackInSlot(SLOT_OUTPUT).isEmpty()
             ) {
-                this.movingToOutput = true;
-                this.setStackInSlot(SLOT_OUTPUT, this.getStackInSlot(SLOT_INPUT));
-                this.setStackInSlot(SLOT_INPUT, ItemStack.EMPTY);
-                this.movingToOutput = false;
+                if (
+                    EnchantmentHelper.hasAnyEnchantments(this.getStackInSlot(SLOT_INPUT))
+                    && this.getStackInSlot(SLOT_OUTPUT).isEmpty()
+                    && AutoEnchantingTableBlockEntity.this.workMode != WorkMode.LIQUID_ENCHANTMENT
+                ) {
+                    this.movingToOutput = true;
+                    this.setStackInSlot(SLOT_OUTPUT, this.getStackInSlot(SLOT_INPUT));
+                    this.setStackInSlot(SLOT_INPUT, ItemStack.EMPTY);
+                    this.movingToOutput = false;
+                } else {
+                    // 重置4秒冷却
+                    AutoEnchantingTableBlockEntity.this.cooldownTicks = AutoEnchantingTableBlockEntity.ENCHANT_INTERVAL_TICKS;
+                }
             }
             // 取出引物后记忆消失
             if (
@@ -148,6 +166,8 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     private int cooldownTicks = 0;
     private int openMenuCount = 0;
     private WorkMode workMode = WorkMode.ENCHANTING;
+    /// 液态魔咒模式下玩家选择的附魔等级（0 表示未选择）
+    private int liquidEnchantmentLevel = 0;
     @Setter
     private float bookHeight;
     @Setter
@@ -234,8 +254,11 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
             blockEntity.setChanged();
         }
 
-        // 引物模式下打开 GUI 时暂停附魔，关闭 GUI 后继续
-        if (blockEntity.workMode == WorkMode.PRIMER && blockEntity.hasOpenMenu()) {
+        // 引物/液态魔咒模式下打开 GUI 时暂停附魔，关闭 GUI 后继续
+        if (
+            (blockEntity.workMode == WorkMode.PRIMER || blockEntity.workMode == WorkMode.LIQUID_ENCHANTMENT)
+            && blockEntity.hasOpenMenu()
+        ) {
             return;
         }
 
@@ -274,6 +297,15 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     }
 
     private WorkMode refreshWorkMode() {
+        // 罐内为非空液态魔咒时即为液态魔咒模式
+        if (this.isLiquidEnchantmentMode()) {
+            return WorkMode.LIQUID_ENCHANTMENT;
+        }
+        if (this.workMode == WorkMode.LIQUID_ENCHANTMENT) {
+            // 液态魔咒耗尽/更换时清空等级选择
+            this.liquidEnchantmentLevel = 0;
+            this.syncToClient();
+        }
         ItemStack primer = this.itemHandler.getStackInSlot(SLOT_PRIMER);
         if (!primer.isEmpty() && this.isAllowedPrimer(primer)) {
             return WorkMode.PRIMER;
@@ -284,6 +316,16 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
             this.syncToClient();
         }
         return WorkMode.ENCHANTING;
+    }
+
+    /**
+     * 罐内流体是否为（附有魔咒的）液态魔咒。
+     */
+    public boolean isLiquidEnchantmentMode() {
+        FluidStack fluid = this.fluidTank.getFluid();
+        return !fluid.isEmpty()
+            && fluid.is(ModFluids.LIQUID_ENCHANTMENT)
+            && LiquidEnchantmentUtil.isEnchanted(fluid);
     }
 
     private void refreshShelfLevel(Level level, BlockPos pos) {
@@ -330,6 +372,72 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
             total += holder.value().getMaxLevel();
         }
         return total;
+    }
+
+    /**
+     * 设置液态魔咒模式下选择的附魔等级（0 表示取消选择），会限制在当前引物允许的最大等级内。
+     */
+    public void setLiquidLevel(int level) {
+        int maxLevel = this.computeLiquidMaxLevel();
+        int clamped = Math.clamp(level, 0, maxLevel);
+        if (clamped != this.liquidEnchantmentLevel) {
+            this.liquidEnchantmentLevel = clamped;
+            this.setChanged();
+            this.syncToClient();
+        }
+    }
+
+    /**
+     * 根据当前罐内液态魔咒、引物与待附魔物品计算允许选择的最大等级。
+     */
+    public int computeLiquidMaxLevel() {
+        FluidStack fluid = this.fluidTank.getFluid();
+        if (fluid.isEmpty() || !fluid.is(ModFluids.LIQUID_ENCHANTMENT)) return 0;
+        return LiquidEnchantmentUtil.getEnchantment(fluid)
+            .map(enchantmentHolder -> AutoEnchantingTableBlockEntity.computeLiquidMaxLevel(
+                this.itemHandler.getStackInSlot(SLOT_INPUT),
+                this.itemHandler.getStackInSlot(SLOT_PRIMER),
+                enchantmentHolder
+            ))
+            .orElse(0);
+    }
+
+    /**
+     * 引物决定液态魔咒附魔的限制：
+     * 无引物（皇家）：与物品或已有附魔冲突时不可选择（返回 0），且不超过原版上限；
+     * 余烬铁砧引物：可选择冲突，但不超过原版上限；
+     * 超限铁砧引物：可选择冲突，且不超过 15 级。
+     */
+    public static int computeLiquidMaxLevel(ItemStack item, ItemStack primer, Holder<Enchantment> enchantment) {
+        LiquidEnchantRestriction restriction = getRestriction(primer);
+        if (restriction == LiquidEnchantRestriction.ROYAL && !isEnchantmentCompatible(item, enchantment)) {
+            return 0;
+        }
+        int vanillaMax = enchantment.value().getMaxLevel();
+        return restriction == LiquidEnchantRestriction.OVERLIMIT
+            ? LIQUID_MAX_LEVEL
+            : Math.min(LIQUID_MAX_LEVEL, vanillaMax);
+    }
+
+    private static LiquidEnchantRestriction getRestriction(ItemStack primer) {
+        if (!primer.isEmpty() && primer.is(ModBlocks.EMBER_ANVIL.get().asItem())) {
+            return LiquidEnchantRestriction.EMBER;
+        }
+        if (!primer.isEmpty() && primer.is(ModBlocks.TRANSCENDENCE_ANVIL.get().asItem())) {
+            return LiquidEnchantRestriction.OVERLIMIT;
+        }
+        return LiquidEnchantRestriction.ROYAL;
+    }
+
+    private static boolean isEnchantmentCompatible(ItemStack item, Holder<Enchantment> enchantment) {
+        if (item.isEmpty()) return true;
+        if (!item.supportsEnchantment(enchantment)) return false;
+        for (Holder<Enchantment> other : EnchantmentHelper.getEnchantmentsForCrafting(item).keySet()) {
+            if (!other.equals(enchantment) && !Enchantment.areCompatible(enchantment, other)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public void syncToClient() {
@@ -437,7 +545,47 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     }
 
     private void tryLiquidEnchantment(Level level, BlockPos pos) {
-        // TODO: 使用液态魔咒进行附魔
+        FluidStack fluid = this.fluidTank.getFluid();
+        if (fluid.isEmpty() || !fluid.is(ModFluids.LIQUID_ENCHANTMENT)) return;
+        Optional<Holder<Enchantment>> enchantment = LiquidEnchantmentUtil.getEnchantment(fluid);
+        if (enchantment.isEmpty()) return;
+        final Holder<Enchantment> holder = enchantment.get();
+
+        // 待附魔物品在输出槽（自动由输入槽移入）
+        ItemStack item = this.itemHandler.getStackInSlot(SLOT_INPUT);
+        if (item.isEmpty()) return;
+
+        int maxLevel = this.computeLiquidMaxLevel();
+        if (maxLevel <= 0) return;
+        int enchantLevel = this.liquidEnchantmentLevel;
+        if (enchantLevel > maxLevel) {
+            // 等级超出当前引物限制时降级并同步
+            this.liquidEnchantmentLevel = maxLevel;
+            this.setChanged();
+            this.syncToClient();
+            enchantLevel = maxLevel;
+        }
+        if (enchantLevel <= 0) return;
+
+        // 物品已有所选附魔且不低于所选等级时视为已完成
+        int existingLevel = EnchantmentHelper.getEnchantmentsForCrafting(item).getLevel(holder);
+        if (existingLevel >= enchantLevel) {
+            this.finishEnchant(item, 0);
+            return;
+        }
+
+        // 消耗液态魔咒：2^(等级-1) mB，15 级最多 16384 mB
+        int cost = 1 << (enchantLevel - 1);
+        if (fluid.getAmount() < cost) return;
+
+        ItemStack result = item.copy();
+        if (result.is(Items.BOOK)) {
+            result = Items.ENCHANTED_BOOK.getDefaultInstance();
+        }
+        // 直接附魔，无视物品兼容性与已有附魔冲突（类似超限铁砧）
+        result.enchant(holder, enchantLevel);
+
+        this.finishEnchant(result, cost);
     }
 
     private void finishEnchant(ItemStack result, int cost) {
@@ -457,6 +605,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         tag.put("Inventory", this.itemHandler.serializeNBT(registries));
         tag.put("FluidTank", this.fluidTank.writeToNBT(registries, new CompoundTag()));
         tag.putString("WorkMode", this.workMode.getSerializedName());
+        tag.putInt("LiquidEnchantmentLevel", this.liquidEnchantmentLevel);
         ListTag selected = new ListTag();
         for (Holder<Enchantment> holder : this.selectedEnchantments) {
             holder.unwrapKey().ifPresent(key -> selected.add(StringTag.valueOf(key.location().toString())));
@@ -479,6 +628,9 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
                     break;
                 }
             }
+        }
+        if (tag.contains("LiquidEnchantmentLevel")) {
+            this.liquidEnchantmentLevel = tag.getInt("LiquidEnchantmentLevel");
         }
         this.selectedEnchantments.clear();
         if (tag.contains("SelectedEnchantments", CompoundTag.TAG_LIST)) {
@@ -505,6 +657,7 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         tag.put("Inventory", this.itemHandler.serializeNBT(registries));
         tag.put("FluidTank", this.fluidTank.writeToNBT(registries, new CompoundTag()));
         tag.putInt("ShelfLevel", this.shelfLevel);
+        tag.putInt("LiquidEnchantmentLevel", this.liquidEnchantmentLevel);
         ListTag selected = new ListTag();
         for (Holder<Enchantment> holder : this.selectedEnchantments) {
             holder.unwrapKey().ifPresent(key -> selected.add(StringTag.valueOf(key.location().toString())));
@@ -547,6 +700,16 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     public int getInputPower() {
         if (this.level == null) return DEFAULT_POWER_CONSUMPTION;
         if (this.getBlockState().getValue(AutoEnchantingTableBlock.POWERED)) return 0;
+        if (this.isLiquidEnchantmentMode()) {
+            // 液态魔咒模式：功耗随物品已有附魔条数线性增加
+            int enchantmentCount = 0;
+            ItemStack item = this.itemHandler.getStackInSlot(SLOT_INPUT);
+            if (!item.isEmpty()) {
+                enchantmentCount = item.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY).size()
+                    + item.getOrDefault(DataComponents.STORED_ENCHANTMENTS, ItemEnchantments.EMPTY).size();
+            }
+            return LIQUID_POWER_CONSUMPTION + LIQUID_POWER_PER_ENCHANTMENT * enchantmentCount;
+        }
         return this.isAllowedPrimer(this.itemHandler.getStackInSlot(SLOT_PRIMER))
             ? PRIMER_POWER_CONSUMPTION
             : DEFAULT_POWER_CONSUMPTION;
@@ -565,5 +728,15 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         public String getSerializedName() {
             return this.name().toLowerCase(Locale.ROOT);
         }
+    }
+
+    /// 液态魔咒模式下引物决定的附魔限制
+    public enum LiquidEnchantRestriction {
+        /// 皇家：与物品/已有附魔冲突不可选择，不超过原版上限
+        ROYAL,
+        /// 余烬：可选择冲突，不超过原版上限
+        EMBER,
+        /// 超限：可选择冲突，不超过 15 级
+        OVERLIMIT,
     }
 }

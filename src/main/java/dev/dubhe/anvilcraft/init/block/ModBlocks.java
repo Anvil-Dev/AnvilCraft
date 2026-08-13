@@ -711,7 +711,7 @@ public class ModBlocks {
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .properties(Item.Properties::fireResistant)
-        .tag(ItemTags.ANVIL)
+        .tag(ItemTags.ANVIL, ModItemTags.AUTO_ENCHANTING_TABLE_PRIMERS)
         .build()
         .register();
 
@@ -768,7 +768,7 @@ public class ModBlocks {
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
         )
-        .tag(ItemTags.ANVIL, ModItemTags.EXPLOSION_PROOF)
+        .tag(ItemTags.ANVIL, ModItemTags.EXPLOSION_PROOF, ModItemTags.AUTO_ENCHANTING_TABLE_PRIMERS)
         .build()
         .register();
 

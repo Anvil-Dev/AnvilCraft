@@ -143,6 +143,10 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
         this.selectedIndexes.remove(index);
     }
 
+    public void setLiquidLevel(int level) {
+        this.blockEntity.setLiquidLevel(level);
+    }
+
     @Override
     public void slotsChanged(Container container) {
         super.slotsChanged(container);
