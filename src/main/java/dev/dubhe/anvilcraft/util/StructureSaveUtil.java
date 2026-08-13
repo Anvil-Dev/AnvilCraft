@@ -186,12 +186,13 @@ public class StructureSaveUtil {
         // entities 字段：保存时刻按原版 fillEntityList 语义捕获区域内实体（排除玩家）
         ListTag entitiesTag = new ListTag();
         for (StructureScannerBlockEntity.CapturedEntityData entityData : blockEntity.captureEntities()) {
-            CompoundTag entityTag = new CompoundTag();
 
             ListTag entityPosTag = new ListTag();
             entityPosTag.add(DoubleTag.valueOf(entityData.pos().x));
             entityPosTag.add(DoubleTag.valueOf(entityData.pos().y));
             entityPosTag.add(DoubleTag.valueOf(entityData.pos().z));
+
+            CompoundTag entityTag = new CompoundTag();
             entityTag.put("pos", entityPosTag);
 
             ListTag entityBlockPosTag = new ListTag();
