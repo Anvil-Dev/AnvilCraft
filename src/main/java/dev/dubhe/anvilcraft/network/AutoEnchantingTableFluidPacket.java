@@ -76,8 +76,10 @@ public record AutoEnchantingTableFluidPacket(BlockPos pos) implements IServerbou
         if (carried.getCount() == 1) {
             menu.setCarried(replacement);
         } else {
-            // 多数容器：放回背包一个成品，减少原容器数量
-            player.addItem(replacement);
+            // 多数容器：放回背包一个成品，减少原容器数量；背包满时原地掉落，避免成品丢失
+            if (!player.addItem(replacement)) {
+                player.getInventory().placeItemBackInInventory(replacement);
+            }
             carried.setCount(carried.getCount() - 1);
             menu.setCarried(carried);
         }

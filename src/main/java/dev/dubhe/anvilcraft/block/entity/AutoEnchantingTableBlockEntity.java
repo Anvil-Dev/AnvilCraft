@@ -119,6 +119,9 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
 
         @Override
         protected void onContentsChanged(int slot) {
+            // 反序列化（chunk 加载 / 客户端更新包）期间不执行流转逻辑，否则会在 WorkMode 读取前
+            // 误将液态魔咒模式下输入槽的已附魔物品透传到输出槽，并过早发送块更新。
+            if (AutoEnchantingTableBlockEntity.this.loading) return;
             AutoEnchantingTableBlockEntity.this.setChanged();
             // 仅服务端执行物品流转逻辑；客户端在反序列化时也会触发本回调，
             // 若客户端也执行透传会错误地把输入物品移出，导致客户端显示与服务端不一致。
@@ -189,6 +192,8 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     private int shelfLevel = 0;
     private int cooldownTicks = 0;
     private int openMenuCount = 0;
+    /// 反序列化期间抑制 onContentsChanged 的物品流转副作用
+    private boolean loading;
     private WorkMode workMode = WorkMode.ENCHANTING;
     /// 液态魔咒模式下玩家选择的附魔等级（0 表示未选择）
     private int liquidEnchantmentLevel = 0;
@@ -687,36 +692,41 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
-        this.itemHandler.deserializeNBT(registries, tag.getCompound("Inventory"));
-        this.fluidTank.readFromNBT(registries, tag.getCompound("FluidTank"));
-        if (tag.contains("ShelfLevel")) {
-            this.shelfLevel = tag.getInt("ShelfLevel");
-        }
-        if (tag.contains("WorkMode")) {
-            for (WorkMode mode : WorkMode.values()) {
-                if (mode.getSerializedName().equals(tag.getString("WorkMode"))) {
-                    this.workMode = mode;
-                    break;
+        this.loading = true;
+        try {
+            this.itemHandler.deserializeNBT(registries, tag.getCompound("Inventory"));
+            this.fluidTank.readFromNBT(registries, tag.getCompound("FluidTank"));
+            if (tag.contains("ShelfLevel")) {
+                this.shelfLevel = tag.getInt("ShelfLevel");
+            }
+            if (tag.contains("WorkMode")) {
+                for (WorkMode mode : WorkMode.values()) {
+                    if (mode.getSerializedName().equals(tag.getString("WorkMode"))) {
+                        this.workMode = mode;
+                        break;
+                    }
                 }
             }
-        }
-        if (tag.contains("LiquidEnchantmentLevel")) {
-            this.liquidEnchantmentLevel = tag.getInt("LiquidEnchantmentLevel");
-        }
-        this.selectedEnchantments.clear();
-        if (tag.contains("SelectedEnchantments", CompoundTag.TAG_LIST)) {
-            ListTag selected = tag.getList("SelectedEnchantments", CompoundTag.TAG_STRING);
-            var registry = registries.lookupOrThrow(Registries.ENCHANTMENT);
-            for (int i = 0; i < selected.size(); i++) {
-                ResourceLocation id = ResourceLocation.tryParse(selected.getString(i));
-                if (id != null) {
-                    registry.get(ResourceKey.create(Registries.ENCHANTMENT, id))
-                        .ifPresent(this.selectedEnchantments::add);
+            if (tag.contains("LiquidEnchantmentLevel")) {
+                this.liquidEnchantmentLevel = tag.getInt("LiquidEnchantmentLevel");
+            }
+            this.selectedEnchantments.clear();
+            if (tag.contains("SelectedEnchantments", CompoundTag.TAG_LIST)) {
+                ListTag selected = tag.getList("SelectedEnchantments", CompoundTag.TAG_STRING);
+                var registry = registries.lookupOrThrow(Registries.ENCHANTMENT);
+                for (int i = 0; i < selected.size(); i++) {
+                    ResourceLocation id = ResourceLocation.tryParse(selected.getString(i));
+                    if (id != null) {
+                        registry.get(ResourceKey.create(Registries.ENCHANTMENT, id))
+                            .ifPresent(this.selectedEnchantments::add);
+                    }
                 }
             }
-        }
-        if (tag.contains("CooldownTicks")) {
-            this.cooldownTicks = tag.getInt("CooldownTicks");
+            if (tag.contains("CooldownTicks")) {
+                this.cooldownTicks = tag.getInt("CooldownTicks");
+            }
+        } finally {
+            this.loading = false;
         }
     }
 

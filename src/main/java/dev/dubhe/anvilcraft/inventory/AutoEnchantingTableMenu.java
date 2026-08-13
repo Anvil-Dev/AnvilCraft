@@ -41,6 +41,8 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
     private final IntSet selectedIndexes = new IntArraySet();
     @Getter
     private final List<EnchantmentData> enchantments = new CopyOnWriteArrayList<>();
+    /// 上次广播时引物槽内容，用于检测自动化（管道/漏斗）更换引物
+    private ItemStack lastPrimerStack = ItemStack.EMPTY;
 
     public AutoEnchantingTableMenu(
         @Nullable MenuType<?> menuType,
@@ -100,6 +102,8 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
         }
 
         this.refreshEnchantments();
+        this.lastPrimerStack = this.blockEntity.getItemHandler()
+            .getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_PRIMER).copy();
     }
 
     public AutoEnchantingTableMenu(
@@ -133,6 +137,19 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
                 this.selectedIndexes.add(i);
             }
         }
+    }
+
+    @Override
+    public void broadcastChanges() {
+        if (!this.level.isClientSide) {
+            ItemStack primer = this.blockEntity.getItemHandler()
+                .getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_PRIMER);
+            if (!ItemStack.matches(this.lastPrimerStack, primer)) {
+                this.lastPrimerStack = primer.copy();
+                this.refreshEnchantments();
+            }
+        }
+        super.broadcastChanges();
     }
 
     public void select(int index) {
