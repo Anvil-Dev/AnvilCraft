@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.DoubleTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
@@ -105,7 +106,8 @@ public class StructureSaveUtil {
                 scannerFacing,
                 blockEntity.getRangeX().get(),
                 blockEntity.getRangeY().get(),
-                blockEntity.getRangeZ().get()
+                blockEntity.getRangeZ().get(),
+                blockEntity.isScannerUpsideDown()
             );
             outputDisk.set(ModComponents.STRUCTURE_DISK_DATA, data);
 
@@ -172,10 +174,36 @@ public class StructureSaveUtil {
                 blockTag.putInt("state", paletteIndex);
             }
 
+            // 与原版结构语义一致：方块实体数据写入该方块条目的 nbt 字段
+            if (data.nbt() != null) {
+                blockTag.put("nbt", data.nbt().copy());
+            }
+
             blocksTag.add(blockTag);
         }
         tag.put("blocks", blocksTag);
-        tag.put("entities", new ListTag());
+
+        // entities 字段：保存时刻按原版 fillEntityList 语义捕获区域内实体（排除玩家）
+        ListTag entitiesTag = new ListTag();
+        for (StructureScannerBlockEntity.CapturedEntityData entityData : blockEntity.captureEntities()) {
+            CompoundTag entityTag = new CompoundTag();
+
+            ListTag entityPosTag = new ListTag();
+            entityPosTag.add(DoubleTag.valueOf(entityData.pos().x));
+            entityPosTag.add(DoubleTag.valueOf(entityData.pos().y));
+            entityPosTag.add(DoubleTag.valueOf(entityData.pos().z));
+            entityTag.put("pos", entityPosTag);
+
+            ListTag entityBlockPosTag = new ListTag();
+            entityBlockPosTag.add(IntTag.valueOf(entityData.blockPos().getX()));
+            entityBlockPosTag.add(IntTag.valueOf(entityData.blockPos().getY()));
+            entityBlockPosTag.add(IntTag.valueOf(entityData.blockPos().getZ()));
+            entityTag.put("blockPos", entityBlockPosTag);
+
+            entityTag.put("nbt", entityData.nbt());
+            entitiesTag.add(entityTag);
+        }
+        tag.put("entities", entitiesTag);
 
         return tag;
     }
