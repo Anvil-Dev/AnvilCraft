@@ -166,11 +166,11 @@ public class AutoEnchantingTableMenu extends AbstractContainerMenu {
         ItemStack slotItem = slot.getItem();
         itemStack = slotItem.copy();
         if (index < 3) {
-            // 输入/输出槽只读，无法快速取出；仅引物槽可快速取回背包
+            // 输出槽只读不可取出；输入/引物槽可快速取回背包
             if (!slot.mayPickup(player)) return ItemStack.EMPTY;
             if (!this.moveItemStackTo(slotItem, 3, 39, true)) return ItemStack.EMPTY;
         } else {
-            // 输入/输出槽只读（mayPlace 为 false），快速放入只会进入引物槽
+            // 快速放入：按槽位顺序尝试输入槽与引物槽，输出槽 mayPlace 恒为 false 被跳过
             if (!this.moveItemStackTo(slotItem, 0, 3, false)) return ItemStack.EMPTY;
         }
         if (slotItem.isEmpty()) {

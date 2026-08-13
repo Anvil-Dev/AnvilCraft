@@ -59,6 +59,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.auto_enchanting_table.warning.bookshelf", "Not enough bookshelves");
         provider.add("screen.anvilcraft.auto_enchanting_table.warning.fluid_capacity", "Exceeds fluid capacity");
         provider.add("screen.anvilcraft.auto_enchanting_table.warning.liquid_incompatible", "Incompatible with the item");
+        provider.add("screen.anvilcraft.auto_enchanting_table.warning.item_incompatible", "Item cannot hold the selected enchantments");
         // 原版仅提供 1-10 级的等级文本，超限附魔需要补充 11-15 级
         provider.add("enchantment.level.11", "XI");
         provider.add("enchantment.level.12", "XII");

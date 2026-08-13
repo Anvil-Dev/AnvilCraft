@@ -62,12 +62,12 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 import net.neoforged.neoforge.items.IItemHandler;
 import net.neoforged.neoforge.items.ItemStackHandler;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 @Getter
 public class AutoEnchantingTableBlockEntity extends BlockEntity
@@ -94,6 +94,15 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         @Override
         public int getSlotLimit(int slot) {
             return 1;
+        }
+
+        @Override
+        public boolean isItemValid(int slot, ItemStack stack) {
+            // 引物槽只允许有效引物，避免自动化/快速放入把无关物品卡在引物槽
+            if (slot == SLOT_PRIMER) {
+                return AutoEnchantingTableBlockEntity.this.isAllowedPrimer(stack);
+            }
+            return super.isItemValid(slot, stack);
         }
 
         @Override
@@ -255,17 +264,6 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
 
     public static void tick(Level level, BlockPos pos, BlockState state, AutoEnchantingTableBlockEntity be) {
         if (level.isClientSide) return;
-        if (be.itemHandler.getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_INPUT).isEmpty()) {
-            boolean isMax = be.cooldownTicks == AnvilCraft.CONFIG.autoEnchantingTableInterval;
-            be.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
-            if (!isMax) {
-                be.setChanged();
-                be.syncToClient();
-            }
-            return;
-        }
-        // 刷新书架等级（供客户端自选附魔校验与同步）
-        be.refreshShelfLevel(level, pos);
         be.flushState(level, pos);
         if (state.getValue(AutoEnchantingTableBlock.POWERED)) return;
         if (!be.isGridWorking()) return;
@@ -276,6 +274,18 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
             be.workMode = newMode;
             be.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
             be.setChanged();
+        }
+
+        be.refreshShelfLevel(level, pos);
+
+        if (be.itemHandler.getStackInSlot(AutoEnchantingTableBlockEntity.SLOT_INPUT).isEmpty()) {
+            boolean isMax = be.cooldownTicks == AnvilCraft.CONFIG.autoEnchantingTableInterval;
+            be.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
+            if (!isMax) {
+                be.setChanged();
+                be.syncToClient();
+            }
+            return;
         }
 
         // 引物/液态魔咒模式下打开 GUI 时暂停附魔，关闭 GUI 后继续
@@ -289,7 +299,10 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
         // 2. 冷却逻辑
         if (be.cooldownTicks > 0) {
             be.cooldownTicks--;
-            be.syncToClient();
+            // 冷却期间每 4 tick 同步一次，降低块实体更新包频率
+            if (be.cooldownTicks % 4 == 0) {
+                be.syncToClient();
+            }
             return;
         }
 
@@ -361,6 +374,10 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
                 levelValue += (int) level.getBlockState(bookshelfPos).getEnchantPowerBonus(level, bookshelfPos);
             }
         }
+        levelValue = Math.min(
+            levelValue,
+            this.workMode == WorkMode.ENCHANTING ? AnvilCraft.CONFIG.autoEnchantingTableMaxBookshelf : Integer.MAX_VALUE
+        );
         if (levelValue != this.shelfLevel) {
             this.shelfLevel = levelValue;
             this.setChanged();

@@ -29,7 +29,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.EnchantedBookItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -77,6 +76,8 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
     private @Nullable EditBox searchBox;
     private @Nullable ItemStack renderingTooltipEnchantedBook;
     private @Nullable ItemStack ghostOutput;
+    /// 引物模式下选中附魔全部无法应用到输入物品（如木棍）时置位，用于 GUI 提示
+    private boolean primerResultEmpty = false;
     private static final int WARNING_DURATION_TICKS = 80;
     private static final int WARNING_TEXT_COLOR = 0xDFFF2222;
     private @Nullable Component warningMessage;
@@ -122,8 +123,8 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             18,
             56,
             this.menu.getBlockEntity().getFluidHandler(),
-            (mouseX, mouseY, button) -> {
-            }
+            (mouseX, mouseY, button) ->
+                PacketDistributor.sendToServer(new AutoEnchantingTableFluidPacket(this.menu.getBlockEntity().getBlockPos()))
         ));
     }
 
@@ -157,6 +158,10 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             this.lastFilteredEnchantments = List.copyOf(enchantments);
             this.refreshFilter();
             this.scrollable.reset();
+        }
+        // 引物模式下输入物品无法承载选中附魔时持续提示（否则物品会静默卡在输入槽）
+        if (this.primerResultEmpty) {
+            this.showWarning(-1, Component.translatable("screen.anvilcraft.auto_enchanting_table.warning.item_incompatible"));
         }
         if (this.warningTicks > 0) {
             this.warningTicks--;
@@ -242,7 +247,10 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         } else if (this.insideBookshelf(x, y)) {
             guiGraphics.renderTooltip(
                 this.font,
-                Component.translatable("screen.anvilcraft.auto_enchanting_table.enchant_power_bonus", this.getEnchantPowerBonus()),
+                Component.translatable(
+                    "screen.anvilcraft.auto_enchanting_table.enchant_power_bonus",
+                    this.getMenu().getBlockEntity().getShelfLevel()
+                ),
                 x,
                 y
             );
@@ -262,8 +270,8 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         for (int j = 0; j < visible; j++) {
             int index = this.head + j;
             int original = this.filteredIndexes.get(index);
-            int x = this.leftPos + 47 + 18 * (index % 5);
-            int y = this.topPos + 32 + 18 * ((index / 5) % 2);
+            int x = this.leftPos + 47 + 18 * (j % 5);
+            int y = this.topPos + 32 + 18 * ((j / 5) % 2);
 
             EnchantmentData data = ListUtil.safelyGet(this.menu.getEnchantments(), original).orElse(null);
             if (data == null) continue;
@@ -463,9 +471,15 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
             default -> {}
         }
 
-        ItemStack stack = Items.BOOKSHELF.getDefaultInstance().copyWithCount(this.getEnchantPowerBonus());
+        ItemStack stack = Items.BOOKSHELF.getDefaultInstance();
         guiGraphics.renderFakeItem(stack, this.leftPos + 27, this.topPos + 55);
-        guiGraphics.renderItemDecorations(this.getMinecraft().font, stack, this.leftPos + 27, this.topPos + 55);
+        guiGraphics.renderItemDecorations(
+            this.getMinecraft().font,
+            stack,
+            this.leftPos + 27,
+            this.topPos + 55,
+            "" + this.getMenu().getBlockEntity().getShelfLevel()
+        );
 
         if (this.scrollable.canScroll()) {
             int left = this.leftPos + 140;
@@ -485,10 +499,6 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         }
     }
 
-    private int getEnchantPowerBonus() {
-        return Math.min(this.getMenu().getBlockEntity().getShelfLevel(), AnvilCraft.CONFIG.autoEnchantingTableMaxBookshelf);
-    }
-
     @Override
     public void resize(Minecraft minecraft, int width, int height) {
         this.scrollable.calculateScroll(this.head / 5);
@@ -505,34 +515,29 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
                 this.scrollable.scrolling();
                 return true;
             }
-            // 点击流体槽且手持桶（空桶/经验流体桶）→ 服务端桶交互
-            if (
-                this.insideFluidDisplay(mouseX, mouseY)
-                && this.menu.getInventory().getSelected().getItem() instanceof BucketItem
-            ) {
-                PacketDistributor.sendToServer(new AutoEnchantingTableFluidPacket(this.menu.getBlockEntity().getBlockPos()));
-                return true;
-            }
-            int visible = Math.min(this.filteredIndexes.size() - this.head, 10);
-            for (int j = 0; j < visible; j++) {
-                int index = this.head + j;
-                int x = this.leftPos + 47 + 18 * (index % 5);
-                int y = this.topPos + 32 + 18 * ((index / 5) % 2);
-                if (!MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) continue;
-                int original = this.filteredIndexes.get(index);
-                if (this.menu.getSelectedIndexes().contains(original)) {
-                    this.menu.unselect(original);
-                    PacketDistributor.sendToServer(new AutoEnchantingTableSyncPacket(original, false));
-                } else {
-                    EnchantmentData data = ListUtil.safelyGet(this.menu.getEnchantments(), original).orElse(null);
-                    if (data != null && !this.canSelect(index, data)) {
-                        // 条件不满足：按钮不被按下，显示警告
-                        return true;
+            // 液态魔咒模式下自选附魔区被液态附魔书占用，点击不应切换引物附魔
+            if (!this.isLiquidEnchantmentMode()) {
+                int visible = Math.min(this.filteredIndexes.size() - this.head, 10);
+                for (int j = 0; j < visible; j++) {
+                    int index = this.head + j;
+                    int x = this.leftPos + 47 + 18 * (j % 5);
+                    int y = this.topPos + 32 + 18 * ((j / 5) % 2);
+                    if (!MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) continue;
+                    int original = this.filteredIndexes.get(index);
+                    if (this.menu.getSelectedIndexes().contains(original)) {
+                        this.menu.unselect(original);
+                        PacketDistributor.sendToServer(new AutoEnchantingTableSyncPacket(original, false));
+                    } else {
+                        EnchantmentData data = ListUtil.safelyGet(this.menu.getEnchantments(), original).orElse(null);
+                        if (data != null && !this.canSelect(index, data)) {
+                            // 条件不满足：按钮不被按下，显示警告
+                            return true;
+                        }
+                        this.menu.select(original);
+                        PacketDistributor.sendToServer(new AutoEnchantingTableSyncPacket(original, true));
                     }
-                    this.menu.select(original);
-                    PacketDistributor.sendToServer(new AutoEnchantingTableSyncPacket(original, true));
+                    return true;
                 }
-                return true;
             }
         }
         return super.mouseClicked(mouseX, mouseY, button);
@@ -631,6 +636,7 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
      * 计算引物模式下即将输出物品的预览（服务端条件全部满足时才返回，否则为空）。
      */
     private @Nullable ItemStack computeGhostOutput() {
+        this.primerResultEmpty = false;
         // 液态魔咒模式下待附魔物品直接位于输出槽，无需虚影预览
         if (this.isLiquidEnchantmentMode()) return null;
         AutoEnchantingTableBlockEntity be = this.menu.getBlockEntity();
@@ -652,7 +658,9 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         if (cost <= 0 || cost > AutoEnchantingTableBlockEntity.FLUID_CAPACITY) return null;
         FluidStack fluid = be.getFluidHandler().getFluidInTank(0);
         if (!fluid.is(ModFluids.EXP_FLUID) || fluid.getAmount() < cost) return null;
-        return AutoEnchantingTableBlockEntity.computePrimerEnchantResult(input, selected);
+        ItemStack result = AutoEnchantingTableBlockEntity.computePrimerEnchantResult(input, selected);
+        this.primerResultEmpty = result.isEmpty();
+        return result;
     }
 
     private List<Holder<Enchantment>> getSelectedEnchantments() {
@@ -682,14 +690,6 @@ public class AutoEnchantingTableScreen extends AbstractContainerScreen<AutoEncha
         int top = this.topPos + 55;
         int right = left + 16;
         int down = top + 16;
-        return MathUtil.isInRange(mouseX, mouseY, left, top, right, down);
-    }
-
-    protected boolean insideFluidDisplay(double mouseX, double mouseY) {
-        int left = this.leftPos + 152;
-        int top = this.topPos + 17;
-        int right = left + 16;
-        int down = top + 54;
         return MathUtil.isInRange(mouseX, mouseY, left, top, right, down);
     }
 

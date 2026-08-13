@@ -1129,6 +1129,7 @@
   "screen.anvilcraft.auto_enchanting_table.title": "Auto Enchant",
   "screen.anvilcraft.auto_enchanting_table.warning.bookshelf": "Not enough bookshelves",
   "screen.anvilcraft.auto_enchanting_table.warning.fluid_capacity": "Exceeds fluid capacity",
+  "screen.anvilcraft.auto_enchanting_table.warning.item_incompatible": "Item cannot hold the selected enchantments",
   "screen.anvilcraft.auto_enchanting_table.warning.liquid_incompatible": "Incompatible with the item",
   "screen.anvilcraft.batch_crafter.switch_recipe": "Switch crafting recipe",
   "screen.anvilcraft.button.compare_mode_hysteresis": "Mode: Hysteresis",
