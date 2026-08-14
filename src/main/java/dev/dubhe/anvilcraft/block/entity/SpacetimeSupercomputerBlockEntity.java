@@ -64,7 +64,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
     private String command = "";
 
     @Getter
-    private EvictingQueue<String> historyCommands = EvictingQueue.create(16);
+    private final EvictingQueue<String> historyCommands = EvictingQueue.create(16);
 
     @Getter
     private float chargingProgress = 0;
@@ -224,7 +224,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         this.pendingRecipeId = null;
         this.processingRecipe = this.level.getRecipeManager().byKey(ResourceLocation.parse(recipeId))
             .filter(ref -> ref.value() instanceof Multiblock4DRecipe)
-            .map(ref -> Util.<RecipeHolder<Multiblock4DRecipe>>cast(ref))
+            .map(Util::<RecipeHolder<Multiblock4DRecipe>>cast)
             .orElse(null);
     }
 
@@ -418,6 +418,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean updateTickSprintVoters(MinecraftServer server) {
         Set<UUID> onlinePlayers = new HashSet<>();
         for (ServerPlayer serverPlayer : server.getPlayerList().getPlayers()) {

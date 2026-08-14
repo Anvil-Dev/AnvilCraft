@@ -43,10 +43,10 @@ public class SpacetimeSupercomputerBlockEntityRenderer implements BlockEntityRen
         float scale = 53F / (20 * width); // width / (width * (width / 2.65F))
         float south = size + 1.001F;
         float north = -size - 0.001F;
-        this.renderFaceText(pose, buffer, font, text, width, scale, packedLight, 0.5F, 0.5F, north, 0);
-        this.renderFaceText(pose, buffer, font, text, width, scale, packedLight, north, 0.5F, 0.5F, 90);
-        this.renderFaceText(pose, buffer, font, text, width, scale, packedLight, 0.5F, 0.5F, south, 180);
-        this.renderFaceText(pose, buffer, font, text, width, scale, packedLight, south, 0.5F, 0.5F, 270);
+        this.renderFaceText(pose, buffer, font, text, width, scale, packedLight, 0.5F, north, 0);
+        this.renderFaceText(pose, buffer, font, text, width, scale, packedLight, north, 0.5F, 90);
+        this.renderFaceText(pose, buffer, font, text, width, scale, packedLight, 0.5F, south, 180);
+        this.renderFaceText(pose, buffer, font, text, width, scale, packedLight, south, 0.5F, 270);
     }
 
     private void renderFaceText(
@@ -58,12 +58,11 @@ public class SpacetimeSupercomputerBlockEntityRenderer implements BlockEntityRen
         float scale,
         int packedLight,
         float x,
-        float y,
         float z,
         int rotation
     ) {
         pose.pushPose();
-        pose.translate(x, y, z);
+        pose.translate(x, 0.5F, z);
         pose.mulPose(Axis.YP.rotationDegrees(rotation));
         pose.scale(-scale, -scale, scale);
         font.drawInBatch(
