@@ -28,6 +28,10 @@ items:
 
 <structure id="../../structures/gravity_pipe.nbt"/>
 
+## 玻璃视窗
+
+- 手持任意玻璃板（如<ref item="minecraft:glass_pane"/>）右击<ref item="anvilcraft:pipe"/>，可将其切换为玻璃管道以观察内部流体
+
 ## <ref item="minecraft:cauldron"/>支持
 
 - 管道支持<ref item="minecraft:cauldron"/>，但是<ref item="minecraft:cauldron"/>较为特殊，只能一次输入或输出一整桶流体（1000mB）

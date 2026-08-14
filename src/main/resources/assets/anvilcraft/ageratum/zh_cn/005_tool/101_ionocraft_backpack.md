@@ -14,8 +14,6 @@ items:
 <item id="anvilcraft:ionocraft_backpack"/>
 </row>
 
-# 合成
-
 <recipe id="anvilcraft:ionocraft_backpack"/>
 
 # 功能
@@ -28,7 +26,6 @@ items:
 安装饰品栏模组时，可以放在饰品栏
 </info>
 
-<color=#00e3ff> 小小鸟 飞飞飞 </color>
 
 # 充电
 
@@ -44,8 +41,8 @@ items:
 
 ## 电容供电
 
-- 使用背包内的<ref item="anvilcraft:capacitor"/>补充4MJ（飞行时间+80秒）
-- 使用背包内的<ref item="anvilcraft:supercapacitor"/>直接充满（飞行时间变为1200秒）
+- 自动使用背包内的<ref item="anvilcraft:capacitor"/>补充能量
+- 由于<ref item="anvilcraft:supercapacitor"/>电量过多，为避免浪费，不会自动使用；需要[手动充能](../002_material/101_capacitor.md#充能物品)
 
 # 相关
 

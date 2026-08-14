@@ -14,8 +14,6 @@ items:
 <item id="anvilcraft:ionocraft_backpack"/>
 </row>
 
-# Crafting
-
 <recipe id="anvilcraft:ionocraft_backpack"/>
 
 # Functions
@@ -27,8 +25,6 @@ items:
 <info>
 When a curio/accessory mod is installed, it can be placed in the curio slot
 </info>
-
-<color=#00e3ff> Little bird, fly fly fly </color>
 
 # Charging
 
@@ -44,8 +40,8 @@ In short, as long as the grid is not overloaded, it will absorb as much energy a
 
 ## Capacitor Power Supply
 
-- Using a <ref item="anvilcraft:capacitor"/> in the backpack replenishes 4MJ (flight time +80 seconds)
-- Using a <ref item="anvilcraft:supercapacitor"/> in the backpack fully charges it (flight time becomes 1200 seconds)
+- Automatically uses <ref item="anvilcraft:capacitor"/> from the backpack to replenish energy
+- Because <ref item="anvilcraft:supercapacitor"/> holds too much charge to use automatically without waste, it is not consumed automatically; charge it manually via [Charging Items](../002_material/101_capacitor.md#charging-items)
 
 # Related
 
