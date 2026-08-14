@@ -95,6 +95,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
     private int processingSize = -1;
     private int processingTotal = -1;
     private final List<ItemStack> pendingDrops = new ArrayList<>();
+    private @Nullable String pendingRecipeId;
 
     public SpacetimeSupercomputerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -187,17 +188,12 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         }
         if (tag.contains("processing")) {
             CompoundTag processing = tag.getCompound("processing");
-            String recipe = processing.getString("recipe");
-            if (!recipe.isEmpty() && this.level != null) {
-                this.processingRecipe = this.level.getRecipeManager().byKey(ResourceLocation.parse(recipe))
-                    .filter(ref -> ref.value() instanceof Multiblock4DRecipe)
-                    .map(ref -> Util.<RecipeHolder<Multiblock4DRecipe>>cast(ref))
-                    .orElse(null);
-                if (this.processingRecipe != null) {
-                    this.processingStep = processing.getInt("step");
-                    this.processingSize = processing.getInt("size");
-                    this.processingTotal = processing.getInt("total");
-                }
+            this.pendingRecipeId = processing.getString("recipe");
+            this.processingStep = processing.getInt("step");
+            this.processingSize = processing.getInt("size");
+            this.processingTotal = processing.getInt("total");
+            if (!this.pendingRecipeId.isEmpty()) {
+                this.resolvePendingRecipe();
             }
         }
         if (tag.contains("pendingDrops", Tag.TAG_LIST)) {
@@ -212,6 +208,24 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
                 }
             }
         }
+    }
+
+    @Override
+    public void setLevel(Level level) {
+        super.setLevel(level);
+        this.resolvePendingRecipe();
+    }
+
+    private void resolvePendingRecipe() {
+        if (this.pendingRecipeId == null || this.level == null) {
+            return;
+        }
+        String recipeId = this.pendingRecipeId;
+        this.pendingRecipeId = null;
+        this.processingRecipe = this.level.getRecipeManager().byKey(ResourceLocation.parse(recipeId))
+            .filter(ref -> ref.value() instanceof Multiblock4DRecipe)
+            .map(ref -> Util.<RecipeHolder<Multiblock4DRecipe>>cast(ref))
+            .orElse(null);
     }
 
     @Override
