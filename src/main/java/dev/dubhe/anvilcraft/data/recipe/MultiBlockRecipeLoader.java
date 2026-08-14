@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
+import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.block.Blocks;
@@ -273,6 +274,23 @@ public class MultiBlockRecipeLoader {
             .layer("AAA", "AAA", "AAA")
             .symbol('A', BlockPredicateWithState.ofTag("c:stripped_logs"))
             .symbol('B', ModBlocks.RESIN_BLOCK)
+            .save(provider);
+
+        Multiblock4DRecipe.builder("anvilcraft:hypercube", 1)
+            .layer("AAA", "AAA", "AAA")
+            .layer("AAA", "AAA", "AAA")
+            .layer("AAA", "AAA", "AAA")
+            .symbol('A', "anvilcraft:tempering_glass")
+            .next()
+            .layer("AAA", "AAA", "AAA")
+            .layer("AAA", "AAA", "AAA")
+            .layer("AAA", "AAA", "AAA")
+            .symbol('A', "anvilcraft:tempering_glass")
+            .next()
+            .layer("AAA", "AAA", "AAA")
+            .layer("AAA", "AAA", "AAA")
+            .layer("AAA", "AAA", "AAA")
+            .symbol('A', "anvilcraft:tempering_glass")
             .save(provider);
     }
 }

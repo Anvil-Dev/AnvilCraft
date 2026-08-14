@@ -1,29 +1,29 @@
 {
   "type": "anvilcraft:multiblock",
   "pattern": {
-    "layers": [
+    "grid": [
       [
-        "AAA",
-        "A A",
-        "AAA"
+        "000",
+        "0 0",
+        "000"
       ],
       [
-        "A A",
-        " B ",
-        "A A"
+        "0 0",
+        " A ",
+        "0 0"
       ],
       [
-        "AAA",
-        "A A",
-        "AAA"
+        "000",
+        "0 0",
+        "000"
       ]
     ],
-    "symbols": {
-      "A": {
-        "block": "minecraft:sponge"
+    "mapping": {
+      "0": {
+        "blocks": "minecraft:sponge"
       },
-      "B": {
-        "block": "anvilcraft:void_matter_block"
+      "A": {
+        "blocks": "anvilcraft:void_matter_block"
       }
     }
   },

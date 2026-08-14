@@ -1,50 +1,56 @@
 {
   "type": "anvilcraft:multiblock_conversion",
   "inputPattern": {
-    "layers": [
+    "grid": [
       [
-        "ABA",
-        "CDC",
-        "ABA"
+        "0A0",
+        "BCB",
+        "0A0"
       ],
       [
-        "E E",
-        " F ",
-        "E E"
+        "D D",
+        " E ",
+        "D D"
       ],
       [
-        "ABA",
-        "C C",
-        "ABA"
+        "0A0",
+        "B B",
+        "0A0"
       ]
     ],
-    "symbols": {
+    "mapping": {
+      "0": {
+        "blocks": "anvilcraft:cursed_gold_block"
+      },
       "A": {
-        "block": "anvilcraft:cursed_gold_block"
+        "blocks": "minecraft:chain",
+        "properties": [
+          {
+            "axis": "x"
+          }
+        ]
       },
       "B": {
-        "block": "minecraft:chain",
-        "properties": {
-          "axis": "x"
-        }
+        "blocks": "minecraft:chain",
+        "properties": [
+          {
+            "axis": "z"
+          }
+        ]
       },
       "C": {
-        "block": "minecraft:chain",
-        "properties": {
-          "axis": "z"
-        }
+        "blocks": "minecraft:soul_fire"
       },
       "D": {
-        "block": "minecraft:soul_fire"
+        "blocks": "minecraft:chain",
+        "properties": [
+          {
+            "axis": "y"
+          }
+        ]
       },
       "E": {
-        "block": "minecraft:chain",
-        "properties": {
-          "axis": "y"
-        }
-      },
-      "F": {
-        "block": "anvilcraft:resentful_amber_block"
+        "blocks": "anvilcraft:resentful_amber_block"
       }
     }
   },
@@ -61,38 +67,38 @@
     ]
   },
   "outputPattern": {
-    "layers": [
+    "grid": [
       [
-        "ABA",
-        "C C",
-        "ABA"
+        "0A0",
+        "B B",
+        "0A0"
       ],
       [
-        "E E",
-        " F ",
-        "E E"
+        "C C",
+        " D ",
+        "C C"
       ],
       [
-        "ABA",
-        "C C",
-        "ABA"
+        "0A0",
+        "B B",
+        "0A0"
       ]
     ],
-    "symbols": {
+    "mapping": {
+      "0": {
+        "blocks": "minecraft:sculk"
+      },
       "A": {
-        "block": "minecraft:sculk"
+        "blocks": "minecraft:cobweb"
       },
       "B": {
-        "block": "minecraft:cobweb"
+        "blocks": "minecraft:cobweb"
       },
       "C": {
-        "block": "minecraft:cobweb"
+        "blocks": "minecraft:cobweb"
       },
-      "E": {
-        "block": "minecraft:cobweb"
-      },
-      "F": {
-        "block": "minecraft:spawner"
+      "D": {
+        "blocks": "minecraft:spawner"
       }
     }
   }

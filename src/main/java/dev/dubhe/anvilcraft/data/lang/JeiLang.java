@@ -63,6 +63,7 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.multiblock.single_layer", "Visible Layer: %1$d of %2$d");
 
         provider.add("gui.anvilcraft.category.multiblock.size", "Crafting Table Size: %1$s*%2$s");
+        provider.add("gui.anvilcraft.multiblock_4d.progress", "Crafting Progress: %1$s/%2$s");
 
         provider.add("gui.anvilcraft.category.multiblock_conversion", "Multiblock Conversion");
         provider.add("gui.anvilcraft.category.multiblock_conversion.current_mode", "Display Mode: %s");

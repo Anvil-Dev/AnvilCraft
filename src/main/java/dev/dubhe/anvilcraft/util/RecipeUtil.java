@@ -1,5 +1,7 @@
 package dev.dubhe.anvilcraft.util;
 
+import dev.anvilcraft.lib.v2.multiblock.dynamic.definition.MultiblockDefinition;
+import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPattern;
@@ -50,7 +52,7 @@ public class RecipeUtil {
 
     @FunctionalInterface
     public interface LevelLikeCustomizer {
-        void accept(BlockPattern pattern, LevelLike level);
+        void accept(MultiblockDefinition definition, LevelLike level);
     }
 
     public static LootContext emptyLootContext(ServerLevel level) {
@@ -189,8 +191,20 @@ public class RecipeUtil {
             }
         }
 
+        return levelLike;
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public static LevelLike asLevelLike(MultiblockDefinition definition) {
+        @SuppressWarnings("DataFlowIssue")
+        LevelLike levelLike = new LevelLike(Minecraft.getInstance().level);
+
+        for (Map.Entry<BlockPos, BlockStatePredicate> entry : definition.toGlobal(BlockPos.ZERO).entrySet()) {
+            levelLike.setBlockState(entry.getKey().immutable(), entry.getValue());
+        }
+
         for (LevelLikeCustomizer customizer : LEVEL_LIKE_CUSTOMIZERS) {
-            customizer.accept(pattern, levelLike);
+            customizer.accept(definition, levelLike);
         }
         return levelLike;
     }

@@ -2949,6 +2949,21 @@ public class ModBlocks {
         .build()
         .register();
 
+    public static final BlockEntry<? extends Block> HYPERCUBE = REGISTRUM.block("hypercube", Block::new)
+        .initialProperties(() -> Blocks.GLASS)
+        .lang("Hypercube")
+        .properties(properties -> properties.explosionResistance(1200.0f)
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+            .isRedstoneConductor(ModBlocks::never)
+            .isSuffocating(ModBlocks::never)
+            .isViewBlocking(ModBlocks::never))
+        .blockstate((ctx, provider) -> provider.getVariantBuilder(ctx.get())
+            .partialState()
+            .addModels(new ConfiguredModel(provider.models().getExistingFile(ctx.getId().withPrefix("block/")))))
+        .simpleItem()
+        .register();
+
     public static final BlockEntry<? extends Block> EMBER_GLASS = REGISTRUM.block("ember_glass", TransparentBlock::new)
         .initialProperties(() -> Blocks.GLASS)
         .properties(properties -> properties.explosionResistance(1200)

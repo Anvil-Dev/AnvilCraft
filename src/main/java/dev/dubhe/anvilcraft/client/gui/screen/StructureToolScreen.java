@@ -22,6 +22,7 @@ import dev.dubhe.anvilcraft.item.property.component.StructureData;
 import dev.dubhe.anvilcraft.recipe.IDatagen;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPattern;
 import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
+import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockBuilder;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
@@ -318,11 +319,33 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
             }
             BlockPattern outputPattern = this.toBlockPattern(outputData, true);
             if (outputPattern == null) return null;
-            return new MultiblockConversionRecipe(inputPattern, outputPattern);
+            return toConversionRecipe(inputPattern, outputPattern);
         } else if (!result.isEmpty()) {
-            return new MultiblockRecipe(inputPattern, result);
+            return toMultiblockRecipe(inputPattern, result);
         }
         return null;
+    }
+
+    private static MultiblockRecipe toMultiblockRecipe(BlockPattern pattern, ItemStack result) {
+        MultiblockBuilder builder = MultiblockRecipe.builder(result.getItem(), result.getCount());
+        for (List<String> layer : pattern.getLayers()) {
+            builder.layer(layer);
+        }
+        pattern.getSymbols().forEach(builder::symbol);
+        return builder.buildRecipe();
+    }
+
+    private static MultiblockConversionRecipe toConversionRecipe(BlockPattern input, BlockPattern output) {
+        MultiblockConversionRecipe.Builder builder = MultiblockConversionRecipe.builder();
+        for (List<String> layer : input.getLayers()) {
+            builder.inputLayer(layer);
+        }
+        for (List<String> layer : output.getLayers()) {
+            builder.outputLayer(layer);
+        }
+        input.getSymbols().forEach(builder::inputSymbol);
+        output.getSymbols().forEach(builder::outputSymbol);
+        return builder.buildRecipe();
     }
 
     public static final Set<Property<?>> DEFAULT_RECORDED_PROPERTIES = ImmutableSet.of(

@@ -127,13 +127,13 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<MultiblockRecipe> recipe, IFocusGroup focuses) {
-        cache.computeIfAbsent(recipe, it -> RecipeUtil.asLevelLike(it.value().getPattern()));
-        tagSlotCache.computeIfAbsent(recipe, it -> RecipeUtil.getTagRenderSlots(it.value().getPattern()));
+        cache.computeIfAbsent(recipe, it -> RecipeUtil.asLevelLike(it.value().toBlockPattern()));
+        tagSlotCache.computeIfAbsent(recipe, it -> RecipeUtil.getTagRenderSlots(it.value().toBlockPattern()));
         builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 70)
             .addItemStack(recipe.value().getResult().copy());
 
         var level = Minecraft.getInstance().level;
-        List<ItemStack> ingredientList = recipe.value().getPattern().toIngredientList(
+        List<ItemStack> ingredientList = recipe.value().toBlockPattern().toIngredientList(
             level == null ? null : level.registryAccess()
         );
         ingredientList.sort(BY_COUNT_DECREASING);
@@ -147,7 +147,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             slotIndex++;
         }
 
-        var tagCounts = recipe.value().getPattern().getTagIngredientCounts();
+        var tagCounts = recipe.value().toBlockPattern().getTagIngredientCounts();
         for (var entry : tagCounts.entrySet()) {
             TagKey<Block> blockTag = entry.getKey();
             int count = entry.getValue();
@@ -172,7 +172,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
     ) {
         LevelLike level = cache.get(recipe);
         if (level == null) {
-            level = RecipeUtil.asLevelLike(recipe.value().pattern);
+            level = RecipeUtil.asLevelLike(recipe.value().toBlockPattern());
             cache.put(recipe, level);
         }
         var tagSlots = tagSlotCache.get(recipe);
@@ -217,7 +217,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         pose.scale(0.8f, 0.8f, 0.8f);
         int textX = Math.round(WIDTH / 0.8f - minecraft.font.width(component) - 5);
         guiGraphics.drawString(minecraft.font, component, textX, 0, 0xFF000000, false);
-        int size = recipe.value().pattern.getSize();
+        int size = recipe.value().toBlockPattern().getSize();
         guiGraphics.drawString(
             minecraft.font,
             Component.translatable("gui.anvilcraft.category.multiblock.size", size, size),
@@ -250,7 +250,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             10,
             10,
             it -> {
-                LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().pattern));
+                LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().toBlockPattern()));
                 level.setAllLayersVisible(!level.isAllLayersVisible());
             },
             recipe
@@ -261,7 +261,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             10,
             10,
             it -> {
-                LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().pattern));
+                LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().toBlockPattern()));
                 if (level.isAllLayersVisible()) return;
                 level.nextLayer();
             },
@@ -273,7 +273,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             10,
             10,
             it -> {
-                LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().pattern));
+                LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().toBlockPattern()));
                 if (level.isAllLayersVisible()) return;
                 level.previousLayer();
             },

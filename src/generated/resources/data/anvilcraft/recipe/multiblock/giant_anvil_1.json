@@ -1,80 +1,94 @@
 {
   "type": "anvilcraft:multiblock",
   "pattern": {
-    "layers": [
+    "grid": [
       [
-        "ABA",
-        "CDE",
-        "AFA"
+        "0A0",
+        "BCD",
+        "0E0"
       ],
       [
         "   ",
-        " D ",
+        " C ",
         "   "
       ],
       [
-        "GHG",
-        "IGI",
-        "GHG"
+        "FGF",
+        "HFH",
+        "FGF"
       ]
     ],
-    "symbols": {
+    "mapping": {
+      "0": {
+        "blocks": "anvilcraft:cut_heavy_iron_slab",
+        "properties": [
+          {
+            "type": "bottom",
+            "waterlogged": "false"
+          }
+        ]
+      },
       "A": {
-        "block": "anvilcraft:cut_heavy_iron_slab",
-        "properties": {
-          "type": "bottom",
-          "waterlogged": "false"
-        }
+        "blocks": "anvilcraft:cut_heavy_iron_stairs",
+        "properties": [
+          {
+            "facing": "south",
+            "half": "bottom",
+            "waterlogged": "false"
+          }
+        ]
       },
       "B": {
-        "block": "anvilcraft:cut_heavy_iron_stairs",
-        "properties": {
-          "facing": "south",
-          "half": "bottom",
-          "waterlogged": "false"
-        }
+        "blocks": "anvilcraft:cut_heavy_iron_stairs",
+        "properties": [
+          {
+            "facing": "east",
+            "half": "bottom",
+            "waterlogged": "false"
+          }
+        ]
       },
       "C": {
-        "block": "anvilcraft:cut_heavy_iron_stairs",
-        "properties": {
-          "facing": "east",
-          "half": "bottom",
-          "waterlogged": "false"
-        }
+        "blocks": "anvilcraft:heavy_iron_column"
       },
       "D": {
-        "block": "anvilcraft:heavy_iron_column"
+        "blocks": "anvilcraft:cut_heavy_iron_stairs",
+        "properties": [
+          {
+            "facing": "west",
+            "half": "bottom",
+            "waterlogged": "false"
+          }
+        ]
       },
       "E": {
-        "block": "anvilcraft:cut_heavy_iron_stairs",
-        "properties": {
-          "facing": "west",
-          "half": "bottom",
-          "waterlogged": "false"
-        }
+        "blocks": "anvilcraft:cut_heavy_iron_stairs",
+        "properties": [
+          {
+            "facing": "north",
+            "half": "bottom",
+            "waterlogged": "false"
+          }
+        ]
       },
       "F": {
-        "block": "anvilcraft:cut_heavy_iron_stairs",
-        "properties": {
-          "facing": "north",
-          "half": "bottom",
-          "waterlogged": "false"
-        }
+        "blocks": "anvilcraft:polished_heavy_iron_block"
       },
       "G": {
-        "block": "anvilcraft:polished_heavy_iron_block"
+        "blocks": "anvilcraft:heavy_iron_beam",
+        "properties": [
+          {
+            "axis": "z"
+          }
+        ]
       },
       "H": {
-        "block": "anvilcraft:heavy_iron_beam",
-        "properties": {
-          "axis": "z"
-        }
-      },
-      "I": {
-        "block": "anvilcraft:heavy_iron_beam",
-        "properties": {
-          "axis": "x"
-        }
+        "blocks": "anvilcraft:heavy_iron_beam",
+        "properties": [
+          {
+            "axis": "x"
+          }
+        ]
       }
     }
   },
