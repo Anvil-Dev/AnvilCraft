@@ -80,7 +80,7 @@ public class LargeCrateBlock
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
         if (blockEntity instanceof LargeCrateBlockEntity be) {
-            be.playerWillDestroy(level, pos, state, player);
+            be.dropContentsAndSelf(level, this.getMainPartPos(pos, state), player);
         }
 
         return super.playerWillDestroy(level, pos, state, player);

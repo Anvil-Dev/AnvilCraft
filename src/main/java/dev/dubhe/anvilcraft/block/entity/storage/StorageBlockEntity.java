@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.block.entity.storage;
 
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.saved.storage.StorageType;
+import dev.dubhe.anvilcraft.saved.storage.Storages;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -87,6 +89,38 @@ public class StorageBlockEntity extends BlockEntity {
     protected void collectImplicitComponents(DataComponentMap.Builder builder) {
         super.collectImplicitComponents(builder);
         builder.set(ModComponents.STORAGE, new StorageRef(this.storageType, this.id));
+    }
+
+    public long getTotalCount() {
+        if (this.id == null) {
+            return 0;
+        }
+        return Storages.get().get(this.id)
+            .map(storage -> {
+                UnlimitedItemStacksResourceHandler items = storage.getItems();
+                long total = 0;
+                for (int i = 0; i < items.size(); i++) {
+                    total += items.getAmountAsLong(i);
+                }
+                return total;
+            })
+            .orElse(0L);
+    }
+
+    public void dropContentsAndSelf(Level level, BlockPos pos, Player player) {
+        if (this.id != null) {
+            Storages.get().get(this.id).ifPresent(storage -> {
+                UnlimitedItemStacksResourceHandler items = storage.getItems();
+                for (int i = 0; i < items.size(); i++) {
+                    ItemStack stack = items.getUnlimitedStackInSlot(i).toStack();
+                    if (stack.isEmpty()) continue;
+                    Block.popResource(level, pos, stack);
+                }
+                Storages.get().remove(this.id);
+            });
+        }
+        if (player.isCreative()) return;
+        Block.popResource(level, pos, new ItemStack(this.getBlockState().getBlock()));
     }
 
     public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {

@@ -1539,6 +1539,8 @@
   "screen.anvilcraft.tesla_tower.filter.unknown": "Unknown Filter",
   "screen.anvilcraft.tooltip.cfa_amplifier": "It must be placed diagonally on the Celestial Forging Anvil",
   "screen.anvilcraft.tooltip.cfa_interface": "It must be placed tightly against the side of the Celestial Forging Anvil bottom",
+  "screen.anvilcraft.tooltip.crate.break_requires_shift": "The crate contains too many items! Hold Shift to break it",
+  "screen.anvilcraft.tooltip.crate.hammer_break_denied": "The crate contains too many items! The Anvil Hammer cannot remove it",
   "screen.anvilcraft.tooltip.fluid_tank.break_confirm": "This tank contains infinite fluid. Mine it again while holding Ctrl+Shift+Alt to confirm removal",
   "screen.anvilcraft.tooltip.fluid_tank.break_modifiers": "Hold Ctrl+Shift+Alt while mining to remove this infinite-fluid tank",
   "screen.anvilcraft.tooltip.fluid_tank.tool_break_failed": "Infinite-fluid tanks cannot be removed with an Anvil Hammer or Dragon Rod",

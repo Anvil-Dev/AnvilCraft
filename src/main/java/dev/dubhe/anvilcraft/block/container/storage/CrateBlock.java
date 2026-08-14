@@ -73,7 +73,7 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof CrateBlockEntity be) {
-            be.playerWillDestroy(level, pos, state, player);
+            be.dropContentsAndSelf(level, pos, player);
         }
 
         return super.playerWillDestroy(level, pos, state, player);
