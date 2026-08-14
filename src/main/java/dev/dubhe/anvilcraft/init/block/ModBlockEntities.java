@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.block.entity.CorruptedBeaconBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeFluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CreativeLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.DischargerBlockEntity;
@@ -179,6 +180,11 @@ public class ModBlockEntities {
         "creative_generator",
         CreativeGeneratorBlockEntity::createBlockEntity
     ).renderer(() -> CreativeGeneratorRenderer::new).validBlock(ModBlocks.CREATIVE_GENERATOR).register();
+
+    public static final BlockEntityEntry<CreativeLaserBlockEntity> CREATIVE_LASER = REGISTRUM.blockEntity(
+        "creative_laser",
+        CreativeLaserBlockEntity::createBlockEntity
+    ).renderer(() -> LaserBlockRenderer::new).validBlock(ModBlocks.CREATIVE_LASER).register();
 
     public static final BlockEntityEntry<HeaterBlockEntity> HEATER = REGISTRUM.blockEntity("heater", HeaterBlockEntity::createBlockEntity)
         .validBlock(ModBlocks.HEATER)

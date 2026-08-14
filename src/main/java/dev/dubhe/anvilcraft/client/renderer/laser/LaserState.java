@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.LensBlock;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilPortalBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CreativeLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.state.LensType;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -28,7 +29,11 @@ public record LaserState(
     TextureAtlasSprite laserAtlasSprite,
     TextureAtlasSprite concreteAtlasSprite
 ) {
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings(
+        {"deprecation",
+         "checkstyle:VariableDeclarationUsageDistance"
+        }
+    )
     public static @Nullable LaserState create(BaseLaserBlockEntity blockEntity, PoseStack poseStack) {
         if (blockEntity.getIrradiateBlockPos() == null) return null;
         Function<ResourceLocation, TextureAtlasSprite> spriteGetter = Minecraft.getInstance()
@@ -43,10 +48,15 @@ public record LaserState(
         boolean gamma = (blockEntity instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaLaser
             && cfaLaser.isEmittingGamma())
             || (blockEntity instanceof CelestialForgingAnvilPortalBlockEntity portal
-            && portal.isEmittingGamma());
+            && portal.isEmittingGamma())
+            || (blockEntity instanceof CreativeLaserBlockEntity creativeLaser
+            && creativeLaser.isGamma());
         LensType lensType = blockEntity.getBlockState().getBlock() instanceof LensBlock
             ? blockEntity.getBlockState().getValue(LensBlock.TYPE)
             : LensType.NONE;
+        if (blockEntity instanceof CreativeLaserBlockEntity creativeLaser) {
+            lensType = creativeLaser.getLensType();
+        }
         LaserState laserState = new LaserState(
             blockEntity,
             blockEntity.getBlockPos(),

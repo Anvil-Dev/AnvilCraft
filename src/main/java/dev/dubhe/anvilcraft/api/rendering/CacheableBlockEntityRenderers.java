@@ -25,6 +25,7 @@ public class CacheableBlockEntityRenderers {
     static {
         LaserRenderer laserRenderer = new LaserRenderer();
         RENDERERS.put(ModBlockEntities.RUBY_LASER.get(), laserRenderer);
+        RENDERERS.put(ModBlockEntities.CREATIVE_LASER.get(), laserRenderer);
         RENDERERS.put(ModBlockEntities.RUBY_PRISM.get(), laserRenderer);
         RENDERERS.put(ModBlockEntities.LARGE_LASER.get(), laserRenderer);
         RENDERERS.put(ModBlockEntities.CELESTIAL_FORGING_ANVIL_LASER_INTERFACE.get(), laserRenderer);

@@ -163,6 +163,7 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.BRONZE_PRESSURE_PLATE); // 青铜压力板
 
         this.plain(ModBlocks.CREATIVE_GENERATOR); // 创造发电机
+        this.plain(ModBlocks.CREATIVE_LASER); // 创造激光器
         this.plain(ModBlocks.CREATIVE_FLUID_TANK); // 创造流体储罐
         this.plain(ModBlocks.CREATIVE_CRATE); // 创造板条箱
 

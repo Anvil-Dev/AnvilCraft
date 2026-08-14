@@ -9,6 +9,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.BatchCutterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.CelestialForgingAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ChuteScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ControlValveScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.CreativeLaserScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberAnvilScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.EmberSmithingScreen;
@@ -43,6 +44,7 @@ import dev.dubhe.anvilcraft.inventory.BatchCutterMenu;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.ChuteMenu;
 import dev.dubhe.anvilcraft.inventory.ControlValveMenu;
+import dev.dubhe.anvilcraft.inventory.CreativeLaserMenu;
 import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.EmberGrindstoneMenu;
 import dev.dubhe.anvilcraft.inventory.EmberSmithingMenu;
@@ -121,6 +123,13 @@ public class ModMenuTypes {
             "slider",
             (menuType, containerId, inventory) -> new SliderMenu(menuType, containerId),
             () -> SliderScreen::new)
+        .register();
+
+    public static final MenuEntry<CreativeLaserMenu> CREATIVE_LASER = REGISTRUM
+        .menu(
+            "creative_laser",
+            (menuType, containerId, inventory, buf) -> new CreativeLaserMenu(menuType, containerId, inventory, buf),
+            () -> CreativeLaserScreen::new)
         .register();
     public static final MenuEntry<ItemCollectorMenu> ITEM_COLLECTOR = REGISTRUM
         .menu("item_collector", ItemCollectorMenu::new, () -> ItemCollectorScreen::new)
