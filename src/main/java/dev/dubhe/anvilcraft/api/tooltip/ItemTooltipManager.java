@@ -368,6 +368,9 @@ public class ItemTooltipManager {
         );
         NORMAL.put(ModBlocks.PUMP.asItem(), "Pumps fluids, consumes 32 kW");
         NORMAL.put(ModBlocks.CREATIVE_CRATE.asItem(), "Infinite item storage and supply");
+        NORMAL.put(ModBlocks.CRATE.asItem(), "Stores up to 2048 space of items");
+        NORMAL.put(ModBlocks.LARGE_CRATE.asItem(), "A huge 3x3x3 crate, stores up to 65536 space of items");
+        NORMAL.put(ModBlocks.SHULKER_CONTAINER.asItem(), "A space-folding container upgraded from a Large Crate");
         NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
         NORMAL.put(ModBlocks.FLUID_TANK.asItem(), "Stores fluids");
         NORMAL.put(ModBlocks.LARGE_FLUID_TANK.asItem(), "Stores multiple fluids");
@@ -636,6 +639,23 @@ public class ItemTooltipManager {
                 Destroys all input items when no item is configured
                 Creative players left-click to clear the configuration
                 Survival players left-click to take out items"""
+        );
+        SHIFT.put(
+            ModBlocks.CRATE.asItem(), """
+                Right-click to open the storage interface
+                Breaking it drops the contents; when it holds more than 1000 items, hold Shift to break it"""
+        );
+        SHIFT.put(
+            ModBlocks.LARGE_CRATE.asItem(), """
+                Right-click to open the storage interface
+                Upgrade to a Shulker Container: drop 1 Space Overcompressor and 6 Netherite Blocks on top, then strike with an anvil
+                Breaking it drops the contents; when it holds more than 1000 items, hold Shift to break it"""
+        );
+        SHIFT.put(
+            ModBlocks.SHULKER_CONTAINER.asItem(), """
+                Right-click to open the storage interface
+                Drop Space Overcompressors on top and strike with an anvil to expand capacity: each one doubles the storage space (up to 4)
+                Breaking it drops the container with its items stored inside"""
         );
         SHIFT.put(
             ModBlocks.CREATIVE_FLUID_TANK.asItem(), """
