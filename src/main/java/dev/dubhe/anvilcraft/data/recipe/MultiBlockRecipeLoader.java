@@ -266,5 +266,13 @@ public class MultiBlockRecipeLoader {
             .symbol('E', "anvilcraft:negative_matter_block")
             .symbol('F', "anvilcraft:mass_energy_inverter")
             .save(provider);
+
+        MultiblockRecipe.builder(ModBlocks.LARGE_CRATE, 1)
+            .layer("AAA", "AAA", "AAA")
+            .layer("AAA", "ABA", "AAA")
+            .layer("AAA", "AAA", "AAA")
+            .symbol('A', BlockPredicateWithState.ofTag("c:stripped_logs"))
+            .symbol('B', ModBlocks.RESIN_BLOCK)
+            .save(provider);
     }
 }
