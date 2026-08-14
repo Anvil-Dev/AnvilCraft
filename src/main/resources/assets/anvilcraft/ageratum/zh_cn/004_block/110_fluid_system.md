@@ -30,7 +30,7 @@ items:
 
 ## 玻璃视窗
 
-- 手持<ref item="minecraft:glass_pane"/>右击<ref item="anvilcraft:pipe"/>，即可观察管道内的流体
+- 手持任意玻璃板（如<ref item="minecraft:glass_pane"/>）右击<ref item="anvilcraft:pipe"/>，可将其切换为玻璃管道以观察内部流体
 
 ## <ref item="minecraft:cauldron"/>支持
 
