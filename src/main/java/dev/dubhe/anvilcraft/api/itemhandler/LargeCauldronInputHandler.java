@@ -5,6 +5,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.INBTSerializable;
@@ -126,9 +127,9 @@ public class LargeCauldronInputHandler implements IItemHandlerModifiable, INBTSe
         for (int slot = 0; slot < this.stacks.size(); slot++) {
             UnlimitedItemStack stack = this.stacks.get(slot);
             if (stack.isEmpty()) continue;
-            CompoundTag entry = stack.serializeNBT(provider);
+            CompoundTag entry = new CompoundTag();
             entry.putInt("Slot", slot);
-            items.add(entry);
+            items.add(UnlimitedItemStack.CODEC.encode(stack, provider.createSerializationContext(NbtOps.INSTANCE), entry).getOrThrow());
         }
         CompoundTag result = new CompoundTag();
         result.put("Items", items);
@@ -143,7 +144,9 @@ public class LargeCauldronInputHandler implements IItemHandlerModifiable, INBTSe
             CompoundTag entry = items.getCompound(i);
             int slot = entry.getInt("Slot");
             if (slot < 0 || slot >= SLOT_COUNT) continue;
-            UnlimitedItemStack.parse(provider, entry).ifPresent(stack -> this.stacks.set(slot, stack));
+            UnlimitedItemStack.CODEC.parse(provider.createSerializationContext(NbtOps.INSTANCE), entry)
+                .result()
+                .ifPresent(stack -> this.stacks.set(slot, stack));
         }
         this.onContentsChanged();
     }

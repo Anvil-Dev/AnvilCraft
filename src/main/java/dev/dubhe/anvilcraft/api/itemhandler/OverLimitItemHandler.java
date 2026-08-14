@@ -5,6 +5,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.common.util.INBTSerializable;
@@ -137,10 +138,9 @@ public class OverLimitItemHandler implements IItemHandler, IItemHandlerModifiabl
         for (int i = 0; i < this.stacks.size(); i++) {
             UnlimitedItemStack stack = this.stacks.get(i);
             if (stack.isEmpty()) continue;
-            CompoundTag itemTag = new CompoundTag();
-            itemTag.putInt("Slot", i);
-            itemTag.merge(stack.serializeNBT(provider));
-            itemsTag.add(itemTag);
+            CompoundTag entry = new CompoundTag();
+            entry.putInt("Slot", i);
+            itemsTag.add(UnlimitedItemStack.CODEC.encode(stack, provider.createSerializationContext(NbtOps.INSTANCE), entry).getOrThrow());
         }
         CompoundTag nbt = new CompoundTag();
         nbt.put("Items", itemsTag);
@@ -155,9 +155,11 @@ public class OverLimitItemHandler implements IItemHandler, IItemHandlerModifiabl
         for (int i = 0; i < itemsTag.size(); i++) {
             CompoundTag itemTag = itemsTag.getCompound(i);
             int slot = itemTag.getInt("Slot");
-
             if (slot < 0 || slot >= this.stacks.size()) continue;
-            UnlimitedItemStack.parse(provider, itemTag).ifPresent(stack -> this.stacks.set(slot, stack));
+
+            UnlimitedItemStack.CODEC.parse(provider.createSerializationContext(NbtOps.INSTANCE), itemTag)
+                .result()
+                .ifPresent(stack -> this.stacks.set(slot, stack));
         }
         this.onLoad();
     }

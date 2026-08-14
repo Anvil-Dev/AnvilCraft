@@ -7,9 +7,11 @@ import dev.dubhe.anvilcraft.api.fluid.EnchantedBookFluidHandler;
 import dev.dubhe.anvilcraft.api.fluid.PowderSnowWrapper;
 import dev.dubhe.anvilcraft.api.fluid.VoidFluidHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.HoneyCauldronWrapper;
+import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
 import dev.dubhe.anvilcraft.block.entity.FeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
@@ -20,13 +22,19 @@ import dev.dubhe.anvilcraft.item.weapon.CorruptedBeaconActivatorItem;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
 import dev.dubhe.anvilcraft.item.weapon.TeslaGunItem;
+import dev.dubhe.anvilcraft.saved.storage.Storages;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.items.IItemHandler;
 
 import java.util.List;
+import java.util.UUID;
+import javax.annotation.Nullable;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class CapabilitiesEventListener {
@@ -60,6 +68,28 @@ public class CapabilitiesEventListener {
             Capabilities.ItemHandler.BLOCK,
             ModBlockEntities.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.get(),
             (be, side) -> be.getItemHandler()
+        );
+
+        // 存储箱：物品能力直接指向全局存储中的对应存储
+        event.registerBlockEntity(
+            Capabilities.ItemHandler.BLOCK,
+            ModBlockEntities.CRATE.get(),
+            CapabilitiesEventListener::storageItemHandler
+        );
+
+        event.registerBlock(
+            Capabilities.ItemHandler.BLOCK,
+            ((level, pos, state, blockEntity, side) -> {
+                if (!(state.getBlock() instanceof LargeCrateBlock largeCrate)) {
+                    return null;
+                }
+                BlockEntity mainBe = level.getBlockEntity(largeCrate.getMainPartPos(pos, state));
+                if (mainBe instanceof StorageBlockEntity storage) {
+                    return CapabilitiesEventListener.storageItemHandler(storage, side);
+                }
+                return null;
+            }),
+            ModBlocks.LARGE_CRATE.get()
         );
 
         event.registerBlockEntity(
@@ -181,5 +211,15 @@ public class CapabilitiesEventListener {
             (stack, ctx) -> new ItemFEStorage(stack, IonocraftBackpackItem.MAX_ENERGY),
             ModItems.IONOCRAFT_BACKPACK.get()
         );
+    }
+
+    /// 存储容器方块实体的物品能力：直接暴露全局存储中的无限物品处理器
+    private static IItemHandler storageItemHandler(StorageBlockEntity be, @Nullable Direction side) {
+        UUID id = be.getId();
+        if (id == null) {
+            id = UUID.randomUUID();
+            be.setId(id);
+        }
+        return Storages.get().getOrCreate(id, be.getStorageType().clazz()).getItems();
     }
 }

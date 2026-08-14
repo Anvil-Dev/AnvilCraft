@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -158,7 +159,8 @@ public class WormholeInterfaceStates extends BetterSavedData {
                     CompoundTag slotTag = slotsTag.getCompound(j);
                     int slotIdx = slotTag.getInt("Slot");
                     if (slotIdx >= 0 && slotIdx < size) {
-                        UnlimitedItemStack.parse(registries, slotTag)
+                        UnlimitedItemStack.CODEC.parse(registries.createSerializationContext(NbtOps.INSTANCE), slotTag)
+                            .result()
                             .ifPresent(stack -> slots.set(slotIdx, stack));
                     }
                 }
@@ -202,9 +204,11 @@ public class WormholeInterfaceStates extends BetterSavedData {
             for (int i = 0; i < entry.getValue().size(); i++) {
                 UnlimitedItemStack stack = entry.getValue().get(i);
                 if (stack.isEmpty()) continue;
-                CompoundTag slotTag = stack.serializeNBT(registries);
+                CompoundTag slotTag = new CompoundTag();
                 slotTag.putInt("Slot", i);
-                slotsTag.add(slotTag);
+                slotsTag.add(
+                    UnlimitedItemStack.CODEC.encode(stack, registries.createSerializationContext(NbtOps.INSTANCE), slotTag).getOrThrow()
+                );
             }
             entryTag.put("slots", slotsTag);
             itemList.add(entryTag);

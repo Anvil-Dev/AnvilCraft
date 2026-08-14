@@ -1,16 +1,26 @@
-package dev.dubhe.anvilcraft.block;
+package dev.dubhe.anvilcraft.block.container.storage;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
+import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -23,13 +33,15 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.api.distmarker.Dist;
 
 public class ShulkerContainerBlock
     extends FlexibleMultiPartBlock<OpenedCube3x3PartHalf, BooleanProperty, Boolean>
-    implements MultiPartBlockEntity<OpenedCube3x3PartHalf, ShulkerContainerBlock>, IHammerRemovable { // TODO: 实现潜影集装箱功能
+    implements MultiPartBlockEntity<OpenedCube3x3PartHalf, ShulkerContainerBlock>, IHammerRemovable {
     public static final EnumProperty<OpenedCube3x3PartHalf> HALF = EnumProperty.create("half", OpenedCube3x3PartHalf.class);
     public static final BooleanProperty OPENED = BooleanProperty.create("opened");
 
@@ -118,62 +130,6 @@ public class ShulkerContainerBlock
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return switch (state.getValue(HALF)) {
-            case BOTTOM_CENTER -> BOTTOM_CENTER;
-            case BOTTOM_W -> BOTTOM_W;
-            case BOTTOM_E -> BOTTOM_E;
-            case BOTTOM_N -> BOTTOM_N;
-            case BOTTOM_S -> BOTTOM_S;
-            case BOTTOM_NW -> BOTTOM_NW;
-            case BOTTOM_SW -> BOTTOM_SW;
-            case BOTTOM_NE -> BOTTOM_NE;
-            case BOTTOM_SE -> BOTTOM_SE;
-            case MID_CENTER -> MID_CENTER;
-            case MID_W -> MID_W;
-            case MID_E -> MID_E;
-            case MID_N -> MID_N;
-            case MID_S -> MID_S;
-            case MID_NW -> MID_NW;
-            case MID_SW -> MID_SW;
-            case MID_NE -> MID_NE;
-            case MID_SE -> MID_SE;
-            case TOP_CENTER -> TOP_CENTER;
-            case TOP_W -> TOP_W;
-            case TOP_E -> TOP_E;
-            case TOP_N -> TOP_N;
-            case TOP_S -> TOP_S;
-            case TOP_NW -> TOP_NW;
-            case TOP_SW -> TOP_SW;
-            case TOP_NE -> TOP_NE;
-            case TOP_SE -> TOP_SE;
-        };
-    }
-
-    @Override
-    public void removePartsAndUpdate(Level level, BlockPos pos) {
-        BlockState blockState = level.getBlockState(pos);
-        if (!blockState.is(this)) return;
-        BlockPos bottomCenterPos = this.getMainPartPos(pos, blockState).below();
-        for (OpenedCube3x3PartHalf part : this.getParts()) {
-            BlockPos bp = bottomCenterPos.offset(part.getOffset());
-            level.setBlock(bp, level.getBlockState(bp).getFluidState().createLegacyBlock(), 3, 0);
-        }
-        ShulkerContainerBlock.UPDATE_OFFSET.forEach((direction, offsetList) -> offsetList.forEach(offset -> {
-            BlockPos updatedPos = bottomCenterPos.offset(offset);
-            BlockPos fromPos = updatedPos.relative(direction);
-            level.neighborShapeChanged(
-                direction,
-                level.getBlockState(fromPos),
-                updatedPos,
-                fromPos,
-                3,
-                512
-            );
-        }));
-    }
-
-    @Override
     protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
         return false;
     }
@@ -223,7 +179,111 @@ public class ShulkerContainerBlock
         return ModBlockEntities.SHULKER_CONTAINER.create(pos, state);
     }
 
+    @Override
+    protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof ShulkerContainerBlockEntity entity) {
+            entity.recheckOpeners();
+        }
+    }
+
+    public void setOpened(Level level, BlockPos pos, boolean opened) {
+        BlockState state = level.getBlockState(pos);
+        if (state.is(this) && state.getValue(OPENED) != opened) {
+            this.updateState(level, pos, OPENED, opened, Block.UPDATE_ALL);
+        }
+    }
+
+    @Override
+    public void removePartsAndUpdate(Level level, BlockPos pos) {
+        BlockState blockState = level.getBlockState(pos);
+        if (!blockState.is(this)) return;
+        BlockPos bottomCenterPos = this.getMainPartPos(pos, blockState);
+        for (OpenedCube3x3PartHalf part : this.getParts()) {
+            BlockPos bp = bottomCenterPos.offset(part.getOffset());
+            level.setBlock(bp, level.getBlockState(bp).getFluidState().createLegacyBlock(), 3, 0);
+        }
+        ShulkerContainerBlock.UPDATE_OFFSET.forEach((direction, offsetList) -> offsetList.forEach(offset -> {
+            BlockPos updatedPos = bottomCenterPos.offset(offset);
+            BlockPos fromPos = updatedPos.relative(direction);
+            level.neighborShapeChanged(
+                direction,
+                level.getBlockState(fromPos),
+                updatedPos,
+                fromPos,
+                3,
+                512
+            );
+        }));
+    }
+
+    @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
+        if (blockEntity instanceof ShulkerContainerBlockEntity be) {
+            be.playerWillDestroy(level, pos, state, player);
+        }
+
+        return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(
+        ItemStack itemStack,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hitResult
+    ) {
+        BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
+        if (blockEntity instanceof ShulkerContainerBlockEntity entity) {
+            if (player.isSpectator()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+            if (player instanceof ServerPlayer) {
+                return ItemInteractionResult.sidedSuccess(false);
+            } else if (level.isClientSide()) {
+                DistExecutor.run(Dist.CLIENT, () -> () -> StorageScreen.openScreen(entity.getBlockPos()));
+                return ItemInteractionResult.sidedSuccess(true);
+            }
+        }
+        return super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
+    }
+
     // region VoxelShapes
+    @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return switch (state.getValue(HALF)) {
+            case BOTTOM_CENTER -> BOTTOM_CENTER;
+            case BOTTOM_W -> BOTTOM_W;
+            case BOTTOM_E -> BOTTOM_E;
+            case BOTTOM_N -> BOTTOM_N;
+            case BOTTOM_S -> BOTTOM_S;
+            case BOTTOM_NW -> BOTTOM_NW;
+            case BOTTOM_SW -> BOTTOM_SW;
+            case BOTTOM_NE -> BOTTOM_NE;
+            case BOTTOM_SE -> BOTTOM_SE;
+            case MID_CENTER -> MID_CENTER;
+            case MID_W -> MID_W;
+            case MID_E -> MID_E;
+            case MID_N -> MID_N;
+            case MID_S -> MID_S;
+            case MID_NW -> MID_NW;
+            case MID_SW -> MID_SW;
+            case MID_NE -> MID_NE;
+            case MID_SE -> MID_SE;
+            case TOP_CENTER -> TOP_CENTER;
+            case TOP_W -> TOP_W;
+            case TOP_E -> TOP_E;
+            case TOP_N -> TOP_N;
+            case TOP_S -> TOP_S;
+            case TOP_NW -> TOP_NW;
+            case TOP_SW -> TOP_SW;
+            case TOP_NE -> TOP_NE;
+            case TOP_SE -> TOP_SE;
+        };
+    }
+
     protected static final VoxelShape MID_CENTER = Shapes.block();
 
     protected static final VoxelShape BOTTOM_CENTER = Block.box(0, 2, 0, 16, 16, 16);

@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.pointer.BlockItemHandlerPointer;
 import dev.dubhe.anvilcraft.api.pointer.BlockPointer;
 import dev.dubhe.anvilcraft.api.pointer.ITargetPointer;
 import dev.dubhe.anvilcraft.api.pointer.ItemEntityPointer;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import net.minecraft.world.item.BlockItem;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -13,7 +14,7 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 public class ModTargetPointers {
     private static final DeferredRegister<ITargetPointer.Type<?>> REGISTER = DeferredRegister.create(
-        ModRegistries.TARGET_POINTER_TYPE_KEY,
+        ModRegistryKeys.TARGET_POINTER_TYPE,
         AnvilCraft.MOD_ID
     );
 
