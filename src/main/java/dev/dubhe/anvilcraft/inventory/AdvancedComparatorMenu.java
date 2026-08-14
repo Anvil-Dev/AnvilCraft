@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.dubhe.anvilcraft.api.menu.MenuBlockEntityLookup;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import lombok.Getter;
@@ -28,12 +29,20 @@ public class AdvancedComparatorMenu extends AbstractContainerMenu {
     }
 
     public AdvancedComparatorMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf extraData) {
-        this(
-            menuType, containerId, inventory,
-            Objects.requireNonNull(
-                inventory.player.level().getBlockEntity(extraData.readBlockPos()) instanceof AdvancedComparatorBlockEntity comparator
-                    ? comparator.readDataNbt(Objects.requireNonNull(extraData.readNbt())) : null
-            ));
+        this(menuType, containerId, inventory, readComparator(inventory, extraData));
+    }
+
+    private static AdvancedComparatorBlockEntity readComparator(Inventory inventory, FriendlyByteBuf extraData) {
+        BlockEntity found = MenuBlockEntityLookup.find(
+            inventory.player.level(),
+            extraData.readBlockPos(),
+            AdvancedComparatorBlockEntity.class
+        );
+        return Objects.requireNonNull(
+            found instanceof AdvancedComparatorBlockEntity comparator
+                ? comparator.readDataNbt(Objects.requireNonNull(extraData.readNbt()))
+                : null
+        );
     }
 
     @Override

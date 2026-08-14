@@ -171,6 +171,72 @@ public class FluidPipeNetwork {
     }
 
     /**
+     * 事务性整桶推送：仅当某个更低且方向可达的端点能一次收下 {@code fluid} 的全部容量时才转移。
+     * 阀门/二极管/面止逆阀与重力分配使用同一套可达判定。失败时回滚源与目标，不留下半桶。
+     * 不扣减阀门 tick 预算。仅在服务器线程调用。
+     *
+     * @return 成功接收的目标容器位置；无法转移时返回 {@code null}
+     */
+    public @Nullable BlockPos pushExact(
+        IFluidHandler source,
+        BlockPos sourcePos,
+        BlockPos entryPipePos,
+        int sourceEffectiveHeight,
+        FluidStack fluid
+    ) {
+        if (fluid.isEmpty() || !this.parts.contains(entryPipePos)) {
+            return null;
+        }
+        FluidStack simulated = source.drain(fluid, IFluidHandler.FluidAction.SIMULATE);
+        if (simulated.getAmount() != fluid.getAmount()
+            || !FluidStack.isSameFluidSameComponents(simulated, fluid)) {
+            return null;
+        }
+        this.reachabilityCache.clear();
+        Reachability reachable = this.computeReachableCached(entryPipePos, fluid);
+        FluidEndpoint target = this.endpoints.stream()
+            .filter(endpoint -> endpoint.handler() != source)
+            .filter(endpoint -> endpoint.effectiveHeight() < sourceEffectiveHeight)
+            .filter(this::isPushExactConnected)
+            .filter(endpoint -> this.isEndpointReachable(reachable, endpoint))
+            .filter(endpoint -> endpoint.handler().fill(fluid, IFluidHandler.FluidAction.SIMULATE)
+                == fluid.getAmount())
+            .min(Comparator
+                .comparingInt(FluidEndpoint::effectiveHeight)
+                .thenComparingInt(endpoint -> endpoint.containerPos().distManhattan(sourcePos)))
+            .orElse(null);
+        if (target == null) {
+            return null;
+        }
+        FluidStack drained = source.drain(fluid, IFluidHandler.FluidAction.EXECUTE);
+        if (drained.getAmount() != fluid.getAmount()
+            || !FluidStack.isSameFluidSameComponents(drained, fluid)) {
+            if (!drained.isEmpty()) {
+                source.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+            }
+            return null;
+        }
+        int filled = target.handler().fill(drained, IFluidHandler.FluidAction.EXECUTE);
+        if (filled == drained.getAmount()) {
+            return target.containerPos();
+        }
+        if (filled > 0) {
+            target.handler().drain(drained.copyWithAmount(filled), IFluidHandler.FluidAction.EXECUTE);
+        }
+        source.fill(drained, IFluidHandler.FluidAction.EXECUTE);
+        return null;
+    }
+
+    private boolean isPushExactConnected(FluidEndpoint endpoint) {
+        return endpoint.entity() == null || FluidContainerLookup.isEntityConnectedToPipe(
+            this.level,
+            endpoint.containerPos(),
+            endpoint.sideToPipe(),
+            endpoint.entity()
+        );
+    }
+
+    /**
      * 供外部主动泵送设备（如锻星砧流体接口）使用：把一个外部源容器当作等效高度为
      * {@code sourceEffectiveHeight} 的源，向本网络中更低的端点分配流体。
      *

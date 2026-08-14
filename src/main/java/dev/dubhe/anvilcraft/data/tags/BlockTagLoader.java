@@ -323,6 +323,9 @@ public class BlockTagLoader {
             .addTag(ModBlockTags.SLIDING_RAILS)
             .add(ModBlocks.SLIDING_RAIL_STOP.getKey());
 
+        provider.addTag(ModBlockTags.RESIN_SHOCK_COMPATIBLE)
+            .add(ModBlocks.RESIN_BLOCK.getKey());
+
         provider.addTag(ModBlockTags.OVERHEATABLE)
             .add(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.getKey())
             .add(ModBlocks.EMBER_METAL_BLOCK.getKey());

@@ -164,6 +164,10 @@ public class ItemHandlerUtil {
             itemHandler = entity.getCapability(Capabilities.ItemHandler.ENTITY_AUTOMATION, context);
             if (itemHandler != null && hasItems(itemHandler)) return itemHandler;
         }
+        for (Entity entity : level.getEntitiesOfClass(Entity.class, aabb, Entity::isAlive)) {
+            itemHandler = entity.getCapability(Capabilities.ItemHandler.ENTITY);
+            if (itemHandler != null && hasExtractableItem(itemHandler)) return itemHandler;
+        }
         return null;
     }
 
@@ -200,6 +204,13 @@ public class ItemHandlerUtil {
     private static boolean hasItems(IItemHandler handler) {
         for (int slot = 0; slot < handler.getSlots(); slot++) {
             if (!handler.getStackInSlot(slot).isEmpty()) return true;
+        }
+        return false;
+    }
+
+    private static boolean hasExtractableItem(IItemHandler handler) {
+        for (int slot = 0; slot < handler.getSlots(); slot++) {
+            if (!handler.extractItem(slot, 1, true).isEmpty()) return true;
         }
         return false;
     }

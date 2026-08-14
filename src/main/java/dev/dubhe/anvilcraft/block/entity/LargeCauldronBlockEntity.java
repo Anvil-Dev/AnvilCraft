@@ -9,11 +9,10 @@ import dev.anvilcraft.lib.v2.recipe.predicate.item.HasItemIngredient;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeData;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeManager;
-import dev.anvilcraft.lib.v2.yukkuri.api.vapor.VaporizationCauldron;
-import dev.anvilcraft.lib.v2.yukkuri.api.vapor.VaporizationManager;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.ICauldron;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
+import dev.dubhe.anvilcraft.api.event.LargeCauldronEvent;
 import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.LargeCauldronFluidHandler;
@@ -97,7 +96,7 @@ import java.util.Optional;
 import java.util.Set;
 
 public class LargeCauldronBlockEntity extends BlockEntity
-    implements ICauldron, IItemHandlerHolder, IItemHandlerCache, IFluidHandlerHolder, VaporizationCauldron {
+    implements ICauldron, IItemHandlerHolder, IItemHandlerCache, IFluidHandlerHolder {
     public static final int OUTPUT_SLOTS = 32;
     public static final int MAX_PROCESS_EFFICIENCY = 9;
     private static final int[][] INPUT_SLOT_OFFSETS = {
@@ -193,7 +192,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
         entity.applyFluidEffects((ServerLevel) level);
         entity.hurtEntitiesInsideFromCampfire((ServerLevel) level);
         entity.reforgeItemsInLava(level);
-        VaporizationManager.tick((ServerLevel) level, entity);
+        NeoForge.EVENT_BUS.post(new LargeCauldronEvent.ServerTick((ServerLevel) level, entity));
     }
 
     private void absorbFluidSources(Level level) {
@@ -259,26 +258,6 @@ public class LargeCauldronBlockEntity extends BlockEntity
     public FluidStack getTopFluid() {
         FluidStack fluid = this.getMainPart().topFluid();
         return fluid.isEmpty() ? FluidStack.EMPTY : fluid.copy();
-    }
-
-    @Override
-    public BlockPos vaporizationPos() {
-        return this.getBlockPos();
-    }
-
-    @Override
-    public boolean isMainVaporizationPart() {
-        return this.isMainPart();
-    }
-
-    @Override
-    public FluidStack getTopVaporizationFluid() {
-        return this.getTopFluid();
-    }
-
-    @Override
-    public FluidStack drainVaporizationFluid(FluidStack resource, IFluidHandler.FluidAction action) {
-        return this.getFluids().drainStoredFluid(resource, action);
     }
 
     public boolean isIgnited() {
@@ -496,6 +475,12 @@ public class LargeCauldronBlockEntity extends BlockEntity
         Level level = main.level;
         if (!(level instanceof ServerLevel serverLevel)) return false;
         BlockState landedAnvilState = level.getBlockState(event.getPos());
+        landedAnvilState = NeoForge.EVENT_BUS.post(new LargeCauldronEvent.GiantAnvilImpact(
+            level,
+            event,
+            main,
+            landedAnvilState
+        )).getLandedAnvilState();
         if (!(landedAnvilState.getBlock() instanceof GiantAnvilBlock giantAnvil)
             || !giantAnvil.getMainPartPos(event.getPos(), landedAnvilState).equals(main.worldPosition.above(3))) {
             return true;
@@ -671,7 +656,9 @@ public class LargeCauldronBlockEntity extends BlockEntity
             }
             boolean fits = true;
             for (ItemStack result : recipe.getItemResults()) {
-                if (!ItemHandlerHelper.insertItem(simulatedOutput, result.copy(), false).isEmpty()) {
+                ItemStack output = NeoForge.EVENT_BUS.post(new LargeCauldronEvent.MixingOutput(this, result.copy()))
+                    .getResult();
+                if (!ItemHandlerHelper.insertItem(simulatedOutput, output, false).isEmpty()) {
                     fits = false;
                     break;
                 }
@@ -680,7 +667,9 @@ public class LargeCauldronBlockEntity extends BlockEntity
 
             this.fluids.setFluids(mixedFluids);
             for (ItemStack result : recipe.getItemResults()) {
-                ItemHandlerHelper.insertItem(this.output, result.copy(), false);
+                ItemStack output = NeoForge.EVENT_BUS.post(new LargeCauldronEvent.MixingOutput(this, result.copy()))
+                    .getResult();
+                ItemHandlerHelper.insertItem(this.output, output, false);
             }
             return true;
         }
@@ -1269,7 +1258,14 @@ public class LargeCauldronBlockEntity extends BlockEntity
                     entity.setRemainingFireTicks(entity.getRemainingFireTicks() + 1);
                     if (entity.getRemainingFireTicks() == 0) entity.igniteForSeconds(8.0F);
                 }
-                entity.hurt(level.damageSources().inFire(), 4.0F);
+                entity.hurt(
+                    level.damageSources().inFire(),
+                    NeoForge.EVENT_BUS.post(new LargeCauldronEvent.FluidDamage(
+                        this,
+                        this.getTopFluid(),
+                        4.0F
+                    )).getDamage()
+                );
                 continue;
             }
             boolean touchesLava = false;

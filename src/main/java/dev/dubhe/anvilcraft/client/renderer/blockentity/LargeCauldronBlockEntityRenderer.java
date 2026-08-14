@@ -72,9 +72,10 @@ public class LargeCauldronBlockEntityRenderer implements BlockEntityRenderer<Lar
         float itemY = Mth.clamp(MIN_Y + CONTENT_HEIGHT * fill - 0.08F, MIN_Y + 0.06F, MAX_Y - 0.12F);
         this.drawItems(cauldron, pose, buffers, light, overlay, itemY, fill);
         this.drawFluids(fluids, pose, buffers, light);
-        if (cauldron.isIgnited()) {
+        if (cauldron.isIgnited() && LargeCauldronRenderHooks.showVanillaFire(cauldron)) {
             this.drawFire(pose, buffers, overlay, MIN_Y + CONTENT_HEIGHT * fill);
         }
+        LargeCauldronRenderHooks.afterRender(cauldron, partialTick, pose, buffers, light, overlay);
     }
 
     private void drawItems(

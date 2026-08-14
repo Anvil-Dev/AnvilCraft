@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import com.google.common.collect.ImmutableList;
 import dev.anvilcraft.lib.v2.recipe.cache.IItemHandlerCache;
 import dev.anvilcraft.lib.v2.util.MathUtil;
+import dev.dubhe.anvilcraft.api.event.FishTankEvent;
 import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
@@ -28,6 +29,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -49,6 +51,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.common.world.AuxiliaryLightManager;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -354,6 +357,9 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, FishTankBlockEntity entity) {
+        if (level instanceof ServerLevel serverLevel) {
+            NeoForge.EVENT_BUS.post(new FishTankEvent.ServerTick(serverLevel, pos, entity));
+        }
         if (!entity.fluidHandler.getFluid().is(Fluids.LAVA)) return;
         boolean changed = false;
         for (int slot = 0; slot < entity.input.getSlots(); slot++) {
@@ -848,7 +854,16 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
                     entity.igniteForSeconds(8.0F);
                 }
             }
-            entity.hurt(level.damageSources().inFire(), 4.0F);
+            entity.hurt(
+                level.damageSources().inFire(),
+                NeoForge.EVENT_BUS.post(new FishTankEvent.FluidDamage(
+                    level,
+                    pos,
+                    this,
+                    stack,
+                    4.0F
+                )).getDamage()
+            );
         } else if (stack.is(Fluids.LAVA)) {
             entity.lavaHurt();
         } else if (entity.canFluidExtinguish(stack.getFluidType()) && entity.isOnFire()) {

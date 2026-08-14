@@ -28,6 +28,7 @@ import net.minecraft.world.entity.animal.TropicalFish;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
@@ -50,6 +51,11 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
 
     public FishTankBlockEntityRenderer(BlockEntityRendererProvider.Context ctx) {
         this.dispatcher = ctx.getBlockRenderDispatcher();
+    }
+
+    @Override
+    public AABB getRenderBoundingBox(FishTankBlockEntity tank) {
+        return new AABB(tank.getBlockPos()).expandTowards(0.0D, 2.0D, 0.0D);
     }
 
     private static class FishCacheEntry {
@@ -102,7 +108,7 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
 
         this.drawTropicalFishInTank(tank, partialTick, pose, source, light);
         FishTankBlockEntityRenderer.drawFluidInTank(pose, source, light, fluid, minY, maxY);
-        if (tank.isIgnited()) {
+        if (tank.isIgnited() && FishTankRenderHooks.showVanillaFire(tank)) {
             pose.pushPose();
             pose.translate(0, maxY - (1 - TANK_W), 0);
             PoseStack.Pose last = pose.last();
@@ -122,6 +128,7 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
             );
             pose.popPose();
         }
+        FishTankRenderHooks.afterRender(tank, partialTick, pose, source, light, overlay);
     }
 
     private static final float TANK_W = 1 / 16F + 0.001F; // avoiding Z-fighting

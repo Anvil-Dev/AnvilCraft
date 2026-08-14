@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block.sliding;
 
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
+import dev.dubhe.anvilcraft.api.sliding.SlidingRailLoad;
 import dev.dubhe.anvilcraft.block.entity.DetectorSlidingRailBlockEntity;
 import dev.dubhe.anvilcraft.entity.SlidingBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
@@ -9,7 +10,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -25,7 +25,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -94,8 +93,8 @@ public class DetectorSlidingRailBlock extends BaseSlidingRailBlock implements IH
     protected void tick(BlockState state, ServerLevel level, BlockPos pos, RandomSource random) {
         if (
             state.getValue(POWERED)
-            && level.getEntitiesOfClass(SlidingBlockEntity.class, new AABB(pos.above())).isEmpty()
-            && level.getEntitiesOfClass(ItemEntity.class, new AABB(pos)).isEmpty()
+            && !SlidingRailLoad.hasBlockLoad(level, pos)
+            && !SlidingRailLoad.hasItemLoad(level, pos)
         ) {
             level.setBlock(pos, state.setValue(POWERED, false), Block.UPDATE_ALL);
             level.getBlockEntity(pos, ModBlockEntities.DETECTOR_SLIDING_RAIL.get()).ifPresent(DetectorSlidingRailBlockEntity::cleanPower);

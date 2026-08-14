@@ -31,14 +31,29 @@ import org.lwjgl.opengl.GL30;
 
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * 结构磁盘预览支持类
  * 管理结构磁盘的缓存和3D预览渲染
  */
 public class StructureDiskPreviewSupport {
+    private static final List<PreviewHandler> PREVIEW_HANDLERS = new CopyOnWriteArrayList<>();
+
+    /**
+     * 返回 {@code true} 表示已接管预览，跳过原版结构渲染。仅客户端调用。
+     */
+    public static void registerPreviewHandler(PreviewHandler handler) {
+        PREVIEW_HANDLERS.add(handler);
+    }
+
+    @FunctionalInterface
+    public interface PreviewHandler {
+        boolean render(GuiGraphics graphics, ItemStack stack, int mouseX, int mouseY);
+    }
 
     /**
      * 预览缓存：使用StructureUUID作为key
@@ -98,6 +113,11 @@ public class StructureDiskPreviewSupport {
      * 在指定位置渲染预览（公共方法，供事件监听器调用）
      */
     public static void renderPreviewAt(GuiGraphics guiGraphics, ItemStack diskStack, int mouseX, int mouseY) {
+        for (PreviewHandler handler : PREVIEW_HANDLERS) {
+            if (handler.render(guiGraphics, diskStack, mouseX, mouseY)) {
+                return;
+            }
+        }
         Minecraft minecraft = Minecraft.getInstance();
         if (minecraft.level == null) {
             return;

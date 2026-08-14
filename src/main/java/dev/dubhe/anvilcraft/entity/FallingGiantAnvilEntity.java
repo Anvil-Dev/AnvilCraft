@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.entity;
 
+import dev.dubhe.anvilcraft.api.event.GiantAnvilEvent;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.util.AccelerateManager;
@@ -25,6 +26,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.common.NeoForge;
 
 public class FallingGiantAnvilEntity extends FallingBlockEntity {
     private float fallDistance = 0;
@@ -75,6 +77,9 @@ public class FallingGiantAnvilEntity extends FallingBlockEntity {
 
     @Override
     public void tick() {
+        if (NeoForge.EVENT_BUS.post(new GiantAnvilEvent.FallingTick(this)).isCanceled()) {
+            return;
+        }
         if (this.blockState.isAir()) {
             this.discard();
         } else {
