@@ -4,7 +4,6 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockSmearRecipe;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.AxeItem;
@@ -14,6 +13,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.GrindstoneBlock;
 import net.minecraft.world.level.block.WeatheringCopper;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.AttachFace;
 
 public class BlockSmearRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
@@ -25,7 +25,7 @@ public class BlockSmearRecipeLoader {
                 .ifPresent(state -> blockSmear(provider, Blocks.HONEYCOMB_BLOCK, holder.value(), state.getBlock()));
         }
 
-        /// 倒置的砂轮可以打磨下方的铜类方块和原木：去蜡、去锈、去皮。
+        /// 倒置的砂轮（挂在方块下方）可以打磨下方的铜类方块和原木：去蜡、去锈、去皮。
         BlockStatePredicate invertedGrindstone = BlockStatePredicate.builder()
             .of(
                 Blocks.GRINDSTONE,
@@ -34,7 +34,7 @@ public class BlockSmearRecipeLoader {
                 ModBlocks.ROYAL_GRINDSTONE.get(),
                 ModBlocks.TRANSCENDENCE_GRINDSTONE.get()
             )
-            .with(GrindstoneBlock.FACING, Direction.DOWN)
+            .with(GrindstoneBlock.FACE, AttachFace.CEILING)
             .build();
 
         for (Holder<Block> holder : BuiltInRegistries.BLOCK.holders().toList()) {
