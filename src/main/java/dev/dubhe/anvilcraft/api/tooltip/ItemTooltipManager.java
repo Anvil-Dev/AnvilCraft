@@ -260,7 +260,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.RUBY_LASER.asItem(), "Emits a laser beam when powered");
         NORMAL.put(
             ModBlocks.CREATIVE_LASER.asItem(),
-            "Creative laser with adjustable level, lens and gamma mode, can be turned off by redstone"
+            "Emits a laser beam, adjustable laser level, lens and gamma mode, can be turned off by redstone"
         );
         NORMAL.put(ModBlocks.RUBY_PRISM.asItem(), "Deflects or converges laser beams");
         NORMAL.put(ModBlocks.TRANSPARENT_CRAFTING_TABLE.asItem(), "Aesthetic, connectable Crafting Table");
