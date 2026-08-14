@@ -39,11 +39,32 @@ public class SpacetimeSupercomputerBlockEntityRenderer implements BlockEntityRen
         Component text = Component.translatable("gui.anvilcraft.multiblock_4d.progress", blockEntity.getProcessingProgress(), total)
             .withStyle(ChatFormatting.BOLD);
         Font font = Minecraft.getInstance().font;
-        pose.pushPose();
-        pose.translate(0.5, 0.5, size + 1.001F);
-        pose.mulPose(Axis.YN.rotationDegrees(180));
         float width = font.width(text);
         float scale = 53F / (20 * width); // width / (width * (width / 2.65F))
+        float south = size + 1.001F;
+        float north = -size - 0.001F;
+        this.renderFaceText(pose, buffer, font, text, width, scale, packedLight, 0.5F, 0.5F, north, 0);
+        this.renderFaceText(pose, buffer, font, text, width, scale, packedLight, north, 0.5F, 0.5F, 90);
+        this.renderFaceText(pose, buffer, font, text, width, scale, packedLight, 0.5F, 0.5F, south, 180);
+        this.renderFaceText(pose, buffer, font, text, width, scale, packedLight, south, 0.5F, 0.5F, 270);
+    }
+
+    private void renderFaceText(
+        PoseStack pose,
+        MultiBufferSource buffer,
+        Font font,
+        Component text,
+        float width,
+        float scale,
+        int packedLight,
+        float x,
+        float y,
+        float z,
+        int rotation
+    ) {
+        pose.pushPose();
+        pose.translate(x, y, z);
+        pose.mulPose(Axis.YP.rotationDegrees(rotation));
         pose.scale(-scale, -scale, scale);
         font.drawInBatch(
             text,
