@@ -11,12 +11,15 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
 
+import java.util.Arrays;
+
 public record CreativeLaserUpdatePacket(int level, LensType lensType, boolean gamma) implements IServerboundPacket {
     public static final Type<CreativeLaserUpdatePacket> TYPE = IPacket.type(AnvilCraft.of("creative_laser_update"));
     public static final StreamCodec<ByteBuf, CreativeLaserUpdatePacket> STREAM_CODEC = StreamCodec.composite(
         ByteBufCodecs.INT,
         CreativeLaserUpdatePacket::level,
-        ByteBufCodecs.STRING_UTF8.map(LensType::valueOf, LensType::name),
+        ByteBufCodecs.STRING_UTF8.map(
+            CreativeLaserUpdatePacket::parseLensType, LensType::getSerializedName),
         CreativeLaserUpdatePacket::lensType,
         ByteBufCodecs.BOOL,
         CreativeLaserUpdatePacket::gamma,
@@ -36,5 +39,12 @@ public record CreativeLaserUpdatePacket(int level, LensType lensType, boolean ga
         blockEntity.setConfiguredLevel(this.level);
         blockEntity.setLensType(this.lensType);
         blockEntity.setGamma(this.gamma);
+    }
+
+    private static LensType parseLensType(String name) {
+        return Arrays.stream(LensType.values())
+            .filter(type -> type.getSerializedName().equals(name))
+            .findFirst()
+            .orElse(LensType.NONE);
     }
 }

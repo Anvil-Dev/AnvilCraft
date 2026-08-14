@@ -17,11 +17,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import javax.annotation.Nullable;
 
 public class CreativeLaserScreen extends AbstractContainerScreen<CreativeLaserMenu> {
     public static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "creative_laser");

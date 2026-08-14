@@ -3,12 +3,8 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.block.cfa.interfaces.CelestialForgingAnvilInterfaceBlock;
-import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
-import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import lombok.Getter;
@@ -24,18 +20,10 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.tags.BlockTags;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.entity.EntityTypeTest;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.EnumSet;
@@ -66,20 +54,6 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
     /// 虫洞激光输出（由 CFA 控制器的 syncWormholeLasers 每 tick 设置）
     private int wormholeOutputLevel = 0;
     private boolean wormholeOutputGamma = false;
-
-    /// 伽马激光方块破坏：每个等级所需的连续照射 tick 数。[0-4级不破坏, ≥4级3s破坏, ≥8级1s破坏, ≥12级5gt破坏, ≥16级1gt破坏]
-    private static final int[] GAMMA_EXPOSURE_TICKS = {
-        Integer.MAX_VALUE,
-        60,   // ≥4: 60 ticks (3s) continuous exposure
-        20,   // ≥8: 20 ticks (1s)
-        5,    // ≥12: 5 ticks
-        1     // ≥16: 1 tick
-    };
-
-    /// 跟踪正在被伽马激光照射的方块位置及持续时间。当激光切换目标时重置，因此照射是按方块累计的。
-    @Nullable
-    private BlockPos gammaIrradiatingPos = null;
-    private int gammaExposureTicks = 0;
 
     public CelestialForgingAnvilLaserInterfaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -205,6 +179,11 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         this.updateLaserLevel(level);
     }
 
+    @Override
+    protected int getGammaLaserLevel() {
+        return this.gammaLevel;
+    }
+
     /// === Tick ===
 
     /// 服务器端 tick，由方块 ticker 调用。
@@ -318,223 +297,6 @@ public class CelestialForgingAnvilLaserInterfaceBlockEntity extends BaseLaserBlo
         this.irradiateBlockPos = irradiateBlockPos;
         this.laserLevel = laserLevel;
         CacheableBERenderingPipeline.getInstance().update(this);
-    }
-
-    /// 发射具有特殊属性的伽马激光束：蓝紫色（通过数据包中的伽马标志在客户端渲染）、最大 16 格范围、不穿透玻璃或激光透明方块——在第一个非空气方块处停止、接触时摧毁棱镜、基于等级的方块破坏、16 倍实体伤害、在截面区域内将余烬金属方块加热至过热状态。
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
-    private void emitGammaLaserBeam(Direction direction) {
-        if (this.level == null) return;
-        int originalMaxDistance = this.maxTransmissionDistance;
-        this.maxTransmissionDistance = 16;
-
-        /// 伽马激光：仅穿透空气/可替换方块。所有其他方块（包括玻璃）都会阻挡伽马激光。
-        BlockPos tempIrradiateBlockPos = getGammaIrradiateBlockPos(16, direction, this.getBlockPos());
-        if (this.getBlockState().getBlock() instanceof dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock<?, ?, ?>) {
-            tempIrradiateBlockPos = getGammaIrradiateBlockPos(
-                16, direction, this.getBlockPos().relative(direction));
-        }
-
-        /// 处理沿光束路径的棱镜破坏
-        destroyPrismsAlongPath(direction, tempIrradiateBlockPos);
-
-        /// 如果目标变更，更新旧目标
-        if (!tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
-            if (this.irradiateBlockPos != null) {
-                BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
-                if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
-                    lastIrradiated.onCancelingIrradiation(this);
-                }
-            }
-        }
-
-        /// 伽马激光可与其它 BaseLaserBlockEntity 实例链式传递（例如 CFA 激光接口）
-        if (
-            this.level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity irradiatedLaserBlockEntity
-            && !this.isInIrradiateSelfLaserBlockSet(irradiatedLaserBlockEntity)
-        ) {
-            if (irradiatedLaserBlockEntity.getIgnoreFace().isEmpty()) {
-                this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
-                irradiatedLaserBlockEntity.onIrradiated(this);
-            } else {
-                for (Direction dir : irradiatedLaserBlockEntity.getIgnoreFace()) {
-                    if (direction != dir) {
-                        this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
-                        irradiatedLaserBlockEntity.onIrradiated(this);
-                    }
-                }
-            }
-        }
-        this.updateIrradiateBlockPos(tempIrradiateBlockPos);
-        this.updateLaserLevel(gammaLevel);
-
-        if (!(this.level instanceof ServerLevel)) {
-            this.maxTransmissionDistance = originalMaxDistance;
-            return;
-        }
-
-        /// 实体伤害：16 倍普通激光伤害
-        int hurt = Math.min(16, gammaLevel - 4) * 16;
-        if (hurt > 0) {
-            Vec3 startPos = this.getBlockPos()
-                .relative(direction)
-                .getCenter()
-                .add(-0.0625, -0.0625, -0.0625);
-            AABB trackBoundingBox = new AABB(
-                startPos,
-                this.irradiateBlockPos.relative(direction.getOpposite())
-                    .getCenter()
-                    .add(0.0625, 0.0625, 0.0625)
-            );
-            this.level.getEntities(
-                EntityTypeTest.forClass(LivingEntity.class),
-                trackBoundingBox,
-                Entity::isAlive
-            ).forEach(livingEntity ->
-                livingEntity.hurt(ModDamageTypes.gammaLaser(this.level), hurt)
-            );
-        }
-
-        /// 伽马激光方块破坏——每个方块位置需要连续照射
-        BlockState irradiateBlock = this.level.getBlockState(this.irradiateBlockPos);
-        int requiredExposure = GAMMA_EXPOSURE_TICKS[Math.clamp(gammaLevel / 4, 0, 4)];
-
-        /// 跟踪连续照射：当被照射方块变化时重置
-        BlockPos currentTarget = this.irradiateBlockPos.immutable();
-        if (!currentTarget.equals(this.gammaIrradiatingPos)) {
-            this.gammaIrradiatingPos = currentTarget;
-            this.gammaExposureTicks = 0;
-        }
-
-        boolean canBreak = !irradiateBlock.is(BlockTags.WITHER_IMMUNE)
-            && !irradiateBlock.isAir()
-            && irradiateBlock.getDestroySpeed(this.level, this.irradiateBlockPos) >= 0;
-
-        if (canBreak) {
-            this.gammaExposureTicks++;
-            if (this.gammaExposureTicks >= requiredExposure) {
-                this.gammaExposureTicks = 0;
-                /// 对于多方块结构，找到主部件以摧毁整个结构
-                BlockPos breakPos = this.irradiateBlockPos;
-                if (irradiateBlock.getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?> multiPartBlock) {
-                    breakPos = multiPartBlock.getMainPartPos(this.irradiateBlockPos, irradiateBlock);
-                }
-                if (gammaLevel >= 16) {
-                    /// ≥16：无掉落破坏（整个多方块结构）
-                    this.level.destroyBlock(breakPos, false);
-                } else {
-                    /// ≥4-15：在方块位置破坏并掉落
-                    this.level.destroyBlock(this.irradiateBlockPos, true);
-                }
-            }
-        } else {
-            this.gammaExposureTicks = 0;
-        }
-
-        /// 伽马激光加热：在区域内升级凋零免疫的余烬金属方块。区域大小和厚度随伽马等级缩放：≥4: 1×1×1, ≥8: 3×3×1, ≥12: 5×5×2, ≥16: 7×7×3
-        tryHeatEmberMetal(direction);
-
-        this.maxTransmissionDistance = originalMaxDistance;
-    }
-
-    /// 直接命中余烬金属块时，加热光束法向截面区域内的所有余烬金属方块。面积随伽马等级缩放：≥4→1×1，≥8→3×3，≥12→5×5×2，≥16→7×7×3。
-    private void tryHeatEmberMetal(Direction direction) {
-        if (this.level == null || gammaLevel < 4) return;
-        if (this.level.getGameTime() % 20 != 0) return;
-
-        BlockPos hitPos = this.irradiateBlockPos;
-        if (hitPos == null) return;
-        BlockState hitState = this.level.getBlockState(hitPos);
-        if (!hitState.is(ModBlocks.EMBER_METAL_BLOCK.get())
-            && !hitState.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())) {
-            return;
-        }
-
-        int areaSize;
-        int thickness;
-        if (gammaLevel >= 16) {
-            areaSize = 7;
-            thickness = 3;
-        } else if (gammaLevel >= 12) {
-            areaSize = 5;
-            thickness = 2;
-        } else if (gammaLevel >= 8) {
-            areaSize = 3;
-            thickness = 1;
-        } else {
-            areaSize = 1;
-            thickness = 1;
-        }
-
-        int halfSize = areaSize / 2;
-
-        Direction[] perpendiculars = switch (direction.getAxis()) {
-            case X -> new Direction[]{Direction.UP, Direction.NORTH};
-            case Z -> new Direction[]{Direction.UP, Direction.EAST};
-            default -> new Direction[]{Direction.NORTH, Direction.EAST};
-        };
-
-        for (int depth = 0; depth < thickness; depth++) {
-            BlockPos depthPos = hitPos.relative(direction, depth);
-            for (int a = -halfSize; a <= halfSize; a++) {
-                for (int b = -halfSize; b <= halfSize; b++) {
-                    BlockPos target = depthPos
-                        .relative(perpendiculars[0], a)
-                        .relative(perpendiculars[1], b);
-                    tryHeatEmberMetalAt(target);
-                }
-            }
-        }
-    }
-
-    /// 在给定位置升级或刷新单个余烬金属方块。
-    private void tryHeatEmberMetalAt(BlockPos pos) {
-        BlockState state = this.level.getBlockState(pos);
-
-        if (state.is(ModBlocks.EMBER_METAL_BLOCK.get())) {
-            Block overheatedBlock = ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get();
-            this.level.setBlock(pos, overheatedBlock.defaultBlockState(), Block.UPDATE_CLIENTS);
-            if (overheatedBlock instanceof EntityBlock entityBlock) {
-                BlockEntity be = entityBlock.newBlockEntity(pos, overheatedBlock.defaultBlockState());
-                if (be instanceof HeatableBlockEntity heatable) {
-                    this.level.setBlockEntity(heatable);
-                    heatable.addDurationInTick(80);
-                }
-            }
-        } else if (state.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())) {
-            BlockEntity be = this.level.getBlockEntity(pos);
-            if (be instanceof HeatableBlockEntity heatable) {
-                heatable.addDurationInTick(80);
-            }
-        }
-    }
-
-    /// 沿伽马激光路径摧毁棱镜。
-    private void destroyPrismsAlongPath(Direction direction, BlockPos targetPos) {
-        if (level == null) return;
-        BlockPos.MutableBlockPos checkPos = getBlockPos().relative(direction).mutable();
-        while (!checkPos.equals(targetPos)) {
-            BlockState checkState = level.getBlockState(checkPos);
-            if (checkState.getBlock() instanceof dev.dubhe.anvilcraft.block.RubyPrismBlock) {
-                level.destroyBlock(checkPos.immutable(), true);
-            }
-            checkPos.move(direction);
-        }
-    }
-
-    /// 伽马专用目标查找器：仅穿透空气/可替换方块。所有其他方块（包括玻璃和激光可穿透方块）都会阻挡伽马激光。
-    private BlockPos getGammaIrradiateBlockPos(int expectedLength, Direction direction, BlockPos originPos) {
-        for (int length = 1; length <= expectedLength; length++) {
-            BlockPos checkPos = originPos.relative(direction, length);
-            if (!gammaCanPassThrough(checkPos)) return checkPos;
-        }
-        return originPos.relative(direction, expectedLength);
-    }
-
-    /// 伽马激光只能穿过空气和可替换方块（高草丛等）。玻璃、带有 LASER_CAN_PASS_THROUGH 标签的方块等都会阻挡伽马激光。
-    private boolean gammaCanPassThrough(BlockPos blockPos) {
-        if (this.level == null) return false;
-        BlockState blockState = this.level.getBlockState(blockPos);
-        return blockState.is(BlockTags.REPLACEABLE);
     }
 
     /// === NBT 持久化 ===
