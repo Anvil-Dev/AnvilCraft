@@ -30,6 +30,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.DoorBlock;
+import net.minecraft.world.level.block.GrindstoneBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -127,7 +129,7 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
             Blocks.ANVIL.defaultBlockState(),
             50,
             12 + anvilYOffset,
-            20,
+            40,
             12,
             RenderSupport.SINGLE_BLOCK
         );
@@ -143,14 +145,14 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
                 renderedState,
                 50,
                 30 + 10 * i,
-                10 - 10 * i,
+                renderedState.getBlock() instanceof DoorBlock ? 10 : 25 - 10 * i,
                 12,
                 RenderSupport.SINGLE_BLOCK
             );
         }
 
         RenderSupport.renderBlock(
-            guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 20, 20, 12, RenderSupport.SINGLE_BLOCK
+            guiGraphics, Blocks.ANVIL.defaultBlockState(), 110, 20, 80, 12, RenderSupport.SINGLE_BLOCK
         );
         List<BlockState> input = recipe.getFirstInputBlock().constructStatesForRender();
         BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, RESULT_INPUT_BLOCK, input)
@@ -160,12 +162,19 @@ public class BlockSmearCategory implements IRecipeCategory<RecipeHolder<BlockSme
             renderedState,
             110,
             30,
-            10,
+            60,
             12,
             RenderSupport.SINGLE_BLOCK
         );
+        BlockState resultState = recipe.getFirstResultBlock().state();
         RenderSupport.renderBlock(
-            guiGraphics, recipe.getFirstResultBlock().state(), 110, 40, 0, 12, RenderSupport.SINGLE_BLOCK
+            guiGraphics,
+            resultState,
+            110,
+            40,
+            resultState.getBlock() instanceof DoorBlock ? 10 : 0,
+            12,
+            RenderSupport.SINGLE_BLOCK
         );
     }
 
