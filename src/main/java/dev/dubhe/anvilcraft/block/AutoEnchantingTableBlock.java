@@ -92,8 +92,12 @@ public class AutoEnchantingTableBlock extends BaseEntityBlock {
 
     @Override
     protected void neighborChanged(BlockState state, Level level, BlockPos pos, Block block, BlockPos fromPos, boolean isMoving) {
-        if (!level.isClientSide) {
-            level.setBlock(pos, state.setValue(POWERED, level.hasNeighborSignal(pos)), 2);
+        if (level.isClientSide) {
+            return;
+        }
+        boolean incoming = level.hasNeighborSignal(pos);
+        if (state.getValue(AutoEnchantingTableBlock.POWERED) != incoming) {
+            level.setBlockAndUpdate(pos, state.setValue(POWERED, incoming));
         }
     }
 
