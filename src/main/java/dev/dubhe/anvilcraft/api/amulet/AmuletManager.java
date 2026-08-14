@@ -4,8 +4,8 @@ import dev.anvilcraft.lib.v2.util.CollectionUtil;
 import dev.dubhe.anvilcraft.api.amulet.def.IAmuletDefinition;
 import dev.dubhe.anvilcraft.api.event.AmuletEvent;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
-import dev.dubhe.anvilcraft.init.ModRegistries;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.item.property.component.amulet.DoNothingAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.WrappedOthersAmulet;
@@ -36,7 +36,7 @@ public class AmuletManager {
     }
 
     public static List<Holder.Reference<IAmuletDefinition>> extractDefinitions(HolderLookup.Provider registries) {
-        return registries.lookupOrThrow(ModRegistries.AMULET_DEF_KEY)
+        return registries.lookupOrThrow(ModRegistryKeys.AMULET_DEF)
             .listElements()
             .toList();
     }

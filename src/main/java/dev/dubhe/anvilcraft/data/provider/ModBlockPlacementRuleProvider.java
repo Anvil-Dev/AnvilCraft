@@ -5,7 +5,7 @@ import com.mojang.serialization.JsonOps;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.placement.BlockPlacementRuleSet;
 import dev.dubhe.anvilcraft.block.placement.BlockPlacementRuleSet.StateRule;
-import dev.dubhe.anvilcraft.init.ModRegistries;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.CachedOutput;
 import net.minecraft.data.DataProvider;
@@ -51,7 +51,7 @@ public final class ModBlockPlacementRuleProvider implements DataProvider {
     private final PackOutput.PathProvider pathProvider;
 
     public ModBlockPlacementRuleProvider(PackOutput output) {
-        this.pathProvider = output.createRegistryElementsPathProvider(ModRegistries.BLOCK_PLACEMENT_RULES_KEY);
+        this.pathProvider = output.createRegistryElementsPathProvider(ModRegistryKeys.BLOCK_PLACEMENT_RULES);
     }
 
     @Override

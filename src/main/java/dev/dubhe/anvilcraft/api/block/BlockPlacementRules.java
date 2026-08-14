@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.api.block;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.placement.BlockPlacementRuleSet;
 import dev.dubhe.anvilcraft.block.placement.DefaultBlockPlacementRule;
-import dev.dubhe.anvilcraft.init.ModRegistries;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
@@ -19,7 +19,7 @@ import javax.annotation.Nullable;
  */
 public final class BlockPlacementRules {
     private static final ResourceKey<BlockPlacementRuleSet> DEFAULT_RULE_KEY = ResourceKey.create(
-        ModRegistries.BLOCK_PLACEMENT_RULES_KEY,
+        ModRegistryKeys.BLOCK_PLACEMENT_RULES,
         AnvilCraft.of("default")
     );
 
@@ -44,10 +44,10 @@ public final class BlockPlacementRules {
         }
         ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(state.getBlock());
         ResourceKey<BlockPlacementRuleSet> ruleKey = ResourceKey.create(
-            ModRegistries.BLOCK_PLACEMENT_RULES_KEY,
+            ModRegistryKeys.BLOCK_PLACEMENT_RULES,
             blockId
         );
-        return registries.lookup(ModRegistries.BLOCK_PLACEMENT_RULES_KEY)
+        return registries.lookup(ModRegistryKeys.BLOCK_PLACEMENT_RULES)
             .flatMap(lookup -> lookup.get(ruleKey))
             .map(holder -> (IBlockPlacementRule) holder.value())
             .orElse(DefaultBlockPlacementRule.INSTANCE);
@@ -59,13 +59,13 @@ public final class BlockPlacementRules {
         BlockState blueprintState
     ) {
         BlockState result = BlockPlacementRuleSet.inheritBlueprintState(baseState, blueprintState);
-        return registries.lookup(ModRegistries.BLOCK_PLACEMENT_RULES_KEY).map(lookup -> {
+        return registries.lookup(ModRegistryKeys.BLOCK_PLACEMENT_RULES).map(lookup -> {
             BlockState transformed = lookup.get(DEFAULT_RULE_KEY)
                 .map(holder -> holder.value().applyStateRules(blueprintState, result))
                 .orElse(result);
             ResourceLocation blockId = BuiltInRegistries.BLOCK.getKey(blueprintState.getBlock());
             ResourceKey<BlockPlacementRuleSet> blockRuleKey = ResourceKey.create(
-                ModRegistries.BLOCK_PLACEMENT_RULES_KEY,
+                ModRegistryKeys.BLOCK_PLACEMENT_RULES,
                 blockId
             );
             return lookup.get(blockRuleKey)

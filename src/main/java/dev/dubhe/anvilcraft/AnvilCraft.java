@@ -47,6 +47,7 @@ import dev.dubhe.anvilcraft.init.loot.ModLootModifiers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeInits;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.recipe.ModResultModifierTypes;
+import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
 import dev.dubhe.anvilcraft.item.DiskItem;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
@@ -116,6 +117,7 @@ public class AnvilCraft {
         ModLootItemConditions.LOOT_CONDITION_TYPES.register(modEventBus);
         ModLootModifiers.register(modEventBus);
         ModTargetPointers.register(modEventBus);
+        ModCategoryTypes.register(modEventBus);
         TeslaFilter.init();
         ModAmuletTypes.register(modEventBus);
         ModAmuletDefinitionTypes.register(modEventBus);

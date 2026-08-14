@@ -54,7 +54,6 @@ import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleMagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
@@ -80,6 +79,10 @@ import dev.dubhe.anvilcraft.block.entity.heatable.IncandescentBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.OverheatedBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.RedhotBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.plate.TimeCountedPressurePlateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.HyperdimensionStorageStationBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorBlockEntityRender;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AutoEnchantingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingBERenderer;
@@ -402,9 +405,24 @@ public class ModBlockEntities {
         .validBlocks(ModBlocks.NEUTRON_IRRADIATOR)
         .register();
 
+    public static final BlockEntityEntry<CrateBlockEntity> CRATE = REGISTRUM
+        .blockEntity("crate", CrateBlockEntity::new)
+        .validBlocks(ModBlocks.CRATE)
+        .register();
+
+    public static final BlockEntityEntry<LargeCrateBlockEntity> LARGE_CRATE = REGISTRUM
+        .blockEntity("large_crate", LargeCrateBlockEntity::new)
+        .validBlocks(ModBlocks.LARGE_CRATE)
+        .register();
+
     public static final BlockEntityEntry<ShulkerContainerBlockEntity> SHULKER_CONTAINER = REGISTRUM
         .blockEntity("shulker_container", ShulkerContainerBlockEntity::new)
         .validBlocks(ModBlocks.SHULKER_CONTAINER)
+        .register();
+
+    public static final BlockEntityEntry<HyperdimensionStorageStationBlockEntity> HYPERDIMENSION_STORAGE_STATION = REGISTRUM
+        .blockEntity("hyperdimension_storage_station", HyperdimensionStorageStationBlockEntity::new)
+        .validBlocks(ModBlocks.HYPERDIMENSION_STORAGE_STATION)
         .register();
 
     public static final BlockEntityEntry<FluidTankBlockEntity> FLUID_TANK = REGISTRUM

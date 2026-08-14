@@ -8,13 +8,37 @@ import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Ferocious;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
+import dev.dubhe.anvilcraft.network.PlayerSettingsSyncPacket;
+import dev.dubhe.anvilcraft.rpc.StorageServerStub;
+import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 @EventBusSubscriber
 public class PlayerTickEventHandler {
+
+    @SubscribeEvent
+    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            PacketDistributor.sendToPlayer(
+                serverPlayer,
+                new PlayerSettingsSyncPacket(
+                    PlayerSettings.getSetting(serverPlayer.registryAccess(), serverPlayer.getGameProfile().getId())
+                )
+            );
+        }
+    }
+
+    @SubscribeEvent
+    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.getEntity() instanceof ServerPlayer serverPlayer) {
+            StorageServerStub.remove(serverPlayer.getGameProfile().getId());
+        }
+    }
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {

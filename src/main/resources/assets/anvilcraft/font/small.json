@@ -1,0 +1,19 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "anvilcraft:font/small.png",
+      "height": 6,
+      "ascent": 5,
+      "chars": [
+        "1234567890!?.",
+        "ABCDEFGHIJKLM",
+        "NOPQRSTUVWXYZ",
+        "abcdefghijklm",
+        "nopqrstuvwxyz",
+        "()[]{}-+=<>:;",
+        "'\",_^$%/\\&`| "
+      ]
+    }
+  ]
+}

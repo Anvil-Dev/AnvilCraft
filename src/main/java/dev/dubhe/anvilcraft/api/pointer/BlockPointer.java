@@ -9,7 +9,8 @@ import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
-import dev.dubhe.anvilcraft.init.ModRegistries;
+import dev.dubhe.anvilcraft.init.registry.ModRegistries;
+import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil.MultiblockPart;
 import lombok.Getter;
@@ -217,14 +218,14 @@ public class BlockPointer implements ITargetPointer {
     }
 
     public static class Type implements ITargetPointer.Type<BlockPointer> {
-        public static final Codec<Type> CODEC = ModRegistries.TARGET_POINTER_TYPE_REGISTRY.byNameCodec().flatXmap(
+        public static final Codec<Type> CODEC = ModRegistries.TARGET_POINTER_TYPE.byNameCodec().flatXmap(
             raw -> raw instanceof Type type
                    ? DataResult.success(type)
                    : DataResult.error(() -> "Cannot cast %s to BlockPointer.Type".formatted(raw.getClass().getSimpleName())),
             DataResult::success
         );
         public static final StreamCodec<RegistryFriendlyByteBuf, Type> STREAM_CODEC = ByteBufCodecs.registry(
-            ModRegistries.TARGET_POINTER_TYPE_KEY
+            ModRegistryKeys.TARGET_POINTER_TYPE
         ).map(Util::cast, Function.identity());
         public static final MapCodec<BlockPointer> POINTER_CODEC = RecordCodecBuilder.mapCodec(inst -> inst.group(
             Type.CODEC

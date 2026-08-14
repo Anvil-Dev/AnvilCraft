@@ -24,5 +24,7 @@ public class ToolPropertyLang {
         provider.add("tooltip.anvilcraft.property.providence", "Providence: has chance to trigger [Hold %s] enchantments multiple times");
         provider.add("tooltip.anvilcraft.property.providence.shifting", "Providence: has chance to trigger (%s) enchantments multiple times");
         provider.add("tooltip.anvilcraft.property.stored_energy", "Remaining Energy: %s");
+        provider.add("tooltip.anvilcraft.property.storage.id", "Storage ID: %s");
+        provider.add("tooltip.anvilcraft.property.storage.id.null", "None yet, will create when placing");
     }
 }
