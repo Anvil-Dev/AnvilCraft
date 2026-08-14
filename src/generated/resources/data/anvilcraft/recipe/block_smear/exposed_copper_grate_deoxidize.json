@@ -1,0 +1,25 @@
+{
+  "type": "anvilcraft:block_smear",
+  "inputs": [
+    {
+      "blocks": [
+        "minecraft:grindstone",
+        "anvilcraft:ember_grindstone",
+        "anvilcraft:frost_grindstone",
+        "anvilcraft:royal_grindstone",
+        "anvilcraft:transcendence_grindstone"
+      ],
+      "properties": [
+        {
+          "facing": "down"
+        }
+      ]
+    },
+    {
+      "blocks": "minecraft:weathered_copper_grate"
+    }
+  ],
+  "result": {
+    "block": "minecraft:exposed_copper_grate"
+  }
+}
