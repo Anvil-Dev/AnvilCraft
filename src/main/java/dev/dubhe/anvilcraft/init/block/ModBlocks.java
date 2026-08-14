@@ -92,6 +92,7 @@ import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MagneticChuteBlock;
 import dev.dubhe.anvilcraft.block.MagnetoElectricCoreBlock;
+import dev.dubhe.anvilcraft.block.MassEnergyInverterBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
 import dev.dubhe.anvilcraft.block.MengerSpongeBlock;
 import dev.dubhe.anvilcraft.block.MilkCauldronBlock;
@@ -1553,6 +1554,19 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .item()
         .properties(properties -> properties.stacksTo(16))
+        .model((ctx, provider) -> provider.blockItem(ctx))
+        .build()
+        .register();
+
+    public static final BlockEntry<MassEnergyInverterBlock> MASS_ENERGY_INVERTER = REGISTRUM.block(
+            "mass_energy_inverter",
+            MassEnergyInverterBlock::new
+        )
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties.isValidSpawn(Blocks::never).noOcclusion())
+        .blockstate(DataGenUtil::simple)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .item()
         .model((ctx, provider) -> provider.blockItem(ctx))
         .build()
         .register();

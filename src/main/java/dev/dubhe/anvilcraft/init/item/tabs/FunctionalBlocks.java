@@ -110,6 +110,7 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
 
         this.plain(ModBlocks.TRANSPARENT_CRAFTING_TABLE); // 通透工作台
         this.plain(ModBlocks.SPACE_OVERCOMPRESSOR); // 空间超压器
+        this.plain(ModBlocks.MASS_ENERGY_INVERTER); // 能质逆变器
         this.plain(ModBlocks.CRATE); // 板条箱
         this.plain(ModBlocks.LARGE_CRATE); // 大板条箱
         this.plain(ModBlocks.SHULKER_CONTAINER); // 潜影集装箱

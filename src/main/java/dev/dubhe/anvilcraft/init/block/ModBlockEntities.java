@@ -42,6 +42,7 @@ import dev.dubhe.anvilcraft.block.entity.LaserReceiverBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LensBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LoadMonitorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.MassEnergyInverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MobAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.NeutronIrradiatorBlockEntity;
@@ -303,6 +304,11 @@ public class ModBlockEntities {
         "space_overcompressor",
         SpaceOvercompressorBlockEntity::createBlockEntity
     ).validBlocks(ModBlocks.SPACE_OVERCOMPRESSOR).register();
+
+    public static final BlockEntityEntry<MassEnergyInverterBlockEntity> MASS_ENERGY_INVERTER = REGISTRUM.blockEntity(
+        "mass_energy_inverter",
+        MassEnergyInverterBlockEntity::createBlockEntity
+    ).validBlocks(ModBlocks.MASS_ENERGY_INVERTER).register();
 
     public static final BlockEntityEntry<BlackHoleBlockEntity> BLACK_HOLE = REGISTRUM.blockEntity(
         "black_hole",
