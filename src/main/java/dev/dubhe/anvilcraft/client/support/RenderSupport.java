@@ -58,13 +58,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.model.data.ModelData;
-import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 @SuppressWarnings("deprecation")
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
@@ -81,10 +81,11 @@ public class RenderSupport {
     private static final ModelResourceLocation SPYGLASS_MODEL = ModelResourceLocation.inventory(
         ResourceLocation.withDefaultNamespace("spyglass")
     );
-    private static ClientLevel currentClientLevel = null;
-    private static LevelLike.AirLevelLike airLevelLike = null;
+    private static @Nullable ClientLevel currentClientLevel = null;
+    private static @Nullable LevelLike.AirLevelLike airLevelLike = null;
 
     public static final BlockRenderFunction SINGLE_BLOCK = (blockState, poseStack, buffers) -> {
+        if (airLevelLike == null) return;
         BlockRenderDispatcher blockRenderDispatcher = Minecraft.getInstance().getBlockRenderer();
         BakedModel model = blockRenderDispatcher.getBlockModel(blockState);
         for (RenderType renderType : model.getRenderTypes(blockState, RANDOM, ModelData.EMPTY)) {
@@ -111,6 +112,7 @@ public class RenderSupport {
 
     public static BlockRenderFunction wipEntity(ResourceLocation recipeId, int stepCount) {
         return (blockState, poseStack, buffers) -> {
+            if (currentClientLevel == null) return;
             WipBlockEntity blockEntity = WipBlockEntity.createInstance(ModBlockEntities.WIP_BLOCK.get(),
                 BlockPos.ZERO, ModBlocks.WIP_BLOCK.getDefaultState());
             blockEntity.setLevel(currentClientLevel);
@@ -128,9 +130,12 @@ public class RenderSupport {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         ClientLevel level = Minecraft.getInstance().level;
-        if (currentClientLevel != level) {
+        if (currentClientLevel != level && level != null) {
             airLevelLike = new LevelLike.AirLevelLike(level);
             currentClientLevel = level;
+        }
+        if (currentClientLevel == null || airLevelLike == null) {
+            return;
         }
         PoseStack poseStack = guiGraphics.pose();
 
@@ -181,9 +186,12 @@ public class RenderSupport {
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
         ClientLevel level = Minecraft.getInstance().level;
-        if (currentClientLevel != level) {
+        if (currentClientLevel != level && level != null) {
             airLevelLike = new LevelLike.AirLevelLike(level);
             currentClientLevel = level;
+        }
+        if (currentClientLevel == null || airLevelLike == null) {
+            return;
         }
         PoseStack poseStack = guiGraphics.pose();
 
@@ -260,8 +268,9 @@ public class RenderSupport {
     ) {
         RenderSystem.enableBlend();
         Minecraft minecraft = Minecraft.getInstance();
-        DeltaTracker tracker = minecraft.getTimer();
         ClientLevel clientLevel = minecraft.level;
+        if (clientLevel == null) return;
+        DeltaTracker tracker = minecraft.getTimer();
         PoseStack pose = guiGraphics.pose();
         int sizeX = level.horizontalSize();
         int sizeY = level.verticalSize();
@@ -502,6 +511,9 @@ public class RenderSupport {
                     bakedmodel,
                     alpha
                 );
+                // 在恢复 3D 光照前立即刷新批处理，否则透明物品会在后续（如 tooltip 触发）flush 时
+                // 以 3D 光照着色而变暗，与原版 GuiGraphics.renderItem 的刷新时机保持一致
+                Minecraft.getInstance().levelRenderer.renderBuffers.bufferSource().endBatch();
                 if (flag) {
                     Lighting.setupFor3DItems();
                 }

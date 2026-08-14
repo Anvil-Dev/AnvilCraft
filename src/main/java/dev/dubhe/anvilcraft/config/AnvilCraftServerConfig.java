@@ -116,6 +116,18 @@ public class AnvilCraftServerConfig {
     @BoundedDiscrete(min = 2, max = 1200)
     public int mineralFountainInterval = 20;
 
+    @Comment("Working interval of the auto enchanting table (in ticks)")
+    @BoundedDiscrete(min = 1, max = 1000)
+    public int autoEnchantingTableInterval = 80;
+
+    @Comment("Maximum valid bookshelves of the auto enchanting table")
+    @BoundedDiscrete(min = 1, max = 80)
+    public int autoEnchantingTableMaxBookshelf = 15;
+
+    @Comment("Maximum selectable level in auto enchanting table's liquid enchantment mode")
+    @BoundedDiscrete(min = 1, max = 15)
+    public int liquidEnchantmentMaxLevel = 15;
+
     @Comment("Giant anvil maxCount fall damage")
     @BoundedDiscrete(max = 100, min = 0)
     public int giantAnvilFallDamageMax = 40;

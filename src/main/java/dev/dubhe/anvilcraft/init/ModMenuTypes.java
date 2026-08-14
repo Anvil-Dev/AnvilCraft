@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.init;
 import dev.anvilcraft.lib.v2.registrum.util.entry.MenuEntry;
 import dev.dubhe.anvilcraft.client.gui.screen.ActiveSilencerScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.AdvancedComparatorScreen;
+import dev.dubhe.anvilcraft.client.gui.screen.AutoEnchantingTableScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCrafterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.BatchCutterScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.CelestialForgingAnvilScreen;
@@ -36,6 +37,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceGrindstoneScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.TranscendenceSmithingScreen;
 import dev.dubhe.anvilcraft.inventory.ActiveSilencerMenu;
 import dev.dubhe.anvilcraft.inventory.AdvancedComparatorMenu;
+import dev.dubhe.anvilcraft.inventory.AutoEnchantingTableMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCrafterMenu;
 import dev.dubhe.anvilcraft.inventory.BatchCutterMenu;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
@@ -198,6 +200,9 @@ public class ModMenuTypes {
             "frost_grindstone",
             (type, id, inv) -> new FrostGrindstoneMenu(type, id, inv),
             () -> FrostGrindstoneScreen::new)
+        .register();
+    public static final MenuEntry<AutoEnchantingTableMenu> AUTO_ENCHANTING_TABLE = REGISTRUM
+        .menu("auto_enchanting_table", AutoEnchantingTableMenu::new, () -> AutoEnchantingTableScreen::new)
         .register();
     public static final MenuEntry<FrostSmithingMenu> FROST_SMITHING = REGISTRUM
         .menu(

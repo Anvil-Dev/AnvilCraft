@@ -415,6 +415,10 @@ public class ItemTooltipManager {
             "Material for building a Stellar Evolution Accelerator, used in the Celestial Forging Anvil"
         );
         NORMAL.put(ModBlocks.REDSTONE_WIRE.asItem(), "Transmit redstone signals more precisely");
+        NORMAL.put(
+            ModBlocks.AUTO_ENCHANTING_TABLE.asItem(),
+            "Automatically enchant items with experience fluid, primers, or liquid enchantment"
+        );
         NORMAL.put(ModBlocks.TRADING_STATION.asItem(), "Trading platform for players and villagers");
         NORMAL.put(ModBlocks.LARGE_LASER.asItem(), "Equivalent to 16 lasers, outputs 16 intensity levels of laser, consumes 256 kW");
         NORMAL.put(
@@ -662,6 +666,12 @@ public class ItemTooltipManager {
                 The redstone signal level does not decay within the wire,
                 and the wire will not output the signal received from redstone dust back to redstone dust
                 Right-click an existing wire to change its direction""");
+        SHIFT.put(ModBlocks.AUTO_ENCHANTING_TABLE.asItem(), """
+                Automatically enchants items with power from the grid
+                Random mode: consumes experience fluid, enchants based on nearby bookshelf level (16 kW)
+                Primer mode: uses a primer to list selectable enchantments, consumes experience fluid (64 kW)
+                Liquid enchantment mode: consumes enchanted liquid enchantment to apply a chosen enchantment up to level 15 (64 kW plus 64 kW per existing enchantment)
+                Redstone signal pauses the machine""");
         SHIFT.put(
             ModBlocks.TRADING_STATION.asItem(), """
                 Can be set to trade with players or villagers

@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.client.gui.component.Texture10xButton;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.inventory.ExpCollectorMenu;
 import dev.dubhe.anvilcraft.network.ExpCollectorSyncPacket;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
@@ -15,9 +14,6 @@ import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.network.PacketDistributor;
-
-import java.util.List;
-import java.util.Optional;
 
 @OnlyIn(Dist.CLIENT)
 public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu> {
@@ -117,12 +113,6 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
                 this.leftPos + 94, this.topPos + 23,
                 40, 40,
                 this.menu.getBlockEntity().getFluidHandler(),
-                (fluidHandler) ->
-                    Component.translatable(
-                        "screen.anvilcraft.exp_collector.tooltip",
-                        fluidHandler.getFluidInTank(0).getAmount(),
-                        fluidHandler.getTankCapacity(0)
-                    ),
                 (mouseX, mouseY, button) ->
                     PacketDistributor.sendToServer(new ExpCollectorSyncPacket(this.menu.getBlockEntity().getBlockPos()))
             )
@@ -146,24 +136,5 @@ public class ExpCollectorScreen extends AbstractContainerScreen<ExpCollectorMenu
     protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {
         int x = (this.imageWidth - this.font.width(this.title)) / 2;
         guiGraphics.drawString(this.font, this.title, x, 2, 4210752, false);
-    }
-
-    @Override
-    protected void renderTooltip(GuiGraphics guiGraphics, int x, int y) {
-        super.renderTooltip(guiGraphics, x, y);
-        if (this.isHovering(94, 23, 40, 40, x, y)) {
-            guiGraphics.renderTooltip(
-                Minecraft.getInstance().font,
-                List.of(
-                    Component.translatable(
-                        "screen.anvilcraft.exp_collector.tooltip",
-                        this.menu.getBlockEntity().getFluidHandler().getFluidInTank(0).getAmount(),
-                        this.menu.getBlockEntity().getFluidHandler().getTankCapacity(0)
-                    )
-                ),
-                Optional.empty(),
-                x, y
-            );
-        }
     }
 }

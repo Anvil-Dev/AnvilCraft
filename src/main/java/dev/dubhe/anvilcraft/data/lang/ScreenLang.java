@@ -54,6 +54,18 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.ember_grindstone.title", "Extract enchantment");
         provider.add("screen.anvilcraft.ember_grindstone.cost", "Exp. Cost: %d");
         provider.add("screen.anvilcraft.frost_grindstone.title", "Disenchant");
+        provider.add("screen.anvilcraft.auto_enchanting_table.title", "Auto Enchant");
+        provider.add("screen.anvilcraft.auto_enchanting_table.search", "Search enchantments");
+        provider.add("screen.anvilcraft.auto_enchanting_table.warning.bookshelf", "Not enough bookshelves");
+        provider.add("screen.anvilcraft.auto_enchanting_table.warning.fluid_capacity", "Exceeds fluid capacity");
+        provider.add("screen.anvilcraft.auto_enchanting_table.warning.liquid_incompatible", "Incompatible with the item");
+        provider.add("screen.anvilcraft.auto_enchanting_table.warning.item_incompatible", "Item cannot hold the selected enchantments");
+        // 原版仅提供 1-10 级的等级文本，超限附魔需要补充 11-15 级
+        provider.add("enchantment.level.11", "XI");
+        provider.add("enchantment.level.12", "XII");
+        provider.add("enchantment.level.13", "XIII");
+        provider.add("enchantment.level.14", "XIV");
+        provider.add("enchantment.level.15", "XV");
         provider.add("screen.anvilcraft.ember_grindstone.earn", "Exp. Earn: %d");
         provider.add("screen.anvilcraft.transcendence_grindstone.title", "Transcendence Grindstone");
         provider.add("screen.anvilcraft.transcendence_grindstone.penalty", "Penalty: %1$s / %2$s");
@@ -700,5 +712,10 @@ public class ScreenLang {
 
         // Portal placement messages
         provider.add("message.anvilcraft.portal.invalid_placement", "Portals can only be placed on CFA side centers"); // 传送门只能放置在锻星砧侧面的中心位置
+
+        provider.add("screen.anvilcraft.auto_enchanting_table.primer", "Put primers, like Emerald Amulet or specific anvils");
+        provider.add("screen.anvilcraft.auto_enchanting_table.enchant_power_bonus", "Enchant Power Bonus: %s");
+        provider.add("screen.anvilcraft.auto_enchanting_table.liquid_enchantment.0", "Scroll on the Enchanted Book");
+        provider.add("screen.anvilcraft.auto_enchanting_table.liquid_enchantment.1", "above can tweak the levels");
     }
 }

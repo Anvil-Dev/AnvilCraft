@@ -5,7 +5,8 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 public class FluidLang {
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
-        provider.add("fluid.anvilcraft.fire", "Burning Oil (The content of Fire Cauldron)");
+        provider.add("tooltip.anvilcraft.fluid.flowing", "%s (Flowing)");
+        provider.add("tooltip.anvilcraft.fluid.amount", "%s / %s");
 
         // Non-placeable fluids
         provider.add("block.anvilcraft.milk", "Milk");

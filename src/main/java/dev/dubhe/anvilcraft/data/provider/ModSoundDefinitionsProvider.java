@@ -67,5 +67,9 @@ public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
         add(ModSoundEvents.ANVIL_HAMMER_ROTATE_BLOCK, definition()
             .subtitle("subtitles.anvilcraft.anvil_hammer_rotate_block")
             .with(sound(ResourceLocation.withDefaultNamespace("block.copper_bulb.turn_on"), SoundDefinition.SoundType.EVENT)));
+
+        add(ModSoundEvents.AUTO_ENCHANTING_TABLE_USE, definition()
+            .subtitle("subtitles.anvilcraft.auto_enchanting_table.use")
+            .with(sound(ResourceLocation.withDefaultNamespace("block.enchantment_table.use"), SoundDefinition.SoundType.EVENT)));
     }
 }
