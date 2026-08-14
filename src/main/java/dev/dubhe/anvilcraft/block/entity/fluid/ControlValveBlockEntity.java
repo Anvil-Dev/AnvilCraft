@@ -26,6 +26,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.FluidStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Collections;
+
 /**
  * 控制阀的 BlockEntity。存储流体过滤（白名单）和最大流速，供流体网络分配时门控。
  *
@@ -34,7 +36,8 @@ import org.jetbrains.annotations.Nullable;
  * 由玩家在 GUI 中手动放入桶 / 从 JEI 拖入流体设置。未设置任何过滤 → 允许所有流体通过。
  *
  * <h3>流速</h3>
- * {@link #maxRate} ∈ [0, {@value #MAX_RATE}] mB/tick，限制每 tick 流过本阀门的流体总量。
+ * {@link #maxRate} ∈ [0, {@value #MAX_RATE}] mB/tick，只限制每 tick 流过本阀门的流体上限，
+ * 不是最低起送量；白名单只放行已标记的流体，不会用其他液体补足流速。
  */
 @Getter
 public class ControlValveBlockEntity extends BlockEntity implements MenuProvider {
@@ -155,7 +158,7 @@ public class ControlValveBlockEntity extends BlockEntity implements MenuProvider
     }
 
     private void readFilters(HolderLookup.Provider registries, ListTag list) {
-        filters.replaceAll(ignored -> FluidStack.EMPTY);
+        Collections.fill(filters, FluidStack.EMPTY);
         for (int i = 0; i < list.size(); i++) {
             CompoundTag entry = list.getCompound(i);
             int slot = entry.getInt("Slot");
