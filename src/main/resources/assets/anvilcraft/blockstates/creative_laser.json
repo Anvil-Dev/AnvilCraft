@@ -1,0 +1,30 @@
+{
+  "variants": {
+    "facing=up": {
+      "model": "anvilcraft:block/creative_laser"
+    },
+    "facing=down": {
+      "model": "anvilcraft:block/creative_laser",
+      "x": 180
+    },
+    "facing=north": {
+      "model": "anvilcraft:block/creative_laser",
+      "x": 90
+    },
+    "facing=south": {
+      "model": "anvilcraft:block/creative_laser",
+      "x": 90,
+      "y": 180
+    },
+    "facing=east": {
+      "model": "anvilcraft:block/creative_laser",
+      "x": 90,
+      "y": 90
+    },
+    "facing=west": {
+      "model": "anvilcraft:block/creative_laser",
+      "x": 90,
+      "y": 270
+    }
+  }
+}
