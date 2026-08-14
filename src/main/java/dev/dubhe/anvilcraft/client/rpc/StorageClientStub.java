@@ -75,6 +75,16 @@ public final class StorageClientStub {
         );
     }
 
+    public static CompletableFuture<Boolean> clonePut(BlockPos sourcePos, IntList slots) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::clonePut,
+            StorageClientStub.playerId(),
+            sourcePos.asLong(),
+            slots
+        );
+    }
+
     public static CompletableFuture<StorageServerStub.DepositResult> deposit(BlockPos sourcePos, boolean all) {
         return RPC.invoke(
             RpcTarget.server(),

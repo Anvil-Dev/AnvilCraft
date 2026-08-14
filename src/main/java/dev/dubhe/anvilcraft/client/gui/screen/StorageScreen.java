@@ -125,6 +125,7 @@ public class StorageScreen extends Screen {
     private boolean remappedOrder;
     private int nextLogicalSlot;
     private final IntSet quickCraftSlots = new IntOpenHashSet();
+    private final IntSet quickCraftStorageSlots = new IntOpenHashSet();
     private boolean quickCrafting;
     private int quickCraftingButton;
     private int lastClickedInventorySlot = -1;
@@ -394,6 +395,11 @@ public class StorageScreen extends Screen {
 
             int slot = this.displayOrder.getInt(orderIndex);
             UnlimitedItemStack stack = this.getDisplayedStack(slot);
+
+            // 高亮先画在底层，物品图标盖过高亮，tooltip最后绘制
+            if (hovered) {
+                AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
+            }
             if (!stack.isEmpty()) {
                 ItemStack itemStack = stack.toStack();
                 graphics.renderItem(itemStack, x, y);
@@ -405,14 +411,9 @@ public class StorageScreen extends Screen {
                     x,
                     y
                 );
-                if (hovered && this.carried.isEmpty()) {
-                    graphics.renderTooltip(this.font, itemStack, mouseX, mouseY);
-                }
             }
-
-            // 悬停高亮画在物品之上
-            if (hovered) {
-                AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
+            if (hovered && this.carried.isEmpty() && !stack.isEmpty()) {
+                graphics.renderTooltip(this.font, stack.toStack(), mouseX, mouseY);
             }
         }
         this.renderStorageSlider(graphics);
@@ -467,17 +468,16 @@ public class StorageScreen extends Screen {
             stack = this.getQuickCraftPreviewStack(slot);
             graphics.fill(x, y, x + 16, y + 16, -2130706433);
         }
+        // 高亮先画在底层，物品图标盖过高亮，tooltip最后绘制
+        if (hovered) {
+            AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
+        }
         if (!stack.isEmpty()) {
             graphics.renderItem(stack, x, y);
             graphics.renderItemDecorations(this.font, stack, x, y);
-            if (hovered && this.carried.isEmpty()) {
-                graphics.renderTooltip(this.font, stack, mouseX, mouseY);
-            }
         }
-
-        // 悬停高亮画在物品之上
-        if (hovered) {
-            AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
+        if (hovered && this.carried.isEmpty() && !stack.isEmpty()) {
+            graphics.renderTooltip(this.font, stack, mouseX, mouseY);
         }
     }
 
@@ -559,8 +559,12 @@ public class StorageScreen extends Screen {
             }
             renderedCarried = this.carried.copyWithCount(remaining);
         }
+        // 鼠标物品输出在所有槽位内容之上（高亮/槽位物品/数量文字），仍低于tooltip
+        graphics.pose().pushPose();
+        graphics.pose().translate(0.0F, 0.0F, 100.0F);
         graphics.renderItem(renderedCarried, mouseX - 8, mouseY - 8);
         graphics.renderItemDecorations(this.font, renderedCarried, mouseX - 8, mouseY - 8);
+        graphics.pose().popPose();
     }
 
     private ItemStack getQuickCraftPreviewStack(int inventorySlot) {
@@ -576,6 +580,9 @@ public class StorageScreen extends Screen {
     }
 
     private int getQuickCraftRemaining() {
+        if (this.quickCraftingButton == 2) {
+            return this.carried.getCount();
+        }
         int remaining = this.carried.getCount();
         for (int screenSlot : this.quickCraftSlots) {
             Slot slot = this.player.inventoryMenu.getSlot(screenSlot);
@@ -639,9 +646,7 @@ public class StorageScreen extends Screen {
                     this.pickupAllSlot = this.getScreenSlot(slot);
                     return true;
                 }
-                this.quickCrafting = true;
-                this.quickCraftingButton = button;
-                this.quickCraftSlots.clear();
+                this.startQuickCraft(button);
                 return true;
             }
 
@@ -660,10 +665,13 @@ public class StorageScreen extends Screen {
             if (
                 storageSlot != null
                 && this.player.hasInfiniteMaterials()
-                && this.carried.isEmpty()
                 && this.minecraft.options.keyPickItem.matchesMouse(2)
             ) {
-                this.interactWithStorage(storageSlot, 0, StorageInput.CLONE);
+                if (this.carried.isEmpty()) {
+                    this.interactWithStorage(storageSlot, 0, StorageInput.CLONE);
+                } else {
+                    this.startQuickCraft(button);
+                }
                 return true;
             }
 
@@ -676,14 +684,18 @@ public class StorageScreen extends Screen {
                 return false;
             }
 
-            this.minecraft.gameMode.handleInventoryMouseClick(
-                this.player.inventoryMenu.containerId,
-                slot,
-                0,
-                ClickType.CLONE,
-                this.player
-            );
-            this.carried = this.player.inventoryMenu.getCarried();
+            if (this.carried.isEmpty()) {
+                this.minecraft.gameMode.handleInventoryMouseClick(
+                    this.player.inventoryMenu.containerId,
+                    slot,
+                    0,
+                    ClickType.CLONE,
+                    this.player
+                );
+                this.carried = this.player.inventoryMenu.getCarried();
+            } else {
+                this.startQuickCraft(button);
+            }
             return true;
         }
 
@@ -712,12 +724,20 @@ public class StorageScreen extends Screen {
             return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
         }
 
+        Integer storageSlot = this.getStorageSlot(mouseX, mouseY);
+        if (storageSlot != null) {
+            if (button == 2 && this.player.hasInfiniteMaterials()) {
+                this.quickCraftStorageSlots.add(storageSlot);
+            }
+            return true;
+        }
+
         int inventorySlot = this.getInventorySlot(mouseX, mouseY);
         if (inventorySlot != -1) {
             int screenSlot = this.getScreenSlot(inventorySlot);
             Slot slot = this.player.inventoryMenu.getSlot(screenSlot);
             if (
-                this.carried.getCount() > this.quickCraftSlots.size()
+                (this.carried.getCount() > this.quickCraftSlots.size() || button == 2)
                 && AbstractContainerMenu.canItemQuickReplace(slot, this.carried, true)
                 && slot.mayPlace(this.carried)
                 && this.player.inventoryMenu.canDragTo(slot)
@@ -752,7 +772,7 @@ public class StorageScreen extends Screen {
 
         if (button == this.quickCraftingButton && this.minecraft.gameMode != null) {
             this.player.inventoryMenu.setCarried(this.carried);
-            if (this.quickCraftSlots.isEmpty()) {
+            if (this.quickCraftSlots.isEmpty() && this.quickCraftStorageSlots.isEmpty()) {
                 int inventorySlot = this.getInventorySlot(mouseX, mouseY);
                 if (inventorySlot != -1) {
                     this.minecraft.gameMode.handleInventoryMouseClick(
@@ -764,14 +784,48 @@ public class StorageScreen extends Screen {
                     );
                 }
             } else {
-                this.quickCraftToSlots(button);
+                if (!this.quickCraftStorageSlots.isEmpty()) {
+                    this.clonePutToStorage();
+                }
+                if (!this.quickCraftSlots.isEmpty()) {
+                    this.quickCraftToSlots(button);
+                }
             }
             this.carried = this.player.inventoryMenu.getCarried();
         }
 
         this.quickCrafting = false;
         this.quickCraftSlots.clear();
+        this.quickCraftStorageSlots.clear();
         return true;
+    }
+
+    private void startQuickCraft(int button) {
+        this.quickCrafting = true;
+        this.quickCraftingButton = button;
+        this.quickCraftSlots.clear();
+        this.quickCraftStorageSlots.clear();
+    }
+
+    private void clonePutToStorage() {
+        if (this.quickCraftStorageSlots.isEmpty()) {
+            return;
+        }
+        IntList slots = new IntArrayList(this.quickCraftStorageSlots);
+        StorageClientStub.clonePut(this.sourcePos, slots).whenCompleteAsync(
+            (changed, error) -> {
+                if (error != null || !changed) {
+                    return;
+                }
+                if (this.preservingOrder) {
+                    this.interactionSyncPending = true;
+                    this.syncPreservedOrder();
+                    return;
+                }
+                this.reorder(false);
+            },
+            this.screenExecutor
+        );
     }
 
     private void quickCraftToSlots(int button) {
@@ -1568,7 +1622,7 @@ public class StorageScreen extends Screen {
 
         // 抬高 z 使耐久条与数量数字绘制在物品图标之上
         graphics.pose().pushPose();
-        graphics.pose().translate(0, 0, 300);
+        graphics.pose().translate(0, 0, 200);
 
         // 耐久条
         if (stack.isBarVisible()) {

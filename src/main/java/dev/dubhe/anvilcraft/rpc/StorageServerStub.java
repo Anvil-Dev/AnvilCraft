@@ -185,6 +185,35 @@ public final class StorageServerStub {
         return new InteractionResult(carried, changed);
     }
 
+    @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC")
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean clonePut(UUID playerId, long sourcePos, IntList slots) {
+        if (slots.isEmpty() || slots.size() > StorageServerStub.MAX_SYNC_SLOTS) {
+            StorageServerStub.REGISTRIES.remove();
+            throw new IllegalArgumentException("Invalid clone put slots");
+        }
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        ItemStack carried = player.inventoryMenu.getCarried();
+        if (!player.hasInfiniteMaterials() || carried.isEmpty()) {
+            return false;
+        }
+        boolean changed = false;
+        for (int index : slots) {
+            if (index < 0 || index >= view.size()) {
+                continue;
+            }
+            if (view.insert(carried.copyWithCount(1), carried.getMaxStackSize()) > 0) {
+                changed = true;
+            }
+        }
+        if (changed) {
+            player.getInventory().setChanged();
+            player.inventoryMenu.broadcastChanges();
+        }
+        return changed;
+    }
+
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static DepositResult deposit(UUID playerId, long sourcePos, boolean all) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
