@@ -43,6 +43,7 @@ import dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid.SuperHeatingCa
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.liquid.TimeWarpCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.extension.CanningFoodExtension;
 import dev.dubhe.anvilcraft.integration.jei.category.extension.PillRecipeExtension;
+import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlock4DCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.handlers.GhostIngredientHandler;
@@ -77,6 +78,7 @@ import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SuperHeatingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.UnpackRecipe;
+import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.BaseMultipleToOneSmithingRecipe;
@@ -160,6 +162,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
 
     public static final RecipeType<RecipeHolder<MultiblockRecipe>> MULTIBLOCK_CRAFTING =
         createRecipeHolderType("multiblock");
+    public static final RecipeType<RecipeHolder<Multiblock4DRecipe>> MULTIBLOCK_4D =
+        createRecipeHolderType("4d_multiblock");
     public static final RecipeType<RecipeHolder<MultiblockConversionRecipe>> MULTIBLOCK_CONVERSION =
         createRecipeHolderType("multiblock_conversion");
 
@@ -210,6 +214,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         TimeWarpCategory.registerRecipes(registration);
         NeutronIrradiationCategory.registerRecipes(registration);
         MultiBlockCraftingCategory.registerRecipes(registration);
+        MultiBlock4DCategory.registerRecipes(registration);
         MultiBlockConversionCategory.registerRecipes(registration);
         JewelCraftingCategory.registerRecipes(registration);
         PortalConversionCategory.registerRecipes(registration);
@@ -245,6 +250,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         TimeWarpCategory.registerRecipeCatalysts(registration);
         FluidMixingCategory.registerRecipeCatalysts(registration);
         MultiBlockCraftingCategory.registerRecipeCatalysts(registration);
+        MultiBlock4DCategory.registerRecipeCatalysts(registration);
         MultiBlockConversionCategory.registerRecipeCatalysts(registration);
         JewelCraftingCategory.registerRecipeCatalysts(registration);
         PortalConversionCategory.registerRecipeCatalysts(registration);
@@ -295,6 +301,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new TimeWarpCategory(guiHelper));
         registration.addRecipeCategories(new NeutronIrradiationCategory(guiHelper));
         registration.addRecipeCategories(new MultiBlockCraftingCategory(guiHelper));
+        registration.addRecipeCategories(new MultiBlock4DCategory(guiHelper));
         registration.addRecipeCategories(new MultiBlockConversionCategory(guiHelper));
         registration.addRecipeCategories(new JewelCraftingCategory(guiHelper));
         registration.addRecipeCategories(new PortalConversionCategory(guiHelper));

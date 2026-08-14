@@ -808,6 +808,8 @@
   "entity.anvilcraft.thrown_transcendence_heavy_halberd": "Thrown Transcendence Heavy Halberd",
   "entity.anvilcraft.weapon_beam": "Weapon Beam",
   "entity.minecraft.villager.anvilcraft.jeweler": "Jeweler",
+  "gui.anvilcraft.category.4d_multiblock": "4D Multiblock Crafting",
+  "gui.anvilcraft.category.4d_multiblock.step": "Time Step: %1$d of %2$d",
   "gui.anvilcraft.category.anvil_collision": "Anvil Collision",
   "gui.anvilcraft.category.anvil_collision.consume": "Consume Anvil: %d",
   "gui.anvilcraft.category.anvil_collision.maxcount": "Max Count: %s",

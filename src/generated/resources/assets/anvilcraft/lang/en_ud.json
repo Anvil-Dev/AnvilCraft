@@ -808,6 +808,8 @@
   "entity.anvilcraft.thrown_transcendence_heavy_halberd": "pɹǝqꞁɐH ʎʌɐǝH ǝɔuǝpuǝɔsuɐɹ⟘ uʍoɹɥ⟘",
   "entity.anvilcraft.weapon_beam": "ɯɐǝᗺ uodɐǝM",
   "entity.minecraft.villager.anvilcraft.jeweler": "ɹǝꞁǝʍǝՐ",
+  "gui.anvilcraft.category.4d_multiblock": "ᵷuᴉʇɟɐɹƆ ʞɔoꞁqᴉʇꞁnW ᗡ߈",
+  "gui.anvilcraft.category.4d_multiblock.step": "%2$d ɟo %1$d :dǝʇS ǝɯᴉ⟘",
   "gui.anvilcraft.category.anvil_collision": "uoᴉsᴉꞁꞁoƆ ꞁᴉʌuⱯ",
   "gui.anvilcraft.category.anvil_collision.consume": "%d :ꞁᴉʌuⱯ ǝɯnsuoƆ",
   "gui.anvilcraft.category.anvil_collision.maxcount": "%s :ʇunoƆ xɐW",
