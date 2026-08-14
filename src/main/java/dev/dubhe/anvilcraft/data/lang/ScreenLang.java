@@ -450,6 +450,14 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.laser_interface.valid", "✓ Valid"); // ✓ 达成
         provider.add("screen.anvilcraft.cfa.laser_interface.invalid", "✗ Invalid"); // ✗ 未达成
 
+        // Creative laser GUI
+        provider.add("screen.anvilcraft.creative_laser.lens.none", "No Lens"); // 无透镜
+        provider.add("screen.anvilcraft.creative_laser.lens.royal", "Royal Lens"); // 皇家透镜
+        provider.add("screen.anvilcraft.creative_laser.lens.frost", "Frost Lens"); // 浮霜透镜
+        provider.add("screen.anvilcraft.creative_laser.lens.ember", "Ember Lens"); // 余烬透镜
+        provider.add("screen.anvilcraft.creative_laser.type.normal", "Normal Laser"); // 普通激光
+        provider.add("screen.anvilcraft.creative_laser.type.gamma", "Gamma Laser"); // 伽马激光
+
         // CFA interface HUD tooltip (displayed on logistics interface)
         provider.add("screen.anvilcraft.cfa.temple_demand", "◇ Temple Demand ◇"); // ◇ 神庙需求 ◇
         provider.add("screen.anvilcraft.cfa.collider_targets", "◇ Collider Targets ◇"); // ◇ 可撞击的物品 ◇

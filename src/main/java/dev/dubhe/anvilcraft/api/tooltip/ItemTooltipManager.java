@@ -258,6 +258,10 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.HEAT_COLLECTOR.asItem(), "Generates power from heat");
         NORMAL.put(ModBlocks.VOID_ENERGY_COLLECTOR.asItem(), "Generates power from Void energy");
         NORMAL.put(ModBlocks.RUBY_LASER.asItem(), "Emits a laser beam when powered");
+        NORMAL.put(
+            ModBlocks.CREATIVE_LASER.asItem(),
+            "Creative laser with adjustable level, lens and gamma mode, can be turned off by redstone"
+        );
         NORMAL.put(ModBlocks.RUBY_PRISM.asItem(), "Deflects or converges laser beams");
         NORMAL.put(ModBlocks.TRANSPARENT_CRAFTING_TABLE.asItem(), "Aesthetic, connectable Crafting Table");
         NORMAL.put(ModBlocks.MENGER_SPONGE.asItem(), "Absorbs infinite liquid");

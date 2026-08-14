@@ -29,7 +29,11 @@ public record LaserState(
     TextureAtlasSprite laserAtlasSprite,
     TextureAtlasSprite concreteAtlasSprite
 ) {
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings(
+        {"deprecation",
+         "checkstyle:VariableDeclarationUsageDistance"
+        }
+    )
     public static @Nullable LaserState create(BaseLaserBlockEntity blockEntity, PoseStack poseStack) {
         if (blockEntity.getIrradiateBlockPos() == null) return null;
         Function<ResourceLocation, TextureAtlasSprite> spriteGetter = Minecraft.getInstance()

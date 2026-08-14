@@ -21,6 +21,7 @@ public class CreativeLaserMenu extends AbstractContainerMenu {
         this.blockEntity = blockEntity;
     }
 
+    @SuppressWarnings("resource")
     public CreativeLaserMenu(@Nullable MenuType<?> menuType, int containerId, Inventory inventory, FriendlyByteBuf buf) {
         super(menuType, containerId);
         this.blockEntity = inventory.player.level()

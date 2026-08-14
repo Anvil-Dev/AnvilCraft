@@ -8,7 +8,6 @@ import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.LensType;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
-import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
@@ -21,10 +20,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
@@ -169,7 +168,7 @@ public class CreativeLaserBlockEntity extends BaseLaserBlockEntity implements Me
         if (this.level == null) return;
         int originalMaxDistance = this.maxTransmissionDistance;
         this.maxTransmissionDistance = 16;
-        BlockPos tempIrradiateBlockPos = this.getGammaIrradiateBlockPos(16, direction, this.getBlockPos());
+        BlockPos tempIrradiateBlockPos = this.getGammaIrradiateBlockPos(direction, this.getBlockPos());
         this.destroyPrismsAlongPath(direction, tempIrradiateBlockPos);
         if (!tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
             if (this.irradiateBlockPos != null) {
@@ -196,7 +195,7 @@ public class CreativeLaserBlockEntity extends BaseLaserBlockEntity implements Me
         }
         this.updateIrradiateBlockPos(tempIrradiateBlockPos);
         this.updateLaserLevel(this.configuredLevel);
-        if (!(this.level instanceof ServerLevel serverLevel)) {
+        if (!(this.level instanceof ServerLevel)) {
             this.maxTransmissionDistance = originalMaxDistance;
             return;
         }
@@ -303,17 +302,17 @@ public class CreativeLaserBlockEntity extends BaseLaserBlockEntity implements Me
     }
 
     private void tryHeatEmberMetalAt(BlockPos pos) {
+        if (this.level == null) return;
         BlockState state = this.level.getBlockState(pos);
 
         if (state.is(ModBlocks.EMBER_METAL_BLOCK.get())) {
             Block overheatedBlock = ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get();
             this.level.setBlock(pos, overheatedBlock.defaultBlockState(), Block.UPDATE_CLIENTS);
-            if (overheatedBlock instanceof EntityBlock entityBlock) {
-                BlockEntity be = entityBlock.newBlockEntity(pos, overheatedBlock.defaultBlockState());
-                if (be instanceof HeatableBlockEntity heatable) {
-                    this.level.setBlockEntity(heatable);
-                    heatable.addDurationInTick(80);
-                }
+            EntityBlock entityBlock = (EntityBlock) overheatedBlock;
+            BlockEntity be = entityBlock.newBlockEntity(pos, overheatedBlock.defaultBlockState());
+            if (be instanceof HeatableBlockEntity heatable) {
+                this.level.setBlockEntity(heatable);
+                heatable.addDurationInTick(80);
             }
         } else if (state.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())) {
             BlockEntity be = this.level.getBlockEntity(pos);
@@ -323,12 +322,12 @@ public class CreativeLaserBlockEntity extends BaseLaserBlockEntity implements Me
         }
     }
 
-    private BlockPos getGammaIrradiateBlockPos(int expectedLength, Direction direction, BlockPos originPos) {
-        for (int length = 1; length <= expectedLength; length++) {
+    private BlockPos getGammaIrradiateBlockPos(Direction direction, BlockPos originPos) {
+        for (int length = 1; length <= 16; length++) {
             BlockPos checkPos = originPos.relative(direction, length);
             if (!this.gammaCanPassThrough(checkPos)) return checkPos;
         }
-        return originPos.relative(direction, expectedLength);
+        return originPos.relative(direction, 16);
     }
 
     private boolean gammaCanPassThrough(BlockPos blockPos) {
@@ -439,7 +438,9 @@ public class CreativeLaserBlockEntity extends BaseLaserBlockEntity implements Me
     @Override
     public void clientUpdate(@Nullable BlockPos irradiateBlockPos, int laserLevel) {
         this.gamma = false;
-        super.clientUpdate(irradiateBlockPos, laserLevel);
+        if (irradiateBlockPos != null) {
+            super.clientUpdate(irradiateBlockPos, laserLevel);
+        }
     }
 
     public void clientUpdateGamma(@Nullable BlockPos irradiateBlockPos, int laserLevel) {

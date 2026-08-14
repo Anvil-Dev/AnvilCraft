@@ -21,6 +21,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 public class CreativeLaserScreen extends AbstractContainerScreen<CreativeLaserMenu> {
     public static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "creative_laser");
@@ -40,8 +41,8 @@ public class CreativeLaserScreen extends AbstractContainerScreen<CreativeLaserMe
     private static final int BUTTON_GAP = 18;
     private static final int CONTROL_BUTTON_Y = 29;
 
-    private LinearSlider slider;
-    private EditBox value;
+    private @Nullable LinearSlider slider;
+    private @Nullable EditBox value;
     private final List<TriStateButton> lensButtons = new ArrayList<>();
     private final List<TriStateButton> typeButtons = new ArrayList<>();
     private int level = 0;
@@ -118,22 +119,24 @@ public class CreativeLaserScreen extends AbstractContainerScreen<CreativeLaserMe
         this.typeButtons.add(gamma);
         this.addRenderableWidget(normal);
         this.addRenderableWidget(gamma);
+        EditBox valueBox = this.value;
+        LinearSlider sliderBox = this.slider;
         TexturedButton min = new TexturedButton(
             8 + offsetX, CONTROL_BUTTON_Y + offsetY, 16, 16,
             BUTTON_MIN, 16, 16, 32,
-            btn -> this.value.setValue("0"));
+            btn -> valueBox.setValue("0"));
         TexturedButton minus = new TexturedButton(
             26 + offsetX, CONTROL_BUTTON_Y + offsetY, 16, 16,
             BUTTON_MINUS, 16, 16, 32,
-            btn -> this.value.setValue("" + Math.clamp(this.slider.getValue() - 1, 0, 64)));
+            btn -> valueBox.setValue("" + Math.clamp(sliderBox.getValue() - 1, 0, 64)));
         TexturedButton add = new TexturedButton(
             134 + offsetX, CONTROL_BUTTON_Y + offsetY, 16, 16,
             BUTTON_ADD, 16, 16, 32,
-            btn -> this.value.setValue("" + Math.clamp(this.slider.getValue() + 1, 0, 64)));
+            btn -> valueBox.setValue("" + Math.clamp(sliderBox.getValue() + 1, 0, 64)));
         TexturedButton max = new TexturedButton(
             152 + offsetX, CONTROL_BUTTON_Y + offsetY, 16, 16,
             BUTTON_MAX, 16, 16, 32,
-            btn -> this.value.setValue("64"));
+            btn -> valueBox.setValue("64"));
         this.addRenderableWidget(min);
         this.addRenderableWidget(minus);
         this.addRenderableWidget(add);
@@ -164,6 +167,7 @@ public class CreativeLaserScreen extends AbstractContainerScreen<CreativeLaserMe
     }
 
     private void onValueInput(String text) {
+        if (this.slider == null || this.value == null) return;
         if (text.isEmpty()) {
             this.slider.setValue(0);
             this.sendUpdate();
@@ -178,6 +182,7 @@ public class CreativeLaserScreen extends AbstractContainerScreen<CreativeLaserMe
     }
 
     private void update(int level) {
+        if (this.value == null) return;
         this.value.setValue(Integer.toString(level));
         this.sendUpdate();
     }
@@ -196,6 +201,7 @@ public class CreativeLaserScreen extends AbstractContainerScreen<CreativeLaserMe
     }
 
     private void sendUpdate() {
+        if (this.slider == null) return;
         int lensIndex = 0;
         for (int i = 0; i < this.lensButtons.size(); i++) {
             if (this.lensButtons.get(i).isSelected()) {

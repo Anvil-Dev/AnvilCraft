@@ -2,7 +2,7 @@
 	"format_version": "1.9.0",
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "minecraft:block/cube",
-	"render_type": "minecraft:translucent",
+	"render_type": "minecraft:solid",
 	"textures": {
 		"0": "anvilcraft:block/creative_laser_side",
 		"1": "anvilcraft:block/creative_laser_top",
