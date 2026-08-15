@@ -185,9 +185,12 @@ public final class StorageServerStub {
         return new InteractionResult(carried, changed);
     }
 
-    @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC")
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static boolean clonePut(UUID playerId, long sourcePos, IntList slots) {
+    public static boolean clonePut(
+        UUID playerId,
+        long sourcePos,
+        @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC") IntList slots
+    ) {
         if (slots.isEmpty() || slots.size() > StorageServerStub.MAX_SYNC_SLOTS) {
             StorageServerStub.REGISTRIES.remove();
             throw new IllegalArgumentException("Invalid clone put slots");
