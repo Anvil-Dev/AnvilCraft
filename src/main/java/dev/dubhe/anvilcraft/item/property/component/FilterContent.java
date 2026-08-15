@@ -130,4 +130,31 @@ public record FilterContent(NonNullList<ItemStack> list, boolean includeComponen
         // 如果是黑名单模式且未找到匹配项则返回true，否则返回false
         return this.blackList();
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof FilterContent(NonNullList<ItemStack> list1, boolean includeComponents1, boolean blackList1))) return false;
+        if (this.list().size() != list1.size()) {
+            return false;
+        }
+        for (int i = 0; i < list1.size(); i++) {
+            ItemStack stack = this.list().get(i);
+            ItemStack stack1 = list1.get(i);
+            if (!ItemStack.isSameItemSameComponents(stack, stack1)) {
+                return false;
+            }
+        }
+        return Objects.equals(this.includeComponents(), includeComponents1)
+               && Objects.equals(this.blackList(), blackList1);
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        for (ItemStack stack : this.list()) {
+            hash *= 31;
+            hash += ItemStack.hashItemAndComponents(stack);
+        }
+        return hash * 31 + Objects.hash(this.includeComponents(), this.blackList());
+    }
 }

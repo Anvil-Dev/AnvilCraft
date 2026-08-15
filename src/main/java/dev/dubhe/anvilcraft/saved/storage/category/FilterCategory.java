@@ -41,12 +41,25 @@ public record FilterCategory(ItemStack icon, Component name, FilterContent filte
         return ModCategoryTypes.FILTER.get();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof FilterCategory(ItemStack icon1, Component name1, FilterContent filter1))) return false;
+        return ItemStack.isSameItemSameComponents(this.icon(), icon1)
+               && Objects.equals(this.name(), name1)
+               && Objects.equals(this.filter(), filter1);
+    }
+
+    @Override
+    public int hashCode() {
+        return ItemStack.hashItemAndComponents(this.icon()) * 31 + Objects.hash(this.name(), this.filter());
+    }
+
     public static class Type implements ICategory.Type<FilterCategory> {
         public static final MapCodec<FilterCategory> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ItemStack.CODEC
                 .fieldOf("icon")
                 .forGetter(FilterCategory::icon),
-            ComponentSerialization.flatCodec(Integer.MAX_VALUE)
+            ComponentSerialization.CODEC
                 .fieldOf("name")
                 .forGetter(FilterCategory::name),
             FilterContent.CODEC

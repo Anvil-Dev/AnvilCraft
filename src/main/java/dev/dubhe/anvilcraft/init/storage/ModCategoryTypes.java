@@ -11,6 +11,7 @@ import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import dev.dubhe.anvilcraft.saved.storage.category.NamespaceCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.OrCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.UnstackableCategory;
+import dev.dubhe.anvilcraft.saved.storage.category.client.RecipeBookCategoryCategory;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
@@ -35,6 +36,8 @@ public class ModCategoryTypes {
         .register("creative_mode_tab", CreativeModeTabCategory.Type::new);
     public static final DeferredHolder<ICategory.Type<?>, FilterCategory.Type> FILTER = REGISTER
         .register("filter", FilterCategory.Type::new);
+    public static final DeferredHolder<ICategory.Type<?>, RecipeBookCategoryCategory.Type> RECIPE_BOOK_CATEGORY = REGISTER
+        .register("recipe_book_category", RecipeBookCategoryCategory.Type::new);
 
     public static void register(IEventBus modEventBus) {
         REGISTER.register(modEventBus);

@@ -16,6 +16,8 @@ import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
+import java.util.Objects;
+
 public record CreativeModeTabCategory(ItemStack icon, Component name, ResourceKey<CreativeModeTab> key) implements ICategory {
     public CreativeModeTabCategory(ItemLike icon, ResourceLocation suffix, ResourceKey<CreativeModeTab> key) {
         this(new ItemStack(icon.asItem()), ICategory.constructName(suffix), key);
@@ -31,12 +33,25 @@ public record CreativeModeTabCategory(ItemStack icon, Component name, ResourceKe
         return ModCategoryTypes.CREATIVE_MODE_TAB.get();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof CreativeModeTabCategory(ItemStack icon1, Component name1, ResourceKey<CreativeModeTab> key1))) return false;
+        return ItemStack.isSameItemSameComponents(this.icon(), icon1)
+               && Objects.equals(this.name(), name1)
+               && Objects.equals(this.key(), key1);
+    }
+
+    @Override
+    public int hashCode() {
+        return ItemStack.hashItemAndComponents(this.icon()) * 31 + Objects.hash(this.name(), this.key());
+    }
+
     public static class Type implements ICategory.Type<CreativeModeTabCategory> {
         public static final MapCodec<CreativeModeTabCategory> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ItemStack.CODEC
                 .fieldOf("icon")
                 .forGetter(CreativeModeTabCategory::icon),
-            ComponentSerialization.flatCodec(Integer.MAX_VALUE)
+            ComponentSerialization.CODEC
                 .fieldOf("name")
                 .forGetter(CreativeModeTabCategory::name),
             ResourceKey.codec(Registries.CREATIVE_MODE_TAB)

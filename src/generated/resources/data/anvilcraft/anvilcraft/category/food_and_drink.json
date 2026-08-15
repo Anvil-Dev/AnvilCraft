@@ -4,7 +4,9 @@
     "count": 1,
     "id": "minecraft:apple"
   },
-  "name": "{\"translate\":\"category.anvilcraft.food_and_drink\"}",
+  "name": {
+    "translate": "category.anvilcraft.food_and_drink"
+  },
   "presence": [
     "minecraft:food",
     "minecraft:potion_contents"

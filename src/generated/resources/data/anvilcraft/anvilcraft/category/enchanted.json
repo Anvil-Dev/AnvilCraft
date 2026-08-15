@@ -4,7 +4,9 @@
     "count": 1,
     "id": "minecraft:enchanted_book"
   },
-  "name": "{\"translate\":\"category.anvilcraft.enchanted\"}",
+  "name": {
+    "translate": "category.anvilcraft.enchanted"
+  },
   "presence": [
     "minecraft:enchantments",
     "minecraft:stored_enchantments",

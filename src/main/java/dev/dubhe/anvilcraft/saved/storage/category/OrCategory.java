@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 import java.util.List;
+import java.util.Objects;
 
 public record OrCategory(ItemStack icon, Component name, List<ICategory> categories) implements ICategory {
     public OrCategory(ItemLike icon, ResourceLocation suffix, ICategory... categories) {
@@ -35,12 +36,25 @@ public record OrCategory(ItemStack icon, Component name, List<ICategory> categor
         return ModCategoryTypes.OR.get();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof OrCategory(ItemStack icon1, Component name1, List<ICategory> categories1))) return false;
+        return ItemStack.isSameItemSameComponents(this.icon(), icon1)
+               && Objects.equals(this.name(), name1)
+               && Objects.equals(this.categories(), categories1);
+    }
+
+    @Override
+    public int hashCode() {
+        return ItemStack.hashItemAndComponents(this.icon()) * 31 + Objects.hash(this.name(), this.categories());
+    }
+
     public static class Type implements ICategory.Type<OrCategory> {
         public static final MapCodec<OrCategory> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ItemStack.CODEC
                 .fieldOf("icon")
                 .forGetter(OrCategory::icon),
-            ComponentSerialization.flatCodec(Integer.MAX_VALUE)
+            ComponentSerialization.CODEC
                 .fieldOf("name")
                 .forGetter(OrCategory::name),
             ICategory.CODEC
