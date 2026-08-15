@@ -86,7 +86,7 @@ public class CreativeLaserBlock extends BaseLaserBlock implements IHammerRemovab
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        Direction facing = context.getNearestLookingDirection().getOpposite();
+        Direction facing = context.getNearestLookingDirection();
         if (context.getPlayer() != null && context.getPlayer().isShiftKeyDown()) {
             facing = facing.getOpposite();
         }

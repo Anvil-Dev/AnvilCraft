@@ -28,6 +28,7 @@ public class ItemSlotClipping {
 
     private static final Set<Item> CLIPPED_ITEMS = new HashSet<>();
     private static final List<Predicate<ItemStack>> CLIPPED_PREDICATES = new ArrayList<>();
+    private static final ThreadLocal<Boolean> CLIPPING_DISABLED = ThreadLocal.withInitial(() -> false);
 
     private ItemSlotClipping() {
     }
@@ -44,8 +45,11 @@ public class ItemSlotClipping {
         CLIPPED_PREDICATES.add(predicate);
     }
 
-    /** 该物品堆是否启用了物品格裁剪。 */
+    /** 该物品堆当前是否会被物品格裁剪。 */
     public static boolean shouldClip(ItemStack stack) {
+        if (CLIPPING_DISABLED.get()) {
+            return false;
+        }
         if (stack.isEmpty()) {
             return false;
         }
@@ -58,6 +62,20 @@ public class ItemSlotClipping {
             }
         }
         return false;
+    }
+
+    /**
+     * 在 {@code render} 执行期间临时禁用物品格裁剪，
+     * 用于轮盘等不以物品格为边界的渲染场景。
+     */
+    public static void runWithoutClip(Runnable render) {
+        boolean previous = CLIPPING_DISABLED.get();
+        CLIPPING_DISABLED.set(true);
+        try {
+            render.run();
+        } finally {
+            CLIPPING_DISABLED.set(previous);
+        }
     }
 
     /**

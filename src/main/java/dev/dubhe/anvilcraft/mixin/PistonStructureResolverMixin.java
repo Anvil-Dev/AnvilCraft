@@ -4,7 +4,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.api.sliding.SlidingBlockStructureResolver;
-import dev.dubhe.anvilcraft.event.PistonMoveBlockListener;
 import dev.dubhe.anvilcraft.util.PistonMoveGuard;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,7 +19,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Mixin(PistonStructureResolver.class)
@@ -48,8 +46,6 @@ abstract class PistonStructureResolverMixin {
         }
         if (!cir.getReturnValue()) return;
         PistonMoveGuard.reserve(level, toPush, toDestroy);
-        List<BlockPos> toPushBlocks = new ArrayList<>(toPush);
-        PistonMoveBlockListener.onPistonMoveBlocks(level, toPushBlocks);
     }
 
     @ModifyConstant(method = "addBlockLine", constant = @Constant(intValue = 12, ordinal = 0))

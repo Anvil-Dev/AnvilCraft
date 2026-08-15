@@ -356,6 +356,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.IMPACT_PILE.asItem(), "Place on Bedrock or Deepslate and strike with falling anvil to create Moneral Fountain");
         NORMAL.put(ModBlocks.OVERSEER_BLOCK.asItem(), "Chunk loader that works on Royal Steel base");
         NORMAL.put(ModBlocks.SPACE_OVERCOMPRESSOR.asItem(), "Compresses items into Neutronium Ingots, compresses multiblock outputs into drops");
+        NORMAL.put(ModBlocks.MASS_ENERGY_INVERTER.asItem(), "Doubles the mass growth of adjacent Space Overcompressors, consumes 1024 kW");
         NORMAL.put(ModBlocks.ACCELERATION_RING.asItem(), "Creates acceleration field for anvils, projectiles, or players with Anvil Hammer");
         NORMAL.put(ModBlocks.DEFLECTION_RING.asItem(), "Deflects passing objects 90°, detect speed with Comparator");
         NORMAL.put(ModItems.DRAGON_ROD.asItem(), "Portable block devourer with adjustable range");
@@ -382,8 +383,8 @@ public class ItemTooltipManager {
         );
         NORMAL.put(ModBlocks.PUMP.asItem(), "Pumps fluids, consumes 32 kW");
         NORMAL.put(ModBlocks.CREATIVE_CRATE.asItem(), "Infinite item storage and supply");
-        NORMAL.put(ModBlocks.CRATE.asItem(), "Stores up to 2048 space of items");
-        NORMAL.put(ModBlocks.LARGE_CRATE.asItem(), "A huge 3x3x3 crate, stores up to 65536 space of items");
+        NORMAL.put(ModBlocks.CRATE.asItem(), "Stores items");
+        NORMAL.put(ModBlocks.LARGE_CRATE.asItem(), "A large crate, stores more items");
         NORMAL.put(ModBlocks.SHULKER_CONTAINER.asItem(), "A space-folding container upgraded from a Large Crate");
         NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
         NORMAL.put(ModBlocks.FLUID_TANK.asItem(), "Stores fluids");
@@ -685,6 +686,11 @@ public class ItemTooltipManager {
                 Executes commands stored in the supercomputer on a timer
                 Each execution consumes power from the grid
                 Acts as the computational core of the Celestial Forging Anvil"""
+        );
+        SHIFT.put(
+            ModBlocks.MASS_ENERGY_INVERTER.asItem(), """
+                Injects 5 mass per tick into adjacent Space Overcompressors
+                Doubles the mass gained by adjacent Space Overcompressors from anvil mass injection"""
         );
         SHIFT.put(
             ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL.asItem(), """

@@ -93,6 +93,12 @@ public class FilterScreen extends AbstractContainerScreen<FilterMenu> implements
     }
 
     @Override
+    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        super.render(guiGraphics, mouseX, mouseY, partialTick);
+        this.renderTooltip(guiGraphics, mouseX, mouseY);
+    }
+
+    @Override
     protected void slotClicked(Slot slot, int slotId, int button, ClickType type) {
         if (slot instanceof FilterSlot filterSlot) {
             ItemStack filterStack = this.menu.getCarried();

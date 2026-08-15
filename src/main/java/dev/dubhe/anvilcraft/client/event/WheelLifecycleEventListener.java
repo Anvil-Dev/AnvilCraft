@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.wheel.api.WheelMenuModel;
 import dev.anvilcraft.lib.v2.wheel.client.input.WheelScreenController;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
+import dev.dubhe.anvilcraft.client.renderer.item.ItemSlotClipping;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.DragonRodItem;
 import dev.dubhe.anvilcraft.item.HeavyHalberdItem;
@@ -17,6 +18,7 @@ import dev.dubhe.anvilcraft.network.SwitchMultitoolModePacket;
 import dev.dubhe.anvilcraft.network.SwitchResonateModePacket;
 import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.component.DataComponents;
@@ -60,6 +62,10 @@ public class WheelLifecycleEventListener {
     private static long dragonRodKeyTime = -1L;
     private static boolean dragonRodKeyWasDown = false;
     private static Optional<WheelMenuModel> dragonRodWheelCache = null;
+
+    private static void renderWheelItem(GuiGraphics graphics, ItemStack stack) {
+        ItemSlotClipping.runWithoutClip(() -> graphics.renderItem(stack, 2, 2, 9910597));
+    }
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
@@ -224,7 +230,7 @@ public class WheelLifecycleEventListener {
             (graphics, pose, width, height) -> {
                 ItemStack copied = holding.copy();
                 multiphase.applySelectionPreview(copied, phaseIndex);
-                graphics.renderItem(copied, 2, 2, 9910597);
+                renderWheelItem(graphics, copied);
             },
             ctx -> PacketDistributor.sendToServer(
                 new MultiphasePackets.ChangePhase(hand, phaseIndex)
@@ -241,7 +247,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(ResonatorItem.AUTO_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchResonateModePacket(hand, ctx.slotIndex())
@@ -253,7 +259,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(ResonatorItem.AXE_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchResonateModePacket(hand, ctx.slotIndex())
@@ -265,7 +271,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(ResonatorItem.SHOVEL_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchResonateModePacket(hand, ctx.slotIndex())
@@ -277,7 +283,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(ResonatorItem.HOE_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchResonateModePacket(hand, ctx.slotIndex())
@@ -289,7 +295,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(ResonatorItem.PICKAXE_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchResonateModePacket(hand, ctx.slotIndex())
@@ -307,7 +313,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(HeavyHalberdItem.TRIDENT_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchHeavyHalberdModePacket(hand, ctx.slotIndex())
@@ -319,7 +325,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(HeavyHalberdItem.SPEAR_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchHeavyHalberdModePacket(hand, ctx.slotIndex())
@@ -331,7 +337,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(HeavyHalberdItem.SWORD_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchHeavyHalberdModePacket(hand, ctx.slotIndex())
@@ -343,7 +349,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(HeavyHalberdItem.MACE_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchHeavyHalberdModePacket(hand, ctx.slotIndex())
@@ -361,7 +367,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.ALL_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
@@ -373,7 +379,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.SHEARS_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
@@ -385,7 +391,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.FLINT_AND_STEEL_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
@@ -397,7 +403,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.BRUSH_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
@@ -409,7 +415,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.SPYGLASS_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
@@ -421,7 +427,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.MAGNET_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
@@ -433,7 +439,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.FISHING_ROD_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
@@ -445,7 +451,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.CARROT_ON_A_STICK_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
@@ -457,7 +463,7 @@ public class WheelLifecycleEventListener {
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
                     copied.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(MultitoolItem.WARPED_FUNGUS_ON_A_STICK_MODE));
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchMultitoolModePacket(hand, ctx.slotIndex())
@@ -472,7 +478,7 @@ public class WheelLifecycleEventListener {
             .action(
                 "protect",
                 Component.translatable("screen.anvilcraft.dragon_rod.protect_containers"),
-                (graphics, pose, width, height) -> graphics.renderItem(new ItemStack(Blocks.CHEST), 2, 2, 9910597),
+                (graphics, pose, width, height) -> renderWheelItem(graphics, new ItemStack(Blocks.CHEST)),
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchDragonRodProtectContainersPacket(hand, true)
                 )
@@ -482,7 +488,7 @@ public class WheelLifecycleEventListener {
                 Component.translatable("screen.anvilcraft.dragon_rod.devour_containers"),
                 (graphics, pose, width, height) -> {
                     ItemStack copied = holding.copy();
-                    graphics.renderItem(copied, 2, 2, 9910597);
+                    renderWheelItem(graphics, copied);
                 },
                 ctx -> PacketDistributor.sendToServer(
                     new SwitchDragonRodProtectContainersPacket(hand, false)

@@ -482,6 +482,7 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         super.render(graphics, mouseX, mouseY, partialTick);
+        this.renderTooltip(graphics, mouseX, mouseY);
         this.renderTemplateTooltip(graphics, mouseX, mouseY);
         this.renderVirtualTemplateTooltip(graphics, mouseX, mouseY);
         this.renderOnboardingTooltip(graphics, mouseX, mouseY);

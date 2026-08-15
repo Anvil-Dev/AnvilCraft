@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.entity.IAnvilCraftEntityExtension;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.entity.AnimateAscendingBlockEntity;
@@ -9,6 +10,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -30,10 +32,20 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class MagnetBlock extends Block implements IHammerRemovable {
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
+
+    private static final Map<Block, Double> CHARGE_NUMS = new HashMap<>();
+
+    static {
+        CHARGE_NUMS.put(Blocks.COPPER_BLOCK, 1d / 4);
+        CHARGE_NUMS.put(Blocks.EXPOSED_COPPER, 1d / 8);
+        CHARGE_NUMS.put(Blocks.WEATHERED_COPPER, 1d / 16);
+    }
 
     public MagnetBlock(Properties properties) {
         super(properties);
@@ -139,6 +151,9 @@ public class MagnetBlock extends Block implements IHammerRemovable {
     ) {
         super.onRemove(state, level, magnetPos, newState, movedByPiston);
         if (level.isClientSide()) return;
+        if (movedByPiston && !state.getValue(LIT)) {
+            chargeFromCopper(level, magnetPos);
+        }
         int distance = AnvilCraft.CONFIG.magnetAttractsDistance;
         BlockPos currentPos = magnetPos;
         for (int i = 0; i < distance; i++) {
@@ -160,6 +175,18 @@ public class MagnetBlock extends Block implements IHammerRemovable {
         RandomSource random) {
         if (state.getValue(LIT) && !level.hasNeighborSignal(pos)) {
             level.setBlockAndUpdate(pos, state.cycle(LIT));
+        }
+    }
+
+    private static void chargeFromCopper(Level level, BlockPos magnetPos) {
+        double max = 0d;
+        for (Direction face : Direction.values()) {
+            Block block = level.getBlockState(magnetPos.relative(face)).getBlock();
+            if (!CHARGE_NUMS.containsKey(block)) continue;
+            max = Math.max(max, CHARGE_NUMS.get(block));
+        }
+        if (max > 0) {
+            ChargeCollectorManager.charge(max, level, magnetPos);
         }
     }
 
