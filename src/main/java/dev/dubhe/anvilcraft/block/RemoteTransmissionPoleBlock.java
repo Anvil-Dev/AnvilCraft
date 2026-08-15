@@ -134,7 +134,6 @@ public class RemoteTransmissionPoleBlock
     }
 
     @Override
-
     public void neighborChanged(
         BlockState state,
         Level level,
@@ -142,27 +141,33 @@ public class RemoteTransmissionPoleBlock
         Block neighborBlock,
         BlockPos neighborPos,
         boolean movedByPiston) {
-        if (level.isClientSide) {
-            return;
-        }
+        update(state, level, pos);
+    }
+
+    private static void update(BlockState state, Level level, BlockPos pos) {
+        if (level.isClientSide) return;
         if (state.getValue(HALF) != Vertical4PartHalf.BOTTOM) return;
         BlockPos topPos = pos.above(3);
         BlockState topState = level.getBlockState(topPos);
         if (!topState.is(ModBlocks.REMOTE_TRANSMISSION_POLE.get())) return;
         if (topState.getValue(HALF) != Vertical4PartHalf.TOP) return;
-        IPowerComponent.Switch sw = state.getValue(SWITCH);
-        boolean bl = sw == IPowerComponent.Switch.ON;
-        if (bl == level.hasNeighborSignal(pos)) {
-            if (bl) {
-                state = state.setValue(SWITCH, IPowerComponent.Switch.OFF);
-                topState = topState.setValue(SWITCH, IPowerComponent.Switch.OFF);
-            } else {
-                state = state.setValue(SWITCH, IPowerComponent.Switch.ON);
-                topState = topState.setValue(SWITCH, IPowerComponent.Switch.ON);
-            }
-            level.setBlockAndUpdate(pos, state);
-            level.setBlockAndUpdate(topPos, topState);
+        IPowerComponent.Switch bottom = state.getValue(SWITCH);
+        IPowerComponent.Switch top = topState.getValue(SWITCH);
+        if (level.hasNeighborSignal(pos)) {
+            state = state.setValue(SWITCH, IPowerComponent.Switch.OFF);
+            topState = topState.setValue(SWITCH, IPowerComponent.Switch.OFF);
+        } else {
+            state = state.setValue(SWITCH, IPowerComponent.Switch.ON);
+            topState = topState.setValue(SWITCH, IPowerComponent.Switch.ON);
         }
+        if ((bottom == state.getValue(SWITCH)) && (top == topState.getValue(SWITCH))) return;
+        level.setBlockAndUpdate(pos, state);
+        level.setBlockAndUpdate(topPos, topState);
+    }
+
+    @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        update(state, level, pos);
     }
 
     @Override

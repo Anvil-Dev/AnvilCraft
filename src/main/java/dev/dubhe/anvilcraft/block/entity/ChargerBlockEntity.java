@@ -47,6 +47,9 @@ public class ChargerBlockEntity extends BlockEntity
     private int timeLeft = 0;
     @Getter
     @Setter
+    private int startupCoolDown = 0;
+    @Getter
+    @Setter
     private int timeTotalCache = 0;
     private int powerValue = 0;
     @Getter
@@ -97,7 +100,7 @@ public class ChargerBlockEntity extends BlockEntity
 
     @Getter
     private ItemStack displayItemStack = ItemStack.EMPTY;
-    
+
     @Getter
     @Setter
     private PowerGrid grid;
@@ -134,7 +137,10 @@ public class ChargerBlockEntity extends BlockEntity
         return null;
     }
 
-    private boolean checkRecipeItemNotValid(@Nullable ChargerChargingRecipe recipe, @SuppressWarnings("unused") ItemStack stack) {
+    private boolean checkRecipeItemNotValid(
+        @Nullable ChargerChargingRecipe recipe,
+        @SuppressWarnings("unused") ItemStack stack
+    ) {
         if (recipe != null) {
             if (recipe.power == 0) return true;
             return recipe.power >= 0; // 充电器只接受power < 0的配方
@@ -182,7 +188,8 @@ public class ChargerBlockEntity extends BlockEntity
         if (this.getCurrentLevel() == null || !(this.getCurrentLevel() instanceof ServerLevel serverLevel)) return;
         PacketDistributor.sendToPlayersTrackingChunk(
             serverLevel, serverLevel.getChunk(this.getBlockPos()).getPos(),
-            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache, this.isFeCharging));
+            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache, this.isFeCharging)
+        );
     }
 
     private void moveItemToTransformedOverSlot() {
@@ -210,8 +217,8 @@ public class ChargerBlockEntity extends BlockEntity
         ItemStack newDisplayStack = getDisplayItemStackForRender();
         displayItemStack = newDisplayStack.copy();
         PacketDistributor.sendToPlayersTrackingChunk(
-            (ServerLevel) level, 
-            level.getChunk(getBlockPos()).getPos(), 
+            (ServerLevel) level,
+            level.getChunk(getBlockPos()).getPos(),
             new UpdateDisplayItemPacket(displayItemStack, getPos())
         );
     }
@@ -245,6 +252,8 @@ public class ChargerBlockEntity extends BlockEntity
         super.saveAdditional(tag, provider);
         tag.putInt("TimeLeft", timeLeft);
         tag.putInt("TimeTotalCache", timeTotalCache);
+        tag.putInt("PowerValue", powerValue);
+        tag.putInt("StartupCoolDown", startupCoolDown);
         tag.put("Depository", itemHandler.serializeNBT(provider));
         tag.putBoolean("FeCharging", isFeCharging);
         tag.putInt("FeCooldown", feCooldown);
@@ -255,6 +264,8 @@ public class ChargerBlockEntity extends BlockEntity
         super.loadAdditional(tag, provider);
         timeLeft = tag.getInt("TimeLeft");
         timeTotalCache = tag.getInt("TimeTotalCache");
+        powerValue = tag.getInt("PowerValue");
+        startupCoolDown = tag.getInt("StartupCoolDown");
         itemHandler.deserializeNBT(provider, tag.getCompound("Depository"));
         isFeCharging = tag.getBoolean("FeCharging");
         feCooldown = tag.getInt("FeCooldown");
@@ -280,9 +291,11 @@ public class ChargerBlockEntity extends BlockEntity
     }
 
     @Override
-    public void onDataPacket(Connection connection,
-                             ClientboundBlockEntityDataPacket packet,
-                             HolderLookup.Provider provider) {
+    public void onDataPacket(
+        Connection connection,
+        ClientboundBlockEntityDataPacket packet,
+        HolderLookup.Provider provider
+    ) {
         super.onDataPacket(connection, packet, provider);
         // 收到方块更新包后重新计算显示物品
         if (level != null && level.isClientSide) {
@@ -382,8 +395,10 @@ public class ChargerBlockEntity extends BlockEntity
         if (!stack1.isEmpty()) {
             if (level != null) {
                 Vec3 dropPos = getBlockPos().above().getBottomCenter();
-                ItemEntity itemEntity = new ItemEntity(level, dropPos.x, dropPos.y, dropPos.z,
-                    stack1, 0, 0, 0);
+                ItemEntity itemEntity = new ItemEntity(
+                    level, dropPos.x, dropPos.y, dropPos.z,
+                    stack1, 0, 0, 0
+                );
                 itemEntity.setDefaultPickUpDelay();
             }
         }
@@ -397,53 +412,59 @@ public class ChargerBlockEntity extends BlockEntity
         BlockState state = level1.getBlockState(blockPos);
         boolean powered = state.getValue(ChargerBlock.POWERED);
         if (grid == null) return;
-        if (powered) return;
+        if (powered) {
+            this.setStartupCoolDown(20);
+        }
+        int powerValueCache = powerValue;
         if (timeLeft == 0) {
             moveItemToTransformingSlot();
         }
-        if (timeLeft > 0) {
+        if (isFeCharging) {
+            powerValue = -(getFeChargingPowerLevel());
+        }
+        if (powerValue < powerValueCache) {
+            this.setStartupCoolDown(20);
+        }
+        if (startupCoolDown > 0) {
+            this.startupCoolDown--;
+            return;
+        }
+        if (timeLeft > 0 && isGridWorking()) {
             if (isFeCharging) {
-                powerValue = -(getFeChargingPowerLevel());
-            }
-            if (isGridWorking()) {
-                if (isFeCharging) {
-                    ItemStack processingStack = itemHandler.getStackInSlot(1);
-                    if (!processingStack.isEmpty()) {
-                        IEnergyStorage storage = processingStack.getCapability(Capabilities.EnergyStorage.ITEM);
-                        if (storage != null) {
-                            int powerLevel = getFeChargingPowerLevel();
-                            if (powerLevel > 0) {
-                                int countdown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
-                                int efficiency = AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency;
-                                int remainingFE = storage.getMaxEnergyStored() - storage.getEnergyStored();
-                                if (remainingFE <= 0) {
-                                    isFeCharging = false;
-                                    timeLeft = 0;
-                                    timeTotalCache = 0;
+                ItemStack processingStack = itemHandler.getStackInSlot(1);
+                if (!processingStack.isEmpty()) {
+                    IEnergyStorage storage = processingStack.getCapability(Capabilities.EnergyStorage.ITEM);
+                    if (storage != null) {
+                        int powerLevel = getFeChargingPowerLevel();
+                        if (powerLevel > 0) {
+                            int countdown = AnvilCraft.CONFIG.powerConverter.powerConverterCountdown;
+                            int efficiency = AnvilCraft.CONFIG.powerConverter.powerConverterEfficiency;
+                            int remainingFE = storage.getMaxEnergyStored() - storage.getEnergyStored();
+                            if (remainingFE <= 0) {
+                                isFeCharging = false;
+                                timeLeft = 0;
+                                timeTotalCache = 0;
+                            } else {
+                                int feChargeRate = powerLevel * efficiency;
+                                if (feCooldown <= 0) {
+                                    feCooldown = countdown;
+                                    storage.receiveEnergy(feChargeRate * countdown, false);
                                 } else {
-                                    int feChargeRate = powerLevel * efficiency;
-                                    if (feCooldown <= 0) {
-                                        feCooldown = countdown;
-                                        storage.receiveEnergy(feChargeRate * countdown, false);
-                                    } else {
-                                        feCooldown--;
-                                    }
-                                    timeLeft = remainingFE;
-                                    timeTotalCache = storage.getMaxEnergyStored();
+                                    feCooldown--;
                                 }
+                                timeLeft = remainingFE;
+                                timeTotalCache = storage.getMaxEnergyStored();
                             }
                         }
                     }
-                } else {
-                    timeLeft--;
                 }
+            } else {
+                timeLeft--;
             }
         }
         if (timeLeft == 0) {
             moveItemToTransformedOverSlot();
-            if (timeLeft == 0) {
-                this.timeTotalCache = 0;
-            }
+            this.timeTotalCache = 0;
         }
 
         int signal = this.getAnalogRedstoneSignal();
@@ -456,6 +477,7 @@ public class ChargerBlockEntity extends BlockEntity
         if (level2.getGameTime() % 10 != 0) return;
         PacketDistributor.sendToPlayersTrackingChunk(
             level2, level2.getChunk(this.getBlockPos()).getPos(),
-            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache, this.isFeCharging));
+            new ChargerSyncPacket(this.getPos(), this.timeLeft, this.timeTotalCache, this.isFeCharging)
+        );
     }
 }
