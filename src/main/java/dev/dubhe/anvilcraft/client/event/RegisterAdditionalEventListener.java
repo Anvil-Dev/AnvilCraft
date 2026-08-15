@@ -95,6 +95,8 @@ public class RegisterAdditionalEventListener {
 
         // WIP models
         registerWipDisplayModels(event);
+
+        event.register(standaloneBlock("hypercube"));
     }
 
     private static ModelResourceLocation standaloneBlock(String path) {

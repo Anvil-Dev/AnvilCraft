@@ -74,6 +74,7 @@ import dev.dubhe.anvilcraft.block.HeavyIronWallBlock;
 import dev.dubhe.anvilcraft.block.HeliostatsBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
+import dev.dubhe.anvilcraft.block.HypercubeBlock;
 import dev.dubhe.anvilcraft.block.ImpactPileBlock;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.InfiniteCollectorBlock;
@@ -2949,9 +2950,8 @@ public class ModBlocks {
         .build()
         .register();
 
-    public static final BlockEntry<? extends Block> HYPERCUBE = REGISTRUM.block("hypercube", Block::new)
+    public static final BlockEntry<HypercubeBlock> HYPERCUBE = REGISTRUM.block("hypercube", HypercubeBlock::new)
         .initialProperties(() -> Blocks.GLASS)
-        .lang("Hypercube")
         .properties(properties -> properties.explosionResistance(1200.0f)
             .noOcclusion()
             .isValidSpawn(ModBlocks::never)
