@@ -34,18 +34,19 @@ import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.BitSetDiscreteVoxelShape;
 import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 @Getter
 public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
     private final MultiblockDefinition inputPattern;
     private final MultiblockDefinition outputPattern;
+    @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private final Optional<ModifySpawnerAction> modifySpawnerAction;
     private Rotation matchedRotation = Rotation.NONE;
 
@@ -64,6 +65,7 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
     public MultiblockConversionRecipe(
         MultiblockDefinition inputPattern,
         MultiblockDefinition outputPattern,
+        @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
         Optional<ModifySpawnerAction> modifySpawnerAction
     ) {
         this.inputPattern = inputPattern;
@@ -71,7 +73,6 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
         this.modifySpawnerAction = modifySpawnerAction;
     }
 
-    @Contract(" -> new")
     public static Builder builder() {
         return new Builder();
     }
@@ -93,7 +94,7 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
 
     @Override
     public boolean matches(MultiblockInput input, Level level) {
-        return MultiblockUtil.match(this.inputPattern, input, level)
+        return MultiblockUtil.match(this.inputPattern, input)
             .map(rotation -> {
                 this.matchedRotation = rotation;
                 return true;
@@ -132,6 +133,7 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
                     }
                     BlockPos world = MultiblockUtil.rotatePatternToWorld(x, y, z, rotation, size);
                     mpos.setWithOffset(inputCorner, world);
+                    // noinspection deprecation
                     level.setBlock(mpos, newState.rotate(rotation), 18);
                 }
             }
@@ -234,11 +236,11 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
                     .append("\")");
             } else if (converted.getProperties().isEmpty()) {
                 codeBuilder.append("\"")
-                    .append(BuiltInRegistries.BLOCK.getKey(converted.getBlock()))
+                    .append(BuiltInRegistries.BLOCK.getKey(Objects.requireNonNull(converted.getBlock())))
                     .append("\")");
             } else {
                 codeBuilder.append("BlockPredicateWithState.of(\"")
-                    .append(BuiltInRegistries.BLOCK.getKey(converted.getBlock()))
+                    .append(BuiltInRegistries.BLOCK.getKey(Objects.requireNonNull(converted.getBlock())))
                     .append("\")\n");
                 converted.getProperties().forEach((property, value) -> {
                     codeBuilder.append("        .hasState(\"")
@@ -272,10 +274,11 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
             : Integer.toHexString(this.hashCode());
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public static class Builder extends AbstractRecipeBuilder<MultiblockConversionRecipe> {
         private final MultiblockDefinition.SeriaBuilder inputPattern = MultiblockDefinition.seriaBuilder();
         private final MultiblockDefinition.SeriaBuilder outputPattern = MultiblockDefinition.seriaBuilder();
-        private ModifySpawnerAction postAction = null;
+        private @Nullable ModifySpawnerAction postAction = null;
 
         public Builder() {
         }

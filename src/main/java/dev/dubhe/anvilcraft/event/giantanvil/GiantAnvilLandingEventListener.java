@@ -62,15 +62,12 @@ public class GiantAnvilLandingEventListener {
     }
 
     private static void handle4DCrafting(Level level, BlockPos landPos) {
-        AnvilCraft.LOGGER.info("[4D] handle4DCrafting at {}", landPos);
         int size = GiantAnvilLandingEventListener.findCraftingTableSize(landPos, level);
-        AnvilCraft.LOGGER.info("[4D] crafting table size: {}", size);
         if (size < MIN_MULTIBLOCK_SIZE || size > MAX_MULTIBLOCK_SIZE) {
             return;
         }
         BlockPos inputCorner = landPos.offset(-size / 2, -size, -size / 2);
         if (!(level.getBlockEntity(landPos) instanceof SpacetimeSupercomputerBlockEntity supercomputer)) {
-            AnvilCraft.LOGGER.info("[4D] no supercomputer BE at {}", landPos);
             return;
         }
         MultiblockInput input = GiantAnvilLandingEventListener.buildInput(level, inputCorner, size);
@@ -79,10 +76,9 @@ public class GiantAnvilLandingEventListener {
         if (processing == null) {
             level.getRecipeManager()
                 .getRecipeFor(ModRecipeTypes.MULTIBLOCK_4D_TYPE.get(), input, level)
-                .ifPresentOrElse(holder -> {
+                .ifPresent(holder -> {
                     Multiblock4DRecipe recipe = holder.value();
-                    AnvilCraft.LOGGER.info("[4D] found recipe {}, {} defs", holder.id(), recipe.getDefinitions().size());
-                    MultiblockUtil.match(recipe.getDefinitions().getFirst(), input, level)
+                    MultiblockUtil.match(recipe.getDefinitions().getFirst(), input)
                         .ifPresent(rotation -> {
                             List<ItemStack> consumed = MultiblockUtil.consume(
                                 level, recipe.getDefinitions().getFirst(), input, inputCorner, rotation);
@@ -96,18 +92,16 @@ public class GiantAnvilLandingEventListener {
                             supercomputer.setProcessingStep(1);
                             supercomputer.setProcessingSize(size);
                         });
-                }, () -> AnvilCraft.LOGGER.info("[4D] no 4D recipe matched"));
+                });
             return;
         }
         Multiblock4DRecipe recipe = processing.value();
         List<MultiblockDefinition> defs = recipe.getDefinitions();
         int step = supercomputer.getProcessingStep();
-        AnvilCraft.LOGGER.info("[4D] processing step {} of {} defs", step, defs.size());
         if (step < 0 || step >= defs.size()) {
             return;
         }
-        MultiblockUtil.match(defs.get(step), input, level).ifPresent(rotation -> {
-            AnvilCraft.LOGGER.info("[4D] step {} matched, rotation {}", step, rotation);
+        MultiblockUtil.match(defs.get(step), input).ifPresent(rotation -> {
             List<ItemStack> consumed = MultiblockUtil.consume(level, defs.get(step), input, inputCorner, rotation);
             int next = step + 1;
             supercomputer.setProcessingStep(next);

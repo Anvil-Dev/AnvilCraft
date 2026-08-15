@@ -33,14 +33,13 @@ public final class MultiblockUtil {
     /**
      * 尝试用给定定义匹配输入立方体区域。定义转换后的网格尺寸必须不超过输入区域，
      * 结构以输入区域顶部中心对齐（结构顶部紧贴输入区域顶部，即超算正下方），
-     * 并依次尝试四种水平旋转。网格覆盖之外的位置必须为空气。
+     * 并依次尝试四种水平旋转。网格未定义的位置必须为空气。
      *
      * @param def   多方块定义
      * @param input 输入区域
-     * @param level 维度
      * @return 匹配成功的旋转
      */
-    public static Optional<Rotation> match(MultiblockDefinition def, MultiblockInput input, Level level) {
+    public static Optional<Rotation> match(MultiblockDefinition def, MultiblockInput input) {
         int size = input.size();
         DefinitionSerialization serialization = DefinitionSerialization.fromDefinition(def);
         String[][] grid = serialization.grid();
@@ -67,8 +66,13 @@ public final class MultiblockUtil {
      * @param rotation    匹配到的旋转
      * @return 被消耗方块在服务端产生的掉落物（客户端返回空列表）
      */
-    public static List<ItemStack> consume(Level level, MultiblockDefinition def, MultiblockInput input,
-                                          BlockPos inputCorner, Rotation rotation) {
+    public static List<ItemStack> consume(
+        Level level,
+        MultiblockDefinition def,
+        MultiblockInput input,
+        BlockPos inputCorner,
+        Rotation rotation
+    ) {
         List<ItemStack> drops = new ArrayList<>();
         int size = input.size();
         DefinitionSerialization serialization = DefinitionSerialization.fromDefinition(def);
@@ -126,9 +130,26 @@ public final class MultiblockUtil {
         };
     }
 
-    private static boolean matchesGrid(String[][] grid, DefinitionSerialization serialization,
-                                       MultiblockInput input, int size, int gridSize, Rotation rotation,
-                                       int[] offsets) {
+    /**
+     * 获取方块需要的反向旋转
+     */
+    public static Rotation reverseRotation(Rotation rotation) {
+        return switch (rotation) {
+            case CLOCKWISE_90 -> Rotation.COUNTERCLOCKWISE_90;
+            case COUNTERCLOCKWISE_90 -> Rotation.CLOCKWISE_90;
+            default -> rotation;
+        };
+    }
+
+    private static boolean matchesGrid(
+        String[][] grid,
+        DefinitionSerialization serialization,
+        MultiblockInput input,
+        int size,
+        int gridSize,
+        Rotation rotation,
+        int[] offsets
+    ) {
         for (int gy = 0; gy < gridSize; gy++) {
             for (int gz = 0; gz < gridSize; gz++) {
                 for (int gx = 0; gx < gridSize; gx++) {
@@ -144,7 +165,8 @@ public final class MultiblockUtil {
                         }
                     } else {
                         BlockStatePredicate predicate = serialization.mapping().get(symbol);
-                        if (predicate == null || !predicate.testWithoutEntity(state.rotate(rotation))) {
+                        // noinspection deprecation
+                        if (predicate == null || !predicate.testWithoutEntity(state.rotate(MultiblockUtil.reverseRotation(rotation)))) {
                             return false;
                         }
                     }
@@ -184,8 +206,8 @@ public final class MultiblockUtil {
         BlockPredicateWithState result = BlockPredicateWithState.of(block);
         if (!predicate.getProperties().isEmpty()) {
             for (BlockStatePredicate.PropertyMatcher matcher : predicate.getProperties().getFirst()) {
-                if (matcher.valueMatcher() instanceof BlockStatePredicate.ExactMatcher exact) {
-                    result.hasState(matcher.name(), exact.value());
+                if (matcher.valueMatcher() instanceof BlockStatePredicate.ExactMatcher(String value)) {
+                    result.hasState(matcher.name(), value);
                 }
             }
         }

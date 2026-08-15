@@ -73,11 +73,6 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
     }
 
     @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return true;
-    }
-
-    @Override
     public ItemStack getResultItem(HolderLookup.Provider registries) {
         return this.result;
     }
@@ -87,7 +82,7 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
         if (this.definitions.isEmpty()) {
             return false;
         }
-        return MultiblockUtil.match(this.definitions.getFirst(), ctx, level)
+        return MultiblockUtil.match(this.definitions.getFirst(), ctx)
             .map(rotation -> {
                 this.matchedRotation = rotation;
                 return true;
@@ -107,11 +102,6 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
     @Override
     public boolean isValidCenterBlock(Level level, BlockPos pos, BlockState state) {
         return state.is(ModBlocks.SPACETIME_SUPERCOMPUTER);
-    }
-
-    @Override
-    public boolean isSpecial() {
-        return true;
     }
 
     @Override

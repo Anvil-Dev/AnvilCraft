@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Getter
@@ -73,7 +74,7 @@ public class MultiblockRecipe implements IMultiblockRecipe, IDatagen {
 
     @Override
     public boolean matches(MultiblockInput input, Level level) {
-        return MultiblockUtil.match(this.pattern, input, level)
+        return MultiblockUtil.match(this.pattern, input)
             .map(rotation -> {
                 this.matchedRotation = rotation;
                 return true;
@@ -127,7 +128,7 @@ public class MultiblockRecipe implements IMultiblockRecipe, IDatagen {
         if (converted.getTag() != null) {
             return "BlockPredicateWithState.ofTag(\"" + converted.getTag().location() + "\")";
         }
-        String block = BuiltInRegistries.BLOCK.getKey(converted.getBlock()).toString();
+        String block = BuiltInRegistries.BLOCK.getKey(Objects.requireNonNull(converted.getBlock())).toString();
         if (converted.getProperties().isEmpty()) {
             return "\"" + block + "\"";
         }
@@ -148,8 +149,12 @@ public class MultiblockRecipe implements IMultiblockRecipe, IDatagen {
 
     public static class Serializer implements RecipeSerializer<MultiblockRecipe> {
         private static final MapCodec<MultiblockRecipe> CODEC = CodecUtil.mapCodec(
-            MultiblockDefinition.CODEC.fieldOf("pattern").forGetter(MultiblockRecipe::getPattern),
-            ItemStack.CODEC.fieldOf("result").forGetter(MultiblockRecipe::getResult),
+            MultiblockDefinition.CODEC
+                .fieldOf("pattern")
+                .forGetter(MultiblockRecipe::getPattern),
+            ItemStack.CODEC
+                .fieldOf("result")
+                .forGetter(MultiblockRecipe::getResult),
             MultiblockRecipe::new
         );
         private static final StreamCodec<RegistryFriendlyByteBuf, MultiblockRecipe> STREAM_CODEC = StreamCodec.composite(

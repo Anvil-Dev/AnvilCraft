@@ -33,8 +33,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -717,33 +715,14 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
      */
     public void dropProcessingInputs() {
         if (this.level == null || this.level.isClientSide) {
-            AnvilCraft.LOGGER.info("[4D] dropProcessingInputs skipped (no level / client)");
             return;
         }
         if (!(this.level instanceof ServerLevel serverLevel)) {
-            AnvilCraft.LOGGER.info("[4D] dropProcessingInputs skipped (level not ServerLevel)");
             return;
         }
         List<ItemStack> drops = new ArrayList<>(this.pendingDrops);
         this.pendingDrops.clear();
-        if (this.processingRecipe != null && this.processingSize >= 3 && this.processingSize <= 15) {
-            int size = this.processingSize;
-            BlockPos inputCorner = this.getBlockPos().offset(-size / 2, -size, -size / 2);
-            for (int y = 0; y < size; y++) {
-                for (int z = 0; z < size; z++) {
-                    for (int x = 0; x < size; x++) {
-                        BlockPos pos = inputCorner.offset(x, y, z);
-                        BlockState state = serverLevel.getBlockState(pos);
-                        if (state.isAir()) {
-                            continue;
-                        }
-                        drops.addAll(Block.getDrops(state, serverLevel, pos, serverLevel.getBlockEntity(pos)));
-                        serverLevel.setBlockAndUpdate(pos, Blocks.AIR.defaultBlockState());
-                    }
-                }
-            }
-        }
-        AnvilCraft.LOGGER.info("[4D] dropProcessingInputs dropped {} stacks", drops.size());
+
         AnvilUtil.dropItems(drops, serverLevel, this.getBlockPos().below().getCenter());
         this.processingRecipe = null;
         this.processingStep = -1;
