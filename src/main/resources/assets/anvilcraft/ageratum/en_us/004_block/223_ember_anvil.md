@@ -13,7 +13,7 @@ items:
 ## Forge Capabilities
 
 - Has all the smithing capabilities of <ref item="anvilcraft:royal_anvil"/>
-- Can forcibly apply compatible enchantments to items
+- Can forcibly apply imcompatible enchantments to items
 
 ## Processing Capabilities
 

@@ -20,17 +20,17 @@ Create blank liquid enchantment in a <ref item="anvilcraft:large_cauldron"/>:
 
 Consume specific materials to obtain the corresponding enchantment:
 
-| Blank Liquid Enchantment Required | Required Material | Output Liquid Enchantment Type and Amount |
-|---|---|---|
-| 1mB | <ref item="anvilcraft:royal_steel_ingot"/> | Silk Touch 1mB |
-| 1mB | <ref item="anvilcraft:frost_metal_ingot"/> | Disintegration 1mB |
-| 16mB | <ref item="anvilcraft:ember_metal_ingot"/> | Smelting 16mB |
-| 128mB | <ref item="anvilcraft:transcendium_ingot"/> | Fortune 64mB + Looting 64mB |
-| 1mB | <ref item="minecraft:emerald"/> | Mending 1mB |
-| 8mB | <ref item="anvilcraft:ruby"/> | Fire Protection 8mB |
-| 2mB | <ref item="anvilcraft:sapphire"/> | Frost Walker 2mB |
-| 1mB | <ref item="anvilcraft:topaz"/> | Channeling 1mB |
-| 12mB | <ref item="minecraft:amethyst_block"/> | Timber 4mB + Harvest 4mB + Beheading 4mB |
+| Blank Liquid Enchantment Required | Required Material                           | Output Liquid Enchantment Type and Amount |
+|-----------------------------------|---------------------------------------------|-------------------------------------------|
+| 1mB                               | <ref item="anvilcraft:royal_steel_ingot"/>  | Silk Touch 1mB                            |
+| 1mB                               | <ref item="anvilcraft:frost_metal_ingot"/>  | Disintegration 1mB                        |
+| 16mB                              | <ref item="anvilcraft:ember_metal_ingot"/>  | Smelting 16mB                             |
+| 128mB                             | <ref item="anvilcraft:transcendium_ingot"/> | Fortune 64mB + Looting 64mB               |
+| 1mB                               | <ref item="minecraft:emerald"/>             | Mending 1mB                               |
+| 8mB                               | <ref item="anvilcraft:ruby"/>               | Fire Protection 8mB                       |
+| 2mB                               | <ref item="anvilcraft:sapphire"/>           | Frost Walker 2mB                          |
+| 1mB                               | <ref item="anvilcraft:topaz"/>              | Channeling 1mB                            |
+| 12mB                              | <ref item="minecraft:amethyst_block"/>      | Timber 4mB + Harvest 4mB + Beheading 4mB  |
 
 # Using Liquid Enchantment (Incomplete)
 

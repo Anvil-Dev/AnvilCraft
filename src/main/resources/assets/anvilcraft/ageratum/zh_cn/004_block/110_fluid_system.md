@@ -28,9 +28,10 @@ items:
 
 <structure id="../../structures/gravity_pipe.nbt"/>
 
-## 玻璃视窗
+## 玻璃管道
 
-- 手持任意玻璃板（如<ref item="minecraft:glass_pane"/>）右击<ref item="anvilcraft:pipe"/>，可将其切换为玻璃管道以观察内部流体
+- 手持<ref item="minecraft:glass_pane"/>右击<ref item="anvilcraft:pipe"/>，可将其切换为<ref item="anvilcraft:glass_pipe"/>
+- 手持<ref item="anvilcraft:anvil_hammer"/>右击<ref item="anvilcraft:glass_pipe"/>，可将其切换为<ref item="anvilcraft:pipe"/>
 
 ## <ref item="minecraft:cauldron"/>支持
 

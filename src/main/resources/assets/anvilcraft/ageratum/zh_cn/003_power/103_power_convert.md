@@ -19,22 +19,16 @@ items:
 
 <row halign="center">
 <recipe id="anvilcraft:power_converter_big"/>
-</row>
-<row halign="center">
 <recipe id="anvilcraft:power_converter_middle_from_small"/>
 <recipe id="anvilcraft:power_converter_big_from_middle"/>
 <recipe id="anvilcraft:power_converter_super_big_from_big"/>
 <recipe id="anvilcraft:power_converter_extremely_big_from_super_big"/>
 </row>
+
 <row halign="center">
 <recipe id="anvilcraft:stonecutting/power_converter_super_big_from_extremely_big"/>
-<recipe id="anvilcraft:stonecutting/power_converter_big_from_extremely_big"/>
 <recipe id="anvilcraft:stonecutting/power_converter_big_from_super_big"/>
-<recipe id="anvilcraft:stonecutting/power_converter_middle_from_super_big"/>
-</row>
-<row halign="center">
 <recipe id="anvilcraft:stonecutting/power_converter_middle"/>
-<recipe id="anvilcraft:stonecutting/power_converter_small_from_big"/>
 <recipe id="anvilcraft:stonecutting/power_converter_small_from_middle"/>
 </row>
 
@@ -47,7 +41,7 @@ items:
 |     <ref item="anvilcraft:power_converter_small"/>     |   1    |    100     |       90        |
 |    <ref item="anvilcraft:power_converter_middle"/>     |   16   |    1600    |      1440       |
 |      <ref item="anvilcraft:power_converter_big"/>      |  256   |   25600    |      23040      |
-| <ref item="anvilcraft:power_converter_super_big"/>     |  4096  |   409600   |     368640      |
+|   <ref item="anvilcraft:power_converter_super_big"/>   |  4096  |   409600   |     368640      |
 | <ref item="anvilcraft:power_converter_extremely_big"/> | 65536  |  6553600   |     5898240     |
 
 <info>
