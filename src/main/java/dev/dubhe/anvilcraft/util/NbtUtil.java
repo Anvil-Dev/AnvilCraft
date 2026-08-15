@@ -92,7 +92,11 @@ public class NbtUtil {
             if (this.currentName == null) {
                 this.addTag("StringTag.valueOf(" + value + ")");
             } else {
-                this.builder.append(NbtUtil.PUT_STRING_PATTERN.formatted(this.variableName, ConstructStringTagVisitor.quoted(this.currentName), value));
+                this.builder.append(NbtUtil.PUT_STRING_PATTERN.formatted(
+                    this.variableName,
+                    ConstructStringTagVisitor.quoted(this.currentName),
+                    value
+                ));
             }
         }
 
@@ -101,7 +105,11 @@ public class NbtUtil {
             if (this.currentName == null) {
                 this.addTag("ByteTag.valueOf(%d)".formatted(tag.getAsByte()));
             } else {
-                this.builder.append(NbtUtil.PUT_BYTE_PATTERN.formatted(this.variableName, ConstructStringTagVisitor.quoted(this.currentName), tag.getAsByte()));
+                this.builder.append(NbtUtil.PUT_BYTE_PATTERN.formatted(
+                    this.variableName,
+                    ConstructStringTagVisitor.quoted(this.currentName),
+                    tag.getAsByte()
+                ));
             }
         }
 
@@ -110,7 +118,11 @@ public class NbtUtil {
             if (this.currentName == null) {
                 this.addTag("ShortTag.valueOf(%d)".formatted(tag.getAsShort()));
             } else {
-                this.builder.append(NbtUtil.PUT_SHORT_PATTERN.formatted(this.variableName, ConstructStringTagVisitor.quoted(this.currentName), tag.getAsShort()));
+                this.builder.append(NbtUtil.PUT_SHORT_PATTERN.formatted(
+                    this.variableName,
+                    ConstructStringTagVisitor.quoted(this.currentName),
+                    tag.getAsShort()
+                ));
             }
         }
 
@@ -119,7 +131,11 @@ public class NbtUtil {
             if (this.currentName == null) {
                 this.addTag("IntTag.valueOf(%d)".formatted(tag.getAsInt()));
             } else {
-                this.builder.append(NbtUtil.PUT_INT_PATTERN.formatted(this.variableName, ConstructStringTagVisitor.quoted(this.currentName), tag.getAsInt()));
+                this.builder.append(NbtUtil.PUT_INT_PATTERN.formatted(
+                    this.variableName,
+                    ConstructStringTagVisitor.quoted(this.currentName),
+                    tag.getAsInt()
+                ));
             }
         }
 
@@ -128,7 +144,11 @@ public class NbtUtil {
             if (this.currentName == null) {
                 this.addTag("LongTag.valueOf(%dL)".formatted(tag.getAsLong()));
             } else {
-                this.builder.append(NbtUtil.PUT_LONG_PATTERN.formatted(this.variableName, ConstructStringTagVisitor.quoted(this.currentName), tag.getAsLong()));
+                this.builder.append(NbtUtil.PUT_LONG_PATTERN.formatted(
+                    this.variableName,
+                    ConstructStringTagVisitor.quoted(this.currentName),
+                    tag.getAsLong()
+                ));
             }
         }
 
@@ -137,7 +157,11 @@ public class NbtUtil {
             if (this.currentName == null) {
                 this.addTag("FloatTag.valueOf(%fF)".formatted(tag.getAsFloat()));
             } else {
-                this.builder.append(NbtUtil.PUT_FLOAT_PATTERN.formatted(this.variableName, ConstructStringTagVisitor.quoted(this.currentName), tag.getAsFloat()));
+                this.builder.append(NbtUtil.PUT_FLOAT_PATTERN.formatted(
+                    this.variableName,
+                    ConstructStringTagVisitor.quoted(this.currentName),
+                    tag.getAsFloat()
+                ));
             }
         }
 
@@ -146,7 +170,11 @@ public class NbtUtil {
             if (this.currentName == null) {
                 this.addTag("DoubleTag.valueOf(%f)".formatted(tag.getAsDouble()));
             } else {
-                this.builder.append(NbtUtil.PUT_DOUBLE_PATTERN.formatted(this.variableName, ConstructStringTagVisitor.quoted(this.currentName), tag.getAsDouble()));
+                this.builder.append(NbtUtil.PUT_DOUBLE_PATTERN.formatted(
+                    this.variableName,
+                    ConstructStringTagVisitor.quoted(this.currentName),
+                    tag.getAsDouble()
+                ));
             }
         }
 
@@ -156,7 +184,10 @@ public class NbtUtil {
             if (this.currentName == null) {
                 this.addTag("new ByteArrayTag(new byte[]{%s})".formatted(array));
             } else {
-                this.builder.append(NbtUtil.PUT_BYTE_ARRAY_PATTERN.formatted(this.variableName, ConstructStringTagVisitor.quoted(this.currentName), array));
+                this.builder.append(NbtUtil.PUT_BYTE_ARRAY_PATTERN.formatted(
+                    this.variableName,
+                    ConstructStringTagVisitor.quoted(this.currentName), array
+                ));
             }
         }
 
@@ -166,7 +197,11 @@ public class NbtUtil {
             if (this.currentName == null) {
                 this.addTag("new IntArrayTag(new int[]{%s})".formatted(array));
             } else {
-                this.builder.append(NbtUtil.PUT_INT_ARRAY_PATTERN.formatted(this.variableName, ConstructStringTagVisitor.quoted(this.currentName), array));
+                this.builder.append(NbtUtil.PUT_INT_ARRAY_PATTERN.formatted(
+                    this.variableName,
+                    ConstructStringTagVisitor.quoted(this.currentName),
+                    array
+                ));
             }
         }
 
@@ -176,7 +211,11 @@ public class NbtUtil {
             if (this.currentName == null) {
                 this.addTag("new LongArrayTag(new long[]{%s})".formatted(array));
             } else {
-                this.builder.append(NbtUtil.PUT_LONG_ARRAY_PATTERN.formatted(this.variableName, ConstructStringTagVisitor.quoted(this.currentName), array));
+                this.builder.append(NbtUtil.PUT_LONG_ARRAY_PATTERN.formatted(
+                    this.variableName,
+                    ConstructStringTagVisitor.quoted(this.currentName),
+                    array
+                ));
             }
         }
 
@@ -205,7 +244,7 @@ public class NbtUtil {
         }
 
         private static String trimTrailingComma(StringBuilder builder) {
-            if (builder.length() == 0) {
+            if (builder.isEmpty()) {
                 return "";
             }
             return builder.substring(0, builder.length() - 2);
