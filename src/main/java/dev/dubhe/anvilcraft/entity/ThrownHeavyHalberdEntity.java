@@ -66,8 +66,6 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
         this.entityData.set(ID_FOIL, pickupItemStack.hasFoil());
     }
 
-    public abstract ResourceLocation getTextureBase();
-
     @Override
     protected void defineSynchedData(SynchedEntityData.Builder builder) {
         super.defineSynchedData(builder);

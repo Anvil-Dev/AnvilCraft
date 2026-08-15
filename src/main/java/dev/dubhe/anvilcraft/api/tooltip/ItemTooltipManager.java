@@ -382,8 +382,8 @@ public class ItemTooltipManager {
         );
         NORMAL.put(ModBlocks.PUMP.asItem(), "Pumps fluids, consumes 32 kW");
         NORMAL.put(ModBlocks.CREATIVE_CRATE.asItem(), "Infinite item storage and supply");
-        NORMAL.put(ModBlocks.CRATE.asItem(), "Stores up to 2048 space of items");
-        NORMAL.put(ModBlocks.LARGE_CRATE.asItem(), "A huge 3x3x3 crate, stores up to 65536 space of items");
+        NORMAL.put(ModBlocks.CRATE.asItem(), "Stores items");
+        NORMAL.put(ModBlocks.LARGE_CRATE.asItem(), "A large crate, stores more items");
         NORMAL.put(ModBlocks.SHULKER_CONTAINER.asItem(), "A space-folding container upgraded from a Large Crate");
         NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
         NORMAL.put(ModBlocks.FLUID_TANK.asItem(), "Stores fluids");
