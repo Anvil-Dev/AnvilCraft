@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.container.storage;
 
+import dev.anvilcraft.lib.v2.registrum.providers.loot.RegistrumBlockLootTables;
 import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
@@ -9,14 +10,18 @@ import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -25,8 +30,17 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -36,6 +50,22 @@ public class HyperdimensionStorageStationBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>
     implements MultiPartBlockEntity<Cube3x3PartHalf, HyperdimensionStorageStationBlock>, IHammerRemovable {
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
+
+    public static void loot(RegistrumBlockLootTables tables, HyperdimensionStorageStationBlock block) {
+        for (Cube3x3PartHalf part : block.getParts()) {
+            if (part.getOffset().distSqr(block.getMainPartOffset()) != 0) continue;
+            tables.add(block, LootTable.lootTable()
+                .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0f)))
+                    .add(LootItem.lootTableItem(block)
+                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
+                            .setProperties(StatePropertiesPredicate.Builder.properties()
+                                .hasProperty(block.getPart(), part)))
+                        .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                            .include(ModComponents.STORAGE)))));
+            break;
+        }
+    }
 
     public HyperdimensionStorageStationBlock(Properties properties) {
         super(properties);
@@ -78,9 +108,17 @@ public class HyperdimensionStorageStationBlock
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
-        if (blockEntity instanceof HyperdimensionStorageStationBlockEntity be) {
-            be.playerWillDestroy(level, pos, state, player);
+        if (player.isCreative() && level instanceof ServerLevel serverLevel) {
+            BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
+            if (blockEntity instanceof HyperdimensionStorageStationBlockEntity) {
+                LootParams.Builder builder = new LootParams.Builder(serverLevel)
+                    .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
+                    .withParameter(LootContextParams.TOOL, player.getMainHandItem())
+                    .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
+                for (ItemStack stack : state.getDrops(builder)) {
+                    Block.popResource(serverLevel, pos, stack);
+                }
+            }
         }
 
         return super.playerWillDestroy(level, pos, state, player);

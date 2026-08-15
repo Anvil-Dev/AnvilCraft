@@ -13,8 +13,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -107,7 +105,7 @@ public class StorageBlockEntity extends BlockEntity {
             .orElse(0L);
     }
 
-    public void dropContentsAndSelf(Level level, BlockPos pos, Player player) {
+    public void dropContents(Level level, BlockPos pos) {
         if (this.id != null) {
             Storages.get().get(this.id).ifPresent(storage -> {
                 UnlimitedItemStacksResourceHandler items = storage.getItems();
@@ -118,18 +116,6 @@ public class StorageBlockEntity extends BlockEntity {
                 }
                 Storages.get().remove(this.id);
             });
-        }
-        if (player.isCreative()) return;
-        Block.popResource(level, pos, new ItemStack(this.getBlockState().getBlock()));
-    }
-
-    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (!level.isClientSide() && player.isCreative() && this.getId() != null) {
-            ItemStack itemStack = new ItemStack(state.getBlock());
-            itemStack.applyComponents(this.collectComponents());
-            ItemEntity entity = new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, itemStack);
-            entity.setDefaultPickUpDelay();
-            level.addFreshEntity(entity);
         }
     }
 }

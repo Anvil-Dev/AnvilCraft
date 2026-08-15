@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.container.storage;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import dev.anvilcraft.lib.v2.util.DistExecutor;
+import dev.anvilcraft.lib.v2.registrum.providers.loot.RegistrumBlockLootTables;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
@@ -11,6 +12,8 @@ import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -33,9 +36,18 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -46,6 +58,22 @@ public class ShulkerContainerBlock
     implements MultiPartBlockEntity<OpenedCube3x3PartHalf, ShulkerContainerBlock>, IHammerRemovable {
     public static final EnumProperty<OpenedCube3x3PartHalf> HALF = EnumProperty.create("half", OpenedCube3x3PartHalf.class);
     public static final BooleanProperty OPENED = BooleanProperty.create("opened");
+
+    public static void loot(RegistrumBlockLootTables tables, ShulkerContainerBlock block) {
+        for (OpenedCube3x3PartHalf part : block.getParts()) {
+            if (!part.isMain()) continue;
+            tables.add(block, LootTable.lootTable()
+                .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                    .setRolls(ConstantValue.exactly(1.0f)))
+                    .add(LootItem.lootTableItem(block)
+                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
+                            .setProperties(StatePropertiesPredicate.Builder.properties()
+                                .hasProperty(block.getPart(), part)))
+                        .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                            .include(ModComponents.STORAGE)))));
+            break;
+        }
+    }
 
     private static final ImmutableMap<Direction, ImmutableList<Vec3i>> UPDATE_OFFSET = ImmutableMap.of(
         Direction.DOWN,
@@ -221,9 +249,17 @@ public class ShulkerContainerBlock
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
-        if (blockEntity instanceof ShulkerContainerBlockEntity be) {
-            be.playerWillDestroy(level, pos, state, player);
+        if (player.isCreative() && level instanceof ServerLevel serverLevel) {
+            BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
+            if (blockEntity instanceof ShulkerContainerBlockEntity) {
+                LootParams.Builder builder = new LootParams.Builder(serverLevel)
+                    .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
+                    .withParameter(LootContextParams.TOOL, player.getMainHandItem())
+                    .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
+                for (ItemStack stack : state.getDrops(builder)) {
+                    Block.popResource(serverLevel, pos, stack);
+                }
+            }
         }
 
         return super.playerWillDestroy(level, pos, state, player);

@@ -1617,7 +1617,7 @@ public class ModBlocks {
     public static final BlockEntry<ShulkerContainerBlock> SHULKER_CONTAINER = REGISTRUM
         .block("shulker_container", ShulkerContainerBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .loot(FlexibleMultiPartBlock::loot)
+        .loot(ShulkerContainerBlock::loot)
         .properties(properties -> properties
             .noOcclusion()
             .explosionResistance(1200)
@@ -1639,7 +1639,7 @@ public class ModBlocks {
     public static final BlockEntry<HyperdimensionStorageStationBlock> HYPERDIMENSION_STORAGE_STATION = REGISTRUM
         .block("hyperdimension_storage_station", HyperdimensionStorageStationBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .loot(SimpleMultiPartBlock::loot)
+        .loot(HyperdimensionStorageStationBlock::loot)
         .properties(properties -> properties
             .noOcclusion()
             .explosionResistance(1200)
