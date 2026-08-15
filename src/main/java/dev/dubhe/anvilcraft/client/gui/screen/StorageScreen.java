@@ -863,6 +863,9 @@ public class StorageScreen extends Screen {
                 }
             }
             this.carried = this.player.inventoryMenu.getCarried();
+            if (this.carried.isEmpty()) {
+                this.lastClickTime = 0L;
+            }
         }
 
         this.quickCrafting = false;
