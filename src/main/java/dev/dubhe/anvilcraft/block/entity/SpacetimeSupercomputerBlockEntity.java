@@ -190,10 +190,8 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
             this.processingStep = processing.getInt("step");
             this.processingSize = processing.getInt("size");
             this.processingTotal = processing.getInt("total");
-            if (!this.pendingRecipeId.isEmpty()) {
-                this.resolvePendingRecipe();
-            }
         }
+        // 先加载 pendingDrops 再解析配方：解析失败时需要归还这些已消耗材料。
         if (tag.contains("pendingDrops", Tag.TAG_LIST)) {
             this.pendingDrops.clear();
             ListTag pendingTag = tag.getList("pendingDrops", Tag.TAG_COMPOUND);
@@ -206,6 +204,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
                 }
             }
         }
+        this.resolvePendingRecipe();
     }
 
     @Override
@@ -224,6 +223,10 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
             .filter(ref -> ref.value() instanceof Multiblock4DRecipe)
             .map(Util::<RecipeHolder<Multiblock4DRecipe>>cast)
             .orElse(null);
+        if (this.processingRecipe == null) {
+            // 配方已不存在（数据包被移除）：归还已消耗的材料。
+            this.dropProcessingInputs();
+        }
     }
 
     @Override
@@ -670,6 +673,18 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
 
     public void setProcessingSize(int processingSize) {
         this.processingSize = processingSize;
+        this.onChange();
+    }
+
+    /**
+     * 批量更新处理状态并只触发一次 {@link #onChange()}，避免连续多个 setter 各自
+     * sendBlockUpdated + 逐玩家发包造成扇出。
+     */
+    public void setProcessingState(@Nullable RecipeHolder<Multiblock4DRecipe> recipe, int step, int size) {
+        this.processingRecipe = recipe;
+        this.processingStep = step;
+        this.processingSize = size;
+        this.processingTotal = recipe == null ? -1 : recipe.value().getDefinitions().size();
         this.onChange();
     }
 

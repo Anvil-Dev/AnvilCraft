@@ -85,15 +85,16 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
         }
         // 进行中的四维合成其首步结构已被消耗，需沿用中心方块上记录的配方继续，而不是重新匹配。
         // 配方管理器重载后会重建 RecipeHolder 实例，因此按配方 id 重解析后比较，而不是引用相等。
-        // 进行中时只有记录的配方可能匹配，且必须校验当前步结构，避免搭错结构时误匹配或被其他配方选中。
+        // 进行中且记录配方仍存在时，只有记录的配方可能匹配，且必须校验当前步结构，
+        // 避免搭错结构时误匹配或被其他配方选中。
         if (level.getBlockEntity(ctx.centerPos()) instanceof SpacetimeSupercomputerBlockEntity supercomputer
             && supercomputer.getProcessingRecipe() != null) {
             RecipeHolder<Multiblock4DRecipe> current = Multiblock4DRecipe.resolveCurrent(
                 level, supercomputer.getProcessingRecipe());
             if (current == null) {
-                // 数据包重载已删除该配方：取消进行中的处理并归还已消耗的材料。
-                supercomputer.dropProcessingInputs();
-                return false;
+                // 记录在方块上的配方已被删除（数据包重载）：回退到首步匹配，使本次落地进入
+                // assemble，由 assemble 的身份校验归还已消耗的材料并清除进行中的状态。
+                return MultiblockUtil.match(this.definitions.getFirst(), ctx, level).isPresent();
             }
             if (current.value() != this) {
                 return false;
@@ -119,10 +120,12 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
         }
         RecipeHolder<Multiblock4DRecipe> processing = supercomputer.getProcessingRecipe();
         // matches() 可能为首步结构相同的另一个配方返回 true（step-0 回退等极端场景），
-        // 但进行中的处理必须沿用记录在方块上的配方，因此入口校验配方身份一致性。
+        // 但进行中的处理必须沿用记录在方块上的配方，因此入口重新检测配方身份一致性。
+        // 记录在方块上的配方已不存在或与当前配方不一致时，归还已消耗的材料。
         if (processing != null) {
             RecipeHolder<Multiblock4DRecipe> current = Multiblock4DRecipe.resolveCurrent(level, processing);
             if (current == null || current.value() != this) {
+                supercomputer.dropProcessingInputs();
                 return;
             }
         }
@@ -141,9 +144,7 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
                     List<ItemStack> consumed = MultiblockUtil.consume(
                         level, this.definitions.getFirst(), ctx, inputCorner, rotation);
                     supercomputer.addPendingDrops(consumed);
-                    supercomputer.setProcessingRecipe(holder);
-                    supercomputer.setProcessingStep(1);
-                    supercomputer.setProcessingSize(ctx.size());
+                    supercomputer.setProcessingState(holder, 1, ctx.size());
                 });
             return;
         }
@@ -154,14 +155,12 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
         MultiblockUtil.match(this.definitions.get(step), ctx, level).ifPresent(rotation -> {
             List<ItemStack> consumed = MultiblockUtil.consume(level, this.definitions.get(step), ctx, inputCorner, rotation);
             int next = step + 1;
-            supercomputer.setProcessingStep(next);
             if (next >= this.definitions.size()) {
                 AnvilUtil.dropItems(List.of(this.result.copy()), level, landPos.below().getCenter());
                 supercomputer.clearPendingDrops();
-                supercomputer.setProcessingRecipe(null);
-                supercomputer.setProcessingStep(-1);
-                supercomputer.setProcessingSize(-1);
+                supercomputer.setProcessingState(null, -1, -1);
             } else {
+                supercomputer.setProcessingStep(next);
                 supercomputer.addPendingDrops(consumed);
             }
         });
