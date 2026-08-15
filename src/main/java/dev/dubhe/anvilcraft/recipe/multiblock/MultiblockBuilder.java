@@ -15,13 +15,15 @@ import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 
 import java.util.List;
+import java.util.Objects;
+import javax.annotation.Nullable;
 
 @Setter
 @Accessors(fluent = true, chain = true)
 public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
 
     private final MultiblockDefinition.SeriaBuilder definition = MultiblockDefinition.seriaBuilder();
-    private ItemStack result;
+    private @Nullable ItemStack result;
 
     public MultiblockBuilder() {
     }
@@ -37,11 +39,6 @@ public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
 
     public MultiblockBuilder layer(List<String> layers) {
         this.definition.layer(layers.toArray(String[]::new));
-        return this;
-    }
-
-    public MultiblockBuilder symbol(char symbol, BlockPredicateWithState predicate) {
-        this.definition.map(symbol, MultiblockUtil.toBlockStatePredicateBuilder(predicate));
         return this;
     }
 
@@ -69,7 +66,7 @@ public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
 
     @Override
     public MultiblockRecipe buildRecipe() {
-        return new MultiblockRecipe(this.definition.build(), this.result);
+        return new MultiblockRecipe(this.definition.build(), Objects.requireNonNull(this.result));
     }
 
     @Override
@@ -89,6 +86,6 @@ public class MultiblockBuilder extends AbstractRecipeBuilder<MultiblockRecipe> {
 
     @Override
     public Item getResult() {
-        return this.result.getItem();
+        return Objects.requireNonNull(this.result).getItem();
     }
 }

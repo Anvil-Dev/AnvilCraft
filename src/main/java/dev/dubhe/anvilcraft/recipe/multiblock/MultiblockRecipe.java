@@ -13,6 +13,7 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -27,8 +28,9 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
+import javax.annotation.Nullable;
 
 @Getter
 public class MultiblockRecipe implements IMultiblockRecipe, IDatagen {
@@ -98,10 +100,6 @@ public class MultiblockRecipe implements IMultiblockRecipe, IDatagen {
         return state.is(ModBlocks.SPACE_OVERCOMPRESSOR);
     }
 
-    public BlockPattern toBlockPattern() {
-        return MultiblockUtil.toBlockPattern(this.pattern);
-    }
-
     @Override
     public String toDatagen() {
         DefinitionSerialization serialization = DefinitionSerialization.fromDefinition(this.pattern);
@@ -124,22 +122,79 @@ public class MultiblockRecipe implements IMultiblockRecipe, IDatagen {
     }
 
     private static String toDatagenPredicate(BlockStatePredicate predicate) {
-        BlockPredicateWithState converted = MultiblockUtil.toBlockPredicate(predicate);
-        if (converted.getTag() != null) {
-            return "BlockPredicateWithState.ofTag(\"" + converted.getTag().location() + "\")";
+        boolean named = predicate.getBlocks() instanceof HolderSet.Named<?>;
+        int blockCount = predicate.getBlocks().size();
+
+        if (predicate.getProperties().isEmpty()) {
+            if (!named && blockCount == 1) {
+                return "\"" + MultiblockRecipe.firstBlockId(predicate) + "\"";
+            }
+            if (named) {
+                return "TagKey.create(Registries.BLOCK, ResourceLocation.parse(\""
+                    + MultiblockRecipe.tagId(predicate) + "\"))";
+            }
+            if (blockCount == 0) {
+                return "BlockStatePredicate.builder()";
+            }
         }
-        String block = BuiltInRegistries.BLOCK.getKey(Objects.requireNonNull(converted.getBlock())).toString();
-        if (converted.getProperties().isEmpty()) {
-            return "\"" + block + "\"";
+
+        StringBuilder builder = new StringBuilder("BlockStatePredicate.builder()");
+        if (blockCount > 0) {
+            builder.append(".of(");
+            if (named) {
+                builder.append("TagKey.create(Registries.BLOCK, ResourceLocation.parse(\"")
+                    .append(MultiblockRecipe.tagId(predicate)).append("\"))");
+            } else {
+                builder.append(predicate.getBlocks().stream()
+                    .map(holder -> "BuiltInRegistries.BLOCK.get(ResourceLocation.parse(\""
+                        + BuiltInRegistries.BLOCK.getKey(holder.value()) + "\"))")
+                    .collect(Collectors.joining(", ")));
+            }
+            builder.append(")");
         }
-        StringBuilder builder = new StringBuilder("BlockPredicateWithState.of(\"").append(block).append("\")");
-        converted.getProperties().forEach((property, value) -> builder
-            .append("\n        .hasState(\"")
-            .append(property.getName())
-            .append("\", \"")
-            .append(BlockPredicateWithState.getNameOf(value))
-            .append("\")"));
+        String blockId = MultiblockRecipe.firstBlockId(predicate);
+        List<List<BlockStatePredicate.PropertyMatcher>> groups = predicate.getProperties();
+        for (int i = 0; i < groups.size(); i++) {
+            for (BlockStatePredicate.PropertyMatcher matcher : groups.get(i)) {
+                builder.append(MultiblockRecipe.propertyCall(matcher, blockId));
+            }
+            if (i < groups.size() - 1) {
+                builder.append(".or()");
+            }
+        }
         return builder.toString();
+    }
+
+    @Nullable
+    private static String firstBlockId(BlockStatePredicate predicate) {
+        return predicate.getBlocks().stream().findFirst()
+            .map(holder -> BuiltInRegistries.BLOCK.getKey(holder.value()).toString())
+            .orElse(null);
+    }
+
+    private static String tagId(BlockStatePredicate predicate) {
+        if (predicate.getBlocks() instanceof HolderSet.Named<?> named) {
+            return named.key().location().toString();
+        }
+        return "";
+    }
+
+    private static String propertyCall(BlockStatePredicate.PropertyMatcher matcher, @Nullable String blockId) {
+        if (blockId == null) {
+            return "";
+        }
+        String property = "BuiltInRegistries.BLOCK.get(ResourceLocation.parse(\""
+            + blockId + "\")).getStateDefinition().getProperty(\"" + matcher.name() + "\")";
+        if (matcher.valueMatcher() instanceof BlockStatePredicate.ExactMatcher(String value)) {
+            return ".with(" + property + ", \"" + value + "\")";
+        }
+        if (matcher.valueMatcher() instanceof BlockStatePredicate.RangedMatcher(
+            Optional<String> minValue, Optional<String> maxValue)) {
+            return ".with((Property) " + property + ", "
+                + minValue.map(value -> "\"" + value + "\"").orElse("null") + ", "
+                + maxValue.map(value -> "\"" + value + "\"").orElse("null") + ")";
+        }
+        return "";
     }
 
     @Override

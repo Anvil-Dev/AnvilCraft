@@ -13,6 +13,7 @@ import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderSet;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -37,7 +38,6 @@ import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.annotation.Nullable;
@@ -109,7 +109,19 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
     @Nullable
     public Block centerOutput() {
         int t = this.getSize() / 2;
-        return this.toOutputBlockPattern().getPredicate(t, t, t).getBlock();
+        DefinitionSerialization serialization = DefinitionSerialization.fromDefinition(this.outputPattern);
+        String[][] grid = serialization.grid();
+        if (t >= grid.length || t >= grid[0].length || t >= grid[0][t].length()) {
+            return null;
+        }
+        char symbol = grid[t][t].charAt(t);
+        if (symbol == ' ') {
+            return Blocks.AIR;
+        }
+        return serialization.mapping().get(symbol).getBlocks().stream()
+            .findFirst()
+            .map(Holder::value)
+            .orElse(null);
     }
 
     @Override
@@ -130,8 +142,7 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
                     if (symbol == ' ') {
                         newState = Blocks.AIR.defaultBlockState();
                     } else {
-                        newState = MultiblockUtil.toBlockPredicate(serialization.mapping().get(symbol))
-                            .getDefaultState();
+                        newState = MultiblockUtil.getDefaultState(serialization.mapping().get(symbol));
                     }
                     BlockPos world = MultiblockUtil.rotatePatternToWorld(
                         x + offsets[0], y + offsets[1], z + offsets[2], rotation, size);
@@ -199,14 +210,6 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
         return state.is(net.neoforged.neoforge.common.Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES);
     }
 
-    public BlockPattern toInputBlockPattern() {
-        return MultiblockUtil.toBlockPattern(this.inputPattern);
-    }
-
-    public BlockPattern toOutputBlockPattern() {
-        return MultiblockUtil.toBlockPattern(this.outputPattern);
-    }
-
     private static BlockPos rotatePos(BlockPos pos, int size, Rotation rotation) {
         return switch (rotation) {
             case COUNTERCLOCKWISE_90 -> new BlockPos(pos.getZ(), pos.getY(), size - 1 - pos.getX());
@@ -216,7 +219,6 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
         };
     }
 
-    @SuppressWarnings("CodeBlock2Expr")
     private static void datagenForPattern(StringBuilder codeBuilder, MultiblockDefinition definition, String role) {
         DefinitionSerialization serialization = DefinitionSerialization.fromDefinition(definition);
         for (String[] layer : serialization.grid()) {
@@ -226,36 +228,90 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
                 .append(Arrays.stream(layer).map(s -> "\"" + s + "\"").collect(Collectors.joining(", ")))
                 .append(")\n");
         }
-        serialization.mapping().forEach((symbol, predicate) -> {
-            BlockPredicateWithState converted = MultiblockUtil.toBlockPredicate(predicate);
-            codeBuilder.append("    .")
-                .append(role)
-                .append("Symbol('")
-                .append(symbol)
-                .append("', ");
-            if (converted.getTag() != null) {
-                codeBuilder.append("BlockPredicateWithState.ofTag(\"")
-                    .append(converted.getTag().location())
-                    .append("\")");
-            } else if (converted.getProperties().isEmpty()) {
-                codeBuilder.append("\"")
-                    .append(BuiltInRegistries.BLOCK.getKey(Objects.requireNonNull(converted.getBlock())))
-                    .append("\")");
-            } else {
-                codeBuilder.append("BlockPredicateWithState.of(\"")
-                    .append(BuiltInRegistries.BLOCK.getKey(Objects.requireNonNull(converted.getBlock())))
-                    .append("\")\n");
-                converted.getProperties().forEach((property, value) -> {
-                    codeBuilder.append("        .hasState(\"")
-                        .append(property.getName())
-                        .append("\", \"")
-                        .append(BlockPredicateWithState.getNameOf(value))
-                        .append("\")\n");
-                });
-                codeBuilder.append("    )");
+        serialization.mapping().forEach((symbol, predicate) -> codeBuilder
+            .append("    .")
+            .append(role)
+            .append("Symbol('")
+            .append(symbol)
+            .append("', ")
+            .append(MultiblockConversionRecipe.toDatagenPredicate(predicate))
+            .append(")\n"));
+    }
+
+    private static String toDatagenPredicate(BlockStatePredicate predicate) {
+        boolean named = predicate.getBlocks() instanceof HolderSet.Named<?>;
+        int blockCount = predicate.getBlocks().size();
+
+        if (predicate.getProperties().isEmpty()) {
+            if (!named && blockCount == 1) {
+                return "\"" + MultiblockConversionRecipe.firstBlockId(predicate) + "\"";
             }
-            codeBuilder.append("\n");
-        });
+            if (named) {
+                return "TagKey.create(Registries.BLOCK, ResourceLocation.parse(\""
+                    + MultiblockConversionRecipe.tagId(predicate) + "\"))";
+            }
+            if (blockCount == 0) {
+                return "BlockStatePredicate.builder()";
+            }
+        }
+
+        StringBuilder builder = new StringBuilder("BlockStatePredicate.builder()");
+        if (blockCount > 0) {
+            builder.append(".of(");
+            if (named) {
+                builder.append("TagKey.create(Registries.BLOCK, ResourceLocation.parse(\"")
+                    .append(MultiblockConversionRecipe.tagId(predicate)).append("\"))");
+            } else {
+                builder.append(predicate.getBlocks().stream()
+                    .map(holder -> "BuiltInRegistries.BLOCK.get(ResourceLocation.parse(\""
+                        + BuiltInRegistries.BLOCK.getKey(holder.value()) + "\"))")
+                    .collect(Collectors.joining(", ")));
+            }
+            builder.append(")");
+        }
+        String blockId = MultiblockConversionRecipe.firstBlockId(predicate);
+        List<List<BlockStatePredicate.PropertyMatcher>> groups = predicate.getProperties();
+        for (int i = 0; i < groups.size(); i++) {
+            for (BlockStatePredicate.PropertyMatcher matcher : groups.get(i)) {
+                builder.append(MultiblockConversionRecipe.propertyCall(matcher, blockId));
+            }
+            if (i < groups.size() - 1) {
+                builder.append(".or()");
+            }
+        }
+        return builder.toString();
+    }
+
+    @Nullable
+    private static String firstBlockId(BlockStatePredicate predicate) {
+        return predicate.getBlocks().stream().findFirst()
+            .map(holder -> BuiltInRegistries.BLOCK.getKey(holder.value()).toString())
+            .orElse(null);
+    }
+
+    private static String tagId(BlockStatePredicate predicate) {
+        if (predicate.getBlocks() instanceof HolderSet.Named<?> named) {
+            return named.key().location().toString();
+        }
+        return "";
+    }
+
+    private static String propertyCall(BlockStatePredicate.PropertyMatcher matcher, @Nullable String blockId) {
+        if (blockId == null) {
+            return "";
+        }
+        String property = "BuiltInRegistries.BLOCK.get(ResourceLocation.parse(\""
+            + blockId + "\")).getStateDefinition().getProperty(\"" + matcher.name() + "\")";
+        if (matcher.valueMatcher() instanceof BlockStatePredicate.ExactMatcher(String value)) {
+            return ".with(" + property + ", \"" + value + "\")";
+        }
+        if (matcher.valueMatcher() instanceof BlockStatePredicate.RangedMatcher(
+            Optional<String> minValue, Optional<String> maxValue)) {
+            return ".with((Property) " + property + ", "
+                + minValue.map(value -> "\"" + value + "\"").orElse("null") + ", "
+                + maxValue.map(value -> "\"" + value + "\"").orElse("null") + ")";
+        }
+        return "";
     }
 
     @Override
@@ -306,14 +362,16 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
             return this;
         }
 
-        public Builder symbol(char symbol, BlockPredicateWithState predicate) {
-            inputPattern.map(symbol, MultiblockUtil.toBlockStatePredicateBuilder(predicate));
-            outputPattern.map(symbol, MultiblockUtil.toBlockStatePredicateBuilder(predicate));
+        public Builder symbol(char symbol, BlockStatePredicate.Builder predicate) {
+            inputPattern.map(symbol, predicate);
+            outputPattern.map(symbol, predicate);
             return this;
         }
 
         public Builder symbol(char symbol, Block block) {
-            return this.symbol(symbol, BlockPredicateWithState.of(block));
+            inputPattern.map(symbol, block);
+            outputPattern.map(symbol, block);
+            return this;
         }
 
         public Builder symbol(char symbol, Holder<Block> block) {
@@ -321,7 +379,7 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
         }
 
         public Builder symbol(char symbol, String blockName) {
-            return this.symbol(symbol, BlockPredicateWithState.of(blockName));
+            return this.symbol(symbol, BuiltInRegistries.BLOCK.get(ResourceLocation.parse(blockName)));
         }
 
         public Builder symbol(char symbol, TagKey<Block> tag) {
@@ -330,13 +388,14 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
             return this;
         }
 
-        public Builder inputSymbol(char symbol, BlockPredicateWithState predicate) {
-            inputPattern.map(symbol, MultiblockUtil.toBlockStatePredicateBuilder(predicate));
+        public Builder inputSymbol(char symbol, BlockStatePredicate.Builder predicate) {
+            inputPattern.map(symbol, predicate);
             return this;
         }
 
         public Builder inputSymbol(char symbol, Block block) {
-            return this.inputSymbol(symbol, BlockPredicateWithState.of(block));
+            inputPattern.map(symbol, block);
+            return this;
         }
 
         public Builder inputSymbol(char symbol, Holder<Block> block) {
@@ -344,7 +403,7 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
         }
 
         public Builder inputSymbol(char symbol, String blockName) {
-            return this.inputSymbol(symbol, BlockPredicateWithState.of(blockName));
+            return this.inputSymbol(symbol, BuiltInRegistries.BLOCK.get(ResourceLocation.parse(blockName)));
         }
 
         public Builder inputSymbol(char symbol, TagKey<Block> tag) {
@@ -352,13 +411,14 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
             return this;
         }
 
-        public Builder outputSymbol(char symbol, BlockPredicateWithState predicate) {
-            outputPattern.map(symbol, MultiblockUtil.toBlockStatePredicateBuilder(predicate));
+        public Builder outputSymbol(char symbol, BlockStatePredicate.Builder predicate) {
+            outputPattern.map(symbol, predicate);
             return this;
         }
 
         public Builder outputSymbol(char symbol, Block block) {
-            return this.outputSymbol(symbol, BlockPredicateWithState.of(block));
+            outputPattern.map(symbol, block);
+            return this;
         }
 
         public Builder outputSymbol(char symbol, Holder<Block> block) {
@@ -366,7 +426,7 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
         }
 
         public Builder outputSymbol(char symbol, String blockName) {
-            return this.outputSymbol(symbol, BlockPredicateWithState.of(blockName));
+            return this.outputSymbol(symbol, BuiltInRegistries.BLOCK.get(ResourceLocation.parse(blockName)));
         }
 
         public Builder outputSymbol(char symbol, TagKey<Block> tag) {

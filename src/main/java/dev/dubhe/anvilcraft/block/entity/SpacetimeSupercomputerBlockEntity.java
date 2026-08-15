@@ -711,7 +711,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
     }
 
     /**
-     * 拆除时空超算时调用：将已消耗步骤的材料与合成区域内尚未消耗的方块以掉落物形式释放。
+     * 拆除时空超算时调用：将已消耗步骤的材料以掉落物形式释放。
      */
     public void dropProcessingInputs() {
         if (this.level == null || this.level.isClientSide) {

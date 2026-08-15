@@ -3,11 +3,16 @@ package dev.dubhe.anvilcraft.recipe.multiblock;
 import dev.anvilcraft.lib.v2.multiblock.dynamic.definition.DefinitionSerialization;
 import dev.anvilcraft.lib.v2.multiblock.dynamic.definition.MultiblockDefinition;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
+import dev.dubhe.anvilcraft.api.block.BlockPlacementRules;
+import it.unimi.dsi.fastutil.objects.Object2IntMap;
+import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.ItemStack;
@@ -17,10 +22,14 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
+import net.neoforged.neoforge.common.util.ItemStackMap;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class MultiblockUtil {
@@ -218,55 +227,85 @@ public final class MultiblockUtil {
     }
 
     /**
-     * 将 {@link MultiblockDefinition} 转换为可用于 JEI 渲染的 {@link BlockPattern}。
+     * 获取 {@link BlockStatePredicate} 对应的默认方块状态：第一个方块（或标签中的第一个方块）的默认状态，
+     * 并应用第一组属性匹配器中的精确属性。
      */
-    public static BlockPattern toBlockPattern(MultiblockDefinition definition) {
-        BlockPattern pattern = BlockPattern.create();
-        DefinitionSerialization serialization = DefinitionSerialization.fromDefinition(definition);
-        for (String[] layer : serialization.grid()) {
-            pattern.layer(layer);
-        }
-        serialization.mapping().forEach((symbol, predicate) ->
-            pattern.symbol(symbol, MultiblockUtil.toBlockPredicate(predicate)));
-        return pattern;
-    }
-
-    /**
-     * 将 {@link BlockStatePredicate} 转换为 {@link BlockPredicateWithState}，供渲染与数据生成使用。
-     * 多方块与 NBT 谓词会被简化：只保留第一个方块或标签，以及第一组属性。
-     */
-    @SuppressWarnings("unchecked")
-    public static BlockPredicateWithState toBlockPredicate(BlockStatePredicate predicate) {
-        if (predicate.getBlocks() instanceof HolderSet.Named<?> named) {
-            return BlockPredicateWithState.of((TagKey<Block>) named.key());
-        }
+    @SuppressWarnings({"rawtypes", "unchecked"})
+    public static BlockState getDefaultState(BlockStatePredicate predicate) {
         Block block = predicate.getBlocks().stream()
             .findFirst()
             .map(Holder::value)
             .orElse(Blocks.AIR);
-        BlockPredicateWithState result = BlockPredicateWithState.of(block);
-        if (!predicate.getProperties().isEmpty()) {
-            for (BlockStatePredicate.PropertyMatcher matcher : predicate.getProperties().getFirst()) {
-                if (matcher.valueMatcher() instanceof BlockStatePredicate.ExactMatcher(String value)) {
-                    result.hasState(matcher.name(), value);
-                }
+        BlockState state = block.defaultBlockState();
+        if (predicate.getProperties().isEmpty()) {
+            return state;
+        }
+        for (BlockStatePredicate.PropertyMatcher matcher : predicate.getProperties().getFirst()) {
+            if (!(matcher.valueMatcher() instanceof BlockStatePredicate.ExactMatcher(String value))) {
+                continue;
+            }
+            Property property = block.getStateDefinition().getProperty(matcher.name());
+            if (property == null) continue;
+            Optional optional = property.getValue(value);
+            if (optional.isPresent()) {
+                state = state.setValue(property, (Comparable) optional.get());
             }
         }
-        return result;
+        return state;
     }
 
     /**
-     * 将 {@link BlockPredicateWithState} 转换为 {@link BlockStatePredicate.Builder}。
+     * 将 {@link MultiblockDefinition} 转换为所需材料清单，供 JEI 展示使用。
      */
-    public static BlockStatePredicate.Builder toBlockStatePredicateBuilder(BlockPredicateWithState predicate) {
-        BlockStatePredicate.Builder builder = BlockStatePredicate.builder();
-        if (predicate.getTag() != null) {
-            builder.of(predicate.getTag());
-        } else if (predicate.getBlock() != null) {
-            builder.of(predicate.getBlock());
+    public static List<ItemStack> ingredientList(
+        MultiblockDefinition definition,
+        @Nullable HolderLookup.Provider registries
+    ) {
+        Object2IntMap<BlockState> states = new Object2IntOpenHashMap<>();
+        for (Map.Entry<Vec3i, BlockStatePredicate> entry : definition.definition().entrySet()) {
+            BlockStatePredicate predicate = entry.getValue();
+            if (predicate.getBlocks() instanceof HolderSet.Named) {
+                continue;
+            }
+            states.mergeInt(MultiblockUtil.getDefaultState(predicate), 1, Integer::sum);
         }
-        predicate.getProperties().forEach((property, value) ->
-            builder.with(property, BlockPredicateWithState.getNameOf(value)));
-        return builder;
+        Map<ItemStack, Integer> ingredients = ItemStackMap.createTypeAndTagMap();
+        states.forEach((state, stateCount) -> BlockPlacementRules.getPlacementIngredients(registries, state)
+            .forEach(stack -> {
+                int stackCount = stack.getCount();
+                if (stackCount <= 0) return;
+                stack.setCount(1);
+                Integer totalCount = ingredients.computeIfAbsent(stack, ignore -> 0);
+                ingredients.put(stack, totalCount + stateCount * stackCount);
+            }));
+        List<ItemStack> resultList = new ArrayList<>();
+        ingredients.forEach((stack, count) -> {
+            stack.setCount(count);
+            resultList.add(stack);
+        });
+        return resultList;
+    }
+
+    /**
+     * 获取 {@link MultiblockDefinition} 中标签谓词的计数映射。
+     *
+     * @return TagKey 到在模式中出现的次数的映射
+     */
+    @SuppressWarnings("unchecked")
+    public static Map<TagKey<Block>, Integer> tagIngredientCounts(MultiblockDefinition definition) {
+        Object2IntMap<TagKey<Block>> tagCounts = new Object2IntOpenHashMap<>();
+        for (Map.Entry<Vec3i, BlockStatePredicate> entry : definition.definition().entrySet()) {
+            if (entry.getValue().getBlocks() instanceof HolderSet.Named<?> named) {
+                tagCounts.mergeInt((TagKey<Block>) named.key(), 1, Integer::sum);
+            }
+        }
+        return tagCounts;
+    }
+
+    /**
+     * 获取 {@link MultiblockDefinition} 对应的网格尺寸（层数）。
+     */
+    public static int size(MultiblockDefinition definition) {
+        return DefinitionSerialization.fromDefinition(definition).grid().length;
     }
 }

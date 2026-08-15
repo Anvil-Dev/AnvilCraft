@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiTextureConstants;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
+import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockUtil;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import dev.dubhe.anvilcraft.util.RecipeUtil.TagRenderSlot;
@@ -127,13 +128,14 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
 
     @Override
     public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<MultiblockRecipe> recipe, IFocusGroup focuses) {
-        cache.computeIfAbsent(recipe, it -> RecipeUtil.asLevelLike(it.value().toBlockPattern()));
-        tagSlotCache.computeIfAbsent(recipe, it -> RecipeUtil.getTagRenderSlots(it.value().toBlockPattern()));
+        cache.computeIfAbsent(recipe, it -> RecipeUtil.asLevelLike(it.value().getPattern()));
+        tagSlotCache.computeIfAbsent(recipe, it -> RecipeUtil.getTagRenderSlots(it.value().getPattern()));
         builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 70)
             .addItemStack(recipe.value().getResult().copy());
 
         var level = Minecraft.getInstance().level;
-        List<ItemStack> ingredientList = recipe.value().toBlockPattern().toIngredientList(
+        List<ItemStack> ingredientList = MultiblockUtil.ingredientList(
+            recipe.value().getPattern(),
             level == null ? null : level.registryAccess()
         );
         ingredientList.sort(BY_COUNT_DECREASING);
@@ -147,7 +149,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             slotIndex++;
         }
 
-        var tagCounts = recipe.value().toBlockPattern().getTagIngredientCounts();
+        var tagCounts = MultiblockUtil.tagIngredientCounts(recipe.value().getPattern());
         for (var entry : tagCounts.entrySet()) {
             TagKey<Block> blockTag = entry.getKey();
             int count = entry.getValue();
@@ -172,7 +174,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
     ) {
         LevelLike level = cache.get(recipe);
         if (level == null) {
-            level = RecipeUtil.asLevelLike(recipe.value().toBlockPattern());
+            level = RecipeUtil.asLevelLike(recipe.value().getPattern());
             cache.put(recipe, level);
         }
         var tagSlots = tagSlotCache.get(recipe);
@@ -217,7 +219,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         pose.scale(0.8f, 0.8f, 0.8f);
         int textX = Math.round(WIDTH / 0.8f - minecraft.font.width(component) - 5);
         guiGraphics.drawString(minecraft.font, component, textX, 0, 0xFF000000, false);
-        int size = recipe.value().toBlockPattern().getSize();
+        int size = MultiblockUtil.size(recipe.value().getPattern());
         guiGraphics.drawString(
             minecraft.font,
             Component.translatable("gui.anvilcraft.category.multiblock.size", size, size),
@@ -250,7 +252,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             10,
             10,
             it -> {
-                LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().toBlockPattern()));
+                LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().getPattern()));
                 level.setAllLayersVisible(!level.isAllLayersVisible());
             },
             recipe
@@ -261,7 +263,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             10,
             10,
             it -> {
-                LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().toBlockPattern()));
+                LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().getPattern()));
                 if (level.isAllLayersVisible()) return;
                 level.nextLayer();
             },
@@ -273,7 +275,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             10,
             10,
             it -> {
-                LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().toBlockPattern()));
+                LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().getPattern()));
                 if (level.isAllLayersVisible()) return;
                 level.previousLayer();
             },

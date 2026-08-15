@@ -1,10 +1,12 @@
 package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
+import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.HeavyIronBeamBlock;
+import dev.dubhe.anvilcraft.block.RubyLaserBlock;
+import dev.dubhe.anvilcraft.block.RubyPrismBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import net.minecraft.core.Direction;
@@ -23,43 +25,43 @@ public class MultiBlockRecipeLoader {
             .layer("GHG", "IGI", "GHG")
             .symbol(
                 'A',
-                BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_SLAB)
-                    .hasState(SlabBlock.TYPE, SlabType.BOTTOM)
-                    .hasState(SlabBlock.WATERLOGGED, false))
+                BlockStatePredicate.builder().of(ModBlocks.CUT_HEAVY_IRON_SLAB)
+                    .with(SlabBlock.TYPE, SlabType.BOTTOM)
+                    .with(SlabBlock.WATERLOGGED, false))
             .symbol(
                 'B',
-                BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_STAIRS)
-                    .hasState(StairBlock.FACING, Direction.SOUTH)
-                    .hasState(StairBlock.HALF, Half.BOTTOM)
-                    .hasState(StairBlock.WATERLOGGED, false))
+                BlockStatePredicate.builder().of(ModBlocks.CUT_HEAVY_IRON_STAIRS)
+                    .with(StairBlock.FACING, Direction.SOUTH)
+                    .with(StairBlock.HALF, Half.BOTTOM)
+                    .with(StairBlock.WATERLOGGED, false))
             .symbol(
                 'C',
-                BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_STAIRS)
-                    .hasState(StairBlock.FACING, Direction.EAST)
-                    .hasState(StairBlock.HALF, Half.BOTTOM)
-                    .hasState(StairBlock.WATERLOGGED, false))
+                BlockStatePredicate.builder().of(ModBlocks.CUT_HEAVY_IRON_STAIRS)
+                    .with(StairBlock.FACING, Direction.EAST)
+                    .with(StairBlock.HALF, Half.BOTTOM)
+                    .with(StairBlock.WATERLOGGED, false))
             .symbol('D', ModBlocks.HEAVY_IRON_COLUMN)
             .symbol(
                 'E',
-                BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_STAIRS)
-                    .hasState(StairBlock.FACING, Direction.WEST)
-                    .hasState(StairBlock.HALF, Half.BOTTOM)
-                    .hasState(StairBlock.WATERLOGGED, false))
+                BlockStatePredicate.builder().of(ModBlocks.CUT_HEAVY_IRON_STAIRS)
+                    .with(StairBlock.FACING, Direction.WEST)
+                    .with(StairBlock.HALF, Half.BOTTOM)
+                    .with(StairBlock.WATERLOGGED, false))
             .symbol(
                 'F',
-                BlockPredicateWithState.of(ModBlocks.CUT_HEAVY_IRON_STAIRS)
-                    .hasState(StairBlock.FACING, Direction.NORTH)
-                    .hasState(StairBlock.HALF, Half.BOTTOM)
-                    .hasState(StairBlock.WATERLOGGED, false))
+                BlockStatePredicate.builder().of(ModBlocks.CUT_HEAVY_IRON_STAIRS)
+                    .with(StairBlock.FACING, Direction.NORTH)
+                    .with(StairBlock.HALF, Half.BOTTOM)
+                    .with(StairBlock.WATERLOGGED, false))
             .symbol('G', ModBlocks.POLISHED_HEAVY_IRON_BLOCK)
             .symbol(
                 'H',
-                BlockPredicateWithState.of(ModBlocks.HEAVY_IRON_BEAM)
-                    .hasState(HeavyIronBeamBlock.AXIS, Direction.Axis.Z))
+                BlockStatePredicate.builder().of(ModBlocks.HEAVY_IRON_BEAM)
+                    .with(HeavyIronBeamBlock.AXIS, Direction.Axis.Z))
             .symbol(
                 'I',
-                BlockPredicateWithState.of(ModBlocks.HEAVY_IRON_BEAM)
-                    .hasState(HeavyIronBeamBlock.AXIS, Direction.Axis.X))
+                BlockStatePredicate.builder().of(ModBlocks.HEAVY_IRON_BEAM)
+                    .with(HeavyIronBeamBlock.AXIS, Direction.Axis.X))
             .save(provider, AnvilCraft.of("multiblock/giant_anvil_1"));
 
         MultiblockRecipe.builder(ModBlocks.GIANT_ANVIL)
@@ -227,32 +229,32 @@ public class MultiBlockRecipeLoader {
             .layer(" A ", "BCD", " E ")
             .layer("BFD", "BCD", "BGD")
             .layer("AAA", "HCI", "EEE")
-            .symbol('A', BlockPredicateWithState.of("anvilcraft:ruby_laser")
-                .hasState("facing", "south")
+            .symbol('A', BlockStatePredicate.builder().of(ModBlocks.RUBY_LASER)
+                .with(RubyLaserBlock.FACING, Direction.SOUTH)
             )
-            .symbol('B', BlockPredicateWithState.of("anvilcraft:ruby_laser")
-                .hasState("facing", "east")
+            .symbol('B', BlockStatePredicate.builder().of(ModBlocks.RUBY_LASER)
+                .with(RubyLaserBlock.FACING, Direction.EAST)
             )
-            .symbol('C', BlockPredicateWithState.of("anvilcraft:ruby_prism")
-                .hasState("facing", "down")
+            .symbol('C', BlockStatePredicate.builder().of(ModBlocks.RUBY_PRISM)
+                .with(RubyPrismBlock.FACING, Direction.DOWN)
             )
-            .symbol('D', BlockPredicateWithState.of("anvilcraft:ruby_laser")
-                .hasState("facing", "west")
+            .symbol('D', BlockStatePredicate.builder().of(ModBlocks.RUBY_LASER)
+                .with(RubyLaserBlock.FACING, Direction.WEST)
             )
-            .symbol('E', BlockPredicateWithState.of("anvilcraft:ruby_laser")
-                .hasState("facing", "north")
+            .symbol('E', BlockStatePredicate.builder().of(ModBlocks.RUBY_LASER)
+                .with(RubyLaserBlock.FACING, Direction.NORTH)
             )
-            .symbol('F', BlockPredicateWithState.of("anvilcraft:ruby_prism")
-                .hasState("facing", "south")
+            .symbol('F', BlockStatePredicate.builder().of(ModBlocks.RUBY_PRISM)
+                .with(RubyPrismBlock.FACING, Direction.SOUTH)
             )
-            .symbol('G', BlockPredicateWithState.of("anvilcraft:ruby_prism")
-                .hasState("facing", "north")
+            .symbol('G', BlockStatePredicate.builder().of(ModBlocks.RUBY_PRISM)
+                .with(RubyPrismBlock.FACING, Direction.NORTH)
             )
-            .symbol('H', BlockPredicateWithState.of("anvilcraft:ruby_prism")
-                .hasState("facing", "east")
+            .symbol('H', BlockStatePredicate.builder().of(ModBlocks.RUBY_PRISM)
+                .with(RubyPrismBlock.FACING, Direction.EAST)
             )
-            .symbol('I', BlockPredicateWithState.of("anvilcraft:ruby_prism")
-                .hasState("facing", "west")
+            .symbol('I', BlockStatePredicate.builder().of(ModBlocks.RUBY_PRISM)
+                .with(RubyPrismBlock.FACING, Direction.WEST)
             )
             .save(provider);
 

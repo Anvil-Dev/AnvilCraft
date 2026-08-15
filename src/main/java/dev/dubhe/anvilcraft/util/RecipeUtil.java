@@ -4,8 +4,6 @@ import dev.anvilcraft.lib.v2.multiblock.dynamic.definition.MultiblockDefinition;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.input.IItemsInput;
-import dev.dubhe.anvilcraft.recipe.multiblock.BlockPattern;
-import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntLinkedOpenHashMap;
@@ -16,14 +14,13 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.Vec3i;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootParams;
@@ -175,26 +172,6 @@ public class RecipeUtil {
     }
 
     @OnlyIn(Dist.CLIENT)
-    public static LevelLike asLevelLike(BlockPattern pattern) {
-        @SuppressWarnings("DataFlowIssue")
-        LevelLike levelLike = new LevelLike(Minecraft.getInstance().level);
-
-        int size = pattern.getSize();
-        for (int y = size - 1; y >= 0; y--) {
-            for (int x = size - 1; x >= 0; x--) {
-                for (int z = size - 1; z >= 0; z--) {
-                    BlockPredicateWithState predicate = pattern.getPredicate(x, y, z);
-                    BlockState state = getStateForRender(predicate);
-                    if (state.isAir() && Math.max(levelLike.horizontalSize(), levelLike.verticalSize()) >= size) continue;
-                    levelLike.setBlockState(new BlockPos(x, y, z), state);
-                }
-            }
-        }
-
-        return levelLike;
-    }
-
-    @OnlyIn(Dist.CLIENT)
     public static LevelLike asLevelLike(MultiblockDefinition definition) {
         @SuppressWarnings("DataFlowIssue")
         LevelLike levelLike = new LevelLike(Minecraft.getInstance().level);
@@ -210,47 +187,20 @@ public class RecipeUtil {
     }
 
     /**
-     * 获取用于渲染的 BlockState。标签谓词解析为标签中的第一个方块，方块谓词使用默认状态。
-     */
-    @OnlyIn(Dist.CLIENT)
-    private static BlockState getStateForRender(BlockPredicateWithState predicate) {
-        if (predicate.getTag() != null) {
-            var blocks = BuiltInRegistries.BLOCK.getTag(predicate.getTag())
-                .map(tag -> tag.stream().map(Holder::value).toList())
-                .orElse(List.of());
-            if (!blocks.isEmpty()) {
-                return blocks.getFirst().defaultBlockState();
-            }
-            return Blocks.AIR.defaultBlockState();
-        }
-        return predicate.getDefaultState();
-    }
-
-    /**
      * 标签渲染槽位：记录需要动态切换方块的模式位置及其可用方块列表。
      */
-    public record TagRenderSlot(BlockPos pos, List<Block> blocks) {}
+    public record TagRenderSlot(BlockPos pos, HolderSet<Block> blocks) {}
 
     /**
      * 收集模式中所有标签谓词的位置及其可用方块列表。
      */
     @OnlyIn(Dist.CLIENT)
-    public static List<TagRenderSlot> getTagRenderSlots(BlockPattern pattern) {
+    public static List<TagRenderSlot> getTagRenderSlots(MultiblockDefinition definition) {
         List<TagRenderSlot> slots = new ArrayList<>();
-        int size = pattern.getSize();
-        for (int y = size - 1; y >= 0; y--) {
-            for (int x = size - 1; x >= 0; x--) {
-                for (int z = size - 1; z >= 0; z--) {
-                    BlockPredicateWithState predicate = pattern.getPredicate(x, y, z);
-                    if (predicate.getTag() != null) {
-                        var blocks = BuiltInRegistries.BLOCK.getTag(predicate.getTag())
-                            .map(tag -> tag.stream().map(Holder::value).toList())
-                            .orElse(List.of());
-                        if (!blocks.isEmpty()) {
-                            slots.add(new TagRenderSlot(new BlockPos(x, y, z), blocks));
-                        }
-                    }
-                }
+        for (Map.Entry<Vec3i, BlockStatePredicate> entry : definition.definition().entrySet()) {
+            BlockStatePredicate predicate = entry.getValue();
+            if (predicate.getBlocks() instanceof HolderSet.Named<?> && predicate.getBlocks().size() > 0) {
+                slots.add(new TagRenderSlot(new BlockPos(entry.getKey()), predicate.getBlocks()));
             }
         }
         return slots;
@@ -264,7 +214,7 @@ public class RecipeUtil {
         if (slots.isEmpty()) return;
         for (TagRenderSlot slot : slots) {
             int idx = variantIndex % slot.blocks().size();
-            BlockState state = slot.blocks().get(idx).defaultBlockState();
+            BlockState state = slot.blocks().get(idx).value().defaultBlockState();
             level.setBlockState(slot.pos(), state);
         }
     }

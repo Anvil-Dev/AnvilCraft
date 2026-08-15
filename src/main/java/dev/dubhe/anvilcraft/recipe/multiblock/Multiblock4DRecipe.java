@@ -85,6 +85,7 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
         }
         // 进行中的四维合成其首步结构已被消耗，需沿用中心方块上记录的配方继续，而不是重新匹配。
         // 配方管理器重载后会重建 RecipeHolder 实例，因此按配方 id 重解析后比较，而不是引用相等。
+        // 进行中时只有记录的配方可能匹配，且必须校验当前步结构，避免搭错结构时误匹配或被其他配方选中。
         if (level.getBlockEntity(ctx.centerPos()) instanceof SpacetimeSupercomputerBlockEntity supercomputer
             && supercomputer.getProcessingRecipe() != null) {
             RecipeHolder<Multiblock4DRecipe> current = level.getRecipeManager()
@@ -92,9 +93,14 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
                 .filter(ref -> ref.value() instanceof Multiblock4DRecipe)
                 .map(Multiblock4DRecipe::castHolder)
                 .orElse(null);
-            if (current != null && current.value() == this) {
-                return true;
+            if (current == null || current.value() != this) {
+                return false;
             }
+            int step = supercomputer.getProcessingStep();
+            if (step < 0 || step >= this.definitions.size()) {
+                return false;
+            }
+            return MultiblockUtil.match(this.definitions.get(step), ctx, level).isPresent();
         }
         return MultiblockUtil.match(this.definitions.getFirst(), ctx, level).isPresent();
     }

@@ -5,6 +5,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.gson.JsonElement;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.serialization.JsonOps;
+import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.AccelerationRingBlock;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
@@ -20,11 +21,10 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.StructureToolMenu;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
 import dev.dubhe.anvilcraft.recipe.IDatagen;
-import dev.dubhe.anvilcraft.recipe.multiblock.BlockPattern;
-import dev.dubhe.anvilcraft.recipe.multiblock.BlockPredicateWithState;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockBuilder;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
+import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockUtil;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
 import lombok.Setter;
 import net.minecraft.ChatFormatting;
@@ -56,6 +56,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -290,7 +292,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
     @SuppressWarnings("DataFlowIssue")
     @Nullable
     private Recipe<?> toRecipe() {
-        BlockPattern inputPattern = this.toBlockPattern(this.structureData);
+        ScannedStructure inputPattern = this.scanStructure(this.structureData);
         if (inputPattern == null) return null;
         ItemStack result = menu.slots.get(SLOT_ID_RESULT).getItem().copy();
         if (result.is(ModItems.STRUCTURE_TOOL)) {
@@ -317,7 +319,7 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
                     false);
                 return null;
             }
-            BlockPattern outputPattern = this.toBlockPattern(outputData, true);
+            ScannedStructure outputPattern = this.scanStructure(outputData, true);
             if (outputPattern == null) return null;
             return toConversionRecipe(inputPattern, outputPattern);
         } else if (!result.isEmpty()) {
@@ -326,25 +328,19 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         return null;
     }
 
-    private static MultiblockRecipe toMultiblockRecipe(BlockPattern pattern, ItemStack result) {
+    private static MultiblockRecipe toMultiblockRecipe(ScannedStructure pattern, ItemStack result) {
         MultiblockBuilder builder = MultiblockRecipe.builder(result.getItem(), result.getCount());
-        for (List<String> layer : pattern.getLayers()) {
-            builder.layer(layer);
-        }
-        pattern.getSymbols().forEach(builder::symbol);
+        pattern.layers().forEach(builder::layer);
+        pattern.symbols().forEach(builder::symbol);
         return builder.buildRecipe();
     }
 
-    private static MultiblockConversionRecipe toConversionRecipe(BlockPattern input, BlockPattern output) {
+    private static MultiblockConversionRecipe toConversionRecipe(ScannedStructure input, ScannedStructure output) {
         MultiblockConversionRecipe.Builder builder = MultiblockConversionRecipe.builder();
-        for (List<String> layer : input.getLayers()) {
-            builder.inputLayer(layer);
-        }
-        for (List<String> layer : output.getLayers()) {
-            builder.outputLayer(layer);
-        }
-        input.getSymbols().forEach(builder::inputSymbol);
-        output.getSymbols().forEach(builder::outputSymbol);
+        input.layers().forEach(builder::inputLayer);
+        output.layers().forEach(builder::outputLayer);
+        input.symbols().forEach(builder::inputSymbol);
+        output.symbols().forEach(builder::outputSymbol);
         return builder.buildRecipe();
     }
 
@@ -394,67 +390,83 @@ public class StructureToolScreen extends AbstractContainerScreen<StructureToolMe
         AccelerationRingBlock.HALF
     );
 
-    private BlockPredicateWithState buildPredicate(BlockState state, boolean recordAllStates) {
+    private BlockStatePredicate.Builder buildPredicate(BlockState state, boolean recordAllStates) {
         Block block = state.getBlock();
-        BlockPredicateWithState predicate = BlockPredicateWithState.of(block);
+        BlockStatePredicate.Builder builder = BlockStatePredicate.builder().of(block);
         state.getProperties().stream()
             .filter(p -> recordAllStates
                 || DEFAULT_RECORDED_PROPERTIES.contains(p)
                 || (BlockPlacementUtil.isMultifaceLike(block)
                 && p instanceof BooleanProperty
                 && PipeBlock.PROPERTY_BY_DIRECTION.containsValue(p)))
-            .forEach(p -> predicate.copyPropertyFrom(state, p));
-        return predicate;
+            .forEach(p -> StructureToolScreen.recordProperty(builder, state, p));
+        return builder;
+    }
+
+    private static <T extends Comparable<T>> void recordProperty(
+        BlockStatePredicate.Builder builder,
+        BlockState state,
+        Property<T> property
+    ) {
+        builder.with(property, state.getValue(property));
     }
 
     @Nullable
-    private BlockPattern toBlockPattern(@Nullable StructureData data) {
-        return this.toBlockPattern(data, false);
+    private ScannedStructure scanStructure(@Nullable StructureData data) {
+        return this.scanStructure(data, false);
     }
 
     @SuppressWarnings("DataFlowIssue")
     @Nullable
-    private BlockPattern toBlockPattern(@Nullable StructureData data, boolean recordAllStates) {
+    private ScannedStructure scanStructure(@Nullable StructureData data, boolean recordAllStates) {
         ClientLevel level = minecraft.level;
-        if (data != null && level != null) {
-            BlockPattern pattern = BlockPattern.create();
-            currentSymbol = '@';
-            BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos();
-            for (int y = data.minY(); y <= data.maxY(); y++) {
-                List<String> layer = new ArrayList<>();
-                for (int z = data.minZ(); z <= data.maxZ(); z++) {
-                    StringBuilder sb = new StringBuilder();
-                    for (int x = data.minX(); x <= data.maxX(); x++) {
-                        BlockState state = level.getBlockState(mpos.set(x, y, z));
-                        if (state.is(Blocks.AIR)) {
-                            sb.append(' ');
-                            continue;
-                        }
-                        BlockPredicateWithState predicate = this.buildPredicate(state, recordAllStates);
-                        sb.append(getAndPutSymbol(pattern.getSymbols(), predicate));
-                    }
-                    layer.add(sb.toString());
-                }
-                pattern.layer(layer);
-            }
-            pattern.checkSymbols();
-            return pattern;
-        } else {
+        if (data == null || level == null) {
             return null;
         }
+        currentSymbol = '@';
+        Map<Character, BlockStatePredicate.Builder> symbols = new LinkedHashMap<>();
+        Map<BlockState, Character> symbolByState = new HashMap<>();
+        List<List<String>> layers = new ArrayList<>();
+        BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos();
+        for (int y = data.minY(); y <= data.maxY(); y++) {
+            List<String> layer = new ArrayList<>();
+            for (int z = data.minZ(); z <= data.maxZ(); z++) {
+                StringBuilder sb = new StringBuilder();
+                for (int x = data.minX(); x <= data.maxX(); x++) {
+                    BlockState state = level.getBlockState(mpos.set(x, y, z));
+                    if (state.is(Blocks.AIR)) {
+                        sb.append(' ');
+                        continue;
+                    }
+                    BlockStatePredicate.Builder predicate = this.buildPredicate(state, recordAllStates);
+                    sb.append(getAndPutSymbol(symbols, symbolByState, predicate));
+                }
+                layer.add(sb.toString());
+            }
+            layers.add(layer);
+        }
+        return new ScannedStructure(layers, symbols);
     }
 
-    private char getAndPutSymbol(Map<Character, BlockPredicateWithState> symbols, BlockPredicateWithState predicate) {
-        if (symbols.entrySet().stream().noneMatch(e -> e.getValue().equals(predicate))) {
-            currentSymbol++;
-            symbols.put(currentSymbol, predicate);
-        } else {
-            for (Map.Entry<Character, BlockPredicateWithState> entry : symbols.entrySet()) {
-                if (entry.getValue().equals(predicate)) {
-                    return entry.getKey();
-                }
-            }
+    private char getAndPutSymbol(
+        Map<Character, BlockStatePredicate.Builder> symbols,
+        Map<BlockState, Character> symbolByState,
+        BlockStatePredicate.Builder predicate
+    ) {
+        BlockState key = MultiblockUtil.getDefaultState(predicate.build());
+        Character existing = symbolByState.get(key);
+        if (existing != null) {
+            return existing;
         }
+        currentSymbol++;
+        symbols.put(currentSymbol, predicate);
+        symbolByState.put(key, currentSymbol);
         return currentSymbol;
+    }
+
+    private record ScannedStructure(
+        List<List<String>> layers,
+        Map<Character, BlockStatePredicate.Builder> symbols
+    ) {
     }
 }

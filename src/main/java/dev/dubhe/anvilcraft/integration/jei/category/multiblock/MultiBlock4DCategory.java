@@ -139,14 +139,15 @@ public class MultiBlock4DCategory implements IRecipeCategory<RecipeHolder<Multib
         Map<ItemStack, Integer> itemCounts = ItemStackMap.createTypeAndTagMap();
         Map<TagKey<Block>, Integer> tagCounts = new HashMap<>();
         for (var definition : recipe.value().getDefinitions()) {
-            var pattern = MultiblockUtil.toBlockPattern(definition);
-            for (ItemStack stack : pattern.toIngredientList(level == null ? null : level.registryAccess())) {
+            for (ItemStack stack : MultiblockUtil.ingredientList(
+                definition, level == null ? null : level.registryAccess())) {
                 int count = stack.getCount();
                 ItemStack key = stack.copy();
                 key.setCount(1);
                 itemCounts.merge(key, count, Integer::sum);
             }
-            pattern.getTagIngredientCounts().forEach((tag, count) -> tagCounts.merge(tag, count, Integer::sum));
+            MultiblockUtil.tagIngredientCounts(definition)
+                .forEach((tag, count) -> tagCounts.merge(tag, count, Integer::sum));
         }
 
         List<ItemStack> ingredientList = new ArrayList<>();
@@ -352,7 +353,7 @@ public class MultiBlock4DCategory implements IRecipeCategory<RecipeHolder<Multib
 
     private int maxSize(RecipeHolder<Multiblock4DRecipe> recipe) {
         return recipe.value().getDefinitions().stream()
-            .mapToInt(definition -> MultiblockUtil.toBlockPattern(definition).getSize())
+            .mapToInt(MultiblockUtil::size)
             .max()
             .orElse(0);
     }
