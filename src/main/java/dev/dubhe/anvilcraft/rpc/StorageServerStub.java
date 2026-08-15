@@ -218,6 +218,66 @@ public final class StorageServerStub {
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean quickMoveToStorage(
+        UUID playerId,
+        long sourcePos,
+        @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC") IntList slots
+    ) {
+        if (slots.isEmpty() || slots.size() > StorageServerStub.MAX_SYNC_SLOTS) {
+            StorageServerStub.REGISTRIES.remove();
+            throw new IllegalArgumentException("Invalid quick move slots");
+        }
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        boolean changed = false;
+        IntOpenHashSet visited = new IntOpenHashSet(slots.size());
+        for (int slot : slots) {
+            if (slot < 0 || !visited.add(slot)) {
+                continue;
+            }
+            if (StorageServerStub.moveInventoryStackToStorage(player, view, slot)) {
+                changed = true;
+            }
+        }
+        if (changed) {
+            player.getInventory().setChanged();
+            player.inventoryMenu.broadcastChanges();
+        }
+        return changed;
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean moveSameToStorage(UUID playerId, long sourcePos, int slot) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        Inventory inventory = player.getInventory();
+        if (slot < 0 || slot >= Inventory.INVENTORY_SIZE) {
+            return false;
+        }
+        ItemStack sample = inventory.getItem(slot).copyWithCount(1);
+        if (sample.isEmpty()) {
+            return false;
+        }
+        boolean changed = false;
+        for (int index = 0; index < Inventory.INVENTORY_SIZE; index++) {
+            ItemStack stack = inventory.getItem(index);
+            if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, sample)) {
+                continue;
+            }
+            int inserted = view.insert(stack.copyWithCount(1), stack.getCount());
+            if (inserted > 0) {
+                stack.shrink(inserted);
+                changed = true;
+            }
+        }
+        if (changed) {
+            inventory.setChanged();
+            player.inventoryMenu.broadcastChanges();
+        }
+        return changed;
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
     public static DepositResult deposit(UUID playerId, long sourcePos, boolean all) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);

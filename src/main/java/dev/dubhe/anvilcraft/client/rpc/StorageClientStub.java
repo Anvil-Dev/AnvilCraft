@@ -85,6 +85,26 @@ public final class StorageClientStub {
         );
     }
 
+    public static CompletableFuture<Boolean> quickMoveToStorage(BlockPos sourcePos, IntList slots) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::quickMoveToStorage,
+            StorageClientStub.playerId(),
+            sourcePos.asLong(),
+            slots
+        );
+    }
+
+    public static CompletableFuture<Boolean> moveSameToStorage(BlockPos sourcePos, int slot) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::moveSameToStorage,
+            StorageClientStub.playerId(),
+            sourcePos.asLong(),
+            slot
+        );
+    }
+
     public static CompletableFuture<StorageServerStub.DepositResult> deposit(BlockPos sourcePos, boolean all) {
         return RPC.invoke(
             RpcTarget.server(),

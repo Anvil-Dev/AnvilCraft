@@ -130,6 +130,9 @@ public class StorageScreen extends Screen {
     private int quickCraftingButton;
     private int lastClickedInventorySlot = -1;
     private int pickupAllSlot = -1;
+    private boolean quickMoveDragging;
+    private final IntSet quickMoveSlots = new IntOpenHashSet();
+    private final IntSet pendingQuickMoveSlots = new IntOpenHashSet();
     private int left;
     private int top;
     private int titleLabelX;
@@ -321,6 +324,7 @@ public class StorageScreen extends Screen {
     @Override
     public void tick() {
         super.tick();
+        this.flushQuickMoves();
         if (this.metadataCooldown > 0) {
             this.metadataCooldown--;
         } else {
@@ -636,8 +640,18 @@ public class StorageScreen extends Screen {
             }
             this.lastClickedInventorySlot = slot;
 
+            if (Screen.hasAltDown()) {
+                this.moveSameToStorage(slot);
+                return true;
+            }
+
             if (Screen.hasShiftDown()) {
-                this.interactWithStorage(slot, button, StorageInput.QUICK_MOVE_TO_STORAGE);
+                if (this.carried.isEmpty()) {
+                    this.quickMoveDragging = true;
+                    this.queueQuickMove(slot);
+                } else {
+                    this.interactWithStorage(slot, button, StorageInput.QUICK_MOVE_TO_STORAGE);
+                }
                 return true;
             }
 
@@ -720,6 +734,15 @@ public class StorageScreen extends Screen {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (this.quickMoveDragging) {
+            if (button == 0 && Screen.hasShiftDown()) {
+                int inventorySlot = this.getInventorySlot(mouseX, mouseY);
+                if (inventorySlot != -1) {
+                    this.queueQuickMove(inventorySlot);
+                }
+            }
+            return true;
+        }
         if (!this.quickCrafting || button != this.quickCraftingButton || this.carried.isEmpty()) {
             return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
         }
@@ -751,6 +774,12 @@ public class StorageScreen extends Screen {
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         super.mouseReleased(mouseX, mouseY, button);
+        if (this.quickMoveDragging) {
+            this.quickMoveDragging = false;
+            this.quickMoveSlots.clear();
+            this.flushQuickMoves();
+            return true;
+        }
         if (this.pickupAllSlot != -1) {
             if (button == 0 && this.minecraft.gameMode != null) {
                 this.player.inventoryMenu.setCarried(this.carried);
@@ -813,6 +842,51 @@ public class StorageScreen extends Screen {
         }
         IntList slots = new IntArrayList(this.quickCraftStorageSlots);
         StorageClientStub.clonePut(this.sourcePos, slots).whenCompleteAsync(
+            (changed, error) -> {
+                if (error != null || !changed) {
+                    return;
+                }
+                if (this.preservingOrder) {
+                    this.interactionSyncPending = true;
+                    this.syncPreservedOrder();
+                    return;
+                }
+                this.reorder(false);
+            },
+            this.screenExecutor
+        );
+    }
+
+    private void queueQuickMove(int slot) {
+        if (this.quickMoveSlots.add(slot)) {
+            this.pendingQuickMoveSlots.add(slot);
+        }
+    }
+
+    private void flushQuickMoves() {
+        if (this.pendingQuickMoveSlots.isEmpty()) {
+            return;
+        }
+        IntList slots = new IntArrayList(this.pendingQuickMoveSlots);
+        this.pendingQuickMoveSlots.clear();
+        StorageClientStub.quickMoveToStorage(this.sourcePos, slots).whenCompleteAsync(
+            (changed, error) -> {
+                if (error != null || !changed) {
+                    return;
+                }
+                if (this.preservingOrder) {
+                    this.interactionSyncPending = true;
+                    this.syncPreservedOrder();
+                    return;
+                }
+                this.reorder(false);
+            },
+            this.screenExecutor
+        );
+    }
+
+    private void moveSameToStorage(int slot) {
+        StorageClientStub.moveSameToStorage(this.sourcePos, slot).whenCompleteAsync(
             (changed, error) -> {
                 if (error != null || !changed) {
                     return;
