@@ -46,9 +46,11 @@ import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.lang.reflect.Method;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Deque;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -61,6 +63,7 @@ import java.util.function.Function;
 public final class StorageServerStub {
     private static final int MAX_PLAYER_STUBS = 5;
     private static final int MAX_SYNC_SLOTS = 256;
+    private static final int MAX_UNDO_RECORDS = 4;
     private static final ThreadLocal<HolderLookup.Provider> REGISTRIES = new ThreadLocal<>();
     @SuppressWarnings("unused")
     public static final StreamCodec<ByteBuf, IntList> ORDER_STREAM_CODEC = ByteBufCodecs.VAR_INT
@@ -72,6 +75,9 @@ public final class StorageServerStub {
     private long version;
     private long orderVersion;
     private final Map<SortOptions, IntList> orders = new HashMap<>();
+    private final Deque<UndoRecord> undoRecords = new ArrayDeque<>();
+    private final Map<ItemStack, Integer> undoGroup = new HashMap<>();
+    private boolean undoingGroup;
 
     private static HolderLookup.Provider getAndClear() {
         HolderLookup.Provider registries = StorageServerStub.REGISTRIES.get();
@@ -142,7 +148,7 @@ public final class StorageServerStub {
         ItemStack carried = player.inventoryMenu.getCarried();
         boolean changed = false;
         if (action == StorageInput.QUICK_MOVE_TO_STORAGE) {
-            changed = StorageServerStub.moveInventoryStackToStorage(player, view, slot);
+            changed = StorageServerStub.moveInventoryStackToStorage(player, view, slot) > 0;
         } else if (action == StorageInput.CLONE) {
             if (
                 player.hasInfiniteMaterials()
@@ -229,17 +235,27 @@ public final class StorageServerStub {
         }
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        final StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
+        Map<ItemStack, Integer> moved = new HashMap<>();
         boolean changed = false;
         IntOpenHashSet visited = new IntOpenHashSet(slots.size());
         for (int slot : slots) {
             if (slot < 0 || !visited.add(slot)) {
                 continue;
             }
-            if (StorageServerStub.moveInventoryStackToStorage(player, view, slot)) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            ItemStack key = stack.copyWithCount(1);
+            int inserted = StorageServerStub.moveInventoryStackToStorage(player, view, slot);
+            if (inserted > 0) {
+                moved.merge(key, inserted, Integer::sum);
                 changed = true;
             }
         }
         if (changed) {
+            StorageServerStub.recordUndo(stub, moved);
             player.getInventory().setChanged();
             player.inventoryMenu.broadcastChanges();
         }
@@ -250,6 +266,7 @@ public final class StorageServerStub {
     public static boolean moveSameToStorage(UUID playerId, long sourcePos, int slot) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        final StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
         Inventory inventory = player.getInventory();
         if (slot < 0 || slot >= Inventory.INVENTORY_SIZE) {
             return false;
@@ -258,6 +275,7 @@ public final class StorageServerStub {
         if (sample.isEmpty()) {
             return false;
         }
+        Map<ItemStack, Integer> moved = new HashMap<>();
         boolean changed = false;
         for (int index = 0; index < Inventory.INVENTORY_SIZE; index++) {
             ItemStack stack = inventory.getItem(index);
@@ -266,11 +284,13 @@ public final class StorageServerStub {
             }
             int inserted = view.insert(stack.copyWithCount(1), stack.getCount());
             if (inserted > 0) {
+                moved.merge(stack.copyWithCount(1), inserted, Integer::sum);
                 stack.shrink(inserted);
                 changed = true;
             }
         }
         if (changed) {
+            StorageServerStub.recordUndo(stub, moved);
             inventory.setChanged();
             player.inventoryMenu.broadcastChanges();
         }
@@ -281,6 +301,8 @@ public final class StorageServerStub {
     public static DepositResult deposit(UUID playerId, long sourcePos, boolean all) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        final StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
+        Map<ItemStack, Integer> moved = new HashMap<>();
         boolean changed = false;
         for (int slot = Inventory.getSelectionSize(); slot < Inventory.INVENTORY_SIZE; slot++) {
             ItemStack stack = player.getInventory().getItem(slot);
@@ -289,15 +311,72 @@ public final class StorageServerStub {
             }
             int inserted = view.insert(stack.copyWithCount(1), stack.getCount());
             if (inserted > 0) {
+                moved.merge(stack.copyWithCount(1), inserted, Integer::sum);
                 stack.shrink(inserted);
                 changed = true;
             }
         }
         if (changed) {
+            StorageServerStub.recordUndo(stub, moved);
             player.getInventory().setChanged();
             player.inventoryMenu.broadcastChanges();
         }
         return new DepositResult(changed);
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static DepositResult undo(UUID playerId, long sourcePos) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
+        UndoRecord record = stub.undoRecords.pollFirst();
+        if (record == null) {
+            return new DepositResult(false);
+        }
+        Inventory inventory = player.getInventory();
+        boolean changed = false;
+        for (Map.Entry<ItemStack, Integer> entry : record.moved.entrySet()) {
+            int remaining = entry.getValue();
+            while (remaining > 0) {
+                int extracted = StorageServerStub.extractByResource(view, entry.getKey(), remaining);
+                if (extracted <= 0) {
+                    break;
+                }
+                remaining -= extracted;
+                ItemStack returned = entry.getKey().copyWithCount(extracted);
+                if (!player.addItem(returned)) {
+                    view.insert(returned.copyWithCount(1), returned.getCount());
+                }
+                changed = true;
+            }
+        }
+        if (changed) {
+            inventory.setChanged();
+            player.inventoryMenu.broadcastChanges();
+        }
+        return new DepositResult(changed);
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static void beginUndoGroup(UUID playerId, long sourcePos) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
+        stub.undoGroup.clear();
+        stub.undoingGroup = true;
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static void endUndoGroup(UUID playerId, long sourcePos) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        StorageServerStub stub = StorageServerStub.get(playerId, view.primary().getId());
+        if (!stub.undoingGroup) {
+            return;
+        }
+        stub.undoingGroup = false;
+        if (!stub.undoGroup.isEmpty()) {
+            StorageServerStub.pushUndo(stub, stub.undoGroup);
+            stub.undoGroup.clear();
+        }
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
@@ -337,6 +416,37 @@ public final class StorageServerStub {
         return new DepositResult(changed);
     }
 
+    private static void recordUndo(StorageServerStub stub, Map<ItemStack, Integer> moved) {
+        if (moved.isEmpty()) {
+            return;
+        }
+        if (stub.undoingGroup) {
+            for (Map.Entry<ItemStack, Integer> entry : moved.entrySet()) {
+                stub.undoGroup.merge(entry.getKey(), entry.getValue(), Integer::sum);
+            }
+            return;
+        }
+        StorageServerStub.pushUndo(stub, moved);
+    }
+
+    private static void pushUndo(StorageServerStub stub, Map<ItemStack, Integer> moved) {
+        stub.undoRecords.addFirst(new UndoRecord(moved));
+        while (stub.undoRecords.size() > StorageServerStub.MAX_UNDO_RECORDS) {
+            stub.undoRecords.removeLast();
+        }
+    }
+
+    private static int extractByResource(StorageView view, ItemStack resource, int amount) {
+        int extracted = 0;
+        for (int index = 0; index < view.size() && extracted < amount; index++) {
+            if (view.amount(index) <= 0 || !ItemStack.isSameItemSameComponents(view.resource(index), resource)) {
+                continue;
+            }
+            extracted += view.extract(index, amount - extracted);
+        }
+        return extracted;
+    }
+
     private static boolean matchesStorageItem(StorageView view, ItemStack stack) {
         for (int index = 0; index < view.size(); index++) {
             if (view.amount(index) > 0 && ItemStack.isSameItemSameComponents(view.resource(index), stack)) {
@@ -346,25 +456,25 @@ public final class StorageServerStub {
         return false;
     }
 
-    private static boolean moveInventoryStackToStorage(
+    private static int moveInventoryStackToStorage(
         ServerPlayer player,
         StorageView view,
         int slot
     ) {
         Inventory inventory = player.getInventory();
         if (slot < 0 || slot >= Inventory.INVENTORY_SIZE) {
-            return false;
+            return 0;
         }
         ItemStack stack = inventory.getItem(slot);
         if (stack.isEmpty()) {
-            return false;
+            return 0;
         }
         int inserted = view.insert(stack.copyWithCount(1), stack.getCount());
         if (inserted <= 0) {
-            return false;
+            return 0;
         }
         stack.shrink(inserted);
-        return true;
+        return inserted;
     }
 
     private static boolean moveStorageStackToInventory(
@@ -577,6 +687,9 @@ public final class StorageServerStub {
             DepositResult::changed,
             DepositResult::new
         );
+    }
+
+    private record UndoRecord(Map<ItemStack, Integer> moved) {
     }
 
     private static StorageServerStub get(UUID playerId, UUID storageId) {
