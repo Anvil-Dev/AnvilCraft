@@ -9,7 +9,7 @@
       ],
       [
         "CCC",
-        "CCC",
+        "CFC",
         "CCC"
       ],
       [
@@ -33,6 +33,9 @@
       },
       "E": {
         "block": "anvilcraft:negative_matter_block"
+      },
+      "F": {
+        "block": "anvilcraft:mass_energy_inverter"
       }
     }
   },

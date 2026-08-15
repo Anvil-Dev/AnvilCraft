@@ -48,6 +48,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.DoorBlock;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -55,6 +56,7 @@ import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.StainedGlassPaneBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.material.FluidState;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
 import net.neoforged.neoforge.client.model.data.ModelData;
@@ -87,6 +89,52 @@ public class RenderSupport {
     public static final BlockRenderFunction SINGLE_BLOCK = (blockState, poseStack, buffers) -> {
         if (airLevelLike == null) return;
         BlockRenderDispatcher blockRenderDispatcher = Minecraft.getInstance().getBlockRenderer();
+        if (blockState.getBlock() instanceof DoorBlock) {
+            renderDoorBlock(blockRenderDispatcher, blockState, poseStack, buffers);
+            return;
+        }
+        renderBlockState(blockRenderDispatcher, blockState, poseStack, buffers);
+        if (currentClientLevel == null) return;
+        getCachedBlockEntity(blockState).ifPresent(blockEntity -> {
+            blockEntity.setLevel(currentClientLevel);
+            blockEntity.setBlockState(blockState);
+            renderBlockEntity(blockEntity, poseStack, buffers);
+        });
+    };
+
+    private static void renderDoorBlock(
+        BlockRenderDispatcher blockRenderDispatcher,
+        BlockState blockState,
+        PoseStack poseStack,
+        MultiBufferSource buffers
+    ) {
+        // 门是双格方块：上半扇锚定原格，下半扇向下叠一格，保持原尺寸完整拼接，利用原格下方的空间避免与上方砧子重叠
+        BlockState closedState = blockState.setValue(DoorBlock.OPEN, false);
+        poseStack.pushPose();
+        poseStack.translate(0.0F, -1.0F, 0.0F);
+        renderBlockState(
+            blockRenderDispatcher,
+            closedState.setValue(DoorBlock.HALF, DoubleBlockHalf.LOWER),
+            poseStack,
+            buffers
+        );
+        poseStack.popPose();
+        poseStack.pushPose();
+        renderBlockState(
+            blockRenderDispatcher,
+            closedState.setValue(DoorBlock.HALF, DoubleBlockHalf.UPPER),
+            poseStack,
+            buffers
+        );
+        poseStack.popPose();
+    }
+
+    private static void renderBlockState(
+        BlockRenderDispatcher blockRenderDispatcher,
+        BlockState blockState,
+        PoseStack poseStack,
+        MultiBufferSource buffers
+    ) {
         BakedModel model = blockRenderDispatcher.getBlockModel(blockState);
         for (RenderType renderType : model.getRenderTypes(blockState, RANDOM, ModelData.EMPTY)) {
             VertexConsumer bufferBuilder = buffers.getBuffer(renderType);
@@ -102,13 +150,7 @@ public class RenderSupport {
                 renderType
             );
         }
-        if (currentClientLevel == null) return;
-        getCachedBlockEntity(blockState).ifPresent(blockEntity -> {
-            blockEntity.setLevel(currentClientLevel);
-            blockEntity.setBlockState(blockState);
-            renderBlockEntity(blockEntity, poseStack, buffers);
-        });
-    };
+    }
 
     public static BlockRenderFunction wipEntity(ResourceLocation recipeId, int stepCount) {
         return (blockState, poseStack, buffers) -> {

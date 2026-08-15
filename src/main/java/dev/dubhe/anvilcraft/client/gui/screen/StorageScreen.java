@@ -46,6 +46,7 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.neoforge.client.ItemDecoratorHandler;
 
 import java.util.ArrayList;
@@ -54,6 +55,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
@@ -125,10 +127,13 @@ public class StorageScreen extends Screen {
     private boolean remappedOrder;
     private int nextLogicalSlot;
     private final IntSet quickCraftSlots = new IntOpenHashSet();
+    private final IntSet quickCraftStorageSlots = new IntOpenHashSet();
     private boolean quickCrafting;
     private int quickCraftingButton;
     private int lastClickedInventorySlot = -1;
-    private int pickupAllSlot = -1;
+    private boolean quickMoveDragging;
+    private final IntSet quickMoveSlots = new IntOpenHashSet();
+    private final IntSet pendingQuickMoveSlots = new IntOpenHashSet();
     private int left;
     private int top;
     private int titleLabelX;
@@ -320,6 +325,8 @@ public class StorageScreen extends Screen {
     @Override
     public void tick() {
         super.tick();
+        this.carried = this.player.inventoryMenu.getCarried();
+        this.flushQuickMoves();
         if (this.metadataCooldown > 0) {
             this.metadataCooldown--;
         } else {
@@ -394,6 +401,11 @@ public class StorageScreen extends Screen {
 
             int slot = this.displayOrder.getInt(orderIndex);
             UnlimitedItemStack stack = this.getDisplayedStack(slot);
+
+            // 高亮先画在底层，物品图标盖过高亮，tooltip最后绘制
+            if (hovered) {
+                AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
+            }
             if (!stack.isEmpty()) {
                 ItemStack itemStack = stack.toStack();
                 graphics.renderItem(itemStack, x, y);
@@ -405,14 +417,17 @@ public class StorageScreen extends Screen {
                     x,
                     y
                 );
-                if (hovered && this.carried.isEmpty()) {
-                    graphics.renderTooltip(this.font, itemStack, mouseX, mouseY);
-                }
             }
-
-            // 悬停高亮画在物品之上
-            if (hovered) {
-                AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
+            if (hovered && this.carried.isEmpty() && !stack.isEmpty()) {
+                List<Component> tooltipLines = new ArrayList<>(stack.toStack().getTooltipLines(
+                    Item.TooltipContext.of(this.minecraft.level),
+                    this.player,
+                    this.minecraft.options.advancedItemTooltips
+                        ? TooltipFlag.Default.ADVANCED
+                        : TooltipFlag.Default.NORMAL
+                ));
+                tooltipLines.add(Component.translatable("screen.anvilcraft.storage.count", stack.getCount()));
+                graphics.renderTooltip(this.font, tooltipLines, Optional.empty(), mouseX, mouseY);
             }
         }
         this.renderStorageSlider(graphics);
@@ -467,17 +482,16 @@ public class StorageScreen extends Screen {
             stack = this.getQuickCraftPreviewStack(slot);
             graphics.fill(x, y, x + 16, y + 16, -2130706433);
         }
+        // 高亮先画在底层，物品图标盖过高亮，tooltip最后绘制
+        if (hovered) {
+            AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
+        }
         if (!stack.isEmpty()) {
             graphics.renderItem(stack, x, y);
             graphics.renderItemDecorations(this.font, stack, x, y);
-            if (hovered && this.carried.isEmpty()) {
-                graphics.renderTooltip(this.font, stack, mouseX, mouseY);
-            }
         }
-
-        // 悬停高亮画在物品之上
-        if (hovered) {
-            AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
+        if (hovered && this.carried.isEmpty() && !stack.isEmpty()) {
+            graphics.renderTooltip(this.font, stack, mouseX, mouseY);
         }
     }
 
@@ -559,8 +573,12 @@ public class StorageScreen extends Screen {
             }
             renderedCarried = this.carried.copyWithCount(remaining);
         }
+        // 鼠标物品输出在所有槽位内容之上（高亮/槽位物品/数量文字），仍低于tooltip
+        graphics.pose().pushPose();
+        graphics.pose().translate(0.0F, 0.0F, 100.0F);
         graphics.renderItem(renderedCarried, mouseX - 8, mouseY - 8);
         graphics.renderItemDecorations(this.font, renderedCarried, mouseX - 8, mouseY - 8);
+        graphics.pose().popPose();
     }
 
     private ItemStack getQuickCraftPreviewStack(int inventorySlot) {
@@ -576,6 +594,9 @@ public class StorageScreen extends Screen {
     }
 
     private int getQuickCraftRemaining() {
+        if (this.quickCraftingButton == 2) {
+            return this.carried.getCount();
+        }
         int remaining = this.carried.getCount();
         for (int screenSlot : this.quickCraftSlots) {
             Slot slot = this.player.inventoryMenu.getSlot(screenSlot);
@@ -624,24 +645,60 @@ public class StorageScreen extends Screen {
             }
 
             int slot = this.getInventorySlot(mouseX, mouseY);
-            if (slot == -1 || this.minecraft.gameMode == null) {
+            if (slot == -1) {
+                if (this.minecraft.gameMode != null && !this.carried.isEmpty()) {
+                    this.player.inventoryMenu.setCarried(this.carried);
+                    this.minecraft.gameMode.handleInventoryMouseClick(
+                        this.player.inventoryMenu.containerId,
+                        -999,
+                        button,
+                        ClickType.PICKUP,
+                        this.player
+                    );
+                    this.carried = this.player.inventoryMenu.getCarried();
+                    return true;
+                }
+                return false;
+            }
+            if (this.minecraft.gameMode == null) {
                 return false;
             }
             this.lastClickedInventorySlot = slot;
 
-            if (Screen.hasShiftDown()) {
-                this.interactWithStorage(slot, button, StorageInput.QUICK_MOVE_TO_STORAGE);
+            if (Screen.hasAltDown()) {
+                this.moveSameToStorage(slot);
                 return true;
             }
 
-            if (!this.carried.isEmpty()) {
-                if (button == 0 && this.isDoubleClick(slot) && slot == lastClickedInventorySlot) {
-                    this.pickupAllSlot = this.getScreenSlot(slot);
-                    return true;
+            if (Screen.hasShiftDown()) {
+                if (this.carried.isEmpty()) {
+                    this.quickMoveDragging = true;
+                    StorageClientStub.beginUndoGroup(this.sourcePos);
+                    this.queueQuickMove(slot);
+                } else {
+                    this.interactWithStorage(slot, button, StorageInput.QUICK_MOVE_TO_STORAGE);
                 }
-                this.quickCrafting = true;
-                this.quickCraftingButton = button;
-                this.quickCraftSlots.clear();
+                return true;
+            }
+
+            this.carried = this.player.inventoryMenu.getCarried();
+            if (button == 0 && this.isDoubleClick(slot, button) && slot == lastClickedInventorySlot) {
+                if (this.carried.isEmpty()) {
+                    this.player.inventoryMenu.setCarried(this.carried);
+                    this.minecraft.gameMode.handleInventoryMouseClick(
+                        this.player.inventoryMenu.containerId,
+                        this.getScreenSlot(slot),
+                        button,
+                        ClickType.PICKUP,
+                        this.player
+                    );
+                    this.carried = this.player.inventoryMenu.getCarried();
+                }
+                this.doubleclick = true;
+                return true;
+            }
+            if (!this.carried.isEmpty()) {
+                this.startQuickCraft(button);
                 return true;
             }
 
@@ -660,10 +717,13 @@ public class StorageScreen extends Screen {
             if (
                 storageSlot != null
                 && this.player.hasInfiniteMaterials()
-                && this.carried.isEmpty()
                 && this.minecraft.options.keyPickItem.matchesMouse(2)
             ) {
-                this.interactWithStorage(storageSlot, 0, StorageInput.CLONE);
+                if (this.carried.isEmpty()) {
+                    this.interactWithStorage(storageSlot, 0, StorageInput.CLONE);
+                } else {
+                    this.startQuickCraft(button);
+                }
                 return true;
             }
 
@@ -676,14 +736,18 @@ public class StorageScreen extends Screen {
                 return false;
             }
 
-            this.minecraft.gameMode.handleInventoryMouseClick(
-                this.player.inventoryMenu.containerId,
-                slot,
-                0,
-                ClickType.CLONE,
-                this.player
-            );
-            this.carried = this.player.inventoryMenu.getCarried();
+            if (this.carried.isEmpty()) {
+                this.minecraft.gameMode.handleInventoryMouseClick(
+                    this.player.inventoryMenu.containerId,
+                    slot,
+                    0,
+                    ClickType.CLONE,
+                    this.player
+                );
+                this.carried = this.player.inventoryMenu.getCarried();
+            } else {
+                this.startQuickCraft(button);
+            }
             return true;
         }
 
@@ -692,24 +756,40 @@ public class StorageScreen extends Screen {
 
     private long lastClickTime;
     private int lastClickSlot = -1;
+    private int lastClickButton = -1;
+    private boolean doubleclick;
 
-    private boolean isDoubleClick(int slot) {
-        boolean sameSlot = slot == this.lastClickSlot;
+    private boolean isDoubleClick(int slot, int button) {
+        final boolean quick = slot == this.lastClickSlot
+            && System.currentTimeMillis() - this.lastClickTime < 250L
+            && button == this.lastClickButton;
         this.lastClickSlot = slot;
-        if (sameSlot) {
-            long now = System.currentTimeMillis();
-            boolean quick = now - this.lastClickTime < 250L;
-            this.lastClickTime = now;
-            return quick;
-        }
         this.lastClickTime = System.currentTimeMillis();
-        return false;
+        this.lastClickButton = button;
+        return quick;
     }
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (this.quickMoveDragging) {
+            if (button == 0 && Screen.hasShiftDown()) {
+                int inventorySlot = this.getInventorySlot(mouseX, mouseY);
+                if (inventorySlot != -1) {
+                    this.queueQuickMove(inventorySlot);
+                }
+            }
+            return true;
+        }
         if (!this.quickCrafting || button != this.quickCraftingButton || this.carried.isEmpty()) {
             return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        }
+
+        Integer storageSlot = this.getStorageSlot(mouseX, mouseY);
+        if (storageSlot != null) {
+            if (button == 2 && this.player.hasInfiniteMaterials()) {
+                this.quickCraftStorageSlots.add(storageSlot);
+            }
+            return true;
         }
 
         int inventorySlot = this.getInventorySlot(mouseX, mouseY);
@@ -717,7 +797,7 @@ public class StorageScreen extends Screen {
             int screenSlot = this.getScreenSlot(inventorySlot);
             Slot slot = this.player.inventoryMenu.getSlot(screenSlot);
             if (
-                this.carried.getCount() > this.quickCraftSlots.size()
+                (this.carried.getCount() > this.quickCraftSlots.size() || button == 2)
                 && AbstractContainerMenu.canItemQuickReplace(slot, this.carried, true)
                 && slot.mayPlace(this.carried)
                 && this.player.inventoryMenu.canDragTo(slot)
@@ -731,19 +811,30 @@ public class StorageScreen extends Screen {
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         super.mouseReleased(mouseX, mouseY, button);
-        if (this.pickupAllSlot != -1) {
+        if (this.quickMoveDragging) {
+            this.quickMoveDragging = false;
+            this.quickMoveSlots.clear();
+            this.flushQuickMoves();
+            StorageClientStub.endUndoGroup(this.sourcePos);
+            return true;
+        }
+        if (this.doubleclick) {
+            this.doubleclick = false;
+            this.lastClickTime = 0L;
             if (button == 0 && this.minecraft.gameMode != null) {
-                this.player.inventoryMenu.setCarried(this.carried);
-                this.minecraft.gameMode.handleInventoryMouseClick(
-                    this.player.inventoryMenu.containerId,
-                    this.pickupAllSlot,
-                    0,
-                    ClickType.PICKUP_ALL,
-                    this.player
-                );
-                this.carried = this.player.inventoryMenu.getCarried();
+                int inventorySlot = this.getInventorySlot(mouseX, mouseY);
+                if (inventorySlot == this.lastClickedInventorySlot) {
+                    this.player.inventoryMenu.setCarried(this.carried);
+                    this.minecraft.gameMode.handleInventoryMouseClick(
+                        this.player.inventoryMenu.containerId,
+                        this.getScreenSlot(inventorySlot),
+                        0,
+                        ClickType.PICKUP_ALL,
+                        this.player
+                    );
+                    this.carried = this.player.inventoryMenu.getCarried();
+                }
             }
-            this.pickupAllSlot = -1;
             return true;
         }
         if (!this.quickCrafting) {
@@ -752,7 +843,7 @@ public class StorageScreen extends Screen {
 
         if (button == this.quickCraftingButton && this.minecraft.gameMode != null) {
             this.player.inventoryMenu.setCarried(this.carried);
-            if (this.quickCraftSlots.isEmpty()) {
+            if (this.quickCraftSlots.isEmpty() && this.quickCraftStorageSlots.isEmpty()) {
                 int inventorySlot = this.getInventorySlot(mouseX, mouseY);
                 if (inventorySlot != -1) {
                     this.minecraft.gameMode.handleInventoryMouseClick(
@@ -764,14 +855,113 @@ public class StorageScreen extends Screen {
                     );
                 }
             } else {
-                this.quickCraftToSlots(button);
+                if (!this.quickCraftStorageSlots.isEmpty()) {
+                    this.clonePutToStorage();
+                }
+                if (!this.quickCraftSlots.isEmpty()) {
+                    this.quickCraftToSlots(button);
+                }
             }
             this.carried = this.player.inventoryMenu.getCarried();
+            if (this.carried.isEmpty()) {
+                this.lastClickTime = 0L;
+            }
         }
 
         this.quickCrafting = false;
         this.quickCraftSlots.clear();
+        this.quickCraftStorageSlots.clear();
         return true;
+    }
+
+    private void startQuickCraft(int button) {
+        this.quickCrafting = true;
+        this.quickCraftingButton = button;
+        this.quickCraftSlots.clear();
+        this.quickCraftStorageSlots.clear();
+    }
+
+    private void clonePutToStorage() {
+        if (this.quickCraftStorageSlots.isEmpty()) {
+            return;
+        }
+        IntList slots = new IntArrayList(this.quickCraftStorageSlots);
+        StorageClientStub.clonePut(this.sourcePos, slots).whenCompleteAsync(
+            (changed, error) -> {
+                if (error != null || !changed) {
+                    return;
+                }
+                if (this.preservingOrder) {
+                    this.interactionSyncPending = true;
+                    this.syncPreservedOrder();
+                    return;
+                }
+                this.reorder(false);
+            },
+            this.screenExecutor
+        );
+    }
+
+    private void queueQuickMove(int slot) {
+        if (this.quickMoveSlots.add(slot)) {
+            this.pendingQuickMoveSlots.add(slot);
+        }
+    }
+
+    private void flushQuickMoves() {
+        if (this.pendingQuickMoveSlots.isEmpty()) {
+            return;
+        }
+        IntList slots = new IntArrayList(this.pendingQuickMoveSlots);
+        this.pendingQuickMoveSlots.clear();
+        StorageClientStub.quickMoveToStorage(this.sourcePos, slots).whenCompleteAsync(
+            (changed, error) -> {
+                if (error != null || !changed) {
+                    return;
+                }
+                if (this.preservingOrder) {
+                    this.interactionSyncPending = true;
+                    this.syncPreservedOrder();
+                    return;
+                }
+                this.reorder(false);
+            },
+            this.screenExecutor
+        );
+    }
+
+    private void moveSameToStorage(int slot) {
+        StorageClientStub.moveSameToStorage(this.sourcePos, slot).whenCompleteAsync(
+            (changed, error) -> {
+                if (error != null || !changed) {
+                    return;
+                }
+                if (this.preservingOrder) {
+                    this.interactionSyncPending = true;
+                    this.syncPreservedOrder();
+                    return;
+                }
+                this.reorder(false);
+            },
+            this.screenExecutor
+        );
+    }
+
+    private void undoLastMove() {
+        StorageClientStub.undo(this.sourcePos).whenCompleteAsync(
+            (result, error) -> {
+                if (error != null || !result.changed()) {
+                    return;
+                }
+                if (this.preservingOrder) {
+                    this.interactionSyncPending = true;
+                    this.syncPreservedOrder();
+                    return;
+                }
+                this.reorder(false);
+            },
+            this.screenExecutor
+        );
     }
 
     private void quickCraftToSlots(int button) {
@@ -880,6 +1070,10 @@ public class StorageScreen extends Screen {
         }
 
         InputConstants.Key key = InputConstants.getKey(keyCode, scanCode);
+        if (Screen.hasControlDown() && keyCode == InputConstants.KEY_Z) {
+            this.undoLastMove();
+            return true;
+        }
         if (super.keyPressed(keyCode, scanCode, modifiers)) {
             return true;
         } else if (this.minecraft.options.keyInventory.isActiveAndMatches(key)) {
@@ -1568,7 +1762,7 @@ public class StorageScreen extends Screen {
 
         // 抬高 z 使耐久条与数量数字绘制在物品图标之上
         graphics.pose().pushPose();
-        graphics.pose().translate(0, 0, 300);
+        graphics.pose().translate(0, 0, 200);
 
         // 耐久条
         if (stack.isBarVisible()) {

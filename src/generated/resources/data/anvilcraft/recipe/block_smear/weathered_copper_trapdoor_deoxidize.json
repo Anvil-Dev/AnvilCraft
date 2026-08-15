@@ -1,0 +1,25 @@
+{
+  "type": "anvilcraft:block_smear",
+  "inputs": [
+    {
+      "blocks": [
+        "minecraft:grindstone",
+        "anvilcraft:ember_grindstone",
+        "anvilcraft:frost_grindstone",
+        "anvilcraft:royal_grindstone",
+        "anvilcraft:transcendence_grindstone"
+      ],
+      "properties": [
+        {
+          "face": "ceiling"
+        }
+      ]
+    },
+    {
+      "blocks": "minecraft:oxidized_copper_trapdoor"
+    }
+  ],
+  "result": {
+    "block": "minecraft:weathered_copper_trapdoor"
+  }
+}

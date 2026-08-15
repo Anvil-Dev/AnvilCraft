@@ -52,6 +52,43 @@ public class ProceduralProcessRecipeLoader {
             )
             .save(provider);
 
+        // 能质逆变器
+        ProceduralProcessRecipeBuilder.of(ModBlocks.LASER_RECEIVER.get())
+            .addStep(
+                BlockProcessingRecipe.builder()
+                    .fakeNeutronIrradiation(ModBlocks.LASER_RECEIVER.get(), IrradiatorType.MASS)
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .addStep(
+                BlockProcessingRecipe.builder()
+                    .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.ENERGY)
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .addStep(
+                ItemInjectRecipe.builder()
+                    .inputBlock(ModBlocks.WIP_BLOCK.get())
+                    .requires(ModItems.TRANSCENDIUM_NUGGET)
+                    .resultBlock(ModBlocks.WIP_BLOCK)
+                    .buildRecipe()
+            )
+            .result(ModBlocks.MASS_ENERGY_INVERTER)
+            .icon(ModBlocks.MASS_ENERGY_INVERTER.asStack())
+            .displayedModels(
+                AnvilCraft.of("mass_energy_inverter_wip"),
+                AnvilCraft.of("mass_energy_inverter_wip_2"),
+                AnvilCraft.of("mass_energy_inverter_wip_3")
+            )
+            .loop(3)
+            .multipleLoopFirstStep(
+                BlockProcessingRecipe.builder()
+                    .fakeNeutronIrradiation(ModBlocks.WIP_BLOCK.get(), IrradiatorType.MASS)
+                    .result(ModBlocks.WIP_BLOCK.get())
+                    .buildRecipe()
+            )
+            .save(provider);
+
         ProceduralProcessRecipeBuilder.of(Blocks.PURPUR_BLOCK)
             .addStep(
                 ItemInjectRecipe.builder()

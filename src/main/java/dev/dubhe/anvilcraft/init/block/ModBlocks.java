@@ -93,6 +93,7 @@ import dev.dubhe.anvilcraft.block.LoadMonitorBlock;
 import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MagneticChuteBlock;
 import dev.dubhe.anvilcraft.block.MagnetoElectricCoreBlock;
+import dev.dubhe.anvilcraft.block.MassEnergyInverterBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
 import dev.dubhe.anvilcraft.block.MengerSpongeBlock;
 import dev.dubhe.anvilcraft.block.MilkCauldronBlock;
@@ -1558,6 +1559,19 @@ public class ModBlocks {
         .build()
         .register();
 
+    public static final BlockEntry<MassEnergyInverterBlock> MASS_ENERGY_INVERTER = REGISTRUM.block(
+            "mass_energy_inverter",
+            MassEnergyInverterBlock::new
+        )
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties.isValidSpawn(Blocks::never).noOcclusion())
+        .blockstate(DataGenUtil::simple)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .item()
+        .model((ctx, provider) -> provider.blockItem(ctx))
+        .build()
+        .register();
+
     public static final BlockEntry<MengerSpongeBlock> MENGER_SPONGE = REGISTRUM.block("menger_sponge", MengerSpongeBlock::new)
         .initialProperties(() -> Blocks.SPONGE)
         .properties(properties -> properties.noOcclusion().isValidSpawn(Blocks::never))
@@ -1604,7 +1618,7 @@ public class ModBlocks {
     public static final BlockEntry<ShulkerContainerBlock> SHULKER_CONTAINER = REGISTRUM
         .block("shulker_container", ShulkerContainerBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .loot(FlexibleMultiPartBlock::loot)
+        .loot(ShulkerContainerBlock::loot)
         .properties(properties -> properties
             .noOcclusion()
             .explosionResistance(1200)
@@ -1626,7 +1640,7 @@ public class ModBlocks {
     public static final BlockEntry<HyperdimensionStorageStationBlock> HYPERDIMENSION_STORAGE_STATION = REGISTRUM
         .block("hyperdimension_storage_station", HyperdimensionStorageStationBlock::new)
         .initialProperties(() -> Blocks.NETHERITE_BLOCK)
-        .loot(SimpleMultiPartBlock::loot)
+        .loot(HyperdimensionStorageStationBlock::loot)
         .properties(properties -> properties
             .noOcclusion()
             .explosionResistance(1200)

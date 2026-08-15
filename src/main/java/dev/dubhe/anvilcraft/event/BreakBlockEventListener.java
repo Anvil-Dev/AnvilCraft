@@ -1,5 +1,8 @@
 package dev.dubhe.anvilcraft.event;
 
+import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
+import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.ResonatorItem;
@@ -13,6 +16,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -30,6 +36,32 @@ public class BreakBlockEventListener {
             return;
         }
         if (InfiniteFluidTankBreakProtection.shouldCancelBreak(player, pos)) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void preventCrateBreak(BlockEvent.BreakEvent event) {
+        Player player = event.getPlayer();
+        if (player.isShiftKeyDown()) return;
+        if (!(player.level() instanceof ServerLevel level)) return;
+        BlockPos pos = event.getPos();
+        BlockState state = level.getBlockState(pos);
+        Block block = state.getBlock();
+        BlockEntity blockEntity;
+        if (block instanceof LargeCrateBlock largeCrate) {
+            blockEntity = level.getBlockEntity(largeCrate.getMainPartPos(pos, state));
+        } else if (block instanceof CrateBlock) {
+            blockEntity = level.getBlockEntity(pos);
+        } else {
+            return;
+        }
+        if (!(blockEntity instanceof StorageBlockEntity be)) return;
+        if (be.getTotalCount() > 1000) {
+            player.displayClientMessage(
+                Component.translatable("screen.anvilcraft.tooltip.crate.break_requires_shift").withStyle(ChatFormatting.RED),
+                true
+            );
             event.setCanceled(true);
         }
     }

@@ -12,6 +12,8 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -78,7 +80,7 @@ public class LargeCrateBlock
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
         if (blockEntity instanceof LargeCrateBlockEntity be) {
-            be.playerWillDestroy(level, pos, state, player);
+            be.dropContents(level, this.getMainPartPos(pos, state));
         }
 
         return super.playerWillDestroy(level, pos, state, player);
@@ -99,6 +101,7 @@ public class LargeCrateBlock
             if (player instanceof ServerPlayer) {
                 return InteractionResult.sidedSuccess(false);
             } else if (level.isClientSide()) {
+                level.playSound(player, pos, SoundEvents.BARREL_OPEN, SoundSource.BLOCKS, 1.0F, 1.0F);
                 DistExecutor.run(Dist.CLIENT, () -> () -> StorageScreen.openScreen(entity.getBlockPos()));
                 return InteractionResult.SUCCESS;
             }

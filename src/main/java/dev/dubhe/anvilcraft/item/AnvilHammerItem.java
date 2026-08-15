@@ -4,6 +4,9 @@ import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
+import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
@@ -19,6 +22,7 @@ import dev.dubhe.anvilcraft.network.RocketJumpPacket;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
 import dev.dubhe.anvilcraft.util.InfiniteFluidTankBreakProtection;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
@@ -118,6 +122,19 @@ public class AnvilHammerItem extends Item implements Equipable {
             InfiniteFluidTankBreakProtection.showToolBreakDenied(player);
             return;
         }
+        BlockState mainState = level.getBlockState(pos);
+        Block mainBlock = mainState.getBlock();
+        if (
+            (mainBlock instanceof CrateBlock || mainBlock instanceof LargeCrateBlock)
+            && level.getBlockEntity(pos) instanceof StorageBlockEntity storage
+            && storage.getTotalCount() > 1000
+        ) {
+            player.displayClientMessage(
+                Component.translatable("screen.anvilcraft.tooltip.crate.hammer_break_denied").withStyle(ChatFormatting.RED),
+                true
+            );
+            return;
+        }
         state = level.getBlockState(pos);
         block = state.getBlock();
         BlockPos posToRemove = pos;
@@ -125,8 +142,8 @@ public class AnvilHammerItem extends Item implements Equipable {
         BlockEvent.BreakEvent breakEvent = new BlockEvent.BreakEvent(level, posToRemove, state, player);
         NeoForge.EVENT_BUS.post(breakEvent);
         if (breakEvent.isCanceled()) return;
-        final List<ItemStack> drops = player.isCreative() ? List.of() : BreakBlockUtil.dropSilkTouch(level, pos);
         block.playerWillDestroy(level, posToRemove, state, player);
+        final List<ItemStack> drops = player.isCreative() ? List.of() : BreakBlockUtil.dropSilkTouch(level, pos);
         level.destroyBlock(posToRemove, false);
         if (player.isCreative()) return;
         if (!player.isAlive() && player.hasDisconnected()) {

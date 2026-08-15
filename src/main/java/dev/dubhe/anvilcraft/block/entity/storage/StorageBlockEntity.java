@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.block.entity.storage;
 
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.saved.storage.StorageType;
+import dev.dubhe.anvilcraft.saved.storage.Storages;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -11,8 +13,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -43,6 +43,11 @@ public class StorageBlockEntity extends BlockEntity {
             BlockState state = this.getBlockState();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, Block.UPDATE_ALL);
         }
+    }
+
+    public void clearId() {
+        this.id = null;
+        this.setChanged();
     }
 
     @Override
@@ -89,13 +94,35 @@ public class StorageBlockEntity extends BlockEntity {
         builder.set(ModComponents.STORAGE, new StorageRef(this.storageType, this.id));
     }
 
-    public void playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (!level.isClientSide() && player.isCreative() && this.getId() != null) {
-            ItemStack itemStack = new ItemStack(state.getBlock());
-            itemStack.applyComponents(this.collectComponents());
-            ItemEntity entity = new ItemEntity(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, itemStack);
-            entity.setDefaultPickUpDelay();
-            level.addFreshEntity(entity);
+    public long getTotalCount() {
+        if (this.id == null) {
+            return 0;
+        }
+        return Storages.get().get(this.id)
+            .map(storage -> {
+                UnlimitedItemStacksResourceHandler items = storage.getItems();
+                long total = 0;
+                for (int i = 0; i < items.size(); i++) {
+                    total += items.getAmountAsLong(i);
+                }
+                return total;
+            })
+            .orElse(0L);
+    }
+
+    public void dropContents(Level level, BlockPos pos) {
+        if (this.id != null) {
+            Storages.get().get(this.id).ifPresent(storage -> {
+                UnlimitedItemStacksResourceHandler items = storage.getItems();
+                for (int i = 0; i < items.size(); i++) {
+                    ItemStack stack = items.getUnlimitedStackInSlot(i).toStack();
+                    if (stack.isEmpty()) continue;
+                    while (!stack.isEmpty()) {
+                        Block.popResource(level, pos, stack.split(Math.min(64, stack.getCount())));
+                    }
+                }
+                Storages.get().remove(this.id);
+            });
         }
     }
 }

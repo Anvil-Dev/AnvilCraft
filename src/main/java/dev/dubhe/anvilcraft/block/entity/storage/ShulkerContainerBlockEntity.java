@@ -63,15 +63,14 @@ public class ShulkerContainerBlockEntity extends StorageBlockEntity {
         if (this.remove || this.level == null) {
             return;
         }
-        Set<UUID> nearbyOpeners = new HashSet<>();
-        for (Player player : this.level.players()) {
-            if (!player.hasContainerOpen()) continue;
-            double interactionRange = player.blockInteractionRange();
-            if (player.distanceToSqr(this.worldPosition.getCenter()) < interactionRange * interactionRange) {
-                nearbyOpeners.add(player.getUUID());
+        this.openers.removeIf(uuid -> {
+            Player player = this.level.getPlayerByUUID(uuid);
+            if (player == null || !player.isAlive()) {
+                return true;
             }
-        }
-        this.openers.retainAll(nearbyOpeners);
+            double interactionRange = player.blockInteractionRange();
+            return player.distanceToSqr(this.worldPosition.getCenter()) >= interactionRange * interactionRange;
+        });
         this.openersCounter.recheckOpeners(this.level, this.worldPosition, this.getBlockState());
         if (this.openersCounter.getOpenerCount() == 0) {
             ShulkerContainerBlockEntity.setOpened(this.level, this.worldPosition, this.getBlockState(), false);

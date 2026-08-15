@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.anvil;
 import dev.anvilcraft.lib.v2.recipe.AnvilLibRecipe;
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
+import dev.dubhe.anvilcraft.block.MassEnergyInverterBlock;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.MassInjectRecipe;
@@ -50,7 +51,11 @@ public class MassInjectBehavior implements IAnvilBehavior {
             if (itemEntity.getItem().isEmpty()) itemEntity.discard();
             if (remainingProcessCount <= 0) break;
         }
-        compressor.injectMass(totalMassConsumed);
+        long mass = totalMassConsumed;
+        if (mass > 0 && MassEnergyInverterBlock.hasAdjacentInverter(level, hitBlockPos)) {
+            mass *= 2;
+        }
+        compressor.injectMass(mass);
         return true;
     }
 }

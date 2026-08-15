@@ -9,13 +9,17 @@ import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSuperBigBlock;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
+import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.inventory.tooltip.StorageTooltip;
 import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
+import dev.dubhe.anvilcraft.item.property.component.StorageRef;
+import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.util.UnitUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -26,17 +30,26 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentUtils;
 import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ItemTooltipManager {
 
     private static final Map<Item, String> NORMAL = Maps.newHashMap();
     private static final Map<Item, String> SHIFT = Maps.newHashMap();
+    private static final Map<UUID, StorageServerStub.StorageUsage> STORAGE_USAGE = new ConcurrentHashMap<>();
+    private static final Map<UUID, Long> STORAGE_USAGE_TIMES = new ConcurrentHashMap<>();
+    private static final Set<UUID> STORAGE_USAGE_PENDING = ConcurrentHashMap.newKeySet();
+    private static final long STORAGE_USAGE_REFRESH_INTERVAL = 2000L;
 
     static {
         NORMAL.put(ModItems.MAGNET.get(), "Attract surrounding items when use");
@@ -369,6 +382,9 @@ public class ItemTooltipManager {
         );
         NORMAL.put(ModBlocks.PUMP.asItem(), "Pumps fluids, consumes 32 kW");
         NORMAL.put(ModBlocks.CREATIVE_CRATE.asItem(), "Infinite item storage and supply");
+        NORMAL.put(ModBlocks.CRATE.asItem(), "Stores up to 2048 space of items");
+        NORMAL.put(ModBlocks.LARGE_CRATE.asItem(), "A huge 3x3x3 crate, stores up to 65536 space of items");
+        NORMAL.put(ModBlocks.SHULKER_CONTAINER.asItem(), "A space-folding container upgraded from a Large Crate");
         NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
         NORMAL.put(ModBlocks.FLUID_TANK.asItem(), "Stores fluids");
         NORMAL.put(ModBlocks.LARGE_FLUID_TANK.asItem(), "Stores multiple fluids");
@@ -639,6 +655,26 @@ public class ItemTooltipManager {
                 Survival players left-click to take out items"""
         );
         SHIFT.put(
+            ModBlocks.CRATE.asItem(), """
+                Can contain 2048 items
+                Breaking it drops the contents
+                When it holds more than 1000 items, hold Shift to break it"""
+        );
+        SHIFT.put(
+            ModBlocks.LARGE_CRATE.asItem(), """
+                Can contain 65536 items
+                Breaking it drops the contents
+                When it holds more than 1000 items, hold Shift to break it
+                Can update to Shulker Container"""
+        );
+        SHIFT.put(
+            ModBlocks.SHULKER_CONTAINER.asItem(), """
+                Can contain 65536 types of items, each type contain 65536 items
+                Breaking it drops the container with its items stored inside
+                Drop Space Overcompressors on top and strike with an anvil to expand capacity
+                Each one doubles the storage space (up to 4)"""
+        );
+        SHIFT.put(
             ModBlocks.CREATIVE_FLUID_TANK.asItem(), """
                 Provides infinite fluid of a set type: fill fluid inside to configure
                 Fluid will not be consumed when extracted
@@ -885,6 +921,43 @@ public class ItemTooltipManager {
                 "tooltip.anvilcraft.item.amulet_box.fullness", contents.usage(), AmuletBoxItem.CAPACITY
             ).withStyle(ChatFormatting.GRAY));
         }
+    }
+
+    public static Optional<TooltipComponent> getStorageTooltip(ItemStack stack) {
+        StorageRef ref = stack.get(ModComponents.STORAGE);
+        if (ref == null || ref.id().isEmpty()) {
+            return Optional.empty();
+        }
+        UUID storageId = ref.id().get();
+        StorageServerStub.StorageUsage usage = STORAGE_USAGE.get(storageId);
+        if (
+            usage == null
+            || System.currentTimeMillis() - STORAGE_USAGE_TIMES.getOrDefault(storageId, 0L)
+            > STORAGE_USAGE_REFRESH_INTERVAL
+        ) {
+            ItemTooltipManager.requestStorageUsage(storageId);
+        }
+        if (usage == null || usage.typeLimit() <= 0 || usage.typeLimit() == Integer.MAX_VALUE) {
+            return Optional.empty();
+        }
+        return Optional.of(new StorageTooltip(usage.usedTypes(), usage.typeLimit(), usage.types()));
+    }
+
+    private static void requestStorageUsage(UUID storageId) {
+        if (Minecraft.getInstance().player == null) {
+            return;
+        }
+        if (!STORAGE_USAGE_PENDING.add(storageId)) {
+            return;
+        }
+        StorageClientStub.loadUsage(storageId).whenComplete((usage, error) -> {
+            STORAGE_USAGE_PENDING.remove(storageId);
+            if (error != null || usage == null || usage.typeLimit() <= 0) {
+                return;
+            }
+            STORAGE_USAGE.put(storageId, usage);
+            STORAGE_USAGE_TIMES.put(storageId, System.currentTimeMillis());
+        });
     }
 
     /**
