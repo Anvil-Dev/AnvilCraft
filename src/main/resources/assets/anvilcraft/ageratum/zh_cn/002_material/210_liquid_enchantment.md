@@ -36,7 +36,7 @@ items:
 
 通过<ref item="anvilcraft:auto_enchanting_table"/>附魔到物品上
 
-1级附魔对应1mb液态魔咒、2级对应2mB，3级4mB、4级8mB、5级16mB...以此类推
+1级附魔对应1mB液态魔咒、2级对应2mB，3级4mB、4级8mB、5级16mB...以此类推
 
 # 魔咒复制
 
