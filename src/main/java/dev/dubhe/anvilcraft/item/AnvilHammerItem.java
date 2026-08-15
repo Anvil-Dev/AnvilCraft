@@ -142,8 +142,8 @@ public class AnvilHammerItem extends Item implements Equipable {
         BlockEvent.BreakEvent breakEvent = new BlockEvent.BreakEvent(level, posToRemove, state, player);
         NeoForge.EVENT_BUS.post(breakEvent);
         if (breakEvent.isCanceled()) return;
-        final List<ItemStack> drops = player.isCreative() ? List.of() : BreakBlockUtil.dropSilkTouch(level, pos);
         block.playerWillDestroy(level, posToRemove, state, player);
+        final List<ItemStack> drops = player.isCreative() ? List.of() : BreakBlockUtil.dropSilkTouch(level, pos);
         level.destroyBlock(posToRemove, false);
         if (player.isCreative()) return;
         if (!player.isAlive() && player.hasDisconnected()) {

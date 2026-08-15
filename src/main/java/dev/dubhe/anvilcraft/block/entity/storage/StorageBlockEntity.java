@@ -45,6 +45,11 @@ public class StorageBlockEntity extends BlockEntity {
         }
     }
 
+    public void clearId() {
+        this.id = null;
+        this.setChanged();
+    }
+
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         if (this.id != null) {

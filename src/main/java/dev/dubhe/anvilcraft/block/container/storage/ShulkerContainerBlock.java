@@ -249,17 +249,23 @@ public class ShulkerContainerBlock
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (player.isCreative() && level instanceof ServerLevel serverLevel) {
+        if (level instanceof ServerLevel serverLevel) {
             BlockPos mainPos = this.getMainPartPos(pos, state);
             BlockState mainState = level.getBlockState(mainPos);
             BlockEntity blockEntity = level.getBlockEntity(mainPos);
-            if (mainState.is(this) && blockEntity instanceof ShulkerContainerBlockEntity) {
-                LootParams.Builder builder = new LootParams.Builder(serverLevel)
-                    .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(mainPos))
-                    .withParameter(LootContextParams.TOOL, player.getMainHandItem())
-                    .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
-                for (ItemStack stack : mainState.getDrops(builder)) {
-                    Block.popResource(serverLevel, mainPos, stack);
+            if (mainState.is(this) && blockEntity instanceof ShulkerContainerBlockEntity storage) {
+                boolean empty = storage.getTotalCount() == 0;
+                if (empty) {
+                    storage.clearId();
+                }
+                if (player.isCreative() && !empty) {
+                    LootParams.Builder builder = new LootParams.Builder(serverLevel)
+                        .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(mainPos))
+                        .withParameter(LootContextParams.TOOL, player.getMainHandItem())
+                        .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
+                    for (ItemStack stack : mainState.getDrops(builder)) {
+                        Block.popResource(serverLevel, mainPos, stack);
+                    }
                 }
             }
         }
