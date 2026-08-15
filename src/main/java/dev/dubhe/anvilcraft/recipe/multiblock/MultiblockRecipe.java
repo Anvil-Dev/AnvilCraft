@@ -74,7 +74,7 @@ public class MultiblockRecipe implements IMultiblockRecipe, IDatagen {
 
     @Override
     public boolean matches(MultiblockInput input, Level level) {
-        return MultiblockUtil.match(this.pattern, input)
+        return MultiblockUtil.match(this.pattern, input, level)
             .map(rotation -> {
                 this.matchedRotation = rotation;
                 return true;

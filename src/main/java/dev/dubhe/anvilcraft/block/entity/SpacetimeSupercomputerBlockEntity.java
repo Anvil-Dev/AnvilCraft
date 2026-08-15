@@ -228,7 +228,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
-        CompoundTag tag = new CompoundTag();
+        CompoundTag tag = super.getUpdateTag(registries);
         CompoundTag processing = new CompoundTag();
         if (this.processingRecipe != null) {
             processing.putString("recipe", Objects.requireNonNull(this.processingRecipe.id()).toString());

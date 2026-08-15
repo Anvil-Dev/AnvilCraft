@@ -27,7 +27,6 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.NotNull;
 
@@ -42,7 +41,6 @@ import javax.annotation.Nullable;
 public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
     public final List<MultiblockDefinition> definitions;
     public final ItemStack result;
-    private Rotation matchedRotation = Rotation.NONE;
 
     public Multiblock4DRecipe(List<MultiblockDefinition> definitions, ItemStack result) {
         this.definitions = definitions;
@@ -85,18 +83,20 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
         if (this.definitions.isEmpty()) {
             return false;
         }
-        // 进行中的四维合成其首步结构已被消耗，需沿用中心方块上记录的配方继续，而不是重新匹配
+        // 进行中的四维合成其首步结构已被消耗，需沿用中心方块上记录的配方继续，而不是重新匹配。
+        // 配方管理器重载后会重建 RecipeHolder 实例，因此按配方 id 重解析后比较，而不是引用相等。
         if (level.getBlockEntity(ctx.centerPos()) instanceof SpacetimeSupercomputerBlockEntity supercomputer
-            && supercomputer.getProcessingRecipe() != null
-            && supercomputer.getProcessingRecipe().value() == this) {
-            return true;
-        }
-        return MultiblockUtil.match(this.definitions.getFirst(), ctx)
-            .map(rotation -> {
-                this.matchedRotation = rotation;
+            && supercomputer.getProcessingRecipe() != null) {
+            RecipeHolder<Multiblock4DRecipe> current = level.getRecipeManager()
+                .byKey(supercomputer.getProcessingRecipe().id())
+                .filter(ref -> ref.value() instanceof Multiblock4DRecipe)
+                .map(Multiblock4DRecipe::castHolder)
+                .orElse(null);
+            if (current != null && current.value() == this) {
                 return true;
-            })
-            .orElse(false);
+            }
+        }
+        return MultiblockUtil.match(this.definitions.getFirst(), ctx, level).isPresent();
     }
 
     @Override
@@ -111,16 +111,21 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
         }
         RecipeHolder<Multiblock4DRecipe> processing = supercomputer.getProcessingRecipe();
         if (processing == null) {
-            MultiblockUtil.match(this.definitions.getFirst(), ctx)
+            MultiblockUtil.match(this.definitions.getFirst(), ctx, level)
                 .ifPresent(rotation -> {
-                    List<ItemStack> consumed = MultiblockUtil.consume(
-                        level, this.definitions.getFirst(), ctx, inputCorner, rotation);
                     if (this.definitions.size() == 1) {
+                        MultiblockUtil.consume(level, this.definitions.getFirst(), ctx, inputCorner, rotation);
                         AnvilUtil.dropItems(List.of(this.result.copy()), level, landPos.below().getCenter());
                         return;
                     }
+                    RecipeHolder<Multiblock4DRecipe> holder = this.findHolder(level);
+                    if (holder == null) {
+                        return;
+                    }
+                    List<ItemStack> consumed = MultiblockUtil.consume(
+                        level, this.definitions.getFirst(), ctx, inputCorner, rotation);
                     supercomputer.addPendingDrops(consumed);
-                    supercomputer.setProcessingRecipe(this.findHolder(level));
+                    supercomputer.setProcessingRecipe(holder);
                     supercomputer.setProcessingStep(1);
                     supercomputer.setProcessingSize(ctx.size());
                 });
@@ -132,7 +137,7 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
         if (step < 0 || step >= defs.size()) {
             return;
         }
-        MultiblockUtil.match(defs.get(step), ctx).ifPresent(rotation -> {
+        MultiblockUtil.match(defs.get(step), ctx, level).ifPresent(rotation -> {
             List<ItemStack> consumed = MultiblockUtil.consume(level, defs.get(step), ctx, inputCorner, rotation);
             int next = step + 1;
             supercomputer.setProcessingStep(next);
@@ -155,6 +160,11 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
             .filter(holder -> holder.value() == this)
             .findFirst()
             .orElse(null);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static RecipeHolder<Multiblock4DRecipe> castHolder(RecipeHolder<?> holder) {
+        return (RecipeHolder<Multiblock4DRecipe>) holder;
     }
 
     @Override

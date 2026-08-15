@@ -15,6 +15,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.ArrayList;
@@ -37,23 +38,41 @@ public final class MultiblockUtil {
      *
      * @param def   多方块定义
      * @param input 输入区域
+     * @param level 维度，用于匹配 NBT 谓词
      * @return 匹配成功的旋转
      */
-    public static Optional<Rotation> match(MultiblockDefinition def, MultiblockInput input) {
+    public static Optional<Rotation> match(MultiblockDefinition def, MultiblockInput input, Level level) {
         int size = input.size();
         DefinitionSerialization serialization = DefinitionSerialization.fromDefinition(def);
         String[][] grid = serialization.grid();
-        int gridSize = grid.length;
-        if (gridSize > size) {
+        if (MultiblockUtil.exceedsSize(grid, size)) {
             return Optional.empty();
         }
-        int[] offsets = MultiblockUtil.offsets(size, gridSize);
+        BlockPos inputCorner = input.centerPos().offset(-size / 2, -size, -size / 2);
+        int[] offsets = MultiblockUtil.offsets(size, grid);
         for (Rotation rotation : ROTATIONS) {
-            if (MultiblockUtil.matchesGrid(grid, serialization, input, size, gridSize, rotation, offsets)) {
+            if (MultiblockUtil.matchesGrid(grid, serialization, input, size, rotation, offsets, level, inputCorner)) {
                 return Optional.of(rotation);
             }
         }
         return Optional.empty();
+    }
+
+    private static boolean exceedsSize(String[][] grid, int size) {
+        if (grid.length > size) {
+            return true;
+        }
+        for (String[] layer : grid) {
+            if (layer.length > size) {
+                return true;
+            }
+            for (String line : layer) {
+                if (line.length() > size) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -77,16 +96,16 @@ public final class MultiblockUtil {
         int size = input.size();
         DefinitionSerialization serialization = DefinitionSerialization.fromDefinition(def);
         String[][] grid = serialization.grid();
-        int gridSize = grid.length;
-        if (gridSize > size) {
+        if (MultiblockUtil.exceedsSize(grid, size)) {
             return drops;
         }
         boolean server = level instanceof ServerLevel;
-        int[] offsets = MultiblockUtil.offsets(size, gridSize);
-        for (int gy = 0; gy < gridSize; gy++) {
-            for (int gz = 0; gz < gridSize; gz++) {
-                String line = grid[gy][gz];
-                for (int gx = 0; gx < gridSize; gx++) {
+        int[] offsets = MultiblockUtil.offsets(size, grid);
+        for (int gy = 0; gy < grid.length; gy++) {
+            String[] layer = grid[gy];
+            for (int gz = 0; gz < layer.length; gz++) {
+                String line = layer[gz];
+                for (int gx = 0; gx < line.length(); gx++) {
                     if (line.charAt(gx) == ' ') {
                         continue;
                     }
@@ -111,11 +130,13 @@ public final class MultiblockUtil {
 
     /**
      * 计算网格结构在输入区域内的放置偏移：{offsetX, offsetY, offsetZ}。
-     * 水平居中，垂直贴顶部（结构顶部位于输入区域顶部）。
+     * 水平按各自尺寸居中，垂直贴顶部（结构顶部位于输入区域顶部）。
      */
-    private static int[] offsets(int size, int gridSize) {
-        int horizontal = (size - gridSize) / 2;
-        return new int[]{horizontal, size - gridSize, horizontal};
+    static int[] offsets(int size, String[][] grid) {
+        int sizeY = grid.length;
+        int sizeZ = sizeY == 0 ? 0 : grid[0].length;
+        int sizeX = sizeZ == 0 ? 0 : grid[0][0].length();
+        return new int[]{(size - sizeX) / 2, size - sizeY, (size - sizeZ) / 2};
     }
 
     /**
@@ -146,14 +167,17 @@ public final class MultiblockUtil {
         DefinitionSerialization serialization,
         MultiblockInput input,
         int size,
-        int gridSize,
         Rotation rotation,
-        int[] offsets
+        int[] offsets,
+        Level level,
+        BlockPos inputCorner
     ) {
-        for (int gy = 0; gy < gridSize; gy++) {
-            for (int gz = 0; gz < gridSize; gz++) {
-                for (int gx = 0; gx < gridSize; gx++) {
-                    char symbol = grid[gy][gz].charAt(gx);
+        for (int gy = 0; gy < grid.length; gy++) {
+            String[] layer = grid[gy];
+            for (int gz = 0; gz < layer.length; gz++) {
+                String line = layer[gz];
+                for (int gx = 0; gx < line.length(); gx++) {
+                    char symbol = line.charAt(gx);
                     int x = gx + offsets[0];
                     int y = gy + offsets[1];
                     int z = gz + offsets[2];
@@ -165,8 +189,8 @@ public final class MultiblockUtil {
                         }
                     } else {
                         BlockStatePredicate predicate = serialization.mapping().get(symbol);
-                        // noinspection deprecation
-                        if (predicate == null || !predicate.testWithoutEntity(state.rotate(MultiblockUtil.reverseRotation(rotation)))) {
+                        if (predicate == null
+                            || !MultiblockUtil.testPredicate(predicate, level, inputCorner, state, world, rotation)) {
                             return false;
                         }
                     }
@@ -174,6 +198,23 @@ public final class MultiblockUtil {
             }
         }
         return true;
+    }
+
+    private static boolean testPredicate(
+        BlockStatePredicate predicate,
+        Level level,
+        BlockPos inputCorner,
+        BlockState state,
+        BlockPos world,
+        Rotation rotation
+    ) {
+        @SuppressWarnings("deprecation")
+        BlockState rotated = state.rotate(MultiblockUtil.reverseRotation(rotation));
+        if (!predicate.requiresBlockEntity()) {
+            return predicate.testWithoutEntity(rotated);
+        }
+        BlockEntity entity = level.getBlockEntity(inputCorner.offset(world));
+        return predicate.test(level, rotated, entity);
     }
 
     /**

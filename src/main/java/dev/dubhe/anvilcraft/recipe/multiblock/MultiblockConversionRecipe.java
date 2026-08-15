@@ -94,7 +94,7 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
 
     @Override
     public boolean matches(MultiblockInput input, Level level) {
-        return MultiblockUtil.match(this.inputPattern, input)
+        return MultiblockUtil.match(this.inputPattern, input, level)
             .map(rotation -> {
                 this.matchedRotation = rotation;
                 return true;
@@ -118,10 +118,12 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
         Rotation rotation = this.matchedRotation;
         DefinitionSerialization serialization = DefinitionSerialization.fromDefinition(this.outputPattern);
         String[][] grid = serialization.grid();
+        int[] offsets = MultiblockUtil.offsets(size, grid);
         BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos();
         for (int y = 0; y < grid.length; y++) {
-            for (int z = 0; z < grid[y].length; z++) {
-                String line = grid[y][z];
+            String[] layer = grid[y];
+            for (int z = 0; z < layer.length; z++) {
+                String line = layer[z];
                 for (int x = 0; x < line.length(); x++) {
                     char symbol = line.charAt(x);
                     BlockState newState;
@@ -131,7 +133,8 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
                         newState = MultiblockUtil.toBlockPredicate(serialization.mapping().get(symbol))
                             .getDefaultState();
                     }
-                    BlockPos world = MultiblockUtil.rotatePatternToWorld(x, y, z, rotation, size);
+                    BlockPos world = MultiblockUtil.rotatePatternToWorld(
+                        x + offsets[0], y + offsets[1], z + offsets[2], rotation, size);
                     mpos.setWithOffset(inputCorner, world);
                     // noinspection deprecation
                     level.setBlock(mpos, newState.rotate(rotation), 18);
