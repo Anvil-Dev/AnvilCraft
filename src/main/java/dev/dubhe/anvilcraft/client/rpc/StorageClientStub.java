@@ -105,6 +105,15 @@ public final class StorageClientStub {
         );
     }
 
+    public static CompletableFuture<StorageServerStub.StorageUsage> loadUsage(UUID storageId) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::getStorageUsage,
+            StorageClientStub.playerId(),
+            storageId
+        );
+    }
+
     public static CompletableFuture<StorageServerStub.DepositResult> undo(BlockPos sourcePos) {
         return RPC.invoke(
             RpcTarget.server(),

@@ -379,6 +379,30 @@ public final class StorageServerStub {
         }
     }
 
+    @RemoteCallable(validator = StorageUsageValidator.class)
+    public static StorageUsage getStorageUsage(UUID playerId, UUID storageId) {
+        return Storages.get().get(storageId)
+            .map(storage -> {
+                UnlimitedItemStacksResourceHandler items = storage.getItems();
+                List<ItemStack> representatives = new ArrayList<>();
+                for (int index = 0; index < items.size() && representatives.size() < 9; index++) {
+                    if (items.getAmountAsLong(index) <= 0) continue;
+                    ItemStack stack = items.getUnlimitedStackInSlot(index).toStack().copyWithCount(1);
+                    if (StorageServerStub.containsType(representatives, stack)) continue;
+                    representatives.add(stack);
+                }
+                return new StorageUsage(items.getTypeCount(), items.getTypeLimit(), representatives);
+            })
+            .orElse(new StorageUsage(0, 0, List.of()));
+    }
+
+    private static boolean containsType(List<ItemStack> types, ItemStack stack) {
+        for (ItemStack type : types) {
+            if (ItemStack.isSameItemSameComponents(type, stack)) return true;
+        }
+        return false;
+    }
+
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static DepositResult take(UUID playerId, long sourcePos) {
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
@@ -564,6 +588,22 @@ public final class StorageServerStub {
         StorageServerStub.STUBS.clear();
     }
 
+    public static final class StorageUsageValidator implements IRemoteCallableValidator {
+        @Override
+        public boolean validate(IPayloadContext ctx, Method method, Object[] args) {
+            if (
+                !(ctx.player() instanceof ServerPlayer player)
+                || args.length < 2
+                || !(args[0] instanceof UUID playerId)
+                || !player.getGameProfile().getId().equals(playerId)
+                || !(args[1] instanceof UUID)
+            ) {
+                return false;
+            }
+            return true;
+        }
+    }
+
     public static final class StorageAccessValidator implements IRemoteCallableValidator {
         @Override
         public boolean validate(IPayloadContext ctx, Method method, Object[] args) {
@@ -632,6 +672,18 @@ public final class StorageServerStub {
             Capacity.STREAM_CODEC,
             Metadata::capacity,
             Metadata::new
+        );
+    }
+
+    public record StorageUsage(int usedTypes, int typeLimit, List<ItemStack> types) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, StorageUsage> STREAM_CODEC = StreamCodec.composite(
+            ByteBufCodecs.VAR_INT,
+            StorageUsage::usedTypes,
+            ByteBufCodecs.VAR_INT,
+            StorageUsage::typeLimit,
+            ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list()),
+            StorageUsage::types,
+            StorageUsage::new
         );
     }
 

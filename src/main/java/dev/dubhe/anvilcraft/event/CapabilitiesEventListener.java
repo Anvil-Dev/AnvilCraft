@@ -7,7 +7,10 @@ import dev.dubhe.anvilcraft.api.fluid.EnchantedBookFluidHandler;
 import dev.dubhe.anvilcraft.api.fluid.PowderSnowWrapper;
 import dev.dubhe.anvilcraft.api.fluid.VoidFluidHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.HoneyCauldronWrapper;
+import dev.dubhe.anvilcraft.api.itemhandler.ReadOnlyItemHandlerWrapper;
+import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
 import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.entity.FeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
@@ -82,6 +85,35 @@ public class CapabilitiesEventListener {
             Capabilities.ItemHandler.BLOCK,
             ModBlockEntities.CRATE.get(),
             CapabilitiesEventListener::storageItemHandler
+        );
+        event.registerBlock(
+            Capabilities.ItemHandler.BLOCK,
+            ((level, pos, state, blockEntity, side) -> {
+                if (!(state.getBlock() instanceof ShulkerContainerBlock shulkerContainer)) {
+                    return null;
+                }
+                BlockEntity mainBe = level.getBlockEntity(shulkerContainer.getMainPartPos(pos, state));
+                if (mainBe instanceof StorageBlockEntity storage) {
+                    return ReadOnlyItemHandlerWrapper.wrap(CapabilitiesEventListener.storageItemHandler(storage, side));
+                }
+                return null;
+            }),
+            ModBlocks.SHULKER_CONTAINER.get()
+        );
+
+        event.registerBlock(
+            Capabilities.ItemHandler.BLOCK,
+            ((level, pos, state, blockEntity, side) -> {
+                if (!(state.getBlock() instanceof HyperdimensionStorageStationBlock station)) {
+                    return null;
+                }
+                BlockEntity mainBe = level.getBlockEntity(station.getMainPartPos(pos, state));
+                if (mainBe instanceof StorageBlockEntity storage) {
+                    return ReadOnlyItemHandlerWrapper.wrap(CapabilitiesEventListener.storageItemHandler(storage, side));
+                }
+                return null;
+            }),
+            ModBlocks.HYPERDIMENSION_STORAGE_STATION.get()
         );
 
         event.registerBlock(
