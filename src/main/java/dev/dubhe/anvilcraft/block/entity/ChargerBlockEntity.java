@@ -412,22 +412,24 @@ public class ChargerBlockEntity extends BlockEntity
         BlockState state = level1.getBlockState(blockPos);
         boolean powered = state.getValue(ChargerBlock.POWERED);
         if (grid == null) return;
-        if (timeLeft == 0) {
-            moveItemToTransformingSlot();
-            this.setStartupCoolDown(20);
-        }
         if (powered) {
             this.setStartupCoolDown(20);
-            return;
+        }
+        int powerValueCache = powerValue;
+        if (timeLeft == 0) {
+            moveItemToTransformingSlot();
         }
         if (isFeCharging) {
             powerValue = -(getFeChargingPowerLevel());
+        }
+        if (powerValue < powerValueCache) {
+            this.setStartupCoolDown(20);
         }
         if (startupCoolDown > 0) {
             this.startupCoolDown--;
             return;
         }
-        if (timeLeft > 0 && isGridWorking() && grid.getConsume() <= grid.getGenerate()) {
+        if (timeLeft > 0 && isGridWorking()) {
             if (isFeCharging) {
                 ItemStack processingStack = itemHandler.getStackInSlot(1);
                 if (!processingStack.isEmpty()) {
