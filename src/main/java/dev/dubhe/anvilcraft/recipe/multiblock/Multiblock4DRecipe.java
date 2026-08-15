@@ -88,12 +88,14 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
         // 进行中时只有记录的配方可能匹配，且必须校验当前步结构，避免搭错结构时误匹配或被其他配方选中。
         if (level.getBlockEntity(ctx.centerPos()) instanceof SpacetimeSupercomputerBlockEntity supercomputer
             && supercomputer.getProcessingRecipe() != null) {
-            RecipeHolder<Multiblock4DRecipe> current = level.getRecipeManager()
-                .byKey(supercomputer.getProcessingRecipe().id())
-                .filter(ref -> ref.value() instanceof Multiblock4DRecipe)
-                .map(Multiblock4DRecipe::castHolder)
-                .orElse(null);
-            if (current == null || current.value() != this) {
+            RecipeHolder<Multiblock4DRecipe> current = Multiblock4DRecipe.resolveCurrent(
+                level, supercomputer.getProcessingRecipe());
+            if (current == null) {
+                // 数据包重载已删除该配方：取消进行中的处理并归还已消耗的材料。
+                supercomputer.dropProcessingInputs();
+                return false;
+            }
+            if (current.value() != this) {
                 return false;
             }
             int step = supercomputer.getProcessingStep();
@@ -116,6 +118,14 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
             return;
         }
         RecipeHolder<Multiblock4DRecipe> processing = supercomputer.getProcessingRecipe();
+        // matches() 可能为首步结构相同的另一个配方返回 true（step-0 回退等极端场景），
+        // 但进行中的处理必须沿用记录在方块上的配方，因此入口校验配方身份一致性。
+        if (processing != null) {
+            RecipeHolder<Multiblock4DRecipe> current = Multiblock4DRecipe.resolveCurrent(level, processing);
+            if (current == null || current.value() != this) {
+                return;
+            }
+        }
         if (processing == null) {
             MultiblockUtil.match(this.definitions.getFirst(), ctx, level)
                 .ifPresent(rotation -> {
@@ -137,18 +147,16 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
                 });
             return;
         }
-        Multiblock4DRecipe recipe = processing.value();
-        List<MultiblockDefinition> defs = recipe.getDefinitions();
         int step = supercomputer.getProcessingStep();
-        if (step < 0 || step >= defs.size()) {
+        if (step < 0 || step >= this.definitions.size()) {
             return;
         }
-        MultiblockUtil.match(defs.get(step), ctx, level).ifPresent(rotation -> {
-            List<ItemStack> consumed = MultiblockUtil.consume(level, defs.get(step), ctx, inputCorner, rotation);
+        MultiblockUtil.match(this.definitions.get(step), ctx, level).ifPresent(rotation -> {
+            List<ItemStack> consumed = MultiblockUtil.consume(level, this.definitions.get(step), ctx, inputCorner, rotation);
             int next = step + 1;
             supercomputer.setProcessingStep(next);
-            if (next >= defs.size()) {
-                AnvilUtil.dropItems(List.of(recipe.getResult().copy()), level, landPos.below().getCenter());
+            if (next >= this.definitions.size()) {
+                AnvilUtil.dropItems(List.of(this.result.copy()), level, landPos.below().getCenter());
                 supercomputer.clearPendingDrops();
                 supercomputer.setProcessingRecipe(null);
                 supercomputer.setProcessingStep(-1);
@@ -171,6 +179,22 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
     @SuppressWarnings("unchecked")
     private static RecipeHolder<Multiblock4DRecipe> castHolder(RecipeHolder<?> holder) {
         return (RecipeHolder<Multiblock4DRecipe>) holder;
+    }
+
+    /**
+     * 按配方 id 从配方管理器重新解析记录在方块上的配方。配方管理器重载后会重建
+     * RecipeHolder 实例，因此不能依赖引用相等。配方已不存在时返回 null。
+     */
+    @Nullable
+    private static RecipeHolder<Multiblock4DRecipe> resolveCurrent(
+        Level level,
+        RecipeHolder<Multiblock4DRecipe> stored
+    ) {
+        return level.getRecipeManager()
+            .byKey(stored.id())
+            .filter(ref -> ref.value() instanceof Multiblock4DRecipe)
+            .map(Multiblock4DRecipe::castHolder)
+            .orElse(null);
     }
 
     @Override

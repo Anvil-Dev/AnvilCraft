@@ -48,7 +48,6 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
     private final MultiblockDefinition outputPattern;
     @SuppressWarnings("OptionalUsedAsFieldOrParameterType")
     private final Optional<ModifySpawnerAction> modifySpawnerAction;
-    private Rotation matchedRotation = Rotation.NONE;
 
     public MultiblockConversionRecipe(MultiblockDefinition inputPattern, MultiblockDefinition outputPattern) {
         this(inputPattern, outputPattern, Optional.empty());
@@ -94,12 +93,7 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
 
     @Override
     public boolean matches(MultiblockInput input, Level level) {
-        return MultiblockUtil.match(this.inputPattern, input, level)
-            .map(rotation -> {
-                this.matchedRotation = rotation;
-                return true;
-            })
-            .orElse(false);
+        return MultiblockUtil.match(this.inputPattern, input, level).isPresent();
     }
 
     public int getSize() {
@@ -126,8 +120,12 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
 
     @Override
     public void assemble(Level level, BlockPos landPos, BlockPos inputCorner, MultiblockInput ctx) {
+        Optional<Rotation> matched = MultiblockUtil.match(this.inputPattern, ctx, level);
+        if (matched.isEmpty()) {
+            return;
+        }
+        Rotation rotation = matched.get();
         int size = ctx.size();
-        Rotation rotation = this.matchedRotation;
         DefinitionSerialization serialization = DefinitionSerialization.fromDefinition(this.outputPattern);
         String[][] grid = serialization.grid();
         int[] offsets = MultiblockUtil.offsets(size, grid);

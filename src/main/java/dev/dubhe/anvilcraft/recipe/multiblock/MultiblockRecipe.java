@@ -23,7 +23,6 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.Arrays;
@@ -36,7 +35,6 @@ import javax.annotation.Nullable;
 public class MultiblockRecipe implements IMultiblockRecipe, IDatagen {
     private final MultiblockDefinition pattern;
     private final ItemStack result;
-    private Rotation matchedRotation = Rotation.NONE;
 
     public MultiblockRecipe(MultiblockDefinition pattern, ItemStack result) {
         this.pattern = pattern;
@@ -76,23 +74,20 @@ public class MultiblockRecipe implements IMultiblockRecipe, IDatagen {
 
     @Override
     public boolean matches(MultiblockInput input, Level level) {
-        return MultiblockUtil.match(this.pattern, input, level)
-            .map(rotation -> {
-                this.matchedRotation = rotation;
-                return true;
-            })
-            .orElse(false);
+        return MultiblockUtil.match(this.pattern, input, level).isPresent();
     }
 
     @Override
     public void assemble(Level level, BlockPos landPos, BlockPos inputCorner, MultiblockInput ctx) {
         int size = ctx.size();
-        MultiblockUtil.consume(level, this.pattern, ctx, inputCorner, this.matchedRotation);
-        AnvilUtil.dropItems(
-            List.of(this.result.copy()),
-            level,
-            landPos.relative(Direction.Axis.Y, -size / 2).getCenter()
-        );
+        MultiblockUtil.match(this.pattern, ctx, level).ifPresent(rotation -> {
+            MultiblockUtil.consume(level, this.pattern, ctx, inputCorner, rotation);
+            AnvilUtil.dropItems(
+                List.of(this.result.copy()),
+                level,
+                landPos.relative(Direction.Axis.Y, -size / 2).getCenter()
+            );
+        });
     }
 
     @Override

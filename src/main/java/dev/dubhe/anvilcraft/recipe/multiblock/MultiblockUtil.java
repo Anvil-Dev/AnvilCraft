@@ -41,9 +41,9 @@ public final class MultiblockUtil {
     };
 
     /**
-     * 尝试用给定定义匹配输入立方体区域。定义转换后的网格尺寸必须不超过输入区域，
-     * 结构以输入区域顶部中心对齐（结构顶部紧贴输入区域顶部，即超算正下方），
-     * 并依次尝试四种水平旋转。网格未定义的位置必须为空气。
+     * 尝试用给定定义匹配输入立方体区域。定义转换后的网格尺寸必须与输入区域完全一致
+     * （层数、每层行数、每行列数均等于 input.size()），结构恰好填满输入立方体（即超算
+     * 正下方），并依次尝试四种水平旋转。网格中的空格位置必须为空气。
      *
      * @param def   多方块定义
      * @param input 输入区域
@@ -54,7 +54,7 @@ public final class MultiblockUtil {
         int size = input.size();
         DefinitionSerialization serialization = DefinitionSerialization.fromDefinition(def);
         String[][] grid = serialization.grid();
-        if (MultiblockUtil.exceedsSize(grid, size)) {
+        if (MultiblockUtil.sizeMismatch(grid, size)) {
             return Optional.empty();
         }
         BlockPos inputCorner = input.centerPos().offset(-size / 2, -size, -size / 2);
@@ -67,16 +67,16 @@ public final class MultiblockUtil {
         return Optional.empty();
     }
 
-    private static boolean exceedsSize(String[][] grid, int size) {
-        if (grid.length > size) {
+    private static boolean sizeMismatch(String[][] grid, int size) {
+        if (grid.length != size) {
             return true;
         }
         for (String[] layer : grid) {
-            if (layer.length > size) {
+            if (layer.length != size) {
                 return true;
             }
             for (String line : layer) {
-                if (line.length() > size) {
+                if (line.length() != size) {
                     return true;
                 }
             }
@@ -105,7 +105,7 @@ public final class MultiblockUtil {
         int size = input.size();
         DefinitionSerialization serialization = DefinitionSerialization.fromDefinition(def);
         String[][] grid = serialization.grid();
-        if (MultiblockUtil.exceedsSize(grid, size)) {
+        if (MultiblockUtil.sizeMismatch(grid, size)) {
             return drops;
         }
         boolean server = level instanceof ServerLevel;
@@ -139,7 +139,7 @@ public final class MultiblockUtil {
 
     /**
      * 计算网格结构在输入区域内的放置偏移：{offsetX, offsetY, offsetZ}。
-     * 水平按各自尺寸居中，垂直贴顶部（结构顶部位于输入区域顶部）。
+     * 匹配要求网格尺寸与输入区域完全一致，因此偏移恒为零。
      */
     static int[] offsets(int size, String[][] grid) {
         int sizeY = grid.length;
