@@ -131,7 +131,6 @@ public class StorageScreen extends Screen {
     private boolean quickCrafting;
     private int quickCraftingButton;
     private int lastClickedInventorySlot = -1;
-    private int pickupAllSlot = -1;
     private boolean quickMoveDragging;
     private final IntSet quickMoveSlots = new IntOpenHashSet();
     private final IntSet pendingQuickMoveSlots = new IntOpenHashSet();
@@ -326,6 +325,7 @@ public class StorageScreen extends Screen {
     @Override
     public void tick() {
         super.tick();
+        this.carried = this.player.inventoryMenu.getCarried();
         this.flushQuickMoves();
         if (this.metadataCooldown > 0) {
             this.metadataCooldown--;
@@ -645,7 +645,22 @@ public class StorageScreen extends Screen {
             }
 
             int slot = this.getInventorySlot(mouseX, mouseY);
-            if (slot == -1 || this.minecraft.gameMode == null) {
+            if (slot == -1) {
+                if (this.minecraft.gameMode != null && !this.carried.isEmpty()) {
+                    this.player.inventoryMenu.setCarried(this.carried);
+                    this.minecraft.gameMode.handleInventoryMouseClick(
+                        this.player.inventoryMenu.containerId,
+                        -999,
+                        button,
+                        ClickType.PICKUP,
+                        this.player
+                    );
+                    this.carried = this.player.inventoryMenu.getCarried();
+                    return true;
+                }
+                return false;
+            }
+            if (this.minecraft.gameMode == null) {
                 return false;
             }
             this.lastClickedInventorySlot = slot;
@@ -666,11 +681,23 @@ public class StorageScreen extends Screen {
                 return true;
             }
 
-            if (!this.carried.isEmpty()) {
-                if (button == 0 && this.isDoubleClick(slot) && slot == lastClickedInventorySlot) {
-                    this.pickupAllSlot = this.getScreenSlot(slot);
-                    return true;
+            this.carried = this.player.inventoryMenu.getCarried();
+            if (button == 0 && this.isDoubleClick(slot, button) && slot == lastClickedInventorySlot) {
+                if (this.carried.isEmpty()) {
+                    this.player.inventoryMenu.setCarried(this.carried);
+                    this.minecraft.gameMode.handleInventoryMouseClick(
+                        this.player.inventoryMenu.containerId,
+                        this.getScreenSlot(slot),
+                        button,
+                        ClickType.PICKUP,
+                        this.player
+                    );
+                    this.carried = this.player.inventoryMenu.getCarried();
                 }
+                this.doubleclick = true;
+                return true;
+            }
+            if (!this.carried.isEmpty()) {
                 this.startQuickCraft(button);
                 return true;
             }
@@ -729,18 +756,17 @@ public class StorageScreen extends Screen {
 
     private long lastClickTime;
     private int lastClickSlot = -1;
+    private int lastClickButton = -1;
+    private boolean doubleclick;
 
-    private boolean isDoubleClick(int slot) {
-        boolean sameSlot = slot == this.lastClickSlot;
+    private boolean isDoubleClick(int slot, int button) {
+        boolean quick = slot == this.lastClickSlot
+            && System.currentTimeMillis() - this.lastClickTime < 250L
+            && button == this.lastClickButton;
         this.lastClickSlot = slot;
-        if (sameSlot) {
-            long now = System.currentTimeMillis();
-            boolean quick = now - this.lastClickTime < 250L;
-            this.lastClickTime = now;
-            return quick;
-        }
         this.lastClickTime = System.currentTimeMillis();
-        return false;
+        this.lastClickButton = button;
+        return quick;
     }
 
     @Override
@@ -792,19 +818,23 @@ public class StorageScreen extends Screen {
             StorageClientStub.endUndoGroup(this.sourcePos);
             return true;
         }
-        if (this.pickupAllSlot != -1) {
+        if (this.doubleclick) {
+            this.doubleclick = false;
+            this.lastClickTime = 0L;
             if (button == 0 && this.minecraft.gameMode != null) {
-                this.player.inventoryMenu.setCarried(this.carried);
-                this.minecraft.gameMode.handleInventoryMouseClick(
-                    this.player.inventoryMenu.containerId,
-                    this.pickupAllSlot,
-                    0,
-                    ClickType.PICKUP_ALL,
-                    this.player
-                );
-                this.carried = this.player.inventoryMenu.getCarried();
+                int inventorySlot = this.getInventorySlot(mouseX, mouseY);
+                if (inventorySlot == this.lastClickedInventorySlot) {
+                    this.player.inventoryMenu.setCarried(this.carried);
+                    this.minecraft.gameMode.handleInventoryMouseClick(
+                        this.player.inventoryMenu.containerId,
+                        this.getScreenSlot(inventorySlot),
+                        0,
+                        ClickType.PICKUP_ALL,
+                        this.player
+                    );
+                    this.carried = this.player.inventoryMenu.getCarried();
+                }
             }
-            this.pickupAllSlot = -1;
             return true;
         }
         if (!this.quickCrafting) {
