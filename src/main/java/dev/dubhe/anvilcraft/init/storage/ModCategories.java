@@ -12,7 +12,6 @@ import dev.dubhe.anvilcraft.saved.storage.category.NamespaceCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.OrCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.UnstackableCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.client.RecipeBookCategoryCategory;
-import net.minecraft.client.RecipeBookCategories;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
@@ -63,7 +62,7 @@ public class ModCategories {
                 new RecipeBookCategoryCategory(
                     Items.REDSTONE,
                     ModCategories.REDSTONE.location().withSuffix("_recipe_book"),
-                    RecipeBookCategories.CRAFTING_REDSTONE
+                    "crafting_redstone"
                 )
             )
         );

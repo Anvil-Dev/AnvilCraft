@@ -1,8 +1,8 @@
 package dev.dubhe.anvilcraft.saved.storage.category.client;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
-import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
@@ -13,11 +13,14 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 
 import java.util.List;
 import java.util.Objects;
@@ -26,18 +29,20 @@ import java.util.Optional;
 public record RecipeBookCategoryCategory(
     ItemStack icon,
     Component name,
-    RecipeBookCategories category
+    String category
 ) implements IClientCategory {
-    public RecipeBookCategoryCategory(ItemLike icon, ResourceLocation suffix, RecipeBookCategories category) {
+    public RecipeBookCategoryCategory(ItemLike icon, ResourceLocation suffix, String category) {
         this(new ItemStack(icon.asItem()), ICategory.constructName(suffix), category);
     }
 
+    @OnlyIn(Dist.CLIENT)
     @Override
     public boolean testClient(UnlimitedItemStack stack) {
+        RecipeBookCategories categories = RecipeBookCategories.valueOf(this.category);
         Minecraft mc = Minecraft.getInstance();
         List<RecipeCollection> collections = Optional.ofNullable(mc.player)
             .map(LocalPlayer::getRecipeBook)
-            .map(book -> book.getCollection(this.category))
+            .map(book -> book.getCollection(categories))
             .orElse(List.of());
         for (RecipeCollection collection : collections) {
             for (RecipeHolder<?> recipe : collection.getRecipes()) {
@@ -58,7 +63,7 @@ public record RecipeBookCategoryCategory(
 
     @Override
     public boolean equals(Object o) {
-        if (!(o instanceof RecipeBookCategoryCategory(ItemStack icon1, Component name1, RecipeBookCategories category1))) return false;
+        if (!(o instanceof RecipeBookCategoryCategory(ItemStack icon1, Component name1, String category1))) return false;
         return ItemStack.isSameItemSameComponents(this.icon(), icon1)
                && Objects.equals(this.name(), name1)
                && Objects.equals(this.category(), category1);
@@ -77,7 +82,7 @@ public record RecipeBookCategoryCategory(
             ComponentSerialization.CODEC
                 .fieldOf("name")
                 .forGetter(RecipeBookCategoryCategory::name),
-            CodecUtil.enumCodecInLowerName(RecipeBookCategories.class)
+            Codec.STRING
                 .fieldOf("key")
                 .forGetter(RecipeBookCategoryCategory::category),
             RecipeBookCategoryCategory::new
@@ -87,7 +92,7 @@ public record RecipeBookCategoryCategory(
             RecipeBookCategoryCategory::icon,
             ComponentSerialization.STREAM_CODEC,
             RecipeBookCategoryCategory::name,
-            StreamCodecUtil.enumStreamCodec(RecipeBookCategories.class),
+            ByteBufCodecs.STRING_UTF8,
             RecipeBookCategoryCategory::category,
             RecipeBookCategoryCategory::new
         );
