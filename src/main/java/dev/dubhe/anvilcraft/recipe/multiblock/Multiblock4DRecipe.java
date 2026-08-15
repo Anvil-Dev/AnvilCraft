@@ -6,9 +6,11 @@ import dev.anvilcraft.lib.v2.multiblock.dynamic.definition.DefinitionSerializati
 import dev.anvilcraft.lib.v2.multiblock.dynamic.definition.MultiblockDefinition;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.NbtPredicate;
+import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.IDatagen;
+import dev.dubhe.anvilcraft.util.AnvilUtil;
 import dev.dubhe.anvilcraft.util.NbtUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
@@ -20,6 +22,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.ItemLike;
@@ -82,6 +85,12 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
         if (this.definitions.isEmpty()) {
             return false;
         }
+        // 进行中的四维合成其首步结构已被消耗，需沿用中心方块上记录的配方继续，而不是重新匹配
+        if (level.getBlockEntity(ctx.centerPos()) instanceof SpacetimeSupercomputerBlockEntity supercomputer
+            && supercomputer.getProcessingRecipe() != null
+            && supercomputer.getProcessingRecipe().value() == this) {
+            return true;
+        }
         return MultiblockUtil.match(this.definitions.getFirst(), ctx)
             .map(rotation -> {
                 this.matchedRotation = rotation;
@@ -97,6 +106,55 @@ public class Multiblock4DRecipe implements IMultiblockRecipe, IDatagen {
 
     @Override
     public void assemble(Level level, BlockPos landPos, BlockPos inputCorner, MultiblockInput ctx) {
+        if (!(level.getBlockEntity(landPos) instanceof SpacetimeSupercomputerBlockEntity supercomputer)) {
+            return;
+        }
+        RecipeHolder<Multiblock4DRecipe> processing = supercomputer.getProcessingRecipe();
+        if (processing == null) {
+            MultiblockUtil.match(this.definitions.getFirst(), ctx)
+                .ifPresent(rotation -> {
+                    List<ItemStack> consumed = MultiblockUtil.consume(
+                        level, this.definitions.getFirst(), ctx, inputCorner, rotation);
+                    if (this.definitions.size() == 1) {
+                        AnvilUtil.dropItems(List.of(this.result.copy()), level, landPos.below().getCenter());
+                        return;
+                    }
+                    supercomputer.addPendingDrops(consumed);
+                    supercomputer.setProcessingRecipe(this.findHolder(level));
+                    supercomputer.setProcessingStep(1);
+                    supercomputer.setProcessingSize(ctx.size());
+                });
+            return;
+        }
+        Multiblock4DRecipe recipe = processing.value();
+        List<MultiblockDefinition> defs = recipe.getDefinitions();
+        int step = supercomputer.getProcessingStep();
+        if (step < 0 || step >= defs.size()) {
+            return;
+        }
+        MultiblockUtil.match(defs.get(step), ctx).ifPresent(rotation -> {
+            List<ItemStack> consumed = MultiblockUtil.consume(level, defs.get(step), ctx, inputCorner, rotation);
+            int next = step + 1;
+            supercomputer.setProcessingStep(next);
+            if (next >= defs.size()) {
+                AnvilUtil.dropItems(List.of(recipe.getResult().copy()), level, landPos.below().getCenter());
+                supercomputer.clearPendingDrops();
+                supercomputer.setProcessingRecipe(null);
+                supercomputer.setProcessingStep(-1);
+                supercomputer.setProcessingSize(-1);
+            } else {
+                supercomputer.addPendingDrops(consumed);
+            }
+        });
+    }
+
+    @Nullable
+    private RecipeHolder<Multiblock4DRecipe> findHolder(Level level) {
+        return level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.MULTIBLOCK_4D_TYPE.get())
+            .stream()
+            .filter(holder -> holder.value() == this)
+            .findFirst()
+            .orElse(null);
     }
 
     @Override

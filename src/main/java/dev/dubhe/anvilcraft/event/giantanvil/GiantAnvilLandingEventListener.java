@@ -1,19 +1,13 @@
 package dev.dubhe.anvilcraft.event.giantanvil;
 
-import dev.anvilcraft.lib.v2.multiblock.dynamic.definition.MultiblockDefinition;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.event.GiantAnvilEvent;
-import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
+import dev.dubhe.anvilcraft.recipe.multiblock.IMultiblockRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockInput;
-import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockUtil;
-import dev.dubhe.anvilcraft.util.AnvilUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -37,87 +31,68 @@ public class GiantAnvilLandingEventListener {
         Level level = event.getLevel();
         BlockPos landPos = event.getPos().below(2);
 
+        int size = GiantAnvilLandingEventListener.findCraftingTableSize(landPos, level);
+        if (size < MIN_MULTIBLOCK_SIZE || size > MAX_MULTIBLOCK_SIZE) {
+            return;
+        }
+
+        BlockPos inputCorner = landPos.offset(-size / 2, -size, -size / 2);
+        MultiblockInput input = GiantAnvilLandingEventListener.buildInput(level, inputCorner, size, landPos);
         BlockState centerState = level.getBlockState(landPos);
-        if (centerState.is(ModBlocks.SPACETIME_SUPERCOMPUTER)) {
-            GiantAnvilLandingEventListener.handle4DCrafting(level, landPos);
-            return;
-        }
-        int size = GiantAnvilLandingEventListener.findCraftingTableSize(landPos, level);
-        if (size < MIN_MULTIBLOCK_SIZE || size > MAX_MULTIBLOCK_SIZE) {
-            return;
-        }
 
-        BlockPos inputCorner = landPos.offset(-size / 2, -size, -size / 2);
-        MultiblockInput input = GiantAnvilLandingEventListener.buildInput(level, inputCorner, size);
-
-        if (centerState.is(ModBlocks.SPACE_OVERCOMPRESSOR)) {
-            level.getRecipeManager()
-                .getRecipeFor(ModRecipeTypes.MULTIBLOCK_TYPE.get(), input, level)
-                .ifPresent(holder -> holder.value().assemble(level, landPos, inputCorner, input));
-        } else if (centerState.is(Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES)) {
-            level.getRecipeManager()
-                .getRecipeFor(ModRecipeTypes.MULTIBLOCK_CONVERSION_TYPE.get(), input, level)
-                .ifPresent(holder -> holder.value().assemble(level, landPos, inputCorner, input));
-        }
+        GiantAnvilLandingEventListener.craft(
+            level,
+            landPos,
+            inputCorner,
+            input,
+            centerState,
+            ModRecipeTypes.MULTIBLOCK_4D_TYPE.get()
+        );
+        GiantAnvilLandingEventListener.craft(
+            level,
+            landPos,
+            inputCorner,
+            input,
+            centerState,
+            ModRecipeTypes.MULTIBLOCK_TYPE.get()
+        );
+        GiantAnvilLandingEventListener.craft(
+            level,
+            landPos,
+            inputCorner,
+            input,
+            centerState,
+            ModRecipeTypes.MULTIBLOCK_CONVERSION_TYPE.get()
+        );
     }
 
-    private static void handle4DCrafting(Level level, BlockPos landPos) {
-        int size = GiantAnvilLandingEventListener.findCraftingTableSize(landPos, level);
-        if (size < MIN_MULTIBLOCK_SIZE || size > MAX_MULTIBLOCK_SIZE) {
+    private static void craft(
+        Level level,
+        BlockPos landPos,
+        BlockPos inputCorner,
+        MultiblockInput input,
+        BlockState centerState,
+        RecipeType<? extends IMultiblockRecipe> type
+    ) {
+        if (!GiantAnvilLandingEventListener.isValidCenter(level, landPos, centerState, type)) {
             return;
         }
-        BlockPos inputCorner = landPos.offset(-size / 2, -size, -size / 2);
-        if (!(level.getBlockEntity(landPos) instanceof SpacetimeSupercomputerBlockEntity supercomputer)) {
-            return;
-        }
-        MultiblockInput input = GiantAnvilLandingEventListener.buildInput(level, inputCorner, size);
-
-        RecipeHolder<Multiblock4DRecipe> processing = supercomputer.getProcessingRecipe();
-        if (processing == null) {
-            level.getRecipeManager()
-                .getRecipeFor(ModRecipeTypes.MULTIBLOCK_4D_TYPE.get(), input, level)
-                .ifPresent(holder -> {
-                    Multiblock4DRecipe recipe = holder.value();
-                    MultiblockUtil.match(recipe.getDefinitions().getFirst(), input)
-                        .ifPresent(rotation -> {
-                            List<ItemStack> consumed = MultiblockUtil.consume(
-                                level, recipe.getDefinitions().getFirst(), input, inputCorner, rotation);
-                            if (recipe.getDefinitions().size() == 1) {
-                                AnvilUtil.dropItems(
-                                    List.of(recipe.getResult().copy()), level, landPos.below().getCenter());
-                                return;
-                            }
-                            supercomputer.addPendingDrops(consumed);
-                            supercomputer.setProcessingRecipe(holder);
-                            supercomputer.setProcessingStep(1);
-                            supercomputer.setProcessingSize(size);
-                        });
-                });
-            return;
-        }
-        Multiblock4DRecipe recipe = processing.value();
-        List<MultiblockDefinition> defs = recipe.getDefinitions();
-        int step = supercomputer.getProcessingStep();
-        if (step < 0 || step >= defs.size()) {
-            return;
-        }
-        MultiblockUtil.match(defs.get(step), input).ifPresent(rotation -> {
-            List<ItemStack> consumed = MultiblockUtil.consume(level, defs.get(step), input, inputCorner, rotation);
-            int next = step + 1;
-            supercomputer.setProcessingStep(next);
-            if (next >= defs.size()) {
-                AnvilUtil.dropItems(List.of(recipe.getResult().copy()), level, landPos.below().getCenter());
-                supercomputer.clearPendingDrops();
-                supercomputer.setProcessingRecipe(null);
-                supercomputer.setProcessingStep(-1);
-                supercomputer.setProcessingSize(-1);
-            } else {
-                supercomputer.addPendingDrops(consumed);
-            }
-        });
+        level.getRecipeManager()
+            .getRecipeFor(type, input, level)
+            .ifPresent(holder -> holder.value().assemble(level, landPos, inputCorner, input));
     }
 
-    private static MultiblockInput buildInput(Level level, BlockPos inputCorner, int size) {
+    private static boolean isValidCenter(
+        Level level,
+        BlockPos pos,
+        BlockState state,
+        RecipeType<? extends IMultiblockRecipe> type
+    ) {
+        return level.getRecipeManager().getAllRecipesFor(type).stream()
+            .anyMatch(holder -> holder.value().isValidCenterBlock(level, pos, state));
+    }
+
+    private static MultiblockInput buildInput(Level level, BlockPos inputCorner, int size, BlockPos centerPos) {
         List<List<List<BlockState>>> blocks = new ArrayList<>();
         for (int y = 0; y < size; y++) {
             List<List<BlockState>> blocksY = new ArrayList<>();
@@ -130,7 +105,7 @@ public class GiantAnvilLandingEventListener {
             }
             blocks.add(blocksY);
         }
-        return new MultiblockInput(blocks, size);
+        return new MultiblockInput(blocks, size, centerPos);
     }
 
     private static int findCraftingTableSize(BlockPos centerPos, Level level) {
