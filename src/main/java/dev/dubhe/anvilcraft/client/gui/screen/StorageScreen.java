@@ -46,6 +46,7 @@ import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.neoforged.neoforge.client.ItemDecoratorHandler;
 
 import java.util.ArrayList;
@@ -54,6 +55,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
@@ -417,7 +419,15 @@ public class StorageScreen extends Screen {
                 );
             }
             if (hovered && this.carried.isEmpty() && !stack.isEmpty()) {
-                graphics.renderTooltip(this.font, stack.toStack(), mouseX, mouseY);
+                List<Component> tooltipLines = new ArrayList<>(stack.toStack().getTooltipLines(
+                    Item.TooltipContext.of(this.minecraft.level),
+                    this.player,
+                    this.minecraft.options.advancedItemTooltips
+                        ? TooltipFlag.Default.ADVANCED
+                        : TooltipFlag.Default.NORMAL
+                ));
+                tooltipLines.add(Component.translatable("screen.anvilcraft.storage.count", stack.getCount()));
+                graphics.renderTooltip(this.font, tooltipLines, Optional.empty(), mouseX, mouseY);
             }
         }
         this.renderStorageSlider(graphics);

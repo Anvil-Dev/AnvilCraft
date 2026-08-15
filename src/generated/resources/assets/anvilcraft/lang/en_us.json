@@ -1498,6 +1498,7 @@
   "screen.anvilcraft.storage.category.name": "Name: %s",
   "screen.anvilcraft.storage.category.setting.title": "Category Setting",
   "screen.anvilcraft.storage.category.tooltip": "Left click to move to alternates, right click to pin to top",
+  "screen.anvilcraft.storage.count": "Count: %s",
   "screen.anvilcraft.storage.nbt": "Should Fold Items with Diff. NBT: Currently %s",
   "screen.anvilcraft.storage.nbt.fold": "True",
   "screen.anvilcraft.storage.nbt.unfold": "False",
