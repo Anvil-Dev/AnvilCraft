@@ -381,12 +381,13 @@ public class CategorySettingsScreen extends Screen {
         if (!stack.isEmpty()) {
             graphics.renderItem(stack, x, y);
             graphics.renderItemDecorations(this.font, stack, x, y);
-            if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
-                graphics.renderTooltip(this.font, stack, mouseX, mouseY);
-            }
         }
 
         this.renderInventorySlotHighlightFront(graphics, slot, x, y, mouseX, mouseY);
+
+        if (!stack.isEmpty() && MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
+            graphics.renderTooltip(this.font, stack, mouseX, mouseY);
+        }
     }
 
     private void renderInventorySlotHighlightBack(GuiGraphics graphics, int slot, int x, int y, int mouseX, int mouseY) {
