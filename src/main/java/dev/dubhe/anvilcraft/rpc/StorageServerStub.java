@@ -415,7 +415,7 @@ public final class StorageServerStub {
     }
 
     @RemoteCallable(validator = StorageUsageValidator.class)
-    public static StorageUsage getStorageUsage(UUID playerId, UUID storageId) {
+    public static StorageUsage getStorageUsage(UUID ignoredPlayerId, UUID storageId) {
         return Storages.get().get(storageId)
             .map(storage -> {
                 UnlimitedItemStacksResourceHandler items = storage.getItems();
@@ -626,16 +626,11 @@ public final class StorageServerStub {
     public static final class StorageUsageValidator implements IRemoteCallableValidator {
         @Override
         public boolean validate(IPayloadContext ctx, Method method, Object[] args) {
-            if (
-                !(ctx.player() instanceof ServerPlayer player)
-                || args.length < 2
-                || !(args[0] instanceof UUID playerId)
-                || !player.getGameProfile().getId().equals(playerId)
-                || !(args[1] instanceof UUID)
-            ) {
-                return false;
-            }
-            return true;
+            return ctx.player() instanceof ServerPlayer player
+                   && args.length >= 2
+                   && args[0] instanceof UUID playerId
+                   && player.getGameProfile().getId().equals(playerId)
+                   && args[1] instanceof UUID;
         }
     }
 

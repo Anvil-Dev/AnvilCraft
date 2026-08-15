@@ -32,6 +32,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
@@ -93,6 +94,7 @@ public class StorageScreen extends Screen {
     private static final int SLIDER_TRACK_HEIGHT = 106;
     private static final int METADATA_REFRESH_INTERVAL = 10;
     private static final int MAX_PRESERVED_SYNC_ATTEMPTS = 3;
+    private final Minecraft minecraft;
     private final BlockPos sourcePos;
     private final Player player;
     private final boolean tracksOpenState;
@@ -140,6 +142,7 @@ public class StorageScreen extends Screen {
 
     public StorageScreen(BlockPos sourcePos) {
         super(Objects.requireNonNull(Minecraft.getInstance().level).getBlockState(sourcePos).getBlock().getName());
+        this.minecraft = Minecraft.getInstance();
         this.sourcePos = sourcePos;
         this.player = Objects.requireNonNull(Minecraft.getInstance().player);
         this.serverSlots.defaultReturnValue(-1);
@@ -338,11 +341,6 @@ public class StorageScreen extends Screen {
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // 仅画透明渐暗背景，跳过默认的高斯模糊（renderBlurredBackground），避免仓储界面背景模糊
         this.renderTransparentBackground(graphics);
-    }
-
-    @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(graphics, mouseX, mouseY, partialTick);
         graphics.blit(
             StorageScreen.BACKGROUND,
             this.left,
@@ -354,7 +352,11 @@ public class StorageScreen extends Screen {
             512,
             256
         );
+    }
 
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(graphics, mouseX, mouseY, partialTick);
         graphics.blit(
             StorageScreen.CAPACITY,
             this.left + 106,
@@ -378,7 +380,7 @@ public class StorageScreen extends Screen {
         this.renderPlayerInventory(graphics, mouseX, mouseY);
         // 背景纹理必须先于 widgets 绘制，而 Screen.render 会二次调用 renderBackground
         // （半透明渐变会盖住纹理），故手动遍历 renderables 渲染 widgets。
-        for (net.minecraft.client.gui.components.Renderable renderable : this.renderables) {
+        for (Renderable renderable : this.renderables) {
             renderable.render(graphics, mouseX, mouseY, partialTick);
         }
         this.renderCarriedItem(graphics, mouseX, mouseY);
@@ -787,7 +789,7 @@ public class StorageScreen extends Screen {
         Integer storageSlot = this.getStorageSlot(mouseX, mouseY);
         if (storageSlot != null) {
             if (button == 2 && this.player.hasInfiniteMaterials()) {
-                this.quickCraftStorageSlots.add(storageSlot);
+                this.quickCraftStorageSlots.add(storageSlot.intValue());
             }
             return true;
         }
@@ -1098,7 +1100,7 @@ public class StorageScreen extends Screen {
             }
 
             // Forge MC-146650: Needs to return true when the key is handled
-            boolean handled = this.checkHotbarKeyPressed(keyCode, scanCode, modifiers);
+            boolean handled = this.checkHotbarKeyPressed(keyCode, scanCode);
             if (!Objects.requireNonNull(this.minecraft.player).getInventory().getItem(hoveredSlot).isEmpty()) {
                 hoveredSlot = this.getScreenSlot(hoveredSlot);
                 if (this.minecraft.options.keyDrop.isActiveAndMatches(key)) {
@@ -1134,7 +1136,7 @@ public class StorageScreen extends Screen {
         return super.keyReleased(keyCode, scanCode, modifiers);
     }
 
-    protected boolean checkHotbarKeyPressed(int keyCode, int scanCode, int modifiers) {
+    protected boolean checkHotbarKeyPressed(int keyCode, int scanCode) {
         int hoveredSlot = this.getScreenSlot();
         if (hoveredSlot == -1 || this.minecraft.gameMode == null) {
             return false;
@@ -1780,6 +1782,7 @@ public class StorageScreen extends Screen {
 
         graphics.pose().popPose();
 
+        // noinspection UnstableApiUsage
         ItemDecoratorHandler.of(stack).render(graphics, minecraft.font, stack, x, y);
     }
 }
