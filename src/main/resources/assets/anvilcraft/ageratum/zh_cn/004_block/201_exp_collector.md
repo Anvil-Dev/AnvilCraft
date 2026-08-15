@@ -7,6 +7,7 @@ items:
 ---
 
 # <ref item="anvilcraft:exp_collector"/>
+
 <row halign="center">
 <recipe id="anvilcraft:exp_collector"/>
 </row>

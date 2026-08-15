@@ -15,10 +15,10 @@ items:
 - 拥有<ref item="anvilcraft:royal_grindstone"/>、<ref item="anvilcraft:frost_grindstone"/>、<ref item="anvilcraft:ember_grindstone"/>的所有功能
 - 功能根据**左侧下方**的格子决定
 
-| 物品                                                                    | 功能                | 来源                                        |
-|-----------------------------------------------------------------------|-------------------|-------------------------------------------|
-| <ref item="minecraft:gold_ingot"/>或<ref item="minecraft:gold_block"/> | 祛除惩罚或诅咒附魔         | <ref item="anvilcraft:royal_grindstone"/> |
-| 空                                                                     | 消去附魔并生成更多经验球      | <ref item="anvilcraft:frost_grindstone"/> |
-| <ref item="minecraft:book"/>等可附魔物品                                    | 转移附魔(可多选)         | <ref item="anvilcraft:ember_grindstone"/> |
-| 空的<ref item="anvilcraft:fluid_tank"/>                                 | 祛除一条附魔，变为液态魔咒存入储罐 | <ref item="anvilcraft:ember_grindstone"/> |
-| 空的<ref item="anvilcraft:large_fluid_tank"/>                           | 祛除多条附魔，变为液态魔咒存入储罐 | <ref item="anvilcraft:ember_grindstone"/> |
+| 物品                                                                    | 功能                                                             | 来源                                        |
+|-----------------------------------------------------------------------|----------------------------------------------------------------|-------------------------------------------|
+| <ref item="minecraft:gold_ingot"/>或<ref item="minecraft:gold_block"/> | 祛除惩罚或诅咒附魔                                                      | <ref item="anvilcraft:royal_grindstone"/> |
+| 空                                                                     | 消去附魔并生成更多经验球                                                   | <ref item="anvilcraft:frost_grindstone"/> |
+| <ref item="minecraft:book"/>等可附魔物品                                    | 转移附魔(可多选)                                                      | <ref item="anvilcraft:ember_grindstone"/> |
+| 空的<ref item="anvilcraft:fluid_tank"/>                                 | 祛除一条附魔，变为[液态魔咒](../002_material/210_liquid_enchantment.md)存入储罐 | <ref item="anvilcraft:ember_grindstone"/> |
+| 空的<ref item="anvilcraft:large_fluid_tank"/>                           | 祛除多条附魔，变为[液态魔咒](../002_material/210_liquid_enchantment.md)存入储罐 | <ref item="anvilcraft:ember_grindstone"/> |
