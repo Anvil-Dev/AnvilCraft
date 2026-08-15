@@ -760,7 +760,7 @@ public class StorageScreen extends Screen {
     private boolean doubleclick;
 
     private boolean isDoubleClick(int slot, int button) {
-        boolean quick = slot == this.lastClickSlot
+        final boolean quick = slot == this.lastClickSlot
             && System.currentTimeMillis() - this.lastClickTime < 250L
             && button == this.lastClickButton;
         this.lastClickSlot = slot;
