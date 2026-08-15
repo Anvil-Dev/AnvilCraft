@@ -334,16 +334,28 @@ public final class StorageServerStub {
             return new DepositResult(false);
         }
         Inventory inventory = player.getInventory();
+        int emptySlots = 0;
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+            if (inventory.getItem(slot).isEmpty()) {
+                emptySlots++;
+            }
+        }
         boolean changed = false;
         for (Map.Entry<ItemStack, Integer> entry : record.moved.entrySet()) {
-            int remaining = entry.getValue();
-            while (remaining > 0) {
-                int extracted = StorageServerStub.extractByResource(view, entry.getKey(), remaining);
-                if (extracted <= 0) {
-                    break;
-                }
-                remaining -= extracted;
-                ItemStack returned = entry.getKey().copyWithCount(extracted);
+            ItemStack resource = entry.getKey();
+            int needed = entry.getValue();
+            int maxStack = inventory.getMaxStackSize(resource);
+            int stackSpace = StorageServerStub.getStackSpace(inventory, resource);
+            int fit = Math.min(needed, stackSpace + emptySlots * maxStack);
+            int extract = Math.min(fit, StorageServerStub.countInStorage(view, resource, fit));
+            if (extract <= 0) {
+                continue;
+            }
+            int beyondStacks = Math.max(0, extract - stackSpace);
+            emptySlots -= (beyondStacks + maxStack - 1) / maxStack;
+            int extracted = StorageServerStub.extractByResource(view, resource, extract);
+            if (extracted > 0) {
+                ItemStack returned = resource.copyWithCount(extracted);
                 if (!player.addItem(returned)) {
                     view.insert(returned.copyWithCount(1), returned.getCount());
                 }
@@ -355,6 +367,29 @@ public final class StorageServerStub {
             player.inventoryMenu.broadcastChanges();
         }
         return new DepositResult(changed);
+    }
+
+    private static int getStackSpace(Inventory inventory, ItemStack resource) {
+        int space = 0;
+        int maxStack = inventory.getMaxStackSize(resource);
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+            ItemStack stack = inventory.getItem(slot);
+            if (ItemStack.isSameItemSameComponents(stack, resource)) {
+                space += maxStack - stack.getCount();
+            }
+        }
+        return space;
+    }
+
+    private static int countInStorage(StorageView view, ItemStack resource, int limit) {
+        int count = 0;
+        for (int index = 0; index < view.size() && count < limit; index++) {
+            if (view.amount(index) <= 0 || !ItemStack.isSameItemSameComponents(view.resource(index), resource)) {
+                continue;
+            }
+            count += view.amount(index);
+        }
+        return count;
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
