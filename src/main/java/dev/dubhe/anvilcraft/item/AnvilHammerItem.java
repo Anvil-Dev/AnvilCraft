@@ -4,6 +4,8 @@ import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.hammer.HammerManager;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
@@ -120,7 +122,13 @@ public class AnvilHammerItem extends Item implements Equipable {
             InfiniteFluidTankBreakProtection.showToolBreakDenied(player);
             return;
         }
-        if (level.getBlockEntity(pos) instanceof StorageBlockEntity storage && storage.getTotalCount() > 1000) {
+        BlockState mainState = level.getBlockState(pos);
+        Block mainBlock = mainState.getBlock();
+        if (
+            (mainBlock instanceof CrateBlock || mainBlock instanceof LargeCrateBlock)
+            && level.getBlockEntity(pos) instanceof StorageBlockEntity storage
+            && storage.getTotalCount() > 1000
+        ) {
             player.displayClientMessage(
                 Component.translatable("screen.anvilcraft.tooltip.crate.hammer_break_denied").withStyle(ChatFormatting.RED),
                 true

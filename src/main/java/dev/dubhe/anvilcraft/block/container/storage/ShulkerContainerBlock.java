@@ -250,14 +250,16 @@ public class ShulkerContainerBlock
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
         if (player.isCreative() && level instanceof ServerLevel serverLevel) {
-            BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
-            if (blockEntity instanceof ShulkerContainerBlockEntity) {
+            BlockPos mainPos = this.getMainPartPos(pos, state);
+            BlockState mainState = level.getBlockState(mainPos);
+            BlockEntity blockEntity = level.getBlockEntity(mainPos);
+            if (mainState.is(this) && blockEntity instanceof ShulkerContainerBlockEntity) {
                 LootParams.Builder builder = new LootParams.Builder(serverLevel)
-                    .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
+                    .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(mainPos))
                     .withParameter(LootContextParams.TOOL, player.getMainHandItem())
                     .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
-                for (ItemStack stack : state.getDrops(builder)) {
-                    Block.popResource(serverLevel, pos, stack);
+                for (ItemStack stack : mainState.getDrops(builder)) {
+                    Block.popResource(serverLevel, mainPos, stack);
                 }
             }
         }
