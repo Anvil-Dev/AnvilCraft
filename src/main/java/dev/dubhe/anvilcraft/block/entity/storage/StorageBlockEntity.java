@@ -112,7 +112,9 @@ public class StorageBlockEntity extends BlockEntity {
                 for (int i = 0; i < items.size(); i++) {
                     ItemStack stack = items.getUnlimitedStackInSlot(i).toStack();
                     if (stack.isEmpty()) continue;
-                    Block.popResource(level, pos, stack);
+                    while (!stack.isEmpty()) {
+                        Block.popResource(level, pos, stack.split(Math.min(64, stack.getCount())));
+                    }
                 }
                 Storages.get().remove(this.id);
             });
