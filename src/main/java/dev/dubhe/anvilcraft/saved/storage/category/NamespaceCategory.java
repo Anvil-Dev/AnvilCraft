@@ -15,16 +15,22 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
+import java.util.Objects;
+
 public record NamespaceCategory(ItemStack icon, Component name, String namespace) implements ICategory {
-    public NamespaceCategory(ItemLike icon, String namespace) {
+    public NamespaceCategory(ItemStack icon, String namespace) {
         this(
-            new ItemStack(icon.asItem()),
+            icon,
             Component.translatable(
                 "category.anvilcraft.namespace",
                 MutableComponent.create(new ModNameContents(namespace))
             ),
             namespace
         );
+    }
+
+    public NamespaceCategory(ItemLike icon, String namespace) {
+        this(new ItemStack(icon.asItem()), namespace);
     }
 
     @Override
@@ -38,6 +44,19 @@ public record NamespaceCategory(ItemStack icon, Component name, String namespace
     @Override
     public Type getType() {
         return ModCategoryTypes.NAMESPACE.get();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof NamespaceCategory(ItemStack icon1, Component name1, String namespace1))) return false;
+        return ItemStack.isSameItemSameComponents(this.icon(), icon1)
+               && Objects.equals(this.name(), name1)
+               && Objects.equals(this.namespace(), namespace1);
+    }
+
+    @Override
+    public int hashCode() {
+        return ItemStack.hashItemAndComponents(this.icon()) * 31 + Objects.hash(this.name(), this.namespace());
     }
 
     public static class Type implements ICategory.Type<NamespaceCategory> {

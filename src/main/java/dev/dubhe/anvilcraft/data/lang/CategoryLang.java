@@ -40,7 +40,7 @@ public class CategoryLang {
         provider.add("category.anvilcraft.unstackable", "Unstackable Items");
         provider.add("category.anvilcraft.food_and_drink", "Foods and Drinks");
         provider.add("category.anvilcraft.namespace", "%s Items");
-        provider.add("category.anvilcraft.redstone_tab", "Redstone Items");
+        provider.add("category.anvilcraft.redstone", "Redstone Items");
         provider.add("category.anvilcraft.enchanted", "Enchanted Items");
         provider.add("category.anvilcraft.filter", "New Category");
     }
