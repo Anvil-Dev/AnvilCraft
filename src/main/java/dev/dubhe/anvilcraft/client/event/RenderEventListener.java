@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
+import dev.dubhe.anvilcraft.client.support.EnchantedGoldBlockGlints;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import dev.dubhe.anvilcraft.client.support.SeismicBounceManager;
@@ -63,6 +64,16 @@ public class RenderEventListener {
             event.getCamera().getPosition().x(),
             event.getCamera().getPosition().y(),
             event.getCamera().getPosition().z()
+        );
+    }
+
+    @SubscribeEvent
+    public static void onRenderEnchantedGoldGlints(RenderLevelStageEvent event) {
+        if (event.getStage() != RenderLevelStageEvent.Stage.AFTER_BLOCK_ENTITIES) return;
+        EnchantedGoldBlockGlints.getInstance().render(
+            event.getPoseStack(),
+            event.getLevelRenderer().renderBuffers.bufferSource(),
+            event.getCamera().getPosition()
         );
     }
 

@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiFluidUtil;
@@ -15,6 +16,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.crafting.SizedFluidIngredient;
@@ -128,6 +130,25 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
             List.of(ItemIngredientPredicate.of(Items.GOLD_BLOCK).withCount(16).build()),
             List.of(ChanceItemStack.of(ModBlocks.CURSED_GOLD_BLOCK, 16)),
             List.of(LiquidEnchantmentJeiRecipeUtil.createFluidStacks(curses, 9)),
+            List.of(),
+            false,
+            false
+        );
+    }
+
+    public static ComplexFluidJeiRecipe enchantGoldIngot() {
+        List<FluidStack> fluids = new ArrayList<>();
+        fluids.add(new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), 16));
+        FluidStack mending = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), 4);
+        mending.set(ModComponents.LIQUID_ENCHANTMENT, Enchantments.MENDING);
+        fluids.add(mending);
+        FluidStack fortune = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), 1);
+        fortune.set(ModComponents.LIQUID_ENCHANTMENT, Enchantments.FORTUNE);
+        fluids.add(fortune);
+        return new ComplexFluidJeiRecipe(
+            List.of(ItemIngredientPredicate.of(Items.GOLD_INGOT).build()),
+            List.of(ChanceItemStack.of(ModItems.ENCHANTED_GOLD_INGOT, 1)),
+            List.of(fluids),
             List.of(),
             false,
             false

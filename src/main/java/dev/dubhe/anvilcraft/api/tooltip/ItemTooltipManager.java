@@ -62,6 +62,19 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CURSED_GOLD_BLOCK.asItem(), "Carriers will be cursed");
         NORMAL.put(ModItems.CURSED_GOLD_INGOT.get(), "Carriers will be cursed");
         NORMAL.put(ModItems.CURSED_GOLD_NUGGET.get(), "Carriers will be cursed");
+        NORMAL.put(ModBlocks.ENCHANTED_GOLD_BLOCK.asItem(), "Carrying enchanted gold cancels cursed gold debuffs");
+        NORMAL.put(
+            ModItems.ENCHANTED_GOLD_INGOT.get(), """
+                Carrying enchanted gold cancels cursed gold debuffs
+                Piglins barter with it four times"""
+        );
+        NORMAL.put(ModItems.ENCHANTED_GOLD_NUGGET.get(), "Carrying enchanted gold cancels cursed gold debuffs");
+        NORMAL.put(
+            ModFoodItems.CURSED_GOLDEN_APPLE.get(), """
+                Eating teleports:
+                Overworld <-> Nether
+                End -> respawn point"""
+        );
         NORMAL.put(ModItems.TOPAZ.get(), "Containing the power of lightning");
         NORMAL.put(ModItems.RUBY.get(), "Containing the power of fire");
         NORMAL.put(ModItems.SAPPHIRE.get(), "Containing the power of frost");

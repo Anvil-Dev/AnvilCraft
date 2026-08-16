@@ -22,6 +22,7 @@ public class ModItemTags {
     public static final TagKey<Item> RAW_CHICKEN = bindC("foods/raw_chicken");
     public static final TagKey<Item> RAW_PORKCHOP = bindC("foods/raw_porkchop");
     public static final TagKey<Item> RAW_RABBIT = bindC("foods/raw_rabbit");
+    public static final TagKey<Item> ENCHANTED_GOLD = bind("enchanted_gold");
 
     public static final TagKey<Item> PLATES = bindC("plates");
     public static final TagKey<Item> GOLD_PLATES = bindC("plates/gold");

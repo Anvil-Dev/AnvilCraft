@@ -179,14 +179,11 @@ public class MagnetBlock extends Block implements IHammerRemovable {
     }
 
     private static void chargeFromCopper(Level level, BlockPos magnetPos) {
-        double max = 0d;
         for (Direction face : Direction.values()) {
-            Block block = level.getBlockState(magnetPos.relative(face)).getBlock();
+            BlockPos copperPos = magnetPos.relative(face);
+            Block block = level.getBlockState(copperPos).getBlock();
             if (!CHARGE_NUMS.containsKey(block)) continue;
-            max = Math.max(max, CHARGE_NUMS.get(block));
-        }
-        if (max > 0) {
-            ChargeCollectorManager.charge(max, level, magnetPos);
+            ChargeCollectorManager.charge(CHARGE_NUMS.get(block), level, copperPos);
         }
     }
 

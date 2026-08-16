@@ -22,6 +22,9 @@ public class ModDataAttachments {
     public static final Supplier<AttachmentType<Boolean>> ZOMBIFICATED_BY_CURSE = ATTACHMENT_TYPES.register(
         "zombificated_by_curse", () -> AttachmentType.builder(() -> false).serialize(Codec.BOOL).build());
 
+    public static final Supplier<AttachmentType<Boolean>> ENCHANTED_GOLD_BARTER = ATTACHMENT_TYPES.register(
+        "enchanted_gold_barter", () -> AttachmentType.builder(() -> false).build());
+
     public static final Supplier<AttachmentType<AmuletRaffleProbability>> AMULET_RAFFLE_PROBABILITY = ATTACHMENT_TYPES.register(
         "amulet_raffle_probability", () -> AttachmentType.builder(() -> AmuletRaffleProbability.EMPTY)
             .serialize(AmuletRaffleProbability.CODEC.codec()).copyOnDeath().build());

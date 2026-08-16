@@ -21,6 +21,7 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.EMBER_METAL_INGOT);
         this.plain(ModItems.TRANSCENDIUM_INGOT);
         this.plain(ModItems.CURSED_GOLD_INGOT);
+        this.plain(ModItems.ENCHANTED_GOLD_INGOT);
         this.plain(ModItems.ZINC_INGOT);
         this.plain(ModItems.TIN_INGOT);
         this.plain(ModItems.TITANIUM_INGOT);
@@ -48,6 +49,7 @@ public class Ingredients extends DisplayItemsGenerator {
         this.plain(ModItems.EMBER_METAL_NUGGET);
         this.plain(ModItems.TRANSCENDIUM_NUGGET);
         this.plain(ModItems.CURSED_GOLD_NUGGET);
+        this.plain(ModItems.ENCHANTED_GOLD_NUGGET);
 
         this.plain(ModItems.RAW_ZINC);
         this.plain(ModItems.RAW_TIN);

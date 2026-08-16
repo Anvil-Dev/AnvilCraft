@@ -12,13 +12,6 @@ import net.neoforged.neoforge.common.Tags;
 public class JewelCraftingRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
         JewelCraftingRecipe.builder()
-            .requires(Items.EXPERIENCE_BOTTLE, 16)
-            .requires(Items.GOLD_BLOCK, 8)
-            .requires(Items.GOLDEN_APPLE)
-            .result(new ItemStack(Items.ENCHANTED_GOLDEN_APPLE))
-            .save(provider);
-
-        JewelCraftingRecipe.builder()
             .requires(Tags.Items.STORAGE_BLOCKS_GOLD)
             .requires(Items.EMERALD, 2)
             .requires(ModItems.ROYAL_STEEL_INGOT)

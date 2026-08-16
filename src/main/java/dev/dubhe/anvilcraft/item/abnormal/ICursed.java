@@ -11,6 +11,7 @@ import net.neoforged.neoforge.common.extensions.IItemExtension;
 public interface ICursed extends IItemExtension, IAbnormal {
     @Override
     default void addEffect(Player player) {
+        if (IEnchantedGold.isCarryingEnchantedGold(player)) return;
         player.addEffect(IAbnormal.makeEffectInstance(MobEffects.WEAKNESS, 1));
         int count = this.getItemCount(player);
         if (count > 8) {

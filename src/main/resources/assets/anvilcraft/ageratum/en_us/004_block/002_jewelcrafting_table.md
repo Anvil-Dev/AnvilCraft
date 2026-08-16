@@ -22,7 +22,6 @@ After placing the item to replicate, press [Space] to auto-fill materials
 
 <row halign="center">
 <recipe id="anvilcraft:jewel_crafting/elytra"/>
-<recipe id="anvilcraft:jewel_crafting/enchanted_golden_apple"/>
 <recipe id="anvilcraft:jewel_crafting/totem_of_undying"/>
 </row>
 

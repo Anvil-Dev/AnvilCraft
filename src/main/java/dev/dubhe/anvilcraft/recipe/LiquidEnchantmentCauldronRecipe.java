@@ -6,8 +6,11 @@ import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.LiquidEnchantmentUtil;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
@@ -26,8 +29,12 @@ public final class LiquidEnchantmentCauldronRecipe {
             return assimilation.isPresent() ? assimilation : createBlank(fluids, item);
         }
         if (item.is(ModItemTags.SILVER_NUGGETS)) return cleanse(fluids);
-        if (item.is(Items.GOLD_INGOT) && item.getCount() >= 16) {
-            return curseGold(fluids, 1, new ItemStack(ModItems.CURSED_GOLD_INGOT.get(), 16));
+        if (item.is(Items.GOLD_INGOT)) {
+            Optional<Result> enchanted = enchantGold(fluids);
+            if (enchanted.isPresent()) return enchanted;
+            if (item.getCount() >= 16) {
+                return curseGold(fluids, 1, new ItemStack(ModItems.CURSED_GOLD_INGOT.get(), 16));
+            }
         }
         if (item.is(Items.GOLD_BLOCK) && item.getCount() >= 16) {
             return curseGold(fluids, 9, new ItemStack(ModBlocks.CURSED_GOLD_BLOCK, 16));
@@ -83,6 +90,27 @@ public final class LiquidEnchantmentCauldronRecipe {
         LargeCauldronFluidHandler simulated = copyHandler(fluids);
         if (!drain(simulated, cursed, amount)) return Optional.empty();
         return Optional.of(new Result(simulated.copyFluids(), 16, result, false));
+    }
+
+    private static Optional<Result> enchantGold(List<FluidStack> fluids) {
+        return enchantGoldWith(fluids, LiquidEnchantmentUtil::isBlank, 16)
+            .or(() -> enchantGoldWith(fluids, enchantment(Enchantments.MENDING), 4))
+            .or(() -> enchantGoldWith(fluids, enchantment(Enchantments.FORTUNE), 1));
+    }
+
+    private static Predicate<FluidStack> enchantment(ResourceKey<Enchantment> enchantment) {
+        return fluid -> LiquidEnchantmentUtil.getEnchantment(fluid)
+            .filter(holder -> holder.is(enchantment))
+            .isPresent();
+    }
+
+    private static Optional<Result> enchantGoldWith(List<FluidStack> fluids, Predicate<FluidStack> predicate, int amount) {
+        FluidStack fluid = find(fluids, predicate, amount);
+        if (fluid.isEmpty()) return Optional.empty();
+
+        LargeCauldronFluidHandler simulated = copyHandler(fluids);
+        if (!drain(simulated, fluid, amount)) return Optional.empty();
+        return Optional.of(new Result(simulated.copyFluids(), 1, new ItemStack(ModItems.ENCHANTED_GOLD_INGOT.get()), false));
     }
 
     private static FluidStack find(List<FluidStack> fluids, Predicate<FluidStack> predicate, int amount) {

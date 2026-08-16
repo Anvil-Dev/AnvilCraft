@@ -1,7 +1,10 @@
 {
   "values": [
     "anvilcraft:cursed_gold_block",
+    "anvilcraft:enchanted_gold_block",
     "anvilcraft:cursed_gold_ingot",
-    "anvilcraft:cursed_gold_nugget"
+    "anvilcraft:cursed_gold_nugget",
+    "anvilcraft:enchanted_gold_ingot",
+    "anvilcraft:enchanted_gold_nugget"
   ]
 }
