@@ -121,7 +121,11 @@ public class AnvilEventListener {
 
     public static void handleNeoAnvilRecipe(AnvilEvent.OnLand event) {
         Level level = event.getLevel();
-        if (!(level instanceof ServerLevel serverLevel) || event.getEntity().getBlockStateOn().is(ModBlockTags.LANDING_NO_RECIPE)) return;
+        if (!(level instanceof ServerLevel serverLevel)
+            || event.getLevel().getBlockState(event.getPos().below()).is(ModBlockTags.LANDING_NO_RECIPE)
+        ) {
+            return;
+        }
         NeoForge.EVENT_BUS.post(new AnvilEvent.BeforeInWorldRecipe(event));
         try {
             BlockPos pos = event.getPos();
