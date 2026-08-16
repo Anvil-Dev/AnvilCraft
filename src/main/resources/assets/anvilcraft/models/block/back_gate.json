@@ -1,0 +1,67 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/cube",
+	"render_type": "minecraft:cutout",
+	"texture_size": [64, 64],
+	"textures": {
+		"4": "anvilcraft:block/celestial_forging_anvil_gate_inner",
+		"particle": "anvilcraft:block/celestial_forging_anvil_gate_inner"
+	},
+	"elements": [
+		{
+			"from": [-8, -8, 8],
+			"to": [24, 24, 8],
+			"shade": false,
+			"rotation": {"angle": 0, "axis": "z", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#4"},
+				"south": {"uv": [0, 0, 16, 16], "rotation": 180, "texture": "#4"}
+			}
+		}
+	],
+	"display": {
+		"thirdperson_righthand": {
+			"rotation": [75, -180, 0],
+			"translation": [0, 1.25, 3.25],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"thirdperson_lefthand": {
+			"rotation": [75, -180, 0],
+			"translation": [0, 1.25, 3.25],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"firstperson_righthand": {
+			"rotation": [0, -180, 0],
+			"translation": [3.75, 4, 0],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"firstperson_lefthand": {
+			"rotation": [0, -180, 0],
+			"translation": [3.75, 4, 0],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"ground": {
+			"translation": [0, 5, 0],
+			"scale": [0.2, 0.2, 0.2]
+		},
+		"gui": {
+			"rotation": [30, -135, 0],
+			"translation": [0.25, 0.75, 0],
+			"scale": [0.24, 0.24, 0.24]
+		},
+		"head": {
+			"translation": [0, 10.75, -0.5],
+			"scale": [0.6, 0.6, 0.6]
+		},
+		"fixed": {
+			"translation": [0, 0.25, -0.5],
+			"scale": [0.25, 0.25, 0.25]
+		},
+		"on_shelf": {
+			"rotation": [0, -180, 0],
+			"translation": [0, 0, -1.25],
+			"scale": [0.4, 0.4, 0.4]
+		}
+	}
+}
