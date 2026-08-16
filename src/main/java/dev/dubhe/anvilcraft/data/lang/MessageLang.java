@@ -13,5 +13,8 @@ public class MessageLang {
         provider.add("message.anvilcraft.trading_station.break.time", "Time: %s");
         provider.add("message.anvilcraft.trading_station.break.onliners", "Online Players: ");
         provider.add("message.anvilcraft.trading_station.break.closest", "Closest Player: %s");
+        provider.add("message.anvilcraft.hyperdimension_terminal.bound", "Terminal bound");
+        provider.add("message.anvilcraft.hyperdimension_terminal.not_bound", "Terminal is not bound");
+        provider.add("message.anvilcraft.hyperdimension_terminal.not_found", "Bound storage station not found");
     }
 }

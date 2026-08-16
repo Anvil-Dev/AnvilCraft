@@ -16,6 +16,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.DISK);
         this.plain(ModItems.STRUCTURE_DISK);
         this.plain(ModItems.FILTER);
+        this.plain(ModItems.HYPERDIMENSION_TERMINAL);
 
         // Anvil hammers and enchanted starter tools.
         this.plain(ModItems.ANVIL_HAMMER);

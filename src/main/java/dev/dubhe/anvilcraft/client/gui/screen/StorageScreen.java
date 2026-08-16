@@ -144,7 +144,14 @@ public class StorageScreen extends Screen {
     private int titleLabelX;
 
     public StorageScreen(BlockPos sourcePos) {
-        super(Objects.requireNonNull(Minecraft.getInstance().level).getBlockState(sourcePos).getBlock().getName());
+        this(
+            sourcePos,
+            Objects.requireNonNull(Minecraft.getInstance().level).getBlockState(sourcePos).getBlock().getName()
+        );
+    }
+
+    public StorageScreen(BlockPos sourcePos, Component title) {
+        super(title);
         this.minecraft = Minecraft.getInstance();
         this.sourcePos = sourcePos;
         this.player = Objects.requireNonNull(Minecraft.getInstance().player);
@@ -155,6 +162,10 @@ public class StorageScreen extends Screen {
 
     public static void openScreen(BlockPos sourcePos) {
         Minecraft.getInstance().setScreen(new StorageScreen(sourcePos));
+    }
+
+    public static void openScreen(BlockPos sourcePos, Component title) {
+        Minecraft.getInstance().setScreen(new StorageScreen(sourcePos, title));
     }
 
     @Override

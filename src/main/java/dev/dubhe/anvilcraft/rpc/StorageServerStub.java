@@ -13,12 +13,18 @@ import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
+import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
 import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
 import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
 import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
+import dev.dubhe.anvilcraft.saved.storage.HyperdimensionStorage;
+import dev.dubhe.anvilcraft.saved.storage.StorageType;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryEntry;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryMode;
@@ -58,6 +64,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 
 public final class StorageServerStub {
@@ -70,6 +77,7 @@ public final class StorageServerStub {
         .apply(ByteBufCodecs.list())
         .map(IntArrayList::new, Function.identity());
     private static final Multimap<UUID, StorageServerStub> STUBS = ArrayListMultimap.create();
+    private static final Map<UUID, Map<Long, UUID>> REMOTE_STORAGES = new HashMap<>();
 
     private final UUID storageId;
     private long version;
@@ -430,6 +438,33 @@ public final class StorageServerStub {
             .orElse(new StorageUsage(0, 0, List.of()));
     }
 
+    @RemoteCallable(validator = TerminalAccessValidator.class)
+    public static long openRemote(UUID playerId, UUID storageId) {
+        Storages.get().getOrCreate(storageId, HyperdimensionStorage.class);
+        Map<Long, UUID> remote = StorageServerStub.REMOTE_STORAGES.computeIfAbsent(
+            playerId,
+            ignored -> new HashMap<>()
+        );
+        long virtualPos;
+        do {
+            virtualPos = ThreadLocalRandom.current().nextLong();
+        } while (remote.containsKey(virtualPos));
+        remote.put(virtualPos, storageId);
+        return virtualPos;
+    }
+
+    private static boolean canStore(BaseStorage<?> storage, ItemStack stack) {
+        StorageType type = StorageType.find(storage);
+        if (type == StorageType.SHULKER_CONTAINER) {
+            if (stack.getItem() instanceof ShulkerContainerBlockItem) return false;
+            if (stack.is(ModItems.HYPERDIMENSION_TERMINAL)) return false;
+        }
+        if (type == StorageType.HYPERDIMENSION) {
+            return !stack.is(ModItems.HYPERDIMENSION_TERMINAL);
+        }
+        return true;
+    }
+
     private static boolean containsType(List<ItemStack> types, ItemStack stack) {
         for (ItemStack type : types) {
             if (ItemStack.isSameItemSameComponents(type, stack)) return true;
@@ -616,10 +651,12 @@ public final class StorageServerStub {
 
     public static void remove(UUID playerId) {
         StorageServerStub.STUBS.removeAll(playerId);
+        StorageServerStub.REMOTE_STORAGES.remove(playerId);
     }
 
     public static void clear() {
         StorageServerStub.STUBS.clear();
+        StorageServerStub.REMOTE_STORAGES.clear();
     }
 
     public static final class StorageUsageValidator implements IRemoteCallableValidator {
@@ -653,6 +690,9 @@ public final class StorageServerStub {
             ) {
                 return false;
             }
+            if (StorageServerStub.REMOTE_STORAGES.getOrDefault(playerId, Map.of()).containsKey(sourcePos)) {
+                return true;
+            }
             BlockPos pos = BlockPos.of(sourcePos);
             BlockEntity blockEntity = player.level().getBlockEntity(pos);
             // 不强制要求 storage.getId() 非 null：首次访问时 getView 会惰性生成 id 并持久化，
@@ -663,6 +703,31 @@ public final class StorageServerStub {
                 player,
                 storage.getBlockState().getBlock()
             );
+        }
+    }
+
+    public static final class TerminalAccessValidator implements IRemoteCallableValidator {
+        @Override
+        public boolean validate(IPayloadContext ctx, Method method, Object[] args) {
+            if (
+                !(ctx.player() instanceof ServerPlayer player)
+                || args.length < 2
+                || !(args[0] instanceof UUID playerId)
+                || !player.getGameProfile().getId().equals(playerId)
+                || !(args[1] instanceof UUID storageId)
+            ) {
+                return false;
+            }
+            ItemStack main = player.getMainHandItem();
+            ItemStack off = player.getOffhandItem();
+            ItemStack terminal = main.is(ModItems.HYPERDIMENSION_TERMINAL)
+                ? main
+                : off.is(ModItems.HYPERDIMENSION_TERMINAL) ? off : null;
+            if (terminal == null) {
+                return false;
+            }
+            TerminalBinding binding = terminal.get(ModComponents.TERMINAL_BINDING);
+            return binding != null && binding.id().isPresent() && binding.id().get().equals(storageId);
         }
     }
 
@@ -924,6 +989,11 @@ public final class StorageServerStub {
 
     private static StorageView getView(HolderLookup.Provider registries, UUID playerId, long sourcePos) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        UUID remoteId = StorageServerStub.REMOTE_STORAGES.getOrDefault(playerId, Map.of()).get(sourcePos);
+        if (remoteId != null) {
+            BaseStorage<?> storage = Storages.get().getOrCreate(remoteId, HyperdimensionStorage.class);
+            return new StorageView(List.of(storage), List.of());
+        }
         BlockPos pos = BlockPos.of(sourcePos);
         BlockEntity blockEntity = player.level().getBlockEntity(pos);
         if (!(blockEntity instanceof StorageBlockEntity storage)) {
@@ -1013,6 +1083,9 @@ public final class StorageServerStub {
         }
 
         int insert(ItemStack resource, int amount) {
+            if (!StorageServerStub.canStore(this.primary(), resource)) {
+                return 0;
+            }
             int inserted = 0;
             for (int i = 0; i < this.storages.size() - 1; i++) {
                 UnlimitedItemStacksResourceHandler items = this.storages.get(i).getItems();
