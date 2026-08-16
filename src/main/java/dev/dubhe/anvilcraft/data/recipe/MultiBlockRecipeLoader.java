@@ -274,7 +274,7 @@ public class MultiBlockRecipeLoader {
             .layer("AAA", "AAA", "AAA")
             .layer("AAA", "ABA", "AAA")
             .layer("AAA", "AAA", "AAA")
-            .symbol('A', BlockPredicateWithState.ofTag("c:stripped_logs"))
+            .symbol('A', Tags.Blocks.STRIPPED_LOGS)
             .symbol('B', ModBlocks.RESIN_BLOCK)
             .save(provider);
 

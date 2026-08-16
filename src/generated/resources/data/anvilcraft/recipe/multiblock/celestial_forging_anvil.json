@@ -1,16 +1,16 @@
 {
   "type": "anvilcraft:multiblock",
   "pattern": {
-    "layers": [
+    "grid": [
       [
-        "AAA",
-        "ABA",
-        "AAA"
+        "000",
+        "0A0",
+        "000"
       ],
       [
-        "CCC",
-        "CFC",
-        "CCC"
+        "BBB",
+        "BCB",
+        "BBB"
       ],
       [
         "DED",
@@ -18,24 +18,24 @@
         "DED"
       ]
     ],
-    "symbols": {
+    "mapping": {
+      "0": {
+        "blocks": "anvilcraft:transcendium_block"
+      },
       "A": {
-        "block": "anvilcraft:transcendium_block"
+        "blocks": "anvilcraft:spacetime_supercomputer"
       },
       "B": {
-        "block": "anvilcraft:spacetime_supercomputer"
+        "blocks": "minecraft:gold_block"
       },
       "C": {
-        "block": "minecraft:gold_block"
+        "blocks": "anvilcraft:mass_energy_inverter"
       },
       "D": {
-        "block": "anvilcraft:confinement_chamber"
+        "blocks": "anvilcraft:confinement_chamber"
       },
       "E": {
-        "block": "anvilcraft:negative_matter_block"
-      },
-      "F": {
-        "block": "anvilcraft:mass_energy_inverter"
+        "blocks": "anvilcraft:negative_matter_block"
       }
     }
   },
