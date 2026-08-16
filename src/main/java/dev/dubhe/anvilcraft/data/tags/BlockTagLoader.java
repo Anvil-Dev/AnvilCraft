@@ -217,6 +217,7 @@ public class BlockTagLoader {
 
         provider.addTag(ModBlockTags.CRAFTING_MATRIX_ELEMENT)
             .add(ModBlocks.SPACE_OVERCOMPRESSOR.getKey())
+            .add(ModBlocks.SPACETIME_SUPERCOMPUTER.getKey())
             .addTag(Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES);
 
         // mekanism integration

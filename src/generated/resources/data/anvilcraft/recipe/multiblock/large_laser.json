@@ -1,7 +1,7 @@
 {
   "type": "anvilcraft:multiblock",
   "pattern": {
-    "layers": [
+    "grid": [
       [
         " A ",
         "BCD",
@@ -18,60 +18,78 @@
         "EEE"
       ]
     ],
-    "symbols": {
+    "mapping": {
       "A": {
-        "block": "anvilcraft:ruby_laser",
-        "properties": {
-          "facing": "south"
-        }
+        "blocks": "anvilcraft:ruby_laser",
+        "properties": [
+          {
+            "facing": "south"
+          }
+        ]
       },
       "B": {
-        "block": "anvilcraft:ruby_laser",
-        "properties": {
-          "facing": "east"
-        }
+        "blocks": "anvilcraft:ruby_laser",
+        "properties": [
+          {
+            "facing": "east"
+          }
+        ]
       },
       "C": {
-        "block": "anvilcraft:ruby_prism",
-        "properties": {
-          "facing": "down"
-        }
+        "blocks": "anvilcraft:ruby_prism",
+        "properties": [
+          {
+            "facing": "down"
+          }
+        ]
       },
       "D": {
-        "block": "anvilcraft:ruby_laser",
-        "properties": {
-          "facing": "west"
-        }
+        "blocks": "anvilcraft:ruby_laser",
+        "properties": [
+          {
+            "facing": "west"
+          }
+        ]
       },
       "E": {
-        "block": "anvilcraft:ruby_laser",
-        "properties": {
-          "facing": "north"
-        }
+        "blocks": "anvilcraft:ruby_laser",
+        "properties": [
+          {
+            "facing": "north"
+          }
+        ]
       },
       "F": {
-        "block": "anvilcraft:ruby_prism",
-        "properties": {
-          "facing": "south"
-        }
+        "blocks": "anvilcraft:ruby_prism",
+        "properties": [
+          {
+            "facing": "south"
+          }
+        ]
       },
       "G": {
-        "block": "anvilcraft:ruby_prism",
-        "properties": {
-          "facing": "north"
-        }
+        "blocks": "anvilcraft:ruby_prism",
+        "properties": [
+          {
+            "facing": "north"
+          }
+        ]
       },
       "H": {
-        "block": "anvilcraft:ruby_prism",
-        "properties": {
-          "facing": "east"
-        }
+        "blocks": "anvilcraft:ruby_prism",
+        "properties": [
+          {
+            "facing": "east"
+          }
+        ]
       },
       "I": {
-        "block": "anvilcraft:ruby_prism",
-        "properties": {
-          "facing": "west"
-        }
+        "blocks": "anvilcraft:ruby_prism",
+        "properties": [
+          {
+            "facing": "west"
+          }
+        ]
       }
     }
   },

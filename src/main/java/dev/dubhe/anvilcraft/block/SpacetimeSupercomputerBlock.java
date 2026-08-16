@@ -4,6 +4,7 @@ import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.better.BetterBaseEntityBlock;
 import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
+import dev.dubhe.anvilcraft.client.gui.screen.SpacetimeSupercomputerScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.network.SpacetimeSupercomputerBlockEntitySyncPacket;
 import net.minecraft.client.Minecraft;
@@ -63,6 +64,17 @@ public class SpacetimeSupercomputerBlock extends BetterBaseEntityBlock implement
     }
 
     @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!state.is(newState.getBlock()) && !movedByPiston) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof SpacetimeSupercomputerBlockEntity supercomputer) {
+                supercomputer.dropProcessingInputs();
+            }
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    @Override
     protected void neighborChanged(
         BlockState state,
         Level level,
@@ -115,9 +127,7 @@ public class SpacetimeSupercomputerBlock extends BetterBaseEntityBlock implement
 
     @OnlyIn(Dist.CLIENT)
     private void openScreen(SpacetimeSupercomputerBlockEntity entity) {
-        Minecraft.getInstance().setScreen(
-            new dev.dubhe.anvilcraft.client.gui.screen.SpacetimeSupercomputerScreen(entity)
-        );
+        Minecraft.getInstance().setScreen(new SpacetimeSupercomputerScreen(entity));
     }
 
     @Override

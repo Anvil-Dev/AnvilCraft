@@ -1,15 +1,17 @@
 package dev.dubhe.anvilcraft.block.entity;
 
 import com.google.common.collect.EvictingQueue;
+import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.model.CommandInfo;
+import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
+import dev.dubhe.anvilcraft.util.AnvilUtil;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.ChatFormatting;
-import net.minecraft.Util;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -23,24 +25,28 @@ import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
-import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 
 public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IPowerConsumer {
     private static final int TICK_SPRINT_COUNTDOWN_SECONDS = 30;
@@ -56,7 +62,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
     private String command = "";
 
     @Getter
-    private EvictingQueue<String> historyCommands = EvictingQueue.create(16);
+    private final EvictingQueue<String> historyCommands = EvictingQueue.create(16);
 
     @Getter
     private float chargingProgress = 0;
@@ -69,7 +75,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
     private int tickSprintCountdownTicks;
 
     @Getter
-    private final List<CommandInfo> availableCommands = Util.make(
+    private final List<CommandInfo> availableCommands = net.minecraft.Util.make(
         new ObjectArrayList<>(), (list) -> {
             list.add(new CommandInfo("/locate biome", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowLocateBiomeCommand));
             list.add(new CommandInfo("/locate structure", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowLocateStructureCommand));
@@ -78,6 +84,16 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
             list.add(new CommandInfo("/tick sprint", AnvilCraft.CONFIG.spacetimeSupercomputerCommand.allowTickSprintCommand));
         }
     );
+
+    @Getter
+    private @Nullable RecipeHolder<Multiblock4DRecipe> processingRecipe = null;
+    @Getter
+    private int processingStep = -1;
+    @Getter
+    private int processingSize = -1;
+    private int processingTotal = -1;
+    private final List<ItemStack> pendingDrops = new ArrayList<>();
+    private @Nullable String pendingRecipeId;
 
     public SpacetimeSupercomputerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -97,6 +113,16 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         this.setChanged();
         if (this.level != null) {
             this.level.sendBlockUpdated(getBlockPos(), getBlockState(), getBlockState(), 3);
+            if (this.level instanceof ServerLevel serverLevel) {
+                Packet<?> packet = this.getUpdatePacket();
+                if (packet != null) {
+                    for (ServerPlayer serverPlayer : serverLevel.getChunkSource().chunkMap.getPlayers(
+                        serverLevel.getChunkAt(this.getBlockPos()).getPos(), false
+                    )) {
+                        serverPlayer.connection.send(packet);
+                    }
+                }
+            }
         }
     }
 
@@ -121,6 +147,23 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         if (this.chargingProgress > 0) {
             tag.putFloat("chargingProgress", this.chargingProgress);
         }
+        if (this.processingRecipe != null) {
+            CompoundTag processing = new CompoundTag();
+            processing.putString("recipe", Objects.requireNonNull(this.processingRecipe.id()).toString());
+            processing.putInt("step", this.processingStep);
+            processing.putInt("size", this.processingSize);
+            processing.putInt("total", this.processingTotal);
+            tag.put("processing", processing);
+        }
+        if (!this.pendingDrops.isEmpty()) {
+            ListTag pendingTag = new ListTag();
+            for (ItemStack stack : this.pendingDrops) {
+                if (!stack.isEmpty()) {
+                    pendingTag.add(stack.save(registries));
+                }
+            }
+            tag.put("pendingDrops", pendingTag);
+        }
     }
 
     @Override
@@ -141,6 +184,72 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         if (tag.contains("chargingProgress")) {
             this.chargingProgress = tag.getFloat("chargingProgress");
         }
+        if (tag.contains("processing")) {
+            CompoundTag processing = tag.getCompound("processing");
+            this.pendingRecipeId = processing.getString("recipe");
+            this.processingStep = processing.getInt("step");
+            this.processingSize = processing.getInt("size");
+            this.processingTotal = processing.getInt("total");
+        } else {
+            // 服务端仅在处理中写入 processing：缺失即代表处理已结束，清除客户端残留状态。
+            this.pendingRecipeId = null;
+            this.processingRecipe = null;
+            this.processingStep = -1;
+            this.processingSize = -1;
+            this.processingTotal = -1;
+        }
+        // 先加载 pendingDrops 再解析配方：解析失败时需要归还这些已消耗材料。
+        if (tag.contains("pendingDrops", Tag.TAG_LIST)) {
+            this.pendingDrops.clear();
+            ListTag pendingTag = tag.getList("pendingDrops", Tag.TAG_COMPOUND);
+            for (Tag tag1 : pendingTag) {
+                if (tag1 instanceof CompoundTag compoundTag) {
+                    ItemStack stack = ItemStack.parse(registries, compoundTag).orElse(ItemStack.EMPTY);
+                    if (!stack.isEmpty()) {
+                        this.pendingDrops.add(stack);
+                    }
+                }
+            }
+        }
+        this.resolvePendingRecipe();
+    }
+
+    @Override
+    public void setLevel(Level level) {
+        super.setLevel(level);
+        this.resolvePendingRecipe();
+    }
+
+    private void resolvePendingRecipe() {
+        if (this.pendingRecipeId == null || this.level == null) {
+            return;
+        }
+        String recipeId = this.pendingRecipeId;
+        this.pendingRecipeId = null;
+        this.processingRecipe = this.level.getRecipeManager().byKey(ResourceLocation.parse(recipeId))
+            .filter(ref -> ref.value() instanceof Multiblock4DRecipe)
+            .map(Util::<RecipeHolder<Multiblock4DRecipe>>cast)
+            .orElse(null);
+        if (this.processingRecipe == null) {
+            // 配方已不存在（数据包被移除）：归还已消耗的材料。
+            this.dropProcessingInputs();
+        }
+    }
+
+    @Override
+    public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
+        CompoundTag tag = super.getUpdateTag(registries);
+        // 与 saveAdditional 保持一致：仅在处理中写入 processing 子 tag，
+        // 避免 recipe="" 让客户端 resolvePendingRecipe 执行 ResourceLocation.parse("") 抛异常。
+        if (this.processingRecipe != null) {
+            CompoundTag processing = new CompoundTag();
+            processing.putString("recipe", Objects.requireNonNull(this.processingRecipe.id()).toString());
+            processing.putInt("step", this.processingStep);
+            processing.putInt("size", this.processingSize);
+            processing.putInt("total", this.processingTotal);
+            tag.put("processing", processing);
+        }
+        return tag;
     }
 
     public void runCommand(@Nullable Player player) {
@@ -314,6 +423,7 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
         }
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private boolean updateTickSprintVoters(MinecraftServer server) {
         Set<UUID> onlinePlayers = new HashSet<>();
         for (ServerPlayer serverPlayer : server.getPlayerList().getPlayers()) {
@@ -552,5 +662,91 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
                 this.chargingProgress += Math.clamp(0.01667f, 0f, 100.0f);
             }
         }
+    }
+
+    public void setProcessingRecipe(@Nullable RecipeHolder<Multiblock4DRecipe> processingRecipe) {
+        this.processingRecipe = processingRecipe;
+        this.processingTotal = processingRecipe == null ? -1 : processingRecipe.value().getDefinitions().size();
+        this.onChange();
+    }
+
+    public void setProcessingStep(int processingStep) {
+        this.processingStep = processingStep;
+        this.onChange();
+    }
+
+    public void setProcessingSize(int processingSize) {
+        this.processingSize = processingSize;
+        this.onChange();
+    }
+
+    /**
+     * 批量更新处理状态并只触发一次 {@link #onChange()}，避免连续多个 setter 各自
+     * sendBlockUpdated + 逐玩家发包造成扇出。
+     */
+    public void setProcessingState(@Nullable RecipeHolder<Multiblock4DRecipe> recipe, int step, int size) {
+        this.processingRecipe = recipe;
+        this.processingStep = step;
+        this.processingSize = size;
+        this.processingTotal = recipe == null ? -1 : recipe.value().getDefinitions().size();
+        this.onChange();
+    }
+
+    /**
+     * 当前已成功合成的步数，尚未开始时为 0。
+     */
+    public int getProcessingProgress() {
+        return this.processingRecipe == null ? 0 : Math.max(0, this.processingStep);
+    }
+
+    /**
+     * 四维合成总步数。优先使用已同步的 total（客户端可能无法解析配方 holder），
+     * 否则从配方定义推断。
+     */
+    public int getProcessingTotal() {
+        if (this.processingTotal > 0) {
+            return this.processingTotal;
+        }
+        if (this.processingRecipe != null) {
+            return this.processingRecipe.value().getDefinitions().size();
+        }
+        return 0;
+    }
+
+    public void addPendingDrops(List<ItemStack> drops) {
+        if (drops.isEmpty()) {
+            return;
+        }
+        this.pendingDrops.addAll(drops);
+        this.setChanged();
+    }
+
+    public void clearPendingDrops() {
+        if (this.pendingDrops.isEmpty()) {
+            return;
+        }
+        this.pendingDrops.clear();
+        this.setChanged();
+    }
+
+    /**
+     * 拆除时空超算时调用：将已消耗步骤的材料以掉落物形式释放。
+     */
+    public void dropProcessingInputs() {
+        if (this.level == null || this.level.isClientSide) {
+            return;
+        }
+        if (!(this.level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        List<ItemStack> drops = new ArrayList<>(this.pendingDrops);
+        this.pendingDrops.clear();
+
+        AnvilUtil.dropItems(drops, serverLevel, this.getBlockPos().below().getCenter());
+        this.processingRecipe = null;
+        this.processingStep = -1;
+        this.processingSize = -1;
+        this.processingTotal = -1;
+        this.onChange();
     }
 }

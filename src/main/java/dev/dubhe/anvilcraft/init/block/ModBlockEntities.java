@@ -32,6 +32,7 @@ import dev.dubhe.anvilcraft.block.entity.FluidTankBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.HypercubeBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
@@ -107,6 +108,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.GlassPipeBlockEntityRend
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HasMobBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeatCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.HeliostatsRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.HypercubeBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.InfiniteCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeCauldronBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankBlockEntityRenderer;
@@ -117,6 +119,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.SpacetimeSupercomputerBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TradingStationBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
@@ -522,6 +525,7 @@ public class ModBlockEntities {
 
     public static final BlockEntityEntry<SpacetimeSupercomputerBlockEntity> SPACETIME_SUPERCOMPUTER = REGISTRUM
         .blockEntity("spacetime_supercomputer", SpacetimeSupercomputerBlockEntity::new)
+        .renderer(() -> SpacetimeSupercomputerBlockEntityRenderer::new)
         .validBlock(ModBlocks.SPACETIME_SUPERCOMPUTER)
         .register();
 
@@ -585,6 +589,12 @@ public class ModBlockEntities {
         .blockEntity("creative_crate", CreativeCrateBlockEntity::new)
         .validBlock(ModBlocks.CREATIVE_CRATE)
         .renderer(() -> CreativeCrateBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<HypercubeBlockEntity> HYPERCUBE = REGISTRUM
+        .blockEntity("hypercube", HypercubeBlockEntity::new)
+        .validBlock(ModBlocks.HYPERCUBE)
+        .renderer(() -> HypercubeBERenderer::new)
         .register();
 
     public static void register() {

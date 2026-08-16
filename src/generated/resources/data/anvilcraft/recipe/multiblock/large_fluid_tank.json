@@ -1,29 +1,29 @@
 {
   "type": "anvilcraft:multiblock",
   "pattern": {
-    "layers": [
+    "grid": [
       [
-        "AAA",
-        "AAA",
-        "AAA"
+        "000",
+        "000",
+        "000"
       ],
       [
-        "ABA",
-        "B B",
-        "ABA"
+        "0A0",
+        "A A",
+        "0A0"
       ],
       [
-        "AAA",
-        "AAA",
-        "AAA"
+        "000",
+        "000",
+        "000"
       ]
     ],
-    "symbols": {
-      "A": {
-        "block": "anvilcraft:cut_brass_block"
+    "mapping": {
+      "0": {
+        "blocks": "anvilcraft:cut_brass_block"
       },
-      "B": {
-        "tag": "c:glass_blocks"
+      "A": {
+        "blocks": "#c:glass_blocks"
       }
     }
   },

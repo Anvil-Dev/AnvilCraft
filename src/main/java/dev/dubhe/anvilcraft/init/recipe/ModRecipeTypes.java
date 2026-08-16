@@ -36,6 +36,7 @@ import dev.dubhe.anvilcraft.recipe.frost.DeformationRecipe;
 import dev.dubhe.anvilcraft.recipe.frost.PermutationRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainChanceRecipe;
 import dev.dubhe.anvilcraft.recipe.mineral.MineralFountainRecipe;
+import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
 import dev.dubhe.anvilcraft.recipe.multiple.BaseMultipleToOneSmithingRecipe;
@@ -175,6 +176,11 @@ public class ModRecipeTypes {
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<MultiblockConversionRecipe>>
         MULTIBLOCK_CONVERSION_SERIALIZER =
         RECIPE_SERIALIZERS.register("multiblock_conversion", MultiblockConversionRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<Multiblock4DRecipe>> MULTIBLOCK_4D_TYPE =
+        registerType("4d_multiblock");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<Multiblock4DRecipe>> MULTIBLOCK_4D_SERIALIZER =
+        RECIPE_SERIALIZERS.register("4d_multiblock", Multiblock4DRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<MineralFountainRecipe>> MINERAL_FOUNTAIN =
         registerType("mineral_fountain");
