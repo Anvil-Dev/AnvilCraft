@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 public class LangHandler {
     public static void init(RegistrumLangProvider provider) {
         AdvancementLang.init(provider);
+        StatLang.init(provider);
         ConfigScreenLang.init(provider);
         ItemTooltipLang.init(provider);
         JadeLang.init(provider);

@@ -10,6 +10,8 @@ import dev.dubhe.anvilcraft.advancements.criterion.BlockComparatorTurnOverTrigge
 import dev.dubhe.anvilcraft.advancements.criterion.ConvertBeaconTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DevourerDevourTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DispenserRepairIronGolem;
+import dev.dubhe.anvilcraft.advancements.criterion.ElectricAllergyTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.EnterPowerGridTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.FireReforgeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.HeatCollectorTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.InWorldRecipeTrigger;
@@ -88,6 +90,12 @@ public class ModCriterionTriggers {
 
     public static final DeferredHolder<CriterionTrigger<?>, AnvilHitPiezoelectricCrystalTrigger> ANVIL_HIT_PIEZOELECTRIC_CRYSTAL =
         REGISTER.register("anvil_hit_piezoelectric_crystal", AnvilHitPiezoelectricCrystalTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, EnterPowerGridTrigger> ENTER_POWER_GRID =
+        REGISTER.register("enter_power_grid", EnterPowerGridTrigger::new);
+
+    public static final DeferredHolder<CriterionTrigger<?>, ElectricAllergyTrigger> ELECTRIC_ALLERGY =
+        REGISTER.register("electric_allergy", ElectricAllergyTrigger::new);
 
     public static final DeferredHolder<CriterionTrigger<?>, PlayerWearAnvilHammerTrigger> PLAYER_WEAR_ANVIL_HAMMER = REGISTER.register(
         "player_wear_anvil_hammer",

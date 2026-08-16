@@ -48,6 +48,9 @@ public class DynamicPowerComponent {
         if (this.powerGrid != null) {
             this.powerGrid.notifyEntering(this);
         }
+        if (this.owner instanceof IDynamicPowerComponentHolder holder) {
+            holder.anvilcraft$switchTo(powerGrid);
+        }
     }
 
     public AABB boundingBox() {

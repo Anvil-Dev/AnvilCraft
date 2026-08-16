@@ -82,7 +82,10 @@ public class AdvancementLang {
         provider.add("advancements.anvilcraft.networking.description", "Craft and place transmission pole");
 
         provider.add("advancements.anvilcraft.electric_filed_rhythm.title", "Feel the rhythm of the electric field");
-        provider.add("advancements.anvilcraft.electric_filed_rhythm.description", "Wear an anvil hammer on the head within the scope of the power grid");
+        provider.add("advancements.anvilcraft.electric_filed_rhythm.description", "Step in the scope of the power grid");
+
+        provider.add("advancements.anvilcraft.electric_allergy.title", "Electric allergy");
+        provider.add("advancements.anvilcraft.electric_allergy.description", "Obtain transcendence anvil without power system");
 
         provider.add("advancements.anvilcraft.industrial_grade_smelting.title", "Industrial grade smelting");
         provider.add("advancements.anvilcraft.industrial_grade_smelting.description", "Use super heating to melt any item");

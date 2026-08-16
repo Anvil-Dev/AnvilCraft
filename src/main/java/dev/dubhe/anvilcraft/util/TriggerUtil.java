@@ -105,6 +105,14 @@ public class TriggerUtil {
         }
     }
 
+    public static void enterPowerGrid(Level level, BlockPos pos) {
+        if (!level.isClientSide) {
+            for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {
+                ModCriterionTriggers.ENTER_POWER_GRID.get().trigger(player);
+            }
+        }
+    }
+
     public static void playerWearAnvilHammer(Level level, BlockPos pos) {
         if (!level.isClientSide) {
             for (ServerPlayer player : PlayerUtil.searchPlayerByPos(level, pos, 5)) {

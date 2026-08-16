@@ -88,6 +88,7 @@ public class ModAdvancements {
     public static final AdvancementHolder OVERHEATED;
     public static final AdvancementHolder NUCLEAR_POWER_10A;
     public static final AdvancementHolder TRANSCENDENCE;
+    public static final AdvancementHolder ELECTRIC_ALLERGY;
     public static final AdvancementHolder THE_END;
     public static final AdvancementHolder THE_START;
 
@@ -504,7 +505,7 @@ public class ModAdvancements {
                 true,
                 false
             )
-            .wearHammer("wear_anvil_hammer")
+            .enterPowerGrid("enter_power_grid")
             .build("electric_filed_rhythm");
         SALTED_FISH_TURNS_OVER = mainLine.createBranch().next()
             .display(
@@ -1047,6 +1048,20 @@ public class ModAdvancements {
             .requireAny()
             .hasItemAny("has_", ModBlocks.TRANSCENDIUM_BLOCK, ModItems.TRANSCENDIUM_INGOT, ModItems.TRANSCENDIUM_NUGGET)
             .build("transcendence");
+        ELECTRIC_ALLERGY = industrialLine.createBranch().next()
+            .display(
+                ModBlocks.TRANSCENDENCE_ANVIL,
+                Component.translatable("advancements.anvilcraft.electric_allergy.title"),
+                Component.translatable("advancements.anvilcraft.electric_allergy.description"),
+                null,
+                AdvancementType.CHALLENGE,
+                true,
+                true,
+                false
+            )
+            .requireAny()
+            .electricAllergy("electric_allergy")
+            .build("electric_allergy");
         THE_END = industrialLine.next()
             .display(
                 ModBlocks.TRANSCENDENCE_ANVIL,
