@@ -12,11 +12,10 @@ import dev.dubhe.anvilcraft.integration.jei.drawable.JeiButton;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiTextureConstants;
-import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockRecipe;
+import dev.dubhe.anvilcraft.recipe.multiblock.Multiblock4DRecipe;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockUtil;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
-import dev.dubhe.anvilcraft.util.RecipeUtil.TagRenderSlot;
 import mezz.jei.api.gui.ITickTimer;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -40,15 +39,17 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Block;
-import org.jetbrains.annotations.Nullable;
+import net.neoforged.neoforge.common.util.ItemStackMap;
 
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 
-public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<MultiblockRecipe>> {
-    private static final Component TITLE = Component.translatable("gui.anvilcraft.category.multiblock");
+public class MultiBlock4DCategory implements IRecipeCategory<RecipeHolder<Multiblock4DRecipe>> {
+    private static final Component TITLE = Component.translatable("gui.anvilcraft.category.4d_multiblock");
 
     private static final Comparator<ItemStack> BY_COUNT_DECREASING =
         Comparator.comparing(ItemStack::getCount).thenComparing(ItemStack::getDescriptionId).reversed();
@@ -58,8 +59,9 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
     public static final int ROWS = 2;
 
     public static final int SCALE_FAC = 80;
-    private final Map<RecipeHolder<MultiblockRecipe>, LevelLike> cache = new HashMap<>();
-    private final Map<RecipeHolder<MultiblockRecipe>, List<TagRenderSlot>> tagSlotCache = new HashMap<>();
+    private final Map<RecipeHolder<Multiblock4DRecipe>, List<LevelLike>> levelCache = new HashMap<>();
+    private final Map<RecipeHolder<Multiblock4DRecipe>, Integer> sizeCache = new HashMap<>();
+    private final Map<RecipeHolder<Multiblock4DRecipe>, Integer> stepMap = new HashMap<>();
 
     private final IDrawable icon;
     private final IDrawable slot;
@@ -73,8 +75,8 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
     private final IDrawable conversion;
     private final ITickTimer timer;
 
-    public MultiBlockCraftingCategory(IGuiHelper helper) {
-        icon = helper.createDrawableItemStack(new ItemStack(ModBlocks.GIANT_ANVIL));
+    public MultiBlock4DCategory(IGuiHelper helper) {
+        icon = helper.createDrawableItemStack(ModBlocks.SPACETIME_SUPERCOMPUTER.asStack());
         arrowOut = JeiRenderHelper.getArrowInput(helper);
         slot = JeiRenderHelper.getSlotDefault(helper);
         timer = helper.createTickTimer(30, 60, true);
@@ -102,8 +104,8 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
     }
 
     @Override
-    public RecipeType<RecipeHolder<MultiblockRecipe>> getRecipeType() {
-        return AnvilCraftJeiPlugin.MULTIBLOCK_CRAFTING;
+    public RecipeType<RecipeHolder<Multiblock4DRecipe>> getRecipeType() {
+        return AnvilCraftJeiPlugin.MULTIBLOCK_4D;
     }
 
     @Override
@@ -127,17 +129,32 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
     }
 
     @Override
-    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<MultiblockRecipe> recipe, IFocusGroup focuses) {
-        cache.computeIfAbsent(recipe, it -> RecipeUtil.asLevelLike(it.value().getPattern()));
-        tagSlotCache.computeIfAbsent(recipe, it -> RecipeUtil.getTagRenderSlots(it.value().getPattern()));
-        builder.addSlot(RecipeIngredientRole.OUTPUT, 130, 70)
+    public void setRecipe(IRecipeLayoutBuilder builder, RecipeHolder<Multiblock4DRecipe> recipe, IFocusGroup focuses) {
+        levelCache.computeIfAbsent(recipe, this::buildLevels);
+        sizeCache.computeIfAbsent(recipe, this::maxSize);
+        builder.addSlot(RecipeIngredientRole.OUTPUT, 117, 70)
             .addItemStack(recipe.value().getResult().copy());
 
         var level = Minecraft.getInstance().level;
-        List<ItemStack> ingredientList = MultiblockUtil.ingredientList(
-            recipe.value().getPattern(),
-            level == null ? null : level.registryAccess()
-        );
+        Map<ItemStack, Integer> itemCounts = ItemStackMap.createTypeAndTagMap();
+        Map<TagKey<Block>, Integer> tagCounts = new HashMap<>();
+        for (var definition : recipe.value().getDefinitions()) {
+            for (ItemStack stack : MultiblockUtil.ingredientList(
+                definition, level == null ? null : level.registryAccess())) {
+                int count = stack.getCount();
+                ItemStack key = stack.copy();
+                key.setCount(1);
+                itemCounts.merge(key, count, Integer::sum);
+            }
+            MultiblockUtil.tagIngredientCounts(definition)
+                .forEach((tag, count) -> tagCounts.merge(tag, count, Integer::sum));
+        }
+
+        List<ItemStack> ingredientList = new ArrayList<>();
+        itemCounts.forEach((stack, count) -> {
+            stack.setCount(count);
+            ingredientList.add(stack);
+        });
         ingredientList.sort(BY_COUNT_DECREASING);
 
         int slotIndex = 0;
@@ -149,16 +166,15 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             slotIndex++;
         }
 
-        var tagCounts = MultiblockUtil.tagIngredientCounts(recipe.value().getPattern());
         for (var entry : tagCounts.entrySet()) {
             TagKey<Block> blockTag = entry.getKey();
             int count = entry.getValue();
             TagKey<Item> itemTag = TagKey.create(Registries.ITEM, blockTag.location());
             int row = slotIndex / 9;
             int col = slotIndex % 9;
-            var slot = builder.addSlot(RecipeIngredientRole.INPUT, col * 18 + 1, START_HEIGHT + row * 18 + 1);
+            var slotBuilder = builder.addSlot(RecipeIngredientRole.INPUT, col * 18 + 1, START_HEIGHT + row * 18 + 1);
             BuiltInRegistries.ITEM.getTag(itemTag).ifPresent(tag -> tag.stream().forEach(
-                holder -> slot.addItemStack(new ItemStack(holder.value(), count))
+                holder -> slotBuilder.addItemStack(new ItemStack(holder.value(), count))
             ));
             slotIndex++;
         }
@@ -166,42 +182,44 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
 
     @Override
     public void draw(
-        RecipeHolder<MultiblockRecipe> recipe,
+        RecipeHolder<Multiblock4DRecipe> recipe,
         IRecipeSlotsView recipeSlotsView,
         GuiGraphics guiGraphics,
         double mouseX,
         double mouseY
     ) {
-        LevelLike level = cache.get(recipe);
-        if (level == null) {
-            level = RecipeUtil.asLevelLike(recipe.value().getPattern());
-            cache.put(recipe, level);
+        List<LevelLike> levels = levelCache.computeIfAbsent(recipe, this::buildLevels);
+        int count = levels.size();
+        int step = count == 0 ? 0 : Math.floorMod(stepMap.getOrDefault(recipe, 0), count);
+        LevelLike level = count == 0 ? null : levels.get(step);
+
+        final boolean renderAllLayers = level != null && level.isAllLayersVisible();
+        final int visibleLayer = level == null ? 0 : level.getCurrentVisibleLayer();
+        if (level != null) {
+            RenderSupport.renderLevelLike(level, guiGraphics, 45, 50, SCALE_FAC, 2.0f);
         }
-        var tagSlots = tagSlotCache.get(recipe);
-        if (tagSlots != null) {
-            int totalSeconds = (int) (System.currentTimeMillis() / 1000);
-            RecipeUtil.cycleTagBlocks(level, tagSlots, totalSeconds);
-        }
-        final boolean renderAllLayers = level.isAllLayersVisible();
-        final int visibleLayer = level.getCurrentVisibleLayer();
-        RenderSupport.renderLevelLike(level, guiGraphics, 45, 50, SCALE_FAC, 2.0f);
         final Minecraft minecraft = Minecraft.getInstance();
-        PoseStack pose = guiGraphics.pose();
-        int sizeY = level.verticalSize();
-        Component component;
-        if (renderAllLayers) {
-            component = Component.translatable("gui.anvilcraft.category.multiblock.all_layers");
+        int sizeY = level == null ? 0 : level.verticalSize();
+        Component layerComponent;
+        if (level == null || renderAllLayers) {
+            layerComponent = Component.translatable("gui.anvilcraft.category.multiblock.all_layers");
             renderSwitchOff.draw(guiGraphics, 125, 10);
         } else {
-            component =
-                Component.translatable("gui.anvilcraft.category.multiblock.single_layer", visibleLayer + 1, sizeY);
+            layerComponent = Component.translatable(
+                "gui.anvilcraft.category.multiblock.single_layer", visibleLayer + 1, sizeY);
             renderSwitchOn.draw(guiGraphics, 125, 10);
             this.layerUpButton(mouseX, mouseY).draw(guiGraphics, 137, 10);
             this.layerDownButton(mouseX, mouseY).draw(guiGraphics, 149, 10);
         }
+
+        this.timeUpButton(mouseX, mouseY).draw(guiGraphics, 137, 33);
+        this.timeDownButton(mouseX, mouseY).draw(guiGraphics, 149, 33);
+
+        PoseStack pose = guiGraphics.pose();
         pose.pushPose();
-        pose.scale(0.03f, 0.03f, 1.0f);
-        conversion.draw(guiGraphics, 4300, 1700);
+        pose.translate(114.5, 50.15, 0);
+        pose.scale(0.035f, 0.035f, 1.0f);
+        conversion.draw(guiGraphics, 0, 0);
         pose.popPose();
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer) / 3;
         RenderSupport.renderBlock(
@@ -209,7 +227,7 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             ModBlocks.GIANT_ANVIL.getDefaultState()
                 .trySetValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
                 .trySetValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER),
-            138,
+            125F,
             44.8f + anvilYOffset,
             20,
             5,
@@ -217,17 +235,22 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         );
         pose.pushPose();
         pose.scale(0.8f, 0.8f, 0.8f);
-        int textX = Math.round(WIDTH / 0.8f - minecraft.font.width(component) - 5);
-        guiGraphics.drawString(minecraft.font, component, textX, 0, 0xFF000000, false);
-        int size = MultiblockUtil.size(recipe.value().getPattern());
+        int textX = Math.round(WIDTH / 0.8f - minecraft.font.width(layerComponent) - 5);
+        guiGraphics.drawString(minecraft.font, layerComponent, textX, 0, 0xFF000000, false);
+        Component stepComponent = count == 0
+            ? Component.translatable("gui.anvilcraft.category.4d_multiblock.step", 0, 0)
+            : Component.translatable("gui.anvilcraft.category.4d_multiblock.step", step + 1, count);
+        int stepTextX = Math.round(WIDTH / 0.8f - minecraft.font.width(stepComponent) - 5);
+        guiGraphics.drawString(minecraft.font, stepComponent, stepTextX, 29, 0xFF000000, false);
+        int size = sizeCache.computeIfAbsent(recipe, this::maxSize);
         guiGraphics.drawString(
             minecraft.font,
             Component.translatable("gui.anvilcraft.category.multiblock.size", size, size),
             85, 115, 0xFF000000, false
         );
         pose.popPose();
-        arrowOut.draw(guiGraphics, 110, 60);
-        slot.draw(guiGraphics, 129, 69);
+        arrowOut.draw(guiGraphics, 97, 60);
+        slot.draw(guiGraphics, 116, 69);
 
         for (int i = 0; i < ROWS; i++) {
             for (int j = 0; j < 9; j++) {
@@ -244,16 +267,26 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
         return (mouseX >= 149 && mouseX < 159 && mouseY >= 10 && mouseY < 20) ? layerDownHovered : layerDown;
     }
 
+    private IDrawable timeUpButton(double mouseX, double mouseY) {
+        return (mouseX >= 137 && mouseX < 147 && mouseY >= 33 && mouseY < 43) ? layerUpHovered : layerUp;
+    }
+
+    private IDrawable timeDownButton(double mouseX, double mouseY) {
+        return (mouseX >= 149 && mouseX < 159 && mouseY >= 33 && mouseY < 43) ? layerDownHovered : layerDown;
+    }
+
     @Override
     public void createRecipeExtras(
-        IRecipeExtrasBuilder builder, RecipeHolder<MultiblockRecipe> recipe, IFocusGroup focuses) {
+        IRecipeExtrasBuilder builder, RecipeHolder<Multiblock4DRecipe> recipe, IFocusGroup focuses) {
         builder.addGuiEventListener(new JeiButton<>(
             125,
             10,
             10,
             it -> {
-                LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().getPattern()));
-                level.setAllLayersVisible(!level.isAllLayersVisible());
+                List<LevelLike> levels = levelCache.computeIfAbsent(it, this::buildLevels);
+                if (levels.isEmpty()) return;
+                boolean value = !levels.getFirst().isAllLayersVisible();
+                levels.forEach(level -> level.setAllLayersVisible(value));
             },
             recipe
         ));
@@ -263,9 +296,8 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             10,
             10,
             it -> {
-                LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().getPattern()));
-                if (level.isAllLayersVisible()) return;
-                level.nextLayer();
+                LevelLike level = this.currentLevel(it);
+                if (level != null && !level.isAllLayersVisible()) level.nextLayer();
             },
             recipe
         ));
@@ -275,26 +307,68 @@ public class MultiBlockCraftingCategory implements IRecipeCategory<RecipeHolder<
             10,
             10,
             it -> {
-                LevelLike level = this.cache.computeIfAbsent(it, a -> RecipeUtil.asLevelLike(a.value().getPattern()));
-                if (level.isAllLayersVisible()) return;
-                level.previousLayer();
+                LevelLike level = this.currentLevel(it);
+                if (level != null && !level.isAllLayersVisible()) level.previousLayer();
+            },
+            recipe
+        ));
+
+        builder.addGuiEventListener(new JeiButton<>(
+            137,
+            33,
+            10,
+            it -> {
+                int count = levelCache.computeIfAbsent(it, this::buildLevels).size();
+                if (count == 0) return;
+                stepMap.merge(it, 1, (old, add) -> Math.floorMod(old + add, count));
+            },
+            recipe
+        ));
+
+        builder.addGuiEventListener(new JeiButton<>(
+            149,
+            33,
+            10,
+            it -> {
+                int count = levelCache.computeIfAbsent(it, this::buildLevels).size();
+                if (count == 0) return;
+                stepMap.merge(it, -1, (old, add) -> Math.floorMod(old + add, count));
             },
             recipe
         ));
     }
 
+    private @Nullable LevelLike currentLevel(RecipeHolder<Multiblock4DRecipe> recipe) {
+        List<LevelLike> levels = levelCache.computeIfAbsent(recipe, this::buildLevels);
+        int count = levels.size();
+        if (count == 0) return null;
+        return levels.get(Math.floorMod(stepMap.getOrDefault(recipe, 0), count));
+    }
+
+    private List<LevelLike> buildLevels(RecipeHolder<Multiblock4DRecipe> recipe) {
+        return recipe.value().getDefinitions().stream()
+            .map(RecipeUtil::asLevelLike)
+            .toList();
+    }
+
+    private int maxSize(RecipeHolder<Multiblock4DRecipe> recipe) {
+        return recipe.value().getDefinitions().stream()
+            .mapToInt(MultiblockUtil::size)
+            .max()
+            .orElse(0);
+    }
+
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
-            AnvilCraftJeiPlugin.MULTIBLOCK_CRAFTING,
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MULTIBLOCK_TYPE.get())
+            AnvilCraftJeiPlugin.MULTIBLOCK_4D,
+            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.MULTIBLOCK_4D_TYPE.get())
         );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(ModBlocks.GIANT_ANVIL.asStack(), AnvilCraftJeiPlugin.MULTIBLOCK_CRAFTING);
-        registration.addRecipeCatalyst(ModBlocks.TRANSPARENT_CRAFTING_TABLE.asStack(), AnvilCraftJeiPlugin.MULTIBLOCK_CRAFTING);
-        registration.addRecipeCatalyst(Items.CRAFTING_TABLE.getDefaultInstance(), AnvilCraftJeiPlugin.MULTIBLOCK_CRAFTING);
-        registration.addRecipeCatalyst(ModBlocks.SPACE_OVERCOMPRESSOR.asStack(), AnvilCraftJeiPlugin.MULTIBLOCK_CRAFTING);
+        registration.addRecipeCatalyst(ModBlocks.GIANT_ANVIL.asStack(), AnvilCraftJeiPlugin.MULTIBLOCK_4D);
+        registration.addRecipeCatalyst(ModBlocks.TRANSPARENT_CRAFTING_TABLE.asStack(), AnvilCraftJeiPlugin.MULTIBLOCK_4D);
+        registration.addRecipeCatalyst(Items.CRAFTING_TABLE.getDefaultInstance(), AnvilCraftJeiPlugin.MULTIBLOCK_4D);
+        registration.addRecipeCatalyst(ModBlocks.SPACETIME_SUPERCOMPUTER.asStack(), AnvilCraftJeiPlugin.MULTIBLOCK_4D);
     }
-
 }

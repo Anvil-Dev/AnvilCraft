@@ -74,6 +74,7 @@ import dev.dubhe.anvilcraft.block.HeavyIronWallBlock;
 import dev.dubhe.anvilcraft.block.HeliostatsBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
+import dev.dubhe.anvilcraft.block.HypercubeBlock;
 import dev.dubhe.anvilcraft.block.ImpactPileBlock;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.InfiniteCollectorBlock;
@@ -2958,6 +2959,20 @@ public class ModBlocks {
         .item()
         .tag(Tags.Items.GLASS_BLOCKS)
         .build()
+        .register();
+
+    public static final BlockEntry<HypercubeBlock> HYPERCUBE = REGISTRUM.block("hypercube", HypercubeBlock::new)
+        .initialProperties(() -> Blocks.GLASS)
+        .properties(properties -> properties.explosionResistance(1200.0f)
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+            .isRedstoneConductor(ModBlocks::never)
+            .isSuffocating(ModBlocks::never)
+            .isViewBlocking(ModBlocks::never))
+        .blockstate((ctx, provider) -> provider.getVariantBuilder(ctx.get())
+            .partialState()
+            .addModels(new ConfiguredModel(provider.models().getExistingFile(ctx.getId().withPrefix("block/")))))
+        .simpleItem()
         .register();
 
     public static final BlockEntry<? extends Block> EMBER_GLASS = REGISTRUM.block("ember_glass", TransparentBlock::new)

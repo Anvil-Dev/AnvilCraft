@@ -1,0 +1,81 @@
+{
+  "type": "anvilcraft:4d_multiblock",
+  "definitions": [
+    {
+      "grid": [
+        [
+          "000",
+          "000",
+          "000"
+        ],
+        [
+          "000",
+          "000",
+          "000"
+        ],
+        [
+          "000",
+          "000",
+          "000"
+        ]
+      ],
+      "mapping": {
+        "0": {
+          "blocks": "anvilcraft:tempering_glass"
+        }
+      }
+    },
+    {
+      "grid": [
+        [
+          "000",
+          "000",
+          "000"
+        ],
+        [
+          "000",
+          "000",
+          "000"
+        ],
+        [
+          "000",
+          "000",
+          "000"
+        ]
+      ],
+      "mapping": {
+        "0": {
+          "blocks": "anvilcraft:tempering_glass"
+        }
+      }
+    },
+    {
+      "grid": [
+        [
+          "000",
+          "000",
+          "000"
+        ],
+        [
+          "000",
+          "000",
+          "000"
+        ],
+        [
+          "000",
+          "000",
+          "000"
+        ]
+      ],
+      "mapping": {
+        "0": {
+          "blocks": "anvilcraft:tempering_glass"
+        }
+      }
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:hypercube"
+  }
+}

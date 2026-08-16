@@ -16,6 +16,7 @@ import net.minecraft.util.FastColor;
 
 import java.util.OptionalDouble;
 import java.util.function.Function;
+import javax.annotation.Nullable;
 
 import static dev.dubhe.anvilcraft.client.init.ModRenderTargets.LASER_TARGET;
 import static dev.dubhe.anvilcraft.client.init.ModRenderTargets.LINE_BLOOM_TARGET;
@@ -239,6 +240,23 @@ public class ModRenderTypes {
             .createCompositeState(true)
     );
 
+    public static final RenderType HYPERCUBE = RenderType.create(
+        "anvilcraft:hypercube",
+        DefaultVertexFormat.BLOCK,
+        VertexFormat.Mode.QUADS,
+        786432,
+        true,
+        true,
+        RenderType.CompositeState.builder()
+            .setLightmapState(LIGHTMAP)
+            .setShaderState(RENDERTYPE_TRANSLUCENT_SHADER)
+            .setTextureState(BLOCK_SHEET_MIPPED)
+            .setTransparencyState(TRANSLUCENT_TRANSPARENCY)
+            .setOutputState(TRANSLUCENT_TARGET)
+            .setWriteMaskState(COLOR_WRITE)
+            .createCompositeState(true)
+    );
+
     public static final Function<ResourceLocation, RenderType> STAR_CUTOUT = Util.memoize(
         (resourceLocation) -> {
             RenderType.CompositeState compositeState = RenderType.CompositeState.builder()
@@ -374,6 +392,7 @@ public class ModRenderTypes {
     );
 
     private static <T> T supplyNothing() {
+    private static <T> @Nullable T supplyNothing() {
         return null;
     }
 }

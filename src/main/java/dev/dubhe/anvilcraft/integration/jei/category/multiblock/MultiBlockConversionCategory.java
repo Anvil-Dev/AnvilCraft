@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.integration.jei.util.JeiRecipeUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiTextureConstants;
 import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockConversionRecipe;
+import dev.dubhe.anvilcraft.recipe.multiblock.MultiblockUtil;
 import dev.dubhe.anvilcraft.util.LevelLike;
 import dev.dubhe.anvilcraft.util.RecipeUtil;
 import dev.dubhe.anvilcraft.util.RecipeUtil.TagRenderSlot;
@@ -186,7 +187,8 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
         );
 
         var level = Minecraft.getInstance().level;
-        List<ItemStack> inputItems = recipe.value().getInputPattern().toIngredientList(
+        List<ItemStack> inputItems = MultiblockUtil.ingredientList(
+            recipe.value().getInputPattern(),
             level == null ? null : level.registryAccess()
         );
         inputItems.sort(BY_COUNT_DECREASING);
@@ -198,7 +200,7 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
             inputSlotIndex++;
         }
 
-        var inputTagCounts = recipe.value().getInputPattern().getTagIngredientCounts();
+        var inputTagCounts = MultiblockUtil.tagIngredientCounts(recipe.value().getInputPattern());
         for (var entry : inputTagCounts.entrySet()) {
             TagKey<Block> blockTag = entry.getKey();
             int count = entry.getValue();
@@ -212,7 +214,8 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
             inputSlotIndex++;
         }
 
-        List<ItemStack> outputItems = recipe.value().getOutputPattern().toIngredientList(
+        List<ItemStack> outputItems = MultiblockUtil.ingredientList(
+            recipe.value().getOutputPattern(),
             level == null ? null : level.registryAccess()
         );
         outputItems.sort(BY_COUNT_DECREASING);

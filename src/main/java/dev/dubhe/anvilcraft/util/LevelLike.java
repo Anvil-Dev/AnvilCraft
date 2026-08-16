@@ -1,5 +1,8 @@
 package dev.dubhe.anvilcraft.util;
 
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.MultimapBuilder;
+import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.client.Minecraft;
@@ -20,15 +23,14 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
+import java.util.List;
 import java.util.Set;
 
 public class LevelLike implements BlockAndTintGetter {
-    private final Map<BlockPos, BlockState> blocks = new HashMap<>();
-    private final Map<BlockPos, BlockEntity> blockEntities = new HashMap<>();
+    private final ListMultimap<BlockPos, BlockStateAndEntity> blocks = MultimapBuilder.hashKeys().arrayListValues().build();
     private final Set<BlockPos> alwaysRenderBlocks = new HashSet<>();  // 始终渲染的方块
     private final ClientLevel parent;
 
@@ -70,32 +72,75 @@ public class LevelLike implements BlockAndTintGetter {
 
     @Override
     public @Nullable BlockEntity getBlockEntity(BlockPos blockPos) {
-        return blockEntities.get(blockPos);
+        List<BlockStateAndEntity> blocks = this.blocks.get(blockPos);
+        if (blocks.isEmpty()) return null;
+        return blocks.get((int) ((System.currentTimeMillis() / 1000) % blocks.size())).be();
+    }
+
+    public void setBlockState(BlockPos pos, BlockStatePredicate predicate) {
+        this.setBlockStateWithAlpha(pos, predicate);
     }
 
     public void setBlockState(BlockPos pos, BlockState state) {
-        setBlockStateWithAlpha(pos, state);
+        this.setBlockStateWithAlpha(pos, state);
+    }
+
+    public void setBlockStateAlwaysRender(BlockPos pos, BlockStatePredicate predicate) {
+        this.setBlockStateWithAlpha(pos, predicate);
+        this.alwaysRenderBlocks.add(pos);
     }
     
     public void setBlockStateAlwaysRender(BlockPos pos, BlockState state) {
-        setBlockStateWithAlpha(pos, state);
-        alwaysRenderBlocks.add(pos);
+        this.setBlockStateWithAlpha(pos, state);
+        this.alwaysRenderBlocks.add(pos);
+    }
+
+    public void setBlockStateWithAlpha(BlockPos pos, BlockStatePredicate predicate) {
+        this.blocks.removeAll(pos);
+        List<BlockStateAndEntity> blocks = new ArrayList<>();
+        for (BlockState state : predicate.constructStatesForRender()) {
+            if (!(state.getBlock() instanceof EntityBlock entityBlock)) {
+                blocks.add(new BlockStateAndEntity(state));
+                continue;
+            }
+            BlockEntity be = entityBlock.newBlockEntity(pos, state);
+            if (be == null) {
+                blocks.add(new BlockStateAndEntity(state));
+                continue;
+            }
+            if (Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(be) == null) {
+                blocks.add(new BlockStateAndEntity(state));
+                continue;
+            }
+            be.setLevel(this.parent);
+            // noinspection deprecation
+            be.setBlockState(state);
+            blocks.add(new BlockStateAndEntity(state, be));
+        }
+        this.blocks.putAll(pos, blocks);
     }
     
     public void setBlockStateWithAlpha(BlockPos pos, BlockState state) {
-        blockEntities.remove(pos);
-        blocks.put(pos, state);
+        this.blocks.removeAll(pos);
         // BlockEntities stored in LevelLike is only for render
         // If any block entity don't have its own renderer we don't need to store an instance for it
-        if (state.getBlock() instanceof EntityBlock entityBlock) {
-            BlockEntity blockEntity = entityBlock.newBlockEntity(pos, state);
-            if (blockEntity == null) return;
-            if (Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(blockEntity) == null) return;
-            blockEntity.setLevel(this.parent);
-            // noinspection deprecation
-            blockEntity.setBlockState(state);
-            blockEntities.put(pos, blockEntity);
+        if (!(state.getBlock() instanceof EntityBlock entityBlock)) {
+            this.blocks.put(pos, new BlockStateAndEntity(state));
+            return;
         }
+        BlockEntity be = entityBlock.newBlockEntity(pos, state);
+        if (be == null) {
+            this.blocks.put(pos, new BlockStateAndEntity(state));
+            return;
+        }
+        if (Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(be) == null) {
+            this.blocks.put(pos, new BlockStateAndEntity(state));
+            return;
+        }
+        be.setLevel(this.parent);
+        // noinspection deprecation
+        be.setBlockState(state);
+        this.blocks.put(pos, new BlockStateAndEntity(state, be));
     }
     
     public Set<BlockPos> getAlwaysRenderBlocks() {
@@ -104,11 +149,12 @@ public class LevelLike implements BlockAndTintGetter {
 
     public BlockState getBlockState(BlockPos pos) {
         // 始终渲染的方块不受分层限制
-        if (alwaysRenderBlocks.contains(pos)) {
-            return blocks.getOrDefault(pos, Blocks.AIR.defaultBlockState());
+        if (!this.alwaysRenderBlocks.contains(pos) && !this.allLayersVisible && pos.getY() != this.currentVisibleLayer) {
+            return Blocks.AIR.defaultBlockState();
         }
-        if (!allLayersVisible && pos.getY() != currentVisibleLayer) return Blocks.AIR.defaultBlockState();
-        return blocks.getOrDefault(pos, Blocks.AIR.defaultBlockState());
+        List<BlockStateAndEntity> blocks = this.blocks.get(pos);
+        if (blocks.isEmpty()) return Blocks.AIR.defaultBlockState();
+        return this.blocks.get(pos).get((int) ((System.currentTimeMillis() / 1000) % blocks.size())).state();
     }
 
     @Override
@@ -179,7 +225,6 @@ public class LevelLike implements BlockAndTintGetter {
     }
 
     public static class AirLevelLike extends LevelLike {
-
         public AirLevelLike(ClientLevel parent) {
             super(parent);
         }
