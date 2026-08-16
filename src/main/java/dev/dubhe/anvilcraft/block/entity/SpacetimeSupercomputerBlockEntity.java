@@ -190,6 +190,13 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
             this.processingStep = processing.getInt("step");
             this.processingSize = processing.getInt("size");
             this.processingTotal = processing.getInt("total");
+        } else {
+            // 服务端仅在处理中写入 processing：缺失即代表处理已结束，清除客户端残留状态。
+            this.pendingRecipeId = null;
+            this.processingRecipe = null;
+            this.processingStep = -1;
+            this.processingSize = -1;
+            this.processingTotal = -1;
         }
         // 先加载 pendingDrops 再解析配方：解析失败时需要归还这些已消耗材料。
         if (tag.contains("pendingDrops", Tag.TAG_LIST)) {
@@ -232,19 +239,16 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        CompoundTag processing = new CompoundTag();
+        // 与 saveAdditional 保持一致：仅在处理中写入 processing 子 tag，
+        // 避免 recipe="" 让客户端 resolvePendingRecipe 执行 ResourceLocation.parse("") 抛异常。
         if (this.processingRecipe != null) {
+            CompoundTag processing = new CompoundTag();
             processing.putString("recipe", Objects.requireNonNull(this.processingRecipe.id()).toString());
             processing.putInt("step", this.processingStep);
             processing.putInt("size", this.processingSize);
             processing.putInt("total", this.processingTotal);
-        } else {
-            processing.putString("recipe", "");
-            processing.putInt("step", -1);
-            processing.putInt("size", -1);
-            processing.putInt("total", -1);
+            tag.put("processing", processing);
         }
-        tag.put("processing", processing);
         return tag;
     }
 

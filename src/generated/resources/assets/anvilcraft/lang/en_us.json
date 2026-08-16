@@ -889,7 +889,7 @@
   "gui.anvilcraft.category.time_warp.need_activated": "Need Activated",
   "gui.anvilcraft.category.time_warp.produce_fluid": "Produce: %1$d mB of %2$s",
   "gui.anvilcraft.category.unpack": "Unpack",
-  "gui.anvilcraft.multiblock_4d.progress": "Crafting Progress: %1$s/%2$s",
+  "gui.anvilcraft.multiblock_4d.progress": "Crafting Progress: %1$d / %2$d",
   "hud.anvilcraft.ionocraft_backpack_power": "Ionocraft Backpack Power Remaining: %d%%",
   "integration.anvilcraft.additional.anvilcraft_delta": "AnvilCraft: Delta",
   "integration.anvilcraft.additional.skyland": "Skyland",
