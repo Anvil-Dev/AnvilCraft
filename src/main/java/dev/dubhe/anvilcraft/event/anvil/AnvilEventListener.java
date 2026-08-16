@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.entity.FallingGiantAnvilEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
@@ -120,13 +121,17 @@ public class AnvilEventListener {
 
     public static void handleNeoAnvilRecipe(AnvilEvent.OnLand event) {
         Level level = event.getLevel();
-        if (!(level instanceof ServerLevel serverLevel)) return;
+        if (!(level instanceof ServerLevel serverLevel)
+            || event.getLevel().getBlockState(event.getPos().below()).is(ModBlockTags.LANDING_NO_RECIPE)
+        ) {
+            return;
+        }
         NeoForge.EVENT_BUS.post(new AnvilEvent.BeforeInWorldRecipe(event));
         try {
             BlockPos pos = event.getPos();
             FallingBlockEntity entity = event.getEntity();
             InWorldRecipeManager manager = level.getRecipeManager().anvillib$getInWorldRecipeManager();
-            InWorldRecipeContext context = new InWorldRecipeContext(serverLevel, pos.getCenter().subtract(0.0, 0.5, 0.0), entity);
+            InWorldRecipeContext context = new InWorldRecipeContext(serverLevel, pos.getBottomCenter(), entity);
             FishTankBlockEntity fishTank = level.getBlockEntity(pos.below(), ModBlockEntities.FISH_TANK.get()).orElse(null);
             if (fishTank != null) fishTank.beginRecipeProcessing();
             try {

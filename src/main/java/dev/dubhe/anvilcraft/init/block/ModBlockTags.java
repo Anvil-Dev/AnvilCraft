@@ -48,6 +48,7 @@ public class ModBlockTags {
     public static final TagKey<Block> POWER_CONVERTER = bind("power_converter");
     public static final TagKey<Block> SLIDING_RAIL_STOP_LIKE = bind("sliding_rail_stop_like");
     public static final TagKey<Block> RESIN_SHOCK_COMPATIBLE = bind("resin_shock_compatible");
+    public static final TagKey<Block> LANDING_NO_RECIPE = bind("landing_no_recipe");
 
     // common tags
     public static final TagKey<Block> ORES_TUNGSTEN = bindC("ores/tungsten");
