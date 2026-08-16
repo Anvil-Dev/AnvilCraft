@@ -110,7 +110,6 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
 
         this.plain(ModBlocks.TRANSPARENT_CRAFTING_TABLE); // 通透工作台
         this.plain(ModBlocks.SPACE_OVERCOMPRESSOR); // 空间超压器
-        this.plain(ModBlocks.MASS_ENERGY_INVERTER); // 能质逆变器
         this.plain(ModBlocks.CRATE); // 板条箱
         this.plain(ModBlocks.LARGE_CRATE); // 大板条箱
         this.plain(ModBlocks.SHULKER_CONTAINER); // 潜影集装箱
@@ -139,6 +138,7 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.CONFINEMENT_CHAMBER); // 约束仓
 
         this.plain(ModBlocks.SPACETIME_SUPERCOMPUTER); // 时空超算
+        this.plain(ModBlocks.MASS_ENERGY_INVERTER); // 能质逆变器
         this.plain(ModBlocks.CELESTIAL_FORGING_ANVIL); // 锻星砧
         this.plain(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER); // 锻星砧增幅器
         this.plain(ModBlocks.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE); // 锻星砧物流接口
