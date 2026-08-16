@@ -331,7 +331,7 @@ public class BlockTagLoader {
                 ModBlocks.PIEZOELECTRIC_CRYSTAL.getKey(),
                 ModBlocks.SUGAR_BLOCK.getKey(),
                 ModBlocks.GUNPOWER_BLOCK.getKey()
-            );
+        );
 
         provider.addTag(ModBlockTags.OVERHEATABLE)
             .add(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.getKey())
