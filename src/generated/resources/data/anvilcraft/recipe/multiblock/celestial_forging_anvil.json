@@ -26,10 +26,9 @@
         "blocks": "anvilcraft:spacetime_supercomputer"
       },
       "B": {
-        "blocks": "minecraft:gold_block"
+        "blocks": "anvilcraft:enchanted_gold_block"
       },
       "C": {
-        "block": "anvilcraft:enchanted_gold_block"
         "blocks": "anvilcraft:mass_energy_inverter"
       },
       "D": {

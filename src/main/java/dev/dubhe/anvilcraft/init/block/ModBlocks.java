@@ -35,6 +35,7 @@ import dev.dubhe.anvilcraft.block.CreativeFluidTankBlock;
 import dev.dubhe.anvilcraft.block.CreativeGeneratorBlock;
 import dev.dubhe.anvilcraft.block.CreativeLaserBlock;
 import dev.dubhe.anvilcraft.block.CrushingTableBlock;
+import dev.dubhe.anvilcraft.block.CursedGoldBlock;
 import dev.dubhe.anvilcraft.block.DeflectionRingBlock;
 import dev.dubhe.anvilcraft.block.DischargerBlock;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
@@ -44,6 +45,7 @@ import dev.dubhe.anvilcraft.block.EmberMetalPillarBlock;
 import dev.dubhe.anvilcraft.block.EmberMetalSlabBlock;
 import dev.dubhe.anvilcraft.block.EmberMetalStairBlock;
 import dev.dubhe.anvilcraft.block.EmberSmithingTableBlock;
+import dev.dubhe.anvilcraft.block.EnchantedGoldBlock;
 import dev.dubhe.anvilcraft.block.EndDustBlock;
 import dev.dubhe.anvilcraft.block.ExcitedStateVoidMatterBlock;
 import dev.dubhe.anvilcraft.block.ExpCollectorBlock;
@@ -2568,7 +2570,7 @@ public class ModBlocks {
         .build()
         .register();
 
-    public static final BlockEntry<? extends Block> CURSED_GOLD_BLOCK = REGISTRUM.block("cursed_gold_block", Block::new)
+    public static final BlockEntry<CursedGoldBlock> CURSED_GOLD_BLOCK = REGISTRUM.block("cursed_gold_block", CursedGoldBlock::new)
         .lang("Block of Cursed Gold")
         .initialProperties(() -> Blocks.GOLD_BLOCK)
         .item(CursedBlockItem::new)
@@ -2578,7 +2580,9 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::cursedGoldBlock)
         .register();
 
-    public static final BlockEntry<? extends Block> ENCHANTED_GOLD_BLOCK = REGISTRUM.block("enchanted_gold_block", Block::new)
+    public static final
+    BlockEntry<EnchantedGoldBlock> ENCHANTED_GOLD_BLOCK = REGISTRUM
+        .block("enchanted_gold_block", EnchantedGoldBlock::new)
         .lang("Block of Enchanted Gold")
         .initialProperties(() -> Blocks.GOLD_BLOCK)
         .item(EnchantedGoldBlockItem::new)
