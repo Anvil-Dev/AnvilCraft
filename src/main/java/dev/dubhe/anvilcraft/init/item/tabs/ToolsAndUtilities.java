@@ -16,7 +16,6 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.DISK);
         this.plain(ModItems.STRUCTURE_DISK);
         this.plain(ModItems.FILTER);
-        this.plain(ModItems.HYPERDIMENSION_TERMINAL);
 
         // Anvil hammers and enchanted starter tools.
         this.plain(ModItems.ANVIL_HAMMER);
@@ -71,6 +70,8 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.LASER_GUN);
         this.plain(ModItems.IONOCRAFT);
         this.ionoCraftBackpack(ModItems.IONOCRAFT_BACKPACK);
+
+        this.plain(ModItems.HYPERDIMENSION_TERMINAL); // 超维终端
 
         // Energy storage.
         this.plain(ModItems.CAPACITOR);

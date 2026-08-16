@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourc
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
+import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
@@ -45,6 +46,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -63,6 +65,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
@@ -76,6 +79,10 @@ public final class StorageServerStub {
     public static final StreamCodec<ByteBuf, IntList> ORDER_STREAM_CODEC = ByteBufCodecs.VAR_INT
         .apply(ByteBufCodecs.list())
         .map(IntArrayList::new, Function.identity());
+    /** List<ItemStack> 的传输编解码器（JEI 快速合成补库参数用）。 */
+    @SuppressWarnings("unused")
+    public static final StreamCodec<RegistryFriendlyByteBuf, List<ItemStack>> ITEM_STACK_LIST_STREAM_CODEC =
+        ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list());
     private static final Multimap<UUID, StorageServerStub> STUBS = ArrayListMultimap.create();
     private static final Map<UUID, Map<Long, UUID>> REMOTE_STORAGES = new HashMap<>();
 
@@ -153,7 +160,7 @@ public final class StorageServerStub {
 
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
-        ItemStack carried = player.inventoryMenu.getCarried();
+        ItemStack carried = player.containerMenu.getCarried();
         boolean changed = false;
         if (action == StorageInput.QUICK_MOVE_TO_STORAGE) {
             changed = StorageServerStub.moveInventoryStackToStorage(player, view, slot) > 0;
@@ -167,7 +174,7 @@ public final class StorageServerStub {
             ) {
                 ItemStack stack = view.resource(slot);
                 carried = stack.copyWithCount(stack.getMaxStackSize());
-                player.inventoryMenu.setCarried(carried);
+                player.containerMenu.setCarried(carried);
             }
         } else if (action == StorageInput.THROW) {
             changed = StorageServerStub.throwStorageStack(player, view, slot, button);
@@ -187,13 +194,13 @@ public final class StorageServerStub {
             int extracted = view.extract(slot, amount);
             if (extracted > 0) {
                 carried = itemStack.copyWithCount(extracted);
-                player.inventoryMenu.setCarried(carried);
+                player.containerMenu.setCarried(carried);
                 changed = true;
             }
         }
         if (changed) {
             player.getInventory().setChanged();
-            player.inventoryMenu.broadcastChanges();
+            player.containerMenu.broadcastChanges();
         }
         return new InteractionResult(carried, changed);
     }
@@ -210,7 +217,7 @@ public final class StorageServerStub {
         }
         StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
-        ItemStack carried = player.inventoryMenu.getCarried();
+        ItemStack carried = player.containerMenu.getCarried();
         if (!player.hasInfiniteMaterials() || carried.isEmpty()) {
             return false;
         }
@@ -225,7 +232,7 @@ public final class StorageServerStub {
         }
         if (changed) {
             player.getInventory().setChanged();
-            player.inventoryMenu.broadcastChanges();
+            player.containerMenu.broadcastChanges();
         }
         return changed;
     }
@@ -264,7 +271,7 @@ public final class StorageServerStub {
         if (changed) {
             StorageServerStub.recordUndo(stub, moved);
             player.getInventory().setChanged();
-            player.inventoryMenu.broadcastChanges();
+            player.containerMenu.broadcastChanges();
         }
         return changed;
     }
@@ -299,7 +306,7 @@ public final class StorageServerStub {
         if (changed) {
             StorageServerStub.recordUndo(stub, moved);
             inventory.setChanged();
-            player.inventoryMenu.broadcastChanges();
+            player.containerMenu.broadcastChanges();
         }
         return changed;
     }
@@ -326,7 +333,7 @@ public final class StorageServerStub {
         if (changed) {
             StorageServerStub.recordUndo(stub, moved);
             player.getInventory().setChanged();
-            player.inventoryMenu.broadcastChanges();
+            player.containerMenu.broadcastChanges();
         }
         return new DepositResult(changed);
     }
@@ -371,7 +378,7 @@ public final class StorageServerStub {
         }
         if (changed) {
             inventory.setChanged();
-            player.inventoryMenu.broadcastChanges();
+            player.containerMenu.broadcastChanges();
         }
         return new DepositResult(changed);
     }
@@ -453,14 +460,218 @@ public final class StorageServerStub {
         return virtualPos;
     }
 
+    @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC")
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static IntList terminalReorder(UUID playerId, long sourcePos, String search) {
+        HolderLookup.Provider registries = StorageServerStub.getAndClear();
+        StorageView view = StorageServerStub.getView(registries, playerId, sourcePos);
+        PlayerSetting setting = PlayerSettings.getSetting(registries, playerId);
+        StorageSetting storage = setting.storage();
+        SortOptions options = new SortOptions(storage.getSort(), storage.getOrder());
+        return new IntArrayList(StorageServerStub.createOrder(
+            view,
+            options,
+            search.strip().toLowerCase(Locale.ROOT),
+            setting.listed()
+        ));
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult terminalTake(
+        UUID playerId,
+        long sourcePos,
+        int slot,
+        int button,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
+    ) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        boolean cursorBlocked;
+        if (player.hasInfiniteMaterials()) {
+            // 创造模式下指针物品由客户端本地管理（ItemPickerMenu 纯客户端），服务端 carried
+            // 可能已过期（例如上次取出后的残留），是否允许取出以客户端上报的指针为准。
+            cursorBlocked = !clientCarried.isEmpty();
+        } else {
+            cursorBlocked = !player.containerMenu.getCarried().isEmpty();
+        }
+        if (cursorBlocked || slot < 0 || slot >= view.size() || view.amount(slot) <= 0) {
+            return new InteractionResult(player.containerMenu.getCarried(), false);
+        }
+        ItemStack resource = view.resource(slot);
+        int amount = button == 0
+                     ? (int) Math.min(resource.getMaxStackSize(), view.amount(slot))
+                     : 1;
+        int extracted = view.extract(slot, amount);
+        if (extracted > 0) {
+            // 取出物品放到指针上（carried）。服务端 setCarried + broadcastChanges
+            // 会通过 ContainerSynchronizer 同步到客户端当前活动菜单，无需客户端手动 setCarried；
+            // 创造背包界面会忽略该广播，客户端需在 RPC 返回后手动写回指针。
+            ItemStack carried = resource.copyWithCount(extracted);
+            player.containerMenu.setCarried(carried);
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+            return new InteractionResult(carried, true);
+        }
+        return new InteractionResult(player.containerMenu.getCarried(), false);
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult terminalTakeToInventory(
+        UUID playerId,
+        long sourcePos,
+        int slot,
+        int button
+    ) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        if (slot < 0 || slot >= view.size() || view.amount(slot) <= 0) {
+            return new InteractionResult(player.containerMenu.getCarried(), false);
+        }
+        ItemStack resource = view.resource(slot);
+        int amount = button == 0
+                     ? (int) Math.min(resource.getMaxStackSize(), view.amount(slot))
+                     : 1;
+        // 可移入背包的数量 = min(目标数量, 存储数量, 背包空间)
+        int space = StorageServerStub.getInventorySpace(player.getInventory(), resource);
+        int target = Math.min(amount, space);
+        if (target <= 0) {
+            // 背包完全放不下：不移动也不取到鼠标
+            return new InteractionResult(player.containerMenu.getCarried(), false);
+        }
+        int extracted = view.extract(slot, target);
+        if (extracted <= 0) {
+            return new InteractionResult(player.containerMenu.getCarried(), false);
+        }
+        player.getInventory().add(resource.copyWithCount(extracted));
+        player.getInventory().setChanged();
+        player.containerMenu.broadcastChanges();
+        return new InteractionResult(player.containerMenu.getCarried(), true);
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult terminalInsert(
+        UUID playerId,
+        long sourcePos,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
+    ) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        ItemStack carried;
+        if (player.hasInfiniteMaterials()) {
+            // 创造模式下指针物品由客户端本地管理（ItemPickerMenu 纯客户端，不经过服务端菜单同步），
+            // 服务端 carried 可能已过期（例如取出后再从创造格子拿起别的物品），一律以客户端上报为准。
+            carried = clientCarried;
+        } else {
+            carried = player.containerMenu.getCarried();
+        }
+        if (carried.isEmpty()) {
+            return new InteractionResult(carried, false);
+        }
+        // 把指针整组放入存储；被 canStore 拒绝（如嵌套物品）时插入 0，物品保留在手中
+        int inserted = view.insert(carried.copyWithCount(1), carried.getCount());
+        if (inserted <= 0) {
+            return new InteractionResult(carried, false);
+        }
+        carried.shrink(inserted);
+        player.getInventory().setChanged();
+        player.containerMenu.broadcastChanges();
+        return new InteractionResult(carried, true);
+    }
+
+    /**
+     * JEI 快速合成补库：终端持有者把合成缺少的物品从绑定存储站取出补入背包。
+     * 仅当玩家确实持有指向该 storageId 的已绑定终端时生效。
+     */
+    @RemoteCallable(validator = TerminalAccessValidator.class)
+    public static boolean terminalWithdrawToInventory(
+        UUID playerId,
+        UUID storageId,
+        @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC") List<ItemStack> needs
+    ) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        if (!StorageServerStub.ownsBoundTerminal(player, storageId)) {
+            return false;
+        }
+        Optional<HyperdimensionStorage> storageOp = Storages.get().get(storageId, HyperdimensionStorage.class);
+        if (storageOp.isEmpty()) {
+            return false;
+        }
+        HyperdimensionStorage storage = storageOp.get();
+        UnlimitedItemStacksResourceHandler items = storage.getItems();
+        boolean changed = false;
+        for (ItemStack need : needs) {
+            if (need.isEmpty()) {
+                continue;
+            }
+            ItemStack resource = need.copyWithCount(1);
+            int required = need.getCount();
+            required -= StorageServerStub.countInInventory(player.getInventory(), resource);
+            if (required <= 0) {
+                continue;
+            }
+            // 每格最多取到物品上限（同种物品在背包中的总数量不超过 maxStackSize 是 JEI 的需求前提，
+            // 但为防背包放不下导致 add 丢弃，按背包空间限制每次提取量）
+            for (int slot = 0; slot < items.size() && required > 0; slot++) {
+                if (items.getAmountAsLong(slot) <= 0) {
+                    continue;
+                }
+                UnlimitedItemStack stored = items.getUnlimitedStackInSlot(slot);
+                if (!stored.isSameItemSameComponents(resource)) {
+                    continue;
+                }
+                int space = StorageServerStub.getInventorySpace(player.getInventory(), resource);
+                int take = (int) Math.min(Math.min(required, items.getAmountAsLong(slot)), space);
+                if (take <= 0) {
+                    break;
+                }
+                int got = items.extractUnlimited(slot, take, false).getCount();
+                if (got > 0) {
+                    player.getInventory().add(resource.copyWithCount(got));
+                    required -= got;
+                    changed = true;
+                }
+            }
+        }
+        if (changed) {
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+        }
+        return changed;
+    }
+
+    private static int countInInventory(Inventory inventory, ItemStack resource) {
+        int count = 0;
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack stack = inventory.getItem(i);
+            if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(stack, resource)) {
+                count += stack.getCount();
+            }
+        }
+        return count;
+    }
+
+    private static boolean ownsBoundTerminal(ServerPlayer player, UUID storageId) {
+        if (StorageServerStub.isBoundTerminal(player.getMainHandItem(), storageId)) return true;
+        if (StorageServerStub.isBoundTerminal(player.getOffhandItem(), storageId)) return true;
+        for (ItemStack stack : player.getInventory().items) {
+            if (StorageServerStub.isBoundTerminal(stack, storageId)) return true;
+        }
+        return false;
+    }
+
+    private static boolean isBoundTerminal(ItemStack stack, UUID storageId) {
+        if (!stack.is(ModItems.HYPERDIMENSION_TERMINAL)) return false;
+        TerminalBinding binding = stack.get(ModComponents.TERMINAL_BINDING);
+        return binding != null && binding.id().isPresent() && binding.id().get().equals(storageId);
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean canStore(BaseStorage<?> storage, ItemStack stack) {
         StorageType type = StorageType.find(storage);
-        if (type == StorageType.SHULKER_CONTAINER) {
-            if (stack.getItem() instanceof ShulkerContainerBlockItem) return false;
-            if (stack.is(ModItems.HYPERDIMENSION_TERMINAL)) return false;
-        }
-        if (type == StorageType.HYPERDIMENSION) {
-            return !stack.is(ModItems.HYPERDIMENSION_TERMINAL);
+        if (type == StorageType.SHULKER_CONTAINER || type == StorageType.HYPERDIMENSION) {
+            return !(stack.getItem() instanceof ShulkerContainerBlockItem)
+                   && !(stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof HyperdimensionStorageStationBlock)
+                   && !stack.is(ModItems.HYPERDIMENSION_TERMINAL);
         }
         return true;
     }
@@ -504,7 +715,7 @@ public final class StorageServerStub {
         }
         if (changed) {
             inventory.setChanged();
-            player.inventoryMenu.broadcastChanges();
+            player.containerMenu.broadcastChanges();
         }
         return new DepositResult(changed);
     }
@@ -614,7 +825,7 @@ public final class StorageServerStub {
         int button
     ) {
         if (
-            !player.inventoryMenu.getCarried().isEmpty()
+            !player.containerMenu.getCarried().isEmpty()
             || slot < 0
             || slot >= view.size()
             || view.amount(slot) <= 0
@@ -657,6 +868,204 @@ public final class StorageServerStub {
     public static void clear() {
         StorageServerStub.STUBS.clear();
         StorageServerStub.REMOTE_STORAGES.clear();
+    }
+
+    /**
+     * 扫描玩家背包与主/副手中的已绑定终端，收集其指向的超维存储站。返回去重后的存储站列表。
+     */
+    private static List<BaseStorage<?>> boundStorages(ServerPlayer player) {
+        List<BaseStorage<?>> storages = new ArrayList<>();
+        for (ItemStack stack : player.getInventory().items) {
+            StorageServerStub.collectBoundStorage(stack, storages);
+        }
+        for (ItemStack stack : player.getInventory().armor) {
+            StorageServerStub.collectBoundStorage(stack, storages);
+        }
+        for (ItemStack stack : player.getInventory().offhand) {
+            StorageServerStub.collectBoundStorage(stack, storages);
+        }
+        return storages;
+    }
+
+    private static void collectBoundStorage(ItemStack stack, List<BaseStorage<?>> storages) {
+        if (!stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
+            return;
+        }
+        TerminalBinding binding = stack.get(ModComponents.TERMINAL_BINDING);
+        if (binding == null || binding.id().isEmpty()) {
+            return;
+        }
+        UUID id = binding.id().get();
+        for (BaseStorage<?> existing : storages) {
+            if (existing.getId().equals(id)) {
+                return;
+            }
+        }
+        storages.add(Storages.get().getOrCreate(id, HyperdimensionStorage.class));
+    }
+
+    /**
+     * 物品均衡：把玩家身上超过一组（满格）的多余物品自动存入已绑定的存储站。
+     * 每个物品只保留一组在身上，超出部分尽量存入；返回是否发生任何变动。
+     */
+    public static void depositExcess(ServerPlayer player) {
+        if (player.hasInfiniteMaterials()) {
+            return;
+        }
+        List<BaseStorage<?>> storages = StorageServerStub.boundStorages(player);
+        if (storages.isEmpty()) {
+            return;
+        }
+        boolean changed = false;
+        // 聚合统计：每种物品在身上的总数量，超过一组的部分即为待存入的多余量。
+        List<ItemStack> representative = new ArrayList<>();
+        List<Integer> totals = new ArrayList<>();
+        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            int idx = -1;
+            for (int r = 0; r < representative.size(); r++) {
+                if (ItemStack.isSameItemSameComponents(representative.get(r), stack)) {
+                    idx = r;
+                    break;
+                }
+            }
+            if (idx < 0) {
+                representative.add(stack.copyWithCount(1));
+                totals.add(stack.getCount());
+            } else {
+                totals.set(idx, totals.get(idx) + stack.getCount());
+            }
+        }
+        for (int r = 0; r < representative.size(); r++) {
+            int max = representative.get(r).getMaxStackSize();
+            int total = totals.get(r);
+            if (total <= max) {
+                continue;
+            }
+            int excess = total - max;
+            int inserted = StorageServerStub.insertIntoStorages(storages, representative.get(r), excess);
+            if (inserted <= 0) {
+                continue;
+            }
+            changed = true;
+            // 从背包移走已存入的多余数量：优先非主手槽位，最后才动主手
+            int remaining = inserted;
+            for (int i = player.getInventory().getContainerSize() - 1; i >= 0 && remaining > 0; i--) {
+                if (i == player.getInventory().selected) {
+                    continue;
+                }
+                ItemStack stack = player.getInventory().getItem(i);
+                if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, representative.get(r))) {
+                    continue;
+                }
+                int take = Math.min(stack.getCount(), remaining);
+                stack.shrink(take);
+                remaining -= take;
+            }
+            if (remaining > 0) {
+                ItemStack held = player.getInventory().getItem(player.getInventory().selected);
+                if (held.isEmpty() || !ItemStack.isSameItemSameComponents(held, representative.get(r))) {
+                    // 主手不是该物品（已换手），丢弃多余无法归位则忽略（不应发生）
+                    continue;
+                }
+                held.shrink(remaining);
+            }
+        }
+        if (changed) {
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+        }
+    }
+
+    /**
+     * 物品均衡：当主/副手物品用尽时，从已绑定存储站取出同种物品补充满一组。
+     * 把补满的整组物品放回指定手持槽；若存储站中没有同种物品则不做任何事。
+     */
+    public static void restockHand(ServerPlayer player, ItemStack usedUpItem, int inventorySlot) {
+        if (usedUpItem.isEmpty() || player.hasInfiniteMaterials()) {
+            return;
+        }
+        List<BaseStorage<?>> storages = StorageServerStub.boundStorages(player);
+        if (storages.isEmpty()) {
+            return;
+        }
+        ItemStack resource = usedUpItem.copyWithCount(1);
+        int need = resource.getMaxStackSize();
+        int taken = 0;
+        for (BaseStorage<?> storage : storages) {
+            if (!StorageServerStub.canStore(storage, resource)) {
+                continue;
+            }
+            UnlimitedItemStacksResourceHandler items = storage.getItems();
+            for (int slot = 0; slot < items.size(); slot++) {
+                if (items.getAmountAsLong(slot) <= 0) {
+                    continue;
+                }
+                UnlimitedItemStack stored = items.getUnlimitedStackInSlot(slot);
+                if (!stored.isSameItemSameComponents(resource)) {
+                    continue;
+                }
+                int take = (int) Math.min(need - taken, items.getAmountAsLong(slot));
+                int got = items.extractUnlimited(slot, take, false).getCount();
+                taken += got;
+                if (taken == need) {
+                    break;
+                }
+            }
+            if (taken == need) {
+                break;
+            }
+        }
+        if (taken <= 0) {
+            return;
+        }
+        ItemStack filled = resource.copyWithCount(taken);
+        if (inventorySlot >= 0 && inventorySlot < player.getInventory().getContainerSize()) {
+            player.getInventory().setItem(inventorySlot, filled);
+        } else {
+            player.drop(filled, true);
+        }
+        player.getInventory().setChanged();
+        player.containerMenu.broadcastChanges();
+    }
+
+    private static int insertIntoStorages(List<BaseStorage<?>> storages, ItemStack resource, int amount) {
+        int inserted = 0;
+        for (BaseStorage<?> storage : storages) {
+            if (!StorageServerStub.canStore(storage, resource)) {
+                continue;
+            }
+            UnlimitedItemStacksResourceHandler items = storage.getItems();
+            for (int slot = 0; slot < items.size(); slot++) {
+                if (items.getAmountAsLong(slot) > 0
+                    && items.getUnlimitedStackInSlot(slot).isSameItemSameComponents(resource)) {
+                    ItemStack leftover = items.insertItem(slot, resource.copyWithCount(amount - inserted), false);
+                    inserted += (amount - inserted) - leftover.getCount();
+                    if (inserted == amount) {
+                        return inserted;
+                    }
+                }
+            }
+        }
+        for (BaseStorage<?> storage : storages) {
+            if (!StorageServerStub.canStore(storage, resource)) {
+                continue;
+            }
+            UnlimitedItemStacksResourceHandler items = storage.getItems();
+            for (int slot = 0; slot < items.size(); slot++) {
+                if (items.getAmountAsLong(slot) <= 0) {
+                    ItemStack leftover = items.insertItem(slot, resource.copyWithCount(amount - inserted), false);
+                    inserted += (amount - inserted) - leftover.getCount();
+                    if (inserted == amount) {
+                        return inserted;
+                    }
+                }
+            }
+        }
+        return inserted;
     }
 
     public static final class StorageUsageValidator implements IRemoteCallableValidator {
@@ -718,16 +1127,7 @@ public final class StorageServerStub {
             ) {
                 return false;
             }
-            ItemStack main = player.getMainHandItem();
-            ItemStack off = player.getOffhandItem();
-            ItemStack terminal = main.is(ModItems.HYPERDIMENSION_TERMINAL)
-                ? main
-                : off.is(ModItems.HYPERDIMENSION_TERMINAL) ? off : null;
-            if (terminal == null) {
-                return false;
-            }
-            TerminalBinding binding = terminal.get(ModComponents.TERMINAL_BINDING);
-            return binding != null && binding.id().isPresent() && binding.id().get().equals(storageId);
+            return StorageServerStub.ownsBoundTerminal(player, storageId);
         }
     }
 

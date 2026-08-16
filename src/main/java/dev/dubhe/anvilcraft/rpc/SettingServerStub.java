@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
+import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.NbtDisplayMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SearchMode;
@@ -102,6 +103,17 @@ public class SettingServerStub {
     @RemoteCallable(validator = OwnSettingValidator.class)
     public static void update(UUID playerId, NbtDisplayMode mode) {
         PlayerSettings.getSetting(SettingServerStub.getAndClear(), playerId).storage().setNbtDisplay(mode);
+        PlayerSettings.get().setDirty();
+    }
+
+    @RemoteCallable(validator = OwnSettingValidator.class)
+    public static void update(UUID playerId, BalanceMode mode) {
+        HolderLookup.Provider registries = SettingServerStub.getAndClear();
+        PlayerSetting setting = PlayerSettings.getSetting(registries, playerId);
+        PlayerSettings.get().getSettings().put(
+            playerId,
+            new PlayerSetting(setting.listed(), setting.custom(), setting.storage(), mode)
+        );
         PlayerSettings.get().setDirty();
     }
 

@@ -119,6 +119,7 @@ public class StorageScreen extends Screen {
     private long version = -1;
     private long orderVersion = -1;
     private int scrollRow;
+    private boolean draggingSlider;
     private int reorderRequest;
     private int syncRequest;
     private int interactionRequest;
@@ -156,8 +157,8 @@ public class StorageScreen extends Screen {
         this.sourcePos = sourcePos;
         this.player = Objects.requireNonNull(Minecraft.getInstance().player);
         this.serverSlots.defaultReturnValue(-1);
-        this.tracksOpenState = Minecraft.getInstance().level.getBlockState(sourcePos).getBlock()
-            instanceof ShulkerContainerBlock;
+        this.tracksOpenState = Objects.requireNonNull(Minecraft.getInstance().level).getBlockState(sourcePos)
+            .getBlock() instanceof ShulkerContainerBlock;
     }
 
     public static void openScreen(BlockPos sourcePos) {
@@ -366,6 +367,7 @@ public class StorageScreen extends Screen {
             512,
             256
         );
+        this.renderStorageSlider(graphics);
     }
 
     @Override
@@ -446,7 +448,6 @@ public class StorageScreen extends Screen {
                 graphics.renderTooltip(this.font, tooltipLines, Optional.empty(), mouseX, mouseY);
             }
         }
-        this.renderStorageSlider(graphics);
     }
 
     private void renderStorageSlider(GuiGraphics graphics) {
@@ -468,6 +469,34 @@ public class StorageScreen extends Screen {
             StorageScreen.SLIDER_WIDTH,
             StorageScreen.SLIDER_HEIGHT
         );
+    }
+
+    /** 鼠标是否位于滚动条轨道（含滑块）区域内。 */
+    private boolean isOverSliderTrack(double mouseX, double mouseY) {
+        int maxScrollRow = this.getMaxScrollRow();
+        return maxScrollRow > 0
+               && MathUtil.isInRange(
+                   mouseX,
+                   mouseY,
+                   this.left + StorageScreen.SLIDER_X - 2,
+                   this.top + StorageScreen.SLIDER_Y,
+                   this.left + StorageScreen.SLIDER_X + StorageScreen.SLIDER_WIDTH + 2,
+                   this.top + StorageScreen.SLIDER_Y + StorageScreen.SLIDER_TRACK_HEIGHT
+               );
+    }
+
+    /** 按鼠标纵坐标把滚动条定位到对应行，并刷新可视内容。 */
+    private void scrollSliderTo(double mouseY) {
+        float trackTop = (float) (this.top + StorageScreen.SLIDER_Y);
+        float usable = StorageScreen.SLIDER_TRACK_HEIGHT - StorageScreen.SLIDER_HEIGHT;
+        float fraction = Mth.clamp((float) (mouseY - trackTop - StorageScreen.SLIDER_HEIGHT / 2.0F) / usable, 0.0F, 1.0F);
+        int next = Math.round(fraction * this.getMaxScrollRow());
+        if (next != this.scrollRow) {
+            this.scrollRow = next;
+            if (!this.nbtFolded) {
+                this.syncVisible();
+            }
+        }
     }
 
     private void renderPlayerInventory(GuiGraphics graphics, int mouseX, int mouseY) {
@@ -646,6 +675,13 @@ public class StorageScreen extends Screen {
             this.setFocused(hovered ? this.search : null);
         }
 
+        // 左键按住滚动条：进入拖动状态，并按点击位置立即定位
+        if (button == 0 && this.isOverSliderTrack(mouseX, mouseY)) {
+            this.draggingSlider = true;
+            this.scrollSliderTo(mouseY);
+            return true;
+        }
+
         if (super.mouseClicked(mouseX, mouseY, button)) {
             return true;
         }
@@ -787,6 +823,12 @@ public class StorageScreen extends Screen {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (this.draggingSlider) {
+            if (button == 0) {
+                this.scrollSliderTo(mouseY);
+            }
+            return true;
+        }
         if (this.quickMoveDragging) {
             if (button == 0 && Screen.hasShiftDown()) {
                 int inventorySlot = this.getInventorySlot(mouseX, mouseY);
@@ -827,6 +869,10 @@ public class StorageScreen extends Screen {
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         super.mouseReleased(mouseX, mouseY, button);
+        if (this.draggingSlider) {
+            this.draggingSlider = false;
+            return true;
+        }
         if (this.quickMoveDragging) {
             this.quickMoveDragging = false;
             this.quickMoveSlots.clear();

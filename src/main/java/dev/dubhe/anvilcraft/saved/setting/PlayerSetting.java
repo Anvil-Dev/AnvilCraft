@@ -5,6 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.init.storage.ModCategories;
+import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
 import dev.dubhe.anvilcraft.saved.storage.category.FilterCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryEntry;
@@ -17,7 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.ArrayList;
 import java.util.List;
 
-public record PlayerSetting(List<CategoryEntry> listed, List<ICategory> custom, StorageSetting storage) {
+public record PlayerSetting(List<CategoryEntry> listed, List<ICategory> custom, StorageSetting storage, BalanceMode balanceMode) {
     public static final MapCodec<PlayerSetting> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         CategoryEntry.CODEC
             .codec()
@@ -29,7 +30,11 @@ public record PlayerSetting(List<CategoryEntry> listed, List<ICategory> custom, 
             .fieldOf("custom")
             .forGetter(PlayerSetting::custom),
         StorageSetting.CODEC
-            .forGetter(PlayerSetting::storage)
+            .forGetter(PlayerSetting::storage),
+        BalanceMode.CODEC
+            .fieldOf("balance_mode")
+            .orElse(BalanceMode.SMART)
+            .forGetter(PlayerSetting::balanceMode)
     ).apply(instance, PlayerSetting::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, PlayerSetting> STREAM_CODEC = StreamCodec.composite(
         CategoryEntry.STREAM_CODEC.apply(ByteBufCodecs.list()),
@@ -38,13 +43,20 @@ public record PlayerSetting(List<CategoryEntry> listed, List<ICategory> custom, 
         PlayerSetting::custom,
         StorageSetting.STREAM_CODEC,
         PlayerSetting::storage,
+        BalanceMode.STREAM_CODEC,
+        PlayerSetting::balanceMode,
         PlayerSetting::new
     );
 
     public PlayerSetting(List<CategoryEntry> listed, List<ICategory> custom, StorageSetting storage) {
+        this(listed, custom, storage, BalanceMode.SMART);
+    }
+
+    public PlayerSetting(List<CategoryEntry> listed, List<ICategory> custom, StorageSetting storage, BalanceMode balanceMode) {
         this.listed = new ArrayList<>(listed);
         this.custom = new ArrayList<>(custom);
         this.storage = storage;
+        this.balanceMode = balanceMode;
     }
 
     public PlayerSetting(HolderLookup.Provider registries) {

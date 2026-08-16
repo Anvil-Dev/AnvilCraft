@@ -97,6 +97,7 @@
     "BlockStateBaseMixin",
     "ClientLevelMixin",
     "ClientPacketListenerMixin",
+    "CreativeModeInventoryScreenMixin",
     "GameRendererMixin",
     "GuiGraphicsMixin",
     "ItemFrameRendererMixin",

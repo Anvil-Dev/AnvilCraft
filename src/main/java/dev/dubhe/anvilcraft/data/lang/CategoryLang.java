@@ -36,6 +36,11 @@ public class CategoryLang {
         provider.add("screen.anvilcraft.storage.category.alternate.unremovable", "Left click to list");
         provider.add("screen.anvilcraft.storage.category.setting.title", "Category Setting");
 
+        provider.add("screen.anvilcraft.balance_mode.smart", "Smart");
+        provider.add("screen.anvilcraft.balance_mode.restock", "Restock only");
+        provider.add("screen.anvilcraft.balance_mode.deposit", "Deposit only");
+        provider.add("screen.anvilcraft.balance_mode.off", "Off");
+
         provider.add("category.anvilcraft.block", "Block Items");
         provider.add("category.anvilcraft.unstackable", "Unstackable Items");
         provider.add("category.anvilcraft.food_and_drink", "Foods and Drinks");
