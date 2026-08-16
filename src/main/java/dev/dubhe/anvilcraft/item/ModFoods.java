@@ -33,4 +33,9 @@ public class ModFoods {
         new FoodProperties.Builder().nutrition(8).saturationModifier(0.5f).build();
     public static final FoodProperties BEEF_MUSHROOM_STEW =
         new FoodProperties.Builder().nutrition(10).saturationModifier(0.8f).usingConvertsTo(Items.BOWL).build();
+    public static final FoodProperties CURSED_GOLDEN_APPLE = new FoodProperties.Builder()
+        .nutrition(4)
+        .saturationModifier(0.3f)
+        .alwaysEdible()
+        .build();
 }

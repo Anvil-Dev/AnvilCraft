@@ -170,7 +170,7 @@ public final class CelestialRefactorRegistry {
                 ModBlocks.TEMPERING_GLASS.asItem(), 64));
             options.add(CelestialRefactorOption.withMaterial(1, "temple",
                 ringModel(1, "temple"), prefix + "temple",
-                net.minecraft.world.item.Items.GOLD_BLOCK, 64));
+                ModBlocks.ENCHANTED_GOLD_BLOCK.asItem(), 64));
         }
         if (innermostRing <= 2 && 2 <= maxRing) {
             /// 环2巨构（小型气态行星的最内环）

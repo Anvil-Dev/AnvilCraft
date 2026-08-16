@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "anvilcraft:enchanted_gold_ingot",
+  "key": {
+    "A": {
+      "item": "anvilcraft:enchanted_gold_nugget"
+    }
+  },
+  "pattern": [
+    "AAA",
+    "AAA",
+    "AAA"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:enchanted_gold_ingot"
+  }
+}

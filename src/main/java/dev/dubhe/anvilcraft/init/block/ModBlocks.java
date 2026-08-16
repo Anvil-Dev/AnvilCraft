@@ -185,6 +185,7 @@ import dev.dubhe.anvilcraft.block.item.ChuteBlockItem;
 import dev.dubhe.anvilcraft.block.item.CreativeCrateBlockItem;
 import dev.dubhe.anvilcraft.block.item.CreativeFluidTankBlockItem;
 import dev.dubhe.anvilcraft.block.item.CursedBlockItem;
+import dev.dubhe.anvilcraft.block.item.EnchantedGoldBlockItem;
 import dev.dubhe.anvilcraft.block.item.EndDustBlockItem;
 import dev.dubhe.anvilcraft.block.item.FishTankBlockItem;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
@@ -2574,6 +2575,16 @@ public class ModBlocks {
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, BlockTags.BEACON_BASE_BLOCKS)
         .recipe(RegistrumBlockRecipeLoader::cursedGoldBlock)
+        .register();
+
+    public static final BlockEntry<? extends Block> ENCHANTED_GOLD_BLOCK = REGISTRUM.block("enchanted_gold_block", Block::new)
+        .lang("Block of Enchanted Gold")
+        .initialProperties(() -> Blocks.GOLD_BLOCK)
+        .item(EnchantedGoldBlockItem::new)
+        .tag(ItemTags.PIGLIN_LOVED, Tags.Items.STORAGE_BLOCKS, ModItemTags.ENCHANTED_GOLD)
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_IRON_TOOL, BlockTags.BEACON_BASE_BLOCKS)
+        .recipe(RegistrumBlockRecipeLoader::enchantedGoldBlock)
         .register();
 
     public static final BlockEntry<? extends Block> ZINC_BLOCK = REGISTRUM.block("zinc_block", Block::new)

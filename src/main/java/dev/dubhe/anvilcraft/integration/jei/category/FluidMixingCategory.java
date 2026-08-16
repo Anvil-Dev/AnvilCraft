@@ -369,6 +369,10 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
                 ComplexFluidJeiRecipe.curseGoldBlock(curses)
             ));
         }
+        recipes.add(new RecipeHolder<>(
+            AnvilCraft.of("jei/fluid_mixing/enchanted_gold_ingot"),
+            ComplexFluidJeiRecipe.enchantGoldIngot()
+        ));
         registration.addRecipes(AnvilCraftJeiPlugin.FLUID_MIXING, recipes);
     }
 

@@ -79,6 +79,8 @@ import dev.dubhe.anvilcraft.item.TranscendenceAnvilHammerItem;
 import dev.dubhe.anvilcraft.item.TranscendenceHeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.TranscendenceResonatorItem;
 import dev.dubhe.anvilcraft.item.abnormal.CursedItem;
+import dev.dubhe.anvilcraft.item.abnormal.EnchantedGoldIngotItem;
+import dev.dubhe.anvilcraft.item.abnormal.EnchantedGoldItem;
 import dev.dubhe.anvilcraft.item.abnormal.LevitationItem;
 import dev.dubhe.anvilcraft.item.abnormal.RadiationItem;
 import dev.dubhe.anvilcraft.item.abnormal.SuperHeavyItem;
@@ -809,6 +811,23 @@ public class ModItems {
     public static final ItemEntry<CursedItem> CURSED_GOLD_NUGGET = REGISTRUM.item("cursed_gold_nugget", CursedItem::new)
         .tag(ItemTags.PIGLIN_LOVED, Tags.Items.NUGGETS)
         .recipe(RegistrumItemRecipeLoader::cursedGoldNugget)
+        .register();
+    // 附魔黄金系
+    public static final ItemEntry<EnchantedGoldIngotItem> ENCHANTED_GOLD_INGOT = REGISTRUM.item(
+        "enchanted_gold_ingot",
+        EnchantedGoldIngotItem::new
+    )
+        .lang("Enchanted Gold Ingot")
+        .tag(ItemTags.BEACON_PAYMENT_ITEMS, ItemTags.PIGLIN_LOVED, Tags.Items.INGOTS, ModItemTags.ENCHANTED_GOLD)
+        .recipe(RegistrumItemRecipeLoader::enchantedGoldIngot)
+        .register();
+    public static final ItemEntry<EnchantedGoldItem> ENCHANTED_GOLD_NUGGET = REGISTRUM.item(
+        "enchanted_gold_nugget",
+        EnchantedGoldItem::new
+    )
+        .lang("Enchanted Gold Nugget")
+        .tag(ItemTags.PIGLIN_LOVED, Tags.Items.NUGGETS, ModItemTags.ENCHANTED_GOLD)
+        .recipe(RegistrumItemRecipeLoader::enchantedGoldNugget)
         .register();
     public static final ItemEntry<TopazItem> TOPAZ = REGISTRUM.item("topaz", TopazItem::new)
         .tag(ItemTags.BEACON_PAYMENT_ITEMS, Tags.Items.GEMS, ModItemTags.GEMS_TOPAZ)

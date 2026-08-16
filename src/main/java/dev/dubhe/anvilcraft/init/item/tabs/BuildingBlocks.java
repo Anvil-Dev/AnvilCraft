@@ -73,6 +73,7 @@ public class BuildingBlocks extends DisplayItemsGenerator {
 
         // Standard metal blocks.
         this.plain(ModBlocks.CURSED_GOLD_BLOCK);
+        this.plain(ModBlocks.ENCHANTED_GOLD_BLOCK);
         this.plain(ModBlocks.ZINC_BLOCK);
         this.plain(ModBlocks.TIN_BLOCK);
         this.plain(ModBlocks.TITANIUM_BLOCK);

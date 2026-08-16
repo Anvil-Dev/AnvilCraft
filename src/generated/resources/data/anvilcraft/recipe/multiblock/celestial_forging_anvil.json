@@ -26,7 +26,7 @@
         "block": "anvilcraft:spacetime_supercomputer"
       },
       "C": {
-        "block": "minecraft:gold_block"
+        "block": "anvilcraft:enchanted_gold_block"
       },
       "D": {
         "block": "anvilcraft:confinement_chamber"

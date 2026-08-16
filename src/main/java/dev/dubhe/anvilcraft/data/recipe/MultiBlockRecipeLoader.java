@@ -261,7 +261,7 @@ public class MultiBlockRecipeLoader {
             .layer("DED", "E E", "DED")
             .symbol('A', "anvilcraft:transcendium_block")
             .symbol('B', "anvilcraft:spacetime_supercomputer")
-            .symbol('C', "minecraft:gold_block")
+            .symbol('C', "anvilcraft:enchanted_gold_block")
             .symbol('D', "anvilcraft:confinement_chamber")
             .symbol('E', "anvilcraft:negative_matter_block")
             .symbol('F', "anvilcraft:mass_energy_inverter")

@@ -99,6 +99,7 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.AMULET_BOX);
 
         // Food and consumables. Ingredient foods also appear in Ingredients.
+        this.plain(ModFoodItems.CURSED_GOLDEN_APPLE);
         this.plain(ModFoodItems.CHOCOLATE);
         this.plain(ModFoodItems.CHOCOLATE_BLACK);
         this.plain(ModFoodItems.CHOCOLATE_WHITE);

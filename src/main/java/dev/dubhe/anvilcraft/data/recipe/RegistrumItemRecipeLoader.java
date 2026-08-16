@@ -775,6 +775,38 @@ public class RegistrumItemRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Item> void enchantedGoldIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+            .requires(ModBlocks.ENCHANTED_GOLD_BLOCK)
+            .group(ctx.getId().toString())
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.ENCHANTED_GOLD_BLOCK.asItem()),
+                AnvilCraftDatagen.has(ModBlocks.ENCHANTED_GOLD_BLOCK)
+            )
+            .save(provider, AnvilCraft.of("enchanted_gold_ingot_from_enchanted_gold_block"));
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("AAA")
+            .pattern("AAA")
+            .pattern("AAA")
+            .define('A', ModItems.ENCHANTED_GOLD_NUGGET)
+            .group(ctx.getId().toString())
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.ENCHANTED_GOLD_NUGGET.get()),
+                AnvilCraftDatagen.has(ModItems.ENCHANTED_GOLD_NUGGET)
+            )
+            .save(provider, AnvilCraft.of("enchanted_gold_ingot_from_enchanted_gold_nugget"));
+    }
+
+    public static <T extends Item> void enchantedGoldNugget(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
+            .requires(ModItems.ENCHANTED_GOLD_INGOT)
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.ENCHANTED_GOLD_INGOT.get()),
+                AnvilCraftDatagen.has(ModItems.ENCHANTED_GOLD_INGOT)
+            )
+            .save(provider);
+    }
+
     public static <T extends Item> void topaz(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.TOPAZ_BLOCK)

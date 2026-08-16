@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.CannedFoodItem;
+import dev.dubhe.anvilcraft.item.CursedGoldenAppleItem;
 import dev.dubhe.anvilcraft.item.ModFoods;
 import dev.dubhe.anvilcraft.item.PillItem;
 import dev.dubhe.anvilcraft.item.UtusanItem;
@@ -35,6 +36,21 @@ public class ModFoodItems {
 
     public static final ItemEntry<Item> DOUGH = REGISTRUM.item("dough", Item::new)
         .tag(Tags.Items.FOODS, ModItemTags.DOUGH, ModItemTags.WHEAT_DOUGH)
+        .register();
+
+    public static final ItemEntry<CursedGoldenAppleItem> CURSED_GOLDEN_APPLE = REGISTRUM
+        .item("cursed_golden_apple", properties -> new CursedGoldenAppleItem(properties.food(ModFoods.CURSED_GOLDEN_APPLE)))
+        .lang("Cursed Golden Apple")
+        .tag(Tags.Items.FOODS)
+        .recipe((ctx, provider) -> ShapedRecipeBuilder.shaped(RecipeCategory.FOOD, ctx.get())
+            .pattern("AAA")
+            .pattern("ABA")
+            .pattern("AAA")
+            .define('A', ModBlocks.CURSED_GOLD_BLOCK)
+            .define('B', Items.APPLE)
+            .unlockedBy("has_cursed_gold_block", RegistrumRecipeProvider.has(ModBlocks.CURSED_GOLD_BLOCK))
+            .unlockedBy("has_apple", RegistrumRecipeProvider.has(Items.APPLE))
+            .save(provider))
         .register();
 
     public static final ItemEntry<Item> COCOA_LIQUOR = REGISTRUM

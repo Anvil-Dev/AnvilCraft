@@ -76,6 +76,8 @@
       "invoker.BlockBehaviourInvoker",
       "invoker.BlockItemInvoker",
       "piglin.AbstractPiglinMixin",
+      "piglin.PiglinAiMixin",
+      "piglin.PiglinBruteAiMixin",
       "piglin.PiglinMixin",
       "poachfixers.GiveCommandMixin",
       "poachfixers.JeiServerCommandUtilMixin",
