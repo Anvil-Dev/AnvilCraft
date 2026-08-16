@@ -10,7 +10,9 @@ import dev.dubhe.anvilcraft.api.power.IDynamicPowerComponentHolder;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.block.EmberAnvilBlock;
 import dev.dubhe.anvilcraft.block.TranscendenceAnvilBlock;
+import dev.dubhe.anvilcraft.init.ModStats;
 import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ClientInformation;
@@ -23,6 +25,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -40,6 +43,8 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
     @SuppressWarnings("NotNullFieldNotInitialized") // Mixin
     @Unique
     private DynamicPowerComponent anvilcraft$component;
+    @Unique
+    private boolean anvilcraft$lastTickGridExist;
 
     public ServerPlayerMixin(Level level, BlockPos pos, float rotY, GameProfile gameProfile) {
         super(level, pos, rotY, gameProfile);
@@ -88,6 +93,17 @@ public abstract class ServerPlayerMixin extends Player implements IDynamicPowerC
                 
                 IonocraftBackpackItem.addEnergy(stack, chargeAmount * IonocraftBackpackItem.FLIGHT_CONSUMPTION);
             }
+        }
+    }
+
+    @Override
+    public void anvilcraft$switchTo(@Nullable PowerGrid grid) {
+        if (!this.anvilcraft$lastTickGridExist && grid != null) {
+            this.anvilcraft$lastTickGridExist = true;
+            this.awardStat(ModStats.ENTER_POWER_GRID);
+            TriggerUtil.enterPowerGrid(this.level(), BlockPos.containing(this.position()));
+        } else if (this.anvilcraft$lastTickGridExist && grid == null) {
+            this.anvilcraft$lastTickGridExist = false;
         }
     }
 

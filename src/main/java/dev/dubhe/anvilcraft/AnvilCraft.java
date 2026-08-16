@@ -23,6 +23,7 @@ import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
+import dev.dubhe.anvilcraft.init.ModStats;
 import dev.dubhe.anvilcraft.init.ModTargetPointers;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -110,6 +111,7 @@ public class AnvilCraft {
         ModInspections.initialize();
         ModItemSubPredicates.initialize(modEventBus);
         ModCriterionTriggers.register(modEventBus);
+        ModStats.register(modEventBus);
         ModLootContextParamSets.registerAll();
         ModEnchantmentEffectComponents.register(modEventBus);
         ModEnchantmentEffects.register(modEventBus);

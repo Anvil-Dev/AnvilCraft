@@ -54,6 +54,7 @@
       "RedstoneWireBlockMixin",
       "ServerGamePacketListenerMixin",
       "ServerLevelMixin",
+      "ServerPlayerContainerListenerMixin",
       "ServerPlayerMixin",
       "ServicesMixin",
       "StriderMixin",

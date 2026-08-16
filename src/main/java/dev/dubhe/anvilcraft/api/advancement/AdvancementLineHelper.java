@@ -11,6 +11,8 @@ import dev.dubhe.anvilcraft.advancements.criterion.BlockComparatorTurnOverTrigge
 import dev.dubhe.anvilcraft.advancements.criterion.ConvertBeaconTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DevourerDevourTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.DispenserRepairIronGolem;
+import dev.dubhe.anvilcraft.advancements.criterion.ElectricAllergyTrigger;
+import dev.dubhe.anvilcraft.advancements.criterion.EnterPowerGridTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.FireReforgeTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.HeatCollectorTrigger;
 import dev.dubhe.anvilcraft.advancements.criterion.InWorldRecipeTrigger;
@@ -315,6 +317,14 @@ public class AdvancementLineHelper {
 
         public AdvancementHelper hitPiezoelectricCrystal(String key) {
             return this.addCriterion(key, AnvilHitPiezoelectricCrystalTrigger.TriggerInstance.hit());
+        }
+
+        public AdvancementHelper enterPowerGrid(String key) {
+            return this.addCriterion(key, EnterPowerGridTrigger.TriggerInstance.enter());
+        }
+
+        public AdvancementHelper electricAllergy(String key) {
+            return this.addCriterion(key, ElectricAllergyTrigger.TriggerInstance.of());
         }
 
         public AdvancementHelper convertBeacon(String key) {

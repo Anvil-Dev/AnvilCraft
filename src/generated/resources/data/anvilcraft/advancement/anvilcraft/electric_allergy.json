@@ -1,0 +1,27 @@
+{
+  "parent": "anvilcraft:anvilcraft/transcendence",
+  "criteria": {
+    "electric_allergy": {
+      "trigger": "anvilcraft:electric_allergy"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.anvilcraft.electric_allergy.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "count": 1,
+      "id": "anvilcraft:transcendence_anvil"
+    },
+    "title": {
+      "translate": "advancements.anvilcraft.electric_allergy.title"
+    }
+  },
+  "requirements": [
+    [
+      "electric_allergy"
+    ]
+  ],
+  "sends_telemetry_event": true
+}
