@@ -391,7 +391,6 @@ public class ModRenderTypes {
             .createCompositeState(false)
     );
 
-    private static <T> T supplyNothing() {
     private static <T> @Nullable T supplyNothing() {
         return null;
     }
