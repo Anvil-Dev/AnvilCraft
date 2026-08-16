@@ -753,6 +753,7 @@ public class ModItems {
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
             .component(ModComponents.TERMINAL_BINDING, TerminalBinding.EMPTY))
         .model((ctx, provider) -> provider.generated(ctx.lazy()))
+        .recipe(RegistrumItemRecipeLoader::hyperdimensionTerminal)
         .register();
 
     public static final ItemEntry<PillBoxItem> PILL_BOX = REGISTRUM
