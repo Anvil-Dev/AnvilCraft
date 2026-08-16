@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.data.lang;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
+import dev.dubhe.anvilcraft.init.block.ModBlockTags;
 
 public class BlockLang {
     @SuppressWarnings("checkstyle:LineLength")
@@ -25,5 +26,6 @@ public class BlockLang {
         provider.add("block.anvilcraft.spacetime_supercomputer.tick_sprint_cancelled", "Tick Sprint command execution cancelled");
         provider.add("block.anvilcraft.spacetime_supercomputer.tick_sprint_reject", "✗ Reject");
         provider.add("block.anvilcraft.spacetime_supercomputer.tick_sprint_rejected", "This command execution was rejected");
+        provider.add(ModBlockTags.LANDING_NO_RECIPE, "When an anvil lands on one of these blocks, it won't trigger recipe handling.");
     }
 }

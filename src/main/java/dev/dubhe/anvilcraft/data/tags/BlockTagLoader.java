@@ -326,6 +326,13 @@ public class BlockTagLoader {
         provider.addTag(ModBlockTags.RESIN_SHOCK_COMPATIBLE)
             .add(ModBlocks.RESIN_BLOCK.getKey());
 
+        provider.addTag(ModBlockTags.LANDING_NO_RECIPE)
+            .add(
+                ModBlocks.PIEZOELECTRIC_CRYSTAL.getKey(),
+                ModBlocks.SUGAR_BLOCK.getKey(),
+                ModBlocks.GUNPOWER_BLOCK.getKey()
+            );
+
         provider.addTag(ModBlockTags.OVERHEATABLE)
             .add(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.getKey())
             .add(ModBlocks.EMBER_METAL_BLOCK.getKey());
