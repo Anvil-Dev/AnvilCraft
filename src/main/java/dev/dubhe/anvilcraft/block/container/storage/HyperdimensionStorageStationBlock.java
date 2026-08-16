@@ -204,7 +204,7 @@ public class HyperdimensionStorageStationBlock
     protected static final VoxelShape BOTTOM_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, BOTTOM_NW);
     protected static final VoxelShape BOTTOM_NE = ShapeUtil.rotate(Direction.Axis.Y, 270, BOTTOM_NW);
 
-    protected static final VoxelShape MID_N = Block.box(0, 0, 0, 16, 16, 4);
+    protected static final VoxelShape MID_N = Block.box(0, 0, 4, 16, 16, 16);
     protected static final VoxelShape MID_W = ShapeUtil.rotate(Direction.Axis.Y, 90, MID_N);
     protected static final VoxelShape MID_S = ShapeUtil.rotate(Direction.Axis.Y, 180, MID_N);
     protected static final VoxelShape MID_E = ShapeUtil.rotate(Direction.Axis.Y, 270, MID_N);

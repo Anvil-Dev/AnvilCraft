@@ -131,7 +131,7 @@ public final class StorageServerStub {
             if (index < 0 || !visited.add(index)) {
                 continue;
             }
-            updates.add(new StackUpdate(index, StorageServerStub.getStack(view, index)));
+            updates.add(new StackUpdate(index, StorageServerStub.getStack(view, index), view.amount(index)));
         }
         return new SyncResult(stub.version, view.fullness(), updates);
     }
@@ -174,8 +174,7 @@ public final class StorageServerStub {
             }
         } else if (slot >= 0 && slot < view.size() && view.amount(slot) > 0) {
             ItemStack itemStack = view.resource(slot);
-            int count = view.amount(slot);
-            int maxPickup = Math.min(itemStack.getMaxStackSize(), count);
+            int maxPickup = (int) Math.min(itemStack.getMaxStackSize(), view.amount(slot));
             int amount = button == 0 ? maxPickup : Math.ceilDiv(maxPickup, 2);
             int extracted = view.extract(slot, amount);
             if (extracted > 0) {
@@ -387,7 +386,7 @@ public final class StorageServerStub {
             if (view.amount(index) <= 0 || !ItemStack.isSameItemSameComponents(view.resource(index), resource)) {
                 continue;
             }
-            count += view.amount(index);
+            count = (int) Math.min(limit, (long) count + view.amount(index));
         }
         return count;
     }
@@ -545,7 +544,7 @@ public final class StorageServerStub {
             return false;
         }
         ItemStack stack = view.resource(slot);
-        int amount = Math.min(
+        int amount = (int) Math.min(
             Math.min(view.amount(slot), stack.getMaxStackSize()),
             StorageServerStub.getInventorySpace(player.getInventory(), stack)
         );
@@ -590,7 +589,7 @@ public final class StorageServerStub {
         ItemStack stack = view.resource(slot);
         int stackCount = stack.getMaxStackSize();
         long requested = button == 0 ? 1 : (long) stackCount * (button == 1 ? 1 : 9);
-        int amount = Math.min(view.amount(slot), Math.toIntExact(requested));
+        int amount = (int) Math.min(view.amount(slot), Math.toIntExact(requested));
         int extracted = view.extract(slot, amount);
         if (extracted <= 0) {
             return false;
@@ -731,12 +730,14 @@ public final class StorageServerStub {
         );
     }
 
-    public record StackUpdate(int index, UnlimitedItemStack stack) {
+    public record StackUpdate(int index, UnlimitedItemStack stack, long count) {
         public static final StreamCodec<RegistryFriendlyByteBuf, StackUpdate> STREAM_CODEC = StreamCodec.composite(
             ByteBufCodecs.VAR_INT,
             StackUpdate::index,
             UnlimitedItemStack.OPTIONAL_STREAM_CODEC,
             StackUpdate::stack,
+            ByteBufCodecs.VAR_LONG,
+            StackUpdate::count,
             StackUpdate::new
         );
     }
@@ -804,7 +805,7 @@ public final class StorageServerStub {
         if (index >= view.size() || view.amount(index) <= 0) {
             return UnlimitedItemStack.EMPTY;
         }
-        return new UnlimitedItemStack(view.resource(index), view.amount(index));
+        return new UnlimitedItemStack(view.resource(index), (int) Math.min(view.amount(index), Integer.MAX_VALUE));
     }
 
     private IntList getOrder(StorageView view, PlayerSetting setting) {
@@ -838,7 +839,7 @@ public final class StorageServerStub {
             ItemStack stack = view.resource(index);
             ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
             String name = requiresName ? stack.getHoverName().getString() : "";
-            UnlimitedItemStack unlimitedStack = new UnlimitedItemStack(stack, Math.toIntExact(amount));
+            UnlimitedItemStack unlimitedStack = new UnlimitedItemStack(stack, (int) Math.min(amount, Integer.MAX_VALUE));
             if (!StorageServerStub.matchesFilters(stack.getItemHolder(), unlimitedStack, id, name, search, categories)) {
                 continue;
             }
@@ -959,19 +960,21 @@ public final class StorageServerStub {
 
         private StorageView(List<BaseStorage<?>> storages, List<Entry> ignored) {
             this.storages = storages;
-            Map<ItemStack, Entry> merged = new HashMap<>();
+            Map<UnlimitedItemStacksResourceHandler.ResourceKey, Entry> merged = new HashMap<>();
             for (int storageIndex = 0; storageIndex < storages.size(); storageIndex++) {
                 UnlimitedItemStacksResourceHandler items = storages.get(storageIndex).getItems();
                 for (int slot = 0; slot < items.size(); slot++) {
                     if (items.getAmountAsLong(slot) <= 0) continue;
                     ItemStack resource = items.getUnlimitedStackInSlot(slot).toStack().copyWithCount(1);
-                    Entry entry = merged.get(resource);
+                    UnlimitedItemStacksResourceHandler.ResourceKey key =
+                        UnlimitedItemStacksResourceHandler.ResourceKey.of(resource);
+                    Entry entry = merged.get(key);
                     if (entry == null) {
                         entry = new Entry(resource, 0, storageIndex, slot);
-                        merged.put(resource, entry);
+                        merged.put(key, entry);
                         this.entries.add(entry);
                     }
-                    entry.amount += Math.toIntExact(items.getAmountAsLong(slot));
+                    entry.amount += items.getAmountAsLong(slot);
                 }
             }
         }
@@ -984,7 +987,7 @@ public final class StorageServerStub {
             return this.entries.size();
         }
 
-        int amount(int index) {
+        long amount(int index) {
             return this.entries.get(index).amount;
         }
 
@@ -1047,11 +1050,11 @@ public final class StorageServerStub {
 
         private static final class Entry {
             final ItemStack resource;
-            int amount;
+            long amount;
             final int storageIndex;
             final int slot;
 
-            Entry(ItemStack resource, int amount, int storageIndex, int slot) {
+            Entry(ItemStack resource, long amount, int storageIndex, int slot) {
                 this.resource = resource;
                 this.amount = amount;
                 this.storageIndex = storageIndex;

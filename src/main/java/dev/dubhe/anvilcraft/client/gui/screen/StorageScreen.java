@@ -23,6 +23,8 @@ import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2LongMap;
+import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -106,8 +108,9 @@ public class StorageScreen extends Screen {
     private IntList order = new IntArrayList();
     private IntList displayOrder = new IntArrayList();
     private final Int2ObjectMap<UnlimitedItemStack> contents = new Int2ObjectOpenHashMap<>();
+    private final Int2LongMap counts = new Int2LongOpenHashMap();
     private final Int2ObjectMap<UnlimitedItemStack> foldedContents = new Int2ObjectOpenHashMap<>();
-    private final Int2IntMap foldedCounts = new Int2IntOpenHashMap();
+    private final Int2LongMap foldedCounts = new Int2LongOpenHashMap();
     private final Int2IntMap serverSlots = new Int2IntOpenHashMap();
     private final IntSet emptySlots = new IntOpenHashSet();
     private List<IntList> foldedGroups = List.of();
@@ -428,7 +431,7 @@ public class StorageScreen extends Screen {
                         ? TooltipFlag.Default.ADVANCED
                         : TooltipFlag.Default.NORMAL
                 ));
-                tooltipLines.add(Component.translatable("screen.anvilcraft.storage.count", stack.getCount()));
+                tooltipLines.add(Component.translatable("screen.anvilcraft.storage.count", this.getDisplayedCount(slot, stack)));
                 graphics.renderTooltip(this.font, tooltipLines, Optional.empty(), mouseX, mouseY);
             }
         }
@@ -1530,6 +1533,7 @@ public class StorageScreen extends Screen {
                 }
             } else {
                 this.contents.put(update.index(), update.stack());
+                this.counts.put(update.index(), update.count());
                 this.emptySlots.remove(update.index());
             }
         }
@@ -1548,6 +1552,7 @@ public class StorageScreen extends Screen {
             return false;
         }
         this.contents.clear();
+        this.counts.clear();
         this.emptySlots.clear();
         results.forEach(this::applySyncResult);
         return true;
@@ -1581,6 +1586,7 @@ public class StorageScreen extends Screen {
                     this.order.add(logicalSlot.intValue());
                 }
                 this.contents.put(logicalSlot.intValue(), update.stack());
+                this.counts.put(logicalSlot.intValue(), update.count());
                 this.emptySlots.remove(logicalSlot.intValue());
                 this.serverSlots.put(logicalSlot.intValue(), update.index());
             }
@@ -1677,8 +1683,8 @@ public class StorageScreen extends Screen {
             long count = 0;
             boolean foundNonEmpty = preserveRepresentatives && this.getStoredCount(representative) > 0;
             for (int slot : group) {
-                int slotCount = this.getStoredCount(slot);
-                count = Math.min(count + slotCount, Integer.MAX_VALUE);
+                long slotCount = this.getStoredCount(slot);
+                count += slotCount;
                 if (!foundNonEmpty && slotCount > 0) {
                     representative = slot;
                     foundNonEmpty = true;
@@ -1687,11 +1693,11 @@ public class StorageScreen extends Screen {
 
             UnlimitedItemStack stack = Objects.requireNonNull(this.contents.get(representative));
             UnlimitedItemStack folded = stack.copy();
-            int foldedCount = (int) count;
-            folded.setCount(Math.max(foldedCount, 1));
+            // 图标栈仅用于渲染物品与判定非空，数量截断到 int 上限；真实总量存于 foldedCounts
+            folded.setCount(Math.clamp(count, 1, Integer.MAX_VALUE));
             foldedOrder.add(representative);
             this.foldedContents.put(representative, folded);
-            this.foldedCounts.put(representative, foldedCount);
+            this.foldedCounts.put(representative, count);
         }
         this.displayOrder = foldedOrder;
     }
@@ -1701,13 +1707,16 @@ public class StorageScreen extends Screen {
         return displayedContents.getOrDefault(slot, UnlimitedItemStack.EMPTY);
     }
 
-    private int getDisplayedCount(int slot, UnlimitedItemStack stack) {
-        return this.nbtFolded ? this.foldedCounts.get(slot) : this.emptySlots.contains(slot) ? 0 : stack.getCount();
+    private long getDisplayedCount(int slot, UnlimitedItemStack stack) {
+        return this.nbtFolded ? this.foldedCounts.get(slot) : this.getStoredCount(slot);
     }
 
-    private int getStoredCount(int slot) {
+    private long getStoredCount(int slot) {
         UnlimitedItemStack stack = this.contents.getOrDefault(slot, UnlimitedItemStack.EMPTY);
-        return this.emptySlots.contains(slot) ? 0 : stack.getCount();
+        if (stack.isEmpty() || this.emptySlots.contains(slot)) {
+            return 0;
+        }
+        return this.counts.getOrDefault(slot, 0);
     }
 
     private void refreshMetadata() {
@@ -1754,7 +1763,7 @@ public class StorageScreen extends Screen {
         GuiGraphics graphics,
         Minecraft minecraft,
         ItemStack stack,
-        int count,
+        long count,
         int x,
         int y
     ) {

@@ -165,12 +165,23 @@ public class FormattingUtil {
     }
 
     public static String toAbbrNum(int number) {
+        return FormattingUtil.toAbbrNum((long) number);
+    }
+
+    public static String toAbbrNum(long number) {
         if (number < 1000) {
             return String.valueOf(number);
         }
 
-        String[] units = {"K", "M", "B"};
-        int[] thresholds = {1000, 1_000_000, 1_000_000_000};
+        String[] units = {"K", "M", "B", "T", "Qa", "Qi"};
+        long[] thresholds = {
+            1_000,
+            1_000_000,
+            1_000_000_000,
+            1_000_000_000_000L,
+            1_000_000_000_000_000L,
+            1_000_000_000_000_000_000L
+        };
 
         for (int i = thresholds.length - 1; i >= 0; i--) {
             if (number >= thresholds[i]) {
