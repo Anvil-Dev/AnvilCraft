@@ -6,9 +6,11 @@ import com.llamalad7.mixinextras.sugar.Local;
 import dev.dubhe.anvilcraft.api.event.BlockEntityEvent;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
+import dev.dubhe.anvilcraft.util.EnchantedGoldBlockPositions;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.neoforged.neoforge.common.NeoForge;
 import org.jetbrains.annotations.Nullable;
@@ -17,6 +19,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Map;
 
@@ -88,6 +91,9 @@ public abstract class LevelChunkMixin {
     @Nullable
     public abstract BlockEntity getBlockEntity(BlockPos pos);
 
+    @Shadow
+    public abstract BlockState getBlockState(BlockPos pos);
+
     @Inject(method = "removeBlockEntity", at = @At("HEAD"))
     void onBlockEntityRemoved(BlockPos pos, CallbackInfo ci) {
         if (!this.getLevel().isClientSide()) return;
@@ -95,5 +101,17 @@ public abstract class LevelChunkMixin {
         if (be instanceof BaseLaserBlockEntity laserStateAccess) {
             CacheableBERenderingPipeline.getInstance().blockRemoved(laserStateAccess);
         }
+    }
+
+    @Inject(
+        method = "setBlockState(Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/level/block/state/BlockState;Z)"
+                 + "Lnet/minecraft/world/level/block/state/BlockState;",
+        at = @At("HEAD")
+    )
+    private void trackEnchantedGoldBlock(BlockPos pos, BlockState state, boolean isMoving, CallbackInfoReturnable<BlockState> cir) {
+        if (!this.getLevel().isClientSide) {
+            return;
+        }
+        EnchantedGoldBlockPositions.onBlockChanged(pos, this.getBlockState(pos), state);
     }
 }

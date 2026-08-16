@@ -18,6 +18,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -59,11 +60,14 @@ public abstract class PiglinAiMixin {
                      + ")Ljava/util/List;"
         )
     )
-    private static List<ItemStack> amplifyBarterResponse(Piglin piglin, Operation<List<ItemStack>> original) {
-        List<ItemStack> items = original.call(piglin);
-        if (piglin.getData(ModDataAttachments.ENCHANTED_GOLD_BARTER)) {
-            piglin.setData(ModDataAttachments.ENCHANTED_GOLD_BARTER, false);
-            return items.stream().map(stack -> stack.copyWithCount(stack.getCount() * 4)).toList();
+    private static List<ItemStack> repeatBarterResponse(Piglin piglin, Operation<List<ItemStack>> original) {
+        if (!piglin.getData(ModDataAttachments.ENCHANTED_GOLD_BARTER)) {
+            return original.call(piglin);
+        }
+        piglin.setData(ModDataAttachments.ENCHANTED_GOLD_BARTER, false);
+        List<ItemStack> items = new ArrayList<>();
+        for (int i = 0; i < 4; i++) {
+            items.addAll(original.call(piglin));
         }
         return items;
     }

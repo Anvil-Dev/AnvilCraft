@@ -5,9 +5,11 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.Util;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.RenderStateShard;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.FastColor;
@@ -23,6 +25,8 @@ import static net.minecraft.client.renderer.RenderStateShard.BLOCK_SHEET_MIPPED;
 import static net.minecraft.client.renderer.RenderStateShard.COLOR_DEPTH_WRITE;
 import static net.minecraft.client.renderer.RenderStateShard.COLOR_WRITE;
 import static net.minecraft.client.renderer.RenderStateShard.CULL;
+import static net.minecraft.client.renderer.RenderStateShard.GLINT_TEXTURING;
+import static net.minecraft.client.renderer.RenderStateShard.GLINT_TRANSPARENCY;
 import static net.minecraft.client.renderer.RenderStateShard.LEQUAL_DEPTH_TEST;
 import static net.minecraft.client.renderer.RenderStateShard.LIGHTMAP;
 import static net.minecraft.client.renderer.RenderStateShard.NO_CULL;
@@ -350,6 +354,23 @@ public class ModRenderTypes {
                 compositeState
             );
         }
+    );
+
+    public static final RenderType ENCHANTED_GOLD_GLINT = RenderType.create(
+        "anvilcraft:enchanted_gold_glint",
+        DefaultVertexFormat.POSITION_TEX,
+        VertexFormat.Mode.QUADS,
+        1536,
+        RenderType.CompositeState.builder()
+            .setShaderState(new RenderStateShard.ShaderStateShard(GameRenderer::getRendertypeGlintShader))
+            .setTextureState(new RenderStateShard.TextureStateShard(ItemRenderer.ENCHANTED_GLINT_ITEM, true, false))
+            .setWriteMaskState(COLOR_WRITE)
+            .setCullState(NO_CULL)
+            .setDepthTestState(LEQUAL_DEPTH_TEST)
+            .setTransparencyState(GLINT_TRANSPARENCY)
+            .setTexturingState(GLINT_TEXTURING)
+            .setLayeringState(VIEW_OFFSET_Z_LAYERING)
+            .createCompositeState(false)
     );
 
     private static <T> T supplyNothing() {
