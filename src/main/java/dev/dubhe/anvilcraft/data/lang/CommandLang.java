@@ -13,20 +13,19 @@ public class CommandLang {
         provider.add("command.anvilcraft.powergrid.info.transmitter", "%1$s at %2$s, %3$s, %4$s (Range: %5$s)");
         provider.add("command.anvilcraft.powergrid.info.not_found", "No power grid found at position %1$s, %2$s, %3$s");
 
-        provider.add("command.anvilcraft.multiphase.no_item", "The main-hand item does not have Multiphase");
-        provider.add(
-            "command.anvilcraft.multiphase.info.summary",
-            "Multiphase spaces: %1$s, active: %2$s"
-        );
-        provider.add(
-            "command.anvilcraft.multiphase.info.phase",
-            "[%1$s] %2$s, repair cost: %3$s, enchantments: %4$s"
-        );
-        provider.add(
-            "command.anvilcraft.multiphase.add.success",
-            "Added %1$s enchantment space(s); total: %2$s"
-        );
-        provider.add("command.anvilcraft.multiphase.add.full", "This item already has four enchantment spaces");
+        provider.add("command.anvilcraft.storage.no_hand_item", "No item in main hand");
+        provider.add("command.anvilcraft.storage.no_storage", "The held item does not reference a storage");
+        provider.add("command.anvilcraft.storage.invalid_type", "Invalid storage type");
+        provider.add("command.anvilcraft.storage.invalid_id", "Invalid storage ID");
+        provider.add("command.anvilcraft.storage.type_mismatch", "Held item storage type %1$s does not match requested type %2$s");
+        provider.add("command.anvilcraft.storage.info.item", "Storage info of %s");
+        provider.add("command.anvilcraft.storage.info.none", "none");
+        provider.add("command.anvilcraft.storage.info.terminal", "Bound storage: %s");
+        provider.add("command.anvilcraft.storage.info.ref", "Type: %1$s, ID: %2$s");
+        provider.add("command.anvilcraft.storage.list.head", "Storages (%1$s):");
+        provider.add("command.anvilcraft.storage.list.entry", "Type: %1$s, ID: %2$s");
+        provider.add("command.anvilcraft.storage.bind.success", "Bound %1$s storage to %2$s");
+        provider.add("command.anvilcraft.storage.unbind.success", "Unbound storage");
 
         provider.add("command.anvilcraft.universe.no_id", "No ID provided and cannot find ID in items on hand");
 

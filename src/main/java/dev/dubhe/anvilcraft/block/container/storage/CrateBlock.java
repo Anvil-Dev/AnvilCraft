@@ -17,7 +17,6 @@ import dev.dubhe.anvilcraft.saved.storage.LargeCrateStorage;
 import dev.dubhe.anvilcraft.saved.storage.StorageType;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -26,11 +25,14 @@ import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.neoforged.api.distmarker.Dist;
 
 import java.util.ArrayList;
@@ -94,7 +96,7 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
             if (player.isSpectator()) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
             if (player.isShiftKeyDown() && itemStack.is(ModBlocks.LARGE_CRATE.asItem())) {
                 if (level.isClientSide()) return ItemInteractionResult.sidedSuccess(true);
-                return CrateBlock.mergeIntoLargeCrate(level, pos, hitResult.getDirection(), itemStack, player);
+                return CrateBlock.mergeIntoLargeCrate(level, pos, itemStack, player);
             }
             if (player instanceof ServerPlayer) {
                 return ItemInteractionResult.sidedSuccess(false);
@@ -107,14 +109,29 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
         return super.useItemOn(itemStack, state, level, pos, player, hand, hitResult);
     }
 
+    @Override
+    public ItemStack getCloneItemStack(
+        BlockState state,
+        HitResult target,
+        LevelReader level,
+        BlockPos pos,
+        Player player
+    ) {
+        ItemStack stack = super.getCloneItemStack(state, target, level, pos, player);
+        if (level instanceof Level realLevel) {
+            StorageBlockEntity.applyPickStorageId(stack, realLevel, pos, state, StorageType.CRATE);
+        }
+        return stack;
+    }
+
     private static ItemInteractionResult mergeIntoLargeCrate(
         Level level,
         BlockPos center,
-        Direction clickedFace,
         ItemStack largeCrateStack,
         Player player
     ) {
-        BlockPos origin = CrateBlock.getLargeCrateOrigin(center, clickedFace);
+        BlockPos origin = CrateBlock.findLargeCrateOrigin(level, center);
+        if (origin == null) return ItemInteractionResult.FAIL;
         List<CrateBlockEntity> crates = new ArrayList<>();
         for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
             BlockPos pos = origin.offset(part.getOffset());
@@ -156,18 +173,51 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
         }
         LargeCrateBlock largeCrate = ModBlocks.LARGE_CRATE.get();
         BlockState defaultState = largeCrate.defaultBlockState();
+        // 先移除 27 个旧箱子：逐 part 放置会被多方块 updateShape 判定为结构不完整而破坏（
+        // 未放置的邻居还是普通箱子）。参照多方块升级做法：全部置为 AIR 后放置主方块（不带
+        // 邻居更新），再通过 setPlacedBy 铺开其余 part（此时邻居为已放置的同类 part）。
+        // 被替换的 27 个普通箱子以物品形式掉落到原位置附近返还给玩家。
         for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
-            level.setBlockAndUpdate(origin.offset(part.getOffset()), defaultState.setValue(LargeCrateBlock.HALF, part));
+            BlockPos pos = origin.offset(part.getOffset());
+            Block.popResource(level, pos, new ItemStack(ModBlocks.CRATE.get()));
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_NONE);
         }
+        level.setBlock(
+            origin,
+            defaultState.setValue(LargeCrateBlock.HALF, Cube3x3PartHalf.BOTTOM_CENTER),
+            Block.UPDATE_CLIENTS
+        );
+        BlockState placedState = level.getBlockState(origin);
+        placedState.getBlock().setPlacedBy(level, origin, placedState, null, ItemStack.EMPTY);
         if (level.getBlockEntity(origin) instanceof StorageBlockEntity storage) storage.setId(target.getId());
         if (!player.hasInfiniteMaterials()) largeCrateStack.shrink(1);
         return ItemInteractionResult.sidedSuccess(false);
     }
 
-    private static BlockPos getLargeCrateOrigin(BlockPos center, Direction clickedFace) {
-        return switch (clickedFace.getAxis()) {
-            case X, Z -> center.relative(clickedFace.getOpposite()).below();
-            case Y -> center.offset(0, clickedFace == Direction.UP ? -2 : 0, 0);
-        };
+    /**
+     * 从被点击的箱子出发，扫描其周围可能的 3x3x3 大箱子区域，返回能使全部
+     * 27 个 part 都是箱子的底层中心位置；找不到则返回 null。
+     */
+    private static @javax.annotation.Nullable BlockPos findLargeCrateOrigin(Level level, BlockPos center) {
+        Cube3x3PartHalf[] parts = Cube3x3PartHalf.values();
+        for (int ox = -1; ox <= 1; ox++) {
+            for (int oy = 0; oy <= 2; oy++) {
+                for (int oz = -1; oz <= 1; oz++) {
+                    BlockPos candidate = center.offset(ox, oy - 2, oz);
+                    boolean matched = true;
+                    for (Cube3x3PartHalf part : parts) {
+                        BlockPos pos = candidate.offset(part.getOffset());
+                        if (!(level.getBlockEntity(pos) instanceof CrateBlockEntity)) {
+                            matched = false;
+                            break;
+                        }
+                    }
+                    if (matched) {
+                        return candidate;
+                    }
+                }
+            }
+        }
+        return null;
     }
 }

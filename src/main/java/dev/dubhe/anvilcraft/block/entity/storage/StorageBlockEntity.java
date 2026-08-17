@@ -1,11 +1,13 @@
 package dev.dubhe.anvilcraft.block.entity.storage;
 
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.saved.storage.StorageType;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import lombok.Getter;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
@@ -123,6 +125,33 @@ public class StorageBlockEntity extends BlockEntity {
                 }
                 Storages.get().remove(this.id);
             });
+        }
+    }
+
+    /**
+     * 中键复制仓储方块时，把（多方块）主方块的存储 ID 写入复制物品的 STORAGE 组件。
+     * 仅在客户端且按住 Ctrl 时生效；普通中键保持原样（不带存储 ID）。
+     *
+     * @param stack  复制出的物品
+     * @param level  所在世界
+     * @param pos    被点击的方块位置（可能是多方块的 part）
+     * @param state  被点击的方块状态
+     * @param type   该仓储方块的存储类型
+     */
+    public static void applyPickStorageId(ItemStack stack, Level level, BlockPos pos, BlockState state, StorageType type) {
+        if (!level.isClientSide() || !Screen.hasControlDown()) {
+            return;
+        }
+        BlockPos mainPos = pos;
+        if (state.getBlock() instanceof AbstractMultiPartBlock<?> multipart) {
+            mainPos = multipart.getMainPartPos(pos, state);
+        }
+        BlockEntity blockEntity = level.getBlockEntity(mainPos);
+        if (blockEntity instanceof StorageBlockEntity storage) {
+            UUID id = storage.getId();
+            if (id != null) {
+                stack.set(ModComponents.STORAGE, new StorageRef(type, id));
+            }
         }
     }
 }
