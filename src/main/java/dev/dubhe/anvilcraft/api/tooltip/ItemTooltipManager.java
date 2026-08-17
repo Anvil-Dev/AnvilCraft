@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.block.PowerConverterExtremelyBigBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSuperBigBlock;
+import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -81,6 +82,18 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.RESIN_BLOCK.asItem(), "Use to capture friendly or weak hostile creatures LivingEntity");
         NORMAL.put(ModBlocks.CRAB_TRAP.asItem(), "Placing it in the water to help you catch aquatic products");
         NORMAL.put(ModItems.CRAB_CLAW.get(), "Increase touch length when holding");
+        NORMAL.put(
+            ModItems.CEMENT_BUCKETS.get(Color.GRAY).get(),
+            "The only cement that can be produced directly"
+        );
+        for (Color color : Color.values()) {
+            if (color != Color.GRAY) {
+                NORMAL.put(
+                    ModItems.CEMENT_BUCKETS.get(color).get(),
+                    "Must be produced by dyeing gray cement"
+                );
+            }
+        }
         NORMAL.put(
             ModBlocks.ROYAL_ANVIL.asItem(), """
                 Never triggers Too Expensive
