@@ -84,13 +84,13 @@ public class ItemTooltipManager {
         NORMAL.put(ModItems.CRAB_CLAW.get(), "Increase touch length when holding");
         NORMAL.put(
             ModItems.CEMENT_BUCKETS.get(Color.GRAY).get(),
-            "The only cement that can be produced directly"
+            "Engineering’s irreplaceable cornerstone"
         );
         for (Color color : Color.values()) {
             if (color != Color.GRAY) {
                 NORMAL.put(
                     ModItems.CEMENT_BUCKETS.get(color).get(),
-                    "Must be produced by dyeing gray cement"
+                    "Produced by dyeing Gray Cement"
                 );
             }
         }
