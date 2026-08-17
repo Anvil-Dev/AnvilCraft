@@ -80,7 +80,7 @@ public class MultiBlock4DCategory implements IRecipeCategory<RecipeHolder<Multib
         arrowOut = JeiRenderHelper.getArrowInput(helper);
         slot = JeiRenderHelper.getSlotDefault(helper);
         timer = helper.createTickTimer(30, 60, true);
-        conversion = helper.drawableBuilder(JeiTextureConstants.BLOCK_CRAFTING, 0, 0, 594, 418)
+        conversion = helper.drawableBuilder(JeiTextureConstants.BLOCK_4D, 0, 0, 594, 418)
             .setTextureSize(594, 418)
             .build();
         layerUp = helper.drawableBuilder(JeiTextureConstants.LAYER_UP, 0, 0, 10, 10)
