@@ -35,7 +35,7 @@ import java.util.UUID;
  * 不注入 {@code getInventoryState}：其声明的"虚拟空槽"无法让服务端实际取到物品。
  */
 @Mixin(BasicRecipeTransferHandler.class)
-public abstract class BasicRecipeTransferHandlerMixin<C extends AbstractContainerMenu, R> {
+public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractContainerMenu, R> {
     @Shadow
     public abstract @Nullable IRecipeTransferError transferRecipe(
         C container,
@@ -73,13 +73,13 @@ public abstract class BasicRecipeTransferHandlerMixin<C extends AbstractContaine
             TerminalJeiStorageCache.ensure(storageId);
             List<ItemStack> storageItems = TerminalJeiStorageCache.get(storageId);
             if (storageItems != null
-                && BasicRecipeTransferHandlerMixin.anvilcraft$containerSatisfies(container, storageItems, recipeSlotsView)) {
+                && JeiBasicRecipeTransferHandlerMixin.anvilcraft$containerSatisfies(container, storageItems, recipeSlotsView)) {
                 cir.setReturnValue(null);
             }
             return;
         }
         // 传输阶段：先补足背包缺少的配方物品
-        List<ItemStack> missing = BasicRecipeTransferHandlerMixin.anvilcraft$collectMissing(
+        List<ItemStack> missing = JeiBasicRecipeTransferHandlerMixin.anvilcraft$collectMissing(
             container,
             recipeSlotsView,
             maxTransfer
@@ -123,7 +123,7 @@ public abstract class BasicRecipeTransferHandlerMixin<C extends AbstractContaine
             if (representative.getCount() <= 0) {
                 representative.setCount(1);
             }
-            int idx = BasicRecipeTransferHandlerMixin.anvilcraft$findNeed(needs, representative);
+            int idx = JeiBasicRecipeTransferHandlerMixin.anvilcraft$findNeed(needs, representative);
             if (idx < 0) {
                 needs.add(representative.copy());
                 slotCounts.add(1);
@@ -138,7 +138,7 @@ public abstract class BasicRecipeTransferHandlerMixin<C extends AbstractContaine
             int required = maxTransfer
                            ? need.getMaxStackSize() * slotCounts.get(i)
                            : need.getCount();
-            int have = BasicRecipeTransferHandlerMixin.anvilcraft$countInContainer(container, need);
+            int have = JeiBasicRecipeTransferHandlerMixin.anvilcraft$countInContainer(container, need);
             int deficit = Math.max(0, required - have);
             if (deficit > 0) {
                 ItemStack m = need.copy();
@@ -178,7 +178,7 @@ public abstract class BasicRecipeTransferHandlerMixin<C extends AbstractContaine
             if (representative.getCount() <= 0) {
                 representative.setCount(1);
             }
-            int idx = BasicRecipeTransferHandlerMixin.anvilcraft$findNeed(needs, representative);
+            int idx = JeiBasicRecipeTransferHandlerMixin.anvilcraft$findNeed(needs, representative);
             if (idx < 0) {
                 needs.add(representative.copy());
             } else {
@@ -186,7 +186,7 @@ public abstract class BasicRecipeTransferHandlerMixin<C extends AbstractContaine
             }
         }
         for (ItemStack need : needs) {
-            int have = BasicRecipeTransferHandlerMixin.anvilcraft$countInContainer(container, need);
+            int have = JeiBasicRecipeTransferHandlerMixin.anvilcraft$countInContainer(container, need);
             if (have >= need.getCount()) {
                 continue; // 背包/合成格已满足
             }
