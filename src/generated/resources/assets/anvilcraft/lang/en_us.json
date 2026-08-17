@@ -1875,6 +1875,7 @@
   "tooltip.anvilcraft.item.hollow_magnet_block": "Attracting the anvil below, when pushed and pulled by the piston, causes adjacent copper blocks to generate charges",
   "tooltip.anvilcraft.item.hyperdimension_storage_station": "An infinite container upgraded from a Shulker Container",
   "tooltip.anvilcraft.item.hyperdimension_storage_station.shift": "Can contain infinite items\nBreaking it drops the container with its items stored inside",
+  "tooltip.anvilcraft.item.hyperdimension_terminal": "A portable port of the binding Hyperdimension Storage Station",
   "tooltip.anvilcraft.item.impact_pile": "Place on Bedrock or Deepslate and strike with falling anvil to create Moneral Fountain",
   "tooltip.anvilcraft.item.induction_light": "Provides lighting and configurable special modes",
   "tooltip.anvilcraft.item.induction_light.shift": "Provides lighting with a power consumption of 1 kW\nRight‑click with Redstone to switch to Growth Acceleration Mode\nRight‑click with Glowstone to switch to Anti‑Monster Spawning Mode\nRight‑click with Void Matter to switch to Anti‑Animal Spawning Mode\nAll three special modes consume 16 kW of power",
