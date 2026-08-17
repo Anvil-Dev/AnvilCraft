@@ -918,9 +918,10 @@ public final class StorageServerStub {
         }
         boolean changed = false;
         // 聚合统计：每种物品在身上的总数量，超过一组的部分即为待存入的多余量。
+        // 仅统计主物品栏（0-35，含热键栏），不动盔甲与副手（功能性物品不应被自动收走）。
         List<ItemStack> representative = new ArrayList<>();
         List<Integer> totals = new ArrayList<>();
-        for (int i = 0; i < player.getInventory().getContainerSize(); i++) {
+        for (int i = 0; i < Inventory.INVENTORY_SIZE; i++) {
             ItemStack stack = player.getInventory().getItem(i);
             if (stack.isEmpty()) {
                 continue;
@@ -951,9 +952,9 @@ public final class StorageServerStub {
                 continue;
             }
             changed = true;
-            // 从背包移走已存入的多余数量：优先非主手槽位，最后才动主手
+            // 从主物品栏移走已存入的多余数量：优先非主手槽位，最后才动主手
             int remaining = inserted;
-            for (int i = player.getInventory().getContainerSize() - 1; i >= 0 && remaining > 0; i--) {
+            for (int i = Inventory.INVENTORY_SIZE - 1; i >= 0 && remaining > 0; i--) {
                 if (i == player.getInventory().selected) {
                     continue;
                 }
@@ -1075,7 +1076,9 @@ public final class StorageServerStub {
                    && args.length >= 2
                    && args[0] instanceof UUID playerId
                    && player.getGameProfile().getId().equals(playerId)
-                   && args[1] instanceof UUID;
+                   && args[1] instanceof UUID storageId
+                   // 仅允许查询自己持有绑定终端指向的存储，防止凭 UUID 枚举他人存储信息
+                   && StorageServerStub.ownsBoundTerminal(player, storageId);
         }
     }
 

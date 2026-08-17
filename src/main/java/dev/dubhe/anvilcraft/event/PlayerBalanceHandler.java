@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
@@ -35,6 +36,18 @@ public class PlayerBalanceHandler {
     private static final Map<UUID, Boolean> USED_THIS_TICK = new HashMap<>();
     /** 存入扫描间隔（tick），约 1 秒扫描一次足够响应捡取/被动获得。 */
     private static final int DEPOSIT_INTERVAL = 20;
+
+    /** 玩家退出时清理其所有追踪状态，避免静态 Map 永久残留。 */
+    @SubscribeEvent
+    public static void onPlayerLoggedOut(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.getEntity() instanceof ServerPlayer player) {
+            UUID uuid = player.getUUID();
+            PlayerBalanceHandler.PREV_HANDS.remove(uuid);
+            PlayerBalanceHandler.PREV_SELECTED.remove(uuid);
+            PlayerBalanceHandler.DEPOSIT_COOLDOWN.remove(uuid);
+            PlayerBalanceHandler.USED_THIS_TICK.remove(uuid);
+        }
+    }
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {

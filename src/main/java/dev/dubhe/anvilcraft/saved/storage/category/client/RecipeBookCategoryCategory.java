@@ -38,7 +38,18 @@ public record RecipeBookCategoryCategory(
     @OnlyIn(Dist.CLIENT)
     @Override
     public boolean testClient(UnlimitedItemStack stack) {
-        RecipeBookCategories categories = RecipeBookCategories.valueOf(this.category);
+        // 按序列化名匹配枚举（避免 valueOf 对不存在/大小写不符的名字抛异常）
+        RecipeBookCategories found = null;
+        for (RecipeBookCategories candidate : RecipeBookCategories.values()) {
+            if (candidate.name().equalsIgnoreCase(this.category)) {
+                found = candidate;
+                break;
+            }
+        }
+        final RecipeBookCategories categories = found;
+        if (categories == null) {
+            return false;
+        }
         Minecraft mc = Minecraft.getInstance();
         List<RecipeCollection> collections = Optional.ofNullable(mc.player)
             .map(LocalPlayer::getRecipeBook)

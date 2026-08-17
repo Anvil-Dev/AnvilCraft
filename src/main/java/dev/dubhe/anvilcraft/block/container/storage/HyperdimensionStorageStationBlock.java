@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
+import dev.dubhe.anvilcraft.saved.storage.Storages;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -48,6 +49,8 @@ import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
+
+import java.util.UUID;
 
 public class HyperdimensionStorageStationBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>
@@ -118,9 +121,15 @@ public class HyperdimensionStorageStationBlock
             if (mainState.is(this) && blockEntity instanceof HyperdimensionStorageStationBlockEntity storage) {
                 boolean empty = storage.getTotalCount() == 0;
                 if (empty) {
+                    // 空容器：清除 id 并移除孤儿存储条目，避免存档膨胀
+                    UUID id = storage.getId();
                     storage.clearId();
-                }
-                if (player.isCreative() && !empty) {
+                    if (id != null) {
+                        Storages.get().remove(id);
+                    }
+                } else {
+                    // 非空容器：掉落含 STORAGE 引用的容器物品（与 tooltip 声明一致，
+                    // 拾取后放回仍可访问其存储内容），对所有模式生效。
                     LootParams.Builder builder = new LootParams.Builder(serverLevel)
                         .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(mainPos))
                         .withParameter(LootContextParams.TOOL, player.getMainHandItem())

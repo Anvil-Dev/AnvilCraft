@@ -190,7 +190,7 @@ public record HasComponentCategory(
             ))) { // fuck checkstyle
             return false;
         }
-        return Objects.equals(this.icon(), icon1)
+        return ItemStack.isSameItemSameComponents(this.icon(), icon1)
                && Objects.equals(this.name(), name1)
                && this.match() == match1
                && Objects.equals(this.presence(), presence1)
