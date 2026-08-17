@@ -71,6 +71,8 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.IONOCRAFT);
         this.ionoCraftBackpack(ModItems.IONOCRAFT_BACKPACK);
 
+        this.plain(ModItems.HYPERDIMENSION_TERMINAL); // 超维终端
+
         // Energy storage.
         this.plain(ModItems.CAPACITOR);
         this.plain(ModItems.CAPACITOR_EMPTY);

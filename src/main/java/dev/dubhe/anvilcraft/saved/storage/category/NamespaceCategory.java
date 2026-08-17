@@ -4,35 +4,33 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.api.component.ModNameContents;
 import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
+import java.util.Objects;
+
 public record NamespaceCategory(ItemStack icon, Component name, String namespace) implements ICategory {
-    public NamespaceCategory(ItemLike icon, String namespace) {
+    public NamespaceCategory(ItemStack icon, String namespace) {
         this(
-            new ItemStack(icon.asItem()),
-            Component.translatable("category.anvilcraft.namespace", NamespaceCategory.modDisplayName(namespace)),
+            icon,
+            Component.translatable(
+                "category.anvilcraft.namespace",
+                MutableComponent.create(new ModNameContents(namespace))
+            ),
             namespace
         );
     }
 
-    /// 优先取模组显示名（大小写正确，如 Minecraft/AnvilCraft），找不到时退化用原始命名空间 id
-    private static String modDisplayName(String namespace) {
-        String key = "component_content.anvilcraft.mod_name." + namespace;
-        Component translated = Component.translatable(key);
-        if (!translated.getString().equals(key)) {
-            return translated.getString();
-        }
-        return net.neoforged.fml.ModList.get()
-            .getModContainerById(namespace)
-            .map(container -> container.getModInfo().getDisplayName())
-            .orElse(namespace);
+    public NamespaceCategory(ItemLike icon, String namespace) {
+        this(new ItemStack(icon.asItem()), namespace);
     }
 
     @Override
@@ -48,12 +46,25 @@ public record NamespaceCategory(ItemStack icon, Component name, String namespace
         return ModCategoryTypes.NAMESPACE.get();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof NamespaceCategory(ItemStack icon1, Component name1, String namespace1))) return false;
+        return ItemStack.isSameItemSameComponents(this.icon(), icon1)
+               && Objects.equals(this.name(), name1)
+               && Objects.equals(this.namespace(), namespace1);
+    }
+
+    @Override
+    public int hashCode() {
+        return ItemStack.hashItemAndComponents(this.icon()) * 31 + Objects.hash(this.name(), this.namespace());
+    }
+
     public static class Type implements ICategory.Type<NamespaceCategory> {
         public static final MapCodec<NamespaceCategory> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ItemStack.CODEC
                 .fieldOf("icon")
                 .forGetter(NamespaceCategory::icon),
-            ComponentSerialization.flatCodec(Integer.MAX_VALUE)
+            ComponentSerialization.CODEC
                 .fieldOf("name")
                 .forGetter(NamespaceCategory::name),
             Codec.STRING

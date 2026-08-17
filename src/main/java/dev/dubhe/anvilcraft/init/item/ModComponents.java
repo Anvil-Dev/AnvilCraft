@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.item.property.component.StoredItem;
 import dev.dubhe.anvilcraft.item.property.component.StructureData;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
+import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
@@ -184,6 +185,11 @@ public class ModComponents {
     public static final DataComponentType<StorageRef> STORAGE = register(
         "storage",
         b -> b.persistent(StorageRef.CODEC.codec()).networkSynchronized(StorageRef.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<TerminalBinding> TERMINAL_BINDING = register(
+        "terminal_binding",
+        b -> b.persistent(TerminalBinding.CODEC.codec()).networkSynchronized(TerminalBinding.STREAM_CODEC)
     );
 
     private static <T> DataComponentType<T> register(String name, Consumer<DataComponentType.Builder<T>> customizer) {

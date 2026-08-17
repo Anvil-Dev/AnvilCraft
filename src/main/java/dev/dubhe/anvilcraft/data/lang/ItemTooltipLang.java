@@ -69,5 +69,15 @@ public class ItemTooltipLang {
         provider.add("item.anvilcraft.structure_disk.size", "Size: %s");
         provider.add("item.anvilcraft.structure_disk.fit_placer", "✓ Can be placed by Smart Block Placer");
         provider.add("item.anvilcraft.structure_disk.too_large_for_placer", "✗ Too large for Smart Block Placer (max 5x5x5)");
+
+        // Hyperdimension Terminal
+        provider.add(
+            "item.anvilcraft.hyperdimension_terminal.bound",
+            "Bound to a Hyperdimension Storage Station"
+        );
+        provider.add(
+            "item.anvilcraft.hyperdimension_terminal.unbound",
+            "Right-click a Hyperdimension Storage Station to bind"
+        );
     }
 }

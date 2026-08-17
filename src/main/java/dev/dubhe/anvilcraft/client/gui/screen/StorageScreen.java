@@ -23,6 +23,8 @@ import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+import it.unimi.dsi.fastutil.ints.Int2LongMap;
+import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -32,6 +34,7 @@ import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
@@ -93,6 +96,7 @@ public class StorageScreen extends Screen {
     private static final int SLIDER_TRACK_HEIGHT = 106;
     private static final int METADATA_REFRESH_INTERVAL = 10;
     private static final int MAX_PRESERVED_SYNC_ATTEMPTS = 3;
+    private final Minecraft minecraft;
     private final BlockPos sourcePos;
     private final Player player;
     private final boolean tracksOpenState;
@@ -104,8 +108,9 @@ public class StorageScreen extends Screen {
     private IntList order = new IntArrayList();
     private IntList displayOrder = new IntArrayList();
     private final Int2ObjectMap<UnlimitedItemStack> contents = new Int2ObjectOpenHashMap<>();
+    private final Int2LongMap counts = new Int2LongOpenHashMap();
     private final Int2ObjectMap<UnlimitedItemStack> foldedContents = new Int2ObjectOpenHashMap<>();
-    private final Int2IntMap foldedCounts = new Int2IntOpenHashMap();
+    private final Int2LongMap foldedCounts = new Int2LongOpenHashMap();
     private final Int2IntMap serverSlots = new Int2IntOpenHashMap();
     private final IntSet emptySlots = new IntOpenHashSet();
     private List<IntList> foldedGroups = List.of();
@@ -114,6 +119,7 @@ public class StorageScreen extends Screen {
     private long version = -1;
     private long orderVersion = -1;
     private int scrollRow;
+    private boolean draggingSlider;
     private int reorderRequest;
     private int syncRequest;
     private int interactionRequest;
@@ -139,16 +145,28 @@ public class StorageScreen extends Screen {
     private int titleLabelX;
 
     public StorageScreen(BlockPos sourcePos) {
-        super(Objects.requireNonNull(Minecraft.getInstance().level).getBlockState(sourcePos).getBlock().getName());
+        this(
+            sourcePos,
+            Objects.requireNonNull(Minecraft.getInstance().level).getBlockState(sourcePos).getBlock().getName()
+        );
+    }
+
+    public StorageScreen(BlockPos sourcePos, Component title) {
+        super(title);
+        this.minecraft = Minecraft.getInstance();
         this.sourcePos = sourcePos;
         this.player = Objects.requireNonNull(Minecraft.getInstance().player);
         this.serverSlots.defaultReturnValue(-1);
-        this.tracksOpenState = Minecraft.getInstance().level.getBlockState(sourcePos).getBlock()
-            instanceof ShulkerContainerBlock;
+        this.tracksOpenState = Objects.requireNonNull(Minecraft.getInstance().level).getBlockState(sourcePos)
+            .getBlock() instanceof ShulkerContainerBlock;
     }
 
     public static void openScreen(BlockPos sourcePos) {
         Minecraft.getInstance().setScreen(new StorageScreen(sourcePos));
+    }
+
+    public static void openScreen(BlockPos sourcePos, Component title) {
+        Minecraft.getInstance().setScreen(new StorageScreen(sourcePos, title));
     }
 
     @Override
@@ -338,11 +356,6 @@ public class StorageScreen extends Screen {
     public void renderBackground(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // 仅画透明渐暗背景，跳过默认的高斯模糊（renderBlurredBackground），避免仓储界面背景模糊
         this.renderTransparentBackground(graphics);
-    }
-
-    @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(graphics, mouseX, mouseY, partialTick);
         graphics.blit(
             StorageScreen.BACKGROUND,
             this.left,
@@ -354,7 +367,12 @@ public class StorageScreen extends Screen {
             512,
             256
         );
+        this.renderStorageSlider(graphics);
+    }
 
+    @Override
+    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        this.renderBackground(graphics, mouseX, mouseY, partialTick);
         graphics.blit(
             StorageScreen.CAPACITY,
             this.left + 106,
@@ -378,7 +396,7 @@ public class StorageScreen extends Screen {
         this.renderPlayerInventory(graphics, mouseX, mouseY);
         // 背景纹理必须先于 widgets 绘制，而 Screen.render 会二次调用 renderBackground
         // （半透明渐变会盖住纹理），故手动遍历 renderables 渲染 widgets。
-        for (net.minecraft.client.gui.components.Renderable renderable : this.renderables) {
+        for (Renderable renderable : this.renderables) {
             renderable.render(graphics, mouseX, mouseY, partialTick);
         }
         this.renderCarriedItem(graphics, mouseX, mouseY);
@@ -426,11 +444,10 @@ public class StorageScreen extends Screen {
                         ? TooltipFlag.Default.ADVANCED
                         : TooltipFlag.Default.NORMAL
                 ));
-                tooltipLines.add(Component.translatable("screen.anvilcraft.storage.count", stack.getCount()));
+                tooltipLines.add(Component.translatable("screen.anvilcraft.storage.count", this.getDisplayedCount(slot, stack)));
                 graphics.renderTooltip(this.font, tooltipLines, Optional.empty(), mouseX, mouseY);
             }
         }
-        this.renderStorageSlider(graphics);
     }
 
     private void renderStorageSlider(GuiGraphics graphics) {
@@ -452,6 +469,34 @@ public class StorageScreen extends Screen {
             StorageScreen.SLIDER_WIDTH,
             StorageScreen.SLIDER_HEIGHT
         );
+    }
+
+    /** 鼠标是否位于滚动条轨道（含滑块）区域内。 */
+    private boolean isOverSliderTrack(double mouseX, double mouseY) {
+        int maxScrollRow = this.getMaxScrollRow();
+        return maxScrollRow > 0
+               && MathUtil.isInRange(
+                   mouseX,
+                   mouseY,
+                   this.left + StorageScreen.SLIDER_X - 2,
+                   this.top + StorageScreen.SLIDER_Y,
+                   this.left + StorageScreen.SLIDER_X + StorageScreen.SLIDER_WIDTH + 2,
+                   this.top + StorageScreen.SLIDER_Y + StorageScreen.SLIDER_TRACK_HEIGHT
+               );
+    }
+
+    /** 按鼠标纵坐标把滚动条定位到对应行，并刷新可视内容。 */
+    private void scrollSliderTo(double mouseY) {
+        float trackTop = (float) (this.top + StorageScreen.SLIDER_Y);
+        float usable = StorageScreen.SLIDER_TRACK_HEIGHT - StorageScreen.SLIDER_HEIGHT;
+        float fraction = Mth.clamp((float) (mouseY - trackTop - StorageScreen.SLIDER_HEIGHT / 2.0F) / usable, 0.0F, 1.0F);
+        int next = Math.round(fraction * this.getMaxScrollRow());
+        if (next != this.scrollRow) {
+            this.scrollRow = next;
+            if (!this.nbtFolded) {
+                this.syncVisible();
+            }
+        }
     }
 
     private void renderPlayerInventory(GuiGraphics graphics, int mouseX, int mouseY) {
@@ -630,6 +675,13 @@ public class StorageScreen extends Screen {
             this.setFocused(hovered ? this.search : null);
         }
 
+        // 左键按住滚动条：进入拖动状态，并按点击位置立即定位
+        if (button == 0 && this.isOverSliderTrack(mouseX, mouseY)) {
+            this.draggingSlider = true;
+            this.scrollSliderTo(mouseY);
+            return true;
+        }
+
         if (super.mouseClicked(mouseX, mouseY, button)) {
             return true;
         }
@@ -771,6 +823,12 @@ public class StorageScreen extends Screen {
 
     @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        if (this.draggingSlider) {
+            if (button == 0) {
+                this.scrollSliderTo(mouseY);
+            }
+            return true;
+        }
         if (this.quickMoveDragging) {
             if (button == 0 && Screen.hasShiftDown()) {
                 int inventorySlot = this.getInventorySlot(mouseX, mouseY);
@@ -787,7 +845,7 @@ public class StorageScreen extends Screen {
         Integer storageSlot = this.getStorageSlot(mouseX, mouseY);
         if (storageSlot != null) {
             if (button == 2 && this.player.hasInfiniteMaterials()) {
-                this.quickCraftStorageSlots.add(storageSlot);
+                this.quickCraftStorageSlots.add(storageSlot.intValue());
             }
             return true;
         }
@@ -811,6 +869,10 @@ public class StorageScreen extends Screen {
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         super.mouseReleased(mouseX, mouseY, button);
+        if (this.draggingSlider) {
+            this.draggingSlider = false;
+            return true;
+        }
         if (this.quickMoveDragging) {
             this.quickMoveDragging = false;
             this.quickMoveSlots.clear();
@@ -1098,7 +1160,7 @@ public class StorageScreen extends Screen {
             }
 
             // Forge MC-146650: Needs to return true when the key is handled
-            boolean handled = this.checkHotbarKeyPressed(keyCode, scanCode, modifiers);
+            boolean handled = this.checkHotbarKeyPressed(keyCode, scanCode);
             if (!Objects.requireNonNull(this.minecraft.player).getInventory().getItem(hoveredSlot).isEmpty()) {
                 hoveredSlot = this.getScreenSlot(hoveredSlot);
                 if (this.minecraft.options.keyDrop.isActiveAndMatches(key)) {
@@ -1134,7 +1196,7 @@ public class StorageScreen extends Screen {
         return super.keyReleased(keyCode, scanCode, modifiers);
     }
 
-    protected boolean checkHotbarKeyPressed(int keyCode, int scanCode, int modifiers) {
+    protected boolean checkHotbarKeyPressed(int keyCode, int scanCode) {
         int hoveredSlot = this.getScreenSlot();
         if (hoveredSlot == -1 || this.minecraft.gameMode == null) {
             return false;
@@ -1528,6 +1590,7 @@ public class StorageScreen extends Screen {
                 }
             } else {
                 this.contents.put(update.index(), update.stack());
+                this.counts.put(update.index(), update.count());
                 this.emptySlots.remove(update.index());
             }
         }
@@ -1546,6 +1609,7 @@ public class StorageScreen extends Screen {
             return false;
         }
         this.contents.clear();
+        this.counts.clear();
         this.emptySlots.clear();
         results.forEach(this::applySyncResult);
         return true;
@@ -1579,6 +1643,7 @@ public class StorageScreen extends Screen {
                     this.order.add(logicalSlot.intValue());
                 }
                 this.contents.put(logicalSlot.intValue(), update.stack());
+                this.counts.put(logicalSlot.intValue(), update.count());
                 this.emptySlots.remove(logicalSlot.intValue());
                 this.serverSlots.put(logicalSlot.intValue(), update.index());
             }
@@ -1675,8 +1740,8 @@ public class StorageScreen extends Screen {
             long count = 0;
             boolean foundNonEmpty = preserveRepresentatives && this.getStoredCount(representative) > 0;
             for (int slot : group) {
-                int slotCount = this.getStoredCount(slot);
-                count = Math.min(count + slotCount, Integer.MAX_VALUE);
+                long slotCount = this.getStoredCount(slot);
+                count += slotCount;
                 if (!foundNonEmpty && slotCount > 0) {
                     representative = slot;
                     foundNonEmpty = true;
@@ -1685,11 +1750,11 @@ public class StorageScreen extends Screen {
 
             UnlimitedItemStack stack = Objects.requireNonNull(this.contents.get(representative));
             UnlimitedItemStack folded = stack.copy();
-            int foldedCount = (int) count;
-            folded.setCount(Math.max(foldedCount, 1));
+            // 图标栈仅用于渲染物品与判定非空，数量截断到 int 上限；真实总量存于 foldedCounts
+            folded.setCount(Math.clamp(count, 1, Integer.MAX_VALUE));
             foldedOrder.add(representative);
             this.foldedContents.put(representative, folded);
-            this.foldedCounts.put(representative, foldedCount);
+            this.foldedCounts.put(representative, count);
         }
         this.displayOrder = foldedOrder;
     }
@@ -1699,13 +1764,16 @@ public class StorageScreen extends Screen {
         return displayedContents.getOrDefault(slot, UnlimitedItemStack.EMPTY);
     }
 
-    private int getDisplayedCount(int slot, UnlimitedItemStack stack) {
-        return this.nbtFolded ? this.foldedCounts.get(slot) : this.emptySlots.contains(slot) ? 0 : stack.getCount();
+    private long getDisplayedCount(int slot, UnlimitedItemStack stack) {
+        return this.nbtFolded ? this.foldedCounts.get(slot) : this.getStoredCount(slot);
     }
 
-    private int getStoredCount(int slot) {
+    private long getStoredCount(int slot) {
         UnlimitedItemStack stack = this.contents.getOrDefault(slot, UnlimitedItemStack.EMPTY);
-        return this.emptySlots.contains(slot) ? 0 : stack.getCount();
+        if (stack.isEmpty() || this.emptySlots.contains(slot)) {
+            return 0;
+        }
+        return this.counts.getOrDefault(slot, 0);
     }
 
     private void refreshMetadata() {
@@ -1752,7 +1820,7 @@ public class StorageScreen extends Screen {
         GuiGraphics graphics,
         Minecraft minecraft,
         ItemStack stack,
-        int count,
+        long count,
         int x,
         int y
     ) {
@@ -1780,6 +1848,7 @@ public class StorageScreen extends Screen {
 
         graphics.pose().popPose();
 
+        // noinspection UnstableApiUsage
         ItemDecoratorHandler.of(stack).render(graphics, minecraft.font, stack, x, y);
     }
 }

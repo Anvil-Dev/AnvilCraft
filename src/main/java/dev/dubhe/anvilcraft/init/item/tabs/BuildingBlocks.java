@@ -139,6 +139,7 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.NEGATIVE_MATTER_BLOCK);
 
         this.plain(ModBlocks.SINGULARITY_CRYSTAL);
+        this.plain(ModBlocks.HYPERCUBE);
 
         // Heated and incandescent metal variants.
         this.plain(ModBlocks.HEATED_NETHERITE_BLOCK);

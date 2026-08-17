@@ -14,6 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
 import java.util.List;
+import java.util.Objects;
 
 public record AndCategory(ItemStack icon, Component name, List<ICategory> categories) implements ICategory {
     public AndCategory(ItemLike icon, ResourceLocation suffix, ICategory... categories) {
@@ -35,12 +36,25 @@ public record AndCategory(ItemStack icon, Component name, List<ICategory> catego
         return ModCategoryTypes.AND.get();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof AndCategory(ItemStack icon1, Component name1, List<ICategory> categories1))) return false;
+        return ItemStack.isSameItemSameComponents(this.icon(), icon1)
+               && Objects.equals(this.name(), name1)
+               && Objects.equals(this.categories(), categories1);
+    }
+
+    @Override
+    public int hashCode() {
+        return ItemStack.hashItemAndComponents(this.icon()) * 31 + Objects.hash(this.name(), this.categories());
+    }
+
     public static class Type implements ICategory.Type<AndCategory> {
         public static final MapCodec<AndCategory> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ItemStack.CODEC
                 .fieldOf("icon")
                 .forGetter(AndCategory::icon),
-            ComponentSerialization.flatCodec(Integer.MAX_VALUE)
+            ComponentSerialization.CODEC
                 .fieldOf("name")
                 .forGetter(AndCategory::name),
             ICategory.CODEC

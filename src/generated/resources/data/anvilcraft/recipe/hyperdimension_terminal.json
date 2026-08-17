@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "anvilcraft:hyperdimension_terminal",
+  "key": {
+    "A": {
+      "item": "anvilcraft:transcendium_ingot"
+    },
+    "B": {
+      "item": "anvilcraft:singularity_crystal"
+    },
+    "C": {
+      "item": "anvilcraft:spacetime_supercomputer"
+    },
+    "D": {
+      "item": "anvilcraft:hypercube"
+    }
+  },
+  "pattern": [
+    "ABA",
+    "ACA",
+    "DDD"
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:hyperdimension_terminal"
+  }
+}

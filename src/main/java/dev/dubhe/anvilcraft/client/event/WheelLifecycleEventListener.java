@@ -6,17 +6,21 @@ import dev.anvilcraft.lib.v2.wheel.client.input.WheelScreenController;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemSlotClipping;
+import dev.dubhe.anvilcraft.client.rpc.SettingClientStub;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.DragonRodItem;
 import dev.dubhe.anvilcraft.item.HeavyHalberdItem;
 import dev.dubhe.anvilcraft.item.MultitoolItem;
 import dev.dubhe.anvilcraft.item.ResonatorItem;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
+import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.network.SwitchDragonRodProtectContainersPacket;
 import dev.dubhe.anvilcraft.network.SwitchHeavyHalberdModePacket;
 import dev.dubhe.anvilcraft.network.SwitchMultitoolModePacket;
 import dev.dubhe.anvilcraft.network.SwitchResonateModePacket;
 import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
+import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -45,23 +49,27 @@ public class WheelLifecycleEventListener {
 
     private static long multiphaseKeyTime = -1L;
     private static boolean multiphaseKeyWasDown = false;
-    private static Optional<WheelMenuModel> multiphaseWheelCache = null;
+    private static @Nullable Optional<WheelMenuModel> multiphaseWheelCache = null;
 
     private static long resonatorKeyTime = -1L;
     private static boolean resonatorKeyWasDown = false;
-    private static Optional<WheelMenuModel> resonatorWheelCache = null;
+    private static @Nullable Optional<WheelMenuModel> resonatorWheelCache = null;
 
     private static long heavyHalberdKeyTime = -1L;
     private static boolean heavyHalberdKeyWasDown = false;
-    private static Optional<WheelMenuModel> heavyHalberdWheelCache = null;
+    private static @Nullable Optional<WheelMenuModel> heavyHalberdWheelCache = null;
 
     private static long multitoolKeyTime = -1L;
     private static boolean multitoolKeyWasDown = false;
-    private static Optional<WheelMenuModel> multitoolWheelCache = null;
+    private static @Nullable Optional<WheelMenuModel> multitoolWheelCache = null;
 
     private static long dragonRodKeyTime = -1L;
     private static boolean dragonRodKeyWasDown = false;
-    private static Optional<WheelMenuModel> dragonRodWheelCache = null;
+    private static @Nullable Optional<WheelMenuModel> dragonRodWheelCache = null;
+
+    private static long balanceKeyTime = -1L;
+    private static boolean balanceKeyWasDown = false;
+    private static @Nullable Optional<WheelMenuModel> balanceWheelCache = null;
 
     private static void renderWheelItem(GuiGraphics graphics, ItemStack stack) {
         ItemSlotClipping.runWithoutClip(() -> graphics.renderItem(stack, 2, 2, 9910597));
@@ -78,6 +86,7 @@ public class WheelLifecycleEventListener {
         WheelLifecycleEventListener.openHeavyHalberdWheel(gameTime);
         WheelLifecycleEventListener.openMultitoolWheel(gameTime);
         WheelLifecycleEventListener.openDragonRodWheel(gameTime);
+        WheelLifecycleEventListener.openBalanceWheel(gameTime);
     }
 
     private static void openMultiphaseWheel(long gameTime) {
@@ -98,7 +107,7 @@ public class WheelLifecycleEventListener {
                 Multiphase multiphase = stack.get(ModComponents.MULTIPHASE);
                 if (multiphase == null) return;
                 multiphase = multiphase.forDisplay(stack);
-                WheelLifecycleEventListener.multiphaseWheelCache = Optional.ofNullable(
+                WheelLifecycleEventListener.multiphaseWheelCache = Optional.of(
                     WheelLifecycleEventListener.getMultiphaseWheel(hand, stack, multiphase)
                 );
             }
@@ -123,7 +132,7 @@ public class WheelLifecycleEventListener {
                     stack = player.getOffhandItem();
                 }
                 if (!(stack.getItem() instanceof ResonatorItem)) return;
-                WheelLifecycleEventListener.resonatorWheelCache = Optional.ofNullable(
+                WheelLifecycleEventListener.resonatorWheelCache = Optional.of(
                     WheelLifecycleEventListener.getResonatorWheel(hand, stack)
                 );
             }
@@ -148,7 +157,7 @@ public class WheelLifecycleEventListener {
                     stack = player.getOffhandItem();
                 }
                 if (!(stack.getItem() instanceof MultitoolItem)) return;
-                WheelLifecycleEventListener.multitoolWheelCache = Optional.ofNullable(
+                WheelLifecycleEventListener.multitoolWheelCache = Optional.of(
                     WheelLifecycleEventListener.getMultitoolWheel(hand, stack)
                 );
             }
@@ -173,7 +182,7 @@ public class WheelLifecycleEventListener {
                     stack = player.getOffhandItem();
                 }
                 if (!(stack.getItem() instanceof HeavyHalberdItem)) return;
-                WheelLifecycleEventListener.heavyHalberdWheelCache = Optional.ofNullable(
+                WheelLifecycleEventListener.heavyHalberdWheelCache = Optional.of(
                     WheelLifecycleEventListener.getHeavyHalberdWheel(hand, stack)
                 );
             }
@@ -198,7 +207,7 @@ public class WheelLifecycleEventListener {
                     stack = player.getOffhandItem();
                 }
                 if (!(stack.getItem() instanceof DragonRodItem)) return;
-                WheelLifecycleEventListener.dragonRodWheelCache = Optional.ofNullable(
+                WheelLifecycleEventListener.dragonRodWheelCache = Optional.of(
                     WheelLifecycleEventListener.getDragonRodWheel(hand, stack)
                 );
             }
@@ -208,7 +217,40 @@ public class WheelLifecycleEventListener {
         }
     }
 
-    private static @Nullable WheelMenuModel getMultiphaseWheel(InteractionHand hand, ItemStack holding, Multiphase multiphase) {
+    private static void openBalanceWheel(long gameTime) {
+        if (
+            WheelLifecycleEventListener.balanceKeyTime > 0
+            && gameTime - WheelLifecycleEventListener.balanceKeyTime > 4
+        ) {
+            if (WheelLifecycleEventListener.balanceWheelCache == null) {
+                LocalPlayer player = Minecraft.getInstance().player;
+                if (player == null) return;
+                if (!WheelLifecycleEventListener.holdsBoundTerminal(player)) return;
+                WheelLifecycleEventListener.balanceWheelCache = Optional.of(
+                    WheelLifecycleEventListener.getBalanceWheel()
+                );
+            }
+            if (WheelLifecycleEventListener.balanceWheelCache.isEmpty()) return;
+            CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.balanceWheelCache.get());
+            WheelLifecycleEventListener.balanceKeyWasDown = true;
+        }
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private static boolean holdsBoundTerminal(LocalPlayer player) {
+        return WheelLifecycleEventListener.isBoundTerminal(player.getMainHandItem())
+               || WheelLifecycleEventListener.isBoundTerminal(player.getOffhandItem());
+    }
+
+    private static boolean isBoundTerminal(ItemStack stack) {
+        if (!stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
+            return false;
+        }
+        TerminalBinding binding = stack.get(ModComponents.TERMINAL_BINDING);
+        return binding != null && binding.id().isPresent();
+    }
+
+    private static WheelMenuModel getMultiphaseWheel(InteractionHand hand, ItemStack holding, Multiphase multiphase) {
         int phaseCount = multiphase.phases().size();
         WheelMenuBuilder builder = WheelMenuBuilder.create().slotsPerPage(phaseCount);
         for (int i = 0; i < phaseCount; i++) {
@@ -238,7 +280,7 @@ public class WheelLifecycleEventListener {
         );
     }
 
-    private static @Nullable WheelMenuModel getResonatorWheel(InteractionHand hand, ItemStack holding) {
+    private static WheelMenuModel getResonatorWheel(InteractionHand hand, ItemStack holding) {
         return WheelMenuBuilder.create()
             .slotsPerPage(5)
             .action(
@@ -304,7 +346,7 @@ public class WheelLifecycleEventListener {
             .build();
     }
 
-    private static @Nullable WheelMenuModel getHeavyHalberdWheel(InteractionHand hand, ItemStack holding) {
+    private static WheelMenuModel getHeavyHalberdWheel(InteractionHand hand, ItemStack holding) {
         return WheelMenuBuilder.create()
             .slotsPerPage(4)
             .action(
@@ -358,7 +400,7 @@ public class WheelLifecycleEventListener {
             .build();
     }
 
-    private static @Nullable WheelMenuModel getMultitoolWheel(InteractionHand hand, ItemStack holding) {
+    private static WheelMenuModel getMultitoolWheel(InteractionHand hand, ItemStack holding) {
         return WheelMenuBuilder.create()
             .slotsPerPage(9)
             .action(
@@ -472,7 +514,7 @@ public class WheelLifecycleEventListener {
             .build();
     }
 
-    private static @Nullable WheelMenuModel getDragonRodWheel(InteractionHand hand, ItemStack holding) {
+    private static WheelMenuModel getDragonRodWheel(InteractionHand hand, ItemStack holding) {
         return WheelMenuBuilder.create()
             .slotsPerPage(2)
             .action(
@@ -497,6 +539,52 @@ public class WheelLifecycleEventListener {
             .build();
     }
 
+    private static WheelMenuModel getBalanceWheel() {
+        return WheelMenuBuilder.create()
+            .slotsPerPage(4)
+            .action(
+                "smart",
+                Component.translatable("screen.anvilcraft.balance_mode.smart"),
+                (graphics, pose, width, height) -> graphics.renderFakeItem(
+                    ModItems.HYPERDIMENSION_TERMINAL.asStack(),
+                    0,
+                    0
+                ),
+                ctx -> SettingClientStub.update(BalanceMode.SMART)
+            )
+            .action(
+                "restock",
+                Component.translatable("screen.anvilcraft.balance_mode.restock"),
+                (graphics, pose, width, height) -> graphics.renderFakeItem(
+                    ModItems.HYPERDIMENSION_TERMINAL.asStack(),
+                    0,
+                    0
+                ),
+                ctx -> SettingClientStub.update(BalanceMode.RESTOCK)
+            )
+            .action(
+                "off",
+                Component.translatable("screen.anvilcraft.balance_mode.off"),
+                (graphics, pose, width, height) -> graphics.renderFakeItem(
+                    ModItems.HYPERDIMENSION_TERMINAL.asStack(),
+                    0,
+                    0
+                ),
+                ctx -> SettingClientStub.update(BalanceMode.OFF)
+            )
+            .action(
+                "deposit",
+                Component.translatable("screen.anvilcraft.balance_mode.deposit"),
+                (graphics, pose, width, height) -> graphics.renderFakeItem(
+                    ModItems.HYPERDIMENSION_TERMINAL.asStack(),
+                    0,
+                    0
+                ),
+                ctx -> SettingClientStub.update(BalanceMode.DEPOSIT)
+            )
+            .build();
+    }
+
     @SubscribeEvent
     public static void onKeyInput(InputEvent.Key event) {
         Minecraft client = Minecraft.getInstance();
@@ -509,6 +597,7 @@ public class WheelLifecycleEventListener {
             WheelLifecycleEventListener.processHeavyHalberdPress(client, event.getAction());
             WheelLifecycleEventListener.processMultitoolPress(client, event.getAction());
             WheelLifecycleEventListener.processDragonRodPress(client, event.getAction());
+            WheelLifecycleEventListener.processBalancePress(client, event.getAction());
         }
     }
 
@@ -524,6 +613,7 @@ public class WheelLifecycleEventListener {
             WheelLifecycleEventListener.processHeavyHalberdPress(client, event.getAction());
             WheelLifecycleEventListener.processMultitoolPress(client, event.getAction());
             WheelLifecycleEventListener.processDragonRodPress(client, event.getAction());
+            WheelLifecycleEventListener.processBalancePress(client, event.getAction());
         }
     }
 
@@ -620,6 +710,29 @@ public class WheelLifecycleEventListener {
         if (action == GLFW.GLFW_PRESS) {
             if (!WheelLifecycleEventListener.dragonRodKeyWasDown) {
                 WheelLifecycleEventListener.dragonRodKeyTime = client.level.getGameTime();
+            }
+        }
+    }
+
+    private static void processBalancePress(Minecraft client, int action) {
+        if (client.level == null) return;
+        if (action == GLFW.GLFW_RELEASE) {
+            if (WheelLifecycleEventListener.balanceKeyWasDown) {
+                CONTROLLER.onHoldKeyReleased();
+            }
+            WheelLifecycleEventListener.balanceKeyWasDown = false;
+            WheelLifecycleEventListener.balanceKeyTime = -1L;
+            WheelLifecycleEventListener.balanceWheelCache = null;
+            return;
+        }
+        // 只有手持已绑定终端时才呼出物品均衡轮盘，不干扰工具的 Alt 轮盘
+        if (client.player == null || !WheelLifecycleEventListener.holdsBoundTerminal(client.player)) {
+            return;
+        }
+        if (Minecraft.getInstance().screen != null) return;
+        if (action == GLFW.GLFW_PRESS) {
+            if (!WheelLifecycleEventListener.balanceKeyWasDown) {
+                WheelLifecycleEventListener.balanceKeyTime = client.level.getGameTime();
             }
         }
     }

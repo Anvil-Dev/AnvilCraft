@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.client.gui.component.category.CategoryList;
 import dev.dubhe.anvilcraft.client.rpc.SettingClientStub;
 import dev.dubhe.anvilcraft.client.support.GuiRenderSupport;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
+import dev.dubhe.anvilcraft.event.CategoryInitEventListener;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
@@ -34,6 +35,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeSet;
 import javax.annotation.Nullable;
 
@@ -172,7 +174,23 @@ public class CategorySettingsScreen extends Screen {
 
     public void rebuild() {
         this.alternates.clear();
+        Set<ICategory> modsCategories = CategoryInitEventListener.getAllModsCategories();
+        for (ICategory next : modsCategories) {
+            boolean contains = false;
+            for (CategoryEntry entry : this.draftSetting.listed()) {
+                if (entry.getCategory().equals(next)) {
+                    contains = true;
+                    break;
+                }
+            }
+            if (!contains) {
+                this.alternates.add(next);
+            }
+        }
         for (ICategory next : Objects.requireNonNull(this.registry)) {
+            if (modsCategories.contains(next)) {
+                continue;
+            }
             boolean contains = false;
             for (CategoryEntry entry : this.draftSetting.listed()) {
                 if (entry.getCategory().equals(next)) {
@@ -375,7 +393,7 @@ public class CategorySettingsScreen extends Screen {
     }
 
     private void renderInventorySlot(GuiGraphics graphics, Inventory inv, int slot, int x, int y, int mouseX, int mouseY) {
-        this.renderInventorySlotHighlightBack(graphics, slot, x, y, mouseX, mouseY);
+        this.renderInventorySlotHighlightBack(graphics, slot, x, y);
 
         ItemStack stack = inv.getItem(slot);
         if (!stack.isEmpty()) {
@@ -390,7 +408,7 @@ public class CategorySettingsScreen extends Screen {
         }
     }
 
-    private void renderInventorySlotHighlightBack(GuiGraphics graphics, int slot, int x, int y, int mouseX, int mouseY) {
+    private void renderInventorySlotHighlightBack(GuiGraphics graphics, int slot, int x, int y) {
         // 选中边框的底层，画在物品之下
         if (this.selected == slot) {
             graphics.blitSprite(CategorySettingsScreen.SLOT_SELECTED_BACK_SPRITE, x - 4, y - 4, 24, 24);
@@ -478,7 +496,7 @@ public class CategorySettingsScreen extends Screen {
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         InputConstants.Key key = InputConstants.getKey(keyCode, scanCode);
-        if (this.minecraft.options.keyInventory.isActiveAndMatches(key)) {
+        if (Objects.requireNonNull(this.minecraft).options.keyInventory.isActiveAndMatches(key)) {
             this.onClose();
             return true;
         }
@@ -701,7 +719,7 @@ public class CategorySettingsScreen extends Screen {
     }
 
     protected boolean isCustom(ICategory category) {
-        return !Objects.requireNonNull(this.registry).containsValue(category);
+        return this.draftSetting.custom().contains(category);
     }
 
     @Override

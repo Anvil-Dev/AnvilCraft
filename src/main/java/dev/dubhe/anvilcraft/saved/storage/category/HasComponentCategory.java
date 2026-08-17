@@ -23,6 +23,7 @@ import net.minecraft.world.level.ItemLike;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public record HasComponentCategory(
     ItemStack icon,
@@ -178,10 +179,34 @@ public record HasComponentCategory(
         return ModCategoryTypes.HAS_COMPONENT.get();
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof HasComponentCategory(
+            ItemStack icon1,
+            Component name1,
+            List<DataComponentPredicate> predicates1,
+            List<DataComponentType<?>> presence1,
+            MatchType match1
+            ))) { // fuck checkstyle
+            return false;
+        }
+        return ItemStack.isSameItemSameComponents(this.icon(), icon1)
+               && Objects.equals(this.name(), name1)
+               && this.match() == match1
+               && Objects.equals(this.presence(), presence1)
+               && Objects.equals(this.predicates(), predicates1);
+    }
+
+    @Override
+    public int hashCode() {
+        return ItemStack.hashItemAndComponents(this.icon()) * 31
+               + Objects.hash(this.name(), this.predicates(), this.presence(), this.match());
+    }
+
     public static class Type implements ICategory.Type<HasComponentCategory> {
         public static final MapCodec<HasComponentCategory> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ItemStack.CODEC.fieldOf("icon").forGetter(HasComponentCategory::icon),
-            ComponentSerialization.flatCodec(Integer.MAX_VALUE).fieldOf("name").forGetter(HasComponentCategory::name),
+            ComponentSerialization.CODEC.fieldOf("name").forGetter(HasComponentCategory::name),
             DataComponentPredicate.CODEC.listOf().optionalFieldOf("predicates", List.of()).forGetter(HasComponentCategory::predicates),
             DataComponentType.CODEC.listOf().optionalFieldOf("presence", List.of()).forGetter(HasComponentCategory::presence),
             MatchType.CODEC.optionalFieldOf("match_type", MatchType.OR).forGetter(HasComponentCategory::match)

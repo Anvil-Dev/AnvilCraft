@@ -4,6 +4,13 @@
     "count": 1,
     "id": "anvilcraft:royal_anvil"
   },
-  "name": "{\"translate\":\"category.anvilcraft.namespace\",\"with\":[\"AnvilCraft\"]}",
+  "name": {
+    "translate": "category.anvilcraft.namespace",
+    "with": [
+      {
+        "mod_id": "anvilcraft"
+      }
+    ]
+  },
   "namespace": "anvilcraft"
 }

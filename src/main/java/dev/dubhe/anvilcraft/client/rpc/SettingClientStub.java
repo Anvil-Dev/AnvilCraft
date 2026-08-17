@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.rpc.SettingServerStub;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
 import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
+import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.NbtDisplayMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SearchMode;
@@ -144,6 +145,10 @@ public final class SettingClientStub {
 
     public static void update(NbtDisplayMode mode) {
         SettingClientStub.setting().storage().setNbtDisplay(mode);
+        RPC.call(RpcTarget.server(), SettingServerStub::update, SettingClientStub.playerId(), mode);
+    }
+
+    public static void update(BalanceMode mode) {
         RPC.call(RpcTarget.server(), SettingServerStub::update, SettingClientStub.playerId(), mode);
     }
 
