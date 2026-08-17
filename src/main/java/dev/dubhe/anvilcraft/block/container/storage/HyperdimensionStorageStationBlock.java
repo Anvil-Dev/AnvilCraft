@@ -129,7 +129,7 @@ public class HyperdimensionStorageStationBlock
                     }
                 } else if (player.hasInfiniteMaterials()) {
                     // 非空容器：掉落含 STORAGE 引用的容器物品（与 tooltip 声明一致，
-                    // 拾取后放回仍可访问其存储内容），对所有模式生效。
+                    // 拾取后放回仍可访问其存储内容），对创造模式生效（生存/冒险模式破坏子部件后会正常触发主部件掉落）。
                     LootParams.Builder builder = new LootParams.Builder(serverLevel)
                         .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(mainPos))
                         .withParameter(LootContextParams.TOOL, player.getMainHandItem())
