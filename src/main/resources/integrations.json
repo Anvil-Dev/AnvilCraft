@@ -182,7 +182,7 @@
       },
       {
         "id": "curios",
-        "type": "extra",
+        "type": "builtin",
         "name": [
           {
             "translate": "integration.anvilcraft.interaction.curios"
@@ -205,20 +205,6 @@
             {
               "type": "github",
               "url": "https://github.com/TheIllusiveC4/Curios"
-            }
-          ],
-          "extra": [
-            {
-              "type": "curseforge",
-              "url": "https://www.curseforge.com/minecraft/mc-mods/anvilcraft-curios"
-            },
-            {
-              "type": "modrinth",
-              "url": "https://modrinth.com/mod/anvilcraft-curios"
-            },
-            {
-              "type": "github",
-              "url": "https://github.com/Anvil-Dev/AnvilCraft-Curios"
             }
           ]
         }
