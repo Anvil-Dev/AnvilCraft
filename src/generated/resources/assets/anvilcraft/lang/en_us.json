@@ -851,6 +851,7 @@
   "gui.anvilcraft.category.fluid_mixing": "Complex Fluid Reaction",
   "gui.anvilcraft.category.hyperdimension_storage_station_upgrade": "Hyperdimension Storage Station Upgrade",
   "gui.anvilcraft.category.hyperdimension_storage_station_upgrade.drop_on_top": "Drop these items onto the shulker container",
+  "gui.anvilcraft.category.hyperdimension_storage_station_upgrade.requires_expansion": "Requires 4 Space Over-compressor Expansions",
   "gui.anvilcraft.category.hyperdimension_storage_station_upgrade.strike": "Strike with an anvil to upgrade the container",
   "gui.anvilcraft.category.item_compress": "Item Compress",
   "gui.anvilcraft.category.item_compress.supercapacitor.chance": "50% chance to produce a Supercapacitor; otherwise explodes",

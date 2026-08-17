@@ -40,6 +40,7 @@ public class HyperdimensionStorageStationUpgradeCategory implements IRecipeCateg
     private final Component title;
     private final Component dropOnTopTooltip;
     private final Component strikeTooltip;
+    private final Component requiresExpansion;
 
     public HyperdimensionStorageStationUpgradeCategory(IGuiHelper helper) {
         this.icon = helper.createDrawableItemStack(ModBlocks.HYPERDIMENSION_STORAGE_STATION.asStack());
@@ -53,6 +54,9 @@ public class HyperdimensionStorageStationUpgradeCategory implements IRecipeCateg
                 .withStyle(ChatFormatting.GOLD);
         this.strikeTooltip =
             Component.translatable("gui.anvilcraft.category.hyperdimension_storage_station_upgrade.strike")
+                .withStyle(ChatFormatting.GOLD);
+        this.requiresExpansion =
+            Component.translatable("gui.anvilcraft.category.hyperdimension_storage_station_upgrade.requires_expansion")
                 .withStyle(ChatFormatting.GOLD);
     }
 
@@ -102,6 +106,9 @@ public class HyperdimensionStorageStationUpgradeCategory implements IRecipeCateg
         builder.addSlot(RecipeIngredientRole.OUTPUT, 128, 8)
             .addItemStack(ModBlocks.HYPERDIMENSION_STORAGE_STATION.asStack())
             .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(strikeTooltip));
+        builder.addSlot(RecipeIngredientRole.INPUT, 31, 41)
+            .addItemStack(ModBlocks.SPACE_OVERCOMPRESSOR.asStack(4))
+            .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(requiresExpansion));
     }
 
     @Override
@@ -141,6 +148,7 @@ public class HyperdimensionStorageStationUpgradeCategory implements IRecipeCateg
         slotDefault.draw(guiGraphics, 8, 7);
         slotDefault.draw(guiGraphics, 30, 7);
         slotDefault.draw(guiGraphics, 127, 7);
+        slotDefault.draw(guiGraphics, 30, 40);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

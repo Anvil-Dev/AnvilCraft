@@ -90,6 +90,10 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.hyperdimension_storage_station_upgrade", "Hyperdimension Storage Station Upgrade");
         provider.add("gui.anvilcraft.category.hyperdimension_storage_station_upgrade.drop_on_top", "Drop these items onto the shulker container");
         provider.add("gui.anvilcraft.category.hyperdimension_storage_station_upgrade.strike", "Strike with an anvil to upgrade the container");
+        provider.add(
+            "gui.anvilcraft.category.hyperdimension_storage_station_upgrade.requires_expansion",
+            "Requires 4 Space Over-compressor Expansions"
+        );
 
         provider.add("gui.anvilcraft.category.decay", "Decay");
         provider.add("gui.anvilcraft.category.decay.random_tick", "The block at center will decay on a random tick");
