@@ -336,16 +336,16 @@ public class SolidLiquidCategory implements IRecipeCategory<RecipeHolder<FluidMi
 
     public static void registerRecipes(IRecipeRegistration registration) {
         List<RecipeHolder<FluidMixingRecipe>> recipes = new ArrayList<>();
+        for (RecipeHolder<FluidMixingRecipe> holder
+            : JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.FLUID_MIXING_TYPE.get())) {
+            recipes.add(holder);
+        }
         for (RecipeHolder<SolidLiquidRecipe> holder
             : JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.SOLID_LIQUID_TYPE.get())) {
-            if (holder.value() instanceof FluidMixingRecipe fluidMixing) {
-                recipes.add(new RecipeHolder<>(holder.id(), fluidMixing));
-            } else {
-                recipes.add(new RecipeHolder<>(
-                    holder.id(),
-                    ComplexFluidJeiRecipe.fromSolidLiquid(holder.value())
-                ));
-            }
+            recipes.add(new RecipeHolder<>(
+                holder.id(),
+                ComplexFluidJeiRecipe.fromSolidLiquid(holder.value())
+            ));
         }
 
         var enchantments = LiquidEnchantmentJeiRecipeUtil.getEnchantments(false);

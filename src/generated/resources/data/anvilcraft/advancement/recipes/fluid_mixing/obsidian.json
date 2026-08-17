@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:solid_liquid/obsidian"
+        "recipe": "anvilcraft:fluid_mixing/obsidian"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:solid_liquid/obsidian"
+      "anvilcraft:fluid_mixing/obsidian"
     ]
   }
 }

@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.TempleDemandRecipe;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
 import dev.dubhe.anvilcraft.recipe.EnergyWeaponMakeRecipe;
+import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.recipe.PillRecipe;
 import dev.dubhe.anvilcraft.recipe.PortalConversionRecipe;
@@ -130,6 +131,12 @@ public class ModRecipeTypes {
         registerType("solid_liquid");
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<SolidLiquidRecipe>> SOLID_LIQUID_SERIALIZER =
         RECIPE_SERIALIZERS.register("solid_liquid", SolidLiquidRecipe.Serializer::new);
+
+    public static final DeferredHolder<RecipeType<?>, RecipeType<FluidMixingRecipe>> FLUID_MIXING_TYPE =
+        registerType("fluid_mixing");
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<FluidMixingRecipe>>
+        FLUID_MIXING_SERIALIZER =
+        RECIPE_SERIALIZERS.register("fluid_mixing", FluidMixingRecipe.Serializer::new);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<NeutronIrradiationRecipe>> NEUTRON_IRRADIATION_TYPE =
         registerType("neutron_irradiation");

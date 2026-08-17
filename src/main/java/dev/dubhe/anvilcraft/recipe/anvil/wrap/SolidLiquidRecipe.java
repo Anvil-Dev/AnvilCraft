@@ -1,13 +1,11 @@
 package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 
-import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
-import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.util.WrapUtils;
 import dev.dubhe.anvilcraft.recipe.component.HasCauldronSimple;
 import dev.dubhe.anvilcraft.util.FluidStackPredicate;
@@ -93,8 +91,7 @@ public class SolidLiquidRecipe extends AbstractProcessRecipe<SolidLiquidRecipe> 
     }
 
     public static class Serializer implements RecipeSerializer<SolidLiquidRecipe> {
-        private static final Codec<SolidLiquidRecipe> CLASSIC_CODEC =
-            RecordCodecBuilder.<SolidLiquidRecipe>mapCodec(instance -> instance.group(
+        public static final MapCodec<SolidLiquidRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ItemIngredientPredicate.CODEC.listOf()
                 .fieldOf("ingredients")
                 .forGetter(SolidLiquidRecipe::getInputItems),
@@ -106,49 +103,19 @@ public class SolidLiquidRecipe extends AbstractProcessRecipe<SolidLiquidRecipe> 
             Codec.INT
                 .optionalFieldOf("max_efficiency", Integer.MAX_VALUE)
                 .forGetter(SolidLiquidRecipe::maxEfficiency)
-        ).apply(instance, SolidLiquidRecipe::new)).codec();
+        ).apply(instance, SolidLiquidRecipe::new));
 
-        public static final Codec<SolidLiquidRecipe> RECIPE_CODEC =
-            Codec.either(FluidMixingRecipe.MIXING_CODEC, CLASSIC_CODEC)
-                .xmap(
-                    either -> either.map(left -> left, right -> right),
-                    recipe -> recipe instanceof FluidMixingRecipe
-                              ? Either.left(recipe)
-                              : Either.right(recipe)
-                );
-
-        public static final MapCodec<SolidLiquidRecipe> CODEC = MapCodec.assumeMapUnsafe(RECIPE_CODEC);
-
-        private static final StreamCodec<RegistryFriendlyByteBuf, SolidLiquidRecipe> CLASSIC_STREAM_CODEC =
-            StreamCodec.composite(
-                ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
-                SolidLiquidRecipe::getInputItems,
-                ChanceItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
-                SolidLiquidRecipe::getResultItems,
-                HasCauldronSimple.STREAM_CODEC,
-                SolidLiquidRecipe::getHasCauldron,
-                ByteBufCodecs.INT,
-                SolidLiquidRecipe::maxEfficiency,
-                SolidLiquidRecipe::new
-            );
-
-        public static final StreamCodec<RegistryFriendlyByteBuf, SolidLiquidRecipe> STREAM_CODEC = new StreamCodec<>() {
-            @Override
-            public SolidLiquidRecipe decode(RegistryFriendlyByteBuf buffer) {
-                if (buffer.readBoolean()) return FluidMixingRecipe.MIXING_STREAM_CODEC.decode(buffer);
-                return CLASSIC_STREAM_CODEC.decode(buffer);
-            }
-
-            @Override
-            public void encode(RegistryFriendlyByteBuf buffer, SolidLiquidRecipe recipe) {
-                buffer.writeBoolean(recipe instanceof FluidMixingRecipe);
-                if (recipe instanceof FluidMixingRecipe fluidMixing) {
-                    FluidMixingRecipe.MIXING_STREAM_CODEC.encode(buffer, fluidMixing);
-                } else {
-                    CLASSIC_STREAM_CODEC.encode(buffer, recipe);
-                }
-            }
-        };
+        public static final StreamCodec<RegistryFriendlyByteBuf, SolidLiquidRecipe> STREAM_CODEC = StreamCodec.composite(
+            ItemIngredientPredicate.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            SolidLiquidRecipe::getInputItems,
+            ChanceItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
+            SolidLiquidRecipe::getResultItems,
+            HasCauldronSimple.STREAM_CODEC,
+            SolidLiquidRecipe::getHasCauldron,
+            ByteBufCodecs.INT,
+            SolidLiquidRecipe::maxEfficiency,
+            SolidLiquidRecipe::new
+        );
 
         @Override
         public MapCodec<SolidLiquidRecipe> codec() {
