@@ -13,7 +13,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
-/// 附魔书视为只读的液态魔咒桶：有魔咒时返回携带该魔咒的液态魔咒，空书返回空流体。
+/// 书/附魔书视为只读的液态魔咒桶：有魔咒时返回携带该魔咒的液态魔咒，无魔咒时返回空白液态魔咒。
 public class EnchantedBookFluidHandler implements IFluidHandlerItem {
     private final ItemStack container;
 
@@ -45,7 +45,7 @@ public class EnchantedBookFluidHandler implements IFluidHandlerItem {
                 return fluid;
             }
         }
-        return FluidStack.EMPTY;
+        return new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), FluidType.BUCKET_VOLUME);
     }
 
     @Override
