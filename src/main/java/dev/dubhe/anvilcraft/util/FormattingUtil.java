@@ -164,16 +164,12 @@ public class FormattingUtil {
         return Component.literal(progressStr.toString()).withStyle(format);
     }
 
-    public static String toAbbrNum(int number) {
-        return FormattingUtil.toAbbrNum((long) number);
-    }
-
     public static String toAbbrNum(long number) {
         if (number < 1000) {
             return String.valueOf(number);
         }
 
-        String[] units = {"K", "M", "B", "T", "Qa", "Qi"};
+        String[] units = {"K", "M", "B", "T", "P", "E"};
         long[] thresholds = {
             1_000,
             1_000_000,
