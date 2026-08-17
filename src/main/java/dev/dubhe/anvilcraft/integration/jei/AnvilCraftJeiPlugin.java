@@ -17,7 +17,6 @@ import dev.dubhe.anvilcraft.integration.jei.category.ChargerChargingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.DecayCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.EnergyWeaponCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.FluidReactionCategory;
-import dev.dubhe.anvilcraft.integration.jei.category.FluidMixingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.HyperdimensionStorageStationUpgradeCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.JewelCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MineralFountainCategory;
