@@ -26,9 +26,9 @@ public class JeiTextureConstants {
     // Other
     public static final ResourceLocation EXPLOSION = texture("explosion");
     public static final ResourceLocation CYCLE = texture("cycle");
-    public static final ResourceLocation PRE_RENDERED_END_PORTAL = texture("pre_rendered_end_portal");
     public static final ResourceLocation BLOCK_CONVERSION = texture("multiblock/multiblock_conversion");
     public static final ResourceLocation BLOCK_CRAFTING = texture("multiblock/multiblock_crafting");
+    public static final ResourceLocation BLOCK_4D = texture("multiblock/4d_multiblock");
 
     public static ResourceLocation texture(String path) {
         return AnvilCraft.of("textures/gui/jei/" + path + ".png");
