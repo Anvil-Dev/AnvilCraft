@@ -197,7 +197,7 @@ public class CapabilitiesEventListener {
         event.registerItem(
             Capabilities.FluidHandler.ITEM,
             (stack, ctx) -> new EnchantedBookFluidHandler(stack),
-            Items.ENCHANTED_BOOK
+            Items.BOOK, Items.ENCHANTED_BOOK
         );
 
         event.registerBlockEntity(
