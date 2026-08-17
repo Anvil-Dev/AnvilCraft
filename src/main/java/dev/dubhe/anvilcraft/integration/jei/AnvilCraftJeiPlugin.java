@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.integration.jei.category.BeaconConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.ChargerChargingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.DecayCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.EnergyWeaponCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.FluidReactionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.JewelCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MineralFountainCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MobTransformCategory;
@@ -150,6 +151,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final RecipeType<RecipeHolder<SuperHeatingRecipe>> SUPER_HEATING =
         createRecipeHolderType("super_heating");
     public static final RecipeType<RecipeHolder<SqueezingRecipe>> SQUEEZING = createRecipeHolderType("squeezing");
+    public static final RecipeType<RecipeHolder<FluidMixingRecipe>> FLUID_REACTION =
+        createRecipeHolderType("fluid_reaction");
     public static final RecipeType<RecipeHolder<FluidMixingRecipe>> SOLID_LIQUID =
         createRecipeHolderType("solid_liquid");
     public static final RecipeType<RecipeHolder<TimeWarpRecipe>> TIME_WARP = createRecipeHolderType("time_warp");
@@ -205,6 +208,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         FastCookingCategory.registerRecipes(registration);
         StampingCategory.registerRecipes(registration);
         SuperHeatingCategory.registerRecipes(registration);
+        FluidReactionCategory.registerRecipes(registration);
         SolidLiquidCategory.registerRecipes(registration);
         TimeWarpCategory.registerRecipes(registration);
         NeutronIrradiationCategory.registerRecipes(registration);
@@ -240,6 +244,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         StampingCategory.registerRecipeCatalysts(registration);
         FastCookingCategory.registerRecipeCatalysts(registration);
         NeutronIrradiationCategory.registerRecipeCatalysts(registration);
+        FluidReactionCategory.registerRecipeCatalysts(registration);
         SolidLiquidCategory.registerRecipeCatalysts(registration);
         SuperHeatingCategory.registerRecipeCatalysts(registration);
         TimeWarpCategory.registerRecipeCatalysts(registration);
@@ -290,6 +295,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new FastCookingCategory(guiHelper));
         registration.addRecipeCategories(new StampingCategory(guiHelper));
         registration.addRecipeCategories(new SuperHeatingCategory(guiHelper));
+        registration.addRecipeCategories(new FluidReactionCategory(guiHelper));
         registration.addRecipeCategories(new SolidLiquidCategory(guiHelper));
         registration.addRecipeCategories(new TimeWarpCategory(guiHelper));
         registration.addRecipeCategories(new NeutronIrradiationCategory(guiHelper));

@@ -1,7 +1,23 @@
 {
   "type": "anvilcraft:solid_liquid",
   "consume": 1000,
-  "fluid": "#c:cement",
+  "fluid": [
+    "anvilcraft:white_cement",
+    "anvilcraft:light_gray_cement",
+    "anvilcraft:gray_cement",
+    "anvilcraft:black_cement",
+    "anvilcraft:brown_cement",
+    "anvilcraft:red_cement",
+    "anvilcraft:orange_cement",
+    "anvilcraft:yellow_cement",
+    "anvilcraft:lime_cement",
+    "anvilcraft:green_cement",
+    "anvilcraft:cyan_cement",
+    "anvilcraft:light_blue_cement",
+    "anvilcraft:blue_cement",
+    "anvilcraft:magenta_cement",
+    "anvilcraft:pink_cement"
+  ],
   "ingredients": [
     {
       "items": "minecraft:purple_dye"
