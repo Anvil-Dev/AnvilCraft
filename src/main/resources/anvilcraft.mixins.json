@@ -94,6 +94,7 @@
   ],
   "client": [
     "AbstractContainerScreenMixin",
+    "BasicRecipeTransferHandlerMixin",
     "BlockStateBaseMixin",
     "ClientLevelMixin",
     "ClientPacketListenerMixin",

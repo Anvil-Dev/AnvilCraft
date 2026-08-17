@@ -586,7 +586,8 @@ public final class StorageServerStub {
     public static boolean terminalWithdrawToInventory(
         UUID playerId,
         UUID storageId,
-        @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC") List<ItemStack> needs
+        @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC")
+        List<ItemStack> needs
     ) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         if (!StorageServerStub.ownsBoundTerminal(player, storageId)) {
@@ -637,6 +638,48 @@ public final class StorageServerStub {
             player.containerMenu.broadcastChanges();
         }
         return changed;
+    }
+
+    /**
+     * JEI 快速合成检查：返回玩家绑定存储站中每种物品的代表及数量（数量为存储站内总量，
+     * 受 ItemStack 上限限制，用于检查阶段判断存储站是否满足配方需求）。
+     */
+    @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC")
+    @RemoteCallable(validator = TerminalAccessValidator.class)
+    public static List<ItemStack> getStorageItems(UUID playerId, UUID storageId) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        if (!StorageServerStub.ownsBoundTerminal(player, storageId)) {
+            return List.of();
+        }
+        Optional<HyperdimensionStorage> storageOp = Storages.get().get(storageId, HyperdimensionStorage.class);
+        if (storageOp.isEmpty()) {
+            return List.of();
+        }
+        UnlimitedItemStacksResourceHandler items = storageOp.get().getItems();
+        List<ItemStack> result = new ArrayList<>();
+        for (int slot = 0; slot < items.size(); slot++) {
+            long amount = items.getAmountAsLong(slot);
+            if (amount <= 0) {
+                continue;
+            }
+            ItemStack stack = items.getUnlimitedStackInSlot(slot).toStack().copyWithCount(1);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            boolean merged = false;
+            for (ItemStack existing : result) {
+                if (ItemStack.isSameItemSameComponents(existing, stack)) {
+                    int total = existing.getCount() + (int) Math.min(amount, Integer.MAX_VALUE - existing.getCount());
+                    existing.setCount(Math.min(total, stack.getMaxStackSize()));
+                    merged = true;
+                    break;
+                }
+            }
+            if (!merged) {
+                result.add(stack.copyWithCount((int) Math.min(amount, stack.getMaxStackSize())));
+            }
+        }
+        return result;
     }
 
     private static int countInInventory(Inventory inventory, ItemStack resource) {

@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.ItemCollectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ItemDetectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.JewelCraftingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.integration.jei.category.AnvilCollisionCraftCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.BeaconConversionCategory;
@@ -47,7 +48,6 @@ import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlock4DCate
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.handlers.GhostIngredientHandler;
-import dev.dubhe.anvilcraft.integration.jei.handlers.TerminalRecipeTransferHandler;
 import dev.dubhe.anvilcraft.integration.jei.recipe.BeaconConversionRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.DecayRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.HyperdimensionStorageStationUpgradeRecipe;
@@ -93,9 +93,6 @@ import mezz.jei.api.gui.handlers.IGuiProperties;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.RecipeType;
-import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
-import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
-import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
@@ -107,7 +104,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
@@ -330,62 +326,12 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
-        // 携带已绑定终端时，JEI "+" 快速合成可从终端连接的存储站补库
-        IRecipeTransferHandlerHelper helper = registration.getTransferHelper();
-
-        // 皇家锻造台（SMITHING）
-        registerStorageAware(
-            registration,
-            helper,
+        // 终端存储站补库由 BasicRecipeTransferHandlerMixin 统一注入 JEI 转移流程处理
+        registration.addRecipeTransferHandler(
             RoyalSmithingMenu.class,
+            ModMenuTypes.ROYAL_SMITHING.get(),
             RecipeTypes.SMITHING,
             0, 3, 4, 36
-        );
-
-        // 工作台 3x3：合成格 1-9，玩家物品栏 10-45（9 是合成格，不能作为物品栏起点）
-        registerStorageAware(
-            registration,
-            helper,
-            net.minecraft.world.inventory.CraftingMenu.class,
-            RecipeTypes.CRAFTING,
-            1, 9, 10, 36
-        );
-        // 背包 2x2：合成格 1-4，玩家物品栏 9-44
-        registerStorageAware(
-            registration,
-            helper,
-            net.minecraft.world.inventory.InventoryMenu.class,
-            RecipeTypes.CRAFTING,
-            1, 4, 9, 36
-        );
-    }
-
-    private static <R extends Recipe<?>> void registerStorageAware(
-        IRecipeTransferRegistration registration,
-        IRecipeTransferHandlerHelper helper,
-        Class<? extends AbstractContainerMenu> containerClass,
-        RecipeType<RecipeHolder<R>> recipeType,
-        int recipeSlotStart,
-        int recipeSlotCount,
-        int inventorySlotStart,
-        @SuppressWarnings("SameParameterValue")
-        int inventorySlotCount
-    ) {
-        IRecipeTransferInfo<AbstractContainerMenu, RecipeHolder<R>> info =
-            helper.createBasicRecipeTransferInfo(
-                containerClass,
-                null,
-                recipeType,
-                recipeSlotStart,
-                recipeSlotCount,
-                inventorySlotStart,
-                inventorySlotCount
-            );
-        IRecipeTransferHandler<AbstractContainerMenu, RecipeHolder<R>> delegate =
-            helper.createUnregisteredRecipeTransferHandler(info);
-        registration.addRecipeTransferHandler(
-            new TerminalRecipeTransferHandler<>(containerClass, recipeType, delegate),
-            recipeType
         );
     }
 

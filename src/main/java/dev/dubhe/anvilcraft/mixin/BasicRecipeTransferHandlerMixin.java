@@ -1,0 +1,217 @@
+package dev.dubhe.anvilcraft.mixin;
+
+import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
+import dev.dubhe.anvilcraft.client.rpc.TerminalJeiStorageCache;
+import mezz.jei.api.gui.ingredient.IRecipeSlotView;
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.recipe.RecipeIngredientRole;
+import mezz.jei.api.recipe.transfer.IRecipeTransferError;
+import mezz.jei.library.transfer.BasicRecipeTransferHandler;
+import net.minecraft.client.Minecraft;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
+import org.jetbrains.annotations.Nullable;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+/**
+ * 把终端的 JEI 转移配方逻辑注入 JEI 的 {@link BasicRecipeTransferHandler#transferRecipe}：
+ * <ul>
+ *   <li>检查阶段（doTransfer=false）：持有绑定终端时直接返回成功，使 "+" 按钮可用
+ *       （存储站物品视为可用），不实际取物。</li>
+ *   <li>传输阶段（doTransfer=true）：先从存储站补足背包缺少的配方物品（异步），
+ *       补库完成后重试原传输逻辑把物品填入合成格。</li>
+ * </ul>
+ * 不注入 {@code getInventoryState}：其声明的"虚拟空槽"无法让服务端实际取到物品。
+ */
+@Mixin(BasicRecipeTransferHandler.class)
+public abstract class BasicRecipeTransferHandlerMixin<C extends AbstractContainerMenu, R> {
+    @Shadow
+    public abstract @Nullable IRecipeTransferError transferRecipe(
+        C container,
+        R recipe,
+        IRecipeSlotsView recipeSlotsView,
+        Player player,
+        boolean maxTransfer,
+        boolean doTransfer
+    );
+
+    @Unique
+    private static final ThreadLocal<Boolean> ANVILCRAFT_RESTOCKING = ThreadLocal.withInitial(() -> false);
+
+    @Inject(method = "transferRecipe", at = @At("HEAD"), cancellable = true)
+    private void anvilcraft$restockOrAllow(
+        C container,
+        R recipe,
+        IRecipeSlotsView recipeSlotsView,
+        Player player,
+        boolean maxTransfer,
+        boolean doTransfer,
+        CallbackInfoReturnable<IRecipeTransferError> cir
+    ) {
+        if (!player.level().isClientSide() || ANVILCRAFT_RESTOCKING.get()) {
+            return;
+        }
+        UUID storageId = TerminalJeiStorageCache.boundStorage(player);
+        if (storageId == null) {
+            return;
+        }
+        if (!doTransfer) {
+            // 检查阶段：仅当背包 + 存储站满足配方需求时才视为可用；否则走原方法（报缺少材料）。
+            // 存储站物品列表为异步缓存，首次可能未就绪——此时走原方法（+ 暂不可用），
+            // 缓存加载完成后 JEI 刷新即可正确判断。
+            TerminalJeiStorageCache.ensure(storageId);
+            List<ItemStack> storageItems = TerminalJeiStorageCache.get(storageId);
+            if (storageItems != null
+                && BasicRecipeTransferHandlerMixin.anvilcraft$containerSatisfies(container, storageItems, recipeSlotsView)) {
+                cir.setReturnValue(null);
+            }
+            return;
+        }
+        // 传输阶段：先补足背包缺少的配方物品
+        List<ItemStack> missing = BasicRecipeTransferHandlerMixin.anvilcraft$collectMissing(
+            container,
+            recipeSlotsView,
+            maxTransfer
+        );
+        if (missing.isEmpty()) {
+            return; // 背包已足够，走原传输逻辑
+        }
+        ANVILCRAFT_RESTOCKING.set(true);
+        StorageTerminalClientStub.withdrawToInventory(storageId, missing).thenAccept(changed ->
+            Minecraft.getInstance().execute(() -> {
+                try {
+                    // 补库完成：重试原传输逻辑（背包已有物品，getInventoryState 自然看到并生成真实转移）
+                    this.transferRecipe(container, recipe, recipeSlotsView, player, maxTransfer, true);
+                } finally {
+                    ANVILCRAFT_RESTOCKING.set(false);
+                }
+            })
+        );
+        cir.setReturnValue(null);
+    }
+
+    @Unique
+    private static List<ItemStack> anvilcraft$collectMissing(
+        AbstractContainerMenu container,
+        IRecipeSlotsView recipeSlots,
+        boolean maxTransfer
+    ) {
+        List<ItemStack> needs = new ArrayList<>();
+        List<Integer> slotCounts = new ArrayList<>();
+        for (IRecipeSlotView slotView : recipeSlots.getSlotViews(RecipeIngredientRole.INPUT)) {
+            List<ItemStack> variants = slotView.getItemStacks().toList();
+            if (variants.isEmpty()) {
+                continue;
+            }
+            ItemStack representative = variants.getFirst().copy();
+            if (representative.getCount() <= 0) {
+                representative.setCount(1);
+            }
+            int idx = BasicRecipeTransferHandlerMixin.anvilcraft$findNeed(needs, representative);
+            if (idx < 0) {
+                needs.add(representative.copy());
+                slotCounts.add(1);
+            } else {
+                needs.get(idx).grow(representative.getCount());
+                slotCounts.set(idx, slotCounts.get(idx) + 1);
+            }
+        }
+        List<ItemStack> missing = new ArrayList<>();
+        for (int i = 0; i < needs.size(); i++) {
+            ItemStack need = needs.get(i);
+            int required = maxTransfer
+                           ? need.getMaxStackSize() * slotCounts.get(i)
+                           : need.getCount();
+            int have = BasicRecipeTransferHandlerMixin.anvilcraft$countInContainer(container, need);
+            int deficit = Math.max(0, required - have);
+            if (deficit > 0) {
+                ItemStack m = need.copy();
+                m.setCount(deficit);
+                missing.add(m);
+            }
+        }
+        return missing;
+    }
+
+    @Unique
+    private static int anvilcraft$findNeed(List<ItemStack> needs, ItemStack add) {
+        for (int i = 0; i < needs.size(); i++) {
+            if (ItemStack.isSameItemSameComponents(needs.get(i), add)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
+     * 检查阶段：判断背包 + 合成格 + 存储站是否满足配方所有输入需求。
+     */
+    @Unique
+    private static boolean anvilcraft$containerSatisfies(
+        AbstractContainerMenu container,
+        List<ItemStack> storageItems,
+        IRecipeSlotsView recipeSlots
+    ) {
+        List<ItemStack> needs = new ArrayList<>();
+        for (IRecipeSlotView slotView : recipeSlots.getSlotViews(RecipeIngredientRole.INPUT)) {
+            List<ItemStack> variants = slotView.getItemStacks().toList();
+            if (variants.isEmpty()) {
+                continue;
+            }
+            ItemStack representative = variants.getFirst().copy();
+            if (representative.getCount() <= 0) {
+                representative.setCount(1);
+            }
+            int idx = BasicRecipeTransferHandlerMixin.anvilcraft$findNeed(needs, representative);
+            if (idx < 0) {
+                needs.add(representative.copy());
+            } else {
+                needs.get(idx).grow(representative.getCount());
+            }
+        }
+        for (ItemStack need : needs) {
+            int have = BasicRecipeTransferHandlerMixin.anvilcraft$countInContainer(container, need);
+            // 存储站可提供量（每种物品的缓存数量）
+            for (ItemStack storageItem : storageItems) {
+                if (ItemStack.isSameItemSameComponents(storageItem, need)) {
+                    have += storageItem.getCount();
+                    break;
+                }
+            }
+            if (have < need.getCount()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    @Unique
+    private static int anvilcraft$countInContainer(AbstractContainerMenu container, ItemStack resource) {
+        int count = 0;
+        for (Slot slot : container.slots) {
+            if (slot.isFake()) {
+                continue;
+            }
+            ItemStack stack = slot.getItem();
+            if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(stack, resource)) {
+                count += stack.getCount();
+            }
+        }
+        ItemStack carried = container.getCarried();
+        if (!carried.isEmpty() && ItemStack.isSameItemSameComponents(carried, resource)) {
+            count += carried.getCount();
+        }
+        return count;
+    }
+}
