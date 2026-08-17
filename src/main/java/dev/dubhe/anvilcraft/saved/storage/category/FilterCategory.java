@@ -59,7 +59,8 @@ public record FilterCategory(ItemStack icon, Component name, FilterContent filte
             ItemStack.CODEC
                 .fieldOf("icon")
                 .forGetter(FilterCategory::icon),
-            ComponentSerialization.CODEC
+
+            ICategory.NAME_CODEC
                 .fieldOf("name")
                 .forGetter(FilterCategory::name),
             FilterContent.CODEC

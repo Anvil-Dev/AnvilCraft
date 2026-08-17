@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.saved.storage.category;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.DynamicOps;
@@ -13,6 +14,7 @@ import net.minecraft.core.HolderGetter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.RegistryFileCodec;
@@ -22,6 +24,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 public interface ICategory extends Predicate<UnlimitedItemStack> {
@@ -55,6 +58,8 @@ public interface ICategory extends Predicate<UnlimitedItemStack> {
     StreamCodec<RegistryFriendlyByteBuf, ICategory> STREAM_CODEC = ByteBufCodecs.registry(ModRegistryKeys.CATEGORY_TYPE)
         .dispatch(ICategory::getType, Type::streamCodec);
     StreamCodec<RegistryFriendlyByteBuf, List<ICategory>> LIST_STREAM_CODEC = ICategory.STREAM_CODEC.apply(ByteBufCodecs.list());
+    Codec<Component> NAME_CODEC = Codec.either(ComponentSerialization.CODEC, ComponentSerialization.flatCodec(Integer.MAX_VALUE))
+        .xmap(either -> either.map(Function.identity(), Function.identity()), Either::left);
 
     ItemStack icon();
 

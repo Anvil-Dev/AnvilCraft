@@ -51,7 +51,7 @@ public record CreativeModeTabCategory(ItemStack icon, Component name, ResourceKe
             ItemStack.CODEC
                 .fieldOf("icon")
                 .forGetter(CreativeModeTabCategory::icon),
-            ComponentSerialization.CODEC
+            ICategory.NAME_CODEC
                 .fieldOf("name")
                 .forGetter(CreativeModeTabCategory::name),
             ResourceKey.codec(Registries.CREATIVE_MODE_TAB)

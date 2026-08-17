@@ -100,6 +100,11 @@ public class CategorySettingsScreen extends Screen {
         @Override
         public void setHead(int head) {
             CategorySettingsScreen.this.alternateHead = head;
+
+            if (CategorySettingsScreen.this.addCategory != null) {
+                CategorySettingsScreen.this.addCategory.active = head == 0;
+                CategorySettingsScreen.this.addCategory.visible = head == 0;
+            }
         }
     };
     private int alternateHead = 0;

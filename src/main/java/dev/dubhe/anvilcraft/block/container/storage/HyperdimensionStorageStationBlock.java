@@ -127,7 +127,7 @@ public class HyperdimensionStorageStationBlock
                     if (id != null) {
                         Storages.get().remove(id);
                     }
-                } else {
+                } else if (player.hasInfiniteMaterials()) {
                     // 非空容器：掉落含 STORAGE 引用的容器物品（与 tooltip 声明一致，
                     // 拾取后放回仍可访问其存储内容），对所有模式生效。
                     LootParams.Builder builder = new LootParams.Builder(serverLevel)

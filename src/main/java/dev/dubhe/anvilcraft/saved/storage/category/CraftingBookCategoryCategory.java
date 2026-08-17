@@ -77,7 +77,7 @@ public record CraftingBookCategoryCategory(
             ItemStack.CODEC
                 .fieldOf("icon")
                 .forGetter(CraftingBookCategoryCategory::icon),
-            ComponentSerialization.CODEC
+            ICategory.NAME_CODEC
                 .fieldOf("name")
                 .forGetter(CraftingBookCategoryCategory::name),
             CraftingBookCategory.CODEC

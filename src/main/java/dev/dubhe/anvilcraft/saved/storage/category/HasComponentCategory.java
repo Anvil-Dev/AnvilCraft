@@ -206,7 +206,8 @@ public record HasComponentCategory(
     public static class Type implements ICategory.Type<HasComponentCategory> {
         public static final MapCodec<HasComponentCategory> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
             ItemStack.CODEC.fieldOf("icon").forGetter(HasComponentCategory::icon),
-            ComponentSerialization.CODEC.fieldOf("name").forGetter(HasComponentCategory::name),
+
+            ICategory.NAME_CODEC.fieldOf("name").forGetter(HasComponentCategory::name),
             DataComponentPredicate.CODEC.listOf().optionalFieldOf("predicates", List.of()).forGetter(HasComponentCategory::predicates),
             DataComponentType.CODEC.listOf().optionalFieldOf("presence", List.of()).forGetter(HasComponentCategory::presence),
             MatchType.CODEC.optionalFieldOf("match_type", MatchType.OR).forGetter(HasComponentCategory::match)

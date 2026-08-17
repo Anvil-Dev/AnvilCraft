@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.network.DragonRodStopDevourPacket;
 import dev.dubhe.anvilcraft.network.OpenHammerAnvilPacket;
 import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
+import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
 import dev.dubhe.anvilcraft.util.BlockHighlightUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -76,6 +77,7 @@ public class ClientEventListener {
         SoundHelper.INSTANCE.clear();
         StorageTerminalClientStub.clear();
         TerminalRemoteOverlay.setHovering(ItemStack.EMPTY);
+        PlayerSettings.clearClient();
     }
 
     @SubscribeEvent

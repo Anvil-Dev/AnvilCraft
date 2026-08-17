@@ -64,7 +64,8 @@ public record NamespaceCategory(ItemStack icon, Component name, String namespace
             ItemStack.CODEC
                 .fieldOf("icon")
                 .forGetter(NamespaceCategory::icon),
-            ComponentSerialization.CODEC
+
+            ICategory.NAME_CODEC
                 .fieldOf("name")
                 .forGetter(NamespaceCategory::name),
             Codec.STRING
