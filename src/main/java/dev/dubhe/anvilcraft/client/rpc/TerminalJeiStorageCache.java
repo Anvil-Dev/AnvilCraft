@@ -22,7 +22,11 @@ import java.util.concurrent.CompletableFuture;
  * 供 JEI 转移的检查阶段判断存储站是否满足配方需求。
  */
 public final class TerminalJeiStorageCache {
+    /** 缓存有效期（毫秒）：存储站内容可能被其他玩家/自动化改动，定期刷新避免误判。 */
+    private static final long TTL_MILLIS = 5_000L;
+
     private static final Map<UUID, List<ItemStack>> CACHE = new HashMap<>();
+    private static final Map<UUID, Long> TIMESTAMPS = new HashMap<>();
     private static final Map<UUID, CompletableFuture<List<ItemStack>>> PENDING = new HashMap<>();
 
     private TerminalJeiStorageCache() {
@@ -45,15 +49,19 @@ public final class TerminalJeiStorageCache {
         return null;
     }
 
-    /** 获取缓存的存储站物品列表（可能为 null 表示尚未加载）。 */
+    /** 获取缓存的存储站物品列表（可能为 null 表示尚未加载或已过期）。 */
     public static @Nullable List<ItemStack> get(UUID storageId) {
+        Long timestamp = TerminalJeiStorageCache.TIMESTAMPS.get(storageId);
+        if (timestamp == null || System.currentTimeMillis() - timestamp > TerminalJeiStorageCache.TTL_MILLIS) {
+            return null;
+        }
         return TerminalJeiStorageCache.CACHE.get(storageId);
     }
 
     /** 异步加载存储站物品列表到缓存；若已在加载则复用进行中的 future。 */
     public static CompletableFuture<List<ItemStack>> ensure(UUID storageId) {
         synchronized (TerminalJeiStorageCache.class) {
-            if (TerminalJeiStorageCache.CACHE.containsKey(storageId)) {
+            if (TerminalJeiStorageCache.get(storageId) != null) {
                 return CompletableFuture.completedFuture(TerminalJeiStorageCache.CACHE.get(storageId));
             }
             CompletableFuture<List<ItemStack>> pending = TerminalJeiStorageCache.PENDING.get(storageId);
@@ -71,6 +79,7 @@ public final class TerminalJeiStorageCache {
                 storageId
             ).thenApply(items -> {
                 TerminalJeiStorageCache.CACHE.put(storageId, items);
+                TerminalJeiStorageCache.TIMESTAMPS.put(storageId, System.currentTimeMillis());
                 return items;
             }).whenComplete((items, error) -> TerminalJeiStorageCache.PENDING.remove(storageId));
             TerminalJeiStorageCache.PENDING.put(storageId, pending);
@@ -80,6 +89,7 @@ public final class TerminalJeiStorageCache {
 
     public static void clear() {
         TerminalJeiStorageCache.CACHE.clear();
+        TerminalJeiStorageCache.TIMESTAMPS.clear();
         TerminalJeiStorageCache.PENDING.clear();
     }
 

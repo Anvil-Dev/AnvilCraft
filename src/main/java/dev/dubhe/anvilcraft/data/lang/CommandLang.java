@@ -17,7 +17,6 @@ public class CommandLang {
         provider.add("command.anvilcraft.storage.no_storage", "The held item does not reference a storage");
         provider.add("command.anvilcraft.storage.invalid_type", "Invalid storage type");
         provider.add("command.anvilcraft.storage.invalid_id", "Invalid storage ID");
-        provider.add("command.anvilcraft.storage.type_mismatch", "Held item storage type %1$s does not match requested type %2$s");
         provider.add("command.anvilcraft.storage.info.item", "Storage info of %s");
         provider.add("command.anvilcraft.storage.info.none", "none");
         provider.add("command.anvilcraft.storage.info.terminal", "Bound storage: %s");

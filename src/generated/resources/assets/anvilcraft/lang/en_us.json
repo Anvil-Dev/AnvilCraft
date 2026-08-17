@@ -747,7 +747,6 @@
   "command.anvilcraft.storage.list.head": "Storages (%1$s):",
   "command.anvilcraft.storage.no_hand_item": "No item in main hand",
   "command.anvilcraft.storage.no_storage": "The held item does not reference a storage",
-  "command.anvilcraft.storage.type_mismatch": "Held item storage type %1$s does not match requested type %2$s",
   "command.anvilcraft.storage.unbind.success": "Unbound storage",
   "command.anvilcraft.universe.no_id": "No ID provided and cannot find ID in items on hand",
   "component_content.anvilcraft.mod_name.ageratum": "Ageratum",

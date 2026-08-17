@@ -88,9 +88,14 @@ public abstract class BasicRecipeTransferHandlerMixin<C extends AbstractContaine
             return; // 背包已足够，走原传输逻辑
         }
         ANVILCRAFT_RESTOCKING.set(true);
-        StorageTerminalClientStub.withdrawToInventory(storageId, missing).thenAccept(changed ->
+        // whenComplete：RPC 异常完成（超时/断连）时同样清除标志位，避免 ThreadLocal 永久泄漏
+        // 导致本会话内后续所有 transferRecipe 提前 return、终端补库静默失效。
+        StorageTerminalClientStub.withdrawToInventory(storageId, missing).whenComplete((changed, error) ->
             Minecraft.getInstance().execute(() -> {
                 try {
+                    if (error != null) {
+                        return; // 补库失败：不重试传输，由 JEI 原逻辑兜底
+                    }
                     // 补库完成：重试原传输逻辑（背包已有物品，getInventoryState 自然看到并生成真实转移）
                     this.transferRecipe(container, recipe, recipeSlotsView, player, maxTransfer, true);
                 } finally {
@@ -182,14 +187,19 @@ public abstract class BasicRecipeTransferHandlerMixin<C extends AbstractContaine
         }
         for (ItemStack need : needs) {
             int have = BasicRecipeTransferHandlerMixin.anvilcraft$countInContainer(container, need);
-            // 存储站可提供量（每种物品的缓存数量）
+            if (have >= need.getCount()) {
+                continue; // 背包/合成格已满足
+            }
+            // 存储站缓存的数量被 clamp 到 maxStackSize(64)，不能用于判断 >64 的需求；
+            // 存储站存在该物品即视为可补足（传输阶段会按实际缺口补库）。
+            boolean inStorage = false;
             for (ItemStack storageItem : storageItems) {
                 if (ItemStack.isSameItemSameComponents(storageItem, need)) {
-                    have += storageItem.getCount();
+                    inStorage = true;
                     break;
                 }
             }
-            if (have < need.getCount()) {
+            if (!inStorage) {
                 return false;
             }
         }
