@@ -5,19 +5,20 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.saved.storage.category.BlockCategory;
+import dev.dubhe.anvilcraft.saved.storage.category.CraftingBookCategoryCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.CreativeModeTabCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.HasComponentCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import dev.dubhe.anvilcraft.saved.storage.category.NamespaceCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.OrCategory;
 import dev.dubhe.anvilcraft.saved.storage.category.UnstackableCategory;
-import dev.dubhe.anvilcraft.saved.storage.category.client.RecipeBookCategoryCategory;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.level.block.Blocks;
 
 public class ModCategories {
@@ -59,10 +60,10 @@ public class ModCategories {
                     ModCategories.REDSTONE.location().withSuffix("_tab"),
                     CreativeModeTabs.REDSTONE_BLOCKS
                 ),
-                new RecipeBookCategoryCategory(
+                new CraftingBookCategoryCategory(
                     Items.REDSTONE,
                     ModCategories.REDSTONE.location().withSuffix("_recipe_book"),
-                    "crafting_redstone"
+                    CraftingBookCategory.REDSTONE
                 )
             )
         );

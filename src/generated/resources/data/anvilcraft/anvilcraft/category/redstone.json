@@ -13,12 +13,12 @@
       }
     },
     {
-      "type": "anvilcraft:recipe_book_category",
+      "type": "anvilcraft:crafting_book_category",
+      "category": "redstone",
       "icon": {
         "count": 1,
         "id": "minecraft:redstone"
       },
-      "key": "crafting_redstone",
       "name": {
         "translate": "category.anvilcraft.redstone_recipe_book"
       }

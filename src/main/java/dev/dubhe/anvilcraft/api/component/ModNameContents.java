@@ -32,6 +32,7 @@ public class ModNameContents implements ComponentContents {
     );
     public static final ComponentContents.Type<ModNameContents> TYPE = new ComponentContents.Type<>(CODEC, "anvilcraft:mod_name");
     private static final String KEY = "component_content.anvilcraft.mod_name.unknown";
+    private static final String KEY_PREFIX = "component_content.anvilcraft.mod_name.";
     private final String id;
     private @Nullable Language decomposedWith;
     private List<FormattedText> decomposedParts = ImmutableList.of();
@@ -47,6 +48,11 @@ public class ModNameContents implements ComponentContents {
         }
 
         this.decomposedWith = currentLanguage;
+        Component langComponent = currentLanguage.getComponent(ModNameContents.KEY_PREFIX + this.id);
+        if (langComponent != null) {
+            this.decomposedParts = ImmutableList.of(langComponent);
+            return;
+        }
 
         Optional<String> modNameOp = ModList.get()
             .getModContainerById(this.id)
