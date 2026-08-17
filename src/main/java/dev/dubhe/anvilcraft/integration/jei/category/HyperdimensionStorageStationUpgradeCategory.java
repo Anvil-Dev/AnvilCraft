@@ -1,11 +1,11 @@
 package dev.dubhe.anvilcraft.integration.jei.category;
 
-import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
-import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
+import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
+import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
-import dev.dubhe.anvilcraft.integration.jei.recipe.ShulkerContainerUpgradeRecipe;
+import dev.dubhe.anvilcraft.integration.jei.recipe.HyperdimensionStorageStationUpgradeRecipe;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiBlockIngredientUtil;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import mezz.jei.api.gui.ITickTimer;
@@ -24,14 +24,13 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
-public class ShulkerContainerUpgradeCategory implements IRecipeCategory<ShulkerContainerUpgradeRecipe> {
+public class HyperdimensionStorageStationUpgradeCategory implements IRecipeCategory<HyperdimensionStorageStationUpgradeRecipe> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
-    public static final int NETHERITE_BLOCK_COUNT = 6;
+    public static final int HYPERCUBE_COUNT = 16;
 
     private final IDrawable icon;
     private final IDrawable slotDefault;
@@ -42,24 +41,24 @@ public class ShulkerContainerUpgradeCategory implements IRecipeCategory<ShulkerC
     private final Component dropOnTopTooltip;
     private final Component strikeTooltip;
 
-    public ShulkerContainerUpgradeCategory(IGuiHelper helper) {
-        this.icon = helper.createDrawableItemStack(ModBlocks.SHULKER_CONTAINER.asStack());
+    public HyperdimensionStorageStationUpgradeCategory(IGuiHelper helper) {
+        this.icon = helper.createDrawableItemStack(ModBlocks.HYPERDIMENSION_STORAGE_STATION.asStack());
         this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
         this.arrowIn = JeiRenderHelper.getArrowInput(helper);
         this.arrowOutputFromBelow = JeiRenderHelper.getArrowOutputFromBelow(helper);
         this.timer = helper.createTickTimer(30, 60, true);
-        this.title = Component.translatable("gui.anvilcraft.category.shulker_container_upgrade");
+        this.title = Component.translatable("gui.anvilcraft.category.hyperdimension_storage_station_upgrade");
         this.dropOnTopTooltip =
-            Component.translatable("gui.anvilcraft.category.shulker_container_upgrade.drop_on_top")
+            Component.translatable("gui.anvilcraft.category.hyperdimension_storage_station_upgrade.drop_on_top")
                 .withStyle(ChatFormatting.GOLD);
         this.strikeTooltip =
-            Component.translatable("gui.anvilcraft.category.shulker_container_upgrade.strike")
+            Component.translatable("gui.anvilcraft.category.hyperdimension_storage_station_upgrade.strike")
                 .withStyle(ChatFormatting.GOLD);
     }
 
     @Override
-    public RecipeType<ShulkerContainerUpgradeRecipe> getRecipeType() {
-        return AnvilCraftJeiPlugin.SHULKER_CONTAINER_UPGRADE;
+    public RecipeType<HyperdimensionStorageStationUpgradeRecipe> getRecipeType() {
+        return AnvilCraftJeiPlugin.HYPERDIMENSION_STORAGE_STATION_UPGRADE;
     }
 
     @Override
@@ -83,42 +82,41 @@ public class ShulkerContainerUpgradeCategory implements IRecipeCategory<ShulkerC
     }
 
     @Override
-    public void setRecipe(
-        IRecipeLayoutBuilder builder, ShulkerContainerUpgradeRecipe recipe, IFocusGroup focuses) {
+    public void setRecipe(IRecipeLayoutBuilder builder, HyperdimensionStorageStationUpgradeRecipe recipe, IFocusGroup focuses) {
         builder.addSlot(RecipeIngredientRole.INPUT, 9, 8)
-            .addItemStack(ModBlocks.SPACE_OVERCOMPRESSOR.asStack())
+            .addItemStack(ModBlocks.SINGULARITY_CRYSTAL.asStack())
             .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(dropOnTopTooltip));
         builder.addSlot(RecipeIngredientRole.INPUT, 31, 8)
-            .addItemStack(new ItemStack(Blocks.NETHERITE_BLOCK, NETHERITE_BLOCK_COUNT))
+            .addItemStack(new ItemStack(ModBlocks.HYPERCUBE, HYPERCUBE_COUNT))
             .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(dropOnTopTooltip));
         JeiBlockIngredientUtil.addSlot(
             builder,
             RecipeIngredientRole.INPUT,
-            "crate",
+            "container",
             69,
             32,
             25,
             25,
-            ModBlocks.LARGE_CRATE.get()
+            ModBlocks.SHULKER_CONTAINER.get()
         );
         builder.addSlot(RecipeIngredientRole.OUTPUT, 128, 8)
-            .addItemStack(ModBlocks.SHULKER_CONTAINER.asStack())
+            .addItemStack(ModBlocks.HYPERDIMENSION_STORAGE_STATION.asStack())
             .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(strikeTooltip));
     }
 
     @Override
-    public void createRecipeExtras(
-        IRecipeExtrasBuilder builder, ShulkerContainerUpgradeRecipe recipe, IFocusGroup focuses) {
+    public void createRecipeExtras(IRecipeExtrasBuilder builder, HyperdimensionStorageStationUpgradeRecipe recipe, IFocusGroup focuses) {
         JeiBlockIngredientUtil.suppressHoverOverlays(builder);
     }
 
     @Override
     public void draw(
-        ShulkerContainerUpgradeRecipe recipe,
+        HyperdimensionStorageStationUpgradeRecipe recipe,
         IRecipeSlotsView recipeSlotsView,
         GuiGraphics guiGraphics,
         double mouseX,
-        double mouseY) {
+        double mouseY
+    ) {
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(timer);
         RenderSupport.renderBlock(
             guiGraphics,
@@ -130,7 +128,7 @@ public class ShulkerContainerUpgradeCategory implements IRecipeCategory<ShulkerC
             RenderSupport.SINGLE_BLOCK);
         RenderSupport.renderBlock(
             guiGraphics,
-            ModBlocks.LARGE_CRATE.getDefaultState().setValue(LargeCrateBlock.HALF, Cube3x3PartHalf.MID_CENTER),
+            ModBlocks.SHULKER_CONTAINER.getDefaultState().setValue(ShulkerContainerBlock.HALF, OpenedCube3x3PartHalf.MID_CENTER),
             81,
             44,
             10,
@@ -147,15 +145,15 @@ public class ShulkerContainerUpgradeCategory implements IRecipeCategory<ShulkerC
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
-            AnvilCraftJeiPlugin.SHULKER_CONTAINER_UPGRADE,
-            ShulkerContainerUpgradeRecipe.getAllRecipes()
+            AnvilCraftJeiPlugin.HYPERDIMENSION_STORAGE_STATION_UPGRADE,
+            HyperdimensionStorageStationUpgradeRecipe.getAllRecipes()
         );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.SHULKER_CONTAINER_UPGRADE);
-        registration.addRecipeCatalyst(ModBlocks.LARGE_CRATE.asStack(), AnvilCraftJeiPlugin.SHULKER_CONTAINER_UPGRADE);
-        registration.addRecipeCatalyst(ModBlocks.SPACE_OVERCOMPRESSOR.asStack(), AnvilCraftJeiPlugin.SHULKER_CONTAINER_UPGRADE);
-        registration.addRecipeCatalyst(Items.NETHERITE_BLOCK.getDefaultInstance(), AnvilCraftJeiPlugin.SHULKER_CONTAINER_UPGRADE);
+        AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.HYPERDIMENSION_STORAGE_STATION_UPGRADE);
+        registration.addRecipeCatalyst(ModBlocks.SHULKER_CONTAINER.asStack(), AnvilCraftJeiPlugin.HYPERDIMENSION_STORAGE_STATION_UPGRADE);
+        registration.addRecipeCatalyst(ModBlocks.SINGULARITY_CRYSTAL.asStack(), AnvilCraftJeiPlugin.HYPERDIMENSION_STORAGE_STATION_UPGRADE);
+        registration.addRecipeCatalyst(ModBlocks.HYPERCUBE.asStack(), AnvilCraftJeiPlugin.HYPERDIMENSION_STORAGE_STATION_UPGRADE);
     }
 }

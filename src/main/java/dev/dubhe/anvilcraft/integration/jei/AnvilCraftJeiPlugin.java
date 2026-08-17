@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.integration.jei.category.ChargerChargingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.DecayCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.EnergyWeaponCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.FluidMixingCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.HyperdimensionStorageStationUpgradeCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.JewelCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MineralFountainCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MobTransformCategory;
@@ -49,6 +50,7 @@ import dev.dubhe.anvilcraft.integration.jei.handlers.GhostIngredientHandler;
 import dev.dubhe.anvilcraft.integration.jei.handlers.TerminalRecipeTransferHandler;
 import dev.dubhe.anvilcraft.integration.jei.recipe.BeaconConversionRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.DecayRecipe;
+import dev.dubhe.anvilcraft.integration.jei.recipe.HyperdimensionStorageStationUpgradeRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MineralFountainJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MobTransformJeiRecipe;
@@ -139,6 +141,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final RecipeType<DecayRecipe> DECAY = createRecipeType("decay", DecayRecipe.class);
     public static final RecipeType<ShulkerContainerUpgradeRecipe> SHULKER_CONTAINER_UPGRADE =
         createRecipeType("shulker_container_upgrade", ShulkerContainerUpgradeRecipe.class);
+    public static final RecipeType<HyperdimensionStorageStationUpgradeRecipe> HYPERDIMENSION_STORAGE_STATION_UPGRADE =
+        createRecipeType("hyperdimension_storage_station_upgrade", HyperdimensionStorageStationUpgradeRecipe.class);
 
     public static final RecipeType<RecipeHolder<BlockCompressRecipe>> BLOCK_COMPRESS =
         createRecipeHolderType("block_compress");
@@ -232,6 +236,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         EnergyWeaponCategory.registerRecipes(registration);
         MineralFountainCategory.registerRecipes(registration);
         ShulkerContainerUpgradeCategory.registerRecipes(registration);
+        HyperdimensionStorageStationUpgradeCategory.registerRecipes(registration);
     }
 
     @Override
@@ -268,6 +273,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         EnergyWeaponCategory.registerRecipeCatalysts(registration);
         MineralFountainCategory.registerRecipeCatalysts(registration);
         ShulkerContainerUpgradeCategory.registerRecipeCatalysts(registration);
+        HyperdimensionStorageStationUpgradeCategory.registerRecipeCatalysts(registration);
 
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.BATCH_CRAFTER), RecipeTypes.CRAFTING);
 
@@ -319,6 +325,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new EnergyWeaponCategory(guiHelper));
         registration.addRecipeCategories(new MineralFountainCategory(guiHelper));
         registration.addRecipeCategories(new ShulkerContainerUpgradeCategory(guiHelper));
+        registration.addRecipeCategories(new HyperdimensionStorageStationUpgradeCategory(guiHelper));
     }
 
     @Override

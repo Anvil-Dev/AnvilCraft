@@ -87,6 +87,10 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.shulker_container_upgrade.drop_on_top", "Drop these items onto the large crate");
         provider.add("gui.anvilcraft.category.shulker_container_upgrade.strike", "Strike with an anvil to upgrade the crate");
 
+        provider.add("gui.anvilcraft.category.hyperdimension_storage_station_upgrade", "Hyperdimension Storage Station Upgrade");
+        provider.add("gui.anvilcraft.category.hyperdimension_storage_station_upgrade.drop_on_top", "Drop these items onto the shulker container");
+        provider.add("gui.anvilcraft.category.hyperdimension_storage_station_upgrade.strike", "Strike with an anvil to upgrade the container");
+
         provider.add("gui.anvilcraft.category.decay", "Decay");
         provider.add("gui.anvilcraft.category.decay.random_tick", "The block at center will decay on a random tick");
         provider.add("gui.anvilcraft.category.decay.center", "Put this block at the center");
