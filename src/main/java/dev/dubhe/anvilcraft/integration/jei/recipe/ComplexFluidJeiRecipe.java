@@ -59,14 +59,6 @@ public final class ComplexFluidJeiRecipe extends FluidMixingRecipe {
         this.linkFluidVariants = linkFluidVariants;
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public static boolean isComplex(SolidLiquidRecipe recipe) {
-        HasCauldronSimple cauldron = recipe.getHasCauldron();
-        return cauldron.transforms().size() > 1
-               || cauldron.consume() > FluidType.BUCKET_VOLUME
-               || cauldron.produce() > FluidType.BUCKET_VOLUME;
-    }
-
     public static ComplexFluidJeiRecipe fromSolidLiquid(SolidLiquidRecipe recipe) {
         HasCauldronSimple cauldron = recipe.getHasCauldron();
         List<FluidStack> inputs = JeiFluidUtil.getDisplayFluids(

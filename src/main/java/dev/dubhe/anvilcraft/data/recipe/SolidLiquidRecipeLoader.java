@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import dev.dubhe.anvilcraft.util.FluidStackPredicate;
 import dev.dubhe.anvilcraft.util.VanillaConstants;
@@ -22,6 +23,7 @@ import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -118,6 +120,12 @@ public class SolidLiquidRecipeLoader {
             ModEnchantments.HARVEST_KEY,
             ModEnchantments.BEHEADING_KEY
         );
+
+        new FluidMixingRecipe.Builder()
+            .requires(Fluids.WATER, 1000)
+            .requires(Fluids.LAVA, 1000)
+            .result(Items.OBSIDIAN, 1)
+            .save(provider, "obsidian");
     }
 
     private static void solidLiquid(RegistrumRecipeProvider provider, ItemLike input, ItemLike result, int consume) {

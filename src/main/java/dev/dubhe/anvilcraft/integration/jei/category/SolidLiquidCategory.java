@@ -44,7 +44,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMixingRecipe>> {
+public class SolidLiquidCategory implements IRecipeCategory<RecipeHolder<FluidMixingRecipe>> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
     private static final float MODEL_SCALE = 7.5F;
@@ -62,7 +62,7 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
     private final BlockState largeCauldron;
     private final BlockState giantAnvil;
 
-    public FluidMixingCategory(IGuiHelper helper) {
+    public SolidLiquidCategory(IGuiHelper helper) {
         this.icon = helper.createDrawableItemStack(ModBlocks.LARGE_CAULDRON.asStack());
         this.slot = JeiRenderHelper.getSlotDefault(helper);
         this.arrowIn = JeiRenderHelper.getArrowInput(helper);
@@ -77,12 +77,12 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
 
     @Override
     public RecipeType<RecipeHolder<FluidMixingRecipe>> getRecipeType() {
-        return AnvilCraftJeiPlugin.FLUID_MIXING;
+        return AnvilCraftJeiPlugin.SOLID_LIQUID;
     }
 
     @Override
     public Component getTitle() {
-        return Component.translatable("gui.anvilcraft.category.fluid_mixing");
+        return Component.translatable("gui.anvilcraft.category.solid_liquid");
     }
 
     @Override
@@ -335,50 +335,51 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {
-        List<RecipeHolder<FluidMixingRecipe>> recipes = new ArrayList<>(
-            JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.FLUID_MIXING_TYPE.get())
-        );
+        List<RecipeHolder<FluidMixingRecipe>> recipes = new ArrayList<>();
         for (RecipeHolder<SolidLiquidRecipe> holder
             : JeiRecipeUtil.getRecipeHoldersFromType(ModRecipeTypes.SOLID_LIQUID_TYPE.get())) {
-            if (!ComplexFluidJeiRecipe.isComplex(holder.value())) continue;
-            recipes.add(new RecipeHolder<>(
-                holder.id(),
-                ComplexFluidJeiRecipe.fromSolidLiquid(holder.value())
-            ));
+            if (holder.value() instanceof FluidMixingRecipe fluidMixing) {
+                recipes.add(new RecipeHolder<>(holder.id(), fluidMixing));
+            } else {
+                recipes.add(new RecipeHolder<>(
+                    holder.id(),
+                    ComplexFluidJeiRecipe.fromSolidLiquid(holder.value())
+                ));
+            }
         }
 
         var enchantments = LiquidEnchantmentJeiRecipeUtil.getEnchantments(false);
         if (!enchantments.isEmpty()) {
             recipes.add(new RecipeHolder<>(
-                AnvilCraft.of("jei/fluid_mixing/liquid_enchantment_assimilation"),
+                AnvilCraft.of("jei/solid_liquid/liquid_enchantment_assimilation"),
                 ComplexFluidJeiRecipe.assimilation(enchantments)
             ));
             recipes.add(new RecipeHolder<>(
-                AnvilCraft.of("jei/fluid_mixing/liquid_enchantment_cleanse"),
+                AnvilCraft.of("jei/solid_liquid/liquid_enchantment_cleanse"),
                 ComplexFluidJeiRecipe.cleanse(enchantments)
             ));
         }
         var curses = LiquidEnchantmentJeiRecipeUtil.getEnchantments(true);
         if (!curses.isEmpty()) {
             recipes.add(new RecipeHolder<>(
-                AnvilCraft.of("jei/fluid_mixing/cursed_gold_ingot"),
+                AnvilCraft.of("jei/solid_liquid/cursed_gold_ingot"),
                 ComplexFluidJeiRecipe.curseGoldIngot(curses)
             ));
             recipes.add(new RecipeHolder<>(
-                AnvilCraft.of("jei/fluid_mixing/cursed_gold_block"),
+                AnvilCraft.of("jei/solid_liquid/cursed_gold_block"),
                 ComplexFluidJeiRecipe.curseGoldBlock(curses)
             ));
         }
         recipes.add(new RecipeHolder<>(
-            AnvilCraft.of("jei/fluid_mixing/enchanted_gold_ingot"),
+            AnvilCraft.of("jei/solid_liquid/enchanted_gold_ingot"),
             ComplexFluidJeiRecipe.enchantGoldIngot()
         ));
-        registration.addRecipes(AnvilCraftJeiPlugin.FLUID_MIXING, recipes);
+        registration.addRecipes(AnvilCraftJeiPlugin.SOLID_LIQUID, recipes);
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(ModBlocks.LARGE_CAULDRON.asStack(), AnvilCraftJeiPlugin.FLUID_MIXING);
-        registration.addRecipeCatalyst(ModBlocks.GIANT_ANVIL.asStack(), AnvilCraftJeiPlugin.FLUID_MIXING);
+        registration.addRecipeCatalyst(ModBlocks.LARGE_CAULDRON.asStack(), AnvilCraftJeiPlugin.SOLID_LIQUID);
+        registration.addRecipeCatalyst(ModBlocks.GIANT_ANVIL.asStack(), AnvilCraftJeiPlugin.SOLID_LIQUID);
     }
 
     private record SlotPosition(int x, int y) {

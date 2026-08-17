@@ -20,7 +20,6 @@ public class RecipeHandler {
         BlockSmearRecipeLoader.init(provider);
         FastCookingRecipeLoader.init(provider);
         SolidLiquidRecipeLoader.init(provider);
-        FluidMixingRecipeLoader.init(provider);
         ItemInjectRecipeLoader.init(provider);
         MassInjectRecipeLoader.init(provider);
         SqueezingRecipeLoader.init(provider);

@@ -33,6 +33,7 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTriggers;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.FluidMixingRecipe;
+import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
 import dev.dubhe.anvilcraft.recipe.LiquidEnchantmentCauldronRecipe;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.DamageAnvil;
 import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasAnvil;
@@ -640,9 +641,9 @@ public class LargeCauldronBlockEntity extends BlockEntity
 
     private boolean tryProcessFluidMixingRecipe(ServerLevel level) {
         List<FluidStack> storedFluids = this.fluids.copyFluids();
-        for (RecipeHolder<FluidMixingRecipe> holder
-            : level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.FLUID_MIXING_TYPE.get())) {
-            FluidMixingRecipe recipe = holder.value();
+        for (RecipeHolder<SolidLiquidRecipe> holder
+            : level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.SOLID_LIQUID_TYPE.get())) {
+            if (!(holder.value() instanceof FluidMixingRecipe recipe)) continue;
             int maximumBatches = recipe.getMaximumBatches(storedFluids);
             if (maximumBatches <= 0) continue;
             List<FluidStack> mixedFluids = recipe.consumesMaximum()

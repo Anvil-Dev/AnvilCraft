@@ -1,5 +1,5 @@
 {
-  "type": "anvilcraft:fluid_mixing",
+  "type": "anvilcraft:solid_liquid",
   "ingredients": [
     {
       "amount": 1000,
