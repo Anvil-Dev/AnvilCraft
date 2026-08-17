@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.gui.tooltip.FilterContentHoverWindow;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
+import dev.dubhe.anvilcraft.client.rpc.SettingClientStub;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
 import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
 import dev.dubhe.anvilcraft.client.support.StructureDiskPreviewSupport;
@@ -78,6 +79,7 @@ public class ClientEventListener {
         StorageTerminalClientStub.clear();
         TerminalRemoteOverlay.setHovering(ItemStack.EMPTY);
         PlayerSettings.clearClient();
+        SettingClientStub.clearCache();
     }
 
     @SubscribeEvent

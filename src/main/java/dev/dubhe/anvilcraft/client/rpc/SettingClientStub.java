@@ -181,6 +181,10 @@ public final class SettingClientStub {
         return setting;
     }
 
+    public static void clearCache() {
+        SettingClientStub.cachedSetting = null;
+    }
+
     private static void cache(UUID playerId, @Nullable PlayerSetting setting) {
         SettingClientStub.cachedPlayerId = playerId;
         SettingClientStub.cachedSetting = setting;
