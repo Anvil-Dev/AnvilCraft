@@ -17,6 +17,10 @@ import javax.annotation.Nullable;
 
 public class ShulkerContainerTooltipProvider extends ITooltipProvider.BlockEntityTooltipProvider {
     private static final int INITIAL_SPACE_SIZE = 65536;
+    /** 升级已满时的最大空间大小（经 4 次空间压缩器翻倍后的上限）。 */
+    private static final int MAX_SPACE_SIZE = 1048576;
+    /** 升到最满（空间大小达到上限）所需的翻倍升级次数。 */
+    private static final int UPGRADES_TO_MAX = 4;
     private static final int METADATA_REFRESH_INTERVAL = 10;
     private @Nullable BlockEntity target;
     private @Nullable CompletableFuture<OptionalInt> pendingUpgradeCount;
@@ -48,7 +52,8 @@ public class ShulkerContainerTooltipProvider extends ITooltipProvider.BlockEntit
         Object upgradeCount = this.upgradeCount < 0
                               ? Component.translatable("tooltip.anvilcraft.shulker_container.6.waiting")
                               : this.upgradeCount;
-        return ImmutableList.of(
+        ImmutableList.Builder<Component> builder = ImmutableList.builder();
+        builder.add(
             Component.translatable("tooltip.anvilcraft.shulker_container.0"),
             Component.translatable("tooltip.anvilcraft.shulker_container.1"),
             Component.translatable("tooltip.anvilcraft.shulker_container.2"),
@@ -57,6 +62,11 @@ public class ShulkerContainerTooltipProvider extends ITooltipProvider.BlockEntit
             Component.translatable("tooltip.anvilcraft.shulker_container.5"),
             Component.translatable("tooltip.anvilcraft.shulker_container.6", upgradeCount)
         );
+        // 升级已满（空间大小达到上限）时，追加向超维存储站升级的提示
+        if (this.upgradeCount >= ShulkerContainerTooltipProvider.UPGRADES_TO_MAX) {
+            builder.add(Component.translatable("tooltip.anvilcraft.shulker_container.hyperdimension"));
+        }
+        return builder.build();
     }
 
     private void refreshUpgradeCount(BlockEntity value) {

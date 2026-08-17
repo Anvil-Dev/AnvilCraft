@@ -746,6 +746,35 @@ public class RegistrumItemRecipeLoader {
             .save(provider, AnvilCraft.of(ctx.getId().getPath() + "_from_ingot"));
     }
 
+    public static <T extends Item> void hyperdimensionTerminal(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ABA")
+            .pattern("ACA")
+            .pattern("DDD")
+            .define('A', ModItems.TRANSCENDIUM_INGOT)
+            .define('B', ModBlocks.SINGULARITY_CRYSTAL)
+            .define('C', ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .define('D', ModBlocks.HYPERCUBE)
+            .group(ctx.getId().toString())
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.TRANSCENDIUM_INGOT),
+                AnvilCraftDatagen.has(ModItems.TRANSCENDIUM_INGOT)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.SINGULARITY_CRYSTAL.asItem()),
+                AnvilCraftDatagen.has(ModBlocks.SINGULARITY_CRYSTAL)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER.asItem()),
+                AnvilCraftDatagen.has(ModBlocks.SPACETIME_SUPERCOMPUTER)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.HYPERCUBE.asItem()),
+                AnvilCraftDatagen.has(ModBlocks.HYPERCUBE)
+            )
+            .save(provider);
+    }
+
     public static <T extends Item> void cursedGoldIngot(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get(), 9)
             .requires(ModBlocks.CURSED_GOLD_BLOCK)

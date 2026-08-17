@@ -399,6 +399,8 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CRATE.asItem(), "Stores items");
         NORMAL.put(ModBlocks.LARGE_CRATE.asItem(), "A large crate, stores more items");
         NORMAL.put(ModBlocks.SHULKER_CONTAINER.asItem(), "A space-folding container upgraded from a Large Crate");
+        NORMAL.put(ModBlocks.HYPERDIMENSION_STORAGE_STATION.asItem(), "An infinite container upgraded from a Shulker Container");
+        NORMAL.put(ModItems.HYPERDIMENSION_TERMINAL.asItem(), "A portable port of the binding Hyperdimension Storage Station");
         NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
         NORMAL.put(ModBlocks.FLUID_TANK.asItem(), "Stores fluids");
         NORMAL.put(ModBlocks.LARGE_FLUID_TANK.asItem(), "Stores multiple fluids");
@@ -683,10 +685,15 @@ public class ItemTooltipManager {
         );
         SHIFT.put(
             ModBlocks.SHULKER_CONTAINER.asItem(), """
-                Can contain 65536 types of items, each type contain 65536 items
+                Can contain 65536 types of items, each type contain 65536 space of items by default
                 Breaking it drops the container with its items stored inside
                 Drop Space Overcompressors on top and strike with an anvil to expand capacity
-                Each one doubles the storage space (up to 4)"""
+                Each one doubles the storage space (up to 4 times)"""
+        );
+        SHIFT.put(
+            ModBlocks.HYPERDIMENSION_STORAGE_STATION.asItem(), """
+                Can contain infinite items
+                Breaking it drops the container with its items stored inside"""
         );
         SHIFT.put(
             ModBlocks.CREATIVE_FLUID_TANK.asItem(), """

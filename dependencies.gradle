@@ -11,9 +11,9 @@ dependencies {
 
     // JEI
     compileClasspath(libs.jei.common.api) { transitive = false }
-    compileClasspath(libs.jei.forge.api) { transitive = false }
-    compileClasspath(libs.jei.forge) { transitive = false }
-    runtimeClasspath(libs.jei.forge) { transitive = false }
+    compileClasspath(libs.jei.neoforge.api) { transitive = false }
+    compileClasspath(libs.jei.neoforge) { transitive = false }
+    runtimeClasspath(libs.jei.neoforge) { transitive = false }
 
     // Sodium, Iris, Embeddium
     compileClasspath(libs.sodium)
@@ -26,4 +26,8 @@ dependencies {
 
     // Mekanism
     compileClasspath(libs.mekanism)
+
+    // Curios API
+    compileClasspath(libs.curios)
+    runtimeClasspath(libs.curios)
 }

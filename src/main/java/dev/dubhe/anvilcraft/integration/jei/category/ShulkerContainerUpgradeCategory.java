@@ -24,6 +24,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import org.jetbrains.annotations.Nullable;
 
@@ -147,15 +148,14 @@ public class ShulkerContainerUpgradeCategory implements IRecipeCategory<ShulkerC
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
             AnvilCraftJeiPlugin.SHULKER_CONTAINER_UPGRADE,
-            ShulkerContainerUpgradeRecipe.getAllRecipes());
+            ShulkerContainerUpgradeRecipe.getAllRecipes()
+        );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(ModBlocks.LARGE_CRATE.asStack(), AnvilCraftJeiPlugin.SHULKER_CONTAINER_UPGRADE);
-        registration.addRecipeCatalyst(
-            ModBlocks.SHULKER_CONTAINER.asStack(), AnvilCraftJeiPlugin.SHULKER_CONTAINER_UPGRADE);
-        registration.addRecipeCatalyst(
-            ModBlocks.SPACE_OVERCOMPRESSOR.asStack(), AnvilCraftJeiPlugin.SHULKER_CONTAINER_UPGRADE);
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.SHULKER_CONTAINER_UPGRADE);
+        registration.addRecipeCatalyst(ModBlocks.LARGE_CRATE.asStack(), AnvilCraftJeiPlugin.SHULKER_CONTAINER_UPGRADE);
+        registration.addRecipeCatalyst(ModBlocks.SPACE_OVERCOMPRESSOR.asStack(), AnvilCraftJeiPlugin.SHULKER_CONTAINER_UPGRADE);
+        registration.addRecipeCatalyst(Items.NETHERITE_BLOCK.getDefaultInstance(), AnvilCraftJeiPlugin.SHULKER_CONTAINER_UPGRADE);
     }
 }

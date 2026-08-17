@@ -292,4 +292,26 @@ public class UnlimitedItemStacksResourceHandler implements IItemHandler, INBTSer
         }
         return result;
     }
+
+    /**
+     * 以物品+数据组件为相等的键（忽略数量）。{@link ItemStack} 未重写
+     * {@code equals}/{@code hashCode}，直接用 {@code Map<ItemStack,...>} 或
+     * {@code Set<ItemStack>} 做合并/去重键会退化为引用相等，无法合并同种物品。
+     */
+    public record ResourceKey(ItemStack stack) {
+        public static ResourceKey of(ItemStack stack) {
+            return new ResourceKey(stack.copyWithCount(1));
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            return obj instanceof ResourceKey(ItemStack stack1)
+                   && ItemStack.isSameItemSameComponents(this.stack, stack1);
+        }
+
+        @Override
+        public int hashCode() {
+            return ItemStack.hashItemAndComponents(this.stack);
+        }
+    }
 }

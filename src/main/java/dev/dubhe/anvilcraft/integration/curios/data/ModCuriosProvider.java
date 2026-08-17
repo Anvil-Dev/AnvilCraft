@@ -1,0 +1,34 @@
+package dev.dubhe.anvilcraft.integration.curios.data;
+
+import dev.dubhe.anvilcraft.AnvilCraft;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.data.PackOutput;
+import net.neoforged.neoforge.common.data.ExistingFileHelper;
+import top.theillusivec4.curios.api.CuriosDataProvider;
+
+import java.util.concurrent.CompletableFuture;
+
+public class ModCuriosProvider extends CuriosDataProvider {
+    public ModCuriosProvider(PackOutput output, ExistingFileHelper fileHelper, CompletableFuture<HolderLookup.Provider> registries) {
+        super(AnvilCraft.MOD_ID, output, fileHelper, registries);
+    }
+
+    @Override
+    public void generate(HolderLookup.Provider registries, ExistingFileHelper fileHelper) {
+        this.createSlot("ionocraft_backpack")
+            .addCosmetic(true)
+            .icon(AnvilCraft.of("curios/empty_ionocraft_backpack_slot"));
+
+        this.createEntities("ionocraft_backpack")
+            .addPlayer()
+            .addSlots("ionocraft_backpack");
+
+        this.createEntities("goggles")
+            .addPlayer()
+            .addSlots("head");
+
+        this.createEntities("charms")
+            .addPlayer()
+            .addSlots("charm");
+    }
+}

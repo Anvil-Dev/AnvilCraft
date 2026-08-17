@@ -51,6 +51,7 @@ import dev.dubhe.anvilcraft.item.FrostMetalSwordItem;
 import dev.dubhe.anvilcraft.item.GeodeItem;
 import dev.dubhe.anvilcraft.item.GuideBookItem;
 import dev.dubhe.anvilcraft.item.HeavyHalberdCoreItem;
+import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
 import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
 import dev.dubhe.anvilcraft.item.IonocraftItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
@@ -89,6 +90,7 @@ import dev.dubhe.anvilcraft.item.property.component.Eternal;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.property.component.Providence;
+import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.WrappedOthersAmulet;
 import dev.dubhe.anvilcraft.item.template.EmberMetalUpgradeTemplateItem;
@@ -740,6 +742,18 @@ public class ModItems {
         .properties(properties -> properties.stacksTo(1)
             .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true)
             .rarity(Rarity.EPIC))
+        .register();
+
+    public static final ItemEntry<HyperdimensionTerminalItem> HYPERDIMENSION_TERMINAL = REGISTRUM
+        .item("hyperdimension_terminal", HyperdimensionTerminalItem::new)
+        .properties(properties -> properties
+            .stacksTo(1)
+            .fireResistant()
+            .rarity(Rarity.EPIC)
+            .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(ModComponents.TERMINAL_BINDING, TerminalBinding.EMPTY))
+        .model((ctx, provider) -> provider.generated(ctx.lazy()))
+        .recipe(RegistrumItemRecipeLoader::hyperdimensionTerminal)
         .register();
 
     public static final ItemEntry<PillBoxItem> PILL_BOX = REGISTRUM

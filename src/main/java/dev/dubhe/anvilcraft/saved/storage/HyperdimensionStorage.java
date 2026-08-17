@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.saved.storage;
 
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.InfiniteItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 
 import java.util.UUID;
@@ -13,7 +14,7 @@ public class HyperdimensionStorage extends BaseStorage<UnlimitedItemStacksResour
 
     @Override
     protected UnlimitedItemStacksResourceHandler constructItemHandler(BiConsumer<Integer, UnlimitedItemStack> onContentsChanged) {
-        return new UnlimitedItemStacksResourceHandler(65536) {
+        return new InfiniteItemStacksResourceHandler() {
             @Override
             protected void onContentsChanged(int index, UnlimitedItemStack original) {
                 onContentsChanged.accept(index, original);

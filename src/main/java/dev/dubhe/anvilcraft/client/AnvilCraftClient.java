@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.client.particle.OverseerTrailParticle;
 import dev.dubhe.anvilcraft.client.particle.PlasmaJetsParticle;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemSlotClipping;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonocraftBackpackDecoration;
+import dev.dubhe.anvilcraft.client.renderer.item.decoration.TerminalInsertionDecoration;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
@@ -91,6 +92,7 @@ public class AnvilCraftClient {
 
     public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
         e.register(ModItems.IONOCRAFT_BACKPACK, new IonocraftBackpackDecoration());
+        e.register(ModItems.HYPERDIMENSION_TERMINAL, new TerminalInsertionDecoration());
     }
 
     public static void registerParticleProviders(RegisterParticleProvidersEvent e) {

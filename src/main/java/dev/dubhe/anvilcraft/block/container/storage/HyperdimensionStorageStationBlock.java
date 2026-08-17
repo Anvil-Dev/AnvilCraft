@@ -11,6 +11,10 @@ import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
+import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
+import dev.dubhe.anvilcraft.saved.storage.Storages;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -21,6 +25,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -29,18 +34,23 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
+
+import java.util.UUID;
 
 public class HyperdimensionStorageStationBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>
@@ -104,12 +114,29 @@ public class HyperdimensionStorageStationBlock
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
-        if (level instanceof ServerLevel) {
+        if (level instanceof ServerLevel serverLevel) {
             BlockPos mainPos = this.getMainPartPos(pos, state);
             BlockState mainState = level.getBlockState(mainPos);
-            if (mainState.is(this) && level.getBlockEntity(mainPos) instanceof HyperdimensionStorageStationBlockEntity storage) {
-                if (storage.getTotalCount() == 0) {
+            BlockEntity blockEntity = level.getBlockEntity(mainPos);
+            if (mainState.is(this) && blockEntity instanceof HyperdimensionStorageStationBlockEntity storage) {
+                boolean empty = storage.getTotalCount() == 0;
+                if (empty) {
+                    // 空容器：清除 id 并移除孤儿存储条目，避免存档膨胀
+                    UUID id = storage.getId();
                     storage.clearId();
+                    if (id != null) {
+                        Storages.get().remove(id);
+                    }
+                } else {
+                    // 非空容器：掉落含 STORAGE 引用的容器物品（与 tooltip 声明一致，
+                    // 拾取后放回仍可访问其存储内容），对所有模式生效。
+                    LootParams.Builder builder = new LootParams.Builder(serverLevel)
+                        .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(mainPos))
+                        .withParameter(LootContextParams.TOOL, player.getMainHandItem())
+                        .withOptionalParameter(LootContextParams.BLOCK_ENTITY, blockEntity);
+                    for (ItemStack stack : mainState.getDrops(builder)) {
+                        Block.popResource(serverLevel, mainPos, stack);
+                    }
                 }
             }
         }
@@ -129,6 +156,18 @@ public class HyperdimensionStorageStationBlock
         BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
         if (blockEntity instanceof HyperdimensionStorageStationBlockEntity entity) {
             if (player.isSpectator()) return InteractionResult.PASS;
+            ItemStack stack = player.getItemInHand(hand);
+            if (stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
+                if (player instanceof ServerPlayer serverPlayer) {
+                    HyperdimensionTerminalItem.bindToStation(serverPlayer, stack, entity);
+                } else if (level.isClientSide()) {
+                    TerminalBinding binding = stack.get(ModComponents.TERMINAL_BINDING);
+                    if (binding != null && binding.id().isPresent()) {
+                        HyperdimensionTerminalItem.openBoundStorage(player, stack);
+                    }
+                }
+                return InteractionResult.SUCCESS;
+            }
             if (player instanceof ServerPlayer) {
                 return InteractionResult.sidedSuccess(false);
             } else if (level.isClientSide()) {
@@ -204,7 +243,7 @@ public class HyperdimensionStorageStationBlock
     protected static final VoxelShape BOTTOM_SE = ShapeUtil.rotate(Direction.Axis.Y, 180, BOTTOM_NW);
     protected static final VoxelShape BOTTOM_NE = ShapeUtil.rotate(Direction.Axis.Y, 270, BOTTOM_NW);
 
-    protected static final VoxelShape MID_N = Block.box(0, 0, 0, 16, 16, 4);
+    protected static final VoxelShape MID_N = Block.box(0, 0, 4, 16, 16, 16);
     protected static final VoxelShape MID_W = ShapeUtil.rotate(Direction.Axis.Y, 90, MID_N);
     protected static final VoxelShape MID_S = ShapeUtil.rotate(Direction.Axis.Y, 180, MID_N);
     protected static final VoxelShape MID_E = ShapeUtil.rotate(Direction.Axis.Y, 270, MID_N);

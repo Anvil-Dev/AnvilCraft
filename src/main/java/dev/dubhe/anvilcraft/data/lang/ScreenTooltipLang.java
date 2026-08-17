@@ -33,5 +33,6 @@ public class ScreenTooltipLang {
         provider.add("tooltip.anvilcraft.shulker_container.5", "limit of 1048576 (i.e. up to four upgrades)");
         provider.add("tooltip.anvilcraft.shulker_container.6", "Currently injected times: %s");
         provider.add("tooltip.anvilcraft.shulker_container.6.waiting", "Waiting for syncing");
+        provider.add("tooltip.anvilcraft.shulker_container.hyperdimension", "Drop 1x Singularity Crystal and 16x Hypercube onto the maxed Shulker Container from the top to upgrade it into a Hyperdimension Storage Station. This process is irreversible");
     }
 }

@@ -5,14 +5,19 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.api.thought.ThoughtManager;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
+import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.gui.tooltip.FilterContentHoverWindow;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
+import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
 import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
 import dev.dubhe.anvilcraft.client.support.StructureDiskPreviewSupport;
+import dev.dubhe.anvilcraft.client.support.TerminalRemoteOverlay;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.HammerOpenedAnvilMenu;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.network.DragonRodStopDevourPacket;
 import dev.dubhe.anvilcraft.network.OpenHammerAnvilPacket;
 import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
@@ -36,6 +41,8 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
+
+import javax.annotation.Nullable;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ClientEventListener {
@@ -67,6 +74,8 @@ public class ClientEventListener {
     @SubscribeEvent
     public static void onClientPlayerDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
         SoundHelper.INSTANCE.clear();
+        StorageTerminalClientStub.clear();
+        TerminalRemoteOverlay.setHovering(ItemStack.EMPTY);
     }
 
     @SubscribeEvent
@@ -90,6 +99,28 @@ public class ClientEventListener {
     public static void onScreenKeyPressed(ScreenEvent.KeyPressed.Post event) {
         if (event.getKeyCode() == ModKeyMappings.THOUGHT.get().getKey().getValue()) {
             ThoughtManager.onThought();
+        }
+    }
+
+    @SubscribeEvent
+    public static void onScreenKeyPressedTerminal(ScreenEvent.KeyPressed.Pre event) {
+        if (event.getScreen() instanceof StorageScreen) return;
+        if (TerminalRemoteOverlay.isHovering()
+            && TerminalRemoteOverlay.keyPressed(
+                event.getKeyCode(),
+                event.getScanCode(),
+                event.getModifiers()
+            )) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onScreenCharTypedTerminal(ScreenEvent.CharacterTyped.Pre event) {
+        if (event.getScreen() instanceof StorageScreen) return;
+        if (TerminalRemoteOverlay.isHovering()
+            && TerminalRemoteOverlay.charTyped(event.getCodePoint(), event.getModifiers())) {
+            event.setCanceled(true);
         }
     }
 
@@ -142,6 +173,13 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void onMouseScrolled(ScreenEvent.MouseScrolled.Pre event) {
+        if (!(event.getScreen() instanceof StorageScreen) && TerminalRemoteOverlay.isHovering()) {
+            int amount = (int) event.getScrollDeltaY();
+            if (TerminalRemoteOverlay.mouseScrolled(amount)) {
+                event.setCanceled(true);
+                return;
+            }
+        }
         if (AmuletSelectorSupport.hasHoveringItem()) {
             int amount = (int) event.getScrollDeltaY();
             AmuletSelectorSupport.mouseScrolled(-amount);
@@ -176,21 +214,130 @@ public class ClientEventListener {
     }
 
     @SubscribeEvent
+    public static void onScreenMousePressedTerminal(ScreenEvent.MouseButtonPressed.Pre event) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (!(event.getScreen() instanceof AbstractContainerScreen<?> containerScreen)) return;
+        if (event.getScreen() instanceof StorageScreen) return;
+        if (minecraft.player == null || minecraft.getConnection() == null) return;
+        // 同时用渲染帧的 hoveredSlot 与事件坐标定位，避免任一路径漏判
+        // （hoveredSlot 滞后或坐标换算偏差都会导致 overTerminal 误判为 false，
+        // 点击落到 vanilla 槽位逻辑上发生交换/捏起终端）
+        Slot slot = containerScreen.getSlotUnderMouse();
+        if (slot == null || !TerminalRemoteOverlay.isBoundTerminal(slot.getItem())) {
+            slot = findSlotAt(containerScreen, event.getMouseX(), event.getMouseY());
+        }
+        boolean overTerminal = slot != null && TerminalRemoteOverlay.isBoundTerminal(slot.getItem());
+        if (overTerminal) {
+            boolean carriedEmpty = containerScreen.getMenu().getCarried().isEmpty();
+            if (carriedEmpty && !TerminalRemoteOverlay.isDismissed()) {
+                // 空手且未按 Esc 屏蔽：已通过滚轮选择过物品时取出（左键一组、右键一个），
+                // 点击搜索框时聚焦；未选择则返回 false——不拦截点击，允许 vanilla 将终端
+                // 拿起（正常槽位交互）。浮窗未激活时也放行。
+                boolean consumed = TerminalRemoteOverlay.mouseClicked(
+                    (int) event.getMouseX(),
+                    (int) event.getMouseY(),
+                    event.getButton()
+                );
+                if (consumed) {
+                    event.setCanceled(true);
+                }
+                return;
+            } else if (!carriedEmpty && minecraft.options.keyUse.matchesMouse(event.getButton())) {
+                // 捏着物品右键：把整组放入对应存储站
+                TerminalBinding binding = slot.getItem().get(ModComponents.TERMINAL_BINDING);
+                if (binding != null && binding.id().isPresent()) {
+                    // 服务端 terminalInsert 会修改 carried 并经 broadcastChanges 广播同步到
+                    // 客户端当前活动菜单，客户端不应手动 setCarried，否则会与服务端广播竞态
+                    // （这也是取出/关界面物品重复的根源）。失败时事件已取消、客户端 carried 未变。
+                    StorageTerminalClientStub.insert(
+                        binding.id().get(),
+                        containerScreen.getMenu().getCarried()
+                    ).whenComplete((result, error) -> Minecraft.getInstance().execute(() -> {
+                        if (error != null || !result.changed()) {
+                            return;
+                        }
+                        // 创造背包界面的 ItemPickerMenu 是纯客户端菜单，服务端 carried 广播
+                        // （containerId == -1）会被客户端忽略，需手动写回指针
+                        TerminalRemoteOverlay.applyCarriedIfCreative(result.carried());
+                    }));
+                }
+                // 捏着物品左键：阻止交换（不把终端捏起，也不放入），保持终端不动
+                event.setCanceled(true);
+                return;
+            }
+            // 捏着物品左键：阻止交换（不把终端捏起，也不放入），保持终端不动
+            event.setCanceled(true);
+            return;
+        }
+
+        // 浮窗悬停中但鼠标不在终端槽位上（如面板/搜索框区域）：浮窗接管点击，
+        // 交由浮窗处理（聚焦搜索框等），不落到下层 GUI
+        if (TerminalRemoteOverlay.isHovering() && !TerminalRemoteOverlay.isDismissed()) {
+            TerminalRemoteOverlay.mouseClicked(
+                (int) event.getMouseX(),
+                (int) event.getMouseY(),
+                event.getButton()
+            );
+            event.setCanceled(true);
+        }
+    }
+
+    /**
+     * 根据 GUI 坐标在容器菜单槽位中查找鼠标悬停的槽位，复刻
+     * {@link AbstractContainerScreen#isHovering} 的判定，不依赖渲染帧的 hoveredSlot。
+     */
+    private static @Nullable Slot findSlotAt(AbstractContainerScreen<?> screen, double mouseX, double mouseY) {
+        double x = mouseX - screen.getGuiLeft();
+        double y = mouseY - screen.getGuiTop();
+        for (Slot slot : screen.getMenu().slots) {
+            if (
+                slot.isActive()
+                && x >= (double) (slot.x - 1)
+                && x < (double) (slot.x + 17)
+                && y >= (double) (slot.y - 1)
+                && y < (double) (slot.y + 17)
+            ) {
+                return slot;
+            }
+        }
+        return null;
+    }
+
+    @SubscribeEvent
     public static void renderContainerScreenEvent(ContainerScreenEvent.Render.Background event) {
         AbstractContainerScreen<?> screen = event.getContainerScreen();
         Slot slot = screen.getSlotUnderMouse();
-        if (slot != null) {
-            ItemStack item = slot.getItem();
-            if (item.is(ModItems.PILL_BOX)) {
-                AnvilCraftClient.pillSelectorSupport.setPillBox(item);
-                return;
-            }
+        ItemStack item = slot != null ? slot.getItem() : ItemStack.EMPTY;
+        if (item.is(ModItems.PILL_BOX)) {
+            AnvilCraftClient.pillSelectorSupport.setPillBox(item);
+        } else {
+            AnvilCraftClient.pillSelectorSupport.setPillBox(ItemStack.EMPTY);
         }
-        AnvilCraftClient.pillSelectorSupport.setPillBox(ItemStack.EMPTY);
+
+        // 该事件仅对 AbstractContainerScreen 触发，StorageScreen 非其子类，无需额外排除。
+        // 浮窗的显示/隐藏仅取决于鼠标是否仍在绑定终端槽位上：取出后指针非空时若立即
+        // 关闭浮窗会清空 storageId 与已加载内容，导致后续点击无法取出/放入，
+        // 因此指针是否为空不参与判定（取出/放入由点击处理按 carried 区分）。
+        boolean overTerminal = TerminalRemoteOverlay.isBoundTerminal(item);
+        if (overTerminal && !TerminalRemoteOverlay.isDismissed()) {
+            TerminalRemoteOverlay.setHovering(item);
+            // 浮窗锚点默认跟随槽位 tooltip；但指针上有物品时槽位 tooltip 会被抑制
+            // （RenderTooltipEvent.Pre 不触发），此时用鼠标位置作为锚点，
+            // 避免浮窗停留在左上角初始位置。
+            TerminalRemoteOverlay.updateForTooltip(event.getMouseX(), event.getMouseY());
+        } else if (!overTerminal) {
+            // 鼠标离开终端：清除 Esc 屏蔽并隐藏浮窗
+            TerminalRemoteOverlay.setDismissed(false);
+            TerminalRemoteOverlay.setHovering(ItemStack.EMPTY);
+        }
     }
 
     @SubscribeEvent
     public static void onRenderTooltip(RenderTooltipEvent.Pre event) {
+        // 鼠标在终端上时，浮窗跟随 tooltip 渲染在其左上方；原 tooltip 保留
+        if (TerminalRemoteOverlay.isHovering()) {
+            TerminalRemoteOverlay.updateForTooltip(event.getX(), event.getY());
+        }
         GuiGraphics guiGraphics = event.getGraphics();
         int x = event.getX();
         int y = event.getY();
@@ -213,13 +360,27 @@ public class ClientEventListener {
     }
     
     @SubscribeEvent
+    public static void onScreenClosing(ScreenEvent.Closing event) {
+        TerminalRemoteOverlay.setHovering(ItemStack.EMPTY);
+    }
+
+    @SubscribeEvent
     public static void onContainerScreenRenderPost(ScreenEvent.Render.Post event) {
         // 在容器屏幕渲染完成后，渲染结构磁盘的3D预览窗口
         // 这样可以确保预览窗口在所有物品和UI之上
         if (!(event.getScreen() instanceof AbstractContainerScreen<?> containerScreen)) {
             return;
         }
-        
+
+        TerminalRemoteOverlay.tick();
+        if (!(event.getScreen() instanceof StorageScreen)) {
+            TerminalRemoteOverlay.render(
+                event.getGuiGraphics(),
+                Minecraft.getInstance().font,
+                event.getPartialTick()
+            );
+        }
+
         // 获取鼠标悬停的slot
         Slot slot = containerScreen.getSlotUnderMouse();
         if (slot == null || !slot.hasItem()) {
