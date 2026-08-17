@@ -133,10 +133,6 @@ public class FluidMixingRecipe extends SolidLiquidRecipe {
         return this.consume(input.fluids()).isPresent();
     }
 
-    public ItemStack assemble(Input input, HolderLookup.Provider registries) {
-        return this.itemResults.isEmpty() ? ItemStack.EMPTY : this.itemResults.getFirst().copy();
-    }
-
     @Override
     public boolean matches(InWorldRecipeContext context, Level level) {
         return false;
@@ -145,6 +141,10 @@ public class FluidMixingRecipe extends SolidLiquidRecipe {
     @Override
     public ItemStack assemble(InWorldRecipeContext context, HolderLookup.Provider registries) {
         return ItemStack.EMPTY;
+    }
+
+    public ItemStack assemble(Input input, HolderLookup.Provider registries) {
+        return this.itemResults.isEmpty() ? ItemStack.EMPTY : this.itemResults.getFirst().copy();
     }
 
     @Override
