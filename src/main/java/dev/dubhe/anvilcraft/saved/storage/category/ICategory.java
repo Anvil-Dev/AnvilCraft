@@ -58,8 +58,8 @@ public interface ICategory extends Predicate<UnlimitedItemStack> {
     StreamCodec<RegistryFriendlyByteBuf, ICategory> STREAM_CODEC = ByteBufCodecs.registry(ModRegistryKeys.CATEGORY_TYPE)
         .dispatch(ICategory::getType, Type::streamCodec);
     StreamCodec<RegistryFriendlyByteBuf, List<ICategory>> LIST_STREAM_CODEC = ICategory.STREAM_CODEC.apply(ByteBufCodecs.list());
-    Codec<Component> NAME_CODEC = Codec.either(ComponentSerialization.CODEC, ComponentSerialization.flatCodec(Integer.MAX_VALUE))
-        .xmap(either -> either.map(Function.identity(), Function.identity()), Either::left);
+    Codec<Component> NAME_CODEC = Codec.either(ComponentSerialization.flatCodec(Integer.MAX_VALUE), ComponentSerialization.CODEC)
+        .xmap(either -> either.map(Function.identity(), Function.identity()), Either::right);
 
     ItemStack icon();
 

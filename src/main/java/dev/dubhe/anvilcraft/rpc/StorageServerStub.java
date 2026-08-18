@@ -641,9 +641,12 @@ public final class StorageServerStub {
     }
 
     /**
-     * JEI 快速合成检查：返回玩家绑定存储站中每种物品的代表及数量（数量为存储站内总量，
-     * 受 ItemStack 上限限制，用于检查阶段判断存储站是否满足配方需求）。
+     * JEI 快速合成检查：返回玩家绑定存储站中每种物品的一份代表（去重），
+     * 供客户端缓存判断存储站是否拥有配方所需物品。限制返回条目数，避免超大
+     * 存储站在每次刷新时全量扫描造成服务端尖峰。
      */
+    private static final int MAX_STORAGE_ITEMS = 512;
+
     @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC")
     @RemoteCallable(validator = TerminalAccessValidator.class)
     public static List<ItemStack> getStorageItems(UUID playerId, UUID storageId) {
@@ -657,7 +660,7 @@ public final class StorageServerStub {
         }
         UnlimitedItemStacksResourceHandler items = storageOp.get().getItems();
         List<ItemStack> result = new ArrayList<>();
-        for (int slot = 0; slot < items.size(); slot++) {
+        for (int slot = 0; slot < items.size() && result.size() < StorageServerStub.MAX_STORAGE_ITEMS; slot++) {
             long amount = items.getAmountAsLong(slot);
             if (amount <= 0) {
                 continue;
@@ -666,17 +669,15 @@ public final class StorageServerStub {
             if (stack.isEmpty()) {
                 continue;
             }
-            boolean merged = false;
+            boolean duplicate = false;
             for (ItemStack existing : result) {
                 if (ItemStack.isSameItemSameComponents(existing, stack)) {
-                    int total = existing.getCount() + (int) Math.min(amount, Integer.MAX_VALUE - existing.getCount());
-                    existing.setCount(Math.min(total, stack.getMaxStackSize()));
-                    merged = true;
+                    duplicate = true;
                     break;
                 }
             }
-            if (!merged) {
-                result.add(stack.copyWithCount((int) Math.min(amount, stack.getMaxStackSize())));
+            if (!duplicate) {
+                result.add(stack);
             }
         }
         return result;

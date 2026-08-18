@@ -326,7 +326,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
 
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
-        // 终端存储站补库由 BasicRecipeTransferHandlerMixin 统一注入 JEI 转移流程处理
+        // 终端存储站补库由 JeiBasicRecipeTransferHandlerMixin 统一注入 JEI 转移流程处理
         registration.addRecipeTransferHandler(
             RoyalSmithingMenu.class,
             ModMenuTypes.ROYAL_SMITHING.get(),

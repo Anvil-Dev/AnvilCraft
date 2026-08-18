@@ -11,11 +11,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 客户端缓存玩家绑定存储站的物品代表列表（含数量），
@@ -23,11 +23,13 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class TerminalJeiStorageCache {
     /** 缓存有效期（毫秒）：存储站内容可能被其他玩家/自动化改动，定期刷新避免误判。 */
-    private static final long TTL_MILLIS = 5_000L;
+    private static final long TTL_MILLIS = 15_000L;
 
-    private static final Map<UUID, List<ItemStack>> CACHE = new HashMap<>();
-    private static final Map<UUID, Long> TIMESTAMPS = new HashMap<>();
-    private static final Map<UUID, CompletableFuture<List<ItemStack>>> PENDING = new HashMap<>();
+    // ConcurrentHashMap：渲染线程（mixin 检查阶段 get）与 RPC 完成线程（thenApply 写入）
+    // 并发读写，普通 HashMap 有数据损坏风险。
+    private static final Map<UUID, List<ItemStack>> CACHE = new ConcurrentHashMap<>();
+    private static final Map<UUID, Long> TIMESTAMPS = new ConcurrentHashMap<>();
+    private static final Map<UUID, CompletableFuture<List<ItemStack>>> PENDING = new ConcurrentHashMap<>();
 
     private TerminalJeiStorageCache() {
     }
