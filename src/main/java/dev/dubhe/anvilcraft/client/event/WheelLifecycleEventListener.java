@@ -72,7 +72,7 @@ public class WheelLifecycleEventListener {
     private static @Nullable Optional<WheelMenuModel> balanceWheelCache = null;
 
     private static void renderWheelItem(GuiGraphics graphics, ItemStack stack) {
-        ItemSlotClipping.runWithoutClip(() -> graphics.renderItem(stack, 0, 0, 9910597));
+        ItemSlotClipping.runWithoutClip(() -> graphics.renderItem(stack, -8, -8));
     }
 
     @SubscribeEvent
