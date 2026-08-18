@@ -38,7 +38,7 @@ public class ServerBlockEntityEventListener {
             PowerGrid.removeComponent(component);
         }
         if (event.getEntity() instanceof ChargeCollectorBlockEntity chargeCollector) {
-            ChargeCollectorManager.getInstance(event.getLevel()).removeChargeCollector(chargeCollector);
+            ChargeCollectorManager.removeChargeCollector(event.getLevel(), chargeCollector);
         } else if (event.getEntity() instanceof OverseerBlockEntity overseerBlockEntity) {
             LevelLoadManager.unregister(overseerBlockEntity.getBlockPos(), event.getLevel());
             OverseerUtil.onUnloadOverseer(event.getLevel(), overseerBlockEntity);
