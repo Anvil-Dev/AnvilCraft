@@ -208,6 +208,8 @@
   "anvilcraft.configuration.induction_light_block_ripening_cooldown.tooltip": "Induction light block ripening cooldown",
   "anvilcraft.configuration.induction_light_block_ripening_range": "Induction Light Block Ripening Range",
   "anvilcraft.configuration.induction_light_block_ripening_range.tooltip": "Induction light block ripening range",
+  "anvilcraft.configuration.invert_container_collect_click": "Invert Container Collect Click",
+  "anvilcraft.configuration.invert_container_collect_click.tooltip": "Invert the click button that collects items into the hyperdimension terminal, amulet box and pill box in GUIs",
   "anvilcraft.configuration.ionocraft_backpack_exhaust_particles_enabled": "Show Ionocraft Backpack Exhaust Particles",
   "anvilcraft.configuration.ionocraft_backpack_exhaust_particles_enabled.tooltip": "Enable exhaust particles when flying with Ionocraft Backpack",
   "anvilcraft.configuration.ionocraft_backpack_hud": "Ionocraft Backpack HUD",

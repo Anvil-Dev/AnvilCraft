@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
+import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -13,6 +14,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -38,8 +41,35 @@ public class HyperdimensionTerminalItem extends Item {
     }
 
     @Override
-    public boolean canFitInsideContainerItems() {
+    public boolean canFitInsideContainerItems(ItemStack stack) {
         return false;
+    }
+
+    /**
+     * 在容器界面中拿着超维终端点击物品槽位：按收纳键（默认右键，可配置反转）把槽位物品
+     * 整组收进绑定存储站，与护符盒/药盒的收纳交互保持一致。仅服务端执行，客户端交给
+     * vanilla 预测并在服务端广播后校正。
+     */
+    @Override
+    public boolean overrideStackedOnOther(ItemStack stack, Slot slot, ClickAction action, Player player) {
+        if (!(player instanceof ServerPlayer) || !ContainerCollectInteraction.isCollectAction(action)) {
+            return false;
+        }
+        if (!slot.allowModification(player)) {
+            return false;
+        }
+        TerminalBinding binding = stack.get(ModComponents.TERMINAL_BINDING);
+        if (binding == null || binding.id().isEmpty()) {
+            return false;
+        }
+        ItemStack other = slot.getItem();
+        int inserted = StorageServerStub.insertIntoStorage(binding.id().get(), other);
+        if (inserted <= 0) {
+            return false;
+        }
+        other.shrink(inserted);
+        slot.set(other.isEmpty() ? ItemStack.EMPTY : other);
+        return true;
     }
 
     @Override

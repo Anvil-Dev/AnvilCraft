@@ -579,6 +579,23 @@ public final class StorageServerStub {
     }
 
     /**
+     * 把物品堆直接放入指定存储（超维终端在界面中收纳物品用），返回实际放入数量。
+     * 与 {@link #terminalInsert} 的远程路径一致，直接写入存储并触发版本刷新；
+     * 被存储拒绝（如嵌套容器）时返回 0，物品保留原位。
+     */
+    public static int insertIntoStorage(UUID storageId, ItemStack stack) {
+        if (stack.isEmpty()) {
+            return 0;
+        }
+        HyperdimensionStorage storage = Storages.get().getOrCreate(storageId, HyperdimensionStorage.class);
+        if (!StorageServerStub.canStore(storage, stack)) {
+            return 0;
+        }
+        ItemStack leftover = storage.getItems().insertItem(stack.copy(), false);
+        return stack.getCount() - leftover.getCount();
+    }
+
+    /**
      * JEI 快速合成补库：终端持有者把合成缺少的物品从绑定存储站取出补入背包。
      * 仅当玩家确实持有指向该 storageId 的已绑定终端时生效。
      */

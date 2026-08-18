@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.item.amulet;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
+import dev.dubhe.anvilcraft.item.ContainerCollectInteraction;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.util.ColorUtil;
 import net.minecraft.sounds.SoundEvents;
@@ -37,7 +38,7 @@ public class AmuletBoxItem extends Item {
 
     @Override
     public boolean overrideStackedOnOther(ItemStack itemStack, Slot slot, ClickAction clickAction, Player player) {
-        if (clickAction != ClickAction.SECONDARY || !slot.allowModification(player)) return false;
+        if (!ContainerCollectInteraction.isCollectAction(clickAction) || !slot.allowModification(player)) return false;
         BoxContents contents = itemStack.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY);
         BoxContents.Mutable mutable = contents.mutable();
         ItemStack other = slot.getItem();
@@ -65,7 +66,7 @@ public class AmuletBoxItem extends Item {
         Player player,
         SlotAccess slotAccess
     ) {
-        if (clickAction != ClickAction.SECONDARY || !slot.allowModification(player)) return false;
+        if (!ContainerCollectInteraction.isCollectAction(clickAction) || !slot.allowModification(player)) return false;
         BoxContents.Mutable contents = box.getOrDefault(ModComponents.BOX_CONTENTS, BoxContents.EMPTY).mutable();
         if (other.isEmpty()) {
             ItemStack itemStack = contents.pop();

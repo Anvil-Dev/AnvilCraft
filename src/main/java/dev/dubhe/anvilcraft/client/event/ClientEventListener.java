@@ -248,8 +248,8 @@ public class ClientEventListener {
                     event.setCanceled(true);
                 }
                 return;
-            } else if (!carriedEmpty && minecraft.options.keyUse.matchesMouse(event.getButton())) {
-                // 捏着物品右键：把整组放入对应存储站
+            } else if (!carriedEmpty && ClientEventListener.isCollectMouseButton(event.getButton())) {
+                // 捏着物品按收纳键（默认右键，可配置反转成左键）：把整组放入对应存储站
                 TerminalBinding binding = slot.getItem().get(ModComponents.TERMINAL_BINDING);
                 if (binding != null && binding.id().isPresent()) {
                     // 服务端 terminalInsert 会修改 carried 并经 broadcastChanges 广播同步到
@@ -267,11 +267,11 @@ public class ClientEventListener {
                         TerminalRemoteOverlay.applyCarriedIfCreative(result.carried());
                     }));
                 }
-                // 捏着物品左键：阻止交换（不把终端捏起，也不放入），保持终端不动
+                // 阻止交换（不把终端捏起，也不放入），保持终端不动
                 event.setCanceled(true);
                 return;
             }
-            // 捏着物品左键：阻止交换（不把终端捏起，也不放入），保持终端不动
+            // 非收纳键点击（或空手但已屏蔽浮窗）：阻止交换（不把终端捏起，也不放入），保持终端不动
             event.setCanceled(true);
             return;
         }
@@ -286,6 +286,17 @@ public class ClientEventListener {
             );
             event.setCanceled(true);
         }
+    }
+
+    /**
+     * 当前配置下用于把物品收纳进超维终端/护符盒/药盒的鼠标按键
+     * （默认右键，配置 invertContainerCollectClick 后为左键）。
+     */
+    private static boolean isCollectMouseButton(int button) {
+        Minecraft minecraft = Minecraft.getInstance();
+        return AnvilCraft.CONFIG.invertContainerCollectClick
+            ? minecraft.options.keyAttack.matchesMouse(button)
+            : minecraft.options.keyUse.matchesMouse(button);
     }
 
     /**
