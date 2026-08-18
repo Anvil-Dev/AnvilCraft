@@ -12,7 +12,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -23,6 +22,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 /**
  * 把终端的 JEI 转移配方逻辑注入 JEI 的 {@link BasicRecipeTransferHandler#transferRecipe}：
@@ -46,9 +46,6 @@ public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractConta
         boolean doTransfer
     );
 
-    @Unique
-    private static final ThreadLocal<Boolean> ANVILCRAFT_RESTOCKING = ThreadLocal.withInitial(() -> false);
-
     @Inject(method = "transferRecipe", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$restockOrAllow(
         C container,
@@ -59,7 +56,7 @@ public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractConta
         boolean doTransfer,
         CallbackInfoReturnable<IRecipeTransferError> cir
     ) {
-        if (!player.level().isClientSide() || ANVILCRAFT_RESTOCKING.get()) {
+        if (!player.level().isClientSide() || TerminalJeiStorageCache.isRestocking()) {
             return;
         }
         UUID storageId = TerminalJeiStorageCache.boundStorage(player);
@@ -87,19 +84,20 @@ public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractConta
         if (missing.isEmpty()) {
             return; // 背包已足够，走原传输逻辑
         }
-        ANVILCRAFT_RESTOCKING.set(true);
-        // whenComplete：RPC 异常完成（超时/断连）时同样清除标志位，避免 ThreadLocal 永久泄漏
+        TerminalJeiStorageCache.setRestocking(true);
+        // whenComplete：RPC 异常完成（超时/断连）时同样清除标志位，避免标志位永久泄漏
         // 导致本会话内后续所有 transferRecipe 提前 return、终端补库静默失效。
+        // 断线时补库 RPC 可能永不完成（任务被登出流程丢弃），由
+        // ClientEventListener.onClientPlayerDisconnect -> TerminalJeiStorageCache.clear() 复位。
         StorageTerminalClientStub.withdrawToInventory(storageId, missing).whenComplete((changed, error) ->
             Minecraft.getInstance().execute(() -> {
                 try {
-                    if (error != null) {
-                        return; // 补库失败：不重试传输，由 JEI 原逻辑兜底
-                    }
-                    // 补库完成：重试原传输逻辑（背包已有物品，getInventoryState 自然看到并生成真实转移）
+                    // 无论补库成功与否都重试原传输逻辑：补库失败时背包可能已被部分补入
+                    // （服务端在超时/断线前可能已执行部分取出），原逻辑会按实际背包状态转移；
+                    // 完全未补入时原逻辑返回"缺少材料"错误提示，而不是静默丢弃本次合成。
                     this.transferRecipe(container, recipe, recipeSlotsView, player, maxTransfer, true);
                 } finally {
-                    ANVILCRAFT_RESTOCKING.set(false);
+                    TerminalJeiStorageCache.setRestocking(false);
                 }
             })
         );

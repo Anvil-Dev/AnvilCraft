@@ -30,8 +30,22 @@ public final class TerminalJeiStorageCache {
     private static final Map<UUID, List<ItemStack>> CACHE = new ConcurrentHashMap<>();
     private static final Map<UUID, Long> TIMESTAMPS = new ConcurrentHashMap<>();
     private static final Map<UUID, CompletableFuture<List<ItemStack>>> PENDING = new ConcurrentHashMap<>();
+    /**
+     * 客户端主线程的"JEI 补库中"标志，防止 transferRecipe 递归重入。
+     * 断线时补库 RPC 可能永不完成（排队的 execute 任务被登出流程丢弃），
+     * 标志位会泄漏到下一次会话；由 {@link #clear()}（断线清理）统一复位。
+     */
+    private static final ThreadLocal<Boolean> RESTOCKING = ThreadLocal.withInitial(() -> false);
 
     private TerminalJeiStorageCache() {
+    }
+
+    public static boolean isRestocking() {
+        return TerminalJeiStorageCache.RESTOCKING.get();
+    }
+
+    public static void setRestocking(boolean restocking) {
+        TerminalJeiStorageCache.RESTOCKING.set(restocking);
     }
 
     /** 玩家是否持有指向任意存储站的绑定终端。 */
@@ -93,6 +107,7 @@ public final class TerminalJeiStorageCache {
         TerminalJeiStorageCache.CACHE.clear();
         TerminalJeiStorageCache.TIMESTAMPS.clear();
         TerminalJeiStorageCache.PENDING.clear();
+        TerminalJeiStorageCache.RESTOCKING.remove();
     }
 
     private static @Nullable UUID storageOf(ItemStack stack) {

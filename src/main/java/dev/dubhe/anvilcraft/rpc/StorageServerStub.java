@@ -646,6 +646,13 @@ public final class StorageServerStub {
      * 存储站在每次刷新时全量扫描造成服务端尖峰。
      */
     private static final int MAX_STORAGE_ITEMS = 512;
+    /**
+     * 单次扫描的最大槽位数。存储槽列表稀疏设计（槽位索引可能因历史删除产生空洞），
+     * 仅限制结果数会允许 512 种物品分散在极大槽位范围时深扫整个列表；
+     * 超过该深度后视为不再有效收集（缓存 15s 刷新，漏报仅影响 JEI "+" 可用性提示，
+     * 传输阶段仍由服务端按实际缺口校验）。
+     */
+    private static final int MAX_STORAGE_SCAN_SLOTS = 4096;
 
     @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC")
     @RemoteCallable(validator = TerminalAccessValidator.class)
@@ -660,7 +667,11 @@ public final class StorageServerStub {
         }
         UnlimitedItemStacksResourceHandler items = storageOp.get().getItems();
         List<ItemStack> result = new ArrayList<>();
-        for (int slot = 0; slot < items.size() && result.size() < StorageServerStub.MAX_STORAGE_ITEMS; slot++) {
+        for (int slot = 0;
+             slot < items.size()
+             && slot < StorageServerStub.MAX_STORAGE_SCAN_SLOTS
+             && result.size() < StorageServerStub.MAX_STORAGE_ITEMS;
+             slot++) {
             long amount = items.getAmountAsLong(slot);
             if (amount <= 0) {
                 continue;
