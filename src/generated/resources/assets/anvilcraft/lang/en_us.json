@@ -843,7 +843,7 @@
   "gui.anvilcraft.category.charger_charging.time": "Time: %s second",
   "gui.anvilcraft.category.container_upgrade": "Container Upgrade",
   "gui.anvilcraft.category.container_upgrade.drop_on_top": "Drop these items onto the container",
-  "gui.anvilcraft.category.container_upgrade.requires_expansion": "Requires 4 Space Over-compressor Expansions",
+  "gui.anvilcraft.category.container_upgrade.requires_expansion": "Requires 4 Space Overcompressor Upgrades",
   "gui.anvilcraft.category.container_upgrade.strike": "Strike with an anvil to upgrade the container",
   "gui.anvilcraft.category.decay": "Decay",
   "gui.anvilcraft.category.decay.around": "Place these blocks around the center as shown",

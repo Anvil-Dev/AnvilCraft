@@ -86,10 +86,7 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.container_upgrade", "Container Upgrade");
         provider.add("gui.anvilcraft.category.container_upgrade.drop_on_top", "Drop these items onto the container");
         provider.add("gui.anvilcraft.category.container_upgrade.strike", "Strike with an anvil to upgrade the container");
-        provider.add(
-            "gui.anvilcraft.category.container_upgrade.requires_expansion",
-            "Requires 4 Space Over-compressor Expansions"
-        );
+        provider.add("gui.anvilcraft.category.container_upgrade.requires_expansion", "Requires 4 Space Overcompressor Upgrades");
 
         provider.add("gui.anvilcraft.category.decay", "Decay");
         provider.add("gui.anvilcraft.category.decay.random_tick", "The block at center will decay on a random tick");
