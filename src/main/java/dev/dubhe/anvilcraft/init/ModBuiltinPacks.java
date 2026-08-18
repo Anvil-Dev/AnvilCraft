@@ -27,6 +27,14 @@ public class ModBuiltinPacks {
             Pack.Position.TOP
         );
         event.addPackFinders(
+            AnvilCraft.of("resourcepacks/old_resonator_heavy_halberd"),
+            PackType.CLIENT_RESOURCES,
+            Component.translatable("pack.anvilcraft.builtin_pack"),
+            ModBuiltinPacks.BUILT_IN,
+            false,
+            Pack.Position.TOP
+        );
+        event.addPackFinders(
             AnvilCraft.of("resourcepacks/first_ancient_debris"),
             PackType.SERVER_DATA,
             Component.translatable("pack.anvilcraft.builtin_data_pack"),
