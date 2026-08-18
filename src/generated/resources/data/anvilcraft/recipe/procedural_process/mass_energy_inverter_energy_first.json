@@ -1,0 +1,104 @@
+{
+  "type": "anvilcraft:procedural_process",
+  "displayed_models": [
+    "anvilcraft:block/wip_display/mass_energy_inverter_wip",
+    "anvilcraft:block/wip_display/mass_energy_inverter_wip_2",
+    "anvilcraft:block/wip_display/mass_energy_inverter_wip_3"
+  ],
+  "icon": {
+    "count": 1,
+    "id": "anvilcraft:mass_energy_inverter"
+  },
+  "initial_block": {
+    "blocks": "anvilcraft:laser_receiver"
+  },
+  "loop": 3,
+  "multiple_loop_first_step": {
+    "content": {
+      "type": "anvilcraft:block_processing",
+      "inputs": [
+        {
+          "blocks": "anvilcraft:wip_block"
+        },
+        {
+          "blocks": "anvilcraft:neutron_irradiator",
+          "properties": [
+            {
+              "type": "energy"
+            }
+          ]
+        }
+      ],
+      "result": {
+        "block": "anvilcraft:wip_block"
+      }
+    },
+    "index": 0
+  },
+  "result_block": {
+    "block": "anvilcraft:mass_energy_inverter"
+  },
+  "steps": [
+    {
+      "content": {
+        "type": "anvilcraft:block_processing",
+        "inputs": [
+          {
+            "blocks": "anvilcraft:laser_receiver"
+          },
+          {
+            "blocks": "anvilcraft:neutron_irradiator",
+            "properties": [
+              {
+                "type": "energy"
+              }
+            ]
+          }
+        ],
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
+      },
+      "index": 0
+    },
+    {
+      "content": {
+        "type": "anvilcraft:block_processing",
+        "inputs": [
+          {
+            "blocks": "anvilcraft:wip_block"
+          },
+          {
+            "blocks": "anvilcraft:neutron_irradiator",
+            "properties": [
+              {
+                "type": "mass"
+              }
+            ]
+          }
+        ],
+        "result": {
+          "block": "anvilcraft:wip_block"
+        }
+      },
+      "index": 1
+    },
+    {
+      "content": {
+        "type": "anvilcraft:item_inject",
+        "block_ingredient": {
+          "blocks": "anvilcraft:wip_block"
+        },
+        "block_result": {
+          "block": "anvilcraft:wip_block"
+        },
+        "ingredients": [
+          {
+            "items": "anvilcraft:transcendium_nugget"
+          }
+        ]
+      },
+      "index": 2
+    }
+  ]
+}

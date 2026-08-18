@@ -26,7 +26,7 @@ public class ThrownHeavyHalberdRenderer<T extends ThrownHeavyHalberdEntity> exte
         pose.pushPose();
         pose.mulPose(Axis.YP.rotationDegrees(Mth.lerp(partialTick, entity.yRotO, entity.getYRot()) + 90.0F));
         pose.mulPose(Axis.ZP.rotationDegrees(45.0F - Mth.lerp(partialTick, entity.xRotO, entity.getXRot())));
-        pose.translate(0.5F, -0.5F, 0.0F);
+        pose.translate(0.31F, -0.31F, 0.0F);
         this.itemRenderer.renderStatic(
             entity.getWeaponItem(),
             ItemDisplayContext.FIXED,

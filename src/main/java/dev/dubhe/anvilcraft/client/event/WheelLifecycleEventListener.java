@@ -72,7 +72,7 @@ public class WheelLifecycleEventListener {
     private static @Nullable Optional<WheelMenuModel> balanceWheelCache = null;
 
     private static void renderWheelItem(GuiGraphics graphics, ItemStack stack) {
-        ItemSlotClipping.runWithoutClip(() -> graphics.renderItem(stack, 2, 2, 9910597));
+        ItemSlotClipping.runWithoutClip(() -> graphics.renderItem(stack, -8, -8));
     }
 
     @SubscribeEvent
@@ -547,8 +547,8 @@ public class WheelLifecycleEventListener {
                 Component.translatable("screen.anvilcraft.balance_mode.smart"),
                 (graphics, pose, width, height) -> graphics.renderFakeItem(
                     ModItems.HYPERDIMENSION_TERMINAL.asStack(),
-                    0,
-                    0
+                    -8,
+                    -8
                 ),
                 ctx -> SettingClientStub.update(BalanceMode.SMART)
             )
@@ -557,8 +557,8 @@ public class WheelLifecycleEventListener {
                 Component.translatable("screen.anvilcraft.balance_mode.restock"),
                 (graphics, pose, width, height) -> graphics.renderFakeItem(
                     ModItems.HYPERDIMENSION_TERMINAL.asStack(),
-                    0,
-                    0
+                    -8,
+                    -8
                 ),
                 ctx -> SettingClientStub.update(BalanceMode.RESTOCK)
             )
@@ -567,8 +567,8 @@ public class WheelLifecycleEventListener {
                 Component.translatable("screen.anvilcraft.balance_mode.off"),
                 (graphics, pose, width, height) -> graphics.renderFakeItem(
                     ModItems.HYPERDIMENSION_TERMINAL.asStack(),
-                    0,
-                    0
+                    -8,
+                    -8
                 ),
                 ctx -> SettingClientStub.update(BalanceMode.OFF)
             )
@@ -577,8 +577,8 @@ public class WheelLifecycleEventListener {
                 Component.translatable("screen.anvilcraft.balance_mode.deposit"),
                 (graphics, pose, width, height) -> graphics.renderFakeItem(
                     ModItems.HYPERDIMENSION_TERMINAL.asStack(),
-                    0,
-                    0
+                    -8,
+                    -8
                 ),
                 ctx -> SettingClientStub.update(BalanceMode.DEPOSIT)
             )
