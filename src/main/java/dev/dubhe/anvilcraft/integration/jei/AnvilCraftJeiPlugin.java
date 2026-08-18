@@ -10,21 +10,21 @@ import dev.dubhe.anvilcraft.client.gui.screen.ItemCollectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.ItemDetectorScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.JewelCraftingScreen;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
+import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.integration.jei.category.AnvilCollisionCraftCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.BeaconConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.ChargerChargingCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.ContainerUpgradeCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.DecayCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.EnergyWeaponCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.FluidReactionCategory;
-import dev.dubhe.anvilcraft.integration.jei.category.HyperdimensionStorageStationUpgradeCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.JewelCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MineralFountainCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MobTransformCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MultipleToOneSmithingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.PortalConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.ProceduralProcessCategory;
-import dev.dubhe.anvilcraft.integration.jei.category.ShulkerContainerUpgradeCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.SolidLiquidCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCompressCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCrushCategory;
@@ -47,14 +47,12 @@ import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlock4DCate
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.multiblock.MultiBlockCraftingCategory;
 import dev.dubhe.anvilcraft.integration.jei.handlers.GhostIngredientHandler;
-import dev.dubhe.anvilcraft.integration.jei.handlers.TerminalRecipeTransferHandler;
 import dev.dubhe.anvilcraft.integration.jei.recipe.BeaconConversionRecipe;
+import dev.dubhe.anvilcraft.integration.jei.recipe.ContainerUpgradeRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.DecayRecipe;
-import dev.dubhe.anvilcraft.integration.jei.recipe.HyperdimensionStorageStationUpgradeRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MineralFountainJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MobTransformJeiRecipe;
-import dev.dubhe.anvilcraft.integration.jei.recipe.ShulkerContainerUpgradeRecipe;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
@@ -92,9 +90,6 @@ import mezz.jei.api.gui.handlers.IGuiProperties;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.helpers.IJeiHelpers;
 import mezz.jei.api.recipe.RecipeType;
-import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
-import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
-import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
 import mezz.jei.api.registration.IGuiHandlerRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
@@ -106,7 +101,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
@@ -138,10 +132,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final RecipeType<BeaconConversionRecipe> BEACON_CONVERSION =
         createRecipeType("beacon_conversion", BeaconConversionRecipe.class);
     public static final RecipeType<DecayRecipe> DECAY = createRecipeType("decay", DecayRecipe.class);
-    public static final RecipeType<ShulkerContainerUpgradeRecipe> SHULKER_CONTAINER_UPGRADE =
-        createRecipeType("shulker_container_upgrade", ShulkerContainerUpgradeRecipe.class);
-    public static final RecipeType<HyperdimensionStorageStationUpgradeRecipe> HYPERDIMENSION_STORAGE_STATION_UPGRADE =
-        createRecipeType("hyperdimension_storage_station_upgrade", HyperdimensionStorageStationUpgradeRecipe.class);
+    public static final RecipeType<ContainerUpgradeRecipe> CONTAINER_UPGRADE =
+        createRecipeType("container_upgrade", ContainerUpgradeRecipe.class);
 
     public static final RecipeType<RecipeHolder<BlockCompressRecipe>> BLOCK_COMPRESS =
         createRecipeHolderType("block_compress");
@@ -234,8 +226,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         ProceduralProcessCategory.registerRecipes(registration);
         EnergyWeaponCategory.registerRecipes(registration);
         MineralFountainCategory.registerRecipes(registration);
-        ShulkerContainerUpgradeCategory.registerRecipes(registration);
-        HyperdimensionStorageStationUpgradeCategory.registerRecipes(registration);
+        ContainerUpgradeCategory.registerRecipes(registration);
     }
 
     @Override
@@ -271,8 +262,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         ProceduralProcessCategory.registerRecipeCatalysts(registration);
         EnergyWeaponCategory.registerRecipeCatalysts(registration);
         MineralFountainCategory.registerRecipeCatalysts(registration);
-        ShulkerContainerUpgradeCategory.registerRecipeCatalysts(registration);
-        HyperdimensionStorageStationUpgradeCategory.registerRecipeCatalysts(registration);
+        ContainerUpgradeCategory.registerRecipeCatalysts(registration);
 
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.BATCH_CRAFTER), RecipeTypes.CRAFTING);
 
@@ -323,68 +313,17 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new ProceduralProcessCategory(guiHelper));
         registration.addRecipeCategories(new EnergyWeaponCategory(guiHelper));
         registration.addRecipeCategories(new MineralFountainCategory(guiHelper));
-        registration.addRecipeCategories(new ShulkerContainerUpgradeCategory(guiHelper));
-        registration.addRecipeCategories(new HyperdimensionStorageStationUpgradeCategory(guiHelper));
+        registration.addRecipeCategories(new ContainerUpgradeCategory(guiHelper));
     }
 
     @Override
     public void registerRecipeTransferHandlers(IRecipeTransferRegistration registration) {
-        // 携带已绑定终端时，JEI "+" 快速合成可从终端连接的存储站补库
-        IRecipeTransferHandlerHelper helper = registration.getTransferHelper();
-
-        // 皇家锻造台（SMITHING）
-        registerStorageAware(
-            registration,
-            helper,
+        // 终端存储站补库由 JeiBasicRecipeTransferHandlerMixin 统一注入 JEI 转移流程处理
+        registration.addRecipeTransferHandler(
             RoyalSmithingMenu.class,
+            ModMenuTypes.ROYAL_SMITHING.get(),
             RecipeTypes.SMITHING,
             0, 3, 4, 36
-        );
-
-        // 工作台 3x3：合成格 1-9，玩家物品栏 10-45（9 是合成格，不能作为物品栏起点）
-        registerStorageAware(
-            registration,
-            helper,
-            net.minecraft.world.inventory.CraftingMenu.class,
-            RecipeTypes.CRAFTING,
-            1, 9, 10, 36
-        );
-        // 背包 2x2：合成格 1-4，玩家物品栏 9-44
-        registerStorageAware(
-            registration,
-            helper,
-            net.minecraft.world.inventory.InventoryMenu.class,
-            RecipeTypes.CRAFTING,
-            1, 4, 9, 36
-        );
-    }
-
-    private static <R extends Recipe<?>> void registerStorageAware(
-        IRecipeTransferRegistration registration,
-        IRecipeTransferHandlerHelper helper,
-        Class<? extends AbstractContainerMenu> containerClass,
-        RecipeType<RecipeHolder<R>> recipeType,
-        int recipeSlotStart,
-        int recipeSlotCount,
-        int inventorySlotStart,
-        @SuppressWarnings("SameParameterValue")
-        int inventorySlotCount
-    ) {
-        IRecipeTransferInfo<AbstractContainerMenu, RecipeHolder<R>> info =
-            helper.createBasicRecipeTransferInfo(
-                containerClass,
-                null,
-                recipeType,
-                recipeSlotStart,
-                recipeSlotCount,
-                inventorySlotStart,
-                inventorySlotCount
-            );
-        IRecipeTransferHandler<AbstractContainerMenu, RecipeHolder<R>> delegate =
-            helper.createUnregisteredRecipeTransferHandler(info);
-        registration.addRecipeTransferHandler(
-            new TerminalRecipeTransferHandler<>(containerClass, recipeType, delegate),
-            recipeType
         );
     }
 

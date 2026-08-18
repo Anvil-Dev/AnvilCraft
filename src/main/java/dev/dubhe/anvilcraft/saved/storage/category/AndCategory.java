@@ -54,7 +54,7 @@ public record AndCategory(ItemStack icon, Component name, List<ICategory> catego
             ItemStack.CODEC
                 .fieldOf("icon")
                 .forGetter(AndCategory::icon),
-            ComponentSerialization.CODEC
+            ICategory.NAME_CODEC
                 .fieldOf("name")
                 .forGetter(AndCategory::name),
             ICategory.CODEC

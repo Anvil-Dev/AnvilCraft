@@ -53,18 +53,23 @@ public class ShulkerContainerTooltipProvider extends ITooltipProvider.BlockEntit
                               ? Component.translatable("tooltip.anvilcraft.shulker_container.6.waiting")
                               : this.upgradeCount;
         ImmutableList.Builder<Component> builder = ImmutableList.builder();
-        builder.add(
-            Component.translatable("tooltip.anvilcraft.shulker_container.0"),
-            Component.translatable("tooltip.anvilcraft.shulker_container.1"),
-            Component.translatable("tooltip.anvilcraft.shulker_container.2"),
-            Component.translatable("tooltip.anvilcraft.shulker_container.3"),
-            Component.translatable("tooltip.anvilcraft.shulker_container.4"),
-            Component.translatable("tooltip.anvilcraft.shulker_container.5"),
-            Component.translatable("tooltip.anvilcraft.shulker_container.6", upgradeCount)
-        );
-        // 升级已满（空间大小达到上限）时，追加向超维存储站升级的提示
-        if (this.upgradeCount >= ShulkerContainerTooltipProvider.UPGRADES_TO_MAX) {
-            builder.add(Component.translatable("tooltip.anvilcraft.shulker_container.hyperdimension"));
+        if (this.upgradeCount < ShulkerContainerTooltipProvider.UPGRADES_TO_MAX) {
+            builder.add(
+                Component.translatable("tooltip.anvilcraft.shulker_container.0"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.1"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.2"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.3"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.4"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.5"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.6", upgradeCount)
+            );
+        } else {
+            builder.add(
+                Component.translatable("tooltip.anvilcraft.shulker_container.hyperdimension.0"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.hyperdimension.1"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.hyperdimension.2"),
+                Component.translatable("tooltip.anvilcraft.shulker_container.hyperdimension.3")
+            );
         }
         return builder.build();
     }

@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.storage.HyperdimensionStorageStationBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.MultiPartBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
@@ -14,6 +15,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
+import dev.dubhe.anvilcraft.saved.storage.StorageType;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
@@ -28,6 +30,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -44,6 +47,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePrope
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -93,6 +97,21 @@ public class HyperdimensionStorageStationBlock
     }
 
     @Override
+    public ItemStack getCloneItemStack(
+        BlockState state,
+        HitResult target,
+        LevelReader level,
+        BlockPos pos,
+        Player player
+    ) {
+        ItemStack stack = super.getCloneItemStack(state, target, level, pos, player);
+        if (level instanceof Level realLevel) {
+            StorageBlockEntity.applyPickStorageId(stack, realLevel, pos, state, StorageType.HYPERDIMENSION);
+        }
+        return stack;
+    }
+
+    @Override
     public HyperdimensionStorageStationBlock getMultiBlock() {
         return this;
     }
@@ -127,9 +146,12 @@ public class HyperdimensionStorageStationBlock
                     if (id != null) {
                         Storages.get().remove(id);
                     }
-                } else {
-                    // 非空容器：掉落含 STORAGE 引用的容器物品（与 tooltip 声明一致，
-                    // 拾取后放回仍可访问其存储内容），对所有模式生效。
+                }
+                // 手动生成含 STORAGE 引用的容器物品掉落（与 tooltip 声明一致，拾取后放回仍可访问其存储内容）：
+                // 创造模式破坏从不产生原版战利品掉落；破坏子部件时其余 part 经 updateShape 逐个塌缩为空气，
+                // 不走产生掉落的破坏路径，且战利品表仅匹配主部件状态，因此这两种情况都不会自然掉落。
+                // 生存/冒险模式直接破坏主部件时由原版战利品表兜底，此处跳过以免重复掉落。
+                if (player.hasInfiniteMaterials() || !pos.equals(mainPos)) {
                     LootParams.Builder builder = new LootParams.Builder(serverLevel)
                         .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(mainPos))
                         .withParameter(LootContextParams.TOOL, player.getMainHandItem())

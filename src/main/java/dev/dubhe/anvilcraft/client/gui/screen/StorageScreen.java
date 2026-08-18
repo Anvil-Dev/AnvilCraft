@@ -420,10 +420,6 @@ public class StorageScreen extends Screen {
             int slot = this.displayOrder.getInt(orderIndex);
             UnlimitedItemStack stack = this.getDisplayedStack(slot);
 
-            // 高亮先画在底层，物品图标盖过高亮，tooltip最后绘制
-            if (hovered) {
-                AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
-            }
             if (!stack.isEmpty()) {
                 ItemStack itemStack = stack.toStack();
                 graphics.renderItem(itemStack, x, y);
@@ -435,6 +431,9 @@ public class StorageScreen extends Screen {
                     x,
                     y
                 );
+            }
+            if (hovered) {
+                AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
             }
             if (hovered && this.carried.isEmpty() && !stack.isEmpty()) {
                 List<Component> tooltipLines = new ArrayList<>(stack.toStack().getTooltipLines(
@@ -527,13 +526,12 @@ public class StorageScreen extends Screen {
             stack = this.getQuickCraftPreviewStack(slot);
             graphics.fill(x, y, x + 16, y + 16, -2130706433);
         }
-        // 高亮先画在底层，物品图标盖过高亮，tooltip最后绘制
-        if (hovered) {
-            AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
-        }
         if (!stack.isEmpty()) {
             graphics.renderItem(stack, x, y);
             graphics.renderItemDecorations(this.font, stack, x, y);
+        }
+        if (hovered) {
+            AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
         }
         if (hovered && this.carried.isEmpty() && !stack.isEmpty()) {
             graphics.renderTooltip(this.font, stack, mouseX, mouseY);

@@ -586,7 +586,8 @@ public final class StorageServerStub {
     public static boolean terminalWithdrawToInventory(
         UUID playerId,
         UUID storageId,
-        @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC") List<ItemStack> needs
+        @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC")
+        List<ItemStack> needs
     ) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         if (!StorageServerStub.ownsBoundTerminal(player, storageId)) {
@@ -637,6 +638,60 @@ public final class StorageServerStub {
             player.containerMenu.broadcastChanges();
         }
         return changed;
+    }
+
+    /**
+     * JEI 快速合成检查：返回玩家绑定存储站中每种物品的一份代表（去重），
+     * 供客户端缓存判断存储站是否拥有配方所需物品。限制返回条目数，避免超大
+     * 存储站在每次刷新时全量扫描造成服务端尖峰。
+     */
+    private static final int MAX_STORAGE_ITEMS = 512;
+    /**
+     * 单次扫描的最大槽位数。存储槽列表稀疏设计（槽位索引可能因历史删除产生空洞），
+     * 仅限制结果数会允许 512 种物品分散在极大槽位范围时深扫整个列表；
+     * 超过该深度后视为不再有效收集（缓存 15s 刷新，漏报仅影响 JEI "+" 可用性提示，
+     * 传输阶段仍由服务端按实际缺口校验）。
+     */
+    private static final int MAX_STORAGE_SCAN_SLOTS = 4096;
+
+    @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC")
+    @RemoteCallable(validator = TerminalAccessValidator.class)
+    public static List<ItemStack> getStorageItems(UUID playerId, UUID storageId) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        if (!StorageServerStub.ownsBoundTerminal(player, storageId)) {
+            return List.of();
+        }
+        Optional<HyperdimensionStorage> storageOp = Storages.get().get(storageId, HyperdimensionStorage.class);
+        if (storageOp.isEmpty()) {
+            return List.of();
+        }
+        UnlimitedItemStacksResourceHandler items = storageOp.get().getItems();
+        List<ItemStack> result = new ArrayList<>();
+        for (int slot = 0;
+             slot < items.size()
+             && slot < StorageServerStub.MAX_STORAGE_SCAN_SLOTS
+             && result.size() < StorageServerStub.MAX_STORAGE_ITEMS;
+             slot++) {
+            long amount = items.getAmountAsLong(slot);
+            if (amount <= 0) {
+                continue;
+            }
+            ItemStack stack = items.getUnlimitedStackInSlot(slot).toStack().copyWithCount(1);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            boolean duplicate = false;
+            for (ItemStack existing : result) {
+                if (ItemStack.isSameItemSameComponents(existing, stack)) {
+                    duplicate = true;
+                    break;
+                }
+            }
+            if (!duplicate) {
+                result.add(stack);
+            }
+        }
+        return result;
     }
 
     private static int countInInventory(Inventory inventory, ItemStack resource) {
