@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakeBlockPlacer;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakeDestroyer;
 import dev.dubhe.anvilcraft.api.entity.fakeplayer.AnvilCraftFakeKiller;
@@ -57,6 +58,7 @@ public class LevelEventListener {
     public static void onLevelUnload(LevelEvent.Unload event) {
         if (event.getLevel() instanceof Level level) {
             AccelerationRingBlockEntity.clear(level);
+            ChargeCollectorManager.clear(level);
             DeflectionRingBlockEntity.clear(level);
             RedstoneWireClientPowerCache.clear(level);
         }

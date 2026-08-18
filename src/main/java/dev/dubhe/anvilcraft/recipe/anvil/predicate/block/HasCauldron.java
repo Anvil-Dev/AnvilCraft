@@ -8,7 +8,9 @@ import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.recipe.cache.BlockCache;
 import dev.anvilcraft.lib.v2.recipe.predicate.IRecipePredicate;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
+import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeData;
 import dev.anvilcraft.lib.v2.util.MathUtil;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.block.ICauldron;
 import dev.dubhe.anvilcraft.api.block.IIgnitableCauldron;
 import dev.dubhe.anvilcraft.api.entity.IEntityCauldron;
@@ -44,7 +46,9 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Function;
 import javax.annotation.Nullable;
@@ -70,6 +74,15 @@ public record HasCauldron(
     boolean ignited
 ) implements IRecipePredicate<HasCauldron> {
     private static final List<EntityCauldronSelector> ENTITY_CAULDRON_SELECTORS = new CopyOnWriteArrayList<>();
+
+    private static final InWorldRecipeData<ContextCache> CONTEXT_CACHE = InWorldRecipeData.of(
+        AnvilCraft.of("has_cauldron_context_cache"),
+        (context, key) -> new ContextCache()
+    );
+
+    private static final class ContextCache {
+        private final Map<BlockPos, List<IEntityCauldron>> entityCauldrons = new ConcurrentHashMap<>();
+    }
 
     /**
      * 在最近实体锅查找之后调用。查询不得改变世界状态。
@@ -406,18 +419,36 @@ public record HasCauldron(
         return cache.getBlockEntity(pos) instanceof IFluidHandlerHolder holder ? holder.getFluidHandler() : null;
     }
 
+    public static List<IEntityCauldron> getEntityCauldronCandidates(
+        InWorldRecipeContext context,
+        BlockPos pos
+    ) {
+        ContextCache contextCache = context.computeIfAbsent(CONTEXT_CACHE);
+        return contextCache.entityCauldrons.computeIfAbsent(pos.immutable(), lookupPos -> {
+            List<Entity> entities = context.getLevel().getEntitiesOfClass(
+                Entity.class,
+                new AABB(lookupPos).inflate(0.0625),
+                entity -> entity.isAlive() && entity instanceof IEntityCauldron
+            );
+            List<IEntityCauldron> candidates = new ArrayList<>(entities.size());
+            for (Entity entity : entities) {
+                candidates.add((IEntityCauldron) entity);
+            }
+            return List.copyOf(candidates);
+        });
+    }
+
     private static @Nullable IEntityCauldron findEntityCauldron(InWorldRecipeContext context, BlockPos pos) {
         Vec3 center = pos.getCenter();
+        AABB lookupArea = new AABB(pos).inflate(0.0625);
         IEntityCauldron closest = null;
         double closestDistance = Double.POSITIVE_INFINITY;
-        for (Entity entity : context.getLevel().getEntitiesOfClass(
-            Entity.class,
-            new AABB(pos).inflate(0.0625),
-            entity -> entity.isAlive() && entity instanceof IEntityCauldron
-        )) {
+        for (IEntityCauldron candidate : getEntityCauldronCandidates(context, pos)) {
+            Entity entity = (Entity) candidate;
+            if (!entity.isAlive() || !entity.getBoundingBox().intersects(lookupArea)) continue;
             double distance = entity.getBoundingBox().getCenter().distanceToSqr(center);
             if (distance >= closestDistance) continue;
-            closest = (IEntityCauldron) entity;
+            closest = candidate;
             closestDistance = distance;
         }
         for (EntityCauldronSelector selector : ENTITY_CAULDRON_SELECTORS) {

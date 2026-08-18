@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.RoyalPreferenceOutcome;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -13,10 +14,15 @@ public class DatapackEventListener {
     @SubscribeEvent
     public static void onDatapack(AddReloadListenerEvent event) {
         event.addListener((barrier, manager, prpProfiler, rldProfiler, bgExec, gmExec) -> {
-            if (ServerLifecycleHooks.getCurrentServer() != null && ServerLifecycleHooks.getCurrentServer().overworld() != null) {
-                RoyalPreferenceOutcome.RoyalPreference.initRoyalPreference(ServerLifecycleHooks.getCurrentServer().overworld());
-            }
-            return barrier.wait(null);
+            return barrier.wait(null).thenRunAsync(() -> {
+                IAnvilBehavior.clearMatchingCache();
+                if (ServerLifecycleHooks.getCurrentServer() != null
+                    && ServerLifecycleHooks.getCurrentServer().overworld() != null) {
+                    RoyalPreferenceOutcome.RoyalPreference.initRoyalPreference(
+                        ServerLifecycleHooks.getCurrentServer().overworld()
+                    );
+                }
+            }, gmExec);
         });
     }
 }

@@ -70,6 +70,7 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
         List<Integer> chargeNums = ANVIL_TYPES.get(entity.blockState.getBlock());
         if (chargeNums == null) return;
         int distance = (int) Math.min(chargeNums.size() - 1, fallDistance);
+        if (distance < 0) return;
         int chargeNum = chargeNums.get(distance);
         ChargeCollectorManager.charge(chargeNum, level, blockPos);
         pressureConduction(level, blockPos, chargeNum / 2);
@@ -80,8 +81,8 @@ public class PiezoelectricCrystalBlock extends Block implements IHammerRemovable
     private void pressureConduction(Level level, BlockPos blockPos, int chargeNum) {
         BlockPos pos = blockPos.below();
         if (level.getBlockState(pos).getBlock() instanceof PiezoelectricCrystalBlock block) {
-            if (chargeNum == 0) return;
-            ChargeCollectorManager.charge(chargeNum, level, blockPos);
+            if (chargeNum <= 0) return;
+            ChargeCollectorManager.charge(chargeNum, level, pos);
             block.pressureConduction(level, pos, chargeNum / 2);
         }
     }

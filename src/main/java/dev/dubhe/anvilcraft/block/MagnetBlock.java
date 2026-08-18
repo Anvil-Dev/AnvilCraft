@@ -104,24 +104,33 @@ public class MagnetBlock extends Block implements IHammerRemovable {
         if (!(state.getBlock() instanceof MagnetBlock) || state.getValue(LIT)) return;
         if (level.getBlockState(magnetPos.below()).is(BlockTags.ANVIL)) return;
         int distance = AnvilCraft.CONFIG.magnetAttractsDistance;
+        if (distance <= 0) return;
+        BlockPos bottomPos = magnetPos.below(distance);
+        List<FallingBlockEntity> entities = level.getEntitiesOfClass(
+            FallingBlockEntity.class,
+            new AABB(
+                bottomPos.getX(), bottomPos.getY(), bottomPos.getZ(),
+                magnetPos.getX() + 1, magnetPos.getY(), magnetPos.getZ() + 1
+            )
+        );
         BlockPos currentPos = magnetPos;
         checkAnvil:
         for (int i = 0; i < distance; i++) {
             currentPos = currentPos.below();
-            BlockState state1 = level.getBlockState(currentPos);
+            BlockState currentState = level.getBlockState(currentPos);
 
-            if (state1.is(BlockTags.ANVIL) && !state1.is(ModBlockTags.NON_MAGNETIC)) {
+            if (currentState.is(BlockTags.ANVIL) && !currentState.is(ModBlockTags.NON_MAGNETIC)) {
                 level.destroyBlock(magnetPos.below(), true);
-                level.setBlockAndUpdate(magnetPos.below(), state1);
+                level.setBlockAndUpdate(magnetPos.below(), currentState);
                 level.setBlockAndUpdate(currentPos, Blocks.AIR.defaultBlockState());
 
-                AnimateAscendingBlockEntity.animate(level, currentPos, state1, magnetPos.below());
+                AnimateAscendingBlockEntity.animate(level, currentPos, currentState, magnetPos.below());
                 TriggerUtil.liftingAnvil(level, currentPos);
                 break;
             }
-            List<FallingBlockEntity> entities =
-                level.getEntitiesOfClass(FallingBlockEntity.class, new AABB(currentPos));
+            AABB currentBox = new AABB(currentPos);
             for (FallingBlockEntity entity : entities) {
+                if (!entity.getBoundingBox().intersects(currentBox)) continue;
                 if (entity instanceof IAnvilCraftEntityExtension) continue;
                 BlockState state2 = entity.getBlockState();
                 if (state2.is(BlockTags.ANVIL) && !state2.is(ModBlockTags.NON_MAGNETIC)) {
@@ -133,8 +142,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
                     break checkAnvil;
                 }
             }
-            BlockState blockState = level.getBlockState(currentPos);
-            if (level.isEmptyBlock(currentPos) || blockState.getBlock() instanceof LiquidBlock) {
+            if (currentState.isAir() || currentState.getBlock() instanceof LiquidBlock) {
                 continue;
             }
             return;
