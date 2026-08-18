@@ -14,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -40,6 +41,7 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
     private int inputCooldownCount = ChargeCollectorBlockEntity.INPUT_COOLDOWN;
     private double chargeCount = 0;
     private int chargePower = 0;
+    private long lastIncomingParticleTick = Long.MIN_VALUE;
     private final LinkedList<Integer> charges = new LinkedList<>();
     @Getter
     private float rotation = 0;
@@ -144,25 +146,28 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
     @Override
     public void onLoad() {
         super.onLoad();
-        if (this.getCurrentLevel() == null) return;
-        HeatCollectorManager.addInfiniteCollector(this.getPos(), this.getCurrentLevel());
-        ChargeCollectorManager.getInstance(this.getCurrentLevel()).addInfiniteCollector(this);
+        Level level = this.getCurrentLevel();
+        if (level == null || level.isClientSide) return;
+        HeatCollectorManager.addInfiniteCollector(this.getPos(), level);
+        ChargeCollectorManager.getInstance(level).addInfiniteCollector(this);
     }
 
     @Override
     public void onChunkUnloaded() {
         super.onChunkUnloaded();
-        if (this.getCurrentLevel() == null) return;
-        HeatCollectorManager.removeInfiniteCollector(this.getPos(), this.getCurrentLevel());
-        ChargeCollectorManager.getInstance(this.getCurrentLevel()).removeInfiniteCollector(this);
+        Level level = this.getCurrentLevel();
+        if (level == null || level.isClientSide) return;
+        HeatCollectorManager.removeInfiniteCollector(this.getPos(), level);
+        ChargeCollectorManager.removeInfiniteCollector(level, this);
     }
 
     @Override
     public void setRemoved() {
         super.setRemoved();
-        if (this.getCurrentLevel() == null) return;
-        HeatCollectorManager.removeInfiniteCollector(this.getPos(), this.getCurrentLevel());
-        ChargeCollectorManager.getInstance(this.getCurrentLevel()).removeInfiniteCollector(this);
+        Level level = this.getCurrentLevel();
+        if (level == null || level.isClientSide) return;
+        HeatCollectorManager.removeInfiniteCollector(this.getPos(), level);
+        ChargeCollectorManager.removeInfiniteCollector(level, this);
     }
 
     public void clientTick() {
@@ -194,13 +199,17 @@ public class InfiniteCollectorBlockEntity extends BlockEntity implements IPowerP
      * @return 溢出的电荷数(即未被添加至收集器的电荷数)
      */
     public double incomingCharge(double num, BlockPos srcPos) {
-        if (!this.isWorking() || this.level == null) return num;
+        if (!(num > 0) || !this.isWorking() || this.level == null) return num;
         if (this.level instanceof ServerLevel serverLevel) {
-            PacketDistributor.sendToPlayersTrackingChunk(
-                serverLevel,
-                this.level.getChunkAt(worldPosition).getPos(),
-                new ChargeCollectorIncomingChargePacket(srcPos, this.worldPosition, num)
-            );
+            long gameTime = serverLevel.getGameTime();
+            if (this.lastIncomingParticleTick != gameTime) {
+                this.lastIncomingParticleTick = gameTime;
+                PacketDistributor.sendToPlayersTrackingChunk(
+                    serverLevel,
+                    new ChunkPos(this.worldPosition),
+                    new ChargeCollectorIncomingChargePacket(srcPos, this.worldPosition, num)
+                );
+            }
         }
         this.chargeCount += num;
         return 0;

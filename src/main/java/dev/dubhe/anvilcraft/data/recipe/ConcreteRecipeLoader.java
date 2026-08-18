@@ -6,9 +6,10 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.SolidLiquidRecipe;
+import dev.dubhe.anvilcraft.util.FluidStackPredicate;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
@@ -17,6 +18,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.common.Tags;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -71,14 +73,16 @@ public class ConcreteRecipeLoader {
      * 生成水泥染色配方（铁砧加工），每种染料对应将任意颜色水泥炼药锅/鱼缸中的水泥染成对应颜色
      */
     private static void initCementStaining(RegistrumRecipeProvider provider) {
-        TagKey<Fluid> cementTag = TagKey.create(
-            Registries.FLUID,
-            ResourceLocation.fromNamespaceAndPath("c", "cement")
-        );
         for (Color color : Color.values()) {
+            FluidStackPredicate inputCements = FluidStackPredicate.builder()
+                .fluid(Arrays.stream(Color.values())
+                    .filter(other -> other != color)
+                    .map(other -> ModFluids.SOURCE_CEMENTS.get(other).get())
+                    .toArray(Fluid[]::new))
+                .build();
             ResourceLocation targetCement = AnvilCraft.of("%s_cement".formatted(color.getSerializedName()));
             SolidLiquidRecipe.builder()
-                .cauldron(cementTag)
+                .cauldron(inputCements)
                 .consume(1000)
                 .transform(BuiltInRegistries.FLUID.get(targetCement), 1000)
                 .requires(color.dyeItem())

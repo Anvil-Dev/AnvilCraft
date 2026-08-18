@@ -818,22 +818,24 @@ public abstract class AbstractProcessRecipe<T extends InWorldRecipe> extends InW
          */
         private List<IRecipePredicate<?>> getNonConflictingPredicates() {
             List<IRecipePredicate<?>> predicates = new ArrayList<>();
-            if (this.hasCauldron != null) {
-                predicates.add(this.hasCauldron.toHasCauldron(this.getCauldronOffset()));
-            }
+            // These predicates only read state, so run them before the comparatively expensive cauldron lookup.
             if (!Objects.equals(this.hasAnvil, HasAnvil.DEFAULT)) {
                 predicates.add(this.hasAnvil);
             }
-            if (this.inputBlocks != null) {
+            if (this.inputBlocks != null && !this.consumeInputBlocks) {
                 for (int i = 0; i < this.inputBlocks.size(); i++) {
                     BlockStatePredicate block = this.inputBlocks.get(i);
-                    IRecipePredicate<?> hasBlock;
-                    if (consumeInputBlocks) {
-                        hasBlock = new HasBlockIngredient(this.getBlockInputOffset().subtract(0, i, 0), block);
-                    } else {
-                        hasBlock = new HasBlock(this.getBlockInputOffset().subtract(0, i, 0), block);
-                    }
-                    predicates.add(hasBlock);
+                    predicates.add(new HasBlock(this.getBlockInputOffset().subtract(0, i, 0), block));
+                }
+            }
+            if (this.hasCauldron != null) {
+                predicates.add(this.hasCauldron.toHasCauldron(this.getCauldronOffset()));
+            }
+            // Consuming block predicates must stay after the cauldron predicate: their accept order mutates the cache.
+            if (this.inputBlocks != null && this.consumeInputBlocks) {
+                for (int i = 0; i < this.inputBlocks.size(); i++) {
+                    BlockStatePredicate block = this.inputBlocks.get(i);
+                    predicates.add(new HasBlockIngredient(this.getBlockInputOffset().subtract(0, i, 0), block));
                 }
             }
             return predicates;

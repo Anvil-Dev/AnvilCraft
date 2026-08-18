@@ -8,6 +8,7 @@
       "AnvilMenuMixin",
       "AvoidEntityGoalMixin",
       "BeaconMenuMixin",
+      "BlockCacheMixin",
       "BlockBehaviourMixin",
       "BlockMixin",
       "BlockStateMixin",

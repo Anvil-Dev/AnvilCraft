@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.entity.IAnvilCraftEntityExtension;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
 import dev.dubhe.anvilcraft.api.event.EntityThroughPortalEvent;
@@ -36,7 +35,6 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Optional;
 import javax.annotation.Nullable;
 
 @Mixin(Entity.class)
@@ -130,7 +128,15 @@ public abstract class EntityMixin implements IEntityExtension {
         Operation<Void> original
     ) {
         Vec3 vec3 = new Vec3(x - getX(), y - getY(), z - getZ());
-        if (Util.instanceOfAny(this, Projectile.class, FallingBlockEntity.class, Player.class) && vec3.length() > 0.98) {
+        if (instance instanceof Projectile
+            || instance instanceof FallingBlockEntity
+            || instance instanceof Player) {
+            double movementLengthSqr = vec3.lengthSqr();
+            if (!Double.isFinite(movementLengthSqr) || movementLengthSqr <= 0.98 * 0.98) {
+                anvil$isDeflected = false;
+                original.call(instance, x, y, z);
+                return;
+            }
             Vec3 start = anvilcraft$getMovementCenter();
             if (!anvilcraft$findDeflectionRing(start, vec3)) {
                 anvil$isDeflected = false;
@@ -187,23 +193,29 @@ public abstract class EntityMixin implements IEntityExtension {
 
     @Inject(method = "setPos(DDD)V", at = @At("HEAD"), cancellable = true)
     public void anvilcraft$changeProjectilePosSetResult(double x, double y, double z, CallbackInfo ci) {
-        if (!Util.instanceOfAny(this, Projectile.class)) return;
+        Entity instance = (Entity) (Object) this;
+        if (!(instance instanceof Projectile)) return;
         Vec3 vec3 = new Vec3(x - getX(), y - getY(), z - getZ());
         if (!anvilcraft$isProjectileMovement(vec3)) return;
-        if (vec3.length() > 0.98) {
-            if (!anvilcraft$findDeflectionRing(anvilcraft$getMovementCenter(), vec3)) return;
-            Vec3 pos = anvilcraft$getDeflectionTarget();
-            setPosRaw(pos.x, pos.y, pos.z);
-            setBoundingBox(makeBoundingBox());
-            ci.cancel();
-        }
+        if (!anvilcraft$findDeflectionRing(anvilcraft$getMovementCenter(), vec3)) return;
+        Vec3 pos = anvilcraft$getDeflectionTarget();
+        setPosRaw(pos.x, pos.y, pos.z);
+        setBoundingBox(makeBoundingBox());
+        ci.cancel();
     }
 
     @Unique
     private boolean anvilcraft$isProjectileMovement(Vec3 movement) {
-        double movementLength = movement.length();
-        double velocityLength = getDeltaMovement().length();
-        if (movementLength <= 0.98 || velocityLength < 1.0E-6) return false;
+        double movementLengthSqr = movement.lengthSqr();
+        double velocityLengthSqr = getDeltaMovement().lengthSqr();
+        if (!Double.isFinite(movementLengthSqr)
+            || !Double.isFinite(velocityLengthSqr)
+            || movementLengthSqr <= 0.98 * 0.98
+            || velocityLengthSqr < 1.0E-12) {
+            return false;
+        }
+        double movementLength = Math.sqrt(movementLengthSqr);
+        double velocityLength = Math.sqrt(velocityLengthSqr);
         double lengthRatio = movementLength / velocityLength;
         double directionSimilarity = movement.dot(getDeltaMovement()) / (movementLength * velocityLength);
         return lengthRatio >= 0.5 && lengthRatio <= 2.0 && directionSimilarity >= 0.95;
@@ -242,17 +254,19 @@ public abstract class EntityMixin implements IEntityExtension {
         Vec3 pos,
         CallbackInfo ci
     ) {
-        Optional<FallingBlockEntity> entityOp = Util.castSafely(this, FallingBlockEntity.class);
-        if (entityOp.isEmpty() || !this.horizontalCollision) return;
-        FallingBlockEntity self = entityOp.get();
+        Entity instance = (Entity) (Object) this;
+        if (!(instance instanceof FallingBlockEntity self) || !this.horizontalCollision) return;
         if (self instanceof IAnvilCraftEntityExtension extension
             && !extension.anvilcraft$canCollisionCraft()) {
             return;
         }
+        double movementLengthSqr = anvil$beforeBoundingMovement.lengthSqr();
+        if (!Double.isFinite(movementLengthSqr) || movementLengthSqr <= 1.0E-12) return;
+        double movementLength = Math.sqrt(movementLengthSqr);
         BlockPos blockPos = BlockPos.containing(this.position.add(anvil$beforeBoundingMovement
-            .scale(0.55 / anvil$beforeBoundingMovement.length())
+            .scale(0.55 / movementLength)
             .multiply(1, 0, 1)));
-        NeoForge.EVENT_BUS.post(new AnvilEvent.CollisionBlock(level, blockPos, self, anvil$beforeBoundingMovement.length()));
+        NeoForge.EVENT_BUS.post(new AnvilEvent.CollisionBlock(level, blockPos, self, movementLength));
     }
 
     @WrapOperation(

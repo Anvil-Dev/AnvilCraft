@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.entity.IEntityCauldron;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeOutcomeTypes;
+import dev.dubhe.anvilcraft.recipe.anvil.predicate.block.HasCauldron;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -85,7 +86,7 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
             }
         }
 
-        IItemHandlerCache entityCauldron = findEntityCauldron(level, belowPos);
+        IItemHandlerCache entityCauldron = findEntityCauldron(context, belowPos);
         if (entityCauldron != null) {
             hasRecipeCache = true;
             if (hasRoyalPreferred(level, entityCauldron.getInput())) {
@@ -132,23 +133,21 @@ public record RoyalPreferenceOutcome(ChanceItemStack result) implements IRecipeO
         return false;
     }
 
-    private static @Nullable IItemHandlerCache findEntityCauldron(ServerLevel level, BlockPos pos) {
+    private static @Nullable IItemHandlerCache findEntityCauldron(InWorldRecipeContext context, BlockPos pos) {
         Vec3 center = pos.getCenter();
-        Entity closest = null;
+        AABB lookupArea = new AABB(pos).inflate(0.0625);
+        IItemHandlerCache closest = null;
         double closestDistance = Double.POSITIVE_INFINITY;
-        for (Entity entity : level.getEntitiesOfClass(
-            Entity.class,
-            new AABB(pos).inflate(0.0625),
-            entity -> entity.isAlive()
-                      && entity instanceof IEntityCauldron
-                      && entity instanceof IItemHandlerCache
-        )) {
+        for (IEntityCauldron candidate : HasCauldron.getEntityCauldronCandidates(context, pos)) {
+            if (!(candidate instanceof IItemHandlerCache cache)) continue;
+            Entity entity = (Entity) candidate;
+            if (!entity.isAlive() || !entity.getBoundingBox().intersects(lookupArea)) continue;
             double distance = entity.getBoundingBox().getCenter().distanceToSqr(center);
             if (distance >= closestDistance) continue;
-            closest = entity;
+            closest = cache;
             closestDistance = distance;
         }
-        return closest instanceof IItemHandlerCache cache ? cache : null;
+        return closest;
     }
 
     @SuppressWarnings({"OptionalUsedAsFieldOrParameterType", "OptionalAssignedToNull"})

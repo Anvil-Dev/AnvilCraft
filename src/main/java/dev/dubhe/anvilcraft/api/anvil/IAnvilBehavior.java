@@ -12,11 +12,13 @@ import org.jetbrains.annotations.Unmodifiable;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
 
 @FunctionalInterface
 public interface IAnvilBehavior {
     Map<Predicate<BlockState>, IAnvilBehavior> BEHAVIORS = new LinkedHashMap<>();
+    Map<BlockState, List<IAnvilBehavior>> MATCHING_CACHE = new ConcurrentHashMap<>();
 
     boolean handle(
         Level level,
@@ -32,17 +34,30 @@ public interface IAnvilBehavior {
 
     static void registerBehavior(Block matchingBlock, IAnvilBehavior behavior) {
         BEHAVIORS.put(it -> it.is(matchingBlock), behavior);
+        MATCHING_CACHE.clear();
     }
 
     static void registerBehavior(Predicate<BlockState> pred, IAnvilBehavior behavior) {
         BEHAVIORS.put(pred, behavior);
+        MATCHING_CACHE.clear();
+    }
+
+    /**
+     * Clears state-dependent matches after block tags or other datapack data are reloaded.
+     */
+    static void clearMatchingCache() {
+        MATCHING_CACHE.clear();
     }
 
     static @Unmodifiable List<IAnvilBehavior> findMatching(BlockState state) {
-        return BEHAVIORS.keySet().stream()
+        List<IAnvilBehavior> cached = MATCHING_CACHE.get(state);
+        if (cached != null) return cached;
+        List<IAnvilBehavior> matching = BEHAVIORS.keySet().stream()
             .filter(it -> it.test(state))
             .map(BEHAVIORS::get)
             .toList();
+        MATCHING_CACHE.put(state, matching);
+        return matching;
     }
 
     static void register() {

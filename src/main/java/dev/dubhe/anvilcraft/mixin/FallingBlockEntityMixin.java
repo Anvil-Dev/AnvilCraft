@@ -25,6 +25,7 @@ import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.FallingBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -40,13 +41,17 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
+import javax.annotation.Nullable;
 
 @Mixin(FallingBlockEntity.class)
 abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEntityExtension {
     @Unique
     private static final float DAMAGE_FACTOR = 40 / 1.7444f;
+    @Unique
+    private static final EntityTypeTest<Entity, Entity> ANVILCRAFT_ENTITY_TEST = EntityTypeTest.forClass(Entity.class);
 
     @Shadow
     public BlockState blockState;
@@ -65,6 +70,12 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     private float anvilcraft$directionalFallDistance;
     @Unique
     private Vec3 anvilcraft$positionBeforeTick;
+    @Unique
+    private @Nullable Vec3 anvilcraft$cachedGravityPosition;
+    @Unique
+    private @Nullable Vec3 anvilcraft$cachedNetGravity;
+    @Unique
+    private final List<Entity> anvilcraft$entityCollisionResults = new ArrayList<>(1);
 
     public FallingBlockEntityMixin(EntityType<?> entityType, Level level) {
         super(entityType, level);
@@ -82,7 +93,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         FallingBlockEntity instance,
         Operation<BlockPos> original
     ) {
-        Vec3 gravity = GravityManager.getNetGravityVectorForFallingBlock(instance);
+        Vec3 gravity = this.anvilcraft$getNetGravityVector(instance);
         Direction direction = Direction.getNearest(gravity.x, gravity.y, gravity.z);
         if (direction == Direction.DOWN) return original.call(instance);
         return anvilcraft$getGravityFaceBlockPos(instance, direction);
@@ -93,7 +104,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/core/BlockPos;below()Lnet/minecraft/core/BlockPos;")
     )
     private BlockPos anvilcraft$redirectBelowInTick(BlockPos instance, Operation<BlockPos> original) {
-        Vec3 netGravityVector = GravityManager.getNetGravityVectorForFallingBlock(this);
+        Vec3 netGravityVector = this.anvilcraft$getNetGravityVector(this);
         Direction gravityDirection = Direction.getNearest(netGravityVector.x, netGravityVector.y, netGravityVector.z);
         if (gravityDirection == Direction.DOWN) return original.call(instance);
 
@@ -113,7 +124,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/FallingBlockEntity;onGround()Z")
     )
     private boolean anvilcraft$overrideOnGround(FallingBlockEntity instance, Operation<Boolean> original) {
-        Vec3 gravityVec = GravityManager.getNetGravityVectorForFallingBlock(instance);
+        Vec3 gravityVec = this.anvilcraft$getNetGravityVector(instance);
 
         if (
             this.anvilcraft$isDeflected()
@@ -181,7 +192,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         )
     )
     private void anvilcraft$useGravityPlacementDirection(Args args) {
-        Vec3 gravity = GravityManager.getNetGravityVectorForFallingBlock(this);
+        Vec3 gravity = this.anvilcraft$getNetGravityVector(this);
         Direction direction = Direction.getNearest(gravity.x, gravity.y, gravity.z);
         if (direction == Direction.DOWN) return;
         args.set(2, direction);
@@ -193,7 +204,7 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
         at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/Vec3;multiply(DDD)Lnet/minecraft/world/phys/Vec3;")
     )
     private void anvilcraft$reflectVelocityAlongGravityAxis(Args args) {
-        Vec3 gravity = GravityManager.getNetGravityVectorForFallingBlock(this);
+        Vec3 gravity = this.anvilcraft$getNetGravityVector(this);
         Direction direction = Direction.getNearest(gravity.x, gravity.y, gravity.z);
         if (direction == Direction.DOWN || direction == Direction.UP) return;
         if (direction.getAxis() == Direction.Axis.X) {
@@ -252,11 +263,20 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
                 box.maxX - inset, box.maxY - inset, box.maxZ + depth
             );
         };
-        return !entity.level().getEntities(
-            entity,
+        anvilcraft$entityCollisionResults.clear();
+        entity.level().getEntities(
+            ANVILCRAFT_ENTITY_TEST,
             contactArea,
-            other -> other.canBeCollidedWith() && !other.isSpectator() && entity.canCollideWith(other)
-        ).isEmpty();
+            other -> other != entity
+                && other.canBeCollidedWith()
+                && !other.isSpectator()
+                && entity.canCollideWith(other),
+            anvilcraft$entityCollisionResults,
+            1
+        );
+        boolean collision = !anvilcraft$entityCollisionResults.isEmpty();
+        anvilcraft$entityCollisionResults.clear();
+        return collision;
     }
 
     @Unique
@@ -448,33 +468,36 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
     )
     )
     private void hurtEntity(CallbackInfo ci) {
-        if (this.getDeltaMovement().multiply(1, 0, 1).length() < 0.75 && this.getDeltaMovement().y < 2.5) {
+        Vec3 movement = this.getDeltaMovement();
+        if (movement.x * movement.x + movement.z * movement.z < 0.75 * 0.75 && movement.y < 2.5) {
             return;
         }
         if (!this.blockState.is(BlockTags.ANVIL)) return;
+        boolean deflected = this.anvilcraft$isDeflected();
+        Vec3 traceMovement = deflected ? this.anvilcraft$getFixedDeltaMovement() : movement;
         EntityHitResult hitResult = ProjectileUtil.getEntityHitResult(
             this.level(),
             this,
             this.position()
                 .subtract(0, 0.5, 0)
-                .subtract(this.anvilcraft$isDeflected() ? this.anvilcraft$getFixedDeltaMovement() : this.getDeltaMovement()),
+                .subtract(traceMovement),
             this.position().subtract(0, 0.5, 0),
-            this.getBoundingBox().expandTowards((
-                this.anvilcraft$isDeflected() ? this.anvilcraft$getFixedDeltaMovement() : this.getDeltaMovement()
-            ).multiply(-1, -1, -1)).inflate(1.0),
+            this.getBoundingBox().expandTowards(traceMovement.scale(-1.0)).inflate(1.0),
             Entity::isAttackable
         );
         if (hitResult == null) return;
         if (hitResult.getType() != EntityHitResult.Type.ENTITY) return;
-        float hurtAmount = (float) (this.getDeltaMovement().length() * DAMAGE_FACTOR);
+        float hurtAmount = (float) (Math.sqrt(movement.lengthSqr()) * DAMAGE_FACTOR);
         hitResult.getEntity().hurt(damageSources().anvil(this), hurtAmount);
     }
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void anvilcraft$applyFallingBlockHorizontalGravity(CallbackInfo ci) {
         if (this.anvilcraft$discardLevitationPowderAboveBuildHeight()) return;
-        if (this.isNoGravity() || AccelerateManager.isControlledByRing(this)) return;
-        Vec3 gravityVector = GravityManager.getGravityVector(this);
+        if (this.isNoGravity()) return;
+        Vec3 gravityVector = this.anvilcraft$getNetGravityVector(this);
+        if (gravityVector.x == 0 && gravityVector.z == 0) return;
+        if (AccelerateManager.isControlledByRing(this)) return;
         this.setDeltaMovement(this.getDeltaMovement().add(gravityVector.x, 0, gravityVector.z));
     }
 
@@ -496,12 +519,32 @@ abstract class FallingBlockEntityMixin extends Entity implements IFallingBlockEn
 
     @Inject(method = "tick", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$handleAcceleration(CallbackInfo ci) {
+        anvilcraft$cachedGravityPosition = null;
+        anvilcraft$cachedNetGravity = null;
         anvilcraft$positionBeforeTick = position();
         if (this.anvilcraft$discardLevitationPowderAboveBuildHeight()) {
             ci.cancel();
             return;
         }
         AccelerateManager.handleAcceleration(this);
+    }
+
+    @Unique
+    private Vec3 anvilcraft$getNetGravityVector(Entity entity) {
+        Vec3 currentPosition = entity.position();
+        Vec3 cachedPosition = anvilcraft$cachedGravityPosition;
+        Vec3 cachedGravity = anvilcraft$cachedNetGravity;
+        if (cachedPosition != null
+            && cachedGravity != null
+            && cachedPosition.x == currentPosition.x
+            && cachedPosition.y == currentPosition.y
+            && cachedPosition.z == currentPosition.z) {
+            return cachedGravity;
+        }
+        Vec3 gravity = GravityManager.getNetGravityVectorForFallingBlock(entity);
+        anvilcraft$cachedGravityPosition = currentPosition;
+        anvilcraft$cachedNetGravity = gravity;
+        return gravity;
     }
 
     @Unique
