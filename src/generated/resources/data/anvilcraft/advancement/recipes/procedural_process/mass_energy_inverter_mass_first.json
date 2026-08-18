@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:procedural_process/mass_energy_inverter"
+        "recipe": "anvilcraft:procedural_process/mass_energy_inverter_mass_first"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:procedural_process/mass_energy_inverter"
+      "anvilcraft:procedural_process/mass_energy_inverter_mass_first"
     ]
   }
 }
