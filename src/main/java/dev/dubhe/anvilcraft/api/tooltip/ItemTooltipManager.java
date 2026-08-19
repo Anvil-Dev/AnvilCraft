@@ -639,7 +639,7 @@ public class ItemTooltipManager {
         );
         SHIFT.put(
             ModBlocks.OVERSEER_BLOCK.asItem(),
-            "Chunk loader on 3x3 Royal Steel base, higher base layers increase chunk load range (max 3 layers, 5x5 range)"
+            "Chunk loader on 3x3 Royal Steel base, higher base layers increase chunk load range (max 3 layers, 7x7 range)"
         );
         SHIFT.put(
             ModItems.DRAGON_ROD.asItem(),
