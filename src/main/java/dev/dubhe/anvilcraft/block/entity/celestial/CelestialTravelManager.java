@@ -256,6 +256,28 @@ public final class CelestialTravelManager {
         return findSafeLandingPos(level, origin, keepRequestedY, SEARCH_RADIUS);
     }
 
+    @Nullable
+    private static BlockPos findSafeLandingPos(
+        ServerLevel level, BlockPos origin, boolean keepRequestedY, int searchRadius
+    ) {
+        WorldBorder border = level.getWorldBorder();
+        BlockPos clamped = border.clampToBounds(origin);
+        BlockPos direct = findSafeLandingInColumn(
+            level, origin.getX(), origin.getZ(), origin, keepRequestedY
+        );
+        if (direct != null && border.isWithinBounds(direct.getX(), direct.getZ())) return direct;
+        for (BlockPos.MutableBlockPos column : BlockPos.spiralAround(
+            clamped, searchRadius, Direction.EAST, Direction.SOUTH
+        )) {
+            int x = column.getX();
+            int z = column.getZ();
+            if (!border.isWithinBounds(x, z)) continue;
+            BlockPos candidate = findSafeLandingInColumn(level, x, z, origin, keepRequestedY);
+            if (candidate != null) return candidate;
+        }
+        return null;
+    }
+
     /**
      * Preserves the requested location whenever possible, then falls back to
      * the destination spawn area when that location has no safe ground, such
@@ -325,28 +347,6 @@ public final class CelestialTravelManager {
         if (!level.isEmptyBlock(pos)) {
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
         }
-    }
-
-    @Nullable
-    private static BlockPos findSafeLandingPos(
-        ServerLevel level, BlockPos origin, boolean keepRequestedY, int searchRadius
-    ) {
-        WorldBorder border = level.getWorldBorder();
-        BlockPos clamped = border.clampToBounds(origin);
-        BlockPos direct = findSafeLandingInColumn(
-            level, origin.getX(), origin.getZ(), origin, keepRequestedY
-        );
-        if (direct != null && border.isWithinBounds(direct.getX(), direct.getZ())) return direct;
-        for (BlockPos.MutableBlockPos column : BlockPos.spiralAround(
-            clamped, searchRadius, Direction.EAST, Direction.SOUTH
-        )) {
-            int x = column.getX();
-            int z = column.getZ();
-            if (!border.isWithinBounds(x, z)) continue;
-            BlockPos candidate = findSafeLandingInColumn(level, x, z, origin, keepRequestedY);
-            if (candidate != null) return candidate;
-        }
-        return null;
     }
 
     @Nullable
