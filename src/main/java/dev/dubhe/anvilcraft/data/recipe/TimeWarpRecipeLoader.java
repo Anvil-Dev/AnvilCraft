@@ -18,7 +18,6 @@ import dev.dubhe.anvilcraft.item.property.predicate.ItemSavedEntityPredicate;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.ExtendInWorldRecipeBuilder;
 import dev.dubhe.anvilcraft.recipe.anvil.outcome.ResentmentAmberOutcome;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.TimeWarpRecipe;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -26,7 +25,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.common.Tags;
 
 public class TimeWarpRecipeLoader {
     public static void init(RegistrumRecipeProvider provider) {
@@ -84,17 +82,9 @@ public class TimeWarpRecipeLoader {
             .result(ModBlocks.CHROMATIC_STONE)
             .save(provider);
 
-        timeWarpToOilCauldron(provider, Items.ROTTEN_FLESH, 64);
-        timeWarpToOilCauldron(provider, Items.SPIDER_EYE, 64);
-        timeWarpToOilCauldron(provider, ModItemTags.RAW_CHICKEN, 64);
-        timeWarpToOilCauldron(provider, Tags.Items.FOODS_RAW_FISH, 64);
-        timeWarpToOilCauldron(provider, ModItemTags.RAW_BEEF, 16);
-        timeWarpToOilCauldron(provider, ModItemTags.RAW_PORKCHOP, 16);
-        timeWarpToOilCauldron(provider, ModItemTags.RAW_MUTTON, 16);
-        timeWarpToOilCauldron(provider, ModItemTags.RAW_RABBIT, 16);
-
-        timeWarpToOilCauldron(provider, Items.ZOMBIE_HEAD, 1);
-        timeWarpToOilCauldron(provider, Items.PIGLIN_HEAD, 1);
+        TimeWarpRecipeLoader.oil(provider, ModItemTags.SMALL_MEAT, 64);
+        TimeWarpRecipeLoader.oil(provider, ModItemTags.MEDIUM_MEAT, 16);
+        TimeWarpRecipeLoader.oil(provider, ModItemTags.LARGE_MEAT, 1);
 
         TimeWarpRecipe.builder()
             .requires(ModItemTags.NETHERITE_BLOCK)
@@ -296,18 +286,8 @@ public class TimeWarpRecipeLoader {
             .save(provider);
     }
 
-    private static void timeWarpToOilCauldron(RegistrumRecipeProvider provider, ItemLike input, int inputCount) {
-        TimeWarpRecipe.builder()
-            .requires(input, inputCount)
-            .transform(ModBlocks.OIL_CAULDRON.get(), 250)
-            .save(
-                provider,
-                AnvilCraft.of("time_warp/oil_from_" + BuiltInRegistries.ITEM.getKey(input.asItem()).getPath())
-        );
-    }
-
     @SuppressWarnings("SameParameterValue")
-    private static void timeWarpToOilCauldron(RegistrumRecipeProvider provider, TagKey<Item> input, int inputCount) {
+    private static void oil(RegistrumRecipeProvider provider, TagKey<Item> input, int inputCount) {
         TimeWarpRecipe.builder()
             .requires(input, inputCount)
             .transform(ModBlocks.OIL_CAULDRON.get(), 250)

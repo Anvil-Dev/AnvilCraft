@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:time_warp/oil_from_foods/raw_mutton"
+        "recipe": "anvilcraft:time_warp/oil_from_small_meat"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:time_warp/oil_from_foods/raw_mutton"
+      "anvilcraft:time_warp/oil_from_small_meat"
     ]
   }
 }

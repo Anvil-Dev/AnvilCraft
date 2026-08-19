@@ -4,7 +4,7 @@
   "ingredients": [
     {
       "count": 64,
-      "items": "#c:foods/raw_chicken"
+      "items": "#anvilcraft:small_meat"
     }
   ],
   "transform": {

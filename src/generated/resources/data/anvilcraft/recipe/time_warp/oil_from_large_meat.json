@@ -3,8 +3,7 @@
   "fluid": [],
   "ingredients": [
     {
-      "count": 16,
-      "items": "#c:foods/raw_porkchop"
+      "items": "#anvilcraft:large_meat"
     }
   ],
   "transform": {
