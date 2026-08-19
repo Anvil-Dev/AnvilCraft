@@ -101,7 +101,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModItems.GLASS_PIPE);
                 content.accept(ModBlocks.PUMP);
                 content.accept(ModBlocks.CONTROL_VALVE);
-                content.accept(ModBlocks.CHECK_MARK);
+                content.accept(ModItems.CHECK_VALVE);
             }
         );
         sections.section(
@@ -161,7 +161,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.EXP_COLLECTOR);
                 content.accept(ModBlocks.AUTO_ENCHANTING_TABLE);
                 content.accept(ModBlocks.RUBY_LASER);
-                content.accept(ModBlocks.RUBY_LASER);
+                content.accept(ModBlocks.RUBY_PRISM);
                 content.accept(ModBlocks.LARGE_LASER);
                 content.accept(ModBlocks.LENS);
                 content.accept(ModBlocks.LASER_RECEIVER);
