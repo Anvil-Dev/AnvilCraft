@@ -2168,6 +2168,7 @@
   "tooltip.anvilcraft.storage.types": "Types:",
   "tooltip.anvilcraft.storage.types.value": "  %s / %s",
   "tooltip.anvilcraft.thought": "Press [%s] for more info",
+  "tooltip.anvilcraft.waiting": "Waiting for syncing",
   "tooltip.anvilcraft.wip_block.jade.recipe": "Procedural Recipe: %s",
   "tooltip.anvilcraft.wip_block.jade.step_count": "Steps Executed: %d",
   "tooltip.anvilcraft.working_progress.progress": "  %1$s %2$s%%",

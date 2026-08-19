@@ -17,8 +17,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -92,15 +90,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
 
     /// 将方块实体数据同步到所有追踪的客户端。
     public void syncToClients() {
-        if (level instanceof ServerLevel serverLevel) {
-            Packet<?> packet = getUpdatePacket();
-            if (packet != null) {
-                for (ServerPlayer player : serverLevel.getChunkSource().chunkMap
-                    .getPlayers(serverLevel.getChunkAt(worldPosition).getPos(), false)) {
-                    player.connection.send(packet);
-                }
-            }
-        }
+        CfaBlockEntitySync.sendToTracking(this, this.getUpdatePacket());
     }
 
     @Override

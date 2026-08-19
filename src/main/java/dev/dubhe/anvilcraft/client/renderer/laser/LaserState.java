@@ -4,8 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.LensBlock;
 import dev.dubhe.anvilcraft.block.entity.BaseLaserBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilPortalBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CreativeLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.state.LensType;
 import net.minecraft.client.Minecraft;
@@ -45,12 +43,7 @@ public record LaserState(
             .getCenter()
             .distanceTo(blockEntity.getBlockPos().getCenter()) - 0.5);
         poseStack.mulPose(blockEntity.getFacing().getRotation());
-        boolean gamma = (blockEntity instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaLaser
-            && cfaLaser.isEmittingGamma())
-            || (blockEntity instanceof CelestialForgingAnvilPortalBlockEntity portal
-            && portal.isEmittingGamma())
-            || (blockEntity instanceof CreativeLaserBlockEntity creativeLaser
-            && creativeLaser.isGamma());
+        boolean gamma = blockEntity.isEmittingGamma();
         LensType lensType = blockEntity.getBlockState().getBlock() instanceof LensBlock
             ? blockEntity.getBlockState().getValue(LensBlock.TYPE)
             : LensType.NONE;

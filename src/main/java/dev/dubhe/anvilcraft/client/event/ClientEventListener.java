@@ -4,13 +4,12 @@ import com.mojang.blaze3d.platform.InputConstants;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.sound.SoundHelper;
 import dev.dubhe.anvilcraft.api.thought.ThoughtManager;
+import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.gui.tooltip.FilterContentHoverWindow;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
-import dev.dubhe.anvilcraft.client.rpc.SettingClientStub;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
-import dev.dubhe.anvilcraft.client.rpc.TerminalJeiStorageCache;
 import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
 import dev.dubhe.anvilcraft.client.support.StructureDiskPreviewSupport;
 import dev.dubhe.anvilcraft.client.support.TerminalRemoteOverlay;
@@ -23,7 +22,6 @@ import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.network.DragonRodStopDevourPacket;
 import dev.dubhe.anvilcraft.network.OpenHammerAnvilPacket;
 import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
-import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
 import dev.dubhe.anvilcraft.util.BlockHighlightUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
@@ -43,6 +41,7 @@ import net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderTooltipEvent;
 import net.neoforged.neoforge.client.event.ScreenEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 import javax.annotation.Nullable;
@@ -78,10 +77,15 @@ public class ClientEventListener {
     public static void onClientPlayerDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
         SoundHelper.INSTANCE.clear();
         StorageTerminalClientStub.clear();
-        TerminalJeiStorageCache.clear();
         TerminalRemoteOverlay.setHovering(ItemStack.EMPTY);
-        PlayerSettings.clearClient();
-        SettingClientStub.clearCache();
+        HudTooltipManager.INSTANCE.resetClientState();
+    }
+
+    @SubscribeEvent
+    public static void onClientLevelUnload(LevelEvent.Unload event) {
+        if (event.getLevel() instanceof ClientLevel) {
+            HudTooltipManager.INSTANCE.resetClientState();
+        }
     }
 
     @SubscribeEvent

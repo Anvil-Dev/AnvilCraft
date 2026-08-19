@@ -91,7 +91,6 @@ public class TempleHandler extends BaseMegastructureHandler {
                     logiBe.setTempleDemandCount(demandSatisfied ? 0 : demandCount);
                     logiBe.setTempleDemandProgress(demandSatisfied ? 0 : demandProgress);
                     logiBe.setTempleDemandSatisfied(demandSatisfied);
-                    logiBe.setChanged();
                 }
             }, be
         );

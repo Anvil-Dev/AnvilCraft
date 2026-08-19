@@ -1856,14 +1856,7 @@ public class ModBlocks {
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
-        .loot((tables, block) -> {
-            // Generate empty loot table (rolls=0) so datagen doesn't break.
-            // Actual drop (with NBT) is handled manually in onRemove.
-            tables.add(
-                block,
-                LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(0.0f)))
-            );
-        })
+        .loot(SimpleMultiPartBlock::loot)
         .tag((BlockTags.MINEABLE_WITH_PICKAXE), BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item(CelestialForgingAnvilBlockItem::new)
         .properties(properties -> properties.stacksTo(1).rarity(Rarity.EPIC))

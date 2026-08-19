@@ -130,6 +130,7 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.heat.tier.incandescent", "Incandescent");
         provider.add("tooltip.anvilcraft.heat.tier.overheated", "Overheated");
         provider.add("tooltip.anvilcraft.heat.duration", "Duration: %s");
+        provider.add("tooltip.anvilcraft.waiting", "Waiting for syncing");
 
         provider.add("tooltip.anvilcraft.propel_piston.state", "Propel Piston State: ");
         provider.add("tooltip.anvilcraft.propel_piston.remaining_energy", "  Remaining Energy: %s");

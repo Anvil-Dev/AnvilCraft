@@ -216,7 +216,7 @@ public final class PlanetResourceGenerator {
             if (gd != null) {
                 for (PlanetResourceRecipe.WeightedEntry entry : gd.entries()) {
                     set.addGiantItem(new PlanetaryResourceSet.WeightedItemStack(
-                        entry.resourceId(), entry.weight()
+                        entry.select(random), entry.weight()
                     ));
                 }
             }
@@ -235,7 +235,7 @@ public final class PlanetResourceGenerator {
             if (gd != null) {
                 for (PlanetResourceRecipe.WeightedEntry entry : gd.entries()) {
                     set.addGiantFluid(new PlanetaryResourceSet.WeightedFluidStack(
-                        entry.resourceId(), entry.weight()
+                        entry.select(random), entry.weight()
                     ));
                 }
             }
@@ -285,7 +285,9 @@ public final class PlanetResourceGenerator {
         if (random.nextInt(100) >= od.civilizationChance()) return false;
 
         for (PlanetResourceRecipe.WeightedEntry entry : od.entries()) {
-            ResourceLocation id = entry.resourceId();
+            ResourceLocation id = entry.select(random);
+            // Keep accepting the old 1.21 pseudo entries when an existing
+            // datapack has not yet been regenerated to the nested-choice form.
             if ("anvilcraft:gem_amulet_random".equals(id.toString())) {
                 ResourceLocation randomAmulet = pickRandomGemAmulet(random);
                 if (randomAmulet != null) {
@@ -374,7 +376,7 @@ public final class PlanetResourceGenerator {
             for (PlanetResourceRecipe.WeightedEntry entry : bd.mildExtraFluids()) {
                 if (random.nextInt(100) < entry.weight()) {
                     set.addBiologicalFluid(new PlanetaryResourceSet.WeightedFluidStack(
-                        entry.resourceId(), 100
+                        entry.select(random), 100
                     ));
                 }
             }
@@ -400,7 +402,7 @@ public final class PlanetResourceGenerator {
         set.setWasteland();
         for (PlanetResourceRecipe.WeightedEntry entry : wd.entries()) {
             set.addWastelandItem(new PlanetaryResourceSet.WeightedItemStack(
-                entry.resourceId(), entry.weight()
+                entry.select(random), entry.weight()
             ));
         }
     }

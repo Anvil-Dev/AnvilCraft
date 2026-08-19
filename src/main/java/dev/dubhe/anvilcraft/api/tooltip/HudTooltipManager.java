@@ -109,6 +109,12 @@ public class HudTooltipManager {
         handItemProviders.add(provider);
     }
 
+    public void resetClientState() {
+        for (ITooltipProvider.BlockEntityTooltipProvider provider : this.blockEntityProviders) {
+            provider.resetClientState();
+        }
+    }
+
     /**
      * 渲染方块的tooltip
      */

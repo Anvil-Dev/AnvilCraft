@@ -148,7 +148,7 @@ public class CelestialForgingAnvilPortalBlock
                         .setValue(HALF, DirectionGate331PartHalf.BOTTOM_CENTER)
                         .setValue(FACING, dir.getOpposite())
                         .setValue(OPEN, false)
-                        .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
+                        .setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER && fluidState.isSource());
                 }
             }
         }

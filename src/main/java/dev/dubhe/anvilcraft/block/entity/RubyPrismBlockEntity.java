@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import org.jetbrains.annotations.Nullable;
 
 public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
     private boolean enabled = false;
@@ -66,7 +67,7 @@ public class RubyPrismBlockEntity extends BaseLaserBlockEntity {
     }
 
     @Override
-    public void clientUpdate(BlockPos irradiateBlockPos, int laserLevel) {
+    public void clientUpdate(@Nullable BlockPos irradiateBlockPos, int laserLevel) {
         enabled = laserLevel > 0;
         super.clientUpdate(irradiateBlockPos, laserLevel);
     }

@@ -1,24 +1,33 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
+import com.mojang.datafixers.util.Either;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /// 定义行星根据其天体参数产出哪些资源的配方。
 ///
@@ -63,24 +72,180 @@ public record PlanetResourceRecipe(
 
     /// === 加权条目 ===
 
-    public record WeightedEntry(String id, int weight) {
-        public static final Codec<WeightedEntry> CODEC = RecordCodecBuilder.create(ins -> ins.group(
-                Codec.STRING.fieldOf("id")
-                    .forGetter(WeightedEntry::id), Codec.INT.fieldOf("weight").forGetter(WeightedEntry::weight)
-            )
-            .apply(ins, WeightedEntry::new));
+    /** A single candidate inside a possibly nested weighted entry. */
+    public record WeightedChoice(String id, int weight) {
+        public static final Codec<WeightedChoice> CODEC = RecordCodecBuilder.create(ins -> ins.group(
+            Codec.STRING.fieldOf("id").forGetter(WeightedChoice::id),
+            Codec.INT.fieldOf("weight").forGetter(WeightedChoice::weight)
+        ).apply(ins, WeightedChoice::new));
 
-        public static final StreamCodec<RegistryFriendlyByteBuf, WeightedEntry> STREAM_CODEC = StreamCodec.composite(
-            ByteBufCodecs.STRING_UTF8,
-            WeightedEntry::id,
-            ByteBufCodecs.INT,
-            WeightedEntry::weight,
-            WeightedEntry::new
-        );
+        public static final StreamCodec<RegistryFriendlyByteBuf, WeightedChoice> STREAM_CODEC =
+            StreamCodec.composite(
+                net.minecraft.network.codec.ByteBufCodecs.STRING_UTF8,
+                WeightedChoice::id,
+                ByteBufCodecs.INT,
+                WeightedChoice::weight,
+                WeightedChoice::new
+            );
 
         public ResourceLocation resourceId() {
-            return ResourceLocation.parse(id);
+            return ResourceLocation.parse(this.id);
         }
+    }
+
+    /**
+     * A weighted output entry.  The direct {@code {id, weight}} form remains
+     * accepted so existing 1.21 datapacks continue to load; the {@code choices}
+     * form allows one entry to select uniformly/weighted among several outputs.
+     */
+    public record WeightedEntry(List<WeightedChoice> choices, int weight) {
+        private record DirectEntry(String id, int weight) {
+            private static final Codec<DirectEntry> CODEC = RecordCodecBuilder.create(ins -> ins.group(
+                Codec.STRING.fieldOf("id").forGetter(DirectEntry::id),
+                Codec.INT.fieldOf("weight").forGetter(DirectEntry::weight)
+            ).apply(ins, DirectEntry::new));
+        }
+
+        private record ChoiceEntry(List<WeightedChoice> choices, int weight) {
+            private static final Codec<ChoiceEntry> CODEC = RecordCodecBuilder.create(ins -> ins.group(
+                WeightedChoice.CODEC.listOf().fieldOf("choices").forGetter(ChoiceEntry::choices),
+                Codec.INT.fieldOf("weight").forGetter(ChoiceEntry::weight)
+            ).apply(ins, ChoiceEntry::new));
+        }
+
+        public static final Codec<WeightedEntry> CODEC = Codec.either(DirectEntry.CODEC, ChoiceEntry.CODEC)
+            .xmap(
+                either -> either.map(
+                    direct -> new WeightedEntry(direct.id(), direct.weight()),
+                    choice -> new WeightedEntry(choice.choices(), choice.weight())
+                ),
+                entry -> entry.isDirect()
+                    ? Either.left(new DirectEntry(entry.choices().getFirst().id(), entry.weight()))
+                    : Either.right(new ChoiceEntry(entry.choices(), entry.weight()))
+            );
+
+        public static final StreamCodec<RegistryFriendlyByteBuf, WeightedEntry> STREAM_CODEC =
+            StreamCodec.composite(
+                WeightedChoice.STREAM_CODEC.apply(ByteBufCodecs.list()),
+                WeightedEntry::choices,
+                ByteBufCodecs.INT,
+                WeightedEntry::weight,
+                WeightedEntry::new
+            );
+
+        public WeightedEntry {
+            choices = List.copyOf(choices);
+            if (choices.isEmpty()) {
+                throw new IllegalArgumentException("Planet resource entry must contain at least one choice");
+            }
+        }
+
+        /** Compatibility constructor for the original 1.21 direct-entry API. */
+        public WeightedEntry(String id, int weight) {
+            this(List.of(new WeightedChoice(id, 1)), weight);
+        }
+
+        public boolean isDirect() {
+            return this.choices.size() == 1;
+        }
+
+        public ResourceLocation resourceId() {
+            return this.choices.getFirst().resourceId();
+        }
+
+        public ResourceLocation select(RandomSource random) {
+            if (this.isDirect()) return this.resourceId();
+            int totalWeight = 0;
+            for (WeightedChoice choice : this.choices) {
+                totalWeight += Math.max(0, choice.weight());
+            }
+            if (totalWeight <= 0) return this.resourceId();
+            int selected = random.nextInt(totalWeight);
+            for (WeightedChoice choice : this.choices) {
+                selected -= Math.max(0, choice.weight());
+                if (selected < 0) return choice.resourceId();
+            }
+            return this.choices.getLast().resourceId();
+        }
+    }
+
+    public static List<WeightedEntry> entries(Consumer<EntriesBuilder> consumer) {
+        EntriesBuilder builder = new EntriesBuilder();
+        consumer.accept(builder);
+        return builder.build();
+    }
+
+    public static final class EntriesBuilder {
+        private final List<WeightedEntry> entries = new ArrayList<>();
+
+        public EntriesBuilder id(String id, int weight) {
+            return this.id(ResourceLocation.parse(id), weight);
+        }
+
+        public EntriesBuilder id(ResourceLocation id, int weight) {
+            this.entries.add(new WeightedEntry(id.toString(), requirePositive(weight)));
+            return this;
+        }
+
+        public EntriesBuilder item(ItemLike item, int weight) {
+            return this.id(BuiltInRegistries.ITEM.getKey(Objects.requireNonNull(item).asItem()), weight);
+        }
+
+        public EntriesBuilder fluid(Fluid fluid, int weight) {
+            return this.id(BuiltInRegistries.FLUID.getKey(Objects.requireNonNull(fluid)), weight);
+        }
+
+        public EntriesBuilder fluid(Supplier<? extends Fluid> fluid, int weight) {
+            return this.fluid(Objects.requireNonNull(fluid).get(), weight);
+        }
+
+        public EntriesBuilder chooseOne(int weight, Consumer<ChoiceBuilder> consumer) {
+            ChoiceBuilder builder = new ChoiceBuilder();
+            consumer.accept(builder);
+            this.entries.add(new WeightedEntry(builder.build(), requirePositive(weight)));
+            return this;
+        }
+
+        public List<WeightedEntry> build() {
+            return List.copyOf(this.entries);
+        }
+    }
+
+    public static final class ChoiceBuilder {
+        private final List<WeightedChoice> choices = new ArrayList<>();
+
+        public ChoiceBuilder id(String id, int weight) {
+            return this.id(ResourceLocation.parse(id), weight);
+        }
+
+        public ChoiceBuilder id(ResourceLocation id, int weight) {
+            this.choices.add(new WeightedChoice(id.toString(), requirePositive(weight)));
+            return this;
+        }
+
+        public ChoiceBuilder item(ItemLike item, int weight) {
+            return this.id(BuiltInRegistries.ITEM.getKey(Objects.requireNonNull(item).asItem()), weight);
+        }
+
+        public ChoiceBuilder fluid(Fluid fluid, int weight) {
+            return this.id(BuiltInRegistries.FLUID.getKey(Objects.requireNonNull(fluid)), weight);
+        }
+
+        public ChoiceBuilder fluid(Supplier<? extends Fluid> fluid, int weight) {
+            return this.fluid(Objects.requireNonNull(fluid).get(), weight);
+        }
+
+        private List<WeightedChoice> build() {
+            if (this.choices.isEmpty()) {
+                throw new IllegalStateException("Planet resource choice group cannot be empty");
+            }
+            return List.copyOf(this.choices);
+        }
+    }
+
+    private static int requirePositive(int weight) {
+        if (weight <= 0) throw new IllegalArgumentException("Planet resource weight must be positive");
+        return weight;
     }
 
     /// === 生命概率 ===
@@ -157,6 +322,24 @@ public record PlanetResourceRecipe(
             FluidData::outputFluid,
             FluidData::new
         );
+
+        public FluidData(String planetType, String temperature, String liquidMin, Fluid outputFluid) {
+            this(
+                planetType,
+                temperature,
+                liquidMin,
+                BuiltInRegistries.FLUID.getKey(Objects.requireNonNull(outputFluid)).toString()
+            );
+        }
+
+        public FluidData(
+            String planetType,
+            String temperature,
+            String liquidMin,
+            Supplier<? extends Fluid> outputFluid
+        ) {
+            this(planetType, temperature, liquidMin, Objects.requireNonNull(outputFluid).get());
+        }
     }
 
     /// 气态行星物品或流体资源。
@@ -253,6 +436,67 @@ public record PlanetResourceRecipe(
             WastelandData::wastelandChance,
             WastelandData::new
         );
+    }
+
+    /** Fluent construction API used by data generators and add-ons. */
+    public static Builder builder(Category category) {
+        return new Builder(category);
+    }
+
+    public static final class Builder {
+        private final Category category;
+        private Optional<MineralData> mineral = Optional.empty();
+        private Optional<FluidData> fluid = Optional.empty();
+        private Optional<GiantData> giant = Optional.empty();
+        private Optional<BiologicalData> biological = Optional.empty();
+        private Optional<OfferingData> offering = Optional.empty();
+        private Optional<WastelandData> wasteland = Optional.empty();
+
+        private Builder(Category category) {
+            this.category = Objects.requireNonNull(category);
+        }
+
+        public Builder mineral(MineralData mineral) {
+            this.mineral = Optional.of(Objects.requireNonNull(mineral));
+            return this;
+        }
+
+        public Builder fluid(FluidData fluid) {
+            this.fluid = Optional.of(Objects.requireNonNull(fluid));
+            return this;
+        }
+
+        public Builder giant(GiantData giant) {
+            this.giant = Optional.of(Objects.requireNonNull(giant));
+            return this;
+        }
+
+        public Builder biological(BiologicalData biological) {
+            this.biological = Optional.of(Objects.requireNonNull(biological));
+            return this;
+        }
+
+        public Builder offering(OfferingData offering) {
+            this.offering = Optional.of(Objects.requireNonNull(offering));
+            return this;
+        }
+
+        public Builder wasteland(WastelandData wasteland) {
+            this.wasteland = Optional.of(Objects.requireNonNull(wasteland));
+            return this;
+        }
+
+        public PlanetResourceRecipe build() {
+            return new PlanetResourceRecipe(
+                this.category,
+                this.mineral,
+                this.fluid,
+                this.giant,
+                this.biological,
+                this.offering,
+                this.wasteland
+            );
+        }
     }
 
     /// === 编解码器 ===
