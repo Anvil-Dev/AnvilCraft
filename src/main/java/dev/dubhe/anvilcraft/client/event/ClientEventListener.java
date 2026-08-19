@@ -294,7 +294,7 @@ public class ClientEventListener {
      */
     private static boolean isCollectMouseButton(int button) {
         Minecraft minecraft = Minecraft.getInstance();
-        return AnvilCraft.CONFIG.invertContainerCollectClick
+        return AnvilCraft.CLIENT_CONFIG.invertContainerCollectClick
             ? minecraft.options.keyAttack.matchesMouse(button)
             : minecraft.options.keyUse.matchesMouse(button);
     }

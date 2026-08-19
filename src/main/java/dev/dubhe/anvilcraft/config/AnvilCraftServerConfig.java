@@ -177,9 +177,6 @@ public class AnvilCraftServerConfig {
     @Comment("Press shift and right click to take out all totem stored in the holding amulet box")
     public boolean amuletBoxTakeOutAllTotem = true;
 
-    @Comment("Invert the click button that collects items into the hyperdimension terminal, amulet box and pill box in GUIs")
-    public boolean invertContainerCollectClick = false;
-
     @Comment("Pushing or pulling a sliding rail will chain to other rails")
     public boolean slidingRailStickToEachOther = false;
 

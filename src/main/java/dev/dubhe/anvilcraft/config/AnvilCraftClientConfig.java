@@ -32,6 +32,9 @@ public class AnvilCraftClientConfig {
     @Comment("Add a tooltip line that shows storage stored ID")
     public boolean showStorageStoredId = false;
 
+    @Comment("Invert the click button that collects items into the hyperdimension terminal, amulet box and pill box in GUIs")
+    public boolean invertContainerCollectClick = false;
+
     @Comment("Enable ground heave shockwave particles and sound when giant anvil triggers shock mechanism")
     public boolean groundHeaveParticlesEnabled = true;
 
