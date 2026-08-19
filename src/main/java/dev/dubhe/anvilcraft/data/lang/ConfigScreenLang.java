@@ -133,6 +133,16 @@ public class ConfigScreenLang {
             "anvilcraft.configuration.laser_ore_cluster_max_size.tooltip",
             "Maximum ore vein size searched while mining with a laser gun; ore beyond this limit is not chain-mined (default: 64)"
         );
+        addOverride(
+            provider,
+            "anvilcraft.configuration.use_legacy_creative_tab",
+            "Use Legacy Creative Inventory"
+        );
+        addOverride(
+            provider,
+            "anvilcraft.configuration.use_legacy_creative_tab.tooltip",
+            "Uses the flat legacy creative inventory layout instead of the sectioned layout with banners (requires restart)"
+        );
     }
 
     private static void addOverride(RegistrumLangProvider provider, String key, String value) {
