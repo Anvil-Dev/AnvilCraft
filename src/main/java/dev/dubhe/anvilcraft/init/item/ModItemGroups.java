@@ -18,15 +18,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.loading.FMLLoader;
-import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
@@ -166,22 +160,6 @@ public class ModItemGroups {
     }
 
     private static boolean isLegacyCreativeTabEnabled() {
-        if (!FMLLoader.getDist().isClient()) {
-            return false;
-        }
-        Path configFile = FMLPaths.CONFIGDIR.get().resolve(AnvilCraft.MOD_ID + "-client.toml");
-        if (!Files.isRegularFile(configFile)) {
-            return false;
-        }
-        try {
-            for (String line : Files.readAllLines(configFile, StandardCharsets.UTF_8)) {
-                if (line.stripLeading().startsWith("use_legacy_creative_tab") && line.contains("true")) {
-                    return true;
-                }
-            }
-        } catch (IOException e) {
-            AnvilCraft.LOGGER.warn("Failed to read client config file {}", configFile, e);
-        }
-        return false;
+        return AnvilCraft.CLIENT_CONFIG.useLegacyCreativeTab;
     }
 }
