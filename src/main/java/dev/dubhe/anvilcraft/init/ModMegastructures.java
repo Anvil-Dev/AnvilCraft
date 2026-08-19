@@ -266,9 +266,6 @@ public final class ModMegastructures {
     }
 
     private static float bodySynchronizedRotation(Megastructure.RotationContext context) {
-        if (context.body() instanceof StarData star) {
-            return context.bodyRotation() * CelestialBodyData.getVisualRotationSpeed(star.rotationSpeed());
-        }
-        return context.baseRotation();
+        return context.bodyRotation() * CelestialBodyData.getVisualRotationSpeed(context.body().rotationSpeed());
     }
 }
