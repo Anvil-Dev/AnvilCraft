@@ -351,8 +351,8 @@ public class ItemTooltipManager {
             Removes curses and repair costs, selectively removes or transfers multiple enchantments
             Immune to most destruction methods"""
         );
-        NORMAL.put(ModBlocks.TRANSCENDENCE_DECO_BLOCK.asItem(), "Transcendium decorative block – low content, not indestructible.");
-        NORMAL.put(ModBlocks.TRANSCENDENCE_DECO_OUTLINE.asItem(), "Transcendium decorative block – low content, not indestructible.");
+        NORMAL.put(ModBlocks.TRANSCENDENCE_DECO_BLOCK.asItem(), "Transcendium decorative block – low content, not indestructible");
+        NORMAL.put(ModBlocks.TRANSCENDENCE_DECO_OUTLINE.asItem(), "Transcendium decorative block – low content, not indestructible");
         NORMAL.put(ModBlocks.FROST_GRINDSTONE.asItem(), "Selectively removes individual enchantments, Explosion proof");
         NORMAL.put(ModBlocks.FROST_SMITHING_TABLE.asItem(), "Works with Permutation and Deformation smithing templates, Explosion proof");
         NORMAL.put(ModBlocks.FROST_METAL_BLOCK.asItem(), "A large block of cold-resistant Royal Steel tempered in extreme cold for eons, Explosion proof");

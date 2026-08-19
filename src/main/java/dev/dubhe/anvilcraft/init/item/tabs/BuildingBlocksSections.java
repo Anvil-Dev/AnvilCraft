@@ -133,6 +133,7 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.EARTH_CORE_SHARD_ORE);
                 content.accept(ModBlocks.RAW_ZINC_BLOCK);
                 content.accept(ModBlocks.RAW_TIN_BLOCK);
+                content.accept(ModBlocks.RAW_TITANIUM_BLOCK);
                 content.accept(ModBlocks.RAW_LEAD_BLOCK);
                 content.accept(ModBlocks.RAW_SILVER_BLOCK);
                 content.accept(ModBlocks.RAW_URANIUM_BLOCK);

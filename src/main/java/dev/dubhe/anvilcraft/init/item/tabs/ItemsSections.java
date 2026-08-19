@@ -26,6 +26,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                 content.accept(ModItems.GUIDE_BOOK);
                 content.accept(ModItems.GEODE);
                 content.accept(ModItems.MAGNET);
+                content.accept(ModItems.CRAB_CLAW);
                 content.accept(ModItems.DISK);
                 content.accept(ModItems.STRUCTURE_DISK);
                 content.accept(ModItems.FILTER);
