@@ -546,6 +546,10 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
         Cube323PartHalf side = findSideFromParent(parent);
         if (side == null) return;
+        if (!(level instanceof ServerLevel sourceLevel)) return;
+
+        UUID hash = parent.getWormholeParamsHash();
+        if (hash == null) return;
 
         UUID hash = parent.getWormholeParamsHash();
         if (hash == null) return;
