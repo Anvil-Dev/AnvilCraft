@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.data.recipe;
 
 import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelData;
 import dev.dubhe.anvilcraft.block.entity.celestial.LiquidCoverage;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyRecipe;
 import net.minecraft.advancements.Advancement;
@@ -92,7 +93,16 @@ public class SpecialCelestialBodyRecipeLoader {
                 List.of(item("minecraft:milk", 50)),
                 List.of(),
                 List.of(),
-                List.of()
+                List.of(),
+                Optional.of(new CelestialTravelData(
+                    anvil("overworld_like"),
+                    new CelestialTravelData.CoordinateRule(
+                        CelestialTravelData.CoordinateRule.Type.SAME, 1.0, 0, 64, 0, 8
+                    ),
+                    new CelestialTravelData.ReturnRule(
+                        CelestialTravelData.ReturnRule.Type.ENTRY_PORTAL, 0, 64, 0, 8
+                    )
+                ))
             )
         );
     }
@@ -126,7 +136,8 @@ public class SpecialCelestialBodyRecipeLoader {
                 List.of(),
                 List.of(),
                 List.of(),
-                List.of()
+                List.of(),
+                Optional.empty()
             )
         );
     }
@@ -153,7 +164,8 @@ public class SpecialCelestialBodyRecipeLoader {
                 List.of(),
                 List.of(),
                 List.of(),
-                List.of()
+                List.of(),
+                Optional.empty()
             )
         );
     }
@@ -180,7 +192,8 @@ public class SpecialCelestialBodyRecipeLoader {
                 List.of(),
                 List.of(),
                 List.of(),
-                List.of()
+                List.of(),
+                Optional.empty()
             )
         );
     }
@@ -207,7 +220,8 @@ public class SpecialCelestialBodyRecipeLoader {
                 List.of(),
                 List.of(),
                 List.of(),
-                List.of()
+                List.of(),
+                Optional.empty()
             )
         );
     }

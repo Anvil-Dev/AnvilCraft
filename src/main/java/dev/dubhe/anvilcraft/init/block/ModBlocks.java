@@ -157,6 +157,7 @@ import dev.dubhe.anvilcraft.block.WipBlock;
 import dev.dubhe.anvilcraft.block.batch.BaseBatchCraftingBlock;
 import dev.dubhe.anvilcraft.block.batch.BatchCrafterBlock;
 import dev.dubhe.anvilcraft.block.batch.BatchCutterBlock;
+import dev.dubhe.anvilcraft.block.CelestialBackGateBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilPortalBlock;
@@ -1967,6 +1968,22 @@ public class ModBlocks {
         .properties(properties -> properties.rarity(Rarity.EPIC))
         .build()
         .recipe(RegistrumBlockRecipeLoader::celestialForgingAnvilPortal)
+        .register();
+
+    public static final BlockEntry<CelestialBackGateBlock> CELESTIAL_BACK_GATE = REGISTRUM
+        .block("celestial_back_gate", CelestialBackGateBlock::new)
+        .lang("Celestial Back Gate")
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties
+            .noOcclusion()
+            .noCollission()
+            .isViewBlocking(ModBlocks::never)
+            .isValidSpawn(Blocks::never)
+            .strength(-1.0F, 3600000.0F)
+            .pushReaction(PushReaction.BLOCK)
+            .noLootTable())
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .register();
 
     public static final BlockEntry<MagnetoElectricCoreBlock> MAGNETO_ELECTRIC_CORE_BLOCK = REGISTRUM.block(

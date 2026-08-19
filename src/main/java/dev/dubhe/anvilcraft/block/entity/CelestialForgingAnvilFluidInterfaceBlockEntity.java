@@ -21,6 +21,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -43,6 +44,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
     @Setter
     @Nullable
     private PowerGrid grid;
+    private boolean suppressFluidSync;
 
     public CelestialForgingAnvilFluidInterfaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -96,10 +98,28 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
     @Override
     public void setChanged() {
         super.setChanged();
+        if (suppressFluidSync) return;
         if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             syncToClients();
         }
+    }
+
+    /** Drains all tanks containing the requested fluid and sends one combined update. */
+    public int drainFluid(Fluid fluid) {
+        int drainedAmount = 0;
+        this.suppressFluidSync = true;
+        try {
+            for (FluidTank tank : tanks) {
+                FluidStack stored = tank.getFluid();
+                if (stored.isEmpty() || !stored.is(fluid)) continue;
+                drainedAmount += tank.drain(stored.getAmount(), IFluidHandler.FluidAction.EXECUTE).getAmount();
+            }
+        } finally {
+            this.suppressFluidSync = false;
+        }
+        if (drainedAmount > 0) this.setChanged();
+        return drainedAmount;
     }
 
     @Override

@@ -526,7 +526,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.ANCIENT_SEA_REEF.asItem(), "A chunk of sea reef – looks like it's hiding some treasure");
         NORMAL.put(ModBlocks.VOID_MATTER_BLOCK.asItem(), "A chunk of void...");
         NORMAL.put(ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK.asItem(), "A chunk of void... exciting void... comes from a Black Hole");
-        NORMAL.put(ModBlocks.CREATIVE_GENERATOR.asItem(), "Provide up to 8192 kW of power, can also be used as a load");
+        NORMAL.put(ModBlocks.CREATIVE_GENERATOR.asItem(), "Provide up to 65536 kW of power, can also be used as a load");
         NORMAL.put(ModFoodItems.COCOA_BUTTER.asItem(), "One hundred percent natural pure cocoa butter!");
 
         SHIFT.put(

@@ -71,6 +71,7 @@ public class CfaMegastructureManager {
         this.registerLegacy(new ColliderHandler());
         this.registerLegacy(new DysonSphereHandler("dyson_sphere_small"));
         this.registerLegacy(new DysonSphereHandler("dyson_sphere_large"));
+        this.registerLegacy(new DysonSphereHandler("dyson_sphere_brown_dwarf"));
         this.registerLegacy(new MagnetarCoilHandler());
         this.registerLegacy(new PenroseSphereHandler());
         this.registerLegacy(new MatterDecompressorHandler());

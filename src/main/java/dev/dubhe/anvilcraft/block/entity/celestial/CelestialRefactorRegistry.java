@@ -115,7 +115,7 @@ public final class CelestialRefactorRegistry {
     public static int getInnermostRing(CelestialBodyData body, boolean amplified) {
         boolean isLarge = body.size() >= 48;
         int ring = switch (body) {
-            case StarData ignored -> isLarge ? 5 : 4;
+            case StarData star -> star.specialRedDwarf() ? 2 : (isLarge ? 5 : 4);
             case GiantPlanetData ignored -> 2;
             case RockyPlanetData ignored -> 1;
             case SpecialCelestialBodyData special -> special.isErrorPlanet() ? 0 : 1;
@@ -143,6 +143,9 @@ public final class CelestialRefactorRegistry {
         if (innermostRing <= 2 && 2 <= maxRing) {
             options.add(CelestialRefactorOption.withMaterial(2, "giant_planet_exctractor",
                 ringModel(2, "exctractor"), prefix + "giant_planet_exctractor", ModBlocks.PUMP.asItem(), 32));
+            options.add(CelestialRefactorOption.withMaterial(2, "dyson_sphere_brown_dwarf",
+                ringModel(2, "dyson_sphere"), prefix + "dyson_sphere_brown_dwarf",
+                ModItems.DYSON_SPHERE_COMPONENT.get(), 8));
         }
         if (innermostRing <= 4 && 4 <= maxRing) {
             options.add(CelestialRefactorOption.withMaterial(4, "stellar_ring_collider", ringModel(4, "collider"),
@@ -196,12 +199,16 @@ public final class CelestialRefactorRegistry {
         if (!(body instanceof GiantPlanetData)) {
             options.removeIf(option -> "giant_planet_exctractor".equals(option.megastructure()));
         }
+        if (!((body instanceof GiantPlanetData brown && brown.brownDwarf())
+            || (body instanceof StarData star && star.specialRedDwarf()))) {
+            options.removeIf(option -> "dyson_sphere_brown_dwarf".equals(option.megastructure()));
+        }
         if (!(body instanceof StarData star && star.size() < 48
             && star.bodyClass() != CelestialBodyClass.NEUTRON_STAR
             && star.bodyClass() != CelestialBodyClass.BLACK_HOLE)) {
             options.removeIf(option -> "stellar_ring_collider".equals(option.megastructure()));
         }
-        if (body instanceof StarData star && (star.bodyClass() == CelestialBodyClass.WHITE_DWARF
+        if (body instanceof StarData star && (star.specialRedDwarf() || star.bodyClass() == CelestialBodyClass.WHITE_DWARF
             || star.bodyClass() == CelestialBodyClass.NEUTRON_STAR
             || star.bodyClass() == CelestialBodyClass.BLACK_HOLE)) {
             options.removeIf(option -> "stellar_evolution_accelerator".equals(option.megastructure()));

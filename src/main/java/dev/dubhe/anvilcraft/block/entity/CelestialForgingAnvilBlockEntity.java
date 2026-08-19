@@ -226,7 +226,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     @Override
     public int getInputPower() {
         if (this.searchController.isSearching() && this.searchController.ticksRemaining() > 0) {
-            return isAmplify ? 4000 : 1000;
+            return isAmplify ? 32000 : 1000;
         }
         return megastructureManager.getInputPower(this);
     }

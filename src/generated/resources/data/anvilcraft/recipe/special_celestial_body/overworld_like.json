@@ -3,6 +3,12 @@
   "axial_tilt": 0.0,
   "energy": 16,
   "has_atmosphere": true,
+  "landing": {
+    "coordinate_rule": {
+      "type": "same"
+    },
+    "dimension": "anvilcraft:overworld_like"
+  },
   "liquid_coverage": "medium",
   "magnetic_field": 2,
   "mass": 20,

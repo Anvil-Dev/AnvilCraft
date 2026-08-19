@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.dfu.AnvilCraftDfu;
 import dev.dubhe.anvilcraft.init.ModAttachments;
+import dev.dubhe.anvilcraft.init.ModBiomeSources;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.ModDispenserBehavior;
@@ -94,6 +95,7 @@ public class AnvilCraft {
     public AnvilCraft(IEventBus modEventBus, ModContainer modContainer) {
         MOD_BUS = modEventBus;
         NeoForgeMod.enableMilkFluid();
+        ModBiomeSources.register(modEventBus);
         ModAttachments.register(modEventBus);
         ModItemGroups.register(modEventBus);
         ModBlocks.register();

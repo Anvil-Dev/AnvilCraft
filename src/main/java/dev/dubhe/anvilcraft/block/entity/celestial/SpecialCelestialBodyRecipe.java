@@ -61,8 +61,53 @@ public record SpecialCelestialBodyRecipe(
     List<WeightedEntry> biologicalFluids,
     List<WeightedEntry> offerings,
     List<DemandEntry> templeBlessings,
-    List<DemandEntry> templePunishments
+    List<DemandEntry> templePunishments,
+    Optional<CelestialTravelData> landing
 ) implements Recipe<SpecialCelestialBodyInput> {
+
+    /** Compatibility constructor for integrations compiled before landing rules were added. */
+    public SpecialCelestialBodyRecipe(
+        String name,
+        String model,
+        boolean needsCustomModel,
+        int time,
+        int space,
+        int mass,
+        int energy,
+        boolean hasAtmosphere,
+        Optional<LiquidCoverage> liquidCoverage,
+        int magneticFieldStrength,
+        int rotationSpeed,
+        float axialTilt,
+        List<ResourceLocation> seedItems,
+        List<WeightedEntry> minerals,
+        List<WeightedEntry> fluids,
+        List<WeightedEntry> biologicalItems,
+        List<WeightedEntry> biologicalFluids,
+        List<WeightedEntry> offerings,
+        List<DemandEntry> templeBlessings,
+        List<DemandEntry> templePunishments
+    ) {
+        this(
+            name, model, needsCustomModel, time, space, mass, energy, hasAtmosphere, liquidCoverage,
+            magneticFieldStrength, rotationSpeed, axialTilt, seedItems, minerals, fluids,
+            biologicalItems, biologicalFluids, offerings, templeBlessings, templePunishments, Optional.empty()
+        );
+    }
+
+    /** Alias used by integrations that describe the field as travel data. */
+    public Optional<CelestialTravelData> landingData() {
+        return landing;
+    }
+
+    /** Compatibility alias for datapack integrations that call this travel data. */
+    public Optional<CelestialTravelData> travel() {
+        return landing;
+    }
+
+    public boolean isLandable() {
+        return landing.isPresent();
+    }
 
     /// === WeightedEntry ===
 
@@ -154,7 +199,9 @@ public record SpecialCelestialBodyRecipe(
         ResourceFields.CODEC.fieldOf("resources").forGetter(
             r -> new ResourceFields(r.minerals, r.fluids, r.biologicalItems, r.biologicalFluids,
                 r.offerings, r.templeBlessings, r.templePunishments)
-        )
+        ),
+        CelestialTravelData.CODEC.optionalFieldOf("landing").forGetter(SpecialCelestialBodyRecipe::landing),
+        CelestialTravelData.CODEC.optionalFieldOf("travel").forGetter(recipe -> Optional.empty())
     ).apply(ins, SpecialCelestialBodyRecipe::fromCodec));
 
     @SuppressWarnings("unused")
@@ -163,7 +210,7 @@ public record SpecialCelestialBodyRecipe(
         String texture, boolean hasAtmosphere,
         Optional<LiquidCoverage> liquidCoverage, int magneticField, int rotationSpeed, float axialTilt,
         List<ResourceLocation> seedItems, boolean needsCustomModel,
-        ResourceFields res
+        ResourceFields res, Optional<CelestialTravelData> landing, Optional<CelestialTravelData> travel
     ) {
         return new SpecialCelestialBodyRecipe(
             name, texture, needsCustomModel,
@@ -172,7 +219,8 @@ public record SpecialCelestialBodyRecipe(
             magneticField, rotationSpeed, axialTilt,
             seedItems,
             res.minerals, res.fluids, res.biologicalItems, res.biologicalFluids,
-            res.offerings, res.templeBlessings, res.templePunishments
+            res.offerings, res.templeBlessings, res.templePunishments,
+            landing.isPresent() ? landing : travel
         );
     }
 
@@ -201,6 +249,7 @@ public record SpecialCelestialBodyRecipe(
             List<WeightedEntry> offerings = WeightedEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
             List<DemandEntry> templeBlessings = DemandEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
             List<DemandEntry> templePunishments = DemandEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).decode(buf);
+            Optional<CelestialTravelData> landing = ByteBufCodecs.optional(CelestialTravelData.STREAM_CODEC).decode(buf);
             return new SpecialCelestialBodyRecipe(
                 name, model, needsCustomModel,
                 time, space, mass, energy,
@@ -208,7 +257,8 @@ public record SpecialCelestialBodyRecipe(
                 magneticFieldStrength, rotationSpeed, axialTilt,
                 seedItems,
                 minerals, fluids, biologicalItems, biologicalFluids,
-                offerings, templeBlessings, templePunishments
+                offerings, templeBlessings, templePunishments,
+                landing
             );
         }
 
@@ -234,6 +284,7 @@ public record SpecialCelestialBodyRecipe(
             WeightedEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, r.offerings());
             DemandEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, r.templeBlessings());
             DemandEntry.STREAM_CODEC.apply(ByteBufCodecs.list()).encode(buf, r.templePunishments());
+            ByteBufCodecs.optional(CelestialTravelData.STREAM_CODEC).encode(buf, r.landing());
         }
     };
 

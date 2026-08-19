@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block.cfa.interfaces;
 
 import com.mojang.serialization.MapCodec;
+import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.item.CelestialForgingAnvilInterfaceBlockItem;
@@ -25,10 +26,21 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
 
 public class CelestialForgingAnvilInterfacePlaceholderBlock
     extends HorizontalDirectionalBlock
     implements IHammerRemovable {
+    public static final VoxelShape NORTH = ShapeUtil.merge(
+        CelestialForgingAnvilInterfaceBlock.BASE_NORTH,
+        Block.box(4, 4, 0, 12, 12, 8),
+        Block.box(4, 8, 6, 12, 16, 14),
+        Block.box(5, 12, 1, 11, 18, 7)
+    );
+    public static final VoxelShape WEST = ShapeUtil.rotate(Direction.Axis.Y, 90, NORTH);
+    public static final VoxelShape SOUTH = ShapeUtil.rotate(Direction.Axis.Y, 180, NORTH);
+    public static final VoxelShape EAST = ShapeUtil.rotate(Direction.Axis.Y, 270, NORTH);
 
     public CelestialForgingAnvilInterfacePlaceholderBlock(Properties properties) {
         super(properties);
@@ -54,6 +66,17 @@ public class CelestialForgingAnvilInterfacePlaceholderBlock
     @Override
     protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
         return true;
+    }
+
+    @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return switch (state.getValue(FACING)) {
+            case NORTH -> NORTH;
+            case SOUTH -> SOUTH;
+            case WEST -> WEST;
+            case EAST -> EAST;
+            default -> throw new IllegalArgumentException("Unsupported direction for horizontal facing");
+        };
     }
 
     @Override

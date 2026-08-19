@@ -13,8 +13,39 @@ public record GiantPlanetData(
     float axialTilt,
     int rotationSpeed,
     int magneticFieldStrength,
-    boolean brownDwarf
+    boolean brownDwarf,
+    int energy
 ) implements CelestialBodyData {
+
+    /** Backwards-compatible constructor for giant planets stored before energy was persisted. */
+    public GiantPlanetData(
+        CelestialBodyClass bodyClass,
+        PressureType pressureType,
+        WindSpeed windSpeed,
+        RingType ringType,
+        int size,
+        int paletteBaseRow,
+        int paletteOverlayRow,
+        float axialTilt,
+        int rotationSpeed,
+        int magneticFieldStrength,
+        boolean brownDwarf
+    ) {
+        this(
+            bodyClass,
+            pressureType,
+            windSpeed,
+            ringType,
+            size,
+            paletteBaseRow,
+            paletteOverlayRow,
+            axialTilt,
+            rotationSpeed,
+            magneticFieldStrength,
+            brownDwarf,
+            0
+        );
+    }
 
     @Override
     public CelestialBodyType type() {
@@ -36,6 +67,7 @@ public record GiantPlanetData(
         tag.putInt("rotationSpeed", rotationSpeed);
         tag.putInt("magneticFieldStrength", magneticFieldStrength);
         tag.putBoolean("brownDwarf", brownDwarf);
+        tag.putInt("energy", energy);
         return tag;
     }
 
@@ -43,6 +75,7 @@ public record GiantPlanetData(
         CelestialBodyClass cls = CelestialBodyData.readClass(tag, CelestialBodyType.GIANT_PLANET);
         int mag = tag.contains("magneticFieldStrength") ? tag.getInt("magneticFieldStrength") : 0;
         boolean bd = tag.contains("brownDwarf") && tag.getBoolean("brownDwarf");
+        int energy = tag.contains("energy") ? tag.getInt("energy") : 0;
         return new GiantPlanetData(
             cls,
             PressureType.fromName(tag.getString("pressureType")),
@@ -54,7 +87,8 @@ public record GiantPlanetData(
             tag.getFloat("axialTilt"),
             tag.getInt("rotationSpeed"),
             mag,
-            bd
+            bd,
+            energy
         );
     }
 }

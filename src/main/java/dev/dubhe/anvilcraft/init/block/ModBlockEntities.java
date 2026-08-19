@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BlackHoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.BurningHeaterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.CelestialBackGateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilFluidInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
@@ -492,6 +493,11 @@ public class ModBlockEntities {
             CelestialForgingAnvilPortalBlockEntity::new)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_PORTAL)
         .renderer(() -> LaserBlockRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<CelestialBackGateBlockEntity> CELESTIAL_BACK_GATE = REGISTRUM
+        .blockEntity("celestial_back_gate", CelestialBackGateBlockEntity::new)
+        .validBlock(ModBlocks.CELESTIAL_BACK_GATE)
         .register();
 
     public static final BlockEntityEntry<TradingStationBlockEntity> TRADING_STATION = REGISTRUM

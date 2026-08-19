@@ -4,6 +4,9 @@ import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilPortalBlock;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelData;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
+import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionGate331PartHalf;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
@@ -303,6 +306,13 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             return;
         }
 
+        /// 可登陆特殊星球的传送门不依赖虫洞网络中的另一座 CFA。
+        CelestialTravelData landing = getLandingData(parent);
+        if (landing != null) {
+            tickLandingPortal(state);
+            return;
+        }
+
         Cube323PartHalf side = findSideFromParent(parent);
         if (side == null) return;
 
@@ -506,7 +516,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             }
             /// 清理已离开开口格的触碰记录
             if (!touchingEntities.isEmpty()) {
-                Set<UUID> present = level.getEntitiesOfClass(Entity.class, new AABB(worldPosition))
+                Set<UUID> present = level.getEntitiesOfClass(Entity.class, portalSpace)
                     .stream().map(Entity::getUUID).collect(Collectors.toSet());
                 touchingEntities.removeIf(uuid -> !present.contains(uuid));
             }
@@ -524,9 +534,18 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
         CelestialForgingAnvilBlockEntity parent = findParentCfa();
         if (parent == null) return;
+        if (!(level instanceof ServerLevel sourceLevel)) return;
+
+        CelestialTravelData landing = getLandingData(parent);
+        if (landing != null) {
+            if (CelestialTravelManager.tryLand(entity, sourceLevel, getAnchorPos(), getFacing(), landing)) {
+                touchingEntities.add(uuid);
+            }
+            return;
+        }
+
         Cube323PartHalf side = findSideFromParent(parent);
         if (side == null) return;
-        if (!(level instanceof ServerLevel sourceLevel)) return;
 
         UUID hash = parent.getWormholeParamsHash();
         if (hash == null) return;
@@ -608,6 +627,51 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         }
 
         touchingEntities.add(uuid);
+    }
+
+    @Nullable
+    private CelestialTravelData getLandingData(CelestialForgingAnvilBlockEntity parent) {
+        if (parent.getCelestialBodyData() instanceof SpecialCelestialBodyData special) {
+            return special.landing();
+        }
+        return null;
+    }
+
+    /** Opens a standalone landing gate and performs the same entity scan as a linked gate. */
+    private void tickLandingPortal(BlockState state) {
+        if (!state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
+            state = state.setValue(CelestialForgingAnvilPortalBlock.OPEN, true);
+            level.setBlock(worldPosition, state, 3);
+        }
+        /// A landing gate has no remote laser endpoint; discard stale wormhole output.
+        wormholeLaserLevel = 0;
+        wormholeLaserGamma = false;
+        setGammaOutputState(false, 0);
+        if (irradiateBlockPos != null) {
+            BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
+            if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
+                lastIrradiated.onCancelingIrradiation(this);
+            }
+            updateIrradiateBlockPos(null);
+        }
+        clearIrradiateSelfLaserBlockSet();
+        updateLaserLevel(0);
+        this.gammaIrradiatingPos = null;
+        this.gammaExposureTicks = 0;
+        if (isAnchor()) {
+            AABB portalSpace = new AABB(worldPosition).expandTowards(0, 1, 0);
+            for (Entity entity : level.getEntitiesOfClass(Entity.class, portalSpace)) {
+                tryTouchTeleport(entity);
+            }
+            if (!touchingEntities.isEmpty()) {
+                Set<UUID> present = level.getEntitiesOfClass(Entity.class, portalSpace)
+                    .stream().map(Entity::getUUID).collect(Collectors.toSet());
+                touchingEntities.removeIf(uuid -> !present.contains(uuid));
+            }
+        } else {
+            touchingEntities.clear();
+        }
+        sendLaserPackets();
     }
 
     /// 查找虫洞另一侧已连接传送门中与本格相同高度的方块实体。本格为底层中心则返回对侧底层中心，本格为正中心则返回对侧正中心，如果未连接或目标传送门未找到则返回 null。

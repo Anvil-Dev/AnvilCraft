@@ -15,8 +15,37 @@ public record StarData(
     int rotationSpeed,
     int magneticFieldStrength,
     int energy,
-    @Nullable UUID bodyUuid
+    @Nullable UUID bodyUuid,
+    boolean specialRedDwarf
 ) implements CelestialBodyData {
+
+    /** Backwards-compatible constructor for ordinary stars. */
+    public StarData(
+        CelestialBodyClass bodyClass,
+        int size,
+        int colorR,
+        int colorG,
+        int colorB,
+        float axialTilt,
+        int rotationSpeed,
+        int magneticFieldStrength,
+        int energy,
+        @Nullable UUID bodyUuid
+    ) {
+        this(
+            bodyClass,
+            size,
+            colorR,
+            colorG,
+            colorB,
+            axialTilt,
+            rotationSpeed,
+            magneticFieldStrength,
+            energy,
+            bodyUuid,
+            false
+        );
+    }
 
     @Override
     public CelestialBodyType type() {
@@ -30,7 +59,19 @@ public record StarData(
 
     /// 创建一个带有新body UUID的副本，保留所有其他字段。
     public StarData withBodyUuid(UUID uuid) {
-        return new StarData(bodyClass, size, colorR, colorG, colorB, axialTilt, rotationSpeed, magneticFieldStrength, energy, uuid);
+        return new StarData(
+            bodyClass,
+            size,
+            colorR,
+            colorG,
+            colorB,
+            axialTilt,
+            rotationSpeed,
+            magneticFieldStrength,
+            energy,
+            uuid,
+            specialRedDwarf
+        );
     }
 
     /// 从bodySeed派生一个可复现的UUID。相同的bodySeed总是产生相同的UUID，这使得奇点水晶副本能够共享原始发现的虫洞身份。
@@ -51,6 +92,7 @@ public record StarData(
         tag.putInt("rotationSpeed", rotationSpeed);
         tag.putInt("magneticFieldStrength", magneticFieldStrength);
         tag.putInt("energy", energy);
+        tag.putBoolean("specialRedDwarf", specialRedDwarf);
         if (bodyUuid != null) {
             tag.putUUID("bodyUuid", bodyUuid);
         }
@@ -72,6 +114,19 @@ public record StarData(
         int energy = tag.contains("energy") ? tag.getInt("energy") : 0;
         int rotSpeed = tag.contains("rotationSpeed") ? tag.getInt("rotationSpeed") : 0;
         UUID uuid = tag.contains("bodyUuid") ? tag.getUUID("bodyUuid") : null;
-        return new StarData(cls, size, r, g, b, tag.getFloat("axialTilt"), rotSpeed, mag, energy, uuid);
+        boolean specialRedDwarf = tag.contains("specialRedDwarf") && tag.getBoolean("specialRedDwarf");
+        return new StarData(
+            cls,
+            size,
+            r,
+            g,
+            b,
+            tag.getFloat("axialTilt"),
+            rotSpeed,
+            mag,
+            energy,
+            uuid,
+            specialRedDwarf
+        );
     }
 }

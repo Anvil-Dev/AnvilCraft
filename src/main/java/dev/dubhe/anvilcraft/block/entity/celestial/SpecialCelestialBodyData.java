@@ -22,8 +22,31 @@ public record SpecialCelestialBodyData(
     boolean isErrorPlanet,
     boolean needsCustomModel,
     String model,
-    @Nullable CompoundTag playerHeadProfile
+    @Nullable CompoundTag playerHeadProfile,
+    @Nullable CelestialTravelData landing
 ) implements CelestialBodyData {
+
+    /** Compatibility constructor for snapshots written before landing rules existed. */
+    public SpecialCelestialBodyData(
+        String recipeId,
+        String name,
+        int size,
+        float axialTilt,
+        int rotationSpeed,
+        int magneticFieldStrength,
+        @Nullable Temperature temperature,
+        boolean hasAtmosphere,
+        @Nullable LiquidCoverage liquidCoverage,
+        boolean isErrorPlanet,
+        boolean needsCustomModel,
+        String model,
+        @Nullable CompoundTag playerHeadProfile
+    ) {
+        this(
+            recipeId, name, size, axialTilt, rotationSpeed, magneticFieldStrength, temperature,
+            hasAtmosphere, liquidCoverage, isErrorPlanet, needsCustomModel, model, playerHeadProfile, null
+        );
+    }
 
     /// 从配方和其资源路径ID创建。
     public static SpecialCelestialBodyData fromRecipe(SpecialCelestialBodyRecipe recipe, String recipeId) {
@@ -40,7 +63,8 @@ public record SpecialCelestialBodyData(
             recipe.isErrorPlanet(),
             recipe.needsCustomModel(),
             recipe.model(),
-            null
+            null,
+            recipe.landing().orElse(null)
         );
     }
 
@@ -60,13 +84,35 @@ public record SpecialCelestialBodyData(
             false,
             true,
             "player_head",
-            profileNbt
+            profileNbt,
+            null
         );
     }
 
     /// 此天体是否为玩家头颅动态天体。
     public boolean isPlayerHead() {
         return playerHeadProfile != null;
+    }
+
+    /// Whether this discovered body has a data-driven landing destination.
+    public boolean isLandable() {
+        return landing != null;
+    }
+
+    @Nullable
+    public CelestialTravelData landingData() {
+        return landing;
+    }
+
+    @Nullable
+    public CelestialTravelData travelData() {
+        return landing;
+    }
+
+    /** Compatibility alias for callers that use the older travel terminology. */
+    @Nullable
+    public CelestialTravelData travel() {
+        return landing;
     }
 
     @Override
@@ -116,6 +162,9 @@ public record SpecialCelestialBodyData(
         if (playerHeadProfile != null) {
             tag.put("playerHeadProfile", playerHeadProfile);
         }
+        if (landing != null) {
+            tag.put("landing", landing.toTag());
+        }
         return tag;
     }
 
@@ -140,10 +189,13 @@ public record SpecialCelestialBodyData(
             ? LiquidCoverage.fromName(tag.getString("liquidCoverage")) : null;
         CompoundTag playerHeadProfile = tag.contains("playerHeadProfile")
             ? tag.getCompound("playerHeadProfile") : null;
+        String landingKey = tag.contains("landing") ? "landing" : "travel";
+        CelestialTravelData landing = tag.contains(landingKey)
+            ? CelestialTravelData.fromTag(tag.getCompound(landingKey)) : null;
         return new SpecialCelestialBodyData(
             recipeId, name, size, axialTilt, rotationSpeed, magneticFieldStrength,
             temperature, hasAtmosphere, liquidCoverage,
-            isErrorPlanet, needsCustomModel, model, playerHeadProfile
+            isErrorPlanet, needsCustomModel, model, playerHeadProfile, landing
         );
     }
 }

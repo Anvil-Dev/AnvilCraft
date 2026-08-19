@@ -60,6 +60,7 @@ public class RegisterAdditionalEventListener {
         event.register(standaloneBlock("celestial_forging_anvil_ring_1_exctractor"));
         event.register(standaloneBlock("celestial_forging_anvil_ring_1_temple"));
         event.register(standaloneBlock("celestial_forging_anvil_ring_2_exctractor"));
+        event.register(standaloneBlock("celestial_forging_anvil_ring_2_dyson_sphere"));
         event.register(standaloneBlock("celestial_forging_anvil_ring_4_coil"));
         event.register(standaloneBlock("celestial_forging_anvil_ring_4_collider"));
         event.register(standaloneBlock("celestial_forging_anvil_ring_4_dyson_sphere"));
