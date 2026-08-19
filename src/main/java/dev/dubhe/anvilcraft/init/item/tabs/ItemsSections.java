@@ -249,19 +249,6 @@ public class ItemsSections extends DisplayItemsGenerator {
         );
         sections.section(
             CreativeTabSection.builder(
-                AnvilCraft.of("textures/gui/creative_inventory/section/items/fluids.png")
-            )
-            .text(Component.translatable("anvilcraft.creative.section.items.fluids"))
-            .build(),
-            content -> {
-                content.accept(ModItems.EXP_BUCKET);
-                content.accept(ModItems.OIL_BUCKET);
-                content.accept(ModItems.MELT_GEM_BUCKET);
-                ModItems.CEMENT_BUCKETS.forEach((color, bucketItem) -> content.accept(bucketItem));
-            }
-        );
-        sections.section(
-            CreativeTabSection.builder(
                 AnvilCraft.of("textures/gui/creative_inventory/section/items/smithing_template.png")
             )
             .text(Component.translatable("anvilcraft.creative.section.items.smithing_template"))
@@ -275,6 +262,19 @@ public class ItemsSections extends DisplayItemsGenerator {
                 content.accept(ModItems.TWO_TO_ONE_SMITHING_TEMPLATE);
                 content.accept(ModItems.FOUR_TO_ONE_SMITHING_TEMPLATE);
                 content.accept(ModItems.EIGHT_TO_ONE_SMITHING_TEMPLATE);
+            }
+        );
+        sections.section(
+            CreativeTabSection.builder(
+                    AnvilCraft.of("textures/gui/creative_inventory/section/items/fluids.png")
+                )
+                .text(Component.translatable("anvilcraft.creative.section.items.fluids"))
+                .build(),
+            content -> {
+                content.accept(ModItems.EXP_BUCKET);
+                content.accept(ModItems.OIL_BUCKET);
+                content.accept(ModItems.MELT_GEM_BUCKET);
+                ModItems.CEMENT_BUCKETS.forEach((color, bucketItem) -> content.accept(bucketItem));
             }
         );
     }
