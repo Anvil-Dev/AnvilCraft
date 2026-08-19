@@ -57,23 +57,31 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.storage.loot.LootTable;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 
 public class AdvancementLineHelper {
-    private AdvancementHolder parent;
+    private final Consumer<AdvancementHolder> output;
+    private final String modId;
+    private @Nullable AdvancementHolder parent;
+
+    public AdvancementLineHelper(Consumer<AdvancementHolder> output, String modId) {
+        this.output = output;
+        this.modId = modId;
+    }
 
     public AdvancementHelper next() {
         return new AdvancementHelper(this);
     }
 
     public AdvancementLineHelper createBranch() {
-        AdvancementLineHelper branch = new AdvancementLineHelper();
+        AdvancementLineHelper branch = new AdvancementLineHelper(this.output, this.modId);
         branch.parent = this.parent;
         return branch;
     }
@@ -86,6 +94,112 @@ public class AdvancementLineHelper {
             this.lineHelper = lineHelper;
             this.current = Advancement.Builder.advancement();
             if (lineHelper.parent != null) this.current.parent(lineHelper.parent);
+        }
+
+        public AdvancementHelper root(
+            ItemStack icon,
+            Component title,
+            Component description,
+            ResourceLocation background,
+            AdvancementType type,
+            boolean announceChat
+        ) {
+            return this.display(icon, title, description, background, type, false, announceChat, false);
+        }
+
+        public AdvancementHelper root(
+            ItemLike icon,
+            Component title,
+            Component description,
+            ResourceLocation background,
+            AdvancementType type,
+            boolean announceChat
+        ) {
+            return this.display(icon, title, description, background, type, false, announceChat, false);
+        }
+
+        public AdvancementHelper root(
+            ItemStack icon,
+            Component title,
+            Component description,
+            ResourceLocation background,
+            AdvancementType type
+        ) {
+            return this.root(icon, title, description, background, type, true);
+        }
+
+        public AdvancementHelper root(
+            ItemLike icon,
+            Component title,
+            Component description,
+            ResourceLocation background,
+            AdvancementType type
+        ) {
+            return this.root(icon, title, description, background, type, true);
+        }
+
+        public AdvancementHelper root(
+            ItemStack icon,
+            Component title,
+            Component description,
+            ResourceLocation background
+        ) {
+            return this.root(icon, title, description, background, AdvancementType.TASK);
+        }
+
+        public AdvancementHelper root(
+            ItemLike icon,
+            Component title,
+            Component description,
+            ResourceLocation background
+        ) {
+            return this.root(icon, title, description, background, AdvancementType.TASK);
+        }
+
+        public AdvancementHelper root(
+            ItemStack icon,
+            String id,
+            ResourceLocation background,
+            AdvancementType type
+        ) {
+            return this.root(
+                icon,
+                Component.translatable("advancements." + this.lineHelper.modId + "." + id + ".title"),
+                Component.translatable("advancements." + this.lineHelper.modId + "." + id + ".description"),
+                background,
+                type
+            );
+        }
+
+        public AdvancementHelper root(
+            ItemLike icon,
+            String id,
+            ResourceLocation background,
+            AdvancementType type
+        ) {
+            return this.root(
+                icon,
+                Component.translatable("advancements." + this.lineHelper.modId + "." + id + ".title"),
+                Component.translatable("advancements." + this.lineHelper.modId + "." + id + ".description"),
+                background,
+                type
+            );
+        }
+
+        public AdvancementHelper root(ItemStack icon, String id, ResourceLocation background) {
+            return this.root(icon, id, background, AdvancementType.TASK);
+        }
+
+        public AdvancementHelper root(ItemLike icon, String id, ResourceLocation background) {
+            return this.root(icon, id, background, AdvancementType.TASK);
+        }
+
+        public AdvancementHelper root(ItemStack icon, ResourceLocation background) {
+            return this.root(icon, "root", background);
+        }
+
+        public AdvancementHelper root(ItemLike icon, ResourceLocation background) {
+            return this.root(icon, "root", background);
         }
 
         public AdvancementHelper display(
@@ -116,9 +230,183 @@ public class AdvancementLineHelper {
             return this;
         }
 
+        public AdvancementHelper display(
+            ItemStack icon,
+            Component title,
+            Component description,
+            AdvancementType type,
+            boolean showToast,
+            boolean announceChat,
+            boolean hidden
+        ) {
+            return this.display(icon, title, description, null, type, showToast, announceChat, hidden);
+        }
+
+        public AdvancementHelper display(
+            ItemLike icon,
+            Component title,
+            Component description,
+            AdvancementType type,
+            boolean showToast,
+            boolean announceChat,
+            boolean hidden
+        ) {
+            return this.display(icon, title, description, null, type, showToast, announceChat, hidden);
+        }
+
+        public AdvancementHelper display(ItemStack icon, Component title, Component description, AdvancementType type, boolean hidden) {
+            return this.display(icon, title, description, type, true, true, hidden);
+        }
+
+        public AdvancementHelper display(ItemLike icon, Component title, Component description, AdvancementType type, boolean hidden) {
+            return this.display(icon, title, description, type, true, true, hidden);
+        }
+
+        public AdvancementHelper display(ItemStack icon, String id, AdvancementType type, boolean hidden) {
+            return this.display(
+                icon,
+                Component.translatable("advancements." + this.lineHelper.modId + "." + id + ".title"),
+                Component.translatable("advancements." + this.lineHelper.modId + "." + id + ".description"),
+                type,
+                hidden
+            );
+        }
+
+        public AdvancementHelper display(ItemLike icon, String id, AdvancementType type, boolean hidden) {
+            return this.display(
+                icon,
+                Component.translatable("advancements." + this.lineHelper.modId + "." + id + ".title"),
+                Component.translatable("advancements." + this.lineHelper.modId + "." + id + ".description"),
+                type,
+                hidden
+            );
+        }
+
+        public AdvancementHelper display(ItemStack icon, Component title, Component description, AdvancementType type) {
+            return this.display(icon, title, description, type, false);
+        }
+
+        public AdvancementHelper display(ItemLike icon, Component title, Component description, AdvancementType type) {
+            return this.display(icon, title, description, type, false);
+        }
+
+        public AdvancementHelper display(ItemStack icon, String id, AdvancementType type) {
+            return this.display(
+                icon,
+                Component.translatable("advancements." + this.lineHelper.modId + "." + id + ".title"),
+                Component.translatable("advancements." + this.lineHelper.modId + "." + id + ".description"),
+                type
+            );
+        }
+
+        public AdvancementHelper display(ItemLike icon, String id, AdvancementType type) {
+            return this.display(
+                icon,
+                Component.translatable("advancements." + this.lineHelper.modId + "." + id + ".title"),
+                Component.translatable("advancements." + this.lineHelper.modId + "." + id + ".description"),
+                type
+            );
+        }
+
         public AdvancementHelper display(DisplayInfo display) {
             this.current.display(display);
             return this;
+        }
+
+        public AdvancementHelper task(ItemStack icon, Component title, Component description, boolean hidden) {
+            return this.display(icon, title, description, AdvancementType.TASK, hidden);
+        }
+
+        public AdvancementHelper task(ItemLike icon, Component title, Component description, boolean hidden) {
+            return this.display(icon, title, description, AdvancementType.TASK, hidden);
+        }
+
+        public AdvancementHelper task(ItemStack icon, String id, boolean hidden) {
+            return this.display(icon, id, AdvancementType.TASK, hidden);
+        }
+
+        public AdvancementHelper task(ItemLike icon, String id, boolean hidden) {
+            return this.display(icon, id, AdvancementType.TASK, hidden);
+        }
+
+        public AdvancementHelper task(ItemStack icon, Component title, Component description) {
+            return this.display(icon, title, description, AdvancementType.TASK);
+        }
+
+        public AdvancementHelper task(ItemLike icon, Component title, Component description) {
+            return this.display(icon, title, description, AdvancementType.TASK);
+        }
+
+        public AdvancementHelper task(ItemStack icon, String id) {
+            return this.display(icon, id, AdvancementType.TASK);
+        }
+
+        public AdvancementHelper task(ItemLike icon, String id) {
+            return this.display(icon, id, AdvancementType.TASK);
+        }
+
+        public AdvancementHelper goal(ItemStack icon, Component title, Component description, boolean hidden) {
+            return this.display(icon, title, description, AdvancementType.GOAL, hidden);
+        }
+
+        public AdvancementHelper goal(ItemLike icon, Component title, Component description, boolean hidden) {
+            return this.display(icon, title, description, AdvancementType.GOAL, hidden);
+        }
+
+        public AdvancementHelper goal(ItemStack icon, String id, boolean hidden) {
+            return this.display(icon, id, AdvancementType.GOAL, hidden);
+        }
+
+        public AdvancementHelper goal(ItemLike icon, String id, boolean hidden) {
+            return this.display(icon, id, AdvancementType.GOAL, hidden);
+        }
+
+        public AdvancementHelper goal(ItemStack icon, Component title, Component description) {
+            return this.display(icon, title, description, AdvancementType.GOAL);
+        }
+
+        public AdvancementHelper goal(ItemLike icon, Component title, Component description) {
+            return this.display(icon, title, description, AdvancementType.GOAL);
+        }
+
+        public AdvancementHelper goal(ItemStack icon, String id) {
+            return this.display(icon, id, AdvancementType.GOAL);
+        }
+
+        public AdvancementHelper goal(ItemLike icon, String id) {
+            return this.display(icon, id, AdvancementType.GOAL);
+        }
+
+        public AdvancementHelper challenge(ItemStack icon, Component title, Component description, boolean hidden) {
+            return this.display(icon, title, description, AdvancementType.CHALLENGE, hidden);
+        }
+
+        public AdvancementHelper challenge(ItemLike icon, Component title, Component description, boolean hidden) {
+            return this.display(icon, title, description, AdvancementType.CHALLENGE, hidden);
+        }
+
+        public AdvancementHelper challenge(ItemStack icon, String id, boolean hidden) {
+            return this.display(icon, id, AdvancementType.CHALLENGE, hidden);
+        }
+
+        public AdvancementHelper challenge(ItemLike icon, String id, boolean hidden) {
+            return this.display(icon, id, AdvancementType.CHALLENGE, hidden);
+        }
+
+        public AdvancementHelper challenge(ItemStack icon, Component title, Component description) {
+            return this.display(icon, title, description, AdvancementType.CHALLENGE);
+        }
+
+        public AdvancementHelper challenge(ItemLike icon, Component title, Component description) {
+            return this.display(icon, title, description, AdvancementType.CHALLENGE);
+        }
+
+        public AdvancementHelper challenge(ItemStack icon, String id) {
+            return this.display(icon, id, AdvancementType.CHALLENGE);
+        }
+
+        public AdvancementHelper challenge(ItemLike icon, String id) {
+            return this.display(icon, id, AdvancementType.CHALLENGE);
         }
 
         public AdvancementHelper rewards(AdvancementRewards rewards) {
@@ -396,7 +684,15 @@ public class AdvancementLineHelper {
         }
 
         public AdvancementHolder build(String id) {
-            AdvancementHolder holder = this.current.build(AnvilCraft.advancementOf(id));
+            ResourceLocation location = ResourceLocation.fromNamespaceAndPath(this.lineHelper.modId, this.lineHelper.modId + "/" + id);
+            AdvancementHolder holder = this.current.build(location);
+            this.lineHelper.parent = holder;
+            return holder;
+        }
+
+        public AdvancementHolder save(String id) {
+            ResourceLocation location = ResourceLocation.fromNamespaceAndPath(this.lineHelper.modId, this.lineHelper.modId + "/" + id);
+            AdvancementHolder holder = this.current.save(this.lineHelper.output, location.toString());
             this.lineHelper.parent = holder;
             return holder;
         }
