@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * 满电容器物品
  */
-public interface IFullCapacitor extends IChargerDischargeable {
+public interface IFullCapacitor {
     static boolean tryForceChargeTarget(
         IFullCapacitor capacitor,
         ItemStack capacitorStack,
@@ -37,11 +37,6 @@ public interface IFullCapacitor extends IChargerDischargeable {
     int getEnergyStored(ItemStack stack);
 
     ItemStack getEmpty(ItemStack full);
-
-    @Override
-    default ItemStack discharge(ItemStack input) {
-        return this.getEmpty(input);
-    }
 
     default void inventoryTick(ItemStack stack, Player player) {
         if (player.level().isClientSide()) {
