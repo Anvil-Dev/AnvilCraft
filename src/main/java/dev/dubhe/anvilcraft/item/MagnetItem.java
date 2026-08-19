@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.api.item.IChargerChargeable;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -14,7 +13,7 @@ import net.minecraft.world.level.Level;
 import static dev.dubhe.anvilcraft.util.MagnetUtil.magnetizeItems;
 import static dev.dubhe.anvilcraft.util.MagnetUtil.placeMagnetizedNode;
 
-public class MagnetItem extends Item implements IChargerChargeable {
+public class MagnetItem extends Item {
     public MagnetItem(Properties properties) {
         super(properties);
     }
@@ -41,10 +40,5 @@ public class MagnetItem extends Item implements IChargerChargeable {
     @Override
     public int getEnchantmentValue(ItemStack stack) {
         return 1;
-    }
-
-    @Override
-    public ItemStack charge(ItemStack input) {
-        return ModItems.MAGNET.asStack(1);
     }
 }
