@@ -350,28 +350,6 @@ public final class CelestialTravelManager {
     }
 
     @Nullable
-    private static BlockPos findSafeLandingPos(
-        ServerLevel level, BlockPos origin, boolean keepRequestedY, int searchRadius
-    ) {
-        WorldBorder border = level.getWorldBorder();
-        BlockPos clamped = border.clampToBounds(origin);
-        BlockPos direct = findSafeLandingInColumn(
-            level, origin.getX(), origin.getZ(), origin, keepRequestedY
-        );
-        if (direct != null && border.isWithinBounds(direct.getX(), direct.getZ())) return direct;
-        for (BlockPos.MutableBlockPos column : BlockPos.spiralAround(
-            clamped, searchRadius, Direction.EAST, Direction.SOUTH
-        )) {
-            int x = column.getX();
-            int z = column.getZ();
-            if (!border.isWithinBounds(x, z)) continue;
-            BlockPos candidate = findSafeLandingInColumn(level, x, z, origin, keepRequestedY);
-            if (candidate != null) return candidate;
-        }
-        return null;
-    }
-
-    @Nullable
     private static BlockPos findSafeLandingInColumn(
         ServerLevel level, int x, int z, BlockPos origin, boolean keepRequestedY
     ) {
