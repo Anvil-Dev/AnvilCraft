@@ -11,7 +11,7 @@ public class CreativeTabLang {
         provider.add("anvilcraft.creative.section.building_blocks.special", "Special");
         provider.add("anvilcraft.creative.section.functional_blocks.cfa", "CFA");
         provider.add("anvilcraft.creative.section.functional_blocks.creative", "Creative");
-        provider.add("anvilcraft.creative.section.functional_blocks.fluid_trans", "Fluid Transport");
+        provider.add("anvilcraft.creative.section.functional_blocks.fluid_trans", "Fluid Trans");
         provider.add("anvilcraft.creative.section.functional_blocks.forging", "Forging");
         provider.add("anvilcraft.creative.section.functional_blocks.functional", "Functional");
         provider.add("anvilcraft.creative.section.functional_blocks.logistics", "Logistics");
