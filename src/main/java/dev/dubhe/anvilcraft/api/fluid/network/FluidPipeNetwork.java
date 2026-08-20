@@ -60,7 +60,7 @@ public class FluidPipeNetwork {
     private static final long GAS_INFINITE_PRESSURE = Long.MAX_VALUE / 4;
     /** 空创造流体储罐的压力杠标：无穷小，确保任意气体都能浇入并被销毁。 */
     private static final long GAS_INFINITE_SINK_PRESSURE = Long.MIN_VALUE / 4;
-    /** 单种气体单 tick 全网均衡的总移动预算（mB）。 */
+    /** 气体每 tick 全网气体转移的总预算（mB），由所有气体类型共享。*/
     private static final int GAS_EQUILIBRIUM_BUDGET = MAX_SPEED;
     /** 判定气压已均衡的差值阈值（低于该值不再转移）。 */
     private static final long GAS_PRESSURE_EPSILON = 1;
@@ -292,12 +292,13 @@ public class FluidPipeNetwork {
                 }
             }
         }
+        int[] budget = new int[]{GAS_EQUILIBRIUM_BUDGET};
         for (FluidStack gasType : gasTypes) {
             List<FluidEndpoint> candidates = gasCandidates(gasType);
             if (candidates.size() < 2) {
                 continue;
             }
-            equilibrateGasType(gasType, candidates);
+            equilibrateGasType(gasType, candidates, budget);
         }
     }
 
@@ -320,14 +321,15 @@ public class FluidPipeNetwork {
      * move gas to the lowest-pressure reachable target that still has room, until pressure
      * differences converge or the global budget is exhausted.
      */
-    private void equilibrateGasType(FluidStack fluidType, List<FluidEndpoint> candidates) {
-        int globalBudget = GAS_EQUILIBRIUM_BUDGET;
-        for (int round = 0; round < GAS_MAX_ROUNDS && globalBudget > 0; round++) {
+    private void equilibrateGasType(
+        FluidStack fluidType, List<FluidEndpoint> candidates, int[] budget
+    ) {
+        for (int round = 0; round < GAS_MAX_ROUNDS && budget[0] > 0; round++) {
             boolean progressed = false;
             candidates.sort(Comparator
                 .comparingLong((FluidEndpoint e) -> gasPressure(e, fluidType))
                 .reversed());
-            for (int i = 0; i < candidates.size() && globalBudget > 0; i++) {
+            for (int i = 0; i < candidates.size() && budget[0] > 0; i++) {
                 FluidEndpoint hi = candidates.get(i);
                 int[] hiSc = gasStorage(hi.handler(), fluidType);
                 if (hiSc[0] <= 0 || hiSc[1] <= 0) {
@@ -380,7 +382,7 @@ public class FluidPipeNetwork {
                 }
                 int moved = transferGas(hi, bestTarget, fluidType, pathValves, reach);
                 if (moved > 0) {
-                    globalBudget -= moved;
+                    budget[0] -= moved;
                     progressed = true;
                 }
             }
