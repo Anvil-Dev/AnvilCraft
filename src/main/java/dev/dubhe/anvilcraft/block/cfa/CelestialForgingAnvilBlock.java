@@ -330,6 +330,11 @@ public class CelestialForgingAnvilBlock
         blockEntityTag.remove("acceleratorDysonDestroyed");
         blockEntityTag.remove("acceleratorDysonDestroyTick");
         blockEntityTag.remove("collapseAnimTicks");
+        blockEntityTag.remove("quenchedScheduled");
+        blockEntityTag.remove("quenchedStartTick");
+        blockEntityTag.remove("quenchedStarted");
+        blockEntityTag.remove("quenchedCanceled");
+        blockEntityTag.remove("quenchedSupernovaFired");
         blockEntityTag.remove("supernovaFlashTicks");
         blockEntityTag.remove("supernovaCenterY");
         blockEntityTag.remove("supernovaScale");

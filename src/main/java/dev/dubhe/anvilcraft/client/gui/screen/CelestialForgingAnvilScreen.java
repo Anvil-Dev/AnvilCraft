@@ -2056,7 +2056,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             /// 材料槽是CFA的 materialContainer，在菜单中映射
             ItemStack inSlot = be.getMaterialContainer().getItem(0);
             ItemStack required = option.material().copyWithCount(option.materialCount());
-            if (!ItemStack.isSameItemSameComponents(inSlot, required)
+            if (!ItemStack.isSameItem(inSlot, required)
                 || inSlot.getCount() < required.getCount()) {
                 showRefactorError(Component.translatable("screen.anvilcraft.cfa.insufficient_materials"));
                 return;

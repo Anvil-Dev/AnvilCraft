@@ -65,6 +65,12 @@ public class ModSoundEvents {
         () -> SoundEvent.createVariableRangeEvent(AnvilCraft.of("block.anvilcraft.auto_enchanting_table.use"))
     );
 
+    /// 淬灭序曲：锻星砧超新星爆发前播放的完整曲目（约 1 分 12 秒）。
+    /// 固定 64 格听距，让围观超新星的玩家都能听到。
+    public static final Supplier<SoundEvent> QUENCHED_OUT = REGISTER.register(
+        "quenched_out", () -> SoundEvent.createFixedRangeEvent(AnvilCraft.of("quenched_out"), 64.0f)
+    );
+
     public static void register(IEventBus modBus) {
         REGISTER.register(modBus);
     }

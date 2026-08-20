@@ -1197,7 +1197,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (option.needsMaterial()) {
             ItemStack contained = materialContainer.getItem(0);
             ItemStack required = option.material().copyWithCount(option.materialCount());
-            if (!ItemStack.isSameItemSameComponents(contained, required)
+            if (!ItemStack.isSameItem(contained, required)
                 || contained.getCount() < required.getCount()) {
                 return;
             }
