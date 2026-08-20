@@ -275,7 +275,11 @@ public class ItemsSections extends DisplayItemsGenerator {
                 content.accept(ModItems.EXP_BUCKET);
                 content.accept(ModItems.OIL_BUCKET);
                 content.accept(ModItems.MELT_GEM_BUCKET);
-                ModItems.CEMENT_BUCKETS.forEach((color, bucketItem) -> content.accept(bucketItem));
+                content.accept(ModItems.HYDROGEN_BUCKET);
+                content.accept(ModItems.OXYGEN_BUCKET);
+                content.accept(ModItems.HELIUM_BUCKET);
+                content.accept(ModItems.DEUTERIUM_BUCKET);
+                ModItems.CEMENT_BUCKETS.forEach((color, bucketItem) -> this.acceptFolded(content, bucketItem));
             }
         );
     }

@@ -18,6 +18,10 @@
     "anvilcraft:purple_cement_bucket",
     "anvilcraft:magenta_cement_bucket",
     "anvilcraft:pink_cement_bucket",
-    "anvilcraft:melt_gem_bucket"
+    "anvilcraft:melt_gem_bucket",
+    "anvilcraft:hydrogen_bucket",
+    "anvilcraft:oxygen_bucket",
+    "anvilcraft:helium_bucket",
+    "anvilcraft:deuterium_bucket"
   ]
 }
