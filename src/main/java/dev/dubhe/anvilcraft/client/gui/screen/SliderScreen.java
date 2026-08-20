@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.screen;
 
+import dev.dubhe.anvilcraft.block.entity.CreativeGeneratorBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.component.Slider;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.constant.Constant;
@@ -16,6 +17,8 @@ import net.minecraft.world.entity.player.Inventory;
 import net.neoforged.neoforge.network.PacketDistributor;
 
 public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
+    private static final int POWER_LIMIT = CreativeGeneratorBlockEntity.MAX_POWER;
+    private static final int SLIDER_BOUND = Integer.numberOfTrailingZeros(POWER_LIMIT) + 1;
     public static final ResourceLocation BACKGROUND = SharedTextures.bg("misc", "slider_like");
     public static final ResourceLocation BUTTON_MAX = SharedTextures.textureGui("misc/slider_like/button_max");
     public static final ResourceLocation BUTTON_ADD = SharedTextures.textureGui("misc/slider_like/button_add");
@@ -38,7 +41,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
         int offsetX = (this.width - this.imageWidth) / 2;
         int offsetY = (this.height - this.imageHeight) / 2;
         this.value = new EditBox(this.font, offsetX + 50, offsetY + 47, 76, 8, Component.literal("value"));
-        this.slider = new Slider(8 + offsetX, 31 + offsetY, -14, 14, 160 - 16, this::update);
+        this.slider = new Slider(8 + offsetX, 31 + offsetY, -SLIDER_BOUND, SLIDER_BOUND, 160 - 16, this::update);
         this.value.setCanLoseFocus(true);
         this.value.setTextColor(-1);
         this.value.setTextColorUneditable(-1);
@@ -55,7 +58,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             16,
             16,
             32,
-            (btn) -> this.slider.setValueWithUpdate(8192));
+            (btn) -> this.slider.setValueWithUpdate(POWER_LIMIT));
         TexturedButton add = new TexturedButton(
             134 + offsetX,
             43 + offsetY,
@@ -67,8 +70,8 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             32,
             (btn) -> this.value.setValue("" + Math.clamp(
                 Integer.parseInt(this.value.getValue()) + slider.getAddValue(Integer.parseInt(this.value.getValue())),
-                -8192,
-                8192
+                -POWER_LIMIT,
+                POWER_LIMIT
             )));
         TexturedButton min = new TexturedButton(
             8 + offsetX,
@@ -79,7 +82,7 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             16,
             16,
             32,
-            (btn) -> this.slider.setValueWithUpdate(-8192));
+            (btn) -> this.slider.setValueWithUpdate(-POWER_LIMIT));
         TexturedButton minus = new TexturedButton(
             26 + offsetX,
             43 + offsetY,
@@ -91,8 +94,8 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             32,
             (btn) -> this.value.setValue("" + Math.clamp(
                 Integer.parseInt(this.value.getValue()) - slider.getAddValue(Integer.parseInt(this.value.getValue())),
-                -8192,
-                8192
+                -POWER_LIMIT,
+                POWER_LIMIT
             )));
         this.addRenderableWidget(max);
         this.addRenderableWidget(add);
@@ -124,8 +127,9 @@ public class SliderScreen extends AbstractContainerScreen<SliderMenu> {
             this.value.setValue("" + this.slider.getValue());
             return;
         }
+        v = Math.clamp(v, -POWER_LIMIT, POWER_LIMIT);
         this.slider.setValue(v);
-        PacketDistributor.sendToServer(new SliderUpdatePacket(Math.clamp(v, -8192, 8192)));
+        PacketDistributor.sendToServer(new SliderUpdatePacket(v));
     }
 
     public void setMin(int min) {

@@ -135,6 +135,19 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
         cleanupWormholeChunkLoading(be.getLevel());
     }
 
+    @Override
+    public void onUnload(CelestialForgingAnvilBlockEntity be) {
+        if (registered && be.getLevel() != null && !be.getLevel().isClientSide()) {
+            WormholeNetwork.get().unregister(be.getLevel(), be.getBlockPos());
+        }
+        registered = false;
+        justReconnected = false;
+        lastSeenItems.clear();
+        lastFluidSnapshot.clear();
+        stopLocalLaserOutputs(be);
+        cleanupWormholeChunkLoading(be.getLevel());
+    }
+
     public void addPortal(Cube323PartHalf side, BlockPos portalPos, CelestialForgingAnvilBlockEntity be) {
         if (side != Cube323PartHalf.BOTTOM_N && side
                                                 != Cube323PartHalf.BOTTOM_S && side
@@ -191,6 +204,8 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
         if (!ItemStack.matches(localStack, canonStack) || localStack.getCount() != canonStack.getCount()) {
             canonical.set(changedSlot, new UnlimitedItemStack(localStack));
             states.setDirty();
+            // Push the value just accepted into canonical state, not the stale snapshot.
+            canonStack = localStack.copy();
         }
 
         WormholeNetwork network = WormholeNetwork.get();
@@ -510,7 +525,10 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             }
         }
 
-        /// 重置激光接口，使输出激光立即停止
+        stopLocalLaserOutputs(be);
+    }
+
+    private void stopLocalLaserOutputs(CelestialForgingAnvilBlockEntity be) {
         Map<BlockPos, CelestialForgingAnvilLaserInterfaceBlockEntity> laserMap = getLaserInterfacesMap(be);
         for (var entry : laserMap.entrySet()) {
             CelestialForgingAnvilLaserInterfaceBlockEntity localBe = entry.getValue();
@@ -553,16 +571,7 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         this.bodyUuid = tag.contains("wormholeBodyUuid") ? tag.getUUID("wormholeBodyUuid") : null;
         this.registered = false;
-        this.portals.clear();
-        if (tag.contains("portals")) {
-            CompoundTag portalTag = tag.getCompound("portals");
-            for (String key : portalTag.getAllKeys()) {
-                CompoundTag posTag = portalTag.getCompound(key);
-                Cube323PartHalf side = Cube323PartHalf.valueOf(key.toUpperCase());
-                BlockPos pos = new BlockPos(posTag.getInt("x"), posTag.getInt("y"), posTag.getInt("z"));
-                portals.put(side, pos);
-            }
-        }
+        this.loadPortals(tag);
     }
 
     @Override
@@ -573,5 +582,29 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
     @Override
     public void readUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         this.bodyUuid = tag.contains("wormholeBodyUuid") ? tag.getUUID("wormholeBodyUuid") : null;
+        this.loadPortals(tag);
+    }
+
+    /** Reads both the current handler-owned state and the legacy CFA portal tag. */
+    private void loadPortals(CompoundTag tag) {
+        this.portals.clear();
+        if (!tag.contains("portals")) return;
+        CompoundTag portalTag = tag.getCompound("portals");
+        for (String key : portalTag.getAllKeys()) {
+            Cube323PartHalf side = null;
+            for (Cube323PartHalf candidate : Cube323PartHalf.values()) {
+                if (candidate.name().equalsIgnoreCase(key)) {
+                    side = candidate;
+                    break;
+                }
+            }
+            if (side == null) continue;
+            CompoundTag posTag = portalTag.getCompound(key);
+            this.portals.put(side, new BlockPos(
+                posTag.getInt("x"),
+                posTag.getInt("y"),
+                posTag.getInt("z")
+            ));
+        }
     }
 }

@@ -17,12 +17,11 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -45,6 +44,7 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
     @Setter
     @Nullable
     private PowerGrid grid;
+    private boolean suppressFluidSync;
 
     public CelestialForgingAnvilFluidInterfaceBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState blockState) {
         super(type, pos, blockState);
@@ -92,24 +92,34 @@ public class CelestialForgingAnvilFluidInterfaceBlockEntity extends BlockEntity
 
     /// 将方块实体数据同步到所有追踪的客户端。
     public void syncToClients() {
-        if (level instanceof ServerLevel serverLevel) {
-            Packet<?> packet = getUpdatePacket();
-            if (packet != null) {
-                for (ServerPlayer player : serverLevel.getChunkSource().chunkMap
-                    .getPlayers(serverLevel.getChunkAt(worldPosition).getPos(), false)) {
-                    player.connection.send(packet);
-                }
-            }
-        }
+        CfaBlockEntitySync.sendToTracking(this, this.getUpdatePacket());
     }
 
     @Override
     public void setChanged() {
         super.setChanged();
+        if (suppressFluidSync) return;
         if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             syncToClients();
         }
+    }
+
+    /** Drains all tanks containing the requested fluid and sends one combined update. */
+    public int drainFluid(Fluid fluid) {
+        int drainedAmount = 0;
+        this.suppressFluidSync = true;
+        try {
+            for (FluidTank tank : tanks) {
+                FluidStack stored = tank.getFluid();
+                if (stored.isEmpty() || !stored.is(fluid)) continue;
+                drainedAmount += tank.drain(stored.getAmount(), IFluidHandler.FluidAction.EXECUTE).getAmount();
+            }
+        } finally {
+            this.suppressFluidSync = false;
+        }
+        if (drainedAmount > 0) this.setChanged();
+        return drainedAmount;
     }
 
     @Override

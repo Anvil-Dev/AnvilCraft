@@ -41,6 +41,11 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         return "planet_excavator";
     }
 
+    @Override
+    public LaserRequirement getLaserRequirement() {
+        return new LaserRequirement(LASER_THRESHOLD, false);
+    }
+
     @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     @Override
     public void serverTick(CelestialForgingAnvilBlockEntity be) {

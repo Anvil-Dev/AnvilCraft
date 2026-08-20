@@ -4,6 +4,9 @@ import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilBlock;
 import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilPortalBlock;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelData;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
+import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionGate331PartHalf;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
@@ -12,7 +15,6 @@ import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 import dev.dubhe.anvilcraft.saved.WormholeNetwork;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
-import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -45,7 +47,6 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -73,7 +74,6 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     private boolean wormholeLaserGamma = false;
 
     /// 客户端伽马激光束颜色渲染状态。
-    @Getter
     private boolean emittingGamma = false;
     private int gammaLevel = 0;
 
@@ -223,8 +223,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     @Override
     public void onIrradiated(BaseLaserBlockEntity source) {
         this.incomingLaserLevel = source.getLaserLevel();
-        this.incomingLaserGamma = source instanceof CelestialForgingAnvilLaserInterfaceBlockEntity cfaSource
-            && cfaSource.isEmittingGamma();
+        this.incomingLaserGamma = source.isEmittingGamma();
     }
 
     @Override
@@ -235,9 +234,16 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
     /// 设置来自已连接传送门的虫洞激光输出。由已连接传送门的 tick 通过虫洞同步调用。
     public void setWormholeLaser(int level, boolean gamma) {
-        this.wormholeLaserLevel = level;
+        int normalizedLevel = Math.max(0, level);
+        if (this.wormholeLaserLevel == normalizedLevel && this.wormholeLaserGamma == gamma) return;
+        this.wormholeLaserLevel = normalizedLevel;
         this.wormholeLaserGamma = gamma;
         this.setChanged();
+    }
+
+    @Override
+    public boolean isEmittingGamma() {
+        return this.emittingGamma;
     }
 
     /// 传送门上伽马激光渲染的客户端更新。
@@ -300,6 +306,13 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             return;
         }
 
+        /// 可登陆特殊星球的传送门不依赖虫洞网络中的另一座 CFA。
+        CelestialTravelData landing = getLandingData(parent);
+        if (landing != null) {
+            tickLandingPortal(state);
+            return;
+        }
+
         Cube323PartHalf side = findSideFromParent(parent);
         if (side == null) return;
 
@@ -326,8 +339,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                 updateLaserLevel(0);
                 wormholeLaserLevel = 0;
                 wormholeLaserGamma = false;
-                this.emittingGamma = false;
-                this.gammaLevel = 0;
+                setGammaOutputState(false, 0);
                 this.gammaIrradiatingPos = null;
                 this.gammaExposureTicks = 0;
                 this.setChanged();
@@ -454,6 +466,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         /// 如果此传送门有来自已连接传送门的虫洞激光设置，则发射激光。仅在传送门开启时发射——关闭的传送门不得转发激光。
         if (wormholeLaserLevel > 0 && state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
             Direction facing = getFacing();
+            setGammaOutputState(wormholeLaserGamma, wormholeLaserLevel);
             if (irradiateSelfLaserBlockSet.isEmpty()) {
                 if (wormholeLaserGamma) {
                     emitGammaLaserBeam(facing);
@@ -461,10 +474,9 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
                     emitLaser(facing);
                 }
             }
-            this.emittingGamma = wormholeLaserGamma;
-            this.gammaLevel = wormholeLaserLevel;
         } else {
             /// 停止激光发射
+            setGammaOutputState(false, 0);
             if (irradiateBlockPos != null) {
                 BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
                 if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
@@ -474,8 +486,6 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             }
             clearIrradiateSelfLaserBlockSet();
             updateLaserLevel(0);
-            this.emittingGamma = false;
-            this.gammaLevel = 0;
             this.gammaIrradiatingPos = null;
             this.gammaExposureTicks = 0;
         }
@@ -506,7 +516,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             }
             /// 清理已离开开口格的触碰记录
             if (!touchingEntities.isEmpty()) {
-                Set<UUID> present = level.getEntitiesOfClass(Entity.class, new AABB(worldPosition))
+                Set<UUID> present = level.getEntitiesOfClass(Entity.class, portalSpace)
                     .stream().map(Entity::getUUID).collect(Collectors.toSet());
                 touchingEntities.removeIf(uuid -> !present.contains(uuid));
             }
@@ -524,12 +534,25 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
 
         CelestialForgingAnvilBlockEntity parent = findParentCfa();
         if (parent == null) return;
+        if (!(level instanceof ServerLevel sourceLevel)) return;
+
+        CelestialTravelData landing = getLandingData(parent);
+        if (landing != null) {
+            if (CelestialTravelManager.tryLand(entity, sourceLevel, getAnchorPos(), getFacing(), landing)) {
+                touchingEntities.add(uuid);
+            }
+            return;
+        }
+
         Cube323PartHalf side = findSideFromParent(parent);
         if (side == null) return;
 
+        UUID hash = parent.getWormholeParamsHash();
+        if (hash == null) return;
+
         WormholeNetwork network = WormholeNetwork.get();
         List<WormholeNetwork.Entry> connected = network.getConnected(
-            Objects.requireNonNull(parent.getWormholeParamsHash()), Objects.requireNonNull(level).dimension(), parent.getBlockPos()
+            hash, sourceLevel.dimension(), parent.getBlockPos()
         );
         /// 仅当恰好有另一个 CFA 在此同侧有传送门时才传送
         List<WormholeNetwork.Entry> matching = connected.stream()
@@ -540,7 +563,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         WormholeNetwork.Entry target = matching.getFirst();
         if (!network.hasPortalAt(target.dimension(), target.pos(), side)) return;
 
-        ServerLevel targetLevel = level.getServer().getLevel(target.dimension());
+        ServerLevel targetLevel = sourceLevel.getServer().getLevel(target.dimension());
         if (targetLevel == null) return;
 
         Direction outwardFacing = CelestialForgingAnvilPortalBlock.getFacingFromSide(side);
@@ -579,7 +602,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         /// 对于同维度传送，直接使用 teleportTo 以避免 changeDimension 重建实体，导致的弹射物停滞和速度丢失问题。
         /// 对于 ServerPlayer 则还需调用 connection.teleport() 来同步客户端网络状态，否则客户端会从旧位置发送移动包，触发 "moved wrongly!" 反作弊警告。
         /// 对于跨维度传送，使用 changeDimension(DimensionTransition)。
-        if (targetLevel == level) {
+        if (targetLevel == sourceLevel) {
             entity.teleportTo(targetLevel, dx, dy, dz, java.util.Set.of(), targetYRot, entity.getXRot());
             if (entity instanceof ServerPlayer player) {
                 player.connection.teleport(dx, dy, dz, targetYRot, entity.getXRot());
@@ -604,6 +627,51 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         }
 
         touchingEntities.add(uuid);
+    }
+
+    @Nullable
+    private CelestialTravelData getLandingData(CelestialForgingAnvilBlockEntity parent) {
+        if (parent.getCelestialBodyData() instanceof SpecialCelestialBodyData special) {
+            return special.landing();
+        }
+        return null;
+    }
+
+    /** Opens a standalone landing gate and performs the same entity scan as a linked gate. */
+    private void tickLandingPortal(BlockState state) {
+        if (!state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
+            state = state.setValue(CelestialForgingAnvilPortalBlock.OPEN, true);
+            level.setBlock(worldPosition, state, 3);
+        }
+        /// A landing gate has no remote laser endpoint; discard stale wormhole output.
+        wormholeLaserLevel = 0;
+        wormholeLaserGamma = false;
+        setGammaOutputState(false, 0);
+        if (irradiateBlockPos != null) {
+            BlockEntity oldBe = level.getBlockEntity(irradiateBlockPos);
+            if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
+                lastIrradiated.onCancelingIrradiation(this);
+            }
+            updateIrradiateBlockPos(null);
+        }
+        clearIrradiateSelfLaserBlockSet();
+        updateLaserLevel(0);
+        this.gammaIrradiatingPos = null;
+        this.gammaExposureTicks = 0;
+        if (isAnchor()) {
+            AABB portalSpace = new AABB(worldPosition).expandTowards(0, 1, 0);
+            for (Entity entity : level.getEntitiesOfClass(Entity.class, portalSpace)) {
+                tryTouchTeleport(entity);
+            }
+            if (!touchingEntities.isEmpty()) {
+                Set<UUID> present = level.getEntitiesOfClass(Entity.class, portalSpace)
+                    .stream().map(Entity::getUUID).collect(Collectors.toSet());
+                touchingEntities.removeIf(uuid -> !present.contains(uuid));
+            }
+        } else {
+            touchingEntities.clear();
+        }
+        sendLaserPackets();
     }
 
     /// 查找虫洞另一侧已连接传送门中与本格相同高度的方块实体。本格为底层中心则返回对侧底层中心，本格为正中心则返回对侧正中心，如果未连接或目标传送门未找到则返回 null。
@@ -697,25 +765,42 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
+        tag.putBoolean("emittingGamma", this.emittingGamma);
+        tag.putInt("gammaLevel", this.gammaLevel);
+        tag.putBoolean("lastWaterlogged", this.lastWaterlogged);
+    }
+
+    private void setGammaOutputState(boolean emitting, int level) {
+        int normalizedLevel = emitting ? Math.max(0, level) : 0;
+        if (this.emittingGamma != emitting || this.gammaLevel != normalizedLevel) {
+            this.markChanged();
+        }
+        this.emittingGamma = emitting;
+        this.gammaLevel = normalizedLevel;
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
+        this.emittingGamma = tag.getBoolean("emittingGamma");
+        this.gammaLevel = tag.getInt("gammaLevel");
+        this.lastWaterlogged = tag.getBoolean("lastWaterlogged");
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
-        tag.putBoolean("gamma", emittingGamma);
-        tag.putInt("gammaLevel", gammaLevel);
+        tag.putBoolean("emittingGamma", this.emittingGamma);
+        tag.putInt("gammaLevel", this.gammaLevel);
         return tag;
     }
 
     @Override
     public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider registries) {
         super.handleUpdateTag(tag, registries);
-        this.emittingGamma = tag.getBoolean("gamma");
+        this.emittingGamma = tag.contains("emittingGamma")
+            ? tag.getBoolean("emittingGamma")
+            : tag.getBoolean("gamma");
         this.gammaLevel = tag.getInt("gammaLevel");
     }
 

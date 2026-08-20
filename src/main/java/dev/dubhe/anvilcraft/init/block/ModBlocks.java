@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.block.CakeBaseBlock;
 import dev.dubhe.anvilcraft.block.CakeBlock;
+import dev.dubhe.anvilcraft.block.CelestialBackGateBlock;
 import dev.dubhe.anvilcraft.block.CementCauldronBlock;
 import dev.dubhe.anvilcraft.block.ChargeCollectorBlock;
 import dev.dubhe.anvilcraft.block.ChargerBlock;
@@ -1856,14 +1857,7 @@ public class ModBlocks {
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
             .emissiveRendering(ModBlocks::always))
-        .loot((tables, block) -> {
-            // Generate empty loot table (rolls=0) so datagen doesn't break.
-            // Actual drop (with NBT) is handled manually in onRemove.
-            tables.add(
-                block,
-                LootTable.lootTable().withPool(LootPool.lootPool().setRolls(ConstantValue.exactly(0.0f)))
-            );
-        })
+        .loot(SimpleMultiPartBlock::loot)
         .tag((BlockTags.MINEABLE_WITH_PICKAXE), BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .item(CelestialForgingAnvilBlockItem::new)
         .properties(properties -> properties.stacksTo(1).rarity(Rarity.EPIC))
@@ -1974,6 +1968,22 @@ public class ModBlocks {
         .properties(properties -> properties.rarity(Rarity.EPIC))
         .build()
         .recipe(RegistrumBlockRecipeLoader::celestialForgingAnvilPortal)
+        .register();
+
+    public static final BlockEntry<CelestialBackGateBlock> CELESTIAL_BACK_GATE = REGISTRUM
+        .block("celestial_back_gate", CelestialBackGateBlock::new)
+        .lang("Celestial Back Gate")
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties
+            .noOcclusion()
+            .noCollission()
+            .isViewBlocking(ModBlocks::never)
+            .isValidSpawn(Blocks::never)
+            .strength(-1.0F, 3600000.0F)
+            .pushReaction(PushReaction.BLOCK)
+            .noLootTable())
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .register();
 
     public static final BlockEntry<MagnetoElectricCoreBlock> MAGNETO_ELECTRIC_CORE_BLOCK = REGISTRUM.block(

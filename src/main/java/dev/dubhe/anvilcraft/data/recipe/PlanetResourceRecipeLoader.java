@@ -10,14 +10,8 @@ import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.List;
-import java.util.Optional;
-
-/**
- * Data generation loader for planet resource recipes.
- */
+/** Data generation loader for planet resource recipes. */
 public class PlanetResourceRecipeLoader {
-
     public static void init(RegistrumRecipeProvider provider) {
         createMineralRecipe(provider);
         createFluidRecipes(provider);
@@ -37,139 +31,141 @@ public class PlanetResourceRecipeLoader {
         output.accept(id, recipe, advancement.build(id.withPrefix("recipes/")));
     }
 
-    // === Mineral ===
-
     private static void createMineralRecipe(RegistrumRecipeProvider provider) {
-        saveRecipe(provider, "mineral", new PlanetResourceRecipe(
-            PlanetResourceRecipe.Category.MINERAL,
-            Optional.of(new PlanetResourceRecipe.MineralData(
-                "c:raw_materials", "anvilcraft:non_planetary_minerals", 10
-            )),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()
-        ));
+        saveRecipe(
+            provider,
+            "mineral",
+            PlanetResourceRecipe.builder(PlanetResourceRecipe.Category.MINERAL)
+                .mineral(new PlanetResourceRecipe.MineralData(
+                    "c:raw_materials",
+                    "anvilcraft:non_planetary_minerals",
+                    10
+                ))
+                .build()
+        );
     }
-
-    // === Fluids ===
 
     private static void createFluidRecipes(RegistrumRecipeProvider provider) {
-        saveRecipe(provider, "fluid_water", new PlanetResourceRecipe(
-            PlanetResourceRecipe.Category.FLUID,
-            Optional.empty(),
-            Optional.of(new PlanetResourceRecipe.FluidData(
-                "rocky_planet", "", "low", "minecraft:water"
-            )),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()
-        ));
-
-        saveRecipe(provider, "fluid_lava", new PlanetResourceRecipe(
-            PlanetResourceRecipe.Category.FLUID,
-            Optional.empty(),
-            Optional.of(new PlanetResourceRecipe.FluidData(
-                "rocky_planet", "scorched", "low", "minecraft:lava"
-            )),
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty()
-        ));
+        saveRecipe(
+            provider,
+            "fluid_water",
+            PlanetResourceRecipe.builder(PlanetResourceRecipe.Category.FLUID)
+                .fluid(new PlanetResourceRecipe.FluidData("rocky_planet", "", "low", "minecraft:water"))
+                .build()
+        );
+        saveRecipe(
+            provider,
+            "fluid_lava",
+            PlanetResourceRecipe.builder(PlanetResourceRecipe.Category.FLUID)
+                .fluid(new PlanetResourceRecipe.FluidData("rocky_planet", "scorched", "low", "minecraft:lava"))
+                .build()
+        );
     }
-
-    // === Giant planet items ===
 
     private static void createGiantItemRecipes(RegistrumRecipeProvider provider) {
-        saveRecipe(provider, "giant_item_ice", new PlanetResourceRecipe(
-            PlanetResourceRecipe.Category.GIANT_ITEM,
-            Optional.empty(), Optional.empty(),
-            Optional.of(new PlanetResourceRecipe.GiantData(
-                List.of(
-                    new PlanetResourceRecipe.WeightedEntry("minecraft:ice", 50),
-                    new PlanetResourceRecipe.WeightedEntry("minecraft:packed_ice", 30),
-                    new PlanetResourceRecipe.WeightedEntry("minecraft:blue_ice", 20)
-                ), "ice"
-            )),
-            Optional.empty(), Optional.empty(), Optional.empty()
-        ));
+        saveRecipe(
+            provider,
+            "giant_item_ice",
+            PlanetResourceRecipe.builder(PlanetResourceRecipe.Category.GIANT_ITEM)
+                .giant(new PlanetResourceRecipe.GiantData(
+                    PlanetResourceRecipe.entries(entries -> entries
+                        .id("minecraft:ice", 50)
+                        .id("minecraft:packed_ice", 30)
+                        .id("minecraft:blue_ice", 20)),
+                    "ice"
+                ))
+                .build()
+        );
     }
-
-    // === Giant planet fluids ===
 
     private static void createGiantFluidRecipes(RegistrumRecipeProvider provider) {
-        saveRecipe(provider, "giant_fluid_gas", new PlanetResourceRecipe(
-            PlanetResourceRecipe.Category.GIANT_FLUID,
-            Optional.empty(), Optional.empty(),
-            Optional.of(new PlanetResourceRecipe.GiantData(
-                List.of(
-                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:primordial_matter", 100)
-                ), "gas"
-            )),
-            Optional.empty(), Optional.empty(), Optional.empty()
-        ));
-
-        saveRecipe(provider, "giant_fluid_ice", new PlanetResourceRecipe(
-            PlanetResourceRecipe.Category.GIANT_FLUID,
-            Optional.empty(), Optional.empty(),
-            Optional.of(new PlanetResourceRecipe.GiantData(
-                List.of(
-                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:primordial_matter", 90),
-                    new PlanetResourceRecipe.WeightedEntry("minecraft:water", 10)
-                ), "ice"
-            )),
-            Optional.empty(), Optional.empty(), Optional.empty()
-        ));
+        saveRecipe(
+            provider,
+            "giant_fluid_gas",
+            PlanetResourceRecipe.builder(PlanetResourceRecipe.Category.GIANT_FLUID)
+                .giant(new PlanetResourceRecipe.GiantData(
+                    PlanetResourceRecipe.entries(entries -> entries.id("anvilcraft:primordial_matter", 100)),
+                    "gas"
+                ))
+                .build()
+        );
+        saveRecipe(
+            provider,
+            "giant_fluid_ice",
+            PlanetResourceRecipe.builder(PlanetResourceRecipe.Category.GIANT_FLUID)
+                .giant(new PlanetResourceRecipe.GiantData(
+                    PlanetResourceRecipe.entries(entries -> entries
+                        .id("anvilcraft:primordial_matter", 90)
+                        .id("minecraft:water", 10)),
+                    "ice"
+                ))
+                .build()
+        );
     }
-
-    // === Biological ===
 
     private static void createBiologicalRecipe(RegistrumRecipeProvider provider) {
-        saveRecipe(provider, "biological", new PlanetResourceRecipe(
-            PlanetResourceRecipe.Category.BIOLOGICAL,
-            Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.of(new PlanetResourceRecipe.BiologicalData(
-                PlanetResourceRecipe.LifeChances.DEFAULT,
-                "anvilcraft:planetary_land_animals",
-                "anvilcraft:planetary_aquatic_animals",
-                "anvilcraft:non_planetary_mob_drops",
-                List.of(
-                    new PlanetResourceRecipe.WeightedEntry("minecraft:milk", 50),
-                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:honey", 50)
-                )
-            )),
-            Optional.empty(), Optional.empty()
-        ));
+        saveRecipe(
+            provider,
+            "biological",
+            PlanetResourceRecipe.builder(PlanetResourceRecipe.Category.BIOLOGICAL)
+                .biological(new PlanetResourceRecipe.BiologicalData(
+                    PlanetResourceRecipe.LifeChances.DEFAULT,
+                    "anvilcraft:planetary_land_animals",
+                    "anvilcraft:planetary_aquatic_animals",
+                    "anvilcraft:non_planetary_mob_drops",
+                    PlanetResourceRecipe.entries(entries -> entries
+                        .id("minecraft:milk", 50)
+                        .id("anvilcraft:honey", 50))
+                ))
+                .build()
+        );
     }
-
-    // === Offering ===
 
     private static void createOfferingRecipe(RegistrumRecipeProvider provider) {
-        saveRecipe(provider, "offering", new PlanetResourceRecipe(
-            PlanetResourceRecipe.Category.OFFERING,
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.of(new PlanetResourceRecipe.OfferingData(
-                List.of(
-                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:gem_block_random", 50),
-                    new PlanetResourceRecipe.WeightedEntry("minecraft:experience_bottle", 40),
-                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:royal_steel_ingot", 5),
-                    new PlanetResourceRecipe.WeightedEntry("minecraft:totem_of_undying", 2),
-                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:gem_amulet_random", 2),
-                    new PlanetResourceRecipe.WeightedEntry("minecraft:heart_of_the_sea", 1)
-                ), 50, 32, 43
-            )),
-            Optional.empty()
-        ));
+        saveRecipe(
+            provider,
+            "offering",
+            PlanetResourceRecipe.builder(PlanetResourceRecipe.Category.OFFERING)
+                .offering(new PlanetResourceRecipe.OfferingData(
+                    PlanetResourceRecipe.entries(entries -> entries
+                        .chooseOne(50, choices -> choices
+                            .id("minecraft:emerald_block", 1)
+                            .id("anvilcraft:topaz_block", 1)
+                            .id("anvilcraft:ruby_block", 1)
+                            .id("anvilcraft:sapphire_block", 1))
+                        .id("minecraft:experience_bottle", 40)
+                        .id("anvilcraft:royal_steel_ingot", 5)
+                        .id("minecraft:totem_of_undying", 2)
+                        .chooseOne(2, choices -> choices
+                            .id("anvilcraft:emerald_amulet", 1)
+                            .id("anvilcraft:topaz_amulet", 1)
+                            .id("anvilcraft:ruby_amulet", 1)
+                            .id("anvilcraft:sapphire_amulet", 1))
+                        .id("minecraft:heart_of_the_sea", 1)),
+                    50,
+                    32,
+                    43
+                ))
+                .build()
+        );
     }
 
-    // === Wasteland ===
-
     private static void createWastelandRecipe(RegistrumRecipeProvider provider) {
-        saveRecipe(provider, "wasteland", new PlanetResourceRecipe(
-            PlanetResourceRecipe.Category.WASTELAND,
-            Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty(),
-            Optional.of(new PlanetResourceRecipe.WastelandData(
-                List.of(
-                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:reinforced_concrete_gray", 60),
-                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:circuit_board", 30),
-                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:processor", 5),
-                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:raw_uranium", 3),
-                    new PlanetResourceRecipe.WeightedEntry("anvilcraft:plutonium_nugget", 2)
-                ), 35, 10
-            ))
-        ));
+        saveRecipe(
+            provider,
+            "wasteland",
+            PlanetResourceRecipe.builder(PlanetResourceRecipe.Category.WASTELAND)
+                .wasteland(new PlanetResourceRecipe.WastelandData(
+                    PlanetResourceRecipe.entries(entries -> entries
+                        .id("anvilcraft:reinforced_concrete_gray", 60)
+                        .id("anvilcraft:circuit_board", 30)
+                        .id("anvilcraft:processor", 5)
+                        .id("anvilcraft:raw_uranium", 3)
+                        .id("anvilcraft:plutonium_nugget", 2)),
+                    35,
+                    10
+                ))
+                .build()
+        );
     }
 }

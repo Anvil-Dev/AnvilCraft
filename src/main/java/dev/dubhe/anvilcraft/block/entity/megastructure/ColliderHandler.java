@@ -8,6 +8,8 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.collision.AnvilCollisionCraftRecipe;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -59,7 +61,6 @@ public class ColliderHandler extends BaseMegastructureHandler {
         if (starMissing) {
             if (cycleRemaining > 0 || !reservedAnvil.isEmpty() || !reservedHitBlock.isEmpty()) {
                 outputColliderReservedItems(be);
-                resetColliderState(be);
             }
             broadcastColliderState(be, false, true);
             return;
@@ -69,7 +70,6 @@ public class ColliderHandler extends BaseMegastructureHandler {
 
         if (be.isPowerInsufficient()) {
             outputColliderReservedItems(be);
-            resetColliderState(be);
             return;
         }
 
@@ -98,7 +98,6 @@ public class ColliderHandler extends BaseMegastructureHandler {
                 if (blockEntity instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
                     logiBe.setColliderProcessing(processing);
                     logiBe.setColliderStarMissing(starMissing);
-                    logiBe.setChanged();
                 }
             }, be
         );
@@ -111,7 +110,6 @@ public class ColliderHandler extends BaseMegastructureHandler {
                 var blockEntity = be.getLevel().getBlockEntity(checkPos);
                 if (blockEntity instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
                     logiBe.setColliderTargetItems(new ArrayList<>(targetItems));
-                    logiBe.setChanged();
                 }
             }, be
         );
@@ -258,7 +256,6 @@ public class ColliderHandler extends BaseMegastructureHandler {
         if (blockEntity instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logiBe) {
             logiBe.setColliderTargetItems(new ArrayList<>(targetItems));
             logiBe.setColliderProcessing(processing);
-            logiBe.setChanged();
         }
     }
 
@@ -388,11 +385,39 @@ public class ColliderHandler extends BaseMegastructureHandler {
         reservedHitBlock = ItemStack.EMPTY;
         activeSpeed = 0;
         broadcastColliderState(be, false, false);
+        be.setChanged();
+    }
+
+    @Override
+    public void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        tag.putInt("colliderCooldown", this.cooldown);
+        tag.putInt("colliderCycleRemaining", this.cycleRemaining);
+        tag.putInt("colliderActiveSpeed", this.activeSpeed);
+        tag.putInt("colliderLogisticsRoundRobin", this.logisticsRoundRobin);
+        if (!this.reservedAnvil.isEmpty()) {
+            tag.put("colliderReservedAnvil", this.reservedAnvil.save(registries));
+        }
+        if (!this.reservedHitBlock.isEmpty()) {
+            tag.put("colliderReservedHitBlock", this.reservedHitBlock.save(registries));
+        }
+    }
+
+    @Override
+    public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
+        this.cooldown = Math.max(tag.getInt("colliderCooldown"), 0);
+        this.cycleRemaining = Math.max(tag.getInt("colliderCycleRemaining"), 0);
+        this.activeSpeed = tag.getInt("colliderActiveSpeed");
+        this.logisticsRoundRobin = Math.max(tag.getInt("colliderLogisticsRoundRobin"), 0);
+        this.reservedAnvil = tag.contains("colliderReservedAnvil")
+            ? ItemStack.parse(registries, tag.getCompound("colliderReservedAnvil")).orElse(ItemStack.EMPTY)
+            : ItemStack.EMPTY;
+        this.reservedHitBlock = tag.contains("colliderReservedHitBlock")
+            ? ItemStack.parse(registries, tag.getCompound("colliderReservedHitBlock")).orElse(ItemStack.EMPTY)
+            : ItemStack.EMPTY;
     }
 
     @Override
     public void onClear(CelestialForgingAnvilBlockEntity be) {
         outputColliderReservedItems(be);
-        resetColliderState(be);
     }
 }

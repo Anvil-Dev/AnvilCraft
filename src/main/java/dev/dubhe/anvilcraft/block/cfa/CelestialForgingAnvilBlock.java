@@ -21,7 +21,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.ItemInteractionResult;
@@ -41,12 +40,16 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.annotation.Nullable;
 
 public class CelestialForgingAnvilBlock
@@ -243,10 +246,10 @@ public class CelestialForgingAnvilBlock
         level.getBlockEntity(state.getControllerPos(), ModBlockEntities.CELESTIAL_FORGING_ANVIL.get())
             .ifPresent(be -> {
                 be.setAmplifierPresent(false);
-                if (be.getCelestialBodyData() instanceof StarData) {
+                if (be.getCelestialBodyData() instanceof StarData star && !star.specialRedDwarf()) {
                     be.removeGravitySource(); /// 恒星不可见时立即移除引力
                     be.setLocked(true);
-                    be.getSearchHistory().clear();
+                    be.clearSearchHistory();
                     /// 保持isAmplify为true以保留天体数据，
                     /// 但渲染器会在增幅器缺失时隐藏天体显示
                 } else {
@@ -267,50 +270,98 @@ public class CelestialForgingAnvilBlock
         return pos.offset(state.getValue(HALF).getOffset()).offset(this.getMainPartOffset());
     }
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
+    @Override
+    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
+        List<ItemStack> drops = super.getDrops(state, params);
+        BlockEntity blockEntity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
+        if (!(blockEntity instanceof CelestialForgingAnvilBlockEntity be)) {
+            return drops;
+        }
+
+        boolean dropsController = false;
+        for (ItemStack stack : drops) {
+            if (!stack.is(this.asItem())) continue;
+            dropsController = true;
+            this.saveBlockEntityDataToDrop(stack, be, params);
+        }
+        if (!dropsController) return drops;
+
+        List<ItemStack> result = new ArrayList<>(drops);
+        for (int i = 0; i < be.getAnvilInventory().getContainerSize(); i++) {
+            ItemStack stack = be.getAnvilInventory().getItem(i);
+            if (!stack.isEmpty()) result.add(stack.copy());
+        }
+        ItemStack materialStack = be.getMaterialContainer().getItem(0);
+        if (!materialStack.isEmpty()) result.add(materialStack.copy());
+        return result;
+    }
+
+    private void saveBlockEntityDataToDrop(
+        ItemStack stack,
+        CelestialForgingAnvilBlockEntity blockEntity,
+        LootParams.Builder params
+    ) {
+        CompoundTag blockEntityTag = blockEntity.saveForDrop(params.getLevel().registryAccess());
+        blockEntityTag.remove("anvils");
+        blockEntityTag.remove("materialFilter");
+        blockEntityTag.remove("materialLimit");
+        blockEntityTag.remove("searchHistory");
+        blockEntityTag.remove("searching");
+        blockEntityTag.remove("searchTicks");
+        blockEntityTag.remove("searchFailed");
+        blockEntityTag.remove("powerInsufficient");
+        blockEntityTag.remove("searchCapturedSeed");
+        blockEntityTag.remove("searchSeedStateKnown");
+        blockEntityTag.remove("historyBrowseIndex");
+        blockEntityTag.remove("excavatorLaserActive");
+        blockEntityTag.remove("penroseSphereLaserActive");
+        blockEntityTag.remove("templeCycleDay");
+        blockEntityTag.remove("templeLastDay");
+        blockEntityTag.remove("templeDemand");
+        blockEntityTag.remove("templeDemandCount");
+        blockEntityTag.remove("templeDemandProgress");
+        blockEntityTag.remove("templeDemandSatisfied");
+        blockEntityTag.remove("acceleratorStage");
+        blockEntityTag.remove("acceleratorTicksRemaining");
+        blockEntityTag.remove("acceleratorTicksTotal");
+        blockEntityTag.remove("acceleratorOriginalMass");
+        blockEntityTag.remove("acceleratorOriginalEnergy");
+        blockEntityTag.remove("acceleratorOriginalSize");
+        blockEntityTag.remove("acceleratorDysonDestroyed");
+        blockEntityTag.remove("acceleratorDysonDestroyTick");
+        blockEntityTag.remove("collapseAnimTicks");
+        blockEntityTag.remove("quenchedScheduled");
+        blockEntityTag.remove("quenchedStartTick");
+        blockEntityTag.remove("quenchedStarted");
+        blockEntityTag.remove("quenchedCanceled");
+        blockEntityTag.remove("quenchedSupernovaFired");
+        blockEntityTag.remove("supernovaFlashTicks");
+        blockEntityTag.remove("supernovaCenterY");
+        blockEntityTag.remove("supernovaScale");
+        blockEntityTag.remove("wormholeBodyUuid");
+        blockEntityTag.remove("portals");
+        blockEntityTag.remove("amplifierPresent");
+        blockEntityTag.remove("activeMegastructureId");
+        blockEntityTag.remove("activeMegastructure");
+        blockEntityTag.remove("activeMegastructureName");
+        blockEntityTag.remove("activeMegastructureRing");
+        blockEntityTag.remove("colliderCooldown");
+        blockEntityTag.remove("colliderCycleRemaining");
+        blockEntityTag.remove("colliderActiveSpeed");
+        blockEntityTag.remove("colliderLogisticsRoundRobin");
+        blockEntityTag.remove("colliderReservedAnvil");
+        blockEntityTag.remove("colliderReservedHitBlock");
+        if (!blockEntityTag.isEmpty()) {
+            BlockItem.setBlockEntityData(stack, blockEntity.getType(), blockEntityTag);
+        }
+    }
+
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (state.is(newState.getBlock())) return;
-        BlockPos mainPos = getMainPartPos(pos, state);
-        boolean isMain = state.hasProperty(HALF) && state.getValue(HALF) == Cube323PartHalf.BOTTOM_CENTER;
-        if (isMain && level.getBlockEntity(mainPos) instanceof CelestialForgingAnvilBlockEntity be) {
-            /// 1. 将所有库存物品掉落至世界中
-            for (int i = 0; i < be.getAnvilInventory().getContainerSize(); i++) {
-                ItemStack stack = be.getAnvilInventory().getItem(i);
-                if (!stack.isEmpty()) {
-                    Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
-                }
-            }
-            ItemStack matStack = be.getMaterialContainer().getItem(0);
-            if (!matStack.isEmpty()) {
-                Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, matStack);
-            }
-
-            /// 2. 掉落方块物品，保留天体数据、巨构数据和匹配参数，
-            ///    以便在其他位置放置时天体能够重新出现。
-            ///    运行时和位置相关的标志会从物品标签中清除。
-            if (!level.isClientSide) {
-                ItemStack blockStack = new ItemStack(asItem());
-                CompoundTag beTag = new CompoundTag();
-                be.saveAdditional(beTag, level.registryAccess());
-
-                /// 清除与当前世界位置或瞬态运行时相关的数据
-                beTag.remove("anvils");               /// 库存 — 已在上方掉落
-                beTag.remove("materialFilter");       /// UI状态 — 关闭菜单时重置
-                beTag.remove("materialLimit");        /// UI状态
-                beTag.remove("searchHistory");        /// 搜索历史 — 不保留
-                beTag.remove("searching");            /// 运行时
-                beTag.remove("searchTicks");          /// 运行时
-                beTag.remove("searchFailed");         /// 运行时
-                beTag.remove("powerInsufficient");    /// 运行时
-                beTag.remove("excavatorLaserActive"); /// 依赖于附近的激光方块
-                beTag.remove("amplifierPresent");     /// 依赖于多方块结构
-
-                if (!beTag.isEmpty()) {
-                    BlockItem.setBlockEntityData(blockStack, be.getType(), beTag);
-                }
-                Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, blockStack);
-            }
+        if (!state.is(newState.getBlock())
+            && state.getValue(HALF) == Cube323PartHalf.BOTTOM_CENTER
+            && level.getBlockEntity(pos) instanceof CelestialForgingAnvilBlockEntity blockEntity) {
+            blockEntity.prepareForPermanentRemoval();
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }

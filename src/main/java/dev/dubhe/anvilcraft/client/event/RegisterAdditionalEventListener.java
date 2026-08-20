@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlockEntityRenderer;
+import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.resources.ResourceLocation;
@@ -9,6 +10,9 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ModelEvent;
+
+import java.util.HashSet;
+import java.util.Set;
 
 @SuppressWarnings("Linelength")
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
@@ -41,33 +45,41 @@ public class RegisterAdditionalEventListener {
         event.register(CelestialForgingAnvilBlockEntityRenderer.R5);
         event.register(CelestialForgingAnvilBlockEntityRenderer.R6);
 
-        // Celestial Restriction Ring megastructure models - Ring 1
+        Set<ResourceLocation> registeredMegastructureModels = new HashSet<>();
+        for (var megastructure : ModRegistries.MEGASTRUCTURE) {
+            for (ResourceLocation modelLocation : megastructure.modelLocations().values()) {
+                if (registeredMegastructureModels.add(modelLocation)) {
+                    event.register(ModelResourceLocation.standalone(modelLocation));
+                }
+            }
+        }
+
+        // Keep built-ins available if this event fires before the custom registry is populated.
         event.register(standaloneBlock("celestial_forging_anvil_ring_1_eco_station"));
         event.register(standaloneBlock("celestial_forging_anvil_ring_1_excavator"));
-        event.register(standaloneBlock("celestial_forging_anvil_ring_1_excavator_off"));
         event.register(standaloneBlock("celestial_forging_anvil_ring_1_exctractor"));
         event.register(standaloneBlock("celestial_forging_anvil_ring_1_temple"));
-        // Ring 2
         event.register(standaloneBlock("celestial_forging_anvil_ring_2_exctractor"));
-        // Ring 4
+        event.register(standaloneBlock("celestial_forging_anvil_ring_2_dyson_sphere"));
         event.register(standaloneBlock("celestial_forging_anvil_ring_4_coil"));
-        event.register(standaloneBlock("celestial_forging_anvil_ring_4_coil_fix"));
-        event.register(standaloneBlock("celestial_forging_anvil_ring_4_coil_ring"));
         event.register(standaloneBlock("celestial_forging_anvil_ring_4_collider"));
         event.register(standaloneBlock("celestial_forging_anvil_ring_4_dyson_sphere"));
         event.register(standaloneBlock("celestial_forging_anvil_ring_4_matter_decompressor"));
+        event.register(standaloneBlock("celestial_forging_anvil_ring_4_penrose_sphere"));
+        event.register(standaloneBlock("celestial_forging_anvil_ring_4_wormhole_stabilizer"));
+        event.register(standaloneBlock("celestial_forging_anvil_ring_5_dyson_sphere"));
+        event.register(standaloneBlock("celestial_forging_anvil_ring_5_stellar_evolution_accelerator"));
+        event.register(standaloneBlock("celestial_forging_anvil_ring_6_stellar_evolution_accelerator"));
+
+        // Built-in state-dependent and split-layer models are not part of the primary definition.
+        event.register(standaloneBlock("celestial_forging_anvil_ring_1_excavator_off"));
+        event.register(standaloneBlock("celestial_forging_anvil_ring_4_coil_fix"));
+        event.register(standaloneBlock("celestial_forging_anvil_ring_4_coil_ring"));
         event.register(standaloneBlock("celestial_forging_anvil_ring_4_matter_decompressor_fix"));
         event.register(standaloneBlock("celestial_forging_anvil_ring_4_matter_decompressor_ring"));
-        event.register(standaloneBlock("celestial_forging_anvil_ring_4_penrose_sphere"));
         event.register(standaloneBlock("celestial_forging_anvil_ring_4_penrose_sphere_fix"));
         event.register(standaloneBlock("celestial_forging_anvil_ring_4_penrose_sphere_laser"));
         event.register(standaloneBlock("celestial_forging_anvil_ring_4_penrose_sphere_laser_off"));
-        event.register(standaloneBlock("celestial_forging_anvil_ring_4_wormhole_stabilizer"));
-        // Ring 5
-        event.register(standaloneBlock("celestial_forging_anvil_ring_5_dyson_sphere"));
-        event.register(standaloneBlock("celestial_forging_anvil_ring_5_stellar_evolution_accelerator"));
-        // Ring 6
-        event.register(standaloneBlock("celestial_forging_anvil_ring_6_stellar_evolution_accelerator"));
 
         event.register(standaloneBlock("fire_cauldron_fire4"));
         event.register(standaloneBlock("smart_block_placer_base"));

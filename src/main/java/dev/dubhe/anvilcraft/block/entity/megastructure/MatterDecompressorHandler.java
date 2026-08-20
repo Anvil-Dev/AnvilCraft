@@ -21,6 +21,11 @@ public class MatterDecompressorHandler extends BaseMegastructureHandler {
     }
 
     @Override
+    public LaserRequirement getLaserRequirement() {
+        return new LaserRequirement(1, true);
+    }
+
+    @Override
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         if (!be.isAmplifierPresent()) return;

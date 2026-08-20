@@ -74,5 +74,6 @@ public class OtherLang {
 
         provider.add("subtitles.anvilcraft.anvil_hammer_rotate_block", "Anvil Hammer rotates block");
         provider.add("subtitles.anvilcraft.auto_enchanting_table.use", "Auto Enchanting Table used");
+        provider.add("subtitles.anvilcraft.quenched_out", "Quenched out"); // 淬灭（超新星前奏曲）
     }
 }

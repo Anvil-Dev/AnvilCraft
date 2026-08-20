@@ -4,7 +4,24 @@
   "offering": {
     "entries": [
       {
-        "id": "anvilcraft:gem_block_random",
+        "choices": [
+          {
+            "id": "minecraft:emerald_block",
+            "weight": 1
+          },
+          {
+            "id": "anvilcraft:topaz_block",
+            "weight": 1
+          },
+          {
+            "id": "anvilcraft:ruby_block",
+            "weight": 1
+          },
+          {
+            "id": "anvilcraft:sapphire_block",
+            "weight": 1
+          }
+        ],
         "weight": 50
       },
       {
@@ -20,7 +37,24 @@
         "weight": 2
       },
       {
-        "id": "anvilcraft:gem_amulet_random",
+        "choices": [
+          {
+            "id": "anvilcraft:emerald_amulet",
+            "weight": 1
+          },
+          {
+            "id": "anvilcraft:topaz_amulet",
+            "weight": 1
+          },
+          {
+            "id": "anvilcraft:ruby_amulet",
+            "weight": 1
+          },
+          {
+            "id": "anvilcraft:sapphire_amulet",
+            "weight": 1
+          }
+        ],
         "weight": 2
       },
       {
