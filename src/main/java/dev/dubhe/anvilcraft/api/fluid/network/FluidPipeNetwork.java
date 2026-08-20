@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.api.fluid.network;
 
+import dev.dubhe.anvilcraft.api.fluidtank.InfinityFluidTank;
 import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeCheckValveBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.fluid.GlassPipeBlockEntity;
 import dev.dubhe.anvilcraft.util.TriggerUtil;
@@ -51,14 +52,20 @@ public class FluidPipeNetwork {
     public static final int FULL_SPEED_HEIGHT = MAX_SPEED / HEIGHT_RATE;
     /** 气体满罐时的压力标度：气体压力 = 填充率(0..1) × 该值 + 泵气压偏置。 */
     private static final int GAS_PRESSURE_SCALE = 1000;
+    /** 气体压力排序的分辨率（在 GAS_PRESSURE_SCALE 基础上进一步细化，避免整除产生的死区）。 */
+    private static final int GAS_PRESSURE_RESOLUTION = 100;
     /** 泵每提供 1 格"扬程"在气压上的折算增量（气体由气压差驱动，不再使用扬程）。 */
     private static final int GAS_PRESSURE_PER_LIFT = 100;
+    /** 无限气体源（创造流体储罐）的压力杠标：远大于任何常规满罐，确保始终作为源向外扩散。 */
+    private static final long GAS_INFINITE_PRESSURE = Long.MAX_VALUE / 4;
+    /** 空创造流体储罐的压力杠标：无穷小，确保任意气体都能浇入并被销毁。 */
+    private static final long GAS_INFINITE_SINK_PRESSURE = Long.MIN_VALUE / 4;
     /** 单种气体单 tick 全网均衡的总移动预算（mB）。 */
     private static final int GAS_EQUILIBRIUM_BUDGET = MAX_SPEED;
     /** 判定气压已均衡的差值阈值（低于该值不再转移）。 */
-    private static final int GAS_PRESSURE_EPSILON = 1;
+    private static final long GAS_PRESSURE_EPSILON = 1;
     /** 气体均衡每 tick 的最大轮数，限制 O(n²) 遍历成本。 */
-    private static final int GAS_MAX_ROUNDS = 8;
+    private static final int GAS_MAX_ROUNDS = 16;
 
     /**
      * 按高度差计算流速（线性增长）：
@@ -318,7 +325,7 @@ public class FluidPipeNetwork {
         for (int round = 0; round < GAS_MAX_ROUNDS && globalBudget > 0; round++) {
             boolean progressed = false;
             candidates.sort(Comparator
-                .comparingInt((FluidEndpoint e) -> gasPressure(e, fluidType))
+                .comparingLong((FluidEndpoint e) -> gasPressure(e, fluidType))
                 .reversed());
             for (int i = 0; i < candidates.size() && globalBudget > 0; i++) {
                 FluidEndpoint hi = candidates.get(i);
@@ -333,13 +340,13 @@ public class FluidPipeNetwork {
                 if (hiStored.isEmpty()) {
                     continue;
                 }
-                int hiPressure = gasPressure(hi, fluidType);
+                long hiPressure = gasPressure(hi, fluidType);
                 Reachability reach = directionalConstraints
                     ? computeReachableCached(hi.fromPipePos(), hiStored)
                     : null;
                 Map<BlockPos, List<ValveState>> pathValves = reach == null ? Map.of() : reach.pathValves();
                 FluidEndpoint bestTarget = null;
-                int bestDelta = 0;
+                long bestDelta = 0;
                 for (int j = 0; j < candidates.size(); j++) {
                     if (i == j) {
                         continue;
@@ -358,8 +365,8 @@ public class FluidPipeNetwork {
                     if (loSc[0] >= loSc[1]) {
                         continue;
                     }
-                    int loPressure = gasPressure(lo, fluidType);
-                    int delta = hiPressure - loPressure;
+                    long loPressure = gasPressure(lo, fluidType);
+                    long delta = hiPressure - loPressure;
                     if (delta <= GAS_PRESSURE_EPSILON) {
                         continue;
                     }
@@ -371,7 +378,7 @@ public class FluidPipeNetwork {
                 if (bestTarget == null) {
                     continue;
                 }
-                int moved = transferGas(hi, bestTarget, fluidType, bestDelta, pathValves, reach);
+                int moved = transferGas(hi, bestTarget, fluidType, pathValves, reach);
                 if (moved > 0) {
                     globalBudget -= moved;
                     progressed = true;
@@ -385,10 +392,10 @@ public class FluidPipeNetwork {
 
     /**
      * Transfer driven by a single pressure difference: move exactly enough to equalize the two
-     * pressures, capped by flow rate, valve allowance, source stock and target free space.
+     * pressures, capped only by valve allowance, source stock and target free space.
      */
     private int transferGas(
-        FluidEndpoint hi, FluidEndpoint lo, FluidStack fluidType, int pressureDiff,
+        FluidEndpoint hi, FluidEndpoint lo, FluidStack fluidType,
         Map<BlockPos, List<ValveState>> pathValves, @Nullable Reachability reach
     ) {
         int[] hiSc = gasStorage(hi.handler(), fluidType);
@@ -401,19 +408,24 @@ public class FluidPipeNetwork {
             return 0;
         }
         int loFree = loCap - loStored;
-        int hiBias = (hi.effectiveHeight() - hi.containerPos().getY()) * GAS_PRESSURE_PER_LIFT;
-        int loBias = (lo.effectiveHeight() - lo.containerPos().getY()) * GAS_PRESSURE_PER_LIFT;
-        double num = (double) hiStored * loCap - (double) loStored * hiCap
-            - (double) (loBias - hiBias) * hiCap * loCap / GAS_PRESSURE_SCALE;
-        double x = num / (double) (hiCap + loCap);
-        int equalAmt = Math.max(0, (int) Math.floor(x));
-        if (equalAmt <= 0) {
-            return 0;
-        }
-        int flowCap = gasFlowForPressureDiff(pressureDiff);
         int valveLimit = minValveRemaining(pathValves.get(lo.fromPipePos()));
-        int want = Math.min(equalAmt, Math.min(flowCap, Math.min(hiStored, loFree)));
-        want = Math.min(want, valveLimit);
+        int want;
+        if (isInfiniteGasSource(hi.handler(), fluidType)) {
+            // 无限气体源：不受源存量限制，直接尽可能填满目标（受阀门限流）
+            want = Math.min(loFree, valveLimit);
+        } else {
+            int hiBias = (hi.effectiveHeight() - hi.containerPos().getY()) * GAS_PRESSURE_PER_LIFT;
+            int loBias = (lo.effectiveHeight() - lo.containerPos().getY()) * GAS_PRESSURE_PER_LIFT;
+            double num = (double) hiStored * loCap - (double) loStored * hiCap
+                - (double) (loBias - hiBias) * hiCap * loCap / GAS_PRESSURE_SCALE;
+            double x = num / (double) (hiCap + loCap);
+            int equalAmt = Math.max(0, (int) Math.round(x));
+            if (equalAmt <= 0) {
+                return 0;
+            }
+            want = Math.min(equalAmt, Math.min(hiStored, loFree));
+            want = Math.min(want, valveLimit);
+        }
         if (want <= 0) {
             return 0;
         }
@@ -468,21 +480,39 @@ public class FluidPipeNetwork {
      * The bias comes from the accumulated pump contribution ({@code effectiveHeight - tank Y}),
      * so it is independent of altitude.
      */
-    private static int gasPressure(FluidEndpoint endpoint, FluidStack fluidType) {
+    private static long gasPressure(FluidEndpoint endpoint, FluidStack fluidType) {
+        if (isInfiniteGasSource(endpoint.handler(), fluidType)) {
+            return GAS_INFINITE_PRESSURE;
+        }
+        if (isInfiniteGasSink(endpoint.handler())) {
+            return GAS_INFINITE_SINK_PRESSURE;
+        }
         int[] sc = gasStorage(endpoint.handler(), fluidType);
         if (sc[1] <= 0) {
             return 0;
         }
-        int bias = (endpoint.effectiveHeight() - endpoint.containerPos().getY()) * GAS_PRESSURE_PER_LIFT;
-        return (int) ((long) sc[0] * GAS_PRESSURE_SCALE / sc[1]) + bias;
+        long bias = (endpoint.effectiveHeight() - endpoint.containerPos().getY()) * GAS_PRESSURE_PER_LIFT;
+        return (long) sc[0] * GAS_PRESSURE_SCALE * GAS_PRESSURE_RESOLUTION / sc[1]
+            + bias * GAS_PRESSURE_RESOLUTION;
     }
 
-    /** Pressure-difference driven flow rate, capped at {@value #MAX_SPEED} mB/tick. */
-    private static int gasFlowForPressureDiff(int pressureDiff) {
-        if (pressureDiff <= 0) {
-            return 0;
+    /**
+     * 创造流体储罐（InfinityFluidTank）且当前搭载该气体时视为无限气体源：
+     * 存量无限，压力设为最大，持续向网络外扩散气体。
+     */
+    private static boolean isInfiniteGasSource(IFluidHandler handler, FluidStack fluidType) {
+        if (!(handler instanceof InfinityFluidTank endless) || endless.isEmpty()) {
+            return false;
         }
-        return Math.min(pressureDiff, MAX_SPEED);
+        return FluidStack.isSameFluidSameComponents(endless.getFluid(), fluidType);
+    }
+
+    /**
+     * 空创造流体储罐（InfinityFluidTank 且未搭载任何流体）视为无限气体汇：
+     * 压力无穷小，任意相连的源都会把气体扩散进去并被销毁。
+     */
+    private static boolean isInfiniteGasSink(IFluidHandler handler) {
+        return handler instanceof InfinityFluidTank endless && endless.isEmpty();
     }
 
     /** 从单个源端点向所有更低的端点分配其持有的流体。 */
