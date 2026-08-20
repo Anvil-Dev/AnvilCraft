@@ -22,6 +22,8 @@
     "anvilcraft:hydrogen_bucket",
     "anvilcraft:oxygen_bucket",
     "anvilcraft:helium_bucket",
-    "anvilcraft:deuterium_bucket"
+    "anvilcraft:deuterium_bucket",
+    "anvilcraft:xenon_bucket",
+    "anvilcraft:krypton_bucket"
   ]
 }

@@ -144,6 +144,22 @@ public class ModFluids {
         "deuterium", () -> new GasFluid(ModFluids.DEUTERIUM_FLUID_TYPE)
     );
 
+    public static final FluidType XENON_FLUID_TYPE = createXenonType();
+    public static final DeferredHolder<FluidType, FluidType> XENON_TYPE = FLUID_TYPES.register(
+        "xenon", () -> ModFluids.XENON_FLUID_TYPE
+    );
+    public static final DeferredHolder<Fluid, GasFluid> XENON = FLUIDS.register(
+        "xenon", () -> new GasFluid(ModFluids.XENON_FLUID_TYPE)
+    );
+
+    public static final FluidType KRYPTON_FLUID_TYPE = createKryptonType();
+    public static final DeferredHolder<FluidType, FluidType> KRYPTON_TYPE = FLUID_TYPES.register(
+        "krypton", () -> ModFluids.KRYPTON_FLUID_TYPE
+    );
+    public static final DeferredHolder<Fluid, GasFluid> KRYPTON = FLUIDS.register(
+        "krypton", () -> new GasFluid(ModFluids.KRYPTON_FLUID_TYPE)
+    );
+
     private static FluidType createHydrogenType() {
         return new FluidType(FluidType.Properties.create()
             .descriptionId("block.anvilcraft.hydrogen")
@@ -180,6 +196,28 @@ public class ModFluids {
     private static FluidType createDeuteriumType() {
         return new FluidType(FluidType.Properties.create()
             .descriptionId("block.anvilcraft.deuterium")
+            .density(-1000)
+            .viscosity(100)
+            .fallDistanceModifier(0)
+            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+        );
+    }
+
+    private static FluidType createXenonType() {
+        return new FluidType(FluidType.Properties.create()
+            .descriptionId("block.anvilcraft.xenon")
+            .density(-1000)
+            .viscosity(100)
+            .fallDistanceModifier(0)
+            .sound(SoundActions.BUCKET_FILL, SoundEvents.BUCKET_FILL)
+            .sound(SoundActions.BUCKET_EMPTY, SoundEvents.BUCKET_EMPTY)
+        );
+    }
+
+    private static FluidType createKryptonType() {
+        return new FluidType(FluidType.Properties.create()
+            .descriptionId("block.anvilcraft.krypton")
             .density(-1000)
             .viscosity(100)
             .fallDistanceModifier(0)
@@ -442,6 +480,26 @@ public class ModFluids {
                 0xFFA8E8DC,
                 false
             ), DEUTERIUM_TYPE
+        );
+        e.registerFluidType(
+            new ModClientFluidTypeExtensionImpl(
+                ResourceLocation.withDefaultNamespace("block/water_still"),
+                ResourceLocation.withDefaultNamespace("block/water_flow"),
+                0xC9C2F0,
+                2.0f,
+                0xFFC9C2F0,
+                false
+            ), XENON_TYPE
+        );
+        e.registerFluidType(
+            new ModClientFluidTypeExtensionImpl(
+                ResourceLocation.withDefaultNamespace("block/water_still"),
+                ResourceLocation.withDefaultNamespace("block/water_flow"),
+                0xB0E8A8,
+                2.0f,
+                0xFFB0E8A8,
+                false
+            ), KRYPTON_TYPE
         );
 
         for (Color color : Color.values()) {

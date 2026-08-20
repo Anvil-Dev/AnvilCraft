@@ -279,6 +279,8 @@ public class ItemsSections extends DisplayItemsGenerator {
                 content.accept(ModItems.OXYGEN_BUCKET);
                 content.accept(ModItems.HELIUM_BUCKET);
                 content.accept(ModItems.DEUTERIUM_BUCKET);
+                content.accept(ModItems.XENON_BUCKET);
+                content.accept(ModItems.KRYPTON_BUCKET);
                 ModItems.CEMENT_BUCKETS.forEach((color, bucketItem) -> this.acceptFolded(content, bucketItem));
             }
         );

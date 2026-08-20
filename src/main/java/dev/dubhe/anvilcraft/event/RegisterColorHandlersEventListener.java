@@ -48,6 +48,8 @@ public class RegisterColorHandlersEventListener {
             ModItems.HYDROGEN_BUCKET,
             ModItems.OXYGEN_BUCKET,
             ModItems.HELIUM_BUCKET,
-            ModItems.DEUTERIUM_BUCKET);
+            ModItems.DEUTERIUM_BUCKET,
+            ModItems.XENON_BUCKET,
+            ModItems.KRYPTON_BUCKET);
     }
 }

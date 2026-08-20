@@ -410,7 +410,10 @@ public class FluidPipeNetwork {
         int loFree = loCap - loStored;
         int valveLimit = minValveRemaining(pathValves.get(lo.fromPipePos()));
         int want;
-        if (isInfiniteGasSource(hi.handler(), fluidType)) {
+        if (isInfiniteGasSink(lo.handler())) {
+            // 空创造流体储罐（无限汇）：吸收源端全部可转移气体，至源排空或被阀门限制
+            want = Math.min(hiStored, valveLimit);
+        } else if (isInfiniteGasSource(hi.handler(), fluidType)) {
             // 无限气体源：不受源存量限制，直接尽可能填满目标（受阀门限流）
             want = Math.min(loFree, valveLimit);
         } else {

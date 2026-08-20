@@ -1186,6 +1186,22 @@ public class ModItems {
         .model(ModelProviderUtil::bucketGassy)
         .register();
 
+    public static final ItemEntry<BucketItem> XENON_BUCKET = REGISTRUM
+        .item("xenon_bucket", ModItems.bucket(() -> ModFluids.XENON))
+        .tag(Tags.Items.BUCKETS)
+        .lang("Xenon Bucket")
+        .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
+        .model(ModelProviderUtil::bucketGassy)
+        .register();
+
+    public static final ItemEntry<BucketItem> KRYPTON_BUCKET = REGISTRUM
+        .item("krypton_bucket", ModItems.bucket(() -> ModFluids.KRYPTON))
+        .tag(Tags.Items.BUCKETS)
+        .lang("Krypton Bucket")
+        .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
+        .model(ModelProviderUtil::bucketGassy)
+        .register();
+
     public static final ItemEntry<PipeBlockItem> PIPE = REGISTRUM.item("pipe", PipeBlockItem::new)
         .model((ctx, provider) -> provider
             .withExistingParent(ctx.getId().toString(), AnvilCraft.of("block/pipe"))
