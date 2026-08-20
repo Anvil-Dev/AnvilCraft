@@ -18,17 +18,21 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.fml.loading.FMLPaths;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.RegisterEvent;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.function.Supplier;
 
 import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 
 @SuppressWarnings("unused")
 public class ModItemGroups {
-    private static final boolean USE_LEGACY_TABS = isLegacyCreativeTabEnabled();
-
     private static final Component TOOLS_AND_UTILITIES_TITLE =
         REGISTRUM.addLang("itemGroup", AnvilCraft.of("tools_and_utilities"), "AnvilCraft: Tools and Utilities");
     private static final Component INGREDIENTS_TITLE =
@@ -57,7 +61,7 @@ public class ModItemGroups {
 
     private static void registerTabs(RegisterEvent event) {
         event.register(Registries.CREATIVE_MODE_TAB, helper -> {
-            if (USE_LEGACY_TABS) {
+            if (isLegacyCreativeTabEnabled()) {
                 registerLegacyTabs(helper);
             } else {
                 registerSectionedTabs(helper);
@@ -160,6 +164,28 @@ public class ModItemGroups {
     }
 
     private static boolean isLegacyCreativeTabEnabled() {
-        return AnvilCraft.CLIENT_CONFIG.useLegacyCreativeTab;
+        // Client configs are loaded only after registry events, so the config field is
+        // not hydrated yet when creative tabs are registered; read the file directly.
+        return AnvilCraft.CLIENT_CONFIG.useLegacyCreativeTab || isLegacyCreativeTabInConfigFile();
+    }
+
+    private static boolean isLegacyCreativeTabInConfigFile() {
+        if (!FMLLoader.getDist().isClient()) {
+            return false;
+        }
+        Path configFile = FMLPaths.CONFIGDIR.get().resolve(AnvilCraft.MOD_ID + "-client.toml");
+        if (!Files.isRegularFile(configFile)) {
+            return false;
+        }
+        try {
+            for (String line : Files.readAllLines(configFile, StandardCharsets.UTF_8)) {
+                if (line.stripLeading().startsWith("use_legacy_creative_tab") && line.contains("true")) {
+                    return true;
+                }
+            }
+        } catch (IOException e) {
+            AnvilCraft.LOGGER.warn("Failed to read client config file {}", configFile, e);
+        }
+        return false;
     }
 }
