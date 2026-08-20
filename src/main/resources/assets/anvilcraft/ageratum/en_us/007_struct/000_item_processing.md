@@ -74,6 +74,7 @@ When placed on an <ref item="minecraft:iron_trapdoor"/>, the **Item Unpacking** 
   - Melon -> 9 Melon Slices; Glowstone -> 4 Glowstone Dust
 - Some building blocks that cannot be unpacked in vanilla can also be unpacked through this method:
   - Block of Quartz -> 4 Quartz; Block of Amethyst -> 4 Amethyst Shards
+
 # Meshing
 
 When placed on <ref item="minecraft:scaffolding"/>, the **Item Meshing** operation is performed. Materials are placed on the scaffolding, and results appear below it.

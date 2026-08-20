@@ -38,7 +38,7 @@ items:
 
 - Each <ref item="anvilcraft:uranium_block"/> provides 2kW of power to <ref item="anvilcraft:heat_collector"/>
 - Time-warping <ref item="anvilcraft:uranium_block"/> will release in an instant the energy that would normally take tens of thousands of years, heating horizontally adjacent [Heatable Blocks](../001_feature/101_heated_block.md#heatable-blocks) to <color=#ee7744>Incandescent</color> for 5min, totaling 1024kW
-- Collide an anvil with <ref item="anvilcraft:uranium_block"/> to heat up to 16 <ref item="anvilcraft:overheated_ember_metal_block"/> for 20s, totaling 16384kW
+- Collide an anvil with <ref item="anvilcraft:uranium_block"/> to heat up to 16 <ref item="anvilcraft:overheated_ember_metal_block"/> for 20s, totaling 32768kW
 
 <row halign="center">
 <recipe id="anvilcraft:time_warp/raw_uranium_from_uranium_block"/>

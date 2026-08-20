@@ -9,6 +9,7 @@ items:
   - anvilcraft:drain
   - anvilcraft:control_valve
   - anvilcraft:check_valve
+  - anvilcraft:fluid_tank_minecart
 ---
 
 # Storing Flow Within
@@ -46,6 +47,12 @@ items:
 - Multiple <ref item="anvilcraft:pump"/>s can be connected in series to stack the *head*
 
 <structure id="../../structures/pump.nbt"/>
+
+## Minecart
+
+<recipe id="anvilcraft:unpack/fluid_tank_minecart"/>
+
+If you have no power, try using the <ref item="anvilcraft:fluid_tank_minecart"/> to store and transport fluids.
 
 # Discharging Flow Outside
 

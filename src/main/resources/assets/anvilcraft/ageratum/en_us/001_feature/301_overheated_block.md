@@ -33,7 +33,7 @@ If you skip the prerequisites, you won't understand this chapter
   - <color=#6688cc>Overheated</color>
 - Cannot be heated by conventional methods, but can be heated by the methods described below
 - Very unstable, typically only maintaining its state for a short time. After cooling, there is a 5% chance of turning into <ref item="minecraft:netherite_block"/>
-- Can provide 1024kW of energy to <ref item="anvilcraft:heat_collector"/>
+- Can provide 2048kW of energy to <ref item="anvilcraft:heat_collector"/>
 - Burns mobs standing on it, evaporates water within a certain distance
 
 # Overheating

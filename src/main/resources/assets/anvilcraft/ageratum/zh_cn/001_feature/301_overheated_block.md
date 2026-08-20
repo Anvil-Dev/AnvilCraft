@@ -28,13 +28,13 @@ items:
 
 # <ref item="anvilcraft:ember_metal_block"/>
 
-- <ref item="anvilcraft:ember_metal_block"/>也属于*可加热方块*，具有2个温度等级：
+- <ref item="anvilcraft:ember_metal_block"/>也属于*可加热方块*，具有 2 个温度等级：
   - <color=#666666>普通</color>
   - <color=#6688cc>超温</color>
-- 不能被常规方法加热，但可以被后文介绍的方式加热
-- 非常不稳定，往往只能维持一小段时间。且在冷却后，有 5% 的概率变为<ref item="minecraft:netherite_block"/>
-- 可以为<ref item="anvilcraft:heat_collector"/>提供1024kW能量
-- 烫伤踩在上面的生物、蒸发一定距离内的水
+- 不能被常规方法加热，但可以通过后文介绍的方法加热
+- 非常不稳定，通常只能维持一小段时间；冷却后有 5% 的概率变为<ref item="minecraft:netherite_block"/>
+- 可以为<ref item="anvilcraft:heat_collector"/>提供 2048kW 能量
+- 会灼伤踩在上面的生物，并蒸发一定范围内的水
 
 # 超温加热
 

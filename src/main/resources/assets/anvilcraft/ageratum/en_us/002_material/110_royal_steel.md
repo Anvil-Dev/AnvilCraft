@@ -13,7 +13,6 @@ items:
   - anvilcraft:royal_steel_shovel
   - anvilcraft:royal_steel_hoe
   - anvilcraft:royal_steel_sword
-  - anvilcraft:royal_dragon_rod
 ---
 
 # Royal Steel

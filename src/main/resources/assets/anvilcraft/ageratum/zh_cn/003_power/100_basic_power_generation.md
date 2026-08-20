@@ -61,8 +61,8 @@ items:
 
 <structure id="../../structures/triboelectric_power.snbt"/>
 
-- <ref item="anvilcraft:magnet_block"/>被活塞推拉时，如果紧贴着<ref item="minecraft:copper_block"/>，可以产生电荷
-- <ref item="minecraft:copper_block"/>生锈会使电荷生产量减少，每次移动产生的电荷见下表
+- <ref item="anvilcraft:magnet_block"/>被活塞推拉时，如果紧贴着<ref item="minecraft:copper_block"/>，就会产生*电荷*
+- <ref item="minecraft:copper_block"/>的锈蚀程度会影响*电荷*产量，每次移动产生的*电荷*见下表
 
 | 种类  | <ref item="minecraft:copper_block"/> | <ref item="minecraft:exposed_copper"/> | <ref item="minecraft:weathered_copper"/> | <ref item="minecraft:oxidized_copper"/> | 任何<ref item="minecraft:waxed_copper_block"/> |
 |:---:|:-------------------------------------|:---------------------------------------|:-----------------------------------------|:----------------------------------------|:---------------------------------------------|
@@ -70,5 +70,5 @@ items:
 
 ## 收集雷电电荷
 
-*避雷针*被雷劈可以产生电荷。每次产生32个电荷。
+*避雷针*被雷劈可以产生电荷。每次产生32个电荷。~~谁会用这种方法啊~~
 

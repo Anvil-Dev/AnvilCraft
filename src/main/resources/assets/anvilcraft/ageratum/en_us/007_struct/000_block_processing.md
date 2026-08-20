@@ -67,7 +67,7 @@ Converts the block and generates resources in the cauldron
 - Moss Block -> Moss Carpet + Water
 - Magma Block -> Netherrack + Lava
 - Snow Block -> Ice + Powder Snow
-- Full Beehive -> Empty Beehive + Honey
+- Full Beehive -> Beehive + Honey
 - ...
 
 <info>
