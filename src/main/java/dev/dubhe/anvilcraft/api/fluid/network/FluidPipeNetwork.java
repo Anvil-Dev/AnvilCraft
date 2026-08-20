@@ -462,20 +462,27 @@ public class FluidPipeNetwork {
         return actuallyFilled;
     }
 
-    /** Current stock and total capacity of this gas in a handler (empty slots count as capacity). */
+    /**
+     * Current stock and total capacity of this gas in a handler. Capacity is derived from the
+     * handler's remaining free space (total capacity minus all stored fluids) plus the amount
+     * already holding this gas, so multi-fluid tanks can host several gases without each one
+     * appearing full merely because other fluids occupy other slots.
+     */
     private static int[] gasStorage(IFluidHandler handler, FluidStack fluidType) {
         int stored = 0;
-        int capacity = 0;
+        int totalStored = 0;
+        int totalCapacity = 0;
         for (int i = 0; i < handler.getTanks(); i++) {
             FluidStack tankFluid = handler.getFluidInTank(i);
+            int amount = tankFluid.getAmount();
+            totalStored += amount;
+            totalCapacity += handler.getTankCapacity(i);
             if (!tankFluid.isEmpty() && FluidStack.isSameFluidSameComponents(tankFluid, fluidType)) {
-                stored += tankFluid.getAmount();
-                capacity += handler.getTankCapacity(i);
-            } else if (tankFluid.isEmpty()) {
-                capacity += handler.getTankCapacity(i);
+                stored += amount;
             }
         }
-        return new int[]{stored, capacity};
+        int freeSpace = Math.max(0, totalCapacity - totalStored);
+        return new int[]{stored, stored + freeSpace};
     }
 
     /**
