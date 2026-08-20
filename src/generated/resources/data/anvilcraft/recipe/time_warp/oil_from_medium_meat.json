@@ -3,8 +3,8 @@
   "fluid": [],
   "ingredients": [
     {
-      "count": 64,
-      "items": "minecraft:rotten_flesh"
+      "count": 16,
+      "items": "#anvilcraft:medium_meat"
     }
   ],
   "transform": {

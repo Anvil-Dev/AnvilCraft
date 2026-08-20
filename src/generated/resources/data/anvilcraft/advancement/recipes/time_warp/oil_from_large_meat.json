@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:time_warp/oil_from_rotten_flesh"
+        "recipe": "anvilcraft:time_warp/oil_from_large_meat"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:time_warp/oil_from_rotten_flesh"
+      "anvilcraft:time_warp/oil_from_large_meat"
     ]
   }
 }

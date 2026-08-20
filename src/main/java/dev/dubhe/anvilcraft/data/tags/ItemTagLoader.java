@@ -237,6 +237,20 @@ public class ItemTagLoader {
         provider.addTag(ModItemTags.RAW_RABBIT)
             .add(findResourceKey(Items.RABBIT));
 
+        provider.addTag(ModItemTags.SMALL_MEAT)
+            .addTag(ModItemTags.RAW_CHICKEN)
+            .addTag(Tags.Items.FOODS_RAW_FISH)
+            .add(findResourceKey(Items.ROTTEN_FLESH))
+            .add(findResourceKey(Items.SPIDER_EYE));
+        provider.addTag(ModItemTags.MEDIUM_MEAT)
+            .addTag(ModItemTags.RAW_BEEF)
+            .addTag(ModItemTags.RAW_PORKCHOP)
+            .addTag(ModItemTags.RAW_MUTTON)
+            .addTag(ModItemTags.RAW_RABBIT);
+        provider.addTag(ModItemTags.LARGE_MEAT)
+            .add(findResourceKey(Items.ZOMBIE_HEAD))
+            .add(findResourceKey(Items.PIGLIN_HEAD));
+
         provider.addTag(ModItemTags.DISINTEGRATION_SUPPORTED)
             .addTag(ItemTags.MINING_LOOT_ENCHANTABLE)
             .add(ModItems.LASER_GUN.getKey())
