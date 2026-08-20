@@ -152,16 +152,16 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             .build(),
             content -> {
                 for (Color color : Color.values()) {
-                    content.accept(ModBlocks.REINFORCED_CONCRETES.get(color));
+                    this.acceptFolded(content, ModBlocks.REINFORCED_CONCRETES.get(color));
                 }
                 for (Color color : Color.values()) {
-                    content.accept(ModBlocks.REINFORCED_CONCRETE_STAIRS.get(color));
+                    this.acceptFolded(content, ModBlocks.REINFORCED_CONCRETE_STAIRS.get(color));
                 }
                 for (Color color : Color.values()) {
-                    content.accept(ModBlocks.REINFORCED_CONCRETE_SLABS.get(color));
+                    this.acceptFolded(content, ModBlocks.REINFORCED_CONCRETE_SLABS.get(color));
                 }
                 for (Color color : Color.values()) {
-                    content.accept(ModBlocks.REINFORCED_CONCRETE_WALLS.get(color));
+                    this.acceptFolded(content, ModBlocks.REINFORCED_CONCRETE_WALLS.get(color));
                 }
             }
         );

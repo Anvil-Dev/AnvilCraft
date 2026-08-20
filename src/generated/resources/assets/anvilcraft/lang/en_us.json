@@ -153,6 +153,8 @@
   "anvilcraft.configuration.block_placer_recursive_retrieval_distance_max.tooltip": "Block Placer recursive retrieval of container max distance",
   "anvilcraft.configuration.chute_max_cooldown": "Chute Max Cooldown",
   "anvilcraft.configuration.chute_max_cooldown.tooltip": "Maximum cooldown time of chute (in ticks)",
+  "anvilcraft.configuration.creative_variant_picker_enabled": "Fold Colored Item Variants",
+  "anvilcraft.configuration.creative_variant_picker_enabled.tooltip": "Folds 16-color families into a single representative item and enables the right-click variant picker; applies to both creative inventory layouts (requires restart)",
   "anvilcraft.configuration.display_anvil_animation": "Display Anvil Animation",
   "anvilcraft.configuration.display_anvil_animation.tooltip": "Should show anvil levitate animation",
   "anvilcraft.configuration.display_redstone_emp_particles": "Display Redstone EMP Particles",
