@@ -49,6 +49,16 @@ public class FluidPipeNetwork {
     public static final int MAX_SPEED = 2000;
     /** 达到流速上限所需的高度差（格）= MAX_SPEED / HEIGHT_RATE = 40 */
     public static final int FULL_SPEED_HEIGHT = MAX_SPEED / HEIGHT_RATE;
+    /** 气体满罐时的压力标度：气体压力 = 填充率(0..1) × 该值 + 泵气压偏置。 */
+    private static final int GAS_PRESSURE_SCALE = 1000;
+    /** 泵每提供 1 格"扬程"在气压上的折算增量（气体由气压差驱动，不再使用扬程）。 */
+    private static final int GAS_PRESSURE_PER_LIFT = 100;
+    /** 单种气体单 tick 全网均衡的总移动预算（mB）。 */
+    private static final int GAS_EQUILIBRIUM_BUDGET = MAX_SPEED;
+    /** 判定气压已均衡的差值阈值（低于该值不再转移）。 */
+    private static final int GAS_PRESSURE_EPSILON = 1;
+    /** 气体均衡每 tick 的最大轮数，限制 O(n²) 遍历成本。 */
+    private static final int GAS_MAX_ROUNDS = 8;
 
     /**
      * 按高度差计算流速（线性增长）：
@@ -168,6 +178,8 @@ public class FluidPipeNetwork {
             }
             distributeFromSource(source);
         }
+        // 气体由压强驱动在网络内均衡，不走重力/扬程分配
+        equilibrateGases();
     }
 
     /**
@@ -256,6 +268,223 @@ public class FluidPipeNetwork {
             srcPos, entryPipePos, null, srcHandler, sourceEffectiveHeight, false, null));
     }
 
+    /**
+     * Gas equalization: gas diffuses from higher-pressure tanks to lower-pressure tanks until
+     * the whole network balances. Gas is driven by pressure only (never by head/altitude);
+     * pressure is derived from fill ratio plus the pump's pressure bias.
+     */
+    private void equilibrateGases() {
+        Set<FluidStack> gasTypes = new HashSet<>();
+        for (FluidEndpoint ep : endpoints) {
+            if (!isEndpointConnected(ep)) {
+                continue;
+            }
+            for (FluidStack stored : distinctFluidTypes(ep.handler())) {
+                if (!stored.isEmpty() && stored.getFluid().getFluidType().isLighterThanAir()) {
+                    gasTypes.add(stored.copyWithAmount(1));
+                }
+            }
+        }
+        for (FluidStack gasType : gasTypes) {
+            List<FluidEndpoint> candidates = gasCandidates(gasType);
+            if (candidates.size() < 2) {
+                continue;
+            }
+            equilibrateGasType(gasType, candidates);
+        }
+    }
+
+    /** Endpoints that can hold this gas: current holders or containers with free slots. */
+    private List<FluidEndpoint> gasCandidates(FluidStack fluidType) {
+        List<FluidEndpoint> candidates = new ArrayList<>();
+        for (FluidEndpoint ep : endpoints) {
+            if (!isEndpointConnected(ep)) {
+                continue;
+            }
+            if (gasStorage(ep.handler(), fluidType)[1] > 0) {
+                candidates.add(ep);
+            }
+        }
+        return candidates;
+    }
+
+    /**
+     * One pass over a single gas type: repeatedly take the highest-pressure reachable source and
+     * move gas to the lowest-pressure reachable target that still has room, until pressure
+     * differences converge or the global budget is exhausted.
+     */
+    private void equilibrateGasType(FluidStack fluidType, List<FluidEndpoint> candidates) {
+        int globalBudget = GAS_EQUILIBRIUM_BUDGET;
+        for (int round = 0; round < GAS_MAX_ROUNDS && globalBudget > 0; round++) {
+            boolean progressed = false;
+            candidates.sort(Comparator
+                .comparingInt((FluidEndpoint e) -> gasPressure(e, fluidType))
+                .reversed());
+            for (int i = 0; i < candidates.size() && globalBudget > 0; i++) {
+                FluidEndpoint hi = candidates.get(i);
+                int[] hiSc = gasStorage(hi.handler(), fluidType);
+                if (hiSc[0] <= 0 || hiSc[1] <= 0) {
+                    continue;
+                }
+                if (!canDrainFromEndpoint(hi)) {
+                    continue;
+                }
+                FluidStack hiStored = matchingFluid(hi.handler(), fluidType);
+                if (hiStored.isEmpty()) {
+                    continue;
+                }
+                int hiPressure = gasPressure(hi, fluidType);
+                Reachability reach = directionalConstraints
+                    ? computeReachableCached(hi.fromPipePos(), hiStored)
+                    : null;
+                Map<BlockPos, List<ValveState>> pathValves = reach == null ? Map.of() : reach.pathValves();
+                FluidEndpoint bestTarget = null;
+                int bestDelta = 0;
+                for (int j = 0; j < candidates.size(); j++) {
+                    if (i == j) {
+                        continue;
+                    }
+                    FluidEndpoint lo = candidates.get(j);
+                    if (lo.handler().equals(hi.handler())) {
+                        continue;
+                    }
+                    if (reach != null && !isEndpointReachable(reach, lo)) {
+                        continue;
+                    }
+                    if (minValveRemaining(pathValves.get(lo.fromPipePos())) <= 0) {
+                        continue;
+                    }
+                    int[] loSc = gasStorage(lo.handler(), fluidType);
+                    if (loSc[0] >= loSc[1]) {
+                        continue;
+                    }
+                    int loPressure = gasPressure(lo, fluidType);
+                    int delta = hiPressure - loPressure;
+                    if (delta <= GAS_PRESSURE_EPSILON) {
+                        continue;
+                    }
+                    if (delta > bestDelta) {
+                        bestDelta = delta;
+                        bestTarget = lo;
+                    }
+                }
+                if (bestTarget == null) {
+                    continue;
+                }
+                int moved = transferGas(hi, bestTarget, fluidType, bestDelta, pathValves, reach);
+                if (moved > 0) {
+                    globalBudget -= moved;
+                    progressed = true;
+                }
+            }
+            if (!progressed) {
+                break;
+            }
+        }
+    }
+
+    /**
+     * Transfer driven by a single pressure difference: move exactly enough to equalize the two
+     * pressures, capped by flow rate, valve allowance, source stock and target free space.
+     */
+    private int transferGas(
+        FluidEndpoint hi, FluidEndpoint lo, FluidStack fluidType, int pressureDiff,
+        Map<BlockPos, List<ValveState>> pathValves, @Nullable Reachability reach
+    ) {
+        int[] hiSc = gasStorage(hi.handler(), fluidType);
+        int[] loSc = gasStorage(lo.handler(), fluidType);
+        int hiStored = hiSc[0];
+        int hiCap = hiSc[1];
+        int loStored = loSc[0];
+        int loCap = loSc[1];
+        if (hiStored <= 0 || hiCap <= 0 || loCap <= 0 || loStored >= loCap) {
+            return 0;
+        }
+        int loFree = loCap - loStored;
+        int hiBias = (hi.effectiveHeight() - hi.containerPos().getY()) * GAS_PRESSURE_PER_LIFT;
+        int loBias = (lo.effectiveHeight() - lo.containerPos().getY()) * GAS_PRESSURE_PER_LIFT;
+        double num = (double) hiStored * loCap - (double) loStored * hiCap
+            - (double) (loBias - hiBias) * hiCap * loCap / GAS_PRESSURE_SCALE;
+        double x = num / (double) (hiCap + loCap);
+        int equalAmt = Math.max(0, (int) Math.floor(x));
+        if (equalAmt <= 0) {
+            return 0;
+        }
+        int flowCap = gasFlowForPressureDiff(pressureDiff);
+        int valveLimit = minValveRemaining(pathValves.get(lo.fromPipePos()));
+        int want = Math.min(equalAmt, Math.min(flowCap, Math.min(hiStored, loFree)));
+        want = Math.min(want, valveLimit);
+        if (want <= 0) {
+            return 0;
+        }
+        FluidStack hiStoredStack = matchingFluid(hi.handler(), fluidType);
+        if (hiStoredStack.isEmpty()) {
+            return 0;
+        }
+        FluidStack toMove = hiStoredStack.copyWithAmount(want);
+        int filled = lo.handler().fill(toMove, IFluidHandler.FluidAction.SIMULATE);
+        if (filled <= 0) {
+            return 0;
+        }
+        FluidStack drained = hi.handler().drain(
+            hiStoredStack.copyWithAmount(filled), IFluidHandler.FluidAction.EXECUTE);
+        if (drained.isEmpty() || !FluidStack.isSameFluidSameComponents(drained, fluidType)) {
+            if (!drained.isEmpty()) {
+                hi.handler().fill(drained, IFluidHandler.FluidAction.EXECUTE);
+            }
+            return 0;
+        }
+        int actuallyFilled = lo.handler().fill(drained, IFluidHandler.FluidAction.EXECUTE);
+        if (actuallyFilled < drained.getAmount()) {
+            hi.handler().fill(
+                drained.copyWithAmount(drained.getAmount() - actuallyFilled), IFluidHandler.FluidAction.EXECUTE);
+        }
+        if (actuallyFilled > 0) {
+            deductValves(pathValves.get(lo.fromPipePos()), actuallyFilled);
+            showFluidAlongPipePath(drained, hi, lo, reach);
+            onTransferred(hi);
+        }
+        return actuallyFilled;
+    }
+
+    /** Current stock and total capacity of this gas in a handler (empty slots count as capacity). */
+    private static int[] gasStorage(IFluidHandler handler, FluidStack fluidType) {
+        int stored = 0;
+        int capacity = 0;
+        for (int i = 0; i < handler.getTanks(); i++) {
+            FluidStack tankFluid = handler.getFluidInTank(i);
+            if (!tankFluid.isEmpty() && FluidStack.isSameFluidSameComponents(tankFluid, fluidType)) {
+                stored += tankFluid.getAmount();
+                capacity += handler.getTankCapacity(i);
+            } else if (tankFluid.isEmpty()) {
+                capacity += handler.getTankCapacity(i);
+            }
+        }
+        return new int[]{stored, capacity};
+    }
+
+    /**
+     * Gas pressure = fill ratio x {@link #GAS_PRESSURE_SCALE} + pump bias.
+     * The bias comes from the accumulated pump contribution ({@code effectiveHeight - tank Y}),
+     * so it is independent of altitude.
+     */
+    private static int gasPressure(FluidEndpoint endpoint, FluidStack fluidType) {
+        int[] sc = gasStorage(endpoint.handler(), fluidType);
+        if (sc[1] <= 0) {
+            return 0;
+        }
+        int bias = (endpoint.effectiveHeight() - endpoint.containerPos().getY()) * GAS_PRESSURE_PER_LIFT;
+        return (int) ((long) sc[0] * GAS_PRESSURE_SCALE / sc[1]) + bias;
+    }
+
+    /** Pressure-difference driven flow rate, capped at {@value #MAX_SPEED} mB/tick. */
+    private static int gasFlowForPressureDiff(int pressureDiff) {
+        if (pressureDiff <= 0) {
+            return 0;
+        }
+        return Math.min(pressureDiff, MAX_SPEED);
+    }
+
     /** 从单个源端点向所有更低的端点分配其持有的流体。 */
     private void distributeFromSource(FluidEndpoint source) {
         // 源接管口朝本源容器那一面若装止逆阀，其允许方向必须朝网络（背离容器），否则本源无法向网络排液
@@ -269,6 +498,10 @@ public class FluidPipeNetwork {
         for (FluidStack fluidType : distinctFluidTypes(srcHandler)) {
             FluidStack stored = matchingFluid(srcHandler, fluidType);
             if (stored.isEmpty()) {
+                continue;
+            }
+            // 气体不走重力/扬程分配，交给均衡（equilibrateGases）按压强处理
+            if (stored.getFluid().getFluidType().isLighterThanAir()) {
                 continue;
             }
             // 从源出发做方向感知可达 BFS：二极管（泵）只能正向穿过、阀门按过滤放行、面止逆阀只能沿允许方向穿过；得到 可达接管口 → 路径上的阀门列表。

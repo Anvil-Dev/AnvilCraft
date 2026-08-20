@@ -14,5 +14,11 @@ public class FluidLang {
         provider.add("block.anvilcraft.primordial_matter", "Primordial Matter");
         provider.add("block.anvilcraft.liquid_enchantment", "Liquid Enchantment");
         provider.add("block.anvilcraft.liquid_enchantment.enchanted", "Liquid Enchantment (%s)");
+
+        // Gases
+        provider.add("block.anvilcraft.hydrogen", "Hydrogen");
+        provider.add("block.anvilcraft.oxygen", "Oxygen");
+        provider.add("block.anvilcraft.helium", "Helium");
+        provider.add("block.anvilcraft.deuterium", "Deuterium");
     }
 }
