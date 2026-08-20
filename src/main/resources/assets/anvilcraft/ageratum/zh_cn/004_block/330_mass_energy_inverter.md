@@ -1,6 +1,6 @@
 ---
 navigation:
-  title: "§5时空超算"
+  title: "§5能质逆变器"
   icon: "anvilcraft:mass_energy_inverter"
 items:
   - anvilcraft:mass_energy_inverter
