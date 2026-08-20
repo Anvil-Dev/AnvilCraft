@@ -351,8 +351,8 @@ public class ItemTooltipManager {
             Removes curses and repair costs, selectively removes or transfers multiple enchantments
             Immune to most destruction methods"""
         );
-        NORMAL.put(ModBlocks.TRANSCENDENCE_DECO_BLOCK.asItem(), "Transcendium decorative block – low content, not indestructible.");
-        NORMAL.put(ModBlocks.TRANSCENDENCE_DECO_OUTLINE.asItem(), "Transcendium decorative block – low content, not indestructible.");
+        NORMAL.put(ModBlocks.TRANSCENDENCE_DECO_BLOCK.asItem(), "Transcendium decorative block – low content, not indestructible");
+        NORMAL.put(ModBlocks.TRANSCENDENCE_DECO_OUTLINE.asItem(), "Transcendium decorative block – low content, not indestructible");
         NORMAL.put(ModBlocks.FROST_GRINDSTONE.asItem(), "Selectively removes individual enchantments, Explosion proof");
         NORMAL.put(ModBlocks.FROST_SMITHING_TABLE.asItem(), "Works with Permutation and Deformation smithing templates, Explosion proof");
         NORMAL.put(ModBlocks.FROST_METAL_BLOCK.asItem(), "A large block of cold-resistant Royal Steel tempered in extreme cold for eons, Explosion proof");
@@ -639,7 +639,7 @@ public class ItemTooltipManager {
         );
         SHIFT.put(
             ModBlocks.OVERSEER_BLOCK.asItem(),
-            "Chunk loader on 3x3 Royal Steel base, higher base layers increase chunk load range (max 3 layers, 5x5 range)"
+            "Chunk loader on 3x3 Royal Steel base, higher base layers increase chunk load range (max 3 layers, 7x7 range)"
         );
         SHIFT.put(
             ModItems.DRAGON_ROD.asItem(),

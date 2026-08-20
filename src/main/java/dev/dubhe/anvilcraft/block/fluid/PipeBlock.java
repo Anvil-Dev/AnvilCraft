@@ -906,6 +906,14 @@ public abstract class PipeBlock extends Block
     }
 
     @Override
+    public void notifyMoved(Level level, BlockPos pos, BlockState state, BlockEntity be) {
+        // 活塞移动玻璃管道后清除流体显示，避免过期数据随方块实体残留到新位置
+        if (be instanceof GlassPipeBlockEntity glassPipe) {
+            glassPipe.clearDisplay();
+        }
+    }
+
+    @Override
     public boolean change(Player player, BlockPos blockPos, Level level, ItemStack anvilHammer) {
         BlockState state = level.getBlockState(blockPos);
         if (!(state.getBlock() instanceof PipeBlock pipe) || !pipe.isGlassPipe()) {

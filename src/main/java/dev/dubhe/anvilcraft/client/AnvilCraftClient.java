@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client;
 import dev.anvilcraft.lib.v2.integration.IntegrationHook;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.event.GuiLayerRegistrationEventListener;
+import dev.dubhe.anvilcraft.client.init.ModCreativeVariantGroups;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
@@ -69,6 +70,7 @@ public class AnvilCraftClient {
         IntegrationHook.setModEventBus(Objects.requireNonNull(modEventBus));
         IntegrationHook.setModContainer(Objects.requireNonNull(modContainer));
         AnvilCraft.getINTEGRATION_MANAGER().loadAllClientIntegrations();
+        ModCreativeVariantGroups.register();
         ItemSlotClipping.register(ModItems.FROST_METAL_RESONATOR.get());
         ItemSlotClipping.register(ModItems.EMBER_METAL_RESONATOR.get());
         ItemSlotClipping.register(ModItems.TRANSCENDENCE_RESONATOR.get());

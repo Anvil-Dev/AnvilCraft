@@ -20,6 +20,7 @@ public class LangHandler {
         CommandLang.init(provider);
         KeyMappingLang.init(provider);
         FluidLang.init(provider);
+        CreativeTabLang.init(provider);
         IntegrationScreenLang.init(provider);
         ScreenTooltipLang.init(provider);
         MessageLang.init(provider);

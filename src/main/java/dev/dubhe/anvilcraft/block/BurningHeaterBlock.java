@@ -8,7 +8,8 @@ import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.util.HeaterUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.Containers;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -67,26 +68,52 @@ public class BurningHeaterBlock extends BaseEntityBlock implements IHammerRemova
     }
 
     @Override
-    protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (level.isClientSide) return InteractionResult.SUCCESS;
-        if (!(level.getBlockEntity(pos) instanceof BurningHeaterBlockEntity be)) return InteractionResult.PASS;
-        if (!(be.getItemHandler() instanceof ItemStackHandler handler)) return InteractionResult.PASS;
+    protected ItemInteractionResult useItemOn(
+        ItemStack stack,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hitResult
+    ) {
+        if (hand != InteractionHand.MAIN_HAND) {
+            return ItemInteractionResult.SKIP_DEFAULT_BLOCK_INTERACTION;
+        }
+        if (level.isClientSide) {
+            return ItemInteractionResult.SUCCESS;
+        }
+        if (!(level.getBlockEntity(pos) instanceof BurningHeaterBlockEntity be)) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
+        if (!(be.getItemHandler() instanceof ItemStackHandler handler)) {
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        }
 
         ItemStack held = player.getMainHandItem();
         ItemStack current = handler.getStackInSlot(0);
+        boolean doubleClick = be.isDoubleClick(player);
 
         if (!held.isEmpty() && BurningHeaterBlockEntity.getItemBurnTime(held) > 0) {
-            ItemStack remaining = handler.insertItem(0, held, false);
-            if (remaining.getCount() != held.getCount()) {
-                player.setItemInHand(player.getUsedItemHand(), remaining);
-                return InteractionResult.CONSUME;
+            // 主手持燃料：单击放入 1 个，双击放入全部
+            int insertCount = doubleClick ? held.getCount() : 1;
+            ItemStack remaining = handler.insertItem(0, held.copyWithCount(insertCount), false);
+            int inserted = insertCount - remaining.getCount();
+            if (inserted > 0) {
+                held.shrink(inserted);
+                player.setItemInHand(InteractionHand.MAIN_HAND, held);
+                level.sendBlockUpdated(pos, state, state, 3);
+                return ItemInteractionResult.SUCCESS;
             }
-        } else if (held.isEmpty() && !current.isEmpty()) {
-            player.setItemInHand(player.getUsedItemHand(), handler.extractItem(0, current.getMaxStackSize(), false));
-            return InteractionResult.CONSUME;
+            return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         }
-
-        return InteractionResult.PASS;
+        if (held.isEmpty() && !current.isEmpty() && !doubleClick) {
+            // 空手右键：取出所有物品
+            player.setItemInHand(InteractionHand.MAIN_HAND, handler.extractItem(0, current.getMaxStackSize(), false));
+            level.sendBlockUpdated(pos, state, state, 3);
+            return ItemInteractionResult.SUCCESS;
+        }
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     @Override

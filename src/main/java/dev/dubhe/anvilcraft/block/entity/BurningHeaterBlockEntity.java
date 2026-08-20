@@ -5,6 +5,8 @@ import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
 import dev.dubhe.anvilcraft.block.BurningHeaterBlock;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
+import it.unimi.dsi.fastutil.objects.Object2LongMap;
+import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
@@ -16,6 +18,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -27,6 +30,8 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.registries.datamaps.builtin.FurnaceFuel;
 import net.neoforged.neoforge.registries.datamaps.builtin.NeoForgeDataMaps;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.UUID;
 
 public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandlerHolder {
     /**
@@ -47,6 +52,16 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
      */
     private long lastSyncGameTime = 0;
 
+    /**
+     * 双击判定的最大间隔（tick），5 tick = 250ms
+     */
+    private static final long DOUBLE_CLICK_INTERVAL = 5;
+
+    /**
+     * 玩家最后一次右键该方块时的游戏 tick，用于双击检测
+     */
+    private final Object2LongMap<UUID> lastRightClickTicks = new Object2LongOpenHashMap<>();
+
     private final ItemStackHandler itemHandler = new ItemStackHandler(1) {
         @Override
         public void onContentsChanged(int slot) {
@@ -66,6 +81,18 @@ public class BurningHeaterBlockEntity extends BlockEntity implements IItemHandle
     @Override
     public IItemHandler getItemHandler() {
         return this.itemHandler;
+    }
+
+    /**
+     * 记录一次右键并判断是否为双击（距上次右键不超过 {@link #DOUBLE_CLICK_INTERVAL} tick）。
+     */
+    public boolean isDoubleClick(Player player) {
+        if (level == null) return false;
+        long now = level.getGameTime();
+        UUID uuid = player.getUUID();
+        long last = this.lastRightClickTicks.getLong(uuid);
+        this.lastRightClickTicks.put(uuid, now);
+        return last != 0 && now - last <= DOUBLE_CLICK_INTERVAL;
     }
 
     @Nullable

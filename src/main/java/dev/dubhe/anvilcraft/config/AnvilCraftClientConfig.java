@@ -32,6 +32,12 @@ public class AnvilCraftClientConfig {
     @Comment("Add a tooltip line that shows storage stored ID")
     public boolean showStorageStoredId = false;
 
+    @Comment("Use the legacy flat creative inventory layout instead of the sectioned layout with banners")
+    public boolean useLegacyCreativeTab = false;
+
+    @Comment("Fold 16-color item families into one representative item with a right-click variant picker in the creative inventory")
+    public boolean creativeVariantPickerEnabled = false;
+
     @Comment("Enable ground heave shockwave particles and sound when giant anvil triggers shock mechanism")
     public boolean groundHeaveParticlesEnabled = true;
 
