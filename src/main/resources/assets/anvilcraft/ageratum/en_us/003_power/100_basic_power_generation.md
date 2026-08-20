@@ -61,8 +61,8 @@ The following block behaviors generate charges:
 
 <structure id="../../structures/triboelectric_power.snbt"/>
 
-- When <ref item="anvilcraft:magnet_block"/> is pushed or pulled by a piston, if it is adjacent to <ref item="minecraft:copper_block"/>, it generates charges
-- Oxidation of <ref item="minecraft:copper_block"/> reduces the amount of charge generated. The charges per movement are shown in the table below
+- When <ref item="anvilcraft:magnet_block"/> is pushed or pulled by a piston while adjacent to <ref item="minecraft:copper_block"/>, it generates *charge*.
+- The oxidation level of <ref item="minecraft:copper_block"/> affects the amount of *charge* generated. The charge produced per movement is shown in the table below
 
 | Type | <ref item="minecraft:copper_block"/> | <ref item="minecraft:exposed_copper"/> | <ref item="minecraft:weathered_copper"/> | <ref item="minecraft:oxidized_copper"/> | Any <ref item="minecraft:waxed_copper_block"/> |
 |:----:|:------------------------------------|:---------------------------------------|:-----------------------------------------|:----------------------------------------|:----------------------------------------------|
@@ -70,5 +70,5 @@ The following block behaviors generate charges:
 
 ## Collecting Lightning Charges
 
-A *lightning rod* struck by lightning generates charges. Each strike produces 32 charges.
+A *lightning rod* struck by lightning generates charges. Each strike produces 32 charges. ~~Who would use this method?~~
 

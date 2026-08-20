@@ -9,6 +9,7 @@ items:
   - anvilcraft:drain
   - anvilcraft:control_valve
   - anvilcraft:check_valve
+  - anvilcraft:fluid_tank_minecart
 ---
 
 # 蓄流于内
@@ -39,14 +40,22 @@ items:
 
 # 逆流而上
 
+## 泵
+
 <recipe id="anvilcraft:pump"/>
 
-- <ref item="anvilcraft:pump"/>耗电 32kW 
+- <ref item="anvilcraft:pump"/>耗电 32kW
 - 可被红石信号关闭
-- 拥有20格高的*扬程*，将流体往高处泵出
-- 可以将多个<ref item="anvilcraft:pump"/>串联以叠加*扬程*
+- 拥有 20 格高的*扬程*，可将流体泵送到更高处
+- 可以将多个<ref item="anvilcraft:pump"/>串联，以叠加*扬程*
 
 <structure id="../../structures/pump.nbt"/>
+
+## 矿车
+
+<recipe id="anvilcraft:unpack/fluid_tank_minecart"/>
+
+如果没有电，也可以试试用<ref item="anvilcraft:fluid_tank_minecart"/>储存和运输流体。
 
 # 释流于外
 

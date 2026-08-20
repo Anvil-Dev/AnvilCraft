@@ -8,7 +8,7 @@ items:
 
 # Liquid Enchantment
 
-> Use [Liquid Experience](004_exp_gem.md#experience-fluid) to convert enchantments into fluid form for storage, and achieve automated production and duplication
+> Use [Liquid Experience](004_exp_gem.md#experience-fluid) to convert enchantments into fluid form for storage, enabling automated production and duplication; liquid enchantment can also be used to craft <ref item="anvilcraft:enchanted_gold_ingot"/>
 
 # Blank Liquid Enchantment
 
