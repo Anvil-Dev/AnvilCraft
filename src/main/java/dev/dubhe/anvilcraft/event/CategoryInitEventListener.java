@@ -26,7 +26,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -45,6 +44,21 @@ public class CategoryInitEventListener {
         // 从事件获取预设类别
         Map<String, ICategory> defaultCategories = NeoForge.EVENT_BUS.post(new ModCategoryInitEvent(registries)).getCategories();
         CategoryInitEventListener.ALL_MODS_CATEGORIES.addAll(defaultCategories.values());
+
+        Optional<Registry<Item>> registryOp = registries.registry(Registries.ITEM);
+        if (registryOp.isEmpty()) {
+            return;
+        }
+        Registry<Item> itemRegistry = registryOp.get();
+        Map<String, ItemStack> firstItemByNamespace = new HashMap<>();
+        Iterator<Holder.Reference<Item>> itemIt = itemRegistry.holders()
+            .sorted(Comparator.comparing(Holder.Reference::key))
+            .iterator();
+        while (itemIt.hasNext()) {
+            Holder.Reference<Item> itemRef = itemIt.next();
+            String namespace = itemRef.key().location().getNamespace();
+            firstItemByNamespace.putIfAbsent(namespace, itemRef.value().getDefaultInstance());
+        }
 
         Optional<Registry<CreativeModeTab>> tabRegistryOp = registries.registry(Registries.CREATIVE_MODE_TAB);
         if (tabRegistryOp.isEmpty()) {
@@ -66,7 +80,7 @@ public class CategoryInitEventListener {
             if (cache.containsKey(namespace)) {
                 continue;
             }
-            cache.put(namespace, ref.value().getIconItem());
+            cache.put(namespace, CategoryInitEventListener.resolveIcon(ref.value(), namespace, firstItemByNamespace));
         }
 
         // 提取没有创造模式标签页的模组
@@ -82,31 +96,37 @@ public class CategoryInitEventListener {
             missingIds.add(modId);
         }
 
-        Optional<Registry<Item>> registryOp = registries.registry(Registries.ITEM);
-        if (registryOp.isEmpty()) {
-            return;
-        }
-        Registry<Item> registry = registryOp.get();
-        Iterator<Holder.Reference<Item>> it = registry.holders()
-            .sorted(Comparator.comparing(Holder.Reference::key))
-            .iterator();
-
-        while (it.hasNext()) {
-            Holder.Reference<Item> ref = it.next();
-            String namespace = ref.key().location().getNamespace();
-            for (Iterator<String> iter = missingIds.iterator(); iter.hasNext(); ) {
-                String missingId = iter.next();
-                if (!Objects.equals(missingId, namespace)) {
-                    continue;
-                }
-                cache.put(missingId, ref.value().getDefaultInstance());
-                iter.remove();
+        for (String missingId : missingIds) {
+            ItemStack icon = firstItemByNamespace.getOrDefault(missingId, ItemStack.EMPTY);
+            if (!icon.isEmpty()) {
+                cache.put(missingId, icon);
             }
         }
 
         for (Map.Entry<String, ItemStack> entry : cache.entrySet()) {
+            if (entry.getValue().isEmpty()) {
+                continue;
+            }
             CategoryInitEventListener.ALL_MODS_CATEGORIES.add(new NamespaceCategory(entry.getValue(), entry.getKey()));
         }
+    }
+
+    private static ItemStack resolveIcon(
+        CreativeModeTab tab,
+        String namespace,
+        Map<String, ItemStack> firstItemByNamespace
+    ) {
+        try {
+            ItemStack icon = tab.getIconItem();
+            if (!icon.isEmpty()) {
+                return icon;
+            }
+        } catch (Exception e) {
+            // 某些模组的 getIconItem 依赖创造界面已打开或客户端上下文（如 Draconic Evolution 的 CyclingTab），
+            // 服务端启动阶段调用可能抛异常，降级为命名空间下首个物品的默认实例
+            AnvilCraft.LOGGER.warn("Failed to get icon from creative tab {}: {}", namespace, e);
+        }
+        return firstItemByNamespace.getOrDefault(namespace, ItemStack.EMPTY);
     }
 
     @SubscribeEvent
