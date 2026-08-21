@@ -53,6 +53,12 @@ public class ModItemGroups {
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_BUILDING_BLOCKS =
         DeferredHolder.create(Registries.CREATIVE_MODE_TAB, AnvilCraft.of("building_blocks"));
     @Deprecated
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_TOOL =
+        ANVILCRAFT_TOOLS_AND_UTILITIES;
+    @Deprecated
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_FUNCTION_BLOCK =
+        ANVILCRAFT_FUNCTIONAL_BLOCKS;
+    @Deprecated
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_BUILD_BLOCK =
         ANVILCRAFT_BUILDING_BLOCKS;
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_ITEMS =
