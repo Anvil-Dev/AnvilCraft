@@ -20,5 +20,7 @@ public class FluidLang {
         provider.add("block.anvilcraft.oxygen", "Oxygen");
         provider.add("block.anvilcraft.helium", "Helium");
         provider.add("block.anvilcraft.deuterium", "Deuterium");
+        provider.add("block.anvilcraft.xenon", "Xenon");
+        provider.add("block.anvilcraft.krypton", "Krypton");
     }
 }
