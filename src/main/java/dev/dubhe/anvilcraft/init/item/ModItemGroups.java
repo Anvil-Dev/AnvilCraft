@@ -52,9 +52,20 @@ public class ModItemGroups {
         DeferredHolder.create(Registries.CREATIVE_MODE_TAB, AnvilCraft.of("functional_blocks"));
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_BUILDING_BLOCKS =
         DeferredHolder.create(Registries.CREATIVE_MODE_TAB, AnvilCraft.of("building_blocks"));
+    @Deprecated
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_TOOL =
+        ANVILCRAFT_TOOLS_AND_UTILITIES;
+    @Deprecated
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_FUNCTION_BLOCK =
+        ANVILCRAFT_FUNCTIONAL_BLOCKS;
+    @Deprecated
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_BUILD_BLOCK =
+        ANVILCRAFT_BUILDING_BLOCKS;
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_ITEMS =
         DeferredHolder.create(Registries.CREATIVE_MODE_TAB, AnvilCraft.of("items"));
 
+    // 旧版命名（ANVILCRAFT_TOOL / ANVILCRAFT_FUNCTION_BLOCK / ANVILCRAFT_BUILD_BLOCK）仅为兼容旧附属保留，
+    // 均已标记 @Deprecated，新代码请使用上方的新版命名，且建议挂靠在ANVILCRAFT_ITEMS后。
     public static void register(IEventBus modEventBus) {
         modEventBus.addListener(ModItemGroups::registerTabs);
     }
