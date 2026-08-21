@@ -19,10 +19,18 @@ public class FluidTankRenderUtil {
 
         FluidType attributes = fluid.getFluid().getFluidType();
         if (attributes.isLighterThanAir()) {
-            minY = maxY - fill * height;
-        } else {
-            maxY = minY + fill * height;
+            // Gas always fills the whole tank; the amount is conveyed by opacity.
+            FluidRenderHelper.INSTANCE.renderFluidBox(
+                fluid,
+                TANK_W, minY, TANK_W,
+                1 - TANK_W, maxY, 1 - TANK_W,
+                mbs, ps, light,
+                true, fill
+            );
+            return;
         }
+
+        maxY = minY + fill * height;
 
         FluidRenderHelper.INSTANCE.renderFluidBox(
             fluid,

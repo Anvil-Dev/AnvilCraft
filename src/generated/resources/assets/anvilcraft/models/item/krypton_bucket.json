@@ -1,0 +1,6 @@
+{
+  "parent": "neoforge:item/bucket_drip",
+  "flip_gas": true,
+  "fluid": "anvilcraft:krypton",
+  "loader": "neoforge:fluid_container"
+}

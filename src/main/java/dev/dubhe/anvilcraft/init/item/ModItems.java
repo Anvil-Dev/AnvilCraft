@@ -1157,6 +1157,51 @@ public class ModItems {
         .model(ModelProviderUtil::bucket)
         .register();
 
+    public static final ItemEntry<BucketItem> HYDROGEN_BUCKET = REGISTRUM.item("hydrogen_bucket", ModItems.bucket(() -> ModFluids.HYDROGEN))
+        .tag(Tags.Items.BUCKETS)
+        .lang("Hydrogen Bucket")
+        .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
+        .model(ModelProviderUtil::bucketGassy)
+        .register();
+
+    public static final ItemEntry<BucketItem> OXYGEN_BUCKET = REGISTRUM.item("oxygen_bucket", ModItems.bucket(() -> ModFluids.OXYGEN))
+        .tag(Tags.Items.BUCKETS)
+        .lang("Oxygen Bucket")
+        .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
+        .model(ModelProviderUtil::bucketGassy)
+        .register();
+
+    public static final ItemEntry<BucketItem> HELIUM_BUCKET = REGISTRUM.item("helium_bucket", ModItems.bucket(() -> ModFluids.HELIUM))
+        .tag(Tags.Items.BUCKETS)
+        .lang("Helium Bucket")
+        .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
+        .model(ModelProviderUtil::bucketGassy)
+        .register();
+
+    public static final ItemEntry<BucketItem> DEUTERIUM_BUCKET = REGISTRUM
+        .item("deuterium_bucket", ModItems.bucket(() -> ModFluids.DEUTERIUM))
+        .tag(Tags.Items.BUCKETS)
+        .lang("Deuterium Bucket")
+        .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
+        .model(ModelProviderUtil::bucketGassy)
+        .register();
+
+    public static final ItemEntry<BucketItem> XENON_BUCKET = REGISTRUM
+        .item("xenon_bucket", ModItems.bucket(() -> ModFluids.XENON))
+        .tag(Tags.Items.BUCKETS)
+        .lang("Xenon Bucket")
+        .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
+        .model(ModelProviderUtil::bucketGassy)
+        .register();
+
+    public static final ItemEntry<BucketItem> KRYPTON_BUCKET = REGISTRUM
+        .item("krypton_bucket", ModItems.bucket(() -> ModFluids.KRYPTON))
+        .tag(Tags.Items.BUCKETS)
+        .lang("Krypton Bucket")
+        .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
+        .model(ModelProviderUtil::bucketGassy)
+        .register();
+
     public static final ItemEntry<PipeBlockItem> PIPE = REGISTRUM.item("pipe", PipeBlockItem::new)
         .model((ctx, provider) -> provider
             .withExistingParent(ctx.getId().toString(), AnvilCraft.of("block/pipe"))

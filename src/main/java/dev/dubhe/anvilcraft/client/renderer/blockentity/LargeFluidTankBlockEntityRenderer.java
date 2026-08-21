@@ -82,11 +82,24 @@ public class LargeFluidTankBlockEntityRenderer implements BlockEntityRenderer<La
         float height = 3 - 2 * TANK_W;
 
         float minX = TANK_W - 1;
-        float minY = (float) (TANK_W - 1 + layerBottom * height);
         float minZ = TANK_W - 1;
         float maxX = 2 - TANK_W;
-        float maxY = (float) (TANK_W - 1 + layerTop * height);
         float maxZ = 2 - TANK_W;
+
+        if (fluid.getFluid().getFluidType().isLighterThanAir()) {
+            // Gas always fills the whole tank; its share is conveyed by opacity.
+            FluidRenderHelper.INSTANCE.renderFluidBox(
+                fluid,
+                minX, TANK_W - 1, minZ,
+                maxX, 2 - TANK_W, maxZ,
+                mbs, ps, light,
+                true, (float) (layerTop - layerBottom)
+            );
+            return;
+        }
+
+        float minY = (float) (TANK_W - 1 + layerBottom * height);
+        float maxY = (float) (TANK_W - 1 + layerTop * height);
 
         FluidRenderHelper.INSTANCE.renderFluidBox(
             fluid,
