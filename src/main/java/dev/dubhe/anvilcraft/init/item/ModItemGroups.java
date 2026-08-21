@@ -52,6 +52,9 @@ public class ModItemGroups {
         DeferredHolder.create(Registries.CREATIVE_MODE_TAB, AnvilCraft.of("functional_blocks"));
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_BUILDING_BLOCKS =
         DeferredHolder.create(Registries.CREATIVE_MODE_TAB, AnvilCraft.of("building_blocks"));
+    @Deprecated
+    public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_BUILD_BLOCK =
+        ANVILCRAFT_BUILDING_BLOCKS;
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> ANVILCRAFT_ITEMS =
         DeferredHolder.create(Registries.CREATIVE_MODE_TAB, AnvilCraft.of("items"));
 
