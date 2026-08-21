@@ -1,55 +1,148 @@
 package dev.dubhe.anvilcraft.block.entity.celestial;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.megastructure.BaseMegastructureHandler;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
 
-/// 表示天体约束环的可能重构选项。
-/// 每个选项将一个环转化为巨构建筑。
-///
-/// ring - 要重构的环编号（R1-R6）
-/// megastructure - 巨构模型名称后缀（例如"eco_station"、"dyson_sphere"）
-/// modelLocation - 巨构模型的位置。客户端渲染时转换为客户端模型标识。
-/// displayName - 巨构显示名称的翻译键
-/// material - 所需建筑材料的物品栈，若无则为 {@link ItemStack#EMPTY}
-/// materialCount - 所需材料的数量
+import javax.annotation.Nullable;
+
+/** A megastructure definition resolved for one celestial body. */
 public record CelestialRefactorOption(
+    Megastructure definition,
+    @Nullable Megastructure.Context context,
     int ring,
-    String megastructure,
     ResourceLocation modelLocation,
     String displayName,
     ItemStack material,
     int materialCount
 ) {
 
-    /// 创建一个不需要建筑材料的重构选项。
+    /** Resolve a registered definition for the supplied CFA context. */
+    public static CelestialRefactorOption resolve(Megastructure definition, Megastructure.Context context) {
+        int ring = definition.ring(context);
+        return new CelestialRefactorOption(
+            definition,
+            context,
+            ring,
+            definition.modelLocation(ring),
+            definition.displayName(),
+            definition.material(),
+            definition.materialCount()
+        );
+    }
+
+    /** Compatibility constructor for add-ons written against the pre-registry API. */
+    public CelestialRefactorOption(
+        int ring,
+        String megastructure,
+        ResourceLocation modelLocation,
+        String displayName,
+        ItemStack material,
+        int materialCount
+    ) {
+        this(
+            legacyDefinition(ring, megastructure, modelLocation, displayName),
+            null,
+            ring,
+            modelLocation,
+            displayName,
+            material,
+            materialCount
+        );
+    }
+
+    public ResourceLocation id() {
+        return this.definition.id();
+    }
+
+    /** Legacy name accessor retained for handlers, renderers and add-ons. */
+    public String megastructure() {
+        return this.definition.name();
+    }
+
+    public boolean auxiliary() {
+        return this.definition.auxiliary();
+    }
+
+    public float rotation(float baseRotation, float bodyRotation) {
+        if (this.context == null) return baseRotation;
+        return this.definition.rotation(this.context, this.ring, baseRotation, bodyRotation);
+    }
+
+    public boolean needsMaterial() {
+        return this.materialCount > 0 && !this.material.isEmpty();
+    }
+
+    /**
+     * Creates an option in the old shape. New code should register a
+     * {@link Megastructure} instead, but keeping these factories avoids an
+     * unnecessary source break for add-ons targeting 1.21.
+     */
+    @Deprecated
     public static CelestialRefactorOption noMaterial(
         int ring, String megastructure, ResourceLocation modelLocation, String displayName
     ) {
         return new CelestialRefactorOption(
-            ring, megastructure, modelLocation, displayName, ItemStack.EMPTY, 0
+            ring,
+            megastructure,
+            modelLocation,
+            displayName,
+            ItemStack.EMPTY,
+            0
         );
     }
 
-    /// 创建一个需要建筑材料的重构选项。
-    ///
-    /// ring - 环编号（1-6）
-    /// megastructure - 巨构名称后缀
-    /// modelLocation - 完整模型定位符
-    /// displayName - 翻译键
-    /// material - 所需物品
-    /// materialCount - 所需物品数量
+    @Deprecated
     public static CelestialRefactorOption withMaterial(
-        int ring, String megastructure, ResourceLocation modelLocation, String displayName,
-        ItemLike material, int materialCount
+        int ring,
+        String megastructure,
+        ResourceLocation modelLocation,
+        String displayName,
+        ItemLike material,
+        int materialCount
     ) {
         return new CelestialRefactorOption(
-            ring, megastructure, modelLocation, displayName,
-            new ItemStack(material), materialCount
+            ring,
+            megastructure,
+            modelLocation,
+            displayName,
+            new ItemStack(material),
+            materialCount
         );
     }
 
-    public boolean needsMaterial() {
-        return materialCount > 0 && !material.isEmpty();
+    private static Megastructure legacyDefinition(
+        int ring,
+        String name,
+        ResourceLocation modelLocation,
+        String displayName
+    ) {
+        Megastructure.Builder builder = Megastructure.builder(AnvilCraft.of(name), name)
+            .displayName(displayName)
+            .ring(ring)
+            .model(ring, modelLocation)
+            .handler(() -> new LegacyHandler(name));
+        if ("stellar_evolution_accelerator".equals(name)) builder.auxiliary();
+        return builder.build();
+    }
+
+    private static final class LegacyHandler extends BaseMegastructureHandler {
+        private final String name;
+
+        private LegacyHandler(String name) {
+            this.name = name;
+        }
+
+        @Override
+        public String name() {
+            return this.name;
+        }
+
+        @Override
+        public void serverTick(CelestialForgingAnvilBlockEntity be) {
+        }
     }
 }

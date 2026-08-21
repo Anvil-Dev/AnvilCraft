@@ -28,9 +28,12 @@ import javax.annotation.Nullable;
 
 @Getter
 public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerProducer, IPowerConsumer, MenuProvider {
+    public static final int MAX_POWER = 65536;
+    private static final int DEFAULT_POWER = 8192;
+
     private @Nullable PowerGrid grid = null;
 
-    private int power = 8192;
+    private int power = DEFAULT_POWER;
 
     private int time = 0;
     private boolean previousSyncFailed = false;
@@ -58,7 +61,7 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     @Override
     public void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
         super.loadAdditional(tag, provider);
-        this.power = tag.getInt("power");
+        this.power = Math.clamp(tag.getInt("power"), -MAX_POWER, MAX_POWER);
     }
 
     @Override
@@ -103,7 +106,7 @@ public class CreativeGeneratorBlockEntity extends BlockEntity implements IPowerP
     }
 
     public void setPower(int power) {
-        this.power = power;
+        this.power = Math.clamp(power, -MAX_POWER, MAX_POWER);
         if (level instanceof ServerLevel) {
             if (grid != null) {
                 this.grid.markChanged();

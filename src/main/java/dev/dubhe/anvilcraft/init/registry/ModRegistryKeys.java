@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.pointer.ITargetPointer;
 import dev.dubhe.anvilcraft.api.recipe.data.ICustomDataComponent;
 import dev.dubhe.anvilcraft.api.recipe.number.INumberProvider;
 import dev.dubhe.anvilcraft.api.recipe.result.modifier.IResultModifier;
+import dev.dubhe.anvilcraft.block.entity.celestial.Megastructure;
 import dev.dubhe.anvilcraft.block.placement.BlockPlacementRuleSet;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
@@ -27,6 +28,7 @@ public class ModRegistryKeys {
     public static final ResourceKey<Registry<ICategory>> CATEGORY = key("category");
     public static final ResourceKey<Registry<ITargetPointer.Type<?>>> TARGET_POINTER_TYPE = key("target_pointer");
     public static final ResourceKey<Registry<BlockPlacementRuleSet>> BLOCK_PLACEMENT_RULES = key("block_placement_rules");
+    public static final ResourceKey<Registry<Megastructure>> MEGASTRUCTURE = key("megastructure");
 
     @SubscribeEvent
     public static void registerRegistries(DataPackRegistryEvent.NewRegistry event) {

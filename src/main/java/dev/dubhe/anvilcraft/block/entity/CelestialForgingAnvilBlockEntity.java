@@ -5,37 +5,27 @@ import dev.dubhe.anvilcraft.api.power.IPowerConsumer;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
 import dev.dubhe.anvilcraft.api.power.PowerComponentType;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyData;
-import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorRegistry;
-import dev.dubhe.anvilcraft.block.entity.celestial.PlanetResourceGenerator;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialSearchHistory;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
-import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
-import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyRecipe;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.megastructure.ExcavatorHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.PenroseSphereHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.WormholeStabilizerHandler;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
-import dev.dubhe.anvilcraft.entity.ThrownHeavyHalberdEntity;
+import dev.dubhe.anvilcraft.init.ModMegastructures;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
 import dev.dubhe.anvilcraft.item.DiskItem;
-import dev.dubhe.anvilcraft.util.GravityManager;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.ChatFormatting;
 import net.minecraft.Util;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -43,36 +33,27 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
-import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
@@ -168,6 +149,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         return megastructureManager.getActiveIndex();
     }
 
+    public boolean hasActiveMegastructure() {
+        return this.megastructureManager.hasActiveMegastructure();
+    }
+
+    public @Nullable ResourceLocation getActiveMegastructureId() {
+        return this.megastructureManager.getActiveId(this);
+    }
+
     /// 抽取器是否有有效的激光输入（用于模型切换）。委托给 ExcavatorHandler。
     public boolean isExcavatorLaserActive() {
         ExcavatorHandler h = megastructureManager.findHandler(ExcavatorHandler.class);
@@ -188,9 +177,6 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         return wh.getBodyUuid();
     }
     /// 此 CFA 当前是否已在虫洞网络中注册。
-    /// 按立方体部件侧边映射到该侧放置的传送门 BlockPos。
-
-    private final Map<Cube323PartHalf, BlockPos> portals = new EnumMap<>(Cube323PartHalf.class);
     /// 虫洞规范接口状态现已全局存储于 WormholeInterfaceStates（BetterSavedData），在整个网络组中共享。
 
     /// === 神殿状态 ===
@@ -239,8 +225,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
     @Override
     public int getInputPower() {
-        if (searching && searchTicksRemaining > 0) {
-            return isAmplify ? 4000 : 1000;
+        if (this.searchController.isSearching() && this.searchController.ticksRemaining() > 0) {
+            return isAmplify ? 32000 : 1000;
         }
         return megastructureManager.getInputPower(this);
     }
@@ -448,6 +434,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     /// 为给定的重构选项配置材料槽。玩家选择重构选项时在服务器端调用。
     public void configureMaterialSlot(int optionIndex) {
         if (level == null || level.isClientSide()) return;
+        if (!this.locked) return;
+        if (this.isSearching() || this.isAcceleratorActive()) return;
         if (celestialBodyData == null) return;
         List<CelestialRefactorOption> options = getClientVisibleOptions();
         if (optionIndex < 0 || optionIndex >= options.size()) {
@@ -467,93 +455,43 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
     }
 
-    /// 搜索计时器
-    @Getter
-    private int searchTicksRemaining = 0;
-    @Getter
-    private boolean searching = false;
-    @Getter
-    @Setter
-    private boolean searchFailed = false;
-    @Getter
-    private boolean powerInsufficient = false;
-    private static final int SEARCH_TICKS = 200; /// 10 秒
-
-    /// 追踪搜索开始时消耗的种子物品（用于特殊天体匹配）
-    @javax.annotation.Nullable
-    private Item lastConsumedSeedItem = null;
-    @javax.annotation.Nullable
-    private CompoundTag lastConsumedSeedNbt = null;
+    /// 搜索状态委托给独立状态机；旧 getter/setter 在下方保留。
+    private final CfaSearchController searchController = new CfaSearchController();
 
     /// 电网
     @Setter
     @Nullable
     private PowerGrid grid;
 
-    /// 引力源状态
-    private boolean gravitySourceActive = false;
-    /// 基础引力影响半径（方块），对应 ringScale=6.0 时覆盖最外层束星环。
-    private static final int BASE_GRAVITY_RADIUS = 4;
+    /// 引力源状态委托给独立控制器。
+    private final CfaGravityController gravityController = new CfaGravityController();
 
     public void startSearch() {
-        this.searchFailed = false;
-        this.powerInsufficient = false;
+        if (this.locked || this.isSearching() || this.isAcceleratorActive()) return;
+        this.searchController.start(this);
+    }
 
-        /// 检查是否有种子物品（用于跳过预检和消耗）
-        ItemStack seedStack = this.anvilInventory.getItem(4);
-        boolean hasSeedItem = !seedStack.isEmpty();
+    public boolean isSearching() {
+        return this.searchController.isSearching();
+    }
 
-        /// 服务端参数预检（有种子物品时跳过）
-        if (level != null && !level.isClientSide()) {
-            if (!hasSeedItem) {
-                var preCheck = CelestialBodyMatcher.match(
-                    getAnvilCount(0),
-                    getAnvilCount(1),
-                    getAnvilCount(2),
-                    getAnvilCount(3),
-                    this.isAmplify,
-                    level.getRandom()
-                );
-                if (preCheck == null) {
-                    this.searchFailed = true;
-                    this.searching = false;
-                    this.searchTicksRemaining = 0;
-                    setChanged();
-                    level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-                    return;
-                }
-            }
-        }
+    public int getSearchTicksRemaining() {
+        return this.searchController.ticksRemaining();
+    }
 
-        /// 检查电力是否足够
-        if (!hasEnoughPower()) {
-            this.powerInsufficient = true;
-            this.searching = false;
-            this.searchTicksRemaining = 0;
-            setChanged();
-            if (level != null && !level.isClientSide()) {
-                level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-            }
-            return;
-        }
+    public boolean isSearchFailed() {
+        return this.searchController.hasFailed();
+    }
 
-        /// 捕获种子物品数据但暂不消耗（匹配成功后消耗）
-        if (hasSeedItem) {
-            this.lastConsumedSeedItem = seedStack.getItem();
-            this.lastConsumedSeedNbt = extractSnapshot(seedStack);
-        } else {
-            this.lastConsumedSeedItem = null;
-            this.lastConsumedSeedNbt = null;
-        }
+    public boolean isPowerInsufficient() {
+        return this.searchController.isPowerInsufficient();
+    }
 
-        /// 确认搜索将启动后才清除旧天体
-        this.setCelestialBodyData(null);
-        /// 启动搜索
-        this.searchTicksRemaining = SEARCH_TICKS;
-        this.searching = true;
-        setChanged();
-        if (level != null && !level.isClientSide()) {
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+    /** Marks search state dirty and sends the small block-entity update used by the CFA screen. */
+    void markSearchStateChanged() {
+        this.setChanged();
+        if (this.level != null && !this.level.isClientSide()) {
+            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS);
         }
     }
 
@@ -563,45 +501,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (supernovaFlashTicks > 0) {
             supernovaFlashTicks--;
         }
-        /// 持续刷新电力状态——电网恢复时清除过期的 powerInsufficient
-        boolean hasEnoughPower = hasEnoughPower();
-        if (!hasEnoughPower && !this.powerInsufficient) {
-            this.powerInsufficient = true;
-            setChanged();
-            Objects.requireNonNull(this.level).sendBlockUpdated(this.getBlockPos(), getBlockState(), getBlockState(), 3);
-        } else if (hasEnoughPower && this.powerInsufficient) {
-            this.powerInsufficient = false;
-            setChanged();
-            Objects.requireNonNull(this.level).sendBlockUpdated(this.getBlockPos(), getBlockState(), getBlockState(), 3);
-        }
-        if (searchTicksRemaining > 0) {
-            /// 在搜索过程中检查电力是否仍然充足
-            if (!hasEnoughPower) {
-                this.searching = false;
-                this.searchTicksRemaining = 0;
-                this.powerInsufficient = true;
-                setChanged();
-                if (level != null) {
-                    level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-                }
-            } else {
-                searchTicksRemaining--;
-                if (searchTicksRemaining == 0) {
-                    this.searching = false;
-                    tryMatchCelestialBody();
-                    if (celestialBodyData == null) {
-                        this.searchFailed = true;
-                    }
-                    setChanged();
-                    if (level != null) {
-                        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-                    }
-                }
-            }
-        }
+        this.searchController.serverTick(this);
 
         /// 管理恒星引力源
-        updateGravitySource();
+        this.updateGravitySource();
 
         /// 巨构建造逻辑（委托给处理类）
         megastructureManager.serverTick(this);
@@ -609,116 +512,32 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
     /// Updates the physical source from the same geometry used by rendering and contact damage.
     private void updateGravitySource() {
-        if (level == null || level.isClientSide()) return;
-
-        boolean shouldHaveGravity = celestialBodyData != null
-                                    && stellarMass > 0
-                                    && celestialBodyData.size() > 0
-                                    && (!(celestialBodyData instanceof StarData) || amplifierPresent);
-
-        if (shouldHaveGravity) {
-            double massRatio = Math.pow(2, (stellarMass - 12) / 2.0);
-            double strength = Math.log(1.0 + massRatio) / Math.log(2.0);
-            int radius = computeGravityRadius();
-            double bodyRadius = computeGravityBodyRadius();
-            float rawBodyScale = celestialBodyData.bodyScale();
-            float bodyRadius0 = rawBodyScale / 2.0f;
-            if (bodyRadius0 > 1e-6f && bodyRadius > 1e-6) {
-                double ratio = bodyRadius / bodyRadius0;
-                strength *= ratio * ratio;
-            }
-
-            Vec3 center = computeGravityCenter();
-            GravityManager.GravitySourceType type = new GravityManager.GravitySourceType(strength, radius, bodyRadius);
-            GravityManager.GravitySourceManager.upsertSource(level, worldPosition, center, type);
-            gravitySourceActive = true;
-        } else if (gravitySourceActive) {
-            removeGravitySource();
-        }
+        this.gravityController.tick(
+            this.level,
+            this.worldPosition,
+            this.isAmplify,
+            this.amplifierPresent,
+            this.celestialBodyData,
+            this.stellarMass,
+            this.getRedstoneSignal()
+        );
     }
 
     /// 强制移除引力源。当增幅器被拆除时调用，确保引力立即消失。
     public void removeGravitySource() {
-        if (level == null || level.isClientSide()) return;
-        GravityManager.GravitySourceManager.removeSource(level, worldPosition);
-        gravitySourceActive = false;
+        this.gravityController.remove(this.level, this.worldPosition);
     }
 
     public void handleEntityContact(Entity entity) {
-        if (!gravitySourceActive
-            || level == null
-            || level.isClientSide()
-            || entity.level() != level
-            || entity.isRemoved()
-            || isEternal(entity)) {
-            return;
-        }
-
-        if (entity instanceof LivingEntity living) {
-            applyCelestialDamage(living);
-        } else {
-            entity.discard();
-        }
-    }
-
-    private static boolean isEternal(Entity entity) {
-        ItemStack stack = switch (entity) {
-            case ItemEntity itemEntity -> itemEntity.getItem();
-            case ThrownHeavyHalberdEntity heavyHalberd -> heavyHalberd.getWeaponItem();
-            default -> ItemStack.EMPTY;
-        };
-        return stack.has(ModComponents.ETERNAL);
-    }
-
-    /// Applies the corresponding damage when a living entity contacts the celestial body.
-    private void applyCelestialDamage(LivingEntity living) {
-        if (celestialBodyData instanceof StarData star) {
-            if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
-                living.hurt(ModDamageTypes.lostInTime(Objects.requireNonNull(level)), Float.MAX_VALUE);
-            } else {
-                /// 普通恒星 / 中子星使用火焰伤害。
-                living.hurt(Objects.requireNonNull(level).damageSources().inFire(), STAR_CONTACT_DAMAGE);
-            }
-        } else {
-            /// 行星 / 特殊天体使用摔落伤害（类似撞上表面）。
-            living.hurt(Objects.requireNonNull(level).damageSources().fall(), PLANET_CONTACT_DAMAGE);
-        }
-    }
-
-    /// === 引力动态计算（委托给 CelestialBodyData 统一计算，渲染与引力共用） ===
-
-    private Vec3 computeGravityCenter() {
-        float redstoneFactor = getRedstoneSignal() / 15.0f;
-        float fullCenterY = CelestialBodyData.dynamicCenterY(celestialBodyData, isAmplify);
-        float baseCenterY = isAmplify ? 6.5f : 4.5f;
-        float centerY = baseCenterY + (fullCenterY - baseCenterY) * redstoneFactor;
-        return new Vec3(worldPosition.getX() + 0.5, worldPosition.getY() + centerY, worldPosition.getZ() + 0.5);
-    }
-
-    /// 计算当前红石信号下引力影响半径（方块数）。
-    /// ringScale=6.0 时半径 = BASE_GRAVITY_RADIUS=4，随环缩放线性变化。
-    private int computeGravityRadius() {
-        float redstoneFactor = getRedstoneSignal() / 15.0f;
-        float fullRingScale = CelestialBodyData.ringSystemScale(celestialBodyData, isAmplify);
-        float ringScale = CelestialBodyData.BASE_RING_SCALE + (fullRingScale - CelestialBodyData.BASE_RING_SCALE) * redstoneFactor;
-        return Math.max(1, Math.round(BASE_GRAVITY_RADIUS * ringScale / CelestialBodyData.BASE_RING_SCALE));
-    }
-
-    /// 计算当前红石信号下天体视觉半径（方块），用于引力内部递减边界。
-    /// 天体渲染为 1×1×1 立方体，缩放 bodyScaleMultiplier 后居中，视觉半径 = bodyScaleMultiplier / 2。
-    private double computeGravityBodyRadius() {
-        if (celestialBodyData == null) return 0;
-        float redstoneFactor = getRedstoneSignal() / 15.0f;
-        float rawBodyScale = celestialBodyData.bodyScale();
-        float fullBodyScale = rawBodyScale * CelestialBodyData.BODY_SCALE_FACTOR;
-        float bodyScaleMultiplier = rawBodyScale + (fullBodyScale - rawBodyScale) * redstoneFactor;
-        return bodyScaleMultiplier / 2.0;
+        this.gravityController.handleEntityContact(this.level, this.celestialBodyData, entity);
     }
 
     /// 搜索历史，最多 10 条。索引 0 = 最新。
     @Getter
     private final List<SearchHistoryEntry> searchHistory = new ArrayList<>();
-    private static final int MAX_HISTORY = 10;
+    private final CelestialSearchHistory searchHistoryController = new CelestialSearchHistory(this.searchHistory);
+    private @Nullable CompoundTag cachedDropData;
+    private boolean permanentRemovalPrepared;
 
     /// 一条搜索历史记录，将天体及其生成的资源捆绑在一起。
     public record SearchHistoryEntry(CelestialBodyData body, @Nullable PlanetaryResourceSet resources) {
@@ -740,12 +559,6 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             return new SearchHistoryEntry(body, resources);
         }
     }
-
-    /// 搜索历史的浏览索引：0 = 显示锁定的天体，1+ = 正在浏览。
-    @Getter
-    private int historyBrowseIndex = 0;
-    @Nullable
-    private SearchHistoryEntry historyOriginalEntry;
 
     @Getter
     private final SimpleContainer anvilInventory = new SimpleContainer(5) {
@@ -804,14 +617,33 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     public void setRemoved() {
         super.setRemoved();
         if (level != null && !level.isClientSide() && !PowerGrid.isServerClosing) {
-            if (gravitySourceActive) {
-                GravityManager.GravitySourceManager.removeSource(level, worldPosition);
-                gravitySourceActive = false;
-            }
-            /// 注销虫洞并清除巨构，使已连接的传送门关闭。
-            /// 服务器关闭期间跳过，避免保存时访问已保存数据。
-            megastructureManager.clearAllMegastructures(this);
+            this.removeGravitySource();
+            this.megastructureManager.unload(this);
         }
+    }
+
+    public void prepareForPermanentRemoval() {
+        if (this.permanentRemovalPrepared
+            || this.level == null
+            || this.level.isClientSide()
+            || PowerGrid.isServerClosing) {
+            return;
+        }
+        this.cachedDropData = this.saveCustomOnly(this.level.registryAccess());
+        this.permanentRemovalPrepared = true;
+        this.removeGravitySource();
+        this.megastructureManager.clearAllMegastructures(this);
+    }
+
+    @Override
+    public void clearRemoved() {
+        super.clearRemoved();
+        this.cachedDropData = null;
+        this.permanentRemovalPrepared = false;
+    }
+
+    public CompoundTag saveForDrop(HolderLookup.Provider registries) {
+        return this.cachedDropData == null ? this.saveCustomOnly(registries) : this.cachedDropData.copy();
     }
 
     /// 从 bodySeed 派生出的可复现的 ±5% 随机偏移百分比。仅用于 UI 显示年龄/半径/质量值。index 为 0=时元，1=空间，2=质量。返回在 [-0.05, +0.05] 范围内的偏移值。
@@ -821,185 +653,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         return (rand.nextFloat() - 0.5f) * 0.1f;
     }
 
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
     public void tryMatchCelestialBody() {
-        if (level == null) return;
-        int time = getAnvilCount(0);
-        int space = getAnvilCount(1);
-        int mass = getAnvilCount(2);
-        int energy = getAnvilCount(3);
-        this.ageAnvilCount = time;
-        this.bodySeed = level.getRandom().nextLong();
-        this.stellarMass = mass;
-
-        /// 验证种子物品仍在——如果玩家在搜索期间移除了它，
-        /// 清除捕获的数据，以便回退到普通匹配，而不是在未扣除种子物品的情况下
-        /// 授予特殊行星。
-        if (lastConsumedSeedItem != null || lastConsumedSeedNbt != null) {
-            ItemStack seedStack = this.anvilInventory.getItem(4);
-            if (seedStack.isEmpty()) {
-                this.lastConsumedSeedItem = null;
-                this.lastConsumedSeedNbt = null;
-            }
-        }
-
-        /// 第一步：检查种子物品快照（磁盘 / 奇点晶体）
-        if (lastConsumedSeedNbt != null && lastConsumedSeedNbt.contains("celestialBody")) {
-            applySnapshot(lastConsumedSeedNbt);
-            consumeSeedItem();
-            return;
-        }
-
-        /// 第二步：检查玩家头颅种子物品 → 玩家头颅天体
-        if (lastConsumedSeedItem == Items.PLAYER_HEAD
-
-        ) {
-            ItemStack headSeedStack = this.anvilInventory.getItem(4);
-            CompoundTag profileTag = extractProfileNbt(headSeedStack);
-            if (profileTag != null) {
-                this.celestialBodyData = SpecialCelestialBodyData.fromPlayerHead(profileTag, space);
-                this.planetaryResourceSet = new PlanetaryResourceSet();
-                addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
-                consumeSeedItem();
-                if (!level.isClientSide()) {
-                    this.setChanged();
-                    level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-                }
-                return;
-            }
-        }
-
-        /// 第三步：通过种子物品检查特殊天体发现
-        if (lastConsumedSeedItem != null) {
-            SpecialCelestialBodyData specialBody = tryMatchSpecialCelestialBody(
-                time,
-                space,
-                mass,
-                energy,
-                lastConsumedSeedItem,
-                ((ServerLevel) level).getSeed()
-            );
-            if (specialBody != null) {
-                this.celestialBodyData = specialBody;
-                if (!level.isClientSide()) {
-                    ResourceLocation recipeId = ResourceLocation.parse(specialBody.recipeId());
-                    level.getRecipeManager().byKey(recipeId).ifPresent(holder -> {
-                        if (holder.value() instanceof SpecialCelestialBodyRecipe recipe) {
-                            this.planetaryResourceSet = recipe.generateResources();
-                        }
-                    });
-                }
-                addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
-                consumeSeedItem();
-                if (!level.isClientSide()) {
-                    this.setChanged();
-                    level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-                }
-                return;
-            }
-        }
-
-        /// 回退到普通三步匹配
-        this.celestialBodyData = CelestialBodyMatcher.match(time, space, mass, energy, this.isAmplify, level.getRandom());
-        if (this.celestialBodyData != null) {
-            /// 从 bodySeed 派生出 UUID 用于虫洞身份标识
-            if (this.celestialBodyData instanceof StarData star && star.bodyUuid() == null) {
-                this.celestialBodyData = star.withBodyUuid(StarData.uuidFromBodySeed(this.bodySeed));
-            }
-            /// 生成行星资源
-            if (!level.isClientSide()) {
-                ResourceLocation seedItemId = lastConsumedSeedItem != null
-                    ? BuiltInRegistries.ITEM.getKey(lastConsumedSeedItem)
-                    : null;
-                this.planetaryResourceSet = PlanetResourceGenerator.generate(
-                    this.celestialBodyData,
-                    this.ageAnvilCount,
-                    level,
-                    this.bodySeed,
-                    seedItemId
-                );
-            }
-            addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
-        } else {
-            this.planetaryResourceSet = null;
-            this.searchTicksRemaining = 0; /// 失败时停止计时器
-        }
-        consumeSeedItem();
-
-        if (!level.isClientSide()) {
-            this.setChanged();
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-        }
-    }
-
-    /// 从玩家头颅种子物品中提取 profile 数据并序列化为 NBT。
-    @Nullable
-    private static CompoundTag extractProfileNbt(ItemStack stack) {
-        if (!stack.is(Items.PLAYER_HEAD)) return null;
-        net.minecraft.world.item.component.ResolvableProfile profile = stack.get(
-            net.minecraft.core.component.DataComponents.PROFILE
-        );
-        if (profile == null) return null;
-        return (CompoundTag) net.minecraft.world.item.component.ResolvableProfile.CODEC
-            .encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, profile)
-            .getOrThrow();
-    }
-
-    /// 尝试根据砧子参数和消耗的种子物品来匹配一个特殊（隐藏）天体。种子物品必须是此世界种子的有效物品（使用与 RoyalPreference 相同的模式）。
-    private void consumeSeedItem() {
-        if (level == null || level.isClientSide()) return;
-        ItemStack seed = this.anvilInventory.getItem(4);
-        if (!seed.isEmpty()) {
-            this.anvilInventory.setItem(4, ItemStack.EMPTY);
-        }
-    }
-
-    @javax.annotation.Nullable
-    private SpecialCelestialBodyData tryMatchSpecialCelestialBody(
-        int time,
-        int space,
-        int mass,
-        int energy,
-        Item consumedSeedItem,
-        long worldSeed
-    ) {
-        if (level == null) return null;
-        List<SpecialCelestialBodyRecipe> recipes = level.getRecipeManager()
-            .getAllRecipesFor(ModRecipeTypes.SPECIAL_CELESTIAL_BODY_TYPE.get())
-            .stream().map(RecipeHolder::value).toList();
-        for (SpecialCelestialBodyRecipe recipe : recipes) {
-            if (recipe.time() == time && recipe.space() == space
-                && recipe.mass() == mass && recipe.energy() == energy
-                && recipe.isEffectiveSeedItem(consumedSeedItem, worldSeed)
-            ) {
-                /// 查找配方持有者以获取完整 ID
-                return level.getRecipeManager()
-                    .getAllRecipesFor(ModRecipeTypes.SPECIAL_CELESTIAL_BODY_TYPE.get())
-                    .stream()
-                    .filter(h -> h.value() == recipe)
-                    .findFirst()
-                    .map(h -> SpecialCelestialBodyData.fromRecipe(recipe, h.id().toString()))
-                    .orElse(null);
-            }
-        }
-        return null;
-    }
-
-    /// 从快照（磁盘 / 奇点晶体种子物品）加载天体。快照包含所有参数——砧子数量在匹配时被忽略。
-    private void applySnapshot(CompoundTag tag) {
-        if (level == null) return;
-        this.celestialBodyData = CelestialBodyData.fromTag(tag.getCompound("celestialBody"));
-        this.bodySeed = tag.getLong("bodySeed");
-        this.ageAnvilCount = tag.getInt("ageAnvilCount");
-        this.stellarMass = tag.getInt("stellarMass");
-        if (tag.contains("planetaryResources")) {
-            this.planetaryResourceSet = PlanetaryResourceSet.fromTag(tag.getCompound("planetaryResources"));
-        }
-        addToSearchHistory(this.celestialBodyData, this.planetaryResourceSet);
-        if (!level.isClientSide()) {
-            this.setChanged();
-            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-        }
+        this.searchController.match(this);
     }
 
     /// === 磁盘克隆接口 ===
@@ -1062,57 +717,18 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     /// 从种子物品堆中提取天体快照。
     @javax.annotation.Nullable
     public static CompoundTag extractSnapshot(ItemStack stack) {
-        if (stack.getItem() instanceof DiskItem && DiskItem.hasDataStored(stack)) {
-            return DiskItem.getData(stack).copy();
-        }
-        return loadSnapshotFromStack(stack);
+        return dev.dubhe.anvilcraft.block.entity.celestial.CelestialSnapshotCodec.extract(stack);
     }
 
     /// 从磁盘或奇点晶体中加载天体快照。
     @javax.annotation.Nullable
     public static CompoundTag loadSnapshotFromStack(ItemStack stack) {
-        /// 磁盘
-        if (stack.getItem() instanceof DiskItem && DiskItem.hasDataStored(stack)) {
-            CompoundTag data = DiskItem.getData(stack);
-            if (data.contains("celestialBody")) return data.copy();
-        }
-        /// 奇点晶体
-        if (stack.is(ModBlocks.SINGULARITY_CRYSTAL.asItem())) {
-            var customData = stack.getOrDefault(
-                net.minecraft.core.component.DataComponents.CUSTOM_DATA,
-                net.minecraft.world.item.component.CustomData.EMPTY
-            );
-            CompoundTag tag = customData.copyTag();
-            if (!tag.isEmpty() && tag.contains("celestialSnapshot")) {
-                CompoundTag snapshot = tag.getCompound("celestialSnapshot");
-                if (snapshot.contains("celestialBody")) return snapshot.copy();
-            }
-        }
-        return null;
+        return dev.dubhe.anvilcraft.block.entity.celestial.CelestialSnapshotCodec.load(stack);
     }
 
     /// 将快照保存到磁盘或奇点晶体中。
     public static void saveSnapshotToStack(ItemStack stack, CompoundTag snapshot) {
-        if (stack.getItem() instanceof DiskItem) {
-            /// 极端天体（黑洞 / 中子星）不能存储在磁盘上
-            if (snapshot.contains("celestialBody")) {
-                CompoundTag bodyTag = snapshot.getCompound("celestialBody");
-                String bodyClass = bodyTag.getString("bodyClass");
-                if ("BLACK_HOLE".equals(bodyClass) || "NEUTRON_STAR".equals(bodyClass)) {
-                    return; /// 静默拒绝——极端天体需要奇点晶体
-                }
-            }
-            CompoundTag diskTag = DiskItem.createData(stack);
-            diskTag.merge(snapshot);
-        } else if (stack.is(ModBlocks.SINGULARITY_CRYSTAL.asItem())) {
-            var oldCustom = stack.getOrDefault(
-                net.minecraft.core.component.DataComponents.CUSTOM_DATA,
-                net.minecraft.world.item.component.CustomData.EMPTY
-            );
-            CompoundTag updated = oldCustom.copyTag();
-            updated.put("celestialSnapshot", snapshot.copy());
-            stack.set(net.minecraft.core.component.DataComponents.CUSTOM_DATA, net.minecraft.world.item.component.CustomData.of(updated));
-        }
+        dev.dubhe.anvilcraft.block.entity.celestial.CelestialSnapshotCodec.save(stack, snapshot);
     }
 
     /// === CFA 方块交互 ===
@@ -1126,8 +742,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             /// 如果虫洞稳定器处于活动状态，则重新注册到虫洞网络
             /// 委托给 handler 的 onBuild 处理重新注册
             WormholeStabilizerHandler wh = megastructureManager.getWormholeHandler();
-            if (megastructureManager.getActiveIndex() >= 0 && getActiveMegastructureOption() != null && "wormhole_stabilizer".equals(
-                getActiveMegastructureOption().megastructure())) {
+            if (ModMegastructures.WORMHOLE_STABILIZER.getId().equals(megastructureManager.getActiveId(this))) {
                 wh.onBuild(this);
             }
             this.setChanged();
@@ -1145,33 +760,19 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
         tag.putBoolean("locked", this.locked);
         tag.putBoolean("amplifierPresent", this.amplifierPresent);
-        tag.putBoolean("searching", this.searching);
-        tag.putInt("searchTicks", this.searchTicksRemaining);
-        tag.putBoolean("searchFailed", this.searchFailed);
-        tag.putBoolean("powerInsufficient", this.powerInsufficient);
+        tag.putBoolean("searching", this.isSearching());
+        tag.putInt("searchTicks", this.getSearchTicksRemaining());
+        tag.putBoolean("searchFailed", this.isSearchFailed());
+        tag.putBoolean("powerInsufficient", this.isPowerInsufficient());
+        this.searchController.save(tag, registries);
         if (celestialBodyData != null) {
             tag.put("celestialBody", celestialBodyData.toTag());
         }
         /// 搜索历史
-        CompoundTag histTag = new CompoundTag();
-        histTag.putInt("size", Math.min(searchHistory.size(), MAX_HISTORY));
-        for (int i = 0; i < Math.min(searchHistory.size(), MAX_HISTORY); i++) {
-            histTag.put("h" + i, searchHistory.get(i).toTag());
-        }
-        tag.put("searchHistory", histTag);
+        tag.put("searchHistory", this.searchHistoryController.toTag());
         /// 砧子物品栏
-        CompoundTag invTag = new CompoundTag();
-        for (int i = 0; i < 5; i++) {
-            ItemStack stack = this.anvilInventory.getItem(i);
-            if (!stack.isEmpty()) {
-                invTag.put("s" + i, stack.save(registries));
-            }
-        }
-        tag.put("anvils", invTag);
+        tag.put("anvils", CfaInventoryCodec.save(this.anvilInventory, registries));
         /// 材料槽
-        if (!materialFilter.isEmpty()) {
-            tag.put("materialFilter", materialFilter.save(registries));
-        }
         if (!materialFilter.isEmpty()) {
             tag.put("materialFilter", materialFilter.save(registries));
         }
@@ -1179,19 +780,6 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         tag.putInt("ageAnvilCount", this.ageAnvilCount);
         if (planetaryResourceSet != null) {
             tag.put("planetaryResources", planetaryResourceSet.toTag());
-        }
-        /// 虫洞稳定器状态（由 WormholeStabilizerHandler NBT 处理）
-        if (!portals.isEmpty()) {
-            CompoundTag portalTag = new CompoundTag();
-            for (Map.Entry<Cube323PartHalf, BlockPos> entry : portals.entrySet()) {
-                BlockPos p = entry.getValue();
-                CompoundTag posTag = new CompoundTag();
-                posTag.putInt("x", p.getX());
-                posTag.putInt("y", p.getY());
-                posTag.putInt("z", p.getZ());
-                portalTag.put(entry.getKey().getSerializedName(), posTag);
-            }
-            tag.put("portals", portalTag);
         }
         /// 神殿状态
         tag.putInt("templeCycleDay", templeCycleDay);
@@ -1202,7 +790,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         tag.putInt("templeDemandCount", templeDemandCount);
         tag.putInt("templeDemandProgress", templeDemandProgress);
         tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
-        tag.putInt("historyBrowseIndex", historyBrowseIndex);
+        tag.putInt("historyBrowseIndex", this.searchHistoryController.browseIndex());
         /// 将巨构建造 NBT 委托给管理器
         megastructureManager.saveAdditional(tag, registries);
     }
@@ -1217,15 +805,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.stellarMass = tag.getInt("stellarMass");
         this.locked = tag.getBoolean("locked");
         this.amplifierPresent = tag.getBoolean("amplifierPresent");
-        this.searching = tag.getBoolean("searching");
-        this.searchTicksRemaining = tag.getInt("searchTicks");
-        this.searchFailed = tag.getBoolean("searchFailed");
-        this.powerInsufficient = tag.getBoolean("powerInsufficient");
-        /// 如果 searching 为 true 但没有保存计时器（旧数据或新放置的），
-        /// 重置标志以防止搜索状态卡住
-        if (this.searching && this.searchTicksRemaining <= 0) {
-            this.searching = false;
-        }
+        this.searchController.loadPersistent(
+            tag.getBoolean("searching"),
+            tag.getInt("searchTicks"),
+            tag.getBoolean("searchFailed"),
+            tag.getBoolean("powerInsufficient"),
+            tag,
+            registries
+        );
         this.bodySeed = tag.getLong("bodySeed");
         /// 捕获旧天体数据用于动画过渡检测
         CelestialBodyData oldBodyData = this.celestialBodyData;
@@ -1254,8 +841,17 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                 this.animationPreviousBodyData = oldBodyData;
             }
         }
-        loadSearchHistory(tag);
-        loadInventory(tag, registries);
+        if (tag.contains("searchHistory")) {
+            this.searchHistoryController.load(tag.getCompound("searchHistory"));
+        } else {
+            this.searchHistoryController.clear();
+        }
+        this.searchHistoryController.setBrowseIndex(tag.getInt("historyBrowseIndex"));
+        if (tag.contains("anvils")) {
+            CfaInventoryCodec.load(tag.getCompound("anvils"), this.anvilInventory, registries);
+        } else {
+            CfaInventoryCodec.load(new CompoundTag(), this.anvilInventory, registries);
+        }
         /// 材料过滤器
         if (tag.contains("materialFilter")) {
             this.materialFilter = ItemStack.parse(registries, tag.getCompound("materialFilter"))
@@ -1270,17 +866,6 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         } else {
             this.planetaryResourceSet = null;
         }
-        /// 虫洞稳定器状态（由 WormholeStabilizerHandler NBT 处理）
-        this.portals.clear();
-        if (tag.contains("portals")) {
-            CompoundTag portalTag = tag.getCompound("portals");
-            for (String key : portalTag.getAllKeys()) {
-                CompoundTag posTag = portalTag.getCompound(key);
-                Cube323PartHalf side = Cube323PartHalf.valueOf(key.toUpperCase());
-                BlockPos pos = new BlockPos(posTag.getInt("x"), posTag.getInt("y"), posTag.getInt("z"));
-                portals.put(side, pos);
-            }
-        }
         /// 神殿状态
         this.templeCycleDay = tag.getInt("templeCycleDay");
         this.templeLastDay = tag.contains("templeLastDay") ? tag.getLong("templeLastDay") : -1;
@@ -1293,7 +878,6 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.templeDemandProgress = tag.getInt("templeDemandProgress");
         this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
         /// 对撞机运行时状态不持久化——加载时始终从干净状态开始
-        this.historyBrowseIndex = tag.getInt("historyBrowseIndex");
         /// 超新星闪光（客户端渲染）——运行时同步走 loadAdditional（onDataPacket→loadWithComponents），
         /// 故必须在此读取；仅在收到更大 ticks 时重启，避免覆盖客户端流畅递减。
         if (tag.contains("supernovaFlashTicks")) {
@@ -1306,6 +890,8 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         }
         /// 将巨构建造 NBT 委托给管理器（必须放在最后，以便管理器覆盖 BE 字段）
         megastructureManager.loadAdditional(tag, registries);
+        // Resolve legacy name/index data once the celestial context and handlers are loaded.
+        megastructureManager.getActiveId(this);
         if (level != null && !level.isClientSide()) {
             level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }
@@ -1322,20 +908,17 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
 
         tag.putBoolean("locked", this.locked);
         tag.putBoolean("amplifierPresent", this.amplifierPresent);
-        tag.putBoolean("searching", this.searching);
-        tag.putInt("searchTicks", this.searchTicksRemaining);
-        tag.putBoolean("searchFailed", this.searchFailed);
-        tag.putBoolean("powerInsufficient", this.powerInsufficient);
+        tag.putBoolean("searching", this.isSearching());
+        tag.putInt("searchTicks", this.getSearchTicksRemaining());
+        tag.putBoolean("searchFailed", this.isSearchFailed());
+        tag.putBoolean("powerInsufficient", this.isPowerInsufficient());
         if (celestialBodyData != null) {
             tag.put("celestialBody", celestialBodyData.toTag());
         }
         /// 搜索历史
-        CompoundTag histTag = new CompoundTag();
-        histTag.putInt("size", Math.min(searchHistory.size(), MAX_HISTORY));
-        for (int i = 0; i < Math.min(searchHistory.size(), MAX_HISTORY); i++) {
-            histTag.put("h" + i, searchHistory.get(i).toTag());
-        }
-        tag.put("searchHistory", histTag);
+        tag.put("searchHistory", this.searchHistoryController.toTag());
+        /// 同步全部 5 个槽位，供客户端界面显示。
+        tag.put("anvils", CfaInventoryCodec.save(this.anvilInventory, registries));
         /// 材料过滤器同步
         if (!materialFilter.isEmpty()) {
             tag.put("materialFilter", materialFilter.save(registries));
@@ -1355,7 +938,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         tag.putInt("templeDemandProgress", templeDemandProgress);
         tag.putBoolean("templeDemandSatisfied", templeDemandSatisfied);
         /// 对撞机运行时状态不同步到客户端
-        tag.putInt("historyBrowseIndex", historyBrowseIndex);
+        tag.putInt("historyBrowseIndex", this.searchHistoryController.browseIndex());
         /// 超新星闪光（客户端渲染）
         tag.putInt("supernovaFlashTicks", supernovaFlashTicks);
         tag.putDouble("supernovaCenterY", supernovaCenterY);
@@ -1375,10 +958,12 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.stellarMass = tag.getInt("stellarMass");
         this.locked = tag.getBoolean("locked");
         this.amplifierPresent = tag.getBoolean("amplifierPresent");
-        this.searching = tag.getBoolean("searching");
-        this.searchTicksRemaining = tag.getInt("searchTicks");
-        this.searchFailed = tag.getBoolean("searchFailed");
-        this.powerInsufficient = tag.getBoolean("powerInsufficient");
+        this.searchController.loadSynced(
+            tag.getBoolean("searching"),
+            tag.getInt("searchTicks"),
+            tag.getBoolean("searchFailed"),
+            tag.getBoolean("powerInsufficient")
+        );
         this.bodySeed = tag.getLong("bodySeed");
 
         /// 捕获旧天体数据用于动画过渡检测
@@ -1411,8 +996,17 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
                 this.animationPreviousBodyData = oldBodyData;
             }
         }
-        loadSearchHistory(tag);
-        loadInventory(tag, lookupProvider);
+        if (tag.contains("searchHistory")) {
+            this.searchHistoryController.load(tag.getCompound("searchHistory"));
+        } else {
+            this.searchHistoryController.clear();
+        }
+        this.searchHistoryController.setBrowseIndex(tag.getInt("historyBrowseIndex"));
+        if (tag.contains("anvils")) {
+            CfaInventoryCodec.load(tag.getCompound("anvils"), this.anvilInventory, lookupProvider);
+        } else {
+            CfaInventoryCodec.load(new CompoundTag(), this.anvilInventory, lookupProvider);
+        }
         /// 材料过滤器（客户端——从同步中读取）
         if (tag.contains("materialFilter")) {
             this.materialFilter = ItemStack.parse(lookupProvider, tag.getCompound("materialFilter"))
@@ -1439,7 +1033,6 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         this.templeDemandProgress = tag.getInt("templeDemandProgress");
         this.templeDemandSatisfied = tag.getBoolean("templeDemandSatisfied");
         /// 对撞机运行时状态不同步到客户端
-        this.historyBrowseIndex = tag.getInt("historyBrowseIndex");
         /// 超新星闪光（客户端渲染）——仅在收到更大值时重启，避免覆盖客户端流畅递减
         int incomingFlash = tag.getInt("supernovaFlashTicks");
         if (incomingFlash > this.supernovaFlashTicks) {
@@ -1451,120 +1044,51 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         megastructureManager.readUpdateTag(tag, lookupProvider);
     }
 
-    private void loadInventory(CompoundTag tag, HolderLookup.Provider registries) {
-        if (tag.contains("anvils")) {
-            CompoundTag invTag = tag.getCompound("anvils");
-            for (int i = 0; i < 5; i++) {
-                String key = "s" + i;
-                this.anvilInventory.setItem(
-                    i,
-                    invTag.contains(key)
-                    ? ItemStack.parse(registries, Objects.requireNonNull(invTag.get(key))).orElse(ItemStack.EMPTY)
-                    : ItemStack.EMPTY
-                );
-            }
-        }
-    }
-
     public int getAnvilCount(int slot) {
         return this.anvilInventory.getItem(slot).getCount();
     }
 
     public void addToSearchHistory(CelestialBodyData data, @Nullable PlanetaryResourceSet resources) {
-        /// 去重：如果已是最新条目则不添加
-        if (!searchHistory.isEmpty()) {
-            SearchHistoryEntry latest = searchHistory.getFirst();
-            if (latest.body().toTag().toString().equals(data.toTag().toString())) return;
-        }
-        searchHistory.addFirst(new SearchHistoryEntry(data, resources));
-        while (searchHistory.size() > MAX_HISTORY) {
-            searchHistory.removeLast();
-        }
+        this.searchHistoryController.add(data, resources);
     }
 
-    private void loadSearchHistory(CompoundTag tag) {
-        searchHistory.clear();
-        if (tag.contains("searchHistory")) {
-            CompoundTag histTag = tag.getCompound("searchHistory");
-            int size = Math.min(histTag.getInt("size"), MAX_HISTORY);
-            for (int i = 0; i < size; i++) {
-                if (histTag.contains("h" + i)) {
-                    CompoundTag entryTag = histTag.getCompound("h" + i);
-                    if (entryTag.contains("body")) {
-                        /// 新格式：SearchHistoryEntry
-                        searchHistory.add(SearchHistoryEntry.fromTag(entryTag));
-                    } else {
-                        /// 旧格式：裸 CelestialBodyData（未保存资源）
-                        CelestialBodyData body = CelestialBodyData.fromTag(entryTag);
-                        searchHistory.add(new SearchHistoryEntry(body, null));
-                    }
-                }
-            }
-        }
+    public void clearSearchHistory() {
+        this.searchHistoryController.clear();
     }
 
     /// === 搜索历史浏览（服务端）===
 
     public boolean hasPreviousHistory() {
-        int sz = searchHistory.size();
-        return sz > 1 && historyBrowseIndex < sz;
+        return this.searchHistoryController.hasPrevious();
     }
 
     public boolean hasNextHistory() {
-        return historyBrowseIndex > 0;
+        return this.searchHistoryController.hasNext();
     }
 
     public void browseHistoryPrev() {
         if (level == null || level.isClientSide()) return;
-        int sz = searchHistory.size();
-        /// 至少需要 2 条记录：索引 0 是当前锁定的天体
-        if (sz <= 1 || historyBrowseIndex >= sz) return;
-        if (historyBrowseIndex == 0) {
-            historyOriginalEntry = new SearchHistoryEntry(Objects.requireNonNull(celestialBodyData), planetaryResourceSet);
-            historyBrowseIndex = 1; /// 跳过当前天体条目
-        }
-        historyBrowseIndex++;
-        if (historyBrowseIndex > sz) return;
-        applyHistoryEntry();
+        if (this.locked || this.isSearching() || this.isAcceleratorActive()) return;
+        SearchHistoryEntry entry = this.searchHistoryController.previous(celestialBodyData, planetaryResourceSet);
+        if (entry != null) this.applyHistoryEntry(entry);
     }
 
     public void browseHistoryNext() {
         if (level == null || level.isClientSide()) return;
-        if (historyBrowseIndex <= 0) return;
-        historyBrowseIndex--;
-        if (historyBrowseIndex == 0) {
-            if (historyOriginalEntry != null) {
-                celestialBodyData = historyOriginalEntry.body();
-                planetaryResourceSet = historyOriginalEntry.resources();
-                historyOriginalEntry = null;
-            }
-            setChanged();
-            syncToClient();
-        } else {
-            applyHistoryEntry();
-        }
+        if (this.locked || this.isSearching() || this.isAcceleratorActive()) return;
+        SearchHistoryEntry entry = this.searchHistoryController.next();
+        if (entry != null) this.applyHistoryEntry(entry);
     }
 
-    private void applyHistoryEntry() {
-        if (historyBrowseIndex > 0 && historyBrowseIndex <= searchHistory.size()) {
-            SearchHistoryEntry entry = searchHistory.get(historyBrowseIndex - 1);
-            celestialBodyData = entry.body();
-            planetaryResourceSet = entry.resources();
-        }
+    private void applyHistoryEntry(SearchHistoryEntry entry) {
+        this.celestialBodyData = entry.body();
+        this.planetaryResourceSet = entry.resources();
         setChanged();
         syncToClient();
     }
 
     private void syncToClient() {
-        if (level instanceof ServerLevel serverLevel) {
-            Packet<?> packet = getUpdatePacket();
-            for (ServerPlayer serverPlayer : serverLevel.getChunkSource().chunkMap.getPlayers(
-                serverLevel.getChunkAt(worldPosition)
-                    .getPos(), false
-            )) {
-                serverPlayer.connection.send(packet);
-            }
-        }
+        CfaBlockEntitySync.sendToTracking(this, this.getUpdatePacket());
     }
 
     @Override
@@ -1601,14 +1125,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (!this.locked) {
             /// 解锁：清除巨构和加速器，恢复为束星环
             clearMegastructure();
-            clearAcceleratorState();
+            clearAuxiliaryMegastructures();
         }
         this.setChanged();
         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
     }
 
-    private void clearAcceleratorState() {
-        megastructureManager.getAcceleratorHandler().onClear(this);
+    private void clearAuxiliaryMegastructures() {
+        megastructureManager.clearAuxiliaryMegastructures(this);
     }
 
     /// 清除活动巨构及所有相关状态，恢复为束星环。
@@ -1621,15 +1145,15 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         PowerGrid.addComponent(this);
     }
 
-    /// 获取与客户端看到的匹配的选项列表（应用相同的过滤）。当巨构已建造时，仅加速器可见。
+    /// 获取与客户端看到的匹配的选项列表（应用相同的过滤）。当主巨构已建造时，仅辅助巨构可见。
     public List<CelestialRefactorOption> getClientVisibleOptions() {
         List<CelestialRefactorOption> options = CelestialRefactorRegistry.getOptions(
             celestialBodyData,
             isAmplify,
             this.planetaryResourceSet
         );
-        if (megastructureManager.getActiveIndex() >= 0) {
-            options = options.stream().filter(opt -> "stellar_evolution_accelerator".equals(opt.megastructure())).toList();
+        if (megastructureManager.hasActiveMegastructure()) {
+            options = options.stream().filter(CelestialRefactorOption::auxiliary).toList();
         }
         return options;
     }
@@ -1638,6 +1162,15 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     @Nullable
     public CelestialRefactorOption getActiveMegastructureOption() {
         return megastructureManager.getActiveOption(this);
+    }
+
+    public boolean hasActiveAuxiliaryMegastructure() {
+        return this.megastructureManager.hasActiveAuxiliary(this);
+    }
+
+    @Nullable
+    public CelestialRefactorOption getActiveAuxiliaryMegastructureOption(int ring) {
+        return this.megastructureManager.getActiveAuxiliaryOptionForRing(this, ring);
     }
 
     /// 获取放置在此 CFA 各侧的传送门（不可修改）。
@@ -1649,17 +1182,23 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     /// 尝试建造巨构。玩家点击"开始重构"时在服务器端调用。optionIndex 为选中的重构选项索引。
     public void buildMegastructure(int optionIndex) {
         if (level == null || level.isClientSide()) return;
+        if (!this.locked) return;
+        if (this.isSearching() || this.isAcceleratorActive()) return;
         if (celestialBodyData == null) return;
         List<CelestialRefactorOption> options = getClientVisibleOptions();
         if (optionIndex < 0 || optionIndex >= options.size()) return;
 
         CelestialRefactorOption option = options.get(optionIndex);
 
+        // Validate the server-side option and handler before consuming any material.
+        if (!megastructureManager.canBuild(option, this)) return;
+
         /// 先检查材料
         if (option.needsMaterial()) {
             ItemStack contained = materialContainer.getItem(0);
             ItemStack required = option.material().copyWithCount(option.materialCount());
-            if (!ItemStack.isSameItem(contained, required) || contained.getCount() < required.getCount()) {
+            if (!ItemStack.isSameItem(contained, required)
+                || contained.getCount() < required.getCount()) {
                 return;
             }
             contained.shrink(required.getCount());

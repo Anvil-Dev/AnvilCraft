@@ -130,6 +130,7 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.heat.tier.incandescent", "Incandescent");
         provider.add("tooltip.anvilcraft.heat.tier.overheated", "Overheated");
         provider.add("tooltip.anvilcraft.heat.duration", "Duration: %s");
+        provider.add("tooltip.anvilcraft.waiting", "Waiting for syncing");
 
         provider.add("tooltip.anvilcraft.propel_piston.state", "Propel Piston State: ");
         provider.add("tooltip.anvilcraft.propel_piston.remaining_energy", "  Remaining Energy: %s");
@@ -478,12 +479,13 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.collider_processing", "◇ Processing"); // ◇ 正在加工
         provider.add("screen.anvilcraft.cfa.collider_star_missing", "! Star Missing !"); // ! 天体丢失 !
 
-        // Megastructure names (English) — 11 unique megastructures
+        // Megastructure names (English)
         provider.add("screen.anvilcraft.cfa.megastructure.planet_excavator", "Planet Excavator"); // 行星开采器
         provider.add("screen.anvilcraft.cfa.megastructure.planet_exctractor", "Planet Exctractor"); // 行星抽取器
         provider.add("screen.anvilcraft.cfa.megastructure.eco_station", "Ecological Station"); // 生态站
         provider.add("screen.anvilcraft.cfa.megastructure.temple", "Temple"); // 神庙
         provider.add("screen.anvilcraft.cfa.megastructure.giant_planet_exctractor", "Giant Planet Exctractor"); // 巨行星抽取器
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_brown_dwarf", "Brown Dwarf Dyson Sphere"); // 戴森球（褐矮星）
         provider.add("screen.anvilcraft.cfa.megastructure.stellar_ring_collider", "Stellar Ring Collider"); // 星环对撞机
         provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_small", "Small Dyson Sphere"); // 小戴森球
         provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_large", "Large Dyson Sphere"); // 大戴森球
@@ -499,6 +501,7 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.megastructure.eco_station.description", "Cultivate creatures on the planet and harvest biological resources");
         provider.add("screen.anvilcraft.cfa.megastructure.temple.description", "Bestow blessings or mete out punishments to inferior civilization, and reap the resources they offer in homage");
         provider.add("screen.anvilcraft.cfa.megastructure.giant_planet_exctractor.description", "Extracting resources from the atmosphere of giant planet. In addition to gases and liquids, solid products may also be produced");
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_brown_dwarf.description", "Collecting a brown dwarf's energy to generate power; primordial matter can amplify the output and eventually turn it into a red dwarf");
         provider.add("screen.anvilcraft.cfa.megastructure.stellar_ring_collider.description", "Utilizing the gravitational and magnetic fields of star to accelerate the anvil to higher speeds or to frequently impact and manufacture items in batches");
         provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_small.description", "Collecting light energy from star, generate a large amount of electricity");
         provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_large.description", "Collecting light energy from star, generate a large amount of electricity");
@@ -581,6 +584,19 @@ public class ScreenLang {
                 ———————
                 Side Effects:
                 §7None§r"""
+        );
+        provider.add("screen.anvilcraft.cfa.megastructure.dyson_sphere_brown_dwarf.usage",
+            """
+                Requires:
+                §b[Flu Int]§r
+                §fPrimordial Matter: 250mB–2B per tick, stable for 40gt§r
+                ———————
+                Outputs:
+                §a[Power Grid]§r
+                §fP=(E×R²)/1600 MW; stable supply provides ×1.5/×2/×3/×5§r
+                ———————
+                Side Effects:
+                §fMatter above 2B accumulates; 12800B turns the brown dwarf into a red dwarf§r"""
         );
         provider.add("screen.anvilcraft.cfa.megastructure.stellar_ring_collider.usage",
             """

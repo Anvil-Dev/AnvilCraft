@@ -1,0 +1,6 @@
+{
+  "parent": "neoforge:item/bucket_drip",
+  "flip_gas": true,
+  "fluid": "anvilcraft:oxygen",
+  "loader": "neoforge:fluid_container"
+}

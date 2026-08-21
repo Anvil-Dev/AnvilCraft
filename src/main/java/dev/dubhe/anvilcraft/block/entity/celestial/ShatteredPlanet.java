@@ -24,6 +24,7 @@ public final class ShatteredPlanet {
             false,
             true,
             "planet_shattered",
+            null,
             null
         );
     }

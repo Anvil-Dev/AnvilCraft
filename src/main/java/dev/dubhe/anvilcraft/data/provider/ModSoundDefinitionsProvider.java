@@ -71,5 +71,9 @@ public class ModSoundDefinitionsProvider extends SoundDefinitionsProvider {
         add(ModSoundEvents.AUTO_ENCHANTING_TABLE_USE, definition()
             .subtitle("subtitles.anvilcraft.auto_enchanting_table.use")
             .with(sound(ResourceLocation.withDefaultNamespace("block.enchantment_table.use"), SoundDefinition.SoundType.EVENT)));
+
+        add(ModSoundEvents.QUENCHED_OUT, definition()
+            .subtitle("subtitles.anvilcraft.quenched_out")
+            .with(sound(AnvilCraft.of("quenched_out"))));
     }
 }

@@ -25,8 +25,17 @@ public class ModelProviderUtil {
     }
 
     /**
-     * 用于流体的ItemModel生成器
+     * Used for gaseous fluid buckets; the fluid is rendered upside-down in the bucket.
      */
+    public static void bucketGassy(DataGenContext<Item, ? extends BucketItem> ctx, RegistrumItemModelProvider provider) {
+        provider.withExistingParent(
+            ctx.getName(),
+            ResourceLocation.parse("neoforge:item/bucket_drip")
+        ).customLoader((builder, helper) -> DynamicFluidContainerModelBuilder.begin(builder, helper)
+            .fluid(ctx.get().content)
+            .flipGas(true));
+    }
+
     public static void bucket(DataGenContext<Item, ? extends BucketItem> ctx, RegistrumItemModelProvider provider) {
         provider.withExistingParent(
             ctx.getName(),

@@ -73,6 +73,10 @@ public interface ITooltipProvider<T> {
         }
 
         public abstract int priority();
+
+        /** Releases client-world state retained by a long-lived provider instance. */
+        public void resetClientState() {
+        }
     }
 
     static Component withIndentAndMerge(Component... components) {

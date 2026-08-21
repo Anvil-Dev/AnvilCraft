@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "anvilcraft:block/back_gate" },
+    "facing=east": { "model": "anvilcraft:block/back_gate", "y": 90 },
+    "facing=south": { "model": "anvilcraft:block/back_gate", "y": 180 },
+    "facing=west": { "model": "anvilcraft:block/back_gate", "y": 270 }
+  }
+}

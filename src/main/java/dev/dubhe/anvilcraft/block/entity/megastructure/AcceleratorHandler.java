@@ -5,11 +5,16 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyClass;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialBodyMatcher;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
+import dev.dubhe.anvilcraft.init.ModMegastructures;
+import dev.dubhe.anvilcraft.network.QuenchedOutMusicPacket;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 public class AcceleratorHandler extends BaseMegastructureHandler {
 
@@ -28,6 +33,22 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     @Getter
     private int collapseAnimTicks = 0;
 
+    /// === 淬灭序曲（超新星前奏曲）===
+    /// 曲目全长约 71.77 秒（≈1435 刻），最后一秒（20 刻）恰为超新星爆发开始。
+    /// 规则：
+    /// 1. 演化开始时若距超新星不足 1 分 12 秒（1440 刻），曲目无法完整播放则不播；
+    /// 2. 否则在爆炸开始前 1415 刻开始播放，使曲目尾音对准爆炸开始；
+    /// 3. 演化期间锻星砧或增幅器被破坏，音乐立即中断。
+    private static final int QUENCHED_FULL_PLAY_TICKS = 1440;
+    private static final int QUENCHED_EXPLOSION_LEAD_TICKS = 1415;
+    private static final int SUPER_STAGE3_TICKS = 10;
+
+    private boolean quenchedScheduled = false;
+    private long quenchedStartTick = -1;
+    private boolean quenchedStarted = false;
+    private boolean quenchedCanceled = false;
+    private boolean quenchedSupernovaFired = false;
+
     @Override
     public String name() {
         return "stellar_evolution_accelerator";
@@ -38,8 +59,14 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     }
 
     @Override
+    public boolean isAuxiliaryActive(CelestialForgingAnvilBlockEntity be) {
+        return this.isActive();
+    }
+
+    @Override
     public void serverTick(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
+        this.tickQuenchedOutMusic(be);
         if (!be.isAmplifierPresent()) return;
         if (stage < 1 || stage > 4) return;
 
@@ -77,6 +104,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             initGiantPhase(be, ageX, energyY);
         }
 
+        scheduleQuenchedOut(be, cls, ageX, energyY);
+
         be.setChanged();
         be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
     }
@@ -102,12 +131,79 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
     }
 
+    /// 在演化开始时决定是否播放入场曲，并预定开始时刻。
+    /// 仅当演化路径真的会走向超新星（非 M 型主序星），且距爆炸足以完整播放曲目时才会预定。
+    private void scheduleQuenchedOut(CelestialForgingAnvilBlockEntity be, CelestialBodyClass cls, int ageX, int energyY) {
+        quenchedScheduled = false;
+        quenchedStartTick = -1;
+        quenchedStarted = false;
+        quenchedCanceled = false;
+        if (cls == CelestialBodyClass.M_MAIN) {
+            /// M 型主序星走阶段 4 白矮星路线，无超新星，不播。
+            return;
+        }
+        int predicted = predictedTicksUntilSupernova(cls, ageX, energyY);
+        if (predicted < QUENCHED_FULL_PLAY_TICKS) {
+            /// 距爆发不足 1 分 12 秒，曲目无法完整播放，不播。
+            return;
+        }
+        quenchedScheduled = true;
+        quenchedStartTick = be.getLevel().getGameTime() + (long) predicted - QUENCHED_EXPLOSION_LEAD_TICKS;
+    }
+
+    /// 预测从演化开始到超新星爆发开始的总刻数（与各阶段实际计时的算法一致）。
+    private int predictedTicksUntilSupernova(CelestialBodyClass cls, int ageX, int energyY) {
+        int giantTicks = predictedGiantTicks(ageX, energyY);
+        if (cls.isMainSequence() && cls != CelestialBodyClass.M_MAIN) {
+            int mainTicks = CelestialBodyMatcher.countPixelsRightInAgeTemp(ageX, energyY) * 2400;
+            return mainTicks + giantTicks + SUPER_STAGE3_TICKS;
+        }
+        return giantTicks + SUPER_STAGE3_TICKS;
+    }
+
+    /// 与 {@link #initGiantPhase} 相同的巨星级阶段时长计算。
+    private int predictedGiantTicks(int ageX, int energyY) {
+        int pixelsDown = CelestialBodyMatcher.countPixelsDownInAgeTempSp(ageX, energyY);
+        int totalPixels = CelestialBodyMatcher.countTotalColoredPixelsInAgeTempSpColumn(ageX, energyY);
+        if (totalPixels <= 0) totalPixels = 1;
+        return Math.max((int) ((float) pixelsDown / totalPixels * 2400), 1);
+    }
+
+    /// 每服务器刻推进音乐状态：定时开始、增幅器缺失时立即中断。
+    private void tickQuenchedOutMusic(CelestialForgingAnvilBlockEntity be) {
+        if (stage < 1 || stage > 4) return;
+        if (!be.isAmplifierPresent()) {
+            /// 增幅器被破坏：已开播则立即中断，未开播则取消预定。
+            if (quenchedStarted) {
+                quenchedStarted = false;
+                quenchedCanceled = true;
+                sendQuenchedOutMusic(be, false);
+            } else if (quenchedScheduled) {
+                quenchedCanceled = true;
+                quenchedScheduled = false;
+            }
+            return;
+        }
+        if (quenchedCanceled) return;
+        if (quenchedScheduled && !quenchedStarted && be.getLevel().getGameTime() >= quenchedStartTick) {
+            quenchedScheduled = false;
+            quenchedStarted = true;
+            sendQuenchedOutMusic(be, true);
+        }
+    }
+
+    private void sendQuenchedOutMusic(CelestialForgingAnvilBlockEntity be, boolean start) {
+        if (!(be.getLevel() instanceof ServerLevel serverLevel)) return;
+        PacketDistributor.sendToPlayersTrackingChunk(
+            serverLevel,
+            new ChunkPos(be.getBlockPos()),
+            new QuenchedOutMusicPacket(be.getBlockPos(), start)
+        );
+    }
+
     private boolean isDysonSphereBuilt(CelestialForgingAnvilBlockEntity be) {
-        if (be.getActiveMegastructureIndex() < 0) return false;
-        var option = be.getActiveMegastructureOption();
-        if (option == null) return false;
-        String name = option.megastructure();
-        return "dyson_sphere_small".equals(name) || "dyson_sphere_large".equals(name);
+        return ModMegastructures.DYSON_SPHERE_SMALL.getId().equals(be.getActiveMegastructureId())
+            || ModMegastructures.DYSON_SPHERE_LARGE.getId().equals(be.getActiveMegastructureId());
     }
 
     private void tickStage1(CelestialForgingAnvilBlockEntity be) {
@@ -213,6 +309,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             );
         }
         createRemnant(be);
+        /// 超新星已开始：曲目最后一秒正在播放，onClear 时不再强制中断。
+        this.quenchedSupernovaFired = true;
         /// 通过管理器清除所有巨构
         be.getMegastructureManager().clearAllMegastructures(be);
         be.setChanged();
@@ -442,6 +540,17 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         this.dysonDestroyed = false;
         this.dysonDestroyTick = -1;
         this.collapseAnimTicks = 0;
+        if (quenchedSupernovaFired) {
+            /// 超新星已开始：曲目最后一秒正在播放，让它自然播完。
+            quenchedSupernovaFired = false;
+        } else if (quenchedStarted) {
+            /// 演化被中断（解锁、锻星砧被破坏等）：立即停止音乐。
+            sendQuenchedOutMusic(be, false);
+        }
+        quenchedScheduled = false;
+        quenchedStartTick = -1;
+        quenchedStarted = false;
+        quenchedCanceled = false;
     }
 
     @Override
@@ -454,6 +563,11 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         tag.putInt("acceleratorOriginalSize", originalSize);
         tag.putBoolean("acceleratorDysonDestroyed", dysonDestroyed);
         tag.putLong("acceleratorDysonDestroyTick", dysonDestroyTick);
+        tag.putBoolean("quenchedScheduled", quenchedScheduled);
+        tag.putLong("quenchedStartTick", quenchedStartTick);
+        tag.putBoolean("quenchedStarted", quenchedStarted);
+        tag.putBoolean("quenchedCanceled", quenchedCanceled);
+        tag.putBoolean("quenchedSupernovaFired", quenchedSupernovaFired);
     }
 
     @Override
@@ -466,6 +580,11 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         this.originalSize = tag.getInt("acceleratorOriginalSize");
         this.dysonDestroyed = tag.getBoolean("acceleratorDysonDestroyed");
         this.dysonDestroyTick = tag.getLong("acceleratorDysonDestroyTick");
+        this.quenchedScheduled = tag.getBoolean("quenchedScheduled");
+        this.quenchedStartTick = tag.getLong("quenchedStartTick");
+        this.quenchedStarted = tag.getBoolean("quenchedStarted");
+        this.quenchedCanceled = tag.getBoolean("quenchedCanceled");
+        this.quenchedSupernovaFired = tag.getBoolean("quenchedSupernovaFired");
     }
 
     @Override

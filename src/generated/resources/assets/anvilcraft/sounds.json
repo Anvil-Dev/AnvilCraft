@@ -81,6 +81,12 @@
     ],
     "subtitle": "subtitles.anvilcraft.plasma_jet_lava"
   },
+  "quenched_out": {
+    "sounds": [
+      "anvilcraft:quenched_out"
+    ],
+    "subtitle": "subtitles.anvilcraft.quenched_out"
+  },
   "smart_block_placer_extend": {
     "sounds": [
       {

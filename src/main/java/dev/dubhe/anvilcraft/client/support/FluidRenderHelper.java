@@ -217,6 +217,87 @@ public final class FluidRenderHelper {
         ms.popPose();
     }
 
+    /**
+     * Gas-fluid variant of {@link #renderFluidBox}: the box is always rendered at the given
+     * full extents, and {@code alphaFill} (0..1) scales the fluid tint's alpha so the amount
+     * of gas is conveyed by opacity while still filling the whole tank.
+     */
+    public void renderFluidBox(
+        FluidStack fluid,
+        float minX, float minY, float minZ,
+        float maxX, float maxY, float maxZ,
+        MultiBufferSource buffer, PoseStack ms, int light,
+        boolean renderBottom, float alphaFill
+    ) {
+        var renderProps = IClientFluidTypeExtensions.of(fluid.getFluid());
+        boolean opaque = (renderProps instanceof ModClientFluidTypeExtensionImpl ext && ext.isOpaque())
+            || fluid.is(NeoForgeMod.MILK.value());
+        RenderType renderType = opaque ? RenderType.cutout() : RenderType.translucent();
+        VertexConsumer builder = buffer.getBuffer(renderType);
+        var stillTexture = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+            .apply(renderProps.getStillTexture(fluid));
+        this.renderFluidBoxWithAlpha(fluid, minX, minY, minZ, maxX, maxY, maxZ, builder, ms, light,
+            getSkippedSides(renderBottom), false, stillTexture, alphaFill);
+    }
+
+    private void renderFluidBoxWithAlpha(
+        FluidStack fluid,
+        float minX, float minY, float minZ,
+        float maxX, float maxY, float maxZ,
+        VertexConsumer builder, PoseStack ms, int light,
+        Set<Direction> skippedSides, boolean invertGasses,
+        TextureAtlasSprite sideTexture, float alphaFill
+    ) {
+        var renderProps = IClientFluidTypeExtensions.of(fluid.getFluid());
+        final TextureAtlasSprite stillTexture = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+            .apply(renderProps.getStillTexture(fluid));
+        final int[] baseColors = renderProps instanceof LiquidEnchantmentClientFluidTypeExtension extension
+            ? extension.getLayerColors(fluid)
+            : new int[]{renderProps.getTintColor(fluid)};
+
+        int blockLightIn = (light >> 4) & 0xF;
+        int luminosity = Math.max(blockLightIn, fluid.getFluidType().getLightLevel());
+        light = (light & 0xF00000) | luminosity << 4;
+
+        int clampedAlpha = (int) (Mth.clamp(alphaFill, 0, 1) * 255);
+        int[] colors = new int[baseColors.length];
+        for (int i = 0; i < baseColors.length; i++) {
+            int base = baseColors[i];
+            int a = ((base >> 24) & 0xFF) * clampedAlpha / 255;
+            colors[i] = (base & 0x00FFFFFF) | (a << 24);
+        }
+
+        Vec3 center = new Vec3(minX + (maxX - minX) / 2, minY + (maxY - minY) / 2, minZ + (maxZ - minZ) / 2);
+        ms.pushPose();
+        if (invertGasses && fluid.getFluidType().isLighterThanAir()) {
+            ms.translate(center.x, center.y, center.z);
+            ms.mulPose(Axis.XP.rotationDegrees(180));
+            ms.translate(-center.x, -center.y, -center.z);
+        }
+
+        for (int color : colors) {
+            for (Direction side : Direction.values()) {
+                if (skippedSides.contains(side)) continue;
+                TextureAtlasSprite tex = side.getAxis().isHorizontal() ? sideTexture : stillTexture;
+                boolean positive = side.getAxisDirection() == Direction.AxisDirection.POSITIVE;
+                if (side.getAxis().isHorizontal()) {
+                    if (side.getAxis() == Direction.Axis.X) {
+                        renderStillTiledFace(side, minZ, minY, maxZ, maxY, positive ? maxX : minX,
+                            builder, ms, light, color, tex);
+                    } else {
+                        renderStillTiledFace(side, minX, minY, maxX, maxY, positive ? maxZ : minZ,
+                            builder, ms, light, color, tex);
+                    }
+                } else {
+                    renderStillTiledFace(side, minX, minZ, maxX, maxZ, positive ? maxY : minY,
+                        builder, ms, light, color, tex);
+                }
+            }
+        }
+
+        ms.popPose();
+    }
+
     private static Set<Direction> getSkippedSides(boolean renderBottom) {
         return renderBottom ? Set.of() : Set.of(Direction.DOWN);
     }

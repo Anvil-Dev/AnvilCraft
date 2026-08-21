@@ -362,7 +362,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 getMenu().getBlockEntity().isAmplify(),
                 getMenu().getBlockEntity().getPlanetaryResourceSet()
             ).stream()
-                .filter(opt -> "stellar_evolution_accelerator".equals(opt.megastructure()))
+                .filter(CelestialRefactorOption::auxiliary)
                 .toList();
         } else if (!hasMegastructure && isActive) {
             refactorOptions = CelestialRefactorRegistry.getOptions(
@@ -386,7 +386,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         /// 计算已建造巨构的换行使用说明文本
         List<FormattedCharSequence> wrappedUsageLines = List.of();
         if (hasMegastructure && activeOption != null) {
-            String usageKey = "screen.anvilcraft.cfa.megastructure." + activeOption.megastructure() + ".usage";
+            String usageKey = activeOption.displayName() + ".usage";
             Component usageText = Component.translatable(usageKey);
             wrappedUsageLines = font.split(usageText, BMT_WRAP_W);
         }
@@ -553,7 +553,10 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         float scale = baseScale / divisor;
         poseStack.scale(scale, -scale, scale);
         poseStack.mulPose(com.mojang.math.Axis.XP.rotationDegrees(30));
-        poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees((previewRotTick * 2) % 360));
+        float baseRotation = (previewRotTick * 2) % 360;
+        poseStack.mulPose(com.mojang.math.Axis.YP.rotationDegrees(
+            option.rotation(baseRotation, previewRotTick)
+        ));
 
         var bufferSource = guiGraphics.bufferSource();
         var consumer = bufferSource.getBuffer(RenderType.cutout());
@@ -587,7 +590,9 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private void renderPreviewArea(GuiGraphics guiGraphics) {
         /// 检查恒星天体是否缺少增幅器
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
-        boolean missingAmplifier = body instanceof StarData && !getMenu().getBlockEntity().isAmplifierPresent();
+        boolean missingAmplifier = body instanceof StarData star
+            && !star.specialRedDwarf()
+            && !getMenu().getBlockEntity().isAmplifierPresent();
         if (missingAmplifier) {
             Component line1 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line1");
             Component line2 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line2");
@@ -2051,7 +2056,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             /// 材料槽是CFA的 materialContainer，在菜单中映射
             ItemStack inSlot = be.getMaterialContainer().getItem(0);
             ItemStack required = option.material().copyWithCount(option.materialCount());
-            if (!ItemStack.isSameItem(inSlot, required) || inSlot.getCount() < required.getCount()) {
+            if (!ItemStack.isSameItem(inSlot, required)
+                || inSlot.getCount() < required.getCount()) {
                 showRefactorError(Component.translatable("screen.anvilcraft.cfa.insufficient_materials"));
                 return;
             }

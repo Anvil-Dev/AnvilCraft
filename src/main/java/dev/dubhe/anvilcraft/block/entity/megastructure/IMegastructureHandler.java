@@ -6,6 +6,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 
 public interface IMegastructureHandler {
+    LaserRequirement NO_LASER_REQUIREMENT = new LaserRequirement(0, false);
 
     String name();
 
@@ -14,6 +15,18 @@ public interface IMegastructureHandler {
     void onBuild(CelestialForgingAnvilBlockEntity be);
 
     void onClear(CelestialForgingAnvilBlockEntity be);
+
+    /**
+     * Reports whether an auxiliary definition currently owns its ring.
+     * Auxiliary handlers must persist and synchronize the state used here.
+     */
+    default boolean isAuxiliaryActive(CelestialForgingAnvilBlockEntity be) {
+        return false;
+    }
+
+    /** Releases runtime registrations without clearing persistent megastructure state. */
+    default void onUnload(CelestialForgingAnvilBlockEntity be) {
+    }
 
     void saveAdditional(CompoundTag tag, HolderLookup.Provider registries);
 
@@ -36,5 +49,13 @@ public interface IMegastructureHandler {
     }
 
     default void gridTick(CelestialForgingAnvilBlockEntity be) {
+    }
+
+    /** Laser level and mode required by every interface connected to this structure. */
+    default LaserRequirement getLaserRequirement() {
+        return IMegastructureHandler.NO_LASER_REQUIREMENT;
+    }
+
+    record LaserRequirement(int level, boolean gamma) {
     }
 }

@@ -67,6 +67,11 @@ public class CreativeLaserBlockEntity extends BaseLaserBlockEntity implements Me
     }
 
     @Override
+    public boolean isEmittingGamma() {
+        return this.gamma;
+    }
+
+    @Override
     protected int getBaseLaserLevel() {
         return this.configuredLevel;
     }

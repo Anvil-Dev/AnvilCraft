@@ -4,13 +4,10 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.block.LensBlock;
-import dev.dubhe.anvilcraft.block.RubyPrismBlock;
-import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.LensType;
 import dev.dubhe.anvilcraft.init.ModHeaterInfos;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
@@ -28,7 +25,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -47,6 +43,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+@SuppressWarnings("checkstyle:JavadocParagraph")
 public abstract class BaseLaserBlockEntity extends BlockEntity {
     public static final int[] COOLDOWNS = {
         Integer.MAX_VALUE,
@@ -74,6 +71,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
     protected int laserLinkRevision = 0;
     protected int irradiatedLaserTargetRevision = -1;
     private BlockMiningEffect lastEmittedMiningEffect = BlockMiningEffect.NORMAL;
+    private boolean lastEmittedGamma = false;
     @Getter
     protected int laserLevel = 0;
     /// 跟踪正在被伽马激光照射的方块位置及持续时间。
@@ -146,6 +144,17 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
 
     protected int getBaseLaserLevel() {
         return 1;
+    }
+
+    /**
+     * Whether this emitter is currently producing a gamma beam.
+     *
+     * Keeping this on the common laser type lets receivers preserve the beam
+     * type for every emitter (including creative lasers), instead of coupling
+     * their validation to a list of concrete block entities.
+     */
+    public boolean isEmittingGamma() {
+        return false;
     }
 
     protected int calculateLaserLevel() {
@@ -223,11 +232,14 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                     lastIrradiatedLaserBlockEntity.onCancelingIrradiation(this);
                 }
             }
+            this.irradiatedLaserTarget = null;
+            this.irradiatedLaserTargetRevision = -1;
         }
         int newLaserLevel = this.calculateLaserLevel();
         boolean laserLevelChanged = this.laserLevel != newLaserLevel;
         BlockMiningEffect miningEffect = getMiningEffect();
         boolean miningEffectChanged = !lastEmittedMiningEffect.equals(miningEffect);
+        boolean gammaChanged = this.lastEmittedGamma;
         this.updateLaserLevel(newLaserLevel);
         if (
             newLaserTarget != null
@@ -237,7 +249,8 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
                                               || targetEntityChanged
                                               || targetRevisionChanged
                                               || laserLevelChanged
-                                              || miningEffectChanged;
+                                              || miningEffectChanged
+                                              || gammaChanged;
             if (needsIrradiationUpdate && !newLaserTarget.getIgnoreFace().contains(direction)) {
                 this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
                 newLaserTarget.onIrradiated(this);
@@ -246,6 +259,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
             }
         }
         this.lastEmittedMiningEffect = miningEffect;
+        this.lastEmittedGamma = false;
         this.updateIrradiateBlockPos(tempIrradiateBlockPos);
 
         if (!(this.level instanceof ServerLevel serverLevel)) return;
@@ -469,7 +483,7 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         this.laserLevel = value;
     }
 
-    public void clientUpdate(BlockPos irradiateBlockPos, int laserLevel) {
+    public void clientUpdate(@Nullable BlockPos irradiateBlockPos, int laserLevel) {
         this.irradiateBlockPos = irradiateBlockPos;
         this.laserLevel = laserLevel;
         CacheableBERenderingPipeline.getInstance().update(this);
@@ -491,61 +505,59 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         int originalMaxDistance = this.maxTransmissionDistance;
         this.maxTransmissionDistance = 16;
         int gammaLevel = this.getGammaLaserLevel();
-        BlockPos tempIrradiateBlockPos = this.getGammaIrradiateBlockPos(16, direction, this.getBlockPos());
+        BlockPos gammaOrigin = this.getBlockPos();
         if (this.isLaserOriginOffset()) {
-            tempIrradiateBlockPos = this.getGammaIrradiateBlockPos(
-                16, direction, this.getBlockPos().relative(direction));
+            gammaOrigin = gammaOrigin.relative(direction);
         }
-        this.destroyPrismsAlongPath(direction, tempIrradiateBlockPos);
-        if (!tempIrradiateBlockPos.equals(this.irradiateBlockPos)) {
-            if (this.irradiateBlockPos != null) {
+        BlockPos tempIrradiateBlockPos = CfaGammaLaserEffects.findTarget(this.level, gammaOrigin, direction);
+        CfaGammaLaserEffects.destroyPrisms(this.level, this.getBlockPos(), direction, tempIrradiateBlockPos);
+        BaseLaserBlockEntity newLaserTarget =
+            this.level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity target ? target : null;
+        boolean targetChanged = !tempIrradiateBlockPos.equals(this.irradiateBlockPos);
+        boolean targetEntityChanged = newLaserTarget != this.irradiatedLaserTarget;
+        boolean targetRevisionChanged = newLaserTarget != null
+                                        && newLaserTarget.laserLinkRevision != this.irradiatedLaserTargetRevision;
+        if (targetChanged || targetEntityChanged || targetRevisionChanged) {
+            if (this.irradiatedLaserTarget != null) {
+                this.irradiatedLaserTarget.onCancelingIrradiation(this);
+            } else if (targetChanged && this.irradiateBlockPos != null) {
                 BlockEntity oldBe = this.level.getBlockEntity(this.irradiateBlockPos);
                 if (oldBe instanceof BaseLaserBlockEntity lastIrradiated) {
                     lastIrradiated.onCancelingIrradiation(this);
                 }
             }
+            this.irradiatedLaserTarget = null;
+            this.irradiatedLaserTargetRevision = -1;
         }
-        if (this.level.getBlockEntity(tempIrradiateBlockPos) instanceof BaseLaserBlockEntity irradiated
-            && !this.isInIrradiateSelfLaserBlockSet(irradiated)
-        ) {
-            if (irradiated.getIgnoreFace().isEmpty()) {
+        boolean laserLevelChanged = this.laserLevel != gammaLevel;
+        BlockMiningEffect miningEffect = this.getMiningEffect();
+        boolean miningEffectChanged = !this.lastEmittedMiningEffect.equals(miningEffect);
+        boolean gammaChanged = !this.lastEmittedGamma;
+        this.updateLaserLevel(gammaLevel);
+        if (newLaserTarget != null && !this.isInIrradiateSelfLaserBlockSet(newLaserTarget)) {
+            boolean needsIrradiationUpdate = targetChanged
+                                              || targetEntityChanged
+                                              || targetRevisionChanged
+                                              || laserLevelChanged
+                                              || miningEffectChanged
+                                              || gammaChanged;
+            if (needsIrradiationUpdate && !newLaserTarget.getIgnoreFace().contains(direction)) {
                 this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
-                irradiated.onIrradiated(this);
-            } else {
-                for (Direction dir : irradiated.getIgnoreFace()) {
-                    if (direction != dir) {
-                        this.level.updateNeighborsAt(tempIrradiateBlockPos, getBlockState().getBlock());
-                        irradiated.onIrradiated(this);
-                    }
-                }
+                newLaserTarget.onIrradiated(this);
+                this.irradiatedLaserTarget = newLaserTarget;
+                this.irradiatedLaserTargetRevision = newLaserTarget.laserLinkRevision;
             }
         }
+        this.lastEmittedMiningEffect = miningEffect;
+        this.lastEmittedGamma = true;
         this.updateIrradiateBlockPos(tempIrradiateBlockPos);
-        this.updateLaserLevel(gammaLevel);
         if (!(this.level instanceof ServerLevel)) {
             this.maxTransmissionDistance = originalMaxDistance;
             return;
         }
-        int hurt = Math.min(16, gammaLevel - 4) * 16;
-        if (hurt > 0) {
-            Vec3 startPos = this.getBlockPos()
-                .relative(direction)
-                .getCenter()
-                .add(-0.0625, -0.0625, -0.0625);
-            AABB trackBoundingBox = new AABB(
-                startPos,
-                this.irradiateBlockPos.relative(direction.getOpposite())
-                    .getCenter()
-                    .add(0.0625, 0.0625, 0.0625)
-            );
-            this.level.getEntities(
-                EntityTypeTest.forClass(LivingEntity.class),
-                trackBoundingBox,
-                Entity::isAlive
-            ).forEach(livingEntity ->
-                livingEntity.hurt(ModDamageTypes.gammaLaser(this.level), hurt)
-            );
-        }
+        CfaGammaLaserEffects.damageEntities(
+            this.level, this.getBlockPos(), this.irradiateBlockPos, direction, gammaLevel
+        );
         BlockState irradiateBlock = this.level.getBlockState(this.irradiateBlockPos);
         int requiredExposure = GAMMA_EXPOSURE_TICKS[Math.clamp(gammaLevel / 4, 0, 4)];
         BlockPos currentTarget = this.irradiateBlockPos.immutable();
@@ -573,105 +585,9 @@ public abstract class BaseLaserBlockEntity extends BlockEntity {
         } else {
             this.gammaExposureTicks = 0;
         }
-        this.tryHeatEmberMetal(direction);
+        CfaGammaLaserEffects.heatEmberMetal(
+            this.level, this.irradiateBlockPos, direction, gammaLevel, Block.UPDATE_CLIENTS
+        );
         this.maxTransmissionDistance = originalMaxDistance;
-    }
-
-    /// 直接命中余烬金属块时，加热光束法向截面区域内的所有余烬金属方块。面积随伽马等级缩放：≥4→1×1，≥8→3×3，≥12→5×5×2，≥16→7×7×3。
-    protected void tryHeatEmberMetal(Direction direction) {
-        if (this.level == null) return;
-        int gammaLevel = this.getGammaLaserLevel();
-        if (gammaLevel < 4) return;
-        if (this.level.getGameTime() % 20 != 0) return;
-        BlockPos hitPos = this.irradiateBlockPos;
-        if (hitPos == null) return;
-        BlockState hitState = this.level.getBlockState(hitPos);
-        if (!hitState.is(ModBlocks.EMBER_METAL_BLOCK.get())
-            && !hitState.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())) {
-            return;
-        }
-        int areaSize;
-        int thickness;
-        if (gammaLevel >= 16) {
-            areaSize = 7;
-            thickness = 3;
-        } else if (gammaLevel >= 12) {
-            areaSize = 5;
-            thickness = 2;
-        } else if (gammaLevel >= 8) {
-            areaSize = 3;
-            thickness = 1;
-        } else {
-            areaSize = 1;
-            thickness = 1;
-        }
-        int halfSize = areaSize / 2;
-        Direction[] perpendiculars = switch (direction.getAxis()) {
-            case X -> new Direction[]{Direction.UP, Direction.NORTH};
-            case Z -> new Direction[]{Direction.UP, Direction.EAST};
-            default -> new Direction[]{Direction.NORTH, Direction.EAST};
-        };
-        for (int depth = 0; depth < thickness; depth++) {
-            BlockPos depthPos = hitPos.relative(direction, depth);
-            for (int a = -halfSize; a <= halfSize; a++) {
-                for (int b = -halfSize; b <= halfSize; b++) {
-                    BlockPos target = depthPos
-                        .relative(perpendiculars[0], a)
-                        .relative(perpendiculars[1], b);
-                    tryHeatEmberMetalAt(target);
-                }
-            }
-        }
-    }
-
-    /// 在给定位置升级或刷新单个余烬金属方块。
-    protected void tryHeatEmberMetalAt(BlockPos pos) {
-        if (this.level == null) return;
-        BlockState state = this.level.getBlockState(pos);
-        if (state.is(ModBlocks.EMBER_METAL_BLOCK.get())) {
-            Block overheatedBlock = ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get();
-            this.level.setBlock(pos, overheatedBlock.defaultBlockState(), Block.UPDATE_CLIENTS);
-            if (overheatedBlock instanceof EntityBlock entityBlock) {
-                BlockEntity be = entityBlock.newBlockEntity(pos, overheatedBlock.defaultBlockState());
-                if (be instanceof HeatableBlockEntity heatable) {
-                    this.level.setBlockEntity(heatable);
-                    heatable.addDurationInTick(80);
-                }
-            }
-        } else if (state.is(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.get())) {
-            BlockEntity be = this.level.getBlockEntity(pos);
-            if (be instanceof HeatableBlockEntity heatable) {
-                heatable.addDurationInTick(80);
-            }
-        }
-    }
-
-    /// 伽马激光只能穿过空气和可替换方块（高草丛等）。玻璃等其它方块都会阻挡伽马激光。
-    protected boolean gammaCanPassThrough(BlockPos blockPos) {
-        if (this.level == null) return false;
-        BlockState blockState = this.level.getBlockState(blockPos);
-        return blockState.is(BlockTags.REPLACEABLE);
-    }
-
-    /// 伽马专用目标查找器：仅穿透可替换方块，在第一个阻挡方块处停止。
-    protected BlockPos getGammaIrradiateBlockPos(int expectedLength, Direction direction, BlockPos originPos) {
-        for (int length = 1; length <= expectedLength; length++) {
-            BlockPos checkPos = originPos.relative(direction, length);
-            if (!this.gammaCanPassThrough(checkPos)) return checkPos;
-        }
-        return originPos.relative(direction, expectedLength);
-    }
-
-    /// 沿伽马激光路径摧毁棱镜。
-    protected void destroyPrismsAlongPath(Direction direction, BlockPos targetPos) {
-        if (this.level == null) return;
-        BlockPos.MutableBlockPos checkPos = this.getBlockPos().relative(direction).mutable();
-        while (!checkPos.equals(targetPos)) {
-            BlockState checkState = this.level.getBlockState(checkPos);
-            if (checkState.getBlock() instanceof RubyPrismBlock) {
-                this.level.destroyBlock(checkPos.immutable(), true);
-            }
-            checkPos.move(direction);
-        }
     }
 }

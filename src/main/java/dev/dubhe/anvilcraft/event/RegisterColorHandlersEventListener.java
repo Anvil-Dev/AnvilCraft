@@ -4,15 +4,18 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.RedstoneWireClientPowerCache;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.FastColor;
 import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.level.block.RedStoneWireBlock;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.model.DynamicFluidContainerModel;
 
-@EventBusSubscriber(modid = AnvilCraft.MOD_ID)
+@EventBusSubscriber(value = Dist.CLIENT, modid = AnvilCraft.MOD_ID)
 public class RegisterColorHandlersEventListener {
     @SubscribeEvent
     public static void registerBlockColorHandlersEvent(RegisterColorHandlersEvent.Block event) {
@@ -40,5 +43,13 @@ public class RegisterColorHandlersEventListener {
                 return FastColor.ARGB32.opaque(potionContents.getColor());
             }
         }, ModFoodItems.PILL);
+
+        event.register(new DynamicFluidContainerModel.Colors(),
+            ModItems.HYDROGEN_BUCKET,
+            ModItems.OXYGEN_BUCKET,
+            ModItems.HELIUM_BUCKET,
+            ModItems.DEUTERIUM_BUCKET,
+            ModItems.XENON_BUCKET,
+            ModItems.KRYPTON_BUCKET);
     }
 }
