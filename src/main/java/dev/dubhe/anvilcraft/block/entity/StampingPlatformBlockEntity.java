@@ -30,10 +30,35 @@ import java.util.List;
  */
 @Getter
 public class StampingPlatformBlockEntity extends BlockEntity implements IItemHandlerHolder, IItemHandlerCache {
-    public static final int INPUT_SLOTS = 1;
+    public static final int INPUT_SLOTS = 2;
     public static final int OUTPUT_SLOTS = 4;
 
     private final ItemStackHandler input = new ItemStackHandler(INPUT_SLOTS) {
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            int sameItemCount = 0;
+            for (int index = 0; index < INPUT_SLOTS; index++) {
+                ItemStack existing = this.getStackInSlot(index);
+                if (!existing.isEmpty() && ItemStack.isSameItem(existing, stack)) {
+                    sameItemCount += existing.getCount();
+                }
+            }
+            int acceptableCount = Math.min(
+                stack.getMaxStackSize() - sameItemCount,
+                stack.getCount()
+            );
+            if (acceptableCount <= 0) return stack;
+
+            ItemStack acceptable = stack.copyWithCount(acceptableCount);
+            ItemStack remaining = super.insertItem(slot, acceptable, simulate);
+            if (simulate) {
+                int rejectedCount = remaining.getCount() + stack.getCount() - acceptable.getCount();
+                return rejectedCount == 0 ? ItemStack.EMPTY : stack.copyWithCount(rejectedCount);
+            }
+            remaining.grow(stack.getCount() - acceptable.getCount());
+            return remaining;
+        }
+
         @Override
         protected void onContentsChanged(int slot) {
             StampingPlatformBlockEntity.this.setChanged();
