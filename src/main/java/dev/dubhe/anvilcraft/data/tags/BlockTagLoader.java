@@ -53,6 +53,7 @@ public class BlockTagLoader {
             .add(findResourceKey(Blocks.DETECTOR_RAIL))
             .add(findResourceKey(Blocks.POWERED_RAIL))
             .add(findResourceKey(Blocks.NOTE_BLOCK))
+            .add(findResourceKey(Blocks.JUKEBOX))
             .add(findResourceKey(Blocks.OBSERVER))
             .add(findResourceKey(Blocks.HOPPER))
             .add(findResourceKey(Blocks.DROPPER))
