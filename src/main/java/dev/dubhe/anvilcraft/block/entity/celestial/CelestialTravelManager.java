@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity.celestial;
 import dev.dubhe.anvilcraft.block.CelestialBackGateBlock;
 import dev.dubhe.anvilcraft.block.entity.CelestialBackGateBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.worldgen.OverworldLikeResetManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
@@ -16,6 +17,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.Vec3;
 
@@ -72,13 +74,14 @@ public final class CelestialTravelManager {
     ) {
         if (entity.isOnPortalCooldown()) return false;
         ResourceKey<Level> destinationKey = ResourceKey.create(Registries.DIMENSION, travel.dimension());
+        if (!OverworldLikeResetManager.isEntryAllowed(sourceLevel.getServer(), destinationKey)) return false;
         ServerLevel destination = sourceLevel.getServer().getLevel(destinationKey);
         if (destination == null) return false;
 
         BlockPos desired = landingOrigin(entity, destination, travel.coordinateRule());
         if (travel.returnRule().type() == CelestialTravelData.ReturnRule.Type.ENTRY_PORTAL) {
             BlockPos existingGate = findMatchingGateNear(
-                destination, desired, sourceLevel.dimension(), sourcePortalPos, sourceFacing
+                destination, desired, sourceLevel.dimension(), sourcePortalPos, sourceFacing, true
             );
             if (existingGate != null) {
                 return travelThroughGate(
@@ -104,13 +107,13 @@ public final class CelestialTravelManager {
             != CelestialTravelData.ReturnRule.Type.RANDOM_PORTAL;
         BlockPos existingGate = reuseExistingGate
             ? findMatchingGateNear(
-                destination, returnOrigin, sourceLevel.dimension(), sourcePortalPos, sourceFacing
+                destination, returnOrigin, sourceLevel.dimension(), sourcePortalPos, sourceFacing, false
             ) : null;
         BlockPos returnPos = existingGate != null
             ? existingGate
             : (travel.returnRule().type() == CelestialTravelData.ReturnRule.Type.ENTRY_PORTAL
                 && emergencyLanding
-                ? landing
+                ? landing.above()
                 : findSafeGateOrSpawn(
                     destination,
                     returnOrigin,
@@ -120,7 +123,8 @@ public final class CelestialTravelManager {
                     keepReturnY
                 ));
         if (returnPos == null) {
-            returnPos = createEmergencyLandingPlatform(destination, returnOrigin, keepReturnY);
+            BlockPos emergencyPlatform = createEmergencyLandingPlatform(destination, returnOrigin, keepReturnY);
+            returnPos = emergencyPlatform == null ? null : emergencyPlatform.above();
         }
         if (returnPos == null) return false;
 
@@ -141,9 +145,13 @@ public final class CelestialTravelManager {
         CelestialTravelData.ReturnRule.Type returnType
     ) {
         Direction gateFacing = sourceFacing;
-        boolean reusingGate = destination.getBlockState(returnPos).getBlock() instanceof CelestialBackGateBlock;
+        BlockState existingGateState = destination.getBlockState(returnPos);
+        boolean reusingGate = existingGateState.getBlock() instanceof CelestialBackGateBlock;
         BlockState gateState = ModBlocks.CELESTIAL_BACK_GATE.getDefaultState()
-            .setValue(CelestialBackGateBlock.FACING, gateFacing);
+            .setValue(CelestialBackGateBlock.FACING, gateFacing)
+            .setValue(CelestialBackGateBlock.WATERLOGGED, reusingGate
+                ? existingGateState.getValue(CelestialBackGateBlock.WATERLOGGED)
+                : destination.getFluidState(returnPos).is(Fluids.WATER));
         if (!reusingGate) {
             destination.setBlock(returnPos, gateState, 3);
         } else if (destination.getBlockState(returnPos).getValue(CelestialBackGateBlock.FACING)
@@ -153,6 +161,9 @@ public final class CelestialTravelManager {
         if (!(destination.getBlockEntity(returnPos) instanceof CelestialBackGateBlockEntity gate)) {
             if (!reusingGate) destination.removeBlock(returnPos, false);
             return false;
+        }
+        if (!reusingGate || gate.getReturnDimension() == null || gate.getReturnPortalPos() == null) {
+            gate.configure(sourceLevel.dimension(), sourcePortalPos, sourceFacing);
         }
 
         // An entry portal occupies the requested landing point, so arrive just
@@ -168,7 +179,6 @@ public final class CelestialTravelManager {
             return false;
         }
         moved.setPortalCooldown(PORTAL_COOLDOWN_TICKS);
-        gate.configure(sourceLevel.dimension(), sourcePortalPos, sourceFacing);
         cleanupDuplicateGates(destination, returnPos, sourceLevel.dimension(), sourcePortalPos, sourceFacing);
         return true;
     }
@@ -305,7 +315,7 @@ public final class CelestialTravelManager {
         int floorY = keepRequestedY
             ? origin.getY() - 1
             : level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, clamped.getX(), clamped.getZ()) - 1;
-        if (floorY < level.getMinBuildHeight() || floorY > level.getMaxBuildHeight() - 3) return null;
+        if (floorY < level.getMinBuildHeight() || floorY > level.getMaxBuildHeight() - 4) return null;
 
         BlockPos floorCenter = new BlockPos(clamped.getX(), floorY, clamped.getZ());
         if (!canCreateEmergencyPlatform(level, floorCenter, border)) return null;
@@ -318,6 +328,7 @@ public final class CelestialTravelManager {
                 }
                 clearEmergencyPlatformSpace(level, floor.above());
                 clearEmergencyPlatformSpace(level, floor.above(2));
+                clearEmergencyPlatformSpace(level, floor.above(3));
             }
         }
         return floorCenter.above();
@@ -331,7 +342,8 @@ public final class CelestialTravelManager {
                 BlockState floorState = level.getBlockState(floor);
                 if (!floorState.isSolid() && !canClearForEmergencyPlatform(floorState)) return false;
                 if (!canClearForEmergencyPlatform(level.getBlockState(floor.above()))
-                    || !canClearForEmergencyPlatform(level.getBlockState(floor.above(2)))) {
+                    || !canClearForEmergencyPlatform(level.getBlockState(floor.above(2)))
+                    || !canClearForEmergencyPlatform(level.getBlockState(floor.above(3)))) {
                     return false;
                 }
             }
@@ -370,7 +382,7 @@ public final class CelestialTravelManager {
         return floor.isSolid() && level.isEmptyBlock(feet) && level.isEmptyBlock(feet.above());
     }
 
-    /** Finds a gate position whose outward side is also a safe two-block landing column. */
+    /** Finds a raised gate position whose outward side has a safe two-block landing column. */
     @Nullable
     private static BlockPos findSafeGateOrSpawn(
         ServerLevel level,
@@ -389,7 +401,7 @@ public final class CelestialTravelManager {
         );
     }
 
-    /** Finds a gate position whose outward side is also a safe two-block landing column. */
+    /** Finds a raised gate position whose outward side has a safe two-block landing column. */
     @Nullable
     private static BlockPos findSafeGatePos(
         ServerLevel level,
@@ -437,15 +449,18 @@ public final class CelestialTravelManager {
         int minY = Math.max(level.getMinBuildHeight() + 1, preferredY - 8);
         int maxY = Math.min(level.getMaxBuildHeight() - 3, preferredY + 8);
         for (int y = maxY; y >= minY; y--) {
-            BlockPos gate = new BlockPos(x, y, z);
+            BlockPos landing = new BlockPos(x, y, z);
+            BlockPos gate = landing.above();
             BlockState gateState = level.getBlockState(gate);
-            boolean gateSpace = gateState.isAir() || gateState.getBlock() instanceof CelestialBackGateBlock;
+            boolean gateSpace = gateState.isAir()
+                || gateState.getFluidState().is(Fluids.WATER)
+                || gateState.getBlock() instanceof CelestialBackGateBlock;
             if (gateState.getBlock() instanceof CelestialBackGateBlock
                 && !isReusableGate(level, gate, sourceDimension, sourcePortalPos, facing)) {
                 continue;
             }
-            boolean gateSupport = level.getBlockState(gate.below()).isSolid() && level.isEmptyBlock(gate.above());
-            if (gateSpace && gateSupport && canStand(level, gate.relative(facing))) return gate;
+            boolean gateClearance = level.isEmptyBlock(landing) && level.isEmptyBlock(gate.above());
+            if (gateSpace && gateClearance && canStand(level, landing.relative(facing))) return gate;
         }
         return null;
     }
@@ -455,19 +470,27 @@ public final class CelestialTravelManager {
         Direction sourceFacing
     ) {
         if (!(level.getBlockEntity(pos) instanceof CelestialBackGateBlockEntity gate)) return false;
-        return isMatchingGate(gate, sourceDimension, sourcePortalPos, sourceFacing);
+        return isMatchingGate(gate, sourceDimension, sourcePortalPos, sourceFacing, false);
     }
 
     private static boolean isMatchingGate(
         CelestialBackGateBlockEntity gate, ResourceKey<Level> sourceDimension, BlockPos sourcePortalPos,
-        Direction sourceFacing
+        Direction sourceFacing, boolean allowNearbySourcePortal
     ) {
         ResourceKey<Level> returnDimension = gate.getReturnDimension();
         BlockPos returnPortalPos = gate.getReturnPortalPos();
-        return returnDimension == null
+        return returnDimension == null || returnPortalPos == null
             || (returnDimension.equals(sourceDimension)
-                && sourcePortalPos.equals(returnPortalPos)
+                && (allowNearbySourcePortal
+                    ? isWithinGateReuseRange(sourcePortalPos, returnPortalPos)
+                    : sourcePortalPos.equals(returnPortalPos))
                 && gate.getReturnFacing() == sourceFacing);
+    }
+
+    private static boolean isWithinGateReuseRange(BlockPos first, BlockPos second) {
+        return Math.abs(first.getX() - second.getX()) <= GATE_REUSE_RADIUS
+            && Math.abs(first.getY() - second.getY()) <= GATE_REUSE_VERTICAL_RADIUS
+            && Math.abs(first.getZ() - second.getZ()) <= GATE_REUSE_RADIUS;
     }
 
     /** Finds an already generated gate before a new landing search can move it aside. */
@@ -477,7 +500,8 @@ public final class CelestialTravelManager {
         BlockPos origin,
         ResourceKey<Level> sourceDimension,
         BlockPos sourcePortalPos,
-        Direction sourceFacing
+        Direction sourceFacing,
+        boolean allowNearbySourcePortal
     ) {
         BlockPos nearest = null;
         long nearestDistance = Long.MAX_VALUE;
@@ -488,7 +512,9 @@ public final class CelestialTravelManager {
                     if (!level.hasChunkAt(candidate)) continue;
                     if (!(level.getBlockState(candidate).getBlock() instanceof CelestialBackGateBlock)
                         || !(level.getBlockEntity(candidate) instanceof CelestialBackGateBlockEntity gate)
-                        || !isMatchingGate(gate, sourceDimension, sourcePortalPos, sourceFacing)) {
+                        || !isMatchingGate(
+                            gate, sourceDimension, sourcePortalPos, sourceFacing, allowNearbySourcePortal
+                        )) {
                         continue;
                     }
                     long distance = (long) dx * dx + (long) dy * dy + (long) dz * dz;

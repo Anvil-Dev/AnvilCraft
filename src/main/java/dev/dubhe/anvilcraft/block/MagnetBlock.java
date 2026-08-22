@@ -197,19 +197,16 @@ public class MagnetBlock extends Block implements IHammerRemovable {
 
     @Override
     protected InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hitResult) {
-        if (!level.isClientSide()) {
-            if (state.is(ModBlocks.MAGNET_BLOCK)) {
-                if (player.isShiftKeyDown()) {
-                    player.addItem(ModItems.MAGNET_INGOT.get().getDefaultInstance());
-                    BlockState blockState = ModBlocks.HOLLOW_MAGNET_BLOCK.get().defaultBlockState();
-                    if (blockState.hasProperty(LIT)) {
-                        blockState = blockState.setValue(LIT, level.hasNeighborSignal(pos));
-                    }
-                    level.setBlockAndUpdate(pos, blockState);
-                    level.playSound(null, pos, SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.BLOCKS, 1.0f, 1.0f);
-                    return InteractionResult.SUCCESS;
-                }
+        if (state.is(ModBlocks.MAGNET_BLOCK) && player.isShiftKeyDown()) {
+            if (level.isClientSide()) return InteractionResult.SUCCESS;
+            player.addItem(ModItems.MAGNET_INGOT.get().getDefaultInstance());
+            BlockState blockState = ModBlocks.HOLLOW_MAGNET_BLOCK.get().defaultBlockState();
+            if (blockState.hasProperty(LIT)) {
+                blockState = blockState.setValue(LIT, level.hasNeighborSignal(pos));
             }
+            level.setBlockAndUpdate(pos, blockState);
+            level.playSound(null, pos, SoundEvents.ITEM_FRAME_REMOVE_ITEM, SoundSource.BLOCKS, 1.0f, 1.0f);
+            return InteractionResult.SUCCESS;
         }
         return super.useWithoutItem(state, level, pos, player, hitResult);
     }

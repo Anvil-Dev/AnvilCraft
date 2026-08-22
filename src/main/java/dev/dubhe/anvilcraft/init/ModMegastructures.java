@@ -43,7 +43,7 @@ public final class ModMegastructures {
     public static final DeferredHolder<Megastructure, Megastructure> PLANET_EXCAVATOR = register(
         "planet_excavator",
         id -> Megastructure.builder(id, "planet_excavator")
-            .prerequisite(context -> isPlanet(context) && !isErrorPlanet(context))
+            .prerequisite(context -> !context.amplified() && isPlanet(context) && !isErrorPlanet(context))
             .ring(1)
             .model(1, ringModel(1, "excavator"))
             .material(ModBlocks.RUBY_PRISM.asItem(), 16)

@@ -56,6 +56,7 @@ public class OtherLang {
         provider.add("death.attack.anvilcraft.lost_in_time", "%1$s was lost in the river of time");
         provider.add("death.attack.anvilcraft.heater_burn", "%1$s was well done by the heater");
         provider.add("death.attack.anvilcraft.plasma_jets", "%1$s tried to high-five the plasma jets. They did not high-five back.");
+        provider.add("death.attack.anvilcraft.planetary_collapse", "%1$s was consumed by planetary collapse");
 
         provider.add("item.anvilcraft.pill.tooltip",
             "Pills made together with potion to achieve corresponding effects, can be taken quickly");

@@ -49,14 +49,32 @@ public class DamageTypeTagLoader {
             .addOptional(ModDamageTypes.FALLING_GIANT_ANVIL.location());
 
         provider.addTag(DamageTypeTags.BYPASSES_ARMOR)
-            .addOptional(ModDamageTypes.LOST_IN_TIME.location());
+            .addOptional(ModDamageTypes.LOST_IN_TIME.location())
+            .addOptional(ModDamageTypes.PLANETARY_COLLAPSE.location());
 
         provider.addTag(DamageTypeTags.BYPASSES_RESISTANCE)
-            .addOptional(ModDamageTypes.LOST_IN_TIME.location());
+            .addOptional(ModDamageTypes.LOST_IN_TIME.location())
+            .addOptional(ModDamageTypes.PLANETARY_COLLAPSE.location());
+
+        provider.addTag(DamageTypeTags.BYPASSES_SHIELD)
+            .addOptional(ModDamageTypes.PLANETARY_COLLAPSE.location());
+
+        provider.addTag(DamageTypeTags.BYPASSES_INVULNERABILITY)
+            .addOptional(ModDamageTypes.PLANETARY_COLLAPSE.location());
+
+        provider.addTag(DamageTypeTags.BYPASSES_COOLDOWN)
+            .addOptional(ModDamageTypes.PLANETARY_COLLAPSE.location());
+
+        provider.addTag(DamageTypeTags.BYPASSES_EFFECTS)
+            .addOptional(ModDamageTypes.PLANETARY_COLLAPSE.location());
+
+        provider.addTag(DamageTypeTags.BYPASSES_ENCHANTMENTS)
+            .addOptional(ModDamageTypes.PLANETARY_COLLAPSE.location());
 
         provider.addTag(DamageTypeTags.NO_KNOCKBACK)
             .addOptional(ModDamageTypes.LOST_IN_TIME.location())
-            .addOptional(ModDamageTypes.HEATER_BURN.location());
+            .addOptional(ModDamageTypes.HEATER_BURN.location())
+            .addOptional(ModDamageTypes.PLANETARY_COLLAPSE.location());
 
         provider.addTag(Tags.DamageTypes.IS_MAGIC)
             .addOptional(ModDamageTypes.LOST_IN_TIME.location());

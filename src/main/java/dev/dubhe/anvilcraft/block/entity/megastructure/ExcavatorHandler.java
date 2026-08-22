@@ -3,10 +3,13 @@ package dev.dubhe.anvilcraft.block.entity.megastructure;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilLaserInterfaceBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialRefactorOption;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.RockyPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.ShatteredPlanet;
+import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
+import dev.dubhe.anvilcraft.worldgen.OverworldLikeResetManager;
 import lombok.Getter;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -57,6 +60,14 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         }
         List<CelestialForgingAnvilLaserInterfaceBlockEntity> laserInterfaces = findLaserInterfaces(be);
         if (tryShatterPlanet(be, laserInterfaces)) return;
+        if (be.isAmplify()) {
+            if (laserActive) {
+                laserActive = false;
+                be.setChanged();
+                be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
+            }
+            return;
+        }
         if (be.getPlanetaryResourceSet() == null) return;
 
         List<CelestialForgingAnvilLaserInterfaceBlockEntity> validLasers = findValidLasers(laserInterfaces);
@@ -132,10 +143,19 @@ public class ExcavatorHandler extends BaseMegastructureHandler {
         CelestialForgingAnvilBlockEntity be,
         List<CelestialForgingAnvilLaserInterfaceBlockEntity> lasers
     ) {
-        if (!(be.getCelestialBodyData() instanceof RockyPlanetData)) return false;
         boolean receivedGamma = lasers.stream()
             .anyMatch(laser -> laser.isReceivedGamma() && laser.getReceivedLaserLevel() > 0);
         if (!receivedGamma || be.getLevel() == null) return false;
+        if (be.getCelestialBodyData() instanceof SpecialCelestialBodyData special) {
+            if (!special.canBeShattered()) return false;
+            if (special.landing() != null
+                && CelestialTravelManager.OVERWORLD_LIKE_DIMENSION.equals(special.landing().dimension())
+                && !OverworldLikeResetManager.beginCollapse(be)) {
+                return false;
+            }
+        } else if (!(be.getCelestialBodyData() instanceof RockyPlanetData)) {
+            return false;
+        }
 
         be.clearMegastructure();
         be.setCelestialBodyData(ShatteredPlanet.createBody());
