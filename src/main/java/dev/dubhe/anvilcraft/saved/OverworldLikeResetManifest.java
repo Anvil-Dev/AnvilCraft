@@ -38,12 +38,12 @@ public record OverworldLikeResetManifest(int generation, long activeSeed, long n
         Path path = path(worldRoot);
         Path parent = path.getParent();
         Files.createDirectories(parent);
-        Path temporary = Files.createTempFile(parent, FILE_NAME, ".tmp");
         CompoundTag tag = new CompoundTag();
         tag.putInt("generation", generation);
         tag.putLong("activeSeed", activeSeed);
         tag.putLong("nextSeed", nextSeed);
         tag.putBoolean("resetPending", resetPending);
+        Path temporary = Files.createTempFile(parent, FILE_NAME, ".tmp");
         try {
             NbtIo.writeCompressed(tag, temporary);
             try {
