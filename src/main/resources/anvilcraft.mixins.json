@@ -42,6 +42,7 @@
       "ItemStackMixin",
       "LevelChunkMixin",
       "LightningBoltMixin",
+      "LevelMixin",
       "LivingEntityMixin",
       "LootItemRandomChanceWithEnchantedBonusConditionMixin",
       "MinecraftServerMixin",

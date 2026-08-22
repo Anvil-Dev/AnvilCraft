@@ -1,8 +1,8 @@
 {
   "type": "anvilcraft:special_celestial_body",
   "axial_tilt": 2.71828,
+  "can_be_shattered": false,
   "energy": 18,
-  "has_atmosphere": false,
   "liquid_coverage": "high",
   "magnetic_field": 1,
   "mass": 12,

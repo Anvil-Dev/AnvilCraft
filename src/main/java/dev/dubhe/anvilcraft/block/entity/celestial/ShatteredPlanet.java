@@ -23,6 +23,7 @@ public final class ShatteredPlanet {
             LiquidCoverage.MEDIUM,
             false,
             true,
+            false,
             "planet_shattered",
             null,
             null

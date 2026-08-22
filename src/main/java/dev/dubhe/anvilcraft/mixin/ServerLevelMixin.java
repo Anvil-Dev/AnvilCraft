@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
+import dev.dubhe.anvilcraft.worldgen.OverworldLikeGenerationBootstrap;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -29,8 +30,7 @@ public class ServerLevelMixin {
     private void anvilcraft$useOverworldLikeSeed(CallbackInfoReturnable<Long> cir) {
         ServerLevel level = (ServerLevel) (Object) this;
         if (!CelestialTravelManager.isOverworldLike(level.dimension())) return;
-        long sourceSeed = level.getServer().getWorldData().worldGenOptions().seed();
-        cir.setReturnValue(CelestialTravelManager.overworldLikeSeed(sourceSeed));
+        cir.setReturnValue(OverworldLikeGenerationBootstrap.getActiveSeed(level.getServer()));
     }
 
     /** Keep structure-presence checks on the same seed as terrain generation. */
@@ -54,8 +54,7 @@ public class ServerLevelMixin {
     private long anvilcraft$useOverworldLikeStructureSeed(long seed) {
         ServerLevel level = (ServerLevel) (Object) this;
         if (!CelestialTravelManager.isOverworldLike(level.dimension())) return seed;
-        long sourceSeed = level.getServer().getWorldData().worldGenOptions().seed();
-        return CelestialTravelManager.overworldLikeSeed(sourceSeed);
+        return OverworldLikeGenerationBootstrap.getActiveSeed(level.getServer());
     }
 
     @Inject(

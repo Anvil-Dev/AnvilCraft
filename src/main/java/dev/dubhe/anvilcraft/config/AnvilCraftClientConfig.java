@@ -62,6 +62,9 @@ public class AnvilCraftClientConfig {
     @Comment("Scanline post-processing effect on 3D structure previews.")
     public boolean renderScanPreviewEffect = true;
 
+    @Comment("Render the shared orbital rings in the overworld-like dimension")
+    public boolean renderOverworldLikeSky = true;
+
     @CollapsibleObject
     public GravitationalLens gravitationalLens = new GravitationalLens();
 

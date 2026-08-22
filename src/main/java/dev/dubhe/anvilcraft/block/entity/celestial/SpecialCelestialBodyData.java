@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity.celestial;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ColorRGBA;
 
 import javax.annotation.Nullable;
 
@@ -17,16 +18,17 @@ public record SpecialCelestialBodyData(
     int rotationSpeed,
     int magneticFieldStrength,
     @Nullable Temperature temperature,
-    boolean hasAtmosphere,
+    @Nullable ColorRGBA atmosphereColor,
     @Nullable LiquidCoverage liquidCoverage,
     boolean isErrorPlanet,
     boolean needsCustomModel,
+    boolean canBeShattered,
     String model,
     @Nullable CompoundTag playerHeadProfile,
     @Nullable CelestialTravelData landing
 ) implements CelestialBodyData {
 
-    /** Compatibility constructor for snapshots written before landing rules existed. */
+    /** 兼容着陆规则存在前写入的存档数据。 */
     public SpecialCelestialBodyData(
         String recipeId,
         String name,
@@ -44,11 +46,62 @@ public record SpecialCelestialBodyData(
     ) {
         this(
             recipeId, name, size, axialTilt, rotationSpeed, magneticFieldStrength, temperature,
-            hasAtmosphere, liquidCoverage, isErrorPlanet, needsCustomModel, model, playerHeadProfile, null
+            legacyAtmosphereColor(temperature, hasAtmosphere), liquidCoverage,
+            isErrorPlanet, needsCustomModel, false, model, playerHeadProfile, null
         );
     }
 
-    /// 从配方和其资源路径ID创建。
+    /** 兼容可粉碎性写入存档前创建的存档数据。 */
+    public SpecialCelestialBodyData(
+        String recipeId,
+        String name,
+        int size,
+        float axialTilt,
+        int rotationSpeed,
+        int magneticFieldStrength,
+        @Nullable Temperature temperature,
+        boolean hasAtmosphere,
+        @Nullable LiquidCoverage liquidCoverage,
+        boolean isErrorPlanet,
+        boolean needsCustomModel,
+        String model,
+        @Nullable CompoundTag playerHeadProfile,
+        @Nullable CelestialTravelData landing
+    ) {
+        this(
+            recipeId, name, size, axialTilt, rotationSpeed, magneticFieldStrength, temperature,
+            legacyAtmosphereColor(temperature, hasAtmosphere), liquidCoverage,
+            isErrorPlanet, needsCustomModel, legacyCanBeShattered(landing), model,
+            playerHeadProfile, landing
+        );
+    }
+
+    /** 兼容大气层颜色写入存档前创建的存档数据。 */
+    public SpecialCelestialBodyData(
+        String recipeId,
+        String name,
+        int size,
+        float axialTilt,
+        int rotationSpeed,
+        int magneticFieldStrength,
+        @Nullable Temperature temperature,
+        boolean hasAtmosphere,
+        @Nullable LiquidCoverage liquidCoverage,
+        boolean isErrorPlanet,
+        boolean needsCustomModel,
+        boolean canBeShattered,
+        String model,
+        @Nullable CompoundTag playerHeadProfile,
+        @Nullable CelestialTravelData landing
+    ) {
+        this(
+            recipeId, name, size, axialTilt, rotationSpeed, magneticFieldStrength, temperature,
+            legacyAtmosphereColor(temperature, hasAtmosphere), liquidCoverage,
+            isErrorPlanet, needsCustomModel, canBeShattered, model, playerHeadProfile, landing
+        );
+    }
+
+    /// 从配方及其资源路径 ID 创建。
     public static SpecialCelestialBodyData fromRecipe(SpecialCelestialBodyRecipe recipe, String recipeId) {
         return new SpecialCelestialBodyData(
             recipeId,
@@ -58,18 +111,19 @@ public record SpecialCelestialBodyData(
             recipe.rotationSpeed(),
             recipe.magneticFieldStrength(),
             recipe.temperature(),
-            recipe.hasAtmosphere(),
+            recipe.atmosphere().orElse(null),
             recipe.getLiquidCoverage(),
             recipe.isErrorPlanet(),
             recipe.needsCustomModel(),
+            recipe.canBeShattered(),
             recipe.model(),
             null,
             recipe.landing().orElse(null)
         );
     }
 
-    /// 从玩家头颅的 profile NBT 创建动态天体（无资源，使用头颅模型渲染）。
-    /// size 由空间砧子数量决定。
+    /// 从玩家头颅的档案 NBT 创建动态天体（无资源，使用头颅模型渲染）。
+    /// 天体大小由空间砧子数量决定。
     public static SpecialCelestialBodyData fromPlayerHead(CompoundTag profileNbt, int space) {
         return new SpecialCelestialBodyData(
             "player_head",
@@ -83,6 +137,7 @@ public record SpecialCelestialBodyData(
             LiquidCoverage.NONE,
             false,
             true,
+            false,
             "player_head",
             profileNbt,
             null
@@ -90,11 +145,15 @@ public record SpecialCelestialBodyData(
     }
 
     /// 此天体是否为玩家头颅动态天体。
+    public boolean hasAtmosphere() {
+        return atmosphereColor != null;
+    }
+
     public boolean isPlayerHead() {
         return playerHeadProfile != null;
     }
 
-    /// Whether this discovered body has a data-driven landing destination.
+    /// 此已发现天体是否有数据驱动的着陆目标。
     public boolean isLandable() {
         return landing != null;
     }
@@ -109,7 +168,7 @@ public record SpecialCelestialBodyData(
         return landing;
     }
 
-    /** Compatibility alias for callers that use the older travel terminology. */
+    /** 兼容使用旧 {@code travel} 术语的调用方。 */
     @Nullable
     public CelestialTravelData travel() {
         return landing;
@@ -149,12 +208,15 @@ public record SpecialCelestialBodyData(
         tag.putFloat("axialTilt", axialTilt);
         tag.putInt("rotationSpeed", rotationSpeed);
         tag.putInt("magneticFieldStrength", magneticFieldStrength);
-        tag.putBoolean("hasAtmosphere", hasAtmosphere);
         tag.putBoolean("isErrorPlanet", isErrorPlanet);
         tag.putBoolean("needsCustomModel", needsCustomModel);
+        tag.putBoolean("canBeShattered", canBeShattered);
         tag.putString("model", model);
         if (temperature != null) {
             tag.putString("temperature", temperature.getSerializedName());
+        }
+        if (atmosphereColor != null) {
+            tag.putInt("atmosphereColor", atmosphereColor.rgba());
         }
         if (liquidCoverage != null) {
             tag.putString("liquidCoverage", liquidCoverage.getSerializedName());
@@ -176,15 +238,17 @@ public record SpecialCelestialBodyData(
         float axialTilt = tag.getFloat("axialTilt");
         int rotationSpeed = tag.getInt("rotationSpeed");
         int magneticFieldStrength = tag.getInt("magneticFieldStrength");
-        boolean hasAtmosphere = tag.getBoolean("hasAtmosphere");
         boolean isErrorPlanet = tag.getBoolean("isErrorPlanet");
         boolean needsCustomModel = tag.getBoolean("needsCustomModel");
-        /// 向后兼容：优先读新 key "model"，回退到旧 key "textureName"
+        /// 向后兼容：优先读取新键 {@code model}，回退到旧键 {@code textureName}。
         String model = tag.contains("model")
             ? tag.getString("model")
             : tag.getString("textureName");
         Temperature temperature = tag.contains("temperature")
             ? Temperature.fromName(tag.getString("temperature")) : null;
+        @Nullable ColorRGBA atmosphereColor = tag.contains("atmosphereColor")
+            ? new ColorRGBA(tag.getInt("atmosphereColor"))
+            : legacyAtmosphereColor(temperature, tag.getBoolean("hasAtmosphere"));
         LiquidCoverage liquidCoverage = tag.contains("liquidCoverage")
             ? LiquidCoverage.fromName(tag.getString("liquidCoverage")) : null;
         CompoundTag playerHeadProfile = tag.contains("playerHeadProfile")
@@ -192,10 +256,23 @@ public record SpecialCelestialBodyData(
         String landingKey = tag.contains("landing") ? "landing" : "travel";
         CelestialTravelData landing = tag.contains(landingKey)
             ? CelestialTravelData.fromTag(tag.getCompound(landingKey)) : null;
+        boolean canBeShattered = tag.contains("canBeShattered")
+            ? tag.getBoolean("canBeShattered") : legacyCanBeShattered(landing);
         return new SpecialCelestialBodyData(
             recipeId, name, size, axialTilt, rotationSpeed, magneticFieldStrength,
-            temperature, hasAtmosphere, liquidCoverage,
-            isErrorPlanet, needsCustomModel, model, playerHeadProfile, landing
+            temperature, atmosphereColor, liquidCoverage,
+            isErrorPlanet, needsCustomModel, canBeShattered, model, playerHeadProfile, landing
         );
+    }
+
+    @Nullable
+    private static ColorRGBA legacyAtmosphereColor(@Nullable Temperature temperature, boolean hasAtmosphere) {
+        if (!hasAtmosphere) return null;
+        if (temperature == null) return new ColorRGBA(0xFFFFFF);
+        return SpecialCelestialBodyRecipe.defaultAtmosphereColor(temperature);
+    }
+
+    private static boolean legacyCanBeShattered(@Nullable CelestialTravelData landing) {
+        return landing != null && CelestialTravelManager.OVERWORLD_LIKE_DIMENSION.equals(landing.dimension());
     }
 }

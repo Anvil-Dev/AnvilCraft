@@ -32,6 +32,7 @@ import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ColorRGBA;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -1012,12 +1013,13 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             } else {
                 renderComplexModelBody(s, poseStack, bufferSource, packedOverlay);
                 /// 具有大气层的复杂模型天体的大气渲染（血肉、智慧）
-                if (s.hasAtmosphere() && s.temperature() != null) {
+                @Nullable ColorRGBA atmosphereColor = s.atmosphereColor();
+                if (atmosphereColor != null) {
                     poseStack.pushPose();
                     poseStack.translate(0.5, 0.5, 0.5);
                     poseStack.scale(1.125f, 1.125f, 1.125f);
                     poseStack.translate(-0.5, -0.5, -0.5);
-                    float[] atmosRgb = CelestialBodyRenderer.getAtmosphereColor(s.temperature());
+                    float[] atmosRgb = CelestialBodyRenderer.getAtmosphereColor(atmosphereColor);
                     renderAtmosphereCube(
                         poseStack,
                         bufferSource,
@@ -1451,20 +1453,18 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         }
 
         /// 大气层 —— 针对具有大气层的岩石行星和特殊天体
-        boolean hasAtmos;
-        Temperature atmosTemp;
+        @Nullable float[] atmosRgb = null;
         if (bodyData instanceof RockyPlanetData rp) {
-            hasAtmos = rp.hasAtmosphere();
-            atmosTemp = rp.temperature();
+            if (rp.hasAtmosphere()) {
+                atmosRgb = getAtmosphereColor(rp.temperature());
+            }
         } else if (bodyData instanceof SpecialCelestialBodyData s) {
-            hasAtmos = s.hasAtmosphere();
-            atmosTemp = s.temperature();
-        } else {
-            hasAtmos = false;
-            atmosTemp = null;
+            @Nullable ColorRGBA atmosphereColor = s.atmosphereColor();
+            if (atmosphereColor != null) {
+                atmosRgb = CelestialBodyRenderer.getAtmosphereColor(atmosphereColor);
+            }
         }
-        if (hasAtmos && atmosTemp != null) {
-            float[] atmosRgb = getAtmosphereColor(atmosTemp);
+        if (atmosRgb != null) {
             poseStack.pushPose();
             poseStack.translate(0.5, 0.5, 0.5);
             poseStack.scale(1.125f, 1.125f, 1.125f);

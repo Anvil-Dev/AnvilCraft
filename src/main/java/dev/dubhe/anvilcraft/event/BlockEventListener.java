@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.block.batch.BaseBatchCraftingBlock;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -28,6 +29,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 import java.util.function.Supplier;
@@ -91,6 +93,18 @@ public class BlockEventListener {
                 event.setCanceled(true);
             }
         }
+    }
+
+    @SubscribeEvent
+    public static void useMagnetBlockWithOffhandItem(PlayerInteractEvent.RightClickBlock event) {
+        Player player = event.getEntity();
+        if (event.getHand() != InteractionHand.MAIN_HAND
+            || !player.isShiftKeyDown()
+            || !player.getMainHandItem().isEmpty()
+            || !event.getLevel().getBlockState(event.getPos()).is(ModBlocks.MAGNET_BLOCK)) {
+            return;
+        }
+        event.setUseBlock(TriState.TRUE);
     }
 
     /**

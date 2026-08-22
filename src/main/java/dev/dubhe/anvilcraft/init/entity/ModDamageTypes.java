@@ -7,8 +7,10 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstrapContext;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.damagesource.DamageEffects;
+import net.minecraft.world.damagesource.DamageScaling;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
+import net.minecraft.world.damagesource.DeathMessageType;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelReader;
@@ -41,6 +43,10 @@ public class ModDamageTypes {
         Registries.DAMAGE_TYPE,
         AnvilCraft.of("plasma_jets")
     );
+    public static final ResourceKey<DamageType> PLANETARY_COLLAPSE = ResourceKey.create(
+        Registries.DAMAGE_TYPE,
+        AnvilCraft.of("planetary_collapse")
+    );
 
     @ApiStatus.Internal
     public static void bootstrap(BootstrapContext<DamageType> ctx) {
@@ -50,6 +56,16 @@ public class ModDamageTypes {
         ctx.register(HEATER_BURN, new DamageType("anvilcraft.heater_burn", 0.1f, DamageEffects.BURNING));
         ctx.register(GAMMA_LASER, new DamageType("anvilcraft.gamma_laser", 0.0f, DamageEffects.BURNING));
         ctx.register(PLASMA_JET, new DamageType("anvilcraft.plasma_jets", 0.1f, DamageEffects.BURNING));
+        ctx.register(
+            PLANETARY_COLLAPSE,
+            new DamageType(
+                "anvilcraft.planetary_collapse",
+                DamageScaling.NEVER,
+                0.0f,
+                DamageEffects.HURT,
+                DeathMessageType.DEFAULT
+            )
+        );
     }
 
     public static DamageSource laser(Level level) {
@@ -82,6 +98,10 @@ public class ModDamageTypes {
 
     public static DamageSource plasmaJets(Level level) {
         return ModDamageTypes.source(ModDamageTypes.PLASMA_JET, level);
+    }
+
+    public static DamageSource planetaryCollapse(Level level) {
+        return ModDamageTypes.source(ModDamageTypes.PLANETARY_COLLAPSE, level);
     }
 
     private static DamageSource source(ResourceKey<DamageType> key, LevelReader level) {

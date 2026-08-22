@@ -1,8 +1,9 @@
 {
   "type": "anvilcraft:special_celestial_body",
+  "atmosphere": "#0099CCFF",
   "axial_tilt": 0.0,
+  "can_be_shattered": true,
   "energy": 16,
-  "has_atmosphere": true,
   "landing": {
     "coordinate_rule": {
       "type": "same"
