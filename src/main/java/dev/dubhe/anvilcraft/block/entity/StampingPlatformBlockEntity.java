@@ -31,7 +31,7 @@ import java.util.List;
 @Getter
 public class StampingPlatformBlockEntity extends BlockEntity implements IItemHandlerHolder, IItemHandlerCache {
     public static final int INPUT_SLOTS = 1;
-    public static final int OUTPUT_SLOTS = 8;
+    public static final int OUTPUT_SLOTS = 2;
 
     private final ItemStackHandler input = new ItemStackHandler(INPUT_SLOTS) {
         @Override
