@@ -50,8 +50,7 @@ public class StampingPlatformBlock extends Block implements
         Block.box(2.0, 12.0, 2.0, 14.0, 16.0, 14.0),
         Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
         Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
-        Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0),
-        Block.box(4.0, 10.0, 4.0, 12.0, 12.0, 12.0));
+        Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0));
     private static final VoxelShape REDUCE_AABB_INTERACTION = Shapes.or(
         Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
         Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
@@ -170,7 +169,7 @@ public class StampingPlatformBlock extends Block implements
     public Vec3 getOffset(Level level, BlockPos pos, BlockState state) {
         if (!(state.getBlock() instanceof StampingPlatformBlock)) return Vec3.ZERO;
         Vec3i normal = state.getValue(FACING).getNormal();
-        return new Vec3(normal.getX(), normal.getY(), normal.getZ()).scale(0.7);
+        return new Vec3(normal.getX(), normal.getY() - 0.5F, normal.getZ()).scale(0.55);
     }
 
     @Override
