@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.tooltip.HudTooltipManager;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
+import dev.dubhe.anvilcraft.client.renderer.OverworldLikeOrbitalSkyRenderer;
 import dev.dubhe.anvilcraft.client.support.EnchantedGoldBlockGlints;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
@@ -38,6 +39,11 @@ import java.util.Optional;
 
 @EventBusSubscriber(value = Dist.CLIENT)
 public class RenderEventListener {
+
+    @SubscribeEvent
+    public static void onRenderOverworldLikeSky(RenderLevelStageEvent event) {
+        OverworldLikeOrbitalSkyRenderer.render(event);
+    }
 
     @SubscribeEvent
     public static void onRenderInspection(RenderLevelStageEvent event) {

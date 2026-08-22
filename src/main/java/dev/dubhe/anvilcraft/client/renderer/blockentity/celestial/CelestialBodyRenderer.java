@@ -12,6 +12,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
+import net.minecraft.util.ColorRGBA;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.client.model.data.ModelData;
@@ -122,10 +123,26 @@ public class CelestialBodyRenderer {
         };
     }
 
+    public static float[] getAtmosphereColor(ColorRGBA color) {
+        int rgb = color.rgba();
+        return new float[]{
+            ((rgb >> 16) & 0xFF) / 255.0f,
+            ((rgb >> 8) & 0xFF) / 255.0f,
+            (rgb & 0xFF) / 255.0f
+        };
+    }
+
     /// === 大气渲染 ===
 
     public static void renderAtmosphere(PoseStack ps, MultiBufferSource bufferSource, Temperature temp, int light, int overlay, long seed) {
-        float[] rgb = getAtmosphereColor(temp);
+        renderAtmosphere(ps, bufferSource, getAtmosphereColor(temp), light, overlay, seed);
+    }
+
+    public static void renderAtmosphere(PoseStack ps, MultiBufferSource bufferSource, ColorRGBA color, int light, int overlay, long seed) {
+        renderAtmosphere(ps, bufferSource, getAtmosphereColor(color), light, overlay, seed);
+    }
+
+    private static void renderAtmosphere(PoseStack ps, MultiBufferSource bufferSource, float[] rgb, int light, int overlay, long seed) {
         BakedModel cubeModel = Minecraft.getInstance().getBlockRenderer().getBlockModel(Blocks.WHITE_CONCRETE.defaultBlockState());
         VertexConsumer consumer = bufferSource.getBuffer(ModRenderTypes.CELESTIAL_ATMOSPHERE);
         RandomSource random = RandomSource.create(seed);

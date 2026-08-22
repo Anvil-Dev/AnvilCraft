@@ -45,6 +45,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ColorRGBA;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -848,20 +849,33 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         CelestialBodyRenderer.renderPlanetBody(guiGraphics.pose(), vc, 0x00F000F0, 0);
 
         /// 大气层（半透明）
-        Temperature atmosTemp = getUiAtmosphereTemp(body);
-        if (atmosTemp != null) {
+        @Nullable ColorRGBA atmosphereColor = body instanceof SpecialCelestialBodyData special
+            ? special.atmosphereColor() : null;
+        @Nullable Temperature atmosTemp = getUiAtmosphereTemp(body);
+        if (atmosphereColor != null || atmosTemp != null) {
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(0.5, 0.5, 0.5);
             guiGraphics.pose().scale(1.125f, 1.125f, 1.125f);
             guiGraphics.pose().translate(-0.5, -0.5, -0.5);
-            CelestialBodyRenderer.renderAtmosphere(
-                guiGraphics.pose(),
-                buf,
-                atmosTemp,
-                LightTexture.FULL_BRIGHT,
-                0,
-                getMenu().getBlockEntity().getBlockPos().asLong()
-            );
+            if (atmosphereColor != null) {
+                CelestialBodyRenderer.renderAtmosphere(
+                    guiGraphics.pose(),
+                    buf,
+                    atmosphereColor,
+                    LightTexture.FULL_BRIGHT,
+                    0,
+                    getMenu().getBlockEntity().getBlockPos().asLong()
+                );
+            } else {
+                CelestialBodyRenderer.renderAtmosphere(
+                    guiGraphics.pose(),
+                    buf,
+                    atmosTemp,
+                    LightTexture.FULL_BRIGHT,
+                    0,
+                    getMenu().getBlockEntity().getBlockPos().asLong()
+                );
+            }
             guiGraphics.pose().popPose();
         }
 
@@ -963,7 +977,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         CelestialBodyRenderer.renderCustomModel(guiGraphics.pose().last(), buf, model, 0);
 
         /// 为拥有大气的复杂模型天体渲染大气层
-        if (special.hasAtmosphere() && special.temperature() != null) {
+        @Nullable ColorRGBA atmosphereColor = special.atmosphereColor();
+        if (atmosphereColor != null) {
             guiGraphics.pose().pushPose();
             guiGraphics.pose().translate(0.5, 0.5, 0.5);
             guiGraphics.pose().scale(1.125f, 1.125f, 1.125f);
@@ -971,7 +986,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             CelestialBodyRenderer.renderAtmosphere(
                 guiGraphics.pose(),
                 buf,
-                special.temperature(),
+                atmosphereColor,
                 LightTexture.FULL_BRIGHT,
                 0,
                 getMenu().getBlockEntity().getBlockPos().asLong()
@@ -1052,7 +1067,6 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     @Nullable
     private static Temperature getUiAtmosphereTemp(CelestialBodyData body) {
         if (body instanceof RockyPlanetData rp && rp.hasAtmosphere()) return rp.temperature();
-        if (body instanceof SpecialCelestialBodyData s && s.hasAtmosphere()) return s.temperature();
         return null;
     }
 

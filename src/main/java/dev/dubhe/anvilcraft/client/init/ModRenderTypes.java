@@ -223,6 +223,24 @@ public class ModRenderTypes {
             .createCompositeState(true)
     );
 
+    public static final RenderType OVERWORLD_LIKE_SKY_RING = RenderType.create(
+        "anvilcraft:overworld_like_sky_ring",
+        DefaultVertexFormat.BLOCK,
+        VertexFormat.Mode.QUADS,
+        786432,
+        true,
+        true,
+        RenderType.CompositeState.builder()
+            .setLightmapState(LIGHTMAP)
+            .setShaderState(RENDERTYPE_CUTOUT_SHADER)
+            .setTextureState(BLOCK_SHEET_MIPPED)
+            .setTransparencyState(NO_TRANSPARENCY)
+            .setDepthTestState(LEQUAL_DEPTH_TEST)
+            .setCullState(NO_CULL)
+            .setWriteMaskState(COLOR_WRITE)
+            .createCompositeState(true)
+    );
+
     public static final RenderType BEACON_GLASS = RenderType.create(
         "anvilcraft:beacon_glass",
         DefaultVertexFormat.BLOCK,
