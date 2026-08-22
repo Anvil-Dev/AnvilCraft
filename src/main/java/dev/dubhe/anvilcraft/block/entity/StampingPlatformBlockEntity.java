@@ -228,5 +228,7 @@ public class StampingPlatformBlockEntity extends BlockEntity implements IItemHan
         super.loadAdditional(tag, registries);
         this.input.deserializeNBT(registries, tag.getCompound("Inputs"));
         this.output.deserializeNBT(registries, tag.getCompound("Outputs"));
+        this.input.setSize(INPUT_SLOTS);
+        this.output.setSize(OUTPUT_SLOTS);
     }
 }
