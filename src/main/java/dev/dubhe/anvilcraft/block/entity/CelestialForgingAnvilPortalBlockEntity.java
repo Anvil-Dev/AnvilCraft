@@ -15,7 +15,6 @@ import dev.dubhe.anvilcraft.init.entity.ModDamageTypes;
 import dev.dubhe.anvilcraft.network.LaserEmitPacket;
 import dev.dubhe.anvilcraft.saved.WormholeNetwork;
 import dev.dubhe.anvilcraft.util.BreakBlockUtil;
-import dev.dubhe.anvilcraft.worldgen.OverworldLikeResetManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
@@ -310,7 +309,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         /// 可登陆特殊星球的传送门不依赖虫洞网络中的另一座 CFA。
         CelestialTravelData landing = getLandingData(parent);
         if (landing != null) {
-            tickLandingPortal(state, landing);
+            tickLandingPortal(state);
             return;
         }
 
@@ -639,16 +638,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
     }
 
     /** Opens a standalone landing gate and performs the same entity scan as a linked gate. */
-    private void tickLandingPortal(BlockState state, CelestialTravelData landing) {
-        if (CelestialTravelManager.OVERWORLD_LIKE_DIMENSION.equals(landing.dimension())
-            && level instanceof ServerLevel serverLevel
-            && !OverworldLikeResetManager.isEntryAllowed(serverLevel.getServer(), CelestialTravelManager.OVERWORLD_LIKE_LEVEL)) {
-            if (state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
-                level.setBlock(worldPosition, state.setValue(CelestialForgingAnvilPortalBlock.OPEN, false), 3);
-            }
-            if (isAnchor()) touchingEntities.clear();
-            return;
-        }
+    private void tickLandingPortal(BlockState state) {
         if (!state.getValue(CelestialForgingAnvilPortalBlock.OPEN)) {
             state = state.setValue(CelestialForgingAnvilPortalBlock.OPEN, true);
             level.setBlock(worldPosition, state, 3);

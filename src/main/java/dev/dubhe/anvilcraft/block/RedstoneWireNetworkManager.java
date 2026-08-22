@@ -62,7 +62,10 @@ public final class RedstoneWireNetworkManager {
     public static void topologyChanged(Level level, BlockPos pos) {
         if (level instanceof ServerLevel serverLevel) {
             // 客户端只消费同步后的方块状态，拓扑的权威计算必须集中在服务端。
-            state(serverLevel).requestTopologyUpdate(pos.asLong());
+            LevelNetworks state = state(serverLevel);
+            // 导线放置会在邻居更新前同步建网，先记录已有侦测器才能避免其错过首次索引。
+            state.rememberAdjacentObservers(pos);
+            state.requestTopologyUpdate(pos.asLong());
         }
     }
 
@@ -592,6 +595,16 @@ public final class RedstoneWireNetworkManager {
         /** 记录一个当前确实为侦测器的相邻位置，不会为普通邻居变化分配额外状态。 */
         private void rememberObserver(BlockPos observerPos) {
             this.observerChunks.add(ChunkPos.asLong(observerPos.getX() >> 4, observerPos.getZ() >> 4));
+        }
+
+        /** 记录导线六个相邻位置中的侦测器，供当前拓扑重建时建立观察索引。 */
+        private void rememberAdjacentObservers(BlockPos wirePos) {
+            for (Direction direction : Direction.values()) {
+                BlockPos observerPos = wirePos.relative(direction);
+                if (this.level.hasChunkAt(observerPos) && this.level.getBlockState(observerPos).is(Blocks.OBSERVER)) {
+                    this.rememberObserver(observerPos);
+                }
+            }
         }
 
         /** 更新一个可能的侦测器位置与当前网络的对应关系。 */

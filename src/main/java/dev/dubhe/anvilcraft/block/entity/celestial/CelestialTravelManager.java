@@ -74,8 +74,7 @@ public final class CelestialTravelManager {
     ) {
         if (entity.isOnPortalCooldown()) return false;
         ResourceKey<Level> destinationKey = ResourceKey.create(Registries.DIMENSION, travel.dimension());
-        if (!OverworldLikeResetManager.isEntryAllowed(sourceLevel.getServer(), destinationKey)) return false;
-        ServerLevel destination = sourceLevel.getServer().getLevel(destinationKey);
+        ServerLevel destination = OverworldLikeResetManager.getEntryDestination(sourceLevel.getServer(), destinationKey);
         if (destination == null) return false;
 
         BlockPos desired = landingOrigin(entity, destination, travel.coordinateRule());

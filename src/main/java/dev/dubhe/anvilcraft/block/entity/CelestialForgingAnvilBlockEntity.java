@@ -68,9 +68,9 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     private final CfaMegastructureManager megastructureManager = new CfaMegastructureManager();
 
     @Getter
-    private int preRotation = 0;
+    private float preRotation = 0.0f;
     @Getter
-    private int rotation = 0;
+    private float rotation = 0.0f;
 
     @Getter
     private boolean isAmplify = false;
@@ -570,9 +570,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     };
 
     public void tick() {
-        if (this.rotation == 360) this.rotation = 0;
+        if (this.rotation >= 360.0f) this.rotation -= 360.0f;
         this.preRotation = this.rotation;
-        this.rotation += 3;
+        float rotationSpeed = 3.0f / (1.0f + this.getRedstoneSignal() * 0.4f);
+        this.rotation += rotationSpeed;
         this.bodyRotation += 1;
 
         /// 动画计时（仅客户端）
