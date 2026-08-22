@@ -49,6 +49,7 @@ public class WheelLifecycleEventListener {
 
     private static long multiphaseKeyTime = -1L;
     private static boolean multiphaseKeyWasDown = false;
+    private static boolean multiphaseKeyPressAccepted = false;
     private static @Nullable Optional<WheelMenuModel> multiphaseWheelCache = null;
 
     private static long resonatorKeyTime = -1L;
@@ -620,6 +621,10 @@ public class WheelLifecycleEventListener {
     private static void processMultiphasePress(Minecraft client, int action) {
         if (client.level == null) return;
         if (action == GLFW.GLFW_RELEASE) {
+            if (!WheelLifecycleEventListener.multiphaseKeyPressAccepted) {
+                return;
+            }
+            WheelLifecycleEventListener.multiphaseKeyPressAccepted = false;
             if (WheelLifecycleEventListener.multiphaseKeyWasDown) {
                 CONTROLLER.onHoldKeyReleased();
             } else {
@@ -632,6 +637,7 @@ public class WheelLifecycleEventListener {
         }
         if (Minecraft.getInstance().screen != null) return;
         if (action == GLFW.GLFW_PRESS) {
+            WheelLifecycleEventListener.multiphaseKeyPressAccepted = true;
             if (!WheelLifecycleEventListener.multiphaseKeyWasDown) {
                 WheelLifecycleEventListener.multiphaseKeyTime = client.level.getGameTime();
             }
