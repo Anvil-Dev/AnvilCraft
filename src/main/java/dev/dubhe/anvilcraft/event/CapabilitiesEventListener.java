@@ -69,8 +69,20 @@ public class CapabilitiesEventListener {
 
         event.registerBlockEntity(
             Capabilities.ItemHandler.BLOCK,
-            ModBlockEntities.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.get(),
-            (be, side) -> be.getItemHandler()
+        ModBlockEntities.CELESTIAL_FORGING_ANVIL_LOGISTICS_INTERFACE.get(),
+        (be, side) -> be.getItemHandler()
+        );
+
+        // 粉碎台与冲压台：底部不暴露物品能力，防止漏斗从正下方抽出产物
+        event.registerBlockEntity(
+            Capabilities.ItemHandler.BLOCK,
+        ModBlockEntities.CRUSHING_TABLE.get(),
+        (be, side) -> side == Direction.DOWN ? null : be.getItemHandler()
+        );
+        event.registerBlockEntity(
+            Capabilities.ItemHandler.BLOCK,
+        ModBlockEntities.STAMPING_PLATFORM.get(),
+        (be, side) -> side == Direction.DOWN ? null : be.getItemHandler()
         );
 
         // 自动附魔台：引物格不允许自动输入输出
