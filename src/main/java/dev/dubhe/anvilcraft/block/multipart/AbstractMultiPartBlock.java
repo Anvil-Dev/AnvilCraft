@@ -6,15 +6,25 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.shapes.BooleanOp;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 public abstract class AbstractMultiPartBlock<P extends Enum<P>> extends Block implements IMultiPartBlockModelHolder {
+    private final Map<BlockState, VoxelShape> multiPartShapeCache = new ConcurrentHashMap<>();
+
     public AbstractMultiPartBlock(Properties properties) {
         super(properties);
     }
@@ -33,6 +43,61 @@ public abstract class AbstractMultiPartBlock<P extends Enum<P>> extends Block im
 
     public BlockState placedState(P part, BlockState state) {
         return state.setValue(this.getPart(), part);
+    }
+
+    /**
+     * 获取单个部件自身的碰撞箱，用于实体碰撞、遮挡与光照计算。
+     *
+     * @param state 部件的方块状态
+     */
+    public VoxelShape getPartShape(BlockState state) {
+        return Shapes.block();
+    }
+
+    /**
+     * 获取整个多方块结构的碰撞箱，坐标已偏移至 {@code state} 所在部件的局部坐标系，
+     * 使玩家看向任意部件时都能看到完整的结构轮廓。
+     *
+     * @param state 部件的方块状态
+     */
+    public VoxelShape getMultiPartShape(BlockState state) {
+        if (!state.hasProperty(this.getPart())) return this.getPartShape(state);
+        VoxelShape cached = this.multiPartShapeCache.get(state);
+        if (cached != null) return cached;
+        VoxelShape shape = Shapes.empty();
+        for (P part : this.getParts()) {
+            Vec3i offset = this.offsetFrom(state, part);
+            VoxelShape partShape = this.getPartShape(state.setValue(this.getPart(), part));
+            if (partShape.isEmpty()) continue;
+            shape = Shapes.joinUnoptimized(
+                shape,
+                partShape.move(offset.getX(), offset.getY(), offset.getZ()),
+                BooleanOp.OR
+            );
+        }
+        shape = shape.optimize();
+        this.multiPartShapeCache.put(state, shape);
+        return shape;
+    }
+
+    @Override
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return this.getMultiPartShape(state);
+    }
+
+    @Override
+    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return this.hasCollision ? this.getPartShape(state) : Shapes.empty();
+    }
+
+    @Override
+    protected VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
+        return this.getPartShape(state);
+    }
+
+    @Override
+    protected boolean propagatesSkylightDown(BlockState state, BlockGetter level, BlockPos pos) {
+        return !Block.isShapeFullBlock(this.getPartShape(state)) && state.getFluidState().isEmpty();
     }
 
     @Override

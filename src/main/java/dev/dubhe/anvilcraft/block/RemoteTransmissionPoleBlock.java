@@ -10,7 +10,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -24,7 +23,6 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -86,11 +84,7 @@ public class RemoteTransmissionPoleBlock
     }
 
     @Override
-    public VoxelShape getShape(
-        BlockState state,
-        BlockGetter level,
-        BlockPos pos,
-        CollisionContext context) {
+    public VoxelShape getPartShape(BlockState state) {
         return switch (state.getValue(HALF)) {
             case BOTTOM -> TRANSMISSION_POLE_BASE;
             case MID_UPPER, MID_LOWER -> TRANSMISSION_POLE_MID;
@@ -171,10 +165,10 @@ public class RemoteTransmissionPoleBlock
     }
 
     @Override
-    public void onRemove(Level level, BlockPos pos, BlockState state) {
+    public void onPlace(Level level, BlockPos pos, BlockState state) {
     }
 
     @Override
-    public void onPlace(Level level, BlockPos pos, BlockState state) {
+    public void onRemove(Level level, BlockPos pos, BlockState state) {
     }
 }

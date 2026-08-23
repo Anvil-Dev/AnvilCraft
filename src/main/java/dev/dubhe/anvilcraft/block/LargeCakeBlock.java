@@ -139,12 +139,17 @@ public class LargeCakeBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
         this.registerDefaultState(this.stateDefinition.any().setValue(HALF, Cube3x3PartHalf.BOTTOM_CENTER));
     }
 
+    /**
+        大蛋糕可以逐格吃掉而不是整体破坏，因此每一格只显示自己那一格的轮廓，
+        而不是像其它多方块那样显示整个结构的轮廓。
+     */
     @Override
-    public VoxelShape getShape(
-        BlockState state,
-        BlockGetter level,
-        BlockPos pos,
-        CollisionContext context) {
+    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return this.getPartShape(state);
+    }
+
+    @Override
+    public VoxelShape getPartShape(BlockState state) {
         return switch (state.getValue(HALF)) {
             case TOP_CENTER -> TOP_CENTER;
             case TOP_E -> TOP_E;

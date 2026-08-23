@@ -151,11 +151,15 @@ public class LargeCauldronBlock
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        Cube3x3PartHalf part = state.getValue(HALF);
-        if (part.getOffsetY() == 2 && context.isHoldingItem(ModBlocks.GIANT_ANVIL.asItem())) {
+        if (state.getValue(HALF).getOffsetY() == 2 && context.isHoldingItem(ModBlocks.GIANT_ANVIL.asItem())) {
             return Shapes.block();
         }
-        return SHAPES.get(part);
+        return super.getShape(state, level, pos, context);
+    }
+
+    @Override
+    public VoxelShape getPartShape(BlockState state) {
+        return SHAPES.get(state.getValue(HALF));
     }
 
     @Override

@@ -187,8 +187,17 @@ public class TradingStationBlock extends WaterloggedFlexibleMultiPartBlock<Direc
 
     // Shapes
 
+    /**
+        交易站的底部方块本身就带有上方那一格的轮廓，上方方块则不显示轮廓，
+        因此保持原样，不显示由基类拼出的整体轮廓。
+     */
     @Override
     protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+        return this.getPartShape(state);
+    }
+
+    @Override
+    public VoxelShape getPartShape(BlockState state) {
         if (state.getValue(HALF) == DirectionVertical2PartHalf.TOP) return Shapes.empty();
         return switch (state.getValue(FACING)) {
             case NORTH -> NORTH;
