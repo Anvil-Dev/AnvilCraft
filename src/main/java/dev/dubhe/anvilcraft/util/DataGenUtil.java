@@ -95,34 +95,6 @@ public class DataGenUtil {
                 .build()
         );
     }
-
-    public static <T extends RegistrumBlockstateProvider> void processingTable(
-        DataGenContext<Block, ?> context,
-        T provider
-    ) {
-        String modelPath = switch (context.getId().getPath()) {
-            case "sieving_table" -> "processing_table_sifting";
-            case "unpacking_table" -> "processing_table_unpacking";
-            default -> context.getId().getPath();
-        };
-        ModelFile model = new ModelFile.ExistingModelFile(
-            ResourceLocation.fromNamespaceAndPath(context.getId().getNamespace(), "block/" + modelPath),
-            provider.models().existingFileHelper
-        );
-
-        provider.getVariantBuilder(context.get()).forAllStates(
-            state -> {
-                ConfiguredModel.Builder<?> builder = ConfiguredModel.builder().modelFile(model);
-                if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-                    builder.rotationY(
-                        ((int) state.getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot() + 180) % 360
-                    );
-                }
-                return builder.build();
-            }
-        );
-    }
-
     /// 水平朝向 + ACTIVE 属性的方块 blockstate 生成（如流体接口）
     public static <T extends RegistrumBlockstateProvider> void horizontalFacingWithActive(
         DataGenContext<Block, ?> context,

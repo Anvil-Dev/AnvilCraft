@@ -1,0 +1,10 @@
+{
+  variants: {
+    waterlogged=false: {
+      model: anvilcraft:block/processing_table_sifting
+    },
+    waterlogged=true: {
+      model: anvilcraft:block/processing_table_sifting
+    }
+  }
+}
