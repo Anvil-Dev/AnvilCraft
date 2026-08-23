@@ -1,10 +1,10 @@
 {
-  variants: {
-    waterlogged=false: {
-      model: anvilcraft:block/processing_table_unpacking
+  "variants": {
+    "waterlogged=false": {
+      "model": "anvilcraft:block/processing_table_unpacking"
     },
-    waterlogged=true: {
-      model: anvilcraft:block/processing_table_unpacking
+    "waterlogged=true": {
+      "model": "anvilcraft:block/processing_table_unpacking"
     }
   }
 }
