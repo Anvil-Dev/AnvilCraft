@@ -55,6 +55,8 @@ import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SievingTableBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.UnpackingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
@@ -96,12 +98,12 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlo
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CrushingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ControlValveBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CorruptedBeaconRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeCrateBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeFluidTankBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CreativeGeneratorRenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.CrushingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.DischargerBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.DrainBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ExpCollectorBlockEntityRenderer;
@@ -122,9 +124,11 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.SievingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SpacetimeSupercomputerBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.StampingPlatformBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.UnpackingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TradingStationBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
@@ -526,6 +530,18 @@ public class ModBlockEntities {
         .blockEntity("stamping_platform", StampingPlatformBlockEntity::new)
         .validBlocks(ModBlocks.STAMPING_PLATFORM)
         .renderer(() -> StampingPlatformBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<SievingTableBlockEntity> SIEVING_TABLE = REGISTRUM
+        .blockEntity("sieving_table", SievingTableBlockEntity::new)
+        .validBlocks(ModBlocks.SIEVING_TABLE)
+        .renderer(() -> SievingTableBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<UnpackingTableBlockEntity> UNPACKING_TABLE = REGISTRUM
+        .blockEntity("unpacking_table", UnpackingTableBlockEntity::new)
+        .validBlocks(ModBlocks.UNPACKING_TABLE)
+        .renderer(() -> UnpackingTableBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<ExpCollectorBlockEntity> EXP_COLLECTOR = REGISTRUM

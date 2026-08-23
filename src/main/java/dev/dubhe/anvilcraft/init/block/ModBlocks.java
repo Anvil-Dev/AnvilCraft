@@ -117,6 +117,8 @@ import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSuperBigBlock;
 import dev.dubhe.anvilcraft.block.PropelPistonBlock;
+import dev.dubhe.anvilcraft.block.SievingTableBlock;
+import dev.dubhe.anvilcraft.block.UnpackingTableBlock;
 import dev.dubhe.anvilcraft.block.PulseGeneratorBlock;
 import dev.dubhe.anvilcraft.block.RadioactiveBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
@@ -374,7 +376,13 @@ public class ModBlocks {
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRUM.block("stamping_platform", StampingPlatformBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties.isValidSpawn(Blocks::never))
-        .blockstate(DataGenUtil::horizontalFacingBlock)
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model((context, provider) -> provider.withExistingParent(
+            context.getName(),
+            AnvilCraft.of("block/processing_table")
+        ))
+        .build()
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::stampingPlatform)
@@ -384,9 +392,45 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model((context, provider) -> provider.withExistingParent(
+            context.getName(),
+            AnvilCraft.of("block/processing_table_crushing")
+        ))
+        .build()
         .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::crushingTable)
+        .register();
+
+    public static final BlockEntry<SievingTableBlock> SIEVING_TABLE = REGISTRUM.block("sieving_table", SievingTableBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties.isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::processingTable)
+        .item()
+        .model((context, provider) -> provider.withExistingParent(
+            context.getName(),
+            AnvilCraft.of("block/processing_table_sifting")
+        ))
+        .build()
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::sievingTable)
+        .register();
+
+    public static final BlockEntry<UnpackingTableBlock> UNPACKING_TABLE = REGISTRUM.block("unpacking_table", UnpackingTableBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .properties(properties -> properties.isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::processingTable)
+        .item()
+        .model((context, provider) -> provider.withExistingParent(
+            context.getName(),
+            AnvilCraft.of("block/processing_table_unpacking")
+        ))
+        .build()
+        .simpleItem()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .recipe(RegistrumBlockRecipeLoader::unpackingTable)
         .register();
 
     public static final BlockEntry<FishTankBlock> FISH_TANK = REGISTRUM.block("fish_tank", FishTankBlock::new)

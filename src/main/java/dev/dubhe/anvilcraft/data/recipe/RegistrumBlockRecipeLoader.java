@@ -282,6 +282,30 @@ public class RegistrumBlockRecipeLoader {
             .save(provider, AnvilCraft.of("shaped_crushing_table_recipe"));
     }
 
+    public static <T extends Block> void sievingTable(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("BAB")
+            .pattern("B B")
+            .pattern("B B")
+            .define('A', ModItemTags.IRON_PLATES)
+            .define('B', Tags.Items.INGOTS_IRON)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.IRON_PLATES), AnvilCraftDatagen.has(ModItemTags.IRON_PLATES))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Tags.Items.INGOTS_IRON))
+            .save(provider);
+    }
+
+    public static <T extends Block> void unpackingTable(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("BAB")
+            .pattern("B B")
+            .pattern("B B")
+            .define('A', ModItemTags.IRON_PLATES)
+            .define('B', Tags.Items.INGOTS_IRON)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModItemTags.IRON_PLATES), AnvilCraftDatagen.has(ModItemTags.IRON_PLATES))
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Tags.Items.INGOTS_IRON))
+            .save(provider);
+    }
+
     public static <T extends Block> void fishTank(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("A A")

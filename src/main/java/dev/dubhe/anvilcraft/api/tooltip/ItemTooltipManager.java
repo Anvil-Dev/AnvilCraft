@@ -509,6 +509,8 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.LARGE_CAULDRON.asItem(), "An extremely huge cauldron");
         NORMAL.put(ModBlocks.STAMPING_PLATFORM.asItem(), "Perform stamping recipes");
         NORMAL.put(ModBlocks.CRUSHING_TABLE.asItem(), "Perform crushing recipes");
+        NORMAL.put(ModBlocks.SIEVING_TABLE.asItem(), "Perform sieving recipes");
+        NORMAL.put(ModBlocks.UNPACKING_TABLE.asItem(), "Perform unpacking recipes");
         NORMAL.put(
             ModBlocks.JEWEL_CRAFTING_TABLE.asItem(), """
                 A crafting station for rare items

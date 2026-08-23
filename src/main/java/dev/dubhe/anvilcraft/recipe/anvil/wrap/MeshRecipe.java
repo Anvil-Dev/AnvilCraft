@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.recipe.anvil.wrap;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import lombok.Getter;
 import net.minecraft.core.Vec3i;
@@ -41,6 +42,8 @@ public class MeshRecipe extends AbstractProcessRecipe<MeshRecipe> {
                 .setInputBlocks(
                     BlockStatePredicate.builder()
                         .of(Blocks.SCAFFOLDING)
+                        .or()
+                        .of(ModBlocks.SIEVING_TABLE.get())
                         .build()
                 )
         );

@@ -15,9 +15,6 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.TrapDoorBlock;
-import net.minecraft.world.level.block.state.properties.Half;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.Arrays;
@@ -58,9 +55,7 @@ public class UnpackRecipe extends AbstractProcessRecipe<UnpackRecipe> {
             .setBlockInputOffset(new Vec3i(0, -1, 0))
             .setInputBlocks(
                 BlockStatePredicate.builder()
-                    .of(Blocks.IRON_TRAPDOOR)
-                    .with(TrapDoorBlock.HALF, Half.TOP)
-                    .with(TrapDoorBlock.OPEN, false)
+                    .of(ModBlocks.UNPACKING_TABLE.get())
                     .build()
             );
 
