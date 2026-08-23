@@ -169,7 +169,7 @@ public class StampingPlatformBlock extends Block implements
     public Vec3 getOffset(Level level, BlockPos pos, BlockState state) {
         if (!(state.getBlock() instanceof StampingPlatformBlock)) return Vec3.ZERO;
         Vec3i normal = state.getValue(FACING).getNormal();
-        return new Vec3(normal.getX(), normal.getY() - 0.5F, normal.getZ()).scale(0.55);
+        return new Vec3(normal.getX(), normal.getY() - 0.5F, normal.getZ()).scale(0.6);
     }
 
     @Override

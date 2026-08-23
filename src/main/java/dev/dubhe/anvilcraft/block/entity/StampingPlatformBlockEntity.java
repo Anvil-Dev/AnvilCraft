@@ -30,8 +30,8 @@ import java.util.List;
  */
 @Getter
 public class StampingPlatformBlockEntity extends BlockEntity implements IItemHandlerHolder, IItemHandlerCache {
-    public static final int INPUT_SLOTS = 2;
-    public static final int OUTPUT_SLOTS = 4;
+    public static final int INPUT_SLOTS = 8;
+    public static final int OUTPUT_SLOTS = 8;
 
     private final ItemStackHandler input = new ItemStackHandler(INPUT_SLOTS) {
         @Override
@@ -228,7 +228,15 @@ public class StampingPlatformBlockEntity extends BlockEntity implements IItemHan
         super.loadAdditional(tag, registries);
         this.input.deserializeNBT(registries, tag.getCompound("Inputs"));
         this.output.deserializeNBT(registries, tag.getCompound("Outputs"));
-        this.input.setSize(INPUT_SLOTS);
-        this.output.setSize(OUTPUT_SLOTS);
+        if (this.input.getSlots() != INPUT_SLOTS) {
+            List<ItemStack> items = ItemHandlerUtil.getNonEmptyItemsFromHandler(this.input);
+            this.input.setSize(INPUT_SLOTS);
+            for (ItemStack item : items) this.input.insertItem(0, item, false);
+        }
+        if (this.output.getSlots() != OUTPUT_SLOTS) {
+            List<ItemStack> items = ItemHandlerUtil.getNonEmptyItemsFromHandler(this.output);
+            this.output.setSize(OUTPUT_SLOTS);
+            for (ItemStack item : items) this.output.insertItem(0, item, false);
+        }
     }
 }
