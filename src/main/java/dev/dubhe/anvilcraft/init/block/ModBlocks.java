@@ -117,8 +117,6 @@ import dev.dubhe.anvilcraft.block.PowerConverterMiddleBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSmallBlock;
 import dev.dubhe.anvilcraft.block.PowerConverterSuperBigBlock;
 import dev.dubhe.anvilcraft.block.PropelPistonBlock;
-import dev.dubhe.anvilcraft.block.SievingTableBlock;
-import dev.dubhe.anvilcraft.block.UnpackingTableBlock;
 import dev.dubhe.anvilcraft.block.PulseGeneratorBlock;
 import dev.dubhe.anvilcraft.block.RadioactiveBlock;
 import dev.dubhe.anvilcraft.block.RedstoneWireBlock;
@@ -132,6 +130,7 @@ import dev.dubhe.anvilcraft.block.RoyalGrindstoneBlock;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.RubyLaserBlock;
 import dev.dubhe.anvilcraft.block.RubyPrismBlock;
+import dev.dubhe.anvilcraft.block.SievingTableBlock;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.SimpleConfinementAnvilonBlock;
 import dev.dubhe.anvilcraft.block.SimpleMagneticChuteBlock;
@@ -153,6 +152,7 @@ import dev.dubhe.anvilcraft.block.TranscendenceSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.TranscendiumBlock;
 import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.TransparentCraftingTableBlock;
+import dev.dubhe.anvilcraft.block.UnpackingTableBlock;
 import dev.dubhe.anvilcraft.block.VoidEnergyCollectorBlock;
 import dev.dubhe.anvilcraft.block.VoidMatterBlock;
 import dev.dubhe.anvilcraft.block.WhiteHoleBlock;
@@ -383,7 +383,6 @@ public class ModBlocks {
             AnvilCraft.of("block/processing_table")
         ))
         .build()
-        .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::stampingPlatform)
         .register();
@@ -398,7 +397,6 @@ public class ModBlocks {
             AnvilCraft.of("block/processing_table_crushing")
         ))
         .build()
-        .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::crushingTable)
         .register();
@@ -406,14 +404,13 @@ public class ModBlocks {
     public static final BlockEntry<SievingTableBlock> SIEVING_TABLE = REGISTRUM.block("sieving_table", SievingTableBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties.isValidSpawn(Blocks::never))
-        .blockstate(DataGenUtil::processingTable)
+        .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .model((context, provider) -> provider.withExistingParent(
             context.getName(),
             AnvilCraft.of("block/processing_table_sifting")
         ))
         .build()
-        .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::sievingTable)
         .register();
@@ -421,14 +418,13 @@ public class ModBlocks {
     public static final BlockEntry<UnpackingTableBlock> UNPACKING_TABLE = REGISTRUM.block("unpacking_table", UnpackingTableBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
         .properties(properties -> properties.isValidSpawn(Blocks::never))
-        .blockstate(DataGenUtil::processingTable)
+        .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .model((context, provider) -> provider.withExistingParent(
             context.getName(),
             AnvilCraft.of("block/processing_table_unpacking")
         ))
         .build()
-        .simpleItem()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::unpackingTable)
         .register();
