@@ -18,7 +18,6 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                     AnvilCraft.of("textures/gui/creative_inventory/section/building_blocks/materials.png")
                 )
-                .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .text(Component.translatable("anvilcraft.creative.section.building_blocks.materials"))
                 .build(),
             content -> {
@@ -114,7 +113,6 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                     AnvilCraft.of("textures/gui/creative_inventory/section/building_blocks/resources.png")
                 )
-                .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .text(Component.translatable("anvilcraft.creative.section.building_blocks.resources"))
                 .build(),
             content -> {
@@ -150,7 +148,6 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                 AnvilCraft.of("textures/gui/creative_inventory/section/building_blocks/concrete.png")
             )
-            .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
             .text(Component.translatable("anvilcraft.creative.section.building_blocks.concrete"))
             .build(),
             content -> {
@@ -172,7 +169,6 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                 AnvilCraft.of("textures/gui/creative_inventory/section/building_blocks/foods.png")
             )
-            .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
             .text(Component.translatable("anvilcraft.creative.section.building_blocks.foods"))
             .build(),
             content -> {
@@ -199,7 +195,6 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                 AnvilCraft.of("textures/gui/creative_inventory/section/building_blocks/special.png")
             )
-            .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
             .text(Component.translatable("anvilcraft.creative.section.building_blocks.special"))
             .build(),
             content -> {
