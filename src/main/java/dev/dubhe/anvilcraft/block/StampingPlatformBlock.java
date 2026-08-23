@@ -1,10 +1,21 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.recipe.util.IRecipeResultOffsetBlock;
+import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
+import dev.dubhe.anvilcraft.block.entity.StampingPlatformBlockEntity;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -13,6 +24,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -21,26 +33,54 @@ import net.minecraft.world.level.block.state.properties.DirectionProperty;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.items.IItemHandler;
+import org.jetbrains.annotations.Nullable;
 
-public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlock, IHammerRemovable, IRecipeResultOffsetBlock {
+public class StampingPlatformBlock extends Block implements
+    SimpleWaterloggedBlock, IHammerRemovable, IRecipeResultOffsetBlock, IMoveableEntityBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    private static final VoxelShape REDUCE_AABB = Shapes.or(
+    private static final VoxelShape NORTH_REDUCE_AABB = Shapes.or(
         Block.box(2.0, 12.0, 2.0, 14.0, 16.0, 14.0),
         Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
         Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
-        Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0));
-    private static final VoxelShape REDUCE_AABB_INTERACTION = Shapes.or(
+        Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0),
+        Block.box(4.0, 10.0, 0.0, 12.0, 12.0, 2.0));
+    private static final VoxelShape SOUTH_REDUCE_AABB = ShapeUtil.rotate(Direction.Axis.Y, 180, NORTH_REDUCE_AABB);
+    private static final VoxelShape WEST_REDUCE_AABB = ShapeUtil.rotate(Direction.Axis.Y, 90, NORTH_REDUCE_AABB);
+    private static final VoxelShape EAST_REDUCE_AABB = ShapeUtil.rotate(Direction.Axis.Y, 270, NORTH_REDUCE_AABB);
+
+    private static final VoxelShape NORTH_REDUCE_AABB_INTERACTION = Shapes.or(
         Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
         Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
         Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0));
-    private static final VoxelShape AABB = Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.ONLY_FIRST);
-    private static final VoxelShape INTERACTION_BOX = Shapes.join(Shapes.block(), REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape SOUTH_REDUCE_AABB_INTERACTION =
+        ShapeUtil.rotate(Direction.Axis.Y, 180, NORTH_REDUCE_AABB_INTERACTION);
+    private static final VoxelShape WEST_REDUCE_AABB_INTERACTION =
+        ShapeUtil.rotate(Direction.Axis.Y, 90, NORTH_REDUCE_AABB_INTERACTION);
+    private static final VoxelShape EAST_REDUCE_AABB_INTERACTION =
+        ShapeUtil.rotate(Direction.Axis.Y, 270, NORTH_REDUCE_AABB_INTERACTION);
+
+    private static final VoxelShape AABB = Shapes.join(Shapes.block(), NORTH_REDUCE_AABB, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape SOUTH_AABB = Shapes.join(Shapes.block(), SOUTH_REDUCE_AABB, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape WEST_AABB = Shapes.join(Shapes.block(), WEST_REDUCE_AABB, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape EAST_AABB = Shapes.join(Shapes.block(), EAST_REDUCE_AABB, BooleanOp.ONLY_FIRST);
+
+    private static final VoxelShape INTERACTION_BOX =
+        Shapes.join(Shapes.block(), NORTH_REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape SOUTH_INTERACTION_BOX =
+        Shapes.join(Shapes.block(), SOUTH_REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape WEST_INTERACTION_BOX =
+        Shapes.join(Shapes.block(), WEST_REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape EAST_INTERACTION_BOX =
+        Shapes.join(Shapes.block(), EAST_REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
 
     public StampingPlatformBlock(Properties properties) {
         super(properties);
@@ -65,12 +105,22 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
         BlockPos blockPos,
         CollisionContext collisionContext
     ) {
-        return AABB;
+        return switch (blockState.getValue(FACING)) {
+            case SOUTH -> SOUTH_AABB;
+            case WEST -> WEST_AABB;
+            case EAST -> EAST_AABB;
+            default -> AABB;
+        };
     }
 
     @Override
     protected VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return INTERACTION_BOX;
+        return switch (state.getValue(FACING)) {
+            case SOUTH -> SOUTH_INTERACTION_BOX;
+            case WEST -> WEST_INTERACTION_BOX;
+            case EAST -> EAST_INTERACTION_BOX;
+            default -> INTERACTION_BOX;
+        };
     }
 
     @Override
@@ -87,6 +137,39 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
         state = null != state ? state : this.defaultBlockState();
         Direction facing = context.getHorizontalDirection().getOpposite();
         return state.setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER).setValue(FACING, facing);
+    }
+
+    @Override
+    protected ItemInteractionResult useItemOn(
+        ItemStack stack,
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Player player,
+        InteractionHand hand,
+        BlockHitResult hitResult
+    ) {
+        if (level.getBlockEntity(pos) instanceof StampingPlatformBlockEntity platform
+            && platform.tryInteractItems(player, hand)
+        ) {
+            return ItemInteractionResult.sidedSuccess(level.isClientSide());
+        }
+        return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+    }
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return ModBlockEntities.STAMPING_PLATFORM.create(pos, state);
+    }
+
+    @Override
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        if (!level.isClientSide() && !state.is(newState.getBlock()) && !movedByPiston) {
+            if (level.getBlockEntity(pos) instanceof StampingPlatformBlockEntity platform) {
+                platform.dropAllContent(level, pos);
+            }
+        }
+        super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
     @Override
@@ -120,7 +203,23 @@ public class StampingPlatformBlock extends Block implements SimpleWaterloggedBlo
     public Vec3 getOffset(Level level, BlockPos pos, BlockState state) {
         if (!(state.getBlock() instanceof StampingPlatformBlock)) return Vec3.ZERO;
         Vec3i normal = state.getValue(FACING).getNormal();
-        return new Vec3(normal.getX(), normal.getY(), normal.getZ()).scale(0.7);
+        return new Vec3(normal.getX(), normal.getY() - 0.3F, normal.getZ()).scale(0.5);
+    }
+
+    @Override
+    protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+        if (level.isClientSide()) return;
+        if (!(entity instanceof ItemEntity itemEntity)) return;
+        if (!itemEntity.anvilcraft$isAdsorbable()) return;
+        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
+        ItemStack stack = itemEntity.getItem();
+        ItemStack remaining = ItemHandlerUtil.insertItem(handler, stack.copy(), false);
+        if (remaining.getCount() == stack.getCount()) return;
+        if (remaining.isEmpty()) {
+            itemEntity.discard();
+        } else {
+            itemEntity.setItem(remaining);
+        }
     }
 
     @Override

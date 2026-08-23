@@ -110,6 +110,10 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.energy_weapon", "Energy Weapon");
 
         provider.add("jei.anvilcraft.tooltip.not_consumed", "Not Consumed");
+        provider.add(
+            "jei.anvilcraft.tooltip.stamping.templates",
+            "Requires %s different smithing templates"
+        );
 
         provider.add("gui.anvilcraft.category.anvil_collision", "Anvil Collision");
         provider.add("gui.anvilcraft.category.anvil_collision.maxcount", "Max Count: %s");
