@@ -51,13 +51,13 @@ final class CfaSearchController {
                 owner.isAmplify(),
                 level.getRandom()
             ) == null) {
-            this.stop(true, false);
+            this.stopAndUnlock(owner, true, false);
             sync(owner);
             return;
         }
 
         if (!hasEnoughPower(owner)) {
-            this.stop(false, true);
+            this.stopAndUnlock(owner, false, true);
             sync(owner);
             return;
         }
@@ -79,7 +79,7 @@ final class CfaSearchController {
         }
         if (this.ticksRemaining <= 0) return;
         if (!enoughPower) {
-            this.stop(false, true);
+            this.stopAndUnlock(owner, false, true);
             sync(owner);
             return;
         }
@@ -312,6 +312,15 @@ final class CfaSearchController {
         this.capturedSeedItem = null;
         this.capturedSeedStack = null;
         this.capturedSnapshot = null;
+    }
+
+    private void stopAndUnlock(
+        CelestialForgingAnvilBlockEntity owner,
+        boolean failed,
+        boolean powerInsufficient
+    ) {
+        this.stop(failed, powerInsufficient);
+        owner.clearSearchLock();
     }
 
     private static void sync(CelestialForgingAnvilBlockEntity owner) {

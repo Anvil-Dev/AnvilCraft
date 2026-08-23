@@ -487,6 +487,10 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         return this.searchController.isPowerInsufficient();
     }
 
+    void clearSearchLock() {
+        this.locked = false;
+    }
+
     /** Marks search state dirty and sends the small block-entity update used by the CFA screen. */
     void markSearchStateChanged() {
         this.setChanged();
@@ -502,6 +506,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             supernovaFlashTicks--;
         }
         this.searchController.serverTick(this);
+        if (this.locked && !this.isAcceleratorActive() && !this.isSearching() && this.celestialBodyData == null) {
+            /// 锁定状态必须绑定有效天体；兼容清理旧版本断电后遗留的锁定状态。
+            this.clearSearchLock();
+            this.markSearchStateChanged();
+        }
 
         /// 管理恒星引力源
         this.updateGravitySource();
@@ -1120,6 +1129,13 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         if (level == null || level.isClientSide()) return;
         if (isAcceleratorActive()) {
             /// 星体演化期间无法解锁
+            return;
+        }
+        if (!this.locked && !this.isSearching() && (this.isSearchFailed()
+            || this.celestialBodyData == null)) {
+            /// 搜索未产生有效结果时拒绝迟到的锁定请求，并同步清理客户端的乐观状态。
+            this.setChanged();
+            level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
             return;
         }
         this.locked = !this.locked;
