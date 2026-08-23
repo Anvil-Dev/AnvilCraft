@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.block;
 
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.anvilcraft.lib.v2.recipe.util.IRecipeResultOffsetBlock;
+import dev.anvilcraft.lib.v2.util.ShapeUtil;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.StampingPlatformBlockEntity;
@@ -46,18 +47,40 @@ public class StampingPlatformBlock extends Block implements
     SimpleWaterloggedBlock, IHammerRemovable, IRecipeResultOffsetBlock, IMoveableEntityBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     public static final DirectionProperty FACING = BlockStateProperties.HORIZONTAL_FACING;
-    private static final VoxelShape REDUCE_AABB = Shapes.or(
+    private static final VoxelShape NORTH_REDUCE_AABB = Shapes.or(
         Block.box(2.0, 12.0, 2.0, 14.0, 16.0, 14.0),
         Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
         Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
         Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0),
         Block.box(4.0, 10.0, 0.0, 12.0, 12.0, 2.0));
-    private static final VoxelShape REDUCE_AABB_INTERACTION = Shapes.or(
+    private static final VoxelShape SOUTH_REDUCE_AABB = ShapeUtil.rotate(Direction.Axis.Y, 180, NORTH_REDUCE_AABB);
+    private static final VoxelShape WEST_REDUCE_AABB = ShapeUtil.rotate(Direction.Axis.Y, 90, NORTH_REDUCE_AABB);
+    private static final VoxelShape EAST_REDUCE_AABB = ShapeUtil.rotate(Direction.Axis.Y, 270, NORTH_REDUCE_AABB);
+
+    private static final VoxelShape NORTH_REDUCE_AABB_INTERACTION = Shapes.or(
         Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
         Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
         Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0));
-    private static final VoxelShape AABB = Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.ONLY_FIRST);
-    private static final VoxelShape INTERACTION_BOX = Shapes.join(Shapes.block(), REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape SOUTH_REDUCE_AABB_INTERACTION =
+        ShapeUtil.rotate(Direction.Axis.Y, 180, NORTH_REDUCE_AABB_INTERACTION);
+    private static final VoxelShape WEST_REDUCE_AABB_INTERACTION =
+        ShapeUtil.rotate(Direction.Axis.Y, 90, NORTH_REDUCE_AABB_INTERACTION);
+    private static final VoxelShape EAST_REDUCE_AABB_INTERACTION =
+        ShapeUtil.rotate(Direction.Axis.Y, 270, NORTH_REDUCE_AABB_INTERACTION);
+
+    private static final VoxelShape AABB = Shapes.join(Shapes.block(), NORTH_REDUCE_AABB, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape SOUTH_AABB = Shapes.join(Shapes.block(), SOUTH_REDUCE_AABB, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape WEST_AABB = Shapes.join(Shapes.block(), WEST_REDUCE_AABB, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape EAST_AABB = Shapes.join(Shapes.block(), EAST_REDUCE_AABB, BooleanOp.ONLY_FIRST);
+
+    private static final VoxelShape INTERACTION_BOX =
+        Shapes.join(Shapes.block(), NORTH_REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape SOUTH_INTERACTION_BOX =
+        Shapes.join(Shapes.block(), SOUTH_REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape WEST_INTERACTION_BOX =
+        Shapes.join(Shapes.block(), WEST_REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape EAST_INTERACTION_BOX =
+        Shapes.join(Shapes.block(), EAST_REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
 
     public StampingPlatformBlock(Properties properties) {
         super(properties);
@@ -82,12 +105,22 @@ public class StampingPlatformBlock extends Block implements
         BlockPos blockPos,
         CollisionContext collisionContext
     ) {
-        return AABB;
+        return switch (blockState.getValue(FACING)) {
+            case SOUTH -> SOUTH_AABB;
+            case WEST -> WEST_AABB;
+            case EAST -> EAST_AABB;
+            default -> AABB;
+        };
     }
 
     @Override
     protected VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return INTERACTION_BOX;
+        return switch (state.getValue(FACING)) {
+            case SOUTH -> SOUTH_INTERACTION_BOX;
+            case WEST -> WEST_INTERACTION_BOX;
+            case EAST -> EAST_INTERACTION_BOX;
+            default -> INTERACTION_BOX;
+        };
     }
 
     @Override
