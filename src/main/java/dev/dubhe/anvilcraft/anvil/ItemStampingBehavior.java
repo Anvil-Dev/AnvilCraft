@@ -1,9 +1,9 @@
 package dev.dubhe.anvilcraft.anvil;
 
+import dev.anvilcraft.lib.v2.recipe.util.IRecipeResultOffsetBlock;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
-import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.StampingPlatformBlockEntity;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.StampingUniqueItemsRecipe;
@@ -97,26 +97,21 @@ public class ItemStampingBehavior implements IAnvilBehavior {
         Level level,
         Object2IntMap<Item> results
     ) {
-        IItemHandler outputHandler = platform.getOutput();
-        Vec3 resultPos = platform.getBlockPos().getCenter();
-        List<ItemStack> overflow = new ArrayList<>();
+        List<ItemStack> stacks = new ArrayList<>();
         for (Object2IntMap.Entry<Item> entry : results.object2IntEntrySet()) {
             int count = entry.getIntValue();
             int maxStackSize = entry.getKey().getDefaultMaxStackSize();
             while (count > 0) {
-                ItemStack stack = new ItemStack(entry.getKey(), Math.min(count, maxStackSize));
-                ItemStack rest = ItemHandlerUtil.insertItem(outputHandler, stack, false);
-                int inserted = stack.getCount() - rest.getCount();
-                count -= inserted;
-                if (inserted == 0) {
-                    stack.setCount(count);
-                    overflow.add(stack);
-                    break;
-                }
+                int stackCount = Math.min(count, maxStackSize);
+                stacks.add(new ItemStack(entry.getKey(), stackCount));
+                count -= stackCount;
             }
         }
-        if (!overflow.isEmpty()) {
-            AnvilUtil.dropItems(overflow, level, resultPos);
+        BlockPos pos = platform.getBlockPos();
+        BlockState state = level.getBlockState(pos);
+        if (state.getBlock() instanceof IRecipeResultOffsetBlock offsetBlock) {
+            Vec3 resultPos = pos.getCenter().add(offsetBlock.getOffset(level, pos, state));
+            AnvilUtil.dropItems(stacks, level, resultPos);
         }
     }
 

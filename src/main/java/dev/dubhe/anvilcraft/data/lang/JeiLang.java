@@ -112,7 +112,7 @@ public class JeiLang {
         provider.add("jei.anvilcraft.tooltip.not_consumed", "Not Consumed");
         provider.add(
             "jei.anvilcraft.tooltip.stamping.templates",
-            "Requires eight different smithing templates"
+            "Requires %s different smithing templates"
         );
 
         provider.add("gui.anvilcraft.category.anvil_collision", "Anvil Collision");

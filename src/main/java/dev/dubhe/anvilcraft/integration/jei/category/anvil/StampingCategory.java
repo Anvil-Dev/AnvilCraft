@@ -23,7 +23,7 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
-import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
@@ -66,10 +66,7 @@ public class StampingCategory extends AbstractProgressCategory<StampingRecipe> {
             .map(template -> template.copyWithCount(requiredCount))
             .toList();
         builder.addSlot(RecipeIngredientRole.INPUT, JeiSlotUtil.INPUT_X, JeiSlotUtil.DEFAULT_Y)
-            .addItemStacks(templates)
-            .addRichTooltipCallback((slotView, tooltip) -> tooltip.add(Component.translatable(
-                "jei.anvilcraft.tooltip.stamping.templates"
-            ).withStyle(ChatFormatting.GOLD)));
+            .addItemStacks(templates);
         JeiItemUtil.addDefaultOutputSlots(builder, recipeHolder.value().getResultItems());
     }
 
@@ -98,6 +95,18 @@ public class StampingCategory extends AbstractProgressCategory<StampingRecipe> {
 
         if (getMultipleToOneCount(recipeHolder) != null) {
             slotDefault.draw(guiGraphics, JeiSlotUtil.INPUT_X - 1, JeiSlotUtil.DEFAULT_Y - 1);
+            Component text = Component.translatable(
+                "jei.anvilcraft.tooltip.stamping.templates",
+                getMultipleToOneCount(recipeHolder)
+            );
+            guiGraphics.drawString(
+                Minecraft.getInstance().font,
+                text,
+                (AbstractProgressCategory.WIDTH - Minecraft.getInstance().font.width(text)) / 2,
+                AbstractProgressCategory.HEIGHT - 10,
+                0xFF555555,
+                false
+            );
         } else {
             JeiSlotUtil.drawDefaultInputSlots(guiGraphics, slotDefault, recipe.getInputItems().size());
         }

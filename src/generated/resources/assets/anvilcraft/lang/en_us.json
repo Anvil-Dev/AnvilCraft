@@ -1179,7 +1179,7 @@
   "itemGroup.anvilcraft.items": "AnvilCraft: Items",
   "itemGroup.anvilcraft.tools_and_utilities": "AnvilCraft: Tools and Utilities",
   "jei.anvilcraft.tooltip.not_consumed": "Not Consumed",
-  "jei.anvilcraft.tooltip.stamping.templates": "Requires eight different smithing templates",
+  "jei.anvilcraft.tooltip.stamping.templates": "Requires %s different smithing templates",
   "key.anvilcraft.switch_phase": "Switch Phase",
   "key.anvilcraft.switch_tool_mode": "Switch Tool Mode",
   "key.anvilcraft.thought": "Thought",

@@ -55,6 +55,9 @@ public class CrushingTableBlockEntity extends BlockEntity implements IItemHandle
                 int rejectedCount = remaining.getCount() + stack.getCount() - acceptable.getCount();
                 return rejectedCount == 0 ? ItemStack.EMPTY : stack.copyWithCount(rejectedCount);
             }
+            if (remaining.isEmpty()) {
+                return stack.copyWithCount(stack.getCount() - acceptable.getCount());
+            }
             remaining.grow(stack.getCount() - acceptable.getCount());
             return remaining;
         }

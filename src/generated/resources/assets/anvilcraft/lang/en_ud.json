@@ -1179,7 +1179,7 @@
   "itemGroup.anvilcraft.items": "sɯǝʇI :ʇɟɐɹƆꞁᴉʌuⱯ",
   "itemGroup.anvilcraft.tools_and_utilities": "sǝᴉʇᴉꞁᴉʇ∩ puɐ sꞁoo⟘ :ʇɟɐɹƆꞁᴉʌuⱯ",
   "jei.anvilcraft.tooltip.not_consumed": "pǝɯnsuoƆ ʇoN",
-  "jei.anvilcraft.tooltip.stamping.templates": "sǝʇɐꞁdɯǝʇ ᵷuᴉɥʇᴉɯs ʇuǝɹǝɟɟᴉp ʇɥᵷᴉǝ sǝɹᴉnbǝᴚ",
+  "jei.anvilcraft.tooltip.stamping.templates": "sǝʇɐꞁdɯǝʇ ᵷuᴉɥʇᴉɯs ʇuǝɹǝɟɟᴉp %s sǝɹᴉnbǝᴚ",
   "key.anvilcraft.switch_phase": "ǝsɐɥԀ ɥɔʇᴉʍS",
   "key.anvilcraft.switch_tool_mode": "ǝpoW ꞁoo⟘ ɥɔʇᴉʍS",
   "key.anvilcraft.thought": "ʇɥᵷnoɥ⟘",
