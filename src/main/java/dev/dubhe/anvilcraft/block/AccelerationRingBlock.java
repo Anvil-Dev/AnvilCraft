@@ -215,15 +215,11 @@ public class AccelerationRingBlock extends WaterloggedFlexibleMultiPartBlock<Dir
         if (context.isHoldingItem(state.getBlock().asItem()) || context.isHoldingItem(ModBlocks.DEFLECTION_RING.asItem())) {
             return Shapes.block();
         }
-        return getPreciseShape(state);
+        return super.getShape(state, level, pos, context);
     }
 
     @Override
-    protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        return getPreciseShape(state);
-    }
-
-    private static VoxelShape getPreciseShape(BlockState state) {
+    public VoxelShape getPartShape(BlockState state) {
         Direction.Axis axis = state.getValue(FACING).getAxis();
         if (isChannelPart(state.getValue(HALF), axis)) return Shapes.empty();
         return COLLISION_SHAPES.get(axis).get(state.getValue(HALF));

@@ -1344,6 +1344,7 @@ public class ModBlocks {
         .block("large_laser", LargeLaserBlock::new)
         .initialProperties(RUBY_LASER::get)
         .properties(properties -> properties
+            .forceSolidOn()
             .isSuffocating(ModBlocks::never)
             .noOcclusion()
             .isValidSpawn(Blocks::never)

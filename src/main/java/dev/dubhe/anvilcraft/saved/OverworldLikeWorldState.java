@@ -28,6 +28,7 @@ public class OverworldLikeWorldState extends SavedData {
     private long collapseStartedAt = -1L;
     private long nextGenerationSeed;
     private boolean collapseDamageIssued;
+    private boolean generationRequestedByEntry;
     private final Set<UUID> pendingForcedRespawns = new HashSet<>();
     private final Set<UUID> knownOverworldLikePlayers = new HashSet<>();
     private long eclipseCalculatedAt = Long.MIN_VALUE;
@@ -54,6 +55,7 @@ public class OverworldLikeWorldState extends SavedData {
         state.collapseStartedAt = tag.contains("collapseStartedAt") ? tag.getLong("collapseStartedAt") : -1L;
         state.nextGenerationSeed = tag.getLong("nextGenerationSeed");
         state.collapseDamageIssued = tag.getBoolean("collapseDamageIssued");
+        state.generationRequestedByEntry = tag.getBoolean("generationRequestedByEntry");
         ListTag pending = tag.getList("pendingForcedRespawns", Tag.TAG_COMPOUND);
         for (int index = 0; index < pending.size(); index++) {
             CompoundTag player = pending.getCompound(index);
@@ -81,6 +83,7 @@ public class OverworldLikeWorldState extends SavedData {
         collapseStartedAt = -1L;
         nextGenerationSeed = manifest.nextSeed();
         collapseDamageIssued = false;
+        generationRequestedByEntry = false;
         knownOverworldLikePlayers.clear();
         eclipseCalculatedAt = Long.MIN_VALUE;
         setDirty();
@@ -145,6 +148,7 @@ public class OverworldLikeWorldState extends SavedData {
         collapseStartedAt = gameTime;
         nextGenerationSeed = nextSeed;
         collapseDamageIssued = false;
+        generationRequestedByEntry = false;
         setDirty();
         return true;
     }
@@ -159,6 +163,19 @@ public class OverworldLikeWorldState extends SavedData {
         if (phase == Phase.RESET_PENDING) return;
         phase = Phase.RESET_PENDING;
         setDirty();
+    }
+
+    public boolean requestGenerationByEntry() {
+        if (phase != Phase.RESET_PENDING) return false;
+        if (!generationRequestedByEntry) {
+            generationRequestedByEntry = true;
+            setDirty();
+        }
+        return true;
+    }
+
+    public boolean isGenerationRequestedByEntry() {
+        return generationRequestedByEntry;
     }
 
     public void addPendingForcedRespawn(UUID playerId) {
@@ -195,6 +212,7 @@ public class OverworldLikeWorldState extends SavedData {
         tag.putLong("collapseStartedAt", collapseStartedAt);
         tag.putLong("nextGenerationSeed", nextGenerationSeed);
         tag.putBoolean("collapseDamageIssued", collapseDamageIssued);
+        tag.putBoolean("generationRequestedByEntry", generationRequestedByEntry);
         ListTag pending = new ListTag();
         for (UUID playerId : pendingForcedRespawns) {
             CompoundTag player = new CompoundTag();

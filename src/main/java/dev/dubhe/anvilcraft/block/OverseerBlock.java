@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Vertical3PartHalf;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -21,7 +20,6 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.pathfinder.PathComputationType;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.Nullable;
@@ -30,9 +28,9 @@ public class OverseerBlock
     extends SimpleMultiPartBlock<Vertical3PartHalf>
     implements IHammerRemovable, IHasMultiBlock, EntityBlock {
     private static final VoxelShape OVERSEER_BOTTOM =
-        Shapes.or(Block.box(0, 0, 0, 16, 4, 16), Block.box(2, 8, 2, 14, 48, 14));
-    private static final VoxelShape OVERSEER_MID = OVERSEER_BOTTOM.move(0, -1, 0);
-    private static final VoxelShape OVERSEER_TOP = OVERSEER_BOTTOM.move(0, -2, 0);
+        Shapes.or(Block.box(0, 0, 0, 16, 4, 16), Block.box(2, 8, 2, 14, 16, 14));
+    private static final VoxelShape OVERSEER_MID = Block.box(2, 0, 2, 14, 16, 14);
+    private static final VoxelShape OVERSEER_TOP = Block.box(2, 0, 2, 14, 16, 14);
     public static final int MAX_LEVEL = 4;
     public static final EnumProperty<Vertical3PartHalf> HALF = EnumProperty.create("half", Vertical3PartHalf.class);
     public static final IntegerProperty LEVEL = IntegerProperty.create("level", 0, MAX_LEVEL);
@@ -77,12 +75,7 @@ public class OverseerBlock
     }
 
     @Override
-    public VoxelShape getShape(
-        BlockState state,
-        BlockGetter level,
-        BlockPos pos,
-        CollisionContext context
-    ) {
+    public VoxelShape getPartShape(BlockState state) {
         return switch (state.getValue(HALF)) {
             case TOP -> OVERSEER_TOP;
             case MID -> OVERSEER_MID;

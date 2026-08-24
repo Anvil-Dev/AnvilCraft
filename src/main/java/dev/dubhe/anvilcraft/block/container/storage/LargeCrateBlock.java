@@ -32,7 +32,6 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
@@ -131,7 +130,7 @@ public class LargeCrateBlock
 
     // region VoxelShapes
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getPartShape(BlockState state) {
         return switch (state.getValue(HALF)) {
             case BOTTOM_CENTER -> BOTTOM_CENTER;
             case BOTTOM_W -> BOTTOM_W;

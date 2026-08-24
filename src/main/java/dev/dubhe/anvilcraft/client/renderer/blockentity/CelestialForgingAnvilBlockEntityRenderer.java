@@ -131,6 +131,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         "block/celestial_body/black_hole"
     ));
     private static final float PLAYER_HEAD_SCALE = 16.0f;
+    private static final float PLAYER_HEAD_HALF_HEIGHT = 0.25f;
 
     private final BlockRenderDispatcher blockRenderer;
     private final BlockState whiteConcrete = Blocks.WHITE_CONCRETE.defaultBlockState();
@@ -150,6 +151,18 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
 
     private static float bodyScale(CelestialBodyData data) {
         return data.bodyScale();
+    }
+
+    private static float playerHeadCenterY(
+        SpecialCelestialBodyData playerHead,
+        boolean isAmplify,
+        float bodyScaleMultiplier,
+        float animationProgress
+    ) {
+        float initialHeadScale = bodyScale(playerHead) * PLAYER_HEAD_SCALE;
+        float currentHeadScale = bodyScaleMultiplier * PLAYER_HEAD_SCALE;
+        float baseCenterY = isAmplify ? 6.5f : 4.5f;
+        return baseCenterY + (currentHeadScale - initialHeadScale) * animationProgress * PLAYER_HEAD_HALF_HEIGHT;
     }
 
     @Override
@@ -466,9 +479,13 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (canRender) {
             renderTractorBeam(beamHeight, animProgress, poseStack, multiBufferSource);
             /// 天体缩放完全由 StarData.size() 驱动，坍缩期间通过 applyCollapseColor() 缩小 —— 无需额外的 pose 缩放。
+            float bodyCenterY = centerY;
+            if (effectiveBodyData instanceof SpecialCelestialBodyData special && special.isPlayerHead()) {
+                bodyCenterY = playerHeadCenterY(special, isAmplify, bodyScaleMultiplier, animProgress);
+            }
             renderCelestialBody(
                 effectiveBodyData,
-                centerY,
+                bodyCenterY,
                 bodyRotation,
                 poseStack,
                 multiBufferSource,
@@ -1633,9 +1650,11 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         BlockState state = blockEntity.getBlockState();
         CelestialBodyData body = blockEntity.getCelestialBodyData();
         float centerY = dynamicCenterY(body, blockEntity.isAmplify());
-        float bs = body != null ? bodyScale(body) * CelestialBodyData.BODY_SCALE_FACTOR : 6.0f;
-        if (isPlayerHead(body)) {
+        float fullBodyScale = body != null ? bodyScale(body) * CelestialBodyData.BODY_SCALE_FACTOR : 6.0f;
+        float bs = fullBodyScale;
+        if (body instanceof SpecialCelestialBodyData special && special.isPlayerHead()) {
             bs *= PLAYER_HEAD_SCALE;
+            centerY = playerHeadCenterY(special, blockEntity.isAmplify(), fullBodyScale, 1.0f);
         }
         // The mechanical rings can extend beyond the body, especially for small planets.
         // Size the box from the larger of the body and the complete ring system.

@@ -297,17 +297,14 @@ public class CelestialForgingAnvilPortalBlock
 
     @Override
     protected VoxelShape getCollisionShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        if (state.getValue(HALF) == DirectionGate331PartHalf.BOTTOM_CENTER || state.getValue(HALF) == DirectionGate331PartHalf.MID_CENTER) {
-            if (context == CollisionContext.empty()) {
-                return this.getShape(state, level, pos, context);
-            }
-            return Shapes.empty();
-        }
-        return this.getShape(state, level, pos, context);
+        DirectionGate331PartHalf part = state.getValue(HALF);
+        boolean gateway = part == DirectionGate331PartHalf.BOTTOM_CENTER || part == DirectionGate331PartHalf.MID_CENTER;
+        if (gateway && context != CollisionContext.empty()) return Shapes.empty();
+        return super.getCollisionShape(state, level, pos, context);
     }
 
     @Override
-    protected VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
+    public VoxelShape getPartShape(BlockState state) {
         return switch (state.getValue(CelestialForgingAnvilPortalBlock.HALF)) {
             case BOTTOM_CENTER -> switch (state.getValue(CelestialForgingAnvilPortalBlock.FACING)) {
                 case NORTH -> BOTTOM_CENTER_NORTH;

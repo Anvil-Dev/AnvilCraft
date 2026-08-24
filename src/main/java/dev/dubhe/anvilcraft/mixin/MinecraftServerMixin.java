@@ -25,6 +25,11 @@ public class MinecraftServerMixin {
         );
     }
 
+    @Inject(method = "createLevels", at = @At("RETURN"))
+    private void anvilcraft$configureOverworldLikeBorder(ChunkProgressListener listener, CallbackInfo ci) {
+        OverworldLikeGenerationBootstrap.configureOverworldLikeBorder((MinecraftServer) (Object) this);
+    }
+
     @ModifyArgs(
         method = "createLevels",
         at = @At(
