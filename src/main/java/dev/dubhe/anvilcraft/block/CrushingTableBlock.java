@@ -109,6 +109,9 @@ public class CrushingTableBlock extends Block implements
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
+        if (hitResult.getDirection() != Direction.UP) {
+            return ProcessingTableConversion.tryConvert(level, player, hand, state, pos, hitResult);
+        }
         if (level.getBlockEntity(pos) instanceof CrushingTableBlockEntity table
             && table.tryInteractItems(player, hand)
         ) {

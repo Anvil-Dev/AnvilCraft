@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.block;
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
-import dev.dubhe.anvilcraft.block.entity.SievingTableBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SiftingTableBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -35,7 +35,7 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
-public class SievingTableBlock extends Block implements
+public class SiftingTableBlock extends Block implements
     SimpleWaterloggedBlock, IHammerRemovable, IMoveableEntityBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
 
@@ -52,7 +52,7 @@ public class SievingTableBlock extends Block implements
     private static final VoxelShape INTERACTION_BOX =
         Shapes.join(Shapes.block(), REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
 
-    public SievingTableBlock(Properties properties) {
+    public SiftingTableBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
     }
@@ -102,7 +102,10 @@ public class SievingTableBlock extends Block implements
         InteractionHand hand,
         BlockHitResult hitResult
     ) {
-        if (level.getBlockEntity(pos) instanceof SievingTableBlockEntity table
+        if (hitResult.getDirection() != Direction.UP) {
+            return ProcessingTableConversion.tryConvert(level, player, hand, state, pos, hitResult);
+        }
+        if (level.getBlockEntity(pos) instanceof SiftingTableBlockEntity table
             && table.tryInteractItems(player, hand)
         ) {
             return ItemInteractionResult.sidedSuccess(level.isClientSide());
@@ -112,7 +115,7 @@ public class SievingTableBlock extends Block implements
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return ModBlockEntities.SIEVING_TABLE.create(pos, state);
+        return ModBlockEntities.SIFTING_TABLE.create(pos, state);
     }
 
     @Override
@@ -130,7 +133,7 @@ public class SievingTableBlock extends Block implements
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         if (!level.isClientSide() && !state.is(newState.getBlock()) && !movedByPiston
-            && level.getBlockEntity(pos) instanceof SievingTableBlockEntity table) {
+            && level.getBlockEntity(pos) instanceof SiftingTableBlockEntity table) {
             table.dropAllContent(level, pos);
         }
         super.onRemove(state, level, pos, newState, movedByPiston);

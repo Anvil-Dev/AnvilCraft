@@ -11,7 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "anvilcraft:crushing_table"
+          "name": "anvilcraft:stamping_platform"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:grindstone"
         }
       ],
       "rolls": 1.0

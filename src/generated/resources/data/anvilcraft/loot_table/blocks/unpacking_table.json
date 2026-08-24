@@ -11,7 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "anvilcraft:unpacking_table"
+          "name": "anvilcraft:stamping_platform"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:iron_trapdoor"
         }
       ],
       "rolls": 1.0

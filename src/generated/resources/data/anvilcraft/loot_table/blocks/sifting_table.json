@@ -11,11 +11,15 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "anvilcraft:sieving_table"
+          "name": "anvilcraft:stamping_platform"
+        },
+        {
+          "type": "minecraft:item",
+          "name": "minecraft:scaffolding"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "anvilcraft:blocks/sieving_table"
+  "random_sequence": "anvilcraft:blocks/sifting_table"
 }

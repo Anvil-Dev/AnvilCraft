@@ -26,7 +26,7 @@ import java.util.List;
 
 @Getter
 public class UnpackingTableBlockEntity extends BlockEntity implements IItemHandlerHolder, IItemHandlerCache {
-    public static final int INPUT_SLOTS = 8;
+    public static final int INPUT_SLOTS = 2;
     public static final int OUTPUT_SLOTS = 8;
 
     private final ItemStackHandler input = new ItemStackHandler(INPUT_SLOTS) {
@@ -200,4 +200,3 @@ public class UnpackingTableBlockEntity extends BlockEntity implements IItemHandl
         this.output.deserializeNBT(registries, tag.getCompound("Outputs"));
     }
 }
-

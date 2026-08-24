@@ -25,8 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Getter
-public class SievingTableBlockEntity extends BlockEntity implements IItemHandlerHolder, IItemHandlerCache {
-    public static final int INPUT_SLOTS = 8;
+public class SiftingTableBlockEntity extends BlockEntity implements IItemHandlerHolder, IItemHandlerCache {
+    public static final int INPUT_SLOTS = 2;
     public static final int OUTPUT_SLOTS = 8;
 
     private final ItemStackHandler input = new ItemStackHandler(INPUT_SLOTS) {
@@ -56,16 +56,16 @@ public class SievingTableBlockEntity extends BlockEntity implements IItemHandler
 
         @Override
         protected void onContentsChanged(int slot) {
-            SievingTableBlockEntity.this.setChanged();
-            SievingTableBlockEntity.this.sendUpdate();
+            SiftingTableBlockEntity.this.setChanged();
+            SiftingTableBlockEntity.this.sendUpdate();
         }
     };
 
     private final ItemStackHandler output = new ItemStackHandler(OUTPUT_SLOTS) {
         @Override
         protected void onContentsChanged(int slot) {
-            SievingTableBlockEntity.this.setChanged();
-            SievingTableBlockEntity.this.sendUpdate();
+            SiftingTableBlockEntity.this.setChanged();
+            SiftingTableBlockEntity.this.sendUpdate();
         }
     };
 
@@ -73,15 +73,15 @@ public class SievingTableBlockEntity extends BlockEntity implements IItemHandler
         @Override
         public ItemStack getStackInSlot(int slot) {
             return slot < OUTPUT_SLOTS
-                   ? SievingTableBlockEntity.this.output.getStackInSlot(slot)
-                   : SievingTableBlockEntity.this.input.getStackInSlot(slot - OUTPUT_SLOTS);
+                   ? SiftingTableBlockEntity.this.output.getStackInSlot(slot)
+                   : SiftingTableBlockEntity.this.input.getStackInSlot(slot - OUTPUT_SLOTS);
         }
 
         @Override
         public int getSlotLimit(int slot) {
             return slot < OUTPUT_SLOTS
-                   ? SievingTableBlockEntity.this.output.getSlotLimit(slot)
-                   : SievingTableBlockEntity.this.input.getSlotLimit(slot - OUTPUT_SLOTS);
+                   ? SiftingTableBlockEntity.this.output.getSlotLimit(slot)
+                   : SiftingTableBlockEntity.this.input.getSlotLimit(slot - OUTPUT_SLOTS);
         }
 
         @Override
@@ -91,7 +91,7 @@ public class SievingTableBlockEntity extends BlockEntity implements IItemHandler
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return slot >= OUTPUT_SLOTS && SievingTableBlockEntity.this.input.isItemValid(slot - OUTPUT_SLOTS, stack);
+            return slot >= OUTPUT_SLOTS && SiftingTableBlockEntity.this.input.isItemValid(slot - OUTPUT_SLOTS, stack);
         }
 
         @Override
@@ -100,25 +100,25 @@ public class SievingTableBlockEntity extends BlockEntity implements IItemHandler
 
         @Override
         public void setStackInSlot(int slot, ItemStack stack) {
-            if (slot < OUTPUT_SLOTS) SievingTableBlockEntity.this.output.setStackInSlot(slot, stack);
-            else SievingTableBlockEntity.this.input.setStackInSlot(slot - OUTPUT_SLOTS, stack);
+            if (slot < OUTPUT_SLOTS) SiftingTableBlockEntity.this.output.setStackInSlot(slot, stack);
+            else SiftingTableBlockEntity.this.input.setStackInSlot(slot - OUTPUT_SLOTS, stack);
         }
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
             if (slot < OUTPUT_SLOTS) return stack;
-            return SievingTableBlockEntity.this.input.insertItem(slot - OUTPUT_SLOTS, stack, simulate);
+            return SiftingTableBlockEntity.this.input.insertItem(slot - OUTPUT_SLOTS, stack, simulate);
         }
 
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
             return slot < OUTPUT_SLOTS
-                   ? SievingTableBlockEntity.this.output.extractItem(slot, amount, simulate)
-                   : SievingTableBlockEntity.this.input.extractItem(slot - OUTPUT_SLOTS, amount, simulate);
+                   ? SiftingTableBlockEntity.this.output.extractItem(slot, amount, simulate)
+                   : SiftingTableBlockEntity.this.input.extractItem(slot - OUTPUT_SLOTS, amount, simulate);
         }
     };
 
-    public SievingTableBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+    public SiftingTableBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
 

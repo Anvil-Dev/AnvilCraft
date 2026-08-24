@@ -61,7 +61,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                 content.accept(Items.SCAFFOLDING);
                 content.accept(ModBlocks.STAMPING_PLATFORM);
                 content.accept(ModBlocks.CRUSHING_TABLE);
-                content.accept(ModBlocks.SIEVING_TABLE);
+                content.accept(ModBlocks.SIFTING_TABLE);
                 content.accept(ModBlocks.UNPACKING_TABLE);
                 content.accept(Items.CAULDRON);
                 content.accept(ModBlocks.LARGE_CAULDRON);

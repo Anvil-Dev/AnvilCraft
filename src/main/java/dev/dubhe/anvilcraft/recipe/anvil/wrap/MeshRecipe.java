@@ -43,7 +43,7 @@ public class MeshRecipe extends AbstractProcessRecipe<MeshRecipe> {
                     BlockStatePredicate.builder()
                         .of(Blocks.SCAFFOLDING)
                         .or()
-                        .of(ModBlocks.SIEVING_TABLE.get())
+                        .of(ModBlocks.SIFTING_TABLE.get())
                         .build()
                 )
         );

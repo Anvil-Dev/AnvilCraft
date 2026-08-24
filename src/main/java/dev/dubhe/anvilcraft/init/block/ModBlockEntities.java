@@ -59,7 +59,7 @@ import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
-import dev.dubhe.anvilcraft.block.entity.SievingTableBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SiftingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleMagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
@@ -124,7 +124,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
-import dev.dubhe.anvilcraft.client.renderer.blockentity.SievingTableBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.SiftingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SpacetimeSupercomputerBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.StampingPlatformBlockEntityRenderer;
@@ -532,10 +532,10 @@ public class ModBlockEntities {
         .renderer(() -> StampingPlatformBlockEntityRenderer::new)
         .register();
 
-    public static final BlockEntityEntry<SievingTableBlockEntity> SIEVING_TABLE = REGISTRUM
-        .blockEntity("sieving_table", SievingTableBlockEntity::new)
-        .validBlocks(ModBlocks.SIEVING_TABLE)
-        .renderer(() -> SievingTableBlockEntityRenderer::new)
+    public static final BlockEntityEntry<SiftingTableBlockEntity> SIFTING_TABLE = REGISTRUM
+        .blockEntity("sifting_table", SiftingTableBlockEntity::new)
+        .validBlocks(ModBlocks.SIFTING_TABLE)
+        .renderer(() -> SiftingTableBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<UnpackingTableBlockEntity> UNPACKING_TABLE = REGISTRUM
