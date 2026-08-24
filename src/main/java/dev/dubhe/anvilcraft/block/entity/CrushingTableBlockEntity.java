@@ -166,6 +166,8 @@ public class CrushingTableBlockEntity extends BlockEntity implements IItemHandle
         CompoundTag tag = super.getUpdateTag(registries);
         tag.put("Inputs", this.input.serializeNBT(registries));
         tag.put("Outputs", this.output.serializeNBT(registries));
+        tag.putLong("SpinStartTick", this.spinStartTick);
+        tag.putInt("SpinDurationTick", this.spinDurationTick);
         return tag;
     }
 
@@ -219,11 +221,44 @@ public class CrushingTableBlockEntity extends BlockEntity implements IItemHandle
         }
     }
 
+    private long spinStartTick;
+    private int spinDurationTick;
+
+    /**
+     * 粉碎台执行配方后激活磨轮动画。
+     *
+     * @param durationTick 动画持续时长（单位：tick）
+     */
+    public void onRecipeExecuted(int durationTick) {
+        Level level = this.getLevel();
+        if (level == null) return;
+        this.spinStartTick = level.getGameTime();
+        this.spinDurationTick = durationTick;
+        this.setChanged();
+        this.sendUpdate();
+    }
+
+    /**
+     * 获取磨轮旋转进度，用于渲染动画。
+     *
+     * @param partialTick 部分进度
+     * @return 旋转进度，范围 [0,1]，1 表示已停止
+     */
+    public float getSpinProgress(float partialTick) {
+        Level level = this.getLevel();
+        if (level == null || this.spinDurationTick <= 0) return 1;
+        long elapsed = level.getGameTime() - this.spinStartTick;
+        if (elapsed >= this.spinDurationTick) return 1;
+        return (elapsed + partialTick) / this.spinDurationTick;
+    }
+
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("Inputs", this.input.serializeNBT(registries));
         tag.put("Outputs", this.output.serializeNBT(registries));
+        tag.putLong("SpinStartTick", this.spinStartTick);
+        tag.putInt("SpinDurationTick", this.spinDurationTick);
     }
 
     @Override
@@ -231,6 +266,8 @@ public class CrushingTableBlockEntity extends BlockEntity implements IItemHandle
         super.loadAdditional(tag, registries);
         this.input.deserializeNBT(registries, tag.getCompound("Inputs"));
         this.output.deserializeNBT(registries, tag.getCompound("Outputs"));
+        this.spinStartTick = tag.getLong("SpinStartTick");
+        this.spinDurationTick = tag.getInt("SpinDurationTick");
         if (this.input.getSlots() != INPUT_SLOTS) {
             List<ItemStack> items = ItemHandlerUtil.getNonEmptyItemsFromHandler(this.input);
             this.input.setSize(INPUT_SLOTS);
