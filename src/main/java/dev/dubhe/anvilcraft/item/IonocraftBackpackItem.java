@@ -45,7 +45,7 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 public class IonocraftBackpackItem extends ArmorItem implements ICapacitorChargeable, IInventoryCarriedAware {
-    public static final int MAX_ENERGY = 120_000_000;
+    public static final int MAX_ENERGY = 16_000_000;
     public static final int FLIGHT_CONSUMPTION = 5000;
 
     public static final DynamicPowerComponent.PowerConsumption CONSUMPTION_64 = new DynamicPowerComponent.PowerConsumption(64);
@@ -141,7 +141,17 @@ public class IonocraftBackpackItem extends ArmorItem implements ICapacitorCharge
     }
 
     public static int getEnergyStored(ItemStack stack) {
-        return stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
+        return Math.min(stack.getOrDefault(ModComponents.STORED_ENERGY, 0), MAX_ENERGY);
+    }
+
+    /**
+     * 将旧存档中超出当前容量上限的电力写回钳制到最大值，防止电力溢出。
+     */
+    public static void preventEnergyOverflow(ItemStack stack) {
+        int energy = stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
+        if (energy > MAX_ENERGY) {
+            stack.set(ModComponents.STORED_ENERGY, MAX_ENERGY);
+        }
     }
 
     public static void addEnergy(ItemStack stack, int amount) {
@@ -250,6 +260,8 @@ public class IonocraftBackpackItem extends ArmorItem implements ICapacitorCharge
     }
 
     public static void playerTick(ServerPlayer player) {
+        ItemStack equipped = getByPlayer(player);
+        preventEnergyOverflow(equipped);
         refreshPower(player);
         refreshFlight(player);
 

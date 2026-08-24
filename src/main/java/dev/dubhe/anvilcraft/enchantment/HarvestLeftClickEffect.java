@@ -43,14 +43,14 @@ public record HarvestLeftClickEffect(int range) implements EnchantmentEntityEffe
         if (!itemStack.is(ItemTags.HOES)) {
             return;
         }
-        if (isGrass(state)) {
+        if (isChoppablePlant(state)) {
             r = Math.min(enchantmentLevel, 7);
             for (BlockPos blockPos : BlockPos.betweenClosed(pos.offset(r, 0, r), pos.offset(-r, 0, -r))) {
                 if (blockPos.equals(pos)) {
                     continue;
                 }
                 BlockState blockState = level.getBlockState(blockPos);
-                if (isGrass(blockState)) {
+                if (isChoppablePlant(blockState)) {
                     level.destroyBlock(blockPos, true);
                 }
             }
@@ -117,9 +117,14 @@ public record HarvestLeftClickEffect(int range) implements EnchantmentEntityEffe
         return null;
     }
 
-    private boolean isGrass(BlockState state) {
+    private boolean isChoppablePlant(BlockState state) {
         return state.is(Blocks.SHORT_GRASS)
-            || state.is(Blocks.TALL_GRASS);
+            || state.is(Blocks.TALL_GRASS)
+            || state.is(Blocks.FERN)
+            || state.is(Blocks.LARGE_FERN)
+            || state.is(Blocks.DEAD_BUSH)
+            || state.is(BlockTags.SMALL_FLOWERS)
+            || state.is(BlockTags.TALL_FLOWERS);
     }
 
     @Override
