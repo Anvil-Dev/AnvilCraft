@@ -21,6 +21,7 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
                 .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.building_blocks.materials"))
+                .tooltip(Component.translatable("anvilcraft.creative.section.building_blocks.materials"))
                 .build(),
             content -> {
                 content.accept(ModBlocks.HEAVY_IRON_BLOCK);
@@ -118,6 +119,7 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
                 .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.building_blocks.resources"))
+                .tooltip(Component.translatable("anvilcraft.creative.section.building_blocks.resources"))
                 .build(),
             content -> {
                 content.accept(ModBlocks.CINERITE);
@@ -155,6 +157,7 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             .textAlignment(CreativeTabSection.TextAlignment.LEFT)
             .textIndent(17)
             .text(Component.translatable("anvilcraft.creative.section.building_blocks.concrete"))
+            .tooltip(Component.translatable("anvilcraft.creative.section.building_blocks.concrete"))
             .build(),
             content -> {
                 for (Color color : Color.values()) {
@@ -178,6 +181,7 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             .textAlignment(CreativeTabSection.TextAlignment.LEFT)
             .textIndent(17)
             .text(Component.translatable("anvilcraft.creative.section.building_blocks.foods"))
+            .tooltip(Component.translatable("anvilcraft.creative.section.building_blocks.foods"))
             .build(),
             content -> {
                 content.accept(ModBlocks.CAKE_BASE_BLOCK);
@@ -206,6 +210,7 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             .textAlignment(CreativeTabSection.TextAlignment.LEFT)
             .textIndent(17)
             .text(Component.translatable("anvilcraft.creative.section.building_blocks.special"))
+            .tooltip(Component.translatable("anvilcraft.creative.section.building_blocks.special"))
             .build(),
             content -> {
                 content.accept(ModBlocks.FROST_DECO_BLOCK);
