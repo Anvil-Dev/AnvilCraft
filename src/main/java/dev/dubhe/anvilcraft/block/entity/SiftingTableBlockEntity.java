@@ -27,7 +27,6 @@ import java.util.List;
 @Getter
 public class SiftingTableBlockEntity extends BlockEntity implements IItemHandlerHolder, IItemHandlerCache {
     public static final int INPUT_SLOTS = 8;
-    public static final int OUTPUT_SLOTS = 8;
 
     private final ItemStackHandler input = new ItemStackHandler(INPUT_SLOTS) {
         @Override
@@ -61,27 +60,18 @@ public class SiftingTableBlockEntity extends BlockEntity implements IItemHandler
         }
     };
 
-    private final ItemStackHandler output = new ItemStackHandler(OUTPUT_SLOTS) {
-        @Override
-        protected void onContentsChanged(int slot) {
-            SiftingTableBlockEntity.this.setChanged();
-            SiftingTableBlockEntity.this.sendUpdate();
-        }
-    };
-
-    private final ItemStackHandler proxy = new ItemStackHandler(INPUT_SLOTS + OUTPUT_SLOTS) {
+    /**
+     * 物品处理器统一视图：仅暴露原料槽；自动化只能向原料槽插入物品。
+     */
+    private final ItemStackHandler proxy = new ItemStackHandler(INPUT_SLOTS) {
         @Override
         public ItemStack getStackInSlot(int slot) {
-            return slot < OUTPUT_SLOTS
-                   ? SiftingTableBlockEntity.this.output.getStackInSlot(slot)
-                   : SiftingTableBlockEntity.this.input.getStackInSlot(slot - OUTPUT_SLOTS);
+            return SiftingTableBlockEntity.this.input.getStackInSlot(slot);
         }
 
         @Override
         public int getSlotLimit(int slot) {
-            return slot < OUTPUT_SLOTS
-                   ? SiftingTableBlockEntity.this.output.getSlotLimit(slot)
-                   : SiftingTableBlockEntity.this.input.getSlotLimit(slot - OUTPUT_SLOTS);
+            return SiftingTableBlockEntity.this.input.getSlotLimit(slot);
         }
 
         @Override
@@ -91,7 +81,7 @@ public class SiftingTableBlockEntity extends BlockEntity implements IItemHandler
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return slot >= OUTPUT_SLOTS && SiftingTableBlockEntity.this.input.isItemValid(slot - OUTPUT_SLOTS, stack);
+            return SiftingTableBlockEntity.this.input.isItemValid(slot, stack);
         }
 
         @Override
@@ -100,21 +90,17 @@ public class SiftingTableBlockEntity extends BlockEntity implements IItemHandler
 
         @Override
         public void setStackInSlot(int slot, ItemStack stack) {
-            if (slot < OUTPUT_SLOTS) SiftingTableBlockEntity.this.output.setStackInSlot(slot, stack);
-            else SiftingTableBlockEntity.this.input.setStackInSlot(slot - OUTPUT_SLOTS, stack);
+            SiftingTableBlockEntity.this.input.setStackInSlot(slot, stack);
         }
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if (slot < OUTPUT_SLOTS) return stack;
-            return SiftingTableBlockEntity.this.input.insertItem(slot - OUTPUT_SLOTS, stack, simulate);
+            return SiftingTableBlockEntity.this.input.insertItem(slot, stack, simulate);
         }
 
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            return slot < OUTPUT_SLOTS
-                   ? SiftingTableBlockEntity.this.output.extractItem(slot, amount, simulate)
-                   : SiftingTableBlockEntity.this.input.extractItem(slot - OUTPUT_SLOTS, amount, simulate);
+            return SiftingTableBlockEntity.this.input.extractItem(slot, amount, simulate);
         }
     };
 
@@ -134,7 +120,7 @@ public class SiftingTableBlockEntity extends BlockEntity implements IItemHandler
 
     @Override
     public IItemHandler getOutput() {
-        return this.output;
+        return EMPTY_OUTPUT;
     }
 
     private void sendUpdate() {
@@ -148,7 +134,6 @@ public class SiftingTableBlockEntity extends BlockEntity implements IItemHandler
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         tag.put("Inputs", this.input.serializeNBT(registries));
-        tag.put("Outputs", this.output.serializeNBT(registries));
         return tag;
     }
 
@@ -176,10 +161,10 @@ public class SiftingTableBlockEntity extends BlockEntity implements IItemHandler
     }
 
     private void extractAllItems(List<ItemStack> stacks) {
-        for (ItemStackHandler handler : List.of(this.output, this.input)) {
-            for (int slot = 0; slot < handler.getSlots(); slot++) {
-                ItemStack stack;
-                while (!(stack = handler.extractItem(slot, Integer.MAX_VALUE, false)).isEmpty()) stacks.add(stack);
+        for (int slot = 0; slot < this.input.getSlots(); slot++) {
+            ItemStack stack;
+            while (!(stack = this.input.extractItem(slot, Integer.MAX_VALUE, false)).isEmpty()) {
+                stacks.add(stack);
             }
         }
     }
@@ -194,23 +179,18 @@ public class SiftingTableBlockEntity extends BlockEntity implements IItemHandler
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("Inputs", this.input.serializeNBT(registries));
-        tag.put("Outputs", this.output.serializeNBT(registries));
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.input.deserializeNBT(registries, tag.getCompound("Inputs"));
-        this.output.deserializeNBT(registries, tag.getCompound("Outputs"));
         if (this.input.getSlots() != INPUT_SLOTS) {
             List<ItemStack> items = ItemHandlerUtil.getNonEmptyItemsFromHandler(this.input);
             this.input.setSize(INPUT_SLOTS);
             for (ItemStack item : items) this.input.insertItem(0, item, false);
         }
-        if (this.output.getSlots() != OUTPUT_SLOTS) {
-            List<ItemStack> items = ItemHandlerUtil.getNonEmptyItemsFromHandler(this.output);
-            this.output.setSize(OUTPUT_SLOTS);
-            for (ItemStack item : items) this.output.insertItem(0, item, false);
-        }
     }
+
+    private static final ItemStackHandler EMPTY_OUTPUT = new ItemStackHandler(0);
 }

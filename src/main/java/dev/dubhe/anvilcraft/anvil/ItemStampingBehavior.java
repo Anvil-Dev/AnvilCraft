@@ -45,12 +45,11 @@ public class ItemStampingBehavior implements IAnvilBehavior {
     }
 
     /**
-     * 从冲压台原料槽读取物品执行冲压配方，产物优先写回产物槽，放不下的掉落在台面上。
+     * 从冲压台原料槽读取物品执行冲压配方，产物掉落至台面。
      */
     public static boolean processPlatform(StampingPlatformBlockEntity platform, Level level) {
         return processItemHandler(
             platform.getInput(),
-            platform.getOutput(),
             platform.getBlockPos(),
             level
         );
@@ -58,7 +57,6 @@ public class ItemStampingBehavior implements IAnvilBehavior {
 
     private static boolean processItemHandler(
         IItemHandler inputHandler,
-        IItemHandler outputHandler,
         BlockPos pos,
         Level level
     ) {
@@ -101,12 +99,11 @@ public class ItemStampingBehavior implements IAnvilBehavior {
             }
         }
 
-        insertResults(outputHandler, pos, level, results);
+        insertResults(pos, level, results);
         return true;
     }
 
     private static void insertResults(
-        IItemHandler outputHandler,
         BlockPos pos,
         Level level,
         Object2IntMap<Item> results

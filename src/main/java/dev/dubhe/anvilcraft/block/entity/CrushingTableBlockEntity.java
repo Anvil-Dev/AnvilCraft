@@ -31,7 +31,6 @@ import java.util.List;
 @Getter
 public class CrushingTableBlockEntity extends BlockEntity implements IItemHandlerHolder, IItemHandlerCache {
     public static final int INPUT_SLOTS = 8;
-    public static final int OUTPUT_SLOTS = 8;
 
     private final ItemStackHandler input = new ItemStackHandler(INPUT_SLOTS) {
         @Override
@@ -69,30 +68,18 @@ public class CrushingTableBlockEntity extends BlockEntity implements IItemHandle
         }
     };
 
-    private final ItemStackHandler output = new ItemStackHandler(OUTPUT_SLOTS) {
-        @Override
-        protected void onContentsChanged(int slot) {
-            CrushingTableBlockEntity.this.setChanged();
-            CrushingTableBlockEntity.this.sendUpdate();
-        }
-    };
-
     /**
-     * 统一视图：前段为输出产物，后段为输入原料；自动化只能向原料槽插入物品。
+     * 物品处理器统一视图：仅暴露原料槽；自动化只能向原料槽插入物品。
      */
-    private final ItemStackHandler proxy = new ItemStackHandler(INPUT_SLOTS + OUTPUT_SLOTS) {
+    private final ItemStackHandler proxy = new ItemStackHandler(INPUT_SLOTS) {
         @Override
         public ItemStack getStackInSlot(int slot) {
-            return slot < OUTPUT_SLOTS
-                   ? CrushingTableBlockEntity.this.output.getStackInSlot(slot)
-                   : CrushingTableBlockEntity.this.input.getStackInSlot(slot - OUTPUT_SLOTS);
+            return CrushingTableBlockEntity.this.input.getStackInSlot(slot);
         }
 
         @Override
         public int getSlotLimit(int slot) {
-            return slot < OUTPUT_SLOTS
-                   ? CrushingTableBlockEntity.this.output.getSlotLimit(slot)
-                   : CrushingTableBlockEntity.this.input.getSlotLimit(slot - OUTPUT_SLOTS);
+            return CrushingTableBlockEntity.this.input.getSlotLimit(slot);
         }
 
         @Override
@@ -102,7 +89,7 @@ public class CrushingTableBlockEntity extends BlockEntity implements IItemHandle
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return slot >= OUTPUT_SLOTS && CrushingTableBlockEntity.this.input.isItemValid(slot - OUTPUT_SLOTS, stack);
+            return CrushingTableBlockEntity.this.input.isItemValid(slot, stack);
         }
 
         @Override
@@ -111,24 +98,17 @@ public class CrushingTableBlockEntity extends BlockEntity implements IItemHandle
 
         @Override
         public void setStackInSlot(int slot, ItemStack stack) {
-            if (slot < OUTPUT_SLOTS) {
-                CrushingTableBlockEntity.this.output.setStackInSlot(slot, stack);
-            } else {
-                CrushingTableBlockEntity.this.input.setStackInSlot(slot - OUTPUT_SLOTS, stack);
-            }
+            CrushingTableBlockEntity.this.input.setStackInSlot(slot, stack);
         }
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if (slot < OUTPUT_SLOTS) return stack;
-            return CrushingTableBlockEntity.this.input.insertItem(slot - OUTPUT_SLOTS, stack, simulate);
+            return CrushingTableBlockEntity.this.input.insertItem(slot, stack, simulate);
         }
 
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            return slot < OUTPUT_SLOTS
-                   ? CrushingTableBlockEntity.this.output.extractItem(slot, amount, simulate)
-                   : CrushingTableBlockEntity.this.input.extractItem(slot - OUTPUT_SLOTS, amount, simulate);
+            return CrushingTableBlockEntity.this.input.extractItem(slot, amount, simulate);
         }
     };
 
@@ -148,7 +128,7 @@ public class CrushingTableBlockEntity extends BlockEntity implements IItemHandle
 
     @Override
     public IItemHandler getOutput() {
-        return this.output;
+        return EMPTY_OUTPUT;
     }
 
     private void sendUpdate() {
@@ -165,7 +145,6 @@ public class CrushingTableBlockEntity extends BlockEntity implements IItemHandle
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         tag.put("Inputs", this.input.serializeNBT(registries));
-        tag.put("Outputs", this.output.serializeNBT(registries));
         tag.putLong("SpinStartTick", this.spinStartTick);
         tag.putInt("SpinDurationTick", this.spinDurationTick);
         return tag;
@@ -203,12 +182,10 @@ public class CrushingTableBlockEntity extends BlockEntity implements IItemHandle
     }
 
     private void extractAllItems(List<ItemStack> stacks) {
-        for (ItemStackHandler handler : List.of(this.output, this.input)) {
-            for (int slot = 0; slot < handler.getSlots(); slot++) {
-                ItemStack stack;
-                while (!(stack = handler.extractItem(slot, Integer.MAX_VALUE, false)).isEmpty()) {
-                    stacks.add(stack);
-                }
+        for (int slot = 0; slot < this.input.getSlots(); slot++) {
+            ItemStack stack;
+            while (!(stack = this.input.extractItem(slot, Integer.MAX_VALUE, false)).isEmpty()) {
+                stacks.add(stack);
             }
         }
     }
@@ -256,7 +233,6 @@ public class CrushingTableBlockEntity extends BlockEntity implements IItemHandle
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("Inputs", this.input.serializeNBT(registries));
-        tag.put("Outputs", this.output.serializeNBT(registries));
         tag.putLong("SpinStartTick", this.spinStartTick);
         tag.putInt("SpinDurationTick", this.spinDurationTick);
     }
@@ -265,7 +241,6 @@ public class CrushingTableBlockEntity extends BlockEntity implements IItemHandle
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.input.deserializeNBT(registries, tag.getCompound("Inputs"));
-        this.output.deserializeNBT(registries, tag.getCompound("Outputs"));
         this.spinStartTick = tag.getLong("SpinStartTick");
         this.spinDurationTick = tag.getInt("SpinDurationTick");
         if (this.input.getSlots() != INPUT_SLOTS) {
@@ -273,10 +248,7 @@ public class CrushingTableBlockEntity extends BlockEntity implements IItemHandle
             this.input.setSize(INPUT_SLOTS);
             for (ItemStack item : items) this.input.insertItem(0, item, false);
         }
-        if (this.output.getSlots() != OUTPUT_SLOTS) {
-            List<ItemStack> items = ItemHandlerUtil.getNonEmptyItemsFromHandler(this.output);
-            this.output.setSize(OUTPUT_SLOTS);
-            for (ItemStack item : items) this.output.insertItem(0, item, false);
-        }
     }
+
+    private static final ItemStackHandler EMPTY_OUTPUT = new ItemStackHandler(0);
 }
