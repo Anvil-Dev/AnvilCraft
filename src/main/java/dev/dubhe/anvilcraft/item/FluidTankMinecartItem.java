@@ -8,6 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
@@ -33,7 +34,7 @@ public class FluidTankMinecartItem extends Item {
     public FluidTankMinecartItem(Properties properties) {
         super(properties
             .stacksTo(1)
-            .component(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY));
+            .component(DataComponents.BLOCK_ENTITY_DATA, FluidTankMinecartItem.defaultBlockEntityData()));
         DispenserBlock.registerBehavior(this, new DispenseBehavior());
     }
 
@@ -145,5 +146,11 @@ public class FluidTankMinecartItem extends Item {
         protected void playSound(BlockSource source) {
             source.level().levelEvent(1000, source.pos(), 0);
         }
+    }
+
+    private static CustomData defaultBlockEntityData() {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("id", "anvilcraft:fluid_tank");
+        return CustomData.of(tag);
     }
 }

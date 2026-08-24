@@ -189,15 +189,19 @@ public class FluidTankMinecartEntity extends AbstractMinecart implements IFluidH
 
     private ItemStack createItemStack(boolean includeFluid) {
         ItemStack stack = new ItemStack(ModItems.FLUID_TANK_MINECART.get());
+        CompoundTag tankData = new CompoundTag();
+        net.minecraft.world.level.block.entity.BlockEntity.addEntityType(
+            tankData,
+            ModBlockEntities.FLUID_TANK.get()
+        );
         if (includeFluid && !this.tank.isEmpty()) {
-            CompoundTag tankData = new CompoundTag();
             tankData.put(TAG_TANK, this.tank.writeToNBT(this.registryAccess(), new CompoundTag()));
-            net.minecraft.world.item.BlockItem.setBlockEntityData(
-                stack,
-                ModBlockEntities.FLUID_TANK.get(),
-                tankData
-            );
         }
+        net.minecraft.world.item.BlockItem.setBlockEntityData(
+            stack,
+            ModBlockEntities.FLUID_TANK.get(),
+            tankData
+        );
         if (this.getCustomName() != null) {
             stack.set(DataComponents.CUSTOM_NAME, this.getCustomName());
         }
