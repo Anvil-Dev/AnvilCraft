@@ -41,9 +41,7 @@ public class MeshRecipe extends AbstractProcessRecipe<MeshRecipe> {
                 .setBlockInputOffset(new Vec3i(0, -1, 0))
                 .setInputBlocks(
                     BlockStatePredicate.builder()
-                        .of(Blocks.SCAFFOLDING)
-                        .or()
-                        .of(ModBlocks.SIFTING_TABLE.get())
+                        .of(Blocks.SCAFFOLDING, ModBlocks.SIFTING_TABLE.get())
                         .build()
                 )
         );

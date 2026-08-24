@@ -20,13 +20,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.TrapDoorBlock;
+import net.minecraft.world.level.block.state.properties.Half;
 
 public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
     public UnpackCategory(IGuiHelper helper) {
         super(
             helper,
             new DrawableBlockStateIcon(Blocks.ANVIL.defaultBlockState(),
-                ModBlocks.UNPACKING_TABLE.get().defaultBlockState()),
+                Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP)),
             Component.translatable("gui.anvilcraft.category.unpack")
         );
     }
@@ -56,7 +58,7 @@ public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
             RenderSupport.SINGLE_BLOCK);
         RenderSupport.renderBlock(
             guiGraphics,
-            ModBlocks.UNPACKING_TABLE.get().defaultBlockState(),
+            Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP),
             81,
             40,
             10,

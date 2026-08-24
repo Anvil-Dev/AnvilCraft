@@ -532,6 +532,22 @@ public class ItemTooltipManager {
         NORMAL.put(ModFoodItems.COCOA_BUTTER.asItem(), "One hundred percent natural pure cocoa butter!");
 
         SHIFT.put(
+            ModBlocks.STAMPING_PLATFORM.asItem(), """
+                Can be converted to the corresponding mode using a Grindstone, Scaffolding, Iron Trapdoor, or Anvil Hammer"""
+        );
+        SHIFT.put(
+            ModBlocks.CRUSHING_TABLE.asItem(), """
+                Can be converted to the corresponding mode using a Grindstone, Scaffolding, Iron Trapdoor, or Anvil Hammer"""
+        );
+        SHIFT.put(
+            ModBlocks.SIFTING_TABLE.asItem(), """
+                Can be converted to the corresponding mode using a Grindstone, Scaffolding, Iron Trapdoor, or Anvil Hammer"""
+        );
+        SHIFT.put(
+            ModBlocks.UNPACKING_TABLE.asItem(), """
+                Can be converted to the corresponding mode using a Grindstone, Scaffolding, Iron Trapdoor, or Anvil Hammer"""
+        );
+        SHIFT.put(
             ModItems.LASER_GUN.get(), """
                 The laser damages mobs and can also mine blocks
                 Charging longer increases damage, but watch out for overheating!
