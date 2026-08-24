@@ -86,7 +86,11 @@ public final class ProcessingTableConversion {
     ) {
         if (state.is(ModBlocks.STAMPING_PLATFORM.get())) return ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
         if (!level.isClientSide()) {
+            Direction facing = player.getDirection().getOpposite();
             BlockState stamping = ModBlocks.STAMPING_PLATFORM.get().defaultBlockState().setValue(
+                StampingPlatformBlock.FACING,
+                facing
+            ).setValue(
                 BlockStateProperties.WATERLOGGED,
                 state.getValue(BlockStateProperties.WATERLOGGED)
             );

@@ -375,7 +375,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRUM.block("stamping_platform", StampingPlatformBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .lang("Processing Table")
+        .lang("Processing Table - Stamping")
         .properties(properties -> properties.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
@@ -390,7 +390,7 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> CRUSHING_TABLE = REGISTRUM.block("crushing_table", CrushingTableBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .lang("Processing Table")
+        .lang("Processing Table - Crushing")
         .properties(properties -> properties.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.add(block, LootTable.lootTable()
@@ -409,7 +409,7 @@ public class ModBlocks {
 
     public static final BlockEntry<SiftingTableBlock> SIFTING_TABLE = REGISTRUM.block("sifting_table", SiftingTableBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .lang("Processing Table")
+        .lang("Processing Table - Sifting")
         .properties(properties -> properties.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.add(block, LootTable.lootTable()
@@ -428,7 +428,7 @@ public class ModBlocks {
 
     public static final BlockEntry<UnpackingTableBlock> UNPACKING_TABLE = REGISTRUM.block("unpacking_table", UnpackingTableBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
-        .lang("Processing Table")
+        .lang("Processing Table - Unpacking")
         .properties(properties -> properties.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .loot((tables, block) -> tables.add(block, LootTable.lootTable()

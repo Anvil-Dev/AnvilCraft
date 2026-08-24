@@ -10,7 +10,7 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.min_output", "Min: %s");
         provider.add("gui.anvilcraft.category.max_output", "Max: %s");
 
-        provider.add("gui.anvilcraft.category.mesh", "Mesh");
+        provider.add("gui.anvilcraft.category.mesh", "Item Sift");
 
         provider.add("gui.anvilcraft.category.block_compress", "Block Compress");
         provider.add("gui.anvilcraft.category.block_crush", "Block Crush");
@@ -18,7 +18,7 @@ public class JeiLang {
 
         provider.add("gui.anvilcraft.category.item_compress", "Item Compress");
         provider.add("gui.anvilcraft.category.item_crush", "Item Crush");
-        provider.add("gui.anvilcraft.category.unpack", "Unpack");
+        provider.add("gui.anvilcraft.category.unpack", "Item Unpack");
 
         provider.add("gui.anvilcraft.category.fast_cooking", "Fast Cooking");
         provider.add("gui.anvilcraft.category.fast_cooking.consume_fluid", "Consume: %1$d mB of %2$s");
