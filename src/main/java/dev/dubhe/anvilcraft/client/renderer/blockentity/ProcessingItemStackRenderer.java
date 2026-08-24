@@ -48,8 +48,8 @@ public abstract class ProcessingItemStackRenderer<T extends BlockEntity & IItemH
         if (items.isEmpty()) return;
 
         this.random.setSeed(ItemHandlerUtil.hash(table.getItemHandler()));
-        float randomOffsetDeg = this.random.nextIntBetweenInclusive(0, 50) - 25;
-        ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+        final float randomOffsetDeg = this.random.nextIntBetweenInclusive(0, 50) - 25;
+        final ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
 
         pose.pushPose();
         pose.translate(0.5F, BASE_Y, 0.5F);
@@ -64,7 +64,7 @@ public abstract class ProcessingItemStackRenderer<T extends BlockEntity & IItemH
             gui3dFlags.add(gui3d);
             if (gui3d) blockKinds.add(stack.getItem());
         }
-        boolean singleBlockKind = blockKinds.size() == 1;
+        final boolean singleBlockKind = blockKinds.size() == 1;
         for (int index = 0; index < items.size(); index++) {
             ItemStack stack = items.get(index);
             pose.pushPose();
