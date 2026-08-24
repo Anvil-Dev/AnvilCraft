@@ -21,7 +21,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                     AnvilCraft.of("textures/gui/creative_inventory/section/items/tools.png")
                 )
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(20)
+                .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.items.tools"))
             .build(),
             content -> {
@@ -80,7 +80,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                     AnvilCraft.of("textures/gui/creative_inventory/section/items/guns.png")
                 )
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(20)
+                .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.items.guns"))
             .build(),
             content -> {
@@ -98,7 +98,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                     AnvilCraft.of("textures/gui/creative_inventory/section/items/power.png")
                 )
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(20)
+                .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.items.power"))
             .build(),
             content -> {
@@ -115,7 +115,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                     AnvilCraft.of("textures/gui/creative_inventory/section/items/magic.png")
                 )
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(20)
+                .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.items.magic"))
             .build(),
             content -> {
@@ -144,7 +144,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                     AnvilCraft.of("textures/gui/creative_inventory/section/items/foods.png")
                 )
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(20)
+                .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.items.foods"))
             .build(),
             content -> {
@@ -172,7 +172,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                     AnvilCraft.of("textures/gui/creative_inventory/section/items/materials.png")
                 )
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(20)
+                .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.items.materials"))
             .build(),
             content -> {
@@ -244,7 +244,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                     AnvilCraft.of("textures/gui/creative_inventory/section/items/produced.png")
                 )
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(20)
+                .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.items.produced"))
                 .build(),
             content -> {
@@ -267,7 +267,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                 AnvilCraft.of("textures/gui/creative_inventory/section/items/smithing_template.png")
             )
             .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-            .textIndent(20)
+            .textIndent(17)
             .text(Component.translatable("anvilcraft.creative.section.items.smithing_template"))
             .build(),
             content -> {
@@ -286,7 +286,7 @@ public class ItemsSections extends DisplayItemsGenerator {
                     AnvilCraft.of("textures/gui/creative_inventory/section/items/fluids.png")
                 )
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(20)
+                .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.items.fluids"))
                 .build(),
             content -> {

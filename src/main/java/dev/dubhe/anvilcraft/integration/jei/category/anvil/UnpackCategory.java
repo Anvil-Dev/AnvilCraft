@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
@@ -19,15 +20,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.TrapDoorBlock;
-import net.minecraft.world.level.block.state.properties.Half;
 
 public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
     public UnpackCategory(IGuiHelper helper) {
         super(
             helper,
             new DrawableBlockStateIcon(Blocks.ANVIL.defaultBlockState(),
-                Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP)),
+                ModBlocks.UNPACKING_TABLE.get().defaultBlockState()),
             Component.translatable("gui.anvilcraft.category.unpack")
         );
     }
@@ -57,7 +56,7 @@ public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
             RenderSupport.SINGLE_BLOCK);
         RenderSupport.renderBlock(
             guiGraphics,
-            Blocks.IRON_TRAPDOOR.defaultBlockState().setValue(TrapDoorBlock.HALF, Half.TOP),
+            ModBlocks.UNPACKING_TABLE.get().defaultBlockState(),
             81,
             40,
             10,
@@ -84,5 +83,6 @@ public class UnpackCategory extends AbstractProgressCategory<UnpackRecipe> {
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.UNPACK);
         registration.addRecipeCatalyst(new ItemStack(Items.IRON_TRAPDOOR), AnvilCraftJeiPlugin.UNPACK);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.UNPACKING_TABLE), AnvilCraftJeiPlugin.UNPACK);
     }
 }

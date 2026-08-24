@@ -33,6 +33,25 @@ public abstract class ProcessingItemStackRenderer<T extends BlockEntity & IItemH
     protected ProcessingItemStackRenderer(BlockEntityRendererProvider.Context context) {
     }
 
+    /**
+     * 是否启用方块态物品的放大渲染特判。
+     *
+     * <p>开启时，3D 方块物品会在槽内放大 2.8 倍渲染，使其贴合加工台槽位；
+     * 关闭时回退为普通物品散开渲染。默认开启，子类可按需复写。
+     */
+    protected boolean isBlockStateRenderEnabled() {
+        return true;
+    }
+
+    /**
+     * 散开渲染时物品绕 X 轴的基础旋转角度。
+     *
+     * <p>冲压台需要物品躺平贴合台面，返回 90；其余加工台保持直立，默认 1。
+     */
+    protected float getItemBaseXRotationDeg() {
+        return 1;
+    }
+
     @Override
     public void render(
         T table,
@@ -68,7 +87,7 @@ public abstract class ProcessingItemStackRenderer<T extends BlockEntity & IItemH
         for (int index = 0; index < items.size(); index++) {
             ItemStack stack = items.get(index);
             pose.pushPose();
-            if (gui3dFlags.get(index) && singleBlockKind) {
+            if (gui3dFlags.get(index) && singleBlockKind && this.isBlockStateRenderEnabled()) {
                 pose.translate(0.0F, -0.25F, 0.0F);
                 pose.scale(2.8F, 2.8F, 2.8F);
                 itemRenderer.renderStatic(
@@ -124,7 +143,7 @@ public abstract class ProcessingItemStackRenderer<T extends BlockEntity & IItemH
         pose.mulPose(
             new Quaternionf()
                 .rotateY(Mth.DEG_TO_RAD * (partAngleDeg * remaining + 35))
-                .rotateX(Mth.DEG_TO_RAD)
+                .rotateX(Mth.DEG_TO_RAD * this.getItemBaseXRotationDeg())
         );
         for (int layer = 0; layer <= stack.getCount() / 8; layer++) {
             pose.pushPose();

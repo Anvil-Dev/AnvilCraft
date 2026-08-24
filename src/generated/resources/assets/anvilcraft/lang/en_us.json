@@ -278,6 +278,8 @@
   "anvilcraft.configuration.section.anvilcraft.server.toml.title": "Anvilcraft Server Configuration",
   "anvilcraft.configuration.show_storage_stored_id": "Show Storage Stored ID",
   "anvilcraft.configuration.show_storage_stored_id.tooltip": "Add a tooltip line that shows storage stored ID",
+  "anvilcraft.configuration.sifting_unpacking_block_render_enabled": "Enlarged Block Rendering in Sifting/Unpacking Tables",
+  "anvilcraft.configuration.sifting_unpacking_block_render_enabled.tooltip": "Renders block-state items inside sifting and unpacking tables with the enlarged block model pick instead of regular scattered item rendering",
   "anvilcraft.configuration.sliding_rail_stick_to_each_other": "Sliding Rail Stick To Each Other",
   "anvilcraft.configuration.sliding_rail_stick_to_each_other.tooltip": "Pushing or pulling a sliding rail will chain to other rails",
   "anvilcraft.configuration.spacetime_supercomputer_command": "Spacetime Supercomputer Command",

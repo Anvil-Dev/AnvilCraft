@@ -30,7 +30,7 @@ import java.util.List;
  */
 @Getter
 public class CrushingTableBlockEntity extends BlockEntity implements IItemHandlerHolder, IItemHandlerCache {
-    public static final int INPUT_SLOTS = 2;
+    public static final int INPUT_SLOTS = 8;
     public static final int OUTPUT_SLOTS = 8;
 
     private final ItemStackHandler input = new ItemStackHandler(INPUT_SLOTS) {

@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
@@ -42,7 +43,7 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
         this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
         this.slotProbability = JeiRenderHelper.getSlotProbability(helper);
         this.icon =
-            new DrawableBlockStateIcon(Blocks.ANVIL.defaultBlockState(), Blocks.SCAFFOLDING.defaultBlockState());
+            new DrawableBlockStateIcon(Blocks.ANVIL.defaultBlockState(), ModBlocks.SIFTING_TABLE.get().defaultBlockState());
         this.title = Component.translatable("gui.anvilcraft.category.mesh");
         this.timer = helper.createTickTimer(30, 60, true);
 
@@ -103,7 +104,7 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
             12,
             RenderSupport.SINGLE_BLOCK);
         RenderSupport.renderBlock(
-            guiGraphics, Blocks.SCAFFOLDING.defaultBlockState(), 81, 30, 10, 12, RenderSupport.SINGLE_BLOCK);
+            guiGraphics, ModBlocks.SIFTING_TABLE.get().defaultBlockState(), 81, 30, 10, 12, RenderSupport.SINGLE_BLOCK);
 
         arrowIn.draw(guiGraphics, 55, 17);
         slotDefault.draw(guiGraphics, 36, 13);
@@ -122,5 +123,6 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.MESH);
         registration.addRecipeCatalyst(new ItemStack(Items.SCAFFOLDING), AnvilCraftJeiPlugin.MESH);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.SIFTING_TABLE), AnvilCraftJeiPlugin.MESH);
     }
 }

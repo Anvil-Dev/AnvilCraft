@@ -19,7 +19,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                     AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/forging.png")
                 )
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(20)
+                .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.forging"))
                 .build(),
             content -> {
@@ -48,7 +48,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                     AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/processing.png")
                 )
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(20)
+                .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.processing"))
                 .build(),
             content -> {
@@ -77,7 +77,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                     AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/logistics.png")
                 )
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(20)
+                .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.logistics"))
                 .build(),
             content -> {
@@ -99,7 +99,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                     AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/fluid_trans.png")
                 )
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(20)
+                .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.fluid_trans"))
                 .build(),
             content -> {
@@ -119,7 +119,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                     AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/functional.png")
                 )
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(20)
+                .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.functional"))
                 .build(),
             content -> {
@@ -145,7 +145,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                     AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/power.png")
                 )
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(20)
+                .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.power"))
                 .build(),
             content -> {
@@ -191,7 +191,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                     AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/redstone.png")
                 )
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(20)
+                .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.redstone"))
                 .build(),
             content -> {
@@ -222,7 +222,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                 AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/cfa.png")
                 )
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(20)
+                .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.cfa"))
             .build(),
             content -> {
@@ -248,7 +248,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                 AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/creative.png")
                 )
                 .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(20)
+                .textIndent(17)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.creative"))
             .build(),
             content -> {

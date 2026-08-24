@@ -31,6 +31,11 @@ public class CrushingTableBlockEntityRenderer
     }
 
     @Override
+    protected boolean isBlockStateRenderEnabled() {
+        return false;
+    }
+
+    @Override
     public void render(
         CrushingTableBlockEntity table,
         float partialTick,
