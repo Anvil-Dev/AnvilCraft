@@ -23,7 +23,7 @@ This page showcases all currently available special tool properties and their ef
 # Ruthless
 
 - Comes from [Frost Metal Tools](../002_material/202_frost_metal.md)
-- Weapons and tools with **Ruthless** will have all enchantments disabled except *Durability*, *Mending*, *Riptide*, and *Loyalty*
+- Weapons and tools with **Ruthless** will have all enchantments disabled
 - The levels of disabled enchantments are converted into attack damage and mining speed
   - Attack Damage: 2*√n + n/3
   - Mining Speed: n
