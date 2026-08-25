@@ -39,7 +39,7 @@ public class ItemFEStorage implements IEnergyStorage {
 
     @Override
     public int getEnergyStored() {
-        return stack.getOrDefault(ModComponents.STORED_ENERGY, 0);
+        return Math.min(stack.getOrDefault(ModComponents.STORED_ENERGY, 0), capacity);
     }
 
     @Override

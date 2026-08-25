@@ -1957,7 +1957,7 @@
   "tooltip.anvilcraft.item.large_cauldron": "An extremely huge cauldron",
   "tooltip.anvilcraft.item.large_cauldron.shift": "Can perform all cauldron crafting recipes\nCompatible with multiple processing types via different base blocks\nCan store multiple fluids",
   "tooltip.anvilcraft.item.large_crate": "A large crate, stores more items",
-  "tooltip.anvilcraft.item.large_crate.shift": "Can contain 65536 items\nBreaking it drops the contents\nWhen it holds more than 1000 items, hold Shift to break it\nCan update to Shulker Container",
+  "tooltip.anvilcraft.item.large_crate.shift": "Can contain 65536 items\nBreaking it drops the contents\nWhen it holds more than 1000 items, hold Shift to break it\nHold Shift and right-click to replace a 3×3×3 cube of crates with a large crate, preserving all contents\nCan update to Shulker Container",
   "tooltip.anvilcraft.item.large_fluid_tank": "Stores multiple fluids",
   "tooltip.anvilcraft.item.large_fluid_tank.shift": "Stores 512B shared by any number of fluids\nMenger Sponges unlock unlimited total storage\nCan store multiple fluids, each type of fluid that reaches 12800B will be converted to infinite\nCan interact with Dispensers for fluid transfer",
   "tooltip.anvilcraft.item.large_laser": "Equivalent to 16 lasers, outputs 16 intensity levels of laser, consumes 256 kW",

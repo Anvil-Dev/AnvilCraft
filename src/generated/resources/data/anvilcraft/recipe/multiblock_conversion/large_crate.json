@@ -1,0 +1,267 @@
+{
+  "type": "anvilcraft:multiblock_conversion",
+  "inputPattern": {
+    "grid": [
+      [
+        "000",
+        "000",
+        "000"
+      ],
+      [
+        "000",
+        "0A0",
+        "000"
+      ],
+      [
+        "000",
+        "000",
+        "000"
+      ]
+    ],
+    "mapping": {
+      "0": {
+        "blocks": "#c:stripped_logs"
+      },
+      "A": {
+        "blocks": "anvilcraft:resin_block"
+      }
+    }
+  },
+  "outputPattern": {
+    "grid": [
+      [
+        "0AB",
+        "CDE",
+        "FGH"
+      ],
+      [
+        "IJK",
+        "LMN",
+        "OPQ"
+      ],
+      [
+        "RST",
+        "UVW",
+        "XYZ"
+      ]
+    ],
+    "mapping": {
+      "0": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "bottom_wn"
+          }
+        ]
+      },
+      "A": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "bottom_n"
+          }
+        ]
+      },
+      "B": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "bottom_en"
+          }
+        ]
+      },
+      "C": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "bottom_w"
+          }
+        ]
+      },
+      "D": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "bottom_center"
+          }
+        ]
+      },
+      "E": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "bottom_e"
+          }
+        ]
+      },
+      "F": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "bottom_ws"
+          }
+        ]
+      },
+      "G": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "bottom_s"
+          }
+        ]
+      },
+      "H": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "bottom_es"
+          }
+        ]
+      },
+      "I": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "mid_wn"
+          }
+        ]
+      },
+      "J": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "mid_n"
+          }
+        ]
+      },
+      "K": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "mid_en"
+          }
+        ]
+      },
+      "L": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "mid_w"
+          }
+        ]
+      },
+      "M": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "mid_center"
+          }
+        ]
+      },
+      "N": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "mid_e"
+          }
+        ]
+      },
+      "O": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "mid_ws"
+          }
+        ]
+      },
+      "P": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "mid_s"
+          }
+        ]
+      },
+      "Q": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "mid_es"
+          }
+        ]
+      },
+      "R": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "top_wn"
+          }
+        ]
+      },
+      "S": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "top_n"
+          }
+        ]
+      },
+      "T": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "top_en"
+          }
+        ]
+      },
+      "U": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "top_w"
+          }
+        ]
+      },
+      "V": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "top_center"
+          }
+        ]
+      },
+      "W": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "top_e"
+          }
+        ]
+      },
+      "X": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "top_ws"
+          }
+        ]
+      },
+      "Y": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "top_s"
+          }
+        ]
+      },
+      "Z": {
+        "blocks": "anvilcraft:large_crate",
+        "properties": [
+          {
+            "half": "top_es"
+          }
+        ]
+      }
+    }
+  }
+}

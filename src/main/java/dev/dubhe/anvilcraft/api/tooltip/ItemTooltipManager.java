@@ -712,6 +712,7 @@ public class ItemTooltipManager {
                 Can contain 65536 items
                 Breaking it drops the contents
                 When it holds more than 1000 items, hold Shift to break it
+                Hold Shift and right-click to replace a 3×3×3 cube of crates with a large crate, preserving all contents
                 Can update to Shulker Container"""
         );
         SHIFT.put(
