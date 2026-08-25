@@ -396,7 +396,9 @@ public class ModBlocks {
         .loot((tables, block) -> tables.add(block, LootTable.lootTable()
             .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1.0f))
-                .add(LootItem.lootTableItem(ModBlocks.STAMPING_PLATFORM))
+                .add(LootItem.lootTableItem(ModBlocks.STAMPING_PLATFORM))))
+            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0f))
                 .add(LootItem.lootTableItem(Items.GRINDSTONE))))))
         .item()
         .model((context, provider) -> provider.withExistingParent(
@@ -415,7 +417,9 @@ public class ModBlocks {
         .loot((tables, block) -> tables.add(block, LootTable.lootTable()
             .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1.0f))
-                .add(LootItem.lootTableItem(ModBlocks.STAMPING_PLATFORM))
+                .add(LootItem.lootTableItem(ModBlocks.STAMPING_PLATFORM))))
+            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0f))
                 .add(LootItem.lootTableItem(Blocks.SCAFFOLDING.asItem()))))))
         .item()
         .model((context, provider) -> provider.withExistingParent(
@@ -434,7 +438,9 @@ public class ModBlocks {
         .loot((tables, block) -> tables.add(block, LootTable.lootTable()
             .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1.0f))
-                .add(LootItem.lootTableItem(ModBlocks.STAMPING_PLATFORM))
+                .add(LootItem.lootTableItem(ModBlocks.STAMPING_PLATFORM))))
+            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0f))
                 .add(LootItem.lootTableItem(Items.IRON_TRAPDOOR))))))
         .item()
         .model((context, provider) -> provider.withExistingParent(

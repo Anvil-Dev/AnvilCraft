@@ -1,7 +1,6 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
-import dev.anvilcraft.lib.v2.recipe.util.IRecipeResultOffsetBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.CrushingTableBlockEntity;
@@ -29,7 +28,6 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -39,7 +37,7 @@ import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
 public class CrushingTableBlock extends Block implements
-    SimpleWaterloggedBlock, IHammerRemovable, IMoveableEntityBlock, IRecipeResultOffsetBlock {
+    SimpleWaterloggedBlock, IHammerRemovable, IMoveableEntityBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     private static final VoxelShape REDUCE_AABB = Shapes.or(
         Block.box(2.0, 12.0, 2.0, 14.0, 16.0, 14.0),
@@ -123,12 +121,6 @@ public class CrushingTableBlock extends Block implements
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.CRUSHING_TABLE.create(pos, state);
-    }
-
-    @Override
-    public Vec3 getOffset(Level level, BlockPos pos, BlockState state) {
-        if (!(state.getBlock() instanceof CrushingTableBlock)) return Vec3.ZERO;
-        return new Vec3(0, -0.3, 0);
     }
 
     @Override
