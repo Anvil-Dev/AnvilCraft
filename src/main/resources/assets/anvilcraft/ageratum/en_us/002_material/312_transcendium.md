@@ -43,7 +43,7 @@ Ingots and nuggets are produced as dropped items; blocks are generated at the po
 
 - Created by combining [Ember Metal Tools](211_ember_metal.md) and [Frost Metal Tools](202_frost_metal.md)
 - Possesses [Property: Eternal](../001_feature/201_properties.md#eternal)
-- Possesses [Property: Fortune's Favor](../001_feature/201_properties.md#fortunes-favor)
+- Possesses [Property: Providence](../001_feature/201_properties.md#providence)
 
 <row halign="center">
 <recipe id="anvilcraft:multiphase_transcendium"/>

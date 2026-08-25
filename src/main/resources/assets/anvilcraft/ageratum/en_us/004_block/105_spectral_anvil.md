@@ -18,6 +18,7 @@ items:
 - <ref item="minecraft:chipped_anvil"/>: 2%
 - <ref item="minecraft:anvil"/>: 3%
 - <ref item="anvilcraft:royal_anvil"/>: 50%
+- <ref item="anvilcraft:frost_anvil"/>: 100%
 - <ref item="anvilcraft:ember_anvil"/>: 100%
 - <ref item="anvilcraft:transcendence_anvil"/>: 100%
 
