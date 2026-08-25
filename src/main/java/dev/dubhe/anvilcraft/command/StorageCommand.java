@@ -5,10 +5,13 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.exceptions.SimpleCommandExceptionType;
+import com.mojang.brigadier.suggestion.Suggestions;
+import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import com.mojang.datafixers.util.Pair;
 import dev.anvilcraft.lib.v2.util.ComponentUtil;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
@@ -18,18 +21,21 @@ import dev.dubhe.anvilcraft.saved.storage.Storages;
 import dev.dubhe.anvilcraft.util.CommandUtil;
 import net.minecraft.ChatFormatting;
 import net.minecraft.commands.CommandSourceStack;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 
 import static net.minecraft.commands.Commands.argument;
@@ -64,6 +70,7 @@ public class StorageCommand {
                         .executes(StorageCommand::storageList)
                         .then(
                             argument("type", StringArgumentType.word())
+                                .suggests(StorageCommand::suggestStorageTypes)
                                 .executes(StorageCommand::storageListFiltered)
                         )
                 )
@@ -71,6 +78,7 @@ public class StorageCommand {
                     literal("bind")
                         .then(
                             argument("id", StringArgumentType.word())
+                                .suggests(StorageCommand::suggestStorageIds)
                                 .executes(StorageCommand::storageBind)
                         )
                 )
@@ -195,5 +203,27 @@ public class StorageCommand {
         } catch (IllegalArgumentException e) {
             return null;
         }
+    }
+
+    /** 建议已注册的存储类型名（如 anvilcraft:crate）。 */
+    private static CompletableFuture<Suggestions> suggestStorageTypes(
+        CommandContext<CommandSourceStack> ctx,
+        SuggestionsBuilder builder
+    ) {
+        return SharedSuggestionProvider.suggest(
+            ModRegistries.STORAGE_TYPE.keySet().stream().map(ResourceLocation::toString),
+            builder
+        );
+    }
+
+    /** 建议现存存储的 UUID。 */
+    private static CompletableFuture<Suggestions> suggestStorageIds(
+        CommandContext<CommandSourceStack> ctx,
+        SuggestionsBuilder builder
+    ) {
+        return SharedSuggestionProvider.suggest(
+            Storages.get().getStorages().keySet().stream().map(UUID::toString),
+            builder
+        );
     }
 }
