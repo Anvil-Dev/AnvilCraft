@@ -26,13 +26,33 @@ public final class StorageTerminalClientStub {
         );
     }
 
+    /** 本地终端的会话标识：按玩家 UUID 派生，与服务器端一致。 */
+    public static UUID localTerminalId() {
+        return UUID.nameUUIDFromBytes(
+            ("anvilcraft:local_terminal:" + StorageTerminalClientStub.playerId()).getBytes(
+                java.nio.charset.StandardCharsets.UTF_8
+            )
+        );
+    }
+
+    /** 潜影终端的会话标识：按玩家 UUID 派生，与服务器端一致。 */
+    public static UUID shulkerTerminalId() {
+        return UUID.nameUUIDFromBytes(
+            ("anvilcraft:shulker_terminal:" + StorageTerminalClientStub.playerId()).getBytes(
+                java.nio.charset.StandardCharsets.UTF_8
+            )
+        );
+    }
+
     public static CompletableFuture<Long> ensureVirtualPos(UUID storageId) {
         Long cached = StorageTerminalClientStub.VIRTUAL_POS_CACHE.get(storageId);
         if (cached != null) {
             return CompletableFuture.completedFuture(cached);
         }
         return StorageTerminalClientStub.openRemote(storageId).thenApply(virtualPos -> {
-            StorageTerminalClientStub.VIRTUAL_POS_CACHE.put(storageId, virtualPos);
+            if (virtualPos != -1L) {
+                StorageTerminalClientStub.VIRTUAL_POS_CACHE.put(storageId, virtualPos);
+            }
             return virtualPos;
         });
     }

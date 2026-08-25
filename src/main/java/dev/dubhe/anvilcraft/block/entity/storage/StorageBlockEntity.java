@@ -43,6 +43,7 @@ public class StorageBlockEntity extends BlockEntity {
         }
         this.id = id;
         this.setChanged();
+        TerminalBlockRegistry.registerIfApplicable(this);
         if (this.level != null) {
             BlockState state = this.getBlockState();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, Block.UPDATE_ALL);
@@ -74,6 +75,7 @@ public class StorageBlockEntity extends BlockEntity {
         if (tag.contains("storage_id")) {
             this.id = tag.getUUID("storage_id");
         }
+        TerminalBlockRegistry.registerIfApplicable(this);
     }
 
     @Override

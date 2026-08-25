@@ -1,31 +1,51 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_hypercube": {
+    "has_crate": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:hypercube"
+            "items": "anvilcraft:crate"
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_shulker_terminal": {
+    "has_ender_pearl": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:shulker_terminal"
+            "items": "minecraft:ender_pearl"
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_singularity_crystal": {
+    "has_lapis_lazuli": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:singularity_crystal"
+            "items": "minecraft:lapis_lazuli"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_processor": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:processor"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_redstone_block": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:redstone_block"
           }
         ]
       },
@@ -33,33 +53,24 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:hyperdimension_terminal"
+        "recipe": "anvilcraft:local_terminal"
       },
       "trigger": "minecraft:recipe_unlocked"
-    },
-    "has_transcendium_ingot": {
-      "conditions": {
-        "items": [
-          {
-            "items": "anvilcraft:transcendium_ingot"
-          }
-        ]
-      },
-      "trigger": "minecraft:inventory_changed"
     }
   },
   "requirements": [
     [
       "has_the_recipe",
-      "has_transcendium_ingot",
-      "has_singularity_crystal",
-      "has_shulker_terminal",
-      "has_hypercube"
+      "has_crate",
+      "has_processor",
+      "has_ender_pearl",
+      "has_lapis_lazuli",
+      "has_redstone_block"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:hyperdimension_terminal"
+      "anvilcraft:local_terminal"
     ]
   }
 }

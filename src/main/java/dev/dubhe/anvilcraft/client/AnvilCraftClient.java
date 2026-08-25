@@ -97,6 +97,8 @@ public class AnvilCraftClient {
     public static void registerCustomItemDecorations(RegisterItemDecorationsEvent e) {
         e.register(ModItems.IONOCRAFT_BACKPACK, new IonocraftBackpackDecoration());
         e.register(ModItems.HYPERDIMENSION_TERMINAL, new TerminalInsertionDecoration());
+        e.register(ModItems.LOCAL_TERMINAL, new TerminalInsertionDecoration());
+        e.register(ModItems.SHULKER_TERMINAL, new TerminalInsertionDecoration());
     }
 
     public static void registerParticleProviders(RegisterParticleProvidersEvent e) {

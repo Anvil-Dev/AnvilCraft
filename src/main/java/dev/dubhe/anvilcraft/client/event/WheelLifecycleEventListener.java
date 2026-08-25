@@ -244,6 +244,10 @@ public class WheelLifecycleEventListener {
     }
 
     private static boolean isBoundTerminal(ItemStack stack) {
+        // 本地终端与潜影终端无需绑定，只要手持即可进入物品均衡模式
+        if (stack.is(ModItems.LOCAL_TERMINAL) || stack.is(ModItems.SHULKER_TERMINAL)) {
+            return true;
+        }
         if (!stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
             return false;
         }

@@ -111,13 +111,19 @@ public final class TerminalJeiStorageCache {
     }
 
     private static @Nullable UUID storageOf(ItemStack stack) {
-        if (!stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
-            return null;
+        if (stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
+            TerminalBinding binding = stack.get(ModComponents.TERMINAL_BINDING);
+            if (binding == null || binding.id().isEmpty()) {
+                return null;
+            }
+            return binding.id().get();
         }
-        TerminalBinding binding = stack.get(ModComponents.TERMINAL_BINDING);
-        if (binding == null || binding.id().isEmpty()) {
-            return null;
+        if (stack.is(ModItems.LOCAL_TERMINAL)) {
+            return StorageTerminalClientStub.localTerminalId();
         }
-        return binding.id().get();
+        if (stack.is(ModItems.SHULKER_TERMINAL)) {
+            return StorageTerminalClientStub.shulkerTerminalId();
+        }
+        return null;
     }
 }

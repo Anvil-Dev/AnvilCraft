@@ -4,6 +4,7 @@ import com.mojang.blaze3d.platform.InputConstants;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
+import dev.dubhe.anvilcraft.client.rpc.TerminalReachabilityCache;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -25,6 +26,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Objects;
@@ -82,6 +84,13 @@ public final class TerminalRemoteOverlay {
 
     public static void setHovering(ItemStack stack) {
         UUID newId = TerminalRemoteOverlay.storageIdOf(stack);
+        if (newId != null && !stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
+            // 本地 / 潜影终端：仅当当前可连接目标时激活浮窗（超出范围 / 无目标则不可用）
+            TerminalReachabilityCache.ensure(newId);
+            if (!TerminalReachabilityCache.isReachable(newId)) {
+                newId = null;
+            }
+        }
         if (Objects.equals(newId, TerminalRemoteOverlay.storageId)) {
             return;
         }
@@ -110,6 +119,11 @@ public final class TerminalRemoteOverlay {
 
     public static boolean isBoundTerminal(ItemStack stack) {
         return TerminalRemoteOverlay.storageIdOf(stack) != null;
+    }
+
+    /** 返回任意终端（超维 / 本地 / 潜影）当前会话的存储标识；非终端物品返回 null。 */
+    public static @Nullable UUID terminalIdOf(ItemStack stack) {
+        return TerminalRemoteOverlay.storageIdOf(stack);
     }
 
     public static void render(GuiGraphics graphics, Font font, float partialTick) {
@@ -238,6 +252,13 @@ public final class TerminalRemoteOverlay {
         if (TerminalRemoteOverlay.order.isEmpty()) {
             return true;
         }
+        // 第一次滚动先选中第一格（启用左右键取出）；其后的滚动才进行其它选择操作。
+        if (!TerminalRemoteOverlay.selected) {
+            TerminalRemoteOverlay.selected = true;
+            TerminalRemoteOverlay.cursor = 0;
+            TerminalRemoteOverlay.syncVisible();
+            return true;
+        }
         // 普通滚动选择相邻物品；按住 Shift 按行滚动；按住 Ctrl 翻页。
         // 所有滚动形式在首/末格边界都无条件循环回绕到对面。
         int step = 1;
@@ -250,7 +271,6 @@ public final class TerminalRemoteOverlay {
         int next = Math.floorMod(amount > 0 ? TerminalRemoteOverlay.cursor - step : TerminalRemoteOverlay.cursor + step, size);
         if (next != TerminalRemoteOverlay.cursor) {
             TerminalRemoteOverlay.cursor = next;
-            TerminalRemoteOverlay.selected = true;
             TerminalRemoteOverlay.syncVisible();
         }
         return true;
@@ -338,6 +358,19 @@ public final class TerminalRemoteOverlay {
     public static void tick() {
         if (!TerminalRemoteOverlay.isHovering()) {
             return;
+        }
+        // 本地 / 潜影终端：目标脱离连接范围（走远 / 目标消失）后停用浮窗
+        UUID id = TerminalRemoteOverlay.storageId;
+        Player player = Minecraft.getInstance().player;
+        if (id != null
+            && player != null
+            && (id.equals(StorageTerminalClientStub.localTerminalId())
+                || id.equals(StorageTerminalClientStub.shulkerTerminalId()))) {
+            TerminalReachabilityCache.ensure(id);
+            if (!TerminalReachabilityCache.isReachable(id)) {
+                TerminalRemoteOverlay.reset();
+                return;
+            }
         }
         // 内容尚未加载完成时更频繁地重试（有次数上限），之后按固定周期刷新，
         // 保证即使某次加载/同步响应被丢弃，也会在下个周期补上，数据最终一致。
@@ -581,14 +614,27 @@ public final class TerminalRemoteOverlay {
     }
 
     private static @Nullable UUID storageIdOf(ItemStack stack) {
-        if (stack.isEmpty() || !stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
+        if (stack.isEmpty()) {
             return null;
         }
-        TerminalBinding binding = stack.get(ModComponents.TERMINAL_BINDING);
-        if (binding == null || binding.id().isEmpty()) {
+        if (stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
+            TerminalBinding binding = stack.get(ModComponents.TERMINAL_BINDING);
+            if (binding == null || binding.id().isEmpty()) {
+                return null;
+            }
+            return binding.id().get();
+        }
+        Player player = Minecraft.getInstance().player;
+        if (player == null) {
             return null;
         }
-        return binding.id().get();
+        if (stack.is(ModItems.LOCAL_TERMINAL)) {
+            return StorageTerminalClientStub.localTerminalId();
+        }
+        if (stack.is(ModItems.SHULKER_TERMINAL)) {
+            return StorageTerminalClientStub.shulkerTerminalId();
+        }
+        return null;
     }
 
     private static void reset() {

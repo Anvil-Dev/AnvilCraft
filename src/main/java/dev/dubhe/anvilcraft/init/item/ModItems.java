@@ -54,6 +54,7 @@ import dev.dubhe.anvilcraft.item.HeavyHalberdCoreItem;
 import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
 import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
 import dev.dubhe.anvilcraft.item.IonocraftItem;
+import dev.dubhe.anvilcraft.item.LocalTerminalItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
 import dev.dubhe.anvilcraft.item.MultiphaseMatterItem;
 import dev.dubhe.anvilcraft.item.MultiphaseTranscendiumItem;
@@ -71,6 +72,7 @@ import dev.dubhe.anvilcraft.item.RoyalSwordItem;
 import dev.dubhe.anvilcraft.item.RubyItem;
 import dev.dubhe.anvilcraft.item.SapphireItem;
 import dev.dubhe.anvilcraft.item.SeedsPackItem;
+import dev.dubhe.anvilcraft.item.ShulkerTerminalItem;
 import dev.dubhe.anvilcraft.item.SpectralSlingshotItem;
 import dev.dubhe.anvilcraft.item.StructureDiskItem;
 import dev.dubhe.anvilcraft.item.StructureToolItem;
@@ -742,6 +744,20 @@ public class ModItems {
         .properties(properties -> properties.stacksTo(1)
             .component(DataComponents.ENCHANTMENT_GLINT_OVERRIDE, true)
             .rarity(Rarity.EPIC))
+        .register();
+
+    public static final ItemEntry<LocalTerminalItem> LOCAL_TERMINAL = REGISTRUM
+        .item("local_terminal", LocalTerminalItem::new)
+        .properties(properties -> properties.stacksTo(1))
+        .model((ctx, provider) -> provider.generated(ctx.lazy()))
+        .recipe(RegistrumItemRecipeLoader::localTerminal)
+        .register();
+
+    public static final ItemEntry<ShulkerTerminalItem> SHULKER_TERMINAL = REGISTRUM
+        .item("shulker_terminal", ShulkerTerminalItem::new)
+        .properties(properties -> properties.stacksTo(1))
+        .model((ctx, provider) -> provider.generated(ctx.lazy()))
+        .recipe(RegistrumItemRecipeLoader::shulkerTerminal)
         .register();
 
     public static final ItemEntry<HyperdimensionTerminalItem> HYPERDIMENSION_TERMINAL = REGISTRUM

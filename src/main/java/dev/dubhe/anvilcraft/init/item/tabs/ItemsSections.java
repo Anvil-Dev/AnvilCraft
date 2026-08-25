@@ -2,11 +2,12 @@ package dev.dubhe.anvilcraft.init.item.tabs;
 
 import dev.anvilcraft.lib.v2.registrum.util.CreativeTabSection;
 import dev.anvilcraft.lib.v2.registrum.util.CreativeTabSections;
-import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.enchantment.Enchantments;
 
@@ -17,14 +18,12 @@ public class ItemsSections extends DisplayItemsGenerator {
             return;
         }
         sections.section(
-            CreativeTabSection.builder(
-                    AnvilCraft.of("textures/gui/creative_inventory/section/items/tools.png")
-                )
+            CreativeTabSection.builder(ItemsSections.texture("tools"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.items.tools"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.items.tools"))
-            .build(),
+                .build(),
             content -> {
                 content.accept(ModItems.GUIDE_BOOK);
                 content.accept(ModItems.GEODE);
@@ -33,6 +32,8 @@ public class ItemsSections extends DisplayItemsGenerator {
                 content.accept(ModItems.DISK);
                 content.accept(ModItems.STRUCTURE_DISK);
                 content.accept(ModItems.FILTER);
+                content.accept(ModItems.LOCAL_TERMINAL);
+                content.accept(ModItems.SHULKER_TERMINAL);
                 content.accept(ModItems.HYPERDIMENSION_TERMINAL);
                 content.accept(ModItems.ANVIL_HAMMER);
                 content.accept(ModItems.DRAGON_ROD);
@@ -77,14 +78,12 @@ public class ItemsSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                    AnvilCraft.of("textures/gui/creative_inventory/section/items/guns.png")
-                )
+            CreativeTabSection.builder(ItemsSections.texture("guns"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.items.guns"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.items.guns"))
-            .build(),
+                .build(),
             content -> {
                 content.accept(ModItems.SPECTRAL_SLINGSHOT);
                 content.accept(ModItems.ENERGY_WEAPON_PLATFORM);
@@ -96,14 +95,12 @@ public class ItemsSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                    AnvilCraft.of("textures/gui/creative_inventory/section/items/power.png")
-                )
+            CreativeTabSection.builder(ItemsSections.texture("power"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.items.power"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.items.power"))
-            .build(),
+                .build(),
             content -> {
                 content.accept(ModItems.IONOCRAFT);
                 this.ionoCraftBackpack(ModItems.IONOCRAFT_BACKPACK);
@@ -114,14 +111,12 @@ public class ItemsSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                    AnvilCraft.of("textures/gui/creative_inventory/section/items/magic.png")
-                )
+            CreativeTabSection.builder(ItemsSections.texture("magic"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.items.magic"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.items.magic"))
-            .build(),
+                .build(),
             content -> {
                 content.accept(ModItems.RECOVERY_PEARL);
                 content.accept(ModItems.TOTEM_OF_RECOVERY);
@@ -144,14 +139,12 @@ public class ItemsSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                    AnvilCraft.of("textures/gui/creative_inventory/section/items/foods.png")
-                )
+            CreativeTabSection.builder(ItemsSections.texture("foods"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.items.foods"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.items.foods"))
-            .build(),
+                .build(),
             content -> {
                 content.accept(ModFoodItems.CURSED_GOLDEN_APPLE);
                 content.accept(ModFoodItems.CHOCOLATE);
@@ -173,14 +166,12 @@ public class ItemsSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                    AnvilCraft.of("textures/gui/creative_inventory/section/items/materials.png")
-                )
+            CreativeTabSection.builder(ItemsSections.texture("materials"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.items.materials"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.items.materials"))
-            .build(),
+                .build(),
             content -> {
                 content.accept(ModItems.RAW_ZINC);
                 content.accept(ModItems.RAW_TIN);
@@ -246,9 +237,7 @@ public class ItemsSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                    AnvilCraft.of("textures/gui/creative_inventory/section/items/produced.png")
-                )
+            CreativeTabSection.builder(ItemsSections.texture("produced"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.items.produced"))
@@ -270,14 +259,12 @@ public class ItemsSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                AnvilCraft.of("textures/gui/creative_inventory/section/items/smithing_template.png")
-            )
-            .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
-            .textRange(16, 49)
-            .text(Component.translatable("anvilcraft.creative.section.items.smithing_template"))
-            .tooltip(Component.translatable("anvilcraft.creative.section.items.smithing_template"))
-            .build(),
+            CreativeTabSection.builder(ItemsSections.texture("smithing_template"))
+                .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+                .textRange(16, 49)
+                .text(Component.translatable("anvilcraft.creative.section.items.smithing_template"))
+                .tooltip(Component.translatable("anvilcraft.creative.section.items.smithing_template"))
+                .build(),
             content -> {
                 content.accept(ModItems.ROYAL_STEEL_UPGRADE_SMITHING_TEMPLATE);
                 content.accept(ModItems.FROST_METAL_UPGRADE_SMITHING_TEMPLATE);
@@ -290,9 +277,7 @@ public class ItemsSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                    AnvilCraft.of("textures/gui/creative_inventory/section/items/fluids.png")
-                )
+            CreativeTabSection.builder(ItemsSections.texture("fluids"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.items.fluids"))
@@ -311,5 +296,9 @@ public class ItemsSections extends DisplayItemsGenerator {
                 ModItems.CEMENT_BUCKETS.forEach((color, bucketItem) -> this.acceptFolded(content, bucketItem));
             }
         );
+    }
+
+    private static ResourceLocation texture(String id) {
+        return SharedTextures.textureGui("creative_inventory/section/items/" + id);
     }
 }

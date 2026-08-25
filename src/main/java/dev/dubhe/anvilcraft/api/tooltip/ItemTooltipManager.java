@@ -413,6 +413,8 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.LARGE_CRATE.asItem(), "A large crate, stores more items");
         NORMAL.put(ModBlocks.SHULKER_CONTAINER.asItem(), "A space-folding container upgraded from a Large Crate");
         NORMAL.put(ModBlocks.HYPERDIMENSION_STORAGE_STATION.asItem(), "An infinite container upgraded from a Shulker Container");
+        NORMAL.put(ModItems.LOCAL_TERMINAL.asItem(), "A dynamic link of the nearest Large Crate within 32 blocks");
+        NORMAL.put(ModItems.SHULKER_TERMINAL.asItem(), "A dynamic link of Shulker-like storages");
         NORMAL.put(ModItems.HYPERDIMENSION_TERMINAL.asItem(), "A portable port of the binding Hyperdimension Storage Station");
         NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
         NORMAL.put(ModBlocks.FLUID_TANK.asItem(), "Stores fluids");
@@ -689,6 +691,13 @@ public class ItemTooltipManager {
                 Right click to store the Totems of Undying on your inventory, and shift-right-click to retrieve the totems;
                 When holding, consume the totems in the box when needed, and after consuming the totem, you may receive a secret gift"""
         );
+        SHIFT.put(
+            ModItems.SHULKER_TERMINAL.asItem(), """
+                Automatically connect to Shulker-like storage(s) according to specific priority
+                Prioritize connecting to the Shulker Container in the earliest inventory slot,
+                then connect to all Shulker Boxes in the inventory,
+                and finally connect to the nearest Shulker Container in the world within 64 blocks"""
+        );
         SHIFT.put(ModBlocks.PUMP.asItem(), """
                 Provides 10 blocks of headlift on both input and output sides (including the pump itself)
                 Also functions as check valve, allowing liquid to flow through only in the pump's direction
@@ -703,13 +712,13 @@ public class ItemTooltipManager {
         );
         SHIFT.put(
             ModBlocks.CRATE.asItem(), """
-                Can contain 2048 items
+                Can contain 2048 space of items
                 Breaking it drops the contents
                 When it holds more than 1000 items, hold Shift to break it"""
         );
         SHIFT.put(
             ModBlocks.LARGE_CRATE.asItem(), """
-                Can contain 65536 items
+                Can contain 65536 space of items
                 Breaking it drops the contents
                 When it holds more than 1000 items, hold Shift to break it
                 Hold Shift and right-click to replace a 3×3×3 cube of crates with a large crate, preserving all contents
@@ -720,7 +729,8 @@ public class ItemTooltipManager {
                 Can contain 65536 types of items, each type contain 65536 space of items by default
                 Breaking it drops the container with its items stored inside
                 Drop Space Overcompressors on top and strike with an anvil to expand capacity
-                Each one doubles the storage space (up to 4 times)"""
+                Each one doubles the storage space (up to 4 times)
+                Can update to Hyperdimension Storage Station"""
         );
         SHIFT.put(
             ModBlocks.HYPERDIMENSION_STORAGE_STATION.asItem(), """

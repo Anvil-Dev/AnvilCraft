@@ -753,7 +753,7 @@ public class RegistrumItemRecipeLoader {
             .pattern("DDD")
             .define('A', ModItems.TRANSCENDIUM_INGOT)
             .define('B', ModBlocks.SINGULARITY_CRYSTAL)
-            .define('C', ModBlocks.SPACETIME_SUPERCOMPUTER)
+            .define('C', ModItems.SHULKER_TERMINAL)
             .define('D', ModBlocks.HYPERCUBE)
             .group(ctx.getId().toString())
             .unlockedBy(
@@ -765,12 +765,65 @@ public class RegistrumItemRecipeLoader {
                 AnvilCraftDatagen.has(ModBlocks.SINGULARITY_CRYSTAL)
             )
             .unlockedBy(
-                AnvilCraftDatagen.hasItem(ModBlocks.SPACETIME_SUPERCOMPUTER.asItem()),
-                AnvilCraftDatagen.has(ModBlocks.SPACETIME_SUPERCOMPUTER)
+                AnvilCraftDatagen.hasItem(ModItems.SHULKER_TERMINAL),
+                RegistrumRecipeProvider.has(ModItems.SHULKER_TERMINAL)
             )
             .unlockedBy(
                 AnvilCraftDatagen.hasItem(ModBlocks.HYPERCUBE.asItem()),
                 AnvilCraftDatagen.has(ModBlocks.HYPERCUBE)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Item> void localTerminal(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("ABA")
+            .pattern("CDC")
+            .pattern("AEA")
+            .define('A', ModBlocks.CRATE)
+            .define('B', Items.ENDER_PEARL)
+            .define('C', ModItems.PROCESSOR)
+            .define('D', Items.LAPIS_LAZULI)
+            .define('E', Blocks.REDSTONE_BLOCK)
+            .group(ctx.getId().toString())
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModBlocks.CRATE),
+                RegistrumRecipeProvider.has(ModBlocks.CRATE)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.PROCESSOR),
+                RegistrumRecipeProvider.has(ModItems.PROCESSOR)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.ENDER_PEARL),
+                RegistrumRecipeProvider.has(Items.ENDER_PEARL)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.LAPIS_LAZULI),
+                RegistrumRecipeProvider.has(Items.LAPIS_LAZULI)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Blocks.REDSTONE_BLOCK),
+                RegistrumRecipeProvider.has(Blocks.REDSTONE_BLOCK)
+            )
+            .save(provider);
+    }
+
+    public static <T extends Item> void shulkerTerminal(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
+            .pattern("A")
+            .pattern("B")
+            .pattern("A")
+            .define('A', Items.SHULKER_SHELL)
+            .define('B', ModItems.LOCAL_TERMINAL)
+            .group(ctx.getId().toString())
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(Items.SHULKER_SHELL),
+                RegistrumRecipeProvider.has(Items.SHULKER_SHELL)
+            )
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.LOCAL_TERMINAL),
+                RegistrumRecipeProvider.has(ModItems.LOCAL_TERMINAL)
             )
             .save(provider);
     }

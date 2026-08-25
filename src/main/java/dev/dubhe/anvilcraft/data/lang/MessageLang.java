@@ -16,5 +16,7 @@ public class MessageLang {
         provider.add("message.anvilcraft.hyperdimension_terminal.bound", "Terminal bound");
         provider.add("message.anvilcraft.hyperdimension_terminal.not_bound", "Terminal is not bound");
         provider.add("message.anvilcraft.hyperdimension_terminal.not_found", "Bound storage station not found");
+        provider.add("message.anvilcraft.local_terminal.not_found", "No large crate within 32 blocks");
+        provider.add("message.anvilcraft.shulker_terminal.not_found", "No shulker container or shulker box found");
     }
 }
