@@ -79,7 +79,7 @@ public class Storages extends SavedData {
             storagesTag.put(entry.getKey().toString(), entry.getValue().serializeNBT(registries));
         }
         tag.put("storages", storagesTag);
-        tag.put("recover", this.recover.serializeNBT(storage -> storage.serializeNBT(registries)));
+        tag.put("recover", this.recover.serializeNBT(storage -> storage == null ? new CompoundTag() : storage.serializeNBT(registries)));
         return tag;
     }
 

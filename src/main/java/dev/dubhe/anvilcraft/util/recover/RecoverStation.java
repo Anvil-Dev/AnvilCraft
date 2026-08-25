@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.util.recover;
 
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableSet;
+import dev.anvilcraft.lib.v2.util.nullness.NullableType;
 import lombok.Getter;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -64,7 +65,7 @@ public class RecoverStation<T> {
         this.entries.clear();
     }
 
-    public CompoundTag serializeNBT(Function<T, Tag> encoder) {
+    public CompoundTag serializeNBT(Function<@NullableType T, Tag> encoder) {
         ListTag list = new ListTag();
         for (RecoverEntry<T> entry : this.entries) {
             CompoundTag tag = new CompoundTag();
