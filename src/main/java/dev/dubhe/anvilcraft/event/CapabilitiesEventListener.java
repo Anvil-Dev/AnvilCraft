@@ -84,6 +84,16 @@ public class CapabilitiesEventListener {
         ModBlockEntities.STAMPING_PLATFORM.get(),
         (be, side) -> side == Direction.DOWN ? null : be.getItemHandler()
         );
+        event.registerBlockEntity(
+            Capabilities.ItemHandler.BLOCK,
+            ModBlockEntities.SIFTING_TABLE.get(),
+            (be, side) -> side == Direction.DOWN ? null : be.getItemHandler()
+        );
+        event.registerBlockEntity(
+            Capabilities.ItemHandler.BLOCK,
+            ModBlockEntities.UNPACKING_TABLE.get(),
+            (be, side) -> side == Direction.DOWN ? null : be.getItemHandler()
+        );
 
         // 自动附魔台：引物格不允许自动输入输出
         event.registerBlockEntity(

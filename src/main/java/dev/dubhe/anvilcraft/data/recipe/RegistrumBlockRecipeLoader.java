@@ -264,24 +264,6 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
-    public static <T extends Block> void crushingTable(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
-            .requires(ModBlocks.STAMPING_PLATFORM)
-            .requires(Items.GRINDSTONE)
-            .unlockedBy("has_" + Items.GRINDSTONE, AnvilCraftDatagen.has(Items.GRINDSTONE))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Tags.Items.INGOTS_IRON))
-            .save(provider, AnvilCraft.of("shapeless_crushing_table_recipe"));
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("BAB")
-            .pattern("B B")
-            .pattern("B B")
-            .define('A', Items.GRINDSTONE)
-            .define('B', Tags.Items.INGOTS_IRON)
-            .unlockedBy("has_" + Items.GRINDSTONE, AnvilCraftDatagen.has(Items.GRINDSTONE))
-            .unlockedBy(AnvilCraftDatagen.hasItem(Items.IRON_INGOT), AnvilCraftDatagen.has(Tags.Items.INGOTS_IRON))
-            .save(provider, AnvilCraft.of("shaped_crushing_table_recipe"));
-    }
-
     public static <T extends Block> void fishTank(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
             .pattern("A A")

@@ -59,6 +59,7 @@ import dev.dubhe.anvilcraft.block.entity.RemoteTransmissionPoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ResentfulAmberBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyLaserBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.RubyPrismBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.SiftingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SimpleMagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
@@ -69,6 +70,7 @@ import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TradingStationBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TransmissionPoleBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.UnpackingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.VoidEnergyCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.WhiteHoleBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
@@ -122,11 +124,13 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PulseGeneratorBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PumpBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.SiftingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SpacetimeSupercomputerBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.StampingPlatformBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TradingStationBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.UnpackingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.VoidEnergyCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.WipBlockEntityRenderer;
 
@@ -526,6 +530,18 @@ public class ModBlockEntities {
         .blockEntity("stamping_platform", StampingPlatformBlockEntity::new)
         .validBlocks(ModBlocks.STAMPING_PLATFORM)
         .renderer(() -> StampingPlatformBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<SiftingTableBlockEntity> SIFTING_TABLE = REGISTRUM
+        .blockEntity("sifting_table", SiftingTableBlockEntity::new)
+        .validBlocks(ModBlocks.SIFTING_TABLE)
+        .renderer(() -> SiftingTableBlockEntityRenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<UnpackingTableBlockEntity> UNPACKING_TABLE = REGISTRUM
+        .blockEntity("unpacking_table", UnpackingTableBlockEntity::new)
+        .validBlocks(ModBlocks.UNPACKING_TABLE)
+        .renderer(() -> UnpackingTableBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<ExpCollectorBlockEntity> EXP_COLLECTOR = REGISTRUM

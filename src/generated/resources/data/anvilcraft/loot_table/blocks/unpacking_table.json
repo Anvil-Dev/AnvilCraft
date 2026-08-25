@@ -15,11 +15,11 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:grindstone"
+          "name": "minecraft:iron_trapdoor"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "anvilcraft:blocks/crushing_table"
+  "random_sequence": "anvilcraft:blocks/unpacking_table"
 }

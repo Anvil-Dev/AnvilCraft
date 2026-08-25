@@ -1,10 +1,9 @@
 package dev.dubhe.anvilcraft.block;
 
 import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
-import dev.anvilcraft.lib.v2.recipe.util.IRecipeResultOffsetBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
-import dev.dubhe.anvilcraft.block.entity.CrushingTableBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.UnpackingTableBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -29,7 +28,6 @@ import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.pathfinder.PathComputationType;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.BooleanOp;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
@@ -38,9 +36,10 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.Nullable;
 
-public class CrushingTableBlock extends Block implements
-    SimpleWaterloggedBlock, IHammerRemovable, IMoveableEntityBlock, IRecipeResultOffsetBlock {
+public class UnpackingTableBlock extends Block implements
+    SimpleWaterloggedBlock, IHammerRemovable, IMoveableEntityBlock {
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
+
     private static final VoxelShape REDUCE_AABB = Shapes.or(
         Block.box(2.0, 12.0, 2.0, 14.0, 16.0, 14.0),
         Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
@@ -51,9 +50,10 @@ public class CrushingTableBlock extends Block implements
         Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
         Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0));
     private static final VoxelShape AABB = Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.ONLY_FIRST);
-    private static final VoxelShape INTERACTION_BOX = Shapes.join(Shapes.block(), REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape INTERACTION_BOX =
+        Shapes.join(Shapes.block(), REDUCE_AABB_INTERACTION, BooleanOp.ONLY_FIRST);
 
-    public CrushingTableBlock(Properties properties) {
+    public UnpackingTableBlock(Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
     }
@@ -66,10 +66,10 @@ public class CrushingTableBlock extends Block implements
 
     @Override
     public VoxelShape getShape(
-        BlockState blockState,
-        BlockGetter blockGetter,
-        BlockPos blockPos,
-        CollisionContext collisionContext
+        BlockState state,
+        BlockGetter level,
+        BlockPos pos,
+        CollisionContext context
     ) {
         return AABB;
     }
@@ -80,21 +80,20 @@ public class CrushingTableBlock extends Block implements
     }
 
     @Override
-    protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
-        return false;
-    }
-
-    @Override
     protected boolean useShapeForLightOcclusion(BlockState state) {
         return true;
     }
 
     @Override
-    public BlockState getStateForPlacement(BlockPlaceContext blockPlaceContext) {
-        BlockPos blockPos = blockPlaceContext.getClickedPos();
-        FluidState
-            fluidState = blockPlaceContext.getLevel().getFluidState(blockPos);
-        BlockState state = super.getStateForPlacement(blockPlaceContext);
+    protected boolean isPathfindable(BlockState state, PathComputationType pathComputationType) {
+        return false;
+    }
+
+    @Override
+    public BlockState getStateForPlacement(BlockPlaceContext context) {
+        BlockPos pos = context.getClickedPos();
+        FluidState fluidState = context.getLevel().getFluidState(pos);
+        BlockState state = super.getStateForPlacement(context);
         state = null != state ? state : this.defaultBlockState();
         return state.setValue(WATERLOGGED, fluidState.getType() == Fluids.WATER);
     }
@@ -112,7 +111,7 @@ public class CrushingTableBlock extends Block implements
         if (hitResult.getDirection() != Direction.UP) {
             return ProcessingTableConversion.tryConvert(level, player, hand, state, pos, hitResult);
         }
-        if (level.getBlockEntity(pos) instanceof CrushingTableBlockEntity table
+        if (level.getBlockEntity(pos) instanceof UnpackingTableBlockEntity table
             && table.tryInteractItems(player, hand)
         ) {
             return ItemInteractionResult.sidedSuccess(level.isClientSide());
@@ -122,58 +121,47 @@ public class CrushingTableBlock extends Block implements
 
     @Override
     public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-        return ModBlockEntities.CRUSHING_TABLE.create(pos, state);
-    }
-
-    @Override
-    public Vec3 getOffset(Level level, BlockPos pos, BlockState state) {
-        if (!(state.getBlock() instanceof CrushingTableBlock)) return Vec3.ZERO;
-        return new Vec3(0, -0.3, 0);
+        return ModBlockEntities.UNPACKING_TABLE.create(pos, state);
     }
 
     @Override
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
-        if (level.isClientSide()) return;
-        if (!(entity instanceof ItemEntity itemEntity)) return;
+        if (level.isClientSide() || !(entity instanceof ItemEntity itemEntity)) return;
         if (!itemEntity.anvilcraft$isAdsorbable()) return;
         IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
         ItemStack stack = itemEntity.getItem();
         ItemStack remaining = ItemHandlerUtil.insertItem(handler, stack.copy(), false);
         if (remaining.getCount() == stack.getCount()) return;
-        if (remaining.isEmpty()) {
-            itemEntity.discard();
-        } else {
-            itemEntity.setItem(remaining);
-        }
+        if (remaining.isEmpty()) itemEntity.discard();
+        else itemEntity.setItem(remaining);
     }
 
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        if (!level.isClientSide() && !state.is(newState.getBlock()) && !movedByPiston) {
-            if (level.getBlockEntity(pos) instanceof CrushingTableBlockEntity table) {
-                table.dropAllContent(level, pos);
-            }
+        if (!level.isClientSide() && !state.is(newState.getBlock()) && !movedByPiston
+            && level.getBlockEntity(pos) instanceof UnpackingTableBlockEntity table) {
+            table.dropAllContent(level, pos);
         }
         super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
     @Override
-    public FluidState getFluidState(BlockState blockState) {
-        return blockState.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(blockState);
+    public FluidState getFluidState(BlockState state) {
+        return state.getValue(WATERLOGGED) ? Fluids.WATER.getSource(false) : super.getFluidState(state);
     }
 
     @Override
     public BlockState updateShape(
-        BlockState blockState,
+        BlockState state,
         Direction direction,
-        BlockState blockState2,
-        LevelAccessor levelAccessor,
-        BlockPos blockPos,
-        BlockPos blockPos2
+        BlockState neighborState,
+        LevelAccessor level,
+        BlockPos pos,
+        BlockPos neighborPos
     ) {
-        if (blockState.getValue(WATERLOGGED)) {
-            levelAccessor.scheduleTick(blockPos, Fluids.WATER, Fluids.WATER.getTickDelay(levelAccessor));
+        if (state.getValue(WATERLOGGED)) {
+            level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         }
-        return super.updateShape(blockState, direction, blockState2, levelAccessor, blockPos, blockPos2);
+        return super.updateShape(state, direction, neighborState, level, pos, neighborPos);
     }
 }

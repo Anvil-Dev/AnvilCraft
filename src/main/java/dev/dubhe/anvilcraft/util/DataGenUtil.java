@@ -95,7 +95,6 @@ public class DataGenUtil {
                 .build()
         );
     }
-
     /// 水平朝向 + ACTIVE 属性的方块 blockstate 生成（如流体接口）
     public static <T extends RegistrumBlockstateProvider> void horizontalFacingWithActive(
         DataGenContext<Block, ?> context,

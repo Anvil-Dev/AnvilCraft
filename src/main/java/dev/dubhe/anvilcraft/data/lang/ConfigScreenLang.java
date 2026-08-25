@@ -121,6 +121,16 @@ public class ConfigScreenLang {
             "anvilcraft.configuration.ionocraft_backpack_hud.capacitor_count_enabled.tooltip",
             "Shows the current number of Capacitors and Super Capacitors in the inventory on the HUD when enabled"
         );
+        addOverride(
+            provider,
+            "anvilcraft.configuration.sifting_unpacking_block_render_enabled",
+            "Enlarged Block Rendering in Sifting/Unpacking Tables"
+        );
+        addOverride(
+            provider,
+            "anvilcraft.configuration.sifting_unpacking_block_render_enabled.tooltip",
+            "Renders block-state items inside sifting and unpacking tables with the enlarged block model pick instead of regular scattered item rendering"
+        );
         addOverride(provider, "anvilcraft.configuration.anvil_hammer_radial_menu_scale", "Anvil Hammer Radial Menu Scale");
         addOverride(
             provider,

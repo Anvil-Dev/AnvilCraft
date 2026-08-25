@@ -89,6 +89,9 @@ public class AnvilCraftClientConfig {
         public double lensDirection = 1.0;
     }
 
+    @Comment("Render block-state items in sifting and unpacking tables with the enlarged block model pick")
+    public boolean siftingUnpackingBlockRenderEnabled = true;
+
     @Comment("A vertical item frame vertically displays items")
     public boolean verticalItemFrame = false;
 

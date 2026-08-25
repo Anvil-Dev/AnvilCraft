@@ -45,11 +45,22 @@ public class ItemStampingBehavior implements IAnvilBehavior {
     }
 
     /**
-     * 从冲压台原料槽读取物品执行冲压配方，产物优先写回产物槽，放不下的掉落在台面上。
+     * 从冲压台原料槽读取物品执行冲压配方，产物掉落至台面。
      */
     public static boolean processPlatform(StampingPlatformBlockEntity platform, Level level) {
+        return processItemHandler(
+            platform.getInput(),
+            platform.getBlockPos(),
+            level
+        );
+    }
+
+    private static boolean processItemHandler(
+        IItemHandler inputHandler,
+        BlockPos pos,
+        Level level
+    ) {
         if (!(level instanceof ServerLevel serverLevel)) return false;
-        IItemHandler inputHandler = platform.getInput();
         List<ItemStack> items = new ArrayList<>();
         for (int slot = 0; slot < inputHandler.getSlots(); slot++) {
             ItemStack stack = inputHandler.getStackInSlot(slot);
@@ -88,12 +99,12 @@ public class ItemStampingBehavior implements IAnvilBehavior {
             }
         }
 
-        insertResults(platform, level, results);
+        insertResults(pos, level, results);
         return true;
     }
 
     private static void insertResults(
-        StampingPlatformBlockEntity platform,
+        BlockPos pos,
         Level level,
         Object2IntMap<Item> results
     ) {
@@ -107,7 +118,6 @@ public class ItemStampingBehavior implements IAnvilBehavior {
                 count -= stackCount;
             }
         }
-        BlockPos pos = platform.getBlockPos();
         BlockState state = level.getBlockState(pos);
         if (state.getBlock() instanceof IRecipeResultOffsetBlock offsetBlock) {
             Vec3 resultPos = pos.getCenter().add(offsetBlock.getOffset(level, pos, state));

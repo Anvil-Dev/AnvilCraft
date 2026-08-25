@@ -15,11 +15,11 @@
         },
         {
           "type": "minecraft:item",
-          "name": "minecraft:grindstone"
+          "name": "minecraft:scaffolding"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "anvilcraft:blocks/crushing_table"
+  "random_sequence": "anvilcraft:blocks/sifting_table"
 }

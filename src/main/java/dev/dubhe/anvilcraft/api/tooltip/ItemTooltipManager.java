@@ -509,6 +509,8 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.LARGE_CAULDRON.asItem(), "An extremely huge cauldron");
         NORMAL.put(ModBlocks.STAMPING_PLATFORM.asItem(), "Perform stamping recipes");
         NORMAL.put(ModBlocks.CRUSHING_TABLE.asItem(), "Perform crushing recipes");
+        NORMAL.put(ModBlocks.SIFTING_TABLE.asItem(), "Perform sifting recipes");
+        NORMAL.put(ModBlocks.UNPACKING_TABLE.asItem(), "Perform unpacking recipes");
         NORMAL.put(
             ModBlocks.JEWEL_CRAFTING_TABLE.asItem(), """
                 A crafting station for rare items
@@ -529,6 +531,22 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CREATIVE_GENERATOR.asItem(), "Provide up to 65536 kW of power, can also be used as a load");
         NORMAL.put(ModFoodItems.COCOA_BUTTER.asItem(), "One hundred percent natural pure cocoa butter!");
 
+        SHIFT.put(
+            ModBlocks.STAMPING_PLATFORM.asItem(), """
+                Can be converted to the corresponding mode using a Grindstone, Scaffolding, Iron Trapdoor, or Anvil Hammer"""
+        );
+        SHIFT.put(
+            ModBlocks.CRUSHING_TABLE.asItem(), """
+                Can be converted to the corresponding mode using a Grindstone, Scaffolding, Iron Trapdoor, or Anvil Hammer"""
+        );
+        SHIFT.put(
+            ModBlocks.SIFTING_TABLE.asItem(), """
+                Can be converted to the corresponding mode using a Grindstone, Scaffolding, Iron Trapdoor, or Anvil Hammer"""
+        );
+        SHIFT.put(
+            ModBlocks.UNPACKING_TABLE.asItem(), """
+                Can be converted to the corresponding mode using a Grindstone, Scaffolding, Iron Trapdoor, or Anvil Hammer"""
+        );
         SHIFT.put(
             ModItems.LASER_GUN.get(), """
                 The laser damages mobs and can also mine blocks

@@ -2,6 +2,7 @@
 	"format_version": "1.9.0",
 	"credit": "Made by XeKr with Blockbench",
 	"parent": "block/block",
+   "render_type": "minecraft:cutout",
 	"ambientocclusion": false,
 	"textures": {
 		"0": "anvilcraft:block/processing_table_top",

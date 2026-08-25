@@ -8,6 +8,7 @@ import dev.anvilcraft.lib.v2.recipe.event.ItemCacheEvent;
 import dev.anvilcraft.lib.v2.recipe.util.InWorldRecipeContext;
 import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.CrushingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -59,6 +60,11 @@ public class InWorldRecipeEventListener {
         InWorldRecipeContext context = event.getContext();
         ServerLevel level = context.getLevel();
         BlockPos pos = BlockPos.containing(context.getPos());
+        if (recipeType == ModRecipeTypes.ITEM_CRUSH_TYPE.get()) {
+            if (level.getBlockEntity(pos.below()) instanceof CrushingTableBlockEntity table) {
+                table.onRecipeExecuted(20);
+            }
+        }
         TriggerUtil.inWorldRecipe(level, pos, ResourceLocation.parse(recipeType.toString()), id);
     }
 

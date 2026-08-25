@@ -130,6 +130,7 @@ import dev.dubhe.anvilcraft.block.RoyalGrindstoneBlock;
 import dev.dubhe.anvilcraft.block.RoyalSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.RubyLaserBlock;
 import dev.dubhe.anvilcraft.block.RubyPrismBlock;
+import dev.dubhe.anvilcraft.block.SiftingTableBlock;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.SimpleConfinementAnvilonBlock;
 import dev.dubhe.anvilcraft.block.SimpleMagneticChuteBlock;
@@ -151,6 +152,7 @@ import dev.dubhe.anvilcraft.block.TranscendenceSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.TranscendiumBlock;
 import dev.dubhe.anvilcraft.block.TransmissionPoleBlock;
 import dev.dubhe.anvilcraft.block.TransparentCraftingTableBlock;
+import dev.dubhe.anvilcraft.block.UnpackingTableBlock;
 import dev.dubhe.anvilcraft.block.VoidEnergyCollectorBlock;
 import dev.dubhe.anvilcraft.block.VoidMatterBlock;
 import dev.dubhe.anvilcraft.block.WhiteHoleBlock;
@@ -373,20 +375,74 @@ public class ModBlocks {
 
     public static final BlockEntry<? extends Block> STAMPING_PLATFORM = REGISTRUM.block("stamping_platform", StampingPlatformBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .lang("Processing Table - Stamping")
         .properties(properties -> properties.isValidSpawn(Blocks::never))
-        .blockstate(DataGenUtil::horizontalFacingBlock)
-        .simpleItem()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model((context, provider) -> provider.withExistingParent(
+            context.getName(),
+            AnvilCraft.of("block/processing_table")
+        ))
+        .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .recipe(RegistrumBlockRecipeLoader::stampingPlatform)
         .register();
 
     public static final BlockEntry<? extends Block> CRUSHING_TABLE = REGISTRUM.block("crushing_table", CrushingTableBlock::new)
         .initialProperties(() -> Blocks.IRON_BLOCK)
+        .lang("Processing Table - Crushing")
         .properties(properties -> properties.isValidSpawn(Blocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .simpleItem()
+        .loot((tables, block) -> tables.add(block, LootTable.lootTable()
+            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0f))
+                .add(LootItem.lootTableItem(ModBlocks.STAMPING_PLATFORM))
+                .add(LootItem.lootTableItem(Items.GRINDSTONE))))))
+        .item()
+        .model((context, provider) -> provider.withExistingParent(
+            context.getName(),
+            AnvilCraft.of("block/processing_table_crushing")
+        ))
+        .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
-        .recipe(RegistrumBlockRecipeLoader::crushingTable)
+        .register();
+
+    public static final BlockEntry<SiftingTableBlock> SIFTING_TABLE = REGISTRUM.block("sifting_table", SiftingTableBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .lang("Processing Table - Sifting")
+        .properties(properties -> properties.isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .loot((tables, block) -> tables.add(block, LootTable.lootTable()
+            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0f))
+                .add(LootItem.lootTableItem(ModBlocks.STAMPING_PLATFORM))
+                .add(LootItem.lootTableItem(Blocks.SCAFFOLDING.asItem()))))))
+        .item()
+        .model((context, provider) -> provider.withExistingParent(
+            context.getName(),
+            AnvilCraft.of("block/processing_table_sifting")
+        ))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<UnpackingTableBlock> UNPACKING_TABLE = REGISTRUM.block("unpacking_table", UnpackingTableBlock::new)
+        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .lang("Processing Table - Unpacking")
+        .properties(properties -> properties.isValidSpawn(Blocks::never))
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .loot((tables, block) -> tables.add(block, LootTable.lootTable()
+            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0f))
+                .add(LootItem.lootTableItem(ModBlocks.STAMPING_PLATFORM))
+                .add(LootItem.lootTableItem(Items.IRON_TRAPDOOR))))))
+        .item()
+        .model((context, provider) -> provider.withExistingParent(
+            context.getName(),
+            AnvilCraft.of("block/processing_table_unpacking")
+        ))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<FishTankBlock> FISH_TANK = REGISTRUM.block("fish_tank", FishTankBlock::new)

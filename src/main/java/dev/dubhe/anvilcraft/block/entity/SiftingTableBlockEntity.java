@@ -11,7 +11,6 @@ import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -25,11 +24,8 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * 冲压平台方块实体，用于存储原料，并在铁砧砸落时执行冲压配方。
- */
 @Getter
-public class StampingPlatformBlockEntity extends BlockEntity implements IItemHandlerHolder, IItemHandlerCache {
+public class SiftingTableBlockEntity extends BlockEntity implements IItemHandlerHolder, IItemHandlerCache {
     public static final int INPUT_SLOTS = 8;
 
     private final ItemStackHandler input = new ItemStackHandler(INPUT_SLOTS) {
@@ -42,12 +38,8 @@ public class StampingPlatformBlockEntity extends BlockEntity implements IItemHan
                     sameItemCount += existing.getCount();
                 }
             }
-            int acceptableCount = Math.min(
-                stack.getMaxStackSize() - sameItemCount,
-                stack.getCount()
-            );
+            int acceptableCount = Math.min(stack.getMaxStackSize() - sameItemCount, stack.getCount());
             if (acceptableCount <= 0) return stack;
-
             ItemStack acceptable = stack.copyWithCount(acceptableCount);
             ItemStack remaining = super.insertItem(slot, acceptable, simulate);
             if (simulate) {
@@ -63,8 +55,8 @@ public class StampingPlatformBlockEntity extends BlockEntity implements IItemHan
 
         @Override
         protected void onContentsChanged(int slot) {
-            StampingPlatformBlockEntity.this.setChanged();
-            StampingPlatformBlockEntity.this.sendUpdate();
+            SiftingTableBlockEntity.this.setChanged();
+            SiftingTableBlockEntity.this.sendUpdate();
         }
     };
 
@@ -74,12 +66,12 @@ public class StampingPlatformBlockEntity extends BlockEntity implements IItemHan
     private final ItemStackHandler proxy = new ItemStackHandler(INPUT_SLOTS) {
         @Override
         public ItemStack getStackInSlot(int slot) {
-            return StampingPlatformBlockEntity.this.input.getStackInSlot(slot);
+            return SiftingTableBlockEntity.this.input.getStackInSlot(slot);
         }
 
         @Override
         public int getSlotLimit(int slot) {
-            return StampingPlatformBlockEntity.this.input.getSlotLimit(slot);
+            return SiftingTableBlockEntity.this.input.getSlotLimit(slot);
         }
 
         @Override
@@ -89,7 +81,7 @@ public class StampingPlatformBlockEntity extends BlockEntity implements IItemHan
 
         @Override
         public boolean isItemValid(int slot, ItemStack stack) {
-            return StampingPlatformBlockEntity.this.input.isItemValid(slot, stack);
+            return SiftingTableBlockEntity.this.input.isItemValid(slot, stack);
         }
 
         @Override
@@ -98,21 +90,21 @@ public class StampingPlatformBlockEntity extends BlockEntity implements IItemHan
 
         @Override
         public void setStackInSlot(int slot, ItemStack stack) {
-            StampingPlatformBlockEntity.this.input.setStackInSlot(slot, stack);
+            SiftingTableBlockEntity.this.input.setStackInSlot(slot, stack);
         }
 
         @Override
         public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            return StampingPlatformBlockEntity.this.input.insertItem(slot, stack, simulate);
+            return SiftingTableBlockEntity.this.input.insertItem(slot, stack, simulate);
         }
 
         @Override
         public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            return StampingPlatformBlockEntity.this.input.extractItem(slot, amount, simulate);
+            return SiftingTableBlockEntity.this.input.extractItem(slot, amount, simulate);
         }
     };
 
-    public StampingPlatformBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+    public SiftingTableBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
 
@@ -134,10 +126,7 @@ public class StampingPlatformBlockEntity extends BlockEntity implements IItemHan
     private void sendUpdate() {
         if (this.level == null || this.level.isClientSide()) return;
         this.level.sendBlockUpdated(
-            this.getBlockPos(),
-            this.getBlockState(),
-            this.getBlockState(),
-            Block.UPDATE_CLIENTS
+            this.getBlockPos(), this.getBlockState(), this.getBlockState(), Block.UPDATE_CLIENTS
         );
     }
 
@@ -153,11 +142,6 @@ public class StampingPlatformBlockEntity extends BlockEntity implements IItemHan
         return ClientboundBlockEntityDataPacket.create(this);
     }
 
-    /**
-     * 手持物品时将手中物品插入原料槽，空手时取出全部内容物。
-     *
-     * @return 是否完成了交互
-     */
     public boolean tryInteractItems(Player player, InteractionHand hand) {
         if (this.level == null || hand != InteractionHand.MAIN_HAND) return false;
         ItemStack inHand = player.getItemInHand(hand);
@@ -166,10 +150,7 @@ public class StampingPlatformBlockEntity extends BlockEntity implements IItemHan
             this.extractAllItems(stacks);
             if (stacks.isEmpty()) return false;
             if (this.level.isClientSide()) return true;
-            Inventory inventory = player.getInventory();
-            for (ItemStack stack : stacks) {
-                inventory.placeItemBackInInventory(stack);
-            }
+            for (ItemStack stack : stacks) player.getInventory().placeItemBackInInventory(stack);
             return true;
         }
         if (this.level.isClientSide()) return true;
@@ -191,9 +172,7 @@ public class StampingPlatformBlockEntity extends BlockEntity implements IItemHan
     public void dropAllContent(Level level, BlockPos pos) {
         List<ItemStack> stacks = new ArrayList<>();
         this.extractAllItems(stacks);
-        for (ItemStack stack : stacks) {
-            Block.popResource(level, pos, stack);
-        }
+        for (ItemStack stack : stacks) Block.popResource(level, pos, stack);
     }
 
     @Override

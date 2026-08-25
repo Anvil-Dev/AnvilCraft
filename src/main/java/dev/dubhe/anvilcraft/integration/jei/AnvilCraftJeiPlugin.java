@@ -25,6 +25,7 @@ import dev.dubhe.anvilcraft.integration.jei.category.MobTransformCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.MultipleToOneSmithingCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.PortalConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.ProceduralProcessCategory;
+import dev.dubhe.anvilcraft.integration.jei.category.ProcessingTableConversionCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.SolidLiquidCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCompressCategory;
 import dev.dubhe.anvilcraft.integration.jei.category.anvil.BlockCrushCategory;
@@ -53,6 +54,7 @@ import dev.dubhe.anvilcraft.integration.jei.recipe.DecayRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MineralFountainJeiRecipe;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MobTransformJeiRecipe;
+import dev.dubhe.anvilcraft.integration.jei.recipe.ProcessingTableConversionRecipe;
 import dev.dubhe.anvilcraft.inventory.RoyalSmithingMenu;
 import dev.dubhe.anvilcraft.recipe.CanningFoodRecipe;
 import dev.dubhe.anvilcraft.recipe.ChargerChargingRecipe;
@@ -181,6 +183,9 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     public static final RecipeType<RecipeHolder<AnvilCollisionCraftRecipe>> ANVIL_COLLISION =
         createRecipeHolderType("anvil_collision");
 
+    public static final RecipeType<ProcessingTableConversionRecipe> PROCESSING_TABLE_CONVERSION =
+        createRecipeType("processing_table_conversion", ProcessingTableConversionRecipe.class);
+
     public static final RecipeType<RecipeHolder<ProceduralProcessRecipe>> PROCEDURAL_PROCESS =
         createRecipeHolderType("procedural_process");
     public static final RecipeType<RecipeHolder<EnergyWeaponMakeRecipe>> ENERGY_WEAPON =
@@ -227,6 +232,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         EnergyWeaponCategory.registerRecipes(registration);
         MineralFountainCategory.registerRecipes(registration);
         ContainerUpgradeCategory.registerRecipes(registration);
+        ProcessingTableConversionCategory.registerRecipes(registration);
     }
 
     @Override
@@ -263,6 +269,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         EnergyWeaponCategory.registerRecipeCatalysts(registration);
         MineralFountainCategory.registerRecipeCatalysts(registration);
         ContainerUpgradeCategory.registerRecipeCatalysts(registration);
+        ProcessingTableConversionCategory.registerRecipeCatalysts(registration);
 
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.BATCH_CRAFTER), RecipeTypes.CRAFTING);
 
@@ -314,6 +321,7 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         registration.addRecipeCategories(new EnergyWeaponCategory(guiHelper));
         registration.addRecipeCategories(new MineralFountainCategory(guiHelper));
         registration.addRecipeCategories(new ContainerUpgradeCategory(guiHelper));
+        registration.addRecipeCategories(new ProcessingTableConversionCategory(guiHelper));
     }
 
     @Override

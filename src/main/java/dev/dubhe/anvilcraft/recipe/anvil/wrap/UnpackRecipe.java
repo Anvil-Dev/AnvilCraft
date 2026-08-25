@@ -58,9 +58,11 @@ public class UnpackRecipe extends AbstractProcessRecipe<UnpackRecipe> {
             .setBlockInputOffset(new Vec3i(0, -1, 0))
             .setInputBlocks(
                 BlockStatePredicate.builder()
-                    .of(Blocks.IRON_TRAPDOOR)
+                    .of(Blocks.IRON_TRAPDOOR, ModBlocks.UNPACKING_TABLE.get())
                     .with(TrapDoorBlock.HALF, Half.TOP)
                     .with(TrapDoorBlock.OPEN, false)
+                    .or()
+                    .with(ModBlocks.UNPACKING_TABLE.get().defaultBlockState())
                     .build()
             );
 

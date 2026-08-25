@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.integration.jei.category.anvil;
 
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.drawable.DrawableBlockStateIcon;
 import dev.dubhe.anvilcraft.integration.jei.recipe.MeshRecipeGroup;
@@ -122,5 +123,6 @@ public class MeshRecipeCategory implements IRecipeCategory<MeshRecipeGroup> {
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.addAnvilProcessingCatalysts(registration, AnvilCraftJeiPlugin.MESH);
         registration.addRecipeCatalyst(new ItemStack(Items.SCAFFOLDING), AnvilCraftJeiPlugin.MESH);
+        registration.addRecipeCatalyst(new ItemStack(ModBlocks.SIFTING_TABLE), AnvilCraftJeiPlugin.MESH);
     }
 }

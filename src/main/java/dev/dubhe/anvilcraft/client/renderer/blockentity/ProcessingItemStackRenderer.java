@@ -1,0 +1,169 @@
+package dev.dubhe.anvilcraft.client.renderer.blockentity;
+
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Axis;
+import dev.dubhe.anvilcraft.api.itemhandler.IItemHandlerHolder;
+import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemDisplayContext;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Quaternionf;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+public abstract class ProcessingItemStackRenderer<T extends BlockEntity & IItemHandlerHolder>
+    implements BlockEntityRenderer<T> {
+    private static final float BASE_Y = 0.8F;
+    private static final float STACK_RADIUS = 0.125F;
+    private final RandomSource random = RandomSource.create();
+
+    protected ProcessingItemStackRenderer(BlockEntityRendererProvider.Context context) {
+    }
+
+    /**
+     * 是否启用方块态物品的放大渲染特判。
+     *
+     * <p>开启时，3D 方块物品会在槽内放大 2.8 倍渲染，使其贴合加工台槽位；
+     * 关闭时回退为普通物品散开渲染。默认开启，子类可按需复写。
+     */
+    protected boolean isBlockStateRenderEnabled() {
+        return true;
+    }
+
+    /**
+     * 散开渲染时物品绕 X 轴的基础旋转角度。
+     *
+     * <p>冲压台需要物品躺平贴合台面，返回 90；其余加工台保持直立，默认 1。
+     */
+    protected float getItemBaseXRotationDeg() {
+        return 1;
+    }
+
+    @Override
+    public void render(
+        T table,
+        float partialTick,
+        PoseStack pose,
+        MultiBufferSource source,
+        int light,
+        int overlay
+    ) {
+        Level level = table.getLevel();
+        if (level == null) return;
+        List<ItemStack> items = ItemHandlerUtil.getNonEmptyItemsFromHandler(table.getItemHandler());
+        if (items.isEmpty()) return;
+
+        this.random.setSeed(ItemHandlerUtil.hash(table.getItemHandler()));
+        final float randomOffsetDeg = this.random.nextIntBetweenInclusive(0, 50) - 25;
+        final ItemRenderer itemRenderer = Minecraft.getInstance().getItemRenderer();
+
+        pose.pushPose();
+        pose.translate(0.5F, BASE_Y, 0.5F);
+
+        int remaining = items.size();
+        float partAngleDeg = 360F / remaining;
+        Vec3 vec = remaining == 1 ? Vec3.ZERO : new Vec3(STACK_RADIUS, 0, 0);
+        List<Boolean> gui3dFlags = new ArrayList<>(items.size());
+        Set<Item> blockKinds = new HashSet<>();
+        for (ItemStack stack : items) {
+            boolean gui3d = itemRenderer.getModel(stack, level, null, 0).isGui3d();
+            gui3dFlags.add(gui3d);
+            if (gui3d) blockKinds.add(stack.getItem());
+        }
+        final boolean singleBlockKind = blockKinds.size() == 1;
+        for (int index = 0; index < items.size(); index++) {
+            ItemStack stack = items.get(index);
+            pose.pushPose();
+            if (gui3dFlags.get(index) && singleBlockKind && this.isBlockStateRenderEnabled()) {
+                pose.translate(0.0F, -0.25F, 0.0F);
+                pose.scale(2.8F, 2.8F, 2.8F);
+                itemRenderer.renderStatic(
+                    stack,
+                    ItemDisplayContext.GROUND,
+                    light,
+                    overlay,
+                    pose,
+                    source,
+                    level,
+                    0
+                );
+            } else {
+                this.renderScatteredItem(
+                    stack,
+                    partAngleDeg,
+                    remaining,
+                    vec,
+                    randomOffsetDeg,
+                    itemRenderer,
+                    level,
+                    light,
+                    overlay,
+                    pose,
+                    source
+                );
+            }
+            pose.popPose();
+            remaining--;
+        }
+        pose.popPose();
+        if (source instanceof MultiBufferSource.BufferSource buffer) buffer.endBatch();
+    }
+
+    private void renderScatteredItem(
+        ItemStack stack,
+        float partAngleDeg,
+        int remaining,
+        Vec3 vec,
+        float randomOffsetDeg,
+        ItemRenderer itemRenderer,
+        Level level,
+        int light,
+        int overlay,
+        PoseStack pose,
+        MultiBufferSource source
+    ) {
+        pose.mulPose(Axis.YP.rotationDegrees(randomOffsetDeg));
+        float angle = Mth.DEG_TO_RAD * (partAngleDeg * remaining);
+        double sin = Mth.sin(angle);
+        double cos = Mth.cos(angle);
+        pose.translate(vec.x * cos + vec.z * sin, vec.y, vec.z * cos - vec.x * sin);
+        pose.mulPose(
+            new Quaternionf()
+                .rotateY(Mth.DEG_TO_RAD * (partAngleDeg * remaining + 35))
+                .rotateX(Mth.DEG_TO_RAD * this.getItemBaseXRotationDeg())
+        );
+        for (int layer = 0; layer <= stack.getCount() / 8; layer++) {
+            pose.pushPose();
+            float radius = 1 / 16F;
+            pose.translate(
+                (this.random.nextFloat() - 0.5F) * 2 * radius,
+                (this.random.nextFloat() - 0.5F) * 2 * radius,
+                (this.random.nextFloat() - 0.5F) * 2 * radius
+            );
+            itemRenderer.renderStatic(
+                stack,
+                ItemDisplayContext.GROUND,
+                light,
+                overlay,
+                pose,
+                source,
+                level,
+                0
+            );
+            pose.popPose();
+        }
+    }
+}
