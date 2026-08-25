@@ -1,7 +1,9 @@
 package dev.dubhe.anvilcraft.inventory;
 
+import dev.dubhe.anvilcraft.api.itemhandler.ReadOnlyItemHandlerWrapper;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.network.multiple.SmithingTemplatePackets;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -27,6 +29,8 @@ import net.neoforged.neoforge.network.PacketDistributor;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.IntFunction;
 import javax.annotation.Nullable;
 
 /**
@@ -38,7 +42,9 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
 
     private final Level templateLevel;
     private final Player menuPlayer;
+    @Getter
     private List<ItemStack> adjacentTemplates = List.of();
+    @Getter
     private List<ResourceLocation> favoriteTemplates = List.of();
     private ItemStack borrowedTemplateStack = ItemStack.EMPTY;
     private long nextRefreshTime;
@@ -64,14 +70,6 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
 
     /** 判断物品能否作为当前锻造台的模板。 */
     protected abstract boolean isUsableTemplate(ItemStack stack);
-
-    public List<ItemStack> getAdjacentTemplates() {
-        return this.adjacentTemplates;
-    }
-
-    public List<ResourceLocation> getFavoriteTemplates() {
-        return this.favoriteTemplates;
-    }
 
     public boolean isBorrowedTemplate(ItemStack stack) {
         return !this.borrowedTemplateStack.isEmpty() && stack.is(this.borrowedTemplateStack.getItem());
@@ -175,10 +173,16 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
 
     private void collectTemplates(@Nullable IItemHandler handler, List<ItemStack> templates) {
         if (handler == null) return;
+        IntFunction<ItemStack> extractor;
+        if (handler instanceof ReadOnlyItemHandlerWrapper wrapper) {
+            extractor = slot -> wrapper.extractItemBypass(slot, 1, true);
+        } else {
+            extractor = slot -> handler.extractItem(slot, 1, true);
+        }
         for (int slot = 0; slot < handler.getSlots(); slot++) {
             ItemStack stack = handler.getStackInSlot(slot);
             if (stack.isEmpty() || !this.isUsableTemplate(stack)) continue;
-            ItemStack simulated = handler.extractItem(slot, 1, true);
+            ItemStack simulated = extractor.apply(slot);
             if (!ItemStack.isSameItemSameComponents(stack.copyWithCount(1), simulated)) continue;
             addUniqueTemplate(templates, stack);
         }
@@ -228,12 +232,18 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
             BlockPos sourcePos = this.tablePos.relative(direction);
             IItemHandler handler = this.getItemHandler(sourcePos);
             if (handler == null) continue;
+            BiFunction<Integer, Boolean, ItemStack> extractor;
+            if (handler instanceof ReadOnlyItemHandlerWrapper wrapper) {
+                extractor = (slot, simulate) -> wrapper.extractItemBypass(slot, 1, simulate);
+            } else {
+                extractor = (slot, simulate) -> handler.extractItem(slot, 1, simulate);
+            }
             for (int slot = 0; slot < handler.getSlots(); slot++) {
                 ItemStack stack = handler.getStackInSlot(slot);
                 if (!matchesTemplate(stack, template) || !this.isUsableTemplate(stack)) continue;
-                ItemStack simulated = handler.extractItem(slot, 1, true);
+                ItemStack simulated = extractor.apply(slot, true);
                 if (!matchesTemplate(simulated, template) || !this.isUsableTemplate(simulated)) continue;
-                ItemStack extracted = handler.extractItem(slot, 1, false);
+                ItemStack extracted = extractor.apply(slot, false);
                 if (matchesTemplate(extracted, template) && this.isUsableTemplate(extracted)) {
                     return new ExtractedTemplate(
                         sourcePos.immutable(),
@@ -279,13 +289,19 @@ public abstract class AdjacentSmithingMenu extends ItemCombinerMenu {
 
     private void returnToHandlerOrDrop(@Nullable IItemHandler handler, int preferredSlot, ItemStack stack) {
         ItemStack remainder = stack;
-        if (handler != null && preferredSlot >= 0 && preferredSlot < handler.getSlots()) {
-            remainder = handler.insertItem(preferredSlot, remainder, false);
-        }
-        if (handler != null && !remainder.isEmpty()) {
-            for (int slot = 0; slot < handler.getSlots() && !remainder.isEmpty(); slot++) {
-                if (slot == preferredSlot) continue;
-                remainder = handler.insertItem(slot, remainder, false);
+        if (handler != null) {
+            if (preferredSlot >= 0 && preferredSlot < handler.getSlots()) {
+                if (handler instanceof ReadOnlyItemHandlerWrapper wrapper) {
+                    remainder = wrapper.insertItemBypass(preferredSlot, remainder, false);
+                } else {
+                    remainder = handler.insertItem(preferredSlot, remainder, false);
+                }
+            }
+            if (!remainder.isEmpty() && !(handler instanceof ReadOnlyItemHandlerWrapper)) {
+                for (int slot = 0; slot < handler.getSlots() && !remainder.isEmpty(); slot++) {
+                    if (slot == preferredSlot) continue;
+                    remainder = handler.insertItem(slot, remainder, false);
+                }
             }
         }
         if (remainder.isEmpty()) return;

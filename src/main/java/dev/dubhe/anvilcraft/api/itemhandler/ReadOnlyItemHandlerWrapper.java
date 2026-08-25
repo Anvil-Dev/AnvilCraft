@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.api.itemhandler;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.items.IItemHandler;
 
-/// ??? IItemHandler ????????????????
 public class ReadOnlyItemHandlerWrapper implements IItemHandler {
     private final IItemHandler delegate;
 
@@ -29,6 +28,14 @@ public class ReadOnlyItemHandlerWrapper implements IItemHandler {
     @Override
     public ItemStack extractItem(int slot, int amount, boolean simulate) {
         return ItemStack.EMPTY;
+    }
+
+    public ItemStack insertItemBypass(int slot, ItemStack stack, boolean simulate) {
+        return this.delegate.insertItem(slot, stack, simulate);
+    }
+
+    public ItemStack extractItemBypass(int slot, int amount, boolean simulate) {
+        return this.delegate.extractItem(slot, amount, simulate);
     }
 
     @Override

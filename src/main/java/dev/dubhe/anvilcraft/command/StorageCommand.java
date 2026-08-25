@@ -117,9 +117,7 @@ public class StorageCommand {
 
     private static int storageListFiltered(CommandContext<CommandSourceStack> ctx) throws CommandSyntaxException {
         String typeName = StringArgumentType.getString(ctx, "type");
-        IStorageType<?> type = parseType(typeName, ctx.getSource().registryAccess());
-        if (type == null) throw ERROR_INVALID_TYPE.create();
-        return StorageCommand.storageListFiltered(ctx, type);
+        return StorageCommand.storageListFiltered(ctx, parseType(typeName, ctx.getSource().registryAccess()));
     }
 
     private static int storageListFiltered(CommandContext<CommandSourceStack> ctx, @Nullable IStorageType<?> filter) {
@@ -130,7 +128,7 @@ public class StorageCommand {
         ).withStyle(ChatFormatting.LIGHT_PURPLE);
         for (Map.Entry<UUID, BaseStorage<?>> entry : storages.entrySet()) {
             Holder<IStorageType<?>> type = entry.getValue().getTypeHolder();
-            if (filter != null && type.value() != filter) continue;
+            if (filter != null && !type.value().equals(filter)) continue;
             message.append(ComponentUtil.LF).append(Component.translatable("command.anvilcraft.storage.list.entry",
                 Component.literal(type.getRegisteredName()),
                 Component.literal(entry.getKey().toString())
@@ -185,10 +183,10 @@ public class StorageCommand {
         return CommandUtil.sendSuccess(ctx.getSource(), "command.anvilcraft.storage.unbind.success");
     }
 
-    private static @Nullable IStorageType<?> parseType(String name, HolderLookup.Provider registries) {
+    private static IStorageType<?> parseType(String name, HolderLookup.Provider registries) throws CommandSyntaxException {
         return IStorageType.CODEC.decode(registries.createSerializationContext(NbtOps.INSTANCE), StringTag.valueOf(name))
             .map(Pair::getFirst)
-            .getOrThrow();
+            .getOrThrow(ignored -> ERROR_INVALID_TYPE.create());
     }
 
     private static @Nullable UUID parseUuid(String value) {

@@ -196,7 +196,7 @@ public class AnvilCraftServerConfig {
         @Comment("Allow /time add command")
         public boolean allowTimeAddCommand = true;
 
-        @Comment("Allow /tick  sprint command")
+        @Comment("Allow /tick sprint command")
         public boolean allowTickSprintCommand = true;
     }
 

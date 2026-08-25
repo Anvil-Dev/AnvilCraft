@@ -57,8 +57,17 @@ public class ModStorageTypes {
             public Class<T> clazz() {
                 return clazz;
             }
-        }
-        );
+
+            @Override
+            public boolean equals(Object obj) {
+                return obj instanceof IStorageType<?> type && this.clazz().equals(type.clazz());
+            }
+
+            @Override
+            public int hashCode() {
+                return this.clazz().hashCode();
+            }
+        });
         IStorageType.CLASS_MAP.put(clazz, holder);
         return holder;
     }

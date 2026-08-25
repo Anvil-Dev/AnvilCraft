@@ -94,7 +94,8 @@ public class StorageBlockEntity extends BlockEntity {
     protected void applyImplicitComponents(BlockEntity.DataComponentInput componentInput) {
         super.applyImplicitComponents(componentInput);
         StorageRef ref = componentInput.get(ModComponents.STORAGE);
-        if (ref == null || ref.type() != this.storageType) {
+        // noinspection deprecation
+        if (ref == null || !ref.type().is(this.storageType)) {
             return;
         }
         this.setId(ref.id().orElse(UUID.randomUUID()));
