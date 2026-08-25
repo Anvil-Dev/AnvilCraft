@@ -209,7 +209,6 @@ public class StampingPlatformBlock extends Block implements
         return new Vec3(normal.getX(), normal.getY() - 0.3F, normal.getZ()).scale(0.5);
     }
 
-
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
         if (level.isClientSide()) return;

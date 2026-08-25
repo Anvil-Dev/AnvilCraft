@@ -131,7 +131,6 @@ public class CrushingTableBlock extends Block implements
         return new Vec3(0, -0.3, 0);
     }
 
-
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
         if (level.isClientSide()) return;

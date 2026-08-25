@@ -118,7 +118,6 @@ public class SiftingTableBlock extends Block implements
         return ModBlockEntities.SIFTING_TABLE.create(pos, state);
     }
 
-
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
         if (level.isClientSide()) return;

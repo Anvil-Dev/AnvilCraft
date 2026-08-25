@@ -124,7 +124,6 @@ public class UnpackingTableBlock extends Block implements
         return ModBlockEntities.UNPACKING_TABLE.create(pos, state);
     }
 
-
     @Override
     public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
         if (level.isClientSide()) return;
