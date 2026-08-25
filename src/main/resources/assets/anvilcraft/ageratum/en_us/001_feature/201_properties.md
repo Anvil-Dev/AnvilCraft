@@ -20,10 +20,10 @@ This page showcases all currently available special tool properties and their ef
 | Lava     | 10       |
 | Lava Cauldron  | 10       |
 
-# Ruthless
+# Merciless
 
 - Comes from [Frost Metal Tools](../002_material/202_frost_metal.md)
-- Weapons and tools with **Ruthless** will have all enchantments disabled
+- Weapons and tools with **Merciless** will have all enchantments disabled
 - The levels of disabled enchantments are converted into attack damage and mining speed
   - Attack Damage: 2*√n + n/3
   - Mining Speed: n
@@ -41,8 +41,8 @@ You can switch between phases by pressing <key id="key.anvilcraft.switch_phase" 
 - Tools are immune to fire, explosions, and cactus damage; will not fall into the void; slowly float upward in areas where y < Ymin+5
 - Tools dropped on the ground will never despawn over time
 
-# Fortune's Favor
+# Providence
 
 - Comes from [Transcendium Tools](../002_material/312_transcendium.md)
-- When a tool with **Fortune's Favor** triggers a whitelisted enchantment, there is a 25% chance to trigger it again, and a 5% chance to trigger it twice more (dropping three heads at once or catching three fish at once is possible)
-  - Currently supported enchantments: Fortune, Looting, Beheading, Thorns, Luck of the Sea
+- When a tool with **Providence** triggers a whitelisted enchantment, there is a 25% chance to trigger it again, and a 5% chance to trigger it twice more (dropping three heads at once or catching three fish at once is possible)
+  - Currently supported enchantments: Fortune, Looting, Beheading, Thorns, Luck of the Sea, Disintegration

@@ -44,7 +44,7 @@ Upgrades [Royal Steel Tools](110_royal_steel.md) to *Frost Metal Tools*
 # Frost Metal Tools
 
 - Durability and mining level are the same as *Netherite tools*
-- Possesses [Property: Ruthless](../001_feature/201_properties.md)
+- Possesses [Property: Merciless](../001_feature/201_properties.md)
 
 <row halign="center">
 <recipe id="anvilcraft:smithing/frost_metal_pickaxe"/>

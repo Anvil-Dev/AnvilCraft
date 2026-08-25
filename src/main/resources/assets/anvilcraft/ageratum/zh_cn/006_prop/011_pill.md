@@ -32,4 +32,4 @@ items:
 ## 使用
 
 - 右键可以一次性吃掉里面每种不同的<ref item="anvilcraft:pill"/>各一片，冷却2秒
-- 可以设置快捷键:<Key id="key.anvilcraft.use_pill_box"></Key>在背包中使用（背包中有多个<ref item="anvilcraft:pill"/>时，用快捷键只使用更靠前的）
+- 可以设置快捷键:<Key id="key.anvilcraft.use_pill_box"></Key>在背包中使用（背包中有多个<ref item="anvilcraft:pill_box"/>时，用快捷键只使用更靠前的）

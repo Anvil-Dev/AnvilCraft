@@ -32,4 +32,4 @@ items:
 ## Usage
 
 - Right-click to consume one of each different type of <ref item="anvilcraft:pill"/> inside at once, with a 2-second cooldown
-- You can set a hotkey: <Key id="key.anvilcraft.use_pill_box"></Key> to use from your inventory (when there are multiple <ref item="anvilcraft:pill"/> in the inventory, the hotkey only uses the one closest to the front)
+- You can set a hotkey: <Key id="key.anvilcraft.use_pill_box"></Key> to use from your inventory (when there are multiple <ref item="anvilcraft:pill_box"/> in the inventory, the hotkey only uses the one closest to the front)

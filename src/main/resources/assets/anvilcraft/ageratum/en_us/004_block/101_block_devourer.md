@@ -11,7 +11,7 @@ items:
 <recipe id="anvilcraft:block_devourer"/>
 
 <info>
-Killing the Ender Dragon with Decapitation III enchantment guarantees a 100% dragon head drop
+Killing the Ender Dragon with Beheading III enchantment guarantees a 100% dragon head drop
 </info>
 
 # Function
