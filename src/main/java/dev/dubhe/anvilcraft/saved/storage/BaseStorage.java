@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.saved.storage;
 import com.mojang.datafixers.util.Pair;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import lombok.Getter;
@@ -10,6 +11,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
 import net.neoforged.neoforge.common.util.INBTSerializable;
 
@@ -91,7 +93,11 @@ public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> 
     }
 
     public static @Nullable BaseStorage<?> loadFromNbt(UUID id, CompoundTag tag, HolderLookup.Provider registries) {
-        return IStorageType.CODEC.decode(registries.createSerializationContext(NbtOps.INSTANCE), tag.get(BaseStorage.TYPE_KEY))
+        Tag rawType = tag.get(BaseStorage.TYPE_KEY);
+        if (rawType instanceof StringTag stringTag && !stringTag.getAsString().contains(":")) {
+            rawType = StringTag.valueOf(AnvilCraft.of(stringTag.getAsString()).toString());
+        }
+        return IStorageType.CODEC.decode(registries.createSerializationContext(NbtOps.INSTANCE), rawType)
             .result()
             .map(Pair::getFirst)
             .map(type -> {
