@@ -13,4 +13,10 @@ public class UnpackingTableBlockEntityRenderer extends ProcessingItemStackRender
     protected boolean isBlockStateRenderEnabled() {
         return AnvilCraftClient.CONFIG.siftingUnpackingBlockRenderEnabled;
     }
+
+    @Override
+    protected boolean isBlockStateRenderBlocked(UnpackingTableBlockEntity table) {
+        return table.getLevel() != null
+            && !table.getLevel().getBlockState(table.getBlockPos().above()).isAir();
+    }
 }

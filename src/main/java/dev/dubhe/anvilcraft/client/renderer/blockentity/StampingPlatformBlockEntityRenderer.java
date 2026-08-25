@@ -52,8 +52,8 @@ public class StampingPlatformBlockEntityRenderer
     ) {
         float progress = platform.getDoorOpenProgress(partialTick);
         float openDeg = this.easeOutCubic(progress) * DOOR_OPEN_DEG;
-        this.renderDoor(DOOR_LEFT, DOOR_LEFT_HINGE, Axis.ZP, openDeg, pose, source, light, overlay);
-        this.renderDoor(DOOR_RIGHT, DOOR_RIGHT_HINGE, Axis.ZP, -openDeg, pose, source, light, overlay);
+        this.renderDoor(DOOR_LEFT, DOOR_LEFT_HINGE, openDeg, pose, source, light, overlay);
+        this.renderDoor(DOOR_RIGHT, DOOR_RIGHT_HINGE, -openDeg, pose, source, light, overlay);
         super.render(platform, partialTick, pose, source, light, overlay);
     }
 
@@ -65,7 +65,6 @@ public class StampingPlatformBlockEntityRenderer
     private void renderDoor(
         ModelResourceLocation model,
         Vector3f hinge,
-        Axis axis,
         float rotationDeg,
         PoseStack pose,
         MultiBufferSource source,
@@ -74,7 +73,7 @@ public class StampingPlatformBlockEntityRenderer
     ) {
         pose.pushPose();
         pose.translate(hinge.x, hinge.y, hinge.z);
-        pose.mulPose(axis.rotationDegrees(rotationDeg));
+        pose.mulPose(Axis.ZP.rotationDegrees(rotationDeg));
         pose.translate(-hinge.x, -hinge.y, -hinge.z);
         Minecraft.getInstance()
             .getBlockRenderer()

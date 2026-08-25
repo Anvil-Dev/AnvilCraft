@@ -44,6 +44,15 @@ public abstract class ProcessingItemStackRenderer<T extends BlockEntity & IItemH
     }
 
     /**
+     * 特殊条件下是否需要中断放大渲染，回退为普通物品渲染。
+     *
+     * <p>默认返回 false；子类可根据方块处于某些场景、上方有方块等条件重写。
+     */
+    protected boolean isBlockStateRenderBlocked(T table) {
+        return false;
+    }
+
+    /**
      * 散开渲染时物品绕 X 轴的基础旋转角度。
      *
      * <p>冲压台需要物品躺平贴合台面，返回 90；其余加工台保持直立，默认 1。
@@ -87,7 +96,8 @@ public abstract class ProcessingItemStackRenderer<T extends BlockEntity & IItemH
         for (int index = 0; index < items.size(); index++) {
             ItemStack stack = items.get(index);
             pose.pushPose();
-            if (gui3dFlags.get(index) && singleBlockKind && this.isBlockStateRenderEnabled()) {
+            if (gui3dFlags.get(index) && singleBlockKind
+                && this.isBlockStateRenderEnabled() && !this.isBlockStateRenderBlocked(table)) {
                 pose.translate(0.0F, -0.25F, 0.0F);
                 pose.scale(2.8F, 2.8F, 2.8F);
                 itemRenderer.renderStatic(
