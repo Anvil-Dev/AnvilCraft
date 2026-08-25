@@ -209,6 +209,23 @@ public class StampingPlatformBlock extends Block implements
         return new Vec3(normal.getX(), normal.getY() - 0.3F, normal.getZ()).scale(0.5);
     }
 
+
+    @Override
+    public void stepOn(Level level, BlockPos pos, BlockState state, Entity entity) {
+        if (level.isClientSide()) return;
+        if (!(entity instanceof ItemEntity itemEntity)) return;
+        if (!itemEntity.anvilcraft$isAdsorbable()) return;
+        IItemHandler handler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, null);
+        ItemStack stack = itemEntity.getItem();
+        ItemStack remaining = ItemHandlerUtil.insertItem(handler, stack.copy(), false);
+        if (remaining.getCount() == stack.getCount()) return;
+        if (remaining.isEmpty()) {
+            itemEntity.discard();
+        } else {
+            itemEntity.setItem(remaining);
+        }
+    }
+
     @Override
     protected void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
         if (level.isClientSide()) return;
