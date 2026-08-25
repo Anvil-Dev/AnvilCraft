@@ -18,8 +18,8 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                     AnvilCraft.of("textures/gui/creative_inventory/section/building_blocks/materials.png")
                 )
-                .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(17)
+                .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+                .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.building_blocks.materials"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.building_blocks.materials"))
                 .build(),
@@ -116,8 +116,8 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                     AnvilCraft.of("textures/gui/creative_inventory/section/building_blocks/resources.png")
                 )
-                .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(17)
+                .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+                .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.building_blocks.resources"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.building_blocks.resources"))
                 .build(),
@@ -154,8 +154,8 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                 AnvilCraft.of("textures/gui/creative_inventory/section/building_blocks/concrete.png")
             )
-            .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-            .textIndent(17)
+            .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+            .textRange(16, 49)
             .text(Component.translatable("anvilcraft.creative.section.building_blocks.concrete"))
             .tooltip(Component.translatable("anvilcraft.creative.section.building_blocks.concrete"))
             .build(),
@@ -178,8 +178,8 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                 AnvilCraft.of("textures/gui/creative_inventory/section/building_blocks/foods.png")
             )
-            .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-            .textIndent(17)
+            .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+            .textRange(16, 49)
             .text(Component.translatable("anvilcraft.creative.section.building_blocks.foods"))
             .tooltip(Component.translatable("anvilcraft.creative.section.building_blocks.foods"))
             .build(),
@@ -207,8 +207,8 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                 AnvilCraft.of("textures/gui/creative_inventory/section/building_blocks/special.png")
             )
-            .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-            .textIndent(17)
+            .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+            .textRange(16, 49)
             .text(Component.translatable("anvilcraft.creative.section.building_blocks.special"))
             .tooltip(Component.translatable("anvilcraft.creative.section.building_blocks.special"))
             .build(),

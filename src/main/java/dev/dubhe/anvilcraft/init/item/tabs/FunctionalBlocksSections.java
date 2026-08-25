@@ -18,8 +18,8 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                     AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/forging.png")
                 )
-                .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(17)
+                .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+                .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.forging"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.functional_blocks.forging"))
                 .build(),
@@ -48,8 +48,8 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                     AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/processing.png")
                 )
-                .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(17)
+                .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+                .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.processing"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.functional_blocks.processing"))
                 .build(),
@@ -78,8 +78,8 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                     AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/logistics.png")
                 )
-                .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(17)
+                .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+                .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.logistics"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.functional_blocks.logistics"))
                 .build(),
@@ -101,8 +101,8 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                     AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/fluid_trans.png")
                 )
-                .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(17)
+                .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+                .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.fluid_trans"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.functional_blocks.fluid_trans"))
                 .build(),
@@ -122,8 +122,8 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                     AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/functional.png")
                 )
-                .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(17)
+                .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+                .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.functional"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.functional_blocks.functional"))
                 .build(),
@@ -149,8 +149,8 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                     AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/power.png")
                 )
-                .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(17)
+                .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+                .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.power"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.functional_blocks.power"))
                 .build(),
@@ -196,8 +196,8 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                     AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/redstone.png")
                 )
-                .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(17)
+                .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+                .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.redstone"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.functional_blocks.redstone"))
                 .build(),
@@ -228,8 +228,8 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                 AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/cfa.png")
                 )
-                .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(17)
+                .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+                .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.cfa"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.functional_blocks.cfa"))
             .build(),
@@ -255,8 +255,8 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             CreativeTabSection.builder(
                 AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/creative.png")
                 )
-                .textAlignment(CreativeTabSection.TextAlignment.LEFT)
-                .textIndent(17)
+                .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+                .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.creative"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.functional_blocks.creative"))
             .build(),
