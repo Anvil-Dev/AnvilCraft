@@ -143,7 +143,7 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
         }
 
         StorageRef ref = largeCrateStack.get(ModComponents.STORAGE);
-        UUID targetId = ref != null && ref.type() == ModStorageTypes.LARGE_CRATE
+        UUID targetId = ref != null && ref.type().is(ModStorageTypes.LARGE_CRATE.getKey())
             ? ref.id().orElseGet(UUID::randomUUID)
             : UUID.randomUUID();
         LargeCrateStorage target = Storages.get().getOrCreate(targetId, LargeCrateStorage.class);

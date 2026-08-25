@@ -187,9 +187,8 @@ public class StorageCommand {
 
     private static @Nullable IStorageType<?> parseType(String name, HolderLookup.Provider registries) {
         return IStorageType.CODEC.decode(registries.createSerializationContext(NbtOps.INSTANCE), StringTag.valueOf(name))
-            .resultOrPartial()
             .map(Pair::getFirst)
-            .orElse(null);
+            .getOrThrow();
     }
 
     private static @Nullable UUID parseUuid(String value) {
