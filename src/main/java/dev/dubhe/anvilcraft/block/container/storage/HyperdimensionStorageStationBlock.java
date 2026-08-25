@@ -13,9 +13,9 @@ import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
 import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
-import dev.dubhe.anvilcraft.saved.storage.StorageType;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
@@ -105,7 +105,7 @@ public class HyperdimensionStorageStationBlock
     ) {
         ItemStack stack = super.getCloneItemStack(state, target, level, pos, player);
         if (level instanceof Level realLevel) {
-            StorageBlockEntity.applyPickStorageId(stack, realLevel, pos, state, StorageType.HYPERDIMENSION);
+            StorageBlockEntity.applyPickStorageId(stack, realLevel, pos, state, ModStorageTypes.HYPERDIMENSION);
         }
         return stack;
     }

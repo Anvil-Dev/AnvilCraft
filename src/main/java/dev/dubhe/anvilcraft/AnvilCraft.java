@@ -51,6 +51,7 @@ import dev.dubhe.anvilcraft.init.recipe.ModRecipeInits;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.init.recipe.ModResultModifierTypes;
 import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
+import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
 import dev.dubhe.anvilcraft.item.DiskItem;
 import dev.dubhe.anvilcraft.recipe.anvil.cache.RecipeCaches;
 import dev.dubhe.anvilcraft.util.ModInteractionMap;
@@ -128,6 +129,7 @@ public class AnvilCraft {
         ModAmuletTypes.register(modEventBus);
         ModAmuletDefinitionTypes.register(modEventBus);
         ModEntitySubPredicates.register(modEventBus);
+        ModStorageTypes.register(modEventBus);
         // datagen
         AnvilCraftDatagen.init();
 

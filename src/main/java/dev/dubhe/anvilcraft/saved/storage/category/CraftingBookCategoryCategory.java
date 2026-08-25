@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.saved.storage.category;
 
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -73,7 +73,7 @@ public record CraftingBookCategoryCategory(
     }
 
     public static class Type implements ICategory.Type<CraftingBookCategoryCategory> {
-        public static final MapCodec<CraftingBookCategoryCategory> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+        public static final MapCodec<CraftingBookCategoryCategory> CODEC = CodecUtil.mapCodec(
             ItemStack.CODEC
                 .fieldOf("icon")
                 .forGetter(CraftingBookCategoryCategory::icon),
@@ -82,8 +82,9 @@ public record CraftingBookCategoryCategory(
                 .forGetter(CraftingBookCategoryCategory::name),
             CraftingBookCategory.CODEC
                 .fieldOf("category")
-                .forGetter(CraftingBookCategoryCategory::category)
-        ).apply(instance, CraftingBookCategoryCategory::new));
+                .forGetter(CraftingBookCategoryCategory::category),
+            CraftingBookCategoryCategory::new
+        );
         public static final StreamCodec<RegistryFriendlyByteBuf, CraftingBookCategoryCategory> STREAM_CODEC = StreamCodec.composite(
             ItemStack.STREAM_CODEC,
             CraftingBookCategoryCategory::icon,

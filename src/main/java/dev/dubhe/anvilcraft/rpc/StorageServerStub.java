@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
@@ -25,7 +26,7 @@ import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
 import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
 import dev.dubhe.anvilcraft.saved.storage.HyperdimensionStorage;
-import dev.dubhe.anvilcraft.saved.storage.StorageType;
+import dev.dubhe.anvilcraft.saved.storage.IStorageType;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryEntry;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryMode;
@@ -79,7 +80,6 @@ public final class StorageServerStub {
     public static final StreamCodec<ByteBuf, IntList> ORDER_STREAM_CODEC = ByteBufCodecs.VAR_INT
         .apply(ByteBufCodecs.list())
         .map(IntArrayList::new, Function.identity());
-    /** List<ItemStack> 的传输编解码器（JEI 快速合成补库参数用）。 */
     @SuppressWarnings("unused")
     public static final StreamCodec<RegistryFriendlyByteBuf, List<ItemStack>> ITEM_STACK_LIST_STREAM_CODEC =
         ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list());
@@ -722,8 +722,8 @@ public final class StorageServerStub {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean canStore(BaseStorage<?> storage, ItemStack stack) {
-        StorageType type = StorageType.find(storage);
-        if (type == StorageType.SHULKER_CONTAINER || type == StorageType.HYPERDIMENSION) {
+        Holder<IStorageType<?>> type = storage.getTypeHolder();
+        if (type.is(ModStorageTypes.SHULKER_CONTAINER.getKey()) || type.is(ModStorageTypes.HYPERDIMENSION.getKey())) {
             return !(stack.getItem() instanceof ShulkerContainerBlockItem)
                    && !(stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof HyperdimensionStorageStationBlock)
                    && !stack.is(ModItems.HYPERDIMENSION_TERMINAL);

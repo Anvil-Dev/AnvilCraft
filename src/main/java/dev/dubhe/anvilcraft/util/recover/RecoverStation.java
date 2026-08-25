@@ -2,23 +2,20 @@ package dev.dubhe.anvilcraft.util.recover;
 
 import com.google.common.collect.EvictingQueue;
 import com.google.common.collect.ImmutableSet;
-import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
-import dev.dubhe.anvilcraft.saved.storage.StorageType;
 import lombok.Getter;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.neoforged.neoforge.common.util.INBTSerializable;
 
 import java.util.Iterator;
-import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
 @Getter
-public class RecoverStation<T> implements INBTSerializable<CompoundTag> {
+public class RecoverStation<T> {
     private final EvictingQueue<RecoverEntry<T>> entries;
 
     public RecoverStation(int maxSize) {
@@ -67,15 +64,12 @@ public class RecoverStation<T> implements INBTSerializable<CompoundTag> {
         this.entries.clear();
     }
 
-    @Override
-    public CompoundTag serializeNBT(HolderLookup.Provider provider) {
+    public CompoundTag serializeNBT(Function<T, Tag> encoder) {
         ListTag list = new ListTag();
         for (RecoverEntry<T> entry : this.entries) {
             CompoundTag tag = new CompoundTag();
             tag.putUUID("id", entry.id());
-            if (entry.value() instanceof BaseStorage<?> storage) {
-                tag.put("value", storage.serializeNBT(provider));
-            }
+            tag.put("value", encoder.apply(entry.value()));
             list.add(tag);
         }
         CompoundTag tag = new CompoundTag();
@@ -83,21 +77,17 @@ public class RecoverStation<T> implements INBTSerializable<CompoundTag> {
         return tag;
     }
 
-    @SuppressWarnings("unchecked")
-    @Override
-    public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
+    public void deserializeNBT(BiFunction<UUID, CompoundTag, T> decoder, CompoundTag tag) {
         this.entries.clear();
+
         ListTag list = tag.getList("entries", Tag.TAG_COMPOUND);
         for (int i = 0; i < list.size(); i++) {
             CompoundTag entryTag = list.getCompound(i);
             UUID id = entryTag.getUUID("id");
             if (entryTag.contains("value", Tag.TAG_COMPOUND)) {
-                CompoundTag valueTag = entryTag.getCompound("value");
-                if (valueTag.contains(BaseStorage.TYPE_KEY, Tag.TAG_STRING)) {
-                    StorageType type = StorageType.valueOf(valueTag.getString(BaseStorage.TYPE_KEY).toUpperCase(Locale.ROOT));
-                    BaseStorage<?> storage = type.newInstance(id);
-                    storage.deserializeNBT(provider, valueTag);
-                    this.entries.add((RecoverEntry<T>) new RecoverEntry<>(id, storage));
+                T value = decoder.apply(id, entryTag.getCompound("value"));
+                if (value != null) {
+                    this.entries.add(new RecoverEntry<>(id, value));
                 }
             } else {
                 this.entries.add(new RecoverEntry<>(id, null));

@@ -10,7 +10,7 @@ import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
-import dev.dubhe.anvilcraft.saved.storage.StorageType;
+import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerPlayer;
@@ -70,7 +70,7 @@ public class LargeCrateBlock
     ) {
         ItemStack stack = super.getCloneItemStack(state, target, level, pos, player);
         if (level instanceof Level realLevel) {
-            StorageBlockEntity.applyPickStorageId(stack, realLevel, pos, state, StorageType.LARGE_CRATE);
+            StorageBlockEntity.applyPickStorageId(stack, realLevel, pos, state, ModStorageTypes.LARGE_CRATE);
         }
         return stack;
     }
