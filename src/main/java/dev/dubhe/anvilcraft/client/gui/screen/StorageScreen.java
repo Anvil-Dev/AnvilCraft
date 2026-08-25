@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
@@ -1629,10 +1630,15 @@ public class StorageScreen extends Screen {
             return false;
         }
 
-        Map<Item, Integer> logicalSlots = new HashMap<>();
+        // 以物品+数据组件为键把服务端最新槽位重映射回已锁定的逻辑槽位（忽略数量），
+        // 避免同物品的不同组件堆相互覆盖：数量、渲染与 serverSlots 各自保持独立。
+        Map<UnlimitedItemStacksResourceHandler.ResourceKey, Integer> logicalSlots = new HashMap<>();
         for (int logicalSlot : this.order) {
             UnlimitedItemStack stack = this.contents.get(logicalSlot);
-            logicalSlots.put(stack.getItem(), logicalSlot);
+            logicalSlots.put(
+                UnlimitedItemStacksResourceHandler.ResourceKey.of(stack.toStack()),
+                logicalSlot
+            );
             this.emptySlots.add(logicalSlot);
         }
         this.serverSlots.clear();
@@ -1644,11 +1650,12 @@ public class StorageScreen extends Screen {
                 if (update.stack().isEmpty()) {
                     continue;
                 }
-                Item item = update.stack().getItem();
-                Integer logicalSlot = logicalSlots.get(item);
+                UnlimitedItemStacksResourceHandler.ResourceKey key =
+                    UnlimitedItemStacksResourceHandler.ResourceKey.of(update.stack().toStack());
+                Integer logicalSlot = logicalSlots.get(key);
                 if (logicalSlot == null) {
-                    logicalSlot = this.nextLogicalSlot++;
-                    logicalSlots.put(item, logicalSlot);
+                    logicalSlot = this.allocateLogicalSlot();
+                    logicalSlots.put(key, logicalSlot);
                     this.order.add(logicalSlot.intValue());
                 }
                 this.contents.put(logicalSlot.intValue(), update.stack());
@@ -1665,6 +1672,14 @@ public class StorageScreen extends Screen {
         }
         this.remappedOrder = true;
         return true;
+    }
+
+    private int allocateLogicalSlot() {
+        int logicalSlot;
+        do {
+            logicalSlot = this.nextLogicalSlot++;
+        } while (this.order.contains(logicalSlot) || this.contents.containsKey(logicalSlot));
+        return logicalSlot;
     }
 
     private boolean hasInconsistentVersion(List<StorageServerStub.SyncResult> results) {
