@@ -78,7 +78,7 @@ public class RecoverStation<T> {
         return tag;
     }
 
-    public void deserializeNBT(BiFunction<UUID, CompoundTag, T> decoder, CompoundTag tag) {
+    public void deserializeNBT(BiFunction<UUID, CompoundTag, @NullableType T> decoder, CompoundTag tag) {
         this.entries.clear();
 
         ListTag list = tag.getList("entries", Tag.TAG_COMPOUND);
@@ -87,9 +87,7 @@ public class RecoverStation<T> {
             UUID id = entryTag.getUUID("id");
             if (entryTag.contains("value", Tag.TAG_COMPOUND)) {
                 T value = decoder.apply(id, entryTag.getCompound("value"));
-                if (value != null) {
-                    this.entries.add(new RecoverEntry<>(id, value));
-                }
+                this.entries.add(new RecoverEntry<>(id, value));
             } else {
                 this.entries.add(new RecoverEntry<>(id, null));
             }
