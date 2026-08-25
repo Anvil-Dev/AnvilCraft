@@ -37,6 +37,8 @@ public class RegisterAdditionalEventListener {
         event.register(standaloneBlock("advanced_comparator_indicator"));
         event.register(standaloneBlock("processing_table_crushing_wheel_left"));
         event.register(standaloneBlock("processing_table_crushing_wheel_right"));
+        event.register(standaloneBlock("processing_table_door_left"));
+        event.register(standaloneBlock("processing_table_door_right"));
         event.register(standaloneBlock("pulse_generator_indicator"));
         event.register(standaloneBlock("pulse_generator_indicator_overspeed"));
         event.register(standaloneBlock("infinite_collector_head"));

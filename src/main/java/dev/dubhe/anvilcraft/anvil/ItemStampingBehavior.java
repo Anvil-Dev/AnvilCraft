@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.anvil;
 
-import dev.anvilcraft.lib.v2.recipe.util.IRecipeResultOffsetBlock;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.dubhe.anvilcraft.api.anvil.IAnvilBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilEvent;
@@ -21,7 +20,6 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.loot.LootContext;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.items.IItemHandler;
 
 import java.util.ArrayList;
@@ -118,11 +116,7 @@ public class ItemStampingBehavior implements IAnvilBehavior {
                 count -= stackCount;
             }
         }
-        BlockState state = level.getBlockState(pos);
-        if (state.getBlock() instanceof IRecipeResultOffsetBlock offsetBlock) {
-            Vec3 resultPos = pos.getCenter().add(offsetBlock.getOffset(level, pos, state));
-            AnvilUtil.dropItems(stacks, level, resultPos);
-        }
+        AnvilUtil.dropItems(stacks, level, pos.getCenter());
     }
 
     public static int compareRecipeHolders(

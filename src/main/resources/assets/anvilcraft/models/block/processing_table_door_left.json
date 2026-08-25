@@ -1,0 +1,26 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "block/block",
+	"ambientocclusion": false,
+	"textures": {
+		"0": "anvilcraft:block/processing_table_top",
+		"2": "anvilcraft:block/processing_table_side",
+		"particle": "anvilcraft:block/processing_table_top"
+	},
+	"elements": [
+		{
+			"from": [8, 10, 4],
+			"to": [12, 12, 12],
+			"rotation": {"angle": 0, "axis": "y", "origin": [12, 12, 8]},
+			"faces": {
+				"north": {"uv": [4, 4, 8, 6], "texture": "#2"},
+				"east": {"uv": [4, 4, 12, 6], "texture": "#2"},
+				"south": {"uv": [8, 4, 12, 6], "texture": "#2"},
+				"west": {"uv": [4, 4, 12, 6], "texture": "#2"},
+				"up": {"uv": [8, 4, 12, 12], "texture": "#0", "cullface": "up"},
+				"down": {"uv": [8, 4, 12, 12], "texture": "#0"}
+			}
+		}
+	]
+}
