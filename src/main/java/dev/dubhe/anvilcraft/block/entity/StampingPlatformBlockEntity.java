@@ -145,6 +145,8 @@ public class StampingPlatformBlockEntity extends BlockEntity implements IItemHan
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = super.getUpdateTag(registries);
         tag.put("Inputs", this.input.serializeNBT(registries));
+        tag.putLong("DoorStartTick", this.doorStartTick);
+        tag.putInt("DoorDurationTick", this.doorDurationTick);
         return tag;
     }
 
@@ -196,16 +198,52 @@ public class StampingPlatformBlockEntity extends BlockEntity implements IItemHan
         }
     }
 
+    private long doorStartTick;
+    private int doorDurationTick;
+
+    /**
+     * 冲压平台执行配方后激活底部双开门动画。
+     *
+     * @param durationTick 动画持续时长，单位 tick
+     */
+    public void onRecipeExecuted(int durationTick) {
+        Level level = this.getLevel();
+        if (level == null) return;
+        this.doorStartTick = level.getGameTime();
+        this.doorDurationTick = durationTick;
+        this.setChanged();
+        this.sendUpdate();
+    }
+
+    /**
+     * 获取开门动画进度，用于渲染配方执行时底部双开门的开合程度。
+     *
+     * @param partialTick 部分进度
+     * @return 开门进度，范围 [0,1]
+     */
+    public float getDoorOpenProgress(float partialTick) {
+        Level level = this.getLevel();
+        if (level == null || this.doorDurationTick <= 0) return 0;
+        long elapsed = level.getGameTime() - this.doorStartTick;
+        if (elapsed >= this.doorDurationTick) return 0;
+        float progress = Math.max(0, (elapsed + partialTick) / this.doorDurationTick);
+        return 1 - Math.abs(2 * progress - 1);
+    }
+
     @Override
     protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.saveAdditional(tag, registries);
         tag.put("Inputs", this.input.serializeNBT(registries));
+        tag.putLong("DoorStartTick", this.doorStartTick);
+        tag.putInt("DoorDurationTick", this.doorDurationTick);
     }
 
     @Override
     protected void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
         super.loadAdditional(tag, registries);
         this.input.deserializeNBT(registries, tag.getCompound("Inputs"));
+        this.doorStartTick = tag.getLong("DoorStartTick");
+        this.doorDurationTick = tag.getInt("DoorDurationTick");
         if (this.input.getSlots() != INPUT_SLOTS) {
             List<ItemStack> items = ItemHandlerUtil.getNonEmptyItemsFromHandler(this.input);
             this.input.setSize(INPUT_SLOTS);

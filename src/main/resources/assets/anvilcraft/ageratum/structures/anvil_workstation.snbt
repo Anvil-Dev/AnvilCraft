@@ -2,7 +2,7 @@
     DataVersion: 3955,
     size: [3, 5, 1],
     data: [
-        {pos: [2, 0, 0], state: "anvilcraft:stamping_platform{facing:east,waterlogged:false}"},
+        {pos: [2, 0, 0], state: "anvilcraft:stamping_platform{waterlogged:false}"},
         {pos: [1, 1, 0], state: "minecraft:note_block{instrument:harp,note:0,powered:false}"},
         {pos: [0, 2, 0], state: "minecraft:observer{facing:east,powered:false}"},
         {pos: [1, 2, 0], state: "minecraft:observer{facing:down,powered:false}"},
@@ -20,7 +20,7 @@
         "minecraft:observer{facing:down,powered:false}",
         "minecraft:smooth_stone",
         "anvilcraft:magnet_block{lit:false}",
-        "anvilcraft:stamping_platform{facing:east,waterlogged:false}",
+        "anvilcraft:stamping_platform{waterlogged:false}",
         "minecraft:anvil{facing:west}",
         "minecraft:redstone_wire{east:side,north:none,power:0,south:none,west:side}"
     ]

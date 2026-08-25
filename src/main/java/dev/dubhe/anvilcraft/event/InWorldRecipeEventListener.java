@@ -10,6 +10,7 @@ import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.CrushingTableBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StampingPlatformBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.BlockSmearRecipe;
@@ -63,6 +64,11 @@ public class InWorldRecipeEventListener {
         if (recipeType == ModRecipeTypes.ITEM_CRUSH_TYPE.get()) {
             if (level.getBlockEntity(pos.below()) instanceof CrushingTableBlockEntity table) {
                 table.onRecipeExecuted(20);
+            }
+        }
+        if (recipeType == ModRecipeTypes.STAMPING_TYPE.get()) {
+            if (level.getBlockEntity(pos.below()) instanceof StampingPlatformBlockEntity platform) {
+                platform.onRecipeExecuted(8);
             }
         }
         TriggerUtil.inWorldRecipe(level, pos, ResourceLocation.parse(recipeType.toString()), id);
