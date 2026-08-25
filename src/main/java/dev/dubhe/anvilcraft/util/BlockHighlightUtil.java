@@ -21,7 +21,6 @@ import org.jspecify.annotations.Nullable;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 /// 方块高亮
@@ -96,7 +95,8 @@ public class BlockHighlightUtil {
         BlockHighlightUtil.LEVEL_REF.set(level);
     }
 
+    @Nullable
     static Level getLevel() {
-        return Objects.requireNonNull(BlockHighlightUtil.LEVEL_REF.get());
+        return BlockHighlightUtil.LEVEL_REF.get();
     }
 }
