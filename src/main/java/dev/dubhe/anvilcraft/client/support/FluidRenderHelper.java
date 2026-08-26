@@ -218,6 +218,28 @@ public final class FluidRenderHelper {
     }
 
     /**
+     * 带 alpha 缩放的气体渲染（供玻璃管道等使用）：始终以给定完整范围渲染盒体，
+     * {@code alphaFill}（0..1）缩放流体 tint 的 alpha，使气体量由透明度传达。
+     */
+    public void renderFluidBox(
+        FluidStack fluid,
+        float minX, float minY, float minZ,
+        float maxX, float maxY, float maxZ,
+        MultiBufferSource buffer, PoseStack ms, int light,
+        Set<Direction> skippedSides, float alphaFill
+    ) {
+        var renderProps = IClientFluidTypeExtensions.of(fluid.getFluid());
+        boolean opaque = (renderProps instanceof ModClientFluidTypeExtensionImpl ext && ext.isOpaque())
+            || fluid.is(NeoForgeMod.MILK.value());
+        RenderType renderType = opaque ? RenderType.cutout() : RenderType.translucent();
+        VertexConsumer builder = buffer.getBuffer(renderType);
+        var stillTexture = Minecraft.getInstance().getTextureAtlas(InventoryMenu.BLOCK_ATLAS)
+            .apply(renderProps.getStillTexture(fluid));
+        this.renderFluidBoxWithAlpha(fluid, minX, minY, minZ, maxX, maxY, maxZ, builder, ms, light,
+            skippedSides, false, stillTexture, alphaFill);
+    }
+
+    /**
      * Gas-fluid variant of {@link #renderFluidBox}: the box is always rendered at the given
      * full extents, and {@code alphaFill} (0..1) scales the fluid tint's alpha so the amount
      * of gas is conveyed by opacity while still filling the whole tank.

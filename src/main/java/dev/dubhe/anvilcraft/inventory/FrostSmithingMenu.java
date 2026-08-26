@@ -72,7 +72,8 @@ public class FrostSmithingMenu extends AdjacentSmithingMenu {
                 1,
                 44,
                 48,
-                stack -> this.recipes.stream().anyMatch(recipe -> recipe.value().isMaterial(stack))
+                stack -> !this.inputSlots.getItem(0).isEmpty()
+                         && this.recipes.stream().anyMatch(recipe -> recipe.value().isMaterial(stack))
             ).withSlot(
                 2,
                 62,
@@ -114,21 +115,8 @@ public class FrostSmithingMenu extends AdjacentSmithingMenu {
     public void slotsChanged(Container inventory) {
         super.slotsChanged(inventory);
         if (inventory != this.inputSlots) return;
-        if (this.inputSlots.getItem(0).isEmpty()) {
-            for (int i = 1; i < 3; i++) {
-                ItemStack stack = this.inputSlots.getItem(i);
-                if (stack.isEmpty()) continue;
-                this.inputSlots.removeItemNoUpdate(i);
-                this.moveItemStackTo(stack, 4, 40, false);
-                this.selectedRecipe = null;
-            }
-        } else if (this.inputSlots.getItem(1).isEmpty()) {
-            ItemStack stack = this.inputSlots.getItem(2);
-            if (stack.isEmpty()) return;
-            this.inputSlots.removeItemNoUpdate(2);
-            this.moveItemStackTo(stack, 4, 40, false);
-            this.selectedRecipe = null;
-        }
+        this.selectedRecipe = null;
+        this.createResult();
     }
 
     @Override
@@ -227,6 +215,7 @@ public class FrostSmithingMenu extends AdjacentSmithingMenu {
 
     @Override
     public boolean canMoveIntoInputSlots(ItemStack stack) {
+        if (this.inputSlots.getItem(0).isEmpty()) return false;
         return this.recipes.stream()
             .map(recipe -> FrostSmithingMenu.findSlotMatchingIngredient(recipe.value(), stack))
             .anyMatch(Optional::isPresent);

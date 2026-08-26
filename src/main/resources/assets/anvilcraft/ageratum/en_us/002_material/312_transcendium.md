@@ -38,6 +38,7 @@ Ingots and nuggets are produced as dropped items; blocks are generated at the po
 
 - Used to craft machines
 - Combined with <ref item="anvilcraft:transcendium_upgrade_smithing_template"/> to upgrade tools
+- Provides an *enchanting table* with enchantment power equivalent to 10 <ref item="minecraft:bookshelf"/>s
 
 # Transcendium Tools
 

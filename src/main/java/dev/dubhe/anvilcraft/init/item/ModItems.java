@@ -139,7 +139,6 @@ import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.material.Fluid;
-import net.neoforged.neoforge.client.model.generators.ItemModelBuilder;
 import net.neoforged.neoforge.client.model.generators.ModelFile;
 import net.neoforged.neoforge.common.Tags;
 
@@ -517,13 +516,16 @@ public class ModItems {
         .item("ionocraft_backpack", IonocraftBackpackItem::new)
         .properties(properties -> properties.durability(ArmorItem.Type.CHESTPLATE.getDurability(15)))
         .model((ctx, prov) -> {
-            ItemModelBuilder offModel = prov.getBuilder(prov.name(ctx.lazy()))
+            prov.getBuilder(prov.name(ctx.lazy()))
                 .parent(new ModelFile.UncheckedModelFile("item/generated"))
-                .texture("layer0", "item/ionocraft_backpack_off");
-            prov.generated(ctx.lazy())
+                .texture("layer0", "item/ionocraft_backpack_off")
                 .override()
-                .predicate(AnvilCraft.of("flight_time"), 0)
-                .model(new ModelFile.UncheckedModelFile(offModel.getUncheckedLocation()))
+                .predicate(AnvilCraft.of("flight_time"), 1)
+                .model(new ModelFile.UncheckedModelFile(
+                    prov.getBuilder("item/ionocraft_backpack_on")
+                        .parent(new ModelFile.UncheckedModelFile("item/generated"))
+                        .texture("layer0", "item/ionocraft_backpack")
+                        .getUncheckedLocation()))
                 .end();
         })
         .tag(ItemTags.CHEST_ARMOR_ENCHANTABLE)

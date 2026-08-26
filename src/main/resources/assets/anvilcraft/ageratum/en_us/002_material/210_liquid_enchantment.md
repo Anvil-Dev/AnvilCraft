@@ -32,9 +32,16 @@ Consume specific materials to obtain the corresponding enchantment:
 | 1mB                               | <ref item="anvilcraft:topaz"/>              | Channeling 1mB                            |
 | 12mB                              | <ref item="minecraft:amethyst_block"/>      | Timber 4mB + Harvest 4mB + Beheading 4mB  |
 
-# Using Liquid Enchantment (Incomplete)
+# Using Liquid Enchantment
 
-Content to be added
+Apply liquid enchantment to items through an <ref item="anvilcraft:auto_enchanting_table"/>.
+
+Enchantment levels 1 through 5 consume 1, 2, 4, 8, and 16mB of liquid enchantment respectively; higher levels continue doubling the amount consumed.
+
+# Transport and Filtering
+
+- Liquid enchantment cannot be released into the world or collected with a bucket; transport it through <ref item="anvilcraft:pipe"/>s
+- Because all liquid enchantments use the same fluid, mark a specific enchantment in a <ref item="anvilcraft:control_valve"/> with an enchanted book. The same filtering method applies when configuring a <ref item="anvilcraft:creative_fluid_tank"/> in Creative mode
 
 # Enchantment Duplication
 

@@ -91,6 +91,9 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK);
                 content.accept(ModBlocks.CURSED_GOLD_BLOCK);
                 content.accept(ModBlocks.ENCHANTED_GOLD_BLOCK);
+                content.accept(ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK);
+                content.accept(ModBlocks.VOID_MATTER_BLOCK);
+                content.accept(ModBlocks.EARTH_CORE_SHARD_BLOCK);
                 content.accept(ModBlocks.TOPAZ_BLOCK);
                 content.accept(ModBlocks.RUBY_BLOCK);
                 content.accept(ModBlocks.SAPPHIRE_BLOCK);
@@ -140,9 +143,6 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.RAW_SILVER_BLOCK);
                 content.accept(ModBlocks.RAW_URANIUM_BLOCK);
                 content.accept(ModBlocks.RAW_TUNGSTEN_BLOCK);
-                content.accept(ModBlocks.EXCITED_STATE_VOID_MATTER_BLOCK);
-                content.accept(ModBlocks.VOID_MATTER_BLOCK);
-                content.accept(ModBlocks.EARTH_CORE_SHARD_BLOCK);
                 content.accept(ModBlocks.ANCIENT_SEA_REEF);
             }
         );

@@ -20,12 +20,12 @@ items:
 # Forging Celestial Bodies
 
 - Use <ref item="anvilcraft:confined_time_anvilon"/>, <ref item="anvilcraft:confined_space_anvilon"/>, <ref item="anvilcraft:confined_mass_anvilon"/>, <ref item="anvilcraft:confined_energy_anvilon"/> placed on the left side in sequence, and configure reasonable parameters to search for and forge a celestial body
-- Forging celestial bodies does not consume anvils
+- Forging celestial bodies does not consume Anvilons
 
 <tip>
 Debugging parameters:
   - Use the **mouse wheel** to conveniently adjust the four parameters
-  - After placing some anvils, hover over other anvil items to display the matching anvil count (will not display if previously placed anvils already cannot satisfy the condition)
+  - After placing some Anvilons, hover over other Anvilon items to display the matching Anvilon count (will not display if previously placed Anvilons already cannot satisfy the condition)
 </tip>
 
 ![Brown Dwarf.png](../../textures/cfa/heai.png)
@@ -35,7 +35,7 @@ Debugging parameters:
 ## Forging Planets
 
 1. To forge a planet, first prepare 1MW of power for operation
-2. Use the four anvils to control the four parameters, making the **intersection** of the red line (energy) and green line (time) AND the **intersection** of the blue line (space) and yellow line (mass) fall on the same color region
+2. Use the four Anvilons to control the four parameters, making the **intersection** of the red line (energy) and green line (time) AND the **intersection** of the blue line (space) and yellow line (mass) fall on the same color region
 3. The text at the bottom right shows what celestial body each of the three focus areas corresponds to. As long as the first and third lines show the same celestial body, it works
 4. Click the confirm button. After 10s of forging, click the **lock icon** below to start operating on the celestial body
 
@@ -45,7 +45,7 @@ Debugging parameters:
 
 1. To forge a star, first prepare four <ref item="anvilcraft:celestial_forging_anvil_amplifier"/> and place them at the four corners of the <ref item="anvilcraft:celestial_forging_anvil"/>
 2. Prepare 4MW of power for operation
-3. Use the four anvils to control the four parameters, ensuring all **three focus areas** of the four lines fall on the same color region
+3. Use the four Anvilons to control the four parameters, ensuring all **three focus areas** of the four lines fall on the same color region
 4. Click the confirm button. After 10s, click the **lock icon** to start operating on the celestial body
 
 <info>

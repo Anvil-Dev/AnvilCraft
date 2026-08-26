@@ -129,6 +129,14 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
         DefinitionSerialization serialization = DefinitionSerialization.fromDefinition(this.outputPattern);
         String[][] grid = serialization.grid();
         int[] offsets = MultiblockUtil.offsets(size, grid);
+        final Optional<EntityType<?>> entity = this.getModifySpawnerAction()
+            .map(ModifySpawnerAction::fromPos)
+            .map(pos -> MultiblockConversionRecipe.rotatePos(pos, size, rotation))
+            .map(inputCorner::offset)
+            .map(level::getBlockEntity)
+            .filter(be -> be instanceof HasMobBlockEntity)
+            .map(be -> ((HasMobBlockEntity) be).getOrCreateDisplayEntity(level))
+            .map(Entity::getType);
         BlockPos.MutableBlockPos mpos = new BlockPos.MutableBlockPos();
         for (int y = 0; y < grid.length; y++) {
             String[] layer = grid[y];
@@ -186,14 +194,6 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
                     innerPos, outerPos, 3, 512);
             }
         );
-        Optional<EntityType<?>> entity = this.getModifySpawnerAction()
-            .map(ModifySpawnerAction::fromPos)
-            .map(pos -> MultiblockConversionRecipe.rotatePos(pos, size, rotation))
-            .map(inputCorner::offset)
-            .map(level::getBlockEntity)
-            .filter(be -> be instanceof HasMobBlockEntity)
-            .map(be -> ((HasMobBlockEntity) be).getOrCreateDisplayEntity(level))
-            .map(Entity::getType);
         entity.ifPresent(entityType -> {
             BlockPos offset = MultiblockConversionRecipe.rotatePos(
                 this.getModifySpawnerAction().get().toPos(), size, rotation);

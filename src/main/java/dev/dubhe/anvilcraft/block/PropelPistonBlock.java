@@ -9,10 +9,12 @@ import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.item.IFullCapacitor;
 import dev.dubhe.anvilcraft.block.entity.PropelPistonBlockEntity;
+import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
@@ -215,11 +217,12 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
         } else {
             Map<BlockPos, BlockState> map = Maps.newHashMap();
             List<BlockPos> list = pistonstructureresolver.getToPush();
+            final int pushedCount = list.size();
             List<BlockState> list1 = Lists.newArrayList();
             list.addFirst(pos);
 
             if (level.getBlockEntity(pos) instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
-                propelPistonBlockEntity.addEnergy(-(list.size() * 10000));
+                propelPistonBlockEntity.addEnergy(-(pushedCount * 10000));
             }
 
             for (BlockPos blockPos1 : list) {
@@ -299,8 +302,26 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
                 level.updateNeighborsAt(list.get(i1), blockStates[i++].getBlock());
             }
 
+            spawnPropulsionParticles(level, pos, facing, pushedCount);
             return true;
         }
+    }
+
+    private static void spawnPropulsionParticles(Level level, BlockPos pos, Direction facing, int pushedCount) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return;
+        }
+        double x = pos.getX() + 0.5 + facing.getOpposite().getStepX() * 0.6;
+        double y = pos.getY() + 0.5 + facing.getOpposite().getStepY() * 0.6;
+        double z = pos.getZ() + 0.5 + facing.getOpposite().getStepZ() * 0.6;
+        int count = 4 + pushedCount * 2;
+        serverLevel.sendParticles(
+            ModParticles.IONOCRAFT_BACKPACK_EXHAUST.get(),
+            x, y, z,
+            count,
+            0.2, 0.2, 0.2,
+            0.05
+        );
     }
 
     @SuppressWarnings("unchecked")
