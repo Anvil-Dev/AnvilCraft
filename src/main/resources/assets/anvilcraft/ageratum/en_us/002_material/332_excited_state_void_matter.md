@@ -18,7 +18,7 @@ items:
 # Properties
 
 - When in contact with another <ref item="anvilcraft:excited_state_void_matter_block"/>, it decays into one of: redstone block, lapis lazuli block, diamond block, netherite block, uranium block, plutonium block, sapphire block, ruby block, topaz block
-- If there is an adjacent <ref item="anvilcraft:confinement_chamber"/> when decaying, it also produces four types of anvils
+- If there is an adjacent <ref item="anvilcraft:confinement_chamber"/> when decaying, it also produces four types of Anvilons
 - Causes any <ref item="anvilcraft:void_matter_block"/> it touches to decay immediately
 
 <recipe id="anvilcraft:anvil_collision/royal_anvil_and_excited_state_void_matter_block_256"/>
