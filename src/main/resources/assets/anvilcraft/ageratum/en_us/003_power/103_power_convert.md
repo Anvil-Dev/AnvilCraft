@@ -40,7 +40,7 @@ AnvilCraft's electrical power is fundamentally different from other mods' energy
 - Conversion has loss
 - Different sizes convert different amounts of energy, see the table below for details
 
-|                         能量转换器                          | 消耗(kW) | 等价能量(FE/t) | 损耗后转换出的能量(FE/t) |
+|                        Power Converter                         | Consumption (kW) | Equivalent Energy (FE/t) | Converted Energy After Loss (FE/t) |
 |:------------------------------------------------------:|:------:|:----------:|:---------------:|
 |     <ref item="anvilcraft:power_converter_small"/>     |   1    |    100     |       90        |
 |    <ref item="anvilcraft:power_converter_middle"/>     |   16   |    1600    |      1440       |
