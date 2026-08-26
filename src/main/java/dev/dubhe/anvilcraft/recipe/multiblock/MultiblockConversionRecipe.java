@@ -129,7 +129,7 @@ public class MultiblockConversionRecipe implements IMultiblockRecipe, IDatagen {
         DefinitionSerialization serialization = DefinitionSerialization.fromDefinition(this.outputPattern);
         String[][] grid = serialization.grid();
         int[] offsets = MultiblockUtil.offsets(size, grid);
-        Optional<EntityType<?>> entity = this.getModifySpawnerAction()
+        final Optional<EntityType<?>> entity = this.getModifySpawnerAction()
             .map(ModifySpawnerAction::fromPos)
             .map(pos -> MultiblockConversionRecipe.rotatePos(pos, size, rotation))
             .map(inputCorner::offset)
