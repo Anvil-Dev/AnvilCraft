@@ -7,11 +7,14 @@ import dev.dubhe.anvilcraft.network.UpdateDisplayItemPacket;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,6 +22,7 @@ import net.neoforged.neoforge.items.ItemStackHandler;
 import net.neoforged.neoforge.network.PacketDistributor;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class ConfinementChamberBlockEntity extends BlockEntity implements IItemHandlerHolder, IHasDisplayItem {
@@ -54,6 +58,24 @@ public class ConfinementChamberBlockEntity extends BlockEntity implements IItemH
     @Override
     public void updateDisplayItem(ItemStack stack) {
         itemHandler.setStackInSlot(0, stack);
+    }
+
+    @Override
+    protected void collectImplicitComponents(DataComponentMap.Builder components) {
+        super.collectImplicitComponents(components);
+        ItemStack stack = itemHandler.getStackInSlot(0);
+        if (!stack.isEmpty()) {
+            components.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(List.of(stack)));
+        }
+    }
+
+    @Override
+    protected void applyImplicitComponents(DataComponentInput componentInput) {
+        super.applyImplicitComponents(componentInput);
+        ItemContainerContents contents = componentInput.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+        if (!contents.copyOne().isEmpty()) {
+            itemHandler.setStackInSlot(0, contents.getStackInSlot(0));
+        }
     }
 
     @Override
