@@ -1,0 +1,61 @@
+{
+	"format_version": "1.9.0",
+	"credit": "Made by XeKr with Blockbench",
+	"parent": "minecraft:block/block",
+	"textures": {
+		"1": "anvilcraft:block/cookie_pillar",
+		"2": "anvilcraft:block/cookie_pillar_top",
+		"3": "anvilcraft:block/cookie_pillar_inner",
+		"particle": "anvilcraft:block/cookie_pillar"
+	},
+	"elements": [
+		{
+			"from": [0, 0, 0],
+			"to": [13, 16, 3],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [3, 0, 16, 16], "texture": "#1", "cullface": "north"},
+				"south": {"uv": [0, 0, 13, 16], "texture": "#3"},
+				"west": {"uv": [0, 0, 3, 16], "texture": "#1", "cullface": "west"},
+				"up": {"uv": [0, 0, 13, 3], "texture": "#2", "cullface": "up"},
+				"down": {"uv": [0, 13, 13, 16], "texture": "#2", "cullface": "down"}
+			}
+		},
+		{
+			"from": [0, 0, 3],
+			"to": [3, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"east": {"uv": [0, 0, 13, 16], "texture": "#3"},
+				"south": {"uv": [0, 0, 3, 16], "texture": "#1", "cullface": "south"},
+				"west": {"uv": [3, 0, 16, 16], "texture": "#1", "cullface": "west"},
+				"up": {"uv": [0, 0, 13, 3], "rotation": 270, "texture": "#2", "cullface": "up"},
+				"down": {"uv": [0, 13, 13, 16], "rotation": 90, "texture": "#2", "cullface": "down"}
+			}
+		},
+		{
+			"from": [3, 0, 13],
+			"to": [16, 16, 16],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 13, 16], "texture": "#3"},
+				"east": {"uv": [0, 0, 3, 16], "texture": "#1", "cullface": "east"},
+				"south": {"uv": [3, 0, 16, 16], "texture": "#1", "cullface": "south"},
+				"up": {"uv": [0, 0, 13, 3], "rotation": 180, "texture": "#2", "cullface": "up"},
+				"down": {"uv": [0, 13, 13, 16], "rotation": 180, "texture": "#2", "cullface": "down"}
+			}
+		},
+		{
+			"from": [13, 0, 0],
+			"to": [16, 16, 13],
+			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
+			"faces": {
+				"north": {"uv": [0, 0, 3, 16], "texture": "#1", "cullface": "north"},
+				"east": {"uv": [3, 0, 16, 16], "texture": "#1", "cullface": "east"},
+				"west": {"uv": [0, 0, 13, 16], "texture": "#3"},
+				"up": {"uv": [0, 0, 13, 3], "rotation": 90, "texture": "#2", "cullface": "up"},
+				"down": {"uv": [0, 13, 13, 16], "rotation": 270, "texture": "#2", "cullface": "down"}
+			}
+		}
+	]
+}
