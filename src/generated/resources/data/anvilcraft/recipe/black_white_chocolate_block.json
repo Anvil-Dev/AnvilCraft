@@ -1,0 +1,20 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "A": {
+      "item": "anvilcraft:black_chocolate_block"
+    },
+    "B": {
+      "item": "anvilcraft:white_chocolate_block"
+    }
+  },
+  "pattern": [
+    "AB",
+    "BA"
+  ],
+  "result": {
+    "count": 4,
+    "id": "anvilcraft:black_white_chocolate_block"
+  }
+}
