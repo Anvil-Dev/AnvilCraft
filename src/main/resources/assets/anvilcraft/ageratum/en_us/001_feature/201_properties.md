@@ -30,9 +30,9 @@ This page showcases all currently available special tool properties and their ef
 
 # Multiphase
 
-Tools with this property will have two "phases"  
-Each phase stores its own name and enchantments, which do not conflict  
-You can switch between phases by pressing <key id="key.anvilcraft.switch_phase" />
+Tools with this property normally start with two "phases"; the underlying data supports two to four phases.
+Each phase stores its own name, repair cost, and enchantments, which do not conflict.
+Press <key id="key.anvilcraft.switch_phase" /> briefly to cycle through phases. Hold it for more than four client ticks to open the phase wheel, then select a phase directly.
 
 # Eternal
 

@@ -29,6 +29,12 @@ Hold a <ref item="anvilcraft:dragon_rod"/> and left-click to break blocks within
 When the <ref item="anvilcraft:dragon_rod"/>'s durability is depleted, it does not break completely but loses all functionality, similar to <ref item="minecraft:elytra"/>
 </info>
 
+### Transcendence Dragon Rod
+
+- The first devour starts a 10-tick startup cooldown. Repeat the devour action within 15 ticks to warm it up; after that, while the attack key remains held, the server continuously devours the block under the crosshair each player tick
+- Release the attack key, switch away from the rod, or enter a cooldown to stop continuous devouring; an invalid target simply skips that tick
+- Hold [Left Alt] to open a two-option wheel for this rod: protect containers from devouring or allow containers to be devoured. This setting is stored on each rod
+
 ### When Breaking
 
 - The <ref item="anvilcraft:dragon_rod"/> follows <ref item="anvilcraft:block_devourer"/> rules: when mining world base blocks (**Stone**, **Netherrack**, **End Stone**), there is only a 5% chance of dropping. However, it cannot chain-gather falling blocks from the top

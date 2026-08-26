@@ -21,7 +21,7 @@ items:
 </row>
 
 - A versatile weapon that can be used as four types of melee weapons, but all modes benefit from the heavy hammer's fall damage bonus
-- When durability is depleted, it does not break completely, similar to <ref item="minecraft:elytra"/>
+- Ordinary durability damage preserves the final durability buffer, so the Heavy Halberd does not normally break. If a stack is already at the too-damaged threshold, its tool component and base attack modifier are removed until it is repaired; right-click use and trident-mode throws are rejected in that state
 - Hold [Left Alt] to bring up a radial menu with four options, each providing a different right-click ability
   - <ref item="minecraft:trident"/> mode: right-click to throw
   - Spear mode: right-click to stab (no function in MC versions without spears)

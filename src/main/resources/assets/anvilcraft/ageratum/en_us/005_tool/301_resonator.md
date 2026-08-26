@@ -21,7 +21,7 @@ items:
 </row>
 
 - A universal tool that can mine any block
-- When durability is depleted, it does not break completely, similar to <ref item="minecraft:elytra"/>
+- When a breakable Resonator reaches its last durability buffer, it does not break completely, similar to <ref item="minecraft:elytra"/>. Its tool component and base attack modifier are removed, and Resonant Mining cannot be started; repairing it below the threshold restores these abilities
 - Hold [Left Alt] to bring up a radial menu with five options
   - Auto is selected by default, accelerating the breaking of any block
   - Selecting a specific tool type only accelerates breaking the corresponding blocks, but enables operations such as *stripping* and *tilling*
