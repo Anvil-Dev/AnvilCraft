@@ -18,7 +18,7 @@ items:
 # Prerequisites:
 
 - [Thermal System](../001_feature/101_heated_block.md)
-- [Anvil Collision Crafting](../004_block/215_large_electromagnet.md#铁砧撞击合成)
+- [Anvil Collision Crafting](../004_block/215_large_electromagnet.md#anvil-impact-crafting)
 
 <warning>
 If you skip the prerequisites, you won't understand this chapter

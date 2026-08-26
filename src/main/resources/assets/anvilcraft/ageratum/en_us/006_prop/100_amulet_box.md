@@ -35,5 +35,5 @@ items:
 # Function
 
 - Holding an Amulet Box containing a Totem of Undying in your offhand is equivalent to holding a Totem of Undying
-- If you survive specific fatal damage, there is a 20% chance to obtain the corresponding [Amulet](100_amulet.md#获取). If it fails, the chance increases by an additional 10%
+- If you survive specific fatal damage, there is a 20% chance to obtain the corresponding [Amulet](100_amulet.md#acquisition). If it fails, the chance increases by an additional 10%
 - When holding the Amulet Box in your main hand or offhand, all amulets inside are active

@@ -41,7 +41,7 @@ items:
 3. 双倍冶炼矿物
 
 <warning>
-不可以烹饪食物，请移步[物品加工：烹饪](../007_struct/000_item_processing.md#烹饪)
+不可以烹饪食物，请移步[物品加工：烹饪](../007_struct/000_item_processing.md#快速烹饪)
 </warning>
 
 <recipe id="anvilcraft:super_heating_warp_raw_copper_2_copper_ingot"/>
