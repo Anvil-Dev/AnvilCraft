@@ -219,7 +219,7 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
             list.addFirst(pos);
 
             if (level.getBlockEntity(pos) instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
-                propelPistonBlockEntity.addEnergy(-(list.size() * 10000));
+                propelPistonBlockEntity.addEnergy(-(list.size() * 5000));
             }
 
             for (BlockPos blockPos1 : list) {

@@ -3186,7 +3186,12 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<WipBlock> WIP_BLOCK = REGISTRUM.block("wip_block", WipBlock::new)
-        .properties(properties -> properties.noOcclusion().lightLevel(bs -> 1))
+        .properties(properties -> properties.noOcclusion()
+            .lightLevel(bs -> 1)
+            .isValidSpawn(ModBlocks::never)
+            .isRedstoneConductor(ModBlocks::never)
+            .isSuffocating(ModBlocks::never)
+            .isViewBlocking(ModBlocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .register();
 
