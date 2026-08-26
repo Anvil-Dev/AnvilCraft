@@ -215,11 +215,12 @@ public class PropelPistonBlock extends DirectionalBlock implements IMoveableEnti
         } else {
             Map<BlockPos, BlockState> map = Maps.newHashMap();
             List<BlockPos> list = pistonstructureresolver.getToPush();
+            final int pushedCount = list.size();
             List<BlockState> list1 = Lists.newArrayList();
             list.addFirst(pos);
 
             if (level.getBlockEntity(pos) instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
-                propelPistonBlockEntity.addEnergy(-(list.size() * 5000));
+                propelPistonBlockEntity.addEnergy(-(pushedCount * 10000));
             }
 
             for (BlockPos blockPos1 : list) {
