@@ -189,9 +189,22 @@ public class AnvilCraftServerConfig {
     public static class StoragePort {
         @Comment("Working interval of the storage port (in ticks): the performance wall that limits how often it scans and moves items")
         @BoundedDiscrete(min = 1, max = 1200)
-        public int workInterval = 10;
+        public int workInterval = 5;
 
         @Comment("Maximum items the storage port moves per scan")
+        @BoundedDiscrete(min = 1, max = 1024)
+        public int maxItemsPerScan = 64;
+    }
+
+    @CollapsibleObject
+    public HyperdimensionUploader hyperdimensionUploader = new HyperdimensionUploader();
+
+    public static class HyperdimensionUploader {
+        @Comment("Working interval of the hyperdimension uploader (in ticks)")
+        @BoundedDiscrete(min = 1, max = 1200)
+        public int workInterval = 5;
+
+        @Comment("Maximum items the hyperdimension uploader moves to the bound storage per scan")
         @BoundedDiscrete(min = 1, max = 1024)
         public int maxItemsPerScan = 64;
     }

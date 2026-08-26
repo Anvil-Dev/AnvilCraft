@@ -35,6 +35,7 @@ import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HypercubeBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.HyperdimensionUploaderBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
@@ -449,6 +450,11 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<HyperdimensionStorageStationBlockEntity> HYPERDIMENSION_STORAGE_STATION = REGISTRUM
         .blockEntity("hyperdimension_storage_station", HyperdimensionStorageStationBlockEntity::new)
         .validBlocks(ModBlocks.HYPERDIMENSION_STORAGE_STATION)
+        .register();
+
+    public static final BlockEntityEntry<HyperdimensionUploaderBlockEntity> HYPERDIMENSION_UPLOADER = REGISTRUM
+        .blockEntity("hyperdimension_uploader", HyperdimensionUploaderBlockEntity::new)
+        .validBlocks(ModBlocks.HYPERDIMENSION_UPLOADER)
         .register();
 
     public static final BlockEntityEntry<StoragePortBlockEntity> STORAGE_PORT = REGISTRUM

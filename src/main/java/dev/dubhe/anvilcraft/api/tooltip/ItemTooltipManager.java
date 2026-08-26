@@ -413,6 +413,13 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.LARGE_CRATE.asItem(), "A large crate, stores more items");
         NORMAL.put(ModBlocks.SHULKER_CONTAINER.asItem(), "A space-folding container upgraded from a Large Crate");
         NORMAL.put(ModBlocks.HYPERDIMENSION_STORAGE_STATION.asItem(), "An infinite container upgraded from a Shulker Container");
+        NORMAL.put(ModBlocks.HYPERDIMENSION_UPLOADER.asItem(), "Uploads hopper-fed items into the bound Hyperdimension Storage Station");
+        SHIFT.put(ModBlocks.HYPERDIMENSION_UPLOADER.asItem(), """
+            Right-click a placed Singularity Crystal with a bound Hyperdimension Terminal to create it
+            Has 16 slots, one item type per slot, accessible by hoppers/chutes
+            Buffered items are uploaded into the bound storage station, rate-limited by the server config
+            Right-click it with another bound Hyperdimension Terminal to rebind
+            Does not load chunks by itself""");
         NORMAL.put(ModBlocks.STORAGE_PORT.asItem(), "Buffers items between hoppers/chutes and a connected Shulker Container or Hyperdimension Storage Station");
         NORMAL.put(ModItems.LOCAL_TERMINAL.asItem(), "A dynamic link of the nearest Large Crate within 32 blocks");
         NORMAL.put(ModItems.SHULKER_TERMINAL.asItem(), "A dynamic link of Shulker-like storages");
