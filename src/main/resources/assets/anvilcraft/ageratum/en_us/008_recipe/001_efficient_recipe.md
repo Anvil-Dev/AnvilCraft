@@ -4,7 +4,7 @@ navigation:
   icon: "anvilcraft:crushing_table"
 ---
 
-Compared to crafting directly in a <ref item="minecraft:crafting_table"/>, processing via [Anvil Item Processing](../007_struct/000_item_processing.md) yields more materials
+Compared to crafting directly in a <ref item="minecraft:crafting_table"/>, processing via [Anvil Item Processing](../007_struct/000_anvil_processing.md) yields more materials
 
 <row halign="center">
 <recipe id="anvilcraft:item_crush/flower/red_dye_from_poppy"/>

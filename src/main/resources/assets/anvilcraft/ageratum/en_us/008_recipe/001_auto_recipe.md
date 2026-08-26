@@ -6,7 +6,7 @@ navigation:
 
 # Vanilla Processing Automation
 
-Uses [Anvil Processing](../007_struct/000_block_processing.md) to automate tasks that normally require manual vanilla processing.
+Uses [Anvil Processing](../007_struct/000_anvil_processing.md) to automate tasks that normally require manual vanilla processing.
 
 ## Stripping, Waxing, and Deoxidizing
 

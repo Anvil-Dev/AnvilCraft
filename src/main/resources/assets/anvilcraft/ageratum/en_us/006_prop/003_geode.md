@@ -23,7 +23,7 @@ items:
 
 # Crafting Usage
 
-- When a Geode undergoes [Item Stamping](../007_struct/000_item_processing.md#stamping) or [Item Crushing](../007_struct/000_item_processing.md#crushing), it always yields 4 <ref item="minecraft:amethyst_shard"/>, with a chance to yield [Topaz, Sapphire, and Ruby](../002_material/000_gems.md)
+- When a Geode undergoes [Item Stamping](../007_struct/000_anvil_processing.md#stamping) or [Item Crushing](../007_struct/000_anvil_processing.md#crushing), it always yields 4 <ref item="minecraft:amethyst_shard"/>, with a chance to yield [Topaz, Sapphire, and Ruby](../002_material/000_gems.md)
 - Using Time Warp on a Geode can craft <ref item="minecraft:budding_amethyst"/>
 
 <row halign="center">

@@ -8,7 +8,7 @@ navigation:
 
 <ref item="minecraft:cobblestone"/> is very important, so you need to build a cobblestone generator.
 
-Utilize the [Anvil Block Destruction](../007_struct/000_block_processing.md) feature to automatically produce large amounts of <ref item="minecraft:cobblestone"/>
+Utilize the [Anvil Block Destruction](../007_struct/000_anvil_processing.md) feature to automatically produce large amounts of <ref item="minecraft:cobblestone"/>
 
 <structure id="../../structures/machine/stone.snbt"/>
 

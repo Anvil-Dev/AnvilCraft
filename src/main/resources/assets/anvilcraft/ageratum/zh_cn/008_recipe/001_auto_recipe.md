@@ -6,7 +6,7 @@ navigation:
 
 # 原版加工自动化
 
-通过[铁砧加工](../007_struct/000_block_processing.md)，自动完成原版需要手动完成的事情
+通过[铁砧加工](../007_struct/000_anvil_processing.md)，自动完成原版需要手动完成的事情
 
 ## 去皮、去蜡与除锈
 

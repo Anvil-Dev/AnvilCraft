@@ -12,12 +12,16 @@ items:
 
 # Capturing Creatures
 - Hold a <ref item="anvilcraft:resin_block"/> and right-click a creature whose **hitbox** is less than 1.5 in width/length and less than 2 in height to capture it
-- However, capturing hostile and neutral creatures requires them to be affected by the **Weakness** effect
-- Right-click on the ground to release the captured creature
+- Capturing hostile and neutral creatures requires them to be affected by the **Weakness** effect
+- Right-click on the ground to release the creature
 
 <info>
 e.g., villagers can be captured; zombies need the Weakness effect applied to be captured; iron golems cannot be captured
 </info>
+
+<warning>
+Creatures inside a <ref item="minecraft:spawner"/> can be captured, but cannot be released back
+</warning>
 
 - Can be automated using a <ref item="minecraft:dispenser"/>
 

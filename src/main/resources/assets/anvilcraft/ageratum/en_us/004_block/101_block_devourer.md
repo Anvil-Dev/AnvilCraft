@@ -31,4 +31,4 @@ Killing the Ender Dragon with Beheading III enchantment guarantees a 100% dragon
 
 - Can be pushed and pulled by pistons
 - World matrix blocks such as <ref item="minecraft:stone"/>, <ref item="minecraft:netherrack"/>, etc. have a very low drop rate
-- A cheaper block destroyer can use [Anvil + Stonecutter](../007_struct/000_block_processing.md)
+- A cheaper block destroyer can use [Anvil + Stonecutter](../007_struct/000_anvil_processing.md)
