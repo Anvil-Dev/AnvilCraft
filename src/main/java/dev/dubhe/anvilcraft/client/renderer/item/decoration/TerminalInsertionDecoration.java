@@ -27,7 +27,9 @@ public class TerminalInsertionDecoration implements IItemDecorator {
         if (!(minecraft.screen instanceof AbstractContainerScreen<?> containerScreen)) {
             return false;
         }
-        ItemStack carried = minecraft.player.inventoryMenu.getCarried();
+        // 用当前屏幕的菜单读取指针：合成台 / 箱子等界面下 player.inventoryMenu 并不是
+        // 活动菜单（其 carried 始终为空），导致“+”不显示
+        ItemStack carried = containerScreen.getMenu().getCarried();
         if (carried.isEmpty() || ItemStack.isSameItemSameComponents(stack, carried)) {
             return false;
         }

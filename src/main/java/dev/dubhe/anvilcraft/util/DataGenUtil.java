@@ -95,6 +95,7 @@ public class DataGenUtil {
                 .build()
         );
     }
+
     /// 水平朝向 + ACTIVE 属性的方块 blockstate 生成（如流体接口）
     public static <T extends RegistrumBlockstateProvider> void horizontalFacingWithActive(
         DataGenContext<Block, ?> context,
@@ -128,6 +129,18 @@ public class DataGenUtil {
             context.get(),
             DangerUtil.genConfiguredModel("block/" + context.getId().getPath()).get()
         );
+    }
+
+    /**
+     * 所有方块状态都映射到同一模型（适用于带状态属性但外观不变的方块）。
+     */
+    public static void simpleAllStates(DataGenContext<Block, ?> context, RegistrumBlockstateProvider provider) {
+        ModelFile model = new ModelFile.ExistingModelFile(
+            context.getId().withPrefix("block/"),
+            provider.models().existingFileHelper
+        );
+        provider.getVariantBuilder(context.get())
+            .forAllStates(state -> ConfiguredModel.builder().modelFile(model).build());
     }
 
     public static LootItemCondition.Builder hasSilkTouch(HolderLookup.Provider registries) {

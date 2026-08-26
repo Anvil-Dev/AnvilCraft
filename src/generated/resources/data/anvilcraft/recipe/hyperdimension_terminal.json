@@ -17,9 +17,9 @@
     }
   },
   "pattern": [
-    "ABA",
+    " B ",
     "ACA",
-    "DDD"
+    " D "
   ],
   "result": {
     "count": 1,

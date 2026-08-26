@@ -118,13 +118,13 @@ public final class StorageTerminalClientStub {
         );
     }
 
-    /** JEI 快速合成补库：把合成缺少的物品从绑定存储站取出补入背包。 */
-    public static CompletableFuture<Boolean> withdrawToInventory(UUID storageId, List<ItemStack> needs) {
+    /** JEI 快速合成补库：从玩家持有的全部终端目标（超维 / 本地 / 潜影）取出缺少的物品补入背包。 */
+    public static CompletableFuture<Boolean> withdrawToInventory(List<UUID> targetIds, List<ItemStack> needs) {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::terminalWithdrawToInventory,
             StorageTerminalClientStub.playerId(),
-            storageId,
+            targetIds,
             needs
         );
     }

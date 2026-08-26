@@ -59,23 +59,30 @@ public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractConta
         if (!player.level().isClientSide() || TerminalJeiStorageCache.isRestocking()) {
             return;
         }
-        UUID storageId = TerminalJeiStorageCache.boundStorage(player);
-        if (storageId == null) {
+        List<UUID> storageIds = TerminalJeiStorageCache.boundStorages(player);
+        if (storageIds.isEmpty()) {
             return;
         }
         if (!doTransfer) {
-            // 检查阶段：仅当背包 + 存储站满足配方需求时才视为可用；否则走原方法（报缺少材料）。
+            // 检查阶段：任一终端目标（背包 + 其存储）满足配方需求即可视为可用；
             // 存储站物品列表为异步缓存，首次可能未就绪——此时走原方法（+ 暂不可用），
             // 缓存加载完成后 JEI 刷新即可正确判断。
-            TerminalJeiStorageCache.ensure(storageId);
-            List<ItemStack> storageItems = TerminalJeiStorageCache.get(storageId);
-            if (storageItems != null
-                && JeiBasicRecipeTransferHandlerMixin.anvilcraft$containerSatisfies(container, storageItems, recipeSlotsView)) {
-                cir.setReturnValue(null);
+            for (UUID storageId : storageIds) {
+                TerminalJeiStorageCache.ensure(storageId);
+                List<ItemStack> storageItems = TerminalJeiStorageCache.get(storageId);
+                if (storageItems != null
+                    && JeiBasicRecipeTransferHandlerMixin.anvilcraft$containerSatisfies(
+                        container,
+                        storageItems,
+                        recipeSlotsView
+                    )) {
+                    cir.setReturnValue(null);
+                    break;
+                }
             }
             return;
         }
-        // 传输阶段：先补足背包缺少的配方物品
+        // 传输阶段：先从全部终端目标补足背包缺少的配方物品
         List<ItemStack> missing = JeiBasicRecipeTransferHandlerMixin.anvilcraft$collectMissing(
             container,
             recipeSlotsView,
@@ -89,7 +96,7 @@ public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractConta
         // 导致本会话内后续所有 transferRecipe 提前 return、终端补库静默失效。
         // 断线时补库 RPC 可能永不完成（任务被登出流程丢弃），由
         // ClientEventListener.onClientPlayerDisconnect -> TerminalJeiStorageCache.clear() 复位。
-        StorageTerminalClientStub.withdrawToInventory(storageId, missing).whenComplete((changed, error) ->
+        StorageTerminalClientStub.withdrawToInventory(storageIds, missing).whenComplete((changed, error) ->
             Minecraft.getInstance().execute(() -> {
                 try {
                     // 无论补库成功与否都重试原传输逻辑：补库失败时背包可能已被部分补入

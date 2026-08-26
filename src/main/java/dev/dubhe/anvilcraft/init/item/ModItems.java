@@ -109,6 +109,7 @@ import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
 import dev.dubhe.anvilcraft.item.weapon.TeslaGunItem;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
@@ -748,14 +749,18 @@ public class ModItems {
 
     public static final ItemEntry<LocalTerminalItem> LOCAL_TERMINAL = REGISTRUM
         .item("local_terminal", LocalTerminalItem::new)
-        .properties(properties -> properties.stacksTo(1))
+        .properties(properties -> properties
+            .stacksTo(1)
+            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK))
         .model((ctx, provider) -> provider.generated(ctx.lazy()))
         .recipe(RegistrumItemRecipeLoader::localTerminal)
         .register();
 
     public static final ItemEntry<ShulkerTerminalItem> SHULKER_TERMINAL = REGISTRUM
         .item("shulker_terminal", ShulkerTerminalItem::new)
-        .properties(properties -> properties.stacksTo(1))
+        .properties(properties -> properties
+            .stacksTo(1)
+            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK))
         .model((ctx, provider) -> provider.generated(ctx.lazy()))
         .recipe(RegistrumItemRecipeLoader::shulkerTerminal)
         .register();
@@ -767,7 +772,8 @@ public class ModItems {
             .fireResistant()
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
-            .component(ModComponents.TERMINAL_BINDING, TerminalBinding.EMPTY))
+            .component(ModComponents.TERMINAL_BINDING, TerminalBinding.EMPTY)
+            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK))
         .model((ctx, provider) -> provider.generated(ctx.lazy()))
         .recipe(RegistrumItemRecipeLoader::hyperdimensionTerminal)
         .register();

@@ -183,6 +183,19 @@ public class AnvilCraftServerConfig {
     @Comment("The max size of the entries in storages' recover station")
     public int storageRecoverMaxSize = 20;
 
+    @CollapsibleObject
+    public StoragePort storagePort = new StoragePort();
+
+    public static class StoragePort {
+        @Comment("Working interval of the storage port (in ticks): the performance wall that limits how often it scans and moves items")
+        @BoundedDiscrete(min = 1, max = 1200)
+        public int workInterval = 10;
+
+        @Comment("Maximum items the storage port moves per scan")
+        @BoundedDiscrete(min = 1, max = 1024)
+        public int maxItemsPerScan = 64;
+    }
+
     public static class SpacetimeSupercomputerCommand {
         @Comment("Allow /locate biome command")
         public boolean allowLocateBiomeCommand = true;

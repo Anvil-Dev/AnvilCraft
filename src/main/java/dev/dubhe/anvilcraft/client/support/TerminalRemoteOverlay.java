@@ -22,6 +22,7 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -505,15 +506,16 @@ public final class TerminalRemoteOverlay {
     }
 
     /**
-     * 若当前处于创造背包界面（其菜单为纯客户端的 {@code ItemPickerMenu}，服务端 carried 广播
-     * {@code containerId == -1} 会被客户端忽略），则把指针物品手动写回玩家背包菜单；其余界面
-     * 由服务端广播同步，无需（也不应）手动设置，避免与服务端广播竞态导致物品重复。
+     * 若当前处于创造背包界面，把指针物品写回创造界面的菜单。
+     * 创造界面的 CreativeModeMenu 是纯客户端菜单（服务端 carried 广播 containerId == -1
+     * 会被客户端忽略），且并非 player.inventoryMenu——必须写回当前屏幕菜单才能生效；
+     * 其余界面由服务端广播同步，无需（也不应）手动设置，避免与服务端广播竞态导致物品重复。
      */
     public static void applyCarriedIfCreative(ItemStack carried) {
         Minecraft minecraft = Minecraft.getInstance();
-        if (minecraft.screen instanceof net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen
+        if (minecraft.screen instanceof CreativeModeInventoryScreen creativeScreen
             && minecraft.player != null) {
-            minecraft.player.inventoryMenu.setCarried(carried);
+            creativeScreen.getMenu().setCarried(carried);
         }
     }
 

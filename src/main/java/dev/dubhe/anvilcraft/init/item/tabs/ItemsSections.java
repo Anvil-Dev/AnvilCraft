@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.init.item.tabs;
 
 import dev.anvilcraft.lib.v2.registrum.util.CreativeTabSection;
 import dev.anvilcraft.lib.v2.registrum.util.CreativeTabSections;
-import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.enchantment.ModEnchantments;
 import dev.dubhe.anvilcraft.init.item.ModFoodItems;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -298,7 +297,7 @@ public class ItemsSections extends DisplayItemsGenerator {
         );
     }
 
-    private static ResourceLocation texture(String id) {
-        return SharedTextures.textureGui("creative_inventory/section/items/" + id);
+    protected static ResourceLocation texture(String id) {
+        return DisplayItemsGenerator.texSection("items/" + id);
     }
 }

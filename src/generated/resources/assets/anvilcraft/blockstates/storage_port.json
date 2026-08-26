@@ -1,0 +1,10 @@
+{
+  "variants": {
+    "marked=false": {
+      "model": "anvilcraft:block/storage_port"
+    },
+    "marked=true": {
+      "model": "anvilcraft:block/storage_port"
+    }
+  }
+}

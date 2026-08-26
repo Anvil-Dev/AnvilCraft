@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "anvilcraft:hyperdimension_terminal",
+  "ingredients": [
+    {
+      "item": "anvilcraft:hyperdimension_terminal"
+    }
+  ],
+  "result": {
+    "count": 1,
+    "id": "anvilcraft:hyperdimension_terminal"
+  }
+}

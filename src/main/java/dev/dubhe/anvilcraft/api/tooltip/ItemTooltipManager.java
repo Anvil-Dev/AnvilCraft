@@ -413,6 +413,7 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.LARGE_CRATE.asItem(), "A large crate, stores more items");
         NORMAL.put(ModBlocks.SHULKER_CONTAINER.asItem(), "A space-folding container upgraded from a Large Crate");
         NORMAL.put(ModBlocks.HYPERDIMENSION_STORAGE_STATION.asItem(), "An infinite container upgraded from a Shulker Container");
+        NORMAL.put(ModBlocks.STORAGE_PORT.asItem(), "Buffers items between hoppers/chutes and a connected Shulker Container or Hyperdimension Storage Station");
         NORMAL.put(ModItems.LOCAL_TERMINAL.asItem(), "A dynamic link of the nearest Large Crate within 32 blocks");
         NORMAL.put(ModItems.SHULKER_TERMINAL.asItem(), "A dynamic link of Shulker-like storages");
         NORMAL.put(ModItems.HYPERDIMENSION_TERMINAL.asItem(), "A portable port of the binding Hyperdimension Storage Station");
@@ -698,6 +699,18 @@ public class ItemTooltipManager {
                 then connect to all Shulker Boxes in the inventory,
                 and finally connect to the nearest Shulker Container in the world within 64 blocks"""
         );
+        SHIFT.put(ModBlocks.STORAGE_PORT.asItem(), """
+                Place it flush against (face-adjacent) a Shulker Container or Hyperdimension Storage Station;
+                ports connected through other ports also work, but a component touching two cores stops working
+                The 32-slot buffer can be accessed by hoppers/chutes
+                Right-click with an item on an unmarked port to mark and insert up to one stack (rendered on all six faces)
+                Right-click with the marked item to insert one stack, double right-click to insert all matching items from your inventory;
+                right-click with a different item never replaces the mark; left-click takes one item per click, shift + left-click takes one stack
+                (left-clicking the outer half-pixel rim mines the block instead)
+                Anvil Hammer: hold right-click on a marked port to open a wheel and choose Clear Mark to remove the mark
+                (a plain hammer right-click does nothing; the marked state is also a block state)
+                Breaking the port keeps the buffered items and the mark in the dropped item; the item renders the marked item and shows its buffer contents in the tooltip
+                Item transfers are rate-limited by the server config (storagePort)""");
         SHIFT.put(ModBlocks.PUMP.asItem(), """
                 Provides 10 blocks of headlift on both input and output sides (including the pump itself)
                 Also functions as check valve, allowing liquid to flow through only in the pump's direction

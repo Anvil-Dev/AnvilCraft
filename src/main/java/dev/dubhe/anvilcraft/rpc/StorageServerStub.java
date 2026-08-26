@@ -43,6 +43,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -97,6 +98,9 @@ public final class StorageServerStub {
     public static final StreamCodec<ByteBuf, IntList> ORDER_STREAM_CODEC = ByteBufCodecs.VAR_INT
         .apply(ByteBufCodecs.list())
         .map(IntArrayList::new, Function.identity());
+    @SuppressWarnings("unused")
+    public static final StreamCodec<ByteBuf, List<UUID>> UUID_LIST_STREAM_CODEC = UUIDUtil.STREAM_CODEC
+        .apply(ByteBufCodecs.list());
     @SuppressWarnings("unused")
     public static final StreamCodec<RegistryFriendlyByteBuf, List<ItemStack>> ITEM_STACK_LIST_STREAM_CODEC =
         ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list());
@@ -647,27 +651,52 @@ public final class StorageServerStub {
     }
 
     /**
-     * JEI 快速合成补库：终端持有者把合成缺少的物品从终端连接的存储取出补入背包。
-     * 仅当玩家确实持有指向该 targetId 的终端（超维绑定 / 本地 / 潜影）时生效。
+     * JEI 快速合成补库：从玩家持有的全部终端目标（超维绑定 / 本地 / 潜影）取出合成缺少的
+     * 物品补入背包。每个目标按其提取时背包的实际缺口计算，总量不会超过需求。
+     * 仅当玩家确实持有这些目标对应的终端时生效。
      */
     @RemoteCallable(validator = TerminalAccessValidator.class)
     public static boolean terminalWithdrawToInventory(
         UUID playerId,
-        UUID targetId,
+        @CallableParam(clazz = StorageServerStub.class, field = "UUID_LIST_STREAM_CODEC")
+        List<UUID> targetIds,
         @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC")
         List<ItemStack> needs
     ) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
-        if (!StorageServerStub.ownsBoundTerminal(player, targetId)) {
+        if (targetIds.isEmpty()) {
             return false;
         }
-        if (!StorageServerStub.terminalTargetReachable(player, targetId)) {
-            return false;
+        boolean changed = false;
+        for (UUID targetId : targetIds) {
+            if (!StorageServerStub.terminalTargetReachable(player, targetId)) {
+                continue;
+            }
+            List<BaseStorage<?>> storages = StorageServerStub.terminalStorages(player, targetId);
+            if (storages.isEmpty()) {
+                continue;
+            }
+            if (StorageServerStub.withdrawNeedsFromStorages(player, storages, needs)) {
+                changed = true;
+            }
         }
-        List<BaseStorage<?>> storages = StorageServerStub.terminalStorages(player, targetId);
-        if (storages.isEmpty()) {
-            return false;
+        if (changed) {
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
         }
+        return changed;
+    }
+
+    /**
+     * 从一组存储中按背包当前缺口提取 needs 中每种物品，补入玩家背包。
+     *
+     * @return 是否发生任何变动
+     */
+    private static boolean withdrawNeedsFromStorages(
+        ServerPlayer player,
+        List<BaseStorage<?>> storages,
+        List<ItemStack> needs
+    ) {
         boolean changed = false;
         for (ItemStack need : needs) {
             if (need.isEmpty()) {
@@ -707,10 +736,6 @@ public final class StorageServerStub {
                     break;
                 }
             }
-        }
-        if (changed) {
-            player.getInventory().setChanged();
-            player.containerMenu.broadcastChanges();
         }
         return changed;
     }
@@ -1812,11 +1837,26 @@ public final class StorageServerStub {
                 || args.length < 2
                 || !(args[0] instanceof UUID playerId)
                 || !player.getGameProfile().getId().equals(playerId)
-                || !(args[1] instanceof UUID storageId)
             ) {
                 return false;
             }
-            return StorageServerStub.ownsBoundTerminal(player, storageId);
+            if (args[1] instanceof UUID storageId) {
+                return StorageServerStub.ownsBoundTerminal(player, storageId);
+            }
+            // 多目标（JEI 多终端补库）：每个目标都必须由玩家持有的终端对应
+            if (args[1] instanceof List<?> ids) {
+                if (ids.isEmpty()) {
+                    return false;
+                }
+                for (Object id : ids) {
+                    if (!(id instanceof UUID storageId)
+                        || !StorageServerStub.ownsBoundTerminal(player, storageId)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
         }
     }
 
@@ -2106,7 +2146,9 @@ public final class StorageServerStub {
         BlockPos pos = BlockPos.of(sourcePos);
         BlockEntity blockEntity = player.level().getBlockEntity(pos);
         if (!(blockEntity instanceof StorageBlockEntity storage)) {
-            throw new IllegalStateException("Cannot access storage without a storage block entity");
+            // 无效 / 已过期的虚拟位置（客户端缓存残留或映射已被清理）：
+            // 返回空视图而不是抛异常，避免 RPC 处理器崩溃
+            return StorageServerStub.emptyView(player, RemoteTarget.SHULKER_CONTAINER);
         }
         UUID id = storage.getId();
         if (id == null) {

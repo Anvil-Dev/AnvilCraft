@@ -748,9 +748,9 @@ public class RegistrumItemRecipeLoader {
 
     public static <T extends Item> void hyperdimensionTerminal(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ctx.get())
-            .pattern("ABA")
+            .pattern(" B ")
             .pattern("ACA")
-            .pattern("DDD")
+            .pattern(" D ")
             .define('A', ModItems.TRANSCENDIUM_INGOT)
             .define('B', ModBlocks.SINGULARITY_CRYSTAL)
             .define('C', ModItems.SHULKER_TERMINAL)
@@ -773,6 +773,15 @@ public class RegistrumItemRecipeLoader {
                 AnvilCraftDatagen.has(ModBlocks.HYPERCUBE)
             )
             .save(provider);
+        // 把已绑定的超维终端放上合成台合成一次即可清除绑定（产物为默认无绑定终端）
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ctx.get())
+            .requires(ModItems.HYPERDIMENSION_TERMINAL)
+            .group(ctx.getId().toString())
+            .unlockedBy(
+                AnvilCraftDatagen.hasItem(ModItems.HYPERDIMENSION_TERMINAL),
+                RegistrumRecipeProvider.has(ModItems.HYPERDIMENSION_TERMINAL)
+            )
+            .save(provider, AnvilCraft.of("hyperdimension_terminal_unbind"));
     }
 
     public static <T extends Item> void localTerminal(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
