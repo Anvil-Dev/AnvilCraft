@@ -4,7 +4,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.item.property.component.PillBocContents;
+import dev.dubhe.anvilcraft.item.property.component.PillBoxContents;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.resources.ResourceLocation;
@@ -15,26 +15,26 @@ public class PillSelectorSupport {
     public static final ResourceLocation BACKGROUND = SharedTextures.bg("misc", "pill_box");
 
     private ItemStack pillBox = ItemStack.EMPTY;
-    private PillBocContents contents = PillBocContents.EMPTY;
+    private PillBoxContents contents = PillBoxContents.EMPTY;
 
     private PillSelectorSupport() {}
 
     public void setPillBox(ItemStack pillBox) {
         if (pillBox.isEmpty()) {
-            this.contents = PillBocContents.EMPTY;
+            this.contents = PillBoxContents.EMPTY;
             resetIndex();
         } else {
             this.pillBox = pillBox;
-            this.contents = pillBox.getOrDefault(ModComponents.PILL_BOC_CONTENTS, PillBocContents.EMPTY);
+            this.contents = pillBox.getOrDefault(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY);
         }
     }
 
     public void resetIndex() {
         if (!this.pillBox.isEmpty()) {
-            PillBocContents contents1 = this.pillBox.getOrDefault(ModComponents.PILL_BOC_CONTENTS, PillBocContents.EMPTY);
-            PillBocContents.Mutable mutable = contents1.mutable();
+            PillBoxContents contents1 = this.pillBox.getOrDefault(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY);
+            PillBoxContents.Mutable mutable = contents1.mutable();
             mutable.setDefaultIndex();
-            this.pillBox.set(ModComponents.PILL_BOC_CONTENTS, mutable.immutable());
+            this.pillBox.set(ModComponents.PILL_BOX_CONTENTS, mutable.immutable());
             this.pillBox = ItemStack.EMPTY;
         }
     }
@@ -89,26 +89,26 @@ public class PillSelectorSupport {
     }
 
     public void nextIndex() {
-        PillBocContents.Mutable mutable = this.contents.mutable();
+        PillBoxContents.Mutable mutable = this.contents.mutable();
         int index = mutable.getIndex() + 1;
         mutable.setIndex(index);
         this.contents = mutable.immutable();
-        pillBox.set(ModComponents.PILL_BOC_CONTENTS, this.contents);
+        pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
     }
 
     public void previousIndex() {
-        PillBocContents.Mutable mutable = this.contents.mutable();
+        PillBoxContents.Mutable mutable = this.contents.mutable();
         int index = mutable.getIndex() - 1;
         mutable.setIndex(index);
         this.contents = mutable.immutable();
-        pillBox.set(ModComponents.PILL_BOC_CONTENTS, this.contents);
+        pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
     }
 
     public void setIndex(int index) {
-        PillBocContents.Mutable mutable = this.contents.mutable();
+        PillBoxContents.Mutable mutable = this.contents.mutable();
         mutable.setIndex(index);
         this.contents = mutable.immutable();
-        pillBox.set(ModComponents.PILL_BOC_CONTENTS, this.contents);
+        pillBox.set(ModComponents.PILL_BOX_CONTENTS, this.contents);
     }
 
     public void mouseScrolled(int amount) {

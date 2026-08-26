@@ -1321,6 +1321,67 @@ public final class StorageServerStub {
     }
 
     /**
+     * 从终端物品栈解析其目标存储标识：本地 / 潜影终端按玩家 UUID 派生，
+     * 超维终端读取绑定存储站；非终端或未绑定时返回 {@code null}。
+     */
+    public static @Nullable UUID terminalTargetId(ServerPlayer player, ItemStack terminal) {
+        UUID playerId = player.getGameProfile().getId();
+        if (terminal.is(ModItems.LOCAL_TERMINAL)) {
+            return StorageServerStub.localTerminalId(playerId);
+        }
+        if (terminal.is(ModItems.SHULKER_TERMINAL)) {
+            return StorageServerStub.shulkerTerminalId(playerId);
+        }
+        if (terminal.is(ModItems.HYPERDIMENSION_TERMINAL)) {
+            TerminalBinding binding = terminal.get(ModComponents.TERMINAL_BINDING);
+            return binding != null && binding.id().isPresent() ? binding.id().get() : null;
+        }
+        return null;
+    }
+
+    /**
+     * 把物品放入终端连接的目标存储，返回实际插入数量。
+     * 目标不可达（本地 / 潜影终端超出连接范围，超维终端未绑定）时返回 0。
+     */
+    public static int insertIntoTerminal(ServerPlayer player, UUID targetId, ItemStack stack, int amount) {
+        if (stack.isEmpty() || amount <= 0) {
+            return 0;
+        }
+        List<BaseStorage<?>> storages = StorageServerStub.terminalStorages(player, targetId);
+        if (storages.isEmpty()) {
+            return 0;
+        }
+        int inserted = StorageServerStub.insertIntoStorages(storages, stack, amount);
+        if (inserted > 0) {
+            player.getInventory().setChanged();
+        }
+        return inserted;
+    }
+
+    /**
+     * 从终端连接的目标存储取出一个物品（按存储顺序取第一个可取槽位）。
+     * 目标不可达或存储为空时返回空栈。
+     */
+    public static ItemStack extractFromTerminal(ServerPlayer player, UUID targetId, int amount) {
+        List<BaseStorage<?>> storages = StorageServerStub.terminalStorages(player, targetId);
+        for (BaseStorage<?> storage : storages) {
+            UnlimitedItemStacksResourceHandler items = storage.getItems();
+            for (int slot = 0; slot < items.size(); slot++) {
+                if (items.getAmountAsLong(slot) <= 0) {
+                    continue;
+                }
+                int take = (int) Math.min(amount, items.getAmountAsLong(slot));
+                ItemStack got = items.extractUnlimited(slot, take, false).toStack();
+                if (!got.isEmpty()) {
+                    player.getInventory().setChanged();
+                    return got;
+                }
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    /**
      * 终端目标当前是否可达：
      * <ul>
      *   <li>本地终端：32 格内仍存在大型板条箱；</li>

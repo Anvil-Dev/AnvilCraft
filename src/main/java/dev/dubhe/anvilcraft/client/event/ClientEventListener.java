@@ -18,6 +18,9 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.HammerOpenedAnvilMenu;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
+import dev.dubhe.anvilcraft.item.LocalTerminalItem;
+import dev.dubhe.anvilcraft.item.ShulkerTerminalItem;
 import dev.dubhe.anvilcraft.network.DragonRodStopDevourPacket;
 import dev.dubhe.anvilcraft.network.OpenHammerAnvilPacket;
 import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
@@ -257,30 +260,37 @@ public class ClientEventListener {
                     event.setCanceled(true);
                 }
                 return;
-            } else if (!carriedEmpty && minecraft.options.keyUse.matchesMouse(event.getButton())) {
-                // 捏着物品右键：把整组放入对应存储站
-                UUID targetId = TerminalRemoteOverlay.terminalIdOf(slot.getItem());
-                if (targetId != null) {
-                    // 服务端 terminalInsert 会修改 carried 并经 broadcastChanges 广播同步到
-                    // 客户端当前活动菜单，客户端不应手动 setCarried，否则会与服务端广播竞态
-                    // （这也是取出/关界面物品重复的根源）。失败时事件已取消、客户端 carried 未变。
-                    StorageTerminalClientStub.insert(
-                        targetId,
-                        containerScreen.getMenu().getCarried()
-                    ).whenComplete((result, error) -> Minecraft.getInstance().execute(() -> {
-                        if (error != null || !result.changed()) {
-                            return;
-                        }
-                        // 创造背包界面的 ItemPickerMenu 是纯客户端菜单，服务端 carried 广播
-                        // （containerId == -1）会被客户端忽略，需手动写回指针
-                        TerminalRemoteOverlay.applyCarriedIfCreative(result.carried());
-                    }));
+            } else if (!carriedEmpty) {
+                // 捏着物品：根据终端的 inverted 状态决定放入存储的按键（默认右键，反向后左键）
+                boolean inverted = ClientEventListener.isTerminalInverted(slot.getItem());
+                boolean insertClick = inverted
+                    ? minecraft.options.keyAttack.matchesMouse(event.getButton())
+                    : minecraft.options.keyUse.matchesMouse(event.getButton());
+                if (insertClick) {
+                    // 捏着物品点击：把整组放入对应存储站
+                    UUID targetId = TerminalRemoteOverlay.terminalIdOf(slot.getItem());
+                    if (targetId != null) {
+                        // 服务端 terminalInsert 会修改 carried 并经 broadcastChanges 广播同步到
+                        // 客户端当前活动菜单，客户端不应手动 setCarried，否则会与服务端广播竞态
+                        // （这也是取出/关界面物品重复的根源）。失败时事件已取消、客户端 carried 未变。
+                        StorageTerminalClientStub.insert(
+                            targetId,
+                            containerScreen.getMenu().getCarried()
+                        ).whenComplete((result, error) -> Minecraft.getInstance().execute(() -> {
+                            if (error != null || !result.changed()) {
+                                return;
+                            }
+                            // 创造背包界面的 ItemPickerMenu 是纯客户端菜单，服务端 carried 广播
+                            // （containerId == -1）会被客户端忽略，需手动写回指针
+                            TerminalRemoteOverlay.applyCarriedIfCreative(result.carried());
+                        }));
+                    }
                 }
-                // 捏着物品左键：阻止交换（不把终端捏起，也不放入），保持终端不动
+                // 非放入按键：阻止交换（不把终端捏起，也不放入），保持终端不动
                 event.setCanceled(true);
                 return;
             }
-            // 捏着物品左键：阻止交换（不把终端捏起，也不放入），保持终端不动
+            // 空手但已按 Esc 屏蔽浮窗：阻止 vanilla 拿起终端，保持终端不动
             event.setCanceled(true);
             return;
         }
@@ -295,6 +305,22 @@ public class ClientEventListener {
             );
             event.setCanceled(true);
         }
+    }
+
+    /**
+     * 根据终端类型查询其客户端记录的反转状态（容器 GUI 中终端放入存储的按键随反转对调）。
+     */
+    private static boolean isTerminalInverted(ItemStack stack) {
+        if (stack.is(ModItems.LOCAL_TERMINAL)) {
+            return InvertedActionEventListener.isInverted(LocalTerminalItem.CONFIG_ID);
+        }
+        if (stack.is(ModItems.SHULKER_TERMINAL)) {
+            return InvertedActionEventListener.isInverted(ShulkerTerminalItem.CONFIG_ID);
+        }
+        if (stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
+            return InvertedActionEventListener.isInverted(HyperdimensionTerminalItem.CONFIG_ID);
+        }
+        return false;
     }
 
     /**

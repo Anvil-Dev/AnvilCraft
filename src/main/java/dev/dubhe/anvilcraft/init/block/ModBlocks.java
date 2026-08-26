@@ -4331,7 +4331,8 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::confinementChamber)
         .register();
 
-    public static final BlockEntry<SingularityCrystalBlock> SINGULARITY_CRYSTAL = REGISTRUM.block("singularity_crystal", SingularityCrystalBlock::new)
+    public static final BlockEntry<SingularityCrystalBlock> SINGULARITY_CRYSTAL = REGISTRUM
+        .block("singularity_crystal", SingularityCrystalBlock::new)
         .initialProperties(() -> ModBlocks.CONFINEMENT_CHAMBER.get())
         .blockstate(DataGenUtil::simple)
         .properties(properties -> properties.pushReaction(PushReaction.BLOCK)
