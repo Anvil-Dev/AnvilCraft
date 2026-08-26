@@ -14,6 +14,7 @@ public class JadeLang {
         provider.add("config.jade.plugin_anvilcraft.smart_block_placer_provider", "Smart Block Placer");
         provider.add("config.jade.plugin_anvilcraft.charger_provider", "Charging Progress");
         provider.add("config.jade.plugin_anvilcraft.discharger_provider", "Discharging Progress");
+        provider.add("config.jade.plugin_anvilcraft.auto_enchanting_table_provider", "Auto Enchanting Progress");
         provider.add("config.jade.plugin_anvilcraft.wip_block", "Processing Block");
         provider.add("config.jade.plugin_anvilcraft.creative_crate", "Creative Crate");
         provider.add("config.jade.plugin_anvilcraft.creative_fluid_tank", "Creative Fluid Tank");
@@ -55,6 +56,7 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.charger.jade.energy", "%1$s / %2$s");
 
         provider.add("tooltip.anvilcraft.discharger.jade.working_progress", "Discharging Progress: %s");
+        provider.add("tooltip.anvilcraft.auto_enchanting_table.jade.working_progress", "Enchanting Progress: %s");
         provider.add("tooltip.anvilcraft.discharger.jade.time", "%1$s / %2$s");
         provider.add("tooltip.anvilcraft.discharger.jade.energy", "%1$s / %2$s");
         provider.add("tooltip.anvilcraft.wip_block.jade.recipe", "Procedural Recipe: %s");
