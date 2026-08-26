@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.rpc;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
+import com.google.common.collect.Tables;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
 import lombok.experimental.UtilityClass;
 import net.minecraft.resources.ResourceLocation;
@@ -10,7 +11,8 @@ import java.util.UUID;
 
 @UtilityClass
 public class BundleLikeServerStub {
-    private static final Table<UUID, ResourceLocation, Boolean> INVERTED = HashBasedTable.create();
+    private static final Table<UUID, ResourceLocation, Boolean> INVERTED =
+        Tables.synchronizedTable(HashBasedTable.create());
 
     @RemoteCallable
     public static void updateInverted(UUID id, ResourceLocation location, boolean inverted) {

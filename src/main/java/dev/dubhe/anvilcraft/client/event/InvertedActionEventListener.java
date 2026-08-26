@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.item.ShulkerTerminalItem;
 import dev.dubhe.anvilcraft.item.amulet.AmuletBoxItem;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanOpenHashMap;
+import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -50,6 +51,9 @@ public class InvertedActionEventListener {
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
+        if (Minecraft.getInstance().getConnection() == null) {
+            return;
+        }
         for (Map.Entry<ResourceLocation, BooleanSupplier> entry : InvertedActionEventListener.CONFIG.entrySet()) {
             ResourceLocation id = entry.getKey();
             BooleanSupplier config = entry.getValue();

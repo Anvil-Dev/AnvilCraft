@@ -1354,6 +1354,7 @@ public final class StorageServerStub {
         int inserted = StorageServerStub.insertIntoStorages(storages, stack, amount);
         if (inserted > 0) {
             player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
         }
         return inserted;
     }
@@ -1374,6 +1375,7 @@ public final class StorageServerStub {
                 ItemStack got = items.extractUnlimited(slot, take, false).toStack();
                 if (!got.isEmpty()) {
                     player.getInventory().setChanged();
+                    player.containerMenu.broadcastChanges();
                     return got;
                 }
             }
@@ -1450,11 +1452,18 @@ public final class StorageServerStub {
             .orElseGet(List::of);
     }
 
+    /**
+     * 空占位存储的独立哨兵 ID：按玩家 UUID 派生，但与本地 / 潜影终端的合成 ID 区分，
+     * 避免占位存储被误当作真实终端目标，或被 {@link Storages#getOrCreate} 写入全局
+     * 注册表造成存档膨胀。
+     */
+    private static UUID emptyTerminalId(UUID playerId) {
+        return UUID.nameUUIDFromBytes(("anvilcraft:empty_terminal:" + playerId).getBytes(StandardCharsets.UTF_8));
+    }
+
     /** 构造终端目标不可达时的空占位存储视图（界面 / 浮窗显示为空）。 */
-    private static StorageView emptyView(ServerPlayer player, int kind) {
-        UUID id = kind == RemoteTarget.LARGE_CRATE
-            ? StorageServerStub.localTerminalId(player.getGameProfile().getId())
-            : StorageServerStub.shulkerTerminalId(player.getGameProfile().getId());
+    private static StorageView emptyView(ServerPlayer player) {
+        UUID id = StorageServerStub.emptyTerminalId(player.getGameProfile().getId());
         return new StorageView(List.of(new EmptyTerminalStorage(id)), List.of());
     }
 
@@ -2193,11 +2202,11 @@ public final class StorageServerStub {
                         List.of(Storages.get().getOrCreate(id, LargeCrateStorage.class)),
                         List.of()
                     ))
-                    .orElseGet(() -> StorageServerStub.emptyView(player, RemoteTarget.LARGE_CRATE));
+                    .orElseGet(() -> StorageServerStub.emptyView(player));
                 case RemoteTarget.SHULKER_CONTAINER, RemoteTarget.SHULKER_BOXES -> {
                     List<BaseStorage<?>> storages = StorageServerStub.shulkerTerminalStorages(player);
                     if (storages.isEmpty()) {
-                        yield StorageServerStub.emptyView(player, RemoteTarget.SHULKER_CONTAINER);
+                        yield StorageServerStub.emptyView(player);
                     }
                     yield new StorageView(storages, List.of());
                 }
@@ -2209,7 +2218,7 @@ public final class StorageServerStub {
         if (!(blockEntity instanceof StorageBlockEntity storage)) {
             // 无效 / 已过期的虚拟位置（客户端缓存残留或映射已被清理）：
             // 返回空视图而不是抛异常，避免 RPC 处理器崩溃
-            return StorageServerStub.emptyView(player, RemoteTarget.SHULKER_CONTAINER);
+            return StorageServerStub.emptyView(player);
         }
         UUID id = storage.getId();
         if (id == null) {

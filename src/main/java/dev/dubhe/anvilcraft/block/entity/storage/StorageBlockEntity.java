@@ -93,6 +93,18 @@ public class StorageBlockEntity extends BlockEntity {
     }
 
     @Override
+    public void onChunkUnloaded() {
+        super.onChunkUnloaded();
+        TerminalBlockRegistry.unregisterIfApplicable(this);
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        TerminalBlockRegistry.unregisterIfApplicable(this);
+    }
+
+    @Override
     protected void applyImplicitComponents(BlockEntity.DataComponentInput componentInput) {
         super.applyImplicitComponents(componentInput);
         StorageRef ref = componentInput.get(ModComponents.STORAGE);

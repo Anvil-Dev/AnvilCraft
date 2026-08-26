@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.state.BlockState;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -47,14 +48,35 @@ public final class TerminalBlockRegistry {
         }
     }
 
+    /** 仓储方块被移除或所在区块卸载时调用；仅注销大型板条箱 / 潜影集装箱的主方块。 */
+    public static void unregisterIfApplicable(StorageBlockEntity be) {
+        Level level = be.getLevel();
+        if (level == null || level.isClientSide()) {
+            return;
+        }
+        Set<BlockPos> entries;
+        if (be instanceof LargeCrateBlockEntity) {
+            entries = TerminalBlockRegistry.LARGE_CRATES.get(level.dimension());
+        } else if (be instanceof ShulkerContainerBlockEntity) {
+            entries = TerminalBlockRegistry.SHULKER_CONTAINERS.get(level.dimension());
+        } else {
+            return;
+        }
+        if (entries != null) {
+            entries.remove(TerminalBlockRegistry.mainPos(be));
+        }
+    }
+
     /** 返回范围内最近的大型板条箱主方块坐标；没有则返回 null。 */
     public static @Nullable BlockPos nearestLargeCrate(ServerLevel level, double x, double y, double z, int range) {
         return TerminalBlockRegistry.nearest(
+            level,
             TerminalBlockRegistry.LARGE_CRATES.get(level.dimension()),
             x,
             y,
             z,
-            range
+            range,
+            LargeCrateBlockEntity.class
         );
     }
 
@@ -67,22 +89,40 @@ public final class TerminalBlockRegistry {
         int range
     ) {
         return TerminalBlockRegistry.nearest(
+            level,
             TerminalBlockRegistry.SHULKER_CONTAINERS.get(level.dimension()),
             x,
             y,
             z,
-            range
+            range,
+            ShulkerContainerBlockEntity.class
         );
     }
 
-    private static @Nullable BlockPos nearest(@Nullable Set<BlockPos> entries, double x, double y, double z, int range) {
+    private static @Nullable BlockPos nearest(
+        ServerLevel level,
+        @Nullable Set<BlockPos> entries,
+        double x,
+        double y,
+        double z,
+        int range,
+        Class<? extends StorageBlockEntity> expected
+    ) {
         if (entries == null || entries.isEmpty()) {
             return null;
         }
         double rangeSqr = (double) range * range;
         BlockPos nearest = null;
         double nearestSqr = Double.MAX_VALUE;
-        for (BlockPos pos : entries) {
+        Iterator<BlockPos> iterator = entries.iterator();
+        while (iterator.hasNext()) {
+            BlockPos pos = iterator.next();
+            if (!(level.getBlockEntity(pos) instanceof StorageBlockEntity storage)
+                || !expected.isInstance(storage)) {
+                // 条目已过期（方块被破坏 / 被替换 / 注册遗漏）：惰性移除，避免表内永久残留
+                iterator.remove();
+                continue;
+            }
             double sqr = pos.distToCenterSqr(x, y, z);
             if (sqr <= rangeSqr && sqr < nearestSqr) {
                 nearestSqr = sqr;
