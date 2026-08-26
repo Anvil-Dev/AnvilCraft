@@ -34,10 +34,12 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.EMBER_ANVIL);
                 content.accept(ModBlocks.TRANSCENDENCE_ANVIL);
                 content.accept(ModBlocks.GIANT_ANVIL);
+                content.accept(Items.GRINDSTONE);
                 content.accept(ModBlocks.ROYAL_GRINDSTONE);
                 content.accept(ModBlocks.FROST_GRINDSTONE);
                 content.accept(ModBlocks.EMBER_GRINDSTONE);
                 content.accept(ModBlocks.TRANSCENDENCE_GRINDSTONE);
+                content.accept(Items.SMITHING_TABLE);
                 content.accept(ModBlocks.ROYAL_SMITHING_TABLE);
                 content.accept(ModBlocks.FROST_SMITHING_TABLE);
                 content.accept(ModBlocks.EMBER_SMITHING_TABLE);
@@ -58,8 +60,6 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.HOLLOW_MAGNET_BLOCK);
                 content.accept(ModBlocks.FERRITE_CORE_MAGNET_BLOCK);
                 content.accept(Items.IRON_TRAPDOOR);
-                content.accept(Items.CAMPFIRE);
-                content.accept(Items.STONECUTTER);
                 content.accept(Items.SCAFFOLDING);
                 content.accept(ModBlocks.STAMPING_PLATFORM);
                 content.accept(ModBlocks.CRUSHING_TABLE);
@@ -68,10 +68,13 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                 content.accept(Items.CAULDRON);
                 content.accept(ModBlocks.LARGE_CAULDRON);
                 content.accept(ModBlocks.FISH_TANK);
-                content.accept(ModBlocks.CORRUPTED_BEACON);
-                content.accept(ModBlocks.NEUTRON_IRRADIATOR);
+                content.accept(Items.CAMPFIRE);
                 content.accept(ModBlocks.BURNING_HEATER);
                 content.accept(ModBlocks.HEATER);
+                content.accept(ModBlocks.CORRUPTED_BEACON);
+                content.accept(ModBlocks.CURSED_GOLD_BLOCK);
+                content.accept(ModBlocks.NEUTRON_IRRADIATOR);
+                content.accept(Items.STONECUTTER);
             }
         );
         sections.section(

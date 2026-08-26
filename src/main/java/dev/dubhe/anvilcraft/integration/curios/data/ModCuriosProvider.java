@@ -17,7 +17,7 @@ public class ModCuriosProvider extends CuriosDataProvider {
     public void generate(HolderLookup.Provider registries, ExistingFileHelper fileHelper) {
         this.createSlot("ionocraft_backpack")
             .addCosmetic(true)
-            .icon(AnvilCraft.of("gui/curios/empty_ionocraft_backpack_slot"));
+            .icon(AnvilCraft.of("slot/empty_ionocraft_backpack_slot"));
 
         this.createEntities("ionocraft_backpack")
             .addPlayer()

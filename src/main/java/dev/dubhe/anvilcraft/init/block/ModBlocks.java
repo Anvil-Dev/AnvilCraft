@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.init.block;
 
+import dev.anvilcraft.lib.v2.registrum.providers.loot.RegistrumBlockLootTables;
 import dev.anvilcraft.lib.v2.registrum.util.entry.BlockEntry;
 import dev.anvilcraft.lib.v2.util.nullness.NonNullFunction;
 import dev.dubhe.anvilcraft.AnvilCraft;
@@ -188,6 +189,7 @@ import dev.dubhe.anvilcraft.block.heatable.NormalBlock;
 import dev.dubhe.anvilcraft.block.heatable.OverheatedEmberMetalBlock;
 import dev.dubhe.anvilcraft.block.heatable.RedhotBlock;
 import dev.dubhe.anvilcraft.block.item.ChuteBlockItem;
+import dev.dubhe.anvilcraft.block.item.ConfinementChamberItem;
 import dev.dubhe.anvilcraft.block.item.CreativeCrateBlockItem;
 import dev.dubhe.anvilcraft.block.item.CreativeFluidTankBlockItem;
 import dev.dubhe.anvilcraft.block.item.CursedBlockItem;
@@ -3186,7 +3188,12 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<WipBlock> WIP_BLOCK = REGISTRUM.block("wip_block", WipBlock::new)
-        .properties(properties -> properties.noOcclusion().lightLevel(bs -> 1))
+        .properties(properties -> properties.noOcclusion()
+            .lightLevel(bs -> 1)
+            .isValidSpawn(ModBlocks::never)
+            .isRedstoneConductor(ModBlocks::never)
+            .isSuffocating(ModBlocks::never)
+            .isViewBlocking(ModBlocks::never))
         .blockstate(DataGenUtil::noExtraModelOrState)
         .register();
 
@@ -4279,14 +4286,25 @@ public class ModBlocks {
             ConfinementChamberBlock::new
         )
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
+        .loot(ModBlocks::confinementChamberLoot)
         .properties(PropertiesProviderUtil::confinedAnvilon)
         .blockstate(DataGenUtil::simple)
-        .item()
+        .item(ConfinementChamberItem::new)
         .properties(properties -> properties.fireResistant().rarity(Rarity.EPIC))
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
         .recipe(RegistrumBlockRecipeLoader::confinementChamber)
         .register();
+
+    private static void confinementChamberLoot(RegistrumBlockLootTables tables, ConfinementChamberBlock block) {
+        tables.add(block, LootTable.lootTable()
+            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0f))
+                .add(LootItem.lootTableItem(block)
+                    .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                        .include(DataComponents.CONTAINER)))))
+        );
+    }
 
     public static final BlockEntry<Block> SINGULARITY_CRYSTAL = REGISTRUM.block("singularity_crystal", Block::new)
         .initialProperties(() -> ModBlocks.CONFINEMENT_CHAMBER.get())

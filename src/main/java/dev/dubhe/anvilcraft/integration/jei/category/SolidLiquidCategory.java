@@ -106,19 +106,14 @@ public class SolidLiquidCategory extends AbstractLiquidReactionCategory {
             || inputFluids.getFirst().getAmount() > FluidType.BUCKET_VOLUME) {
             return false;
         }
+        if (inputFluids.stream()
+            .anyMatch(fluid -> CauldronFluidContent.getForFluid(fluid.getFluid()) == null)) {
+            return false;
+        }
         if (results.isEmpty()) return true;
         List<FluidStack> resultFluids = results.getFirst();
         return resultFluids.size() == 1
                && resultFluids.getFirst().getAmount() <= FluidType.BUCKET_VOLUME;
-    }
-
-    /**
-     * 输入流体未被炼药锅注册（如液态魔咒）时使用鱼缸展示。
-     */
-    private static boolean usesFishTank(ComplexFluidJeiRecipe recipe) {
-        return recipe.getDisplayFluidInputs().stream()
-            .flatMap(List::stream)
-            .anyMatch(fluid -> CauldronFluidContent.getForFluid(fluid.getFluid()) == null);
     }
 
     private static void setSmallCauldronRecipe(IRecipeLayoutBuilder builder, ComplexFluidJeiRecipe recipe) {
@@ -196,7 +191,7 @@ public class SolidLiquidCategory extends AbstractLiquidReactionCategory {
         );
         RenderSupport.renderBlock(
             guiGraphics,
-            usesFishTank(recipe) ? ModBlocks.FISH_TANK.getDefaultState() : Blocks.CAULDRON.defaultBlockState(),
+            Blocks.CAULDRON.defaultBlockState(),
             81,
             30,
             10,
@@ -280,7 +275,7 @@ public class SolidLiquidCategory extends AbstractLiquidReactionCategory {
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         AnvilCraftJeiPlugin.ANVIL_PROCESSING_CATALYSTS.forEach(item ->
-            registration.addRecipeCatalyst(new ItemStack(item), AnvilCraftJeiPlugin.SOLID_LIQUID));
+        registration.addRecipeCatalyst(new ItemStack(item), AnvilCraftJeiPlugin.SOLID_LIQUID));
         registration.addRecipeCatalyst(new ItemStack(Items.CAULDRON), AnvilCraftJeiPlugin.SOLID_LIQUID);
         registration.addRecipeCatalyst(ModBlocks.FISH_TANK.asStack(), AnvilCraftJeiPlugin.SOLID_LIQUID);
         registration.addRecipeCatalyst(ModBlocks.LARGE_CAULDRON.asStack(), AnvilCraftJeiPlugin.SOLID_LIQUID);

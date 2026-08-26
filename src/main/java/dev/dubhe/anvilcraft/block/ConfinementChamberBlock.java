@@ -7,7 +7,6 @@ import dev.dubhe.anvilcraft.block.entity.ConfinementChamberBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.BlockPos;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -17,21 +16,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.ShulkerBoxBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.storage.loot.LootParams;
-import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
 
 public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerRemovable, ITranscendiumBlock {
     public ConfinementChamberBlock(Properties properties) {
         super(properties);
     }
-
-    public static final ResourceLocation CONTENTS = ResourceLocation.withDefaultNamespace("contents");
 
     @Override
     protected MapCodec<? extends BaseEntityBlock> codec() {
@@ -86,20 +78,6 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
         }
 
         return super.playerWillDestroy(level, pos, state, player);
-    }
-
-    @Override
-    protected List<ItemStack> getDrops(BlockState state, LootParams.Builder params) {
-        BlockEntity blockentity = params.getOptionalParameter(LootContextParams.BLOCK_ENTITY);
-        if (blockentity instanceof ShulkerBoxBlockEntity shulkerboxblockentity) {
-            params = params.withDynamicDrop(CONTENTS, it -> {
-                for (int i = 0; i < shulkerboxblockentity.getContainerSize(); i++) {
-                    it.accept(shulkerboxblockentity.getItem(i));
-                }
-            });
-        }
-
-        return super.getDrops(state, params);
     }
 
     @Override

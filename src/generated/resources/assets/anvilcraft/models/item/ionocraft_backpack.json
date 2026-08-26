@@ -2,13 +2,13 @@
   "parent": "minecraft:item/generated",
   "overrides": [
     {
-      "model": "anvilcraft:item/ionocraft_backpack",
+      "model": "anvilcraft:item/ionocraft_backpack_on",
       "predicate": {
-        "anvilcraft:flight_time": 0.0
+        "anvilcraft:flight_time": 1.0
       }
     }
   ],
   "textures": {
-    "layer0": "anvilcraft:item/ionocraft_backpack"
+    "layer0": "anvilcraft:item/ionocraft_backpack_off"
   }
 }
