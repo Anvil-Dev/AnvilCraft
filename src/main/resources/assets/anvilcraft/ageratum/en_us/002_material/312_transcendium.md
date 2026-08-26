@@ -37,7 +37,7 @@ Ingots and nuggets are produced as dropped items; blocks are generated at the po
 # Functions
 
 - Used to craft machines
-- Combined with <ref item="anvilcraft:transcendium_upgrade_smithing_template"/> to upgrade tools
+- Use the <ref item="anvilcraft:transcendence_smithing_table"/> to upgrade tools
 
 # Transcendium Tools
 
