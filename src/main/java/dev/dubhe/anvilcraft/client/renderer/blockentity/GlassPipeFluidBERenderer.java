@@ -52,13 +52,15 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBl
         if (fluid.isEmpty()) {
             return;
         }
-        renderDisplayFluid(fluid, state, be.getDisplayDirections(), poseStack, buffer, packedLight);
+        float alphaFill = be.isShowingGas() ? be.getGasAlpha() : 1.0f;
+        renderDisplayFluid(fluid, state, be.getDisplayDirections(), alphaFill, poseStack, buffer, packedLight);
     }
 
     private static void renderDisplayFluid(
         FluidStack fluid,
         BlockState state,
         Set<Direction> displayDirections,
+        float alphaFill,
         PoseStack poseStack,
         MultiBufferSource buffer,
         int packedLight
@@ -78,7 +80,7 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBl
                 return;
             }
             if (renderedDirections.size() < 2) {
-                renderFluidBox(fluid, min, max, poseStack, buffer, packedLight, renderedDirections);
+                renderFluidBox(fluid, min, max, poseStack, buffer, packedLight, renderedDirections, alphaFill);
                 for (Direction direction : renderedDirections) {
                     renderFluidArm(
                         fluid,
@@ -86,7 +88,8 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBl
                         poseStack,
                         buffer,
                         packedLight,
-                        EnumSet.of(direction.getOpposite(), direction)
+                        EnumSet.of(direction.getOpposite(), direction),
+                        alphaFill
                     );
                 }
                 return;
@@ -100,7 +103,8 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBl
                 poseStack,
                 buffer,
                 packedLight,
-                EnumSet.of(startDirection, endDirection)
+                EnumSet.of(startDirection, endDirection),
+                alphaFill
             );
             return;
         } else if (state.getBlock() instanceof PipeCornerBlock) {
@@ -119,7 +123,8 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBl
                 poseStack,
                 buffer,
                 packedLight,
-                renderedDirections
+                renderedDirections,
+                alphaFill
             );
 
             for (Direction direction : renderedDirections) {
@@ -129,7 +134,8 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBl
                     poseStack,
                     buffer,
                     packedLight,
-                    EnumSet.of(direction.getOpposite(), direction)
+                    EnumSet.of(direction.getOpposite(), direction),
+                    alphaFill
                 );
             }
             return;
@@ -143,7 +149,7 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBl
             }
             float[] nodeMin = {FLUID_NODE_MIN, FLUID_NODE_MIN, FLUID_NODE_MIN};
             float[] nodeMax = {FLUID_NODE_MAX, FLUID_NODE_MAX, FLUID_NODE_MAX};
-            renderFluidBox(fluid, nodeMin, nodeMax, poseStack, buffer, packedLight);
+            renderFluidBox(fluid, nodeMin, nodeMax, poseStack, buffer, packedLight, Set.of(), alphaFill);
             for (Direction direction : renderedDirections) {
                 renderFluidArm(
                     fluid,
@@ -151,12 +157,13 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBl
                     poseStack,
                     buffer,
                     packedLight,
-                    EnumSet.of(direction.getOpposite(), direction)
+                    EnumSet.of(direction.getOpposite(), direction),
+                    alphaFill
                 );
             }
             return;
         }
-        renderFluidBox(fluid, min, max, poseStack, buffer, packedLight);
+        renderFluidBox(fluid, min, max, poseStack, buffer, packedLight, Set.of(), alphaFill);
     }
 
     private static EnumSet<Direction> visibleDirections(
@@ -178,12 +185,13 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBl
         PoseStack poseStack,
         MultiBufferSource buffer,
         int packedLight,
-        Set<Direction> skippedSides
+        Set<Direction> skippedSides,
+        float alphaFill
     ) {
         float[] min = {FLUID_MIN, FLUID_MIN, FLUID_MIN};
         float[] max = {FLUID_MAX, FLUID_MAX, FLUID_MAX};
         extendFluidArmBounds(direction, min, max);
-        renderFluidBox(fluid, min, max, poseStack, buffer, packedLight, skippedSides);
+        renderFluidBox(fluid, min, max, poseStack, buffer, packedLight, skippedSides, alphaFill);
     }
 
     private static void renderFluidBox(
@@ -194,7 +202,7 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBl
         MultiBufferSource buffer,
         int packedLight
     ) {
-        renderFluidBox(fluid, min, max, poseStack, buffer, packedLight, Set.of());
+        renderFluidBox(fluid, min, max, poseStack, buffer, packedLight, Set.of(), 1.0f);
     }
 
     private static void renderFluidBox(
@@ -206,12 +214,25 @@ public class GlassPipeFluidBERenderer implements BlockEntityRenderer<GlassPipeBl
         int packedLight,
         Set<Direction> skippedSides
     ) {
+        renderFluidBox(fluid, min, max, poseStack, buffer, packedLight, skippedSides, 1.0f);
+    }
+
+    private static void renderFluidBox(
+        FluidStack fluid,
+        float[] min,
+        float[] max,
+        PoseStack poseStack,
+        MultiBufferSource buffer,
+        int packedLight,
+        Set<Direction> skippedSides,
+        float alphaFill
+    ) {
         FluidRenderHelper.INSTANCE.renderFluidBox(
             fluid,
             min[0], min[1], min[2],
             max[0], max[1], max[2],
             buffer, poseStack, packedLight,
-            skippedSides, false
+            skippedSides, alphaFill
         );
     }
 
