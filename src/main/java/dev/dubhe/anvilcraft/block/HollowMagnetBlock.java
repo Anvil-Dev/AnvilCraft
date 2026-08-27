@@ -39,6 +39,7 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
     public static final String TAG = AnvilCraft.MOD_ID + ":hollow_magnet_block";
     private static final VoxelShape REDUCE_AABB = Block.box(5.0, 0.0, 5.0, 11.0, 16.0, 11.0);
     private static final VoxelShape AABB = Shapes.join(Shapes.block(), REDUCE_AABB, BooleanOp.ONLY_FIRST);
+    private static final VoxelShape FULL = Shapes.block();
 
     public HollowMagnetBlock(Properties properties) {
         super(properties);
@@ -52,8 +53,16 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
     }
 
     @Override
-
     public VoxelShape getShape(
+        BlockState blockState,
+        BlockGetter blockGetter,
+        BlockPos blockPos,
+        CollisionContext collisionContext) {
+        return FULL;
+    }
+
+    @Override
+    public VoxelShape getCollisionShape(
         BlockState blockState,
         BlockGetter blockGetter,
         BlockPos blockPos,
@@ -62,8 +71,13 @@ public class HollowMagnetBlock extends MagnetBlock implements SimpleWaterloggedB
     }
 
     @Override
+    protected VoxelShape getOcclusionShape(BlockState state, BlockGetter level, BlockPos pos) {
+        return AABB;
+    }
+
+    @Override
     protected VoxelShape getInteractionShape(BlockState state, BlockGetter level, BlockPos pos) {
-        return Shapes.block();
+        return FULL;
     }
 
     @Override

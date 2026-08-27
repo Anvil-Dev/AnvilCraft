@@ -172,9 +172,9 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.CAKE_BASE_BLOCK);
         this.plain(ModBlocks.CREAM_BLOCK);
         this.plain(ModBlocks.BERRY_CREAM_BLOCK);
-        this.plain(ModBlocks.CHOCOLATE_CREAM_BLOCK);
         this.plain(ModBlocks.HONEY_CREAM_BLOCK);
         this.plain(ModBlocks.MATCHA_CREAM_BLOCK);
+        this.plain(ModBlocks.CHOCOLATE_CREAM_BLOCK);
         this.plain(ModBlocks.CAKE_BLOCK);
         this.plain(ModBlocks.BERRY_CAKE_BLOCK);
         this.plain(ModBlocks.CHOCOLATE_CAKE_BLOCK);

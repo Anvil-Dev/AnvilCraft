@@ -187,9 +187,9 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.CAKE_BASE_BLOCK);
                 content.accept(ModBlocks.CREAM_BLOCK);
                 content.accept(ModBlocks.BERRY_CREAM_BLOCK);
-                content.accept(ModBlocks.CHOCOLATE_CREAM_BLOCK);
                 content.accept(ModBlocks.HONEY_CREAM_BLOCK);
                 content.accept(ModBlocks.MATCHA_CREAM_BLOCK);
+                content.accept(ModBlocks.CHOCOLATE_CREAM_BLOCK);
                 content.accept(ModBlocks.CAKE_BLOCK);
                 content.accept(ModBlocks.BERRY_CAKE_BLOCK);
                 content.accept(ModBlocks.HONEY_CAKE_BLOCK);
