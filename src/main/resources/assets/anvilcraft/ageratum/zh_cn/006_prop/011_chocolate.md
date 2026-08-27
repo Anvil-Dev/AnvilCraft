@@ -18,6 +18,7 @@ items:
   - anvilcraft:cocoa_powder
   - anvilcraft:cocoa_butter
   - anvilcraft:cocoa_liquor
+  - anvilcraft:black_white_chocolate_block
 ---
 
 # 各类巧克力
@@ -78,9 +79,11 @@ items:
 - <ref item="anvilcraft:chocolate"/>：迅捷IV
 - <ref item="anvilcraft:chocolate_black"/>：迅捷II + 急迫III
 - <ref item="anvilcraft:chocolate_white"/>：迅捷II + 跳跃提升IV
+- <ref item="anvilcraft:black_white_chocolate_block"/>: 迅捷II + 跳跃提升IV + 急迫III
 
 <row halign="center">
 <recipe id="anvilcraft:chocolate_block"/>
 <recipe id="anvilcraft:stonecutting/chocolate_slab"/>
 <recipe id="anvilcraft:stonecutting/chocolate_stairs"/>
+<recipe id="anvilcraft:black_white_chocolate_block"/>
 </row>

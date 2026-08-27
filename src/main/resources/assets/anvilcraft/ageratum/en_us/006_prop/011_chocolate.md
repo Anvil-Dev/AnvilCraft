@@ -18,6 +18,7 @@ items:
   - anvilcraft:cocoa_powder
   - anvilcraft:cocoa_butter
   - anvilcraft:cocoa_liquor
+  - anvilcraft:black_white_chocolate_block
 ---
 
 # Various Chocolates
@@ -78,9 +79,11 @@ Standing on chocolate blocks/stairs/slabs continuously grants effects:
 - <ref item="anvilcraft:chocolate"/>: Speed IV
 - <ref item="anvilcraft:chocolate_black"/>: Speed II + Haste III
 - <ref item="anvilcraft:chocolate_white"/>: Speed II + Jump Boost IV
+- <ref item="anvilcraft:black_white_chocolate_block"/>: Speed II + Jump Boost IV + Haste III
 
 <row halign="center">
 <recipe id="anvilcraft:chocolate_block"/>
 <recipe id="anvilcraft:stonecutting/chocolate_slab"/>
 <recipe id="anvilcraft:stonecutting/chocolate_stairs"/>
+<recipe id="anvilcraft:black_white_chocolate_block"/>
 </row>
