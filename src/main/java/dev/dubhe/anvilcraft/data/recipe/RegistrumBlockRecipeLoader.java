@@ -1685,6 +1685,41 @@ public class RegistrumBlockRecipeLoader {
             .save(provider);
     }
 
+    public static <T extends Block> void blackWhiteChocolateBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 4)
+            .pattern("AB")
+            .pattern("BA")
+            .define('A', ModBlocks.BLACK_CHOCOLATE_BLOCK)
+            .define('B', ModBlocks.WHITE_CHOCOLATE_BLOCK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BLACK_CHOCOLATE_BLOCK), AnvilCraftDatagen.has(ModBlocks.BLACK_CHOCOLATE_BLOCK))
+            .save(provider);
+    }
+
+    public static <T extends Block> void cookieBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get())
+            .pattern("AAA")
+            .pattern("AAA")
+            .pattern("AAA")
+            .define('A', Items.COOKIE)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.COOKIE), AnvilCraftDatagen.has(Items.COOKIE))
+            .save(provider);
+
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, Items.COOKIE, 9)
+            .requires(ctx.get())
+            .unlockedBy(AnvilCraftDatagen.hasItem(ctx.get()), AnvilCraftDatagen.has(ctx.get()))
+            .save(provider, AnvilCraft.of("cookie_from_cookie_block"));
+    }
+
+    public static <T extends Block> void cookiePillar(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 8)
+            .pattern("AAA")
+            .pattern("A A")
+            .pattern("AAA")
+            .define('A', ModBlocks.COOKIE_BLOCK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.COOKIE_BLOCK), AnvilCraftDatagen.has(ModBlocks.COOKIE_BLOCK))
+            .save(provider);
+    }
+
     public static <T extends Block> void chocolateSlab(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 6)
             .pattern("AAA")

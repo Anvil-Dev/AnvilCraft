@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 冲压台行为：铁砧砸落时直接读取冲压台方块实体中的原料执行冲压配方。
+ * 冲压台行为：铁砧砸落时直接读取冲压平台方块实体中的原料执行冲压配方。
  */
 public class ItemStampingBehavior implements IAnvilBehavior {
     @Override
@@ -43,7 +43,7 @@ public class ItemStampingBehavior implements IAnvilBehavior {
     }
 
     /**
-     * 从冲压台原料槽读取物品执行冲压配方，产物掉落至台面。
+     * 从冲压台原料槽读取物品执行冲压配方，产物掉落至冲压台下方一格。
      */
     public static boolean processPlatform(StampingPlatformBlockEntity platform, Level level) {
         return processItemHandler(
@@ -116,7 +116,7 @@ public class ItemStampingBehavior implements IAnvilBehavior {
                 count -= stackCount;
             }
         }
-        AnvilUtil.dropItems(stacks, level, pos.getCenter());
+        AnvilUtil.dropItems(stacks, level, pos.below().getCenter().add(0.0, 0.5, 0.0));
     }
 
     public static int compareRecipeHolders(

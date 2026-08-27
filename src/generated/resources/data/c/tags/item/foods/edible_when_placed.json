@@ -7,6 +7,10 @@
     "anvilcraft:cake_block",
     "anvilcraft:berry_cake_block",
     "anvilcraft:chocolate_cake_block",
-    "anvilcraft:large_cake"
+    "anvilcraft:large_cake",
+    "anvilcraft:honey_cream_block",
+    "anvilcraft:honey_cake_block",
+    "anvilcraft:matcha_cream_block",
+    "anvilcraft:matcha_cake_block"
   ]
 }

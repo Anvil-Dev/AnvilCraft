@@ -38,13 +38,5 @@ public class FastCookingRecipeLoader {
             .result(ModFoodItems.BEEF_MUSHROOM_STEW)
             .save(provider);
 
-        FastCookingRecipe.builder()
-            .requires(Items.SPIDER_EYE)
-            .requires(Items.PUFFERFISH)
-            .requires(Items.POISONOUS_POTATO)
-            .requires(Items.LILY_OF_THE_VALLEY)
-            .requires(Items.WITHER_ROSE)
-            .result(ModFoodItems.UTUSAN)
-            .save(provider);
     }
 }

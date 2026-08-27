@@ -9,7 +9,6 @@ import dev.dubhe.anvilcraft.item.CannedFoodItem;
 import dev.dubhe.anvilcraft.item.CursedGoldenAppleItem;
 import dev.dubhe.anvilcraft.item.ModFoods;
 import dev.dubhe.anvilcraft.item.PillItem;
-import dev.dubhe.anvilcraft.item.UtusanItem;
 import dev.dubhe.anvilcraft.recipe.anvil.wrap.StampingRecipe;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.data.recipes.RecipeCategory;
@@ -166,10 +165,6 @@ public class ModFoodItems {
         .item("beef_mushroom_stew", p -> new Item(p.food(ModFoods.BEEF_MUSHROOM_STEW)))
         .properties(properties -> properties.stacksTo(1))
         .tag(Tags.Items.FOODS)
-        .register();
-
-    public static final ItemEntry<UtusanItem> UTUSAN = REGISTRUM
-        .item("utusan", UtusanItem::new)
         .register();
 
     public static final ItemEntry<CannedFoodItem> CANNED_FOOD = REGISTRUM.item("canned_food", CannedFoodItem::new)

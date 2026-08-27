@@ -25,6 +25,8 @@ public class BlockCompressRecipeLoader {
             ModBlocks.CAKE_BASE_BLOCK.get(),
             ModBlocks.CHOCOLATE_CAKE_BLOCK.get()
         );
+        blockCompress(provider, ModBlocks.HONEY_CREAM_BLOCK.get(), ModBlocks.CAKE_BASE_BLOCK.get(), ModBlocks.HONEY_CAKE_BLOCK.get());
+        blockCompress(provider, ModBlocks.MATCHA_CREAM_BLOCK.get(), ModBlocks.CAKE_BASE_BLOCK.get(), ModBlocks.MATCHA_CAKE_BLOCK.get());
         blockCompress(provider, BlockTags.LEAVES, Blocks.DIRT, Blocks.PODZOL);
         blockCompress(provider, Blocks.MOSS_BLOCK, Blocks.DIRT, Blocks.GRASS_BLOCK);
         blockCompress(provider, ModBlockTags.MUSHROOM_BLOCK, Blocks.DIRT, Blocks.MYCELIUM);

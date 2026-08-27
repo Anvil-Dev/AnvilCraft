@@ -1,0 +1,20 @@
+{
+  "type": "anvilcraft:item_compress",
+  "ingredients": [
+    {
+      "count": 4,
+      "items": "#c:foods/cream"
+    },
+    {
+      "items": "minecraft:sugar"
+    },
+    {
+      "items": "minecraft:azalea_leaves"
+    }
+  ],
+  "results": [
+    {
+      "id": "anvilcraft:matcha_cream_block"
+    }
+  ]
+}
