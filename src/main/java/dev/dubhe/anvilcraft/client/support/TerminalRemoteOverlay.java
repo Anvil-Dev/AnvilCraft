@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.support;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
 import dev.dubhe.anvilcraft.client.rpc.TerminalReachabilityCache;
@@ -10,13 +11,13 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
-import dev.dubhe.anvilcraft.util.FormattingUtil;
 import it.unimi.dsi.fastutil.ints.Int2LongMap;
 import it.unimi.dsi.fastutil.ints.Int2LongOpenHashMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -161,13 +162,13 @@ public final class TerminalRemoteOverlay {
             if (!stack.isEmpty()) {
                 ItemStack itemStack = stack.toStack();
                 graphics.renderFakeItem(itemStack, x + 1, y + 1);
-                TerminalRemoteOverlay.renderItemDecorations(
+                StorageScreen.renderItemDecorations(
                     graphics,
                     font,
                     itemStack,
                     TerminalRemoteOverlay.COUNTS.get(slot),
-                    x,
-                    y
+                    x + 1,
+                    y + 1
                 );
             }
             if (TerminalRemoteOverlay.selected && orderIndex == TerminalRemoteOverlay.cursor) {
@@ -182,7 +183,7 @@ public final class TerminalRemoteOverlay {
         if (TerminalRemoteOverlay.searchBox == null) {
             return;
         }
-        TerminalRemoteOverlay.searchBox.setX(TerminalRemoteOverlay.left + TerminalRemoteOverlay.GRID_X + 1);
+        TerminalRemoteOverlay.searchBox.setX(TerminalRemoteOverlay.left + TerminalRemoteOverlay.GRID_X + 2);
         TerminalRemoteOverlay.searchBox.setY(TerminalRemoteOverlay.top + TerminalRemoteOverlay.SEARCH_Y);
         TerminalRemoteOverlay.searchBox.setWidth(TerminalRemoteOverlay.maxSearchWidth());
         // 浮窗内坐标已整体平移到 z=400，EditBox 渲染在自身层级即可；
@@ -193,24 +194,11 @@ public final class TerminalRemoteOverlay {
         int mouseY = (int) (minecraft.mouseHandler.ypos() * minecraft.getWindow().getGuiScaledHeight()
                             / minecraft.getWindow().getScreenHeight());
         TerminalRemoteOverlay.searchBox.render(graphics, mouseX, mouseY, partialTick);
-    }
-
-    private static void renderItemDecorations(GuiGraphics graphics, Font font, ItemStack stack, long count, int x, int y) {
-        // 面板整体已平移 z=400，此处再抬高 z 让耐久条与数量数字绘制在物品图标之上
-        graphics.pose().pushPose();
-        graphics.pose().translate(0.0F, 0.0F, 200.0F);
-        if (stack.isBarVisible()) {
-            int barX = x + 2;
-            int barY = y + 13;
-            graphics.fill(barX, barY, barX + 13, barY + 2, 0xFF000000);
-            graphics.fill(barX, barY, barX + stack.getBarWidth(), barY + 1, stack.getBarColor());
+        // 未激活（未聚焦）且内容为空时显示灰色 "Tab" 提示，提示可按 Tab 键激活搜索
+        if (!TerminalRemoteOverlay.searchBox.isFocused() && TerminalRemoteOverlay.searchBox.getValue().isEmpty()) {
+            Component hint = Component.translatable("screen.anvilcraft.storage.search.tab").withStyle(ChatFormatting.GRAY);
+            graphics.drawString(font, hint, TerminalRemoteOverlay.searchBox.getX(), TerminalRemoteOverlay.searchBox.getY(), 0xFFFFFFFF);
         }
-        if (count > 0) {
-            Component amount = Component.literal(FormattingUtil.toAbbrNum(count))
-                .withStyle(style -> style.withFont(TerminalRemoteOverlay.SMALL_FONT));
-            graphics.drawString(font, amount, x + 17 - font.width(amount), y + 9, 0xFFFFFFFF, true);
-        }
-        graphics.pose().popPose();
     }
 
     public static boolean mouseClicked(int mouseX, int mouseY, int button) {
@@ -306,8 +294,15 @@ public final class TerminalRemoteOverlay {
         }
         TerminalRemoteOverlay.ensureSearchBox();
         if (TerminalRemoteOverlay.searchBox != null) {
-            // 退格/方向键等由 EditBox 处理；字母数字等返回 false 的键也一律吞掉
-            TerminalRemoteOverlay.searchBox.keyPressed(keyCode, scanCode, modifiers);
+            // Tab 键激活 / 取消激活搜索栏（悬停浮窗内唯一激活搜索的方式）
+            if (keyCode == InputConstants.KEY_TAB) {
+                TerminalRemoteOverlay.searchBox.setFocused(!TerminalRemoteOverlay.searchBox.isFocused());
+                return true;
+            }
+            // 仅激活时才把键入交给搜索框；未激活时一律吞掉，避免触发下层 GUI
+            if (TerminalRemoteOverlay.searchBox.isFocused()) {
+                TerminalRemoteOverlay.searchBox.keyPressed(keyCode, scanCode, modifiers);
+            }
         }
         return true;
     }
@@ -316,9 +311,9 @@ public final class TerminalRemoteOverlay {
         if (!TerminalRemoteOverlay.isHovering()) {
             return false;
         }
-        // 悬停即聚焦：拦截所有字符输入
+        // 悬停即聚焦：拦截所有字符输入；仅激活状态才交给搜索框
         TerminalRemoteOverlay.ensureSearchBox();
-        if (TerminalRemoteOverlay.searchBox != null) {
+        if (TerminalRemoteOverlay.searchBox != null && TerminalRemoteOverlay.searchBox.isFocused()) {
             TerminalRemoteOverlay.searchBox.charTyped(codePoint, modifiers);
         }
         return true;
@@ -340,7 +335,8 @@ public final class TerminalRemoteOverlay {
             TerminalRemoteOverlay.top + TerminalRemoteOverlay.SEARCH_Y,
             TerminalRemoteOverlay.maxSearchWidth(),
             9,
-            Component.translatable("screen.anvilcraft.storage.search.edit")
+            // 占位提示由 renderSearchBox 在未激活时手动绘制（灰色 "Tab"），这里保持为空
+            Component.empty()
         );
         TerminalRemoteOverlay.searchBox.setBordered(false);
         TerminalRemoteOverlay.searchBox.setTextColor(0xFFFFFFFF);
@@ -352,8 +348,8 @@ public final class TerminalRemoteOverlay {
                 TerminalRemoteOverlay.reorder();
             }
         });
-        TerminalRemoteOverlay.searchBox.setFocused(true);
-        TerminalRemoteOverlay.searchBox.setCanLoseFocus(false);
+        // 默认未激活：按 Tab 或点击搜索框才会聚焦；可失去焦点以便 Tab 再次取消激活
+        TerminalRemoteOverlay.searchBox.setCanLoseFocus(true);
     }
 
     public static void tick() {
