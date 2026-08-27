@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
 import dev.dubhe.anvilcraft.integration.jei.recipe.UseItemOnBlockRecipe;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
+import dev.dubhe.anvilcraft.integration.jei.util.JeiTextureConstants;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.ITooltipBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
@@ -37,6 +38,7 @@ public class UseItemOnBlockCategory
     private final IDrawable slotDefault;
     private final IDrawable arrowIn;
     private final IDrawable arrowOut;
+    private final IDrawable mouseRight;
     private final Component title;
     private final Component convertTooltip;
 
@@ -45,6 +47,9 @@ public class UseItemOnBlockCategory
         this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
         this.arrowIn = JeiRenderHelper.getArrowDefault(helper);
         this.arrowOut = JeiRenderHelper.getArrowDefault(helper);
+        this.mouseRight = helper.drawableBuilder(JeiTextureConstants.texture("portal/mouse-right"), 0, 0, 12, 16)
+            .setTextureSize(12, 16)
+            .build();
         this.title = Component.translatable("gui.anvilcraft.category.use_item_on_block");
         this.convertTooltip = Component.translatable(
                 "gui.anvilcraft.category.use_item_on_block.convert"
@@ -111,8 +116,10 @@ public class UseItemOnBlockCategory
             RenderSupport.SINGLE_BLOCK
         );
 
-        this.arrowIn.draw(guiGraphics, 52, 25);
-        this.arrowOut.draw(guiGraphics, 94, 25);
+        this.arrowIn.draw(guiGraphics, 50, 25);
+        this.arrowOut.draw(guiGraphics, 96, 25);
+
+        this.mouseRight.draw(guiGraphics, 50, 40);
 
         JeiSlotUtil.drawSlots(guiGraphics, this.slotDefault, 1, JeiSlotUtil.INPUT_X - 1, JeiSlotUtil.DEFAULT_Y - 1);
 
