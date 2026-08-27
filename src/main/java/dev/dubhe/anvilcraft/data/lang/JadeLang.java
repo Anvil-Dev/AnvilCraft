@@ -60,14 +60,12 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.auto_enchanting_table.jade.working_progress", "Enchanting Progress: %s");
         provider.add("tooltip.anvilcraft.discharger.jade.time", "%1$s / %2$s");
         provider.add("tooltip.anvilcraft.discharger.jade.energy", "%1$s / %2$s");
-        provider.add("tooltip.anvilcraft.pulse_generator.jade.mode", "Mode: %s");
+        provider.add("tooltip.anvilcraft.pulse_generator.jade.mode_reverse", "Mode: %s Reverse: %s");
         provider.add("tooltip.anvilcraft.pulse_generator.jade.mode.rising", "Rising Edge");
         provider.add("tooltip.anvilcraft.pulse_generator.jade.mode.falling", "Falling Edge");
         provider.add("tooltip.anvilcraft.pulse_generator.jade.mode.loop", "Loop");
-        provider.add("tooltip.anvilcraft.pulse_generator.jade.reverse", "Reverse: %s");
         provider.add("tooltip.anvilcraft.pulse_generator.jade.reverse.on", "On");
         provider.add("tooltip.anvilcraft.pulse_generator.jade.reverse.off", "Off");
-        provider.add("tooltip.anvilcraft.pulse_generator.jade.working_progress", "Pulse Progress: %s");
         provider.add("tooltip.anvilcraft.wip_block.jade.recipe", "Procedural Recipe: %s");
         provider.add("tooltip.anvilcraft.wip_block.jade.step_count", "Steps Executed: %d");
 

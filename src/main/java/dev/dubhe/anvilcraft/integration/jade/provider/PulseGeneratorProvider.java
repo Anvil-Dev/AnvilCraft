@@ -24,62 +24,43 @@ public enum PulseGeneratorProvider implements IBlockComponentProvider, IServerDa
     @Override
     public void appendTooltip(ITooltip tooltip, BlockAccessor accessor, IPluginConfig config) {
         CompoundTag data = accessor.getServerData();
-        if (data.contains("pulse_generator_mode")) {
-            String mode = data.getString("pulse_generator_mode");
-            ChatFormatting modeColor = switch (mode) {
-                case "rising" -> ChatFormatting.GREEN;
-                case "falling" -> ChatFormatting.RED;
-                case "loop" -> ChatFormatting.BLUE;
-                default -> ChatFormatting.GRAY;
-            };
-            tooltip.add(Component.translatable(
-                "tooltip.anvilcraft.pulse_generator.jade.mode",
-                Component.translatable("tooltip.anvilcraft.pulse_generator.jade.mode." + mode)
-                    .withStyle(modeColor)
-            ));
-        }
-        if (data.contains("pulse_generator_reverse")) {
-            boolean reverse = data.getBoolean("pulse_generator_reverse");
-            tooltip.add(Component.translatable(
-                "tooltip.anvilcraft.pulse_generator.jade.reverse",
-                Component.translatable("tooltip.anvilcraft.pulse_generator.jade.reverse."
-                                       + (reverse ? "on" : "off"))
-                    .withStyle(reverse ? ChatFormatting.GOLD : ChatFormatting.GRAY)
-            ));
-        }
-        if (data.contains("pulse_generator_delay")) {
-            tooltip.add(Component.translatable(
-                "tooltip.anvilcraft.pulse_generator.delay",
-                Component.literal(FormattingUtil.toFormattedTime(data.getInt("pulse_generator_delay"), 5))
-                    .withStyle(ChatFormatting.WHITE)
-            ));
-        }
-        if (data.contains("pulse_generator_duration")) {
-            tooltip.add(Component.translatable(
-                "tooltip.anvilcraft.pulse_generator.output_duration",
-                Component.literal(FormattingUtil.toFormattedTime(data.getInt("pulse_generator_duration"), 5))
-                    .withStyle(ChatFormatting.WHITE)
-            ));
-        }
+        if (!data.contains("pulse_generator_mode")) return;
+        String mode = data.getString("pulse_generator_mode");
+        boolean reverse = data.getBoolean("pulse_generator_reverse");
+        ChatFormatting modeColor = switch (mode) {
+            case "rising" -> ChatFormatting.GREEN;
+            case "falling" -> ChatFormatting.RED;
+            case "loop" -> ChatFormatting.BLUE;
+            default -> ChatFormatting.GRAY;
+        };
+        tooltip.add(Component.translatable(
+            "tooltip.anvilcraft.pulse_generator.jade.mode_reverse",
+            Component.translatable("tooltip.anvilcraft.pulse_generator.jade.mode." + mode)
+                .withStyle(modeColor),
+            Component.translatable("tooltip.anvilcraft.pulse_generator.jade.reverse." + (reverse ? "on" : "off"))
+                .withStyle(reverse ? ChatFormatting.GOLD : ChatFormatting.GRAY)
+        ));
 
         int remaining = data.getInt("pulse_generator_remaining_ticks");
         int total = data.getInt("pulse_generator_total_ticks");
         if (remaining > 0 && total > 0) {
             boolean outputting = "OUTPUTTING".equals(data.getString("pulse_generator_state"));
-            int barColor = outputting ? 0xFFFF8C00 : 0xFF87CEEB;
+            int barColor = outputting ? 0xFF8B0000 : 0xFF1E90FF;
             double progress = outputting
                               ? Math.max(0, Math.min(1, (double) remaining / total))
                               : Math.max(0, Math.min(1, 1 - (double) remaining / total));
             IElementHelper helper = IElementHelper.get();
             tooltip.add(helper.progress(
                 (float) progress,
-                Component.translatable("tooltip.anvilcraft.pulse_generator.jade.working_progress",
-                    Component.literal(String.format("%.1f%%", progress * 100))),
-                helper.progressStyle().color(barColor).textColor(-1),
+                Component.translatable("tooltip.anvilcraft.pulse_generator.delay",
+                    Component.literal(FormattingUtil.toFormattedTime(data.getInt("pulse_generator_delay"), 5))
+                ).append(" ").append(Component.translatable("tooltip.anvilcraft.pulse_generator.output_duration",
+                    Component.literal(FormattingUtil.toFormattedTime(data.getInt("pulse_generator_duration"), 5)))),
+                helper.progressStyle().color(barColor).textColor(0xFFE0E0E0),
                 Util.make(STYLE.clone(), box -> {
-                    box.borderColor = new int[]{0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0}; // 白色边框
+                    box.borderColor = new int[]{0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0, 0xFFE0E0E0};
                     box.borderWidth = 1.0f;
-                    box.bgColor = outputting ? 0xFFFF4500 : 0xFF1E90FF;
+                    box.bgColor = 0xFF202020;
                 }),
                 true));
         }
