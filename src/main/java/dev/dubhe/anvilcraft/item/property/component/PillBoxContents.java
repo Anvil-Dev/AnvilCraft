@@ -17,19 +17,19 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 
-public record PillBocContents(int index, List<ItemStack> pills) {
-    public static final PillBocContents EMPTY = new PillBocContents(ImmutableList.of());
+public record PillBoxContents(int index, List<ItemStack> pills) {
+    public static final PillBoxContents EMPTY = new PillBoxContents(ImmutableList.of());
 
-    public static final Codec<PillBocContents> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
-        ItemStack.CODEC.listOf().fieldOf("pills").forGetter(PillBocContents::pills)
-    ).apply(instance, PillBocContents::new));
-    public static final StreamCodec<RegistryFriendlyByteBuf, PillBocContents> STREAM_CODEC = StreamCodec.composite(
+    public static final Codec<PillBoxContents> CODEC = RecordCodecBuilder.create((instance) -> instance.group(
+        ItemStack.CODEC.listOf().fieldOf("pills").forGetter(PillBoxContents::pills)
+    ).apply(instance, PillBoxContents::new));
+    public static final StreamCodec<RegistryFriendlyByteBuf, PillBoxContents> STREAM_CODEC = StreamCodec.composite(
         ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()),
-        PillBocContents::pills,
-        PillBocContents::new
+        PillBoxContents::pills,
+        PillBoxContents::new
     );
 
-    public PillBocContents(List<ItemStack> pills) {
+    public PillBoxContents(List<ItemStack> pills) {
         this(-1, pills);
     }
 
@@ -42,7 +42,7 @@ public record PillBocContents(int index, List<ItemStack> pills) {
         private int index;
         private List<ItemStack> pills;
 
-        public Mutable(PillBocContents contents) {
+        public Mutable(PillBoxContents contents) {
             this.index = contents.index;
             this.pills = new ObjectArrayList<>(contents.pills);
         }
@@ -118,8 +118,8 @@ public record PillBocContents(int index, List<ItemStack> pills) {
             this.pills = pillList;
         }
 
-        public PillBocContents immutable() {
-            return new PillBocContents(this.index, ImmutableList.copyOf(this.pills));
+        public PillBoxContents immutable() {
+            return new PillBoxContents(this.index, ImmutableList.copyOf(this.pills));
         }
     }
 }

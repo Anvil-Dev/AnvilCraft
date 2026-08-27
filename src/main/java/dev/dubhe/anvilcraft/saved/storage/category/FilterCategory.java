@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.saved.storage.category;
 
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
@@ -55,18 +55,18 @@ public record FilterCategory(ItemStack icon, Component name, FilterContent filte
     }
 
     public static class Type implements ICategory.Type<FilterCategory> {
-        public static final MapCodec<FilterCategory> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+        public static final MapCodec<FilterCategory> CODEC = CodecUtil.mapCodec(
             ItemStack.CODEC
                 .fieldOf("icon")
                 .forGetter(FilterCategory::icon),
-
             ICategory.NAME_CODEC
                 .fieldOf("name")
                 .forGetter(FilterCategory::name),
             FilterContent.CODEC
                 .fieldOf("filter")
-                .forGetter(FilterCategory::filter)
-        ).apply(instance, FilterCategory::new));
+                .forGetter(FilterCategory::filter),
+            FilterCategory::new
+        );
         public static final StreamCodec<RegistryFriendlyByteBuf, FilterCategory> STREAM_CODEC = StreamCodec.composite(
             ItemStack.STREAM_CODEC,
             FilterCategory::icon,

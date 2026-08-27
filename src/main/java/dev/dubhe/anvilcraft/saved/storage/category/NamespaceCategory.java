@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.saved.storage.category;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.component.ModNameContents;
 import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
@@ -60,18 +60,18 @@ public record NamespaceCategory(ItemStack icon, Component name, String namespace
     }
 
     public static class Type implements ICategory.Type<NamespaceCategory> {
-        public static final MapCodec<NamespaceCategory> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+        public static final MapCodec<NamespaceCategory> CODEC = CodecUtil.mapCodec(
             ItemStack.CODEC
                 .fieldOf("icon")
                 .forGetter(NamespaceCategory::icon),
-
             ICategory.NAME_CODEC
                 .fieldOf("name")
                 .forGetter(NamespaceCategory::name),
             Codec.STRING
                 .fieldOf("namespace")
-                .forGetter(NamespaceCategory::namespace)
-        ).apply(instance, NamespaceCategory::new));
+                .forGetter(NamespaceCategory::namespace),
+            NamespaceCategory::new
+        );
         public static final StreamCodec<RegistryFriendlyByteBuf, NamespaceCategory> STREAM_CODEC = StreamCodec.composite(
             ItemStack.STREAM_CODEC,
             NamespaceCategory::icon,

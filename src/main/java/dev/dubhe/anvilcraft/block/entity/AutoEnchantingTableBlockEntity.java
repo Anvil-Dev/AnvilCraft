@@ -270,8 +270,14 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
     public static void tick(Level level, BlockPos pos, BlockState state, AutoEnchantingTableBlockEntity be) {
         if (level.isClientSide) return;
         be.flushState(level, pos);
-        if (state.getValue(AutoEnchantingTableBlock.POWERED)) return;
-        if (!be.isGridWorking()) return;
+        if (state.getValue(AutoEnchantingTableBlock.POWERED)) {
+            be.resetCooldownWhenIdle();
+            return;
+        }
+        if (!be.isGridWorking()) {
+            be.resetCooldownWhenIdle();
+            return;
+        }
 
         // 1. 先刷新工作模式：模式有变化则重设 4 秒冷却
         WorkMode newMode = be.refreshWorkMode();
@@ -301,6 +307,12 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
             return;
         }
 
+        // 当前不具备执行一次附魔的条件时保持冷却满值，让客户端进度条停止动画，避免机器空转
+        if (!be.canPerformWork()) {
+            be.resetCooldownWhenIdle();
+            return;
+        }
+
         // 2. 冷却逻辑
         if (be.cooldownTicks > 0) {
             be.cooldownTicks--;
@@ -319,6 +331,57 @@ public class AutoEnchantingTableBlockEntity extends BlockEntity
             case LIQUID_ENCHANTMENT -> be.tryLiquidEnchantment(level, pos);
             default -> {}
         }
+    }
+
+    /**
+     * 设置不工作时将冷却处于满值，让客户端动画回到初始位置。
+     */
+    private void resetCooldownWhenIdle() {
+        if (this.cooldownTicks != AnvilCraft.CONFIG.autoEnchantingTableInterval) {
+            this.cooldownTicks = AnvilCraft.CONFIG.autoEnchantingTableInterval;
+            this.setChanged();
+            this.syncToClient();
+        }
+    }
+
+    /**
+     * 判断当前是否具备执行一次附魔的条件（输入、输出、经验/液态魔咒、书架与选择等级）。
+     * 不具备时进度条应保持静止，避免机器因缺少流体等条件而空转。
+     */
+    private boolean canPerformWork() {
+        ItemStack input = this.itemHandler.getStackInSlot(SLOT_INPUT);
+        if (input.isEmpty()) return false;
+        if (!this.itemHandler.getStackInSlot(SLOT_OUTPUT).isEmpty()) return false;
+        return switch (this.workMode) {
+            case ENCHANTING -> {
+                int shelfLevel = Math.min(this.shelfLevel, AnvilCraft.CONFIG.autoEnchantingTableMaxBookshelf);
+                int cost = Math.min(shelfLevel * EXP_COST_PER_SHELF, FLUID_CAPACITY);
+                if (cost <= 0) yield false;
+                FluidStack fluid = this.fluidTank.getFluid();
+                yield fluid.is(ModFluids.EXP_FLUID) && fluid.getAmount() >= cost;
+            }
+            case PRIMER -> {
+                int totalLevel = this.getSelectedTotalLevel();
+                if (this.selectedEnchantments.isEmpty() || totalLevel > this.shelfLevel) yield false;
+                int cost = totalLevel * EXP_COST_PER_SHELF;
+                if (cost <= 0 || cost > FLUID_CAPACITY) yield false;
+                FluidStack fluid = this.fluidTank.getFluid();
+                yield fluid.is(ModFluids.EXP_FLUID) && fluid.getAmount() >= cost;
+            }
+            case LIQUID_ENCHANTMENT -> {
+                FluidStack fluid = this.fluidTank.getFluid();
+                if (fluid.isEmpty() || !fluid.is(ModFluids.LIQUID_ENCHANTMENT)) yield false;
+                Optional<Holder<Enchantment>> enchantment = LiquidEnchantmentUtil.getEnchantment(fluid);
+                if (enchantment.isEmpty()) yield false;
+                int maxLevel = this.computeLiquidMaxLevel();
+                // 与物品不兼容时也会原样输出，视为一次有效工作
+                if (maxLevel <= 0) yield true;
+                int level = this.liquidEnchantmentLevel;
+                if (level <= 0) yield false;
+                int cost = 1 << (level - 1);
+                yield fluid.getAmount() >= cost;
+            }
+        };
     }
 
     public boolean isAllowedPrimer(ItemStack stack) {

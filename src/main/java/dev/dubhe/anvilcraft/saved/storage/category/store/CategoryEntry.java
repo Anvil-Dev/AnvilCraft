@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.saved.storage.category.store;
 
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,14 +16,15 @@ import java.util.List;
 @RequiredArgsConstructor
 @AllArgsConstructor
 public class CategoryEntry {
-    public static final MapCodec<CategoryEntry> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+    public static final MapCodec<CategoryEntry> CODEC = CodecUtil.mapCodec(
         ICategory.CODEC
             .fieldOf("category")
             .forGetter(CategoryEntry::getCategory),
         CategoryMode.CODEC
             .fieldOf("mode")
-            .forGetter(CategoryEntry::getMode)
-    ).apply(instance, CategoryEntry::new));
+            .forGetter(CategoryEntry::getMode),
+        CategoryEntry::new
+    );
     public static final StreamCodec<RegistryFriendlyByteBuf, CategoryEntry> STREAM_CODEC = StreamCodec.composite(
         ICategory.STREAM_CODEC,
         CategoryEntry::getCategory,

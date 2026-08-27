@@ -5,6 +5,7 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
@@ -38,6 +39,7 @@ import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -143,6 +145,7 @@ public class StorageScreen extends Screen {
     private int left;
     private int top;
     private int titleLabelX;
+    private @Nullable List<Component> renderingTooltips;
 
     public StorageScreen(BlockPos sourcePos) {
         this(
@@ -372,6 +375,7 @@ public class StorageScreen extends Screen {
 
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+        this.renderingTooltips = null;
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
         graphics.blit(
             StorageScreen.CAPACITY,
@@ -427,7 +431,7 @@ public class StorageScreen extends Screen {
                     graphics,
                     this.minecraft,
                     itemStack,
-                    this.getDisplayedCount(slot, stack),
+                    this.getDisplayedCount(slot),
                     x,
                     y
                 );
@@ -443,8 +447,8 @@ public class StorageScreen extends Screen {
                         ? TooltipFlag.Default.ADVANCED
                         : TooltipFlag.Default.NORMAL
                 ));
-                tooltipLines.add(Component.translatable("screen.anvilcraft.storage.count", this.getDisplayedCount(slot, stack)));
-                graphics.renderTooltip(this.font, tooltipLines, Optional.empty(), mouseX, mouseY);
+                tooltipLines.add(Component.translatable("screen.anvilcraft.storage.count", this.getDisplayedCount(slot)));
+                this.renderingTooltips = tooltipLines;
             }
         }
     }
@@ -534,12 +538,20 @@ public class StorageScreen extends Screen {
             AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
         }
         if (hovered && this.carried.isEmpty() && !stack.isEmpty()) {
-            graphics.renderTooltip(this.font, stack, mouseX, mouseY);
+            this.renderingTooltips = stack.getTooltipLines(
+                Item.TooltipContext.of(this.minecraft.level),
+                this.player,
+                this.minecraft.options.advancedItemTooltips
+                ? TooltipFlag.Default.ADVANCED
+                : TooltipFlag.Default.NORMAL
+            );
         }
     }
 
     private void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
-        if (MathUtil.isInRange(mouseX, mouseY, this.left + 106, this.top, this.left + 300, this.top + 13)) {
+        if (this.renderingTooltips != null) {
+            graphics.renderTooltip(this.font, this.renderingTooltips, Optional.empty(), mouseX, mouseY);
+        } else if (MathUtil.isInRange(mouseX, mouseY, this.left + 106, this.top, this.left + 300, this.top + 13)) {
             Component tooltip = this.getCapacityTooltip();
             if (tooltip != null) {
                 graphics.renderTooltip(this.font, tooltip, mouseX, mouseY);
@@ -1618,10 +1630,15 @@ public class StorageScreen extends Screen {
             return false;
         }
 
-        Map<Item, Integer> logicalSlots = new HashMap<>();
+        // 以物品+数据组件为键把服务端最新槽位重映射回已锁定的逻辑槽位（忽略数量），
+        // 避免同物品的不同组件堆相互覆盖：数量、渲染与 serverSlots 各自保持独立。
+        Map<UnlimitedItemStacksResourceHandler.ResourceKey, Integer> logicalSlots = new HashMap<>();
         for (int logicalSlot : this.order) {
             UnlimitedItemStack stack = this.contents.get(logicalSlot);
-            logicalSlots.put(stack.getItem(), logicalSlot);
+            logicalSlots.put(
+                UnlimitedItemStacksResourceHandler.ResourceKey.of(stack.toStack()),
+                logicalSlot
+            );
             this.emptySlots.add(logicalSlot);
         }
         this.serverSlots.clear();
@@ -1633,11 +1650,12 @@ public class StorageScreen extends Screen {
                 if (update.stack().isEmpty()) {
                     continue;
                 }
-                Item item = update.stack().getItem();
-                Integer logicalSlot = logicalSlots.get(item);
+                UnlimitedItemStacksResourceHandler.ResourceKey key =
+                    UnlimitedItemStacksResourceHandler.ResourceKey.of(update.stack().toStack());
+                Integer logicalSlot = logicalSlots.get(key);
                 if (logicalSlot == null) {
-                    logicalSlot = this.nextLogicalSlot++;
-                    logicalSlots.put(item, logicalSlot);
+                    logicalSlot = this.allocateLogicalSlot();
+                    logicalSlots.put(key, logicalSlot);
                     this.order.add(logicalSlot.intValue());
                 }
                 this.contents.put(logicalSlot.intValue(), update.stack());
@@ -1654,6 +1672,14 @@ public class StorageScreen extends Screen {
         }
         this.remappedOrder = true;
         return true;
+    }
+
+    private int allocateLogicalSlot() {
+        int logicalSlot;
+        do {
+            logicalSlot = this.nextLogicalSlot++;
+        } while (this.order.contains(logicalSlot) || this.contents.containsKey(logicalSlot));
+        return logicalSlot;
     }
 
     private boolean hasInconsistentVersion(List<StorageServerStub.SyncResult> results) {
@@ -1762,7 +1788,7 @@ public class StorageScreen extends Screen {
         return displayedContents.getOrDefault(slot, UnlimitedItemStack.EMPTY);
     }
 
-    private long getDisplayedCount(int slot, UnlimitedItemStack stack) {
+    private long getDisplayedCount(int slot) {
         return this.nbtFolded ? this.foldedCounts.get(slot) : this.getStoredCount(slot);
     }
 
@@ -1834,8 +1860,8 @@ public class StorageScreen extends Screen {
         if (stack.isBarVisible()) {
             int left = x + 2;
             int top = y + 13;
-            graphics.fill(left, top, left + 13, top + 2, -16777216);
-            graphics.fill(left, top, left + stack.getBarWidth(), top + 1, stack.getBarColor());
+            graphics.fill(RenderType.guiOverlay(), left, top, left + 13, top + 2, 0xFF000000);
+            graphics.fill(RenderType.guiOverlay(), left, top, left + stack.getBarWidth(), top + 1, stack.getBarColor() | 0xFF000000);
         }
 
         // 数量（使用缩写格式，可超过 999）

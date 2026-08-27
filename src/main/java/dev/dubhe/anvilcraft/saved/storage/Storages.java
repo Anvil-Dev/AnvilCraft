@@ -15,7 +15,6 @@ import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -80,7 +79,7 @@ public class Storages extends SavedData {
             storagesTag.put(entry.getKey().toString(), entry.getValue().serializeNBT(registries));
         }
         tag.put("storages", storagesTag);
-        tag.put("recover", this.recover.serializeNBT(registries));
+        tag.put("recover", this.recover.serializeNBT(storage -> storage == null ? new CompoundTag() : storage.serializeNBT(registries)));
         return tag;
     }
 
@@ -88,24 +87,11 @@ public class Storages extends SavedData {
         Storages previous = Storages.loading;
         Storages.loading = new Storages();
         try {
-            Map<UUID, BaseStorage<?>> storages = new HashMap<>();
-            if (tag.contains("storages", Tag.TAG_COMPOUND)) {
-                CompoundTag storagesTag = tag.getCompound("storages");
-                for (String key : storagesTag.getAllKeys()) {
-                    CompoundTag entryTag = storagesTag.getCompound(key);
-                    if (!entryTag.contains(BaseStorage.TYPE_KEY, Tag.TAG_STRING)) continue;
-                    UUID id = UUID.fromString(key);
-                    StorageType type = StorageType.valueOf(entryTag.getString(BaseStorage.TYPE_KEY).toUpperCase(Locale.ROOT));
-                    BaseStorage<?> storage = type.newInstance(id);
-                    storage.deserializeNBT(registries, entryTag);
-                    storages.put(id, storage);
-                }
-            }
             RecoverStation<BaseStorage<?>> recover = RecoverStation.create(AnvilCraft.CONFIG.storageRecoverMaxSize);
             if (tag.contains("recover", Tag.TAG_COMPOUND)) {
-                recover.deserializeNBT(registries, tag.getCompound("recover"));
+                recover.deserializeNBT((id, valueTag) -> BaseStorage.loadFromNbt(id, valueTag, registries), tag.getCompound("recover"));
             }
-            return new Storages(storages, recover);
+            return new Storages(BaseStorage.loadFromNbt("storages", tag, registries), recover);
         } finally {
             Storages.loading = previous;
         }
@@ -125,7 +111,7 @@ public class Storages extends SavedData {
     public <T extends BaseStorage<?>> T getOrCreate(UUID id, Class<T> clazz) {
         BaseStorage<?> storage = this.storages.get(id);
         if (storage == null) {
-            T empty = Util.cast(StorageType.find(clazz).newInstance(id));
+            T empty = Util.cast(IStorageType.find(clazz).value().newInstance(id));
             this.storages.put(id, empty);
             this.setDirty();
             return empty;

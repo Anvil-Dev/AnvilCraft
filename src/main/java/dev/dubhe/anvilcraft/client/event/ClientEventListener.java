@@ -10,15 +10,17 @@ import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.gui.tooltip.FilterContentHoverWindow;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
+import dev.dubhe.anvilcraft.client.rpc.TerminalReachabilityCache;
 import dev.dubhe.anvilcraft.client.support.AmuletSelectorSupport;
 import dev.dubhe.anvilcraft.client.support.StructureDiskPreviewSupport;
 import dev.dubhe.anvilcraft.client.support.TerminalRemoteOverlay;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
-import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.HammerOpenedAnvilMenu;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
-import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
+import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
+import dev.dubhe.anvilcraft.item.LocalTerminalItem;
+import dev.dubhe.anvilcraft.item.ShulkerTerminalItem;
 import dev.dubhe.anvilcraft.network.DragonRodStopDevourPacket;
 import dev.dubhe.anvilcraft.network.OpenHammerAnvilPacket;
 import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
@@ -26,6 +28,7 @@ import dev.dubhe.anvilcraft.util.BlockHighlightUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.world.inventory.Slot;
@@ -44,6 +47,7 @@ import net.neoforged.neoforge.client.event.ScreenEvent;
 import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 
+import java.util.UUID;
 import javax.annotation.Nullable;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
@@ -77,6 +81,7 @@ public class ClientEventListener {
     public static void onClientPlayerDisconnect(ClientPlayerNetworkEvent.LoggingOut event) {
         SoundHelper.INSTANCE.clear();
         StorageTerminalClientStub.clear();
+        TerminalReachabilityCache.clear();
         TerminalRemoteOverlay.setHovering(ItemStack.EMPTY);
         HudTooltipManager.INSTANCE.resetClientState();
     }
@@ -225,9 +230,12 @@ public class ClientEventListener {
 
     @SubscribeEvent
     public static void onScreenMousePressedTerminal(ScreenEvent.MouseButtonPressed.Pre event) {
-        Minecraft minecraft = Minecraft.getInstance();
+        final Minecraft minecraft = Minecraft.getInstance();
         if (!(event.getScreen() instanceof AbstractContainerScreen<?> containerScreen)) return;
         if (event.getScreen() instanceof StorageScreen) return;
+        // 创造模式仅标签栏（非槽位区域）不提供终端收纳袋交互；背包槽位内的终端仍可触发
+        if (event.getScreen() instanceof CreativeModeInventoryScreen
+            && containerScreen.getSlotUnderMouse() == null) return;
         if (minecraft.player == null || minecraft.getConnection() == null) return;
         // 同时用渲染帧的 hoveredSlot 与事件坐标定位，避免任一路径漏判
         // （hoveredSlot 滞后或坐标换算偏差都会导致 overTerminal 误判为 false，
@@ -252,30 +260,37 @@ public class ClientEventListener {
                     event.setCanceled(true);
                 }
                 return;
-            } else if (!carriedEmpty && minecraft.options.keyUse.matchesMouse(event.getButton())) {
-                // 捏着物品右键：把整组放入对应存储站
-                TerminalBinding binding = slot.getItem().get(ModComponents.TERMINAL_BINDING);
-                if (binding != null && binding.id().isPresent()) {
-                    // 服务端 terminalInsert 会修改 carried 并经 broadcastChanges 广播同步到
-                    // 客户端当前活动菜单，客户端不应手动 setCarried，否则会与服务端广播竞态
-                    // （这也是取出/关界面物品重复的根源）。失败时事件已取消、客户端 carried 未变。
-                    StorageTerminalClientStub.insert(
-                        binding.id().get(),
-                        containerScreen.getMenu().getCarried()
-                    ).whenComplete((result, error) -> Minecraft.getInstance().execute(() -> {
-                        if (error != null || !result.changed()) {
-                            return;
-                        }
-                        // 创造背包界面的 ItemPickerMenu 是纯客户端菜单，服务端 carried 广播
-                        // （containerId == -1）会被客户端忽略，需手动写回指针
-                        TerminalRemoteOverlay.applyCarriedIfCreative(result.carried());
-                    }));
+            } else if (!carriedEmpty) {
+                // 捏着物品：根据终端的 inverted 状态决定放入存储的按键（默认右键，反向后左键）
+                boolean inverted = ClientEventListener.isTerminalInverted(slot.getItem());
+                boolean insertClick = inverted
+                    ? minecraft.options.keyAttack.matchesMouse(event.getButton())
+                    : minecraft.options.keyUse.matchesMouse(event.getButton());
+                if (insertClick) {
+                    // 捏着物品点击：把整组放入对应存储站
+                    UUID targetId = TerminalRemoteOverlay.terminalIdOf(slot.getItem());
+                    if (targetId != null) {
+                        // 服务端 terminalInsert 会修改 carried 并经 broadcastChanges 广播同步到
+                        // 客户端当前活动菜单，客户端不应手动 setCarried，否则会与服务端广播竞态
+                        // （这也是取出/关界面物品重复的根源）。失败时事件已取消、客户端 carried 未变。
+                        StorageTerminalClientStub.insert(
+                            targetId,
+                            containerScreen.getMenu().getCarried()
+                        ).whenComplete((result, error) -> Minecraft.getInstance().execute(() -> {
+                            if (error != null || !result.changed()) {
+                                return;
+                            }
+                            // 创造背包界面的 ItemPickerMenu 是纯客户端菜单，服务端 carried 广播
+                            // （containerId == -1）会被客户端忽略，需手动写回指针
+                            TerminalRemoteOverlay.applyCarriedIfCreative(result.carried());
+                        }));
+                    }
                 }
-                // 捏着物品左键：阻止交换（不把终端捏起，也不放入），保持终端不动
+                // 非放入按键：阻止交换（不把终端捏起，也不放入），保持终端不动
                 event.setCanceled(true);
                 return;
             }
-            // 捏着物品左键：阻止交换（不把终端捏起，也不放入），保持终端不动
+            // 空手但已按 Esc 屏蔽浮窗：阻止 vanilla 拿起终端，保持终端不动
             event.setCanceled(true);
             return;
         }
@@ -290,6 +305,22 @@ public class ClientEventListener {
             );
             event.setCanceled(true);
         }
+    }
+
+    /**
+     * 根据终端类型查询其客户端记录的反转状态（容器 GUI 中终端放入存储的按键随反转对调）。
+     */
+    private static boolean isTerminalInverted(ItemStack stack) {
+        if (stack.is(ModItems.LOCAL_TERMINAL)) {
+            return InvertedActionEventListener.isInverted(LocalTerminalItem.CONFIG_ID);
+        }
+        if (stack.is(ModItems.SHULKER_TERMINAL)) {
+            return InvertedActionEventListener.isInverted(ShulkerTerminalItem.CONFIG_ID);
+        }
+        if (stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
+            return InvertedActionEventListener.isInverted(HyperdimensionTerminalItem.CONFIG_ID);
+        }
+        return false;
     }
 
     /**
@@ -322,6 +353,12 @@ public class ClientEventListener {
             AnvilCraftClient.pillSelectorSupport.setPillBox(item);
         } else {
             AnvilCraftClient.pillSelectorSupport.setPillBox(ItemStack.EMPTY);
+        }
+
+        // 创造模式：仅标签栏（非槽位区域）不启用终端收纳袋浮窗，背包槽位内的终端正常触发
+        if (screen instanceof CreativeModeInventoryScreen && slot == null) {
+            TerminalRemoteOverlay.setHovering(ItemStack.EMPTY);
+            return;
         }
 
         // 该事件仅对 AbstractContainerScreen 触发，StorageScreen 非其子类，无需额外排除。

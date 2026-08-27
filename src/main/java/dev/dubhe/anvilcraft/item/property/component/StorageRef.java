@@ -1,10 +1,12 @@
 package dev.dubhe.anvilcraft.item.property.component;
 
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.saved.storage.StorageType;
+import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
+import dev.dubhe.anvilcraft.saved.storage.IStorageType;
 import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
@@ -19,45 +21,46 @@ import java.util.UUID;
 import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
-public record StorageRef(StorageType type, Optional<UUID> id) implements TooltipProvider {
-    public static final MapCodec<StorageRef> CODEC = RecordCodecBuilder.mapCodec(ins -> ins.group(
-        StorageType.CODEC
+public record StorageRef(Holder<IStorageType<?>> type, Optional<UUID> id) implements TooltipProvider {
+    public static final MapCodec<StorageRef> CODEC = CodecUtil.mapCodec(
+        IStorageType.HOLDER_CODEC
             .fieldOf("type")
             .forGetter(StorageRef::type),
         UUIDUtil.CODEC
             .optionalFieldOf("id")
-            .forGetter(StorageRef::id)
-    ).apply(ins, StorageRef::new));
+            .forGetter(StorageRef::id),
+        StorageRef::new
+    );
     public static final StreamCodec<RegistryFriendlyByteBuf, StorageRef> STREAM_CODEC = StreamCodec.composite(
-        StorageType.STREAM_CODEC,
+        IStorageType.HOLDER_STREAM_CODEC,
         StorageRef::type,
         ByteBufCodecs.optional(UUIDUtil.STREAM_CODEC),
         StorageRef::id,
         StorageRef::new
     );
 
-    public StorageRef(StorageType type) {
+    public StorageRef(Holder<IStorageType<?>> type) {
         this(type, Optional.empty());
     }
 
-    public StorageRef(StorageType type, @Nullable UUID id) {
+    public StorageRef(Holder<IStorageType<?>> type, @Nullable UUID id) {
         this(type, Optional.ofNullable(id));
     }
 
     public static StorageRef crate() {
-        return new StorageRef(StorageType.CRATE);
+        return new StorageRef(ModStorageTypes.CRATE);
     }
 
     public static StorageRef largeCrate() {
-        return new StorageRef(StorageType.LARGE_CRATE);
+        return new StorageRef(ModStorageTypes.LARGE_CRATE);
     }
 
     public static StorageRef shulkerContainer() {
-        return new StorageRef(StorageType.SHULKER_CONTAINER);
+        return new StorageRef(ModStorageTypes.SHULKER_CONTAINER);
     }
 
     public static StorageRef hyperdimension() {
-        return new StorageRef(StorageType.HYPERDIMENSION);
+        return new StorageRef(ModStorageTypes.HYPERDIMENSION);
     }
 
     @Override

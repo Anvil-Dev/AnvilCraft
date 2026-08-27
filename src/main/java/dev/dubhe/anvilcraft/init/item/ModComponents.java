@@ -12,7 +12,7 @@ import dev.dubhe.anvilcraft.item.property.component.HeliostatsData;
 import dev.dubhe.anvilcraft.item.property.component.Merciless;
 import dev.dubhe.anvilcraft.item.property.component.Multiphase;
 import dev.dubhe.anvilcraft.item.property.component.OverLimitItemContainerContents;
-import dev.dubhe.anvilcraft.item.property.component.PillBocContents;
+import dev.dubhe.anvilcraft.item.property.component.PillBoxContents;
 import dev.dubhe.anvilcraft.item.property.component.Providence;
 import dev.dubhe.anvilcraft.item.property.component.SavedEntity;
 import dev.dubhe.anvilcraft.item.property.component.SignedPlayers;
@@ -22,6 +22,7 @@ import dev.dubhe.anvilcraft.item.property.component.StructureData;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
+import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -167,9 +168,9 @@ public class ModComponents {
         b -> b.persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL)
     );
 
-    public static final DataComponentType<PillBocContents> PILL_BOC_CONTENTS = register(
+    public static final DataComponentType<PillBoxContents> PILL_BOX_CONTENTS = register(
         "pill_box_contents",
-        (builder) -> builder.persistent(PillBocContents.CODEC).networkSynchronized(PillBocContents.STREAM_CODEC)
+        (builder) -> builder.persistent(PillBoxContents.CODEC).networkSynchronized(PillBoxContents.STREAM_CODEC)
     );
 
     public static final DataComponentType<OverLimitItemContainerContents> OVER_LIMIT_CONTAINER = register(
@@ -190,6 +191,11 @@ public class ModComponents {
     public static final DataComponentType<TerminalBinding> TERMINAL_BINDING = register(
         "terminal_binding",
         b -> b.persistent(TerminalBinding.CODEC.codec()).networkSynchronized(TerminalBinding.STREAM_CODEC)
+    );
+
+    public static final DataComponentType<BalanceMode> TERMINAL_BALANCE_MODE = register(
+        "terminal_balance_mode",
+        b -> b.persistent(BalanceMode.CODEC).networkSynchronized(BalanceMode.STREAM_CODEC)
     );
 
     private static <T> DataComponentType<T> register(String name, Consumer<DataComponentType.Builder<T>> customizer) {

@@ -4,11 +4,12 @@ import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourc
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
-import dev.dubhe.anvilcraft.saved.storage.StorageType;
+import dev.dubhe.anvilcraft.saved.storage.IStorageType;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import lombok.Getter;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
@@ -17,6 +18,7 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -25,12 +27,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.UUID;
 import javax.annotation.Nullable;
 
-@Getter
 public class StorageBlockEntity extends BlockEntity {
-    private final StorageType storageType;
+    private final Holder<IStorageType<?>> storageType;
+    @Getter
     private @Nullable UUID id;
 
-    public StorageBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, StorageType storageType) {
+    public StorageBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state, Holder<IStorageType<?>> storageType) {
         super(type, pos, state);
         this.storageType = storageType;
     }
@@ -41,6 +43,7 @@ public class StorageBlockEntity extends BlockEntity {
         }
         this.id = id;
         this.setChanged();
+        TerminalBlockRegistry.registerIfApplicable(this);
         if (this.level != null) {
             BlockState state = this.getBlockState();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, Block.UPDATE_ALL);
@@ -50,6 +53,14 @@ public class StorageBlockEntity extends BlockEntity {
     public void clearId() {
         this.id = null;
         this.setChanged();
+    }
+
+    public Holder<IStorageType<?>> getStorageTypeHolder() {
+        return this.storageType;
+    }
+
+    public IStorageType<?> getStorageType() {
+        return this.storageType.value();
     }
 
     @Override
@@ -64,6 +75,7 @@ public class StorageBlockEntity extends BlockEntity {
         if (tag.contains("storage_id")) {
             this.id = tag.getUUID("storage_id");
         }
+        TerminalBlockRegistry.registerIfApplicable(this);
     }
 
     @Override
@@ -81,10 +93,23 @@ public class StorageBlockEntity extends BlockEntity {
     }
 
     @Override
+    public void onChunkUnloaded() {
+        super.onChunkUnloaded();
+        TerminalBlockRegistry.unregisterIfApplicable(this);
+    }
+
+    @Override
+    public void setRemoved() {
+        super.setRemoved();
+        TerminalBlockRegistry.unregisterIfApplicable(this);
+    }
+
+    @Override
     protected void applyImplicitComponents(BlockEntity.DataComponentInput componentInput) {
         super.applyImplicitComponents(componentInput);
         StorageRef ref = componentInput.get(ModComponents.STORAGE);
-        if (ref == null || ref.type() != this.storageType) {
+        // noinspection deprecation
+        if (ref == null || !ref.type().is(this.storageType)) {
             return;
         }
         this.setId(ref.id().orElse(UUID.randomUUID()));
@@ -138,7 +163,13 @@ public class StorageBlockEntity extends BlockEntity {
      * @param state  被点击的方块状态
      * @param type   该仓储方块的存储类型
      */
-    public static void applyPickStorageId(ItemStack stack, Level level, BlockPos pos, BlockState state, StorageType type) {
+    public static void applyPickStorageId(
+        ItemStack stack,
+        LevelReader level,
+        BlockPos pos,
+        BlockState state,
+        Holder<IStorageType<?>> type
+    ) {
         if (!level.isClientSide() || !Screen.hasControlDown()) {
             return;
         }
@@ -147,11 +178,13 @@ public class StorageBlockEntity extends BlockEntity {
             mainPos = multipart.getMainPartPos(pos, state);
         }
         BlockEntity blockEntity = level.getBlockEntity(mainPos);
-        if (blockEntity instanceof StorageBlockEntity storage) {
-            UUID id = storage.getId();
-            if (id != null) {
-                stack.set(ModComponents.STORAGE, new StorageRef(type, id));
-            }
+        if (!(blockEntity instanceof StorageBlockEntity storage)) {
+            return;
         }
+        UUID id = storage.getId();
+        if (id == null) {
+            return;
+        }
+        stack.set(ModComponents.STORAGE, new StorageRef(type, id));
     }
 }

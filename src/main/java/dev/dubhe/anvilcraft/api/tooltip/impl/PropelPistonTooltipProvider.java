@@ -40,7 +40,7 @@ public class PropelPistonTooltipProvider extends ITooltipProvider.BlockEntityToo
         List<Component> tooltips = new ArrayList<>();
         if (blockEntity instanceof PropelPistonBlockEntity propelPistonBlockEntity) {
             int storedEnergy = propelPistonBlockEntity.getStoredEnergy();
-            String count = String.format("%.0f", Math.ceil(storedEnergy / 5f));
+            String count = String.format("%.0f", Math.ceil(storedEnergy / 10000f));
             tooltips.add(Component.translatable("tooltip.anvilcraft.propel_piston.state").withStyle(ChatFormatting.BLUE));
             tooltips.add(Component.translatable("tooltip.anvilcraft.propel_piston.remaining_energy",
                     UnitUtil.energyUnit(storedEnergy, original))

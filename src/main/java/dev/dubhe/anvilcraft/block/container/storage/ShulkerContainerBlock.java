@@ -14,7 +14,7 @@ import dev.dubhe.anvilcraft.block.state.OpenedCube3x3PartHalf;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
-import dev.dubhe.anvilcraft.saved.storage.StorageType;
+import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -88,7 +88,7 @@ public class ShulkerContainerBlock
     ) {
         ItemStack stack = super.getCloneItemStack(state, target, level, pos, player);
         if (level instanceof Level realLevel) {
-            StorageBlockEntity.applyPickStorageId(stack, realLevel, pos, state, StorageType.SHULKER_CONTAINER);
+            StorageBlockEntity.applyPickStorageId(stack, realLevel, pos, state, ModStorageTypes.SHULKER_CONTAINER);
         }
         return stack;
     }

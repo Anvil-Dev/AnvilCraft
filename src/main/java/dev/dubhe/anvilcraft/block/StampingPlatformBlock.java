@@ -44,10 +44,10 @@ public class StampingPlatformBlock extends Block implements
         Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
         Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
         Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0),
-        Block.box(4.0, 10.0, 0.0, 12.0, 12.0, 2.0));
+        Block.box(4.0, 10.0, 0.0, 12.0, 10.0, 2.0));
 
     private static final VoxelShape NORTH_REDUCE_AABB_INTERACTION = Shapes.or(
-        Block.box(2.0, 0.0, 2.0, 12.0, 10.0, 14.0),
+        Block.box(2.0, 0.0, 2.0, 14.0, 10.0, 14.0),
         Block.box(4.0, 0.0, 0.0, 12.0, 10.0, 16.0),
         Block.box(0.0, 0.0, 4.0, 16.0, 10.0, 12.0));
 

@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_hyperdimension_terminal": {
+      "conditions": {
+        "items": [
+          {
+            "items": "anvilcraft:hyperdimension_terminal"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:hyperdimension_terminal_unbind"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_hyperdimension_terminal"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "anvilcraft:hyperdimension_terminal_unbind"
+    ]
+  }
+}

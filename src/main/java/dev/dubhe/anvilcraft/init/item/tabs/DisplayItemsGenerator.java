@@ -2,10 +2,12 @@ package dev.dubhe.anvilcraft.init.item.tabs;
 
 import dev.anvilcraft.lib.v2.registrum.util.CreativeVariantPickerRegistry;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.Enchantment;
@@ -75,5 +77,9 @@ public abstract class DisplayItemsGenerator implements CreativeModeTab.DisplayIt
             AnvilCraft.LOGGER.error(exception.getLocalizedMessage(), exception);
         }
         return stack;
+    }
+
+    protected static ResourceLocation texSection(String id) {
+        return SharedTextures.textureGui("creative_inventory/section/" + id);
     }
 }

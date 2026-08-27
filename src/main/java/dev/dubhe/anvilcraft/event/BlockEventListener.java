@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.block.batch.BaseBatchCraftingBlock;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
@@ -26,6 +27,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -33,6 +36,7 @@ import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class BlockEventListener {
@@ -93,6 +97,48 @@ public class BlockEventListener {
                 event.setCanceled(true);
             }
         }
+    }
+
+    /**
+     * 左键仓储端口取出物品：左键取 1 个，shift 左键取一组；手持铁砧锤时不触发。
+     * 点击外边缘半像素（1/32）框架时走正常挖掘；缓存为空时也不取消事件，让玩家可以挖掘方块。
+     */
+    @SubscribeEvent
+    public static void clickStoragePortEvent(PlayerInteractEvent.LeftClickBlock event) {
+        Level level = event.getLevel();
+        Player player = event.getEntity();
+        BlockPos pos = event.getPos();
+        if (!(level.getBlockEntity(pos) instanceof StoragePortBlockEntity port)) {
+            return;
+        }
+        if (player.getMainHandItem().getItem() instanceof AnvilHammerItem) {
+            return;
+        }
+        // 外边缘半像素框架：敲掉逻辑，不取出
+        BlockHitResult aim = BlockEventListener.aimHit(player);
+        if (aim != null && aim.getBlockPos().equals(pos) && StoragePortBlockEntity.isEdgeHit(aim)) {
+            return;
+        }
+        // 缓存空：不拦截，允许挖掘
+        if (port.isBufferEmpty()) {
+            return;
+        }
+        // 取出冷却：按住左键反复触发时只取一次，冷却期间也不破坏方块
+        if (port.onTakeOutCooldown(player)) {
+            event.setCanceled(true);
+            return;
+        }
+        port.giveToPlayer(player, player.isShiftKeyDown());
+        event.setCanceled(true);
+    }
+
+    /**
+     * 沿玩家视线做射线检测，得到精确的瞄准位置（左键事件本身不提供命中点）。
+     */
+    @Nullable
+    private static BlockHitResult aimHit(Player player) {
+        HitResult pick = player.pick(player.blockInteractionRange(), 1.0F, false);
+        return pick instanceof BlockHitResult hitResult ? hitResult : null;
     }
 
     @SubscribeEvent

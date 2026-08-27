@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.block.entity.storage;
 
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
-import dev.dubhe.anvilcraft.saved.storage.StorageType;
+import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -38,7 +38,7 @@ public class ShulkerContainerBlockEntity extends StorageBlockEntity {
     };
 
     public ShulkerContainerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
-        super(type, pos, state, StorageType.SHULKER_CONTAINER);
+        super(type, pos, state, ModStorageTypes.SHULKER_CONTAINER);
     }
 
     public void setOpen(ServerPlayer player, boolean opened) {
@@ -69,11 +69,11 @@ public class ShulkerContainerBlockEntity extends StorageBlockEntity {
                 return true;
             }
             double interactionRange = player.blockInteractionRange();
-            return player.distanceToSqr(this.worldPosition.getCenter()) >= interactionRange * interactionRange;
+            return player.distanceToSqr(this.getBlockPos().getCenter()) >= interactionRange * interactionRange;
         });
-        this.openersCounter.recheckOpeners(this.level, this.worldPosition, this.getBlockState());
+        this.openersCounter.recheckOpeners(this.level, this.getBlockPos(), this.getBlockState());
         if (this.openersCounter.getOpenerCount() == 0) {
-            ShulkerContainerBlockEntity.setOpened(this.level, this.worldPosition, this.getBlockState(), false);
+            ShulkerContainerBlockEntity.setOpened(this.level, this.getBlockPos(), this.getBlockState(), false);
         }
     }
 

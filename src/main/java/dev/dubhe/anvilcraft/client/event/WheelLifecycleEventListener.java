@@ -6,7 +6,6 @@ import dev.anvilcraft.lib.v2.wheel.client.input.WheelScreenController;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.init.ModKeyMappings;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemSlotClipping;
-import dev.dubhe.anvilcraft.client.rpc.SettingClientStub;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.DragonRodItem;
@@ -19,6 +18,7 @@ import dev.dubhe.anvilcraft.network.SwitchDragonRodProtectContainersPacket;
 import dev.dubhe.anvilcraft.network.SwitchHeavyHalberdModePacket;
 import dev.dubhe.anvilcraft.network.SwitchMultitoolModePacket;
 import dev.dubhe.anvilcraft.network.SwitchResonateModePacket;
+import dev.dubhe.anvilcraft.network.TerminalBalanceModePacket;
 import dev.dubhe.anvilcraft.network.multiple.MultiphasePackets;
 import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
 import net.minecraft.client.Minecraft;
@@ -244,6 +244,10 @@ public class WheelLifecycleEventListener {
     }
 
     private static boolean isBoundTerminal(ItemStack stack) {
+        // 本地终端与潜影终端无需绑定，只要手持即可进入物品均衡模式
+        if (stack.is(ModItems.LOCAL_TERMINAL) || stack.is(ModItems.SHULKER_TERMINAL)) {
+            return true;
+        }
         if (!stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
             return false;
         }
@@ -540,6 +544,29 @@ public class WheelLifecycleEventListener {
             .build();
     }
 
+    /** 轮盘中渲染的终端图标：跟随玩家当前手持 / 副手的终端（本地 / 潜影 / 超维），
+     *  而非固定渲染超维终端。 */
+    private static ItemStack heldBalanceTerminal() {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player != null) {
+            ItemStack hand = minecraft.player.getMainHandItem();
+            if (WheelLifecycleEventListener.isTerminal(hand)) {
+                return hand;
+            }
+            hand = minecraft.player.getOffhandItem();
+            if (WheelLifecycleEventListener.isTerminal(hand)) {
+                return hand;
+            }
+        }
+        return ModItems.HYPERDIMENSION_TERMINAL.asStack();
+    }
+
+    private static boolean isTerminal(ItemStack stack) {
+        return stack.is(ModItems.LOCAL_TERMINAL)
+               || stack.is(ModItems.SHULKER_TERMINAL)
+               || stack.is(ModItems.HYPERDIMENSION_TERMINAL);
+    }
+
     private static WheelMenuModel getBalanceWheel() {
         return WheelMenuBuilder.create()
             .slotsPerPage(4)
@@ -547,41 +574,41 @@ public class WheelLifecycleEventListener {
                 "smart",
                 Component.translatable("screen.anvilcraft.balance_mode.smart"),
                 (graphics, pose, width, height) -> graphics.renderFakeItem(
-                    ModItems.HYPERDIMENSION_TERMINAL.asStack(),
+                    WheelLifecycleEventListener.heldBalanceTerminal(),
                     -8,
                     -8
                 ),
-                ctx -> SettingClientStub.update(BalanceMode.SMART)
+                ctx -> PacketDistributor.sendToServer(new TerminalBalanceModePacket(BalanceMode.SMART))
             )
             .action(
                 "restock",
                 Component.translatable("screen.anvilcraft.balance_mode.restock"),
                 (graphics, pose, width, height) -> graphics.renderFakeItem(
-                    ModItems.HYPERDIMENSION_TERMINAL.asStack(),
+                    WheelLifecycleEventListener.heldBalanceTerminal(),
                     -8,
                     -8
                 ),
-                ctx -> SettingClientStub.update(BalanceMode.RESTOCK)
+                ctx -> PacketDistributor.sendToServer(new TerminalBalanceModePacket(BalanceMode.RESTOCK))
             )
             .action(
                 "off",
                 Component.translatable("screen.anvilcraft.balance_mode.off"),
                 (graphics, pose, width, height) -> graphics.renderFakeItem(
-                    ModItems.HYPERDIMENSION_TERMINAL.asStack(),
+                    WheelLifecycleEventListener.heldBalanceTerminal(),
                     -8,
                     -8
                 ),
-                ctx -> SettingClientStub.update(BalanceMode.OFF)
+                ctx -> PacketDistributor.sendToServer(new TerminalBalanceModePacket(BalanceMode.OFF))
             )
             .action(
                 "deposit",
                 Component.translatable("screen.anvilcraft.balance_mode.deposit"),
                 (graphics, pose, width, height) -> graphics.renderFakeItem(
-                    ModItems.HYPERDIMENSION_TERMINAL.asStack(),
+                    WheelLifecycleEventListener.heldBalanceTerminal(),
                     -8,
                     -8
                 ),
-                ctx -> SettingClientStub.update(BalanceMode.DEPOSIT)
+                ctx -> PacketDistributor.sendToServer(new TerminalBalanceModePacket(BalanceMode.DEPOSIT))
             )
             .build();
     }

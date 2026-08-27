@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.saved.storage.category;
 
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -50,7 +50,7 @@ public record AndCategory(ItemStack icon, Component name, List<ICategory> catego
     }
 
     public static class Type implements ICategory.Type<AndCategory> {
-        public static final MapCodec<AndCategory> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+        public static final MapCodec<AndCategory> CODEC = CodecUtil.mapCodec(
             ItemStack.CODEC
                 .fieldOf("icon")
                 .forGetter(AndCategory::icon),
@@ -60,8 +60,9 @@ public record AndCategory(ItemStack icon, Component name, List<ICategory> catego
             ICategory.CODEC
                 .listOf()
                 .fieldOf("categories")
-                .forGetter(AndCategory::categories)
-        ).apply(instance, AndCategory::new));
+                .forGetter(AndCategory::categories),
+            AndCategory::new
+        );
         public static final StreamCodec<RegistryFriendlyByteBuf, AndCategory> STREAM_CODEC = StreamCodec.composite(
             ItemStack.STREAM_CODEC,
             AndCategory::icon,

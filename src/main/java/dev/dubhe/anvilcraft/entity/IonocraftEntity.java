@@ -4,10 +4,12 @@ import dev.dubhe.anvilcraft.api.power.DynamicPowerComponent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
+import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.entity.ModEntities;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySelector;
 import net.minecraft.world.entity.EntityType;
@@ -86,7 +88,9 @@ public class IonocraftEntity extends VehicleEntity {
                 }
             }
         } else {
-            clientCompute();
+            if (clientCompute()) {
+                spawnExhaustParticles();
+            }
         }
         this.move(MoverType.SELF, this.getDeltaMovement());
         super.tick();
@@ -116,20 +120,39 @@ public class IonocraftEntity extends VehicleEntity {
     }
 
     @OnlyIn(Dist.CLIENT)
-    private void clientCompute() {
+    private boolean clientCompute() {
         SimplePowerGrid powerGrid = clientFindPowerGridContains(this.getPowerSupplyingBoundingBox()).orElse(null);
         SimplePowerGrid findSmaller = clientFindPowerGridContains(this.getBoundingBox()).orElse(null);
         if (findSmaller == null && powerGrid != null) {
             if (powerGrid.isOverloaded()) {
                 this.setDeltaMovement(this.getDeltaMovement().add(0, -0.01, 0));
+                return false;
             }
+            return true;
         } else {
             if (powerGrid != null && !powerGrid.isOverloaded()) {
                 this.setDeltaMovement(this.getDeltaMovement().add(0, 0.04, 0));
+                return true;
             } else {
                 this.setDeltaMovement(this.getDeltaMovement().add(0, -0.01, 0));
+                return false;
             }
         }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    private void spawnExhaustParticles() {
+        RandomSource random = this.random;
+        double x = this.getX() + random.nextGaussian() * 0.05;
+        double y = this.getY() + 0.2;
+        double z = this.getZ() + random.nextGaussian() * 0.05;
+        this.level().addParticle(
+            ModParticles.IONOCRAFT_BACKPACK_EXHAUST.get(),
+            x, y, z,
+            random.nextGaussian() * 0.02,
+            -0.3 - random.nextFloat() * 0.3,
+            random.nextGaussian() * 0.02
+        );
     }
 
     @Override

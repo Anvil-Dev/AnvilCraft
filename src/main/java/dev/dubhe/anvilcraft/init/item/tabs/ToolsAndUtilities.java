@@ -71,6 +71,9 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModItems.IONOCRAFT);
         this.ionoCraftBackpack(ModItems.IONOCRAFT_BACKPACK);
 
+        // Storage terminals.
+        this.plain(ModItems.LOCAL_TERMINAL); // 本地终端
+        this.plain(ModItems.SHULKER_TERMINAL); // 潜影终端
         this.plain(ModItems.HYPERDIMENSION_TERMINAL); // 超维终端
 
         // Energy storage.

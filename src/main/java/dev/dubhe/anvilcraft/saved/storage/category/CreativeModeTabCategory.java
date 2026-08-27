@@ -1,7 +1,7 @@
 package dev.dubhe.anvilcraft.saved.storage.category;
 
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -47,7 +47,7 @@ public record CreativeModeTabCategory(ItemStack icon, Component name, ResourceKe
     }
 
     public static class Type implements ICategory.Type<CreativeModeTabCategory> {
-        public static final MapCodec<CreativeModeTabCategory> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+        public static final MapCodec<CreativeModeTabCategory> CODEC = CodecUtil.mapCodec(
             ItemStack.CODEC
                 .fieldOf("icon")
                 .forGetter(CreativeModeTabCategory::icon),
@@ -56,8 +56,9 @@ public record CreativeModeTabCategory(ItemStack icon, Component name, ResourceKe
                 .forGetter(CreativeModeTabCategory::name),
             ResourceKey.codec(Registries.CREATIVE_MODE_TAB)
                 .fieldOf("key")
-                .forGetter(CreativeModeTabCategory::key)
-        ).apply(instance, CreativeModeTabCategory::new));
+                .forGetter(CreativeModeTabCategory::key),
+            CreativeModeTabCategory::new
+        );
         public static final StreamCodec<RegistryFriendlyByteBuf, CreativeModeTabCategory> STREAM_CODEC = StreamCodec.composite(
             ItemStack.STREAM_CODEC,
             CreativeModeTabCategory::icon,

@@ -33,7 +33,7 @@ public record PlayerSetting(List<CategoryEntry> listed, List<ICategory> custom, 
             .forGetter(PlayerSetting::storage),
         BalanceMode.CODEC
             .fieldOf("balance_mode")
-            .orElse(BalanceMode.SMART)
+            .orElse(BalanceMode.RESTOCK)
             .forGetter(PlayerSetting::balanceMode)
     ).apply(instance, PlayerSetting::new));
     public static final StreamCodec<RegistryFriendlyByteBuf, PlayerSetting> STREAM_CODEC = StreamCodec.composite(
@@ -49,7 +49,7 @@ public record PlayerSetting(List<CategoryEntry> listed, List<ICategory> custom, 
     );
 
     public PlayerSetting(List<CategoryEntry> listed, List<ICategory> custom, StorageSetting storage) {
-        this(listed, custom, storage, BalanceMode.SMART);
+        this(listed, custom, storage, BalanceMode.RESTOCK);
     }
 
     public PlayerSetting(List<CategoryEntry> listed, List<ICategory> custom, StorageSetting storage, BalanceMode balanceMode) {
