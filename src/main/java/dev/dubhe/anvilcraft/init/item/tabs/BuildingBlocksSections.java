@@ -179,9 +179,13 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.CAKE_BASE_BLOCK);
                 content.accept(ModBlocks.CREAM_BLOCK);
                 content.accept(ModBlocks.BERRY_CREAM_BLOCK);
+                content.accept(ModBlocks.HONEY_CREAM_BLOCK);
+                content.accept(ModBlocks.MATCHA_CREAM_BLOCK);
                 content.accept(ModBlocks.CHOCOLATE_CREAM_BLOCK);
                 content.accept(ModBlocks.CAKE_BLOCK);
                 content.accept(ModBlocks.BERRY_CAKE_BLOCK);
+                content.accept(ModBlocks.HONEY_CAKE_BLOCK);
+                content.accept(ModBlocks.MATCHA_CAKE_BLOCK);
                 content.accept(ModBlocks.CHOCOLATE_CAKE_BLOCK);
                 content.accept(ModBlocks.LARGE_CAKE);
                 content.accept(ModBlocks.CHOCOLATE_BLOCK);
@@ -193,6 +197,9 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.BLACK_CHOCOLATE_BLOCK);
                 content.accept(ModBlocks.BLACK_CHOCOLATE_STAIRS);
                 content.accept(ModBlocks.BLACK_CHOCOLATE_SLAB);
+                content.accept(ModBlocks.BLACK_WHITE_CHOCOLATE_BLOCK);
+                content.accept(ModBlocks.COOKIE_BLOCK);
+                content.accept(ModBlocks.COOKIE_PILLAR);
             }
         );
         sections.section(

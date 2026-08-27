@@ -3,7 +3,7 @@
   "criteria": {
     "has_the_recipe": {
       "conditions": {
-        "recipe": "anvilcraft:fast_cooking/utusan"
+        "recipe": "anvilcraft:item_compress/matcha_cream_block"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -15,7 +15,7 @@
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:fast_cooking/utusan"
+      "anvilcraft:item_compress/matcha_cream_block"
     ]
   }
 }
