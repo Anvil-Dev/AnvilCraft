@@ -281,7 +281,7 @@ public class StorageScreen extends Screen {
             SettingClientStub.setting(),
             button -> SettingClientStub.update(SettingClientStub.listed().stream().toList())
                 .thenRunAsync(this::reorder, this.screenExecutor),
-            button -> this.minecraft.setScreen(new CategorySettingsScreen(this.sourcePos))
+            button -> this.minecraft.setScreen(new CategorySettingsScreen(this.sourcePos, this.title))
         ));
         this.addRenderableWidget(new TexturedButton(
             this.left + 278,
