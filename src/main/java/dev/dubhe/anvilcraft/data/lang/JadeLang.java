@@ -26,6 +26,7 @@ public class JadeLang {
         provider.add("config.jade.plugin_anvilcraft.control_valve", "Control Valve");
         provider.add("config.jade.plugin_anvilcraft.cursed_gold_enchant_power", "Enchant Power");
         provider.add("config.jade.plugin_anvilcraft.fluid_tank", "Fluid Tank");
+        provider.add("config.jade.plugin_anvilcraft.pulse_generator", "Pulse Generator");
 
         provider.add("tooltip.anvilcraft.jade.power_information", "Power Grid: %s");
         provider.add("tooltip.anvilcraft.jade.ruby_prism.power", "Laser level: %d");
@@ -59,6 +60,14 @@ public class JadeLang {
         provider.add("tooltip.anvilcraft.auto_enchanting_table.jade.working_progress", "Enchanting Progress: %s");
         provider.add("tooltip.anvilcraft.discharger.jade.time", "%1$s / %2$s");
         provider.add("tooltip.anvilcraft.discharger.jade.energy", "%1$s / %2$s");
+        provider.add("tooltip.anvilcraft.pulse_generator.jade.mode", "Mode: %s");
+        provider.add("tooltip.anvilcraft.pulse_generator.jade.mode.rising", "Rising Edge");
+        provider.add("tooltip.anvilcraft.pulse_generator.jade.mode.falling", "Falling Edge");
+        provider.add("tooltip.anvilcraft.pulse_generator.jade.mode.loop", "Loop");
+        provider.add("tooltip.anvilcraft.pulse_generator.jade.reverse", "Reverse: %s");
+        provider.add("tooltip.anvilcraft.pulse_generator.jade.reverse.on", "On");
+        provider.add("tooltip.anvilcraft.pulse_generator.jade.reverse.off", "Off");
+        provider.add("tooltip.anvilcraft.pulse_generator.jade.working_progress", "Pulse Progress: %s");
         provider.add("tooltip.anvilcraft.wip_block.jade.recipe", "Procedural Recipe: %s");
         provider.add("tooltip.anvilcraft.wip_block.jade.step_count", "Steps Executed: %d");
 
