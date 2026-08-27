@@ -18,9 +18,6 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.HammerOpenedAnvilMenu;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
-import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
-import dev.dubhe.anvilcraft.item.LocalTerminalItem;
-import dev.dubhe.anvilcraft.item.ShulkerTerminalItem;
 import dev.dubhe.anvilcraft.network.DragonRodStopDevourPacket;
 import dev.dubhe.anvilcraft.network.OpenHammerAnvilPacket;
 import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
@@ -262,7 +259,7 @@ public class ClientEventListener {
                 return;
             } else if (!carriedEmpty) {
                 // 捏着物品：根据终端的 inverted 状态决定放入存储的按键（默认右键，反向后左键）
-                boolean inverted = ClientEventListener.isTerminalInverted(slot.getItem());
+                boolean inverted = InvertedActionEventListener.isInverted();
                 boolean insertClick = inverted
                     ? minecraft.options.keyAttack.matchesMouse(event.getButton())
                     : minecraft.options.keyUse.matchesMouse(event.getButton());
@@ -305,22 +302,6 @@ public class ClientEventListener {
             );
             event.setCanceled(true);
         }
-    }
-
-    /**
-     * 根据终端类型查询其客户端记录的反转状态（容器 GUI 中终端放入存储的按键随反转对调）。
-     */
-    private static boolean isTerminalInverted(ItemStack stack) {
-        if (stack.is(ModItems.LOCAL_TERMINAL)) {
-            return InvertedActionEventListener.isInverted(LocalTerminalItem.CONFIG_ID);
-        }
-        if (stack.is(ModItems.SHULKER_TERMINAL)) {
-            return InvertedActionEventListener.isInverted(ShulkerTerminalItem.CONFIG_ID);
-        }
-        if (stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
-            return InvertedActionEventListener.isInverted(HyperdimensionTerminalItem.CONFIG_ID);
-        }
-        return false;
     }
 
     /**
