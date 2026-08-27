@@ -47,7 +47,7 @@ public class UseItemOnBlockCategory
         this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
         this.arrowIn = JeiRenderHelper.getArrowDefault(helper);
         this.arrowOut = JeiRenderHelper.getArrowDefault(helper);
-        this.mouseRight = helper.drawableBuilder(JeiTextureConstants.texture("portal/mouse-right"), 0, 0, 12, 16)
+        this.mouseRight = helper.drawableBuilder(JeiTextureConstants.texture("mouse_right"), 0, 0, 12, 16)
             .setTextureSize(12, 16)
             .build();
         this.title = Component.translatable("gui.anvilcraft.category.use_item_on_block");
