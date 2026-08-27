@@ -9,6 +9,8 @@ items:
 
 # 巨型铁砧
 
+> super~big~anvil~
+
 <row halign="center">
 <item id="anvilcraft:giant_anvil"/>
 <item id="anvilcraft:transparent_crafting_table"/>

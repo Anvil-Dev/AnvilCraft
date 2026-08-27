@@ -1,7 +1,7 @@
 ---
 navigation:
   title: "§5Excited State Void Matter"
-  icon: "anvilcraft:void_matter"
+  icon: "anvilcraft:excited_state_void_matter"
 items:
   - anvilcraft:excited_state_void_matter
   - anvilcraft:excited_state_void_matter_block
@@ -13,7 +13,7 @@ items:
 
 # Acquisition
 
-- Produced by [Stellar Mega Structures](../004_block/331_celestial_forging_anvil.md#stellar-mega-structures)
+- Produced by [Matter Decompressor](../004_block/402_mega_structure.md#matter-decompressor)
 
 # Properties
 

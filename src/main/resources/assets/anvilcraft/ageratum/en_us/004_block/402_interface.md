@@ -16,7 +16,7 @@ items:
 - Hold <ref item="anvilcraft:anvil_hammer"/> and long right-click to switch to active output mode, actively trying to output items forward
 
 <info>
-Normally, if there are multiple <ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/>, they output in rotation, with a total of 20 items **shared** per second
+Normally, if there are multiple <ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/>
 </info>
 
 <warning>
@@ -31,9 +31,6 @@ In some cases, a large number of the same item may be output. If there are not e
 - Can hold 4 types of fluids, each up to 80 buckets
 - Hold <ref item="anvilcraft:anvil_hammer"/> and long right-click to switch to active output mode, actively trying to output fluid to pipes
 
-<info>
-Normally, each <ref item="anvilcraft:celestial_forging_anvil_fluid_interface"/> independently outputs 5B (buckets) of fluid **each** per second
-</info>
 
 # <ref item="anvilcraft:celestial_forging_anvil_laser_interface"/>
 
