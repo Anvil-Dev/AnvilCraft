@@ -112,10 +112,10 @@ public class FunctionalBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.SPACE_OVERCOMPRESSOR); // 空间超压器
         this.plain(ModBlocks.CRATE); // 板条箱
         this.plain(ModBlocks.LARGE_CRATE); // 大板条箱
-        this.plain(ModBlocks.SHULKER_CONTAINER); // 潜影集装箱
-        this.plain(ModBlocks.HYPERDIMENSION_STORAGE_STATION); // 超维存储站
-        this.plain(ModBlocks.HYPERDIMENSION_UPLOADER); // 超维上传站
         this.plain(ModBlocks.STORAGE_PORT); // 仓储端口
+        this.plain(ModBlocks.SHULKER_CONTAINER); // 潜影集装箱
+        this.plain(ModBlocks.HYPERDIMENSION_UPLOADER); // 超维上传站
+        this.plain(ModBlocks.HYPERDIMENSION_STORAGE_STATION); // 超维存储站
 
         this.plain(ModBlocks.CHUTE); // 溜槽
         this.plain(ModBlocks.MAGNETIC_CHUTE); // 磁性溜槽
