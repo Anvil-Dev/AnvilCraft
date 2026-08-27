@@ -1,0 +1,14 @@
+{
+  "type": "anvilcraft:item_compress",
+  "ingredients": [
+    {
+      "count": 9,
+      "items": "minecraft:cookie"
+    }
+  ],
+  "results": [
+    {
+      "id": "anvilcraft:cookie_block"
+    }
+  ]
+}

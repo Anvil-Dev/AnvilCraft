@@ -59,6 +59,11 @@ public class ItemCompressRecipeLoader {
             .save(provider);
 
         ItemCompressRecipe.builder()
+            .requires(Items.COOKIE, 9)
+            .result(ModBlocks.COOKIE_BLOCK)
+            .save(provider);
+
+        ItemCompressRecipe.builder()
             .requires(ModItemTags.IRON_PLATES, 2)
             .requires(
                 ItemIngredientPredicate
