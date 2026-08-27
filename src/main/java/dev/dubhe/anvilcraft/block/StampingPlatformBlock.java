@@ -111,7 +111,7 @@ public class StampingPlatformBlock extends Block implements
         BlockHitResult hitResult
     ) {
         if (hitResult.getDirection() != Direction.UP) {
-            return ProcessingTableConversion.tryConvert(level, player, hand, state, pos, hitResult);
+            return UseItemOnBlock.tryConvert(level, player, hand, state, pos, hitResult);
         }
         if (level.getBlockEntity(pos) instanceof StampingPlatformBlockEntity platform
             && platform.tryInteractItems(player, hand)

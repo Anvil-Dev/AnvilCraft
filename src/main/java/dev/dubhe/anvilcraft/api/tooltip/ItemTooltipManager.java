@@ -413,16 +413,14 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.LARGE_CRATE.asItem(), "A large crate, stores more items");
         NORMAL.put(ModBlocks.SHULKER_CONTAINER.asItem(), "A space-folding container upgraded from a Large Crate");
         NORMAL.put(ModBlocks.HYPERDIMENSION_STORAGE_STATION.asItem(), "An infinite container upgraded from a Shulker Container");
-        NORMAL.put(ModBlocks.HYPERDIMENSION_UPLOADER.asItem(), "Uploads hopper-fed items into the bound Hyperdimension Storage Station");
+        NORMAL.put(ModBlocks.HYPERDIMENSION_UPLOADER.asItem(), "Can interact with hoppers or chutes to upload items to the Hyperdimension Storage Station");
         SHIFT.put(ModBlocks.HYPERDIMENSION_UPLOADER.asItem(), """
             Right-click a placed Singularity Crystal with a bound Hyperdimension Terminal to create it
-            Has 16 slots, one item type per slot, accessible by hoppers/chutes
             Buffered items are uploaded into the bound storage station, rate-limited by the server config
-            Right-click it with another bound Hyperdimension Terminal to rebind
-            Does not load chunks by itself""");
-        NORMAL.put(ModBlocks.STORAGE_PORT.asItem(), "Buffers items between hoppers/chutes and a connected Shulker Container or Hyperdimension Storage Station");
-        NORMAL.put(ModItems.LOCAL_TERMINAL.asItem(), "A dynamic link of the nearest Large Crate within 32 blocks");
-        NORMAL.put(ModItems.SHULKER_TERMINAL.asItem(), "A dynamic link of Shulker-like storages");
+            Right-click it with another bound Hyperdimension Terminal to rebind""");
+        NORMAL.put(ModBlocks.STORAGE_PORT.asItem(), "External input/output ports of the Shulker Container or the Hyperdimension Storage Station.");
+        NORMAL.put(ModItems.LOCAL_TERMINAL.asItem(), "Link to nearest Large Crate (32-block range)");
+        NORMAL.put(ModItems.SHULKER_TERMINAL.asItem(), "Link to Shulker-like storages in world or inventory");
         NORMAL.put(ModItems.HYPERDIMENSION_TERMINAL.asItem(), "A portable port of the binding Hyperdimension Storage Station");
         NORMAL.put(ModBlocks.CREATIVE_FLUID_TANK.asItem(), "Infinite fluid storage and supply");
         NORMAL.put(ModBlocks.FLUID_TANK.asItem(), "Stores fluids");
@@ -441,9 +439,13 @@ public class ItemTooltipManager {
         NORMAL.put(ModBlocks.CREAM_BLOCK.asItem(), "A block of cream, use a shovel as a spoon to eat it");
         NORMAL.put(ModBlocks.BERRY_CREAM_BLOCK.asItem(), "A block of berry cream, use a shovel as a spoon to eat it");
         NORMAL.put(ModBlocks.CHOCOLATE_CREAM_BLOCK.asItem(), "A block of chocolate cream, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.MATCHA_CREAM_BLOCK.asItem(), "A block of matcha cream, use a shovel as a spoon to eat it");
         NORMAL.put(ModBlocks.CAKE_BLOCK.asItem(), "A block of cream cake, use a shovel as a spoon to eat it");
         NORMAL.put(ModBlocks.BERRY_CAKE_BLOCK.asItem(), "A block of berry cake, use a shovel as a spoon to eat it");
         NORMAL.put(ModBlocks.CHOCOLATE_CAKE_BLOCK.asItem(), "A block of chocolate cake, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.MATCHA_CAKE_BLOCK.asItem(), "A block of matcha cake, use a shovel as a spoon to eat it");
+        NORMAL.put(ModBlocks.COOKIE_BLOCK.asItem(), "A placeable giant cookie!");
+        NORMAL.put(ModBlocks.COOKIE_PILLAR.asItem(), " A hollow cookie block!");
         NORMAL.put(ModBlocks.CONTROL_VALVE.asItem(), "Controls the type and flow rate of passing fluids and can be locked by redstone");
         NORMAL.put(ModBlocks.SPACETIME_SUPERCOMPUTER.asItem(), "Consumes power to run certain time commands");
         NORMAL.put(ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.asItem(), "Amplifies the Celestial Forging Anvil so it can support larger celestial bodies and megastructures");
@@ -529,6 +531,16 @@ public class ItemTooltipManager {
         NORMAL.put(ModFoodItems.CHOCOLATE.get(), "Tasty chocolate made with real cocoa butter, eat a bite to gain Speed");
         NORMAL.put(ModFoodItems.CHOCOLATE_BLACK.get(), "Tasty dark chocolate made with real cocoa butter, eat a bite to gain Haste");
         NORMAL.put(ModFoodItems.CHOCOLATE_WHITE.get(), "Tasty white chocolate made with real cocoa butter, eat a bite to gain Jump Boost");
+        NORMAL.put(ModBlocks.CHOCOLATE_BLOCK.asItem(), "Made by real cocoa butter, step on it to gain Speed");
+        NORMAL.put(ModBlocks.CHOCOLATE_SLAB.asItem(), "Made by real cocoa butter, step on it to gain Speed");
+        NORMAL.put(ModBlocks.CHOCOLATE_STAIRS.asItem(), "Made by real cocoa butter, step on them to gain Speed");
+        NORMAL.put(ModBlocks.BLACK_CHOCOLATE_BLOCK.asItem(), "Made by real cocoa butter, step on it to gain Haste");
+        NORMAL.put(ModBlocks.BLACK_CHOCOLATE_SLAB.asItem(), "Made by real cocoa butter, step on it to gain Haste");
+        NORMAL.put(ModBlocks.BLACK_CHOCOLATE_STAIRS.asItem(), "Made by real cocoa butter, step on it to gain Haste");
+        NORMAL.put(ModBlocks.WHITE_CHOCOLATE_BLOCK.asItem(), "Made by real cocoa butter, step on it to gain Jump Boost");
+        NORMAL.put(ModBlocks.WHITE_CHOCOLATE_SLAB.asItem(), "Made by real cocoa butter, step on it to gain Jump Boost");
+        NORMAL.put(ModBlocks.WHITE_CHOCOLATE_STAIRS.asItem(), "Made by real cocoa butter, step on them to gain Jump Boost");
+        NORMAL.put(ModBlocks.BLACK_WHITE_CHOCOLATE_BLOCK.asItem(), "Made by mixing white and dark chocolate, step on it to gain Haste and Jump Boost");
         NORMAL.put(ModItems.SEEDS_PACK.get(), "Open to obtain a random seed or crop");
         NORMAL.put(ModItems.EXP_GEM.get(), "Right-click to extract the EXP contained inside");
         NORMAL.put(ModBlocks.CONTROLLABLE_SAND.asItem(), "Sand that can be controlled by redstone to rise or fall");
@@ -701,27 +713,19 @@ public class ItemTooltipManager {
         );
         SHIFT.put(
             ModItems.SHULKER_TERMINAL.asItem(), """
-                Automatically connect to Shulker-like storage(s) according to specific priority
-                Prioritize connecting to the Shulker Container in the earliest inventory slot,
-                then connect to all Shulker Boxes in the inventory,
-                and finally connect to the nearest Shulker Container in the world within 64 blocks"""
+               Automatically links to Shulker-like storage in priority:
+               Inventory Shulker Container at first, then all Shulker Boxes, nearest Shulker Container within 64 blocks at last"""
         );
         SHIFT.put(ModBlocks.STORAGE_PORT.asItem(), """
-                Place it flush against (face-adjacent) a Shulker Container or Hyperdimension Storage Station;
-                ports connected through other ports also work, but a component touching two cores stops working
-                The 32-slot buffer can be accessed by hoppers/chutes
-                Right-click with an item on an unmarked port to mark and insert up to one stack (rendered on all six faces)
-                Right-click with the marked item to insert one stack, double right-click to insert all matching items from your inventory;
-                right-click with a different item never replaces the mark; left-click takes one item per click, shift + left-click takes one stack
-                (left-clicking the outer half-pixel rim mines the block instead)
-                Anvil Hammer: hold right-click on a marked port to open a wheel and choose Clear Mark to remove the mark
-                (a plain hammer right-click does nothing; the marked state is also a block state)
-                Breaking the port keeps the buffered items and the mark in the dropped item; the item renders the marked item and shows its buffer contents in the tooltip
-                Item transfers are rate-limited by the server config (storagePort)""");
+                Right‑click with an item in hand to mark a port. A marked port will always keep one stack of items inside
+                Left‑click to take items out, right‑click to put items in
+                Hold right-click on a marked port with Anvil Hammer can remove the mark""");
+
         SHIFT.put(ModBlocks.PUMP.asItem(), """
                 Provides 10 blocks of headlift on both input and output sides (including the pump itself)
                 Also functions as check valve, allowing liquid to flow through only in the pump's direction
                 A redstone signal disables the pump""");
+
         SHIFT.put(
             ModBlocks.CREATIVE_CRATE.asItem(), """
                 Provides infinite items of a set type: place items inside to configure
@@ -732,13 +736,13 @@ public class ItemTooltipManager {
         );
         SHIFT.put(
             ModBlocks.CRATE.asItem(), """
-                Can contain 2048 space of items
+                Can contain 2048 unit of items
                 Breaking it drops the contents
                 When it holds more than 1000 items, hold Shift to break it"""
         );
         SHIFT.put(
             ModBlocks.LARGE_CRATE.asItem(), """
-                Can contain 65536 space of items
+                Can contain 65536 unit of items
                 Breaking it drops the contents
                 When it holds more than 1000 items, hold Shift to break it
                 Hold Shift and right-click to replace a 3×3×3 cube of crates with a large crate, preserving all contents

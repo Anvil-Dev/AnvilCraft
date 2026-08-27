@@ -1,9 +1,10 @@
 package dev.dubhe.anvilcraft.integration.jei.category;
 
+import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.integration.jei.AnvilCraftJeiPlugin;
-import dev.dubhe.anvilcraft.integration.jei.recipe.ProcessingTableConversionRecipe;
+import dev.dubhe.anvilcraft.integration.jei.recipe.UseItemOnBlockRecipe;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiRenderHelper;
 import dev.dubhe.anvilcraft.integration.jei.util.JeiSlotUtil;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
@@ -21,13 +22,14 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
 /**
  * 展示四种加工台之间的右键转化关系。
  */
-public class ProcessingTableConversionCategory
-    implements IRecipeCategory<ProcessingTableConversionRecipe> {
+public class UseItemOnBlockCategory
+    implements IRecipeCategory<UseItemOnBlockRecipe> {
     public static final int WIDTH = 162;
     public static final int HEIGHT = 64;
 
@@ -38,21 +40,21 @@ public class ProcessingTableConversionCategory
     private final Component title;
     private final Component convertTooltip;
 
-    public ProcessingTableConversionCategory(IGuiHelper helper) {
+    public UseItemOnBlockCategory(IGuiHelper helper) {
         this.icon = helper.createDrawableItemStack(ModBlocks.STAMPING_PLATFORM.asStack());
         this.slotDefault = JeiRenderHelper.getSlotDefault(helper);
-        this.arrowIn = JeiRenderHelper.getArrowInput(helper);
-        this.arrowOut = JeiRenderHelper.getArrowOutput(helper);
-        this.title = Component.translatable("gui.anvilcraft.category.processing_table_conversion");
+        this.arrowIn = JeiRenderHelper.getArrowDefault(helper);
+        this.arrowOut = JeiRenderHelper.getArrowDefault(helper);
+        this.title = Component.translatable("gui.anvilcraft.category.use_item_on_block");
         this.convertTooltip = Component.translatable(
-                "gui.anvilcraft.category.processing_table_conversion.convert"
+                "gui.anvilcraft.category.use_item_on_block.convert"
             )
             .withStyle(ChatFormatting.GOLD);
     }
 
     @Override
-    public RecipeType<ProcessingTableConversionRecipe> getRecipeType() {
-        return AnvilCraftJeiPlugin.PROCESSING_TABLE_CONVERSION;
+    public RecipeType<UseItemOnBlockRecipe> getRecipeType() {
+        return AnvilCraftJeiPlugin.USE_ITEM_ON_BLOCK;
     }
 
     @Override
@@ -78,37 +80,39 @@ public class ProcessingTableConversionCategory
     @Override
     public void setRecipe(
         IRecipeLayoutBuilder builder,
-        ProcessingTableConversionRecipe recipe,
+        UseItemOnBlockRecipe recipe,
         IFocusGroup focuses
     ) {
         builder.addSlot(RecipeIngredientRole.CATALYST, JeiSlotUtil.INPUT_X, JeiSlotUtil.DEFAULT_Y)
-            .addItemStack(recipe.toolStack())
-            .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(this.convertTooltip));
+            .addItemStack(recipe.toolStack());
         builder.addSlot(RecipeIngredientRole.OUTPUT, JeiSlotUtil.OUTPUT_X, JeiSlotUtil.DEFAULT_Y)
-            .addItemStack(recipe.outputStack())
-            .addRichTooltipCallback((recipeSlotView, tooltip) -> tooltip.add(this.convertTooltip));
+            .addItemStack(recipe.outputStack());
     }
 
     @Override
     public void draw(
-        ProcessingTableConversionRecipe recipe,
+        UseItemOnBlockRecipe recipe,
         IRecipeSlotsView recipeSlotsView,
         GuiGraphics guiGraphics,
         double mouseX,
         double mouseY
     ) {
+        BlockState inputState = recipe.inputBlock().defaultBlockState();
+        if (inputState.hasProperty(IPowerComponent.OVERLOAD)) {
+            inputState = inputState.setValue(IPowerComponent.OVERLOAD, false);
+        }
         RenderSupport.renderBlock(
             guiGraphics,
-            recipe.inputTable().defaultBlockState(),
+            inputState,
             81,
-            30,
+            26,
             10,
             12,
             RenderSupport.SINGLE_BLOCK
         );
 
-        this.arrowIn.draw(guiGraphics, 54, 30);
-        this.arrowOut.draw(guiGraphics, 92, 29);
+        this.arrowIn.draw(guiGraphics, 52, 25);
+        this.arrowOut.draw(guiGraphics, 94, 25);
 
         JeiSlotUtil.drawSlots(guiGraphics, this.slotDefault, 1, JeiSlotUtil.INPUT_X - 1, JeiSlotUtil.DEFAULT_Y - 1);
 
@@ -118,7 +122,7 @@ public class ProcessingTableConversionCategory
     @Override
     public void getTooltip(
         ITooltipBuilder tooltip,
-        ProcessingTableConversionRecipe recipe,
+        UseItemOnBlockRecipe recipe,
         IRecipeSlotsView recipeSlotsView,
         double mouseX,
         double mouseY
@@ -130,27 +134,27 @@ public class ProcessingTableConversionCategory
 
     public static void registerRecipes(IRecipeRegistration registration) {
         registration.addRecipes(
-            AnvilCraftJeiPlugin.PROCESSING_TABLE_CONVERSION,
-            ProcessingTableConversionRecipe.getAllRecipes()
+            AnvilCraftJeiPlugin.USE_ITEM_ON_BLOCK,
+            UseItemOnBlockRecipe.getAllRecipes()
         );
     }
 
     public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
         registration.addRecipeCatalyst(
             new ItemStack(ModBlocks.STAMPING_PLATFORM),
-            AnvilCraftJeiPlugin.PROCESSING_TABLE_CONVERSION
+            AnvilCraftJeiPlugin.USE_ITEM_ON_BLOCK
         );
         registration.addRecipeCatalyst(
             new ItemStack(ModBlocks.CRUSHING_TABLE),
-            AnvilCraftJeiPlugin.PROCESSING_TABLE_CONVERSION
+            AnvilCraftJeiPlugin.USE_ITEM_ON_BLOCK
         );
         registration.addRecipeCatalyst(
             new ItemStack(ModBlocks.SIFTING_TABLE),
-            AnvilCraftJeiPlugin.PROCESSING_TABLE_CONVERSION
+            AnvilCraftJeiPlugin.USE_ITEM_ON_BLOCK
         );
         registration.addRecipeCatalyst(
             new ItemStack(ModBlocks.UNPACKING_TABLE),
-            AnvilCraftJeiPlugin.PROCESSING_TABLE_CONVERSION
+            AnvilCraftJeiPlugin.USE_ITEM_ON_BLOCK
         );
     }
 }
