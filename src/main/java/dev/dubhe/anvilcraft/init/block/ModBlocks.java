@@ -3387,7 +3387,11 @@ public class ModBlocks {
             "cookie_block",
             CookieBlock::new
         )
-        .initialProperties(() -> Blocks.NETHERRACK)
+        .properties(properties -> properties
+            .mapColor(MapColor.NETHER)
+            .instrument(NoteBlockInstrument.BASEDRUM)
+            .strength(0.4F)
+            .sound(SoundType.NETHERRACK))
         .item()
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.STORAGE_BLOCKS)
@@ -3398,7 +3402,11 @@ public class ModBlocks {
             "cookie_pillar",
             CookiePillarBlock::new
         )
-        .initialProperties(() -> Blocks.NETHERRACK)
+        .properties(properties -> properties
+            .mapColor(MapColor.NETHER)
+            .instrument(NoteBlockInstrument.BASEDRUM)
+            .strength(0.4F)
+            .sound(SoundType.NETHERRACK))
         .blockstate((context, provider) -> {
             var model = provider.models().getExistingFile(AnvilCraft.of("block/cookie_pillar"));
             provider.getVariantBuilder(context.get()).forAllStates(state -> {
