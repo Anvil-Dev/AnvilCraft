@@ -62,8 +62,8 @@ public record Merciless() {
             ModComponents.MERCILESS_ENCHANTMENTS,
             ItemEnchantments.EMPTY
         );
-        if (enchantments.isEmpty()) {
-            if (mercilessEnchs.isEmpty()) removeAttributeModifiers(stack);
+        if (enchantments.isEmpty() && mercilessEnchs.isEmpty()) {
+            removeAttributeModifiers(stack);
             return;
         }
 
