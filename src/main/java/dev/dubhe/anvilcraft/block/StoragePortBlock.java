@@ -87,7 +87,15 @@ public class StoragePortBlock extends BaseEntityBlock implements IHammerRemovabl
             return ItemInteractionResult.sidedSuccess(level.isClientSide());
         }
         if (stack.isEmpty()) {
-            // 已标记 + 空手：取出走左键，右键不做任何事
+            // 已标记 + 空手：单击不做任何事（取出走左键）；双击塞入身上全部
+            // （第一次点击已把手上的物品塞入并完成标记，故第二次点击时手可能已空）
+            if (doubleClick) {
+                port.stuffAllFromPlayer(player);
+                if (!level.isClientSide()) {
+                    port.setChanged();
+                    level.sendBlockUpdated(pos, state, state, Block.UPDATE_ALL);
+                }
+            }
             return ItemInteractionResult.sidedSuccess(level.isClientSide());
         }
         if (ItemStack.isSameItemSameComponents(mark, stack)) {

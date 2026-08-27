@@ -65,8 +65,8 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
     private static final int CONNECTIVITY_LIMIT = 512;
     /** 双击判定的最大间隔（tick） */
     private static final long DOUBLE_CLICK_INTERVAL = 5;
-    /** 左键取出冷却：按住左键会周期性重触发左键事件，用冷却保证单次点击只取出一次 */
-    private static final long TAKE_OUT_COOLDOWN = 7;
+    /** 长按左键时客户端取出请求的节流间隔（tick）：间隔大于该值时才会发包 */
+    private static final long TAKE_OUT_HOLD_INTERVAL = 1;
 
     @Getter
     private final ItemStackHandler buffer = new ItemStackHandler(StoragePortBlockEntity.BUFFER_SLOTS) {
@@ -277,18 +277,21 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
     }
 
     /**
-     * 判断左键取出是否处于冷却中：按住左键会周期性重触发左键事件，
-     * 冷却保证单次点击只取出一次。每次调用会记录当前时间。
+     * 长按左键取出的客户端发包节流：按住左键时 {@code START} 事件会每 tick 重触发，
+     * 节流保证不会每 tick 都发包。只有实际发包时才会记录时间；仅在客户端使用。
      */
-    public boolean onTakeOutCooldown(Player player) {
+    public boolean onTakeOutHoldCooldown(Player player) {
         if (this.level == null) {
             return false;
         }
         long now = this.level.getGameTime();
         UUID uuid = player.getUUID();
         long last = this.lastTakeOutTicks.getLong(uuid);
+        if (last != 0 && now - last <= StoragePortBlockEntity.TAKE_OUT_HOLD_INTERVAL) {
+            return true;
+        }
         this.lastTakeOutTicks.put(uuid, now);
-        return last != 0 && now - last <= StoragePortBlockEntity.TAKE_OUT_COOLDOWN;
+        return false;
     }
 
     /**
