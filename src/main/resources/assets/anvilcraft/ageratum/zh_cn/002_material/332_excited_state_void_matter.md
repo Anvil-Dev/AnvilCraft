@@ -1,7 +1,7 @@
 ---
 navigation:
   title: "§5激发态虚空物质"
-  icon: "anvilcraft:void_matter"
+  icon: "anvilcraft:excited_state_void_matter"
 items:
   - anvilcraft:excited_state_void_matter
   - anvilcraft:excited_state_void_matter_block
@@ -13,7 +13,7 @@ items:
 
 # 获得
 
-- 通过[恒星级巨构](../004_block/331_celestial_forging_anvil.md#恒星级巨构)生产
+- 通过[物质解压器](../004_block/332_mega_structure.md#物质解压器)生产
 
 # 特性
 

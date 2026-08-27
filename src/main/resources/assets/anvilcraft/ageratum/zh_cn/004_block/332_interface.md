@@ -16,7 +16,7 @@ items:
 - 手持<ref item="anvilcraft:anvil_hammer"/>长按右键调整为主动输出模式，主动尝试向前输出物品
 
 <info>
-通常情况下，若存在多个<ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/>，会轮流进行输出，每秒**共计**输出 20个 物品
+通常情况下，若存在多个<ref item="anvilcraft:celestial_forging_anvil_logistics_interface"/>
 </info>
 
 <warning>
@@ -30,10 +30,6 @@ items:
 - **持续耗电** 128kW
 - 能容纳4种流体，每种流体可以储存80桶
 - 手持<ref item="anvilcraft:anvil_hammer"/>长按右键调整为主动输出模式，主动尝试向管道输出流体
-
-<info>
-通常情况下，每个<ref item="anvilcraft:celestial_forging_anvil_fluid_interface"/>独立进行输出，每秒**各自**输出 5B(桶) 流体
-</info>
 
 # <ref item="anvilcraft:celestial_forging_anvil_laser_interface"/>
 
