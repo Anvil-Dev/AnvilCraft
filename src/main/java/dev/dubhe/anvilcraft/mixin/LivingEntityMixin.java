@@ -43,8 +43,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.UUID;
-import java.util.function.BiConsumer;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 @Mixin(LivingEntity.class)
 public abstract class LivingEntityMixin extends Entity implements ILivingEntityExtension {
@@ -110,22 +109,25 @@ public abstract class LivingEntityMixin extends Entity implements ILivingEntityE
     @Inject(
         method = "dropFromLootTable("
                  + "Lnet/minecraft/server/level/ServerLevel;"
+                 + "Lnet/minecraft/world/damagesource/DamageSource;"
+                 + "Z"
                  + "Lnet/minecraft/resources/ResourceKey;"
-                 + "Ljava/util/function/Function;"
-                 + "Ljava/util/function/BiConsumer;)Z",
+                 + "Ljava/util/function/Consumer;)V",
         at = @At(
             value = "INVOKE",
             target = "Lnet/minecraft/world/level/storage/loot/LootTable;getRandomItems("
-                     + "Lnet/minecraft/world/level/storage/loot/LootParams;)"
-                     + "Lit/unimi/dsi/fastutil/objects/ObjectArrayList;"
+                     + "Lnet/minecraft/world/level/storage/loot/LootParams;"
+                     + "J"
+                     + "Ljava/util/function/Consumer;)V"
         )
     )
     private void dropBeheadingLoot(
         ServerLevel level,
-        ResourceKey<LootTable> key,
-        Function<LootParams.Builder, LootParams> paramsBuilder,
-        BiConsumer<ServerLevel, ItemStack> consumer,
-        CallbackInfoReturnable<Boolean> cir,
+        DamageSource source,
+        boolean playerKilled,
+        ResourceKey<LootTable> lootTable,
+        Consumer<ItemStack> itemStackConsumer,
+        CallbackInfo ci,
         @Local(name = "params") LootParams params
     ) {
         LivingEntity thiz = Util.cast(this);
