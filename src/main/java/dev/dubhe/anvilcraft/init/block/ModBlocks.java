@@ -3347,7 +3347,7 @@ public class ModBlocks {
         .initialProperties(() -> Blocks.NETHERRACK)
         .item()
         .build()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.STORAGE_BLOCKS)
         .recipe(RegistrumBlockRecipeLoader::cookieBlock)
         .register();
 
@@ -3371,7 +3371,7 @@ public class ModBlocks {
         })
         .item()
         .build()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.STORAGE_BLOCKS)
         .recipe(RegistrumBlockRecipeLoader::cookiePillar)
         .register();
 

@@ -159,7 +159,6 @@ public class ItemsSections extends DisplayItemsGenerator {
                 content.accept(ModFoodItems.CHOCOLATE_WHITE);
                 content.accept(ModFoodItems.CREAMY_BREAD_ROLL);
                 content.accept(ModFoodItems.BEEF_MUSHROOM_STEW);
-                content.accept(ModFoodItems.UTUSAN);
                 content.accept(ModFoodItems.PILL);
                 content.accept(ModItems.PILL_BOX);
                 content.accept(ModItems.TIN_CAN);

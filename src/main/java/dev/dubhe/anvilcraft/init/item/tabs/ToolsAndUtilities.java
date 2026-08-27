@@ -107,7 +107,6 @@ public class ToolsAndUtilities extends DisplayItemsGenerator {
         this.plain(ModFoodItems.CHOCOLATE_WHITE);
         this.plain(ModFoodItems.CREAMY_BREAD_ROLL);
         this.plain(ModFoodItems.BEEF_MUSHROOM_STEW);
-        this.plain(ModFoodItems.UTUSAN);
         this.plain(ModFoodItems.PILL);
         this.plain(ModItems.PILL_BOX);
         this.plain(ModItems.TIN_CAN);
