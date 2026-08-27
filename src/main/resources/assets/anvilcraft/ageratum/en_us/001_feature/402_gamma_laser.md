@@ -17,12 +17,12 @@ navigation:
 - Can heat a large area of <ref item="anvilcraft:ember_metal_block"/> to [Overheated State](301_overheated_block.md)
 - Heating range is shown in the table below
 
-|   Level   |       Range       |
-|:---------:|:-----------------:|
-|  [4,7]    |     1 block       |
-| [8,11]    |   3x3 blocks      |
-| [12,15]   |  5x5x2 blocks     |
-| [16,+∞)   |  7x7x3 blocks     |
+|  Level  |    Range     |
+|:-------:|:------------:|
+|  [4,7]  |   1 block    |
+| [8,11]  |  3x3 blocks  |
+| [12,15] | 5x5x2 blocks |
+| [16,+∞) | 7x7x3 blocks |
 
 <info>
 For 7x7x3 as an example: penetrates 3 layers of blocks along the laser direction, and heats a 7x7 area perpendicular to it
@@ -38,13 +38,9 @@ Can be used with <ref item="anvilcraft:heat_collector"/> to generate power
 - Breaking **does not produce** drops
 - Breaking speed is shown in the table below
 
-|   Level   | Breaking Speed (blocks/s) |
-|:---------:|:------------------------:|
-|  [4,7]    |           1/3            |
-| [8,11]    |            1             |
-| [12,15]   |            4             |
-| [16,+∞)   |           20             |
-
-# Destroying a Planet
-
-If a *Gamma Laser* is input to the [Planetary Excavator](../004_block/331_celestial_forging_anvil.md#planetary-mega-structures), it will directly destroy the planet, leaving a *Broken Planet*
+|  Level  | Breaking Speed (blocks/s) |
+|:-------:|:-------------------------:|
+|  [4,7]  |            1/3            |
+| [8,11]  |             1             |
+| [12,15] |             4             |
+| [16,+∞) |            20             |

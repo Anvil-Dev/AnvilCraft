@@ -13,7 +13,7 @@ items:
 
 # 获得
 
-- 通过[物质解压器](../004_block/332_mega_structure.md#物质解压器)生产
+- 通过[物质解压器](../004_block/402_mega_structure.md#物质解压器)生产
 
 # 特性
 

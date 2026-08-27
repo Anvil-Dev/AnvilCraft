@@ -13,4 +13,4 @@ items:
 
 ## 来源
 
-生产自建造了[巨行星抽取器](../004_block/332_mega_structure.md#巨行星抽取器)的巨行星
+生产自建造了[巨行星抽取器](../004_block/402_mega_structure.md#巨行星抽取器)的巨行星

@@ -55,7 +55,7 @@ items:
 
 > 合成需要<ref item="anvilcraft:spacetime_supercomputer"/>
 
-更多信息请查看[天体类型](../001_feature/331_celestial_type.md)
+更多信息请查看[天体类型](../001_feature/401_celestial_type.md)
 
 # 天体与世界的交互
 
@@ -70,7 +70,7 @@ items:
 1. 在<ref item="anvilcraft:celestial_forging_anvil"/>的GUI下方，点击绑定按钮
 2. 在<ref item="anvilcraft:celestial_forging_anvil"/>的GUI右侧，选择*巨构*并提交对应**建筑材料**
 
-巨构的建造条件、合成方式、合成材料和功能说明，请查看[巨构](332_mega_structure.md)。
+巨构的建造条件、合成方式、合成材料和功能说明，请查看[巨构](402_mega_structure.md)。
 
 <tip>
 若要移除巨构，只需解绑再绑定星球
@@ -78,11 +78,11 @@ items:
 
 ## 物流交互
 
-- 通过各种接口输入原材料，提取资源（[点我](332_interface.md)查看详情）
+- 通过各种接口输入原材料，提取资源（[点我](402_interface.md)查看详情）
 
 # 恒星演化
 
-- 使用[恒星演化加速器](332_mega_structure.md#恒星演化加速器)可以加速恒星的衰老
+- 使用[恒星演化加速器](402_mega_structure.md#恒星演化加速器)可以加速恒星的衰老
 - 部分恒星在最后会引发*超新星爆发*，摧毁其拥有的所有*巨构*，并产生巨大爆炸，波及十几格远
 - 所有恒星在结束生命后都会变为*恒星残骸*
 

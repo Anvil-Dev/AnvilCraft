@@ -160,7 +160,7 @@ During acceleration, if a Dyson Sphere exists, it collects **infinite electrical
 - **Crafting method**: Select Wormhole Stabilizer on the Mega Structures page of the celestial forging anvil and submit materials.
 - **Crafting materials**: <ref item="anvilcraft:wormhole_stabilizer_component"/> × 4
 - **Input**: Identical black hole
-- **Output**: [Wormhole](332_teleportation.md)
+- **Output**: [Wormhole](402_teleportation.md)
 
 ## Penrose Sphere
 
@@ -170,13 +170,13 @@ During acceleration, if a Dyson Sphere exists, it collects **infinite electrical
 - **Crafting method**: Select Penrose Sphere on the Mega Structures page of the celestial forging anvil and submit materials.
 - **Crafting materials**: <ref item="anvilcraft:penrose_sphere_component"/> × 8
 - **Input**: Laser
-- **Output**: Same-level [Gamma Laser](../001_feature/332_gamma_laser.md)
+- **Output**: Same-level [Gamma Laser](../001_feature/402_gamma_laser.md)
 
 Penrose Sphere laser inputs and outputs must be grouped on the left and right sides of the same side of the celestial forging anvil. Laser inputs and outputs on the four sides are independent, and the middle interface on a side cannot be used.
 
 ![Penrose Sphere.png](../../textures/cfa/gama.png)
 
-> Producing [Gamma Laser](../001_feature/332_gamma_laser.md)
+> Producing [Gamma Laser](../001_feature/402_gamma_laser.md)
 
 ## Matter Decompressor
 

@@ -8,7 +8,7 @@ items:
 
 # <ref item="anvilcraft:large_cauldron"/>
 
-> super~big~cauldron
+> super~big~cauldron~
 
 <item id="anvilcraft:large_cauldron"/>
 

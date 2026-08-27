@@ -28,3 +28,14 @@ Crafting requires [Anvilon Irradiation](../002_material/321_anvilon.md#anvilon-i
 <info>
 The server administrator and the package integrator can disable a specific instruction through the configuration file. The disabled instruction will be highlighted in red and underlined in the list on the left side of the GUI
 </info>
+
+# Four-Dimensional Multi-Block Crafting
+
+When performing [multi-block crafting](210_giant_anvil.md#2-multi-block-crafting), if the center block of the <ref item="minecraft:crafting_table"/> array is a <ref item="anvilcraft:spacetime_supercomputer"/> (no power required), it becomes four-dimensional multi-block crafting:
+
+- An n x n crafting area corresponds to n anvil strikes to craft one item. For example, a 3 x 3 crafting area requires 3 strikes.
+- Each strike consumes blocks, and the final strike produces the result.
+
+<info>
+It can be used to produce <ref item="anvilcraft:hypercube"/>.
+</info>

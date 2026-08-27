@@ -26,6 +26,7 @@ navigation:
 - 中继器都调为3档（过高的频率会使得<ref item="minecraft:dispenser"/>发射出的多余铁锭来不及被溜槽收回）
 - <ref item="minecraft:dispenser"/>边上的<ref item="anvilcraft:magnetic_chute"/>设置过滤：铁锭
 - 投掷器边上的<ref item="anvilcraft:magnetic_chute"/>过滤：铁砧
+- 使用**实心**<ref item="minecraft:glass"/>柱子把物品挤上去
 - 做完后记得放入一个铁砧
 
 <info>

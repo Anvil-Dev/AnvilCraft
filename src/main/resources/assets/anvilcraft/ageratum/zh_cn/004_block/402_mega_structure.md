@@ -161,7 +161,7 @@ items:
 - **合成方式**：在锻星砧的巨构页选择虫洞稳定器并提交材料
 - **合成材料**：<ref item="anvilcraft:wormhole_stabilizer_component"/> × 4
 - **输入**：全同黑洞
-- **输出**：[虫洞](332_teleportation.md)
+- **输出**：[虫洞](402_teleportation.md)
 
 ## 彭罗斯球
 
@@ -171,13 +171,13 @@ items:
 - **合成方式**：在锻星砧的巨构页选择彭罗斯球并提交材料
 - **合成材料**：<ref item="anvilcraft:penrose_sphere_component"/> × 8
 - **输入**：激光
-- **输出**：同等级[伽马激光](../001_feature/332_gamma_laser.md)
+- **输出**：同等级[伽马激光](../001_feature/402_gamma_laser.md)
 
 彭罗斯球的激光输入和输出必须成组地位于锻星砧同一侧的左右两边；四个侧面的激光输入与输出彼此独立，且不能使用侧面中间的接口
 
 ![彭罗斯球.png](../../textures/cfa/gama.png)
 
-> 制造[伽马激光](../001_feature/332_gamma_laser.md)
+> 制造[伽马激光](../001_feature/402_gamma_laser.md)
 
 ## 物质解压器
 

@@ -28,3 +28,14 @@ items:
 <info>
 服务器管理员和整合包作者可以通过配置文件禁用单独的某条指令，被禁用的指令在gui左侧列表中标红并画横线
 </info>
+
+# 四维多方块合成
+
+执行[多方块合成](210_giant_anvil.md#2多方块合成)时，如果<ref item="minecraft:crafting_table"/>阵列中心的方块是<ref item="anvilcraft:spacetime_supercomputer"/>（无需通电），则合成方式变为四维多方块合成：
+
+- n×n的合成面积同时对应n次砸击来合成一个物品，例如3×3的合成面积对应3次砸击
+- 每次砸击消耗方块，最后一次砸击完成后输出产物
+
+<info>
+可以用来生产<ref item="anvilcraft:hypercube"/>
+</info>

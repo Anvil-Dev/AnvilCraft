@@ -13,7 +13,7 @@ items:
 
 # Acquisition
 
-- Produced by [Matter Decompressor](../004_block/332_mega_structure.md#matter-decompressor)
+- Produced by [Matter Decompressor](../004_block/402_mega_structure.md#matter-decompressor)
 
 # Properties
 

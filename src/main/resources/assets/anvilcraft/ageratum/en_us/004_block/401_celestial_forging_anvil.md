@@ -54,7 +54,7 @@ When amplifiers are installed, forging a planet will also cost 32 MW of power
 
 > Crafting requires <ref item="anvilcraft:spacetime_supercomputer"/>
 
-For more information, see [Celestial Types](../001_feature/331_celestial_type.md)
+For more information, see [Celestial Types](../001_feature/401_celestial_type.md)
 
 # Celestial Body & World Interaction
 
@@ -69,7 +69,7 @@ For more information, see [Celestial Types](../001_feature/331_celestial_type.md
 1. Click the bind button at the bottom of the <ref item="anvilcraft:celestial_forging_anvil"/> GUI
 2. On the right side of the <ref item="anvilcraft:celestial_forging_anvil"/> GUI, select *Mega Structure* and submit the corresponding **building materials**
 
-For construction requirements, crafting methods, materials, and functional descriptions, see [Mega Structures](332_mega_structure.md).
+For construction requirements, crafting methods, materials, and functional descriptions, see [Mega Structures](402_mega_structure.md).
 
 <tip>
 To remove a mega structure, simply unbind and rebind the planet
@@ -77,11 +77,11 @@ To remove a mega structure, simply unbind and rebind the planet
 
 ## Logistics Interaction
 
-- Input raw materials and extract resources through various interfaces ([click here](332_interface.md) for details)
+- Input raw materials and extract resources through various interfaces ([click here](402_interface.md) for details)
 
 # Stellar Evolution
 
-- Using [Stellar Evolution Accelerator](332_mega_structure.md#stellar-evolution-accelerator) can accelerate the aging of stars
+- Using [Stellar Evolution Accelerator](402_mega_structure.md#stellar-evolution-accelerator) can accelerate the aging of stars
 - Some stars will ultimately trigger a *supernova explosion*, destroying all of their *mega structures* and causing a massive explosion that reaches over ten blocks away
 - All stars become *stellar remnants* at the end of their life
 

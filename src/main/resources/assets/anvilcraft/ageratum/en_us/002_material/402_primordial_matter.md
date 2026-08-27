@@ -13,4 +13,4 @@ Mainly composed of a hydrogen-helium mixture
 
 ## Source
 
-Produced by gas giants with a [Gas Giant Extractor](../004_block/332_mega_structure.md#gas-giant-extractor)
+Produced by gas giants with a [Gas Giant Extractor](../004_block/402_mega_structure.md#gas-giant-extractor)
