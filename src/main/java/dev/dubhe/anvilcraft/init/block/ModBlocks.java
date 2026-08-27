@@ -4432,7 +4432,7 @@ public class ModBlocks {
             "confined_neutronium_ingot",
             SimpleConfinementAnvilonBlock::new
         )
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.COLLISION_IMMUNE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
         .blockstate(DataGenUtil::simple)
         .item(SuperHeavyBlockItem::new)
