@@ -7,9 +7,9 @@
     }
   },
   "pattern": [
-    "AAA",
     "A A",
-    "AAA"
+    "A A",
+    "A A"
   ],
   "result": {
     "count": 8,

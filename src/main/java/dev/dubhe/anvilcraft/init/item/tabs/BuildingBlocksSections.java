@@ -57,8 +57,6 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.MULTIPHASE_MATTER_BLOCK);
                 content.accept(ModBlocks.TRANSCENDIUM_BLOCK);
                 content.accept(ModBlocks.NEGATIVE_MATTER_BLOCK);
-                content.accept(ModBlocks.SINGULARITY_CRYSTAL);
-                content.accept(ModBlocks.HYPERCUBE);
                 content.accept(ModBlocks.BRASS_BLOCK);
                 content.accept(ModBlocks.CUT_BRASS_BLOCK);
                 content.accept(ModBlocks.CUT_BRASS_STAIRS);

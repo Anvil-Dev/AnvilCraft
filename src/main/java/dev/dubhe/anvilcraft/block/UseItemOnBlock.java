@@ -22,8 +22,8 @@ import net.minecraft.world.phys.BlockHitResult;
  * <p>上表面用于放入/取出物品；其余面使用转化道具会把冲压平台改装为对应加工台并消耗道具，
  * 手持铁砧锤右键侧面会把三种加工台还原为冲压平台。
  */
-public final class ProcessingTableConversion {
-    private ProcessingTableConversion() {
+public final class UseItemOnBlock {
+    private UseItemOnBlock() {
     }
 
     /**

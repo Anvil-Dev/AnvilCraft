@@ -1712,9 +1712,9 @@ public class RegistrumBlockRecipeLoader {
 
     public static <T extends Block> void cookiePillar(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ctx.get(), 8)
-            .pattern("AAA")
             .pattern("A A")
-            .pattern("AAA")
+            .pattern("A A")
+            .pattern("A A")
             .define('A', ModBlocks.COOKIE_BLOCK)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.COOKIE_BLOCK), AnvilCraftDatagen.has(ModBlocks.COOKIE_BLOCK))
             .save(provider);
