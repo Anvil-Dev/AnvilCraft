@@ -35,6 +35,7 @@ import dev.dubhe.anvilcraft.block.entity.HeatCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeaterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.HypercubeBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.HyperdimensionUploaderBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InductionLightBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.InfiniteCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.ItemCollectorBlockEntity;
@@ -66,6 +67,7 @@ import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpaceOvercompressorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.SpacetimeSupercomputerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StampingPlatformBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StructureScannerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TeslaTowerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.TradingStationBlockEntity;
@@ -128,6 +130,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.SiftingTableBlockEntityR
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SmartBlockPlacerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.SpacetimeSupercomputerBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.StampingPlatformBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.StoragePortBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TeslaTowerRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.TradingStationBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.UnpackingTableBlockEntityRenderer;
@@ -447,6 +450,17 @@ public class ModBlockEntities {
     public static final BlockEntityEntry<HyperdimensionStorageStationBlockEntity> HYPERDIMENSION_STORAGE_STATION = REGISTRUM
         .blockEntity("hyperdimension_storage_station", HyperdimensionStorageStationBlockEntity::new)
         .validBlocks(ModBlocks.HYPERDIMENSION_STORAGE_STATION)
+        .register();
+
+    public static final BlockEntityEntry<HyperdimensionUploaderBlockEntity> HYPERDIMENSION_UPLOADER = REGISTRUM
+        .blockEntity("hyperdimension_uploader", HyperdimensionUploaderBlockEntity::new)
+        .validBlocks(ModBlocks.HYPERDIMENSION_UPLOADER)
+        .register();
+
+    public static final BlockEntityEntry<StoragePortBlockEntity> STORAGE_PORT = REGISTRUM
+        .blockEntity("storage_port", StoragePortBlockEntity::new)
+        .validBlocks(ModBlocks.STORAGE_PORT)
+        .renderer(() -> StoragePortBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<FluidTankBlockEntity> FLUID_TANK = REGISTRUM

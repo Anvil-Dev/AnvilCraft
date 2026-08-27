@@ -79,6 +79,7 @@ import dev.dubhe.anvilcraft.block.HeliostatsBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
 import dev.dubhe.anvilcraft.block.HypercubeBlock;
+import dev.dubhe.anvilcraft.block.HyperdimensionUploaderBlock;
 import dev.dubhe.anvilcraft.block.ImpactPileBlock;
 import dev.dubhe.anvilcraft.block.InductionLightBlock;
 import dev.dubhe.anvilcraft.block.InfiniteCollectorBlock;
@@ -135,6 +136,7 @@ import dev.dubhe.anvilcraft.block.SiftingTableBlock;
 import dev.dubhe.anvilcraft.block.SimpleChuteBlock;
 import dev.dubhe.anvilcraft.block.SimpleConfinementAnvilonBlock;
 import dev.dubhe.anvilcraft.block.SimpleMagneticChuteBlock;
+import dev.dubhe.anvilcraft.block.SingularityCrystalBlock;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.SpaceOvercompressorBlock;
 import dev.dubhe.anvilcraft.block.SpacetimeSupercomputerBlock;
@@ -143,6 +145,7 @@ import dev.dubhe.anvilcraft.block.StampingPlatformBlock;
 import dev.dubhe.anvilcraft.block.StepEffectBlock;
 import dev.dubhe.anvilcraft.block.StepEffectSlabBlock;
 import dev.dubhe.anvilcraft.block.StepEffectStairBlock;
+import dev.dubhe.anvilcraft.block.StoragePortBlock;
 import dev.dubhe.anvilcraft.block.StructureScannerBlock;
 import dev.dubhe.anvilcraft.block.SugarBlock;
 import dev.dubhe.anvilcraft.block.TeslaTowerBlock;
@@ -214,6 +217,7 @@ import dev.dubhe.anvilcraft.block.item.RedstoneWireBlockItem;
 import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
 import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
+import dev.dubhe.anvilcraft.block.item.StoragePortBlockItem;
 import dev.dubhe.anvilcraft.block.item.SuperHeavyBlockItem;
 import dev.dubhe.anvilcraft.block.item.TradingStationBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
@@ -1722,6 +1726,7 @@ public class ModBlocks {
         .loot(HyperdimensionStorageStationBlock::loot)
         .properties(properties -> properties
             .noOcclusion()
+            .lightLevel(state -> 8)
             .explosionResistance(1200)
             .isValidSpawn(ModBlocks::never)
             .requiresCorrectToolForDrops()
@@ -1736,6 +1741,44 @@ public class ModBlocks {
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(ModBlockTags.NEEDS_EMBER_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
+        .register();
+
+    public static final BlockEntry<HyperdimensionUploaderBlock> HYPERDIMENSION_UPLOADER = REGISTRUM
+        .block("hyperdimension_uploader", HyperdimensionUploaderBlock::new)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
+        .properties(properties -> properties
+            .noOcclusion()
+            .lightLevel(state -> 8)
+            .explosionResistance(1200)
+            .isValidSpawn(ModBlocks::never)
+            .requiresCorrectToolForDrops())
+        .item()
+        .properties(properties -> properties
+            .fireResistant()
+            .stacksTo(1)
+            .rarity(Rarity.EPIC))
+        .tag(ModItemTags.EXPLOSION_PROOF)
+        .build()
+        .blockstate(DataGenUtil::simple)
+        .tag(
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.DRAGON_IMMUNE,
+            BlockTags.WITHER_IMMUNE,
+            ModBlockTags.NEEDS_TRANSCENDIUM_TOOL
+        )
+        .register();
+
+    public static final BlockEntry<StoragePortBlock> STORAGE_PORT = REGISTRUM
+        .block("storage_port", StoragePortBlock::new)
+        .initialProperties(() -> Blocks.SHULKER_BOX)
+        .properties(properties -> properties
+            .noOcclusion()
+            .isValidSpawn(ModBlocks::never)
+            .requiresCorrectToolForDrops())
+        .item(StoragePortBlockItem::new)
+        .build()
+        .blockstate(DataGenUtil::simpleAllStates)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE)
         .register();
 
     public static final BlockEntry<? extends Block> CHUTE = REGISTRUM.block("chute", ChuteBlock::new)
@@ -4301,12 +4344,13 @@ public class ModBlocks {
             .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
                 .setRolls(ConstantValue.exactly(1.0f))
                 .add(LootItem.lootTableItem(block)
-                    .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
-                        .include(DataComponents.CONTAINER)))))
+                         .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                                    .include(DataComponents.CONTAINER)))))
         );
     }
 
-    public static final BlockEntry<Block> SINGULARITY_CRYSTAL = REGISTRUM.block("singularity_crystal", Block::new)
+    public static final BlockEntry<SingularityCrystalBlock> SINGULARITY_CRYSTAL = REGISTRUM
+        .block("singularity_crystal", SingularityCrystalBlock::new)
         .initialProperties(() -> ModBlocks.CONFINEMENT_CHAMBER.get())
         .blockstate(DataGenUtil::simple)
         .properties(properties -> properties.pushReaction(PushReaction.BLOCK)

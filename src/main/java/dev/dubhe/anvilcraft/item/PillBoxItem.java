@@ -1,23 +1,51 @@
 package dev.dubhe.anvilcraft.item;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
-import dev.dubhe.anvilcraft.item.property.component.PillBocContents;
+import dev.dubhe.anvilcraft.item.property.component.PillBoxContents;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickAction;
-import net.minecraft.world.inventory.Slot;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-import java.util.Optional;
+public class PillBoxItem extends BundleLikeItem {
+    public static final ResourceLocation CONFIG_ID = AnvilCraft.of("pill_box");
 
-public class PillBoxItem extends Item {
     public PillBoxItem(Properties properties) {
-        super(properties.component(ModComponents.PILL_BOC_CONTENTS, PillBocContents.EMPTY));
+        super(properties.component(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY));
+    }
+
+    @Override
+    protected ResourceLocation configId() {
+        return PillBoxItem.CONFIG_ID;
+    }
+
+    @Override
+    protected void removeOne(TransferState state) {
+        ItemStack stack = state.getStack();
+        PillBoxContents.Mutable mutable = stack.getOrDefault(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY).mutable();
+        state.setOutput(mutable.get().orElse(null));
+        stack.set(ModComponents.PILL_BOX_CONTENTS, mutable.immutable());
+    }
+
+    @Override
+    protected void insertOne(TransferState state) {
+        ItemStack stack = state.getStack();
+        PillBoxContents.Mutable mutable = stack.getOrDefault(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY).mutable();
+        if (mutable.insert(state.getOther())) {
+            state.setOutput(ItemStack.EMPTY);
+        } else {
+            state.setOutput(null);
+        }
+        stack.set(ModComponents.PILL_BOX_CONTENTS, mutable.immutable());
+    }
+
+    @Override
+    protected void updateStack(ItemStack stack, TransferState state) {
+        stack.set(ModComponents.PILL_BOX_CONTENTS, state.getStack().get(ModComponents.PILL_BOX_CONTENTS));
     }
 
     @Override
@@ -30,84 +58,14 @@ public class PillBoxItem extends Item {
         if (!pillBox.is(ModItems.PILL_BOX)) {
             return InteractionResultHolder.pass(pillBox);
         }
-        PillBocContents contents = pillBox.getOrDefault(ModComponents.PILL_BOC_CONTENTS, PillBocContents.EMPTY);
+        PillBoxContents contents = pillBox.getOrDefault(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY);
         if (contents.pills().isEmpty()) {
             return InteractionResultHolder.pass(pillBox);
         }
-        PillBocContents.Mutable mutable = contents.mutable();
+        PillBoxContents.Mutable mutable = contents.mutable();
         mutable.useAll(player);
-        pillBox.set(ModComponents.PILL_BOC_CONTENTS, mutable.immutable());
+        pillBox.set(ModComponents.PILL_BOX_CONTENTS, mutable.immutable());
         player.getCooldowns().addCooldown(ModItems.PILL_BOX.asItem(), 40);
         return InteractionResultHolder.success(pillBox);
-    }
-
-    @Override
-    public boolean overrideOtherStackedOnMe(
-        ItemStack stack,
-        ItemStack other,
-        Slot slot,
-        ClickAction action,
-        Player player,
-        SlotAccess access
-    ) {
-        final PillBocContents contents = stack.getOrDefault(ModComponents.PILL_BOC_CONTENTS, PillBocContents.EMPTY);
-        final PillBocContents.Mutable mutable = contents.mutable();
-        if (!slot.allowModification(player)) {
-            return false;
-        }
-        if (action == ClickAction.PRIMARY) {
-            if (!other.isEmpty()) {
-                if (mutable.insert(other)) {
-                    stack.set(ModComponents.PILL_BOC_CONTENTS, mutable.immutable());
-                    access.set(ItemStack.EMPTY);
-                    return true;
-                }
-            }
-        } else if (action == ClickAction.SECONDARY) {
-            if (other.isEmpty()) {
-                Optional<ItemStack> stackOptional = mutable.get();
-                if (stackOptional.isPresent()) {
-                    ItemStack itemStack = stackOptional.get();
-                    if (!itemStack.isEmpty()) {
-                        access.set(itemStack);
-                        stack.set(ModComponents.PILL_BOC_CONTENTS, mutable.immutable());
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public boolean overrideStackedOnOther(ItemStack stack, Slot slot, ClickAction action, Player player) {
-        final PillBocContents contents = stack.getOrDefault(ModComponents.PILL_BOC_CONTENTS, PillBocContents.EMPTY);
-        final PillBocContents.Mutable mutable = contents.mutable();
-        final ItemStack other = slot.getItem();
-        if (!slot.allowModification(player)) {
-            return false;
-        }
-        if (action == ClickAction.PRIMARY) {
-            if (!other.isEmpty()) {
-                if (mutable.insert(other)) {
-                    stack.set(ModComponents.PILL_BOC_CONTENTS, mutable.immutable());
-                    slot.set(ItemStack.EMPTY);
-                    return true;
-                }
-            }
-        } else if (action == ClickAction.SECONDARY) {
-            if (other.isEmpty()) {
-                Optional<ItemStack> stackOptional = mutable.get();
-                if (stackOptional.isPresent()) {
-                    ItemStack itemStack = stackOptional.get();
-                    if (!itemStack.isEmpty()) {
-                        slot.set(itemStack);
-                        stack.set(ModComponents.PILL_BOC_CONTENTS, mutable.immutable());
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
     }
 }

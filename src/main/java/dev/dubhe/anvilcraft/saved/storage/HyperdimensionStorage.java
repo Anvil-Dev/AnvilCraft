@@ -3,6 +3,8 @@ package dev.dubhe.anvilcraft.saved.storage;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.InfiniteItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
+import net.minecraft.core.Holder;
 
 import java.util.UUID;
 import java.util.function.BiConsumer;
@@ -20,5 +22,10 @@ public class HyperdimensionStorage extends BaseStorage<UnlimitedItemStacksResour
                 onContentsChanged.accept(index, original);
             }
         };
+    }
+
+    @Override
+    public Holder<IStorageType<?>> getTypeHolder() {
+        return ModStorageTypes.HYPERDIMENSION;
     }
 }

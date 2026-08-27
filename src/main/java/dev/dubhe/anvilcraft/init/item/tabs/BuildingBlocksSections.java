@@ -2,10 +2,10 @@ package dev.dubhe.anvilcraft.init.item.tabs;
 
 import dev.anvilcraft.lib.v2.registrum.util.CreativeTabSection;
 import dev.anvilcraft.lib.v2.registrum.util.CreativeTabSections;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.state.Color;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 
 public class BuildingBlocksSections extends DisplayItemsGenerator {
@@ -15,9 +15,7 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             return;
         }
         sections.section(
-            CreativeTabSection.builder(
-                    AnvilCraft.of("textures/gui/creative_inventory/section/building_blocks/materials.png")
-                )
+            CreativeTabSection.builder(BuildingBlocksSections.texture("materials"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.building_blocks.materials"))
@@ -116,9 +114,7 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                    AnvilCraft.of("textures/gui/creative_inventory/section/building_blocks/resources.png")
-                )
+            CreativeTabSection.builder(BuildingBlocksSections.texture("resources"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.building_blocks.resources"))
@@ -151,14 +147,12 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                AnvilCraft.of("textures/gui/creative_inventory/section/building_blocks/concrete.png")
-            )
-            .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
-            .textRange(16, 49)
-            .text(Component.translatable("anvilcraft.creative.section.building_blocks.concrete"))
-            .tooltip(Component.translatable("anvilcraft.creative.section.building_blocks.concrete"))
-            .build(),
+            CreativeTabSection.builder(BuildingBlocksSections.texture("concrete"))
+                .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+                .textRange(16, 49)
+                .text(Component.translatable("anvilcraft.creative.section.building_blocks.concrete"))
+                .tooltip(Component.translatable("anvilcraft.creative.section.building_blocks.concrete"))
+                .build(),
             content -> {
                 for (Color color : Color.values()) {
                     this.acceptFolded(content, ModBlocks.REINFORCED_CONCRETES.get(color));
@@ -175,14 +169,12 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                AnvilCraft.of("textures/gui/creative_inventory/section/building_blocks/foods.png")
-            )
-            .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
-            .textRange(16, 49)
-            .text(Component.translatable("anvilcraft.creative.section.building_blocks.foods"))
-            .tooltip(Component.translatable("anvilcraft.creative.section.building_blocks.foods"))
-            .build(),
+            CreativeTabSection.builder(BuildingBlocksSections.texture("foods"))
+                .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+                .textRange(16, 49)
+                .text(Component.translatable("anvilcraft.creative.section.building_blocks.foods"))
+                .tooltip(Component.translatable("anvilcraft.creative.section.building_blocks.foods"))
+                .build(),
             content -> {
                 content.accept(ModBlocks.CAKE_BASE_BLOCK);
                 content.accept(ModBlocks.CREAM_BLOCK);
@@ -204,14 +196,12 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                AnvilCraft.of("textures/gui/creative_inventory/section/building_blocks/special.png")
-            )
-            .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
-            .textRange(16, 49)
-            .text(Component.translatable("anvilcraft.creative.section.building_blocks.special"))
-            .tooltip(Component.translatable("anvilcraft.creative.section.building_blocks.special"))
-            .build(),
+            CreativeTabSection.builder(BuildingBlocksSections.texture("special"))
+                .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
+                .textRange(16, 49)
+                .text(Component.translatable("anvilcraft.creative.section.building_blocks.special"))
+                .tooltip(Component.translatable("anvilcraft.creative.section.building_blocks.special"))
+                .build(),
             content -> {
                 content.accept(ModBlocks.FROST_DECO_BLOCK);
                 content.accept(ModBlocks.FROST_DECO_OUTLINE);
@@ -226,5 +216,9 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.QUESTION_MARK);
             }
         );
+    }
+
+    protected static ResourceLocation texture(String id) {
+        return DisplayItemsGenerator.texSection("building_blocks/" + id);
     }
 }

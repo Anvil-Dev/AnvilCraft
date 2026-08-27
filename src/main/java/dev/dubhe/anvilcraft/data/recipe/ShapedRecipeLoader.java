@@ -10,6 +10,7 @@ import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.ItemLike;
 
 public class ShapedRecipeLoader {
@@ -18,6 +19,7 @@ public class ShapedRecipeLoader {
         this.chargedNeutroniumIngot(provider);
         this.controlValve(provider);
         this.crate(provider);
+        this.storagePort(provider);
     }
 
     public void nineToOne(RegistrumRecipeProvider provider) {
@@ -76,6 +78,18 @@ public class ShapedRecipeLoader {
             .save(provider);
     }
 
+    private void storagePort(RegistrumRecipeProvider provider) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.BUILDING_BLOCKS, ModBlocks.STORAGE_PORT, 4)
+            .pattern("A")
+            .pattern("B")
+            .pattern("A")
+            .define('A', Items.SHULKER_SHELL)
+            .define('B', ModBlocks.CRATE)
+            .unlockedBy(AnvilCraftDatagen.hasItem(Items.SHULKER_SHELL), AnvilCraftDatagen.has(Items.SHULKER_SHELL))
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.CRATE), AnvilCraftDatagen.has(ModBlocks.CRATE))
+            .save(provider);
+    }
+
     private void nine21(
         RegistrumRecipeProvider provider,
         RecipeCategory recipeCategory,
@@ -93,6 +107,7 @@ public class ShapedRecipeLoader {
 
     private void nine21(
         RegistrumRecipeProvider provider,
+        @SuppressWarnings("SameParameterValue")
         RecipeCategory recipeCategory,
         TagKey<Item> ingredient,
         ItemLike result

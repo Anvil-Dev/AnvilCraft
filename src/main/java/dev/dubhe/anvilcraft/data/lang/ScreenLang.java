@@ -106,6 +106,7 @@ public class ScreenLang {
         provider.add("tooltip.anvilcraft.storage.types.value", "  %s / %s");
         provider.add("tooltip.anvilcraft.fluid_tank.more", "and %s more...");
         provider.add("tooltip.anvilcraft.creative_crate.item", "Item:");
+        provider.add("tooltip.anvilcraft.storage_port.item", "Item:");
 
         provider.add("tooltip.anvilcraft.large_cauldron.inputs", "Input Items:");
         provider.add("tooltip.anvilcraft.large_cauldron.outputs", "Output Items:");
@@ -263,6 +264,8 @@ public class ScreenLang {
 
         provider.add("screen.anvilcraft.multitool.title", "Switch tool");
         provider.add("screen.anvilcraft.multitool.all", "Enable All");
+
+        provider.add("screen.anvilcraft.storage_port.clear_mark", "Clear Mark");
 
         provider.add("screen.anvilcraft.deflection_ring.state", "Deflection Ring State");
         provider.add("screen.anvilcraft.deflection_ring.speed", "  Last Entity Speed: %d m/tick");

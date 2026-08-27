@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.container.storage;
 import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
@@ -11,10 +12,10 @@ import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
 import dev.dubhe.anvilcraft.saved.storage.LargeCrateStorage;
-import dev.dubhe.anvilcraft.saved.storage.StorageType;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
@@ -41,6 +42,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import javax.annotation.Nullable;
 
 public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
     public CrateBlock(Properties properties) {
@@ -72,13 +74,13 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
     }
 
     @Override
-    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+    protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof CrateBlockEntity be) {
             be.dropContents(level, pos);
         }
 
-        return super.playerWillDestroy(level, pos, state, player);
+        super.onRemove(state, level, pos, newState, movedByPiston);
     }
 
     @Override
@@ -119,7 +121,7 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
     ) {
         ItemStack stack = super.getCloneItemStack(state, target, level, pos, player);
         if (level instanceof Level realLevel) {
-            StorageBlockEntity.applyPickStorageId(stack, realLevel, pos, state, StorageType.CRATE);
+            StorageBlockEntity.applyPickStorageId(stack, realLevel, pos, state, ModStorageTypes.CRATE);
         }
         return stack;
     }
@@ -132,20 +134,21 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
     ) {
         BlockPos origin = CrateBlock.findLargeCrateOrigin(level, center);
         if (origin == null) return ItemInteractionResult.FAIL;
+
         List<CrateBlockEntity> crates = new ArrayList<>();
         for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
             BlockPos pos = origin.offset(part.getOffset());
             if (!(level.getBlockEntity(pos) instanceof CrateBlockEntity crate)) return ItemInteractionResult.FAIL;
             crates.add(crate);
         }
+
         StorageRef ref = largeCrateStack.get(ModComponents.STORAGE);
-        UUID targetId = ref != null && ref.type() == StorageType.LARGE_CRATE
+        UUID targetId = ref != null && ref.type().is(ModStorageTypes.LARGE_CRATE.getKey())
             ? ref.id().orElseGet(UUID::randomUUID)
             : UUID.randomUUID();
-        BaseStorage<?> target = Storages.get().get(targetId, LargeCrateStorage.class)
-            .map(BaseStorage.class::cast)
-            .orElseGet(() -> new LargeCrateStorage(targetId));
-        UnlimitedItemStacksResourceHandler targetItems = target.getItems();
+        LargeCrateStorage target = Storages.get().getOrCreate(targetId, LargeCrateStorage.class);
+        SpaceSizeItemStacksResourceHandler targetItems = target.getItems();
+
         Set<UUID> sourceIds = new HashSet<>();
         List<UnlimitedItemStack> toTransfer = new ArrayList<>();
         for (CrateBlockEntity crate : crates) {
@@ -167,30 +170,33 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
         for (UnlimitedItemStack stack : toTransfer) {
             targetItems.insertItem(stack.toStack(), false);
         }
+        targetItems.insertItem(ModBlocks.CRATE.asStack(27), false);
+
         Storages.get().put(target);
         for (UUID sourceId : sourceIds) {
             Storages.get().remove(sourceId);
         }
-        LargeCrateBlock largeCrate = ModBlocks.LARGE_CRATE.get();
-        BlockState defaultState = largeCrate.defaultBlockState();
-        // 先移除 27 个旧箱子：逐 part 放置会被多方块 updateShape 判定为结构不完整而破坏（
-        // 未放置的邻居还是普通箱子）。参照多方块升级做法：全部置为 AIR 后放置主方块（不带
-        // 邻居更新），再通过 setPlacedBy 铺开其余 part（此时邻居为已放置的同类 part）。
-        // 被替换的 27 个普通箱子以物品形式掉落到原位置附近返还给玩家。
+
+        // 先移除 27 个旧箱子：逐 part 放置会被多方块 updateShape 判定为结构不完整而破坏（未放置的邻居还是普通箱子）。
+        // 参照多方块升级做法：全部置为 AIR 后放置主方块（不带邻居更新），再通过 setPlacedBy 铺开其余 part（此时邻居为已放置的同类 part）。
+        // 被替换的 27 个普通箱子已塞入新板条箱内。
         for (Cube3x3PartHalf part : Cube3x3PartHalf.values()) {
             BlockPos pos = origin.offset(part.getOffset());
-            Block.popResource(level, pos, new ItemStack(ModBlocks.CRATE.get()));
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_NONE);
         }
         level.setBlock(
             origin,
-            defaultState.setValue(LargeCrateBlock.HALF, Cube3x3PartHalf.BOTTOM_CENTER),
+            ModBlocks.LARGE_CRATE.getDefaultState().setValue(LargeCrateBlock.HALF, Cube3x3PartHalf.BOTTOM_CENTER),
             Block.UPDATE_CLIENTS
         );
         BlockState placedState = level.getBlockState(origin);
-        placedState.getBlock().setPlacedBy(level, origin, placedState, null, ItemStack.EMPTY);
-        if (level.getBlockEntity(origin) instanceof StorageBlockEntity storage) storage.setId(target.getId());
-        if (!player.hasInfiniteMaterials()) largeCrateStack.shrink(1);
+        placedState.getBlock().setPlacedBy(level, origin, placedState, player, ItemStack.EMPTY);
+        if (level.getBlockEntity(origin) instanceof StorageBlockEntity storage) {
+            storage.setId(target.getId());
+        }
+        if (!player.hasInfiniteMaterials()) {
+            largeCrateStack.shrink(1);
+        }
         return ItemInteractionResult.sidedSuccess(false);
     }
 
@@ -198,7 +204,7 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
      * 从被点击的箱子出发，扫描其周围可能的 3x3x3 大箱子区域，返回能使全部
      * 27 个 part 都是箱子的底层中心位置；找不到则返回 null。
      */
-    private static @javax.annotation.Nullable BlockPos findLargeCrateOrigin(Level level, BlockPos center) {
+    private static @Nullable BlockPos findLargeCrateOrigin(Level level, BlockPos center) {
         Cube3x3PartHalf[] parts = Cube3x3PartHalf.values();
         for (int ox = -1; ox <= 1; ox++) {
             for (int oy = 0; oy <= 2; oy++) {

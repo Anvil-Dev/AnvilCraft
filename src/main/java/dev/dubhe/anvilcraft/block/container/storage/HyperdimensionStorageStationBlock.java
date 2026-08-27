@@ -13,9 +13,9 @@ import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
 import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
-import dev.dubhe.anvilcraft.saved.storage.StorageType;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
@@ -105,7 +105,7 @@ public class HyperdimensionStorageStationBlock
     ) {
         ItemStack stack = super.getCloneItemStack(state, target, level, pos, player);
         if (level instanceof Level realLevel) {
-            StorageBlockEntity.applyPickStorageId(stack, realLevel, pos, state, StorageType.HYPERDIMENSION);
+            StorageBlockEntity.applyPickStorageId(stack, realLevel, pos, state, ModStorageTypes.HYPERDIMENSION);
         }
         return stack;
     }
@@ -145,12 +145,11 @@ public class HyperdimensionStorageStationBlock
                     if (id != null) {
                         Storages.get().remove(id);
                     }
-                }
-                // 手动生成含 STORAGE 引用的容器物品掉落（与 tooltip 声明一致，拾取后放回仍可访问其存储内容）：
-                // 创造模式破坏从不产生原版战利品掉落；破坏子部件时其余 part 经 updateShape 逐个塌缩为空气，
-                // 不走产生掉落的破坏路径，且战利品表仅匹配主部件状态，因此这两种情况都不会自然掉落。
-                // 生存/冒险模式直接破坏主部件时由原版战利品表兜底，此处跳过以免重复掉落。
-                if (player.hasInfiniteMaterials() || !pos.equals(mainPos)) {
+                } else if (player.hasInfiniteMaterials()) {
+                    // 手动生成含 STORAGE 引用的容器物品掉落（与 tooltip 声明一致，拾取后放回仍可访问其存储内容）：
+                    // 创造模式破坏从不产生原版战利品掉落；破坏子部件时其余 part 经 updateShape 逐个塌缩为空气，
+                    // 不走产生掉落的破坏路径，且战利品表仅匹配主部件状态，因此这两种情况都不会自然掉落。
+                    // 生存/冒险模式直接破坏主部件时由原版战利品表兜底，此处跳过以免重复掉落。
                     LootParams.Builder builder = new LootParams.Builder(serverLevel)
                         .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(mainPos))
                         .withParameter(LootContextParams.TOOL, player.getMainHandItem())

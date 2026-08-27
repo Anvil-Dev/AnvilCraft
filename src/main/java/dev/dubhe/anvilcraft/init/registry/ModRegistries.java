@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.recipe.number.INumberProvider;
 import dev.dubhe.anvilcraft.api.recipe.result.modifier.IResultModifier;
 import dev.dubhe.anvilcraft.block.entity.celestial.Megastructure;
 import dev.dubhe.anvilcraft.item.property.component.amulet.IAmulet;
+import dev.dubhe.anvilcraft.saved.storage.IStorageType;
 import dev.dubhe.anvilcraft.saved.storage.category.ICategory;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
@@ -39,9 +40,11 @@ public class ModRegistries {
     public static final Registry<ITargetPointer.Type<?>> TARGET_POINTER_TYPE = ModRegistries.simple(
         ModRegistryKeys.TARGET_POINTER_TYPE
     );
-    /** Code-registered CFA megastructure definitions. */
     public static final Registry<Megastructure> MEGASTRUCTURE = ModRegistries.simple(
         ModRegistryKeys.MEGASTRUCTURE
+    );
+    public static final Registry<IStorageType<?>> STORAGE_TYPE = ModRegistries.simple(
+        ModRegistryKeys.STORAGE_TYPE
     );
 
     @SubscribeEvent
@@ -54,6 +57,7 @@ public class ModRegistries {
         event.register(ModRegistries.CATEGORY_TYPE);
         event.register(ModRegistries.TARGET_POINTER_TYPE);
         event.register(ModRegistries.MEGASTRUCTURE);
+        event.register(ModRegistries.STORAGE_TYPE);
     }
 
     private static <T> Registry<T> simple(ResourceKey<Registry<T>> key) {

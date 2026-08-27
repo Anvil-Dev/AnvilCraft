@@ -11,6 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -48,21 +49,22 @@ public final class TerminalJeiStorageCache {
         TerminalJeiStorageCache.RESTOCKING.set(restocking);
     }
 
-    /** 玩家是否持有指向任意存储站的绑定终端。 */
-    public static @Nullable UUID boundStorage(Player player) {
+    /** 玩家身上全部终端（超维绑定 / 本地 / 潜影）的存储标识，去重；无终端返回空列表。 */
+    public static List<UUID> boundStorages(Player player) {
+        List<UUID> ids = new ArrayList<>();
         for (ItemStack stack : player.getInventory().items) {
-            UUID id = TerminalJeiStorageCache.storageOf(stack);
-            if (id != null) {
-                return id;
-            }
+            TerminalJeiStorageCache.collect(TerminalJeiStorageCache.storageOf(stack), ids);
         }
         for (ItemStack stack : player.getInventory().offhand) {
-            UUID id = TerminalJeiStorageCache.storageOf(stack);
-            if (id != null) {
-                return id;
-            }
+            TerminalJeiStorageCache.collect(TerminalJeiStorageCache.storageOf(stack), ids);
         }
-        return null;
+        return ids;
+    }
+
+    private static void collect(@Nullable UUID id, List<UUID> ids) {
+        if (id != null && !ids.contains(id)) {
+            ids.add(id);
+        }
     }
 
     /** 获取缓存的存储站物品列表（可能为 null 表示尚未加载或已过期）。 */
@@ -111,13 +113,19 @@ public final class TerminalJeiStorageCache {
     }
 
     private static @Nullable UUID storageOf(ItemStack stack) {
-        if (!stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
-            return null;
+        if (stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
+            TerminalBinding binding = stack.get(ModComponents.TERMINAL_BINDING);
+            if (binding == null || binding.id().isEmpty()) {
+                return null;
+            }
+            return binding.id().get();
         }
-        TerminalBinding binding = stack.get(ModComponents.TERMINAL_BINDING);
-        if (binding == null || binding.id().isEmpty()) {
-            return null;
+        if (stack.is(ModItems.LOCAL_TERMINAL)) {
+            return StorageTerminalClientStub.localTerminalId();
         }
-        return binding.id().get();
+        if (stack.is(ModItems.SHULKER_TERMINAL)) {
+            return StorageTerminalClientStub.shulkerTerminalId();
+        }
+        return null;
     }
 }

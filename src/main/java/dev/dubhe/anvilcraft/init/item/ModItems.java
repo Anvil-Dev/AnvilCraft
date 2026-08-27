@@ -54,6 +54,7 @@ import dev.dubhe.anvilcraft.item.HeavyHalberdCoreItem;
 import dev.dubhe.anvilcraft.item.HyperdimensionTerminalItem;
 import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
 import dev.dubhe.anvilcraft.item.IonocraftItem;
+import dev.dubhe.anvilcraft.item.LocalTerminalItem;
 import dev.dubhe.anvilcraft.item.MagnetItem;
 import dev.dubhe.anvilcraft.item.MultiphaseMatterItem;
 import dev.dubhe.anvilcraft.item.MultiphaseTranscendiumItem;
@@ -71,6 +72,7 @@ import dev.dubhe.anvilcraft.item.RoyalSwordItem;
 import dev.dubhe.anvilcraft.item.RubyItem;
 import dev.dubhe.anvilcraft.item.SapphireItem;
 import dev.dubhe.anvilcraft.item.SeedsPackItem;
+import dev.dubhe.anvilcraft.item.ShulkerTerminalItem;
 import dev.dubhe.anvilcraft.item.SpectralSlingshotItem;
 import dev.dubhe.anvilcraft.item.StructureDiskItem;
 import dev.dubhe.anvilcraft.item.StructureToolItem;
@@ -107,6 +109,7 @@ import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
 import dev.dubhe.anvilcraft.item.weapon.TeslaGunItem;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
+import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
@@ -746,6 +749,24 @@ public class ModItems {
             .rarity(Rarity.EPIC))
         .register();
 
+    public static final ItemEntry<LocalTerminalItem> LOCAL_TERMINAL = REGISTRUM
+        .item("local_terminal", LocalTerminalItem::new)
+        .properties(properties -> properties
+            .stacksTo(1)
+            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK))
+        .model((ctx, provider) -> provider.generated(ctx.lazy()))
+        .recipe(RegistrumItemRecipeLoader::localTerminal)
+        .register();
+
+    public static final ItemEntry<ShulkerTerminalItem> SHULKER_TERMINAL = REGISTRUM
+        .item("shulker_terminal", ShulkerTerminalItem::new)
+        .properties(properties -> properties
+            .stacksTo(1)
+            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK))
+        .model((ctx, provider) -> provider.generated(ctx.lazy()))
+        .recipe(RegistrumItemRecipeLoader::shulkerTerminal)
+        .register();
+
     public static final ItemEntry<HyperdimensionTerminalItem> HYPERDIMENSION_TERMINAL = REGISTRUM
         .item("hyperdimension_terminal", HyperdimensionTerminalItem::new)
         .properties(properties -> properties
@@ -753,7 +774,8 @@ public class ModItems {
             .fireResistant()
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
-            .component(ModComponents.TERMINAL_BINDING, TerminalBinding.EMPTY))
+            .component(ModComponents.TERMINAL_BINDING, TerminalBinding.EMPTY)
+            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK))
         .model((ctx, provider) -> provider.generated(ctx.lazy()))
         .recipe(RegistrumItemRecipeLoader::hyperdimensionTerminal)
         .register();

@@ -11,21 +11,21 @@
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_singularity_crystal": {
+    "has_shulker_terminal": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:singularity_crystal"
+            "items": "anvilcraft:shulker_terminal"
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
     },
-    "has_spacetime_supercomputer": {
+    "has_singularity_crystal": {
       "conditions": {
         "items": [
           {
-            "items": "anvilcraft:spacetime_supercomputer"
+            "items": "anvilcraft:singularity_crystal"
           }
         ]
       },
@@ -53,7 +53,7 @@
       "has_the_recipe",
       "has_transcendium_ingot",
       "has_singularity_crystal",
-      "has_spacetime_supercomputer",
+      "has_shulker_terminal",
       "has_hypercube"
     ]
   ],

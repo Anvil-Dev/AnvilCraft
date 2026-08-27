@@ -2,10 +2,10 @@ package dev.dubhe.anvilcraft.init.item.tabs;
 
 import dev.anvilcraft.lib.v2.registrum.util.CreativeTabSection;
 import dev.anvilcraft.lib.v2.registrum.util.CreativeTabSections;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 
 public class FunctionalBlocksSections extends DisplayItemsGenerator {
@@ -15,9 +15,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             return;
         }
         sections.section(
-            CreativeTabSection.builder(
-                    AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/forging.png")
-                )
+            CreativeTabSection.builder(FunctionalBlocksSections.texture("forging"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.forging"))
@@ -47,9 +45,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                    AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/processing.png")
-                )
+            CreativeTabSection.builder(FunctionalBlocksSections.texture("processing"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.processing"))
@@ -78,9 +74,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                    AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/logistics.png")
-                )
+            CreativeTabSection.builder(FunctionalBlocksSections.texture("logistics"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.logistics"))
@@ -91,6 +85,8 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.LARGE_CRATE);
                 content.accept(ModBlocks.SHULKER_CONTAINER);
                 content.accept(ModBlocks.HYPERDIMENSION_STORAGE_STATION);
+                content.accept(ModBlocks.HYPERDIMENSION_UPLOADER);
+                content.accept(ModBlocks.STORAGE_PORT);
                 content.accept(ModBlocks.CHUTE);
                 content.accept(ModBlocks.MAGNETIC_CHUTE);
                 content.accept(ModBlocks.SLIDING_RAIL);
@@ -101,9 +97,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                    AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/fluid_trans.png")
-                )
+            CreativeTabSection.builder(FunctionalBlocksSections.texture("fluid_trans"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.fluid_trans"))
@@ -122,9 +116,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                    AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/functional.png")
-                )
+            CreativeTabSection.builder(FunctionalBlocksSections.texture("functional"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.functional"))
@@ -149,9 +141,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                    AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/power.png")
-                )
+            CreativeTabSection.builder(FunctionalBlocksSections.texture("power"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.power"))
@@ -196,9 +186,7 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                    AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/redstone.png")
-                )
+            CreativeTabSection.builder(FunctionalBlocksSections.texture("redstone"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.redstone"))
@@ -228,14 +216,12 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/cfa.png")
-                )
+            CreativeTabSection.builder(FunctionalBlocksSections.texture("cfa"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.cfa"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.functional_blocks.cfa"))
-            .build(),
+                .build(),
             content -> {
                 content.accept(ModBlocks.CONFINEMENT_CHAMBER);
                 content.accept(ModBlocks.CONFINED_TIME_ANVILON);
@@ -255,14 +241,12 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             }
         );
         sections.section(
-            CreativeTabSection.builder(
-                AnvilCraft.of("textures/gui/creative_inventory/section/functional_blocks/creative.png")
-                )
+            CreativeTabSection.builder(FunctionalBlocksSections.texture("creative"))
                 .textAlignment(CreativeTabSection.TextAlignment.RIGHT)
                 .textRange(16, 49)
                 .text(Component.translatable("anvilcraft.creative.section.functional_blocks.creative"))
                 .tooltip(Component.translatable("anvilcraft.creative.section.functional_blocks.creative"))
-            .build(),
+                .build(),
             content -> {
                 content.accept(ModBlocks.CREATIVE_GENERATOR);
                 content.accept(ModBlocks.CREATIVE_LASER);
@@ -272,5 +256,9 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.WHITE_HOLE);
             }
         );
+    }
+
+    protected static ResourceLocation texture(String id) {
+        return DisplayItemsGenerator.texSection("functional_blocks/" + id);
     }
 }

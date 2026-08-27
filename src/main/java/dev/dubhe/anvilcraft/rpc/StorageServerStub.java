@@ -12,11 +12,16 @@ import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourc
 import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.TerminalBlockRegistry;
 import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
+import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
+import dev.dubhe.anvilcraft.item.property.component.StorageRef;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSetting;
 import dev.dubhe.anvilcraft.saved.setting.PlayerSettings;
@@ -25,7 +30,9 @@ import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
 import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
 import dev.dubhe.anvilcraft.saved.storage.HyperdimensionStorage;
-import dev.dubhe.anvilcraft.saved.storage.StorageType;
+import dev.dubhe.anvilcraft.saved.storage.IStorageType;
+import dev.dubhe.anvilcraft.saved.storage.LargeCrateStorage;
+import dev.dubhe.anvilcraft.saved.storage.ShulkerContainerStorage;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryEntry;
 import dev.dubhe.anvilcraft.saved.storage.category.store.CategoryMode;
@@ -36,24 +43,34 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.UUIDUtil;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -68,7 +85,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.BiConsumer;
 import java.util.function.Function;
+import javax.annotation.Nullable;
 
 public final class StorageServerStub {
     private static final int MAX_PLAYER_STUBS = 5;
@@ -79,12 +98,21 @@ public final class StorageServerStub {
     public static final StreamCodec<ByteBuf, IntList> ORDER_STREAM_CODEC = ByteBufCodecs.VAR_INT
         .apply(ByteBufCodecs.list())
         .map(IntArrayList::new, Function.identity());
-    /** List<ItemStack> 的传输编解码器（JEI 快速合成补库参数用）。 */
+    @SuppressWarnings("unused")
+    public static final StreamCodec<ByteBuf, List<UUID>> UUID_LIST_STREAM_CODEC = UUIDUtil.STREAM_CODEC
+        .apply(ByteBufCodecs.list());
     @SuppressWarnings("unused")
     public static final StreamCodec<RegistryFriendlyByteBuf, List<ItemStack>> ITEM_STACK_LIST_STREAM_CODEC =
         ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list());
     private static final Multimap<UUID, StorageServerStub> STUBS = ArrayListMultimap.create();
-    private static final Map<UUID, Map<Long, UUID>> REMOTE_STORAGES = new HashMap<>();
+    private static final Map<UUID, Map<Long, RemoteTarget>> REMOTE_STORAGES = new HashMap<>();
+
+    /** 本地终端自动连接大型板条箱的搜索半径（格）。 */
+    private static final int LOCAL_TERMINAL_RANGE = 32;
+    /** 潜影终端自动连接世界潜影集装箱的搜索半径（格）。 */
+    private static final int SHULKER_TERMINAL_RANGE = 64;
+    /** 单个潜影盒的槽位数。 */
+    private static final int SHULKER_BOX_SLOTS = 27;
 
     private final UUID storageId;
     private long version;
@@ -447,8 +475,35 @@ public final class StorageServerStub {
 
     @RemoteCallable(validator = TerminalAccessValidator.class)
     public static long openRemote(UUID playerId, UUID storageId) {
-        Storages.get().getOrCreate(storageId, HyperdimensionStorage.class);
-        Map<Long, UUID> remote = StorageServerStub.REMOTE_STORAGES.computeIfAbsent(
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        RemoteTarget target;
+        if (storageId.equals(StorageServerStub.localTerminalId(playerId))) {
+            // 本地终端：自动连接玩家 32 格内最近的一个大型板条箱
+            Optional<UUID> crateId = StorageServerStub.findNearbyLargeCrate(player);
+            if (crateId.isEmpty()) {
+                return -1L;
+            }
+            target = new RemoteTarget(RemoteTarget.LARGE_CRATE, crateId.get());
+        } else if (storageId.equals(StorageServerStub.shulkerTerminalId(playerId))) {
+            // 潜影终端：优先连接身上槽位最靠前的潜影集装箱，
+            // 其次聚合身上所有潜影盒，最后连接 64 格内最近的世界潜影集装箱
+            Optional<UUID> containerId = StorageServerStub.findPlayerShulkerContainer(player);
+            if (containerId.isPresent()) {
+                target = new RemoteTarget(RemoteTarget.SHULKER_CONTAINER, containerId.get());
+            } else if (!StorageServerStub.findShulkerBoxes(player).isEmpty()) {
+                target = new RemoteTarget(RemoteTarget.SHULKER_BOXES, null);
+            } else {
+                Optional<UUID> worldId = StorageServerStub.findNearbyShulkerContainer(player);
+                if (worldId.isEmpty()) {
+                    return -1L;
+                }
+                target = new RemoteTarget(RemoteTarget.SHULKER_CONTAINER, worldId.get());
+            }
+        } else {
+            Storages.get().getOrCreate(storageId, HyperdimensionStorage.class);
+            target = new RemoteTarget(RemoteTarget.HYPERDIMENSION, storageId);
+        }
+        Map<Long, RemoteTarget> remote = StorageServerStub.REMOTE_STORAGES.computeIfAbsent(
             playerId,
             ignored -> new HashMap<>()
         );
@@ -456,7 +511,7 @@ public final class StorageServerStub {
         do {
             virtualPos = ThreadLocalRandom.current().nextLong();
         } while (remote.containsKey(virtualPos));
-        remote.put(virtualPos, storageId);
+        remote.put(virtualPos, target);
         return virtualPos;
     }
 
@@ -464,6 +519,11 @@ public final class StorageServerStub {
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static IntList terminalReorder(UUID playerId, long sourcePos, String search) {
         HolderLookup.Provider registries = StorageServerStub.getAndClear();
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        // 本地 / 潜影终端超出连接范围时浮窗不应再能操作：直接返回空排序
+        if (!StorageServerStub.sourceReachable(player, sourcePos)) {
+            return new IntArrayList();
+        }
         StorageView view = StorageServerStub.getView(registries, playerId, sourcePos);
         PlayerSetting setting = PlayerSettings.getSetting(registries, playerId);
         StorageSetting storage = setting.storage();
@@ -484,8 +544,12 @@ public final class StorageServerStub {
         int button,
         @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
     ) {
-        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        if (!StorageServerStub.sourceReachable(player, sourcePos)) {
+            StorageServerStub.getAndClear();
+            return new InteractionResult(player.containerMenu.getCarried(), false);
+        }
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         boolean cursorBlocked;
         if (player.hasInfiniteMaterials()) {
             // 创造模式下指针物品由客户端本地管理（ItemPickerMenu 纯客户端），服务端 carried
@@ -522,8 +586,12 @@ public final class StorageServerStub {
         int slot,
         int button
     ) {
-        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        if (!StorageServerStub.sourceReachable(player, sourcePos)) {
+            StorageServerStub.getAndClear();
+            return new InteractionResult(player.containerMenu.getCarried(), false);
+        }
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         if (slot < 0 || slot >= view.size() || view.amount(slot) <= 0) {
             return new InteractionResult(player.containerMenu.getCarried(), false);
         }
@@ -554,8 +622,12 @@ public final class StorageServerStub {
         long sourcePos,
         @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
     ) {
-        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        if (!StorageServerStub.sourceReachable(player, sourcePos)) {
+            StorageServerStub.getAndClear();
+            return new InteractionResult(player.containerMenu.getCarried(), false);
+        }
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ItemStack carried;
         if (player.hasInfiniteMaterials()) {
             // 创造模式下指针物品由客户端本地管理（ItemPickerMenu 纯客户端，不经过服务端菜单同步），
@@ -579,26 +651,52 @@ public final class StorageServerStub {
     }
 
     /**
-     * JEI 快速合成补库：终端持有者把合成缺少的物品从绑定存储站取出补入背包。
-     * 仅当玩家确实持有指向该 storageId 的已绑定终端时生效。
+     * JEI 快速合成补库：从玩家持有的全部终端目标（超维绑定 / 本地 / 潜影）取出合成缺少的
+     * 物品补入背包。每个目标按其提取时背包的实际缺口计算，总量不会超过需求。
+     * 仅当玩家确实持有这些目标对应的终端时生效。
      */
     @RemoteCallable(validator = TerminalAccessValidator.class)
     public static boolean terminalWithdrawToInventory(
         UUID playerId,
-        UUID storageId,
+        @CallableParam(clazz = StorageServerStub.class, field = "UUID_LIST_STREAM_CODEC")
+        List<UUID> targetIds,
         @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC")
         List<ItemStack> needs
     ) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
-        if (!StorageServerStub.ownsBoundTerminal(player, storageId)) {
+        if (targetIds.isEmpty()) {
             return false;
         }
-        Optional<HyperdimensionStorage> storageOp = Storages.get().get(storageId, HyperdimensionStorage.class);
-        if (storageOp.isEmpty()) {
-            return false;
+        boolean changed = false;
+        for (UUID targetId : targetIds) {
+            if (!StorageServerStub.terminalTargetReachable(player, targetId)) {
+                continue;
+            }
+            List<BaseStorage<?>> storages = StorageServerStub.terminalStorages(player, targetId);
+            if (storages.isEmpty()) {
+                continue;
+            }
+            if (StorageServerStub.withdrawNeedsFromStorages(player, storages, needs)) {
+                changed = true;
+            }
         }
-        HyperdimensionStorage storage = storageOp.get();
-        UnlimitedItemStacksResourceHandler items = storage.getItems();
+        if (changed) {
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+        }
+        return changed;
+    }
+
+    /**
+     * 从一组存储中按背包当前缺口提取 needs 中每种物品，补入玩家背包。
+     *
+     * @return 是否发生任何变动
+     */
+    private static boolean withdrawNeedsFromStorages(
+        ServerPlayer player,
+        List<BaseStorage<?>> storages,
+        List<ItemStack> needs
+    ) {
         boolean changed = false;
         for (ItemStack need : needs) {
             if (need.isEmpty()) {
@@ -612,30 +710,32 @@ public final class StorageServerStub {
             }
             // 每格最多取到物品上限（同种物品在背包中的总数量不超过 maxStackSize 是 JEI 的需求前提，
             // 但为防背包放不下导致 add 丢弃，按背包空间限制每次提取量）
-            for (int slot = 0; slot < items.size() && required > 0; slot++) {
-                if (items.getAmountAsLong(slot) <= 0) {
-                    continue;
+            for (BaseStorage<?> storage : storages) {
+                UnlimitedItemStacksResourceHandler items = storage.getItems();
+                for (int slot = 0; slot < items.size() && required > 0; slot++) {
+                    if (items.getAmountAsLong(slot) <= 0) {
+                        continue;
+                    }
+                    UnlimitedItemStack stored = items.getUnlimitedStackInSlot(slot);
+                    if (!stored.isSameItemSameComponents(resource)) {
+                        continue;
+                    }
+                    int space = StorageServerStub.getInventorySpace(player.getInventory(), resource);
+                    int take = (int) Math.min(Math.min(required, items.getAmountAsLong(slot)), space);
+                    if (take <= 0) {
+                        break;
+                    }
+                    int got = items.extractUnlimited(slot, take, false).getCount();
+                    if (got > 0) {
+                        player.getInventory().add(resource.copyWithCount(got));
+                        required -= got;
+                        changed = true;
+                    }
                 }
-                UnlimitedItemStack stored = items.getUnlimitedStackInSlot(slot);
-                if (!stored.isSameItemSameComponents(resource)) {
-                    continue;
-                }
-                int space = StorageServerStub.getInventorySpace(player.getInventory(), resource);
-                int take = (int) Math.min(Math.min(required, items.getAmountAsLong(slot)), space);
-                if (take <= 0) {
+                if (required <= 0) {
                     break;
                 }
-                int got = items.extractUnlimited(slot, take, false).getCount();
-                if (got > 0) {
-                    player.getInventory().add(resource.copyWithCount(got));
-                    required -= got;
-                    changed = true;
-                }
             }
-        }
-        if (changed) {
-            player.getInventory().setChanged();
-            player.containerMenu.broadcastChanges();
         }
         return changed;
     }
@@ -656,39 +756,41 @@ public final class StorageServerStub {
 
     @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC")
     @RemoteCallable(validator = TerminalAccessValidator.class)
-    public static List<ItemStack> getStorageItems(UUID playerId, UUID storageId) {
+    public static List<ItemStack> getStorageItems(UUID playerId, UUID targetId) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
-        if (!StorageServerStub.ownsBoundTerminal(player, storageId)) {
+        if (!StorageServerStub.ownsBoundTerminal(player, targetId)) {
             return List.of();
         }
-        Optional<HyperdimensionStorage> storageOp = Storages.get().get(storageId, HyperdimensionStorage.class);
-        if (storageOp.isEmpty()) {
+        if (!StorageServerStub.terminalTargetReachable(player, targetId)) {
             return List.of();
         }
-        UnlimitedItemStacksResourceHandler items = storageOp.get().getItems();
+        List<BaseStorage<?>> storages = StorageServerStub.terminalStorages(player, targetId);
         List<ItemStack> result = new ArrayList<>();
-        for (int slot = 0;
-             slot < items.size()
-             && slot < StorageServerStub.MAX_STORAGE_SCAN_SLOTS
-             && result.size() < StorageServerStub.MAX_STORAGE_ITEMS;
-             slot++) {
-            long amount = items.getAmountAsLong(slot);
-            if (amount <= 0) {
-                continue;
-            }
-            ItemStack stack = items.getUnlimitedStackInSlot(slot).toStack().copyWithCount(1);
-            if (stack.isEmpty()) {
-                continue;
-            }
-            boolean duplicate = false;
-            for (ItemStack existing : result) {
-                if (ItemStack.isSameItemSameComponents(existing, stack)) {
-                    duplicate = true;
-                    break;
+        for (BaseStorage<?> storage : storages) {
+            UnlimitedItemStacksResourceHandler items = storage.getItems();
+            for (int slot = 0;
+                 slot < items.size()
+                 && slot < StorageServerStub.MAX_STORAGE_SCAN_SLOTS
+                 && result.size() < StorageServerStub.MAX_STORAGE_ITEMS;
+                 slot++) {
+                long amount = items.getAmountAsLong(slot);
+                if (amount <= 0) {
+                    continue;
                 }
-            }
-            if (!duplicate) {
-                result.add(stack);
+                ItemStack stack = items.getUnlimitedStackInSlot(slot).toStack().copyWithCount(1);
+                if (stack.isEmpty()) {
+                    continue;
+                }
+                boolean duplicate = false;
+                for (ItemStack existing : result) {
+                    if (ItemStack.isSameItemSameComponents(existing, stack)) {
+                        duplicate = true;
+                        break;
+                    }
+                }
+                if (!duplicate) {
+                    result.add(stack);
+                }
             }
         }
         return result;
@@ -706,15 +808,34 @@ public final class StorageServerStub {
     }
 
     private static boolean ownsBoundTerminal(ServerPlayer player, UUID storageId) {
-        if (StorageServerStub.isBoundTerminal(player.getMainHandItem(), storageId)) return true;
-        if (StorageServerStub.isBoundTerminal(player.getOffhandItem(), storageId)) return true;
+        UUID playerId = player.getGameProfile().getId();
+        boolean holdsLocal = false;
+        boolean holdsShulker = false;
+        if (StorageServerStub.isBoundTerminal(player.getMainHandItem(), storageId, playerId)) return true;
+        if (StorageServerStub.isBoundTerminal(player.getOffhandItem(), storageId, playerId)) return true;
         for (ItemStack stack : player.getInventory().items) {
-            if (StorageServerStub.isBoundTerminal(stack, storageId)) return true;
+            if (StorageServerStub.isBoundTerminal(stack, storageId, playerId)) return true;
+            if (stack.is(ModItems.LOCAL_TERMINAL)) holdsLocal = true;
+            if (stack.is(ModItems.SHULKER_TERMINAL)) holdsShulker = true;
         }
-        return false;
+        if ((holdsLocal || player.getMainHandItem().is(ModItems.LOCAL_TERMINAL)
+             || player.getOffhandItem().is(ModItems.LOCAL_TERMINAL))
+            && storageId.equals(StorageServerStub.localTerminalId(playerId))) {
+            return true;
+        }
+        return (holdsShulker
+                || player.getMainHandItem().is(ModItems.SHULKER_TERMINAL)
+                || player.getOffhandItem().is(ModItems.SHULKER_TERMINAL))
+               && storageId.equals(StorageServerStub.shulkerTerminalId(playerId));
     }
 
-    private static boolean isBoundTerminal(ItemStack stack, UUID storageId) {
+    private static boolean isBoundTerminal(ItemStack stack, UUID storageId, UUID playerId) {
+        if (stack.is(ModItems.LOCAL_TERMINAL) && storageId.equals(StorageServerStub.localTerminalId(playerId))) {
+            return true;
+        }
+        if (stack.is(ModItems.SHULKER_TERMINAL) && storageId.equals(StorageServerStub.shulkerTerminalId(playerId))) {
+            return true;
+        }
         if (!stack.is(ModItems.HYPERDIMENSION_TERMINAL)) return false;
         TerminalBinding binding = stack.get(ModComponents.TERMINAL_BINDING);
         return binding != null && binding.id().isPresent() && binding.id().get().equals(storageId);
@@ -722,10 +843,12 @@ public final class StorageServerStub {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean canStore(BaseStorage<?> storage, ItemStack stack) {
-        StorageType type = StorageType.find(storage);
-        if (type == StorageType.SHULKER_CONTAINER || type == StorageType.HYPERDIMENSION) {
+        Holder<IStorageType<?>> type = storage.getTypeHolder();
+        if (type.is(ModStorageTypes.SHULKER_CONTAINER.getKey()) || type.is(ModStorageTypes.HYPERDIMENSION.getKey())) {
             return !(stack.getItem() instanceof ShulkerContainerBlockItem)
-                   && !(stack.getItem() instanceof BlockItem blockItem && blockItem.getBlock() instanceof HyperdimensionStorageStationBlock)
+                   && !(stack.getItem() instanceof BlockItem blockItem
+                        && (blockItem.getBlock() instanceof HyperdimensionStorageStationBlock
+                            || blockItem.getBlock() instanceof ShulkerBoxBlock))
                    && !stack.is(ModItems.HYPERDIMENSION_TERMINAL);
         }
         return true;
@@ -926,7 +1049,8 @@ public final class StorageServerStub {
     }
 
     /**
-     * 扫描玩家背包与主/副手中的已绑定终端，收集其指向的超维存储站。返回去重后的存储站列表。
+     * 扫描玩家背包与主/副手中的已绑定终端，收集其指向的存储（超维存储站 / 大型板条箱 / 潜影目标）。
+     * 返回去重后的存储列表。本地与潜影终端仅在玩家实际持有对应终端时参与连接。
      */
     private static List<BaseStorage<?>> boundStorages(ServerPlayer player) {
         List<BaseStorage<?>> storages = new ArrayList<>();
@@ -938,6 +1062,17 @@ public final class StorageServerStub {
         }
         for (ItemStack stack : player.getInventory().offhand) {
             StorageServerStub.collectBoundStorage(stack, storages);
+        }
+        if (StorageServerStub.holdsItem(player, ModItems.LOCAL_TERMINAL.asItem())) {
+            StorageServerStub.findNearbyLargeCrate(player).ifPresent(id -> StorageServerStub.addDistinct(
+                storages,
+                Storages.get().getOrCreate(id, LargeCrateStorage.class)
+            ));
+        }
+        if (StorageServerStub.holdsItem(player, ModItems.SHULKER_TERMINAL.asItem())) {
+            for (BaseStorage<?> storage : StorageServerStub.shulkerTerminalStorages(player)) {
+                StorageServerStub.addDistinct(storages, storage);
+            }
         }
         return storages;
     }
@@ -957,6 +1092,28 @@ public final class StorageServerStub {
             }
         }
         storages.add(Storages.get().getOrCreate(id, HyperdimensionStorage.class));
+    }
+
+    /** 玩家主物品栏 / 盔甲 / 副手是否持有指定物品。 */
+    private static boolean holdsItem(ServerPlayer player, Item item) {
+        if (player.getMainHandItem().is(item) || player.getOffhandItem().is(item)) {
+            return true;
+        }
+        for (ItemStack stack : player.getInventory().items) {
+            if (stack.is(item)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void addDistinct(List<BaseStorage<?>> storages, BaseStorage<?> storage) {
+        for (BaseStorage<?> existing : storages) {
+            if (existing.getId().equals(storage.getId())) {
+                return;
+            }
+        }
+        storages.add(storage);
     }
 
     /**
@@ -1124,6 +1281,575 @@ public final class StorageServerStub {
         return inserted;
     }
 
+    /**
+     * 本地终端的会话标识：按玩家 UUID 派生的合成 ID，
+     * 使所有终端 RPC（打开 / JEI / 物品均衡）都能用同一标识定位本地终端连接的存储。
+     */
+    private static UUID localTerminalId(UUID playerId) {
+        return UUID.nameUUIDFromBytes(("anvilcraft:local_terminal:" + playerId).getBytes(StandardCharsets.UTF_8));
+    }
+
+    /**
+     * 潜影终端的会话标识：按玩家 UUID 派生的合成 ID。
+     */
+    private static UUID shulkerTerminalId(UUID playerId) {
+        return UUID.nameUUIDFromBytes(("anvilcraft:shulker_terminal:" + playerId).getBytes(StandardCharsets.UTF_8));
+    }
+
+    /** 终端虚拟位置指向的目标存储。 */
+    private record RemoteTarget(int kind, @Nullable UUID storageId) {
+        static final int HYPERDIMENSION = 0;
+        static final int LARGE_CRATE = 1;
+        static final int SHULKER_CONTAINER = 2;
+        static final int SHULKER_BOXES = 3;
+    }
+
+    /** 根据终端目标标识解析本次调用应操作的存储列表。 */
+    private static List<BaseStorage<?>> terminalStorages(ServerPlayer player, UUID targetId) {
+        UUID playerId = player.getGameProfile().getId();
+        if (targetId.equals(StorageServerStub.localTerminalId(playerId))) {
+            return StorageServerStub.findNearbyLargeCrate(player)
+                .map(id -> List.<BaseStorage<?>>of(Storages.get().getOrCreate(id, LargeCrateStorage.class)))
+                .orElseGet(List::of);
+        }
+        if (targetId.equals(StorageServerStub.shulkerTerminalId(playerId))) {
+            return StorageServerStub.shulkerTerminalStorages(player);
+        }
+        return Storages.get().get(targetId, HyperdimensionStorage.class)
+            .map(List::<BaseStorage<?>>of)
+            .orElseGet(List::of);
+    }
+
+    /**
+     * 从终端物品栈解析其目标存储标识：本地 / 潜影终端按玩家 UUID 派生，
+     * 超维终端读取绑定存储站；非终端或未绑定时返回 {@code null}。
+     */
+    public static @Nullable UUID terminalTargetId(ServerPlayer player, ItemStack terminal) {
+        UUID playerId = player.getGameProfile().getId();
+        if (terminal.is(ModItems.LOCAL_TERMINAL)) {
+            return StorageServerStub.localTerminalId(playerId);
+        }
+        if (terminal.is(ModItems.SHULKER_TERMINAL)) {
+            return StorageServerStub.shulkerTerminalId(playerId);
+        }
+        if (terminal.is(ModItems.HYPERDIMENSION_TERMINAL)) {
+            TerminalBinding binding = terminal.get(ModComponents.TERMINAL_BINDING);
+            return binding != null && binding.id().isPresent() ? binding.id().get() : null;
+        }
+        return null;
+    }
+
+    /**
+     * 把物品放入终端连接的目标存储，返回实际插入数量。
+     * 目标不可达（本地 / 潜影终端超出连接范围，超维终端未绑定）时返回 0。
+     */
+    public static int insertIntoTerminal(ServerPlayer player, UUID targetId, ItemStack stack, int amount) {
+        if (stack.isEmpty() || amount <= 0) {
+            return 0;
+        }
+        List<BaseStorage<?>> storages = StorageServerStub.terminalStorages(player, targetId);
+        if (storages.isEmpty()) {
+            return 0;
+        }
+        int inserted = StorageServerStub.insertIntoStorages(storages, stack, amount);
+        if (inserted > 0) {
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+        }
+        return inserted;
+    }
+
+    /**
+     * 从终端连接的目标存储取出一个物品（按存储顺序取第一个可取槽位）。
+     * 目标不可达或存储为空时返回空栈。
+     */
+    public static ItemStack extractFromTerminal(ServerPlayer player, UUID targetId, int amount) {
+        List<BaseStorage<?>> storages = StorageServerStub.terminalStorages(player, targetId);
+        for (BaseStorage<?> storage : storages) {
+            UnlimitedItemStacksResourceHandler items = storage.getItems();
+            for (int slot = 0; slot < items.size(); slot++) {
+                if (items.getAmountAsLong(slot) <= 0) {
+                    continue;
+                }
+                int take = (int) Math.min(amount, items.getAmountAsLong(slot));
+                ItemStack got = items.extractUnlimited(slot, take, false).toStack();
+                if (!got.isEmpty()) {
+                    player.getInventory().setChanged();
+                    player.containerMenu.broadcastChanges();
+                    return got;
+                }
+            }
+        }
+        return ItemStack.EMPTY;
+    }
+
+    /**
+     * 终端目标当前是否可达：
+     * <ul>
+     *   <li>本地终端：32 格内仍存在大型板条箱；</li>
+     *   <li>潜影终端：身上仍存在潜影集装箱 / 潜影盒，或 64 格内仍存在世界潜影集装箱；</li>
+     *   <li>超维终端：绑定目标始终可达（无距离限制）。</li>
+     * </ul>
+     */
+    private static boolean terminalTargetReachable(ServerPlayer player, UUID targetId) {
+        UUID playerId = player.getGameProfile().getId();
+        if (targetId.equals(StorageServerStub.localTerminalId(playerId))) {
+            return StorageServerStub.findNearbyLargeCrate(player).isPresent();
+        }
+        if (targetId.equals(StorageServerStub.shulkerTerminalId(playerId))) {
+            return !StorageServerStub.shulkerTerminalStorages(player).isEmpty();
+        }
+        return true;
+    }
+
+    /** 浮窗等终端操作的目标（虚拟位置）当前是否可达；真实方块路径不受限制。 */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private static boolean sourceReachable(ServerPlayer player, long sourcePos) {
+        RemoteTarget target = StorageServerStub.REMOTE_STORAGES
+            .getOrDefault(player.getGameProfile().getId(), Map.of())
+            .get(sourcePos);
+        if (target == null) {
+            return true;
+        }
+        return switch (target.kind()) {
+            case RemoteTarget.LARGE_CRATE -> StorageServerStub.findNearbyLargeCrate(player).isPresent();
+            case RemoteTarget.SHULKER_CONTAINER, RemoteTarget.SHULKER_BOXES -> !StorageServerStub.shulkerTerminalStorages(player).isEmpty();
+            default -> true;
+        };
+    }
+
+    /**
+     * 客户端查询：本地 / 潜影终端当前是否能够连接其自动解析的目标（供“+”提示与浮窗判定）。
+     */
+    @RemoteCallable(validator = TerminalAccessValidator.class)
+    public static boolean isTerminalReachable(UUID playerId, UUID targetId) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        return StorageServerStub.terminalTargetReachable(player, targetId);
+    }
+
+    /**
+     * 解析潜影终端的连接目标（按优先级，不同时连接多个）：
+     * <ol>
+     *   <li>玩家身上槽位最靠前的潜影集装箱；</li>
+     *   <li>玩家身上的全部潜影盒（聚合视图）；</li>
+     *   <li>64 格内最近的世界潜影集装箱。</li>
+     * </ol>
+     */
+    private static List<BaseStorage<?>> shulkerTerminalStorages(ServerPlayer player) {
+        Optional<UUID> containerId = StorageServerStub.findPlayerShulkerContainer(player);
+        if (containerId.isPresent()) {
+            return List.of(Storages.get().getOrCreate(containerId.get(), ShulkerContainerStorage.class));
+        }
+        List<ItemStack> boxes = StorageServerStub.findShulkerBoxes(player);
+        if (!boxes.isEmpty()) {
+            return List.of(new ShulkerBoxesStorage(
+                StorageServerStub.shulkerTerminalId(player.getGameProfile().getId()),
+                boxes
+            ));
+        }
+        return StorageServerStub.findNearbyShulkerContainer(player)
+            .map(id -> List.<BaseStorage<?>>of(Storages.get().getOrCreate(id, ShulkerContainerStorage.class)))
+            .orElseGet(List::of);
+    }
+
+    /**
+     * 空占位存储的独立哨兵 ID：按玩家 UUID 派生，但与本地 / 潜影终端的合成 ID 区分，
+     * 避免占位存储被误当作真实终端目标，或被 {@link Storages#getOrCreate} 写入全局
+     * 注册表造成存档膨胀。
+     */
+    private static UUID emptyTerminalId(UUID playerId) {
+        return UUID.nameUUIDFromBytes(("anvilcraft:empty_terminal:" + playerId).getBytes(StandardCharsets.UTF_8));
+    }
+
+    /** 构造终端目标不可达时的空占位存储视图（界面 / 浮窗显示为空）。 */
+    private static StorageView emptyView(ServerPlayer player) {
+        UUID id = StorageServerStub.emptyTerminalId(player.getGameProfile().getId());
+        return new StorageView(List.of(new EmptyTerminalStorage(id)), List.of());
+    }
+
+    /** 终端目标不可达（超出范围 / 目标消失）时的占位空存储。 */
+    private static final class EmptyTerminalStorage extends BaseStorage<UnlimitedItemStacksResourceHandler> {
+        private EmptyTerminalStorage(UUID id) {
+            super(id);
+        }
+
+        @Override
+        protected UnlimitedItemStacksResourceHandler constructItemHandler(
+            BiConsumer<Integer, UnlimitedItemStack> onContentsChanged
+        ) {
+            return new UnlimitedItemStacksResourceHandler(0) {
+                @Override
+                protected void onContentsChanged(int index, UnlimitedItemStack original) {
+                    onContentsChanged.accept(index, original);
+                }
+            };
+        }
+
+        @Override
+        public Holder<IStorageType<?>> getTypeHolder() {
+            return ModStorageTypes.HYPERDIMENSION;
+        }
+    }
+
+    /** 查找玩家 32 格内最近的大型板条箱主方块及其存储 ID（注册表优先，回退扫描补录）。 */
+    private static Optional<UUID> findNearbyLargeCrate(ServerPlayer player) {
+        ServerLevel level = player.serverLevel();
+        BlockPos mainPos = TerminalBlockRegistry.nearestLargeCrate(
+            level,
+            player.getX(),
+            player.getY(),
+            player.getZ(),
+            StorageServerStub.LOCAL_TERMINAL_RANGE
+        );
+        if (mainPos != null && level.getBlockEntity(mainPos) instanceof LargeCrateBlockEntity be) {
+            return Optional.of(StorageServerStub.ensureStorageId(be));
+        }
+        // 注册表缺失或条目过期：回退扫描并补录
+        return StorageServerStub.scanNearestPos(player, StorageServerStub.LOCAL_TERMINAL_RANGE, LargeCrateBlockEntity.class)
+            .flatMap(pos -> {
+                if (!(level.getBlockEntity(pos) instanceof LargeCrateBlockEntity crate)) {
+                    return Optional.empty();
+                }
+                TerminalBlockRegistry.registerIfApplicable(crate);
+                return Optional.of(StorageServerStub.ensureStorageId(crate));
+            });
+    }
+
+    /** 查找玩家身上槽位最靠前的潜影集装箱（需要携带存储引用）。 */
+    private static Optional<UUID> findPlayerShulkerContainer(ServerPlayer player) {
+        Inventory inventory = player.getInventory();
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            ItemStack stack = inventory.getItem(slot);
+            if (!(stack.getItem() instanceof ShulkerContainerBlockItem)) {
+                continue;
+            }
+            StorageRef ref = stack.get(ModComponents.STORAGE);
+            if (ref != null
+                && ref.type().is(ModStorageTypes.SHULKER_CONTAINER.getKey())
+                && ref.id().isPresent()) {
+                return ref.id();
+            }
+        }
+        return Optional.empty();
+    }
+
+    /** 收集玩家身上的全部潜影盒（按槽位顺序）。 */
+    private static List<ItemStack> findShulkerBoxes(ServerPlayer player) {
+        List<ItemStack> boxes = new ArrayList<>();
+        Inventory inventory = player.getInventory();
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            ItemStack stack = inventory.getItem(slot);
+            if (stack.getItem() instanceof BlockItem blockItem
+                && blockItem.getBlock() instanceof ShulkerBoxBlock) {
+                boxes.add(stack);
+            }
+        }
+        return boxes;
+    }
+
+    /** 查找玩家 64 格内最近的世界潜影集装箱主方块及其存储 ID（注册表优先，回退扫描补录）。 */
+    private static Optional<UUID> findNearbyShulkerContainer(ServerPlayer player) {
+        ServerLevel level = player.serverLevel();
+        BlockPos mainPos = TerminalBlockRegistry.nearestShulkerContainer(
+            level,
+            player.getX(),
+            player.getY(),
+            player.getZ(),
+            StorageServerStub.SHULKER_TERMINAL_RANGE
+        );
+        if (mainPos != null && level.getBlockEntity(mainPos) instanceof ShulkerContainerBlockEntity be) {
+            return Optional.of(StorageServerStub.ensureStorageId(be));
+        }
+        // 注册表缺失或条目过期：回退扫描并补录
+        return StorageServerStub.scanNearestPos(player, StorageServerStub.SHULKER_TERMINAL_RANGE, ShulkerContainerBlockEntity.class)
+            .flatMap(pos -> {
+                if (!(level.getBlockEntity(pos) instanceof ShulkerContainerBlockEntity shulker)) {
+                    return Optional.empty();
+                }
+                TerminalBlockRegistry.registerIfApplicable(shulker);
+                return Optional.of(StorageServerStub.ensureStorageId(shulker));
+            });
+    }
+
+    /** 扫描 AABB 内最近的目标方块实体主方块坐标（注册表未覆盖时的回退路径）。 */
+    private static Optional<BlockPos> scanNearestPos(
+        ServerPlayer player,
+        int range,
+        Class<? extends BlockEntity> type
+    ) {
+        Map<BlockPos, BlockEntity> mains = new HashMap<>();
+        AABB area = AABB.ofSize(
+            player.getEyePosition(),
+            2.0 * range,
+            2.0 * range,
+            2.0 * range
+        );
+        for (BlockEntity be : StorageServerStub.blockEntitiesInAABB(player.serverLevel(), area)) {
+            if (!type.isInstance(be)) {
+                continue;
+            }
+            BlockPos mainPos = StorageServerStub.mainPartPos(be);
+            mains.putIfAbsent(mainPos, player.level().getBlockEntity(mainPos));
+        }
+        return StorageServerStub.nearestMainPos(player, mains);
+    }
+
+    /** 收集指定 AABB 范围内已加载区块中的全部方块实体。 */
+    private static List<BlockEntity> blockEntitiesInAABB(ServerLevel level, AABB area) {
+        List<BlockEntity> result = new ArrayList<>();
+        int minChunkX = Mth.floor(area.minX) >> 4;
+        int maxChunkX = Mth.floor(area.maxX) >> 4;
+        int minChunkZ = Mth.floor(area.minZ) >> 4;
+        int maxChunkZ = Mth.floor(area.maxZ) >> 4;
+        for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+            for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
+                LevelChunk chunk = level.getChunk(chunkX, chunkZ);
+                for (BlockEntity be : chunk.getBlockEntities().values()) {
+                    BlockPos pos = be.getBlockPos();
+                    if (area.contains(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5)) {
+                        result.add(be);
+                    }
+                }
+            }
+        }
+        return result;
+    }
+
+    /** 多方块方块取其主方块坐标，普通方块取自身坐标。 */
+    private static BlockPos mainPartPos(BlockEntity be) {
+        BlockState state = be.getBlockState();
+        if (state.getBlock() instanceof AbstractMultiPartBlock<?> multipart) {
+            return multipart.getMainPartPos(be.getBlockPos(), state);
+        }
+        return be.getBlockPos();
+    }
+
+    /** 从主方块候选集合中选出离玩家最近的一个，返回其坐标。 */
+    private static Optional<BlockPos> nearestMainPos(ServerPlayer player, Map<BlockPos, BlockEntity> mains) {
+        if (mains.isEmpty()) {
+            return Optional.empty();
+        }
+        BlockPos nearest = null;
+        double nearestSqr = Double.MAX_VALUE;
+        double playerX = player.getX();
+        double playerY = player.getY();
+        double playerZ = player.getZ();
+        for (BlockPos pos : mains.keySet()) {
+            double sqr = pos.distToCenterSqr(playerX, playerY, playerZ);
+            if (sqr < nearestSqr) {
+                nearestSqr = sqr;
+                nearest = pos;
+            }
+        }
+        return Optional.ofNullable(nearest);
+    }
+
+    /** 取存储方块的存储 ID；缺失时惰性生成并持久化。 */
+    private static UUID ensureStorageId(StorageBlockEntity storage) {
+        UUID id = storage.getId();
+        if (id == null) {
+            id = UUID.randomUUID();
+            storage.setId(id);
+        }
+        return id;
+    }
+
+    /**
+     * 潜影终端聚合多个潜影盒的存储包装：所有读写都直接作用于玩家身上的潜影盒物品
+     * （通过 1.21 的 {@code minecraft:container} 组件），不持久化到 {@link Storages}。
+     */
+    private static final class ShulkerBoxesStorage extends BaseStorage<ShulkerBoxesItemHandler> {
+        private ShulkerBoxesStorage(UUID id, List<ItemStack> boxes) {
+            super(id);
+            this.getItems().init(boxes);
+        }
+
+        @Override
+        protected ShulkerBoxesItemHandler constructItemHandler(
+            BiConsumer<Integer, UnlimitedItemStack> onContentsChanged
+        ) {
+            return new ShulkerBoxesItemHandler(onContentsChanged);
+        }
+
+        @Override
+        public Holder<IStorageType<?>> getTypeHolder() {
+            // 语义上与潜影集装箱一致：不允许把容器类物品装入其中
+            return ModStorageTypes.SHULKER_CONTAINER;
+        }
+    }
+
+    /**
+     * 把多个潜影盒按「盒 × 27 槽」展平为统一槽位索引的处理器，直接读写盒的
+     * {@code minecraft:container} 组件（{@link ItemContainerContents}）。
+     */
+    private static final class ShulkerBoxesItemHandler extends UnlimitedItemStacksResourceHandler {
+        private final BiConsumer<Integer, UnlimitedItemStack> onChange;
+        private List<ItemStack> boxes = List.of();
+
+        private ShulkerBoxesItemHandler(BiConsumer<Integer, UnlimitedItemStack> onChange) {
+            super(0);
+            this.onChange = onChange;
+        }
+
+        private void init(List<ItemStack> boxes) {
+            this.boxes = boxes;
+        }
+
+        @Override
+        public int size() {
+            return this.boxes.size() * StorageServerStub.SHULKER_BOX_SLOTS;
+        }
+
+        private int boxIndex(int index) {
+            return index / StorageServerStub.SHULKER_BOX_SLOTS;
+        }
+
+        private int boxSlot(int index) {
+            return index % StorageServerStub.SHULKER_BOX_SLOTS;
+        }
+
+        private @Nullable ItemStack boxAt(int index) {
+            int boxIndex = this.boxIndex(index);
+            if (boxIndex < 0 || boxIndex >= this.boxes.size()) {
+                return null;
+            }
+            return this.boxes.get(boxIndex);
+        }
+
+        /** 读取单个潜影盒指定槽位的物品；空槽返回 {@code ItemStack.EMPTY}。 */
+        private ItemStack itemAt(ItemStack box, int boxSlot) {
+            ItemContainerContents contents = box.get(DataComponents.CONTAINER);
+            if (contents == null || boxSlot < 0 || boxSlot >= contents.getSlots()) {
+                return ItemStack.EMPTY;
+            }
+            return contents.getStackInSlot(boxSlot);
+        }
+
+        /** 把一个物品写回潜影盒指定槽位；空物品即清空该槽。 */
+        private void writeSlot(ItemStack box, int boxSlot, ItemStack stack) {
+            ItemContainerContents contents = box.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+            List<ItemStack> items = new ArrayList<>(StorageServerStub.SHULKER_BOX_SLOTS);
+            for (int i = 0; i < contents.getSlots(); i++) {
+                items.add(contents.getStackInSlot(i));
+            }
+            // 恒定保持 27 槽，与 vanilla 潜影盒界面一致
+            while (items.size() < StorageServerStub.SHULKER_BOX_SLOTS) {
+                items.add(ItemStack.EMPTY);
+            }
+            items.set(boxSlot, stack.copy());
+            box.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(items));
+        }
+
+        @Override
+        public UnlimitedItemStack getUnlimitedStackInSlot(int index) {
+            ItemStack box = this.boxAt(index);
+            if (box == null) {
+                return UnlimitedItemStack.EMPTY;
+            }
+            ItemStack stack = this.itemAt(box, this.boxSlot(index));
+            return stack.isEmpty() ? UnlimitedItemStack.EMPTY : new UnlimitedItemStack(stack);
+        }
+
+        @Override
+        public long getAmountAsLong(int index) {
+            return this.getUnlimitedStackInSlot(index).getCount();
+        }
+
+        @Override
+        public ItemStack getStackInSlot(int slot) {
+            return this.getUnlimitedStackInSlot(slot).toStack();
+        }
+
+        @Override
+        public UnlimitedItemStack extractUnlimited(int index, int amount, boolean simulate) {
+            if (amount <= 0) {
+                return UnlimitedItemStack.EMPTY;
+            }
+            ItemStack box = this.boxAt(index);
+            if (box == null) {
+                return UnlimitedItemStack.EMPTY;
+            }
+            int boxSlot = this.boxSlot(index);
+            ItemStack current = this.itemAt(box, boxSlot);
+            if (current.isEmpty()) {
+                return UnlimitedItemStack.EMPTY;
+            }
+            int take = Math.min(amount, current.getCount());
+            if (!simulate) {
+                ItemStack remaining = current.copyWithCount(current.getCount() - take);
+                this.writeSlot(box, boxSlot, remaining);
+                this.onChange.accept(index, UnlimitedItemStack.EMPTY);
+            }
+            return new UnlimitedItemStack(current.copyWithCount(take));
+        }
+
+        @Override
+        public ItemStack extractItem(int slot, int amount, boolean simulate) {
+            return this.extractUnlimited(slot, amount, simulate).toStack();
+        }
+
+        @Override
+        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
+            if (stack.isEmpty()) {
+                return ItemStack.EMPTY;
+            }
+            ItemStack box = this.boxAt(slot);
+            if (box == null) {
+                return stack;
+            }
+            int boxSlot = this.boxSlot(slot);
+            ItemStack current = this.itemAt(box, boxSlot);
+            if (!current.isEmpty() && !ItemStack.isSameItemSameComponents(current, stack)) {
+                return stack;
+            }
+            int maxStack = stack.getMaxStackSize();
+            int fit = Math.min(stack.getCount(), maxStack - current.getCount());
+            if (fit <= 0) {
+                return stack;
+            }
+            if (!simulate) {
+                // 空槽位：ItemStack.copyWithCount 对空栈直接返回 EMPTY，必须用被塞入的
+                // 物品构造合并栈，否则会写入空数据却把物品计入“已插入”导致丢失
+                ItemStack merged = current.isEmpty()
+                    ? stack.copyWithCount(fit)
+                    : current.copyWithCount(current.getCount() + fit);
+                this.writeSlot(box, boxSlot, merged);
+                this.onChange.accept(slot, UnlimitedItemStack.EMPTY);
+            }
+            return stack.copyWithCount(stack.getCount() - fit);
+        }
+
+        @Override
+        public ItemStack insertItem(ItemStack stack, boolean simulate) {
+            if (stack.isEmpty()) {
+                return ItemStack.EMPTY;
+            }
+            ItemStack remaining = stack;
+            int size = this.size();
+            // 第一遍：优先堆叠到已有同种物品的槽位，保持同种物品集中，避免乱开新槽
+            for (int index = 0; index < size && !remaining.isEmpty(); index++) {
+                if (this.hasSameItemAt(index, remaining)) {
+                    remaining = this.insertItem(index, remaining, simulate);
+                }
+            }
+            // 第二遍：剩余部分再放入空槽
+            for (int index = 0; index < size && !remaining.isEmpty(); index++) {
+                remaining = this.insertItem(index, remaining, simulate);
+            }
+            return remaining;
+        }
+
+        /** 指定槽位是否已有与目标物品相同（含组件）的物品堆。 */
+        private boolean hasSameItemAt(int index, ItemStack stack) {
+            ItemStack box = this.boxAt(index);
+            if (box == null) {
+                return false;
+            }
+            ItemStack current = this.itemAt(box, this.boxSlot(index));
+            return !current.isEmpty() && ItemStack.isSameItemSameComponents(current, stack);
+        }
+    }
+
     public static final class StorageUsageValidator implements IRemoteCallableValidator {
         @Override
         public boolean validate(IPayloadContext ctx, Method method, Object[] args) {
@@ -1181,11 +1907,26 @@ public final class StorageServerStub {
                 || args.length < 2
                 || !(args[0] instanceof UUID playerId)
                 || !player.getGameProfile().getId().equals(playerId)
-                || !(args[1] instanceof UUID storageId)
             ) {
                 return false;
             }
-            return StorageServerStub.ownsBoundTerminal(player, storageId);
+            if (args[1] instanceof UUID storageId) {
+                return StorageServerStub.ownsBoundTerminal(player, storageId);
+            }
+            // 多目标（JEI 多终端补库）：每个目标都必须由玩家持有的终端对应
+            if (args[1] instanceof List<?> ids) {
+                if (ids.isEmpty()) {
+                    return false;
+                }
+                for (Object id : ids) {
+                    if (!(id instanceof UUID storageId)
+                        || !StorageServerStub.ownsBoundTerminal(player, storageId)) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            return false;
         }
     }
 
@@ -1447,15 +2188,37 @@ public final class StorageServerStub {
 
     private static StorageView getView(HolderLookup.Provider registries, UUID playerId, long sourcePos) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
-        UUID remoteId = StorageServerStub.REMOTE_STORAGES.getOrDefault(playerId, Map.of()).get(sourcePos);
-        if (remoteId != null) {
-            BaseStorage<?> storage = Storages.get().getOrCreate(remoteId, HyperdimensionStorage.class);
-            return new StorageView(List.of(storage), List.of());
+        RemoteTarget remote = StorageServerStub.REMOTE_STORAGES.getOrDefault(playerId, Map.of()).get(sourcePos);
+        if (remote != null && remote.storageId() != null) {
+            return switch (remote.kind()) {
+                case RemoteTarget.HYPERDIMENSION -> new StorageView(
+                    List.of(Storages.get().getOrCreate(remote.storageId(), HyperdimensionStorage.class)),
+                    List.of()
+                );
+                // 本地 / 潜影终端：每次按当前状态重新解析目标（连接可能随距离 / 物品变化），
+                // 目标不可达时返回空视图（界面 / 浮窗显示为空存储）
+                case RemoteTarget.LARGE_CRATE -> StorageServerStub.findNearbyLargeCrate(player)
+                    .map(id -> new StorageView(
+                        List.of(Storages.get().getOrCreate(id, LargeCrateStorage.class)),
+                        List.of()
+                    ))
+                    .orElseGet(() -> StorageServerStub.emptyView(player));
+                case RemoteTarget.SHULKER_CONTAINER, RemoteTarget.SHULKER_BOXES -> {
+                    List<BaseStorage<?>> storages = StorageServerStub.shulkerTerminalStorages(player);
+                    if (storages.isEmpty()) {
+                        yield StorageServerStub.emptyView(player);
+                    }
+                    yield new StorageView(storages, List.of());
+                }
+                default -> throw new IllegalStateException("Unknown terminal target kind: " + remote.kind());
+            };
         }
         BlockPos pos = BlockPos.of(sourcePos);
         BlockEntity blockEntity = player.level().getBlockEntity(pos);
         if (!(blockEntity instanceof StorageBlockEntity storage)) {
-            throw new IllegalStateException("Cannot access storage without a storage block entity");
+            // 无效 / 已过期的虚拟位置（客户端缓存残留或映射已被清理）：
+            // 返回空视图而不是抛异常，避免 RPC 处理器崩溃
+            return StorageServerStub.emptyView(player);
         }
         UUID id = storage.getId();
         if (id == null) {

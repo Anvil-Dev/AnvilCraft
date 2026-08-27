@@ -3,7 +3,7 @@ package dev.dubhe.anvilcraft.saved.storage.category;
 import com.google.common.collect.ImmutableList;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
-import com.mojang.serialization.codecs.RecordCodecBuilder;
+import dev.anvilcraft.lib.v2.codec.CodecUtil;
 import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.init.storage.ModCategoryTypes;
@@ -204,14 +204,26 @@ public record HasComponentCategory(
     }
 
     public static class Type implements ICategory.Type<HasComponentCategory> {
-        public static final MapCodec<HasComponentCategory> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ItemStack.CODEC.fieldOf("icon").forGetter(HasComponentCategory::icon),
-
-            ICategory.NAME_CODEC.fieldOf("name").forGetter(HasComponentCategory::name),
-            DataComponentPredicate.CODEC.listOf().optionalFieldOf("predicates", List.of()).forGetter(HasComponentCategory::predicates),
-            DataComponentType.CODEC.listOf().optionalFieldOf("presence", List.of()).forGetter(HasComponentCategory::presence),
-            MatchType.CODEC.optionalFieldOf("match_type", MatchType.OR).forGetter(HasComponentCategory::match)
-        ).apply(instance, HasComponentCategory::new));
+        public static final MapCodec<HasComponentCategory> CODEC = CodecUtil.mapCodec(
+            ItemStack.CODEC
+                .fieldOf("icon")
+                .forGetter(HasComponentCategory::icon),
+            ICategory.NAME_CODEC
+                .fieldOf("name")
+                .forGetter(HasComponentCategory::name),
+            DataComponentPredicate.CODEC
+                .listOf()
+                .optionalFieldOf("predicates", List.of())
+                .forGetter(HasComponentCategory::predicates),
+            DataComponentType.CODEC
+                .listOf()
+                .optionalFieldOf("presence", List.of())
+                .forGetter(HasComponentCategory::presence),
+            MatchType.CODEC
+                .optionalFieldOf("match_type", MatchType.OR)
+                .forGetter(HasComponentCategory::match),
+            HasComponentCategory::new
+        );
         public static final StreamCodec<RegistryFriendlyByteBuf, HasComponentCategory> STREAM_CODEC = StreamCodec.composite(
             ItemStack.STREAM_CODEC,
             HasComponentCategory::icon,
