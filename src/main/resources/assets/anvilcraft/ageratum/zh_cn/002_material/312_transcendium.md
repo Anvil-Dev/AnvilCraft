@@ -36,8 +36,7 @@ items:
 
 # 功能
 
-- 用于合成机器
-- 与<ref item="anvilcraft:transcendium_upgrade_smithing_template"/>配合，升级工具
+- 用于合成机器或升级工具
 - 为*附魔台*提供等同于 10 个<ref item="minecraft:bookshelf"/>的附魔能力
 
 # 超限合金工具

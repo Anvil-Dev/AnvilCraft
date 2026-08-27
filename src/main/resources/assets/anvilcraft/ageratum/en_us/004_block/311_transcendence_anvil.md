@@ -8,7 +8,7 @@ items:
 
 # Transcendence Anvil
 
-<recipe id="anvilcraft:smithing/transcendence_anvil"/>
+<recipe id="anvilcraft:two_to_one_smithing/transcendence_anvil"/>
 
 ## Function
 

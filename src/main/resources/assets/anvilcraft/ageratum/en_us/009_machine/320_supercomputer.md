@@ -1,7 +1,7 @@
 ---
 navigation:
   title: "§5Processing: Spacetime Supercomputer"
-  icon: "minecraft:spacetime_supercomputer"
+  icon: "anvilcraft:spacetime_supercomputer"
 ---
 
 # <ref item="anvilcraft:spacetime_supercomputer"/> Auto-Processor
