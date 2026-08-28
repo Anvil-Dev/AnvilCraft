@@ -228,19 +228,24 @@ public class ItemHandlerUtil {
     public static ItemStack insertItem(@Nullable ResourceHandler<ItemResource> dest, ItemStack stack, boolean simulate) {
         if (dest == null || stack.isEmpty()) return stack;
 
+        ItemStack remainingStack = stack.copy();
+        
         if (dest instanceof PollableFilteredItemStackHandler pollable) {
             try (Transaction root = Transaction.openRoot()) {
                 for (int i = 0; i < dest.size(); i++) {
                     try (Transaction transaction = Transaction.open(root)) {
-                        stack.setCount(pollable.insertNoPolling(i, pollable.getResourceFrom(stack), stack.getCount(), transaction));
-                        if (stack.isEmpty()) {
-                            if (!simulate) {
-                                transaction.commit();
-                            }
-                            return ItemStack.EMPTY;
-                        }
+                        int inserted = pollable.insertNoPolling(
+                            i,
+                            pollable.getResourceFrom(remainingStack),
+                            remainingStack.getCount(),
+                            transaction
+                        );
+                        remainingStack.shrink(inserted);
                         if (!simulate) {
                             transaction.commit();
+                        }
+                        if (remainingStack.isEmpty()) {
+                            break;
                         }
                     }
                 }
@@ -250,15 +255,21 @@ public class ItemHandlerUtil {
             }
         } else {
             try (Transaction transaction = Transaction.openRoot()) {
-                int stackCount = stack.getCount();
-                int inserted = dest.insert(ItemResource.of(stack.getItem(), stack.getComponentsPatch()), stackCount, transaction);
-                stack.setCount(inserted);
+                int inserted = dest.insert(
+                    ItemResource.of(remainingStack.getItem(), remainingStack.getComponentsPatch()),
+                    remainingStack.getCount(),
+                    transaction
+                );
+                remainingStack.shrink(inserted);
                 if (!simulate) {
                     transaction.commit();
                 }
             }
         }
-        return stack;
+        if (remainingStack.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        return remainingStack;
     }
 
     public static boolean isEmptyContainer(@Nullable ResourceHandler<ItemResource> handler) {
