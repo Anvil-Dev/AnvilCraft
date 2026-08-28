@@ -8,6 +8,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 public class CategoryLang {
     public static void init(RegistrumLangProvider provider) {
         provider.add("screen.anvilcraft.storage.search.edit", "Search");
+        provider.add("screen.anvilcraft.storage.search.tab", "Press Tab");
         provider.add("screen.anvilcraft.storage.search", "Search Mode: Currently %s");
         provider.add("screen.anvilcraft.storage.search.clear", "Clear");
         provider.add("screen.anvilcraft.storage.search.retention", "Retention");

@@ -1335,9 +1335,9 @@ public final class StorageServerStub {
         if (targetId.equals(StorageServerStub.shulkerTerminalId(playerId))) {
             return StorageServerStub.shulkerTerminalStorages(player);
         }
-        return Storages.get().get(targetId, HyperdimensionStorage.class)
-            .map(List::<BaseStorage<?>>of)
-            .orElseGet(List::of);
+        return List.of(
+            Storages.get().getOrCreate(targetId, HyperdimensionStorage.class)
+        );
     }
 
     /**

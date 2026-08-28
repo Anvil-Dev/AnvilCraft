@@ -1640,6 +1640,7 @@
   "screen.anvilcraft.storage.search.clear": "Clear",
   "screen.anvilcraft.storage.search.edit": "Search",
   "screen.anvilcraft.storage.search.retention": "Retention",
+  "screen.anvilcraft.storage.search.tab": "Press Tab",
   "screen.anvilcraft.storage.sort": "Sort Mode: Currently %s",
   "screen.anvilcraft.storage.sort.count": "by Count",
   "screen.anvilcraft.storage.sort.mod": "by Mod ID",

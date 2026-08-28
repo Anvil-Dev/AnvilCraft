@@ -83,10 +83,10 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             content -> {
                 content.accept(ModBlocks.CRATE);
                 content.accept(ModBlocks.LARGE_CRATE);
-                content.accept(ModBlocks.SHULKER_CONTAINER);
-                content.accept(ModBlocks.HYPERDIMENSION_STORAGE_STATION);
-                content.accept(ModBlocks.HYPERDIMENSION_UPLOADER);
                 content.accept(ModBlocks.STORAGE_PORT);
+                content.accept(ModBlocks.SHULKER_CONTAINER);
+                content.accept(ModBlocks.HYPERDIMENSION_UPLOADER);
+                content.accept(ModBlocks.HYPERDIMENSION_STORAGE_STATION);
                 content.accept(ModBlocks.SINGULARITY_CRYSTAL);
                 content.accept(ModBlocks.HYPERCUBE);
                 content.accept(ModBlocks.CHUTE);
