@@ -55,8 +55,8 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.MAGNET_BLOCK);
                 content.accept(ModBlocks.HOLLOW_MAGNET_BLOCK);
                 content.accept(ModBlocks.FERRITE_CORE_MAGNET_BLOCK);
-                content.accept(Items.IRON_TRAPDOOR);
                 content.accept(Items.SCAFFOLDING);
+                content.accept(Items.IRON_TRAPDOOR);
                 content.accept(ModBlocks.STAMPING_PLATFORM);
                 content.accept(ModBlocks.CRUSHING_TABLE);
                 content.accept(ModBlocks.SIFTING_TABLE);
