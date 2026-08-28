@@ -163,6 +163,8 @@
   "anvilcraft.configuration.do_not_show_tooltip_when_jade_present.tooltip": "Do not render power component tooltip when jade present",
   "anvilcraft.configuration.ember_anvil_beyond_max_level": "Ember Anvil Beyond Max Level",
   "anvilcraft.configuration.ember_anvil_beyond_max_level.tooltip": "Combining items with Enchanted Books beyond max level in Ember Anvil",
+  "anvilcraft.configuration.eternal_items_void_killable": "Eternal Items Void Killable",
+  "anvilcraft.configuration.eternal_items_void_killable.tooltip": "Allow eternal items to be killed by the void (falling out of the world)",
   "anvilcraft.configuration.felling_block_per_level": "Felling Block Per Level",
   "anvilcraft.configuration.felling_block_per_level.tooltip": "The maximum number of logs that can be cut per level of Felling enchantment",
   "anvilcraft.configuration.frost_anvil_beyond_max_level": "Frost Anvil Beyond Max Level",

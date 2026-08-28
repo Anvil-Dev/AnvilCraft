@@ -7,6 +7,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import dev.anvilcraft.lib.v2.util.Util;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.event.ItemEntityEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IItemEntityExtension;
 import dev.dubhe.anvilcraft.block.ItemCollectorBlock;
@@ -329,6 +330,14 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     @ModifyExpressionValue(method = "isMergable", at = @At("MIXINEXTRAS:EXPRESSION"))
     private boolean eternalMergeable(boolean original, @Local(ordinal = 0) ItemStack itemstack) {
         return original || itemstack.has(ModComponents.ETERNAL);
+    }
+
+    @Override
+    protected void onBelowWorld() {
+        if (this.getItem().has(ModComponents.ETERNAL) && !AnvilCraft.CONFIG.eternalItemsVoidKillable) {
+            return;
+        }
+        super.onBelowWorld();
     }
 
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;isMergable()Z"))
