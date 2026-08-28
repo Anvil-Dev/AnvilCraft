@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:bamboo_door",
+      "properties": "half=lower"
+    },
+    {
+      "item": {},
+      "properties": "half=upper"
+    }
+  ]
+}

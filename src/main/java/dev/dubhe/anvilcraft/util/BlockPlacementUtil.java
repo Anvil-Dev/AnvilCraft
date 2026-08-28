@@ -12,9 +12,11 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -28,6 +30,7 @@ import net.minecraft.world.level.block.state.properties.BedPart;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.DoubleBlockHalf;
 import net.minecraft.world.level.block.state.properties.Half;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.level.block.state.properties.SlabType;
 import net.minecraft.world.phys.AABB;
@@ -47,6 +50,17 @@ public final class BlockPlacementUtil {
     private BlockPlacementUtil() {
     }
 
+    /**
+     * 状态值即放置数量的整数属性（雪层、海泡菜、蛋、蜡烛、花朵数量）。
+     */
+    public static final List<IntegerProperty> COUNT_PROPERTIES = List.of(
+        BlockStateProperties.LAYERS,
+        BlockStateProperties.PICKLES,
+        BlockStateProperties.EGGS,
+        BlockStateProperties.CANDLES,
+        BlockStateProperties.FLOWER_AMOUNT
+    );
+
     public static boolean isMultifaceLike(Block block) {
         return block instanceof MultifaceBlock || block instanceof VineBlock;
     }
@@ -57,6 +71,15 @@ public final class BlockPlacementUtil {
         ItemStack stack,
         @Nullable BlockState requiredState
     ) {
+        // 桶 → 炼药锅：消耗一桶流体，放置目标锅状态
+        // （状态转换如火锅 → 油锅由蓝图状态规则处理）
+        if (stack.getItem() instanceof BucketItem && requiredState != null
+            && requiredState.getBlock() instanceof AbstractCauldronBlock) {
+            if (level.setBlock(pos, requiredState, Block.UPDATE_ALL)) {
+                return stack.copyWithCount(stack.getCount() - 1);
+            }
+            return stack;
+        }
         IBlockItem blockItem = switch (stack.getItem()) {
             case IBlockItem item -> item;
             case BlockItem item -> IBlockItem.wrap(item);
@@ -115,9 +138,17 @@ public final class BlockPlacementUtil {
         List<PlacedBlueprintPart> placedParts = new ArrayList<>();
         for (BlueprintPartSnapshot snapshot : snapshots) {
             BlockState placedState = level.getBlockState(snapshot.pos());
-            if (!snapshot.previousState().is(snapshot.requiredState().getBlock())
-                && placedState.is(snapshot.requiredState().getBlock())) {
-                placedParts.add(new PlacedBlueprintPart(snapshot.pos(), snapshot.requiredState(), placedState));
+            BlockState requiredState = snapshot.requiredState();
+            // 蓝图状态经规则转换后的目标方块（如火锅 → 油锅）
+            BlockState transformedRequired = BlockPlacementRules.applyBlueprintStateRules(
+                level.registryAccess(),
+                requiredState,
+                requiredState
+            );
+            if (!snapshot.previousState().is(requiredState.getBlock())
+                && (placedState.is(requiredState.getBlock())
+                    || placedState.is(transformedRequired.getBlock()))) {
+                placedParts.add(new PlacedBlueprintPart(snapshot.pos(), requiredState, placedState));
             }
         }
         if (placedParts.size() != snapshots.size()) {
@@ -143,8 +174,15 @@ public final class BlockPlacementUtil {
                 contextualState,
                 part.requiredState()
             );
+            BlockState transformedRequired = BlockPlacementRules.applyBlueprintStateRules(
+                level.registryAccess(),
+                part.requiredState(),
+                part.requiredState()
+            );
             contextualStates.add(finalState);
-            if (!finalState.is(part.requiredState().getBlock()) || !finalState.canSurvive(level, part.pos())) {
+            if ((!finalState.is(part.requiredState().getBlock())
+                && !finalState.is(transformedRequired.getBlock()))
+                || !finalState.canSurvive(level, part.pos())) {
                 valid = false;
             }
         }
@@ -267,6 +305,7 @@ public final class BlockPlacementUtil {
         return List.copyOf(presentParts);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean matchesMultiblockPart(BlockState state, BlockState expectedState) {
         if (!state.is(expectedState.getBlock())) {
             return false;

@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.dfu.AnvilCraftDfu;
 import dev.dubhe.anvilcraft.init.ModAttachments;
 import dev.dubhe.anvilcraft.init.ModBiomeSources;
+import dev.dubhe.anvilcraft.init.ModBlockPlacementFallbacks;
 import dev.dubhe.anvilcraft.init.ModCriterionTriggers;
 import dev.dubhe.anvilcraft.init.ModDataAttachments;
 import dev.dubhe.anvilcraft.init.ModDispenserBehavior;
@@ -197,6 +198,7 @@ public class AnvilCraft {
 
     public static void loadComplete(FMLLoadCompleteEvent event) {
         event.enqueueWork(() -> {
+            ModBlockPlacementFallbacks.register();
             ModDispenserBehavior.register();
             ModInteractionMap.initInteractionMap();
             if (Util.isLoaded("apothic_enchanting")) {

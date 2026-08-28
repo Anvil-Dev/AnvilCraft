@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:flower_pot",
+      "properties": ""
+    },
+    {
+      "item": "minecraft:brown_mushroom",
+      "properties": ""
+    }
+  ]
+}

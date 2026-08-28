@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "anvilcraft:trading_station",
+      "properties": "half=bottom"
+    },
+    {
+      "item": {},
+      "properties": "!half=bottom"
+    }
+  ]
+}

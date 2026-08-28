@@ -1,0 +1,8 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:chorus_flower",
+      "properties": "age=0"
+    }
+  ]
+}

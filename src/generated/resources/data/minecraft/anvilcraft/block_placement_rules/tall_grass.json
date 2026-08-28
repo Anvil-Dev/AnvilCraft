@@ -1,9 +1,12 @@
 {
   "rules": [
     {
-      "count": 1,
       "item": "minecraft:tall_grass",
-      "properties": ""
+      "properties": "half=lower"
+    },
+    {
+      "item": {},
+      "properties": "half=upper"
     }
   ]
 }

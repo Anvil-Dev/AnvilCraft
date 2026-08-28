@@ -1,23 +1,28 @@
 {
   "rules": [
     {
-      "count": 1,
       "item": "minecraft:pink_candle",
       "properties": "candles=1"
     },
     {
-      "count": 2,
-      "item": "minecraft:pink_candle",
+      "item": {
+        "count": 2,
+        "id": "minecraft:pink_candle"
+      },
       "properties": "candles=2"
     },
     {
-      "count": 3,
-      "item": "minecraft:pink_candle",
+      "item": {
+        "count": 3,
+        "id": "minecraft:pink_candle"
+      },
       "properties": "candles=3"
     },
     {
-      "count": 4,
-      "item": "minecraft:pink_candle",
+      "item": {
+        "count": 4,
+        "id": "minecraft:pink_candle"
+      },
       "properties": "candles=4"
     }
   ]

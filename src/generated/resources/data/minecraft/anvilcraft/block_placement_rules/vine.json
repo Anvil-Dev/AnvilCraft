@@ -1,7 +1,6 @@
 {
   "rules": [
     {
-      "count": 1,
       "item": "minecraft:vine",
       "properties": [
         "east=false,north=false,south=false,up=false,west=true",
@@ -12,8 +11,10 @@
       ]
     },
     {
-      "count": 2,
-      "item": "minecraft:vine",
+      "item": {
+        "count": 2,
+        "id": "minecraft:vine"
+      },
       "properties": [
         "east=false,north=false,south=false,up=true,west=true",
         "east=false,north=false,south=true,up=false,west=true",
@@ -28,8 +29,10 @@
       ]
     },
     {
-      "count": 3,
-      "item": "minecraft:vine",
+      "item": {
+        "count": 3,
+        "id": "minecraft:vine"
+      },
       "properties": [
         "east=false,north=false,south=true,up=true,west=true",
         "east=false,north=true,south=false,up=true,west=true",
@@ -44,8 +47,10 @@
       ]
     },
     {
-      "count": 4,
-      "item": "minecraft:vine",
+      "item": {
+        "count": 4,
+        "id": "minecraft:vine"
+      },
       "properties": [
         "east=false,north=true,south=true,up=true,west=true",
         "east=true,north=false,south=true,up=true,west=true",
@@ -55,8 +60,10 @@
       ]
     },
     {
-      "count": 5,
-      "item": "minecraft:vine",
+      "item": {
+        "count": 5,
+        "id": "minecraft:vine"
+      },
       "properties": "east=true,north=true,south=true,up=true,west=true"
     }
   ]

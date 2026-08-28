@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "anvilcraft:acceleration_ring",
+      "properties": "half=mid_center"
+    },
+    {
+      "item": {},
+      "properties": "!half=mid_center"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:spruce_door",
+      "properties": "half=lower"
+    },
+    {
+      "item": {},
+      "properties": "half=upper"
+    }
+  ]
+}

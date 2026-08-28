@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:purple_bed",
+      "properties": "part=foot"
+    },
+    {
+      "item": {},
+      "properties": "part=head"
+    }
+  ]
+}
