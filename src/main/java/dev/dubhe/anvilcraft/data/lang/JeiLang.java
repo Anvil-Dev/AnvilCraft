@@ -86,8 +86,8 @@ public class JeiLang {
         provider.add("gui.anvilcraft.category.container_upgrade", "Container Upgrade");
         provider.add("gui.anvilcraft.category.container_upgrade.drop_on_top", "Drop these items onto the container");
         provider.add("gui.anvilcraft.category.container_upgrade.strike", "Strike with an anvil to upgrade the container");
-        provider.add("gui.anvilcraft.category.processing_table_conversion", "Processing Table Conversion");
-        provider.add("gui.anvilcraft.category.processing_table_conversion.convert", "Right-click the side of the table with this item to convert it");
+        provider.add("gui.anvilcraft.category.use_item_on_block", "Use Item on Block");
+        provider.add("gui.anvilcraft.category.use_item_on_block.convert", "Right-click the block with item to convert it");
 
         provider.add(
             "gui.anvilcraft.category.container_upgrade.requires_expansion",

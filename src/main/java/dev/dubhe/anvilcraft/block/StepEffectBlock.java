@@ -45,4 +45,12 @@ public class StepEffectBlock extends Block {
         player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, EFFECT_DURATION, 4, true, true));
         player.addEffect(new MobEffectInstance(MobEffects.JUMP, EFFECT_DURATION, 5, true, true));
     }
+
+    public static void stepOnBlackWhiteChocolateBlock(Entity entity) {
+        if (!(entity instanceof Player player)) return;
+        if (entity.level().getGameTime() % EFFECT_PERIOD != 0) return;
+        player.addEffect(new MobEffectInstance(MobEffects.MOVEMENT_SPEED, EFFECT_DURATION, 4, true, true));
+        player.addEffect(new MobEffectInstance(MobEffects.DIG_SPEED, EFFECT_DURATION, 3, true, true));
+        player.addEffect(new MobEffectInstance(MobEffects.JUMP, EFFECT_DURATION, 5, true, true));
+    }
 }

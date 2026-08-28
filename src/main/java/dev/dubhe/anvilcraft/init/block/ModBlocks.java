@@ -29,6 +29,8 @@ import dev.dubhe.anvilcraft.block.ChocolateCreamBlock;
 import dev.dubhe.anvilcraft.block.ChuteBlock;
 import dev.dubhe.anvilcraft.block.ConfinementChamberBlock;
 import dev.dubhe.anvilcraft.block.ControllableSandBlock;
+import dev.dubhe.anvilcraft.block.CookieBlock;
+import dev.dubhe.anvilcraft.block.CookiePillarBlock;
 import dev.dubhe.anvilcraft.block.CorruptedBeaconBlock;
 import dev.dubhe.anvilcraft.block.CrabTrapBlock;
 import dev.dubhe.anvilcraft.block.CreamBlock;
@@ -77,7 +79,9 @@ import dev.dubhe.anvilcraft.block.HeavyIronTrapdoorBlock;
 import dev.dubhe.anvilcraft.block.HeavyIronWallBlock;
 import dev.dubhe.anvilcraft.block.HeliostatsBlock;
 import dev.dubhe.anvilcraft.block.HollowMagnetBlock;
+import dev.dubhe.anvilcraft.block.HoneyCakeBlock;
 import dev.dubhe.anvilcraft.block.HoneyCauldronBlock;
+import dev.dubhe.anvilcraft.block.HoneyCreamBlock;
 import dev.dubhe.anvilcraft.block.HypercubeBlock;
 import dev.dubhe.anvilcraft.block.HyperdimensionUploaderBlock;
 import dev.dubhe.anvilcraft.block.ImpactPileBlock;
@@ -100,6 +104,8 @@ import dev.dubhe.anvilcraft.block.MagnetBlock;
 import dev.dubhe.anvilcraft.block.MagneticChuteBlock;
 import dev.dubhe.anvilcraft.block.MagnetoElectricCoreBlock;
 import dev.dubhe.anvilcraft.block.MassEnergyInverterBlock;
+import dev.dubhe.anvilcraft.block.MatchaCakeBlock;
+import dev.dubhe.anvilcraft.block.MatchaCreamBlock;
 import dev.dubhe.anvilcraft.block.MeltGemCauldron;
 import dev.dubhe.anvilcraft.block.MengerSpongeBlock;
 import dev.dubhe.anvilcraft.block.MilkCauldronBlock;
@@ -3325,6 +3331,101 @@ public class ModBlocks {
         .build()
         .register();
 
+    public static final BlockEntry<HoneyCreamBlock> HONEY_CREAM_BLOCK = REGISTRUM.block(
+            "honey_cream_block",
+            HoneyCreamBlock::new
+        )
+        .initialProperties(() -> Blocks.CAKE)
+        .item()
+        .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<HoneyCakeBlock> HONEY_CAKE_BLOCK = REGISTRUM.block(
+            "honey_cake_block",
+            HoneyCakeBlock::new
+        )
+        .initialProperties(() -> Blocks.CAKE)
+        .blockstate((context, provider) -> provider.simpleBlock(
+            context.get(),
+            DangerUtil.genConfiguredModel("block/honey_cake_block").get()
+        ))
+        .item()
+        .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<MatchaCreamBlock> MATCHA_CREAM_BLOCK = REGISTRUM.block(
+            "matcha_cream_block",
+            MatchaCreamBlock::new
+        )
+        .initialProperties(() -> Blocks.CAKE)
+        .item()
+        .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<MatchaCakeBlock> MATCHA_CAKE_BLOCK = REGISTRUM.block(
+            "matcha_cake_block",
+            MatchaCakeBlock::new
+        )
+        .initialProperties(() -> Blocks.CAKE)
+        .blockstate((context, provider) -> provider.simpleBlock(
+            context.get(),
+            DangerUtil.genConfiguredModel("block/matcha_cake_block").get()
+        ))
+        .item()
+        .tag(Tags.Items.FOODS, Tags.Items.FOODS_EDIBLE_WHEN_PLACED)
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<CookieBlock> COOKIE_BLOCK = REGISTRUM.block(
+            "cookie_block",
+            CookieBlock::new
+        )
+        .properties(properties -> properties
+            .mapColor(MapColor.NETHER)
+            .instrument(NoteBlockInstrument.BASEDRUM)
+            .strength(0.4F)
+            .sound(SoundType.NETHERRACK))
+        .item()
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.STORAGE_BLOCKS)
+        .recipe(RegistrumBlockRecipeLoader::cookieBlock)
+        .register();
+
+    public static final BlockEntry<CookiePillarBlock> COOKIE_PILLAR = REGISTRUM.block(
+            "cookie_pillar",
+            CookiePillarBlock::new
+        )
+        .properties(properties -> properties
+            .mapColor(MapColor.NETHER)
+            .instrument(NoteBlockInstrument.BASEDRUM)
+            .strength(0.4F)
+            .sound(SoundType.NETHERRACK))
+        .blockstate((context, provider) -> {
+            var model = provider.models().getExistingFile(AnvilCraft.of("block/cookie_pillar"));
+            provider.getVariantBuilder(context.get()).forAllStates(state -> {
+                Direction.Axis axis = state.getValue(RotatedPillarBlock.AXIS);
+                int rotationX = axis == Direction.Axis.Y ? 0 : 90;
+                int rotationY = axis == Direction.Axis.X ? 90 : 0;
+                return ConfiguredModel.builder()
+                    .modelFile(model)
+                    .rotationX(rotationX)
+                    .rotationY(rotationY)
+                    .build();
+            });
+        })
+        .item()
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.STORAGE_BLOCKS)
+        .recipe(RegistrumBlockRecipeLoader::cookiePillar)
+        .register();
+
     public static final BlockEntry<StepEffectBlock> CHOCOLATE_BLOCK = REGISTRUM.block(
             "chocolate_block",
             properties -> new StepEffectBlock(properties, StepEffectBlock::stepOnChocolateBlock)
@@ -3362,6 +3463,23 @@ public class ModBlocks {
         .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.STORAGE_BLOCKS)
         .recipe(RegistrumBlockRecipeLoader::whiteChocolateBlock)
+        .register();
+
+    public static final BlockEntry<StepEffectBlock> BLACK_WHITE_CHOCOLATE_BLOCK = REGISTRUM.block(
+            "black_white_chocolate_block",
+            properties -> new StepEffectBlock(properties, StepEffectBlock::stepOnBlackWhiteChocolateBlock)
+        )
+        .lang("Block of Black and White Chocolate")
+        .initialProperties(() -> Blocks.STONE)
+        .blockstate((context, provider) -> provider.simpleBlock(
+            context.get(),
+            DangerUtil.genConfiguredModel("block/black_white_chocolate_block").get()
+        ))
+        .item()
+        .tag(Tags.Items.STORAGE_BLOCKS)
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.STORAGE_BLOCKS)
+        .recipe(RegistrumBlockRecipeLoader::blackWhiteChocolateBlock)
         .register();
 
     public static final BlockEntry<StepEffectSlabBlock> CHOCOLATE_SLAB = REGISTRUM.block(

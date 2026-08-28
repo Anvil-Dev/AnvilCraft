@@ -9,6 +9,8 @@ items:
 
 # Large Electromagnet
 
+> super~big~magnet~
+
 <row halign="center">
 <item id="anvilcraft:acceleration_ring"/>
 <item id="anvilcraft:deflection_ring"/>

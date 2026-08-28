@@ -103,7 +103,7 @@ public class SiftingTableBlock extends Block implements
         BlockHitResult hitResult
     ) {
         if (hitResult.getDirection() != Direction.UP) {
-            return ProcessingTableConversion.tryConvert(level, player, hand, state, pos, hitResult);
+            return UseItemOnBlock.tryConvert(level, player, hand, state, pos, hitResult);
         }
         if (level.getBlockEntity(pos) instanceof SiftingTableBlockEntity table
             && table.tryInteractItems(player, hand)

@@ -17,6 +17,7 @@ import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.PushReaction;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.Nullable;
 
@@ -61,6 +62,11 @@ public class ConfinementChamberBlock extends BaseEntityBlock implements IHammerR
         confinementChamberBlockEntity.getItemHandler().setStackInSlot(0, handItemStack.copy());
         return ItemInteractionResult.sidedSuccess(level.isClientSide);
     }*/
+
+    @Override
+    public PushReaction getPistonPushReaction(BlockState state) {
+        return PushReaction.DESTROY;
+    }
 
     @Override
     public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {

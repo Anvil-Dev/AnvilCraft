@@ -26,11 +26,14 @@ items:
 
 - **Cheap and effective tools**
 - Amethyst tools come with built-in enchantments
-  - The pickaxe has Fortune III, helping you obtain more iron ore, but its mining level is only equivalent to a stone pickaxe
-  - The axe has Timber I, a new enchantment added by this mod; each level can break 2 additional connected logs, up to level III
-  - The shovel has Efficiency III, helping you flatten land faster
-  - The hoe has Harvest I, a new enchantment added by this mod; right-click mature crops to harvest and replant them; each level can harvest an additional ring of area, up to level III
-  - The sword has Beheading I, a new enchantment added by this mod; each level increases the chance of certain mobs dropping heads; this chance is very high for players and the Ender Dragon, up to level III
+
+| Tool    | Enchantment (Crafting Level / Max Level) | Enchantment Function                                                                                                         |
+|---------|------------------------------------------|------------------------------------------------------------------------------------------------------------------------------|
+| Pickaxe | Fortune III / III                        | Increases ore drops (helps obtain more iron ore)                                                                             |
+| Axe     | Timber I / III                           | When chopping, each level breaks 2 additional connected logs                                                                 |
+| Shovel  | Efficiency III / V                       | Increases breaking speed                                                                                                     |
+| Hoe     | Harvest I / III                          | Right-click mature crops to harvest and replant them, also breaks weeds within range; each level harvests an additional ring |
+| Sword   | Beheading I / III                        | Each level increases the chance of certain mobs dropping heads; very high chance for players and the Ender Dragon            |
 
 ### Crafting
 

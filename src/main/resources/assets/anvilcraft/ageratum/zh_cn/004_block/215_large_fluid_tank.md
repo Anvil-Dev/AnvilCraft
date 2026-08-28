@@ -8,7 +8,7 @@ items:
 
 # <ref item="anvilcraft:large_fluid_tank"/>
 
-> super~big~tank
+> super~big~tank~
 
 <item id="anvilcraft:large_fluid_tank"/>
 

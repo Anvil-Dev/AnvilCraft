@@ -26,6 +26,7 @@ Left-click to adjust position; right-click to adjust angle; PgUp/PgDn to adjust 
 - Set all repeaters to 3 ticks (excessively high frequency will cause surplus iron ingots fired by the <ref item="minecraft:dispenser"/> to not be retrieved by the chute in time)
 - Set the <ref item="anvilcraft:magnetic_chute"/> next to the <ref item="minecraft:dispenser"/> to filter: Iron Ingot
 - Set the <ref item="anvilcraft:magnetic_chute"/> next to the dropper to filter: Anvil
+- Use solid <ref item="minecraft:glass"/> pillars to push items upward
 - Remember to place an anvil after building
 
 <info>

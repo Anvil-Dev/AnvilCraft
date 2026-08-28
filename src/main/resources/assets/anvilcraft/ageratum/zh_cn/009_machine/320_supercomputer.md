@@ -1,7 +1,7 @@
 ---
 navigation:
   title: "§5加工：时空超算"
-  icon: "minecraft:spacetime_supercomputer"
+  icon: "anvilcraft:spacetime_supercomputer"
 ---
 
 # <ref item="anvilcraft:spacetime_supercomputer"/>自动加工机

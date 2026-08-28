@@ -8,7 +8,7 @@ navigation:
 
 <ref item="minecraft:cobblestone"/>十分重要，因此需要制作一台刷石机。
 
-利用[铁砧破坏](../007_struct/000_block_processing.md)的特性，可以自动生产大量<ref item="minecraft:cobblestone"/>
+利用[铁砧破坏](../007_struct/000_anvil_processing.md)的特性，可以自动生产大量<ref item="minecraft:cobblestone"/>
 
 <structure id="../../structures/machine/stone.snbt"/>
 

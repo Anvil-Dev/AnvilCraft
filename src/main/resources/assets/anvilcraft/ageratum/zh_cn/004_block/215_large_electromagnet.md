@@ -9,6 +9,8 @@ items:
 
 # 大型电磁铁
 
+> super~big~magnet~
+
 <row halign="center">
 <item id="anvilcraft:acceleration_ring"/>
 <item id="anvilcraft:deflection_ring"/>

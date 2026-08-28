@@ -96,6 +96,14 @@ public class SolidLiquidRecipeLoader {
             .save(provider, AnvilCraft.of("solid_liquid/honey_block"));
 
         SolidLiquidRecipe.builder()
+            .cauldron(ModFluids.HONEY.get())
+            .consume(250)
+            .requires(ModItemTags.CREAM, 4)
+            .requires(Items.SUGAR)
+            .result(ModBlocks.HONEY_CREAM_BLOCK)
+            .save(provider);
+
+        SolidLiquidRecipe.builder()
             .cauldron(Blocks.WATER_CAULDRON)
             .consume(1000)
             .transform(ModBlocks.EXP_FLUID_CAULDRON.get(), 1000)
