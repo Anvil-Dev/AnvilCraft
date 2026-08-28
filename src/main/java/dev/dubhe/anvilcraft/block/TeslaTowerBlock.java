@@ -216,9 +216,18 @@ public class TeslaTowerBlock
     ) {
         if (level.isClientSide) return ItemInteractionResult.SUCCESS;
         if (player instanceof ServerPlayer serverPlayer) {
-            if (level.getBlockEntity(pos) instanceof TeslaTowerBlockEntity be && player.getItemInHand(hand).is(ModItems.DISK)) {
-                return Util.interactionResultConverter()
-                    .apply(be.useDisk(level, serverPlayer, hand, serverPlayer.getItemInHand(hand), hitResult));
+            if (player.getItemInHand(hand).is(ModItems.DISK)) {
+                BlockPos mainPartPos = getMainPartPos(pos, state);
+                if (level.getBlockEntity(mainPartPos) instanceof TeslaTowerBlockEntity be) {
+                    BlockHitResult mainHit = new BlockHitResult(
+                        hitResult.getLocation(),
+                        hitResult.getDirection(),
+                        mainPartPos,
+                        hitResult.isInside()
+                    );
+                    return Util.interactionResultConverter()
+                        .apply(be.useDisk(level, serverPlayer, hand, serverPlayer.getItemInHand(hand), mainHit));
+                }
             }
         }
         return super.useItemOn(stack, state, level, pos, player, hand, hitResult);
