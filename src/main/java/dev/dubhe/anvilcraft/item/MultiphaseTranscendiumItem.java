@@ -6,10 +6,12 @@ import dev.dubhe.anvilcraft.api.item.IMultipleMaterial;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.property.component.Eternal;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.Unbreakable;
 import net.neoforged.neoforge.common.util.TriState;
 
 import java.util.List;
@@ -31,7 +33,8 @@ public class MultiphaseTranscendiumItem extends Item implements IMultipleMateria
     );
 
     public MultiphaseTranscendiumItem(Properties properties) {
-        super(properties.component(ModComponents.ETERNAL, Eternal.INSTANCE));
+        super(properties.component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(DataComponents.UNBREAKABLE, new Unbreakable(true)));
     }
 
     @Override

@@ -286,6 +286,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.level.BlockGetter;
@@ -856,6 +857,7 @@ public class ModBlocks {
             .fireResistant()
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
         )
         .tag(ItemTags.ANVIL, ModItemTags.EXPLOSION_PROOF, ModItemTags.AUTO_ENCHANTING_TABLE_PRIMERS)
         .build()
@@ -885,6 +887,7 @@ public class ModBlocks {
             .fireResistant()
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
         )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
@@ -915,6 +918,7 @@ public class ModBlocks {
             .fireResistant()
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
         )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()

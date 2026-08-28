@@ -7,11 +7,17 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.data.tags.TagsProvider;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ItemLike;
 import net.neoforged.neoforge.common.Tags;
+
+import java.util.List;
 
 public class ItemTagLoader {
     /**
@@ -270,6 +276,69 @@ public class ItemTagLoader {
             .add(ModItems.EMBER_METAL_HOE.getKey())
             .add(ModItems.EMBER_METAL_SWORD.getKey())
             .add(ModItems.EMBER_METAL_HEAVY_HALBERD.getKey());
+
+        addTwilightForestUncraftableTags(provider);
+    }
+
+    private static void addTwilightForestUncraftableTags(RegistrumTagsProvider<Item> provider) {
+        TagKey<Item> bannedUncraftables = TagKey.create(
+            Registries.ITEM,
+            ResourceLocation.fromNamespaceAndPath("twilightforest", "banned_uncraftables")
+        );
+        TagKey<Item> bannedUncraftingIngredients = TagKey.create(
+            Registries.ITEM,
+            ResourceLocation.fromNamespaceAndPath("twilightforest", "banned_uncrafting_ingredients")
+        );
+        TagsProvider.TagAppender<Item> uncraftables = provider.addTag(bannedUncraftables);
+        TagsProvider.TagAppender<Item> uncraftingIngredients = provider.addTag(bannedUncraftingIngredients);
+
+        // 超限相关物品：不能被拆解，也不能通过拆解获得
+        List<ItemLike> transcendenceItems = List.of(
+            ModItems.TRANSCENDENCE_ANVIL_HAMMER,
+            ModItems.TRANSCENDENCE_DRAGON_ROD,
+            ModItems.TRANSCENDENCE_HEAVY_HALBERD,
+            ModItems.TRANSCENDENCE_RESONATOR,
+            ModItems.TRANSCENDIUM_INGOT,
+            ModItems.TRANSCENDIUM_NUGGET,
+            ModItems.MULTIPHASE_TRANSCENDIUM,
+            ModBlocks.TRANSCENDENCE_ANVIL,
+            ModBlocks.TRANSCENDENCE_GRINDSTONE,
+            ModBlocks.TRANSCENDENCE_SMITHING_TABLE,
+            ModBlocks.TRANSCENDIUM_BLOCK,
+            ModBlocks.TRANSCENDENCE_DECO_BLOCK,
+            ModBlocks.TRANSCENDENCE_DECO_OUTLINE
+        );
+        for (ItemLike item : transcendenceItems) {
+            ResourceKey<Item> resourceKey = findResourceKey(item.asItem());
+            uncraftables.add(resourceKey);
+            uncraftingIngredients.add(resourceKey);
+        }
+
+        // 踏板：不能被拆解
+        uncraftables.add(findResourceKey(ModBlocks.COPPER_PRESSURE_PLATE.asItem()))
+            .add(findResourceKey(ModBlocks.EXPOSED_COPPER_PRESSURE_PLATE.asItem()))
+            .add(findResourceKey(ModBlocks.WEATHERED_COPPER_PRESSURE_PLATE.asItem()))
+            .add(findResourceKey(ModBlocks.OXIDIZED_COPPER_PRESSURE_PLATE.asItem()))
+            .add(findResourceKey(ModBlocks.TUNGSTEN_PRESSURE_PLATE.asItem()))
+            .add(findResourceKey(ModBlocks.TITANIUM_PRESSURE_PLATE.asItem()))
+            .add(findResourceKey(ModBlocks.ZINC_PRESSURE_PLATE.asItem()))
+            .add(findResourceKey(ModBlocks.TIN_PRESSURE_PLATE.asItem()))
+            .add(findResourceKey(ModBlocks.LEAD_PRESSURE_PLATE.asItem()))
+            .add(findResourceKey(ModBlocks.SILVER_PRESSURE_PLATE.asItem()))
+            .add(findResourceKey(ModBlocks.URANIUM_PRESSURE_PLATE.asItem()))
+            .add(findResourceKey(ModBlocks.PLUTONIUM_PRESSURE_PLATE.asItem()))
+            .add(findResourceKey(ModBlocks.BRASS_PRESSURE_PLATE.asItem()))
+            .add(findResourceKey(ModBlocks.BRONZE_PRESSURE_PLATE.asItem()));
+
+        // 有多个合成途径的物品：不能被拆解
+        uncraftables.add(findResourceKey(ModBlocks.HELIOSTATS.asItem()))
+            .add(findResourceKey(ModBlocks.ACTIVE_SILENCER.asItem()));
+
+        // 电容器类物品：不能通过拆解获得
+        uncraftingIngredients.add(ModItems.CAPACITOR.getKey())
+            .add(ModItems.CAPACITOR_EMPTY.getKey())
+            .add(ModItems.SUPER_CAPACITOR.getKey())
+            .add(ModItems.SUPER_CAPACITOR_EMPTY.getKey());
     }
 
     private static ResourceKey<Item> findResourceKey(Item item) {
