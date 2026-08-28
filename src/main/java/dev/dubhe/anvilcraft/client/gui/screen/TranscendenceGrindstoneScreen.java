@@ -136,7 +136,7 @@ public class TranscendenceGrindstoneScreen extends AbstractContainerScreen<Trans
         float scale = 0.75f;
         graphics.pose().pushMatrix();
         graphics.pose().scale(scale, scale);
-        graphics.text(this.font, component, (int) (66 / scale), (int) (y / scale), 8453920, false);
+        graphics.text(this.font, component, (int) (66 / scale), (int) (y / scale), 0xFF80FF20, false);
         graphics.pose().popMatrix();
     }
 
