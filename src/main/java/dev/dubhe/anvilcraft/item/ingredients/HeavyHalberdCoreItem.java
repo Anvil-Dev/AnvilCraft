@@ -15,7 +15,7 @@ import java.util.List;
 
 public class HeavyHalberdCoreItem extends Item implements IMultipleMaterial {
     private static final Identifier EMPTY_SLOT_SWORD =
-        Identifier.withDefaultNamespace("item/empty_slot_sword");
+        Identifier.withDefaultNamespace("container/slot/sword");
     private static final Identifier EMPTY_SLOT_SPEAR =
         Identifier.withDefaultNamespace("container/slot/spear");
     private static final Identifier EMPTY_SLOT_TRIDENT =

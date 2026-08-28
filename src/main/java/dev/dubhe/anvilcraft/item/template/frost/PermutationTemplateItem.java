@@ -10,7 +10,7 @@ import java.util.List;
 public class PermutationTemplateItem extends Item {
     private static final Component MISSING_TOOLTIP = Component.translatable("screen.anvilcraft.frost_smithing.permutation.missing");
     public static final List<Identifier> EMPTY_SLOT_TEXTURES = List.of(
-        Identifier.withDefaultNamespace("item/empty_slot_ingot"),
+        Identifier.withDefaultNamespace("container/slot/ingot"),
         AnvilCraft.of("item/empty_slot_multiphase_matter"),
         AnvilCraft.of("item/empty_slot_block")
     );

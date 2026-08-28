@@ -12,13 +12,13 @@ import java.util.List;
 
 public class ResonatorCoreItem extends Item implements IMultipleMaterial {
     private static final Identifier EMPTY_SLOT_AXE =
-        Identifier.withDefaultNamespace("item/empty_slot_axe");
+        Identifier.withDefaultNamespace("container/slot/axe");
     private static final Identifier EMPTY_SLOT_SHOVEL =
-        Identifier.withDefaultNamespace("item/empty_slot_shovel");
+        Identifier.withDefaultNamespace("container/slot/shovel");
     private static final Identifier EMPTY_SLOT_HOE =
-        Identifier.withDefaultNamespace("item/empty_slot_hoe");
+        Identifier.withDefaultNamespace("container/slot/hoe");
     private static final Identifier EMPTY_SLOT_PICKAXE =
-        Identifier.withDefaultNamespace("item/empty_slot_pickaxe");
+        Identifier.withDefaultNamespace("container/slot/pickaxe");
     private static final Component MISSING_TOOLS_TOOLTIP = Component.translatable(
         "screen.anvilcraft.ember_smithing.resonator_core.missing_tools");
     private static final List<Identifier> EMPTY_SLOT_TEXTURES = List.of(

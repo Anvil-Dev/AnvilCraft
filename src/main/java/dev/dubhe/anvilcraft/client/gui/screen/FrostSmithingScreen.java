@@ -49,7 +49,7 @@ public class FrostSmithingScreen extends AdjacentSmithingScreen<FrostSmithingMen
     private static final Identifier EMPTY_SLOT_DEFORMATION_SMITHING_TEMPLATE =
         AnvilCraft.of("item/empty_slot_deformation_smithing_template");
     private static final Identifier EMPTY_SLOT_INGOT =
-        Identifier.withDefaultNamespace("item/empty_slot_ingot");
+        Identifier.withDefaultNamespace("container/slot/ingot");
 
     private static final Component MISSING_TEMPLATE_TOOLTIP = Component.translatable(
         "screen.anvilcraft.frost_smithing.tooltip.missing_template"
