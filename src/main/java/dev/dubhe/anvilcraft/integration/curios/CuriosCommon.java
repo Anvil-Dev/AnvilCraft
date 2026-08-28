@@ -4,12 +4,10 @@ import dev.anvilcraft.lib.v2.integration.Integration;
 import dev.anvilcraft.lib.v2.integration.IntegrationHook;
 import dev.anvilcraft.lib.v2.util.InventoryUtil;
 import dev.dubhe.anvilcraft.api.event.AmuletEvent;
-import dev.dubhe.anvilcraft.api.power.PowerGrid;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.armor.IonoCraftBackpackItem;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
@@ -19,11 +17,9 @@ import net.neoforged.neoforge.common.NeoForge;
 import top.theillusivec4.curios.api.CuriosApi;
 import top.theillusivec4.curios.api.CuriosCapability;
 import top.theillusivec4.curios.api.SlotResult;
-import top.theillusivec4.curios.api.event.CurioChangeEvent;
 import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 
 import java.util.List;
-import java.util.Optional;
 
 @Integration("curios")
 public class CuriosCommon {
@@ -31,7 +27,6 @@ public class CuriosCommon {
         IEventBus modEventBus = IntegrationHook.getModEventBus();
         modEventBus.addListener(this::setup);
         modEventBus.addListener(this::registerCapabilities);
-        NeoForge.EVENT_BUS.addListener(this::onPlayerWearAnvilHammerInCurioSlot);
         NeoForge.EVENT_BUS.addListener(this::findFromCurios);
     }
 
@@ -65,14 +60,6 @@ public class CuriosCommon {
             ModItems.TRANSCENDENCE_ANVIL_HAMMER,
             ModItems.IONOCRAFT_BACKPACK
         );
-    }
-
-    private void onPlayerWearAnvilHammerInCurioSlot(CurioChangeEvent.Item event) {
-        LivingEntity entity = event.getEntity();
-        ItemStack eventTo = event.getTo();
-        if (entity instanceof Player && eventTo.getItem() instanceof AnvilHammerItem) {
-            Optional<PowerGrid> powerGrid = PowerGrid.findPowerGridContains(entity.level(), entity.position());
-        }
     }
 
     private void findFromCurios(AmuletEvent.Find event) {
