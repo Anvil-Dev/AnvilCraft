@@ -25,8 +25,6 @@ import top.theillusivec4.curios.api.type.capability.ICuriosItemHandler;
 import java.util.List;
 import java.util.Optional;
 
-import static dev.dubhe.anvilcraft.item.tool.AnvilHammerItem.addIsWearingPredicate;
-
 @Integration("curios")
 public class CuriosCommon {
     public void apply() {
@@ -38,7 +36,7 @@ public class CuriosCommon {
     }
 
     private void setup(FMLCommonSetupEvent event) {
-        addIsWearingPredicate(
+        AnvilHammerItem.addIsWearingPredicate(
             player -> CuriosApi.getCuriosInventory(player)
                 .map(CuriosCommon::isAnvilHammerWearing)
                 .orElse(false)

@@ -50,17 +50,17 @@ public class GogglesCurioRenderer implements ICurioRenderer {
         S renderState,
         RenderLayerParent<S, M> renderLayerParent,
         EntityRendererProvider.Context context,
-        float yRotation,
-        float xRotation
+        float rotationY,
+        float rotationX
     ) {
         // Prepare values for transformation
-        ICurioRenderer.setupHumanoidAnimations(model, renderState);
+        ICurioRenderer.setupHumanoidAnimations(this.model, renderState);
 
         // Translate and rotate with our head
         poseStack.pushPose();
-        poseStack.translate(model.head.x / 16.0, model.head.y / 16.0, model.head.z / 16.0);
-        poseStack.mulPose(Axis.YP.rotation(model.head.yRot));
-        poseStack.mulPose(Axis.XP.rotation(model.head.xRot));
+        poseStack.translate(this.model.head.x / 16.0, this.model.head.y / 16.0, this.model.head.z / 16.0);
+        poseStack.mulPose(Axis.YP.rotation(this.model.head.yRot));
+        poseStack.mulPose(Axis.XP.rotation(this.model.head.xRot));
 
         // Translate and scale to our head
         poseStack.translate(0, -0.25, 0);
@@ -73,7 +73,7 @@ public class GogglesCurioRenderer implements ICurioRenderer {
         }
 
         // Render
-        // TODO This works for now. But maybe there is a better way to render this?
+        // TODO: This works for now. But maybe there is a better way to render this?
         Minecraft mc = Minecraft.getInstance();
         ItemStackRenderState itemStackRenderState = new ItemStackRenderState();
         mc.getItemModelResolver().updateForTopItem(itemStackRenderState, stack, ItemDisplayContext.HEAD, null, null, 0);
