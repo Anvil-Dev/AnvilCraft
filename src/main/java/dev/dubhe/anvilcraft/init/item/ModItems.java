@@ -118,6 +118,7 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -134,7 +135,6 @@ import net.minecraft.world.item.PickaxeItem;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.ShovelItem;
 import net.minecraft.world.item.SwordItem;
-import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.ItemLike;
@@ -774,6 +774,7 @@ public class ModItems {
             .fireResistant()
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
             .component(ModComponents.TERMINAL_BINDING, TerminalBinding.EMPTY)
             .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK))
         .model((ctx, provider) -> provider.generated(ctx.lazy()))
@@ -1080,6 +1081,7 @@ public class ModItems {
             .fireResistant()
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
         )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::dysonSphereComponent)
@@ -1090,6 +1092,7 @@ public class ModItems {
             .fireResistant()
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
         )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::penroseSphereComponent)
@@ -1100,6 +1103,7 @@ public class ModItems {
             .fireResistant()
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
         )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::matterDecompressorComponent)
@@ -1110,6 +1114,7 @@ public class ModItems {
             .fireResistant()
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
         )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::wormholeStabilizerComponent)
@@ -1120,6 +1125,7 @@ public class ModItems {
             .fireResistant()
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
         )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::stellarRingComponent)
@@ -1130,6 +1136,7 @@ public class ModItems {
             .fireResistant()
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
         )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::magnetarCoilComponent)
@@ -1141,6 +1148,7 @@ public class ModItems {
             .fireResistant()
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
         )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .recipe(RegistrumItemRecipeLoader::stellarEvolutionAcceleratorComponent)

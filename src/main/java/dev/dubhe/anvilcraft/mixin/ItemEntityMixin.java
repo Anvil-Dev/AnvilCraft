@@ -1,7 +1,11 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.expression.Definition;
+import com.llamalad7.mixinextras.expression.Expression;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.event.ItemEntityEvent;
 import dev.dubhe.anvilcraft.api.injection.entity.IItemEntityExtension;
@@ -148,6 +152,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
                 || source.is(DamageTypeTags.IS_FIRE)
                 || source.is(DamageTypes.CACTUS)
                 || source.is(DamageTypes.FELL_OUT_OF_WORLD)
+                || source.is(DamageTypes.LIGHTNING_BOLT)
             )) {
             cir.setReturnValue(false);
         }
@@ -317,6 +322,13 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         this.tryCheckInsideBlocks();
 
         this.level().getProfiler().pop();
+    }
+
+    @Definition(id = "age", field = "Lnet/minecraft/world/entity/item/ItemEntity;age:I")
+    @Expression("this.age != ?")
+    @ModifyExpressionValue(method = "isMergable", at = @At("MIXINEXTRAS:EXPRESSION"))
+    private boolean eternalMergeable(boolean original, @Local(ordinal = 0) ItemStack itemstack) {
+        return original || itemstack.has(ModComponents.ETERNAL);
     }
 
     @WrapOperation(method = "tick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/item/ItemEntity;isMergable()Z"))
