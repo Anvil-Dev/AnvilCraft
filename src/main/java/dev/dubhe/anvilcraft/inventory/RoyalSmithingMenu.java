@@ -65,9 +65,9 @@ public class RoyalSmithingMenu extends AdjacentSmithingMenu {
         RecipePropertySet additionItemTest = recipes.propertySet(RecipePropertySet.SMITHING_ADDITION);
         return ItemCombinerMenuSlotDefinition.create()
             .withSlot(0, 8, 48, templateItemTest::test)
-            .withSlot(1, 26, 48, baseItemTest::test)
-            .withSlot(2, 44, 48, additionItemTest::test)
-            .withResultSlot(3, 98, 48)
+            .withSlot(1, 44, 48, baseItemTest::test)
+            .withSlot(2, 62, 48, additionItemTest::test)
+            .withResultSlot(3, 106, 48)
             .build();
     }
 
