@@ -1,0 +1,8 @@
+{
+  "entities": [
+    "#curios:player_like"
+  ],
+  "slots": [
+    "head"
+  ]
+}

@@ -23,4 +23,8 @@ dependencies {
     // Jade
     compileClasspath(libs.jade)
     runtimeClasspath(libs.jade)
+    
+    // Curios API
+    compileClasspath(libs.curios)
+    runtimeClasspath(libs.curios)
 }

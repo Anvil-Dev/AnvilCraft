@@ -96,6 +96,10 @@ public class IonoCraftBackpackItem extends Item implements IInventoryCarriedAwar
         int current = IonoCraftBackpackItem.getEnergyStored(stack);
         IonoCraftBackpackItem.setEnergyStored(stack, current + amount);
     }
+    
+    public static int getFlightTime(ItemStack stack) {
+        return getEnergyStored(stack) / FLIGHT_CONSUMPTION;
+    }
 
     public static boolean canModify(ItemStack stack, DynamicPowerComponent component) {
         return stack.is(ModItems.IONOCRAFT_BACKPACK)
