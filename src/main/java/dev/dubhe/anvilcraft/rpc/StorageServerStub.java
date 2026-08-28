@@ -807,6 +807,21 @@ public final class StorageServerStub {
         return count;
     }
 
+    /** 玩家身上是否持有带指定 storageId 的存储引用物品（如从方块上拆下的潜影存储站/板条箱）。 */
+    private static boolean ownsStorageRef(ServerPlayer player, UUID storageId) {
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack stack = player.getInventory().getItem(slot);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            StorageRef ref = stack.get(ModComponents.STORAGE);
+            if (ref != null && ref.id().isPresent() && ref.id().get().equals(storageId)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static boolean ownsBoundTerminal(ServerPlayer player, UUID storageId) {
         UUID playerId = player.getGameProfile().getId();
         boolean holdsLocal = false;
@@ -1858,8 +1873,11 @@ public final class StorageServerStub {
                    && args[0] instanceof UUID playerId
                    && player.getGameProfile().getId().equals(playerId)
                    && args[1] instanceof UUID storageId
-                   // 仅允许查询自己持有绑定终端指向的存储，防止凭 UUID 枚举他人存储信息
-                   && StorageServerStub.ownsBoundTerminal(player, storageId);
+                   // 仅允许查询自己持有的存储，防止凭 UUID 枚举他人存储信息：
+                   // 1. 持有绑定终端指向的存储
+                   // 2. 身上持有带该 storageId 的存储引用物品（潜影存储站等从方块上拆下/复制的物品）
+                   && (StorageServerStub.ownsBoundTerminal(player, storageId)
+                       || StorageServerStub.ownsStorageRef(player, storageId));
         }
     }
 
