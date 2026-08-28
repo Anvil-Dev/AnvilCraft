@@ -221,6 +221,7 @@ import dev.dubhe.anvilcraft.block.item.PlaceInWaterBlockItem;
 import dev.dubhe.anvilcraft.block.item.RadiationBlockItem;
 import dev.dubhe.anvilcraft.block.item.RedstoneWireBlockItem;
 import dev.dubhe.anvilcraft.block.item.ResinBlockItem;
+import dev.dubhe.anvilcraft.block.item.HyperdimensionStorageStationBlockItem;
 import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.StoragePortBlockItem;
@@ -1737,7 +1738,7 @@ public class ModBlocks {
             .isValidSpawn(ModBlocks::never)
             .requiresCorrectToolForDrops()
         )
-        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
+        .item(HyperdimensionStorageStationBlockItem::new)
         .properties(properties -> properties
             .fireResistant()
             .stacksTo(1)

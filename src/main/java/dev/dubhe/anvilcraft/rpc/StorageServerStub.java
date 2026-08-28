@@ -468,7 +468,12 @@ public final class StorageServerStub {
                     if (StorageServerStub.containsType(representatives, stack)) continue;
                     representatives.add(stack);
                 }
-                return new StorageUsage(items.getTypeCount(), items.getTypeLimit(), representatives);
+                int typeLimit = items.getTypeLimit();
+                // 无限类型存储（如超维存储站）以 0 表示“无类型上限”，客户端据此渲染 ∞
+                if (typeLimit == Integer.MAX_VALUE) {
+                    typeLimit = 0;
+                }
+                return new StorageUsage(items.getTypeCount(), typeLimit, representatives);
             })
             .orElse(new StorageUsage(0, 0, List.of()));
     }

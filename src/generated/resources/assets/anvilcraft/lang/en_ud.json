@@ -2296,6 +2296,7 @@
   "tooltip.anvilcraft.space_overcompressor.stored_mass": "%s :ssɐW pǝɹoʇS",
   "tooltip.anvilcraft.storage.types": ":sǝdʎ⟘",
   "tooltip.anvilcraft.storage.types.value": "%s / %s  ",
+  "tooltip.anvilcraft.storage.types.value.infinite": "∞ / %s  ",
   "tooltip.anvilcraft.storage_port.item": ":ɯǝʇI",
   "tooltip.anvilcraft.thought": "oɟuᴉ ǝɹoɯ ɹoɟ [%s] ssǝɹԀ",
   "tooltip.anvilcraft.waiting": "ᵷuᴉɔuʎs ɹoɟ ᵷuᴉʇᴉɐM",
