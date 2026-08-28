@@ -212,6 +212,7 @@ import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeatCollectorBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeatableBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeliostatsItem;
+import dev.dubhe.anvilcraft.block.item.HyperdimensionStorageStationBlockItem;
 import dev.dubhe.anvilcraft.block.item.InfiniteCollectorBlockItem;
 import dev.dubhe.anvilcraft.block.item.LargeFluidTankBlockItem;
 import dev.dubhe.anvilcraft.block.item.LevitationBlockItem;
@@ -1737,7 +1738,7 @@ public class ModBlocks {
             .isValidSpawn(ModBlocks::never)
             .requiresCorrectToolForDrops()
         )
-        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
+        .item(HyperdimensionStorageStationBlockItem::new)
         .properties(properties -> properties
             .fireResistant()
             .stacksTo(1)
@@ -4432,7 +4433,7 @@ public class ModBlocks {
             "confined_neutronium_ingot",
             SimpleConfinementAnvilonBlock::new
         )
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.COLLISION_IMMUNE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
         .blockstate(DataGenUtil::simple)
         .item(SuperHeavyBlockItem::new)

@@ -269,7 +269,6 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
         EnergyWeaponCategory.registerRecipeCatalysts(registration);
         MineralFountainCategory.registerRecipeCatalysts(registration);
         ContainerUpgradeCategory.registerRecipeCatalysts(registration);
-        UseItemOnBlockCategory.registerRecipeCatalysts(registration);
 
         registration.addRecipeCatalyst(new ItemStack(ModBlocks.BATCH_CRAFTER), RecipeTypes.CRAFTING);
 
