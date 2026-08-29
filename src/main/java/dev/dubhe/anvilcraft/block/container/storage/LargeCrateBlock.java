@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.api.distmarker.Dist;
@@ -126,6 +127,17 @@ public class LargeCrateBlock
             }
         }
         return super.use(state, level, pos, player, hand, hitResult);
+    }
+
+    @Override
+    protected VoxelShape getCollisionShape(
+        BlockState state,
+        BlockGetter level,
+        BlockPos pos,
+        CollisionContext context
+    ) {
+        // 碰撞箱用完整方块，选择框仍用多方块组合形状（getShape 不受影响）
+        return Shapes.block();
     }
 
     // region VoxelShapes
