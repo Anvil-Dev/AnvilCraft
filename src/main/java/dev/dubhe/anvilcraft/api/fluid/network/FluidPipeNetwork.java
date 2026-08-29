@@ -477,7 +477,7 @@ public class FluidPipeNetwork {
                     continue;
                 }
                 long hiPressure = gasPressure(hi, fluidType);
-                FluidEndpoint.Entry hiEntry = sourceEntry(hi);
+                FluidEndpoint.Entry hiEntry = sourceEntry(hi, hiStored);
                 Reachability reach = directionalConstraints
                     ? computeReachableCached(hiEntry.fromPipePos(), hiStored)
                     : null;
@@ -873,11 +873,6 @@ public class FluidPipeNetwork {
             if (!isEndpointConnected(higher)) {
                 continue;
             }
-            FluidEndpoint.Entry higherEntry = sourceEntry(higher);
-            int higherHeight = higherEntry == null ? 0 : higherEntry.effectiveHeight();
-            if (higherHeight <= sourceHeight) {
-                return false;
-            }
             if (higher.handler().equals(source.handler()) || !canDrainFromEndpoint(higher)) {
                 continue;
             }
@@ -886,6 +881,11 @@ public class FluidPipeNetwork {
                 FluidStack higherStored = higherHandler.getFluidInTank(i);
                 if (higherStored.isEmpty() || !FluidStack.isSameFluidSameComponents(higherStored, stored)) {
                     continue;
+                }
+                FluidEndpoint.Entry higherEntry = sourceEntry(higher, higherStored);
+                int higherHeight = higherEntry == null ? 0 : higherEntry.effectiveHeight();
+                if (higherHeight <= sourceHeight) {
+                    return false;
                 }
                 Reachability higherReach = directionalConstraints
                     ? computeReachableCached(higherEntry.fromPipePos(), higherStored)
@@ -963,9 +963,12 @@ public class FluidPipeNetwork {
     ) {
         FluidStack stored = matchingFluid(source.handler(), fluidType);
         for (FluidEndpoint target : group) {
-            int amount = wholeCauldronTransferAmount(source, fluidType, target, stored);
             FluidEndpoint.Entry targetEntry = reachableEntry(reach, target);
-            List<ValveState> valvePath = targetEntry == null ? null : pathValves.get(targetEntry.fromPipePos());
+            if (targetEntry == null) {
+                continue;
+            }
+            int amount = wholeCauldronTransferAmount(source, fluidType, target, stored);
+            List<ValveState> valvePath = pathValves.get(targetEntry.fromPipePos());
             int valveLimit = minValveRemaining(valvePath);
             // 控制阀流速是上限：整锅不能超过剩余预算，但预算不是最低起送量
             if (amount <= 0 || valveLimit <= 0 || amount > valveLimit) {
@@ -1033,12 +1036,15 @@ public class FluidPipeNetwork {
                 continue;
             }
             FluidStack stored = matchingFluid(source.handler(), fluidType);
+            FluidEndpoint.Entry targetEntry = reachableEntry(reach, target);
+            if (targetEntry == null) {
+                continue;
+            }
             int amount = wholeCauldronTransferAmount(source, fluidType, target, stored);
             if (amount <= 0) {
                 continue;
             }
-            FluidEndpoint.Entry targetEntry = reachableEntry(reach, target);
-            List<ValveState> valvePath = targetEntry == null ? null : pathValves.get(targetEntry.fromPipePos());
+            List<ValveState> valvePath = pathValves.get(targetEntry.fromPipePos());
             int valveLimit = minValveRemaining(valvePath);
             if (valveLimit <= 0 || amount > valveLimit) {
                 continue;
@@ -1169,9 +1175,13 @@ public class FluidPipeNetwork {
         if (level.isClientSide() || glassPipePositions.isEmpty()) {
             return;
         }
+        FluidEndpoint.Entry sourceEntry = sourceEntry(source, fluid);
+        FluidEndpoint.Entry targetEntry = reachableEntry(reach, target);
+        BlockPos sourcePipe = sourceEntry.fromPipePos();
+        BlockPos targetPipe = targetEntry != null ? targetEntry.fromPipePos() : target.primaryEntry().fromPipePos();
         List<BlockPos> path = reach == null
-            ? undirectedPipePath(source.primaryEntry().fromPipePos(), target.primaryEntry().fromPipePos())
-            : directionalPipePath(source.primaryEntry().fromPipePos(), target.primaryEntry().fromPipePos(), reach);
+            ? undirectedPipePath(sourcePipe, targetPipe)
+            : directionalPipePath(sourcePipe, targetPipe, reach);
         List<BlockPos> glassPath = new ArrayList<>();
         for (BlockPos pos : path) {
             if (glassPipePositions.contains(pos)) {
@@ -1229,7 +1239,7 @@ public class FluidPipeNetwork {
 
     @Nullable
     private BlockedPath findBlockedPartPath(FluidEndpoint source, FluidStack fluidType, FluidStack fluid) {
-        FluidEndpoint.Entry sourceEntry = source.primaryEntry();
+        FluidEndpoint.Entry sourceEntry = sourceEntry(source, fluid);
         if (valvesAt(sourceEntry.fromPipePos(), fluid, List.of()) == null) {
             return null;
         }
@@ -1628,19 +1638,23 @@ public class FluidPipeNetwork {
         return null;
     }
 
-    /** 返回源端点用于可达 BFS 的接入点。 */
-    private FluidEndpoint.Entry sourceEntry(FluidEndpoint source) {
-        // 源同时接普通管和泵时优先从工作的泵侧入口出发，否则可能选中被关闭的
-        // 普通/阀门入口而导致泵开启时无法从源抽出（见 #4349 的并联回路）。
-        for (FluidEndpoint.Entry entry : source.entries()) {
-            if (level.getBlockState(entry.fromPipePos()).getBlock() instanceof PumpBlock
-                && FluidNetworkScanner.isPumpWorking(level, entry.fromPipePos())
-                && canDrainFromEntry(entry)) {
-                return entry;
+    /** 返回源端点用于可达 BFS 的接入点，且该入口必须能到达至少一个更低端点。 */
+    private FluidEndpoint.Entry sourceEntry(FluidEndpoint source, FluidStack fluid) {
+        List<FluidEndpoint.Entry> candidates = new ArrayList<>(source.entries());
+        candidates.sort(Comparator.comparingInt((FluidEndpoint.Entry entry) ->
+                level.getBlockState(entry.fromPipePos()).getBlock() instanceof PumpBlock
+                    && FluidNetworkScanner.isPumpWorking(level, entry.fromPipePos())
+                    ? 0 : 1));
+        for (FluidEndpoint.Entry entry : candidates) {
+            if (!canDrainFromEntry(entry)) {
+                continue;
             }
-        }
-        for (FluidEndpoint.Entry entry : source.entries()) {
-            if (canDrainFromEntry(entry)) {
+            Reachability reach = directionalConstraints
+                ? computeReachableCached(entry.fromPipePos(), fluid)
+                : null;
+            TreeMap<Integer, List<FluidEndpoint>> targets =
+                collectTargetsByHeight(source, fluid, fluid, reach, entry.effectiveHeight());
+            if (!targets.isEmpty()) {
                 return entry;
             }
         }

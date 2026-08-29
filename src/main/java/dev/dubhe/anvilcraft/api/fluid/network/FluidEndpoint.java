@@ -56,7 +56,11 @@ public record FluidEndpoint(
         return new FluidEndpoint(containerPos, merged, handler, cauldron, entity);
     }
 
-    /** 第一个接入点（外部推送等仍使用单入口语义时的兼容入口）。 */
+    /**
+     * 第一个接入点（外部推送等仍使用单入口语义时的兼容入口）。
+     * {@code entries} 永不为空：单入口构造使用 {@link List#of}，多入口通过
+     * {@link #withEntry} 追加，均保证至少有一个元素。
+     */
     public Entry primaryEntry() {
         return entries.get(0);
     }

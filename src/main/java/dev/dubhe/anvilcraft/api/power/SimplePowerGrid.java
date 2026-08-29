@@ -206,7 +206,8 @@ public class SimplePowerGrid {
     }
 
     public static SimplePowerGrid decode(FriendlyByteBuf buf) {
-        Tag tag = buf.readNbt(NbtAccounter.unlimitedHeap());
+        // 电网同步包来自服务端（可信），但仍给 NBT 设置一个大上限，避免无限制读取。
+        Tag tag = buf.readNbt(NbtAccounter.create(128 * 1024 * 1024));
         if (!(tag instanceof CompoundTag compoundTag)) {
             throw new IllegalStateException("Power grid sync data is not a compound tag");
         }
