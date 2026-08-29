@@ -93,7 +93,13 @@ public class FishTankBlockEntityRenderer implements BlockEntityRenderer<FishTank
         ItemStackHandler handler = tank.getItemHandler();
         this.random.setSeed(ItemHandlerUtil.hash(handler));
         Level level = tank.getLevel();
-        if (level == null) return;
+        if (level == null) {
+            // 滑动方块带来的鱼缸方块实体没有编辑过世界，
+            // 用主客户端世界兑底，否则渲染器会直接跳过内容。
+            level = Minecraft.getInstance().level;
+            if (level == null) return;
+            tank.setLevel(level);
+        }
         FishTankBlockEntityRenderer.drawItemsInTank(
             level,
             ItemHandlerUtil.getNonEmptyItemsFromHandler(handler),
