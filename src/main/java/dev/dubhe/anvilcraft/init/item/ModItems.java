@@ -364,6 +364,8 @@ public class ModItems {
             ItemTags.MACE_ENCHANTABLE,
             ItemTags.TRIDENT_ENCHANTABLE,
             ItemTags.SWORD_ENCHANTABLE,
+            ItemTags.SHARP_WEAPON_ENCHANTABLE,
+            ItemTags.FIRE_ASPECT_ENCHANTABLE,
             ItemTags.WEAPON_ENCHANTABLE,
             ModItemTags.HEAVY_HALBERD,
             ModItemTags.EXPLOSION_PROOF
@@ -377,6 +379,8 @@ public class ModItems {
             ItemTags.MACE_ENCHANTABLE,
             ItemTags.TRIDENT_ENCHANTABLE,
             ItemTags.SWORD_ENCHANTABLE,
+            ItemTags.SHARP_WEAPON_ENCHANTABLE,
+            ItemTags.FIRE_ASPECT_ENCHANTABLE,
             ItemTags.WEAPON_ENCHANTABLE,
             ModItemTags.HEAVY_HALBERD,
             ModItemTags.EXPLOSION_PROOF
@@ -391,6 +395,8 @@ public class ModItems {
             ItemTags.MACE_ENCHANTABLE,
             ItemTags.TRIDENT_ENCHANTABLE,
             ItemTags.SWORD_ENCHANTABLE,
+            ItemTags.SHARP_WEAPON_ENCHANTABLE,
+            ItemTags.FIRE_ASPECT_ENCHANTABLE,
             ItemTags.WEAPON_ENCHANTABLE,
             ModItemTags.HEAVY_HALBERD,
             ModItemTags.EXPLOSION_PROOF

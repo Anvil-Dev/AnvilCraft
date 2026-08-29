@@ -61,6 +61,7 @@ import net.minecraft.world.item.component.Tool;
 import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -365,6 +366,10 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
     }
 
     private static boolean isEnchantmentActive(ItemStack stack, Holder<Enchantment> enchantment) {
+        if (enchantment.is(Enchantments.SWEEPING_EDGE)) {
+            // 横扫之刃是剑模式专属附魔，其他模式不生效
+            return getMode(stack) == SWORD_MODE && stack.is(enchantment.value().definition().supportedItems());
+        }
         return stack.is(enchantment.value().definition().supportedItems());
     }
 
@@ -480,10 +485,7 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
         }
 
         private static boolean isModeEnabled(int mode, TagKey<Item> tagKey) {
-            if (tagKey.equals(ItemTags.SWORDS)
-                || tagKey.equals(ItemTags.SWORD_ENCHANTABLE)
-                || tagKey.equals(ItemTags.SHARP_WEAPON_ENCHANTABLE)
-            ) {
+            if (tagKey.equals(ItemTags.SWORDS)) {
                 return mode == SWORD_MODE;
             }
             if (tagKey.equals(ItemTags.TRIDENT_ENCHANTABLE)) {
@@ -492,8 +494,13 @@ public abstract class HeavyHalberdItem extends TieredItem implements ProjectileI
             if (tagKey.equals(ItemTags.MACE_ENCHANTABLE)) {
                 return mode == MACE_MODE;
             }
-            if (tagKey.equals(ItemTags.FIRE_ASPECT_ENCHANTABLE) || tagKey.equals(ItemTags.WEAPON_ENCHANTABLE)) {
-                return mode == SWORD_MODE || mode == MACE_MODE;
+            if (tagKey.equals(ItemTags.SWORD_ENCHANTABLE)
+                || tagKey.equals(ItemTags.SHARP_WEAPON_ENCHANTABLE)
+                || tagKey.equals(ItemTags.FIRE_ASPECT_ENCHANTABLE)
+                || tagKey.equals(ItemTags.WEAPON_ENCHANTABLE)
+            ) {
+                // 通用近战武器附魔（抢夺、锋利、火焰附加等）在所有近战模式下生效
+                return mode == TRIDENT_MODE || mode == SPEAR_MODE || mode == SWORD_MODE || mode == MACE_MODE;
             }
             return true;
         }

@@ -3,7 +3,11 @@ package dev.dubhe.anvilcraft.util;
 import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
+import dev.dubhe.anvilcraft.network.StructureDiskRequestPacket;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -20,12 +24,15 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
@@ -38,6 +45,14 @@ public class StructureLoadUtil {
     // Whitelist pattern for structure file names: only allow alphanumeric, underscore, hyphen, and dot (for .nbt extension)
     private static final Pattern VALID_STRUCTURE_FILE = Pattern.compile("^[a-zA-Z0-9_\\-]+_[a-f0-9\\-]+\\.nbt$");
     private static final int MAX_STRUCTURE_FILE_LENGTH = 128;
+    /** 客户端请求同一结构文件的冷却时间（毫秒），避免 tooltip 每帧触发请求风暴。 */
+    private static final long REQUEST_COOLDOWN_MS = 2000;
+    /** 客户端结构 NBT 缓存上限，超出后按插入顺序驱逐最旧条目。 */
+    private static final int MAX_CACHE_ENTRIES = 100;
+    /** 已确认不存在的结构文件标记上限，超出后驱逐最旧条目。 */
+    private static final int MAX_MISSING_ENTRIES = 1000;
+    /** 服务端读取结构文件的最大字节数（128MB），与预览数据读取保持一致。 */
+    private static final long MAX_STRUCTURE_NBT_BYTES = 128L * 1024 * 1024;
 
     /**
      * 从结构磁盘读取结构数据（不过滤多方块方块，用于预览）
@@ -48,7 +63,90 @@ public class StructureLoadUtil {
      */
     @Nullable
     public static StructureData loadStructureFromDiskForPreview(Level level, ItemStack diskStack) {
-        return loadStructureFromDisk(level, diskStack);
+        StructureDiskData structureDiskData = diskStack.get(ModComponents.STRUCTURE_DISK_DATA);
+        if (structureDiskData == null || structureDiskData.file().isEmpty()) {
+            return null;
+        }
+        String fileName = structureDiskData.file();
+        if (isStructureMissing(fileName)) {
+            return null;
+        }
+        CompoundTag tag = STRUCTURE_NBT_CACHE.get(fileName);
+        if (tag == null) {
+            requestStructureFile(level, structureDiskData);
+            return null;
+        }
+        try {
+            HolderLookup.Provider registry = level.registryAccess();
+            StructureData data = new StructureData(structureDiskData);
+            StructureLoadUtil.parseStructureNBT(data, tag, registry);
+            return data;
+        } catch (Exception e) {
+            LOGGER.warn("Failed to parse cached structure {}: {}", fileName, e.getMessage());
+            removeCachedStructureNbt(fileName);
+            return null;
+        }
+    }
+
+    /** 请求节流跟踪的最大条目数，超出后驱逐最旧条目。 */
+    private static final int MAX_REQUEST_TRACKER = 1000;
+    private static final Map<String, Long> LAST_REQUEST_TIME = new LinkedHashMap<>() {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, Long> eldest) {
+            return size() > MAX_REQUEST_TRACKER;
+        }
+    };
+
+    /** 已确认不存在的结构文件标记，避免缓存未命中时反复请求。 */
+    private static final Set<String> MISSING_STRUCTURE_FILES = Collections.newSetFromMap(new LinkedHashMap<>() {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, Boolean> eldest) {
+            return size() > MAX_MISSING_ENTRIES;
+        }
+    });
+
+    /** 客户端已缓存的结构 NBT（服务端通过 {@link dev.dubhe.anvilcraft.network.StructureDiskResponsePacket} 下发），FIFO 驱逐。 */
+    private static final Map<String, CompoundTag> STRUCTURE_NBT_CACHE = new LinkedHashMap<>() {
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<String, CompoundTag> eldest) {
+            return size() > MAX_CACHE_ENTRIES;
+        }
+    };
+
+    /** 缓存服务端下发的结构 NBT；{@code null} 表示文件不存在，避免反复请求。 */
+    public static void cacheStructureNbt(String fileName, @Nullable CompoundTag tag) {
+        LAST_REQUEST_TIME.remove(fileName);
+        if (tag == null) {
+            MISSING_STRUCTURE_FILES.add(fileName);
+            STRUCTURE_NBT_CACHE.remove(fileName);
+        } else {
+            STRUCTURE_NBT_CACHE.put(fileName, tag.copy());
+            MISSING_STRUCTURE_FILES.remove(fileName);
+        }
+    }
+
+    private static boolean isStructureMissing(String fileName) {
+        return MISSING_STRUCTURE_FILES.contains(fileName);
+    }
+
+    public static void removeCachedStructureNbt(String fileName) {
+        STRUCTURE_NBT_CACHE.remove(fileName);
+        MISSING_STRUCTURE_FILES.remove(fileName);
+    }
+
+    /** 纯服务器环境下客户端本地没有结构文件，向服务器发起请求（带冷却，避免每帧重复发包）。 */
+    private static void requestStructureFile(Level level, StructureDiskData data) {
+        if (!isValidStructureFile(data.file())) return;
+        if (!(level instanceof ClientLevel)) return;
+        Minecraft minecraft = Minecraft.getInstance();
+        ClientPacketListener connection = minecraft.getConnection();
+        if (!(minecraft.player instanceof LocalPlayer)) return;
+        if (connection == null) return;
+        long now = System.currentTimeMillis();
+        Long last = LAST_REQUEST_TIME.get(data.file());
+        if (last != null && now - last < REQUEST_COOLDOWN_MS) return;
+        LAST_REQUEST_TIME.put(data.file(), now);
+        connection.send(new StructureDiskRequestPacket(data.file()));
     }
 
     /**
@@ -98,7 +196,7 @@ public class StructureLoadUtil {
             }
 
             // 读取 NBT 文件
-            CompoundTag structureTag = NbtIo.readCompressed(structureFile, NbtAccounter.unlimitedHeap());
+            CompoundTag structureTag = NbtIo.readCompressed(structureFile, NbtAccounter.create(MAX_STRUCTURE_NBT_BYTES));
 
             // 解析结构数据
             HolderLookup.Provider registry = level.registryAccess();
@@ -108,8 +206,26 @@ public class StructureLoadUtil {
             // LOGGER.debug("Structure loaded: {} ({} blocks)", structureName, data.blocks.size());
             return data;
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             LOGGER.error("Failed to load structure file: {}", e.getMessage(), e);
+            return null;
+        }
+    }
+
+    @Nullable
+    public static CompoundTag readStructureFileOnServer(net.minecraft.server.level.ServerLevel level, String fileName) {
+        if (!isValidStructureFile(fileName)) {
+            return null;
+        }
+        try {
+            Path baseDir = getStructureDirectory(level);
+            Path structureFile = baseDir.resolve(fileName);
+            if (!isPathWithinBaseDirectory(structureFile, baseDir) || !Files.exists(structureFile)) {
+                return null;
+            }
+            return NbtIo.readCompressed(structureFile, NbtAccounter.create(MAX_STRUCTURE_NBT_BYTES));
+        } catch (Exception e) {
+            LOGGER.error("Failed to read structure file: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -218,7 +334,7 @@ public class StructureLoadUtil {
      * Validate structure file name to prevent path traversal attacks
      * File names must match the pattern: name_uuid.nbt
      */
-    private static boolean isValidStructureFile(String fileName) {
+    public static boolean isValidStructureFile(String fileName) {
         if (fileName.trim().isEmpty()) {
             return false;
         }

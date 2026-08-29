@@ -19,6 +19,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.ClickEvent;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -250,6 +251,25 @@ public class SpacetimeSupercomputerBlockEntity extends BlockEntity implements IP
             tag.put("processing", processing);
         }
         return tag;
+    }
+
+    @Override
+    public void onDataPacket(
+        Connection net,
+        ClientboundBlockEntityDataPacket pkt,
+        HolderLookup.Provider lookupProvider
+    ) {
+        super.onDataPacket(net, pkt, lookupProvider);
+        // NeoForge 默认 onDataPacket 在空 tag 时会跳过 loadWithComponents，
+        // 而合成完成时 getUpdateTag 不写入 processing 导致 tag 为空，
+        // 客户端无法触发 loadAdditional 的清除分支，进度文本会停留在最后一步。
+        if (!pkt.getTag().contains("processing")) {
+            this.pendingRecipeId = null;
+            this.processingRecipe = null;
+            this.processingStep = -1;
+            this.processingSize = -1;
+            this.processingTotal = -1;
+        }
     }
 
     public void runCommand(@Nullable Player player) {

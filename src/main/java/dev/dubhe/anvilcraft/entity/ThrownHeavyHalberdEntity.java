@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.entity;
 import com.google.common.collect.ImmutableSet;
 import dev.dubhe.anvilcraft.item.HeavyHalberdItem;
 import net.minecraft.core.HolderSet;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -24,6 +25,7 @@ import net.minecraft.world.entity.projectile.AbstractArrow;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.BlockHitResult;
@@ -152,6 +154,8 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
 
             if (this.level() instanceof ServerLevel level) {
                 EnchantmentHelper.doPostAttackEffectsWithItemSource(level, victim, source, this.getWeaponItem());
+                // 投掷的伤害源 isDirect() 为 false，火焰附加的 is_direct 条件不满足，需手动触发火焰附加
+                this.applyFireAspectOnHit(level, victim);
             }
 
             if (victim instanceof LivingEntity livingentity) {
@@ -162,6 +166,20 @@ public abstract class ThrownHeavyHalberdEntity extends AbstractArrow {
 
         this.setDeltaMovement(this.getDeltaMovement().multiply(-0.01, -0.1, -0.01));
         this.playSound(SoundEvents.TRIDENT_HIT, 1.0F, 1.0F);
+    }
+
+    /**
+     * 投掷重枪命中时手动触发火焰附加：投掷伤害源为间接伤害，原版 is_direct 条件无法触发。
+     */
+    private void applyFireAspectOnHit(ServerLevel level, Entity victim) {
+        ItemStack weapon = this.getWeaponItem();
+        if (weapon.isEmpty()) return;
+        int fireAspect = weapon.getEnchantmentLevel(
+            level.holderLookup(Registries.ENCHANTMENT).getOrThrow(Enchantments.FIRE_ASPECT)
+        );
+        if (fireAspect > 0) {
+            victim.igniteForSeconds(4.0F * fireAspect);
+        }
     }
 
     @Override

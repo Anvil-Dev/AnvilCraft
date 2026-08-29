@@ -1,8 +1,6 @@
 package dev.dubhe.anvilcraft.api.sliding;
 
-import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.StreamCodecUtil;
 import it.unimi.dsi.fastutil.ints.IntIntPair;
@@ -12,7 +10,6 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -104,17 +101,21 @@ public record SlidingBlockInfo(Vec3i offset, BlockState state, @Nullable BlockEn
     }
 
     private static @Nullable BlockEntity fromTag(RegistryFriendlyByteBuf buf, BlockState state, CompoundTag tag) {
-        RegistryAccess registries = buf.registryAccess();
-        DataResult<BlockEntityType<?>> entityType = BuiltInRegistries.BLOCK_ENTITY_TYPE.byNameCodec()
-            .decode(registries.createSerializationContext(NbtOps.INSTANCE), tag.get("id"))
-            .map(Pair::getFirst);
-        if (entityType.isError()) return null;
-        BlockEntityType<?> blockEntityType = entityType.getOrThrow();
+        String id = tag.getString("id");
+        if (id.isEmpty()) return null;
+        BlockEntityType<?> blockEntityType = BuiltInRegistries.BLOCK_ENTITY_TYPE.get(ResourceLocation.parse(id));
+        if (blockEntityType == null) return null;
         int x = !tag.contains("x") ? 0 : tag.getInt("x");
         int y = !tag.contains("y") ? 0 : tag.getInt("y");
         int z = !tag.contains("z") ? 0 : tag.getInt("z");
         BlockEntity be = blockEntityType.create(new BlockPos(x, y, z), state);
-        if (be != null) be.loadWithComponents(tag, registries);
+        if (be == null) return null;
+        try {
+            be.loadWithComponents(tag, buf.registryAccess());
+        } catch (RuntimeException ignored) {
+            // ignored: 方块实体数据解码失败时保留已加载的部分数据，
+            // 避免滑动方块因为单个方块实体解码失败而丢失整个内容。
+        }
         return be;
     }
 }

@@ -15,8 +15,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.piston.PistonMovingBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.RenderTypeHelper;
 import net.neoforged.neoforge.client.model.data.ModelData;
@@ -58,8 +61,20 @@ public class SlidingBlockRenderer extends EntityRenderer<SlidingBlockEntity> {
         int packedLight
     ) {
         BlockState state = info.state();
-        if (state.getRenderShape() != RenderShape.MODEL) return;
-        if (state == level.getBlockState(center) || state.getRenderShape() == RenderShape.INVISIBLE) return;
+        // 这里不能直接用 state == level.getBlockState(center) 来判断中心方块，
+        // 因为滑动方块总是位于实体坐标处，而中心方块可能正在被活塞恢复中。
+        if (state == level.getBlockState(center)) return;
+        boolean movedPiston = false;
+        if (state.getRenderShape() != RenderShape.MODEL) {
+            // 进程方块（MOVING_PISTON）的真实方块存在 PistonMovingBlockEntity 的 movedState 里，
+            // 从中心位置取实体恢复出来继续渲染。
+            if (!state.is(Blocks.MOVING_PISTON)) return;
+            if (!(level.getBlockEntity(center, BlockEntityType.PISTON).orElse(null) instanceof PistonMovingBlockEntity pbe)) return;
+            BlockState moved = pbe.getMovedState();
+            if (moved.getRenderShape() != RenderShape.MODEL) return;
+            state = moved;
+            movedPiston = true;
+        }
         pose.pushPose();
         final BlockPos pos = info.getPos(center);
         startPos = info.getPos(startPos);
@@ -67,7 +82,11 @@ public class SlidingBlockRenderer extends EntityRenderer<SlidingBlockEntity> {
         pose.translate(info.offsetX(), info.offsetY(), info.offsetZ());
 
         BlockEntity blockEntity = info.blockEntity();
-        if (blockEntity != null) {
+        if (blockEntity != null && !movedPiston) {
+            // 通过网络包反序列化出来的方块实体没有世界和位置，
+            // 不设置的话方块实体渲染器（例如 WIP 方块）会直接跳过渲染。
+            blockEntity.setLevel(level);
+            blockEntity.worldPosition = pos;
             BlockEntityRenderer<BlockEntity> renderer = Minecraft.getInstance()
                 .getBlockEntityRenderDispatcher()
                 .getRenderer(blockEntity);
