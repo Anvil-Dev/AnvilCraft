@@ -4,8 +4,8 @@ import dev.anvilcraft.lib.v2.piston.IMoveableEntityBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.entity.CrushingTableBlockEntity;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -187,6 +187,7 @@ public class CrushingTableBlock extends Block implements
         }
         return super.updateShape(blockState, direction, blockState2, levelAccessor, blockPos, blockPos2);
     }
+
     @Override
     public ItemStack getCloneItemStack(
         BlockState state,
