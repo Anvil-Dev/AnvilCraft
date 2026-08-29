@@ -67,13 +67,14 @@ public class AnvilCraftClient {
         AnvilCraftClient.modEventBus = modBus;
         AnvilCraftClient.modContainer = container;
         InspectionSupport.initializeClient();
+        
+        IntegrationHook.setModEventBus(modBus);
+        IntegrationHook.setModContainer(container);
+        AnvilCraft.getINTEGRATION_MANAGER().loadAllClientIntegrations();
     }
 
     @SubscribeEvent
     public static void clientSetup(FMLClientSetupEvent event) {
-        IntegrationHook.setModEventBus(AnvilCraftClient.modEventBus);
-        IntegrationHook.setModContainer(AnvilCraftClient.modContainer);
-        AnvilCraft.getINTEGRATION_MANAGER().loadAllClientIntegrations();
         event.enqueueWork(() -> {
             CachedBlockEntityRenderDispatcher.INSTANCE.registerRenderer(
                 ModBlockEntities.RUBY_LASER.get(),

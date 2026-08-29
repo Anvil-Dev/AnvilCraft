@@ -10,6 +10,7 @@ anvillib = "2.0.0+snapshot.494"
 ageratum = "0.0.1+build.109"
 sodium = "0.9.1+mc26.1.2"
 iris = "1.10.9+26.1-neoforge"
+curios = "15.0.0+26.1.2"
 
 [libraries]
 jei-common-api = { group = "mezz.jei", name = "jei-26.1.2-common-api", version.ref = "jei" }
@@ -19,6 +20,7 @@ sodium-api = {  group = "net.caffeinemc", name = "sodium-neoforge-api", version.
 sodium-mod = {  group = "net.caffeinemc", name = "sodium-neoforge-mod", version.ref = "sodium"}
 iris = {  group = "maven.modrinth", name = "iris", version.ref = "iris"}
 jade = { group = "maven.modrinth", name = "jade", version.ref = "jade" }
+curios = { group = "top.theillusivec4.curios", name = "curios-neoforge", version.ref = "curios" }
 anvillib-recipe = { group = "dev.anvilcraft.lib", name = "anvillib-recipe-neoforge-26.1", version.ref = "anvillib" }
 anvillib-moveableEntityBlock = { group = "dev.anvilcraft.lib", name = "anvillib-moveable-entity-block-neoforge-26.1", version.ref = "anvillib" }
 anvillib = { group = "dev.anvilcraft.lib", name = "anvillib-neoforge-26.1", version.ref = "anvillib" }

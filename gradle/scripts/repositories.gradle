@@ -40,4 +40,11 @@ repositories {
             includeGroup "mezz.jei"
         }
     }
+    maven { // Curios API
+        name = "Illusive Soulworks maven"
+        url = "https://maven.theillusivec4.top/"
+        content {
+            includeGroup "top.theillusivec4.curios"
+        }
+    }
 }
