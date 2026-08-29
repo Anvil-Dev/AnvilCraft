@@ -61,10 +61,9 @@ public class PacketSplitter {
             int i = 0;
             for (int index = 0; index < bufferSize; index += partSize) {
                 int resolvedPartSize = Math.min(bufferSize - index, partSize);
-                var buffer1 = buffer.retainedSlice(buffer.readerIndex(), resolvedPartSize);
-                buffer.skipBytes(resolvedPartSize);
-                var packet = new SplitPacketBody(id, i, buffer1.array());
-                sender.accept(packet);
+                byte[] data = new byte[resolvedPartSize];
+                buffer.readBytes(data);
+                sender.accept(new SplitPacketBody(id, i, data));
                 i++;
             }
             buffer.release();
@@ -105,9 +104,9 @@ public class PacketSplitter {
             int i = 0;
             for (int index = 0; index < bufferSize; index += partSize) {
                 int resolvedPartSize = Math.min(bufferSize - index, partSize);
-                var buffer1 = buffer.retainedSlice(buffer.readerIndex(), resolvedPartSize);
-                buffer.skipBytes(resolvedPartSize);
-                sender.accept(new SplitPacketBody(id, i, buffer1.array()));
+                byte[] data = new byte[resolvedPartSize];
+                buffer.readBytes(data);
+                sender.accept(new SplitPacketBody(id, i, data));
                 i++;
             }
             buffer.release();

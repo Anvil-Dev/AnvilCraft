@@ -74,12 +74,25 @@ public final class FluidNetworkScanner {
     }
 
     /**
-     * 泵当前提供的单侧扬程势场：通电工作时为 {@value #PUMP_HALF_LIFT}，断电/过载/红石关闭时为 0
-     * （此时泵仍是二极管单向连通，只是不主动提供扬程）。
+     * 泵当前是否作为有向势能边工作。关闭/断电/过载时泵只是普通连通管段，
+     * 不提供扬程也不参与单向约束。
+     */
+    static boolean isPumpWorking(Level level, BlockPos pumpPos) {
+        BlockState state = level.getBlockState(pumpPos);
+        if (!(state.getBlock() instanceof PumpBlock)) {
+            return false;
+        }
+        return !state.getValue(PumpBlock.POWERED)
+            && !state.getValue(PumpBlock.OVERLOAD)
+            && level.getBlockEntity(pumpPos) instanceof PumpBlockEntity pbe
+            && pbe.canPump();
+    }
+
+    /**
+     * 泵当前提供的单侧扬程势场：通电工作时为 {@value #PUMP_HALF_LIFT}，断电/过载/红石关闭时为 0。
      */
     private static int pumpHalfLift(Level level, BlockPos pumpPos) {
-        return level.getBlockEntity(pumpPos) instanceof PumpBlockEntity pbe && pbe.canPump()
-            ? PUMP_HALF_LIFT : 0;
+        return isPumpWorking(level, pumpPos) ? PUMP_HALF_LIFT : 0;
     }
 
     private static FluidContainerLookup.Result container(Level level, BlockPos pos, Direction sideToPipe) {
@@ -123,8 +136,12 @@ public final class FluidNetworkScanner {
                 expandAxial(level, pos, state.getValue(ControlValveBlock.AXIS), phi, false,
                     potential, adjacency, queue, endpoints, seenHandlers);
             } else if (state.getBlock() instanceof PumpBlock) {
-                // 记录泵的进液侧（二极管：仅允许 进液侧→另一侧 通过流体）
-                diodes.put(pos.immutable(), state.getValue(PumpBlock.ORIENTATION).getDirection());
+                // 仅工作中的泵作为二极管参与方向约束；关闭/断电的泵是普通连通管段。
+                // 否则关闭泵后普通输入路径也会被这个单向约束卡住（见 #4349 的并联回路）。
+                if (isPumpWorking(level, pos)) {
+                    // getDirection() 是泵的源/吸入侧，二极管只允许源侧 → 对侧。
+                    diodes.put(pos.immutable(), state.getValue(PumpBlock.ORIENTATION).getDirection());
+                }
                 expandPump(level, pos, state, phi, potential, adjacency, queue, endpoints, seenHandlers);
             } else if (state.getBlock() instanceof PipeBlock pipe) {
                 if (pipe.isGlassPipe()) {
@@ -295,8 +312,13 @@ public final class FluidNetworkScanner {
         if (!level.isLoaded(containerPos)) {
             return;
         }
+        int effectiveHeight = containerPos.getY() + phi;
         BlockPos immutablePos = containerPos.immutable();
-        if (endpoints.containsKey(immutablePos)) {
+        FluidEndpoint existing = endpoints.get(immutablePos);
+        if (existing != null) {
+            // 同一容器可能同时接入泵输出侧和普通输入管：保留所有入口，
+            // 方向可达判定时任一入口通过即可（否则关闭泵后普通入口也会被泵入口锁死）。
+            endpoints.put(immutablePos, existing.withEntry(attachPipePos.immutable(), sideToPipe, effectiveHeight));
             return;
         }
         FluidContainerLookup.Result container = container(level, containerPos, sideToPipe);
@@ -307,13 +329,10 @@ public final class FluidNetworkScanner {
         if (!seenHandlers.add(handler)) {
             return;
         }
-        int effectiveHeight = containerPos.getY() + phi;
         endpoints.put(immutablePos, new FluidEndpoint(
             immutablePos,
-            attachPipePos.immutable(),
-            sideToPipe,
+            new FluidEndpoint.Entry(attachPipePos.immutable(), sideToPipe, effectiveHeight),
             handler,
-            effectiveHeight,
             container.cauldron(),
             container.entity()
         ));

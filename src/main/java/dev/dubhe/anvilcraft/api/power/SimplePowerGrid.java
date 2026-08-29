@@ -11,6 +11,7 @@ import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
@@ -205,7 +206,12 @@ public class SimplePowerGrid {
     }
 
     public static SimplePowerGrid decode(FriendlyByteBuf buf) {
-        return CODEC.decode(NbtOps.INSTANCE, buf.readNbt().get("data")).getOrThrow().getFirst();
+        // 电网同步包来自服务端（可信），但仍给 NBT 设置一个大上限，避免无限制读取。
+        Tag tag = buf.readNbt(NbtAccounter.create(128 * 1024 * 1024));
+        if (!(tag instanceof CompoundTag compoundTag)) {
+            throw new IllegalStateException("Power grid sync data is not a compound tag");
+        }
+        return CODEC.decode(NbtOps.INSTANCE, compoundTag.get("data")).getOrThrow().getFirst();
     }
 
     public static void encode(FriendlyByteBuf buf, SimplePowerGrid grid) {

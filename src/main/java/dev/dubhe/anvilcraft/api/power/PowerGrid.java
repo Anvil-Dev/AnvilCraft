@@ -2,7 +2,7 @@ package dev.dubhe.anvilcraft.api.power;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.network.PowerGridRemovePacket;
-import dev.dubhe.anvilcraft.network.PowerGridSyncPacket;
+import dev.dubhe.anvilcraft.network.PowerGridSyncChunkPacket;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -77,11 +77,7 @@ public class PowerGrid {
 
     public void update(boolean forced) {
         if (forced || changed) {
-            PacketDistributor.sendToPlayersTrackingChunk(
-                (ServerLevel) level,
-                this.level.getChunkAt(this.getPos()).getPos(),
-                new PowerGridSyncPacket(this)
-            );
+            PowerGridSyncChunkPacket.send(this);
         }
     }
 
@@ -344,7 +340,7 @@ public class PowerGrid {
         for (PowerGrid powerGrid : affectedGrids) {
             powerGrid.flush();
             powerGrid.changed = false;
-            PacketDistributor.sendToAllPlayers(new PowerGridSyncPacket(powerGrid));
+            PowerGridSyncChunkPacket.sendToAllPlayers(powerGrid);
         }
     }
 
@@ -470,7 +466,7 @@ public class PowerGrid {
     }
 
     void syncToPlayer(ServerPlayer player) {
-        PacketDistributor.sendToPlayer(player, new PowerGridSyncPacket(this));
+        PowerGridSyncChunkPacket.sendToPlayer(this, player);
     }
 
     public static Optional<PowerGrid> findPowerGridContains(Level level, Vec3 vec3) {
