@@ -31,6 +31,10 @@ items:
 **巨人僵尸**被本模组添加了AI，极其强大，请确保周围提前围好方块困住它，或是作为PVE高手战胜它
 </warning>
 
+# 磁铁吸引
+
+过于巨大而无法使用寻常磁铁吸引，需要使用<ref item="anvilcraft:acceleration_ring"/>或<ref item="anvilcraft:deflection_ring"/>
+
 # 便捷合成
 
 获得第一个<ref item="anvilcraft:giant_anvil"/>之后，就可以通过**多方块转化**这一方式生产<ref item="anvilcraft:giant_anvil"/>
