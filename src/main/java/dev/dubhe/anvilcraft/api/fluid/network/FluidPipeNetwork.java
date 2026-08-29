@@ -1614,6 +1614,10 @@ public class FluidPipeNetwork {
     /** 返回目标端点中可由当前可达 BFS 到达的接入点。 */
     @Nullable
     private FluidEndpoint.Entry reachableEntry(Reachability reach, FluidEndpoint target) {
+        // 无方向约束时（没有泵/阀门/止逆阀）reach 为 null，任一入口都可达。
+        if (reach == null) {
+            return target.primaryEntry();
+        }
         // 容器可能同时连泵输出侧和普通输入管道；只要任一入口在方向约束下可达，就能流入该容器。
         for (FluidEndpoint.Entry entry : target.entries()) {
             BlockPos pipe = entry.fromPipePos();
