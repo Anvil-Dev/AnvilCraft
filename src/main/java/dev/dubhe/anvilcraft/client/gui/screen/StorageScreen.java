@@ -449,7 +449,11 @@ public class StorageScreen extends Screen {
                         ? TooltipFlag.Default.ADVANCED
                         : TooltipFlag.Default.NORMAL
                 ));
-                tooltipLines.add(Component.translatable("screen.anvilcraft.storage.count", this.getDisplayedCount(slot)));
+                long displayedCount = this.getDisplayedCount(slot);
+                // 图标上的缩写仅在 >= 1000 时出现，此时 tooltip 才额外渲染精确数量
+                if (displayedCount >= 1000) {
+                    tooltipLines.add(Component.translatable("screen.anvilcraft.storage.count", displayedCount));
+                }
                 this.renderingTooltips = tooltipLines;
             }
         }
