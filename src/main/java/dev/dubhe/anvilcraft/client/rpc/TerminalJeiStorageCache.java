@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.rpc.RPC;
 import dev.anvilcraft.lib.v2.rpc.RpcTarget;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.item.IonocraftBackpackItem;
 import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.client.Minecraft;
@@ -12,11 +13,14 @@ import net.minecraft.world.item.ItemStack;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 /**
  * 客户端缓存玩家绑定存储站的物品代表列表（含数量），
@@ -38,6 +42,9 @@ public final class TerminalJeiStorageCache {
      */
     private static final ThreadLocal<Boolean> RESTOCKING = ThreadLocal.withInitial(() -> false);
 
+    /** 终端物品栈提供者：其他模组/扩展可注册自定义的终端查找逻辑（如背包/容器内的终端）。 */
+    private static final Set<Function<Player, ItemStack>> STACK_PROVIDERS = new HashSet<>();
+
     private TerminalJeiStorageCache() {
     }
 
@@ -49,14 +56,24 @@ public final class TerminalJeiStorageCache {
         TerminalJeiStorageCache.RESTOCKING.set(restocking);
     }
 
+    /** 注册终端物品栈提供者（与 {@link IonocraftBackpackItem#addStackProvider} 同模式）。 */
+    public static void addStackProvider(Function<Player, ItemStack> provider) {
+        TerminalJeiStorageCache.STACK_PROVIDERS.add(provider);
+    }
+
     /** 玩家身上全部终端（超维绑定 / 本地 / 潜影）的存储标识，去重；无终端返回空列表。 */
     public static List<UUID> boundStorages(Player player) {
         List<UUID> ids = new ArrayList<>();
+        // 常规位置：主物品栏 + 副手
         for (ItemStack stack : player.getInventory().items) {
             TerminalJeiStorageCache.collect(TerminalJeiStorageCache.storageOf(stack), ids);
         }
         for (ItemStack stack : player.getInventory().offhand) {
             TerminalJeiStorageCache.collect(TerminalJeiStorageCache.storageOf(stack), ids);
+        }
+        // 注册的提供者（如背包/容器内的终端）
+        for (Function<Player, ItemStack> provider : TerminalJeiStorageCache.STACK_PROVIDERS) {
+            TerminalJeiStorageCache.collect(TerminalJeiStorageCache.storageOf(provider.apply(player)), ids);
         }
         return ids;
     }
