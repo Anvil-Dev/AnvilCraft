@@ -1,12 +1,10 @@
 package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -20,15 +18,8 @@ import net.minecraft.world.level.Level;
  * 或 64 格以内的一个最近的世界潜影集装箱；其余功能与超维终端一致。
  */
 public class ShulkerTerminalItem extends TerminalItem {
-    public static final ResourceLocation CONFIG_ID = AnvilCraft.of("shulker_terminal");
-
     public ShulkerTerminalItem(Properties properties) {
         super(properties);
-    }
-
-    @Override
-    protected ResourceLocation configId() {
-        return ShulkerTerminalItem.CONFIG_ID;
     }
 
     @Override

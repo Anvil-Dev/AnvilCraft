@@ -1,10 +1,8 @@
 package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.property.component.PillBoxContents;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
@@ -12,15 +10,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 public class PillBoxItem extends BundleLikeItem {
-    public static final ResourceLocation CONFIG_ID = AnvilCraft.of("pill_box");
-
     public PillBoxItem(Properties properties) {
         super(properties.component(ModComponents.PILL_BOX_CONTENTS, PillBoxContents.EMPTY));
-    }
-
-    @Override
-    protected ResourceLocation configId() {
-        return PillBoxItem.CONFIG_ID;
     }
 
     @Override

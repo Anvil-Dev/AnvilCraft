@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
@@ -9,7 +8,6 @@ import dev.dubhe.anvilcraft.item.property.component.TerminalBinding;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -24,15 +22,8 @@ import java.util.Optional;
 import java.util.UUID;
 
 public class HyperdimensionTerminalItem extends TerminalItem {
-    public static final ResourceLocation CONFIG_ID = AnvilCraft.of("hyperdimension_terminal");
-
     public HyperdimensionTerminalItem(Properties properties) {
         super(properties);
-    }
-
-    @Override
-    protected ResourceLocation configId() {
-        return HyperdimensionTerminalItem.CONFIG_ID;
     }
 
     @Override

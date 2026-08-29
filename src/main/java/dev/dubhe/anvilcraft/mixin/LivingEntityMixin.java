@@ -98,7 +98,11 @@ public abstract class LivingEntityMixin extends Entity {
     }
 
     @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true)
-    private DamageSource modifySource(DamageSource value, @Share("killer") LocalRef<ServerPlayer> killerRef) {
+    private DamageSource modifySource(
+        DamageSource value,
+        @Share("killer") LocalRef<ServerPlayer> killerRef,
+        @Share("frostKill") LocalRef<Boolean> frostKillRef
+    ) {
         switch (value.getEntity()) {
             case FallingBlockEntity falling when !this.level().isClientSide -> {
                 Block anvil = falling.getBlockState().getBlock();
@@ -113,6 +117,9 @@ public abstract class LivingEntityMixin extends Entity {
                     killer,
                     value.getSourcePosition()
                 );
+                if (anvil instanceof FrostAnvilBlock) {
+                    frostKillRef.set(true);
+                }
                 if (anvil instanceof TranscendenceAnvilBlock) {
                     AnvilCraftFakePlayers.getKiller().enableLooting5((ServerLevel) this.level(), killer);
                 }
@@ -128,6 +135,18 @@ public abstract class LivingEntityMixin extends Entity {
     private void disableKiller(DamageSource cause, CallbackInfo ci, @Share("killer") LocalRef<ServerPlayer> killerRef) {
         if (killerRef.get() == null) return;
         AnvilCraftFakePlayers.getKiller().disable(killerRef.get());
+    }
+
+    @Inject(method = "dropFromLootTable", at = @At("HEAD"), cancellable = true)
+    private void frostAnvilDropNoLoot(
+        DamageSource damageSource,
+        boolean hitByPlayer,
+        CallbackInfo ci,
+        @Share("frostKill") LocalRef<Boolean> frostKillRef
+    ) {
+        if (Boolean.TRUE.equals(frostKillRef.get())) {
+            ci.cancel();
+        }
     }
 
     @Inject(

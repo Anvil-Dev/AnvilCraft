@@ -7,6 +7,7 @@ import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.network.StoragePortTakeOutPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -34,6 +35,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.common.util.TriState;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.network.PacketDistributor;
 
 import java.util.function.Supplier;
 import javax.annotation.Nullable;
@@ -102,6 +104,10 @@ public class BlockEventListener {
     /**
      * 左键仓储端口取出物品：左键取 1 个，shift 左键取一组；手持铁砧锤时不触发。
      * 点击外边缘半像素（1/32）框架时走正常挖掘；缓存为空时也不取消事件，让玩家可以挖掘方块。
+     *
+     * <p>取出全部在服务端执行：客户端只取消事件（阻止挖掘）并发送取出请求包，
+     * 不在本地改动任何物品，避免幻影物品与快速点击刷物品。按住左键时（取消事件后客户端
+     * 不会进入挖掘状态）{@code START} 事件会每 tick 重触发，用节流限制发包频率。</p>
      */
     @SubscribeEvent
     public static void clickStoragePortEvent(PlayerInteractEvent.LeftClickBlock event) {
@@ -123,13 +129,21 @@ public class BlockEventListener {
         if (port.isBufferEmpty()) {
             return;
         }
-        // 取出冷却：按住左键反复触发时只取一次，冷却期间也不破坏方块
-        if (port.onTakeOutCooldown(player)) {
-            event.setCanceled(true);
+        // 取消事件，阻止挖掘（客户端与服务端都会触发本事件）
+        event.setCanceled(true);
+        if (!level.isClientSide()) {
             return;
         }
-        port.giveToPlayer(player, player.isShiftKeyDown());
-        event.setCanceled(true);
+        // 客户端只发送取出请求，实际取出由服务端在收到请求包后执行
+        PlayerInteractEvent.LeftClickBlock.Action action = event.getAction();
+        if (action != PlayerInteractEvent.LeftClickBlock.Action.START
+            && action != PlayerInteractEvent.LeftClickBlock.Action.CLIENT_HOLD) {
+            return;
+        }
+        if (port.onTakeOutHoldCooldown(player)) {
+            return;
+        }
+        PacketDistributor.sendToServer(new StoragePortTakeOutPacket(pos, player.isShiftKeyDown()));
     }
 
     /**

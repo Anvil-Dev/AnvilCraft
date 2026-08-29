@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.vertex.PoseStack;
 import dev.anvilcraft.lib.v2.util.MathUtil;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
@@ -33,6 +34,7 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.Renderable;
@@ -279,7 +281,7 @@ public class StorageScreen extends Screen {
             SettingClientStub.setting(),
             button -> SettingClientStub.update(SettingClientStub.listed().stream().toList())
                 .thenRunAsync(this::reorder, this.screenExecutor),
-            button -> this.minecraft.setScreen(new CategorySettingsScreen(this.sourcePos))
+            button -> this.minecraft.setScreen(new CategorySettingsScreen(this.sourcePos, this.title))
         ));
         this.addRenderableWidget(new TexturedButton(
             this.left + 278,
@@ -429,7 +431,7 @@ public class StorageScreen extends Screen {
                 graphics.renderItem(itemStack, x, y);
                 StorageScreen.renderItemDecorations(
                     graphics,
-                    this.minecraft,
+                    this.minecraft.font,
                     itemStack,
                     this.getDisplayedCount(slot),
                     x,
@@ -447,7 +449,11 @@ public class StorageScreen extends Screen {
                         ? TooltipFlag.Default.ADVANCED
                         : TooltipFlag.Default.NORMAL
                 ));
-                tooltipLines.add(Component.translatable("screen.anvilcraft.storage.count", this.getDisplayedCount(slot)));
+                long displayedCount = this.getDisplayedCount(slot);
+                // 图标上的缩写仅在 >= 1000 时出现，此时 tooltip 才额外渲染精确数量
+                if (displayedCount >= 1000) {
+                    tooltipLines.add(Component.translatable("screen.anvilcraft.storage.count", displayedCount));
+                }
                 this.renderingTooltips = tooltipLines;
             }
         }
@@ -1840,9 +1846,9 @@ public class StorageScreen extends Screen {
         );
     }
 
-    private static void renderItemDecorations(
+    public static void renderItemDecorations(
         GuiGraphics graphics,
-        Minecraft minecraft,
+        Font font,
         ItemStack stack,
         long count,
         int x,
@@ -1852,9 +1858,10 @@ public class StorageScreen extends Screen {
             return;
         }
 
+        PoseStack pose = graphics.pose();
         // 抬高 z 使耐久条与数量数字绘制在物品图标之上
-        graphics.pose().pushPose();
-        graphics.pose().translate(0, 0, 200);
+        pose.pushPose();
+        pose.translate(0, 0, 200);
 
         // 耐久条
         if (stack.isBarVisible()) {
@@ -1865,14 +1872,20 @@ public class StorageScreen extends Screen {
         }
 
         // 数量（使用缩写格式，可超过 999）
+        pose.translate(x + 17, y + 9, 0);
         Component amount = Component.literal(FormattingUtil.toAbbrNum(count))
             .withStyle(style -> style.withFont(StorageScreen.SMALL_FONT));
         int color = count == 0 ? 0xFFFFAA00 : -1;
-        graphics.drawString(minecraft.font, amount, x + 17 - minecraft.font.width(amount), y + 9, color, true);
+        int width = font.width(amount);
+        if (width > 16) {
+            pose.scale(0.75F, 0.75F, 1);
+            pose.translate(-1F, font.lineHeight * 0.25F - 0.25F, 0);
+        }
+        graphics.drawString(font, amount, -width, 0, color, true);
 
-        graphics.pose().popPose();
+        pose.popPose();
 
         // noinspection UnstableApiUsage
-        ItemDecoratorHandler.of(stack).render(graphics, minecraft.font, stack, x, y);
+        ItemDecoratorHandler.of(stack).render(graphics, font, stack, x, y);
     }
 }

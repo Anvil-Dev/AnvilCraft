@@ -28,20 +28,8 @@ public class AnvilCraftClientConfig {
     @Comment("Do not render power component tooltip when jade present")
     public boolean doNotShowTooltipWhenJadePresent = false;
 
-    @Comment("Invert the mouse button for Amulet Box’s item override operations (Primary -> Secondary)")
-    public boolean amuletBoxInvertOverrideAction = false;
-
-    @Comment("Invert the mouse button for Pill Box’s item override operations (Primary -> Secondary)")
-    public boolean pillBoxInvertOverrideAction = false;
-
-    @Comment("Invert the mouse button for Local Terminal’s item override operations (Primary -> Secondary)")
-    public boolean localTerminalInvertOverrideAction = false;
-
-    @Comment("Invert the mouse button for Shulker Terminal’s item override operations (Primary -> Secondary)")
-    public boolean shulkerTerminalInvertOverrideAction = false;
-
-    @Comment("Invert the mouse button for Hyperdimension Terminal’s item override operations (Primary -> Secondary)")
-    public boolean hyperdimensionTerminalInvertOverrideAction = false;
+    @Comment("Invert the mouse button for item override operations (Primary -> Secondary)")
+    public boolean invertOverrideAction = false;
 
     @SerializedName("Show Storage Stored ID")
     @Comment("Add a tooltip line that shows storage stored ID")

@@ -49,6 +49,8 @@ public class CategorySettingsScreen extends Screen {
     private static final int BG_WIDTH = 300;
     private static final int BG_HEIGHT = 222;
     private final BlockPos sourcePos;
+    /** 从 StorageScreen 进入时携带的界面标题；退出类别设置时原样带回，避免虚拟位置被重算成世界方块名。 */
+    private final Component storageTitle;
     private @Nullable Player player;
     private @Nullable Registry<ICategory> registry;
     private PlayerSetting draftSetting;
@@ -109,9 +111,10 @@ public class CategorySettingsScreen extends Screen {
     };
     private int alternateHead = 0;
 
-    protected CategorySettingsScreen(BlockPos sourcePos) {
+    protected CategorySettingsScreen(BlockPos sourcePos, Component storageTitle) {
         super(Component.translatable("screen.anvilcraft.storage.category.setting.title"));
         this.sourcePos = sourcePos;
+        this.storageTitle = storageTitle;
         this.draftSetting = SettingClientStub.copy();
     }
 
@@ -747,6 +750,6 @@ public class CategorySettingsScreen extends Screen {
     }
 
     private void openStorageScreen() {
-        Objects.requireNonNull(this.minecraft).setScreen(new StorageScreen(this.sourcePos));
+        Objects.requireNonNull(this.minecraft).setScreen(new StorageScreen(this.sourcePos, this.storageTitle));
     }
 }

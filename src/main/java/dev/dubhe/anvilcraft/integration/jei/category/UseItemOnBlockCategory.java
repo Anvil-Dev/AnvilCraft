@@ -17,12 +17,10 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
@@ -143,25 +141,6 @@ public class UseItemOnBlockCategory
         registration.addRecipes(
             AnvilCraftJeiPlugin.USE_ITEM_ON_BLOCK,
             UseItemOnBlockRecipe.getAllRecipes()
-        );
-    }
-
-    public static void registerRecipeCatalysts(IRecipeCatalystRegistration registration) {
-        registration.addRecipeCatalyst(
-            new ItemStack(ModBlocks.STAMPING_PLATFORM),
-            AnvilCraftJeiPlugin.USE_ITEM_ON_BLOCK
-        );
-        registration.addRecipeCatalyst(
-            new ItemStack(ModBlocks.CRUSHING_TABLE),
-            AnvilCraftJeiPlugin.USE_ITEM_ON_BLOCK
-        );
-        registration.addRecipeCatalyst(
-            new ItemStack(ModBlocks.SIFTING_TABLE),
-            AnvilCraftJeiPlugin.USE_ITEM_ON_BLOCK
-        );
-        registration.addRecipeCatalyst(
-            new ItemStack(ModBlocks.UNPACKING_TABLE),
-            AnvilCraftJeiPlugin.USE_ITEM_ON_BLOCK
         );
     }
 }
