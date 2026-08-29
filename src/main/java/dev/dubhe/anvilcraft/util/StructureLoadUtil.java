@@ -3,7 +3,11 @@ package dev.dubhe.anvilcraft.util;
 import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
+import dev.dubhe.anvilcraft.network.StructureDiskRequestPacket;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -25,7 +29,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Pattern;
 
@@ -48,7 +54,59 @@ public class StructureLoadUtil {
      */
     @Nullable
     public static StructureData loadStructureFromDiskForPreview(Level level, ItemStack diskStack) {
-        return loadStructureFromDisk(level, diskStack);
+        StructureDiskData structureDiskData = diskStack.get(ModComponents.STRUCTURE_DISK_DATA);
+        if (structureDiskData == null || structureDiskData.file().isEmpty()) {
+            return null;
+        }
+        String fileName = structureDiskData.file();
+        CompoundTag tag = getCachedStructureNbt(fileName);
+        if (tag == null) {
+            requestStructureFile(level, structureDiskData);
+            return null;
+        }
+        try {
+            HolderLookup.Provider registry = level.registryAccess();
+            StructureData data = new StructureData(structureDiskData);
+            StructureLoadUtil.parseStructureNBT(data, tag, registry);
+            return data;
+        } catch (Exception e) {
+            LOGGER.warn("Failed to parse cached structure {}: {}", fileName, e.getMessage());
+            removeCachedStructureNbt(fileName);
+            return null;
+        }
+    }
+
+    /** 客户端已缓存的结构 NBT（服务端通过 {@link dev.dubhe.anvilcraft.network.StructureDiskResponsePacket} 下发）。 */
+    private static final Map<String, CompoundTag> STRUCTURE_NBT_CACHE = new HashMap<>();
+
+    /** 缓存服务端下发的结构 NBT；{@code null} 表示文件不存在，避免反复请求。 */
+    public static void cacheStructureNbt(String fileName, @Nullable CompoundTag tag) {
+        if (tag == null) {
+            STRUCTURE_NBT_CACHE.put(fileName, null);
+        } else {
+            STRUCTURE_NBT_CACHE.put(fileName, tag.copy());
+        }
+    }
+
+    @Nullable
+    private static CompoundTag getCachedStructureNbt(String fileName) {
+        if (!STRUCTURE_NBT_CACHE.containsKey(fileName)) return null;
+        return STRUCTURE_NBT_CACHE.get(fileName);
+    }
+
+    public static void removeCachedStructureNbt(String fileName) {
+        STRUCTURE_NBT_CACHE.remove(fileName);
+    }
+
+    /** 纯服务器环境下客户端本地没有结构文件，向服务器发起请求。 */
+    private static void requestStructureFile(Level level, StructureDiskData data) {
+        if (!isValidStructureFile(data.file())) return;
+        if (!(level instanceof ClientLevel)) return;
+        Minecraft minecraft = Minecraft.getInstance();
+        ClientPacketListener connection = minecraft.getConnection();
+        if (!(minecraft.player instanceof LocalPlayer)) return;
+        if (connection == null) return;
+        connection.send(new StructureDiskRequestPacket(data.file()));
     }
 
     /**
@@ -110,6 +168,24 @@ public class StructureLoadUtil {
 
         } catch (IOException e) {
             LOGGER.error("Failed to load structure file: {}", e.getMessage(), e);
+            return null;
+        }
+    }
+
+    @Nullable
+    public static CompoundTag readStructureFileOnServer(net.minecraft.server.level.ServerLevel level, String fileName) {
+        if (!isValidStructureFile(fileName)) {
+            return null;
+        }
+        try {
+            Path baseDir = getStructureDirectory(level);
+            Path structureFile = baseDir.resolve(fileName);
+            if (!isPathWithinBaseDirectory(structureFile, baseDir) || !Files.exists(structureFile)) {
+                return null;
+            }
+            return NbtIo.readCompressed(structureFile, NbtAccounter.unlimitedHeap());
+        } catch (IOException e) {
+            LOGGER.error("Failed to read structure file: {}", e.getMessage(), e);
             return null;
         }
     }
@@ -218,7 +294,7 @@ public class StructureLoadUtil {
      * Validate structure file name to prevent path traversal attacks
      * File names must match the pattern: name_uuid.nbt
      */
-    private static boolean isValidStructureFile(String fileName) {
+    public static boolean isValidStructureFile(String fileName) {
         if (fileName.trim().isEmpty()) {
             return false;
         }
