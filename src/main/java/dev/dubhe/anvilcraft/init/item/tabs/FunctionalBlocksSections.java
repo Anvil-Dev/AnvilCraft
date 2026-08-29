@@ -55,8 +55,8 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.MAGNET_BLOCK);
                 content.accept(ModBlocks.HOLLOW_MAGNET_BLOCK);
                 content.accept(ModBlocks.FERRITE_CORE_MAGNET_BLOCK);
-                content.accept(Items.IRON_TRAPDOOR);
                 content.accept(Items.SCAFFOLDING);
+                content.accept(Items.IRON_TRAPDOOR);
                 content.accept(ModBlocks.STAMPING_PLATFORM);
                 content.accept(ModBlocks.CRUSHING_TABLE);
                 content.accept(ModBlocks.SIFTING_TABLE);
@@ -83,10 +83,10 @@ public class FunctionalBlocksSections extends DisplayItemsGenerator {
             content -> {
                 content.accept(ModBlocks.CRATE);
                 content.accept(ModBlocks.LARGE_CRATE);
-                content.accept(ModBlocks.SHULKER_CONTAINER);
-                content.accept(ModBlocks.HYPERDIMENSION_STORAGE_STATION);
-                content.accept(ModBlocks.HYPERDIMENSION_UPLOADER);
                 content.accept(ModBlocks.STORAGE_PORT);
+                content.accept(ModBlocks.SHULKER_CONTAINER);
+                content.accept(ModBlocks.HYPERDIMENSION_UPLOADER);
+                content.accept(ModBlocks.HYPERDIMENSION_STORAGE_STATION);
                 content.accept(ModBlocks.SINGULARITY_CRYSTAL);
                 content.accept(ModBlocks.HYPERCUBE);
                 content.accept(ModBlocks.CHUTE);

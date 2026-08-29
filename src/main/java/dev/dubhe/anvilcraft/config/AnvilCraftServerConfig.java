@@ -158,6 +158,9 @@ public class AnvilCraftServerConfig {
     @Comment("Combining items with Enchanted Books beyond max level in Transcendence Anvil")
     public boolean transcendenceAnvilBeyondMaxLevel = true;
 
+    @Comment("Allow eternal items to be killed by the void (falling out of the world)")
+    public boolean eternalItemsVoidKillable = false;
+
     public static class PowerConverter {
         @Comment("The working interval of power converters")
         @BoundedDiscrete(min = 1, max = 60)

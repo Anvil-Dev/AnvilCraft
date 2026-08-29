@@ -1029,7 +1029,7 @@ public class ItemTooltipManager {
         ) {
             ItemTooltipManager.requestStorageUsage(storageId);
         }
-        if (usage == null || usage.typeLimit() <= 0 || usage.typeLimit() == Integer.MAX_VALUE) {
+        if (usage == null || usage.typeLimit() < 0) {
             return Optional.empty();
         }
         return Optional.of(new StorageTooltip(usage.usedTypes(), usage.typeLimit(), usage.types()));
@@ -1044,7 +1044,7 @@ public class ItemTooltipManager {
         }
         StorageClientStub.loadUsage(storageId).whenComplete((usage, error) -> {
             STORAGE_USAGE_PENDING.remove(storageId);
-            if (error != null || usage == null || usage.typeLimit() <= 0) {
+            if (error != null || usage == null || usage.typeLimit() < 0) {
                 return;
             }
             STORAGE_USAGE.put(storageId, usage);

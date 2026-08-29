@@ -3,7 +3,6 @@ package dev.dubhe.anvilcraft.item;
 import dev.dubhe.anvilcraft.rpc.BundleLikeServerStub;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.SlotAccess;
@@ -20,10 +19,8 @@ public abstract class BundleLikeItem extends Item {
         super(properties);
     }
 
-    protected abstract ResourceLocation configId();
-
     protected boolean isInvertedAction(Player player) {
-        return BundleLikeServerStub.isInvertedAction(player.getGameProfile().getId(), this.configId());
+        return BundleLikeServerStub.isInvertedAction(player.getGameProfile().getId());
     }
 
     protected ClickAction computeValidAction(@SuppressWarnings("SameParameterValue") ClickAction action, Player player) {

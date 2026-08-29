@@ -6,7 +6,6 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.BundleLikeItem;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.util.ColorUtil;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -27,16 +26,10 @@ import java.util.Optional;
 public class AmuletBoxItem extends BundleLikeItem {
     private static final int FULL_BAR_COLOR = 0xFF5454FF;
     private static final int BAR_COLOR = 0x7087FFFF;
-    public static final ResourceLocation CONFIG_ID = AnvilCraft.of("amulet_box");
     public static final int CAPACITY = 16;
 
     public AmuletBoxItem(Properties properties) {
         super(properties.component(ModComponents.BOX_CONTENTS, BoxContents.EMPTY));
-    }
-
-    @Override
-    protected ResourceLocation configId() {
-        return AmuletBoxItem.CONFIG_ID;
     }
 
     @Override

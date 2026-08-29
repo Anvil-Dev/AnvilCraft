@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix4f;
 
@@ -45,7 +46,7 @@ public class ClientStorageTooltip implements ClientTooltipComponent {
     public int getWidth(Font font) {
         int width = Math.max(
             font.width(Component.translatable("tooltip.anvilcraft.storage.types")),
-            font.width(Component.translatable("tooltip.anvilcraft.storage.types.value", this.usedTypes, this.typeLimit))
+            font.width(this.typesLine())
         );
         if (!this.types.isEmpty()) {
             int visible = Math.min(this.types.size(), ClientStorageTooltip.MAX_VISIBLE_TYPES);
@@ -57,6 +58,13 @@ public class ClientStorageTooltip implements ClientTooltipComponent {
             width = Math.max(width, iconsWidth);
         }
         return width;
+    }
+
+    private MutableComponent typesLine() {
+        if (this.typeLimit == 0) {
+            return Component.translatable("tooltip.anvilcraft.storage.types.value.infinite", this.usedTypes);
+        }
+        return Component.translatable("tooltip.anvilcraft.storage.types.value", this.usedTypes, this.typeLimit);
     }
 
     @Override
@@ -80,8 +88,7 @@ public class ClientStorageTooltip implements ClientTooltipComponent {
             15728880
         );
         font.drawInBatch(
-            Component.translatable("tooltip.anvilcraft.storage.types.value", this.usedTypes, this.typeLimit)
-                .withStyle(ChatFormatting.GRAY),
+            this.typesLine().withStyle(ChatFormatting.GRAY),
             mouseX,
             mouseY + ClientStorageTooltip.LINE_HEIGHT,
             -1,

@@ -212,6 +212,7 @@ import dev.dubhe.anvilcraft.block.item.HasMobBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeatCollectorBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeatableBlockItem;
 import dev.dubhe.anvilcraft.block.item.HeliostatsItem;
+import dev.dubhe.anvilcraft.block.item.HyperdimensionStorageStationBlockItem;
 import dev.dubhe.anvilcraft.block.item.InfiniteCollectorBlockItem;
 import dev.dubhe.anvilcraft.block.item.LargeFluidTankBlockItem;
 import dev.dubhe.anvilcraft.block.item.LevitationBlockItem;
@@ -285,6 +286,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.Unbreakable;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.item.enchantment.LevelBasedValue;
 import net.minecraft.world.level.BlockGetter;
@@ -855,6 +857,7 @@ public class ModBlocks {
             .fireResistant()
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
         )
         .tag(ItemTags.ANVIL, ModItemTags.EXPLOSION_PROOF, ModItemTags.AUTO_ENCHANTING_TABLE_PRIMERS)
         .build()
@@ -884,6 +887,7 @@ public class ModBlocks {
             .fireResistant()
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
         )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
@@ -914,6 +918,7 @@ public class ModBlocks {
             .fireResistant()
             .rarity(Rarity.EPIC)
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
+            .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
         )
         .tag(ModItemTags.EXPLOSION_PROOF)
         .build()
@@ -1737,7 +1742,7 @@ public class ModBlocks {
             .isValidSpawn(ModBlocks::never)
             .requiresCorrectToolForDrops()
         )
-        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
+        .item(HyperdimensionStorageStationBlockItem::new)
         .properties(properties -> properties
             .fireResistant()
             .stacksTo(1)
@@ -4432,7 +4437,7 @@ public class ModBlocks {
             "confined_neutronium_ingot",
             SimpleConfinementAnvilonBlock::new
         )
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.COLLISION_IMMUNE)
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.DRAGON_IMMUNE, BlockTags.WITHER_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
         .properties(PropertiesProviderUtil::confinedAnvilon)
         .blockstate(DataGenUtil::simple)
         .item(SuperHeavyBlockItem::new)
