@@ -186,7 +186,10 @@ public class SiftingTableBlock extends Block implements
         BlockPos pos,
         Player player
     ) {
-        // 生存模式中键选择时，目标统一指向冲压台的物品
+        // 创造模式选取时指向自身方块，生存模式中键选择时统一指向冲压台的物品
+        if (player.getAbilities().instabuild) {
+            return new ItemStack(this);
+        }
         return new ItemStack(ModBlocks.STAMPING_PLATFORM);
     }
 }
