@@ -151,11 +151,7 @@ public record MobTransformRecipe(
             level,
             EntitySpawnReason.CONVERSION,
             e -> {
-                e.moveOrInterpolateTo(
-                    livingEntity.position(),
-                    e.getYRot(),
-                    e.getXRot()
-                );
+                e.copyPosition(livingEntity);
                 return e;
             }
         );
