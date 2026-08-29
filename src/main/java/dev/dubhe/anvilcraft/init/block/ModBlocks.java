@@ -1651,7 +1651,7 @@ public class ModBlocks {
             "mass_energy_inverter",
             MassEnergyInverterBlock::new
         )
-        .initialProperties(() -> Blocks.IRON_BLOCK)
+        .initialProperties(() -> Blocks.NETHERITE_BLOCK)
         .properties(properties -> properties.isValidSpawn(Blocks::never).noOcclusion())
         .blockstate(DataGenUtil::simple)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE)
