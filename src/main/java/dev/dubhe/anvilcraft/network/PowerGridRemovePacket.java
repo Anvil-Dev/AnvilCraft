@@ -4,7 +4,6 @@ import dev.anvilcraft.lib.v2.network.packet.IClientboundPacket;
 import dev.anvilcraft.lib.v2.network.packet.IPacket;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
-import dev.dubhe.anvilcraft.api.power.SimplePowerGrid;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -33,10 +32,6 @@ public record PowerGridRemovePacket(int grid) implements IClientboundPacket {
 
     @Override
     public void handleOnClient(Player player) {
-        SimplePowerGrid powerGrid = PowerGridSupport.getGridMap().get(this.grid);
-        if (powerGrid != null) {
-            powerGrid.destroy();
-        }
-        PowerGridSupport.getGridMap().remove(this.grid);
+        PowerGridSupport.removeGrid(this.grid);
     }
 }
