@@ -31,7 +31,7 @@ Smash 1 <ref item="anvilcraft:space_overcompressor"/> and 6 <ref item="minecraft
 
 ## Function
 
-- Holds 1024 stacks of items.
+- Holds about 65,000 item types, each stored independently with a capacity of about 65,000 items.
 - Breaking it preserves its contents.
 - Smash <ref item="anvilcraft:space_overcompressor"/> into a <ref item="anvilcraft:shulker_container"/> to double its capacity, up to four times.
 - It cannot be automatically inserted into or extracted from by blocks such as <ref item="minecraft:hopper"/>. Use a <ref item="anvilcraft:storage_port"/> instead.

@@ -30,7 +30,7 @@ items:
 
 ## 功能
 
-- 可以容纳1024组物品
+- 可以容纳约6.5万种物品，每种物品存储空间相互独立，均为约6.5万个
 - 挖掘掉落可以保存其中的物品
 - 将<ref item="anvilcraft:space_overcompressor"/>压入<ref item="anvilcraft:shulker_container"/>将容量翻倍，最多进行四次
 - 自身无法通过<ref item="minecraft:hopper"/>等方块自动输入输出，需使用<ref item="anvilcraft:storage_port"/>
