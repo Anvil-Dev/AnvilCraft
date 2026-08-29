@@ -13,11 +13,11 @@ public class EmberMetalIngotItem extends Item implements IPermutationMaterial {
         "screen.anvilcraft.frost_smithing.ember_metal_ingot.missing_tools"
     );
     private static final List<Identifier> EMPTY_SLOT_TEXTURES = List.of(
-        Identifier.withDefaultNamespace("item/empty_slot_sword"),
-        Identifier.withDefaultNamespace("item/empty_slot_axe"),
-        Identifier.withDefaultNamespace("item/empty_slot_pickaxe"),
-        Identifier.withDefaultNamespace("item/empty_slot_shovel"),
-        Identifier.withDefaultNamespace("item/empty_slot_hoe")
+        Identifier.withDefaultNamespace("container/slot/sword"),
+        Identifier.withDefaultNamespace("container/slot/axe"),
+        Identifier.withDefaultNamespace("container/slot/pickaxe"),
+        Identifier.withDefaultNamespace("container/slot/shovel"),
+        Identifier.withDefaultNamespace("container/slot/hoe")
     );
 
     public EmberMetalIngotItem(Properties properties) {

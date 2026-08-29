@@ -66,7 +66,7 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
         SharedTextures.textureGui("crafting/frost_smithing_table/button_right");
 
     private static final Identifier EMPTY_SLOT_INGOT =
-        Identifier.withDefaultNamespace("item/empty_slot_ingot");
+        Identifier.withDefaultNamespace("container/slot/ingot");
 
     private static final int OVERLAY_HEIGHT = 83;
     private static final int PANEL_WIDTH = 73;

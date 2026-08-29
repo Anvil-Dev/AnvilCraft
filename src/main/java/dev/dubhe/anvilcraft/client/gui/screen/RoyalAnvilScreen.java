@@ -97,13 +97,13 @@ public class RoyalAnvilScreen extends ItemCombinerScreen<RoyalAnvilMenu> {
         int i = this.menu.getCost();
         if (this.menu.result.noCostInRenaming && this.menu.result.onlyRenaming || i > 0) {
             Component component;
-            int j = 8453920;
+            int j = 0xFF80FF20;
             if (!this.menu.getSlot(2).hasItem()) {
                 component = null;
             } else {
                 component = Component.translatable("container.repair.cost", i);
                 if (!this.menu.getSlot(2).mayPickup(this.player)) {
-                    j = 0xFF6060;
+                    j = 0xFFFF6060;
                 }
             }
             if (component != null) {

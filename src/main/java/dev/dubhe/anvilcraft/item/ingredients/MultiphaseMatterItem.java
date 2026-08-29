@@ -32,11 +32,11 @@ public class MultiphaseMatterItem extends Item implements IMultipleMaterial, IPe
         Items.WARPED_FUNGUS_ON_A_STICK, AnvilCraft.of("item/empty_slot_warped_fungus_on_a_stick")
     );
     private static final List<Identifier> FROST_EMPTY_SLOT_TEXTURES = List.of(
-        Identifier.withDefaultNamespace("item/empty_slot_sword"),
-        Identifier.withDefaultNamespace("item/empty_slot_axe"),
-        Identifier.withDefaultNamespace("item/empty_slot_pickaxe"),
-        Identifier.withDefaultNamespace("item/empty_slot_shovel"),
-        Identifier.withDefaultNamespace("item/empty_slot_hoe"),
+        Identifier.withDefaultNamespace("container/slot/sword"),
+        Identifier.withDefaultNamespace("container/slot/axe"),
+        Identifier.withDefaultNamespace("container/slot/pickaxe"),
+        Identifier.withDefaultNamespace("container/slot/shovel"),
+        Identifier.withDefaultNamespace("container/slot/hoe"),
         AnvilCraft.of("item/empty_slot_heavy_halberd"),
         AnvilCraft.of("item/empty_slot_resonator")
     );

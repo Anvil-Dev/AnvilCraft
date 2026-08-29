@@ -26,9 +26,9 @@ public class EmberMetalUpgradeTemplateItem extends SmithingTemplateItem {
     private static final Component UPGRADE_ADDITIONS_SLOT_DESCRIPTION = Component.translatable(
         "screen.anvilcraft.smithing_template.ember_metal_upgrade_smithing_template.additions_slot_description");
     private static final Identifier EMPTY_SLOT_PICKAXE =
-        Identifier.withDefaultNamespace("item/empty_slot_pickaxe");
+        Identifier.withDefaultNamespace("container/slot/pickaxe");
     private static final Identifier EMPTY_SLOT_INGOT =
-        Identifier.withDefaultNamespace("item/empty_slot_ingot");
+        Identifier.withDefaultNamespace("container/slot/ingot");
     private static final Identifier EMPTY_SLOT_HAMMER = AnvilCraft.of("item/empty_slot_hammer");
     private static final Identifier EMPTY_SLOT_BLOCK = AnvilCraft.of("item/empty_slot_block");
 

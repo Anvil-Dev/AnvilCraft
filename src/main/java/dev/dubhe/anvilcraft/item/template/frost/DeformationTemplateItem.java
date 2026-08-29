@@ -10,11 +10,11 @@ import java.util.List;
 public class DeformationTemplateItem extends Item {
     private static final Component MISSING_TOOLTIP = Component.translatable("screen.anvilcraft.frost_smithing.deformation.missing_tools");
     private static final List<Identifier> EMPTY_SLOT_TEXTURES = List.of(
-        Identifier.withDefaultNamespace("item/empty_slot_sword"),
-        Identifier.withDefaultNamespace("item/empty_slot_axe"),
-        Identifier.withDefaultNamespace("item/empty_slot_pickaxe"),
-        Identifier.withDefaultNamespace("item/empty_slot_shovel"),
-        Identifier.withDefaultNamespace("item/empty_slot_hoe"),
+        Identifier.withDefaultNamespace("container/slot/sword"),
+        Identifier.withDefaultNamespace("container/slot/axe"),
+        Identifier.withDefaultNamespace("container/slot/pickaxe"),
+        Identifier.withDefaultNamespace("container/slot/shovel"),
+        Identifier.withDefaultNamespace("container/slot/hoe"),
         AnvilCraft.of("item/empty_slot_helmet"),
         AnvilCraft.of("item/empty_slot_chestplate"),
         AnvilCraft.of("item/empty_slot_leggings"),

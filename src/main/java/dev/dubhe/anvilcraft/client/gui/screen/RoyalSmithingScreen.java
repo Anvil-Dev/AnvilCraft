@@ -30,9 +30,9 @@ import java.util.Optional;
 public class RoyalSmithingScreen extends AdjacentSmithingScreen<RoyalSmithingMenu> {
     private static final Identifier SMITHING_LOCATION = SharedTextures.bg("crafting", "royal_smithing_table");
     private static final Identifier EMPTY_SLOT_SMITHING_TEMPLATE_ARMOR_TRIM =
-        Identifier.withDefaultNamespace("item/empty_slot_smithing_template_armor_trim");
+        Identifier.withDefaultNamespace("container/slot/smithing_template_armor_trim");
     private static final Identifier EMPTY_SLOT_SMITHING_TEMPLATE_NETHERITE_UPGRADE =
-        Identifier.withDefaultNamespace("item/empty_slot_smithing_template_netherite_upgrade");
+        Identifier.withDefaultNamespace("container/slot/smithing_template_netherite_upgrade");
     private static final Component MISSING_TEMPLATE_TOOLTIP =
         Component.translatable("container.upgrade.missing_template_tooltip");
     private static final Component ERROR_TOOLTIP = Component.translatable("container.upgrade.error_tooltip");

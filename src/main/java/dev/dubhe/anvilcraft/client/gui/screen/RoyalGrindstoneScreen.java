@@ -165,7 +165,7 @@ public class RoyalGrindstoneScreen extends AbstractContainerScreen<RoyalGrindsto
             component,
             x + 2,
             y + 2,
-            8453920
+            0xFF80FF20
         );
     }
 
