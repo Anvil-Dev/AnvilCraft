@@ -24,7 +24,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public final class TerminalJeiStorageCache {
     /** 缓存有效期（毫秒）：存储站内容可能被其他玩家/自动化改动，定期刷新避免误判。 */
-    private static final long TTL_MILLIS = 15_000L;
+    private static final long TTL_MILLIS = 60_000L;
 
     // ConcurrentHashMap：渲染线程（mixin 检查阶段 get）与 RPC 完成线程（thenApply 写入）
     // 并发读写，普通 HashMap 有数据损坏风险。

@@ -659,9 +659,13 @@ public final class StorageServerStub {
      * JEI 快速合成补库：从玩家持有的全部终端目标（超维绑定 / 本地 / 潜影）取出合成缺少的
      * 物品补入背包。每个目标按其提取时背包的实际缺口计算，总量不会超过需求。
      * 仅当玩家确实持有这些目标对应的终端时生效。
+     *
+     * @return 实际补入玩家背包的物品及数量（每种物品一份，数量为补入总量），
+     *         供客户端在 JEI 转移失败时退回多余材料
      */
+    @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC")
     @RemoteCallable(validator = TerminalAccessValidator.class)
-    public static boolean terminalWithdrawToInventory(
+    public static List<ItemStack> terminalWithdrawToInventory(
         UUID playerId,
         @CallableParam(clazz = StorageServerStub.class, field = "UUID_LIST_STREAM_CODEC")
         List<UUID> targetIds,
@@ -670,9 +674,9 @@ public final class StorageServerStub {
     ) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         if (targetIds.isEmpty()) {
-            return false;
+            return List.of();
         }
-        boolean changed = false;
+        List<ItemStack> withdrawn = new ArrayList<>();
         for (UUID targetId : targetIds) {
             if (!StorageServerStub.terminalTargetReachable(player, targetId)) {
                 continue;
@@ -681,28 +685,25 @@ public final class StorageServerStub {
             if (storages.isEmpty()) {
                 continue;
             }
-            if (StorageServerStub.withdrawNeedsFromStorages(player, storages, needs)) {
-                changed = true;
-            }
+            StorageServerStub.withdrawNeedsFromStorages(player, storages, needs, withdrawn);
         }
-        if (changed) {
+        if (!withdrawn.isEmpty()) {
             player.getInventory().setChanged();
             player.containerMenu.broadcastChanges();
         }
-        return changed;
+        return withdrawn;
     }
 
     /**
      * 从一组存储中按背包当前缺口提取 needs 中每种物品，补入玩家背包。
-     *
-     * @return 是否发生任何变动
+     * 实际补入的数量累加到 {@code withdrawn}（同一物品合并计数）。
      */
-    private static boolean withdrawNeedsFromStorages(
+    private static void withdrawNeedsFromStorages(
         ServerPlayer player,
         List<BaseStorage<?>> storages,
-        List<ItemStack> needs
+        List<ItemStack> needs,
+        List<ItemStack> withdrawn
     ) {
-        boolean changed = false;
         for (ItemStack need : needs) {
             if (need.isEmpty()) {
                 continue;
@@ -734,7 +735,7 @@ public final class StorageServerStub {
                     if (got > 0) {
                         player.getInventory().add(resource.copyWithCount(got));
                         required -= got;
-                        changed = true;
+                        StorageServerStub.addWithdrawn(withdrawn, resource, got);
                     }
                 }
                 if (required <= 0) {
@@ -742,13 +743,97 @@ public final class StorageServerStub {
                 }
             }
         }
-        return changed;
+    }
+
+    /** 把本次实际补入的数量合并进 withdrawn 列表（同一物品合并计数，防溢出）。 */
+    private static void addWithdrawn(List<ItemStack> withdrawn, ItemStack resource, int got) {
+        for (ItemStack existing : withdrawn) {
+            if (ItemStack.isSameItemSameComponents(existing, resource)) {
+                int add = Math.min(got, Integer.MAX_VALUE - existing.getCount());
+                if (add > 0) {
+                    existing.grow(add);
+                }
+                return;
+            }
+        }
+        withdrawn.add(resource.copyWithCount(got));
     }
 
     /**
-     * JEI 快速合成检查：返回玩家绑定存储站中每种物品的一份代表（去重），
-     * 供客户端缓存判断存储站是否拥有配方所需物品。限制返回条目数，避免超大
-     * 存储站在每次刷新时全量扫描造成服务端尖峰。
+     * JEI 快速合成补库失败后的回退：把 {@code stacks} 中每种物品从玩家背包取回（不超过
+     * 背包现有量），存入玩家绑定的终端存储。存储放不下的剩余部分保留在背包。
+     * 仅当玩家确实持有这些目标对应的终端时生效。
+     */
+    @RemoteCallable(validator = TerminalAccessValidator.class)
+    public static void terminalReturnExcess(
+        UUID playerId,
+        @CallableParam(clazz = StorageServerStub.class, field = "UUID_LIST_STREAM_CODEC")
+        List<UUID> targetIds,
+        @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC")
+        List<ItemStack> stacks
+    ) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        if (targetIds.isEmpty() || stacks.isEmpty()) {
+            return;
+        }
+        List<BaseStorage<?>> storages = new ArrayList<>();
+        for (UUID targetId : targetIds) {
+            if (!StorageServerStub.terminalTargetReachable(player, targetId)) {
+                continue;
+            }
+            for (BaseStorage<?> storage : StorageServerStub.terminalStorages(player, targetId)) {
+                StorageServerStub.addDistinct(storages, storage);
+            }
+        }
+        if (storages.isEmpty()) {
+            return;
+        }
+        boolean changed = false;
+        for (ItemStack stack : stacks) {
+            if (stack.isEmpty()) {
+                continue;
+            }
+            ItemStack resource = stack.copyWithCount(1);
+            int remaining = Math.min(stack.getCount(), StorageServerStub.countInInventory(player.getInventory(), resource));
+            if (remaining <= 0) {
+                continue;
+            }
+            int inserted = StorageServerStub.insertIntoStorages(storages, resource, remaining);
+            if (inserted <= 0) {
+                continue;
+            }
+            changed = true;
+            // 从主物品栏移走已存入的多余数量：优先非主手槽位，最后才动主手
+            int toRemove = inserted;
+            for (int i = Inventory.INVENTORY_SIZE - 1; i >= 0 && toRemove > 0; i--) {
+                if (i == player.getInventory().selected) {
+                    continue;
+                }
+                ItemStack slotStack = player.getInventory().getItem(i);
+                if (slotStack.isEmpty() || !ItemStack.isSameItemSameComponents(slotStack, resource)) {
+                    continue;
+                }
+                int take = Math.min(slotStack.getCount(), toRemove);
+                slotStack.shrink(take);
+                toRemove -= take;
+            }
+            if (toRemove > 0) {
+                ItemStack held = player.getInventory().getItem(player.getInventory().selected);
+                if (!held.isEmpty() && ItemStack.isSameItemSameComponents(held, resource)) {
+                    held.shrink(toRemove);
+                }
+            }
+        }
+        if (changed) {
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+        }
+    }
+
+    /**
+     * JEI 快速合成检查：返回玩家绑定存储站中每种物品的代表与总数量（去重聚合，
+     * 同一物品跨多个存储/槽位合并计数），供客户端缓存判断存储站是否满足配方需求。
+     * 限制返回条目数，避免超大存储站在每次刷新时全量扫描造成服务端尖峰。
      */
     private static final int MAX_STORAGE_ITEMS = 512;
     /**
@@ -786,15 +871,19 @@ public final class StorageServerStub {
                 if (stack.isEmpty()) {
                     continue;
                 }
-                boolean duplicate = false;
+                boolean merged = false;
                 for (ItemStack existing : result) {
                     if (ItemStack.isSameItemSameComponents(existing, stack)) {
-                        duplicate = true;
+                        int add = (int) Math.min(amount, Integer.MAX_VALUE - existing.getCount());
+                        if (add > 0) {
+                            existing.grow(add);
+                        }
+                        merged = true;
                         break;
                     }
                 }
-                if (!duplicate) {
-                    result.add(stack);
+                if (!merged) {
+                    result.add(stack.copyWithCount((int) Math.min(amount, Integer.MAX_VALUE)));
                 }
             }
         }

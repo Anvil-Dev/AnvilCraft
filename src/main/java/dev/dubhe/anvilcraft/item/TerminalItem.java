@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.UUID;
@@ -14,6 +15,12 @@ import java.util.UUID;
 public abstract class TerminalItem extends BundleLikeItem {
     protected TerminalItem(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    protected boolean canRemoveOne(Player player) {
+        // 未在浮窗内通过滚轮选中物品时，点击终端不应取出存储中的物品（放行 vanilla 拿起终端）
+        return false;
     }
 
     @Override

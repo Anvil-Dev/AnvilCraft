@@ -30,6 +30,14 @@ public abstract class BundleLikeItem extends Item {
         };
     }
 
+    /**
+     * 是否允许空手点击本物品所在的槽位时取出一个物品（{@link #overrideOtherStackedOnMe} 的空手路径）。
+     * 终端类物品未在浮窗内选中物品时不取出，放行 vanilla 拿起终端。
+     */
+    protected boolean canRemoveOne(Player player) {
+        return true;
+    }
+
     protected abstract void removeOne(TransferState state);
 
     protected abstract void insertOne(TransferState state);
@@ -70,6 +78,7 @@ public abstract class BundleLikeItem extends Item {
         if (action != this.computeValidAction(ClickAction.SECONDARY, player) || !slot.allowModification(player)) return false;
         TransferState state = new TransferState(player, other.copy(), stack.copy());
         if (other.isEmpty()) {
+            if (!this.canRemoveOne(player)) return false;
             this.removeOne(state);
             ItemStack removed = state.output;
             if (removed == null || removed.isEmpty()) return false;
