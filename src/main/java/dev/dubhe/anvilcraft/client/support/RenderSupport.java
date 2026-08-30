@@ -56,6 +56,24 @@ public class RenderSupport {
         );
     }
 
+    public static void render3x3Block(GuiGraphicsExtractor graphics, BlockState block, float x, float y, float size) {
+        PoseStack.Pose poseStack = RenderSupport.BLOCK_DISPLAY_POSE.copy();
+        poseStack.scale(0.3f, 0.3f, 0.3f);
+        GuiRenderExtras.tessellateBlock(
+            graphics,
+            block,
+            null,
+            null,
+            x,
+            y,
+            x + size,
+            y + size,
+            -1,
+            true,
+            poseStack
+        );
+    }
+
     public static void renderWipBlock(
         GuiGraphicsExtractor graphics,
         Identifier recipeId,

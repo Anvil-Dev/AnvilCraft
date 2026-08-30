@@ -48,12 +48,12 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
     private static final String SIDE_BLOCK_PREFIX = "side_block_";
     private static final String FROM_BLOCK = "from_block";
     private static final String OUTPUT_BLOCK = "output_block";
-    private static final int BLOCK_SCALE = 12;
+    private static final int BLOCK_SCALE = 20;
     private static final int[][] SIDE_POSITIONS = {
-        {40, 46},
-        {56, 46},
-        {40, 54},
-        {56, 54}
+        {30, 36},
+        {46, 36},
+        {30, 44},
+        {46, 44}
     };
     private static final int[][] SIDE_SLOT_AREAS = {
         {31, 38, 9, 14},
@@ -168,7 +168,7 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
             MineralFountainCategory.renderSideBlock(graphics, sideState, 1);
         }
 
-        RenderSupport.renderBlock(graphics, ModBlocks.MINERAL_FOUNTAIN.getDefaultState(), 48, 50, MineralFountainCategory.BLOCK_SCALE);
+        RenderSupport.renderBlock(graphics, ModBlocks.MINERAL_FOUNTAIN.getDefaultState(), 38, 40, MineralFountainCategory.BLOCK_SCALE);
 
         if (sideState != null) {
             MineralFountainCategory.renderSideBlock(graphics, sideState, 2);
@@ -178,13 +178,13 @@ public class MineralFountainCategory implements IRecipeCategory<MineralFountainJ
         if (!recipe.fromBlocks().isEmpty()) {
             JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, MineralFountainCategory.FROM_BLOCK, recipe.fromBlocks()).ifPresent(
                 state ->
-                    RenderSupport.renderBlock(graphics, state, 48, 39.5f, MineralFountainCategory.BLOCK_SCALE)
+                    RenderSupport.renderBlock(graphics, state, 38, 30f, MineralFountainCategory.BLOCK_SCALE)
             );
         }
 
-        RenderSupport.renderBlock(graphics, ModBlocks.MINERAL_FOUNTAIN.getDefaultState(), 126, 50, MineralFountainCategory.BLOCK_SCALE);
+        RenderSupport.renderBlock(graphics, ModBlocks.MINERAL_FOUNTAIN.getDefaultState(), 116, 40, MineralFountainCategory.BLOCK_SCALE);
         BlockState resultState = JeiBlockIngredientUtil.getRenderablePreviewState(recipe.result().state());
-        RenderSupport.renderBlock(graphics, resultState, 126, 39.5f, MineralFountainCategory.BLOCK_SCALE);
+        RenderSupport.renderBlock(graphics, resultState, 116, 30f, MineralFountainCategory.BLOCK_SCALE);
         this.arrow.draw(graphics, 82, 37);
 
         if (recipe.dimension() != null) {

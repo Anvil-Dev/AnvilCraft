@@ -174,7 +174,7 @@ public class DecayCategory implements IRecipeCategory<DecayRecipe> {
         Block center = DecayCategory.getDisplayedCenter(recipe, recipeSlotsView);
         PreviewKey key = new PreviewKey(recipe, center);
         LevelLike level = this.previewCache.computeIfAbsent(key, ignored -> DecayCategory.createPreview(recipe, center));
-        RenderSupport.renderLevelLike(level, guiGraphics, 24, 36, 60, 12, 0.5f, false);
+        RenderSupport.renderLevelLike(level, guiGraphics, 0, 6, 60, 12, 0.5f, false);
 
         this.slot.draw(guiGraphics, 7, 83);
         if (!recipe.matchingNeighbors().isEmpty()) this.slot.draw(guiGraphics, 7, 101);

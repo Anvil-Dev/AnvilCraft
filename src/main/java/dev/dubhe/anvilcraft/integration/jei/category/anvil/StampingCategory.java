@@ -59,8 +59,8 @@ public class StampingCategory extends AbstractProgressCategory<BaseStampingRecip
     ) {
         final BaseStampingRecipe<?> recipe = recipeHolder.value();
         int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 20);
-        RenderSupport.renderBlock(graphics, ModBlocks.STAMPING_PLATFORM.getDefaultState(), 81, 40, 20);
+        RenderSupport.renderBlock(graphics, ModBlocks.STAMPING_PLATFORM.getDefaultState(), 71, 35, 20);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 71, 17 + anvilYOffset, 20);
 
         this.arrowIn.draw(graphics, 54, 30);
         this.arrowOutFromBelow.draw(graphics, 92, 29);
