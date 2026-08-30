@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.util.predicate.BlockStatePredicate;
 import dev.anvilcraft.lib.v2.util.predicate.ChanceItemStack;
 import dev.anvilcraft.lib.v2.util.predicate.ItemIngredientPredicate;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.ProcessingTableBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
@@ -49,6 +50,8 @@ public class UnpackRecipe extends AbstractProcessRecipe<UnpackRecipe> {
         List<ItemIngredientPredicate> itemIngredients,
         List<ChanceItemStack> results
     ) {
+        ModBlocks.UNPACKING_TABLE.get();
+        ModBlocks.UNPACKING_TABLE.get();
         Property property = new Property()
             .setItemInputOffset(Vec3.ZERO)
             .setItemInputRange(new Vec3(1.0, 0.25, 1.0))
@@ -58,11 +61,13 @@ public class UnpackRecipe extends AbstractProcessRecipe<UnpackRecipe> {
             .setBlockInputOffset(new Vec3i(0, -1, 0))
             .setInputBlocks(
                 BlockStatePredicate.builder()
-                    .of(Blocks.IRON_TRAPDOOR, ModBlocks.UNPACKING_TABLE.get())
+                    .of(Blocks.IRON_TRAPDOOR, ModBlocks.UNPACKING_TABLE.get(), ModBlocks.UNPACKING_TABLE.get())
                     .with(TrapDoorBlock.HALF, Half.TOP)
                     .with(TrapDoorBlock.OPEN, false)
                     .or()
-                    .with(ModBlocks.UNPACKING_TABLE.get().defaultBlockState())
+                    .with(ProcessingTableBlock.WATERLOGGED, false)
+                    .or()
+                    .with(ProcessingTableBlock.WATERLOGGED, true)
                     .build()
             );
 
