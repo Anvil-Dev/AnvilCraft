@@ -13,6 +13,7 @@ import dev.dubhe.anvilcraft.init.registry.ModRegistries;
 import dev.dubhe.anvilcraft.init.registry.ModRegistryKeys;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil.MultiblockPart;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,18 +21,25 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.piston.PistonBaseBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Getter
@@ -137,6 +145,14 @@ public class BlockPointer implements ITargetPointer {
             ));
         }
 
+        // 记录移动前目标位置附近的实体，用于识别被放置后自身转化为实体的方块（如被红石激活的 TNT）
+        Set<UUID> entitiesBeforeMove = new HashSet<>();
+        for (MovingPart part : movingParts) {
+            for (Entity entity : level.getEntitiesOfClass(Entity.class, new AABB(part.targetPos()).inflate(0.5))) {
+                entitiesBeforeMove.add(entity.getUUID());
+            }
+        }
+
         for (MovingPart part : movingParts) {
             if (part.entity() != null) {
                 level.removeBlockEntity(part.source().pos());
@@ -171,10 +187,42 @@ public class BlockPointer implements ITargetPointer {
         for (MovingPart part : movingParts) {
             level.updateNeighborsAt(part.source().pos(), part.source().state().getBlock());
             level.updateNeighborsAt(part.targetPos(), part.targetState().getBlock());
+            // 与取物模式的 setBlock(UPDATE_ALL) 一致：有模拟信号输出的方块需要通知比较器更新
+            if (part.targetState().hasAnalogOutputSignal()) {
+                level.updateNeighbourForOutputSignal(part.targetPos(), part.targetState().getBlock());
+            }
         }
         if (BlockPlacementUtil.getPresentMultiblockParts(level, pos, targetState).size() != targetParts.size()) {
-            restoreParts(level, movingParts);
-            return false;
+            // 目标方块被自身 onPlace 转化为实体（如 TNT 被红石激活引爆）时源方块已被消耗，
+            // 与取物模式一致视为放置成功，不再回滚源方块，避免刷方块
+            boolean transformedIntoEntity = movingParts.stream().anyMatch(part -> level
+                .getEntitiesOfClass(Entity.class, new AABB(part.targetPos()).inflate(0.5))
+                .stream()
+                .anyMatch(entity -> !entitiesBeforeMove.contains(entity.getUUID())));
+            if (!transformedIntoEntity) {
+                restoreParts(level, movingParts);
+                return false;
+            }
+        }
+        // 触发玩家放置相关的代码，与取物模式一致（放置回调、放置音效、放置进度）
+        for (MovingPart part : movingParts) {
+            BlockState placedState = level.getBlockState(part.targetPos());
+            if (!placedState.is(part.targetState().getBlock())) {
+                continue;
+            }
+            if (movingParts.size() == 1) {
+                placedState.getBlock().setPlacedBy(level, part.targetPos(), placedState, null, ItemStack.EMPTY);
+            }
+            SoundType soundType = placedState.getSoundType(level, part.targetPos(), null);
+            level.playSound(
+                null,
+                part.targetPos(),
+                soundType.getPlaceSound(),
+                SoundSource.BLOCKS,
+                (soundType.getVolume() + 1.0F) / 2.0F,
+                soundType.getPitch() * 0.8F
+            );
+            TriggerUtil.placerPlaceBlock(level, part.targetPos(), placedState.getBlock());
         }
         return true;
     }

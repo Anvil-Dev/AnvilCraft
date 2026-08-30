@@ -1,12 +1,10 @@
 {
   "rules": [
     {
-      "count": 1,
       "item": "minecraft:cake",
       "properties": ""
     },
     {
-      "count": 1,
       "item": "minecraft:cyan_candle",
       "properties": ""
     }

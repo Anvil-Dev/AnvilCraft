@@ -1,7 +1,6 @@
 {
   "rules": [
     {
-      "count": 1,
       "item": "minecraft:melon_seeds",
       "properties": ""
     }

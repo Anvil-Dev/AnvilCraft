@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "anvilcraft:large_laser",
+      "properties": "half=mid_center"
+    },
+    {
+      "item": {},
+      "properties": "!half=mid_center"
+    }
+  ]
+}

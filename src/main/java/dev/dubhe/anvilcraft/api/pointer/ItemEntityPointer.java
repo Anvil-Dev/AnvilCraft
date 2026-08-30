@@ -22,6 +22,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
@@ -36,15 +37,20 @@ public class ItemEntityPointer implements ITargetPointer {
     private final Type type;
     private final UUID id;
     private final ItemStack stack;
+    /**
+     * 需求方块位置：指针指向的目标位置，物品实体必须停留在此位置一格范围内才算有效
+     */
+    private final BlockPos pos;
 
-    public ItemEntityPointer(Type type, UUID id, ItemStack stack) {
+    public ItemEntityPointer(Type type, UUID id, ItemStack stack, BlockPos pos) {
         this.id = id;
         this.stack = stack.copy();
         this.type = type;
+        this.pos = pos.immutable();
     }
 
-    private ItemEntityPointer(Type type, ItemEntity entity) {
-        this(type, entity.getUUID(), entity.getItem());
+    private ItemEntityPointer(Type type, ItemEntity entity, BlockPos pos) {
+        this(type, entity.getUUID(), entity.getItem(), pos);
     }
 
     @Nullable
@@ -67,7 +73,9 @@ public class ItemEntityPointer implements ITargetPointer {
         if (entity == null) {
             return false;
         }
-        return !entity.isRemoved() && ItemStack.isSameItemSameComponents(entity.getItem(), this.stack);
+        return !entity.isRemoved()
+            && ItemStack.isSameItemSameComponents(entity.getItem(), this.stack)
+            && new AABB(this.pos).intersects(entity.getBoundingBox());
     }
 
     @Override
@@ -135,6 +143,36 @@ public class ItemEntityPointer implements ITargetPointer {
                 break;
             }
         }
+        // 放置后返还物品由 PlacementItem 定义（如细雪桶放置后返还空桶）
+        BlockState returnState = requiredState != null
+            ? requiredState
+            : Block.byItem(this.stack.getItem()).defaultBlockState();
+        ItemStack returnItem = BlockPlacementRules.getReturnItem(level.registryAccess(), returnState);
+        if (!returnItem.isEmpty()) {
+            ItemStack returnStack = returnItem.copyWithCount(consumed);
+            boolean merged = false;
+            for (ItemEntity existing : sourceEntities) {
+                if (existing.isRemoved()) continue;
+                ItemStack existingStack = existing.getItem();
+                if (ItemStack.isSameItemSameComponents(existingStack, returnStack)
+                    && existingStack.getCount() + consumed <= existingStack.getMaxStackSize()
+                ) {
+                    existingStack.grow(consumed);
+                    existing.setItem(existingStack);
+                    merged = true;
+                    break;
+                }
+            }
+            if (!merged) {
+                ItemEntity firstSource = sourceEntities.getFirst();
+                ItemEntity returnEntity = new ItemEntity(
+                    level, firstSource.getX(), firstSource.getY(), firstSource.getZ(),
+                    returnStack, 0, 0, 0
+                );
+                returnEntity.setPickUpDelay(10);
+                level.addFreshEntity(returnEntity);
+            }
+        }
         return remainingCount == 0;
     }
 
@@ -166,7 +204,10 @@ public class ItemEntityPointer implements ITargetPointer {
                 .forGetter(ItemEntityPointer::getId),
             ItemStack.OPTIONAL_CODEC
                 .fieldOf("stack")
-                .forGetter(ItemEntityPointer::getStack)
+                .forGetter(ItemEntityPointer::getStack),
+            BlockPos.CODEC
+                .fieldOf("pos")
+                .forGetter(ItemEntityPointer::getPos)
         ).apply(inst, ItemEntityPointer::new));
         public static final StreamCodec<RegistryFriendlyByteBuf, ItemEntityPointer> POINTER_STREAM_CODEC = StreamCodec.composite(
             Type.STREAM_CODEC,
@@ -175,6 +216,8 @@ public class ItemEntityPointer implements ITargetPointer {
             ItemEntityPointer::getId,
             ItemStack.OPTIONAL_STREAM_CODEC,
             ItemEntityPointer::getStack,
+            BlockPos.STREAM_CODEC,
+            ItemEntityPointer::getPos,
             ItemEntityPointer::new
         );
 
@@ -225,7 +268,7 @@ public class ItemEntityPointer implements ITargetPointer {
                 if (!serverLevel.isPositionEntityTicking(entity.blockPosition())) {
                     continue;
                 }
-                ItemEntityPointer pointer = new ItemEntityPointer(this, entity);
+                ItemEntityPointer pointer = new ItemEntityPointer(this, entity, pos);
                 if (requiredState == null) {
                     return pointer;
                 }

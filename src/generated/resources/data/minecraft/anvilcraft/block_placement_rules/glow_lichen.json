@@ -1,7 +1,6 @@
 {
   "rules": [
     {
-      "count": 1,
       "item": "minecraft:glow_lichen",
       "properties": [
         "down=false,east=false,north=false,south=false,up=false,west=true",
@@ -13,8 +12,10 @@
       ]
     },
     {
-      "count": 2,
-      "item": "minecraft:glow_lichen",
+      "item": {
+        "count": 2,
+        "id": "minecraft:glow_lichen"
+      },
       "properties": [
         "down=false,east=false,north=false,south=false,up=true,west=true",
         "down=false,east=false,north=false,south=true,up=false,west=true",
@@ -34,8 +35,10 @@
       ]
     },
     {
-      "count": 3,
-      "item": "minecraft:glow_lichen",
+      "item": {
+        "count": 3,
+        "id": "minecraft:glow_lichen"
+      },
       "properties": [
         "down=false,east=false,north=false,south=true,up=true,west=true",
         "down=false,east=false,north=true,south=false,up=true,west=true",
@@ -60,8 +63,10 @@
       ]
     },
     {
-      "count": 4,
-      "item": "minecraft:glow_lichen",
+      "item": {
+        "count": 4,
+        "id": "minecraft:glow_lichen"
+      },
       "properties": [
         "down=false,east=false,north=true,south=true,up=true,west=true",
         "down=false,east=true,north=false,south=true,up=true,west=true",
@@ -81,8 +86,10 @@
       ]
     },
     {
-      "count": 5,
-      "item": "minecraft:glow_lichen",
+      "item": {
+        "count": 5,
+        "id": "minecraft:glow_lichen"
+      },
       "properties": [
         "down=false,east=true,north=true,south=true,up=true,west=true",
         "down=true,east=false,north=true,south=true,up=true,west=true",
@@ -93,8 +100,10 @@
       ]
     },
     {
-      "count": 6,
-      "item": "minecraft:glow_lichen",
+      "item": {
+        "count": 6,
+        "id": "minecraft:glow_lichen"
+      },
       "properties": "down=true,east=true,north=true,south=true,up=true,west=true"
     }
   ]

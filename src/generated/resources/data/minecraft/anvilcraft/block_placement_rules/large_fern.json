@@ -1,9 +1,12 @@
 {
   "rules": [
     {
-      "count": 1,
       "item": "minecraft:large_fern",
-      "properties": ""
+      "properties": "half=lower"
+    },
+    {
+      "item": {},
+      "properties": "half=upper"
     }
   ]
 }

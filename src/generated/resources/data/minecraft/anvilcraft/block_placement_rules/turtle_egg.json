@@ -1,23 +1,28 @@
 {
   "rules": [
     {
-      "count": 1,
       "item": "minecraft:turtle_egg",
       "properties": "eggs=1"
     },
     {
-      "count": 2,
-      "item": "minecraft:turtle_egg",
+      "item": {
+        "count": 2,
+        "id": "minecraft:turtle_egg"
+      },
       "properties": "eggs=2"
     },
     {
-      "count": 3,
-      "item": "minecraft:turtle_egg",
+      "item": {
+        "count": 3,
+        "id": "minecraft:turtle_egg"
+      },
       "properties": "eggs=3"
     },
     {
-      "count": 4,
-      "item": "minecraft:turtle_egg",
+      "item": {
+        "count": 4,
+        "id": "minecraft:turtle_egg"
+      },
       "properties": "eggs=4"
     }
   ]

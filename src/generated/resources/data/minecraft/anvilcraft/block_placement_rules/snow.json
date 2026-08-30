@@ -1,43 +1,56 @@
 {
   "rules": [
     {
-      "count": 1,
       "item": "minecraft:snow",
       "properties": "layers=1"
     },
     {
-      "count": 2,
-      "item": "minecraft:snow",
+      "item": {
+        "count": 2,
+        "id": "minecraft:snow"
+      },
       "properties": "layers=2"
     },
     {
-      "count": 3,
-      "item": "minecraft:snow",
+      "item": {
+        "count": 3,
+        "id": "minecraft:snow"
+      },
       "properties": "layers=3"
     },
     {
-      "count": 4,
-      "item": "minecraft:snow",
+      "item": {
+        "count": 4,
+        "id": "minecraft:snow"
+      },
       "properties": "layers=4"
     },
     {
-      "count": 5,
-      "item": "minecraft:snow",
+      "item": {
+        "count": 5,
+        "id": "minecraft:snow"
+      },
       "properties": "layers=5"
     },
     {
-      "count": 6,
-      "item": "minecraft:snow",
+      "item": {
+        "count": 6,
+        "id": "minecraft:snow"
+      },
       "properties": "layers=6"
     },
     {
-      "count": 7,
-      "item": "minecraft:snow",
+      "item": {
+        "count": 7,
+        "id": "minecraft:snow"
+      },
       "properties": "layers=7"
     },
     {
-      "count": 8,
-      "item": "minecraft:snow",
+      "item": {
+        "count": 8,
+        "id": "minecraft:snow"
+      },
       "properties": "layers=8"
     }
   ]

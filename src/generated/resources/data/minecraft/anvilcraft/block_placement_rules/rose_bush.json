@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:rose_bush",
+      "properties": "half=lower"
+    },
+    {
+      "item": {},
+      "properties": "half=upper"
+    }
+  ]
+}

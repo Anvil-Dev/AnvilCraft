@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "anvilcraft:tesla_tower",
+      "properties": "half=bottom"
+    },
+    {
+      "item": {},
+      "properties": "!half=bottom"
+    }
+  ]
+}

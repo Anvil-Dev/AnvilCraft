@@ -1,0 +1,8 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:wheat_seeds",
+      "properties": "age=0"
+    }
+  ]
+}

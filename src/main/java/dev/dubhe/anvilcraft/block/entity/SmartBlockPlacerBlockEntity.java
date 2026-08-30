@@ -306,6 +306,10 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     private boolean advancePhaseProgress() {
         int phaseDuration = this.phase.getDurationTicks();
+        if (phaseDuration <= 0) {
+            this.phaseProgress = 1.0F;
+            return true;
+        }
         this.phaseProgress = Math.min(this.phaseProgress + 1.0F / phaseDuration, 1.0F);
         return this.phaseProgress >= 1.0F;
     }
@@ -1253,7 +1257,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
 
     @Getter
     public enum ExecutionPhase implements StringRepresentable {
-        IDLE(0, 6),
+        IDLE(0, 0),
         PREPARE(0, 6),
         EXTEND(6, 8),
         RESET(14, 6),

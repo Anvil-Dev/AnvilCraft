@@ -1,0 +1,12 @@
+{
+  "rules": [
+    {
+      "item": "minecraft:cherry_door",
+      "properties": "half=lower"
+    },
+    {
+      "item": {},
+      "properties": "half=upper"
+    }
+  ]
+}

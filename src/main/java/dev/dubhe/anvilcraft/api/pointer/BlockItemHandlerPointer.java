@@ -20,6 +20,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
 
@@ -106,7 +107,22 @@ public class BlockItemHandlerPointer implements ITargetPointer {
             return false;
         }
 
-        return this.extractMatchingItems(handler, requiredCount, false) == requiredCount;
+        if (this.extractMatchingItems(handler, requiredCount, false) != requiredCount) {
+            return false;
+        }
+        // 放置后返还物品由 PlacementItem 定义（如细雪桶放置后返还空桶）
+        BlockState returnState = requiredState != null
+            ? requiredState
+            : Block.byItem(this.stack.getItem()).defaultBlockState();
+        ItemStack returnItem = BlockPlacementRules.getReturnItem(level.registryAccess(), returnState);
+        if (!returnItem.isEmpty()) {
+            ItemStack returnStack = returnItem.copyWithCount(consumed);
+            for (int i = 0; i < handler.getSlots(); i++) {
+                returnStack = handler.insertItem(i, returnStack, false);
+                if (returnStack.isEmpty()) break;
+            }
+        }
+        return true;
     }
 
     private int extractMatchingItems(IItemHandler handler, int amount, boolean simulate) {
