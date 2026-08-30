@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.client.renderer.OverworldLikeOrbitalSkyRenderer;
 import dev.dubhe.anvilcraft.client.renderer.item.ItemSlotClipping;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonocraftBackpackDecoration;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.TerminalInsertionDecoration;
+import dev.dubhe.anvilcraft.integration.curios.client.renderer.GogglesCurioRenderer;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
@@ -24,6 +25,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import net.minecraft.client.model.HumanoidModel;
+import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.particle.FlyTowardsPositionParticle;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -35,6 +37,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.EntityRenderersEvent;
 import net.neoforged.neoforge.client.event.RegisterItemDecorationsEvent;
 import net.neoforged.neoforge.client.event.RegisterParticleProvidersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientItemExtensions;
@@ -60,6 +63,10 @@ public class AnvilCraftClient {
         modBus.addListener(AnvilCraftClient::registerParticleProviders);
         modBus.addListener(ModShaders::register);
         modBus.addListener(ModModelLayers::register);
+        modBus.addListener((EntityRenderersEvent.RegisterLayerDefinitions event) -> event.registerLayerDefinition(
+            GogglesCurioRenderer.LAYER,
+            () -> LayerDefinition.create(GogglesCurioRenderer.mesh(), 1, 1)
+        ));
         modBus.addListener(ModModelLayers::createModel);
         modBus.addListener(ModTooltipComponents::register);
         modBus.addListener(OverworldLikeOrbitalSkyRenderer::cacheModels);
