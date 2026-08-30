@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin;
 import dev.dubhe.anvilcraft.client.rpc.TerminalJeiStorageCache;
 import dev.dubhe.anvilcraft.integration.jei.transfer.TerminalJeiTransferSupport;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.helpers.IStackHelper;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import mezz.jei.api.recipe.transfer.IRecipeTransferInfo;
@@ -52,6 +53,10 @@ public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractConta
     @Shadow
     private IRecipeTransferHandlerHelper handlerHelper;
 
+    @Final
+    @Shadow
+    private IStackHelper stackHelper;
+
     @Inject(method = "transferRecipe", at = @At("HEAD"), cancellable = true)
     private void anvilcraft$restockOrAllow(
         C container,
@@ -76,6 +81,7 @@ public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractConta
                 container,
                 recipeSlotsView,
                 player,
+                this.stackHelper,
                 this.handlerHelper
             );
             cir.setReturnValue(error);
@@ -83,15 +89,19 @@ public abstract class JeiBasicRecipeTransferHandlerMixin<C extends AbstractConta
         }
         List<Slot> craftingSlots = this.transferInfo.getRecipeSlots(container, recipe);
         List<Slot> inventorySlots = this.transferInfo.getInventorySlots(container, recipe);
-        TerminalJeiTransferSupport.restockThenTransfer(
+        boolean restocked = TerminalJeiTransferSupport.restockThenTransfer(
             container,
             craftingSlots,
             inventorySlots,
             recipeSlotsView,
             player,
+            this.stackHelper,
             maxTransfer,
             () -> this.transferRecipe(container, recipe, recipeSlotsView, player, maxTransfer, true)
         );
-        cir.setReturnValue(null);
+        if (restocked) {
+            // 补库已开始（异步），拦截原传输并返回成功；补库完成后回调会重试原逻辑
+            cir.setReturnValue(null);
+        }
     }
 }
