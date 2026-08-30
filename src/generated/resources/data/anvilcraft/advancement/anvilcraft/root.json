@@ -22,10 +22,5 @@
       "join"
     ]
   ],
-  "rewards": {
-    "loot": [
-      "anvilcraft:advancement/root"
-    ]
-  },
   "sends_telemetry_event": true
 }
