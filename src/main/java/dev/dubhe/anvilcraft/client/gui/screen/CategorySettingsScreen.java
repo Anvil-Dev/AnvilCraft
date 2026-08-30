@@ -270,7 +270,7 @@ public class CategorySettingsScreen extends Screen {
             int top = this.top + 7 + (i - this.listedHead) * 20;
 
             graphics.blit(
-                CategoryButton.BACKGROUND,
+                CategoryButton.NORMAL,
                 left,
                 top,
                 0,
@@ -306,7 +306,7 @@ public class CategorySettingsScreen extends Screen {
             int top = this.top + 7;
             int bottom = top + 200;
             graphics.blit(
-                CategoryList.SMALL_SLIDER,
+                CategoryList.SLIDER,
                 this.left + 95,
                 top + (int) ((float) (bottom - top - 10) * this.listed.getScrollOffs()),
                 0,
@@ -334,7 +334,7 @@ public class CategorySettingsScreen extends Screen {
             int top = this.top + 7 + (i - this.alternateHead) / 2 * 20;
 
             graphics.blit(
-                CategoryButton.BACKGROUND,
+                CategoryButton.NORMAL,
                 left,
                 top,
                 0,
@@ -368,7 +368,7 @@ public class CategorySettingsScreen extends Screen {
             int top = this.top + 7;
             int bottom = top + 120;
             graphics.blit(
-                CategoryList.SMALL_SLIDER,
+                CategoryList.SLIDER,
                 this.left + 289,
                 top + (int) ((float) (bottom - top - 10) * this.alternate.getScrollOffs()),
                 0,

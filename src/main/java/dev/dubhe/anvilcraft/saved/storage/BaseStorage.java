@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import lombok.Getter;
+import lombok.Setter;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -20,10 +21,13 @@ import java.util.function.BiConsumer;
 import javax.annotation.Nullable;
 
 @Getter
+@Setter
 public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> implements INBTSerializable<CompoundTag> {
     public static final String TYPE_KEY = "type";
+    public static final String CRAFTING_KEY = "crafting";
     private final UUID id;
     private final T items = this.constructItemHandler(this::onContentsChanged);
+    private CraftingStorage crafting = CraftingStorage.EMPTY;
 
     protected BaseStorage(UUID id) {
         this.id = id;
@@ -50,6 +54,9 @@ public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> 
         IStorageType.CODEC.encodeStart(registries.createSerializationContext(NbtOps.INSTANCE), this.getType())
             .ifSuccess(type -> tag.put(BaseStorage.TYPE_KEY, type));
         tag.put("items", this.items.serializeNBT(registries));
+        CraftingStorage.CODEC.codec()
+            .encodeStart(registries.createSerializationContext(NbtOps.INSTANCE), this.crafting)
+            .ifSuccess(tagValue -> tag.put(BaseStorage.CRAFTING_KEY, tagValue));
         return tag;
     }
 
@@ -57,6 +64,11 @@ public abstract class BaseStorage<T extends UnlimitedItemStacksResourceHandler> 
     public void deserializeNBT(HolderLookup.Provider provider, CompoundTag tag) {
         if (tag.contains("items", Tag.TAG_COMPOUND)) {
             this.items.deserializeNBT(provider, tag.getCompound("items"));
+        }
+        if (tag.contains(BaseStorage.CRAFTING_KEY, Tag.TAG_COMPOUND)) {
+            CraftingStorage.CODEC.codec()
+                .parse(provider.createSerializationContext(NbtOps.INSTANCE), tag.get(BaseStorage.CRAFTING_KEY))
+                .ifSuccess(crafting -> this.crafting = crafting);
         }
     }
 

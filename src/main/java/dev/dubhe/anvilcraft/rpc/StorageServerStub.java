@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.block.entity.storage.TerminalBlockRegistry;
 import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
@@ -29,6 +30,7 @@ import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
 import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
 import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
+import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import dev.dubhe.anvilcraft.saved.storage.HyperdimensionStorage;
 import dev.dubhe.anvilcraft.saved.storage.IStorageType;
 import dev.dubhe.anvilcraft.saved.storage.LargeCrateStorage;
@@ -61,11 +63,18 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.ItemContainerContents;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.item.crafting.StonecutterRecipe;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.AABB;
+import net.neoforged.neoforge.common.Tags;
 import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.server.ServerLifecycleHooks;
 
@@ -520,6 +529,688 @@ public final class StorageServerStub {
         } while (remote.containsKey(virtualPos));
         remote.put(virtualPos, target);
         return virtualPos;
+    }
+
+    /** 仓储合成模式是否可用：主存储中同时存在工作台与切石机（按物品标签判定）。 */
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean craftingAvailable(UUID playerId, long sourcePos) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        UnlimitedItemStacksResourceHandler items = view.primary().getItems();
+        boolean hasWorkbench = false;
+        boolean hasStonecutter = false;
+        for (int i = 0; i < items.size() && (!hasWorkbench || !hasStonecutter); i++) {
+            if (items.getAmountAsLong(i) <= 0) {
+                continue;
+            }
+            ItemStack stack = items.getUnlimitedStackInSlot(i).toStack();
+            if (stack.is(Tags.Items.PLAYER_WORKSTATIONS_CRAFTING_TABLES)) {
+                hasWorkbench = true;
+            } else if (stack.is(ModItemTags.PLAYER_WORKSTATIONS_STONECUTTERS)) {
+                hasStonecutter = true;
+            }
+        }
+        return hasWorkbench && hasStonecutter;
+    }
+
+    /**
+     * 读取仓储合成面板数据（① 切石机输入、② 合成 9 宫格、切石机选中配方、上次打开模式）。
+     * 世界打开读主存储的 crafting 字段，终端打开读终端物品的 crafting 数据组件。
+     */
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static CraftingStorage craftingGet(UUID playerId, long sourcePos) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        return StorageServerStub.resolveCraftingTarget(player, sourcePos).read();
+    }
+
+    /**
+     * ① 切石机输入：按玩家物品栏点击语义与指针交换。
+     * 左键空指针取整堆 / 右键取半堆；指针有物时同种堆叠（左键放全部、右键放 1 个），
+     * 异种整个交换。仅接受能匹配切石机配方的物品。
+     */
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingPutStonecutterInput(
+        UUID playerId,
+        long sourcePos,
+        int button,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
+    ) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        CraftingStorage crafting = target.read();
+        // 指针物品以客户端上报为准（与服务端 getCarried 一致；创造模式下服务端指针可能已过期）
+        ItemStack carried = player.hasInfiniteMaterials() ? clientCarried : player.containerMenu.getCarried();
+        ItemStack current = crafting.stonecutterInput();
+        // 指针为空：取出①（左键整堆 / 右键半堆）
+        if (carried.isEmpty()) {
+            if (current.isEmpty()) {
+                return new InteractionResult(ItemStack.EMPTY, false);
+            }
+            int amount = button == 0 ? current.getCount() : Math.ceilDiv(current.getCount(), 2);
+            ItemStack taken = current.copyWithCount(amount);
+            ItemStack rest = current.copy();
+            rest.shrink(amount);
+            target.write(crafting.withStonecutterInput(rest.isEmpty() ? ItemStack.EMPTY : rest));
+            player.containerMenu.setCarried(taken);
+            player.containerMenu.broadcastChanges();
+            return new InteractionResult(taken, true);
+        }
+        // 指针有物品：仅接受能匹配切石机配方的输入
+        List<RecipeHolder<StonecutterRecipe>> recipes = player.level().getRecipeManager()
+            .getRecipesFor(RecipeType.STONECUTTING, new SingleRecipeInput(carried), player.level());
+        if (recipes.isEmpty()) {
+            return new InteractionResult(carried, false);
+        }
+        // 空槽 / 同种：堆叠（左键放全部、右键放 1 个，不超过最大堆叠）
+        if (current.isEmpty() || ItemStack.isSameItemSameComponents(current, carried)) {
+            int space = current.isEmpty() ? carried.getCount()
+                : Math.min(carried.getCount(), current.getMaxStackSize() - current.getCount());
+            int place = button == 0 ? space : Math.min(1, space);
+            if (place <= 0) {
+                return new InteractionResult(carried, false);
+            }
+            ItemStack newCurrent = current.copy();
+            if (current.isEmpty()) {
+                newCurrent = carried.copyWithCount(place);
+            } else {
+                newCurrent.grow(place);
+            }
+            target.write(crafting.withStonecutterInput(newCurrent));
+            ItemStack newCarried = carried.copy();
+            newCarried.shrink(place);
+            player.containerMenu.setCarried(newCarried);
+            player.containerMenu.broadcastChanges();
+            return new InteractionResult(newCarried, true);
+        }
+        // 异种：整个交换（输入变化后重置选中配方）
+        target.write(crafting.withStonecutterInput(carried.copy()).withStonecutterSelected(0));
+        player.containerMenu.setCarried(current);
+        player.containerMenu.broadcastChanges();
+        return new InteractionResult(current, true);
+    }
+
+    /**
+     * ② 合成 9 宫格：按玩家物品栏点击语义与指定槽交换物品。
+     * 左键空指针取整堆 / 右键取半堆；指针有物时同种堆叠（左键放全部、右键放 1 个），异种整个交换。
+     */
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingPutCraftingSlot(
+        UUID playerId,
+        long sourcePos,
+        int slot,
+        int button,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
+    ) {
+        if (slot < 0 || slot >= CraftingStorage.CRAFTING_GRID_SIZE) {
+            StorageServerStub.REGISTRIES.remove();
+            throw new IllegalArgumentException("Invalid crafting grid slot: " + slot);
+        }
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        CraftingStorage crafting = target.read();
+        ItemStack carried = player.hasInfiniteMaterials() ? clientCarried : player.containerMenu.getCarried();
+        ItemStack current = crafting.craftingInput().get(slot);
+        // 指针为空：取出②槽（左键整堆 / 右键半堆）
+        if (carried.isEmpty()) {
+            if (current.isEmpty()) {
+                return new InteractionResult(ItemStack.EMPTY, false);
+            }
+            int amount = button == 0 ? current.getCount() : Math.ceilDiv(current.getCount(), 2);
+            ItemStack taken = current.copyWithCount(amount);
+            ItemStack rest = current.copy();
+            rest.shrink(amount);
+            target.write(crafting.withCraftingSlot(slot, rest.isEmpty() ? ItemStack.EMPTY : rest));
+            player.containerMenu.setCarried(taken);
+            player.containerMenu.broadcastChanges();
+            return new InteractionResult(taken, true);
+        }
+        // 空槽 / 同种：堆叠（左键放全部、右键放 1 个，不超过最大堆叠）
+        if (current.isEmpty() || ItemStack.isSameItemSameComponents(current, carried)) {
+            int space = current.isEmpty() ? carried.getCount()
+                : Math.min(carried.getCount(), current.getMaxStackSize() - current.getCount());
+            int place = button == 0 ? space : Math.min(1, space);
+            if (place <= 0) {
+                return new InteractionResult(carried, false);
+            }
+            ItemStack newCurrent = current.copy();
+            if (current.isEmpty()) {
+                newCurrent = carried.copyWithCount(place);
+            } else {
+                newCurrent.grow(place);
+            }
+            target.write(crafting.withCraftingSlot(slot, newCurrent));
+            ItemStack newCarried = carried.copy();
+            newCarried.shrink(place);
+            player.containerMenu.setCarried(newCarried);
+            player.containerMenu.broadcastChanges();
+            return new InteractionResult(newCarried, true);
+        }
+        // 异种：整个交换
+        target.write(crafting.withCraftingSlot(slot, carried.copy()));
+        player.containerMenu.setCarried(current);
+        player.containerMenu.broadcastChanges();
+        return new InteractionResult(current, true);
+    }
+
+    /** ① 当前输入对应的切石机候选配方结果列表（用于配方选择面板）。 */
+    @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC")
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static List<ItemStack> craftingStonecutterRecipes(UUID playerId, long sourcePos) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        ItemStack input = StorageServerStub.resolveCraftingTarget(player, sourcePos).read().stonecutterInput();
+        if (input.isEmpty()) {
+            return List.of();
+        }
+        return player.level().getRecipeManager()
+            .getRecipesFor(RecipeType.STONECUTTING, new SingleRecipeInput(input), player.level())
+            .stream()
+            .map(holder -> holder.value().getResultItem(player.level().registryAccess()))
+            .toList();
+    }
+
+    /** 设置① 的切石机选中配方索引。 */
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static void craftingSelect(UUID playerId, long sourcePos, int index) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        target.write(target.read().withStonecutterSelected(index));
+    }
+
+    /** 记录上次关闭界面时是否为合成模式（关闭界面时调用）。 */
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static void craftingSetLastOpened(UUID playerId, long sourcePos, boolean opened) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        target.write(target.read().withLastOpened(opened));
+    }
+
+    /**
+     * 拖拽分配到 ①/② 输入槽与玩家背包槽（与原版物品栏拖拽一致，所有目标视为一组）。
+     * 左键：把指针物品 floor 均分到各槽（余数留在指针）；右键：每槽放 1 个。
+     * {@code craftingSlots} 为 ①/② 槽（0 为①，1~9 为②），
+     * {@code inventorySlots} 为玩家背包在 containerMenu 中的槽位号。
+     */
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingQuickCraft(
+        UUID playerId,
+        long sourcePos,
+        int button,
+        @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC") IntList craftingSlots,
+        @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC") IntList inventorySlots,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
+    ) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        final StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        ItemStack carried = player.hasInfiniteMaterials() ? clientCarried : player.containerMenu.getCarried();
+        if (button != 0 && button != 1 && button != 2) {
+            return new InteractionResult(carried, false);
+        }
+        if (carried.isEmpty() || (craftingSlots.isEmpty() && inventorySlots.isEmpty())) {
+            return new InteractionResult(carried, false);
+        }
+        // 收集有效目标槽（去重、越界丢弃）
+        List<Integer> targets = collectTargets(craftingSlots, inventorySlots, player);
+        if (targets.isEmpty()) {
+            return new InteractionResult(carried, false);
+        }
+        // 与原版一致：左键 floor 均分（余数留指针），右键每槽 1 个，中键每槽放满
+        int perSlot = switch (button) {
+            case 0 -> Math.floorDiv(carried.getCount(), targets.size());
+            case 1 -> 1;
+            default -> carried.getMaxStackSize();
+        };
+        CraftingStorage crafting = target.read();
+        ItemStack remaining = carried.copy();
+        boolean changed = false;
+        for (int targetSlot : targets) {
+            if (remaining.isEmpty()) {
+                break;
+            }
+            int amount = Math.min(perSlot, remaining.getCount());
+            if (amount <= 0) {
+                continue;
+            }
+            if (targetSlot < 10) {
+                // ①/② 输入槽
+                ItemStack current = targetSlot == 0
+                    ? crafting.stonecutterInput()
+                    : crafting.craftingInput().get(targetSlot - 1);
+                // ① 仅接受切石机配方输入；异种槽跳过（拖拽不交换）
+                if (targetSlot == 0) {
+                    List<RecipeHolder<StonecutterRecipe>> recipes = player.level().getRecipeManager()
+                        .getRecipesFor(RecipeType.STONECUTTING, new SingleRecipeInput(remaining), player.level());
+                    if (recipes.isEmpty()) {
+                        continue;
+                    }
+                }
+                if (!current.isEmpty() && !ItemStack.isSameItemSameComponents(current, remaining)) {
+                    continue;
+                }
+                int space = current.isEmpty() ? amount
+                    : Math.min(amount, current.getMaxStackSize() - current.getCount());
+                if (space <= 0) {
+                    continue;
+                }
+                ItemStack newCurrent = current.isEmpty()
+                    ? remaining.copyWithCount(space)
+                    : current.copyWithCount(current.getCount() + space);
+                if (targetSlot == 0) {
+                    crafting = crafting.withStonecutterInput(newCurrent);
+                } else {
+                    crafting = crafting.withCraftingSlot(targetSlot - 1, newCurrent);
+                }
+                remaining.shrink(space);
+                changed = true;
+            } else {
+                // 玩家背包槽（inventory index = targetSlot - 10）
+                int invIndex = targetSlot - 10;
+                ItemStack existing = player.getInventory().getItem(invIndex);
+                // 与原版 canItemQuickReplace 一致：槽空或同种可堆叠才放入
+                if (!existing.isEmpty() && !ItemStack.isSameItemSameComponents(existing, remaining)) {
+                    continue;
+                }
+                int currentCount = existing.getCount();
+                int maxCount = remaining.getMaxStackSize();
+                int space = Math.min(amount, maxCount - currentCount);
+                if (space <= 0) {
+                    continue;
+                }
+                player.getInventory().setItem(
+                    invIndex,
+                    existing.isEmpty()
+                        ? remaining.copyWithCount(space)
+                        : existing.copyWithCount(currentCount + space)
+                );
+                remaining.shrink(space);
+                changed = true;
+            }
+        }
+        if (!changed) {
+            return new InteractionResult(carried, false);
+        }
+        target.write(crafting);
+        player.getInventory().setChanged();
+        player.containerMenu.setCarried(remaining);
+        player.containerMenu.broadcastChanges();
+        return new InteractionResult(remaining, true);
+    }
+
+    private static List<Integer> collectTargets(IntList craftingSlots, IntList inventorySlots, ServerPlayer player) {
+        List<Integer> targets = new ArrayList<>();
+        for (int slot : craftingSlots) {
+            if (slot >= 0 && slot < 10 && !targets.contains(slot)) {
+                targets.add(slot);
+            }
+        }
+        // 背包槽：仅接受 inventory index 0~35 的背包槽
+        for (int invIndex : inventorySlots) {
+            if (invIndex < 0 || invIndex >= player.getInventory().items.size()) {
+                continue;
+            }
+            if (!targets.contains(invIndex + 10)) {
+                targets.add(invIndex + 10);
+            }
+        }
+        return targets;
+    }
+
+    /**
+     * 输入槽 Shift 点击：把 ①/② 槽内物品移出——先放入玩家背包（合并已有堆叠/空格），
+     * 放不下再放入仓储（仅世界存储场景），仍放不下则留在槽内。绝不放到指针。
+     */
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean craftingQuickMoveOut(UUID playerId, long sourcePos, int slot) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        if (slot < 0 || slot >= 10) {
+            StorageServerStub.REGISTRIES.remove();
+            return false;
+        }
+        StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        CraftingStorage crafting = target.read();
+        ItemStack current = slot == 0
+            ? crafting.stonecutterInput()
+            : crafting.craftingInput().get(slot - 1);
+        if (current.isEmpty()) {
+            return false;
+        }
+        ItemStack remaining = current.copy();
+        // 1. 放入玩家背包：先合并同种堆叠，再填入空格
+        for (int i = 0; i < player.getInventory().items.size() && !remaining.isEmpty(); i++) {
+            ItemStack existing = player.getInventory().getItem(i);
+            if (existing.isEmpty() || !existing.isStackable()
+                || !ItemStack.isSameItemSameComponents(existing, remaining)) {
+                continue;
+            }
+            int space = Math.min(remaining.getCount(), existing.getMaxStackSize() - existing.getCount());
+            if (space <= 0) {
+                continue;
+            }
+            existing.grow(space);
+            remaining.shrink(space);
+        }
+        for (int i = 0; i < player.getInventory().items.size() && !remaining.isEmpty(); i++) {
+            if (!player.getInventory().getItem(i).isEmpty()) {
+                continue;
+            }
+            int take = Math.min(remaining.getCount(), remaining.getMaxStackSize());
+            player.getInventory().setItem(i, remaining.copyWithCount(take));
+            remaining.shrink(take);
+        }
+        // 2. 剩余放入仓储（仅世界存储场景；终端场景无仓储可放）
+        if (!remaining.isEmpty() && target.view() != null) {
+            int inserted = target.view().insert(remaining.copyWithCount(1), remaining.getCount());
+            if (inserted > 0) {
+                remaining.shrink(inserted);
+            }
+        }
+        // 3. 剩余留在槽内
+        boolean changed = remaining.getCount() != current.getCount();
+        if (changed) {
+            ItemStack rest = remaining.isEmpty() ? ItemStack.EMPTY : remaining;
+            crafting = slot == 0
+                ? crafting.withStonecutterInput(rest)
+                : crafting.withCraftingSlot(slot - 1, rest);
+            target.write(crafting);
+        }
+        player.getInventory().setChanged();
+        player.containerMenu.broadcastChanges();
+        return changed;
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingPickupAll(
+        UUID playerId,
+        long sourcePos,
+        int slot,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
+    ) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        CraftingStorage crafting = target.read();
+        if (slot < 0 || slot >= 10) {
+            return new InteractionResult(clientCarried, false);
+        }
+        ItemStack current = slot == 0
+            ? crafting.stonecutterInput()
+            : crafting.craftingInput().get(slot - 1);
+        // 指针样本：客户端上报优先；客户端快照可能过期（首次点击的异步交互刚完成），
+        // 此时以服务端当前指针为准
+        ItemStack carried = !clientCarried.isEmpty()
+            ? clientCarried.copy()
+            : player.containerMenu.getCarried().copy();
+        // 指针已有异种物品：拒绝（与双击收集语义不符）
+        if (!carried.isEmpty() && !current.isEmpty()
+            && !ItemStack.isSameItemSameComponents(carried, current)) {
+            return new InteractionResult(clientCarried, false);
+        }
+        boolean changed = false;
+        // 目标槽：整堆拿起并入指针
+        if (!current.isEmpty()) {
+            int take = Math.min(current.getCount(), carried.getMaxStackSize() - carried.getCount());
+            if (take > 0) {
+                if (carried.isEmpty()) {
+                    carried = current.copyWithCount(take);
+                } else {
+                    carried.grow(take);
+                }
+                if (take >= current.getCount()) {
+                    current = ItemStack.EMPTY;
+                } else {
+                    current.shrink(take);
+                }
+                if (slot == 0) {
+                    crafting = crafting.withStonecutterInput(current);
+                } else {
+                    crafting = crafting.withCraftingSlot(slot - 1, current);
+                }
+                changed = true;
+            }
+        }
+        // 从其它 ①② 输入槽收集同种物品（① 及其余 ② 槽）
+        for (int other = 0; other < 10 && carried.getCount() < carried.getMaxStackSize(); other++) {
+            if (other == slot) {
+                continue;
+            }
+            ItemStack otherStack = other == 0
+                ? crafting.stonecutterInput()
+                : crafting.craftingInput().get(other - 1);
+            if (otherStack.isEmpty() || !ItemStack.isSameItemSameComponents(otherStack, carried)) {
+                continue;
+            }
+            int take = Math.min(otherStack.getCount(), carried.getMaxStackSize() - carried.getCount());
+            ItemStack shrunk = otherStack.copy();
+            shrunk.shrink(take);
+            if (other == 0) {
+                crafting = crafting.withStonecutterInput(shrunk.isEmpty() ? ItemStack.EMPTY : shrunk);
+            } else {
+                crafting = crafting.withCraftingSlot(other - 1, shrunk.isEmpty() ? ItemStack.EMPTY : shrunk);
+            }
+            carried.grow(take);
+            changed = true;
+        }
+        // 从玩家背包收集同种物品（上限 maxStackSize）
+        for (int i = 0; i < player.getInventory().items.size()
+            && carried.getCount() < carried.getMaxStackSize(); i++) {
+            ItemStack stack = player.getInventory().getItem(i);
+            if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, carried)) {
+                continue;
+            }
+            int take = Math.min(stack.getCount(), carried.getMaxStackSize() - carried.getCount());
+            if (take <= 0) {
+                continue;
+            }
+            stack.shrink(take);
+            carried.grow(take);
+            changed = true;
+        }
+        if (!changed) {
+            return new InteractionResult(clientCarried, false);
+        }
+        target.write(crafting);
+        player.getInventory().setChanged();
+        player.containerMenu.setCarried(carried);
+        player.containerMenu.broadcastChanges();
+        return new InteractionResult(carried, true);
+    }
+
+    /**
+     * 背包槽双击补充：把 ①/② 输入槽中与指针同种的物品收集到指针
+     * （背包 PICKUP_ALL 只收集背包，此调用补充输入槽部分，上限为最大堆叠）。
+     */
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingPickupIntoCarried(
+        UUID playerId,
+        long sourcePos,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack clientCarried
+    ) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        CraftingStorage crafting = target.read();
+        if (clientCarried.isEmpty()) {
+            return new InteractionResult(clientCarried, false);
+        }
+        ItemStack carried = clientCarried.copy();
+        boolean changed = false;
+        for (int other = 0; other < 10 && carried.getCount() < carried.getMaxStackSize(); other++) {
+            ItemStack otherStack = other == 0
+                ? crafting.stonecutterInput()
+                : crafting.craftingInput().get(other - 1);
+            if (otherStack.isEmpty() || !ItemStack.isSameItemSameComponents(otherStack, carried)) {
+                continue;
+            }
+            int take = Math.min(otherStack.getCount(), carried.getMaxStackSize() - carried.getCount());
+            ItemStack shrunk = otherStack.copy();
+            shrunk.shrink(take);
+            if (other == 0) {
+                crafting = crafting.withStonecutterInput(shrunk.isEmpty() ? ItemStack.EMPTY : shrunk);
+            } else {
+                crafting = crafting.withCraftingSlot(other - 1, shrunk.isEmpty() ? ItemStack.EMPTY : shrunk);
+            }
+            carried.grow(take);
+            changed = true;
+        }
+        if (!changed) {
+            return new InteractionResult(clientCarried, false);
+        }
+        target.write(crafting);
+        player.containerMenu.setCarried(carried);
+        player.containerMenu.broadcastChanges();
+        return new InteractionResult(carried, true);
+    }
+
+    /**
+     * 取③/④ 配方结果：消耗输入并放到指针。stonecutter=true 取③（消耗①），false 取④（消耗②）。
+     * 指针已有同种且能放下的物品时合并取出；异种或放不下时不消耗输入。
+     */
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingTakeResult(UUID playerId, long sourcePos, boolean stonecutter) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        CraftingStorage crafting = target.read();
+        ItemStack carried = player.containerMenu.getCarried();
+        // 先计算产物（不写入），指针不兼容时直接拒绝，避免误消耗输入
+        ItemStack result;
+        if (stonecutter) {
+            ItemStack input = crafting.stonecutterInput();
+            if (input.isEmpty()) {
+                return new InteractionResult(carried, false);
+            }
+            List<RecipeHolder<StonecutterRecipe>> recipes = player.level().getRecipeManager()
+                .getRecipesFor(RecipeType.STONECUTTING, new SingleRecipeInput(input), player.level());
+            if (recipes.isEmpty() || crafting.stonecutterSelected() < 0
+                || crafting.stonecutterSelected() >= recipes.size()) {
+                return new InteractionResult(carried, false);
+            }
+            result = recipes.get(crafting.stonecutterSelected()).value()
+                .assemble(new SingleRecipeInput(input), player.level().registryAccess());
+        } else {
+            CraftingInput input = CraftingInput.of(3, 3, crafting.craftingInput());
+            List<RecipeHolder<CraftingRecipe>> recipes = player.level().getRecipeManager()
+                .getRecipesFor(RecipeType.CRAFTING, input, player.level());
+            if (recipes.isEmpty()) {
+                return new InteractionResult(carried, false);
+            }
+            result = recipes.getFirst().value().assemble(input, player.level().registryAccess());
+        }
+        if (result.isEmpty()) {
+            return new InteractionResult(carried, false);
+        }
+        // 指针有物：仅当与产物同种且能放下时合并取出；否则拒绝（不消耗输入）
+        if (!carried.isEmpty()) {
+            if (!ItemStack.isSameItemSameComponents(carried, result)
+                || carried.getCount() + result.getCount() > carried.getMaxStackSize()) {
+                return new InteractionResult(carried, false);
+            }
+            ItemStack merged = carried.copy();
+            merged.grow(result.getCount());
+            StorageServerStub.consumeCraftingInput(target, crafting, stonecutter);
+            player.containerMenu.setCarried(merged);
+            player.containerMenu.broadcastChanges();
+            return new InteractionResult(merged, true);
+        }
+        StorageServerStub.consumeCraftingInput(target, crafting, stonecutter);
+        player.containerMenu.setCarried(result);
+        player.containerMenu.broadcastChanges();
+        return new InteractionResult(result, true);
+    }
+
+    /** 消耗③/④ 对应的输入并写入合成数据。 */
+    private static void consumeCraftingInput(
+        StorageServerStub.CraftingTarget target,
+        CraftingStorage crafting,
+        boolean stonecutter
+    ) {
+        if (stonecutter) {
+            ItemStack input = crafting.stonecutterInput();
+            ItemStack shrunk = input.copy();
+            shrunk.shrink(1);
+            target.write(crafting.withStonecutterInput(shrunk.isEmpty() ? ItemStack.EMPTY : shrunk));
+        } else {
+            CraftingInput input = CraftingInput.of(3, 3, crafting.craftingInput());
+            List<ItemStack> remaining = target.player().level().getRecipeManager()
+                .getRemainingItemsFor(RecipeType.CRAFTING, input, target.player().level());
+            List<ItemStack> grid = new ArrayList<>(crafting.craftingInput());
+            for (int i = 0; i < grid.size(); i++) {
+                if (i >= remaining.size() || remaining.get(i).isEmpty()) {
+                    grid.set(i, ItemStack.EMPTY);
+                } else {
+                    grid.set(i, remaining.get(i).copy());
+                }
+            }
+            target.write(crafting.withCraftingInput(grid));
+        }
+    }
+
+    /** 合成数据读写目标：终端物品的 crafting 组件，或世界主存储的 crafting 字段。 */
+    private record CraftingTarget(
+        @Nullable ItemStack terminal,
+        @Nullable BaseStorage<?> storage,
+        @Nullable StorageView view,
+        ServerPlayer player
+    ) {
+        CraftingStorage read() {
+            if (this.terminal != null) {
+                CraftingStorage crafting = this.terminal.get(ModComponents.CRAFTING);
+                return crafting == null ? CraftingStorage.EMPTY : crafting;
+            }
+            return Objects.requireNonNull(this.storage).getCrafting();
+        }
+
+        void write(CraftingStorage crafting) {
+            if (this.terminal != null) {
+                this.terminal.set(ModComponents.CRAFTING, crafting);
+                this.player.getInventory().setChanged();
+            } else {
+                Objects.requireNonNull(this.storage).setCrafting(crafting);
+                Storages.get().setDirty();
+            }
+            this.player.containerMenu.broadcastChanges();
+        }
+    }
+
+    /**
+     * 解析当前界面对应的合成数据读写目标：终端打开时指向终端物品的 crafting 数据组件，
+     * 世界打开时指向主存储的 crafting 字段。一次性消费调用线程的 REGISTRIES。
+     */
+    private static CraftingTarget resolveCraftingTarget(ServerPlayer player, long sourcePos) {
+        UUID playerId = player.getGameProfile().getId();
+        RemoteTarget remote = StorageServerStub.REMOTE_STORAGES.getOrDefault(playerId, Map.of()).get(sourcePos);
+        if (remote != null) {
+            StorageServerStub.getAndClear();
+            return new CraftingTarget(
+                StorageServerStub.findTerminalStack(player, remote.kind()),
+                null,
+                null,
+                player
+            );
+        }
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        return new CraftingTarget(null, view.primary(), view, player);
+    }
+
+    /** 在玩家身上查找指定终端类型的物品栈（手持优先，其次物品栏）。 */
+    @Nullable
+    private static ItemStack findTerminalStack(ServerPlayer player, int kind) {
+        Item item = switch (kind) {
+            case RemoteTarget.HYPERDIMENSION -> ModItems.HYPERDIMENSION_TERMINAL.asItem();
+            case RemoteTarget.LARGE_CRATE -> ModItems.LOCAL_TERMINAL.asItem();
+            case RemoteTarget.SHULKER_CONTAINER, RemoteTarget.SHULKER_BOXES -> ModItems.SHULKER_TERMINAL.asItem();
+            default -> null;
+        };
+        if (item == null) {
+            return null;
+        }
+        if (player.getMainHandItem().is(item)) {
+            return player.getMainHandItem();
+        }
+        if (player.getOffhandItem().is(item)) {
+            return player.getOffhandItem();
+        }
+        for (ItemStack stack : player.getInventory().items) {
+            if (stack.is(item)) {
+                return stack;
+            }
+        }
+        return null;
     }
 
     @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC")

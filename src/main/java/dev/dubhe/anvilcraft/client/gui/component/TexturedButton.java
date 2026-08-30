@@ -60,4 +60,8 @@ public class TexturedButton extends Button {
         }
         graphics.blit(texture, this.getX(), this.getY(), 0, offsetV, width, height, textureWidth, textureHeight);
     }
+
+    public OnPress getOnPress() {
+        return this.onPress;
+    }
 }

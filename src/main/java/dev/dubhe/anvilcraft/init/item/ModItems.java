@@ -110,6 +110,7 @@ import dev.dubhe.anvilcraft.item.weapon.SpectralWeaponLauncherItem;
 import dev.dubhe.anvilcraft.item.weapon.TeslaGunItem;
 import dev.dubhe.anvilcraft.recipe.JewelCraftingRecipe;
 import dev.dubhe.anvilcraft.saved.setting.mode.BalanceMode;
+import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import dev.dubhe.anvilcraft.util.BlockMiningEffect;
 import dev.dubhe.anvilcraft.util.DataGenUtil;
 import dev.dubhe.anvilcraft.util.registrater.ModelProviderUtil;
@@ -753,7 +754,8 @@ public class ModItems {
         .item("local_terminal", LocalTerminalItem::new)
         .properties(properties -> properties
             .stacksTo(1)
-            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK))
+            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK)
+            .component(ModComponents.CRAFTING, CraftingStorage.EMPTY))
         .model((ctx, provider) -> provider.generated(ctx.lazy()))
         .recipe(RegistrumItemRecipeLoader::localTerminal)
         .register();
@@ -762,7 +764,8 @@ public class ModItems {
         .item("shulker_terminal", ShulkerTerminalItem::new)
         .properties(properties -> properties
             .stacksTo(1)
-            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK))
+            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK)
+            .component(ModComponents.CRAFTING, CraftingStorage.EMPTY))
         .model((ctx, provider) -> provider.generated(ctx.lazy()))
         .recipe(RegistrumItemRecipeLoader::shulkerTerminal)
         .register();
@@ -776,7 +779,8 @@ public class ModItems {
             .component(ModComponents.ETERNAL, Eternal.INSTANCE)
             .component(DataComponents.UNBREAKABLE, new Unbreakable(true))
             .component(ModComponents.TERMINAL_BINDING, TerminalBinding.EMPTY)
-            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK))
+            .component(ModComponents.TERMINAL_BALANCE_MODE, BalanceMode.RESTOCK)
+            .component(ModComponents.CRAFTING, CraftingStorage.EMPTY))
         .model((ctx, provider) -> provider.generated(ctx.lazy()))
         .recipe(RegistrumItemRecipeLoader::hyperdimensionTerminal)
         .register();

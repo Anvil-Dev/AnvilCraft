@@ -37,8 +37,8 @@ public class CategoryEntry {
     private final ICategory category;
     private CategoryMode mode = CategoryMode.UNLIMITED;
 
-    public CategoryMode changeMode() {
-        return this.mode = this.mode.next();
+    public CategoryMode changeMode(boolean inversed) {
+        return this.mode = this.mode.next(inversed);
     }
 
     public CategoryMode changeMode(CategoryMode mode) {
