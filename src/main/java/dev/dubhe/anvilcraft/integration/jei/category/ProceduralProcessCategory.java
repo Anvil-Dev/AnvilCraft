@@ -98,8 +98,13 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     ) {
         ProceduralProcessRecipe recipe = holder.value();
         JeiBlockIngredientUtil.addInputSlot(
-            builder, ProceduralProcessCategory.INITIAL_BLOCK, ProceduralProcessCategory.STEP_X - 29, ProceduralProcessCategory.BLOCK_Y - 6,
-            18, 18, recipe.initialBlock()
+            builder,
+            ProceduralProcessCategory.INITIAL_BLOCK,
+            ProceduralProcessCategory.STEP_X - 29,
+            ProceduralProcessCategory.BLOCK_Y - 6,
+            18,
+            18,
+            recipe.initialBlock()
         );
         JeiBlockIngredientUtil.addSlot(
             builder,
