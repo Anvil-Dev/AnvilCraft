@@ -2,7 +2,6 @@ package dev.dubhe.anvilcraft.item;
 
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.UUID;
@@ -18,9 +17,12 @@ public abstract class TerminalItem extends BundleLikeItem {
     }
 
     @Override
-    protected boolean canRemoveOne(Player player) {
-        // 未在浮窗内通过滚轮选中物品时，点击终端不应取出存储中的物品（放行 vanilla 拿起终端）
-        return false;
+    protected boolean canRemoveOne(BundleLikeItem.TransferState state) {
+        // BUNDLE_HOVER_ITEM（终端拖到空槽上右键）：不检查浮窗选中状态，直接放行，
+        // 取出目标存储中排序第一的物品 / 放入。
+        // ITEM_HOVER_BUNDLE（空手点击终端槽）：服务端不取出，放行 vanilla 拿起终端；
+        // 浮窗内滚轮选中后的取出由客户端 mouseClicked 分支处理。
+        return state.getType() == BundleLikeItem.TransferType.BUNDLE_HOVER_ITEM;
     }
 
     @Override
@@ -28,8 +30,11 @@ public abstract class TerminalItem extends BundleLikeItem {
         if (!(state.getPlayer() instanceof ServerPlayer player)) {
             return;
         }
+        // BUNDLE_HOVER_ITEM（终端拖到空槽上右键）：不检查浮窗选中状态，
+        // 直接取出目标存储中排序第一的物品；ITEM_HOVER_BUNDLE（空手点击终端槽）
+        // 的选中检查由 canRemoveOne 在调用前完成。
         UUID targetId = StorageServerStub.terminalTargetId(player, state.getStack());
-        state.setOutput(targetId == null ? null : StorageServerStub.extractFromTerminal(player, targetId, 1));
+        state.setOutput(targetId == null ? null : StorageServerStub.extractFromTerminal(player, targetId, 64));
     }
 
     @Override

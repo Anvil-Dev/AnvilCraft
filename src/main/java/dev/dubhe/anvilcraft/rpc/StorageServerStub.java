@@ -171,7 +171,9 @@ public final class StorageServerStub {
         List<StackUpdate> updates = new ArrayList<>();
         IntOpenHashSet visited = new IntOpenHashSet(slots.size());
         for (int index : slots) {
-            if (index < 0 || !visited.add(index)) {
+            // 越界 / 重复索引直接跳过：客户端缓存可能过期（存储被其它来源修改后
+            // 条目数变化），越界槽位由客户端下次全量刷新校正，不应在此崩溃
+            if (index < 0 || index >= view.size() || !visited.add(index)) {
                 continue;
             }
             updates.add(new StackUpdate(index, StorageServerStub.getStack(view, index), view.amount(index)));
@@ -1376,15 +1378,14 @@ public final class StorageServerStub {
             if (!StorageServerStub.canStore(storage, resource)) {
                 continue;
             }
+            // 稀疏存储（SpaceSize / TypeLimit）的空槽在 size() 之外（增长槽），
+            // 新类型必须走无槽版本 insertItem(stack)，由 handler 内部追加增长槽；
+            // 按 size() 遍历找空槽会永远找不到，导致未进过存储的新物品无法放入。
             UnlimitedItemStacksResourceHandler items = storage.getItems();
-            for (int slot = 0; slot < items.size(); slot++) {
-                if (items.getAmountAsLong(slot) <= 0) {
-                    ItemStack leftover = items.insertItem(slot, resource.copyWithCount(amount - inserted), false);
-                    inserted += (amount - inserted) - leftover.getCount();
-                    if (inserted == amount) {
-                        return inserted;
-                    }
-                }
+            ItemStack leftover = items.insertItem(resource.copyWithCount(amount - inserted), false);
+            inserted += (amount - inserted) - leftover.getCount();
+            if (inserted == amount) {
+                return inserted;
             }
         }
         return inserted;

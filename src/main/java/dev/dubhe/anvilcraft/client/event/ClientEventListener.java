@@ -293,8 +293,12 @@ public class ClientEventListener {
         }
 
         // 浮窗悬停中但鼠标不在终端槽位上（如面板/搜索框区域）：浮窗接管点击，
-        // 交由浮窗处理（聚焦搜索框等），不落到下层 GUI
-        if (TerminalRemoteOverlay.isHovering() && !TerminalRemoteOverlay.isDismissed()) {
+        // 交由浮窗处理（聚焦搜索框等），不落到下层 GUI。
+        // 仅空手时接管：捏着物品（如把终端拖到空槽上取出/放入）时点击是明确的
+        // 拖放意图，应放行给 vanilla（BUNDLE_HOVER_ITEM 路径）。
+        if (containerScreen.getMenu().getCarried().isEmpty()
+            && TerminalRemoteOverlay.isHovering()
+            && !TerminalRemoteOverlay.isDismissed()) {
             TerminalRemoteOverlay.mouseClicked(
                 (int) event.getMouseX(),
                 (int) event.getMouseY(),
