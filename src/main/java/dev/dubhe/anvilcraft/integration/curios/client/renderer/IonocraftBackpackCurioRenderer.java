@@ -5,8 +5,6 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.client.init.ModModelLayers;
 import dev.dubhe.anvilcraft.entity.model.IonocraftBackpackModel;
 import net.minecraft.client.model.EntityModel;
-import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
@@ -37,13 +35,12 @@ public class IonocraftBackpackCurioRenderer implements ICurioRenderer {
         float netHeadYaw,
         float headPitch
     ) {
-        IonocraftBackpackModel model = ModModelLayers.getIonocraftBackpackModel();
-        ModelPart body = model.getRoot();
-        VertexConsumer buffer = renderTypeBuffer.getBuffer(RenderType.entityCutoutNoCull(texture(stack)));
         matrixStack.pushPose();
         ICurioRenderer.translateIfSneaking(matrixStack, slotContext.entity());
+        IonocraftBackpackModel model = ModModelLayers.getIonocraftBackpackModel();
         ICurioRenderer.followBodyRotations(slotContext.entity(), model);
-        body.render(
+        VertexConsumer buffer = renderTypeBuffer.getBuffer(RenderType.entityCutoutNoCull(texture(stack)));
+        model.renderToBuffer(
             matrixStack,
             buffer,
             light,
