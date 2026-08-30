@@ -13,6 +13,10 @@ public class AabbUtil {
         return new AABB(start.getX(), start.getY(), start.getZ(), end.getX(), end.getY(), end.getZ());
     }
 
+    public static AABB create(BlockPos start, BlockPos end) {
+        return new AABB(start.getX(), start.getY(), start.getZ(), end.getX() + 1, end.getY() + 1, end.getZ() + 1);
+    }
+
     public static AABB centerSectionTo3x3x3(BlockPos pos) {
         return centerSectionTo3x3x3(SectionPos.of(pos));
     }

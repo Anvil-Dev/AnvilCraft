@@ -12,6 +12,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.saved.storage.HyperdimensionStorage;
 import dev.dubhe.anvilcraft.saved.storage.ShulkerContainerStorage;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
+import dev.dubhe.anvilcraft.util.AabbUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -21,7 +22,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,7 +32,7 @@ import java.util.UUID;
  * 从顶部砸入 1x 奇点晶体 + 16x 超立方体，该过程不可逆。
  * 仅在潜影集装箱的空间大小已达到满级（4 次空间压缩器升级）时生效。
  */
-public class UpgradeToHyperdimensionStationBehavior implements IAnvilBehavior {
+public class Upgrade2HyperdimensionStationBehavior implements IAnvilBehavior {
     /** 满级潜影集装箱的空间大小上限（经 4 次空间压缩器翻倍后的最大值）。 */
     private static final int MAX_SPACE_SIZE = 1048576;
     private static final int REQUIRED_CRYSTALS = 1;
@@ -68,7 +68,7 @@ public class UpgradeToHyperdimensionStationBehavior implements IAnvilBehavior {
             return false;
         }
         ShulkerContainerStorage oldStorage = Storages.get().get(id, ShulkerContainerStorage.class).orElse(null);
-        if (oldStorage == null || oldStorage.getItems().getSpaceSize() < UpgradeToHyperdimensionStationBehavior.MAX_SPACE_SIZE) {
+        if (oldStorage == null || oldStorage.getItems().getSpaceSize() < Upgrade2HyperdimensionStationBehavior.MAX_SPACE_SIZE) {
             // 未满级：交给空间压缩器升级 behavior 处理
             return false;
         }
@@ -78,7 +78,7 @@ public class UpgradeToHyperdimensionStationBehavior implements IAnvilBehavior {
         List<ItemEntity> hypercubes = new ArrayList<>();
         int crystalCount = 0;
         int hypercubeCount = 0;
-        for (ItemEntity entity : serverLevel.getEntitiesOfClass(ItemEntity.class, new AABB(hitBlockPos))) {
+        for (ItemEntity entity : serverLevel.getEntitiesOfClass(ItemEntity.class, AabbUtil.create(hitBlockPos, hitBlockPos.above()))) {
             ItemStack stack = entity.getItem();
             if (stack.is(ModBlocks.SINGULARITY_CRYSTAL.asItem())) {
                 crystals.add(entity);
@@ -88,13 +88,13 @@ public class UpgradeToHyperdimensionStationBehavior implements IAnvilBehavior {
                 hypercubeCount += stack.getCount();
             }
         }
-        if (crystalCount < UpgradeToHyperdimensionStationBehavior.REQUIRED_CRYSTALS
-            || hypercubeCount < UpgradeToHyperdimensionStationBehavior.REQUIRED_HYPERCUBES) {
+        if (crystalCount < Upgrade2HyperdimensionStationBehavior.REQUIRED_CRYSTALS
+            || hypercubeCount < Upgrade2HyperdimensionStationBehavior.REQUIRED_HYPERCUBES) {
             return false;
         }
 
         // 消耗 1x 奇点晶体
-        int remaining = UpgradeToHyperdimensionStationBehavior.REQUIRED_CRYSTALS;
+        int remaining = Upgrade2HyperdimensionStationBehavior.REQUIRED_CRYSTALS;
         for (ItemEntity entity : crystals) {
             ItemStack stack = entity.getItem();
             int shrink = Math.min(remaining, stack.getCount());
@@ -108,7 +108,7 @@ public class UpgradeToHyperdimensionStationBehavior implements IAnvilBehavior {
             if (remaining == 0) break;
         }
         // 消耗 16x 超立方体
-        remaining = UpgradeToHyperdimensionStationBehavior.REQUIRED_HYPERCUBES;
+        remaining = Upgrade2HyperdimensionStationBehavior.REQUIRED_HYPERCUBES;
         for (ItemEntity entity : hypercubes) {
             ItemStack stack = entity.getItem();
             int shrink = Math.min(remaining, stack.getCount());
