@@ -209,7 +209,13 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         }
         BlockState outputState = JeiBlockIngredientUtil.getRenderablePreviewState(recipe.resultBlock().state());
         int outputScale = JeiBlockIngredientUtil.getRenderablePreviewScale(outputState, 20);
-        RenderSupport.renderBlock(graphics, outputState, ProceduralProcessCategory.STEP_X - 10 + ProceduralProcessCategory.STEPS_LENGTH, ProceduralProcessCategory.BLOCK_Y - 10, outputScale);
+        RenderSupport.renderBlock(
+            graphics,
+            outputState,
+            ProceduralProcessCategory.STEP_X - 10 + ProceduralProcessCategory.STEPS_LENGTH,
+            ProceduralProcessCategory.BLOCK_Y - 10,
+            outputScale
+        );
     }
 
     private static int stepX(int index, int visibleSteps) {
