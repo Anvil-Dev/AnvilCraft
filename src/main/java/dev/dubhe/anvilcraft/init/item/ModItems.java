@@ -534,7 +534,7 @@ public class ModItems {
                         .getUncheckedLocation()))
                 .end();
         })
-        .tag(ItemTags.CHEST_ARMOR_ENCHANTABLE)
+        .tag(ItemTags.CHEST_ARMOR_ENCHANTABLE, ItemTags.DURABILITY_ENCHANTABLE)
         .recipe(RegistrumItemRecipeLoader::ionocraftBackpack)
         .register();
     // 升级锻造模板
