@@ -6,10 +6,8 @@ import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.builder.IRecipeSlotBuilder;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
-import java.util.Arrays;
 import java.util.List;
 
 public class JeiItemUtil {
@@ -78,7 +76,9 @@ public class JeiItemUtil {
 
     public static void addSlotWithCount(IRecipeLayoutBuilder builder, int x, int y, ItemIngredientPredicate entry) {
         IRecipeSlotBuilder slot = builder.addSlot(RecipeIngredientRole.INPUT, x, y);
-        slot.add(Ingredient.of(Arrays.stream(entry.getItems()).map(template -> template.item().value())));
+        for (ItemStackTemplate template : entry.getItems()) {
+            slot.add(template);
+        }
     }
 
     public static void addOutputSlot(IRecipeLayoutBuilder builder, int x, int y, ChanceItemStack stack) {
