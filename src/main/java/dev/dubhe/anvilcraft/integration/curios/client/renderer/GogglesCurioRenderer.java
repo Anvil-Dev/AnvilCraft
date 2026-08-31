@@ -2,15 +2,10 @@ package dev.dubhe.anvilcraft.integration.curios.client.renderer;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
-import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.client.init.ModModelLayers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.HumanoidModel;
-import net.minecraft.client.model.geom.ModelLayerLocation;
-import net.minecraft.client.model.geom.PartPose;
-import net.minecraft.client.model.geom.builders.CubeDeformation;
-import net.minecraft.client.model.geom.builders.CubeListBuilder;
-import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
 import net.minecraft.client.renderer.texture.OverlayTexture;
@@ -22,12 +17,10 @@ import top.theillusivec4.curios.api.SlotContext;
 import top.theillusivec4.curios.api.client.ICurioRenderer;
 
 public class GogglesCurioRenderer implements ICurioRenderer {
-    public static final ModelLayerLocation LAYER = new ModelLayerLocation(AnvilCraft.of("goggles"), "goggles");
-
     private final HumanoidModel<LivingEntity> model;
 
     public GogglesCurioRenderer() {
-        this.model = new HumanoidModel<>(Minecraft.getInstance().getEntityModels().bakeLayer(GogglesCurioRenderer.LAYER));
+        this.model = new HumanoidModel<>(Minecraft.getInstance().getEntityModels().bakeLayer(ModModelLayers.GOGGLES));
     }
 
     @Override
@@ -72,12 +65,5 @@ public class GogglesCurioRenderer implements ICurioRenderer {
             .renderStatic(stack, ItemDisplayContext.HEAD, light, OverlayTexture.NO_OVERLAY, matrixStack,
                 renderTypeBuffer, mc.level, 0);
         matrixStack.popPose();
-    }
-
-    public static MeshDefinition mesh() {
-        CubeListBuilder builder = new CubeListBuilder();
-        MeshDefinition mesh = HumanoidModel.createMesh(CubeDeformation.NONE, 0);
-        mesh.getRoot().addOrReplaceChild("head", builder, PartPose.ZERO);
-        return mesh;
     }
 }
