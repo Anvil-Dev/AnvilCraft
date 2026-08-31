@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.rpc.CallableParam;
 import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
@@ -1158,6 +1159,14 @@ public final class StorageServerStub {
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
         CraftingStorage crafting = target.read();
         Inventory inventory = player.getInventory();
+        AnvilCraft.LOGGER.info(
+            "craftingTransfer: sourcePos={} stonecutter={} terminal={} storage={} inputs={}",
+            sourcePos,
+            stonecutter,
+            target.terminal(),
+            target.storage(),
+            inputs
+        );
         if (stonecutter) {
             // ①：取第一个非空输入，从背包/存储找同种物品放入（数量不足放已有的量）
             ItemStack wanted = ItemStack.EMPTY;
@@ -1384,12 +1393,23 @@ public final class StorageServerStub {
     private static CraftingTarget resolveCraftingTarget(ServerPlayer player, long sourcePos) {
         UUID playerId = player.getGameProfile().getId();
         RemoteTarget remote = StorageServerStub.REMOTE_STORAGES.getOrDefault(playerId, Map.of()).get(sourcePos);
+        AnvilCraft.LOGGER.info("resolveCraftingTarget: sourcePos={} remote={}", sourcePos, remote);
         if (remote != null) {
-            StorageServerStub.getAndClear();
+            HolderLookup.Provider registries = StorageServerStub.getAndClear();
+            ItemStack terminal = StorageServerStub.findTerminalStack(player, remote.kind());
+            // 终端场景：合成数据读写目标为终端物品的 crafting 组件，但转移材料
+            // 需要从终端连接的目标存储补足——view 复用 getView 的终端目标解析
+            StorageView view = StorageServerStub.getView(registries, playerId, sourcePos);
+            AnvilCraft.LOGGER.info(
+                "resolveCraftingTarget: terminal target kind={} found={} viewSize={}",
+                remote.kind(),
+                terminal,
+                view.size()
+            );
             return new CraftingTarget(
-                StorageServerStub.findTerminalStack(player, remote.kind()),
+                terminal,
                 null,
-                null,
+                view,
                 player
             );
         }

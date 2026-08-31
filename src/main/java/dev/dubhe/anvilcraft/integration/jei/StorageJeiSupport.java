@@ -271,6 +271,12 @@ public final class StorageJeiSupport {
                     AnvilCraft.LOGGER.error("Storage JEI transfer failed", error);
                     return;
                 }
+                AnvilCraft.LOGGER.info(
+                    "Storage JEI transfer result: changed={} stonecutter={} sourcePos={}",
+                    changed,
+                    stonecutter,
+                    container.getSourcePos()
+                );
                 if (changed != null && changed) {
                     // 优先通过 JEI 父屏幕刷新；书签等直接在仓储屏幕上触发的转移用当前屏幕
                     if (StorageJeiSupport.parentScreen() instanceof StorageScreen current) {
