@@ -1140,6 +1140,138 @@ public final class StorageServerStub {
         }
     }
 
+    /**
+     * JEI 转移：把配方输入放入 ①/② 输入槽，材料从玩家背包扣取（与 JEI 转移语义一致）。
+     * stonecutter=true 时只放 ①（inputs 的第一个非空物品）；false 时把 inputs 按 9 宫格
+     * 顺序放入 ②（数量不足的槽放背包中已有的量，没有则留空）。
+     * 转移不触碰指针（carried）。
+     */
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean craftingTransfer(
+        UUID playerId,
+        long sourcePos,
+        boolean stonecutter,
+        @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC") List<ItemStack> inputs
+    ) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        CraftingStorage crafting = target.read();
+        Inventory inventory = player.getInventory();
+        if (stonecutter) {
+            // ①：取第一个非空输入，从背包找同种物品放入（数量不足放已有的量）
+            ItemStack wanted = ItemStack.EMPTY;
+            for (ItemStack input : inputs) {
+                if (!input.isEmpty()) {
+                    wanted = input;
+                    break;
+                }
+            }
+            if (wanted.isEmpty()) {
+                return false;
+            }
+            int placed = StorageServerStub.transferFromInventory(
+                inventory, wanted, crafting.stonecutterInput(), 64, player
+            );
+            if (placed > 0) {
+                ItemStack newInput = crafting.stonecutterInput();
+                if (newInput.isEmpty()) {
+                    newInput = wanted.copyWithCount(placed);
+                } else {
+                    newInput = newInput.copy();
+                    newInput.grow(placed);
+                }
+                target.write(crafting.withStonecutterInput(newInput));
+                return true;
+            }
+            return false;
+        }
+        // ②：按 9 宫格顺序放入（每个槽从背包找对应物品）
+        List<ItemStack> grid = new ArrayList<>(crafting.craftingInput());
+        boolean changed = false;
+        for (int i = 0; i < 9; i++) {
+            ItemStack wanted = i < inputs.size() ? inputs.get(i) : ItemStack.EMPTY;
+            if (wanted.isEmpty()) {
+                continue;
+            }
+            int slotMax = grid.get(i).isEmpty()
+                ? wanted.getMaxStackSize()
+                : Math.min(wanted.getMaxStackSize(), grid.get(i).getMaxStackSize());
+            int placed = StorageServerStub.transferFromInventory(
+                inventory, wanted, grid.get(i), slotMax, player
+            );
+            if (placed > 0) {
+                ItemStack current = grid.get(i);
+                if (current.isEmpty()) {
+                    current = wanted.copyWithCount(placed);
+                } else {
+                    current = current.copy();
+                    current.grow(placed);
+                }
+                grid.set(i, current);
+                changed = true;
+            }
+        }
+        if (changed) {
+            target.write(crafting.withCraftingInput(grid));
+        }
+        return changed;
+    }
+
+    /**
+     * 从玩家背包找与 wanted 同种的物品，移动到目标槽（同种堆叠或空槽放入），
+     * 返回实际放置数量；背包不足时放入背包中已有的量（0 表示没有）。
+     */
+    private static int transferFromInventory(
+        Inventory inventory,
+        ItemStack wanted,
+        ItemStack current,
+        int maxCount,
+        ServerPlayer player
+    ) {
+        if (current.isEmpty()) {
+            // 空槽：从背包找第一个同种物品，移动 min(需求, 背包量, 上限)
+            for (int i = 0; i < inventory.getContainerSize(); i++) {
+                ItemStack stack = inventory.getItem(i);
+                if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, wanted)) {
+                    continue;
+                }
+                int take = Math.min(wanted.getCount(), stack.getCount());
+                take = Math.min(take, maxCount);
+                if (take <= 0) {
+                    continue;
+                }
+                ItemStack rest = stack.copy();
+                rest.shrink(take);
+                inventory.setItem(i, rest.isEmpty() ? ItemStack.EMPTY : rest);
+                return take;
+            }
+            return 0;
+        }
+        // 已有同种：只补足到上限
+        if (!ItemStack.isSameItemSameComponents(current, wanted)) {
+            return 0;
+        }
+        int space = maxCount - current.getCount();
+        if (space <= 0) {
+            return 0;
+        }
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack stack = inventory.getItem(i);
+            if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, wanted)) {
+                continue;
+            }
+            int take = Math.min(space, stack.getCount());
+            if (take <= 0) {
+                continue;
+            }
+            ItemStack rest = stack.copy();
+            rest.shrink(take);
+            inventory.setItem(i, rest.isEmpty() ? ItemStack.EMPTY : rest);
+            return take;
+        }
+        return 0;
+    }
+
     /** 合成数据读写目标：终端物品的 crafting 组件，或世界主存储的 crafting 字段。 */
     private record CraftingTarget(
         @Nullable ItemStack terminal,

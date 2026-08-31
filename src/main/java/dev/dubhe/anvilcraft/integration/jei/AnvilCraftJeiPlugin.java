@@ -99,6 +99,7 @@ import mezz.jei.api.registration.IRecipeRegistration;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
 import mezz.jei.api.registration.IVanillaCategoryExtensionRegistration;
 import mezz.jei.api.runtime.IClickableIngredient;
+import mezz.jei.api.runtime.IJeiRuntime;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
@@ -196,6 +197,11 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
     @Override
     public ResourceLocation getPluginUid() {
         return AnvilCraft.of("jei_plugin");
+    }
+
+    @Override
+    public void onRuntimeAvailable(IJeiRuntime jeiRuntime) {
+        StorageJeiSupport.onRuntimeAvailable(jeiRuntime);
     }
 
     @Override
@@ -332,6 +338,8 @@ public class AnvilCraftJeiPlugin implements IModPlugin {
             RecipeTypes.SMITHING,
             0, 3, 4, 36
         );
+        // 仓储界面（StorageScreen）：③/④ 结果槽区域的 JEI 配方打开与合成/切石机转移
+        StorageJeiSupport.registerRecipeTransferHandlers(registration);
     }
 
     @Override

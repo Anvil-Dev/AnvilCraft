@@ -327,6 +327,22 @@ public final class StorageClientStub {
         );
     }
 
+    /** JEI 转移：把配方输入放入 ①/② 输入槽（材料从背包扣取）。 */
+    public static CompletableFuture<Boolean> craftingTransfer(
+        BlockPos sourcePos,
+        boolean stonecutter,
+        List<ItemStack> inputs
+    ) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::craftingTransfer,
+            StorageClientStub.playerId(),
+            sourcePos.asLong(),
+            stonecutter,
+            inputs
+        );
+    }
+
     private static UUID playerId() {
         Player player = Minecraft.getInstance().player;
         if (player == null) {

@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.client.support.GuiRenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
+import dev.dubhe.anvilcraft.integration.StorageJeiBridge;
 import dev.dubhe.anvilcraft.rpc.StorageInput;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
@@ -511,7 +512,7 @@ public class StorageScreen extends Screen {
      * 加载合成面板数据。① 输入物品类型变化（或 {@code refreshRecipes} 为真）时
      * 重载切石机候选配方；仅数量变化时不重载配方面板。
      */
-    private void loadCrafting(boolean refreshRecipes) {
+    public void loadCrafting(boolean refreshRecipes) {
         ItemStack oldInput = this.crafting.stonecutterInput();
         this.craftingLoaded = false;
         StorageClientStub.craftingGet(this.sourcePos).whenCompleteAsync(
@@ -1239,6 +1240,9 @@ public class StorageScreen extends Screen {
         }
 
         if (this.mode == ScreenMode.CRAFTING && (button == 0 || button == 1)) {
+            if (this.clickJeiRecipeArea(mouseX, mouseY)) {
+                return true;
+            }
             if (this.clickCraftingRecipe(mouseX, mouseY)) {
                 return true;
             }
@@ -1756,6 +1760,40 @@ public class StorageScreen extends Screen {
         );
     }
 
+    /**
+     * 点击③/④ 结果槽区域的 JEI 打开区域（切石机 (24,132) 14×15 → 打开切石机配方；
+     * 合成 (65,200) 14×15 → 打开合成配方）。未安装 JEI 时无操作。返回是否命中。
+     */
+    private boolean clickJeiRecipeArea(double mouseX, double mouseY) {
+        if (
+            MathUtil.isInRange(
+                mouseX,
+                mouseY,
+                this.left + 24,
+                this.top + 132,
+                this.left + 24 + 14,
+                this.top + 132 + 15
+            )
+        ) {
+            StorageJeiBridge.openStonecutterRecipes();
+            return true;
+        }
+        if (
+            MathUtil.isInRange(
+                mouseX,
+                mouseY,
+                this.left + 65,
+                this.top + 200,
+                this.left + 65 + 14,
+                this.top + 200 + 15
+            )
+        ) {
+            StorageJeiBridge.openCraftingRecipes();
+            return true;
+        }
+        return false;
+    }
+
     /** 点击切石机配方按钮：切换选中配方。返回是否命中。 */
     private boolean clickCraftingRecipe(double mouseX, double mouseY) {
         int maxSize = StorageScreen.CRAFTING_RECIPE_COLUMNS * StorageScreen.CRAFTING_RECIPE_ROWS;
@@ -2208,6 +2246,11 @@ public class StorageScreen extends Screen {
 
     public int getTopPos() {
         return this.top;
+    }
+
+    /** 当前打开的存储方块位置。 */
+    public BlockPos getSourcePos() {
+        return this.sourcePos;
     }
 
     public int getImageWidth() {
