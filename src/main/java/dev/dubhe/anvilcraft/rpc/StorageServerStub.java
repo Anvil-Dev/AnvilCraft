@@ -3253,7 +3253,7 @@ public final class StorageServerStub {
             ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
             String name = requiresName ? stack.getHoverName().getString() : "";
             UnlimitedItemStack unlimitedStack = new UnlimitedItemStack(stack, (int) Math.min(amount, Integer.MAX_VALUE));
-            if (!StorageServerStub.matchesFilters(stack.getItemHolder(), unlimitedStack, id, name, search, categories)) {
+            if (!StorageServerStub.matchesFilters(stack.getItemHolder(), unlimitedStack, id, search, categories)) {
                 continue;
             }
             entries.add(new OrderEntry(index, amount, id, name));
@@ -3273,19 +3273,17 @@ public final class StorageServerStub {
         Holder<Item> item,
         UnlimitedItemStack stack,
         ResourceLocation id,
-        String name,
         String search,
         List<CategoryEntry> categories
     ) {
+        // 普通文本搜索不在服务端过滤：服务端无客户端语言环境，本地化名称匹配
+        // 由客户端（StorageScreen.applySearchFilter）完成；服务端只处理 @ namespace
+        // 与 # tag 前缀搜索。普通文本时返回 true（全部条目，客户端二次过滤）。
         boolean matchesSearch = search.isEmpty()
             || search.charAt(0) == '@' && id.getNamespace().toLowerCase(Locale.ROOT).contains(search.substring(1))
             || search.charAt(0) == '#'
                && item.tags().anyMatch(tag -> StorageServerStub.matchesTag(tag.location(), search.substring(1)))
-            || search.charAt(0) != '@' && search.charAt(0) != '#'
-               && (
-                   name.toLowerCase(Locale.ROOT).contains(search)
-                   || id.getPath().toLowerCase(Locale.ROOT).contains(search)
-               );
+            || search.charAt(0) != '@' && search.charAt(0) != '#';
         if (!matchesSearch) {
             return false;
         }

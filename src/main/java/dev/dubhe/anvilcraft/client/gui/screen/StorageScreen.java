@@ -49,6 +49,7 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -72,6 +73,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -2716,7 +2718,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (this.nbtFolded) {
             this.rebuildFoldedGroups(true);
         } else {
-            this.displayOrder = new IntArrayList(this.order);
+            this.displayOrder = this.applySearchFilter(new IntArrayList(this.order));
         }
         this.remappedOrder = true;
         return true;
@@ -2768,20 +2770,65 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.foldedCounts.clear();
         if (!foldNbt) {
             this.foldedGroups = List.of();
-            this.displayOrder = new IntArrayList(this.order);
+            this.displayOrder = this.applySearchFilter(new IntArrayList(this.order));
             return;
         }
 
         this.rebuildFoldedGroups(false);
     }
 
+    /**
+     * 服务端（无客户端语言环境）普通文本搜索只按 id path 过滤，本地化名称匹配
+     * 由客户端完成：非 @/# 前缀的搜索词同时匹配物品的本地化显示名与 id path。
+     */
+    private IntList applySearchFilter(IntList order) {
+        String search = SettingClientStub.setting().storage().getSearchContent().strip().toLowerCase(Locale.ROOT);
+        AnvilCraft.LOGGER.info(
+            "applySearchFilter: search='{}' orderSize={}",
+            search,
+            order.size()
+        );
+        if (search.isEmpty() || search.charAt(0) == '@' || search.charAt(0) == '#') {
+            return order;
+        }
+        IntArrayList filtered = new IntArrayList(order.size());
+        for (int slot : order) {
+            UnlimitedItemStack stack = this.getDisplayedStack(slot);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            String name = stack.toStack().getHoverName().getString().toLowerCase(Locale.ROOT);
+            String idPath = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+            AnvilCraft.LOGGER.info(
+                "applySearchFilter slot: item={} name='{}' idPath='{}'",
+                stack.getItem(),
+                name,
+                idPath
+            );
+            if (name.contains(search) || idPath.contains(search)) {
+                filtered.add(slot);
+            }
+        }
+        AnvilCraft.LOGGER.info("applySearchFilter result: filtered={}", filtered.size());
+        return filtered;
+    }
+
     private void rebuildFoldedGroups(boolean preserveRepresentatives) {
         List<IntList> groups = new ArrayList<>();
         Map<Item, IntList> groupsByItem = new HashMap<>();
+        String search = SettingClientStub.setting().storage().getSearchContent().strip().toLowerCase(Locale.ROOT);
+        boolean filterBySearch = !search.isEmpty() && search.charAt(0) != '@' && search.charAt(0) != '#';
         for (int slot : this.order) {
             UnlimitedItemStack stack = this.contents.getOrDefault(slot, UnlimitedItemStack.EMPTY);
             if (stack.isEmpty()) {
                 continue;
+            }
+            if (filterBySearch) {
+                String name = stack.toStack().getHoverName().getString().toLowerCase(Locale.ROOT);
+                String idPath = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+                if (!name.contains(search) && !idPath.contains(search)) {
+                    continue;
+                }
             }
             IntList group = groupsByItem.get(stack.getItem());
             if (group == null) {
