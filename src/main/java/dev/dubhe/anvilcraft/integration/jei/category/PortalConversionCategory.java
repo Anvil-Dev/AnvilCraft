@@ -123,7 +123,7 @@ public class PortalConversionCategory implements IRecipeCategory<RecipeHolder<Po
             );
         }
 
-        graphics.centeredText(Minecraft.getInstance().font, "WIP", 81, 32, 0xFFFFFF);
+        graphics.centeredText(Minecraft.getInstance().font, "WIP", 81, 32, 0xFFFFFFFF);
 
         List<WeightedChanceBlockStates.Entry> results = recipe.getResults().states();
         if (!results.isEmpty()) {

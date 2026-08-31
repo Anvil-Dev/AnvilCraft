@@ -98,8 +98,13 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
     ) {
         ProceduralProcessRecipe recipe = holder.value();
         JeiBlockIngredientUtil.addInputSlot(
-            builder, ProceduralProcessCategory.INITIAL_BLOCK, ProceduralProcessCategory.STEP_X - 29, ProceduralProcessCategory.BLOCK_Y - 6,
-            18, 18, recipe.initialBlock()
+            builder,
+            ProceduralProcessCategory.INITIAL_BLOCK,
+            ProceduralProcessCategory.STEP_X - 29,
+            ProceduralProcessCategory.BLOCK_Y - 6,
+            18,
+            18,
+            recipe.initialBlock()
         );
         JeiBlockIngredientUtil.addSlot(
             builder,
@@ -162,7 +167,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         ProceduralProcessRecipe recipe = holder.value();
         ProceduralProcessCategory.renderPredicate(
             graphics, view, ProceduralProcessCategory.INITIAL_BLOCK, recipe.initialBlock(), 0, holder,
-            ProceduralProcessCategory.STEP_X - 20, ProceduralProcessCategory.BLOCK_Y, 18
+            ProceduralProcessCategory.STEP_X - 29, ProceduralProcessCategory.BLOCK_Y - 10, 18
         );
 
         int visibleSteps = Math.min(recipe.steps().size(), ProceduralProcessCategory.MAX_VISIBLE_STEPS);
@@ -171,7 +176,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
             ProceduralProcessStep step = ProceduralProcessCategory.getDisplayedStep(recipe, index, displayedLoop);
             if (!(step.getContent() instanceof AbstractProcessRecipe<?> process)) continue;
             int x = ProceduralProcessCategory.stepX(index, visibleSteps);
-            RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), x - 10, 3, 20);
+            RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), x - 9, 0, 20);
             if (!process.getInputItems().isEmpty()) {
                 this.slot.draw(graphics, x - 9, ProceduralProcessCategory.ITEM_Y);
             }
@@ -185,7 +190,7 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
                     displayedLoop * recipe.steps().size() + index,
                     holder,
                     x - 9,
-                    ProceduralProcessCategory.BLOCK_Y + inputIndex * 10,
+                    ProceduralProcessCategory.BLOCK_Y - 10 + inputIndex * 10,
                     18
                 );
             }
@@ -204,7 +209,13 @@ public class ProceduralProcessCategory implements IRecipeCategory<RecipeHolder<P
         }
         BlockState outputState = JeiBlockIngredientUtil.getRenderablePreviewState(recipe.resultBlock().state());
         int outputScale = JeiBlockIngredientUtil.getRenderablePreviewScale(outputState, 20);
-        RenderSupport.renderBlock(graphics, outputState, 142, ProceduralProcessCategory.BLOCK_Y, outputScale);
+        RenderSupport.renderBlock(
+            graphics,
+            outputState,
+            ProceduralProcessCategory.STEP_X - 10 + ProceduralProcessCategory.STEPS_LENGTH,
+            ProceduralProcessCategory.BLOCK_Y - 10,
+            outputScale
+        );
     }
 
     private static int stepX(int index, int visibleSteps) {

@@ -98,12 +98,13 @@ public class JeiRenderHelper {
         pose.pushMatrix();
         pose.translate(x, y + 0.5F);
         slot.draw(graphics);
+        // FIXME: Non-transparent blocks are rendered behind the slot
         RenderSupport.renderBlock(
             graphics,
             state,
-            9,
-            5,
-            11
+            0,
+            1,
+            18
         );
         pose.popMatrix();
     }

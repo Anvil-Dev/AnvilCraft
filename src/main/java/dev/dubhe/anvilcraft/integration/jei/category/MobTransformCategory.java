@@ -148,8 +148,8 @@ public class MobTransformCategory implements IRecipeCategory<MobTransformJeiReci
         RenderSupport.renderBlock(
             graphics,
             block,
-            81,
-            40,
+            71,
+            35,
             20);
 
         this.arrowDefault.draw(graphics, 74, 22);

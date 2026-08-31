@@ -163,8 +163,8 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         double mouseY
     ) {
         SqueezingRecipe recipe = recipeHolder.value();
-        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 50, 12 + anvilYOffset, 20);
+        
+        RenderSupport.renderBlock(graphics, Blocks.CAULDRON.defaultBlockState(), 40, 35, 20);
 
         List<BlockState> input = new ArrayList<>();
         for (BlockStatePredicate predicate : recipe.getInputBlocks()) {
@@ -173,8 +173,10 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         if (input.isEmpty()) return;
         BlockState renderedState = JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, SqueezingCategory.INPUT_BLOCK, input)
             .orElse(input.getFirst());
-        RenderSupport.renderBlock(graphics, renderedState, 50, 30, 20);
-        RenderSupport.renderBlock(graphics, Blocks.CAULDRON.defaultBlockState(), 50, 40, 20);
+        RenderSupport.renderBlock(graphics, renderedState, 40, 25, 20);
+        
+        int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 40, 7 + anvilYOffset, 20);
 
         this.arrowDefault.draw(graphics, 73, 28);
 
@@ -188,7 +190,7 @@ public class SqueezingCategory implements IRecipeCategory<RecipeHolder<Squeezing
         List<BlockState> resultStates = result.stream().map(ChanceBlockState::state).toList();
         renderedState = JeiBlockIngredientUtil.getDisplayedState(recipeSlotsView, SqueezingCategory.OUTPUT_BLOCK, resultStates)
             .orElse(resultStates.getFirst());
-        RenderSupport.renderBlock(graphics, renderedState, 110, 30, 20);
+        RenderSupport.renderBlock(graphics, renderedState, 100, 25, 20);
     }
 
     public static void registerRecipes(IRecipeRegistration registration) {

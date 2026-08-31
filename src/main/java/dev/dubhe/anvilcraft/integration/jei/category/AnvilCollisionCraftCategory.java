@@ -223,8 +223,8 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                     RenderSupport.renderBlock(
                         graphics,
                         inputBlockRenderedState,
-                        120,
-                        5,
+                        110,
+                        0,
                         20
                     );
 
@@ -237,8 +237,8 @@ public class AnvilCollisionCraftCategory implements IRecipeCategory<RecipeHolder
                     RenderSupport.renderBlock(
                         graphics,
                         outputBlockState,
-                        120,
-                        48,
+                        110,
+                        43,
                         20
                     );
 

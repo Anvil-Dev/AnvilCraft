@@ -292,8 +292,8 @@ public class FluidMixingCategory implements IRecipeCategory<RecipeHolder<FluidMi
         this.arrowOut.draw(guiGraphics, 99, 29);
 
         float anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / 3.0F;
-        RenderSupport.renderBlock(guiGraphics, this.giantAnvil, 71, 13 + anvilYOffset, FluidMixingCategory.MODEL_SCALE * 2);
-        RenderSupport.renderBlock(guiGraphics, this.largeCauldron, 71, 35, FluidMixingCategory.MODEL_SCALE * 2);
+        RenderSupport.render3x3Block(guiGraphics, this.largeCauldron, 58, 22, FluidMixingCategory.MODEL_SCALE * 6);
+        RenderSupport.render3x3Block(guiGraphics, this.giantAnvil, 58, anvilYOffset, FluidMixingCategory.MODEL_SCALE * 6);
     }
 
     private static SlotPosition inputPosition(int count, int index) {

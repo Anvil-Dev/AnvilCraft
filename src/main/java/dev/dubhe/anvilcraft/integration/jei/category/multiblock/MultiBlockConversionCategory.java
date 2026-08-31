@@ -241,8 +241,8 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 final boolean modifiedOutput = !output.isAllLayersVisible();
                 input.setAllLayersVisible(true);
                 output.setAllLayersVisible(true);
-                RenderSupport.renderLevelLike(input, graphics, 36, 44, MultiBlockConversionCategory.SCALE_FAC_OVERVIEW, 8, 2.0F, false);
-                RenderSupport.renderLevelLike(output, graphics, 120, 44, MultiBlockConversionCategory.SCALE_FAC_OVERVIEW, 8, 2.0F, false);
+                RenderSupport.renderLevelLike(input, graphics, 8, 16, MultiBlockConversionCategory.SCALE_FAC_OVERVIEW, 8, 2.0F, false);
+                RenderSupport.renderLevelLike(output, graphics, 92, 16, MultiBlockConversionCategory.SCALE_FAC_OVERVIEW, 8, 2.0F, false);
                 if (modifiedInput) {
                     input.setAllLayersVisible(false);
                 }
@@ -259,14 +259,15 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                 this.conversion.draw(graphics, 2375, 875);
                 pose.popMatrix();
                 int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer) / 3;
-                RenderSupport.renderBlock(
+                // FIXME: The giant anvil is rendered behind the conversion graphics
+                RenderSupport.render3x3Block(
                     graphics,
                     ModBlocks.GIANT_ANVIL.getDefaultState()
                         .trySetValue(GiantAnvilBlock.HALF, Cube3x3PartHalf.MID_CENTER)
                         .trySetValue(GiantAnvilBlock.CUBE, GiantAnvilCube.CENTER),
-                    80,
-                    19 + anvilYOffset,
-                    5
+                    70,
+                    10 + anvilYOffset,
+                    20
                 );
                 pose.pushMatrix();
                 pose.scale(0.8F, 0.8F);
@@ -280,22 +281,20 @@ public class MultiBlockConversionCategory implements IRecipeCategory<RecipeHolde
                     false
                 );
                 pose.popMatrix();
-                break;
+                return;
             case INPUT:
                 break;
             case OUTPUT:
                 rendered = output;
                 break;
-            default:
         }
-        if (this.displayMode == DisplayMode.OVERVIEW) return;
 
         for (IRecipeSlotView slotView : recipeSlotsView.getSlotViews()) {
             if (slotView instanceof IRecipeSlotDrawable drawable) {
                 drawable.setPosition(-1000, -1000);
             }
         }
-        RenderSupport.renderLevelLike(rendered, graphics, 80, 86, MultiBlockConversionCategory.SCALE_FAC_LARGE, 8, 2.0F, false);
+        RenderSupport.renderLevelLike(rendered, graphics, 32, 38, MultiBlockConversionCategory.SCALE_FAC_LARGE, 14, 2.0F, false);
         Component component = this.layerTooltip(rendered);
         pose.pushMatrix();
         pose.scale(0.8F, 0.8F);

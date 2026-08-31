@@ -72,8 +72,9 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
             return;
         }
         List<ItemIngredientPredicate> inputs = recipe.getInputItems();
-        JeiSlotUtil.addSlotWithCount(builder, 11, JeiSlotUtil.DEFAULT_Y, inputs.getFirst());
-        builder.addSlot(RecipeIngredientRole.INPUT, 30, JeiSlotUtil.ITEM_Y)
+        int inputSlotStartX = JeiSlotUtil.INPUT_X - JeiSlotUtil.OFFSET / 2;
+        JeiSlotUtil.addSlotWithCount(builder, inputSlotStartX, JeiSlotUtil.DEFAULT_Y, inputs.getFirst());
+        builder.addSlot(RecipeIngredientRole.INPUT, inputSlotStartX + JeiSlotUtil.OFFSET, JeiSlotUtil.DEFAULT_Y)
             .add(ItemCompressCategory.resinWithCreeper(powered))
             .addRichTooltipCallback((slotView, tooltip) ->
                 tooltip.add(Component.translatable(powered
@@ -99,8 +100,8 @@ public class ItemCompressCategory extends AbstractProgressCategory<ItemCompressR
     ) {
         final ItemCompressRecipe recipe = recipeHolder.value();
         int anvilYOffset = JeiRenderHelper.getAnvilAnimationOffset(this.timer);
-        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 81, 22 + anvilYOffset, 20);
-        RenderSupport.renderBlock(graphics, Blocks.CAULDRON.defaultBlockState(), 81, 40, 20);
+        RenderSupport.renderBlock(graphics, Blocks.CAULDRON.defaultBlockState(), 71, 35, 20);
+        RenderSupport.renderBlock(graphics, Blocks.ANVIL.defaultBlockState(), 71, 17 + anvilYOffset, 20);
 
         this.arrowIn.draw(graphics, 54, 30);
         this.arrowOutFromBelow.draw(graphics, 92, 29);

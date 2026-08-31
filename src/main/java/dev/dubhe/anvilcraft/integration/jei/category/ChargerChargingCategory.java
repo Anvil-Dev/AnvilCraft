@@ -102,8 +102,8 @@ public class ChargerChargingCategory implements IRecipeCategory<RecipeHolder<Cha
         RenderSupport.renderBlock(
             graphics,
             recipe.getProcessingBlock().defaultBlockState().setValue(ChargerBlock.OVERLOAD, false),
-            81,
-            40,
+            71,
+            35,
             20
         );
 
