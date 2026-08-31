@@ -370,7 +370,12 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
     @Override
     public <T extends LivingEntity> int damageItem(ItemStack stack, int amount, @Nullable T entity, Consumer<Item> onBroken) {
         int willDamage = super.damageItem(stack, amount, entity, onBroken);
-        return stack.getDamageValue() - willDamage >= stack.getMaxDamage() - 1 ? 0 : willDamage;
+        int damageValue = stack.getDamageValue();
+        int maxDamage = stack.getMaxDamage();
+        if (damageValue + willDamage >= maxDamage - 1) {
+            willDamage = maxDamage - damageValue - 1;
+        }
+        return willDamage;
     }
 
     protected static boolean isTooDamagedToUse(ItemStack stack) {
