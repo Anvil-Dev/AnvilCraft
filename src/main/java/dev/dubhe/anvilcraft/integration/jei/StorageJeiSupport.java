@@ -130,12 +130,6 @@ public final class StorageJeiSupport {
             for (ItemStack variant : variants) {
                 long available = StorageJeiSupport.availableCount(player, screen, variant);
                 int used = StorageJeiSupport.allocatedCount(allocatedKeys, allocatedCounts, variant);
-                AnvilCraft.LOGGER.info(
-                    "JEI collect slot: variant={} available={} used={}",
-                    variant,
-                    available,
-                    used
-                );
                 if (available > used) {
                     chosen = variant;
                     break;
@@ -145,7 +139,6 @@ public final class StorageJeiSupport {
                 chosen = slotView.getDisplayedItemStack()
                     .orElse(variants.getFirst());
             }
-            AnvilCraft.LOGGER.info("JEI collect slot chosen={}", chosen);
             StorageJeiSupport.allocate(allocatedKeys, allocatedCounts, chosen);
             inputs.add(chosen.copy());
         }
@@ -178,12 +171,6 @@ public final class StorageJeiSupport {
             for (ItemStack variant : variants) {
                 long available = StorageJeiSupport.availableCount(player, screen, variant);
                 int used = StorageJeiSupport.allocatedCount(allocatedKeys, allocatedCounts, variant);
-                AnvilCraft.LOGGER.info(
-                    "JEI check slot: variant={} available={} used={}",
-                    variant,
-                    available,
-                    used
-                );
                 if (available > used) {
                     StorageJeiSupport.allocate(allocatedKeys, allocatedCounts, variant);
                     hasAny = true;
@@ -271,12 +258,6 @@ public final class StorageJeiSupport {
                     AnvilCraft.LOGGER.error("Storage JEI transfer failed", error);
                     return;
                 }
-                AnvilCraft.LOGGER.info(
-                    "Storage JEI transfer result: changed={} stonecutter={} sourcePos={}",
-                    changed,
-                    stonecutter,
-                    container.getSourcePos()
-                );
                 if (changed != null && changed) {
                     // 优先通过 JEI 父屏幕刷新；书签等直接在仓储屏幕上触发的转移用当前屏幕
                     if (StorageJeiSupport.parentScreen() instanceof StorageScreen current) {
