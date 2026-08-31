@@ -75,7 +75,7 @@ public abstract class ResonatorItem extends Item implements IItemTooltipProvider
         super(
             properties
                 .attributes(ResonatorItem.createAttributes(material, attackDamage, attackSpeed))
-                .component(DataComponents.TOOL, ResonatorItem.createToolProperties(material))
+                .component(DataComponents.TOOL, ResonatorItem.createToolProperties(material, true))
                 .component(DataComponents.WEAPON, new Weapon(2, 0.0F))
                 .durability(material.durability()).repairable(material.repairItems()).enchantable(material.enchantmentValue())
         );
@@ -131,8 +131,10 @@ public abstract class ResonatorItem extends Item implements IItemTooltipProvider
     }
 
     @SuppressWarnings("deprecation")
-    public static Tool createToolProperties(ToolMaterial material) {
-        HolderGetter<Block> lookup = BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK);
+    public static Tool createToolProperties(ToolMaterial material, boolean isBootstrap) {
+        HolderGetter<Block> lookup = isBootstrap
+                                     ? BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK)
+                                     : BuiltInRegistries.BLOCK;
         List<Tool.Rule> rules = new ArrayList<>();
         rules.add(Tool.Rule.minesAndDrops(HolderSet.direct(Blocks.COBWEB.builtInRegistryHolder()), 15.0F));
         rules.add(Tool.Rule.overrideSpeed(lookup.getOrThrow(BlockTags.SWORD_INSTANTLY_MINES), Float.MAX_VALUE));
@@ -152,7 +154,7 @@ public abstract class ResonatorItem extends Item implements IItemTooltipProvider
 
     public static Tool createToolProperties(ResonateMode mode, ToolMaterial material, HolderGetter<Block> lookup) {
         return switch (mode) {
-            case AUTO -> ResonatorItem.createToolProperties(material);
+            case AUTO -> ResonatorItem.createToolProperties(material, false);
             case AXE -> new Tool(
                 List.of(Tool.Rule.minesAndDrops(lookup.getOrThrow(BlockTags.MINEABLE_WITH_AXE), material.speed())),
                 1.0F,

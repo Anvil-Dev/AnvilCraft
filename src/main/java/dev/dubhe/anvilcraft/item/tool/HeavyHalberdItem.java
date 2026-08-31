@@ -79,7 +79,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
         super(
             properties
                 .attributes(HeavyHalberdItem.createAttributes(material, attackDamage, attackSpeed))
-                .component(DataComponents.TOOL, HeavyHalberdItem.createToolProperties(material))
+                .component(DataComponents.TOOL, HeavyHalberdItem.createToolProperties(material, true))
                 .component(DataComponents.WEAPON, new Weapon(1))
                 .component(ModComponents.HEAVY_HALBERD_MODE, HeavyHalberdMode.TRIDENT)
                 .durability(material.durability()).repairable(material.repairItems()).enchantable(material.enchantmentValue())
@@ -121,8 +121,10 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
     }
 
     @SuppressWarnings("deprecation")
-    public static Tool createToolProperties(ToolMaterial material) {
-        HolderGetter<Block> lookup = BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK);
+    public static Tool createToolProperties(ToolMaterial material, boolean isBootstrap) {
+        HolderGetter<Block> lookup = isBootstrap
+                                     ? BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK)
+                                     : BuiltInRegistries.BLOCK;
         ArrayList<Tool.Rule> rules = new ArrayList<>();
         rules.add(Tool.Rule.minesAndDrops(HolderSet.direct(Blocks.COBWEB.builtInRegistryHolder()), 15.0F));
         rules.add(Tool.Rule.overrideSpeed(lookup.getOrThrow(BlockTags.SWORD_INSTANTLY_MINES), Float.MAX_VALUE));
@@ -247,7 +249,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
                 stack.set(DataComponents.ATTRIBUTE_MODIFIERS, modifiers);
             }
             if (!stack.has(DataComponents.TOOL)) {
-                stack.set(DataComponents.TOOL, createToolProperties(material));
+                stack.set(DataComponents.TOOL, createToolProperties(material, false));
             }
         }
     }
