@@ -68,7 +68,6 @@ import net.neoforged.neoforge.common.ItemAbility;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.function.Consumer;
 
 public abstract class HeavyHalberdItem extends Item implements ProjectileItem, IItemTooltipProvider {
@@ -194,9 +193,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
                 ItemEnchantments disabledEnchs = stack.getOrDefault(ModComponents.DISABLED_ENCHANTMENTS, ItemEnchantments.EMPTY);
                 ItemEnchantments.Mutable enchsMut = new ItemEnchantments.Mutable(enchs);
                 ItemEnchantments.Mutable disabledEnchsMut = new ItemEnchantments.Mutable(disabledEnchs);
-                for (Iterator<Holder<Enchantment>> it = enchs.keySet().iterator(); it.hasNext(); ) {
-                    Holder<Enchantment> enchantment = it.next();
-
+                for (Holder<Enchantment> enchantment : enchs.keySet()) {
                     if (enchantment.is(ModEnchantmentTags.DISABLED_PASSED)) continue;
 
                     int level = enchs.getLevel(enchantment);
@@ -206,8 +203,8 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
                     } else {
                         level = Math.max(level, storedLevel);
                     }
-                    enchsMut.set(enchantment, level);
-                    it.remove();
+                    enchsMut.removeIf(holder -> holder.equals(enchantment));
+                    disabledEnchsMut.set(enchantment, level);
                 }
                 stack.set(DataComponents.ENCHANTMENTS, enchsMut.toImmutable());
                 stack.set(ModComponents.DISABLED_ENCHANTMENTS, disabledEnchsMut.toImmutable());
@@ -230,10 +227,10 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
                 ItemEnchantments enchs = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
                 ItemEnchantments.Mutable enchsMut = new ItemEnchantments.Mutable(enchs);
                 for (Holder<Enchantment> enchantment : disabledEnchs.keySet()) {
-                    enchsMut.set(enchantment, enchs.getLevel(enchantment));
+                    enchsMut.set(enchantment, disabledEnchs.getLevel(enchantment));
                 }
                 stack.set(DataComponents.ENCHANTMENTS, enchsMut.toImmutable());
-                stack.set(ModComponents.DISABLED_ENCHANTMENTS, ItemEnchantments.EMPTY);
+                stack.remove(ModComponents.DISABLED_ENCHANTMENTS);
             }
             if (stack.has(DataComponents.ATTRIBUTE_MODIFIERS)) {
                 ItemAttributeModifiers modifiers = stack.get(DataComponents.ATTRIBUTE_MODIFIERS)
