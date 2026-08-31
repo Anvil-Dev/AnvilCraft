@@ -371,13 +371,6 @@ public class ClientEventListener {
         ItemStack carried
     ) {
         UUID targetId = TerminalRemoteOverlay.terminalIdOf(carried);
-        AnvilCraft.LOGGER.info(
-            "Creative bundle hover: targetId={} button={} slotItem={} carried={}",
-            targetId,
-            button,
-            slot.getItem(),
-            carried
-        );
         if (targetId == null) {
             return;
         }
@@ -390,16 +383,11 @@ public class ClientEventListener {
             }
             StorageTerminalClientStub.extractFirst(targetId, 64, carried).whenComplete((result, error) ->
                 Minecraft.getInstance().execute(() -> {
-                    if (error != null) {
-                        AnvilCraft.LOGGER.error("Creative bundle extract RPC failed", error);
-                        return;
-                    }
-                    if (result == null) {
+                    if (error != null || result == null) {
                         return;
                     }
                     if (!result.changed()) {
                         // 取不出（无绑定/不可达/存储空）：放回终端（vanilla fallback 语义）
-                        AnvilCraft.LOGGER.info("Creative bundle extract: nothing extracted, put terminal back");
                         slot.set(carried);
                         screen.getMenu().setCarried(ItemStack.EMPTY);
                         screen.getMenu().broadcastChanges();
@@ -416,11 +404,7 @@ public class ClientEventListener {
             }
             StorageTerminalClientStub.insertFirst(targetId, slotItem, carried).whenComplete((remain, error) ->
                 Minecraft.getInstance().execute(() -> {
-                    if (error != null) {
-                        AnvilCraft.LOGGER.error("Creative bundle insert RPC failed", error);
-                        return;
-                    }
-                    if (remain == null) {
+                    if (error != null || remain == null) {
                         return;
                     }
                     slot.set(remain);

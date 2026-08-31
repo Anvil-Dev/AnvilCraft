@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.item.ItemStack;
@@ -45,7 +44,6 @@ public abstract class TerminalItem extends BundleLikeItem {
         // 的选中检查由 canRemoveOne 在调用前完成。
         UUID targetId = StorageServerStub.terminalTargetId(player, state.getStack());
         ItemStack removed = targetId == null ? null : StorageServerStub.extractFromTerminal(player, targetId, 64);
-        AnvilCraft.LOGGER.info("Terminal removeOne: targetId={} removed={}", targetId, removed);
         state.setOutput(removed);
     }
 
@@ -57,7 +55,6 @@ public abstract class TerminalItem extends BundleLikeItem {
         ItemStack other = state.getOther();
         UUID targetId = StorageServerStub.terminalTargetId(player, state.getStack());
         int inserted = targetId == null ? 0 : StorageServerStub.insertIntoTerminal(player, targetId, other, other.getCount());
-        AnvilCraft.LOGGER.info("Terminal insertOne: targetId={} inserted={} of {}", targetId, inserted, other);
         ItemStack remain = other.copy();
         remain.shrink(inserted);
         state.setOutput(remain);

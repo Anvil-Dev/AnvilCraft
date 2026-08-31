@@ -19,7 +19,6 @@ import dev.dubhe.anvilcraft.client.support.GuiRenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.integration.StorageJeiBridge;
-import dev.dubhe.anvilcraft.item.TerminalItem;
 import dev.dubhe.anvilcraft.rpc.StorageInput;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
@@ -1599,14 +1598,6 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 } else {
                     int inventorySlot = this.getInventorySlot(mouseX, mouseY);
                     if (inventorySlot != -1) {
-                        if (this.carried.getItem() instanceof TerminalItem) {
-                            AnvilCraft.LOGGER.info(
-                                "Storage quickCraft single click on inventory slot {} button {} carried={}",
-                                inventorySlot,
-                                button,
-                                this.carried
-                            );
-                        }
                         this.minecraft.gameMode.handleInventoryMouseClick(
                             this.player.inventoryMenu.containerId,
                             this.getScreenSlot(inventorySlot),

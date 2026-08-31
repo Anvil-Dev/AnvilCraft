@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.item;
 
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.rpc.BundleLikeServerStub;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -55,22 +54,8 @@ public abstract class BundleLikeItem extends Item {
             } else {
                 result = action == BundleLikeItem.computeValidAction(ClickAction.PRIMARY, player);
             }
-            AnvilCraft.LOGGER.info(
-                "BundleLike client-side: action={} slotItem={} carried={} result={}",
-                action,
-                other,
-                stack,
-                result
-            );
             return result;
         }
-        AnvilCraft.LOGGER.info(
-            "BundleLike overrideStackedOnOther: type={} action={} slotItem={} carried={}",
-            TransferType.BUNDLE_HOVER_ITEM,
-            action,
-            slot.getItem(),
-            stack
-        );
         if (!slot.allowModification(serverPlayer)) return false;
         ItemStack other = slot.getItem();
         TransferState state = new TransferState(TransferType.BUNDLE_HOVER_ITEM, serverPlayer, other.copy(), stack.copy());

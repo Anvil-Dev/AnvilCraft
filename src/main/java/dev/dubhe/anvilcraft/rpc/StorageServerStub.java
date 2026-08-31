@@ -6,7 +6,6 @@ import dev.anvilcraft.lib.v2.rpc.CallableParam;
 import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
-import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
@@ -1600,6 +1599,7 @@ public final class StorageServerStub {
 
     /**
      * 从终端目标存储取出排序第一的物品（供创造背包等纯客户端菜单的 BundleLike 取出）。
+     * 按触发玩家的 PlayerSetting 排序（SortMode + OrderMode）取第一个。
      *
      * @return carried=取出的物品；changed=false 表示取出失败（无绑定/不可达/存储空），
      *         客户端应放回终端（vanilla fallback 语义）
@@ -1611,7 +1611,6 @@ public final class StorageServerStub {
         int amount,
         @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack terminalStack
     ) {
-        AnvilCraft.LOGGER.info("terminalExtractFirst: player={} target={} amount={}", playerId, targetId, amount);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         UUID playerUuid = player.getGameProfile().getId();
         // 创造模式指针物品由客户端本地管理，服务端背包/指针可能没有该终端，
@@ -1622,7 +1621,28 @@ public final class StorageServerStub {
         if (!StorageServerStub.terminalTargetReachable(player, targetId)) {
             return new InteractionResult(ItemStack.EMPTY, false);
         }
-        ItemStack extracted = StorageServerStub.extractFromTerminal(player, targetId, amount);
+        HolderLookup.Provider registries = StorageServerStub.getAndClear();
+        StorageView view = new StorageView(StorageServerStub.terminalStorages(player, targetId), List.of());
+        if (view.size() <= 0) {
+            return new InteractionResult(ItemStack.EMPTY, false);
+        }
+        PlayerSetting setting = PlayerSettings.getSetting(registries, playerId);
+        StorageSetting storage = setting.storage();
+        SortOptions options = new SortOptions(storage.getSort(), storage.getOrder());
+        IntList order = StorageServerStub.createOrder(view, options, "", setting.listed());
+        ItemStack extracted = ItemStack.EMPTY;
+        for (int i = 0; i < order.size() && extracted.isEmpty(); i++) {
+            int index = order.getInt(i);
+            long stackAmount = view.amount(index);
+            if (stackAmount <= 0) {
+                continue;
+            }
+            int take = (int) Math.min(amount, stackAmount);
+            int got = view.extract(index, take);
+            if (got > 0) {
+                extracted = view.resource(index).copyWithCount(got);
+            }
+        }
         if (extracted.isEmpty()) {
             return new InteractionResult(ItemStack.EMPTY, false);
         }
@@ -1641,7 +1661,6 @@ public final class StorageServerStub {
         @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack stack,
         @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack terminalStack
     ) {
-        AnvilCraft.LOGGER.info("terminalInsertFirst: player={} target={} stack={}", playerId, targetId, stack);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         UUID playerUuid = player.getGameProfile().getId();
         // 同上：以客户端上报的指针终端为准校验持有关系
@@ -3046,7 +3065,13 @@ public final class StorageServerStub {
                 return false;
             }
             // args 尾部必须带客户端上报的指针终端（terminalStack），方法体内做真实持有校验
-            return args[args.length - 1] instanceof ItemStack terminalStack && !terminalStack.isEmpty();
+            boolean valid = args[args.length - 1] instanceof ItemStack terminalStack && !terminalStack.isEmpty();
+            if (valid) {
+                // 与 StorageAccessValidator 一致：方法体（terminalExtractFirst 等）需要
+                // registries 构造 StorageView / 读 PlayerSetting
+                StorageServerStub.REGISTRIES.set(ctx.player().registryAccess());
+            }
+            return valid;
         }
     }
 
