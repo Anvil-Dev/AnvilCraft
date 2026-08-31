@@ -6,6 +6,7 @@ import dev.anvilcraft.lib.v2.rpc.CallableParam;
 import dev.anvilcraft.lib.v2.rpc.IRemoteCallableValidator;
 import dev.anvilcraft.lib.v2.rpc.RemoteCallable;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.TypeLimitItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
@@ -1598,6 +1599,69 @@ public final class StorageServerStub {
     }
 
     /**
+     * 从终端目标存储取出排序第一的物品（供创造背包等纯客户端菜单的 BundleLike 取出）。
+     *
+     * @return carried=取出的物品；changed=false 表示取出失败（无绑定/不可达/存储空），
+     *         客户端应放回终端（vanilla fallback 语义）
+     */
+    @RemoteCallable(validator = CreativeTerminalAccessValidator.class)
+    public static InteractionResult terminalExtractFirst(
+        UUID playerId,
+        UUID targetId,
+        int amount,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack terminalStack
+    ) {
+        AnvilCraft.LOGGER.info("terminalExtractFirst: player={} target={} amount={}", playerId, targetId, amount);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        UUID playerUuid = player.getGameProfile().getId();
+        // 创造模式指针物品由客户端本地管理，服务端背包/指针可能没有该终端，
+        // 以客户端上报的指针终端为准校验持有关系
+        if (!StorageServerStub.isBoundTerminal(terminalStack, targetId, playerUuid)) {
+            return new InteractionResult(ItemStack.EMPTY, false);
+        }
+        if (!StorageServerStub.terminalTargetReachable(player, targetId)) {
+            return new InteractionResult(ItemStack.EMPTY, false);
+        }
+        ItemStack extracted = StorageServerStub.extractFromTerminal(player, targetId, amount);
+        if (extracted.isEmpty()) {
+            return new InteractionResult(ItemStack.EMPTY, false);
+        }
+        // 创造模式下客户端指针由本地管理，不能 broadcastChanges——会把服务端
+        // carried（空）广播回客户端导致指针被清空；槽位由客户端 RPC 回调写回。
+        player.getInventory().setChanged();
+        return new InteractionResult(extracted, true);
+    }
+
+    /** 把物品放入终端目标存储，返回剩余（放不下的部分，供客户端放回槽位）。 */
+    @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC")
+    @RemoteCallable(validator = CreativeTerminalAccessValidator.class)
+    public static ItemStack terminalInsertFirst(
+        UUID playerId,
+        UUID targetId,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack stack,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack terminalStack
+    ) {
+        AnvilCraft.LOGGER.info("terminalInsertFirst: player={} target={} stack={}", playerId, targetId, stack);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        UUID playerUuid = player.getGameProfile().getId();
+        // 同上：以客户端上报的指针终端为准校验持有关系
+        if (!StorageServerStub.isBoundTerminal(terminalStack, targetId, playerUuid)) {
+            return stack.copy();
+        }
+        if (stack.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        int inserted = StorageServerStub.insertIntoTerminal(player, targetId, stack, stack.getCount());
+        ItemStack remain = stack.copy();
+        remain.shrink(inserted);
+        if (inserted > 0) {
+            // 同上：不 broadcastChanges，避免服务端空 carried 清空客户端指针
+            player.getInventory().setChanged();
+        }
+        return remain;
+    }
+
+    /**
      * 从一组存储中按背包当前缺口提取 needs 中每种物品，补入玩家背包。
      * 实际补入的数量累加到 {@code withdrawn}（同一物品合并计数）。
      */
@@ -1821,10 +1885,13 @@ public final class StorageServerStub {
 
     private static boolean ownsBoundTerminal(ServerPlayer player, UUID storageId) {
         UUID playerId = player.getGameProfile().getId();
-        boolean holdsLocal = false;
-        boolean holdsShulker = false;
         if (StorageServerStub.isBoundTerminal(player.getMainHandItem(), storageId, playerId)) return true;
         if (StorageServerStub.isBoundTerminal(player.getOffhandItem(), storageId, playerId)) return true;
+        boolean holdsLocal = false;
+        boolean holdsShulker = false;
+        // 创造模式指针物品由客户端本地管理（ItemPickerMenu 纯客户端，不进服务端背包），
+        // 终端捏在指针上时服务端背包里没有它，需额外检查指针。
+        if (StorageServerStub.isBoundTerminal(player.containerMenu.getCarried(), storageId, playerId)) return true;
         for (ItemStack stack : player.getInventory().items) {
             if (StorageServerStub.isBoundTerminal(stack, storageId, playerId)) return true;
             if (stack.is(ModItems.LOCAL_TERMINAL)) holdsLocal = true;
@@ -1851,6 +1918,22 @@ public final class StorageServerStub {
         if (!stack.is(ModItems.HYPERDIMENSION_TERMINAL)) return false;
         TerminalBinding binding = stack.get(ModComponents.TERMINAL_BINDING);
         return binding != null && binding.id().isPresent() && binding.id().get().equals(storageId);
+    }
+
+    /**
+     * 客户端安全（无服务端 API）的终端绑定检查：超维终端必须有绑定 ID；
+     * 本地/潜影终端总是有可解析目标，返回 true。供 BundleLike 客户端预测
+     * 判断"取出是否可能"（存储是否为空无法在客户端得知，由服务端决定）。
+     */
+    public static boolean isBoundTerminalClientSafe(ItemStack stack) {
+        if (stack.is(ModItems.LOCAL_TERMINAL) || stack.is(ModItems.SHULKER_TERMINAL)) {
+            return true;
+        }
+        if (!stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
+            return false;
+        }
+        TerminalBinding binding = stack.get(ModComponents.TERMINAL_BINDING);
+        return binding != null && binding.id().isPresent();
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -2941,6 +3024,29 @@ public final class StorageServerStub {
                 return true;
             }
             return false;
+        }
+    }
+
+    /**
+     * 创造背包等纯客户端菜单的终端 BundleLike RPC 校验：
+     * 仅校验玩家身份与参数形态，终端持有关系由方法体用客户端上报的指针终端
+     * （terminalStack）校验——创造模式下指针物品由客户端本地管理，服务端背包
+     * 与 carried 都没有该终端，TerminalAccessValidator 会误拒。
+     */
+    public static final class CreativeTerminalAccessValidator implements IRemoteCallableValidator {
+        @Override
+        public boolean validate(IPayloadContext ctx, Method method, Object[] args) {
+            if (
+                !(ctx.player() instanceof ServerPlayer player)
+                || args.length < 3
+                || !(args[0] instanceof UUID playerId)
+                || !player.getGameProfile().getId().equals(playerId)
+                || !(args[1] instanceof UUID storageId)
+            ) {
+                return false;
+            }
+            // args 尾部必须带客户端上报的指针终端（terminalStack），方法体内做真实持有校验
+            return args[args.length - 1] instanceof ItemStack terminalStack && !terminalStack.isEmpty();
         }
     }
 

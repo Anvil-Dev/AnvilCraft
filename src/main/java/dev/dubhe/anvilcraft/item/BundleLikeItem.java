@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.item;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.rpc.BundleLikeServerStub;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.SlotAccess;
@@ -38,24 +40,55 @@ public abstract class BundleLikeItem extends Item {
 
     @Override
     public boolean overrideStackedOnOther(ItemStack stack, Slot slot, ClickAction action, Player player) {
-        if (!slot.allowModification(player)) return false;
+        if (!(player instanceof ServerPlayer serverPlayer)) {
+            // 客户端预测执行（Render thread）：真实处理在服务端 clicked 中执行。
+            // 仅当本次操作确实是 BundleLike 且子类允许（如终端有绑定且存储有物品可取出）
+            // 时才放行（返回 true 阻止 vanilla fallback 把终端放回槽、避免点击包携带的
+            // carried 变空导致服务端无法执行）；其余（空槽+左键放回、有物品+右键交换、
+            // 无绑定/无物品可取时）返回 false 交给 vanilla fallback，与 BundleItem 语义一致。
+            ItemStack other = slot.getItem();
+            TransferState state = new TransferState(TransferType.BUNDLE_HOVER_ITEM, player, other.copy(), stack.copy());
+            boolean result;
+            if (other.isEmpty()) {
+                result = action == BundleLikeItem.computeValidAction(ClickAction.SECONDARY, player)
+                    && this.canRemoveOne(state);
+            } else {
+                result = action == BundleLikeItem.computeValidAction(ClickAction.PRIMARY, player);
+            }
+            AnvilCraft.LOGGER.info(
+                "BundleLike client-side: action={} slotItem={} carried={} result={}",
+                action,
+                other,
+                stack,
+                result
+            );
+            return result;
+        }
+        AnvilCraft.LOGGER.info(
+            "BundleLike overrideStackedOnOther: type={} action={} slotItem={} carried={}",
+            TransferType.BUNDLE_HOVER_ITEM,
+            action,
+            slot.getItem(),
+            stack
+        );
+        if (!slot.allowModification(serverPlayer)) return false;
         ItemStack other = slot.getItem();
-        TransferState state = new TransferState(TransferType.BUNDLE_HOVER_ITEM, player, other.copy(), stack.copy());
+        TransferState state = new TransferState(TransferType.BUNDLE_HOVER_ITEM, serverPlayer, other.copy(), stack.copy());
         if (other.isEmpty()) {
             if (!this.canRemoveOne(state)) return false;
-            if (action != BundleLikeItem.computeValidAction(ClickAction.SECONDARY, player)) return false;
+            if (action != BundleLikeItem.computeValidAction(ClickAction.SECONDARY, serverPlayer)) return false;
             this.removeOne(state);
             ItemStack removed = state.output;
             if (removed == null || removed.isEmpty()) return false;
             slot.set(removed);
-            this.playRemoveOneSound(player);
+            this.playRemoveOneSound(serverPlayer);
         } else {
-            if (action != BundleLikeItem.computeValidAction(ClickAction.PRIMARY, player)) return false;
+            if (action != BundleLikeItem.computeValidAction(ClickAction.PRIMARY, serverPlayer)) return false;
             this.insertOne(state);
             ItemStack remain = state.output;
             if (remain == null) return false;
             slot.set(remain);
-            this.playInsertSound(player);
+            this.playInsertSound(serverPlayer);
         }
         this.updateStack(stack, state);
         return true;

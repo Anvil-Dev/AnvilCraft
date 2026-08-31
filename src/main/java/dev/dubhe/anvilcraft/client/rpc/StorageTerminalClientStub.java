@@ -144,6 +144,34 @@ public final class StorageTerminalClientStub {
         );
     }
 
+    /** 从终端目标存储取出排序第一的物品（纯客户端菜单场景的 BundleLike 取出）。 */
+    public static CompletableFuture<StorageServerStub.InteractionResult> extractFirst(
+        UUID targetId,
+        int amount,
+        ItemStack terminalStack
+    ) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::terminalExtractFirst,
+            StorageTerminalClientStub.playerId(),
+            targetId,
+            amount,
+            terminalStack
+        );
+    }
+
+    /** 把物品放入终端目标存储，返回剩余（纯客户端菜单场景的 BundleLike 放入）。 */
+    public static CompletableFuture<ItemStack> insertFirst(UUID targetId, ItemStack stack, ItemStack terminalStack) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::terminalInsertFirst,
+            StorageTerminalClientStub.playerId(),
+            targetId,
+            stack,
+            terminalStack
+        );
+    }
+
     public static void clear() {
         StorageTerminalClientStub.VIRTUAL_POS_CACHE.clear();
     }
