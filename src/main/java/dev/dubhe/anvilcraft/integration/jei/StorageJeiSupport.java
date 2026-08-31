@@ -27,6 +27,7 @@ import net.minecraft.world.item.crafting.StonecutterRecipe;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 /**
  * 仓储界面（{@link StorageScreen}）的 JEI 支持（仅在 JEI 安装时由
@@ -42,7 +43,7 @@ import java.util.Optional;
  * </ul>
  */
 public final class StorageJeiSupport {
-    private static IJeiRuntime runtime;
+    private static @Nullable IJeiRuntime runtime;
 
     private StorageJeiSupport() {
     }
@@ -87,6 +88,7 @@ public final class StorageJeiSupport {
     }
 
     /** 当前屏幕是否为仓储界面。 */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     private static boolean isStorageScreen() {
         return Minecraft.getInstance().screen instanceof StorageScreen;
     }
@@ -140,7 +142,7 @@ public final class StorageJeiSupport {
         }
 
         @Override
-        public IRecipeTransferError transferRecipe(
+        public @Nullable IRecipeTransferError transferRecipe(
             InventoryMenu container,
             RecipeHolder<StonecutterRecipe> recipe,
             IRecipeSlotsView recipeSlots,
@@ -184,7 +186,7 @@ public final class StorageJeiSupport {
         }
 
         @Override
-        public IRecipeTransferError transferRecipe(
+        public @Nullable IRecipeTransferError transferRecipe(
             InventoryMenu container,
             RecipeHolder<CraftingRecipe> recipe,
             IRecipeSlotsView recipeSlots,

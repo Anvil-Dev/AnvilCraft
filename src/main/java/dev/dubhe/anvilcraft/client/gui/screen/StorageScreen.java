@@ -137,6 +137,7 @@ public class StorageScreen extends Screen {
     private static final int FLYOUT_HOLD_TICKS = 25;
     private static final int FLYOUT_FADE_OUT_TICKS = 5;
     private final Minecraft minecraft;
+    @Getter
     private final BlockPos sourcePos;
     private final Player player;
     private final boolean tracksOpenState;
@@ -2246,11 +2247,6 @@ public class StorageScreen extends Screen {
 
     public int getTopPos() {
         return this.top;
-    }
-
-    /** 当前打开的存储方块位置。 */
-    public BlockPos getSourcePos() {
-        return this.sourcePos;
     }
 
     public int getImageWidth() {
