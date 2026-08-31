@@ -607,8 +607,8 @@ public class WheelLifecycleEventListener {
             BlockState state = WheelLifecycleEventListener.hammerWheelNextBlockState;
             Supplier<Boolean> hammerInteraction = WheelLifecycleEventListener.hammerInteraction;
             if (
-                client.level.getGameTime() - WheelLifecycleEventListener.hammerKeyTime <= 4 &&
-                targetPos != null && state != null && hammerInteraction != null
+                client.level.getGameTime() - WheelLifecycleEventListener.hammerKeyTime <= 4
+                && targetPos != null && state != null && hammerInteraction != null
             ) {
                 // On single right-click
                 if (!hammerInteraction.get()) {
