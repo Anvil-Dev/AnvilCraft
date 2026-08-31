@@ -77,6 +77,7 @@ public abstract class ResonatorItem extends Item implements IItemTooltipProvider
                 .attributes(ResonatorItem.createAttributes(material, attackDamage, attackSpeed))
                 .component(DataComponents.TOOL, ResonatorItem.createToolProperties(material))
                 .component(DataComponents.WEAPON, new Weapon(2, 0.0F))
+                .durability(material.durability()).repairable(material.repairItems()).enchantable(material.enchantmentValue())
         );
         this.material = material;
         this.attackDamage = attackDamage;

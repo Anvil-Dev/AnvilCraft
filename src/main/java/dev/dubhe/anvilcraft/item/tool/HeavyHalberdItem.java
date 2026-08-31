@@ -82,6 +82,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
                 .component(DataComponents.TOOL, HeavyHalberdItem.createToolProperties(material))
                 .component(DataComponents.WEAPON, new Weapon(1))
                 .component(ModComponents.HEAVY_HALBERD_MODE, HeavyHalberdMode.TRIDENT)
+                .durability(material.durability()).repairable(material.repairItems()).enchantable(material.enchantmentValue())
                 .rarity(Rarity.EPIC)
         );
         this.material = material;
