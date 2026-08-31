@@ -1,11 +1,11 @@
 [versions]
 minecraft = "1.21.1"
-neoForge = "21.1.219"
+neoForge = "21.1.238"
 
 anvillib = "2.0.0+snapshot.516"
 ageratum = "0.0.1+build.111"
 
-jei = "19.32.0.358"
+jei = "19.50.0.414"
 jade = "15.10.5+neoforge"
 mekanism = "10.7.19.85"
 parchment = "2024.11.17"

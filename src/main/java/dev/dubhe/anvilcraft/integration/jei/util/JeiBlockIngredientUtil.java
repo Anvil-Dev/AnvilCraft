@@ -25,6 +25,8 @@ import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.navigation.ScreenPosition;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -144,6 +146,7 @@ public final class JeiBlockIngredientUtil {
         return defaultScale;
     }
 
+    @SuppressWarnings("removal")
     private record TransparentItemRenderer(int width, int height) implements IIngredientRenderer<ItemStack> {
         @Override
         public void render(GuiGraphics guiGraphics, ItemStack ingredient) {
@@ -154,6 +157,11 @@ public final class JeiBlockIngredientUtil {
             Minecraft minecraft = Minecraft.getInstance();
             Item.TooltipContext context = Item.TooltipContext.of(minecraft.level);
             return ingredient.getTooltipLines(context, minecraft.player, tooltipFlag);
+        }
+
+        @Override
+        public List<Component> getTooltip(ItemStack ingredient, Item.TooltipContext context, Player player, TooltipFlag tooltipFlag) {
+            return ingredient.getTooltipLines(context, player, tooltipFlag);
         }
 
         @Override
@@ -198,6 +206,16 @@ public final class JeiBlockIngredientUtil {
         @Override
         public Optional<ITypedIngredient<?>> getDisplayedIngredient() {
             return this.delegate.getDisplayedIngredient();
+        }
+
+        @Override
+        public Stream<ITypedIngredient<?>> getDisplayedIngredients() {
+            return this.delegate.getDisplayedIngredient().stream();
+        }
+
+        @Override
+        public Optional<TagKey<?>> getTagKey() {
+            return Optional.empty();
         }
 
         @Override
