@@ -1151,14 +1151,15 @@ public final class StorageServerStub {
         UUID playerId,
         long sourcePos,
         boolean stonecutter,
-        @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC") List<ItemStack> inputs
+        @CallableParam(clazz = StorageServerStub.class, field = "ITEM_STACK_LIST_STREAM_CODEC") List<ItemStack> inputs,
+        @CallableParam(clazz = ItemStack.class, field = "OPTIONAL_STREAM_CODEC") ItemStack stonecutterResult
     ) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
         CraftingStorage crafting = target.read();
         Inventory inventory = player.getInventory();
         if (stonecutter) {
-            // ①：取第一个非空输入，从背包找同种物品放入（数量不足放已有的量）
+            // ①：取第一个非空输入，从背包/存储找同种物品放入（数量不足放已有的量）
             ItemStack wanted = ItemStack.EMPTY;
             for (ItemStack input : inputs) {
                 if (!input.isEmpty()) {
@@ -1169,8 +1170,8 @@ public final class StorageServerStub {
             if (wanted.isEmpty()) {
                 return false;
             }
-            int placed = StorageServerStub.transferFromInventory(
-                inventory, wanted, crafting.stonecutterInput(), 64, player
+            int placed = StorageServerStub.transferMaterial(
+                target, inventory, wanted, crafting.stonecutterInput(), 64, player
             );
             if (placed > 0) {
                 ItemStack newInput = crafting.stonecutterInput();
@@ -1180,12 +1181,27 @@ public final class StorageServerStub {
                     newInput = newInput.copy();
                     newInput.grow(placed);
                 }
-                target.write(crafting.withStonecutterInput(newInput));
+                // 转移时同步选中配方：按 JEI 传入的产物匹配切石机配方列表；
+                // 未传或匹配不到时保持原选中（不改动）
+                int selected = crafting.stonecutterSelected();
+                if (!stonecutterResult.isEmpty()) {
+                    List<RecipeHolder<StonecutterRecipe>> recipes = player.level().getRecipeManager()
+                        .getRecipesFor(RecipeType.STONECUTTING, new SingleRecipeInput(newInput), player.level());
+                    for (int i = 0; i < recipes.size(); i++) {
+                        ItemStack result = recipes.get(i).value()
+                            .assemble(new SingleRecipeInput(newInput), player.level().registryAccess());
+                        if (ItemStack.isSameItemSameComponents(result, stonecutterResult)) {
+                            selected = i;
+                            break;
+                        }
+                    }
+                }
+                target.write(crafting.withStonecutterInput(newInput).withStonecutterSelected(selected));
                 return true;
             }
             return false;
         }
-        // ②：按 9 宫格顺序放入（每个槽从背包找对应物品）
+        // ②：按 9 宫格顺序放入（每个槽从背包/存储找对应物品）
         List<ItemStack> grid = new ArrayList<>(crafting.craftingInput());
         boolean changed = false;
         for (int i = 0; i < 9; i++) {
@@ -1196,8 +1212,8 @@ public final class StorageServerStub {
             int slotMax = grid.get(i).isEmpty()
                 ? wanted.getMaxStackSize()
                 : Math.min(wanted.getMaxStackSize(), grid.get(i).getMaxStackSize());
-            int placed = StorageServerStub.transferFromInventory(
-                inventory, wanted, grid.get(i), slotMax, player
+            int placed = StorageServerStub.transferMaterial(
+                target, inventory, wanted, grid.get(i), slotMax, player
             );
             if (placed > 0) {
                 ItemStack current = grid.get(i);
@@ -1215,6 +1231,68 @@ public final class StorageServerStub {
             target.write(crafting.withCraftingInput(grid));
         }
         return changed;
+    }
+
+    /**
+     * 从玩家背包找与 wanted 同种的物品移动到目标槽（同种堆叠或空槽放入），
+     * 背包不足时从目标存储站（若有）提取补足，返回实际放置数量（0 表示没有）。
+     */
+    private static int transferMaterial(
+        StorageServerStub.CraftingTarget target,
+        Inventory inventory,
+        ItemStack wanted,
+        ItemStack current,
+        int maxCount,
+        ServerPlayer player
+    ) {
+        int placed = StorageServerStub.transferFromInventory(inventory, wanted, current, maxCount, player);
+        if (placed > 0 || maxCount <= 0) {
+            return placed;
+        }
+        StorageView view = target.view();
+        if (view == null) {
+            return 0;
+        }
+        // 空槽：从存储找同种物品提取，补足到上限；已有同种则只补差量
+        if (current.isEmpty()) {
+            for (int index = 0; index < view.size(); index++) {
+                if (
+                    view.amount(index) <= 0
+                    || !ItemStack.isSameItemSameComponents(view.resource(index), wanted)
+                ) {
+                    continue;
+                }
+                int want = Math.min(wanted.getCount(), maxCount);
+                int extracted = view.extract(index, want);
+                if (extracted <= 0) {
+                    continue;
+                }
+                return extracted;
+            }
+            return 0;
+        }
+        // 已有同种：只补足到上限（storage 侧补差量）
+        if (!ItemStack.isSameItemSameComponents(current, wanted)) {
+            return 0;
+        }
+        int space = maxCount - current.getCount();
+        if (space <= 0) {
+            return 0;
+        }
+        for (int index = 0; index < view.size(); index++) {
+            if (
+                view.amount(index) <= 0
+                || !ItemStack.isSameItemSameComponents(view.resource(index), wanted)
+            ) {
+                continue;
+            }
+            int extracted = view.extract(index, Math.min(space, wanted.getCount()));
+            if (extracted <= 0) {
+                continue;
+            }
+            return extracted;
+        }
+        return 0;
     }
 
     /**

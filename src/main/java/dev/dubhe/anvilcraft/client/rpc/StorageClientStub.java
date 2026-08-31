@@ -327,11 +327,13 @@ public final class StorageClientStub {
         );
     }
 
-    /** JEI 转移：把配方输入放入 ①/② 输入槽（材料从背包扣取）。 */
+    /** JEI 转移：把配方输入放入 ①/② 输入槽（材料从背包/存储扣取）。
+     *  {@code stonecutterResult}：切石机场景传 JEI 当前配方产物，服务端据此选中配方；否则为 EMPTY。 */
     public static CompletableFuture<Boolean> craftingTransfer(
         BlockPos sourcePos,
         boolean stonecutter,
-        List<ItemStack> inputs
+        List<ItemStack> inputs,
+        ItemStack stonecutterResult
     ) {
         return RPC.invoke(
             RpcTarget.server(),
@@ -339,7 +341,8 @@ public final class StorageClientStub {
             StorageClientStub.playerId(),
             sourcePos.asLong(),
             stonecutter,
-            inputs
+            inputs,
+            stonecutterResult
         );
     }
 

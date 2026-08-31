@@ -346,7 +346,8 @@ public class ClientEventListener {
             return;
         }
 
-        // 该事件仅对 AbstractContainerScreen 触发，StorageScreen 非其子类，无需额外排除。
+        // 该事件仅对调用 super.render 的 AbstractContainerScreen 触发；StorageScreen
+        // 全量自绘（不调用 super.render），不会触发本事件，无需额外排除。
         // 浮窗的显示/隐藏仅取决于鼠标是否仍在绑定终端槽位上：取出后指针非空时若立即
         // 关闭浮窗会清空 storageId 与已加载内容，导致后续点击无法取出/放入，
         // 因此指针是否为空不参与判定（取出/放入由点击处理按 carried 区分）。
