@@ -1352,6 +1352,54 @@ public final class StorageServerStub {
     }
 
     /**
+     * 清空合成格（① 切石机输入 + ② 合成 9 宫格）：物品先放回玩家背包，
+     * 背包放不下时放回存储站，返回清空后的合成数据。
+     */
+    private static CraftingStorage clearCrafting(
+        StorageServerStub.CraftingTarget target,
+        CraftingStorage crafting,
+        Inventory inventory
+    ) {
+        ItemStack stonecutterInput = crafting.stonecutterInput();
+        List<ItemStack> grid = crafting.craftingInput();
+        boolean hasAny = !stonecutterInput.isEmpty()
+            || grid.stream().anyMatch(stack -> !stack.isEmpty());
+        if (!hasAny) {
+            return crafting;
+        }
+        StorageView view = target.view();
+        if (!stonecutterInput.isEmpty()) {
+            StorageServerStub.returnToInventoryOrStorage(inventory, view, stonecutterInput);
+        }
+        for (ItemStack stack : grid) {
+            if (!stack.isEmpty()) {
+                StorageServerStub.returnToInventoryOrStorage(inventory, view, stack);
+            }
+        }
+        List<ItemStack> emptyGrid = java.util.Collections.nCopies(CraftingStorage.CRAFTING_GRID_SIZE, ItemStack.EMPTY);
+        CraftingStorage cleared = crafting
+            .withStonecutterInput(ItemStack.EMPTY)
+            .withCraftingInput(emptyGrid);
+        target.write(cleared);
+        return cleared;
+    }
+
+    /** 把物品放回玩家背包，背包放不下时放回存储站。 */
+    private static void returnToInventoryOrStorage(
+        Inventory inventory,
+        @Nullable StorageView view,
+        ItemStack stack
+    ) {
+        if (stack.isEmpty()) {
+            return;
+        }
+        int remaining = StorageServerStub.giveBackToInventory(inventory, stack, stack.getCount());
+        if (remaining > 0 && view != null) {
+            view.insert(stack.copyWithCount(remaining), remaining);
+        }
+    }
+
+    /**
      * JEI 转移：把配方输入放入 ①/② 输入槽，材料从玩家背包扣取（与 JEI 转移语义一致）。
      * stonecutter=true 时只放 ①（inputs 的第一个非空物品）；false 时把 inputs 按 9 宫格
      * 顺序放入 ②（数量不足的槽放背包中已有的量，没有则留空）。
@@ -1371,6 +1419,7 @@ public final class StorageServerStub {
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
         CraftingStorage crafting = target.read();
         Inventory inventory = player.getInventory();
+        crafting = StorageServerStub.clearCrafting(target, crafting, inventory);
         if (stonecutter) {
             // ①：把背包内所有同种物品转移进①（受上限约束），不只放一个
             if (!inputs.isEmpty() && !inputs.getFirst().isEmpty()) {
@@ -1631,18 +1680,20 @@ public final class StorageServerStub {
         return moved;
     }
 
-    /** 把 count 个 wanted 放回玩家背包（供材料不足一组时回滚）。 */
-    private static void giveBackToInventory(Inventory inventory, ItemStack wanted, int count) {
+    /** 把 count 个 wanted 放回玩家背包，返回未能放入的剩余数量。 */
+    private static int giveBackToInventory(Inventory inventory, ItemStack wanted, int count) {
         if (count <= 0) {
-            return;
+            return 0;
         }
         ItemStack toReturn = wanted.copy();
         toReturn.setCount(count);
         for (int i = 0; i < inventory.getContainerSize() && !toReturn.isEmpty(); i++) {
             ItemStack stack = inventory.getItem(i);
             if (stack.isEmpty()) {
-                inventory.setItem(i, toReturn.copy());
-                return;
+                int chunk = Math.min(toReturn.getCount(), wanted.getMaxStackSize());
+                inventory.setItem(i, wanted.copyWithCount(chunk));
+                toReturn.shrink(chunk);
+                continue;
             }
             if (ItemStack.isSameItemSameComponents(stack, wanted)) {
                 int space = stack.getMaxStackSize() - stack.getCount();
@@ -1653,6 +1704,7 @@ public final class StorageServerStub {
                 }
             }
         }
+        return toReturn.getCount();
     }
 
     /**

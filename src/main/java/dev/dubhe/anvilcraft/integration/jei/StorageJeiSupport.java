@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.client.gui.screen.StorageMenu;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.integration.StorageJeiBridge;
+import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import mezz.jei.api.constants.RecipeTypes;
@@ -197,7 +198,11 @@ public final class StorageJeiSupport {
         return helper.createUserErrorForMissingSlots(message, missing);
     }
 
-    /** 玩家背包 + 当前存储站（客户端缓存）中与 target 同种同组件物品的总数量。 */
+    /**
+     * 玩家背包 + 当前存储站（客户端缓存）中与 target 同种同组件物品的总数量。
+     * 合成格（① 切石机输入 + ② 9 宫格）内已有物品也算作可转移材料：转移前
+     * 服务端会先清空合成格，这些物品回到背包/存储后参与新配方的填充。
+     */
     private static long availableCount(Player player, @Nullable StorageScreen screen, ItemStack target) {
         if (target.isEmpty()) {
             return Long.MAX_VALUE;
@@ -212,6 +217,16 @@ public final class StorageJeiSupport {
         if (screen != null) {
             for (UnlimitedItemStack stack : screen.getContents().values()) {
                 if (!stack.isEmpty() && ItemStack.isSameItemSameComponents(stack.toStack(), target)) {
+                    count += stack.getCount();
+                }
+            }
+            CraftingStorage crafting = screen.getCrafting();
+            ItemStack stonecutterInput = crafting.stonecutterInput();
+            if (ItemStack.isSameItemSameComponents(stonecutterInput, target)) {
+                count += stonecutterInput.getCount();
+            }
+            for (ItemStack stack : crafting.craftingInput()) {
+                if (ItemStack.isSameItemSameComponents(stack, target)) {
                     count += stack.getCount();
                 }
             }
@@ -288,16 +303,14 @@ public final class StorageJeiSupport {
                 if (item.isEmpty()) {
                     continue;
                 }
-                // 存储格数量可超过 ItemStack 上限（64）：按 maxStackSize 拆成多个虚拟槽，
-                // 避免 JEI 分配出超过合成格上限的份数，同时正确反映可填满多轮的总量。
-                int maxStack = item.getMaxStackSize();
-                int remaining = stack.getCount();
-                while (remaining > 0) {
-                    int chunk = Math.min(remaining, maxStack);
-                    ItemStack virtual = item.copyWithCount(chunk);
-                    availableItemStacks.put(new VirtualSlot(1000 + availableItemStacks.size(), virtual), virtual.copy());
-                    remaining -= chunk;
-                }
+                StorageJeiSupport.addAvailable(item, availableItemStacks);
+            }
+            // 合成格内已有物品也算作可转移材料：转移前服务端会先清空合成格，
+            // 这些物品回到背包/存储后参与新配方的填充。
+            CraftingStorage crafting = screen.getCrafting();
+            StorageJeiSupport.addAvailable(crafting.stonecutterInput(), availableItemStacks);
+            for (ItemStack stack : crafting.craftingInput()) {
+                StorageJeiSupport.addAvailable(stack, availableItemStacks);
             }
         }
         IStackHelper stackHelper = StorageJeiSupport.runtime == null
@@ -336,6 +349,24 @@ public final class StorageJeiSupport {
         }
 
         return result;
+    }
+
+    /**
+     * 把物品加入 JEI 可用池：数量超过 ItemStack 上限时按 maxStackSize 拆成多个虚拟槽，
+     * 避免 JEI 分配出超过合成格上限的份数，同时正确反映可填满多轮的总量。
+     */
+    private static void addAvailable(ItemStack item, Map<Slot, ItemStack> availableItemStacks) {
+        if (item.isEmpty()) {
+            return;
+        }
+        int maxStack = item.getMaxStackSize();
+        int remaining = item.getCount();
+        while (remaining > 0) {
+            int chunk = Math.min(remaining, maxStack);
+            ItemStack virtual = item.copyWithCount(chunk);
+            availableItemStacks.put(new VirtualSlot(1000 + availableItemStacks.size(), virtual), virtual.copy());
+            remaining -= chunk;
+        }
     }
 
     /** 把配方输入放入终端输入槽（异步 RPC，成功后刷新合成面板）。
