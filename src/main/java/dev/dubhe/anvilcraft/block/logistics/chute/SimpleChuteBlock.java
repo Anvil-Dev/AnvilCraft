@@ -224,20 +224,19 @@ public class SimpleChuteBlock
             default -> oldFacing.getClockWise();
         };
         BlockState facingState = level.getBlockState(pos.relative(newFacing));
-        if (facingState.is(ModBlocks.CHUTE.get()) || facingState.is(ModBlocks.SIMPLE_CHUTE.get())) {
-            if (facingState.getValue(SimpleChuteBlock.FACING).getOpposite() == newFacing) {
-                level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
-                level.levelEvent(2001, pos, Block.getId(oldState));
-                Block.dropResources(oldState, level, pos);
-                return true;
-            }
+        if (ChuteBlock.isChuteBlock(facingState)
+            && ChuteBlock.getFacing(facingState) == newFacing.getOpposite()) {
+            level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+            level.levelEvent(2001, pos, Block.getId(oldState));
+            Block.dropResources(oldState, level, pos);
+            return true;
         }
         HammerRotateBehavior.DEFAULT.change(player, pos, level, anvilHammer);
         return true;
     }
 
     @Override
-public Property<?> getChangeableProperty(BlockState blockState) {
+    public Property<?> getChangeableProperty(BlockState blockState) {
         return SimpleChuteBlock.FACING;
     }
 
