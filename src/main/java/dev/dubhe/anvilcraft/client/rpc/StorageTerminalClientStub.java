@@ -118,14 +118,57 @@ public final class StorageTerminalClientStub {
         );
     }
 
-    /** JEI 快速合成补库：从玩家持有的全部终端目标（超维 / 本地 / 潜影）取出缺少的物品补入背包。 */
-    public static CompletableFuture<Boolean> withdrawToInventory(List<UUID> targetIds, List<ItemStack> needs) {
+    /**
+     * JEI 快速合成补库：从玩家持有的全部终端目标（超维 / 本地 / 潜影）取出缺少的物品补入背包。
+     *
+     * @return 实际补入玩家背包的物品及数量（每种物品一份），供 JEI 转移失败时退回
+     */
+    public static CompletableFuture<List<ItemStack>> withdrawToInventory(List<UUID> targetIds, List<ItemStack> needs) {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::terminalWithdrawToInventory,
             StorageTerminalClientStub.playerId(),
             targetIds,
             needs
+        );
+    }
+
+    /** JEI 快速合成补库失败后的回退：把补入但未使用的物品存回玩家绑定的终端存储。 */
+    public static void returnExcess(List<UUID> targetIds, List<ItemStack> stacks) {
+        RPC.call(
+            RpcTarget.server(),
+            StorageServerStub::terminalReturnExcess,
+            StorageTerminalClientStub.playerId(),
+            targetIds,
+            stacks
+        );
+    }
+
+    /** 从终端目标存储取出排序第一的物品（纯客户端菜单场景的 BundleLike 取出）。 */
+    public static CompletableFuture<StorageServerStub.InteractionResult> extractFirst(
+        UUID targetId,
+        int amount,
+        ItemStack terminalStack
+    ) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::terminalExtractFirst,
+            StorageTerminalClientStub.playerId(),
+            targetId,
+            amount,
+            terminalStack
+        );
+    }
+
+    /** 把物品放入终端目标存储，返回剩余（纯客户端菜单场景的 BundleLike 放入）。 */
+    public static CompletableFuture<ItemStack> insertFirst(UUID targetId, ItemStack stack, ItemStack terminalStack) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::terminalInsertFirst,
+            StorageTerminalClientStub.playerId(),
+            targetId,
+            stack,
+            terminalStack
         );
     }
 

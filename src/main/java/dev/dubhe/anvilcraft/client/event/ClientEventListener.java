@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.HammerOpenedAnvilMenu;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
+import dev.dubhe.anvilcraft.item.TerminalItem;
 import dev.dubhe.anvilcraft.network.DragonRodStopDevourPacket;
 import dev.dubhe.anvilcraft.network.OpenHammerAnvilPacket;
 import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
@@ -50,6 +51,22 @@ import javax.annotation.Nullable;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public class ClientEventListener {
     private static boolean wasAttackDown = false;
+
+    /**
+     * 按下时被创造背包 BundleLike 分支消费过的标记：松开时需取消 vanilla
+     * mouseReleased 的第二次 slotClicked（指针有物品时 vanilla 会在松开时
+     * 再执行一次 PICKUP，触发 fallback 交换/放回，与已完成的 RPC 结果冲突）。
+     */
+    private static boolean creativeBundlePressed = false;
+
+    @SubscribeEvent
+    public static void onScreenMouseReleasedTerminal(ScreenEvent.MouseButtonReleased.Pre event) {
+        if (!ClientEventListener.creativeBundlePressed) {
+            return;
+        }
+        ClientEventListener.creativeBundlePressed = false;
+        event.setCanceled(true);
+    }
 
     @SubscribeEvent
     public static void blockHighlight(RenderLevelStageEvent event) {
@@ -230,9 +247,6 @@ public class ClientEventListener {
         final Minecraft minecraft = Minecraft.getInstance();
         if (!(event.getScreen() instanceof AbstractContainerScreen<?> containerScreen)) return;
         if (event.getScreen() instanceof StorageScreen) return;
-        // 创造模式仅标签栏（非槽位区域）不提供终端收纳袋交互；背包槽位内的终端仍可触发
-        if (event.getScreen() instanceof CreativeModeInventoryScreen
-            && containerScreen.getSlotUnderMouse() == null) return;
         if (minecraft.player == null || minecraft.getConnection() == null) return;
         // 同时用渲染帧的 hoveredSlot 与事件坐标定位，避免任一路径漏判
         // （hoveredSlot 滞后或坐标换算偏差都会导致 overTerminal 误判为 false，
@@ -292,9 +306,49 @@ public class ClientEventListener {
             return;
         }
 
+        // 创造背包的 BUNDLE_HOVER_ITEM（捏着终端点击背包/快捷栏槽）：
+        // vanilla 的 slotClicked 只做本地预测（不发网络包），服务端无法执行
+        // TerminalItem 的存储操作。仅拦截 BundleLike 按键（空槽+右键取出 /
+        // 有物品+左键放入），取消事件后走 RPC 完成操作；其余按键（放回/交换）
+        // 放行给 vanilla，保持 BundleItem 语义。
+        if (!containerScreen.getMenu().getCarried().isEmpty()
+            && event.getScreen() instanceof CreativeModeInventoryScreen creative
+            && containerScreen.getMenu().getCarried().getItem() instanceof TerminalItem
+            && slot != null
+            && slot.container == minecraft.player.getInventory()
+        ) {
+            ItemStack carried = containerScreen.getMenu().getCarried();
+            UUID targetId = TerminalRemoteOverlay.terminalIdOf(carried);
+            boolean inverted = InvertedActionEventListener.isInverted();
+            // 仅真正匹配 BundleLike 按键 + 槽内容组合才拦截：
+            // 空槽+右键=取出、有物品+左键=放入；其余（空槽+左键放回、有物品+右键
+            // 交换）放行 vanilla fallback，保证终端能放下/交换。
+            boolean removeClick = ClientEventListener.isBundleClick(event.getButton(), inverted, true)
+                && slot.getItem().isEmpty();
+            boolean insertClick = ClientEventListener.isBundleClick(event.getButton(), inverted, false)
+                && !slot.getItem().isEmpty();
+            if (targetId != null && (removeClick || insertClick)) {
+                ClientEventListener.handleCreativeBundleHover(
+                    creative,
+                    containerScreen,
+                    slot,
+                    event.getButton(),
+                    carried
+                );
+                // 消费本次按下：松开时取消 vanilla 的第二次 slotClicked
+                ClientEventListener.creativeBundlePressed = true;
+                event.setCanceled(true);
+            }
+            return;
+        }
+
         // 浮窗悬停中但鼠标不在终端槽位上（如面板/搜索框区域）：浮窗接管点击，
-        // 交由浮窗处理（聚焦搜索框等），不落到下层 GUI
-        if (TerminalRemoteOverlay.isHovering() && !TerminalRemoteOverlay.isDismissed()) {
+        // 交由浮窗处理（聚焦搜索框等），不落到下层 GUI。
+        // 仅空手时接管：捏着物品（如把终端拖到空槽上取出/放入）时点击是明确的
+        // 拖放意图，应放行给 vanilla（BUNDLE_HOVER_ITEM 路径）。
+        if (containerScreen.getMenu().getCarried().isEmpty()
+            && TerminalRemoteOverlay.isHovering()
+            && !TerminalRemoteOverlay.isDismissed()) {
             TerminalRemoteOverlay.mouseClicked(
                 (int) event.getMouseX(),
                 (int) event.getMouseY(),
@@ -302,6 +356,69 @@ public class ClientEventListener {
             );
             event.setCanceled(true);
         }
+    }
+
+    /**
+     * 创造背包 INVENTORY 标签页的 BUNDLE_HOVER_ITEM（捏着终端点击背包槽）：
+     * vanilla 只做本地预测（不发包），服务端无法执行 TerminalItem 的存储操作，
+     * 这里直接走 RPC：空槽+右键取出存储第一物品放槽，有物品+左键把槽内物品放入存储。
+     */
+    private static void handleCreativeBundleHover(
+        CreativeModeInventoryScreen creative,
+        AbstractContainerScreen<?> screen,
+        Slot slot,
+        int button,
+        ItemStack carried
+    ) {
+        UUID targetId = TerminalRemoteOverlay.terminalIdOf(carried);
+        if (targetId == null) {
+            return;
+        }
+        boolean inverted = InvertedActionEventListener.isInverted();
+        ItemStack slotItem = slot.getItem();
+        if (slotItem.isEmpty()) {
+            // 取出：空槽 + 右键（非 inverted）
+            if (!ClientEventListener.isBundleClick(button, inverted, true)) {
+                return;
+            }
+            StorageTerminalClientStub.extractFirst(targetId, 64, carried).whenComplete((result, error) ->
+                Minecraft.getInstance().execute(() -> {
+                    if (error != null || result == null) {
+                        return;
+                    }
+                    if (!result.changed()) {
+                        // 取不出（无绑定/不可达/存储空）：放回终端（vanilla fallback 语义）
+                        slot.set(carried);
+                        screen.getMenu().setCarried(ItemStack.EMPTY);
+                        screen.getMenu().broadcastChanges();
+                        return;
+                    }
+                    slot.set(result.carried());
+                    screen.getMenu().broadcastChanges();
+                })
+            );
+        } else {
+            // 放入：有物品槽 + 左键（非 inverted）
+            if (!ClientEventListener.isBundleClick(button, inverted, false)) {
+                return;
+            }
+            StorageTerminalClientStub.insertFirst(targetId, slotItem, carried).whenComplete((remain, error) ->
+                Minecraft.getInstance().execute(() -> {
+                    if (error != null || remain == null) {
+                        return;
+                    }
+                    slot.set(remain);
+                    screen.getMenu().broadcastChanges();
+                })
+            );
+        }
+    }
+
+    /** BundleLike 按键判定：取出用右键（inverted 时左键），放入用左键（inverted 时右键）。 */
+    private static boolean isBundleClick(int button, boolean inverted, boolean remove) {
+        boolean wantRemoveClick = inverted ? button == 0 : button == 1;
+        boolean wantInsertClick = inverted ? button == 1 : button == 0;
+        return remove ? wantRemoveClick : wantInsertClick;
     }
 
     /**
@@ -342,7 +459,8 @@ public class ClientEventListener {
             return;
         }
 
-        // 该事件仅对 AbstractContainerScreen 触发，StorageScreen 非其子类，无需额外排除。
+        // 该事件仅对调用 super.render 的 AbstractContainerScreen 触发；StorageScreen
+        // 全量自绘（不调用 super.render），不会触发本事件，无需额外排除。
         // 浮窗的显示/隐藏仅取决于鼠标是否仍在绑定终端槽位上：取出后指针非空时若立即
         // 关闭浮窗会清空 storageId 与已加载内容，导致后续点击无法取出/放入，
         // 因此指针是否为空不参与判定（取出/放入由点击处理按 carried 区分）。

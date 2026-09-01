@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.renderer.item.decoration;
 
+import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.rpc.StorageTerminalClientStub;
 import dev.dubhe.anvilcraft.client.rpc.TerminalReachabilityCache;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -25,6 +26,10 @@ public class TerminalInsertionDecoration implements IItemDecorator {
         }
         // 仅当处于容器 GUI 中、指针捏着物品、且该终端未被捏起时显示“+”
         if (!(minecraft.screen instanceof AbstractContainerScreen<?> containerScreen)) {
+            return false;
+        }
+        // 仓储界面有自己的终端交互体系（右键放入由界面自身处理），不显示此提示
+        if (minecraft.screen instanceof StorageScreen) {
             return false;
         }
         // 用当前屏幕的菜单读取指针：合成台 / 箱子等界面下 player.inventoryMenu 并不是

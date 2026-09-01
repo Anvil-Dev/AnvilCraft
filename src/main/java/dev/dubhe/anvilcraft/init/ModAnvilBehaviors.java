@@ -17,9 +17,9 @@ import dev.dubhe.anvilcraft.anvil.ResetVaultBehavior;
 import dev.dubhe.anvilcraft.anvil.SugarBlockBehavior;
 import dev.dubhe.anvilcraft.anvil.TimeWarpPlayerBehavior;
 import dev.dubhe.anvilcraft.anvil.TranscendiumBehavior;
+import dev.dubhe.anvilcraft.anvil.Upgrade2HyperdimensionStationBehavior;
 import dev.dubhe.anvilcraft.anvil.Upgrade2ShulkerContainerBehavior;
 import dev.dubhe.anvilcraft.anvil.UpgradeShulkerContainerBehavior;
-import dev.dubhe.anvilcraft.anvil.UpgradeToHyperdimensionStationBehavior;
 import dev.dubhe.anvilcraft.api.event.AnvilBehaviorRegisterEvent;
 import dev.dubhe.anvilcraft.block.BlockDevourerBlock;
 import dev.dubhe.anvilcraft.block.BlockPlacerBlock;
@@ -65,7 +65,7 @@ public class ModAnvilBehaviors {
         // 满级潜影集装箱 + 奇点晶体 + 超立方体 → 超维存储站（优先于空间压缩器升级处理）
         event.registerBehavior(
             ModBlocks.SHULKER_CONTAINER.get(),
-            new UpgradeToHyperdimensionStationBehavior()
+            new Upgrade2HyperdimensionStationBehavior()
         );
         event.registerBehavior(ModBlocks.SHULKER_CONTAINER.get(), new UpgradeShulkerContainerBehavior());
     }

@@ -133,6 +133,8 @@ public class ModItemTags {
     public static final TagKey<Item> OIL_BUCKETS = bindC("buckets/oil");
     public static final TagKey<Item> CEMENT_BUCKETS = bindC("buckets/cement");
 
+    public static final TagKey<Item> PLAYER_WORKSTATIONS_STONECUTTERS = bindC("player_workstations/stonecutters");
+
     public static final TagKey<Item> ROYAL_STEEL_PICKAXE_BASE = bind("royal_steel_pickaxe_base");
     public static final TagKey<Item> ROYAL_STEEL_AXE_BASE = bind("royal_steel_axe_base");
     public static final TagKey<Item> ROYAL_STEEL_HOE_BASE = bind("royal_steel_hoe_base");

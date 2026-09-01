@@ -34,11 +34,11 @@ public enum CategoryMode implements StringRepresentable {
         return Component.translatable("screen.anvilcraft.storage.category.mode." + this.getSerializedName());
     }
 
-    public CategoryMode next() {
+    public CategoryMode next(boolean inversed) {
         return switch (this) {
-            case UNLIMITED -> CategoryMode.ALLOWLIST;
-            case ALLOWLIST -> CategoryMode.BLOCKLIST;
-            case BLOCKLIST -> CategoryMode.UNLIMITED;
+            case UNLIMITED -> inversed ? CategoryMode.BLOCKLIST : CategoryMode.ALLOWLIST;
+            case ALLOWLIST -> inversed ? CategoryMode.UNLIMITED : CategoryMode.BLOCKLIST;
+            case BLOCKLIST -> inversed ? CategoryMode.ALLOWLIST : CategoryMode.UNLIMITED;
         };
     }
 }

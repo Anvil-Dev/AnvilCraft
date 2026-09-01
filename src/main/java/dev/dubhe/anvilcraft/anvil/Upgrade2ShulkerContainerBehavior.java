@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
 import dev.dubhe.anvilcraft.saved.storage.ShulkerContainerStorage;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
+import dev.dubhe.anvilcraft.util.AabbUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -23,7 +24,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.AABB;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,11 +40,13 @@ public class Upgrade2ShulkerContainerBehavior implements IAnvilBehavior {
             return false;
         }
 
-        List<ItemEntity> entities = serverLevel.getEntitiesOfClass(ItemEntity.class, new AABB(hitBlockPos.above()));
         ItemEntity spaceOvercompressor = null;
         List<ItemEntity> netheriteBlock = new ArrayList<>();
         int count = 0;
-        for (ItemEntity entity : entities) {
+        for (ItemEntity entity : serverLevel.getEntitiesOfClass(
+            ItemEntity.class,
+            AabbUtil.createInclusive(hitBlockPos, hitBlockPos.above())
+        )) {
             ItemStack stack = entity.getItem();
             if (stack.is(ModBlocks.SPACE_OVERCOMPRESSOR.asItem())) {
                 spaceOvercompressor = entity;
@@ -87,7 +89,7 @@ public class Upgrade2ShulkerContainerBehavior implements IAnvilBehavior {
         }
 
         for (Cube3x3PartHalf half : Cube3x3PartHalf.values()) {
-            serverLevel.setBlock(mainPart.offset(half.getOffset()), Blocks.AIR.defaultBlockState(), Block.UPDATE_NONE);
+            serverLevel.setBlock(mainPart.offset(half.getOffset()), Blocks.AIR.defaultBlockState(), Block.UPDATE_MOVE_BY_PISTON);
         }
 
         serverLevel.setBlock(

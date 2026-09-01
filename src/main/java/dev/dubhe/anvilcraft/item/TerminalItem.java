@@ -17,12 +17,34 @@ public abstract class TerminalItem extends BundleLikeItem {
     }
 
     @Override
+    protected boolean canRemoveOne(BundleLikeItem.TransferState state) {
+        // BUNDLE_HOVER_ITEM（终端拖到空槽上右键）：不检查浮窗选中状态，直接放行，
+        // 取出目标存储中排序第一的物品 / 放入。
+        // ITEM_HOVER_BUNDLE（空手点击终端槽）：服务端不取出，放行 vanilla 拿起终端；
+        // 浮窗内滚轮选中后的取出由客户端 mouseClicked 分支处理。
+        if (state.getType() != BundleLikeItem.TransferType.BUNDLE_HOVER_ITEM) {
+            return false;
+        }
+        if (!(state.getPlayer() instanceof ServerPlayer)) {
+            // 客户端预测：服务端处理前无法查存储，至少校验终端有绑定目标；
+            // 无绑定（超维未绑定/本地潜影终端无法解析目标）时返回 false，
+            // 放行 vanilla fallback 把终端放回槽，避免"放不下"。
+            return StorageServerStub.isBoundTerminalClientSafe(state.getStack());
+        }
+        return true;
+    }
+
+    @Override
     protected void removeOne(BundleLikeItem.TransferState state) {
         if (!(state.getPlayer() instanceof ServerPlayer player)) {
             return;
         }
+        // BUNDLE_HOVER_ITEM（终端拖到空槽上右键）：不检查浮窗选中状态，
+        // 直接取出目标存储中排序第一的物品；ITEM_HOVER_BUNDLE（空手点击终端槽）
+        // 的选中检查由 canRemoveOne 在调用前完成。
         UUID targetId = StorageServerStub.terminalTargetId(player, state.getStack());
-        state.setOutput(targetId == null ? null : StorageServerStub.extractFromTerminal(player, targetId, 1));
+        ItemStack removed = targetId == null ? null : StorageServerStub.extractFromTerminal(player, targetId, 64);
+        state.setOutput(removed);
     }
 
     @Override

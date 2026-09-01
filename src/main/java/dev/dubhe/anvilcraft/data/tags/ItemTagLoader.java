@@ -277,6 +277,10 @@ public class ItemTagLoader {
             .add(ModItems.EMBER_METAL_SWORD.getKey())
             .add(ModItems.EMBER_METAL_HEAVY_HALBERD.getKey());
 
+        provider.addTag(ModItemTags.PLAYER_WORKSTATIONS_STONECUTTERS)
+            .add(findResourceKey(Items.STONECUTTER))
+            .add(findResourceKey(ModBlocks.BATCH_CUTTER.asItem()));
+
         addTwilightForestUncraftableTags(provider);
     }
 

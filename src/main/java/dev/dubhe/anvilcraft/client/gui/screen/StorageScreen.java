@@ -5,7 +5,9 @@ import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.anvilcraft.lib.v2.util.MathUtil;
+import dev.anvilcraft.lib.v2.util.Scrollable;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
+import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
@@ -13,8 +15,10 @@ import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
 import dev.dubhe.anvilcraft.client.gui.component.category.CategoryList;
 import dev.dubhe.anvilcraft.client.rpc.SettingClientStub;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
+import dev.dubhe.anvilcraft.client.support.GuiRenderSupport;
 import dev.dubhe.anvilcraft.constant.Constant;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
+import dev.dubhe.anvilcraft.integration.StorageJeiBridge;
 import dev.dubhe.anvilcraft.rpc.StorageInput;
 import dev.dubhe.anvilcraft.rpc.StorageServerStub;
 import dev.dubhe.anvilcraft.saved.setting.StorageSetting;
@@ -22,6 +26,7 @@ import dev.dubhe.anvilcraft.saved.setting.mode.NbtDisplayMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.OrderMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SearchMode;
 import dev.dubhe.anvilcraft.saved.setting.mode.SortMode;
+import dev.dubhe.anvilcraft.saved.storage.CraftingStorage;
 import dev.dubhe.anvilcraft.util.FormattingUtil;
 import it.unimi.dsi.fastutil.ints.Int2IntMap;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
@@ -33,6 +38,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
+import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
@@ -43,7 +49,9 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
@@ -54,12 +62,18 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.neoforged.neoforge.client.ItemDecoratorHandler;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -67,23 +81,25 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 
-public class StorageScreen extends Screen {
-    private static final ResourceLocation BACKGROUND = SharedTextures.bg("misc", "storage_station");
-    private static final ResourceLocation CAPACITY = SharedTextures.textureGui("misc/storage_station/capacity");
-    private static final ResourceLocation SEARCH_CLEAR = SharedTextures.textureGui("misc/storage_station/search_clear");
-    private static final ResourceLocation PUT = SharedTextures.textureGui("misc/storage_station/put");
-    private static final ResourceLocation TAKE = SharedTextures.textureGui("misc/storage_station/take");
-    private static final ResourceLocation SEARCH_RETENTION = SharedTextures.textureGui("misc/storage_station/search_retention");
-    private static final ResourceLocation SORT_COUNT = SharedTextures.textureGui("misc/storage_station/sort_by_number");
-    private static final ResourceLocation SORT_MOD = SharedTextures.textureGui("misc/storage_station/sort_by_mod");
-    private static final ResourceLocation SORT_NAME = SharedTextures.textureGui("misc/storage_station/sort_by_name");
-    private static final ResourceLocation SORT_COUNT_REVERSED = SharedTextures.textureGui("misc/storage_station/sort_by_number_reverse");
-    private static final ResourceLocation SORT_NAME_REVERSED = SharedTextures.textureGui("misc/storage_station/sort_by_name_reverse");
-    private static final ResourceLocation ORDER_SEQUENTIAL = SharedTextures.textureGui("misc/storage_station/sequential_order");
-    private static final ResourceLocation ORDER_REVERSE = SharedTextures.textureGui("misc/storage_station/reverse_order");
-    private static final ResourceLocation NBT_UNFOLD = SharedTextures.textureGui("misc/storage_station/nbt_unfold");
-    private static final ResourceLocation NBT_FOLD = SharedTextures.textureGui("misc/storage_station/nbt_fold");
-    private static final ResourceLocation SLIDER = SharedTextures.textureGui("misc/storage_station/slider_big");
+public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
+    private static final ResourceLocation CAPACITY = StorageScreen.texture("capacity");
+    private static final ResourceLocation SEARCH_CLEAR = StorageScreen.texture("search_clear");
+    private static final ResourceLocation PUT = StorageScreen.texture("put");
+    private static final ResourceLocation TAKE = StorageScreen.texture("take");
+    private static final ResourceLocation CRAFTING = StorageScreen.texture("crafting");
+    private static final ResourceLocation SEARCH_RETENTION = StorageScreen.texture("search_retention");
+    private static final ResourceLocation SORT_COUNT = StorageScreen.texture("sort_by_number");
+    private static final ResourceLocation SORT_MOD = StorageScreen.texture("sort_by_mod");
+    private static final ResourceLocation SORT_NAME = StorageScreen.texture("sort_by_name");
+    private static final ResourceLocation SORT_COUNT_REVERSED = StorageScreen.texture("sort_by_number_reverse");
+    private static final ResourceLocation SORT_NAME_REVERSED = StorageScreen.texture("sort_by_name_reverse");
+    private static final ResourceLocation ORDER_SEQUENTIAL = StorageScreen.texture("sequential_order");
+    private static final ResourceLocation ORDER_REVERSE = StorageScreen.texture("reverse_order");
+    private static final ResourceLocation NBT_UNFOLD = StorageScreen.texture("nbt_unfold");
+    private static final ResourceLocation NBT_FOLD = StorageScreen.texture("nbt_fold");
+    private static final ResourceLocation SLIDER = StorageScreen.texture("slider_big");
+    private static final ResourceLocation FLYOUT_BACK = AnvilCraft.of("flex_button/shaded_1px");
+    private static final ResourceLocation FLYOUT_POINTER = AnvilCraft.of("flex_button/pointer");
     private static final ResourceLocation SMALL_FONT = ResourceLocation.fromNamespaceAndPath("anvilcraft", "small");
     private static final int BG_WIDTH = 300;
     private static final int BG_HEIGHT = 222;
@@ -100,7 +116,30 @@ public class StorageScreen extends Screen {
     private static final int SLIDER_TRACK_HEIGHT = 106;
     private static final int METADATA_REFRESH_INTERVAL = 10;
     private static final int MAX_PRESERVED_SYNC_ATTEMPTS = 3;
+    /** ① 切石机输入槽（单槽）的左上角。 */
+    private static final int CRAFTING_STONECUTTER_X = 7;
+    private static final int CRAFTING_STONECUTTER_Y = 130;
+    /** ② 合成输入 9 宫格的左上角（3×3，18px 间距）。 */
+    private static final int CRAFTING_GRID_X = 7;
+    private static final int CRAFTING_GRID_Y = 162;
+    /** ③ 切石机结果槽。 */
+    private static final int CRAFTING_RESULT_STONECUTTER_X = 83;
+    private static final int CRAFTING_RESULT_STONECUTTER_Y = 162;
+    /** ④ 合成结果槽。 */
+    private static final int CRAFTING_RESULT_CRAFTING_X = 83;
+    private static final int CRAFTING_RESULT_CRAFTING_Y = 198;
+    /** 切石机配方选择面板：第一个按钮左上角，与批量切割机一致的行列排布（3 列 × 2 行，18px 间距）。 */
+    private static final int CRAFTING_RECIPE_X = 39;
+    private static final int CRAFTING_RECIPE_Y = 120;
+    private static final int CRAFTING_RECIPE_COLUMNS = 3;
+    private static final int CRAFTING_RECIPE_ROWS = 2;
+    private static final int CRAFTING_SLOT_SIZE = 18;
+    /** 缺失工作台/切石机提示浮窗：0.25s 淡入 + 1.25s 停留 + 0.25s 淡出。 */
+    private static final int FLYOUT_FADE_IN_TICKS = 5;
+    private static final int FLYOUT_HOLD_TICKS = 25;
+    private static final int FLYOUT_FADE_OUT_TICKS = 5;
     private final Minecraft minecraft;
+    @Getter
     private final BlockPos sourcePos;
     private final Player player;
     private final boolean tracksOpenState;
@@ -108,10 +147,13 @@ public class StorageScreen extends Screen {
     private @Nullable EditBox search;
     private @Nullable CategoryList categories;
 
+    private ScreenMode mode = ScreenMode.NORMAL;
     private ItemStack carried = ItemStack.EMPTY;
     private IntList order = new IntArrayList();
     private IntList displayOrder = new IntArrayList();
+    @Getter
     private final Int2ObjectMap<UnlimitedItemStack> contents = new Int2ObjectOpenHashMap<>();
+
     private final Int2LongMap counts = new Int2LongOpenHashMap();
     private final Int2ObjectMap<UnlimitedItemStack> foldedContents = new Int2ObjectOpenHashMap<>();
     private final Int2LongMap foldedCounts = new Int2LongOpenHashMap();
@@ -138,16 +180,46 @@ public class StorageScreen extends Screen {
     private int nextLogicalSlot;
     private final IntSet quickCraftSlots = new IntOpenHashSet();
     private final IntSet quickCraftStorageSlots = new IntOpenHashSet();
+    /** 拖拽分配目标：①/② 合成输入槽（0 为①，1~9 为②）。 */
+    private final IntSet quickCraftCraftingSlots = new IntOpenHashSet();
+    /** 拖拽分配目标：玩家背包槽（inventory index 0~35，与 quickCraftSlots 同步）。 */
+    private final IntSet quickCraftInventorySlots = new IntOpenHashSet();
     private boolean quickCrafting;
     private int quickCraftingButton;
     private int lastClickedInventorySlot = -1;
     private boolean quickMoveDragging;
     private final IntSet quickMoveSlots = new IntOpenHashSet();
     private final IntSet pendingQuickMoveSlots = new IntOpenHashSet();
-    private int left;
-    private int top;
-    private int titleLabelX;
     private @Nullable List<Component> renderingTooltips;
+    private boolean craftingAvailable;
+    private boolean craftingLoaded;
+    private CraftingStorage crafting = CraftingStorage.EMPTY;
+    private List<ItemStack> stonecutterRecipes = List.of();
+    /** 切石机配方列表当前页首项索引（3 列 × 2 行，超出可滚动）。 */
+    private int recipeHead;
+    private final Scrollable recipeScrollable = new Scrollable() {
+        @Override
+        public int row() {
+            return StorageScreen.CRAFTING_RECIPE_ROWS;
+        }
+
+        @Override
+        public int column() {
+            return StorageScreen.CRAFTING_RECIPE_COLUMNS;
+        }
+
+        @Override
+        public int size() {
+            return StorageScreen.this.stonecutterRecipes.size();
+        }
+
+        @Override
+        public void setHead(int head) {
+            StorageScreen.this.recipeHead = head;
+        }
+    };
+    private int flyoutTimer;
+    private boolean flyoutVisible;
 
     public StorageScreen(BlockPos sourcePos) {
         this(
@@ -157,7 +229,13 @@ public class StorageScreen extends Screen {
     }
 
     public StorageScreen(BlockPos sourcePos, Component title) {
-        super(title);
+        super(
+            StorageMenu.create(Objects.requireNonNull(Minecraft.getInstance().player), sourcePos),
+            Objects.requireNonNull(Minecraft.getInstance().player).getInventory(),
+            title
+        );
+        this.imageWidth = StorageScreen.BG_WIDTH;
+        this.imageHeight = StorageScreen.BG_HEIGHT;
         this.minecraft = Minecraft.getInstance();
         this.sourcePos = sourcePos;
         this.player = Objects.requireNonNull(Minecraft.getInstance().player);
@@ -167,11 +245,20 @@ public class StorageScreen extends Screen {
     }
 
     public static void openScreen(BlockPos sourcePos) {
-        Minecraft.getInstance().setScreen(new StorageScreen(sourcePos));
+        StorageScreen.openScreen(sourcePos, null);
     }
 
-    public static void openScreen(BlockPos sourcePos, Component title) {
-        Minecraft.getInstance().setScreen(new StorageScreen(sourcePos, title));
+    public static void openScreen(BlockPos sourcePos, @Nullable Component title) {
+        Minecraft minecraft = Minecraft.getInstance();
+        if (minecraft.player == null) {
+            return;
+        }
+        StorageScreen screen = title == null
+            ? new StorageScreen(sourcePos)
+            : new StorageScreen(sourcePos, title);
+        // 纯客户端菜单：安装为活动菜单（服务端容器仍为 inventoryMenu，RPC 指针读写不受影响）
+        minecraft.player.containerMenu = screen.getMenu();
+        minecraft.setScreen(screen);
     }
 
     @Override
@@ -179,14 +266,14 @@ public class StorageScreen extends Screen {
         if (this.tracksOpenState) {
             StorageClientStub.setOpen(this.sourcePos, true);
         }
-        this.left = (this.width - StorageScreen.BG_WIDTH) / 2;
-        this.top = (this.height - StorageScreen.BG_HEIGHT) / 2;
+        this.leftPos = (this.width - StorageScreen.BG_WIDTH) / 2;
+        this.topPos = (this.height - StorageScreen.BG_HEIGHT) / 2;
         this.titleLabelX = (StorageScreen.BG_WIDTH - 106 - this.font.width(this.title)) / 2 + 106;
 
         this.search = this.addRenderableWidget(new EditBox(
             this.font,
-            this.left + 6,
-            this.top + 7,
+            this.leftPos + 6,
+            this.topPos + 7,
             94,
             9,
             Component.translatable("screen.anvilcraft.storage.search.edit")
@@ -198,8 +285,8 @@ public class StorageScreen extends Screen {
             this.reorder(false);
         });
         final SwitchableButton searchMode = this.addRenderableWidget(new SwitchableButton(
-            this.left + 2,
-            this.top + 23,
+            this.leftPos + 2,
+            this.topPos + 23,
             24,
             20,
             ImmutableList.of(
@@ -220,8 +307,8 @@ public class StorageScreen extends Screen {
             StorageScreen.SORT_NAME
         );
         final SwitchableButton sortMode = this.addRenderableWidget(new SwitchableButton(
-            this.left + 28,
-            this.top + 23,
+            this.leftPos + 28,
+            this.topPos + 23,
             24,
             20,
             sortTextures,
@@ -234,8 +321,8 @@ public class StorageScreen extends Screen {
             }
         ));
         final SwitchableButton orderMode = this.addRenderableWidget(new SwitchableButton(
-            this.left + 54,
-            this.top + 23,
+            this.leftPos + 54,
+            this.topPos + 23,
             24,
             20,
             ImmutableList.of(
@@ -259,8 +346,8 @@ public class StorageScreen extends Screen {
             }
         ));
         final SwitchableButton nbtMode = this.addRenderableWidget(new SwitchableButton(
-            this.left + 80,
-            this.top + 23,
+            this.leftPos + 80,
+            this.topPos + 23,
             24,
             20,
             ImmutableList.of(
@@ -275,17 +362,22 @@ public class StorageScreen extends Screen {
                 this.reorder();
             }
         ));
+        CategoryList.ButtonInfo info = switch (this.mode) {
+            case NORMAL -> CategoryList.ButtonInfo.normal();
+            case CRAFTING -> CategoryList.ButtonInfo.small();
+        };
         this.categories = this.addRenderableWidget(new CategoryList(
-            this.left + 7,
-            this.top + 49,
+            this.leftPos + 7,
+            this.topPos + 49,
+            info,
             SettingClientStub.setting(),
             button -> SettingClientStub.update(SettingClientStub.listed().stream().toList())
                 .thenRunAsync(this::reorder, this.screenExecutor),
             button -> this.minecraft.setScreen(new CategorySettingsScreen(this.sourcePos, this.title))
         ));
         this.addRenderableWidget(new TexturedButton(
-            this.left + 278,
-            this.top + 139,
+            this.leftPos + 278,
+            this.topPos + 139,
             18,
             20,
             StorageScreen.PUT,
@@ -302,8 +394,8 @@ public class StorageScreen extends Screen {
             )
         ));
         this.addRenderableWidget(new TexturedButton(
-            this.left + 278,
-            this.top + 161,
+            this.leftPos + 278,
+            this.topPos + 161,
             18,
             20,
             StorageScreen.TAKE,
@@ -318,6 +410,17 @@ public class StorageScreen extends Screen {
                 },
                 StorageScreen.this.screenExecutor
             )
+        ));
+        this.addRenderableWidget(new TexturedButton(
+            this.leftPos + 278,
+            this.topPos + 195,
+            18,
+            20,
+            StorageScreen.CRAFTING,
+            20,
+            18,
+            40,
+            button -> this.toggleCraftingMode()
         ));
 
         SettingClientStub.load().thenAcceptAsync(
@@ -342,14 +445,160 @@ public class StorageScreen extends Screen {
             },
             this.screenExecutor
         );
+        this.checkCraftingAvailable();
+        this.restoreCraftingMode();
         this.refreshMetadata();
     }
 
+    /**
+     * 打开界面时恢复上次关闭时的合成模式：读取持久化的 {@code lastOpened}，
+     * 为 {@code true} 则运行一次合成模式切换（含可用性检查）。
+     */
+    private void restoreCraftingMode() {
+        StorageClientStub.craftingGet(this.sourcePos).whenCompleteAsync(
+            (data, error) -> {
+                if (error == null && data.lastOpened() && this.mode == ScreenMode.NORMAL) {
+                    this.toggleCraftingMode();
+                }
+            },
+            this.screenExecutor
+        );
+    }
+
+    /** 异步检查仓储内是否同时存在工作台与切石机（决定合成模式是否可用）。 */
+    private void checkCraftingAvailable() {
+        StorageClientStub.craftingAvailable(this.sourcePos).whenCompleteAsync(
+            (available, error) -> {
+                this.craftingAvailable = error == null && available;
+                if (error == null) {
+                    if (!this.craftingAvailable && this.mode == ScreenMode.CRAFTING) {
+                        // 进入时检查失败：回退 NORMAL 并提示
+                        this.setMode(ScreenMode.NORMAL);
+                        this.showFlyout();
+                    } else if (this.mode == ScreenMode.CRAFTING) {
+                        this.loadCrafting(true);
+                    }
+                }
+            },
+            this.screenExecutor
+        );
+    }
+
+    /** 点击合成模式切换按钮：检查通过才切换，失败显示缺失提示。 */
+    private void toggleCraftingMode() {
+        if (this.mode == ScreenMode.CRAFTING) {
+            this.setMode(ScreenMode.NORMAL);
+            return;
+        }
+        StorageClientStub.craftingAvailable(this.sourcePos).whenCompleteAsync(
+            (available, error) -> {
+                if (error != null) {
+                    this.showFlyout();
+                    return;
+                }
+                if (available) {
+                    this.craftingAvailable = true;
+                    this.setMode(ScreenMode.CRAFTING);
+                    this.loadCrafting(true);
+                } else {
+                    this.showFlyout();
+                }
+            },
+            this.screenExecutor
+        );
+    }
+
+    /** 切换合成/普通模式并同步分类列表布局。 */
+    private void setMode(ScreenMode mode) {
+        if (this.mode == mode) {
+            return;
+        }
+        this.mode = mode;
+        if (this.categories != null) {
+            this.categories.rebuild(
+                switch (mode) {
+                    case NORMAL -> CategoryList.ButtonInfo.normal();
+                    case CRAFTING -> CategoryList.ButtonInfo.small();
+                },
+                SettingClientStub.setting()
+            );
+        }
+    }
+
+    /**
+     * 加载合成面板数据。① 输入物品类型变化（或 {@code refreshRecipes} 为真）时
+     * 重载切石机候选配方；仅数量变化时不重载配方面板。
+     */
+    public void loadCrafting(boolean refreshRecipes) {
+        ItemStack oldInput = this.crafting.stonecutterInput();
+        this.craftingLoaded = false;
+        StorageClientStub.craftingGet(this.sourcePos).whenCompleteAsync(
+            (data, getError) -> {
+                if (getError != null) {
+                    return;
+                }
+                this.crafting = data;
+                this.craftingLoaded = true;
+                boolean inputChanged = !ItemStack.isSameItemSameComponents(oldInput, data.stonecutterInput());
+                if (refreshRecipes || inputChanged) {
+                    StorageClientStub.craftingStonecutterRecipes(this.sourcePos).whenCompleteAsync(
+                        (recipes, recipeError) -> {
+                            if (recipeError == null) {
+                                this.stonecutterRecipes = recipes;
+                                // 配方列表变化后校正滚动位置（不越界）
+                                this.recipeScrollable.calculateScroll(
+                                    this.recipeHead / StorageScreen.CRAFTING_RECIPE_COLUMNS
+                                );
+                                this.recipeScrollable.scrollTo();
+                            }
+                        },
+                        this.screenExecutor
+                    );
+                }
+            },
+            this.screenExecutor
+        );
+    }
+
+    /** 显示「仓储内缺失工作台或切石机」浮窗（淡入 + 停留 + 淡出）。 */
+    private void showFlyout() {
+        this.flyoutTimer = 0;
+        this.flyoutVisible = true;
+    }
+
+    /** 浮窗当前透明度（0~1）。 */
+    private float getFlyoutAlpha() {
+        if (!this.flyoutVisible) {
+            return 0.0F;
+        }
+        if (this.flyoutTimer < StorageScreen.FLYOUT_FADE_IN_TICKS) {
+            return this.flyoutTimer / (float) StorageScreen.FLYOUT_FADE_IN_TICKS;
+        }
+        int elapsed = this.flyoutTimer - StorageScreen.FLYOUT_FADE_IN_TICKS;
+        if (elapsed < StorageScreen.FLYOUT_HOLD_TICKS) {
+            return 1.0F;
+        }
+        elapsed -= StorageScreen.FLYOUT_HOLD_TICKS;
+        if (elapsed < StorageScreen.FLYOUT_FADE_OUT_TICKS) {
+            return 1.0F - elapsed / (float) StorageScreen.FLYOUT_FADE_OUT_TICKS;
+        }
+        return 0.0F;
+    }
+
     @Override
-    public void tick() {
-        super.tick();
+    protected void containerTick() {
         this.carried = this.player.inventoryMenu.getCarried();
         this.flushQuickMoves();
+        if (
+            this.flyoutVisible
+            && this.flyoutTimer < StorageScreen.FLYOUT_FADE_IN_TICKS
+            + StorageScreen.FLYOUT_HOLD_TICKS
+            + StorageScreen.FLYOUT_FADE_OUT_TICKS
+        ) {
+            this.flyoutTimer++;
+        } else if (this.flyoutVisible) {
+            this.flyoutVisible = false;
+        }
         if (this.metadataCooldown > 0) {
             this.metadataCooldown--;
         } else {
@@ -362,9 +611,9 @@ public class StorageScreen extends Screen {
         // 仅画透明渐暗背景，跳过默认的高斯模糊（renderBlurredBackground），避免仓储界面背景模糊
         this.renderTransparentBackground(graphics);
         graphics.blit(
-            StorageScreen.BACKGROUND,
-            this.left,
-            this.top,
+            this.mode.getBackground(),
+            this.leftPos,
+            this.topPos,
             0,
             0,
             StorageScreen.BG_WIDTH,
@@ -375,14 +624,22 @@ public class StorageScreen extends Screen {
         this.renderStorageSlider(graphics);
     }
 
+    /**
+     * 仓储界面由 {@link #render} 全量自绘（不走 {@code AbstractContainerScreen.render}），
+     * 此抽象方法无需绘制任何内容。
+     */
+    @Override
+    protected void renderBg(GuiGraphics graphics, float partialTick, int mouseX, int mouseY) {
+    }
+
     @Override
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderingTooltips = null;
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
         graphics.blit(
             StorageScreen.CAPACITY,
-            this.left + 106,
-            this.top,
+            this.leftPos + 106,
+            this.topPos,
             0,
             0,
             Mth.ceil(194 * this.fullness),
@@ -393,20 +650,24 @@ public class StorageScreen extends Screen {
         graphics.drawString(
             this.font,
             this.title,
-            this.left + this.titleLabelX,
-            this.top + Constant.SCREEN_TITLE_Y,
+            this.leftPos + this.titleLabelX,
+            this.topPos + Constant.SCREEN_TITLE_Y,
             0xFF404040,
             false
         );
         this.renderStorageContents(graphics, mouseX, mouseY);
         this.renderPlayerInventory(graphics, mouseX, mouseY);
+        if (this.mode == ScreenMode.CRAFTING) {
+            this.renderCraftingPanel(graphics, mouseX, mouseY);
+        }
         // 背景纹理必须先于 widgets 绘制，而 Screen.render 会二次调用 renderBackground
         // （半透明渐变会盖住纹理），故手动遍历 renderables 渲染 widgets。
         for (Renderable renderable : this.renderables) {
             renderable.render(graphics, mouseX, mouseY, partialTick);
         }
         this.renderCarriedItem(graphics, mouseX, mouseY);
-        this.renderTooltip(graphics, mouseX, mouseY);
+        this.renderFlyout(graphics);
+        this.renderStorageTooltip(graphics, mouseX, mouseY);
     }
 
     private void renderStorageContents(GuiGraphics graphics, int mouseX, int mouseY) {
@@ -417,9 +678,9 @@ public class StorageScreen extends Screen {
                 break;
             }
 
-            int x = this.left + StorageScreen.STORAGE_X
+            int x = this.leftPos + StorageScreen.STORAGE_X
                 + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
-            int y = this.top + StorageScreen.STORAGE_Y
+            int y = this.topPos + StorageScreen.STORAGE_Y
                 + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
             boolean hovered = MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17);
 
@@ -469,8 +730,8 @@ public class StorageScreen extends Screen {
             );
         graphics.blit(
             StorageScreen.SLIDER,
-            this.left + StorageScreen.SLIDER_X,
-            this.top + StorageScreen.SLIDER_Y + sliderOffset,
+            this.leftPos + StorageScreen.SLIDER_X,
+            this.topPos + StorageScreen.SLIDER_Y + sliderOffset,
             0,
             0,
             StorageScreen.SLIDER_WIDTH,
@@ -487,16 +748,34 @@ public class StorageScreen extends Screen {
                && MathUtil.isInRange(
                    mouseX,
                    mouseY,
-                   this.left + StorageScreen.SLIDER_X - 2,
-                   this.top + StorageScreen.SLIDER_Y,
-                   this.left + StorageScreen.SLIDER_X + StorageScreen.SLIDER_WIDTH + 2,
-                   this.top + StorageScreen.SLIDER_Y + StorageScreen.SLIDER_TRACK_HEIGHT
+                   this.leftPos + StorageScreen.SLIDER_X - 2,
+                   this.topPos + StorageScreen.SLIDER_Y,
+                   this.leftPos + StorageScreen.SLIDER_X + StorageScreen.SLIDER_WIDTH + 2,
+                   this.topPos + StorageScreen.SLIDER_Y + StorageScreen.SLIDER_TRACK_HEIGHT
                );
+    }
+
+    /** 配方滚动条轨道命中检测（仅在配方可滚动时）。 */
+    private boolean isOverRecipeSliderTrack(double mouseX, double mouseY) {
+        if (!this.recipeScrollable.canScroll()) {
+            return false;
+        }
+        int left = this.leftPos + StorageScreen.CRAFTING_RECIPE_X
+            + StorageScreen.CRAFTING_RECIPE_COLUMNS * StorageScreen.CRAFTING_SLOT_SIZE + 2;
+        int top = this.topPos + StorageScreen.CRAFTING_RECIPE_Y;
+        return MathUtil.isInRange(
+            mouseX,
+            mouseY,
+            left,
+            top,
+            left + 4,
+            top + StorageScreen.CRAFTING_RECIPE_ROWS * StorageScreen.CRAFTING_SLOT_SIZE
+        );
     }
 
     /** 按鼠标纵坐标把滚动条定位到对应行，并刷新可视内容。 */
     private void scrollSliderTo(double mouseY) {
-        float trackTop = (float) (this.top + StorageScreen.SLIDER_Y);
+        float trackTop = (float) (this.topPos + StorageScreen.SLIDER_Y);
         float usable = StorageScreen.SLIDER_TRACK_HEIGHT - StorageScreen.SLIDER_HEIGHT;
         float fraction = Mth.clamp((float) (mouseY - trackTop - StorageScreen.SLIDER_HEIGHT / 2.0F) / usable, 0.0F, 1.0F);
         int next = Math.round(fraction * this.getMaxScrollRow());
@@ -508,20 +787,277 @@ public class StorageScreen extends Screen {
         }
     }
 
+    /** 渲染合成面板：① 切石机输入、② 合成 9 宫格、③④ 结果槽、切石机配方选择。 */
+    private void renderCraftingPanel(GuiGraphics graphics, int mouseX, int mouseY) {
+        // ① 切石机输入（单槽）
+        int stonecutterX = this.leftPos + StorageScreen.CRAFTING_STONECUTTER_X;
+        int stonecutterY = this.topPos + StorageScreen.CRAFTING_STONECUTTER_Y;
+        this.renderCraftingSlot(
+            graphics,
+            this.crafting.stonecutterInput(),
+            stonecutterX,
+            stonecutterY,
+            mouseX,
+            mouseY,
+            0
+        );
+
+        // ② 合成输入 9 宫格
+        for (int i = 0; i < this.crafting.craftingInput().size(); i++) {
+            int x = this.leftPos + StorageScreen.CRAFTING_GRID_X + i % 3 * StorageScreen.CRAFTING_SLOT_SIZE;
+            int y = this.topPos + StorageScreen.CRAFTING_GRID_Y + i / 3 * StorageScreen.CRAFTING_SLOT_SIZE;
+            this.renderCraftingSlot(
+                graphics,
+                this.crafting.craftingInput().get(i),
+                x,
+                y,
+                mouseX,
+                mouseY,
+                i + 1
+            );
+        }
+
+        // ③ 切石机结果、④ 合成结果（仅展示，点击取出）
+        this.renderCraftingSlot(
+            graphics,
+            this.getStonecutterResult(),
+            this.leftPos + StorageScreen.CRAFTING_RESULT_STONECUTTER_X,
+            this.topPos + StorageScreen.CRAFTING_RESULT_STONECUTTER_Y,
+            mouseX,
+            mouseY,
+            -1
+        );
+        this.renderCraftingSlot(
+            graphics,
+            this.getCraftingResult(),
+            this.leftPos + StorageScreen.CRAFTING_RESULT_CRAFTING_X,
+            this.topPos + StorageScreen.CRAFTING_RESULT_CRAFTING_Y,
+            mouseX,
+            mouseY,
+            -1
+        );
+
+        // 切石机配方选择（3 列 × 2 行，超出可滚动；与批量切割机一致）
+        if (this.stonecutterRecipes.isEmpty()) {
+            return;
+        }
+        int maxSize = StorageScreen.CRAFTING_RECIPE_COLUMNS * StorageScreen.CRAFTING_RECIPE_ROWS;
+        for (int i = this.recipeHead; i < this.recipeHead + Math.min(this.stonecutterRecipes.size() - this.recipeHead, maxSize); i++) {
+            int x = this.getCraftingRecipeX(i - this.recipeHead);
+            int y = this.getCraftingRecipeY(i - this.recipeHead);
+            ItemStack recipe = this.stonecutterRecipes.get(i);
+            boolean selected = i == this.crafting.stonecutterSelected();
+            boolean hovered = MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18);
+            int offsetV = selected ? 18 : hovered ? 36 : 0;
+            graphics.blit(
+                SharedTextures.SWITCH_TABLE_BUTTON,
+                x,
+                y,
+                0,
+                offsetV,
+                18,
+                18,
+                18,
+                54
+            );
+            graphics.renderItem(recipe, x + 1, y + (selected ? 1 : 0));
+            if (hovered && this.carried.isEmpty()) {
+                this.renderingTooltips = recipe.getTooltipLines(
+                    Item.TooltipContext.of(this.minecraft.level),
+                    this.player,
+                    this.minecraft.options.advancedItemTooltips
+                    ? TooltipFlag.Default.ADVANCED
+                    : TooltipFlag.Default.NORMAL
+                );
+            }
+        }
+        // 配方区右侧滚动条（可滚动时显示）
+        if (this.recipeScrollable.canScroll()) {
+            int left = this.leftPos + StorageScreen.CRAFTING_RECIPE_X
+                + maxSize / StorageScreen.CRAFTING_RECIPE_ROWS * StorageScreen.CRAFTING_SLOT_SIZE + 2;
+            int top = this.topPos + StorageScreen.CRAFTING_RECIPE_Y;
+            int down = top + StorageScreen.CRAFTING_RECIPE_ROWS * StorageScreen.CRAFTING_SLOT_SIZE;
+            graphics.blit(
+                SharedTextures.SWITCH_TABLE_SLIDER,
+                left,
+                top + (int) ((down - top - 12) * this.recipeScrollable.getScrollOffs()),
+                0,
+                0,
+                4,
+                12,
+                8,
+                12
+            );
+        }
+    }
+
+    /**
+     * 渲染一个合成面板槽位（物品 + 高亮 + 拖拽分配预览）。
+     * {@code craftingSlotId}：0 为①，1~9 为②，-1 为③④ 结果槽（不参与拖拽）。
+     */
+    private void renderCraftingSlot(
+        GuiGraphics graphics,
+        ItemStack stack,
+        int x,
+        int y,
+        int mouseX,
+        int mouseY,
+        int craftingSlotId
+    ) {
+        boolean hovered = MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17);
+        boolean quickCraftPreview = craftingSlotId >= 0
+            && this.quickCrafting
+            && this.quickCraftCraftingSlots.contains(craftingSlotId);
+        if (quickCraftPreview) {
+            stack = this.getCraftingQuickCraftPreviewStack(craftingSlotId);
+            graphics.fill(x, y, x + 16, y + 16, -2130706433);
+        }
+        if (!stack.isEmpty()) {
+            graphics.renderItem(stack, x, y);
+            graphics.renderItemDecorations(this.font, stack, x, y);
+        }
+        if (hovered) {
+            AbstractContainerScreen.renderSlotHighlight(graphics, x, y, 0);
+        }
+        if (hovered && this.carried.isEmpty() && !stack.isEmpty()) {
+            this.renderingTooltips = stack.getTooltipLines(
+                Item.TooltipContext.of(this.minecraft.level),
+                this.player,
+                this.minecraft.options.advancedItemTooltips
+                ? TooltipFlag.Default.ADVANCED
+                : TooltipFlag.Default.NORMAL
+            );
+        }
+    }
+
+    /** 拖拽分配预览：该输入槽将显示的结果栈（当前内容 + 预计放入量）。 */
+    private ItemStack getCraftingQuickCraftPreviewStack(int craftingSlotId) {
+        ItemStack current = craftingSlotId == 0
+            ? this.crafting.stonecutterInput()
+            : this.crafting.craftingInput().get(craftingSlotId - 1);
+        // 异种槽不参与分配：预览保持原物品
+        if (!current.isEmpty() && !ItemStack.isSameItemSameComponents(current, this.carried)) {
+            return current;
+        }
+        // ① 仅接受切石机配方输入：非配方物品不会放入，预览保持原样（含空槽）
+        if (craftingSlotId == 0 && !this.isStonecutterRecipeInput(this.carried)) {
+            return current;
+        }
+        int currentCount = current.getCount();
+        int maxCount = this.carried.getMaxStackSize();
+        int placedCount = this.getCraftingQuickCraftPlaceCount();
+        int previewCount = Math.min(currentCount + placedCount, maxCount);
+        if (previewCount == 0) {
+            return ItemStack.EMPTY;
+        }
+        return this.carried.copyWithCount(previewCount);
+    }
+
+    /** 该物品是否可作为① 切石机输入（客户端配方预览用）。 */
+    private boolean isStonecutterRecipeInput(ItemStack stack) {
+        if (stack.isEmpty() || this.minecraft.level == null) {
+            return false;
+        }
+        return !this.minecraft.level.getRecipeManager()
+            .getRecipesFor(RecipeType.STONECUTTING, new SingleRecipeInput(stack), this.minecraft.level)
+            .isEmpty();
+    }
+
+    /**
+     * 拖拽分配中每个目标槽预计放入的数量（与服务端 craftingQuickCraft 一致）：
+     * 左键 floor 均分（余数留在指针）、右键每槽 1 个、中键每槽放满。
+     * 目标数包含 ①/② 输入槽与背包槽。
+     */
+    private int getCraftingQuickCraftPlaceCount() {
+        int total = this.quickCraftCraftingSlots.size() + this.quickCraftSlots.size();
+        if (total == 0) {
+            return 0;
+        }
+        if (this.quickCraftingButton == 1) {
+            return 1;
+        }
+        if (this.quickCraftingButton == 2) {
+            return this.carried.getMaxStackSize();
+        }
+        return Math.floorDiv(this.carried.getCount(), total);
+    }
+
+    /** ③ 切石机结果：当前选中配方对①的产物；无配方时为空。 */
+    private ItemStack getStonecutterResult() {
+        if (!this.craftingLoaded || this.crafting.stonecutterInput().isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        int selected = this.crafting.stonecutterSelected();
+        if (selected < 0 || selected >= this.stonecutterRecipes.size()) {
+            return ItemStack.EMPTY;
+        }
+        return this.stonecutterRecipes.get(selected);
+    }
+
+    /** ④ 合成结果：② 9 宫格匹配的第一个合成配方产物（客户端本地计算预览）。 */
+    private ItemStack getCraftingResult() {
+        if (!this.craftingLoaded) {
+            return ItemStack.EMPTY;
+        }
+        boolean empty = true;
+        for (ItemStack stack : this.crafting.craftingInput()) {
+            if (!stack.isEmpty()) {
+                empty = false;
+                break;
+            }
+        }
+        if (empty) {
+            return ItemStack.EMPTY;
+        }
+        if (this.minecraft.level == null) {
+            return ItemStack.EMPTY;
+        }
+        CraftingInput input = CraftingInput.of(
+            3,
+            3,
+            this.crafting.craftingInput()
+        );
+        List<RecipeHolder<CraftingRecipe>> recipes = this.minecraft.level.getRecipeManager()
+            .getRecipesFor(RecipeType.CRAFTING, input, this.minecraft.level);
+        if (recipes.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        return recipes.getFirst().value().assemble(input, this.minecraft.level.registryAccess());
+    }
+
+    /** 渲染「仓储内缺失工作台或切石机」浮窗（flat 九宫格底 + pointer 箭头）。 */
+    private void renderFlyout(GuiGraphics graphics) {
+        float alpha = this.getFlyoutAlpha();
+        if (alpha <= 0.0F) {
+            return;
+        }
+        MutableComponent message = Component.translatable("tooltip.anvilcraft.storage.missing_workbench_or_stonecutter");
+        int textWidth = this.font.width(message);
+        int textHeight = this.font.lineHeight;
+        int flyoutWidth = textWidth + 5;
+        int flyoutHeight = textHeight + 6;
+        int flyoutX = this.leftPos + 296 - flyoutWidth;
+        int flyoutY = this.topPos + 219;
+        int color = (int) (alpha * 255.0F) << 24 | 0xFFFFFF;
+        GuiRenderSupport.blitSprite(graphics, StorageScreen.FLYOUT_BACK, flyoutX, flyoutY, flyoutWidth, flyoutHeight, color);
+        GuiRenderSupport.blitSprite(graphics, StorageScreen.FLYOUT_POINTER, this.leftPos + 284, this.topPos + 216, 6, 5, color);
+        graphics.drawString(this.font, message.withColor(0xEE0000), flyoutX + 3, flyoutY + 3, color, false);
+    }
+
     private void renderPlayerInventory(GuiGraphics graphics, int mouseX, int mouseY) {
         Inventory inv = this.player.getInventory();
 
-        int y = this.top + 140 + 58;
+        int y = this.topPos + 140 + 58;
         for (int column = 0; column < 9; column++) {
-            int x = this.left + 114 + 18 * column;
+            int x = this.leftPos + 114 + 18 * column;
             this.renderInventorySlot(graphics, inv, column, x, y, mouseX, mouseY);
         }
 
         for (int row = 0; row < 3; row++) {
-            y = this.top + 140 + 18 * row;
+            y = this.topPos + 140 + 18 * row;
             int slot = 9 + row * 9;
             for (int column = 0; column < 9; column++) {
-                int x = this.left + 114 + 18 * column;
+                int x = this.leftPos + 114 + 18 * column;
                 this.renderInventorySlot(graphics, inv, slot++, x, y, mouseX, mouseY);
             }
         }
@@ -554,15 +1090,15 @@ public class StorageScreen extends Screen {
         }
     }
 
-    private void renderTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+    private void renderStorageTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
         if (this.renderingTooltips != null) {
             graphics.renderTooltip(this.font, this.renderingTooltips, Optional.empty(), mouseX, mouseY);
-        } else if (MathUtil.isInRange(mouseX, mouseY, this.left + 106, this.top, this.left + 300, this.top + 13)) {
+        } else if (MathUtil.isInRange(mouseX, mouseY, this.leftPos + 106, this.topPos, this.leftPos + 300, this.topPos + 13)) {
             Component tooltip = this.getCapacityTooltip();
             if (tooltip != null) {
                 graphics.renderTooltip(this.font, tooltip, mouseX, mouseY);
             }
-        } else if (MathUtil.isInRange(mouseX, mouseY, this.left + 2, this.top + 23, this.left + 26, this.top + 43)) {
+        } else if (MathUtil.isInRange(mouseX, mouseY, this.leftPos + 2, this.topPos + 23, this.leftPos + 26, this.topPos + 43)) {
             graphics.renderTooltip(
                 this.font,
                 Component.translatable(
@@ -572,7 +1108,7 @@ public class StorageScreen extends Screen {
                 mouseX,
                 mouseY
             );
-        } else if (MathUtil.isInRange(mouseX, mouseY, this.left + 28, this.top + 23, this.left + 52, this.top + 43)) {
+        } else if (MathUtil.isInRange(mouseX, mouseY, this.leftPos + 28, this.topPos + 23, this.leftPos + 52, this.topPos + 43)) {
             graphics.renderTooltip(
                 this.font,
                 Component.translatable(
@@ -582,7 +1118,7 @@ public class StorageScreen extends Screen {
                 mouseX,
                 mouseY
             );
-        } else if (MathUtil.isInRange(mouseX, mouseY, this.left + 54, this.top + 23, this.left + 78, this.top + 43)) {
+        } else if (MathUtil.isInRange(mouseX, mouseY, this.leftPos + 54, this.topPos + 23, this.leftPos + 78, this.topPos + 43)) {
             graphics.renderTooltip(
                 this.font,
                 Component.translatable(
@@ -592,7 +1128,7 @@ public class StorageScreen extends Screen {
                 mouseX,
                 mouseY
             );
-        } else if (MathUtil.isInRange(mouseX, mouseY, this.left + 80, this.top + 23, this.left + 104, this.top + 43)) {
+        } else if (MathUtil.isInRange(mouseX, mouseY, this.leftPos + 80, this.topPos + 23, this.leftPos + 104, this.topPos + 43)) {
             graphics.renderTooltip(
                 this.font,
                 Component.translatable(
@@ -646,17 +1182,29 @@ public class StorageScreen extends Screen {
         Slot slot = this.player.inventoryMenu.getSlot(this.getScreenSlot(inventorySlot));
         int currentCount = slot.hasItem() ? slot.getItem().getCount() : 0;
         int maxCount = Math.min(this.carried.getMaxStackSize(), slot.getMaxStackSize(this.carried));
-        int placedCount = AbstractContainerMenu.getQuickCraftPlaceCount(
-            this.getQuickCraftSlotSet(),
-            this.quickCraftingButton,
-            this.carried
-        );
+        int placedCount;
+        if (!this.quickCraftCraftingSlots.isEmpty()) {
+            // 混合拖拽（输入槽 + 背包槽）：统一 floor 均分
+            placedCount = this.getCraftingQuickCraftPlaceCount();
+        } else {
+            placedCount = AbstractContainerMenu.getQuickCraftPlaceCount(
+                this.getQuickCraftSlotSet(),
+                this.quickCraftingButton,
+                this.carried
+            );
+        }
         return this.carried.copyWithCount(Math.min(currentCount + placedCount, maxCount));
     }
 
     private int getQuickCraftRemaining() {
         if (this.quickCraftingButton == 2) {
             return this.carried.getCount();
+        }
+        if (!this.quickCraftCraftingSlots.isEmpty()) {
+            // 混合拖拽：统一 floor 均分，剩余 = 总数 - 每槽配额 × 目标数
+            int total = this.quickCraftCraftingSlots.size() + this.quickCraftSlots.size();
+            int perSlot = this.quickCraftingButton == 1 ? 1 : Math.floorDiv(this.carried.getCount(), total);
+            return Math.max(0, this.carried.getCount() - perSlot * total);
         }
         int remaining = this.carried.getCount();
         for (int screenSlot : this.quickCraftSlots) {
@@ -686,7 +1234,7 @@ public class StorageScreen extends Screen {
         int lastClickedInventorySlot = this.lastClickedInventorySlot;
         this.lastClickedInventorySlot = -1;
         if (this.search != null && (button == 0 || button == 1)) {
-            boolean hovered = MathUtil.isInRange(mouseX, mouseY, this.left + 6, this.top + 6, this.left + 100, this.top + 16);
+            boolean hovered = MathUtil.isInRange(mouseX, mouseY, this.leftPos + 6, this.topPos + 6, this.leftPos + 100, this.topPos + 16);
             this.search.setFocused(hovered);
             this.setFocused(hovered ? this.search : null);
         }
@@ -698,8 +1246,59 @@ public class StorageScreen extends Screen {
             return true;
         }
 
-        if (super.mouseClicked(mouseX, mouseY, button)) {
+        // 配方滚动条：按住拖动
+        if (button == 0 && this.isOverRecipeSliderTrack(mouseX, mouseY)) {
+            this.recipeScrollable.scrolling();
+            this.recipeScrollable.scrollOnDrag(
+                12,
+                mouseY,
+                this.topPos + StorageScreen.CRAFTING_RECIPE_Y,
+                this.topPos + StorageScreen.CRAFTING_RECIPE_Y
+                    + StorageScreen.CRAFTING_RECIPE_ROWS * StorageScreen.CRAFTING_SLOT_SIZE
+            );
             return true;
+        }
+
+        // 只分发到子组件（搜索框/按钮），绝不调用 AbstractContainerScreen 的容器点击逻辑
+        if (this.dispatchMouseClicked(mouseX, mouseY, button)) {
+            return true;
+        }
+
+        if (this.mode == ScreenMode.CRAFTING && (button == 0 || button == 1)) {
+            if (this.clickJeiRecipeArea(mouseX, mouseY)) {
+                return true;
+            }
+            if (this.clickCraftingRecipe(mouseX, mouseY)) {
+                return true;
+            }
+            Integer craftingSlot = this.getCraftingSlot(mouseX, mouseY);
+            if (craftingSlot != null) {
+                if (Screen.hasShiftDown()) {
+                    // Shift 点击：把槽内物品移出到背包 → 仓储（放不下留在槽内，不拿指针）
+                    this.quickMoveCraftingSlotOut(craftingSlot);
+                    return true;
+                }
+                if (button == 0 && this.isDoubleClick(-(craftingSlot + 1), button)) {
+                    this.doubleclick = true;
+                    this.doubleClickCraftingSlot = craftingSlot;
+                    return true;
+                }
+                if (!this.carried.isEmpty()) {
+                    // 指针有物：进入拖拽准备，释放时若无拖拽则按单次点击放置
+                    this.startQuickCraft(button);
+                    return true;
+                }
+                // 空指针：延迟到鼠标释放时执行（区分单击取物与双击收集，避免异步竞争）
+                this.pendingCraftingSlot = craftingSlot;
+                this.pendingCraftingButton = button;
+                return true;
+            }
+            if (this.clickCraftingResult(mouseX, mouseY, true)) {
+                return true;
+            }
+            if (this.clickCraftingResult(mouseX, mouseY, false)) {
+                return true;
+            }
         }
 
         if (button == 0 || button == 1) {
@@ -714,7 +1313,16 @@ public class StorageScreen extends Screen {
 
             int slot = this.getInventorySlot(mouseX, mouseY);
             if (slot == -1) {
-                if (this.minecraft.gameMode != null && !this.carried.isEmpty()) {
+                // 仅点击界面矩形之外才丢出指针物品；界面内空白处不丢出
+                boolean insideGui = MathUtil.isInRange(
+                    mouseX,
+                    mouseY,
+                    this.leftPos,
+                    this.topPos,
+                    this.leftPos + StorageScreen.BG_WIDTH,
+                    this.topPos + StorageScreen.BG_HEIGHT
+                );
+                if (!insideGui && this.minecraft.gameMode != null && !this.carried.isEmpty()) {
                     this.player.inventoryMenu.setCarried(this.carried);
                     this.minecraft.gameMode.handleInventoryMouseClick(
                         this.player.inventoryMenu.containerId,
@@ -739,7 +1347,10 @@ public class StorageScreen extends Screen {
             }
 
             if (Screen.hasShiftDown()) {
-                if (this.carried.isEmpty()) {
+                if (button == 1) {
+                    // Shift+右键：把该背包槽物品直接放入仓储（不经过指针）
+                    this.interactWithStorage(slot, button, StorageInput.QUICK_MOVE_TO_STORAGE);
+                } else if (this.carried.isEmpty()) {
                     this.quickMoveDragging = true;
                     StorageClientStub.beginUndoGroup(this.sourcePos);
                     this.queueQuickMove(slot);
@@ -826,7 +1437,13 @@ public class StorageScreen extends Screen {
     private int lastClickSlot = -1;
     private int lastClickButton = -1;
     private boolean doubleclick;
+    /** 双击目标为 ①/② 槽时的槽号（0 为①，1~9 为②），否则 -1。 */
+    private int doubleClickCraftingSlot = -1;
+    /** 输入槽单击（空指针）延迟到鼠标释放时执行的槽号 / 按钮，-1 表示无。 */
+    private int pendingCraftingSlot = -1;
+    private int pendingCraftingButton = 0;
 
+    /** 双击检测：crafting 槽用负值标识避免与背包槽冲突。 */
     private boolean isDoubleClick(int slot, int button) {
         final boolean quick = slot == this.lastClickSlot
             && System.currentTimeMillis() - this.lastClickTime < 250L
@@ -845,6 +1462,18 @@ public class StorageScreen extends Screen {
             }
             return true;
         }
+        if (this.recipeScrollable.isScrolling()) {
+            if (button == 0) {
+                this.recipeScrollable.scrollOnDrag(
+                    12,
+                    mouseY,
+                    this.topPos + StorageScreen.CRAFTING_RECIPE_Y,
+                    this.topPos + StorageScreen.CRAFTING_RECIPE_Y
+                        + StorageScreen.CRAFTING_RECIPE_ROWS * StorageScreen.CRAFTING_SLOT_SIZE
+                );
+            }
+            return true;
+        }
         if (this.quickMoveDragging) {
             if (button == 0 && Screen.hasShiftDown()) {
                 int inventorySlot = this.getInventorySlot(mouseX, mouseY);
@@ -855,7 +1484,15 @@ public class StorageScreen extends Screen {
             return true;
         }
         if (!this.quickCrafting || button != this.quickCraftingButton || this.carried.isEmpty()) {
-            return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+            return this.dispatchMouseDragged(mouseX, mouseY, button, dragX, dragY);
+        }
+
+        Integer craftingSlot = this.getCraftingSlot(mouseX, mouseY);
+        if (craftingSlot != null && this.mode == ScreenMode.CRAFTING) {
+            int total = this.quickCraftCraftingSlots.size() + this.quickCraftSlots.size();
+            if (button == 2 || this.carried.getCount() > total) {
+                this.quickCraftCraftingSlots.add(craftingSlot.intValue());
+            }
         }
 
         Integer storageSlot = this.getStorageSlot(mouseX, mouseY);
@@ -871,12 +1508,14 @@ public class StorageScreen extends Screen {
             int screenSlot = this.getScreenSlot(inventorySlot);
             Slot slot = this.player.inventoryMenu.getSlot(screenSlot);
             if (
-                (this.carried.getCount() > this.quickCraftSlots.size() || button == 2)
+                (this.carried.getCount() > this.quickCraftSlots.size() + this.quickCraftCraftingSlots.size()
+                    || button == 2)
                 && AbstractContainerMenu.canItemQuickReplace(slot, this.carried, true)
                 && slot.mayPlace(this.carried)
                 && this.player.inventoryMenu.canDragTo(slot)
             ) {
                 this.quickCraftSlots.add(screenSlot);
+                this.quickCraftInventorySlots.add(inventorySlot);
             }
         }
         return true;
@@ -884,9 +1523,13 @@ public class StorageScreen extends Screen {
 
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        super.mouseReleased(mouseX, mouseY, button);
+        this.dispatchMouseReleased(mouseX, mouseY, button);
         if (this.draggingSlider) {
             this.draggingSlider = false;
+            return true;
+        }
+        if (this.recipeScrollable.isScrolling()) {
+            this.recipeScrollable.notScrolling();
             return true;
         }
         if (this.quickMoveDragging) {
@@ -899,20 +1542,45 @@ public class StorageScreen extends Screen {
         if (this.doubleclick) {
             this.doubleclick = false;
             this.lastClickTime = 0L;
-            if (button == 0 && this.minecraft.gameMode != null) {
-                int inventorySlot = this.getInventorySlot(mouseX, mouseY);
-                if (inventorySlot == this.lastClickedInventorySlot) {
-                    this.player.inventoryMenu.setCarried(this.carried);
-                    this.minecraft.gameMode.handleInventoryMouseClick(
-                        this.player.inventoryMenu.containerId,
-                        this.getScreenSlot(inventorySlot),
-                        0,
-                        ClickType.PICKUP_ALL,
-                        this.player
-                    );
-                    this.carried = this.player.inventoryMenu.getCarried();
+            this.pendingCraftingSlot = -1;
+            if (button == 0) {
+                if (this.doubleClickCraftingSlot >= 0) {
+                    // 双击 ①/② 槽：拿起槽内物品并收集背包同种
+                    int slot = this.doubleClickCraftingSlot;
+                    this.doubleClickCraftingSlot = -1;
+                    this.pickupAllCraftingSlot(slot);
+                    return true;
                 }
+                this.doubleClickCraftingSlot = -1;
+                if (this.minecraft.gameMode != null) {
+                    int inventorySlot = this.getInventorySlot(mouseX, mouseY);
+                    if (inventorySlot == this.lastClickedInventorySlot) {
+                        this.player.inventoryMenu.setCarried(this.carried);
+                        this.minecraft.gameMode.handleInventoryMouseClick(
+                            this.player.inventoryMenu.containerId,
+                            this.getScreenSlot(inventorySlot),
+                            0,
+                            ClickType.PICKUP_ALL,
+                            this.player
+                        );
+                        this.carried = this.player.inventoryMenu.getCarried();
+                        // 背包双击：补充收集 ①/② 输入槽中的同种物品
+                        if (this.mode == ScreenMode.CRAFTING && !this.carried.isEmpty()) {
+                            this.pickupAllInputsIntoCarried();
+                        }
+                    }
+                }
+            } else {
+                this.doubleClickCraftingSlot = -1;
             }
+            return true;
+        }
+        if (this.pendingCraftingSlot >= 0) {
+            // 输入槽单击（空指针）：取出物品
+            int slot = this.pendingCraftingSlot;
+            int clickButton = this.pendingCraftingButton;
+            this.pendingCraftingSlot = -1;
+            this.interactWithCraftingSlot(slot, clickButton);
             return true;
         }
         if (!this.quickCrafting) {
@@ -921,22 +1589,34 @@ public class StorageScreen extends Screen {
 
         if (button == this.quickCraftingButton && this.minecraft.gameMode != null) {
             this.player.inventoryMenu.setCarried(this.carried);
-            if (this.quickCraftSlots.isEmpty() && this.quickCraftStorageSlots.isEmpty()) {
-                int inventorySlot = this.getInventorySlot(mouseX, mouseY);
-                if (inventorySlot != -1) {
-                    this.minecraft.gameMode.handleInventoryMouseClick(
-                        this.player.inventoryMenu.containerId,
-                        this.getScreenSlot(inventorySlot),
-                        button,
-                        ClickType.PICKUP,
-                        this.player
-                    );
+            boolean hasCrafting = !this.quickCraftCraftingSlots.isEmpty();
+            if (this.quickCraftSlots.isEmpty() && this.quickCraftStorageSlots.isEmpty() && !hasCrafting) {
+                // 未拖拽：单次点击语义
+                Integer craftingSlot = this.mode == ScreenMode.CRAFTING
+                    ? this.getCraftingSlot(mouseX, mouseY)
+                    : null;
+                if (craftingSlot != null && !this.carried.isEmpty()) {
+                    this.interactWithCraftingSlot(craftingSlot, button);
+                } else {
+                    int inventorySlot = this.getInventorySlot(mouseX, mouseY);
+                    if (inventorySlot != -1) {
+                        this.minecraft.gameMode.handleInventoryMouseClick(
+                            this.player.inventoryMenu.containerId,
+                            this.getScreenSlot(inventorySlot),
+                            button,
+                            ClickType.PICKUP,
+                            this.player
+                        );
+                    }
                 }
             } else {
                 if (!this.quickCraftStorageSlots.isEmpty()) {
                     this.clonePutToStorage();
                 }
-                if (!this.quickCraftSlots.isEmpty()) {
+                if (hasCrafting) {
+                    // 输入槽 + 背包槽统一按一组均分
+                    this.quickCraftToCraftingSlots(button);
+                } else if (!this.quickCraftSlots.isEmpty()) {
                     this.quickCraftToSlots(button);
                 }
             }
@@ -948,7 +1628,9 @@ public class StorageScreen extends Screen {
 
         this.quickCrafting = false;
         this.quickCraftSlots.clear();
+        this.quickCraftInventorySlots.clear();
         this.quickCraftStorageSlots.clear();
+        this.quickCraftCraftingSlots.clear();
         return true;
     }
 
@@ -956,7 +1638,9 @@ public class StorageScreen extends Screen {
         this.quickCrafting = true;
         this.quickCraftingButton = button;
         this.quickCraftSlots.clear();
+        this.quickCraftInventorySlots.clear();
         this.quickCraftStorageSlots.clear();
+        this.quickCraftCraftingSlots.clear();
     }
 
     private void clonePutToStorage() {
@@ -1101,20 +1785,304 @@ public class StorageScreen extends Screen {
         );
     }
 
-    @Override
-    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+    /**
+     * 点击③/④ 结果槽区域的 JEI 打开区域（切石机 (24,132) 14×15 → 打开切石机配方；
+     * 合成 (65,200) 14×15 → 打开合成配方）。未安装 JEI 时无操作。返回是否命中。
+     */
+    private boolean clickJeiRecipeArea(double mouseX, double mouseY) {
         if (
-            scrollY == 0
-            || !MathUtil.isInRange(
+            MathUtil.isInRange(
                 mouseX,
                 mouseY,
-                this.left + StorageScreen.STORAGE_X - 2,
-                this.top + StorageScreen.SLIDER_Y,
-                this.left + StorageScreen.SLIDER_X + StorageScreen.SLIDER_WIDTH,
-                this.top + StorageScreen.STORAGE_Y + StorageScreen.STORAGE_ROWS * StorageScreen.SLOT_SIZE
+                this.leftPos + 24,
+                this.topPos + 132,
+                this.leftPos + 24 + 14,
+                this.topPos + 132 + 15
             )
         ) {
-            return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+            StorageJeiBridge.openStonecutterRecipes();
+            return true;
+        }
+        if (
+            MathUtil.isInRange(
+                mouseX,
+                mouseY,
+                this.leftPos + 65,
+                this.topPos + 200,
+                this.leftPos + 65 + 14,
+                this.topPos + 200 + 15
+            )
+        ) {
+            StorageJeiBridge.openCraftingRecipes();
+            return true;
+        }
+        return false;
+    }
+
+    /** 点击切石机配方按钮：切换选中配方。返回是否命中。 */
+    private boolean clickCraftingRecipe(double mouseX, double mouseY) {
+        int maxSize = StorageScreen.CRAFTING_RECIPE_COLUMNS * StorageScreen.CRAFTING_RECIPE_ROWS;
+        for (int i = this.recipeHead; i < this.recipeHead + Math.min(this.stonecutterRecipes.size() - this.recipeHead, maxSize); i++) {
+            int x = this.getCraftingRecipeX(i - this.recipeHead);
+            int y = this.getCraftingRecipeY(i - this.recipeHead);
+            if (!MathUtil.isInRange(mouseX, mouseY, x, y, x + 18, y + 18)) {
+                continue;
+            }
+            int next = this.crafting.stonecutterSelected() == i ? 0 : i;
+            this.crafting = this.crafting.withStonecutterSelected(next);
+            StorageClientStub.craftingSelect(this.sourcePos, next);
+            return true;
+        }
+        return false;
+    }
+
+    /** 切石机配方按钮第 i 个的 X 坐标（与批量切割机一致）。 */
+    private int getCraftingRecipeX(int i) {
+        return this.leftPos + StorageScreen.CRAFTING_RECIPE_X
+            + i % StorageScreen.CRAFTING_RECIPE_COLUMNS * StorageScreen.CRAFTING_SLOT_SIZE;
+    }
+
+    /** 切石机配方按钮第 i 个的 Y 坐标（与批量切割机一致）。 */
+    private int getCraftingRecipeY(int i) {
+        return this.topPos + StorageScreen.CRAFTING_RECIPE_Y
+            + i / StorageScreen.CRAFTING_RECIPE_COLUMNS * StorageScreen.CRAFTING_SLOT_SIZE;
+    }
+
+    /**
+     * ① 切石机输入 / ② 合成 9 宫格的槽位命中检测。
+     * 返回 -1 表示未命中；0 表示①；1~9 表示②的 9 个槽。
+     */
+    private @Nullable Integer getCraftingSlot(double mouseX, double mouseY) {
+        int stonecutterX = this.leftPos + StorageScreen.CRAFTING_STONECUTTER_X;
+        int stonecutterY = this.topPos + StorageScreen.CRAFTING_STONECUTTER_Y;
+        if (MathUtil.isInRange(mouseX, mouseY, stonecutterX - 2, stonecutterY - 2, stonecutterX + 17, stonecutterY + 17)) {
+            return 0;
+        }
+        for (int i = 0; i < this.crafting.craftingInput().size(); i++) {
+            int x = this.leftPos + StorageScreen.CRAFTING_GRID_X + i % 3 * StorageScreen.CRAFTING_SLOT_SIZE;
+            int y = this.topPos + StorageScreen.CRAFTING_GRID_Y + i / 3 * StorageScreen.CRAFTING_SLOT_SIZE;
+            if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
+                return i + 1;
+            }
+        }
+        return null;
+    }
+
+    /** 与①/②槽交互（按玩家物品栏点击语义）。slot=0 为①，1~9 为②；button=0 左键 / 1 右键。 */
+    private void interactWithCraftingSlot(int slot, int button) {
+        if (this.minecraft.gameMode == null || this.interactionPending) {
+            return;
+        }
+        this.interactionPending = true;
+        this.player.inventoryMenu.setCarried(this.carried);
+        int request = ++this.interactionRequest;
+        CompletableFuture<StorageServerStub.InteractionResult> future;
+        if (slot == 0) {
+            future = StorageClientStub.craftingPutStonecutterInput(this.sourcePos, button, this.carried);
+        } else {
+            future = StorageClientStub.craftingPutCraftingSlot(this.sourcePos, slot - 1, button, this.carried);
+        }
+        future.whenCompleteAsync(
+            (result, error) -> {
+                if (request != this.interactionRequest || error != null) {
+                    this.interactionPending = false;
+                    return;
+                }
+                this.carried = result.carried();
+                this.player.inventoryMenu.setCarried(this.carried);
+                if (result.changed()) {
+                    this.loadCrafting(false);
+                }
+                this.interactionPending = false;
+            },
+            this.screenExecutor
+        );
+    }
+
+    /** 双击 ①/② 槽：拿起槽内物品并从背包收集同种到指针。 */
+    private void pickupAllCraftingSlot(int slot) {
+        if (this.minecraft.gameMode == null || this.interactionPending) {
+            return;
+        }
+        this.interactionPending = true;
+        this.player.inventoryMenu.setCarried(this.carried);
+        int request = ++this.interactionRequest;
+        StorageClientStub.craftingPickupAll(this.sourcePos, slot, this.carried).whenCompleteAsync(
+            (result, error) -> {
+                if (request != this.interactionRequest || error != null) {
+                    this.interactionPending = false;
+                    return;
+                }
+                this.carried = result.carried();
+                this.player.inventoryMenu.setCarried(this.carried);
+                if (result.changed()) {
+                    this.loadCrafting(false);
+                }
+                this.interactionPending = false;
+            },
+            this.screenExecutor
+        );
+    }
+
+    /** 背包槽双击补充：把 ①/② 输入槽中与指针同种的物品收集到指针。 */
+    private void pickupAllInputsIntoCarried() {
+        if (this.minecraft.gameMode == null || this.interactionPending) {
+            return;
+        }
+        this.interactionPending = true;
+        this.player.inventoryMenu.setCarried(this.carried);
+        int request = ++this.interactionRequest;
+        StorageClientStub.craftingPickupIntoCarried(this.sourcePos, this.carried).whenCompleteAsync(
+            (result, error) -> {
+                if (request != this.interactionRequest || error != null) {
+                    this.interactionPending = false;
+                    return;
+                }
+                this.carried = result.carried();
+                this.player.inventoryMenu.setCarried(this.carried);
+                if (result.changed()) {
+                    this.loadCrafting(false);
+                }
+                this.interactionPending = false;
+            },
+            this.screenExecutor
+        );
+    }
+
+    /** 输入槽 Shift 点击：把槽内物品移出到背包 → 仓储（放不下留在槽内，不拿指针）。 */
+    private void quickMoveCraftingSlotOut(int slot) {
+        if (this.minecraft.gameMode == null || this.interactionPending) {
+            return;
+        }
+        this.interactionPending = true;
+        this.player.inventoryMenu.setCarried(this.carried);
+        int request = ++this.interactionRequest;
+        StorageClientStub.craftingQuickMoveOut(this.sourcePos, slot).whenCompleteAsync(
+            (changed, error) -> {
+                if (request != this.interactionRequest || error != null) {
+                    this.interactionPending = false;
+                    return;
+                }
+                if (changed) {
+                    this.loadCrafting(false);
+                }
+                this.interactionPending = false;
+            },
+            this.screenExecutor
+        );
+    }
+
+    /**
+     * 拖拽分配结束：把指针物品按原版规则（左键 floor 均分 / 右键每槽 1 个 / 中键填满）
+     * 放入 ①/② 输入槽与（如有）玩家背包槽，所有目标作为一组统一计算。
+     */
+    private void quickCraftToCraftingSlots(int button) {
+        if (this.quickCraftCraftingSlots.isEmpty()) {
+            return;
+        }
+        final IntList craftingSlots = new IntArrayList(this.quickCraftCraftingSlots);
+        final IntList inventorySlots = new IntArrayList(this.quickCraftInventorySlots);
+        this.quickCraftCraftingSlots.clear();
+        if (this.minecraft.gameMode == null || this.interactionPending) {
+            return;
+        }
+        this.interactionPending = true;
+        this.player.inventoryMenu.setCarried(this.carried);
+        int request = ++this.interactionRequest;
+        StorageClientStub.craftingQuickCraft(
+            this.sourcePos,
+            button,
+            craftingSlots,
+            inventorySlots,
+            this.carried
+        ).whenCompleteAsync(
+            (result, error) -> {
+                if (request != this.interactionRequest || error != null) {
+                    this.interactionPending = false;
+                    return;
+                }
+                this.carried = result.carried();
+                this.player.inventoryMenu.setCarried(this.carried);
+                if (result.changed()) {
+                    this.loadCrafting(false);
+                }
+                this.interactionPending = false;
+            },
+            this.screenExecutor
+        );
+    }
+
+    /** 点击③/④ 结果槽：取出结果并消耗输入。stonecutter=true 为③。 */
+    private boolean clickCraftingResult(double mouseX, double mouseY, boolean stonecutter) {
+        int x = stonecutter
+                ? this.leftPos + StorageScreen.CRAFTING_RESULT_STONECUTTER_X
+                : this.leftPos + StorageScreen.CRAFTING_RESULT_CRAFTING_X;
+        int y = stonecutter
+                ? this.topPos + StorageScreen.CRAFTING_RESULT_STONECUTTER_Y
+                : this.topPos + StorageScreen.CRAFTING_RESULT_CRAFTING_Y;
+        if (!MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
+            return false;
+        }
+        if (this.minecraft.gameMode == null || this.interactionPending) {
+            return true;
+        }
+        this.interactionPending = true;
+        this.player.inventoryMenu.setCarried(this.carried);
+        int request = ++this.interactionRequest;
+        StorageClientStub.craftingTakeResult(this.sourcePos, stonecutter).whenCompleteAsync(
+            (result, error) -> {
+                if (request != this.interactionRequest || error != null) {
+                    this.interactionPending = false;
+                    return;
+                }
+                this.carried = result.carried();
+                this.player.inventoryMenu.setCarried(this.carried);
+                if (result.changed()) {
+                    this.loadCrafting(false);
+                }
+                this.interactionPending = false;
+            },
+            this.screenExecutor
+        );
+        return true;
+    }
+
+    @Override
+    public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        if (scrollY == 0) {
+            return this.dispatchMouseScrolled(mouseX, mouseY, scrollX, scrollY);
+        }
+        // 悬停在切石机配方选择区：滚动配方列表
+        if (this.mode == ScreenMode.CRAFTING && !this.stonecutterRecipes.isEmpty()) {
+            int recipeRight = this.leftPos + StorageScreen.CRAFTING_RECIPE_X
+                + StorageScreen.CRAFTING_RECIPE_COLUMNS * StorageScreen.CRAFTING_SLOT_SIZE;
+            int recipeBottom = this.topPos + StorageScreen.CRAFTING_RECIPE_Y
+                + StorageScreen.CRAFTING_RECIPE_ROWS * StorageScreen.CRAFTING_SLOT_SIZE;
+            if (MathUtil.isInRange(
+                mouseX,
+                mouseY,
+                this.leftPos + StorageScreen.CRAFTING_RECIPE_X,
+                this.topPos + StorageScreen.CRAFTING_RECIPE_Y,
+                recipeRight,
+                recipeBottom
+            )) {
+                if (this.recipeScrollable.canScroll()) {
+                    this.recipeScrollable.scrollOnScroll(scrollY / 1.2);
+                }
+                return true;
+            }
+        }
+        if (
+            !MathUtil.isInRange(
+                mouseX,
+                mouseY,
+                this.leftPos + StorageScreen.STORAGE_X - 2,
+                this.topPos + StorageScreen.SLIDER_Y,
+                this.leftPos + StorageScreen.SLIDER_X + StorageScreen.SLIDER_WIDTH,
+                this.topPos + StorageScreen.STORAGE_Y + StorageScreen.STORAGE_ROWS * StorageScreen.SLOT_SIZE
+            )
+        ) {
+            return this.dispatchMouseScrolled(mouseX, mouseY, scrollX, scrollY);
         }
 
         int nextScrollRow = Mth.clamp(
@@ -1148,11 +2116,15 @@ public class StorageScreen extends Screen {
         }
 
         InputConstants.Key key = InputConstants.getKey(keyCode, scanCode);
+        if (keyCode == InputConstants.KEY_ESCAPE && this.shouldCloseOnEsc()) {
+            this.onClose();
+            return true;
+        }
         if (Screen.hasControlDown() && keyCode == InputConstants.KEY_Z) {
             this.undoLastMove();
             return true;
         }
-        if (super.keyPressed(keyCode, scanCode, modifiers)) {
+        if (this.dispatchKeyPressed(keyCode, scanCode, modifiers)) {
             return true;
         } else if (this.minecraft.options.keyInventory.isActiveAndMatches(key)) {
             this.onClose();
@@ -1209,7 +2181,7 @@ public class StorageScreen extends Screen {
             this.reorder(false);
             return true;
         }
-        return super.keyReleased(keyCode, scanCode, modifiers);
+        return this.dispatchKeyReleased(keyCode, scanCode, modifiers);
     }
 
     protected boolean checkHotbarKeyPressed(int keyCode, int scanCode) {
@@ -1251,6 +2223,8 @@ public class StorageScreen extends Screen {
         this.reorderRequest++;
         this.syncRequest++;
         this.metadataPending = false;
+        // 记录上次关闭界面时是否为合成模式，下次打开时据此恢复
+        StorageClientStub.craftingSetLastOpened(this.sourcePos, this.mode == ScreenMode.CRAFTING);
         if (this.tracksOpenState && this.minecraft.player != null) {
             StorageClientStub.setOpen(this.sourcePos, false);
         }
@@ -1290,25 +2264,73 @@ public class StorageScreen extends Screen {
         super.removed();
     }
 
-    @Override
-    public boolean isPauseScreen() {
+    /**
+     * 以下 dispatch 系列复刻 {@code Screen} 的默认输入分发（遍历子组件），
+     * 刻意不调用 {@code AbstractContainerScreen} 的对应实现——那些实现会通过
+     * {@code slotClicked} → {@code handleInventoryMouseClick} 走原版容器同步，
+     * 而仓储界面的全部同步由 RPC 管控。
+     */
+
+    private boolean dispatchMouseClicked(double mouseX, double mouseY, int button) {
+        for (net.minecraft.client.gui.components.events.GuiEventListener listener : this.children()) {
+            if (listener.mouseClicked(mouseX, mouseY, button)) {
+                this.setFocused(listener);
+                if (button == 0) {
+                    this.setDragging(true);
+                }
+                return true;
+            }
+        }
         return false;
     }
 
+    private void dispatchMouseReleased(double mouseX, double mouseY, int button) {
+        this.setDragging(false);
+        this.getChildAt(mouseX, mouseY)
+            .filter(listener -> listener.mouseReleased(mouseX, mouseY, button));
+    }
+
+    private boolean dispatchMouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+        return this.getFocused() != null
+            && this.isDragging()
+            && button == 0
+            && this.getFocused().mouseDragged(mouseX, mouseY, button, dragX, dragY);
+    }
+
+    private boolean dispatchMouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+        return this.getChildAt(mouseX, mouseY)
+            .filter(listener -> listener.mouseScrolled(mouseX, mouseY, scrollX, scrollY))
+            .isPresent();
+    }
+
+    /**
+     * {@code AbstractContainerScreen.keyPressed} 仅在 {@code hoveredSlot != null} 时才会触发
+     * 原版容器点击（CLONE/THROW/SWAP）；本界面自绘渲染，从不调用 {@code AbstractContainerScreen.render}，
+     * {@code hoveredSlot} 恒为 null，因此可直接复用父类实现（含 ESC 与 Tab/方向键焦点导航），
+     * 不会产生任何原版容器同步。
+     */
+    private boolean dispatchKeyPressed(int keyCode, int scanCode, int modifiers) {
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    private boolean dispatchKeyReleased(int keyCode, int scanCode, int modifiers) {
+        return this.getFocused() != null && this.getFocused().keyReleased(keyCode, scanCode, modifiers);
+    }
+
     public int getLeftPos() {
-        return this.left;
+        return this.leftPos;
     }
 
     public int getTopPos() {
-        return this.top;
+        return this.topPos;
     }
 
     public int getImageWidth() {
-        return StorageScreen.BG_WIDTH;
+        return this.imageWidth;
     }
 
     public int getImageHeight() {
-        return StorageScreen.BG_HEIGHT;
+        return this.imageHeight;
     }
 
     public @Nullable ItemStack getItemUnderMouse(double mouseX, double mouseY) {
@@ -1322,12 +2344,34 @@ public class StorageScreen extends Screen {
     }
 
     private @Nullable ItemArea getItemAreaData(double mouseX, double mouseY) {
+        if (this.mode == ScreenMode.CRAFTING) {
+            Integer craftingSlot = this.getCraftingSlot(mouseX, mouseY);
+            if (craftingSlot != null) {
+                ItemStack stack = craftingSlot == 0
+                                   ? this.crafting.stonecutterInput()
+                                   : this.crafting.craftingInput().get(craftingSlot - 1);
+                if (stack.isEmpty()) {
+                    return null;
+                }
+                int x;
+                int y;
+                if (craftingSlot == 0) {
+                    x = this.leftPos + StorageScreen.CRAFTING_STONECUTTER_X;
+                    y = this.topPos + StorageScreen.CRAFTING_STONECUTTER_Y;
+                } else {
+                    int index = craftingSlot - 1;
+                    x = this.leftPos + StorageScreen.CRAFTING_GRID_X + index % 3 * StorageScreen.CRAFTING_SLOT_SIZE;
+                    y = this.topPos + StorageScreen.CRAFTING_GRID_Y + index / 3 * StorageScreen.CRAFTING_SLOT_SIZE;
+                }
+                return new ItemArea(stack, x, y);
+            }
+        }
         int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
         for (int displayIndex = 0; displayIndex < StorageScreen.VISIBLE_STORAGE_SLOTS; displayIndex++) {
             int orderIndex = firstOrderIndex + displayIndex;
-            int x = this.left + StorageScreen.STORAGE_X
+            int x = this.leftPos + StorageScreen.STORAGE_X
                     + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
-            int y = this.top + StorageScreen.STORAGE_Y
+            int y = this.topPos + StorageScreen.STORAGE_Y
                     + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
             if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
                 if (orderIndex >= this.displayOrder.size()) {
@@ -1346,10 +2390,10 @@ public class StorageScreen extends Screen {
         if (stack.isEmpty()) {
             return null;
         }
-        int x = this.left + 114 + 18 * (inventorySlot % 9);
+        int x = this.leftPos + 114 + 18 * (inventorySlot % 9);
         int y = inventorySlot < 9
-                ? this.top + 140 + 58
-                : this.top + 140 + 18 * ((inventorySlot - 9) / 9);
+                ? this.topPos + 140 + 58
+                : this.topPos + 140 + 18 * ((inventorySlot - 9) / 9);
         return new ItemArea(stack, x, y);
     }
 
@@ -1360,9 +2404,9 @@ public class StorageScreen extends Screen {
         int firstOrderIndex = this.scrollRow * StorageScreen.STORAGE_COLUMNS;
         for (int displayIndex = 0; displayIndex < StorageScreen.VISIBLE_STORAGE_SLOTS; displayIndex++) {
             int orderIndex = firstOrderIndex + displayIndex;
-            int x = this.left + StorageScreen.STORAGE_X
+            int x = this.leftPos + StorageScreen.STORAGE_X
                 + displayIndex % StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
-            int y = this.top + StorageScreen.STORAGE_Y
+            int y = this.topPos + StorageScreen.STORAGE_Y
                 + displayIndex / StorageScreen.STORAGE_COLUMNS * StorageScreen.SLOT_SIZE;
             if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
                 if (orderIndex < this.displayOrder.size()) {
@@ -1387,19 +2431,19 @@ public class StorageScreen extends Screen {
     }
 
     private int getInventorySlot(double mouseX, double mouseY) {
-        int y = this.top + 140 + 58;
+        int y = this.topPos + 140 + 58;
         for (int column = 0; column < 9; column++) {
-            int x = this.left + 114 + 18 * column;
+            int x = this.leftPos + 114 + 18 * column;
             if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
                 return column;
             }
         }
 
         for (int row = 0; row < 3; row++) {
-            y = this.top + 140 + 18 * row;
+            y = this.topPos + 140 + 18 * row;
             int slot = 9 + row * 9;
             for (int column = 0; column < 9; column++) {
-                int x = this.left + 114 + 18 * column;
+                int x = this.leftPos + 114 + 18 * column;
                 if (MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17)) {
                     return slot;
                 }
@@ -1674,7 +2718,7 @@ public class StorageScreen extends Screen {
         if (this.nbtFolded) {
             this.rebuildFoldedGroups(true);
         } else {
-            this.displayOrder = new IntArrayList(this.order);
+            this.displayOrder = this.applySearchFilter(new IntArrayList(this.order));
         }
         this.remappedOrder = true;
         return true;
@@ -1726,20 +2770,53 @@ public class StorageScreen extends Screen {
         this.foldedCounts.clear();
         if (!foldNbt) {
             this.foldedGroups = List.of();
-            this.displayOrder = new IntArrayList(this.order);
+            this.displayOrder = this.applySearchFilter(new IntArrayList(this.order));
             return;
         }
 
         this.rebuildFoldedGroups(false);
     }
 
+    /**
+     * 服务端（无客户端语言环境）普通文本搜索只按 id path 过滤，本地化名称匹配
+     * 由客户端完成：非 @/# 前缀的搜索词同时匹配物品的本地化显示名与 id path。
+     */
+    private IntList applySearchFilter(IntList order) {
+        String search = SettingClientStub.setting().storage().getSearchContent().strip().toLowerCase(Locale.ROOT);
+        if (search.isEmpty() || search.charAt(0) == '@' || search.charAt(0) == '#') {
+            return order;
+        }
+        IntArrayList filtered = new IntArrayList(order.size());
+        for (int slot : order) {
+            UnlimitedItemStack stack = this.getDisplayedStack(slot);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            String name = stack.toStack().getHoverName().getString().toLowerCase(Locale.ROOT);
+            String idPath = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+            if (name.contains(search) || idPath.contains(search)) {
+                filtered.add(slot);
+            }
+        }
+        return filtered;
+    }
+
     private void rebuildFoldedGroups(boolean preserveRepresentatives) {
         List<IntList> groups = new ArrayList<>();
         Map<Item, IntList> groupsByItem = new HashMap<>();
+        String search = SettingClientStub.setting().storage().getSearchContent().strip().toLowerCase(Locale.ROOT);
+        boolean filterBySearch = !search.isEmpty() && search.charAt(0) != '@' && search.charAt(0) != '#';
         for (int slot : this.order) {
             UnlimitedItemStack stack = this.contents.getOrDefault(slot, UnlimitedItemStack.EMPTY);
             if (stack.isEmpty()) {
                 continue;
+            }
+            if (filterBySearch) {
+                String name = stack.toStack().getHoverName().getString().toLowerCase(Locale.ROOT);
+                String idPath = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
+                if (!name.contains(search) && !idPath.contains(search)) {
+                    continue;
+                }
             }
             IntList group = groupsByItem.get(stack.getItem());
             if (group == null) {
@@ -1887,5 +2964,29 @@ public class StorageScreen extends Screen {
 
         // noinspection UnstableApiUsage
         ItemDecoratorHandler.of(stack).render(graphics, font, stack, x, y);
+    }
+    
+    public static ResourceLocation texture(String path) {
+        return SharedTextures.textureGui("misc/storage_station/" + path);
+    }
+
+    @Getter
+    protected enum ScreenMode {
+        NORMAL(SharedTextures.bg("misc", "storage_station")),
+        CRAFTING(SharedTextures.bg("misc", "storage_station_crafting")),
+        ;
+
+        private final ResourceLocation background;
+
+        ScreenMode(ResourceLocation background) {
+            this.background = background;
+        }
+
+        public ScreenMode next() {
+            return switch (this) {
+                case NORMAL -> ScreenMode.CRAFTING;
+                case CRAFTING -> ScreenMode.NORMAL;
+            };
+        }
     }
 }

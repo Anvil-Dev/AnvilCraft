@@ -103,7 +103,7 @@ public final class SlidingBlockSection {
         for (SlidingBlockInfo info : this.blocks) {
             cache.put(info.getPos2D(side), info.offset());
             if (bounds == null) {
-                bounds = AabbUtil.create(info.offset(), info.offset());
+                bounds = AabbUtil.createExclusive(info.offset(), info.offset());
                 continue;
             }
             bounds = AabbUtil.minmax(bounds, info.offset());

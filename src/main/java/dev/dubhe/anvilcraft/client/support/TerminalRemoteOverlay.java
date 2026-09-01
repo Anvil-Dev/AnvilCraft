@@ -58,7 +58,6 @@ public final class TerminalRemoteOverlay {
     /** 浮窗相对 tooltip 左上方再向右上偏移的像素（右 20、上 14）。 */
     private static final int PANEL_OFFSET_X = 20;
     private static final int PANEL_OFFSET_Y = 14;
-    private static final ResourceLocation SMALL_FONT = ResourceLocation.fromNamespaceAndPath("anvilcraft", "small");
 
     private static @Nullable UUID storageId;
     private static int sizeMode;
@@ -75,6 +74,8 @@ public final class TerminalRemoteOverlay {
     private static boolean taking;
     /** 是否已通过滚轮选择过物品：未选择时点击终端允许 vanilla 拿起终端，不拦截。 */
     private static boolean selected;
+    /** 是否已按 Tab 接管键盘输入：未接管时键盘事件全部放行给下层 GUI（热键栏、E 等照常生效）。 */
+    private static boolean keyboardActive;
     /** 最近一次 tooltip 左上角位置，用于 Alt 切换尺寸时保持右下角原点不变。 */
     private static int lastTooltipX;
     private static int lastTooltipY;
@@ -202,12 +203,14 @@ public final class TerminalRemoteOverlay {
     }
 
     public static boolean mouseClicked(int mouseX, int mouseY, int button) {
-        // 点击搜索框区域时交给 EditBox 处理（聚焦/定位光标），不取出物品。
+        // 点击搜索框区域时交给 EditBox 处理（聚焦/定位光标），不取出物品；
+        // 同时激活键盘接管（点击搜索框的意图就是输入，与按 Tab 效果一致）。
         // 返回 true 表示点击已被浮窗消费，调用方应取消事件，避免落到下层 GUI。
         if (TerminalRemoteOverlay.searchBox != null
             && TerminalRemoteOverlay.searchBox.isMouseOver(mouseX, mouseY)) {
             TerminalRemoteOverlay.searchBox.mouseClicked(mouseX, mouseY, button);
             TerminalRemoteOverlay.searchBox.setFocused(true);
+            TerminalRemoteOverlay.keyboardActive = true;
             return true;
         }
         if (button != 0 && button != 1) {
@@ -280,7 +283,7 @@ public final class TerminalRemoteOverlay {
         if (!TerminalRemoteOverlay.isHovering()) {
             return false;
         }
-        // 悬停即聚焦：拦截所有键入，避免功能键（热键栏、E 等）触发下层 GUI
+        // Esc / Alt 始终由浮窗处理（无论是否按 Tab 接管键盘）：关闭浮窗 / 切换尺寸
         if (keyCode == InputConstants.KEY_ESCAPE) {
             TerminalRemoteOverlay.dismissed = true;
             TerminalRemoteOverlay.setHovering(ItemStack.EMPTY);
@@ -292,14 +295,30 @@ public final class TerminalRemoteOverlay {
             TerminalRemoteOverlay.reanchor();
             return true;
         }
-        TerminalRemoteOverlay.ensureSearchBox();
-        if (TerminalRemoteOverlay.searchBox != null) {
-            // Tab 键激活 / 取消激活搜索栏（悬停浮窗内唯一激活搜索的方式）
+        // 未按 Tab 接管键盘前不拦截其它按键：Tab 键本身除外（首次按 Tab 激活接管并聚焦搜索框）
+        if (!TerminalRemoteOverlay.keyboardActive) {
             if (keyCode == InputConstants.KEY_TAB) {
-                TerminalRemoteOverlay.searchBox.setFocused(!TerminalRemoteOverlay.searchBox.isFocused());
+                TerminalRemoteOverlay.keyboardActive = true;
+                TerminalRemoteOverlay.ensureSearchBox();
+                if (TerminalRemoteOverlay.searchBox != null) {
+                    TerminalRemoteOverlay.searchBox.setFocused(true);
+                }
                 return true;
             }
-            // 仅激活时才把键入交给搜索框；未激活时一律吞掉，避免触发下层 GUI
+            return false;
+        }
+        // 已接管键盘：Tab 取消接管，其余按键交给搜索框（聚焦时）
+        if (keyCode == InputConstants.KEY_TAB) {
+            // 再次按 Tab：取消接管，键盘放行给下层 GUI
+            TerminalRemoteOverlay.keyboardActive = false;
+            if (TerminalRemoteOverlay.searchBox != null) {
+                TerminalRemoteOverlay.searchBox.setFocused(false);
+            }
+            return true;
+        }
+        TerminalRemoteOverlay.ensureSearchBox();
+        if (TerminalRemoteOverlay.searchBox != null) {
+            // 仅聚焦时把键入交给搜索框；未聚焦的其它按键一律吞掉，避免触发下层 GUI
             if (TerminalRemoteOverlay.searchBox.isFocused()) {
                 TerminalRemoteOverlay.searchBox.keyPressed(keyCode, scanCode, modifiers);
             }
@@ -308,10 +327,10 @@ public final class TerminalRemoteOverlay {
     }
 
     public static boolean charTyped(char codePoint, int modifiers) {
-        if (!TerminalRemoteOverlay.isHovering()) {
+        if (!TerminalRemoteOverlay.isHovering() || !TerminalRemoteOverlay.keyboardActive) {
             return false;
         }
-        // 悬停即聚焦：拦截所有字符输入；仅激活状态才交给搜索框
+        // 已接管：拦截所有字符输入；仅聚焦状态才交给搜索框
         TerminalRemoteOverlay.ensureSearchBox();
         if (TerminalRemoteOverlay.searchBox != null && TerminalRemoteOverlay.searchBox.isFocused()) {
             TerminalRemoteOverlay.searchBox.charTyped(codePoint, modifiers);
@@ -645,6 +664,7 @@ public final class TerminalRemoteOverlay {
         TerminalRemoteOverlay.cursor = 0;
         TerminalRemoteOverlay.taking = false;
         TerminalRemoteOverlay.selected = false;
+        TerminalRemoteOverlay.keyboardActive = false;
         TerminalRemoteOverlay.fastRetries = 0;
         TerminalRemoteOverlay.frameCounter = 0;
     }
