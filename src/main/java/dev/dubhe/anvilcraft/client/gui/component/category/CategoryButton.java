@@ -113,6 +113,11 @@ public class CategoryButton extends Button {
         super.onClick(mouseX, mouseY, button);
     }
 
+    @Override
+    protected boolean isValidClickButton(int button) {
+        return button == 0 || button == 1;
+    }
+
     public interface ExtraRenderer {
         ExtraRenderer NOOP = (btn, graphics, mouseX, mouseY, partialTick) -> {};
 
