@@ -64,8 +64,7 @@ public class WheelLifecycleEventListener {
     private static long hammerKeyTime = -1L;
     private static boolean hammerKeyWasDown = false;
     private static @Nullable Optional<WheelMenuModel> hammerWheelCache = null;
-    // TODO: These three fields should be refactored when the AnvilLib
-    //       adds an "on close without action" handler to the wheel menu model
+    
     private static @Nullable BlockPos hammerWheelTargetPos = null;
     private static @Nullable BlockState hammerWheelNextBlockState = null;
     private static @Nullable Supplier<Boolean> hammerInteraction = null;
@@ -605,8 +604,6 @@ public class WheelLifecycleEventListener {
                 WheelLifecycleEventListener.CONTROLLER.onHoldKeyReleased();
             }
 
-            // TODO: This three fields should be refactored when the AnvilLib
-            //       adds an "on close without action" handler to the wheel menu model
             BlockPos targetPos = WheelLifecycleEventListener.hammerWheelTargetPos;
             BlockState state = WheelLifecycleEventListener.hammerWheelNextBlockState;
             Supplier<Boolean> hammerInteraction = WheelLifecycleEventListener.hammerInteraction;
@@ -624,8 +621,6 @@ public class WheelLifecycleEventListener {
             WheelLifecycleEventListener.hammerKeyTime = -1L;
             WheelLifecycleEventListener.hammerWheelCache = null;
 
-            // TODO: These three fields should be refactored when the AnvilLib
-            //       adds an "on close without action" handler to the wheel menu model
             WheelLifecycleEventListener.hammerWheelTargetPos = null;
             WheelLifecycleEventListener.hammerWheelNextBlockState = null;
             WheelLifecycleEventListener.hammerInteraction = null;
