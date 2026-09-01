@@ -21,6 +21,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -87,7 +88,8 @@ public class ClientBlockEventListener {
         if (event.getLevel().isClientSide() && ClientBlockEventListener.clientHandle(event, state, hand, event.getHitVec())) {
             event.setCancellationResult(InteractionResult.SUCCESS);
             event.setCanceled(true);
-        } else if (!state.is(BlockTags.CAULDRONS) && !state.is(ModBlockTags.ANVIL_HAMMER_BLACKLIST)) {
+        } else if (!state.is(BlockTags.CAULDRONS) && !state.is(ModBlockTags.ANVIL_HAMMER_BLACKLIST)
+                   && !AnvilHammerItem.shouldPlaceOffhandBlock(entity, event.getLevel(), event.getHitVec())) {
             event.setCanceled(true);
         }
     }
@@ -113,5 +115,20 @@ public class ClientBlockEventListener {
             () -> StateUtil.findPossibleStatesForProperty(targetBlockState, property),
             hitVec
         );
+    }
+    
+    /**
+     * 主手铁砧锤、副手持有方块且目标为普通方块时，取消使用物品事件，
+     * 使客户端跳过铁砧锤的长按使用，继续处理副手并放出副手方块。
+     */
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void anvilHammerUseItem(PlayerInteractEvent.RightClickItem event) {
+        Player player = event.getEntity();
+        if (event.getHand() != InteractionHand.MAIN_HAND) return;
+        if (!player.getMainHandItem().is(ModItemTags.ANVIL_HAMMER)) return;
+        HitResult hit = player.pick(player.blockInteractionRange(), 1.0F, false);
+        if (hit instanceof BlockHitResult blockHit && AnvilHammerItem.shouldPlaceOffhandBlock(player, event.getLevel(), blockHit)) {
+            event.setCanceled(true);
+        }
     }
 }

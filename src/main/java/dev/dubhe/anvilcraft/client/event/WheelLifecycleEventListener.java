@@ -122,18 +122,19 @@ public class WheelLifecycleEventListener {
         Minecraft client = Minecraft.getInstance();
         LocalPlayer player = client.player;
         WheelLifecycleEventListener.hammerInteraction = () -> {
-            if (player != null && AnvilHammerItem.interactWithBlock(
-                player,
-                targetPos,
-                level,
-                player.getItemInHand(hand),
-                hand,
-                hitVec
-            )) {
-                ClientPacketDistributor.sendToServer(new HammerUsePacket(targetPos, hand, hitVec));
-                return true;
+            if (player == null) {
+                return false;
             }
-            return false;
+            boolean interacted = AnvilHammerItem.interactWithBlock(
+                player, targetPos, level, player.getItemInHand(hand), hand, hitVec
+            );
+            boolean canChange = player.getAbilities().mayBuild
+                                && AnvilHammerItem.ableToUseAnvilHammer(level, targetPos, player);
+            if (!interacted && !canChange && AnvilHammerItem.shouldPlaceOffhandBlock(player, level, hitVec)) {
+                return false;
+            }
+            ClientPacketDistributor.sendToServer(new HammerUsePacket(targetPos, hand, hitVec));
+            return interacted || canChange;
         };
         if (property == null) {
             return WheelLifecycleEventListener.hammerInteraction.get();
