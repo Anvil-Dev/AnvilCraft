@@ -36,8 +36,8 @@ import net.minecraft.world.item.crafting.StonecutterRecipe;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import javax.annotation.Nullable;
 
@@ -362,7 +362,6 @@ public final class StorageJeiSupport {
                     AnvilCraft.LOGGER.error("Storage JEI transfer failed", error);
                     return;
                 }
-
                 if (changed != null && changed) {
                     // 优先通过 JEI 父屏幕刷新；书签等直接在仓储屏幕上触发的转移用当前屏幕
                     if (StorageJeiSupport.parentScreen() instanceof StorageScreen current) {
