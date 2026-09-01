@@ -1947,7 +1947,7 @@ public class RegistrumBlockRecipeLoader {
             .save(provider, of("sugar_from_sugar_block"));
     }
 
-    public static <T extends Block> void gunpowerBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
+    public static <T extends Block> void gunpowderBlock(DataGenContext<Block, T> ctx, RegistrumRecipeProvider provider) {
         ShapelessRecipeBuilder.shapeless(RecipeCategory.BUILDING_BLOCKS, ctx.get())
             .requires(Items.GUNPOWDER, 9)
             .unlockedBy("hasitem", AnvilCraftDatagen.has(Items.GUNPOWDER))

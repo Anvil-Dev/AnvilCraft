@@ -490,7 +490,7 @@ public class ItemTooltipManager {
             When pushed or pulled by a piston, it creates fire around it if an iron block is nearby"""
         );
         NORMAL.put(
-            ModBlocks.GUNPOWER_BLOCK.asItem(), """
+            ModBlocks.GUNPOWDER_BLOCK.asItem(), """
             A large block of gunpowder
             If struck by a falling anvil, it explodes and launches the anvil back up to the height it fell from"""
         );

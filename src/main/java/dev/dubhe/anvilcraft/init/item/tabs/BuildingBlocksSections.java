@@ -104,7 +104,7 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.CUT_FLINT_SLAB_BLOCK);
                 content.accept(ModBlocks.CUT_FLINT_PILLAR_BLOCK);
                 content.accept(ModBlocks.SUGAR_BLOCK);
-                content.accept(ModBlocks.GUNPOWER_BLOCK);
+                content.accept(ModBlocks.GUNPOWDER_BLOCK);
                 content.accept(ModBlocks.ROTTEN_FLESH_BLOCK);
                 content.accept(ModBlocks.PLYWOOD_BLOCK);
                 content.accept(ModBlocks.PLYWOOD_STAIRS);
