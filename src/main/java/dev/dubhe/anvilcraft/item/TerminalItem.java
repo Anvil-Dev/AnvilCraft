@@ -35,6 +35,13 @@ public abstract class TerminalItem extends BundleLikeItem {
     }
 
     @Override
+    protected boolean canInsertInto(BundleLikeItem.TransferState state) {
+        // 手拿物品左键点击槽内终端：终端不本地存储内容，不放行放入，
+        // 交给 vanilla 交换（物品进槽、终端拿起），与 Bundle 收纳语义区分。
+        return false;
+    }
+
+    @Override
     protected void removeOne(BundleLikeItem.TransferState state) {
         if (!(state.getPlayer() instanceof ServerPlayer player)) {
             return;

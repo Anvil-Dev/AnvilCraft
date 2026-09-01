@@ -14,7 +14,7 @@ import net.minecraft.world.level.Level;
 
 /**
  * 潜影终端：不可绑定储存方块，使用时按优先级自动连接
- * 玩家身上槽位最靠前的潜影集装箱、聚合身上的所有潜影盒，
+ * 玩家身上槽位最靠前的潜影集装箱（未绑定 UUID 时惰性授予），
  * 或 64 格以内的一个最近的世界潜影集装箱；其余功能与超维终端一致。
  */
 public class ShulkerTerminalItem extends TerminalItem {

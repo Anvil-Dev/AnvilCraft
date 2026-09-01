@@ -31,6 +31,15 @@ public abstract class BundleLikeItem extends Item {
         return true;
     }
 
+    /**
+     * 手拿物品点击槽内本物品时是否允许把物品放入（vanilla 语义为交换）。
+     * 默认允许（收纳类物品放入）；终端类物品不本地存储内容，覆写为 false
+     * 放行 vanilla 交换。
+     */
+    protected boolean canInsertInto(TransferState state) {
+        return true;
+    }
+
     protected abstract void removeOne(TransferState state);
 
     protected abstract void insertOne(TransferState state);
@@ -100,6 +109,8 @@ public abstract class BundleLikeItem extends Item {
             this.playRemoveOneSound(player);
             this.broadcastChangesOnContainerMenu(player);
         } else {
+            // 手拿物品：默认放入（收纳类）；终端类放行 vanilla 交换
+            if (!this.canInsertInto(state)) return false;
             if (action != BundleLikeItem.computeValidAction(ClickAction.PRIMARY, player)) return false;
             this.insertOne(state);
             ItemStack remain = state.output;

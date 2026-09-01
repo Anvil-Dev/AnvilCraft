@@ -48,11 +48,13 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -134,6 +136,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private static final int CRAFTING_RECIPE_COLUMNS = 3;
     private static final int CRAFTING_RECIPE_ROWS = 2;
     private static final int CRAFTING_SLOT_SIZE = 18;
+    /**
+     * 连续合成（Shift 点击结果槽）客户端最多请求的分块数。
+     * 每个分块最多合成 {@code CRAFTING_TAKE_ALL_CHUNK} 次，总上限为
+     * 64 × 64 = 4096 次；仅作为异常配方下的防御性兜底。
+     */
+    private static final int MAX_TAKE_ALL_CHUNKS = 64;
     /** 缺失工作台/切石机提示浮窗：0.25s 淡入 + 1.25s 停留 + 0.25s 淡出。 */
     private static final int FLYOUT_FADE_IN_TICKS = 5;
     private static final int FLYOUT_HOLD_TICKS = 25;
@@ -1031,7 +1039,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (alpha <= 0.0F) {
             return;
         }
-        MutableComponent message = Component.translatable("tooltip.anvilcraft.storage.missing_workbench_or_stonecutter");
+        MutableComponent message = Component.translatable("tooltip.anvilcraft.storage.missing_workbench");
         int textWidth = this.font.width(message);
         int textHeight = this.font.lineHeight;
         int flyoutWidth = textWidth + 5;
@@ -1831,6 +1839,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             int next = this.crafting.stonecutterSelected() == i ? 0 : i;
             this.crafting = this.crafting.withStonecutterSelected(next);
             StorageClientStub.craftingSelect(this.sourcePos, next);
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
             return true;
         }
         return false;
@@ -2012,7 +2021,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         );
     }
 
-    /** 点击③/④ 结果槽：取出结果并消耗输入。stonecutter=true 为③。 */
+    /**
+     * 点击③/④ 结果槽：取出结果并消耗输入。stonecutter=true 为③。
+     * Shift 点击时连续合成：服务端每次 RPC 最多合成一个分块，客户端循环调用
+     * 直至 done（材料耗尽 / 无处可放 / 不消耗型配方），避免单次 RPC 长时间阻塞
+     * 服务端线程。
+     */
     private boolean clickCraftingResult(double mouseX, double mouseY, boolean stonecutter) {
         int x = stonecutter
                 ? this.leftPos + StorageScreen.CRAFTING_RESULT_STONECUTTER_X
@@ -2029,7 +2043,34 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.interactionPending = true;
         this.player.inventoryMenu.setCarried(this.carried);
         int request = ++this.interactionRequest;
-        StorageClientStub.craftingTakeResult(this.sourcePos, stonecutter).whenCompleteAsync(
+        if (Screen.hasShiftDown()) {
+            this.takeAllChunk(request, stonecutter, 0);
+        } else {
+            StorageClientStub.craftingTakeResult(this.sourcePos, stonecutter).whenCompleteAsync(
+                (result, error) -> {
+                    if (request != this.interactionRequest || error != null) {
+                        this.interactionPending = false;
+                        return;
+                    }
+                    this.carried = result.carried();
+                    this.player.inventoryMenu.setCarried(this.carried);
+                    if (result.changed()) {
+                        this.loadCrafting(false);
+                    }
+                    this.interactionPending = false;
+                },
+                this.screenExecutor
+            );
+        }
+        return true;
+    }
+
+    /**
+     * 连续合成的一个分块：调用一次服务端 {@code craftingTakeAll}，未完成
+     * （done=false）时递归调用下一个分块，直至自然终止或达到总块数上限。
+     */
+    private void takeAllChunk(int request, boolean stonecutter, int chunkIndex) {
+        StorageClientStub.craftingTakeAll(this.sourcePos, stonecutter).whenCompleteAsync(
             (result, error) -> {
                 if (request != this.interactionRequest || error != null) {
                     this.interactionPending = false;
@@ -2040,11 +2081,19 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 if (result.changed()) {
                     this.loadCrafting(false);
                 }
-                this.interactionPending = false;
+                if (result.done()) {
+                    this.interactionPending = false;
+                    return;
+                }
+                // 未完成：继续下一个分块（上限兜底，防止异常配方导致客户端无限循环）
+                if (chunkIndex + 1 >= StorageScreen.MAX_TAKE_ALL_CHUNKS) {
+                    this.interactionPending = false;
+                    return;
+                }
+                this.takeAllChunk(request, stonecutter, chunkIndex + 1);
             },
             this.screenExecutor
         );
-        return true;
     }
 
     @Override

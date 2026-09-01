@@ -364,10 +364,7 @@ public final class TerminalJeiTransferSupport {
             if (typedIngredient == null) {
                 continue;
             }
-            ITypedIngredient<ItemStack> typedItemStack = typedIngredient.castToItemStackType();
-            if (typedItemStack != null) {
-                variants.add(typedItemStack.getIngredient());
-            }
+            typedIngredient.getItemStack().ifPresent(variants::add);
         }
         return variants;
     }

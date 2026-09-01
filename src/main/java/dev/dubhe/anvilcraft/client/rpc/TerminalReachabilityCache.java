@@ -15,6 +15,7 @@ import javax.annotation.Nullable;
 /**
  * 客户端缓存本地 / 潜影终端“当前能否连接目标”的状态，供“+”提示与浮窗判定。
  * 超维终端没有可达性问题（绑定目标无距离限制），不会进入本缓存。
+ * 潜影终端仅连接玩家身上的潜影集装箱或 64 格内最近的世界潜影集装箱。
  */
 public final class TerminalReachabilityCache {
     /** 缓存有效期（毫秒）：轻微滞后可接受，避免频繁 RPC。 */
