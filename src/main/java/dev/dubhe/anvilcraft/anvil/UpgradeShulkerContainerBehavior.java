@@ -31,10 +31,12 @@ public class UpgradeShulkerContainerBehavior implements IAnvilBehavior {
         }
 
         BlockPos mainPart = ModBlocks.SHULKER_CONTAINER.get().getMainPartPos(hitBlockPos, hitBlockState);
-        List<ItemEntity> entities = serverLevel.getEntitiesOfClass(ItemEntity.class, AabbUtil.create(hitBlockPos, hitBlockPos.above()));
         List<ItemEntity> spaceOvercompressor = new ArrayList<>();
         int count = 0;
-        for (ItemEntity entity : entities) {
+        for (ItemEntity entity : serverLevel.getEntitiesOfClass(
+            ItemEntity.class,
+            AabbUtil.createInclusive(hitBlockPos, hitBlockPos.above())
+        )) {
             ItemStack stack = entity.getItem();
             if (stack.is(ModBlocks.SPACE_OVERCOMPRESSOR.asItem())) {
                 spaceOvercompressor.add(entity);

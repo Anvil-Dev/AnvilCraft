@@ -78,7 +78,10 @@ public class Upgrade2HyperdimensionStationBehavior implements IAnvilBehavior {
         List<ItemEntity> hypercubes = new ArrayList<>();
         int crystalCount = 0;
         int hypercubeCount = 0;
-        for (ItemEntity entity : serverLevel.getEntitiesOfClass(ItemEntity.class, AabbUtil.create(hitBlockPos, hitBlockPos.above()))) {
+        for (ItemEntity entity : serverLevel.getEntitiesOfClass(
+            ItemEntity.class,
+            AabbUtil.createInclusive(hitBlockPos, hitBlockPos.above())
+        )) {
             ItemStack stack = entity.getItem();
             if (stack.is(ModBlocks.SINGULARITY_CRYSTAL.asItem())) {
                 crystals.add(entity);

@@ -9,11 +9,11 @@ import net.minecraft.world.phys.AABB;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class AabbUtil {
-    public static AABB create(Vec3i start, Vec3i end) {
+    public static AABB createExclusive(Vec3i start, Vec3i end) {
         return new AABB(start.getX(), start.getY(), start.getZ(), end.getX(), end.getY(), end.getZ());
     }
 
-    public static AABB create(BlockPos start, BlockPos end) {
+    public static AABB createInclusive(Vec3i start, Vec3i end) {
         return new AABB(start.getX(), start.getY(), start.getZ(), end.getX() + 1, end.getY() + 1, end.getZ() + 1);
     }
 

@@ -2783,11 +2783,6 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      */
     private IntList applySearchFilter(IntList order) {
         String search = SettingClientStub.setting().storage().getSearchContent().strip().toLowerCase(Locale.ROOT);
-        AnvilCraft.LOGGER.info(
-            "applySearchFilter: search='{}' orderSize={}",
-            search,
-            order.size()
-        );
         if (search.isEmpty() || search.charAt(0) == '@' || search.charAt(0) == '#') {
             return order;
         }
@@ -2799,17 +2794,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             }
             String name = stack.toStack().getHoverName().getString().toLowerCase(Locale.ROOT);
             String idPath = BuiltInRegistries.ITEM.getKey(stack.getItem()).getPath();
-            AnvilCraft.LOGGER.info(
-                "applySearchFilter slot: item={} name='{}' idPath='{}'",
-                stack.getItem(),
-                name,
-                idPath
-            );
             if (name.contains(search) || idPath.contains(search)) {
                 filtered.add(slot);
             }
         }
-        AnvilCraft.LOGGER.info("applySearchFilter result: filtered={}", filtered.size());
         return filtered;
     }
 
