@@ -371,8 +371,10 @@ public final class StorageClientStub {
     public static CompletableFuture<Boolean> craftingTransfer(
         BlockPos sourcePos,
         boolean stonecutter,
+        boolean maxTransfer,
         List<ItemStack> inputs,
-        ItemStack stonecutterResult
+        ItemStack stonecutterResult,
+        IntList requestedCounts
     ) {
         return RPC.invoke(
             RpcTarget.server(),
@@ -380,8 +382,10 @@ public final class StorageClientStub {
             StorageClientStub.playerId(),
             sourcePos.asLong(),
             stonecutter,
+            maxTransfer,
             inputs,
-            stonecutterResult
+            stonecutterResult,
+            requestedCounts
         );
     }
 

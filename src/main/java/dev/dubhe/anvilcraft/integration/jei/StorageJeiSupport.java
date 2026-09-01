@@ -6,9 +6,12 @@ import dev.dubhe.anvilcraft.client.gui.screen.StorageMenu;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.dubhe.anvilcraft.client.rpc.StorageClientStub;
 import dev.dubhe.anvilcraft.integration.StorageJeiBridge;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import mezz.jei.api.constants.RecipeTypes;
 import mezz.jei.api.gui.ingredient.IRecipeSlotView;
 import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
+import mezz.jei.api.helpers.IStackHelper;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
@@ -17,17 +20,23 @@ import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
 import mezz.jei.api.registration.IRecipeTransferRegistration;
 import mezz.jei.api.runtime.IJeiRuntime;
 import mezz.jei.api.runtime.IRecipesGui;
+import mezz.jei.common.transfer.RecipeTransferOperationsResult;
+import mezz.jei.common.transfer.RecipeTransferUtil;
+import mezz.jei.common.transfer.TransferOperation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.StonecutterRecipe;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Optional;
 import javax.annotation.Nullable;
@@ -243,21 +252,117 @@ public final class StorageJeiSupport {
         return Minecraft.getInstance().screen instanceof StorageScreen screen ? screen : null;
     }
 
+    /**
+     * 用 JEI 自身的分配算法（{@link RecipeTransferUtil#getRecipeTransferOperations}）计算
+     * 每个合成槽应放入的物品份数。可用物品包括：玩家背包各槽 + 当前仓储屏幕缓存中的
+     * 存储内容（每逻辑槽映射为一个虚拟 Slot）。
+     *
+     * @return 长度 9 的份数列表（按②合成格顺序）；材料不足时返回 null
+     */
+    private static @Nullable IntList computeRequestedCounts(
+        StorageMenu container,
+        IRecipeSlotsView recipeSlots,
+        Player player
+    ) {
+        StorageScreen screen = StorageJeiSupport.storageScreen();
+        List<Slot> craftingSlots = new ArrayList<>();
+        for (int i = 0; i < 9; i++) {
+            craftingSlots.add(new VirtualSlot(2 + i, ItemStack.EMPTY));
+        }
+        Map<Slot, ItemStack> availableItemStacks = new HashMap<>();
+        // StorageMenu 槽 9~44 与玩家物品栏 9~35（主物品栏）及 0~8（快捷栏）一一对应；
+        // 槽 0~8 是隐藏假槽/盔甲槽，不可作为合成材料来源。
+        for (int menuSlot = 9; menuSlot <= 44; menuSlot++) {
+            Slot slot = container.getSlot(menuSlot);
+            ItemStack stack = slot.getItem();
+            if (!stack.isEmpty()) {
+                availableItemStacks.put(slot, stack.copy());
+            }
+        }
+        if (screen != null) {
+            for (UnlimitedItemStack stack : screen.getContents().values()) {
+                if (stack.isEmpty()) {
+                    continue;
+                }
+                ItemStack item = stack.toStack();
+                if (item.isEmpty()) {
+                    continue;
+                }
+                // 存储格数量可超过 ItemStack 上限（64）：按 maxStackSize 拆成多个虚拟槽，
+                // 避免 JEI 分配出超过合成格上限的份数，同时正确反映可填满多轮的总量。
+                int maxStack = item.getMaxStackSize();
+                int remaining = stack.getCount();
+                while (remaining > 0) {
+                    int chunk = Math.min(remaining, maxStack);
+                    ItemStack virtual = item.copyWithCount(chunk);
+                    availableItemStacks.put(new VirtualSlot(1000 + availableItemStacks.size(), virtual), virtual.copy());
+                    remaining -= chunk;
+                }
+            }
+        }
+        IStackHelper stackHelper = StorageJeiSupport.runtime == null
+            ? null
+            : StorageJeiSupport.runtime.getJeiHelpers().getStackHelper();
+        if (stackHelper == null) {
+            return null;
+        }
+        List<IRecipeSlotView> inputViews = recipeSlots.getSlotViews(RecipeIngredientRole.INPUT);
+        RecipeTransferOperationsResult operations;
+        try {
+            operations = RecipeTransferUtil.getRecipeTransferOperations(
+                stackHelper,
+                availableItemStacks,
+                inputViews,
+                craftingSlots
+            );
+        } catch (RuntimeException e) {
+            return null;
+        }
+
+        if (!operations.missingItems.isEmpty()) {
+            return null;
+        }
+        int[] counts = new int[9];
+        for (TransferOperation operation : operations.results) {
+            int craftingSlotId = operation.craftingSlotId();
+            int index = craftingSlotId - 2;
+            if (index >= 0 && index < 9) {
+                counts[index] += operation.count();
+            }
+        }
+        IntList result = new IntArrayList(9);
+        for (int count : counts) {
+            result.add(count);
+        }
+
+        return result;
+    }
+
     /** 把配方输入放入终端输入槽（异步 RPC，成功后刷新合成面板）。
      *  {@code stonecutterResult}：切石机场景为 JEI 当前配方产物（用于选中配方），合成场景为 EMPTY。 */
     private static void transferIntoStorage(
         StorageMenu container,
         boolean stonecutter,
+        boolean maxTransfer,
         List<ItemStack> inputs,
-        ItemStack stonecutterResult
+        ItemStack stonecutterResult,
+        IntList requestedCounts
     ) {
-        StorageClientStub.craftingTransfer(container.getSourcePos(), stonecutter, inputs, stonecutterResult)
+        StorageClientStub.craftingTransfer(
+            container.getSourcePos(),
+            stonecutter,
+            maxTransfer,
+            inputs,
+            stonecutterResult,
+            requestedCounts
+        )
             .whenCompleteAsync(
             (changed, error) -> {
                 if (error != null) {
                     AnvilCraft.LOGGER.error("Storage JEI transfer failed", error);
                     return;
                 }
+
                 if (changed != null && changed) {
                     // 优先通过 JEI 父屏幕刷新；书签等直接在仓储屏幕上触发的转移用当前屏幕
                     if (StorageJeiSupport.parentScreen() instanceof StorageScreen current) {
@@ -311,7 +416,8 @@ public final class StorageJeiSupport {
             if (doTransfer) {
                 List<ItemStack> inputs = StorageJeiSupport.collectInputs(recipeSlots, player);
                 ItemStack result = recipe.value().getResultItem(player.level().registryAccess());
-                StorageJeiSupport.transferIntoStorage(container, true, inputs, result);
+                // ① 单槽转移：份数由服务端按上限自行计算，客户端无需提供
+                StorageJeiSupport.transferIntoStorage(container, true, maxTransfer, inputs, result, new IntArrayList(0));
             } else {
                 // 检查阶段：背包缺材料时高亮缺失槽并禁用转移按钮
                 return StorageJeiSupport.checkMissingInputs(this.helper, recipeSlots, player);
@@ -359,12 +465,36 @@ public final class StorageJeiSupport {
             }
             if (doTransfer) {
                 List<ItemStack> inputs = StorageJeiSupport.collectInputs(recipeSlots, player);
-                StorageJeiSupport.transferIntoStorage(container, false, inputs, ItemStack.EMPTY);
+                IntList requestedCounts = StorageJeiSupport.computeRequestedCounts(container, recipeSlots, player);
+                if (requestedCounts == null) {
+                    // 材料不足：与 JEI 默认一致，高亮缺失槽并禁用转移按钮
+                    return this.helper.createUserErrorForMissingSlots(
+                        Component.translatable("jei.tooltip.error.recipe.transfer.missing"),
+                        recipeSlots.getSlotViews(RecipeIngredientRole.INPUT)
+                    );
+                }
+                StorageJeiSupport.transferIntoStorage(container, false, maxTransfer, inputs, ItemStack.EMPTY, requestedCounts);
             } else {
                 // 检查阶段：背包缺材料时高亮缺失槽并禁用转移按钮
                 return StorageJeiSupport.checkMissingInputs(this.helper, recipeSlots, player);
             }
             return null;
+        }
+    }
+
+    /** 仅供 JEI 分配算法使用的虚拟槽：只提供 index 与 getItem()，不绑定任何容器。 */
+    private static final class VirtualSlot extends Slot {
+        private final ItemStack stack;
+
+        private VirtualSlot(int index, ItemStack stack) {
+            super(null, index, 0, 0);
+            this.index = index;
+            this.stack = stack;
+        }
+
+        @Override
+        public ItemStack getItem() {
+            return this.stack;
         }
     }
 }

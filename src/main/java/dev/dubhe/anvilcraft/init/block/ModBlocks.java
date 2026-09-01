@@ -4526,13 +4526,13 @@ public class ModBlocks {
         .recipe(RegistrumBlockRecipeLoader::sugarBlock)
         .register();
 
-    public static final BlockEntry<GunpowderBlock> GUNPOWER_BLOCK = REGISTRUM.block("gunpowder_block", GunpowderBlock::new)
+    public static final BlockEntry<GunpowderBlock> GUNPOWDER_BLOCK = REGISTRUM.block("gunpowder_block", GunpowderBlock::new)
         .initialProperties(() -> Blocks.LAPIS_BLOCK)
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.STORAGE_BLOCKS_GUNPOWDER, Tags.Blocks.STORAGE_BLOCKS)
         .item()
         .tag(ModItemTags.STORAGE_BLOCKS_GUNPOWDER, Tags.Items.STORAGE_BLOCKS)
         .build()
-        .recipe(RegistrumBlockRecipeLoader::gunpowerBlock)
+        .recipe(RegistrumBlockRecipeLoader::gunpowderBlock)
         .register();
 
     public static final BlockEntry<RottenFleshBlock> ROTTEN_FLESH_BLOCK = REGISTRUM.block("rotten_flesh_block", RottenFleshBlock::new)
