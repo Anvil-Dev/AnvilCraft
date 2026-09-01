@@ -327,6 +327,20 @@ public final class StorageClientStub {
         );
     }
 
+    /** 按住 Shift 取③/④ 配方结果：连续合成直到材料不足或产物无处可放。 */
+    public static CompletableFuture<StorageServerStub.InteractionResult> craftingTakeAll(
+        BlockPos sourcePos,
+        boolean stonecutter
+    ) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::craftingTakeAll,
+            StorageClientStub.playerId(),
+            sourcePos.asLong(),
+            stonecutter
+        );
+    }
+
     /** JEI 转移：把配方输入放入 ①/② 输入槽（材料从背包/存储扣取）。
      *  {@code stonecutterResult}：切石机场景传 JEI 当前配方产物，服务端据此选中配方；否则为 EMPTY。 */
     public static CompletableFuture<Boolean> craftingTransfer(

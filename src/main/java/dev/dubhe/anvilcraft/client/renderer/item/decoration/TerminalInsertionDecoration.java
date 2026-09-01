@@ -57,7 +57,7 @@ public class TerminalInsertionDecoration implements IItemDecorator {
             return false;
         }
         // 检查能否连接：本地 / 潜影终端需要当前可连接目标（32 格内板条箱 /
-        // 可解析的潜影目标）；超维终端已绑定即视为可用。未知（尚未确认）与
+        // 可解析的潜影集装箱）；超维终端已绑定即视为可用。未知（尚未确认）与
         // 不可达都不显示，避免可达性缓存过期时“乐观显示几帧”的闪烁。
         if (!stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
             TerminalReachabilityCache.ensure(targetId);
@@ -88,6 +88,7 @@ public class TerminalInsertionDecoration implements IItemDecorator {
             return StorageTerminalClientStub.localTerminalId();
         }
         if (stack.is(ModItems.SHULKER_TERMINAL)) {
+            // 潜影终端：会话标识（连接目标为身上的潜影集装箱 / 世界潜影集装箱）
             return StorageTerminalClientStub.shulkerTerminalId();
         }
         return null;

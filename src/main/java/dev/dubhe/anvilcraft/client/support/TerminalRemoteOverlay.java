@@ -66,16 +66,13 @@ public final class TerminalRemoteOverlay {
     private static IntList order = new IntArrayList();
     private static final Int2ObjectMap<UnlimitedItemStack> CONTENTS = new Int2ObjectOpenHashMap<>();
     private static final Int2LongMap COUNTS = new Int2LongOpenHashMap();
-    private static int cursor;
+    /** 当前选中的物品序号；-1 表示尚未通过滚轮选择（未选择时点击终端允许 vanilla 拿起终端）。 */
+    private static int cursor = -1;
     private static int left;
     private static int top;
     private static int frameCounter;
     private static int fastRetries;
     private static boolean taking;
-    /** 是否已通过滚轮选择过物品：未选择时点击终端允许 vanilla 拿起终端，不拦截。 */
-    private static boolean selected;
-    /** 是否已按 Tab 接管键盘输入：未接管时键盘事件全部放行给下层 GUI（热键栏、E 等照常生效）。 */
-    private static boolean keyboardActive;
     /** 最近一次 tooltip 左上角位置，用于 Alt 切换尺寸时保持右下角原点不变。 */
     private static int lastTooltipX;
     private static int lastTooltipY;
@@ -88,7 +85,7 @@ public final class TerminalRemoteOverlay {
     public static void setHovering(ItemStack stack) {
         UUID newId = TerminalRemoteOverlay.storageIdOf(stack);
         if (newId != null && !stack.is(ModItems.HYPERDIMENSION_TERMINAL)) {
-            // 本地 / 潜影终端：仅当当前可连接目标时激活浮窗（超出范围 / 无目标则不可用）
+            // 本地 / 潜影终端：仅当当前可连接目标时激活浮窗（超出范围 / 无可连接潜影集装箱则不可用）
             TerminalReachabilityCache.ensure(newId);
             if (!TerminalReachabilityCache.isReachable(newId)) {
                 newId = null;
@@ -172,7 +169,7 @@ public final class TerminalRemoteOverlay {
                     y + 1
                 );
             }
-            if (TerminalRemoteOverlay.selected && orderIndex == TerminalRemoteOverlay.cursor) {
+            if (TerminalRemoteOverlay.cursor >= 0 && orderIndex == TerminalRemoteOverlay.cursor) {
                 graphics.blit(SharedTextures.BOX_SELECTION, x, y, 0, 0, 18, 18, 18, 18);
             }
         }
@@ -210,7 +207,6 @@ public final class TerminalRemoteOverlay {
             && TerminalRemoteOverlay.searchBox.isMouseOver(mouseX, mouseY)) {
             TerminalRemoteOverlay.searchBox.mouseClicked(mouseX, mouseY, button);
             TerminalRemoteOverlay.searchBox.setFocused(true);
-            TerminalRemoteOverlay.keyboardActive = true;
             return true;
         }
         if (button != 0 && button != 1) {
@@ -219,8 +215,8 @@ public final class TerminalRemoteOverlay {
         if (!TerminalRemoteOverlay.isHovering() || TerminalRemoteOverlay.taking) {
             return false;
         }
-        // 未通过滚轮选择过物品时，不拦截点击——允许 vanilla 将终端拿起
-        if (!TerminalRemoteOverlay.selected) {
+        // 未通过滚轮选择过物品（cursor == -1）时，不拦截点击——允许 vanilla 将终端拿起
+        if (TerminalRemoteOverlay.cursor < 0) {
             return false;
         }
         // 鼠标通常位于终端槽位上（面板跟随 tooltip 显示在其左上方），点击时取出
@@ -245,8 +241,7 @@ public final class TerminalRemoteOverlay {
             return true;
         }
         // 第一次滚动先选中第一格（启用左右键取出）；其后的滚动才进行其它选择操作。
-        if (!TerminalRemoteOverlay.selected) {
-            TerminalRemoteOverlay.selected = true;
+        if (TerminalRemoteOverlay.cursor < 0) {
             TerminalRemoteOverlay.cursor = 0;
             TerminalRemoteOverlay.syncVisible();
             return true;
@@ -295,10 +290,9 @@ public final class TerminalRemoteOverlay {
             TerminalRemoteOverlay.reanchor();
             return true;
         }
-        // 未按 Tab 接管键盘前不拦截其它按键：Tab 键本身除外（首次按 Tab 激活接管并聚焦搜索框）
-        if (!TerminalRemoteOverlay.keyboardActive) {
+        // 未聚焦（未按 Tab 接管键盘）前不拦截其它按键：Tab 键本身除外（首次按 Tab 激活接管并聚焦搜索框）
+        if (!TerminalRemoteOverlay.searchBoxFocused()) {
             if (keyCode == InputConstants.KEY_TAB) {
-                TerminalRemoteOverlay.keyboardActive = true;
                 TerminalRemoteOverlay.ensureSearchBox();
                 if (TerminalRemoteOverlay.searchBox != null) {
                     TerminalRemoteOverlay.searchBox.setFocused(true);
@@ -310,7 +304,6 @@ public final class TerminalRemoteOverlay {
         // 已接管键盘：Tab 取消接管，其余按键交给搜索框（聚焦时）
         if (keyCode == InputConstants.KEY_TAB) {
             // 再次按 Tab：取消接管，键盘放行给下层 GUI
-            TerminalRemoteOverlay.keyboardActive = false;
             if (TerminalRemoteOverlay.searchBox != null) {
                 TerminalRemoteOverlay.searchBox.setFocused(false);
             }
@@ -327,7 +320,7 @@ public final class TerminalRemoteOverlay {
     }
 
     public static boolean charTyped(char codePoint, int modifiers) {
-        if (!TerminalRemoteOverlay.isHovering() || !TerminalRemoteOverlay.keyboardActive) {
+        if (!TerminalRemoteOverlay.isHovering() || !TerminalRemoteOverlay.searchBoxFocused()) {
             return false;
         }
         // 已接管：拦截所有字符输入；仅聚焦状态才交给搜索框
@@ -340,7 +333,13 @@ public final class TerminalRemoteOverlay {
 
     /** 是否已通过滚轮选择过物品；未选择时点击终端允许 vanilla 拿起终端。 */
     public static boolean hasSelection() {
-        return TerminalRemoteOverlay.selected;
+        return TerminalRemoteOverlay.cursor >= 0;
+    }
+
+    /** 搜索框是否聚焦：即键盘是否被浮窗接管（按 Tab 或点击搜索框聚焦）。 */
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private static boolean searchBoxFocused() {
+        return TerminalRemoteOverlay.searchBox != null && TerminalRemoteOverlay.searchBox.isFocused();
     }
 
     /** 确保搜索框已创建（渲染/按键/字符输入前调用），位置与宽度随后由渲染更新。 */
@@ -375,7 +374,7 @@ public final class TerminalRemoteOverlay {
         if (!TerminalRemoteOverlay.isHovering()) {
             return;
         }
-        // 本地 / 潜影终端：目标脱离连接范围（走远 / 目标消失）后停用浮窗
+        // 本地 / 潜影终端：目标脱离连接范围（走远 / 目标消失 / 集装箱移出背包）后停用浮窗
         UUID id = TerminalRemoteOverlay.storageId;
         Player player = Minecraft.getInstance().player;
         if (id != null
@@ -421,11 +420,14 @@ public final class TerminalRemoteOverlay {
             IntList next = new IntArrayList(newOrder);
             boolean orderChanged = !next.equals(TerminalRemoteOverlay.order);
             TerminalRemoteOverlay.order = next;
-            TerminalRemoteOverlay.cursor = Mth.clamp(
-                TerminalRemoteOverlay.cursor,
-                0,
-                Math.max(0, TerminalRemoteOverlay.order.size() - 1)
-            );
+            // 仅在选择有效时收紧到新排序范围；-1（未选择）保持不变
+            if (TerminalRemoteOverlay.cursor >= 0) {
+                TerminalRemoteOverlay.cursor = Mth.clamp(
+                    TerminalRemoteOverlay.cursor,
+                    0,
+                    Math.max(0, TerminalRemoteOverlay.order.size() - 1)
+                );
+            }
             // 仅当排序真正变化时才清空缓存，避免周期性刷新导致物品闪烁
             if (orderChanged) {
                 TerminalRemoteOverlay.CONTENTS.clear();
@@ -436,9 +438,8 @@ public final class TerminalRemoteOverlay {
     }
 
     private static void reorder() {
+        // 搜索是显式操作：搜索后进入选择模式（选中第一格），点击终端可取出搜索结果
         TerminalRemoteOverlay.cursor = 0;
-        // 搜索是显式操作：搜索后进入选择模式，点击终端可取出搜索结果
-        TerminalRemoteOverlay.selected = true;
         TerminalRemoteOverlay.refresh();
     }
 
@@ -661,10 +662,8 @@ public final class TerminalRemoteOverlay {
         TerminalRemoteOverlay.order = new IntArrayList();
         TerminalRemoteOverlay.CONTENTS.clear();
         TerminalRemoteOverlay.COUNTS.clear();
-        TerminalRemoteOverlay.cursor = 0;
+        TerminalRemoteOverlay.cursor = -1;
         TerminalRemoteOverlay.taking = false;
-        TerminalRemoteOverlay.selected = false;
-        TerminalRemoteOverlay.keyboardActive = false;
         TerminalRemoteOverlay.fastRetries = 0;
         TerminalRemoteOverlay.frameCounter = 0;
     }

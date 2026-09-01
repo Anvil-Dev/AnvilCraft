@@ -26,7 +26,6 @@ import net.minecraft.client.gui.navigation.ScreenPosition;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -46,6 +45,7 @@ public final class JeiBlockIngredientUtil {
     private JeiBlockIngredientUtil() {
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public static IRecipeSlotBuilder addInputSlot(
         IRecipeLayoutBuilder builder,
         String name,
@@ -153,6 +153,7 @@ public final class JeiBlockIngredientUtil {
         }
 
         @Override
+        @SuppressWarnings("removal")
         public List<Component> getTooltip(ItemStack ingredient, TooltipFlag tooltipFlag) {
             Minecraft minecraft = Minecraft.getInstance();
             Item.TooltipContext context = Item.TooltipContext.of(minecraft.level);
@@ -191,7 +192,7 @@ public final class JeiBlockIngredientUtil {
         }
     }
 
-    @SuppressWarnings("removal")
+    @SuppressWarnings({"removal", "NonExtendableApiUsage"})
     private record NoHoverRecipeSlot(IRecipeSlotDrawable delegate) implements IRecipeSlotDrawable {
         @Override
         public Stream<ITypedIngredient<?>> getAllIngredients() {
@@ -201,6 +202,11 @@ public final class JeiBlockIngredientUtil {
         @Override
         public List<ITypedIngredient<?>> getAllIngredientsList() {
             return this.delegate.getAllIngredientsList();
+        }
+
+        @Override
+        public Stream<ITypedIngredient<?>> getDisplayedIngredients() {
+            return this.delegate.getDisplayedIngredients();
         }
 
         @Override
@@ -231,6 +237,11 @@ public final class JeiBlockIngredientUtil {
         @Override
         public Optional<String> getSlotName() {
             return this.delegate.getSlotName();
+        }
+
+        @Override
+        public Optional<TagKey<?>> getTagKey() {
+            return this.delegate.getTagKey();
         }
 
         @Override

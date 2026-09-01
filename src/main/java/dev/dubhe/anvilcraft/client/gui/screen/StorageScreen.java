@@ -2029,7 +2029,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.interactionPending = true;
         this.player.inventoryMenu.setCarried(this.carried);
         int request = ++this.interactionRequest;
-        StorageClientStub.craftingTakeResult(this.sourcePos, stonecutter).whenCompleteAsync(
+        var takeFuture = Screen.hasShiftDown()
+            ? StorageClientStub.craftingTakeAll(this.sourcePos, stonecutter)
+            : StorageClientStub.craftingTakeResult(this.sourcePos, stonecutter);
+        takeFuture.whenCompleteAsync(
             (result, error) -> {
                 if (request != this.interactionRequest || error != null) {
                     this.interactionPending = false;

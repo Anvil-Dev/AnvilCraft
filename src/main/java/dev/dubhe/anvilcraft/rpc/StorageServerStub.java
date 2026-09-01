@@ -46,7 +46,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.UUIDUtil;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -62,7 +61,6 @@ import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
@@ -120,8 +118,6 @@ public final class StorageServerStub {
     private static final int LOCAL_TERMINAL_RANGE = 32;
     /** 潜影终端自动连接世界潜影集装箱的搜索半径（格）。 */
     private static final int SHULKER_TERMINAL_RANGE = 64;
-    /** 单个潜影盒的槽位数。 */
-    private static final int SHULKER_BOX_SLOTS = 27;
 
     private final UUID storageId;
     private long version;
@@ -501,13 +497,14 @@ public final class StorageServerStub {
             }
             target = new RemoteTarget(RemoteTarget.LARGE_CRATE, crateId.get());
         } else if (storageId.equals(StorageServerStub.shulkerTerminalId(playerId))) {
-            // 潜影终端：优先连接身上槽位最靠前的潜影集装箱，
-            // 其次聚合身上所有潜影盒，最后连接 64 格内最近的世界潜影集装箱
+            // 潜影终端：优先连接身上槽位最靠前的潜影集装箱；空（无 UUID）集装箱在
+            // 打开时惰性授予 UUID；否则连接 64 格内最近的世界潜影集装箱
             Optional<UUID> containerId = StorageServerStub.findPlayerShulkerContainer(player);
+            if (containerId.isEmpty()) {
+                containerId = StorageServerStub.grantIdToFirstShulkerContainer(player);
+            }
             if (containerId.isPresent()) {
                 target = new RemoteTarget(RemoteTarget.SHULKER_CONTAINER, containerId.get());
-            } else if (!StorageServerStub.findShulkerBoxes(player).isEmpty()) {
-                target = new RemoteTarget(RemoteTarget.SHULKER_BOXES, null);
             } else {
                 Optional<UUID> worldId = StorageServerStub.findNearbyShulkerContainer(player);
                 if (worldId.isEmpty()) {
@@ -1068,30 +1065,8 @@ public final class StorageServerStub {
         CraftingStorage crafting = target.read();
         ItemStack carried = player.containerMenu.getCarried();
         // 先计算产物（不写入），指针不兼容时直接拒绝，避免误消耗输入
-        ItemStack result;
-        if (stonecutter) {
-            ItemStack input = crafting.stonecutterInput();
-            if (input.isEmpty()) {
-                return new InteractionResult(carried, false);
-            }
-            List<RecipeHolder<StonecutterRecipe>> recipes = player.level().getRecipeManager()
-                .getRecipesFor(RecipeType.STONECUTTING, new SingleRecipeInput(input), player.level());
-            if (recipes.isEmpty() || crafting.stonecutterSelected() < 0
-                || crafting.stonecutterSelected() >= recipes.size()) {
-                return new InteractionResult(carried, false);
-            }
-            result = recipes.get(crafting.stonecutterSelected()).value()
-                .assemble(new SingleRecipeInput(input), player.level().registryAccess());
-        } else {
-            CraftingInput input = CraftingInput.of(3, 3, crafting.craftingInput());
-            List<RecipeHolder<CraftingRecipe>> recipes = player.level().getRecipeManager()
-                .getRecipesFor(RecipeType.CRAFTING, input, player.level());
-            if (recipes.isEmpty()) {
-                return new InteractionResult(carried, false);
-            }
-            result = recipes.getFirst().value().assemble(input, player.level().registryAccess());
-        }
-        if (result.isEmpty()) {
+        ItemStack result = StorageServerStub.assembleCraftingResult(player, crafting, stonecutter);
+        if (result == null || result.isEmpty()) {
             return new InteractionResult(carried, false);
         }
         // 指针有物：仅当与产物同种且能放下时合并取出；否则拒绝（不消耗输入）
@@ -1113,6 +1088,111 @@ public final class StorageServerStub {
         return new InteractionResult(result, true);
     }
 
+    /**
+     * 按住 Shift 点击③/④ 结果槽：连续合成直到材料不足或产物无处可放。
+     * 产物依次放入指针（同种合并）→ 背包（同种堆叠/空槽）→ 仓储；仍放不下时
+     * 丢弃本次产物并截断（前面已成功放入的保留，合成输入停止消耗）。
+     */
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingTakeAll(UUID playerId, long sourcePos, boolean stonecutter) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        boolean any = false;
+        while (true) {
+            CraftingStorage crafting = target.read();
+            ItemStack result = StorageServerStub.assembleCraftingResult(player, crafting, stonecutter);
+            if (result == null || result.isEmpty()) {
+                break;
+            }
+            if (!StorageServerStub.placeCraftingResult(player, target, result)) {
+                // 产物无处可放：丢弃本次产物并截断
+                player.drop(result, false);
+                break;
+            }
+            StorageServerStub.consumeCraftingInput(target, crafting, stonecutter);
+            any = true;
+        }
+        ItemStack carried = player.containerMenu.getCarried();
+        player.containerMenu.broadcastChanges();
+        return new InteractionResult(carried, any);
+    }
+
+    /** 计算③/④ 当前配方产物（不消耗输入）；配方无效或产物为空返回 null。 */
+    @Nullable
+    private static ItemStack assembleCraftingResult(
+        ServerPlayer player,
+        CraftingStorage crafting,
+        boolean stonecutter
+    ) {
+        if (stonecutter) {
+            ItemStack input = crafting.stonecutterInput();
+            if (input.isEmpty()) {
+                return null;
+            }
+            List<RecipeHolder<StonecutterRecipe>> recipes = player.level().getRecipeManager()
+                .getRecipesFor(RecipeType.STONECUTTING, new SingleRecipeInput(input), player.level());
+            if (recipes.isEmpty() || crafting.stonecutterSelected() < 0
+                || crafting.stonecutterSelected() >= recipes.size()) {
+                return null;
+            }
+            return recipes.get(crafting.stonecutterSelected()).value()
+                .assemble(new SingleRecipeInput(input), player.level().registryAccess());
+        }
+        CraftingInput input = CraftingInput.of(3, 3, crafting.craftingInput());
+        List<RecipeHolder<CraftingRecipe>> recipes = player.level().getRecipeManager()
+            .getRecipesFor(RecipeType.CRAFTING, input, player.level());
+        if (recipes.isEmpty()) {
+            return null;
+        }
+        return recipes.getFirst().value().assemble(input, player.level().registryAccess());
+    }
+
+    /**
+     * 把一次合成产物放入指针（同种合并）→ 背包（同种堆叠/空槽）→ 仓储；
+     * 全部放不下返回 false。部分放入仓储时剩余部分丢弃。
+     */
+    private static boolean placeCraftingResult(ServerPlayer player, StorageServerStub.CraftingTarget target, ItemStack result) {
+        ItemStack carried = player.containerMenu.getCarried();
+        if (carried.isEmpty()) {
+            player.containerMenu.setCarried(result);
+            return true;
+        }
+        if (ItemStack.isSameItemSameComponents(carried, result)
+            && carried.getCount() + result.getCount() <= carried.getMaxStackSize()) {
+            ItemStack merged = carried.copy();
+            merged.grow(result.getCount());
+            player.containerMenu.setCarried(merged);
+            return true;
+        }
+        Inventory inventory = player.getInventory();
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack stack = inventory.getItem(i);
+            if (stack.isEmpty()) {
+                inventory.setItem(i, result);
+                return true;
+            }
+            if (ItemStack.isSameItemSameComponents(stack, result)
+                && stack.getCount() + result.getCount() <= stack.getMaxStackSize()) {
+                stack.grow(result.getCount());
+                return true;
+            }
+        }
+        StorageView view = target.view();
+        if (view != null) {
+            int inserted = view.insert(result.copyWithCount(1), result.getCount());
+            if (inserted == result.getCount()) {
+                return true;
+            }
+            if (inserted > 0) {
+                ItemStack rest = result.copy();
+                rest.shrink(inserted);
+                player.drop(rest, false);
+                return true;
+            }
+        }
+        return false;
+    }
+
     /** 消耗③/④ 对应的输入并写入合成数据。 */
     private static void consumeCraftingInput(
         StorageServerStub.CraftingTarget target,
@@ -1125,15 +1205,24 @@ public final class StorageServerStub {
             shrunk.shrink(1);
             target.write(crafting.withStonecutterInput(shrunk.isEmpty() ? ItemStack.EMPTY : shrunk));
         } else {
+            // 每次合成每槽只消耗 1 个（原版合成语义），剩余物品（如桶）保留在槽内
             CraftingInput input = CraftingInput.of(3, 3, crafting.craftingInput());
             List<ItemStack> remaining = target.player().level().getRecipeManager()
                 .getRemainingItemsFor(RecipeType.CRAFTING, input, target.player().level());
             List<ItemStack> grid = new ArrayList<>(crafting.craftingInput());
             for (int i = 0; i < grid.size(); i++) {
-                if (i >= remaining.size() || remaining.get(i).isEmpty()) {
-                    grid.set(i, ItemStack.EMPTY);
+                ItemStack current = grid.get(i);
+                if (current.isEmpty()) {
+                    continue;
+                }
+                ItemStack left = i < remaining.size() ? remaining.get(i) : ItemStack.EMPTY;
+                if (left.isEmpty()) {
+                    ItemStack shrunk = current.copy();
+                    shrunk.shrink(1);
+                    grid.set(i, shrunk.isEmpty() ? ItemStack.EMPTY : shrunk);
                 } else {
-                    grid.set(i, remaining.get(i).copy());
+                    // 有剩余物（桶/碗等）：原版中该槽输出剩余物而非原物，剩余物不入存储
+                    grid.set(i, left.copy());
                 }
             }
             target.write(crafting.withCraftingInput(grid));
@@ -1407,7 +1496,7 @@ public final class StorageServerStub {
         Item item = switch (kind) {
             case RemoteTarget.HYPERDIMENSION -> ModItems.HYPERDIMENSION_TERMINAL.asItem();
             case RemoteTarget.LARGE_CRATE -> ModItems.LOCAL_TERMINAL.asItem();
-            case RemoteTarget.SHULKER_CONTAINER, RemoteTarget.SHULKER_BOXES -> ModItems.SHULKER_TERMINAL.asItem();
+            case RemoteTarget.SHULKER_CONTAINER -> ModItems.SHULKER_TERMINAL.asItem();
             default -> null;
         };
         if (item == null) {
@@ -2418,7 +2507,6 @@ public final class StorageServerStub {
         static final int HYPERDIMENSION = 0;
         static final int LARGE_CRATE = 1;
         static final int SHULKER_CONTAINER = 2;
-        static final int SHULKER_BOXES = 3;
     }
 
     /** 根据终端目标标识解析本次调用应操作的存储列表。 */
@@ -2447,6 +2535,8 @@ public final class StorageServerStub {
             return StorageServerStub.localTerminalId(playerId);
         }
         if (terminal.is(ModItems.SHULKER_TERMINAL)) {
+            // 空手右键使用终端时会惰性为身上的空潜影集装箱授予 UUID，
+            // 此处仅解析会话标识（不触发授予）
             return StorageServerStub.shulkerTerminalId(playerId);
         }
         if (terminal.is(ModItems.HYPERDIMENSION_TERMINAL)) {
@@ -2504,7 +2594,7 @@ public final class StorageServerStub {
      * 终端目标当前是否可达：
      * <ul>
      *   <li>本地终端：32 格内仍存在大型板条箱；</li>
-     *   <li>潜影终端：身上仍存在潜影集装箱 / 潜影盒，或 64 格内仍存在世界潜影集装箱；</li>
+     *   <li>潜影终端：身上仍存在潜影集装箱，或 64 格内仍存在世界潜影集装箱；</li>
      *   <li>超维终端：绑定目标始终可达（无距离限制）。</li>
      * </ul>
      */
@@ -2530,7 +2620,7 @@ public final class StorageServerStub {
         }
         return switch (target.kind()) {
             case RemoteTarget.LARGE_CRATE -> StorageServerStub.findNearbyLargeCrate(player).isPresent();
-            case RemoteTarget.SHULKER_CONTAINER, RemoteTarget.SHULKER_BOXES -> !StorageServerStub.shulkerTerminalStorages(player).isEmpty();
+            case RemoteTarget.SHULKER_CONTAINER -> !StorageServerStub.shulkerTerminalStorages(player).isEmpty();
             default -> true;
         };
     }
@@ -2547,26 +2637,17 @@ public final class StorageServerStub {
     /**
      * 解析潜影终端的连接目标（按优先级，不同时连接多个）：
      * <ol>
-     *   <li>玩家身上槽位最靠前的潜影集装箱；</li>
-     *   <li>玩家身上的全部潜影盒（聚合视图）；</li>
+     *   <li>玩家身上槽位最靠前的潜影集装箱（仅已有 UUID 的，空集装箱在打开时授予）；</li>
      *   <li>64 格内最近的世界潜影集装箱。</li>
      * </ol>
      */
     private static List<BaseStorage<?>> shulkerTerminalStorages(ServerPlayer player) {
         Optional<UUID> containerId = StorageServerStub.findPlayerShulkerContainer(player);
-        if (containerId.isPresent()) {
-            return List.of(Storages.get().getOrCreate(containerId.get(), ShulkerContainerStorage.class));
-        }
-        List<ItemStack> boxes = StorageServerStub.findShulkerBoxes(player);
-        if (!boxes.isEmpty()) {
-            return List.of(new ShulkerBoxesStorage(
-                StorageServerStub.shulkerTerminalId(player.getGameProfile().getId()),
-                boxes
-            ));
-        }
-        return StorageServerStub.findNearbyShulkerContainer(player)
-            .map(id -> List.<BaseStorage<?>>of(Storages.get().getOrCreate(id, ShulkerContainerStorage.class)))
-            .orElseGet(List::of);
+        return containerId
+            .<List<BaseStorage<?>>>map(uuid -> List.of(Storages.get().getOrCreate(uuid, ShulkerContainerStorage.class)))
+            .orElseGet(() -> StorageServerStub.findNearbyShulkerContainer(player)
+                .map(id -> List.<BaseStorage<?>>of(Storages.get().getOrCreate(id, ShulkerContainerStorage.class)))
+                .orElseGet(List::of));
     }
 
     /**
@@ -2650,18 +2731,31 @@ public final class StorageServerStub {
         return Optional.empty();
     }
 
-    /** 收集玩家身上的全部潜影盒（按槽位顺序）。 */
-    private static List<ItemStack> findShulkerBoxes(ServerPlayer player) {
-        List<ItemStack> boxes = new ArrayList<>();
+    /**
+     * 为玩家身上槽位最靠前的无 UUID 潜影集装箱授予随机 UUID（写回物品 STORAGE 组件），
+     * 使其可被潜影终端连接。右键打开终端时调用；无可授予的集装箱时返回空。
+     */
+    private static Optional<UUID> grantIdToFirstShulkerContainer(ServerPlayer player) {
         Inventory inventory = player.getInventory();
         for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
             ItemStack stack = inventory.getItem(slot);
-            if (stack.getItem() instanceof BlockItem blockItem
-                && blockItem.getBlock() instanceof ShulkerBoxBlock) {
-                boxes.add(stack);
+            if (!(stack.getItem() instanceof ShulkerContainerBlockItem)) {
+                continue;
             }
+            StorageRef ref = stack.get(ModComponents.STORAGE);
+            if (ref == null || !ref.type().is(ModStorageTypes.SHULKER_CONTAINER.getKey())) {
+                continue;
+            }
+            if (ref.id().isPresent()) {
+                continue;
+            }
+            UUID id = UUID.randomUUID();
+            stack.set(ModComponents.STORAGE, new StorageRef(ref.type(), id));
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+            return Optional.of(id);
         }
-        return boxes;
+        return Optional.empty();
     }
 
     /** 查找玩家 64 格内最近的世界潜影集装箱主方块及其存储 ID（注册表优先，回退扫描补录）。 */
@@ -2769,202 +2863,6 @@ public final class StorageServerStub {
             storage.setId(id);
         }
         return id;
-    }
-
-    /**
-     * 潜影终端聚合多个潜影盒的存储包装：所有读写都直接作用于玩家身上的潜影盒物品
-     * （通过 1.21 的 {@code minecraft:container} 组件），不持久化到 {@link Storages}。
-     */
-    private static final class ShulkerBoxesStorage extends BaseStorage<ShulkerBoxesItemHandler> {
-        private ShulkerBoxesStorage(UUID id, List<ItemStack> boxes) {
-            super(id);
-            this.getItems().init(boxes);
-        }
-
-        @Override
-        protected ShulkerBoxesItemHandler constructItemHandler(
-            BiConsumer<Integer, UnlimitedItemStack> onContentsChanged
-        ) {
-            return new ShulkerBoxesItemHandler(onContentsChanged);
-        }
-
-        @Override
-        public Holder<IStorageType<?>> getTypeHolder() {
-            // 语义上与潜影集装箱一致：不允许把容器类物品装入其中
-            return ModStorageTypes.SHULKER_CONTAINER;
-        }
-    }
-
-    /**
-     * 把多个潜影盒按「盒 × 27 槽」展平为统一槽位索引的处理器，直接读写盒的
-     * {@code minecraft:container} 组件（{@link ItemContainerContents}）。
-     */
-    private static final class ShulkerBoxesItemHandler extends UnlimitedItemStacksResourceHandler {
-        private final BiConsumer<Integer, UnlimitedItemStack> onChange;
-        private List<ItemStack> boxes = List.of();
-
-        private ShulkerBoxesItemHandler(BiConsumer<Integer, UnlimitedItemStack> onChange) {
-            super(0);
-            this.onChange = onChange;
-        }
-
-        private void init(List<ItemStack> boxes) {
-            this.boxes = boxes;
-        }
-
-        @Override
-        public int size() {
-            return this.boxes.size() * StorageServerStub.SHULKER_BOX_SLOTS;
-        }
-
-        private int boxIndex(int index) {
-            return index / StorageServerStub.SHULKER_BOX_SLOTS;
-        }
-
-        private int boxSlot(int index) {
-            return index % StorageServerStub.SHULKER_BOX_SLOTS;
-        }
-
-        private @Nullable ItemStack boxAt(int index) {
-            int boxIndex = this.boxIndex(index);
-            if (boxIndex < 0 || boxIndex >= this.boxes.size()) {
-                return null;
-            }
-            return this.boxes.get(boxIndex);
-        }
-
-        /** 读取单个潜影盒指定槽位的物品；空槽返回 {@code ItemStack.EMPTY}。 */
-        private ItemStack itemAt(ItemStack box, int boxSlot) {
-            ItemContainerContents contents = box.get(DataComponents.CONTAINER);
-            if (contents == null || boxSlot < 0 || boxSlot >= contents.getSlots()) {
-                return ItemStack.EMPTY;
-            }
-            return contents.getStackInSlot(boxSlot);
-        }
-
-        /** 把一个物品写回潜影盒指定槽位；空物品即清空该槽。 */
-        private void writeSlot(ItemStack box, int boxSlot, ItemStack stack) {
-            ItemContainerContents contents = box.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
-            List<ItemStack> items = new ArrayList<>(StorageServerStub.SHULKER_BOX_SLOTS);
-            for (int i = 0; i < contents.getSlots(); i++) {
-                items.add(contents.getStackInSlot(i));
-            }
-            // 恒定保持 27 槽，与 vanilla 潜影盒界面一致
-            while (items.size() < StorageServerStub.SHULKER_BOX_SLOTS) {
-                items.add(ItemStack.EMPTY);
-            }
-            items.set(boxSlot, stack.copy());
-            box.set(DataComponents.CONTAINER, ItemContainerContents.fromItems(items));
-        }
-
-        @Override
-        public UnlimitedItemStack getUnlimitedStackInSlot(int index) {
-            ItemStack box = this.boxAt(index);
-            if (box == null) {
-                return UnlimitedItemStack.EMPTY;
-            }
-            ItemStack stack = this.itemAt(box, this.boxSlot(index));
-            return stack.isEmpty() ? UnlimitedItemStack.EMPTY : new UnlimitedItemStack(stack);
-        }
-
-        @Override
-        public long getAmountAsLong(int index) {
-            return this.getUnlimitedStackInSlot(index).getCount();
-        }
-
-        @Override
-        public ItemStack getStackInSlot(int slot) {
-            return this.getUnlimitedStackInSlot(slot).toStack();
-        }
-
-        @Override
-        public UnlimitedItemStack extractUnlimited(int index, int amount, boolean simulate) {
-            if (amount <= 0) {
-                return UnlimitedItemStack.EMPTY;
-            }
-            ItemStack box = this.boxAt(index);
-            if (box == null) {
-                return UnlimitedItemStack.EMPTY;
-            }
-            int boxSlot = this.boxSlot(index);
-            ItemStack current = this.itemAt(box, boxSlot);
-            if (current.isEmpty()) {
-                return UnlimitedItemStack.EMPTY;
-            }
-            int take = Math.min(amount, current.getCount());
-            if (!simulate) {
-                ItemStack remaining = current.copyWithCount(current.getCount() - take);
-                this.writeSlot(box, boxSlot, remaining);
-                this.onChange.accept(index, UnlimitedItemStack.EMPTY);
-            }
-            return new UnlimitedItemStack(current.copyWithCount(take));
-        }
-
-        @Override
-        public ItemStack extractItem(int slot, int amount, boolean simulate) {
-            return this.extractUnlimited(slot, amount, simulate).toStack();
-        }
-
-        @Override
-        public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
-            if (stack.isEmpty()) {
-                return ItemStack.EMPTY;
-            }
-            ItemStack box = this.boxAt(slot);
-            if (box == null) {
-                return stack;
-            }
-            int boxSlot = this.boxSlot(slot);
-            ItemStack current = this.itemAt(box, boxSlot);
-            if (!current.isEmpty() && !ItemStack.isSameItemSameComponents(current, stack)) {
-                return stack;
-            }
-            int maxStack = stack.getMaxStackSize();
-            int fit = Math.min(stack.getCount(), maxStack - current.getCount());
-            if (fit <= 0) {
-                return stack;
-            }
-            if (!simulate) {
-                // 空槽位：ItemStack.copyWithCount 对空栈直接返回 EMPTY，必须用被塞入的
-                // 物品构造合并栈，否则会写入空数据却把物品计入“已插入”导致丢失
-                ItemStack merged = current.isEmpty()
-                    ? stack.copyWithCount(fit)
-                    : current.copyWithCount(current.getCount() + fit);
-                this.writeSlot(box, boxSlot, merged);
-                this.onChange.accept(slot, UnlimitedItemStack.EMPTY);
-            }
-            return stack.copyWithCount(stack.getCount() - fit);
-        }
-
-        @Override
-        public ItemStack insertItem(ItemStack stack, boolean simulate) {
-            if (stack.isEmpty()) {
-                return ItemStack.EMPTY;
-            }
-            ItemStack remaining = stack;
-            int size = this.size();
-            // 第一遍：优先堆叠到已有同种物品的槽位，保持同种物品集中，避免乱开新槽
-            for (int index = 0; index < size && !remaining.isEmpty(); index++) {
-                if (this.hasSameItemAt(index, remaining)) {
-                    remaining = this.insertItem(index, remaining, simulate);
-                }
-            }
-            // 第二遍：剩余部分再放入空槽
-            for (int index = 0; index < size && !remaining.isEmpty(); index++) {
-                remaining = this.insertItem(index, remaining, simulate);
-            }
-            return remaining;
-        }
-
-        /** 指定槽位是否已有与目标物品相同（含组件）的物品堆。 */
-        private boolean hasSameItemAt(int index, ItemStack stack) {
-            ItemStack box = this.boxAt(index);
-            if (box == null) {
-                return false;
-            }
-            ItemStack current = this.itemAt(box, this.boxSlot(index));
-            return !current.isEmpty() && ItemStack.isSameItemSameComponents(current, stack);
-        }
     }
 
     public static final class StorageUsageValidator implements IRemoteCallableValidator {
@@ -3350,7 +3248,7 @@ public final class StorageServerStub {
                         List.of()
                     ))
                     .orElseGet(() -> StorageServerStub.emptyView(player));
-                case RemoteTarget.SHULKER_CONTAINER, RemoteTarget.SHULKER_BOXES -> {
+                case RemoteTarget.SHULKER_CONTAINER -> {
                     List<BaseStorage<?>> storages = StorageServerStub.shulkerTerminalStorages(player);
                     if (storages.isEmpty()) {
                         yield StorageServerStub.emptyView(player);
