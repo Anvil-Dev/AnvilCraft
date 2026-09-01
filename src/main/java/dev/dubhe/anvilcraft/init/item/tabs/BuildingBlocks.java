@@ -194,7 +194,7 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.COOKIE_BLOCK);
         this.plain(ModBlocks.COOKIE_PILLAR);
         this.plain(ModBlocks.SUGAR_BLOCK);
-        this.plain(ModBlocks.GUNPOWER_BLOCK);
+        this.plain(ModBlocks.GUNPOWDER_BLOCK);
         this.plain(ModBlocks.ROTTEN_FLESH_BLOCK);
     }
 }

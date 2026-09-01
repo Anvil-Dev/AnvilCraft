@@ -88,6 +88,27 @@ public final class StorageClientStub {
         );
     }
 
+    public static CompletableFuture<Boolean> quickMoveFromStorage(BlockPos sourcePos, IntList slots) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::quickMoveFromStorage,
+            StorageClientStub.playerId(),
+            sourcePos.asLong(),
+            slots
+        );
+    }
+
+    public static void quickMoveUndo(BlockPos sourcePos, int slot, int count) {
+        RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::quickMoveUndo,
+            StorageClientStub.playerId(),
+            sourcePos.asLong(),
+            slot,
+            count
+        );
+    }
+
     public static CompletableFuture<Boolean> quickMoveToStorage(BlockPos sourcePos, IntList slots) {
         return RPC.invoke(
             RpcTarget.server(),
@@ -315,15 +336,15 @@ public final class StorageClientStub {
 
     /** 取③/④ 配方结果：消耗输入并放到指针。 */
     public static CompletableFuture<StorageServerStub.InteractionResult> craftingTakeResult(
-        BlockPos sourcePos,
-        boolean stonecutter
+        BlockPos sourcePos, boolean stonecutter, boolean shift
     ) {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::craftingTakeResult,
             StorageClientStub.playerId(),
             sourcePos.asLong(),
-            stonecutter
+            stonecutter,
+            shift
         );
     }
 
@@ -350,8 +371,10 @@ public final class StorageClientStub {
     public static CompletableFuture<Boolean> craftingTransfer(
         BlockPos sourcePos,
         boolean stonecutter,
+        boolean maxTransfer,
         List<ItemStack> inputs,
-        ItemStack stonecutterResult
+        ItemStack stonecutterResult,
+        IntList requestedCounts
     ) {
         return RPC.invoke(
             RpcTarget.server(),
@@ -359,8 +382,10 @@ public final class StorageClientStub {
             StorageClientStub.playerId(),
             sourcePos.asLong(),
             stonecutter,
+            maxTransfer,
             inputs,
-            stonecutterResult
+            stonecutterResult,
+            requestedCounts
         );
     }
 
