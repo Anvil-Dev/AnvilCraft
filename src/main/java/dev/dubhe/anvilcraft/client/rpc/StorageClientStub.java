@@ -327,8 +327,12 @@ public final class StorageClientStub {
         );
     }
 
-    /** 按住 Shift 取③/④ 配方结果：连续合成直到材料不足或产物无处可放。 */
-    public static CompletableFuture<StorageServerStub.InteractionResult> craftingTakeAll(
+    /**
+     * 按住 Shift 取③/④ 配方结果：连续合成直到材料不足或产物无处可放。
+     * 单次调用最多合成 {@code CRAFTING_TAKE_ALL_CHUNK} 次；返回 {@code done=false}
+     * 时调用方应继续调用直至 {@code done=true}（分块，避免一次性阻塞服务端线程）。
+     */
+    public static CompletableFuture<StorageServerStub.TakeAllResult> craftingTakeAll(
         BlockPos sourcePos,
         boolean stonecutter
     ) {

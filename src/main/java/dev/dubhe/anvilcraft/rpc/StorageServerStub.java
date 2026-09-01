@@ -118,6 +118,12 @@ public final class StorageServerStub {
     private static final int LOCAL_TERMINAL_RANGE = 32;
     /** 潜影终端自动连接世界潜影集装箱的搜索半径（格）。 */
     private static final int SHULKER_TERMINAL_RANGE = 64;
+    /**
+     * 连续合成（Shift 点击③/④ 结果槽）单次 RPC 内最多合成的次数。
+     * 单次调用在服务端线程同步执行，分块后客户端循环调用直到 {@code done}，
+     * 避免几百次合成一次性阻塞服务端线程（分帧/进度由客户端循环天然实现）。
+     */
+    private static final int CRAFTING_TAKE_ALL_CHUNK = 64;
 
     private final UUID storageId;
     private long version;
@@ -497,12 +503,10 @@ public final class StorageServerStub {
             }
             target = new RemoteTarget(RemoteTarget.LARGE_CRATE, crateId.get());
         } else if (storageId.equals(StorageServerStub.shulkerTerminalId(playerId))) {
-            // 潜影终端：优先连接身上槽位最靠前的潜影集装箱；空（无 UUID）集装箱在
-            // 打开时惰性授予 UUID；否则连接 64 格内最近的世界潜影集装箱
-            Optional<UUID> containerId = StorageServerStub.findPlayerShulkerContainer(player);
-            if (containerId.isEmpty()) {
-                containerId = StorageServerStub.grantIdToFirstShulkerContainer(player);
-            }
+            // 潜影终端：优先连接身上槽位最靠前的潜影集装箱（无 UUID 时在打开时惰性
+            // 授予，无论是否已有 UUID 都取最靠前的那个）；否则连接 64 格内最近的
+            // 世界潜影集装箱
+            Optional<UUID> containerId = StorageServerStub.findOrGrantFrontmostShulkerContainer(player);
             if (containerId.isPresent()) {
                 target = new RemoteTarget(RemoteTarget.SHULKER_CONTAINER, containerId.get());
             } else {
@@ -1092,29 +1096,49 @@ public final class StorageServerStub {
      * 按住 Shift 点击③/④ 结果槽：连续合成直到材料不足或产物无处可放。
      * 产物依次放入指针（同种合并）→ 背包（同种堆叠/空槽）→ 仓储；仍放不下时
      * 丢弃本次产物并截断（前面已成功放入的保留，合成输入停止消耗）。
+     *
+     * <p>存在「不消耗型输入」的配方（如催化剂 / 模具类模组配方，或剩余物与输入
+     * 完全相同的配方）时，消耗输入不会改变合成网格，若不终止将无限产出导致
+     * 服务端 RPC 线程死循环；因此在消耗前后比对网格，无变化立即终止。</p>
+     *
+     * <p>产物只被部分放入（仓储剩余空间不足，部分插入后其余丢弃）时同样立即
+     * 截断——继续循环只会反复「合成→部分放入→丢弃」，浪费材料且产出不可控。</p>
+     *
+     * <p>单次 RPC 最多合成 {@link #CRAFTING_TAKE_ALL_CHUNK} 次；未耗尽材料时返回
+     * {@code done=false}，由客户端循环调用直至 {@code done=true}，避免一次性阻塞
+     * 服务端线程过久。</p>
      */
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static InteractionResult craftingTakeAll(UUID playerId, long sourcePos, boolean stonecutter) {
+    public static TakeAllResult craftingTakeAll(UUID playerId, long sourcePos, boolean stonecutter) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
         boolean any = false;
-        while (true) {
+        int iterations = 0;
+        while (iterations++ < StorageServerStub.CRAFTING_TAKE_ALL_CHUNK) {
             CraftingStorage crafting = target.read();
             ItemStack result = StorageServerStub.assembleCraftingResult(player, crafting, stonecutter);
             if (result == null || result.isEmpty()) {
-                break;
+                player.containerMenu.broadcastChanges();
+                return new TakeAllResult(player.containerMenu.getCarried(), any, true);
             }
-            if (!StorageServerStub.placeCraftingResult(player, target, result)) {
-                // 产物无处可放：丢弃本次产物并截断
-                player.drop(result, false);
-                break;
+            PlaceResult place = StorageServerStub.placeCraftingResult(player, target, result);
+            if (place != PlaceResult.FULL) {
+                // 无处可放或只放下一部分：丢弃本次产物的剩余部分并截断
+                if (place == PlaceResult.NONE) {
+                    player.drop(result, false);
+                }
+                player.containerMenu.broadcastChanges();
+                return new TakeAllResult(player.containerMenu.getCarried(), any, true);
             }
-            StorageServerStub.consumeCraftingInput(target, crafting, stonecutter);
             any = true;
+            // 消耗输入后网格无变化（不消耗型配方）→ 继续循环只会无限产出相同产物，立即终止
+            if (!StorageServerStub.consumeCraftingInput(target, crafting, stonecutter)) {
+                break;
+            }
         }
-        ItemStack carried = player.containerMenu.getCarried();
+        // 达到分块上限：材料尚未耗尽，由客户端继续调用（done=false）
         player.containerMenu.broadcastChanges();
-        return new InteractionResult(carried, any);
+        return new TakeAllResult(player.containerMenu.getCarried(), any, false);
     }
 
     /** 计算③/④ 当前配方产物（不消耗输入）；配方无效或产物为空返回 null。 */
@@ -1148,85 +1172,121 @@ public final class StorageServerStub {
     }
 
     /**
-     * 把一次合成产物放入指针（同种合并）→ 背包（同种堆叠/空槽）→ 仓储；
-     * 全部放不下返回 false。部分放入仓储时剩余部分丢弃。
+     * 把一次合成产物放入指针（同种合并）→ 背包（同种堆叠/空槽）→ 仓储。
+     *
+     * @return {@link PlaceResult#FULL} 全部放入；{@link PlaceResult#PARTIAL} 部分放入
+     *         仓储、剩余丢弃；{@link PlaceResult#NONE} 完全放不下（不丢弃，由调用方处理）
      */
-    private static boolean placeCraftingResult(ServerPlayer player, StorageServerStub.CraftingTarget target, ItemStack result) {
+    private static PlaceResult placeCraftingResult(
+        ServerPlayer player,
+        StorageServerStub.CraftingTarget target,
+        ItemStack result
+    ) {
         ItemStack carried = player.containerMenu.getCarried();
         if (carried.isEmpty()) {
             player.containerMenu.setCarried(result);
-            return true;
+            return PlaceResult.FULL;
         }
         if (ItemStack.isSameItemSameComponents(carried, result)
             && carried.getCount() + result.getCount() <= carried.getMaxStackSize()) {
             ItemStack merged = carried.copy();
             merged.grow(result.getCount());
             player.containerMenu.setCarried(merged);
-            return true;
+            return PlaceResult.FULL;
         }
         Inventory inventory = player.getInventory();
         for (int i = 0; i < inventory.getContainerSize(); i++) {
             ItemStack stack = inventory.getItem(i);
             if (stack.isEmpty()) {
                 inventory.setItem(i, result);
-                return true;
+                return PlaceResult.FULL;
             }
             if (ItemStack.isSameItemSameComponents(stack, result)
                 && stack.getCount() + result.getCount() <= stack.getMaxStackSize()) {
                 stack.grow(result.getCount());
-                return true;
+                return PlaceResult.FULL;
             }
         }
         StorageView view = target.view();
         if (view != null) {
             int inserted = view.insert(result.copyWithCount(1), result.getCount());
             if (inserted == result.getCount()) {
-                return true;
+                return PlaceResult.FULL;
             }
             if (inserted > 0) {
                 ItemStack rest = result.copy();
                 rest.shrink(inserted);
                 player.drop(rest, false);
-                return true;
+                return PlaceResult.PARTIAL;
             }
         }
-        return false;
+        return PlaceResult.NONE;
     }
 
-    /** 消耗③/④ 对应的输入并写入合成数据。 */
-    private static void consumeCraftingInput(
+    /** {@link #placeCraftingResult} 的放置结果分类。 */
+    private enum PlaceResult {
+        /** 产物全部放入（指针 / 背包 / 仓储）。 */
+        FULL,
+        /** 产物部分放入仓储，其余丢弃。 */
+        PARTIAL,
+        /** 产物完全放不下。 */
+        NONE
+    }
+
+    /**
+     * 消耗③/④ 对应的输入并写入合成数据。
+     *
+     * @return 合成网格是否发生变化；不消耗型配方（剩余物与输入相同，如催化剂 /
+     *         模具）返回 {@code false}，调用方（如 {@link #craftingTakeAll}）应据此终止循环
+     */
+    private static boolean consumeCraftingInput(
         StorageServerStub.CraftingTarget target,
         CraftingStorage crafting,
         boolean stonecutter
     ) {
         if (stonecutter) {
             ItemStack input = crafting.stonecutterInput();
+            if (input.isEmpty()) {
+                return false;
+            }
             ItemStack shrunk = input.copy();
             shrunk.shrink(1);
             target.write(crafting.withStonecutterInput(shrunk.isEmpty() ? ItemStack.EMPTY : shrunk));
-        } else {
-            // 每次合成每槽只消耗 1 个（原版合成语义），剩余物品（如桶）保留在槽内
-            CraftingInput input = CraftingInput.of(3, 3, crafting.craftingInput());
-            List<ItemStack> remaining = target.player().level().getRecipeManager()
-                .getRemainingItemsFor(RecipeType.CRAFTING, input, target.player().level());
-            List<ItemStack> grid = new ArrayList<>(crafting.craftingInput());
-            for (int i = 0; i < grid.size(); i++) {
-                ItemStack current = grid.get(i);
-                if (current.isEmpty()) {
-                    continue;
-                }
-                ItemStack left = i < remaining.size() ? remaining.get(i) : ItemStack.EMPTY;
-                if (left.isEmpty()) {
-                    ItemStack shrunk = current.copy();
-                    shrunk.shrink(1);
-                    grid.set(i, shrunk.isEmpty() ? ItemStack.EMPTY : shrunk);
-                } else {
-                    // 有剩余物（桶/碗等）：原版中该槽输出剩余物而非原物，剩余物不入存储
-                    grid.set(i, left.copy());
-                }
+            return true;
+        }
+        // 每次合成每槽只消耗 1 个（原版合成语义），剩余物品（如桶）保留在槽内
+        CraftingInput input = CraftingInput.of(3, 3, crafting.craftingInput());
+        List<ItemStack> remaining = target.player().level().getRecipeManager()
+            .getRemainingItemsFor(RecipeType.CRAFTING, input, target.player().level());
+        List<ItemStack> grid = new ArrayList<>(crafting.craftingInput());
+        boolean changed = false;
+        for (int i = 0; i < grid.size(); i++) {
+            ItemStack current = grid.get(i);
+            if (current.isEmpty()) {
+                continue;
             }
+            ItemStack left = i < remaining.size() ? remaining.get(i) : ItemStack.EMPTY;
+            if (left.isEmpty()) {
+                ItemStack shrunk = current.copy();
+                shrunk.shrink(1);
+                grid.set(i, shrunk.isEmpty() ? ItemStack.EMPTY : shrunk);
+                changed = true;
+            } else {
+                // 有剩余物（桶/碗等）：原版中该槽输出剩余物而非原物，剩余物不入存储。
+                // 若剩余物与原输入完全相同（催化剂/模具等不消耗型配方），网格不变化，
+                // 需要据此判定消耗未发生，避免调用方无限循环。
+                ItemStack replaced = left.copy();
+                if (!ItemStack.isSameItemSameComponents(replaced, current)
+                    || replaced.getCount() != current.getCount()) {
+                    changed = true;
+                }
+                grid.set(i, replaced);
+            }
+        }
+        if (changed) {
             target.write(crafting.withCraftingInput(grid));
         }
+        return changed;
     }
 
     /**
@@ -2637,12 +2697,13 @@ public final class StorageServerStub {
     /**
      * 解析潜影终端的连接目标（按优先级，不同时连接多个）：
      * <ol>
-     *   <li>玩家身上槽位最靠前的潜影集装箱（仅已有 UUID 的，空集装箱在打开时授予）；</li>
+     *   <li>玩家身上槽位最靠前的潜影集装箱（仅已有 UUID 的；空集装箱只在
+     *       {@link #openRemote} 右键打开时惰性授予，悬停 / 浮窗等只读路径不授予）；</li>
      *   <li>64 格内最近的世界潜影集装箱。</li>
      * </ol>
      */
     private static List<BaseStorage<?>> shulkerTerminalStorages(ServerPlayer player) {
-        Optional<UUID> containerId = StorageServerStub.findPlayerShulkerContainer(player);
+        Optional<UUID> containerId = StorageServerStub.findBoundPlayerShulkerContainer(player);
         return containerId
             .<List<BaseStorage<?>>>map(uuid -> List.of(Storages.get().getOrCreate(uuid, ShulkerContainerStorage.class)))
             .orElseGet(() -> StorageServerStub.findNearbyShulkerContainer(player)
@@ -2713,8 +2774,13 @@ public final class StorageServerStub {
             });
     }
 
-    /** 查找玩家身上槽位最靠前的潜影集装箱（需要携带存储引用）。 */
-    private static Optional<UUID> findPlayerShulkerContainer(ServerPlayer player) {
+    /**
+     * 查找玩家身上槽位最靠前的、已绑定 UUID 的潜影集装箱。
+     *
+     * <p>只读路径（悬停可达性、JEI 补库、物品均衡）使用：不授予 UUID，避免悬停
+     * 时意外写回物品组件；空（无 UUID）集装箱需先经 {@link #openRemote} 右键打开授予。</p>
+     */
+    private static Optional<UUID> findBoundPlayerShulkerContainer(ServerPlayer player) {
         Inventory inventory = player.getInventory();
         for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
             ItemStack stack = inventory.getItem(slot);
@@ -2732,10 +2798,13 @@ public final class StorageServerStub {
     }
 
     /**
-     * 为玩家身上槽位最靠前的无 UUID 潜影集装箱授予随机 UUID（写回物品 STORAGE 组件），
-     * 使其可被潜影终端连接。右键打开终端时调用；无可授予的集装箱时返回空。
+     * 查找玩家身上槽位最靠前的潜影集装箱，返回其存储 ID。
+     *
+     * <p>无论是否已有 UUID 都取槽位最靠前的那个：尚无 UUID 时在打开终端时惰性授予
+     * 随机 UUID（写回物品 STORAGE 组件），保证「最靠前」语义不被有无 UUID 干扰。
+     * 无可连接的集装箱时返回空。</p>
      */
-    private static Optional<UUID> grantIdToFirstShulkerContainer(ServerPlayer player) {
+    private static Optional<UUID> findOrGrantFrontmostShulkerContainer(ServerPlayer player) {
         Inventory inventory = player.getInventory();
         for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
             ItemStack stack = inventory.getItem(slot);
@@ -2746,8 +2815,9 @@ public final class StorageServerStub {
             if (ref == null || !ref.type().is(ModStorageTypes.SHULKER_CONTAINER.getKey())) {
                 continue;
             }
+            // 槽位最靠前的集装箱无论是否已有 UUID 都作为目标；无 UUID 时授予
             if (ref.id().isPresent()) {
-                continue;
+                return ref.id();
             }
             UUID id = UUID.randomUUID();
             stack.set(ModComponents.STORAGE, new StorageRef(ref.type(), id));
@@ -3072,6 +3142,26 @@ public final class StorageServerStub {
             ByteBufCodecs.BOOL,
             InteractionResult::changed,
             InteractionResult::new
+        );
+    }
+
+    /**
+     * {@link #craftingTakeAll} 分块合成的结果。
+     *
+     * @param carried 本次调用结束时的指针物品
+     * @param changed 本次调用是否合成了至少一个产物
+     * @param done    本次调用是否已自然终止（材料耗尽 / 产物无处可放 / 不消耗型配方）；
+     *                {@code false} 表示达到分块上限，客户端应继续调用
+     */
+    public record TakeAllResult(ItemStack carried, boolean changed, boolean done) {
+        public static final StreamCodec<RegistryFriendlyByteBuf, TakeAllResult> STREAM_CODEC = StreamCodec.composite(
+            ItemStack.OPTIONAL_STREAM_CODEC,
+            TakeAllResult::carried,
+            ByteBufCodecs.BOOL,
+            TakeAllResult::changed,
+            ByteBufCodecs.BOOL,
+            TakeAllResult::done,
+            TakeAllResult::new
         );
     }
 
