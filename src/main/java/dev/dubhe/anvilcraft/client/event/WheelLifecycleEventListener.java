@@ -65,8 +65,6 @@ public class WheelLifecycleEventListener {
     private static boolean hammerKeyWasDown = false;
     private static @Nullable Optional<WheelMenuModel> hammerWheelCache = null;
     
-    private static @Nullable BlockPos hammerWheelTargetPos = null;
-    private static @Nullable BlockState hammerWheelNextBlockState = null;
     private static @Nullable Supplier<Boolean> hammerInteraction = null;
 
     private static long multiphaseKeyTime = -1L;
@@ -162,8 +160,6 @@ public class WheelLifecycleEventListener {
             WheelLifecycleEventListener.CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.hammerWheelCache.get());
             WheelLifecycleEventListener.hammerKeyWasDown = true;
         }
-        WheelLifecycleEventListener.hammerWheelTargetPos = targetPos;
-        WheelLifecycleEventListener.hammerWheelNextBlockState = level.getBlockState(targetPos).cycle(property);
         return true;
     }
 
@@ -605,25 +601,19 @@ public class WheelLifecycleEventListener {
                 WheelLifecycleEventListener.CONTROLLER.onHoldKeyReleased();
             }
 
-            BlockPos targetPos = WheelLifecycleEventListener.hammerWheelTargetPos;
-            BlockState state = WheelLifecycleEventListener.hammerWheelNextBlockState;
             Supplier<Boolean> hammerInteraction = WheelLifecycleEventListener.hammerInteraction;
             if (
                 client.level.getGameTime() - WheelLifecycleEventListener.hammerKeyTime < 4
-                && targetPos != null && state != null && hammerInteraction != null
+                && hammerInteraction != null
             ) {
                 // On single right-click
-                if (!hammerInteraction.get()) {
-                    WheelLifecycleEventListener.sendHammerChangeBlockPacketToServer(state, targetPos);
-                }
+                hammerInteraction.get();
             }
 
             WheelLifecycleEventListener.hammerKeyWasDown = false;
             WheelLifecycleEventListener.hammerKeyTime = -1L;
             WheelLifecycleEventListener.hammerWheelCache = null;
 
-            WheelLifecycleEventListener.hammerWheelTargetPos = null;
-            WheelLifecycleEventListener.hammerWheelNextBlockState = null;
             WheelLifecycleEventListener.hammerInteraction = null;
             return;
         }
