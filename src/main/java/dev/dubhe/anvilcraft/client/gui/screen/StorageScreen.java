@@ -205,11 +205,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private @Nullable List<Component> renderingTooltips;
     private boolean craftingAvailable;
     private boolean craftingLoaded;
+    /**
+     * -- GETTER --
+     * 当前合成数据（① 切石机输入 + ② 合成 9 宫格）。
+     */
+    @Getter
     private CraftingStorage crafting = CraftingStorage.EMPTY;
-    /** 当前合成数据（① 切石机输入 + ② 合成 9 宫格）。 */
-    public CraftingStorage getCrafting() {
-        return this.crafting;
-    }
     private List<ItemStack> stonecutterRecipes = List.of();
     /** 切石机配方列表当前页首项索引（3 列 × 2 行，超出可滚动）。 */
     private int recipeHead;
