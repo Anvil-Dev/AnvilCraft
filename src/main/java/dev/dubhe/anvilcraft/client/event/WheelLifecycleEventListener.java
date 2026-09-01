@@ -123,16 +123,18 @@ public class WheelLifecycleEventListener {
         Minecraft client = Minecraft.getInstance();
         LocalPlayer player = client.player;
         WheelLifecycleEventListener.hammerInteraction = () -> {
-            boolean interacted = player != null && AnvilHammerItem.interactWithBlock(
+            if (player != null && AnvilHammerItem.interactWithBlock(
                 player,
                 targetPos,
                 level,
                 player.getItemInHand(hand),
                 hand,
                 hitVec
-            );
-            ClientPacketDistributor.sendToServer(new HammerUsePacket(targetPos, hand, hitVec));
-            return interacted;
+            )) {
+                ClientPacketDistributor.sendToServer(new HammerUsePacket(targetPos, hand, hitVec));
+                return true;
+            }
+            return false;
         };
         if (property == null) {
             return WheelLifecycleEventListener.hammerInteraction.get();
