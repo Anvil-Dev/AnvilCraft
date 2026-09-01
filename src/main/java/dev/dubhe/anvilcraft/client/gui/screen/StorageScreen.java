@@ -200,6 +200,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private boolean quickMoveDragging;
     private final IntSet quickMoveSlots = new IntOpenHashSet();
     private final IntSet pendingQuickMoveSlots = new IntOpenHashSet();
+    private final IntSet storageQuickMoveSlots = new IntOpenHashSet();
+    private final Int2ObjectMap<IntList> quickMoveMovedBySlot = new Int2ObjectOpenHashMap<>();
     private @Nullable List<Component> renderingTooltips;
     private boolean craftingAvailable;
     private boolean craftingLoaded;
@@ -1488,6 +1490,17 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         if (this.quickMoveDragging) {
             if (button == 0 && Screen.hasShiftDown()) {
+                Integer storageSlot = this.getStorageSlot(mouseX, mouseY);
+                if (storageSlot != null) {
+                    int key = -1 - storageSlot;
+                    if (!this.quickMoveSlots.add(key)) {
+                        this.quickMoveSlots.remove(key);
+                        this.storageQuickMoveSlots.remove(storageSlot);
+                        this.pendingQuickMoveSlots.remove(storageSlot);
+                    }
+                    this.queueQuickMove(key);
+                    return true;
+                }
                 int inventorySlot = this.getInventorySlot(mouseX, mouseY);
                 if (inventorySlot != -1) {
                     this.queueQuickMove(inventorySlot);
@@ -1546,6 +1559,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         if (this.quickMoveDragging) {
             this.quickMoveDragging = false;
+            this.recordQuickMoveMovedFromSelection();
             this.quickMoveSlots.clear();
             this.flushQuickMoves();
             StorageClientStub.endUndoGroup(this.sourcePos);
@@ -1677,20 +1691,68 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void queueQuickMove(int slot) {
-        if (this.quickMoveSlots.add(slot)) {
-            this.pendingQuickMoveSlots.add(slot);
+        if (!this.quickMoveSlots.add(slot)) {
+            return;
+        }
+        if (slot < 0) {
+            this.storageQuickMoveSlots.add(-1 - slot);
+            return;
+        }
+        this.pendingQuickMoveSlots.add(slot);
+    }
+
+    private void recordQuickMoveMovedFromSelection() {
+        for (int slot : this.pendingQuickMoveSlots) {
+            this.recordQuickMoveMoved(slot, this.player.getInventory().getItem(slot).getCount());
         }
     }
 
+    private void recordQuickMoveMoved(int slot, int count) {
+        if (count <= 0 || slot < 0) {
+            return;
+        }
+        this.quickMoveMovedBySlot.computeIfAbsent(slot, key -> new IntArrayList()).add(count);
+    }
+
     private void flushQuickMoves() {
-        if (this.pendingQuickMoveSlots.isEmpty()) {
+        this.quickMoveMovedBySlot.clear();
+        if (this.pendingQuickMoveSlots.isEmpty() && this.storageQuickMoveSlots.isEmpty()) {
             return;
         }
         IntList slots = new IntArrayList(this.pendingQuickMoveSlots);
         this.pendingQuickMoveSlots.clear();
-        StorageClientStub.quickMoveToStorage(this.sourcePos, slots).whenCompleteAsync(
-            (changed, error) -> {
-                if (error != null || !changed) {
+        if (!slots.isEmpty()) {
+            StorageClientStub.quickMoveToStorage(this.sourcePos, slots).whenCompleteAsync(
+                (moved, error) -> {
+                    if (error != null) {
+                        return;
+                    }
+                    this.applyQuickMoveMoved(slots, moved);
+                    if (!moved) {
+                        return;
+                    }
+                    if (this.preservingOrder) {
+                        this.interactionSyncPending = true;
+                        this.syncPreservedOrder();
+                        return;
+                    }
+                    this.reorder(false);
+                },
+                this.screenExecutor
+            );
+        }
+        if (this.storageQuickMoveSlots.isEmpty()) {
+            return;
+        }
+        IntList storageSlots = new IntArrayList(this.storageQuickMoveSlots);
+        this.storageQuickMoveSlots.clear();
+        StorageClientStub.quickMoveFromStorage(this.sourcePos, storageSlots).whenCompleteAsync(
+            (moved, error) -> {
+                if (error != null) {
+                    return;
+                }
+                this.applyQuickMoveMoved(storageSlots, moved);
+                if (!moved) {
                     return;
                 }
                 if (this.preservingOrder) {
@@ -1702,6 +1764,21 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             },
             this.screenExecutor
         );
+    }
+
+    private void applyQuickMoveMoved(IntList slots, boolean moved) {
+        if (!moved || slots.isEmpty() || this.quickMoveMovedBySlot.isEmpty()) {
+            return;
+        }
+        for (int slot : slots) {
+            IntList counts = this.quickMoveMovedBySlot.remove(slot);
+            if (counts != null) {
+                for (int count : counts) {
+                    StorageClientStub.quickMoveUndo(this.sourcePos, slot, count);
+                }
+            }
+        }
+        this.quickMoveMovedBySlot.clear();
     }
 
     private void moveSameToStorage(int slot) {
@@ -2047,10 +2124,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.interactionPending = true;
         this.player.inventoryMenu.setCarried(this.carried);
         int request = ++this.interactionRequest;
-        if (Screen.hasShiftDown()) {
+        boolean shift = Screen.hasShiftDown();
+        if (shift) {
             this.takeAllChunk(request, stonecutter, 0);
         } else {
-            StorageClientStub.craftingTakeResult(this.sourcePos, stonecutter).whenCompleteAsync(
+            StorageClientStub.craftingTakeResult(this.sourcePos, stonecutter, shift).whenCompleteAsync(
                 (result, error) -> {
                     if (request != this.interactionRequest || error != null) {
                         this.interactionPending = false;

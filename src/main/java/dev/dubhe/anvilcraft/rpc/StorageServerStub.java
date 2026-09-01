@@ -279,6 +279,55 @@ public final class StorageServerStub {
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean quickMoveFromStorage(
+        UUID playerId,
+        long sourcePos,
+        @CallableParam(clazz = StorageServerStub.class, field = "ORDER_STREAM_CODEC") IntList slots
+    ) {
+        if (slots.isEmpty() || slots.size() > StorageServerStub.MAX_SYNC_SLOTS) {
+            StorageServerStub.REGISTRIES.remove();
+            throw new IllegalArgumentException("Invalid quick move slots");
+        }
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        boolean changed = false;
+        IntOpenHashSet visited = new IntOpenHashSet(slots.size());
+        for (int slot : slots) {
+            if (slot < 0 || !visited.add(slot)) {
+                continue;
+            }
+            changed |= StorageServerStub.moveStorageStackToInventory(player, view, slot);
+        }
+        if (changed) {
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+        }
+        return changed;
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean quickMoveUndo(UUID playerId, long sourcePos, int slot, int count) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        if (count <= 0 || slot < 0 || slot >= Inventory.INVENTORY_SIZE) {
+            return false;
+        }
+        ItemStack stack = player.getInventory().getItem(slot);
+        if (stack.isEmpty()) {
+            return false;
+        }
+        int amount = Math.min(count, stack.getCount());
+        int extracted = view.insert(stack.copyWithCount(1), amount);
+        if (extracted <= 0) {
+            return true;
+        }
+        stack.shrink(extracted);
+        player.getInventory().setChanged();
+        player.containerMenu.broadcastChanges();
+        return true;
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
     public static boolean quickMoveToStorage(
         UUID playerId,
         long sourcePos,
@@ -1063,7 +1112,7 @@ public final class StorageServerStub {
      * 指针已有同种且能放下的物品时合并取出；异种或放不下时不消耗输入。
      */
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static InteractionResult craftingTakeResult(UUID playerId, long sourcePos, boolean stonecutter) {
+    public static InteractionResult craftingTakeResult(UUID playerId, long sourcePos, boolean stonecutter, boolean shift) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
         CraftingStorage crafting = target.read();
@@ -1072,6 +1121,11 @@ public final class StorageServerStub {
         ItemStack result = StorageServerStub.assembleCraftingResult(player, crafting, stonecutter);
         if (result == null || result.isEmpty()) {
             return new InteractionResult(carried, false);
+        }
+        if (shift) {
+            StorageServerStub.placeCraftingResult(player, target, result);
+            player.containerMenu.broadcastChanges();
+            return new InteractionResult(player.containerMenu.getCarried(), true);
         }
         // 指针有物：仅当与产物同种且能放下时合并取出；否则拒绝（不消耗输入）
         if (!carried.isEmpty()) {
@@ -1190,18 +1244,6 @@ public final class StorageServerStub {
         StorageServerStub.CraftingTarget target,
         ItemStack result
     ) {
-        ItemStack carried = player.containerMenu.getCarried();
-        if (carried.isEmpty()) {
-            player.containerMenu.setCarried(result);
-            return PlaceResult.FULL;
-        }
-        if (ItemStack.isSameItemSameComponents(carried, result)
-            && carried.getCount() + result.getCount() <= carried.getMaxStackSize()) {
-            ItemStack merged = carried.copy();
-            merged.grow(result.getCount());
-            player.containerMenu.setCarried(merged);
-            return PlaceResult.FULL;
-        }
         Inventory inventory = player.getInventory();
         for (int i = 0; i < inventory.getContainerSize(); i++) {
             ItemStack stack = inventory.getItem(i);
@@ -1214,6 +1256,18 @@ public final class StorageServerStub {
                 stack.grow(result.getCount());
                 return PlaceResult.FULL;
             }
+        }
+        ItemStack carried = player.containerMenu.getCarried();
+        if (carried.isEmpty()) {
+            player.containerMenu.setCarried(result);
+            return PlaceResult.FULL;
+        }
+        if (ItemStack.isSameItemSameComponents(carried, result)
+            && carried.getCount() + result.getCount() <= carried.getMaxStackSize()) {
+            ItemStack merged = carried.copy();
+            merged.grow(result.getCount());
+            player.containerMenu.setCarried(merged);
+            return PlaceResult.FULL;
         }
         StorageView view = target.view();
         if (view != null) {
@@ -1316,45 +1370,34 @@ public final class StorageServerStub {
         CraftingStorage crafting = target.read();
         Inventory inventory = player.getInventory();
         if (stonecutter) {
-            // ①：取第一个非空输入，从背包/存储找同种物品放入（数量不足放已有的量）
-            ItemStack wanted = ItemStack.EMPTY;
-            for (ItemStack input : inputs) {
-                if (!input.isEmpty()) {
-                    wanted = input;
-                    break;
-                }
-            }
-            if (wanted.isEmpty()) {
-                return false;
-            }
-            int placed = StorageServerStub.transferMaterial(
-                target, inventory, wanted, crafting.stonecutterInput(), 64, player
-            );
-            if (placed > 0) {
-                ItemStack newInput = crafting.stonecutterInput();
-                if (newInput.isEmpty()) {
-                    newInput = wanted.copyWithCount(placed);
-                } else {
-                    newInput = newInput.copy();
-                    newInput.grow(placed);
-                }
-                // 转移时同步选中配方：按 JEI 传入的产物匹配切石机配方列表；
-                // 未传或匹配不到时保持原选中（不改动）
-                int selected = crafting.stonecutterSelected();
-                if (!stonecutterResult.isEmpty()) {
-                    List<RecipeHolder<StonecutterRecipe>> recipes = player.level().getRecipeManager()
-                        .getRecipesFor(RecipeType.STONECUTTING, new SingleRecipeInput(newInput), player.level());
-                    for (int i = 0; i < recipes.size(); i++) {
-                        ItemStack result = recipes.get(i).value()
-                            .assemble(new SingleRecipeInput(newInput), player.level().registryAccess());
-                        if (ItemStack.isSameItemSameComponents(result, stonecutterResult)) {
-                            selected = i;
-                            break;
-                        }
+            // ①：把背包内所有同种物品转移进①（受上限约束），不只放一个
+            if (!inputs.isEmpty() && !inputs.getFirst().isEmpty()) {
+                ItemStack wanted = inputs.getFirst();
+                int maxStack = wanted.getMaxStackSize();
+                int currentCount = crafting.stonecutterInput().getCount();
+                int moved = 0;
+                for (int i = 0; i < inventory.getContainerSize(); i++) {
+                    ItemStack stack = inventory.getItem(i);
+                    if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, wanted)) {
+                        continue;
                     }
+                    int take = Math.min(stack.getCount(), maxStack - currentCount - moved);
+                    if (take <= 0) {
+                        continue;
+                    }
+                    ItemStack rest = stack.copy();
+                    rest.shrink(take);
+                    inventory.setItem(i, rest.isEmpty() ? ItemStack.EMPTY : rest);
+                    moved += take;
                 }
-                target.write(crafting.withStonecutterInput(newInput).withStonecutterSelected(selected));
-                return true;
+                if (moved > 0) {
+                    ItemStack newInput = crafting.stonecutterInput().copy();
+                    newInput.grow(moved);
+                    target.write(crafting.withStonecutterInput(newInput));
+                    inventory.setChanged();
+                    player.containerMenu.broadcastChanges();
+                    return true;
+                }
             }
             return false;
         }
