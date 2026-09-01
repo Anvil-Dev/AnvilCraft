@@ -85,8 +85,12 @@ public class CelestialForgingAnvilLogisticsInterfaceBlock extends CelestialForgi
             if (be instanceof CelestialForgingAnvilLogisticsInterfaceBlockEntity logisticsBe) {
                 IItemHandler handler = logisticsBe.getItemHandler();
                 for (int i = 0; i < handler.getSlots(); i++) {
-                    ItemStack stack = handler.getStackInSlot(i);
-                    if (!stack.isEmpty()) {
+                    // Extract before dropping so the wormhole change callback clears every mirrored interface.
+                    while (true) {
+                        ItemStack current = handler.getStackInSlot(i);
+                        if (current.isEmpty()) break;
+                        ItemStack stack = handler.extractItem(i, current.getCount(), false);
+                        if (stack.isEmpty()) break;
                         Containers.dropItemStack(level, pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5, stack);
                     }
                 }

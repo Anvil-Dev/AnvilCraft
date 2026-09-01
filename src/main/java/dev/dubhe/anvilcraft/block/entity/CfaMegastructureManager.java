@@ -309,6 +309,31 @@ public class CfaMegastructureManager {
         this.clearMegastructure(be);
     }
 
+    /**
+     * 爆发事件期间清除其它巨构，但保留恒星演化加速器本身的状态机。
+     * 直接调用 clearAllMegastructures 会触发加速器 onClear，导致抛射物时间线被截断。
+     */
+    public void clearOtherMegastructures(CelestialForgingAnvilBlockEntity be) {
+        IMegastructureHandler active = this.getActiveHandler(be);
+        if (active != null && active != this.acceleratorHandler) {
+            active.onClear(be);
+            this.activeMegastructureId = null;
+            this.clearLegacyIdentity();
+        } else if (active == null && this.hasActiveMegastructure()) {
+            this.activeMegastructureId = null;
+            this.clearLegacyIdentity();
+        }
+        this.synchronizeRegistryHandlers();
+        for (Megastructure definition : ModRegistries.MEGASTRUCTURE) {
+            if (!definition.auxiliary()) continue;
+            IMegastructureHandler handler = this.handlers.get(definition.id());
+            if (handler != null && handler != this.acceleratorHandler && handler.isAuxiliaryActive(be)) {
+                handler.onClear(be);
+            }
+        }
+        this.clearAllLaserRequirements(be);
+    }
+
     public void clearAuxiliaryMegastructures(CelestialForgingAnvilBlockEntity be) {
         this.synchronizeRegistryHandlers();
         boolean acceleratorCleared = false;

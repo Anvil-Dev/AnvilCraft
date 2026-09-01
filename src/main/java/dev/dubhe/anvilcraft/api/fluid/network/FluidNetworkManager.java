@@ -49,13 +49,15 @@ public final class FluidNetworkManager {
         List<FluidPipeNetwork> networks = new ArrayList<>();
         final Map<BlockPos, FluidPipeNetwork> partIndex = new HashMap<>();
         boolean dirty = true;
+        /** 方块实体刚加载时，等待其首次 tick 刷新能力后再重建网络。 */
+        boolean deferRebuild;
     }
 
     private LevelData data(Level level) {
         return byLevel.computeIfAbsent(level, k -> new LevelData());
     }
 
-    // ---- 容器登记（容器 BE 的 onLoad/setRemoved 调用） ----
+    // ---- 容器登记（自有容器生命周期与服务端方块实体事件共同调用） ----
 
     /** 容器加载时注册。管道部件不注册（它们无 BlockEntity）。 */
     public void addContainer(Level level, BlockPos pos) {
@@ -65,6 +67,20 @@ public final class FluidNetworkManager {
         LevelData d = data(level);
         d.containers.add(pos.immutable());
         d.dirty = true;
+    }
+
+    /**
+     * 登记刚加载的方块实体容器，并把网络重建延后一轮。
+     *
+     * <p>外部模组可能在方块实体首次 tick 时才完成多方块流体处理器初始化；
+     * 延后一轮可避免缓存到尚未刷新的处理器。</p>
+     */
+    public void addContainerAfterLoad(Level level, BlockPos pos) {
+        if (level.isClientSide()) {
+            return;
+        }
+        addContainer(level, pos);
+        data(level).deferRebuild = true;
     }
 
     /** 容器移除时注销。 */
@@ -127,6 +143,10 @@ public final class FluidNetworkManager {
             return;
         }
         if (d.dirty) {
+            if (d.deferRebuild) {
+                d.deferRebuild = false;
+                return;
+            }
             rebuild(level, d);
             d.dirty = false;
         }

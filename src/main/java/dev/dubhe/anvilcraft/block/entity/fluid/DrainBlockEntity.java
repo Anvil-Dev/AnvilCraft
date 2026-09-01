@@ -258,6 +258,10 @@ public class DrainBlockEntity extends BlockEntity implements IFluidHandlerHolder
 
     /** 将位置分类为阻挡、待填充格或可继续遍历的同种流体源。 */
     private static int classifyForFill(Level level, BlockPos pos, Fluid fluid) {
+        // flood-fill 只检查已加载区块，避免读取方块状态时同步加载新区块。
+        if (!level.hasChunkAt(pos)) {
+            return FILL_BLOCKED;
+        }
         BlockState state = level.getBlockState(pos);
         FluidState fs = state.getFluidState();
         if (!fs.isEmpty()) {

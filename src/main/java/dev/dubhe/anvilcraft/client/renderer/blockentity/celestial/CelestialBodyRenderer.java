@@ -91,6 +91,34 @@ public class CelestialBodyRenderer {
         renderPlanetCube(ps, vc, light, overlay, LIGHT_DIR);
     }
 
+    /// 用末地折跃门渲染类型渲染天体主体 —— 表面是跟随玩家视角变化的虚空效果，不需要烘焙贴图。
+    /// 该渲染类型只接受顶点坐标，因此不能复用带颜色和 UV 的立方体辅助方法。
+    public static void renderEndGatewayBody(PoseStack ps, MultiBufferSource bufferSource) {
+        VertexConsumer consumer = bufferSource.getBuffer(RenderType.endGateway());
+        PoseStack.Pose pose = ps.last();
+        /// 顶点绕序取各面外法线的逆时针方向，使背面剔除下六个面都可见。
+        endGatewayQuad(consumer, pose, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1); // 下
+        endGatewayQuad(consumer, pose, 0, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 0); // 上
+        endGatewayQuad(consumer, pose, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 0); // 北
+        endGatewayQuad(consumer, pose, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 1); // 南
+        endGatewayQuad(consumer, pose, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0); // 西
+        endGatewayQuad(consumer, pose, 1, 0, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1); // 东
+    }
+
+    private static void endGatewayQuad(
+        VertexConsumer consumer,
+        PoseStack.Pose pose,
+        float x0, float y0, float z0,
+        float x1, float y1, float z1,
+        float x2, float y2, float z2,
+        float x3, float y3, float z3
+    ) {
+        consumer.addVertex(pose, x0, y0, z0);
+        consumer.addVertex(pose, x1, y1, z1);
+        consumer.addVertex(pose, x2, y2, z2);
+        consumer.addVertex(pose, x3, y3, z3);
+    }
+
     /// === 大气颜色 ===
 
     public static float[] getAtmosphereColor(Temperature temperature) {

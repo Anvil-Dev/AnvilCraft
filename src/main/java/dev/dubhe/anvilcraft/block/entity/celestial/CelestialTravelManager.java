@@ -11,6 +11,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -31,6 +32,10 @@ public final class CelestialTravelManager {
         ResourceLocation.fromNamespaceAndPath("anvilcraft", "overworld_like");
     public static final ResourceKey<Level> OVERWORLD_LIKE_LEVEL =
         ResourceKey.create(Registries.DIMENSION, OVERWORLD_LIKE_DIMENSION);
+    public static final ResourceLocation VOID_PLANET_DIMENSION =
+        ResourceLocation.fromNamespaceAndPath("anvilcraft", "void_planet");
+    public static final ResourceKey<Level> VOID_PLANET_LEVEL =
+        ResourceKey.create(Registries.DIMENSION, VOID_PLANET_DIMENSION);
 
     private static final int SEARCH_RADIUS = 16;
     private static final int SPAWN_SEARCH_RADIUS = 32;
@@ -89,8 +94,7 @@ public final class CelestialTravelManager {
                 );
             }
         }
-        boolean keepRequestedY = travel.coordinateRule().type()
-            == CelestialTravelData.CoordinateRule.Type.FIXED;
+        boolean keepRequestedY = keepsRequestedHeight(travel.coordinateRule().type());
         BlockPos landing = findSafeLandingOrSpawn(destination, desired, keepRequestedY);
         boolean emergencyLanding = false;
         if (landing == null) {
@@ -212,12 +216,33 @@ public final class CelestialTravelManager {
     ) {
         return switch (rule.type()) {
             case SAME -> BlockPos.containing(entity.getX(), destination.getSharedSpawnPos().getY(), entity.getZ());
+            case SAME_3D -> new BlockPos(
+                Mth.floor(entity.getX()),
+                Math.clamp(
+                    Mth.floor(entity.getY()),
+                    destination.getMinBuildHeight() + 1,
+                    destination.getMaxBuildHeight() - 5
+                ),
+                Mth.floor(entity.getZ())
+            );
             case SCALED -> BlockPos.containing(
                 entity.getX() * rule.scale(), destination.getSharedSpawnPos().getY(), entity.getZ() * rule.scale()
             );
             case FIXED -> new BlockPos(rule.x(), rule.y(), rule.z());
             case RANDOM_SPAWN -> randomSpawnOrigin(destination, rule.radius(), entity.getUUID());
         };
+    }
+
+    /**
+     * Reports whether a coordinate rule describes a landing height of its own.
+     *
+     * <p>Rules that only describe X/Z have to fall back to the destination
+     * heightmap, while height-carrying rules keep their requested Y so that
+     * dimensions without terrain still land where the rule asked for.</p>
+     */
+    private static boolean keepsRequestedHeight(CelestialTravelData.CoordinateRule.Type type) {
+        return type == CelestialTravelData.CoordinateRule.Type.FIXED
+            || type == CelestialTravelData.CoordinateRule.Type.SAME_3D;
     }
 
     private static BlockPos returnOrigin(

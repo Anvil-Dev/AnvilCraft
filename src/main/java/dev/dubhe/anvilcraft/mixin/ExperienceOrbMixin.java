@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.api.injection.entity.IExperienceOrbExtension;
 import dev.dubhe.anvilcraft.block.ExpCollectorBlock;
 import dev.dubhe.anvilcraft.block.entity.ExpCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
+import dev.dubhe.anvilcraft.util.AirResistanceManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -15,6 +16,8 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.Constant;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 import java.util.List;
 import java.util.Map;
@@ -98,5 +101,17 @@ abstract class ExperienceOrbMixin extends Entity implements IExperienceOrbExtens
     @Override
     public boolean anvilcraft$getDiscarded() {
         return this.anvilcraft$discarded;
+    }
+
+    /** Horizontal air resistance, also the airborne share of the ground friction product. */
+    @ModifyConstant(method = "tick", constant = @Constant(floatValue = 0.98f))
+    private float anvilcraft$scaleHorizontalAirDrag(float vanillaDrag) {
+        return AirResistanceManager.drag(this.level(), vanillaDrag);
+    }
+
+    /** Vertical air resistance. */
+    @ModifyConstant(method = "tick", constant = @Constant(doubleValue = 0.98))
+    private double anvilcraft$scaleVerticalAirDrag(double vanillaDrag) {
+        return AirResistanceManager.drag(this.level(), vanillaDrag);
     }
 }

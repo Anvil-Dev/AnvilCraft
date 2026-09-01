@@ -18,6 +18,8 @@ import dev.dubhe.anvilcraft.block.entity.celestial.PlanetaryResourceSet;
 import dev.dubhe.anvilcraft.block.entity.celestial.RockyPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionPhase;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyRenderer;
@@ -271,7 +273,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 if (localAcceleratorTicksRemaining <= 0 || serverTicks < localAcceleratorTicksRemaining) {
                     localAcceleratorTicksRemaining = serverTicks;
                 }
-                if (localAcceleratorTicksRemaining > 0) {
+                if (localAcceleratorTicksRemaining > 0 && !beAccel.isAcceleratorPaused()) {
                     localAcceleratorTicksRemaining--;
                 }
             } else {
@@ -348,7 +350,9 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private void renderRefactorSection(GuiGraphics guiGraphics, int guiLeft, int guiTop, int relX, int relY) {
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
         boolean hasAcceleratorActive = getMenu().getBlockEntity().isAcceleratorActive();
-        boolean hasMegastructure = getMenu().getBlockEntity().getActiveMegastructureIndex() >= 0;
+        boolean isAmplifiedPlanet = isAmplifiedPlanetBody(body);
+        boolean hasMegastructure = getMenu().getBlockEntity().getActiveMegastructureIndex() >= 0
+            && !isAmplifiedPlanet;
         boolean showOptions = isLocked() && body != null && searchState == SearchState.DONE;
         boolean isActive = showOptions && !hasAcceleratorActive;
 
@@ -376,8 +380,6 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
 
         /// 在增幅锻星砧上，只有恒星天体才能承载巨构
-        boolean isAmplifiedPlanet = getMenu().getBlockEntity().isAmplify()
-            && body != null && !(body instanceof StarData);
         if (isAmplifiedPlanet) {
             refactorOptions = List.of();
         }
@@ -487,8 +489,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             renderRefactorScrollbar(guiGraphics, guiLeft, guiTop, refactorMaxScroll);
         }
 
-        /// 渲染开始重构按钮（除非巨构已建造且无加速器选项，否则始终显示）
-        boolean showStartButton = !hasMegastructure || !refactorOptions.isEmpty();
+        /// 渲染开始重构按钮（增幅行星仅显示警告）
+        boolean showStartButton = !isAmplifiedPlanet && (!hasMegastructure || !refactorOptions.isEmpty());
         if (showStartButton) {
             boolean hoverStart = relX >= RF_START_X && relX < RF_START_X + RF_START_W
                 && relY >= RF_START_Y && relY < RF_START_Y + RF_START_H;
@@ -832,6 +834,11 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 return;
             }
             renderStarPreview(guiGraphics, star);
+            guiGraphics.pose().popPose();
+            return;
+        }
+        if (body instanceof SpecialCelestialBodyData gateway && gateway.usesEndGatewayModel()) {
+            CelestialBodyRenderer.renderEndGatewayBody(guiGraphics.pose(), guiGraphics.bufferSource());
             guiGraphics.pose().popPose();
             return;
         }
@@ -1185,25 +1192,44 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     /// 在信息面板中渲染恒星演化加速器进度。
     private void renderAcceleratorProgress(GuiGraphics guiGraphics, CelestialForgingAnvilBlockEntity be) {
         List<Component> lines = new ArrayList<>();
-        int stage = be.getAcceleratorStage();
-        String stageKey = switch (stage) {
-            case 1 -> "screen.anvilcraft.cfa.evolution.stage1";
-            case 2 -> "screen.anvilcraft.cfa.evolution.stage2";
-            case 3 -> "screen.anvilcraft.cfa.evolution.stage3";
-            case 4 -> "screen.anvilcraft.cfa.evolution.stage4";
-            default -> "screen.anvilcraft.cfa.evolution.stage_unknown";
-        };
-        lines.add(Component.translatable(stageKey));
+        StellarEvolutionPhase phase = be.getStellarEvolutionPhase();
+        boolean hasPhysicalPhase = phase != null;
+        if (phase != null) {
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.phase." + phase.getSerializedName()));
+            int phasePercent = Math.clamp(Math.round(be.getStellarPhaseProgress() * 100.0f), 0, 100);
+            int totalPercent = Math.clamp(Math.round(be.getStellarTotalProgress(0.0f) * 100.0f), 0, 100);
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.phase_progress", phasePercent));
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.total_progress", totalPercent));
+            StellarVisualState visual = be.getStellarVisualState(0.0f);
+            if (visual != null) {
+                lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.temperature",
+                    Math.round(visual.temperature())));
+            }
+            @Nullable CelestialBodyClass surfaceClass = be.getVisualSurfaceClass();
+            if (surfaceClass != null) {
+                lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.surface_class",
+                    surfaceClass.name()));
+            }
+        } else {
+            /// 旧存档尚未迁移时仍显示兼容阶段名称。
+            StellarEvolutionPhase legacyPhase = StellarEvolutionPhase.fromLegacyStage(be.getAcceleratorStage());
+            lines.add(Component.translatable(
+                "screen.anvilcraft.cfa.evolution.phase." + legacyPhase.getSerializedName()
+            ));
+        }
         /// 剩余时间（使用客户端本地倒计时，每tick递减）
         int displayTicks = localAcceleratorTicksRemaining > 0 ? localAcceleratorTicksRemaining : be.getAcceleratorTicksRemaining();
         int secondsRemaining = displayTicks / 20;
         lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.time_remaining",
             Component.literal(formatDuration(secondsRemaining))));
         /// 进度条信息
-        if (be.getAcceleratorTicksTotal() > 0) {
-            int pct = (int) ((1.0f - (float) displayTicks / be.getAcceleratorTicksTotal()) * 100);
+        if (!hasPhysicalPhase && be.getAcceleratorTicksTotal() > 0) {
+            int pct = Math.clamp((int) ((1.0f - (float) displayTicks / be.getAcceleratorTicksTotal()) * 100), 0, 100);
             lines.add(Component.literal(pct + "%"));
         }
+        lines.add(Component.translatable(
+            "screen.anvilcraft.cfa.evolution.terminal_outcome." + be.getStellarTerminalOutcomeId()
+        ));
         /// 无限能量指示器 —— 仅在戴森球提供无限能量时显示
         if (be.isInfinitePower()) {
             lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.infinite_power"));
@@ -1712,7 +1738,9 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             );
         }
         /// 已建造巨构按钮的提示框（格式与重构选项相同：名称 + 材料 + 描述）
-        boolean hasMegastructureTip = getMenu().getBlockEntity().getActiveMegastructureIndex() >= 0;
+        CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
+        boolean hasMegastructureTip = !isAmplifiedPlanetBody(body)
+            && getMenu().getBlockEntity().getActiveMegastructureIndex() >= 0;
         if (hasMegastructureTip && isLocked() && searchState == SearchState.DONE) {
             if (isHoveringBuiltMegastructureButton(relX, relY)) {
                 CelestialRefactorOption activeOption = getMenu().getBlockEntity().getActiveMegastructureOption();
@@ -1771,7 +1799,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             guiGraphics.renderTooltip(font, Component.translatable("screen.anvilcraft.cfa.refactor_materials"), x, y);
         }
         /// 开始重构按钮提示框
-        if (isLocked() && searchState == SearchState.DONE && isOverRefactorStart(relX, relY)) {
+        if (isLocked() && searchState == SearchState.DONE
+            && !isAmplifiedPlanetBody(body) && isOverRefactorStart(relX, relY)) {
             guiGraphics.renderTooltip(font, Component.translatable("screen.anvilcraft.cfa.refactor_start_tooltip"), x, y);
         }
         /// 种子槽提示框
@@ -1866,7 +1895,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             return true;
         }
         /// 开始重构按钮点击
-        if (isOverRefactorStart(relX, relY)) {
+        if (isOverRefactorStart(relX, relY)
+            && !isAmplifiedPlanetBody(getMenu().getBlockEntity().getCelestialBodyData())) {
             handleRefactorStart();
             return true;
         }
@@ -2006,7 +2036,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     /// 如果没有命中任何选项按钮，返回 -1。
     private int getRefactorOptionAt(int rx, int ry) {
         if (refactorOptions.isEmpty()) return -1;
-        boolean hasMegastructure = getMenu().getBlockEntity().getActiveMegastructureIndex() >= 0;
+        boolean hasMegastructure = getMenu().getBlockEntity().getActiveMegastructureIndex() >= 0
+            && !isAmplifiedPlanetBody(getMenu().getBlockEntity().getCelestialBodyData());
         for (int visibleRow = 0; visibleRow < RF_ROWS_VISIBLE; visibleRow++) {
             for (int col = 0; col < RF_COLS; col++) {
                 int contentRow = rfScrollRow + visibleRow;
@@ -2052,6 +2083,12 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         if (rfScrollRow != 0) return false; /// 已建造按钮固定在第 0 行，滚动后不显示
         return rx >= RF_BTN_X[0] && rx < RF_BTN_X[0] + RF_BTN_W
             && ry >= RF_BTN_Y[0] && ry < RF_BTN_Y[0] + RF_BTN_H;
+    }
+
+    private boolean isAmplifiedPlanetBody(@Nullable CelestialBodyData body) {
+        return getMenu().getBlockEntity().isAmplify()
+            && body != null
+            && !(body instanceof StarData);
     }
 
     private boolean isOverRefactorStart(int rx, int ry) {

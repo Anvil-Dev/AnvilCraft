@@ -3,6 +3,9 @@ package dev.dubhe.anvilcraft.event;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.chargecollector.ChargeCollectorManager;
 import dev.dubhe.anvilcraft.api.event.BlockEntityEvent;
+import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
+import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkScanner;
 import dev.dubhe.anvilcraft.api.heat.HeaterManager;
 import dev.dubhe.anvilcraft.api.power.IPowerComponent;
 import dev.dubhe.anvilcraft.api.power.PowerGrid;
@@ -11,6 +14,7 @@ import dev.dubhe.anvilcraft.block.entity.ChargeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.heatable.HeatableBlockEntity;
 import dev.dubhe.anvilcraft.util.OverseerUtil;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 
@@ -18,6 +22,15 @@ import net.neoforged.fml.common.EventBusSubscriber;
 public class ServerBlockEntityEventListener {
     @SubscribeEvent
     public static void onLoad(BlockEntityEvent.ServerLoad event) {
+        // 外部模组容器不实现 AnvilCraft 接口，加载时也要登记到流体网络。
+        if (!(event.getEntity() instanceof IFluidHandlerHolder)
+            && FluidNetworkScanner.isContainer(
+                event.getLevel(), event.getEntity().getBlockPos(), event.getEntity()
+            )) {
+            FluidNetworkManager.INSTANCE.addContainerAfterLoad(
+                event.getLevel(), event.getEntity().getBlockPos()
+            );
+        }
         if (event.getEntity() instanceof IPowerComponent component) {
             PowerGrid.addComponent(component);
         }
@@ -34,6 +47,11 @@ public class ServerBlockEntityEventListener {
 
     @SubscribeEvent
     public static void onUnload(BlockEntityEvent.ServerUnload event) {
+        // 方块替换时新实体可能已占据该位置，避免旧实体卸载回调删掉新容器登记。
+        BlockEntity current = event.getLevel().getBlockEntity(event.getEntity().getBlockPos());
+        if (current == null || current == event.getEntity()) {
+            FluidNetworkManager.INSTANCE.removeContainer(event.getLevel(), event.getEntity().getBlockPos());
+        }
         if (event.getEntity() instanceof IPowerComponent component) {
             PowerGrid.removeComponent(component);
         }

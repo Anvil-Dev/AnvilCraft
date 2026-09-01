@@ -4,6 +4,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumRecipeProvider;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelData;
 import dev.dubhe.anvilcraft.block.entity.celestial.LiquidCoverage;
+import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyRecipe;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementRequirements;
@@ -20,6 +21,7 @@ public class SpecialCelestialBodyRecipeLoader {
 
     public static void init(RegistrumRecipeProvider provider) {
         createOverworldLike(provider);
+        createVoidPlanet(provider);
         createFleshPlanet(provider);
         createIntelligentPlanet(provider);
         createHollowPlanet(provider);
@@ -100,6 +102,43 @@ public class SpecialCelestialBodyRecipeLoader {
                     anvil("overworld_like"),
                     new CelestialTravelData.CoordinateRule(
                         CelestialTravelData.CoordinateRule.Type.SAME, 1.0, 0, 64, 0, 8
+                    ),
+                    new CelestialTravelData.ReturnRule(
+                        CelestialTravelData.ReturnRule.Type.ENTRY_PORTAL, 0, 64, 0, 8
+                    )
+                ))
+            )
+        );
+    }
+
+    private static void createVoidPlanet(RegistrumRecipeProvider provider) {
+        saveRecipe(
+            provider, "void_planet", new SpecialCelestialBodyRecipe(
+                "void_planet",
+                SpecialCelestialBodyData.END_GATEWAY_MODEL,
+                false,
+                false,
+                32,
+                14,
+                20,
+                16,
+                Optional.empty(),
+                Optional.of(LiquidCoverage.NONE),
+                0,
+                0,
+                0f,
+                List.of(mc("barrier")),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                List.of(),
+                Optional.of(new CelestialTravelData(
+                    anvil("void_planet"),
+                    new CelestialTravelData.CoordinateRule(
+                        CelestialTravelData.CoordinateRule.Type.SAME_3D, 1.0, 0, 64, 0, 8
                     ),
                     new CelestialTravelData.ReturnRule(
                         CelestialTravelData.ReturnRule.Type.ENTRY_PORTAL, 0, 64, 0, 8

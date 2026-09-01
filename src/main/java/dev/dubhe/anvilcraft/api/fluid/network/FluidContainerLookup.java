@@ -29,8 +29,16 @@ public final class FluidContainerLookup {
      * 实体归属于其碰撞箱中心所在的方块单元，避免移动实体同时从多个相邻位置暴露能力。
      */
     public static @Nullable Result find(Level level, BlockPos pos, @Nullable Direction side) {
-        BlockState state = level.getBlockState(pos);
-        BlockEntity blockEntity = level.getBlockEntity(pos);
+        return find(level, pos, side, level.getBlockEntity(pos));
+    }
+
+    private static @Nullable Result find(
+        Level level,
+        BlockPos pos,
+        @Nullable Direction side,
+        @Nullable BlockEntity blockEntity
+    ) {
+        BlockState state = blockEntity == null ? level.getBlockState(pos) : blockEntity.getBlockState();
         IFluidHandler blockHandler = level.getCapability(
             Capabilities.FluidHandler.BLOCK,
             pos,
@@ -61,6 +69,40 @@ public final class FluidContainerLookup {
         boolean cauldron = selected instanceof IEntityCauldron entityCauldron
             && entityCauldron.anvilcraft$usesWholeCauldronFluidTransfers();
         return selectedHandler == null ? null : new Result(selectedHandler, cauldron, selected);
+    }
+
+    /**
+     * 查找任意方向暴露流体能力的容器。
+     *
+     * <p>部分外部模组只在特定方向提供能力，不能只用 {@code side == null}
+     * 判断其是否为容器；加载登记时需要检查所有方向。</p>
+     */
+    public static @Nullable Result findAny(Level level, BlockPos pos) {
+        return findAny(level, pos, level.getBlockEntity(pos));
+    }
+
+    /**
+     * 使用指定的方块实体查找任意方向的流体能力。
+     *
+     * <p>方块实体加载事件在实体写入区块映射前触发，因此必须使用事件提供的实体，
+     * 不能再次按位置查找。</p>
+     */
+    public static @Nullable Result findAny(
+        Level level,
+        BlockPos pos,
+        @Nullable BlockEntity blockEntity
+    ) {
+        Result result = find(level, pos, null, blockEntity);
+        if (result != null) {
+            return result;
+        }
+        for (Direction side : Direction.values()) {
+            result = find(level, pos, side, blockEntity);
+            if (result != null) {
+                return result;
+            }
+        }
+        return null;
     }
 
     /** 返回实体端点是否仍与相邻管道部件实际接触。 */

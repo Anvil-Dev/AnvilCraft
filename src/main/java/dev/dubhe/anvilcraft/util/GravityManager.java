@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.entity.IAnvilCraftEntityExtension;
 import dev.dubhe.anvilcraft.block.BlackHoleBlock;
 import dev.dubhe.anvilcraft.block.WhiteHoleBlock;
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.entity.LevitatingBlockEntity;
 import dev.dubhe.anvilcraft.entity.StandableFallingBlockEntity;
 import dev.dubhe.anvilcraft.entity.StandableLevitatingBlockEntity;
@@ -64,6 +65,7 @@ public final class GravityManager {
     static {
         GravitySourceManager.registerSourceType(BlackHoleBlock.class, 7, 10);
         GravitySourceManager.registerSourceType(WhiteHoleBlock.class, 7, -10);
+        registerDimensionGravity(CelestialTravelManager.VOID_PLANET_LEVEL, 0.0);
     }
 
     private GravityManager() {
