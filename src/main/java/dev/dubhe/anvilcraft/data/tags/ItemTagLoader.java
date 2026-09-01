@@ -138,6 +138,7 @@ public class ItemTagLoader {
             .add(findResourceKey(ModBlocks.INCANDESCENT_TUNGSTEN_BLOCK.asItem()))
             .add(findResourceKey(ModBlocks.OVERHEATED_EMBER_METAL_BLOCK.asItem()));
         provider.addTag(ModItemTags.NETHERITE_BLOCK)
+            .add(findResourceKey(Items.NETHERITE_BLOCK))
             .add(findResourceKey(ModBlocks.REDHOT_NETHERITE_BLOCK.asItem()))
             .add(findResourceKey(ModBlocks.GLOWING_NETHERITE_BLOCK.asItem()))
             .add(findResourceKey(ModBlocks.HEATED_NETHERITE_BLOCK.asItem()))

@@ -1,0 +1,11 @@
+{
+  "description": "轨道模板在运行时展开到以下全部发现分类；阶段 ID 是稳定字符串。",
+  "surfaceClasses": [
+    "M_MAIN", "K_MAIN", "G_MAIN", "F_MAIN", "A_MAIN", "B_MAIN", "O_MAIN",
+    "M_GIANT", "K_GIANT", "G_GIANT", "F_GIANT", "A_GIANT", "B_GIANT", "O_GIANT",
+    "M_SUPERGIANT", "K_SUPERGIANT", "G_SUPERGIANT", "F_SUPERGIANT", "A_SUPERGIANT",
+    "B_SUPERGIANT", "O_SUPERGIANT"
+  ],
+  "remnants": ["WHITE_DWARF", "NEUTRON_STAR", "BLACK_HOLE"],
+  "goldenTrack": "k_main_0_8_golden"
+}

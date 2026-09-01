@@ -19,7 +19,8 @@ import net.minecraft.server.packs.resources.Resource;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 
@@ -33,7 +34,9 @@ import javax.annotation.Nullable;
 )
 public class CelestialBodyTextureBakery {
 
-    private static final Map<String, ResourceLocation> CACHE = new HashMap<>();
+    /** 动态贴图缓存上限，避免长时间浏览大量天体导致显存无限增长。 */
+    private static final int MAX_CACHE_ENTRIES = 128;
+    private static final Map<String, ResourceLocation> CACHE = new LinkedHashMap<>(16, 0.75f, true);
     private static final String TEX_DIR = "textures/block/celestial_body";
 
     @Nullable
@@ -58,14 +61,46 @@ public class CelestialBodyTextureBakery {
     }
 
     @Nullable
-    public static ResourceLocation getOrBakeBody(CelestialBodyData data) {
-        return CACHE.computeIfAbsent(cacheKey(data), k -> bakeBody(data, k));
+    public static synchronized ResourceLocation getOrBakeBody(CelestialBodyData data) {
+        String key = cacheKey(data);
+        if (CACHE.containsKey(key)) return CACHE.get(key);
+        ResourceLocation baked = bakeBody(data, key);
+        if (baked != null) {
+            CACHE.put(key, baked);
+            trimCache();
+        }
+        return baked;
     }
 
     @Nullable
-    public static ResourceLocation getOrBakeRing(CelestialBodyData data) {
+    public static synchronized ResourceLocation getOrBakeRing(CelestialBodyData data) {
         if (data.ringType() == RingType.NONE) return null;
-        return CACHE.computeIfAbsent(ringCacheKey(data), k -> bakeRing(data, k));
+        String key = ringCacheKey(data);
+        if (CACHE.containsKey(key)) return CACHE.get(key);
+        ResourceLocation baked = bakeRing(data, key);
+        if (baked != null) {
+            CACHE.put(key, baked);
+            trimCache();
+        }
+        return baked;
+    }
+
+    /** 资源重载或客户端切换世界时清理烘焙缓存。 */
+    public static synchronized void clearCache() {
+        for (ResourceLocation location : CACHE.values()) {
+            Minecraft.getInstance().getTextureManager().release(location);
+        }
+        CACHE.clear();
+    }
+
+    private static void trimCache() {
+        while (CACHE.size() > MAX_CACHE_ENTRIES) {
+            Iterator<Map.Entry<String, ResourceLocation>> iterator = CACHE.entrySet().iterator();
+            if (!iterator.hasNext()) return;
+            ResourceLocation evicted = iterator.next().getValue();
+            iterator.remove();
+            Minecraft.getInstance().getTextureManager().release(evicted);
+        }
     }
 
     private record TexSet(String base, @Nullable String overlay, String palette) {}
@@ -206,9 +241,9 @@ public class CelestialBodyTextureBakery {
     /// 从图表式恒星数据获取颜色。
     public static float[] starColor(StarData star) {
         return new float[]{
-            star.colorR() / 255f,
-            star.colorG() / 255f,
-            star.colorB() / 255f
+            Math.clamp(star.colorR() / 255f, 0.0f, 1.0f),
+            Math.clamp(star.colorG() / 255f, 0.0f, 1.0f),
+            Math.clamp(star.colorB() / 255f, 0.0f, 1.0f)
         };
     }
 

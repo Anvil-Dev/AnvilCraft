@@ -378,6 +378,8 @@ public final class RedstoneWireNetworkManager {
         }
 
         private void requestSignalUpdate(Network network) {
+            // 外部信号变化是真实事件，恢复对侦测器的通知能力。
+            network.suppressObserverNotification = false;
             this.dirtySignals.add(network);
             // 不延迟到下一 tick，避免观察者等元件在当前邻居更新链中读到旧信号。
             this.runUpdates();
@@ -838,7 +840,12 @@ public final class RedstoneWireNetworkManager {
                 }
             }
 
+            boolean inheritedSuppress = true;
             for (Network network : affected) {
+                if (!network.suppressObserverNotification) {
+                    // 活跃运行中的网络重建后仍应报告真实的功率变化。
+                    inheritedSuppress = false;
+                }
                 for (LongIterator iterator = network.nodes.keySet().iterator(); iterator.hasNext();) {
                     inheritedPowers.put(iterator.nextLong(), (byte) network.totalPower);
                 }
@@ -856,7 +863,7 @@ public final class RedstoneWireNetworkManager {
                     }
                     BlockPos pos = BlockPos.of(seed);
                     if (this.level.getBlockState(pos).getBlock() instanceof RedstoneWireBlock) {
-                        this.buildNetwork(seed, inheritedPowers);
+                        this.buildNetwork(seed, inheritedPowers, inheritedSuppress);
                     }
                 }
             } finally {
@@ -865,7 +872,7 @@ public final class RedstoneWireNetworkManager {
         }
 
         /** 从一个导线种子广度优先构建完整连通分量及其四向连接缓存。 */
-        private void buildNetwork(long seed, Long2ByteOpenHashMap inheritedPowers) {
+        private void buildNetwork(long seed, Long2ByteOpenHashMap inheritedPowers, boolean inheritedSuppress) {
             Long2ObjectLinkedOpenHashMap<Node> nodes = new Long2ObjectLinkedOpenHashMap<>();
             LongArrayFIFOQueue queue = new LongArrayFIFOQueue();
             LongOpenHashSet queued = new LongOpenHashSet();
@@ -906,7 +913,7 @@ public final class RedstoneWireNetworkManager {
                 }
             }
 
-            Network network = new Network(nodes, overflow, inheritedPower);
+            Network network = new Network(nodes, overflow, inheritedPower, inheritedSuppress);
             for (LongIterator iterator = nodes.keySet().iterator(); iterator.hasNext();) {
                 long nodePos = iterator.nextLong();
                 this.byWire.put(nodePos, network);
@@ -998,7 +1005,7 @@ public final class RedstoneWireNetworkManager {
                 this.syncNetworkPower(network);
                 network.needsPowerSync = false;
             }
-            if (totalChanged) {
+            if (totalChanged && !network.suppressObserverNotification) {
                 this.notifyObservers(network);
             }
             network.needsTerminalUpdate = false;
@@ -1195,6 +1202,8 @@ public final class RedstoneWireNetworkManager {
         @Nullable
         private LongOpenHashSet observers;
         private boolean valid = true;
+        /** 没有活跃旧网络可继承时（重启/首次加载）抑制侦测器通知，直到外部信号变化。 */
+        private boolean suppressObserverNotification = true;
         /** 新网络继承旧网络功率，仅用于过渡，首次求值必须同步所有节点。 */
         private boolean needsPowerSync = true;
         // 重建不会继承旧网络的 nonDustPower，因此首次采样即使总功率相同也必须通知全部端点。
@@ -1204,10 +1213,14 @@ public final class RedstoneWireNetworkManager {
         /** 排除原版红石粉输入后的最大强度，专供向粉线输出时防反馈。 */
         private int nonDustPower;
 
-        private Network(Long2ObjectLinkedOpenHashMap<Node> nodes, boolean overflow, int totalPower) {
+        private Network(
+            Long2ObjectLinkedOpenHashMap<Node> nodes, boolean overflow, int totalPower,
+            boolean suppressObserverNotification
+        ) {
             this.nodes = nodes;
             this.overflow = overflow;
             this.totalPower = totalPower;
+            this.suppressObserverNotification = suppressObserverNotification;
         }
     }
 

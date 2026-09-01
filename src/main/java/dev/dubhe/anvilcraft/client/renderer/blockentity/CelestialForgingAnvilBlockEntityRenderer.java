@@ -14,6 +14,11 @@ import dev.dubhe.anvilcraft.block.entity.celestial.RingType;
 import dev.dubhe.anvilcraft.block.entity.celestial.RockyPlanetData;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarEventProfile;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionState;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrack;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrackLibrary;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyRenderer;
@@ -153,6 +158,21 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         return data.bodyScale();
     }
 
+    /** 使用视觉半径计算恒星环系统，确保环、中心和本体采用同一浮点快照。 */
+    private static float stellarRingSystemScale(float visualBodyScale) {
+        return CelestialBodyData.ringSystemScaleForVisualBodyScale(visualBodyScale);
+    }
+
+    private static float stellarCenterY(float ringScale, boolean isAmplify) {
+        return CelestialBodyData.centerYForRingScale(ringScale, isAmplify);
+    }
+
+    /// 把原始视觉缩放按红石信号插值到完整渲染缩放。
+    private static float redstoneScaled(float rawBodyScale, float redstoneFactor) {
+        float fullBodyScale = rawBodyScale * CelestialBodyData.BODY_SCALE_FACTOR;
+        return rawBodyScale + (fullBodyScale - rawBodyScale) * redstoneFactor;
+    }
+
     private static float playerHeadCenterY(
         SpecialCelestialBodyData playerHead,
         boolean isAmplify,
@@ -187,12 +207,30 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         float middleRotation = getMegastructureRotation(blockEntity, middleRing, rot, bodyRotation);
         float innerRotation = getMegastructureRotation(blockEntity, innerRing, rot, bodyRotation);
 
+        @Nullable StellarEvolutionState evolutionState = blockEntity.getStellarEvolutionState();
+        @Nullable StellarTrack evolutionTrack = blockEntity.getMegastructureManager().getAcceleratorHandler().getEvolutionTrack();
+        /// 只有演化中的恒星使用浮点快照和程序化光球；静态恒星继续使用旧的动画光晕。
+        @Nullable StellarVisualState stellarVisual = bodyData instanceof StarData && evolutionState != null
+            ? blockEntity.getStellarVisualState(partialTick)
+            : null;
+        float visualRawBodyScale = bodyData == null ? 2.0f : bodyScale(bodyData);
+        float structuralBodyScale = visualRawBodyScale;
+        if (bodyData instanceof StarData && stellarVisual != null && evolutionState != null && evolutionTrack != null) {
+            // 环和中心只读取结构半径；本体另行读取含脉动的半径。
+            structuralBodyScale = blockEntity.getStellarStructuralBodyScale(partialTick);
+            visualRawBodyScale = blockEntity.getStellarPulsatingBodyScale(partialTick);
+        }
+
         /// 红石信号控制缩放倍率：0 级时使用固定原始值（天体=最小，环=6，高度=4.5/6.5），
         /// 15 级时达到完整动态缩放。中间级别线性插值。
         float redstoneFactor = blockEntity.getRedstoneSignal() / 15.0f;
 
-        float fullRingScale = ringSystemScale(bodyData, isAmplify);
-        float fullCenterY = dynamicCenterY(bodyData, isAmplify);
+        float fullRingScale = bodyData instanceof StarData && stellarVisual != null
+            ? stellarRingSystemScale(structuralBodyScale)
+            : ringSystemScale(bodyData, isAmplify);
+        float fullCenterY = bodyData instanceof StarData && stellarVisual != null
+            ? stellarCenterY(fullRingScale, isAmplify)
+            : dynamicCenterY(bodyData, isAmplify);
         float baseRingScale = 6.0f;
         float baseCenterY = isAmplify ? 6.5f : 4.5f;
         float ringScale = baseRingScale + (fullRingScale - baseRingScale) * redstoneFactor;
@@ -203,9 +241,22 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// 各尺寸天体的比例关系在所有红石级别下保持不变。
         float bodyScaleMultiplier = 2.0f; // 无天体时的默认值
         if (bodyData != null) {
-            float rawBodyScale = bodyScale(bodyData);           // 信号 0 时的缩放
-            float fullBodyScale = getBodyScale(bodyData);       // 信号 15 时的缩放
-            bodyScaleMultiplier = rawBodyScale + (fullBodyScale - rawBodyScale) * redstoneFactor;
+            bodyScaleMultiplier = redstoneScaled(visualRawBodyScale, redstoneFactor);
+        }
+
+        /// 演化中的恒星半径跨越数量级，而红石基准值（环=6、高度=4.5/6.5）只适配发现时的
+        /// 离散尺寸。膨胀期必须用实际渲染出来的本体反推环缩放和中心高度的下限，
+        /// 否则恒星会长到束星环外并穿进锻星砧。结构包络已经是本阶段的最大半径（脉冲只
+        /// 向内收缩），所以环在整个阶段保持同一尺寸，只需再留出事件核心膨胀的余量。
+        @Nullable StellarEventProfile eventProfile = stellarVisual == null
+            ? null
+            : blockEntity.getStellarEventProfile();
+        if (stellarVisual != null) {
+            float eventReach = eventProfile == null ? 1.0f : Math.max(1.0f, eventProfile.maxCoreRadius());
+            float peakBodyScale = redstoneScaled(structuralBodyScale, redstoneFactor) * eventReach;
+            float ringFloor = CelestialBodyData.ringScaleForRenderedBodyScale(peakBodyScale);
+            if (ringFloor > ringScale) ringScale = ringFloor;
+            centerY = Math.max(centerY, stellarCenterY(ringScale, isAmplify));
         }
 
         /// 渲染端平滑：对环缩放、中心高度、天体缩放、光束高度做帧率无关的指数逼近，
@@ -377,7 +428,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                     bodyRot,
                     star,
                     animProgress,
-                    redstoneFactor,
+                    ringScale,
                     poseStack,
                     multiBufferSource,
                     packedOverlay,
@@ -432,7 +483,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (blockEntity.isAmplify() && isPenroseSphereActive(blockEntity) && bodyData instanceof StarData star) {
             float bodyRot = bodyRotation;
             renderPenroseSphereRings(centerY, rot, bodyRot, star, animProgress,
-                blockEntity.isPenroseSphereLaserActive(), redstoneFactor,
+                blockEntity.isPenroseSphereLaserActive(), ringScale,
                 poseStack, multiBufferSource, packedOverlay, modelRenderer);
         }
 
@@ -445,7 +496,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 bodyRot,
                 star,
                 animProgress,
-                redstoneFactor,
+                ringScale,
                 poseStack,
                 multiBufferSource,
                 packedOverlay,
@@ -462,7 +513,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 bodyRot,
                 star,
                 animProgress,
-                redstoneFactor,
+                ringScale,
                 poseStack,
                 multiBufferSource,
                 packedOverlay,
@@ -478,7 +529,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 || star.specialRedDwarf());
         if (canRender) {
             renderTractorBeam(beamHeight, animProgress, poseStack, multiBufferSource);
-            /// 天体缩放完全由 StarData.size() 驱动，坍缩期间通过 applyCollapseColor() 缩小 —— 无需额外的 pose 缩放。
+            float eventProgress = blockEntity.getStellarEventProgress(partialTick);
             float bodyCenterY = centerY;
             if (effectiveBodyData instanceof SpecialCelestialBodyData special && special.isPlayerHead()) {
                 bodyCenterY = playerHeadCenterY(special, isAmplify, bodyScaleMultiplier, animProgress);
@@ -492,7 +543,10 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 packedOverlay,
                 blockEntity.getBlockPos().asLong(),
                 animProgress,
-                bodyScaleMultiplier
+                bodyScaleMultiplier,
+                stellarVisual,
+                eventProfile,
+                eventProgress
             );
             renderCelestialRing(
                 effectiveBodyData,
@@ -506,7 +560,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             );
         }
 
-        /// 超新星爆发闪光：水平展开的动画billboard，中心跟随天体中心、大小随红石缩放。
+        /// 超新星爆发闪光：水平展开的动画 billboard，中心跟随天体中心、大小随红石缩放。
         /// 即使天体已被残骸替换也要播放，故置于 canRender 之外。
         if (blockEntity.getSupernovaFlashTicks() > 0) {
             renderSupernovaFlash(blockEntity, partialTick, poseStack, multiBufferSource);
@@ -651,7 +705,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         float bodyRot,
         StarData star,
         float scale,
-        float redstoneFactor,
+        float dynamicRingScale,
         PoseStack poseStack,
         MultiBufferSource bufferSource,
         int packedOverlay,
@@ -660,8 +714,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (!renderR4 && !renderR5) return;
         if (scale < 0.001f) return;
 
-        float fullRScale = ringSystemScale(star, true);
-        float rscale = 6.0f + (fullRScale - 6.0f) * redstoneFactor;
+        float rscale = dynamicRingScale;
 
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
@@ -723,7 +776,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         float bodyRot,
         StarData star,
         float scale,
-        float redstoneFactor,
+        float dynamicRingScale,
         PoseStack poseStack,
         MultiBufferSource bufferSource,
         int packedOverlay,
@@ -731,8 +784,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     ) {
         if (scale < 0.001f) return;
 
-        float fullRScale = ringSystemScale(star, true);
-        float rscale = 6.0f + (fullRScale - 6.0f) * redstoneFactor;
+        float rscale = dynamicRingScale;
 
         /// === Ring 模型（机械旋转，与原 R4 内环相同） ===
         poseStack.pushPose();
@@ -766,7 +818,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         StarData star,
         float scale,
         boolean laserActive,
-        float redstoneFactor,
+        float dynamicRingScale,
         PoseStack poseStack,
         MultiBufferSource bufferSource,
         int packedOverlay,
@@ -774,8 +826,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     ) {
         if (scale < 0.001f) return;
 
-        float fullRScale = ringSystemScale(star, true);
-        float rscale = 6.0f + (fullRScale - 6.0f) * redstoneFactor;
+        float rscale = dynamicRingScale;
 
         /// === Laser/Off 模型（恒星同步，反向 Y 旋转） ===
         poseStack.pushPose();
@@ -808,7 +859,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         float bodyRot,
         StarData star,
         float scale,
-        float redstoneFactor,
+        float dynamicRingScale,
         PoseStack poseStack,
         MultiBufferSource bufferSource,
         int packedOverlay,
@@ -816,8 +867,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
     ) {
         if (scale < 0.001f) return;
 
-        float fullRScale = ringSystemScale(star, true);
-        float rscale = 6.0f + (fullRScale - 6.0f) * redstoneFactor;
+        float rscale = dynamicRingScale;
 
         /// === Ring 模型（机械旋转，与原 R4 内环相同） ===
         poseStack.pushPose();
@@ -1000,7 +1050,10 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         int packedOverlay,
         long seed,
         float animProgress,
-        float bodyScale
+        float bodyScale,
+        @Nullable StellarVisualState stellarVisual,
+        @Nullable StellarEventProfile eventProfile,
+        float eventProgress
     ) {
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
@@ -1052,7 +1105,17 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 }
             }
         } else if (bodyData instanceof StarData star) {
-            renderStarModel(star, bodyRotation, poseStack, bufferSource, packedOverlay, seed);
+            renderStarModel(
+                star,
+                bodyRotation,
+                poseStack,
+                bufferSource,
+                packedOverlay,
+                seed,
+                stellarVisual,
+                eventProfile,
+                eventProgress
+            );
         } else {
             renderPlanetBody(bodyData, poseStack, bufferSource, packedOverlay, seed);
         }
@@ -1131,7 +1194,10 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         PoseStack poseStack,
         MultiBufferSource bufferSource,
         int packedOverlay,
-        long seed
+        long seed,
+        @Nullable StellarVisualState stellarVisual,
+        @Nullable StellarEventProfile eventProfile,
+        float eventProgress
     ) {
         /// 恒星残骸使用专用模型，无颜色叠加和光晕
         if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) {
@@ -1169,8 +1235,13 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 .renderModel(poseStack.last(), consumer, null, model, 1.0f, 1.0f, 1.0f, LightTexture.FULL_BRIGHT, packedOverlay);
         }
 
-        /// 颜色叠加 —— 乘法混合以实现精确调色板着色
-        float[] rgb = CelestialBodyTextureBakery.starColor(star);
+        /// 颜色叠加 —— 演化期间来自温度快照，空闲时回退到旧颜色字段。
+        float[] rgb = stellarVisual == null
+            ? CelestialBodyTextureBakery.starColor(star)
+            : new float[] {stellarVisual.red(), stellarVisual.green(), stellarVisual.blue()};
+        float emission = stellarVisual == null
+            ? 1.0f
+            : Math.clamp(0.85f + 0.15f * (float) Math.log10(1.0f + stellarVisual.luminosity()), 0.85f, 1.25f);
         poseStack.pushPose();
         poseStack.translate(0.5, 0.5, 0.5);
         poseStack.scale(1.005f, 1.005f, 1.005f);
@@ -1178,18 +1249,110 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         renderColorOverlay(poseStack, bufferSource, rgb[0], rgb[1], rgb[2], packedOverlay);
         poseStack.popPose();
 
-        /// 恒星光晕
+        /// 恒星光晕：演化中和静态恒星共用同一套层数和透明度衰减，只有颜色来自快照。
+        /// 演化快照的 emission 是光度的平方根（巨星能到几十），直接当透明度用会让光晕
+        /// 又深又短、和进入演化前完全不连贯，所以先压到 1 附近的窄区间。
         int haloIterations = 10;
         for (int i = 0; i < haloIterations; i++) {
             float progress = (float) i / haloIterations;
             float haloScale = 1.0f + progress * 0.6f;
-            float alpha = (1.2f - 1.125f * progress) / haloIterations;
+            float alpha = emission * (1.2f - 1.125f * progress) / haloIterations;
             poseStack.pushPose();
             poseStack.translate(0.5, 0.5, 0.5);
             poseStack.scale(haloScale, haloScale, haloScale);
             poseStack.translate(-0.5, -0.5, -0.5);
-            renderTranslucentCube(poseStack, bufferSource, rgb[0], rgb[1], rgb[2], alpha, LightTexture.FULL_BRIGHT, packedOverlay, seed);
+            renderTranslucentCube(
+                poseStack,
+                bufferSource,
+                rgb[0],
+                rgb[1],
+                rgb[2],
+                alpha,
+                LightTexture.FULL_BRIGHT,
+                packedOverlay,
+                seed
+            );
             poseStack.popPose();
+        }
+
+        if (eventProfile != null && stellarVisual != null) {
+            renderStellarEventLayers(
+                poseStack,
+                bufferSource,
+                packedOverlay,
+                seed,
+                stellarVisual,
+                eventProfile,
+                eventProgress
+            );
+        }
+    }
+
+    /** 渲染事件的独立抛射壳和核心光晕，二者不共享缩放状态。 */
+    private void renderStellarEventLayers(
+        PoseStack poseStack,
+        MultiBufferSource bufferSource,
+        int packedOverlay,
+        long seed,
+        StellarVisualState visual,
+        StellarEventProfile profile,
+        float eventProgress
+    ) {
+        float core = Math.max(0.05f, profile.coreRadius(eventProgress));
+        float ejecta = Math.max(0.0f, profile.ejectaRadius(eventProgress));
+        float coreRatio = Math.clamp(core, 0.05f, 2.0f);
+        int eventRgb = profile.color(eventProgress);
+        float er = ((eventRgb >> 16) & 0xFF) / 255.0f;
+        float eg = ((eventRgb >> 8) & 0xFF) / 255.0f;
+        float eb = (eventRgb & 0xFF) / 255.0f;
+        float intensity = Math.max(0.1f, profile.emission(eventProgress));
+
+        /// 核心层使用较紧的立方体壳，避免把核心和抛射物误画成一个整体。
+        if (coreRatio < 0.98f) {
+            poseStack.pushPose();
+            poseStack.translate(0.5, 0.5, 0.5);
+            poseStack.scale(coreRatio, coreRatio, coreRatio);
+            poseStack.translate(-0.5, -0.5, -0.5);
+            renderTranslucentCube(
+                poseStack,
+                bufferSource,
+                Math.min(1.0f, er * 1.2f),
+                Math.min(1.0f, eg * 1.2f),
+                Math.min(1.0f, eb * 1.2f),
+                Math.min(0.85f, 0.20f + intensity * 0.08f),
+                LightTexture.FULL_BRIGHT,
+                packedOverlay,
+                seed ^ 0x51A7L
+            );
+            poseStack.popPose();
+        }
+
+        /// 抛射物独立向外膨胀，最多固定六层以控制顶点数量。
+        if (ejecta > 0.01f) {
+            int layers = Math.min(6, Math.max(1, profile.shellCount()));
+            float base = Math.max(visual.radius(), 0.05f);
+            float outer = Math.max(1.0f, ejecta / base);
+            for (int i = layers; i >= 1; i--) {
+                float layerT = i / (float) layers;
+                float shellScale = 1.0f + (outer - 1.0f) * layerT;
+                float alpha = Math.min(0.55f, (0.12f + intensity * 0.035f) * (1.0f - layerT * 0.55f));
+                poseStack.pushPose();
+                poseStack.translate(0.5, 0.5, 0.5);
+                poseStack.scale(shellScale, shellScale, shellScale);
+                poseStack.translate(-0.5, -0.5, -0.5);
+                renderTranslucentCube(
+                    poseStack,
+                    bufferSource,
+                    Math.min(1.0f, er + 0.08f),
+                    Math.min(1.0f, eg + 0.08f),
+                    Math.min(1.0f, eb + 0.08f),
+                    alpha,
+                    LightTexture.FULL_BRIGHT,
+                    packedOverlay,
+                    seed ^ (0x51A7L + i)
+                );
+                poseStack.popPose();
+            }
         }
     }
 
@@ -1302,10 +1465,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         }
     }
 
-    /// 超新星爆发闪光：水平展开的动画 billboard（平铺于 XZ 平面，面朝上下）。
-    /// 中心始终为天体视觉中心（supernovaCenterY），大小与天体一样随红石信号缩放
-    /// （supernovaScale）。快速从中心扩大到约 16×16 格。8 帧从 supernova_0 播放到 supernova_7。
-    private static final float SUPERNOVA_MAX_RADIUS = 8.0f; /// 半径 8 → 直径约 16 格
+    /// 超新星闪光是水平展开的动画 billboard，中心跟随天体中心、大小随红石缩放。
+    private static final float SUPERNOVA_MAX_RADIUS = 8.0f;
 
     private void renderSupernovaFlash(
         CelestialForgingAnvilBlockEntity blockEntity,
@@ -1327,7 +1488,9 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         float expand = (float) Math.sqrt(t);
         float scale = blockEntity.getSupernovaScale();
         if (scale <= 0f) scale = 1.0f;
-        float radius = SUPERNOVA_MAX_RADIUS * expand * scale;
+        StellarEventProfile profile = StellarTrackLibrary.eventProfile(blockEntity.getSupernovaProfileId());
+        float profileRadius = profile == null ? SUPERNOVA_MAX_RADIUS : Math.max(2.0f, profile.rayLength() * 0.65f);
+        float radius = profileRadius * expand * scale;
         if (radius < 0.01f) return;
 
         /// 末段淡出，避免突兀消失。
@@ -1345,11 +1508,23 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         int light = LightTexture.FULL_BRIGHT;
 
         /// 水平四边形（朝上）。NO_CULL 使上下双面可见。
-        emitFlatQuad(vc, pose, radius, 1.0f, 1.0f, 1.0f, alpha, light);
+        /// 颜色取自事件 profile：II-P 偏红橙、剥离型偏蓝白、直接坍缩偏暗，
+        /// 几何仍是以前的单个平面粒子。
+        int flashColor = profile == null ? 0xFFFFFF : profile.color(t);
+        emitFlatQuad(
+            vc,
+            pose,
+            radius,
+            ((flashColor >> 16) & 0xFF) / 255.0f,
+            ((flashColor >> 8) & 0xFF) / 255.0f,
+            (flashColor & 0xFF) / 255.0f,
+            alpha,
+            light
+        );
         poseStack.popPose();
 
-        /// 末影龙死亡式的向外放射光束：从中心向四面八方快速射出的光锥。
-        renderSupernovaRays(blockEntity, t, scale, localCenterY, poseStack, bufferSource);
+        /// 向外放射的立方体光锥，核心收缩时抛射物仍独立扩张。
+        renderSupernovaRays(blockEntity, t, scale, localCenterY, profile, poseStack, bufferSource);
     }
 
     /// 类似末影龙死亡时的向外发光：从天体中心向随机但固定的方向发射一束束光锥，
@@ -1362,12 +1537,15 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         float t,
         float scale,
         double localCenterY,
+        @Nullable StellarEventProfile profile,
         PoseStack poseStack,
         MultiBufferSource bufferSource
     ) {
         /// 光束长度快速增长（ease-out），匹配爆发节奏；末段淡出。
         float grow = (float) Math.sqrt(t);
-        float length = SUPERNOVA_RAY_LENGTH * grow * scale;
+        int rayCount = profile == null ? SUPERNOVA_RAY_COUNT : Math.min(SUPERNOVA_RAY_COUNT, profile.rayCount());
+        float configuredLength = profile == null ? SUPERNOVA_RAY_LENGTH : Math.max(1.0f, profile.rayLength());
+        float length = configuredLength * grow * scale;
         float intensity = t > 0.6f ? (1.0f - (t - 0.6f) / 0.4f) : 1.0f;
         if (length < 0.01f || intensity <= 0.01f) return;
 
@@ -1377,9 +1555,16 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         PoseStack.Pose pose = poseStack.last();
 
         /// 以方块位置为种子的固定随机方向，使每次爆发的光束朝向稳定不抖动。
-        RandomSource rand = RandomSource.create(blockEntity.getBlockPos().asLong() ^ 0x5DEECE66DL);
+        long eventSeed = blockEntity.getSupernovaEventSeed();
+        if (eventSeed == 0L) eventSeed = blockEntity.getBlockPos().asLong() ^ 0x5DEECE66DL;
+        RandomSource rand = RandomSource.create(eventSeed);
         float baseWidth = 0.25f * scale;
-        for (int i = 0; i < SUPERNOVA_RAY_COUNT; i++) {
+        float asymmetry = profile == null ? 0.0f : profile.asymmetry();
+        int rayColor = profile == null ? 0xB8E8FF : profile.color(t);
+        float rayR = ((rayColor >> 16) & 0xFF) / 255.0f;
+        float rayG = ((rayColor >> 8) & 0xFF) / 255.0f;
+        float rayB = (rayColor & 0xFF) / 255.0f;
+        for (int i = 0; i < rayCount; i++) {
             /// 球面均匀方向
             float u = rand.nextFloat() * 2.0f - 1.0f;
             float theta = rand.nextFloat() * (float) (Math.PI * 2.0);
@@ -1388,10 +1573,10 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             float dy = u;
             float dz = s * (float) Math.sin(theta);
             /// 每束略微随机的长度与强度
-            float len = length * (0.7f + 0.6f * rand.nextFloat());
+            float len = length * (1.0f - asymmetry * 0.3f + (0.6f + asymmetry * 0.6f) * rand.nextFloat());
             float rayI = intensity * (0.5f + 0.5f * rand.nextFloat());
             emitRay(vc, pose, dx, dy, dz, len, baseWidth,
-                0.12f * rayI, 0.22f * rayI, 0.26f * rayI);
+                rayR * rayI, rayG * rayI, rayB * rayI);
         }
         poseStack.popPose();
     }
@@ -1463,10 +1648,14 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         int packedOverlay,
         long seed
     ) {
-        ResourceLocation bodyTexture = CelestialBodyTextureBakery.getOrBakeBody(bodyData);
-        if (bodyTexture != null) {
-            VertexConsumer bodyConsumer = bufferSource.getBuffer(ModRenderTypes.STAR_CUTOUT.apply(bodyTexture));
-            CelestialBodyRenderer.renderPlanetBody(poseStack, bodyConsumer, LightTexture.FULL_BRIGHT, packedOverlay);
+        if (bodyData instanceof SpecialCelestialBodyData gateway && gateway.usesEndGatewayModel()) {
+            CelestialBodyRenderer.renderEndGatewayBody(poseStack, bufferSource);
+        } else {
+            ResourceLocation bodyTexture = CelestialBodyTextureBakery.getOrBakeBody(bodyData);
+            if (bodyTexture != null) {
+                VertexConsumer bodyConsumer = bufferSource.getBuffer(ModRenderTypes.STAR_CUTOUT.apply(bodyTexture));
+                CelestialBodyRenderer.renderPlanetBody(poseStack, bodyConsumer, LightTexture.FULL_BRIGHT, packedOverlay);
+            }
         }
 
         /// 大气层 —— 针对具有大气层的岩石行星和特殊天体
@@ -1620,10 +1809,6 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         }
     }
 
-    private static float getBodyScale(CelestialBodyData data) {
-        return data.bodyScale() * CelestialBodyData.BODY_SCALE_FACTOR;
-    }
-
     private float[] getAtmosphereColor(Temperature temperature) {
         return CelestialBodyRenderer.getAtmosphereColor(temperature);
     }
@@ -1651,25 +1836,55 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         CelestialBodyData body = blockEntity.getCelestialBodyData();
         float centerY = dynamicCenterY(body, blockEntity.isAmplify());
         float fullBodyScale = body != null ? bodyScale(body) * CelestialBodyData.BODY_SCALE_FACTOR : 6.0f;
+        StellarVisualState visual = body instanceof StarData ? blockEntity.getStellarVisualState(1.0f) : null;
+        if (visual != null && body instanceof StarData && blockEntity.getEvolutionTrack() != null
+            && blockEntity.getStellarEvolutionState() != null) {
+            float rawScale = blockEntity.getStellarVisualBodyScale(1.0f);
+            fullBodyScale = rawScale * CelestialBodyData.BODY_SCALE_FACTOR;
+            centerY = stellarCenterY(stellarRingSystemScale(rawScale), blockEntity.isAmplify());
+            if (visual.ejectaRadius() > visual.radius()) {
+                fullBodyScale = Math.max(fullBodyScale,
+                    fullBodyScale * visual.ejectaRadius() / Math.max(visual.radius(), 0.01f));
+            }
+        }
         float bs = fullBodyScale;
+        if (visual != null) {
+            float pulseReach = 1.0f + visual.pulsationAmplitude();
+            float haloReach = 1.18f + Math.min(0.35f, visual.envelopeOpacity() * 0.25f);
+            bs *= Math.max(pulseReach, haloReach);
+            StellarEventProfile eventProfile = blockEntity.getStellarEventProfile();
+            if (eventProfile != null) {
+                float eventReach = Math.max(eventProfile.maxCoreRadius(), eventProfile.maxEjectaRadius());
+                bs = Math.max(bs, fullBodyScale * Math.max(1.0f, eventReach));
+            }
+        }
         if (body instanceof SpecialCelestialBodyData special && special.isPlayerHead()) {
             bs *= PLAYER_HEAD_SCALE;
             centerY = playerHeadCenterY(special, blockEntity.isAmplify(), fullBodyScale, 1.0f);
         }
         // The mechanical rings can extend beyond the body, especially for small planets.
         // Size the box from the larger of the body and the complete ring system.
-        float ringScale = ringSystemScale(body, blockEntity.isAmplify());
+        float ringScale = visual != null
+            ? stellarRingSystemScale(blockEntity.getStellarVisualBodyScale(1.0f))
+            : ringSystemScale(body, blockEntity.isAmplify());
+        // 包围盒同时覆盖平滑器尚未追上的上一帧尺寸，避免恒星快速收缩时
+        // 环和外包层在过渡窗口被视锥裁掉。
         float maxVisualScale = Math.max(bs, ringScale);
+        maxVisualScale = Math.max(maxVisualScale, blockEntity.getSmoothRingScale());
+        maxVisualScale = Math.max(maxVisualScale, blockEntity.getSmoothBodyScale());
         float maxHeight = Math.max(
             centerY + maxVisualScale * 1.5f,
             blockEntity.isAmplify() ? 18.0f : 12.0f
         );
         float horizontalInset = maxVisualScale * 1.5f;
+        float verticalInset = maxVisualScale * 1.5f;
         /// 超新星爆发：水平闪光约 16 格 + 向四面八方（含下方）射出约 12 格光束，
         /// 用以天体中心为心的对称大包围盒覆盖，避免被裁剪。
         if (blockEntity.getSupernovaFlashTicks() > 0) {
             float explosionScale = Math.max(1.0f, blockEntity.getSupernovaScale());
-            float reach = Math.max(SUPERNOVA_MAX_RADIUS, SUPERNOVA_RAY_LENGTH)
+            StellarEventProfile profile = StellarTrackLibrary.eventProfile(blockEntity.getSupernovaProfileId());
+            float profileRayLength = profile == null ? SUPERNOVA_RAY_LENGTH : profile.rayLength();
+            float reach = Math.max(SUPERNOVA_MAX_RADIUS, profileRayLength)
                 * explosionScale * 1.5f + 2;
             double cy = blockEntity.getSupernovaCenterY();
             return new AABB(
@@ -1684,14 +1899,14 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (!blockEntity.isAmplify()) {
             AABB aabb = new AABB(blockEntity.getBlockPos().offset(state.getValue(CelestialForgingAnvilBlock.HALF).getOffset())).inflate(
                 Math.max(horizontalInset, 1),
-                0,
+                verticalInset,
                 Math.max(horizontalInset, 1)
             );
             return aabb.setMaxY(aabb.maxY + maxHeight);
         }
         AABB aabb = new AABB(blockEntity.getBlockPos().offset(state.getValue(CelestialForgingAnvilBlock.HALF).getOffset())).inflate(
             Math.max(horizontalInset, 3),
-            0,
+            verticalInset,
             Math.max(horizontalInset, 3)
         );
         return aabb.setMaxY(aabb.maxY + maxHeight);

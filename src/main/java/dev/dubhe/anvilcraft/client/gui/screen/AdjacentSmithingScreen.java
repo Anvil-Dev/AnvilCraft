@@ -34,7 +34,7 @@ public abstract class AdjacentSmithingScreen<M extends AdjacentSmithingMenu> ext
     private static final int SLOT_Y = 18;
     private static final int SLIDER_X = 60;
     private static final int SLIDER_MIN_Y = 18;
-    private static final int SLIDER_MAX_Y = 117;
+    private static final int SLIDER_MAX_Y = 111;
 
     @Nullable
     private EditBox searchBox;

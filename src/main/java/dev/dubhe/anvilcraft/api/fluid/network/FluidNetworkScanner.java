@@ -10,8 +10,10 @@ import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -51,7 +53,16 @@ public final class FluidNetworkScanner {
 
     /** 判断某位置是否为流体容器（提供 IFluidHandler 且非管道部件）。供管理器剔除失效容器用。 */
     public static boolean isContainer(Level level, BlockPos pos) {
-        return !isPipePart(level.getBlockState(pos)) && FluidContainerLookup.find(level, pos, null) != null;
+        return isContainer(level, pos, level.getBlockEntity(pos));
+    }
+
+    /** 使用指定的方块实体判断容器，供实体加载事件在写入区块映射前使用。 */
+    public static boolean isContainer(Level level, BlockPos pos, @Nullable BlockEntity blockEntity) {
+        BlockState state = blockEntity == null ? level.getBlockState(pos) : blockEntity.getBlockState();
+        if (isPipePart(state)) {
+            return false;
+        }
+        return FluidContainerLookup.findAny(level, pos, blockEntity) != null;
     }
 
     /**

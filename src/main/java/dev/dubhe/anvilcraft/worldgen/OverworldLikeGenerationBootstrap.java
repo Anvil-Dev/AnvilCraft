@@ -63,7 +63,7 @@ public final class OverworldLikeGenerationBootstrap {
 
     public static void prepare(MinecraftServer server, LevelStorageSource.LevelStorageAccess storageAccess) {
         if (PREPARED_GENERATIONS.containsKey(server)) return;
-        Path worldRoot = storageAccess.getWorldDir().toAbsolutePath().normalize();
+        Path worldRoot = worldRoot(storageAccess);
         try {
             OverworldLikeResetManifest manifest = OverworldLikeResetManifest.read(worldRoot);
             if (manifest == null) {
@@ -76,10 +76,20 @@ public final class OverworldLikeGenerationBootstrap {
                 manifest = manifest.promoteNextGeneration();
             }
             manifest.write(worldRoot);
-            PREPARED_GENERATIONS.put(server, new PreparedGeneration(manifest, resetPerformed));
+            PREPARED_GENERATIONS.put(server, new PreparedGeneration(worldRoot, manifest, resetPerformed));
         } catch (IOException exception) {
             throw new IllegalStateException("Unable to prepare overworld-like generation", exception);
         }
+    }
+
+    /**
+     * Resolves the directory of the level being loaded.
+     *
+     * <p>{@link LevelStorageSource.LevelStorageAccess#getWorldDir()} points at the shared saves root instead,
+     * so the manifest has to be anchored to the level directory to stay per-save.</p>
+     */
+    private static Path worldRoot(LevelStorageSource.LevelStorageAccess storageAccess) {
+        return storageAccess.getLevelPath(LevelResource.ROOT).toAbsolutePath().normalize();
     }
 
     public static OverworldLikeResetManifest getManifest(MinecraftServer server) {
@@ -104,8 +114,11 @@ public final class OverworldLikeGenerationBootstrap {
         if (prepared == null || prepared.manifest().resetPending()) return false;
         OverworldLikeResetManifest updated = prepared.manifest().resetRequested(nextSeed);
         try {
-            updated.write(server.getWorldPath(LevelResource.ROOT));
-            PREPARED_GENERATIONS.put(server, new PreparedGeneration(updated, prepared.resetPerformed()));
+            updated.write(prepared.worldRoot());
+            PREPARED_GENERATIONS.put(
+                server,
+                new PreparedGeneration(prepared.worldRoot(), updated, prepared.resetPerformed())
+            );
             return true;
         } catch (IOException exception) {
             AnvilCraft.LOGGER.error("Unable to persist overworld-like reset request", exception);
@@ -121,7 +134,7 @@ public final class OverworldLikeGenerationBootstrap {
         if (oldLevel == null || !oldLevel.players().isEmpty()) return false;
 
         LevelStorageSource.LevelStorageAccess storageAccess = ((MinecraftServerAccessor) server).getStorageSource();
-        Path worldRoot = server.getWorldPath(LevelResource.ROOT).toAbsolutePath().normalize();
+        Path worldRoot = prepared.worldRoot();
         OverworldLikeResetManifest nextManifest = prepared.manifest().promoteNextGeneration();
         try {
             unlinkOverworldLikeBorder(server, oldLevel);
@@ -132,7 +145,7 @@ public final class OverworldLikeGenerationBootstrap {
                 storageAccess.getDimensionPath(CelestialTravelManager.OVERWORLD_LIKE_LEVEL)
             );
             nextManifest.write(worldRoot);
-            PREPARED_GENERATIONS.put(server, new PreparedGeneration(nextManifest, true));
+            PREPARED_GENERATIONS.put(server, new PreparedGeneration(worldRoot, nextManifest, true));
 
             ServerLevel replacement = createOverworldLikeLevel(server, storageAccess);
             server.forgeGetWorldMap().put(CelestialTravelManager.OVERWORLD_LIKE_LEVEL, replacement);
@@ -224,6 +237,6 @@ public final class OverworldLikeGenerationBootstrap {
         });
     }
 
-    private record PreparedGeneration(OverworldLikeResetManifest manifest, boolean resetPerformed) {
+    private record PreparedGeneration(Path worldRoot, OverworldLikeResetManifest manifest, boolean resetPerformed) {
     }
 }

@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
+import dev.dubhe.anvilcraft.util.AirResistanceManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -46,7 +47,9 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
@@ -286,5 +289,24 @@ public abstract class LivingEntityMixin extends Entity {
                 cir.setReturnValue(false);
             }
         }
+    }
+
+    /** Horizontal air resistance, also the airborne share of the ground friction product. */
+    @ModifyConstant(method = "travel", constant = @Constant(floatValue = 0.91f))
+    private float anvilcraft$scaleHorizontalAirDrag(float vanillaDrag) {
+        return AirResistanceManager.drag(this.level(), vanillaDrag);
+    }
+
+    /// 竖直空气阻力和鞘翅飞行阻力 —— 原版把这两个 {@code float} 字面量直接乘到 {@code double} 上，
+    /// 编译期就已折叠成 {@code double} 常量，因此这里必须按加宽后的值匹配。
+    @ModifyConstant(method = "travel", constant = @Constant(doubleValue = 0.98f))
+    private double anvilcraft$scaleVerticalAirDrag(double vanillaDrag) {
+        return AirResistanceManager.drag(this.level(), vanillaDrag);
+    }
+
+    /** Horizontal elytra drag. */
+    @ModifyConstant(method = "travel", constant = @Constant(doubleValue = 0.99f))
+    private double anvilcraft$scaleElytraAirDrag(double vanillaDrag) {
+        return AirResistanceManager.drag(this.level(), vanillaDrag);
     }
 }

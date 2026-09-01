@@ -10,6 +10,7 @@ import dev.anvilcraft.lib.v2.registrum.Registrum;
 import dev.anvilcraft.lib.v2.util.Util;
 import dev.dubhe.anvilcraft.api.taslatower.TeslaFilter;
 import dev.dubhe.anvilcraft.api.tooltip.ItemTooltipManager;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrackLibrary;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig;
 import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
@@ -107,6 +108,8 @@ public class AnvilCraft {
         ModBlockEntities.register();
         ModMenuTypes.register();
         ModMegastructures.register(modEventBus);
+        /// 读取恒星演化轨道和事件 profile；资源缺失时自动使用内置回退。
+        StellarTrackLibrary.loadBundledResources();
         ModComponents.register(modEventBus);
         ModVillagers.register(modEventBus);
         ModRecipeTypes.register(modEventBus);
@@ -193,7 +196,10 @@ public class AnvilCraft {
             backgroundExecutor,
             gameExecutor
         ) -> prepBarrier.wait(Unit.INSTANCE)
-            .thenRunAsync(() -> RecipeCaches.reload(recipeManager), gameExecutor));
+            .thenRunAsync(() -> {
+                StellarTrackLibrary.reload(resourceManager);
+                RecipeCaches.reload(recipeManager);
+            }, gameExecutor));
     }
 
     public static void loadComplete(FMLLoadCompleteEvent event) {

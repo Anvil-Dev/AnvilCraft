@@ -1987,6 +1987,7 @@ public class ModBlocks {
             .noOcclusion()
             .isValidSpawn(Blocks::never)
             .explosionResistance(1200)
+            .pushReaction(PushReaction.BLOCK)
             .emissiveRendering(ModBlocks::always))
         .item(CelestialForgingAnvilAmplifierBlockItem::new)
         .properties(properties -> properties.stacksTo(16).rarity(Rarity.EPIC))
@@ -2093,6 +2094,7 @@ public class ModBlocks {
             .isValidSpawn(Blocks::never)
             .strength(-1.0F, 3600000.0F)
             .pushReaction(PushReaction.BLOCK)
+            .emissiveRendering(ModBlocks::always)
             .noLootTable())
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(BlockTags.WITHER_IMMUNE, BlockTags.DRAGON_IMMUNE, ModBlockTags.COLLISION_IMMUNE)
@@ -4474,7 +4476,12 @@ public class ModBlocks {
             .noOcclusion()
             .strength(50F, 1200.0F)
             .requiresCorrectToolForDrops())
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, ModBlockTags.NEEDS_TRANSCENDIUM_TOOL, ModBlockTags.COLLISION_IMMUNE)
+        .tag(
+            BlockTags.MINEABLE_WITH_PICKAXE,
+            BlockTags.WITHER_IMMUNE,
+            ModBlockTags.NEEDS_TRANSCENDIUM_TOOL,
+            ModBlockTags.COLLISION_IMMUNE
+        )
         .item(SingularityCrystalItem::new)
         .properties(properties -> properties.fireResistant().stacksTo(1).rarity(Rarity.EPIC))
         .tag(ModItemTags.EXPLOSION_PROOF)

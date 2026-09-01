@@ -28,6 +28,9 @@ public record SpecialCelestialBodyData(
     @Nullable CelestialTravelData landing
 ) implements CelestialBodyData {
 
+    /// {@code model} 取此值时天体没有烘焙贴图，表面直接复用末地折跃门那套跟随玩家视角的虚空效果。
+    public static final String END_GATEWAY_MODEL = "end_gateway";
+
     /** 兼容着陆规则存在前写入的存档数据。 */
     public SpecialCelestialBodyData(
         String recipeId,
@@ -151,6 +154,11 @@ public record SpecialCelestialBodyData(
 
     public boolean isPlayerHead() {
         return playerHeadProfile != null;
+    }
+
+    /// 此天体是否用末地折跃门效果渲染，而不是烘焙贴图或独立模型。
+    public boolean usesEndGatewayModel() {
+        return !needsCustomModel && END_GATEWAY_MODEL.equals(model);
     }
 
     /// 此已发现天体是否有数据驱动的着陆目标。

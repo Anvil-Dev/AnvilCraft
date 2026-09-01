@@ -10,6 +10,7 @@ import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.block.ModBlockTags;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.inventory.EmberAnvilMenu;
 import dev.dubhe.anvilcraft.inventory.FrostAnvilMenu;
@@ -30,6 +31,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -46,6 +48,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.projectile.FireworkRocketEntity;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Equipable;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -166,6 +169,22 @@ public class AnvilHammerItem extends Item implements Equipable {
             return hammerChangeable.checkBlockState(state);
         }
         return AnvilHammerItem.findModifyableProperty(state) != null;
+    }
+
+    /**
+     * 判断是否应放行副手方块放置。
+     *
+     * <p>主手持有铁砧锤、副手持有可放置方块时，对既不能交互、又不能被锤子修改或拆除的普通方块，
+     * 放行原版副手方块放置，使其优先于长按右键打开便携铁砧菜单。
+     */
+    public static boolean shouldPlaceOffhandBlock(Player player, Level level, BlockHitResult hit) {
+        ItemStack offhand = player.getOffhandItem();
+        if (offhand.isEmpty() || offhand.is(ModItemTags.ANVIL_HAMMER)) return false;
+        if (!(offhand.getItem() instanceof BlockItem)) return false;
+        BlockState state = level.getBlockState(hit.getBlockPos());
+        if (state.is(BlockTags.CAULDRONS) || state.is(ModBlockTags.ANVIL_HAMMER_BLACKLIST)) return false;
+        if (state.is(ModBlockTags.HAMMER_REMOVABLE) || state.getBlock() instanceof IHammerRemovable) return false;
+        return findModifyableProperty(state) == null;
     }
 
     @Nullable

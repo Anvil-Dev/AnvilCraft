@@ -129,6 +129,9 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             WormholeNetwork.get().unregister(be.getLevel(), be.getBlockPos());
             registered = false;
         }
+        // The local interfaces are only a mirror of the shared canonical state.
+        // Clear this disconnected mirror so it cannot duplicate the contents
+        // that remain available through the other connected wormholes.
         clearLocalInterfaces(be);
         bodyUuid = null;
         portals.clear();
@@ -492,8 +495,8 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
     }
 
     /**
-     * 当放大器被移除或虫洞连接断开时，清除所有本地物流、流体和激光接口。
-     * 已有的物品和流体将被丢弃（它们仍冻结在放大器端的 canonical 中）。
+     * 当本地虫洞节点断开时，清除本地物流、流体和激光接口镜像。
+     * 已有的物品和流体不会写回或删除共享 canonical，仍可从其它虫洞接口访问。
      * 激光输出置零，使输出端激光立即停止发射。
      */
     private void clearLocalInterfaces(CelestialForgingAnvilBlockEntity be) {

@@ -74,7 +74,7 @@ public class TranscendenceSmithingScreen extends AbstractContainerScreen<Transce
     private static final int TEMPLATE_GRID_Y = 18;
     private static final int SLIDER_X = 60;
     private static final int SLIDER_MIN_Y = 18;
-    private static final int SLIDER_MAX_Y = 117;
+    private static final int SLIDER_MAX_Y = 111;
     private static final int VIRTUAL_TEMPLATE_X = 8;
     private static final int VIRTUAL_TEMPLATE_Y = 48;
 
