@@ -1094,15 +1094,17 @@ public final class StorageServerStub {
 
     /**
      * 按住 Shift 点击③/④ 结果槽：连续合成直到材料不足或产物无处可放。
-     * 产物依次放入指针（同种合并）→ 背包（同种堆叠/空槽）→ 仓储；仍放不下时
-     * 丢弃本次产物并截断（前面已成功放入的保留，合成输入停止消耗）。
+     * 产物依次放入指针（同种合并）→ 背包（同种堆叠/空槽）→ 仓储。
+     *
+     * <p>产物完全放不下（指针异种且背包 / 仓储均无空间）时不消耗输入、不丢弃
+     * 产物，立即截断——与原版「指针异种时拒绝取出」语义一致，避免凭空产出物品。</p>
+     *
+     * <p>产物只被部分放入（仓储剩余空间不足，部分插入后其余丢弃）时消耗输入后
+     * 立即截断——继续循环只会反复「合成→部分放入→丢弃」，浪费材料且产出不可控。</p>
      *
      * <p>存在「不消耗型输入」的配方（如催化剂 / 模具类模组配方，或剩余物与输入
      * 完全相同的配方）时，消耗输入不会改变合成网格，若不终止将无限产出导致
      * 服务端 RPC 线程死循环；因此在消耗前后比对网格，无变化立即终止。</p>
-     *
-     * <p>产物只被部分放入（仓储剩余空间不足，部分插入后其余丢弃）时同样立即
-     * 截断——继续循环只会反复「合成→部分放入→丢弃」，浪费材料且产出不可控。</p>
      *
      * <p>单次 RPC 最多合成 {@link #CRAFTING_TAKE_ALL_CHUNK} 次；未耗尽材料时返回
      * {@code done=false}，由客户端循环调用直至 {@code done=true}，避免一次性阻塞
@@ -1122,13 +1124,19 @@ public final class StorageServerStub {
                 return new TakeAllResult(player.containerMenu.getCarried(), any, true);
             }
             PlaceResult place = StorageServerStub.placeCraftingResult(player, target, result);
-            if (place != PlaceResult.FULL) {
-                // 无处可放或只放下一部分：丢弃本次产物的剩余部分并截断
-                if (place == PlaceResult.NONE) {
-                    player.drop(result, false);
-                }
+            if (place == PlaceResult.NONE) {
+                // 产物完全放不下（如指针异种且背包 / 仓储均无空间）：不消耗输入、
+                // 不丢弃产物，立即截断——与原版「指针异种时拒绝取出」语义一致，
+                // 避免凭空产出物品
                 player.containerMenu.broadcastChanges();
                 return new TakeAllResult(player.containerMenu.getCarried(), any, true);
+            }
+            if (place == PlaceResult.PARTIAL) {
+                // 产物部分放入仓储（其余已在 placeCraftingResult 内丢弃）：消耗
+                // 输入后截断，避免重复「合成→部分放入→丢弃」浪费材料且产出不可控
+                StorageServerStub.consumeCraftingInput(target, crafting, stonecutter);
+                player.containerMenu.broadcastChanges();
+                return new TakeAllResult(player.containerMenu.getCarried(), true, true);
             }
             any = true;
             // 消耗输入后网格无变化（不消耗型配方）→ 继续循环只会无限产出相同产物，立即终止
