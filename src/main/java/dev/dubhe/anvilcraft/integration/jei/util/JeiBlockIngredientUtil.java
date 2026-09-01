@@ -26,6 +26,7 @@ import net.minecraft.client.gui.navigation.ScreenPosition;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -36,6 +37,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 
 /** JEI slots that make custom-rendered previews interactive without drawing an ingredient over them. */
 public final class JeiBlockIngredientUtil {
@@ -161,7 +163,12 @@ public final class JeiBlockIngredientUtil {
         }
 
         @Override
-        public List<Component> getTooltip(ItemStack ingredient, Item.TooltipContext context, Player player, TooltipFlag tooltipFlag) {
+        public List<Component> getTooltip(
+            ItemStack ingredient,
+            Item.TooltipContext context,
+            @Nullable Player player,
+            TooltipFlag tooltipFlag
+        ) {
             return ingredient.getTooltipLines(context, player, tooltipFlag);
         }
 
@@ -205,11 +212,6 @@ public final class JeiBlockIngredientUtil {
         }
 
         @Override
-        public Stream<ITypedIngredient<?>> getDisplayedIngredients() {
-            return this.delegate.getDisplayedIngredients();
-        }
-
-        @Override
         public Optional<ITypedIngredient<?>> getDisplayedIngredient() {
             return this.delegate.getDisplayedIngredient();
         }
@@ -237,11 +239,6 @@ public final class JeiBlockIngredientUtil {
         @Override
         public Optional<String> getSlotName() {
             return this.delegate.getSlotName();
-        }
-
-        @Override
-        public Optional<TagKey<?>> getTagKey() {
-            return this.delegate.getTagKey();
         }
 
         @Override
