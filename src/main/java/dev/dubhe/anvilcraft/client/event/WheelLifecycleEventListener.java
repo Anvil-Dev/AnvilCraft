@@ -155,9 +155,11 @@ public class WheelLifecycleEventListener {
                 client.getCameraEntity().getRotationVector()
             ));
         }
-        if (WheelLifecycleEventListener.hammerWheelCache.isEmpty()) return false;
-        WheelLifecycleEventListener.CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.hammerWheelCache.get());
-        WheelLifecycleEventListener.hammerKeyWasDown = true;
+        if (gameTime - WheelLifecycleEventListener.hammerKeyTime >= 4) {
+            if (WheelLifecycleEventListener.hammerWheelCache.isEmpty()) return false;
+            WheelLifecycleEventListener.CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.hammerWheelCache.get());
+            WheelLifecycleEventListener.hammerKeyWasDown = true;
+        }
         WheelLifecycleEventListener.hammerWheelTargetPos = targetPos;
         WheelLifecycleEventListener.hammerWheelNextBlockState = level.getBlockState(targetPos).cycle(property);
         return true;
@@ -607,7 +609,7 @@ public class WheelLifecycleEventListener {
             BlockState state = WheelLifecycleEventListener.hammerWheelNextBlockState;
             Supplier<Boolean> hammerInteraction = WheelLifecycleEventListener.hammerInteraction;
             if (
-                client.level.getGameTime() - WheelLifecycleEventListener.hammerKeyTime <= 4
+                client.level.getGameTime() - WheelLifecycleEventListener.hammerKeyTime < 4
                 && targetPos != null && state != null && hammerInteraction != null
             ) {
                 // On single right-click
