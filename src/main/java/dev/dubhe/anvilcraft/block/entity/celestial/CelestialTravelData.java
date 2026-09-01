@@ -73,6 +73,8 @@ public record CelestialTravelData(
         @Getter
         public enum Type {
             SAME("same"),
+            /** Keeps the source height as well, for destinations without any terrain to land on. */
+            SAME_3D("same_3d"),
             SCALED("scaled"),
             FIXED("fixed"),
             RANDOM_SPAWN("random_spawn");
@@ -88,6 +90,7 @@ public record CelestialTravelData(
             public static Type fromName(String name) {
                 return switch (name.toLowerCase(Locale.ROOT)) {
                     case "same", "current", "equal" -> SAME;
+                    case "same_3d", "same_height", "identical" -> SAME_3D;
                     case "scaled", "simple", "scale" -> SCALED;
                     case "fixed", "point" -> FIXED;
                     case "random_spawn", "random", "spawn" -> RANDOM_SPAWN;

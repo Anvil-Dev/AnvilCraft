@@ -6,12 +6,11 @@ import lombok.Getter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 
-import java.util.List;
-import java.util.Optional;
 import java.util.function.Supplier;
 
 @Getter
@@ -29,8 +28,10 @@ public class EnableFilterButton extends Button {
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         if (this.isHovered()) {
-            guiGraphics.renderTooltip(
-                Minecraft.getInstance().font, List.of(getMessage()), Optional.empty(), mouseX, mouseY);
+            Screen screen = Minecraft.getInstance().screen;
+            if (screen != null) {
+                screen.setTooltipForNextRenderPass(getMessage());
+            }
         }
     }
 

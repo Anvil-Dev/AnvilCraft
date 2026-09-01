@@ -151,10 +151,12 @@ public class LargeCauldronBlock
 
     @Override
     public VoxelShape getShape(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context) {
-        if (state.getValue(HALF).getOffsetY() == 2 && context.isHoldingItem(ModBlocks.GIANT_ANVIL.asItem())) {
+        Cube3x3PartHalf part = state.getValue(HALF);
+        if (part.getOffsetY() == 2 && context.isHoldingItem(ModBlocks.GIANT_ANVIL.asItem())) {
             return Shapes.block();
         }
-        return super.getShape(state, level, pos, context);
+        // 每个部件都要独立参与射线检测，否则整口锅的组合形状会抢占相邻部件的交互命中。
+        return this.getPartShape(state);
     }
 
     @Override

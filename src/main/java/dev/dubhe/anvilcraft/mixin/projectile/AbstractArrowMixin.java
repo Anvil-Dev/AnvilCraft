@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.mixin.projectile;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import dev.dubhe.anvilcraft.block.entity.DeflectionRingBlockEntity;
+import dev.dubhe.anvilcraft.util.AirResistanceManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.projectile.AbstractArrow;
@@ -14,7 +15,9 @@ import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
 /**
  * 修正箭矢自带的方块射线和实体查询。
@@ -69,5 +72,11 @@ public abstract class AbstractArrowMixin extends Projectile {
     private Vec3 anvilcraft$clipEndAtDeflectionRing(Vec3 start, Vec3 end) {
         BlockPos ring = DeflectionRingBlockEntity.findFirstRing(this, start, end.subtract(start));
         return ring == null ? end : ring.getCenter();
+    }
+
+    /** Air resistance only; the water inertia branch overwrites this value afterwards. */
+    @ModifyConstant(method = "tick", constant = @Constant(floatValue = 0.99f))
+    private float anvilcraft$scaleAirDrag(float vanillaDrag) {
+        return AirResistanceManager.drag(this.level(), vanillaDrag);
     }
 }

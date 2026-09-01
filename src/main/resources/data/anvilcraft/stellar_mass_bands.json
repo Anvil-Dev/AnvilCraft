@@ -1,0 +1,65 @@
+[
+  {
+    "id": "very_low",
+    "minGameMass": 1,
+    "maxGameMass": 8,
+    "minSolarMass": 0.08,
+    "maxSolarMass": 0.5,
+    "trackFamily": "very_low_mass",
+    "defaultTerminalProfile": ""
+  },
+  {
+    "id": "low",
+    "minGameMass": 9,
+    "maxGameMass": 30,
+    "minSolarMass": 0.5,
+    "maxSolarMass": 1.0,
+    "trackFamily": "low_mass",
+    "defaultTerminalProfile": ""
+  },
+  {
+    "id": "intermediate",
+    "minGameMass": 31,
+    "maxGameMass": 46,
+    "minSolarMass": 1.0,
+    "maxSolarMass": 2.0,
+    "trackFamily": "intermediate_mass",
+    "defaultTerminalProfile": ""
+  },
+  {
+    "id": "super_agb",
+    "minGameMass": 47,
+    "maxGameMass": 54,
+    "minSolarMass": 8.0,
+    "maxSolarMass": 10.0,
+    "trackFamily": "super_agb",
+    "defaultTerminalProfile": "ELECTRON_CAPTURE"
+  },
+  {
+    "id": "high_hydrogen",
+    "minGameMass": 55,
+    "maxGameMass": 58,
+    "minSolarMass": 10.0,
+    "maxSolarMass": 18.0,
+    "trackFamily": "high_hydrogen",
+    "defaultTerminalProfile": "CORE_COLLAPSE_II_P"
+  },
+  {
+    "id": "high_stripped",
+    "minGameMass": 59,
+    "maxGameMass": 62,
+    "minSolarMass": 18.0,
+    "maxSolarMass": 40.0,
+    "trackFamily": "stripped",
+    "defaultTerminalProfile": "DIRECT_COLLAPSE"
+  },
+  {
+    "id": "extreme",
+    "minGameMass": 63,
+    "maxGameMass": 64,
+    "minSolarMass": 40.0,
+    "maxSolarMass": 100.0,
+    "trackFamily": "extreme",
+    "defaultTerminalProfile": "DIRECT_COLLAPSE"
+  }
+]

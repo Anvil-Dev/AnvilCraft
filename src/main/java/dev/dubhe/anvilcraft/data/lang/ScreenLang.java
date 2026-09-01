@@ -721,6 +721,7 @@ public class ScreenLang {
 
         // Special celestial body type names
         provider.add("screen.anvilcraft.cfa.class.special.overworld_like", "Overworld Like"); // 类主世界
+        provider.add("screen.anvilcraft.cfa.class.special.void_planet", "Void Planet"); // 虚空星球
         provider.add("screen.anvilcraft.cfa.class.special.flesh_planet", "Flesh Planet"); // 血肉星球
         provider.add("screen.anvilcraft.cfa.class.special.intelligent_planet", "Intelligent Planet"); // 智慧星球
         provider.add("screen.anvilcraft.cfa.class.special.shattered_planet", "Shattered Planet"); // 破碎星球
@@ -737,6 +738,30 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.evolution.stage3", "Supernova"); // 超新星爆发
         provider.add("screen.anvilcraft.cfa.evolution.stage4", "M-Dwarf"); // 红矮星阶段
         provider.add("screen.anvilcraft.cfa.evolution.stage_unknown", "Unknown Stage"); // ？？？
+        // 数据驱动恒星演化阶段名称
+        String[] stellarPhases = {
+            "main_sequence", "subgiant", "rgb", "helium_flash", "horizontal_branch", "red_clump", "blue_loop",
+            "agb", "post_agb", "ppn", "blue_supergiant", "red_supergiant", "lbv", "wolf_rayet", "pre_collapse",
+            "event_prelude", "event_collapse", "event_ejecta", "remnant_settle", "white_dwarf_cooling"
+        };
+        for (String phase : stellarPhases) {
+            provider.add("screen.anvilcraft.cfa.evolution.phase." + phase, phase.replace('_', ' '));
+        }
+        provider.add("screen.anvilcraft.cfa.evolution.phase_progress", "Phase progress: %s%%");
+        provider.add("screen.anvilcraft.cfa.evolution.total_progress", "Total progress: %s%%");
+        provider.add("screen.anvilcraft.cfa.evolution.temperature", "Effective temperature: %s K");
+        provider.add("screen.anvilcraft.cfa.evolution.surface_class", "Surface class: %s");
+        provider.add("screen.anvilcraft.cfa.evolution.terminal_outcome.white_dwarf", "Expected remnant: white dwarf");
+        provider.add("screen.anvilcraft.cfa.evolution.terminal_outcome.neutron_star", "Expected remnant: neutron star");
+        provider.add("screen.anvilcraft.cfa.evolution.terminal_outcome.black_hole", "Expected remnant: black hole");
+        provider.add("screen.anvilcraft.cfa.evolution.terminal_outcome.disruption", "Expected outcome: complete disruption");
+        String[] stellarTerminals = {
+            "helium_flash", "agb_thermal_pulse", "core_collapse_ii_p", "core_collapse_ii_l", "stripped_ib",
+            "stripped_ic", "electron_capture", "direct_collapse", "pulsational_pair", "pair_instability"
+        };
+        for (String terminal : stellarTerminals) {
+            provider.add("screen.anvilcraft.cfa.evolution.terminal." + terminal, "Terminal: " + terminal.replace('_', ' '));
+        }
         provider.add("screen.anvilcraft.cfa.evolution.time_remaining", "Time Remaining: %s"); // 剩余时间:
         provider.add("screen.anvilcraft.cfa.evolution.infinite_power", "Generating Infinite Power..."); // 无限发电中
         provider.add("screen.anvilcraft.cfa.evolution_cannot_unlock", "The star is currently evolving and cannot be unlocked"); // 天体正在演化，无法解锁

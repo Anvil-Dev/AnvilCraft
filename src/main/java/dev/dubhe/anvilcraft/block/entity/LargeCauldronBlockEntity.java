@@ -533,6 +533,7 @@ public class LargeCauldronBlockEntity extends BlockEntity
                     if (execution.damageAnvil()) event.setAnvilDamage(true);
                     processed++;
                     madeProgress = true;
+                    break;
                 }
             } while (madeProgress && processed < MAX_PROCESS_EFFICIENCY);
             if (processed >= MAX_PROCESS_EFFICIENCY) break;

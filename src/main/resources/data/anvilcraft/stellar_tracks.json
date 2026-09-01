@@ -1,0 +1,119 @@
+[
+  {
+    "trackId": "template_very_low_mass",
+    "massBand": "very_low",
+    "surfaceClassFamily": "M_MAIN",
+    "variantRules": ["metallicity_from_seed", "rotation_from_seed"],
+    "phaseNodes": [
+      {"phaseId":"main_sequence","durationWeight":96.0,"radius":0.38,"temperature":3200.0,"luminosity":0.05,"envelopeFraction":0.9,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"stable_granules"},
+      {"phaseId":"blue_loop","durationWeight":8.0,"radius":0.45,"temperature":7000.0,"luminosity":0.12,"envelopeFraction":0.7,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"blue_dwarf_like"},
+      {"phaseId":"white_dwarf_cooling","durationWeight":4.0,"radius":0.12,"temperature":16000.0,"luminosity":0.08,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"cooling_core"}
+    ],
+    "terminalProfile": ""
+  },
+  {
+    "trackId": "template_low_mass",
+    "massBand": "low",
+    "surfaceClassFamily": "K_MAIN",
+    "variantRules": ["metallicity_from_seed", "rotation_from_seed", "envelope_from_seed"],
+    "phaseNodes": [
+      {"phaseId":"main_sequence","durationWeight":62.0,"radius":0.72,"temperature":5100.0,"luminosity":0.65,"envelopeFraction":0.95,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"stable_granules"},
+      {"phaseId":"subgiant","durationWeight":10.0,"radius":1.1,"temperature":5400.0,"luminosity":1.8,"envelopeFraction":0.85,"pulsationAmplitude":0.006,"pulsationFrequency":0.003,"surfaceStyle":"slow_convection"},
+      {"phaseId":"rgb","durationWeight":8.0,"radius":3.8,"temperature":4100.0,"luminosity":8.0,"envelopeFraction":0.72,"pulsationAmplitude":0.06,"pulsationFrequency":0.0025,"surfaceStyle":"large_convection"},
+      {"phaseId":"helium_flash","durationWeight":1.0,"radius":3.1,"temperature":9000.0,"luminosity":18.0,"envelopeFraction":0.5,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"helium_flash","eventProfileId":"HELIUM_FLASH"},
+      {"phaseId":"red_clump","durationWeight":5.0,"radius":1.55,"temperature":5100.0,"luminosity":3.5,"envelopeFraction":0.68,"pulsationAmplitude":0.004,"pulsationFrequency":0.002,"surfaceStyle":"red_clump"},
+      {"phaseId":"horizontal_branch","durationWeight":3.0,"radius":1.35,"temperature":7200.0,"luminosity":4.5,"envelopeFraction":0.45,"pulsationAmplitude":0.004,"pulsationFrequency":0.002,"surfaceStyle":"horizontal_branch"},
+      {"phaseId":"agb","durationWeight":5.0,"radius":5.2,"temperature":3500.0,"luminosity":14.0,"envelopeFraction":0.4,"pulsationAmplitude":0.55,"pulsationFrequency":0.004,"surfaceStyle":"thermal_pulse","eventProfileId":"AGB_THERMAL_PULSE"},
+      {"phaseId":"post_agb","durationWeight":1.5,"radius":0.55,"temperature":12000.0,"luminosity":6.0,"envelopeFraction":0.18,"pulsationAmplitude":0.03,"pulsationFrequency":0.003,"surfaceStyle":"blue_core"},
+      {"phaseId":"ppn","durationWeight":1.0,"radius":0.34,"temperature":20000.0,"luminosity":3.0,"envelopeFraction":0.08,"pulsationAmplitude":0.04,"pulsationFrequency":0.004,"surfaceStyle":"dust_shell"},
+      {"phaseId":"white_dwarf_cooling","durationWeight":3.0,"radius":0.12,"temperature":14000.0,"luminosity":0.12,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"cooling_core"}
+    ],
+    "terminalProfile": ""
+  },
+  {
+    "trackId": "template_intermediate_mass",
+    "massBand": "intermediate",
+    "surfaceClassFamily": "A_MAIN",
+    "variantRules": ["metallicity_from_seed", "rotation_from_seed", "envelope_from_seed"],
+    "phaseNodes": [
+      {"phaseId":"main_sequence","durationWeight":48.0,"radius":0.95,"temperature":8500.0,"luminosity":6.0,"envelopeFraction":0.9,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"hot_granules"},
+      {"phaseId":"subgiant","durationWeight":9.0,"radius":1.45,"temperature":7200.0,"luminosity":10.0,"envelopeFraction":0.8,"pulsationAmplitude":0.006,"pulsationFrequency":0.003,"surfaceStyle":"slow_convection"},
+      {"phaseId":"rgb","durationWeight":7.0,"radius":3.2,"temperature":5000.0,"luminosity":24.0,"envelopeFraction":0.65,"pulsationAmplitude":0.06,"pulsationFrequency":0.0025,"surfaceStyle":"large_convection"},
+      {"phaseId":"blue_loop","durationWeight":5.0,"radius":1.8,"temperature":10000.0,"luminosity":30.0,"envelopeFraction":0.5,"pulsationAmplitude":0.004,"pulsationFrequency":0.002,"surfaceStyle":"blue_loop"},
+      {"phaseId":"agb","durationWeight":5.0,"radius":5.8,"temperature":3900.0,"luminosity":48.0,"envelopeFraction":0.4,"pulsationAmplitude":0.55,"pulsationFrequency":0.004,"surfaceStyle":"thermal_pulse","eventProfileId":"AGB_THERMAL_PULSE"},
+      {"phaseId":"post_agb","durationWeight":1.5,"radius":0.5,"temperature":18000.0,"luminosity":12.0,"envelopeFraction":0.12,"pulsationAmplitude":0.03,"pulsationFrequency":0.003,"surfaceStyle":"blue_core"},
+      {"phaseId":"ppn","durationWeight":1.0,"radius":0.32,"temperature":30000.0,"luminosity":8.0,"envelopeFraction":0.05,"pulsationAmplitude":0.04,"pulsationFrequency":0.004,"surfaceStyle":"dust_shell"},
+      {"phaseId":"white_dwarf_cooling","durationWeight":3.0,"radius":0.12,"temperature":16000.0,"luminosity":0.2,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"cooling_core"}
+    ],
+    "terminalProfile": ""
+  },
+  {
+    "trackId": "template_super_agb",
+    "massBand": "super_agb",
+    "surfaceClassFamily": "M_SUPERGIANT",
+    "variantRules": ["metallicity_from_seed", "rotation_from_seed", "envelope_from_seed"],
+    "phaseNodes": [
+      {"phaseId":"main_sequence","durationWeight":42.0,"radius":1.2,"temperature":15000.0,"luminosity":50.0,"envelopeFraction":0.9,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"hot_granules"},
+      {"phaseId":"red_supergiant","durationWeight":12.0,"radius":6.5,"temperature":3800.0,"luminosity":180.0,"envelopeFraction":0.55,"pulsationAmplitude":0.10,"pulsationFrequency":0.002,"surfaceStyle":"large_convection"},
+      {"phaseId":"agb","durationWeight":8.0,"radius":7.2,"temperature":3500.0,"luminosity":220.0,"envelopeFraction":0.4,"pulsationAmplitude":0.58,"pulsationFrequency":0.004,"surfaceStyle":"super_agb_pulse","eventProfileId":"AGB_THERMAL_PULSE"},
+      {"phaseId":"pre_collapse","durationWeight":2.0,"radius":5.5,"temperature":5000.0,"luminosity":160.0,"envelopeFraction":0.18,"pulsationAmplitude":0.12,"pulsationFrequency":0.0025,"surfaceStyle":"mass_loss"},
+      {"phaseId":"event_prelude","durationWeight":1.0,"radius":4.8,"temperature":6500.0,"luminosity":140.0,"envelopeFraction":0.1,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"electron_capture","eventProfileId":"ELECTRON_CAPTURE"},
+      {"phaseId":"event_collapse","durationWeight":1.0,"radius":0.3,"temperature":20000.0,"luminosity":300.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"electron_capture","eventProfileId":"ELECTRON_CAPTURE"},
+      {"phaseId":"event_ejecta","durationWeight":2.0,"radius":0.2,"temperature":18000.0,"luminosity":80.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"thin_ejecta","eventProfileId":"ELECTRON_CAPTURE"},
+      {"phaseId":"remnant_settle","durationWeight":1.0,"radius":0.1,"temperature":12000.0,"luminosity":1.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"remnant","eventProfileId":"ELECTRON_CAPTURE"}
+    ],
+    "terminalProfile": "ELECTRON_CAPTURE"
+  },
+  {
+    "trackId": "template_high_hydrogen",
+    "massBand": "high_hydrogen",
+    "surfaceClassFamily": "O_MAIN",
+    "variantRules": ["metallicity_from_seed", "rotation_from_seed", "envelope_from_seed"],
+    "phaseNodes": [
+      {"phaseId":"main_sequence","durationWeight":45.0,"radius":1.55,"temperature":28000.0,"luminosity":180.0,"envelopeFraction":0.95,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"blue_hot"},
+      {"phaseId":"blue_supergiant","durationWeight":10.0,"radius":2.2,"temperature":18000.0,"luminosity":420.0,"envelopeFraction":0.82,"pulsationAmplitude":0.006,"pulsationFrequency":0.003,"surfaceStyle":"blue_supergiant"},
+      {"phaseId":"red_supergiant","durationWeight":8.0,"radius":8.5,"temperature":3600.0,"luminosity":900.0,"envelopeFraction":0.65,"pulsationAmplitude":0.12,"pulsationFrequency":0.002,"surfaceStyle":"red_supergiant"},
+      {"phaseId":"pre_collapse","durationWeight":2.0,"radius":7.0,"temperature":3900.0,"luminosity":760.0,"envelopeFraction":0.55,"pulsationAmplitude":0.12,"pulsationFrequency":0.0025,"surfaceStyle":"pre_collapse"},
+      {"phaseId":"event_prelude","durationWeight":1.0,"radius":6.5,"temperature":4000.0,"luminosity":700.0,"envelopeFraction":0.5,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"event_prelude","eventProfileId":"CORE_COLLAPSE_II_P"},
+      {"phaseId":"event_collapse","durationWeight":1.0,"radius":0.25,"temperature":18000.0,"luminosity":1600.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"event_collapse","eventProfileId":"CORE_COLLAPSE_II_P"},
+      {"phaseId":"event_ejecta","durationWeight":3.0,"radius":0.16,"temperature":12000.0,"luminosity":400.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"hydrogen_ejecta","eventProfileId":"CORE_COLLAPSE_II_P"},
+      {"phaseId":"remnant_settle","durationWeight":2.0,"radius":0.1,"temperature":10000.0,"luminosity":1.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"remnant","eventProfileId":"CORE_COLLAPSE_II_P"}
+    ],
+    "terminalProfile": "CORE_COLLAPSE_II_P"
+  },
+  {
+    "trackId": "template_stripped",
+    "massBand": "stripped",
+    "surfaceClassFamily": "B_SUPERGIANT",
+    "variantRules": ["metallicity_from_seed", "rotation_from_seed", "envelope_from_seed"],
+    "phaseNodes": [
+      {"phaseId":"main_sequence","durationWeight":38.0,"radius":1.45,"temperature":32000.0,"luminosity":260.0,"envelopeFraction":0.75,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"blue_hot"},
+      {"phaseId":"blue_supergiant","durationWeight":8.0,"radius":2.0,"temperature":22000.0,"luminosity":500.0,"envelopeFraction":0.48,"pulsationAmplitude":0.008,"pulsationFrequency":0.003,"surfaceStyle":"blue_supergiant"},
+      {"phaseId":"lbv","durationWeight":5.0,"radius":3.6,"temperature":12000.0,"luminosity":800.0,"envelopeFraction":0.25,"pulsationAmplitude":0.12,"pulsationFrequency":0.003,"surfaceStyle":"lbv_ejection"},
+      {"phaseId":"wolf_rayet","durationWeight":8.0,"radius":0.9,"temperature":60000.0,"luminosity":1200.0,"envelopeFraction":0.08,"pulsationAmplitude":0.06,"pulsationFrequency":0.003,"surfaceStyle":"wolf_rayet"},
+      {"phaseId":"pre_collapse","durationWeight":2.0,"radius":0.75,"temperature":50000.0,"luminosity":1000.0,"envelopeFraction":0.04,"pulsationAmplitude":0.10,"pulsationFrequency":0.002,"surfaceStyle":"pre_collapse"},
+      {"phaseId":"event_prelude","durationWeight":1.0,"radius":0.7,"temperature":50000.0,"luminosity":900.0,"envelopeFraction":0.03,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"stripped_prelude","eventProfileId":"STRIPPED_IB"},
+      {"phaseId":"event_collapse","durationWeight":1.0,"radius":0.12,"temperature":30000.0,"luminosity":2200.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"stripped_collapse","eventProfileId":"STRIPPED_IB"},
+      {"phaseId":"event_ejecta","durationWeight":2.0,"radius":0.08,"temperature":20000.0,"luminosity":500.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"thin_ejecta","eventProfileId":"STRIPPED_IB"},
+      {"phaseId":"remnant_settle","durationWeight":2.0,"radius":0.06,"temperature":12000.0,"luminosity":1.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"remnant","eventProfileId":"STRIPPED_IB"}
+    ],
+    "terminalProfile": "STRIPPED_IB"
+  },
+  {
+    "trackId": "template_extreme",
+    "massBand": "extreme",
+    "surfaceClassFamily": "O_SUPERGIANT",
+    "variantRules": ["metallicity_from_seed", "rotation_from_seed", "envelope_from_seed"],
+    "phaseNodes": [
+      {"phaseId":"main_sequence","durationWeight":36.0,"radius":1.9,"temperature":42000.0,"luminosity":900.0,"envelopeFraction":0.65,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"blue_hot"},
+      {"phaseId":"lbv","durationWeight":8.0,"radius":4.0,"temperature":14000.0,"luminosity":1800.0,"envelopeFraction":0.3,"pulsationAmplitude":0.18,"pulsationFrequency":0.003,"surfaceStyle":"lbv_ejection"},
+      {"phaseId":"wolf_rayet","durationWeight":8.0,"radius":1.4,"temperature":80000.0,"luminosity":3000.0,"envelopeFraction":0.05,"pulsationAmplitude":0.08,"pulsationFrequency":0.003,"surfaceStyle":"wolf_rayet"},
+      {"phaseId":"pre_collapse","durationWeight":2.0,"radius":1.1,"temperature":60000.0,"luminosity":2500.0,"envelopeFraction":0.02,"pulsationAmplitude":0.12,"pulsationFrequency":0.002,"surfaceStyle":"pair_pre_collapse"},
+      {"phaseId":"event_prelude","durationWeight":3.0,"radius":1.0,"temperature":55000.0,"luminosity":2200.0,"envelopeFraction":0.02,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"pair_pulses","eventProfileId":"PULSATIONAL_PAIR"},
+      {"phaseId":"event_collapse","durationWeight":2.0,"radius":0.12,"temperature":50000.0,"luminosity":5000.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"pair_collapse","eventProfileId":"PAIR_INSTABILITY"},
+      {"phaseId":"event_ejecta","durationWeight":4.0,"radius":0.05,"temperature":30000.0,"luminosity":600.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"pair_ejecta","eventProfileId":"PAIR_INSTABILITY"},
+      {"phaseId":"remnant_settle","durationWeight":2.0,"radius":0.04,"temperature":10000.0,"luminosity":1.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"remnant","eventProfileId":"DIRECT_COLLAPSE"}
+    ],
+    "terminalProfile": "PULSATIONAL_PAIR"
+  }
+]

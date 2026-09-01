@@ -47,11 +47,16 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
             if (star.bodyClass() == CelestialBodyClass.BLACK_HOLE) return 1.5f;
             if (star.bodyClass() == CelestialBodyClass.NEUTRON_STAR) return 0.8f;
         }
-        int size = size();
-        if (size <= 20) {
-            return 1.5f * (0.2f + (size - 1) * 0.8f / 19f);
+        return bodyScaleForSize(size());
+    }
+
+    /** 根据服务端 StarData 的离散尺寸计算原始视觉缩放。 */
+    static float bodyScaleForSize(int size) {
+        int clampedSize = Math.clamp(size, 1, 64);
+        if (clampedSize <= 20) {
+            return 1.5f * (0.2f + (clampedSize - 1) * 0.8f / 19f);
         } else {
-            float t = (size - 20) / 44f;
+            float t = (clampedSize - 20) / 44f;
             return 1.5f * (1.0f + t * t * 1.63f);
         }
     }
@@ -70,6 +75,8 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
     float INNER_BONE_BOOST_RATE = 0.8f;
     /// 无天体时的默认环缩放。
     float BASE_RING_SCALE = 6.0f;
+    /// 天体中心高度与束星环缩放的比值。
+    float RING_CENTER_HEIGHT_RATIO = 0.74f;
 
     /// 根据天体数据计算束星环系统完整缩放（不含红石插值），与 whether amplifies 有关。
     static float ringSystemScale(@Nullable CelestialBodyData data, boolean isAmplify) {
@@ -85,12 +92,41 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
         }
     }
 
+    /** 根据演化中的浮点本体缩放计算恒星环系统缩放。 */
+    static float ringSystemScaleForVisualBodyScale(float bodyScale) {
+        float safeBodyScale = Float.isFinite(bodyScale) ? Math.max(0.01f, bodyScale) : 0.01f;
+        float proportional = safeBodyScale * BODY_SCALE_FACTOR * RING_TO_BODY_RATIO;
+        float inBoneBoost = Math.max(0.0f, INNER_BONE_BOOST_MAX - safeBodyScale * INNER_BONE_BOOST_RATE);
+        return proportional + inBoneBoost;
+    }
+
+    /**
+     * 由实际渲染出来的本体缩放（已含红石倍率）计算束星环必须达到的缩放。
+     *
+     * <p>红石信号较低时环和中心高度被钳在固定基准值上，而演化中的恒星半径可以跨越
+     * 数量级；没有这个下限，膨胀期的恒星会长到环外并穿进锻星砧。</p>
+     */
+    static float ringScaleForRenderedBodyScale(float renderedBodyScale) {
+        float safe = Float.isFinite(renderedBodyScale) ? Math.max(0.01f, renderedBodyScale) : 0.01f;
+        return safe * RING_TO_BODY_RATIO;
+    }
+
+    /** 由束星环缩放计算天体中心高度，环与中心共用同一套比例。 */
+    static float centerYForRingScale(float ringScale, boolean isAmplify) {
+        float safe = Float.isFinite(ringScale) ? Math.max(0.0f, ringScale) : 0.0f;
+        return (isAmplify ? 2.5f : 1.5f) + safe * RING_CENTER_HEIGHT_RATIO;
+    }
+
+    /** 根据演化中的浮点本体缩放计算恒星中心高度。 */
+    static float centerYForVisualBodyScale(float bodyScale, boolean isAmplify) {
+        return centerYForRingScale(ringSystemScaleForVisualBodyScale(bodyScale), isAmplify);
+    }
+
     /// 根据天体数据计算动态天体中心高度（不含红石插值）。
     static float dynamicCenterY(@Nullable CelestialBodyData data, boolean isAmplify) {
         if (data == null) return isAmplify ? 6.5f : 4.5f;
         float ringScale = ringSystemScale(data, isAmplify);
-        float baseHeight = isAmplify ? 2.5f : 1.5f;
-        float height = baseHeight + ringScale * 0.74f;
+        float height = centerYForRingScale(ringScale, isAmplify);
         if (!(data instanceof StarData)) {
             float bodyS = data.bodyScale();
             float planetMinBS = 0.3f;

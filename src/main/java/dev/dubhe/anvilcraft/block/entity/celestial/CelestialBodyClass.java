@@ -101,6 +101,21 @@ public enum CelestialBodyClass {
         return this == BLACK_HOLE || this == NEUTRON_STAR;
     }
 
+    /** 是否为恒星演化轨道可用的表面分类（不包括残骸和褐矮星）。 */
+    public boolean isStellarSurfaceClass() {
+        return stellar && this != WHITE_DWARF && !isExtreme();
+    }
+
+    /** 是否为演化终点残骸分类。 */
+    public boolean isRemnant() {
+        return this == WHITE_DWARF || isExtreme();
+    }
+
+    /** 是否属于巨星光度分类。 */
+    public boolean isGiantLuminosityClass() {
+        return name().endsWith("_GIANT") || name().endsWith("_SUPERGIANT");
+    }
+
     /// 是否为行星类天体（包括褐矮星，不包括大卫星）。
     public boolean isPlanetary() {
         return !stellar;

@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.block.batch.BaseBatchCraftingBlock;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.StoragePortBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.AnvilHammerItem;
 import dev.dubhe.anvilcraft.network.StoragePortTakeOutPacket;
 import net.minecraft.core.BlockPos;
@@ -153,6 +154,21 @@ public class BlockEventListener {
     private static BlockHitResult aimHit(Player player) {
         HitResult pick = player.pick(player.blockInteractionRange(), 1.0F, false);
         return pick instanceof BlockHitResult hitResult ? hitResult : null;
+    }
+
+    /**
+     * 主手铁砧锤、副手持有方块且目标为普通方块时，取消使用物品事件，
+     * 使服务端不进入铁砧锤长按，配合客户端完成副手方块放置。
+     */
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void anvilHammerUseItem(PlayerInteractEvent.RightClickItem event) {
+        Player player = event.getEntity();
+        if (event.getHand() != InteractionHand.MAIN_HAND) return;
+        if (!player.getMainHandItem().is(ModItemTags.ANVIL_HAMMER)) return;
+        HitResult hit = player.pick(player.blockInteractionRange(), 1.0F, false);
+        if (hit instanceof BlockHitResult blockHit && AnvilHammerItem.shouldPlaceOffhandBlock(player, event.getLevel(), blockHit)) {
+            event.setCanceled(true);
+        }
     }
 
     @SubscribeEvent
