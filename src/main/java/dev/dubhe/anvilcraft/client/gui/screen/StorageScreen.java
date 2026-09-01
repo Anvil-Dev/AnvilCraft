@@ -1031,7 +1031,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (alpha <= 0.0F) {
             return;
         }
-        MutableComponent message = Component.translatable("tooltip.anvilcraft.storage.missing_workbench_or_stonecutter");
+        MutableComponent message = Component.translatable("tooltip.anvilcraft.storage.missing_workbench");
         int textWidth = this.font.width(message);
         int textHeight = this.font.lineHeight;
         int flyoutWidth = textWidth + 5;

@@ -2289,7 +2289,7 @@
   "tooltip.anvilcraft.smart_block_placer.jade.placement.pickup": "Pickup",
   "tooltip.anvilcraft.smart_block_placer.jade.placement_mode": "Placement Mode: %s",
   "tooltip.anvilcraft.space_overcompressor.stored_mass": "Stored Mass: %s",
-  "tooltip.anvilcraft.storage.missing_workbench_or_stonecutter": "The storage is missing a workbench or stonecutter",
+  "tooltip.anvilcraft.storage.missing_workbench": "Need Crafting Table and Stonecutter in the storage",
   "tooltip.anvilcraft.storage.types": "Types:",
   "tooltip.anvilcraft.storage.types.value": "  %s / %s",
   "tooltip.anvilcraft.storage.types.value.infinite": "  %s / ∞",
