@@ -70,6 +70,8 @@ import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.neoforged.neoforge.client.ItemDecoratorHandler;
+import net.neoforged.neoforge.client.event.ContainerScreenEvent;
+import net.neoforged.neoforge.common.NeoForge;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -644,6 +646,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderingTooltips = null;
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
+        NeoForge.EVENT_BUS.post(new ContainerScreenEvent.Render.Background(this, graphics, mouseX, mouseY));
         graphics.blit(
             StorageScreen.CAPACITY,
             this.leftPos + 106,
@@ -673,6 +676,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         for (Renderable renderable : this.renderables) {
             renderable.render(graphics, mouseX, mouseY, partialTick);
         }
+        NeoForge.EVENT_BUS.post(new ContainerScreenEvent.Render.Foreground(this, graphics, mouseX, mouseY));
         this.renderCarriedItem(graphics, mouseX, mouseY);
         this.renderFlyout(graphics);
         this.renderStorageTooltip(graphics, mouseX, mouseY);
