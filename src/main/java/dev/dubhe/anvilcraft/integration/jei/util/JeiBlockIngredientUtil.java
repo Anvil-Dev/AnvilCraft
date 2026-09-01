@@ -37,6 +37,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 
 /** JEI slots that make custom-rendered previews interactive without drawing an ingredient over them. */
 public final class JeiBlockIngredientUtil {
@@ -46,6 +47,7 @@ public final class JeiBlockIngredientUtil {
     private JeiBlockIngredientUtil() {
     }
 
+    @SuppressWarnings("UnusedReturnValue")
     public static IRecipeSlotBuilder addInputSlot(
         IRecipeLayoutBuilder builder,
         String name,
@@ -153,6 +155,7 @@ public final class JeiBlockIngredientUtil {
         }
 
         @Override
+        @SuppressWarnings("removal")
         public List<Component> getTooltip(ItemStack ingredient, TooltipFlag tooltipFlag) {
             Minecraft minecraft = Minecraft.getInstance();
             Item.TooltipContext context = Item.TooltipContext.of(minecraft.level);
@@ -160,7 +163,12 @@ public final class JeiBlockIngredientUtil {
         }
 
         @Override
-        public List<Component> getTooltip(ItemStack ingredient, Item.TooltipContext context, Player player, TooltipFlag tooltipFlag) {
+        public List<Component> getTooltip(
+            ItemStack ingredient,
+            Item.TooltipContext context,
+            @Nullable Player player,
+            TooltipFlag tooltipFlag
+        ) {
             return ingredient.getTooltipLines(context, player, tooltipFlag);
         }
 
@@ -191,7 +199,7 @@ public final class JeiBlockIngredientUtil {
         }
     }
 
-    @SuppressWarnings("removal")
+    @SuppressWarnings({"removal", "NonExtendableApiUsage"})
     private record NoHoverRecipeSlot(IRecipeSlotDrawable delegate) implements IRecipeSlotDrawable {
         @Override
         public Stream<ITypedIngredient<?>> getAllIngredients() {
