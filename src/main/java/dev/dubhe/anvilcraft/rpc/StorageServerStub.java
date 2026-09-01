@@ -1419,9 +1419,6 @@ public final class StorageServerStub {
                 ItemStack current = grid.get(i);
                 if (current.isEmpty()) {
                     current = wanted.copyWithCount(placed);
-                } else {
-                    current = current.copy();
-                    current.grow(placed);
                 }
                 grid.set(i, current);
                 changed = true;
@@ -1445,54 +1442,34 @@ public final class StorageServerStub {
         int maxCount,
         ServerPlayer player
     ) {
-        int placed = StorageServerStub.transferFromInventory(inventory, wanted, current, maxCount, player);
-        if (placed > 0 || maxCount <= 0) {
-            return placed;
+        int moved = StorageServerStub.transferFromInventory(inventory, wanted, current, maxCount, player);
+        if (moved >= maxCount || maxCount <= 0) {
+            return moved;
+        }
+        if (!current.isEmpty() && !ItemStack.isSameItemSameComponents(current, wanted)) {
+            return moved;
         }
         StorageView view = target.view();
         if (view == null) {
-            return 0;
+            return moved;
         }
-        // 空槽：从存储找同种物品提取，补足到上限；已有同种则只补差量
-        if (current.isEmpty()) {
-            for (int index = 0; index < view.size(); index++) {
-                if (
-                    view.amount(index) <= 0
-                    || !ItemStack.isSameItemSameComponents(view.resource(index), wanted)
-                ) {
-                    continue;
-                }
-                int want = Math.min(wanted.getCount(), maxCount);
-                int extracted = view.extract(index, want);
-                if (extracted <= 0) {
-                    continue;
-                }
-                return extracted;
-            }
-            return 0;
-        }
-        // 已有同种：只补足到上限（storage 侧补差量）
-        if (!ItemStack.isSameItemSameComponents(current, wanted)) {
-            return 0;
-        }
-        int space = maxCount - current.getCount();
-        if (space <= 0) {
-            return 0;
-        }
-        for (int index = 0; index < view.size(); index++) {
+        // 背包取完后从存储补足差量（空槽或已有同种均适用）
+        int space = maxCount - (current.isEmpty() ? 0 : current.getCount()) - moved;
+        for (int index = 0; index < view.size() && space > 0; index++) {
             if (
                 view.amount(index) <= 0
                 || !ItemStack.isSameItemSameComponents(view.resource(index), wanted)
             ) {
                 continue;
             }
-            int extracted = view.extract(index, Math.min(space, wanted.getCount()));
+            int extracted = view.extract(index, (int) Math.min(space, view.amount(index)));
             if (extracted <= 0) {
                 continue;
             }
-            return extracted;
+            moved += extracted;
+            space -= extracted;
         }
-        return 0;
+        return moved;
     }
 
     /**
@@ -1507,23 +1484,23 @@ public final class StorageServerStub {
         ServerPlayer player
     ) {
         if (current.isEmpty()) {
-            // 空槽：从背包找第一个同种物品，移动 min(需求, 背包量, 上限)
+            // 空槽：从背包转移所有同种物品（受 maxCount 上限约束），不只放一个
+            int moved = 0;
             for (int i = 0; i < inventory.getContainerSize(); i++) {
                 ItemStack stack = inventory.getItem(i);
                 if (stack.isEmpty() || !ItemStack.isSameItemSameComponents(stack, wanted)) {
                     continue;
                 }
-                int take = Math.min(wanted.getCount(), stack.getCount());
-                take = Math.min(take, maxCount);
+                int take = Math.min(stack.getCount(), maxCount - moved);
                 if (take <= 0) {
                     continue;
                 }
                 ItemStack rest = stack.copy();
                 rest.shrink(take);
                 inventory.setItem(i, rest.isEmpty() ? ItemStack.EMPTY : rest);
-                return take;
+                moved += take;
             }
-            return 0;
+            return moved;
         }
         // 已有同种：只补足到上限
         if (!ItemStack.isSameItemSameComponents(current, wanted)) {
