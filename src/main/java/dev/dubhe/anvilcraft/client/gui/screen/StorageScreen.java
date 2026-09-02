@@ -2247,7 +2247,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         // 悬停在切石机配方选择区：滚动配方列表
         if (this.mode == ScreenMode.CRAFTING && !this.stonecutterRecipes.isEmpty()) {
             int recipeRight = this.leftPos + StorageScreen.CRAFTING_RECIPE_X
-                + StorageScreen.CRAFTING_RECIPE_COLUMNS * StorageScreen.CRAFTING_SLOT_SIZE;
+                + StorageScreen.CRAFTING_RECIPE_COLUMNS * StorageScreen.CRAFTING_SLOT_SIZE + 6;
             int recipeBottom = this.topPos + StorageScreen.CRAFTING_RECIPE_Y
                 + StorageScreen.CRAFTING_RECIPE_ROWS * StorageScreen.CRAFTING_SLOT_SIZE;
             if (MathUtil.isInRange(
