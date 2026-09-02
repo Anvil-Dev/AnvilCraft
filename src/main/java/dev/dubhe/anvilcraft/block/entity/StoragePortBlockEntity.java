@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.ItemHandlerUtil;
 import dev.dubhe.anvilcraft.block.StoragePortBlock;
 import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
+import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.config.AnvilCraftServerConfig;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
@@ -479,6 +480,10 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
             UUID id = storage.getId();
             if (id == null) {
                 return null;
+            }
+            // 板条箱核心：先同步 dispose 方块状态，使溢出销毁在物流路径同样生效
+            if (storage instanceof CrateBlockEntity crate) {
+                crate.refreshDispose();
             }
             return Storages.get().getOrCreate(id, storage.getStorageType().clazz()).getItems();
         }

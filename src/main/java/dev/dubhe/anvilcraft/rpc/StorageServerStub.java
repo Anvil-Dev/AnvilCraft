@@ -1690,7 +1690,7 @@ public final class StorageServerStub {
             if (inventoryPart > 0) {
                 StorageServerStub.giveBackToInventory(inventory, wanted, inventoryPart);
             }
-            if (fromStorage > 0 && view != null) {
+            if (fromStorage > 0) {
                 view.insert(wanted.copyWithCount(fromStorage), fromStorage);
             }
             return 0;
@@ -3693,12 +3693,19 @@ public final class StorageServerStub {
             storage.setId(id);
         }
         BaseStorage<?> primary = Storages.get().getOrCreate(id, storage.getStorageType().clazz());
+        // 板条箱：先把 dispose 方块状态同步到存储处理器，保证 GUI / RPC 插入
+        // 与方块状态一致（相邻虚空物质时溢出部分被销毁）；需在 getOrCreate 之后，
+        // 首次创建的存储处理器默认 dispose=false
+        if (storage instanceof CrateBlockEntity crate) {
+            crate.refreshDispose();
+        }
         String search = PlayerSettings.getSetting(registries, playerId).storage().getSearchContent().strip();
         if (search.isEmpty() || !(storage instanceof CrateBlockEntity)) {
             return new StorageView(List.of(primary), List.of());
         }
         List<BaseStorage<?>> storages = new ArrayList<>();
         for (CrateBlockEntity crate : CrateBlock.getNearbyCrates(player.level(), pos)) {
+            crate.refreshDispose();
             if (crate.getId() != null) {
                 Storages.get().get(crate.getId()).ifPresent(storages::add);
             }

@@ -9,6 +9,7 @@ import dev.anvilcraft.lib.v2.util.Scrollable;
 import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.client.gui.component.TexturedButton;
@@ -69,6 +70,7 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.ItemDecoratorHandler;
 import net.neoforged.neoforge.client.event.ContainerScreenEvent;
 import net.neoforged.neoforge.common.NeoForge;
@@ -226,6 +228,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private boolean quickCrafting;
     private int quickCraftingButton;
     private int lastClickedInventorySlot = -1;
+    @Getter
     private boolean quickMoveDragging;
     private final IntSet quickMoveSlots = new IntOpenHashSet();
     private final IntSet pendingQuickMoveSlots = new IntOpenHashSet();
@@ -234,10 +237,6 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private @Nullable List<Component> renderingTooltips;
     private boolean craftingAvailable;
     private boolean craftingLoaded;
-    /**
-     * -- GETTER --
-     * 当前合成数据（① 切石机输入 + ② 合成 9 宫格）。
-     */
     @Getter
     private CraftingStorage crafting = CraftingStorage.EMPTY;
     private List<ItemStack> stonecutterRecipes = List.of();
@@ -635,6 +634,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     protected void containerTick() {
         this.carried = this.player.inventoryMenu.getCarried();
         this.flushQuickMoves();
+        this.refreshTitle();
         if (
             this.flyoutVisible
             && this.flyoutTimer < StorageScreen.FLYOUT_FADE_IN_TICKS
@@ -650,6 +650,26 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         } else {
             this.refreshMetadata();
         }
+    }
+
+    /**
+     * 打开界面期间若板条箱的 dispose 状态变化（相邻虚空物质被放置/移除），
+     * 同步更新界面标题（普通「板条箱」↔「溢出销毁板条箱」）。
+     */
+    private void refreshTitle() {
+        if (this.minecraft.level == null) {
+            return;
+        }
+        BlockState state = this.minecraft.level.getBlockState(this.sourcePos);
+        if (!(state.getBlock() instanceof CrateBlock)) {
+            return;
+        }
+        Component displayName = CrateBlock.displayName(state);
+        if (displayName.getString().equals(this.title.getString())) {
+            return;
+        }
+        this.title = displayName;
+        this.titleLabelX = (StorageScreen.BG_WIDTH - 106 - this.font.width(this.title)) / 2 + 106;
     }
 
     @Override
@@ -679,6 +699,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     @Override
+    @SuppressWarnings("UnstableApiUsage")
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         this.renderingTooltips = null;
         this.renderBackground(graphics, mouseX, mouseY, partialTick);
@@ -1276,6 +1297,16 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.lastClickedInventorySlot = -1;
         if (this.search != null && (button == 0 || button == 1)) {
             boolean hovered = MathUtil.isInRange(mouseX, mouseY, this.leftPos + 6, this.topPos + 6, this.leftPos + 100, this.topPos + 16);
+            if (hovered && button == 1) {
+                // 右键搜索框：清空搜索内容并聚焦输入。
+                // setValue 触发 responder → 同步服务端设置并重新排序（与手动删除文本一致）
+                if (!this.search.getValue().isEmpty()) {
+                    this.search.setValue("");
+                }
+                this.search.setFocused(true);
+                this.setFocused(this.search);
+                return true;
+            }
             this.search.setFocused(hovered);
             this.setFocused(hovered ? this.search : null);
         }
@@ -1560,15 +1591,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         return true;
     }
 
-    /**
-     * Handles a shift+left-drag frame for quick-moving items into/out of storage.
-     * Called from {@code mouseDragged} and from the high-priority screen drag event
-     * listener so Mouse Tweaks never gets a chance to intercept the drag.
-     */
-    public boolean isQuickMoveDragging() {
-        return this.quickMoveDragging;
-    }
-
+    @SuppressWarnings("deprecation")
     public void quickMoveDrag(double mouseX, double mouseY) {
         Integer storageSlot = this.getStorageSlot(mouseX, mouseY);
         if (storageSlot != null) {
@@ -2449,7 +2472,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * {@code handleInventoryMouseClick} 在容器关闭后被服务端忽略。
      */
     private void returnCarriedToInventory() {
-        if (this.minecraft == null || this.minecraft.player == null) {
+        if (this.minecraft.player == null) {
             return;
         }
         StorageClientStub.returnCarriedToInventory(this.sourcePos);
