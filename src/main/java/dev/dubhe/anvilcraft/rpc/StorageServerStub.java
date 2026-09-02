@@ -1690,6 +1690,8 @@ public final class StorageServerStub {
             if (inventoryPart > 0) {
                 StorageServerStub.giveBackToInventory(inventory, wanted, inventoryPart);
             }
+            // 不变式：fromStorage 只在上方 view != null 的取存储分支内累加，
+            // 故 fromStorage > 0 蕴含 view 非空，此处无需再判空。
             if (fromStorage > 0) {
                 view.insert(wanted.copyWithCount(fromStorage), fromStorage);
             }

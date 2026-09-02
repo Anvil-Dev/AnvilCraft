@@ -61,6 +61,17 @@ public final class TerminalRemoteOverlay {
      * MAX_SYNC_SLOTS 上限一致，超过部分分页请求。
      */
     private static final int FULL_SYNC_PAGE = 256;
+    /**
+     * 一次刷新周期内最多连续同步的全量页数。服务端同步是网络往返，几万槽位的大存储
+     * 可能一次刷新就背靠背发出几十个 RPC；达到预算后暂停，等下一个刷新周期再续拉，
+     * 避免单周期请求突发饿死其他 RPC / 占满网络。
+     */
+    private static final int FULL_SYNC_PAGE_BUDGET = 4;
+    /**
+     * 全量同步页失败后的退避刷新周期数：退避期间以服务端排序直接展示（未过滤），不再
+     * 反复触发全量同步（避免周期性失败时每 20 tick 重发全部缺失页的流量放大）。
+     */
+    private static final int FULL_SYNC_RETRY_REFRESHES = 2;
     /** 浮窗与 tooltip 之间的间隙（px），紧挨但不重叠。 */
     private static final int TOOLTIP_GAP = 2;
     /** 浮窗相对 tooltip 左上方再向右上偏移的像素（右 20、上 14）。 */
@@ -77,6 +88,15 @@ public final class TerminalRemoteOverlay {
     private static IntList baseOrder = new IntArrayList();
     /** 普通文本搜索的全量内容同步是否进行中：避免多次 refresh 并发重复全量同步。 */
     private static boolean fullSyncing;
+    /**
+     * 全量同步进行期间服务端排序/搜索词再次变化：当前同步结束后需要基于最新
+     * baseOrder 再补一轮，保证过滤不漏项（最终一致）。
+     */
+    private static boolean fullSyncReplan;
+    /** 全量同步页失败后的退避剩余刷新周期数（见 {@link #FULL_SYNC_RETRY_REFRESHES}）。 */
+    private static int fullSyncRetryRefresh;
+    /** 本轮全量同步已连续发送的页数（达到预算后暂停，见 {@link #FULL_SYNC_PAGE_BUDGET}）。 */
+    private static int fullSyncPages;
     private static final Int2ObjectMap<UnlimitedItemStack> CONTENTS = new Int2ObjectOpenHashMap<>();
     private static final Int2LongMap COUNTS = new Int2LongOpenHashMap();
     /** 当前选中的物品序号；-1 表示尚未通过滚轮选择（未选择时点击终端允许 vanilla 拿起终端）。 */
@@ -410,6 +430,11 @@ public final class TerminalRemoteOverlay {
             if (fast) {
                 TerminalRemoteOverlay.fastRetries++;
             }
+            if (TerminalRemoteOverlay.fullSyncRetryRefresh > 0) {
+                // 全量同步失败退避：每过一个刷新周期衰减一次；退避期内的 refresh
+                // 已降级为服务端排序展示，见 refresh()。
+                TerminalRemoteOverlay.fullSyncRetryRefresh--;
+            }
             TerminalRemoteOverlay.refresh();
         }
     }
@@ -437,24 +462,41 @@ public final class TerminalRemoteOverlay {
             // 需要按本地化名称二次过滤，但客户端只缓存了可见页内容，必须先分页全量
             // 同步缺失槽位的内容；完成后在客户端按显示名 + id path 过滤出展示排序。
             if (TerminalRemoteOverlay.isPlainTextSearch(TerminalRemoteOverlay.search)) {
+                if (TerminalRemoteOverlay.fullSyncRetryRefresh > 0) {
+                    // 全量同步页失败后的退避期：直接按服务端排序展示（未过滤；可见页
+                    // 内容由 syncVisible 补拉），退避结束后自动恢复全量同步与过滤。
+                    TerminalRemoteOverlay.applyServerOrder(next, orderChanged);
+                    return;
+                }
                 TerminalRemoteOverlay.syncFullContents(id, orderChanged);
                 return;
             }
             // @ / # 前缀搜索或空搜索：服务端已过滤，直接采用
-            TerminalRemoteOverlay.order = next;
-            if (orderChanged) {
-                TerminalRemoteOverlay.trimContentCache();
-            }
-            // 仅在选择有效时收紧到新排序范围；-1（未选择）保持不变
-            if (TerminalRemoteOverlay.cursor >= 0) {
-                TerminalRemoteOverlay.cursor = Mth.clamp(
-                    TerminalRemoteOverlay.cursor,
-                    0,
-                    Math.max(0, TerminalRemoteOverlay.order.size() - 1)
-                );
-            }
-            TerminalRemoteOverlay.syncVisible();
+            TerminalRemoteOverlay.applyServerOrder(next, orderChanged);
         }));
+    }
+
+    /**
+     * 采用服务端排序作为展示排序并同步可见页：@/#/空搜索直接采用；
+     * 普通文本搜索的失败退避期也先采用（未过滤降级展示）。
+     *
+     * @param next         服务端返回的排序
+     * @param orderChanged 相对上次全量排序是否变化（变化时裁剪内容缓存）
+     */
+    private static void applyServerOrder(IntList next, boolean orderChanged) {
+        TerminalRemoteOverlay.order = next;
+        if (orderChanged) {
+            TerminalRemoteOverlay.trimContentCache();
+        }
+        // 仅在选择有效时收紧到新排序范围；-1（未选择）保持不变
+        if (TerminalRemoteOverlay.cursor >= 0) {
+            TerminalRemoteOverlay.cursor = Mth.clamp(
+                TerminalRemoteOverlay.cursor,
+                0,
+                Math.max(0, TerminalRemoteOverlay.order.size() - 1)
+            );
+        }
+        TerminalRemoteOverlay.syncVisible();
     }
 
     /**
@@ -470,7 +512,9 @@ public final class TerminalRemoteOverlay {
             TerminalRemoteOverlay.trimContentCache();
         }
         if (TerminalRemoteOverlay.fullSyncing) {
-            // 已有一个全量同步在进行：等它完成（其回调会做过滤与可见页同步）
+            // 已有一个全量同步在进行：记录需要基于最新 baseOrder 再补一轮（若期间
+            // 排序/搜索词已变化，其回调会用最新状态补同步并过滤），等它结束。
+            TerminalRemoteOverlay.fullSyncReplan = true;
             return;
         }
         // 找出尚未缓存的槽位，分页请求内容
@@ -487,44 +531,77 @@ public final class TerminalRemoteOverlay {
             return;
         }
         TerminalRemoteOverlay.fullSyncing = true;
-        // 捕获同步起始的全量排序快照：结束后若 baseOrder 已变（存储变动 / 搜索词
-        // 更新），需要基于新快照再补一轮，保证过滤不漏项（最终一致）。
-        IntList syncedBase = new IntArrayList(TerminalRemoteOverlay.baseOrder);
+        TerminalRemoteOverlay.fullSyncPages = 0;
+        // 激活新批时清掉上一批残留的重排标记：置位只属于"进行中的批"，本批将基于
+        // 最新 baseOrder 与搜索词拉取（无需 replan）；批处理期间的新置位由收尾消费。
+        TerminalRemoteOverlay.fullSyncReplan = false;
+        // 发起 RPC 时不再拍排序快照：同步期间 baseOrder / 搜索词变化时，
+        // refresh 的普通文本分支会置 fullSyncReplan 标记，收尾时基于最新状态
+        // 补一轮（页预算暂停的续拉同理），保证过滤不漏项（最终一致）。
         Minecraft minecraft = Minecraft.getInstance();
         StorageTerminalClientStub.ensureVirtualPos(id).whenComplete((virtualPos, error) -> minecraft.execute(() -> {
             if (error != null || !TerminalRemoteOverlay.isHoveringSame(id)) {
                 TerminalRemoteOverlay.fullSyncing = false;
                 return;
             }
-            TerminalRemoteOverlay.syncFullPage(id, BlockPos.of(virtualPos), missing, 0, syncedBase);
+            TerminalRemoteOverlay.syncFullPage(id, BlockPos.of(virtualPos), missing, 0);
         }));
     }
 
     /**
-     * 分页同步一页全量内容；同步完成后若还有缺失槽位则请求下一页，否则收尾：
-     * baseOrder 未变则按本地化名称二次过滤，已变则基于新快照再补一轮。
+     * 分页同步一页全量内容；同步完成后若还有缺失槽位且未超页预算则请求下一页，否则
+     * 暂停等下一个刷新周期续拉（预算见 {@link #FULL_SYNC_PAGE_BUDGET}）。收尾时：
+     * 期间收到过重排请求（排序/搜索词变化）则基于最新 baseOrder 再补一轮，否则按
+     * 本地化名称二次过滤（普通文本搜索）。
      */
-    private static void syncFullPage(UUID id, BlockPos virtualPos, IntList missing, int from, IntList syncedBase) {
+    private static void syncFullPage(UUID id, BlockPos virtualPos, IntList missing, int from) {
         int to = Math.min(from + TerminalRemoteOverlay.FULL_SYNC_PAGE, missing.size());
         IntArrayList page = new IntArrayList(missing.subList(from, to));
+        TerminalRemoteOverlay.fullSyncPages++;
         Minecraft minecraft = Minecraft.getInstance();
         StorageClientStub.sync(virtualPos, page).whenComplete((result, syncError) -> minecraft.execute(() -> {
-            if (syncError != null || !TerminalRemoteOverlay.isHoveringSame(id)) {
+            // 悬停目标已切换（换了个终端）：全量同步链作废，reset() 已清空全部状态
+            if (!TerminalRemoteOverlay.isHoveringSame(id)) {
                 TerminalRemoteOverlay.fullSyncing = false;
-                // 失败：回到服务端排序直接展示（未过滤），下个刷新周期会重试
-                TerminalRemoteOverlay.order = new IntArrayList(TerminalRemoteOverlay.baseOrder);
-                TerminalRemoteOverlay.syncVisible();
+                return;
+            }
+            if (syncError != null) {
+                TerminalRemoteOverlay.fullSyncing = false;
+                // 失败：退避期间按服务端排序直接展示（未过滤），可见页内容由
+                // syncVisible 补拉；退避结束后的 refresh 会用干净状态重试全量同步。
+                // 已成功同步的页保留在缓存中（不是全部丢弃），重试只补缺失槽位。
+                TerminalRemoteOverlay.fullSyncRetryRefresh = TerminalRemoteOverlay.FULL_SYNC_RETRY_REFRESHES;
+                TerminalRemoteOverlay.applyServerOrder(
+                    new IntArrayList(TerminalRemoteOverlay.baseOrder),
+                    false
+                );
+                return;
+            }
+            // 已切出普通文本搜索（@/#/空）：服务端已过滤，refresh 的对应分支已接管
+            // 展示，终止全量同步链，不再拉剩余页。
+            if (!TerminalRemoteOverlay.isPlainTextSearch(TerminalRemoteOverlay.search)) {
+                TerminalRemoteOverlay.fullSyncing = false;
                 return;
             }
             TerminalRemoteOverlay.applySync(result);
             if (to < missing.size()) {
-                TerminalRemoteOverlay.syncFullPage(id, virtualPos, missing, to, syncedBase);
+                if (TerminalRemoteOverlay.fullSyncPages >= TerminalRemoteOverlay.FULL_SYNC_PAGE_BUDGET) {
+                    // 已达本刷新周期页预算：暂停本批，等下一 refresh 周期用最新 baseOrder
+                    // 重算缺失槽位后继续（displayOrder 保持批处理开始前的值，全量拉齐后
+                    // 才切到过滤结果，见 refresh 的普通文本分支）。
+                    TerminalRemoteOverlay.fullSyncing = false;
+                    return;
+                }
+                TerminalRemoteOverlay.syncFullPage(id, virtualPos, missing, to);
                 return;
             }
+            // 本批（快照）拉完：收尾
             TerminalRemoteOverlay.fullSyncing = false;
             if (TerminalRemoteOverlay.isHoveringSame(id)
-                && !syncedBase.equals(TerminalRemoteOverlay.baseOrder)) {
-                // 同步期间排序被周期刷新更新：基于新快照补一轮缺失内容
+                && TerminalRemoteOverlay.fullSyncReplan) {
+                // 同步期间收到过新排序/搜索词（refresh 在 fullSyncing 期间到达时只
+                // 置标记）：消费标记，基于最新 baseOrder 与搜索词再补一轮并过滤。
+                TerminalRemoteOverlay.fullSyncReplan = false;
                 TerminalRemoteOverlay.syncFullContents(id, false);
                 return;
             }
@@ -600,7 +677,9 @@ public final class TerminalRemoteOverlay {
     }
 
     private static void reorder() {
-        // 搜索是显式操作：搜索后进入选择模式（选中第一格），点击终端可取出搜索结果
+        // 搜索是显式操作：搜索后进入选择模式（选中第一格），点击终端可取出搜索结果。
+        // 显式切词也立即结束全量同步的失败退避（用户意图明确，无需等退避周期）。
+        TerminalRemoteOverlay.fullSyncRetryRefresh = 0;
         TerminalRemoteOverlay.cursor = 0;
         TerminalRemoteOverlay.refresh();
     }
@@ -828,6 +907,9 @@ public final class TerminalRemoteOverlay {
         TerminalRemoteOverlay.order = new IntArrayList();
         TerminalRemoteOverlay.baseOrder = new IntArrayList();
         TerminalRemoteOverlay.fullSyncing = false;
+        TerminalRemoteOverlay.fullSyncReplan = false;
+        TerminalRemoteOverlay.fullSyncRetryRefresh = 0;
+        TerminalRemoteOverlay.fullSyncPages = 0;
         TerminalRemoteOverlay.CONTENTS.clear();
         TerminalRemoteOverlay.COUNTS.clear();
         TerminalRemoteOverlay.cursor = -1;
