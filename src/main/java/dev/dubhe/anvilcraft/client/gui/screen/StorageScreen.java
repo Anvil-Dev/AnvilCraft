@@ -184,6 +184,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private boolean metadataPending;
     private boolean interactionPending;
     private boolean interactionSyncPending;
+    private boolean closed;
     private boolean nbtFolded;
     private boolean preservingOrder;
     private boolean remappedOrder;
@@ -1884,6 +1885,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 }
                 this.carried = result.carried();
                 this.player.inventoryMenu.setCarried(this.carried);
+                if (this.closed) {
+                    // 界面已关闭：把 RPC 返回的指针物品放回背包，避免鼠标上残留物品
+
+                    this.returnCarriedToInventory();
+                    return;
+                }
                 if (result.changed()) {
                     if (this.preservingOrder) {
                         this.interactionSyncPending = true;
@@ -2004,6 +2011,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 }
                 this.carried = result.carried();
                 this.player.inventoryMenu.setCarried(this.carried);
+                if (this.closed) {
+                    // 界面已关闭：把 RPC 返回的指针物品放回背包，避免鼠标上残留物品
+
+                    this.returnCarriedToInventory();
+                    return;
+                }
                 if (result.changed()) {
                     this.loadCrafting(false);
                 }
@@ -2029,6 +2042,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 }
                 this.carried = result.carried();
                 this.player.inventoryMenu.setCarried(this.carried);
+                if (this.closed) {
+                    // 界面已关闭：把 RPC 返回的指针物品放回背包，避免鼠标上残留物品
+
+                    this.returnCarriedToInventory();
+                    return;
+                }
                 if (result.changed()) {
                     this.loadCrafting(false);
                 }
@@ -2054,6 +2073,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 }
                 this.carried = result.carried();
                 this.player.inventoryMenu.setCarried(this.carried);
+                if (this.closed) {
+                    // 界面已关闭：把 RPC 返回的指针物品放回背包，避免鼠标上残留物品
+
+                    this.returnCarriedToInventory();
+                    return;
+                }
                 if (result.changed()) {
                     this.loadCrafting(false);
                 }
@@ -2117,6 +2142,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 }
                 this.carried = result.carried();
                 this.player.inventoryMenu.setCarried(this.carried);
+                if (this.closed) {
+                    // 界面已关闭：把 RPC 返回的指针物品放回背包，避免鼠标上残留物品
+
+                    this.returnCarriedToInventory();
+                    return;
+                }
                 if (result.changed()) {
                     this.loadCrafting(false);
                 }
@@ -2184,6 +2215,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 }
                 this.carried = result.carried();
                 this.player.inventoryMenu.setCarried(this.carried);
+                if (this.closed) {
+                    // 界面已关闭：把 RPC 返回的指针物品放回背包，避免鼠标上残留物品
+
+                    this.returnCarriedToInventory();
+                    return;
+                }
                 if (result.changed()) {
                     this.loadCrafting(false);
                 }
@@ -2375,6 +2412,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public void removed() {
+        this.closed = true;
+
         this.reorderRequest++;
         this.syncRequest++;
         this.metadataPending = false;
@@ -2383,40 +2422,25 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (this.tracksOpenState && this.minecraft.player != null) {
             StorageClientStub.setOpen(this.sourcePos, false);
         }
-        if (!this.carried.isEmpty() && this.minecraft.gameMode != null) {
-            this.player.inventoryMenu.setCarried(this.carried);
-            Inventory inventory = this.player.getInventory();
-            while (!this.carried.isEmpty()) {
-                int slot = inventory.getSlotWithRemainingSpace(this.carried);
-                if (slot == -1) {
-                    slot = inventory.getFreeSlot();
-                }
-                if (slot == -1) {
-                    this.minecraft.gameMode.handleInventoryMouseClick(
-                        this.player.inventoryMenu.containerId,
-                        -999,
-                        0,
-                        ClickType.PICKUP,
-                        this.player
-                    );
-                    break;
-                }
-
-                this.minecraft.gameMode.handleInventoryMouseClick(
-                    this.player.inventoryMenu.containerId,
-                    slot < 9 ? slot + 36 : slot,
-                    0,
-                    ClickType.PICKUP,
-                    this.player
-                );
-                this.carried = this.player.inventoryMenu.getCarried();
-            }
-            this.carried = ItemStack.EMPTY;
-        }
+        // 关闭界面时让服务端把指针物品放回背包
+        this.returnCarriedToInventory();
         if (SettingClientStub.setting().storage().getSearch() == SearchMode.CLEAR) {
             SettingClientStub.update("");
         }
         super.removed();
+    }
+
+    /**
+     * 让服务端把指针物品放回玩家背包。关闭界面时服务端 {@code containerMenu}
+     * 仍是 {@code inventoryMenu}，由 RPC 直接操作背包并广播，避免客户端
+     * {@code handleInventoryMouseClick} 在容器关闭后被服务端忽略。
+     */
+    private void returnCarriedToInventory() {
+        if (this.minecraft == null || this.minecraft.player == null) {
+            return;
+        }
+        StorageClientStub.returnCarriedToInventory(this.sourcePos);
+        this.carried = this.player.inventoryMenu.getCarried();
     }
 
     /**

@@ -247,6 +247,24 @@ public final class StorageServerStub {
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
+    public static void returnCarriedToInventory(UUID playerId, long sourcePos) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        ItemStack carried = player.containerMenu.getCarried();
+        if (carried.isEmpty()) {
+            return;
+        }
+        if (player.getInventory().add(carried)) {
+            carried = ItemStack.EMPTY;
+        }
+        if (!carried.isEmpty()) {
+            player.drop(carried, false);
+        }
+        player.containerMenu.setCarried(carried);
+        player.containerMenu.broadcastChanges();
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
     public static boolean clonePut(
         UUID playerId,
         long sourcePos,

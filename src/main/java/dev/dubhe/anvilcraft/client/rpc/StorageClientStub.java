@@ -147,6 +147,15 @@ public final class StorageClientStub {
         );
     }
 
+    public static void returnCarriedToInventory(BlockPos sourcePos) {
+        RPC.call(
+            RpcTarget.server(),
+            StorageServerStub::returnCarriedToInventory,
+            StorageClientStub.playerId(),
+            sourcePos.asLong()
+        );
+    }
+
     public static void beginUndoGroup(BlockPos sourcePos) {
         RPC.call(
             RpcTarget.server(),
