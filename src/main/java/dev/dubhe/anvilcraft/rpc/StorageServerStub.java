@@ -1690,7 +1690,9 @@ public final class StorageServerStub {
             if (inventoryPart > 0) {
                 StorageServerStub.giveBackToInventory(inventory, wanted, inventoryPart);
             }
-            if (fromStorage > 0 && view != null) {
+            // 不变式：fromStorage 只在上方 view != null 的取存储分支内累加，
+            // 故 fromStorage > 0 蕴含 view 非空，此处无需再判空。
+            if (fromStorage > 0) {
                 view.insert(wanted.copyWithCount(fromStorage), fromStorage);
             }
             return 0;
@@ -1912,6 +1914,8 @@ public final class StorageServerStub {
         PlayerSetting setting = PlayerSettings.getSetting(registries, playerId);
         StorageSetting storage = setting.storage();
         SortOptions options = new SortOptions(storage.getSort(), storage.getOrder());
+        // 普通文本搜索由客户端（TerminalRemoteOverlay）在获得全量内容缓存后按本地化
+        // 名称二次过滤；服务端只处理 @ namespace 与 # tag 前缀（与 reorder 一致）
         return new IntArrayList(StorageServerStub.createOrder(
             view,
             options,
