@@ -17,6 +17,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -25,12 +26,14 @@ import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
+import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 import javax.annotation.Nullable;
@@ -53,6 +56,11 @@ public final class TerminalRemoteOverlay {
     private static final int REFRESH_INTERVAL = 20;
     /** 内容尚未加载完成时的快速重试间隔（tick）。 */
     private static final int FAST_RELOAD_INTERVAL = 5;
+    /**
+     * 普通文本搜索时全量内容缓存的单次同步页大小。与服务端 sync 的
+     * MAX_SYNC_SLOTS 上限一致，超过部分分页请求。
+     */
+    private static final int FULL_SYNC_PAGE = 256;
     /** 浮窗与 tooltip 之间的间隙（px），紧挨但不重叠。 */
     private static final int TOOLTIP_GAP = 2;
     /** 浮窗相对 tooltip 左上方再向右上偏移的像素（右 20、上 14）。 */
@@ -63,7 +71,12 @@ public final class TerminalRemoteOverlay {
     private static int sizeMode;
     private static @Nullable EditBox searchBox;
     private static String search = "";
+    /** 当前展示的排序：非普通文本搜索时为服务端全量排序，普通文本搜索时为客户端过滤后的子集。 */
     private static IntList order = new IntArrayList();
+    /** 服务端返回的全量排序（服务端只按 @/# 前缀过滤）；普通文本搜索时作为客户端二次过滤的来源。 */
+    private static IntList baseOrder = new IntArrayList();
+    /** 普通文本搜索的全量内容同步是否进行中：避免多次 refresh 并发重复全量同步。 */
+    private static boolean fullSyncing;
     private static final Int2ObjectMap<UnlimitedItemStack> CONTENTS = new Int2ObjectOpenHashMap<>();
     private static final Int2LongMap COUNTS = new Int2LongOpenHashMap();
     /** 当前选中的物品序号；-1 表示尚未通过滚轮选择（未选择时点击终端允许 vanilla 拿起终端）。 */
@@ -418,8 +431,20 @@ public final class TerminalRemoteOverlay {
                 return;
             }
             IntList next = new IntArrayList(newOrder);
-            boolean orderChanged = !next.equals(TerminalRemoteOverlay.order);
+            boolean orderChanged = !next.equals(TerminalRemoteOverlay.baseOrder);
+            TerminalRemoteOverlay.baseOrder = next;
+            // 普通文本搜索：服务端返回全量排序（客户端语言环境未知，不能服务端过滤）。
+            // 需要按本地化名称二次过滤，但客户端只缓存了可见页内容，必须先分页全量
+            // 同步缺失槽位的内容；完成后在客户端按显示名 + id path 过滤出展示排序。
+            if (TerminalRemoteOverlay.isPlainTextSearch(TerminalRemoteOverlay.search)) {
+                TerminalRemoteOverlay.syncFullContents(id, orderChanged);
+                return;
+            }
+            // @ / # 前缀搜索或空搜索：服务端已过滤，直接采用
             TerminalRemoteOverlay.order = next;
+            if (orderChanged) {
+                TerminalRemoteOverlay.trimContentCache();
+            }
             // 仅在选择有效时收紧到新排序范围；-1（未选择）保持不变
             if (TerminalRemoteOverlay.cursor >= 0) {
                 TerminalRemoteOverlay.cursor = Mth.clamp(
@@ -428,13 +453,150 @@ public final class TerminalRemoteOverlay {
                     Math.max(0, TerminalRemoteOverlay.order.size() - 1)
                 );
             }
-            // 仅当排序真正变化时才清空缓存，避免周期性刷新导致物品闪烁
-            if (orderChanged) {
-                TerminalRemoteOverlay.CONTENTS.clear();
-                TerminalRemoteOverlay.COUNTS.clear();
-            }
             TerminalRemoteOverlay.syncVisible();
         }));
+    }
+
+    /**
+     * 服务端排序响应后按需分页全量同步内容：仅同步 {@code baseOrder} 中尚未缓存的槽位，
+     * 每页最多 {@link #FULL_SYNC_PAGE} 个；完成后在客户端按本地化名称二次过滤。
+     *
+     * @param id           当前悬停的存储会话 id
+     * @param orderChanged 服务端排序相对上次是否变化（变化时清空全量缓存）
+     */
+    private static void syncFullContents(UUID id, boolean orderChanged) {
+        if (orderChanged) {
+            // 排序变化：先把缓存裁剪到新全量排序范围（保留交集，复用已缓存槽）
+            TerminalRemoteOverlay.trimContentCache();
+        }
+        if (TerminalRemoteOverlay.fullSyncing) {
+            // 已有一个全量同步在进行：等它完成（其回调会做过滤与可见页同步）
+            return;
+        }
+        // 找出尚未缓存的槽位，分页请求内容
+        IntArrayList missing = new IntArrayList();
+        for (int i = 0; i < TerminalRemoteOverlay.baseOrder.size(); i++) {
+            int slot = TerminalRemoteOverlay.baseOrder.getInt(i);
+            if (!TerminalRemoteOverlay.CONTENTS.containsKey(slot)) {
+                missing.add(slot);
+            }
+        }
+        if (missing.isEmpty()) {
+            // 全量内容已齐：直接过滤并同步可见页
+            TerminalRemoteOverlay.applyClientFilter();
+            return;
+        }
+        TerminalRemoteOverlay.fullSyncing = true;
+        // 捕获同步起始的全量排序快照：结束后若 baseOrder 已变（存储变动 / 搜索词
+        // 更新），需要基于新快照再补一轮，保证过滤不漏项（最终一致）。
+        IntList syncedBase = new IntArrayList(TerminalRemoteOverlay.baseOrder);
+        Minecraft minecraft = Minecraft.getInstance();
+        StorageTerminalClientStub.ensureVirtualPos(id).whenComplete((virtualPos, error) -> minecraft.execute(() -> {
+            if (error != null || !TerminalRemoteOverlay.isHoveringSame(id)) {
+                TerminalRemoteOverlay.fullSyncing = false;
+                return;
+            }
+            TerminalRemoteOverlay.syncFullPage(id, BlockPos.of(virtualPos), missing, 0, syncedBase);
+        }));
+    }
+
+    /**
+     * 分页同步一页全量内容；同步完成后若还有缺失槽位则请求下一页，否则收尾：
+     * baseOrder 未变则按本地化名称二次过滤，已变则基于新快照再补一轮。
+     */
+    private static void syncFullPage(UUID id, BlockPos virtualPos, IntList missing, int from, IntList syncedBase) {
+        int to = Math.min(from + TerminalRemoteOverlay.FULL_SYNC_PAGE, missing.size());
+        IntArrayList page = new IntArrayList(missing.subList(from, to));
+        Minecraft minecraft = Minecraft.getInstance();
+        StorageClientStub.sync(virtualPos, page).whenComplete((result, syncError) -> minecraft.execute(() -> {
+            if (syncError != null || !TerminalRemoteOverlay.isHoveringSame(id)) {
+                TerminalRemoteOverlay.fullSyncing = false;
+                // 失败：回到服务端排序直接展示（未过滤），下个刷新周期会重试
+                TerminalRemoteOverlay.order = new IntArrayList(TerminalRemoteOverlay.baseOrder);
+                TerminalRemoteOverlay.syncVisible();
+                return;
+            }
+            TerminalRemoteOverlay.applySync(result);
+            if (to < missing.size()) {
+                TerminalRemoteOverlay.syncFullPage(id, virtualPos, missing, to, syncedBase);
+                return;
+            }
+            TerminalRemoteOverlay.fullSyncing = false;
+            if (TerminalRemoteOverlay.isHoveringSame(id)
+                && !syncedBase.equals(TerminalRemoteOverlay.baseOrder)) {
+                // 同步期间排序被周期刷新更新：基于新快照补一轮缺失内容
+                TerminalRemoteOverlay.syncFullContents(id, false);
+                return;
+            }
+            TerminalRemoteOverlay.applyClientFilter();
+        }));
+    }
+
+    /**
+     * 在客户端按本地化显示名与 id path 二次过滤（与 StorageScreen.applySearchFilter 一致）：
+     * 仅保留显示名或 id path 包含搜索词的槽位，保持服务端排序的相对顺序。
+     */
+    private static void applyClientFilter() {
+        String plain = TerminalRemoteOverlay.search.strip().toLowerCase(Locale.ROOT);
+        IntArrayList filtered = new IntArrayList(TerminalRemoteOverlay.baseOrder.size());
+        for (int i = 0; i < TerminalRemoteOverlay.baseOrder.size(); i++) {
+            int slot = TerminalRemoteOverlay.baseOrder.getInt(i);
+            UnlimitedItemStack stack = TerminalRemoteOverlay.CONTENTS.get(slot);
+            if (stack == null || stack.isEmpty()) {
+                continue;
+            }
+            ItemStack itemStack = stack.toStack();
+            String name = itemStack.getHoverName().getString().toLowerCase(Locale.ROOT);
+            String idPath = BuiltInRegistries.ITEM.getKey(itemStack.getItem()).getPath().toLowerCase(Locale.ROOT);
+            if (name.contains(plain) || idPath.contains(plain)) {
+                filtered.add(slot);
+            }
+        }
+        TerminalRemoteOverlay.order = filtered;
+        // 仅在选择有效时收紧到新排序范围；-1（未选择）保持不变
+        if (TerminalRemoteOverlay.cursor >= 0) {
+            TerminalRemoteOverlay.cursor = Mth.clamp(
+                TerminalRemoteOverlay.cursor,
+                0,
+                Math.max(0, TerminalRemoteOverlay.order.size() - 1)
+            );
+        }
+        TerminalRemoteOverlay.syncVisible();
+    }
+
+    /** 是否普通文本搜索（非空且不以 @ / # 开头）；此时服务端不过滤，需客户端二次过滤。 */
+    private static boolean isPlainTextSearch(String search) {
+        String stripped = search.strip();
+        return !stripped.isEmpty() && stripped.charAt(0) != '@' && stripped.charAt(0) != '#';
+    }
+
+    /**
+     * 内容缓存与最新全量排序对齐：移除已不在 {@code baseOrder} 中的槽位，
+     * 保留交集（排序局部变动时全量缓存可复用，只补缺失槽）。
+     */
+    private static void trimContentCache() {
+        if (TerminalRemoteOverlay.CONTENTS.isEmpty()) {
+            return;
+        }
+        IntOpenHashSet keep = new IntOpenHashSet(TerminalRemoteOverlay.baseOrder.size());
+        for (int i = 0; i < TerminalRemoteOverlay.baseOrder.size(); i++) {
+            keep.add(TerminalRemoteOverlay.baseOrder.getInt(i));
+        }
+        if (keep.size() == TerminalRemoteOverlay.CONTENTS.size()) {
+            // 槽位数量相同且无重复（baseOrder 无重复）：无需裁剪
+            boolean allKept = true;
+            for (int slot : TerminalRemoteOverlay.CONTENTS.keySet()) {
+                if (!keep.contains(slot)) {
+                    allKept = false;
+                    break;
+                }
+            }
+            if (allKept) {
+                return;
+            }
+        }
+        TerminalRemoteOverlay.CONTENTS.keySet().removeIf(slot -> !keep.contains(slot));
+        TerminalRemoteOverlay.COUNTS.keySet().removeIf(slot -> !keep.contains(slot));
     }
 
     private static void reorder() {
@@ -450,8 +612,12 @@ public final class TerminalRemoteOverlay {
         }
         IntList slots = TerminalRemoteOverlay.getVisibleSlots();
         if (slots.isEmpty()) {
-            TerminalRemoteOverlay.CONTENTS.clear();
-            TerminalRemoteOverlay.COUNTS.clear();
+            // 展示为空：普通文本搜索时可能只是过滤结果为空，全量内容缓存仍需保留
+            // （换搜索词直接复用）；仅非搜索（服务端结果即空）时清空缓存。
+            if (!TerminalRemoteOverlay.isPlainTextSearch(TerminalRemoteOverlay.search)) {
+                TerminalRemoteOverlay.CONTENTS.clear();
+                TerminalRemoteOverlay.COUNTS.clear();
+            }
             return;
         }
         // 通过 ensureVirtualPos 获取虚拟位置（缓存或触发 openRemote），不依赖独立字段
@@ -660,6 +826,8 @@ public final class TerminalRemoteOverlay {
         TerminalRemoteOverlay.search = "";
         TerminalRemoteOverlay.searchBox = null;
         TerminalRemoteOverlay.order = new IntArrayList();
+        TerminalRemoteOverlay.baseOrder = new IntArrayList();
+        TerminalRemoteOverlay.fullSyncing = false;
         TerminalRemoteOverlay.CONTENTS.clear();
         TerminalRemoteOverlay.COUNTS.clear();
         TerminalRemoteOverlay.cursor = -1;
