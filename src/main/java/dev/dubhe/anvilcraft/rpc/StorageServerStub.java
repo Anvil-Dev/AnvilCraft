@@ -2484,7 +2484,7 @@ public final class StorageServerStub {
     }
 
     private static void pushUndo(StorageServerStub stub, Map<ItemStack, Integer> moved) {
-        stub.undoRecords.addFirst(new UndoRecord(moved));
+        stub.undoRecords.addFirst(new UndoRecord(new HashMap<>(moved)));
         while (stub.undoRecords.size() > StorageServerStub.MAX_UNDO_RECORDS) {
             stub.undoRecords.removeLast();
         }

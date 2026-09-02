@@ -1371,6 +1371,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     this.interactWithStorage(slot, button, StorageInput.QUICK_MOVE_TO_STORAGE);
                 } else if (this.carried.isEmpty()) {
                     this.quickMoveDragging = true;
+
                     StorageClientStub.beginUndoGroup(this.sourcePos);
                     this.queueQuickMove(slot);
                 } else {
@@ -1495,21 +1496,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         if (this.quickMoveDragging) {
             if (button == 0 && Screen.hasShiftDown()) {
-                Integer storageSlot = this.getStorageSlot(mouseX, mouseY);
-                if (storageSlot != null) {
-                    int key = -1 - storageSlot;
-                    if (!this.quickMoveSlots.add(key)) {
-                        this.quickMoveSlots.remove(key);
-                        this.storageQuickMoveSlots.remove(storageSlot);
-                        this.pendingQuickMoveSlots.remove(storageSlot);
-                    }
-                    this.queueQuickMove(key);
-                    return true;
-                }
-                int inventorySlot = this.getInventorySlot(mouseX, mouseY);
-                if (inventorySlot != -1) {
-                    this.queueQuickMove(inventorySlot);
-                }
+                this.quickMoveDrag(mouseX, mouseY);
             }
             return true;
         }
@@ -1551,6 +1538,34 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         return true;
     }
 
+    /**
+     * Handles a shift+left-drag frame for quick-moving items into/out of storage.
+     * Called from {@code mouseDragged} and from the high-priority screen drag event
+     * listener so Mouse Tweaks never gets a chance to intercept the drag.
+     */
+    public boolean isQuickMoveDragging() {
+        return this.quickMoveDragging;
+    }
+
+    public void quickMoveDrag(double mouseX, double mouseY) {
+        Integer storageSlot = this.getStorageSlot(mouseX, mouseY);
+        if (storageSlot != null) {
+            int key = -1 - storageSlot;
+            if (this.quickMoveSlots.add(key)) {
+                this.storageQuickMoveSlots.add(storageSlot);
+            } else {
+                this.quickMoveSlots.remove(key);
+                this.storageQuickMoveSlots.remove(storageSlot);
+                this.pendingQuickMoveSlots.remove(storageSlot);
+            }
+            return;
+        }
+        int inventorySlot = this.getInventorySlot(mouseX, mouseY);
+        if (inventorySlot != -1) {
+            this.queueQuickMove(inventorySlot);
+        }
+    }
+
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         this.dispatchMouseReleased(mouseX, mouseY, button);
@@ -1566,6 +1581,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.quickMoveDragging = false;
             this.recordQuickMoveMovedFromSelection();
             this.quickMoveSlots.clear();
+
             this.flushQuickMoves();
             StorageClientStub.endUndoGroup(this.sourcePos);
             return true;
@@ -1727,6 +1743,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         IntList slots = new IntArrayList(this.pendingQuickMoveSlots);
         this.pendingQuickMoveSlots.clear();
         if (!slots.isEmpty()) {
+
             StorageClientStub.quickMoveToStorage(this.sourcePos, slots).whenCompleteAsync(
                 (moved, error) -> {
                     if (error != null) {
@@ -1804,8 +1821,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void undoLastMove() {
+
         StorageClientStub.undo(this.sourcePos).whenCompleteAsync(
             (result, error) -> {
+
                 if (error != null || !result.changed()) {
                     return;
                 }

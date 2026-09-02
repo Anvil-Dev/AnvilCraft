@@ -25,6 +25,7 @@ import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
 import dev.dubhe.anvilcraft.util.BlockHighlightUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -32,6 +33,7 @@ import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
@@ -363,6 +365,24 @@ public class ClientEventListener {
      * vanilla 只做本地预测（不发包），服务端无法执行 TerminalItem 的存储操作，
      * 这里直接走 RPC：空槽+右键取出存储第一物品放槽，有物品+左键把槽内物品放入存储。
      */
+    /**
+     * Prevents Mouse Tweaks from intercepting shift+left-drag quick-move in StorageScreen.
+     * Mouse Tweaks listens on {@code ScreenEvent.MouseDragged.Pre} at default priority and issues
+     * a vanilla QUICK_MOVE for every hovered inventory slot. Handling the event at HIGHEST priority
+     * and cancelling it lets StorageScreen's own quick-move-to-storage logic take over.
+     */
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onScreenMouseDraggedStorage(ScreenEvent.MouseDragged.Pre event) {
+        if (!(event.getScreen() instanceof StorageScreen storageScreen)) {
+            return;
+        }
+        if (!storageScreen.isQuickMoveDragging() || event.getMouseButton() != 0 || !Screen.hasShiftDown()) {
+            return;
+        }
+        storageScreen.quickMoveDrag(event.getMouseX(), event.getMouseY());
+        event.setCanceled(true);
+    }
+
     private static void handleCreativeBundleHover(
         CreativeModeInventoryScreen creative,
         AbstractContainerScreen<?> screen,
