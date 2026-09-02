@@ -5,6 +5,7 @@ import dev.anvilcraft.lib.v2.util.stack.UnlimitedItemStack;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
+import dev.dubhe.anvilcraft.block.VoidMatterBlock;
 import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
@@ -18,6 +19,8 @@ import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
 import dev.dubhe.anvilcraft.saved.storage.LargeCrateStorage;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -32,6 +35,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.neoforged.api.distmarker.Dist;
@@ -45,13 +50,72 @@ import java.util.UUID;
 import javax.annotation.Nullable;
 
 public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
+    /** 溢出销毁状态：相邻存在虚空物质块时置为 true，超出上限的输入被直接销毁 */
+    public static final BooleanProperty DISPOSE = BooleanProperty.create("dispose");
+
     public CrateBlock(Properties properties) {
         super(properties);
+        this.registerDefaultState(this.stateDefinition.any().setValue(CrateBlock.DISPOSE, false));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        builder.add(CrateBlock.DISPOSE);
+    }
+
+    /**
+     * 判断该板条箱位置是否相邻任意虚空物质块。
+     *
+     * <p>仅普通虚空物质块（{@link VoidMatterBlock}）触发销毁模式；激发态虚空物质
+     * （{@code ExcitedStateVoidMatterBlock}）不触发，属有意设计（激发态不稳定，
+     * 会随机衰变并连带使相邻普通虚空物质衰变，无法作为稳定的销毁源）。</p>
+     *
+     * <p>按 6 向（上下左右前后，不含斜角）判定，与虚空物质自身的邻接判定
+     * （{@code VoidMatterBlock} 随机刻衰变、激发态衰变链均遍历 6 向）保持一致。</p>
+     *
+     * @param level 世界
+     * @param pos   板条箱位置
+     * @return 相邻存在普通虚空物质块时为 true
+     */
+    public static boolean hasAdjacentVoidMatter(LevelReader level, BlockPos pos) {
+        for (Direction direction : Direction.values()) {
+            if (level.getBlockState(pos.relative(direction)).getBlock() instanceof VoidMatterBlock) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 把该位置的板条箱状态按相邻虚空物质块同步为 dispose 开 / 关（值未变化时不动作）。
+     */
+    public static void updateDisposeState(Level level, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        if (!(state.getBlock() instanceof CrateBlock) || level.isClientSide()) {
+            return;
+        }
+        boolean dispose = CrateBlock.hasAdjacentVoidMatter(level, pos);
+        if (state.getValue(CrateBlock.DISPOSE) != dispose) {
+            level.setBlock(pos, state.setValue(CrateBlock.DISPOSE, dispose), Block.UPDATE_CLIENTS);
+            // 方块状态变化不触发方块实体回调，这里直接同步存储的销毁标记
+            if (level.getBlockEntity(pos) instanceof CrateBlockEntity crate) {
+                crate.refreshDispose();
+            }
+        }
     }
 
     @Override
     public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
         return ModBlockEntities.CRATE.create(pos, state);
+    }
+
+    /**
+     * 按 dispose 状态返回板条箱显示名：溢出销毁模式显示「溢出销毁板条箱」。
+     */
+    public static Component displayName(BlockState state) {
+        return state.getValue(CrateBlock.DISPOSE)
+            ? Component.translatable("block.anvilcraft.overflow_disposal_crate")
+            : state.getBlock().getName();
     }
 
     public static List<CrateBlockEntity> getNearbyCrates(Level level, BlockPos sourcePos) {
@@ -81,6 +145,36 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
         }
 
         super.onRemove(state, level, pos, newState, movedByPiston);
+        if (!level.isClientSide() && !(newState.getBlock() instanceof CrateBlock)) {
+            // 板条箱被移除后，相邻板条箱可能不再紧邻虚空物质，需要重新计算 dispose 状态
+            for (Direction direction : Direction.values()) {
+                BlockPos neighborPos = pos.relative(direction);
+                if (level.getBlockState(neighborPos).getBlock() instanceof CrateBlock) {
+                    CrateBlock.updateDisposeState(level, neighborPos);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void neighborChanged(
+        BlockState state,
+        Level level,
+        BlockPos pos,
+        Block neighborBlock,
+        BlockPos neighborPos,
+        boolean movedByPiston
+    ) {
+        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
+        CrateBlock.updateDisposeState(level, pos);
+    }
+
+    @Override
+    protected void onPlace(BlockState state, Level level, BlockPos pos, BlockState oldState, boolean movedByPiston) {
+        super.onPlace(state, level, pos, oldState, movedByPiston);
+        if (!level.isClientSide()) {
+            CrateBlock.updateDisposeState(level, pos);
+        }
     }
 
     @Override
@@ -104,7 +198,8 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
                 return ItemInteractionResult.sidedSuccess(false);
             } else if (level.isClientSide()) {
                 level.playSound(player, pos, SoundEvents.BARREL_OPEN, SoundSource.BLOCKS, 1.0F, 1.0F);
-                DistExecutor.run(Dist.CLIENT, () -> () -> StorageScreen.openScreen(entity.getBlockPos()));
+                Component title = CrateBlock.displayName(state);
+                DistExecutor.run(Dist.CLIENT, () -> () -> StorageScreen.openScreen(entity.getBlockPos(), title));
                 return ItemInteractionResult.sidedSuccess(true);
             }
         }

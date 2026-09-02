@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.block.entity.FeCollectorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.LargeCauldronBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PowerConverterBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -284,6 +285,12 @@ public class CapabilitiesEventListener {
             id = UUID.randomUUID();
             be.setId(id);
         }
-        return Storages.get().getOrCreate(id, be.getStorageType().clazz()).getItems();
+        IItemHandler handler = Storages.get().getOrCreate(id, be.getStorageType().clazz()).getItems();
+        // 板条箱的溢出销毁模式由存储处理器自身的 dispose 标记控制，
+        // 存储刚创建时标记尚未同步，这里按当前方块状态刷新后再返回
+        if (be instanceof CrateBlockEntity crate) {
+            crate.refreshDispose();
+        }
+        return handler;
     }
 }
