@@ -515,6 +515,10 @@ public final class TerminalRemoteOverlay {
             // 已有一个全量同步在进行：记录需要基于最新 baseOrder 再补一轮（若期间
             // 排序/搜索词已变化，其回调会用最新状态补同步并过滤），等它结束。
             TerminalRemoteOverlay.fullSyncReplan = true;
+            // orderChanged 时上方已裁剪内容缓存，而展示排序 order 仍指向旧快照
+            // （收尾才会切到过滤结果）：立即补拉当前可见页，避免当前批较久时
+            // （页预算暂停 / 多页往返）浮窗停留在指向已裁剪槽位的空白页。
+            TerminalRemoteOverlay.syncVisible();
             return;
         }
         // 找出尚未缓存的槽位，分页请求内容
