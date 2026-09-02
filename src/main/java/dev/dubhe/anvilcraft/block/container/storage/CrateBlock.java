@@ -70,6 +70,9 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
      * （{@code ExcitedStateVoidMatterBlock}）不触发，属有意设计（激发态不稳定，
      * 会随机衰变并连带使相邻普通虚空物质衰变，无法作为稳定的销毁源）。</p>
      *
+     * <p>按 6 向（上下左右前后，不含斜角）判定，与虚空物质自身的邻接判定
+     * （{@code VoidMatterBlock} 随机刻衰变、激发态衰变链均遍历 6 向）保持一致。</p>
+     *
      * @param level 世界
      * @param pos   板条箱位置
      * @return 相邻存在普通虚空物质块时为 true

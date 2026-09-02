@@ -23,19 +23,27 @@ public class CrateBlockEntity extends StorageBlockEntity {
     public void onLoad() {
         super.onLoad();
         if (!Objects.requireNonNull(this.level).isClientSide() && this.getBlockState().getBlock() instanceof CrateBlock) {
-            // 世界 / 区块加载时先按当前相邻虚空物质重算 dispose 状态，
-            // 再无条件把（可能未变化）状态同步进存储处理器，防止新加载的
-            // 处理器残留默认的 dispose=false
-            CrateBlock.updateDisposeState(this.level, this.getBlockPos());
+            // 世界 / 区块加载时按当前相邻虚空物质重算并同步 dispose，
+            // 防止存档中残留的旧状态在加载后与实际摆放不一致
             this.refreshDispose();
         }
     }
 
     /**
-     * 方块状态（dispose）变化后调用，把状态同步到存储处理器，
-     * 使 GUI / RPC / 管道各插入路径都按当前模式处理溢出物品。
+     * 按当前相邻虚空物质重算 dispose 方块状态（幂等，状态变化时内部会再次调用本方法），
+     * 再把状态同步到存储处理器，使 GUI / RPC / 管道各插入路径都按当前模式处理溢出物品。
+     *
+     * <p>各外部入口（能力查询、存储端口、RPC getView）在拿到 handler 前必须调用本方法；
+     * 先重算再同步可避免 blockstate 陈旧（如新放置的存储尚未经块事件同步）时
+     * 把旧 dispose 值写进处理器。</p>
      */
     public void refreshDispose() {
+        if (this.level == null || this.level.isClientSide()) {
+            return;
+        }
+        if (this.getBlockState().getBlock() instanceof CrateBlock) {
+            CrateBlock.updateDisposeState(this.level, this.getBlockPos());
+        }
         this.syncDispose();
     }
 

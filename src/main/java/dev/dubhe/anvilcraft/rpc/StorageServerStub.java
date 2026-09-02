@@ -3705,9 +3705,13 @@ public final class StorageServerStub {
         }
         List<BaseStorage<?>> storages = new ArrayList<>();
         for (CrateBlockEntity crate : CrateBlock.getNearbyCrates(player.level(), pos)) {
-            crate.refreshDispose();
             if (crate.getId() != null) {
-                Storages.get().get(crate.getId()).ifPresent(storages::add);
+                Storages.get().get(crate.getId()).ifPresent(stored -> {
+                    // 邻居板条箱并入搜索视图：其存储若已存在，插入会落到该 handler，
+                    // 这里顺带同步 dispose（storage 未创建则不加入视图，无需刷新）
+                    crate.refreshDispose();
+                    storages.add(stored);
+                });
             }
         }
         return new StorageView(storages, List.of());
