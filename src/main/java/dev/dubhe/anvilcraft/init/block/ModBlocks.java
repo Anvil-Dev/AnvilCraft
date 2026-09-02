@@ -1730,7 +1730,8 @@ public class ModBlocks {
         .loot(HyperdimensionStorageStationBlock::loot)
         .properties(properties -> properties
             .noOcclusion()
-            .lightLevel(state -> 8)
+            .lightLevel(HyperdimensionStorageStationBlock::getLightLevel)
+            .emissiveRendering(ModBlocks::always)
             .explosionResistance(1200)
             .isValidSpawn(ModBlocks::never)
             .requiresCorrectToolForDrops()
@@ -1742,6 +1743,7 @@ public class ModBlocks {
             .component(ModComponents.STORAGE, StorageRef.hyperdimension())
         )
         .tag(ModItemTags.EXPLOSION_PROOF)
+        .model(DataGenUtil::noExtraModelOrState)
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
         .tag(ModBlockTags.NEEDS_EMBER_TOOL, BlockTags.MINEABLE_WITH_PICKAXE)
@@ -1753,6 +1755,7 @@ public class ModBlocks {
         .properties(properties -> properties
             .noOcclusion()
             .lightLevel(state -> 8)
+            .emissiveRendering(ModBlocks::always)
             .explosionResistance(1200)
             .isValidSpawn(ModBlocks::never)
             .requiresCorrectToolForDrops())

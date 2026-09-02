@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.block;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.api.block.ITranscendiumBlock;
 import dev.dubhe.anvilcraft.block.entity.HyperdimensionUploaderBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -36,7 +37,7 @@ import java.util.List;
  *
  * <p>防炸（爆炸抗性 1200 与防爆标签）、防凋零、防龙。</p>
  */
-public class HyperdimensionUploaderBlock extends BaseEntityBlock {
+public class HyperdimensionUploaderBlock extends BaseEntityBlock implements ITranscendiumBlock {
     public HyperdimensionUploaderBlock(Properties properties) {
         super(properties);
     }
