@@ -446,8 +446,10 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         if (evolutionState.isComplete() && !evolutionState.terminalApplied()) {
             completeEvolution(be);
         }
-        boolean phaseChanged = evolutionState.update(gameTime, evolutionTrack);
-        if (phaseChanged || gameTime % 20L == 0L) syncToClient(be);
+        else {
+            boolean phaseChanged = evolutionState.update(gameTime, evolutionTrack);
+            if (phaseChanged || gameTime % 20L == 0L) syncToClient(be);
+        }
     }
 
     @Override
