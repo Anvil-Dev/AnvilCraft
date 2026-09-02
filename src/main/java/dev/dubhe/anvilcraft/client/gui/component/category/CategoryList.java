@@ -192,8 +192,7 @@ public class CategoryList extends AbstractWidget {
         if (this.canScroll()) {
             int top = this.getY();
             int bottom = top + this.getHeight();
-            int scrollable = Math.max(0, this.size() - this.info.buttons());
-            int offs = scrollable == 0 ? 0 : Math.round((float) (bottom - top - 10) * this.head / scrollable);
+            int offs = Math.round((float) (bottom - top - 10) * this.scrollable.getScrollOffs());
             graphics.blit(
                 CategoryList.SLIDER,
                 this.getX() + 88,
