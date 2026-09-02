@@ -17,6 +17,7 @@ public class JadeLang {
         provider.add("config.jade.plugin_anvilcraft.auto_enchanting_table_provider", "Auto Enchanting Progress");
         provider.add("config.jade.plugin_anvilcraft.wip_block", "Processing Block");
         provider.add("config.jade.plugin_anvilcraft.creative_crate", "Creative Crate");
+        provider.add("config.jade.plugin_anvilcraft.crate", "Crate");
         provider.add("config.jade.plugin_anvilcraft.creative_fluid_tank", "Creative Fluid Tank");
         provider.add("config.jade.plugin_anvilcraft.large_laser", "Large Laser");
         provider.add("config.jade.plugin_anvilcraft.load_monitor", "Load Monitor");

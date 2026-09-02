@@ -3697,6 +3697,12 @@ public final class StorageServerStub {
             storage.setId(id);
         }
         BaseStorage<?> primary = Storages.get().getOrCreate(id, storage.getStorageType().clazz());
+        // 板条箱：先把 dispose 方块状态同步到存储处理器，保证 GUI / RPC 插入
+        // 与方块状态一致（相邻虚空物质时溢出部分被销毁）；需在 getOrCreate 之后，
+        // 首次创建的存储处理器默认 dispose=false
+        if (storage instanceof CrateBlockEntity crate) {
+            crate.refreshDispose();
+        }
         String search = PlayerSettings.getSetting(registries, playerId).storage().getSearchContent().strip();
         if (search.isEmpty() || !(storage instanceof CrateBlockEntity)) {
             return new StorageView(List.of(primary), List.of());
@@ -3704,7 +3710,12 @@ public final class StorageServerStub {
         List<BaseStorage<?>> storages = new ArrayList<>();
         for (CrateBlockEntity crate : CrateBlock.getNearbyCrates(player.level(), pos)) {
             if (crate.getId() != null) {
-                Storages.get().get(crate.getId()).ifPresent(storages::add);
+                Storages.get().get(crate.getId()).ifPresent(stored -> {
+                    // 邻居板条箱并入搜索视图：其存储若已存在，插入会落到该 handler，
+                    // 这里顺带同步 dispose（storage 未创建则不加入视图，无需刷新）
+                    crate.refreshDispose();
+                    storages.add(stored);
+                });
             }
         }
         return new StorageView(storages, List.of());
