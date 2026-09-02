@@ -443,7 +443,7 @@ public class ClientEventListener {
 
     /**
      * 根据 GUI 坐标在容器菜单槽位中查找鼠标悬停的槽位，复刻
-     * {@link AbstractContainerScreen#isHovering} 的判定，不依赖渲染帧的 hoveredSlot。
+     * AbstractContainerScreen.isHovering 的判定，不依赖渲染帧的 hoveredSlot。
      */
     private static @Nullable Slot findSlotAt(AbstractContainerScreen<?> screen, double mouseX, double mouseY) {
         double x = mouseX - screen.getGuiLeft();
