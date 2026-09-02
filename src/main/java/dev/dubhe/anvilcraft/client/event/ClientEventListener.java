@@ -30,6 +30,8 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
@@ -415,6 +417,7 @@ public class ClientEventListener {
                     }
                     slot.set(result.carried());
                     screen.getMenu().broadcastChanges();
+                    ClientEventListener.playTerminalSound(carried, true);
                 })
             );
         } else {
@@ -429,9 +432,29 @@ public class ClientEventListener {
                     }
                     slot.set(remain);
                     screen.getMenu().broadcastChanges();
+                    ClientEventListener.playTerminalSound(carried, false);
                 })
             );
         }
+    }
+
+    /**
+     * 按终端类型播放与生存模式一致的音效：超维→传送、潜影→潜影盒开/关、其他→收纳袋。
+     */
+    private static void playTerminalSound(ItemStack terminal, boolean remove) {
+        var player = Minecraft.getInstance().player;
+        if (player == null) {
+            return;
+        }
+        SoundEvent sound;
+        if (terminal.is(ModItems.HYPERDIMENSION_TERMINAL)) {
+            sound = SoundEvents.ENDERMAN_TELEPORT;
+        } else if (terminal.is(ModItems.SHULKER_TERMINAL)) {
+            sound = remove ? SoundEvents.SHULKER_BOX_OPEN : SoundEvents.SHULKER_BOX_CLOSE;
+        } else {
+            sound = remove ? SoundEvents.BUNDLE_REMOVE_ONE : SoundEvents.BUNDLE_INSERT;
+        }
+        player.playSound(sound, 0.8F, 0.8F + player.getRandom().nextFloat() * 0.4F);
     }
 
     /** BundleLike 按键判定：取出用右键（inverted 时左键），放入用左键（inverted 时右键）。 */
