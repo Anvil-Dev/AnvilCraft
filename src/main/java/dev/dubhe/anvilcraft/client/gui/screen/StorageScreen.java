@@ -175,6 +175,34 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private long version = -1;
     private long orderVersion = -1;
     private int scrollRow;
+    /** 存储列表滚动（与分类栏/配方滑条一致的连续 0..1 偏移）。 */
+    private final Scrollable storageScrollable = new Scrollable() {
+        @Override
+        public int row() {
+            return StorageScreen.STORAGE_ROWS;
+        }
+
+        @Override
+        public int column() {
+            return StorageScreen.STORAGE_COLUMNS;
+        }
+
+        @Override
+        public int size() {
+            return StorageScreen.this.displayOrder.size();
+        }
+
+        @Override
+        public void setHead(int head) {
+            int next = Mth.clamp(head / StorageScreen.STORAGE_COLUMNS, 0, StorageScreen.this.getMaxScrollRow());
+            if (next != StorageScreen.this.scrollRow) {
+                StorageScreen.this.scrollRow = next;
+                if (!StorageScreen.this.nbtFolded) {
+                    StorageScreen.this.syncVisible();
+                }
+            }
+        }
+    };
     private boolean draggingSlider;
     private int reorderRequest;
     private int syncRequest;
@@ -741,13 +769,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void renderStorageSlider(GuiGraphics graphics) {
-        int maxScrollRow = this.getMaxScrollRow();
-        int sliderOffset = maxScrollRow == 0
-            ? 0
-            : Math.round(
-                (StorageScreen.SLIDER_TRACK_HEIGHT - StorageScreen.SLIDER_HEIGHT)
-                    * (float) this.scrollRow / maxScrollRow
-            );
+        int sliderOffset = Math.round(
+            (StorageScreen.SLIDER_TRACK_HEIGHT - StorageScreen.SLIDER_HEIGHT)
+                * this.storageScrollable.getScrollOffs()
+        );
         graphics.blit(
             StorageScreen.SLIDER,
             this.leftPos + StorageScreen.SLIDER_X,
@@ -793,18 +818,14 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         );
     }
 
-    /** 按鼠标纵坐标把滚动条定位到对应行，并刷新可视内容。 */
+    /** 按鼠标纵坐标定位存储滚动（连续偏移），并刷新可视内容。 */
     private void scrollSliderTo(double mouseY) {
-        float trackTop = (float) (this.topPos + StorageScreen.SLIDER_Y);
-        float usable = StorageScreen.SLIDER_TRACK_HEIGHT - StorageScreen.SLIDER_HEIGHT;
-        float fraction = Mth.clamp((float) (mouseY - trackTop - StorageScreen.SLIDER_HEIGHT / 2.0F) / usable, 0.0F, 1.0F);
-        int next = Math.round(fraction * this.getMaxScrollRow());
-        if (next != this.scrollRow) {
-            this.scrollRow = next;
-            if (!this.nbtFolded) {
-                this.syncVisible();
-            }
-        }
+        this.storageScrollable.scrollOnDrag(
+            StorageScreen.SLIDER_HEIGHT,
+            mouseY,
+            this.topPos + StorageScreen.SLIDER_Y,
+            this.topPos + StorageScreen.SLIDER_Y + StorageScreen.SLIDER_TRACK_HEIGHT
+        );
     }
 
     /** 渲染合成面板：① 切石机输入、② 合成 9 宫格、③④ 结果槽、切石机配方选择。 */
@@ -2277,16 +2298,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             return this.dispatchMouseScrolled(mouseX, mouseY, scrollX, scrollY);
         }
 
-        int nextScrollRow = Mth.clamp(
-            this.scrollRow + (scrollY > 0 ? -1 : 1),
-            0,
-            this.getMaxScrollRow()
-        );
-        if (nextScrollRow != this.scrollRow) {
-            this.scrollRow = nextScrollRow;
-            if (!this.nbtFolded) {
-                this.syncVisible();
-            }
+        if (this.storageScrollable.canScroll()) {
+            this.storageScrollable.scrollOnScroll(scrollY / 1.2);
         }
         return true;
     }
@@ -2652,6 +2665,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         int request = ++this.reorderRequest;
         if (resetScroll) {
             this.scrollRow = 0;
+            this.storageScrollable.reset();
         }
         StorageClientStub.reorder(this.sourcePos).whenCompleteAsync(
             (updatedOrder, error) -> {
@@ -2693,6 +2707,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 this.resetServerSlots(reordered);
                 this.rebuildDisplayOrder(foldNbt);
                 this.scrollRow = Mth.clamp(reorderedScrollRow, 0, this.getMaxScrollRow());
+                this.storageScrollable.calculateScroll(this.scrollRow);
                 this.finishInteractionSync();
             },
             this.screenExecutor
@@ -2722,6 +2737,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     if (foldNbt) {
                         this.rebuildFoldedDisplay(true);
                         this.scrollRow = Mth.clamp(this.scrollRow, 0, this.getMaxScrollRow());
+                        this.storageScrollable.calculateScroll(this.scrollRow);
                     }
                 } else {
                     this.reorder(false);
@@ -2779,6 +2795,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                                 }
                                 this.orderVersion = this.version;
                                 this.scrollRow = Mth.clamp(this.scrollRow, 0, this.getMaxScrollRow());
+                                this.storageScrollable.calculateScroll(this.scrollRow);
                                 this.finishInteractionSync();
                             },
                             this.screenExecutor

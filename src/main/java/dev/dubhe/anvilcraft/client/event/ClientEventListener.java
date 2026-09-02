@@ -363,11 +363,6 @@ public class ClientEventListener {
     }
 
     /**
-     * 创造背包 INVENTORY 标签页的 BUNDLE_HOVER_ITEM（捏着终端点击背包槽）：
-     * vanilla 只做本地预测（不发包），服务端无法执行 TerminalItem 的存储操作，
-     * 这里直接走 RPC：空槽+右键取出存储第一物品放槽，有物品+左键把槽内物品放入存储。
-     */
-    /**
      * Prevents Mouse Tweaks from intercepting shift+left-drag quick-move in StorageScreen.
      * Mouse Tweaks listens on {@code ScreenEvent.MouseDragged.Pre} at default priority and issues
      * a vanilla QUICK_MOVE for every hovered inventory slot. Handling the event at HIGHEST priority
