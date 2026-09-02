@@ -34,7 +34,18 @@ public class OverflowDisposalItemStacksResourceHandler extends SpaceSizeItemStac
             // 无效增长槽：与基类约定一致原样返回，避免 ItemHandlerHelper 类遍历无限增长
             return stack;
         }
-        super.insertItem(slot, stack, simulate);
+        ItemStack leftover = super.insertItem(slot, stack, simulate);
+        if (leftover.getCount() == stack.getCount() && slot < this.stacks.size()
+            && !this.stacks.get(slot).isEmpty()
+            && !this.stacks.get(slot).isSameItemSameComponents(stack)) {
+            // 槽内已被其它类型占用：基类原样拒绝，但这不是溢出——板条箱为稀疏存储
+            // （每类型一槽），该类型仍可存入其它槽或作为新类型追加。改走无槽插入
+            // 跨槽合并 / 新增类型，剩余部分才按 dispose 语义销毁。
+            // 基类无槽遍历只对空槽 / 同类型槽调用槽位版，不会再次进入本分支，无递归。
+            return this.insertItem(stack, simulate);
+        }
+        // 有实际插入（剩余即空间不足的溢出部分）或箱子空间已满完全拒绝：
+        // 均为 dispose 语义下的溢出，剩余部分直接销毁
         return ItemStack.EMPTY;
     }
 

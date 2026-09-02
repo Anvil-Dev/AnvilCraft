@@ -665,7 +665,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             return;
         }
         Component displayName = CrateBlock.displayName(state);
-        if (displayName.getString().equals(this.title.getString())) {
+        // MutableComponent 未按内容重写 equals（引用比较），改比较 contents
+        // （TranslatableContents 等为 record，按 key/参数做内容相等），避免每 tick 本地化格式化
+        if (this.title.getContents().equals(displayName.getContents())) {
             return;
         }
         this.title = displayName;

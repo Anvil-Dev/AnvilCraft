@@ -66,6 +66,10 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
     /**
      * 判断该板条箱位置是否相邻任意虚空物质块。
      *
+     * <p>仅普通虚空物质块（{@link VoidMatterBlock}）触发销毁模式；激发态虚空物质
+     * （{@code ExcitedStateVoidMatterBlock}）不触发，属有意设计（激发态不稳定，
+     * 会随机衰变并连带使相邻普通虚空物质衰变，无法作为稳定的销毁源）。</p>
+     *
      * @param level 世界
      * @param pos   板条箱位置
      * @return 相邻存在普通虚空物质块时为 true
