@@ -175,6 +175,34 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private long version = -1;
     private long orderVersion = -1;
     private int scrollRow;
+    /** 存储列表滚动（与分类栏/配方滑条一致的连续 0..1 偏移）。 */
+    private final Scrollable storageScrollable = new Scrollable() {
+        @Override
+        public int row() {
+            return StorageScreen.STORAGE_ROWS;
+        }
+
+        @Override
+        public int column() {
+            return StorageScreen.STORAGE_COLUMNS;
+        }
+
+        @Override
+        public int size() {
+            return StorageScreen.this.displayOrder.size();
+        }
+
+        @Override
+        public void setHead(int head) {
+            int next = Mth.clamp(head / StorageScreen.STORAGE_COLUMNS, 0, StorageScreen.this.getMaxScrollRow());
+            if (next != StorageScreen.this.scrollRow) {
+                StorageScreen.this.scrollRow = next;
+                if (!StorageScreen.this.nbtFolded) {
+                    StorageScreen.this.syncVisible();
+                }
+            }
+        }
+    };
     private boolean draggingSlider;
     private int reorderRequest;
     private int syncRequest;
@@ -184,6 +212,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private boolean metadataPending;
     private boolean interactionPending;
     private boolean interactionSyncPending;
+    private boolean closed;
     private boolean nbtFolded;
     private boolean preservingOrder;
     private boolean remappedOrder;
@@ -740,13 +769,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void renderStorageSlider(GuiGraphics graphics) {
-        int maxScrollRow = this.getMaxScrollRow();
-        int sliderOffset = maxScrollRow == 0
-            ? 0
-            : Math.round(
-                (StorageScreen.SLIDER_TRACK_HEIGHT - StorageScreen.SLIDER_HEIGHT)
-                    * (float) this.scrollRow / maxScrollRow
-            );
+        int sliderOffset = Math.round(
+            (StorageScreen.SLIDER_TRACK_HEIGHT - StorageScreen.SLIDER_HEIGHT)
+                * this.storageScrollable.getScrollOffs()
+        );
         graphics.blit(
             StorageScreen.SLIDER,
             this.leftPos + StorageScreen.SLIDER_X,
@@ -792,18 +818,14 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         );
     }
 
-    /** 按鼠标纵坐标把滚动条定位到对应行，并刷新可视内容。 */
+    /** 按鼠标纵坐标定位存储滚动（连续偏移），并刷新可视内容。 */
     private void scrollSliderTo(double mouseY) {
-        float trackTop = (float) (this.topPos + StorageScreen.SLIDER_Y);
-        float usable = StorageScreen.SLIDER_TRACK_HEIGHT - StorageScreen.SLIDER_HEIGHT;
-        float fraction = Mth.clamp((float) (mouseY - trackTop - StorageScreen.SLIDER_HEIGHT / 2.0F) / usable, 0.0F, 1.0F);
-        int next = Math.round(fraction * this.getMaxScrollRow());
-        if (next != this.scrollRow) {
-            this.scrollRow = next;
-            if (!this.nbtFolded) {
-                this.syncVisible();
-            }
-        }
+        this.storageScrollable.scrollOnDrag(
+            StorageScreen.SLIDER_HEIGHT,
+            mouseY,
+            this.topPos + StorageScreen.SLIDER_Y,
+            this.topPos + StorageScreen.SLIDER_Y + StorageScreen.SLIDER_TRACK_HEIGHT
+        );
     }
 
     /** 渲染合成面板：① 切石机输入、② 合成 9 宫格、③④ 结果槽、切石机配方选择。 */
@@ -1371,6 +1393,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     this.interactWithStorage(slot, button, StorageInput.QUICK_MOVE_TO_STORAGE);
                 } else if (this.carried.isEmpty()) {
                     this.quickMoveDragging = true;
+
                     StorageClientStub.beginUndoGroup(this.sourcePos);
                     this.queueQuickMove(slot);
                 } else {
@@ -1495,21 +1518,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         if (this.quickMoveDragging) {
             if (button == 0 && Screen.hasShiftDown()) {
-                Integer storageSlot = this.getStorageSlot(mouseX, mouseY);
-                if (storageSlot != null) {
-                    int key = -1 - storageSlot;
-                    if (!this.quickMoveSlots.add(key)) {
-                        this.quickMoveSlots.remove(key);
-                        this.storageQuickMoveSlots.remove(storageSlot);
-                        this.pendingQuickMoveSlots.remove(storageSlot);
-                    }
-                    this.queueQuickMove(key);
-                    return true;
-                }
-                int inventorySlot = this.getInventorySlot(mouseX, mouseY);
-                if (inventorySlot != -1) {
-                    this.queueQuickMove(inventorySlot);
-                }
+                this.quickMoveDrag(mouseX, mouseY);
             }
             return true;
         }
@@ -1551,6 +1560,34 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         return true;
     }
 
+    /**
+     * Handles a shift+left-drag frame for quick-moving items into/out of storage.
+     * Called from {@code mouseDragged} and from the high-priority screen drag event
+     * listener so Mouse Tweaks never gets a chance to intercept the drag.
+     */
+    public boolean isQuickMoveDragging() {
+        return this.quickMoveDragging;
+    }
+
+    public void quickMoveDrag(double mouseX, double mouseY) {
+        Integer storageSlot = this.getStorageSlot(mouseX, mouseY);
+        if (storageSlot != null) {
+            int key = -1 - storageSlot;
+            if (this.quickMoveSlots.add(key)) {
+                this.storageQuickMoveSlots.add(storageSlot);
+            } else {
+                this.quickMoveSlots.remove(key);
+                this.storageQuickMoveSlots.remove(storageSlot);
+                this.pendingQuickMoveSlots.remove(storageSlot);
+            }
+            return;
+        }
+        int inventorySlot = this.getInventorySlot(mouseX, mouseY);
+        if (inventorySlot != -1) {
+            this.queueQuickMove(inventorySlot);
+        }
+    }
+
     @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         this.dispatchMouseReleased(mouseX, mouseY, button);
@@ -1566,6 +1603,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.quickMoveDragging = false;
             this.recordQuickMoveMovedFromSelection();
             this.quickMoveSlots.clear();
+
             this.flushQuickMoves();
             StorageClientStub.endUndoGroup(this.sourcePos);
             return true;
@@ -1727,6 +1765,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         IntList slots = new IntArrayList(this.pendingQuickMoveSlots);
         this.pendingQuickMoveSlots.clear();
         if (!slots.isEmpty()) {
+
             StorageClientStub.quickMoveToStorage(this.sourcePos, slots).whenCompleteAsync(
                 (moved, error) -> {
                     if (error != null) {
@@ -1804,8 +1843,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     private void undoLastMove() {
+
         StorageClientStub.undo(this.sourcePos).whenCompleteAsync(
             (result, error) -> {
+
                 if (error != null || !result.changed()) {
                     return;
                 }
@@ -1865,6 +1906,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 }
                 this.carried = result.carried();
                 this.player.inventoryMenu.setCarried(this.carried);
+                if (this.closed) {
+                    // 界面已关闭：把 RPC 返回的指针物品放回背包，避免鼠标上残留物品
+
+                    this.returnCarriedToInventory();
+                    return;
+                }
                 if (result.changed()) {
                     if (this.preservingOrder) {
                         this.interactionSyncPending = true;
@@ -1985,6 +2032,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 }
                 this.carried = result.carried();
                 this.player.inventoryMenu.setCarried(this.carried);
+                if (this.closed) {
+                    // 界面已关闭：把 RPC 返回的指针物品放回背包，避免鼠标上残留物品
+
+                    this.returnCarriedToInventory();
+                    return;
+                }
                 if (result.changed()) {
                     this.loadCrafting(false);
                 }
@@ -2010,6 +2063,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 }
                 this.carried = result.carried();
                 this.player.inventoryMenu.setCarried(this.carried);
+                if (this.closed) {
+                    // 界面已关闭：把 RPC 返回的指针物品放回背包，避免鼠标上残留物品
+
+                    this.returnCarriedToInventory();
+                    return;
+                }
                 if (result.changed()) {
                     this.loadCrafting(false);
                 }
@@ -2035,6 +2094,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 }
                 this.carried = result.carried();
                 this.player.inventoryMenu.setCarried(this.carried);
+                if (this.closed) {
+                    // 界面已关闭：把 RPC 返回的指针物品放回背包，避免鼠标上残留物品
+
+                    this.returnCarriedToInventory();
+                    return;
+                }
                 if (result.changed()) {
                     this.loadCrafting(false);
                 }
@@ -2098,6 +2163,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 }
                 this.carried = result.carried();
                 this.player.inventoryMenu.setCarried(this.carried);
+                if (this.closed) {
+                    // 界面已关闭：把 RPC 返回的指针物品放回背包，避免鼠标上残留物品
+
+                    this.returnCarriedToInventory();
+                    return;
+                }
                 if (result.changed()) {
                     this.loadCrafting(false);
                 }
@@ -2165,6 +2236,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 }
                 this.carried = result.carried();
                 this.player.inventoryMenu.setCarried(this.carried);
+                if (this.closed) {
+                    // 界面已关闭：把 RPC 返回的指针物品放回背包，避免鼠标上残留物品
+
+                    this.returnCarriedToInventory();
+                    return;
+                }
                 if (result.changed()) {
                     this.loadCrafting(false);
                 }
@@ -2191,7 +2268,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         // 悬停在切石机配方选择区：滚动配方列表
         if (this.mode == ScreenMode.CRAFTING && !this.stonecutterRecipes.isEmpty()) {
             int recipeRight = this.leftPos + StorageScreen.CRAFTING_RECIPE_X
-                + StorageScreen.CRAFTING_RECIPE_COLUMNS * StorageScreen.CRAFTING_SLOT_SIZE;
+                + StorageScreen.CRAFTING_RECIPE_COLUMNS * StorageScreen.CRAFTING_SLOT_SIZE + 6;
             int recipeBottom = this.topPos + StorageScreen.CRAFTING_RECIPE_Y
                 + StorageScreen.CRAFTING_RECIPE_ROWS * StorageScreen.CRAFTING_SLOT_SIZE;
             if (MathUtil.isInRange(
@@ -2221,16 +2298,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             return this.dispatchMouseScrolled(mouseX, mouseY, scrollX, scrollY);
         }
 
-        int nextScrollRow = Mth.clamp(
-            this.scrollRow + (scrollY > 0 ? -1 : 1),
-            0,
-            this.getMaxScrollRow()
-        );
-        if (nextScrollRow != this.scrollRow) {
-            this.scrollRow = nextScrollRow;
-            if (!this.nbtFolded) {
-                this.syncVisible();
-            }
+        if (this.storageScrollable.canScroll()) {
+            this.storageScrollable.scrollOnScroll(scrollY / 1.2);
         }
         return true;
     }
@@ -2356,6 +2425,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public void removed() {
+        this.closed = true;
+
         this.reorderRequest++;
         this.syncRequest++;
         this.metadataPending = false;
@@ -2364,40 +2435,25 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (this.tracksOpenState && this.minecraft.player != null) {
             StorageClientStub.setOpen(this.sourcePos, false);
         }
-        if (!this.carried.isEmpty() && this.minecraft.gameMode != null) {
-            this.player.inventoryMenu.setCarried(this.carried);
-            Inventory inventory = this.player.getInventory();
-            while (!this.carried.isEmpty()) {
-                int slot = inventory.getSlotWithRemainingSpace(this.carried);
-                if (slot == -1) {
-                    slot = inventory.getFreeSlot();
-                }
-                if (slot == -1) {
-                    this.minecraft.gameMode.handleInventoryMouseClick(
-                        this.player.inventoryMenu.containerId,
-                        -999,
-                        0,
-                        ClickType.PICKUP,
-                        this.player
-                    );
-                    break;
-                }
-
-                this.minecraft.gameMode.handleInventoryMouseClick(
-                    this.player.inventoryMenu.containerId,
-                    slot < 9 ? slot + 36 : slot,
-                    0,
-                    ClickType.PICKUP,
-                    this.player
-                );
-                this.carried = this.player.inventoryMenu.getCarried();
-            }
-            this.carried = ItemStack.EMPTY;
-        }
+        // 关闭界面时让服务端把指针物品放回背包
+        this.returnCarriedToInventory();
         if (SettingClientStub.setting().storage().getSearch() == SearchMode.CLEAR) {
             SettingClientStub.update("");
         }
         super.removed();
+    }
+
+    /**
+     * 让服务端把指针物品放回玩家背包。关闭界面时服务端 {@code containerMenu}
+     * 仍是 {@code inventoryMenu}，由 RPC 直接操作背包并广播，避免客户端
+     * {@code handleInventoryMouseClick} 在容器关闭后被服务端忽略。
+     */
+    private void returnCarriedToInventory() {
+        if (this.minecraft == null || this.minecraft.player == null) {
+            return;
+        }
+        StorageClientStub.returnCarriedToInventory(this.sourcePos);
+        this.carried = this.player.inventoryMenu.getCarried();
     }
 
     /**
@@ -2609,6 +2665,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         int request = ++this.reorderRequest;
         if (resetScroll) {
             this.scrollRow = 0;
+            this.storageScrollable.reset();
         }
         StorageClientStub.reorder(this.sourcePos).whenCompleteAsync(
             (updatedOrder, error) -> {
@@ -2650,6 +2707,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 this.resetServerSlots(reordered);
                 this.rebuildDisplayOrder(foldNbt);
                 this.scrollRow = Mth.clamp(reorderedScrollRow, 0, this.getMaxScrollRow());
+                this.storageScrollable.calculateScroll(this.scrollRow);
                 this.finishInteractionSync();
             },
             this.screenExecutor
@@ -2679,6 +2737,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     if (foldNbt) {
                         this.rebuildFoldedDisplay(true);
                         this.scrollRow = Mth.clamp(this.scrollRow, 0, this.getMaxScrollRow());
+                        this.storageScrollable.calculateScroll(this.scrollRow);
                     }
                 } else {
                     this.reorder(false);
@@ -2736,6 +2795,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                                 }
                                 this.orderVersion = this.version;
                                 this.scrollRow = Mth.clamp(this.scrollRow, 0, this.getMaxScrollRow());
+                                this.storageScrollable.calculateScroll(this.scrollRow);
                                 this.finishInteractionSync();
                             },
                             this.screenExecutor

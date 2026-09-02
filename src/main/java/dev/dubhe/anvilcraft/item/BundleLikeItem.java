@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.rpc.BundleLikeServerStub;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.SlotAccess;
@@ -124,11 +125,26 @@ public abstract class BundleLikeItem extends Item {
     }
 
     protected void playRemoveOneSound(Entity entity) {
-        entity.playSound(SoundEvents.BUNDLE_REMOVE_ONE, 0.8F, 0.8F + entity.level().getRandom().nextFloat() * 0.4F);
+        this.playSound(entity, SoundEvents.BUNDLE_REMOVE_ONE);
     }
 
     protected void playInsertSound(Entity entity) {
-        entity.playSound(SoundEvents.BUNDLE_INSERT, 0.8F, 0.8F + entity.level().getRandom().nextFloat() * 0.4F);
+        this.playSound(entity, SoundEvents.BUNDLE_INSERT);
+    }
+
+    /**
+     * 播放音效：服务端 {@code Player.playSound} 会排除玩家本人（听不到），
+     * 这里改用 {@code level.playSound(null, ...)} 广播给附近所有玩家（含操作者）。
+     */
+    protected static void playSound(Entity entity, SoundEvent sound) {
+        entity.level().playSound(
+            null,
+            entity,
+            sound,
+            entity.getSoundSource(),
+            0.8F,
+            0.8F + entity.level().getRandom().nextFloat() * 0.4F
+        );
     }
 
     protected void broadcastChangesOnContainerMenu(Player player) {

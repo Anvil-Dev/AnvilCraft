@@ -25,13 +25,17 @@ import dev.dubhe.anvilcraft.network.UsePillBoxPacket;
 import dev.dubhe.anvilcraft.util.BlockHighlightUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
@@ -359,10 +363,23 @@ public class ClientEventListener {
     }
 
     /**
-     * 创造背包 INVENTORY 标签页的 BUNDLE_HOVER_ITEM（捏着终端点击背包槽）：
-     * vanilla 只做本地预测（不发包），服务端无法执行 TerminalItem 的存储操作，
-     * 这里直接走 RPC：空槽+右键取出存储第一物品放槽，有物品+左键把槽内物品放入存储。
+     * Prevents Mouse Tweaks from intercepting shift+left-drag quick-move in StorageScreen.
+     * Mouse Tweaks listens on {@code ScreenEvent.MouseDragged.Pre} at default priority and issues
+     * a vanilla QUICK_MOVE for every hovered inventory slot. Handling the event at HIGHEST priority
+     * and cancelling it lets StorageScreen's own quick-move-to-storage logic take over.
      */
+    @SubscribeEvent(priority = EventPriority.HIGHEST)
+    public static void onScreenMouseDraggedStorage(ScreenEvent.MouseDragged.Pre event) {
+        if (!(event.getScreen() instanceof StorageScreen storageScreen)) {
+            return;
+        }
+        if (!storageScreen.isQuickMoveDragging() || event.getMouseButton() != 0 || !Screen.hasShiftDown()) {
+            return;
+        }
+        storageScreen.quickMoveDrag(event.getMouseX(), event.getMouseY());
+        event.setCanceled(true);
+    }
+
     private static void handleCreativeBundleHover(
         CreativeModeInventoryScreen creative,
         AbstractContainerScreen<?> screen,
@@ -395,6 +412,7 @@ public class ClientEventListener {
                     }
                     slot.set(result.carried());
                     screen.getMenu().broadcastChanges();
+                    ClientEventListener.playTerminalSound(carried, true);
                 })
             );
         } else {
@@ -409,9 +427,29 @@ public class ClientEventListener {
                     }
                     slot.set(remain);
                     screen.getMenu().broadcastChanges();
+                    ClientEventListener.playTerminalSound(carried, false);
                 })
             );
         }
+    }
+
+    /**
+     * 按终端类型播放与生存模式一致的音效：超维→传送、潜影→潜影盒开/关、其他→收纳袋。
+     */
+    private static void playTerminalSound(ItemStack terminal, boolean remove) {
+        var player = Minecraft.getInstance().player;
+        if (player == null) {
+            return;
+        }
+        SoundEvent sound;
+        if (terminal.is(ModItems.HYPERDIMENSION_TERMINAL)) {
+            sound = SoundEvents.ENDERMAN_TELEPORT;
+        } else if (terminal.is(ModItems.SHULKER_TERMINAL)) {
+            sound = remove ? SoundEvents.SHULKER_BOX_OPEN : SoundEvents.SHULKER_BOX_CLOSE;
+        } else {
+            sound = remove ? SoundEvents.BUNDLE_REMOVE_ONE : SoundEvents.BUNDLE_INSERT;
+        }
+        player.playSound(sound, 0.8F, 0.8F + player.getRandom().nextFloat() * 0.4F);
     }
 
     /** BundleLike 按键判定：取出用右键（inverted 时左键），放入用左键（inverted 时右键）。 */
@@ -423,7 +461,7 @@ public class ClientEventListener {
 
     /**
      * 根据 GUI 坐标在容器菜单槽位中查找鼠标悬停的槽位，复刻
-     * {@link AbstractContainerScreen#isHovering} 的判定，不依赖渲染帧的 hoveredSlot。
+     * AbstractContainerScreen.isHovering 的判定，不依赖渲染帧的 hoveredSlot。
      */
     private static @Nullable Slot findSlotAt(AbstractContainerScreen<?> screen, double mouseX, double mouseY) {
         double x = mouseX - screen.getGuiLeft();

@@ -247,6 +247,24 @@ public final class StorageServerStub {
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
+    public static void returnCarriedToInventory(UUID playerId, long sourcePos) {
+        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        ItemStack carried = player.containerMenu.getCarried();
+        if (carried.isEmpty()) {
+            return;
+        }
+        if (player.getInventory().add(carried)) {
+            carried = ItemStack.EMPTY;
+        }
+        if (!carried.isEmpty()) {
+            player.drop(carried, false);
+        }
+        player.containerMenu.setCarried(carried);
+        player.containerMenu.broadcastChanges();
+    }
+
+    @RemoteCallable(validator = StorageAccessValidator.class)
     public static boolean clonePut(
         UUID playerId,
         long sourcePos,
@@ -2079,7 +2097,7 @@ public final class StorageServerStub {
         if (!StorageServerStub.terminalTargetReachable(player, targetId)) {
             return new InteractionResult(ItemStack.EMPTY, false);
         }
-        HolderLookup.Provider registries = StorageServerStub.getAndClear();
+        HolderLookup.Provider registries = player.level().registryAccess();
         StorageView view = new StorageView(StorageServerStub.terminalStorages(player, targetId), List.of());
         if (view.size() <= 0) {
             return new InteractionResult(ItemStack.EMPTY, false);
@@ -2095,7 +2113,7 @@ public final class StorageServerStub {
             if (stackAmount <= 0) {
                 continue;
             }
-            int take = (int) Math.min(amount, stackAmount);
+            int take = (int) Math.min(Math.min(amount, view.resource(index).getMaxStackSize()), stackAmount);
             int got = view.extract(index, take);
             if (got > 0) {
                 extracted = view.resource(index).copyWithCount(got);
@@ -2484,7 +2502,7 @@ public final class StorageServerStub {
     }
 
     private static void pushUndo(StorageServerStub stub, Map<ItemStack, Integer> moved) {
-        stub.undoRecords.addFirst(new UndoRecord(moved));
+        stub.undoRecords.addFirst(new UndoRecord(new HashMap<>(moved)));
         while (stub.undoRecords.size() > StorageServerStub.MAX_UNDO_RECORDS) {
             stub.undoRecords.removeLast();
         }
@@ -2932,24 +2950,33 @@ public final class StorageServerStub {
     }
 
     /**
-     * 从终端连接的目标存储取出一个物品（按存储顺序取第一个可取槽位）。
+     * 从终端连接的目标存储取出一个物品，与创造模式 {@link #terminalExtractFirst} 一致，
+     * 按玩家绑定的存储界面排序（SortMode + OrderMode）取第一个可取槽位。
      * 目标不可达或存储为空时返回空栈。
      */
     public static ItemStack extractFromTerminal(ServerPlayer player, UUID targetId, int amount) {
-        List<BaseStorage<?>> storages = StorageServerStub.terminalStorages(player, targetId);
-        for (BaseStorage<?> storage : storages) {
-            UnlimitedItemStacksResourceHandler items = storage.getItems();
-            for (int slot = 0; slot < items.size(); slot++) {
-                if (items.getAmountAsLong(slot) <= 0) {
-                    continue;
-                }
-                int take = (int) Math.min(amount, items.getAmountAsLong(slot));
-                ItemStack got = items.extractUnlimited(slot, take, false).toStack();
-                if (!got.isEmpty()) {
-                    player.getInventory().setChanged();
-                    player.containerMenu.broadcastChanges();
-                    return got;
-                }
+        HolderLookup.Provider registries = player.level().registryAccess();
+        StorageView view = new StorageView(StorageServerStub.terminalStorages(player, targetId), List.of());
+        if (view.size() <= 0) {
+            return ItemStack.EMPTY;
+        }
+        PlayerSetting setting = PlayerSettings.getSetting(registries, player.getGameProfile().getId());
+        StorageSetting storage = setting.storage();
+        SortOptions options = new SortOptions(storage.getSort(), storage.getOrder());
+        IntList order = StorageServerStub.createOrder(view, options, "", setting.listed());
+        for (int i = 0; i < order.size(); i++) {
+            int index = order.getInt(i);
+            long stackAmount = view.amount(index);
+            if (stackAmount <= 0) {
+                continue;
+            }
+            int take = (int) Math.min(Math.min(amount, view.resource(index).getMaxStackSize()), stackAmount);
+            int got = view.extract(index, take);
+            if (got > 0) {
+                ItemStack extracted = view.resource(index).copyWithCount(got);
+                player.getInventory().setChanged();
+                player.containerMenu.broadcastChanges();
+                return extracted;
             }
         }
         return ItemStack.EMPTY;

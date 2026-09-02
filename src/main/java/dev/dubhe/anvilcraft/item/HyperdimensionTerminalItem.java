@@ -9,9 +9,11 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
@@ -24,6 +26,16 @@ import java.util.UUID;
 public class HyperdimensionTerminalItem extends TerminalItem {
     public HyperdimensionTerminalItem(Properties properties) {
         super(properties);
+    }
+
+    @Override
+    protected void playRemoveOneSound(Entity entity) {
+        BundleLikeItem.playSound(entity, SoundEvents.ENDERMAN_TELEPORT);
+    }
+
+    @Override
+    protected void playInsertSound(Entity entity) {
+        BundleLikeItem.playSound(entity, SoundEvents.ENDERMAN_TELEPORT);
     }
 
     @Override
