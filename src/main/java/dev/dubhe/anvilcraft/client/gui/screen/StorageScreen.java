@@ -214,6 +214,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private boolean metadataPending;
     private boolean interactionPending;
     private boolean interactionSyncPending;
+    /** 上次播放切石机取走音效的游戏 tick（与方块侧一致，同一 tick 只播一次）。 */
+    private long lastStonecutterTakeSoundTick = -1;
     private boolean closed;
     private boolean nbtFolded;
     private boolean preservingOrder;
@@ -1997,7 +1999,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             int next = this.crafting.stonecutterSelected() == i ? 0 : i;
             this.crafting = this.crafting.withStonecutterSelected(next);
             StorageClientStub.craftingSelect(this.sourcePos, next);
-            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+            Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_STONECUTTER_SELECT_RECIPE, 1.0F));
             return true;
         }
         return false;
@@ -2203,6 +2205,19 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         );
     }
 
+    /** 播放原版切石机取走音效：与方块侧一致，同一游戏 tick 内最多播放一次。 */
+    private void playStonecutterTakeSound() {
+        if (this.minecraft.level == null) {
+            return;
+        }
+        long tick = this.minecraft.level.getGameTime();
+        if (tick == this.lastStonecutterTakeSoundTick) {
+            return;
+        }
+        this.lastStonecutterTakeSoundTick = tick;
+        this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_STONECUTTER_TAKE_RESULT, 1.0F));
+    }
+
     /**
      * 点击③/④ 结果槽：取出结果并消耗输入。stonecutter=true 为③。
      * Shift 点击时连续合成：服务端每次 RPC 最多合成一个分块，客户端循环调用
@@ -2238,6 +2253,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     this.carried = result.carried();
                     this.player.inventoryMenu.setCarried(this.carried);
                     if (result.changed()) {
+                        if (stonecutter) {
+                            this.playStonecutterTakeSound();
+                        }
                         this.loadCrafting(false);
                     }
                     this.interactionPending = false;
@@ -2268,6 +2286,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     return;
                 }
                 if (result.changed()) {
+                    if (stonecutter) {
+                        this.playStonecutterTakeSound();
+                    }
                     this.loadCrafting(false);
                 }
                 if (result.done()) {
@@ -2446,6 +2467,31 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             }
         }
         return false;
+    }
+
+    /**
+     * 屏幕被重新显示时（例如从 JEI 配方界面返回）复位关闭与交互中间态，
+     * 避免 {@link #removed()} 置位后所有 RPC 回调被 {@code closed} 拦截。
+     */
+    @Override
+    public void added() {
+        this.closed = false;
+        this.interactionPending = false;
+        this.interactionSyncPending = false;
+        this.doubleclick = false;
+        this.pendingCraftingSlot = -1;
+        this.pendingCraftingButton = 0;
+        this.quickCrafting = false;
+        this.quickMoveDragging = false;
+        this.quickCraftSlots.clear();
+        this.quickCraftStorageSlots.clear();
+        this.quickCraftCraftingSlots.clear();
+        this.quickCraftInventorySlots.clear();
+        this.quickMoveSlots.clear();
+        this.pendingQuickMoveSlots.clear();
+        this.storageQuickMoveSlots.clear();
+        this.quickMoveMovedBySlot.clear();
+        this.carried = this.player.inventoryMenu.getCarried();
     }
 
     @Override
