@@ -446,7 +446,7 @@ public final class StorageJeiSupport {
             if (doTransfer) {
                 List<ItemStack> inputs = StorageJeiSupport.collectInputs(recipeSlots, player);
                 ItemStack result = recipe.value().getResultItem(player.level().registryAccess());
-                // ① 单槽转移：份数由服务端按上限自行计算，客户端无需提供
+                // ① 单槽转移：默认放 1 个，Shift（maxTransfer）放满，份数由服务端计算，客户端无需提供
                 StorageJeiSupport.transferIntoStorage(container, true, maxTransfer, inputs, result, new IntArrayList(0));
             } else {
                 // 检查阶段：背包缺材料时高亮缺失槽并禁用转移按钮
