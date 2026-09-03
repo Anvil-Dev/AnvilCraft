@@ -62,7 +62,7 @@ public abstract class BundleLikeItem extends Item {
                 result = action == BundleLikeItem.computeValidAction(ClickAction.SECONDARY, player)
                     && this.canRemoveOne(state);
             } else {
-                result = action == BundleLikeItem.computeValidAction(ClickAction.PRIMARY, player);
+                result = action == BundleLikeItem.computeValidAction(ClickAction.SECONDARY, player);
             }
             return result;
         }
@@ -78,7 +78,7 @@ public abstract class BundleLikeItem extends Item {
             slot.set(removed);
             this.playRemoveOneSound(serverPlayer);
         } else {
-            if (action != BundleLikeItem.computeValidAction(ClickAction.PRIMARY, serverPlayer)) return false;
+            if (action != BundleLikeItem.computeValidAction(ClickAction.SECONDARY, serverPlayer)) return false;
             this.insertOne(state);
             ItemStack remain = state.output;
             if (remain == null) return false;
@@ -112,7 +112,7 @@ public abstract class BundleLikeItem extends Item {
         } else {
             // 手拿物品：默认放入（收纳类）；终端类放行 vanilla 交换
             if (!this.canInsertInto(state)) return false;
-            if (action != BundleLikeItem.computeValidAction(ClickAction.PRIMARY, player)) return false;
+            if (action != BundleLikeItem.computeValidAction(ClickAction.SECONDARY, player)) return false;
             this.insertOne(state);
             ItemStack remain = state.output;
             if (remain == null) return false;
