@@ -28,7 +28,7 @@ public class AnvilCraftClientConfig {
     @Comment("Do not render power component tooltip when jade present")
     public boolean doNotShowTooltipWhenJadePresent = false;
 
-    @Comment("Invert the mouse button for item override operations (Primary -> Secondary)")
+    @Comment("Swap insert/collect to left-click and keep extract/place on right-click (Left Collect, Right Place)")
     public boolean invertOverrideAction = false;
 
     @SerializedName("Show Storage Stored ID")
