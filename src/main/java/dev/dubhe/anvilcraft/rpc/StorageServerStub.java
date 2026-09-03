@@ -250,7 +250,7 @@ public final class StorageServerStub {
 
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static void returnCarriedToInventory(UUID playerId, long sourcePos) {
-        StorageView view = StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
+        StorageServerStub.getView(StorageServerStub.getAndClear(), playerId, sourcePos);
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         ItemStack carried = player.containerMenu.getCarried();
         if (carried.isEmpty()) {
@@ -1302,7 +1302,7 @@ public final class StorageServerStub {
      * @return 匹配配方的索引；产物为空 / 未匹配到时返回 0（首个候选，与手动放入输入后的默认一致）
      */
     private static int selectStonecutterResult(ServerPlayer player, ItemStack input, ItemStack stonecutterResult) {
-        if (stonecutterResult != null && !stonecutterResult.isEmpty()) {
+        if (!stonecutterResult.isEmpty()) {
             List<RecipeHolder<StonecutterRecipe>> recipes = player.level().getRecipeManager()
                 .getRecipesFor(RecipeType.STONECUTTING, new SingleRecipeInput(input), player.level());
             for (int i = 0; i < recipes.size(); i++) {
@@ -1553,7 +1553,7 @@ public final class StorageServerStub {
             ItemStack wanted = inputs.getFirst();
             int targetCount = maxTransfer ? wanted.getMaxStackSize() : 1;
             int moved = StorageServerStub.transferMaterial(
-                target, inventory, wanted, ItemStack.EMPTY, targetCount, player
+                target, inventory, wanted, targetCount
             );
             if (moved <= 0) {
                 return false;
@@ -1624,7 +1624,7 @@ public final class StorageServerStub {
                     continue;
                 }
                 int placed = StorageServerStub.transferMaterialExact(
-                    target, inventory, wanted, current, current.getCount() + requested, player
+                    target, inventory, wanted, current, current.getCount() + requested
                 );
                 if (placed > 0) {
                     if (current.isEmpty()) {
@@ -1726,8 +1726,7 @@ public final class StorageServerStub {
         Inventory inventory,
         ItemStack wanted,
         ItemStack current,
-        int requestedCount,
-        ServerPlayer player
+        int requestedCount
     ) {
         if (!current.isEmpty() && !ItemStack.isSameItemSameComponents(current, wanted)) {
             return 0;
@@ -1828,18 +1827,16 @@ public final class StorageServerStub {
      * 背包不足时从目标存储站（若有）提取补足，返回实际放置数量（0 表示没有）。
      */
     private static int transferMaterial(
-        StorageServerStub.CraftingTarget target,
+        CraftingTarget target,
         Inventory inventory,
         ItemStack wanted,
-        ItemStack current,
-        int maxCount,
-        ServerPlayer player
+        int maxCount
     ) {
-        int moved = StorageServerStub.transferFromInventory(inventory, wanted, current, maxCount, player);
+        int moved = StorageServerStub.transferFromInventory(inventory, wanted, maxCount);
         if (moved >= maxCount || maxCount <= 0) {
             return moved;
         }
-        if (!current.isEmpty() && !ItemStack.isSameItemSameComponents(current, wanted)) {
+        if (!ItemStack.EMPTY.isEmpty() && !ItemStack.isSameItemSameComponents(ItemStack.EMPTY, wanted)) {
             return moved;
         }
         StorageView view = target.view();
@@ -1847,7 +1844,7 @@ public final class StorageServerStub {
             return moved;
         }
         // 背包取完后从存储补足差量（空槽或已有同种均适用）
-        int space = maxCount - (current.isEmpty() ? 0 : current.getCount()) - moved;
+        int space = maxCount - (ItemStack.EMPTY.isEmpty() ? 0 : ItemStack.EMPTY.getCount()) - moved;
         for (int index = 0; index < view.size() && space > 0; index++) {
             if (
                 view.amount(index) <= 0
@@ -1872,11 +1869,9 @@ public final class StorageServerStub {
     private static int transferFromInventory(
         Inventory inventory,
         ItemStack wanted,
-        ItemStack current,
-        int maxCount,
-        ServerPlayer player
+        int maxCount
     ) {
-        if (current.isEmpty()) {
+        if (ItemStack.EMPTY.isEmpty()) {
             // 空槽：从背包转移所有同种物品（受 maxCount 上限约束），不只放一个
             int moved = 0;
             for (int i = 0; i < inventory.getContainerSize(); i++) {
@@ -1896,10 +1891,10 @@ public final class StorageServerStub {
             return moved;
         }
         // 已有同种：只补足到上限
-        if (!ItemStack.isSameItemSameComponents(current, wanted)) {
+        if (!ItemStack.isSameItemSameComponents(ItemStack.EMPTY, wanted)) {
             return 0;
         }
-        int space = maxCount - current.getCount();
+        int space = maxCount - ItemStack.EMPTY.getCount();
         if (space <= 0) {
             return 0;
         }
@@ -3466,7 +3461,7 @@ public final class StorageServerStub {
                 || args.length < 3
                 || !(args[0] instanceof UUID playerId)
                 || !player.getGameProfile().getId().equals(playerId)
-                || !(args[1] instanceof UUID storageId)
+                || !(args[1] instanceof UUID)
             ) {
                 return false;
             }

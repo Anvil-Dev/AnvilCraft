@@ -27,6 +27,7 @@ import mezz.jei.common.transfer.TransferOperation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -47,7 +48,7 @@ import javax.annotation.Nullable;
  * {@link AnvilCraftJeiPlugin} 加载，StorageScreen 通过 {@link StorageJeiBridge}
  * 反射调用，未装 JEI 时安全降级）：
  * <ul>
- *   <li>{@link #openStonecutterRecipes} / {@link #openCraftingRecipes}：点击③/④ 结果槽
+ *   <li> / ：点击③/④ 结果槽
  *       区域的 JEI 打开区时显示对应的配方类别。</li>
  *   <li>{@link #registerRecipeTransferHandlers}：为仓储菜单（{@link StorageMenu}，
  *       即 StorageScreen 打开期间的 JEI 父容器）注册切石机/合成的转移 handler；
@@ -68,23 +69,6 @@ public final class StorageJeiSupport {
     /** JEI 是否可用（已安装且运行时已就绪）。 */
     public static boolean isAvailable() {
         return StorageJeiSupport.runtime != null;
-    }
-
-    /** 打开切石机配方 JEI 界面。 */
-    public static void openStonecutterRecipes() {
-        StorageJeiSupport.showTypes(RecipeTypes.STONECUTTING);
-    }
-
-    /** 打开合成配方 JEI 界面。 */
-    public static void openCraftingRecipes() {
-        StorageJeiSupport.showTypes(RecipeTypes.CRAFTING);
-    }
-
-    private static void showTypes(RecipeType<?> recipeType) {
-        IRecipesGui recipesGui = StorageJeiSupport.runtime == null ? null : StorageJeiSupport.runtime.getRecipesGui();
-        if (recipesGui != null) {
-            recipesGui.showTypes(List.of(recipeType));
-        }
     }
 
     /** 注册 StorageScreen 场景的配方转移 handler（在 JeiPlugin 的 registerRecipeTransferHandlers 中调用）。 */
@@ -276,8 +260,7 @@ public final class StorageJeiSupport {
      */
     private static @Nullable IntList computeRequestedCounts(
         StorageMenu container,
-        IRecipeSlotsView recipeSlots,
-        Player player
+        IRecipeSlotsView recipeSlots
     ) {
         StorageScreen screen = StorageJeiSupport.storageScreen();
         List<Slot> craftingSlots = new ArrayList<>();
@@ -495,7 +478,7 @@ public final class StorageJeiSupport {
             }
             if (doTransfer) {
                 List<ItemStack> inputs = StorageJeiSupport.collectInputs(recipeSlots, player);
-                IntList requestedCounts = StorageJeiSupport.computeRequestedCounts(container, recipeSlots, player);
+                IntList requestedCounts = StorageJeiSupport.computeRequestedCounts(container, recipeSlots);
                 if (requestedCounts == null) {
                     // 材料不足：与 JEI 默认一致，高亮缺失槽并禁用转移按钮
                     return this.helper.createUserErrorForMissingSlots(
@@ -514,10 +497,11 @@ public final class StorageJeiSupport {
 
     /** 仅供 JEI 分配算法使用的虚拟槽：只提供 index 与 getItem()，不绑定任何容器。 */
     private static final class VirtualSlot extends Slot {
+        private static final SimpleContainer EMPTY_CONTAINER = new SimpleContainer(0);
         private final ItemStack stack;
 
         private VirtualSlot(int index, ItemStack stack) {
-            super(null, index, 0, 0);
+            super(VirtualSlot.EMPTY_CONTAINER, index, 0, 0);
             this.index = index;
             this.stack = stack;
         }
