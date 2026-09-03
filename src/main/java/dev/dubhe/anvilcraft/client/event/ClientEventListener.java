@@ -312,8 +312,9 @@ public class ClientEventListener {
 
         // 创造背包的 BUNDLE_HOVER_ITEM（捏着终端点击背包/快捷栏槽）：
         // vanilla 的 slotClicked 只做本地预测（不发网络包），服务端无法执行
-        // TerminalItem 的存储操作。仅拦截 BundleLike 按键（空槽/有物品均为右键取出/放入），
-        // 取消事件后走 RPC 完成操作；左键放回/交换放行给 vanilla，保持 BundleItem 语义。
+        // TerminalItem 的存储操作。仅拦截 BundleLike 按键（空槽+右键取出 /
+        // 有物品+左键放入），取消事件后走 RPC 完成操作；其余按键（放回/交换）
+        // 放行给 vanilla，保持 BundleItem 语义。
         if (!containerScreen.getMenu().getCarried().isEmpty()
             && event.getScreen() instanceof CreativeModeInventoryScreen creative
             && containerScreen.getMenu().getCarried().getItem() instanceof TerminalItem
@@ -323,9 +324,9 @@ public class ClientEventListener {
             ItemStack carried = containerScreen.getMenu().getCarried();
             UUID targetId = TerminalRemoteOverlay.terminalIdOf(carried);
             boolean inverted = InvertedActionEventListener.isInverted();
-            // 仅真正匹配 BundleLike 右键 + 槽内容组合才拦截：
-            // 空槽=取出、有物品=放入；其余（左键放回/交换）放行 vanilla fallback，
-            // 保证终端能放下/交换。
+            // 仅真正匹配 BundleLike 按键 + 槽内容组合才拦截：
+            // 空槽+右键=取出、有物品+左键=放入；其余（空槽+左键放回、有物品+右键
+            // 交换）放行 vanilla fallback，保证终端能放下/交换。
             boolean removeClick = ClientEventListener.isBundleClick(event.getButton(), inverted, true)
                 && slot.getItem().isEmpty();
             boolean insertClick = ClientEventListener.isBundleClick(event.getButton(), inverted, false)
@@ -415,7 +416,7 @@ public class ClientEventListener {
                 })
             );
         } else {
-            // 放入：有物品槽 + 右键（非 inverted）
+            // 放入：有物品槽 + 左键（非 inverted）
             if (!ClientEventListener.isBundleClick(button, inverted, false)) {
                 return;
             }
@@ -451,10 +452,10 @@ public class ClientEventListener {
         player.playSound(sound, 0.8F, 0.8F + player.getRandom().nextFloat() * 0.4F);
     }
 
-    /** BundleLike 按键判定：取出与放入均为右键（inverted 时均为左键）。 */
+    /** BundleLike 按键判定：取出用右键（inverted 时左键），放入用左键（inverted 时右键）。 */
     private static boolean isBundleClick(int button, boolean inverted, boolean remove) {
         boolean wantRemoveClick = inverted ? button == 0 : button == 1;
-        boolean wantInsertClick = inverted ? button == 0 : button == 1;
+        boolean wantInsertClick = inverted ? button == 1 : button == 0;
         return remove ? wantRemoveClick : wantInsertClick;
     }
 
