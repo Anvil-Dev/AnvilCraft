@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.container.storage;
 import dev.anvilcraft.lib.v2.registrum.providers.loot.RegistrumBlockLootTables;
 import dev.anvilcraft.lib.v2.util.DistExecutor;
 import dev.anvilcraft.lib.v2.util.ShapeUtil;
+import dev.dubhe.anvilcraft.api.block.ITranscendiumBlock;
 import dev.dubhe.anvilcraft.api.hammer.IHammerRemovable;
 import dev.dubhe.anvilcraft.block.entity.storage.HyperdimensionStorageStationBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
@@ -57,24 +58,8 @@ import java.util.UUID;
 
 public class HyperdimensionStorageStationBlock
     extends SimpleMultiPartBlock<Cube3x3PartHalf>
-    implements MultiPartBlockEntity<Cube3x3PartHalf, HyperdimensionStorageStationBlock>, IHammerRemovable {
+    implements MultiPartBlockEntity<Cube3x3PartHalf, HyperdimensionStorageStationBlock>, IHammerRemovable, ITranscendiumBlock {
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
-
-    public static void loot(RegistrumBlockLootTables tables, HyperdimensionStorageStationBlock block) {
-        for (Cube3x3PartHalf part : block.getParts()) {
-            if (part.getOffset().distSqr(block.getMainPartOffset()) != 0) continue;
-            tables.add(block, LootTable.lootTable()
-                .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
-                    .setRolls(ConstantValue.exactly(1.0f)))
-                    .add(LootItem.lootTableItem(block)
-                        .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
-                            .setProperties(StatePropertiesPredicate.Builder.properties()
-                                .hasProperty(block.getPart(), part)))
-                        .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
-                            .include(ModComponents.STORAGE)))));
-            break;
-        }
-    }
 
     public HyperdimensionStorageStationBlock(Properties properties) {
         super(properties);
@@ -197,6 +182,30 @@ public class HyperdimensionStorageStationBlock
             }
         }
         return super.use(state, level, pos, player, hand, hitResult);
+    }
+
+    public static void loot(RegistrumBlockLootTables tables, HyperdimensionStorageStationBlock block) {
+        for (Cube3x3PartHalf part : block.getParts()) {
+            if (part.getOffset().distSqr(block.getMainPartOffset()) != 0) continue;
+            tables.add(block, LootTable.lootTable()
+                .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0f)))
+                              .add(LootItem.lootTableItem(block)
+                                       .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
+                                                 .setProperties(StatePropertiesPredicate.Builder.properties()
+                                                                    .hasProperty(block.getPart(), part)))
+                                       .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)
+                                                  .include(ModComponents.STORAGE)))));
+            break;
+        }
+    }
+
+    public static int getLightLevel(BlockState state) {
+        return switch (state.getValue(HyperdimensionStorageStationBlock.HALF)) {
+            case BOTTOM_CENTER, MID_N, MID_E, MID_S, MID_W, MID_CENTER, TOP_CENTER -> 2;
+            case BOTTOM_WN, BOTTOM_EN, BOTTOM_ES, BOTTOM_WS, TOP_WN, TOP_EN, TOP_ES, TOP_WS -> 8;
+            default -> 6;
+        };
     }
 
     // region VoxelShapes

@@ -139,9 +139,14 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
 
     @Override
     protected void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof CrateBlockEntity be) {
-            be.dropContents(level, pos);
+        // 任何状态变化（含 dispose 属性翻转的 setBlock）都会走到这里；
+        // 只有板条箱方块本身被移除 / 替换成其它方块时才掉落内容并删除存储，
+        // dispose 模式开 / 关切换不能清空箱子
+        if (!(newState.getBlock() instanceof CrateBlock)) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof CrateBlockEntity be) {
+                be.dropContents(level, pos);
+            }
         }
 
         super.onRemove(state, level, pos, newState, movedByPiston);
