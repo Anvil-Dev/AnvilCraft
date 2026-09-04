@@ -540,9 +540,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (this.craftingAutoFillButton != null) {
             this.craftingAutoFillButton.visible = false;
         }
-        if (this.craftingToStorageButton != null) {
-            this.craftingToStorageButton.visible = false;
-        }
+        this.craftingToStorageButton.visible = false;
         if (this.craftingClearButton != null) {
             this.craftingClearButton.visible = false;
         }
@@ -2337,7 +2335,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (shift) {
             this.takeAllChunk(request, stonecutter, 0);
         } else {
-            StorageClientStub.craftingTakeResult(this.sourcePos, stonecutter, shift).whenCompleteAsync(
+            StorageClientStub.craftingTakeResult(this.sourcePos, stonecutter, false).whenCompleteAsync(
                 (result, error) -> {
                     if (request != this.interactionRequest || error != null) {
                         this.interactionPending = false;
