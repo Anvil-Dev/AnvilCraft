@@ -537,12 +537,13 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 StorageScreen.this.crafting = StorageScreen.this.crafting.withToStorage(toStorage);
             }
         ));
+        boolean craftingMode = this.mode == ScreenMode.CRAFTING;
         if (this.craftingAutoFillButton != null) {
-            this.craftingAutoFillButton.visible = false;
+            this.craftingAutoFillButton.visible = craftingMode;
         }
-        this.craftingToStorageButton.visible = false;
+        this.craftingToStorageButton.visible = craftingMode;
         if (this.craftingClearButton != null) {
-            this.craftingClearButton.visible = false;
+            this.craftingClearButton.visible = craftingMode;
         }
 
         SettingClientStub.load().thenAcceptAsync(
@@ -570,6 +571,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.checkCraftingAvailable();
         this.restoreCraftingMode();
         this.refreshMetadata();
+    }
+
+    @Override
+    public void resize(Minecraft minecraft, int width, int height) {
+        this.init(minecraft, width, height);
     }
 
     /**
