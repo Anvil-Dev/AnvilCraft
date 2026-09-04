@@ -16,9 +16,8 @@ import java.util.concurrent.CompletableFuture;
 import javax.annotation.Nullable;
 
 public class ShulkerContainerTooltipProvider extends ITooltipProvider.BlockEntityTooltipProvider {
+    /** 初始空间大小。 */
     private static final int INITIAL_SPACE_SIZE = 65536;
-    /** 升级已满时的最大空间大小（经 4 次空间压缩器翻倍后的上限）。 */
-    private static final int MAX_SPACE_SIZE = 1048576;
     /** 升到最满（空间大小达到上限）所需的翻倍升级次数。 */
     private static final int UPGRADES_TO_MAX = 4;
     private static final int METADATA_REFRESH_INTERVAL = 10;

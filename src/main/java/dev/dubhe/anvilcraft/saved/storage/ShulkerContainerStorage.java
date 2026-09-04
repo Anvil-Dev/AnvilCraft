@@ -15,7 +15,7 @@ public class ShulkerContainerStorage extends BaseStorage<TypeLimitItemStacksReso
 
     @Override
     protected TypeLimitItemStacksResourceHandler constructItemHandler(BiConsumer<Integer, UnlimitedItemStack> onContentsChanged) {
-        return new TypeLimitItemStacksResourceHandler(65536, 65536) {
+        return new TypeLimitItemStacksResourceHandler(1024, 65536) {
             @Override
             protected void onContentsChanged(int index, UnlimitedItemStack original) {
                 onContentsChanged.accept(index, original);

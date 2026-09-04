@@ -26,11 +26,11 @@ public class ScreenTooltipLang {
         provider.add("tooltip.anvilcraft.large_crate.2", "a Large Crate to upgrade it to Shulker Container");
         provider.add("tooltip.anvilcraft.large_crate.3", "This process is irreversible");
         provider.add("tooltip.anvilcraft.shulker_container.0", "Inject more Space Overcompressors into");
-        provider.add("tooltip.anvilcraft.shulker_container.1", "Shulker Container to increase the max size per type");
+        provider.add("tooltip.anvilcraft.shulker_container.1", "Shulker Container to increase its capacity");
         provider.add("tooltip.anvilcraft.shulker_container.2", "This process is irreversible");
-        provider.add("tooltip.anvilcraft.shulker_container.3", "Each injected Space Overcompressor will");
-        provider.add("tooltip.anvilcraft.shulker_container.4", "double its max size, with a max size");
-        provider.add("tooltip.anvilcraft.shulker_container.5", "limit of 1048576 (i.e. up to 4 upgrades)");
+        provider.add("tooltip.anvilcraft.shulker_container.3", "Each injected Space Overcompressor doubles");
+        provider.add("tooltip.anvilcraft.shulker_container.4", "the type limit and the space per type, up to");
+        provider.add("tooltip.anvilcraft.shulker_container.5", "16384 types x 16384 stacks per type (4 upgrades)");
         provider.add("tooltip.anvilcraft.shulker_container.6", "Currently injected times: %s");
         provider.add("tooltip.anvilcraft.shulker_container.6.waiting", "Waiting for syncing");
         provider.add("tooltip.anvilcraft.shulker_container.hyperdimension.0", "Inject 1x Singularity Crystal and");
