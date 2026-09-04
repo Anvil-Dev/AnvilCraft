@@ -4,7 +4,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.anvilcraft.lib.v2.rendering.gui.GuiRenderExtras;
 import dev.anvilcraft.lib.v2.util.Util;
-import dev.anvilcraft.lib.v2.wheel.api.WheelEntryAction;
 import dev.anvilcraft.lib.v2.wheel.api.WheelMenuBuilder;
 import dev.anvilcraft.lib.v2.wheel.api.WheelMenuModel;
 import dev.anvilcraft.lib.v2.wheel.client.input.WheelScreenController;
@@ -65,6 +64,8 @@ public class WheelLifecycleEventListener {
     private static long hammerKeyTime = -1L;
     private static boolean hammerKeyWasDown = false;
     private static @Nullable Optional<WheelMenuModel> hammerWheelCache = null;
+    
+    private static @Nullable Supplier<Boolean> hammerInteraction = null;
 
     private static long multiphaseKeyTime = -1L;
     private static boolean multiphaseKeyWasDown = false;
@@ -116,25 +117,26 @@ public class WheelLifecycleEventListener {
         BlockHitResult hitVec
     ) {
         if (WheelLifecycleEventListener.hammerKeyTime <= 0) return false;
-        if (property == null) {
-            LocalPlayer player = Minecraft.getInstance().player;
-            boolean interacted = player != null && AnvilHammerItem.interactWithBlock(
-                player,
-                targetPos,
-                level,
-                player.getItemInHand(hand),
-                hand,
-                hitVec
-            );
-            ClientPacketDistributor.sendToServer(new HammerUsePacket(targetPos, hand, hitVec));
-            return interacted;
-        }
-        if (gameTime - WheelLifecycleEventListener.hammerKeyTime <= 4) {
-            ClientPacketDistributor.sendToServer(new HammerUsePacket(targetPos, hand, hitVec));
-            return false;
-        }
         Minecraft client = Minecraft.getInstance();
         LocalPlayer player = client.player;
+        WheelLifecycleEventListener.hammerInteraction = () -> {
+            if (player == null) {
+                return false;
+            }
+            boolean interacted = AnvilHammerItem.interactWithBlock(
+                player, targetPos, level, player.getItemInHand(hand), hand, hitVec
+            );
+            boolean canChange = player.getAbilities().mayBuild
+                                && AnvilHammerItem.ableToUseAnvilHammer(level, targetPos, player);
+            if (!interacted && !canChange && AnvilHammerItem.shouldPlaceOffhandBlock(player, level, hitVec)) {
+                return false;
+            }
+            ClientPacketDistributor.sendToServer(new HammerUsePacket(targetPos, hand, hitVec));
+            return interacted || canChange;
+        };
+        if (property == null) {
+            return WheelLifecycleEventListener.hammerInteraction.get();
+        }
         if (player == null) return false;
         if (WheelLifecycleEventListener.hammerWheelCache == null) {
             if (player.isShiftKeyDown()) {
@@ -153,9 +155,11 @@ public class WheelLifecycleEventListener {
                 client.getCameraEntity().getRotationVector()
             ));
         }
-        if (WheelLifecycleEventListener.hammerWheelCache.isEmpty()) return false;
-        WheelLifecycleEventListener.CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.hammerWheelCache.get());
-        WheelLifecycleEventListener.hammerKeyWasDown = true;
+        if (gameTime - WheelLifecycleEventListener.hammerKeyTime >= 4) {
+            if (WheelLifecycleEventListener.hammerWheelCache.isEmpty()) return false;
+            WheelLifecycleEventListener.CONTROLLER.onHoldKeyPressed(WheelLifecycleEventListener.hammerWheelCache.get());
+            WheelLifecycleEventListener.hammerKeyWasDown = true;
+        }
         return true;
     }
 
@@ -251,33 +255,9 @@ public class WheelLifecycleEventListener {
         possibleStates
             .forEach(state -> {
                 ModelRenderTarget modelTarget = state.getBlock() instanceof IMultiPartBlockModelHolder holder
-                    ? holder.getModelRenderTarget(level, targetPos, initialState, state)
-                    : new ModelRenderTarget(targetPos, state);
+                                                ? holder.getModelRenderTarget(level, targetPos, initialState, state)
+                                                : new ModelRenderTarget(targetPos, state);
                 String name = property.getName(Util.cast(state.getValue(property)));
-                WheelEntryAction action;
-                if (state.getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?>) {
-                    if (state.hasProperty(BlockStateProperties.FACING)) {
-                        action = _ -> ClientPacketDistributor.sendToServer(new HammerChangeFlexibleMultiPartBlockPacket(
-                            targetPos,
-                            state,
-                            state.getValue(BlockStateProperties.FACING)
-                        ));
-                    } else if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
-                        action = _ -> ClientPacketDistributor.sendToServer(new HammerChangeFlexibleMultiPartBlockPacket(
-                            targetPos,
-                            state,
-                            state.getValue(BlockStateProperties.HORIZONTAL_FACING)
-                        ));
-                    } else {
-                        action = _ -> {
-                        };
-                    }
-                } else {
-                    action = _ -> ClientPacketDistributor.sendToServer(new HammerChangeBlockPacket(
-                        targetPos,
-                        state
-                    ));
-                }
                 builder.action(
                     name,
                     Component.literal(name),
@@ -288,7 +268,7 @@ public class WheelLifecycleEventListener {
                         pose.mulPose(Axis.YP.rotationDegrees(camera.y + 180F));
                         GuiRenderExtras.tessellateBlock(graphics, modelTarget.state(), -15f, -5, pose);
                     },
-                    action
+                    _ -> WheelLifecycleEventListener.sendHammerChangeBlockPacketToServer(state, targetPos)
                 );
             });
         return builder.build();
@@ -620,9 +600,21 @@ public class WheelLifecycleEventListener {
             if (WheelLifecycleEventListener.hammerKeyWasDown) {
                 WheelLifecycleEventListener.CONTROLLER.onHoldKeyReleased();
             }
+
+            Supplier<Boolean> hammerInteraction = WheelLifecycleEventListener.hammerInteraction;
+            if (
+                client.level.getGameTime() - WheelLifecycleEventListener.hammerKeyTime < 4
+                && hammerInteraction != null
+            ) {
+                // On single right-click
+                hammerInteraction.get();
+            }
+
             WheelLifecycleEventListener.hammerKeyWasDown = false;
             WheelLifecycleEventListener.hammerKeyTime = -1L;
             WheelLifecycleEventListener.hammerWheelCache = null;
+
+            WheelLifecycleEventListener.hammerInteraction = null;
             return;
         }
         if (Minecraft.getInstance().screen != null) return;
@@ -630,6 +622,29 @@ public class WheelLifecycleEventListener {
             if (!WheelLifecycleEventListener.hammerKeyWasDown) {
                 WheelLifecycleEventListener.hammerKeyTime = client.level.getGameTime();
             }
+        }
+    }
+
+    private static void sendHammerChangeBlockPacketToServer(BlockState state, BlockPos targetPos) {
+        if (state.getBlock() instanceof FlexibleMultiPartBlock<?, ?, ?>) {
+            if (state.hasProperty(BlockStateProperties.FACING)) {
+                ClientPacketDistributor.sendToServer(new HammerChangeFlexibleMultiPartBlockPacket(
+                    targetPos,
+                    state,
+                    state.getValue(BlockStateProperties.FACING)
+                ));
+            } else if (state.hasProperty(BlockStateProperties.HORIZONTAL_FACING)) {
+                ClientPacketDistributor.sendToServer(new HammerChangeFlexibleMultiPartBlockPacket(
+                    targetPos,
+                    state,
+                    state.getValue(BlockStateProperties.HORIZONTAL_FACING)
+                ));
+            }
+        } else {
+            ClientPacketDistributor.sendToServer(new HammerChangeBlockPacket(
+                targetPos,
+                state
+            ));
         }
     }
 

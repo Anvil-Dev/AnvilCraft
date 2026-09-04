@@ -4,6 +4,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.api.hammer.IHammerChangeable;
 import dev.dubhe.anvilcraft.block.entity.CreativeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.power.batch.BaseBatchCraftingBlock;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.item.tool.AnvilHammerItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -25,6 +26,8 @@ import net.minecraft.world.level.block.AnvilBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -91,6 +94,21 @@ public class BlockEventListener {
                 event.setUseBlock(TriState.FALSE);
                 event.setUseItem(TriState.FALSE);
             }
+        }
+    }
+    
+    /**
+     * 主手铁砧锤、副手持有方块且目标为普通方块时，取消使用物品事件，
+     * 使服务端不进入铁砧锤长按，配合客户端完成副手方块放置。
+     */
+    @SubscribeEvent(priority = EventPriority.HIGH)
+    public static void anvilHammerUseItem(PlayerInteractEvent.RightClickItem event) {
+        Player player = event.getEntity();
+        if (event.getHand() != InteractionHand.MAIN_HAND) return;
+        if (!player.getMainHandItem().is(ModItemTags.ANVIL_HAMMER)) return;
+        HitResult hit = player.pick(player.blockInteractionRange(), 1.0F, false);
+        if (hit instanceof BlockHitResult blockHit && AnvilHammerItem.shouldPlaceOffhandBlock(player, event.getLevel(), blockHit)) {
+            event.setCanceled(true);
         }
     }
 
