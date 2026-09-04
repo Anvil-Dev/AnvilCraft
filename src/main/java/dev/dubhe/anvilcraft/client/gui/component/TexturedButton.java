@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.client.gui.component;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -59,6 +60,9 @@ public class TexturedButton extends Button {
             offsetV = texYDiff;
         }
         graphics.blit(texture, this.getX(), this.getY(), 0, offsetV, width, height, textureWidth, textureHeight);
+        if (this.isHovered && !this.getMessage().getString().isEmpty()) {
+            graphics.renderTooltip(Minecraft.getInstance().font, this.getMessage(), mouseX, mouseY);
+        }
     }
 
     public OnPress getOnPress() {

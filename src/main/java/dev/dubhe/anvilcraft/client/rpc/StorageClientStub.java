@@ -279,6 +279,28 @@ public final class StorageClientStub {
         );
     }
 
+    /** 设置合成面板选项（自动补料 / 产物去向）。 */
+    public static void craftingSetOptions(BlockPos sourcePos, boolean autoFill, boolean toStorage) {
+        RPC.call(
+            RpcTarget.server(),
+            StorageServerStub::craftingSetOptions,
+            StorageClientStub.playerId(),
+            sourcePos.asLong(),
+            autoFill,
+            toStorage
+        );
+    }
+
+    /** 清空合成栏并放入仓储，返回是否发生变化。 */
+    public static CompletableFuture<Boolean> craftingClearToStorage(BlockPos sourcePos) {
+        return RPC.invoke(
+            RpcTarget.server(),
+            StorageServerStub::craftingClearToStorage,
+            StorageClientStub.playerId(),
+            sourcePos.asLong()
+        );
+    }
+
     /**
      * 拖拽分配到 ①/② 输入槽与玩家背包槽（统一均分）。
      * {@code craftingSlots} 为 ①/② 槽（0 为①，1~9 为②），{@code inventorySlots} 为背包 menu 槽位号。

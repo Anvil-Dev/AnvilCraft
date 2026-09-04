@@ -93,6 +93,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private static final ResourceLocation PUT = StorageScreen.texture("put");
     private static final ResourceLocation TAKE = StorageScreen.texture("take");
     private static final ResourceLocation CRAFTING = StorageScreen.texture("crafting");
+    private static final ResourceLocation CRAFTING_AUTO_FILL_OFF = StorageScreen.texture("crafting_auto_fill_off");
+    private static final ResourceLocation CRAFTING_AUTO_FILL_ON = StorageScreen.texture("crafting_auto_fill_on");
+    private static final ResourceLocation CRAFTING_CLEAR = StorageScreen.texture("crafting_clear");
+    private static final ResourceLocation CRAFTING_TO_PLAYER = StorageScreen.texture("crafting_to_player");
+    private static final ResourceLocation CRAFTING_TO_STORAGE = StorageScreen.texture("crafting_to_storage");
     private static final ResourceLocation SEARCH_RETENTION = StorageScreen.texture("search_retention");
     private static final ResourceLocation SORT_COUNT = StorageScreen.texture("sort_by_number");
     private static final ResourceLocation SORT_MOD = StorageScreen.texture("sort_by_mod");
@@ -241,6 +246,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private boolean craftingLoaded;
     @Getter
     private CraftingStorage crafting = CraftingStorage.EMPTY;
+    private @Nullable SwitchableButton craftingAutoFillButton;
+    private @Nullable SwitchableButton craftingToStorageButton;
+    private @Nullable TexturedButton craftingClearButton;
     private List<ItemStack> stonecutterRecipes = List.of();
     /** 切石机配方列表当前页首项索引（3 列 × 2 行，超出可滚动）。 */
     private int recipeHead;
@@ -470,6 +478,74 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             button -> this.toggleCraftingMode()
         ));
 
+        // CRAFTING 面板选项按钮：自动补料 / 清空 / 产物去向
+        this.craftingAutoFillButton = this.addRenderableWidget(new SwitchableButton(
+            this.leftPos + 75,
+            this.topPos + 182,
+            12,
+            12,
+            ImmutableList.of(
+                StorageScreen.CRAFTING_AUTO_FILL_OFF,
+                StorageScreen.CRAFTING_AUTO_FILL_ON
+            ),
+            12,
+            12,
+            24,
+            (button, index) -> {
+                boolean autoFill = index == 1;
+                StorageClientStub.craftingSetOptions(
+                    StorageScreen.this.sourcePos,
+                    autoFill,
+                    StorageScreen.this.crafting.toStorage()
+                );
+                StorageScreen.this.crafting = StorageScreen.this.crafting.withAutoFill(autoFill);
+            }
+        ));
+        this.craftingClearButton = this.addRenderableWidget(new TexturedButton(
+            this.leftPos + 62,
+            this.topPos + 182,
+            12,
+            12,
+            StorageScreen.CRAFTING_CLEAR,
+            12,
+            12,
+            24,
+            button -> StorageClientStub.craftingClearToStorage(StorageScreen.this.sourcePos).thenAcceptAsync(
+                ignored -> StorageScreen.this.loadCrafting(true),
+                StorageScreen.this.screenExecutor
+            )
+        ));
+        this.craftingToStorageButton = this.addRenderableWidget(new SwitchableButton(
+            this.leftPos + 88,
+            this.topPos + 182,
+            12,
+            12,
+            ImmutableList.of(
+                StorageScreen.CRAFTING_TO_PLAYER,
+                StorageScreen.CRAFTING_TO_STORAGE
+            ),
+            12,
+            12,
+            24,
+            (button, index) -> {
+                boolean toStorage = index == 1;
+                StorageClientStub.craftingSetOptions(
+                    StorageScreen.this.sourcePos,
+                    StorageScreen.this.crafting.autoFill(),
+                    toStorage
+                );
+                StorageScreen.this.crafting = StorageScreen.this.crafting.withToStorage(toStorage);
+            }
+        ));
+        boolean craftingMode = this.mode == ScreenMode.CRAFTING;
+        if (this.craftingAutoFillButton != null) {
+            this.craftingAutoFillButton.visible = craftingMode;
+        }
+        this.craftingToStorageButton.visible = craftingMode;
+        if (this.craftingClearButton != null) {
+            this.craftingClearButton.visible = craftingMode;
+        }
+
         SettingClientStub.load().thenAcceptAsync(
             setting -> {
                 if (this.categories != null) {
@@ -495,6 +571,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.checkCraftingAvailable();
         this.restoreCraftingMode();
         this.refreshMetadata();
+    }
+
+    @Override
+    public void resize(Minecraft minecraft, int width, int height) {
+        this.init(minecraft, width, height);
     }
 
     /**
@@ -570,6 +651,16 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 SettingClientStub.setting()
             );
         }
+        boolean craftingMode = mode == ScreenMode.CRAFTING;
+        if (this.craftingAutoFillButton != null) {
+            this.craftingAutoFillButton.visible = craftingMode;
+        }
+        if (this.craftingToStorageButton != null) {
+            this.craftingToStorageButton.visible = craftingMode;
+        }
+        if (this.craftingClearButton != null) {
+            this.craftingClearButton.visible = craftingMode;
+        }
     }
 
     /**
@@ -586,6 +677,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 }
                 this.crafting = data;
                 this.craftingLoaded = true;
+                if (this.craftingAutoFillButton != null) {
+                    this.craftingAutoFillButton.setCurrent(data.autoFill() ? 1 : 0);
+                }
+                if (this.craftingToStorageButton != null) {
+                    this.craftingToStorageButton.setCurrent(data.toStorage() ? 1 : 0);
+                }
                 boolean inputChanged = !ItemStack.isSameItemSameComponents(oldInput, data.stonecutterInput());
                 if (refreshRecipes || inputChanged) {
                     StorageClientStub.craftingStonecutterRecipes(this.sourcePos).whenCompleteAsync(
@@ -1204,6 +1301,58 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 mouseX,
                 mouseY
             );
+        } else if (
+            this.mode == ScreenMode.CRAFTING
+            && this.craftingClearButton != null
+            && this.craftingClearButton.visible
+            && MathUtil.isInRange(mouseX, mouseY, this.leftPos + 62, this.topPos + 182, this.leftPos + 74, this.topPos + 194)
+        ) {
+            graphics.renderTooltip(
+                this.font,
+                Component.translatable("screen.anvilcraft.storage.crafting.clear"),
+                mouseX,
+                mouseY
+            );
+        } else if (
+            this.mode == ScreenMode.CRAFTING
+            && this.craftingAutoFillButton != null
+            && this.craftingAutoFillButton.visible
+            && MathUtil.isInRange(mouseX, mouseY, this.leftPos + 75, this.topPos + 182, this.leftPos + 87, this.topPos + 194)
+        ) {
+            graphics.renderTooltip(
+                this.font,
+                this.craftingAutoFillButton.getCurrent() == 1
+                    ? Component.translatable(
+                        "screen.anvilcraft.storage.crafting.auto_fill",
+                        Component.translatable("screen.anvilcraft.storage.crafting.auto_fill.enabled")
+                    )
+                    : Component.translatable(
+                        "screen.anvilcraft.storage.crafting.auto_fill",
+                        Component.translatable("screen.anvilcraft.storage.crafting.auto_fill.disabled")
+                    ),
+                mouseX,
+                mouseY
+            );
+        } else if (
+            this.mode == ScreenMode.CRAFTING
+            && MathUtil.isInRange(mouseX, mouseY, this.leftPos + 88, this.topPos + 182, this.leftPos + 100, this.topPos + 194)
+        ) {
+            if (this.craftingToStorageButton != null) {
+                graphics.renderTooltip(
+                    this.font,
+                    this.craftingToStorageButton.getCurrent() == 1
+                        ? Component.translatable(
+                            "screen.anvilcraft.storage.crafting.to_storage",
+                            Component.translatable("screen.anvilcraft.storage.crafting.to_storage.storage")
+                        )
+                        : Component.translatable(
+                            "screen.anvilcraft.storage.crafting.to_storage",
+                            Component.translatable("screen.anvilcraft.storage.crafting.to_storage.player")
+                        ),
+                    mouseX,
+                    mouseY
+                );
+            }
         }
     }
 
@@ -2244,7 +2393,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         if (shift) {
             this.takeAllChunk(request, stonecutter, 0);
         } else {
-            StorageClientStub.craftingTakeResult(this.sourcePos, stonecutter, shift).whenCompleteAsync(
+            StorageClientStub.craftingTakeResult(this.sourcePos, stonecutter, false).whenCompleteAsync(
                 (result, error) -> {
                     if (request != this.interactionRequest || error != null) {
                         this.interactionPending = false;
