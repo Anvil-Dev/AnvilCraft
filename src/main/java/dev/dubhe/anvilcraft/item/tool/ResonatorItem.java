@@ -61,7 +61,6 @@ import net.neoforged.neoforge.common.ItemAbility;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -75,8 +74,9 @@ public abstract class ResonatorItem extends Item implements IItemTooltipProvider
         super(
             properties
                 .attributes(ResonatorItem.createAttributes(material, attackDamage, attackSpeed))
-                .component(DataComponents.TOOL, ResonatorItem.createToolProperties(material))
+                .component(DataComponents.TOOL, ResonatorItem.createToolProperties(material, true))
                 .component(DataComponents.WEAPON, new Weapon(2, 0.0F))
+                .durability(material.durability()).repairable(material.repairItems()).enchantable(material.enchantmentValue())
         );
         this.material = material;
         this.attackDamage = attackDamage;
@@ -130,8 +130,10 @@ public abstract class ResonatorItem extends Item implements IItemTooltipProvider
     }
 
     @SuppressWarnings("deprecation")
-    public static Tool createToolProperties(ToolMaterial material) {
-        HolderGetter<Block> lookup = BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK);
+    public static Tool createToolProperties(ToolMaterial material, boolean isBootstrap) {
+        HolderGetter<Block> lookup = isBootstrap
+                                     ? BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK)
+                                     : BuiltInRegistries.BLOCK;
         List<Tool.Rule> rules = new ArrayList<>();
         rules.add(Tool.Rule.minesAndDrops(HolderSet.direct(Blocks.COBWEB.builtInRegistryHolder()), 15.0F));
         rules.add(Tool.Rule.overrideSpeed(lookup.getOrThrow(BlockTags.SWORD_INSTANTLY_MINES), Float.MAX_VALUE));
@@ -151,7 +153,7 @@ public abstract class ResonatorItem extends Item implements IItemTooltipProvider
 
     public static Tool createToolProperties(ResonateMode mode, ToolMaterial material, HolderGetter<Block> lookup) {
         return switch (mode) {
-            case AUTO -> ResonatorItem.createToolProperties(material);
+            case AUTO -> ResonatorItem.createToolProperties(material, false);
             case AXE -> new Tool(
                 List.of(Tool.Rule.minesAndDrops(lookup.getOrThrow(BlockTags.MINEABLE_WITH_AXE), material.speed())),
                 1.0F,
@@ -192,9 +194,7 @@ public abstract class ResonatorItem extends Item implements IItemTooltipProvider
                 ItemEnchantments disabledEnchs = stack.getOrDefault(ModComponents.DISABLED_ENCHANTMENTS, ItemEnchantments.EMPTY);
                 ItemEnchantments.Mutable enchsMut = new ItemEnchantments.Mutable(enchs);
                 ItemEnchantments.Mutable disabledEnchsMut = new ItemEnchantments.Mutable(disabledEnchs);
-                for (Iterator<Holder<Enchantment>> it = enchs.keySet().iterator(); it.hasNext(); ) {
-                    Holder<Enchantment> enchantment = it.next();
-
+                for (Holder<Enchantment> enchantment : enchs.keySet()) {
                     if (enchantment.is(ModEnchantmentTags.DISABLED_PASSED)) continue;
 
                     int level = enchs.getLevel(enchantment);
@@ -204,8 +204,8 @@ public abstract class ResonatorItem extends Item implements IItemTooltipProvider
                     } else {
                         level = Math.max(level, storedLevel);
                     }
-                    enchsMut.set(enchantment, level);
-                    it.remove();
+                    enchsMut.removeIf(holder -> holder.equals(enchantment));
+                    disabledEnchsMut.set(enchantment, level);
                 }
                 stack.set(DataComponents.ENCHANTMENTS, enchsMut.toImmutable());
                 stack.set(ModComponents.DISABLED_ENCHANTMENTS, disabledEnchsMut.toImmutable());
@@ -228,10 +228,10 @@ public abstract class ResonatorItem extends Item implements IItemTooltipProvider
                 ItemEnchantments enchs = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
                 ItemEnchantments.Mutable enchsMut = new ItemEnchantments.Mutable(enchs);
                 for (Holder<Enchantment> enchantment : disabledEnchs.keySet()) {
-                    enchsMut.set(enchantment, enchs.getLevel(enchantment));
+                    enchsMut.set(enchantment, disabledEnchs.getLevel(enchantment));
                 }
                 stack.set(DataComponents.ENCHANTMENTS, enchsMut.toImmutable());
-                stack.set(ModComponents.DISABLED_ENCHANTMENTS, ItemEnchantments.EMPTY);
+                stack.remove(ModComponents.DISABLED_ENCHANTMENTS);
             }
             if (stack.has(DataComponents.ATTRIBUTE_MODIFIERS)) {
                 ItemAttributeModifiers modifiers = stack.getAttributeModifiers()

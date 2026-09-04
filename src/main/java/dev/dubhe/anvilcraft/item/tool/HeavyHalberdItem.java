@@ -68,7 +68,6 @@ import net.neoforged.neoforge.common.ItemAbility;
 import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.function.Consumer;
 
 public abstract class HeavyHalberdItem extends Item implements ProjectileItem, IItemTooltipProvider {
@@ -79,9 +78,10 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
         super(
             properties
                 .attributes(HeavyHalberdItem.createAttributes(material, attackDamage, attackSpeed))
-                .component(DataComponents.TOOL, HeavyHalberdItem.createToolProperties(material))
+                .component(DataComponents.TOOL, HeavyHalberdItem.createToolProperties(material, true))
                 .component(DataComponents.WEAPON, new Weapon(1))
                 .component(ModComponents.HEAVY_HALBERD_MODE, HeavyHalberdMode.TRIDENT)
+                .durability(material.durability()).repairable(material.repairItems()).enchantable(material.enchantmentValue())
                 .rarity(Rarity.EPIC)
         );
         this.material = material;
@@ -120,8 +120,10 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
     }
 
     @SuppressWarnings("deprecation")
-    public static Tool createToolProperties(ToolMaterial material) {
-        HolderGetter<Block> lookup = BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK);
+    public static Tool createToolProperties(ToolMaterial material, boolean isBootstrap) {
+        HolderGetter<Block> lookup = isBootstrap
+                                     ? BuiltInRegistries.acquireBootstrapRegistrationLookup(BuiltInRegistries.BLOCK)
+                                     : BuiltInRegistries.BLOCK;
         ArrayList<Tool.Rule> rules = new ArrayList<>();
         rules.add(Tool.Rule.minesAndDrops(HolderSet.direct(Blocks.COBWEB.builtInRegistryHolder()), 15.0F));
         rules.add(Tool.Rule.overrideSpeed(lookup.getOrThrow(BlockTags.SWORD_INSTANTLY_MINES), Float.MAX_VALUE));
@@ -191,9 +193,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
                 ItemEnchantments disabledEnchs = stack.getOrDefault(ModComponents.DISABLED_ENCHANTMENTS, ItemEnchantments.EMPTY);
                 ItemEnchantments.Mutable enchsMut = new ItemEnchantments.Mutable(enchs);
                 ItemEnchantments.Mutable disabledEnchsMut = new ItemEnchantments.Mutable(disabledEnchs);
-                for (Iterator<Holder<Enchantment>> it = enchs.keySet().iterator(); it.hasNext(); ) {
-                    Holder<Enchantment> enchantment = it.next();
-
+                for (Holder<Enchantment> enchantment : enchs.keySet()) {
                     if (enchantment.is(ModEnchantmentTags.DISABLED_PASSED)) continue;
 
                     int level = enchs.getLevel(enchantment);
@@ -203,8 +203,8 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
                     } else {
                         level = Math.max(level, storedLevel);
                     }
-                    enchsMut.set(enchantment, level);
-                    it.remove();
+                    enchsMut.removeIf(holder -> holder.equals(enchantment));
+                    disabledEnchsMut.set(enchantment, level);
                 }
                 stack.set(DataComponents.ENCHANTMENTS, enchsMut.toImmutable());
                 stack.set(ModComponents.DISABLED_ENCHANTMENTS, disabledEnchsMut.toImmutable());
@@ -227,10 +227,10 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
                 ItemEnchantments enchs = stack.getOrDefault(DataComponents.ENCHANTMENTS, ItemEnchantments.EMPTY);
                 ItemEnchantments.Mutable enchsMut = new ItemEnchantments.Mutable(enchs);
                 for (Holder<Enchantment> enchantment : disabledEnchs.keySet()) {
-                    enchsMut.set(enchantment, enchs.getLevel(enchantment));
+                    enchsMut.set(enchantment, disabledEnchs.getLevel(enchantment));
                 }
                 stack.set(DataComponents.ENCHANTMENTS, enchsMut.toImmutable());
-                stack.set(ModComponents.DISABLED_ENCHANTMENTS, ItemEnchantments.EMPTY);
+                stack.remove(ModComponents.DISABLED_ENCHANTMENTS);
             }
             if (stack.has(DataComponents.ATTRIBUTE_MODIFIERS)) {
                 ItemAttributeModifiers modifiers = stack.get(DataComponents.ATTRIBUTE_MODIFIERS)
@@ -246,7 +246,7 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
                 stack.set(DataComponents.ATTRIBUTE_MODIFIERS, modifiers);
             }
             if (!stack.has(DataComponents.TOOL)) {
-                stack.set(DataComponents.TOOL, createToolProperties(material));
+                stack.set(DataComponents.TOOL, createToolProperties(material, false));
             }
         }
     }
@@ -367,7 +367,12 @@ public abstract class HeavyHalberdItem extends Item implements ProjectileItem, I
     @Override
     public <T extends LivingEntity> int damageItem(ItemStack stack, int amount, @Nullable T entity, Consumer<Item> onBroken) {
         int willDamage = super.damageItem(stack, amount, entity, onBroken);
-        return stack.getDamageValue() - willDamage >= stack.getMaxDamage() - 1 ? 0 : willDamage;
+        int damageValue = stack.getDamageValue();
+        int maxDamage = stack.getMaxDamage();
+        if (damageValue + willDamage >= maxDamage - 1) {
+            willDamage = maxDamage - damageValue - 1;
+        }
+        return willDamage;
     }
 
     protected static boolean isTooDamagedToUse(ItemStack stack) {
