@@ -785,7 +785,57 @@ public final class StorageServerStub {
         target.write(target.read().withStonecutterSelected(index));
     }
 
-    /** 记录上次关闭界面时是否为合成模式（关闭界面时调用）。 */
+    /** 设置合成面板选项（自动补料 / 产物去向）。 */
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static void craftingSetOptions(UUID playerId, long sourcePos, boolean autoFill, boolean toStorage) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        target.write(target.read().withAutoFill(autoFill).withToStorage(toStorage));
+    }
+
+    /** 清空合成栏（① 切石机输入 + ② 合成 9 格）：物品全部放入仓储。 */
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static boolean craftingClearToStorage(UUID playerId, long sourcePos) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        CraftingStorage crafting = target.read();
+        StorageView view = target.view();
+        if (view == null) {
+            return false;
+        }
+        ItemStack stonecutterInput = crafting.stonecutterInput();
+        List<ItemStack> grid = crafting.craftingInput();
+        boolean hasAny = !stonecutterInput.isEmpty() || grid.stream().anyMatch(stack -> !stack.isEmpty());
+        if (!hasAny) {
+            return false;
+        }
+        if (!stonecutterInput.isEmpty()) {
+            int inserted = view.insert(stonecutterInput.copyWithCount(1), stonecutterInput.getCount());
+            if (inserted < stonecutterInput.getCount()) {
+                // 输入槽仅被部分放入仓储：剩余部分保留在槽内，避免丢物品。
+                int rest = stonecutterInput.getCount() - inserted;
+                target.write(crafting.withStonecutterInput(stonecutterInput.copyWithCount(rest)));
+                return true;
+            }
+        }
+        for (int i = 0; i < grid.size(); i++) {
+            ItemStack stack = grid.get(i);
+            if (stack.isEmpty()) {
+                continue;
+            }
+            int inserted = view.insert(stack.copyWithCount(1), stack.getCount());
+            if (inserted < stack.getCount()) {
+                List<ItemStack> newGrid = new ArrayList<>(grid);
+                newGrid.set(i, stack.copyWithCount(stack.getCount() - inserted));
+                target.write(crafting.withStonecutterInput(ItemStack.EMPTY).withCraftingInput(newGrid));
+                return true;
+            }
+        }
+        List<ItemStack> emptyGrid = java.util.Collections.nCopies(CraftingStorage.CRAFTING_GRID_SIZE, ItemStack.EMPTY);
+        target.write(crafting.withStonecutterInput(ItemStack.EMPTY).withCraftingInput(emptyGrid));
+        return true;
+    }
+
     @RemoteCallable(validator = StorageAccessValidator.class)
     public static void craftingSetLastOpened(UUID playerId, long sourcePos, boolean opened) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
@@ -1143,7 +1193,11 @@ public final class StorageServerStub {
             return new InteractionResult(carried, false);
         }
         if (shift) {
-            StorageServerStub.placeCraftingResult(player, target, result);
+            if (crafting.toStorage()) {
+                StorageServerStub.placeCraftingResultToStorageFirst(player, target, result);
+            } else {
+                StorageServerStub.placeCraftingResult(player, target, result);
+            }
             player.containerMenu.broadcastChanges();
             return new InteractionResult(player.containerMenu.getCarried(), true);
         }
@@ -1156,11 +1210,13 @@ public final class StorageServerStub {
             ItemStack merged = carried.copy();
             merged.grow(result.getCount());
             StorageServerStub.consumeCraftingInput(target, crafting, stonecutter);
+            StorageServerStub.autoRefillCrafting(player, target, crafting);
             player.containerMenu.setCarried(merged);
             player.containerMenu.broadcastChanges();
             return new InteractionResult(merged, true);
         }
         StorageServerStub.consumeCraftingInput(target, crafting, stonecutter);
+        StorageServerStub.autoRefillCrafting(player, target, crafting);
         player.containerMenu.setCarried(result);
         player.containerMenu.broadcastChanges();
         return new InteractionResult(result, true);
@@ -1230,7 +1286,9 @@ public final class StorageServerStub {
                 player.containerMenu.broadcastChanges();
                 return new TakeAllResult(player.containerMenu.getCarried(), any, true);
             }
-            PlaceResult place = StorageServerStub.placeCraftingResult(player, target, result);
+            PlaceResult place = crafting.toStorage()
+                ? StorageServerStub.placeCraftingResultToStorageFirst(player, target, result)
+                : StorageServerStub.placeCraftingResult(player, target, result);
             if (place == PlaceResult.NONE) {
                 // 产物完全放不下（如指针异种且背包 / 仓储均无空间）：不消耗输入、
                 // 不丢弃产物，立即截断——与原版「指针异种时拒绝取出」语义一致，
@@ -1253,6 +1311,7 @@ public final class StorageServerStub {
                 StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
                 break;
             }
+            StorageServerStub.autoRefillCrafting(player, target, crafting);
         }
         // 达到分块上限：材料尚未耗尽，由客户端继续调用（done=false），保留锁定配方
         player.containerMenu.broadcastChanges();
@@ -1408,6 +1467,32 @@ public final class StorageServerStub {
         return PlaceResult.NONE;
     }
 
+    /**
+     * Storage-first placement for the shift-craft destination option:
+     * put the result into the attached storage first; any remainder falls
+     * back to the normal inventory / carried placement path.
+     */
+    private static PlaceResult placeCraftingResultToStorageFirst(
+        ServerPlayer player,
+        StorageServerStub.CraftingTarget target,
+        ItemStack result
+    ) {
+        StorageView view = target.view();
+        if (view == null) {
+            return StorageServerStub.placeCraftingResult(player, target, result);
+        }
+        int inserted = view.insert(result.copyWithCount(1), result.getCount());
+        if (inserted == result.getCount()) {
+            return PlaceResult.FULL;
+        }
+        if (inserted > 0) {
+            ItemStack rest = result.copy();
+            rest.shrink(inserted);
+            return StorageServerStub.placeCraftingResult(player, target, rest);
+        }
+        return StorageServerStub.placeCraftingResult(player, target, result);
+    }
+
     /** {@link #placeCraftingResult} 的放置结果分类。 */
     private enum PlaceResult {
         /** 产物全部放入（指针 / 背包 / 仓储）。 */
@@ -1472,6 +1557,66 @@ public final class StorageServerStub {
             target.write(crafting.withCraftingInput(grid));
         }
         return changed;
+    }
+
+    /**
+     * Auto-refill depleted crafting input slots when auto-fill is enabled.
+     * The template is the crafting data before consumption; only slots that
+     * became empty are refilled with the same item from the inventory first,
+     * then from the attached storage (capped at the item stack size).
+     */
+    private static void autoRefillCrafting(
+        ServerPlayer player,
+        StorageServerStub.CraftingTarget target,
+        CraftingStorage template
+    ) {
+        if (!template.autoFill()) {
+            return;
+        }
+        CraftingStorage current = target.read();
+        Inventory inventory = player.getInventory();
+        boolean changed = false;
+        ItemStack templateStonecutter = template.stonecutterInput();
+        ItemStack currentStonecutter = current.stonecutterInput();
+        if (!templateStonecutter.isEmpty() && currentStonecutter.getCount() < templateStonecutter.getCount()) {
+            int want = templateStonecutter.getCount() - currentStonecutter.getCount();
+            int moved = StorageServerStub.transferMaterial(
+                target,
+                inventory,
+                templateStonecutter,
+                want
+            );
+            if (moved > 0) {
+                current = current.withStonecutterInput(templateStonecutter.copyWithCount(currentStonecutter.getCount() + moved));
+                changed = true;
+            }
+        }
+        List<ItemStack> templateGrid = template.craftingInput();
+        List<ItemStack> currentGrid = current.craftingInput();
+        for (int i = 0; i < templateGrid.size(); i++) {
+            ItemStack templateStack = templateGrid.get(i);
+            if (templateStack.isEmpty()) {
+                continue;
+            }
+            ItemStack currentStack = i < currentGrid.size() ? currentGrid.get(i) : ItemStack.EMPTY;
+            if (currentStack.getCount() >= templateStack.getCount()) {
+                continue;
+            }
+            int want = templateStack.getCount() - currentStack.getCount();
+            int moved = StorageServerStub.transferMaterial(
+                target,
+                inventory,
+                templateStack,
+                want
+            );
+            if (moved > 0) {
+                current = current.withCraftingSlot(i, templateStack.copyWithCount(currentStack.getCount() + moved));
+                changed = true;
+            }
+        }
+        if (changed) {
+            target.write(current);
+        }
     }
 
     /**
