@@ -1247,8 +1247,11 @@ public final class StorageServerStub {
         boolean any = false;
         int iterations = 0;
         ResourceLocation lockedId = StorageServerStub.lockedTakeAllRecipe(playerId, sourcePos);
+        boolean chunkTailRefilled = false;
+        CraftingStorage lastCrafting = CraftingStorage.EMPTY;
         while (iterations++ < StorageServerStub.CRAFTING_TAKE_ALL_CHUNK) {
             CraftingStorage crafting = target.read();
+            lastCrafting = crafting;
             ItemStack result;
             if (stonecutter) {
                 result = StorageServerStub.assembleCraftingResult(player, crafting, true);
@@ -1311,7 +1314,28 @@ public final class StorageServerStub {
                 StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
                 break;
             }
-            StorageServerStub.autoRefillCrafting(player, target, crafting);
+            chunkTailRefilled = StorageServerStub.autoRefillCrafting(player, target, crafting);
+        }
+        if (!chunkTailRefilled && lastCrafting.autoFill()) {
+            // Last chunk frame was not refilled: persist the grid after the final
+            // consumption so material exhaustion reports done=true instead of
+            // one extra done=false frame that wastes a client round-trip.
+            CraftingStorage tail = target.read();
+            List<ItemStack> tailGrid = new ArrayList<>(tail.craftingInput());
+            List<ItemStack> templateGrid = lastCrafting.craftingInput();
+            boolean tailChanged = false;
+            for (int i = 0; i < templateGrid.size(); i++) {
+                ItemStack templateStack = templateGrid.get(i);
+                ItemStack currentStack = i < tailGrid.size() ? tailGrid.get(i) : ItemStack.EMPTY;
+                if (!templateStack.isEmpty()
+                    && currentStack.getCount() < templateStack.getCount()) {
+                    tailGrid.set(i, currentStack);
+                    tailChanged = true;
+                }
+            }
+            if (tailChanged) {
+                target.write(tail.withCraftingInput(tailGrid));
+            }
         }
         // 达到分块上限：材料尚未耗尽，由客户端继续调用（done=false），保留锁定配方
         player.containerMenu.broadcastChanges();
@@ -1560,18 +1584,18 @@ public final class StorageServerStub {
     }
 
     /**
-     * Auto-refill depleted crafting input slots when auto-fill is enabled.
+     * Auto-refill depleted crafting input slots when autofill is enabled.
      * The template is the crafting data before consumption; only slots that
      * became empty are refilled with the same item from the inventory first,
      * then from the attached storage (capped at the item stack size).
      */
-    private static void autoRefillCrafting(
+    private static boolean autoRefillCrafting(
         ServerPlayer player,
         StorageServerStub.CraftingTarget target,
         CraftingStorage template
     ) {
         if (!template.autoFill()) {
-            return;
+            return false;
         }
         CraftingStorage current = target.read();
         Inventory inventory = player.getInventory();
@@ -1602,6 +1626,11 @@ public final class StorageServerStub {
             if (currentStack.getCount() >= templateStack.getCount()) {
                 continue;
             }
+            // Refill only when the slot is empty or still holds the same item;
+            // otherwise the remainder item (bucket/bowl) must not be overwritten.
+            if (!currentStack.isEmpty() && !ItemStack.isSameItemSameComponents(currentStack, templateStack)) {
+                continue;
+            }
             int want = templateStack.getCount() - currentStack.getCount();
             int moved = StorageServerStub.transferMaterial(
                 target,
@@ -1617,6 +1646,7 @@ public final class StorageServerStub {
         if (changed) {
             target.write(current);
         }
+        return changed;
     }
 
     /**
