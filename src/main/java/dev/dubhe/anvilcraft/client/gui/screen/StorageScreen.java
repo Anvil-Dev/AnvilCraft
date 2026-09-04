@@ -1337,20 +1337,22 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.mode == ScreenMode.CRAFTING
             && MathUtil.isInRange(mouseX, mouseY, this.leftPos + 88, this.topPos + 182, this.leftPos + 100, this.topPos + 194)
         ) {
-            graphics.renderTooltip(
-                this.font,
-                this.craftingToStorageButton.getCurrent() == 1
-                    ? Component.translatable(
-                        "screen.anvilcraft.storage.crafting.to_storage",
-                        Component.translatable("screen.anvilcraft.storage.crafting.to_storage.storage")
-                    )
-                    : Component.translatable(
-                        "screen.anvilcraft.storage.crafting.to_storage",
-                        Component.translatable("screen.anvilcraft.storage.crafting.to_storage.player")
-                    ),
-                mouseX,
-                mouseY
-            );
+            if (this.craftingToStorageButton != null) {
+                graphics.renderTooltip(
+                    this.font,
+                    this.craftingToStorageButton.getCurrent() == 1
+                        ? Component.translatable(
+                            "screen.anvilcraft.storage.crafting.to_storage",
+                            Component.translatable("screen.anvilcraft.storage.crafting.to_storage.storage")
+                        )
+                        : Component.translatable(
+                            "screen.anvilcraft.storage.crafting.to_storage",
+                            Component.translatable("screen.anvilcraft.storage.crafting.to_storage.player")
+                        ),
+                    mouseX,
+                    mouseY
+                );
+            }
         }
     }
 
