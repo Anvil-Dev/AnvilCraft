@@ -714,7 +714,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.topPos,
             0,
             0,
-            Mth.ceil(194 * this.fullness),
+            Mth.clamp(Mth.ceil(194 * this.fullness), 0, 194),
             13,
             194,
             13

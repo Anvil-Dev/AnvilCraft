@@ -58,11 +58,11 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
         if (slot >= this.stacks.size()) {
             // 增长槽：仅在未超类型上限且空间允许时扩展，否则原样返回，
             // 避免 ItemHandlerHelper 遍历循环因 getSlots() 增长而无限循环
-            if (slot >= this.getSlots() || this.size() >= this.typeLimit) {
+            if (slot >= this.getSlots() || this.getTypeCount() >= this.typeLimit) {
                 return stack;
             }
             long capacity = TypeLimitItemStacksResourceHandler.computeCount(stack, this.spaceSize);
-            int amount = (int) Math.clamp(capacity, 0, stack.getCount());
+            int amount = Math.clamp(capacity, 0, stack.getCount());
             if (amount <= 0) {
                 return stack;
             }
@@ -78,6 +78,11 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
         if (existing.isEmpty() && matchingIndex >= 0 && matchingIndex != slot) {
             return stack;
         }
+        // 空槽插入新类型同样受类型上限约束：类型数可能因迁移暂时超过 typeLimit，
+        // 但空槽（曾存放某类型、取空后留下的）不能绕过上限引入新类型
+        if (existing.isEmpty() && this.getTypeCount() >= this.typeLimit) {
+            return stack;
+        }
         if (!existing.isEmpty() && !existing.isSameItemSameComponents(stack)) {
             return stack;
         }
@@ -91,7 +96,7 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
                 currentForType += item.getCount();
             }
         }
-        int amount = (int) Math.clamp(capacity - currentForType, 0, stack.getCount());
+        int amount = Math.clamp(capacity - currentForType, 0, stack.getCount());
         if (amount <= 0) {
             return stack;
         }
@@ -122,6 +127,40 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
         // 追加新类型时直接委托 slot 版本（含 simulate 试探的正确计算），
         // 否则 simulate=true 时漏斗/管道会误判「放不下」而无法插入
         return this.insertItem(newIndex, stack, simulate);
+    }
+
+    public void addTypeLimit(IntUnaryOperator adder) {
+        int newTypeLimit = adder.applyAsInt(this.typeLimit);
+        if (newTypeLimit >= this.typeLimit) {
+            this.typeLimit = checkTypeLimit(newTypeLimit);
+        }
+    }
+
+    /**
+     * 迁移/升级时保留整个堆叠，忽略类型上限（单种空间上限仍生效）。
+     * 大型板条箱升级为潜影集装箱时，类型数可能暂时超过 typeLimit：
+     * 这些类型不丢弃，在 typeLimit 扩容或移出多余类型前无法再新增其它类型。
+     */
+    public void retainIgnoringTypeLimit(UnlimitedItemStack stack) {
+        if (stack.isEmpty()) {
+            return;
+        }
+        int matchingIndex = TypeLimitItemStacksResourceHandler.findMatchingSlot(this.stacks, stack);
+        if (matchingIndex >= 0) {
+            UnlimitedItemStack existing = this.stacks.get(matchingIndex);
+            int capacity = TypeLimitItemStacksResourceHandler.computeCount(existing, this.spaceSize);
+            existing.setCount((int) Math.min(capacity, (long) existing.getCount() + stack.getCount()));
+        } else {
+            UnlimitedItemStack accepted = stack.copy();
+            accepted.setCount(Math.min(
+                accepted.getCount(),
+                TypeLimitItemStacksResourceHandler.computeCount(accepted, this.spaceSize)
+            ));
+            if (!accepted.isEmpty()) {
+                this.stacks.add(accepted);
+            }
+        }
+        this.onContentsChanged(-1, UnlimitedItemStack.EMPTY);
     }
 
     public void addSpaceSize(IntUnaryOperator adder) {
@@ -166,7 +205,9 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
         if (this.typeLimit == 0 || this.spaceSize == 0) {
             return 0;
         }
-        return this.getSpace() / ((double) this.typeLimit * this.spaceSize);
+        // 升级自大型板条箱等来源时类型数可能暂时超过 typeLimit，
+        // 钳制到 [0, 1] 防止标题栏容量条溢出
+        return Math.min(1.0, this.getSpace() / ((double) this.typeLimit * this.spaceSize));
     }
 
     @Override
@@ -182,12 +223,15 @@ public class TypeLimitItemStacksResourceHandler extends UnlimitedItemStacksResou
     }
 
     protected int findNewSlot() {
+        if (this.getTypeCount() >= this.typeLimit) {
+            return -1;
+        }
         for (int index = 0; index < this.size(); index++) {
             if (this.stacks.get(index).isEmpty()) {
                 return index;
             }
         }
-        return this.size() < this.typeLimit ? this.size() : -1;
+        return this.size();
     }
 
     private int findMatchingSlot(ItemStack stack) {

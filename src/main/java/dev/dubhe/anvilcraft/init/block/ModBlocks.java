@@ -1626,7 +1626,9 @@ public class ModBlocks {
         )
         .properties(properties -> properties.mapColor(MapColor.COLOR_PURPLE).strength(1.5F, 3).sound(SoundType.AMETHYST).noOcclusion())
         .blockstate(DataGenUtil::noExtraModelOrState)
-        .simpleItem()
+        .item()
+        .tag(Tags.Items.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
+        .build()
         .tag(BlockTags.MINEABLE_WITH_PICKAXE, Tags.Blocks.PLAYER_WORKSTATIONS_CRAFTING_TABLES)
         .recipe(RegistrumBlockRecipeLoader::transparentCraftingTable)
         .register();

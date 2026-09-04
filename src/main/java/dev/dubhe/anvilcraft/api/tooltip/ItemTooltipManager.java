@@ -750,10 +750,10 @@ public class ItemTooltipManager {
         );
         SHIFT.put(
             ModBlocks.SHULKER_CONTAINER.asItem(), """
-                Can contain 65536 types of items, each type contain 65536 space of items by default
+                Can contain 1024 types of items by default, each type with 65536 unit of items by default
                 Breaking it drops the container with its items stored inside
                 Drop Space Overcompressors on top and strike with an anvil to expand capacity
-                Each one doubles the storage space (up to 4 times)
+                Each one doubles both the type limit and the space per type (up to 4 times)
                 Can update to Hyperdimension Storage Station"""
         );
         SHIFT.put(

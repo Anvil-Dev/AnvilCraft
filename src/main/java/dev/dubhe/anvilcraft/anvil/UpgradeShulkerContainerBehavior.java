@@ -21,6 +21,11 @@ import java.util.List;
 import java.util.UUID;
 
 public class UpgradeShulkerContainerBehavior implements IAnvilBehavior {
+    /** 初始类型上限（1024 = 2^10），经最多 4 次翻倍后为 16384。 */
+    private static final int MAX_TYPE_LIMIT = 16384;
+    private static final int MAX_SPACE_SIZE = 1048576;
+    private static final int MAX_UPGRADES = 4;
+
     @Override
     public boolean handle(Level level, BlockPos hitBlockPos, BlockState hitBlockState, float fallDistance, AnvilEvent.OnLand event) {
         if (!hitBlockState.is(ModBlocks.SHULKER_CONTAINER)) {
@@ -59,11 +64,14 @@ public class UpgradeShulkerContainerBehavior implements IAnvilBehavior {
         ShulkerContainerStorage sc = Storages.get().getOrCreate(id, ShulkerContainerStorage.class);
         TypeLimitItemStacksResourceHandler scItems = sc.getItems();
 
-        count = Math.min(count, 4);
+        // 每个超压器将可存储种类数 x2 与每种可存空间 x2（最多 4 次）
+        count = Math.min(count, MAX_UPGRADES);
         for (int i = 0; i < count; i++) {
-            int old = scItems.getSpaceSize();
-            scItems.addSpaceSize(size -> Math.min(size * 2, 1048576)); // 65536 * 2^4
-            if (old == scItems.getSpaceSize()) {
+            int oldTypeLimit = scItems.getTypeLimit();
+            int oldSpaceSize = scItems.getSpaceSize();
+            scItems.addTypeLimit(typeLimit -> Math.min(typeLimit * 2, MAX_TYPE_LIMIT));
+            scItems.addSpaceSize(spaceSize -> Math.min(spaceSize * 2, MAX_SPACE_SIZE));
+            if (oldTypeLimit == scItems.getTypeLimit() && oldSpaceSize == scItems.getSpaceSize()) {
                 count = i;
                 break;
             } else {

@@ -123,18 +123,9 @@ public class Upgrade2ShulkerContainerBehavior implements IAnvilBehavior {
         for (int i = 0; i < items.size(); i++) {
             UnlimitedItemStack unlimitedStack = items.getUnlimitedStackInSlot(i);
             if (unlimitedStack.isEmpty()) continue;
-            ItemStack toInsert = unlimitedStack.toStack();
-            ItemStack leftover = scItems.insertItem(toInsert, false);
-            if (!leftover.isEmpty()) {
-                int remaining = leftover.getCount();
-                int maxStack = leftover.getMaxStackSize();
-                while (remaining > 0) {
-                    int dropCount = Math.min(maxStack, remaining);
-                    ItemStack dropped = leftover.copyWithCount(dropCount);
-                    Block.popResource(serverLevel, mainPart.above(3), dropped);
-                    remaining -= dropCount;
-                }
-            }
+            // 类型数可能超过新存储的 1024 类型上限：保留全部原类型（不丢弃），
+            // 只是暂时无法再新增类型，直到用空间超压器扩容或移出多余类型
+            scItems.retainIgnoringTypeLimit(unlimitedStack);
         }
         Storages.get().remove(storage.getId());
 
