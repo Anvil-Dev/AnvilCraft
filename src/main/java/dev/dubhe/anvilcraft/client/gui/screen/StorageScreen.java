@@ -1301,6 +1301,56 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 mouseX,
                 mouseY
             );
+        } else if (
+            this.mode == ScreenMode.CRAFTING
+            && this.craftingClearButton != null
+            && this.craftingClearButton.visible
+            && MathUtil.isInRange(mouseX, mouseY, this.leftPos + 62, this.topPos + 182, this.leftPos + 74, this.topPos + 194)
+        ) {
+            graphics.renderTooltip(
+                this.font,
+                Component.translatable("screen.anvilcraft.storage.crafting.clear"),
+                mouseX,
+                mouseY
+            );
+        } else if (
+            this.mode == ScreenMode.CRAFTING
+            && this.craftingAutoFillButton != null
+            && this.craftingAutoFillButton.visible
+            && MathUtil.isInRange(mouseX, mouseY, this.leftPos + 75, this.topPos + 182, this.leftPos + 87, this.topPos + 194)
+        ) {
+            graphics.renderTooltip(
+                this.font,
+                this.craftingAutoFillButton.getCurrent() == 1
+                    ? Component.translatable(
+                        "screen.anvilcraft.storage.crafting.auto_fill",
+                        Component.translatable("screen.anvilcraft.storage.crafting.auto_fill.enabled")
+                    )
+                    : Component.translatable(
+                        "screen.anvilcraft.storage.crafting.auto_fill",
+                        Component.translatable("screen.anvilcraft.storage.crafting.auto_fill.disabled")
+                    ),
+                mouseX,
+                mouseY
+            );
+        } else if (
+            this.mode == ScreenMode.CRAFTING
+            && MathUtil.isInRange(mouseX, mouseY, this.leftPos + 88, this.topPos + 182, this.leftPos + 100, this.topPos + 194)
+        ) {
+            graphics.renderTooltip(
+                this.font,
+                this.craftingToStorageButton.getCurrent() == 1
+                    ? Component.translatable(
+                        "screen.anvilcraft.storage.crafting.to_storage",
+                        Component.translatable("screen.anvilcraft.storage.crafting.to_storage.storage")
+                    )
+                    : Component.translatable(
+                        "screen.anvilcraft.storage.crafting.to_storage",
+                        Component.translatable("screen.anvilcraft.storage.crafting.to_storage.player")
+                    ),
+                mouseX,
+                mouseY
+            );
         }
     }
 

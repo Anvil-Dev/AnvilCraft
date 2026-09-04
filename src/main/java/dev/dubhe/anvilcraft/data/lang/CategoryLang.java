@@ -26,6 +26,13 @@ public class CategoryLang {
         provider.add("screen.anvilcraft.storage.capacity.types", "Types: %1$s/%2$s");
         provider.add("screen.anvilcraft.storage.capacity.infinity", "Infinity Storage");
         provider.add("screen.anvilcraft.storage.count", "Count: %s");
+        provider.add("screen.anvilcraft.storage.crafting.auto_fill", "Auto Refill: %s");
+        provider.add("screen.anvilcraft.storage.crafting.auto_fill.enabled", "Enabled");
+        provider.add("screen.anvilcraft.storage.crafting.auto_fill.disabled", "Disabled");
+        provider.add("screen.anvilcraft.storage.crafting.clear", "Clear crafting slots to storage");
+        provider.add("screen.anvilcraft.storage.crafting.to_storage", "Crafting Result Destination: %s");
+        provider.add("screen.anvilcraft.storage.crafting.to_storage.player", "Player Inventory");
+        provider.add("screen.anvilcraft.storage.crafting.to_storage.storage", "Storage");
         provider.add("screen.anvilcraft.storage.category.name", "Name: %s");
         provider.add("screen.anvilcraft.storage.category.mode", "Mode: %s");
         provider.add("screen.anvilcraft.storage.category.mode.unlimited", "Unlimited");
