@@ -826,6 +826,9 @@ public final class StorageServerStub {
             int inserted = view.insert(stack.copyWithCount(1), stack.getCount());
             if (inserted < stack.getCount()) {
                 List<ItemStack> newGrid = new ArrayList<>(grid);
+                for (int j = 0; j < i; j++) {
+                    newGrid.set(j, ItemStack.EMPTY);
+                }
                 newGrid.set(i, stack.copyWithCount(stack.getCount() - inserted));
                 target.write(crafting.withStonecutterInput(ItemStack.EMPTY).withCraftingInput(newGrid));
                 return true;
