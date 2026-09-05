@@ -92,21 +92,19 @@ public class TheMonolithEventListener {
         PROGRESS.remove(event.getEntity());
     }
 
-    /** 在书的周围随机位置生成附魔文字粒子，运动向量指向书，形成汇聚效果。 */
+    /** 在书的周围生成附魔文字粒子并汇聚到书上。 */
     private static void spawnConvergingParticles(ServerLevel level, Entity book) {
         RandomSource random = level.getRandom();
         for (int i = 0; i < 2; i++) {
             double angle = random.nextDouble() * Math.PI * 2;
             double distance = 2.5 + random.nextDouble() * 2.5;
-            double spawnX = book.getX() + Math.cos(angle) * distance;
-            double spawnZ = book.getZ() + Math.sin(angle) * distance;
-            double spawnY = book.getY() + random.nextDouble() * 2.0;
-            double targetY = book.getY() + 0.5;
+            // ENCHANT 粒子从“生成位置 + 速度向量”处出发、飞回生成位置（与附魔台粒子一致），
+            // 因此生成位置取书本位置、向量指向外围起点
             level.sendParticles(
                 ParticleTypes.ENCHANT,
-                spawnX, spawnY, spawnZ,
+                book.getX(), book.getY() + 0.5, book.getZ(),
                 0,
-                book.getX() - spawnX, targetY - spawnY, book.getZ() - spawnZ,
+                Math.cos(angle) * distance, random.nextDouble() * 2.0 - 0.5, Math.sin(angle) * distance,
                 1.0
             );
         }
