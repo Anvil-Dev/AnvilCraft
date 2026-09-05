@@ -4906,6 +4906,28 @@ public class ModBlocks {
         .build()
         .register();
 
+    public static final BlockEntry<? extends Block> LUNAR_ROCK = REGISTRUM.block("lunar_rock", Block::new)
+        .initialProperties(() -> Blocks.STONE)
+        .lang("Lunar Rock")
+        // 随机纹理变种的 blockstate 与模型为手写资源（assets/anvilcraft/blockstates/lunar_rock.json），
+        // 与原版草方块同机制：4 个纹理变种按方块位置随机显示
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/lunar_rock")))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
+        .register();
+
+    public static final BlockEntry<? extends Block> LUNAR_SOIL = REGISTRUM.block("lunar_soil", Block::new)
+        .initialProperties(() -> Blocks.DIRT)
+        .lang("Lunar Soil")
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/lunar_soil")))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
     public static void register() {
     }
 
