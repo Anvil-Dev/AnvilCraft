@@ -1,16 +1,17 @@
 package dev.dubhe.anvilcraft.worldgen;
 
+import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
 
@@ -39,7 +40,12 @@ public final class TheMonolith {
     public static void ensureGenerated(ServerLevel mun, BlockPos landingPos) {
         State state = State.get(mun);
         if (state.boundingBox != null) return;
-        state.setBoundingBox(place(mun, landingPos));
+        BoundingBox box = place(mun, landingPos);
+        state.setBoundingBox(box);
+        AnvilCraft.LOGGER.info(
+            "The Monolith generated at [{}, {}] ~ [{}, {}]",
+            box.minX(), box.minZ(), box.maxX(), box.maxZ()
+        );
     }
 
     /** 在指定位置附近放置碑体，返回碑体包围盒。 */

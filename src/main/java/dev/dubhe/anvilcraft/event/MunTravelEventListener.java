@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
+import dev.dubhe.anvilcraft.worldgen.TheMonolith;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
@@ -39,5 +41,6 @@ public class MunTravelEventListener {
         // 弃置珍珠以免落地后再次触发传送
         pearl.discard();
         player.teleportTo(mun, x + 0.5, y, z + 0.5, player.getYRot(), player.getXRot());
+        TheMonolith.ensureGenerated(mun, BlockPos.containing(x, y, z));
     }
 }
