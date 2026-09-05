@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.block.entity.storage;
 
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
 import dev.dubhe.anvilcraft.init.storage.ModStorageTypes;
+import dev.dubhe.anvilcraft.saved.storage.ShulkerContainerStorage;
+import dev.dubhe.anvilcraft.saved.storage.Storages;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -39,6 +41,19 @@ public class ShulkerContainerBlockEntity extends StorageBlockEntity {
 
     public ShulkerContainerBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state, ModStorageTypes.SHULKER_CONTAINER);
+    }
+
+    public boolean isEmpty() {
+        if (this.getTotalCount() != 0) {
+            return false;
+        }
+        UUID id = this.getId();
+        if (id == null) {
+            return true;
+        }
+        return Storages.get().get(this.getId(), ShulkerContainerStorage.class)
+            .map(storage -> storage.getItems().getTypeLimit() == ShulkerContainerStorage.DEFAULT_TYPE_LIMIT)
+            .orElse(false);
     }
 
     public void setOpen(ServerPlayer player, boolean opened) {
