@@ -7,7 +7,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
@@ -18,7 +17,7 @@ import net.minecraft.world.level.saveddata.SavedData;
 import javax.annotation.Nullable;
 
 /**
- * 石碑（The Monolith）：玩家第一次登月时在落点附近生成的 32x72x8 磨制深板岩巨碑，
+ * 石碑（The Monolith）：玩家第一次登月时在 Mun 世界原点 (0, 0) 生成的 32x72x8 磨制深板岩巨碑，
  * 全局唯一，包围盒持久化于 Mun 维度的 SavedData。
  */
 public final class TheMonolith {
@@ -28,17 +27,15 @@ public final class TheMonolith {
     public static final int EMBED_DEPTH = 4;
     /** 碑体结构模板。 */
     public static final ResourceLocation TEMPLATE = AnvilCraft.of("the_monolith");
-    /** 碑体中心距玩家落点的水平距离（格）。 */
-    private static final int PLACEMENT_DISTANCE = 24;
 
     private TheMonolith() {
     }
 
-    /** 玩家抵达 Mun 时调用；若石碑尚未生成，则在落点附近生成并记录。 */
-    public static void ensureGenerated(ServerLevel mun, BlockPos landingPos) {
+    /** 玩家抵达 Mun 时调用；若石碑尚未生成，则在原点生成并记录。 */
+    public static void ensureGenerated(ServerLevel mun) {
         State state = State.get(mun);
         if (state.boundingBox != null) return;
-        BoundingBox box = place(mun, landingPos);
+        BoundingBox box = place(mun);
         state.setBoundingBox(box);
         AnvilCraft.LOGGER.info(
             "The Monolith generated at [{}, {}, {}] ~ [{}, {}, {}]",
@@ -46,15 +43,12 @@ public final class TheMonolith {
         );
     }
 
-    /** 以结构模板（与 /place 相同的方式）在指定位置附近放置碑体，返回放置后的包围盒。 */
-    private static BoundingBox place(ServerLevel mun, BlockPos near) {
+    /** 以结构模板（与 /place 相同的方式）在世界原点放置碑体，返回放置后的包围盒。 */
+    private static BoundingBox place(ServerLevel mun) {
         RandomSource random = mun.getRandom();
-        double angle = random.nextDouble() * Mth.TWO_PI;
-        int centerX = near.getX() + Mth.floor(Math.cos(angle) * PLACEMENT_DISTANCE);
-        int centerZ = near.getZ() + Mth.floor(Math.sin(angle) * PLACEMENT_DISTANCE);
-        int surfaceY = CelestialTravelManager.findSurfaceY(mun, centerX, centerZ);
+        int surfaceY = CelestialTravelManager.findSurfaceY(mun, 0, 0);
         StructureTemplate template = mun.getServer().getStructureManager().getOrCreate(TEMPLATE);
-        Placement placement = placement(template, new BlockPos(centerX, surfaceY, centerZ), random);
+        Placement placement = placement(template, new BlockPos(0, surfaceY, 0), random);
         StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(placement.rotation());
         template.placeInWorld(mun, placement.corner(), placement.corner(), settings, random, 2 | 16);
         return placement.boundingBox();

@@ -42,7 +42,7 @@ public class TheMonolithEventListener {
         if (!(event.getEntity().getServer() instanceof MinecraftServer server)) return;
         ServerLevel mun = server.getLevel(CelestialTravelManager.MUN_LEVEL);
         if (mun == null) return;
-        TheMonolith.ensureGenerated(mun, event.getEntity().blockPosition());
+        TheMonolith.ensureGenerated(mun);
     }
 
     /** 玩家登录时若已身处 Mun（跨版本升级的存档），同样补生成石碑。 */
@@ -50,7 +50,7 @@ public class TheMonolithEventListener {
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity().level() instanceof ServerLevel level)) return;
         if (level.dimension() != CelestialTravelManager.MUN_LEVEL) return;
-        TheMonolith.ensureGenerated(level, event.getEntity().blockPosition());
+        TheMonolith.ensureGenerated(level);
     }
 
     @SubscribeEvent
