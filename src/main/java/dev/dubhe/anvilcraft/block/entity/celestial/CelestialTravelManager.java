@@ -36,6 +36,10 @@ public final class CelestialTravelManager {
         ResourceLocation.fromNamespaceAndPath("anvilcraft", "void_planet");
     public static final ResourceKey<Level> VOID_PLANET_LEVEL =
         ResourceKey.create(Registries.DIMENSION, VOID_PLANET_DIMENSION);
+    public static final ResourceLocation MUN_DIMENSION =
+        ResourceLocation.fromNamespaceAndPath("anvilcraft", "mun");
+    public static final ResourceKey<Level> MUN_LEVEL =
+        ResourceKey.create(Registries.DIMENSION, MUN_DIMENSION);
 
     private static final int SEARCH_RADIUS = 16;
     private static final int SPAWN_SEARCH_RADIUS = 32;
