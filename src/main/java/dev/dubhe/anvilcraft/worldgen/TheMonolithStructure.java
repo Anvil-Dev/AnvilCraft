@@ -2,14 +2,17 @@ package dev.dubhe.anvilcraft.worldgen;
 
 import com.mojang.serialization.MapCodec;
 import dev.dubhe.anvilcraft.init.ModStructureTypes;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureType;
 
 import java.util.Optional;
 
 /**
- * 石碑结构：仅在注册表中存在，不提供世界生成入口；
- * 碑体由代码在玩家首次登月时以结构模板放置。
+ * 石碑结构：不参与自然生成（无 structure_set）；
+ * 碑体在玩家首次登月时由代码放置，亦可通过 /place structure 手动放置。
  */
 public class TheMonolithStructure extends Structure {
     public static final MapCodec<TheMonolithStructure> CODEC = simpleCodec(TheMonolithStructure::new);
@@ -20,7 +23,21 @@ public class TheMonolithStructure extends Structure {
 
     @Override
     protected Optional<GenerationStub> findGenerationPoint(GenerationContext context) {
-        return Optional.empty();
+        ChunkPos chunkPos = context.chunkPos();
+        int x = chunkPos.getMiddleBlockX();
+        int z = chunkPos.getMiddleBlockZ();
+        int y = context.chunkGenerator().getFirstOccupiedHeight(
+            x, z, Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor(), context.randomState()
+        );
+        BlockPos surfacePos = new BlockPos(x, y, z);
+        return Optional.of(
+            new GenerationStub(
+                surfacePos,
+                builder -> builder.addPiece(
+                    TheMonolithPiece.at(context.structureTemplateManager(), surfacePos, context.random())
+                )
+            )
+        );
     }
 
     @Override

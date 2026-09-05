@@ -22,20 +22,14 @@ import javax.annotation.Nullable;
  * 全局唯一，包围盒持久化于 Mun 维度的 SavedData。
  */
 public final class TheMonolith {
-    /** 碑体宽度（格）。 */
-    public static final int WIDTH = 32;
-    /** 碑体高度（格）。 */
-    public static final int HEIGHT = 72;
-    /** 碑体厚度（格）。 */
-    public static final int THICKNESS = 8;
     /** 碑体每个面向外扩展的作用范围（格）。 */
     public static final int RANGE = 32;
     /** 碑体底部嵌入地下的深度（格）。 */
-    private static final int EMBED_DEPTH = 4;
+    public static final int EMBED_DEPTH = 4;
+    /** 碑体结构模板。 */
+    public static final ResourceLocation TEMPLATE = AnvilCraft.of("the_monolith");
     /** 碑体中心距玩家落点的水平距离（格）。 */
     private static final int PLACEMENT_DISTANCE = 24;
-    /** 碑体结构模板。 */
-    private static final ResourceLocation TEMPLATE = AnvilCraft.of("the_monolith");
 
     private TheMonolith() {
     }
@@ -47,8 +41,8 @@ public final class TheMonolith {
         BoundingBox box = place(mun, landingPos);
         state.setBoundingBox(box);
         AnvilCraft.LOGGER.info(
-            "The Monolith generated at [{}, {}] ~ [{}, {}]",
-            box.minX(), box.minZ(), box.maxX(), box.maxZ()
+            "The Monolith generated at [{}, {}, {}] ~ [{}, {}, {}]",
+            box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ()
         );
     }
 
@@ -58,17 +52,25 @@ public final class TheMonolith {
         double angle = random.nextDouble() * Mth.TWO_PI;
         int centerX = near.getX() + Mth.floor(Math.cos(angle) * PLACEMENT_DISTANCE);
         int centerZ = near.getZ() + Mth.floor(Math.sin(angle) * PLACEMENT_DISTANCE);
-        int baseY = mun.getHeight(Heightmap.Types.WORLD_SURFACE, centerX, centerZ) - EMBED_DEPTH;
+        int surfaceY = mun.getHeight(Heightmap.Types.WORLD_SURFACE, centerX, centerZ);
         StructureTemplate template = mun.getServer().getStructureManager().getOrCreate(TEMPLATE);
-        StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(Rotation.getRandom(random));
+        Placement placement = placement(template, new BlockPos(centerX, surfaceY, centerZ), random);
+        StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(placement.rotation());
+        template.placeInWorld(mun, placement.corner(), placement.corner(), settings, random, 2 | 16);
+        return placement.boundingBox();
+    }
+
+    /** 计算碑体放置参数：以地表位置为碑体中心，返回模板锚点（一角）、朝向与放置后的包围盒。 */
+    public static Placement placement(StructureTemplate template, BlockPos surfacePos, RandomSource random) {
+        Rotation rotation = Rotation.getRandom(random);
+        StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(rotation);
         BoundingBox unrotated = template.getBoundingBox(settings, BlockPos.ZERO);
-        // 锚点为模板一角，按跨度把中心对准目标点
-        BlockPos corner = new BlockPos(
-            centerX - unrotated.getXSpan() / 2, baseY, centerZ - unrotated.getZSpan() / 2
-        );
-        BoundingBox placed = template.getBoundingBox(settings, corner);
-        template.placeInWorld(mun, corner, corner, settings, random, 2 | 16);
-        return placed;
+        BlockPos corner = surfacePos.offset(-unrotated.getXSpan() / 2, -EMBED_DEPTH, -unrotated.getZSpan() / 2);
+        return new Placement(corner, rotation, template.getBoundingBox(settings, corner));
+    }
+
+    /** 一次碑体放置的参数。 */
+    public record Placement(BlockPos corner, Rotation rotation, BoundingBox boundingBox) {
     }
 
     /** 石碑的持久化状态：全局唯一的碑体包围盒。 */
