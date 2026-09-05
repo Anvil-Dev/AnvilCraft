@@ -143,6 +143,10 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         new ItemStack(ModBlocks.CONFINED_ENERGY_ANVILON.asItem())
     };
 
+    public boolean isGuideTriggered() {
+        return Boolean.TRUE.equals(guideTriggered);
+    }
+
     /// 搜索状态枚举
     private enum SearchState {
         IDLE, LOADING, DONE, FAIL, POWER_FAIL
@@ -207,7 +211,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     /// 指南触发：当砧子数量变化时显示星图
     private final int[] previousAnvilCounts = new int[4];
-    private boolean guideTriggered = true;
+    private @Nullable Boolean guideTriggered;
     private final AbstractWidget mapsGuide;
 
     public CelestialForgingAnvilScreen(CelestialForgingAnvilMenu menu, Inventory playerInventory, Component title) {
@@ -252,6 +256,9 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         mapsGuide.setY(getGuiTop() + PV_Y + (PV_H - len) / 2);
         mapsGuide.setSize(len, len);
         addRenderableWidget(mapsGuide);
+        if (guideTriggered == null) {
+            guideTriggered = searchState != SearchState.DONE;
+        }
     }
 
     @Override
@@ -604,6 +611,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     }
 
     private void renderPreviewArea(GuiGraphics guiGraphics) {
+        mapsGuide.visible = false;
         /// 检查恒星天体是否缺少增幅器
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
         boolean missingAmplifier = body instanceof StarData star
@@ -624,11 +632,10 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
         /// 砧子数量变化且未锁定且未搜索时，显示星图指南。
         /// 指南保持可见直到新搜索开始（guideTriggered被重置）。
-        if (!isLocked() && guideTriggered && searchState != SearchState.LOADING) {
+        if (!isLocked() && isGuideTriggered() && searchState != SearchState.LOADING) {
             mapsGuide.visible = true;
             return;
         }
-        mapsGuide.visible = false;
         switch (searchState) {
             case LOADING -> {
                 String base = Component.translatable("screen.anvilcraft.cfa.search_loading").getString();
@@ -1535,7 +1542,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         /// 当星图指南可见时，在其上方重新渲染预览按钮
-        if (!isLocked() && guideTriggered && searchState != SearchState.LOADING) {
+        if (!isLocked() && isGuideTriggered() && searchState != SearchState.LOADING) {
             int relX = mouseX - leftPos;
             int relY = mouseY - topPos;
             renderPreviewBottomButtons(guiGraphics, leftPos, topPos, relX, relY);

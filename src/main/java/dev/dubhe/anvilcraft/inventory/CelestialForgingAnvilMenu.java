@@ -116,6 +116,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
                 var count = getSlot(slotId).getItem().getCount();
                 if (count == button) break;
                 handleAnvilTransfer(slotId, button > count);
+                if (count == getSlot(slotId).getItem().getCount()) break;
             }
             return;
         }

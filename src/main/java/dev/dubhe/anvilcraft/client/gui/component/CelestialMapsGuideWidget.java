@@ -210,10 +210,10 @@ public final class CelestialMapsGuideWidget extends AbstractWidget {
         var containerId = screen.getMenu().containerId;
         var x0 = (mouseX - getX()) / getWidth() * MAP_SIZE;
         var y0 = (mouseY - getY()) / getHeight() * MAP_SIZE;
-        var time = Math.clamp((int) Math.floor(x0 - X1), 0, 64);
-        var space = Math.clamp(64 - (int) (Math.floor(y0 - Y1 + 8) * 64 / 63), 0, 64);
-        var energy = Math.clamp(64 - (int) (Math.floor(y0 - Y2 + 8) * 64 / 63), 0, 64);
-        var mass = Math.clamp((int) Math.floor(x0 - X2), 0, 64);
+        var time = Math.clamp((int) Math.floor(x0 - X1), 1, 64);
+        var space = Math.clamp(64 - (int) (Math.floor(y0 - Y1 + 8)), 1, 64);
+        var energy = Math.clamp(64 - (int) (Math.floor(y0 - Y2 + 8)), 1, 64);
+        var mass = Math.clamp((int) Math.floor(x0 - X2), 1, 64);
         if (isIn(x0, y0)) {
             interactor.handleInventoryMouseClick(containerId, 0, time, ClickType.QUICK_CRAFT, player);
             interactor.handleInventoryMouseClick(containerId, 1, space, ClickType.QUICK_CRAFT, player);
