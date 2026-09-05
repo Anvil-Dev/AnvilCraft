@@ -8,14 +8,18 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.level.levelgen.DensityFunction;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
  * 环形山密度函数：按多个图层（不同尺度）以网格单元随机撒布环形山，
  * 山脊为高斯凸起，坑内为平底洼地。
  *
- * <p>坑与坑重叠时（包括跨图层），落入新坑（优先级更高）内部的位置会被抹平，
- * 只保留新坑自身轮廓；坑外的山脊照常叠加，重叠处隆起更高。</p>
+ * <p>坑与坑重叠时（包括跨图层）按优先级从旧到新依次施加：
+ * 新坑以坑心处的旧地形为基准向下挖掘坑底、在旧地形上堆叠山脊，
+ * 因此新坑不会把旧坑内部抬回基准地面，也不会残留旧坑轮廓；
+ * 坑外的山脊照常叠加，重叠处隆起更高。</p>
  *
  * <p>地形修饰仅作用于水平方向（忽略 y），竖向衰减在噪声设置 JSON 中组合。</p>
  *
@@ -39,6 +43,8 @@ public record CraterDensityFunction(NoiseHolder noise, List<Layer> layers) imple
     private static final double FLAT_FLOOR_FRACTION = 0.55;
     /** 强度随机量的上界，用于估算值域。 */
     private static final double MAX_STRENGTH = 1.3;
+    /** 完全嵌套在其他坑内部的环形山，山脊高度按此系数削弱。 */
+    private static final double NESTED_RIM_FACTOR = 0.2;
 
     /**
      * 一个环形山图层的参数。
@@ -74,9 +80,8 @@ public record CraterDensityFunction(NoiseHolder noise, List<Layer> layers) imple
     public double compute(FunctionContext context) {
         int x = context.blockX();
         int z = context.blockZ();
-        double rimSum = 0.0;
-        CellCrater containing = null;
-        double containingRim = 0.0;
+        List<CellCrater> containing = new ArrayList<>();
+        List<CellCrater> outside = new ArrayList<>();
         for (Layer layer : this.layers) {
             int cellX = Math.floorDiv(x, layer.cellSize);
             int cellZ = Math.floorDiv(z, layer.cellSize);
@@ -85,34 +90,100 @@ public record CraterDensityFunction(NoiseHolder noise, List<Layer> layers) imple
                 for (int cz = cellZ - 1; cz <= cellZ + 1; cz++) {
                     CellCrater crater = this.cellCrater(layer, cx, cz);
                     if (crater == null) continue;
-                    double distance = crater.distance(x, z);
-                    double rimOffset = (distance - crater.radius) / layer.rimWidth;
-                    double rim = layer.rimHeight * Math.exp(-rimOffset * rimOffset) * crater.strength;
-                    if (distance < crater.radius) {
-                        // 落入坑内：只保留优先级最高（最新）的坑
-                        if (containing == null || crater.priority > containing.priority) {
-                            containing = crater;
-                            containingRim = rim;
-                        }
+                    if (crater.distance(x, z) < crater.radius) {
+                        containing.add(crater);
                     } else {
-                        rimSum += rim;
+                        outside.add(crater);
                     }
                 }
             }
         }
-        if (containing == null) return rimSum;
-        // 新坑内部抹平旧坑轮廓：只保留本坑的山脊与平底洼地
-        Layer layer = containing.layer;
-        double distance = containing.distance(x, z);
-        double wallFactor = Mth.clamp(
-            (distance - containing.radius * FLAT_FLOOR_FRACTION)
-                / (containing.radius * (1.0 - FLAT_FLOOR_FRACTION)),
-            0.0,
-            1.0
-        );
-        double wall = wallFactor * wallFactor * (3.0 - 2.0 * wallFactor);
-        double bowl = -layer.bowlDepth * (1.0 - wall) * containing.strength;
-        return containingRim + bowl;
+        if (containing.isEmpty()) {
+            // 坑外：所有坑的山脊照常叠加，重叠处隆起更高
+            double rimSum = 0.0;
+            for (CellCrater crater : outside) {
+                rimSum += this.rim(crater, x, z);
+            }
+            return rimSum;
+        }
+        // 坑内：按优先级从旧到新依次施加，新坑以坑心处旧地形为基准向下挖掘、向上堆山脊
+        containing.sort(Comparator.comparingDouble(CellCrater::priority));
+        double winnerPriority = containing.getLast().priority();
+        double height = 0.0;
+        for (CellCrater crater : containing) {
+            double distance = crater.distance(x, z);
+            // 完全嵌套在其他坑内部的小坑仅保留微弱山脊，呈现为浅凹陷而非环形围墙
+            double rim = this.rim(crater, x, z) * (this.isNested(crater) ? NESTED_RIM_FACTOR : 1.0);
+            double wallFactor = Mth.clamp(
+                (distance - crater.radius * FLAT_FLOOR_FRACTION)
+                    / (crater.radius * (1.0 - FLAT_FLOOR_FRACTION)),
+                0.0,
+                1.0
+            );
+            double wall = wallFactor * wallFactor * (3.0 - 2.0 * wallFactor);
+            double bowl = -crater.layer.bowlDepth * (1.0 - wall) * crater.strength;
+            double floorLevel = this.referenceDelta(crater) + bowl;
+            double ejectaLevel = height + rim;
+            height = Mth.lerp(wall, floorLevel, ejectaLevel);
+        }
+        // 比最新坑更新的坑，山脊仍叠加在最上方；更旧的坑轮廓已被抹除
+        for (CellCrater crater : outside) {
+            if (crater.priority > winnerPriority) height += this.rim(crater, x, z);
+        }
+        return height;
+    }
+
+    /** 山脊：半径处的高斯凸起。 */
+    private double rim(CellCrater crater, double x, double z) {
+        double rimOffset = (crater.distance(x, z) - crater.radius) / crater.layer.rimWidth;
+        return crater.layer.rimHeight * Math.exp(-rimOffset * rimOffset) * crater.strength;
+    }
+
+    /** 估算一座环形山坑心处的旧地形增量：所有更旧环形山在坑心的轮廓之和（单级近似）。 */
+    private double referenceDelta(CellCrater crater) {
+        double delta = 0.0;
+        for (Layer layer : this.layers) {
+            int cellX = Math.floorDiv(Mth.floor(crater.centerX), layer.cellSize);
+            int cellZ = Math.floorDiv(Mth.floor(crater.centerZ), layer.cellSize);
+            for (int cx = cellX - 1; cx <= cellX + 1; cx++) {
+                for (int cz = cellZ - 1; cz <= cellZ + 1; cz++) {
+                    if (layer == crater.layer && cx == crater.cellX && cz == crater.cellZ) continue;
+                    CellCrater other = this.cellCrater(layer, cx, cz);
+                    if (other == null || other.priority >= crater.priority) continue;
+                    delta += this.rim(other, crater.centerX, crater.centerZ);
+                    double distance = other.distance(crater.centerX, crater.centerZ);
+                    if (distance >= other.radius) continue;
+                    double wallFactor = Mth.clamp(
+                        (distance - other.radius * FLAT_FLOOR_FRACTION)
+                            / (other.radius * (1.0 - FLAT_FLOOR_FRACTION)),
+                        0.0,
+                        1.0
+                    );
+                    double wall = wallFactor * wallFactor * (3.0 - 2.0 * wallFactor);
+                    delta -= other.layer.bowlDepth * (1.0 - wall) * other.strength;
+                }
+            }
+        }
+        return delta;
+    }
+
+    /** 判断一座环形山是否被另一座更大的环形山完全包含。 */
+    private boolean isNested(CellCrater crater) {
+        for (Layer layer : this.layers) {
+            int cellX = Math.floorDiv(Mth.floor(crater.centerX), layer.cellSize);
+            int cellZ = Math.floorDiv(Mth.floor(crater.centerZ), layer.cellSize);
+            for (int cx = cellX - 1; cx <= cellX + 1; cx++) {
+                for (int cz = cellZ - 1; cz <= cellZ + 1; cz++) {
+                    if (layer == crater.layer && cx == crater.cellX && cz == crater.cellZ) continue;
+                    CellCrater other = this.cellCrater(layer, cx, cz);
+                    if (other == null || other.radius <= crater.radius) continue;
+                    if (other.distance(crater.centerX, crater.centerZ) + crater.radius <= other.radius) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     /** 计算指定图层某单元的环形山参数；该单元没有环形山时返回 null。 */
@@ -136,11 +207,20 @@ public record CraterDensityFunction(NoiseHolder noise, List<Layer> layers) imple
         double maxJitter = layer.cellSize * 0.5 - layer.maxRadius - 4.0;
         double centerX = (cellX + 0.5) * layer.cellSize + jitterX * maxJitter;
         double centerZ = (cellZ + 0.5) * layer.cellSize + jitterZ * maxJitter;
-        return new CellCrater(layer, centerX, centerZ, radius, strength, priorityRoll);
+        return new CellCrater(layer, cellX, cellZ, centerX, centerZ, radius, strength, priorityRoll);
     }
 
     /** 一个图层单元内的环形山参数。 */
-    private record CellCrater(Layer layer, double centerX, double centerZ, double radius, double strength, double priority) {
+    private record CellCrater(
+        Layer layer,
+        int cellX,
+        int cellZ,
+        double centerX,
+        double centerZ,
+        double radius,
+        double strength,
+        double priority
+    ) {
         double distance(double x, double z) {
             return Math.hypot(x - this.centerX, z - this.centerZ);
         }
