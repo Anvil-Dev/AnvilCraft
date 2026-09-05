@@ -66,6 +66,8 @@ public final class GravityManager {
         GravitySourceManager.registerSourceType(BlackHoleBlock.class, 7, 10);
         GravitySourceManager.registerSourceType(WhiteHoleBlock.class, 7, -10);
         registerDimensionGravity(CelestialTravelManager.VOID_PLANET_LEVEL, 0.0);
+        // 月球重力约为地球的 1/6
+        registerDimensionGravity(CelestialTravelManager.MUN_LEVEL, 1.0 / 6.0);
     }
 
     private GravityManager() {
