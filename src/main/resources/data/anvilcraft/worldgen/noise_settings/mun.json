@@ -46,40 +46,34 @@
         "argument2": {
           "type": "minecraft:mul",
           "argument1": {
-            "type": "minecraft:add",
-            "argument1": {
-              "type": "minecraft:add",
-              "argument1": {
-                "type": "anvilcraft:crater",
+            "type": "anvilcraft:crater",
+            "layers": [
+              {
                 "bowl_depth": 0.5,
                 "cell_size": 384,
                 "max_radius": 150.0,
                 "min_radius": 80.0,
-                "noise": "anvilcraft:crater_cell",
                 "rim_height": 0.5,
                 "rim_width": 12.0
               },
-              "argument2": {
-                "type": "anvilcraft:crater",
+              {
                 "bowl_depth": 0.45,
                 "cell_size": 192,
                 "max_radius": 72.0,
                 "min_radius": 32.0,
-                "noise": "anvilcraft:crater_cell",
                 "rim_height": 0.55,
                 "rim_width": 7.0
+              },
+              {
+                "bowl_depth": 0.2,
+                "cell_size": 64,
+                "max_radius": 18.0,
+                "min_radius": 6.0,
+                "rim_height": 0.15,
+                "rim_width": 3.0
               }
-            },
-            "argument2": {
-              "type": "anvilcraft:crater",
-              "bowl_depth": 0.2,
-              "cell_size": 64,
-              "max_radius": 18.0,
-              "min_radius": 6.0,
-              "noise": "anvilcraft:crater_cell",
-              "rim_height": 0.15,
-              "rim_width": 3.0
-            }
+            ],
+            "noise": "anvilcraft:crater_cell"
           },
           "argument2": {
             "type": "minecraft:mul",
