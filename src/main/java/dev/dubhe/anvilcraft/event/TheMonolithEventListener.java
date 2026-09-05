@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.worldgen.TheMonolith;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -34,12 +35,22 @@ public class TheMonolithEventListener {
      */
     private static final Map<Entity, Integer> PROGRESS = new WeakHashMap<>();
 
-    /** 玩家第一次进入 Mun 时，在落点附近生成全局唯一的石碑。 */
+    /** 玩家进入 Mun 时，在落点附近生成全局唯一的石碑。 */
     @SubscribeEvent
     public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
         if (event.getTo() != CelestialTravelManager.MUN_LEVEL) return;
-        if (!(event.getEntity().level() instanceof ServerLevel mun)) return;
+        if (!(event.getEntity().getServer() instanceof MinecraftServer server)) return;
+        ServerLevel mun = server.getLevel(CelestialTravelManager.MUN_LEVEL);
+        if (mun == null) return;
         TheMonolith.ensureGenerated(mun, event.getEntity().blockPosition());
+    }
+
+    /** 玩家登录时若已身处 Mun（跨版本升级的存档），同样补生成石碑。 */
+    @SubscribeEvent
+    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
+        if (!(event.getEntity().level() instanceof ServerLevel level)) return;
+        if (level.dimension() != CelestialTravelManager.MUN_LEVEL) return;
+        TheMonolith.ensureGenerated(level, event.getEntity().blockPosition());
     }
 
     @SubscribeEvent
