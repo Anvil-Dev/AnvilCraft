@@ -9,6 +9,8 @@ public class OtherLang {
         provider.add("component_content.anvilcraft.mod_name.ageratum", "Ageratum");
         provider.add("component_content.anvilcraft.mod_name.anvilcraft", "AnvilCraft");
 
+        provider.add("dimension.anvilcraft.mun", "Mun");
+
         provider.add("item.anvilcraft.inherent_enchantment.tooltip", "Inherent enchantments:");
         provider.add(
             "item.anvilcraft.amethyst_pickaxe.tooltip", "Stone pickaxe quality, can mine iron ore, not diamonds!");
