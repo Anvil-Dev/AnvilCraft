@@ -9,13 +9,15 @@ import java.util.UUID;
 import java.util.function.BiConsumer;
 
 public class ShulkerContainerStorage extends BaseStorage<TypeLimitItemStacksResourceHandler> {
+    public static final int DEFAULT_TYPE_LIMIT = 1024;
+
     public ShulkerContainerStorage(UUID id) {
         super(id);
     }
 
     @Override
     protected TypeLimitItemStacksResourceHandler constructItemHandler(BiConsumer<Integer, UnlimitedItemStack> onContentsChanged) {
-        return new TypeLimitItemStacksResourceHandler(1024, 65536) {
+        return new TypeLimitItemStacksResourceHandler(ShulkerContainerStorage.DEFAULT_TYPE_LIMIT, 65536) {
             @Override
             protected void onContentsChanged(int index, UnlimitedItemStack original) {
                 onContentsChanged.accept(index, original);
