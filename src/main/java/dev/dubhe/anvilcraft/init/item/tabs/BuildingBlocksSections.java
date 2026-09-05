@@ -124,6 +124,8 @@ public class BuildingBlocksSections extends DisplayItemsGenerator {
                 content.accept(ModBlocks.LEVITATION_POWDER_BLOCK);
                 content.accept(ModBlocks.NETHER_DUST);
                 content.accept(ModBlocks.END_DUST);
+                content.accept(ModBlocks.LUNAR_ROCK);
+                content.accept(ModBlocks.LUNAR_SOIL);
                 content.accept(ModBlocks.STURDY_DEEPSLATE);
                 content.accept(ModBlocks.DEEPSLATE_ZINC_ORE);
                 content.accept(ModBlocks.DEEPSLATE_TIN_ORE);

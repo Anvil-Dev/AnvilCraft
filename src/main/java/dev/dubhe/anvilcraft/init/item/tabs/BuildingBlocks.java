@@ -112,6 +112,8 @@ public class BuildingBlocks extends DisplayItemsGenerator {
         this.plain(ModBlocks.CONTROLLABLE_SAND);
         this.plain(ModBlocks.NETHER_DUST);
         this.plain(ModBlocks.END_DUST);
+        this.plain(ModBlocks.LUNAR_ROCK);
+        this.plain(ModBlocks.LUNAR_SOIL);
         this.plain(ModBlocks.RAW_ZINC_BLOCK);
         this.plain(ModBlocks.RAW_TIN_BLOCK);
         this.plain(ModBlocks.RAW_TITANIUM_BLOCK);

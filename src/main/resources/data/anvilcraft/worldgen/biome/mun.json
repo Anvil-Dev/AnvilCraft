@@ -14,7 +14,22 @@
     "water_color": 4159204,
     "water_fog_color": 329011
   },
-  "features": [],
+  "features": [
+    [],
+    [],
+    [],
+    [],
+    [],
+    [],
+    [
+      "anvilcraft:mun_deepslate_iron_ore",
+      "anvilcraft:mun_deepslate_titanium_ore"
+    ],
+    [],
+    [],
+    [],
+    []
+  ],
   "has_precipitation": false,
   "spawn_costs": {},
   "spawners": {
