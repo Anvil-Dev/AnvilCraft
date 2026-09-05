@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.worldgen;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
@@ -9,7 +10,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.block.Rotation;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -52,7 +52,7 @@ public final class TheMonolith {
         double angle = random.nextDouble() * Mth.TWO_PI;
         int centerX = near.getX() + Mth.floor(Math.cos(angle) * PLACEMENT_DISTANCE);
         int centerZ = near.getZ() + Mth.floor(Math.sin(angle) * PLACEMENT_DISTANCE);
-        int surfaceY = mun.getHeight(Heightmap.Types.WORLD_SURFACE, centerX, centerZ);
+        int surfaceY = CelestialTravelManager.findSurfaceY(mun, centerX, centerZ);
         StructureTemplate template = mun.getServer().getStructureManager().getOrCreate(TEMPLATE);
         Placement placement = placement(template, new BlockPos(centerX, surfaceY, centerZ), random);
         StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(placement.rotation());

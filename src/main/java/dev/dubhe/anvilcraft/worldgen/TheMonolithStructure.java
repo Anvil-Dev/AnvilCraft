@@ -1,8 +1,10 @@
 package dev.dubhe.anvilcraft.worldgen;
 
 import com.mojang.serialization.MapCodec;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.init.ModStructureTypes;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.Structure;
@@ -26,9 +28,12 @@ public class TheMonolithStructure extends Structure {
         ChunkPos chunkPos = context.chunkPos();
         int x = chunkPos.getMiddleBlockX();
         int z = chunkPos.getMiddleBlockZ();
-        int y = context.chunkGenerator().getFirstOccupiedHeight(
-            x, z, Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor(), context.randomState()
-        );
+        // 目标区块地形可能尚未生成，优先直接扫描方块获取地表
+        int y = context.heightAccessor() instanceof ServerLevel level
+            ? CelestialTravelManager.findSurfaceY(level, x, z)
+            : context.chunkGenerator().getFirstOccupiedHeight(
+                x, z, Heightmap.Types.WORLD_SURFACE_WG, context.heightAccessor(), context.randomState()
+            );
         BlockPos surfacePos = new BlockPos(x, y, z);
         return Optional.of(
             new GenerationStub(
