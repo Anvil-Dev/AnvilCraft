@@ -24,6 +24,8 @@ public final class AirResistanceManager {
 
     static {
         registerDimensionAirResistance(CelestialTravelManager.VOID_PLANET_LEVEL, 0.0);
+        // 月球大气稀薄，保留一半原版阻力以免无法减速
+        registerDimensionAirResistance(CelestialTravelManager.MUN_LEVEL, 0.5);
     }
 
     private AirResistanceManager() {

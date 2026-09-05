@@ -1,0 +1,9 @@
+{
+  "biomes": [
+    "anvilcraft:mun"
+  ],
+  "spawn_overrides": {},
+  "step": "surface_structures",
+  "terrain_adaptation": "none",
+  "type": "anvilcraft:the_monolith"
+}

@@ -17,6 +17,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
+import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.portal.DimensionTransition;
@@ -36,6 +37,10 @@ public final class CelestialTravelManager {
         ResourceLocation.fromNamespaceAndPath("anvilcraft", "void_planet");
     public static final ResourceKey<Level> VOID_PLANET_LEVEL =
         ResourceKey.create(Registries.DIMENSION, VOID_PLANET_DIMENSION);
+    public static final ResourceLocation MUN_DIMENSION =
+        ResourceLocation.fromNamespaceAndPath("anvilcraft", "mun");
+    public static final ResourceKey<Level> MUN_LEVEL =
+        ResourceKey.create(Registries.DIMENSION, MUN_DIMENSION);
 
     private static final int SEARCH_RADIUS = 16;
     private static final int SPAWN_SEARCH_RADIUS = 32;
@@ -48,6 +53,19 @@ public final class CelestialTravelManager {
     private static final long OVERWORLD_LIKE_ADDEND = 0xBF58476D1CE4E5B9L;
 
     private CelestialTravelManager() {
+    }
+
+    /**
+     * 强制将目标区块生成到完整状态后自上而下扫描第一个非空气方块，
+     * 在地形尚未生成（高度图不可用）时也能得到正确的地表高度。
+     */
+    public static int findSurfaceY(ServerLevel level, int x, int z) {
+        ChunkAccess chunk = level.getChunk(x >> 4, z >> 4);
+        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos(x, level.getMaxBuildHeight() - 1, z);
+        while (pos.getY() > level.getMinBuildHeight() && chunk.getBlockState(pos).isAir()) {
+            pos.move(Direction.DOWN);
+        }
+        return pos.getY();
     }
 
     public static boolean isOverworldLike(ResourceKey<Level> dimension) {
