@@ -4,13 +4,15 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.Rotation;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.saveddata.SavedData;
 
 import javax.annotation.Nullable;
@@ -32,6 +34,8 @@ public final class TheMonolith {
     private static final int EMBED_DEPTH = 4;
     /** 碑体中心距玩家落点的水平距离（格）。 */
     private static final int PLACEMENT_DISTANCE = 24;
+    /** 碑体结构模板。 */
+    private static final ResourceLocation TEMPLATE = AnvilCraft.of("the_monolith");
 
     private TheMonolith() {
     }
@@ -48,33 +52,23 @@ public final class TheMonolith {
         );
     }
 
-    /** 在指定位置附近放置碑体，返回碑体包围盒。 */
+    /** 以结构模板（与 /place 相同的方式）在指定位置附近放置碑体，返回放置后的包围盒。 */
     private static BoundingBox place(ServerLevel mun, BlockPos near) {
         RandomSource random = mun.getRandom();
         double angle = random.nextDouble() * Mth.TWO_PI;
         int centerX = near.getX() + Mth.floor(Math.cos(angle) * PLACEMENT_DISTANCE);
         int centerZ = near.getZ() + Mth.floor(Math.sin(angle) * PLACEMENT_DISTANCE);
         int baseY = mun.getHeight(Heightmap.Types.WORLD_SURFACE, centerX, centerZ) - EMBED_DEPTH;
-        int halfWidth = WIDTH / 2;
-        int halfThickness = THICKNESS / 2;
-        // 宽边朝向随机
-        BoundingBox box = random.nextBoolean()
-            ? new BoundingBox(
-                centerX - halfWidth, baseY, centerZ - halfThickness,
-                centerX + halfWidth - 1, baseY + HEIGHT - 1, centerZ + halfThickness - 1)
-            : new BoundingBox(
-                centerX - halfThickness, baseY, centerZ - halfWidth,
-                centerX + halfThickness - 1, baseY + HEIGHT - 1, centerZ + halfWidth - 1);
-        BlockState state = Blocks.POLISHED_DEEPSLATE.defaultBlockState();
-        BlockPos.MutableBlockPos pos = new BlockPos.MutableBlockPos();
-        for (int x = box.minX(); x <= box.maxX(); x++) {
-            for (int y = box.minY(); y <= box.maxY(); y++) {
-                for (int z = box.minZ(); z <= box.maxZ(); z++) {
-                    mun.setBlock(pos.set(x, y, z), state, 3);
-                }
-            }
-        }
-        return box;
+        StructureTemplate template = mun.getServer().getStructureManager().getOrCreate(TEMPLATE);
+        StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(Rotation.getRandom(random));
+        BoundingBox unrotated = template.getBoundingBox(settings, BlockPos.ZERO);
+        // 锚点为模板一角，按跨度把中心对准目标点
+        BlockPos corner = new BlockPos(
+            centerX - unrotated.getXSpan() / 2, baseY, centerZ - unrotated.getZSpan() / 2
+        );
+        BoundingBox placed = template.getBoundingBox(settings, corner);
+        template.placeInWorld(mun, corner, corner, settings, random, 2 | 16);
+        return placed;
     }
 
     /** 石碑的持久化状态：全局唯一的碑体包围盒。 */

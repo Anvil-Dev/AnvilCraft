@@ -29,6 +29,7 @@ import dev.dubhe.anvilcraft.init.ModMobEffects;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.init.ModStats;
+import dev.dubhe.anvilcraft.init.ModStructureTypes;
 import dev.dubhe.anvilcraft.init.ModTargetPointers;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
@@ -101,6 +102,7 @@ public class AnvilCraft {
         NeoForgeMod.enableMilkFluid();
         ModBiomeSources.register(modEventBus);
         ModDensityFunctionTypes.register(modEventBus);
+        ModStructureTypes.register(modEventBus);
         ModAttachments.register(modEventBus);
         ModItemGroups.register(modEventBus);
         ModBlocks.register();
