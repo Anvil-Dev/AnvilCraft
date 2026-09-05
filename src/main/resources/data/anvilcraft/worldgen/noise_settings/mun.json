@@ -72,12 +72,12 @@
             },
             "argument2": {
               "type": "anvilcraft:crater",
-              "bowl_depth": 0.35,
+              "bowl_depth": 0.2,
               "cell_size": 64,
               "max_radius": 18.0,
               "min_radius": 6.0,
               "noise": "anvilcraft:crater_cell",
-              "rim_height": 0.4,
+              "rim_height": 0.15,
               "rim_width": 3.0
             }
           },
