@@ -9,7 +9,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.projectile.ThrownEnderpearl;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.levelgen.Heightmap;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
@@ -37,7 +36,7 @@ public class MunTravelEventListener {
         if (mun == null) return;
         int x = Mth.floor(pearl.getX() / COORDINATE_SCALE);
         int z = Mth.floor(pearl.getZ() / COORDINATE_SCALE);
-        int y = mun.getHeight(Heightmap.Types.WORLD_SURFACE, x, z) + ARRIVAL_HEIGHT_ABOVE_SURFACE;
+        int y = CelestialTravelManager.findSurfaceY(mun, x, z) + ARRIVAL_HEIGHT_ABOVE_SURFACE;
         // 弃置珍珠以免落地后再次触发传送
         pearl.discard();
         player.teleportTo(mun, x + 0.5, y, z + 0.5, player.getYRot(), player.getXRot());
