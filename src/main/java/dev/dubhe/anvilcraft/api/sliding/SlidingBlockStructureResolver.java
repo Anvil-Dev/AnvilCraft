@@ -134,8 +134,12 @@ public class SlidingBlockStructureResolver {
             nowState = this.level.getBlockState(addingPos);
             if (nowState.isAir()) return true;
 
-            // Piston blocks should never be pushed by sliding rails
-            if (nowState.is(Blocks.PISTON) || nowState.is(Blocks.STICKY_PISTON) || nowState.is(Blocks.PISTON_HEAD)) {
+            // Piston heads must never be pushed by sliding rails. A piston base may be pushed
+            // while retracted (like vanilla pistons pushing pistons); extended pistons are
+            // rejected because moving them would detach their heads.
+            if (nowState.is(Blocks.PISTON_HEAD)
+                || ((nowState.is(Blocks.PISTON) || nowState.is(Blocks.STICKY_PISTON))
+                    && nowState.getValue(PistonBaseBlock.EXTENDED))) {
                 return false;
             }
 
