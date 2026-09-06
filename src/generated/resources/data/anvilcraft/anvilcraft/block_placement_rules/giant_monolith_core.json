@@ -2,11 +2,11 @@
   "rules": [
     {
       "item": "anvilcraft:giant_monolith_core",
-      "properties": "part=center"
+      "properties": "half=mid_center"
     },
     {
       "item": {},
-      "properties": "!part=center"
+      "properties": "!half=mid_center"
     }
   ]
 }

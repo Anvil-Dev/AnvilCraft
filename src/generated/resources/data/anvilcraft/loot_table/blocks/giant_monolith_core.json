@@ -16,7 +16,7 @@
               "block": "anvilcraft:giant_monolith_core",
               "condition": "minecraft:block_state_property",
               "properties": {
-                "part": "center"
+                "half": "mid_center"
               }
             }
           ],

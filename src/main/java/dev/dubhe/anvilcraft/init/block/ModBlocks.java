@@ -248,7 +248,6 @@ import dev.dubhe.anvilcraft.block.sliding.PoweredSlidingRailBlock;
 import dev.dubhe.anvilcraft.block.sliding.SlidingRailBlock;
 import dev.dubhe.anvilcraft.block.sliding.SlidingRailStopBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
-import dev.dubhe.anvilcraft.block.state.Cube3x3Part;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.FragmentationDegree;
@@ -4968,7 +4967,7 @@ public class ModBlocks {
         .properties(properties -> properties.noOcclusion().noCollission())
         .lang("Giant Monolith Core")
         .loot(SimpleMultiPartBlock::loot)
-        .item(SimpleMultiPartBlockItem<Cube3x3Part>::new)
+        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
         .properties(properties -> properties.stacksTo(16))
         .build()
         .blockstate(DataGenUtil::noExtraModelOrState)
