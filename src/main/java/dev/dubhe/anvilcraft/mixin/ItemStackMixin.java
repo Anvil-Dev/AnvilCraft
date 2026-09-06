@@ -17,6 +17,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -88,5 +89,18 @@ public abstract class ItemStackMixin implements DataComponentHolder {
             tooltipFlag
         );
         this.addToTooltip(ModComponents.STORAGE, tooltipContext, list::add, tooltipFlag);
+    }
+
+    @Inject(
+        method = "isEnchantable",
+        at = @At("HEAD"),
+        cancellable = true
+    )
+    private void disallowEnchantingAbsorbedItems(CallbackInfoReturnable<Boolean> cir) {
+        // 浮霜系物品附魔被"无情"吸收（ENCHANTMENTS 已转移至 MERCILESS_ENCHANTMENTS）后，
+        // 原版附魔台/铁砧会把其视为未附魔而允许重复附魔叠级；已吸收过的物品不应再附魔。
+        if (!this.getOrDefault(ModComponents.MERCILESS_ENCHANTMENTS, ItemEnchantments.EMPTY).isEmpty()) {
+            cir.setReturnValue(false);
+        }
     }
 }
