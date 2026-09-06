@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.ModParticles;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.integration.emi.StorageEmiScreenBoundsRegistrar;
 import dev.dubhe.anvilcraft.item.weapon.AnvilRailgunItem;
 import dev.dubhe.anvilcraft.item.weapon.LaserGunItem;
 import net.minecraft.client.model.HumanoidModel;
@@ -74,6 +75,7 @@ public class AnvilCraftClient {
         IntegrationHook.setModContainer(Objects.requireNonNull(modContainer));
         AnvilCraft.getINTEGRATION_MANAGER().loadAllClientIntegrations();
         ModCreativeVariantGroups.register();
+        StorageEmiScreenBoundsRegistrar.registerIfEmiPresent();
         ItemSlotClipping.register(ModItems.FROST_METAL_RESONATOR.get());
         ItemSlotClipping.register(ModItems.EMBER_METAL_RESONATOR.get());
         ItemSlotClipping.register(ModItems.TRANSCENDENCE_RESONATOR.get());
