@@ -2860,6 +2860,7 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
             provider.slabBlock(ctx.get(), AnvilCraft.of("block/cut_bronze_block"), AnvilCraft.of("block/cut_bronze_block"));
         })
+        .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
         .simpleItem()
         .register();
 
@@ -2912,6 +2913,7 @@ public class ModBlocks {
         .blockstate((ctx, provider) -> {
             provider.slabBlock(ctx.get(), AnvilCraft.of("block/cut_brass_block"), AnvilCraft.of("block/cut_brass_block"));
         })
+        .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
         .simpleItem()
         .register();
 
@@ -3500,6 +3502,7 @@ public class ModBlocks {
             provider.slabBlock(ctx.get(), AnvilCraft.of("block/chocolate_block"), AnvilCraft.of("block/chocolate_block"));
         })
         .recipe(RegistrumBlockRecipeLoader::chocolateSlab)
+        .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
         .register();
 
     public static final BlockEntry<StepEffectSlabBlock> BLACK_CHOCOLATE_SLAB = REGISTRUM.block(
@@ -3515,6 +3518,7 @@ public class ModBlocks {
             provider.slabBlock(ctx.get(), AnvilCraft.of("block/black_chocolate_block"), AnvilCraft.of("block/black_chocolate_block"));
         })
         .recipe(RegistrumBlockRecipeLoader::blackChocolateSlab)
+        .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
         .register();
 
     public static final BlockEntry<StepEffectSlabBlock> WHITE_CHOCOLATE_SLAB = REGISTRUM.block(
@@ -3530,6 +3534,7 @@ public class ModBlocks {
             provider.slabBlock(ctx.get(), AnvilCraft.of("block/white_chocolate_block"), AnvilCraft.of("block/white_chocolate_block"));
         })
         .recipe(RegistrumBlockRecipeLoader::whiteChocolateSlab)
+        .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
         .register();
 
     public static final BlockEntry<StepEffectStairBlock> CHOCOLATE_STAIRS = REGISTRUM.block(
@@ -4581,6 +4586,7 @@ public class ModBlocks {
         .item()
         .tag(ItemTags.SLABS)
         .build()
+        .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
         .recipe(RegistrumBlockRecipeLoader::cutFlintSlabBlock)
         .register();
 
@@ -4658,6 +4664,7 @@ public class ModBlocks {
         .item()
         .tag(ItemTags.SLABS, ItemTags.WOODEN_SLABS)
         .build()
+        .loot((tables, block) -> tables.add(block, tables.createSlabItemTable(block)))
         .register();
 
     public static final BlockEntry<Block> ANCIENT_SEA_REEF = REGISTRUM
