@@ -24,6 +24,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.items.IItemHandler;
 
+import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import javax.annotation.Nullable;
@@ -35,13 +36,28 @@ public class BlockItemHandlerPointer implements ITargetPointer {
     private final Direction dir;
     private final int slot;
     private final ItemStack stack;
+    /**
+     * 创建指针时机器（放置器）的朝向；无状态放置时用于决定放置方块朝向
+     */
+    private final @Nullable Direction defaultFacing;
 
     public BlockItemHandlerPointer(Type type, BlockPos pos, Direction dir, int slot, ItemStack stack) {
+        this(type, pos, dir, slot, stack, null);
+    }
+
+    public BlockItemHandlerPointer(Type type, BlockPos pos, Direction dir, int slot, ItemStack stack,
+                                   @Nullable Direction defaultFacing) {
         this.type = type;
         this.pos = pos;
         this.dir = dir;
         this.slot = slot;
         this.stack = stack.copy();
+        this.defaultFacing = defaultFacing;
+    }
+
+    @Override
+    public @Nullable Direction getDefaultFacing() {
+        return this.defaultFacing;
     }
 
     private @Nullable IItemHandler resolveHandler(Level level) {
@@ -101,7 +117,7 @@ public class BlockItemHandlerPointer implements ITargetPointer {
 
         ItemStack stack = this.stack.copyWithCount(requiredCount);
         int initialCount = stack.getCount();
-        ItemStack result = BlockPlacementUtil.placeBlock(level, pos, stack, requiredState);
+        ItemStack result = BlockPlacementUtil.placeBlock(level, pos, stack, requiredState, this.defaultFacing);
         int consumed = initialCount - result.getCount();
         if (consumed <= 0) {
             return false;
@@ -165,8 +181,12 @@ public class BlockItemHandlerPointer implements ITargetPointer {
                 .forGetter(BlockItemHandlerPointer::getSlot),
             ItemStack.OPTIONAL_CODEC
                 .fieldOf("stack")
-                .forGetter(BlockItemHandlerPointer::getStack)
-        ).apply(inst, BlockItemHandlerPointer::new));
+                .forGetter(BlockItemHandlerPointer::getStack),
+            Direction.CODEC
+                .optionalFieldOf("facing")
+                .forGetter(pointer -> Optional.ofNullable(pointer.getDefaultFacing()))
+        ).apply(inst, (type, pos, dir, slot, stack, facing) ->
+            new BlockItemHandlerPointer(type, pos, dir, slot, stack, facing.orElse(null))));
         public static final StreamCodec<RegistryFriendlyByteBuf, BlockItemHandlerPointer> POINTER_STREAM_CODEC = StreamCodec.composite(
             Type.STREAM_CODEC,
             BlockItemHandlerPointer::getType,
@@ -178,7 +198,10 @@ public class BlockItemHandlerPointer implements ITargetPointer {
             BlockItemHandlerPointer::getSlot,
             ItemStack.OPTIONAL_STREAM_CODEC,
             BlockItemHandlerPointer::getStack,
-            BlockItemHandlerPointer::new
+            ByteBufCodecs.optional(Direction.STREAM_CODEC),
+            pointer -> Optional.ofNullable(pointer.getDefaultFacing()),
+            (type, pos, dir, slot, stack, facing) ->
+                new BlockItemHandlerPointer(type, pos, dir, slot, stack, facing.orElse(null))
         );
 
         private final @Nullable Predicate<ItemStack> filter;
@@ -218,7 +241,8 @@ public class BlockItemHandlerPointer implements ITargetPointer {
                 if (!filter.test(inSlot)) {
                     continue;
                 }
-                BlockItemHandlerPointer pointer = new BlockItemHandlerPointer(this, pos, facing, i, inSlot);
+                BlockItemHandlerPointer pointer =
+                    new BlockItemHandlerPointer(this, pos, facing, i, inSlot, facing.getOpposite());
                 if (requiredState == null) {
                     return pointer;
                 }

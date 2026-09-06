@@ -42,6 +42,14 @@ public interface ITargetPointer {
         return null;
     }
 
+    /**
+     * 指针所属机器（放置器）的朝向；无状态放置（{@link #applyToPos(ServerLevel, BlockPos)}）时用于决定
+     * 放置方块的朝向。为 null 时保持默认行为。
+     */
+    default @Nullable Direction getDefaultFacing() {
+        return null;
+    }
+
     Type<? extends ITargetPointer> getType();
 
     interface Type<T extends ITargetPointer> extends ISerializer<T> {

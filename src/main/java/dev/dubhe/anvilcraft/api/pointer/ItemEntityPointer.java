@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -41,16 +42,34 @@ public class ItemEntityPointer implements ITargetPointer {
      * 需求方块位置：指针指向的目标位置，物品实体必须停留在此位置一格范围内才算有效
      */
     private final BlockPos pos;
+    /**
+     * 创建指针时机器（放置器）的朝向；无状态放置时用于决定放置方块朝向
+     */
+    private final @Nullable Direction facing;
 
     public ItemEntityPointer(Type type, UUID id, ItemStack stack, BlockPos pos) {
+        this(type, id, stack, pos, null);
+    }
+
+    public ItemEntityPointer(Type type, UUID id, ItemStack stack, BlockPos pos, @Nullable Direction facing) {
         this.id = id;
         this.stack = stack.copy();
         this.type = type;
         this.pos = pos.immutable();
+        this.facing = facing;
     }
 
     private ItemEntityPointer(Type type, ItemEntity entity, BlockPos pos) {
         this(type, entity.getUUID(), entity.getItem(), pos);
+    }
+
+    private ItemEntityPointer(Type type, ItemEntity entity, BlockPos pos, @Nullable Direction facing) {
+        this(type, entity.getUUID(), entity.getItem(), pos, facing);
+    }
+
+    @Override
+    public @Nullable Direction getDefaultFacing() {
+        return this.facing;
     }
 
     @Nullable
@@ -122,7 +141,7 @@ public class ItemEntityPointer implements ITargetPointer {
 
         ItemStack stack = this.stack.copyWithCount(requiredCount);
         int initialCount = stack.getCount();
-        ItemStack result = BlockPlacementUtil.placeBlock(level, pos, stack, requiredState);
+        ItemStack result = BlockPlacementUtil.placeBlock(level, pos, stack, requiredState, this.facing);
         int consumed = initialCount - result.getCount();
         if (consumed <= 0) {
             return false;
@@ -207,8 +226,12 @@ public class ItemEntityPointer implements ITargetPointer {
                 .forGetter(ItemEntityPointer::getStack),
             BlockPos.CODEC
                 .fieldOf("pos")
-                .forGetter(ItemEntityPointer::getPos)
-        ).apply(inst, ItemEntityPointer::new));
+                .forGetter(ItemEntityPointer::getPos),
+            Direction.CODEC
+                .optionalFieldOf("facing")
+                .forGetter(pointer -> Optional.ofNullable(pointer.getDefaultFacing()))
+        ).apply(inst, (type, id, stack, pos, facing) ->
+            new ItemEntityPointer(type, id, stack, pos, facing.orElse(null))));
         public static final StreamCodec<RegistryFriendlyByteBuf, ItemEntityPointer> POINTER_STREAM_CODEC = StreamCodec.composite(
             Type.STREAM_CODEC,
             ItemEntityPointer::getType,
@@ -218,7 +241,10 @@ public class ItemEntityPointer implements ITargetPointer {
             ItemEntityPointer::getStack,
             BlockPos.STREAM_CODEC,
             ItemEntityPointer::getPos,
-            ItemEntityPointer::new
+            ByteBufCodecs.optional(Direction.STREAM_CODEC),
+            pointer -> Optional.ofNullable(pointer.getDefaultFacing()),
+            (type, id, stack, pos, facing) ->
+                new ItemEntityPointer(type, id, stack, pos, facing.orElse(null))
         );
 
         private final @Nullable Predicate<ItemStack> filter;
@@ -268,7 +294,7 @@ public class ItemEntityPointer implements ITargetPointer {
                 if (!serverLevel.isPositionEntityTicking(entity.blockPosition())) {
                     continue;
                 }
-                ItemEntityPointer pointer = new ItemEntityPointer(this, entity, pos);
+                ItemEntityPointer pointer = new ItemEntityPointer(this, entity, pos, facing.getOpposite());
                 if (requiredState == null) {
                     return pointer;
                 }
