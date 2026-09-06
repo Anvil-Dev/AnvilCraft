@@ -181,6 +181,8 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
         if (!oldState.is(this)) {
             // 外观状态的内部改写不改变网络成员，只有真正新增导线时才使拓扑缓存失效。
             RedstoneWireNetworkManager.topologyChanged(level, pos);
+            // 与 onRemove 对称：新增导线后，支撑方块顶面的原版红石粉需要重算斜角连接形状。
+            notifyDustAboveSupport(level, pos, state);
         }
     }
 

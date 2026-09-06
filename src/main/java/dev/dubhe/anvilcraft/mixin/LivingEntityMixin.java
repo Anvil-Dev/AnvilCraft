@@ -140,8 +140,9 @@ public abstract class LivingEntityMixin extends Entity {
     private void frostAnvilDropNoLoot(DamageSource damageSource, boolean hitByPlayer, CallbackInfo ci) {
         // 浮霜铁砧击杀生物时不掉落其战利品表内容。
         // 注意：不能依赖 @Share 从 die() 传递标记（跨目标方法不共享），
-        // 这里直接检查伤害源实体是否为本模组下落铁砧。
-        if (damageSource.getEntity() instanceof FallingBlockEntity falling
+        // 且替换后的伤害源 causingEntity 是假玩家（getEntity()），
+        // 下落铁砧位于 directEntity（getDirectEntity()），因此须检查后者。
+        if (damageSource.getDirectEntity() instanceof FallingBlockEntity falling
             && falling.getBlockState().getBlock() instanceof FrostAnvilBlock) {
             ci.cancel();
         }
