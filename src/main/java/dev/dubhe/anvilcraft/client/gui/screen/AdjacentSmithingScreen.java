@@ -35,6 +35,7 @@ public abstract class AdjacentSmithingScreen<M extends AdjacentSmithingMenu> ext
     private static final int SLIDER_X = 60;
     private static final int SLIDER_MIN_Y = 18;
     private static final int SLIDER_MAX_Y = 111;
+    private static final int SLIDER_HEIGHT = 12;
 
     @Nullable
     private EditBox searchBox;
@@ -254,7 +255,8 @@ public abstract class AdjacentSmithingScreen<M extends AdjacentSmithingMenu> ext
 
     private int sliderY(int maxScrollRow) {
         if (maxScrollRow <= 0) return this.panelY() + SLIDER_MIN_Y;
-        int travel = SLIDER_MAX_Y - SLIDER_MIN_Y;
+        // 轨道可视行程应扣除滑条自身高度，否则滑到末尾时滑条会超出轨道底部
+        int travel = SLIDER_MAX_Y - SLIDER_MIN_Y - SLIDER_HEIGHT;
         return this.panelY() + SLIDER_MIN_Y + Math.round((float) this.scrollRow / maxScrollRow * travel);
     }
 
@@ -263,8 +265,8 @@ public abstract class AdjacentSmithingScreen<M extends AdjacentSmithingMenu> ext
             this.scrollRow = 0;
             return;
         }
-        double sliderCenter = mouseY - this.panelY() - SLIDER_MIN_Y - 6;
-        double progress = Mth.clamp(sliderCenter / (SLIDER_MAX_Y - SLIDER_MIN_Y), 0.0, 1.0);
+        double sliderCenter = mouseY - this.panelY() - SLIDER_MIN_Y - SLIDER_HEIGHT / 2.0;
+        double progress = Mth.clamp(sliderCenter / (SLIDER_MAX_Y - SLIDER_MIN_Y - SLIDER_HEIGHT), 0.0, 1.0);
         this.scrollRow = Mth.clamp((int) Math.round(progress * maxScrollRow), 0, maxScrollRow);
     }
 
