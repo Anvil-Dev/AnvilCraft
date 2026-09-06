@@ -191,7 +191,30 @@ public class RedstoneWireBlock extends Block implements IHammerRemovable {
             // 先完成方块替换再重建，连接搜索才能看到移除后的真实世界状态。
             RedstoneWireNetworkManager.wireRemoved(level, pos);
             RedstoneWireNetworkManager.topologyChanged(level, pos);
+            // 原版红石粉只会在自己被通知时重算斜角连接；导线移除后它不会收到任何邻居
+            // 通知（粉线位于支撑方块顶面，不是导线的直接邻居），这里主动刷新其形状。
+            notifyDustAboveSupport(level, pos, state);
         }
+    }
+
+    /**
+     * 通知本导线支撑方块顶面的原版红石粉重算连接形状。
+     *
+     * <p>顶面红石粉与本导线之间是斜角连接（粉线斜下查询导线的向上开放断口），
+     * 它不在导线的直接邻居范围内，放置或移除导线都不会触发其 {@code updateShape}，
+     * 需要显式调用 {@link Level#neighborShapeChanged} 才能让粉线的形状跟随变化。
+     */
+    static void notifyDustAboveSupport(Level level, BlockPos pos, BlockState state) {
+        Direction attachment = state.getValue(ATTACHMENT);
+        BlockPos dustPos = pos.relative(attachment).above();
+        if (!level.getBlockState(dustPos).is(Blocks.REDSTONE_WIRE)) {
+            return;
+        }
+        Direction dirToDust = attachment.getOpposite();
+        BlockPos neighborPos = dustPos.relative(dirToDust);
+        level.neighborShapeChanged(
+            dirToDust, level.getBlockState(neighborPos), dustPos, neighborPos, Block.UPDATE_ALL, 0
+        );
     }
 
     @Override
