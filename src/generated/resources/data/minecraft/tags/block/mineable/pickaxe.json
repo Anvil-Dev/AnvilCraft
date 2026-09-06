@@ -341,11 +341,6 @@
     "anvilcraft:creative_laser",
     "anvilcraft:creative_fluid_tank",
     "anvilcraft:creative_crate",
-    "anvilcraft:lunar_rock",
-    "anvilcraft:monolith",
-    "anvilcraft:monolith_core",
-    "anvilcraft:monolith_line",
-    "anvilcraft:giant_monolith_core",
-    "anvilcraft:giant_monolith_line"
+    "anvilcraft:lunar_rock"
   ]
 }

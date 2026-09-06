@@ -111,6 +111,7 @@ import dev.dubhe.anvilcraft.block.MengerSpongeBlock;
 import dev.dubhe.anvilcraft.block.MilkCauldronBlock;
 import dev.dubhe.anvilcraft.block.MineralFountainBlock;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
+import dev.dubhe.anvilcraft.block.MonolithBlock;
 import dev.dubhe.anvilcraft.block.NegativeMatterBlock;
 import dev.dubhe.anvilcraft.block.NeoforgeBlock;
 import dev.dubhe.anvilcraft.block.NeutronIrradiatorBlock;
@@ -4929,53 +4930,52 @@ public class ModBlocks {
         .register();
 
     public static final BlockEntry<? extends Block> MONOLITH = REGISTRUM.block("monolith", Block::new)
-        .initialProperties(() -> Blocks.POLISHED_DEEPSLATE)
+        .initialProperties(() -> Blocks.BEDROCK)
         .lang("Monolith")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/monolith")))
         .build()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
         .register();
 
-    public static final BlockEntry<? extends Block> MONOLITH_CORE = REGISTRUM.block("monolith_core", Block::new)
-        .initialProperties(() -> Blocks.POLISHED_DEEPSLATE)
+    public static final BlockEntry<MonolithBlock> MONOLITH_CORE = REGISTRUM.block("monolith_core", MonolithBlock::new)
+        .initialProperties(() -> Blocks.BEDROCK)
+        .properties(properties -> properties.noOcclusion())
         .lang("Monolith Core")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/monolith_core")))
         .build()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
         .register();
 
-    public static final BlockEntry<? extends Block> MONOLITH_LINE = REGISTRUM.block("monolith_line", Block::new)
-        .initialProperties(() -> Blocks.POLISHED_DEEPSLATE)
+    public static final BlockEntry<MonolithBlock> MONOLITH_LINE = REGISTRUM.block("monolith_line", MonolithBlock::new)
+        .initialProperties(() -> Blocks.BEDROCK)
+        .properties(properties -> properties.noOcclusion())
         .lang("Monolith Line")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/monolith_line")))
         .build()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
         .register();
 
-    public static final BlockEntry<? extends Block> GIANT_MONOLITH_CORE = REGISTRUM.block("giant_monolith_core", Block::new)
-        .initialProperties(() -> Blocks.POLISHED_DEEPSLATE)
+    public static final BlockEntry<MonolithBlock> GIANT_MONOLITH_CORE = REGISTRUM.block("giant_monolith_core", MonolithBlock::new)
+        .initialProperties(() -> Blocks.BEDROCK)
+        .properties(properties -> properties.noOcclusion().noCollission())
         .lang("Giant Monolith Core")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/giant_monolith_core")))
         .build()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
         .register();
 
-    public static final BlockEntry<? extends Block> GIANT_MONOLITH_LINE = REGISTRUM.block("giant_monolith_line", Block::new)
-        .initialProperties(() -> Blocks.POLISHED_DEEPSLATE)
+    public static final BlockEntry<MonolithBlock> GIANT_MONOLITH_LINE = REGISTRUM.block("giant_monolith_line", MonolithBlock::new)
+        .initialProperties(() -> Blocks.BEDROCK)
+        .properties(properties -> properties.noOcclusion())
         .lang("Giant Monolith Line")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()
         .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/giant_monolith_line")))
         .build()
-        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
         .register();
 
     public static void register() {

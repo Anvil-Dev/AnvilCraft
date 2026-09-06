@@ -1,6 +1,10 @@
 {
   "variants": {
-    "": {
+    "axis=x": {
+      "model": "anvilcraft:block/monolith_line",
+      "y": 90
+    },
+    "axis=z": {
       "model": "anvilcraft:block/monolith_line"
     }
   }

@@ -4,11 +4,6 @@
     "anvilcraft:hollow_magnet_block",
     "anvilcraft:ferrite_core_magnet_block",
     "anvilcraft:magnetoelectric_core",
-    "anvilcraft:lunar_rock",
-    "anvilcraft:monolith",
-    "anvilcraft:monolith_core",
-    "anvilcraft:monolith_line",
-    "anvilcraft:giant_monolith_core",
-    "anvilcraft:giant_monolith_line"
+    "anvilcraft:lunar_rock"
   ]
 }

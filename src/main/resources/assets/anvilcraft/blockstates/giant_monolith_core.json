@@ -1,6 +1,10 @@
 {
   "variants": {
-    "": {
+    "axis=x": {
+      "model": "anvilcraft:block/giant_monolith_core",
+      "y": 90
+    },
+    "axis=z": {
       "model": "anvilcraft:block/giant_monolith_core"
     }
   }
