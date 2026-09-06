@@ -69,6 +69,7 @@ import dev.dubhe.anvilcraft.block.FrostMetalSlabBlock;
 import dev.dubhe.anvilcraft.block.FrostMetalStairBlock;
 import dev.dubhe.anvilcraft.block.FrostSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
+import dev.dubhe.anvilcraft.block.GiantMonolithCoreBlock;
 import dev.dubhe.anvilcraft.block.GunpowderBlock;
 import dev.dubhe.anvilcraft.block.HeatCollectorBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
@@ -247,6 +248,7 @@ import dev.dubhe.anvilcraft.block.sliding.PoweredSlidingRailBlock;
 import dev.dubhe.anvilcraft.block.sliding.SlidingRailBlock;
 import dev.dubhe.anvilcraft.block.sliding.SlidingRailStopBlock;
 import dev.dubhe.anvilcraft.block.state.Color;
+import dev.dubhe.anvilcraft.block.state.Cube3x3Part;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.DirectionCube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.FragmentationDegree;
@@ -4958,19 +4960,23 @@ public class ModBlocks {
         .build()
         .register();
 
-    public static final BlockEntry<MonolithBlock> GIANT_MONOLITH_CORE = REGISTRUM.block("giant_monolith_core", MonolithBlock::new)
+    public static final BlockEntry<GiantMonolithCoreBlock> GIANT_MONOLITH_CORE = REGISTRUM.block(
+            "giant_monolith_core",
+            GiantMonolithCoreBlock::new
+        )
         .initialProperties(() -> Blocks.BEDROCK)
         .properties(properties -> properties.noOcclusion().noCollission())
         .lang("Giant Monolith Core")
-        .blockstate(DataGenUtil::noExtraModelOrState)
-        .item()
-        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/giant_monolith_core")))
+        .loot(SimpleMultiPartBlock::loot)
+        .item(SimpleMultiPartBlockItem<Cube3x3Part>::new)
+        .properties(properties -> properties.stacksTo(16))
         .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
         .register();
 
     public static final BlockEntry<MonolithBlock> GIANT_MONOLITH_LINE = REGISTRUM.block("giant_monolith_line", MonolithBlock::new)
         .initialProperties(() -> Blocks.BEDROCK)
-        .properties(properties -> properties.noOcclusion())
+        .properties(properties -> properties.noOcclusion().noCollission())
         .lang("Giant Monolith Line")
         .blockstate(DataGenUtil::noExtraModelOrState)
         .item()

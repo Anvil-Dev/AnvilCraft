@@ -1,11 +1,59 @@
 {
   "variants": {
-    "axis=x": {
+    "axis=x,part=center": {
       "model": "anvilcraft:block/giant_monolith_core",
       "y": 90
     },
-    "axis=z": {
+    "axis=z,part=center": {
       "model": "anvilcraft:block/giant_monolith_core"
+    },
+    "axis=x,part=w": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
+    },
+    "axis=z,part=w": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
+    },
+    "axis=x,part=e": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
+    },
+    "axis=z,part=e": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
+    },
+    "axis=x,part=n": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
+    },
+    "axis=z,part=n": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
+    },
+    "axis=x,part=s": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
+    },
+    "axis=z,part=s": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
+    },
+    "axis=x,part=wn": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
+    },
+    "axis=z,part=wn": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
+    },
+    "axis=x,part=ws": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
+    },
+    "axis=z,part=ws": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
+    },
+    "axis=x,part=en": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
+    },
+    "axis=z,part=en": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
+    },
+    "axis=x,part=es": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
+    },
+    "axis=z,part=es": {
+      "model": "anvilcraft:block/giant_monolith_core_part"
     }
   }
 }

@@ -11,6 +11,15 @@
       "entries": [
         {
           "type": "minecraft:item",
+          "conditions": [
+            {
+              "block": "anvilcraft:giant_monolith_core",
+              "condition": "minecraft:block_state_property",
+              "properties": {
+                "part": "center"
+              }
+            }
+          ],
           "name": "anvilcraft:giant_monolith_core"
         }
       ],
