@@ -184,13 +184,16 @@ public class ItemHandlerUtil {
             list.add(input);
             return list;
         }
-        // 仅接受明确支持自动化的实体，避免访问玩家或生物的背包和装备栏
-        AABB aabb = new AABB(inputBlockPos).inflate(0.01D);
+        // 仅接受明确支持自动化的实体，避免访问玩家或生物的背包和装备栏。
+        // 实体容器（箱船、箱车）只要求其碰撞箱与出口前方空间相交即可，
+        // 与原版漏斗一致；此前要求实体包围盒中心精确落在出口格内，
+        // 导致船/车稍微偏离格中心就无法输出（见 #4696）。
+        AABB aabb = new AABB(inputBlockPos).inflate(1.0D);
+        AABB target = new AABB(inputBlockPos).inflate(0.01D);
         list = level.getEntitiesOfClass(
                 Entity.class,
                 aabb,
-                entity -> entity.isAlive()
-                    && BlockPos.containing(entity.getBoundingBox().getCenter()).equals(inputBlockPos))
+                entity -> entity.isAlive() && entity.getBoundingBox().intersects(target))
             .stream()
             .map(entity -> entity.getCapability(Capabilities.ItemHandler.ENTITY_AUTOMATION, context))
             .filter(Objects::nonNull)
