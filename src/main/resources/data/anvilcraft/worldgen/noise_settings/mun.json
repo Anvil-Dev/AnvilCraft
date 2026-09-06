@@ -6,7 +6,7 @@
   "default_fluid": {
     "Name": "minecraft:air"
   },
-  "disable_mob_generation": false,
+  "disable_mob_generation": true,
   "legacy_random_source": false,
   "noise": {
     "height": 384,

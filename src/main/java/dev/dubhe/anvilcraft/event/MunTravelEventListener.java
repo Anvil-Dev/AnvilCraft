@@ -5,6 +5,8 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import dev.dubhe.anvilcraft.worldgen.TheMonolith;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.projectile.ThrownEnderpearl;
@@ -46,6 +48,7 @@ public class MunTravelEventListener {
         // 弃置珍珠以免落地后再次触发传送
         pearl.discard();
         player.teleportTo(mun, x + 0.5, y, z + 0.5, player.getYRot(), player.getXRot());
+        mun.playSound(null, x + 0.5, y, z + 0.5, SoundEvents.ENDERMAN_TELEPORT, SoundSource.PLAYERS, 1.0f, 1.0f);
         TheMonolith.ensureGenerated(mun);
     }
 }

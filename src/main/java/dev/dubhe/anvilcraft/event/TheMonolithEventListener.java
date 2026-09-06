@@ -38,7 +38,7 @@ public class TheMonolithEventListener {
     /** 玩家进入 Mun 时，在落点附近生成全局唯一的石碑。 */
     @SubscribeEvent
     public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
-        if (event.getTo() != CelestialTravelManager.MUN_LEVEL) return;
+        if (!CelestialTravelManager.MUN_LEVEL.equals(event.getTo())) return;
         if (!(event.getEntity().getServer() instanceof MinecraftServer server)) return;
         ServerLevel mun = server.getLevel(CelestialTravelManager.MUN_LEVEL);
         if (mun == null) return;
@@ -49,7 +49,7 @@ public class TheMonolithEventListener {
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
         if (!(event.getEntity().level() instanceof ServerLevel level)) return;
-        if (level.dimension() != CelestialTravelManager.MUN_LEVEL) return;
+        if (!CelestialTravelManager.MUN_LEVEL.equals(level.dimension())) return;
         TheMonolith.ensureGenerated(level);
     }
 
@@ -57,7 +57,7 @@ public class TheMonolithEventListener {
     public static void onEntityTick(EntityTickEvent.Post event) {
         Entity entity = event.getEntity();
         if (!(entity.level() instanceof ServerLevel level)) return;
-        if (level.dimension() != CelestialTravelManager.MUN_LEVEL) return;
+        if (!CelestialTravelManager.MUN_LEVEL.equals(level.dimension())) return;
         boolean isBook = false;
         if (entity instanceof ItemEntity itemEntity) {
             isBook = itemEntity.getItem().is(Items.BOOK);

@@ -65,7 +65,8 @@ public final class CelestialTravelManager {
         while (pos.getY() > level.getMinBuildHeight() && chunk.getBlockState(pos).isAir()) {
             pos.move(Direction.DOWN);
         }
-        return pos.getY();
+        // 整列皆空（理论上不会发生）时回退到常规地表高度，避免把玩家埋入地下
+        return pos.getY() > level.getMinBuildHeight() ? pos.getY() : 64;
     }
 
     public static boolean isOverworldLike(ResourceKey<Level> dimension) {

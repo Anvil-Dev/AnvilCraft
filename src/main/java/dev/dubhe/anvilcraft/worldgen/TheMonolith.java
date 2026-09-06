@@ -82,7 +82,9 @@ public final class TheMonolith {
             State state = new State();
             if (tag.contains("BoundingBox")) {
                 int[] box = tag.getIntArray("BoundingBox");
-                state.boundingBox = new BoundingBox(box[0], box[1], box[2], box[3], box[4], box[5]);
+                if (box.length == 6) {
+                    state.boundingBox = new BoundingBox(box[0], box[1], box[2], box[3], box[4], box[5]);
+                }
             }
             return state;
         }

@@ -23,8 +23,13 @@ public class MunFallDamageEventListener {
             return;
         }
         int damage = 1 + (int) Math.floor((fallDistance - SAFE_FALL_DISTANCE - 1.0f) / BLOCKS_PER_DAMAGE);
-        // 原版结算伤害为 (distance - 3) * multiplier，抬高 distance 使结算伤害恰为目标值
-        event.setDistance(damage + 3.0f);
-        event.setDamageMultiplier(1.0f);
+        // 原版结算伤害为 floor((distance - 3) * multiplier)；按原 multiplier 反推 distance，
+        // 使结算伤害恰为目标值。保留原 multiplier 以免摔落保护等减伤系数失效
+        float multiplier = event.getDamageMultiplier();
+        if (multiplier <= 0.0f) {
+            event.setCanceled(true);
+            return;
+        }
+        event.setDistance(3.0f + (damage + 0.5f) / multiplier);
     }
 }
