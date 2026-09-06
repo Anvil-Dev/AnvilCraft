@@ -26,12 +26,12 @@ public class MDJewelCraftingRecipeComponent extends MDRecipeComponent {
 
     @Override
     protected void renderRecipe(MDRenderContext context, float mouseX, float mouseY) {
-        AgeratumUtil.renderItemWithoutSlot(context, result, mouseX, mouseY, 65, 9);
-        AgeratumUtil.renderItemWithoutSlot(context, result, mouseX, mouseY, 117, 37);
-
+        // 贴图槽位（142x62）：上排 source 槽 (64,7)，下排 4 个材料槽 (7/26/45/64, 35)，
+        // 右侧 result 槽 (116,35)。物品图标绘制在槽内 (槽位起点 +1)。
         for (int i = 0; i < Math.min(ingredients.size(), 4); i++) {
-            AgeratumUtil.renderItemWithoutSlot(context, ingredients.get(i), mouseX, mouseY, 8 + i * AgeratumUtil.SLOT_SIZE, 37);
+            AgeratumUtil.renderItemWithoutSlot(context, ingredients.get(i), mouseX, mouseY, 8 + i * AgeratumUtil.SLOT_SIZE, 36);
         }
+        AgeratumUtil.renderItemWithoutSlot(context, result, mouseX, mouseY, 117, 36);
     }
 
 }
