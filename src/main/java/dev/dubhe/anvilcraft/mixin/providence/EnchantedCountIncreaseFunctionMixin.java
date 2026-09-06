@@ -53,7 +53,14 @@ public class EnchantedCountIncreaseFunctionMixin {
     )
     private float getMultipleForProvidence(NumberProvider instance, LootContext context, Operation<Float> original) {
         float result = original.call(instance, context);
-        if (!(context.getParamOrNull(LootContextParams.TOOL) instanceof ItemStack stack)
+        ItemStack stack = context.getParamOrNull(LootContextParams.TOOL);
+        if (stack == null
+            && context.getParamOrNull(LootContextParams.ATTACKING_ENTITY) instanceof LivingEntity attacker
+        ) {
+            // 部分武器（如附属中的自定义武器）不会作为 TOOL 参数传入，回退到攻击者手持武器
+            stack = attacker.getWeaponItem();
+        }
+        if (stack == null
             || !stack.has(ModComponents.PROVIDENCE)
             || !this.enchantment.is(ModEnchantmentTags.PROVIDENCE_BONUS)
         ) {
