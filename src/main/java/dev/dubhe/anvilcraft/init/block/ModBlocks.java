@@ -4928,6 +4928,56 @@ public class ModBlocks {
         .tag(BlockTags.MINEABLE_WITH_SHOVEL)
         .register();
 
+    public static final BlockEntry<? extends Block> MONOLITH = REGISTRUM.block("monolith", Block::new)
+        .initialProperties(() -> Blocks.POLISHED_DEEPSLATE)
+        .lang("Monolith")
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/monolith")))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
+        .register();
+
+    public static final BlockEntry<? extends Block> MONOLITH_CORE = REGISTRUM.block("monolith_core", Block::new)
+        .initialProperties(() -> Blocks.POLISHED_DEEPSLATE)
+        .lang("Monolith Core")
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/monolith_core")))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
+        .register();
+
+    public static final BlockEntry<? extends Block> MONOLITH_LINE = REGISTRUM.block("monolith_line", Block::new)
+        .initialProperties(() -> Blocks.POLISHED_DEEPSLATE)
+        .lang("Monolith Line")
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/monolith_line")))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
+        .register();
+
+    public static final BlockEntry<? extends Block> GIANT_MONOLITH_CORE = REGISTRUM.block("giant_monolith_core", Block::new)
+        .initialProperties(() -> Blocks.POLISHED_DEEPSLATE)
+        .lang("Giant Monolith Core")
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/giant_monolith_core")))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
+        .register();
+
+    public static final BlockEntry<? extends Block> GIANT_MONOLITH_LINE = REGISTRUM.block("giant_monolith_line", Block::new)
+        .initialProperties(() -> Blocks.POLISHED_DEEPSLATE)
+        .lang("Giant Monolith Line")
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/giant_monolith_line")))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
+        .register();
+
     public static void register() {
     }
 
