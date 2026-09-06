@@ -90,13 +90,16 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
         super.loadAdditional(tag, registries);
         CompoundTag data = tag.getCompound("ExtraData");
         this.readDataNbt(data);
-        if ((this.compareMode == Mode.HYSTERESIS && this.inputtingSignal >= this.highLimit)
-            || (this.compareMode == Mode.WINDOW && this.inputtingSignal <= this.highLimit)) {
-            this.state = State.OUTPUT_HIGH;
-        } else this.state = State.OUTPUT_LOW;
-        Optional.ofNullable(this.getLevel())
-            .ifPresent(level1 ->
-                level1.scheduleTick(this.getBlockPos(), ModBlocks.ADVANCED_COMPARATOR.get(), 1));
+        // 重载时先按保存的输入信号恢复输出状态（窗口模式需同时满足上下限，
+        // 与 update 中的判定一致）；onLoad 中会用重新采样的输入再次校正。
+        this.state = this.isWithinThreshold(this.inputtingSignal) ? State.OUTPUT_HIGH : State.OUTPUT_LOW;
+    }
+
+    private boolean isWithinThreshold(int signal) {
+        return switch (this.compareMode) {
+            case HYSTERESIS -> signal >= this.highLimit;
+            case WINDOW -> signal >= this.lowLimit && signal <= this.highLimit;
+        };
     }
 
     public CompoundTag constructDataNbt() {
@@ -150,6 +153,12 @@ public class AdvancedComparatorBlockEntity extends BlockEntity implements MenuPr
         super.onLoad();
         if (this.level == null) return;
         updateInputtingSignal(this.level, this.getBlockPos(), this.getBlockState());
+        // 依据重载后重新采样的真实输入恢复输出状态，避免沿用旧的保存状态
+        // 而在重进存档后误发红石信号（见 #4325）
+        this.state = this.isWithinThreshold(this.inputtingSignal) ? State.OUTPUT_HIGH : State.OUTPUT_LOW;
+        Optional.ofNullable(this.level)
+            .ifPresent(level1 ->
+                level1.scheduleTick(this.getBlockPos(), ModBlocks.ADVANCED_COMPARATOR.get(), 1));
     }
 
     @Override
