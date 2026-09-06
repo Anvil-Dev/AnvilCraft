@@ -131,6 +131,7 @@ public class MagnetBlock extends Block implements IHammerRemovable {
             AABB currentBox = new AABB(currentPos);
             for (FallingBlockEntity entity : entities) {
                 if (!entity.getBoundingBox().intersects(currentBox)) continue;
+                if (entity.isRemoved()) continue;
                 if (entity instanceof IAnvilCraftEntityExtension) continue;
                 BlockState state2 = entity.getBlockState();
                 if (state2.is(BlockTags.ANVIL) && !state2.is(ModBlockTags.NON_MAGNETIC)) {
