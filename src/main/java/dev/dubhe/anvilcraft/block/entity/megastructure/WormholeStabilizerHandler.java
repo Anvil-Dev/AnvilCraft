@@ -498,15 +498,38 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
      * 当本地虫洞节点断开时，清除本地物流、流体和激光接口镜像。
      * 已有的物品和流体不会写回或删除共享 canonical，仍可从其它虫洞接口访问。
      * 激光输出置零，使输出端激光立即停止发射。
+     *
+     * <p>若这是该黑洞身份在虫洞网络中的最后一个节点，canonical 中的内容将没有
+     * 任何接口可以访问；此时把内容归还给本地接口并清空 canonical，避免内容
+     * "消失"或未来重建时复活（见 #4685）。</p>
      */
     private void clearLocalInterfaces(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
+
+        boolean lastNode = this.bodyUuid != null && WormholeNetwork.get()
+            .getConnected(this.bodyUuid, be.getLevel().dimension(), be.getBlockPos())
+            .isEmpty();
+
+        WormholeInterfaceStates states = WormholeInterfaceStates.get();
 
         Map<BlockPos, CelestialForgingAnvilLogisticsInterfaceBlockEntity> logisticsMap = getLogisticsInterfacesMap(be);
         for (var entry : logisticsMap.entrySet()) {
             CelestialForgingAnvilLogisticsInterfaceBlockEntity localBe = entry.getValue();
             IItemHandler handler = localBe.getItemHandler();
             int slots = handler.getSlots();
+            if (lastNode) {
+                UUID uuid = WormholeInterfaceStates.logisticsUuid(
+                    this.bodyUuid, entry.getKey().getX(), entry.getKey().getZ());
+                List<UnlimitedItemStack> canonical = states.getOrCreateItemState(uuid, slots);
+                for (int slot = 0; slot < slots; slot++) {
+                    ItemStack stack = canonical.get(slot).toStack();
+                    if (!stack.isEmpty() && handler.getStackInSlot(slot).isEmpty()) {
+                        handler.insertItem(slot, stack, false);
+                    }
+                }
+                states.clearItemState(uuid);
+                continue;
+            }
             for (int slot = 0; slot < slots; slot++) {
                 ItemStack stack = handler.getStackInSlot(slot);
                 if (!stack.isEmpty()) {
@@ -520,6 +543,19 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             CelestialForgingAnvilFluidInterfaceBlockEntity localBe = entry.getValue();
             IFluidHandler handler = localBe.getFluidHandler();
             int tanks = handler.getTanks();
+            if (lastNode) {
+                UUID uuid = WormholeInterfaceStates.fluidUuid(
+                    this.bodyUuid, entry.getKey().getX(), entry.getKey().getZ());
+                List<FluidStack> canonical = states.getOrCreateFluidState(uuid, tanks);
+                for (int tank = 0; tank < tanks; tank++) {
+                    FluidStack stack = canonical.get(tank);
+                    if (!stack.isEmpty() && handler.getFluidInTank(tank).isEmpty()) {
+                        handler.fill(stack.copy(), IFluidHandler.FluidAction.EXECUTE);
+                    }
+                }
+                states.clearFluidState(uuid);
+                continue;
+            }
             for (int tank = 0; tank < tanks; tank++) {
                 FluidStack stack = handler.getFluidInTank(tank);
                 if (!stack.isEmpty()) {

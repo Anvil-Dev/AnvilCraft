@@ -129,6 +129,27 @@ public class WormholeInterfaceStates extends BetterSavedData {
         return fluidStates.get(uuid);
     }
 
+    /**
+     * 移除指定接口的规范物品状态。
+     *
+     * <p>当虫洞网络中最后一个节点解除巨构时，规范状态中的内容会先归还给本地接口，
+     * 之后必须移除这里的残留，避免未来同一黑洞身份重建虫洞时旧内容被当作权威而复活。</p>
+     */
+    public void clearItemState(UUID uuid) {
+        if (itemStates.remove(uuid) != null) {
+            setDirty();
+        }
+    }
+
+    /**
+     * 移除指定接口的规范流体状态，语义同 {@link #clearItemState}。
+     */
+    public void clearFluidState(UUID uuid) {
+        if (fluidStates.remove(uuid) != null) {
+            setDirty();
+        }
+    }
+
     // ==================== DataFixers ====================
 
     @Override
