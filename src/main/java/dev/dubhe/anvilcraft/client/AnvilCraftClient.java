@@ -65,6 +65,7 @@ public class AnvilCraftClient {
         modBus.addListener(OverworldLikeOrbitalSkyRenderer::cacheModels);
         modBus.addListener(AnvilCraftClient::clientSetup);
         AnvilCraftRecipeComponentFactories.RECIPE_COMPONENT_FACTORIES.register(modEventBus);
+        AnvilCraftInlineComponentFactories.INLINE_COMPONENT_FACTORIES.register(modEventBus);
         InspectionSupport.initializeClient();
     }
 
