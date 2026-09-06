@@ -351,6 +351,11 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     private boolean processingOutput;
     private long lastRecipeProcessingGameTime = Long.MIN_VALUE;
     private boolean ignited = false;
+    /**
+     * 本次铁砧加工开始前的输入槽快照；{@code null} 表示当前不在加工中。
+     * 用于把催化类配方（产物与底物相同）的产物归还输入槽。
+     */
+    private @Nullable ItemStack[] processingInputSnapshot;
 
     public FishTankBlockEntity(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
@@ -459,10 +464,54 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
             && !isEmpty(this.output)
             && gameTime != this.lastRecipeProcessingGameTime;
         if (hasInput || this.processingOutput) this.lastRecipeProcessingGameTime = gameTime;
+        if (hasInput) {
+            // 快照本次加工前的输入槽，用于把“催化”类配方（产物与底物相同）
+            // 生成的产物归还输入槽，实现底物不消耗（见 #4700）。
+            ItemStack[] snapshot = new ItemStack[this.input.getSlots()];
+            for (int slot = 0; slot < this.input.getSlots(); slot++) {
+                ItemStack stack = this.input.getStackInSlot(slot);
+                snapshot[slot] = stack.isEmpty() ? ItemStack.EMPTY : stack.copy();
+            }
+            this.processingInputSnapshot = snapshot;
+        }
     }
 
     public void finishRecipeProcessing() {
         this.processingOutput = false;
+        this.processingInputSnapshot = null;
+    }
+
+    /**
+     * 接收配方产物。若本次加工消耗的输入与产物为同一物品（催化类配方），
+     * 把产物归还输入槽而不是送入产物槽，使底物净消耗为零且不会被主动输出排出。
+     *
+     * @return 无法收纳的剩余物品
+     */
+    public ItemStack insertRecipeOutputReturningCatalyst(ItemStack stack) {
+        ItemStack[] snapshot = this.processingInputSnapshot;
+        if (snapshot == null) {
+            return this.insertRecipeOutput(stack);
+        }
+        ItemStack remaining = stack.copy();
+        for (int slot = 0; slot < this.input.getSlots() && !remaining.isEmpty(); slot++) {
+            ItemStack before = snapshot[slot];
+            if (before.isEmpty()) continue;
+            ItemStack after = this.input.getStackInSlot(slot);
+            int consumed = before.getCount() - after.getCount();
+            if (consumed <= 0 || !ItemStack.isSameItemSameComponents(before, remaining)) continue;
+            int refund = Math.min(consumed, remaining.getCount());
+            ItemStack toRefund = remaining.copyWithCount(refund);
+            ItemStack left = ItemHandlerUtil.insertItem(this.input, toRefund, false);
+            int accepted = refund - left.getCount();
+            if (accepted > 0) {
+                snapshot[slot].shrink(accepted);
+                remaining.shrink(accepted);
+            }
+        }
+        if (remaining.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        return this.insertRecipeOutput(remaining);
     }
 
     public ItemStack insertRecipeOutput(ItemStack stack) {
