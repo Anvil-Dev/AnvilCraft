@@ -151,6 +151,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * 64 × 64 = 4096 次；仅作为异常配方下的防御性兜底。
      */
     private static final int MAX_TAKE_ALL_CHUNKS = 64;
+    /** 合成格补货弹跳动画时长（游戏 tick）。 */
+    private static final int CRAFTING_POP_TICKS = 5;
     /** 缺失工作台/切石机提示浮窗：0.25s 淡入 + 1.25s 停留 + 0.25s 淡出。 */
     private static final int FLYOUT_FADE_IN_TICKS = 5;
     private static final int FLYOUT_HOLD_TICKS = 25;
@@ -221,6 +223,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private boolean interactionSyncPending;
     /** 上次播放切石机取走音效的游戏 tick（与方块侧一致，同一 tick 只播一次）。 */
     private long lastStonecutterTakeSoundTick = -1;
+    /** 上一次播放合成补货拾取音效的游戏 tick（同一 tick 只播一次）。*/
+    private long lastCraftingRefillSoundTick = -1;
     private boolean closed;
     private boolean nbtFolded;
     private boolean preservingOrder;
@@ -235,6 +239,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     private boolean quickCrafting;
     private int quickCraftingButton;
     private int lastClickedInventorySlot = -1;
+    /** 合成格槽位（0=切石机输入，1~9=合成输入）弹跳动画开始的游戏 tick，Long.MIN_VALUE 表示无动画。 */
+    private final Int2LongMap craftingPopTicks = new Int2LongOpenHashMap();
     @Getter
     private boolean quickMoveDragging;
     private final IntSet quickMoveSlots = new IntOpenHashSet();
@@ -295,6 +301,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.sourcePos = sourcePos;
         this.player = Objects.requireNonNull(Minecraft.getInstance().player);
         this.serverSlots.defaultReturnValue(-1);
+        this.craftingPopTicks.defaultReturnValue(Long.MIN_VALUE);
         this.tracksOpenState = Objects.requireNonNull(Minecraft.getInstance().level).getBlockState(sourcePos)
             .getBlock() instanceof ShulkerContainerBlock;
     }
@@ -827,7 +834,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.renderStorageContents(graphics, mouseX, mouseY);
         this.renderPlayerInventory(graphics, mouseX, mouseY);
         if (this.mode == ScreenMode.CRAFTING) {
-            this.renderCraftingPanel(graphics, mouseX, mouseY);
+            this.renderCraftingPanel(graphics, mouseX, mouseY, partialTick);
         }
         // 背景纹理必须先于 widgets 绘制，而 Screen.render 会二次调用 renderBackground
         // （半透明渐变会盖住纹理），故手动遍历 renderables 渲染 widgets。
@@ -951,7 +958,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     /** 渲染合成面板：① 切石机输入、② 合成 9 宫格、③④ 结果槽、切石机配方选择。 */
-    private void renderCraftingPanel(GuiGraphics graphics, int mouseX, int mouseY) {
+    private void renderCraftingPanel(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         // ① 切石机输入（单槽）
         int stonecutterX = this.leftPos + StorageScreen.CRAFTING_STONECUTTER_X;
         int stonecutterY = this.topPos + StorageScreen.CRAFTING_STONECUTTER_Y;
@@ -962,7 +969,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             stonecutterY,
             mouseX,
             mouseY,
-            0
+            0,
+            partialTick
         );
 
         // ② 合成输入 9 宫格
@@ -976,7 +984,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 y,
                 mouseX,
                 mouseY,
-                i + 1
+                i + 1,
+                partialTick
             );
         }
 
@@ -988,7 +997,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.topPos + StorageScreen.CRAFTING_RESULT_STONECUTTER_Y,
             mouseX,
             mouseY,
-            -1
+            -1,
+            partialTick
         );
         this.renderCraftingSlot(
             graphics,
@@ -997,7 +1007,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.topPos + StorageScreen.CRAFTING_RESULT_CRAFTING_Y,
             mouseX,
             mouseY,
-            -1
+            -1,
+            partialTick
         );
 
         // 切石机配方选择（3 列 × 2 行，超出可滚动；与批量切割机一致）
@@ -1065,7 +1076,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         int y,
         int mouseX,
         int mouseY,
-        int craftingSlotId
+        int craftingSlotId,
+        float partialTick
     ) {
         boolean hovered = MathUtil.isInRange(mouseX, mouseY, x - 2, y - 2, x + 17, y + 17);
         boolean quickCraftPreview = craftingSlotId >= 0
@@ -1076,7 +1088,23 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             graphics.fill(x, y, x + 16, y + 16, -2130706433);
         }
         if (!stack.isEmpty()) {
+            float popScale = craftingSlotId >= 0
+                ? this.getCraftingPopScale(craftingSlotId, partialTick)
+                : 1.0F;
+            // 原版 Gui.renderSlot 拾取动画：横向压缩 1/f1、纵向拉伸 (f1+1)/2，
+            // 缩放中心为 (x+8, y+12)；数量文字在缩放外绘制
+            if (popScale > 1.0F) {
+                float scaleX = 1.0F / popScale;
+                float scaleY = (popScale + 1.0F) / 2.0F;
+                graphics.pose().pushPose();
+                graphics.pose().translate(x + 8.0F, y + 12.0F, 0.0F);
+                graphics.pose().scale(scaleX, scaleY, 1.0F);
+                graphics.pose().translate(-(x + 8.0F), -(y + 12.0F), 0.0F);
+            }
             graphics.renderItem(stack, x, y);
+            if (popScale > 1.0F) {
+                graphics.pose().popPose();
+            }
             graphics.renderItemDecorations(this.font, stack, x, y);
         }
         if (hovered) {
@@ -1091,6 +1119,30 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 : TooltipFlag.Default.NORMAL
             );
         }
+    }
+
+    /**
+     * 计算指定合成槽位的拾取动画因子：返回与原版 Gui.renderSlot 中相同的
+     * {@code f1 = 1 + f / 5} 值（动画未启动时为 1.0F），由调用方按原版公式
+     * 应用横向压缩与纵向拉伸。
+     */
+    private float getCraftingPopScale(int craftingSlotId, float partialTick) {
+        if (this.minecraft.level == null) {
+            return 1.0F;
+        }
+        long start = this.craftingPopTicks.get(craftingSlotId);
+        if (start == Long.MIN_VALUE) {
+            return 1.0F;
+        }
+        // 原版 Gui.renderSlot：f = popTime - partialTick；f1 = 1 + f / 5，
+        // 这里用自计时替代 popTime，用 partialTick 插值平滑
+        float remaining = StorageScreen.CRAFTING_POP_TICKS
+            - (this.minecraft.level.getGameTime() - start) - partialTick;
+        if (remaining <= 0.0F) {
+            this.craftingPopTicks.put(craftingSlotId, Long.MIN_VALUE);
+            return 1.0F;
+        }
+        return 1.0F + remaining / StorageScreen.CRAFTING_POP_TICKS;
     }
 
     /** 拖拽分配预览：该输入槽将显示的结果栈（当前内容 + 预计放入量）。 */
@@ -2405,6 +2457,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                         if (stonecutter) {
                             this.playStonecutterTakeSound();
                         }
+                        this.triggerCraftingPop(result.refilledSlots());
                         this.loadCrafting(false);
                     }
                     this.interactionPending = false;
@@ -2413,6 +2466,32 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             );
         }
         return true;
+    }
+
+    /**
+     * 根据补货位掩码触发对应合成格槽位的弹跳动画（bit0 为切石机输入槽，bit1~bit9 为合成格槽），
+     * 并播放玩家拾取物品音效。
+     */
+    private void triggerCraftingPop(int refilledSlots) {
+        if (refilledSlots == 0 || this.minecraft.level == null) {
+            return;
+        }
+        long tick = this.minecraft.level.getGameTime();
+        for (int slot = 0; slot < 10; slot++) {
+            if ((refilledSlots & (1 << slot)) != 0) {
+                this.craftingPopTicks.put(slot, tick);
+            }
+        }
+        this.playCraftingRefillSound(tick);
+    }
+
+    /** 播放原版玩家拾取物品音效（与接触实体物品一致），同一游戏 tick 内最多播放一次。*/
+    private void playCraftingRefillSound(long tick) {
+        if (tick == this.lastCraftingRefillSoundTick) {
+            return;
+        }
+        this.lastCraftingRefillSoundTick = tick;
+        this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.ITEM_PICKUP, 1.0F));
     }
 
     /**
@@ -2438,6 +2517,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     if (stonecutter) {
                         this.playStonecutterTakeSound();
                     }
+                    this.triggerCraftingPop(result.refilledSlots());
                     this.loadCrafting(false);
                 }
                 if (result.done()) {

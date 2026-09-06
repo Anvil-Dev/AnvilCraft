@@ -1213,16 +1213,16 @@ public final class StorageServerStub {
             ItemStack merged = carried.copy();
             merged.grow(result.getCount());
             StorageServerStub.consumeCraftingInput(target, crafting, stonecutter);
-            StorageServerStub.autoRefillCrafting(player, target, crafting);
+            int refilledSlots = StorageServerStub.refillAndCollectSlots(player, target, crafting);
             player.containerMenu.setCarried(merged);
             player.containerMenu.broadcastChanges();
-            return new InteractionResult(merged, true);
+            return new InteractionResult(merged, true, refilledSlots);
         }
         StorageServerStub.consumeCraftingInput(target, crafting, stonecutter);
-        StorageServerStub.autoRefillCrafting(player, target, crafting);
+        int refilledSlots = StorageServerStub.refillAndCollectSlots(player, target, crafting);
         player.containerMenu.setCarried(result);
         player.containerMenu.broadcastChanges();
-        return new InteractionResult(result, true);
+        return new InteractionResult(result, true, refilledSlots);
     }
 
     /**
@@ -1250,11 +1250,12 @@ public final class StorageServerStub {
         boolean any = false;
         int iterations = 0;
         ResourceLocation lockedId = StorageServerStub.lockedTakeAllRecipe(playerId, sourcePos);
-        boolean chunkTailRefilled = false;
-        CraftingStorage lastCrafting = CraftingStorage.EMPTY;
+        CraftingStorage initialCrafting = CraftingStorage.EMPTY;
         while (iterations++ < StorageServerStub.CRAFTING_TAKE_ALL_CHUNK) {
             CraftingStorage crafting = target.read();
-            lastCrafting = crafting;
+            if (initialCrafting == CraftingStorage.EMPTY) {
+                initialCrafting = crafting;
+            }
             ItemStack result;
             if (stonecutter) {
                 result = StorageServerStub.assembleCraftingResult(player, crafting, true);
@@ -1312,35 +1313,34 @@ public final class StorageServerStub {
                 return new TakeAllResult(player.containerMenu.getCarried(), true, true);
             }
             any = true;
-            // 消耗输入后网格无变化（不消耗型配方）→ 继续循环只会无限产出相同产物，立即终止
-            if (!StorageServerStub.consumeCraftingInput(target, crafting, stonecutter)) {
+            // 只消耗合成格内已有的原料合成一次
+            boolean consumed = StorageServerStub.consumeCraftingInput(target, crafting, stonecutter);
+            if (!consumed) {
+                // 不消耗型配方（如催化剂 / 模具，或剩余物与输入完全相同）：继续
+                // 循环只会无限产出相同产物，立即终止
                 StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
-                break;
+                player.containerMenu.broadcastChanges();
+                return new TakeAllResult(player.containerMenu.getCarried(), any, true);
             }
-            chunkTailRefilled = StorageServerStub.autoRefillCrafting(player, target, crafting);
-        }
-        if (!chunkTailRefilled && lastCrafting.autoFill()) {
-            // Last chunk frame was not refilled: persist the grid after the final
-            // consumption so material exhaustion reports done=true instead of
-            // one extra done=false frame that wastes a client round-trip.
-            CraftingStorage tail = target.read();
-            List<ItemStack> tailGrid = new ArrayList<>(tail.craftingInput());
-            List<ItemStack> templateGrid = lastCrafting.craftingInput();
-            boolean tailChanged = false;
-            for (int i = 0; i < templateGrid.size(); i++) {
-                ItemStack templateStack = templateGrid.get(i);
-                ItemStack currentStack = i < tailGrid.size() ? tailGrid.get(i) : ItemStack.EMPTY;
-                if (!templateStack.isEmpty()
-                    && currentStack.getCount() < templateStack.getCount()) {
-                    tailGrid.set(i, currentStack);
-                    tailChanged = true;
+            // 合成格内自己的原料用完后停止合成。开启自动填充时，只补回本次
+            // 操作开始时的数量供下次操作继续；不会在单次 shift 点击中把仓储
+            // 内的同种材料全部合成完
+            CraftingStorage after = target.read();
+            boolean exhausted = stonecutter
+                ? after.stonecutterInput().isEmpty()
+                : after.craftingInput().stream().allMatch(ItemStack::isEmpty);
+            if (exhausted) {
+                StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
+                int refilledSlots = 0;
+                if (initialCrafting.autoFill()) {
+                    refilledSlots = StorageServerStub.refillAndCollectSlots(player, target, initialCrafting);
                 }
-            }
-            if (tailChanged) {
-                target.write(tail.withCraftingInput(tailGrid));
+                player.containerMenu.broadcastChanges();
+                return new TakeAllResult(player.containerMenu.getCarried(), any, true, refilledSlots);
             }
         }
-        // 达到分块上限：材料尚未耗尽，由客户端继续调用（done=false），保留锁定配方
+        // 循环预算用完但合成格内还有材料（防御性：每个格子最多一种堆叠，
+        // 单次分块通常能覆盖）：保留锁定配方让客户端继续（done=false）
         player.containerMenu.broadcastChanges();
         return new TakeAllResult(player.containerMenu.getCarried(), any, false);
     }
@@ -1584,6 +1584,38 @@ public final class StorageServerStub {
             target.write(crafting.withCraftingInput(grid));
         }
         return changed;
+    }
+
+    /**
+     * 执行一次自动补货并返回被补槽位的位掩码（bit0 为切石机输入槽，bit1~bit9 为合成格槽）。
+     * 补货以 {@code template} 为模板：槽位耗尽（空或数量少于模板）且可从背包 / 存储
+     * 取到同种物品时，补足到模板数量。
+     */
+    private static int refillAndCollectSlots(
+        ServerPlayer player,
+        StorageServerStub.CraftingTarget target,
+        CraftingStorage template
+    ) {
+        CraftingStorage before = target.read();
+        if (!StorageServerStub.autoRefillCrafting(player, target, template)) {
+            return 0;
+        }
+        CraftingStorage after = target.read();
+        int mask = 0;
+        if (!after.stonecutterInput().isEmpty()
+            && after.stonecutterInput().getCount() > before.stonecutterInput().getCount()) {
+            mask |= 1;
+        }
+        List<ItemStack> beforeGrid = before.craftingInput();
+        List<ItemStack> afterGrid = after.craftingInput();
+        for (int i = 0; i < afterGrid.size(); i++) {
+            if (i < beforeGrid.size()
+                && !afterGrid.get(i).isEmpty()
+                && afterGrid.get(i).getCount() > beforeGrid.get(i).getCount()) {
+                mask |= 1 << (i + 1);
+            }
+        }
+        return mask;
     }
 
     /**
@@ -3742,12 +3774,18 @@ public final class StorageServerStub {
         );
     }
 
-    public record InteractionResult(ItemStack carried, boolean changed) {
+    public record InteractionResult(ItemStack carried, boolean changed, int refilledSlots) {
+        public InteractionResult(ItemStack carried, boolean changed) {
+            this(carried, changed, 0);
+        }
+
         public static final StreamCodec<RegistryFriendlyByteBuf, InteractionResult> STREAM_CODEC = StreamCodec.composite(
             ItemStack.OPTIONAL_STREAM_CODEC,
             InteractionResult::carried,
             ByteBufCodecs.BOOL,
             InteractionResult::changed,
+            ByteBufCodecs.VAR_INT,
+            InteractionResult::refilledSlots,
             InteractionResult::new
         );
     }
@@ -3755,12 +3793,17 @@ public final class StorageServerStub {
     /**
      * {@link #craftingTakeAll} 分块合成的结果。
      *
-     * @param carried 本次调用结束时的指针物品
-     * @param changed 本次调用是否合成了至少一个产物
-     * @param done    本次调用是否已自然终止（材料耗尽 / 产物无处可放 / 不消耗型配方）；
-     *                {@code false} 表示达到分块上限，客户端应继续调用
+     * @param carried       本次调用结束时的指针物品
+     * @param changed       本次调用是否合成了至少一个产物
+     * @param done          本次调用是否已自然终止（材料耗尽 / 产物无处可放 / 不消耗型配方）；
+     *                       {@code false} 表示达到分块上限，客户端应继续调用
+     * @param refilledSlots 补货位掩码：bit0 为切石机输入槽，bit1~bit9 为合成格 9 槽；0 表示未补货
      */
-    public record TakeAllResult(ItemStack carried, boolean changed, boolean done) {
+    public record TakeAllResult(ItemStack carried, boolean changed, boolean done, int refilledSlots) {
+        public TakeAllResult(ItemStack carried, boolean changed, boolean done) {
+            this(carried, changed, done, 0);
+        }
+
         public static final StreamCodec<RegistryFriendlyByteBuf, TakeAllResult> STREAM_CODEC = StreamCodec.composite(
             ItemStack.OPTIONAL_STREAM_CODEC,
             TakeAllResult::carried,
@@ -3768,6 +3811,8 @@ public final class StorageServerStub {
             TakeAllResult::changed,
             ByteBufCodecs.BOOL,
             TakeAllResult::done,
+            ByteBufCodecs.VAR_INT,
+            TakeAllResult::refilledSlots,
             TakeAllResult::new
         );
     }
