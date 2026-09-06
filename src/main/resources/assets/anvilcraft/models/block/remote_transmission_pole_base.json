@@ -32,18 +32,6 @@
 			}
 		},
 		{
-			"from": [6, 11, 6],
-			"to": [10, 16, 10],
-			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
-			"color": 8,
-			"faces": {
-				"north": {"uv": [10, 11, 14, 16], "texture": "#missing"},
-				"east": {"uv": [10, 11, 14, 16], "texture": "#missing"},
-				"south": {"uv": [10, 11, 14, 16], "texture": "#missing"},
-				"west": {"uv": [10, 11, 14, 16], "texture": "#missing"}
-			}
-		},
-		{
 			"from": [3, 6, 3],
 			"to": [13, 8, 13],
 			"rotation": {"angle": 0, "axis": "y", "origin": [8, 8, 8]},
@@ -143,7 +131,6 @@
 		4,
 		5,
 		6,
-		7,
 		{
 			"name": "group",
 			"origin": [8, 0, 8],
