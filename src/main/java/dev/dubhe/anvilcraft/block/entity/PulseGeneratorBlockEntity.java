@@ -216,7 +216,11 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
         this.startMode = Mode.fromIndex(mode % 3);
         if (this.startMode != Mode.LOOP) {
             this.isDeadlock = false;
-        } else if (!this.isInputtingSignal && this.level != null) {
+        }
+        // 无论当前是否有信号输入都要重新评估循环模式状态：
+        // 若正有输入则经由 checkIsDeadlock 将自身标记为死锁，
+        // 待输入取消后即可开始循环；否则立即按当前输入求值（见 #4363）。
+        if (this.level != null) {
             Util.castSafely(this.getBlockState().getBlock(), PulseGeneratorBlock.class)
                 .ifPresent(block -> block.update(this.level, this.getBlockPos(), this::getBlockState));
         }
