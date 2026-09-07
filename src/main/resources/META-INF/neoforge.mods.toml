@@ -84,6 +84,13 @@ file="META-INF/accesstransformer.cfg"
     ordering="NONE"
     side="BOTH"
 
+[[dependencies."${mod_id}"]]
+    modId="emi"
+    type="optional"
+    versionRange="[1.1.23,)"
+    ordering="NONE"
+    side="CLIENT"
+
 [mc-publish]
 loaders = ["neoforge"]
 

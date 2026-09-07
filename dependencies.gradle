@@ -30,4 +30,9 @@ dependencies {
     // Curios API
     compileClasspath(libs.curios)
     runtimeClasspath(libs.curios)
+
+    // EMI
+    // note: catalog 无法表达 classifier，故 api 精简包坐标直接写在这里
+    compileOnly("dev.emi:emi-neoforge:${libs.versions.emi.get()}:api") { transitive = false }
+    runtimeOnly(libs.emi) { transitive = false }
 }

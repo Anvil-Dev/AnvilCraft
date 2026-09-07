@@ -13,6 +13,7 @@ sodium = "mc1.21.1-0.6.13-neoforge"
 embeddium = "1.0.11+mc1.21.1"
 iris = "1.8.1+1.21.1-neoforge"
 curios = "9.5.1+1.21.1"
+emi = "1.1.24+1.21.1"
 
 modDevGradle = "2.0.140"
 lombok = "8.7.1"
@@ -33,6 +34,7 @@ iris = {  group = "maven.modrinth", name = "iris", version.ref = "iris"}
 jade = { group = "maven.modrinth", name = "jade", version.ref = "jade" }
 mekanism = { group = "maven.modrinth", name = "mekanism", version.ref = "mekanism" }
 curios = { group = "top.theillusivec4.curios", name = "curios-neoforge", version.ref = "curios" }
+emi = { group = "dev.emi", name = "emi-neoforge", version.ref = "emi" }
 
 [plugins]
 modDevGradle = { id = "net.neoforged.moddev", version.ref = "modDevGradle" }
