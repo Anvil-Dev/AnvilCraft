@@ -523,21 +523,10 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             IItemHandler handler = localBe.getItemHandler();
             int slots = handler.getSlots();
             if (lastNode) {
+                // 最后节点：canonical 内容归还本地接口（见 returnCanonicalItemsToLocal）
                 UUID uuid = WormholeInterfaceStates.logisticsUuid(
                     this.bodyUuid, entry.getKey().getX(), entry.getKey().getZ());
-                List<UnlimitedItemStack> canonical = states.getOrCreateItemState(uuid, slots);
-                boolean allReturned = true;
-                for (int slot = 0; slot < slots; slot++) {
-                    ItemStack stack = canonical.get(slot).toStack();
-                    if (stack.isEmpty()) continue;
-                    // canonical 内容必须真正落入本地接口才允许清除 canonical：
-                    // 同槽为空直接插入；同槽为同类则合并；否则寻找其它可容纳的槽位。
-                    ItemStack remainder = returnToHandler(handler, stack, slot);
-                    if (!remainder.isEmpty()) {
-                        allReturned = false;
-                    }
-                }
-                if (allReturned) {
+                if (returnCanonicalItemsToLocal(states, uuid, handler, slots)) {
                     states.clearItemState(uuid);
                 }
                 continue;
@@ -556,21 +545,10 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
             IFluidHandler handler = localBe.getFluidHandler();
             int tanks = handler.getTanks();
             if (lastNode) {
+                // 最后节点：canonical 内容归还本地接口（见 returnCanonicalFluidsToLocal）
                 UUID uuid = WormholeInterfaceStates.fluidUuid(
                     this.bodyUuid, entry.getKey().getX(), entry.getKey().getZ());
-                List<FluidStack> canonical = states.getOrCreateFluidState(uuid, tanks);
-                boolean allReturned = true;
-                for (int tank = 0; tank < tanks; tank++) {
-                    FluidStack stack = canonical.get(tank);
-                    if (stack.isEmpty()) continue;
-                    // canonical 内容必须真正落入本地接口才允许清除 canonical：
-                    // 同罐为空直接填充；同罐为同类则并入；否则寻找其它可容纳的罐。
-                    FluidStack remainder = returnToTanks(handler, stack, tank);
-                    if (!remainder.isEmpty()) {
-                        allReturned = false;
-                    }
-                }
-                if (allReturned) {
+                if (returnCanonicalFluidsToLocal(states, uuid, handler, tanks)) {
                     states.clearFluidState(uuid);
                 }
                 continue;
@@ -584,6 +562,51 @@ public class WormholeStabilizerHandler extends BaseMegastructureHandler {
         }
 
         stopLocalLaserOutputs(be);
+    }
+
+    /**
+     * 把 canonical 中的全部物品归还给本地物流接口：优先放入原槽位（空槽直接插入、
+     * 同类堆叠合并），原槽位被异物占据时尝试其它可容纳槽位。
+     *
+     * @return 是否全部归还成功；仅当全部落入本地后才应清除 canonical，
+     *         否则保留 canonical 以避免内容静默消失
+     */
+    private static boolean returnCanonicalItemsToLocal(
+        WormholeInterfaceStates states, UUID uuid, IItemHandler handler, int slots
+    ) {
+        List<UnlimitedItemStack> canonical = states.getOrCreateItemState(uuid, slots);
+        boolean allReturned = true;
+        for (int slot = 0; slot < slots; slot++) {
+            ItemStack stack = canonical.get(slot).toStack();
+            if (stack.isEmpty()) continue;
+            ItemStack remainder = returnToHandler(handler, stack, slot);
+            if (!remainder.isEmpty()) {
+                allReturned = false;
+            }
+        }
+        return allReturned;
+    }
+
+    /**
+     * 把 canonical 中的全部流体归还给本地流体接口，语义同
+     * {@link #returnCanonicalItemsToLocal}。
+     *
+     * @return 是否全部归还成功
+     */
+    private static boolean returnCanonicalFluidsToLocal(
+        WormholeInterfaceStates states, UUID uuid, IFluidHandler handler, int tanks
+    ) {
+        List<FluidStack> canonical = states.getOrCreateFluidState(uuid, tanks);
+        boolean allReturned = true;
+        for (int tank = 0; tank < tanks; tank++) {
+            FluidStack stack = canonical.get(tank);
+            if (stack.isEmpty()) continue;
+            FluidStack remainder = returnToTanks(handler, stack, tank);
+            if (!remainder.isEmpty()) {
+                allReturned = false;
+            }
+        }
+        return allReturned;
     }
 
     private void stopLocalLaserOutputs(CelestialForgingAnvilBlockEntity be) {

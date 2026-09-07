@@ -104,11 +104,10 @@ public final class BlockPlacementUtil {
             player.setItemInHand(InteractionHand.MAIN_HAND, stack);
             if (requiredState != null) {
                 orientPlayerForState(player, requiredState);
-            } else if (defaultFacing != null && defaultFacing.getAxis().isHorizontal()) {
-                // 无目标状态（定点/自由放置）时按机器朝向决定放置方向，避免始终朝北
-                player.setXRot(0.0F);
-                player.setYRot(defaultFacing.toYRot());
-                player.setYHeadRot(defaultFacing.toYRot());
+            } else if (defaultFacing != null) {
+                // 无目标状态（定点/自由放置）时按机器朝向决定放置方向，避免始终朝北；
+                // 垂直朝向同样生效（抬头/低头放置）。
+                orientPlayerForDirection(player, defaultFacing);
             }
             blockItem.place(level, pos, player, InteractionHand.MAIN_HAND);
             return player.getMainHandItem();
@@ -127,6 +126,11 @@ public final class BlockPlacementUtil {
         if (facing == null) {
             return;
         }
+        orientPlayerForDirection(player, facing);
+    }
+
+    /** 按目标方向旋转假玩家，使 {@link BlockItem#place} 放置出对应朝向的方块。 */
+    private static void orientPlayerForDirection(ServerPlayer player, Direction facing) {
         if (facing.getAxis().isVertical()) {
             player.setXRot(facing == Direction.UP ? -90.0F : 90.0F);
             return;

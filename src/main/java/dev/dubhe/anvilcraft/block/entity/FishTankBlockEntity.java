@@ -354,6 +354,11 @@ public class FishTankBlockEntity extends BlockEntity implements IItemHandlerHold
     /**
      * 本次铁砧加工开始前的输入槽快照；{@code null} 表示当前不在加工中。
      * 用于把催化类配方（产物与底物相同）的产物归还输入槽。
+     *
+     * <p>该快照仅存于内存、不随 NBT 持久化：加工由铁砧落地事件驱动，
+     * {@code beginRecipeProcessing} 与 {@code finishRecipeProcessing} 在
+     * {@code AnvilEventListener.handleNeoAnvilRecipe} 中同步包围整个配方处理
+     * （含产物实体生成与回收），因此快照生命周期不会跨越存档重载或方块卸载。</p>
      */
     private @Nullable ItemStack[] processingInputSnapshot;
 
