@@ -1,7 +1,5 @@
 package dev.dubhe.anvilcraft.integration.emi;
 
-import dev.anvilcraft.lib.v2.integration.Integration;
-import dev.anvilcraft.lib.v2.integration.IntegrationType;
 import dev.dubhe.anvilcraft.client.gui.screen.StorageScreen;
 import dev.emi.emi.api.EmiEntrypoint;
 import dev.emi.emi.api.EmiPlugin;
@@ -16,14 +14,13 @@ import dev.emi.emi.api.widget.Bounds;
  * leftPos 很大，导致 EMI 把侧栏/面板按这个偏大的矩形布局到屏幕中部而非屏幕边缘。
  * 这里通过 EMI 官方 API 为 {@link StorageScreen} 注册全屏边界，使面板按整个屏幕布局。</p>
  *
- * <p>类同时标注 anvillib 的 {@link Integration}（EMI 缺席时不会被加载/实例化）与
- * EMI 的 {@link EmiEntrypoint}（EMI 加载后扫描并调用 {@link #register}）。</p>
+ * <p>类标注 EMI 的 {@link EmiEntrypoint}（EMI 加载后扫描并调用 {@link #register}）。</p>
  */
-@Integration(value = "emi", type = IntegrationType.CLIENT)
 @EmiEntrypoint
 public class AnvilCraftEmiPlugin implements EmiPlugin {
     @Override
     public void register(EmiRegistry registry) {
+        // noinspection UnstableApiUsage
         registry.addScreenBoundsProvider(StorageScreen.class, screen ->
             new Bounds(0, 0, screen.width, screen.height)
         );
