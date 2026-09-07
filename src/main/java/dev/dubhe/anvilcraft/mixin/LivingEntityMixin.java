@@ -103,8 +103,7 @@ public abstract class LivingEntityMixin extends Entity {
     @ModifyVariable(method = "die", at = @At("HEAD"), argsOnly = true)
     private DamageSource modifySource(
         DamageSource value,
-        @Share("killer") LocalRef<ServerPlayer> killerRef,
-        @Share("frostKill") LocalRef<Boolean> frostKillRef
+        @Share("killer") LocalRef<ServerPlayer> killerRef
     ) {
         switch (value.getEntity()) {
             case FallingBlockEntity falling when !this.level().isClientSide -> {
@@ -120,9 +119,6 @@ public abstract class LivingEntityMixin extends Entity {
                     killer,
                     value.getSourcePosition()
                 );
-                if (anvil instanceof FrostAnvilBlock) {
-                    frostKillRef.set(true);
-                }
                 if (anvil instanceof TranscendenceAnvilBlock) {
                     AnvilCraftFakePlayers.getKiller().enableLooting5((ServerLevel) this.level(), killer);
                 }
@@ -141,13 +137,13 @@ public abstract class LivingEntityMixin extends Entity {
     }
 
     @Inject(method = "dropFromLootTable", at = @At("HEAD"), cancellable = true)
-    private void frostAnvilDropNoLoot(
-        DamageSource damageSource,
-        boolean hitByPlayer,
-        CallbackInfo ci,
-        @Share("frostKill") LocalRef<Boolean> frostKillRef
-    ) {
-        if (Boolean.TRUE.equals(frostKillRef.get())) {
+    private void frostAnvilDropNoLoot(DamageSource damageSource, boolean hitByPlayer, CallbackInfo ci) {
+        // 浮霜铁砧击杀生物时不掉落其战利品表内容。
+        // 注意：不能依赖 @Share 从 die() 传递标记（跨目标方法不共享），
+        // 且替换后的伤害源 causingEntity 是假玩家（getEntity()），
+        // 下落铁砧位于 directEntity（getDirectEntity()），因此须检查后者。
+        if (damageSource.getDirectEntity() instanceof FallingBlockEntity falling
+            && falling.getBlockState().getBlock() instanceof FrostAnvilBlock) {
             ci.cancel();
         }
     }

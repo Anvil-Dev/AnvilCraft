@@ -496,7 +496,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
                 level.registryAccess(),
                 state.getBlock().defaultBlockState()
             );
-            if (stack != null) {
+            if (stack == null) {
+                // 未注册主放置物品时回退到方块自身的物品，保证同一模式下预览形式统一
+                stack = new ItemStack(state.getBlock().asItem());
+            }
+            if (!stack.isEmpty()) {
                 return Either.left(stack);
             }
         }

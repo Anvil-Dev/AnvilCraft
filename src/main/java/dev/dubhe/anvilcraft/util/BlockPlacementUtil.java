@@ -71,6 +71,16 @@ public final class BlockPlacementUtil {
         ItemStack stack,
         @Nullable BlockState requiredState
     ) {
+        return placeBlock(level, pos, stack, requiredState, null);
+    }
+
+    public static ItemStack placeBlock(
+        ServerLevel level,
+        BlockPos pos,
+        ItemStack stack,
+        @Nullable BlockState requiredState,
+        @Nullable Direction defaultFacing
+    ) {
         // 桶 → 炼药锅：消耗一桶流体，放置目标锅状态
         // （状态转换如火锅 → 油锅由蓝图状态规则处理）
         if (stack.getItem() instanceof BucketItem && requiredState != null
@@ -94,6 +104,10 @@ public final class BlockPlacementUtil {
             player.setItemInHand(InteractionHand.MAIN_HAND, stack);
             if (requiredState != null) {
                 orientPlayerForState(player, requiredState);
+            } else if (defaultFacing != null) {
+                // 无目标状态（定点/自由放置）时按机器朝向决定放置方向，避免始终朝北；
+                // 垂直朝向同样生效（抬头/低头放置）。
+                orientPlayerForDirection(player, defaultFacing);
             }
             blockItem.place(level, pos, player, InteractionHand.MAIN_HAND);
             return player.getMainHandItem();
@@ -112,6 +126,11 @@ public final class BlockPlacementUtil {
         if (facing == null) {
             return;
         }
+        orientPlayerForDirection(player, facing);
+    }
+
+    /** 按目标方向旋转假玩家，使 {@link BlockItem#place} 放置出对应朝向的方块。 */
+    private static void orientPlayerForDirection(ServerPlayer player, Direction facing) {
         if (facing.getAxis().isVertical()) {
             player.setXRot(facing == Direction.UP ? -90.0F : 90.0F);
             return;

@@ -38,4 +38,11 @@ repositories {
             includeGroup "top.theillusivec4.curios"
         }
     }
+    maven { // EMI
+        name = "Sleeping Town"
+        url = "https://repo.sleeping.town/"
+        content {
+            includeGroup "dev.emi"
+        }
+    }
 }

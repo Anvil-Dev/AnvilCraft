@@ -69,6 +69,9 @@ public class LargeBlockPlacePreviewEventListener {
         if (player == null) {
             return;
         }
+        if (player.isSpectator()) {
+            return;
+        }
         if (level == null) {
             return;
         }

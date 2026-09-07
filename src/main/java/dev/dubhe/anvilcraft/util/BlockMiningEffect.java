@@ -80,7 +80,7 @@ public record BlockMiningEffect(@Nullable ResourceKey<Enchantment> enchantment, 
         return switch (block) {
             case RoyalAnvilBlock ignored -> Optional.of(SILK_TOUCH);
             case FrostAnvilBlock ignored -> Optional.of(DISINTEGRATION);
-            case EmberAnvilBlock ignored -> Optional.of(SMELTING);
+            case EmberAnvilBlock ignored -> Optional.of(MAX_SMELTING);
             case TranscendenceAnvilBlock ignored -> Optional.of(FORTUNE_5);
             case SpectralAnvilBlock ignored -> Optional.of(NORMAL);
             case AnvilBlock ignored -> Optional.of(NORMAL);

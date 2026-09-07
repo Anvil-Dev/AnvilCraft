@@ -30,4 +30,7 @@ dependencies {
     // Curios API
     compileClasspath(libs.curios)
     runtimeClasspath(libs.curios)
+
+    // EMI
+    compileClasspath(variantOf(libs.emi) { classifier 'api' }) { transitive = false }
 }
