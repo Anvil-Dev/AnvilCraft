@@ -1,0 +1,29 @@
+{
+  "type": "anvilcraft:solid_liquid",
+  "consume": 1,
+  "fluid": {
+    "components": {
+      "patch": {
+        "!anvilcraft:liquid_enchantment": {}
+      }
+    },
+    "fluids": "anvilcraft:liquid_enchantment"
+  },
+  "ingredients": [
+    {
+      "count": 9,
+      "items": "anvilcraft:cursed_gold_block"
+    },
+    {
+      "items": "anvilcraft:void_matter"
+    }
+  ],
+  "results": [],
+  "transform": {
+    "amount": 1,
+    "components": {
+      "anvilcraft:liquid_enchantment": "minecraft:vanishing_curse"
+    },
+    "id": "anvilcraft:liquid_enchantment"
+  }
+}

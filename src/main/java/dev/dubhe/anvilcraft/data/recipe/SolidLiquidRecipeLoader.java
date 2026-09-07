@@ -126,6 +126,36 @@ public class SolidLiquidRecipeLoader {
             ModEnchantments.HARVEST_KEY,
             ModEnchantments.BEHEADING_KEY
         );
+
+        // 消失诅咒：9 诅咒金块 + 虚空物质 + 1mB 空白液态魔咒
+
+        SolidLiquidRecipe.builder()
+            .cauldron(
+                FluidStackPredicate.builder()
+                    .fluid(ModFluids.LIQUID_ENCHANTMENT)
+                    .component(b -> b.expectNull(ModComponents.LIQUID_ENCHANTMENT))
+                    .build()
+            )
+            .consume(1)
+            .requires(ModBlocks.CURSED_GOLD_BLOCK, 9)
+            .requires(ModItems.VOID_MATTER)
+            .transform(SolidLiquidRecipeLoader.curseFluid(Enchantments.VANISHING_CURSE))
+            .save(provider, AnvilCraft.of("solid_liquid/vanishing_curse"));
+
+        // 绑定诅咒：9 诅咒金块 + 链 + 1mB 空白液态魔咒
+
+        SolidLiquidRecipe.builder()
+            .cauldron(
+                FluidStackPredicate.builder()
+                    .fluid(ModFluids.LIQUID_ENCHANTMENT)
+                    .component(b -> b.expectNull(ModComponents.LIQUID_ENCHANTMENT))
+                    .build()
+            )
+            .consume(1)
+            .requires(ModBlocks.CURSED_GOLD_BLOCK, 9)
+            .requires(Items.CHAIN)
+            .transform(SolidLiquidRecipeLoader.curseFluid(Enchantments.BINDING_CURSE))
+            .save(provider, AnvilCraft.of("solid_liquid/binding_curse"));
     }
 
     private static void solidLiquid(RegistrumRecipeProvider provider, ItemLike input, ItemLike result, int consume) {
@@ -184,5 +214,12 @@ public class SolidLiquidRecipeLoader {
         }
         String id = idBuilder.substring(0, idBuilder.length() - 5);
         builder.save(provider, AnvilCraft.of("solid_liquid/" + id));
+    }
+
+    /** 构建带指定诅咒的液态魔咒产物。*/
+    private static FluidStack curseFluid(ResourceKey<Enchantment> curse) {
+        FluidStack fluid = new FluidStack(ModFluids.LIQUID_ENCHANTMENT.get(), 1);
+        fluid.set(ModComponents.LIQUID_ENCHANTMENT, curse);
+        return fluid;
     }
 }

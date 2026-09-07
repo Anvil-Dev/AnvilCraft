@@ -30,6 +30,7 @@ public class JewelCraftingRecipeLoader {
             .requires(Items.POLISHED_TUFF)
             .requires(Items.COPPER_INGOT)
             .result(new ItemStack(Items.TRIAL_KEY))
+            .hasVanishingCurse(false)
             .save(provider);
 
         JewelCraftingRecipe.builder()
@@ -37,6 +38,7 @@ public class JewelCraftingRecipeLoader {
             .requires(Items.OXIDIZED_COPPER)
             .requires(Items.OMINOUS_BOTTLE)
             .result(new ItemStack(Items.OMINOUS_TRIAL_KEY))
+            .hasVanishingCurse(false)
             .save(provider);
 
         JewelCraftingRecipe.builder()
@@ -44,6 +46,7 @@ public class JewelCraftingRecipeLoader {
             .requires(ModItems.CURSED_GOLD_INGOT, 2)
             .requires(Items.GLASS_BOTTLE)
             .result(Items.OMINOUS_BOTTLE.getDefaultInstance())
+            .hasVanishingCurse(false)
             .save(provider);
 
         JewelCraftingRecipe.builder()
