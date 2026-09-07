@@ -1,11 +1,19 @@
 package dev.dubhe.anvilcraft.api.injection.entity;
 
+import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.world.phys.Vec3;
+
+import javax.annotation.Nullable;
 
 /**
  * 用于实体mixin中获取实体是否被转向环转向的接口
  */
 public interface IEntityExtension {
+    @Nullable
+    default GravityManager.OrbitalMotion anvilcraft$getOrbitalMotion() {
+        return null;
+    }
+
     default boolean anvilcraft$isDeflected() {
         return false;
     }

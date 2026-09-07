@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.HypercubeBlockEntity;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -14,10 +15,15 @@ import net.minecraft.client.resources.model.ModelManager;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
-public class HypercubeBERenderer implements BlockEntityRenderer<HypercubeBlockEntity> {
+public class HypercubeBERenderer implements BlockEntityRenderer<HypercubeBlockEntity>, ModelSelectionRenderer<HypercubeBlockEntity> {
     private static final ModelResourceLocation HYPERCUBE_MODEL = ModelResourceLocation.standalone(AnvilCraft.of("block/hypercube"));
 
     public HypercubeBERenderer(BlockEntityRendererProvider.Context ignore) {
+    }
+
+    @Override
+    public void collectSelectionModels(HypercubeBlockEntity entity, float partialTick, PoseStack pose, ModelConsumer consumer) {
+        consumer.accept(HYPERCUBE_MODEL, pose);
     }
 
     @Override
@@ -47,6 +53,6 @@ public class HypercubeBERenderer implements BlockEntityRenderer<HypercubeBlockEn
                 packedOverlay,
                 ModelData.EMPTY,
                 ModRenderTypes.HYPERCUBE
-            );
+        );
     }
 }

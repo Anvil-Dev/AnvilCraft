@@ -20,6 +20,7 @@ import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.util.AirResistanceManager;
 import dev.dubhe.anvilcraft.util.FireReforgingUtil;
+import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.tags.DamageTypeTags;
@@ -217,7 +218,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
         ) {
             this.anvilcraft$neutroniumMove(MoverType.SELF, this.getDeltaMovement());
             float f = 0.98F;
-            if (this.onGround()) {
+            if (this.onGround() && !GravityManager.hasCustomSurfaceFriction(this)) {
                 BlockPos groundPos = this.getBlockPosBelowThatAffectsMyMovement();
                 f = this.level().getBlockState(groundPos).getFriction(this.level(), groundPos, this) * 0.98F;
             }
@@ -272,6 +273,7 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     })
     @Unique
     private void anvilcraft$neutroniumMove(MoverType moverType, Vec3 motion) {
+        motion = GravityManager.applyOrbitalMovementEffects(this, moverType, motion);
 
         this.level().getProfiler().push("move");
         // 代替原版move方法中的collide调用
@@ -557,6 +559,18 @@ abstract class ItemEntityMixin extends Entity implements IItemEntityExtension {
     @Override
     public boolean anvilcraft$isAdsorbable() {
         return this.anvilcraft$isAdsorbable;
+    }
+
+    @ModifyExpressionValue(
+        method = "tick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/level/block/state/BlockState;getFriction("
+                + "Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;)F"
+        )
+    )
+    private float anvilcraft$useDirectionalSurfaceFriction(float friction) {
+        return GravityManager.hasCustomSurfaceFriction(this) ? 1.0F : friction;
     }
 
     /** Horizontal air resistance, also the airborne share of the ground friction product. */

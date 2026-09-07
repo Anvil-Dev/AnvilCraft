@@ -40,6 +40,14 @@ import javax.annotation.Nullable;
 @Mixin(Entity.class)
 public abstract class EntityMixin implements IEntityExtension {
     @Unique
+    private final GravityManager.OrbitalMotion anvilcraft$orbitalMotion = new GravityManager.OrbitalMotion();
+
+    @Override
+    public GravityManager.OrbitalMotion anvilcraft$getOrbitalMotion() {
+        return this.anvilcraft$orbitalMotion;
+    }
+
+    @Unique
     public Vec3 anvil$fixedDeltaMovement = Vec3.ZERO;
 
     @Unique
@@ -111,8 +119,19 @@ public abstract class EntityMixin implements IEntityExtension {
     }
 
     @ModifyVariable(method = "move", at = @At("HEAD"), argsOnly = true)
-    private Vec3 anvilcraft$applyGravityMovementEffects(Vec3 movement) {
-        return GravityManager.applyMovementEffects((Entity) (Object) this, movement);
+    private Vec3 anvilcraft$applyGravityMovementEffects(Vec3 movement, MoverType type, Vec3 originalMovement) {
+        return GravityManager.applyMovementEffects((Entity) (Object) this, type, movement);
+    }
+
+    @Shadow
+    protected abstract double getDefaultGravity();
+
+    @WrapOperation(
+        method = "applyGravity",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;getGravity()D")
+    )
+    private double anvilcraft$deferOrbitalGravity(Entity entity, Operation<Double> original) {
+        return GravityManager.deferVerticalGravity(entity, original.call(entity), this.getDefaultGravity());
     }
 
     @WrapOperation(
@@ -340,7 +359,7 @@ public abstract class EntityMixin implements IEntityExtension {
         }
 
         // 应用引力向量的水平分量
-        Vec3 localGravity = GravityManager.getGravityVector(entity);
+        Vec3 localGravity = GravityManager.deferHorizontalGravity(entity, GravityManager.getGravityVector(entity));
         if (localGravity.x != 0 || localGravity.z != 0) {
             entity.setDeltaMovement(entity.getDeltaMovement().add(localGravity.x, 0, localGravity.z));
         }

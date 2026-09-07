@@ -120,6 +120,7 @@
       "PostChainAccessor",
       "SectionCompilerMixin",
       "SoundEngineMixin",
+      "accessor.ModelBakeryAccessor",
       "accessor.MultiPlayerGameModeAccessor",
       "accessor.ScreenAccessor",
       "compat.EmbBlockOcclusionCacheMixin",

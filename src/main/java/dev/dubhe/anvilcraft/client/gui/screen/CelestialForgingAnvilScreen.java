@@ -1192,8 +1192,11 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     /// 在信息面板中渲染恒星演化加速器进度。
     private void renderAcceleratorProgress(GuiGraphics guiGraphics, CelestialForgingAnvilBlockEntity be) {
         List<Component> lines = new ArrayList<>();
+        if (be.getMegastructureManager().getAcceleratorHandler().isPaused()) {
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.paused"));
+        }
         StellarEvolutionPhase phase = be.getStellarEvolutionPhase();
-        boolean hasPhysicalPhase = phase != null;
+        final boolean hasPhysicalPhase = phase != null;
         if (phase != null) {
             lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.phase." + phase.getSerializedName()));
             int phasePercent = Math.clamp(Math.round(be.getStellarPhaseProgress() * 100.0f), 0, 100);
@@ -1217,6 +1220,15 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 "screen.anvilcraft.cfa.evolution.phase." + legacyPhase.getSerializedName()
             ));
         }
+        var evolution = be.getStellarEvolutionState();
+        if (evolution != null && evolution.modern()) {
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.initial_mass",
+                String.format(java.util.Locale.ROOT, "%.3g", evolution.initialSolarMass())));
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.current_mass",
+                String.format(java.util.Locale.ROOT, "%.3g", evolution.currentSolarMass())));
+            lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.metallicity",
+                String.format(java.util.Locale.ROOT, "%.3g", evolution.metallicityZ())));
+        }
         /// 剩余时间（使用客户端本地倒计时，每tick递减）
         int displayTicks = localAcceleratorTicksRemaining > 0 ? localAcceleratorTicksRemaining : be.getAcceleratorTicksRemaining();
         int secondsRemaining = displayTicks / 20;
@@ -1236,10 +1248,24 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
 
         int lineHeight = font.lineHeight + 1;
-        int y = PV_INFO_Y + 10;
-        for (Component line : lines) {
-            guiGraphics.drawString(font, line, PV_INFO_X, y, 0xFFFFFF, false);
-            y += lineHeight;
+        List<net.minecraft.util.FormattedCharSequence> wrapped = new ArrayList<>();
+        for (Component line : lines) wrapped.addAll(font.split(line, PV_INFO_W - 5));
+        int maxLines = PV_INFO_H / lineHeight;
+        int maxScroll = Math.max(0, wrapped.size() - maxLines);
+        scrollOffset = Math.clamp(scrollOffset, 0, maxScroll);
+        guiGraphics.enableScissor(leftPos + PV_INFO_X, topPos + PV_INFO_Y,
+            leftPos + PV_INFO_X + PV_INFO_W, topPos + PV_INFO_Y + PV_INFO_H);
+        for (int index = scrollOffset; index < Math.min(wrapped.size(), scrollOffset + maxLines); index++) {
+            guiGraphics.drawString(font, wrapped.get(index), PV_INFO_X,
+                PV_INFO_Y + (index - scrollOffset) * lineHeight, 0xFFFFFF, false);
+        }
+        guiGraphics.disableScissor();
+        if (maxScroll > 0) {
+            int barX = PV_INFO_X + PV_INFO_W - 3;
+            int thumbHeight = Math.max(8, PV_INFO_H * maxLines / wrapped.size());
+            int thumbY = PV_INFO_Y + (PV_INFO_H - thumbHeight) * scrollOffset / maxScroll;
+            guiGraphics.fill(barX, PV_INFO_Y, barX + 2, PV_INFO_Y + PV_INFO_H, 0x40_FFFFFF);
+            guiGraphics.fill(barX, thumbY, barX + 2, thumbY + thumbHeight, 0x80_CCCCCC);
         }
     }
 

@@ -128,3 +128,5 @@ ref/
 /AGENT.md
 .port-ref/
 /.vscode
+/src/test/
+/src/stellarTest/

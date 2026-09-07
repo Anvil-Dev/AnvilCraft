@@ -189,9 +189,8 @@ public final class ModMegastructures {
         id -> Megastructure.builder(id, "stellar_evolution_accelerator")
             .prerequisite(context -> context.body() instanceof StarData star
                 && !star.specialRedDwarf()
-                && star.bodyClass() != CelestialBodyClass.WHITE_DWARF
-                && star.bodyClass() != CelestialBodyClass.NEUTRON_STAR
-                && star.bodyClass() != CelestialBodyClass.BLACK_HOLE)
+                && (star.bodyClass().isMainSequence() || star.bodyClass().name().endsWith("_GIANT")
+                    || star.bodyClass().name().endsWith("_SUPERGIANT") || star.bodyClass() == CelestialBodyClass.BROWN_DWARF))
             .ring(context -> context.body().size() >= 48 ? 6 : 5)
             .model(5, ringModel(5, "stellar_evolution_accelerator"))
             .model(6, ringModel(6, "stellar_evolution_accelerator"))

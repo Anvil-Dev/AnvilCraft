@@ -7,6 +7,7 @@ import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.SmartBlockPlacerBlock;
 import dev.dubhe.anvilcraft.block.entity.SmartBlockPlacerBlockEntity;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import dev.dubhe.anvilcraft.init.ModSoundEvents;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
 import net.minecraft.client.Minecraft;
@@ -45,7 +46,8 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 import java.util.List;
 import javax.annotation.Nullable;
 
-public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockPlacerBlockEntity> {
+public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockPlacerBlockEntity>,
+    ModelSelectionRenderer<SmartBlockPlacerBlockEntity> {
     private static final ModelResourceLocation BASE_MODEL = ModelResourceLocation.standalone(
         AnvilCraft.of("block/smart_block_placer_base")
     );
@@ -254,12 +256,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         
         // 应用变换
         poseStack.pushPose();
-        poseStack.translate(0.5, 1.5, 0.5);
-        if (upsideDown) {
-            poseStack.mulPose(Axis.XP.rotationDegrees(180f));
-        }
-        applyHorizontalRotation(poseStack, facing, upsideDown);
-        poseStack.translate(0, upsideDown ? 0.5 : -1.5, 0);
+        applyBaseTransform(poseStack, facing, upsideDown);
 
         // 初始化动画变量
         float baseSwingAngle = 0f;
@@ -345,10 +342,20 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         boolean upsideDown,
         ArmRenderState state
     ) {
+        visitArmModels(poseStack, upsideDown, state,
+            (model, pose) -> renderModel(pose, buffer, model, packedLight, packedOverlay),
+            () -> {
+                if (level != null) renderHeldContent(poseStack, buffer, entity.getCurrentHeldBlock(), level, packedLight, packedOverlay);
+            });
+    }
+
+    private void visitArmModels(
+        PoseStack poseStack, boolean upsideDown, ArmRenderState state, ModelConsumer consumer, Runnable heldContent
+    ) {
         poseStack.pushPose();
         poseStack.mulPose((upsideDown ? Axis.YN : Axis.YP).rotationDegrees(state.baseSwingAngle()));
         poseStack.translate(-0.5, 0.0, -0.5);
-        renderModel(poseStack, buffer, BASE_MODEL, packedLight, packedOverlay);
+        consumer.accept(BASE_MODEL, poseStack);
         poseStack.popPose();
 
         poseStack.pushPose();
@@ -357,13 +364,13 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
         poseStack.mulPose(Axis.XP.rotationDegrees(state.upperArmAngle()));
         poseStack.translate(0, -0.625, 0);
         poseStack.translate(-0.5, 0.0, -0.5);
-        renderModel(poseStack, buffer, UPPERARM_MODEL, packedLight, packedOverlay);
+        consumer.accept(UPPERARM_MODEL, poseStack);
 
         poseStack.pushPose();
         poseStack.translate(0.6875, 1.0625, 0.9375);
         poseStack.mulPose(Axis.XP.rotationDegrees(state.forearmAngle()));
         poseStack.translate(-0.6875, -1.0625, -0.9375);
-        renderModel(poseStack, buffer, FOREARM_MODEL, packedLight, packedOverlay);
+        consumer.accept(FOREARM_MODEL, poseStack);
 
         poseStack.pushPose();
         poseStack.translate(0.5, 1.3125, 0.375);
@@ -374,17 +381,45 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
             && state.animationProgress() > 0f
             && state.animationProgress() <= 0.7f;
         ModelResourceLocation currentClawModel = shouldClawBeOpen ? CLAW_OPEN_MODEL : CLAW_MODEL;
-        renderModel(poseStack, buffer, currentClawModel, packedLight, packedOverlay);
+        consumer.accept(currentClawModel, poseStack);
 
-        if (shouldClawBeOpen && level != null) {
-            renderHeldContent(poseStack, buffer, entity.getCurrentHeldBlock(), level, packedLight, packedOverlay);
-        }
+        if (shouldClawBeOpen) heldContent.run();
 
         poseStack.popPose();
         poseStack.popPose();
         poseStack.popPose();
     }
     
+    @Override
+    public void collectSelectionModels(
+        SmartBlockPlacerBlockEntity entity, float partialTick, PoseStack pose, ModelConsumer consumer
+    ) {
+        BlockState state = entity.getBlockState();
+        Direction facing = state.getValue(HorizontalDirectionalBlock.FACING);
+        boolean upsideDown = state.getValue(SmartBlockPlacerBlock.UPSIDE_DOWN);
+        Level level = entity.getLevel();
+        BlockPos target = entity.isAnimationActive() ? entity.getClientAnimationTargetPos() : null;
+        if (entity.isAnimationActive() && target == null && level != null) {
+            target = getNextTargetPosition(entity, level, facing, upsideDown);
+        }
+        float progress = target == null ? 0 : entity.getAnimationProgress(partialTick);
+        float[] angles = target == null ? new float[4] : PLACEMENT_ANIMATION.calculateArmAngles(
+            target, entity.getBlockPos(), facing, upsideDown, progress
+        );
+        ArmRenderState arm = new ArmRenderState(angles[0], angles[1], angles[2], angles[3], progress, target != null);
+        pose.pushPose();
+        applyBaseTransform(pose, facing, upsideDown);
+        visitArmModels(pose, upsideDown, arm, consumer, () -> {});
+        pose.popPose();
+    }
+
+    private void applyBaseTransform(PoseStack poseStack, Direction facing, boolean upsideDown) {
+        poseStack.translate(0.5, 1.5, 0.5);
+        if (upsideDown) poseStack.mulPose(Axis.XP.rotationDegrees(180f));
+        applyHorizontalRotation(poseStack, facing, upsideDown);
+        poseStack.translate(0, upsideDown ? 0.5 : -1.5, 0);
+    }
+
     private void applyHorizontalRotation(PoseStack poseStack, Direction facing, boolean upsideDown) {
         float rotation = switch (facing) {
             case WEST -> 90f;

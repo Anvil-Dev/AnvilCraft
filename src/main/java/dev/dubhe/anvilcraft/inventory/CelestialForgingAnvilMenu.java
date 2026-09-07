@@ -1,6 +1,7 @@
 package dev.dubhe.anvilcraft.inventory;
 
 import dev.dubhe.anvilcraft.block.entity.CelestialForgingAnvilBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.celestial.CelestialMassTable;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import lombok.Getter;
 import net.minecraft.network.FriendlyByteBuf;
@@ -264,26 +265,6 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         "1.26k R☉", "1.59k R☉", "2k R☉", "2.52k R☉"
     };
 
-    /// 质量：40 M⊕ + 24 M☉
-    private static final String[] MASS_TABLE = {
-        "0.022 M⊕", "0.031 M⊕", "0.044 M⊕", "0.063 M⊕",
-        "0.088 M⊕", "0.125 M⊕", "0.177 M⊕", "0.25 M⊕",
-        "0.35 M⊕", "0.5 M⊕", "0.7 M⊕", "1 M⊕",
-        "1.41 M⊕", "2 M⊕", "2.82 M⊕", "4 M⊕",
-        "5.66 M⊕", "8 M⊕", "11.3 M⊕", "16 M⊕",
-        "22.6 M⊕", "32 M⊕", "45.3 M⊕", "64 M⊕",
-        "90.5 M⊕", "128 M⊕", "181 M⊕", "256 M⊕",
-        "362 M⊕", "512 M⊕", "724 M⊕", "1k M⊕",
-        "1.41k M⊕", "2k M⊕", "2.82k M⊕", "4k M⊕",
-        "5.66k M⊕", "8k M⊕", "11.3k M⊕", "16k M⊕",
-        "0.063 M☉", "0.088 M☉", "0.125 M☉", "0.177 M☉",
-        "0.25 M☉", "0.35 M☉", "0.5 M☉", "0.7 M☉",
-        "1 M☉", "1.41 M☉", "2 M☉", "2.82 M☉",
-        "4 M☉", "5.66 M☉", "8 M☉", "11.3 M☉",
-        "16 M☉", "22.6 M☉", "32 M☉", "45.3 M☉",
-        "64 M☉", "90.5 M☉", "128 M☉", "181 M☉"
-    };
-
     /// 温度：24 ℃ + 40 K
     private static final String[] TEMPERATURE_TABLE = {
         "-223 ℃", "-217 ℃", "-210 ℃", "-202 ℃",
@@ -320,7 +301,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
 
     public static String formatMass(int count) {
         if (count == 0) return "---";
-        if (count >= 1 && count <= 64) return MASS_TABLE[count - 1];
+        if (count >= 1 && count <= 64) return CelestialMassTable.display(count);
         return "---";
     }
 
@@ -349,7 +330,7 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
     /// 对显示值应用比例偏移，格式化质量。
     public static String formatMassOffset(int count, float offset) {
         if (count == 0) return "---";
-        if (count >= 1 && count <= 64) return applyOffset(MASS_TABLE[count - 1], offset);
+        if (count >= 1 && count <= 64) return applyOffset(CelestialMassTable.display(count), offset);
         return "---";
     }
 

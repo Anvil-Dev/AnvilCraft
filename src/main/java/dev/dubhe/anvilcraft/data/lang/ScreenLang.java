@@ -739,14 +739,61 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.evolution.stage4", "M-Dwarf"); // 红矮星阶段
         provider.add("screen.anvilcraft.cfa.evolution.stage_unknown", "Unknown Stage"); // ？？？
         // 数据驱动恒星演化阶段名称
-        String[] stellarPhases = {
-            "main_sequence", "subgiant", "rgb", "helium_flash", "horizontal_branch", "red_clump", "blue_loop",
-            "agb", "post_agb", "ppn", "blue_supergiant", "red_supergiant", "lbv", "wolf_rayet", "pre_collapse",
-            "event_prelude", "event_collapse", "event_ejecta", "remnant_settle", "white_dwarf_cooling"
-        };
-        for (String phase : stellarPhases) {
-            provider.add("screen.anvilcraft.cfa.evolution.phase." + phase, phase.replace('_', ' '));
-        }
+        provider.add("screen.anvilcraft.cfa.evolution.phase.main_sequence", "Main Sequence");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.subgiant", "Subgiant Branch");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.rgb", "Red Giant Branch");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.helium_flash", "Helium Flash");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.horizontal_branch", "Horizontal Branch");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.red_clump", "Red Clump");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.blue_loop", "Blue Loop");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.agb", "Asymptotic Giant Branch");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.post_agb", "Post-AGB");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.ppn", "Protoplanetary Nebula");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.blue_supergiant", "Blue Supergiant");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.red_supergiant", "Red Supergiant Branch");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.lbv", "Luminous Blue Variable");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.wolf_rayet", "Wolf-Rayet Star");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.pre_collapse", "Pre-collapse");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.event_prelude", "Event Prelude");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.event_collapse", "Core Collapse");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.event_ejecta", "Ejecta Expansion");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.remnant_settle", "Remnant Settling");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.white_dwarf_cooling", "White Dwarf Cooling");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.fully_convective_main_sequence", "Fully Convective Main Sequence");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.radiative_core_main_sequence", "Radiative Core Main Sequence");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.pre_white_dwarf", "Pre-white Dwarf");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.hook", "Hook");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.hertzsprung_gap", "Hertzsprung Gap");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.second_hertzsprung_gap", "Second Hertzsprung Gap");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.non_explosive_contraction", "Non-explosive Contraction");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.shell_hydrogen_burning", "Shell Hydrogen Burning");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.planetary_nebula", "Planetary Nebula");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.naked_helium_star", "Naked Helium Star");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.breathing_pulses", "Breathing Pulses");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.agb_manque", "AGB manqué");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.secondary_red_clump", "Secondary Red Clump");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.nondegenerate_core_helium_burning", "Nondegenerate Core Helium Burning");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.helium_main_sequence", "Helium Main Sequence");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.early_agb", "E-AGB");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.thermal_pulsing_agb", "TP-AGB");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.early_super_agb", "E-SAGB");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.thermal_pulsing_agb_superwind", "TP-AGB / Superwind");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.red_supergiant_superwind", "Red Supergiant / Superwind");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.superwind_contraction", "Superwind / Contraction");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.superwind", "Superwind");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.contraction", "Contraction");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.envelope_stripping", "Envelope Stripping");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.bare_core_wr", "Bare-core WR");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.supernova", "Supernova");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.direct_collapse", "DC: Direct Collapse");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.ppisn", "PPISN");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.pisn", "PISN");
+        provider.add("screen.anvilcraft.cfa.evolution.phase.brown_dwarf_cooling", "Brown Dwarf Cooling");
+        provider.add("screen.anvilcraft.cfa.evolution.initial_mass", "Initial mass: %s M☉");
+        provider.add("screen.anvilcraft.cfa.evolution.current_mass", "Current mass: %s M☉");
+        provider.add("screen.anvilcraft.cfa.evolution.metallicity", "Metallicity Z: %s");
+        provider.add("screen.anvilcraft.cfa.evolution.paused", "Paused");
+        provider.add("screen.anvilcraft.cfa.evolution.terminal_outcome.keep", "Remains a brown dwarf");
         provider.add("screen.anvilcraft.cfa.evolution.phase_progress", "Phase progress: %s%%");
         provider.add("screen.anvilcraft.cfa.evolution.total_progress", "Total progress: %s%%");
         provider.add("screen.anvilcraft.cfa.evolution.temperature", "Effective temperature: %s K");

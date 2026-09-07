@@ -173,6 +173,7 @@ final class CfaSearchController {
                     ? null
                     : BuiltInRegistries.ITEM.getKey(this.capturedSeedItem)
             );
+        owner.getMegastructureManager().getAcceleratorHandler().onClear(owner);
         owner.setCelestialBodyData(body);
         owner.setPlanetaryResourceSet(resources);
         if (body != null) {
@@ -276,6 +277,7 @@ final class CfaSearchController {
             ? PlanetaryResourceSet.fromTag(tag.getCompound("planetaryResources"))
             : null;
         owner.setPlanetaryResourceSet(resources);
+        owner.getMegastructureManager().getAcceleratorHandler().restoreSnapshot(owner, tag);
         if (owner.getCelestialBodyData() != null) {
             owner.addToSearchHistory(owner.getCelestialBodyData(), resources);
         }

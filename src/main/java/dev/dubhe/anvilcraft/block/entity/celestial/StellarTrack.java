@@ -14,13 +14,16 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class StellarTrack {
     public static final Codec<StellarTrack> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         Codec.STRING.fieldOf("trackId").forGetter(StellarTrack::trackId),
-        Codec.STRING.fieldOf("massBand").forGetter(StellarTrack::massBand),
-        Codec.STRING.fieldOf("surfaceClassFamily").forGetter(StellarTrack::surfaceClassFamily),
+        Codec.STRING.optionalFieldOf("massBand", "").forGetter(StellarTrack::massBand),
+        Codec.STRING.optionalFieldOf("surfaceClassFamily", "").forGetter(StellarTrack::surfaceClassFamily),
         Codec.STRING.listOf().optionalFieldOf("variantRules", List.of()).forGetter(StellarTrack::variantRules),
         PhaseNode.CODEC.listOf().fieldOf("phaseNodes").forGetter(StellarTrack::phaseNodes),
-        Codec.STRING.fieldOf("terminalProfile").forGetter(StellarTrack::terminalProfile)
+        Codec.STRING.optionalFieldOf("terminalProfile", "").forGetter(StellarTrack::terminalProfile),
+        StellarTrackDefinition.CODEC.optionalFieldOf("definition", StellarTrackDefinition.LEGACY)
+            .forGetter(StellarTrack::definition)
     ).apply(instance, StellarTrack::new));
 
+    private final StellarTrackDefinition definition;
     private final String trackId;
     private final String massBand;
     private final String surfaceClassFamily;
@@ -37,6 +40,14 @@ public final class StellarTrack {
         List<PhaseNode> phaseNodes,
         String terminalProfile
     ) {
+        this(trackId, massBand, surfaceClassFamily, variantRules, phaseNodes, terminalProfile, StellarTrackDefinition.LEGACY);
+    }
+
+    public StellarTrack(
+        String trackId, String massBand, String surfaceClassFamily, List<String> variantRules,
+        List<PhaseNode> phaseNodes, String terminalProfile, StellarTrackDefinition definition
+    ) {
+        this.definition = Objects.requireNonNull(definition);
         this.trackId = Objects.requireNonNull(trackId);
         this.massBand = Objects.requireNonNull(massBand);
         this.surfaceClassFamily = Objects.requireNonNull(surfaceClassFamily);
@@ -46,6 +57,30 @@ public final class StellarTrack {
         }
         this.phaseNodes = List.copyOf(phaseNodes);
         this.terminalProfile = terminalProfile == null ? "" : terminalProfile;
+    }
+
+    public StellarTrackDefinition definition() {
+        return definition;
+    }
+
+    public boolean modern() {
+        return definition.version() == 3;
+    }
+
+    public StellarTrack resolve(double coordinate, CelestialBodyClass surfaceClass) {
+        if (!modern()) return this;
+        if (!Double.isFinite(coordinate) || coordinate < -1 || coordinate > 1) {
+            throw new IllegalArgumentException("Invalid metallicity coordinate");
+        }
+        return new StellarTrack(trackId, massBand, surfaceClass.name(), variantRules,
+            phaseNodes.stream().map(node -> node.resolve(coordinate)).toList(), terminalProfile, definition);
+    }
+
+    public int nodeIndex(String nodeId) {
+        for (int index = 0; index < phaseNodes.size(); index++) {
+            if (phaseNodes.get(index).nodeId().equals(nodeId)) return index;
+        }
+        throw new IllegalArgumentException("Unknown stellar node: " + trackId + "/" + nodeId);
     }
 
     public String trackId() {
@@ -82,11 +117,11 @@ public final class StellarTrack {
 
     /** 返回只替换终局 profile 的不可变轨道副本，用于确定性变体。 */
     public StellarTrack withTerminalProfile(String id) {
-        return new StellarTrack(trackId, massBand, surfaceClassFamily, variantRules, phaseNodes, id);
+        return new StellarTrack(trackId, massBand, surfaceClassFamily, variantRules, phaseNodes, id, definition);
     }
 
     public StellarTrack withIdAndTerminalProfile(String id, String terminalProfileId) {
-        return new StellarTrack(id, massBand, surfaceClassFamily, variantRules, phaseNodes, terminalProfileId);
+        return new StellarTrack(id, massBand, surfaceClassFamily, variantRules, phaseNodes, terminalProfileId, definition);
     }
 
     /** 返回把所有事件节点切换到指定 profile 的变体副本。 */
@@ -114,7 +149,7 @@ public final class StellarTrack {
     public float totalWeight() {
         float result = 0.0f;
         for (PhaseNode node : phaseNodes) result += node.durationWeight();
-        return Math.max(result, phaseNodes.size());
+        return result;
     }
 
     /** 返回按总预算分配且每个节点至少一 tick 的阶段时长。 */
@@ -187,9 +222,8 @@ public final class StellarTrack {
         float totalProgress = Float.isFinite(progress) ? Math.clamp(progress, 0.0f, 1.0f) : 0.0f;
         long syntheticElapsed = Math.round(totalProgress * 100000L);
         PhaseSample sample = sample(syntheticElapsed, 100000);
-        StellarVisualState from = visualForNode(phaseNodes.get(Math.max(0, sample.index() - 1)));
-        StellarVisualState to = visualForNode(sample.node());
-        return StellarVisualState.interpolate(from, to, sample.progress());
+        return sample.node().dynamics().sample(sample.node(), phaseNodes.get(Math.max(0, sample.index() - 1)),
+            sample.progress());
     }
 
     public StellarVisualState sampleVisual(float progress) {
@@ -197,7 +231,9 @@ public final class StellarTrack {
     }
 
     public StellarVisualState sampleVisual(long elapsedTicks, int totalTicks) {
-        return visualAt(totalTicks <= 0 ? 0.0f : elapsedTicks / (float) totalTicks);
+        PhaseSample sample = sample(elapsedTicks, totalTicks);
+        return sample.node().dynamics().sample(sample.node(), phaseNodes.get(Math.max(0, sample.index() - 1)),
+            sample.progress());
     }
 
     public StellarVisualState sampleVisualState(float progress) {
@@ -231,6 +267,7 @@ public final class StellarTrack {
      */
     private static float visualPulsationAmplitude(PhaseNode node) {
         float configured = node.pulsationAmplitude();
+        if (!node.nodeId().isBlank()) return configured;
         return switch (node.phaseId()) {
             case MAIN_SEQUENCE, HELIUM_FLASH, RED_CLUMP, HORIZONTAL_BRANCH, BLUE_LOOP,
                 EVENT_PRELUDE, EVENT_COLLAPSE, EVENT_EJECTA, REMNANT_SETTLE, WHITE_DWARF_COOLING -> 0.0f;
@@ -240,6 +277,7 @@ public final class StellarTrack {
             case POST_AGB, PPN -> Math.min(configured, 0.04f);
             case RED_SUPERGIANT -> Math.min(configured, 0.12f);
             case BLUE_SUPERGIANT, LBV, WOLF_RAYET, PRE_COLLAPSE -> Math.min(configured, 0.10f);
+            default -> configured;
         };
     }
 
@@ -254,6 +292,7 @@ public final class StellarTrack {
 
     private static float visualPulsationFrequency(PhaseNode node, float amplitude) {
         if (amplitude <= 0.0f) return 0.0f;
+        if (!node.nodeId().isBlank()) return node.dynamics().pulses();
         return Math.round(Math.clamp(node.pulsationFrequency() * PULSE_CYCLES_PER_FREQUENCY, 1.0f, 4.0f));
     }
 
@@ -283,17 +322,51 @@ public final class StellarTrack {
     /** 检查阶段顺序和数值约束，资源重载时调用。 */
     public void validate() {
         if (trackId.isBlank()) throw new IllegalArgumentException("恒星轨道 ID 不能为空");
-        StellarEvolutionPhase previous = null;
+        java.util.Set<String> nodeIds = new java.util.HashSet<>();
         for (PhaseNode node : phaseNodes) {
-            if (previous != null && node.phaseId() == previous && !node.hasEventProfile()) {
-                throw new IllegalArgumentException("轨道包含重复阶段: " + node.phaseId());
+            if (modern() && (node.nodeId().isBlank() || !nodeIds.add(node.nodeId()) || node.dynamics().points().isEmpty())) {
+                throw new IllegalArgumentException("Missing or duplicate stellar node ID/curve: " + trackId);
             }
-            if (previous != null && node.phaseId().order() < previous.order()) {
-                throw new IllegalArgumentException("轨道阶段顺序无效: " + previous + " -> " + node.phaseId());
+        }
+        if (!modern()) return;
+        if (definition.massAnvils() < 41 || !trackId.equals("mass_" + definition.massAnvils())) {
+            throw new IllegalArgumentException("Invalid discrete stellar track: " + trackId);
+        }
+        definition.terminal().validate(CelestialMassTable.at(definition.massAnvils()).solarMass());
+        for (String nodeId : definition.startingNodes().values()) nodeIndex(nodeId);
+        StellarEvolutionPhase last = phaseNodes.getLast().phaseId();
+        StellarTerminal.Kind outcome = definition.terminal().kind();
+        boolean reachesOutcome = switch (outcome) {
+            case WHITE_DWARF -> last == StellarEvolutionPhase.PRE_WHITE_DWARF
+                || last == StellarEvolutionPhase.SHELL_HYDROGEN_BURNING || last == StellarEvolutionPhase.PLANETARY_NEBULA
+                || last == StellarEvolutionPhase.AGB_MANQUE;
+            case NEUTRON_STAR -> last == StellarEvolutionPhase.SUPERNOVA;
+            case BLACK_HOLE -> last == StellarEvolutionPhase.SUPERNOVA || last == StellarEvolutionPhase.DIRECT_COLLAPSE
+                || last == StellarEvolutionPhase.PPISN;
+            case NONE -> last == StellarEvolutionPhase.PISN;
+            case KEEP -> last == StellarEvolutionPhase.BROWN_DWARF_COOLING;
+        };
+        if (!reachesOutcome) throw new IllegalArgumentException("Final physical phase disagrees with outcome: " + trackId);
+        for (PhaseNode node : phaseNodes) {
+            if (node.phaseId().isRemnantPhase()) {
+                throw new IllegalArgumentException("Remnants are outcomes, not stellar phases: " + trackId);
             }
-            previous = node.phaseId();
-            if (!Float.isFinite(node.radius()) || node.radius() <= 0.0f) {
-                throw new IllegalArgumentException("轨道半径无效: " + trackId);
+            StellarNodeDynamics.EventPolicy policy = node.dynamics().eventPolicy();
+            if (policy != StellarNodeDynamics.EventPolicy.VISUAL && !node.hasEventProfile()) {
+                throw new IllegalArgumentException("Missing stellar event profile: " + node.nodeId());
+            }
+            boolean compatible = switch (policy) {
+                case SUPERNOVA -> node.phaseId() == StellarEvolutionPhase.SUPERNOVA
+                    && (outcome == StellarTerminal.Kind.NEUTRON_STAR || outcome == StellarTerminal.Kind.BLACK_HOLE);
+                case DIRECT_COLLAPSE -> node.phaseId() == StellarEvolutionPhase.DIRECT_COLLAPSE
+                    && outcome == StellarTerminal.Kind.BLACK_HOLE;
+                case PPISN -> node.phaseId() == StellarEvolutionPhase.PPISN && outcome == StellarTerminal.Kind.BLACK_HOLE;
+                case PISN -> node.phaseId() == StellarEvolutionPhase.PISN && outcome == StellarTerminal.Kind.NONE;
+                case VISUAL -> true;
+            };
+            if (!compatible) throw new IllegalArgumentException("Event policy disagrees with route: " + node.nodeId());
+            if (policy.destructive() && node.dynamics().response().maximumPulses() > 1) {
+                throw new IllegalArgumentException("Destructive events cannot repeat");
             }
         }
     }

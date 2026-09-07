@@ -17,7 +17,6 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarEventProfile;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionState;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrack;
-import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrackLibrary;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
@@ -1275,6 +1274,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             poseStack.popPose();
         }
 
+        if (stellarVisual != null) renderStellarWind(poseStack, bufferSource, packedOverlay, seed, stellarVisual);
         if (eventProfile != null && stellarVisual != null) {
             renderStellarEventLayers(
                 poseStack,
@@ -1285,6 +1285,29 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                 eventProfile,
                 eventProgress
             );
+        }
+    }
+
+    private void renderStellarWind(
+        PoseStack poseStack, MultiBufferSource bufferSource, int packedOverlay, long seed, StellarVisualState visual
+    ) {
+        float strength = visual.windStrength();
+        boolean convective = visual.surfaceStyle().equals("fully_convective_main_sequence");
+        boolean radiative = visual.surfaceStyle().equals("radiative_core_main_sequence");
+        if (strength <= 0 && !convective && !radiative) return;
+        int shells = strength > 0 ? 4 : convective ? 3 : 1;
+        for (int shell = 0; shell < shells; shell++) {
+            float flow = (visual.flowProgress() * (2 + strength * 5) + shell / (float) shells) % 1;
+            float scale = strength > 0 ? 1.05f + flow * (0.5f + strength) : 1.012f + shell * 0.014f;
+            float alpha = strength > 0 ? strength * 0.16f * (1 - flow) : convective ? 0.075f : 0.045f;
+            poseStack.pushPose();
+            poseStack.translate(0.5, 0.5, 0.5);
+            poseStack.scale(scale, scale, scale);
+            if (convective) poseStack.mulPose(Axis.YP.rotationDegrees((flow - 0.5f) * 3));
+            poseStack.translate(-0.5, -0.5, -0.5);
+            renderTranslucentCube(poseStack, bufferSource, visual.red(), visual.green(), visual.blue(), alpha,
+                LightTexture.FULL_BRIGHT, packedOverlay, seed + shell);
+            poseStack.popPose();
         }
     }
 
@@ -1330,8 +1353,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// 抛射物独立向外膨胀，最多固定六层以控制顶点数量。
         if (ejecta > 0.01f) {
             int layers = Math.min(6, Math.max(1, profile.shellCount()));
-            float base = Math.max(visual.radius(), 0.05f);
-            float outer = Math.max(1.0f, ejecta / base);
+            float outer = Math.clamp(visual.ejectaRadius() / Math.max(visual.radius(), 0.01f), 1.0f, 12.0f);
             for (int i = layers; i >= 1; i--) {
                 float layerT = i / (float) layers;
                 float shellScale = 1.0f + (outer - 1.0f) * layerT;
@@ -1488,7 +1510,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         float expand = (float) Math.sqrt(t);
         float scale = blockEntity.getSupernovaScale();
         if (scale <= 0f) scale = 1.0f;
-        StellarEventProfile profile = StellarTrackLibrary.eventProfile(blockEntity.getSupernovaProfileId());
+        StellarEventProfile profile = blockEntity.getMegastructureManager().getAcceleratorHandler()
+            .getEventProfile(blockEntity.getSupernovaProfileId());
         float profileRadius = profile == null ? SUPERNOVA_MAX_RADIUS : Math.max(2.0f, profile.rayLength() * 0.65f);
         float radius = profileRadius * expand * scale;
         if (radius < 0.01f) return;
@@ -1850,7 +1873,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         float bs = fullBodyScale;
         if (visual != null) {
             float pulseReach = 1.0f + visual.pulsationAmplitude();
-            float haloReach = 1.18f + Math.min(0.35f, visual.envelopeOpacity() * 0.25f);
+            float haloReach = Math.max(1.6f, 1.55f + visual.windStrength());
             bs *= Math.max(pulseReach, haloReach);
             StellarEventProfile eventProfile = blockEntity.getStellarEventProfile();
             if (eventProfile != null) {
@@ -1882,7 +1905,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// 用以天体中心为心的对称大包围盒覆盖，避免被裁剪。
         if (blockEntity.getSupernovaFlashTicks() > 0) {
             float explosionScale = Math.max(1.0f, blockEntity.getSupernovaScale());
-            StellarEventProfile profile = StellarTrackLibrary.eventProfile(blockEntity.getSupernovaProfileId());
+            StellarEventProfile profile = blockEntity.getMegastructureManager().getAcceleratorHandler()
+            .getEventProfile(blockEntity.getSupernovaProfileId());
             float profileRayLength = profile == null ? SUPERNOVA_RAY_LENGTH : profile.rayLength();
             float reach = Math.max(SUPERNOVA_MAX_RADIUS, profileRayLength)
                 * explosionScale * 1.5f + 2;

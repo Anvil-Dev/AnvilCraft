@@ -6,6 +6,7 @@ import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.fluid.AbstractPipeCheckValveBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.PipeBlock;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -33,7 +34,8 @@ import java.util.Map;
  * <p><b>光照</b>：不能用无着色的 {@code renderModel} 重载（六面等亮 → 又平又白），
  * 而是逐面按其<b>世界方向</b>取 {@link Level#getShade} 做方向漫反射（上亮下暗），与管道本体一致。
  */
-public class PipeCheckValveBERenderer<T extends AbstractPipeCheckValveBlockEntity> implements BlockEntityRenderer<T> {
+public class PipeCheckValveBERenderer<T extends AbstractPipeCheckValveBlockEntity>
+    implements BlockEntityRenderer<T>, ModelSelectionRenderer<T> {
 
     private static final ModelResourceLocation ARM =
         ModelResourceLocation.standalone(AnvilCraft.of("block/check_valve_arm"));
@@ -54,6 +56,16 @@ public class PipeCheckValveBERenderer<T extends AbstractPipeCheckValveBlockEntit
         int packedOverlay
     ) {
         Level level = be.getLevel();
+        if (level == null) return;
+        VertexConsumer vertices = buffer.getBuffer(RenderType.cutout());
+        collectSelectionModels(be, partialTick, poseStack, (model, pose) -> renderShaded(
+            pose.last(), vertices, Minecraft.getInstance().getModelManager().getModel(model), packedLight, packedOverlay, level
+        ));
+    }
+
+    @Override
+    public void collectSelectionModels(T be, float partialTick, PoseStack poseStack, ModelConsumer consumer) {
+        Level level = be.getLevel();
         if (level == null) {
             return;
         }
@@ -66,11 +78,9 @@ public class PipeCheckValveBERenderer<T extends AbstractPipeCheckValveBlockEntit
         if (flows.isEmpty()) {
             return;
         }
-        BakedModel model = Minecraft.getInstance().getModelManager().getModel(ARM);
-        VertexConsumer consumer = buffer.getBuffer(RenderType.cutout());
         for (Map.Entry<Direction, Direction> entry : flows.entrySet()) {
             Direction face = entry.getKey();
-            Direction flowOut = entry.getValue();
+            final Direction flowOut = entry.getValue();
             poseStack.pushPose();
             poseStack.translate(0.5, 0.5, 0.5);
             // 1) 把模型 +Y（臂安装方向）旋到 face
@@ -80,7 +90,7 @@ public class PipeCheckValveBERenderer<T extends AbstractPipeCheckValveBlockEntit
                 poseStack.mulPose(Axis.XP.rotationDegrees(180));
             }
             poseStack.translate(-0.5, -0.5, -0.5);
-            renderShaded(poseStack.last(), consumer, model, packedLight, packedOverlay, level);
+            consumer.accept(ARM, poseStack);
             poseStack.popPose();
         }
     }

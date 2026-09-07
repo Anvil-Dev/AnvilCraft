@@ -6,6 +6,7 @@ import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.fluid.PumpBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.PumpBlock;
 import dev.dubhe.anvilcraft.block.state.Orientation;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -23,7 +24,7 @@ import net.minecraft.world.level.block.state.BlockState;
  * <p>基础模型（pump_base/pump_off/pump_overload）由 blockstate 系统渲染，
  * 本渲染器仅负责动画活塞部分。
  */
-public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEntity> {
+public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEntity>, ModelSelectionRenderer<PumpBlockEntity> {
 
     private static final ModelResourceLocation PUMP_PISTON_1 =
         ModelResourceLocation.standalone(AnvilCraft.of("block/pump_piston_1"));
@@ -53,7 +54,15 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
         int packedLight,
         int packedOverlay
     ) {
+        collectSelectionModels(blockEntity, partialTick, poseStack, (model, pose) -> renderPistonModel(
+            pose, buffer, Minecraft.getInstance().getModelManager().getModel(model), packedLight, packedOverlay
+        ));
+    }
+
+    @Override
+    public void collectSelectionModels(PumpBlockEntity blockEntity, float partialTick, PoseStack poseStack, ModelConsumer consumer) {
         if (!blockEntity.isWorking()) return;
+        if (blockEntity.getLevel() == null) return;
 
         BlockState state = blockEntity.getBlockState();
         if (!(state.getBlock() instanceof PumpBlock)) return;
@@ -77,17 +86,15 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
         float angle = cycle * 2.0f * (float) Math.PI;
         float piston1Offset = (float) Math.sin(angle) * MAX_PISTON_OFFSET;
 
-        BakedModel piston1 = Minecraft.getInstance().getModelManager().getModel(PUMP_PISTON_1);
         poseStack.pushPose();
         poseStack.translate(0, piston1Offset, 0);
-        renderPistonModel(poseStack, buffer, piston1, packedLight, packedOverlay);
+        consumer.accept(PUMP_PISTON_1, poseStack);
         poseStack.popPose();
 
         float piston2Offset = (float) Math.cos(angle) * MAX_PISTON_OFFSET;
-        BakedModel piston2 = Minecraft.getInstance().getModelManager().getModel(PUMP_PISTON_2);
         poseStack.pushPose();
         poseStack.translate(0, piston2Offset, 0);
-        renderPistonModel(poseStack, buffer, piston2, packedLight, packedOverlay);
+        consumer.accept(PUMP_PISTON_2, poseStack);
         poseStack.popPose();
 
         poseStack.popPose();
@@ -111,6 +118,6 @@ public class PumpBlockEntityRenderer implements BlockEntityRenderer<PumpBlockEnt
                 1.0f, 1.0f, 1.0f,
                 packedLight,
                 packedOverlay
-            );
+        );
     }
 }

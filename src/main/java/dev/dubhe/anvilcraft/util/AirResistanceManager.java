@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.util;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 
 import java.util.HashMap;
@@ -30,6 +31,9 @@ public final class AirResistanceManager {
     }
 
     public static void registerDimensionAirResistance(ResourceKey<Level> dimension, double airResistance) {
+        if (!Double.isFinite(airResistance)) {
+            throw new IllegalArgumentException("Air resistance must be finite");
+        }
         DIMENSION_AIR_RESISTANCE_MAP.put(dimension, Math.max(0.0, airResistance));
     }
 
@@ -41,7 +45,7 @@ public final class AirResistanceManager {
     public static double drag(Level level, double vanillaDrag) {
         double airResistance = getDimensionAirResistance(level);
         if (airResistance == DEFAULT_AIR_RESISTANCE) return vanillaDrag;
-        return 1.0 - (1.0 - vanillaDrag) * airResistance;
+        return Math.clamp(1.0 - (1.0 - vanillaDrag) * airResistance, 0.0, 1.0);
     }
 
     public static float drag(Level level, float vanillaDrag) {
@@ -49,10 +53,28 @@ public final class AirResistanceManager {
     }
 
     public static double drag(Entity entity, double vanillaDrag) {
+        if (isCreativeFlying(entity)) return vanillaDrag;
         return drag(entity.level(), vanillaDrag);
     }
 
     public static float drag(Entity entity, float vanillaDrag) {
+        if (isCreativeFlying(entity)) return vanillaDrag;
         return drag(entity.level(), vanillaDrag);
+    }
+
+    public static boolean isCreativeFlying(Entity entity) {
+        return entity instanceof Player player && player.getAbilities().flying;
+    }
+
+    /** Passive lift can cancel gravity, but cannot turn gravity into upward thrust. */
+    public static double elytraLift(Entity entity, double vanillaLift) {
+        if (isCreativeFlying(entity)) return vanillaLift;
+        return Math.clamp(vanillaLift * getDimensionAirResistance(entity.level()), 0.0, 1.0);
+    }
+
+    /** Thin air reduces the wing's conversion of falling or forward speed into lift. */
+    public static double elytraResponse(Entity entity, double vanillaResponse) {
+        if (isCreativeFlying(entity)) return vanillaResponse;
+        return vanillaResponse * Math.min(1.0, getDimensionAirResistance(entity.level()));
     }
 }
