@@ -5,6 +5,7 @@ import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourc
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
 import dev.dubhe.anvilcraft.item.property.component.StorageRef;
+import dev.dubhe.anvilcraft.saved.storage.BaseStorage;
 import dev.dubhe.anvilcraft.saved.storage.IStorageType;
 import dev.dubhe.anvilcraft.saved.storage.Storages;
 import lombok.Getter;
@@ -141,11 +142,14 @@ public class StorageBlockEntity extends BlockEntity {
         if (this.level == null || this.level.isClientSide() || this.id == null) {
             return 0;
         }
-        return Storages.get().get(this.id)
-            .map(storage -> storage.getItems() instanceof SpaceSizeItemStacksResourceHandler spaceHandler
-                ? (int) Math.ceil(spaceHandler.getFullness() * 15.0)
-                : 0)
-            .orElse(0);
+        BaseStorage<?> storage = Storages.get().get(this.id).orElse(null);
+        if (storage == null) {
+            return 0;
+        }
+        if (storage.getItems() instanceof SpaceSizeItemStacksResourceHandler spaceHandler) {
+            return (int) Math.ceil(spaceHandler.getFullness() * 15.0);
+        }
+        return 0;
     }
 
     /**
