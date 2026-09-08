@@ -15,6 +15,7 @@ import dev.dubhe.anvilcraft.block.entity.storage.CrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.LargeCrateBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.ShulkerContainerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.storage.StorageBlockRegistry;
 import dev.dubhe.anvilcraft.block.entity.storage.TerminalBlockRegistry;
 import dev.dubhe.anvilcraft.block.item.ShulkerContainerBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
@@ -3046,6 +3047,7 @@ public final class StorageServerStub {
     }
 
     public static void onContentsChanged(UUID storageId) {
+        StorageBlockRegistry.notifyContentsChanged(storageId);
         for (StorageServerStub stub : StorageServerStub.STUBS.values()) {
             if (stub.storageId.equals(storageId)) {
                 stub.version++;
