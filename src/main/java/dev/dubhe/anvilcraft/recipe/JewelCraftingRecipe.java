@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.recipe;
 
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.anvilcraft.lib.v2.codec.CodecUtil;
@@ -37,14 +38,30 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
     public final List<ICondition> conditions;
     public final NonNullList<Ingredient> ingredients;
     public final ItemStack result;
+    /** 是否为生物附加消失诅咒；默认 true以兼容旧配方。 */
+    public final boolean hasVanishingCurse;
     public final List<Object2IntMap.Entry<Ingredient>> mergedIngredients;
     public Input cache;
     public int cacheTimes;
 
-    public JewelCraftingRecipe(List<ICondition> conditions, NonNullList<Ingredient> ingredients, ItemStack result) {
+    public JewelCraftingRecipe(
+        List<ICondition> conditions,
+        NonNullList<Ingredient> ingredients,
+        ItemStack result
+    ) {
+        this(conditions, ingredients, result, true);
+    }
+
+    public JewelCraftingRecipe(
+        List<ICondition> conditions,
+        NonNullList<Ingredient> ingredients,
+        ItemStack result,
+        boolean hasVanishingCurse
+    ) {
         this.conditions = conditions;
         this.ingredients = ingredients;
         this.result = result;
+        this.hasVanishingCurse = hasVanishingCurse;
         this.mergedIngredients = RecipeUtil.mergeIngredient(ingredients);
         if (mergedIngredients.size() > 4) {
             throw new IllegalArgumentException("Too many different ingredients");
@@ -120,7 +137,10 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
                 .forGetter(JewelCraftingRecipe::getIngredients),
             ItemStack.CODEC
                 .fieldOf("result")
-                .forGetter(JewelCraftingRecipe::getResult)
+                .forGetter(JewelCraftingRecipe::getResult),
+            Codec.BOOL
+                .optionalFieldOf("has_vanishing_curse", true)
+                .forGetter(JewelCraftingRecipe::isHasVanishingCurse)
         ).apply(ins, JewelCraftingRecipe::new));
 
         public static final StreamCodec<RegistryFriendlyByteBuf, JewelCraftingRecipe> STREAM_CODEC = StreamCodec.of(
@@ -143,6 +163,7 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
                 Ingredient.CONTENTS_STREAM_CODEC.encode(buf, ingredient);
             }
             ItemStack.STREAM_CODEC.encode(buf, recipe.result);
+            buf.writeBoolean(recipe.hasVanishingCurse);
         }
 
         private static JewelCraftingRecipe decode(RegistryFriendlyByteBuf buf) {
@@ -150,7 +171,8 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
             NonNullList<Ingredient> ingredients = NonNullList.withSize(size, Ingredient.EMPTY);
             ingredients.replaceAll(i -> Ingredient.CONTENTS_STREAM_CODEC.decode(buf));
             ItemStack result = ItemStack.STREAM_CODEC.decode(buf);
-            return new JewelCraftingRecipe(new ArrayList<>(), ingredients, result);
+            boolean hasVanishingCurse = buf.readBoolean();
+            return new JewelCraftingRecipe(new ArrayList<>(), ingredients, result, hasVanishingCurse);
         }
     }
 
@@ -160,11 +182,7 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
         private List<ICondition> conditions = new ArrayList<>();
         private NonNullList<Ingredient> ingredients = NonNullList.create();
         private ItemStack result = ItemStack.EMPTY;
-
-        public Builder withCondition(ICondition condition) {
-            this.conditions.add(condition);
-            return this;
-        }
+        private boolean hasVanishingCurse = true;
 
         public Builder requires(Ingredient ingredient, int count) {
             for (int i = 0; i < count; i++) {
@@ -193,9 +211,14 @@ public class JewelCraftingRecipe implements Recipe<JewelCraftingRecipe.Input> {
             return requires(tag, 1);
         }
 
+        public Builder hasVanishingCurse(boolean hasVanishingCurse) {
+            this.hasVanishingCurse = hasVanishingCurse;
+            return this;
+        }
+
         @Override
         public JewelCraftingRecipe buildRecipe() {
-            return new JewelCraftingRecipe(conditions, ingredients, result);
+            return new JewelCraftingRecipe(conditions, ingredients, result, hasVanishingCurse);
         }
 
         @Override

@@ -11,7 +11,6 @@ import java.util.Optional;
 public class LiquidEnchantmentClientFluidTypeExtension extends ModClientFluidTypeExtensionImpl {
     private static final int[] BASE_LAYER = {0xFFFFFFFF};
     private static final int LAYER_ALPHA = 0x80;
-    private static final int CURSE_LAYER = (LAYER_ALPHA << 24) | 0x00FF0000;
 
     public LiquidEnchantmentClientFluidTypeExtension(ResourceLocation texture) {
         super(texture, texture);
@@ -22,9 +21,11 @@ public class LiquidEnchantmentClientFluidTypeExtension extends ModClientFluidTyp
         Optional<Holder<Enchantment>> enchantment = LiquidEnchantmentUtil.getEnchantment(stack);
         if (enchantment.isEmpty()) return BASE_LAYER;
         int enchantmentLayer = (LAYER_ALPHA << 24) | LiquidEnchantmentUtil.getColor(enchantment.get());
-        return enchantment.get().is(EnchantmentTags.CURSE)
-            ? new int[]{0xFFFFFFFF, enchantmentLayer, CURSE_LAYER}
-            : new int[]{0xFFFFFFFF, enchantmentLayer};
+        if (enchantment.get().is(EnchantmentTags.CURSE)) {
+            int curseLayer = LiquidEnchantmentUtil.curseLayer(enchantment.get());
+            return new int[]{0xFFFFFFFF, enchantmentLayer, curseLayer};
+        }
+        return new int[]{0xFFFFFFFF, enchantmentLayer};
     }
 
     @Override
@@ -33,7 +34,7 @@ public class LiquidEnchantmentClientFluidTypeExtension extends ModClientFluidTyp
         int[] layers = this.getLayerColors(stack);
         for (int i = 1; i < layers.length; i++) {
             result = layers.length == 3 && i == 2
-                ? overlay(result, layers[i])
+                ? alphaBlend(result, layers[i])
                 : softLight(result, layers[i]);
         }
         return result;
@@ -43,8 +44,13 @@ public class LiquidEnchantmentClientFluidTypeExtension extends ModClientFluidTyp
         return blendByMode(background, foreground, false);
     }
 
-    private static int overlay(int background, int foreground) {
-        return blendByMode(background, foreground, true);
+    private static int alphaBlend(int background, int foreground) {
+        int alpha = foreground >>> 24;
+        if (alpha == 0) return background;
+        int red = ((foreground >> 16 & 0xFF) * alpha + (background >> 16 & 0xFF) * (255 - alpha)) / 255;
+        int green = ((foreground >> 8 & 0xFF) * alpha + (background >> 8 & 0xFF) * (255 - alpha)) / 255;
+        int blue = ((foreground & 0xFF) * alpha + (background & 0xFF) * (255 - alpha)) / 255;
+        return 0xFF000000 | (red << 16) | (green << 8) | blue;
     }
 
     private static int blendByMode(int background, int foreground, boolean useOverlay) {

@@ -212,9 +212,11 @@ public class JewelCraftingMenu extends AbstractContainerMenu {
                         ItemStack result = recipe.assemble(input, level.registryAccess());
                         if (result.isItemEnabled(level.enabledFeatures())) {
                             itemStack = result;
-                            ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
-                            enchantments.set(level.registryAccess().holderOrThrow(Enchantments.VANISHING_CURSE), 1);
-                            itemStack.set(DataComponents.ENCHANTMENTS, enchantments.toImmutable());
+                            if (recipe.hasVanishingCurse) {
+                                ItemEnchantments.Mutable enchantments = new ItemEnchantments.Mutable(ItemEnchantments.EMPTY);
+                                enchantments.set(level.registryAccess().holderOrThrow(Enchantments.VANISHING_CURSE), 1);
+                                itemStack.set(DataComponents.ENCHANTMENTS, enchantments.toImmutable());
+                            }
                         }
                     }
                 }

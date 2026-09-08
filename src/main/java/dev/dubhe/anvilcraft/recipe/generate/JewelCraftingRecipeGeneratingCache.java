@@ -70,6 +70,7 @@ public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<Jewe
                 .requires(Items.PAPER)
                 .requires(Items.INK_SAC)
                 .result(bannerPattern.getDefaultInstance())
+                .hasVanishingCurse(false)
                 .buildRecipe();
             recipeHolders.add(new RecipeHolder<>(generateRecipeId("banner_patterns", bannerPattern, bannerPattern), recipe));
         }
@@ -78,6 +79,7 @@ public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<Jewe
                 .requires(ModItems.HARDEND_RESIN, 4)
                 .requires(Items.PAPER)
                 .result(musicDisc.getDefaultInstance())
+                .hasVanishingCurse(false)
                 .buildRecipe();
             recipeHolders.add(new RecipeHolder<>(generateRecipeId("music_discs", musicDisc, musicDisc), recipe));
         }
@@ -85,6 +87,7 @@ public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<Jewe
             JewelCraftingRecipe recipe = JewelCraftingRecipe.builder()
                 .requires(Items.BRICK, 2)
                 .result(potterySherd.getDefaultInstance())
+                .hasVanishingCurse(false)
                 .buildRecipe();
             recipeHolders.add(new RecipeHolder<>(generateRecipeId("pottery_sherds", potterySherd, potterySherd), recipe));
         }
@@ -93,6 +96,7 @@ public class JewelCraftingRecipeGeneratingCache extends BaseGeneratingCache<Jewe
                 .requires(ModItems.EARTH_CORE_SHARD)
                 .requires(Items.DIAMOND)
                 .result(trimTemplate.getDefaultInstance())
+                .hasVanishingCurse(false)
                 .buildRecipe();
             recipeHolders.add(new RecipeHolder<>(generateRecipeId("trim_templates", trimTemplate, trimTemplate), recipe));
         }
