@@ -1352,7 +1352,7 @@ public final class StorageServerStub {
                 // 循环只会无限产出相同产物，立即终止
                 StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
                 player.containerMenu.broadcastChanges();
-                return new TakeAllResult(player.containerMenu.getCarried(), any, true, refilledAccum);
+                return new TakeAllResult(player.containerMenu.getCarried(), true, true, refilledAccum);
             }
             // 自动填充：预算用尽即结束本次点击。预算耗尽前若合成格材料恰好也被抽干，
             // 先补一次料保持合成格有货，否则下一次点击会因空模板而无法补货
@@ -1369,7 +1369,7 @@ public final class StorageServerStub {
                     }
                     StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
                     player.containerMenu.broadcastChanges();
-                    return new TakeAllResult(player.containerMenu.getCarried(), any, true, refilledAccum);
+                    return new TakeAllResult(player.containerMenu.getCarried(), true, true, refilledAccum);
                 }
                 StorageServerStub.updateTakeAllSessionRemaining(playerId, sourcePos, remainingCrafts);
             }
@@ -1393,7 +1393,7 @@ public final class StorageServerStub {
                 }
                 StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
                 player.containerMenu.broadcastChanges();
-                return new TakeAllResult(player.containerMenu.getCarried(), any, true, refilledAccum);
+                return new TakeAllResult(player.containerMenu.getCarried(), true, true, refilledAccum);
             }
         }
         // 达到单次 RPC 分块上限（64 次合成）但预算或材料仍有余：保留会话，
