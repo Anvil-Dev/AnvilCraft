@@ -380,20 +380,23 @@ public final class StorageClientStub {
     }
 
     /**
-     * 按住 Shift 取③/④ 配方结果：连续合成直到材料不足或产物无处可放。
+     * 按住 Shift（或空格）取③/④ 配方结果：连续合成直到材料不足或产物无处可放。
      * 单次调用最多合成 {@code CRAFTING_TAKE_ALL_CHUNK} 次；返回 {@code done=false}
      * 时调用方应继续调用直至 {@code done=true}（分块，避免一次性阻塞服务端线程）。
+     * {@code multiplier} 为本次点击的合成预算倍数：shift 为 1，按住空格左键为 8。
      */
     public static CompletableFuture<StorageServerStub.TakeAllResult> craftingTakeAll(
         BlockPos sourcePos,
-        boolean stonecutter
+        boolean stonecutter,
+        int multiplier
     ) {
         return RPC.invoke(
             RpcTarget.server(),
             StorageServerStub::craftingTakeAll,
             StorageClientStub.playerId(),
             sourcePos.asLong(),
-            stonecutter
+            stonecutter,
+            multiplier
         );
     }
 
