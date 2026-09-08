@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionPhase;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
+import dev.dubhe.anvilcraft.client.gui.component.CelestialMapsGuideWidget;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyTextureBakery;
@@ -28,8 +29,10 @@ import dev.dubhe.anvilcraft.client.support.RenderSupport;
 import dev.dubhe.anvilcraft.constant.SharedTextures;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.inventory.CelestialForgingAnvilMenu;
+import it.unimi.dsi.fastutil.ints.AbstractIntList;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.components.AbstractWidget;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.model.SkullModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
@@ -65,6 +68,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
 import javax.annotation.Nullable;
+
+import static dev.dubhe.anvilcraft.client.gui.component.CelestialMapsGuideWidget.MAP_SIZE;
 
 public class CelestialForgingAnvilScreen extends AbstractContainerScreen<CelestialForgingAnvilMenu> {
     private static final ResourceLocation BACKGROUND = SharedTextures.bg("machine", "celestial_forging_anvil");
@@ -131,20 +136,16 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private static final ResourceLocation TEX_REFACTOR_OPTIONS = SharedTextures.textureGui(BTN_DIR + "refactor_options");
     private static final ResourceLocation TEX_REFACTORING = SharedTextures.textureGui(BTN_DIR + "refactoring");
 
-    /// 星图指南贴图
-    private static final ResourceLocation TEX_CELESTIAL_MAPS = SharedTextures.texture("block/celestial_maps");
-    private static final int MAP_SIZE = 160;
-    private static final int COLOR_TIME = 0xBF_A0FFA0;    // 浅绿色，75%透明度
-    private static final int COLOR_SPACE = 0xBF_00FFFF;   // 青色，75%透明度
-    private static final int COLOR_MASS = 0xBF_FFFFA0;    // 浅黄色，75%透明度
-    private static final int COLOR_ENERGY = 0xBF_FF8080;  // 浅红色，75%透明度
-
     private static final ItemStack[] GHOST_STACKS = {
         new ItemStack(ModBlocks.CONFINED_TIME_ANVILON.asItem()),
         new ItemStack(ModBlocks.CONFINED_SPACE_ANVILON.asItem()),
         new ItemStack(ModBlocks.CONFINED_MASS_ANVILON.asItem()),
         new ItemStack(ModBlocks.CONFINED_ENERGY_ANVILON.asItem())
     };
+
+    public boolean isGuideTriggered() {
+        return Boolean.TRUE.equals(guideTriggered);
+    }
 
     /// 搜索状态枚举
     private enum SearchState {
@@ -210,12 +211,24 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     /// 指南触发：当砧子数量变化时显示星图
     private final int[] previousAnvilCounts = new int[4];
-    private boolean guideTriggered = false;
+    private @Nullable Boolean guideTriggered;
+    private final AbstractWidget mapsGuide;
 
     public CelestialForgingAnvilScreen(CelestialForgingAnvilMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
         this.imageWidth = 344;
         this.imageHeight = 207;
+        mapsGuide = new CelestialMapsGuideWidget(new AbstractIntList() {
+            @Override
+            public int getInt(int index) {
+                return getMenu().getBlockEntity().getAnvilCount(index);
+            }
+
+            @Override
+            public int size() {
+                return 4;
+            }
+        });
     }
 
     @Override
@@ -238,7 +251,14 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         for (int i = 0; i < 4; i++) {
             previousAnvilCounts[i] = be.getAnvilCount(i);
         }
-        guideTriggered = false;
+        var len = MAP_SIZE / 2;
+        mapsGuide.setX(getGuiLeft() + PV_X + (PV_W - len) / 2);
+        mapsGuide.setY(getGuiTop() + PV_Y + (PV_H - len) / 2);
+        mapsGuide.setSize(len, len);
+        addRenderableWidget(mapsGuide);
+        if (guideTriggered == null) {
+            guideTriggered = searchState != SearchState.DONE;
+        }
     }
 
     @Override
@@ -295,8 +315,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
 
     @Override
     protected void renderBg(GuiGraphics guiGraphics, float partialTick, int mouseX, int mouseY) {
-        int i = (this.width - this.imageWidth) / 2;
-        int j = (this.height - this.imageHeight) / 2;
+        int i = getGuiLeft();
+        int j = getGuiTop();
         guiGraphics.blit(BACKGROUND, i, j, 0, 0, this.imageWidth, this.imageHeight, TEX_WIDTH, TEX_HEIGHT);
 
         int relX = mouseX - i;
@@ -591,6 +611,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     }
 
     private void renderPreviewArea(GuiGraphics guiGraphics) {
+        mapsGuide.visible = false;
         /// 检查恒星天体是否缺少增幅器
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
         boolean missingAmplifier = body instanceof StarData star
@@ -611,8 +632,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         }
         /// 砧子数量变化且未锁定且未搜索时，显示星图指南。
         /// 指南保持可见直到新搜索开始（guideTriggered被重置）。
-        if (!isLocked() && guideTriggered && searchState != SearchState.LOADING) {
-            renderCelestialMapsGuide(guiGraphics);
+        if (!isLocked() && isGuideTriggered() && searchState != SearchState.LOADING) {
+            mapsGuide.visible = true;
             return;
         }
         switch (searchState) {
@@ -652,132 +673,6 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             default -> {
             }
         }
-    }
-
-    /// 渲染带4条彩色指示线的星图指南。
-    /// 每条线代表一种砧子类型，根据其数量（1-64）移动。
-    /// 当对应数量为0时，线条和数量标签隐藏。
-    /// 所有内容使用姿态缩放以50%比例渲染。
-    @SuppressWarnings("checkstyle:VariableDeclarationUsageDistance")
-    private void renderCelestialMapsGuide(GuiGraphics guiGraphics) {
-        int previewCenterX = PV_X + PV_W / 2;
-        int previewCenterY = PV_Y + PV_H / 2;
-
-        PoseStack pose = guiGraphics.pose();
-        pose.pushPose();
-        float scale = 0.5f;
-        pose.translate(previewCenterX, previewCenterY, 0);
-        pose.scale(scale, scale, 1.0f);
-        pose.translate(-MAP_SIZE / 2.0f, -MAP_SIZE / 2.0f, 0);
-
-        /// 以160x160渲染星图图像（屏幕上缩放至80x80）
-        guiGraphics.blit(TEX_CELESTIAL_MAPS, 0, 0, 0, 0, MAP_SIZE, MAP_SIZE, MAP_SIZE, MAP_SIZE);
-
-        int timeCount = getMenu().getBlockEntity().getAnvilCount(0);
-        int spaceCount = getMenu().getBlockEntity().getAnvilCount(1);
-        int massCount = getMenu().getBlockEntity().getAnvilCount(2);
-        int energyCount = getMenu().getBlockEntity().getAnvilCount(3);
-
-        /// 时间砧子：浅绿色，垂直线，全高（160px），x=12-76（从左起索引1）
-        if (timeCount > 0) {
-            int x = 11 + Math.round((timeCount - 1) * 64.0f / 63.0f);
-            guiGraphics.fill(x, 0, x + 2, MAP_SIZE, COLOR_TIME); /// 2px → 0.5x缩放后1px
-            String text = String.valueOf(timeCount);
-            int textX = x + 1 - font.width(text) / 2;
-            int textY = -font.lineHeight - 4;
-            guiGraphics.drawString(font, text, textX, textY, COLOR_TIME, false);
-        }
-
-        /// 空间砧子：青色，水平线，全宽（160px），y=92-156（从底部起索引1）
-        if (spaceCount > 0) {
-            int y = 160 - Math.round(92 + (spaceCount - 1) * 64.0f / 63.0f) - 2; /// -2缩放像素 = -1屏幕像素
-            guiGraphics.fill(0, y, MAP_SIZE, y + 2, COLOR_SPACE); /// 2px → 0.5x缩放后1px
-            String text = String.valueOf(spaceCount);
-            int textX = -font.width(text) - 6;
-            int textY = y + 1 - font.lineHeight / 2;
-            guiGraphics.drawString(font, text, textX, textY, COLOR_SPACE, false);
-        }
-
-        /// 质量砧子：浅黄色，垂直线，上半部分（80px），x=92-156（从左起索引1）
-        if (massCount > 0) {
-            int x = 91 + Math.round((massCount - 1) * 64.0f / 63.0f);
-            guiGraphics.fill(x, 0, x + 2, MAP_SIZE / 2, COLOR_MASS); /// 上半部分，2px→1px
-            String text = String.valueOf(massCount);
-            int textX = x + 1 - font.width(text) / 2;
-            int textY = -font.lineHeight - 4;
-            guiGraphics.drawString(font, text, textX, textY, COLOR_MASS, false);
-        }
-
-        /// 能量砧子：浅红色，水平线，左半部分（80px），y=12-76（从底部起索引1）
-        if (energyCount > 0) {
-            int y = 160 - Math.round(12 + (energyCount - 1) * 64.0f / 63.0f) - 2; /// -2缩放像素 = -1屏幕像素
-            guiGraphics.fill(0, y, MAP_SIZE / 2, y + 2, COLOR_ENERGY); /// 左半部分，2px→1px
-            String text = String.valueOf(energyCount);
-            int textX = -font.width(text) - 6;
-            int textY = y + 1 - font.lineHeight / 2;
-            guiGraphics.drawString(font, text, textX, textY, COLOR_ENERGY, false);
-        }
-
-        /// 地图右侧的三步指南文本
-        renderGuideStepText(guiGraphics, timeCount, spaceCount, massCount, energyCount);
-
-        pose.popPose();
-    }
-
-    /// 在地图右下角渲染三步天体类型指南文本。
-    /// 在0.5倍缩放的姿态内渲染。坐标位于160×160图像空间内。
-    private void renderGuideStepText(
-        GuiGraphics guiGraphics, int time, int space, int mass, int energy
-    ) {
-        int textX = 88; /// 地图右下角空白区域
-        int lineSpacing = font.lineHeight + 5; /// 缩放后的单位
-        int y0 = 108;
-
-        /// 步骤1：↑ 从质量-半径图表推导的类型（质量 + 空间）
-        int step1Rgb = CelestialBodyMatcher.getMassRadiusRgb(mass, space);
-        String step1Name = getTypeDisplayName(step1Rgb);
-        drawGuideLine(guiGraphics, "↑" + step1Name, textX, y0, 0xFF_CCCCCC);
-
-        /// 步骤2：← 从年龄-温度图表推导的类型（时间 + 能量）
-        /// 棕矮星使用 age_temp_sp；其他使用 age_temp
-        CelestialBodyClass step1Class = CelestialBodyClass.fromRgb(step1Rgb);
-        int step2Rgb;
-        if (step1Class != null && step1Class.step2UsesSp()) {
-            step2Rgb = CelestialBodyMatcher.getAgeTempSpRgb(time, energy);
-        } else {
-            step2Rgb = CelestialBodyMatcher.getAgeTempRgb(time, energy);
-        }
-        String step2Name = getTypeDisplayName(step2Rgb);
-        drawGuideLine(guiGraphics, "←" + step2Name, textX, y0 + lineSpacing * 2, 0xFF_CCCCCC);
-
-        /// 步骤3：↖ 从年龄-半径图表推导的类型（时间 + 空间）
-        int step3Rgb = CelestialBodyMatcher.getAgeRadiusRgb(time, space);
-        String step3Name = getTypeDisplayName(step3Rgb);
-        drawGuideLine(guiGraphics, "↖" + step3Name, textX, y0 + lineSpacing, 0xFF_CCCCCC);
-    }
-
-    /// 通过翻译键将图表RGB颜色转换为显示名称。
-    /// 使用现有的 screen.anvilcraft.cfa.class.<name> 键模式。
-    /// 岩石行星子类型全部映射到 rocky_planet。
-    private static String getTypeDisplayName(int rgb) {
-        if (rgb == 0x000000) {
-            return Component.translatable("screen.anvilcraft.cfa.class.no_match").getString();
-        }
-        CelestialBodyClass bodyClass = CelestialBodyClass.fromRgb(rgb);
-        if (bodyClass == null) {
-            return Component.translatable("screen.anvilcraft.cfa.class.no_match").getString();
-        }
-        String key;
-        if (bodyClass.isRockyPlanet()) {
-            key = "screen.anvilcraft.cfa.class.rocky_planet";
-        } else {
-            key = "screen.anvilcraft.cfa.class." + bodyClass.name().toLowerCase();
-        }
-        return Component.translatable(key).getString();
-    }
-
-    private void drawGuideLine(GuiGraphics guiGraphics, String text, int x, int y, int color) {
-        guiGraphics.drawString(font, text, x, y, color, false);
     }
 
     private static final float UI_AXIAL_TILT = 25f;
@@ -1647,7 +1542,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         /// 当星图指南可见时，在其上方重新渲染预览按钮
-        if (!isLocked() && guideTriggered && searchState != SearchState.LOADING) {
+        if (!isLocked() && isGuideTriggered() && searchState != SearchState.LOADING) {
             int relX = mouseX - leftPos;
             int relY = mouseY - topPos;
             renderPreviewBottomButtons(guiGraphics, leftPos, topPos, relX, relY);
@@ -1931,15 +1826,18 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 return true;
             }
         }
-        /// 信息区域：滚动文本
-        if (relX >= PV_INFO_X && relX < PV_INFO_X + PV_INFO_W && relY >= PV_INFO_Y && relY < PV_INFO_Y + PV_INFO_H) {
-            scrollOffset -= (int) scrollY;
-            return true;
-        }
-        /// 资源条：水平像素滚动
-        if (relX >= PV_X && relX < PV_X + PV_W && relY >= PV_RES_Y && relY < PV_RES_Y + PV_RES_H) {
-            resourceScrollOffset -= (int) scrollY * 30;
-            return true;
+        /// 若显示星图指南，则说明信息区域和资源条不存在
+        if (!mapsGuide.visible) {
+            /// 信息区域：滚动文本
+            if (relX >= PV_INFO_X && relX < PV_INFO_X + PV_INFO_W && relY >= PV_INFO_Y && relY < PV_INFO_Y + PV_INFO_H) {
+                scrollOffset -= (int) scrollY;
+                return true;
+            }
+            /// 资源条：水平像素滚动
+            if (relX >= PV_X && relX < PV_X + PV_W && relY >= PV_RES_Y && relY < PV_RES_Y + PV_RES_H) {
+                resourceScrollOffset -= (int) scrollY * 30;
+                return true;
+            }
         }
         /// 重构选项区域：滚动网格（包含巨构建造后的文本）
         if (isMouseInRefactorArea(relX, relY) || isMouseInRefactorScrollbar(relX, relY)) {

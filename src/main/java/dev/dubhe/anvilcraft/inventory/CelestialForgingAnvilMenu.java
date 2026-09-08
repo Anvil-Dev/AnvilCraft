@@ -7,6 +7,7 @@ import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -106,6 +107,20 @@ public class CelestialForgingAnvilMenu extends AbstractContainerMenu {
         }
 
         return copy;
+    }
+
+    @Override
+    public void clicked(int slotId, int button, ClickType clickType, Player player) {
+        if (clickType == ClickType.QUICK_CRAFT && slotId >= 0 && slotId < 4 && button >= 0 && button <= 64) {
+            for (var i = 0; i <= 64; i++) {
+                var count = getSlot(slotId).getItem().getCount();
+                if (count == button) break;
+                handleAnvilTransfer(slotId, button > count);
+                if (count == getSlot(slotId).getItem().getCount()) break;
+            }
+            return;
+        }
+        super.clicked(slotId, button, clickType, player);
     }
 
     @Override
