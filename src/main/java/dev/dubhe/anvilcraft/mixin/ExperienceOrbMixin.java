@@ -1,10 +1,12 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import dev.dubhe.anvilcraft.api.injection.entity.IExperienceOrbExtension;
 import dev.dubhe.anvilcraft.block.ExpCollectorBlock;
 import dev.dubhe.anvilcraft.block.entity.ExpCollectorBlockEntity;
 import dev.dubhe.anvilcraft.init.block.ModFluids;
 import dev.dubhe.anvilcraft.util.AirResistanceManager;
+import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
@@ -16,6 +18,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 
@@ -101,6 +104,18 @@ abstract class ExperienceOrbMixin extends Entity implements IExperienceOrbExtens
     @Override
     public boolean anvilcraft$getDiscarded() {
         return this.anvilcraft$discarded;
+    }
+
+    @ModifyExpressionValue(
+        method = "tick",
+        at = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/level/block/state/BlockState;getFriction("
+                + "Lnet/minecraft/world/level/LevelReader;Lnet/minecraft/core/BlockPos;Lnet/minecraft/world/entity/Entity;)F"
+        )
+    )
+    private float anvilcraft$useDirectionalSurfaceFriction(float friction) {
+        return GravityManager.hasCustomSurfaceFriction(this) ? 1.0F : friction;
     }
 
     /** Horizontal air resistance, also the airborne share of the ground friction product. */

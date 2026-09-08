@@ -20,7 +20,9 @@ public record StellarVisualState(
     float ejectaRadius,
     float pulsationAmplitude,
     float pulsationFrequency,
-    String surfaceStyle
+    String surfaceStyle,
+    float windStrength,
+    float flowProgress
 ) {
     public static final Codec<StellarVisualState> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         Codec.FLOAT.fieldOf("radius").forGetter(StellarVisualState::radius),
@@ -33,7 +35,9 @@ public record StellarVisualState(
         Codec.FLOAT.fieldOf("ejectaRadius").forGetter(StellarVisualState::ejectaRadius),
         Codec.FLOAT.fieldOf("pulsationAmplitude").forGetter(StellarVisualState::pulsationAmplitude),
         Codec.FLOAT.fieldOf("pulsationFrequency").forGetter(StellarVisualState::pulsationFrequency),
-        Codec.STRING.optionalFieldOf("surfaceStyle", "default").forGetter(StellarVisualState::surfaceStyle)
+        Codec.STRING.optionalFieldOf("surfaceStyle", "default").forGetter(StellarVisualState::surfaceStyle),
+        Codec.FLOAT.optionalFieldOf("windStrength", 0.0f).forGetter(StellarVisualState::windStrength),
+        Codec.FLOAT.optionalFieldOf("flowProgress", 0.0f).forGetter(StellarVisualState::flowProgress)
     ).apply(instance, StellarVisualState::new));
 
     /** 没有演化状态时使用的中性快照。 */
@@ -62,7 +66,17 @@ public record StellarVisualState(
         ejectaRadius = finiteAtLeast(ejectaRadius, 0.0f);
         pulsationAmplitude = clampFinite(pulsationAmplitude, 0.0f, 0.95f);
         pulsationFrequency = finiteAtLeast(pulsationFrequency, 0.0f);
+        windStrength = clampFinite(windStrength, 0, 1);
+        flowProgress = clampFinite(flowProgress, 0, 1);
         surfaceStyle = surfaceStyle == null || surfaceStyle.isBlank() ? "default" : surfaceStyle;
+    }
+
+    public StellarVisualState(
+        float radius, float temperature, float luminosity, int surfaceColor, float emission, float envelopeOpacity,
+        float coreRadius, float ejectaRadius, float pulsationAmplitude, float pulsationFrequency, String surfaceStyle
+    ) {
+        this(radius, temperature, luminosity, surfaceColor, emission, envelopeOpacity, coreRadius, ejectaRadius,
+            pulsationAmplitude, pulsationFrequency, surfaceStyle, 0, 0);
     }
 
     /** 兼容只提供基础物理量的调用方。 */
@@ -146,7 +160,9 @@ public record StellarVisualState(
             lerp(from.ejectaRadius, to.ejectaRadius, t),
             to.pulsationAmplitude,
             to.pulsationFrequency,
-            to.surfaceStyle
+            to.surfaceStyle,
+            lerp(from.windStrength, to.windStrength, t),
+            lerp(from.flowProgress, to.flowProgress, t)
         );
     }
 
@@ -345,6 +361,11 @@ public record StellarVisualState(
         return radius * (float) (peak * (1.0 - pulsationAmplitude * dip * hold));
     }
 
+    public StellarVisualState withWind(float strength, float progress) {
+        return new StellarVisualState(radius, temperature, luminosity, surfaceColor, emission, envelopeOpacity,
+            coreRadius, ejectaRadius, pulsationAmplitude, pulsationFrequency, surfaceStyle, strength, progress);
+    }
+
     /** 返回只替换视觉半径的快照，保持其它物理量和玩法字段不变。 */
     public StellarVisualState withRadius(float newRadius) {
         float safe = Math.max(0.01f, newRadius);
@@ -360,7 +381,9 @@ public record StellarVisualState(
             ejectaRadius * ratio,
             pulsationAmplitude,
             pulsationFrequency,
-            surfaceStyle
+            surfaceStyle,
+            windStrength,
+            flowProgress
         );
     }
 
@@ -377,7 +400,9 @@ public record StellarVisualState(
             ejectaRadius,
             pulsationAmplitude,
             pulsationFrequency,
-            surfaceStyle
+            surfaceStyle,
+            windStrength,
+            flowProgress
         );
     }
 
@@ -394,7 +419,9 @@ public record StellarVisualState(
             ejectaRadius,
             pulsationAmplitude,
             pulsationFrequency,
-            surfaceStyle
+            surfaceStyle,
+            windStrength,
+            flowProgress
         );
     }
 }

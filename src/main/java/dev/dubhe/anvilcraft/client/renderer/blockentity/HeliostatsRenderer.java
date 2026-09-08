@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.HeliostatsBlockEntity;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -17,7 +18,7 @@ import org.joml.Vector3f;
 
 import java.util.Optional;
 
-public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEntity> {
+public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEntity>, ModelSelectionRenderer<HeliostatsBlockEntity> {
     private static final ModelResourceLocation HELIOSTATS_HEAD = ModelResourceLocation.standalone(AnvilCraft.of("block/heliostats_head"));
     private static final ModelResourceLocation HELIOSTATS_HEAD_SUNFLOWER = ModelResourceLocation.standalone(AnvilCraft.of(
         "block/heliostats_head_sunflower"));
@@ -50,6 +51,16 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
         int packedLight,
         int packedOverlay
     ) {
+        Minecraft minecraft = Minecraft.getInstance();
+        collectSelectionModels(blockEntity, partialTick, poseStack, (model, pose) ->
+            minecraft.getBlockRenderer().getModelRenderer().renderModel(
+                pose.last(), buffer.getBuffer(RenderType.cutout()), null,
+                minecraft.getModelManager().getModel(model), 0, 0, 0, packedLight, packedOverlay
+            ));
+    }
+
+    @Override
+    public void collectSelectionModels(HeliostatsBlockEntity blockEntity, float partialTick, PoseStack poseStack, ModelConsumer consumer) {
         poseStack.pushPose();
         poseStack.translate(0.5, 1.3, 0.5);
         if (
@@ -68,18 +79,7 @@ public class HeliostatsRenderer implements BlockEntityRenderer<HeliostatsBlockEn
                 ) / blockEntity.getNormalVector3f().y)
             )));
         }
-        Minecraft minecraft = Minecraft.getInstance();
-        minecraft.getBlockRenderer().getModelRenderer().renderModel(
-            poseStack.last(),
-            buffer.getBuffer(RenderType.cutout()),
-            null,
-            minecraft.getModelManager().getModel(this.getHeadModel(blockEntity)),
-            0,
-            0,
-            0,
-            packedLight,
-            packedOverlay
-        );
+        consumer.accept(this.getHeadModel(blockEntity), poseStack);
         poseStack.popPose();
     }
 

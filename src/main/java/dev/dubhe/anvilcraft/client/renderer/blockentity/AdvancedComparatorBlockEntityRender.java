@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.AdvancedComparatorBlock;
 import dev.dubhe.anvilcraft.block.entity.AdvancedComparatorBlockEntity;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -14,7 +15,8 @@ import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
-public class AdvancedComparatorBlockEntityRender implements BlockEntityRenderer<AdvancedComparatorBlockEntity> {
+public class AdvancedComparatorBlockEntityRender
+    implements BlockEntityRenderer<AdvancedComparatorBlockEntity>, ModelSelectionRenderer<AdvancedComparatorBlockEntity> {
     private static final ModelResourceLocation INDICATOR = ModelResourceLocation.standalone(
         AnvilCraft.of("block/advanced_comparator_indicator")
     );
@@ -32,24 +34,30 @@ public class AdvancedComparatorBlockEntityRender implements BlockEntityRenderer<
         int light,
         int overlay
     ) {
-        poseStack.pushPose();
-        float height = getHeight(blockEntity);
-        poseStack.translate(0, height, 0);
         // noinspection DataFlowIssue
-        Minecraft.getInstance()
+        collectSelectionModels(blockEntity, tickDelta, poseStack, (model, pose) -> Minecraft.getInstance()
             .getBlockRenderer()
             .getModelRenderer()
             .renderModel(
-                poseStack.last(),
+                pose.last(),
                 bufferSource.getBuffer(RenderType.cutout()),
                 null,
-                Minecraft.getInstance().getModelManager().getModel(INDICATOR),
+                Minecraft.getInstance().getModelManager().getModel(model),
                 0, 0, 0,
                 light,
                 overlay,
                 ModelData.EMPTY,
                 null
-        );
+        ));
+    }
+
+    @Override
+    public void collectSelectionModels(
+        AdvancedComparatorBlockEntity blockEntity, float partialTick, PoseStack poseStack, ModelConsumer consumer
+    ) {
+        poseStack.pushPose();
+        poseStack.translate(0, getHeight(blockEntity), 0);
+        consumer.accept(INDICATOR, poseStack);
         poseStack.popPose();
     }
 

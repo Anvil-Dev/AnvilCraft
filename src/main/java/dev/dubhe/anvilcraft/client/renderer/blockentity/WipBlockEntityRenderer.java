@@ -2,10 +2,12 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import dev.dubhe.anvilcraft.block.entity.WipBlockEntity;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import dev.dubhe.anvilcraft.recipe.anvil.procedural.ProceduralProcessRecipe;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
@@ -20,7 +22,7 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 
 import java.util.Optional;
 
-public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntity> {
+public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntity>, ModelSelectionRenderer<WipBlockEntity> {
 
     public WipBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
@@ -40,15 +42,7 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
         poseStack.pushPose();
         BlockRenderDispatcher blockRenderDispatcher = minecraft.getBlockRenderer();
         BlockState state = wipBlockEntity.getInitialBlock();
-        BakedModel bakedModel = Optional.ofNullable(wipBlockEntity.getRecipeId())
-            .flatMap(recipeID -> level.getRecipeManager().byKey(recipeID))
-            .map(RecipeHolder::value)
-            .filter(ProceduralProcessRecipe.class::isInstance)
-            .map(ProceduralProcessRecipe.class::cast)
-            .flatMap(recipe -> recipe.getDisplayedModelForStep(wipBlockEntity.getStepCount()))
-            .map(ModelResourceLocation::standalone)
-            .map(mrl -> minecraft.getModelManager().getModel(mrl))
-            .orElse(blockRenderDispatcher.getBlockModel(state));
+        BakedModel bakedModel = minecraft.getModelManager().getModel(this.model(wipBlockEntity, level));
         RandomSource rand = RandomSource.create(state.getSeed(wipBlockEntity.getBlockPos()));
         ChunkRenderTypeSet types = bakedModel.getRenderTypes(
             state,
@@ -69,5 +63,22 @@ public class WipBlockEntityRenderer implements BlockEntityRenderer<WipBlockEntit
             );
         }
         poseStack.popPose();
+    }
+
+    @Override
+    public void collectSelectionModels(WipBlockEntity entity, float partialTick, PoseStack pose, ModelConsumer consumer) {
+        Level level = entity.getLevel();
+        if (level != null) consumer.accept(this.model(entity, level), pose);
+    }
+
+    private ModelResourceLocation model(WipBlockEntity entity, Level level) {
+        return Optional.ofNullable(entity.getRecipeId())
+            .flatMap(recipeID -> level.getRecipeManager().byKey(recipeID))
+            .map(RecipeHolder::value)
+            .filter(ProceduralProcessRecipe.class::isInstance)
+            .map(ProceduralProcessRecipe.class::cast)
+            .flatMap(recipe -> recipe.getDisplayedModelForStep(entity.getStepCount()))
+            .map(ModelResourceLocation::standalone)
+            .orElseGet(() -> BlockModelShaper.stateToModelLocation(entity.getInitialBlock()));
     }
 }

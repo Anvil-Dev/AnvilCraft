@@ -16,6 +16,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StellarEventProfile;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionPhase;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionState;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrack;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrackLibrary;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.block.entity.megastructure.ExcavatorHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.PenroseSphereHandler;
@@ -855,6 +856,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             tag.putLong("bodySeed", this.bodySeed);
             tag.putInt("ageAnvilCount", this.ageAnvilCount);
             tag.putInt("stellarMass", this.stellarMass);
+            megastructureManager.getAcceleratorHandler().captureSnapshot(this, tag);
             tag.putIntArray(
                 "anvilCounts", new int[]{
                     getAnvilCount(0),
@@ -1013,6 +1015,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         /// 检测动画过渡（仅客户端，例如单人游戏区块加载）
         /// 在加速器演化期间跳过动画
         boolean skipAnimLoad = tag.contains(StellarEvolutionState.TRACK_ID_KEY)
+            && !tag.getBoolean(StellarEvolutionState.TERMINAL_APPLIED_KEY)
             || tag.getInt("acceleratorStage") >= 1;
         if (level != null && level.isClientSide() && !skipAnimLoad) {
             boolean hadBody = oldBodyData != null;
@@ -1171,6 +1174,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         /// 检测动画过渡（仅客户端）
         /// 在加速器演化期间跳过动画
         boolean skipAnim = tag.contains(StellarEvolutionState.TRACK_ID_KEY)
+            && !tag.getBoolean(StellarEvolutionState.TERMINAL_APPLIED_KEY)
             || tag.getInt("acceleratorStage") >= 1;
         if (level != null && level.isClientSide() && !skipAnim) {
             boolean hadBody = oldBodyData != null;
@@ -1358,6 +1362,11 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
             isAmplify,
             this.planetaryResourceSet
         );
+        if (celestialBodyData instanceof StarData star
+            && !StellarTrackLibrary.canStart(stellarMass, star.bodyClass(), star.specialRedDwarf())) {
+            options = options.stream()
+                .filter(option -> !option.id().equals(ModMegastructures.STELLAR_EVOLUTION_ACCELERATOR.getId())).toList();
+        }
         if (megastructureManager.hasActiveMegastructure()) {
             options = options.stream().filter(CelestialRefactorOption::auxiliary).toList();
         }

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.CrushingTableBlockEntity;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -16,7 +17,7 @@ import org.joml.Vector3f;
  * 粉碎台渲染：方块模型渲染主体与边框，实体渲染左右磨轮并带动画旋转。
  */
 public class CrushingTableBlockEntityRenderer
-    extends ProcessingItemStackRenderer<CrushingTableBlockEntity> {
+    extends ProcessingItemStackRenderer<CrushingTableBlockEntity> implements ModelSelectionRenderer<CrushingTableBlockEntity> {
     private static final ModelResourceLocation WHEEL_LEFT = ModelResourceLocation.standalone(
         AnvilCraft.of("block/processing_table_crushing_wheel_left")
     );
@@ -44,11 +45,19 @@ public class CrushingTableBlockEntityRenderer
         int light,
         int overlay
     ) {
-        float progress = table.getSpinProgress(partialTick);
-        float rotationDeg = this.easeOutQuint(progress) * 360F;
-        this.renderWheel(WHEEL_LEFT, WHEEL_LEFT_CENTER, rotationDeg, pose, source, light, overlay);
-        this.renderWheel(WHEEL_RIGHT, WHEEL_RIGHT_CENTER, -rotationDeg, pose, source, light, overlay);
+        collectSelectionModels(table, partialTick, pose, (model, partPose) -> Minecraft.getInstance()
+            .getBlockRenderer().getModelRenderer().renderModel(
+                partPose.last(), source.getBuffer(RenderType.cutout()), null,
+                Minecraft.getInstance().getModelManager().getModel(model), 0, 0, 0, light, overlay, ModelData.EMPTY, null
+            ));
         super.render(table, partialTick, pose, source, light, overlay);
+    }
+
+    @Override
+    public void collectSelectionModels(CrushingTableBlockEntity table, float partialTick, PoseStack pose, ModelConsumer consumer) {
+        float rotation = this.easeOutQuint(table.getSpinProgress(partialTick)) * 360F;
+        this.visitWheel(WHEEL_LEFT, WHEEL_LEFT_CENTER, rotation, pose, consumer);
+        this.visitWheel(WHEEL_RIGHT, WHEEL_RIGHT_CENTER, -rotation, pose, consumer);
     }
 
     private float easeOutQuint(float progress) {
@@ -56,33 +65,18 @@ public class CrushingTableBlockEntityRenderer
         return 1 - inverse * inverse * inverse;
     }
 
-    private void renderWheel(
+    private void visitWheel(
         ModelResourceLocation model,
         Vector3f center,
         float rotationDeg,
         PoseStack pose,
-        MultiBufferSource source,
-        int light,
-        int overlay
+        ModelConsumer consumer
     ) {
         pose.pushPose();
         pose.translate(center.x, center.y, center.z);
         pose.mulPose(Axis.XP.rotationDegrees(rotationDeg));
         pose.translate(-center.x, -center.y, -center.z);
-        Minecraft.getInstance()
-            .getBlockRenderer()
-            .getModelRenderer()
-            .renderModel(
-                pose.last(),
-                source.getBuffer(RenderType.cutout()),
-                null,
-                Minecraft.getInstance().getModelManager().getModel(model),
-                0, 0, 0,
-                light,
-                overlay,
-                ModelData.EMPTY,
-                null
-            );
+        consumer.accept(model, pose);
         pose.popPose();
     }
 }

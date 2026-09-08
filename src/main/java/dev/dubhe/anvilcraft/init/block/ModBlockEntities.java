@@ -97,6 +97,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.AdvancedComparatorBlockE
 import dev.dubhe.anvilcraft.client.renderer.blockentity.AutoEnchantingTableBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.BatchCraftingBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilBlockEntityRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.CelestialForgingAnvilFluidInterfaceBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargeCollectorRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ChargerBlockRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.ConfinementChamberRenderer;
@@ -499,6 +500,7 @@ public class ModBlockEntities {
         .blockEntity("celestial_forging_anvil_fluid_interface",
             CelestialForgingAnvilFluidInterfaceBlockEntity::new)
         .validBlock(ModBlocks.CELESTIAL_FORGING_ANVIL_FLUID_INTERFACE)
+        .renderer(() -> CelestialForgingAnvilFluidInterfaceBlockEntityRenderer::new)
         .register();
 
     public static final BlockEntityEntry<CelestialForgingAnvilLaserInterfaceBlockEntity>

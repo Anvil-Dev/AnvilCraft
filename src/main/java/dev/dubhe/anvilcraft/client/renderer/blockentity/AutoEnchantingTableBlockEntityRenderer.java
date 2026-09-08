@@ -3,10 +3,15 @@ package dev.dubhe.anvilcraft.client.renderer.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
+import dev.anvilcraft.lib.v2.cube.client.SelectionPart;
 import dev.dubhe.anvilcraft.block.entity.AutoEnchantingTableBlockEntity;
+import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
+import dev.dubhe.anvilcraft.client.selection.ModelPartSelection;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import net.minecraft.client.model.BookModel;
 import net.minecraft.client.model.geom.ModelLayers;
+import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
@@ -25,8 +30,13 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.fluids.FluidStack;
 
+import java.util.List;
+import java.util.Map;
+import java.util.WeakHashMap;
+
 @OnlyIn(Dist.CLIENT)
-public class AutoEnchantingTableBlockEntityRenderer implements BlockEntityRenderer<AutoEnchantingTableBlockEntity> {
+public class AutoEnchantingTableBlockEntityRenderer
+    implements BlockEntityRenderer<AutoEnchantingTableBlockEntity>, ModelSelectionRenderer<AutoEnchantingTableBlockEntity> {
     @SuppressWarnings("deprecation")
     private static final Material BOOK_LOCATION = new Material(
         TextureAtlas.LOCATION_BLOCKS,
@@ -34,10 +44,14 @@ public class AutoEnchantingTableBlockEntityRenderer implements BlockEntityRender
     );
 
     private final BookModel bookModel;
+    private final ModelPart bookRoot;
+    private final ModelPartSelection bookSelection = new ModelPartSelection();
+    private final Map<AutoEnchantingTableBlockEntity, BookPose> bookPoses = new WeakHashMap<>();
     private final ItemRenderer itemRenderer;
 
     public AutoEnchantingTableBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
-        this.bookModel = new BookModel(context.bakeLayer(ModelLayers.BOOK));
+        this.bookRoot = context.bakeLayer(ModelLayers.BOOK);
+        this.bookModel = new BookModel(this.bookRoot);
         this.itemRenderer = context.getItemRenderer();
     }
 
@@ -55,19 +69,11 @@ public class AutoEnchantingTableBlockEntityRenderer implements BlockEntityRender
         ItemStack input = be.getItemHandler().getStackInSlot(0);
         ItemStack output = be.getItemHandler().getStackInSlot(1);
         boolean hasInput = !input.isEmpty();
-        boolean hasOutput = !output.isEmpty();
-
-        // 书本展开程度：输入格有物品时展开，否则闭合
-        float targetOpen = hasInput ? 1.0F : 0.0F;
-        float bookOpenO = be.getBookOpen();
-        be.setBookOpen(Mth.approach(bookOpenO, targetOpen, 0.06F));
-        float open = Mth.lerp(partialTick, bookOpenO, be.getBookOpen());
-
-        float time = (float) level.getGameTime() + partialTick;
+        BookPose book = this.bookPose(be, partialTick);
         // 待机缓慢旋转（与原版附魔台玩家远离时一致的速度）
-        float bookRot = time * 0.02F;
+        float bookRot = book.time() * 0.02F;
 
-        this.renderBook(pose, ms, packedLight, packedOverlay, time, open, bookRot);
+        this.renderBook(pose, ms, packedLight, packedOverlay, book.time(), book.open(), bookRot);
 
         ItemStack item = hasInput ? input : output;
         if (!item.isEmpty()) {
@@ -97,15 +103,44 @@ public class AutoEnchantingTableBlockEntityRenderer implements BlockEntityRender
         float bookRot
     ) {
         pose.pushPose();
+        this.applyBookPose(pose, time, open, bookRot);
+        VertexConsumer vertexConsumer = BOOK_LOCATION.buffer(ms, RenderType::entityCutout);
+        this.bookModel.render(pose, vertexConsumer, packedLight, packedOverlay, -1);
+        pose.popPose();
+    }
+
+    @Override
+    public void collectSelectionParts(AutoEnchantingTableBlockEntity be, float partialTick, List<SelectionPart> output) {
+        if (be.getLevel() == null) return;
+        BookPose book = this.bookPose(be, partialTick);
+        PoseStack pose = new PoseStack();
+        this.applyBookPose(pose, book.time(), book.open(), book.time() * 0.02F);
+        this.bookSelection.collect(this.bookRoot, pose, output);
+    }
+
+    private BookPose bookPose(AutoEnchantingTableBlockEntity be, float partialTick) {
+        BookPose cached = this.bookPoses.get(be);
+        if (cached != null && cached.frame() == ModelBlockSelection.frame()) return cached;
+        float previous = be.getBookOpen();
+        float target = be.getItemHandler().getStackInSlot(0).isEmpty() ? 0 : 1;
+        be.setBookOpen(Mth.approach(previous, target, 0.06F));
+        Level level = be.getLevel();
+        float time = level == null ? 0 : level.getGameTime() + partialTick;
+        BookPose result = new BookPose(ModelBlockSelection.frame(), time, Mth.lerp(partialTick, previous, be.getBookOpen()));
+        this.bookPoses.put(be, result);
+        return result;
+    }
+
+    private void applyBookPose(PoseStack pose, float time, float open, float bookRot) {
         // 方块高度为 12/16，书本中心放在台面附近
         pose.translate(0.5, 0.625, 0.5);
         pose.translate(0.0, 0.1 + Mth.sin(time * 0.1F) * 0.01F, 0.0);
         pose.mulPose(Axis.YP.rotation(-bookRot));
         pose.mulPose(Axis.ZP.rotationDegrees(80.0F));
         this.bookModel.setupAnim(time, 0.0F, 0.0F, open);
-        VertexConsumer vertexConsumer = BOOK_LOCATION.buffer(ms, RenderType::entityCutout);
-        this.bookModel.render(pose, vertexConsumer, packedLight, packedOverlay, -1);
-        pose.popPose();
+    }
+
+    private record BookPose(long frame, float time, float open) {
     }
 
     private void renderItem(

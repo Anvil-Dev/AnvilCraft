@@ -9,6 +9,8 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarEventProfile;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionPhase;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionState;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarScheduledEvent;
+import dev.dubhe.anvilcraft.block.entity.celestial.StellarTerminal;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrack;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrackLibrary;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
@@ -109,26 +111,26 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
 
     /** 当前物理阶段 ID，空闲时返回空字符串。 */
     public String getPhaseId() {
-        return evolutionState == null ? "" : evolutionState.phaseId();
+        return evolutionState == null || !isActive() ? "" : evolutionState.phaseId();
     }
 
     public String getPhaseId(CelestialForgingAnvilBlockEntity be) {
         ensureState(be);
-        if (evolutionState == null || evolutionTrack == null || be.getLevel() == null) return getPhaseId();
+        if (evolutionState == null || !isActive() || evolutionTrack == null || be.getLevel() == null) return getPhaseId();
         return evolutionState.phaseAt(evolutionTrack, clockTime(be), 0.0f).getSerializedName();
     }
 
     /** 当前阶段进度，始终钳制在 0..1。 */
     public float getPhaseProgress() {
-        return evolutionState == null ? 0.0f : evolutionState.phaseProgress();
+        return evolutionState == null || !isActive() ? 0.0f : evolutionState.phaseProgress();
     }
 
     /** 客户端按绝对游戏时间重建阶段进度，不依赖 20 tick 心跳。 */
     public float getPhaseProgress(CelestialForgingAnvilBlockEntity be, float partialTick) {
         ensureState(be);
-        if (evolutionState == null || be.getLevel() == null) return 0.0f;
+        if (evolutionState == null || !isActive() || be.getLevel() == null) return 0.0f;
         if (evolutionTrack == null) return evolutionState.phaseProgress();
-        return evolutionState.phaseProgressAt(evolutionTrack, clockTime(be), partialTick);
+        return evolutionState.phaseProgressAt(evolutionTrack, clockTime(be), visualPartialTick(partialTick));
     }
 
     /** 客户端按绝对游戏时间计算剩余刻数。 */
@@ -144,7 +146,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     public float getTotalProgress(CelestialForgingAnvilBlockEntity be, float partialTick) {
         ensureState(be);
         if (evolutionState == null || be.getLevel() == null) return 0.0f;
-        return evolutionState.totalProgress(clockTime(be), Math.clamp(partialTick, 0.0f, 1.0f));
+        return evolutionState.totalProgress(clockTime(be), visualPartialTick(partialTick));
     }
 
     public String getTerminalProfileId() {
@@ -156,8 +158,9 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         return getTerminalProfileId();
     }
 
-    /** 预计终局种类，仅作信息展示；实际写回仍沿用旧质量阈值。 */
+    /** 新运行直接显示轨道终局，旧存档保留原结果。 */
     public String getTerminalOutcomeId() {
+        if (evolutionTrack != null && evolutionTrack.modern()) return evolutionTrack.definition().terminal().kind().id();
         String profileId = getTerminalProfileId();
         if (!profileId.isBlank()) {
             StellarEventProfile profile = StellarTrackLibrary.eventProfile(profileId);
@@ -195,7 +198,11 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     ) {
         ensureState(be);
         if (evolutionState == null || evolutionTrack == null || be.getLevel() == null) return null;
-        float frameFraction = Math.clamp(partialTick, 0.0f, 1.0f);
+        if (!evolutionState.isActive() && (!evolutionTrack.modern()
+            || evolutionTrack.definition().terminal().kind() != StellarTerminal.Kind.KEEP)) {
+            return null;
+        }
+        float frameFraction = visualPartialTick(partialTick);
         long visualTime = clockTime(be);
         StellarVisualState sampled = includePulsation
             ? evolutionState.visualState(evolutionTrack, visualTime, frameFraction)
@@ -232,7 +239,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             : getStructuralVisualState(be, partialTick);
         if (visual == null || evolutionState == null || evolutionTrack == null) return star.bodyScale();
         int index = Math.clamp(evolutionState.scheduleStartIndex(), 0, evolutionTrack.phaseNodes().size() - 1);
-        float baseRadius = evolutionTrack.phaseNodes().get(index).radius();
+        var initialNode = evolutionTrack.phaseNodes().get(index);
+        float baseRadius = evolutionTrack.modern() ? initialNode.dynamics().points().getFirst().radius() : initialNode.radius();
         float startScale = evolutionState.initialSize() > 0
             ? CelestialBodyData.bodyScaleForSize(evolutionState.initialSize())
             : star.bodyScale();
@@ -240,16 +248,16 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         float physicalRatio = visual.radius() / Math.max(0.01f, baseRadius);
         float mappedRatio = mapRadiusRatio(physicalRatio, startScale);
 
-        // 末段平滑收敛到服务端实际写回的残骸尺寸，避免白矮星在轨道半径
-        // 过小时缩成不可见的小点，同时保证终点没有尺寸跳变。
+        // 在最后一个物理阶段结束时衔接残骸尺寸，终局本身不占用阶段时长。
         float terminalScale = terminalVisualBodyScale(star);
-        float totalProgress = evolutionState.totalProgress(clockTime(be), Math.clamp(partialTick, 0.0f, 1.0f));
-        // 终点校准从最后一个轨道节点前的一小段开始；不能用固定总进度，
-        // 否则低质量星的 AGB 阶段会被提前拉向白矮星尺寸。
+        float totalProgress = evolutionState.totalProgress(clockTime(be), visualPartialTick(partialTick));
+        // 新轨道只在最后阶段末尾收敛；旧四阶段轨道保留原有校准窗口。
         float finalNodeStart = finalNodeStartProgress();
-        float endpointStart = evolutionTrack.hasTerminalEvent()
-            ? Math.min(finalNodeStart, Math.max(0.92f, finalNodeStart - 0.015f))
-            : Math.min(finalNodeStart, Math.max(0.90f, finalNodeStart - 0.03f));
+        float endpointStart = evolutionTrack.modern()
+            ? finalNodeStart + (1.0f - finalNodeStart) * 0.9f
+            : evolutionTrack.hasTerminalEvent()
+                ? Math.min(finalNodeStart, Math.max(0.92f, finalNodeStart - 0.015f))
+                : Math.min(finalNodeStart, Math.max(0.90f, finalNodeStart - 0.03f));
         float endpointRange = Math.max(0.001f, 1.0f - endpointStart);
         float endpointProgress = smoothstep(Math.clamp(
             (totalProgress - endpointStart) / endpointRange,
@@ -329,9 +337,11 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             return star.bodyScale();
         }
         return switch (getTerminalOutcomeId()) {
-            case "white_dwarf" -> CelestialBodyData.bodyScaleForSize(whiteDwarfSpaceSize(originalMass));
+            case "white_dwarf" -> CelestialBodyData.bodyScaleForSize(evolutionTrack != null && evolutionTrack.modern()
+                ? evolutionTrack.definition().terminal().size() : whiteDwarfSpaceSize(originalMass));
             case "neutron_star" -> 0.8f;
             case "black_hole" -> 1.5f;
+            case "keep" -> star.bodyScale();
             default -> 0.01f;
         };
     }
@@ -358,7 +368,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         int originalColor = packColor(star);
         if (evolutionTrack != null) {
             StellarEvolutionPhase phase = evolutionState.phaseAt(evolutionTrack, gameTime, 0.0f);
-            if (phase == StellarEvolutionPhase.MAIN_SEQUENCE) {
+            if (!evolutionTrack.modern() && phase == StellarEvolutionPhase.MAIN_SEQUENCE) {
                 float phaseProgress = evolutionState.phaseProgressAt(evolutionTrack, gameTime, 0.0f);
                 float settle = smoothstep(Math.clamp((phaseProgress - 0.72f) / 0.28f, 0.0f, 1.0f));
                 return sampled.withSurfaceColor(StellarVisualState.interpolateColor(
@@ -383,10 +393,43 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     @Nullable
     public StellarEventProfile getCurrentEventProfile(CelestialForgingAnvilBlockEntity be) {
         ensureState(be);
-        if (evolutionState == null || evolutionTrack == null) return null;
+        if (evolutionState == null || !evolutionState.isActive() || evolutionTrack == null) return null;
         String id = evolutionState.eventProfileAt(evolutionTrack, clockTime(be), 0.0f);
         if (id == null || id.isBlank()) return null;
-        return StellarTrackLibrary.eventProfile(id);
+        return evolutionState.eventProfile(id);
+    }
+
+    public StellarEventProfile getEventProfile(String id) {
+        return evolutionState == null ? StellarTrackLibrary.eventProfile(id) : evolutionState.eventProfile(id);
+    }
+
+    /** 捕获的是已冻结的运行，不在复制或重新捕获时抽样。 */
+    public void captureSnapshot(CelestialForgingAnvilBlockEntity be, CompoundTag snapshot) {
+        if (be.getLevel() == null) return;
+        ensureState(be);
+        if (evolutionState == null) return;
+        CompoundTag saved = new CompoundTag();
+        saveAdditional(saved, be.getLevel().registryAccess());
+        snapshot.put("stellarEvolution", saved);
+        snapshot.putLong("stellarSnapshotGameTime", clockTime(be));
+    }
+
+    public void restoreSnapshot(CelestialForgingAnvilBlockEntity be, CompoundTag snapshot) {
+        if (be.getLevel() == null || be.getLevel().isClientSide()) return;
+        onClear(be);
+        if (!snapshot.contains("stellarEvolution")) return;
+        loadAdditional(snapshot.getCompound("stellarEvolution"), be.getLevel().registryAccess());
+        ensureState(be);
+        if (evolutionState == null) return;
+        long now = be.getLevel().getGameTime();
+        long delta = now - snapshot.getLong("stellarSnapshotGameTime");
+        evolutionState.shiftTimeline(delta);
+        if (dysonDestroyTick >= 0) dysonDestroyTick += delta;
+        pausedSinceGameTime = pausedSinceGameTime >= 0 || !be.isAmplifierPresent() ? now : -1;
+        quenchedScheduled = false;
+        quenchedStarted = false;
+        if (evolutionState.isActive() && !quenchedSupernovaFired) scheduleQuenchedOut(be);
+        syncLegacyView(now);
     }
 
     /** 当前事件的 0..1 进度。 */
@@ -397,7 +440,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         return evolutionState.eventProgress(
             evolutionTrack,
             clockTime(be),
-            Math.clamp(partialTick, 0.0f, 1.0f),
+            visualPartialTick(partialTick),
             profile
         );
     }
@@ -412,10 +455,10 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         if (be.getLevel() == null || be.getLevel().isClientSide()) return;
         ensureState(be);
         tickQuenchedOutMusic(be);
-        if (evolutionState == null || evolutionTrack == null) return;
+        if (evolutionState == null || !evolutionState.isActive() || evolutionTrack == null) return;
 
         long gameTime = be.getLevel().getGameTime();
-        if (!be.isAmplifierPresent()) {
+        if (!be.isAmplifierPresent() && !evolutionState.isComplete()) {
             if (pausedSinceGameTime < 0L) {
                 pausedSinceGameTime = gameTime;
                 syncToClient(be);
@@ -439,55 +482,46 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             destroyDysonSphere(be);
         }
 
-        if (evolutionState.shouldTriggerShock(gameTime, evolutionTrack)) {
+        if (!evolutionState.modern() && evolutionState.shouldTriggerShock(gameTime, evolutionTrack)) triggerEventShock(be);
+        boolean phaseChanged = evolutionState.update(gameTime, evolutionTrack);
+        if (evolutionState.modern()) {
+            for (StellarScheduledEvent event : evolutionState.dueEvents(gameTime)) {
+                evolutionState.markEventApplied(event);
+                if (event.policy().destructive()) triggerDestructiveEvent(be, event.profileId(), event.seed());
+            }
+        } else if (evolutionState.shouldTriggerShock(gameTime, evolutionTrack)) {
             triggerEventShock(be);
         }
-
         if (evolutionState.isComplete() && !evolutionState.terminalApplied()) {
             completeEvolution(be);
-        }
-        else {
-            boolean phaseChanged = evolutionState.update(gameTime, evolutionTrack);
+        } else {
+            syncLegacyView(gameTime);
             if (phaseChanged || gameTime % 20L == 0L) syncToClient(be);
         }
     }
 
     @Override
     public void onBuild(CelestialForgingAnvilBlockEntity be) {
-        if (!(be.getCelestialBodyData() instanceof StarData star)) return;
-        originalMass = Math.clamp(be.getStellarMass(), 1, 64);
+        if (be.getLevel() == null || be.getLevel().isClientSide()) return;
+        ensureState(be);
+        if (isActive() || !(be.getCelestialBodyData() instanceof StarData star)) return;
+        int mass = be.getStellarMass();
+        StellarTrack track = StellarTrackLibrary.select(mass, star.bodyClass(), star.specialRedDwarf(), be.getBodySeed());
+        if (track == null) return;
+        originalMass = mass;
         originalEnergy = star.energy();
         originalSize = star.size();
         dysonDestroyed = false;
         dysonDestroyTick = -1L;
         pausedSinceGameTime = -1L;
         quenchedSupernovaFired = false;
-        CelestialBodyClass surfaceClass = star.bodyClass();
-        StellarTrack track = StellarTrackLibrary.select(
-            originalMass,
-            surfaceClass,
-            star.specialRedDwarf(),
-            be.getBodySeed()
-        );
-        if (track == null) return;
-        evolutionTrack = track;
-        int startPhase = StellarTrackLibrary.startingPhaseIndex(track, surfaceClass);
-        int legacyBudget = legacyBudget(be, surfaceClass);
-        evolutionState = StellarEvolutionState.begin(
-            track,
-            startPhase,
-            originalMass,
-            originalEnergy,
-            originalSize,
-            originalMass,
-            be.getBodySeed(),
-            be.getLevel().getGameTime(),
-            legacyBudget
-        );
+        long evolutionSeed = be.getLevel().random.nextLong();
+        evolutionState = StellarEvolutionState.beginNew(track, star.bodyClass(), originalMass, originalEnergy,
+            originalSize, evolutionSeed, be.getLevel().getGameTime(), legacyBudget(be, star.bodyClass()));
+        evolutionTrack = evolutionState.trackSnapshot();
         syncLegacyView(be.getLevel().getGameTime());
         scheduleQuenchedOut(be);
-        be.setChanged();
-        be.getLevel().sendBlockUpdated(be.getBlockPos(), be.getBlockState(), be.getBlockState(), 3);
+        syncToClient(be);
     }
 
     /** 以旧像素算法计算总预算，供新轨道归一化使用。 */
@@ -515,7 +549,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         quenchedStarted = false;
         quenchedCanceled = false;
         if (evolutionState == null || evolutionTrack == null || evolutionTrack.terminalProfile().isBlank()) return;
-        StellarEventProfile profile = StellarTrackLibrary.eventProfile(evolutionTrack.terminalProfile());
+        if (evolutionState.modern() && evolutionState.eventPlan().stream().noneMatch(event -> event.policy().destructive())) return;
+        StellarEventProfile profile = evolutionState.eventProfile(evolutionTrack.terminalProfile());
         if (profile == null || profile.totalTicks() <= 0) return;
         long predicted = Math.max(0L, evolutionState.terminalShockGameTime(evolutionTrack)
             - be.getLevel().getGameTime());
@@ -572,8 +607,12 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             return;
         }
 
+        triggerDestructiveEvent(be, profileId, evolutionState.eventSeed());
+    }
+
+    private void triggerDestructiveEvent(CelestialForgingAnvilBlockEntity be, String profileId, long eventSeed) {
         /// 闪光、震动和方块爆炸保持旧调用语义，但残骸延后到抛射物阶段结束。
-        be.startSupernovaFlash(profileId, evolutionState.eventSeed());
+        be.startSupernovaFlash(profileId, eventSeed);
         if (be.getLevel() instanceof ServerLevel serverLevel) {
             PacketDistributor.sendToPlayersTrackingChunk(
                 serverLevel,
@@ -603,9 +642,30 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         syncToClient(be);
     }
 
-    /** 完成轨道后沿用原有残骸创建路径。 */
+    /** 终局与爆炸独立分派，并在保存、重复 tick 和恢复后保持幂等。 */
     private void completeEvolution(CelestialForgingAnvilBlockEntity be) {
-        if (evolutionState == null) return;
+        if (evolutionState == null || evolutionState.terminalApplied()) return;
+        if (evolutionTrack != null && evolutionTrack.modern()) {
+            evolutionState.markTerminalApplied();
+            StellarTerminal terminal = evolutionTrack.definition().terminal();
+            be.getMegastructureManager().clearOtherMegastructures(be);
+            switch (terminal.kind()) {
+                case WHITE_DWARF -> createWhiteDwarfRemnant(be);
+                case NEUTRON_STAR -> createNeutronStarRemnant(be);
+                case BLACK_HOLE -> createBlackHoleRemnant(be);
+                case NONE -> {
+                    be.setCelestialBodyData(null);
+                    be.setPlanetaryResourceSet(null);
+                    be.setStellarMass(0);
+                }
+                default -> {
+                    // KEEP 的冷却外观继续从快照采样。
+                }
+            }
+            finishAccelerator(be);
+            syncToClient(be);
+            return;
+        }
         StellarEventProfile profile = evolutionTrack == null || evolutionTrack.terminalProfile().isBlank()
             ? null
             : StellarTrackLibrary.eventProfile(evolutionTrack.terminalProfile());
@@ -634,8 +694,9 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
 
     private void createWhiteDwarfRemnant(CelestialForgingAnvilBlockEntity be) {
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;
-        int wdSpaceAnvil = whiteDwarfSpaceSize(originalMass);
-        int wdMassAnvil = originalMass <= 30 ? 48 : originalMass <= 42 ? 49 : 50;
+        StellarTerminal terminal = evolutionTrack != null && evolutionTrack.modern() ? evolutionTrack.definition().terminal() : null;
+        int wdSpaceAnvil = terminal != null ? terminal.size() : whiteDwarfSpaceSize(originalMass);
+        int wdMassAnvil = terminal != null ? terminal.massAnvils() : originalMass <= 30 ? 48 : originalMass <= 42 ? 49 : 50;
         int wdEnergy = 47;
         int[] rgb = CelestialBodyMatcher.getStarColor(wdEnergy);
         int newMag = Math.min(star.magneticFieldStrength() + 1, 5);
@@ -659,7 +720,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
 
     private void createNeutronStarRemnant(CelestialForgingAnvilBlockEntity be) {
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;
-        int neutronMass = originalMass <= 55 ? 50 : originalMass <= 56 ? 51 : 52;
+        int neutronMass = evolutionTrack != null && evolutionTrack.modern() ? evolutionTrack.definition().terminal().massAnvils()
+            : originalMass <= 55 ? 50 : originalMass <= 56 ? 51 : 52;
         int newMag = Math.min(star.magneticFieldStrength() + 2, 6);
         int newRotation = Math.min(star.rotationSpeed() + 2, 5);
         be.setAgeAnvilCount(be.getAgeAnvilCount() + 1);
@@ -681,7 +743,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
 
     private void createBlackHoleRemnant(CelestialForgingAnvilBlockEntity be) {
         if (!(be.getCelestialBodyData() instanceof StarData star)) return;
-        int bhMass = Math.clamp(53 + (originalMass - 59), 53, 59);
+        int bhMass = evolutionTrack != null && evolutionTrack.modern() ? evolutionTrack.definition().terminal().massAnvils()
+            : Math.clamp(53 + (originalMass - 59), 53, 59);
         int newMag = Math.min(star.magneticFieldStrength() + 2, 6);
         be.setAgeAnvilCount(be.getAgeAnvilCount() + 1);
         be.setStellarMass(bhMass);
@@ -706,8 +769,6 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         ticksRemaining = 0;
         ticksTotal = 0;
         collapseAnimTicks = 0;
-        evolutionState = null;
-        evolutionTrack = null;
         pendingLegacyTag = null;
         dysonDestroyed = false;
         dysonDestroyTick = -1L;
@@ -737,7 +798,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     }
 
     private void syncLegacyView(long gameTime) {
-        if (evolutionState == null || evolutionTrack == null) {
+        if (evolutionState == null || !evolutionState.isActive() || evolutionTrack == null) {
             stage = 0;
             ticksRemaining = 0;
             ticksTotal = 0;
@@ -752,6 +813,10 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             - Math.round(evolutionState.phaseProgress() * evolutionState.phaseDurationTicks())) : 0;
     }
 
+    private float visualPartialTick(float partialTick) {
+        return isPaused() || !Float.isFinite(partialTick) ? 0 : Math.clamp(partialTick, 0, 1);
+    }
+
     /** 返回暂停期间冻结的视觉时钟；恢复后回到世界绝对游戏刻。 */
     private long clockTime(CelestialForgingAnvilBlockEntity be) {
         if (be.getLevel() == null) return 0L;
@@ -763,10 +828,11 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
     private void ensureState(CelestialForgingAnvilBlockEntity be) {
         if (evolutionState != null) {
             if (evolutionTrack == null) {
-                evolutionTrack = StellarTrackLibrary.track(evolutionState.trackId());
+                evolutionTrack = evolutionState.trackSnapshot();
+                if (evolutionTrack == null) evolutionTrack = StellarTrackLibrary.track(evolutionState.trackId());
                 if (evolutionTrack != null) evolutionTrack = adaptTrackForState(evolutionTrack);
                 if (evolutionTrack == null && be.getCelestialBodyData() instanceof StarData star) {
-                    evolutionTrack = StellarTrackLibrary.select(
+                    evolutionTrack = StellarTrackLibrary.selectLegacy(
                         evolutionState.initialMass(),
                         star.bodyClass(),
                         star.specialRedDwarf(),
@@ -780,7 +846,7 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         if (pendingLegacyTag == null) return;
         if (!(be.getCelestialBodyData() instanceof StarData star) || be.getLevel() == null) return;
         int mass = originalMass > 0 ? originalMass : be.getStellarMass();
-        StellarTrack track = StellarTrackLibrary.select(mass, star.bodyClass(), star.specialRedDwarf(), be.getBodySeed());
+        StellarTrack track = StellarTrackLibrary.selectLegacy(mass, star.bodyClass(), star.specialRedDwarf(), be.getBodySeed());
         if (track == null) {
             pendingLegacyTag = null;
             return;
@@ -876,14 +942,15 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
         evolutionState = tag.contains(StellarEvolutionState.TRACK_ID_KEY)
             ? StellarEvolutionState.fromTag(tag)
             : null;
-        evolutionTrack = evolutionState == null ? null : StellarTrackLibrary.track(evolutionState.trackId());
+        evolutionTrack = evolutionState == null ? null : evolutionState.trackSnapshot();
+        if (evolutionTrack == null && evolutionState != null) evolutionTrack = StellarTrackLibrary.track(evolutionState.trackId());
         if (evolutionTrack != null) evolutionTrack = adaptTrackForState(evolutionTrack);
         if (evolutionState != null) {
             originalMass = evolutionState.initialMass();
             originalEnergy = evolutionState.initialEnergy();
             originalSize = evolutionState.initialSize();
         }
-        if (evolutionState == null && stage > 0) pendingLegacyTag = tag.copy();
+        pendingLegacyTag = evolutionState == null && stage > 0 ? tag.copy() : null;
     }
 
     @Override
@@ -906,7 +973,8 @@ public class AcceleratorHandler extends BaseMegastructureHandler {
             ? tag.getLong("acceleratorPausedSinceGameTime") : -1L;
         if (tag.contains(StellarEvolutionState.TRACK_ID_KEY)) {
             evolutionState = StellarEvolutionState.fromTag(tag);
-            evolutionTrack = StellarTrackLibrary.track(evolutionState.trackId());
+            evolutionTrack = evolutionState.trackSnapshot();
+            if (evolutionTrack == null) evolutionTrack = StellarTrackLibrary.track(evolutionState.trackId());
             if (evolutionTrack != null) evolutionTrack = adaptTrackForState(evolutionTrack);
             originalMass = evolutionState.initialMass();
             originalEnergy = evolutionState.initialEnergy();

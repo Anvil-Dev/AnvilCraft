@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.api.power.IPowerProducer;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -12,7 +13,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-public abstract class PowerProducerRenderer<T extends BlockEntity & IPowerProducer> implements BlockEntityRenderer<T> {
+public abstract class PowerProducerRenderer<T extends BlockEntity & IPowerProducer>
+    implements BlockEntityRenderer<T>, ModelSelectionRenderer<T> {
     public static final float ROTATION_MAGIC = 0.001220703125f;
 
     @Override
@@ -24,26 +26,31 @@ public abstract class PowerProducerRenderer<T extends BlockEntity & IPowerProduc
         int packedLight,
         int packedOverlay
     ) {
-        poseStack.pushPose();
-        float rotation = rotation(blockEntity, partialTick);
         final VertexConsumer vertexConsumer = buffer.getBuffer(RenderType.cutout());
-        poseStack.translate(0.5F, elevation(), 0.5F);
-        poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
-        poseStack.mulPose(Axis.ZP.rotationDegrees(rotation));
-        Minecraft.getInstance()
+        collectSelectionModels(blockEntity, partialTick, poseStack, (model, pose) -> Minecraft.getInstance()
             .getBlockRenderer()
             .getModelRenderer()
             .renderModel(
-                poseStack.last(),
+                pose.last(),
                 vertexConsumer,
                 null,
-                Minecraft.getInstance().getModelManager().getModel(getModel()),
+                Minecraft.getInstance().getModelManager().getModel(model),
                 0,
                 0,
                 0,
                 LightTexture.FULL_BLOCK,
                 packedOverlay
-        );
+        ));
+    }
+
+    @Override
+    public void collectSelectionModels(T blockEntity, float partialTick, PoseStack poseStack, ModelConsumer consumer) {
+        poseStack.pushPose();
+        float rotation = rotation(blockEntity, partialTick);
+        poseStack.translate(0.5F, elevation(), 0.5F);
+        poseStack.mulPose(Axis.YP.rotationDegrees(rotation));
+        poseStack.mulPose(Axis.ZP.rotationDegrees(rotation));
+        consumer.accept(getModel(), poseStack);
         poseStack.popPose();
     }
 

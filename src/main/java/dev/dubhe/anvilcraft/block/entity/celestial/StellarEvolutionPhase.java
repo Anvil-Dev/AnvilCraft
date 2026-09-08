@@ -13,6 +13,36 @@ import javax.annotation.Nullable;
  * 字符串 ID 会写入存档和网络数据，不能依赖枚举序号。</p>
  */
 public enum StellarEvolutionPhase implements StringRepresentable {
+    FULLY_CONVECTIVE_MAIN_SEQUENCE("fully_convective_main_sequence"),
+    RADIATIVE_CORE_MAIN_SEQUENCE("radiative_core_main_sequence"),
+    PRE_WHITE_DWARF("pre_white_dwarf"),
+    HOOK("hook"),
+    HERTZSPRUNG_GAP("hertzsprung_gap"),
+    SECOND_HERTZSPRUNG_GAP("second_hertzsprung_gap"),
+    NON_EXPLOSIVE_CONTRACTION("non_explosive_contraction"),
+    SHELL_HYDROGEN_BURNING("shell_hydrogen_burning"),
+    PLANETARY_NEBULA("planetary_nebula"),
+    NAKED_HELIUM_STAR("naked_helium_star"),
+    BREATHING_PULSES("breathing_pulses"),
+    AGB_MANQUE("agb_manque"),
+    SECONDARY_RED_CLUMP("secondary_red_clump"),
+    NONDEGENERATE_CORE_HELIUM_BURNING("nondegenerate_core_helium_burning"),
+    HELIUM_MAIN_SEQUENCE("helium_main_sequence"),
+    EARLY_AGB("early_agb"),
+    THERMAL_PULSING_AGB("thermal_pulsing_agb"),
+    EARLY_SUPER_AGB("early_super_agb"),
+    THERMAL_PULSING_AGB_SUPERWIND("thermal_pulsing_agb_superwind"),
+    RED_SUPERGIANT_SUPERWIND("red_supergiant_superwind"),
+    SUPERWIND_CONTRACTION("superwind_contraction"),
+    SUPERWIND("superwind"),
+    CONTRACTION("contraction"),
+    ENVELOPE_STRIPPING("envelope_stripping"),
+    BARE_CORE_WR("bare_core_wr"),
+    SUPERNOVA("supernova"),
+    DIRECT_COLLAPSE("direct_collapse"),
+    PPISN("ppisn"),
+    PISN("pisn"),
+    BROWN_DWARF_COOLING("brown_dwarf_cooling"),
     MAIN_SEQUENCE("main_sequence"),
     SUBGIANT("subgiant"),
     RGB("rgb"),
@@ -80,8 +110,8 @@ public enum StellarEvolutionPhase implements StringRepresentable {
     /** 映射到旧版 1--4 粗阶段，仅供旧 UI 和玩法判断使用。 */
     public int legacyStage() {
         return switch (this) {
-            case MAIN_SEQUENCE -> 1;
-            case EVENT_PRELUDE, EVENT_COLLAPSE, EVENT_EJECTA, REMNANT_SETTLE -> 3;
+            case MAIN_SEQUENCE, FULLY_CONVECTIVE_MAIN_SEQUENCE, RADIATIVE_CORE_MAIN_SEQUENCE -> 1;
+            case EVENT_PRELUDE, EVENT_COLLAPSE, EVENT_EJECTA, REMNANT_SETTLE, SUPERNOVA, DIRECT_COLLAPSE, PPISN, PISN -> 3;
             case WHITE_DWARF_COOLING -> 4;
             default -> 2;
         };
@@ -100,7 +130,7 @@ public enum StellarEvolutionPhase implements StringRepresentable {
     /** 是否属于爆发/坍缩视觉窗口。 */
     public boolean isEventPhase() {
         return this == EVENT_PRELUDE || this == EVENT_COLLAPSE || this == EVENT_EJECTA
-            || this == REMNANT_SETTLE;
+            || this == REMNANT_SETTLE || this == SUPERNOVA || this == DIRECT_COLLAPSE || this == PPISN || this == PISN;
     }
 
     /** 是否是非爆发的残骸冷却阶段。 */
@@ -108,7 +138,7 @@ public enum StellarEvolutionPhase implements StringRepresentable {
         return this == WHITE_DWARF_COOLING || this == REMNANT_SETTLE;
     }
 
-    /** 用于资源校验的近似阶段顺序；允许轨道跳过未采样阶段。 */
+    /** 旧接口的近似顺序；新轨道仅以节点数组与稳定节点 ID 定位。 */
     public int order() {
         return switch (this) {
             case MAIN_SEQUENCE -> 10;
@@ -127,6 +157,7 @@ public enum StellarEvolutionPhase implements StringRepresentable {
             case EVENT_COLLAPSE -> 110;
             case EVENT_EJECTA -> 120;
             case REMNANT_SETTLE, WHITE_DWARF_COOLING -> 130;
+            default -> 0;
         };
     }
 }

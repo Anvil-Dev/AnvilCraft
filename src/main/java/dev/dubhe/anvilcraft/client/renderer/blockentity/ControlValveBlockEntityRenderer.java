@@ -5,13 +5,13 @@ import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.fluid.ControlValveBlockEntity;
 import dev.dubhe.anvilcraft.block.fluid.ControlValveBlock;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import dev.dubhe.anvilcraft.client.support.FluidRenderHelper;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
@@ -22,7 +22,8 @@ import org.joml.Vector3f;
  * 控制阀的方块实体渲染器：把手轮模型渲染在控制阀<b>朝向玩家一侧</b>的中心，
  * 并随流速设置旋转。并渲染内部过滤的流体。在另外三面渲染内部过滤的流体
  */
-public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<ControlValveBlockEntity> {
+public class ControlValveBlockEntityRenderer
+    implements BlockEntityRenderer<ControlValveBlockEntity>, ModelSelectionRenderer<ControlValveBlockEntity> {
 
     private static final ModelResourceLocation HANDWHEEL =
         ModelResourceLocation.standalone(AnvilCraft.of("block/control_valve_handwheel"));
@@ -49,6 +50,25 @@ public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<Cont
         int packedLight,
         int packedOverlay
     ) {
+        collectSelectionModels(be, partialTick, poseStack, (model, pose) -> Minecraft.getInstance()
+            .getBlockRenderer().getModelRenderer().renderModel(
+                pose.last(), buffer.getBuffer(RenderType.cutout()), null,
+                Minecraft.getInstance().getModelManager().getModel(model), 1, 1, 1, packedLight, packedOverlay
+            ));
+        // --- 在另外三面渲染内部过滤的流体 ---
+        FluidStack filterFluid = be.getFilter(0);
+        if (!filterFluid.isEmpty()) {
+            renderFluidIndicators(be, filterFluid, poseStack, buffer, packedLight);
+        }
+
+        // --- 红石激活时在手轮位置渲染红石粒子 ---
+        if (be.isLocked()) {
+            renderRedstoneIndicator(be, poseStack, buffer, packedLight, packedOverlay);
+        }
+    }
+
+    @Override
+    public void collectSelectionModels(ControlValveBlockEntity be, float partialTick, PoseStack poseStack, ModelConsumer consumer) {
         Direction facing = be.getFacing();
         // rate=2000 → 0°，rate=0 → -90°，顺时针是关，逆时针是开
         float ratio = (ControlValveBlockEntity.MAX_RATE - be.getMaxRate()) / (float) ControlValveBlockEntity.MAX_RATE;
@@ -66,31 +86,9 @@ public class ControlValveBlockEntityRenderer implements BlockEntityRenderer<Cont
         poseStack.mulPose(Axis.YP.rotationDegrees(spinDeg));
         poseStack.translate(-0.5, -0.5, -0.5);
 
-        BakedModel model = Minecraft.getInstance().getModelManager().getModel(HANDWHEEL);
-        Minecraft.getInstance()
-        .getBlockRenderer()
-        .getModelRenderer()
-        .renderModel(
-            poseStack.last(),
-            buffer.getBuffer(RenderType.cutout()),
-            null,
-            model,
-            1.0f, 1.0f, 1.0f,
-            packedLight,
-            packedOverlay
-        );
+        consumer.accept(HANDWHEEL, poseStack);
         poseStack.popPose();
 
-        // --- 在另外三面渲染内部过滤的流体 ---
-        FluidStack filterFluid = be.getFilter(0);
-        if (!filterFluid.isEmpty()) {
-            renderFluidIndicators(be, filterFluid, poseStack, buffer, packedLight);
-        }
-
-        // --- 红石激活时在手轮位置渲染红石粒子 ---
-        if (be.isLocked()) {
-            renderRedstoneIndicator(be, poseStack, buffer, packedLight, packedOverlay);
-        }
     }
 
     /**

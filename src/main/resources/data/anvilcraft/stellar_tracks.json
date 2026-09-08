@@ -1,119 +1,2306 @@
 [
   {
-    "trackId": "template_very_low_mass",
-    "massBand": "very_low",
-    "surfaceClassFamily": "M_MAIN",
-    "variantRules": ["metallicity_from_seed", "rotation_from_seed"],
+    "trackId": "mass_41",
+    "definition": {
+      "version": 3,
+      "massAnvils": 41,
+      "startingNodes": {
+        "BROWN_DWARF": "brown_dwarf_cooling"
+      },
+      "terminal": {
+        "kind": "keep",
+        "massAnvils": 41,
+        "solarMass": 0.063,
+        "size": 24
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "",
     "phaseNodes": [
-      {"phaseId":"main_sequence","durationWeight":96.0,"radius":0.38,"temperature":3200.0,"luminosity":0.05,"envelopeFraction":0.9,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"stable_granules"},
-      {"phaseId":"blue_loop","durationWeight":8.0,"radius":0.45,"temperature":7000.0,"luminosity":0.12,"envelopeFraction":0.7,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"blue_dwarf_like"},
-      {"phaseId":"white_dwarf_cooling","durationWeight":4.0,"radius":0.12,"temperature":16000.0,"luminosity":0.08,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"cooling_core"}
-    ],
-    "terminalProfile": ""
+      {"nodeId": "brown_dwarf_cooling", "phaseId": "brown_dwarf_cooling", "durationWeight": 93.6, "radius": 0.185804, "temperature": 900, "luminosity": 0.00091, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "brown_dwarf_cooling", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.1, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 0.218594, "temperature": 1700, "luminosity": 0.009097, "envelope": 1},
+            {"progress": 1, "radius": 0.185804, "temperature": 900, "luminosity": 0.00091, "envelope": 1}
+          ]
+        }
+      }
+    ]
   },
   {
-    "trackId": "template_low_mass",
-    "massBand": "low",
-    "surfaceClassFamily": "K_MAIN",
-    "variantRules": ["metallicity_from_seed", "rotation_from_seed", "envelope_from_seed"],
+    "trackId": "mass_42",
+    "definition": {
+      "version": 3,
+      "massAnvils": 42,
+      "startingNodes": {
+        "M_MAIN": "fully_convective_main_sequence",
+        "K_MAIN": "fully_convective_main_sequence",
+        "G_MAIN": "fully_convective_main_sequence",
+        "F_MAIN": "fully_convective_main_sequence",
+        "A_MAIN": "fully_convective_main_sequence",
+        "B_MAIN": "fully_convective_main_sequence",
+        "O_MAIN": "fully_convective_main_sequence",
+        "M_GIANT": "radiative_core_main_sequence",
+        "K_GIANT": "radiative_core_main_sequence",
+        "G_GIANT": "radiative_core_main_sequence",
+        "F_GIANT": "radiative_core_main_sequence",
+        "A_GIANT": "radiative_core_main_sequence",
+        "B_GIANT": "radiative_core_main_sequence",
+        "O_GIANT": "radiative_core_main_sequence",
+        "M_SUPERGIANT": "pre_white_dwarf",
+        "K_SUPERGIANT": "pre_white_dwarf",
+        "G_SUPERGIANT": "pre_white_dwarf",
+        "F_SUPERGIANT": "pre_white_dwarf",
+        "A_SUPERGIANT": "pre_white_dwarf",
+        "B_SUPERGIANT": "pre_white_dwarf",
+        "O_SUPERGIANT": "pre_white_dwarf"
+      },
+      "terminal": {
+        "kind": "white_dwarf",
+        "massAnvils": 41,
+        "solarMass": 0.063,
+        "size": 12
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "",
     "phaseNodes": [
-      {"phaseId":"main_sequence","durationWeight":62.0,"radius":0.72,"temperature":5100.0,"luminosity":0.65,"envelopeFraction":0.95,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"stable_granules"},
-      {"phaseId":"subgiant","durationWeight":10.0,"radius":1.1,"temperature":5400.0,"luminosity":1.8,"envelopeFraction":0.85,"pulsationAmplitude":0.006,"pulsationFrequency":0.003,"surfaceStyle":"slow_convection"},
-      {"phaseId":"rgb","durationWeight":8.0,"radius":3.8,"temperature":4100.0,"luminosity":8.0,"envelopeFraction":0.72,"pulsationAmplitude":0.06,"pulsationFrequency":0.0025,"surfaceStyle":"large_convection"},
-      {"phaseId":"helium_flash","durationWeight":1.0,"radius":3.1,"temperature":9000.0,"luminosity":18.0,"envelopeFraction":0.5,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"helium_flash","eventProfileId":"HELIUM_FLASH"},
-      {"phaseId":"red_clump","durationWeight":5.0,"radius":1.55,"temperature":5100.0,"luminosity":3.5,"envelopeFraction":0.68,"pulsationAmplitude":0.004,"pulsationFrequency":0.002,"surfaceStyle":"red_clump"},
-      {"phaseId":"horizontal_branch","durationWeight":3.0,"radius":1.35,"temperature":7200.0,"luminosity":4.5,"envelopeFraction":0.45,"pulsationAmplitude":0.004,"pulsationFrequency":0.002,"surfaceStyle":"horizontal_branch"},
-      {"phaseId":"agb","durationWeight":5.0,"radius":5.2,"temperature":3500.0,"luminosity":14.0,"envelopeFraction":0.4,"pulsationAmplitude":0.55,"pulsationFrequency":0.004,"surfaceStyle":"thermal_pulse","eventProfileId":"AGB_THERMAL_PULSE"},
-      {"phaseId":"post_agb","durationWeight":1.5,"radius":0.55,"temperature":12000.0,"luminosity":6.0,"envelopeFraction":0.18,"pulsationAmplitude":0.03,"pulsationFrequency":0.003,"surfaceStyle":"blue_core"},
-      {"phaseId":"ppn","durationWeight":1.0,"radius":0.34,"temperature":20000.0,"luminosity":3.0,"envelopeFraction":0.08,"pulsationAmplitude":0.04,"pulsationFrequency":0.004,"surfaceStyle":"dust_shell"},
-      {"phaseId":"white_dwarf_cooling","durationWeight":3.0,"radius":0.12,"temperature":14000.0,"luminosity":0.12,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"cooling_core"}
-    ],
-    "terminalProfile": ""
+      {"nodeId": "fully_convective_main_sequence", "phaseId": "fully_convective_main_sequence", "durationWeight": 60.416, "radius": 0.28372, "temperature": 2754.0, "luminosity": 0.018464, "envelopeFraction": 1, "pulsationAmplitude": 0.005, "pulsationFrequency": 0, "surfaceStyle": "fully_convective_main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.102, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 0.262703, "temperature": 2700, "luminosity": 0.016055, "envelope": 1},
+            {"progress": 1, "radius": 0.28372, "temperature": 2754.0, "luminosity": 0.018464, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "radiative_core_main_sequence", "phaseId": "radiative_core_main_sequence", "durationWeight": 19.18, "radius": 0.315244, "temperature": 6200, "luminosity": 0.036927, "envelopeFraction": 0.8, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "radiative_core_main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.112, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 0.28372, "temperature": 2754.0, "luminosity": 0.018464, "envelope": 1},
+            {"progress": 1, "radius": 0.315244, "temperature": 6200, "luminosity": 0.036927, "envelope": 0.8}
+          ]
+        }
+      },
+      {"nodeId": "pre_white_dwarf", "phaseId": "pre_white_dwarf", "durationWeight": 7.552, "radius": 0.078811, "temperature": 14000, "luminosity": 0.019266, "envelopeFraction": 0.12, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "pre_white_dwarf", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.122, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.18,
+          "points": [
+            {"progress": 0, "radius": 0.315244, "temperature": 6200, "luminosity": 0.036927, "envelope": 0.8},
+            {"progress": 1, "radius": 0.078811, "temperature": 14000, "luminosity": 0.019266, "envelope": 0.12}
+          ]
+        }
+      }
+    ]
   },
   {
-    "trackId": "template_intermediate_mass",
-    "massBand": "intermediate",
-    "surfaceClassFamily": "A_MAIN",
-    "variantRules": ["metallicity_from_seed", "rotation_from_seed", "envelope_from_seed"],
+    "trackId": "mass_43",
+    "definition": {
+      "version": 3,
+      "massAnvils": 43,
+      "startingNodes": {
+        "M_MAIN": "fully_convective_main_sequence",
+        "K_MAIN": "fully_convective_main_sequence",
+        "G_MAIN": "fully_convective_main_sequence",
+        "F_MAIN": "fully_convective_main_sequence",
+        "A_MAIN": "fully_convective_main_sequence",
+        "B_MAIN": "fully_convective_main_sequence",
+        "O_MAIN": "fully_convective_main_sequence",
+        "M_GIANT": "radiative_core_main_sequence",
+        "K_GIANT": "radiative_core_main_sequence",
+        "G_GIANT": "radiative_core_main_sequence",
+        "F_GIANT": "radiative_core_main_sequence",
+        "A_GIANT": "radiative_core_main_sequence",
+        "B_GIANT": "radiative_core_main_sequence",
+        "O_GIANT": "radiative_core_main_sequence",
+        "M_SUPERGIANT": "pre_white_dwarf",
+        "K_SUPERGIANT": "pre_white_dwarf",
+        "G_SUPERGIANT": "pre_white_dwarf",
+        "F_SUPERGIANT": "pre_white_dwarf",
+        "A_SUPERGIANT": "pre_white_dwarf",
+        "B_SUPERGIANT": "pre_white_dwarf",
+        "O_SUPERGIANT": "pre_white_dwarf"
+      },
+      "terminal": {
+        "kind": "white_dwarf",
+        "massAnvils": 42,
+        "solarMass": 0.088,
+        "size": 12
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "",
     "phaseNodes": [
-      {"phaseId":"main_sequence","durationWeight":48.0,"radius":0.95,"temperature":8500.0,"luminosity":6.0,"envelopeFraction":0.9,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"hot_granules"},
-      {"phaseId":"subgiant","durationWeight":9.0,"radius":1.45,"temperature":7200.0,"luminosity":10.0,"envelopeFraction":0.8,"pulsationAmplitude":0.006,"pulsationFrequency":0.003,"surfaceStyle":"slow_convection"},
-      {"phaseId":"rgb","durationWeight":7.0,"radius":3.2,"temperature":5000.0,"luminosity":24.0,"envelopeFraction":0.65,"pulsationAmplitude":0.06,"pulsationFrequency":0.0025,"surfaceStyle":"large_convection"},
-      {"phaseId":"blue_loop","durationWeight":5.0,"radius":1.8,"temperature":10000.0,"luminosity":30.0,"envelopeFraction":0.5,"pulsationAmplitude":0.004,"pulsationFrequency":0.002,"surfaceStyle":"blue_loop"},
-      {"phaseId":"agb","durationWeight":5.0,"radius":5.8,"temperature":3900.0,"luminosity":48.0,"envelopeFraction":0.4,"pulsationAmplitude":0.55,"pulsationFrequency":0.004,"surfaceStyle":"thermal_pulse","eventProfileId":"AGB_THERMAL_PULSE"},
-      {"phaseId":"post_agb","durationWeight":1.5,"radius":0.5,"temperature":18000.0,"luminosity":12.0,"envelopeFraction":0.12,"pulsationAmplitude":0.03,"pulsationFrequency":0.003,"surfaceStyle":"blue_core"},
-      {"phaseId":"ppn","durationWeight":1.0,"radius":0.32,"temperature":30000.0,"luminosity":8.0,"envelopeFraction":0.05,"pulsationAmplitude":0.04,"pulsationFrequency":0.004,"surfaceStyle":"dust_shell"},
-      {"phaseId":"white_dwarf_cooling","durationWeight":3.0,"radius":0.12,"temperature":16000.0,"luminosity":0.2,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"cooling_core"}
-    ],
-    "terminalProfile": ""
+      {"nodeId": "fully_convective_main_sequence", "phaseId": "fully_convective_main_sequence", "durationWeight": 60.928, "radius": 0.344131, "temperature": 2958.0, "luminosity": 0.033531, "envelopeFraction": 1, "pulsationAmplitude": 0.005, "pulsationFrequency": 0, "surfaceStyle": "fully_convective_main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.104, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 0.31864, "temperature": 2900, "luminosity": 0.029157, "envelope": 1},
+            {"progress": 1, "radius": 0.344131, "temperature": 2958.0, "luminosity": 0.033531, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "radiative_core_main_sequence", "phaseId": "radiative_core_main_sequence", "durationWeight": 19.34, "radius": 0.382368, "temperature": 6200, "luminosity": 0.067062, "envelopeFraction": 0.8, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "radiative_core_main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.114, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 0.344131, "temperature": 2958.0, "luminosity": 0.033531, "envelope": 1},
+            {"progress": 1, "radius": 0.382368, "temperature": 6200, "luminosity": 0.067062, "envelope": 0.8}
+          ]
+        }
+      },
+      {"nodeId": "pre_white_dwarf", "phaseId": "pre_white_dwarf", "durationWeight": 7.616, "radius": 0.095592, "temperature": 14000, "luminosity": 0.034989, "envelopeFraction": 0.12, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "pre_white_dwarf", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.124, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.18,
+          "points": [
+            {"progress": 0, "radius": 0.382368, "temperature": 6200, "luminosity": 0.067062, "envelope": 0.8},
+            {"progress": 1, "radius": 0.095592, "temperature": 14000, "luminosity": 0.034989, "envelope": 0.12}
+          ]
+        }
+      }
+    ]
   },
   {
-    "trackId": "template_super_agb",
-    "massBand": "super_agb",
-    "surfaceClassFamily": "M_SUPERGIANT",
-    "variantRules": ["metallicity_from_seed", "rotation_from_seed", "envelope_from_seed"],
+    "trackId": "mass_44",
+    "definition": {
+      "version": 3,
+      "massAnvils": 44,
+      "startingNodes": {
+        "M_MAIN": "fully_convective_main_sequence",
+        "K_MAIN": "fully_convective_main_sequence",
+        "G_MAIN": "fully_convective_main_sequence",
+        "F_MAIN": "fully_convective_main_sequence",
+        "A_MAIN": "fully_convective_main_sequence",
+        "B_MAIN": "fully_convective_main_sequence",
+        "O_MAIN": "fully_convective_main_sequence",
+        "M_GIANT": "radiative_core_main_sequence",
+        "K_GIANT": "radiative_core_main_sequence",
+        "G_GIANT": "radiative_core_main_sequence",
+        "F_GIANT": "radiative_core_main_sequence",
+        "A_GIANT": "radiative_core_main_sequence",
+        "B_GIANT": "radiative_core_main_sequence",
+        "O_GIANT": "radiative_core_main_sequence",
+        "M_SUPERGIANT": "pre_white_dwarf",
+        "K_SUPERGIANT": "pre_white_dwarf",
+        "G_SUPERGIANT": "pre_white_dwarf",
+        "F_SUPERGIANT": "pre_white_dwarf",
+        "A_SUPERGIANT": "pre_white_dwarf",
+        "B_SUPERGIANT": "pre_white_dwarf",
+        "O_SUPERGIANT": "pre_white_dwarf"
+      },
+      "terminal": {
+        "kind": "white_dwarf",
+        "massAnvils": 43,
+        "solarMass": 0.125,
+        "size": 12
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "",
     "phaseNodes": [
-      {"phaseId":"main_sequence","durationWeight":42.0,"radius":1.2,"temperature":15000.0,"luminosity":50.0,"envelopeFraction":0.9,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"hot_granules"},
-      {"phaseId":"red_supergiant","durationWeight":12.0,"radius":6.5,"temperature":3800.0,"luminosity":180.0,"envelopeFraction":0.55,"pulsationAmplitude":0.10,"pulsationFrequency":0.002,"surfaceStyle":"large_convection"},
-      {"phaseId":"agb","durationWeight":8.0,"radius":7.2,"temperature":3500.0,"luminosity":220.0,"envelopeFraction":0.4,"pulsationAmplitude":0.58,"pulsationFrequency":0.004,"surfaceStyle":"super_agb_pulse","eventProfileId":"AGB_THERMAL_PULSE"},
-      {"phaseId":"pre_collapse","durationWeight":2.0,"radius":5.5,"temperature":5000.0,"luminosity":160.0,"envelopeFraction":0.18,"pulsationAmplitude":0.12,"pulsationFrequency":0.0025,"surfaceStyle":"mass_loss"},
-      {"phaseId":"event_prelude","durationWeight":1.0,"radius":4.8,"temperature":6500.0,"luminosity":140.0,"envelopeFraction":0.1,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"electron_capture","eventProfileId":"ELECTRON_CAPTURE"},
-      {"phaseId":"event_collapse","durationWeight":1.0,"radius":0.3,"temperature":20000.0,"luminosity":300.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"electron_capture","eventProfileId":"ELECTRON_CAPTURE"},
-      {"phaseId":"event_ejecta","durationWeight":2.0,"radius":0.2,"temperature":18000.0,"luminosity":80.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"thin_ejecta","eventProfileId":"ELECTRON_CAPTURE"},
-      {"phaseId":"remnant_settle","durationWeight":1.0,"radius":0.1,"temperature":12000.0,"luminosity":1.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"remnant","eventProfileId":"ELECTRON_CAPTURE"}
-    ],
-    "terminalProfile": "ELECTRON_CAPTURE"
+      {"nodeId": "fully_convective_main_sequence", "phaseId": "fully_convective_main_sequence", "durationWeight": 61.44, "radius": 0.416686, "temperature": 3162.0, "luminosity": 0.060569, "envelopeFraction": 1, "pulsationAmplitude": 0.005, "pulsationFrequency": 0, "surfaceStyle": "fully_convective_main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.106, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 0.38582, "temperature": 3100, "luminosity": 0.052669, "envelope": 1},
+            {"progress": 1, "radius": 0.416686, "temperature": 3162.0, "luminosity": 0.060569, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "radiative_core_main_sequence", "phaseId": "radiative_core_main_sequence", "durationWeight": 19.5, "radius": 0.462985, "temperature": 6200, "luminosity": 0.121139, "envelopeFraction": 0.8, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "radiative_core_main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.116, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 0.416686, "temperature": 3162.0, "luminosity": 0.060569, "envelope": 1},
+            {"progress": 1, "radius": 0.462985, "temperature": 6200, "luminosity": 0.121139, "envelope": 0.8}
+          ]
+        }
+      },
+      {"nodeId": "pre_white_dwarf", "phaseId": "pre_white_dwarf", "durationWeight": 7.68, "radius": 0.115746, "temperature": 14000, "luminosity": 0.063203, "envelopeFraction": 0.12, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "pre_white_dwarf", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.126, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.18,
+          "points": [
+            {"progress": 0, "radius": 0.462985, "temperature": 6200, "luminosity": 0.121139, "envelope": 0.8},
+            {"progress": 1, "radius": 0.115746, "temperature": 14000, "luminosity": 0.063203, "envelope": 0.12}
+          ]
+        }
+      }
+    ]
   },
   {
-    "trackId": "template_high_hydrogen",
-    "massBand": "high_hydrogen",
-    "surfaceClassFamily": "O_MAIN",
-    "variantRules": ["metallicity_from_seed", "rotation_from_seed", "envelope_from_seed"],
+    "trackId": "mass_45",
+    "definition": {
+      "version": 3,
+      "massAnvils": 45,
+      "startingNodes": {
+        "M_MAIN": "fully_convective_main_sequence",
+        "K_MAIN": "fully_convective_main_sequence",
+        "G_MAIN": "fully_convective_main_sequence",
+        "F_MAIN": "fully_convective_main_sequence",
+        "A_MAIN": "fully_convective_main_sequence",
+        "B_MAIN": "fully_convective_main_sequence",
+        "O_MAIN": "fully_convective_main_sequence",
+        "M_GIANT": "rgb",
+        "K_GIANT": "rgb",
+        "G_GIANT": "rgb",
+        "F_GIANT": "rgb",
+        "A_GIANT": "rgb",
+        "B_GIANT": "rgb",
+        "O_GIANT": "rgb",
+        "M_SUPERGIANT": "rgb",
+        "K_SUPERGIANT": "rgb",
+        "G_SUPERGIANT": "rgb",
+        "F_SUPERGIANT": "rgb",
+        "A_SUPERGIANT": "rgb",
+        "B_SUPERGIANT": "rgb",
+        "O_SUPERGIANT": "rgb"
+      },
+      "terminal": {
+        "kind": "white_dwarf",
+        "massAnvils": 44,
+        "solarMass": 0.177,
+        "size": 12
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "",
     "phaseNodes": [
-      {"phaseId":"main_sequence","durationWeight":45.0,"radius":1.55,"temperature":28000.0,"luminosity":180.0,"envelopeFraction":0.95,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"blue_hot"},
-      {"phaseId":"blue_supergiant","durationWeight":10.0,"radius":2.2,"temperature":18000.0,"luminosity":420.0,"envelopeFraction":0.82,"pulsationAmplitude":0.006,"pulsationFrequency":0.003,"surfaceStyle":"blue_supergiant"},
-      {"phaseId":"red_supergiant","durationWeight":8.0,"radius":8.5,"temperature":3600.0,"luminosity":900.0,"envelopeFraction":0.65,"pulsationAmplitude":0.12,"pulsationFrequency":0.002,"surfaceStyle":"red_supergiant"},
-      {"phaseId":"pre_collapse","durationWeight":2.0,"radius":7.0,"temperature":3900.0,"luminosity":760.0,"envelopeFraction":0.55,"pulsationAmplitude":0.12,"pulsationFrequency":0.0025,"surfaceStyle":"pre_collapse"},
-      {"phaseId":"event_prelude","durationWeight":1.0,"radius":6.5,"temperature":4000.0,"luminosity":700.0,"envelopeFraction":0.5,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"event_prelude","eventProfileId":"CORE_COLLAPSE_II_P"},
-      {"phaseId":"event_collapse","durationWeight":1.0,"radius":0.25,"temperature":18000.0,"luminosity":1600.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"event_collapse","eventProfileId":"CORE_COLLAPSE_II_P"},
-      {"phaseId":"event_ejecta","durationWeight":3.0,"radius":0.16,"temperature":12000.0,"luminosity":400.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"hydrogen_ejecta","eventProfileId":"CORE_COLLAPSE_II_P"},
-      {"phaseId":"remnant_settle","durationWeight":2.0,"radius":0.1,"temperature":10000.0,"luminosity":1.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"remnant","eventProfileId":"CORE_COLLAPSE_II_P"}
-    ],
-    "terminalProfile": "CORE_COLLAPSE_II_P"
+      {"nodeId": "fully_convective_main_sequence", "phaseId": "fully_convective_main_sequence", "durationWeight": 61.952, "radius": 0.503838, "temperature": 3366.0, "luminosity": 0.108942, "envelopeFraction": 1, "pulsationAmplitude": 0.005, "pulsationFrequency": 0, "surfaceStyle": "fully_convective_main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.108, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 0.466516, "temperature": 3300, "luminosity": 0.094732, "envelope": 1},
+            {"progress": 1, "radius": 0.503838, "temperature": 3366.0, "luminosity": 0.108942, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "radiative_core_main_sequence", "phaseId": "radiative_core_main_sequence", "durationWeight": 19.66, "radius": 0.55982, "temperature": 6200, "luminosity": 0.217884, "envelopeFraction": 0.8, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "radiative_core_main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.118, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 0.503838, "temperature": 3366.0, "luminosity": 0.108942, "envelope": 1},
+            {"progress": 1, "radius": 0.55982, "temperature": 6200, "luminosity": 0.217884, "envelope": 0.8}
+          ]
+        }
+      },
+      {"nodeId": "rgb", "phaseId": "rgb", "durationWeight": 7.744, "radius": 2.985706, "temperature": 3800, "luminosity": 1.515717, "envelopeFraction": 0.8, "pulsationAmplitude": 0.07, "pulsationFrequency": 0, "surfaceStyle": "rgb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.128, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.1,
+          "points": [
+            {"progress": 0, "radius": 0.55982, "temperature": 6200, "luminosity": 0.217884, "envelope": 0.8},
+            {"progress": 1, "radius": 2.985706, "temperature": 3800, "luminosity": 1.515717, "envelope": 0.8}
+          ]
+        }
+      },
+      {"nodeId": "non_explosive_contraction", "phaseId": "non_explosive_contraction", "durationWeight": 2.949, "radius": 0.326562, "temperature": 9000, "luminosity": 0.284197, "envelopeFraction": 0.4, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "non_explosive_contraction", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.108, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 2.985706, "temperature": 3800, "luminosity": 1.515717, "envelope": 0.8},
+            {"progress": 1, "radius": 0.326562, "temperature": 9000, "luminosity": 0.284197, "envelope": 0.4}
+          ]
+        }
+      },
+      {"nodeId": "shell_hydrogen_burning", "phaseId": "shell_hydrogen_burning", "durationWeight": 6.776, "radius": 0.256584, "temperature": 11500, "luminosity": 0.331563, "envelopeFraction": 0.1, "pulsationAmplitude": 0.03, "pulsationFrequency": 0, "surfaceStyle": "shell_hydrogen_burning", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.118, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.04,
+          "points": [
+            {"progress": 0, "radius": 0.326562, "temperature": 9000, "luminosity": 0.284197, "envelope": 0.4},
+            {"progress": 1, "radius": 0.256584, "temperature": 11500, "luminosity": 0.331563, "envelope": 0.1}
+          ]
+        }
+      }
+    ]
   },
   {
-    "trackId": "template_stripped",
-    "massBand": "stripped",
-    "surfaceClassFamily": "B_SUPERGIANT",
-    "variantRules": ["metallicity_from_seed", "rotation_from_seed", "envelope_from_seed"],
+    "trackId": "mass_46",
+    "definition": {
+      "version": 3,
+      "massAnvils": 46,
+      "startingNodes": {
+        "M_MAIN": "fully_convective_main_sequence",
+        "K_MAIN": "fully_convective_main_sequence",
+        "G_MAIN": "fully_convective_main_sequence",
+        "F_MAIN": "fully_convective_main_sequence",
+        "A_MAIN": "fully_convective_main_sequence",
+        "B_MAIN": "fully_convective_main_sequence",
+        "O_MAIN": "fully_convective_main_sequence",
+        "M_GIANT": "rgb",
+        "K_GIANT": "rgb",
+        "G_GIANT": "rgb",
+        "F_GIANT": "rgb",
+        "A_GIANT": "rgb",
+        "B_GIANT": "rgb",
+        "O_GIANT": "rgb",
+        "M_SUPERGIANT": "rgb",
+        "K_SUPERGIANT": "rgb",
+        "G_SUPERGIANT": "rgb",
+        "F_SUPERGIANT": "rgb",
+        "A_SUPERGIANT": "rgb",
+        "B_SUPERGIANT": "rgb",
+        "O_SUPERGIANT": "rgb"
+      },
+      "terminal": {
+        "kind": "white_dwarf",
+        "massAnvils": 45,
+        "solarMass": 0.25,
+        "size": 11
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "",
     "phaseNodes": [
-      {"phaseId":"main_sequence","durationWeight":38.0,"radius":1.45,"temperature":32000.0,"luminosity":260.0,"envelopeFraction":0.75,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"blue_hot"},
-      {"phaseId":"blue_supergiant","durationWeight":8.0,"radius":2.0,"temperature":22000.0,"luminosity":500.0,"envelopeFraction":0.48,"pulsationAmplitude":0.008,"pulsationFrequency":0.003,"surfaceStyle":"blue_supergiant"},
-      {"phaseId":"lbv","durationWeight":5.0,"radius":3.6,"temperature":12000.0,"luminosity":800.0,"envelopeFraction":0.25,"pulsationAmplitude":0.12,"pulsationFrequency":0.003,"surfaceStyle":"lbv_ejection"},
-      {"phaseId":"wolf_rayet","durationWeight":8.0,"radius":0.9,"temperature":60000.0,"luminosity":1200.0,"envelopeFraction":0.08,"pulsationAmplitude":0.06,"pulsationFrequency":0.003,"surfaceStyle":"wolf_rayet"},
-      {"phaseId":"pre_collapse","durationWeight":2.0,"radius":0.75,"temperature":50000.0,"luminosity":1000.0,"envelopeFraction":0.04,"pulsationAmplitude":0.10,"pulsationFrequency":0.002,"surfaceStyle":"pre_collapse"},
-      {"phaseId":"event_prelude","durationWeight":1.0,"radius":0.7,"temperature":50000.0,"luminosity":900.0,"envelopeFraction":0.03,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"stripped_prelude","eventProfileId":"STRIPPED_IB"},
-      {"phaseId":"event_collapse","durationWeight":1.0,"radius":0.12,"temperature":30000.0,"luminosity":2200.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"stripped_collapse","eventProfileId":"STRIPPED_IB"},
-      {"phaseId":"event_ejecta","durationWeight":2.0,"radius":0.08,"temperature":20000.0,"luminosity":500.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"thin_ejecta","eventProfileId":"STRIPPED_IB"},
-      {"phaseId":"remnant_settle","durationWeight":2.0,"radius":0.06,"temperature":12000.0,"luminosity":1.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"remnant","eventProfileId":"STRIPPED_IB"}
-    ],
-    "terminalProfile": "STRIPPED_IB"
+      {"nodeId": "fully_convective_main_sequence", "phaseId": "fully_convective_main_sequence", "durationWeight": 62.464, "radius": 0.606263, "temperature": 3570.0, "luminosity": 0.193025, "envelopeFraction": 1, "pulsationAmplitude": 0.005, "pulsationFrequency": 0, "surfaceStyle": "fully_convective_main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.11, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 0.561355, "temperature": 3500, "luminosity": 0.167848, "envelope": 1},
+            {"progress": 1, "radius": 0.606263, "temperature": 3570.0, "luminosity": 0.193025, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "radiative_core_main_sequence", "phaseId": "radiative_core_main_sequence", "durationWeight": 19.82, "radius": 0.673626, "temperature": 6200, "luminosity": 0.38605, "envelopeFraction": 0.8, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "radiative_core_main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.12, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 0.606263, "temperature": 3570.0, "luminosity": 0.193025, "envelope": 1},
+            {"progress": 1, "radius": 0.673626, "temperature": 6200, "luminosity": 0.38605, "envelope": 0.8}
+          ]
+        }
+      },
+      {"nodeId": "rgb", "phaseId": "rgb", "durationWeight": 7.808, "radius": 3.592671, "temperature": 3800, "luminosity": 2.685565, "envelopeFraction": 0.8, "pulsationAmplitude": 0.07, "pulsationFrequency": 0, "surfaceStyle": "rgb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.13, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.1,
+          "points": [
+            {"progress": 0, "radius": 0.673626, "temperature": 6200, "luminosity": 0.38605, "envelope": 0.8},
+            {"progress": 1, "radius": 3.592671, "temperature": 3800, "luminosity": 2.685565, "envelope": 0.8}
+          ]
+        }
+      },
+      {"nodeId": "non_explosive_contraction", "phaseId": "non_explosive_contraction", "durationWeight": 2.973, "radius": 0.392948, "temperature": 9000, "luminosity": 0.503543, "envelopeFraction": 0.4, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "non_explosive_contraction", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.11, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 3.592671, "temperature": 3800, "luminosity": 2.685565, "envelope": 0.8},
+            {"progress": 1, "radius": 0.392948, "temperature": 9000, "luminosity": 0.503543, "envelope": 0.4}
+          ]
+        }
+      },
+      {"nodeId": "shell_hydrogen_burning", "phaseId": "shell_hydrogen_burning", "durationWeight": 6.832, "radius": 0.308745, "temperature": 11500, "luminosity": 0.587467, "envelopeFraction": 0.1, "pulsationAmplitude": 0.03, "pulsationFrequency": 0, "surfaceStyle": "shell_hydrogen_burning", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.12, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.04,
+          "points": [
+            {"progress": 0, "radius": 0.392948, "temperature": 9000, "luminosity": 0.503543, "envelope": 0.4},
+            {"progress": 1, "radius": 0.308745, "temperature": 11500, "luminosity": 0.587467, "envelope": 0.1}
+          ]
+        }
+      }
+    ]
   },
   {
-    "trackId": "template_extreme",
-    "massBand": "extreme",
-    "surfaceClassFamily": "O_SUPERGIANT",
-    "variantRules": ["metallicity_from_seed", "rotation_from_seed", "envelope_from_seed"],
+    "trackId": "mass_47",
+    "definition": {
+      "version": 3,
+      "massAnvils": 47,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "rgb",
+        "K_GIANT": "rgb",
+        "G_GIANT": "rgb",
+        "F_GIANT": "rgb",
+        "A_GIANT": "rgb",
+        "B_GIANT": "rgb",
+        "O_GIANT": "rgb",
+        "M_SUPERGIANT": "rgb",
+        "K_SUPERGIANT": "rgb",
+        "G_SUPERGIANT": "rgb",
+        "F_SUPERGIANT": "rgb",
+        "A_SUPERGIANT": "rgb",
+        "B_SUPERGIANT": "rgb",
+        "O_SUPERGIANT": "rgb"
+      },
+      "terminal": {
+        "kind": "white_dwarf",
+        "massAnvils": 46,
+        "solarMass": 0.35,
+        "size": 11
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "",
     "phaseNodes": [
-      {"phaseId":"main_sequence","durationWeight":36.0,"radius":1.9,"temperature":42000.0,"luminosity":900.0,"envelopeFraction":0.65,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"blue_hot"},
-      {"phaseId":"lbv","durationWeight":8.0,"radius":4.0,"temperature":14000.0,"luminosity":1800.0,"envelopeFraction":0.3,"pulsationAmplitude":0.18,"pulsationFrequency":0.003,"surfaceStyle":"lbv_ejection"},
-      {"phaseId":"wolf_rayet","durationWeight":8.0,"radius":1.4,"temperature":80000.0,"luminosity":3000.0,"envelopeFraction":0.05,"pulsationAmplitude":0.08,"pulsationFrequency":0.003,"surfaceStyle":"wolf_rayet"},
-      {"phaseId":"pre_collapse","durationWeight":2.0,"radius":1.1,"temperature":60000.0,"luminosity":2500.0,"envelopeFraction":0.02,"pulsationAmplitude":0.12,"pulsationFrequency":0.002,"surfaceStyle":"pair_pre_collapse"},
-      {"phaseId":"event_prelude","durationWeight":3.0,"radius":1.0,"temperature":55000.0,"luminosity":2200.0,"envelopeFraction":0.02,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"pair_pulses","eventProfileId":"PULSATIONAL_PAIR"},
-      {"phaseId":"event_collapse","durationWeight":2.0,"radius":0.12,"temperature":50000.0,"luminosity":5000.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"pair_collapse","eventProfileId":"PAIR_INSTABILITY"},
-      {"phaseId":"event_ejecta","durationWeight":4.0,"radius":0.05,"temperature":30000.0,"luminosity":600.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"pair_ejecta","eventProfileId":"PAIR_INSTABILITY"},
-      {"phaseId":"remnant_settle","durationWeight":2.0,"radius":0.04,"temperature":10000.0,"luminosity":1.0,"envelopeFraction":0.0,"pulsationAmplitude":0.0,"pulsationFrequency":0.0,"surfaceStyle":"remnant","eventProfileId":"DIRECT_COLLAPSE"}
-    ],
-    "terminalProfile": "PULSATIONAL_PAIR"
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 59.04, "radius": 0.785473, "temperature": 3978.0, "luminosity": 0.430901, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.112, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 0.68302, "temperature": 3900, "luminosity": 0.307786, "envelope": 1},
+            {"progress": 1, "radius": 0.785473, "temperature": 3978.0, "luminosity": 0.430901, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "subgiant", "phaseId": "subgiant", "durationWeight": 8.991, "radius": 1.36604, "temperature": 5100, "luminosity": 0.923358, "envelopeFraction": 0.94, "pulsationAmplitude": 0.006, "pulsationFrequency": 0, "surfaceStyle": "subgiant", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.122, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.03,
+          "points": [
+            {"progress": 0, "radius": 0.785473, "temperature": 3978.0, "luminosity": 0.430901, "envelope": 1},
+            {"progress": 1, "radius": 1.36604, "temperature": 5100, "luminosity": 0.923358, "envelope": 0.94}
+          ]
+        }
+      },
+      {"nodeId": "rgb", "phaseId": "rgb", "durationWeight": 7.872, "radius": 4.371329, "temperature": 3800, "luminosity": 4.924578, "envelopeFraction": 0.8, "pulsationAmplitude": 0.07, "pulsationFrequency": 0, "surfaceStyle": "rgb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.132, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.1,
+          "points": [
+            {"progress": 0, "radius": 1.36604, "temperature": 5100, "luminosity": 0.923358, "envelope": 0.94},
+            {"progress": 1, "radius": 4.371329, "temperature": 3800, "luminosity": 4.924578, "envelope": 0.8}
+          ]
+        }
+      },
+      {"nodeId": "planetary_nebula", "phaseId": "planetary_nebula", "durationWeight": 3.996, "radius": 0.170755, "temperature": 25000, "luminosity": 1.231144, "envelopeFraction": 0.02, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "planetary_nebula", "eventProfileId": "PLANETARY_NEBULA",
+        "dynamics": {"response": {"duration": 0.112, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.65,
+          "points": [
+            {"progress": 0, "radius": 4.371329, "temperature": 3800, "luminosity": 4.924578, "envelope": 0.8},
+            {"progress": 1, "radius": 0.170755, "temperature": 25000, "luminosity": 1.231144, "envelope": 0.02}
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "trackId": "mass_48",
+    "definition": {
+      "version": 3,
+      "massAnvils": 48,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "rgb",
+        "K_GIANT": "rgb",
+        "G_GIANT": "rgb",
+        "F_GIANT": "rgb",
+        "A_GIANT": "rgb",
+        "B_GIANT": "rgb",
+        "O_GIANT": "rgb",
+        "M_SUPERGIANT": "rgb",
+        "K_SUPERGIANT": "rgb",
+        "G_SUPERGIANT": "rgb",
+        "F_SUPERGIANT": "rgb",
+        "A_SUPERGIANT": "rgb",
+        "B_SUPERGIANT": "rgb",
+        "O_SUPERGIANT": "rgb"
+      },
+      "terminal": {
+        "kind": "white_dwarf",
+        "massAnvils": 47,
+        "solarMass": 0.5,
+        "size": 11
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "",
+    "phaseNodes": [
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 59.52, "radius": 0.945152, "temperature": 4692.0, "luminosity": 0.763475, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.114, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 0.821872, "temperature": 4600, "luminosity": 0.545339, "envelope": 1},
+            {"progress": 1, "radius": 0.945152, "temperature": 4692.0, "luminosity": 0.763475, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "subgiant", "phaseId": "subgiant", "durationWeight": 9.063, "radius": 1.643743, "temperature": 5100, "luminosity": 1.636017, "envelopeFraction": 0.94, "pulsationAmplitude": 0.006, "pulsationFrequency": 0, "surfaceStyle": "subgiant", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.124, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.03,
+          "points": [
+            {"progress": 0, "radius": 0.945152, "temperature": 4692.0, "luminosity": 0.763475, "envelope": 1},
+            {"progress": 1, "radius": 1.643743, "temperature": 5100, "luminosity": 1.636017, "envelope": 0.94}
+          ]
+        }
+      },
+      {"nodeId": "rgb", "phaseId": "rgb", "durationWeight": 7.936, "radius": 5.259978, "temperature": 3800, "luminosity": 8.725426, "envelopeFraction": 0.8, "pulsationAmplitude": 0.07, "pulsationFrequency": 0, "surfaceStyle": "rgb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.134, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.1,
+          "points": [
+            {"progress": 0, "radius": 1.643743, "temperature": 5100, "luminosity": 1.636017, "envelope": 0.94},
+            {"progress": 1, "radius": 5.259978, "temperature": 3800, "luminosity": 8.725426, "envelope": 0.8}
+          ]
+        }
+      },
+      {"nodeId": "planetary_nebula", "phaseId": "planetary_nebula", "durationWeight": 4.028, "radius": 0.205468, "temperature": 25000, "luminosity": 2.181357, "envelopeFraction": 0.02, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "planetary_nebula", "eventProfileId": "PLANETARY_NEBULA",
+        "dynamics": {"response": {"duration": 0.114, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.65,
+          "points": [
+            {"progress": 0, "radius": 5.259978, "temperature": 3800, "luminosity": 8.725426, "envelope": 0.8},
+            {"progress": 1, "radius": 0.205468, "temperature": 25000, "luminosity": 2.181357, "envelope": 0.02}
+          ]
+        }
+      },
+      {"nodeId": "naked_helium_star", "phaseId": "naked_helium_star", "durationWeight": 6.944, "radius": 0.493123, "temperature": 32000, "luminosity": 3.272035, "envelopeFraction": 0.02, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "naked_helium_star", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.124, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.28,
+          "points": [
+            {"progress": 0, "radius": 0.205468, "temperature": 25000, "luminosity": 2.181357, "envelope": 0.02},
+            {"progress": 1, "radius": 0.493123, "temperature": 32000, "luminosity": 3.272035, "envelope": 0.02}
+          ]
+        }
+      },
+      {"nodeId": "breathing_pulses", "phaseId": "breathing_pulses", "durationWeight": 5.035, "radius": 0.616404, "temperature": 26000, "luminosity": 4.362713, "envelopeFraction": 0.02, "pulsationAmplitude": 0.2, "pulsationFrequency": 0, "surfaceStyle": "breathing_pulses", "eventProfileId": "BREATHING_PULSE",
+        "dynamics": {"response": {"duration": 0.134, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 4}, "eventPolicy": "visual", "pulses": 2, "wind": 0.16,
+          "points": [
+            {"progress": 0, "radius": 0.493123, "temperature": 32000, "luminosity": 3.272035, "envelope": 0.02},
+            {"progress": 1, "radius": 0.616404, "temperature": 26000, "luminosity": 4.362713, "envelope": 0.02}
+          ]
+        }
+      },
+      {"nodeId": "agb_manque", "phaseId": "agb_manque", "durationWeight": 3.968, "radius": 0.262999, "temperature": 35000, "luminosity": 2.181357, "envelopeFraction": 0.015, "pulsationAmplitude": 0.02, "pulsationFrequency": 0, "surfaceStyle": "agb_manque", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.114, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.08,
+          "points": [
+            {"progress": 0, "radius": 0.616404, "temperature": 26000, "luminosity": 4.362713, "envelope": 0.02},
+            {"progress": 1, "radius": 0.262999, "temperature": 35000, "luminosity": 2.181357, "envelope": 0.015}
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "trackId": "mass_49",
+    "definition": {
+      "version": 3,
+      "massAnvils": 49,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "rgb",
+        "K_GIANT": "rgb",
+        "G_GIANT": "rgb",
+        "F_GIANT": "rgb",
+        "A_GIANT": "rgb",
+        "B_GIANT": "rgb",
+        "O_GIANT": "rgb",
+        "M_SUPERGIANT": "early_agb",
+        "K_SUPERGIANT": "early_agb",
+        "G_SUPERGIANT": "early_agb",
+        "F_SUPERGIANT": "early_agb",
+        "A_SUPERGIANT": "early_agb",
+        "B_SUPERGIANT": "early_agb",
+        "O_SUPERGIANT": "early_agb"
+      },
+      "terminal": {
+        "kind": "white_dwarf",
+        "massAnvils": 47,
+        "solarMass": 0.5,
+        "size": 11
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "",
+    "phaseNodes": [
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 60.0, "radius": 1.15, "temperature": 5885.4, "luminosity": 1.4, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.116, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 1.0, "temperature": 5770, "luminosity": 1.0, "envelope": 1},
+            {"progress": 1, "radius": 1.15, "temperature": 5885.4, "luminosity": 1.4, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "subgiant", "phaseId": "subgiant", "durationWeight": 9.135, "radius": 2.0, "temperature": 5100, "luminosity": 3.0, "envelopeFraction": 0.94, "pulsationAmplitude": 0.006, "pulsationFrequency": 0, "surfaceStyle": "subgiant", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.126, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.03,
+          "points": [
+            {"progress": 0, "radius": 1.15, "temperature": 5885.4, "luminosity": 1.4, "envelope": 1},
+            {"progress": 1, "radius": 2.0, "temperature": 5100, "luminosity": 3.0, "envelope": 0.94}
+          ]
+        }
+      },
+      {"nodeId": "rgb", "phaseId": "rgb", "durationWeight": 8.0, "radius": 6.4, "temperature": 3800, "luminosity": 16.0, "envelopeFraction": 0.8, "pulsationAmplitude": 0.07, "pulsationFrequency": 0, "surfaceStyle": "rgb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.136, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.1,
+          "points": [
+            {"progress": 0, "radius": 2.0, "temperature": 5100, "luminosity": 3.0, "envelope": 0.94},
+            {"progress": 1, "radius": 6.4, "temperature": 3800, "luminosity": 16.0, "envelope": 0.8}
+          ]
+        }
+      },
+      {"nodeId": "helium_flash", "phaseId": "helium_flash", "durationWeight": 1.015, "radius": 4.8, "temperature": 6500, "luminosity": 24.0, "envelopeFraction": 0.74, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "helium_flash", "eventProfileId": "HELIUM_FLASH",
+        "dynamics": {"response": {"duration": 0.116, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 6.4, "temperature": 3800, "luminosity": 16.0, "envelope": 0.8},
+            {"progress": 1, "radius": 4.8, "temperature": 6500, "luminosity": 24.0, "envelope": 0.74}
+          ]
+        }
+      },
+      {"nodeId": "red_clump", "phaseId": "red_clump", "durationWeight": 8.0, "radius": 2.1, "temperature": 5200, "luminosity": 6.0, "envelopeFraction": 0.68, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "red_clump", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.126, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.02,
+          "points": [
+            {"progress": 0, "radius": 4.8, "temperature": 6500, "luminosity": 24.0, "envelope": 0.74},
+            {"progress": 1, "radius": 2.1, "temperature": 5200, "luminosity": 6.0, "envelope": 0.68}
+          ]
+        }
+      },
+      {"nodeId": "early_agb", "phaseId": "early_agb", "durationWeight": 5.075, "radius": 7.0, "temperature": 3600, "luminosity": 20.0, "envelopeFraction": 0.44, "pulsationAmplitude": 0.025, "pulsationFrequency": 0, "surfaceStyle": "early_agb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.136, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.22,
+          "points": [
+            {"progress": 0, "radius": 2.1, "temperature": 5200, "luminosity": 6.0, "envelope": 0.68},
+            {"progress": 1, "radius": 7.0, "temperature": 3600, "luminosity": 20.0, "envelope": 0.44}
+          ]
+        }
+      },
+      {"nodeId": "thermal_pulsing_agb", "phaseId": "thermal_pulsing_agb", "durationWeight": 6.0, "radius": 8.0, "temperature": 3300, "luminosity": 25.0, "envelopeFraction": 0.16, "pulsationAmplitude": 0.54, "pulsationFrequency": 0, "surfaceStyle": "thermal_pulsing_agb", "eventProfileId": "AGB_THERMAL_PULSE",
+        "dynamics": {"response": {"duration": 0.116, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 3, "maximumPulses": 6}, "eventPolicy": "visual", "pulses": 3, "wind": 0.3,
+          "points": [
+            {"progress": 0, "radius": 7.0, "temperature": 3600, "luminosity": 20.0, "envelope": 0.44},
+            {"progress": 1, "radius": 8.0, "temperature": 3300, "luminosity": 25.0, "envelope": 0.16}
+          ]
+        }
+      },
+      {"nodeId": "planetary_nebula", "phaseId": "planetary_nebula", "durationWeight": 4.06, "radius": 0.25, "temperature": 25000, "luminosity": 4.0, "envelopeFraction": 0.02, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "planetary_nebula", "eventProfileId": "PLANETARY_NEBULA",
+        "dynamics": {"response": {"duration": 0.126, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.65,
+          "points": [
+            {"progress": 0, "radius": 8.0, "temperature": 3300, "luminosity": 25.0, "envelope": 0.16},
+            {"progress": 1, "radius": 0.25, "temperature": 25000, "luminosity": 4.0, "envelope": 0.02}
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "trackId": "mass_50",
+    "definition": {
+      "version": 3,
+      "massAnvils": 50,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "rgb",
+        "K_GIANT": "rgb",
+        "G_GIANT": "rgb",
+        "F_GIANT": "rgb",
+        "A_GIANT": "rgb",
+        "B_GIANT": "rgb",
+        "O_GIANT": "rgb",
+        "M_SUPERGIANT": "early_agb",
+        "K_SUPERGIANT": "early_agb",
+        "G_SUPERGIANT": "early_agb",
+        "F_SUPERGIANT": "early_agb",
+        "A_SUPERGIANT": "early_agb",
+        "B_SUPERGIANT": "early_agb",
+        "O_SUPERGIANT": "early_agb"
+      },
+      "terminal": {
+        "kind": "white_dwarf",
+        "massAnvils": 47,
+        "solarMass": 0.5,
+        "size": 10
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "",
+    "phaseNodes": [
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 60.48, "radius": 1.389211, "temperature": 6732.0, "luminosity": 2.510733, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.118, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 1.20801, "temperature": 6600, "luminosity": 1.793381, "envelope": 1},
+            {"progress": 1, "radius": 1.389211, "temperature": 6732.0, "luminosity": 2.510733, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "hook", "phaseId": "hook", "durationWeight": 2.557, "radius": 1.26841, "temperature": 6930.0, "luminosity": 3.228085, "envelopeFraction": 0.98, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hook", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.128, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.02,
+          "points": [
+            {"progress": 0, "radius": 1.389211, "temperature": 6732.0, "luminosity": 2.510733, "envelope": 1},
+            {"progress": 0.45, "radius": 1.087209, "temperature": 7524.0, "luminosity": 2.959078, "envelope": 0.99},
+            {"progress": 1, "radius": 1.26841, "temperature": 6930.0, "luminosity": 3.228085, "envelope": 0.98}
+          ]
+        }
+      },
+      {"nodeId": "hertzsprung_gap", "phaseId": "hertzsprung_gap", "durationWeight": 4.032, "radius": 3.382428, "temperature": 7000, "luminosity": 7.173523, "envelopeFraction": 0.9, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hertzsprung_gap", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.138, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.07,
+          "points": [
+            {"progress": 0, "radius": 1.26841, "temperature": 6930.0, "luminosity": 3.228085, "envelope": 0.98},
+            {"progress": 1, "radius": 3.382428, "temperature": 7000, "luminosity": 7.173523, "envelope": 0.9}
+          ]
+        }
+      },
+      {"nodeId": "rgb", "phaseId": "rgb", "durationWeight": 8.184, "radius": 7.731264, "temperature": 3800, "luminosity": 28.694091, "envelopeFraction": 0.8, "pulsationAmplitude": 0.07, "pulsationFrequency": 0, "surfaceStyle": "rgb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.118, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.1,
+          "points": [
+            {"progress": 0, "radius": 3.382428, "temperature": 7000, "luminosity": 7.173523, "envelope": 0.9},
+            {"progress": 1, "radius": 7.731264, "temperature": 3800, "luminosity": 28.694091, "envelope": 0.8}
+          ]
+        }
+      },
+      {"nodeId": "helium_flash", "phaseId": "helium_flash", "durationWeight": 1.008, "radius": 5.798448, "temperature": 6500, "luminosity": 43.041137, "envelopeFraction": 0.74, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "helium_flash", "eventProfileId": "HELIUM_FLASH",
+        "dynamics": {"response": {"duration": 0.128, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 7.731264, "temperature": 3800, "luminosity": 28.694091, "envelope": 0.8},
+            {"progress": 1, "radius": 5.798448, "temperature": 6500, "luminosity": 43.041137, "envelope": 0.74}
+          ]
+        }
+      },
+      {"nodeId": "red_clump", "phaseId": "red_clump", "durationWeight": 8.184, "radius": 2.536821, "temperature": 5200, "luminosity": 10.760284, "envelopeFraction": 0.68, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "red_clump", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.138, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.02,
+          "points": [
+            {"progress": 0, "radius": 5.798448, "temperature": 6500, "luminosity": 43.041137, "envelope": 0.74},
+            {"progress": 1, "radius": 2.536821, "temperature": 5200, "luminosity": 10.760284, "envelope": 0.68}
+          ]
+        }
+      },
+      {"nodeId": "early_agb", "phaseId": "early_agb", "durationWeight": 5.04, "radius": 8.45607, "temperature": 3600, "luminosity": 35.867614, "envelopeFraction": 0.44, "pulsationAmplitude": 0.025, "pulsationFrequency": 0, "surfaceStyle": "early_agb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.118, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.22,
+          "points": [
+            {"progress": 0, "radius": 2.536821, "temperature": 5200, "luminosity": 10.760284, "envelope": 0.68},
+            {"progress": 1, "radius": 8.45607, "temperature": 3600, "luminosity": 35.867614, "envelope": 0.44}
+          ]
+        }
+      },
+      {"nodeId": "thermal_pulsing_agb", "phaseId": "thermal_pulsing_agb", "durationWeight": 6.138, "radius": 9.66408, "temperature": 3300, "luminosity": 44.834517, "envelopeFraction": 0.16, "pulsationAmplitude": 0.54, "pulsationFrequency": 0, "surfaceStyle": "thermal_pulsing_agb", "eventProfileId": "AGB_THERMAL_PULSE",
+        "dynamics": {"response": {"duration": 0.128, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 3, "maximumPulses": 6}, "eventPolicy": "visual", "pulses": 3, "wind": 0.3,
+          "points": [
+            {"progress": 0, "radius": 8.45607, "temperature": 3600, "luminosity": 35.867614, "envelope": 0.44},
+            {"progress": 1, "radius": 9.66408, "temperature": 3300, "luminosity": 44.834517, "envelope": 0.16}
+          ]
+        }
+      },
+      {"nodeId": "planetary_nebula", "phaseId": "planetary_nebula", "durationWeight": 4.032, "radius": 0.302002, "temperature": 25000, "luminosity": 7.173523, "envelopeFraction": 0.02, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "planetary_nebula", "eventProfileId": "PLANETARY_NEBULA",
+        "dynamics": {"response": {"duration": 0.138, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.65,
+          "points": [
+            {"progress": 0, "radius": 9.66408, "temperature": 3300, "luminosity": 44.834517, "envelope": 0.16},
+            {"progress": 1, "radius": 0.302002, "temperature": 25000, "luminosity": 7.173523, "envelope": 0.02}
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "trackId": "mass_51",
+    "definition": {
+      "version": 3,
+      "massAnvils": 51,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "rgb",
+        "K_GIANT": "rgb",
+        "G_GIANT": "rgb",
+        "F_GIANT": "rgb",
+        "A_GIANT": "rgb",
+        "B_GIANT": "rgb",
+        "O_GIANT": "rgb",
+        "M_SUPERGIANT": "early_agb",
+        "K_SUPERGIANT": "early_agb",
+        "G_SUPERGIANT": "early_agb",
+        "F_SUPERGIANT": "early_agb",
+        "A_SUPERGIANT": "early_agb",
+        "B_SUPERGIANT": "early_agb",
+        "O_SUPERGIANT": "early_agb"
+      },
+      "terminal": {
+        "kind": "white_dwarf",
+        "massAnvils": 48,
+        "solarMass": 0.7,
+        "size": 10
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "",
+    "phaseNodes": [
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 60.96, "radius": 1.683699, "temperature": 8262.0, "luminosity": 4.548613, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.12, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 1.464086, "temperature": 8100, "luminosity": 3.24901, "envelope": 1},
+            {"progress": 1, "radius": 1.683699, "temperature": 8262.0, "luminosity": 4.548613, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "hook", "phaseId": "hook", "durationWeight": 2.577, "radius": 1.53729, "temperature": 8505.0, "luminosity": 5.848217, "envelopeFraction": 0.98, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hook", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.13, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.02,
+          "points": [
+            {"progress": 0, "radius": 1.683699, "temperature": 8262.0, "luminosity": 4.548613, "envelope": 1},
+            {"progress": 0.45, "radius": 1.317677, "temperature": 9234.0, "luminosity": 5.360866, "envelope": 0.99},
+            {"progress": 1, "radius": 1.53729, "temperature": 8505.0, "luminosity": 5.848217, "envelope": 0.98}
+          ]
+        }
+      },
+      {"nodeId": "hertzsprung_gap", "phaseId": "hertzsprung_gap", "durationWeight": 4.064, "radius": 4.09944, "temperature": 7000, "luminosity": 12.996038, "envelopeFraction": 0.9, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hertzsprung_gap", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.14, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.07,
+          "points": [
+            {"progress": 0, "radius": 1.53729, "temperature": 8505.0, "luminosity": 5.848217, "envelope": 0.98},
+            {"progress": 1, "radius": 4.09944, "temperature": 7000, "luminosity": 12.996038, "envelope": 0.9}
+          ]
+        }
+      },
+      {"nodeId": "rgb", "phaseId": "rgb", "durationWeight": 8.248, "radius": 9.370148, "temperature": 3800, "luminosity": 51.984153, "envelopeFraction": 0.8, "pulsationAmplitude": 0.07, "pulsationFrequency": 0, "surfaceStyle": "rgb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.12, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.1,
+          "points": [
+            {"progress": 0, "radius": 4.09944, "temperature": 7000, "luminosity": 12.996038, "envelope": 0.9},
+            {"progress": 1, "radius": 9.370148, "temperature": 3800, "luminosity": 51.984153, "envelope": 0.8}
+          ]
+        }
+      },
+      {"nodeId": "helium_flash", "phaseId": "helium_flash", "durationWeight": 1.016, "radius": 7.027611, "temperature": 6500, "luminosity": 77.97623, "envelopeFraction": 0.74, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "helium_flash", "eventProfileId": "HELIUM_FLASH",
+        "dynamics": {"response": {"duration": 0.13, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 9.370148, "temperature": 3800, "luminosity": 51.984153, "envelope": 0.8},
+            {"progress": 1, "radius": 7.027611, "temperature": 6500, "luminosity": 77.97623, "envelope": 0.74}
+          ]
+        }
+      },
+      {"nodeId": "secondary_red_clump", "phaseId": "secondary_red_clump", "durationWeight": 7.217, "radius": 3.660214, "temperature": 5600, "luminosity": 25.992077, "envelopeFraction": 0.65, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "secondary_red_clump", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.14, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.025,
+          "points": [
+            {"progress": 0, "radius": 7.027611, "temperature": 6500, "luminosity": 77.97623, "envelope": 0.74},
+            {"progress": 1, "radius": 3.660214, "temperature": 5600, "luminosity": 25.992077, "envelope": 0.65}
+          ]
+        }
+      },
+      {"nodeId": "early_agb", "phaseId": "early_agb", "durationWeight": 5.08, "radius": 10.2486, "temperature": 3600, "luminosity": 64.980192, "envelopeFraction": 0.44, "pulsationAmplitude": 0.025, "pulsationFrequency": 0, "surfaceStyle": "early_agb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.12, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.22,
+          "points": [
+            {"progress": 0, "radius": 3.660214, "temperature": 5600, "luminosity": 25.992077, "envelope": 0.65},
+            {"progress": 1, "radius": 10.2486, "temperature": 3600, "luminosity": 64.980192, "envelope": 0.44}
+          ]
+        }
+      },
+      {"nodeId": "thermal_pulsing_agb_superwind", "phaseId": "thermal_pulsing_agb_superwind", "durationWeight": 6.701, "radius": 12.883954, "temperature": 3200, "luminosity": 90.972268, "envelopeFraction": 0.1, "pulsationAmplitude": 0.57, "pulsationFrequency": 0, "surfaceStyle": "thermal_pulsing_agb_superwind", "eventProfileId": "AGB_THERMAL_PULSE",
+        "dynamics": {"response": {"duration": 0.13, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 3, "maximumPulses": 6}, "eventPolicy": "visual", "pulses": 3, "wind": 0.8,
+          "points": [
+            {"progress": 0, "radius": 10.2486, "temperature": 3600, "luminosity": 64.980192, "envelope": 0.44},
+            {"progress": 1, "radius": 12.883954, "temperature": 3200, "luminosity": 90.972268, "envelope": 0.1}
+          ]
+        }
+      },
+      {"nodeId": "planetary_nebula", "phaseId": "planetary_nebula", "durationWeight": 4.064, "radius": 0.366021, "temperature": 25000, "luminosity": 12.996038, "envelopeFraction": 0.02, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "planetary_nebula", "eventProfileId": "PLANETARY_NEBULA",
+        "dynamics": {"response": {"duration": 0.14, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.65,
+          "points": [
+            {"progress": 0, "radius": 12.883954, "temperature": 3200, "luminosity": 90.972268, "envelope": 0.1},
+            {"progress": 1, "radius": 0.366021, "temperature": 25000, "luminosity": 12.996038, "envelope": 0.02}
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "trackId": "mass_52",
+    "definition": {
+      "version": 3,
+      "massAnvils": 52,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "rgb",
+        "K_GIANT": "rgb",
+        "G_GIANT": "rgb",
+        "F_GIANT": "rgb",
+        "A_GIANT": "rgb",
+        "B_GIANT": "rgb",
+        "O_GIANT": "rgb",
+        "M_SUPERGIANT": "early_agb",
+        "K_SUPERGIANT": "early_agb",
+        "G_SUPERGIANT": "early_agb",
+        "F_SUPERGIANT": "early_agb",
+        "A_SUPERGIANT": "early_agb",
+        "B_SUPERGIANT": "early_agb",
+        "O_SUPERGIANT": "early_agb"
+      },
+      "terminal": {
+        "kind": "white_dwarf",
+        "massAnvils": 48,
+        "solarMass": 0.7,
+        "size": 10
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "",
+    "phaseNodes": [
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 61.44, "radius": 2.033925, "temperature": 10404.0, "luminosity": 8.157396, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.122, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 1.76863, "temperature": 10200, "luminosity": 5.826711, "envelope": 1},
+            {"progress": 1, "radius": 2.033925, "temperature": 10404.0, "luminosity": 8.157396, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "hook", "phaseId": "hook", "durationWeight": 2.597, "radius": 1.857062, "temperature": 10710.0, "luminosity": 10.48808, "envelopeFraction": 0.98, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hook", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.132, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.02,
+          "points": [
+            {"progress": 0, "radius": 2.033925, "temperature": 10404.0, "luminosity": 8.157396, "envelope": 1},
+            {"progress": 0.45, "radius": 1.591767, "temperature": 11628.0, "luminosity": 9.614073, "envelope": 0.99},
+            {"progress": 1, "radius": 1.857062, "temperature": 10710.0, "luminosity": 10.48808, "envelope": 0.98}
+          ]
+        }
+      },
+      {"nodeId": "hertzsprung_gap", "phaseId": "hertzsprung_gap", "durationWeight": 4.096, "radius": 4.952164, "temperature": 7000, "luminosity": 23.306844, "envelopeFraction": 0.9, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hertzsprung_gap", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.142, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.07,
+          "points": [
+            {"progress": 0, "radius": 1.857062, "temperature": 10710.0, "luminosity": 10.48808, "envelope": 0.98},
+            {"progress": 1, "radius": 4.952164, "temperature": 7000, "luminosity": 23.306844, "envelope": 0.9}
+          ]
+        }
+      },
+      {"nodeId": "rgb", "phaseId": "rgb", "durationWeight": 8.312, "radius": 11.319233, "temperature": 3800, "luminosity": 93.227377, "envelopeFraction": 0.8, "pulsationAmplitude": 0.07, "pulsationFrequency": 0, "surfaceStyle": "rgb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.122, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.1,
+          "points": [
+            {"progress": 0, "radius": 4.952164, "temperature": 7000, "luminosity": 23.306844, "envelope": 0.9},
+            {"progress": 1, "radius": 11.319233, "temperature": 3800, "luminosity": 93.227377, "envelope": 0.8}
+          ]
+        }
+      },
+      {"nodeId": "nondegenerate_core_helium_burning", "phaseId": "nondegenerate_core_helium_burning", "durationWeight": 8.192, "radius": 4.952164, "temperature": 6200, "luminosity": 58.267111, "envelopeFraction": 0.63, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "nondegenerate_core_helium_burning", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.132, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.03,
+          "points": [
+            {"progress": 0, "radius": 11.319233, "temperature": 3800, "luminosity": 93.227377, "envelope": 0.8},
+            {"progress": 1, "radius": 4.952164, "temperature": 6200, "luminosity": 58.267111, "envelope": 0.63}
+          ]
+        }
+      },
+      {"nodeId": "early_agb", "phaseId": "early_agb", "durationWeight": 5.195, "radius": 12.380411, "temperature": 3600, "luminosity": 116.534222, "envelopeFraction": 0.44, "pulsationAmplitude": 0.025, "pulsationFrequency": 0, "surfaceStyle": "early_agb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.142, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.22,
+          "points": [
+            {"progress": 0, "radius": 4.952164, "temperature": 6200, "luminosity": 58.267111, "envelope": 0.63},
+            {"progress": 1, "radius": 12.380411, "temperature": 3600, "luminosity": 116.534222, "envelope": 0.44}
+          ]
+        }
+      },
+      {"nodeId": "thermal_pulsing_agb_superwind", "phaseId": "thermal_pulsing_agb_superwind", "durationWeight": 6.656, "radius": 15.563945, "temperature": 3200, "luminosity": 163.14791, "envelopeFraction": 0.1, "pulsationAmplitude": 0.57, "pulsationFrequency": 0, "surfaceStyle": "thermal_pulsing_agb_superwind", "eventProfileId": "AGB_THERMAL_PULSE",
+        "dynamics": {"response": {"duration": 0.122, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 3, "maximumPulses": 6}, "eventPolicy": "visual", "pulses": 3, "wind": 0.8,
+          "points": [
+            {"progress": 0, "radius": 12.380411, "temperature": 3600, "luminosity": 116.534222, "envelope": 0.44},
+            {"progress": 1, "radius": 15.563945, "temperature": 3200, "luminosity": 163.14791, "envelope": 0.1}
+          ]
+        }
+      },
+      {"nodeId": "planetary_nebula", "phaseId": "planetary_nebula", "durationWeight": 4.156, "radius": 0.442158, "temperature": 25000, "luminosity": 23.306844, "envelopeFraction": 0.02, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "planetary_nebula", "eventProfileId": "PLANETARY_NEBULA",
+        "dynamics": {"response": {"duration": 0.132, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.65,
+          "points": [
+            {"progress": 0, "radius": 15.563945, "temperature": 3200, "luminosity": 163.14791, "envelope": 0.1},
+            {"progress": 1, "radius": 0.442158, "temperature": 25000, "luminosity": 23.306844, "envelope": 0.02}
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "trackId": "mass_53",
+    "definition": {
+      "version": 3,
+      "massAnvils": 53,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "rgb",
+        "K_GIANT": "rgb",
+        "G_GIANT": "rgb",
+        "F_GIANT": "rgb",
+        "A_GIANT": "rgb",
+        "B_GIANT": "rgb",
+        "O_GIANT": "rgb",
+        "M_SUPERGIANT": "early_agb",
+        "K_SUPERGIANT": "early_agb",
+        "G_SUPERGIANT": "early_agb",
+        "F_SUPERGIANT": "early_agb",
+        "A_SUPERGIANT": "early_agb",
+        "B_SUPERGIANT": "early_agb",
+        "O_SUPERGIANT": "early_agb"
+      },
+      "terminal": {
+        "kind": "white_dwarf",
+        "massAnvils": 49,
+        "solarMass": 1,
+        "size": 10
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "",
+    "phaseNodes": [
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 61.92, "radius": 2.465079, "temperature": 14280.0, "luminosity": 14.778489, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.124, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 2.143547, "temperature": 14000, "luminosity": 10.556063, "envelope": 1},
+            {"progress": 1, "radius": 2.465079, "temperature": 14280.0, "luminosity": 14.778489, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "hook", "phaseId": "hook", "durationWeight": 2.617, "radius": 2.250724, "temperature": 14700.0, "luminosity": 19.000914, "envelopeFraction": 0.98, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hook", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.134, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.02,
+          "points": [
+            {"progress": 0, "radius": 2.465079, "temperature": 14280.0, "luminosity": 14.778489, "envelope": 1},
+            {"progress": 0.45, "radius": 1.929192, "temperature": 15960.0, "luminosity": 17.417504, "envelope": 0.99},
+            {"progress": 1, "radius": 2.250724, "temperature": 14700.0, "luminosity": 19.000914, "envelope": 0.98}
+          ]
+        }
+      },
+      {"nodeId": "hertzsprung_gap", "phaseId": "hertzsprung_gap", "durationWeight": 4.128, "radius": 6.001931, "temperature": 7000, "luminosity": 42.224253, "envelopeFraction": 0.9, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hertzsprung_gap", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.144, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.07,
+          "points": [
+            {"progress": 0, "radius": 2.250724, "temperature": 14700.0, "luminosity": 19.000914, "envelope": 0.98},
+            {"progress": 1, "radius": 6.001931, "temperature": 7000, "luminosity": 42.224253, "envelope": 0.9}
+          ]
+        }
+      },
+      {"nodeId": "rgb", "phaseId": "rgb", "durationWeight": 8.376, "radius": 13.7187, "temperature": 3800, "luminosity": 168.897013, "envelopeFraction": 0.8, "pulsationAmplitude": 0.07, "pulsationFrequency": 0, "surfaceStyle": "rgb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.124, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.1,
+          "points": [
+            {"progress": 0, "radius": 6.001931, "temperature": 7000, "luminosity": 42.224253, "envelope": 0.9},
+            {"progress": 1, "radius": 13.7187, "temperature": 3800, "luminosity": 168.897013, "envelope": 0.8}
+          ]
+        }
+      },
+      {"nodeId": "secondary_red_clump", "phaseId": "secondary_red_clump", "durationWeight": 7.224, "radius": 5.358867, "temperature": 5600, "luminosity": 84.448506, "envelopeFraction": 0.65, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "secondary_red_clump", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.134, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.025,
+          "points": [
+            {"progress": 0, "radius": 13.7187, "temperature": 3800, "luminosity": 168.897013, "envelope": 0.8},
+            {"progress": 1, "radius": 5.358867, "temperature": 5600, "luminosity": 84.448506, "envelope": 0.65}
+          ]
+        }
+      },
+      {"nodeId": "early_agb", "phaseId": "early_agb", "durationWeight": 5.235, "radius": 15.004828, "temperature": 3600, "luminosity": 211.121266, "envelopeFraction": 0.44, "pulsationAmplitude": 0.025, "pulsationFrequency": 0, "surfaceStyle": "early_agb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.144, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.22,
+          "points": [
+            {"progress": 0, "radius": 5.358867, "temperature": 5600, "luminosity": 84.448506, "envelope": 0.65},
+            {"progress": 1, "radius": 15.004828, "temperature": 3600, "luminosity": 211.121266, "envelope": 0.44}
+          ]
+        }
+      },
+      {"nodeId": "thermal_pulsing_agb_superwind", "phaseId": "thermal_pulsing_agb_superwind", "durationWeight": 6.708, "radius": 18.863213, "temperature": 3200, "luminosity": 295.569772, "envelopeFraction": 0.1, "pulsationAmplitude": 0.57, "pulsationFrequency": 0, "surfaceStyle": "thermal_pulsing_agb_superwind", "eventProfileId": "AGB_THERMAL_PULSE",
+        "dynamics": {"response": {"duration": 0.124, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 3, "maximumPulses": 6}, "eventPolicy": "visual", "pulses": 3, "wind": 0.8,
+          "points": [
+            {"progress": 0, "radius": 15.004828, "temperature": 3600, "luminosity": 211.121266, "envelope": 0.44},
+            {"progress": 1, "radius": 18.863213, "temperature": 3200, "luminosity": 295.569772, "envelope": 0.1}
+          ]
+        }
+      },
+      {"nodeId": "planetary_nebula", "phaseId": "planetary_nebula", "durationWeight": 4.188, "radius": 0.535887, "temperature": 25000, "luminosity": 42.224253, "envelopeFraction": 0.02, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "planetary_nebula", "eventProfileId": "PLANETARY_NEBULA",
+        "dynamics": {"response": {"duration": 0.134, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.65,
+          "points": [
+            {"progress": 0, "radius": 18.863213, "temperature": 3200, "luminosity": 295.569772, "envelope": 0.1},
+            {"progress": 1, "radius": 0.535887, "temperature": 25000, "luminosity": 42.224253, "envelope": 0.02}
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "trackId": "mass_54",
+    "definition": {
+      "version": 3,
+      "massAnvils": 54,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "rgb",
+        "K_GIANT": "rgb",
+        "G_GIANT": "rgb",
+        "F_GIANT": "rgb",
+        "A_GIANT": "rgb",
+        "B_GIANT": "rgb",
+        "O_GIANT": "rgb",
+        "M_SUPERGIANT": "early_agb",
+        "K_SUPERGIANT": "early_agb",
+        "G_SUPERGIANT": "early_agb",
+        "F_SUPERGIANT": "early_agb",
+        "A_SUPERGIANT": "early_agb",
+        "B_SUPERGIANT": "early_agb",
+        "O_SUPERGIANT": "early_agb"
+      },
+      "terminal": {
+        "kind": "white_dwarf",
+        "massAnvils": 49,
+        "solarMass": 1,
+        "size": 10
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "",
+    "phaseNodes": [
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 62.4, "radius": 2.983643, "temperature": 17340.0, "luminosity": 26.663427, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.126, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 2.594472, "temperature": 17000, "luminosity": 19.045305, "envelope": 1},
+            {"progress": 1, "radius": 2.983643, "temperature": 17340.0, "luminosity": 26.663427, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "hook", "phaseId": "hook", "durationWeight": 2.637, "radius": 2.724196, "temperature": 17850.0, "luminosity": 34.281549, "envelopeFraction": 0.98, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hook", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.136, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.02,
+          "points": [
+            {"progress": 0, "radius": 2.983643, "temperature": 17340.0, "luminosity": 26.663427, "envelope": 1},
+            {"progress": 0.45, "radius": 2.335025, "temperature": 19380.0, "luminosity": 31.424753, "envelope": 0.99},
+            {"progress": 1, "radius": 2.724196, "temperature": 17850.0, "luminosity": 34.281549, "envelope": 0.98}
+          ]
+        }
+      },
+      {"nodeId": "hertzsprung_gap", "phaseId": "hertzsprung_gap", "durationWeight": 4.16, "radius": 7.264522, "temperature": 7000, "luminosity": 76.18122, "envelopeFraction": 0.9, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hertzsprung_gap", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.146, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.07,
+          "points": [
+            {"progress": 0, "radius": 2.724196, "temperature": 17850.0, "luminosity": 34.281549, "envelope": 0.98},
+            {"progress": 1, "radius": 7.264522, "temperature": 7000, "luminosity": 76.18122, "envelope": 0.9}
+          ]
+        }
+      },
+      {"nodeId": "rgb", "phaseId": "rgb", "durationWeight": 8.44, "radius": 16.604623, "temperature": 3800, "luminosity": 304.724881, "envelopeFraction": 0.8, "pulsationAmplitude": 0.07, "pulsationFrequency": 0, "surfaceStyle": "rgb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.126, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.1,
+          "points": [
+            {"progress": 0, "radius": 7.264522, "temperature": 7000, "luminosity": 76.18122, "envelope": 0.9},
+            {"progress": 1, "radius": 16.604623, "temperature": 3800, "luminosity": 304.724881, "envelope": 0.8}
+          ]
+        }
+      },
+      {"nodeId": "blue_loop", "phaseId": "blue_loop", "durationWeight": 7.28, "radius": 5.188945, "temperature": 12000, "luminosity": 228.543661, "envelopeFraction": 0.64, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "blue_loop", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.136, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.05,
+          "points": [
+            {"progress": 0, "radius": 16.604623, "temperature": 3800, "luminosity": 304.724881, "envelope": 0.8},
+            {"progress": 0.6, "radius": 7.264522, "temperature": 9500, "luminosity": 209.498355, "envelope": 0.7},
+            {"progress": 0.9, "radius": 5.448392, "temperature": 12000, "luminosity": 228.543661, "envelope": 0.65, "minimumTemperature": 10500, "maximumTemperature": 14500},
+            {"progress": 1, "radius": 5.188945, "temperature": 12000, "luminosity": 228.543661, "envelope": 0.64, "minimumTemperature": 10500, "maximumTemperature": 14500}
+          ]
+        }
+      },
+      {"nodeId": "helium_main_sequence", "phaseId": "helium_main_sequence", "durationWeight": 6.33, "radius": 4.540327, "temperature": 6900, "luminosity": 247.588966, "envelopeFraction": 0.57, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "helium_main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.146, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.08,
+          "points": [
+            {"progress": 0, "radius": 5.188945, "temperature": 12000, "luminosity": 228.543661, "envelope": 0.64, "minimumTemperature": 10500, "maximumTemperature": 14500},
+            {"progress": 0.12, "radius": 5.059221, "temperature": 12000, "luminosity": 232.352722, "envelope": 0.63, "minimumTemperature": 10500, "maximumTemperature": 14500},
+            {"progress": 0.55, "radius": 4.540327, "temperature": 19000, "luminosity": 247.588966, "envelope": 0.6},
+            {"progress": 1, "radius": 4.540327, "temperature": 6900, "luminosity": 247.588966, "envelope": 0.57, "minimumTemperature": 6400, "maximumTemperature": 7500}
+          ]
+        }
+      },
+      {"nodeId": "second_hertzsprung_gap", "phaseId": "second_hertzsprung_gap", "durationWeight": 3.64, "radius": 9.3401, "temperature": 7200, "luminosity": 266.634271, "envelopeFraction": 0.51, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "second_hertzsprung_gap", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.126, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.16,
+          "points": [
+            {"progress": 0, "radius": 4.540327, "temperature": 6900, "luminosity": 247.588966, "envelope": 0.57, "minimumTemperature": 6400, "maximumTemperature": 7500},
+            {"progress": 0.15, "radius": 4.929497, "temperature": 6900, "luminosity": 247.588966, "envelope": 0.56, "minimumTemperature": 6400, "maximumTemperature": 7500},
+            {"progress": 1, "radius": 9.3401, "temperature": 7200, "luminosity": 266.634271, "envelope": 0.51}
+          ]
+        }
+      },
+      {"nodeId": "early_agb", "phaseId": "early_agb", "durationWeight": 5.275, "radius": 18.161306, "temperature": 3600, "luminosity": 380.906101, "envelopeFraction": 0.44, "pulsationAmplitude": 0.025, "pulsationFrequency": 0, "surfaceStyle": "early_agb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.136, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.22,
+          "points": [
+            {"progress": 0, "radius": 9.3401, "temperature": 7200, "luminosity": 266.634271, "envelope": 0.51},
+            {"progress": 1, "radius": 18.161306, "temperature": 3600, "luminosity": 380.906101, "envelope": 0.44}
+          ]
+        }
+      },
+      {"nodeId": "thermal_pulsing_agb_superwind", "phaseId": "thermal_pulsing_agb_superwind", "durationWeight": 6.76, "radius": 22.831356, "temperature": 3200, "luminosity": 533.268541, "envelopeFraction": 0.1, "pulsationAmplitude": 0.57, "pulsationFrequency": 0, "surfaceStyle": "thermal_pulsing_agb_superwind", "eventProfileId": "AGB_THERMAL_PULSE",
+        "dynamics": {"response": {"duration": 0.146, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 3, "maximumPulses": 6}, "eventPolicy": "visual", "pulses": 3, "wind": 0.8,
+          "points": [
+            {"progress": 0, "radius": 18.161306, "temperature": 3600, "luminosity": 380.906101, "envelope": 0.44},
+            {"progress": 1, "radius": 22.831356, "temperature": 3200, "luminosity": 533.268541, "envelope": 0.1}
+          ]
+        }
+      },
+      {"nodeId": "planetary_nebula", "phaseId": "planetary_nebula", "durationWeight": 4.22, "radius": 0.648618, "temperature": 25000, "luminosity": 76.18122, "envelopeFraction": 0.02, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "planetary_nebula", "eventProfileId": "PLANETARY_NEBULA",
+        "dynamics": {"response": {"duration": 0.126, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.65,
+          "points": [
+            {"progress": 0, "radius": 22.831356, "temperature": 3200, "luminosity": 533.268541, "envelope": 0.1},
+            {"progress": 1, "radius": 0.648618, "temperature": 25000, "luminosity": 76.18122, "envelope": 0.02}
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "trackId": "mass_55",
+    "definition": {
+      "version": 3,
+      "massAnvils": 55,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "rgb",
+        "K_GIANT": "rgb",
+        "G_GIANT": "rgb",
+        "F_GIANT": "rgb",
+        "A_GIANT": "rgb",
+        "B_GIANT": "rgb",
+        "O_GIANT": "rgb",
+        "M_SUPERGIANT": "early_super_agb",
+        "K_SUPERGIANT": "early_super_agb",
+        "G_SUPERGIANT": "early_super_agb",
+        "F_SUPERGIANT": "early_super_agb",
+        "A_SUPERGIANT": "early_super_agb",
+        "B_SUPERGIANT": "early_super_agb",
+        "O_SUPERGIANT": "early_super_agb"
+      },
+      "terminal": {
+        "kind": "white_dwarf",
+        "massAnvils": 49,
+        "solarMass": 1,
+        "size": 10
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "",
+    "phaseNodes": [
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 62.88, "radius": 3.609087, "temperature": 20910.0, "luminosity": 48.015451, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.128, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 3.138336, "temperature": 20500, "luminosity": 34.296751, "envelope": 1},
+            {"progress": 1, "radius": 3.609087, "temperature": 20910.0, "luminosity": 48.015451, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "hook", "phaseId": "hook", "durationWeight": 2.657, "radius": 3.295253, "temperature": 21525.0, "luminosity": 61.734151, "envelopeFraction": 0.98, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hook", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.138, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.02,
+          "points": [
+            {"progress": 0, "radius": 3.609087, "temperature": 20910.0, "luminosity": 48.015451, "envelope": 1},
+            {"progress": 0.45, "radius": 2.824503, "temperature": 23370.0, "luminosity": 56.589639, "envelope": 0.99},
+            {"progress": 1, "radius": 3.295253, "temperature": 21525.0, "luminosity": 61.734151, "envelope": 0.98}
+          ]
+        }
+      },
+      {"nodeId": "hertzsprung_gap", "phaseId": "hertzsprung_gap", "durationWeight": 4.192, "radius": 8.787342, "temperature": 7000, "luminosity": 137.187003, "envelopeFraction": 0.9, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hertzsprung_gap", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.148, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.07,
+          "points": [
+            {"progress": 0, "radius": 3.295253, "temperature": 21525.0, "luminosity": 61.734151, "envelope": 0.98},
+            {"progress": 1, "radius": 8.787342, "temperature": 7000, "luminosity": 137.187003, "envelope": 0.9}
+          ]
+        }
+      },
+      {"nodeId": "rgb", "phaseId": "rgb", "durationWeight": 8.504, "radius": 20.085353, "temperature": 3800, "luminosity": 548.748013, "envelopeFraction": 0.8, "pulsationAmplitude": 0.07, "pulsationFrequency": 0, "surfaceStyle": "rgb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.128, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.1,
+          "points": [
+            {"progress": 0, "radius": 8.787342, "temperature": 7000, "luminosity": 137.187003, "envelope": 0.9},
+            {"progress": 1, "radius": 20.085353, "temperature": 3800, "luminosity": 548.748013, "envelope": 0.8}
+          ]
+        }
+      },
+      {"nodeId": "blue_loop", "phaseId": "blue_loop", "durationWeight": 7.336, "radius": 6.276673, "temperature": 14000, "luminosity": 411.56101, "envelopeFraction": 0.64, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "blue_loop", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.138, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.05,
+          "points": [
+            {"progress": 0, "radius": 20.085353, "temperature": 3800, "luminosity": 548.748013, "envelope": 0.8},
+            {"progress": 0.75, "radius": 7.218174, "temperature": 14000, "luminosity": 411.56101, "envelope": 0.68, "minimumTemperature": 11000, "maximumTemperature": 17000},
+            {"progress": 1, "radius": 6.276673, "temperature": 14000, "luminosity": 411.56101, "envelope": 0.64, "minimumTemperature": 11000, "maximumTemperature": 17000}
+          ]
+        }
+      },
+      {"nodeId": "helium_main_sequence", "phaseId": "helium_main_sequence", "durationWeight": 6.378, "radius": 5.492089, "temperature": 14000, "luminosity": 445.85776, "envelopeFraction": 0.57, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "helium_main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.148, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.08,
+          "points": [
+            {"progress": 0, "radius": 6.276673, "temperature": 14000, "luminosity": 411.56101, "envelope": 0.64, "minimumTemperature": 11000, "maximumTemperature": 17000},
+            {"progress": 1, "radius": 5.492089, "temperature": 14000, "luminosity": 445.85776, "envelope": 0.57, "minimumTemperature": 11000, "maximumTemperature": 17000}
+          ]
+        }
+      },
+      {"nodeId": "second_hertzsprung_gap", "phaseId": "second_hertzsprung_gap", "durationWeight": 3.668, "radius": 11.298011, "temperature": 7200, "luminosity": 480.154511, "envelopeFraction": 0.51, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "second_hertzsprung_gap", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.128, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.16,
+          "points": [
+            {"progress": 0, "radius": 5.492089, "temperature": 14000, "luminosity": 445.85776, "envelope": 0.57, "minimumTemperature": 11000, "maximumTemperature": 17000},
+            {"progress": 0.5, "radius": 7.532007, "temperature": 14000, "luminosity": 480.154511, "envelope": 0.54, "minimumTemperature": 11000, "maximumTemperature": 17000},
+            {"progress": 1, "radius": 11.298011, "temperature": 7200, "luminosity": 480.154511, "envelope": 0.51}
+          ]
+        }
+      },
+      {"nodeId": "early_super_agb", "phaseId": "early_super_agb", "durationWeight": 5.846, "radius": 28.245028, "temperature": 3400, "luminosity": 1097.496026, "envelopeFraction": 0.4, "pulsationAmplitude": 0.065, "pulsationFrequency": 0, "surfaceStyle": "early_super_agb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.138, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.34,
+          "points": [
+            {"progress": 0, "radius": 11.298011, "temperature": 7200, "luminosity": 480.154511, "envelope": 0.51},
+            {"progress": 1, "radius": 28.245028, "temperature": 3400, "luminosity": 1097.496026, "envelope": 0.4}
+          ]
+        }
+      },
+      {"nodeId": "thermal_pulsing_agb_superwind", "phaseId": "thermal_pulsing_agb_superwind", "durationWeight": 6.812, "radius": 27.61736, "temperature": 3200, "luminosity": 960.309022, "envelopeFraction": 0.1, "pulsationAmplitude": 0.57, "pulsationFrequency": 0, "surfaceStyle": "thermal_pulsing_agb_superwind", "eventProfileId": "AGB_THERMAL_PULSE",
+        "dynamics": {"response": {"duration": 0.148, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 3, "maximumPulses": 6}, "eventPolicy": "visual", "pulses": 3, "wind": 0.8,
+          "points": [
+            {"progress": 0, "radius": 28.245028, "temperature": 3400, "luminosity": 1097.496026, "envelope": 0.4},
+            {"progress": 1, "radius": 27.61736, "temperature": 3200, "luminosity": 960.309022, "envelope": 0.1}
+          ]
+        }
+      },
+      {"nodeId": "planetary_nebula", "phaseId": "planetary_nebula", "durationWeight": 4.252, "radius": 0.784584, "temperature": 25000, "luminosity": 137.187003, "envelopeFraction": 0.02, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "planetary_nebula", "eventProfileId": "PLANETARY_NEBULA",
+        "dynamics": {"response": {"duration": 0.128, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.65,
+          "points": [
+            {"progress": 0, "radius": 27.61736, "temperature": 3200, "luminosity": 960.309022, "envelope": 0.1},
+            {"progress": 1, "radius": 0.784584, "temperature": 25000, "luminosity": 137.187003, "envelope": 0.02}
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "trackId": "mass_56",
+    "definition": {
+      "version": 3,
+      "massAnvils": 56,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "rgb",
+        "K_GIANT": "rgb",
+        "G_GIANT": "rgb",
+        "F_GIANT": "rgb",
+        "A_GIANT": "rgb",
+        "B_GIANT": "rgb",
+        "O_GIANT": "rgb",
+        "M_SUPERGIANT": "early_super_agb",
+        "K_SUPERGIANT": "early_super_agb",
+        "G_SUPERGIANT": "early_super_agb",
+        "F_SUPERGIANT": "early_super_agb",
+        "A_SUPERGIANT": "early_super_agb",
+        "B_SUPERGIANT": "early_super_agb",
+        "O_SUPERGIANT": "early_super_agb"
+      },
+      "terminal": {
+        "kind": "neutron_star",
+        "massAnvils": 50,
+        "solarMass": 1.41,
+        "size": 1
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "SUPERNOVA",
+    "phaseNodes": [
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 63.36, "radius": 4.364063, "temperature": 24480.0, "luminosity": 86.369696, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.13, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 3.794837, "temperature": 24000, "luminosity": 61.69264, "envelope": 1},
+            {"progress": 1, "radius": 4.364063, "temperature": 24480.0, "luminosity": 86.369696, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "hook", "phaseId": "hook", "durationWeight": 2.677, "radius": 3.984579, "temperature": 25200.0, "luminosity": 111.046752, "envelopeFraction": 0.98, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hook", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.14, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.02,
+          "points": [
+            {"progress": 0, "radius": 4.364063, "temperature": 24480.0, "luminosity": 86.369696, "envelope": 1},
+            {"progress": 0.45, "radius": 3.415353, "temperature": 27360.0, "luminosity": 101.792856, "envelope": 0.99},
+            {"progress": 1, "radius": 3.984579, "temperature": 25200.0, "luminosity": 111.046752, "envelope": 0.98}
+          ]
+        }
+      },
+      {"nodeId": "hertzsprung_gap", "phaseId": "hertzsprung_gap", "durationWeight": 4.224, "radius": 10.625544, "temperature": 7000, "luminosity": 246.770559, "envelopeFraction": 0.9, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hertzsprung_gap", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.15, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.07,
+          "points": [
+            {"progress": 0, "radius": 3.984579, "temperature": 25200.0, "luminosity": 111.046752, "envelope": 0.98},
+            {"progress": 1, "radius": 10.625544, "temperature": 7000, "luminosity": 246.770559, "envelope": 0.9}
+          ]
+        }
+      },
+      {"nodeId": "rgb", "phaseId": "rgb", "durationWeight": 8.568, "radius": 24.286958, "temperature": 3800, "luminosity": 987.082237, "envelopeFraction": 0.8, "pulsationAmplitude": 0.07, "pulsationFrequency": 0, "surfaceStyle": "rgb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.13, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.1,
+          "points": [
+            {"progress": 0, "radius": 10.625544, "temperature": 7000, "luminosity": 246.770559, "envelope": 0.9},
+            {"progress": 1, "radius": 24.286958, "temperature": 3800, "luminosity": 987.082237, "envelope": 0.8}
+          ]
+        }
+      },
+      {"nodeId": "blue_loop", "phaseId": "blue_loop", "durationWeight": 7.392, "radius": 7.589674, "temperature": 14000, "luminosity": 740.311678, "envelopeFraction": 0.64, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "blue_loop", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.14, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.05,
+          "points": [
+            {"progress": 0, "radius": 24.286958, "temperature": 3800, "luminosity": 987.082237, "envelope": 0.8},
+            {"progress": 0.75, "radius": 8.728125, "temperature": 14000, "luminosity": 740.311678, "envelope": 0.68, "minimumTemperature": 11000, "maximumTemperature": 17000},
+            {"progress": 1, "radius": 7.589674, "temperature": 14000, "luminosity": 740.311678, "envelope": 0.64, "minimumTemperature": 11000, "maximumTemperature": 17000}
+          ]
+        }
+      },
+      {"nodeId": "helium_main_sequence", "phaseId": "helium_main_sequence", "durationWeight": 6.426, "radius": 6.640965, "temperature": 14000, "luminosity": 802.004317, "envelopeFraction": 0.57, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "helium_main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.15, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.08,
+          "points": [
+            {"progress": 0, "radius": 7.589674, "temperature": 14000, "luminosity": 740.311678, "envelope": 0.64, "minimumTemperature": 11000, "maximumTemperature": 17000},
+            {"progress": 1, "radius": 6.640965, "temperature": 14000, "luminosity": 802.004317, "envelope": 0.57, "minimumTemperature": 11000, "maximumTemperature": 17000}
+          ]
+        }
+      },
+      {"nodeId": "second_hertzsprung_gap", "phaseId": "second_hertzsprung_gap", "durationWeight": 3.696, "radius": 13.661414, "temperature": 7200, "luminosity": 863.696957, "envelopeFraction": 0.51, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "second_hertzsprung_gap", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.13, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.16,
+          "points": [
+            {"progress": 0, "radius": 6.640965, "temperature": 14000, "luminosity": 802.004317, "envelope": 0.57, "minimumTemperature": 11000, "maximumTemperature": 17000},
+            {"progress": 0.5, "radius": 9.107609, "temperature": 14000, "luminosity": 863.696957, "envelope": 0.54, "minimumTemperature": 11000, "maximumTemperature": 17000},
+            {"progress": 1, "radius": 13.661414, "temperature": 7200, "luminosity": 863.696957, "envelope": 0.51}
+          ]
+        }
+      },
+      {"nodeId": "early_super_agb", "phaseId": "early_super_agb", "durationWeight": 5.89, "radius": 34.153534, "temperature": 3400, "luminosity": 1974.164474, "envelopeFraction": 0.4, "pulsationAmplitude": 0.065, "pulsationFrequency": 0, "surfaceStyle": "early_super_agb", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.14, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.34,
+          "points": [
+            {"progress": 0, "radius": 13.661414, "temperature": 7200, "luminosity": 863.696957, "envelope": 0.51},
+            {"progress": 1, "radius": 34.153534, "temperature": 3400, "luminosity": 1974.164474, "envelope": 0.4}
+          ]
+        }
+      },
+      {"nodeId": "supernova", "phaseId": "supernova", "durationWeight": 2.112, "radius": 0.569226, "temperature": 28000, "luminosity": 2467.705592, "envelopeFraction": 0, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "supernova", "eventProfileId": "SUPERNOVA",
+        "dynamics": {"response": {"duration": 0.15, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "supernova", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 34.153534, "temperature": 3400, "luminosity": 1974.164474, "envelope": 0.4},
+            {"progress": 1, "radius": 0.569226, "temperature": 28000, "luminosity": 2467.705592, "envelope": 0}
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "trackId": "mass_57",
+    "definition": {
+      "version": 3,
+      "massAnvils": 57,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "red_supergiant_first",
+        "K_GIANT": "red_supergiant_first",
+        "G_GIANT": "red_supergiant_first",
+        "F_GIANT": "red_supergiant_first",
+        "A_GIANT": "red_supergiant_first",
+        "B_GIANT": "red_supergiant_first",
+        "O_GIANT": "red_supergiant_first",
+        "M_SUPERGIANT": "red_supergiant_first",
+        "K_SUPERGIANT": "red_supergiant_first",
+        "G_SUPERGIANT": "red_supergiant_first",
+        "F_SUPERGIANT": "red_supergiant_first",
+        "A_SUPERGIANT": "red_supergiant_first",
+        "B_SUPERGIANT": "red_supergiant_first",
+        "O_SUPERGIANT": "red_supergiant_first"
+      },
+      "terminal": {
+        "kind": "neutron_star",
+        "massAnvils": 50,
+        "solarMass": 1.41,
+        "size": 1
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "SUPERNOVA",
+    "phaseNodes": [
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 63.84, "radius": 5.284012, "temperature": 29070.0, "luminosity": 156.002661, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.132, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 4.594793, "temperature": 28500, "luminosity": 111.430472, "envelope": 1},
+            {"progress": 1, "radius": 5.284012, "temperature": 29070.0, "luminosity": 156.002661, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "hook", "phaseId": "hook", "durationWeight": 2.697, "radius": 4.824533, "temperature": 29925.0, "luminosity": 200.57485, "envelopeFraction": 0.98, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hook", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.142, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.02,
+          "points": [
+            {"progress": 0, "radius": 5.284012, "temperature": 29070.0, "luminosity": 156.002661, "envelope": 1},
+            {"progress": 0.45, "radius": 4.135314, "temperature": 32490.0, "luminosity": 183.860279, "envelope": 0.99},
+            {"progress": 1, "radius": 4.824533, "temperature": 29925.0, "luminosity": 200.57485, "envelope": 0.98}
+          ]
+        }
+      },
+      {"nodeId": "hertzsprung_gap", "phaseId": "hertzsprung_gap", "durationWeight": 4.256, "radius": 12.865422, "temperature": 7000, "luminosity": 445.721888, "envelopeFraction": 0.9, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hertzsprung_gap", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.152, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.07,
+          "points": [
+            {"progress": 0, "radius": 4.824533, "temperature": 29925.0, "luminosity": 200.57485, "envelope": 0.98},
+            {"progress": 1, "radius": 12.865422, "temperature": 7000, "luminosity": 445.721888, "envelope": 0.9}
+          ]
+        }
+      },
+      {"nodeId": "red_supergiant_first", "phaseId": "red_supergiant", "durationWeight": 9.711, "radius": 45.947934, "temperature": 3600, "luminosity": 2674.33133, "envelopeFraction": 0.66, "pulsationAmplitude": 0.1, "pulsationFrequency": 0, "surfaceStyle": "red_supergiant", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.132, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.25,
+          "points": [
+            {"progress": 0, "radius": 12.865422, "temperature": 7000, "luminosity": 445.721888, "envelope": 0.9},
+            {"progress": 1, "radius": 45.947934, "temperature": 3600, "luminosity": 2674.33133, "envelope": 0.66}
+          ]
+        }
+      },
+      {"nodeId": "blue_loop", "phaseId": "blue_loop", "durationWeight": 7.448, "radius": 9.189587, "temperature": 12000, "luminosity": 1337.165665, "envelopeFraction": 0.64, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "blue_loop", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.142, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.05,
+          "points": [
+            {"progress": 0, "radius": 45.947934, "temperature": 3600, "luminosity": 2674.33133, "envelope": 0.66},
+            {"progress": 1, "radius": 9.189587, "temperature": 12000, "luminosity": 1337.165665, "envelope": 0.64}
+          ]
+        }
+      },
+      {"nodeId": "helium_main_sequence", "phaseId": "helium_main_sequence", "durationWeight": 6.474, "radius": 8.040888, "temperature": 16000, "luminosity": 1448.596137, "envelopeFraction": 0.57, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "helium_main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.152, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.08,
+          "points": [
+            {"progress": 0, "radius": 9.189587, "temperature": 12000, "luminosity": 1337.165665, "envelope": 0.64},
+            {"progress": 1, "radius": 8.040888, "temperature": 16000, "luminosity": 1448.596137, "envelope": 0.57}
+          ]
+        }
+      },
+      {"nodeId": "second_hertzsprung_gap", "phaseId": "second_hertzsprung_gap", "durationWeight": 3.724, "radius": 16.541256, "temperature": 7200, "luminosity": 1560.026609, "envelopeFraction": 0.51, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "second_hertzsprung_gap", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.132, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.16,
+          "points": [
+            {"progress": 0, "radius": 8.040888, "temperature": 16000, "luminosity": 1448.596137, "envelope": 0.57},
+            {"progress": 1, "radius": 16.541256, "temperature": 7200, "luminosity": 1560.026609, "envelope": 0.51}
+          ]
+        }
+      },
+      {"nodeId": "red_supergiant_second", "phaseId": "red_supergiant", "durationWeight": 6.798, "radius": 54.218562, "temperature": 3600, "luminosity": 2674.33133, "envelopeFraction": 0.51, "pulsationAmplitude": 0.1, "pulsationFrequency": 0, "surfaceStyle": "red_supergiant", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.142, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.25,
+          "points": [
+            {"progress": 0, "radius": 16.541256, "temperature": 7200, "luminosity": 1560.026609, "envelope": 0.51},
+            {"progress": 1, "radius": 54.218562, "temperature": 3600, "luminosity": 2674.33133, "envelope": 0.51}
+          ]
+        }
+      },
+      {"nodeId": "supernova", "phaseId": "supernova", "durationWeight": 2.128, "radius": 0.689219, "temperature": 28000, "luminosity": 4457.218884, "envelopeFraction": 0, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "supernova", "eventProfileId": "SUPERNOVA",
+        "dynamics": {"response": {"duration": 0.152, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "supernova", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 54.218562, "temperature": 3600, "luminosity": 2674.33133, "envelope": 0.51},
+            {"progress": 1, "radius": 0.689219, "temperature": 28000, "luminosity": 4457.218884, "envelope": 0}
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "trackId": "mass_58",
+    "definition": {
+      "version": 3,
+      "massAnvils": 58,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "red_supergiant_superwind",
+        "K_GIANT": "red_supergiant_superwind",
+        "G_GIANT": "red_supergiant_superwind",
+        "F_GIANT": "red_supergiant_superwind",
+        "A_GIANT": "red_supergiant_superwind",
+        "B_GIANT": "red_supergiant_superwind",
+        "O_GIANT": "red_supergiant_superwind",
+        "M_SUPERGIANT": "red_supergiant_superwind",
+        "K_SUPERGIANT": "red_supergiant_superwind",
+        "G_SUPERGIANT": "red_supergiant_superwind",
+        "F_SUPERGIANT": "red_supergiant_superwind",
+        "A_SUPERGIANT": "red_supergiant_superwind",
+        "B_SUPERGIANT": "red_supergiant_superwind",
+        "O_SUPERGIANT": "red_supergiant_superwind"
+      },
+      "terminal": {
+        "kind": "neutron_star",
+        "massAnvils": 51,
+        "solarMass": 2,
+        "size": 1
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "SUPERNOVA",
+    "phaseNodes": [
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 64.32, "radius": 6.389362, "temperature": 32640.0, "luminosity": 280.615969, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.134, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 5.555967, "temperature": 32000, "luminosity": 200.439978, "envelope": 1},
+            {"progress": 1, "radius": 6.389362, "temperature": 32640.0, "luminosity": 280.615969, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "hook", "phaseId": "hook", "durationWeight": 2.717, "radius": 5.833765, "temperature": 33600.0, "luminosity": 360.791961, "envelopeFraction": 0.98, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hook", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.144, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.02,
+          "points": [
+            {"progress": 0, "radius": 6.389362, "temperature": 32640.0, "luminosity": 280.615969, "envelope": 1},
+            {"progress": 0.45, "radius": 5.00037, "temperature": 36480.0, "luminosity": 330.725964, "envelope": 0.99},
+            {"progress": 1, "radius": 5.833765, "temperature": 33600.0, "luminosity": 360.791961, "envelope": 0.98}
+          ]
+        }
+      },
+      {"nodeId": "red_supergiant_superwind", "phaseId": "red_supergiant_superwind", "durationWeight": 10.72, "radius": 56.670861, "temperature": 3500, "luminosity": 5010.999452, "envelopeFraction": 0.25, "pulsationAmplitude": 0.12, "pulsationFrequency": 0, "surfaceStyle": "red_supergiant_superwind", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.154, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.9,
+          "points": [
+            {"progress": 0, "radius": 5.833765, "temperature": 33600.0, "luminosity": 360.791961, "envelope": 0.98},
+            {"progress": 1, "radius": 56.670861, "temperature": 3500, "luminosity": 5010.999452, "envelope": 0.25}
+          ]
+        }
+      },
+      {"nodeId": "naked_helium_star", "phaseId": "naked_helium_star", "durationWeight": 7.609, "radius": 3.33358, "temperature": 32000, "luminosity": 1202.639868, "envelopeFraction": 0.08, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "naked_helium_star", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.134, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.28,
+          "points": [
+            {"progress": 0, "radius": 56.670861, "temperature": 3500, "luminosity": 5010.999452, "envelope": 0.25},
+            {"progress": 1, "radius": 3.33358, "temperature": 32000, "luminosity": 1202.639868, "envelope": 0.08}
+          ]
+        }
+      },
+      {"nodeId": "supernova", "phaseId": "supernova", "durationWeight": 2.144, "radius": 0.833395, "temperature": 28000, "luminosity": 8017.599123, "envelopeFraction": 0, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "supernova", "eventProfileId": "SUPERNOVA",
+        "dynamics": {"response": {"duration": 0.144, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "supernova", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 3.33358, "temperature": 32000, "luminosity": 1202.639868, "envelope": 0.08},
+            {"progress": 1, "radius": 0.833395, "temperature": 28000, "luminosity": 8017.599123, "envelope": 0}
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "trackId": "mass_59",
+    "definition": {
+      "version": 3,
+      "massAnvils": 59,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "red_supergiant",
+        "K_GIANT": "red_supergiant",
+        "G_GIANT": "red_supergiant",
+        "F_GIANT": "red_supergiant",
+        "A_GIANT": "red_supergiant",
+        "B_GIANT": "red_supergiant",
+        "O_GIANT": "red_supergiant",
+        "M_SUPERGIANT": "red_supergiant",
+        "K_SUPERGIANT": "red_supergiant",
+        "G_SUPERGIANT": "red_supergiant",
+        "F_SUPERGIANT": "red_supergiant",
+        "A_SUPERGIANT": "red_supergiant",
+        "B_SUPERGIANT": "red_supergiant",
+        "O_SUPERGIANT": "red_supergiant"
+      },
+      "terminal": {
+        "kind": "black_hole",
+        "massAnvils": 54,
+        "solarMass": 5.66,
+        "size": 1
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "SUPERNOVA",
+    "phaseNodes": [
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 64.8, "radius": 7.736247, "temperature": 35700.0, "luminosity": 506.854141, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.136, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 6.727171, "temperature": 35000, "luminosity": 362.038672, "envelope": 1},
+            {"progress": 1, "radius": 7.736247, "temperature": 35700.0, "luminosity": 506.854141, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "hook", "phaseId": "hook", "durationWeight": 2.737, "radius": 7.06353, "temperature": 36750.0, "luminosity": 651.66961, "envelopeFraction": 0.98, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hook", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.146, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.02,
+          "points": [
+            {"progress": 0, "radius": 7.736247, "temperature": 35700.0, "luminosity": 506.854141, "envelope": 1},
+            {"progress": 0.45, "radius": 6.054454, "temperature": 39900.0, "luminosity": 597.363809, "envelope": 0.99},
+            {"progress": 1, "radius": 7.06353, "temperature": 36750.0, "luminosity": 651.66961, "envelope": 0.98}
+          ]
+        }
+      },
+      {"nodeId": "red_supergiant", "phaseId": "red_supergiant", "durationWeight": 9.72, "radius": 67.271713, "temperature": 3600, "luminosity": 8688.928127, "envelopeFraction": 0.66, "pulsationAmplitude": 0.1, "pulsationFrequency": 0, "surfaceStyle": "red_supergiant", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.156, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.25,
+          "points": [
+            {"progress": 0, "radius": 7.06353, "temperature": 36750.0, "luminosity": 651.66961, "envelope": 0.98},
+            {"progress": 1, "radius": 67.271713, "temperature": 3600, "luminosity": 8688.928127, "envelope": 0.66}
+          ]
+        }
+      },
+      {"nodeId": "superwind_contraction", "phaseId": "superwind_contraction", "durationWeight": 6.57, "radius": 10.763474, "temperature": 20000, "luminosity": 7240.773439, "envelopeFraction": 0.14, "pulsationAmplitude": 0.04, "pulsationFrequency": 0, "surfaceStyle": "superwind_contraction", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.136, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.95,
+          "points": [
+            {"progress": 0, "radius": 67.271713, "temperature": 3600, "luminosity": 8688.928127, "envelope": 0.66},
+            {"progress": 1, "radius": 10.763474, "temperature": 20000, "luminosity": 7240.773439, "envelope": 0.14}
+          ]
+        }
+      },
+      {"nodeId": "naked_helium_star", "phaseId": "naked_helium_star", "durationWeight": 7.56, "radius": 4.036303, "temperature": 32000, "luminosity": 2172.232032, "envelopeFraction": 0.08, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "naked_helium_star", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.146, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.28,
+          "points": [
+            {"progress": 0, "radius": 10.763474, "temperature": 20000, "luminosity": 7240.773439, "envelope": 0.14},
+            {"progress": 1, "radius": 4.036303, "temperature": 32000, "luminosity": 2172.232032, "envelope": 0.08}
+          ]
+        }
+      },
+      {"nodeId": "supernova", "phaseId": "supernova", "durationWeight": 2.19, "radius": 1.009076, "temperature": 28000, "luminosity": 14481.546879, "envelopeFraction": 0, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "supernova", "eventProfileId": "SUPERNOVA",
+        "dynamics": {"response": {"duration": 0.156, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "supernova", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 4.036303, "temperature": 32000, "luminosity": 2172.232032, "envelope": 0.08},
+            {"progress": 1, "radius": 1.009076, "temperature": 28000, "luminosity": 14481.546879, "envelope": 0}
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "trackId": "mass_60",
+    "definition": {
+      "version": 3,
+      "massAnvils": 60,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "red_supergiant",
+        "K_GIANT": "red_supergiant",
+        "G_GIANT": "red_supergiant",
+        "F_GIANT": "red_supergiant",
+        "A_GIANT": "red_supergiant",
+        "B_GIANT": "red_supergiant",
+        "O_GIANT": "red_supergiant",
+        "M_SUPERGIANT": "red_supergiant",
+        "K_SUPERGIANT": "red_supergiant",
+        "G_SUPERGIANT": "red_supergiant",
+        "F_SUPERGIANT": "red_supergiant",
+        "A_SUPERGIANT": "red_supergiant",
+        "B_SUPERGIANT": "red_supergiant",
+        "O_SUPERGIANT": "red_supergiant"
+      },
+      "terminal": {
+        "kind": "black_hole",
+        "massAnvils": 55,
+        "solarMass": 8,
+        "size": 1
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "SUPERNOVA",
+    "phaseNodes": [
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 65.28, "radius": 9.36595, "temperature": 38760.0, "luminosity": 915.155679, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.138, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 8.144305, "temperature": 38000, "luminosity": 653.682628, "envelope": 1},
+            {"progress": 1, "radius": 9.36595, "temperature": 38760.0, "luminosity": 915.155679, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "hook", "phaseId": "hook", "durationWeight": 2.757, "radius": 8.55152, "temperature": 39900.0, "luminosity": 1176.62873, "envelopeFraction": 0.98, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hook", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.148, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.02,
+          "points": [
+            {"progress": 0, "radius": 9.36595, "temperature": 38760.0, "luminosity": 915.155679, "envelope": 1},
+            {"progress": 0.45, "radius": 7.329874, "temperature": 43320.0, "luminosity": 1078.576336, "envelope": 0.99},
+            {"progress": 1, "radius": 8.55152, "temperature": 39900.0, "luminosity": 1176.62873, "envelope": 0.98}
+          ]
+        }
+      },
+      {"nodeId": "red_supergiant", "phaseId": "red_supergiant", "durationWeight": 9.792, "radius": 81.443047, "temperature": 3600, "luminosity": 15688.38307, "envelopeFraction": 0.66, "pulsationAmplitude": 0.1, "pulsationFrequency": 0, "surfaceStyle": "red_supergiant", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.158, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.25,
+          "points": [
+            {"progress": 0, "radius": 8.55152, "temperature": 39900.0, "luminosity": 1176.62873, "envelope": 0.98},
+            {"progress": 1, "radius": 81.443047, "temperature": 3600, "luminosity": 15688.38307, "envelope": 0.66}
+          ]
+        }
+      },
+      {"nodeId": "superwind_contraction", "phaseId": "superwind_contraction", "durationWeight": 6.618, "radius": 13.030887, "temperature": 20000, "luminosity": 13073.652558, "envelopeFraction": 0.14, "pulsationAmplitude": 0.04, "pulsationFrequency": 0, "surfaceStyle": "superwind_contraction", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.138, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.95,
+          "points": [
+            {"progress": 0, "radius": 81.443047, "temperature": 3600, "luminosity": 15688.38307, "envelope": 0.66},
+            {"progress": 1, "radius": 13.030887, "temperature": 20000, "luminosity": 13073.652558, "envelope": 0.14}
+          ]
+        }
+      },
+      {"nodeId": "naked_helium_star", "phaseId": "naked_helium_star", "durationWeight": 7.616, "radius": 4.886583, "temperature": 32000, "luminosity": 3922.095767, "envelopeFraction": 0.08, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "naked_helium_star", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.148, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.28,
+          "points": [
+            {"progress": 0, "radius": 13.030887, "temperature": 20000, "luminosity": 13073.652558, "envelope": 0.14},
+            {"progress": 1, "radius": 4.886583, "temperature": 32000, "luminosity": 3922.095767, "envelope": 0.08}
+          ]
+        }
+      },
+      {"nodeId": "supernova", "phaseId": "supernova", "durationWeight": 2.206, "radius": 1.221646, "temperature": 28000, "luminosity": 26147.305116, "envelopeFraction": 0, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "supernova", "eventProfileId": "SUPERNOVA",
+        "dynamics": {"response": {"duration": 0.158, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "supernova", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 4.886583, "temperature": 32000, "luminosity": 3922.095767, "envelope": 0.08},
+            {"progress": 1, "radius": 1.221646, "temperature": 28000, "luminosity": 26147.305116, "envelope": 0}
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "trackId": "mass_61",
+    "definition": {
+      "version": 3,
+      "massAnvils": 61,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "hertzsprung_gap",
+        "K_GIANT": "hertzsprung_gap",
+        "G_GIANT": "hertzsprung_gap",
+        "F_GIANT": "hertzsprung_gap",
+        "A_GIANT": "hertzsprung_gap",
+        "B_GIANT": "hertzsprung_gap",
+        "O_GIANT": "hertzsprung_gap",
+        "M_SUPERGIANT": "envelope_stripping",
+        "K_SUPERGIANT": "envelope_stripping",
+        "G_SUPERGIANT": "envelope_stripping",
+        "F_SUPERGIANT": "envelope_stripping",
+        "A_SUPERGIANT": "envelope_stripping",
+        "B_SUPERGIANT": "envelope_stripping",
+        "O_SUPERGIANT": "envelope_stripping"
+      },
+      "terminal": {
+        "kind": "black_hole",
+        "massAnvils": 56,
+        "solarMass": 11.3,
+        "size": 1
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "SUPERNOVA",
+    "phaseNodes": [
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 65.76, "radius": 11.326529, "temperature": 41820.0, "luminosity": 1646.773962, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.14, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 9.849155, "temperature": 41000, "luminosity": 1176.267116, "envelope": 1, "minimumTemperature": 25000, "maximumTemperature": 100000},
+            {"progress": 1, "radius": 11.326529, "temperature": 41820.0, "luminosity": 1646.773962, "envelope": 1, "minimumTemperature": 25000, "maximumTemperature": 100000}
+          ]
+        }
+      },
+      {"nodeId": "hook", "phaseId": "hook", "durationWeight": 2.777, "radius": 10.341613, "temperature": 43050.0, "luminosity": 2117.280808, "envelopeFraction": 0.98, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hook", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.15, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.02,
+          "points": [
+            {"progress": 0, "radius": 11.326529, "temperature": 41820.0, "luminosity": 1646.773962, "envelope": 1, "minimumTemperature": 25000, "maximumTemperature": 100000},
+            {"progress": 0.45, "radius": 8.86424, "temperature": 46740.0, "luminosity": 1940.840741, "envelope": 0.99, "minimumTemperature": 25000, "maximumTemperature": 100000},
+            {"progress": 1, "radius": 10.341613, "temperature": 43050.0, "luminosity": 2117.280808, "envelope": 0.98, "minimumTemperature": 25000, "maximumTemperature": 100000}
+          ]
+        }
+      },
+      {"nodeId": "hertzsprung_gap", "phaseId": "hertzsprung_gap", "durationWeight": 4.384, "radius": 27.577635, "temperature": 6900, "luminosity": 4705.068462, "envelopeFraction": 0.9, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hertzsprung_gap", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.16, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.07,
+          "points": [
+            {"progress": 0, "radius": 10.341613, "temperature": 43050.0, "luminosity": 2117.280808, "envelope": 0.98, "minimumTemperature": 25000, "maximumTemperature": 100000},
+            {"progress": 0.65, "radius": 19.698311, "temperature": 30000, "luminosity": 4705.068462, "envelope": 0.94, "minimumTemperature": 25000, "maximumTemperature": 100000},
+            {"progress": 0.8, "radius": 24.622888, "temperature": 6900, "luminosity": 4705.068462, "envelope": 0.92, "minimumTemperature": 6400, "maximumTemperature": 7500},
+            {"progress": 1, "radius": 27.577635, "temperature": 6900, "luminosity": 4705.068462, "envelope": 0.9, "minimumTemperature": 6400, "maximumTemperature": 7500}
+          ]
+        }
+      },
+      {"nodeId": "envelope_stripping", "phaseId": "envelope_stripping", "durationWeight": 6.666, "radius": 13.788817, "temperature": 36000, "luminosity": 23525.34231, "envelopeFraction": 0.14, "pulsationAmplitude": 0.02, "pulsationFrequency": 0, "surfaceStyle": "envelope_stripping", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.14, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.85,
+          "points": [
+            {"progress": 0, "radius": 27.577635, "temperature": 6900, "luminosity": 4705.068462, "envelope": 0.9, "minimumTemperature": 6400, "maximumTemperature": 7500},
+            {"progress": 0.5, "radius": 20.683226, "temperature": 6900, "luminosity": 14115.205386, "envelope": 0.5, "minimumTemperature": 6400, "maximumTemperature": 7500},
+            {"progress": 0.65, "radius": 17.72848, "temperature": 30000, "luminosity": 19996.540964, "envelope": 0.3, "minimumTemperature": 25000, "maximumTemperature": 100000},
+            {"progress": 1, "radius": 13.788817, "temperature": 36000, "luminosity": 23525.34231, "envelope": 0.14, "minimumTemperature": 25000, "maximumTemperature": 100000}
+          ]
+        }
+      },
+      {"nodeId": "wolf_rayet", "phaseId": "wolf_rayet", "durationWeight": 7.672, "radius": 7.879324, "temperature": 55000, "luminosity": 25877.876541, "envelopeFraction": 0.04, "pulsationAmplitude": 0.03, "pulsationFrequency": 0, "surfaceStyle": "wolf_rayet", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.15, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.65,
+          "points": [
+            {"progress": 0, "radius": 13.788817, "temperature": 36000, "luminosity": 23525.34231, "envelope": 0.14, "minimumTemperature": 25000, "maximumTemperature": 100000},
+            {"progress": 1, "radius": 7.879324, "temperature": 55000, "luminosity": 25877.876541, "envelope": 0.04, "minimumTemperature": 25000, "maximumTemperature": 100000}
+          ]
+        }
+      },
+      {"nodeId": "supernova", "phaseId": "supernova", "durationWeight": 2.222, "radius": 1.477373, "temperature": 30000, "luminosity": 47050.684621, "envelopeFraction": 0, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "supernova", "eventProfileId": "SUPERNOVA",
+        "dynamics": {"response": {"duration": 0.16, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "supernova", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 7.879324, "temperature": 55000, "luminosity": 25877.876541, "envelope": 0.04, "minimumTemperature": 25000, "maximumTemperature": 100000},
+            {"progress": 1, "radius": 1.477373, "temperature": 30000, "luminosity": 47050.684621, "envelope": 0, "minimumTemperature": 25000, "maximumTemperature": 100000}
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "trackId": "mass_62",
+    "definition": {
+      "version": 3,
+      "massAnvils": 62,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "hertzsprung_gap",
+        "K_GIANT": "hertzsprung_gap",
+        "G_GIANT": "hertzsprung_gap",
+        "F_GIANT": "hertzsprung_gap",
+        "A_GIANT": "hertzsprung_gap",
+        "B_GIANT": "hertzsprung_gap",
+        "O_GIANT": "hertzsprung_gap",
+        "M_SUPERGIANT": "superwind",
+        "K_SUPERGIANT": "superwind",
+        "G_SUPERGIANT": "superwind",
+        "F_SUPERGIANT": "superwind",
+        "A_SUPERGIANT": "superwind",
+        "B_SUPERGIANT": "superwind",
+        "O_SUPERGIANT": "superwind"
+      },
+      "terminal": {
+        "kind": "black_hole",
+        "massAnvils": 58,
+        "solarMass": 22.6,
+        "size": 1
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "DIRECT_COLLAPSE",
+    "phaseNodes": [
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 66.24, "radius": 13.704227, "temperature": 44880.0, "luminosity": 2967.772596, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.142, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 11.91672, "temperature": 44000, "luminosity": 2119.837569, "envelope": 1},
+            {"progress": 1, "radius": 13.704227, "temperature": 44880.0, "luminosity": 2967.772596, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "hook", "phaseId": "hook", "durationWeight": 2.797, "radius": 12.512556, "temperature": 46200.0, "luminosity": 3815.707624, "envelopeFraction": 0.98, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hook", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.152, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.02,
+          "points": [
+            {"progress": 0, "radius": 13.704227, "temperature": 44880.0, "luminosity": 2967.772596, "envelope": 1},
+            {"progress": 0.45, "radius": 10.725048, "temperature": 50160.0, "luminosity": 3497.731988, "envelope": 0.99},
+            {"progress": 1, "radius": 12.512556, "temperature": 46200.0, "luminosity": 3815.707624, "envelope": 0.98}
+          ]
+        }
+      },
+      {"nodeId": "hertzsprung_gap", "phaseId": "hertzsprung_gap", "durationWeight": 4.416, "radius": 33.366815, "temperature": 7000, "luminosity": 8479.350275, "envelopeFraction": 0.9, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hertzsprung_gap", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.162, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.07,
+          "points": [
+            {"progress": 0, "radius": 12.512556, "temperature": 46200.0, "luminosity": 3815.707624, "envelope": 0.98},
+            {"progress": 1, "radius": 33.366815, "temperature": 7000, "luminosity": 8479.350275, "envelope": 0.9}
+          ]
+        }
+      },
+      {"nodeId": "superwind", "phaseId": "superwind", "durationWeight": 6.714, "radius": 57.200254, "temperature": 26000, "luminosity": 44516.588943, "envelopeFraction": 0.24, "pulsationAmplitude": 0.055, "pulsationFrequency": 0, "surfaceStyle": "superwind", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.142, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.95,
+          "points": [
+            {"progress": 0, "radius": 33.366815, "temperature": 7000, "luminosity": 8479.350275, "envelope": 0.9},
+            {"progress": 1, "radius": 57.200254, "temperature": 26000, "luminosity": 44516.588943, "envelope": 0.24}
+          ]
+        }
+      },
+      {"nodeId": "contraction", "phaseId": "contraction", "durationWeight": 4.416, "radius": 14.300063, "temperature": 42000, "luminosity": 36037.238668, "envelopeFraction": 0.1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "contraction", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.152, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.2,
+          "points": [
+            {"progress": 0, "radius": 57.200254, "temperature": 26000, "luminosity": 44516.588943, "envelope": 0.24},
+            {"progress": 1, "radius": 14.300063, "temperature": 42000, "luminosity": 36037.238668, "envelope": 0.1}
+          ]
+        }
+      },
+      {"nodeId": "wolf_rayet", "phaseId": "wolf_rayet", "durationWeight": 7.833, "radius": 9.533376, "temperature": 55000, "luminosity": 46636.426512, "envelopeFraction": 0.04, "pulsationAmplitude": 0.03, "pulsationFrequency": 0, "surfaceStyle": "wolf_rayet", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.162, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.65,
+          "points": [
+            {"progress": 0, "radius": 14.300063, "temperature": 42000, "luminosity": 36037.238668, "envelope": 0.1},
+            {"progress": 1, "radius": 9.533376, "temperature": 55000, "luminosity": 46636.426512, "envelope": 0.04}
+          ]
+        }
+      },
+      {"nodeId": "direct_collapse", "phaseId": "direct_collapse", "durationWeight": 2.208, "radius": 0.476669, "temperature": 32000, "luminosity": 423.967514, "envelopeFraction": 0, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "direct_collapse", "eventProfileId": "DIRECT_COLLAPSE",
+        "dynamics": {"response": {"duration": 0.142, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "direct_collapse", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 9.533376, "temperature": 55000, "luminosity": 46636.426512, "envelope": 0.04},
+            {"progress": 1, "radius": 0.476669, "temperature": 32000, "luminosity": 423.967514, "envelope": 0}
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "trackId": "mass_63",
+    "definition": {
+      "version": 3,
+      "massAnvils": 63,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "hertzsprung_gap",
+        "K_GIANT": "hertzsprung_gap",
+        "G_GIANT": "hertzsprung_gap",
+        "F_GIANT": "hertzsprung_gap",
+        "A_GIANT": "hertzsprung_gap",
+        "B_GIANT": "hertzsprung_gap",
+        "O_GIANT": "hertzsprung_gap",
+        "M_SUPERGIANT": "superwind",
+        "K_SUPERGIANT": "superwind",
+        "G_SUPERGIANT": "superwind",
+        "F_SUPERGIANT": "superwind",
+        "A_SUPERGIANT": "superwind",
+        "B_SUPERGIANT": "superwind",
+        "O_SUPERGIANT": "superwind"
+      },
+      "terminal": {
+        "kind": "black_hole",
+        "massAnvils": 59,
+        "solarMass": 32,
+        "size": 1
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "PPISN_PULSE",
+    "phaseNodes": [
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 66.72, "radius": 16.583009, "temperature": 47940.0, "luminosity": 5350.384387, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.144, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 14.420007, "temperature": 47000, "luminosity": 3821.703133, "envelope": 1},
+            {"progress": 1, "radius": 16.583009, "temperature": 47940.0, "luminosity": 5350.384387, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "hook", "phaseId": "hook", "durationWeight": 2.817, "radius": 15.141008, "temperature": 49350.0, "luminosity": 6879.06564, "envelopeFraction": 0.98, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hook", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.154, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.02,
+          "points": [
+            {"progress": 0, "radius": 16.583009, "temperature": 47940.0, "luminosity": 5350.384387, "envelope": 1},
+            {"progress": 0.45, "radius": 12.978007, "temperature": 53580.0, "luminosity": 6305.81017, "envelope": 0.99},
+            {"progress": 1, "radius": 15.141008, "temperature": 49350.0, "luminosity": 6879.06564, "envelope": 0.98}
+          ]
+        }
+      },
+      {"nodeId": "hertzsprung_gap", "phaseId": "hertzsprung_gap", "durationWeight": 4.448, "radius": 40.376021, "temperature": 7000, "luminosity": 15286.812533, "envelopeFraction": 0.9, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hertzsprung_gap", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.164, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.07,
+          "points": [
+            {"progress": 0, "radius": 15.141008, "temperature": 49350.0, "luminosity": 6879.06564, "envelope": 0.98},
+            {"progress": 1, "radius": 40.376021, "temperature": 7000, "luminosity": 15286.812533, "envelope": 0.9}
+          ]
+        }
+      },
+      {"nodeId": "superwind", "phaseId": "superwind", "durationWeight": 6.762, "radius": 69.216036, "temperature": 26000, "luminosity": 80255.7658, "envelopeFraction": 0.24, "pulsationAmplitude": 0.055, "pulsationFrequency": 0, "surfaceStyle": "superwind", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.144, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.95,
+          "points": [
+            {"progress": 0, "radius": 40.376021, "temperature": 7000, "luminosity": 15286.812533, "envelope": 0.9},
+            {"progress": 1, "radius": 69.216036, "temperature": 26000, "luminosity": 80255.7658, "envelope": 0.24}
+          ]
+        }
+      },
+      {"nodeId": "contraction", "phaseId": "contraction", "durationWeight": 4.448, "radius": 17.304009, "temperature": 42000, "luminosity": 64968.953267, "envelopeFraction": 0.1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "contraction", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.154, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.2,
+          "points": [
+            {"progress": 0, "radius": 69.216036, "temperature": 26000, "luminosity": 80255.7658, "envelope": 0.24},
+            {"progress": 1, "radius": 17.304009, "temperature": 42000, "luminosity": 64968.953267, "envelope": 0.1}
+          ]
+        }
+      },
+      {"nodeId": "bare_core_wr", "phaseId": "bare_core_wr", "durationWeight": 7.889, "radius": 8.652004, "temperature": 75000, "luminosity": 99364.281467, "envelopeFraction": 0.015, "pulsationAmplitude": 0.02, "pulsationFrequency": 0, "surfaceStyle": "bare_core_wr", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.164, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.7,
+          "points": [
+            {"progress": 0, "radius": 17.304009, "temperature": 42000, "luminosity": 64968.953267, "envelope": 0.1},
+            {"progress": 1, "radius": 8.652004, "temperature": 75000, "luminosity": 99364.281467, "envelope": 0.015}
+          ]
+        }
+      },
+      {"nodeId": "ppisn", "phaseId": "ppisn", "durationWeight": 5.56, "radius": 5.768003, "temperature": 32000, "luminosity": 107007.687733, "envelopeFraction": 0.005, "pulsationAmplitude": 0.35, "pulsationFrequency": 0, "surfaceStyle": "ppisn", "eventProfileId": "PPISN_PULSE",
+        "dynamics": {"response": {"duration": 0.144, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 5}, "eventPolicy": "ppisn", "pulses": 2, "wind": 0.7,
+          "points": [
+            {"progress": 0, "radius": 8.652004, "temperature": 75000, "luminosity": 99364.281467, "envelope": 0.015},
+            {"progress": 1, "radius": 5.768003, "temperature": 32000, "luminosity": 107007.687733, "envelope": 0.005}
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "trackId": "mass_64",
+    "definition": {
+      "version": 3,
+      "massAnvils": 64,
+      "startingNodes": {
+        "M_MAIN": "main_sequence",
+        "K_MAIN": "main_sequence",
+        "G_MAIN": "main_sequence",
+        "F_MAIN": "main_sequence",
+        "A_MAIN": "main_sequence",
+        "B_MAIN": "main_sequence",
+        "O_MAIN": "main_sequence",
+        "M_GIANT": "hertzsprung_gap",
+        "K_GIANT": "hertzsprung_gap",
+        "G_GIANT": "hertzsprung_gap",
+        "F_GIANT": "hertzsprung_gap",
+        "A_GIANT": "hertzsprung_gap",
+        "B_GIANT": "hertzsprung_gap",
+        "O_GIANT": "hertzsprung_gap",
+        "M_SUPERGIANT": "superwind",
+        "K_SUPERGIANT": "superwind",
+        "G_SUPERGIANT": "superwind",
+        "F_SUPERGIANT": "superwind",
+        "A_SUPERGIANT": "superwind",
+        "B_SUPERGIANT": "superwind",
+        "O_SUPERGIANT": "superwind"
+      },
+      "terminal": {
+        "kind": "disruption",
+        "massAnvils": 0,
+        "solarMass": 0,
+        "size": 1
+      },
+      "metallicity": {
+        "minimum": 0.1,
+        "maximum": 2.5,
+        "solarZ": 0.014
+      }
+    },
+    "terminalProfile": "PISN",
+    "phaseNodes": [
+      {"nodeId": "main_sequence", "phaseId": "main_sequence", "durationWeight": 67.2, "radius": 20.064163, "temperature": 51000.0, "luminosity": 9642.321612, "envelopeFraction": 1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "main_sequence", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.146, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 17.447099, "temperature": 50000, "luminosity": 6887.37258, "envelope": 1},
+            {"progress": 1, "radius": 20.064163, "temperature": 51000.0, "luminosity": 9642.321612, "envelope": 1}
+          ]
+        }
+      },
+      {"nodeId": "hook", "phaseId": "hook", "durationWeight": 2.837, "radius": 18.319454, "temperature": 52500.0, "luminosity": 12397.270645, "envelopeFraction": 0.98, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hook", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.156, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.02,
+          "points": [
+            {"progress": 0, "radius": 20.064163, "temperature": 51000.0, "luminosity": 9642.321612, "envelope": 1},
+            {"progress": 0.45, "radius": 15.702389, "temperature": 57000.0, "luminosity": 11364.164757, "envelope": 0.99},
+            {"progress": 1, "radius": 18.319454, "temperature": 52500.0, "luminosity": 12397.270645, "envelope": 0.98}
+          ]
+        }
+      },
+      {"nodeId": "hertzsprung_gap", "phaseId": "hertzsprung_gap", "durationWeight": 4.48, "radius": 48.851876, "temperature": 7000, "luminosity": 27549.490321, "envelopeFraction": 0.9, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "hertzsprung_gap", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.166, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.07,
+          "points": [
+            {"progress": 0, "radius": 18.319454, "temperature": 52500.0, "luminosity": 12397.270645, "envelope": 0.98},
+            {"progress": 1, "radius": 48.851876, "temperature": 7000, "luminosity": 27549.490321, "envelope": 0.9}
+          ]
+        }
+      },
+      {"nodeId": "superwind", "phaseId": "superwind", "durationWeight": 6.81, "radius": 83.746073, "temperature": 26000, "luminosity": 144634.824186, "envelopeFraction": 0.24, "pulsationAmplitude": 0.055, "pulsationFrequency": 0, "surfaceStyle": "superwind", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.146, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.95,
+          "points": [
+            {"progress": 0, "radius": 48.851876, "temperature": 7000, "luminosity": 27549.490321, "envelope": 0.9},
+            {"progress": 1, "radius": 83.746073, "temperature": 26000, "luminosity": 144634.824186, "envelope": 0.24}
+          ]
+        }
+      },
+      {"nodeId": "contraction", "phaseId": "contraction", "durationWeight": 4.48, "radius": 20.936518, "temperature": 42000, "luminosity": 117085.333865, "envelopeFraction": 0.1, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "contraction", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.156, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "visual", "pulses": 1, "wind": 0.2,
+          "points": [
+            {"progress": 0, "radius": 83.746073, "temperature": 26000, "luminosity": 144634.824186, "envelope": 0.24},
+            {"progress": 1, "radius": 20.936518, "temperature": 42000, "luminosity": 117085.333865, "envelope": 0.1}
+          ]
+        }
+      },
+      {"nodeId": "bare_core_wr", "phaseId": "bare_core_wr", "durationWeight": 7.945, "radius": 10.468259, "temperature": 75000, "luminosity": 179071.687088, "envelopeFraction": 0.015, "pulsationAmplitude": 0.02, "pulsationFrequency": 0, "surfaceStyle": "bare_core_wr", "eventProfileId": "",
+        "dynamics": {"response": {"duration": 0.166, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 2, "maximumPulses": 3}, "eventPolicy": "visual", "pulses": 2, "wind": 0.7,
+          "points": [
+            {"progress": 0, "radius": 20.936518, "temperature": 42000, "luminosity": 117085.333865, "envelope": 0.1},
+            {"progress": 1, "radius": 10.468259, "temperature": 75000, "luminosity": 179071.687088, "envelope": 0.015}
+          ]
+        }
+      },
+      {"nodeId": "pisn", "phaseId": "pisn", "durationWeight": 3.36, "radius": 0.261706, "temperature": 32000, "luminosity": 344368.629015, "envelopeFraction": 0, "pulsationAmplitude": 0, "pulsationFrequency": 0, "surfaceStyle": "pisn", "eventProfileId": "PISN",
+        "dynamics": {"response": {"duration": 0.146, "radius": 0.08, "temperature": -0.06, "luminosity": -0.1, "wind": 0.18, "amplitude": 0.12, "minimumPulses": 1, "maximumPulses": 1}, "eventPolicy": "pisn", "pulses": 1, "wind": 0,
+          "points": [
+            {"progress": 0, "radius": 10.468259, "temperature": 75000, "luminosity": 179071.687088, "envelope": 0.015},
+            {"progress": 1, "radius": 0.261706, "temperature": 32000, "luminosity": 344368.629015, "envelope": 0}
+          ]
+        }
+      }
+    ]
   }
 ]

@@ -10,6 +10,17 @@ import net.neoforged.fml.config.ModConfig;
 
 @Config(name = AnvilCraft.MOD_ID, type = ModConfig.Type.SERVER)
 public class AnvilCraftServerConfig {
+    @Comment("Orbital integration substeps per tick for freely falling items and blocks; 1 restores legacy motion")
+    @BoundedDiscrete(min = 1, max = 64)
+    public int orbitIntegrationSubsteps = 8;
+
+    @Comment("Enable weak Schwarzschild periapsis advance around attractive gravity sources of strength at least 10")
+    public boolean relativisticPrecession = true;
+
+    @Comment("Effective speed of light in blocks per tick for orbital precession; larger values weaken the effect")
+    @BoundedDiscrete(min = 16, max = 4096)
+    public int orbitalSpeedOfLight = 64;
+
     @Comment("Maximum radius of giant anvil's shock behavior")
     @BoundedDiscrete(max = 16, min = 4)
     public int giantAnvilMaxShockRadius = 16;

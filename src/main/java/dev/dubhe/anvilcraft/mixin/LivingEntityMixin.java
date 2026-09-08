@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.mixin;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -19,6 +20,7 @@ import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.loot.ModLootTables;
 import dev.dubhe.anvilcraft.item.property.component.BoxContents;
 import dev.dubhe.anvilcraft.util.AirResistanceManager;
+import dev.dubhe.anvilcraft.util.GravityManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.server.level.ServerLevel;
@@ -51,6 +53,7 @@ import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
@@ -288,21 +291,61 @@ public abstract class LivingEntityMixin extends Entity {
     }
 
     /** Horizontal air resistance, also the airborne share of the ground friction product. */
-    @ModifyConstant(method = "travel", constant = @Constant(floatValue = 0.91f))
+    @ModifyExpressionValue(method = "travel", at = @At(value = "CONSTANT", args = "floatValue=0.91"))
     private float anvilcraft$scaleHorizontalAirDrag(float vanillaDrag) {
-        return AirResistanceManager.drag(this.level(), vanillaDrag);
+        if (GravityManager.hasFloorSupport(this)) return vanillaDrag;
+        return AirResistanceManager.drag(this, vanillaDrag);
     }
 
     /// 竖直空气阻力和鞘翅飞行阻力 —— 原版把这两个 {@code float} 字面量直接乘到 {@code double} 上，
     /// 编译期就已折叠成 {@code double} 常量，因此这里必须按加宽后的值匹配。
-    @ModifyConstant(method = "travel", constant = @Constant(doubleValue = 0.98f))
+    @ModifyExpressionValue(method = "travel", at = @At(value = "CONSTANT", args = "doubleValue=0.9800000190734863"))
     private double anvilcraft$scaleVerticalAirDrag(double vanillaDrag) {
-        return AirResistanceManager.drag(this.level(), vanillaDrag);
+        return AirResistanceManager.drag(this, vanillaDrag);
     }
 
     /** Horizontal elytra drag. */
-    @ModifyConstant(method = "travel", constant = @Constant(doubleValue = 0.99f))
+    @ModifyExpressionValue(method = "travel", at = @At(value = "CONSTANT", args = "doubleValue=0.9900000095367432"))
     private double anvilcraft$scaleElytraAirDrag(double vanillaDrag) {
-        return AirResistanceManager.drag(this.level(), vanillaDrag);
+        return AirResistanceManager.drag(this, vanillaDrag);
+    }
+
+    @ModifyConstant(method = "travel", constant = @Constant(doubleValue = 0.75))
+    private double anvilcraft$scaleElytraLift(double vanillaLift) {
+        return AirResistanceManager.elytraLift(this, vanillaLift);
+    }
+
+    @ModifyConstant(
+        method = "travel",
+        constant = {@Constant(doubleValue = -0.1), @Constant(doubleValue = 0.04)},
+        slice = @Slice(to = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;getBlockPosBelowThatAffectsMyMovement()Lnet/minecraft/core/BlockPos;",
+            ordinal = 0
+        ))
+    )
+    private double anvilcraft$scaleElytraResponse(double vanillaResponse) {
+        return AirResistanceManager.elytraResponse(this, vanillaResponse);
+    }
+
+    @ModifyExpressionValue(
+        method = "travel",
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;onGround()Z"),
+        slice = @Slice(from = @At(
+            value = "INVOKE",
+            target = "Lnet/minecraft/world/entity/LivingEntity;getBlockPosBelowThatAffectsMyMovement()Lnet/minecraft/core/BlockPos;",
+            ordinal = 0
+        ))
+    )
+    private boolean anvilcraft$useDirectionalSurfaceFriction(boolean onGround) {
+        return onGround && !GravityManager.hasCustomSurfaceFriction(this);
+    }
+
+    @ModifyExpressionValue(
+        method = {"getFrictionInfluencedSpeed", "aiStep"},
+        at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/LivingEntity;onGround()Z")
+    )
+    private boolean anvilcraft$allowSupportedWalkingAndJumping(boolean onGround) {
+        return onGround || GravityManager.hasFloorSupport(this);
     }
 }

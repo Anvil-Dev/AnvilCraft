@@ -5,6 +5,7 @@ import com.mojang.math.Axis;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.PulseGeneratorBlock;
 import dev.dubhe.anvilcraft.block.entity.PulseGeneratorBlockEntity;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -12,7 +13,8 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 
-public class PulseGeneratorBlockEntityRenderer implements BlockEntityRenderer<PulseGeneratorBlockEntity> {
+public class PulseGeneratorBlockEntityRenderer
+    implements BlockEntityRenderer<PulseGeneratorBlockEntity>, ModelSelectionRenderer<PulseGeneratorBlockEntity> {
     private static final ModelResourceLocation INDICATOR = ModelResourceLocation.standalone(
         AnvilCraft.of("block/pulse_generator_indicator")
     );
@@ -43,6 +45,17 @@ public class PulseGeneratorBlockEntityRenderer implements BlockEntityRenderer<Pu
         int packedLight,
         int packedOverlay
     ) {
+        collectSelectionModels(blockEntity, partialTick, poseStack, (model, pose) -> Minecraft.getInstance()
+            .getBlockRenderer().getModelRenderer().renderModel(
+                pose.last(), bufferSource.getBuffer(RenderType.cutout()), null,
+                Minecraft.getInstance().getModelManager().getModel(model), 1, 1, 1, packedLight, packedOverlay
+            ));
+    }
+
+    @Override
+    public void collectSelectionModels(
+        PulseGeneratorBlockEntity blockEntity, float partialTick, PoseStack poseStack, ModelConsumer consumer
+    ) {
         poseStack.pushPose();
         poseStack.translate(0.5f, 0.0f, 0.5f);
         poseStack.mulPose(Axis.YP.rotationDegrees(-blockEntity.getBlockState().getValue(PulseGeneratorBlock.FACING).toYRot()));
@@ -53,20 +66,7 @@ public class PulseGeneratorBlockEntityRenderer implements BlockEntityRenderer<Pu
         float phaseStartAngle = outputting ? END_ANGLE : START_ANGLE;
         translateOnTable(poseStack, INDICATOR_OFFSET_Z);
         rotateOnTable(poseStack, phaseStartAngle + (END_ANGLE - START_ANGLE) * phaseProgress);
-        Minecraft.getInstance()
-            .getBlockRenderer()
-            .getModelRenderer()
-            .renderModel(
-                poseStack.last(),
-                bufferSource.getBuffer(RenderType.cutout()),
-                null,
-                Minecraft.getInstance().getModelManager().getModel(overspeed ? INDICATOR_OVERSPEED : INDICATOR),
-                1.0f,
-                1.0f,
-                1.0f,
-                packedLight,
-                packedOverlay
-        );
+        consumer.accept(overspeed ? INDICATOR_OVERSPEED : INDICATOR, poseStack);
         poseStack.popPose();
     }
 

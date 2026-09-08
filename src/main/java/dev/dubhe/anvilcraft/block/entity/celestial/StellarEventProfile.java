@@ -110,6 +110,19 @@ public final class StellarEventProfile implements StringRepresentable {
         float asymmetry,
         RemnantKind remnantKind
     ) {
+        if (precursorTicks < 0 || collapseTicks < 1 || ejectaTicks < 0 || fadeTicks < 0
+            || !Float.isFinite(peakEmission) || peakEmission < 0 || peakEmission > 64
+            || !Float.isFinite(rayLength) || rayLength < 0 || rayLength > 128
+            || !Float.isFinite(asymmetry) || asymmetry < 0 || asymmetry > 1
+            || shellCount < 0 || shellCount > 16 || rayCount < 0 || rayCount > 128) {
+            throw new IllegalArgumentException("Invalid stellar event values: " + profileId);
+        }
+        for (List<Float> curve : List.of(coreRadiusCurve, ejectaRadiusCurve)) {
+            if (curve.isEmpty() || curve.size() > 64 || curve.stream().anyMatch(value -> !Float.isFinite(value)
+                || value < 0 || value > 128)) {
+                throw new IllegalArgumentException("Invalid stellar event curve: " + profileId);
+            }
+        }
         this.profileId = Objects.requireNonNull(profileId);
         this.precursorTicks = Math.max(0, precursorTicks);
         this.collapseTicks = Math.max(1, collapseTicks);
@@ -126,6 +139,20 @@ public final class StellarEventProfile implements StringRepresentable {
         this.rayLength = Float.isFinite(rayLength) ? Math.max(0.0f, rayLength) : 0.0f;
         this.asymmetry = Float.isFinite(asymmetry) ? Math.clamp(asymmetry, 0.0f, 1.0f) : 0.0f;
         this.remnantKind = Objects.requireNonNull(remnantKind);
+    }
+
+    public void validate() {
+        if (profileId.isBlank() || palette.size() > 64 || (long) precursorTicks + collapseTicks + ejectaTicks + fadeTicks > 24000) {
+            throw new IllegalArgumentException("Invalid stellar event: " + profileId);
+        }
+    }
+
+    public StellarEventProfile resolveVisual(double coordinate) {
+        float factor = (float) (1 + coordinate * 0.1);
+        return new StellarEventProfile(profileId, precursorTicks, collapseTicks, ejectaTicks, fadeTicks,
+            coreRadiusCurve, ejectaRadiusCurve.stream().map(value -> Math.min(128, value * factor)).toList(),
+            Math.min(64, peakEmission * factor), palette, shellCount, rayCount, rayLength,
+            Math.clamp(asymmetry * factor, 0, 1), remnantKind);
     }
 
     private static List<Float> normaliseCurve(List<Float> curve, float fallback) {
