@@ -62,6 +62,20 @@ public class LargeCrateBlock
     }
 
     @Override
+    protected boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+        BlockEntity blockEntity = level.getBlockEntity(this.getMainPartPos(pos, state));
+        if (blockEntity instanceof LargeCrateBlockEntity entity) {
+            return entity.getComparatorSignal();
+        }
+        return 0;
+    }
+
+    @Override
     public ItemStack getCloneItemStack(
         BlockState state,
         HitResult target,

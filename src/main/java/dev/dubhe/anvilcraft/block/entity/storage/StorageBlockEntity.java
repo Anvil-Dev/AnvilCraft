@@ -1,5 +1,6 @@
 package dev.dubhe.anvilcraft.block.entity.storage;
 
+import dev.dubhe.anvilcraft.api.itemhandler.unlimited.SpaceSizeItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.unlimited.UnlimitedItemStacksResourceHandler;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.init.item.ModComponents;
@@ -44,6 +45,7 @@ public class StorageBlockEntity extends BlockEntity {
         this.id = id;
         this.setChanged();
         TerminalBlockRegistry.registerIfApplicable(this);
+        StorageBlockRegistry.registerIfApplicable(this);
         if (this.level != null) {
             BlockState state = this.getBlockState();
             this.level.sendBlockUpdated(this.getBlockPos(), state, state, Block.UPDATE_ALL);
@@ -79,6 +81,12 @@ public class StorageBlockEntity extends BlockEntity {
     }
 
     @Override
+    public void onLoad() {
+        super.onLoad();
+        StorageBlockRegistry.registerIfApplicable(this);
+    }
+
+    @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         CompoundTag tag = new CompoundTag();
         if (this.id != null) {
@@ -96,12 +104,14 @@ public class StorageBlockEntity extends BlockEntity {
     public void onChunkUnloaded() {
         super.onChunkUnloaded();
         TerminalBlockRegistry.unregisterIfApplicable(this);
+        StorageBlockRegistry.unregisterIfApplicable(this);
     }
 
     @Override
     public void setRemoved() {
         super.setRemoved();
         TerminalBlockRegistry.unregisterIfApplicable(this);
+        StorageBlockRegistry.unregisterIfApplicable(this);
     }
 
     @Override
@@ -119,6 +129,34 @@ public class StorageBlockEntity extends BlockEntity {
     protected void collectImplicitComponents(DataComponentMap.Builder builder) {
         super.collectImplicitComponents(builder);
         builder.set(ModComponents.STORAGE, new StorageRef(this.storageType, this.id));
+    }
+
+    /**
+     * 计算比较器输出信号强度：按存储容量占用率换算为 0-15。
+     *
+     * <p>板条箱与大型板条箱的处理器都是 {@link SpaceSizeItemStacksResourceHandler}，
+     * 信号与界面容量条一致（空箱 0、满箱 15）。</p>
+     */
+    public int getComparatorSignal() {
+        if (this.level == null || this.level.isClientSide() || this.id == null) {
+            return 0;
+        }
+        return Storages.get().get(this.id)
+            .map(storage -> storage.getItems() instanceof SpaceSizeItemStacksResourceHandler spaceHandler
+                ? (int) Math.ceil(spaceHandler.getFullness() * 15.0)
+                : 0)
+            .orElse(0);
+    }
+
+    /**
+     * 存储内容变化后刷新相邻比较器输出信号。
+     */
+    public void refreshComparatorSignal() {
+        if (this.level == null || this.level.isClientSide()) {
+            return;
+        }
+        BlockState state = this.getBlockState();
+        this.level.updateNeighbourForOutputSignal(this.getBlockPos(), state.getBlock());
     }
 
     public long getTotalCount() {

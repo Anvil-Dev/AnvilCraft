@@ -109,6 +109,20 @@ public class CrateBlock extends Block implements EntityBlock, IHammerRemovable {
         return ModBlockEntities.CRATE.create(pos, state);
     }
 
+    @Override
+    protected boolean hasAnalogOutputSignal(BlockState state) {
+        return true;
+    }
+
+    @Override
+    protected int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof CrateBlockEntity entity) {
+            return entity.getComparatorSignal();
+        }
+        return 0;
+    }
+
     /**
      * 按 dispose 状态返回板条箱显示名：溢出销毁模式显示「溢出销毁板条箱」。
      */
