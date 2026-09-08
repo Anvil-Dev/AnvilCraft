@@ -70,9 +70,9 @@ public class HasMobBlockRenderer implements BlockEntityRenderer<HasMobBlockEntit
         this.dispatcher.submit(
             mob,
             camera,
-            state.blockPos.getX(),
-            state.blockPos.getY(),
-            state.blockPos.getZ(),
+            0,
+            0,
+            0,
             pose,
             collector
         );
