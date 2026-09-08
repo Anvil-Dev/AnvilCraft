@@ -10,6 +10,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BuddingAmethystBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -31,9 +32,11 @@ public class BuddingAmethystBlockMixin implements IBuddingAmethystBlockExtension
             BlockPos neighborPos = pos.relative(dir);
             BlockState neighborState = level.getBlockState(neighborPos);
             if (
-                neighborState.getBlock() instanceof AmethystClusterBlock
-                && neighborState.getValue(AmethystClusterBlock.FACING) == dir
-                && !neighborState.is(Blocks.AMETHYST_CLUSTER)
+                neighborState.isAir()
+                || (neighborState.is(Blocks.WATER) && neighborState.getValue(BlockStateProperties.LEVEL) == 0)
+                || (neighborState.getBlock() instanceof AmethystClusterBlock
+                    && neighborState.getValue(AmethystClusterBlock.FACING) == dir
+                    && !neighborState.is(Blocks.AMETHYST_CLUSTER))
             ) {
                 budDirs.add(dir);
             }
@@ -47,12 +50,19 @@ public class BuddingAmethystBlockMixin implements IBuddingAmethystBlockExtension
         BlockState budState = level.getBlockState(budPos);
 
         Block advancedBud = null;
-        if (budState.is(Blocks.SMALL_AMETHYST_BUD)) {
-            advancedBud = Blocks.MEDIUM_AMETHYST_BUD;
-        } else if (budState.is(Blocks.MEDIUM_AMETHYST_BUD)) {
-            advancedBud = Blocks.LARGE_AMETHYST_BUD;
-        } else if (budState.is(Blocks.LARGE_AMETHYST_BUD)) {
-            advancedBud = Blocks.AMETHYST_CLUSTER;
+        boolean waterLogged = false;
+        if (budState.getBlock() instanceof AmethystClusterBlock) {
+            waterLogged = budState.getValue(AmethystClusterBlock.WATERLOGGED);
+            if (budState.is(Blocks.SMALL_AMETHYST_BUD)) {
+                advancedBud = Blocks.MEDIUM_AMETHYST_BUD;
+            } else if (budState.is(Blocks.MEDIUM_AMETHYST_BUD)) {
+                advancedBud = Blocks.LARGE_AMETHYST_BUD;
+            } else if (budState.is(Blocks.LARGE_AMETHYST_BUD)) {
+                advancedBud = Blocks.AMETHYST_CLUSTER;
+            }
+        } else {
+            waterLogged = budState.is(Blocks.WATER);
+            advancedBud = Blocks.SMALL_AMETHYST_BUD;
         }
         if (advancedBud == null) {
             return;
@@ -61,10 +71,7 @@ public class BuddingAmethystBlockMixin implements IBuddingAmethystBlockExtension
             budPos,
             advancedBud.defaultBlockState()
                 .setValue(AmethystClusterBlock.FACING, chosen)
-                .setValue(
-                    AmethystClusterBlock.WATERLOGGED,
-                    budState.getValue(AmethystClusterBlock.WATERLOGGED)
-                )
+                .setValue(AmethystClusterBlock.WATERLOGGED, waterLogged)
         );
     }
 
