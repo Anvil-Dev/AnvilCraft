@@ -32,8 +32,7 @@ public class BuddingAmethystBlockMixin implements IBuddingAmethystBlockExtension
             BlockPos neighborPos = pos.relative(dir);
             BlockState neighborState = level.getBlockState(neighborPos);
             if (
-                neighborState.isAir()
-                || (neighborState.is(Blocks.WATER) && neighborState.getFluidState().getAmount() == 8)
+                BuddingAmethystBlock.canClusterGrowAtState(neighborState)
                 || (neighborState.getBlock() instanceof AmethystClusterBlock
                     && neighborState.getValue(AmethystClusterBlock.FACING) == dir
                     && !neighborState.is(Blocks.AMETHYST_CLUSTER))
@@ -58,7 +57,7 @@ public class BuddingAmethystBlockMixin implements IBuddingAmethystBlockExtension
             } else if (budState.is(Blocks.LARGE_AMETHYST_BUD)) {
                 advancedBud = Blocks.AMETHYST_CLUSTER;
             }
-        } else {
+        } else if (BuddingAmethystBlock.canClusterGrowAtState(budState)) {
             advancedBud = Blocks.SMALL_AMETHYST_BUD;
         }
         if (advancedBud == null) {
@@ -70,7 +69,8 @@ public class BuddingAmethystBlockMixin implements IBuddingAmethystBlockExtension
                 .setValue(AmethystClusterBlock.FACING, chosen)
                 .setValue(
                     AmethystClusterBlock.WATERLOGGED,
-                    budState.getFluidState().getType() == Fluids.WATER)
+                    budState.getFluidState().getType() == Fluids.WATER
+                )
         );
     }
 
