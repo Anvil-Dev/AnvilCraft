@@ -81,7 +81,8 @@
             ],
             "properties": [
               {
-                "overload": "false"
+                "overload": "false",
+                "powered": "false"
               },
               {
                 "level": "2"
