@@ -802,13 +802,6 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.evolution.terminal_outcome.neutron_star", "Expected remnant: neutron star");
         provider.add("screen.anvilcraft.cfa.evolution.terminal_outcome.black_hole", "Expected remnant: black hole");
         provider.add("screen.anvilcraft.cfa.evolution.terminal_outcome.disruption", "Expected outcome: complete disruption");
-        String[] stellarTerminals = {
-            "helium_flash", "agb_thermal_pulse", "core_collapse_ii_p", "core_collapse_ii_l", "stripped_ib",
-            "stripped_ic", "electron_capture", "direct_collapse", "pulsational_pair", "pair_instability"
-        };
-        for (String terminal : stellarTerminals) {
-            provider.add("screen.anvilcraft.cfa.evolution.terminal." + terminal, "Terminal: " + terminal.replace('_', ' '));
-        }
         provider.add("screen.anvilcraft.cfa.evolution.time_remaining", "Time Remaining: %s"); // 剩余时间:
         provider.add("screen.anvilcraft.cfa.evolution.infinite_power", "Generating Infinite Power..."); // 无限发电中
         provider.add("screen.anvilcraft.cfa.evolution_cannot_unlock", "The star is currently evolving and cannot be unlocked"); // 天体正在演化，无法解锁
