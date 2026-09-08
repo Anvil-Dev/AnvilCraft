@@ -113,8 +113,8 @@ public final class StorageServerStub {
         ItemStack.OPTIONAL_STREAM_CODEC.apply(ByteBufCodecs.list());
     private static final Multimap<UUID, StorageServerStub> STUBS = ArrayListMultimap.create();
     private static final Map<UUID, Map<Long, RemoteTarget>> REMOTE_STORAGES = new HashMap<>();
-    /** Shift 连续合成的锁定配方（按玩家 × 源位置），跨分块 RPC 保持，防止残料漂移成其他小配方。 */
-    private static final Map<UUID, Map<Long, ResourceLocation>> TAKE_ALL_RECIPE_LOCKS = new HashMap<>();
+    /** Shift 连续合成会话（按玩家 × 源位置）：跨分块 RPC 保持锁定配方与本次点击剩余合成次数，防止残料漂移。 */
+    private static final Map<UUID, Map<Long, TakeAllSession>> TAKE_ALL_RECIPE_LOCKS = new HashMap<>();
 
     /** 本地终端自动连接大型板条箱的搜索半径（格）。 */
     private static final int LOCAL_TERMINAL_RANGE = 32;
@@ -922,7 +922,6 @@ public final class StorageServerStub {
                     crafting = crafting.withCraftingSlot(targetSlot - 1, newCurrent);
                 }
                 remaining.shrink(space);
-                changed = true;
             } else {
                 // 玩家背包槽（inventory index = targetSlot - 10）
                 int invIndex = targetSlot - 10;
@@ -944,8 +943,8 @@ public final class StorageServerStub {
                         : existing.copyWithCount(currentCount + space)
                 );
                 remaining.shrink(space);
-                changed = true;
             }
+            changed = true;
         }
         if (!changed) {
             return new InteractionResult(carried, false);
@@ -1232,6 +1231,12 @@ public final class StorageServerStub {
      * <p>产物完全放不下（指针异种且背包 / 仓储均无空间）时不消耗输入、不丢弃
      * 产物，立即截断——与原版「指针异种时拒绝取出」语义一致，避免凭空产出物品。</p>
      *
+     * <p>开启自动填充时，一次点击只合成约 1 格产物量（台阶 60 个即停），连续
+     * 点击再继续合成。产物去往背包时优先补满背包中已有的同种堆叠（如 60 个台阶
+     * 会先补到 64），满了再放入下一个空槽，不会留下 60 60 60 的碎片堆；产物
+     * 去往存储时同样按点击分批送入存储。合成格内材料不足时自动从背包 / 存储
+     * 补 1 个继续，直至达到点击预算、材料枯竭或产物无处可放。</p>
+     *
      * <p>产物只被部分放入（仓储剩余空间不足，部分插入后其余丢弃）时消耗输入后
      * 立即截断——继续循环只会反复「合成→部分放入→丢弃」，浪费材料且产出不可控。</p>
      *
@@ -1244,13 +1249,17 @@ public final class StorageServerStub {
      * 服务端线程过久。</p>
      */
     @RemoteCallable(validator = StorageAccessValidator.class)
-    public static TakeAllResult craftingTakeAll(UUID playerId, long sourcePos, boolean stonecutter) {
+    public static TakeAllResult craftingTakeAll(UUID playerId, long sourcePos, boolean stonecutter, int multiplier) {
         ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
         StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
         boolean any = false;
         int iterations = 0;
-        ResourceLocation lockedId = StorageServerStub.lockedTakeAllRecipe(playerId, sourcePos);
+        // 会话：同一次点击的多个分块共享锁定配方与剩余合成次数；本次点击结束后清除
+        TakeAllSession session = StorageServerStub.lockedTakeAllSession(playerId, sourcePos);
+        ResourceLocation lockedId = session == null ? null : session.recipeId();
+        int remainingCrafts = session == null ? 0 : session.remainingCrafts();
         CraftingStorage initialCrafting = CraftingStorage.EMPTY;
+        int refilledAccum = 0;
         while (iterations++ < StorageServerStub.CRAFTING_TAKE_ALL_CHUNK) {
             CraftingStorage crafting = target.read();
             if (initialCrafting == CraftingStorage.EMPTY) {
@@ -1262,9 +1271,14 @@ public final class StorageServerStub {
             } else {
                 CraftingInput input = CraftingInput.of(3, 3, crafting.craftingInput());
                 if (input.isEmpty()) {
+                    int refilled = StorageServerStub.refillAndCollectSlots(player, target, initialCrafting);
+                    refilledAccum |= refilled;
+                    if (refilled != 0) {
+                        continue;
+                    }
                     StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
                     player.containerMenu.broadcastChanges();
-                    return new TakeAllResult(player.containerMenu.getCarried(), any, true);
+                    return new TakeAllResult(player.containerMenu.getCarried(), any, true, refilledAccum);
                 }
                 RecipeHolder<CraftingRecipe> locked = lockedId == null
                     ? null
@@ -1273,36 +1287,54 @@ public final class StorageServerStub {
                     List<RecipeHolder<CraftingRecipe>> recipes = player.level().getRecipeManager()
                         .getRecipesFor(RecipeType.CRAFTING, input, player.level());
                     if (recipes.isEmpty()) {
+                        int refilled = StorageServerStub.refillAndCollectSlots(player, target, initialCrafting);
+                        refilledAccum |= refilled;
+                        if (refilled != 0) {
+                            continue;
+                        }
                         StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
                         player.containerMenu.broadcastChanges();
-                        return new TakeAllResult(player.containerMenu.getCarried(), any, true);
+                        return new TakeAllResult(player.containerMenu.getCarried(), any, true, refilledAccum);
                     }
                     locked = recipes.getFirst();
                     lockedId = locked.id();
-                    StorageServerStub.lockTakeAllRecipe(playerId, sourcePos, lockedId);
+                    // 自动填充时本次点击预算 = 64 / 单次产物个数（向下取整）× 倍数，产物去背包或
+                    // 去存储均适用：shift（倍数 1）台阶 6/次 → 10 次 → 60 个；空格 8 倍 → 80 次 → 480 个。
+                    // 8 倍预算可能超过单次 RPC 上限（64 次），剩余次数存入会话供后续分块继续。
+                    if (initialCrafting.autoFill()) {
+                        ItemStack firstResult = locked.value().assemble(input, player.level().registryAccess());
+                        int perCraft = Math.max(1, firstResult.getCount());
+                        remainingCrafts = Math.max(1, 64 / perCraft) * Math.max(1, multiplier);
+                    }
+                    StorageServerStub.lockTakeAllSession(playerId, sourcePos, lockedId, remainingCrafts);
                 } else if (!locked.value().matches(input, player.level())) {
-                    // 剩余材料已不足首轮锁定的配方：保留残料并停止，不再匹配其他小配方
+                    // 剩余材料已不足首轮锁定的配方：自动填充时先补货重试，补不到再停止
+                    int refilled = StorageServerStub.refillAndCollectSlots(player, target, initialCrafting);
+                    refilledAccum |= refilled;
+                    if (refilled != 0) {
+                        continue;
+                    }
                     StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
                     player.containerMenu.broadcastChanges();
-                    return new TakeAllResult(player.containerMenu.getCarried(), any, true);
+                    return new TakeAllResult(player.containerMenu.getCarried(), any, true, refilledAccum);
                 }
                 result = locked.value().assemble(input, player.level().registryAccess());
             }
             if (result == null || result.isEmpty()) {
                 StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
                 player.containerMenu.broadcastChanges();
-                return new TakeAllResult(player.containerMenu.getCarried(), any, true);
+                return new TakeAllResult(player.containerMenu.getCarried(), any, true, refilledAccum);
             }
             PlaceResult place = crafting.toStorage()
                 ? StorageServerStub.placeCraftingResultToStorageFirst(player, target, result)
-                : StorageServerStub.placeCraftingResult(player, target, result);
+                : StorageServerStub.placeCraftingResultToInventory(player, result);
             if (place == PlaceResult.NONE) {
                 // 产物完全放不下（如指针异种且背包 / 仓储均无空间）：不消耗输入、
                 // 不丢弃产物，立即截断——与原版「指针异种时拒绝取出」语义一致，
                 // 避免凭空产出物品
                 StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
                 player.containerMenu.broadcastChanges();
-                return new TakeAllResult(player.containerMenu.getCarried(), any, true);
+                return new TakeAllResult(player.containerMenu.getCarried(), any, true, refilledAccum);
             }
             if (place == PlaceResult.PARTIAL) {
                 // 产物部分放入仓储（其余已在 placeCraftingResult 内丢弃）：消耗
@@ -1310,7 +1342,7 @@ public final class StorageServerStub {
                 StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
                 StorageServerStub.consumeCraftingInput(target, crafting, stonecutter);
                 player.containerMenu.broadcastChanges();
-                return new TakeAllResult(player.containerMenu.getCarried(), true, true);
+                return new TakeAllResult(player.containerMenu.getCarried(), true, true, refilledAccum);
             }
             any = true;
             // 只消耗合成格内已有的原料合成一次
@@ -1320,49 +1352,89 @@ public final class StorageServerStub {
                 // 循环只会无限产出相同产物，立即终止
                 StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
                 player.containerMenu.broadcastChanges();
-                return new TakeAllResult(player.containerMenu.getCarried(), any, true);
+                return new TakeAllResult(player.containerMenu.getCarried(), any, true, refilledAccum);
             }
-            // 合成格内自己的原料用完后停止合成。开启自动填充时，只补回本次
-            // 操作开始时的数量供下次操作继续；不会在单次 shift 点击中把仓储
-            // 内的同种材料全部合成完
+            // 自动填充：预算用尽即结束本次点击。预算耗尽前若合成格材料恰好也被抽干，
+            // 先补一次料保持合成格有货，否则下一次点击会因空模板而无法补货
+            if (remainingCrafts > 0) {
+                remainingCrafts--;
+                if (remainingCrafts <= 0) {
+                    CraftingStorage afterBudget = target.read();
+                    boolean emptyNow = stonecutter
+                        ? afterBudget.stonecutterInput().isEmpty()
+                        : afterBudget.craftingInput().stream().allMatch(ItemStack::isEmpty);
+                    if (emptyNow && initialCrafting.autoFill()) {
+                        int refilled = StorageServerStub.refillAndCollectSlots(player, target, initialCrafting);
+                        refilledAccum |= refilled;
+                    }
+                    StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
+                    player.containerMenu.broadcastChanges();
+                    return new TakeAllResult(player.containerMenu.getCarried(), any, true, refilledAccum);
+                }
+                StorageServerStub.updateTakeAllSessionRemaining(playerId, sourcePos, remainingCrafts);
+            }
+            // 合成格内自己的原料完全用尽后停止合成。开启自动填充时，仅当槽位
+            // 完全耗尽才补 1 个供继续合成；不会在单次 shift 点击中把仓储内的
+            // 同种材料全部合成完
             CraftingStorage after = target.read();
             boolean exhausted = stonecutter
                 ? after.stonecutterInput().isEmpty()
                 : after.craftingInput().stream().allMatch(ItemStack::isEmpty);
             if (exhausted) {
-                StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
                 int refilledSlots = 0;
                 if (initialCrafting.autoFill()) {
                     refilledSlots = StorageServerStub.refillAndCollectSlots(player, target, initialCrafting);
                 }
+                refilledAccum |= refilledSlots;
+                if (refilledSlots > 0) {
+                    // 自动填充：合成格材料耗尽后补 1 个继续合成，产物拆批补满已有
+                    // 堆叠；材料源枯竭（补不到）或产物放不下时停止
+                    continue;
+                }
+                StorageServerStub.unlockTakeAllRecipe(playerId, sourcePos);
                 player.containerMenu.broadcastChanges();
-                return new TakeAllResult(player.containerMenu.getCarried(), any, true, refilledSlots);
+                return new TakeAllResult(player.containerMenu.getCarried(), any, true, refilledAccum);
             }
         }
-        // 循环预算用完但合成格内还有材料（防御性：每个格子最多一种堆叠，
-        // 单次分块通常能覆盖）：保留锁定配方让客户端继续（done=false）
+        // 达到单次 RPC 分块上限（64 次合成）但预算或材料仍有余：保留会话，
+        // 返回 done=false 让客户端继续下一个分块
         player.containerMenu.broadcastChanges();
-        return new TakeAllResult(player.containerMenu.getCarried(), any, false);
+        return new TakeAllResult(player.containerMenu.getCarried(), any, false, refilledAccum);
     }
 
-    /** 读取当前玩家在该源位置进行中的 Shift 连续合成锁定配方。 */
+    /** Shift 连续合成会话：锁定配方 + 本次点击剩余合成次数（0 表示未启用点击预算）。 */
+    private record TakeAllSession(ResourceLocation recipeId, int remainingCrafts) {
+    }
+
+    /** 读取当前玩家在该源位置进行中的 Shift 连续合成会话；无会话时返回 null。 */
     @Nullable
-    private static ResourceLocation lockedTakeAllRecipe(UUID playerId, long sourcePos) {
+    private static TakeAllSession lockedTakeAllSession(UUID playerId, long sourcePos) {
         return StorageServerStub.TAKE_ALL_RECIPE_LOCKS.getOrDefault(playerId, Map.of()).get(sourcePos);
     }
 
-    /** 记录 Shift 连续合成的锁定配方，跨分块 RPC 保持。 */
-    private static void lockTakeAllRecipe(UUID playerId, long sourcePos, ResourceLocation recipeId) {
+    /** 记录 Shift 连续合成会话，跨分块 RPC 保持。 */
+    private static void lockTakeAllSession(UUID playerId, long sourcePos, ResourceLocation recipeId, int remainingCrafts) {
         StorageServerStub.TAKE_ALL_RECIPE_LOCKS.computeIfAbsent(playerId, ignored -> new HashMap<>())
-            .put(sourcePos, recipeId);
+            .put(sourcePos, new TakeAllSession(recipeId, remainingCrafts));
     }
 
-    /** 清除该玩家在该源位置的 Shift 连续合成锁定配方。 */
+    /** 更新会话剩余合成次数（配方不变）。 */
+    private static void updateTakeAllSessionRemaining(UUID playerId, long sourcePos, int remainingCrafts) {
+        Map<Long, TakeAllSession> sessions = StorageServerStub.TAKE_ALL_RECIPE_LOCKS.get(playerId);
+        if (sessions != null) {
+            TakeAllSession session = sessions.get(sourcePos);
+            if (session != null) {
+                sessions.put(sourcePos, new TakeAllSession(session.recipeId(), remainingCrafts));
+            }
+        }
+    }
+
+    /** 清除该玩家在该源位置的 Shift 连续合成会话。 */
     private static void unlockTakeAllRecipe(UUID playerId, long sourcePos) {
-        Map<Long, ResourceLocation> locks = StorageServerStub.TAKE_ALL_RECIPE_LOCKS.get(playerId);
-        if (locks != null) {
-            locks.remove(sourcePos);
-            if (locks.isEmpty()) {
+        Map<Long, TakeAllSession> sessions = StorageServerStub.TAKE_ALL_RECIPE_LOCKS.get(playerId);
+        if (sessions != null) {
+            sessions.remove(sourcePos);
+            if (sessions.isEmpty()) {
                 StorageServerStub.TAKE_ALL_RECIPE_LOCKS.remove(playerId);
             }
         }
@@ -1429,6 +1501,57 @@ public final class StorageServerStub {
             return null;
         }
         return recipes.getFirst().value().assemble(input, player.level().registryAccess());
+    }
+
+    /**
+     * 连续合成（自动填充 + 产物去背包）的放置：把产物拆批塞进背包，优先补满已有
+     * 的同种堆叠，堆满 64 后继续放入下一个空槽，产物始终连续堆叠而不会留下
+     * 60 60 60 之类的碎片；背包与指针都放不下时返回 {@link PlaceResult#NONE}。
+     * 不写入仓储兜底，避免自动填充时产物无限流入存储。
+     */
+    private static PlaceResult placeCraftingResultToInventory(
+        ServerPlayer player,
+        ItemStack result
+    ) {
+        // 复制产物：后续 shrink / setItem 都会修改该栈，不能直接改动传入的 result
+        ItemStack remaining = result.copy();
+        if (remaining.isEmpty()) {
+            return PlaceResult.FULL;
+        }
+        Inventory inventory = player.getInventory();
+        int emptySlot = -1;
+        for (int i = 0; i < inventory.getContainerSize(); i++) {
+            ItemStack stack = inventory.getItem(i);
+            if (ItemStack.isSameItemSameComponents(stack, remaining)
+                && stack.getCount() < stack.getMaxStackSize()) {
+                int room = stack.getMaxStackSize() - stack.getCount();
+                if (remaining.getCount() <= room) {
+                    stack.grow(remaining.getCount());
+                    return PlaceResult.FULL;
+                }
+                stack.setCount(stack.getMaxStackSize());
+                remaining.shrink(room);
+            } else if (stack.isEmpty() && emptySlot < 0) {
+                emptySlot = i;
+            }
+        }
+        if (emptySlot >= 0) {
+            inventory.setItem(emptySlot, remaining);
+            return PlaceResult.FULL;
+        }
+        ItemStack carried = player.containerMenu.getCarried();
+        if (carried.isEmpty()) {
+            player.containerMenu.setCarried(remaining);
+            return PlaceResult.FULL;
+        }
+        if (ItemStack.isSameItemSameComponents(carried, remaining)
+            && carried.getCount() + remaining.getCount() <= carried.getMaxStackSize()) {
+            ItemStack merged = carried.copy();
+            merged.grow(remaining.getCount());
+            player.containerMenu.setCarried(merged);
+            return PlaceResult.FULL;
+        }
+        return PlaceResult.NONE;
     }
 
     /**
@@ -1588,8 +1711,8 @@ public final class StorageServerStub {
 
     /**
      * 执行一次自动补货并返回被补槽位的位掩码（bit0 为切石机输入槽，bit1~bit9 为合成格槽）。
-     * 补货以 {@code template} 为模板：槽位耗尽（空或数量少于模板）且可从背包 / 存储
-     * 取到同种物品时，补足到模板数量。
+     * 补货以 {@code template} 为模板：仅当槽位已完全耗尽（空）且可从背包 / 存储
+     * 取到同种物品时，补 1 个即可，保持合成格内至少有 1 个物品可继续合成。
      */
     private static int refillAndCollectSlots(
         ServerPlayer player,
@@ -1620,9 +1743,10 @@ public final class StorageServerStub {
 
     /**
      * Auto-refill depleted crafting input slots when autofill is enabled.
-     * The template is the crafting data before consumption; only slots that
-     * became empty are refilled with the same item from the inventory first,
-     * then from the attached storage (capped at the item stack size).
+     * The template provides the expected item per slot; a slot is refilled only
+     * after it has been fully consumed (empty). Each depleted slot is topped up
+     * with a single item drawn from the inventory first, then from the attached
+     * storage, so the crafting grid never runs dry while material remains.
      */
     private static boolean autoRefillCrafting(
         ServerPlayer player,
@@ -1637,8 +1761,9 @@ public final class StorageServerStub {
         boolean changed = false;
         ItemStack templateStonecutter = template.stonecutterInput();
         ItemStack currentStonecutter = current.stonecutterInput();
-        if (!templateStonecutter.isEmpty() && currentStonecutter.getCount() < templateStonecutter.getCount()) {
-            int want = templateStonecutter.getCount() - currentStonecutter.getCount();
+        if (!templateStonecutter.isEmpty() && currentStonecutter.isEmpty()) {
+            // 切石机输入完全耗尽才补 1 个，保持可继续合成
+            int want = 1;
             int moved = StorageServerStub.transferMaterial(
                 target,
                 inventory,
@@ -1646,7 +1771,7 @@ public final class StorageServerStub {
                 want
             );
             if (moved > 0) {
-                current = current.withStonecutterInput(templateStonecutter.copyWithCount(currentStonecutter.getCount() + moved));
+                current = current.withStonecutterInput(templateStonecutter.copyWithCount(moved));
                 changed = true;
             }
         }
@@ -1658,15 +1783,12 @@ public final class StorageServerStub {
                 continue;
             }
             ItemStack currentStack = i < currentGrid.size() ? currentGrid.get(i) : ItemStack.EMPTY;
-            if (currentStack.getCount() >= templateStack.getCount()) {
+            // 仅在槽位完全耗尽（空）时补 1 个，保持合成格内至少有 1 个物品；
+            // 数量减少但未用尽（如 64→63）不补，避免边合成边补货消耗大量材料
+            if (!currentStack.isEmpty()) {
                 continue;
             }
-            // Refill only when the slot is empty or still holds the same item;
-            // otherwise the remainder item (bucket/bowl) must not be overwritten.
-            if (!currentStack.isEmpty() && !ItemStack.isSameItemSameComponents(currentStack, templateStack)) {
-                continue;
-            }
-            int want = templateStack.getCount() - currentStack.getCount();
+            int want = 1;
             int moved = StorageServerStub.transferMaterial(
                 target,
                 inventory,
@@ -1674,7 +1796,7 @@ public final class StorageServerStub {
                 want
             );
             if (moved > 0) {
-                current = current.withCraftingSlot(i, templateStack.copyWithCount(currentStack.getCount() + moved));
+                current = current.withCraftingSlot(i, templateStack.copyWithCount(moved));
                 changed = true;
             }
         }
@@ -3800,9 +3922,6 @@ public final class StorageServerStub {
      * @param refilledSlots 补货位掩码：bit0 为切石机输入槽，bit1~bit9 为合成格 9 槽；0 表示未补货
      */
     public record TakeAllResult(ItemStack carried, boolean changed, boolean done, int refilledSlots) {
-        public TakeAllResult(ItemStack carried, boolean changed, boolean done) {
-            this(carried, changed, done, 0);
-        }
 
         public static final StreamCodec<RegistryFriendlyByteBuf, TakeAllResult> STREAM_CODEC = StreamCodec.composite(
             ItemStack.OPTIONAL_STREAM_CODEC,

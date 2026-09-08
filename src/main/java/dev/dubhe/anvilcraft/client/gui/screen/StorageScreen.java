@@ -226,6 +226,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     /** 上一次播放合成补货拾取音效的游戏 tick（同一 tick 只播一次）。*/
     private long lastCraftingRefillSoundTick = -1;
     private boolean closed;
+    private boolean spacePressed;
     private boolean nbtFolded;
     private boolean preservingOrder;
     private boolean remappedOrder;
@@ -2442,8 +2443,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         this.player.inventoryMenu.setCarried(this.carried);
         int request = ++this.interactionRequest;
         boolean shift = Screen.hasShiftDown();
-        if (shift) {
-            this.takeAllChunk(request, stonecutter, 0);
+        boolean space = this.spacePressed && !shift;
+        if (shift || space) {
+            this.takeAllChunk(request, stonecutter, 0, space ? 8 : 1);
         } else {
             StorageClientStub.craftingTakeResult(this.sourcePos, stonecutter, false).whenCompleteAsync(
                 (result, error) -> {
@@ -2498,8 +2500,8 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * 连续合成的一个分块：调用一次服务端 {@code craftingTakeAll}，未完成
      * （done=false）时递归调用下一个分块，直至自然终止或达到总块数上限。
      */
-    private void takeAllChunk(int request, boolean stonecutter, int chunkIndex) {
-        StorageClientStub.craftingTakeAll(this.sourcePos, stonecutter).whenCompleteAsync(
+    private void takeAllChunk(int request, boolean stonecutter, int chunkIndex, int multiplier) {
+        StorageClientStub.craftingTakeAll(this.sourcePos, stonecutter, multiplier).whenCompleteAsync(
             (result, error) -> {
                 if (request != this.interactionRequest || error != null) {
                     this.interactionPending = false;
@@ -2529,7 +2531,7 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     this.interactionPending = false;
                     return;
                 }
-                this.takeAllChunk(request, stonecutter, chunkIndex + 1);
+                this.takeAllChunk(request, stonecutter, chunkIndex + 1, multiplier);
             },
             this.screenExecutor
         );
@@ -2591,7 +2593,12 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
 
         if (this.search != null && this.search.isFocused()) {
+            this.spacePressed = false;
             this.search.keyPressed(keyCode, scanCode, modifiers);
+            return true;
+        }
+        if (keyCode == InputConstants.KEY_SPACE) {
+            this.spacePressed = true;
             return true;
         }
 
@@ -2652,6 +2659,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
 
     @Override
     public boolean keyReleased(int keyCode, int scanCode, int modifiers) {
+        if (keyCode == InputConstants.KEY_SPACE) {
+            this.spacePressed = false;
+            return true;
+        }
         if (
             (keyCode == InputConstants.KEY_LSHIFT || keyCode == InputConstants.KEY_RSHIFT)
             && !Screen.hasShiftDown()
