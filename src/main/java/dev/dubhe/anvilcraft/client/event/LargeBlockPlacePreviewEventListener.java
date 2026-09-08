@@ -3,13 +3,19 @@ package dev.dubhe.anvilcraft.client.event;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import dev.anvilcraft.lib.v2.cube.client.CubeSelection;
+import dev.anvilcraft.lib.v2.cube.client.OutlineRenderer;
+import dev.anvilcraft.lib.v2.cube.client.SelectionPart;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
+import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
+import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
 import dev.dubhe.anvilcraft.util.SegmentedActuator;
+import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -40,7 +46,6 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.model.data.ModelData;
-
 import java.util.List;
 
 @EventBusSubscriber(Dist.CLIENT)
@@ -126,6 +131,20 @@ public class LargeBlockPlacePreviewEventListener {
         }
     }
 
+    private static void expandRenderEntriesForGhost() {
+        RenderEntry base = renderEntries.getFirst();
+        if (!(base.state().getBlock() instanceof AbstractMultiPartBlock<?> block)) {
+            return;
+        }
+        ObjectArrayList<RenderEntry> parts = new ObjectArrayList<>();
+        for (Enum<?> part : block.getParts()) {
+            BlockPos partPos = base.pos().offset(block.offsetFrom(base.state(), cast(part)));
+            parts.add(new RenderEntry(partPos, block.placedState(cast(part), base.state())));
+        }
+        renderEntries.clear();
+        renderEntries.addAll(parts);
+    }
+
     private static List<BlockPos> getErrorPosList(
         Level level,
         AbstractMultiPartBlock<?> block,
@@ -144,6 +163,10 @@ public class LargeBlockPlacePreviewEventListener {
     }
 
     private static void collectRenderEntries(AbstractMultiPartBlock<?> block, BlockPos pos, BlockState state) {
+        if (AnvilCraftClient.CONFIG.multiPartPreviewMode == AnvilCraftClientConfig.MultiPartPreviewMode.OUTLINE) {
+            renderEntries.add(new RenderEntry(pos, state));
+            return;
+        }
         for (Enum<?> part : block.getParts()) {
             BlockPos partPos = pos.offset(block.offsetFrom(state, cast(part)));
             BlockState partState = block.placedState(cast(part), state);
@@ -181,6 +204,12 @@ public class LargeBlockPlacePreviewEventListener {
         PoseStack poseStack = event.getPoseStack();
         Vec3 camera = event.getCamera().getPosition();
         MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+        if (AnvilCraftClient.CONFIG.multiPartPreviewMode == AnvilCraftClientConfig.MultiPartPreviewMode.OUTLINE) {
+            if (renderOutline(poseStack, bufferSource, event.getCamera())) {
+                return;
+            }
+            expandRenderEntriesForGhost();
+        }
         RenderType renderType = ModRenderTypes.BEACON_GLASS;
         boolean flashing = failBoundCooldown > 0;
         float alpha = flashing ? 0.2f : 0.3f;
@@ -202,6 +231,44 @@ public class LargeBlockPlacePreviewEventListener {
         renderErrorBound(poseStack, bufferSource, event.getCamera());
         bufferSource.endBatch(renderType);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    private static boolean renderOutline(
+        PoseStack poseStack,
+        MultiBufferSource.BufferSource bufferSource,
+        Camera camera
+    ) {
+        if (renderEntries.isEmpty()) {
+            return false;
+        }
+        RenderEntry base = renderEntries.getFirst();
+        List<SelectionPart> outline = ModelBlockSelection.multipartOutline(base.state());
+        if (outline.isEmpty()) {
+            return false;
+        }
+        Vec3 cameraPos = camera.getPosition();
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.lines());
+        poseStack.pushPose();
+        poseStack.translate(
+            base.pos().getX() - cameraPos.x,
+            base.pos().getY() - cameraPos.y,
+            base.pos().getZ() - cameraPos.z
+        );
+        int color = boundColor;
+        float red = FastColor.ARGB32.red(color) / 255f;
+        float green = FastColor.ARGB32.green(color) / 255f;
+        float blue = FastColor.ARGB32.blue(color) / 255f;
+        for (SelectionPart part : outline) {
+            poseStack.pushPose();
+            part.apply(poseStack);
+            OutlineRenderer.render(poseStack, vertexConsumer,
+                CubeSelection.outlines().get(part.geometry()), red, green, blue, 0.8f);
+            poseStack.popPose();
+        }
+        poseStack.popPose();
+        renderErrorBound(poseStack, bufferSource, camera);
+        bufferSource.endBatch(RenderType.lines());
+        return true;
     }
 
     private static void renderErrorBound(

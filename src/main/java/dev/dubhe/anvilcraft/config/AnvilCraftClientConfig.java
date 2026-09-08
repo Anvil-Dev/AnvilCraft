@@ -104,6 +104,9 @@ public class AnvilCraftClientConfig {
     @Comment("Show levels above 10 as Roman numerals in auto enchanting table's liquid enchantment mode")
     public boolean liquidEnchantmentRomanNumerals = true;
 
+    @Comment("Preview mode when placing multipart blocks (large crate, hyperdimension storage station...)")
+    public MultiPartPreviewMode multiPartPreviewMode = MultiPartPreviewMode.GHOST;
+
     @SerializedName("Ionocraft Backpack HUD")
     @CollapsibleObject
     public IonocraftBackpackHud ionocraftBackpackHud = new IonocraftBackpackHud();
@@ -142,5 +145,12 @@ public class AnvilCraftClientConfig {
         WEARING_OR_HOLDING_HAMMER,
         @SerializedName("Toggle with Key")
         TOGGLE_WITH_KEY
+    }
+
+    public enum MultiPartPreviewMode implements TranslatableEnum {
+        @SerializedName("Ghost")
+        GHOST,
+        @SerializedName("Outline")
+        OUTLINE
     }
 }
