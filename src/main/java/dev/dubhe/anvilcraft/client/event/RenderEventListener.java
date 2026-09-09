@@ -25,6 +25,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -35,10 +36,24 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 @EventBusSubscriber(value = Dist.CLIENT)
 public class RenderEventListener {
+    private static final int RANGE_OUTLINE_PERSIST_TICKS = 5 * 20;
+    private static final int AFFECT_RANGE_COLOR = 0xFF00FFCC;
+
+    private record RangeOutline(VoxelShape shape, long lastSeenTick) {
+    }
+
+    private static final Map<BlockPos, RangeOutline> RANGE_OUTLINES = new HashMap<>();
+
+    @Nullable
+    private static Level renderedLevel;
 
     @SubscribeEvent
     public static void onRenderOverworldLikeSky(RenderLevelStageEvent event) {
@@ -109,24 +124,57 @@ public class RenderEventListener {
         }
 
         if (!(entity instanceof Player player)) return;
+        Level level = Minecraft.getInstance().level;
+        if (level == null) return;
+        if (level != renderedLevel) {
+            renderedLevel = level;
+            RANGE_OUTLINES.clear();
+        }
+        long gameTime = level.getGameTime();
         Optional<BlockHitResult> hitResult = Util.castSafely(Minecraft.getInstance().hitResult, BlockHitResult.class);
         hitResult.ifPresent(hit -> renderDragonRodOutline(pose, hit, vertexConsumer3, camX, camY, camZ, handItem));
-        hitResult.ifPresent(hit -> renderSmartBlockPlacerRange(pose, hit, vertexConsumer3, camX, camY, camZ));
-        hitResult.ifPresent(hit -> renderStructureScannerRange(pose, hit, vertexConsumer3, camX, camY, camZ));
-        if (!AnvilHammerItem.shouldRenderEffect(player)) return;
+        if (!AnvilHammerItem.shouldRenderEffect(player)) {
+            renderPersistedOutlines(pose, vertexConsumer3, camX, camY, camZ, gameTime);
+            return;
+        }
+        hitResult.ifPresent(hit -> renderSmartBlockPlacerRange(pose, hit, vertexConsumer3, camX, camY, camZ, gameTime));
+        hitResult.ifPresent(hit -> renderStructureScannerRange(pose, hit, vertexConsumer3, camX, camY, camZ, gameTime));
         PowerGridSupport.render(pose, bufferSource, vec3);
-        hitResult.ifPresent(hit -> renderAffectRange(pose, hit, vertexConsumer3, camX, camY, camZ));
+        hitResult.ifPresent(hit -> renderAffectRange(pose, hit, vertexConsumer3, camX, camY, camZ, gameTime));
+        renderPersistedOutlines(pose, vertexConsumer3, camX, camY, camZ, gameTime);
+    }
+
+    private static void renderPersistedOutlines(
+        PoseStack pose, VertexConsumer consumer, double camX, double camY, double camZ, long gameTime
+    ) {
+        for (Iterator<Map.Entry<BlockPos, RangeOutline>> iterator = RANGE_OUTLINES.entrySet().iterator(); iterator.hasNext();) {
+            Map.Entry<BlockPos, RangeOutline> entry = iterator.next();
+            RangeOutline outline = entry.getValue();
+            if (gameTime > outline.lastSeenTick + RANGE_OUTLINE_PERSIST_TICKS) {
+                iterator.remove();
+                continue;
+            }
+            TooltipRenderHelper.renderOutline(
+                pose, consumer, camX, camY, camZ, BlockPos.ZERO, outline.shape, AFFECT_RANGE_COLOR);
+        }
+    }
+
+    private static void addRangeOutline(BlockPos origin, VoxelShape shape, long gameTime) {
+        RANGE_OUTLINES.put(origin, new RangeOutline(shape, gameTime));
     }
 
     private static void renderAffectRange(
         PoseStack pose, BlockHitResult hit, VertexConsumer vertexConsumer3,
-        double camX, double camY, double camZ
+        double camX, double camY, double camZ, long gameTime
     ) {
         BlockPos blockPos = hit.getBlockPos();
         if (Minecraft.getInstance().level == null) return;
         BlockEntity e = Minecraft.getInstance().level.getBlockEntity(blockPos);
         if (e == null) return;
-        HudTooltipManager.INSTANCE.renderAffectRange(e, pose, vertexConsumer3, camX, camY, camZ);
+        VoxelShape shape = HudTooltipManager.INSTANCE.resolveAffectRange(e);
+        if (shape == null) return;
+        addRangeOutline(blockPos, shape, gameTime);
+        TooltipRenderHelper.renderOutline(pose, vertexConsumer3, camX, camY, camZ, BlockPos.ZERO, shape, AFFECT_RANGE_COLOR);
     }
 
     private static void renderDragonRodOutline(
@@ -164,7 +212,7 @@ public class RenderEventListener {
     @SuppressWarnings("checkstyle:LocalVariableName")
     private static void renderSmartBlockPlacerRange(
         PoseStack pose, BlockHitResult hitResult, VertexConsumer consumer,
-        double camX, double camY, double camZ
+        double camX, double camY, double camZ, long gameTime
     ) {
         Player player = Minecraft.getInstance().player;
         if (player == null || !AnvilHammerItem.shouldRenderEffect(player)) return;
@@ -186,15 +234,16 @@ public class RenderEventListener {
             basePos.getX() + 3, basePos.getY() + 5 + yOffset, basePos.getZ() + 3
         );
 
-        TooltipRenderHelper.renderOutline(pose, consumer, camX, camY, camZ, BlockPos.ZERO, rangeShape, 0xFF00FFCC);
+        addRangeOutline(hitPos, rangeShape, gameTime);
+        TooltipRenderHelper.renderOutline(pose, consumer, camX, camY, camZ, BlockPos.ZERO, rangeShape, AFFECT_RANGE_COLOR);
     }
-    
+
     /**
      * 渲染 Structure Scanner 的边框
      */
     private static void renderStructureScannerRange(
         PoseStack pose, BlockHitResult hitResult, VertexConsumer consumer,
-        double camX, double camY, double camZ
+        double camX, double camY, double camZ, long gameTime
     ) {
         Player player = Minecraft.getInstance().player;
         if (player == null || !AnvilHammerItem.shouldRenderEffect(player)) return;
@@ -269,7 +318,8 @@ public class RenderEventListener {
             maxX, maxY, maxZ
         );
 
+        addRangeOutline(hitPos, rangeShape, gameTime);
         // 渲染青色边框（与智能放置器一致）
-        TooltipRenderHelper.renderOutline(pose, consumer, camX, camY, camZ, BlockPos.ZERO, rangeShape, 0xFF00FFCC);
+        TooltipRenderHelper.renderOutline(pose, consumer, camX, camY, camZ, BlockPos.ZERO, rangeShape, AFFECT_RANGE_COLOR);
     }
 }

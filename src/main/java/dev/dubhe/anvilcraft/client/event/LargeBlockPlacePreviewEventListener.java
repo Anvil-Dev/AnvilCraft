@@ -260,7 +260,7 @@ public class LargeBlockPlacePreviewEventListener {
             expandRenderEntriesForGhost();
         }
         RenderType renderType = ModRenderTypes.BEACON_GLASS;
-        float alpha = AnvilCraftClient.CONFIG.multiPartPreviewGhostOpacity;
+        float alpha = (float) AnvilCraftClient.CONFIG.multiPartPreviewGhostOpacity;
         int color = boundColor;
         float red = FastColor.ARGB32.red(color) / 255f;
         float green = FastColor.ARGB32.green(color) / 255f;
@@ -335,7 +335,7 @@ public class LargeBlockPlacePreviewEventListener {
                     selectionPart.apply(poseStack);
                     OutlineRenderer.render(poseStack, vertexConsumer,
                         CubeSelection.outlines().get(selectionPart.geometry()), 1.0f, 1.0f, 1.0f,
-                        AnvilCraftClient.CONFIG.multiPartPreviewOutlineOpacity);
+                        (float) AnvilCraftClient.CONFIG.multiPartPreviewOutlineOpacity);
                     poseStack.popPose();
                 }
                 poseStack.popPose();
@@ -370,7 +370,7 @@ public class LargeBlockPlacePreviewEventListener {
                     poseStack.scale(1.001f, 1.001f, 1.001f);
                     BlockState partState = amplifier.placedState(part, state);
                     renderPart(poseStack, bufferSource, renderType, partState,
-                        AnvilCraftClient.CONFIG.multiPartPreviewGhostOpacity, 1.0f, 1.0f, 1.0f);
+                        (float) AnvilCraftClient.CONFIG.multiPartPreviewGhostOpacity, 1.0f, 1.0f, 1.0f);
                     poseStack.popPose();
                 }
             }
@@ -407,7 +407,7 @@ public class LargeBlockPlacePreviewEventListener {
             part.apply(poseStack);
             OutlineRenderer.render(poseStack, vertexConsumer,
                 CubeSelection.outlines().get(part.geometry()), red, green, blue,
-                AnvilCraftClient.CONFIG.multiPartPreviewOutlineOpacity);
+                (float) AnvilCraftClient.CONFIG.multiPartPreviewOutlineOpacity);
             poseStack.popPose();
         }
         poseStack.popPose();

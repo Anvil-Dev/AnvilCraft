@@ -221,14 +221,25 @@ public class HudTooltipManager {
     }
 
     /**
+     * 解析作用范围
+     */
+    @Nullable
+    public VoxelShape resolveAffectRange(BlockEntity entity) {
+        if (entity == null) {
+            return null;
+        }
+        IAffectRangeProvider currentProvider = determineAffectRangeProvider(entity);
+        if (currentProvider == null) {
+            return null;
+        }
+        return currentProvider.affectRange(entity);
+    }
+
+    /**
      * 渲染作用范围
      */
     public void renderAffectRange(BlockEntity entity, PoseStack poseStack, VertexConsumer consumer, double camX, double camY, double camZ) {
-        IAffectRangeProvider currentProvider = determineAffectRangeProvider(entity);
-        if (currentProvider == null) {
-            return;
-        }
-        VoxelShape shape = currentProvider.affectRange(entity);
+        VoxelShape shape = resolveAffectRange(entity);
         if (shape == null) {
             return;
         }
