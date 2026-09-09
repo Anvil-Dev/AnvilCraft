@@ -228,7 +228,7 @@ public abstract class DestroyType {
                     continue;
                 }
 
-                // 25% chance for budding amethyst to advance one attached bud by one growth stage
+                // 25% chance for budding amethyst to advance one attached bud by one growth stage or grow a new bud
                 if (state.getBlock() instanceof IBrokenCrystalsBudding budding) {
                     if (random.nextFloat() < 0.25f) {
                         budding.anvilcraft$tryGrowBuds(level, pos, state);
