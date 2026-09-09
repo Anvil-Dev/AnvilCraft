@@ -1,0 +1,20 @@
+{
+  "disable_precise_picking": [
+    "anvilcraft:trading_station",
+    "anvilcraft:heavy_iron_column"
+  ],
+  "disable_model_outline": [
+    "anvilcraft:large_cauldron",
+    "anvilcraft:wip_block",
+    "anvilcraft:pipe_straight",
+    "anvilcraft:pipe_corner",
+    "anvilcraft:pipe_node",
+    "anvilcraft:glass_pipe_straight",
+    "anvilcraft:glass_pipe_corner",
+    "anvilcraft:glass_pipe_node",
+    "anvilcraft:redstone_wire"
+  ],
+  "disable_ber_selection": [
+    "anvilcraft:pulse_generator"
+  ]
+}

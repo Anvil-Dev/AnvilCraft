@@ -17,6 +17,7 @@ import dev.dubhe.anvilcraft.client.renderer.item.ItemSlotClipping;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.IonocraftBackpackDecoration;
 import dev.dubhe.anvilcraft.client.renderer.item.decoration.TerminalInsertionDecoration;
 import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
+import dev.dubhe.anvilcraft.client.selection.ModelSelectionBlacklist;
 import dev.dubhe.anvilcraft.client.support.InspectionSupport;
 import dev.dubhe.anvilcraft.client.support.PillSelectorSupport;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
@@ -54,6 +55,10 @@ public class AnvilCraftClient {
 
     public AnvilCraftClient(IEventBus modBus, ModContainer container) {
         CubeSelection.enableNamespace(AnvilCraft.MOD_ID);
+        CubeSelection.registerTargetExclusion(
+            AnvilCraft.of("model_selection_blacklist"),
+            state -> ModelSelectionBlacklist.usesOriginalPicking(state.getBlock())
+        );
         modEventBus = modBus;
         modContainer = container;
         modBus.addListener(GuiLayerRegistrationEventListener::onRegister);

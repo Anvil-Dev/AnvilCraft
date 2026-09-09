@@ -45,7 +45,6 @@ final class ModelSelectionBakery {
     private final Map<ResourceLocation, UnbakedModel> models;
     private final Map<Variant, ModelSelection> variants = new HashMap<>();
     private final Map<List<ConvexShape>, SelectionGeometry> geometries = new HashMap<>();
-    private final Map<SelectionGeometry, SelectionGeometry> interactions = new IdentityHashMap<>();
     private final Set<ConvexShape> retainedShapes = Collections.newSetFromMap(new IdentityHashMap<>());
     private final Map<BlockModel, List<ConvexShape>> elements = new IdentityHashMap<>();
     private long bytes;
@@ -57,7 +56,6 @@ final class ModelSelectionBakery {
     ModelBlockSelection.Snapshot bake(Map<ModelResourceLocation, UnbakedModel> topLevel) {
         Map<BlockState, ModelSelection> states = new IdentityHashMap<>();
         Map<BlockState, List<SelectionPart>> outlines = new IdentityHashMap<>();
-        Map<BlockState, ModelSelection> picking = new IdentityHashMap<>();
         Map<ModelResourceLocation, SelectionPart> standalone = new HashMap<>();
         int failures = 0;
         for (Block block : BuiltInRegistries.BLOCK) {
@@ -76,7 +74,7 @@ final class ModelSelectionBakery {
                     failures++;
                 }
             }
-            if (block instanceof AbstractMultiPartBlock<?> multipart) this.multipart(multipart, states, outlines, picking);
+            if (block instanceof AbstractMultiPartBlock<?> multipart) this.multipart(multipart, states, outlines);
             if (this.bytes - previousBytes > 1024 * 1024) {
                 AnvilCraft.LOGGER.debug("Cube selection geometry for {}: {} bytes", BuiltInRegistries.BLOCK.getKey(block),
                     this.bytes - previousBytes);
@@ -93,14 +91,9 @@ final class ModelSelectionBakery {
                 AnvilCraft.LOGGER.warn("Unable to prepare selection model {}: {}", entry.getKey(), exception.getMessage());
             }
         }
-        states.forEach((state, selection) -> {
-            if (!picking.containsKey(state)) this.prepareInteractions(selection);
-        });
-        for (SelectionPart part : standalone.values()) this.interaction(part.geometry());
         AnvilCraft.LOGGER.info("Prepared cube selection: {} states, {} multipart parts, {} render models, {} bytes, {} fallback states",
             states.size(), outlines.size(), standalone.size(), this.bytes, failures);
-        return new ModelBlockSelection.Snapshot(Map.copyOf(states), Map.copyOf(outlines), Map.copyOf(standalone),
-            Map.copyOf(picking), Map.copyOf(this.interactions));
+        return new ModelBlockSelection.Snapshot(Map.copyOf(states), Map.copyOf(outlines), Map.copyOf(standalone));
     }
 
     private ModelSelection resolve(UnbakedModel model, BlockState state) {
@@ -172,8 +165,7 @@ final class ModelSelectionBakery {
     }
 
     private <P extends Enum<P>> void multipart(
-        AbstractMultiPartBlock<P> block, Map<BlockState, ModelSelection> states, Map<BlockState, List<SelectionPart>> outlines,
-        Map<BlockState, ModelSelection> picking
+        AbstractMultiPartBlock<P> block, Map<BlockState, ModelSelection> states, Map<BlockState, List<SelectionPart>> outlines
     ) {
         P first = block.getParts()[0];
         Map<BlockState, ModelSelection> original = new IdentityHashMap<>();
@@ -205,7 +197,6 @@ final class ModelSelectionBakery {
                     continue;
                 }
                 SelectionGeometry whole = this.geometry(joined);
-                SelectionGeometry interaction = this.interaction(whole);
                 AABB occupied = new AABB(0, 0, 0, ModelCubeGeometry.SCALE, ModelCubeGeometry.SCALE, ModelCubeGeometry.SCALE);
                 for (P part : block.getParts()) {
                     Vec3i offset = block.offsetFrom(base, part);
@@ -214,7 +205,6 @@ final class ModelSelectionBakery {
                             offset.getZ() * ModelCubeGeometry.SCALE));
                 }
                 Map<BlockState, ModelSelection> clipped = new IdentityHashMap<>();
-                Map<BlockState, ModelSelection> clippedPicking = new IdentityHashMap<>();
                 Map<BlockState, List<SelectionPart>> complete = new IdentityHashMap<>();
                 for (P part : block.getParts()) {
                     BlockState state = base.setValue(block.getPart(), part);
@@ -239,21 +229,10 @@ final class ModelSelectionBakery {
                         if (piece != null) pieces.add(piece.transform(translation));
                     }
                     clipped.put(state, this.fixed(pieces));
-                    if (interaction != whole) {
-                        List<ConvexShape> interactionPieces = new ArrayList<>(pieces);
-                        for (ConvexShape shape : interaction.shapes().subList(joined.size(), interaction.shapes().size())) {
-                            ConvexShape piece = ModelCubeGeometry.clip(shape, cell);
-                            if (piece != null) interactionPieces.add(piece.transform(translation));
-                        }
-                        clippedPicking.put(state, this.fixed(interactionPieces));
-                    } else {
-                        clippedPicking.put(state, clipped.get(state));
-                    }
                     complete.put(state, List.of(new SelectionPart(whole, new Matrix4f()
                         .translation(-offset.getX(), -offset.getY(), -offset.getZ()).scale(1 / ModelCubeGeometry.SCALE))));
                 }
                 states.putAll(clipped);
-                picking.putAll(clippedPicking);
                 outlines.putAll(complete);
             } catch (IllegalArgumentException exception) {
                 AnvilCraft.LOGGER.warn("Unable to prepare multipart selection {}: {}", base, exception.getMessage());
@@ -274,25 +253,6 @@ final class ModelSelectionBakery {
         if (!this.retain(result)) throw new IllegalArgumentException("Selection memory budget exceeded");
         this.geometries.put(result.shapes(), result);
         return result;
-    }
-
-    private SelectionGeometry interaction(SelectionGeometry source) {
-        SelectionGeometry existing = this.interactions.get(source);
-        if (existing != null) return existing;
-        SelectionGeometry result = ModelInteractionGeometry.fill(source);
-        if (result != source && !this.retain(result)) result = source;
-        this.interactions.put(source, result);
-        return result;
-    }
-
-    private void prepareInteractions(ModelSelection selection) {
-        switch (selection) {
-            case ModelSelection.Fixed fixed -> this.interaction(fixed.part().geometry());
-            case ModelSelection.Multipart multipart -> multipart.parts().forEach(this::prepareInteractions);
-            case ModelSelection.Weighted weighted -> weighted.variants().forEach(this::prepareInteractions);
-            default -> {
-            }
-        }
     }
 
     private boolean retain(SelectionGeometry geometry) {
