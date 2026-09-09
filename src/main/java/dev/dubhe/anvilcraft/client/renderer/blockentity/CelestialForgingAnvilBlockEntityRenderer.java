@@ -201,6 +201,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
             && !star.specialRedDwarf()
             && !blockEntity.isAmplifierPresent()) {
             LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(blockEntity.getBlockPos());
+        } else if (blockEntity.isAmplifierPresent()) {
+            LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(blockEntity.getBlockPos());
         }
         boolean isAmplify = blockEntity.isAmplify();
         float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);

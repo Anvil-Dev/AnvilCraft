@@ -21,6 +21,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StarData;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionPhase;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
+import dev.dubhe.anvilcraft.client.event.LargeBlockPlacePreviewEventListener;
 import dev.dubhe.anvilcraft.client.gui.component.CelestialMapsGuideWidget;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyRenderer;
@@ -155,6 +156,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
     private SearchState searchState = SearchState.IDLE;
     @Nullable
     private CelestialBodyData preSearchBody = null;
+    /// 玩家在缺少增幅器时尝试锻造恒星，用于显示缺增幅器提示。
+    private boolean missingAmplifierBlocked = false;
 
     /// 历史浏览现在由服务端处理，按钮点击发送数据包ID 201/202
 
@@ -272,8 +275,19 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             int cur = be.getAnvilCount(i);
             if (cur != previousAnvilCounts[i]) {
                 guideTriggered = true;
+                missingAmplifierBlocked = false;
+                LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(be.getBlockPos());
             }
             previousAnvilCounts[i] = cur;
+        }
+        /// 缺少增幅器阻塞状态下同步渲染四角增幅器虚影
+        if (missingAmplifierBlocked) {
+            if (be.isAmplifierPresent()) {
+                missingAmplifierBlocked = false;
+                LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(be.getBlockPos());
+            } else {
+                LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(be.getBlockPos());
+            }
         }
         /// 开始新搜索时重置指南触发状态
         if (searchState == SearchState.LOADING) {
@@ -614,7 +628,8 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         mapsGuide.visible = false;
         /// 检查恒星天体是否缺少增幅器
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
-        boolean missingAmplifier = body instanceof StarData star
+        boolean missingAmplifier = missingAmplifierBlocked
+            || body instanceof StarData star
             && !star.specialRedDwarf()
             && !getMenu().getBlockEntity().isAmplifierPresent();
         if (missingAmplifier) {
@@ -1902,8 +1917,25 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         guideTriggered = false;
         /// 检查是否有种子物品 —— 有种子物品时跳过图表预检以发现特殊天体
         boolean hasSeedItem = !be.getAnvilInventory().getItem(4).isEmpty();
+        missingAmplifierBlocked = false;
         /// 客户端预检：匹配不可能时立即失败（有种子物品时跳过）
         if (!hasSeedItem && minecraft != null && minecraft.level != null) {
+            /// 缺少增幅器时，若只有增幅模式能匹配到该天体，
+            /// 说明玩家是在尝试锻造恒星，应提示缺少增幅器而非参数不合理。
+            if (!be.isAmplifierPresent()) {
+                var amplifiedPreCheck = CelestialBodyMatcher.match(
+                    be.getAnvilCount(0),
+                    be.getAnvilCount(1),
+                    be.getAnvilCount(2),
+                    be.getAnvilCount(3),
+                    true,
+                    minecraft.level.getRandom()
+                );
+                if (amplifiedPreCheck instanceof StarData star && !star.specialRedDwarf()) {
+                    missingAmplifierBlocked = true;
+                    return;
+                }
+            }
             var preCheck = CelestialBodyMatcher.match(
                 be.getAnvilCount(0),
                 be.getAnvilCount(1),

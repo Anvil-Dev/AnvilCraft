@@ -760,11 +760,14 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     };
 
     public void tick() {
-        if (level != null && level.isClientSide()
-            && celestialBodyData instanceof StarData star
-            && !star.specialRedDwarf()
-            && !amplifierPresent) {
-            LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(worldPosition);
+        if (level != null && level.isClientSide()) {
+            if (celestialBodyData instanceof StarData star
+                && !star.specialRedDwarf()
+                && !amplifierPresent) {
+                LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(worldPosition);
+            } else if (amplifierPresent) {
+                LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(worldPosition);
+            }
         }
         if (this.rotation >= 360.0f) this.rotation -= 360.0f;
         this.preRotation = this.rotation;

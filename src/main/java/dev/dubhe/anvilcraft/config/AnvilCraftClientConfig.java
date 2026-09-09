@@ -105,7 +105,15 @@ public class AnvilCraftClientConfig {
     public boolean liquidEnchantmentRomanNumerals = true;
 
     @Comment("Preview mode when placing multipart blocks (large crate, hyperdimension storage station...)")
-    public MultiPartPreviewMode multiPartPreviewMode = MultiPartPreviewMode.GHOST;
+    public MultiPartPreviewMode multiPartPreviewMode = MultiPartPreviewMode.OUTLINE;
+
+    @Comment("Opacity of the ghost (solid) preview when placing multipart blocks")
+    @BoundedDiscrete(min = 0.0, max = 1.0)
+    public float multiPartPreviewGhostOpacity = 0.3f;
+
+    @Comment("Opacity of the outline preview when placing multipart blocks")
+    @BoundedDiscrete(min = 0.0, max = 1.0)
+    public float multiPartPreviewOutlineOpacity = 0.5f;
 
     @SerializedName("Ionocraft Backpack HUD")
     @CollapsibleObject
