@@ -96,6 +96,12 @@ public final class ModelBlockSelection {
         return frame;
     }
 
+    /** Returns the whole-multipart outline parts for a placement/main-part state, if prepared. */
+    public static List<SelectionPart> multipartOutline(BlockState state) {
+        List<SelectionPart> outline = snapshot.outlines().get(state);
+        return outline == null ? List.of() : outline;
+    }
+
     private static List<SelectionPart> parts(ClientLevel level, BlockPos pos, BlockState state, float partialTick) {
         ModelSelection model = snapshot.states().get(state);
         List<SelectionPart> parts = new ArrayList<>(ModelSelectionBakery.collect(model, state.getSeed(pos)));

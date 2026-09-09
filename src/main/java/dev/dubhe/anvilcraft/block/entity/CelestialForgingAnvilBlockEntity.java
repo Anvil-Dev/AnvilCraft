@@ -22,6 +22,7 @@ import dev.dubhe.anvilcraft.block.entity.megastructure.ExcavatorHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.PenroseSphereHandler;
 import dev.dubhe.anvilcraft.block.entity.megastructure.WormholeStabilizerHandler;
 import dev.dubhe.anvilcraft.block.state.Cube323PartHalf;
+import dev.dubhe.anvilcraft.client.event.LargeBlockPlacePreviewEventListener;
 import dev.dubhe.anvilcraft.init.ModMegastructures;
 import dev.dubhe.anvilcraft.init.ModMenuTypes;
 import dev.dubhe.anvilcraft.init.item.ModItems;
@@ -759,6 +760,15 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     };
 
     public void tick() {
+        if (level != null && level.isClientSide()) {
+            if (celestialBodyData instanceof StarData star
+                && !star.specialRedDwarf()
+                && !amplifierPresent) {
+                LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(worldPosition);
+            } else if (amplifierPresent) {
+                LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(worldPosition);
+            }
+        }
         if (this.rotation >= 360.0f) this.rotation -= 360.0f;
         this.preRotation = this.rotation;
         float rotationSpeed = 3.0f / (1.0f + this.getRedstoneSignal() * 0.4f);

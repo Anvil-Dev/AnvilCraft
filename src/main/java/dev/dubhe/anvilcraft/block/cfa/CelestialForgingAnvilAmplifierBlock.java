@@ -185,42 +185,64 @@ public class CelestialForgingAnvilAmplifierBlock
         Direction.NORTH, Direction.EAST, Direction.WEST, Direction.SOUTH
     };
 
+    /// 检测以 mainPos 为主块(BOTTOM_PART)位置时，增幅器是否贴在锻星砧的某个角上，返回对应朝向。
+    @Nullable
+    private static Direction detectFacing(Level level, BlockPos mainPos) {
+        for (int[] c : CORNER_CHECKS) {
+            for (int dy = 0; dy <= 1; dy++) {
+                BlockState state = level.getBlockState(mainPos.offset(c[0], dy, c[1]));
+                if (state.getBlock() instanceof CelestialForgingAnvilBlock
+                    && state.hasProperty(CelestialForgingAnvilBlock.HALF)
+                    && isCornerPart(state.getValue(CelestialForgingAnvilBlock.HALF))) {
+                    return FACING_MAP[c[2]];
+                }
+            }
+        }
+        return null;
+    }
+
+    /// 在增幅器占地 2×2 的外圈验证锻星砧 BOTTOM_CENTER，排除孤立的角落方块。
+    private static boolean hasCenterAtCorner(Level level, BlockPos mainPos) {
+        for (int[] c : CENTER_CHECKS) {
+            BlockState state = level.getBlockState(mainPos.offset(c[0], 0, c[1]));
+            if (state.getBlock() instanceof CelestialForgingAnvilBlock
+                && state.hasProperty(CelestialForgingAnvilBlock.HALF)
+                && state.getValue(CelestialForgingAnvilBlock.HALF) == Cube323PartHalf.BOTTOM_CENTER) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /// 增幅器占地 2×2，主块(BOTTOM_PART)位于东南角，其余三块在西北侧。
+    /// 点击落在 2×2 内任意一格时，将点击位置吸附回东南角主块，使玩家无需对准主块格也能放置。
+    /// 找不到合法位置时返回 null，由调用方按原逻辑处理。
+    @Nullable
+    public BlockPos snapMainPos(Level level, BlockPos clickedPos) {
+        for (int dx = 0; dx <= 1; dx++) {
+            for (int dz = 0; dz <= 1; dz++) {
+                BlockPos mainPos = clickedPos.offset(dx, 0, dz);
+                Direction facing = detectFacing(level, mainPos);
+                boolean center = hasCenterAtCorner(level, mainPos);
+                boolean enough = false;
+                if (facing != null && center) {
+                    BlockState state = this.defaultBlockState()
+                        .setValue(HALF, DirectionCube232PartHalf.BOTTOM_PART)
+                        .setValue(FACING, facing);
+                    enough = this.hasEnoughSpace(state, mainPos, level);
+                }
+                if (facing != null && center && enough) return mainPos;
+            }
+        }
+        return null;
+    }
+
     @Override
     public @Nullable BlockState getStateForPlacement(BlockPlaceContext context) {
         Level level = context.getLevel();
         BlockPos pos = context.getClickedPos();
-
-        /// 1. 在内层方形四角检测锻星砧角落方块
-        Direction facing = null;
-        for (int[] c : CORNER_CHECKS) {
-            for (int dy = 0; dy <= 1; dy++) {
-                BlockState state = level.getBlockState(pos.offset(c[0], dy, c[1]));
-                if (state.getBlock() instanceof CelestialForgingAnvilBlock
-                    && state.hasProperty(CelestialForgingAnvilBlock.HALF)
-                    && isCornerPart(state.getValue(CelestialForgingAnvilBlock.HALF))) {
-                    facing = FACING_MAP[c[2]];
-                    break;
-                }
-            }
-            if (facing != null) break;
-        }
-
-        /// 2. 在外层方形四角验证锻星砧 BOTTOM_CENTER（排除孤立角落方块）
-        if (facing != null) {
-            boolean valid = false;
-            for (int[] c : CENTER_CHECKS) {
-                BlockState state = level.getBlockState(pos.offset(c[0], 0, c[1]));
-                if (state.getBlock() instanceof CelestialForgingAnvilBlock
-                    && state.hasProperty(CelestialForgingAnvilBlock.HALF)
-                    && state.getValue(CelestialForgingAnvilBlock.HALF) == Cube323PartHalf.BOTTOM_CENTER) {
-                    valid = true;
-                    break;
-                }
-            }
-            if (!valid) facing = null;
-        }
-
-        if (facing == null) {
+        Direction facing = detectFacing(level, pos);
+        if (facing == null || !hasCenterAtCorner(level, pos)) {
             if (context.getPlayer() != null && !level.isClientSide) {
                 context.getPlayer().displayClientMessage(
                     Component.translatable("block.anvilcraft.celestial_forging_anvil_amplifier.need_anvil_corner")

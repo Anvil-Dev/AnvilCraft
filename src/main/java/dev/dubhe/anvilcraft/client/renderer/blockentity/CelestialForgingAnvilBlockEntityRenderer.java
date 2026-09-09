@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.block.entity.celestial.StellarEvolutionState;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarTrack;
 import dev.dubhe.anvilcraft.block.entity.celestial.StellarVisualState;
 import dev.dubhe.anvilcraft.block.entity.celestial.Temperature;
+import dev.dubhe.anvilcraft.client.event.LargeBlockPlacePreviewEventListener;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.celestial.CelestialBodyTextureBakery;
@@ -196,6 +197,13 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         ModelBlockRenderer modelRenderer = Minecraft.getInstance().getBlockRenderer().getModelRenderer();
         float rot = blockEntity.getRotation() + (blockEntity.getRotation() - blockEntity.getPreRotation()) * partialTick;
         CelestialBodyData bodyData = blockEntity.getCelestialBodyData();
+        if (bodyData instanceof StarData star
+            && !star.specialRedDwarf()
+            && !blockEntity.isAmplifierPresent()) {
+            LargeBlockPlacePreviewEventListener.offerMissingAmplifierAnvil(blockEntity.getBlockPos());
+        } else if (blockEntity.isAmplifierPresent()) {
+            LargeBlockPlacePreviewEventListener.removeMissingAmplifierAnvil(blockEntity.getBlockPos());
+        }
         boolean isAmplify = blockEntity.isAmplify();
         float rotationBoost = blockEntity.getAnimationRotationBoost(partialTick);
         float bodyRotation = (blockEntity.getBodyRotation() + partialTick) * rotationBoost;
