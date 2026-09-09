@@ -60,6 +60,7 @@ public class FlexibleMultiPartBlockItem<
     @Override
     public InteractionResult useOn(UseOnContext context) {
         InteractionResult result = super.useOn(context);
+        if (result.consumesAction()) return result;
         Direction clickedFace = context.getClickedFace();
         BlockState state = this.block.getPlacementState(new BlockPlaceContext(context));
         if (state == null) return InteractionResult.FAIL;

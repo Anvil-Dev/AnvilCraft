@@ -96,6 +96,12 @@ public final class ModelBlockSelection {
         return frame;
     }
 
+    /** Returns the whole-multipart outline parts for a placement/main-part state, if prepared. */
+    public static List<SelectionPart> multipartOutline(BlockState state) {
+        List<SelectionPart> outline = snapshot.outlines().get(state);
+        return outline == null ? List.of() : outline;
+    }
+
     private static List<SelectionPart> parts(ClientLevel level, BlockPos pos, BlockState state, float partialTick) {
         ModelSelection model = snapshot.states().get(state);
         List<SelectionPart> parts = new ArrayList<>(ModelSelectionBakery.collect(model, state.getSeed(pos)));
@@ -133,6 +139,7 @@ public final class ModelBlockSelection {
             || block instanceof LargeCauldronBlock
             || block instanceof TradingStationBlock
             || block instanceof CrateBlock
+            || block == ModBlocks.WIP_BLOCK.get()
             || block == ModBlocks.HEAVY_IRON_COLUMN.get();
     }
 
@@ -145,6 +152,7 @@ public final class ModelBlockSelection {
     }
 
     private static <T extends BlockEntity> List<SelectionPart> collectDynamic(T entity, float partialTick) {
+        if (entity.getBlockState().is(ModBlocks.PULSE_GENERATOR.get())) return List.of();
         BlockEntityRenderer<T> renderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
         if (!(renderer instanceof ModelSelectionRenderer<?>)) return List.of();
         @SuppressWarnings("unchecked")
@@ -193,7 +201,7 @@ public final class ModelBlockSelection {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
         if (!AnvilCraft.MOD_ID.equals(BuiltInRegistries.BLOCK.getKey(block).getNamespace())) return;
-        if (block instanceof LargeCauldronBlock) return;
+        if (block instanceof LargeCauldronBlock || block == ModBlocks.WIP_BLOCK.get()) return;
         boolean originalPicking = usesOriginalPicking(block);
         if (!originalPicking && !CubeSelection.isEnabled(block)) return;
         List<SelectionPart> whole = snapshot.outlines().get(state);

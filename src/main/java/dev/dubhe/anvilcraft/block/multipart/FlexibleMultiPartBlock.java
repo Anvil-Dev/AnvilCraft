@@ -127,7 +127,7 @@ public abstract class FlexibleMultiPartBlock<
 
     @Nullable
     public BlockState getPlacementState(BlockPlaceContext context) {
-        return super.getStateForPlacement(context);
+        return this.getStateForPlacement(context);
     }
 
     /**
