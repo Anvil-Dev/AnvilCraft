@@ -234,7 +234,6 @@ public class LargeBlockPlacePreviewEventListener {
             renderEntries.clear();
             return;
         }
-        PoseStack poseStack = event.getPoseStack();
         if (renderEntries.isEmpty()) {
             return;
         }
@@ -247,6 +246,7 @@ public class LargeBlockPlacePreviewEventListener {
             renderEntries.clear();
             return;
         }
+        PoseStack poseStack = event.getPoseStack();
         Vec3 camera = event.getCamera().getPosition();
         MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
         if (AnvilCraftClient.CONFIG.multiPartPreviewMode == AnvilCraftClientConfig.MultiPartPreviewMode.OUTLINE) {
@@ -359,7 +359,6 @@ public class LargeBlockPlacePreviewEventListener {
                     .setValue(CelestialForgingAnvilAmplifierBlock.FACING, AMPLIFIER_CORNER_FACINGS[i]);
                 for (DirectionCube232PartHalf part : amplifier.getParts()) {
                     BlockPos pos = mainPos.offset(amplifier.offsetFrom(state, part));
-                    BlockState partState = amplifier.placedState(part, state);
                     poseStack.pushPose();
                     poseStack.translate(
                         pos.getX() - cameraPos.x,
@@ -367,6 +366,7 @@ public class LargeBlockPlacePreviewEventListener {
                         pos.getZ() - cameraPos.z
                     );
                     poseStack.scale(1.001f, 1.001f, 1.001f);
+                    BlockState partState = amplifier.placedState(part, state);
                     renderPart(poseStack, bufferSource, renderType, partState, 0.3f, red, green, blue);
                     poseStack.popPose();
                 }
