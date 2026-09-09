@@ -165,7 +165,8 @@ public final class GravityManager {
         Vec3 gravity = GravitySourceManager.calculateGravityVector(
             entity.level(),
             entity.getBoundingBox().getCenter(),
-            Math.abs(baseGravity)
+            Math.abs(baseGravity),
+            entity instanceof Player player && player.isShiftKeyDown()
         );
         if (entity instanceof IAnvilCraftEntityExtension extension) {
             Vec3 additional = extension.anvilcraft$getAdditionalGravity(Math.abs(baseGravity));
@@ -555,6 +556,10 @@ public final class GravityManager {
         }
 
         public static Vec3 calculateGravityVector(Level level, Vec3 position, double g) {
+            return calculateGravityVector(level, position, g, false);
+        }
+
+        private static Vec3 calculateGravityVector(Level level, Vec3 position, double g, boolean ignoreCelestialGravity) {
             GravityFieldIndex index = GRAVITY_FIELDS.get(level);
             if (index == null) return Vec3.ZERO;
 
@@ -562,6 +567,7 @@ public final class GravityManager {
             double fy = 0;
             double fz = 0;
             for (GravitySource source : index.sourcesAt(position)) {
+                if (ignoreCelestialGravity && source.type().bodyRadius() > 0) continue;
                 Vec3 force = calculateGravityVector(source, position, g);
                 fx += force.x;
                 fy += force.y;
@@ -678,7 +684,9 @@ public final class GravityManager {
             Vec3 movementImpulse = Vec3.ZERO;
             Vec3 velocityImpulse = Vec3.ZERO;
 
+            boolean ignoreCelestialGravity = entity instanceof Player player && player.isShiftKeyDown();
             for (GravitySource source : index.sourcesAlong(start, end)) {
+                if (ignoreCelestialGravity && source.type().bodyRadius() > 0) continue;
                 if (start.distanceToSqr(source.center()) <= source.type().radiusSqr()
                     || end.distanceToSqr(source.center()) <= source.type().radiusSqr()) {
                     continue;
