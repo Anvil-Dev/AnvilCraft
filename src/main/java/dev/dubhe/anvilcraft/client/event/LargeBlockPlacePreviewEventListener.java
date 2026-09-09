@@ -15,8 +15,8 @@ import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
-import dev.dubhe.anvilcraft.util.SegmentedActuator;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
+import dev.dubhe.anvilcraft.util.SegmentedActuator;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -47,6 +47,7 @@ import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.model.data.ModelData;
+
 import java.util.List;
 
 @EventBusSubscriber(Dist.CLIENT)
@@ -92,7 +93,7 @@ public class LargeBlockPlacePreviewEventListener {
         }
         renderEntries.clear();
         BlockHitResult target = event.getTarget();
-        Direction direction = target.getDirection();
+        final Direction direction = target.getDirection();
         Inventory inventory = player.getInventory();
         InteractionHand hand = InteractionHand.MAIN_HAND;
         ItemStack item = inventory.getItem(inventory.selected);
@@ -352,9 +353,7 @@ public class LargeBlockPlacePreviewEventListener {
             currentItem = ItemStack.EMPTY;
             failBoundCooldown = 0;
         }
-        if (currentPos == null) {
-            currentPos = pos;
-        } else if (!currentPos.equals(pos)) {
+        if (!currentPos.equals(pos)) {
             currentPos = null;
             failBoundCooldown = 0;
         }
