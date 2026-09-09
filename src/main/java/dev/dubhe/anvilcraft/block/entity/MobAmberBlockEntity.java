@@ -38,6 +38,7 @@ public class MobAmberBlockEntity extends HasMobBlockEntity {
 
         displayEntity.setPos(blockPos.getCenter());
         this.setYRot(displayEntity, state.getValue(BlockStateProperties.HORIZONTAL_FACING).toYRot());
+        displayEntity.setOldPosAndRot();
     }
 
     private void setYRot(LivingEntity displayEntity, float rotY) {

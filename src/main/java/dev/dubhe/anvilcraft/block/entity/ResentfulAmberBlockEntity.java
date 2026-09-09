@@ -48,5 +48,6 @@ public class ResentfulAmberBlockEntity extends MobAmberBlockEntity {
             EntityAnchorArgument.Anchor.FEET,
             EntityAnchorArgument.Anchor.EYES.apply(nearest)
         );
+        displayEntity.setOldPosAndRot();
     }
 }
