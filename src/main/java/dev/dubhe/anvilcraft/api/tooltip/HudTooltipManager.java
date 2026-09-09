@@ -49,7 +49,6 @@ import java.util.Comparator;
 import java.util.List;
 import javax.annotation.Nullable;
 
-import static dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper.renderOutline;
 import static dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper.renderTooltipWithItemIcon;
 
 public class HudTooltipManager {
@@ -221,18 +220,18 @@ public class HudTooltipManager {
     }
 
     /**
-     * 渲染作用范围
+     * 解析作用范围
      */
-    public void renderAffectRange(BlockEntity entity, PoseStack poseStack, VertexConsumer consumer, double camX, double camY, double camZ) {
+    @Nullable
+    public VoxelShape resolveAffectRange(BlockEntity entity) {
+        if (entity == null) {
+            return null;
+        }
         IAffectRangeProvider currentProvider = determineAffectRangeProvider(entity);
         if (currentProvider == null) {
-            return;
+            return null;
         }
-        VoxelShape shape = currentProvider.affectRange(entity);
-        if (shape == null) {
-            return;
-        }
-        renderOutline(poseStack, consumer, camX, camY, camZ, BlockPos.ZERO, shape, 0xff00ffcc);
+        return currentProvider.affectRange(entity);
     }
 
     @Nullable

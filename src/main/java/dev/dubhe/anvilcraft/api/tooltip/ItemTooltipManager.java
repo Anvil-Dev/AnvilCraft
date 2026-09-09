@@ -500,7 +500,10 @@ public class ItemTooltipManager {
             It cushions fall damage, but landing on it will make you nauseous for 30 seconds
             Can also be smelted into Netherrack"""
         );
-        NORMAL.put(ModBlocks.SINGULARITY_CRYSTAL.asItem(), "Data disk for storing extreme celestial data from the Celestial Forging Anvil");
+        NORMAL.put(
+            ModBlocks.SINGULARITY_CRYSTAL.asItem(),
+            "A crystal formed of a micro black hole and a micro white hole"
+        );
         NORMAL.put(ModItems.LASER_GUN.get(), "Hold right-click to consume power and fire a laser that grows increasingly powerful");
         NORMAL.put(ModItems.CORRUPTED_BEACON_ACTIVATOR.get(), "Hold right-click to consume power and fire a corruption beam");
         NORMAL.put(ModItems.TESLA_GUN.get(), "Hold right-click to consume power and fire chain lightning that bounces between mobs");
@@ -860,6 +863,9 @@ public class ItemTooltipManager {
                 or can be taken with a left-click in the inventory and then used by right-clicking on an electrical appliance to actively charge it"""
         );
         SHIFT.put(ModBlocks.CREATIVE_LASER.asItem(), "Adjustable laser level, lens and gamma mode, can be turned off by redstone");
+        SHIFT.put(ModBlocks.SINGULARITY_CRYSTAL.asItem(), """
+            Stores extreme celestial data from the Celestial Forging Anvil
+            Right-click it with a bound Hyperdimension Terminal to convert it into an uploader""");
 
         Map<Item, String> allTooltips = Maps.newHashMap();
         allTooltips.putAll(NORMAL);

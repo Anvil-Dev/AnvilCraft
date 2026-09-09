@@ -109,11 +109,11 @@ public class AnvilCraftClientConfig {
 
     @Comment("Opacity of the ghost (solid) preview when placing multipart blocks")
     @BoundedDiscrete(min = 0.0, max = 1.0)
-    public float multiPartPreviewGhostOpacity = 0.3f;
+    public double multiPartPreviewGhostOpacity = 0.3;
 
     @Comment("Opacity of the outline preview when placing multipart blocks")
     @BoundedDiscrete(min = 0.0, max = 1.0)
-    public float multiPartPreviewOutlineOpacity = 0.5f;
+    public double multiPartPreviewOutlineOpacity = 0.5;
 
     @SerializedName("Ionocraft Backpack HUD")
     @CollapsibleObject

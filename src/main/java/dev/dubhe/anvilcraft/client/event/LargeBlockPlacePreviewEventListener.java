@@ -51,6 +51,7 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
 import java.util.List;
+import javax.annotation.Nullable;
 
 @EventBusSubscriber(Dist.CLIENT)
 public class LargeBlockPlacePreviewEventListener {
@@ -58,6 +59,7 @@ public class LargeBlockPlacePreviewEventListener {
     private static int failBoundErrorCooldown = 0;
 
     private static ItemStack currentItem = ItemStack.EMPTY;
+    @Nullable
     private static BlockPos currentPos = null;
 
     private static int boundColor = 0xffffffff;
@@ -260,7 +262,7 @@ public class LargeBlockPlacePreviewEventListener {
             expandRenderEntriesForGhost();
         }
         RenderType renderType = ModRenderTypes.BEACON_GLASS;
-        float alpha = AnvilCraftClient.CONFIG.multiPartPreviewGhostOpacity;
+        float alpha = (float) AnvilCraftClient.CONFIG.multiPartPreviewGhostOpacity;
         int color = boundColor;
         float red = FastColor.ARGB32.red(color) / 255f;
         float green = FastColor.ARGB32.green(color) / 255f;
@@ -297,9 +299,13 @@ public class LargeBlockPlacePreviewEventListener {
         RenderType renderType = outlineMode ? RenderType.lines() : ModRenderTypes.BEACON_GLASS;
         VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
         if (outlineMode) {
-            renderMissingAmplifierOutlines(poseStack, vertexConsumer, cameraPos, amplifier, level);
+            if (level != null) {
+                renderMissingAmplifierOutlines(poseStack, vertexConsumer, cameraPos, amplifier, level);
+            }
         } else {
-            renderMissingAmplifierGlass(poseStack, bufferSource, renderType, cameraPos, amplifier, level);
+            if (level != null) {
+                renderMissingAmplifierGlass(poseStack, bufferSource, renderType, cameraPos, amplifier, level);
+            }
         }
         bufferSource.endBatch(renderType);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
@@ -335,7 +341,7 @@ public class LargeBlockPlacePreviewEventListener {
                     selectionPart.apply(poseStack);
                     OutlineRenderer.render(poseStack, vertexConsumer,
                         CubeSelection.outlines().get(selectionPart.geometry()), 1.0f, 1.0f, 1.0f,
-                        AnvilCraftClient.CONFIG.multiPartPreviewOutlineOpacity);
+                        (float) AnvilCraftClient.CONFIG.multiPartPreviewOutlineOpacity);
                     poseStack.popPose();
                 }
                 poseStack.popPose();
@@ -370,7 +376,7 @@ public class LargeBlockPlacePreviewEventListener {
                     poseStack.scale(1.001f, 1.001f, 1.001f);
                     BlockState partState = amplifier.placedState(part, state);
                     renderPart(poseStack, bufferSource, renderType, partState,
-                        AnvilCraftClient.CONFIG.multiPartPreviewGhostOpacity, 1.0f, 1.0f, 1.0f);
+                        (float) AnvilCraftClient.CONFIG.multiPartPreviewGhostOpacity, 1.0f, 1.0f, 1.0f);
                     poseStack.popPose();
                 }
             }
@@ -407,7 +413,7 @@ public class LargeBlockPlacePreviewEventListener {
             part.apply(poseStack);
             OutlineRenderer.render(poseStack, vertexConsumer,
                 CubeSelection.outlines().get(part.geometry()), red, green, blue,
-                AnvilCraftClient.CONFIG.multiPartPreviewOutlineOpacity);
+                (float) AnvilCraftClient.CONFIG.multiPartPreviewOutlineOpacity);
             poseStack.popPose();
         }
         poseStack.popPose();
