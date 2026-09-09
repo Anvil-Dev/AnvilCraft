@@ -51,6 +51,7 @@ import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
 import java.util.List;
+import javax.annotation.Nullable;
 
 @EventBusSubscriber(Dist.CLIENT)
 public class LargeBlockPlacePreviewEventListener {
@@ -58,6 +59,7 @@ public class LargeBlockPlacePreviewEventListener {
     private static int failBoundErrorCooldown = 0;
 
     private static ItemStack currentItem = ItemStack.EMPTY;
+    @Nullable
     private static BlockPos currentPos = null;
 
     private static int boundColor = 0xffffffff;
@@ -297,9 +299,13 @@ public class LargeBlockPlacePreviewEventListener {
         RenderType renderType = outlineMode ? RenderType.lines() : ModRenderTypes.BEACON_GLASS;
         VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
         if (outlineMode) {
-            renderMissingAmplifierOutlines(poseStack, vertexConsumer, cameraPos, amplifier, level);
+            if (level != null) {
+                renderMissingAmplifierOutlines(poseStack, vertexConsumer, cameraPos, amplifier, level);
+            }
         } else {
-            renderMissingAmplifierGlass(poseStack, bufferSource, renderType, cameraPos, amplifier, level);
+            if (level != null) {
+                renderMissingAmplifierGlass(poseStack, bufferSource, renderType, cameraPos, amplifier, level);
+            }
         }
         bufferSource.endBatch(renderType);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
