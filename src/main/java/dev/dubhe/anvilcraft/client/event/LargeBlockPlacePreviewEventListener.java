@@ -7,6 +7,7 @@ import dev.anvilcraft.lib.v2.cube.client.CubeSelection;
 import dev.anvilcraft.lib.v2.cube.client.OutlineRenderer;
 import dev.anvilcraft.lib.v2.cube.client.SelectionPart;
 import dev.dubhe.anvilcraft.api.tooltip.TooltipRenderHelper;
+import dev.dubhe.anvilcraft.block.cfa.CelestialForgingAnvilAmplifierBlock;
 import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
@@ -112,6 +113,18 @@ public class LargeBlockPlacePreviewEventListener {
             target.isInside()
         ));
         BlockPos pos = context.getClickedPos();
+        if (block instanceof CelestialForgingAnvilAmplifierBlock amplifierBlock) {
+            BlockPos snapped = amplifierBlock.snapMainPos(mc.level, pos);
+            if (snapped != null) {
+                pos = snapped;
+                context = new BlockPlaceContext(player, hand, item, new BlockHitResult(
+                    event.getTarget().getLocation(),
+                    direction,
+                    pos,
+                    target.isInside()
+                ));
+            }
+        }
         validateCanRender(item, blockItem, pos);
         BlockState state = getPlacementState(block, blockItem, context);
         List<BlockPos> errorPosList = getErrorPosList(mc.level, block, pos, state);
@@ -124,6 +137,13 @@ public class LargeBlockPlacePreviewEventListener {
                 int distance = flexibleMultiPartBlockItem.getMaxOffsetDistance(state, direction);
                 pos = target.getBlockPos().relative(direction, distance);
             }
+            context = new BlockPlaceContext(player, hand, item, new BlockHitResult(
+                new Vec3(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5),
+                direction,
+                pos,
+                false
+            ));
+            state = getPlacementState(block, blockItem, context);
             errorPosList = getErrorPosList(mc.level, block, pos, state);
         }
         if (errorPosList.isEmpty()) {
