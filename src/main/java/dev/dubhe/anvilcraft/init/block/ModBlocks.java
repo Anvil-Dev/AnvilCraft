@@ -69,6 +69,7 @@ import dev.dubhe.anvilcraft.block.FrostMetalSlabBlock;
 import dev.dubhe.anvilcraft.block.FrostMetalStairBlock;
 import dev.dubhe.anvilcraft.block.FrostSmithingTableBlock;
 import dev.dubhe.anvilcraft.block.GiantAnvilBlock;
+import dev.dubhe.anvilcraft.block.GiantMonolithCoreBlock;
 import dev.dubhe.anvilcraft.block.GunpowderBlock;
 import dev.dubhe.anvilcraft.block.HeatCollectorBlock;
 import dev.dubhe.anvilcraft.block.HeaterBlock;
@@ -111,6 +112,7 @@ import dev.dubhe.anvilcraft.block.MengerSpongeBlock;
 import dev.dubhe.anvilcraft.block.MilkCauldronBlock;
 import dev.dubhe.anvilcraft.block.MineralFountainBlock;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
+import dev.dubhe.anvilcraft.block.MonolithBlock;
 import dev.dubhe.anvilcraft.block.NegativeMatterBlock;
 import dev.dubhe.anvilcraft.block.NeoforgeBlock;
 import dev.dubhe.anvilcraft.block.NeutronIrradiatorBlock;
@@ -4910,6 +4912,81 @@ public class ModBlocks {
         })
         .item()
         .properties(properties -> properties.rarity(Rarity.EPIC))
+        .build()
+        .register();
+
+    public static final BlockEntry<? extends Block> LUNAR_ROCK = REGISTRUM.block("lunar_rock", Block::new)
+        .initialProperties(() -> Blocks.STONE)
+        .lang("Lunar Rock")
+        // 随机纹理变种的 blockstate 与模型为手写资源（assets/anvilcraft/blockstates/lunar_rock.json），
+        // 与原版草方块同机制：4 个纹理变种按方块位置随机显示
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/lunar_rock")))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_PICKAXE, BlockTags.NEEDS_STONE_TOOL)
+        .register();
+
+    public static final BlockEntry<? extends Block> LUNAR_SOIL = REGISTRUM.block("lunar_soil", Block::new)
+        .initialProperties(() -> Blocks.DIRT)
+        .lang("Lunar Soil")
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/lunar_soil")))
+        .build()
+        .tag(BlockTags.MINEABLE_WITH_SHOVEL)
+        .register();
+
+    public static final BlockEntry<? extends Block> MONOLITH = REGISTRUM.block("monolith", Block::new)
+        .initialProperties(() -> Blocks.BEDROCK)
+        .lang("Monolith")
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/monolith")))
+        .build()
+        .register();
+
+    public static final BlockEntry<MonolithBlock> MONOLITH_CORE = REGISTRUM.block("monolith_core", MonolithBlock::new)
+        .initialProperties(() -> Blocks.BEDROCK)
+        .properties(properties -> properties.noOcclusion())
+        .lang("Monolith Core")
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/monolith_core")))
+        .build()
+        .register();
+
+    public static final BlockEntry<MonolithBlock> MONOLITH_LINE = REGISTRUM.block("monolith_line", MonolithBlock::new)
+        .initialProperties(() -> Blocks.BEDROCK)
+        .properties(properties -> properties.noOcclusion())
+        .lang("Monolith Line")
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/monolith_line")))
+        .build()
+        .register();
+
+    public static final BlockEntry<GiantMonolithCoreBlock> GIANT_MONOLITH_CORE = REGISTRUM.block(
+            "giant_monolith_core",
+            GiantMonolithCoreBlock::new
+        )
+        .initialProperties(() -> Blocks.BEDROCK)
+        .properties(properties -> properties.noOcclusion().noCollission())
+        .lang("Giant Monolith Core")
+        .loot(SimpleMultiPartBlock::loot)
+        .item(SimpleMultiPartBlockItem<Cube3x3PartHalf>::new)
+        .properties(properties -> properties.stacksTo(16))
+        .build()
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .register();
+
+    public static final BlockEntry<MonolithBlock> GIANT_MONOLITH_LINE = REGISTRUM.block("giant_monolith_line", MonolithBlock::new)
+        .initialProperties(() -> Blocks.BEDROCK)
+        .properties(properties -> properties.noOcclusion().noCollission())
+        .lang("Giant Monolith Line")
+        .blockstate(DataGenUtil::noExtraModelOrState)
+        .item()
+        .model((ctx, provider) -> provider.withExistingParent(ctx.getName(), AnvilCraft.of("block/giant_monolith_line")))
         .build()
         .register();
 
