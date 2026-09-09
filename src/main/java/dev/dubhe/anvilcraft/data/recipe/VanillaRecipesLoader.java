@@ -106,6 +106,15 @@ public class VanillaRecipesLoader {
             .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.BRASS_PRESSURE_PLATE), AnvilCraftDatagen.has(ModBlocks.BRASS_PRESSURE_PLATE))
             .save(provider, AnvilCraft.of("drain"));
 
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModBlocks.FLUID_TANK)
+            .requires(ModBlocks.FLUID_TANK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.FLUID_TANK), AnvilCraftDatagen.has(ModBlocks.FLUID_TANK))
+            .save(provider, AnvilCraft.of("empty_fluid_tank"));
+        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, ModBlocks.LARGE_FLUID_TANK)
+            .requires(ModBlocks.LARGE_FLUID_TANK)
+            .unlockedBy(AnvilCraftDatagen.hasItem(ModBlocks.LARGE_FLUID_TANK), AnvilCraftDatagen.has(ModBlocks.LARGE_FLUID_TANK))
+            .save(provider, AnvilCraft.of("empty_large_fluid_tank"));
+
         SimpleCookingRecipeBuilder.campfireCooking(Ingredient.of(ModItemTags.DOUGH), RecipeCategory.FOOD,
                 Items.BREAD, 0.35f, 600)
             .unlockedBy(AnvilCraftDatagen.hasItem(ModFoodItems.DOUGH.get()), AnvilCraftDatagen.has(ModFoodItems.DOUGH))

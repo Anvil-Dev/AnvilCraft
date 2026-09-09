@@ -2,6 +2,7 @@ package dev.dubhe.anvilcraft.client.gui.screen;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import dev.dubhe.anvilcraft.client.gui.component.CycleFilterModeButton;
+import dev.dubhe.anvilcraft.client.gui.component.SwitchableButton;
 import dev.dubhe.anvilcraft.client.gui.component.TextWidget;
 import dev.dubhe.anvilcraft.client.gui.component.Texture10xButton;
 import dev.dubhe.anvilcraft.constant.Constant;
@@ -41,6 +42,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             .withStyle(ChatFormatting.ITALIC, ChatFormatting.GRAY);
 
     protected CycleFilterModeButton cycleFilterModeButton;
+    private SwitchableButton outputModeButton;
 
     public ItemDetectorScreen(ItemDetectorMenu menu, Inventory playerInventory, Component title) {
         super(menu, playerInventory, title);
@@ -76,6 +78,24 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
             () -> this.menu.getBlockEntity().getFilterMode()
         );
         this.addRenderableWidget(this.cycleFilterModeButton);
+        this.outputModeButton = new SwitchableButton(
+            this.leftPos + 57,
+            this.topPos + 54,
+            16, 16,
+            List.of(SharedTextures.BUTTON_REVERSE_OFF, SharedTextures.BUTTON_REVERSE_ON),
+            16, 16, 32,
+            (button, index) -> {
+                if (this.minecraft == null || this.minecraft.gameMode == null) return;
+                this.menu.getBlockEntity().setOutputInvert(index == 1);
+                this.minecraft.gameMode.handleInventoryButtonClick(this.menu.containerId, index);
+            },
+            List.of(
+                Component.translatable("screen.anvilcraft.button.reverse_off"),
+                Component.translatable("screen.anvilcraft.button.reverse")
+            )
+        );
+        this.outputModeButton.setCurrent(this.menu.getBlockEntity().isOutputInvert() ? 1 : 0);
+        this.addRenderableWidget(this.outputModeButton);
         // range
         this.addRenderableWidget(new TextWidget(
             leftPos + 57,
@@ -159,6 +179,7 @@ public class ItemDetectorScreen extends AbstractContainerScreen<ItemDetectorMenu
 
     @Override
     public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+        this.outputModeButton.setCurrent(this.menu.getBlockEntity().isOutputInvert() ? 1 : 0);
         super.render(guiGraphics, mouseX, mouseY, partialTick);
         this.renderTooltip(guiGraphics, mouseX, mouseY);
     }

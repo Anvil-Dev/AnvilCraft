@@ -15,6 +15,11 @@ public sealed interface CelestialBodyData permits RockyPlanetData, GiantPlanetDa
 
     int size();
 
+    /** Converted red dwarfs retain their physical size but use the small stellar ring set. */
+    default boolean usesLargeStellarRings() {
+        return size() >= 48 && !(this instanceof StarData star && star.specialRedDwarf());
+    }
+
     float axialTilt();
 
     /// 自转速度等级（0-5）。

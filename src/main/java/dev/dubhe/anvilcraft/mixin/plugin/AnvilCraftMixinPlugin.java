@@ -19,6 +19,7 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
     private static boolean hasArchitectury = false;
     private static boolean hasSodium = false;
     private static boolean hasEmbeddium = false;
+    private static boolean hasIris = false;
 
     private boolean isLoaded(String clazz) {
         return AnvilCraftMixinPlugin.class.getClassLoader().getResource(clazz) != null;
@@ -35,6 +36,7 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         hasArchitectury = this.isLoaded("dev/architectury/neoforge/ArchitecturyNeoForge");
         hasSodium = LoadingModList.get().getMods().stream().anyMatch(it -> it.getModId().equals("sodium"));
         hasEmbeddium = LoadingModList.get().getMods().stream().anyMatch(it -> it.getModId().equals("embeddium"));
+        hasIris = this.isLoaded("net/irisshaders/iris/uniforms/CelestialUniforms.class");
     }
 
     @Override
@@ -53,6 +55,7 @@ public class AnvilCraftMixinPlugin implements IMixinConfigPlugin {
         if (mixinClassName.contains("Architectury")) return hasArchitectury;
         if (mixinClassName.contains("Sodium")) return hasSodium;
         if (mixinClassName.contains("Emb")) return hasEmbeddium;
+        if (mixinClassName.contains("Iris")) return hasIris;
         return true;
     }
 

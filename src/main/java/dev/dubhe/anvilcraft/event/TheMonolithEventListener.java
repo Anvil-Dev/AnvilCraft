@@ -2,111 +2,112 @@ package dev.dubhe.anvilcraft.event;
 
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
-import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.entity.ModVillagers;
 import dev.dubhe.anvilcraft.worldgen.TheMonolith;
-import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.server.MinecraftServer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.decoration.ItemFrame;
-import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.ai.village.poi.PoiManager;
+import net.minecraft.world.entity.ai.village.poi.PoiRecord;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.portal.DimensionTransition;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent;
-import net.neoforged.neoforge.event.tick.EntityTickEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.server.ServerStartedEvent;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.stream.Collectors;
 
-/** 石碑事件：首次登月生成石碑；石碑范围内的书汇聚附魔粒子，最终转化为铁砧工艺手册。 */
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class TheMonolithEventListener {
-    /** 书转化为手册所需的持续时长（tick）。 */
-    private static final int TRANSFORM_TICKS = 320;
-    /**
-     * 每本书的转化进度。以实体为键的弱引用表，书被拾取后实体消失、进度随 GC 清除，
-     * 物品本身不带任何附加数据，拾取后可与普通书正常堆叠。
-     */
-    private static final Map<Entity, Integer> PROGRESS = new WeakHashMap<>();
+    private static final int HINT_TICKS = 100;
+    private static final int HINT_RANGE = 5;
+    private static final Map<ServerPlayer, Map<BlockPos, Integer>> PROGRESS = new WeakHashMap<>();
+    private static final Map<ServerPlayer, Long> RETURN_TOUCHES = new WeakHashMap<>();
 
-    /** 玩家进入 Mun 时，在落点附近生成全局唯一的石碑。 */
+    @SubscribeEvent
+    public static void onServerStarted(ServerStartedEvent event) {
+        TheMonolith.ensureGenerated(event.getServer().overworld());
+    }
+
     @SubscribeEvent
     public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
-        if (!CelestialTravelManager.MUN_LEVEL.equals(event.getTo())) return;
-        if (!(event.getEntity().getServer() instanceof MinecraftServer server)) return;
-        ServerLevel mun = server.getLevel(CelestialTravelManager.MUN_LEVEL);
-        if (mun == null) return;
-        TheMonolith.ensureGenerated(mun);
+        if (event.getEntity().level() instanceof ServerLevel level) TheMonolith.ensureGenerated(level);
     }
 
-    /** 玩家登录时若已身处 Mun（跨版本升级的存档），同样补生成石碑。 */
     @SubscribeEvent
     public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        if (!(event.getEntity().level() instanceof ServerLevel level)) return;
-        if (!CelestialTravelManager.MUN_LEVEL.equals(level.dimension())) return;
-        TheMonolith.ensureGenerated(level);
+        if (event.getEntity().level() instanceof ServerLevel level) TheMonolith.ensureGenerated(level);
     }
 
     @SubscribeEvent
-    public static void onEntityTick(EntityTickEvent.Post event) {
-        Entity entity = event.getEntity();
-        if (!(entity.level() instanceof ServerLevel level)) return;
-        if (!CelestialTravelManager.MUN_LEVEL.equals(level.dimension())) return;
-        boolean isBook = false;
-        if (entity instanceof ItemEntity itemEntity) {
-            isBook = itemEntity.getItem().is(Items.BOOK);
-        } else if (entity instanceof ItemFrame itemFrame) {
-            // ItemFrame 同时覆盖发光物品展示框
-            isBook = itemFrame.getItem().is(Items.BOOK);
-        }
-        if (!isBook) return;
-        TheMonolith.State state = TheMonolith.State.get(level);
-        if (!state.isInRange(entity.blockPosition())) {
-            PROGRESS.remove(entity);
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
+        if (!(event.getEntity() instanceof ServerPlayer player)) return;
+        ServerLevel level = player.serverLevel();
+        Set<BlockPos> nearby = level.getPoiManager().getInRange(
+                type -> type.is(ModVillagers.MONOLITH_CORE_POI.getKey()),
+                player.blockPosition(), HINT_RANGE + 1, PoiManager.Occupancy.ANY
+            )
+            .map(PoiRecord::getPos)
+            .filter(level::hasChunkAt)
+            .filter(pos -> pos.distToCenterSqr(player.position()) <= HINT_RANGE * HINT_RANGE)
+            .filter(pos -> level.getBlockState(pos).is(ModBlocks.MONOLITH_CORE.get())
+                || level.getBlockState(pos).is(ModBlocks.GIANT_MONOLITH_CORE.get()))
+            .collect(Collectors.toSet());
+        if (nearby.isEmpty()) {
+            PROGRESS.remove(player);
             return;
         }
-        int progress = PROGRESS.merge(entity, 1, Integer::sum);
-        spawnConvergingParticles(level, entity);
-        if (progress < TRANSFORM_TICKS) return;
-        PROGRESS.remove(entity);
-        ItemStack manual = new ItemStack(ModItems.GUIDE_BOOK.get());
-        if (entity instanceof ItemEntity itemEntity) {
-            itemEntity.setItem(manual);
-        } else if (entity instanceof ItemFrame itemFrame) {
-            itemFrame.setItem(manual, false);
+        Map<BlockPos, Integer> progress = PROGRESS.computeIfAbsent(player, ignored -> new HashMap<>());
+        progress.keySet().retainAll(nearby);
+        for (BlockPos pos : nearby) {
+            int ticks = progress.compute(pos, (ignored, previous) -> previous == null ? 1 : Math.min(previous + 1, HINT_TICKS + 1));
+            if (ticks != HINT_TICKS) continue;
+            String key = level.getBlockState(pos).is(ModBlocks.GIANT_MONOLITH_CORE.get())
+                ? "message.anvilcraft.monolith.giant_offering" : "message.anvilcraft.monolith.offering";
+            player.sendSystemMessage(Component.translatable(key));
         }
-        level.playSound(
-            null, entity.blockPosition(), SoundEvents.ENCHANTMENT_TABLE_USE, SoundSource.BLOCKS, 1.0F, 1.0F
-        );
     }
 
-    /** 实体离开世界时清除其转化进度（如书被拾取、展示框被破坏）。 */
+    @SubscribeEvent
+    public static void onRightClickBlock(PlayerInteractEvent.RightClickBlock event) {
+        if (!event.getLevel().dimension().equals(CelestialTravelManager.MUN_LEVEL)) return;
+        BlockState state = event.getLevel().getBlockState(event.getPos());
+        if (!state.is(ModBlocks.MONOLITH.get()) && !state.is(ModBlocks.MONOLITH_LINE.get())
+            && !state.is(ModBlocks.GIANT_MONOLITH_LINE.get())) return;
+        event.setCanceled(true);
+        event.setCancellationResult(InteractionResult.SUCCESS);
+        if (!(event.getEntity() instanceof ServerPlayer player) || !player.isAlive()) return;
+        long now = player.serverLevel().getGameTime();
+        Long firstTouch = RETURN_TOUCHES.putIfAbsent(player, now);
+        if (firstTouch == null) {
+            player.sendSystemMessage(Component.translatable("message.anvilcraft.monolith.return_confirmation"));
+            return;
+        }
+        if (firstTouch == now) return;
+        RETURN_TOUCHES.remove(player);
+        DimensionTransition transition = player.findRespawnPositionAndUseSpawnBlock(false, DimensionTransition.DO_NOTHING);
+        player.unRide();
+        if (player.changeDimension(transition) == null) return;
+        player.setDeltaMovement(Vec3.ZERO);
+        player.resetFallDistance();
+        player.resetCurrentImpulseContext();
+    }
+
     @SubscribeEvent
     public static void onEntityLeave(EntityLeaveLevelEvent event) {
         PROGRESS.remove(event.getEntity());
-    }
-
-    /** 在书的周围生成附魔文字粒子并汇聚到书上。 */
-    private static void spawnConvergingParticles(ServerLevel level, Entity book) {
-        RandomSource random = level.getRandom();
-        for (int i = 0; i < 2; i++) {
-            double angle = random.nextDouble() * Math.PI * 2;
-            double distance = 2.5 + random.nextDouble() * 2.5;
-            // ENCHANT 粒子从“生成位置 + 速度向量”处出发、飞回生成位置（与附魔台粒子一致），
-            // 因此生成位置取书本位置、向量指向外围起点
-            level.sendParticles(
-                ParticleTypes.ENCHANT,
-                book.getX(), book.getY() + 0.5, book.getZ(),
-                0,
-                Math.cos(angle) * distance, random.nextDouble() * 2.0 - 0.5, Math.sin(angle) * distance,
-                1.0
-            );
-        }
+        RETURN_TOUCHES.remove(event.getEntity());
     }
 }

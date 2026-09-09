@@ -2,7 +2,7 @@
   "type": "anvilcraft:special_celestial_body",
   "axial_tilt": 0.0,
   "can_be_shattered": false,
-  "energy": 16,
+  "energy": 0,
   "landing": {
     "coordinate_rule": {
       "type": "same_3d"
@@ -11,7 +11,7 @@
   },
   "liquid_coverage": "none",
   "magnetic_field": 0,
-  "mass": 20,
+  "mass": 0,
   "model": "end_gateway",
   "name": "void_planet",
   "resources": {},
@@ -19,6 +19,6 @@
   "seed_items": [
     "minecraft:barrier"
   ],
-  "space": 14,
-  "time": 32
+  "space": 0,
+  "time": 0
 }

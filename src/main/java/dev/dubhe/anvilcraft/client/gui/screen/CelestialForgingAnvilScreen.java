@@ -614,8 +614,7 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         mapsGuide.visible = false;
         /// 检查恒星天体是否缺少增幅器
         CelestialBodyData body = getMenu().getBlockEntity().getCelestialBodyData();
-        boolean missingAmplifier = body instanceof StarData star
-            && !star.specialRedDwarf()
+        boolean missingAmplifier = body instanceof StarData
             && !getMenu().getBlockEntity().isAmplifierPresent();
         if (missingAmplifier) {
             Component line1 = Component.translatable("screen.anvilcraft.cfa.missing_amplifier.line1");

@@ -1,32 +1,32 @@
 {
   "parent": "minecraft:recipes/root",
   "criteria": {
-    "has_the_recipe": {
-      "conditions": {
-        "recipe": "anvilcraft:guide_book"
-      },
-      "trigger": "minecraft:recipe_unlocked"
-    },
-    "hasitem": {
+    "has_fluid_tank": {
       "conditions": {
         "items": [
           {
-            "items": "minecraft:book"
+            "items": "anvilcraft:fluid_tank"
           }
         ]
       },
       "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "anvilcraft:empty_fluid_tank"
+      },
+      "trigger": "minecraft:recipe_unlocked"
     }
   },
   "requirements": [
     [
       "has_the_recipe",
-      "hasitem"
+      "has_fluid_tank"
     ]
   ],
   "rewards": {
     "recipes": [
-      "anvilcraft:guide_book"
+      "anvilcraft:empty_fluid_tank"
     ]
   }
 }

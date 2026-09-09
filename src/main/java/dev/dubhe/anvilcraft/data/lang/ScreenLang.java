@@ -721,6 +721,7 @@ public class ScreenLang {
 
         // Special celestial body type names
         provider.add("screen.anvilcraft.cfa.class.special.overworld_like", "Overworld Like"); // 类主世界
+        provider.add("screen.anvilcraft.cfa.class.special.mun", "Mun"); // 月球
         provider.add("screen.anvilcraft.cfa.class.special.void_planet", "Void Planet"); // 虚空星球
         provider.add("screen.anvilcraft.cfa.class.special.flesh_planet", "Flesh Planet"); // 血肉星球
         provider.add("screen.anvilcraft.cfa.class.special.intelligent_planet", "Intelligent Planet"); // 智慧星球

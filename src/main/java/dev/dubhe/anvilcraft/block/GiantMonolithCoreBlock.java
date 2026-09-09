@@ -1,27 +1,49 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.dubhe.anvilcraft.block.entity.MonolithCoreBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyRecipe;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
+import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.network.Filterable;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.WrittenBookContent;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.phys.BlockHitResult;
+
+import java.util.List;
+import javax.annotation.Nullable;
 
 /**
  * 巨型石碑芯（giant_monolith_core）：按 3x3x3 多方块落地（同巨型铁砧），
  * 仅中层中心部件显示整体模型，其余 26 个部件为无碰撞的透明占位。
  * 东西/南北两种朝向沿用水平轴属性，模型默认为南北朝向。
  */
-public class GiantMonolithCoreBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> {
+public class GiantMonolithCoreBlock extends SimpleMultiPartBlock<Cube3x3PartHalf> implements EntityBlock {
     public static final EnumProperty<Cube3x3PartHalf> HALF = EnumProperty.create("half", Cube3x3PartHalf.class);
     public static final EnumProperty<GiantAnvilCube> CUBE = EnumProperty.create("cube", GiantAnvilCube.class);
     public static final EnumProperty<Direction.Axis> AXIS = BlockStateProperties.HORIZONTAL_AXIS;
@@ -32,6 +54,49 @@ public class GiantMonolithCoreBlock extends SimpleMultiPartBlock<Cube3x3PartHalf
             .setValue(HALF, Cube3x3PartHalf.BOTTOM_CENTER)
             .setValue(CUBE, GiantAnvilCube.CORNER)
             .setValue(AXIS, Direction.Axis.Z));
+    }
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return this.isMainPart(state) ? ModBlockEntities.MONOLITH_CORE.create(pos, state) : null;
+    }
+
+    @Override
+    public InteractionResult use(
+        BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit
+    ) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (!MonolithCoreBlockEntity.acceptsOffering(stack, true)) return InteractionResult.PASS;
+        if (!(level instanceof ServerLevel serverLevel)) return InteractionResult.SUCCESS;
+        BlockPos mainPos = this.getMainPartPos(pos, state);
+        if (!(level.getBlockEntity(mainPos) instanceof MonolithCoreBlockEntity core) || core.isCoolingDown()) {
+            return InteractionResult.CONSUME;
+        }
+        List<RecipeHolder<SpecialCelestialBodyRecipe>> recipes = serverLevel.getRecipeManager()
+            .getAllRecipesFor(ModRecipeTypes.SPECIAL_CELESTIAL_BODY_TYPE.get());
+        if (recipes.isEmpty()) return InteractionResult.FAIL;
+        SpecialCelestialBodyRecipe recipe = recipes.get(level.random.nextInt(recipes.size())).value();
+        ItemStack book = createKnowledgeBook(recipe, serverLevel.getSeed());
+        if (!core.beginOffering(stack)) return InteractionResult.CONSUME;
+        stack.consume(1, player);
+        if (!player.addItem(book)) player.drop(book, false);
+        return InteractionResult.CONSUME;
+    }
+
+    public static ItemStack createKnowledgeBook(SpecialCelestialBodyRecipe recipe, long worldSeed) {
+        Component page = Component.translatable(
+            "book.anvilcraft.monolith.page",
+            Component.translatable("screen.anvilcraft.cfa.class.special." + recipe.name()),
+            recipe.time(), recipe.space(), recipe.mass(), recipe.energy(),
+            recipe.getEffectiveSeedItem(worldSeed).getDescription()
+        );
+        ItemStack book = new ItemStack(Items.WRITTEN_BOOK);
+        book.set(DataComponents.WRITTEN_BOOK_CONTENT, new WrittenBookContent(
+            Filterable.passThrough("Celestial Knowledge"), "The Monolith", 0,
+            List.of(Filterable.passThrough(page)), true
+        ));
+        book.set(DataComponents.ITEM_NAME, Component.translatable("book.anvilcraft.monolith.title"));
+        return book;
     }
 
     @Override
@@ -77,6 +142,7 @@ public class GiantMonolithCoreBlock extends SimpleMultiPartBlock<Cube3x3PartHalf
 
     @Override
     protected BlockState rotate(BlockState state, Rotation rotation) {
+        state = state.setValue(HALF, state.getValue(HALF).rotate(rotation));
         return switch (rotation) {
             case COUNTERCLOCKWISE_90, CLOCKWISE_90 -> switch (state.getValue(AXIS)) {
                 case X -> state.setValue(AXIS, Direction.Axis.Z);

@@ -206,7 +206,8 @@ public class ChargerBlockEntity extends BlockEntity
         } else {
             ChargerChargingRecipe recipe = getItemRecipe(stack);
             if (checkRecipeItemNotValid(recipe, stack)) return;
-            itemHandler.setStackInSlot(2, recipe.getResult().copy());
+            if (level == null) return;
+            itemHandler.setStackInSlot(2, recipe.assemble(new SingleRecipeInput(stack), level.registryAccess()));
         }
         itemHandler.setStackInSlot(1, ItemStack.EMPTY);
         powerValue = 0;

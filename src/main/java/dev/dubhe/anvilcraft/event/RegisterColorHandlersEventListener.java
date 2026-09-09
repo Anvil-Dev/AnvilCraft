@@ -50,6 +50,7 @@ public class RegisterColorHandlersEventListener {
             ModItems.HELIUM_BUCKET,
             ModItems.DEUTERIUM_BUCKET,
             ModItems.XENON_BUCKET,
-            ModItems.KRYPTON_BUCKET);
+            ModItems.KRYPTON_BUCKET,
+            ModItems.PRIMORDIAL_MATTER_BUCKET);
     }
 }

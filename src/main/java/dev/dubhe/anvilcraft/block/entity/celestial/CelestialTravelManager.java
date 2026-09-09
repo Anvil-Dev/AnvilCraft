@@ -102,6 +102,10 @@ public final class CelestialTravelManager {
         if (destination == null) return false;
 
         BlockPos desired = landingOrigin(entity, destination, travel.coordinateRule());
+        if (travel.coordinateRule().type() == CelestialTravelData.CoordinateRule.Type.FIXED_SURFACE
+            && travel.returnRule().type() == CelestialTravelData.ReturnRule.Type.ENTRY_PORTAL) {
+            return landOnFixedSurface(entity, sourceLevel, destination, desired, sourcePortalPos, sourceFacing);
+        }
         if (travel.returnRule().type() == CelestialTravelData.ReturnRule.Type.ENTRY_PORTAL) {
             BlockPos existingGate = findMatchingGateNear(
                 destination, desired, sourceLevel.dimension(), sourcePortalPos, sourceFacing, true
@@ -156,6 +160,33 @@ public final class CelestialTravelManager {
         );
     }
 
+    private static boolean landOnFixedSurface(
+        Entity entity,
+        ServerLevel sourceLevel,
+        ServerLevel destination,
+        BlockPos desired,
+        BlockPos sourcePortalPos,
+        Direction sourceFacing
+    ) {
+        BlockPos gate = findMatchingGateNear(
+            destination, desired, sourceLevel.dimension(), sourcePortalPos, sourceFacing, false
+        );
+        if (gate == null || !canStand(destination, gate.below().relative(sourceFacing))) {
+            gate = findSafeGatePos(
+                destination, desired, sourceFacing, sourceLevel.dimension(), sourcePortalPos, false, SPAWN_SEARCH_RADIUS
+            );
+        }
+        if (gate == null) {
+            BlockPos platform = createEmergencyLandingPlatform(destination, desired, false);
+            if (platform == null) return false;
+            gate = platform.above();
+        }
+        return travelThroughGate(
+            entity, sourceLevel, destination, gate, gate.below().relative(sourceFacing), sourcePortalPos, sourceFacing,
+            CelestialTravelData.ReturnRule.Type.ENTRY_PORTAL
+        );
+    }
+
     private static boolean travelThroughGate(
         Entity entity,
         ServerLevel sourceLevel,
@@ -192,7 +223,7 @@ public final class CelestialTravelManager {
         // in front of it.  Other return rules place the gate independently and
         // must preserve the coordinate rule's landing position.
         BlockPos arrivalPos = returnType == CelestialTravelData.ReturnRule.Type.ENTRY_PORTAL
-            ? returnPos.relative(gateFacing) : landing;
+            ? returnPos.below().relative(gateFacing) : landing;
         Vec3 destinationPosition = Vec3.atBottomCenterOf(arrivalPos);
         Vec3 momentum = reverseFacingMomentum(entity.getDeltaMovement(), sourceFacing);
         Entity moved = move(entity, sourceLevel, destination, destinationPosition, momentum);
@@ -248,6 +279,7 @@ public final class CelestialTravelManager {
                 entity.getX() * rule.scale(), destination.getSharedSpawnPos().getY(), entity.getZ() * rule.scale()
             );
             case FIXED -> new BlockPos(rule.x(), rule.y(), rule.z());
+            case FIXED_SURFACE -> new BlockPos(rule.x(), findSurfaceY(destination, rule.x(), rule.z()) + 1, rule.z());
             case RANDOM_SPAWN -> randomSpawnOrigin(destination, rule.radius(), entity.getUUID());
         };
     }
@@ -290,6 +322,14 @@ public final class CelestialTravelManager {
     private static int signedOffset(long seed, int radius) {
         if (radius <= 0) return 0;
         return (int) Math.floorMod(seed, (long) radius * 2L + 1L) - radius;
+    }
+
+    /** Finds nearby dry ground, using a small platform when the entire arrival area is ocean. */
+    @Nullable
+    public static BlockPos findSafeSurfaceLandingPos(ServerLevel level, BlockPos origin) {
+        level.getChunk(origin);
+        BlockPos landing = findSafeLandingPos(level, origin, false, SPAWN_SEARCH_RADIUS);
+        return landing != null ? landing : createEmergencyLandingPlatform(level, origin, false);
     }
 
     /** Finds an air column with a solid floor near the requested coordinate. */

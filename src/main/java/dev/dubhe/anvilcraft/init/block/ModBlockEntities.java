@@ -50,6 +50,7 @@ import dev.dubhe.anvilcraft.block.entity.MagneticChuteBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MassEnergyInverterBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MineralFountainBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.MobAmberBlockEntity;
+import dev.dubhe.anvilcraft.block.entity.MonolithCoreBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.NeutronIrradiatorBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.OverseerBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.PlasmaJetsBlockEntity;
@@ -122,6 +123,7 @@ import dev.dubhe.anvilcraft.client.renderer.blockentity.InfiniteCollectorRendere
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeCauldronBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LargeFluidTankBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.LaserBlockRenderer;
+import dev.dubhe.anvilcraft.client.renderer.blockentity.MonolithCoreBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.OverseerBlockEntityRenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PipeCheckValveBERenderer;
 import dev.dubhe.anvilcraft.client.renderer.blockentity.PlasmaJetsRenderer;
@@ -649,6 +651,12 @@ public class ModBlockEntities {
         .blockEntity("hypercube", HypercubeBlockEntity::new)
         .validBlock(ModBlocks.HYPERCUBE)
         .renderer(() -> HypercubeBERenderer::new)
+        .register();
+
+    public static final BlockEntityEntry<MonolithCoreBlockEntity> MONOLITH_CORE = REGISTRUM
+        .blockEntity("monolith_core", MonolithCoreBlockEntity::new)
+        .validBlocks(ModBlocks.MONOLITH_CORE, ModBlocks.GIANT_MONOLITH_CORE)
+        .renderer(() -> MonolithCoreBlockEntityRenderer::new)
         .register();
 
     public static void register() {

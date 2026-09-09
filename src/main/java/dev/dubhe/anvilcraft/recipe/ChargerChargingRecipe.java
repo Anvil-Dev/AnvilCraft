@@ -5,12 +5,15 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import dev.dubhe.anvilcraft.AnvilCraft;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.init.item.ModItemTags;
+import dev.dubhe.anvilcraft.init.item.ModItems;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
 import dev.dubhe.anvilcraft.recipe.anvil.builder.AbstractRecipeBuilder;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -24,6 +27,7 @@ import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
+import net.minecraft.world.item.enchantment.ItemEnchantments;
 import net.minecraft.world.level.ItemLike;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -70,7 +74,13 @@ public class ChargerChargingRecipe implements Recipe<SingleRecipeInput> {
 
     @Override
     public ItemStack assemble(SingleRecipeInput input, HolderLookup.Provider registries) {
-        return result.copy();
+        ItemStack result = this.result.copy();
+        ItemStack source = input.getItem(0);
+        if (source.is(ModItemTags.UNCHARGED_NEUTRONIUM_INGOTS) && result.is(ModItems.CHARGED_NEUTRONIUM_INGOT)) {
+            ItemEnchantments enchantments = source.get(DataComponents.ENCHANTMENTS);
+            if (enchantments != null) result.set(DataComponents.ENCHANTMENTS, enchantments);
+        }
+        return result;
     }
 
     @Override

@@ -113,6 +113,7 @@ import dev.dubhe.anvilcraft.block.MilkCauldronBlock;
 import dev.dubhe.anvilcraft.block.MineralFountainBlock;
 import dev.dubhe.anvilcraft.block.MobAmberBlock;
 import dev.dubhe.anvilcraft.block.MonolithBlock;
+import dev.dubhe.anvilcraft.block.MonolithCoreBlock;
 import dev.dubhe.anvilcraft.block.NegativeMatterBlock;
 import dev.dubhe.anvilcraft.block.NeoforgeBlock;
 import dev.dubhe.anvilcraft.block.NeutronIrradiatorBlock;
@@ -4946,7 +4947,7 @@ public class ModBlocks {
         .build()
         .register();
 
-    public static final BlockEntry<MonolithBlock> MONOLITH_CORE = REGISTRUM.block("monolith_core", MonolithBlock::new)
+    public static final BlockEntry<MonolithCoreBlock> MONOLITH_CORE = REGISTRUM.block("monolith_core", MonolithCoreBlock::new)
         .initialProperties(() -> Blocks.BEDROCK)
         .properties(properties -> properties.noOcclusion())
         .lang("Monolith Core")

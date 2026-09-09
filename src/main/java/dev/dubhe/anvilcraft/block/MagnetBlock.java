@@ -135,9 +135,10 @@ public class MagnetBlock extends Block implements IHammerRemovable {
                 if (entity instanceof IAnvilCraftEntityExtension) continue;
                 BlockState state2 = entity.getBlockState();
                 if (state2.is(BlockTags.ANVIL) && !state2.is(ModBlockTags.NON_MAGNETIC)) {
+                    // Remove the entity before block updates can let another magnet capture it.
+                    entity.discard();
                     level.destroyBlock(magnetPos.below(), true);
                     level.setBlockAndUpdate(magnetPos.below(), state2);
-                    entity.discard();
                     AnimateAscendingBlockEntity.animate(level, currentPos, state2, magnetPos.below());
                     TriggerUtil.liftingAnvil(level, currentPos);
                     break checkAnvil;

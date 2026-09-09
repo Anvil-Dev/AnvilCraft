@@ -8,7 +8,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
@@ -16,50 +18,54 @@ import net.minecraft.world.level.saveddata.SavedData;
 
 import javax.annotation.Nullable;
 
-/**
- * 石碑（The Monolith）：玩家第一次登月时在 Mun 世界原点 (0, 0) 生成的 32x72x8 磨制深板岩巨碑，
- * 全局唯一，包围盒持久化于 Mun 维度的 SavedData。
- */
+/** Places one monolith near the shared spawn of the Overworld and Mun. */
 public final class TheMonolith {
-    /** 碑体每个面向外扩展的作用范围（格）。 */
-    public static final int RANGE = 32;
-    /** 碑体底部嵌入地下的深度（格）。 */
-    public static final int EMBED_DEPTH = 4;
-    /** 碑体结构模板。 */
     public static final ResourceLocation TEMPLATE = AnvilCraft.of("the_monolith");
+    public static final ResourceLocation SMALL_TEMPLATE = AnvilCraft.of("small_monolith");
 
     private TheMonolith() {
     }
 
-    /** 玩家抵达 Mun 时调用；若石碑尚未生成，则在原点生成并记录。 */
-    public static void ensureGenerated(ServerLevel mun) {
-        State state = State.get(mun);
+    public static void ensureGenerated(ServerLevel level) {
+        boolean giant = CelestialTravelManager.MUN_LEVEL.equals(level.dimension());
+        if (!giant && (!Level.OVERWORLD.equals(level.dimension())
+            || level.getChunkSource().getGenerator() instanceof FlatLevelSource)) {
+            return;
+        }
+        State state = State.get(level);
         if (state.boundingBox != null) return;
-        BoundingBox box = place(mun);
+        BoundingBox box = place(level, giant);
+        if (box == null) return;
         state.setBoundingBox(box);
         AnvilCraft.LOGGER.info(
-            "The Monolith generated at [{}, {}, {}] ~ [{}, {}, {}]",
-            box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ()
+            "Monolith generated in {} at [{}, {}, {}] ~ [{}, {}, {}]",
+            level.dimension().location(), box.minX(), box.minY(), box.minZ(), box.maxX(), box.maxY(), box.maxZ()
         );
     }
 
-    /** 以结构模板（与 /place 相同的方式）在世界原点放置碑体，返回放置后的包围盒。 */
-    private static BoundingBox place(ServerLevel mun) {
-        RandomSource random = mun.getRandom();
-        int surfaceY = CelestialTravelManager.findSurfaceY(mun, 0, 0);
-        StructureTemplate template = mun.getServer().getStructureManager().getOrCreate(TEMPLATE);
-        Placement placement = placement(template, new BlockPos(0, surfaceY, 0), random);
+    private static @Nullable BoundingBox place(ServerLevel level, boolean giant) {
+        BlockPos spawn = level.getSharedSpawnPos();
+        int x = spawn.getX() + (giant ? 32 : 16);
+        int z = spawn.getZ();
+        int surfaceY = CelestialTravelManager.findSurfaceY(level, x, z);
+        StructureTemplate template = level.getServer().getStructureManager().getOrCreate(giant ? TEMPLATE : SMALL_TEMPLATE);
+        RandomSource random = level.getRandom();
+        Placement placement = placement(template, new BlockPos(x, surfaceY, z), random);
         StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(placement.rotation());
-        template.placeInWorld(mun, placement.corner(), placement.corner(), settings, random, 2 | 16);
+        if (!template.placeInWorld(level, placement.corner(), placement.corner(), settings, random, 2 | 16)) return null;
         return placement.boundingBox();
     }
 
-    /** 计算碑体放置参数：以地表位置为碑体中心，返回模板锚点（一角）、朝向与放置后的包围盒。 */
+    /** Centers the rotated template above the surface without burying its core. */
     public static Placement placement(StructureTemplate template, BlockPos surfacePos, RandomSource random) {
         Rotation rotation = Rotation.getRandom(random);
         StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(rotation);
-        BoundingBox unrotated = template.getBoundingBox(settings, BlockPos.ZERO);
-        BlockPos corner = surfacePos.offset(-unrotated.getXSpan() / 2, -EMBED_DEPTH, -unrotated.getZSpan() / 2);
+        BoundingBox bounds = template.getBoundingBox(settings, BlockPos.ZERO);
+        BlockPos corner = surfacePos.offset(
+            -Math.floorDiv(bounds.minX() + bounds.maxX(), 2),
+            1,
+            -Math.floorDiv(bounds.minZ() + bounds.maxZ(), 2)
+        );
         return new Placement(corner, rotation, template.getBoundingBox(settings, corner));
     }
 
@@ -73,8 +79,8 @@ public final class TheMonolith {
 
         private @Nullable BoundingBox boundingBox;
 
-        public static State get(ServerLevel mun) {
-            return mun.getDataStorage()
+        public static State get(ServerLevel level) {
+            return level.getDataStorage()
                 .computeIfAbsent(new Factory<>(State::new, State::load, null), DATA_NAME);
         }
 
@@ -104,11 +110,6 @@ public final class TheMonolith {
         private void setBoundingBox(BoundingBox boundingBox) {
             this.boundingBox = boundingBox;
             this.setDirty();
-        }
-
-        /** 判断位置是否处于碑体每个面向外 {@link TheMonolith#RANGE} 格的作用范围内。 */
-        public boolean isInRange(BlockPos pos) {
-            return this.boundingBox != null && this.boundingBox.inflatedBy(RANGE).isInside(pos);
         }
     }
 }

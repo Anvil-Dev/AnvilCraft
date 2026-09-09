@@ -51,7 +51,9 @@ In the GUI you can set the **condition**, **delay**, and **duration** of the emi
 
 ## GUI
 
-In the GUI you can set range and filters
+In the GUI you can set range, filters, and reverse output
+
+- **Reverse output** is off by default. When enabled, the final redstone signal strength is **15 minus the normal signal strength**: normal signals of 0, 7, and 15 become 15, 8, and 0. This setting can also be copied with a configuration disk
 
 - When <color=#999922>no filter is set</color>, the redstone signal strength varies **linearly** with the number of dropped items. At 64 items, it outputs full signal strength of 15
 - When <color=#999922>a filter is set</color>, if none of the filtered dropped items exist, no signal is output. Otherwise, for **each** filter slot detecting an item, the redstone signal is calculated based on the corresponding item count (full signal strength reached when count = [64 * filter count]). The final output is the **minimum** of all redstone signals

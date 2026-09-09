@@ -14,6 +14,7 @@ import dev.dubhe.anvilcraft.api.rendering.CacheableBERenderingPipeline;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModRenderTargets;
 import dev.dubhe.anvilcraft.client.init.ModShaders;
+import dev.dubhe.anvilcraft.client.renderer.MunSurfaceRenderer;
 import dev.dubhe.anvilcraft.client.renderer.RenderState;
 import dev.dubhe.anvilcraft.client.support.GravitationalLensManager;
 import dev.dubhe.anvilcraft.client.support.PowerGridSupport;
@@ -28,6 +29,7 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.PostChain;
 import net.minecraft.client.renderer.PostPass;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.ShaderInstance;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL11;
@@ -43,6 +45,22 @@ public abstract class LevelRendererMixin {
     @Shadow
     @Final
     private Minecraft minecraft;
+
+    @Inject(method = "renderSectionLayer", at = @At("HEAD"))
+    private void anvilcraft$beginMunTerrain(
+        RenderType renderType, double camX, double camY, double camZ, Matrix4f modelViewMatrix,
+        Matrix4f projectionMatrix, CallbackInfo ci
+    ) {
+        MunSurfaceRenderer.beginTerrain();
+    }
+
+    @Inject(method = "renderSectionLayer", at = @At("RETURN"))
+    private void anvilcraft$endMunTerrain(
+        RenderType renderType, double camX, double camY, double camZ, Matrix4f modelViewMatrix,
+        Matrix4f projectionMatrix, CallbackInfo ci
+    ) {
+        MunSurfaceRenderer.endTerrain();
+    }
 
     @Inject(
         method = "renderLevel",
