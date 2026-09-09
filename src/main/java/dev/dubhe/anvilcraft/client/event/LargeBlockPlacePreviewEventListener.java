@@ -12,10 +12,12 @@ import dev.dubhe.anvilcraft.block.item.FlexibleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.item.SimpleMultiPartBlockItem;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
 import dev.dubhe.anvilcraft.block.multipart.FlexibleMultiPartBlock;
+import dev.dubhe.anvilcraft.block.state.DirectionCube232PartHalf;
 import dev.dubhe.anvilcraft.client.AnvilCraftClient;
 import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.SegmentedActuator;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Camera;
@@ -73,7 +75,27 @@ public class LargeBlockPlacePreviewEventListener {
 
     private static final ObjectArrayList<RenderEntry> renderEntries = new ObjectArrayList<>();
 
+    private static final ObjectArrayList<BlockPos> missingAmplifierAnvilPositions = new ObjectArrayList<>();
+    private static final BlockPos[] AMPLIFIER_CORNER_OFFSETS = {
+        new BlockPos(-2, 0, -2),
+        new BlockPos(3, 0, -2),
+        new BlockPos(-2, 0, 3),
+        new BlockPos(3, 0, 3),
+    };
+    private static final Direction[] AMPLIFIER_CORNER_FACINGS = {
+        Direction.NORTH,
+        Direction.EAST,
+        Direction.WEST,
+        Direction.SOUTH,
+    };
+
     private record RenderEntry(BlockPos pos, BlockState state) {
+    }
+
+    public static void offerMissingAmplifierAnvil(BlockPos anvilPos) {
+        if (!missingAmplifierAnvilPositions.contains(anvilPos)) {
+            missingAmplifierAnvilPositions.add(anvilPos);
+        }
     }
 
     @SubscribeEvent
@@ -204,12 +226,15 @@ public class LargeBlockPlacePreviewEventListener {
         LocalPlayer player = mc.player;
         if (player == null || player.isSpectator() || mc.level == null) {
             renderEntries.clear();
+            missingAmplifierAnvilPositions.clear();
             return;
         }
+        renderMissingAmplifierGhostsAndClear(event);
         if (mc.hitResult == null || mc.hitResult.getType() != HitResult.Type.BLOCK) {
             renderEntries.clear();
             return;
         }
+        PoseStack poseStack = event.getPoseStack();
         if (renderEntries.isEmpty()) {
             return;
         }
@@ -222,7 +247,6 @@ public class LargeBlockPlacePreviewEventListener {
             renderEntries.clear();
             return;
         }
-        PoseStack poseStack = event.getPoseStack();
         Vec3 camera = event.getCamera().getPosition();
         MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
         if (AnvilCraftClient.CONFIG.multiPartPreviewMode == AnvilCraftClientConfig.MultiPartPreviewMode.OUTLINE) {
@@ -252,6 +276,102 @@ public class LargeBlockPlacePreviewEventListener {
         renderErrorBound(poseStack, bufferSource, event.getCamera());
         bufferSource.endBatch(renderType);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+    }
+
+    private static void renderMissingAmplifierGhostsAndClear(RenderLevelStageEvent event) {
+        if (missingAmplifierAnvilPositions.isEmpty()) {
+            return;
+        }
+        PoseStack poseStack = event.getPoseStack();
+        Minecraft mc = Minecraft.getInstance();
+        MultiBufferSource.BufferSource bufferSource = mc.renderBuffers().bufferSource();
+        Camera camera = event.getCamera();
+        Vec3 cameraPos = camera.getPosition();
+        CelestialForgingAnvilAmplifierBlock amplifier = ModBlocks.CELESTIAL_FORGING_ANVIL_AMPLIFIER.get();
+        boolean outlineMode = AnvilCraftClient.CONFIG.multiPartPreviewMode
+            == AnvilCraftClientConfig.MultiPartPreviewMode.OUTLINE;
+        RenderType renderType = outlineMode ? RenderType.lines() : ModRenderTypes.BEACON_GLASS;
+        VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
+        if (outlineMode) {
+            renderMissingAmplifierOutlines(poseStack, vertexConsumer, cameraPos, amplifier);
+        } else {
+            renderMissingAmplifierGlass(poseStack, bufferSource, renderType, cameraPos, amplifier);
+        }
+        bufferSource.endBatch(renderType);
+        RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);
+        missingAmplifierAnvilPositions.clear();
+    }
+
+    private static void renderMissingAmplifierOutlines(
+        PoseStack poseStack,
+        VertexConsumer vertexConsumer,
+        Vec3 cameraPos,
+        CelestialForgingAnvilAmplifierBlock amplifier
+    ) {
+        float red = 0.6f;
+        float green = 0.9f;
+        float blue = 1.0f;
+        for (BlockPos anvilPos : missingAmplifierAnvilPositions) {
+            for (int i = 0; i < AMPLIFIER_CORNER_OFFSETS.length; i++) {
+                BlockPos mainPos = anvilPos.offset(AMPLIFIER_CORNER_OFFSETS[i]);
+                BlockState state = amplifier.defaultBlockState()
+                    .setValue(CelestialForgingAnvilAmplifierBlock.FACING, AMPLIFIER_CORNER_FACINGS[i]);
+                for (DirectionCube232PartHalf part : amplifier.getParts()) {
+                    BlockPos pos = mainPos.offset(amplifier.offsetFrom(state, part));
+                    BlockState partState = amplifier.placedState(part, state);
+                    List<SelectionPart> outline = ModelBlockSelection.multipartOutline(partState);
+                    if (outline.isEmpty()) {
+                        continue;
+                    }
+                    poseStack.pushPose();
+                    poseStack.translate(
+                        pos.getX() - cameraPos.x,
+                        pos.getY() - cameraPos.y,
+                        pos.getZ() - cameraPos.z
+                    );
+                    for (SelectionPart selectionPart : outline) {
+                        poseStack.pushPose();
+                        selectionPart.apply(poseStack);
+                        OutlineRenderer.render(poseStack, vertexConsumer,
+                            CubeSelection.outlines().get(selectionPart.geometry()), red, green, blue, 0.8f);
+                        poseStack.popPose();
+                    }
+                    poseStack.popPose();
+                }
+            }
+        }
+    }
+
+    private static void renderMissingAmplifierGlass(
+        PoseStack poseStack,
+        MultiBufferSource.BufferSource bufferSource,
+        RenderType renderType,
+        Vec3 cameraPos,
+        CelestialForgingAnvilAmplifierBlock amplifier
+    ) {
+        float red = 0.6f;
+        float green = 0.9f;
+        float blue = 1.0f;
+        for (BlockPos anvilPos : missingAmplifierAnvilPositions) {
+            for (int i = 0; i < AMPLIFIER_CORNER_OFFSETS.length; i++) {
+                BlockPos mainPos = anvilPos.offset(AMPLIFIER_CORNER_OFFSETS[i]);
+                BlockState state = amplifier.defaultBlockState()
+                    .setValue(CelestialForgingAnvilAmplifierBlock.FACING, AMPLIFIER_CORNER_FACINGS[i]);
+                for (DirectionCube232PartHalf part : amplifier.getParts()) {
+                    BlockPos pos = mainPos.offset(amplifier.offsetFrom(state, part));
+                    BlockState partState = amplifier.placedState(part, state);
+                    poseStack.pushPose();
+                    poseStack.translate(
+                        pos.getX() - cameraPos.x,
+                        pos.getY() - cameraPos.y,
+                        pos.getZ() - cameraPos.z
+                    );
+                    poseStack.scale(1.001f, 1.001f, 1.001f);
+                    renderPart(poseStack, bufferSource, renderType, partState, 0.3f, red, green, blue);
+                    poseStack.popPose();
+                }
+            }
+        }
     }
 
     private static boolean renderOutline(
@@ -353,7 +473,9 @@ public class LargeBlockPlacePreviewEventListener {
             currentItem = ItemStack.EMPTY;
             failBoundCooldown = 0;
         }
-        if (!currentPos.equals(pos)) {
+        if (currentPos == null) {
+            currentPos = pos;
+        } else if (!currentPos.equals(pos)) {
             currentPos = null;
             failBoundCooldown = 0;
         }
