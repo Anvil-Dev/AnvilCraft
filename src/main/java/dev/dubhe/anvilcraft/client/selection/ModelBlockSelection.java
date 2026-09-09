@@ -10,13 +10,7 @@ import dev.anvilcraft.lib.v2.cube.client.model.ModelSelection;
 import dev.anvilcraft.lib.v2.cube.geometry.ConvexShape;
 import dev.anvilcraft.lib.v2.cube.geometry.SelectionGeometry;
 import dev.dubhe.anvilcraft.AnvilCraft;
-import dev.dubhe.anvilcraft.block.FishTankBlock;
-import dev.dubhe.anvilcraft.block.LargeCauldronBlock;
-import dev.dubhe.anvilcraft.block.ProcessingTableBlock;
-import dev.dubhe.anvilcraft.block.TradingStationBlock;
-import dev.dubhe.anvilcraft.block.container.storage.CrateBlock;
 import dev.dubhe.anvilcraft.block.multipart.AbstractMultiPartBlock;
-import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.mixin.accessor.ModelBakeryAccessor;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
@@ -51,7 +45,7 @@ import java.util.Map;
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID, value = Dist.CLIENT)
 public final class ModelBlockSelection {
     private static long frame;
-    private static Snapshot snapshot = new Snapshot(Map.of(), Map.of(), Map.of(), Map.of(), Map.of());
+    private static Snapshot snapshot = new Snapshot(Map.of(), Map.of(), Map.of());
     private static final Map<BlockPos, List<SelectionPart>> DYNAMIC = new HashMap<>();
     private static final Cache<VoxelShape, SelectionPart> FALLBACK = CacheBuilder.newBuilder().weakKeys()
         .maximumWeight(4 * 1024 * 1024)
@@ -62,16 +56,13 @@ public final class ModelBlockSelection {
     }
 
     public static void reload(ModelEvent.BakingCompleted event) {
+        ModelSelectionBlacklist.reload(Minecraft.getInstance().getResourceManager());
         ModelBakeryAccessor bakery = (ModelBakeryAccessor) event.getModelBakery();
         snapshot = new ModelSelectionBakery(bakery.getUnbakedCache()).bake(bakery.getTopLevelModels());
         DYNAMIC.clear();
         FALLBACK.invalidateAll();
         for (Block block : BuiltInRegistries.BLOCK) {
             if (!AnvilCraft.MOD_ID.equals(BuiltInRegistries.BLOCK.getKey(block).getNamespace())) continue;
-            if (usesOriginalPicking(block)) {
-                CubeSelection.exclude(block);
-                continue;
-            }
             AABB bounds = null;
             for (BlockState state : block.getStateDefinition().getPossibleStates()) {
                 ModelSelection selection = snapshot.states().get(state);
@@ -81,7 +72,7 @@ public final class ModelBlockSelection {
             if (block instanceof EntityBlock) bounds = new AABB(-2, -2, -2, 3, 3, 3);
             AABB checked = block.defaultBlockState().hasOffsetFunction() ? bounds.inflate(0.5) : bounds;
             if (CubeSelection.supportedBounds(checked)) {
-                CubeSelection.registerDynamic(block, bounds, false, ModelBlockSelection::pickingParts);
+                CubeSelection.registerDynamic(block, bounds, false, ModelBlockSelection::parts);
             }
         }
     }
@@ -110,39 +101,6 @@ public final class ModelBlockSelection {
         return parts;
     }
 
-    private static List<SelectionPart> pickingParts(ClientLevel level, BlockPos pos, BlockState state, float partialTick) {
-        ModelSelection picking = snapshot.picking().get(state);
-        List<SelectionPart> result = new ArrayList<>();
-        if (picking == null) {
-            for (SelectionPart part : parts(level, pos, state, partialTick)) result.add(interactionPart(part));
-        } else {
-            result.addAll(ModelSelectionBakery.collect(picking, state.getSeed(pos)));
-            if (state.getBlock() instanceof EntityBlock) {
-                for (SelectionPart part : dynamic(level, pos, partialTick)) result.add(interactionPart(part));
-            }
-        }
-        int shapes = result.stream().mapToInt(part -> part.geometry().shapes().size()).sum();
-        return shapes <= SelectionGeometry.MAX_SHAPES ? result : parts(level, pos, state, partialTick);
-    }
-
-    private static SelectionPart interactionPart(SelectionPart source) {
-        SelectionGeometry geometry = snapshot.interactions().get(source.geometry());
-        if (geometry == null || geometry == source.geometry()) return source;
-        PoseStack pose = new PoseStack();
-        source.apply(pose);
-        return new SelectionPart(geometry, pose.last().pose());
-    }
-
-    private static boolean usesOriginalPicking(Block block) {
-        return block instanceof FishTankBlock
-            || block instanceof ProcessingTableBlock
-            || block instanceof LargeCauldronBlock
-            || block instanceof TradingStationBlock
-            || block instanceof CrateBlock
-            || block == ModBlocks.WIP_BLOCK.get()
-            || block == ModBlocks.HEAVY_IRON_COLUMN.get();
-    }
-
     static List<SelectionPart> dynamic(ClientLevel level, BlockPos pos, float partialTick) {
         return DYNAMIC.computeIfAbsent(pos.immutable(), key -> {
             BlockEntity entity = level.getBlockEntity(key);
@@ -152,7 +110,7 @@ public final class ModelBlockSelection {
     }
 
     private static <T extends BlockEntity> List<SelectionPart> collectDynamic(T entity, float partialTick) {
-        if (entity.getBlockState().is(ModBlocks.PULSE_GENERATOR.get())) return List.of();
+        if (ModelSelectionBlacklist.excludesBlockEntity(entity.getBlockState().getBlock())) return List.of();
         BlockEntityRenderer<T> renderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
         if (!(renderer instanceof ModelSelectionRenderer<?>)) return List.of();
         @SuppressWarnings("unchecked")
@@ -201,8 +159,8 @@ public final class ModelBlockSelection {
         BlockState state = level.getBlockState(pos);
         Block block = state.getBlock();
         if (!AnvilCraft.MOD_ID.equals(BuiltInRegistries.BLOCK.getKey(block).getNamespace())) return;
-        if (block instanceof LargeCauldronBlock || block == ModBlocks.WIP_BLOCK.get()) return;
-        boolean originalPicking = usesOriginalPicking(block);
+        if (ModelSelectionBlacklist.usesOriginalOutline(block)) return;
+        boolean originalPicking = ModelSelectionBlacklist.usesOriginalPicking(block);
         if (!originalPicking && !CubeSelection.isEnabled(block)) return;
         List<SelectionPart> whole = snapshot.outlines().get(state);
         boolean multipartOutline = whole != null && block instanceof AbstractMultiPartBlock<?>;
@@ -261,7 +219,6 @@ public final class ModelBlockSelection {
     }
 
     record Snapshot(Map<BlockState, ModelSelection> states, Map<BlockState, List<SelectionPart>> outlines,
-                    Map<ModelResourceLocation, SelectionPart> standalone, Map<BlockState, ModelSelection> picking,
-                    Map<SelectionGeometry, SelectionGeometry> interactions) {
+                    Map<ModelResourceLocation, SelectionPart> standalone) {
     }
 }
