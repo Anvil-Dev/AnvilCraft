@@ -63,6 +63,7 @@ public record FellingEffect(int range) implements EnchantmentEntityEffect {
             max,
             Util::acceptDirections,
             blockPos -> {
+                if (sourceBlock.equals(blockPos)) return true;
                 BlockState blockState = level.getBlockState(blockPos);
                 if (blockState.is(ModBlockTags.FELLING_APPLICABLE)) {
                     BlockEntity blockEntity = level.getBlockEntity(blockPos);
@@ -70,12 +71,10 @@ public record FellingEffect(int range) implements EnchantmentEntityEffect {
                     if (!player.isCreative()) {
                         blockState.getBlock().playerDestroy(level, player, blockPos, blockState, blockEntity, tool);
                     }
-                    if (!sourceBlock.equals(blockPos)) {
-                        tool.hurtAndBreak(1, level, player, onBreak);
-                    }
+                    tool.hurtAndBreak(1, level, player, onBreak);
                     return true;
                 }
-                return sourceBlock.equals(blockPos);
+                return false;
             }
         );
     }

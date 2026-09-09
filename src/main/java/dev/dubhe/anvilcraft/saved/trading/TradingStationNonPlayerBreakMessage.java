@@ -1,6 +1,5 @@
 package dev.dubhe.anvilcraft.saved.trading;
 
-import dev.anvilcraft.lib.v2.util.component.DirectInfo;
 import dev.anvilcraft.lib.v2.util.component.MultilineComponentHelper;
 import dev.dubhe.anvilcraft.util.ComponentUtil;
 import net.minecraft.core.BlockPos;
@@ -39,11 +38,10 @@ public record TradingStationNonPlayerBreakMessage(
                 "message.anvilcraft.trading_station.break.time",
                 ZonedDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.ddzHH:mm:ss.SSS"))
             )
-            .list(
-                Component.translatable("message.anvilcraft.trading_station.break.onliners"),
-                this.onliners,
-                id -> new DirectInfo[] {new DirectInfo(getter.apply(id))}
-            );
+            .addln("message.anvilcraft.trading_station.break.onliners");
+        for (UUID id : this.onliners) {
+            helper.addln(getter.apply(id));
+        }
         if (this.closest != null) {
             helper.addln("message.anvilcraft.trading_station.break.closest", getter.apply(this.closest));
         }
@@ -65,11 +63,10 @@ public record TradingStationNonPlayerBreakMessage(
                 "message.anvilcraft.trading_station.break.time",
                 ZonedDateTime.now().format(DateTimeFormatter.ofPattern("yyyy.MM.ddzHH:mm:ss.SSS"))
             )
-            .list(
-                Component.translatable("message.anvilcraft.trading_station.break.onliners"),
-                this.onliners,
-                id -> new DirectInfo[] {new DirectInfo(getter.apply(id))}
-            );
+            .addln("message.anvilcraft.trading_station.break.onliners");
+        for (UUID id : this.onliners) {
+            helper.addln(getter.apply(id));
+        }
         if (this.closest != null) {
             helper.addln("message.anvilcraft.trading_station.break.closest", getter.apply(this.closest));
         }

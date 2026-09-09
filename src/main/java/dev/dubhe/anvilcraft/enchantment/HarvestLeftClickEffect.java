@@ -40,6 +40,29 @@ public record HarvestLeftClickEffect(int range) implements EnchantmentEntityEffe
         if (!(entity instanceof Player player)) {
             return;
         }
+        if (state.is(BlockTags.LEAVES)) {
+            for (BlockPos blockPos : BlockPos.betweenClosed(pos.offset(r, r, r), pos.offset(-r, -r, -r))) {
+                if (itemStack.isEmpty()) {
+                    break;
+                }
+                if (blockPos.equals(pos)) {
+                    continue;
+                }
+                BlockState blockState = level.getBlockState(blockPos);
+                if (!blockState.is(BlockTags.LEAVES)) {
+                    continue;
+                }
+                var blockEntity = level.getBlockEntity(blockPos);
+                if (!level.removeBlock(blockPos, false)) {
+                    continue;
+                }
+                if (!player.isCreative()) {
+                    blockState.getBlock().playerDestroy(level, player, blockPos, blockState, blockEntity, itemStack);
+                    itemStack.hurtAndBreak(1, level, player, enchantedItemInUse.onBreak());
+                }
+            }
+            return;
+        }
         if (!itemStack.is(ItemTags.HOES)) {
             return;
         }

@@ -82,8 +82,7 @@ public class ModEnchantments {
                 MatchTool.toolMatches(ItemPredicate.Builder.item().of(ItemTags.HOES))
             ).withEffect(
                 ModEnchantmentEffectComponents.POST_BREAK_BLOCK,
-                new HarvestLeftClickEffect(5),
-                MatchTool.toolMatches(ItemPredicate.Builder.item().of(ItemTags.HOES))
+                new HarvestLeftClickEffect(5)
             )
         );
         register(

@@ -342,7 +342,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (blockEntity.isAmplify()) {
             boolean anyDysonSphere = isDysonSphereActive(blockEntity, 4) || isDysonSphereActive(blockEntity, 5);
             /// 当彭罗斯球激活且第五环为最外层（小恒星）时隐藏第五环
-            boolean isSmallStar = bodyData != null && bodyData.size() < 48;
+            boolean isSmallStar = bodyData != null && !bodyData.usesLargeStellarRings();
             boolean hideMiddleForPenrose = isPenroseSphereActive(blockEntity)
                 && isSmallStar
                 && !blockEntity.hasActiveAuxiliaryMegastructure();
@@ -442,7 +442,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
                     modelRenderer
                 );
                 /// 渲染外环，与恒星同步旋转（类似真实戴森球）
-                boolean isSmallStar = bodyData.size() < 48;
+                boolean isSmallStar = !bodyData.usesLargeStellarRings();
                 if (isDysonSphereR4 && isSmallStar) {
                     /// 小恒星：R5 为外环（可能被加速器模型替换）
                     poseStack.pushPose();
@@ -531,9 +531,7 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         /// 使用有效天体数据（考虑 celestialBodyData 已置为 null 的逆向动画情形）
         CelestialBodyData effectiveBodyData = blockEntity.getEffectiveBodyDataForRendering();
         boolean canRender = effectiveBodyData != null
-            && (!(effectiveBodyData instanceof StarData star)
-                || blockEntity.isAmplifierPresent()
-                || star.specialRedDwarf());
+            && (!(effectiveBodyData instanceof StarData) || blockEntity.isAmplifierPresent());
         if (canRender) {
             renderTractorBeam(beamHeight, animProgress, poseStack, multiBufferSource);
             float eventProgress = blockEntity.getStellarEventProgress(partialTick);
@@ -665,8 +663,8 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (option != null) return ModelResourceLocation.standalone(option.modelLocation());
         if (!blockEntity.isAcceleratorActive()) return null;
         if (blockEntity.getCelestialBodyData() instanceof StarData star) {
-            if (ring == 5 && star.size() < 48) return R5_STELLAR_EVOLUTION_ACCELERATOR;
-            if (ring == 6 && star.size() >= 48) return R6_STELLAR_EVOLUTION_ACCELERATOR;
+            if (ring == 5 && !star.usesLargeStellarRings()) return R5_STELLAR_EVOLUTION_ACCELERATOR;
+            if (ring == 6 && star.usesLargeStellarRings()) return R6_STELLAR_EVOLUTION_ACCELERATOR;
         }
         return null;
     }
@@ -759,7 +757,6 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
         poseStack.scale(rscale, rscale, rscale);
-        poseStack.mulPose(Axis.XP.rotationDegrees(body.axialTilt()));
         poseStack.mulPose(Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(body.rotationSpeed())));
         renderRingCutout(R2_DYSON_SPHERE, poseStack, bufferSource, packedOverlay, modelRenderer);
         poseStack.popPose();
@@ -768,7 +765,6 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         poseStack.pushPose();
         poseStack.translate(0.5, centerY, 0.5);
         poseStack.scale(ringScale, ringScale, ringScale);
-        poseStack.mulPose(Axis.XP.rotationDegrees(body.axialTilt()));
         poseStack.mulPose(Axis.YP.rotationDegrees(bodyRot * CelestialBodyData.getVisualRotationSpeed(body.rotationSpeed())));
         renderRingCutout(getRing3Model(blockEntity), poseStack, bufferSource, packedOverlay, modelRenderer);
         poseStack.popPose();
@@ -906,9 +902,9 @@ public class CelestialForgingAnvilBlockEntityRenderer implements BlockEntityRend
         if (isPlayerHead(bodyData)) return false;
         if (isAmplify) {
             return switch (ring) {
-                case 4 -> bodyData == null || bodyData.size() < 48;
+                case 4 -> bodyData == null || !bodyData.usesLargeStellarRings();
                 case 5 -> true;
-                case 6 -> bodyData == null || bodyData.size() >= 48;
+                case 6 -> bodyData == null || bodyData.usesLargeStellarRings();
                 default -> false;
             };
         } else {

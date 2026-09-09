@@ -50,7 +50,7 @@ final class CfaGravityController {
         boolean shouldBeActive = body != null
             && stellarMass > 0
             && body.size() > 0
-            && (!(body instanceof StarData star) || amplifierPresent || star.specialRedDwarf());
+            && (!(body instanceof StarData) || amplifierPresent);
         if (!shouldBeActive) {
             this.remove(level, controllerPos);
             return;

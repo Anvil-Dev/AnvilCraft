@@ -5,13 +5,23 @@ import dev.dubhe.anvilcraft.data.AnvilCraftDatagen;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.item.ModItemTags;
 import dev.dubhe.anvilcraft.init.item.ModItems;
+import dev.dubhe.anvilcraft.recipe.NeutroniumChargingRecipe;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.data.recipes.RecipeCategory;
+import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.ItemLike;
+import net.neoforged.neoforge.common.conditions.ICondition;
+
+import javax.annotation.Nullable;
 
 public class ShapedRecipeLoader {
     public ShapedRecipeLoader(RegistrumRecipeProvider provider) {
@@ -50,7 +60,19 @@ public class ShapedRecipeLoader {
                 AnvilCraftDatagen.hasItem(ModItems.SUPER_CAPACITOR),
                 AnvilCraftDatagen.has(ModItems.CHARGED_NEUTRONIUM_INGOT)
             )
-            .save(provider);
+            .save(new RecipeOutput() {
+                @Override
+                public Advancement.Builder advancement() {
+                    return provider.advancement();
+                }
+
+                @Override
+                public void accept(
+                    ResourceLocation id, Recipe<?> recipe, @Nullable AdvancementHolder advancement, ICondition... conditions
+                ) {
+                    provider.accept(id, new NeutroniumChargingRecipe((ShapedRecipe) recipe), advancement, conditions);
+                }
+            });
     }
 
     private void controlValve(RegistrumRecipeProvider provider) {

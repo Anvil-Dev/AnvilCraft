@@ -9,12 +9,6 @@
         "effect": {
           "type": "anvilcraft:haevest_left_click",
           "range": 5
-        },
-        "requirements": {
-          "condition": "minecraft:match_tool",
-          "predicate": {
-            "items": "#minecraft:hoes"
-          }
         }
       }
     ],

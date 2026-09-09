@@ -2,6 +2,8 @@ package dev.dubhe.anvilcraft.init.entity;
 
 import com.google.common.collect.ImmutableSet;
 import dev.dubhe.anvilcraft.AnvilCraft;
+import dev.dubhe.anvilcraft.block.GiantMonolithCoreBlock;
+import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvents;
@@ -11,6 +13,9 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 public class ModVillagers {
 
     public static final DeferredRegister<PoiType> POI_TYPES =
@@ -18,6 +23,19 @@ public class ModVillagers {
 
     public static final DeferredRegister<VillagerProfession> VILLAGER_PROFESSIONS =
         DeferredRegister.create(Registries.VILLAGER_PROFESSION, AnvilCraft.MOD_ID);
+
+    public static final DeferredHolder<PoiType, PoiType> MONOLITH_CORE_POI = POI_TYPES.register(
+        "monolith_core",
+        () -> new PoiType(
+            Stream.concat(
+                ModBlocks.MONOLITH_CORE.get().getStateDefinition().getPossibleStates().stream(),
+                ModBlocks.GIANT_MONOLITH_CORE.get().getStateDefinition().getPossibleStates().stream()
+                    .filter(state -> state.getValue(GiantMonolithCoreBlock.HALF) == Cube3x3PartHalf.MID_CENTER)
+            ).collect(Collectors.toSet()),
+            0,
+            1
+        )
+    );
 
     public static final DeferredHolder<PoiType, PoiType> JEWELER_POI = POI_TYPES.register(
         "jeweler_poi",

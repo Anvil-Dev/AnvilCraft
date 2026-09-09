@@ -20,6 +20,7 @@
       "ComponentSerializationMixin",
       "CraftingMenuMixin",
       "DefaultDispenseItemBehaviorMixin",
+      "DimensionTypeMixin",
       "DispenseItemEmptyBottleBehaviorMixin",
       "DispenseItemEmptyBucketBehaviorMixin",
       "DispenseItemWaterBottleBehaviorMixin",
@@ -44,6 +45,7 @@
       "LevelChunkMixin",
       "LightningBoltMixin",
       "LevelMixin",
+      "LevelReaderMixin",
       "LivingEntityMixin",
       "LootItemRandomChanceWithEnchantedBonusConditionMixin",
       "MinecraftServerMixin",
@@ -127,8 +129,15 @@
       "accessor.ScreenAccessor",
       "compat.EmbBlockOcclusionCacheMixin",
       "compat.EmbChunkBuilderMeshingTaskMixin",
+      "compat.EmbMunShaderLoaderMixin",
+      "compat.EmbMunShaderRendererMixin",
+      "compat.IrisMunCelestialMixin",
+      "compat.IrisMunShadowMixin",
+      "compat.IrisMunSkyMixin",
       "compat.SodiumBlockOcclusionCacheMixin",
-      "compat.SodiumChunkBuilderMeshingTaskMixin"
+      "compat.SodiumChunkBuilderMeshingTaskMixin",
+      "compat.SodiumMunShaderLoaderMixin",
+      "compat.SodiumMunShaderRendererMixin"
   ],
   "plugin": "dev.dubhe.anvilcraft.mixin.plugin.AnvilCraftMixinPlugin",
   "injectors": {

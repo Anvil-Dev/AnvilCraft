@@ -29,17 +29,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
 
 public class RegistrumItemRecipeLoader {
-    public static <T extends Item> void guideBook(DataGenContext<Item, T> ctx, RegistrumRecipeProvider provider) {
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.TOOLS, ctx.get())
-            .requires(Ingredient.of(Items.ANVIL, Items.CHIPPED_ANVIL, Items.DAMAGED_ANVIL))
-            .requires(Items.BOOK)
-            .unlockedBy("hasitem", RegistrumRecipeProvider.has(Items.ANVIL))
-            .unlockedBy("hasitem", RegistrumRecipeProvider.has(Items.CHIPPED_ANVIL))
-            .unlockedBy("hasitem", RegistrumRecipeProvider.has(Items.DAMAGED_ANVIL))
-            .unlockedBy("hasitem", RegistrumRecipeProvider.has(Items.BOOK))
-            .save(provider);
-    }
-
     public static <T extends Item> void fluidTankMinecart(
         DataGenContext<Item, T> ctx,
         RegistrumRecipeProvider provider

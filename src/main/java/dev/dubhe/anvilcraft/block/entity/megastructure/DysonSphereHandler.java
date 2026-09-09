@@ -81,16 +81,14 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
 
     @Override
     public int getOutputPower(CelestialForgingAnvilBlockEntity be) {
-        boolean specialBrownStar = false;
         boolean brownDwarf = false;
         if (isBrownDwarfSphere()) {
-            specialBrownStar = be.getCelestialBodyData() instanceof StarData star && star.specialRedDwarf();
             brownDwarf = be.getCelestialBodyData() instanceof GiantPlanetData brown && brown.brownDwarf();
-            if (!brownDwarf && !specialBrownStar) return 0;
+            if (!brownDwarf) return 0;
         } else if (!(be.getCelestialBodyData() instanceof StarData)) {
             return 0;
         }
-        if (!brownDwarf && !specialBrownStar && !be.isAmplifierPresent()) return 0;
+        if (!brownDwarf && !be.isAmplifierPresent()) return 0;
 
         if (be.isAcceleratorActive() && be.getAcceleratorStage() == 1 && be.isAmplifierPresent()) {
             return Math.max(cachedGridConsumption * 2, cachedGridConsumption + 1);
@@ -180,7 +178,7 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
 
     private boolean isSmallDwarfSphere(CelestialForgingAnvilBlockEntity be) {
         if (!SMALL_NAME.equals(name) || !(be.getCelestialBodyData() instanceof StarData star)) return false;
-        return star.size() < 48
+        return !star.usesLargeStellarRings()
             && (star.bodyClass() == CelestialBodyClass.M_MAIN
                 || star.bodyClass() == CelestialBodyClass.K_MAIN
                 || star.bodyClass() == CelestialBodyClass.G_MAIN);
@@ -223,10 +221,6 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
         int tier = activeSupplyTier();
         if (tier == 0) return basePower;
 
-        if (isBrownDwarfSphere() && be.getCelestialBodyData() instanceof StarData star
-            && star.specialRedDwarf()) {
-            return basePower * 2L;
-        }
         if (isBrownDwarfSphere()) {
             return switch (tier) {
                 case 1 -> basePower * 3L / 2L;
@@ -266,9 +260,7 @@ public class DysonSphereHandler extends BaseMegastructureHandler {
             true
         ));
         be.setPlanetaryResourceSet(new PlanetaryResourceSet());
-        accumulatedExcessMatter = 0L;
-        stableSupplyTicks = 0;
-        stableSupplyTier = 0;
+        be.normalizeRedDwarfState();
         markPowerStateChanged(be);
     }
 

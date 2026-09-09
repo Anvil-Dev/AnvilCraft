@@ -681,6 +681,7 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
     }
 
     public void serverTick() {
+        normalizeRedDwarfState();
         syncRedstoneSignalIfChanged();
         /// 超新星闪光计时（服务端）——递减以免同步出陈旧的激活状态。
         if (supernovaFlashTicks > 0) {
@@ -793,6 +794,25 @@ public class CelestialForgingAnvilBlockEntity extends BlockEntity implements Men
         var accel = megastructureManager.getAcceleratorHandler();
         if (accel.getCollapseAnimTicks() > 0 && accel.getStage() != 3) {
             accel.setCollapseAnimTicks(accel.getCollapseAnimTicks() - 1);
+        }
+    }
+
+    /** Completes the stellar mode switch, including red dwarfs loaded from older saves. */
+    public void normalizeRedDwarfState() {
+        if (!(this.celestialBodyData instanceof StarData star) || !star.specialRedDwarf()) return;
+        boolean brownDwarfSphere = ModMegastructures.DYSON_SPHERE_BROWN_DWARF.getId()
+            .equals(this.megastructureManager.getActiveId(this));
+        if (this.isAmplify && !brownDwarfSphere) return;
+        this.clearAuxiliaryMegastructures();
+        this.clearMegastructure();
+        this.removeGravitySource();
+        this.locked = true;
+        this.clearSearchHistory();
+        this.setAmplify(true);
+        this.setChanged();
+        if (this.grid != null) this.grid.markChanged();
+        if (this.level != null && !this.level.isClientSide()) {
+            this.level.sendBlockUpdated(this.worldPosition, this.getBlockState(), this.getBlockState(), 3);
         }
     }
 

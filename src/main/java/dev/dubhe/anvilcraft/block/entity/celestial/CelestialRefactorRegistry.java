@@ -113,9 +113,9 @@ public final class CelestialRefactorRegistry {
 
     /** Compatibility helper retained for blueprint/UI code and add-ons. */
     public static int getInnermostRing(CelestialBodyData body, boolean amplified) {
-        boolean isLarge = body.size() >= 48;
+        boolean isLarge = body.usesLargeStellarRings();
         int ring = switch (body) {
-            case StarData star -> star.specialRedDwarf() ? 2 : (isLarge ? 5 : 4);
+            case StarData ignored -> isLarge ? 5 : 4;
             case GiantPlanetData ignored -> 2;
             case RockyPlanetData ignored -> 1;
             case SpecialCelestialBodyData special -> special.isErrorPlanet() ? 0 : 1;
@@ -199,11 +199,10 @@ public final class CelestialRefactorRegistry {
         if (!(body instanceof GiantPlanetData)) {
             options.removeIf(option -> "giant_planet_exctractor".equals(option.megastructure()));
         }
-        if (!((body instanceof GiantPlanetData brown && brown.brownDwarf())
-            || (body instanceof StarData star && star.specialRedDwarf()))) {
+        if (!(body instanceof GiantPlanetData brown && brown.brownDwarf())) {
             options.removeIf(option -> "dyson_sphere_brown_dwarf".equals(option.megastructure()));
         }
-        if (!(body instanceof StarData star && star.size() < 48
+        if (!(body instanceof StarData star && !star.usesLargeStellarRings()
             && star.bodyClass() != CelestialBodyClass.NEUTRON_STAR
             && star.bodyClass() != CelestialBodyClass.BLACK_HOLE)) {
             options.removeIf(option -> "stellar_ring_collider".equals(option.megastructure()));
@@ -217,7 +216,7 @@ public final class CelestialRefactorRegistry {
             options.removeIf(option -> "magnetar_coil".equals(option.megastructure()));
         }
         if (body instanceof StarData star) {
-            boolean large = star.size() >= 48;
+            boolean large = star.usesLargeStellarRings();
             options.removeIf(option -> "stellar_evolution_accelerator".equals(option.megastructure())
                 && ((large && option.ring() == 5) || (!large && option.ring() == 6)));
         }
@@ -227,7 +226,7 @@ public final class CelestialRefactorRegistry {
             options.removeIf(option -> "dyson_sphere_small".equals(option.megastructure())
                 || "dyson_sphere_large".equals(option.megastructure()));
         } else {
-            boolean large = star.size() >= 48;
+            boolean large = star.usesLargeStellarRings();
             options.removeIf(option -> "dyson_sphere_small".equals(option.megastructure()) && large);
             options.removeIf(option -> "dyson_sphere_large".equals(option.megastructure()) && !large);
         }

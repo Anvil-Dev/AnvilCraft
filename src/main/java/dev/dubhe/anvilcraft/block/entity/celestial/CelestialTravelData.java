@@ -43,7 +43,7 @@ public record CelestialTravelData(
         /** Accept both the documented object form and a concise string rule in datapacks. */
         public static final Codec<CoordinateRule> CODEC = Codec.either(OBJECT_CODEC, Type.CODEC).xmap(
             either -> either.map(rule -> rule, type -> new CoordinateRule(type, 1.0, 0, 64, 0, 8)),
-            rule -> Either.left(rule)
+            Either::left
         );
 
         public static final StreamCodec<RegistryFriendlyByteBuf, CoordinateRule> STREAM_CODEC =
@@ -77,6 +77,8 @@ public record CelestialTravelData(
             SAME_3D("same_3d"),
             SCALED("scaled"),
             FIXED("fixed"),
+            /** Keeps X/Z near a fixed point while finding safe ground on the surface. */
+            FIXED_SURFACE("fixed_surface"),
             RANDOM_SPAWN("random_spawn");
 
             public static final Codec<Type> CODEC = Codec.STRING.xmap(Type::fromName, Type::getSerializedName);
@@ -93,6 +95,7 @@ public record CelestialTravelData(
                     case "same_3d", "same_height", "identical" -> SAME_3D;
                     case "scaled", "simple", "scale" -> SCALED;
                     case "fixed", "point" -> FIXED;
+                    case "fixed_surface" -> FIXED_SURFACE;
                     case "random_spawn", "random", "spawn" -> RANDOM_SPAWN;
                     default -> throw new IllegalArgumentException("Unknown celestial coordinate rule: " + name);
                 };
@@ -114,7 +117,7 @@ public record CelestialTravelData(
         /** Accept both the documented object form and a concise string rule in datapacks. */
         public static final Codec<ReturnRule> CODEC = Codec.either(OBJECT_CODEC, Type.CODEC).xmap(
             either -> either.map(rule -> rule, type -> new ReturnRule(type, 0, 64, 0, 8)),
-            rule -> Either.left(rule)
+            Either::left
         );
 
         public static final StreamCodec<RegistryFriendlyByteBuf, ReturnRule> STREAM_CODEC =

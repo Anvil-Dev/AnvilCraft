@@ -51,6 +51,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
 
     public static final int DATASLOT_ID_RANGE = 0;
     public static final int DATASLOT_ID_FILTER_MODE = 1;
+    public static final int DATASLOT_ID_OUTPUT_INVERT = 2;
     private static final FilteredItemStackHandler DUMMY_HANDLER = new FilteredItemStackHandler(0);
     private static final int MIN_RANGE = 1;
     private static final int MAX_RANGE = 8;
@@ -60,6 +61,8 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     private Mode filterMode;
     @Getter
     private int range = 0;
+    @Getter
+    private boolean outputInvert = false;
     private boolean rangeChanged = true;
     private @Nullable AABB detectionRange;
     @Getter
@@ -69,6 +72,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
             return switch (index) {
                 case DATASLOT_ID_RANGE -> ItemDetectorBlockEntity.this.range;
                 case DATASLOT_ID_FILTER_MODE -> ItemDetectorBlockEntity.this.filterMode.ordinal();
+                case DATASLOT_ID_OUTPUT_INVERT -> ItemDetectorBlockEntity.this.outputInvert ? 1 : 0;
                 default -> 0;
             };
         }
@@ -83,13 +87,16 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
                     if (value < 0 || value >= Mode.values().length) return;
                     ItemDetectorBlockEntity.this.setFilterMode(Mode.values()[value]);
                     break;
+                case DATASLOT_ID_OUTPUT_INVERT:
+                    ItemDetectorBlockEntity.this.setOutputInvert(value != 0);
+                    break;
                 default:
             }
         }
 
         @Override
         public int getCount() {
-            return 2;
+            return 3;
         }
     };
     @Getter
@@ -125,6 +132,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (tag.contains("FilterMode")) this.filterMode = Mode.valueOf(tag.getString("FilterMode"));
         if (tag.contains("Filter")) filter.deserializeNBT(registries, tag.getCompound("Filter"));
         if (tag.contains("OutputSignal")) this.outputSignal = tag.getInt("OutputSignal");
+        if (tag.contains("OutputInvert")) this.outputInvert = tag.getBoolean("OutputInvert");
         this.recalcDetectionRange();
     }
 
@@ -135,12 +143,14 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         tag.putString("FilterMode", this.filterMode.toString());
         tag.put("Filter", this.filter.serializeNBT(registries));
         tag.putInt("OutputSignal", this.outputSignal);
+        tag.putBoolean("OutputInvert", this.outputInvert);
     }
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider registries) {
         if (!this.rangeChanged) return new CompoundTag();
         CompoundTag tag = super.getUpdateTag(registries);
+        tag.putBoolean("OutputInvert", this.outputInvert);
         tag.putInt("Range", this.range);
         this.rangeChanged = false;
         return tag;
@@ -162,6 +172,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
             entity -> !entity.getItem().isEmpty()
         );
         int output = getOutput(itemEntities, level, this.detectionRange);
+        if (this.outputInvert) output = 15 - output;
         if (output == this.outputSignal) return;
         this.outputSignal = output;
         if (blockState.getValue(POWERED) != (this.outputSignal > 0)) {
@@ -224,6 +235,12 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
     public void setFilterMode(Mode filterMode) {
         if (this.filterMode == filterMode) return;
         this.filterMode = filterMode;
+        this.setChanged();
+    }
+
+    public void setOutputInvert(boolean outputInvert) {
+        if (this.outputInvert == outputInvert) return;
+        this.outputInvert = outputInvert;
         this.setChanged();
     }
 
@@ -343,6 +360,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (this.level == null) return;
         data.putInt("Range", this.range);
         data.putString("FilterMode", this.filterMode.toString());
+        data.putBoolean("OutputInvert", this.outputInvert);
         data.put("Filter", this.filter.serializeNBT(this.level.registryAccess()));
     }
 
@@ -351,6 +369,7 @@ public class ItemDetectorBlockEntity extends BlockEntity implements MenuProvider
         if (this.level == null) return;
         this.setRange(data.getInt("Range"));
         this.filterMode = Mode.valueOf(data.getString("FilterMode"));
+        this.setOutputInvert(data.getBoolean("OutputInvert"));
         filter.deserializeNBT(this.level.registryAccess(), data.getCompound("Filter"));
         this.recalcDetectionRange();
     }

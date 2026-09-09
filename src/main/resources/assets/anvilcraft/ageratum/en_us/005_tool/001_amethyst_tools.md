@@ -32,7 +32,7 @@ items:
 | Pickaxe | Fortune III / III                        | Increases ore drops (helps obtain more iron ore)                                                                             |
 | Axe     | Timber I / III                           | When chopping, each level breaks 2 additional connected logs                                                                 |
 | Shovel  | Efficiency III / V                       | Increases breaking speed                                                                                                     |
-| Hoe     | Harvest I / III                          | Right-click mature crops to harvest and replant them, also breaks weeds within range; each level harvests an additional ring |
+| Hoe     | Harvest I / III                          | Right-click mature crops to harvest and replant them, also breaks weeds within range; breaking leaves with left-click also breaks nearby leaves; each level harvests an additional ring |
 | Sword   | Beheading I / III                        | Each level increases the chance of certain mobs dropping heads; very high chance for players and the Ender Dragon            |
 
 ### Crafting

@@ -17,7 +17,7 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlac
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplate;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 
-/** 石碑结构片：以结构模板放置磨制深板岩碑体，放置范围按当前生成区块裁剪。 */
+/** 石碑结构片：以结构模板放置巨型石碑，放置范围按当前生成区块裁剪。 */
 public class TheMonolithPiece extends StructurePiece {
     private final BlockPos corner;
     private final Rotation rotation;

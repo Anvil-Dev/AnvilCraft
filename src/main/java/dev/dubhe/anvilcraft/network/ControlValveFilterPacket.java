@@ -18,7 +18,7 @@ import net.neoforged.neoforge.network.PacketDistributor;
  * 双向：设置控制阀过滤槽的流体（白名单，仅记录种类）。
  *
  * <p>客户端点击桶 / 从 JEI 拖入流体时发往服务端；服务端存入后回传，令双方一致。
- * 过滤直接以 {@link FluidStack} 传递（不经桶物品，兼容无桶流体如蜂蜜、原始物质）。
+ * 过滤直接以 {@link FluidStack} 传递（不经桶物品，兼容无桶流体如蜂蜜）。
  */
 public record ControlValveFilterPacket(int index, FluidStack fluid) implements ISensitiveBiPacket {
     public static final Type<ControlValveFilterPacket> TYPE = IPacket.type(AnvilCraft.of("control_valve_filter"));

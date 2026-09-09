@@ -153,10 +153,9 @@ import static dev.dubhe.anvilcraft.AnvilCraft.REGISTRUM;
 public class ModItems {
     public static final ItemEntry<GuideBookItem> GUIDE_BOOK = REGISTRUM.item("guide_book", GuideBookItem::new)
         .properties(properties -> properties.stacksTo(1))
-        .tag(ItemTags.BOOKSHELF_BOOKS)
+        .tag(ItemTags.BOOKSHELF_BOOKS, Tags.Items.MELEE_WEAPON_TOOLS)
         .model(DataGenUtil::noExtraModelOrState)
         .lang("AnvilCraft Guide Book")
-        .recipe(RegistrumItemRecipeLoader::guideBook)
         .register();
     // 工具
     public static final ItemEntry<MagnetItem> MAGNET = REGISTRUM.item("magnet", properties -> new MagnetItem(properties.durability(255)))
@@ -1077,6 +1076,7 @@ public class ModItems {
 
     public static final ItemEntry<Item> NEGATIVE_MATTER = REGISTRUM.item("negative_matter", Item::new)
         .initialProperties(Item.Properties::new)
+        .tag(ModItemTags.COMPRESS_ITEM)
         .recipe(RegistrumItemRecipeLoader::negativeMatter)
         .register();
 
@@ -1240,6 +1240,14 @@ public class ModItems {
         .item("krypton_bucket", ModItems.bucket(() -> ModFluids.KRYPTON))
         .tag(Tags.Items.BUCKETS)
         .lang("Krypton Bucket")
+        .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
+        .model(ModelProviderUtil::bucketGassy)
+        .register();
+
+    public static final ItemEntry<BucketItem> PRIMORDIAL_MATTER_BUCKET = REGISTRUM
+        .item("primordial_matter_bucket", ModItems.bucket(() -> ModFluids.PRIMORDIAL_MATTER))
+        .tag(Tags.Items.BUCKETS)
+        .lang("Primordial Matter Bucket")
         .properties(properties -> properties.stacksTo(1).craftRemainder(Items.BUCKET))
         .model(ModelProviderUtil::bucketGassy)
         .register();
