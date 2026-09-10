@@ -46,7 +46,13 @@ public final class MunSodiumShaders {
             // 复用原始材质采样，兼容 Sodium 0.6 的插值 LOD 和 0.8 的材质位字段。
             body = body.replace("texture(u_BlockTex,", "anvilcraft_sampleBlockTexture(u_BlockTex,");
         }
-        String patched = source.substring(0, versionEnd) + "uniform int MunEnabled;\n" + declarations + body;
+        String extensions = vertex ? "" : """
+            #ifdef GL_ARB_shader_image_load_store
+            #extension GL_ARB_shader_image_load_store : enable
+            #define MUN_SHADOW_HISTORY
+            #endif
+            """;
+        String patched = source.substring(0, versionEnd) + extensions + "uniform int MunEnabled;\n" + declarations + body;
         if (vertex) {
             String lightCoord = embeddium ? "vec2(_vert_tex_light_coord) / 256.0" : "_vert_tex_light_coord";
             String ambientOcclusion = embeddium ? """
@@ -57,6 +63,7 @@ public final class MunSodiumShaders {
             return patched + """
                 void main() {
                     anvilcraft_originalMain();
+                    if (MunEnabled == 0) return;
                     mun_Position = _vert_position + u_RegionOffset + _get_draw_translation(_draw_id) + CameraPosition;
                     mun_Tint = _vert_color.rgb;
                     %s
@@ -66,24 +73,36 @@ public final class MunSodiumShaders {
                 }
                 """.formatted(ambientOcclusion, lightCoord);
         }
+        // 在原始 cutout 片元可能 discard 之前计算导数，避免透明边缘出现无效法线。
         return patched + """
             void main() {
+                vec3 normal = vec3(0.0, 1.0, 0.0);
+                if (MunEnabled != 0) {
+                    normal = normalize(cross(dFdx(mun_Position), dFdy(mun_Position)));
+                    if (!gl_FrontFacing) normal = -normal;
+                }
                 anvilcraft_originalMain();
                 if (MunEnabled == 0) return;
-                vec3 normal = normalize(cross(dFdx(mun_Position), dFdy(mun_Position)));
-                if (!gl_FrontFacing) normal = -normal;
-                float direct = surfaceSunlight(mun_Position, normal, mun_SkyAccess);
-                vec4 color = vec4(surfaceColor(mun_Texel.rgb * mun_Tint, mun_BlockLight, direct), mun_Texel.a);
+                vec2 light = surfaceLight(mun_Position, normal, mun_SkyAccess);
+                float alpha = mun_Texel.a;
+                %s
+                vec4 color = vec4(surfaceColor(mun_Texel.rgb * mun_Tint, mun_BlockLight, light.x, normal, mun_SkyAccess, light.y), alpha);
                 fragColor = _linearFog(color, v_FragDistance, u_FogColor, u_FogStart, u_FogEnd);
-                fragColor.a = direct;
             }
-            """;
+            """.formatted(embeddium ? """
+                #ifdef USE_VANILLA_COLOR_FORMAT
+                    alpha *= v_Color.a;
+                #endif
+                """ : "alpha *= v_Color.a;");
     }
 
     private static String surfaceSource() {
         try (var stream = Minecraft.getInstance().getResourceManager()
             .open(AnvilCraft.of("shaders/include/mun_surface.glsl"))) {
-            return new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+            String surface = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+            try (var solar = Minecraft.getInstance().getResourceManager().open(AnvilCraft.of("shaders/include/mun_solar.glsl"))) {
+                return surface.replace("#moj_import <anvilcraft:mun_solar.glsl>", new String(solar.readAllBytes(), StandardCharsets.UTF_8));
+            }
         } catch (IOException exception) {
             throw new UncheckedIOException("Cannot load lunar surface shader", exception);
         }

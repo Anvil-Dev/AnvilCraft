@@ -6,7 +6,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.util.StringRepresentable;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -263,11 +262,6 @@ public final class StellarEventProfile implements StringRepresentable {
      */
     public float coreRadius(float progress) {
         float value = sampleCurve(this.coreRadiusCurve, progress);
-        if (this.profileId.equals("PULSATIONAL_PAIR")) {
-            float envelope = (float) Math.sin(progress * Math.PI);
-            value *= 1.0f + 0.08f * envelope
-                * (float) Math.sin(progress * 3.0f * Math.PI * 2.0);
-        }
         return Math.max(0.0f, value);
     }
 
@@ -297,8 +291,7 @@ public final class StellarEventProfile implements StringRepresentable {
         for (Float value : coreRadiusCurve) {
             if (value != null && Float.isFinite(value)) maximum = Math.max(maximum, value);
         }
-        float pulseMargin = this.profileId.equals("PULSATIONAL_PAIR") ? 1.08f : 1.0f;
-        return maximum * pulseMargin;
+        return maximum;
     }
 
     /** 计算带有峰值和末段淡出的发光强度。 */
@@ -307,9 +300,8 @@ public final class StellarEventProfile implements StringRepresentable {
         float rise = smoothstep(Math.clamp(t * 4.0f, 0.0f, 1.0f));
         float fade = t > 0.72f ? smoothstep(Math.clamp((1.0f - t) / 0.28f, 0.0f, 1.0f)) : 1.0f;
         float pulse = 1.0f;
-        if (this.profileId.equals("AGB_THERMAL_PULSE") || this.profileId.equals("PULSATIONAL_PAIR")) {
-            float cycles = this.profileId.equals("PULSATIONAL_PAIR") ? 3.0f : 2.0f;
-            float wave = 0.5f + 0.5f * (float) Math.sin(t * cycles * Math.PI * 2.0);
+        if (this.profileId.equals("AGB_THERMAL_PULSE")) {
+            float wave = 0.5f + 0.5f * (float) Math.sin(t * 2.0f * Math.PI * 2.0);
             pulse = 0.78f + 0.22f * wave;
         }
         return this.peakEmission * pulse * Math.clamp(rise, 0.0f, 1.0f) * Math.clamp(fade, 0.0f, 1.0f);
@@ -331,62 +323,5 @@ public final class StellarEventProfile implements StringRepresentable {
 
     private static float safeProgress(float progress) {
         return Float.isFinite(progress) ? Math.clamp(progress, 0.0f, 1.0f) : 0.0f;
-    }
-
-    /** 内置 profile，作为数据包缺失时的确定性兼容回退。 */
-    public static Map<String, StellarEventProfile> defaults() {
-        return Map.ofEntries(
-            entry("HELIUM_FLASH", 4, 4, 0, 12, List.of(1.0f, 0.82f, 1.05f), List.of(0.0f, 0.0f),
-                1.8f, List.of(0xFFF0A0, 0xFFFFFF), 1, 0, 0.0f, 0.0f, RemnantKind.NONE),
-            entry("AGB_THERMAL_PULSE", 8, 8, 24, 12, List.of(1.0f),
-                List.of(0.0f, 0.5f, 1.0f), 1.5f, List.of(0xFFB060, 0xFFE0A0), 3, 0, 2.0f, 0.12f,
-                RemnantKind.NONE),
-            entry("CORE_COLLAPSE_II_P", 20, 8, 6, 4, List.of(1.0f, 0.28f, 0.12f),
-                List.of(0.0f, 0.35f, 1.0f), 5.0f, List.of(0xFF5A24, 0xFFD080, 0xFFFFFF), 4, 24, 12.0f,
-                0.10f, RemnantKind.NEUTRON_STAR),
-            entry("CORE_COLLAPSE_II_L", 12, 6, 5, 3, List.of(1.0f, 0.22f, 0.10f),
-                List.of(0.0f, 0.5f, 1.0f), 5.5f, List.of(0xFF7430, 0xFFE0B0, 0xFFFFFF), 3, 20, 15.0f,
-                0.16f, RemnantKind.NEUTRON_STAR),
-            entry("STRIPPED_IB", 10, 5, 4, 3, List.of(1.0f, 0.18f, 0.06f),
-                List.of(0.0f, 0.7f, 1.0f), 6.0f, List.of(0xA8D8FF, 0xFFFFFF), 2, 16, 18.0f, 0.24f,
-                RemnantKind.NEUTRON_STAR),
-            entry("STRIPPED_IC", 8, 4, 4, 2, List.of(1.0f, 0.14f, 0.03f),
-                List.of(0.0f, 0.85f, 1.0f), 7.0f, List.of(0xC8E8FF, 0xFFFFFF), 1, 12, 22.0f, 0.30f,
-                RemnantKind.BLACK_HOLE),
-            entry("ELECTRON_CAPTURE", 14, 6, 5, 3, List.of(1.0f, 0.35f, 0.16f),
-                List.of(0.0f, 0.5f, 0.9f), 2.4f, List.of(0xFFAA70, 0xFFFFFF), 2, 18, 10.0f, 0.42f,
-                RemnantKind.NEUTRON_STAR),
-            entry("DIRECT_COLLAPSE", 20, 12, 6, 4, List.of(1.0f, 0.72f, 0.16f, 0.04f),
-                List.of(0.0f, 0.15f, 0.35f), 1.8f, List.of(0x402020, 0x806040), 1, 8, 8.0f, 0.18f,
-                RemnantKind.BLACK_HOLE),
-            entry("PULSATIONAL_PAIR", 24, 8, 6, 4, List.of(1.0f, 1.15f, 0.9f, 1.1f, 0.2f),
-                List.of(0.0f, 0.5f, 1.0f), 4.2f, List.of(0xFF8A40, 0xFFE0A0), 5, 28, 20.0f, 0.34f,
-                RemnantKind.BLACK_HOLE),
-            entry("PAIR_INSTABILITY", 18, 10, 6, 4, List.of(1.0f, 0.16f, 0.0f),
-                List.of(0.0f, 0.7f, 1.3f), 8.0f, List.of(0xFFD080, 0xFFFFFF), 6, 32, 26.0f, 0.28f,
-                RemnantKind.NONE)
-        );
-    }
-
-    private static Map.Entry<String, StellarEventProfile> entry(
-        String id,
-        int precursor,
-        int collapse,
-        int ejecta,
-        int fade,
-        List<Float> core,
-        List<Float> ejectaCurve,
-        float emission,
-        List<Integer> palette,
-        int shells,
-        int rays,
-        float rayLength,
-        float asymmetry,
-        RemnantKind remnant
-    ) {
-        return Map.entry(id, new StellarEventProfile(
-            id, precursor, collapse, ejecta, fade, core, ejectaCurve, emission, palette,
-            shells, rays, rayLength, asymmetry, remnant
-        ));
     }
 }

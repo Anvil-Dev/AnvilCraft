@@ -8,8 +8,9 @@ import java.util.List;
 public final class MunSkyMath {
     public static final double NEAR_SIDE_HALF_SIZE = 2048.0;
     public static final long DAY_LENGTH = 24000L * 8;
+    public static final long EARTH_ROTATION_PERIOD = 24000L;
     public static final double EARTH_HALF_SIZE = 0.09;
-    public static final double EARTH_ATMOSPHERE_THICKNESS = 0.012;
+    public static final double EARTH_ATMOSPHERE_THICKNESS = 0.014;
     public static final double SUN_HALF_SIZE = 0.27;
     // 原版太阳贴图的中央 8 × 8 像素为日面，其余 32 × 32 区域为光晕。
     public static final double SUN_DISC_HALF_SIZE = SUN_HALF_SIZE / 4;
@@ -27,6 +28,14 @@ public final class MunSkyMath {
     }
 
     public static Rotation skyRotation(double x, double z) {
+        return skyRotation(x, z, 0, 0);
+    }
+
+    public static Rotation skyRotation(double x, double z, long dayTime, double partialTick) {
+        return skyRotation(x, z, earthSpin(dayTime, partialTick));
+    }
+
+    private static Rotation skyRotation(double x, double z, Rotation spin) {
         double distance = Math.max(Math.abs(x), Math.abs(z));
         if (distance == 0) return new Rotation(new Vector(1, 0, 0), 0);
         double length = Math.hypot(x, z);
@@ -35,7 +44,7 @@ public final class MunSkyMath {
         double edgeAngle = 0;
         // 把大气层的外轮廓计入边界，确保边界四角也不会残留一角主世界。
         for (int corner = 0; corner < 8; corner++) {
-            Vector point = atmosphereCorner(corner);
+            Vector point = cubeCorner(corner, EARTH_HALF_SIZE + EARTH_ATMOSPHERE_THICKNESS, spin);
             edgeAngle = Math.max(edgeAngle, Math.atan2(east * point.x + south * point.z, point.y));
         }
         double horizonAngle = Math.PI / 2 + edgeAngle;
@@ -44,20 +53,33 @@ public final class MunSkyMath {
     }
 
     public static Vector earthCorner(int corner) {
-        return cubeCorner(corner, EARTH_HALF_SIZE);
+        return earthCorner(corner, 0, 0);
+    }
+
+    public static Vector earthCorner(int corner, long dayTime, double partialTick) {
+        return cubeCorner(corner, EARTH_HALF_SIZE, earthSpin(dayTime, partialTick));
     }
 
     public static Vector atmosphereCorner(int corner) {
-        return cubeCorner(corner, EARTH_HALF_SIZE + EARTH_ATMOSPHERE_THICKNESS);
+        return atmosphereCorner(corner, 0, 0);
     }
 
-    private static Vector cubeCorner(int corner, double halfSize) {
+    public static Vector atmosphereCorner(int corner, long dayTime, double partialTick) {
+        return cubeCorner(corner, EARTH_HALF_SIZE + EARTH_ATMOSPHERE_THICKNESS, earthSpin(dayTime, partialTick));
+    }
+
+    private static Vector cubeCorner(int corner, double halfSize, Rotation spin) {
         Vector point = new Vector(
             (corner & 1) == 0 ? -halfSize : halfSize,
             (corner & 2) == 0 ? -halfSize : halfSize,
             (corner & 4) == 0 ? -halfSize : halfSize
         );
-        return EARTH_ROTATION.apply(point).add(UP);
+        return EARTH_ROTATION.apply(spin.apply(point)).add(UP);
+    }
+
+    public static Rotation earthSpin(long dayTime, double partialTick) {
+        double angle = (Math.floorMod(dayTime, EARTH_ROTATION_PERIOD) + partialTick) / EARTH_ROTATION_PERIOD * (Math.PI * 2);
+        return new Rotation(UP, angle);
     }
 
     public static double solarAngle(long dayTime, double partialTick) {
@@ -71,11 +93,12 @@ public final class MunSkyMath {
     }
 
     public static Vector sunDirection(double x, double z, long dayTime, double partialTick) {
-        return skyRotation(x, z).apply(referenceSun(dayTime, partialTick));
+        return skyRotation(x, z, dayTime, partialTick).apply(referenceSun(dayTime, partialTick));
     }
 
     public static double sunlight(double x, double z, long dayTime, double partialTick) {
-        Rotation rotation = skyRotation(x, z);
+        Rotation spin = earthSpin(dayTime, partialTick);
+        Rotation rotation = skyRotation(x, z, spin);
         Vector sun = referenceSun(dayTime, partialTick);
         Vector tangent = new Vector(sun.y, -sun.x, 0);
         double height = rotation.apply(sun).y;
@@ -91,7 +114,7 @@ public final class MunSkyMath {
         ), horizontal, vertical, height);
         double area = area(visible);
         if (possibleEclipse) {
-            List<Point> silhouette = earthSilhouette(sun, tangent);
+            List<Point> silhouette = earthSilhouette(sun, tangent, spin);
             List<Point> covered = visible;
             for (int i = 0; i < silhouette.size(); i++) {
                 Point first = silhouette.get(i);
@@ -106,10 +129,30 @@ public final class MunSkyMath {
         return fraction < 1.0e-10 ? 0 : Math.min(fraction, 1);
     }
 
-    private static List<Point> earthSilhouette(Vector sun, Vector tangent) {
+    /** 日面被主世界遮挡的凸多边形，供世界位置相关的月面光照裁切地平线。 */
+    public static List<Vector> solarOcclusion(long dayTime, double partialTick) {
+        Vector sun = referenceSun(dayTime, partialTick);
+        if (sun.y < ECLIPSE_COSINE) return List.of();
+        Vector tangent = new Vector(sun.y, -sun.x, 0);
+        List<Point> silhouette = earthSilhouette(sun, tangent, earthSpin(dayTime, partialTick));
+        List<Point> covered = List.of(
+            new Point(-SUN_DISC_HALF_SIZE, -SUN_DISC_HALF_SIZE), new Point(SUN_DISC_HALF_SIZE, -SUN_DISC_HALF_SIZE),
+            new Point(SUN_DISC_HALF_SIZE, SUN_DISC_HALF_SIZE), new Point(-SUN_DISC_HALF_SIZE, SUN_DISC_HALF_SIZE)
+        );
+        for (int i = 0; i < silhouette.size(); i++) {
+            Point first = silhouette.get(i);
+            Point second = silhouette.get((i + 1) % silhouette.size());
+            double dx = second.x - first.x;
+            double dy = second.y - first.y;
+            covered = clip(covered, -dy, dx, dy * first.x - dx * first.y);
+        }
+        return covered.stream().map(point -> new Vector(point.x, point.y, 0)).toList();
+    }
+
+    private static List<Point> earthSilhouette(Vector sun, Vector tangent, Rotation spin) {
         List<Point> points = new ArrayList<>(8);
         for (int corner = 0; corner < 8; corner++) {
-            Vector point = earthCorner(corner);
+            Vector point = cubeCorner(corner, EARTH_HALF_SIZE, spin);
             double depth = point.dot(sun);
             points.add(new Point(point.dot(tangent) / depth, point.z / depth));
         }
@@ -172,8 +215,13 @@ public final class MunSkyMath {
     }
 
     public static boolean intersectsEarth(Vector ray) {
-        Vector origin = EARTH_ROTATION.inverse(UP.scale(-1));
-        Vector direction = EARTH_ROTATION.inverse(ray);
+        return intersectsEarth(ray, 0, 0);
+    }
+
+    public static boolean intersectsEarth(Vector ray, long dayTime, double partialTick) {
+        Rotation spin = earthSpin(dayTime, partialTick);
+        Vector origin = spin.inverse(EARTH_ROTATION.inverse(UP.scale(-1)));
+        Vector direction = spin.inverse(EARTH_ROTATION.inverse(ray));
         double near = 0;
         double far = Double.POSITIVE_INFINITY;
         for (int axis = 0; axis < 3; axis++) {

@@ -295,6 +295,15 @@ public final class RedstoneWireNetworkManager {
         return network == null || !network.valid ? 0 : network.totalPower;
     }
 
+    /** 首次求值完成前的缓存零值不代表断电，边沿检测应等待端点更新后再读取。 */
+    static boolean isPowerReady(Level level, BlockPos pos) {
+        if (!(level instanceof ServerLevel serverLevel)) {
+            return false;
+        }
+        Network network = state(serverLevel).getOrBuildNetwork(pos.asLong());
+        return network != null && network.valid && !network.needsPowerSync;
+    }
+
     private static LevelNetworks state(ServerLevel level) {
         // 网络缓存无需持久化；LevelNetworks 首次访问时同时惰性取得该维度的稀疏端口覆盖数据。
         return LEVELS.computeIfAbsent(level, LevelNetworks::new);

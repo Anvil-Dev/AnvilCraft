@@ -8,11 +8,30 @@
     {
       "name": "Sampler2"
     },
-    {
-      "name": "Sampler3"
-    }
+    { "name": "ShadowMap0" },
+    { "name": "ShadowMap1" },
+    { "name": "ShadowMap2" },
+    { "name": "ShadowStaticMap0" },
+    { "name": "ShadowStaticMap1" },
+    { "name": "ShadowStaticMap2" },
+    { "name": "ShadowHistory" }
   ],
   "uniforms": [
+    { "name": "ShadowHistoryFrame", "type": "int", "count": 1, "values": [0] },
+    { "name": "ShadowHistoryPrevious", "type": "int", "count": 1, "values": [-1] },
+    { "name": "ShadowHistoryOrigin", "type": "int", "count": 3, "values": [0, 0, 0] },
+    { "name": "ShadowHistoryOutput", "type": "int", "count": 1, "values": [0] },
+    { "name": "ShadowHistoryClaims", "type": "int", "count": 1, "values": [1] },
+    { "name": "ShadowSolarReference", "type": "float", "count": 3, "values": [0, 1, 0] },
+    { "name": "ShadowSolarOrigin", "type": "float", "count": 3, "values": [0, 0, 0] },
+    { "name": "ShadowSolarHorizon0", "type": "float", "count": 2, "values": [0, 0] },
+    { "name": "ShadowSolarHorizon1", "type": "float", "count": 2, "values": [0, 0] },
+    { "name": "ShadowSolarHorizon2", "type": "float", "count": 2, "values": [0, 0] },
+    { "name": "ShadowSolarHorizon3", "type": "float", "count": 2, "values": [0, 0] },
+    { "name": "ShadowSolarHorizon4", "type": "float", "count": 2, "values": [0, 0] },
+    { "name": "ShadowSolarHorizon5", "type": "float", "count": 2, "values": [0, 0] },
+    { "name": "ShadowSolarHorizon6", "type": "float", "count": 2, "values": [0, 0] },
+    { "name": "ShadowSolarHorizon7", "type": "float", "count": 2, "values": [0, 0] },
     {
       "name": "ModelViewMat",
       "type": "matrix4x4",
@@ -126,7 +145,143 @@
       ]
     },
     {
-      "name": "SunDirection",
+      "name": "AlphaCutoff",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0
+      ]
+    },
+    {
+      "name": "ShadowCount",
+      "type": "int",
+      "count": 1,
+      "values": [
+        0
+      ]
+    },
+    {
+      "name": "AmbientFloor",
+      "type": "float",
+      "count": 1,
+      "values": [
+        0.3
+      ]
+    },
+    {
+      "name": "ShadowAnchor",
+      "type": "float",
+      "count": 3,
+      "values": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "ShadowMatrix0",
+      "type": "matrix4x4",
+      "count": 16,
+      "values": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "ShadowMatrix1",
+      "type": "matrix4x4",
+      "count": 16,
+      "values": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "ShadowMatrix2",
+      "type": "matrix4x4",
+      "count": 16,
+      "values": [
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1,
+        0,
+        0,
+        0,
+        0,
+        1
+      ]
+    },
+    {
+      "name": "ShadowInfo0",
+      "type": "float",
+      "count": 4,
+      "values": [
+        48,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "ShadowInfo1",
+      "type": "float",
+      "count": 4,
+      "values": [
+        48,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "ShadowInfo2",
+      "type": "float",
+      "count": 4,
+      "values": [
+        48,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarReference",
       "type": "float",
       "count": 3,
       "values": [
@@ -136,7 +291,97 @@
       ]
     },
     {
-      "name": "Sunlight",
+      "name": "SolarOrigin",
+      "type": "float",
+      "count": 3,
+      "values": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarHorizon0",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarHorizon1",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarHorizon2",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarHorizon3",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarHorizon4",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarHorizon5",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarHorizon6",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarHorizon7",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarEclipseCount",
+      "type": "int",
+      "count": 1,
+      "values": [
+        0
+      ]
+    },
+    {
+      "name": "SolarEclipseCoverage",
       "type": "float",
       "count": 1,
       "values": [
@@ -144,10 +389,110 @@
       ]
     },
     {
-      "name": "AlphaCutoff",
+      "name": "SolarEclipse0",
       "type": "float",
-      "count": 1,
+      "count": 2,
       "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarEclipse1",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarEclipse2",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarEclipse3",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarEclipse4",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarEclipse5",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarEclipse6",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarEclipse7",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarEclipse8",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarEclipse9",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarEclipse10",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SolarEclipse11",
+      "type": "float",
+      "count": 2,
+      "values": [
+        0,
         0
       ]
     }

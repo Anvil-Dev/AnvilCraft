@@ -95,10 +95,11 @@ void main() {
     vec3 color;
     float surfaceDistance;
     if (!earth(origin, direction, color, surfaceDistance)) {
-        color = vec3(stars(ray) * mix(0.85, 0.3, Daylight));
+        vec3 tangent = vec3(SunDirection.y, -SunDirection.x, 0.0);
         float forward = dot(ray, SunDirection);
+        vec3 starRay = vec3(dot(ray, tangent), forward, ray.z);
+        color = vec3(stars(starRay) * mix(0.85, 0.3, Daylight));
         if (forward > 0.0) {
-            vec3 tangent = vec3(SunDirection.y, -SunDirection.x, 0.0);
             vec2 uv = vec2(dot(ray, tangent), ray.z) / (forward * SunHalfSize);
             float radius = max(abs(uv.x), abs(uv.y));
             if (radius <= 1.0) {

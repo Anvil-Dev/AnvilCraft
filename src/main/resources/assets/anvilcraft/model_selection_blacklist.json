@@ -12,7 +12,8 @@
     "anvilcraft:glass_pipe_straight",
     "anvilcraft:glass_pipe_corner",
     "anvilcraft:glass_pipe_node",
-    "anvilcraft:redstone_wire"
+    "anvilcraft:redstone_wire",
+    "anvilcraft:large_cake"
   ],
   "disable_ber_selection": [
     "anvilcraft:pulse_generator"

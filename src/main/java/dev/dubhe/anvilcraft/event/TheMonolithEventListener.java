@@ -7,22 +7,25 @@ import dev.dubhe.anvilcraft.init.entity.ModVillagers;
 import dev.dubhe.anvilcraft.worldgen.TheMonolith;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.ai.village.poi.PoiRecord;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.portal.DimensionTransition;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
-import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.server.ServerStartedEvent;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -31,24 +34,28 @@ import java.util.stream.Collectors;
 
 @EventBusSubscriber(modid = AnvilCraft.MOD_ID)
 public class TheMonolithEventListener {
+    private static final Set<MinecraftServer> NEW_WORLDS = Collections.newSetFromMap(new WeakHashMap<>());
     private static final int HINT_TICKS = 100;
     private static final int HINT_RANGE = 5;
+    private static final int RETURN_CONFIRMATION_TICKS = 60;
     private static final Map<ServerPlayer, Map<BlockPos, Integer>> PROGRESS = new WeakHashMap<>();
     private static final Map<ServerPlayer, Long> RETURN_TOUCHES = new WeakHashMap<>();
 
+    @SubscribeEvent(receiveCanceled = true)
+    public static void onCreateSpawnPosition(LevelEvent.CreateSpawnPosition event) {
+        if (event.getLevel() instanceof ServerLevel level && Level.OVERWORLD.equals(level.dimension())
+            && !event.getSettings().isInitialized()) {
+            NEW_WORLDS.add(level.getServer());
+        }
+    }
+
     @SubscribeEvent
     public static void onServerStarted(ServerStartedEvent event) {
-        TheMonolith.ensureGenerated(event.getServer().overworld());
-    }
-
-    @SubscribeEvent
-    public static void onPlayerChangedDimension(PlayerEvent.PlayerChangedDimensionEvent event) {
-        if (event.getEntity().level() instanceof ServerLevel level) TheMonolith.ensureGenerated(level);
-    }
-
-    @SubscribeEvent
-    public static void onPlayerLoggedIn(PlayerEvent.PlayerLoggedInEvent event) {
-        if (event.getEntity().level() instanceof ServerLevel level) TheMonolith.ensureGenerated(level);
+        MinecraftServer server = event.getServer();
+        if (!NEW_WORLDS.remove(server)) return;
+        TheMonolith.ensureGenerated(server.overworld());
+        ServerLevel mun = server.getLevel(CelestialTravelManager.MUN_LEVEL);
+        if (mun != null) TheMonolith.ensureGenerated(mun);
     }
 
     @SubscribeEvent
@@ -90,8 +97,9 @@ public class TheMonolithEventListener {
         event.setCancellationResult(InteractionResult.SUCCESS);
         if (!(event.getEntity() instanceof ServerPlayer player) || !player.isAlive()) return;
         long now = player.serverLevel().getGameTime();
-        Long firstTouch = RETURN_TOUCHES.putIfAbsent(player, now);
-        if (firstTouch == null) {
+        Long firstTouch = RETURN_TOUCHES.get(player);
+        if (firstTouch == null || now < firstTouch || now - firstTouch > RETURN_CONFIRMATION_TICKS) {
+            RETURN_TOUCHES.put(player, now);
             player.sendSystemMessage(Component.translatable("message.anvilcraft.monolith.return_confirmation"));
             return;
         }

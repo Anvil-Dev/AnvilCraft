@@ -5,7 +5,7 @@ import dev.anvilcraft.lib.v2.registrum.providers.RegistrumLangProvider;
 public class MessageLang {
     @SuppressWarnings("checkstyle:LineLength")
     public static void init(RegistrumLangProvider provider) {
-        provider.add("message.anvilcraft.monolith.return_confirmation", "The monolith can help you return. Touch it again to travel back.");
+        provider.add("message.anvilcraft.monolith.return_confirmation", "The monolith can help you return. Touch it again within 3 seconds to travel back.");
         provider.add("message.anvilcraft.monolith.offering", "Offer an anvil to the monolith to gain knowledge");
         provider.add("message.anvilcraft.monolith.giant_offering", "Offer a giant anvil to the monolith to gain knowledge");
         provider.add("book.anvilcraft.monolith.title", "Celestial Knowledge");

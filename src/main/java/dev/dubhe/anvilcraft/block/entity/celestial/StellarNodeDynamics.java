@@ -11,8 +11,6 @@ public record StellarNodeDynamics(
     List<StellarControlPoint> points, StellarMetallicityResponse response,
     EventPolicy eventPolicy, int pulses, float wind
 ) {
-    public static final StellarNodeDynamics LEGACY = new StellarNodeDynamics(
-        List.of(), StellarMetallicityResponse.NONE, EventPolicy.VISUAL, 1, 0);
     public static final Codec<StellarNodeDynamics> CODEC = RecordCodecBuilder.create(instance -> instance.group(
         StellarControlPoint.CODEC.listOf().fieldOf("points").forGetter(StellarNodeDynamics::points),
         StellarMetallicityResponse.CODEC.optionalFieldOf("response", StellarMetallicityResponse.NONE)
@@ -42,15 +40,13 @@ public record StellarNodeDynamics(
         if (pulses < 1 || pulses > 16 || !Float.isFinite(wind) || wind < 0 || wind > 1) {
             throw new IllegalArgumentException("Invalid stellar dynamics");
         }
-        if (!points.isEmpty()) {
-            if (points.size() < 2 || points.getFirst().progress() != 0 || points.getLast().progress() != 1) {
-                throw new IllegalArgumentException("Stellar curves must cover [0, 1]");
-            }
-            float previous = -1;
-            for (StellarControlPoint point : points) {
-                if (point.progress() <= previous) throw new IllegalArgumentException("Unordered stellar control points");
-                previous = point.progress();
-            }
+        if (points.size() < 2 || points.getFirst().progress() != 0 || points.getLast().progress() != 1) {
+            throw new IllegalArgumentException("Stellar curves must cover [0, 1]");
+        }
+        float previous = -1;
+        for (StellarControlPoint point : points) {
+            if (point.progress() <= previous) throw new IllegalArgumentException("Unordered stellar control points");
+            previous = point.progress();
         }
     }
 
@@ -61,10 +57,6 @@ public record StellarNodeDynamics(
     }
 
     public StellarVisualState sample(PhaseNode node, PhaseNode previous, float progress) {
-        if (points.isEmpty()) {
-            return StellarVisualState.interpolate(StellarTrack.visualForNode(previous),
-                StellarTrack.visualForNode(node), progress);
-        }
         for (int index = 1; index < points.size(); index++) {
             StellarControlPoint right = points.get(index);
             if (progress <= right.progress() || index == points.size() - 1) {

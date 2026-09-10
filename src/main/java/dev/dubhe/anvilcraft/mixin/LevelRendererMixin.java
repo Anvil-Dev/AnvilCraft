@@ -46,6 +46,26 @@ public abstract class LevelRendererMixin {
     @Final
     private Minecraft minecraft;
 
+    @Inject(method = "renderLevel", at = @At("HEAD"))
+    private void anvilcraft$beginMunWorld(CallbackInfo ci) {
+        MunSurfaceRenderer.beginWorld();
+    }
+
+    @Inject(method = "renderLevel", at = @At("RETURN"))
+    private void anvilcraft$endMunWorld(CallbackInfo ci) {
+        MunSurfaceRenderer.endWorld();
+    }
+
+    @Inject(method = "renderLevel", at = @At(
+        value = "INVOKE", target = "Lnet/minecraft/client/renderer/RenderType;translucent()Lnet/minecraft/client/renderer/RenderType;"
+    ))
+    private void anvilcraft$moonSurfaceEffects(
+        DeltaTracker deltaTracker, boolean renderBlockOutline, Camera camera, GameRenderer gameRenderer,
+        LightTexture lightTexture, Matrix4f frustumMatrix, Matrix4f projectionMatrix, CallbackInfo ci
+    ) {
+        MunSurfaceRenderer.postProcess(projectionMatrix);
+    }
+
     @Inject(method = "renderSectionLayer", at = @At("HEAD"))
     private void anvilcraft$beginMunTerrain(
         RenderType renderType, double camX, double camY, double camZ, Matrix4f modelViewMatrix,

@@ -42,15 +42,6 @@ public final class StellarTrackLibrary {
         }
     }
 
-    private static final class LegacyHolder {
-        static {
-            LegacyStellarTracks.loadBundledResources();
-        }
-
-        private static void initialize() {
-        }
-    }
-
     public static List<StellarTrack> tracks() {
         return library.tracks().values().stream()
             .sorted(java.util.Comparator.comparingInt(track -> track.definition().massAnvils())).toList();
@@ -62,9 +53,7 @@ public final class StellarTrackLibrary {
 
     @Nullable
     public static StellarTrack track(String id) {
-        if (id.startsWith("mass_")) return library.tracks().get(id);
-        LegacyHolder.initialize();
-        return LegacyStellarTracks.track(id);
+        return library.tracks().get(id);
     }
 
     public static StellarTrack forMass(int initialMassAnvils) {
@@ -90,21 +79,10 @@ public final class StellarTrackLibrary {
         return mass >= 42 && mass <= 64 && EVOLVABLE_SURFACE_CLASSES.contains(surfaceClass);
     }
 
-    @Nullable
-    public static StellarTrack selectLegacy(int mass, CelestialBodyClass surfaceClass, boolean special, long seed) {
-        LegacyHolder.initialize();
-        return LegacyStellarTracks.select(mass, surfaceClass, special, seed);
-    }
-
     public static int startingPhaseIndex(StellarTrack track, CelestialBodyClass surfaceClass) {
-        if (!track.modern()) return LegacyStellarTracks.startingPhaseIndex(track, surfaceClass);
         String nodeId = track.definition().startingNodes().get(surfaceClass.name());
         if (nodeId == null) throw new IllegalArgumentException("Missing stellar entry: " + track.trackId() + "/" + surfaceClass);
         return track.nodeIndex(nodeId);
-    }
-
-    public static StellarTrack adaptForSurfaceClass(StellarTrack track, CelestialBodyClass surfaceClass) {
-        return track.modern() ? track : LegacyStellarTracks.adaptForSurfaceClass(track, surfaceClass);
     }
 
     public static int variant(long seed, int salt) {
@@ -117,15 +95,10 @@ public final class StellarTrackLibrary {
         return (int) value;
     }
 
-    public static StellarEventProfile legacyEventProfile(String id) {
-        LegacyHolder.initialize();
-        return LegacyStellarTracks.eventProfile(id);
-    }
-
     public static StellarEventProfile eventProfile(String id) {
         StellarEventProfile profile = library.profiles().get(id);
         if (profile != null) return profile;
-        return legacyEventProfile(id);
+        throw new IllegalArgumentException("Unknown stellar event profile: " + id);
     }
 
     /** 解码整批资源时先检查全部引用，再替换单个不可变库引用。 */
@@ -147,7 +120,7 @@ public final class StellarTrackLibrary {
         Map<String, StellarTrack> result = new LinkedHashMap<>();
         for (StellarTrack track : tracks) {
             track.validate();
-            if (!track.modern() || result.put(track.trackId(), track) != null) {
+            if (result.put(track.trackId(), track) != null) {
                 throw new IllegalArgumentException("Invalid or duplicate discrete stellar track: " + track.trackId());
             }
             for (PhaseNode node : track.phaseNodes()) {

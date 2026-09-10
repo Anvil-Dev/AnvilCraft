@@ -361,7 +361,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
             .count();
         /// 计入自身（此传送门）
         sameSideCount++;
-        boolean shouldBeOpen = sameSideCount == 2;
+        boolean shouldBeOpen = sameSideCount == 2 && network.hasPortalAt(level.dimension(), parent.getBlockPos(), side);
 
         boolean justOpened = state.hasProperty(CelestialForgingAnvilPortalBlock.OPEN)
             && !state.getValue(CelestialForgingAnvilPortalBlock.OPEN)
@@ -551,6 +551,7 @@ public class CelestialForgingAnvilPortalBlockEntity extends BaseLaserBlockEntity
         if (hash == null) return;
 
         WormholeNetwork network = WormholeNetwork.get();
+        if (!network.hasPortalAt(sourceLevel.dimension(), parent.getBlockPos(), side)) return;
         List<WormholeNetwork.Entry> connected = network.getConnected(
             hash, sourceLevel.dimension(), parent.getBlockPos()
         );

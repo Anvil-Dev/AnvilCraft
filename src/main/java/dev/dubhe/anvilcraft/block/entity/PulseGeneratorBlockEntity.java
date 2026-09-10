@@ -174,6 +174,13 @@ public class PulseGeneratorBlockEntity extends BlockEntity implements MenuProvid
     }
 
     @ApiStatus.Internal
+    public void setInputtingSignal(boolean inputtingSignal) {
+        if (this.isInputtingSignal == inputtingSignal) return;
+        this.isInputtingSignal = inputtingSignal;
+        this.setChanged();
+    }
+
+    @ApiStatus.Internal
     public void setState(State state) {
         if (this.state == state) return;
         this.state = state;

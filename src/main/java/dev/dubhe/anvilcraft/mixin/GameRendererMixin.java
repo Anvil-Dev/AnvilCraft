@@ -34,6 +34,16 @@ abstract class GameRendererMixin {
         return MunSurfaceRenderer.terrain(original, 0.1F);
     }
 
+    @ModifyReturnValue(method = "getRendertypeTranslucentShader", at = @At("RETURN"))
+    private static @Nullable ShaderInstance anvilcraft$munTranslucent(@Nullable ShaderInstance original) {
+        return MunSurfaceRenderer.terrain(original, 0);
+    }
+
+    @ModifyReturnValue(method = "getRendertypeTripwireShader", at = @At("RETURN"))
+    private static @Nullable ShaderInstance anvilcraft$munTripwire(@Nullable ShaderInstance original) {
+        return MunSurfaceRenderer.terrain(original, 0.1F);
+    }
+
     @Inject(
         method = "reloadShaders",
         at = @At(

@@ -21,6 +21,7 @@ import javax.annotation.Nullable;
  * 重新收敛。阶段视觉数据由轨道采样，不会写回玩法用的 {@link StarData}。</p>
  */
 public final class StellarEvolutionState {
+    private static final int FORMAT_VERSION = 3;
     public static final String TRACK_ID_KEY = "stellarTrackId";
     public static final String PHASE_ID_KEY = "stellarPhaseId";
     public static final String PHASE_INDEX_KEY = "stellarPhaseIndex";
@@ -70,14 +71,13 @@ public final class StellarEvolutionState {
     private boolean eventTriggered;
     private boolean terminalApplied;
 
-    /** 与运行快照一同保存；只有缺少快照的旧存档需要重新分配时长。 */
+    /** 与运行快照一同保存的阶段时长。 */
     private List<Integer> phaseDurations = List.of();
     private int scheduleStartIndex;
     private transient String cachedTrackId = "";
     private transient int cachedDurationBudget = -1;
     private transient int cachedScheduleStartIndex = -1;
 
-    private int formatVersion = 1;
     private String nodeId = "";
     private double initialSolarMass;
     private double currentSolarMass;
@@ -93,7 +93,7 @@ public final class StellarEvolutionState {
         StellarTrack track, CelestialBodyClass surfaceClass, int initialMass, int initialEnergy, int initialSize,
         long evolutionSeed, long startGameTime, int totalDurationTicks
     ) {
-        if (!track.modern() || track.definition().massAnvils() != initialMass) {
+        if (track.definition().massAnvils() != initialMass) {
             throw new IllegalArgumentException("Stellar track does not match initial mass");
         }
         double metallicity = track.definition().metallicity().sample(evolutionSeed);
@@ -107,10 +107,6 @@ public final class StellarEvolutionState {
         state.profileSnapshot.forEach((id, profile) -> resolvedProfiles.put(id, profile.resolveVisual(coordinate)));
         state.profileSnapshot = Map.copyOf(resolvedProfiles);
         return state;
-    }
-
-    public boolean modern() {
-        return formatVersion == 3;
     }
 
     @Nullable
@@ -149,8 +145,12 @@ public final class StellarEvolutionState {
     public StellarEventProfile eventProfile(String id) {
         StellarEventProfile profile = profileSnapshot.get(id);
         if (profile != null) return profile;
-        if (modern()) throw new IllegalStateException("Missing frozen event profile: " + id);
-        return StellarTrackLibrary.legacyEventProfile(id);
+        throw new IllegalStateException("Missing frozen event profile: " + id);
+    }
+
+    @Nullable
+    public StellarEventProfile findEventProfile(String id) {
+        return profileSnapshot.get(id);
     }
 
     private StellarTrack effectiveTrack(StellarTrack track) {
@@ -161,15 +161,13 @@ public final class StellarEvolutionState {
         Map<String, StellarEventProfile> profiles = new LinkedHashMap<>();
         for (PhaseNode node : track.phaseNodes()) {
             if (node.hasEventProfile()) {
-                profiles.put(node.eventProfileId(), modern() ? StellarTrackLibrary.eventProfile(node.eventProfileId())
-                    : StellarTrackLibrary.legacyEventProfile(node.eventProfileId()));
+                profiles.put(node.eventProfileId(), StellarTrackLibrary.eventProfile(node.eventProfileId()));
             }
         }
         profileSnapshot = Map.copyOf(profiles);
     }
 
     private void createEventPlan(StellarTrack track) {
-        if (!modern()) return;
         List<StellarScheduledEvent> events = new ArrayList<>();
         int offset = 0;
         for (int index = scheduleStartIndex; index < track.phaseNodes().size(); index++) {
@@ -224,7 +222,6 @@ public final class StellarEvolutionState {
         int totalDurationTicks
     ) {
         StellarEvolutionState state = new StellarEvolutionState();
-        state.formatVersion = track.modern() ? 3 : 1;
         state.trackSnapshot = track;
         state.captureProfiles(track);
         state.trackId = track.trackId();
@@ -261,7 +258,7 @@ public final class StellarEvolutionState {
         return state;
     }
 
-    /** 从 NBT 读取新状态；不存在时返回空闲状态。 */
+    /** 从 NBT 恢复完整的运行快照。 */
     public static StellarEvolutionState fromTag(CompoundTag tag) {
         tag = migrateResultStage(tag);
         StellarEvolutionState state = new StellarEvolutionState();
@@ -292,8 +289,9 @@ public final class StellarEvolutionState {
         state.eventSeed = tag.getLong(EVENT_SEED_KEY);
         state.eventTriggered = tag.getBoolean(EVENT_TRIGGERED_KEY);
         state.terminalApplied = tag.getBoolean(TERMINAL_APPLIED_KEY);
-        state.formatVersion = tag.contains("stellarFormatVersion") ? tag.getInt("stellarFormatVersion") : 1;
-        if (state.formatVersion < 1 || state.formatVersion > 3) throw new IllegalArgumentException("Unknown stellar state version");
+        if (tag.getInt("stellarFormatVersion") != FORMAT_VERSION) {
+            throw new IllegalArgumentException("Unsupported stellar state version");
+        }
         state.nodeId = tag.getString("stellarNodeId");
         state.initialSolarMass = tag.contains("stellarInitialSolarMass") ? tag.getDouble("stellarInitialSolarMass")
             : state.initialMass > 0 ? CelestialMassTable.at(state.initialMass).solarMass() : 0;
@@ -322,7 +320,7 @@ public final class StellarEvolutionState {
             state.appliedEvents = new LinkedHashSet<>(Codec.STRING.listOf().parse(NbtOps.INSTANCE,
                 tag.get("stellarAppliedEvents")).getOrThrow());
             state.validateSnapshot();
-        } else if (state.modern()) {
+        } else {
             throw new IllegalArgumentException("Missing active stellar snapshot");
         }
         return state;
@@ -362,43 +360,6 @@ public final class StellarEvolutionState {
         return tag;
     }
 
-    /** 将旧版四阶段 NBT 迁移成新状态，保留原总预算和当前进度。 */
-    public static StellarEvolutionState migrateLegacy(
-        CompoundTag tag,
-        StellarTrack track,
-        int fallbackMass,
-        int fallbackEnergy,
-        int fallbackSize,
-        long now
-    ) {
-        int legacyStage = tag.getInt("acceleratorStage");
-        int remaining = Math.max(0, tag.getInt("acceleratorTicksRemaining"));
-        int total = Math.max(remaining, tag.getInt("acceleratorTicksTotal"));
-        if (total <= 0) total = Math.max(track.phaseNodes().size(), 2400);
-        int startIndex = phaseIndexForLegacyStage(track, legacyStage);
-        StellarEvolutionState state = begin(
-            track,
-            startIndex,
-            tag.contains("acceleratorOriginalMass") ? tag.getInt("acceleratorOriginalMass") : fallbackMass,
-            tag.contains("acceleratorOriginalEnergy") ? tag.getInt("acceleratorOriginalEnergy") : fallbackEnergy,
-            tag.contains("acceleratorOriginalSize") ? tag.getInt("acceleratorOriginalSize") : fallbackSize,
-            fallbackMass,
-            tag.contains("stellarTrackSeed") ? tag.getLong("stellarTrackSeed") : 0L,
-            now - Math.max(0, total - remaining),
-            total
-        );
-        state.eventTriggered = tag.getBoolean("quenchedSupernovaFired");
-        return state;
-    }
-
-    private static int phaseIndexForLegacyStage(StellarTrack track, int legacyStage) {
-        int wanted = legacyStage <= 0 ? 0 : legacyStage;
-        for (int i = 0; i < track.phaseNodes().size(); i++) {
-            if (track.phaseNodes().get(i).phaseId().legacyStage() >= wanted) return i;
-        }
-        return Math.max(0, track.phaseNodes().size() - 1);
-    }
-
     /** 绑定轨道并重建阶段时长缓存。 */
     public void attachTrack(StellarTrack track) {
         track = effectiveTrack(track);
@@ -429,72 +390,12 @@ public final class StellarEvolutionState {
         }
     }
 
-    /** 资源包移除旧轨道时切换到确定性内置回退，并保留当前时间轴。 */
-    public void rebindTrack(StellarTrack track) {
-        if (modern()) throw new IllegalStateException("Cannot replace a running stellar snapshot");
-        trackSnapshot = track;
-        this.trackId = track.trackId();
-        this.terminalProfileId = track.terminalProfile();
-        this.cachedTrackId = "";
-        this.phaseDurations = List.of();
-        attachTrack(track);
-    }
-
-    /**
-     * 把总预算分配到各阶段。
-     *
-     * <p>爆发窗口（{@link StellarEvolutionPhase#isEventPhase()}）使用 profile 里的绝对
-     * 刻数而不是权重份额：核心坍缩必须在闪光之前完成收缩，残骸必须紧跟闪光出现，这两个
-     * 时长不能随总预算一起放大。剩余预算按权重分配给正常演化阶段，因此总时长仍然等于旧
-     * 算法给出的预算。只有预算连爆发窗口都装不下时才等比压缩爆发窗口。</p>
-     */
+    /** 按节点权重分配总预算，每次脉冲至少保留一刻。 */
     private static List<Integer> durationsFrom(StellarTrack track, int startIndex, int budget) {
-        List<PhaseNode> nodes = track.phaseNodes().subList(startIndex, track.phaseNodes().size());
-        if (track.modern()) return modernDurations(nodes, budget);
-        int safeBudget = Math.max(nodes.size(), budget);
-        int count = nodes.size();
-        int[] ticks = new int[count];
-        boolean[] absolute = new boolean[count];
-        int absoluteTotal = 0;
-        int weightedCount = 0;
-        float weight = 0.0f;
-        for (int index = 0; index < count; index++) {
-            PhaseNode node = nodes.get(index);
-            int eventTicks = eventWindowTicks(node);
-            if (eventTicks > 0) {
-                absolute[index] = true;
-                ticks[index] = eventTicks;
-                absoluteTotal += eventTicks;
-            } else {
-                weightedCount++;
-                weight += node.durationWeight();
-            }
-        }
-        int maximumAbsolute = Math.max(0, safeBudget - weightedCount);
-        if (absoluteTotal > maximumAbsolute) {
-            float shrink = maximumAbsolute / (float) absoluteTotal;
-            absoluteTotal = 0;
-            for (int index = 0; index < count; index++) {
-                if (!absolute[index]) continue;
-                ticks[index] = Math.max(1, Math.round(ticks[index] * shrink));
-                absoluteTotal += ticks[index];
-            }
-        }
-        int weightedBudget = Math.max(weightedCount, safeBudget - absoluteTotal);
-        int used = absoluteTotal;
-        for (int index = 0; index < count; index++) {
-            if (absolute[index]) continue;
-            ticks[index] = Math.max(1, Math.round(weightedBudget * nodes.get(index).durationWeight()
-                / Math.max(weight, 0.001f)));
-            used += ticks[index];
-        }
-        balanceDurations(ticks, absolute, used, safeBudget);
-        List<Integer> result = new ArrayList<>(count);
-        for (int value : ticks) result.add(value);
-        return List.copyOf(result);
+        return allocateDurations(track.phaseNodes().subList(startIndex, track.phaseNodes().size()), budget);
     }
 
-    private static List<Integer> modernDurations(List<PhaseNode> nodes, int budget) {
+    private static List<Integer> allocateDurations(List<PhaseNode> nodes, int budget) {
         int minimum = nodes.stream().mapToInt(node -> node.dynamics().pulses()).sum();
         int remaining = Math.max(minimum, budget) - minimum;
         double weight = nodes.stream().mapToDouble(PhaseNode::durationWeight).sum();
@@ -514,19 +415,19 @@ public final class StellarEvolutionState {
 
     private void validateSnapshot() {
         if (trackSnapshot == null) return;
-        if (!trackSnapshot.trackId().equals(trackId) || trackSnapshot.modern() != modern()
+        if (!trackSnapshot.trackId().equals(trackId)
             || scheduleStartIndex < 0 || phaseIndex < scheduleStartIndex || phaseIndex >= trackSnapshot.phaseNodes().size()
             || phaseDurations.size() != trackSnapshot.phaseNodes().size() - scheduleStartIndex
             || phaseDurations.stream().anyMatch(value -> value < 1)
             || phaseDurations.stream().mapToLong(Integer::longValue).sum() != totalDurationTicks) {
             throw new IllegalArgumentException("Invalid saved stellar timeline");
         }
-        if (modern() && !trackSnapshot.phaseNodes().get(phaseIndex).nodeId().equals(nodeId)) {
+        if (!trackSnapshot.phaseNodes().get(phaseIndex).nodeId().equals(nodeId)) {
             throw new IllegalArgumentException("Saved stellar node ID/index disagree");
         }
-        if (modern() && (trackSnapshot.definition().massAnvils() != initialMass
+        if (trackSnapshot.definition().massAnvils() != initialMass
             || initialSolarMass != CelestialMassTable.at(initialMass).solarMass()
-            || !Double.isFinite(currentSolarMass) || currentSolarMass < 0 || currentSolarMass > initialSolarMass)) {
+            || !Double.isFinite(currentSolarMass) || currentSolarMass < 0 || currentSolarMass > initialSolarMass) {
             throw new IllegalArgumentException("Invalid saved stellar mass");
         }
         for (PhaseNode node : trackSnapshot.phaseNodes()) {
@@ -544,50 +445,9 @@ public final class StellarEvolutionState {
             trackSnapshot.nodeIndex(event.nodeId());
         }
         if (!ids.containsAll(appliedEvents)) throw new IllegalArgumentException("Unknown completed stellar event");
-        if (modern()) {
-            List<StellarScheduledEvent> savedPlan = eventPlan;
-            createEventPlan(trackSnapshot);
-            if (!eventPlan.equals(savedPlan)) throw new IllegalArgumentException("Saved stellar event plan disagrees with snapshot");
-        }
-    }
-
-    /** 事件阶段的绝对时长；非事件阶段返回 0 表示按权重分配。 */
-    private static int eventWindowTicks(PhaseNode node) {
-        if (!node.hasEventProfile() || !node.phaseId().isEventPhase()) return 0;
-        StellarEventProfile profile = StellarTrackLibrary.legacyEventProfile(node.eventProfileId());
-        if (profile == null) return 0;
-        return switch (node.phaseId()) {
-            case EVENT_PRELUDE -> Math.max(1, profile.precursorTicks());
-            case EVENT_COLLAPSE -> Math.max(1, profile.collapseTicks());
-            case EVENT_EJECTA -> Math.max(1, profile.ejectaTicks());
-            default -> Math.max(1, profile.fadeTicks());
-        };
-    }
-
-    /** 把总和修正到恰好等于预算：优先增减正常阶段，尽量保住爆发窗口的绝对时长。 */
-    private static void balanceDurations(int[] ticks, boolean[] absolute, int used, int budget) {
-        int total = used;
-        int count = ticks.length;
-        if (count == 0) return;
-        for (int pass = 0; pass < 2 && total != budget; pass++) {
-            boolean allowAbsolute = pass == 1;
-            boolean changed = true;
-            while (total != budget && changed) {
-                changed = false;
-                for (int index = 0; index < count && total != budget; index++) {
-                    if (absolute[index] && !allowAbsolute) continue;
-                    if (total > budget && ticks[index] > 1) {
-                        ticks[index]--;
-                        total--;
-                        changed = true;
-                    } else if (total < budget) {
-                        ticks[index]++;
-                        total++;
-                        changed = true;
-                    }
-                }
-            }
-        }
+        List<StellarScheduledEvent> savedPlan = eventPlan;
+        createEventPlan(trackSnapshot);
+        if (!eventPlan.equals(savedPlan)) throw new IllegalArgumentException("Saved stellar event plan disagrees with snapshot");
     }
 
     private int durationAt(int absoluteIndex) {
@@ -608,33 +468,20 @@ public final class StellarEvolutionState {
             phaseIndex++;
             phaseDurationTicks = durationAt(phaseIndex);
             phaseId = track.phaseNodes().get(phaseIndex).phaseId().getSerializedName();
-            PhaseNode currentNode = track.phaseNodes().get(phaseIndex);
-            PhaseNode previousNode = track.phaseNodes().get(phaseIndex - 1);
-            boolean startsNewEvent = currentNode.hasEventProfile()
-                && (!previousNode.hasEventProfile()
-                    || !previousNode.eventProfileId().equalsIgnoreCase(currentNode.eventProfileId()));
-            if (startsNewEvent) {
-                eventStartGameTime = phaseStartGameTime;
-                eventSeed = mixSeed(trackSeed, phaseIndex);
-                eventId = track.trackId() + ":" + phaseId + ":" + eventStartGameTime;
-                eventTriggered = false;
-            }
             changed = true;
         }
         nodeId = track.phaseNodes().get(phaseIndex).nodeId();
         updateProgress(gameTime);
-        if (modern()) {
-            StellarVisualState visual = structuralVisualState(track, gameTime, 0);
-            double remnant = track.definition().terminal().solarMass();
-            float initialEnvelope = track.phaseNodes().get(scheduleStartIndex).dynamics().points().getFirst().envelope();
-            currentSolarMass = Math.clamp(remnant + (initialSolarMass - remnant)
-                * Math.clamp(visual.envelopeOpacity() / Math.max(0.001f, initialEnvelope), 0, 1), remnant, initialSolarMass);
-            StellarScheduledEvent event = eventAt(elapsedTicks(gameTime));
-            eventId = event == null ? "" : event.instanceId();
-            eventStartGameTime = event == null ? -1 : totalStartGameTime + event.startOffset();
-            eventSeed = event == null ? 0 : event.seed();
-            eventTriggered = event != null && appliedEvents.contains(event.instanceId());
-        }
+        StellarVisualState visual = structuralVisualState(track, gameTime, 0);
+        double remnant = track.definition().terminal().solarMass();
+        float initialEnvelope = track.phaseNodes().get(scheduleStartIndex).dynamics().points().getFirst().envelope();
+        currentSolarMass = Math.clamp(remnant + (initialSolarMass - remnant)
+            * Math.clamp(visual.envelopeOpacity() / Math.max(0.001f, initialEnvelope), 0, 1), remnant, initialSolarMass);
+        StellarScheduledEvent event = eventAt(elapsedTicks(gameTime));
+        eventId = event == null ? "" : event.instanceId();
+        eventStartGameTime = event == null ? -1 : totalStartGameTime + event.startOffset();
+        eventSeed = event == null ? 0 : event.seed();
+        eventTriggered = event != null && appliedEvents.contains(event.instanceId());
         return changed;
     }
 
@@ -816,10 +663,6 @@ public final class StellarEvolutionState {
         return isActive();
     }
 
-    public void markEventTriggered() {
-        this.eventTriggered = true;
-    }
-
     public void markTerminalApplied() {
         this.terminalApplied = true;
     }
@@ -869,10 +712,10 @@ public final class StellarEvolutionState {
         String profileId = node.hasEventProfile() ? node.eventProfileId() : "";
         if (!profileId.isBlank()) {
             StellarEventProfile profile = eventProfile(profileId);
-            float eventProgress = eventProgressAt(track, timed, gameTime, frameFraction(partialTick), profileId);
+            float eventProgress = eventProgressAt(gameTime, frameFraction(partialTick));
             int surfaceColor = state.surfaceColor();
             state = applyEvent(state, profile, eventProgress);
-            if (modern()) state = state.withSurfaceColor(surfaceColor);
+            state = state.withSurfaceColor(surfaceColor);
         }
         return state.withVisualRadius(state.radiusAt(progress)).withWind(node.dynamics().wind(), progress);
     }
@@ -894,32 +737,9 @@ public final class StellarEvolutionState {
         return Float.isFinite(partialTick) ? Math.clamp(partialTick, 0.0f, 1.0f) : 0.0f;
     }
 
-    private float eventProgressAt(
-        StellarTrack track,
-        TimedPhaseSample timed,
-        long gameTime,
-        float partialTick,
-        String profileId
-    ) {
-        if (modern()) {
-            StellarScheduledEvent event = eventAt(gameTime - totalStartGameTime + partialTick);
-            return event == null ? 0 : event.progress(gameTime - totalStartGameTime + partialTick);
-        }
-        long start = timed.phaseOffset();
-        for (int previous = timed.index() - 1; previous >= scheduleStartIndex; previous--) {
-            PhaseNode node = track.phaseNodes().get(previous);
-            if (!node.hasEventProfile() || !node.eventProfileId().equalsIgnoreCase(profileId)) break;
-            start -= durationAt(previous);
-        }
-        long end = timed.phaseOffset() + timed.duration();
-        for (int next = timed.index() + 1; next < track.phaseNodes().size(); next++) {
-            PhaseNode node = track.phaseNodes().get(next);
-            if (!node.hasEventProfile() || !node.eventProfileId().equalsIgnoreCase(profileId)) break;
-            end += durationAt(next);
-        }
-        if (end <= start) return 1.0f;
-        long elapsed = Math.max(0L, gameTime - totalStartGameTime);
-        return Math.clamp((float) (elapsed - start + partialTick) / (float) (end - start), 0.0f, 1.0f);
+    private float eventProgressAt(long gameTime, float partialTick) {
+        StellarScheduledEvent event = eventAt(gameTime - totalStartGameTime + partialTick);
+        return event == null ? 0 : event.progress(gameTime - totalStartGameTime + partialTick);
     }
 
     /**
@@ -988,20 +808,6 @@ public final class StellarEvolutionState {
         );
     }
 
-    /** 在 profile 的冲击突破里程碑处只返回一次 true。 */
-    public boolean shouldTriggerShock(long gameTime, StellarTrack track) {
-        track = effectiveTrack(track);
-        if (eventTriggered || !hasVisualEvent(track)) return false;
-        String profileId = currentEventProfileId(track);
-        if (profileId == null || profileId.isBlank()) return false;
-        StellarEventProfile profile = eventProfile(profileId);
-        long eventStart = eventStartGameTime < 0L ? phaseStartGameTime : eventStartGameTime;
-        long eventEnd = eventEndGameTime(track);
-        long available = Math.max(1L, eventEnd - eventStart);
-        long shockTick = eventStart + Math.min(profile.shockBreakoutTick(), Math.max(1L, available - 1L));
-        return gameTime >= shockTick;
-    }
-
     /** 当前事件在其实际轨道窗口内的归一化进度。 */
     public float eventProgress(
         StellarTrack track,
@@ -1013,56 +819,21 @@ public final class StellarEvolutionState {
         TimedPhaseSample timed = sampleAtAbsoluteTime(track, gameTime, partialTick);
         String profileId = timed.node().hasEventProfile() ? timed.node().eventProfileId() : "";
         if (profileId.isBlank() || !profileId.equalsIgnoreCase(profile.profileId())) return 0.0f;
-        return eventProgressAt(track, timed, gameTime, frameFraction(partialTick), profileId);
-    }
-
-    private long eventEndGameTime(StellarTrack track) {
-        if (!hasVisualEvent(track)) return phaseStartGameTime + phaseDurationTicks;
-        String profileId = currentEventProfileId(track);
-        long end = phaseStartGameTime + phaseDurationTicks;
-        for (int index = phaseIndex + 1; index < track.phaseNodes().size(); index++) {
-            PhaseNode node = track.phaseNodes().get(index);
-            if (!node.hasEventProfile() || !node.eventProfileId().equalsIgnoreCase(profileId)) break;
-            end += durationAt(index);
-        }
-        return end;
+        return eventProgressAt(gameTime, frameFraction(partialTick));
     }
 
     /** 返回终局 profile 的冲击突破绝对游戏刻，用于音乐和客户端预告对齐。 */
     public long terminalShockGameTime(StellarTrack track) {
         track = effectiveTrack(track);
         attachTrack(track);
-        if (modern()) {
-            for (StellarScheduledEvent event : eventPlan) {
-                if (event.policy().destructive()) return totalStartGameTime + event.shockOffset();
-            }
-            return totalStartGameTime + totalDurationTicks;
-        }
-        long cursor = totalStartGameTime;
-        for (int index = scheduleStartIndex; index < track.phaseNodes().size(); index++) {
-            PhaseNode node = track.phaseNodes().get(index);
-            int duration = durationAt(index);
-            if (node.hasEventProfile() && node.eventProfileId().equalsIgnoreCase(track.terminalProfile())) {
-                long eventEnd = cursor + duration;
-                for (int next = index + 1; next < track.phaseNodes().size(); next++) {
-                    PhaseNode continuation = track.phaseNodes().get(next);
-                    if (!continuation.hasEventProfile()
-                        || !continuation.eventProfileId().equalsIgnoreCase(node.eventProfileId())) break;
-                    eventEnd += durationAt(next);
-                }
-                long available = Math.max(1L, eventEnd - cursor);
-                return cursor + Math.min(
-                    eventProfile(node.eventProfileId()).shockBreakoutTick(),
-                    Math.max(1L, available - 1L)
-                );
-            }
-            cursor += duration;
+        for (StellarScheduledEvent event : eventPlan) {
+            if (event.policy().destructive()) return totalStartGameTime + event.shockOffset();
         }
         return totalStartGameTime + totalDurationTicks;
     }
 
     public void save(CompoundTag tag) {
-        tag.putInt("stellarFormatVersion", formatVersion);
+        tag.putInt("stellarFormatVersion", FORMAT_VERSION);
         tag.putString("stellarNodeId", nodeId);
         tag.putDouble("stellarInitialSolarMass", initialSolarMass);
         tag.putDouble("stellarCurrentSolarMass", currentSolarMass);
@@ -1142,7 +913,6 @@ public final class StellarEvolutionState {
         this.eventSeed = loaded.eventSeed;
         this.eventTriggered = loaded.eventTriggered;
         this.terminalApplied = loaded.terminalApplied;
-        this.formatVersion = loaded.formatVersion;
         this.nodeId = loaded.nodeId;
         this.initialSolarMass = loaded.initialSolarMass;
         this.currentSolarMass = loaded.currentSolarMass;

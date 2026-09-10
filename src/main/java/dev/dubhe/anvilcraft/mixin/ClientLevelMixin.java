@@ -10,11 +10,9 @@ import dev.dubhe.anvilcraft.util.EnchantedGoldBlockPositions;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
 import net.minecraft.client.renderer.LevelRenderer;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
@@ -40,12 +38,6 @@ abstract class ClientLevelMixin {
         if (level.dimension().equals(CelestialTravelManager.MUN_LEVEL)) return Vec3.ZERO;
         if (!CelestialTravelManager.isOverworldLike(level.dimension())) return original;
         return original.scale(OverworldLikeClientState.environmentColorMultiplier(level));
-    }
-
-    @ModifyReturnValue(method = {"getShade(Lnet/minecraft/core/Direction;Z)F", "getShade(FFFZ)F"}, at = @At("RETURN"))
-    private float anvilcraft$useDirectionalMunShading(float original) {
-        ClientLevel level = (ClientLevel) (Object) this;
-        return level.dimension().equals(CelestialTravelManager.MUN_LEVEL) && MunSurfaceRenderer.usesTerrainShader() ? 1 : original;
     }
 
     @ModifyReturnValue(method = "getCloudColor", at = @At("RETURN"))
@@ -81,11 +73,6 @@ abstract class ClientLevelMixin {
         MunSurfaceRenderer.onChunkChanged(chunkPos);
         LevelChunk chunk = ((ClientLevel) (Object) this).getChunk(chunkPos.x, chunkPos.z);
         EnchantedGoldBlockPositions.scanChunk(chunk);
-    }
-
-    @Inject(method = "setBlocksDirty", at = @At("TAIL"))
-    private void anvilcraft$updateMunOcclusion(BlockPos pos, BlockState oldState, BlockState newState, CallbackInfo ci) {
-        MunSurfaceRenderer.onBlockChanged((ClientLevel) (Object) this, pos, newState);
     }
 
     @Inject(method = "unload", at = @At("TAIL"))

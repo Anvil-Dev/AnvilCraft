@@ -1106,7 +1106,6 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
             lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.paused"));
         }
         StellarEvolutionPhase phase = be.getStellarEvolutionPhase();
-        final boolean hasPhysicalPhase = phase != null;
         if (phase != null) {
             lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.phase." + phase.getSerializedName()));
             int phasePercent = Math.clamp(Math.round(be.getStellarPhaseProgress() * 100.0f), 0, 100);
@@ -1123,15 +1122,9 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
                 lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.surface_class",
                     surfaceClass.name()));
             }
-        } else {
-            /// 旧存档尚未迁移时仍显示兼容阶段名称。
-            StellarEvolutionPhase legacyPhase = StellarEvolutionPhase.fromLegacyStage(be.getAcceleratorStage());
-            lines.add(Component.translatable(
-                "screen.anvilcraft.cfa.evolution.phase." + legacyPhase.getSerializedName()
-            ));
         }
         var evolution = be.getStellarEvolutionState();
-        if (evolution != null && evolution.modern()) {
+        if (evolution != null) {
             lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.initial_mass",
                 String.format(java.util.Locale.ROOT, "%.3g", evolution.initialSolarMass())));
             lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.current_mass",
@@ -1144,11 +1137,6 @@ public class CelestialForgingAnvilScreen extends AbstractContainerScreen<Celesti
         int secondsRemaining = displayTicks / 20;
         lines.add(Component.translatable("screen.anvilcraft.cfa.evolution.time_remaining",
             Component.literal(formatDuration(secondsRemaining))));
-        /// 进度条信息
-        if (!hasPhysicalPhase && be.getAcceleratorTicksTotal() > 0) {
-            int pct = Math.clamp((int) ((1.0f - (float) displayTicks / be.getAcceleratorTicksTotal()) * 100), 0, 100);
-            lines.add(Component.literal(pct + "%"));
-        }
         lines.add(Component.translatable(
             "screen.anvilcraft.cfa.evolution.terminal_outcome." + be.getStellarTerminalOutcomeId()
         ));

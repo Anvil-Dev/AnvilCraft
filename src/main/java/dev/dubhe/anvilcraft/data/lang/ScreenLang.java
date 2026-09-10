@@ -733,33 +733,15 @@ public class ScreenLang {
         provider.add("screen.anvilcraft.cfa.class.neutron_star", "Neutron Star"); // 中子星
         provider.add("screen.anvilcraft.cfa.class.black_hole", "Black Hole"); // 黑洞
 
-        // Stellar evolution accelerator stages
-        provider.add("screen.anvilcraft.cfa.evolution.stage1", "Main Sequence"); // 主序星阶段
-        provider.add("screen.anvilcraft.cfa.evolution.stage2", "Giant Phase"); // 巨星阶段
-        provider.add("screen.anvilcraft.cfa.evolution.stage3", "Supernova"); // 超新星爆发
-        provider.add("screen.anvilcraft.cfa.evolution.stage4", "M-Dwarf"); // 红矮星阶段
-        provider.add("screen.anvilcraft.cfa.evolution.stage_unknown", "Unknown Stage"); // ？？？
         // 数据驱动恒星演化阶段名称
         provider.add("screen.anvilcraft.cfa.evolution.phase.main_sequence", "Main Sequence");
         provider.add("screen.anvilcraft.cfa.evolution.phase.subgiant", "Subgiant Branch");
         provider.add("screen.anvilcraft.cfa.evolution.phase.rgb", "Red Giant Branch");
         provider.add("screen.anvilcraft.cfa.evolution.phase.helium_flash", "Helium Flash");
-        provider.add("screen.anvilcraft.cfa.evolution.phase.horizontal_branch", "Horizontal Branch");
         provider.add("screen.anvilcraft.cfa.evolution.phase.red_clump", "Red Clump");
         provider.add("screen.anvilcraft.cfa.evolution.phase.blue_loop", "Blue Loop");
-        provider.add("screen.anvilcraft.cfa.evolution.phase.agb", "Asymptotic Giant Branch");
-        provider.add("screen.anvilcraft.cfa.evolution.phase.post_agb", "Post-AGB");
-        provider.add("screen.anvilcraft.cfa.evolution.phase.ppn", "Protoplanetary Nebula");
-        provider.add("screen.anvilcraft.cfa.evolution.phase.blue_supergiant", "Blue Supergiant");
         provider.add("screen.anvilcraft.cfa.evolution.phase.red_supergiant", "Red Supergiant Branch");
-        provider.add("screen.anvilcraft.cfa.evolution.phase.lbv", "Luminous Blue Variable");
         provider.add("screen.anvilcraft.cfa.evolution.phase.wolf_rayet", "Wolf-Rayet Star");
-        provider.add("screen.anvilcraft.cfa.evolution.phase.pre_collapse", "Pre-collapse");
-        provider.add("screen.anvilcraft.cfa.evolution.phase.event_prelude", "Event Prelude");
-        provider.add("screen.anvilcraft.cfa.evolution.phase.event_collapse", "Core Collapse");
-        provider.add("screen.anvilcraft.cfa.evolution.phase.event_ejecta", "Ejecta Expansion");
-        provider.add("screen.anvilcraft.cfa.evolution.phase.remnant_settle", "Remnant Settling");
-        provider.add("screen.anvilcraft.cfa.evolution.phase.white_dwarf_cooling", "White Dwarf Cooling");
         provider.add("screen.anvilcraft.cfa.evolution.phase.fully_convective_main_sequence", "Fully Convective Main Sequence");
         provider.add("screen.anvilcraft.cfa.evolution.phase.radiative_core_main_sequence", "Radiative Core Main Sequence");
         provider.add("screen.anvilcraft.cfa.evolution.phase.pre_white_dwarf", "Pre-white Dwarf");

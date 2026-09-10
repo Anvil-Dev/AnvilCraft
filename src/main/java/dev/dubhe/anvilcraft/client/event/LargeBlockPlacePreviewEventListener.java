@@ -44,17 +44,14 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
-import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.model.data.ModelData;
 
 import java.util.List;
-import javax.annotation.Nullable;
 
 @EventBusSubscriber(Dist.CLIENT)
 public class LargeBlockPlacePreviewEventListener {
@@ -62,7 +59,6 @@ public class LargeBlockPlacePreviewEventListener {
     private static int failBoundErrorCooldown = 0;
 
     private static ItemStack currentItem = ItemStack.EMPTY;
-    @Nullable
     private static BlockPos currentPos = null;
 
     private static int boundColor = 0xffffffff;
@@ -107,8 +103,7 @@ public class LargeBlockPlacePreviewEventListener {
         missingAmplifierAnvilPositions.remove(anvilPos);
     }
 
-    @SubscribeEvent
-    public static void renderHighlight(RenderHighlightEvent.Block event) {
+    private static void updatePreview() {
         Minecraft mc = Minecraft.getInstance();
         LocalPlayer player = mc.player;
         if (player == null || player.isSpectator() || mc.level == null) {
@@ -136,69 +131,65 @@ public class LargeBlockPlacePreviewEventListener {
         if (!(blockItem.getBlock() instanceof AbstractMultiPartBlock<?> block)) {
             return;
         }
-        // 实际放置会把点击上下文交给 BlockPlacementPicking.forPlacement 重做一次射线检测，
-        // 用的是常规形状（BlockGetter#clip / ClipContext.Block.OUTLINE → BlockState#getShape）；
-        // 而准星射线走的是 CubeSelection 的模型精确箱（CubePicking#pick），两者命中格可能不同。
-        // 预览必须走同一条路径，否则会与实际落点错位。
-        // 注意 click 是 UseOnContext：它的 getClickedPos() 即原始命中格，重试分支用的就是它；
-        // 而 BlockPlaceContext.getClickedPos() 在命中格不可替换时还会沿点击面外移一格。
-        BlockHitResult target = event.getTarget();
-        UseOnContext click = BlockPlacementPicking.forPlacement(new UseOnContext(player, hand, target));
-        BlockPlaceContext context = new BlockPlaceContext(click);
-        final BlockPos hitPos = click.getClickedPos();
-        final Direction face = click.getClickedFace();
-        if (block instanceof CelestialForgingAnvilAmplifierBlock amplifierBlock) {
-            BlockPos snapped = amplifierBlock.snapMainPos(mc.level, context.getClickedPos());
-            if (snapped != null) {
-                context = new BlockPlaceContext(player, hand, item, new BlockHitResult(
-                    target.getLocation(),
-                    face,
-                    snapped,
-                    target.isInside()
-                ));
-            }
+        if (!(mc.hitResult instanceof BlockHitResult target)) {
+            return;
         }
+        UseOnContext useContext;
+        if (target.getType() == HitResult.Type.MISS) {
+            BlockHitResult hit = BlockPlacementPicking.findAirPlacementHit(item, mc.level, player);
+            if (hit == null) return;
+            useContext = new UseOnContext(mc.level, player, hand, item, hit);
+        } else {
+            useContext = BlockPlacementPicking.forPlacement(new UseOnContext(player, hand, target));
+        }
+        if (useContext instanceof BlockPlacementPicking.PlayerClick click && !click.anvilcraft$hasBlockHit()) {
+            return;
+        }
+        final Direction direction = useContext.getClickedFace();
+        BlockPlaceContext context = snapPlacementContext(block, new BlockPlaceContext(useContext));
         BlockPos pos = context.getClickedPos();
         validateCanRender(item, blockItem, pos);
         BlockState state = getPlacementState(block, blockItem, context);
-        boolean placeable = isPlaceable(mc.level, player, block, pos, state);
-        if (!placeable) {
-            // 放不下时物品沿点击面退到偏移位置重试（SimpleMultiPartBlockItem#useOn），
-            // 基准格与点击面都取原始命中的 click，与实际一致
+        List<BlockPos> errorPosList = getErrorPosList(mc.level, block, pos, state);
+        if (!errorPosList.isEmpty()) {
             if (blockItem instanceof SimpleMultiPartBlockItem<?> simpleMultiPartBlockItem) {
-                pos = hitPos.relative(face, simpleMultiPartBlockItem.getMaxOffsetDistance(face));
-            } else if (blockItem instanceof FlexibleMultiPartBlockItem<?, ?, ?> flexibleMultiPartBlockItem) {
-                pos = hitPos.relative(face, flexibleMultiPartBlockItem.getMaxOffsetDistance(state, face));
+                int distance = simpleMultiPartBlockItem.getMaxOffsetDistance(direction);
+                pos = useContext.getClickedPos().relative(direction, distance);
             }
-            context = new BlockPlaceContext(player, hand, item, new BlockHitResult(
-                Vec3.atCenterOf(pos),
-                face,
-                pos,
-                false
-            ));
-            state = getPlacementState(block, blockItem, context);
+            if (blockItem instanceof FlexibleMultiPartBlockItem<?, ?, ?> flexibleMultiPartBlockItem) {
+                int distance = flexibleMultiPartBlockItem.getMaxOffsetDistance(state, direction);
+                pos = useContext.getClickedPos().relative(direction, distance);
+            }
+            context = snapPlacementContext(block, new BlockPlaceContext(new UseOnContext(
+                mc.level, player, hand, item, new BlockHitResult(
+                    useContext.getClickLocation().add(Vec3.atLowerCornerOf(pos.subtract(useContext.getClickedPos()))),
+                    direction,
+                    pos,
+                    false
+                )
+            )));
             pos = context.getClickedPos();
-            placeable = isPlaceable(mc.level, player, block, pos, state);
+            state = getPlacementState(block, blockItem, context);
+            errorPosList = getErrorPosList(mc.level, block, pos, state);
         }
-        if (placeable) {
+        if (errorPosList.isEmpty()) {
             collectRenderEntries(block, pos, state);
         }
     }
 
-    /**
-     * 复刻实际放置的合法性判断：各部件位置可替换，且状态可存活、目标格无实体阻挡
-     * （{@code BlockItem#getPlacementState} → {@code BlockItem#canPlace}）。任一不满足时
-     * 物品会判定放置失败并退回偏移位置，预览做同样判断才能与实际落点一致。
-     */
-    private static boolean isPlaceable(
-        Level level,
-        LocalPlayer player,
-        AbstractMultiPartBlock<?> block,
-        BlockPos pos,
-        BlockState state
-    ) {
-        if (!getErrorPosList(level, block, pos, state).isEmpty()) return false;
-        return state.canSurvive(level, pos) && level.isUnobstructed(state, pos, CollisionContext.of(player));
+    private static BlockPlaceContext snapPlacementContext(AbstractMultiPartBlock<?> block, BlockPlaceContext context) {
+        if (!(block instanceof CelestialForgingAnvilAmplifierBlock amplifier)) return context;
+        BlockPos pos = context.getClickedPos();
+        BlockPos snapped = amplifier.snapMainPos(context.getLevel(), pos);
+        if (snapped == null || snapped.equals(pos)) return context;
+        return new BlockPlaceContext(
+            context.getLevel(), context.getPlayer(), context.getHand(), context.getItemInHand(), new BlockHitResult(
+                context.getClickLocation().add(Vec3.atLowerCornerOf(snapped.subtract(pos))),
+                context.getClickedFace(),
+                snapped,
+                false
+            )
+        );
     }
 
     private static void expandRenderEntriesForGhost() {
@@ -257,10 +248,7 @@ public class LargeBlockPlacePreviewEventListener {
             return;
         }
         renderMissingAmplifierGhosts(event);
-        if (mc.hitResult == null || mc.hitResult.getType() != HitResult.Type.BLOCK) {
-            renderEntries.clear();
-            return;
-        }
+        updatePreview();
         if (renderEntries.isEmpty()) {
             return;
         }
@@ -320,13 +308,9 @@ public class LargeBlockPlacePreviewEventListener {
         RenderType renderType = outlineMode ? RenderType.lines() : ModRenderTypes.BEACON_GLASS;
         VertexConsumer vertexConsumer = bufferSource.getBuffer(renderType);
         if (outlineMode) {
-            if (level != null) {
-                renderMissingAmplifierOutlines(poseStack, vertexConsumer, cameraPos, amplifier, level);
-            }
+            renderMissingAmplifierOutlines(poseStack, vertexConsumer, cameraPos, amplifier, level);
         } else {
-            if (level != null) {
-                renderMissingAmplifierGlass(poseStack, bufferSource, renderType, cameraPos, amplifier, level);
-            }
+            renderMissingAmplifierGlass(poseStack, bufferSource, renderType, cameraPos, amplifier, level);
         }
         bufferSource.endBatch(renderType);
         RenderSystem.setShaderColor(1.0f, 1.0f, 1.0f, 1.0f);

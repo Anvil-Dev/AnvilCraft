@@ -329,7 +329,6 @@ public class CelestialForgingAnvilBlock
         blockEntityTag.remove("acceleratorDysonDestroyed");
         blockEntityTag.remove("acceleratorDysonDestroyTick");
         blockEntityTag.remove("acceleratorPausedSinceGameTime");
-        blockEntityTag.remove("collapseAnimTicks");
         blockEntityTag.remove("quenchedScheduled");
         blockEntityTag.remove("quenchedStartTick");
         blockEntityTag.remove("quenchedStarted");

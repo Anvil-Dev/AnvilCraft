@@ -104,13 +104,13 @@ public final class ModelBlockSelection {
     static List<SelectionPart> dynamic(ClientLevel level, BlockPos pos, float partialTick) {
         return DYNAMIC.computeIfAbsent(pos.immutable(), key -> {
             BlockEntity entity = level.getBlockEntity(key);
-            if (entity == null) return List.of();
-            return collectDynamic(entity, partialTick);
+            if (entity == null || ModelSelectionBlacklist.excludesBlockEntity(entity.getBlockState().getBlock())) return List.of();
+            return rendererParts(entity, partialTick);
         });
     }
 
-    private static <T extends BlockEntity> List<SelectionPart> collectDynamic(T entity, float partialTick) {
-        if (ModelSelectionBlacklist.excludesBlockEntity(entity.getBlockState().getBlock())) return List.of();
+    /** 返回 BER 实际使用的 cube 和姿态，不混入用于交互的碰撞箱回退。 */
+    public static <T extends BlockEntity> List<SelectionPart> rendererParts(T entity, float partialTick) {
         BlockEntityRenderer<T> renderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
         if (!(renderer instanceof ModelSelectionRenderer<?>)) return List.of();
         @SuppressWarnings("unchecked")

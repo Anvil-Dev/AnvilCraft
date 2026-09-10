@@ -21,8 +21,8 @@ public final class MunIrisCompat {
     public static Vector4f celestialPosition(boolean sun, boolean cameraSpace) {
         ClientLevel level = Objects.requireNonNull(Minecraft.getInstance().level);
         Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        MunSkyMath.Rotation rotation = MunSkyMath.skyRotation(camera.x, camera.z);
         double partialTime = MunClientSky.partialDayTime(level, CapturedRenderingState.INSTANCE.getTickDelta());
+        MunSkyMath.Rotation rotation = MunSkyMath.skyRotation(camera.x, camera.z, level.getDayTime(), partialTime);
         MunSkyMath.Vector direction = rotation.apply(sun ? MunSkyMath.referenceSun(level.getDayTime(), partialTime) : MunSkyMath.UP);
         Vector4f position = new Vector4f((float) direction.x() * 100, (float) direction.y() * 100, (float) direction.z() * 100, 0);
         if (cameraSpace) CapturedRenderingState.INSTANCE.getGbufferModelView().transform(position);
@@ -32,8 +32,8 @@ public final class MunIrisCompat {
     public static float sunAngle() {
         ClientLevel level = Objects.requireNonNull(Minecraft.getInstance().level);
         Vec3 camera = Minecraft.getInstance().gameRenderer.getMainCamera().getPosition();
-        MunSkyMath.Rotation rotation = MunSkyMath.skyRotation(camera.x, camera.z);
         double partialTime = MunClientSky.partialDayTime(level, CapturedRenderingState.INSTANCE.getTickDelta());
+        MunSkyMath.Rotation rotation = MunSkyMath.skyRotation(camera.x, camera.z, level.getDayTime(), partialTime);
         MunSkyMath.Vector sun = MunSkyMath.referenceSun(level.getDayTime(), partialTime);
         double height = rotation.apply(sun).y();
         double derivative = rotation.apply(new MunSkyMath.Vector(sun.y(), -sun.x(), 0)).y();

@@ -55,12 +55,16 @@ public final class MunSkyRenderer {
         if (camera.getEntity() instanceof LivingEntity living
             && (living.hasEffect(MobEffects.BLINDNESS) || living.hasEffect(MobEffects.DARKNESS))) return;
         Vec3 position = camera.getPosition();
-        MunSkyMath.Rotation rotation = MunSkyMath.skyRotation(position.x, position.z);
-        MunSkyMath.Vector sun = MunSkyMath.referenceSun(level.getDayTime(), MunClientSky.partialDayTime(level, partialTick));
+        long dayTime = level.getDayTime();
+        double partialTime = MunClientSky.partialDayTime(level, partialTick);
+        MunSkyMath.Rotation rotation = MunSkyMath.skyRotation(position.x, position.z, dayTime, partialTime);
+        MunSkyMath.Vector sun = MunSkyMath.referenceSun(dayTime, partialTime);
         skyShader.safeGetUniform("InverseProjection").set(new Matrix4f(projection).invert());
         skyShader.safeGetUniform("InverseView").set(new Matrix4f(view).invert());
         skyShader.safeGetUniform("SkyRotation").set(rotationMatrix(rotation));
-        skyShader.safeGetUniform("EarthRotation").set(rotationMatrix(MunSkyMath.EARTH_ROTATION));
+        skyShader.safeGetUniform("EarthRotation").set(
+            rotationMatrix(MunSkyMath.EARTH_ROTATION).mul(rotationMatrix(MunSkyMath.earthSpin(dayTime, partialTime)))
+        );
         skyShader.safeGetUniform("SunDirection").set((float) sun.x(), (float) sun.y(), (float) sun.z());
         skyShader.safeGetUniform("EarthHalfSize").set((float) MunSkyMath.EARTH_HALF_SIZE);
         skyShader.safeGetUniform("AtmosphereThickness").set((float) MunSkyMath.EARTH_ATMOSPHERE_THICKNESS);

@@ -12,6 +12,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 abstract class SodiumMunShaderRendererMixin {
     @Inject(method = "begin", at = @At("RETURN"))
     private void anvilcraft$munTerrainUniforms(TerrainRenderPass pass, CallbackInfo ci) {
-        MunSurfaceRenderer.setupSodiumUniforms(!pass.isTranslucent());
+        MunSurfaceRenderer.setupSodiumUniforms();
     }
 }

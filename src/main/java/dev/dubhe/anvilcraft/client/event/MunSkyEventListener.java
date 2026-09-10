@@ -38,9 +38,8 @@ public final class MunSkyEventListener {
     }
 
     @SubscribeEvent
-    public static void renderTerrainGlare(RenderLevelStageEvent event) {
+    public static void prepareTerrainLighting(RenderLevelStageEvent event) {
         if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_SKY) MunSurfaceRenderer.prepareShadows();
-        if (event.getStage() == RenderLevelStageEvent.Stage.AFTER_CUTOUT_BLOCKS) MunSurfaceRenderer.renderGlare();
     }
 
     @SubscribeEvent
