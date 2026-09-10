@@ -401,13 +401,12 @@ public final class BlockPlacementUtil {
         int distance,
         BlockState[] states
     ) {
+        /**
+         * 顺序索引与存储索引使用同一约定：层（下→上）→ 行（远→近）→ 列（左→右），
+         * 与普通点位模式的放置顺序保持一致。
+         */
         public int getStorageIndexForOrder(int orderIndex) {
-            int positionsPerLayer = this.gridSize * this.gridSize;
-            int layer = orderIndex / positionsPerLayer;
-            int inLayer = orderIndex % positionsPerLayer;
-            int column = inLayer / this.gridSize;
-            int row = inLayer % this.gridSize;
-            return layer * positionsPerLayer + row * this.gridSize + column;
+            return orderIndex;
         }
 
         public BlockPos getPosition(int storageIndex) {

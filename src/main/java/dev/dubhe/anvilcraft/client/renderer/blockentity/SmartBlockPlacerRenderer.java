@@ -279,7 +279,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                         entity.getBlockPos(),
                         ModSoundEvents.SMART_BLOCK_PLACER_EXTEND.get(),
                         SoundSource.BLOCKS,
-                        0.4f,
+                        0.6f,
                         1.3f,
                         false
                     );
@@ -288,7 +288,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                             entity.getBlockPos(),
                             ModSoundEvents.SMART_BLOCK_PLACER_SHULKER_OPEN.get(),
                             SoundSource.BLOCKS,
-                            0.4f,
+                            0.6f,
                             1.5f,
                             false
                         );
@@ -304,7 +304,7 @@ public class SmartBlockPlacerRenderer implements BlockEntityRenderer<SmartBlockP
                         entity.getBlockPos(),
                         ModSoundEvents.SMART_BLOCK_PLACER_RETRACT.get(),
                         SoundSource.BLOCKS,
-                        0.8f,
+                        0.6f,
                         1.3f,
                         false
                     );

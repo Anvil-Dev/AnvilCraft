@@ -19,6 +19,7 @@ import dev.dubhe.anvilcraft.inventory.SmartBlockPlacerMenu;
 import dev.dubhe.anvilcraft.item.property.component.StructureDiskData;
 import dev.dubhe.anvilcraft.util.BlockPlacementUtil;
 import dev.dubhe.anvilcraft.util.StructureLoadUtil;
+import dev.dubhe.anvilcraft.util.TriggerUtil;
 import lombok.Getter;
 import lombok.Setter;
 import net.minecraft.core.BlockPos;
@@ -87,6 +88,11 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     private @Nullable Either<ItemStack, BlockState> missingBlock;
     private @Nullable Either<ItemStack, BlockState> currentHeldBlock;
     private boolean loadingBlueprintInventory;
+    /**
+     * 穿梭（乒乓效应）进度：记录邻居放置器预期把方块搬回的位置，搬回时触发进度。<br>
+     * 瞬态字段，不写入 NBT。
+     */
+    private @Nullable BlockPos expectedShuttleTarget;
 
     private final ItemStackHandler blueprintItemHandler = new ItemStackHandler(1) {
         @Override
@@ -343,9 +349,44 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
             return;
         }
         if (pointer.applyToPos(level, targetPos)) {
-            this.advancePositionIndex(index, positions.size());
+            this.checkShuttlePlacement(level, targetPos);
+            this.resetPositionIndex();
         } else if (pointer.isStillValid(level)) {
             this.advancePositionIndex(index, positions.size());
+        }
+    }
+
+    /**
+     * 检测并触发穿梭（乒乓效应）进度：两个放置器来回搬运同一个方块。<br>
+     * 命中判定条件：当前放置器刚放下的位置是邻居放置器的取料位，
+     * 且当前放置器的取料位在邻居放置器已选的点位中。<br>
+     * 命中后只在邻居上标记预期回程位置，等邻居把方块搬回来时才真正触发进度。
+     */
+    private void checkShuttlePlacement(ServerLevel level, BlockPos targetPos) {
+        // 回程：邻居把方块搬回了本放置器的取料位
+        if (targetPos.equals(this.expectedShuttleTarget)) {
+            this.expectedShuttleTarget = null;
+            TriggerUtil.placerShuttle(level, targetPos);
+            return;
+        }
+        if (this.operation != OperationMode.MOVE) {
+            return;
+        }
+        BlockPos mySource = this.getSourcePos();
+        for (Direction direction : Direction.values()) {
+            BlockPos neighborPos = targetPos.relative(direction);
+            if (!(level.getBlockEntity(neighborPos) instanceof SmartBlockPlacerBlockEntity neighbor)) {
+                continue;
+            }
+            if (neighbor.operation != OperationMode.MOVE
+                || neighbor.target != TargetMode.POSITION
+                || !neighbor.getSourcePos().equals(targetPos)) {
+                continue;
+            }
+            if (neighbor.getOrderedPositionTargets().stream().anyMatch(mySource::equals)) {
+                neighbor.expectedShuttleTarget = mySource;
+                return;
+            }
         }
     }
 
@@ -485,6 +526,18 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.setChanged();
     }
 
+    /**
+     * 一次放置完成后把游标复位到选区开头；<br>
+     * 下次选点重新从最左侧的可用点位开始扫描，保证整轮放置顺序稳定。
+     */
+    private void resetPositionIndex() {
+        if (this.currentPlacementIndex == 0) {
+            return;
+        }
+        this.currentPlacementIndex = 0;
+        this.setChanged();
+    }
+
     private void advanceBlueprintIndex(int orderIndex) {
         this.currentPlacementIndex = orderIndex + 1;
         this.setChanged();
@@ -615,7 +668,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
     }
 
     /**
-     * 构建 POSITION 模式的有序点位：从下到上、从左往右、从远到近。
+     * 构建 POSITION 模式的有序点位：从下到上、从远到近、从左往右。
      */
     public static List<BlockPos> buildOrderedPositions(
         BlockPos basePos,
@@ -627,8 +680,8 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         Direction right = facing.getClockWise();
         for (int layer = 0; layer < POSITION_GRID_SIZE; layer++) {
             int verticalOffset = upsideDown ? layer - POSITION_GRID_SIZE + 1 : layer;
-            for (int column = 0; column < POSITION_GRID_SIZE; column++) {
-                for (int row = 0; row < POSITION_GRID_SIZE; row++) {
+            for (int row = 0; row < POSITION_GRID_SIZE; row++) {
+                for (int column = 0; column < POSITION_GRID_SIZE; column++) {
                     int position = row * POSITION_GRID_SIZE + column;
                     if (!layerPositions[getPositionIndex(layer, position)]) {
                         continue;
@@ -660,6 +713,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         }
         this.layerPositions[index] = selected;
         this.currentPlacementIndex = 0;
+        this.expectedShuttleTarget = null;
         this.syncPositionSelection();
     }
 
@@ -899,6 +953,7 @@ public class SmartBlockPlacerBlockEntity extends BlockEntity implements IPowerCo
         this.pointer = null;
         this.missingBlock = null;
         this.currentHeldBlock = null;
+        this.expectedShuttleTarget = null;
         this.syncPositionSelection();
     }
 
