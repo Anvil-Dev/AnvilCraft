@@ -8,6 +8,7 @@ import dev.dubhe.anvilcraft.api.fluid.PowderSnowWrapper;
 import dev.dubhe.anvilcraft.api.fluid.VoidFluidHandler;
 import dev.dubhe.anvilcraft.api.itemhandler.HoneyCauldronWrapper;
 import dev.dubhe.anvilcraft.api.itemhandler.ReadOnlyItemHandlerWrapper;
+import dev.dubhe.anvilcraft.api.itemhandler.VoidItemHandler;
 import dev.dubhe.anvilcraft.block.container.storage.HyperdimensionStorageStationBlock;
 import dev.dubhe.anvilcraft.block.container.storage.LargeCrateBlock;
 import dev.dubhe.anvilcraft.block.container.storage.ShulkerContainerBlock;
@@ -205,6 +206,15 @@ public class CapabilitiesEventListener {
             Capabilities.FluidHandler.BLOCK,
             (level, pos, state, blockEntity, side) -> VoidFluidHandler.INSTANCE,
             ModBlocks.MENGER_SPONGE.get()
+        );
+
+        // 虚空物质块：通过漏斗、溜槽等输入的物品被无限吸收并消失（只进不出）。
+        // 与板条箱相邻虚空物质块时的销毁模式一致，只认普通虚空物质块；
+        // 激发态虚空物质不稳定、会连带衰变，不作为销毁源，故不注册
+        event.registerBlock(
+            Capabilities.ItemHandler.BLOCK,
+            (level, pos, state, blockEntity, side) -> VoidItemHandler.INSTANCE,
+            ModBlocks.VOID_MATTER_BLOCK.get()
         );
 
         event.registerItem(

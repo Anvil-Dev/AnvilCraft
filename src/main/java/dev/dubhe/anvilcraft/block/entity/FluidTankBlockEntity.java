@@ -3,6 +3,7 @@ package dev.dubhe.anvilcraft.block.entity;
 import dev.dubhe.anvilcraft.api.fluid.FluidHandlerWrapper;
 import dev.dubhe.anvilcraft.api.fluid.IFluidHandlerHolder;
 import dev.dubhe.anvilcraft.api.fluid.network.FluidNetworkManager;
+import dev.dubhe.anvilcraft.block.FluidTankBlock;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.util.TankUtil;
@@ -52,8 +53,22 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
     public void onLoad() {
         super.onLoad();
         if (this.level != null && !this.level.isClientSide()) {
+            this.refreshDispose();
             FluidNetworkManager.INSTANCE.addContainer(this.level, this.getBlockPos());
         }
+    }
+
+    /**
+     * 按当前相邻门格海绵重算溢出销毁模式并同步到流体处理器。
+     *
+     * <p>各外部入口（能力查询、流体网络）在拿到 handler 前调用本方法，避免相邻方块
+     * 刚变化、方块事件尚未同步时按旧模式处理溢出流体。</p>
+     */
+    public void refreshDispose() {
+        if (this.level == null || this.level.isClientSide()) {
+            return;
+        }
+        this.tank.setDispose(FluidTankBlock.hasAdjacentMengerSponge(this.level, this.getBlockPos()));
     }
 
     @Override
@@ -200,6 +215,8 @@ public class FluidTankBlockEntity extends BlockEntity implements IFluidHandlerHo
 
     @Override
     public IFluidHandler getFluidHandler() {
+        // 外部入口统一在此刷新，保证能力查询拿到的始终是当前相邻状态下的处理器
+        this.refreshDispose();
         return this.tank;
     }
 

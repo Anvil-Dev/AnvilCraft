@@ -16,6 +16,7 @@ final class SingleFluidTankHandler extends FluidTank {
     private final Runnable changeListener;
     private boolean enhanced;
     private boolean infinite;
+    private boolean dispose;
 
     SingleFluidTankHandler(int baseCapacity, int infinityThreshold, Runnable changeListener) {
         super(baseCapacity);
@@ -36,6 +37,19 @@ final class SingleFluidTankHandler extends FluidTank {
                 || !this.isFluidValid(resource)
                 || !FluidStack.isSameFluidSameComponents(this.fluid, resource)) {
                 return 0;
+            }
+            return resource.getAmount();
+        }
+        if (this.dispose) {
+            // 溢出销毁：能装多少装多少，装不下的部分直接消失，调用方始终收到「全部接收」，
+            // 因此管道与其它机器的容量判断会认为本储罐可无限接收（与溢出销毁板条箱语义一致）
+            if (resource.isEmpty() || !this.isFluidValid(resource)) return 0;
+            // 异种流体无法并入单槽储罐：这不是溢出，拒绝以免被当作可销毁而白白吞掉
+            if (!this.fluid.isEmpty() && !FluidStack.isSameFluidSameComponents(this.fluid, resource)) return 0;
+            super.fill(resource, action);
+            if (this.enhanced && action.execute() && this.getFluidAmount() >= this.infinityThreshold) {
+                this.infinite = true;
+                this.changeListener.run();
             }
             return resource.getAmount();
         }
@@ -79,6 +93,13 @@ final class SingleFluidTankHandler extends FluidTank {
 
     boolean isEnhanced() {
         return this.enhanced;
+    }
+
+    /**
+     * 切换溢出销毁模式：为 true 时超出容量的输入被直接销毁（相邻门格海绵时启用）。
+     */
+    void setDispose(boolean dispose) {
+        this.dispose = dispose;
     }
 
     @Override

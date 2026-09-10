@@ -34,6 +34,7 @@ import dev.dubhe.anvilcraft.integration.jade.provider.CreativeFluidTankProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.CursedGoldEnchantPowerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.DischargerProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.FluidTankProvider;
+import dev.dubhe.anvilcraft.integration.jade.provider.OverflowDisposalTankProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.HeatableBlockProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.ItemDetectorProvider;
 import dev.dubhe.anvilcraft.integration.jade.provider.LoadMonitorProvider;
@@ -103,6 +104,7 @@ public class AnvilCraftJadePlugin implements IWailaPlugin {
         registration.registerBlockComponent(FluidTankProvider.INSTANCE, LargeFluidTankBlock.class);
         registration.registerBlockComponent(CreativeCrateProvider.INSTANCE, CreativeCrateBlock.class);
         registration.registerBlockComponent(CrateProvider.INSTANCE, CrateBlock.class);
+        registration.registerBlockComponent(OverflowDisposalTankProvider.INSTANCE, FluidTankBlock.class);
         registration.registerBlockComponent(MengerSpongeProvider.INSTANCE, MengerSpongeBlock.class);
         registration.registerBlockComponent(CrabTrapBlockStateProvider.INSTANCE, CrabTrapBlock.class);
         registration.registerBlockComponent(CursedGoldEnchantPowerProvider.INSTANCE, CursedGoldBlock.class);
