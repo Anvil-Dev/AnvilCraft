@@ -1269,6 +1269,20 @@ public final class StorageServerStub {
             ItemStack result;
             if (stonecutter) {
                 result = StorageServerStub.assembleCraftingResult(player, crafting, true);
+                // 与工作台一致：自动填充时本次点击预算 = 64 / 单次产物个数 × 倍数（约一组），
+                // 使 shift 点击只合成约一组而非把仓储材料一次合成光。
+                // 守卫用 lockedId（随锁定本地更新）：session 是方法开头读取的局部值，
+                // 同一分块内不会变化，若用它做守卫会在每次迭代重复重置预算。
+                if (lockedId == null && result != null && !result.isEmpty() && initialCrafting.autoFill()) {
+                    RecipeHolder<StonecutterRecipe> recipe =
+                        StorageServerStub.selectedStonecutterRecipe(player, crafting);
+                    if (recipe != null) {
+                        lockedId = recipe.id();
+                        remainingCrafts = Math.max(1, 64 / Math.max(1, result.getCount()))
+                            * Math.max(1, multiplier);
+                        StorageServerStub.lockTakeAllSession(playerId, sourcePos, lockedId, remainingCrafts);
+                    }
+                }
             } else {
                 CraftingInput input = CraftingInput.of(3, 3, crafting.craftingInput());
                 if (input.isEmpty()) {
@@ -1474,6 +1488,25 @@ public final class StorageServerStub {
         return 0;
     }
 
+    /** 切石机当前选中配方的持有者；输入为空 / 无可用配方 / 选中索引越界时返回 null。 */
+    @Nullable
+    private static RecipeHolder<StonecutterRecipe> selectedStonecutterRecipe(
+        ServerPlayer player,
+        CraftingStorage crafting
+    ) {
+        ItemStack input = crafting.stonecutterInput();
+        if (input.isEmpty()) {
+            return null;
+        }
+        List<RecipeHolder<StonecutterRecipe>> recipes = player.level().getRecipeManager()
+            .getRecipesFor(RecipeType.STONECUTTING, new SingleRecipeInput(input), player.level());
+        int selected = crafting.stonecutterSelected();
+        if (recipes.isEmpty() || selected < 0 || selected >= recipes.size()) {
+            return null;
+        }
+        return recipes.get(selected);
+    }
+
     /** 计算③/④ 当前配方产物（不消耗输入）；配方无效或产物为空返回 null。 */
     @Nullable
     private static ItemStack assembleCraftingResult(
@@ -1482,18 +1515,15 @@ public final class StorageServerStub {
         boolean stonecutter
     ) {
         if (stonecutter) {
-            ItemStack input = crafting.stonecutterInput();
-            if (input.isEmpty()) {
+            RecipeHolder<StonecutterRecipe> recipe =
+                StorageServerStub.selectedStonecutterRecipe(player, crafting);
+            if (recipe == null) {
                 return null;
             }
-            List<RecipeHolder<StonecutterRecipe>> recipes = player.level().getRecipeManager()
-                .getRecipesFor(RecipeType.STONECUTTING, new SingleRecipeInput(input), player.level());
-            if (recipes.isEmpty() || crafting.stonecutterSelected() < 0
-                || crafting.stonecutterSelected() >= recipes.size()) {
-                return null;
-            }
-            return recipes.get(crafting.stonecutterSelected()).value()
-                .assemble(new SingleRecipeInput(input), player.level().registryAccess());
+            return recipe.value().assemble(
+                new SingleRecipeInput(crafting.stonecutterInput()),
+                player.level().registryAccess()
+            );
         }
         CraftingInput input = CraftingInput.of(3, 3, crafting.craftingInput());
         List<RecipeHolder<CraftingRecipe>> recipes = player.level().getRecipeManager()
