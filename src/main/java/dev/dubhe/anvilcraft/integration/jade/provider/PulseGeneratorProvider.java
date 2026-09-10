@@ -43,12 +43,20 @@ public enum PulseGeneratorProvider implements IBlockComponentProvider, IServerDa
 
         int remaining = data.getInt("pulse_generator_remaining_ticks");
         int total = data.getInt("pulse_generator_total_ticks");
-        if (remaining > 0 && total > 0) {
+        if (total > 0) {
+            // 工作中显示当前相位进度；空闲时按配置的延迟时长显示完整进度条，保证进度条始终可见
+            boolean processing = data.getBoolean("pulse_generator_processing");
             boolean outputting = "OUTPUTTING".equals(data.getString("pulse_generator_state"));
+            double progress;
+            if (processing) {
+                progress = outputting
+                           ? (double) remaining / total
+                           : 1 - (double) remaining / total;
+            } else {
+                progress = outputting ? 1.0 : 0.0;
+            }
+            progress = Math.max(0, Math.min(1, progress));
             int barColor = outputting ? 0xFF8B0000 : 0xFF1E90FF;
-            double progress = outputting
-                              ? Math.max(0, Math.min(1, (double) remaining / total))
-                              : Math.max(0, Math.min(1, 1 - (double) remaining / total));
             IElementHelper helper = IElementHelper.get();
             tooltip.add(helper.progress(
                 (float) progress,
@@ -78,11 +86,18 @@ public enum PulseGeneratorProvider implements IBlockComponentProvider, IServerDa
         tag.putBoolean("pulse_generator_reverse", pulseGenerator.isOutputInvert());
         tag.putInt("pulse_generator_delay", pulseGenerator.getWaitingTime());
         tag.putInt("pulse_generator_duration", pulseGenerator.getSignalDuration());
-        if (pulseGenerator.isProcessing()) {
-            tag.putString("pulse_generator_state", pulseGenerator.getState().name());
-            tag.putInt("pulse_generator_remaining_ticks", pulseGenerator.getPhaseRemainingTicks());
-            tag.putInt("pulse_generator_total_ticks", pulseGenerator.getPhaseDuration());
-        }
+        boolean processing = pulseGenerator.isProcessing();
+        tag.putBoolean("pulse_generator_processing", processing);
+        tag.putString("pulse_generator_state", pulseGenerator.getState().name());
+        // 空闲时也写入相位时长，使 Jade 进度条始终有值可渲染
+        tag.putInt(
+            "pulse_generator_remaining_ticks",
+            processing ? pulseGenerator.getPhaseRemainingTicks() : 0);
+        tag.putInt(
+            "pulse_generator_total_ticks",
+            processing
+                ? pulseGenerator.getPhaseDuration()
+                : Math.max(pulseGenerator.getWaitingTime(), 1));
     }
 
     @Override

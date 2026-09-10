@@ -44,9 +44,14 @@ import java.util.function.Function;
 
 @Getter
 public class BlockPointer implements ITargetPointer {
-    private static final int MULTIBLOCK_UPDATE_FLAGS = Block.UPDATE_CLIENTS
-        | Block.UPDATE_KNOWN_SHAPE
-        | Block.UPDATE_MOVE_BY_PISTON;
+    /**
+     * 搬运方块时使用的更新标志位：<br>
+     * {@code UPDATE_ALL} 补上缺失的邻居更新，并让方块自身完成形状与存活自检；<br>
+     * {@code UPDATE_MOVE_BY_PISTON} 把本次写入标记为活塞式移动，
+     * 使 {@code onPlace}/{@code onRemove} 收到 {@code movedByPiston = true}
+     * （如鱼缸、加工台据此在搬运时保留内容物）。
+     */
+    private static final int MOVE_UPDATE_FLAGS = Block.UPDATE_ALL | Block.UPDATE_MOVE_BY_PISTON;
 
     private final Type type;
     private final BlockPos pos;
@@ -136,6 +141,11 @@ public class BlockPointer implements ITargetPointer {
                     targetPart.state()
                 )
                 : clearWaterlogged(sourcePart.state());
+            // 副部件（门/植物的上半、床尾等）的存活取决于同批搬运的主部件，此处跳过存活校验
+            if (!BlockPlacementUtil.isSecondaryMultiblockPart(partTargetState)
+                && !partTargetState.canSurvive(level, targetPart.pos())) {
+                return false;
+            }
             movingParts.add(new MovingPart(
                 sourcePart,
                 targetPart.pos(),
@@ -160,14 +170,16 @@ public class BlockPointer implements ITargetPointer {
             if (!level.setBlock(
                 part.source().pos(),
                 part.source().state().getFluidState().createLegacyBlock(),
-                MULTIBLOCK_UPDATE_FLAGS
+                MOVE_UPDATE_FLAGS
             )) {
                 restoreParts(level, movingParts);
                 return false;
             }
         }
         for (MovingPart part : movingParts) {
-            if (!level.setBlock(part.targetPos(), part.targetState(), MULTIBLOCK_UPDATE_FLAGS)) {
+            // 与取物/蓝图模式一致：目标格使用包含邻居更新的标志位，
+            // 保证红石、比较器以及方块自身的形状/存活校验都能正常触发
+            if (!level.setBlock(part.targetPos(), part.targetState(), MOVE_UPDATE_FLAGS)) {
                 restoreParts(level, movingParts);
                 return false;
             }
@@ -238,10 +250,10 @@ public class BlockPointer implements ITargetPointer {
     private static void restoreParts(ServerLevel level, List<MovingPart> movingParts) {
         for (MovingPart part : movingParts) {
             level.removeBlockEntity(part.targetPos());
-            level.setBlock(part.targetPos(), part.previousTargetState(), MULTIBLOCK_UPDATE_FLAGS);
+            level.setBlock(part.targetPos(), part.previousTargetState(), MOVE_UPDATE_FLAGS);
         }
         for (MovingPart part : movingParts) {
-            level.setBlock(part.source().pos(), part.source().state(), MULTIBLOCK_UPDATE_FLAGS);
+            level.setBlock(part.source().pos(), part.source().state(), MOVE_UPDATE_FLAGS);
             BlockEntity entity = part.entity();
             if (entity != null) {
                 entity.worldPosition = part.source().pos();
@@ -329,7 +341,6 @@ public class BlockPointer implements ITargetPointer {
             if (parts.isEmpty()) {
                 return null;
             }
-            boolean multiblock = parts.size() > 1;
             for (MultiblockPart part : parts) {
                 if (!PistonBaseBlock.isPushable(
                     part.state(),
@@ -338,7 +349,7 @@ public class BlockPointer implements ITargetPointer {
                     facing.getOpposite(),
                     false,
                     facing.getOpposite()
-                ) && (!multiblock || part.state().getDestroySpeed(level, part.pos()) < 0.0F)) {
+                )) {
                     return null;
                 }
             }
