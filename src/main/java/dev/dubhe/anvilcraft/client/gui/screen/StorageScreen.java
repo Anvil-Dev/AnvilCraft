@@ -1685,6 +1685,25 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                 return true;
             }
 
+            // ①/② 输入槽中键：与仓储槽同构——指针为空时复制一整组到指针，
+            // 否则进入中键拖拽复制（每个划过的槽填成满堆叠，指针不消耗）
+            Integer craftingSlot = this.mode == ScreenMode.CRAFTING
+                ? this.getCraftingSlot(mouseX, mouseY)
+                : null;
+            if (craftingSlot != null
+                && this.player.hasInfiniteMaterials()
+                && this.minecraft.options.keyPickItem.matchesMouse(2)) {
+                if (this.carried.isEmpty()) {
+                    this.cloneCraftingSlot(craftingSlot);
+                } else {
+                    this.startQuickCraft(button);
+                    // 先记下起始槽：即使不再移动鼠标，松开时也会按中键语义把它填成满堆叠；
+                    // 否则会落入「单次点击」分支去放 1 个物品，与原版中键语义不符
+                    this.quickCraftCraftingSlots.add(craftingSlot.intValue());
+                }
+                return true;
+            }
+
             int slot = this.getScreenSlot();
             if (slot == -1 || this.minecraft.gameMode == null) {
                 return false;
@@ -1703,7 +1722,9 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
                     this.player
                 );
                 this.carried = this.player.inventoryMenu.getCarried();
-            } else {
+            } else if (this.player.hasInfiniteMaterials()) {
+                // 中键拖拽复制仅创造模式有效（原版 isValidQuickcraftType）；生存模式若允许开始
+                // 拖拽，预览会显示物品、松开时服务端拒绝应用，物品看起来凭空消失
                 this.startQuickCraft(button);
             }
             return true;
@@ -1761,6 +1782,11 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         if (!this.quickCrafting || button != this.quickCraftingButton || this.carried.isEmpty()) {
             return this.dispatchMouseDragged(mouseX, mouseY, button, dragX, dragY);
+        }
+        // 中键拖拽复制仅创造模式有效；生存模式下不累积任何槽位，
+        // 否则渲染出的物品预览与松开时服务端拒绝应用的结果不一致（物品看起来凭空消失）
+        if (button == 2 && !this.player.hasInfiniteMaterials()) {
+            return true;
         }
 
         Integer craftingSlot = this.getCraftingSlot(mouseX, mouseY);
@@ -2362,6 +2388,68 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
     }
 
     /**
+     * ①/② 输入槽按 Q / Ctrl+Q：把槽内物品直接丢到地上。
+     * {@code stack=true}（Ctrl+Q）丢出整堆，{@code false}（Q）丢 1 个。
+     */
+    private void throwCraftingInputSlot(int slot, boolean stack) {
+        if (this.minecraft.gameMode == null || this.interactionPending) {
+            return;
+        }
+        this.interactionPending = true;
+        this.player.inventoryMenu.setCarried(this.carried);
+        int request = ++this.interactionRequest;
+        StorageClientStub.craftingThrowSlot(this.sourcePos, slot, stack).whenCompleteAsync(
+            (result, error) -> {
+                if (request != this.interactionRequest || error != null) {
+                    this.interactionPending = false;
+                    return;
+                }
+                this.carried = result.carried();
+                this.player.inventoryMenu.setCarried(this.carried);
+                if (this.closed) {
+                    // 界面已关闭：把 RPC 返回的指针物品放回背包，避免鼠标上残留物品
+
+                    this.returnCarriedToInventory();
+                    return;
+                }
+                if (result.changed()) {
+                    this.loadCrafting(false);
+                }
+                this.interactionPending = false;
+            },
+            this.screenExecutor
+        );
+    }
+
+    /** ①/② 输入槽中键：创造模式下把槽内物品复制一整组到指针（槽内保留）。 */
+    private void cloneCraftingSlot(int slot) {
+        if (this.minecraft.gameMode == null || this.interactionPending) {
+            return;
+        }
+        this.interactionPending = true;
+        this.player.inventoryMenu.setCarried(this.carried);
+        int request = ++this.interactionRequest;
+        StorageClientStub.craftingCloneSlot(this.sourcePos, slot).whenCompleteAsync(
+            (result, error) -> {
+                if (request != this.interactionRequest || error != null) {
+                    this.interactionPending = false;
+                    return;
+                }
+                this.carried = result.carried();
+                this.player.inventoryMenu.setCarried(this.carried);
+                if (this.closed) {
+                    // 界面已关闭：把 RPC 返回的指针物品放回背包，避免鼠标上残留物品
+
+                    this.returnCarriedToInventory();
+                    return;
+                }
+                this.interactionPending = false;
+            },
+            this.screenExecutor
+        );
+    }
+
+    /**
      * 拖拽分配结束：把指针物品按原版规则（左键 floor 均分 / 右键每槽 1 个 / 中键填满）
      * 放入 ①/② 输入槽与（如有）玩家背包槽，所有目标作为一组统一计算。
      */
@@ -2418,6 +2506,70 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
         }
         this.lastStonecutterTakeSoundTick = tick;
         this.minecraft.getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_STONECUTTER_TAKE_RESULT, 1.0F));
+    }
+
+    /**
+     * 鼠标是否悬停在③/④ 结果槽上：返回 {@code true} 表示③（切石机）、{@code false} 表示④（合成），
+     * 未悬停或不在合成界面时返回 null。
+     */
+    private @Nullable Boolean getHoveredCraftingResult() {
+        if (this.mode != ScreenMode.CRAFTING) {
+            return null;
+        }
+        double mouseX = this.getMouseScaledX();
+        double mouseY = this.getMouseScaledY();
+        int stonecutterX = this.leftPos + StorageScreen.CRAFTING_RESULT_STONECUTTER_X;
+        int stonecutterY = this.topPos + StorageScreen.CRAFTING_RESULT_STONECUTTER_Y;
+        if (MathUtil.isInRange(
+            mouseX, mouseY, stonecutterX - 2, stonecutterY - 2, stonecutterX + 17, stonecutterY + 17
+        )) {
+            return true;
+        }
+        int craftingX = this.leftPos + StorageScreen.CRAFTING_RESULT_CRAFTING_X;
+        int craftingY = this.topPos + StorageScreen.CRAFTING_RESULT_CRAFTING_Y;
+        if (MathUtil.isInRange(
+            mouseX, mouseY, craftingX - 2, craftingY - 2, craftingX + 17, craftingY + 17
+        )) {
+            return false;
+        }
+        return null;
+    }
+
+    /**
+     * 在③/④ 结果槽按 Q / Ctrl+Q：合成并把产物直接丢到地上。
+     * {@code stack=true}（Ctrl+Q）连续合成约一组，{@code false}（Q）只合成一次。
+     */
+    private void throwCraftingResult(boolean stonecutter, boolean stack) {
+        if (this.minecraft.gameMode == null || this.interactionPending) {
+            return;
+        }
+        this.interactionPending = true;
+        int request = ++this.interactionRequest;
+        StorageClientStub.craftingThrowResult(this.sourcePos, stonecutter, stack).whenCompleteAsync(
+            (result, error) -> {
+                if (request != this.interactionRequest || error != null) {
+                    this.interactionPending = false;
+                    return;
+                }
+                this.carried = result.carried();
+                this.player.inventoryMenu.setCarried(this.carried);
+                if (this.closed) {
+                    // 界面已关闭：把 RPC 返回的指针物品放回背包，避免鼠标上残留物品
+
+                    this.returnCarriedToInventory();
+                    return;
+                }
+                if (result.changed()) {
+                    if (stonecutter) {
+                        this.playStonecutterTakeSound();
+                    }
+                    this.triggerCraftingPop(result.refilledSlots());
+                    this.loadCrafting(false);
+                }
+                this.interactionPending = false;
+            },
+            this.screenExecutor
+        );
     }
 
     /**
@@ -2611,27 +2763,44 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
             this.undoLastMove();
             return true;
         }
-        if (this.dispatchKeyPressed(keyCode, scanCode, modifiers)) {
+        // drop 键必须绕开 dispatchKeyPressed：父类在 hoveredSlot 为 null（本界面自绘，恒为 null）时，
+        // 仍会因 Forge MC-146650 的兜底分支把它标记为已处理，从而吞掉仓储槽与背包槽的丢弃
+        boolean dropKey = this.minecraft.options.keyDrop.isActiveAndMatches(key);
+        Integer storageSlot = this.getStorageSlot();
+        if (storageSlot != null && storageSlot >= 0 && this.minecraft.gameMode != null) {
+            if (this.minecraft.options.keyPickItem.isActiveAndMatches(key)) {
+                this.interactWithStorage(storageSlot, 0, StorageInput.CLONE);
+                return true;
+            } else if (dropKey) {
+                int dropMode = Screen.hasControlDown() ? Screen.hasShiftDown() ? 2 : 1 : 0;
+                this.interactWithStorage(storageSlot, dropMode, StorageInput.THROW);
+                return true;
+            }
+        }
+        // ③/④ 结果槽：Q / Ctrl+Q 把合成产物直接丢到地上（同样必须早于父类吞键）
+        Boolean craftingResult = this.getHoveredCraftingResult();
+        if (dropKey && craftingResult != null && this.minecraft.gameMode != null) {
+            this.throwCraftingResult(craftingResult, Screen.hasControlDown());
+            return true;
+        }
+        // ①/② 输入槽：Q / Ctrl+Q 把槽内物品丢到地上（与物品栏槽位一致：Q 丢 1 个，Ctrl+Q 丢整堆）
+        if (dropKey && this.mode == ScreenMode.CRAFTING && this.minecraft.gameMode != null) {
+            Integer craftingSlot = this.getCraftingSlot(this.getMouseScaledX(), this.getMouseScaledY());
+            if (craftingSlot != null) {
+                this.throwCraftingInputSlot(craftingSlot, Screen.hasControlDown());
+                return true;
+            }
+        }
+        if (!dropKey && this.dispatchKeyPressed(keyCode, scanCode, modifiers)) {
             return true;
         } else if (this.minecraft.options.keyInventory.isActiveAndMatches(key)) {
             this.onClose();
             return true;
         } else {
-            Integer storageSlot = this.getStorageSlot();
-            if (storageSlot != null && this.minecraft.gameMode != null) {
-                if (this.minecraft.options.keyPickItem.isActiveAndMatches(key)) {
-                    this.interactWithStorage(storageSlot, 0, StorageInput.CLONE);
-                    return true;
-                } else if (this.minecraft.options.keyDrop.isActiveAndMatches(key)) {
-                    int dropMode = Screen.hasControlDown() ? Screen.hasShiftDown() ? 2 : 1 : 0;
-                    this.interactWithStorage(storageSlot, dropMode, StorageInput.THROW);
-                    return true;
-                }
-            }
-
             int hoveredSlot = this.getInventorySlot();
             if (hoveredSlot == -1 || this.minecraft.gameMode == null) {
-                return false;
+                // 未悬停背包槽位时仍按 MC-146650 视为已处理，避免落到快捷栏丢弃
+                return dropKey;
             }
 
             // Forge MC-146650: Needs to return true when the key is handled
@@ -2811,6 +2980,10 @@ public class StorageScreen extends AbstractContainerScreen<StorageMenu> {
      * 原版容器点击（CLONE/THROW/SWAP）；本界面自绘渲染，从不调用 {@code AbstractContainerScreen.render}，
      * {@code hoveredSlot} 恒为 null，因此可直接复用父类实现（含 ESC 与 Tab/方向键焦点导航），
      * 不会产生任何原版容器同步。
+     *
+     * <p>注意：父类还有一个不依赖 {@code hoveredSlot} 的兜底分支——Forge MC-146650 在
+     * {@code hoveredSlot} 为 null 时仍会把 drop 键标记为已处理并返回 true。因此涉及仓储槽的
+     * 取物 / 丢弃必须在调用本方法之前处理，否则 Q 会被吞掉（见 {@link #keyPressed}）。</p>
      */
     private boolean dispatchKeyPressed(int keyCode, int scanCode, int modifiers) {
         return super.keyPressed(keyCode, scanCode, modifiers);

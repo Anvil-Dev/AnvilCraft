@@ -56,6 +56,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerLevelAccess;
@@ -849,7 +850,8 @@ public final class StorageServerStub {
 
     /**
      * 拖拽分配到 ①/② 输入槽与玩家背包槽（与原版物品栏拖拽一致，所有目标视为一组）。
-     * 左键：把指针物品 floor 均分到各槽（余数留在指针）；右键：每槽放 1 个。
+     * 左键：把指针物品 floor 均分到各槽（余数留在指针）；右键：每槽放 1 个；
+     * 中键（创造模式）：把各槽填成满堆叠，指针不消耗，即原版的「中键拖拽复制」。
      * {@code craftingSlots} 为 ①/② 槽（0 为①，1~9 为②），
      * {@code inventorySlots} 为玩家背包在 containerMenu 中的槽位号。
      */
@@ -877,6 +879,13 @@ public final class StorageServerStub {
             return new InteractionResult(carried, false);
         }
         // 与原版一致：左键 floor 均分（余数留指针），右键每槽 1 个，中键每槽放满
+        // 中键拖拽是创造模式专属的「复制」：每个目标槽被填成满堆叠，指针不消耗
+        // （原版 getQuickCraftPlaceCount 对 type 2 返回 maxStackSize，且
+        //   isValidQuickcraftType 要求 hasInfiniteMaterials）
+        boolean clone = button == 2;
+        if (clone && !player.hasInfiniteMaterials()) {
+            return new InteractionResult(carried, false);
+        }
         int perSlot = switch (button) {
             case 0 -> Math.floorDiv(carried.getCount(), targets.size());
             case 1 -> 1;
@@ -886,10 +895,10 @@ public final class StorageServerStub {
         ItemStack remaining = carried.copy();
         boolean changed = false;
         for (int targetSlot : targets) {
-            if (remaining.isEmpty()) {
+            if (!clone && remaining.isEmpty()) {
                 break;
             }
-            int amount = Math.min(perSlot, remaining.getCount());
+            int amount = clone ? perSlot : Math.min(perSlot, remaining.getCount());
             if (amount <= 0) {
                 continue;
             }
@@ -922,7 +931,9 @@ public final class StorageServerStub {
                 } else {
                     crafting = crafting.withCraftingSlot(targetSlot - 1, newCurrent);
                 }
-                remaining.shrink(space);
+                if (!clone) {
+                    remaining.shrink(space);
+                }
             } else {
                 // 玩家背包槽（inventory index = targetSlot - 10）
                 int invIndex = targetSlot - 10;
@@ -943,7 +954,9 @@ public final class StorageServerStub {
                         ? remaining.copyWithCount(space)
                         : existing.copyWithCount(currentCount + space)
                 );
-                remaining.shrink(space);
+                if (!clone) {
+                    remaining.shrink(space);
+                }
             }
             changed = true;
         }
@@ -1037,6 +1050,76 @@ public final class StorageServerStub {
         player.getInventory().setChanged();
         player.containerMenu.broadcastChanges();
         return changed;
+    }
+
+    /**
+     * ①/② 输入槽按 Q / Ctrl+Q：把槽内物品直接丢到地上。
+     *
+     * <p>{@code stack=false}（Q）丢 1 个，{@code stack=true}（Ctrl+Q）丢出该槽整堆，
+     * 与物品栏槽位的 Q / Ctrl+Q 语义一致。</p>
+     *
+     * <p>指针非空时不丢出，与原版 {@code ClickType.THROW} 及仓储槽丢弃一致。</p>
+     */
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingThrowSlot(UUID playerId, long sourcePos, int slot, boolean stack) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        if (slot < 0 || slot >= 10) {
+            StorageServerStub.REGISTRIES.remove();
+            return new InteractionResult(player.containerMenu.getCarried(), false);
+        }
+        if (!player.containerMenu.getCarried().isEmpty()) {
+            return new InteractionResult(player.containerMenu.getCarried(), false);
+        }
+        StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        CraftingStorage crafting = target.read();
+        ItemStack current = slot == 0
+            ? crafting.stonecutterInput()
+            : crafting.craftingInput().get(slot - 1);
+        if (current.isEmpty()) {
+            return new InteractionResult(player.containerMenu.getCarried(), false);
+        }
+        int amount = stack ? current.getCount() : 1;
+        ItemStack dropped = current.copyWithCount(amount);
+        ItemStack rest = current.copy();
+        rest.shrink(amount);
+        ItemStack newSlot = rest.isEmpty() ? ItemStack.EMPTY : rest;
+        target.write(slot == 0
+            ? crafting.withStonecutterInput(newSlot)
+            : crafting.withCraftingSlot(slot - 1, newSlot));
+        player.drop(dropped, true);
+        StorageServerStub.swingMainHand(player);
+        player.getInventory().setChanged();
+        player.containerMenu.broadcastChanges();
+        return new InteractionResult(player.containerMenu.getCarried(), true);
+    }
+
+    /**
+     * ①/② 输入槽中键：创造模式下把槽内物品复制一整组到指针。
+     *
+     * <p>与仓储槽中键的 {@code CLONE} 语义一致：仅创造模式、指针为空时生效，
+     * 且槽内物品保留（复制而非取出）。</p>
+     */
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingCloneSlot(UUID playerId, long sourcePos, int slot) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        if (slot < 0 || slot >= 10) {
+            StorageServerStub.REGISTRIES.remove();
+            return new InteractionResult(player.containerMenu.getCarried(), false);
+        }
+        if (!player.hasInfiniteMaterials() || !player.containerMenu.getCarried().isEmpty()) {
+            return new InteractionResult(player.containerMenu.getCarried(), false);
+        }
+        CraftingStorage crafting = StorageServerStub.resolveCraftingTarget(player, sourcePos).read();
+        ItemStack current = slot == 0
+            ? crafting.stonecutterInput()
+            : crafting.craftingInput().get(slot - 1);
+        if (current.isEmpty()) {
+            return new InteractionResult(player.containerMenu.getCarried(), false);
+        }
+        ItemStack cloned = current.copyWithCount(current.getMaxStackSize());
+        player.containerMenu.setCarried(cloned);
+        player.containerMenu.broadcastChanges();
+        return new InteractionResult(cloned, false);
     }
 
     @RemoteCallable(validator = StorageAccessValidator.class)
@@ -1223,6 +1306,79 @@ public final class StorageServerStub {
         player.containerMenu.setCarried(result);
         player.containerMenu.broadcastChanges();
         return new InteractionResult(result, true, refilledSlots);
+    }
+
+    /**
+     * 在③/④ 结果槽按 Q / Ctrl+Q：合成并把产物直接丢到地上。
+     *
+     * <p>{@code stack=false}（Q）只合成一次，丢出一份产物；{@code stack=true}（Ctrl+Q）
+     * 连续合成至约一组（64 / 单次产物个数 次），与仓储槽 Q / Ctrl+Q 的手感一致。</p>
+     *
+     * <p>与其它取出路径一致：指针非空时拒绝，避免产物与指针物品混淆。</p>
+     *
+     * <p>开启自动填充且合成格耗尽时按需补料，使 Ctrl+Q 无需预先摆满材料；不消耗型配方
+     * （剩余物与输入相同，如催化剂 / 模具）在丢出一份后立即终止，否则会无限产出。</p>
+     *
+     * @param stack true 为 Ctrl+Q（约一组），false 为 Q（一次）
+     * @return {@code changed} 表示本次是否有产物被丢出
+     */
+    @RemoteCallable(validator = StorageAccessValidator.class)
+    public static InteractionResult craftingThrowResult(
+        UUID playerId,
+        long sourcePos,
+        boolean stonecutter,
+        boolean stack
+    ) {
+        ServerPlayer player = StorageServerStub.getServerPlayer(playerId);
+        StorageServerStub.CraftingTarget target = StorageServerStub.resolveCraftingTarget(player, sourcePos);
+        if (!player.containerMenu.getCarried().isEmpty()) {
+            return new InteractionResult(player.containerMenu.getCarried(), false);
+        }
+        boolean any = false;
+        int performed = 0;
+        // Ctrl+Q 的次数在首轮读取产物后按「约一组」折算；Q 固定一次
+        int limit = stack ? Integer.MAX_VALUE : 1;
+        CraftingStorage template = CraftingStorage.EMPTY;
+        while (performed < limit) {
+            CraftingStorage crafting = target.read();
+            if (template == CraftingStorage.EMPTY) {
+                template = crafting;
+            }
+            ItemStack result = StorageServerStub.assembleCraftingResult(player, crafting, stonecutter);
+            if (result == null || result.isEmpty()) {
+                break;
+            }
+            if (stack && performed == 0) {
+                limit = Math.min(
+                    StorageServerStub.CRAFTING_TAKE_ALL_CHUNK,
+                    Math.max(1, 64 / Math.max(1, result.getCount()))
+                );
+            }
+            player.drop(result.copy(), true);
+            any = true;
+            performed++;
+            if (!StorageServerStub.consumeCraftingInput(target, crafting, stonecutter)) {
+                // 不消耗型配方：已丢出一份，继续循环只会无限产出相同产物
+                break;
+            }
+            CraftingStorage after = target.read();
+            boolean exhausted = stonecutter
+                ? after.stonecutterInput().isEmpty()
+                : after.craftingInput().stream().allMatch(ItemStack::isEmpty);
+            if (!exhausted) {
+                continue;
+            }
+            // 合成格耗尽：自动填充时补 1 个继续，补不到或未开启则停止
+            if (!template.autoFill() || StorageServerStub.refillAndCollectSlots(player, target, template) == 0) {
+                break;
+            }
+        }
+        if (any) {
+            StorageServerStub.swingMainHand(player);
+            player.getInventory().setChanged();
+            player.containerMenu.broadcastChanges();
+        }
+        return new InteractionResult(player.containerMenu.getCarried(), any);
     }
 
     /**
@@ -3044,6 +3200,17 @@ public final class StorageServerStub {
         return (int) Math.min(Integer.MAX_VALUE, space);
     }
 
+    /**
+     * 让玩家播放主手摆动动画。
+     *
+     * <p>{@code Player#drop} 只在客户端摆动（{@code level().isClientSide} 分支），而丢弃走的是
+     * 服务端 RPC，因此不会自动播放手部动画。这里显式摆动：{@code updateSelf=true} 使动画包
+     * 既广播给追踪玩家、也发给玩家自己，本地第一人称才会摆手。</p>
+     */
+    private static void swingMainHand(ServerPlayer player) {
+        player.swing(InteractionHand.MAIN_HAND, true);
+    }
+
     private static boolean throwStorageStack(
         ServerPlayer player,
         StorageView view,
@@ -3073,6 +3240,7 @@ public final class StorageServerStub {
             player.drop(dropped, true);
             remaining -= dropCount;
         }
+        StorageServerStub.swingMainHand(player);
         return true;
     }
 
