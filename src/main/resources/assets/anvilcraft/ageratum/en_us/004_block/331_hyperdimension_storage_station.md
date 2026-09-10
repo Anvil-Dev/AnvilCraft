@@ -12,7 +12,7 @@ items:
 
 ## Crafting
 
-Smash 1 <ref item="anvilcraft:singularity_crystal"/> and 16 <ref item="anvilcraft:hypercube"/>s into a <ref item="anvilcraft:shulker_container"/> from above to upgrade it.
+Smash 1 <ref item="anvilcraft:singularity_crystal"/> and 16 <ref item="anvilcraft:hypercube"/>s into a <ref item="anvilcraft:shulker_container"/> that has been upgraded four times from above to upgrade it.
 
 ## Function
 

@@ -20,17 +20,19 @@ items:
 
 消耗特定材料，即可获得对应的魔咒：
 
-| 所需空白液态魔咒 | 所需材料                                        | 产出液态魔咒类型与数量              |
-|----------|---------------------------------------------|--------------------------|
-| 1mB      | <ref item="anvilcraft:royal_steel_ingot"/>  | 精准采集 1mB                 |
-| 1mB      | <ref item="anvilcraft:frost_metal_ingot"/>  | 崩解 1mB                   |
-| 16mB     | <ref item="anvilcraft:ember_metal_ingot"/>  | 熔炼 16mB                  |
-| 128mB    | <ref item="anvilcraft:transcendium_ingot"/> | 时运 64mB + 抢夺 64mB        |
-| 1mB      | <ref item="minecraft:emerald"/>             | 经验修补 1mB                 |
-| 8mB      | <ref item="anvilcraft:ruby"/>               | 火焰保护 8mB                 |
-| 2mB      | <ref item="anvilcraft:sapphire"/>           | 冰霜行者 2mB                 |
-| 1mB      | <ref item="anvilcraft:topaz"/>              | 引雷 1mB                   |
-| 12mB     | <ref item="minecraft:amethyst_block"/>      | 伐木 4mB + 收割 4mB + 斩首 4mB |
+| 所需空白液态魔咒 | 所需材料                                                                                 | 产出液态魔咒类型与数量              |
+|----------|--------------------------------------------------------------------------------------|--------------------------|
+| 1mB      | <ref item="anvilcraft:royal_steel_ingot"/>                                           | 精准采集 1mB                 |
+| 1mB      | <ref item="anvilcraft:frost_metal_ingot"/>                                           | 崩解 1mB                   |
+| 16mB     | <ref item="anvilcraft:ember_metal_ingot"/>                                           | 熔炼 16mB                  |
+| 128mB    | <ref item="anvilcraft:transcendium_ingot"/>                                          | 时运 64mB + 抢夺 64mB        |
+| 1mB      | <ref item="minecraft:emerald"/>                                                      | 经验修补 1mB                 |
+| 8mB      | <ref item="anvilcraft:ruby"/>                                                        | 火焰保护 8mB                 |
+| 2mB      | <ref item="anvilcraft:sapphire"/>                                                    | 冰霜行者 2mB                 |
+| 1mB      | <ref item="anvilcraft:topaz"/>                                                       | 引雷 1mB                   |
+| 12mB     | <ref item="minecraft:amethyst_block"/>                                               | 伐木 4mB + 收割 4mB + 斩首 4mB |
+| 1mB      | 9x <ref item="anvilcraft:cursed_gold_block"/> + <ref item="anvilcraft:void_matter"/> | 消失诅咒 1mB                 |
+| 1mB      | 9x <ref item="anvilcraft:cursed_gold_block"/> + <ref item="minecraft:chain"/>        | 绑定诅咒 1mB                 |
 
 # 使用液态魔咒
 

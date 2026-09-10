@@ -23,6 +23,10 @@ items:
 - Holds 1024 stacks of items.
 - Partial stacks can share the same stack space, similar to a bundle.
 
+<tip>
+Hold a <ref item="anvilcraft:large_crate"/> and Shift-right-click to replace a 3x3x3 area of <ref item="anvilcraft:crate"/>s.
+</tip>
+
 # <ref item="anvilcraft:shulker_container"/>
 
 ## Crafting
@@ -31,10 +35,14 @@ Smash 1 <ref item="anvilcraft:space_overcompressor"/> and 6 <ref item="minecraft
 
 ## Function
 
-- Holds about 65,000 item types, each stored independently with a capacity of about 65,000 items.
+- Holds about 1024 item types, each stored independently with a capacity of 1024 stacks.
 - Breaking it preserves its contents.
-- Smash <ref item="anvilcraft:space_overcompressor"/> into a <ref item="anvilcraft:shulker_container"/> to double its capacity, up to four times.
+- Smash <ref item="anvilcraft:space_overcompressor"/> into a <ref item="anvilcraft:shulker_container"/> to double its item types and capacity, up to four times.
 - It cannot be automatically inserted into or extracted from by blocks such as <ref item="minecraft:hopper"/>. Use a <ref item="anvilcraft:storage_port"/> instead.
+
+<tip>
+Container blocks provided by AnvilCraft have similar GUIs with features such as a [crafting window](003_crate.md#crafting-window).
+</tip>
 
 # <ref item="anvilcraft:storage_port"/>
 
@@ -58,8 +66,11 @@ Smash 1 <ref item="anvilcraft:space_overcompressor"/> and 6 <ref item="minecraft
 - Can bind to a *storage station* for remote access.
 - When carrying a *terminal*, use JEI's "+" button in any GUI to move items for quick crafting directly through the terminal.
 - After binding a *storage station*, hovering over a *terminal* in another GUI displays a hover window:
-  - With an empty hand, use the mouse wheel to select an item and left-click to withdraw it.
+  - With an empty hand, use the mouse wheel to select an item and Shift-left-click to withdraw it.
   - While holding an item, right-click to insert it.
+  - Use Shift to scroll by row.
+  - Use Ctrl to scroll by page.
+  - Use Alt to zoom in.
 
 ## Smart Restocking
 

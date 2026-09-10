@@ -13,7 +13,8 @@ items:
 # Function
 
 - Players can use the jewelcrafting table to **replicate** specific items
-- Place the item to replicate and the corresponding materials to produce a replica with the <color=#660000>Curse of Vanishing</color>
+- Place the item to replicate and the corresponding materials in it to copy the item
+- Some replicas carry the <color=#660000>Curse of Vanishing</color>
 
 <tip>
 After placing the item to replicate, press [Space] to auto-fill materials
@@ -23,9 +24,6 @@ After placing the item to replicate, press [Space] to auto-fill materials
 <row halign="center">
 <recipe id="anvilcraft:jewel_crafting/elytra"/>
 <recipe id="anvilcraft:jewel_crafting/totem_of_undying"/>
-</row>
-
-<row halign="center">
 <recipe id="anvilcraft:jewel_crafting/generated/minecraft_flower_banner_pattern_from_minecraft_flower_banner_pattern_for_banner_patterns"/>
 <recipe id="anvilcraft:jewel_crafting/generated/minecraft_music_disc_creator_from_minecraft_music_disc_creator_for_music_discs"/>
 <recipe id="anvilcraft:jewel_crafting/generated/minecraft_blade_pottery_sherd_from_minecraft_blade_pottery_sherd_for_pottery_sherds"/>

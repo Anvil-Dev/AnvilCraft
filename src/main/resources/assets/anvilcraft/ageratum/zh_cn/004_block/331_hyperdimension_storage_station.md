@@ -12,7 +12,7 @@ items:
 
 ## 制作
 
-将 1x <ref item="anvilcraft:singularity_crystal"/>，16x <ref item="anvilcraft:hypercube"/> 从顶部砸入<ref item="anvilcraft:shulker_container"/>将其升级
+将 1x <ref item="anvilcraft:singularity_crystal"/>，16x <ref item="anvilcraft:hypercube"/> 从顶部砸入升级过四次的<ref item="anvilcraft:shulker_container"/>将其升级
 
 ## 功能
 

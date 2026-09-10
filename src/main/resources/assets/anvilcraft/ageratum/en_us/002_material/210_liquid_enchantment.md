@@ -31,6 +31,8 @@ Consume specific materials to obtain the corresponding enchantment:
 | 2mB                               | <ref item="anvilcraft:sapphire"/>           | Frost Walker 2mB                          |
 | 1mB                               | <ref item="anvilcraft:topaz"/>              | Channeling 1mB                            |
 | 12mB                              | <ref item="minecraft:amethyst_block"/>      | Timber 4mB + Harvest 4mB + Beheading 4mB  |
+| 1mB                               | 9 <ref item="anvilcraft:cursed_gold_block"/> + <ref item="anvilcraft:void_matter"/> | Curse of Vanishing 1mB                    |
+| 1mB                               | 9 <ref item="anvilcraft:cursed_gold_block"/> + <ref item="minecraft:chain"/>        | Curse of Binding 1mB                      |
 
 # Using Liquid Enchantment
 
