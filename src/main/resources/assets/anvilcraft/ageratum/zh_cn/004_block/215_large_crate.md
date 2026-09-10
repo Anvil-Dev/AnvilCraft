@@ -23,6 +23,10 @@ items:
 - 可以容纳1024组物品
 - 不满一组的物品可以混合占用同一组空间，类似收纳袋
 
+<tip>
+手持<ref item="anvilcraft:large_crate"/>，shift右击替换3x3x3的<ref item="anvilcraft:crate"/>
+</tip>
+
 # <ref item="anvilcraft:shulker_container"/>
 
 ## 制作
@@ -30,10 +34,14 @@ items:
 
 ## 功能
 
-- 可以容纳约6.5万种物品，每种物品存储空间相互独立，均为约6.5万个
+- 可以容纳约1024种物品，每种物品存储空间相互独立，均为1024组
 - 挖掘掉落可以保存其中的物品
-- 将<ref item="anvilcraft:space_overcompressor"/>压入<ref item="anvilcraft:shulker_container"/>将容量翻倍，最多进行四次
+- 将<ref item="anvilcraft:space_overcompressor"/>压入<ref item="anvilcraft:shulker_container"/>将种类和容量翻倍，最多进行四次
 - 自身无法通过<ref item="minecraft:hopper"/>等方块自动输入输出，需使用<ref item="anvilcraft:storage_port"/>
+
+<tip>
+铁砧工艺提供的容器方块均拥有类似的GUI，拥有[合成窗口](003_crate.md#合成窗口)等功能
+</tip>
 
 # <ref item="anvilcraft:storage_port"/>
 
@@ -57,8 +65,11 @@ items:
 - 可以绑定*存储站*进行远距离访问
 - 携带有*终端*时，在任何gui内尝试用jei的“+”号移动物品快速合成时，可直接通过*终端*调用物品
 - 绑定*存储站*后，在其它GUI内，将鼠标悬浮于*终端*物品上，会显示一个浮窗：
-  - 空手时使用滚轮选择物品，左击取出
+  - 空手时使用滚轮选择物品，(shift)左击取出
   - 手持物品时，右击塞入
+  - 使用shift按行滚动
+  - 使用ctrl按页滚动
+  - 使用alt放大
 
 ## 智能补货
 

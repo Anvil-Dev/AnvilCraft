@@ -13,7 +13,8 @@ items:
 # 功能
 
 - 玩家可以使用珠宝加工台**仿制**特定物品
-- 放入需要仿制的物品和对应的材料，就能仿制出一个附带<color=#660000>消失诅咒</color>的仿制品
+- 放入需要仿制的物品和对应的材料，就能复制物品
+- 部分仿制品附带<color=#660000>消失诅咒</color>
 
 <tip>
 放入需要仿制的物品后，按下[空格]可以自动填充材料
@@ -22,9 +23,6 @@ items:
 <row halign="center">
 <recipe id="anvilcraft:jewel_crafting/elytra"/>
 <recipe id="anvilcraft:jewel_crafting/totem_of_undying"/>
-</row>
-
-<row halign="center">
 <recipe id="anvilcraft:jewel_crafting/generated/minecraft_flower_banner_pattern_from_minecraft_flower_banner_pattern_for_banner_patterns"/>
 <recipe id="anvilcraft:jewel_crafting/generated/minecraft_music_disc_creator_from_minecraft_music_disc_creator_for_music_discs"/>
 <recipe id="anvilcraft:jewel_crafting/generated/minecraft_blade_pottery_sherd_from_minecraft_blade_pottery_sherd_for_pottery_sherds"/>

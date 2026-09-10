@@ -23,6 +23,7 @@ items:
 # 功能
 
 - 可用于制作<ref item="anvilcraft:void_energy_collector"/>
+- 放在<ref item="anvilcraft:crate"/>边上，装满时销毁输入的物品
 
 # 特性
 

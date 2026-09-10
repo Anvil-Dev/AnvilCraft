@@ -51,7 +51,7 @@ In the GUI you can set the **condition**, **delay**, and **duration** of the emi
 
 ## GUI
 
-In the GUI you can set range, filters, and reverse output
+In the GUI you can set the range and filters, and enable reverse output
 
 - **Reverse output** is off by default. When enabled, the final redstone signal strength is **15 minus the normal signal strength**: normal signals of 0, 7, and 15 become 15, 8, and 0. This setting can also be copied with a configuration disk
 

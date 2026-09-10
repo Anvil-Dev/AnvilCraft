@@ -23,6 +23,7 @@ items:
 # Functions
 
 - Can be used to craft <ref item="anvilcraft:void_energy_collector"/>
+- Placed next to a <ref item="anvilcraft:crate"/>; destroys input items when the crate is full
 
 # Properties
 

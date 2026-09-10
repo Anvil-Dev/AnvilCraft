@@ -59,7 +59,7 @@ For more information, see [Celestial Types](../001_feature/401_celestial_type.md
 # Celestial Body & World Interaction
 
 - After forging, the forged celestial body will appear in the *binding ring*
-- Gravity will appear around it. Any creatures, items, projectiles, etc. entering the gravity field will be attracted to the celestial body and take damage
+- Gravity will appear around it. Any creatures, items, projectiles, etc. entering the gravity field will be attracted to the celestial body and take damage (players are unaffected while sneaking)
 - Applying a **redstone signal** to the <ref item="anvilcraft:celestial_forging_anvil"/> can amplify the celestial body, and its gravity field will also scale up
 
 # Extracting Celestial Resources
