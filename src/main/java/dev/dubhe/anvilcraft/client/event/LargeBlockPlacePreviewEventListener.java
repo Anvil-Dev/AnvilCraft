@@ -18,6 +18,7 @@ import dev.dubhe.anvilcraft.client.init.ModRenderTypes;
 import dev.dubhe.anvilcraft.client.selection.ModelBlockSelection;
 import dev.dubhe.anvilcraft.config.AnvilCraftClientConfig;
 import dev.dubhe.anvilcraft.init.block.ModBlocks;
+import dev.dubhe.anvilcraft.util.BlockPlacementPicking;
 import dev.dubhe.anvilcraft.util.SegmentedActuator;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.client.Camera;
@@ -37,11 +38,13 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -120,8 +123,6 @@ public class LargeBlockPlacePreviewEventListener {
             failBoundErrorCooldown--;
         }
         renderEntries.clear();
-        BlockHitResult target = event.getTarget();
-        final Direction direction = target.getDirection();
         Inventory inventory = player.getInventory();
         InteractionHand hand = InteractionHand.MAIN_HAND;
         ItemStack item = inventory.getItem(inventory.selected);
@@ -135,49 +136,69 @@ public class LargeBlockPlacePreviewEventListener {
         if (!(blockItem.getBlock() instanceof AbstractMultiPartBlock<?> block)) {
             return;
         }
-        BlockPlaceContext context = new BlockPlaceContext(player, hand, item, new BlockHitResult(
-            event.getTarget().getLocation(),
-            direction,
-            target.getBlockPos(),
-            target.isInside()
-        ));
-        BlockPos pos = context.getClickedPos();
+        // 实际放置会把点击上下文交给 BlockPlacementPicking.forPlacement 重做一次射线检测，
+        // 用的是常规形状（BlockGetter#clip / ClipContext.Block.OUTLINE → BlockState#getShape）；
+        // 而准星射线走的是 CubeSelection 的模型精确箱（CubePicking#pick），两者命中格可能不同。
+        // 预览必须走同一条路径，否则会与实际落点错位。
+        // 注意 click 是 UseOnContext：它的 getClickedPos() 即原始命中格，重试分支用的就是它；
+        // 而 BlockPlaceContext.getClickedPos() 在命中格不可替换时还会沿点击面外移一格。
+        BlockHitResult target = event.getTarget();
+        UseOnContext click = BlockPlacementPicking.forPlacement(new UseOnContext(player, hand, target));
+        BlockPlaceContext context = new BlockPlaceContext(click);
+        final BlockPos hitPos = click.getClickedPos();
+        final Direction face = click.getClickedFace();
         if (block instanceof CelestialForgingAnvilAmplifierBlock amplifierBlock) {
-            BlockPos snapped = amplifierBlock.snapMainPos(mc.level, pos);
+            BlockPos snapped = amplifierBlock.snapMainPos(mc.level, context.getClickedPos());
             if (snapped != null) {
-                pos = snapped;
                 context = new BlockPlaceContext(player, hand, item, new BlockHitResult(
-                    event.getTarget().getLocation(),
-                    direction,
-                    pos,
+                    target.getLocation(),
+                    face,
+                    snapped,
                     target.isInside()
                 ));
             }
         }
+        BlockPos pos = context.getClickedPos();
         validateCanRender(item, blockItem, pos);
         BlockState state = getPlacementState(block, blockItem, context);
-        List<BlockPos> errorPosList = getErrorPosList(mc.level, block, pos, state);
-        if (!errorPosList.isEmpty()) {
+        boolean placeable = isPlaceable(mc.level, player, block, pos, state);
+        if (!placeable) {
+            // 放不下时物品沿点击面退到偏移位置重试（SimpleMultiPartBlockItem#useOn），
+            // 基准格与点击面都取原始命中的 click，与实际一致
             if (blockItem instanceof SimpleMultiPartBlockItem<?> simpleMultiPartBlockItem) {
-                int distance = simpleMultiPartBlockItem.getMaxOffsetDistance(direction);
-                pos = target.getBlockPos().relative(direction, distance);
-            }
-            if (blockItem instanceof FlexibleMultiPartBlockItem<?, ?, ?> flexibleMultiPartBlockItem) {
-                int distance = flexibleMultiPartBlockItem.getMaxOffsetDistance(state, direction);
-                pos = target.getBlockPos().relative(direction, distance);
+                pos = hitPos.relative(face, simpleMultiPartBlockItem.getMaxOffsetDistance(face));
+            } else if (blockItem instanceof FlexibleMultiPartBlockItem<?, ?, ?> flexibleMultiPartBlockItem) {
+                pos = hitPos.relative(face, flexibleMultiPartBlockItem.getMaxOffsetDistance(state, face));
             }
             context = new BlockPlaceContext(player, hand, item, new BlockHitResult(
-                new Vec3(pos.getX() + 0.5, pos.getY() + 0.5, pos.getZ() + 0.5),
-                direction,
+                Vec3.atCenterOf(pos),
+                face,
                 pos,
                 false
             ));
             state = getPlacementState(block, blockItem, context);
-            errorPosList = getErrorPosList(mc.level, block, pos, state);
+            pos = context.getClickedPos();
+            placeable = isPlaceable(mc.level, player, block, pos, state);
         }
-        if (errorPosList.isEmpty()) {
+        if (placeable) {
             collectRenderEntries(block, pos, state);
         }
+    }
+
+    /**
+     * 复刻实际放置的合法性判断：各部件位置可替换，且状态可存活、目标格无实体阻挡
+     * （{@code BlockItem#getPlacementState} → {@code BlockItem#canPlace}）。任一不满足时
+     * 物品会判定放置失败并退回偏移位置，预览做同样判断才能与实际落点一致。
+     */
+    private static boolean isPlaceable(
+        Level level,
+        LocalPlayer player,
+        AbstractMultiPartBlock<?> block,
+        BlockPos pos,
+        BlockState state
+    ) {
+        if (!getErrorPosList(level, block, pos, state).isEmpty()) return false;
+        return state.canSurvive(level, pos) && level.isUnobstructed(state, pos, CollisionContext.of(player));
     }
 
     private static void expandRenderEntriesForGhost() {

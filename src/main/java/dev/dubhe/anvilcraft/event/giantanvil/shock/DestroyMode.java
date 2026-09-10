@@ -32,12 +32,18 @@ public abstract class DestroyMode {
         };
     }
 
+    /**
+     * 按挖掘效果创建破坏模式。<br>
+     * 已知的标准效果复用单例；其余（如余烬铁砧的 5 级熔炼）按实际效果构造，
+     * 不能因为等级不同就退化成 {@link #NORMAL}，否则熔炼等效果会整体失效。
+     */
     public static DestroyMode fromEffect(BlockMiningEffect effect) {
+        if (effect.equals(BlockMiningEffect.NORMAL)) return NORMAL;
         if (effect.equals(BlockMiningEffect.SILK_TOUCH)) return SILK_TOUCH;
         if (effect.equals(BlockMiningEffect.DISINTEGRATION)) return DISINTEGRATION;
         if (effect.equals(BlockMiningEffect.SMELTING)) return AUTO_SMELTING;
         if (effect.equals(BlockMiningEffect.FORTUNE_5)) return FORTUNE;
-        return NORMAL;
+        return createForEffect(effect);
     }
 
     /** 根据边框铁砧行为创建破坏模式，并保留其自定义掉落处理器。 */
