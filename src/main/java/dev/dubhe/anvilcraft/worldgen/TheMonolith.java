@@ -5,12 +5,17 @@ import dev.dubhe.anvilcraft.block.entity.celestial.CelestialTravelManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.Rotation;
+import net.minecraft.world.level.block.StandingSignBlock;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.entity.SignText;
 import net.minecraft.world.level.levelgen.FlatLevelSource;
 import net.minecraft.world.level.levelgen.structure.BoundingBox;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructurePlaceSettings;
@@ -54,12 +59,28 @@ public final class TheMonolith {
         Placement placement = placement(template, new BlockPos(x, surfaceY, z));
         StructurePlaceSettings settings = new StructurePlaceSettings().setRotation(placement.rotation());
         if (!template.placeInWorld(level, placement.corner(), placement.corner(), settings, random, 2 | 16)) return null;
-        if (!giant) {
+        if (giant) {
+            placeDevelopmentSign(level, placement.boundingBox());
+        } else {
             for (BlockPos pos : BlockPos.betweenClosed(x - 2, surfaceY, z - 2, x + 2, surfaceY, z + 2)) {
                 level.setBlock(pos, Blocks.OBSIDIAN.defaultBlockState(), 2 | 16);
             }
         }
         return placement.boundingBox();
+    }
+
+    private static void placeDevelopmentSign(ServerLevel level, BoundingBox monolith) {
+        int x = monolith.minX() - 2;
+        int z = monolith.getCenter().getZ();
+        BlockPos pos = new BlockPos(x, CelestialTravelManager.findSurfaceY(level, x, z) + 1, z);
+        level.setBlock(pos, Blocks.OAK_SIGN.defaultBlockState().setValue(StandingSignBlock.ROTATION, 4), 3);
+        if (!(level.getBlockEntity(pos) instanceof SignBlockEntity sign)) return;
+        SignText text = new SignText()
+            .setMessage(1, Component.literal("W.I.P."))
+            .setColor(DyeColor.WHITE)
+            .setHasGlowingText(true);
+        sign.setText(text, true);
+        sign.setText(text, false);
     }
 
     /** Centers the rotated template above the surface without burying its core. */

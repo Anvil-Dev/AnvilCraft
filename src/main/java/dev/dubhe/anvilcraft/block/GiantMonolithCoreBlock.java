@@ -1,12 +1,16 @@
 package dev.dubhe.anvilcraft.block;
 
+import dev.anvilcraft.lib.v2.registrum.providers.loot.RegistrumBlockLootTables;
 import dev.dubhe.anvilcraft.block.entity.MonolithCoreBlockEntity;
 import dev.dubhe.anvilcraft.block.entity.celestial.SpecialCelestialBodyRecipe;
 import dev.dubhe.anvilcraft.block.multipart.SimpleMultiPartBlock;
 import dev.dubhe.anvilcraft.block.state.Cube3x3PartHalf;
 import dev.dubhe.anvilcraft.block.state.GiantAnvilCube;
 import dev.dubhe.anvilcraft.init.block.ModBlockEntities;
+import dev.dubhe.anvilcraft.init.block.ModBlocks;
 import dev.dubhe.anvilcraft.init.recipe.ModRecipeTypes;
+import dev.dubhe.anvilcraft.util.DataGenUtil;
+import net.minecraft.advancements.critereon.StatePropertiesPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Vec3i;
@@ -33,6 +37,12 @@ import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.Property;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.SetItemCountFunction;
+import net.minecraft.world.level.storage.loot.predicates.LootItemBlockStatePropertyCondition;
+import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.phys.BlockHitResult;
 
 import java.util.List;
@@ -54,6 +64,40 @@ public class GiantMonolithCoreBlock extends SimpleMultiPartBlock<Cube3x3PartHalf
             .setValue(HALF, Cube3x3PartHalf.BOTTOM_CENTER)
             .setValue(CUBE, GiantAnvilCube.CORNER)
             .setValue(AXIS, Direction.Axis.Z));
+    }
+
+    public static void loot(RegistrumBlockLootTables tables, GiantMonolithCoreBlock block) {
+        tables.add(block, LootTable.lootTable()
+            .withPool(tables.applyExplosionCondition(block, LootPool.lootPool()
+                .setRolls(ConstantValue.exactly(1.0F))
+                .when(LootItemBlockStatePropertyCondition.hasBlockStateProperties(block)
+                    .setProperties(StatePropertiesPredicate.Builder.properties()
+                        .hasProperty(HALF, Cube3x3PartHalf.MID_CENTER)))
+                .add(LootItem.lootTableItem(block)
+                    .when(DataGenUtil.hasSilkTouch(tables.getRegistries()))
+                    .otherwise(LootItem.lootTableItem(ModBlocks.MONOLITH)
+                        .apply(SetItemCountFunction.setCount(ConstantValue.exactly(27.0F))))))));
+    }
+
+    @Override
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        if (!level.isClientSide && !player.isCreative() && !this.isMainPart(state)) {
+            BlockPos mainPos = this.getMainPartPos(pos, state);
+            BlockState mainState = level.getBlockState(mainPos);
+            if (mainState.is(this)) {
+                // 保留被挖掘的部件，等玩家破坏回调使用实际工具统一结算掉落。
+                level.setBlock(mainPos, mainState.getFluidState().createLegacyBlock(),
+                    Block.UPDATE_CLIENTS | Block.UPDATE_KNOWN_SHAPE | Block.UPDATE_SUPPRESS_DROPS);
+            }
+        }
+        return super.playerWillDestroy(level, pos, state, player);
+    }
+
+    @Override
+    public void playerDestroy(
+        Level level, Player player, BlockPos pos, BlockState state, @Nullable BlockEntity blockEntity, ItemStack tool
+    ) {
+        super.playerDestroy(level, player, pos, state.setValue(HALF, Cube3x3PartHalf.MID_CENTER), blockEntity, tool);
     }
 
     @Override
