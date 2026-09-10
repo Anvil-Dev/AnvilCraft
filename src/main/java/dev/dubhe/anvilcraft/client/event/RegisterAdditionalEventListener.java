@@ -24,6 +24,8 @@ public class RegisterAdditionalEventListener {
     @SubscribeEvent
     public static void registerModels(ModelEvent.RegisterAdditional event) {
         event.register(standaloneItem("crab_claw_holding_block"));
+        event.register(standaloneItem("crab_claw_holding_block_slab"));
+        event.register(standaloneItem("crab_claw_holding_block_panel"));
         event.register(standaloneItem("crab_claw_holding_item"));
         event.register(standaloneBlock("heliostats_head"));
         event.register(standaloneBlock("heliostats_head_sunflower"));

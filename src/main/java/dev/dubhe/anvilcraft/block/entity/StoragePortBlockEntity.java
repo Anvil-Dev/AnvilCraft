@@ -309,8 +309,14 @@ public class StoragePortBlockEntity extends BlockEntity implements IItemHandlerH
 
     /**
      * 把缓存与标记写入掉落的方块物品（拆除保留内容）。
+     *
+     * <p>缓存为空且无标记时不写入方块实体数据：否则空端口拆下来会多出一个
+     * 内容为 {@code {buffer: {Size: 32, Items: []}}} 的组件，无法与未放置过的物品堆叠。</p>
      */
     public void saveToDrop(ItemStack stack, HolderLookup.Provider registries) {
+        if (this.isBufferEmpty() && this.markedItem.isEmpty()) {
+            return;
+        }
         CompoundTag tag = this.saveCustomOnly(registries);
         BlockItem.setBlockEntityData(stack, this.getType(), tag);
         stack.applyComponents(this.collectComponents());
